@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/cXMLParser.h"
 #include "../include/connectionstruct.h"
+#include "../include/securestr.h"
 
 #ifdef WIN32
 #ifndef LOGON32_LOGON_NETWORK
@@ -46,6 +47,12 @@ SecurityToken::SecurityToken()
  */
 void SecurityToken::reset()
 {
+  user=0;
+  password=0;
+  directory=0;
+  filename=0;
+  password2=0;
+  permission2=0;
   auth_type=0;
   len_auth=0;
 }
@@ -167,15 +174,13 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
 }
 
 /*!
- *Get the permissions mask for the file[filename]. The file [directory]/security will
- *be parsed. If a [parser] is specified, it will be used instead of opening 
+ *Get the permissions mask for the file[filename]. The file [directory]/security 
+ *will be parsed. If a [parser] is specified, it will be used instead of opening 
  *the security file.
  *[permission2] is the permission mask that the [user] will have if providing a 
  *[password2].
  */
-int SecurityManager::getPermissionMask(char* user, char* password, char* directory,
-                                       char* filename, char *password2, int *permission2, 
-                                       SecurityToken *st, XmlParser* parser)
+int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 {
 
 	char *permissionsFile;
@@ -210,7 +215,12 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 	tempPassword[0]='\0';
 	if(st && st->auth_type)
 		st->auth_type[0]='\0';
-
+  if(st->user == 0)
+    return 0;
+  if(st->directory == 0)
+    return 0;
+  if(st->filename == 0)
+    return 0;
   /*! 
    *If there is not specified the parser to use, create a new parser
    *object and initialize it. 
@@ -218,16 +228,16 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
   if(parser == 0)
   {
     u_long filenamelen;
-    permissionsFileLen = strlen(directory)+10;
+    permissionsFileLen = strlen(st->directory)+10;
     permissionsFile = new char[permissionsFileLen];
     if(permissionsFile == 0)
       return 0;
-    sprintf(permissionsFile,"%s/security",directory);
+    sprintf(permissionsFile,"%s/security",st->directory);
 
-    filenamelen=(u_long)(strlen(filename));
-    while(filenamelen && filename[filenamelen]=='.')
+    filenamelen=(u_long)(strlen(st->filename));
+    while(filenamelen && st->filename[filenamelen]=='.')
     {
-      filename[filenamelen--]='\0';
+      st->filename[filenamelen--]='\0';
     }
     /*! If the specified file doesn't exist return 0. */
     if(!File::fileExists(permissionsFile))
@@ -320,22 +330,24 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 				}
 				if(!lstrcmpi((const char*)attr->name,"NAME"))
 				{
-					if(!lstrcmpi((const char*)attr->children->content,user))
+					if(!lstrcmpi((const char*)attr->children->content, st->user))
 						rightUser=1;
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 				{
-					strcpy(tempPassword,(char*)attr->children->content);
-					if(!xmlStrcmp(attr->children->content, (const xmlChar *)password))
+          myserver_strlcpy(tempPassword,(char*)attr->children->content, 32);
+          /*! If a password is provided check that it is valid. */
+					if(st->password && 
+             (!xmlStrcmp(attr->children->content, (const xmlChar *)st->password)) )
 						rightPassword=1;
 				}
         /*! 
          *USER is the weakest permission considered. Be sure that no others are
          *specified before save the password2.
          */
-				if(rightUser && password2 && (filePermissions==0) && (userPermissions==0))
+				if(rightUser && st->password2 && (filePermissions==0) && (userPermissions==0))
 				{
-					strncpy(password2, tempPassword, 16);
+					strncpy(st->password2, tempPassword, 32);
 				}
 
 				attr=attr->next;
@@ -387,22 +399,23 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 						}
 						if(!lstrcmpi((const char*)attr->name,"NAME"))
 						{
-							if(!lstrcmpi((const char*)attr->children->content,user))
+							if(!lstrcmpi((const char*)attr->children->content, st->user))
 								rightUser=1;
 						}
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 						{
-							strcpy(tempPassword,(char*)attr->children->content);
-							if(!lstrcmp((const char*)attr->children->content,password))
+							myserver_strlcpy(tempPassword, (char*)attr->children->content, 32);
+							if(st->password && 
+                 (!lstrcmp((const char*)attr->children->content, st->password)))
 								rightPassword=1;
 						}
             /*! 
              *USER inside ITEM is the strongest mask considered. 
              *Do not check for other masks to save it.
              */
-						if(rightUser && password2)
+						if(rightUser && st->password2)
 						{
-							strncpy(password2,tempPassword,16);
+							myserver_strlcpy(st->password2, tempPassword, 32);
 						}
 
 						attr=attr->next;
@@ -448,7 +461,7 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
 				{
           if(attr->children && attr->children->content &&
-             (!xmlStrcmp(attr->children->content, (const xmlChar *)filename)))
+             (!xmlStrcmp(attr->children->content, (const xmlChar *)st->filename)))
 					{					
 						filePermissionsFound=1;
 						filePermissions2Found=1;
@@ -473,22 +486,22 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
     local_parser.close();
   }
 
-  if(permission2)
+  if(st->permission2)
 	{
-		*permission2=0;
+		*st->permission2=0;
 		if(genericPermissions2Found)
 		{
-			*permission2=genericPermissions;
+			*st->permission2=genericPermissions;
 		}
 	
 		if(filePermissions2Found==1)
 		{
-			*permission2=filePermissions;
+			*st->permission2=filePermissions;
 		}
 				
 		if(userPermissions2Found==1)
 		{
-			*permission2=userPermissions;
+			*st->permission2=userPermissions;
 		}
 
 	}

@@ -34,9 +34,7 @@ public:
   void free();
   void setMaxNodes(int);
   int getMaxNodes();
-  int getPermissionMask(char* user, char* password,char* directory,
-                        char* filename,char *sysdirectory=0,char *password2=0,
-                        int *permission2=0, SecurityToken* st=0);
+  int getPermissionMask(SecurityToken* st);
   int getErrorFileName(char *root,int error, char* sysdirectory, char** out);
 };
 

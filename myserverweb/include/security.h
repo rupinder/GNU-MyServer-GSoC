@@ -57,6 +57,13 @@ const u_long MYSERVER_PERMISSION_BROWSE	  = (1<<4);
 
 struct SecurityToken
 {
+  char* user;
+  char* password;
+  char* directory;
+  char* sysdirectory;
+  char* filename;
+  char *password2;
+  int *permission2;
   char* auth_type;
   int len_auth;
   SecurityToken();
@@ -69,8 +76,6 @@ public:
   SecurityManager();
   ~SecurityManager();
   int getErrorFileName(char *sysDir,int error, char** out,XmlParser* parser=0);
-  int getPermissionMask(char* user, char* password,char* directory,
-                        char* filename, char *password2=0, int *permission2=0, 
-                        SecurityToken* st=0, XmlParser* parser=0);
+  int getPermissionMask(SecurityToken* st, XmlParser* parser=0);
 };
 #endif

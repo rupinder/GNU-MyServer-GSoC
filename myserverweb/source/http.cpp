@@ -312,20 +312,28 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	}
 	if(td->request.AUTH[0])
   {
+    st.user = s->getLogin();
+    st.password = s->getPassword();
+    st.directory = directory;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.filename = filename;
+    st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
+    st.permission2 = &permissions2;
     sec_cache_mutex.lock();
-		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
-                                            filename, ((Vhost*)(s->host))->systemRoot, 
-                                      ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                            &permissions2, &st);
+		permissions=sec_cache.getPermissionMask(&st);
     sec_cache_mutex.unlock();  
   }
-	else/*!The default user is Guest with a null password*/
+	else/*! The default user is Guest with a null password. */
   {
     sec_cache_mutex.lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                                  ((Vhost*)(s->host))->systemRoot, 
-                                  ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                            0, &st);
+    st.user = "Guest";
+    st.password = "";
+    st.directory = directory;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.filename = filename;
+    st.password2 = 0;
+    st.permission2 = 0;
+		permissions=sec_cache.getPermissionMask(&st);
     sec_cache_mutex.unlock();
   }
 
@@ -354,11 +362,16 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	/*! If there are no permissions, use the Guest permissions.  */
 	if(td->request.AUTH[0] && (permissions==0))
   {
+    st.user = "Guest";
+    st.password = "";
+    st.directory = directory;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.filename = filename;
+    st.password2 = 0;
+    st.permission2 = 0;
+
     sec_cache_mutex.lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                                            ((Vhost*)(s->host))->systemRoot, 
-                         ((HttpUserData*)s->protocolBuffer)->needed_password, 
-                                            0, &st);		
+		permissions=sec_cache.getPermissionMask(&st);		
     sec_cache_mutex.unlock();
   }
   delete [] directory;
@@ -566,20 +579,28 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 
 	if(td->request.AUTH[0])
   {
+    st.user = s->getLogin();
+    st.password = s->getPassword();
+    st.directory = directory;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.filename = filename;
+    st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
+    st.permission2 = &permissions2;
     sec_cache_mutex.lock();
-		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
-                                            filename,((Vhost*)(s->host))->systemRoot, 
-                               ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                            &permissions2, &st);
+		permissions=sec_cache.getPermissionMask(&st);
     sec_cache_mutex.unlock();
   }
-	else/*!The default user is Guest with a null password*/
+	else/*! The default user is Guest with a null password. */
   {
+    st.user = "Guest";
+    st.password = "";
+    st.directory = directory;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.filename = filename;
+    st.password2 = 0;
+    st.permission2 = 0;
     sec_cache_mutex.lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                               ((Vhost*)(s->host))->systemRoot, 
-                               ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                  0, &st);
+		permissions=sec_cache.getPermissionMask(&st);
     sec_cache_mutex.unlock();
 	}	
   /*! Check if we have to use digest for the current directory. */
@@ -605,14 +626,18 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	{
 		td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
 	}	
-	/*If there are no permissions, use the Guest permissions*/
+	/*! If there are no permissions, use the Guest permissions. */
 	if(td->request.AUTH[0] && (permissions==0))
   {
+    st.user = "Guest";
+    st.password = "";
+    st.directory = directory;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.filename = filename;
+    st.password2 = 0;
+    st.permission2 = 0;
     sec_cache_mutex.lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                                  ((Vhost*)(s->host))->systemRoot, 
-                                ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                 0, &st);	
+		permissions=sec_cache.getPermissionMask(&st);	
     sec_cache_mutex.unlock();
   }
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
@@ -856,21 +881,28 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		permissions2=0;
 		if(td->request.AUTH[0])
     {
+      st.user = s->getLogin();
+      st.password = s->getPassword();
+      st.directory = directory;
+      st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+      st.filename = filename;
+      st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
+      st.permission2 = &permissions2;
       sec_cache_mutex.lock();
-			permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), 
-                                              directory, filename,
-                                              ((Vhost*)(s->host))->systemRoot,
-                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                     &permissions2, &st);
+			permissions=sec_cache.getPermissionMask(&st);
       sec_cache_mutex.unlock();
     }
-		else/*!The default user is Guest with a null password*/
+		else/*! The default user is Guest with a null password. */
     {
+      st.user = "Guest";
+      st.password = "";
+      st.directory = directory;
+      st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+      st.filename = filename;
+      st.password2 = 0;
+      st.permission2 = 0;
       sec_cache_mutex.lock();
-			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
-                                  ((Vhost*)(s->host))->systemRoot,
-                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                  0, &st);
+			permissions=sec_cache.getPermissionMask(&st);
       sec_cache_mutex.unlock();
 		}	
     /*! Check if we have to use digest for the current directory. */
@@ -895,14 +927,18 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		{
 			td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
 		}	
-		/*!If there are no permissions, use the Guest permissions. */
+		/*! If there are no permissions, use the Guest permissions. */
 		if(td->request.AUTH[0] && (permissions==0))
     {
+      st.user = "Guest";
+      st.password = "";
+      st.directory = directory;
+      st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+      st.filename = filename;
+      st.password2 = 0;
+      st.permission2 = 0;
       sec_cache_mutex.lock();
-			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
-                                ((Vhost*)(s->host))->systemRoot,
-                                ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                              0, &st);
+			permissions=sec_cache.getPermissionMask(&st);
       sec_cache_mutex.unlock();
 		}
     delete [] directory;

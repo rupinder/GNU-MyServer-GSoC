@@ -177,23 +177,27 @@ int SecurityCache::getMaxNodes()
 /*!
  *Get the permission mask for the specified file and user.
  */
-int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
-                                      char* filename,char *sysdirectory,
-                                     char *password2, int *permission2, 
-                                     SecurityToken* st)
+int SecurityCache::getPermissionMask(SecurityToken* st)
 {
-  int permissionsFileLen = strlen(directory)+10;
-  char* permissionsFile = new char[permissionsFileLen];
+  int permissionsFileLen;
+  char* permissionsFile;
   XmlParser *parser;
   u_long filenamelen;
+
+  if(st->directory == 0)
+    return 0;
+  if(st->filename == 0)
+    return 0;
+  permissionsFileLen = strlen(st->directory)+10;
+  permissionsFile = new char[permissionsFileLen];
   if(permissionsFile == 0)
     return 0;
-  sprintf(permissionsFile,"%s/security",directory);
+  sprintf(permissionsFile,"%s/security", st->directory);
 
-  filenamelen=(u_long)(strlen(filename));
-  while(filenamelen && filename[filenamelen]=='.')
+  filenamelen=(u_long)(strlen(st->filename));
+  while(filenamelen && st->filename[filenamelen]=='.')
   {
-    filename[filenamelen--]='\0';
+    st->filename[filenamelen--]='\0';
   }
   parser =(XmlParser*)dictionary.getData(permissionsFile);
   /*!
@@ -216,8 +220,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
 
     }
     delete [] permissionsFile;
-    return sm.getPermissionMask(user, password, directory, filename, 
-                             password2, permission2, st, parser);
+    return sm.getPermissionMask(st, parser);
   }
   else
   {
@@ -235,12 +238,13 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
       /*!
        *If the security file doesn't exist try with a default one.
        */
-      if(sysdirectory!=0)
+      if(st->sysdirectory!=0)
       {
         delete parser;
         delete [] permissionsFile;
-        return getPermissionMask(user, password, sysdirectory, filename, 0, password2,
-                                 permission2, st);
+        st->directory = st->sysdirectory;
+        st->sysdirectory = 0;
+        return getPermissionMask(st);
       }
       else
       {
@@ -268,8 +272,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
       return 0;
     }
     delete [] permissionsFile;
-    return sm.getPermissionMask(user, password, directory, filename, 
-                             password2, permission2, st, parser);  
+    return sm.getPermissionMask(st, parser);  
   }
 
   return 0;

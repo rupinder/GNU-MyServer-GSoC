@@ -47,7 +47,7 @@ public:
 	/*! Cnonce string used by Digest authorization scheme.  */
 	char cnonce[48];
 	/*! Password string used by Digest authorization scheme.  */
-	char needed_password[16];
+	char needed_password[32];
 	/*! Nonce count used by Digest authorization scheme.  */
 	u_long nc;
 	/*! Nonzero if the user was authenticated trough the Digest scheme.  */
