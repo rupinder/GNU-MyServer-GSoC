@@ -65,7 +65,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	lstrcpy(td->scriptPath, scriptpath);
 
   MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
-  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+  if(cgipath)
+	MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
 
   if(td->scriptDir)
     delete [] td->scriptDir;
@@ -98,7 +99,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
   {
     return ((http*)td->lhttp)->sendHTTPhardError500(td, connection); 
   }
-
+	td->cgiRoot[0] = td->cgiFile[0] = '\0';
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
 
@@ -109,7 +110,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	char *fullpath;
 	if(execute)
 	{
-		if(cgipath[0])
+		if(cgipath)
     {
       int fullpathLen = strlen(cgipath) + strlen(td->filenamePath) + 4;
       fullpath = new char[fullpathLen];
@@ -293,7 +294,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 					nbr=con.sock.recv((char*)td->buffer->GetBuffer(),
                             min(dim,td->buffer->GetRealLength()),0);
 					u_long nbw;
-					td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&nbw);
+					con.tempOut.writeToFile((char*)td->buffer->GetBuffer(),nbr,&nbw);
 					data_sent=nbw;
 					if(data_sent==0)
 					{
@@ -367,7 +368,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 				exit = 1;
 				break;
 			}
-			if(td->connection->socket.send((char*)(((char*)td->buffer2->GetBuffer())
+			if(td->connection->socket.send((char*)(((char*)td->buffer->GetBuffer())
                                              +headerSize), nbr - headerSize, 0)==0)
 			{
 				exit = 1;

@@ -1531,8 +1531,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		{
 			return sendAuth(td, s);
 		}
-		char *cgipath;
-		if(data[0])
+		char *cgipath=0;
+		if(data)
     {
       cgipath = new char[strlen(data)+strlen(td->filenamePath)+4];
       if(cgipath==0)
@@ -1543,7 +1543,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
     }
 		else
     {
-      cgipath = new char[strlen(td->filenamePath)];
+      cgipath = new char[strlen(td->filenamePath)+1];
       if(cgipath==0)
       {
         return sendHTTPhardError500(td, s);
@@ -1552,7 +1552,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
     }
 	
 		int ret=lwincgi.sendWINCGI(td, s, cgipath);
-    delete [] cgipath;
+		if(cgipath)
+	      delete [] cgipath;
 		return (ret&keepalive);
 
 	}

@@ -108,6 +108,7 @@ int myserver_mutex::myserver_mutex_destroy()
   if(initialized)
     CloseHandle(mutex);
 #endif
+	initialized=0;
 	return 1;
 }
 

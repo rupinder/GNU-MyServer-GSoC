@@ -49,7 +49,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 		endPrintError();
 		return 0;
 	}
-	char *buffer;	
+	char *buffer=0;	
 	char URI[MAX_PATH];/*! Under windows use MAX_PATH. */
 	switch (dwHSERRequest) 
 	{
@@ -71,7 +71,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			else
 				lstrcpyn(URI,ConnInfo->td->request.URI,
                  (int)(strlen(ConnInfo->td->request.URI)-
-                       strlen(ConnInfo->td->pathInfo)+1));
+				 (ConnInfo->td->pathInfo?strlen(ConnInfo->td->pathInfo):0) +1));
 
 			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                             (char**)&buffer,URI,0);
@@ -758,8 +758,8 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	ExtCtrlBlk.lpszLogData[0] = '0';
 	ExtCtrlBlk.lpszMethod = td->request.CMD;
 	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS;
-	ExtCtrlBlk.lpszPathInfo = td->pathInfo;
-	if(td->pathInfo[0])
+	ExtCtrlBlk.lpszPathInfo = td->pathInfo ? td->pathInfo : "" ;
+	if(td->pathInfo)
 		ExtCtrlBlk.lpszPathTranslated = td->pathTranslated;
 	else
 		ExtCtrlBlk.lpszPathTranslated = td->filenamePath;
@@ -786,7 +786,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	{
 		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, ISAPI_TIMEOUT);
 	}
-	connTable[connIndex].connection->socket.send("0\r\n\r\n",5, 0);
+	connTable[connIndex].connection->socket.send("\r\n\r\n",4, 0);
 
 	int retvalue=0;
 
