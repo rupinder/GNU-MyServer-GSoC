@@ -46,9 +46,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class vhost
 {
-	MYSERVER_FILE warningsLogFile;
-	MYSERVER_FILE accessesLogFile;
-	/*! Max size in bytes for the log files used by this host.  */
+	MYSERVER_FILE* warningsLogFile;
+	MYSERVER_FILE* accessesLogFile;
+	/*! Max size in bytes for the log files used by this host. */
 	u_long maxLogSize;
 public:
 	struct sHostList
@@ -57,7 +57,7 @@ public:
     myserver_regex hostRegex;
 		sHostList *next;
 	};
-	/*! List of hosts allowed by the vhost.  */
+	/*! List of hosts allowed by the vhost. */
 	sHostList *hostList;
 	
 	struct vhsslcontext
@@ -74,7 +74,7 @@ public:
 		char password[32];
 	};
 	
-	/*! SSL context.  */
+	/*! SSL context. */
 	vhsslcontext sslContext;
 
 	struct sIpList
@@ -84,25 +84,25 @@ public:
     sIpList *next; 
 	};
 	
-	/*! List of IPs allowed by the vhost.  */
+	/*! List of IPs allowed by the vhost. */
 	sIpList *ipList;
 
 	/*! TCP port used to listen on. */
 	u_short port;
 
-	/*! Protocol used by the virtual host. Used for built-in protocols.  */
+	/*! Protocol used by the virtual host. Used for built-in protocols. */
 	CONNECTION_PROTOCOL protocol;
 	
-	/*! Protocol used by the vhost.  */
+	/*! Protocol used by the vhost. */
 	char protocol_name[16];
 	
-	/*! Initialize SSL things.  */
+	/*! Initialize SSL things. */
 	int initializeSSL();
 	
-	/*! Clear SSL things.  */
+	/*! Clear SSL things. */
 	int freeSSL();
 	
-	/*! Generate the RSA key for the SSL context.  */
+	/*! Generate the RSA key for the SSL context. */
 	void generateRsaKey();
 #ifndef DO_NOT_USE_SSL
 	SSL_CTX* getSSLContext();
@@ -112,19 +112,19 @@ public:
 	char accessLogOpt[LOG_FILES_OPTS_LEN];
 	char warningLogOpt[LOG_FILES_OPTS_LEN];
 	
-	/*! Path to the document root.  */
-	char documentRoot[MAX_PATH];
+	/*! Path to the document root. */
+	char *documentRoot;
 	
-	/*! Path to the system root.  */
-	char systemRoot[MAX_PATH];
+	/*! Path to the system root. */
+	char *systemRoot;
 	
-	/*! Path to the accesses log file.  */
-	char accessesLogFileName[MAX_PATH];
+	/*! Path to the accesses log file. */
+	char *accessesLogFileName;
 	
-	/*! Path to the warnings log file.  */
-	char warningsLogFileName[MAX_PATH];
+	/*! Path to the warnings log file. */
+	char *warningsLogFileName;
 	
-	/*! Description or name of the virtual host.  */
+	/*! Description or name of the virtual host. */
 	char name[64];
 	
 	vhost();
@@ -150,9 +150,9 @@ public:
 
 	~vhost();
 	/*!
-	*Functions to manage the logs file.
-	*Derived directly from the filemanager utilities.
-	*/
+   *Functions to manage the logs file.
+   *Derived directly from the filemanager utilities.
+   */
 	u_long accessesLogWrite(char*);
 	MYSERVER_FILE* getAccessesLogFile();
 
@@ -191,13 +191,13 @@ public:
 	void addvHost(vhost*);
 	
 	/*! Load the virtual hosts list from a configuration file.  */
-	void loadConfigurationFile(char *,int maxlogSize=0);
+	int loadConfigurationFile(char *,int maxlogSize=0);
 	
 	/*! Save the virtual hosts list to a configuration file.  */
 	void saveConfigurationFile(char *);
 	
 	/*! Load the virtual hosts list from a xml configuration file.  */
-	void loadXMLConfigurationFile(char *,int maxlogSize=0);
+	int loadXMLConfigurationFile(char *,int maxlogSize=0);
 	
 	/*! Save the virtual hosts list to a xml configuration file.  */
 	void saveXMLConfigurationFile(char *);

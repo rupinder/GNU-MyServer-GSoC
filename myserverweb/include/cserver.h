@@ -147,7 +147,7 @@ public:
 	void decreaseListeningThreadCount();
 	char *getAddresses();
 	void *envString;
-	vhostmanager vhostList;
+	vhostmanager *vhostList;
 	MIME_Manager mimeManager;
 	char  *getPath();
 	u_long getNumThreads();

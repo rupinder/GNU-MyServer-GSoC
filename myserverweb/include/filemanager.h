@@ -42,7 +42,7 @@ class MYSERVER_FILE
 {
 private:
 	MYSERVER_FILE_HANDLE handle;
-	char filename[MAX_PATH];
+	char *filename;
 public:
 	MYSERVER_FILE();
 	MYSERVER_FILE_HANDLE getHandle();
@@ -50,7 +50,7 @@ public:
 	int readFromFile(char* ,u_long ,u_long* );
 	int writeToFile(char* ,u_long ,u_long* );
 	int createTemporaryFile(char* );
-	int openFile(char* ,u_long );
+	int openFile(char*, u_long );
 	u_long getFileSize();
 	int setFilePointer(u_long);
 	static int getPathRecursionLevel(char*);
@@ -62,7 +62,7 @@ public:
 	time_t getLastAccTime();
 	static void completePath(char*);
 	char *getFilename();
-	void setFilename(char*);
+	int setFilename(char*);
 	int operator =(MYSERVER_FILE);
 	static int isFolder(char*);
 	int closeFile();

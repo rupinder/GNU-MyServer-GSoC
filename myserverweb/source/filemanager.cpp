@@ -40,10 +40,15 @@ extern "C" {
 
 /*!
  *Return the recursion of the path.
+ *Return -1 on errors.
  */
 int MYSERVER_FILE::getPathRecursionLevel(char* path)
 {
-	static char lpath[MAX_PATH];
+	char *lpath;
+  int lpath_len = strlen(path) + 1;
+  lpath = new char[lpath_len];
+  if(lpath == 0)
+    return -1;
 	strcpy(lpath,path);
 	int rec=0;
 	char *token = strtok( lpath, "\\/" );
@@ -62,6 +67,7 @@ int MYSERVER_FILE::getPathRecursionLevel(char* path)
 		token = strtok( NULL, "\\/" );
 	}
 	while( token != NULL );
+  delete [] lpath;
 	return rec;
 }
 /*!
@@ -69,7 +75,7 @@ int MYSERVER_FILE::getPathRecursionLevel(char* path)
  */
 MYSERVER_FILE::MYSERVER_FILE()
 {
-	filename[0]='\0';
+	filename=0;
 	handle=0;
 }
 /*!
@@ -101,10 +107,16 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
  *opt is a bit-field containing the options on how open it
  *openFile returns the handle on success and NULL on fails.
 */
-int MYSERVER_FILE::openFile(char* filename,u_long opt)
+int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 {
 	int ret=0;
-	strcpy(MYSERVER_FILE::filename,filename);
+  if(filename)
+    delete [] filename;
+  int filename_len = strlen(nfilename);
+  filename = new char[filename_len];
+  if(filename == 0)
+    return -1;
+	strcpy(filename,nfilename);
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};
 	sa.nLength = sizeof(sa);
@@ -141,19 +153,22 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
 	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, creationFlag, attributeFlag, NULL);
 	/*! Return 0 if an error happens.  */
-        if(handle==INVALID_HANDLE_VALUE)
+  if(handle==INVALID_HANDLE_VALUE)
+  {
+    delete [] filename;
 		return 0;
-	else/*!If no error exist in open the file*/
+  }
+	else/*! Open the file. */
 	{
 		if(opt & MYSERVER_FILE_OPEN_APPEND)
 			ret=setFilePointer(getFileSize());
 		else
 			ret=setFilePointer(0);
   		if(ret)
-		{
-			closeFile();
-			return 0;
-		}
+      {
+        closeFile();
+        return 0;
+      }
 	}
 
 #endif
@@ -193,11 +208,15 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		ret = stat(filename, &F_Stats);
 		if(ret  < 0)
 		{
+      delete [] filename;
 			return 0;
 		}
 		ret = open(Buffer,F_Flags);
 		if(ret == -1)
+    {
+      delete [] filename;
 			return 0;
+    }
 		handle= (MYSERVER_FILE_HANDLE)ret;
 	}
 	else if(opt & MYSERVER_FILE_OPEN_APPEND)
@@ -208,7 +227,10 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		else
 			ret = open(Buffer,O_APPEND | F_Flags);
 		if(ret == -1)
+    {
+      delete [] filename;
 			return 1;
+    }
 		else
 			handle=(MYSERVER_FILE_HANDLE)ret;
 	}
@@ -220,7 +242,10 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 
 		ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		if(ret == -1)
+    {
+      delete [] filename;
 			return 0;
+    }
 		else
 			handle=(MYSERVER_FILE_HANDLE)ret;
 	}
@@ -232,7 +257,10 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		else
 			ret = open(Buffer,F_Flags);
 		if(ret == -1)
+    {
+      delete [] filename;
 			return 0;
+    }
 		else
 			 handle=(MYSERVER_FILE_HANDLE)ret;
 	}
@@ -241,7 +269,10 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		unlink(Buffer); // Remove File on close
 	
 	if((int)handle < 0)
+  {
 		handle = (MYSERVER_FILE_HANDLE)0;
+    delete [] filename;
+  }
 #endif
 	
 	return (int)handle;
@@ -267,16 +298,39 @@ int MYSERVER_FILE::setHandle(MYSERVER_FILE_HANDLE hl)
  */
 int MYSERVER_FILE::operator =(MYSERVER_FILE f)
 {
-	setHandle(f.getHandle());
-	strcpy(filename,f.filename);
+  if(filename)
+    delete [] filename;
+
+  if(f.filename)
+  {
+    int filename_len = strlen(f.filename);
+    filename = new char[filename_len];
+    if(filename == 0)
+      return -1;
+    setHandle(f.getHandle());
+    strcpy(filename,f.filename);
+  }
+  else
+  {
+    filename = 0;
+    handle = 0;
+  }
 	return 0;
 }
 /*!
  *Set the name of the file
+ *Return Non-zero on errors.
  */
-void MYSERVER_FILE::setFilename(char* nfilename)
+int MYSERVER_FILE::setFilename(char* nfilename)
 {
-	strncpy(filename,nfilename,MAX_PATH);
+  if(filename)
+    delete [] filename;
+  int filename_len = strlen(nfilename);
+  filename = new char[filename_len];
+  if(filename == 0)
+    return -1;
+	strcpy(filename,nfilename);
+  return 0;
 }
 /*!
  *Returns the file path.
@@ -325,6 +379,8 @@ int MYSERVER_FILE::closeFile()
 		ret=close((int)handle);
 #endif
 	}
+  if(filename)
+    delete [] filename;
 	handle=0;
 	return ret;
 }
@@ -630,17 +686,30 @@ void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
 		ext[0] = 0;
 }
 /*!
-*Get the file path in the short form
+*Get the file path in the short form.
 */
 int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 {
 #ifdef WIN32
-	GetShortPathName(filename,out,buffersize);
+  if(filename)
+    return GetShortPathName(filename,out,buffersize);
+  else
+    return 0;
 #endif
 #ifdef NOT_WIN
-	strncpy(out,filename,buffersize);
+  int ret = 0;
+  int filename_len = strlen(filename) ;
+  if(filename_len < buffersize)
+  {
+    ret = 0;
+    strncpy(out,filename,buffersize);
+  }
+  else
+  {
+    ret = filename_len;
+  }
+  return ret;
 #endif
-	return 0;
 }
 /*!
 *Get the file path in the short form of the specified file
@@ -659,6 +728,7 @@ int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
 	return 0;	
 #endif
 }
+
 /*!
 *Complete the path of the file.
 */

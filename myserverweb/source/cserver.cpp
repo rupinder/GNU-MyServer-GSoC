@@ -361,10 +361,10 @@ void cserver::createListenThreads()
 	*Create the listens threads.
 	*Every port uses a thread.
 	*/
-	for(vhostmanager::sVhostList *list=vhostList.getvHostList();list;list=list->next )
+	for(vhostmanager::sVhostList *list=vhostList->getvHostList();list;list=list->next )
 	{
 		int needThread=1;
-		vhostmanager::sVhostList *list2=vhostList.getvHostList();
+		vhostmanager::sVhostList *list2=vhostList->getvHostList();
 		for(;;)
 		{
 			list2=list2->next;
@@ -535,7 +535,10 @@ void cserver::terminate()
 	}
   delete [] path;
   delete [] languages_path;
-	vhostList.clean();
+	delete []  vhostList;
+  path = 0;
+  languages_path = 0;
+  vhostList = 0;
 	languageParser.close();
 	mimeManager.clean();
 #ifdef WIN32
@@ -924,7 +927,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 	new_connection->localPort=(u_short)localPort;
 	strncpy(new_connection->ipAddr, ipAddr, MAX_IP_STRING_LEN);
 	strncpy(new_connection->localIpAddr, localIpAddr, MAX_IP_STRING_LEN);
-	new_connection->host = (void*)lserver->vhostList.getvHost(0, localIpAddr, (u_short)localPort);
+	new_connection->host = (void*)lserver->vhostList->getvHost(0, localIpAddr, (u_short)localPort);
 	new_connection->login[0]='\0';
 	new_connection->nTries=0;
 	new_connection->password[0]='\0';
@@ -1318,8 +1321,13 @@ void cserver::loadSettings()
 	{
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	}
+  vhostList = new vhostmanager();
+  if(vhostList == 0)
+  {
+    return;
+  }
 	/*! Load the virtual hosts configuration from the xml file. */
-	vhostList.loadXMLConfigurationFile(vhost_configuration_file, this->getMaxLogFileSize());
+	vhostList->loadXMLConfigurationFile(vhost_configuration_file, this->getMaxLogFileSize());
 
 	http::loadProtocol(&languageParser, "myserver.xml");
 	https::loadProtocol(&languageParser, "myserver.xml");
@@ -1379,8 +1387,8 @@ void cserver::loadSettings()
     return;
 	getdefaultwd(path, pathlen);
 	/*!
-	*Then we create here all the listens threads. Check that all the port used for listening
-	*have a listen thread.
+	*Then we create here all the listens threads. 
+  *Check that all the port used for listening have a listen thread.
 	*/
 	printf("%s\n", languageParser.getValue("MSG_LISTENT"));
 	
@@ -1388,6 +1396,7 @@ void cserver::loadSettings()
 
 	printf("%s\n", languageParser.getValue("MSG_READY"));
 	printf("%s\n", languageParser.getValue("MSG_BREAK"));
+
 }
 
 /*!

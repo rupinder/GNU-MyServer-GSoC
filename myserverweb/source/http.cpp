@@ -1767,7 +1767,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 			/*!
 			*Find the virtual host to check both host name and IP value.
 			*/
-			a->host=lserver->vhostList.getvHost(td.request.HOST, a->localIpAddr, a->localPort);
+			a->host=lserver->vhostList->getvHost(td.request.HOST, a->localIpAddr, a->localPort);
 			if(a->host==0)
 			{
 				raiseHTTPError(&td, a, e_400);

@@ -36,8 +36,8 @@ static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
 }
 
 /*!
-*vhost costructor
-*/
+ *vhost costructor
+ */
 vhost::vhost()
 {
 	sslContext.certificateFile[0]='\0';
@@ -46,29 +46,49 @@ vhost::vhost()
 	sslContext.password[0] = '\0';
 	ipList=0;
 	hostList=0;
+  documentRoot=0;
+	systemRoot=0;
+  accessesLogFileName=0;
+  warningsLogFileName=0;
+  warningsLogFile = new MYSERVER_FILE();
+  accessesLogFile = new MYSERVER_FILE();
 	accessesLogFileAccess.myserver_mutex_init();
 	warningsLogFileAccess.myserver_mutex_init();
 }
 /*!
-*vhost class destructor
-*/
+ *Destroy the vhost. 
+ */
 vhost::~vhost()
 {
 	clearHostList();
 	clearIPList();
 	freeSSL();
-	if(accessesLogFile.getHandle())
-		accessesLogFile.closeFile();
-	if(warningsLogFile.getHandle())
-		warningsLogFile.closeFile();
- 	memset(this,0,sizeof(vhost));
+	if(accessesLogFile->getHandle())
+		accessesLogFile->closeFile();
+	if(warningsLogFile->getHandle())
+		warningsLogFile->closeFile();
+ 	memset(this, 0, sizeof(vhost));
+
+  delete [] documentRoot;
+	delete [] systemRoot;
+  delete [] accessesLogFileName;
+  delete [] warningsLogFileName;
+  delete warningsLogFile;
+  delete accessesLogFile;
+  
+  documentRoot=0;
+	systemRoot=0;
+  accessesLogFileName=0;
+  warningsLogFileName=0;
+  
 	accessesLogFileAccess.myserver_mutex_destroy();
 	warningsLogFileAccess.myserver_mutex_destroy();
 	
 }
+
 /*!
-*Clear the list of the hosts
-*/
+ *Clear the list of the hosts
+ */
 void vhost::clearHostList()
 {
 	sHostList* shl=hostList;
@@ -87,8 +107,8 @@ void vhost::clearHostList()
 }
 
 /*!
-*Clear the list of IPs
-*/
+ *Clear the list of IPs
+ */
 void vhost::clearIPList()
 {
 	sIpList* sil = ipList;
@@ -109,8 +129,8 @@ void vhost::clearIPList()
 }
 
 /*!
-*Add an IP address to the list
-*/
+ *Add an IP address to the list
+ */
 void vhost::addIP(char *ip, int isRegex)
 {
 	sIpList* il=new sIpList();
@@ -131,8 +151,8 @@ void vhost::addIP(char *ip, int isRegex)
 	ipList=il;
 }
 /*!
-*Remove the IP address to the list
-*/
+ *Remove the IP address to the list.
+ */
 void vhost::removeIP(char *ip)
 {
 	vhost::sIpList *iterator = ipList;
@@ -142,8 +162,8 @@ void vhost::removeIP(char *ip)
 	while(iterator)
 	{
 		/*!
-		*If this is the virtual host with the right IP
-		*/
+     *If this is the virtual host with the right IP.
+     */
 		if(!strcmp(iterator->hostIp,ip))
 		{
 			if(iteratorBack)
@@ -166,9 +186,10 @@ void vhost::removeIP(char *ip)
 	}
 
 }
+
 /*!
-*Remove the host address to the list
-*/
+ *Remove the host address to the list.
+ */
 void vhost::removeHost(char *host)
 {
 	vhost::sHostList *iterator = hostList;
@@ -324,9 +345,9 @@ u_long vhost::warningslogTerminateAccess(int id)
 u_long vhost::accessesLogWrite(char* str)
 {
 	u_long nbw;
-	if(accessesLogFile.getFileSize()>getMaxLogSize())
+	if(accessesLogFile->getFileSize() > getMaxLogSize())
 		return 0;
-	accessesLogFile.writeToFile(str,(u_long)strlen(str),&nbw);
+	accessesLogFile->writeToFile(str, (u_long)strlen(str), &nbw);
 	return nbw;
 }
 /*!
@@ -334,7 +355,7 @@ u_long vhost::accessesLogWrite(char* str)
 */
 MYSERVER_FILE* vhost::getAccessesLogFile()
 {
-	return &accessesLogFile;
+	return accessesLogFile;
 }
 /*!
 *Write to the warnings log file
@@ -342,9 +363,9 @@ MYSERVER_FILE* vhost::getAccessesLogFile()
 u_long vhost::warningsLogWrite(char* str)
 {
 	u_long nbw;
-	if(warningsLogFile.getFileSize()>getMaxLogSize())
+	if(warningsLogFile->getFileSize()>getMaxLogSize())
 		return 0;
-	warningsLogFile.writeToFile(str,(u_long)strlen(str),&nbw);
+	warningsLogFile->writeToFile(str,(u_long)strlen(str),&nbw);
 	return nbw;
 }
 /*!
@@ -352,7 +373,7 @@ u_long vhost::warningsLogWrite(char* str)
 */
 MYSERVER_FILE* vhost::getWarningsLogFile()
 {
-	return &warningsLogFile;
+	return warningsLogFile;
 }
 /*!
 *Set the max size of the log files.
@@ -383,18 +404,19 @@ void vhostmanager::addvHost(vhost* vHost)
 	else
 	{
 		sVhostList* hostl=vhostList;
-		for(;;)/*!Append the new host to the end of the linked list*/
+    /*!Append the new host to the end of the linked list. */
+		for(;;)
 		{
 			if(hostl->next )
 				hostl=hostl->next;
 			else
 				break;
 		}
-		hostl->next =new sVhostList();	
-                if(hostl->next==0)
-                    return;
-		hostl->next ->next =0;/*!Make sure that next is null*/
-		hostl->next ->host=vHost;
+		hostl->next = new sVhostList();	
+    if(hostl->next==0)
+      return;
+		hostl->next->next =0; /*!Make sure that next is null*/
+		hostl->next->host=vHost;
 	}
 	
 }
@@ -422,6 +444,7 @@ vhost* vhostmanager::getvHost(char* host,char* ip,u_short port)
 vhostmanager::vhostmanager()
 {
 	vhostList=0;
+  
 }
 /*!
 *Clean the virtual hosts.
@@ -432,7 +455,7 @@ void vhostmanager::clean()
 	sVhostList* prevshl=0;
 	while(shl)
 	{
-		if(prevshl)
+ 		if(prevshl)
 		{
 			delete prevshl;
 		}
@@ -453,7 +476,7 @@ vhostmanager::~vhostmanager()
 /*!
 *Load the virtual hosts from a configuration file
 */
-void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
+int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 {
 	/*!
 	FILE STRUCTURE:
@@ -473,16 +496,15 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 	space.
 	In 5) and 6) for use absolute path use the character | before the full path.
 	*/
-	char path[MAX_PATH];
-	getdefaultwd(path,MAX_PATH);
 	char buffer[KB(10)];/*!Exists a line greater than 10 KB?!?*/
 	char buffer2[256];
 	u_long nbr;/*!Number of bytes read from the file*/
 	MYSERVER_FILE fh;
 	int ret=fh.openFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if((ret==0)||(ret==-1))/*!If the file cannot be opened simply do nothing*/
-		return;
+		return -1;
 	char c;
+
 	for(;;)
 	{
 		buffer[0]='\0';
@@ -514,10 +536,18 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		if(buffer[0]=='\0')/*!If the buffer is only a point, we reached the file end*/
 			break;		
 		vhost *vh=new vhost();
-                if(vh==0)
-                    return;
+    if(vh==0)
+    {
+      fh.closeFile();
+      clean();
+      return -1;
+    }
 		/*!Parse the line. */
 		int cc=0;
+    vh->documentRoot = new char[MAX_PATH];
+    vh->systemRoot  = new char[MAX_PATH];
+    vh->accessesLogFileName  = new char[MAX_PATH];
+    vh->warningsLogFileName = new char[MAX_PATH];
 
     /*!Get the hosts list. */
 		for(;;)
@@ -632,10 +662,12 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		addvHost(vh);
 	}
 	fh.closeFile();
+  return 0;
 }
+
 /*!
-*Save the virtual hosts to a configuration file
-*/
+ *Save the virtual hosts to a configuration file.
+ */
 void vhostmanager::saveConfigurationFile(char *filename)
 {
 	char buffer[1024];
@@ -784,16 +816,15 @@ int vhostmanager::getHostsNumber()
 }
 
 /*!
-*Load the virtual hosts from a XML configuration file
+ *Load the virtual hosts from a XML configuration file
+ *Returns non-null on errors.
 */
-void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
+int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 {
-	char path[MAX_PATH];
-	getdefaultwd(path,MAX_PATH);
 	cXMLParser parser;
 	if(parser.open(filename))
 	{
-		return;
+		return -1;
 	}
 	xmlDocPtr doc = parser.getDoc();
 	xmlNodePtr node=doc->children->children;
@@ -803,11 +834,14 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			continue;
 		xmlNodePtr lcur=node->children;
 		vhost *vh=new vhost();
-     if(vh==0)
-			return;        
-		memset(vh,0,sizeof(vh));
+    if(vh==0)
+    {
+      parser.close();
+      clean();
+			return -1;
+    }
 		while(lcur)
-		{
+    {
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
 			{
         int useRegex = 0;
@@ -884,16 +918,44 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
 			{
+        int documentRootlen = strlen((char*)lcur->children->content)+1;
+        vh->documentRoot = new char[documentRootlen];
+        if(vh->documentRoot == 0)
+        {
+          parser.close();
+          delete vh;
+          clean();
+          return -1;
+        }
 				strcpy(vh->documentRoot,(char*)lcur->children->content);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
+      if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
 			{
+        int systemRootlen = strlen((char*)lcur->children->content)+1;
+        vh->systemRoot = new char[systemRootlen];
+        if(vh->systemRoot == 0)
+        {
+          parser.close();
+          delete vh;
+          clean();
+          return -1;
+        }
 				strcpy(vh->systemRoot,(char*)lcur->children->content);
-                    }
+      }
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 			{
+        int accessesLogFileNameLen = strlen((char*)lcur->children->content)+1;
+        vh->accessesLogFileName = new char[accessesLogFileNameLen];
+        if(vh->accessesLogFileName == 0)
+        {
+          parser.close();
+          delete vh;
+          clean();
+          return -1;
+        }
 				vh->accessLogOpt[0]='\0';                
 				strcpy(vh->accessesLogFileName,(char*)lcur->children->content);
+
 				xmlAttr *attr =  lcur->properties;
 				u_long Optslen=LOG_FILES_OPTS_LEN;
 				while(attr)
@@ -915,6 +977,15 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
 			{
+        int warningsLogFileNameLen = strlen((char*)lcur->children->content) +1;
+        vh->warningsLogFileName = new char[warningsLogFileNameLen];
+        if(vh->warningsLogFileName == 0)
+        {
+          parser.close();
+          delete vh;
+          clean();
+          return -1;
+        }
 				strcpy(vh->warningsLogFileName,(char*)lcur->children->content);
 				vh->accessLogOpt[0]='\0';                
 				xmlAttr *attr =  lcur->properties;
@@ -928,27 +999,32 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 					strncat(vh->warningLogOpt,(char*)attr->children->content,Optslen);
 					Optslen-=(u_long)strlen((char*)attr->children->content);
 					if(attr->next)
-					{
-						strncat(vh->warningLogOpt,",",Optslen);
+          {
+            strncat(vh->warningLogOpt,",",Optslen);
 						Optslen-=1;
 					}
 					attr=attr->next;
 				}
+      }
+      
+      lcur=lcur->next;
+    }
+    int fileOpts = MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|
+                     MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT;
 
-								
-			}
-			
-			lcur=lcur->next;
-		}
-		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
-		accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT);
-		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
-		warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT);
-		vh->setMaxLogSize(maxlogSize);
-		vh->initializeSSL();
-		addvHost(vh);
-	}
-	parser.close();
+    MYSERVER_FILE *accessLogFile=vh->getAccessesLogFile();
+    accessLogFile->openFile(vh->accessesLogFileName, fileOpts);
+    
+    MYSERVER_FILE *warningLogFile = vh->getWarningsLogFile();
+    warningLogFile->openFile(vh->warningsLogFileName, fileOpts);
+
+    vh->setMaxLogSize(maxlogSize);
+    vh->initializeSSL();
+    addvHost(vh);
+    
+  }
+  parser.close();
+  return 0;
 }
 /*!
 *Save the virtual hosts to a XML configuration file
