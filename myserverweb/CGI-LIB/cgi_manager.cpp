@@ -94,11 +94,16 @@ char* cgi_manager::GetParam(char* param)
 			break;
 		}
 	}
+	u_long len=0;
 	while((*c) && (*c!='&'))
 	{
-		lb[strlen(lb)+1]='\0';
-		lb[strlen(lb)]=*c;
+		if(LOCAL_BUFFER_DIM<++len)
+		{
+			lb[strlen(lb)+1]='\0';
+			lb[strlen(lb)]=*c;
+		}
 		c++;
+		
 	}
 	return &lb[0];
 }
@@ -132,7 +137,7 @@ char* cgi_manager::PostParam(char* param)
 		}
 		else
 		{
-			strcat(buffer,c);
+			strncat(buffer,c,LOCAL_BUFFER_DIM+lstrlen(buffer));
 		}
 	}while(--toRead);
 
