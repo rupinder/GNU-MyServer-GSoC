@@ -31,17 +31,32 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/protocols_manager.h"
 #include "../include/connectionstruct.h"
 
-
+/*!
+ *Definition for new threads entry-point.
+ */
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* pParam);
 #endif
 #ifdef NOT_WIN
 void* listenServer(void* pParam);
 #endif
+
+/*!
+ *On systems with a MAX_PATH limit use it.
+ */
+#ifdef MAX_PATH
+#define CONF_FILES_MAX_PATH MAX_PATH
+#else
+#define CONF_FILES_MAX_PATH 260
+#endif
+
+/*!
+ *Define the max number of network interfaces to consider.
+ */
 #define MAX_ALLOWED_IPs 8
 /*
-*Defined in myserver.cpp
-*/
+ *Defined in myserver.cpp
+ */
 extern int rebootMyServerConsole;
 
 struct listenThreadArgv
@@ -50,6 +65,8 @@ struct listenThreadArgv
 	MYSERVER_SOCKET serverSocket;
 	int SSLsocket;
 };
+
+
 class cserver
 {
 #ifdef WIN32
@@ -107,12 +124,13 @@ private:
 	void reboot();
 	u_int listingThreads;
 	char *languages_path;
-  /*! At the current state these members cannot have a long path.
-   *MAX_PATH is enough and easier to handle.
+  /*! 
+   *Usually configuration files don't go deep in directory structure.
+   *A fixed length is easier to handle.
    */
-	char main_configuration_file[MAX_PATH];
-	char vhost_configuration_file[MAX_PATH];
-	char mime_configuration_file[MAX_PATH];
+	char main_configuration_file[CONF_FILES_MAX_PATH];
+	char vhost_configuration_file[CONF_FILES_MAX_PATH];
+	char mime_configuration_file[CONF_FILES_MAX_PATH];
 
 public:
 	cserver();

@@ -80,7 +80,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     if(filename == 0)
     {
       /*! If we cannot allocate the memory return a 500 error message. */
-      return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
     
 		MYSERVER_FILE::getFilename(scriptpath, filename);
@@ -96,7 +96,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     {
       delete []filename;
       /*! If we cannot allocate the memory return a 500 error message. */
-      return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      return ((http*)td->lhttp)->sendHTTPHardError500(td, s);
     }
 
 		sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, td->pathInfo[0]?&td->pathInfo[1]:td->pathInfo);
@@ -125,7 +125,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     {
       delete []filename;
       /*! If we cannot allocate the memory return a 500 error message. */
-      return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
 		sprintf(cmdLine, "%s %s", cgipath, td->scriptFile);
 		nph=(strnicmp("nph-", td->cgiFile, 4)==0)?1:0;
@@ -154,7 +154,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
   {
     delete [] filename;
     delete [] cmdLine;
-    return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 
 	getdefaultwd(outputDataPath, 0);
@@ -212,6 +212,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
 	spi.cwd=td->scriptDir;
+
 	/*! Added for unix support. */
 	spi.cmd = cgipath;
 	spi.arg = td->scriptFile;
@@ -329,7 +330,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 		if(!td->appendOutputs)
 		{
       /*! Send the header.  */
-
 			if(headerSize)
 				http_headers::buildHTTPResponseHeaderStruct(&td->response, td, (char*)td->buffer2->GetBuffer());
       /*! Always specify the size of the HTTP contents.  */
@@ -543,7 +543,9 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
  	memCgi << end_str << "SCRIPT_FILENAME=";
 	memCgi << td->filenamePath;
 	
-	/*! For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.  */
+	/*!
+   * For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.
+   */
 	memCgi << end_str << "SCRIPT_NAME=/";
 	memCgi << td->request.URI;
 
@@ -570,7 +572,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	if(td->identity[0])
 	{
   		memCgi << end_str << "REMOTE_IDENT=";
-    		memCgi << td->identity;
+      memCgi << td->identity;
 	}
 #ifdef WIN32
 	if(processEnv)

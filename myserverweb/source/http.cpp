@@ -62,7 +62,7 @@ extern "C"
 #endif
 
 int http::mscgiLoaded=0;/*! Store if the MSCGI library was loaded.  */
-char http::browseDirCSSpath[MAX_PATH]="";/*! Path to the .css file used by direcotry browsing.  */
+char *http::browseDirCSSpath=0;/*! Path to the .css file used by directory browsing.  */
 u_long http::gzip_threshold=0;/*! Threshold value to send data in gzip.  */
 int http::useMessagesFiles=0;/*!Use files for HTTP errors?  */
 char *http::defaultFilename=0;	/*! Array with default filenames.  */
@@ -128,7 +128,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
 	}
 	/*! If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.  */
-	if(browseDirCSSpath[0])
+	if(browseDirCSSpath != 0)
 	{
 		MYSERVER_FILE cssHandle;
 		ret=cssHandle.openFile(browseDirCSSpath, MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
@@ -639,7 +639,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 	*If filename is already mapped on the file system don't map it again.
 	*/
 	if(yetmapped)
-	{
+  {
 		strncpy(td->filenamePath, filename, MAX_PATH);
 	}
 	else
@@ -672,7 +672,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 	else/*!The default user is Guest with a null password*/
 		permissions=getPermissionMask("Guest", "", folder, filename, ((vhost*)(s->host))->systemRoot, ((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);
 
-	/*! Check if we have to use digest for the current folder.  */
+	/*! Check if we have to use digest for the current directory.  */
 	if(!lstrcmpi(auth_type, "Digest"))
 	{
 		if(!lstrcmpi(td->request.AUTH, "Digest"))
@@ -707,7 +707,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 		if(!file.openFile(td->filenamePath, MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_WRITE))
 		{
 			/*! Return an internal server error.  */
-                        return raiseHTTPError(td, s, e_500);
+      return raiseHTTPError(td, s, e_500);
 		}
 		file.setFilePointer(firstByte);
 		for(;;)
@@ -792,7 +792,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 	td->response.httpStatus=httpStatus;
 	/*!
 	*td->filenamePath is the file system mapped path while filename is the URI requested.
-	*systemrequest is 1 if the file is in the system folder.
+	*systemrequest is 1 if the file is in the system directory.
 	*If filename is already mapped on the file system don't map it again.
 	*/
 	if(yetmapped)
@@ -802,7 +802,8 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 	else
 	{
 		/*!
-		*If the client try to access files that aren't in the web folder send a 401 error.
+		*If the client try to access files that aren't in the web directory 
+    *send a HTTP 401 error page.
 		*/
 		translateEscapeString(filename );
 		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
@@ -812,17 +813,37 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 		getPath(td, s, td->filenamePath, filename, 0);
 	}
 	int permissions=-1;
-	char folder[MAX_PATH];
+	char *folder;
 	if(MYSERVER_FILE::isFolder(td->filenamePath))
+  {
+    int folder_len = strlen(td->filenamePath);
+    folder = new char[folder_len];
+    if(folder == 0)
+    {
+      return sendHTTPhardError500(td, s);
+    }
 		strncpy(folder, td->filenamePath, MAX_PATH);
+  }
 	else
+  {
+    int folder_len=0;
+    MYSERVER_FILE::splitPathLength(td->filenamePath, &folder_len, 0);
+    folder = new char[folder_len];
+    if(folder == 0)
+    {
+      return sendHTTPhardError500(td, s);
+    }
 		MYSERVER_FILE::splitPath(td->filenamePath, folder, filename);
+  }
 
 	if(s->protocolBuffer==0)
 	{
 		s->protocolBuffer=malloc(sizeof(http_user_data));
 		if(!s->protocolBuffer)
+    {
+      delete [] folder;
 			return 0;
+    }
 		resetHTTPUserData((http_user_data*)(s->protocolBuffer));
 	}
 	int permissions2=0;
@@ -833,8 +854,8 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 	else/*!The default user is Guest with a null password*/
 		permissions=getPermissionMask("Guest", "", folder, filename, ((vhost*)(s->host))->systemRoot, ((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);
 		
-
-	if(!lstrcmpi(auth_type, "Digest"))/*Check if we have to use digest for the current folder*/
+  /*! Check if we have to use digest for the current directory. */
+	if(!lstrcmpi(auth_type, "Digest"))
 	{
 		if(!lstrcmpi(td->request.AUTH, "Digest"))
 		{
@@ -849,7 +870,8 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 		}
 		td->auth_scheme=HTTP_AUTH_SCHEME_DIGEST;
 	}
-	else/*By default use the Basic authentication scheme*/
+  /*! By default use the Basic authentication scheme. */
+	else
 	{
 		td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
 	}	
@@ -859,15 +881,18 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	{
+    delete [] folder;
 		return sendAuth(td, s);
 	}
 	if(MYSERVER_FILE::fileExists(td->filenamePath))
 	{
+    delete [] folder;
 		MYSERVER_FILE::deleteFile(td->filenamePath);
 		return raiseHTTPError(td, s, e_202);/*!Successful deleted*/
 	}
 	else
 	{
+    delete [] folder;
 		return raiseHTTPError(td, s, e_204);/*!No content*/
 	}
 }
@@ -2183,12 +2208,13 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 		return 0;
 	char main_configuration_file[MAX_PATH];
 #ifndef WIN32
-/* Under an *nix environment look for .xml files in the following order.
-*1) myserver executable working directory
-*2) ~/.myserver/
-*3) /etc/myserver/
-*4) default files will be copied in myserver executable working	
-*/
+  /*!
+   * Under an *nix environment look for .xml files in the following order.
+   *1) myserver executable working directory
+   *2) ~/.myserver/
+   *3) /etc/myserver/
+   *4) default files will be copied in myserver executable working	
+   */
 	if(MYSERVER_FILE::fileExists("myserver.xml"))
 	{
 		strcpy(main_configuration_file,"myserver.xml");
@@ -2225,12 +2251,16 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 		endPrintError();
 	}
 	/*! 
-	*Store defaults value.  
-	*By default use GZIP with files bigger than a MB.  
-	*/
+   *Store defaults value.  
+   *By default use GZIP with files bigger than a MB.  
+   */
 	gzip_threshold=1<<20;
 	useMessagesFiles=1;
-	browseDirCSSpath[0]='\0';
+  if(browseDirCSSpath)
+  {
+    delete [] browseDirCSSpath;
+  }
+	browseDirCSSpath = 0;
 	cXMLParser configurationFileManager;
 	configurationFileManager.open(main_configuration_file);
 	char *data;
@@ -2252,7 +2282,12 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
 	if(data)
 	{
-		strcpy(browseDirCSSpath, data);
+    int browseDirCSSpathlen = strlen(data);
+    browseDirCSSpath = new char[browseDirCSSpathlen];
+    if(browseDirCSSpath)
+    {
+      strcpy(browseDirCSSpath, data);
+    }
 	}
 	/*! Determine the number of default filenames written in the configuration file.  */
 	nDefaultFilename=0;
@@ -2268,8 +2303,8 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 		free(defaultFilename);
 	defaultFilename=0;
 	/*!
-	*Copy the right values in the buffer
-	*/
+   *Copy the right values in the buffer
+   */
 	if(nDefaultFilename==0)
 	{
 		defaultFilename =(char*)malloc(MAX_PATH);
@@ -2305,22 +2340,25 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
 	 if(!initialized)
 		 return 0;
 	/*!
-	*Clean ISAPI.
-	*/
+   *Clean ISAPI.
+   */
 	isapi::cleanupISAPI();
 	/*!
-	*Clean FastCGI.
-	*/
+   *Clean FastCGI.
+   */
 	fastcgi::cleanFASTCGI();
 	/*!
-	*Clean MSCGI.
-	*/
+   *Clean MSCGI.
+   */
 	mscgi::freeMSCGILib();
 	if(defaultFilename)
 	{
 		free(defaultFilename);
 		defaultFilename=0;
 	}
+  if(browseDirCSSpath)
+    delete [] browseDirCSSpath;
+
 	initialized=0;
 	return 1;
 }

@@ -50,23 +50,22 @@ void __stdcall myServerMain (u_long , LPTSTR *argv);
 void runService();
 #endif
 
-static char path[MAX_PATH];
+static char *path;
 
-int cmdShow;
 /*!
-*Change this to reflect the version of the software.
-*/
+ *Change this to reflect the version of the software.
+ */
 const char *versionOfSoftware="0.7.2";
 cserver server;
 int argn;
 char **argv;
 /*
-*Flag to determine if reboot the console at the end of its execution.
-*/
+ *Flag to determine if reboot the console at the end of its execution.
+ */
 int rebootMyServerConsole;
 /*
-*Reboot the console application.
-*/
+ *Reboot the console application.
+ */
 int reboot_console()
 {
 	server.stop();	
@@ -134,8 +133,8 @@ static struct argp myserver_argp = {options, parse_opt, args_doc, doc};
 
 
 /*!
-*Main function for MyServer
-*/
+ *Main function for MyServer
+ */
 int main (int argn, char **argv)
 {
   int runas=MYSERVER_RUNAS_CONSOLE;
@@ -150,15 +149,22 @@ int main (int argn, char **argv)
 	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
 	sigaction(SIGTERM,&sig2,NULL); // catch the kill command
 #endif
+  int path_len = strlen(argv[0]);
+  path = new char[path_len];
+  if(path == 0)
+    return 1;
 	lstrcpy(path,argv[0]);
 	u_long len=(u_long)strlen(path);
 	while((path[len]!='\\')&&(path[len]!='/'))
 		len--;
 	path[len]='\0';
-  	/*! Configure the current working directory. */
+
+  /*! Current working directory is where the myserver executable is. */
 	setcwd(path);
+  
+  /*! We can free path memory now. */
+  delete [] path;
 	
-	cmdShow=0;
 #ifdef NOT_WIN
 	struct argp_input input;
 	/*! Reset the struct. */
@@ -211,8 +217,8 @@ int main (int argn, char **argv)
 } 
 
 /*!
-*Start MyServer in console mode
-*/
+ *Start MyServer in console mode
+ */
 void console_service (int, char **)
 {
     printf ("starting in console mode\n");
@@ -228,15 +234,15 @@ void console_service (int, char **)
 
 
 /*!
-*These functions are available only on the windows platform.
-*/
+ *These functions are available only on the windows platform.
+ */
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
 
 /*!
-*Entry-point for the NT service.
-*/
+ *Entry-point for the NT service.
+ */
 void  __stdcall myServerMain (u_long, LPTSTR*)
 {
 	MyServiceStatus.dwServiceType = SERVICE_WIN32;
@@ -269,8 +275,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 }
 
 /*!
-*Manage the NT service.
-*/
+ *Manage the NT service.
+ */
 void __stdcall myServerCtrlHandler(u_long fdwControl)
 {
 	switch ( fdwControl )
@@ -302,8 +308,8 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 
 
 /*!
-*Run MyServer like a NT service.
-*/
+ *Run MyServer like a NT service.
+ */
 void runService()
 {
 	printf("Running service...\n");

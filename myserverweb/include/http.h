@@ -55,7 +55,7 @@ private:
 	static int initialized;
 	/*! Store if the MSCGI library was loaded.  */
 	static int mscgiLoaded;
-	static char browseDirCSSpath[MAX_PATH];
+	static char *browseDirCSSpath;
 	static u_long gzip_threshold;
 	static int useMessagesFiles;	
 	static char *defaultFilename;

@@ -31,10 +31,13 @@ extern "C"
 #include <stdio.h>
 #include <dirent.h>
 #include <limits.h>
-#include <stdint.h>
 }
 
+
+typedef  int intptr_t;
+
 using namespace std;
+
 
 #ifndef EACCES
 #define EACCES 1

@@ -71,6 +71,7 @@ public:
 	static int fileExists(char * );
 	static int deleteFile(char * );
 	static void getFileExt(char* ext,const char* filename);
+  static void splitPathLength(const char *path, int *dir, int *filename);
 	static void splitPath(const char* path, char* dir, char*filename);
   static int getFilenameLength(const char*, int *);
 	static void getFilename(const char* path, char* filename);
