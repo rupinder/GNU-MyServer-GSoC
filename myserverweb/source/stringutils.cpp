@@ -288,15 +288,4 @@ void strupr(char * string)
     for(unsigned int i = 0; i < len; i++)
        string[i] = toupper(string[i]);
 }
-
-int lstrcmpi(const char * a, const char * b)
-{
-    char Buff_a[strlen(a)];
-    char Buff_b[strlen(b)];
-    strcpy(Buff_a, a);
-    strcpy(Buff_b, b);
-    strupr(Buff_a);
-    strupr(Buff_b);
-    return strcmp(Buff_a, Buff_b);
-}
 #endif

@@ -34,12 +34,12 @@ void getFilename(const char* path, char* filename);
 
 #ifdef __linux__
 void strupr(char * string);
-int lstrcmpi(const char * a, const char * b);
 
 extern "C" {
 #include <string.h>
 }
 
+#define lstrcmpi strcasecmp
 #define lstrcpy strcpy
 #define lstrcat strcat
 #define lstrlen strlen
