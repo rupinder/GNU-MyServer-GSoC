@@ -80,7 +80,7 @@ int MYSERVER_SOCKET::operator=(MYSERVER_SOCKET s)
 int MYSERVER_SOCKET::socket(int af,int type,int protocol,int useSSL)
 {
 	sslSocket=useSSL;
-	socketHandle=::socket(af,type,protocol);
+	socketHandle=(MYSERVER_SOCKET_HANDLE)::socket(af,type,protocol);
 	if(sslSocket)
 	{
 		initializeSSL();
@@ -118,7 +118,7 @@ int MYSERVER_SOCKET::listen(int max)
 	return ::listen((int)socketHandle,max);
 #endif
 }
-MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,int sslHandShake)
+MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,int /*sslHandShake*/)
 {
 
 	MYSERVER_SOCKET s;
@@ -288,13 +288,23 @@ int MYSERVER_SOCKET::sslAccept()
 	if(sslConnection)
 		freeSSL();
 	sslConnection=SSL_new(sslContext);
+	if(sslConnection==0)
+		freeSSL();
 	int ssl_accept;
 	SSL_set_accept_state(sslConnection);
-	SSL_set_fd(sslConnection,socketHandle);
+	if(SSL_set_fd(sslConnection,socketHandle)==0)
+	{
+		freeSSL();
+		shutdown(2);
+		closesocket();
+		return -1;
+	}
+
 	do
 	{
 		ssl_accept = SSL_accept(sslConnection);
 	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,ssl_accept) ==SSL_ERROR_WANT_READ);
+
 	if(ssl_accept != 1 )
 	{
 		freeSSL();
@@ -303,7 +313,13 @@ int MYSERVER_SOCKET::sslAccept()
 		return -1;
 	}
 	SSL_set_read_ahead(sslConnection,1);
-	clientCert = SSL_get_peer_certificate(sslConnection);
+	if((clientCert = SSL_get_peer_certificate(sslConnection))==0)
+	{
+		freeSSL();
+		shutdown(2);
+		closesocket();
+		return -1;
+	}
 	if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
 	{
 		freeSSL();
