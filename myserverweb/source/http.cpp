@@ -1249,10 +1249,10 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 			if(errID!=-1)
 				strcpy(response->ERROR_TYPE,HTTP_ERROR_MSGS[errID]);
 		}
-		sprintf(str,"HTTP/%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus,response->ERROR_TYPE,response->ERROR_TYPE);
+		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus,response->ERROR_TYPE,response->ERROR_TYPE);
 	}
 	else
-		sprintf(str,"HTTP/%s 200 OK\r\n",response->VER);
+		sprintf(str,"%s 200 OK\r\n",response->VER);
 
 	if(response->CONTENT_LENGTH[0])
 	{
@@ -1374,7 +1374,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	*5) set the page that it is not an error page.
 	*/
 	strcpy(response->CONTENT_TYPE,"text/html");
-	strcpy(response->VER,"1.1");
+	strcpy(response->VER,"HTTP/1.1");
 	response->httpStatus=200;
 	getRFC822GMTTime(response->DATE,HTTP_RESPONSE_DATE_DIM);
 	strncpy(response->DATEEXP,response->DATE,HTTP_RESPONSE_DATEEXP_DIM);
@@ -1740,10 +1740,12 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*Copy the method type.
 			*/
 			strncpy(request->CMD,command,HTTP_REQUEST_CMD_DIM);
-		
 			token = strtok( NULL, "\t\n\r" );
 			if(!token)return 0;
-			max=(u_long)strlen(token)-8;
+			u_long len_token=(u_long)strlen(token);
+			max=len_token;
+			while((token[max]!=' ')&(len_token-max<HTTP_REQUEST_VER_DIM))
+				max--;
 			int containOpts=0;
 			for(i=0;(i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
 			{
@@ -1763,12 +1765,8 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 					request->URIOPTS[j]=token[++i];
 				}
 			}
-			strncpy(request->VER,&token[strlen(token)-3],HTTP_REQUEST_VER_DIM);
-			/*
-			*Version of the protocol in the HTTP_REQUEST_HEADER
-			*struct is leaved as a number.
-			*For example HTTP/1.1 in the struct is 1.1
-			*/
+			strncpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM);
+
 			if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else
@@ -2111,9 +2109,9 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 			*/
 			lineControlled=1;
 			/*
-			*Copy the HTTP version, do not include "HTTP/".
+			*Copy the HTTP version.
 			*/
-			strncpy(response->VER,&command[5],HTTP_RESPONSE_VER_DIM);
+			strncpy(response->VER,command,HTTP_RESPONSE_VER_DIM);
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			response->httpStatus=atoi(token);

@@ -211,7 +211,7 @@ int MIME_Manager::loadXML(char *filename)
 						rc.cgi_manager[0]='\0';
 				}
 			}
-			lcur=lcur->next ;
+			lcur=lcur->next;
 		}
 		nm++;
 		addRecord(rc);
@@ -267,7 +267,7 @@ int MIME_Manager::saveXML(char *filename)
 		else
 			f.writeToFile("NONE",4,&nbw);
 		f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);
-		rc=rc->next ;	
+		rc=rc->next;	
 	}
 	f.writeToFile("\r\n</MIMETYPES>",14,&nbw);
 	f.closeFile();
@@ -435,18 +435,18 @@ void MIME_Manager::removeRecord(char *ext)
 		{
 			if(nmr2)
 			{
-				nmr2->next  = nmr1->next ;
+				nmr2->next  = nmr1->next;
 				free(nmr1);
 			}
 			else
 			{
-				data=nmr1->next ;
+				data=nmr1->next;
 				free(nmr1);
 			}
 			numMimeTypesLoaded--;
 		}
 		nmr2=nmr1;
-		nmr1=nmr1->next ;
+		nmr1=nmr1->next;
 	}while(nmr1);
 }
 /*
@@ -464,7 +464,7 @@ void MIME_Manager::removeAllRecords()
 		nmr2=nmr1;
 		if(nmr2)
 		{
-			nmr1=nmr1->next ;
+			nmr1=nmr1->next;
 			free(nmr2);
 		}
 		else

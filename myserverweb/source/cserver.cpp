@@ -260,7 +260,7 @@ void cserver::start()
 		vhostmanager::sVhostList *list2=vhostList.getvHostList();
 		for(;;)
 		{
-			list2=list2->next ;
+			list2=list2->next;
 			if(list2==0)
 				break;
 			if(list2==list)
@@ -850,12 +850,12 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		{
 			if(connectionToParse)
 				if(connectionToParse->socket==s->socket)
-					connectionToParse=connectionToParse->next ;
+					connectionToParse=connectionToParse->next;
 
 			if(prev)
-				prev->next =i->next ;
+				prev->next =i->next;
 			else
-				connections=i->next ;
+				connections=i->next;
 			free(i);
 			ret=1;
 			break;
@@ -881,7 +881,7 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 		if(connectionToParse->check_value!=0x20)
 			connectionToParse=connections;
 		else
-			connectionToParse=connectionToParse->next ;
+			connectionToParse=connectionToParse->next;
 	}
 	else
 	{/*Restart loop if the connectionToParse points to the last element*/
@@ -901,7 +901,7 @@ void cserver::clearAllConnections()
 	LPCONNECTION next=0;
 	for(u_long i=0;c && i<nConnections;i++)
 	{
-		next=c->next ;
+		next=c->next;
 		deleteConnection(c,1);
 		c=next;
 	}

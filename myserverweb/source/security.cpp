@@ -156,12 +156,12 @@ int getErrorFileName(char *root,int error,char* out)
 					if(error_id==error)
 						found=1;
 				}
-				attr=attr->next ;
+				attr=attr->next;
 			}
 			if(found)
 				break;
 		}
-		node=node->next ;
+		node=node->next;
 	}
 	parser.close();
 	return found;
@@ -262,7 +262,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 				if(rightUser && password2 && (filePermissions==0)&& (userPermissions==0))
 					strcpy(password2,tempPassword);
 
-				attr=attr->next ;
+				attr=attr->next;
 			}
 			if(rightUser && rightPassword)
 			{
@@ -318,7 +318,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 						if(rightUser && password2)
 							strcpy(password2,tempPassword);
 
-						attr=attr->next ;
+						attr=attr->next;
 					}
 					if(rightUser && rightPassword)
 					{
@@ -326,7 +326,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 						userPermissions=tempUserPermissions;
 					}
 				}
-				node2=node2->next ;
+				node2=node2->next;
 			}
 			xmlAttr *attr =  node->properties;
 			int tempFilePermissions=0;
@@ -361,13 +361,13 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 							userPermissionsFound=1;
 					}
 				}
-				attr=attr->next ;
+				attr=attr->next;
 			}
 			if(filePermissionsFound)
 				filePermissions=tempFilePermissions;
 		
 		}
-		node=node->next ;
+		node=node->next;
 	}
 
 	parser.close();

@@ -84,7 +84,7 @@ char *cXMLParser::getValue(char* vName)
 				strcpy(buffer,(char*)lcur->children->content);
 			break;
 		}
-		lcur=lcur->next ;
+		lcur=lcur->next;
 	}
 	
 	return buffer;
@@ -104,7 +104,7 @@ int cXMLParser::setValue(char* vName,char *value)
 				strcpy((char*)lcur->children->content,value);
 			return 1;
 		}
-		lcur=lcur->next ;
+		lcur=lcur->next;
 	}
 	
 	return 0;
