@@ -99,7 +99,6 @@ SectionEnd
 
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR"
-  File "myserver.chm"
   CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\MyServer documentation.lnk" "$INSTDIR\myserver.chm"
 SectionEnd
 

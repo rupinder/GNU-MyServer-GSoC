@@ -103,11 +103,11 @@ void cserver::start()
 	*/
 	char *software_signature=(char*)malloc(200);
 	sprintf(software_signature,"************MyServer %s************",versionOfSoftware);
-	i=strlen(software_signature);
+	i=(u_long)strlen(software_signature);
 	while(i--)
 		printf("*");
     printf("\n%s\n",software_signature);
-	i=strlen(software_signature);
+	i=(u_long)strlen(software_signature);
 	while(i--)
 		printf("*");
 	printf("\n");
@@ -308,11 +308,6 @@ void cserver::start()
 							printf ("%s\n",languageParser.getValue("MSG_SERVICESTOP"));
 							this->stop();
 						}
-					}
-					if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode==VK_F1)
-					{
-						if(MYSERVER_FILE::fileExists("myserver.chm"))
-							system("myserver.chm");
 					}
 					break; 
 			} 
@@ -660,7 +655,7 @@ void cserver::initialize(int OSVer)
 	}
 	else
 	{
-		int i;
+		u_long i;
 		defaultFilename =new char[MAX_PATH*nDefaultFilename];
 		for(i=0;i<nDefaultFilename;i++)
 		{
