@@ -977,13 +977,9 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		}
 	}
 
-<<<<<<< cserver.cpp
-	c_mutex.myserver_mutex_unlock();
-=======
 	nConnections--;
-	myserver_mutex_unlock(&c_mutex);
->>>>>>> 1.163
-
+	c_mutex.myserver_mutex_unlock();
+	
 	/*!
 	*Close the socket communication.
 	*/
