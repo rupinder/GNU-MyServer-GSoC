@@ -151,11 +151,8 @@ void cserver::start(INT hInst)
 	/*
 	*Get the machine name
 	*/
-	DWORD lenServerName=sizeof(serverName);
-	if(GetComputerNameA(serverName,&lenServerName)==0)
-	{
-		lstrcpy(serverName,"localhost");
-	}
+	getComputerName(serverName,(DWORD)sizeof(serverName));
+
 	printf("%s:%s\n",languageParser.getValue("MSG_GETNAME"),serverName);
 	/*
 	*If the OS support the getaddrinfo function call it

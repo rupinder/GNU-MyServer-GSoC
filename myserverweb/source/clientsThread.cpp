@@ -78,6 +78,9 @@ void ClientsTHREAD::controlConnections()
 			}
 			if(err!=WSAETIMEDOUT)
 			{
+				/*
+				*Control the right protocol used by the connection
+				*/
 				switch(c->protocol)
 				{
 					/*

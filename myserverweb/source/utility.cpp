@@ -24,6 +24,9 @@ static FILE* logFile=0;
 INT getOSVersion()
 {
 	int ret=0;
+	/*
+	*This is the code for the win32 platform
+	*/
 #ifdef WIN32
 	OSVERSIONINFO osvi;
 	osvi.dwOSVersionInfoSize=sizeof(osvi);
@@ -131,7 +134,6 @@ int getPathRecursionLevel(char* path)
 	return rec;
 }
 
-
 VOID StrTrim(LPSTR str,LPSTR trimChars)
 {
 	WORD lenTrimChars=lstrlen(trimChars);
@@ -200,5 +202,43 @@ DWORD waitForObject(int hnd,DWORD time)
 #ifdef WIN32
 	return WaitForSingleObject((HANDLE)hnd,time);
 #endif
-
+	return 0;
+}
+DWORD execHiddenProcess(START_PROC_INFO *spi)
+{
+#ifdef WIN32
+    /*
+    *Set the standard output values for the CGI process
+    */
+    STARTUPINFO si;
+    ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+    si.hStdInput = (HANDLE)spi->stdIn;
+    si.hStdOutput =(HANDLE)spi->stdOut;
+    si.hStdError= (HANDLE)spi->stdError;
+    si.dwFlags=STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    si.wShowWindow = SW_HIDE;
+    PROCESS_INFORMATION pi;
+    ZeroMemory( &pi, sizeof(pi) );
+	/*
+	*To set the CGI path modify the MIMEtypes file in the bin folder
+	*/
+    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_SEPARATE_WOW_VDM|CREATE_NEW_CONSOLE,NULL,NULL,&si, &pi);
+	/*
+	*Wait until it's ending by itself
+	*/
+	waitForObject((int)pi.hProcess, 0xFFFFFFFF );
+	CloseHandle( pi.hProcess );
+	CloseHandle( pi.hThread );
+	return 1;
+#endif
+}
+VOID getComputerName(char *dest,DWORD maxLen)
+{
+#ifdef WIN32
+	if(GetComputerNameA(dest,&maxLen)==0)
+	{
+		lstrcpy(dest,"localhost");
+	}
+#endif
 }

@@ -18,16 +18,29 @@
 */
 #pragma once
 #include "..\stdafx.h"
+/*
+*Macros to do simple transformation
+*/
 #define KB(x) (x*1024)
 #define MB(x) (KB(x)*1024)
 #define SEC(x) (x*1000)
 #undef getTime
 #define my_intabs(x)((x<0)?(-x):(x))
-#define getTime() GetTickCount()
+#define getTime() clock()
 #define OS_WINDOWS_9X		1	
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
 #define OS_WINDOWS_XP		4
+/*
+*Structure used for start a new process
+*/
+struct START_PROC_INFO
+{
+	INT stdError;
+	INT stdOut;
+	INT stdIn;
+	char *cmdLine;
+};
 
 INT getOSVersion();
 int getPathRecursionLevel(char*);
@@ -42,3 +55,5 @@ void getFileSize(DWORD*,FILE*);
 VOID StrTrim(LPSTR,LPSTR);
 DWORD waitForObject(int hnd,DWORD time);
 DWORD getCPUCount();
+DWORD execHiddenProcess(START_PROC_INFO*);
+VOID getComputerName(char*,DWORD);

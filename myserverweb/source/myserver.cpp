@@ -19,14 +19,18 @@
 #include "..\stdafx.h"
 #include "..\include\cserver.h"
 #include <direct.h>
+/*
+*external libraries to be included in the project
+*/
 #pragma comment(lib,"ws2_32.lib")
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"winmm.lib")
 
+void console_service (int, char **);
+
 #ifdef WIN32
 
 BOOL __stdcall control_handler (DWORD control_type);
-void console_service (int, char **);
 VOID __stdcall myServerCtrlHandler(DWORD fdwControl);
 VOID __stdcall myServerMain (DWORD argc, LPTSTR *argv); 
 BOOL isServiceInstalled();
@@ -45,6 +49,9 @@ int cmdShow;
 char *versionOfSoftware="0.11";
 int main (int argn, char **argc)
 { 
+	/*
+	*By default use the console mode
+	*/
 	if(argn==1)
 		argc[1]="CONSOLE";
 	lstrcpy(path,argc[0]);
@@ -70,7 +77,9 @@ int main (int argn, char **argc)
 	{
 		if(!lstrcmpi(&cmdLine[i],"SERVICE"))
 		{
+#ifdef WIN32
 			runService();
+#endif
 			return 0;
 		}
 	}
@@ -89,12 +98,29 @@ VOID appendToLog(char* str)
 	return;
 }
 
+
+void console_service (int, char **)
+{
+    printf ("starting in console mode\n");
+
+#ifdef WIN32
+	SetConsoleCtrlHandler (control_handler, TRUE);
+#endif
+
+	printf("started in console mode\n");
+	server.start(hInst);
+}
+
+
 /*
 *These functions are available only on windows platform
 */
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
+/*
+*Main function for the NT service
+*/
 VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 {
 	MyServiceStatus.dwServiceType = SERVICE_WIN32;
@@ -127,7 +153,9 @@ VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 }
 
 
-
+/*
+*Function to manage the NT service
+*/
 VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
 {
 	switch ( fdwControl )
@@ -157,15 +185,9 @@ VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
 	}
 	SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 }
-
-void console_service (int, char **)
-{
-    printf ("starting in console mode\n");
-    SetConsoleCtrlHandler (control_handler, TRUE);
-	printf("started in console mode\n");
-	server.start(hInst);
-}
-
+/*
+*Terminate the application on the pression of CTRL+C or CTRL+BREAK
+*/
 BOOL __stdcall control_handler (DWORD control_type)
 {
 	switch (control_type)
@@ -180,7 +202,9 @@ BOOL __stdcall control_handler (DWORD control_type)
 	return (FALSE);
 }
 
-
+/*
+*Run myServer like a NT service
+*/
 void runService()
 {
 	printf("Running service...\n");
@@ -199,6 +223,9 @@ void runService()
 			printf("Error running service\n");
 	}
 }
+/*
+*Check if the myServer service is installed on the current machine
+*/
 BOOL isServiceInstalled()
 {
 	SC_HANDLE service,manager;

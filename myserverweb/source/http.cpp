@@ -20,7 +20,11 @@
 #include "..\include\cserver.h"
 #include "..\include\security.h"
 #include "..\include\AMMimeUtils.h"
+#include <direct.h>
 
+/*
+*These variables are thread safe.
+*/
 char Thread *buffer;
 char Thread  *buffer2;
 int  Thread buffersize;
@@ -31,6 +35,8 @@ HTTP_REQUEST_HEADER  Thread request;
 char Thread filenamePath[MAX_PATH];
 HANDLE Thread tmpBufferFile;
 LOGGEDUSERID Thread hImpersonation;
+
+
 BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 {
 	static char filename[MAX_PATH];
@@ -260,6 +266,14 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 }
 BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 {
+	/*
+	*This is the code for manage a .mscgi file.
+	*This files differently from standard CGI don't need a new process to run
+	*but are allocated in the caller process virtual space.
+	*Usually these files are faster than standard CGI.
+	*Actually myServerCGI(.mscgi) are only at an alpha status.
+	*/
+#ifdef WIN32
 	static HMODULE hinstLib; 
     static CGIMAIN ProcMain;
 	static CGIINIT ProcInit;
@@ -304,7 +318,8 @@ BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 	send(s->socket,buffer,lstrlen(buffer), 0);
 	send(s->socket,buffer2,len, 0);
 	return 1;
-
+#endif
+	return 0;
 }
 BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp)
 {
@@ -809,41 +824,22 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 
 	char currentpath[MAX_PATH];
 	char tmpBufferFilePath[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH,currentpath);
+	_getcwd(currentpath,MAX_PATH);
 	static DWORD id=0;
 	id++;
 	sprintf(tmpBufferFilePath,"%s/%tmpbuffer_%u",currentpath,id);
+	buffer2[0]='\0';
 	
 
 	tmpBufferFile = CreateFile (tmpBufferFilePath, GENERIC_READ | GENERIC_WRITE,
                                      FILE_SHARE_READ | FILE_SHARE_WRITE, 
                                       &sa, OPEN_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_ATTRIBUTE_HIDDEN, NULL);
-    /*
-    *Set the standard output values for the CGI process
-    */
-    STARTUPINFO si;
-    ZeroMemory( &si, sizeof(si) );
-    si.cb = sizeof(si);
-    si.hStdInput = 0;
-    si.hStdOutput = tmpBufferFile;
-    si.hStdError= 0;
-    si.dwFlags=STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-    si.wShowWindow = SW_HIDE;
-    PROCESS_INFORMATION pi;
-    ZeroMemory( &pi, sizeof(pi) );
-	buffer2[0]='\0';
-	/*
-	*To set the CGI path modify the MIMEtypes file in the bin folder
-	*/
-    CreateProcess(NULL, cmdLine, NULL, NULL, TRUE,CREATE_SEPARATE_WOW_VDM|CREATE_NEW_CONSOLE,NULL,NULL,&si, &pi);
-	/*
-	*Wait until it's ending by itself
-	*/
-	waitForObject((int)pi.hProcess, 0xFFFFFFFF );
 
-    CloseHandle( pi.hProcess );
-    CloseHandle( pi.hThread );
-
+	START_PROC_INFO spi;
+	spi.cmdLine = cmdLine;
+	spi.stdError = spi.stdIn = 0;
+	spi.stdOut = (INT)tmpBufferFile;
+	execHiddenProcess(&spi);
 	
 	DWORD nBytesRead;
 	SetFilePointer(tmpBufferFile,0,0,SEEK_SET);
