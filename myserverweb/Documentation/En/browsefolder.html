@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Language" content="en-gb">
+  <base target="_self">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>BrowseFolder</title>
+</head>
+<body>
+<h1 align="center" style="color: rgb(0, 102, 0);">BROWSE FOLDER</h1>
+When a client requests a folder from the server and the server cannot
+find a default file to send, it indexes the folder and sends a list of
+the files to the client.&nbsp; This allows the client to browse the
+folder and access any file within it.<br>
+<p style="text-align: center;"><img src="images/browsefolder.gif"
+ style="width: 420px; height: 276px;" title="" alt="Browse Folder"></p>
+<div style="text-align: center;"><small>Indexed folder for Browsing</small><br>
+</div>
+<small><br>
+<br>
+</small>&nbsp;If you want to define a cascading style sheet for the
+folder index page, you can modify the file<span
+ style="color: rgb(0, 102, 0);"> </span><font color="#ffff00"><span
+ style="color: rgb(0, 102, 0);">myserver.xml.</span><br>
+<br>
+</font>&nbsp;Locate the line:
+<font color="#ffff00"
+ style="color: rgb(0, 102, 0); font-family: courier new,courier,monospace;">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</font><span
+ style="color: rgb(0, 102, 0);">
+</span><br>
+and replace <font color="#ffff00"
+ style="color: rgb(0, 102, 0); font-family: courier new,courier,monospace;">system/folderstyle.css</font><span
+ style="color: rgb(0, 102, 0);"> </span>with
+the name of your .css file.
+<p>The file <font color="#ffff00" style="color: rgb(0, 102, 0);"><span
+ style="font-family: courier new,courier,monospace;">system/folderstyle.cs</span>s</font>
+has
+the default form:
+</p>
+<p
+ style="color: rgb(0, 102, 0); font-family: courier new,courier,monospace;">body
+{ font-family: Arial; color: #000000;
+background-color:
+#FFFFFF }</p>
+<br>
+<br>
+</body>
+</html>
