@@ -768,7 +768,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 
 		if(sendHTTPDIRECTORY(td,s,td->filenamePath))
 			return 1;	
-
 		return raiseHTTPError(td,s,e_404);
 	}
 

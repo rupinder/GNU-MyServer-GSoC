@@ -1029,11 +1029,6 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 */
 void cserver::clearAllConnections()
 {
-	/*!
-	*Keep access to the connections list
-	*/
-	myserver_mutex_lock(&c_mutex);
-
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
 	while(c)
@@ -1048,7 +1043,6 @@ void cserver::clearAllConnections()
 	nConnections=0;
 	connections=0;
 	connectionToParse=0;
-	myserver_mutex_unlock(&c_mutex);
 }
 
 
