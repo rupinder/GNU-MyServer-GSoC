@@ -394,7 +394,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	for(u_long i=0; i<nBytesRead; i++)
 	{
 		char *buff=(char*)td->buffer2->GetBuffer();
-		if( (buff[i]=='\r') && (buff[i+1]=='\n') && (buff[i+2]=='\r') && (buff[i+3]=='\n') )
+		if( (buff[i]=='\r') && (buff[i+1]=='\n') 
+        && (buff[i+2]=='\r') && (buff[i+3]=='\n') )
 		{
 			/*!
        *The HTTP header ends with a \r\n\r\n sequence so 

@@ -606,8 +606,8 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con,int pID)
 
 	struct sockaddr_in sockAddr;
 	int sockLen = sizeof(sockAddr);
-    memset(&sockAddr, 0, sizeof(sockAddr));
-    sockAddr.sin_family = AF_INET;
+  memset(&sockAddr, 0, sizeof(sockAddr));
+  sockAddr.sin_family = AF_INET;
 	memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
 	sockAddr.sin_port = htons(fCGIservers[pID].port);
   

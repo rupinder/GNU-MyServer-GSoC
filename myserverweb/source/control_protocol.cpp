@@ -36,6 +36,8 @@ extern "C"
 #endif
 }
 
+extern const char *versionOfSoftware;
+
 #ifdef NOT_WIN
 #include "../include/lfind.h"
 
@@ -531,7 +533,11 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     knownCommand = 1;
     ret = SHOWDYNAMICPROTOCOLS(Ofile, b1, bs1);
   }
-
+  else if(!strcmp(command, "VERSION"))
+  {
+    knownCommand = 1;
+    ret = GETVERSION(Ofile, b1, bs1);
+  }
 
   if(knownCommand)
   {
@@ -667,8 +673,9 @@ int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
   LPCONNECTION con = lserver->getConnections();
   while(con)
   {
-    sprintf(b1, "%s - %i  - %s - %s\r\n", con->getipAddr(), con->getID(), 
-            con->getLogin(), con->getPassword());
+    sprintf(b1, "%i - %s - %u - %s - %u - %s - %s\r\n", 
+            con->getID(),  con->getipAddr(), con->getPort(), con->getlocalIpAddr(),  
+            con->getLocalPort(), con->getLogin(), con->getPassword());
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     con = con->next;
   }
@@ -912,4 +919,14 @@ int control_protocol::SHOWLANGUAGEFILES(MYSERVER_FILE* out, char *b1,int bs1)
 	while(!_findnext(ff,&fd));
   _findclose(ff);
   return 0;
+}
+
+/*!
+ *Return the current MyServer version.
+ */
+int control_protocol::GETVERSION(MYSERVER_FILE* out, char *b1,int bs1)
+{
+  u_long nbw;
+  sprintf(b1, "MyServer %s", versionOfSoftware);
+  return Ofile->writeToFile(b1, strlen(b1), &nbw);
 }
