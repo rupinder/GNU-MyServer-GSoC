@@ -64,8 +64,8 @@ void * startClientsTHREAD(void* pParam)
 	ct->threadIsStopped=false;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
-	ct->buffer=(char*)malloc(ct->buffersize);
-	ct->buffer2=(char*)malloc(ct->buffersize2);
+	ct->buffer=new char[ct->buffersize];
+	ct->buffer2=new char[ct->buffersize2];
 	ct->initialized=true;
 #ifdef WIN32
 	ZeroMemory(ct->buffer,ct->buffersize);
@@ -126,7 +126,7 @@ void ClientsTHREAD::controlConnections()
 			/*
 			*Control the protocol used by the connection.
 			*/
-			switch(c->protocol)
+			switch(((vhost*)(c->host))->protocol)
 			{
 				/*
 				*controlHTTPConnection returns 0 if the connection must be removed from
@@ -172,8 +172,8 @@ void ClientsTHREAD::clean()
 	{
 		clearAllConnections();
 	}
-	free(buffer);
-	free(buffer2);
+	delete[] buffer;
+	delete[] buffer2;
 	initialized=false;
 	ms_terminateAccess(&connectionWriteAccess,this->id);
 
@@ -181,12 +181,12 @@ void ClientsTHREAD::clean()
 
 /*
 *Add a new connection.
-*Connections are defined using a CONNECTION struct.
+*A connection is defined using a CONNECTION struct.
 */
-LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr,char *localIpAddr,int port)
+LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort)
 {
 	ms_requestAccess(&connectionWriteAccess,this->id);
-	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
+	LPCONNECTION nc=new CONNECTION;
 #ifdef WIN32
 	ZeroMemory(nc,sizeof(CONNECTION));
 #else
@@ -195,12 +195,40 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	nc->socket=s;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
-	nc->protocol=protID;
+	nc->localPort=localPort;
 	lstrcpy(nc->ipAddr,ipAddr);
 	lstrcpy(nc->localIpAddr,localIpAddr);
 	nc->Next=connections;
-	connections=nc;
+	nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,localPort);
+	if(nc->host==0)
+	{
+		delete nc;
+		return 0;
+	}
+    connections=nc;
 	nConnections++;
+
+
+	char msg[500];
+#ifdef WIN32
+	sprintf(msg, "%s:%s ->%s %s:%s\r\n", msgNewConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime, getRFC822GMTTime());
+#else
+	snprintf(msg, 500,"%s:%s ->%s %s:%s\r\n", msgNewConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime, getRFC822GMTTime());
+#endif
+	((vhost*)(nc->host))->ms_accessesLogWrite(msg);
+
+	if(nc==0)
+	{
+		if(lserver->getVerbosity()>0)
+		{
+#ifdef WIN32
+			sprintf(msg, "%s:%s ->%s %s:%s\r\n", msgErrorConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime, getRFC822GMTTime());
+#else
+			snprintf(msg, 500,"%s:%s ->%s %s:%s\r\n", msgErrorConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime, getRFC822GMTTime());
+#endif
+			((vhost*)(nc->host))->ms_warningsLogWrite(msg);
+		}
+	}
 	ms_terminateAccess(&connectionWriteAccess,this->id);
 	return nc;
 }
@@ -233,7 +261,7 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 				prev->Next=i->Next;
 			else
 				connections=i->Next;
-			free(i);
+			delete i;
 			ret=true;
 			break;
 		}

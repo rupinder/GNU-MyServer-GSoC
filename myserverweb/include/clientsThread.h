@@ -47,7 +47,7 @@ private:
     u_long nConnections;
 	u_long buffersize;
 	u_long buffersize2;
-	LPCONNECTION addConnection(MYSERVER_SOCKET,CONNECTION_PROTOCOL,char*,char*,int);
+	LPCONNECTION addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*,char*,char*,int,int);
 	LPCONNECTION findConnection(MYSERVER_SOCKET s);
 	int isRunning();
 	int isStopped();

@@ -36,40 +36,6 @@ extern "C" {
 #endif
 
 /*
-*Write the message to the log file.
-*/
-u_long ms_warningsLogWrite(char* str)
-{
-	u_long nbw;
-	ms_WriteToFile(warningsLogFile,str,lstrlen(str),&nbw);
-	return nbw;
-}
-/*
-*Set the log file handle.
-*/
-void ms_setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
-{
-	warningsLogFile=nlg;
-}
-/*
-*Write the message to the accesses file.
-*/
-u_long ms_accessesLogWrite(char* str)
-{
-	u_long nbw;
-	ms_WriteToFile(accessesLogFile,str,lstrlen(str),&nbw);
-	return nbw;
-}
-/*
-*Set the accesses file handle.
-*/
-void ms_setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
-{
-	accessesLogFile=nlg;
-}
-
-
-/*
 *Return the recursion of the path.
 */
 int ms_getPathRecursionLevel(char* path)

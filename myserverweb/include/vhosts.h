@@ -21,6 +21,7 @@
 
 #include "../stdafx.h"
 #include "../include/filemanager.h"
+#include "../include/connectionstruct.h"/*Used for protocols IDs*/
 class vhost
 {
 	MYSERVER_FILE_HANDLE warningsLogFile;
@@ -40,7 +41,10 @@ public:
 
 	u_short port;/*Port to listen on*/
 
+	CONNECTION_PROTOCOL protocol;/*Protocol used by the virtual host*/
+
 	char documentRoot[MAX_PATH];/*Path to the document root*/
+	char systemRoot[MAX_PATH];/*Path to the system root*/
 	vhost();
 	void addIP(char *);
 	void addHost(char *);
@@ -63,16 +67,20 @@ public:
 
 class vhostmanager
 {
-private:
+public:
 	struct sVhostList
 	{
 		vhost* host;
 		sVhostList* next;
-	}*vhostList;/*List of virtual hosts*/
+	};
+private:
+	sVhostList *vhostList;/*List of virtual hosts*/
 public:
 	vhostmanager();
 	~vhostmanager();
-	void getvHost(vhost* ,char*,char*,u_short);/*Get a pointer to a vhost*/
+	void clean();
+	vhostmanager::sVhostList*  getvHostList();
+	vhost*  getvHost(char*,char*,u_short);/*Get a pointer to a vhost*/
 	void addvHost(vhost*);/*Add an element to the vhost list*/
 	void loadConfigurationFile(char *);/*Load the virtual hosts list from a configuration file*/
 };

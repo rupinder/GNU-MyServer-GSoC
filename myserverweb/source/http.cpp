@@ -256,7 +256,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	{
 		char msg[500];
 		sprintf(msg,"%s %s\n",msgSending,filenamePath);
-		ms_warningsLogWrite(msg);
+		((vhost*)td->connection->host)->ms_warningsLogWrite(msg);
 	}
 	for(;;)
 	{
@@ -303,7 +303,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	if(yetmapped)
 		lstrcpy((td->filenamePath),filename);
 	else
-		getPath((td->filenamePath),filename,systemrequest);
+		getPath(td,(td->filenamePath),filename,systemrequest);
 
 	/*
 	*Get the PATH_INFO value.
@@ -361,7 +361,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		/*
 		*Start from the second character cause the first is a slash character.
 		*/
-		getPath((td->pathTranslated),&((td->pathInfo)[1]),false);
+		getPath(td,(td->pathTranslated),&((td->pathInfo)[1]),false);
 	}
 	else
 	{
@@ -513,7 +513,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		td.buffer[td.nBytesToRead]='\n';
 		td.buffer[td.nBytesToRead+1]='\0';
-		ms_warningsLogWrite(td.buffer);
+		((vhost*)td.connection->host)->ms_warningsLogWrite(td.buffer);
 	}
 	/*
 	*If the header is an invalid request send the correct error message to the client and return immediately.
@@ -586,17 +586,17 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		/*
 		*Record the request in the log file.
 		*/
-		ms_accessesLogWrite(a->ipAddr);
-		ms_accessesLogWrite(":");
-		ms_accessesLogWrite(td.request.CMD);
-		ms_accessesLogWrite(" ");
-		ms_accessesLogWrite(td.request.URI);
+		((vhost*)(td.connection->host))->ms_accessesLogWrite(a->ipAddr);
+		((vhost*)(td.connection->host))->ms_accessesLogWrite(":");
+		((vhost*)(td.connection->host))->ms_accessesLogWrite(td.request.CMD);
+		((vhost*)(td.connection->host))->ms_accessesLogWrite(" ");
+		((vhost*)(td.connection->host))->ms_accessesLogWrite(td.request.URI);
 		if(td.request.URIOPTS[0])
 		{
-			ms_accessesLogWrite("?");
-			ms_accessesLogWrite(td.request.URIOPTS);
+			((vhost*)(td.connection->host))->ms_accessesLogWrite("?");
+			((vhost*)(td.connection->host))->ms_accessesLogWrite(td.request.URIOPTS);
 		}
-		ms_accessesLogWrite("\r\n");
+		((vhost*)(td.connection->host))->ms_accessesLogWrite("\r\n");
 		/*
 		*End record the request in the structure.
 		*/
@@ -615,8 +615,23 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				ms_CloseFile(td.inputData);
 				td.inputData=0;
 			}
-			retvalue=0xFFFFFFFE & (~1);/*Set first bit to 0*/
 			return 0;
+		}
+		else
+		{
+			/*
+			*Find the virtual host to check both host name and IP value.
+			*/
+			a->host=lserver->vhostList.getvHost(td.request.HOST,a->localIpAddr,a->localPort);
+			if(a->host==0)
+			{
+				if(td.inputData)
+				{
+					ms_CloseFile(td.inputData);
+					td.inputData=0;
+				}
+				return 0;
+			}
 		}
 
 		
@@ -892,21 +907,21 @@ int getMIME(char *MIME,char *filename,char *dest,char *dest2)
 /*
 *Map an URL to the machine file system.
 */
-void getPath(char *filenamePath,const char *filename,int systemrequest)
+void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest)
 {
 	/*
 	*If it is a system request, search the file in the system folder.
 	*/
 	if(systemrequest)
 	{
-		sprintf(filenamePath,"%s/%s",lserver->getSystemPath(),filename);
+		sprintf(filenamePath,"%s/%s",((vhost*)(td->connection->host))->systemRoot,filename);
 	}
 	/*
 	*Else the file is in the web folder.
 	*/
 	else
 	{
-		sprintf(filenamePath,"%s/%s",lserver->getPath(),filename);
+		sprintf(filenamePath,"%s/%s",((vhost*)(td->connection->host))->documentRoot,filename);
 	}
 }
 

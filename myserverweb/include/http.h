@@ -62,7 +62,7 @@ int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
 void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
 int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
-void getPath(char *filenamePath,const char *filename,int systemrequest);
+void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest);
 int getMIME(char *MIME,char *filename,char *dest,char *dest2);
 u_long validHTTPRequest(httpThreadContext*,u_long*,u_long*);
 u_long validHTTPResponse(httpThreadContext*,u_long*,u_long*);

@@ -51,7 +51,6 @@ extern char msgAtTime[33];
 
 struct listenThreadArgv
 {
-	u_long protID;
 	u_long port;
 	MYSERVER_SOCKET serverSocket;
 };
@@ -79,13 +78,10 @@ private:
 	cXMLParser languageParser;
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
 	char languageFile[MAX_PATH];
-	char systemPath[MAX_PATH];
 	char path[MAX_PATH];
 	char browseDirCSSpath[MAX_PATH];
 	char *defaultFilename;
 	int nDefaultFilename;
-	char warningsFileLogName[MAX_PATH];
-	char accessesFileLogName[MAX_PATH];
 	char serverAdmin[32];
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
 	u_long nThreads;
@@ -95,20 +91,15 @@ private:
 	u_long buffersize2;
 	u_long getNumConnections();
 	void initialize(int);
-	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*,CONNECTION_PROTOCOL);
+	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	LPCONNECTION findConnection(MYSERVER_SOCKET);
 	u_long connectionTimeout;
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
-	void controlSizeLogFile();
-	void createServerAndListener(u_long,u_long);
-	vhostmanager vhostList;
+	void createServerAndListener(u_long);
 public:
-	u_short port_HTTP;
+	vhostmanager vhostList;
 	MIME_Manager mimeManager;
-	MYSERVER_FILE_HANDLE warningsLogFile;
-	MYSERVER_FILE_HANDLE accessesLogFile;
-	char  *getSystemPath();
 	char  *getPath();
 	u_long getNumThreads();
 	char  *getDefaultFilenamePath(u_long ID=0);
@@ -116,6 +107,7 @@ public:
 	char  *getServerName();
 	u_long  getVerbosity();
 	char *getServerAdmin();
+	int getMaxLogFileSize();
 	int  mustUseMessagesFiles();
 	int  mustUseLogonOption();
 	void  setVerbosity(u_long);

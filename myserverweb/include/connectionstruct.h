@@ -32,16 +32,17 @@ typedef u_long CONNECTION_PROTOCOL;
 struct CONNECTION
 {
 public:
-	CONNECTION_PROTOCOL protocol;
 	char login[20];	
 	char password[32];
 	char nTries;	
 	char ipAddr[32];
 	char localIpAddr[32];
 	u_short port;
+	u_short localPort;
 	MYSERVER_SOCKET socket;	
 	u_long timeout;	
 	CONNECTION* Next;
+	void *host;
 };
 typedef CONNECTION*  volatile LPCONNECTION;
 #endif

@@ -136,22 +136,12 @@ void cserver::start()
 	/*
 	*Print the current working directory.
 	*/
-	char path[MAX_PATH];
     printf("myServer @ %s\n",ms_getdefaultwd(path,MAX_PATH));
 	
 	int OSVer=ms_getOSVersion();
 
 	initialize(OSVer);
-	if(!warningsLogFile)
-		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	ms_setWarningsLogFile(warningsLogFile);
 	
-	if(!accessesLogFile)
-		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	ms_setAccessesLogFile(accessesLogFile);
-	
-	controlSizeLogFile();
-
 	languageParser.open(languageFile);
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
@@ -186,9 +176,10 @@ void cserver::start()
 		lstrcat(libhoardpath,"/external/libhoard.dll");
 		if(!LoadLibraryA(libhoardpath))
 		{
-			ms_warningsLogWrite(languageParser.getValue("ERR_LOADED"));
-			ms_warningsLogWrite(" libhoard\r\n");
-		}
+			preparePrintError();
+			printf("%s  libhoard\r\n",languageParser.getValue("ERR_LOADED"));
+			endPrintError();
+		}	
 	}
 	/*
 	*Under WIN32 include initialize ISAPI too.
@@ -312,15 +303,30 @@ void cserver::start()
 	}
 
 	/*
-	*Then we create here all the listens threads.
+	*Then we create here all the listens threads. Check that all the port used for listening
+	*have a listen thread.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
 
-//	vhost* MainHost=new vhost();
-//	strcpy(MainHost->documentRoot,getPath());
-//	MainHost->port=port_HTTP;
-//	vhostList.addvHost(MainHost);
-	createServerAndListener(port_HTTP,PROTOCOL_HTTP);
+	vhostList.loadConfigurationFile("virtualhosts.txt");
+	
+	for(vhostmanager::sVhostList *list=vhostList.getvHostList();list;list=list->next)
+	{
+		int needThread=1;
+		vhostmanager::sVhostList *list2=vhostList.getvHostList();
+		for(;;)
+		{
+			list2=list2->next;
+			if(list2==0)
+				break;
+			if(list2==list)
+				break;
+			if(list2->host->port==list->host->port)
+				needThread=0;
+		}
+		if(needThread)
+			createServerAndListener(list->host->port);
+	}
 
 	printf("%s\n",languageParser.getValue("MSG_READY"));
 	printf("%s\n",languageParser.getValue("MSG_BREAK"));
@@ -346,7 +352,7 @@ void cserver::start()
 /*
 *This function is used to create a socket server and a thread listener for a protocol.
 */
-void cserver::createServerAndListener(u_long port,u_long protID)
+void cserver::createServerAndListener(u_long port)
 {
 	/*
 	*Create the server socket.
@@ -418,7 +424,6 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	*Create the listen thread.
 	*/
 	listenThreadArgv* argv=new listenThreadArgv;
-	argv->protID=protID;
 	argv->port=port;
 	argv->serverSocket=serverSocket;
 #ifdef WIN32
@@ -439,7 +444,6 @@ void * listenServer(void* params)
 #endif
 {
 	listenThreadArgv *argv=(listenThreadArgv*)params;
-	u_long protID=argv->protID;
 	MYSERVER_SOCKET serverSocket=argv->serverSocket;
 	delete argv;
 
@@ -458,8 +462,7 @@ void * listenServer(void* params)
 			continue;
 		if(asock==INVALID_SOCKET)
 			continue;
-		
-		lserver->addConnection(asock,&asock_in,protID);
+		lserver->addConnection(asock,&asock_in);
 	}
 	/*
 	*When the flag mustEndServer is true end current thread and clean the socket used for listening.
@@ -547,6 +550,7 @@ void cserver::terminate()
 	/*
 	*Clean here the memory allocated.
 	*/
+	vhostList.clean();
 	languageParser.close();
 	mimeManager.clean();
 	u_long threadsStopped=0;
@@ -577,9 +581,6 @@ void cserver::terminate()
 	{
 		printf("myServer is stopped\n\n");
 	}
-
-	ms_CloseFile(warningsLogFile);
-	ms_CloseFile(accessesLogFile);
 }
 /*
 *Get the server administrator e-mail address.
@@ -606,37 +607,14 @@ void cserver::initialize(int OSVer)
 	lstrcpy(guestPassword,"myServerUnknown");
 	browseDirCSSpath[0]='\0';
 	mustEndServer=false;
-	port_HTTP=80;
 	verbosity=1;
 	buffersize=1024*1024;
 	buffersize2=1024*1024;
 	serverAdmin[0]='\0';
-	/*
-	*Store the default path for web and system folder.
-	*/
-	ms_getdefaultwd(path,MAX_PATH);
-	lstrcat(path,"/web");
-	ms_getdefaultwd(systemPath,MAX_PATH);
-	lstrcat(systemPath,"/system");
-
-	/*
-	*Store the default name of the logs files.
-	*/
-	ms_getdefaultwd(warningsFileLogName,MAX_PATH);
-	lstrcat(warningsFileLogName,"/logs/myServer.err");
-	ms_getdefaultwd(accessesFileLogName,MAX_PATH);
-	lstrcat(accessesFileLogName,"/logs/myServer.log");
-
 
 	useMessagesFiles=true;
 	configurationFileManager.open("myserver.xml");
 	char *data;
-
-	data=configurationFileManager.getValue("HTTP_PORT");
-	if(data)
-	{
-		port_HTTP=(u_short)atoi(data);
-	}
 
 
 	data=configurationFileManager.getValue("VERBOSITY");
@@ -723,21 +701,6 @@ void cserver::initialize(int OSVer)
 		lstrcpy(serverAdmin,data);
 	}
 
-	data=configurationFileManager.getValue("WEB_DIRECTORY");
-	if(data)
-	{
-		ms_getdefaultwd(path,MAX_PATH);
-		lstrcat(path,"/");
-		lstrcat(path,data);
-	}
-
-	data=configurationFileManager.getValue("SYSTEM_DIRECTORY");
-	if(data)
-	{
-		ms_getdefaultwd(systemPath,MAX_PATH);
-		lstrcat(systemPath,"/");
-		lstrcat(systemPath,data);
-	}
 
 	data=configurationFileManager.getValue("USE_ERRS_FILES");
 	if(data)
@@ -761,19 +724,8 @@ void cserver::initialize(int OSVer)
 	if(data)
 	{
 		maxLogFileSize=(u_long)atol(data);
-		controlSizeLogFile();
 	}
 	
-	ms_getdefaultwd(warningsFileLogName,MAX_PATH);
-	ms_getdefaultwd(accessesFileLogName,MAX_PATH);
-	lstrcat(warningsFileLogName,"/");
-	lstrcat(accessesFileLogName,"/");
-
-	if(configurationFileManager.getValue("WARNINGS_FILE_NAME"))
-		lstrcat(warningsFileLogName,configurationFileManager.getValue("WARNINGS_FILE_NAME"));
-	if(configurationFileManager.getValue("ACCESSES_FILE_NAME"))
-		lstrcat(accessesFileLogName,configurationFileManager.getValue("ACCESSES_FILE_NAME"));
-
 	configurationFileManager.close();
 	
 	/*
@@ -791,51 +743,18 @@ void cserver::initialize(int OSVer)
 	ms_logonGuest();
 
 }
-
 /*
-*Control the size of the log file.
+*Get the max size of the logs file
 */
-void cserver::controlSizeLogFile()
+int cserver::getMaxLogFileSize()
 {
-	/*
-	*Controls the warnings file.
-	*/
-	if(!warningsLogFile)
-	{
-		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	}
-	u_long fs=0;
-	fs=ms_getFileSize(warningsLogFile);
-	if(fs>maxLogFileSize)
-	{
-		ms_CloseFile(warningsLogFile);
-		ms_DeleteFile(warningsFileLogName);
-		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	}
-	ms_setWarningsLogFile(warningsLogFile);
-
-
-	/*
-	*Controls the accesses file too.
-	*/
-	if(!accessesLogFile)
-	{
-		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	}
-	fs=ms_getFileSize(accessesLogFile);
-	if(fs>maxLogFileSize)
-	{
-		ms_CloseFile(accessesLogFile);
-		ms_DeleteFile(accessesFileLogName);
-		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	}
-	ms_setAccessesLogFile(accessesLogFile);
-
+	return maxLogFileSize;
 }
+
 /*
 *This function dispatch a new connection to a thread.
 */
-int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNECTION_PROTOCOL protID)
+int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 {
 	if(s==0)
 		return false;
@@ -856,33 +775,17 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 	strncpy(ip, inet_ntoa(asock_in->sin_addr), 32); // NOTE: inet_ntop supports IPv6
 	strncpy(myIp, inet_ntoa(localsock_in.sin_addr), 32); // NOTE: inet_ntop supports IPv6
 
+
 	int port=ntohs((*asock_in).sin_port);
+	int myport=ntohs(localsock_in.sin_port);
 
-
-	char msg[500];
-#ifdef WIN32
-	sprintf(msg, "%s:%s ->%s %s:%s\r\n", msgNewConnection, inet_ntoa(asock_in->sin_addr), serverName, msgAtTime, getRFC822GMTTime());
-#else
-	snprintf(msg, 500,"%s:%s ->%s %s:%s\r\n", msgNewConnection, inet_ntoa(asock_in->sin_addr), serverName, msgAtTime, getRFC822GMTTime());
-#endif
-	ms_accessesLogWrite(msg);
 
 	static u_long local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
-	if(!ct->addConnection(s,protID,&ip[0],&myIp[0],port))
+	if(!ct->addConnection(s,asock_in,&ip[0],&myIp[0],port,myport))
 	{
 		ret=false;
 		ms_closesocket(s);
-		if(verbosity>0)
-		{
-			char buffer[500];
-#ifdef WIN32
-			sprintf(buffer, "%s:%s ->%s %s:%s\r\n", msgErrorConnection, inet_ntoa(asock_in->sin_addr), serverName, msgAtTime, getRFC822GMTTime());
-#else
-			snprintf(buffer, 500,"%s:%s ->%s %s:%s\r\n", msgErrorConnection, inet_ntoa(asock_in->sin_addr), serverName, msgAtTime, getRFC822GMTTime());
-#endif
-			ms_warningsLogWrite(buffer);
-		}
 	}
 
 	if(++local_nThreads>=nThreads)
@@ -902,13 +805,6 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 			return c;
 	}
 	return NULL;
-}
-/*
-*Returns the full path of the system folder.
-*/
-char *cserver::getSystemPath()
-{
-	return systemPath;
 }
 /*
 *Returns the full path of the web folder.

@@ -21,11 +21,7 @@
 
 #include "../stdafx.h"
 typedef void *MYSERVER_FILE_HANDLE;
-u_long ms_accessesLogWrite(char*);
-void ms_setAccessesLogFile(MYSERVER_FILE_HANDLE);
 
-u_long ms_warningsLogWrite(char*);
-void ms_setWarningsLogFile(MYSERVER_FILE_HANDLE);
 u_long ms_getFileSize(MYSERVER_FILE_HANDLE);
 int ms_setFilePointer(MYSERVER_FILE_HANDLE,u_long);
 int ms_getPathRecursionLevel(char*);

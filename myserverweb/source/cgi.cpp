@@ -314,7 +314,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,td->request.VER);		
 
 	lstrcat(cgiEnvString,"\rSERVER_PORT=");
-	sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",lserver->port_HTTP);
+	sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",td->connection->localPort);
 
 	lstrcat(cgiEnvString,"\rREQUEST_METHOD=");
 	lstrcat(cgiEnvString,td->request.CMD);
@@ -427,7 +427,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	*interpretation if no PATH_INFO is provided. 	
 	*/
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
-		getPath(td->pathTranslated,td->request.URI,false);
+		getPath(td,td->pathTranslated,td->request.URI,false);
 		lstrcat(cgiEnvString,td->pathTranslated);	
 	}
 

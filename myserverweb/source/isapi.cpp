@@ -40,7 +40,7 @@ void cleanupISAPI()
 	if(connTable)
 		delete []connTable;
 }
-
+httpThreadContext* threadContext[MAXIMUM_PROCESSORS+1];
 /*
 *Main procedure to call an ISAPI module.
 */
@@ -70,13 +70,12 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	connTable[connIndex].td = td;
 	connTable[connIndex].Allocated = TRUE;
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-
 	AppHnd = LoadLibrary(cgipath);
 	if (AppHnd == NULL) 
 	{
-		ms_warningsLogWrite("Failure to load ISAPI application module: ");
-		ms_warningsLogWrite(cgipath);
-		ms_warningsLogWrite("\r\n");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to load ISAPI application module: ");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
 		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
@@ -84,19 +83,19 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	GetExtensionVersion = (PFN_GETEXTENSIONVERSION) GetProcAddress(AppHnd, "GetExtensionVersion");
 	if (GetExtensionVersion == NULL) 
 	{
-		ms_warningsLogWrite("Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
 		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
-		ms_warningsLogWrite("ISAPI GetExtensionVersion() returned FALSE\r\n");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("ISAPI GetExtensionVersion() returned FALSE\r\n");
 		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
-		ms_warningsLogWrite("ISAPI version not supported\r\n");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("ISAPI version not supported\r\n");
 		return raiseHTTPError(td,connection,e_501);
 	}
 	/*
@@ -133,7 +132,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)GetProcAddress(AppHnd, "HttpExtensionProc");
 	if (HttpExtensionProc == NULL) 
 	{
-		ms_warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
 		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
@@ -214,9 +213,9 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	}
 	if(!FreeLibrary(AppHnd))
 	{
-		ms_warningsLogWrite("Failure to FreeLibrary in ISAPI module");
-		ms_warningsLogWrite(cgipath);
-		ms_warningsLogWrite("\r\n");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+		((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
+		((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
 	}
 
 	connTable[connIndex].Allocated = FALSE;
@@ -231,7 +230,9 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		ms_warningsLogWrite("ServerSupportFunctionExport: invalid hConn\r\n");
+		preparePrintError();
+		printf("ServerSupportFunctionExport: invalid hConn\r\n");
+		endPrintError();
 		return FALSE;
 	}
 	switch (dwHSERRequest) 
@@ -239,7 +240,7 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
-			getPath(mapInfo->lpszPath,(char*)lpvBuffer,FALSE);
+			getPath(ConnInfo->td,mapInfo->lpszPath,(char*)lpvBuffer,FALSE);
 			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT|HSE_URL_FLAGS_EXECUTE;
@@ -250,7 +251,7 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 				lstrcpy(URL,(char*)lpvBuffer);
 			else
 				lstrcpyn(URL,ConnInfo->td->request.URI,lstrlen(ConnInfo->td->request.URI)-lstrlen(ConnInfo->td->pathInfo)+1 );
-			getPath((char*)lpvBuffer,URL,FALSE);
+			getPath(ConnInfo->td,(char*)lpvBuffer,URL,FALSE);
 			*lpdwSize=lstrlen((char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
@@ -335,7 +336,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		ms_warningsLogWrite("WriteClientExport: invalid hConn\r\n");
+		((vhost*)(ConnInfo->td->connection->host))->ms_warningsLogWrite("WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
 	strncat(ConnInfo->td->buffer,(char*)Buffer,*lpdwBytes);
@@ -360,7 +361,9 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		ms_warningsLogWrite("ReadClientExport: invalid hConn\r\n");
+		preparePrintError();
+		printf("ReadClientExport: invalid hConn\r\n");
+		endPrintError();
 		return FALSE;
 	}
 	ms_ReadFromFile(ConnInfo->td->inputData ,(char*)lpvBuffer,*lpdwSize,&NumRead);
@@ -387,7 +390,9 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		ms_warningsLogWrite("GetServerVariableExport: invalid hConn\r\n");
+		preparePrintError();
+		printf("GetServerVariableExport: invalid hConn\r\n");
+		endPrintError();
 		return FALSE;
 	}
 	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
@@ -549,7 +554,7 @@ BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWO
 		return 0;
 
 	if(valLen+30<maxLen)
-		valLen+=sprintf(&ValStr[valLen],"SERVER_PORT:%u\n",lserver->port_HTTP);
+		valLen+=sprintf(&ValStr[valLen],"SERVER_PORT:%u\n",td->connection->localPort);
 	else if(valLen+30<maxLen) 
 		return 0;
 
