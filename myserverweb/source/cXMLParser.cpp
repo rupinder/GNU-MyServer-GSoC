@@ -41,7 +41,6 @@ extern "C" {
 #endif
 
 /*!
-*This code is used to parse a pseudo-xml file.
 *With the open function we open a file and store it in memory.
 */
 int cXMLParser::open(char* filename)

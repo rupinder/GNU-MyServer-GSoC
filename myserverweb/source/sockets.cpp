@@ -253,7 +253,7 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 #endif
 }
 /*!
-*Function used to control the socket
+*Function used to control the socket.
 */
 int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
 {
@@ -269,7 +269,7 @@ int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
 #endif
 }
 /*!
-*Connect the socket
+*Connect the socket.
 */
 int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 {
@@ -281,7 +281,7 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 #endif
 }
 /*!
-*Receive data from the socket
+*Receive data from the socket.
 */
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
 {
@@ -296,7 +296,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
 }
 #ifndef DO_NOT_USE_SSL
 /*!
-*Free the SSL connection
+*Free the SSL connection.
 */
 int MYSERVER_SOCKET::freeSSL()
 {
@@ -308,7 +308,7 @@ int MYSERVER_SOCKET::freeSSL()
 	return 1;
 }
 /*!
-*Set the SSL context
+*Set the SSL context.
 */
 int MYSERVER_SOCKET::setSSLContext(SSL_CTX* context)
 {
@@ -316,7 +316,7 @@ int MYSERVER_SOCKET::setSSLContext(SSL_CTX* context)
 	return 1;
 }
 /*!
-*Initialize the SSL connection
+*Initialize the SSL connection.
 */
 int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 {
@@ -332,7 +332,7 @@ int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 	return 1;
 }
 /*!
-*Set SSL for the socket
+*Set SSL for the socket.
 */
 void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
 {
@@ -343,7 +343,7 @@ void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
 	sslSocket=nSSL;
 }
 /*!
-*SSL handshake
+*SSL handshake procedure.
 */
 int MYSERVER_SOCKET::sslAccept()
 {
@@ -402,14 +402,14 @@ SSL* MYSERVER_SOCKET::getSSLConnection()
 #endif
 
 /*!
-*Returns if the connection is using SSL
+*Returns if the connection is using SSL.
 */
 int MYSERVER_SOCKET::getSSL()
 {
 	return sslSocket;
 }
 /*!
-*Receive data from the socket
+*Receive data from the socket.
 */
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
@@ -443,7 +443,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 #endif
 }
 /*!
-*Returns the number of bytes waiting to be read
+*Returns the number of bytes waiting to be read.
 */
 u_long MYSERVER_SOCKET::bytesToRead()
 {
@@ -461,14 +461,14 @@ u_long MYSERVER_SOCKET::bytesToRead()
 	return nBytesToRead;
 }
 /*!
-*Returns the hostname
+*Returns the hostname.
 */
 int MYSERVER_SOCKET::gethostname(char *name,int namelen)
 {
 	return ::gethostname(name,namelen);
 }
 /*!
-*Returns the sockname
+*Returns the sockname.
 */
 int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 {
@@ -483,14 +483,14 @@ int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 #endif
 }
 /*!
-*Set the socket used by the server
+*Set the socket used by the server.
 */
 void MYSERVER_SOCKET::setServerSocket(MYSERVER_SOCKET* sock)
 {
 	serverSocket=sock;
 }
 /*!
-*Returns the server socket
+*Returns the server socket.
 */
 MYSERVER_SOCKET* MYSERVER_SOCKET::getServerSocket()
 {

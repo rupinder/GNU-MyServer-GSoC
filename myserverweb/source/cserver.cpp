@@ -98,7 +98,7 @@ void cserver::start()
 	system("clear");
 #endif
 	/*!
-	*Print the MyServer logo.
+	*Print the MyServer signature.
 	*/
 	char *software_signature=(char*)malloc(200);
 	sprintf(software_signature,"************MyServer %s************",versionOfSoftware);
@@ -138,11 +138,18 @@ void cserver::start()
 	*/
 	initISAPI();
 #endif	
+	/*!
+	*Initialize FastCGI
+	*/
 	initializeFASTCGI();
 	
+	/*!
+	*Initialize the SSL library
+	*/
+#ifndef DO_NOT_USE_SSL
 	SSL_library_init();
 	SSL_load_error_strings();
-
+#endif
 	printf("%s\n",languageParser.getValue("MSG_SERVER_CONF"));
 
 	/*!
@@ -183,16 +190,20 @@ void cserver::start()
 	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::gethostbyname(serverName);
 	in_addr ia;
 	ipAddresses[0]='\0';
-	for(i=0;localhe && (localhe->h_addr_list[i]);i++)
+	printf("Host: %s\r\n",serverName);
+	if(localhe)
 	{
+		for(i=0;(localhe->h_addr_list[i]);i++)
+		{
 #ifdef WIN32
-		ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+			ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 #endif
 #ifdef __linux__
-		ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
+			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
-		printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i,inet_ntoa(ia));
-		sprintf(&ipAddresses[strlen(ipAddresses)],"%s%s",strlen(ipAddresses)?",":"",inet_ntoa(ia));
+			printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i+1,inet_ntoa(ia));
+			sprintf(&ipAddresses[strlen(ipAddresses)],"%s%s",strlen(ipAddresses)?",":"",inet_ntoa(ia));
+		}
 	}
 	
 
@@ -404,9 +415,8 @@ int cserver::createServerAndListener(u_long port)
 
 	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port);
 
+
 	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
-
-
 	/*!
 	*Create the listen thread.
 	*/
@@ -458,9 +468,11 @@ void * listenServer(void* params)
 	/*!
 	*When the flag mustEndServer is 1 end current thread and clean the socket used for listening.
 	*/
-
 	serverSocket.shutdown( 2);
 	serverSocket.closesocket();
+	/*!
+	*Automatically free the current thread
+	*/	
 #ifdef WIN32
 	_endthread();
 #endif
@@ -545,6 +557,9 @@ void cserver::terminate()
 		if(threadsStopped==nThreads)
 			break;
 	}
+	/*!
+	*If there are open connections close them.
+	*/
 	if(connections)
 	{
 		clearAllConnections();
@@ -553,11 +568,19 @@ void cserver::terminate()
 	languageParser.close();
 	mimeManager.clean();
 #ifdef WIN32
+	/*!
+	*Under WIN32 cleanup ISAPI.
+	*/
 	FreeEnvironmentStrings((LPTSTR)envString);
 	cleanupISAPI();
 #endif	
+	/*!
+	*Clean FastCGI
+	*/
 	cleanFASTCGI();
-
+	/*!
+	*Clean MSCGI.
+	*/
 	freeMSCGILib();
 	delete[] defaultFilename;
 
@@ -736,7 +759,10 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 		return 0;
 	static int ret;
 	ret=1;
-	
+	/*!
+	*ip is the string containing the address of the remote host connecting to the server
+	*myip is the address of the local host on the same network.
+	*/
 	char ip[MAX_IP_STRING_LEN];
 	char myIp[MAX_IP_STRING_LEN];
 	MYSERVER_SOCKADDRIN  localsock_in;
@@ -781,8 +807,8 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	nc->timeout=clock();
 	nc->dataRead = 0;
 	nc->localPort=(u_short)localPort;
-	strcpy(nc->ipAddr,ipAddr);
-	strcpy(nc->localIpAddr,localIpAddr);
+	strncpy(nc->ipAddr,ipAddr,MAX_IP_STRING_LEN);
+	strncpy(nc->localIpAddr,localIpAddr,MAX_IP_STRING_LEN);
 	nc->next =connections;
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	/*!
@@ -790,8 +816,10 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	*/
 	if(((vhost*)nc->host)->protocol == PROTOCOL_HTTPS)
 	{
+#ifndef DO_NOT_USE_SSL		
 		SSL_CTX* ctx=((vhost*)nc->host)->getSSLContext();
 		nc->socket.setSSLContext(ctx);
+#endif		
 		int ret=nc->socket.sslAccept();
 		if(ret<0)
 		{
@@ -909,6 +937,9 @@ void cserver::clearAllConnections()
 		deleteConnection(c,1);
 		c=next;
 	}
+	/*!
+	*Reset everything
+	*/
 	nConnections=0;
 	connections=0;
 	connectionToParse=0;

@@ -40,7 +40,7 @@ vhost::vhost()
 	accessesLogFileAccess=warningsLogFileAccess=0;
 }
 /*!
-*vhost destructor
+*vhost class destructor
 */
 vhost::~vhost()
 {
