@@ -77,14 +77,9 @@ cserver::~cserver()
 void cserver::start()
 {
 	u_long i;
-	nConnections=0;
-	connections=0;
-	connectionToParse=0;
-	listingThreads=0;
 	/*!
-	*Reset flag
+	*Set everything to 0.
 	*/
-	mustEndServer=0;
 	memset(this, 0, sizeof(cserver));
 
 	/*!
@@ -396,20 +391,27 @@ void * listenServer(void* params)
 			continue;
 		lserver->addConnection(asock,&asock_in);
 	}
+	
 	/*!
 	*When the flag mustEndServer is 1 end current thread and clean the socket used for listening.
 	*/
-	serverSocket.shutdown( 2);
+	serverSocket.shutdown( SD_BOTH);
+	char buffer[256];
+	do
+	{
+		err=serverSocket.recv(buffer,buffersize,0);
+	}while(err!=-1);	
 	serverSocket.closesocket();
 	lserver->decreaseListeningThreadCount();
+	
 	/*!
 	*Automatically free the current thread
 	*/	
 	myserver_thread::terminate();
-
 	return 0;
 
 }
+
 /*!
 *Returns the numbers of active connections the list.
 */
@@ -417,7 +419,6 @@ u_long cserver::getNumConnections()
 {
 	return nConnections;
 }
-
 
 /*!
 *Get the verbosity value.
@@ -434,6 +435,7 @@ void  cserver::setVerbosity(u_long nv)
 {
 	verbosity=nv;
 }
+
 /*!
 *Stop the execution of the server.
 */
@@ -441,6 +443,7 @@ void cserver::stop()
 {
 	mustEndServer=1;
 }
+
 /*!
 *Unload the server.
 */
@@ -561,6 +564,7 @@ void cserver::initialize(int /*!OSVer*/)
 	*Create the mutex for the connections.
 	*/
 	c_mutex= new myserver_mutex;
+	
 	/*!
 	*Store the default values.
 	*/
@@ -601,14 +605,12 @@ void cserver::initialize(int /*!OSVer*/)
 					break;
 				outputF.writeToFile(buffer,nbr,&nbw);
 			}
-			
 			inputF.closeFile();
 			outputF.closeFile();
 	}		
 	
 	configurationFileManager.open("myserver.xml");
 	char *data;
-
 
 	data=configurationFileManager.getValue("VERBOSITY");
 	if(data)
@@ -682,7 +684,6 @@ void cserver::initialize(int /*!OSVer*/)
 	}
 	
 	configurationFileManager.close();
-	
 	
 	languageParser.open(languageFile);
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
@@ -1138,7 +1139,6 @@ void cserver::loadSettings()
 	https::loadProtocol(&languageParser,"myserver.xml");
 	protocols.loadProtocols("external/protocols",&languageParser,"myserver.xml",this);
 
-	
 	myserver_thread_ID ID;
 	if(threads)
 		free(threads);

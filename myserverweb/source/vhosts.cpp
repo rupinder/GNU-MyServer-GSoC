@@ -73,6 +73,7 @@ void vhost::clearHostList()
 		delete prevshl;
 	hostList=0;
 }
+
 /*!
 *Clear the list of IPs
 */
@@ -91,6 +92,7 @@ void vhost::clearIPList()
 		delete prevsil;
 	ipList=0;
 }
+
 /*!
 *Add an IP address to the list
 */
@@ -180,7 +182,7 @@ void vhost::removeHost(char *host)
 */
 int vhost::isHostAllowed(char* host)
 {
-	if(hostList==0)
+	if(hostList==0)/*If no hosts are specified, every host is allowed to connect to*/
 		return 1;
 	sHostList *lhl=hostList;
 	while(lhl)
@@ -192,7 +194,7 @@ int vhost::isHostAllowed(char* host)
 	return 0;
 }
 /*!
-*Check if all the host are allowed to the connection
+*Check if all the host are allowed to the connection.
 */
 int vhost::areAllHostAllowed()
 {
@@ -201,7 +203,7 @@ int vhost::areAllHostAllowed()
 	return 0;
 }
 /*!
-*Check if all the IPs are allowed to the connection
+*Check if all the IPs are allowed to the connection.
 */
 int vhost::areAllIPAllowed()
 {
@@ -214,7 +216,7 @@ int vhost::areAllIPAllowed()
 */
 int vhost::isIPAllowed(char* ip)
 {
-	if(ipList==0)
+	if(ipList==0)/*If no IPs are specified, every IP is allowed to connect to*/
 		return 1;
 	sIpList *lipl=ipList;
 	while(lipl)

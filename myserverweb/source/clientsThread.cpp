@@ -86,10 +86,11 @@ void * startClientsTHREAD(void* pParam)
 	ct->buffersize2=lserver->buffersize2;
 	ct->buffer=(char*)malloc(ct->buffersize);
 	ct->buffer2=(char*)malloc(ct->buffersize2);
-	ct->initialized=1;
-
+	
 	ct->http_parser = new http();
 	ct->https_parser = new https();
+	
+	ct->initialized=1;
 
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
@@ -134,6 +135,7 @@ void ClientsTHREAD::controlConnections()
 		lserver->connections_mutex_unlock();
 		return;
 	}
+	
 	/*!
 	*Set the connection parsing flag to true.
 	*/
