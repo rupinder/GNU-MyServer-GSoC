@@ -933,7 +933,7 @@ int File::completePath(string &fileName)
   char *buffer;
   int bufferLen;
 
-  bufferLen = GetFullPathName(buffer, 0, fileName.c_str(), 0) + 1;
+  bufferLen = GetFullPathName(fileName.c_str(), 0, buffer, 0) + 1;
   if(bufferLen == 0)
     return -1;
   buffer = new char[bufferLen];
@@ -941,7 +941,7 @@ int File::completePath(string &fileName)
   {
     return -1;
   }
-  if(GetFullPathName(buffer, bufferLen, fileName.c_str(), 0) == 0)
+  if(GetFullPathName(fileName.c_str(), bufferLen, buffer, 0) == 0)
   {
     delete [] buffer;
     return -1;
