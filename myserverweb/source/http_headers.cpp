@@ -993,7 +993,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 
 /*!
  *Build the HTTP RESPONSE HEADER string.
- *If no input is setted the input is the main buffer of the 
+ *If no input is specified the input is the main buffer of the 
  *HttpThreadContext structure.
  *Return 0 on invalid input or internal errors.
  */
