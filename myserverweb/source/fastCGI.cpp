@@ -44,6 +44,8 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	strcpy(td->scriptPath,scriptpath);
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
+	strcpy(td->buffer,"FCGI_ROLE=RESPONDER\r");
+	
 	buildCGIEnvironmentString(td,td->buffer);
 	int sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer,td->buffer2);
 

@@ -142,6 +142,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*by the execHiddenProcess(...) function.
 	*Use the td->buffer2 to build the environment string.
 	*/
+	td->buffer2[0]='\0';
 	buildCGIEnvironmentString(td,td->buffer2);
 
 
@@ -299,7 +300,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	*For no errors with the function lstrcat we use the character \r for the \0 character
 	*and at the end we change every \r in \0.
 	*/
-	lstrcpy(cgiEnvString,"SERVER_SOFTWARE=myServer");
+	lstrcat(cgiEnvString,"SERVER_SOFTWARE=myServer");
 	lstrcat(cgiEnvString,versionOfSoftware);
 
 #ifdef WIN32
