@@ -1729,11 +1729,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
   else if( mimeCMD == CGI_CMD_EXECUTEWINCGI )
 	{
 		char *cgipath=0;
-    if(data)
-      delete [] data;
-
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
+      if(data)
+        delete [] data;
 			return sendAuth(td, s);
 		}
 		if(data)
@@ -1741,6 +1740,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       cgipath = new char[strlen(data)+strlen(td->filenamePath)+4];
       if(cgipath==0)
       {
+        if(data)
+          delete [] data;
         return sendHTTPhardError500(td, s);
       }
 			sprintf(cgipath, "%s \"%s\"", data, td->filenamePath);
@@ -1750,11 +1751,14 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       cgipath = new char[strlen(td->filenamePath)+1];
       if(cgipath==0)
       {
+        if(data)
+          delete [] data;
         return sendHTTPhardError500(td, s);
       }
 			sprintf(cgipath, "%s", td->filenamePath);
     }
-	
+    if(data)
+      delete [] data;
     ret=lwincgi.sendWINCGI(td, s, cgipath, only_header);
 		if(cgipath)
 	      delete [] cgipath;
@@ -1847,14 +1851,15 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       delete [] data;
     return (ret & keepalive);
 	}
-	if(!(permissions & MYSERVER_PERMISSION_READ))
-	{     
-    if(data)
-      delete [] data;
-		return sendAuth(td, s);
-	}
+  
   if(data)
     delete [] data;
+
+	if(!(permissions & MYSERVER_PERMISSION_READ))
+	{     
+		return sendAuth(td, s);
+	}
+
 	lastMT=MYSERVER_FILE::getLastModTime(td->filenamePath);
 	if(lastMT==-1)
   {
