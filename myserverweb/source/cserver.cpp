@@ -112,10 +112,11 @@ void cserver::start()
 	*/
 	char *software_signature=(char*)malloc(200);
 	sprintf(software_signature,"************MyServer %s************",versionOfSoftware);
+
 	i=(u_long)strlen(software_signature);
 	while(i--)
 		printf("*");
-    printf("\n%s\n",software_signature);
+    	printf("\n%s\n",software_signature);
 	i=(u_long)strlen(software_signature);
 	while(i--)
 		printf("*");
@@ -411,9 +412,9 @@ int cserver::createServerAndListener(u_long port)
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
 	if(serverSocket.getHandle()==INVALID_SOCKET)
 	{
-        preparePrintError();
+        	preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_OPENP"));
-        endPrintError();		
+        	endPrintError();		
 		return 0;
 
 	}
@@ -430,9 +431,9 @@ int cserver::createServerAndListener(u_long port)
 	int optvalReuseAddr=1;
 	if(serverSocket.setsockopt(SOL_SOCKET,SO_REUSEADDR,(const char *)&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
 	{
-        preparePrintError();
+        	preparePrintError();
 		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
-        endPrintError();
+        	endPrintError();
 		return 0;
 	}
 
@@ -447,7 +448,7 @@ int cserver::createServerAndListener(u_long port)
 	{
 		preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_BIND"));
-        endPrintError();
+        	endPrintError();
 		return 0;
 	}
 	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
@@ -458,9 +459,9 @@ int cserver::createServerAndListener(u_long port)
 	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
 	if (serverSocket.listen(SOMAXCONN))
 	{ 
-        preparePrintError();
+        	preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
-        endPrintError();	
+        	endPrintError();	
 		return 0; 
 	}
 
