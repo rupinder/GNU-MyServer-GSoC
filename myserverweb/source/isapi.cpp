@@ -143,7 +143,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("isapi::WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	int keepalive = lstrcmpi(td->request.CONNECTION,"Keep-Alive")==0;
+	int keepalive = (lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive")==0) ? 1 : 0 ;
 	char chunk_size[15];
 	int nbw=0;
 	if(!ConnInfo->headerSent)
