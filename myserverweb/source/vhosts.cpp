@@ -50,6 +50,7 @@ vhost::~vhost()
 {
 	clearHostList();
 	clearIPList();
+	freeSSL();
 	if(accessesLogFile.getHandle())
 		accessesLogFile.closeFile();
 	if(warningsLogFile.getHandle())
@@ -340,7 +341,9 @@ void vhostmanager::clean()
 	while(shl)
 	{
 		if(prevshl)
+		{
 			delete prevshl;
+		}
 		prevshl=shl;
 		shl=shl->next;
 	}

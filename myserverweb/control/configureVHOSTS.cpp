@@ -78,6 +78,10 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 		return;
 	}
 	setcwdBuffer();
+
+	SSL_library_init();
+	SSL_load_error_strings();
+
 	hostmanager.loadXMLConfigurationFile("virtualhosts.xml");
 	wxPanel *panel = new wxPanel(this, -1);
 
@@ -116,9 +120,9 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 	hostWarnings=new wxTextCtrl(panel,Configuration_hostWarningsMod,"",wxPoint(400,90), wxSize(230,20));
 
 	wxStaticText *hostProtocolS= new wxStaticText(panel, -1, "Protocol used",wxPoint(320,110), wxSize(100,40));
-	hostProtocol=new wxListBox(panel,Configuration_protocolMod,wxPoint(400,110), wxSize(230,20),0, NULL,wxLB_HSCROLL);
-	hostProtocol->Insert(_T("HTTP"),PROTOCOL_HTTP);
-	hostProtocol->Insert(_T("HTTPS"),PROTOCOL_HTTPS);
+	hostProtocol=new wxComboBox(panel,Configuration_protocolMod,"HTTP",wxPoint(400,110), wxSize(230,20),0, NULL,wxCB_DROPDOWN|wxCB_READONLY);
+	hostProtocol->Append(_T("HTTP"));
+	hostProtocol->Append(_T("HTTPS"));
 
 	vhostmanager::sVhostList *sl = hostmanager.getvHostList();
 	while(sl)

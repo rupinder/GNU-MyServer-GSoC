@@ -58,7 +58,7 @@ public:
 	wxTextCtrl *hostSys;
 	wxTextCtrl *hostAcc;
 	wxTextCtrl *hostWarnings;
-	wxListBox *hostProtocol;
+	wxComboBox *hostProtocol;
 	vhost *currentVHost;
 	configurationFrameVHOSTS(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size,long style = wxDEFAULT_FRAME_STYLE);
 	void OnQuit(wxCommandEvent& event);
