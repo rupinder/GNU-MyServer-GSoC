@@ -79,7 +79,6 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 {
 #ifdef WIN32
 	u_long nbr;
-	char cmdLine[MAX_PATH + 120];/*! Use MAX_PATH under windows. */
 	char  dataFilePath[MAX_PATH];/*! Use MAX_PATH under windows. */
   char outFilePath[MAX_PATH];  /*! Use MAX_PATH under windows. */
   char *buffer;
@@ -244,12 +243,11 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 		}
 	}
 	OutFileHandle.closeFile();
-	strcpy(cmdLine,"cmd /c \"");
-	strcat(cmdLine, filename);
-	strcat(cmdLine, "\" ");
-	strcat(cmdLine, dataFilePath);
+	spi.cmdLine.assign("cmd /c \"");
+	spi.cmdLine.append(filename);
+	spi.cmdLine.append("\" ");
+	spi.cmdLine.append(dataFilePath);
 	spi.cwd.assign(pathname);
-	spi.cmdLine.assign(cmdLine);
 
 	if (execHiddenProcess(&spi, timeout))
 	{
