@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/connectionstruct.h"/*Used for protocols IDs*/
 
+#ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
 #include<openssl/crypto.h>
 #include<openssl/lhash.h>
@@ -31,6 +32,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include<openssl/pem.h>
 #include<openssl/x509.h>
 #include<openssl/rand.h>
+#else
+	#define SSL_CTX int;
+	#define SSL_METHOD int;
+#endif
 static int password_cb(char *buf,int num,int rwflag,void *userdata);
 class vhost
 {

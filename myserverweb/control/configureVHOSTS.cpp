@@ -44,6 +44,7 @@ enum
 	Configuration_hostWarningsMod,
 	Configuration_protocolMod
 };
+#define DO_NOT_USE_SSL
 #include "../source/vhosts.cpp"
 #include "../source/utility.cpp"
 
@@ -78,9 +79,6 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 		return;
 	}
 	setcwdBuffer();
-
-	SSL_library_init();
-	SSL_load_error_strings();
 
 	hostmanager.loadXMLConfigurationFile("virtualhosts.xml");
 	wxPanel *panel = new wxPanel(this, -1);

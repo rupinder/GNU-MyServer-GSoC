@@ -25,11 +25,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 
 
-#ifdef WIN32
-#pragma comment(lib,"libeay32.lib")/*Import the OpenSSL library*/
-#pragma comment(lib,"ssleay32.lib")/*Import the OpenSSL library*/
-#endif
-
 
 /*
 *vhost costructor
@@ -848,9 +843,9 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 
 		if(list->host->sslContext.certificateFile[0])
 		{
-			out.writeToFile("<SSL_CERTIFICATE>",20,&nbw);
+			out.writeToFile("<SSL_CERTIFICATE>",17,&nbw);
 			out.writeToFile(list->host->sslContext.certificateFile,(u_long)strlen(list->host->sslContext.certificateFile),&nbw);
-			out.writeToFile("</SSL_CERTIFICATE>\r\n",23,&nbw);
+			out.writeToFile("</SSL_CERTIFICATE>\r\n",20,&nbw);
 		}
 
 		if(list->host->sslContext.password[0])
@@ -902,6 +897,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 */
 int vhost::initializeSSL()
 {
+#ifndef DO_NOT_USE_SSL
 	if(this->protocol!=PROTOCOL_HTTPS)
 		return -2;
 	sslContext.method = SSLv23_method();
@@ -918,12 +914,16 @@ int vhost::initializeSSL()
 		SSL_CTX_set_verify_depth(ctx,1);
 #endif
 	return 1;
+#else
+	return 1;
+#endif
 }	
 /*
 *Generate a RSA key and pass it to the SSL context.
 */
 void vhost::generateRsaKey()
 {
+#ifndef DO_NOT_USE_SSL
 	RSA *rsa;
 
 	rsa=RSA_generate_key(512,RSA_F4,NULL,NULL);
@@ -932,6 +932,7 @@ void vhost::generateRsaKey()
 		return;
 
 	RSA_free(rsa);
+#endif
 }
 /*
 *Get the SSL context.
@@ -945,6 +946,7 @@ SSL_CTX* vhost::getSSLContext()
 */
 int vhost::freeSSL()
 {
+#ifndef DO_NOT_USE_SSL
 	if(sslContext.context)
 	{
 		SSL_CTX_free(sslContext.context);
@@ -952,6 +954,9 @@ int vhost::freeSSL()
 	}
 	else 
 		return 0;
+#else
+	return 1;
+#endif
 }
 /*
 *Get a virtual host by its position in the list.

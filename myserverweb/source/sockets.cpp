@@ -38,10 +38,10 @@ extern "C" {
 #pragma comment(lib,"ws2_32.lib")
 #endif
 
-#define CERT_FILE "certificates/server.pem"		
-#define KEY_FILE  "certificates/server.key"
-#define CIPHER_LIST  "aRSA"
-
+#ifdef WIN32
+#pragma comment(lib,"libeay32.lib")/*Import the OpenSSL library*/
+#pragma comment(lib,"ssleay32.lib")/*Import the OpenSSL library*/
+#endif
 /*
 *Source code to wrap the socket library to myServer project.
 */
