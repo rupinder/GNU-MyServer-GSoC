@@ -11,11 +11,11 @@ extern "C" int main (char *cmd,cgi_data* data)
 	cgi_manager cm(data);
 	if(strlen(cmd)==0)	
 	{	
-		cm.Write("<title>MyServer</title><body bgcolor=\"#FFFFFF\" text=\"#666699\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"></p><form method=\"POST\"><p align=\"center\">  <input type=\"text\" name=\"T1\" size=\"20\" value=\"POST\">	  <input type=\"submit\" value=\"Send\" name=\"B1\">	  <input type=\"reset\" value=\"Reset\" name=\"B2\"></p>	  </p>	</form><p align=\"center\">&nbsp;</p>	<p>&nbsp;</p>");
+		cm.Write("<title>MyServer</title><body bgcolor=\"#FFFFFF\" text=\"#666699\"><p align=\"center\"><img border=\"0\" src=\"logo.png\"></p><form method=\"POST\"><p align=\"center\">  <input type=\"text\" name=\"T1\" size=\"20\" value=\"POST\">	  <input type=\"submit\" value=\"Send\" name=\"B1\">	  <input type=\"reset\" value=\"Reset\" name=\"B2\"></p>	  </p>	</form><p align=\"center\">&nbsp;</p>	<p>&nbsp;</p>");
 	}
 	else
 	{
-		cm.Write("<title>MyServer</title><body bgcolor=\"#FFFFFF\" text=\"#666699\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"></p>Argument posted:");
+		cm.Write("<title>MyServer</title><body bgcolor=\"#FFFFFF\" text=\"#666699\"><p align=\"center\"><img border=\"0\" src=\"logo.png\"></p>Argument posted:");
 		char *post=cm.PostParam("T1");
 		if(post==0)
 			post=cm.GetParam("T1");

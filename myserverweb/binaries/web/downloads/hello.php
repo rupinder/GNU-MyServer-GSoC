@@ -9,4 +9,5 @@
 	{
 		print("<P>Query string: ". $qs);	
 	}
+        print("\r\n");
 ?>
