@@ -119,9 +119,11 @@ MYSERVER_SOCKET::MYSERVER_SOCKET()
 {
   /*! Reset everything. */
 #ifndef DO_NOT_USE_SSL
+  localSSL = 0;
 	sslSocket=0;
 	sslConnection=0;
 	sslContext=0;
+  sslMethod = 0;
 #endif
 	serverSocket=0;
 	setHandle(0);
@@ -156,7 +158,8 @@ int MYSERVER_SOCKET::listen(int max)
 /*!
  *Accept a new connection.
  */
-MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,int /*!sslHandShake*/)
+MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,
+                                        int /*!sslHandShake*/)
 {
 
 	MYSERVER_SOCKET s;
@@ -166,7 +169,8 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 	s.sslSocket=0;
 #endif
 #ifdef WIN32
-	MYSERVER_SOCKET_HANDLE h=(MYSERVER_SOCKET_HANDLE)::accept(socketHandle,sa,sockaddrlen);
+	MYSERVER_SOCKET_HANDLE h=(MYSERVER_SOCKET_HANDLE)::accept(socketHandle,sa,
+                                                            sockaddrlen);
 	s.setHandle(h);
 #endif
 #ifdef NOT_WIN
@@ -187,10 +191,17 @@ int MYSERVER_SOCKET::closesocket()
 	freeSSL();
 #endif
 #ifdef WIN32
-	return ::closesocket(socketHandle);
+  if(socketHandle)
+    return ::closesocket(socketHandle);
+  else
+    return 0;
 #endif
+
 #ifdef NOT_WIN
-	return ::close((int)socketHandle);
+  if(socketHandle)
+    return ::close((int)socketHandle);
+  else
+    return 0;
 #endif
 }
 
@@ -294,11 +305,48 @@ int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
  */
 int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 {
+#ifndef DO_NOT_USE_SSL
+	if(sslSocket)
+	{
+    sslMethod = SSLv23_client_method();
+    /*! Create the local context. */
+    sslContext = SSL_CTX_new(sslMethod);
+    if(sslContext == 0)
+      return -1;
+
+
+    /*! Do the TCP connection. */
+    if(::connect((int)socketHandle,sa,na))
+    {
+      SSL_CTX_free(sslContext);
+      sslContext = 0;
+      return -1;
+    }
+    sslConnection = SSL_new(sslContext);
+    if(sslConnection == 0)
+    {
+      SSL_CTX_free(sslContext);
+      sslContext = 0;
+      return -1;
+    }
+    SSL_set_fd(sslConnection, (int)socketHandle);
+    if(SSL_connect(sslConnection) == 1)
+    {
+      SSL_CTX_free(sslContext);
+      closesocket();
+      sslContext = 0;
+      return -1;
+    }
+    localSSL = 1;
+    return 0;
+  }
+#endif
+
 #ifdef WIN32
-	return ::connect((SOCKET)socketHandle,sa,na);
+  return ::connect((SOCKET)socketHandle,sa,na);
 #endif
 #ifdef NOT_WIN
-	return ::connect((int)socketHandle,sa,na);
+  return ::connect((int)socketHandle,sa,na);
 #endif
 }
 
@@ -329,6 +377,10 @@ int MYSERVER_SOCKET::freeSSL()
 		SSL_free(sslConnection);
 		sslConnection=0;
 	}
+  if(localSSL && sslContext)
+  {
+    SSL_CTX_free(sslContext);
+  }
 	return 1;
 }
 
