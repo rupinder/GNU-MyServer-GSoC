@@ -26,13 +26,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 /*
-*vhost
+*vhost costructor
 */
 vhost::vhost()
 {
 	ipList=0;
 	hostList=0;
 }
+/*
+*vhost destructor
+*/
 vhost::~vhost()
 {
 	clearHostList();
@@ -43,6 +46,9 @@ vhost::~vhost()
 		warningsLogFile.closeFile();
 	memset(this,0,sizeof(vhost));
 }
+/*
+*Clear the list of the hosts
+*/
 void vhost::clearHostList()
 {
 	sHostList* shl=hostList;
@@ -58,6 +64,9 @@ void vhost::clearHostList()
 		delete prevshl;
 	hostList=0;
 }
+/*
+*Clear the list of IPs
+*/
 void vhost::clearIPList()
 {
 	sIpList* sil=ipList;
@@ -73,6 +82,9 @@ void vhost::clearIPList()
 		delete prevsil;
 	ipList=0;
 }
+/*
+*Add an IP address to the list
+*/
 void vhost::addIP(char *ip)
 {
 	sIpList* il=new sIpList();
@@ -87,7 +99,9 @@ void vhost::addIP(char *ip)
 	}
 	ipList=il;
 }
-
+/*
+*Check if an host is allowed to the connection
+*/
 int vhost::isHostAllowed(char* host)
 {
 	if(hostList==0)
@@ -101,6 +115,9 @@ int vhost::isHostAllowed(char* host)
 	}
 	return 0;
 }
+/*
+*Check if the network is allowed to the connection(control the network by the local IP)
+*/
 int vhost::isIPAllowed(char* ip)
 {
 	if(ipList==0)
@@ -114,7 +131,9 @@ int vhost::isIPAllowed(char* ip)
 	}
 	return 0;
 }
-
+/*
+*Add an host to the allowed host list
+*/
 void vhost::addHost(char *host)
 {
 	sHostList* hl=new sHostList();
@@ -129,24 +148,34 @@ void vhost::addHost(char *host)
 	}
 	hostList=hl;
 }
-
+/*
+*Write to the accesses log file
+*/
 u_long vhost::accessesLogWrite(char* str)
 {
 	u_long nbw;
 	accessesLogFile.writeToFile(str,strlen(str),&nbw);
 	return nbw;
 }
+/*
+*Return a pointer to the file used by the accesses log
+*/
 MYSERVER_FILE* vhost::getAccessesLogFile()
 {
 	return &accessesLogFile;
 }
-
+/*
+*Write to the warnings log file
+*/
 u_long vhost::warningsLogWrite(char* str)
 {
 	u_long nbw;
 	warningsLogFile.writeToFile(str,strlen(str),&nbw);
 	return nbw;
 }
+/*
+*Return a pointer to the file used by the warnings log
+*/
 MYSERVER_FILE* vhost::getWarningsLogFile()
 {
 	return &warningsLogFile;
@@ -154,7 +183,7 @@ MYSERVER_FILE* vhost::getWarningsLogFile()
 
 
 /*
-*vhostmanager
+*vhostmanager costructor
 */
 void vhostmanager::addvHost(vhost* vHost)
 {
@@ -181,6 +210,9 @@ void vhostmanager::addvHost(vhost* vHost)
 	}
 	
 }
+/*
+*Get the vhost for the connection(if any)
+*/
 vhost* vhostmanager::getvHost(char* host,char* ip,u_short port)
 {
 	sVhostList* vhl;
@@ -196,11 +228,16 @@ vhost* vhostmanager::getvHost(char* host,char* ip,u_short port)
 	}
 	return 0;
 }
-
+/*
+*vhostmanager costructor
+*/
 vhostmanager::vhostmanager()
 {
 	vhostList=0;
 }
+/*
+*Clean the virtual hosts
+*/
 void vhostmanager::clean()
 {
 	sVhostList* shl=vhostList;
@@ -216,11 +253,16 @@ void vhostmanager::clean()
 		delete prevshl;
 	memset(this,0,sizeof(vhostmanager));
 }
+/*
+*vhostmanager destructor
+*/
 vhostmanager::~vhostmanager()
 {
 	clean();
 }
-
+/*
+*Load the virtual hosts from a configuration file
+*/
 void vhostmanager::loadConfigurationFile(char* filename)
 {
 	/*
@@ -396,6 +438,9 @@ void vhostmanager::loadConfigurationFile(char* filename)
 	}
 	fh.closeFile();
 }
+/*
+*Save the virtual hosts to a configuration file
+*/
 void vhostmanager::saveConfigurationFile(char *filename)
 {
 	char buffer[1024];
@@ -482,12 +527,16 @@ void vhostmanager::saveConfigurationFile(char *filename)
 	}
 	fh.closeFile();
 }
-
+/*
+*returns the entire virtual hosts list
+*/
 vhostmanager::sVhostList* vhostmanager::getvHostList()
 {
 	return this->vhostList;
 }
-
+/*
+*Load the virtual hosts from a XML configuration file
+*/
 void vhostmanager::loadXMLConfigurationFile(char *filename)
 {
 	cXMLParser parser;
@@ -557,6 +606,9 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 	}
 	parser.close();
 }
+/*
+*Save the virtual hosts to a XML configuration file
+*/
 void vhostmanager::saveXMLConfigurationFile(char *filename)
 {
 	MYSERVER_FILE out;

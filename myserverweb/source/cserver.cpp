@@ -607,6 +607,7 @@ void cserver::terminate()
 }
 /*
 *Get the server administrator e-mail address.
+*To change this use the main configuration file.
 */
 char *cserver::getServerAdmin()
 {

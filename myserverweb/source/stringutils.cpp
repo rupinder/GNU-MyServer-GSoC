@@ -221,12 +221,8 @@ char *getRFC822LocalTime(const time_t ltime,char* out,int len)
 	return out;
 }
 
-
-
-
-
 /*
-*Trim a string.
+*Trim the string str by the characters trimchars.
 */
 void StrTrim(char* str,const char* trimchars)
 {

@@ -474,49 +474,32 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		return raiseHTTPError(td,s,e_404);
 
 	/*
-	*getMIME returns true if the ext is registered by a CGI.
+	*getMIME returns the type of command registered by the extension.
 	*/
 	int mimeCMD=getMIME(td->response.CONTENT_TYPE,td->filenamePath,ext,data);
 
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
-		if(MYSERVER_FILE::fileExists(td->filenamePath))
-		{
-			if(sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
-				return 1;
-		}
-		else
-		{
-			return raiseHTTPError(td,s,e_404);
-		}
+		if(sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
+			return 1;
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
-		if(MYSERVER_FILE::fileExists(td->filenamePath))
-		{
 #ifdef WIN32
-			return sendISAPI(td,s,td->filenamePath,ext,data);
+		return sendISAPI(td,s,td->filenamePath,ext,data);
 #endif
 #ifdef __linux__
-			return raiseHTTPError(td,s,e_501);
+		return raiseHTTPError(td,s,e_501);
 #endif
-		}
-		else
-			return raiseHTTPError(td,s,e_404);
 	}else if(mimeCMD==CGI_CMD_EXECUTEISAPI)
 	{
-		if(MYSERVER_FILE::fileExists(td->filenamePath))
-		{
 #ifdef WIN32
-			char cgipath[MAX_PATH*2];
-			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
-			return sendISAPI(td,s,td->filenamePath,ext,cgipath);
+		char cgipath[MAX_PATH*2];
+		sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		return sendISAPI(td,s,td->filenamePath,ext,cgipath);
 #endif
 #ifdef __linux__
-			return raiseHTTPError(td,s,e_501);
+		return raiseHTTPError(td,s,e_501);
 #endif
-		}
-		else
-			return raiseHTTPError(td,s,e_404);
 	}
 	else if(mimeCMD==CGI_CMD_RUNMSCGI)
 	{

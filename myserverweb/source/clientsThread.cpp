@@ -162,6 +162,9 @@ void ClientsTHREAD::controlConnections()
 	}
 	terminateAccess(&connectionWriteAccess,this->id);
 }
+/*
+*Stop the thread
+*/
 void ClientsTHREAD::stop()
 {
 	/*
@@ -305,7 +308,7 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 }
 
 /*
-*Delete all the connections.
+*Delete all the active connections.
 */
 void ClientsTHREAD::clearAllConnections()
 {
@@ -340,7 +343,7 @@ LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 }
 
 /*
-*Returns true if the thread is active.
+*Returns a non-null value if the thread is active.
 */
 int ClientsTHREAD::isRunning()
 {
