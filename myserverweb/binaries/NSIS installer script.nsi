@@ -64,7 +64,7 @@ Section "MyServer core" SecCore
     CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Configuration files\MIME types.lnk" "$INSTDIR\MIMEtypes.xml"
   !insertmacro MUI_STARTMENU_WRITE_END
 
-  
+   CreateDirectory "$INSTDIR\certificates"
 SectionEnd
 
 

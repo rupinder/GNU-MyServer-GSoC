@@ -20,7 +20,7 @@
 <WARNINGLOG>logs/myServer.err</WARNINGLOG>
 <SSL_PRIVATEKEY>certificates/server.key</SSL_PRIVATEKEY>
 <SSL_CERTIFICATE>certificates/server.pem</SSL_CERTIFICATE>
-<SSL_PASSWORD>logs/myServer.err</SSL_PASSWORD>
+<SSL_PASSWORD></SSL_PASSWORD>
 </VHOST>
 
 </VHOSTS>
