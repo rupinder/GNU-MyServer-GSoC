@@ -525,6 +525,16 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     knownCommand = 1;
     ret = PUTFILE(header.getOptions(), Ifile, Ofile, b1, bs1);
   }
+  else if(!strcmp(command, "DISABLEREBOOT"))
+  {
+    knownCommand = 1;
+    ret = DISABLEREBOOT();
+  }
+  else if(!strcmp(command, "ENABLEREBOOT"))
+  {
+    knownCommand = 1;
+    ret = ENABLEREBOOT();
+  }
   else if(!strcmp(command, "SHOWLANGUAGEFILES"))
   {
     knownCommand = 1;
@@ -931,4 +941,21 @@ int control_protocol::GETVERSION(MYSERVER_FILE* out, char *b1,int bs1)
   u_long nbw;
   sprintf(b1, "MyServer %s", versionOfSoftware);
   return Ofile->writeToFile(b1, strlen(b1), &nbw);
+}
+
+/*!
+ *Disable the auto-reboot on the server.
+ */
+int control_protocol::DISABLEREBOOT()
+{
+  lserver->disableAutoReboot();
+  return 0;
+}
+/*
+ *Enable the auto-reboot on the server.
+ */
+int control_protocol::ENABLEREBOOT()
+{
+  lserver->enableAutoReboot();
+  return 0;
 }
