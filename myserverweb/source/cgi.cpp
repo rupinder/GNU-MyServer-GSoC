@@ -274,6 +274,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	/*! Don't close the socket for Keep-Alive connections.  */
 	return (!lstrcmpi(td->response.CONNECTION,"Keep-Alive"));
 }
+
 /*!
 *Write the string that contain the CGI environment to cgiEnvString.
 *This function is used by other server side protocols too.
@@ -300,45 +301,45 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgi_env_string,i
 #endif
 #endif
 	/*! *Must use REDIRECT_STATUS for php and others.  */
-	memCgi << "\rREDIRECT_STATUS=TRUE";
+	memCgi << end_str << "REDIRECT_STATUS=TRUE";
 	
-	memCgi << "\rSERVER_NAME=";
+	memCgi << end_str << "SERVER_NAME=";
  	memCgi << lserver->getServerName();
 
-	memCgi << "\rSERVER_SIGNATURE=";
+	memCgi << end_str << "SERVER_SIGNATURE=";
 	memCgi << "<address>MyServer ";
 	memCgi << versionOfSoftware;
 	memCgi << "</address>";
 
-	memCgi << "\rSERVER_PROTOCOL=";
+	memCgi << end_str << "SERVER_PROTOCOL=";
 	memCgi << td->request.VER;	
 	
-	memCgi << "\rSERVER_PORT=" << CMemBuf::UIntToStr(td->connection->localPort);
+	memCgi << end_str << "SERVER_PORT=" << CMemBuf::UIntToStr(td->connection->localPort);
 
-	memCgi << "\rSERVER_ADMIN=";
+	memCgi << end_str << "SERVER_ADMIN=";
 	memCgi << lserver->getServerAdmin();
 
-	memCgi << "\rREQUEST_METHOD=";
+	memCgi << end_str << "REQUEST_METHOD=";
 	memCgi << td->request.CMD;
 
-	memCgi << "\rREQUEST_URI=/";
+	memCgi << end_str << "REQUEST_URI=/";
 	
  	memCgi << td->request.URI;
 
-	memCgi << "\rQUERY_STRING=";
+	memCgi << end_str << "QUERY_STRING=";
 	memCgi << td->request.URIOPTS;
 
-	memCgi << "\rGATEWAY_INTERFACE=CGI/1.1";
+	memCgi << end_str << "GATEWAY_INTERFACE=CGI/1.1";
 
 	if(td->request.CONTENT_TYPE[0])
 	{
-		memCgi << "\rCONTENT_TYPE=";
+		memCgi << end_str << "CONTENT_TYPE=";
 		memCgi << td->request.CONTENT_TYPE;
 	}
 
 	if(td->request.CONTENT_LENGTH[0])
 	{
-		memCgi << "\rCONTENT_LENGTH=";
+		memCgi << end_str << "CONTENT_LENGTH=";
 		memCgi << td->request.CONTENT_LENGTH;
 	}
 	else
@@ -346,140 +347,140 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgi_env_string,i
 		u_long fs=0;
 		if(td->inputData.getHandle())
 			fs=td->inputData.getFileSize();
-		memCgi << "\rCONTENT_LENGTH=" << CMemBuf::UIntToStr(fs);
+		memCgi << end_str << "CONTENT_LENGTH=" << CMemBuf::UIntToStr(fs);
 	}
 
 	if(td->request.COOKIE[0])
 	{
-		memCgi << "\rHTTP_COOKIE=";
+		memCgi << end_str << "HTTP_COOKIE=";
 		memCgi << td->request.COOKIE;
 	}
 
 	if(td->request.REFERER[0])
 	{
-		memCgi << "\rHTTP_REFERER=";
+		memCgi << end_str << "HTTP_REFERER=";
 		memCgi << td->request.REFERER;
 	}
 	if(td->request.CACHE_CONTROL[0])
 	{
-		memCgi << "\rHTTP_CACHE_CONTROL=";
+		memCgi << end_str << "HTTP_CACHE_CONTROL=";
 		memCgi << td->request.CACHE_CONTROL;
 	}
 	if(td->request.ACCEPT[0])
 	{
-		memCgi << "\rHTTP_ACCEPT=";
+		memCgi << end_str << "HTTP_ACCEPT=";
 		memCgi << td->request.ACCEPT;
 	}
 
 	if(td->cgiRoot[0])
 	{
-		memCgi << "\rCGI_ROOT=";
+		memCgi << end_str << "CGI_ROOT=";
 		memCgi << td->cgiRoot;
 	}
 	if(td->request.HOST[0])
 	{
-		memCgi << "\rHTTP_HOST=";
+		memCgi << end_str << "HTTP_HOST=";
 		memCgi << td->request.HOST;
 	}
 	if(td->connection->ipAddr[0])
 	{
-		memCgi << "\rREMOTE_ADDR=";
+		memCgi << end_str << "REMOTE_ADDR=";
 		memCgi << td->connection->ipAddr;
 	}
 	if(td->connection->port)
 	{
-	 	memCgi << "\rREMOTE_PORT=";
+	 	memCgi << end_str << "REMOTE_PORT=";
 		memCgi << CMemBuf::UIntToStr(td->connection->port);
 	}
 
 	if(td->connection->login[0])
 	{
-	  	memCgi << "\rREMOTE_USER=";
+	  	memCgi << end_str << "REMOTE_USER=";
 		memCgi << td->connection->login;
 	}
 	
 	if(((vhost*)(td->connection->host))->protocol==PROTOCOL_HTTPS)
-		memCgi << "\rSSL=ON";
+		memCgi << end_str << "SSL=ON";
 	else
-		memCgi << "\rSSL=OFF";
+		memCgi << end_str << "SSL=OFF";
 
 	if(td->request.CONNECTION[0])
 	{
-		memCgi << "\rHTTP_CONNECTION=";
+		memCgi << end_str << "HTTP_CONNECTION=";
 		memCgi << td->request.CONNECTION;
 	}
 	if(td->request.AUTH[0])
 	{
-		memCgi << "\rAUTH_TYPE=";
+		memCgi << end_str << "AUTH_TYPE=";
 		memCgi << td->request.AUTH;
 	}
 	if(td->request.USER_AGENT[0])
 	{
-		memCgi << "\rHTTP_USER_AGENT=";
+		memCgi << end_str << "HTTP_USER_AGENT=";
 		memCgi << td->request.USER_AGENT;
 	}
 	if(td->request.ACCEPTENC[0])
 	{
-		memCgi << "\rHTTP_ACCEPT_ENCODING=";
+		memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
 		memCgi << td->request.ACCEPTENC;
 	}
 	if(td->request.ACCEPTLAN[0])
 	{
-		memCgi << "\rHTTP_ACCEPT_LANGUAGE=";
+		memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
 	  	memCgi << td->request.ACCEPTLAN;
 	}
 	if(td->pathInfo[0])
 	{
-		memCgi << "\rPATH_INFO=";
+		memCgi << end_str << "PATH_INFO=";
 	  	memCgi << td->pathInfo;
 	  	
-	  	memCgi << "\rPATH_TRANSLATED=";
+	  	memCgi << end_str << "PATH_TRANSLATED=";
 		memCgi << td->pathTranslated;
 	}
 	else
 	{
-  		memCgi << "\rPATH_TRANSLATED=";
+  		memCgi << end_str << "PATH_TRANSLATED=";
 		memCgi << td->filenamePath;
 	}
 
- 	memCgi << "\rSCRIPT_FILENAME=";
+ 	memCgi << end_str << "SCRIPT_FILENAME=";
 	memCgi << td->filenamePath;
 	
 	/*!
 	*For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.
 	*/
-	memCgi << "\rSCRIPT_NAME=/";
+	memCgi << end_str << "SCRIPT_NAME=/";
 	memCgi << td->request.URI;
 
-	memCgi << "\rSCRIPT_URL=/";
+	memCgi << end_str << "SCRIPT_URL=/";
 	memCgi << td->request.URI;
 
-	memCgi << "\rDATE_GMT=";
+	memCgi << end_str << "DATE_GMT=";
 	getRFC822GMTTime(strTmp,HTTP_RESPONSE_DATE_DIM);
 	memCgi << strTmp;
 
- 	memCgi << "\rDATE_LOCAL=";
+ 	memCgi << end_str << "DATE_LOCAL=";
 	getRFC822LocalTime(strTmp,HTTP_RESPONSE_DATE_DIM);
 	memCgi << strTmp;
 
-	memCgi << "\rDOCUMENT_ROOT=";
+	memCgi << end_str << "DOCUMENT_ROOT=";
 	memCgi << ((vhost*)(td->connection->host))->documentRoot;
 
-	memCgi << "\rDOCUMENT_URI=/";
+	memCgi << end_str << "DOCUMENT_URI=/";
 	memCgi << td->request.URI;
 	
-	memCgi << "\rDOCUMENT_NAME=";
+	memCgi << end_str << "DOCUMENT_NAME=";
 	memCgi << td->filenamePath;
 
 	if(td->identity[0])
 	{
-  		memCgi << "\rREMOTE_IDENT=";
-    	memCgi << td->identity;
+  		memCgi << end_str << "REMOTE_IDENT=";
+    		memCgi << td->identity;
 	}
 #ifdef WIN32
 	if(processEnv)
 	{
-		memCgi << "\r";
+		memCgi << end_str;
   		LPTSTR lpszVariable; 
 		LPVOID lpvEnv; 
 		lpvEnv = lserver->envString; 
@@ -488,7 +489,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgi_env_string,i
 			if(((char*)lpszVariable)[0] !='=')
 			{
 				memCgi << (char*)lpszVariable;
-				memCgi << "\r";
+				memCgi << end_str;
 			}
 			while (*lpszVariable)*lpszVariable++;
 		} 
@@ -496,5 +497,4 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgi_env_string,i
 #endif
 
 	memCgi << end_str;
-	memCgi.Replace('\r', '\0');
 }

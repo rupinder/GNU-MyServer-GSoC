@@ -75,14 +75,14 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
 	/*! Send the folder content.  */
 	u_long nbw;
-	int err;
+	int ret;
 	getdefaultwd(td->outputDataPath,MAX_PATH);
 	MYSERVER_FILE_HANDLE outputDataHandle = td->outputData.getHandle();
 	if( outputDataHandle == 0 )
 	{
 		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)],"/stdOutFile_%u",td->id);
-		err = !td->outputData.openFile(td->outputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
-		if(err)
+		ret = !td->outputData.openFile(td->outputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
+		if(ret)
 		{
 			return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
 		}
@@ -119,8 +119,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	*td->buffer2<<"<html>\r\n<head>\r\n<title>" ;
 	*td->buffer2<< td->request.URI ;
 	*td->buffer2<< "</title>\r\n</head>\r\n" ; 
-	err = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
-	if(err)
+	ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+	if(ret)
 	{
 		td->outputData.closeFile();
 		return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
@@ -285,7 +285,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		}	
 		do
 		{
-			ret = !td->outputData.readFromFile((char*)td->buffer->GetBuffer(),td->buffer->GetRealLength(),&nbr)
+			ret = !td->outputData.readFromFile((char*)td->buffer->GetBuffer(),td->buffer->GetRealLength(),&nbr);
 			if( ret )
 			{
 				td->outputData.closeFile();
@@ -405,7 +405,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	*With this routine we send a file through the HTTP protocol.
 	*Open the file and save its handle.
 	*/
-	int ret;
+	u_long ret;
 	/*Will we use GZIP compression to send data?*/
 	int use_gzip=0;
 	MYSERVER_FILE h;
@@ -496,7 +496,6 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	/*! Number of bytes created by the zip compressor by loop.  */
 	u_long gzip_dataused=0;
 	u_long dataSent=0;
-	u_long err;
 	if(use_gzip)
 		gzip.gzip_initialize((char*)td->buffer2->GetBuffer(),td->buffer2->GetRealLength(),(char*)td->buffer->GetBuffer(),td->buffer->GetRealLength());
 	for(;;)
@@ -545,21 +544,21 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			if(keepalive)
 			{
 				sprintf(chunksize,"%x\r\n",gzip_dataused);
-				err=s->socket.send(chunksize,(int)strlen(chunksize), 0);
-				if(err == SOCKET_ERROR)
+				ret=s->socket.send(chunksize,(int)strlen(chunksize), 0);
+				if(ret == SOCKET_ERROR)
 					break;
 			}
 			if(gzip_dataused)
 			{
-				err=s->socket.send((char*)td->buffer->GetBuffer(),gzip_dataused, 0);
-				if(err == SOCKET_ERROR)
+				ret=s->socket.send((char*)td->buffer->GetBuffer(),gzip_dataused, 0);
+				if(ret == SOCKET_ERROR)
 					break;
-				dataSent+=err;
+				dataSent+=ret;
 			}
 			if(keepalive)
 			{
-				err=s->socket.send("\r\n",2, 0);
-				if(err == SOCKET_ERROR)
+				ret=s->socket.send("\r\n",2, 0);
+				if(ret == SOCKET_ERROR)
 					break;
 			}
 		}
@@ -570,8 +569,8 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			{
 				if(!td->appendOutputs)
 				{
-					err=s->socket.send((char*)td->buffer->GetBuffer(),nbr, 0);
-					if(err==-1)
+					ret=s->socket.send((char*)td->buffer->GetBuffer(),nbr, 0);
+					if(ret==-1)
 					{
 						h.closeFile();
 						return 0;
@@ -579,16 +578,17 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 				}
 				else
 				{
-				    if(!td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&err))
+					td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&ret);
+				    	if(ret)
 					{
 						h.closeFile();
 						return 0;
 					}
 					
 				}
-				if(err == SOCKET_ERROR)
+				if(ret == SOCKET_ERROR)
 					break;
-				dataSent+=err;
+				dataSent+=ret;
 			}
 		}
 		/*! When the bytes number read from the file is zero, stop to send the file.  */
@@ -596,8 +596,8 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		{
 			if(keepalive && use_gzip )
 			{
-				err=s->socket.send("0\r\n\r\n",5, 0);
-				if(err==-1)
+				ret=s->socket.send("0\r\n\r\n",5, 0);
+				if(ret==-1)
 				{
 					h.closeFile();
 					return 0;
@@ -1465,11 +1465,11 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 			u_long timeout=get_ticks();
 			if((content_len)&&(content_len!=nbw))
 			{
-				int err;
+				int ret;
 				u_long fs;
 				do
 				{
-					err=0;
+					ret=0;
 					fs=td.inputData.getFileSize();
 					while(get_ticks()-timeout<SEC(5))
 					{
@@ -1483,22 +1483,22 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 								/*!
 								*Read the unwanted bytes but do not save them.
 								*/
-								err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer2->GetRealLength(), 0);
+								ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer2->GetRealLength(), 0);
 							}
 							break;
 						}
 						if((content_len>fs)&&(td.connection->socket.bytesToRead()))
 						{				
 							u_long tr=min(content_len-total_nbr,td.buffer2->GetRealLength());
-							err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),tr, 0);
-							if(err==-1)
+							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),tr, 0);
+							if(ret==-1)
 							{
 								td.inputData.closeFile();
 								td.inputData.deleteFile(td.inputDataPath);
 								return 0;
 							}
 							
-							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),(u_long)err,&nbw))
+							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),(u_long)ret,&nbw))
 							{
 								td.inputData.closeFile();
 								td.inputData.deleteFile(td.inputDataPath);
@@ -1531,16 +1531,16 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 			}
 			else if(content_len==0)/*!If CONTENT-LENGTH is not specified read all the data*/
 			{
-				int err;
+				int ret;
 				do
 				{
-					err=0;
+					ret=0;
 					while(get_ticks()-timeout<SEC(3))
 					{
 						if(td.connection->socket.bytesToRead())
 						{
-							err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer2->GetRealLength(), 0);
-							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),err,&nbw))
+							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer2->GetRealLength(), 0);
+							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),ret,&nbw))
 							{
 								td.inputData.deleteFile(td.inputDataPath);
 								td.inputData.closeFile();
