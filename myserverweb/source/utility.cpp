@@ -118,7 +118,8 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 	BOOL doBreak=FALSE;
 	if(!(lenStr&lenTrimChars))
 		return;
-	for(int j=0;j<=lenStr;j++)
+	int j=0;
+	for(j=0;j<=lenStr;j++)
 	{
 		if(doBreak)
 			break;
