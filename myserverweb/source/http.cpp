@@ -40,6 +40,10 @@ LOGGEDUSERID Thread hImpersonation;
 
 BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 {
+	/*
+	*Send the content of a folder if there are not any default
+	*file to send.
+	*/
 	static char filename[MAX_PATH];
 	static DWORD startChar=lstrlen(lserver->getPath())+1;
 	
@@ -83,6 +87,9 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 		}
 		return 1;
 	}
+	/*
+	*With the current code we build the HTML TABLE that describe the files in the folder
+	*/
 	sprintf(buffer2+lstrlen(buffer2),"<TABLE><TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>",msgFile,msgLModify,msgSize);
 	static char fileSize[10];
 	static char fileTime[20];
@@ -132,6 +139,9 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 }
 BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByte,int lastByte)
 {
+	/*
+	*With this code we send a file through the HTTP protocol
+	*/
 	MYSERVER_FILE_HANDLE h;
 	h=openFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(h==0)
@@ -207,6 +217,10 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 }
 BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
 {
+	/*
+	*With this code we manage a request of a file or a folder or anything that we must send
+	*over the HTTP
+	*/
 	buffer[0]='\0';
 	buildDefaultHttpResponseHeader(&response);
 
@@ -229,7 +243,12 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 		c++;
 	}
 	if((*(c-1))=='/')(*(c-1))='\0';
-
+	/*
+	*If there are not any extension then we do one of this in order:
+	1)We send the default file in the folder
+	2)We send the folder content
+	3)We send an error
+	*/
 	if(lstrlen(ext)==0)
 	{
 		static char fileName[MAX_PATH];
@@ -501,7 +520,10 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 			}
 			request.URIOPTS[0]='\0';
 
-
+			/*
+			*URIOPTSPTR points to the first character in the buffer that are data send by the
+            *client.
+			*/
 			request.URIOPTSPTR=&buffer[maxTotChars];
 			buffer[max(nBytesToRead,buffersize)]='\0';
 
@@ -803,45 +825,59 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*/
 	if(lserver->mustUseLogonOption())
 		revertToSelf();
-	static int len;
 	char cmdLine[MAX_PATH*2];
 	
 	sprintf(cmdLine,"%s \"%s%s\"",exec,lserver->getPath(),filename);
 
     /*
     *Use a temporary file to store CGI output.
-    *Every thread has it own tmp file name(tmpBufferFilePath),
+    *Every thread has it own tmp file name(stdOutFilePath),
     *so use this name for the file that is going to be
     *created because more threads can access more CGI in the same time.
     */
 
 	char currentpath[MAX_PATH];
-	char tmpBufferFilePath[MAX_PATH];
+	char stdOutFilePath[MAX_PATH];
+	char stdInFilePath[MAX_PATH];
 	_getcwd(currentpath,MAX_PATH);
 	static DWORD id=0;
 	id++;
-	sprintf(tmpBufferFilePath,"%s/%tmpbuffer_%u",currentpath,id);
+	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,id);
+	sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,id);
 	buffer2[0]='\0';
 	
-	MYSERVER_FILE_HANDLE tmpBufferFile = createTemporaryFile(tmpBufferFilePath);
+	/*
+	*Standard CGI uses standard output to output the result and the standard 
+	*input to get other params like in a POST request
+	*/
+
+	MYSERVER_FILE_HANDLE stdOutFile = createTemporaryFile(stdOutFilePath);
+	MYSERVER_FILE_HANDLE stdInFile = createTemporaryFile(stdInFilePath);
+	
+	DWORD nbw;
+	writeToFile(stdInFile,request.URIOPTSPTR,atoi(request.CONTENTS_DIM),&nbw);
+	char *endFileStr="\r\n\r\n\0";
+	writeToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
+	setFilePointer(stdInFile,0);
 
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
-	spi.stdError = spi.stdIn = (MYSERVER_FILE_HANDLE)0;
-	spi.stdOut = (MYSERVER_FILE_HANDLE)tmpBufferFile;
+	spi.stdError = (MYSERVER_FILE_HANDLE)0;
+	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
+	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
 	execHiddenProcess(&spi);
 	
 	DWORD nBytesRead;
-	setFilePointer(tmpBufferFile,0);
-	readFromFile(tmpBufferFile,buffer2,buffersize2,&nBytesRead);
+	setFilePointer(stdOutFile,0);
+	readFromFile(stdOutFile,buffer2,buffersize2,&nBytesRead);
 	buffer2[max(buffersize2,nBytesRead)]='\0';
 
 	/*
-	*Standards CGI can include an extra HTTP header
-	*so don't terminate with \r\n myServer header.
+	*Standard CGI can include an extra HTTP header
+	*so don't terminate with \r\n the default myServer header.
 	*/	
 	DWORD headerSize;
-	for(headerSize=0;headerSize<len;headerSize++)
+	for(headerSize=0;headerSize<nBytesRead;headerSize++)
 	{
 		if(buffer2[headerSize]=='\r')
 			if(buffer2[headerSize+1]=='\n')
@@ -850,7 +886,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 						break;
 	}
 	headerSize+=4;
-	len=nBytesRead-headerSize;
+	int len=nBytesRead-headerSize;
 
 	sprintf(response.CONTENTS_DIM,"%u",len);
 	buildHttpResponseHeader(buffer,&response);
@@ -866,8 +902,10 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*/
 	send(s->socket,buffer2,nBytesRead, 0);
 
-	closeFile(tmpBufferFile);
-	deleteFile(tmpBufferFilePath);
+	closeFile(stdOutFile);
+	deleteFile(stdOutFilePath);
+	closeFile(stdInFile);
+	deleteFile(stdInFilePath);
 
 	/*
 	*Restore security on the current thread

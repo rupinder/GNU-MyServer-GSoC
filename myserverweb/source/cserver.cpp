@@ -236,7 +236,6 @@ void cserver::start(INT hInst)
 	while(!mustEndServer);
 
 	this->terminate();
-	_endthreadex(0);
 }
 
 unsigned int __stdcall listenServerHTTP(void*)
