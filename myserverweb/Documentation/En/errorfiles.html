@@ -13,12 +13,12 @@
 You can modify the html pages that are sent when an error occurs. <br>
 <br>
 The default files are contained in the <font class="code">system</font>
-folder used by the host and can be replaced with your own
+directory used by the host and can be replaced with your own
 files. Different <a href="virtualhosts.html">Virtual Hosts</a>
 can use different error files.<br>
 <br>
 The pages must not contain any references to other documents in the
-system folder. <br>
+system directory. <br>
 <br>
 <img src="images/sample404.gif" title="" alt="Sample 404 Error">
 <br>
@@ -28,11 +28,10 @@ cannot be found on the server.
 </p>
 To define a personalized error page file for a virtual host you can add a line like the following in the primary
 virtual host security file. Defining a different error file, the server will look in the 
-<span class="code">web</span> folder instead of the <span class="code">system</span> one. If no presonalized files are used 
+<span class="code">web</span> directory instead of the <span class="code">system</span> one. If no personalized files are used 
 the server will look for the file <span class="code">x.html</span> in the <span class="code">system</span> 
 folder, where <span class="code">x</span> is the error number(for example:<span class="code">404.html</span>).
- A primary security file for a virtual host is the security file that is located in the main folder of the 
-virtual host. If this file doesn't exist too the error will be communicated trough HTTP.
+ A primary security file for a virtual host is the security file located in the security directory. If this file doesn't exist too the error will be sent only trough HTTP.
 <p  class="code">
 &lt;ERROR FILE="error404.html" ID="404" /&gt;
 </p>

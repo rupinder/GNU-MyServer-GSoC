@@ -10,8 +10,6 @@
 <h1 align="center" class="title">PAGINE DI ERRORE</h1>
 <br>
 <br>
-Tu puoi modificare le pagine usate per inviare un errore. <br>
-<br>
 I files di default sono contenuti nella cartella <font class="code">system</font> 
 del virtual host e possono essere rimpiazzati con i tuoi. 
 Differenti <a href="virtualhosts.html">Virtual Hosts</a>
@@ -25,10 +23,10 @@ Il famoso errore 404 avviene quando il server non trova il file sul server.
 <p ><br>
 </p>
 Per definire una pagina di errore personalizzata per un virtual host puoi aggiungere una linea come la seguente nel 
-primo security.xml file del virtual host(quello presente nella cartella principale del virtual host). Se vengono definiti files personalizzati 
+primo security.xml file del virtual host(il file security presente nella directory system del virtual host). Se vengono definiti files personalizzati 
 i files verrano cercati nella cartella del <span class="code">web</span> invece che in quella <span class="code">system</span>.<br> 
 I files cercati nella cartella <span class="code">system</span> devono avere un nome <span class="code">x.html</span> dove x &egrave; 
-l'errore HTTP da inviare al client. Se neanche questo file viene trovato il server invier&agrave; al client l'errore attraverso il protocollo HTTP.
+l'errore HTTP da inviare al client. Se neanche questo file viene trovato il server invier&agrave; al client l'errore solo attraverso il codice di errore HTTP.
 Con questa riga si configura il web server per inviare il file error404.html in caso di errore 404.
 <p class="code">
 &lt;ERROR FILE="error404.html" ID="404" /&gt;

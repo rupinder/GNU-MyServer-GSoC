@@ -41,23 +41,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *Return other valus on success, please note to free
  *out after its use.
  */
-int SecurityManager::getErrorFileName(char *root, int error, 
+int SecurityManager::getErrorFileName(char *sysDir, int error, 
                                       char** out, XmlParser* parser)
 {
+	xmlNode *node;
 	char *permissionsFile;
-  *out = 0;
   int permissionsFileLen;
 	XmlParser local_parser;  
   xmlDocPtr doc;
 	int found=0;
-	xmlNode *node;
+  *out = 0;
   if(parser == 0)
   { 
-    permissionsFileLen = strlen(root) + 10;
+    permissionsFileLen = strlen(sysDir) + 10;
     permissionsFile = new char[permissionsFileLen];
     if(permissionsFile==0)
       return 0;
-    sprintf(permissionsFile,"%s/security",root);
+    sprintf(permissionsFile,"%s/security", sysDir);
     if(!File::fileExists(permissionsFile))
     {
       delete [] permissionsFile;
@@ -85,28 +85,52 @@ int SecurityManager::getErrorFileName(char *root, int error,
 		if(!xmlStrcmp(node->name, (const xmlChar *)"ERROR"))
 		{
 			xmlAttr *attr =  node->properties;
+      char *fileName = 0;
 			while(attr)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
-				{
-          if(*out)
-            delete [] (*out);
-          *out = new char[strlen((const char*)attr->children->content)+1];
-          if(*out == 0)
+        {
+          fileName = (char*)attr->children->content;
+
+          /*! The error ID is correct. */
+          if(found)
           {
-            if(parser == 0)
+            *out = new char[strlen(fileName)+1];
+            if(*out == 0)
             {
-              local_parser.close();
+              if(parser == 0)
+              {
+                local_parser.close();
+              }
+              return -1;
             }
-            return -1;
+            strcpy(*out,(const char*)fileName);
           }
-					strcpy(*out,(const char*)attr->children->content);
-				}
+       }
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
 				{
-					int error_id=atoi((const char*)attr->children->content);
+					int error_id = atoi((const char*)attr->children->content);
+          if(*out)
+            delete [] (*out);
+
 					if(error_id==error)
 						found=1;
+          else
+            continue;
+          /*! The file name was still specified. */
+          if(fileName)
+          {
+            *out = new char[strlen(fileName)+1];
+            if(*out == 0)
+            {
+              if(parser == 0)
+              {
+                local_parser.close();
+              }
+              return -1;
+            }
+            strcpy(*out,(const char*)fileName);
+          }
 				}
 				attr=attr->next;
 			}
@@ -117,7 +141,13 @@ int SecurityManager::getErrorFileName(char *root, int error,
 	}
   if(parser== 0)
     local_parser.close();
-	return found;
+  
+  /*! Return 1 if both it was found and well configured. */
+  if(found && (*out))
+    return 1;
+  
+  return 0;
+
 }
 
 /*!
@@ -227,11 +257,11 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 	
 		if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
 		{
-			attr =  node->properties;
 			int tempGenericPermissions=0;
 			int rightUser=0;
 			int rightPassword=0;
-			while(attr)
+      attr =  node->properties;
+      while(attr)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
 				{
@@ -297,7 +327,7 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 					int tempUserPermissions=0;
 					int rightUser=0;
 					int rightPassword=0;
-					attr =  node2->properties;
+					attr = node2->properties;
 					while(attr)
 					{
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))

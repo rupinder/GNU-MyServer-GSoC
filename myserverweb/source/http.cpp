@@ -2164,7 +2164,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     int ret;
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
     sec_cache_mutex.lock();
-		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot, 
+		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->systemRoot, 
                                      getHTTPStatusCodeFromErrorID(ID),
                                      ((Vhost*)(a->host))->systemRoot, &defFile);
     sec_cache_mutex.unlock();
