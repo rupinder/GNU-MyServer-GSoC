@@ -820,3 +820,22 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit74]
+FileName=include\log_manager.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit75]
+FileName=source\log_manager.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=

@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
 #include "../include/connectionstruct.h"/*!Used for protocols IDs*/
 #include "../include/myserver_regex.h"
+#include "../include/log_manager.h"
 
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
@@ -46,10 +47,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class vhost
 {
-	MYSERVER_FILE* warningsLogFile;
-	MYSERVER_FILE* accessesLogFile;
-	/*! Max size in bytes for the log files used by this host. */
-	u_long maxLogSize;
+	MYSERVER_LOG_MANAGER warningsLogFile;
+	MYSERVER_LOG_MANAGER accessesLogFile;
 public:
 	struct sHostList
 	{
@@ -139,10 +138,12 @@ public:
 	void clearHostList();
 	int isHostAllowed(char*);
 	int isIPAllowed(char*);
-	void setMaxLogSize(u_long);
-	u_long getMaxLogSize();
-	myserver_mutex accessesLogFileAccess;
-	myserver_mutex warningsLogFileAccess;
+	void setMaxLogSize(int);
+	int getMaxLogSize();
+
+
+	MYSERVER_LOG_MANAGER* getWarningsLog();
+	MYSERVER_LOG_MANAGER* getAccessesLog();
 
 	u_long accesseslogRequestAccess(int id);
 	u_long warningslogRequestAccess(int id);
@@ -150,14 +151,11 @@ public:
 	u_long warningslogTerminateAccess(int id);
 
 	~vhost();
-	/*!
-   *Functions to manage the logs file.
-   *Derived directly from the filemanager utilities.
-   */
-	u_long accessesLogWrite(char*);
+
+	int accessesLogWrite(char*);
 	MYSERVER_FILE* getAccessesLogFile();
 
-	u_long warningsLogWrite(char*);
+  int warningsLogWrite(char*);
 	MYSERVER_FILE* getWarningsLogFile();
 };
 

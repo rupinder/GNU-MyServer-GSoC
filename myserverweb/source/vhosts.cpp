@@ -51,10 +51,6 @@ vhost::vhost()
 	systemRoot=0;
   accessesLogFileName=0;
   warningsLogFileName=0;
-  warningsLogFile = new MYSERVER_FILE();
-  accessesLogFile = new MYSERVER_FILE();
-	accessesLogFileAccess.myserver_mutex_init();
-	warningsLogFileAccess.myserver_mutex_init();
 }
 /*!
  *Destroy the vhost. 
@@ -65,12 +61,6 @@ vhost::~vhost()
 	clearIPList();
 	freeSSL();
 
-	if(accessesLogFile->getHandle())
-		accessesLogFile->closeFile();
-
-	if(warningsLogFile->getHandle())
-		warningsLogFile->closeFile();
-
   if(documentRoot)
     delete [] documentRoot;
   if(systemRoot)
@@ -80,17 +70,14 @@ vhost::~vhost()
   if(warningsLogFileName)
     delete [] warningsLogFileName;
 
-  delete warningsLogFile;
-  delete accessesLogFile;
+  warningsLogFile.close();
+  accessesLogFile.close();
   
   documentRoot=0;
 	systemRoot=0;
   accessesLogFileName=0;
   warningsLogFileName=0;
   
-	accessesLogFileAccess.myserver_mutex_destroy();
-	warningsLogFileAccess.myserver_mutex_destroy();
-
 }
 
 /*!
@@ -328,7 +315,8 @@ void vhost::addHost(char *host, int isRegex)
  */
 u_long vhost::accesseslogRequestAccess(int id)
 {
-	return accessesLogFileAccess.myserver_mutex_lock(id);
+	accessesLogFile.requestAccess();
+  return 0;
 }
 
 /*!
@@ -336,7 +324,8 @@ u_long vhost::accesseslogRequestAccess(int id)
  */
 u_long vhost::warningslogRequestAccess(int id)
 {
-	return warningsLogFileAccess.myserver_mutex_lock(id);
+	warningsLogFile.requestAccess();
+  return 0;
 }
 
 /*!
@@ -344,7 +333,8 @@ u_long vhost::warningslogRequestAccess(int id)
  */
 u_long vhost::accesseslogTerminateAccess(int id)
 {
-	return accessesLogFileAccess.myserver_mutex_unlock(id);
+	accessesLogFile.terminateAccess();
+  return 0;
 }
 
 /*!
@@ -352,66 +342,80 @@ u_long vhost::accesseslogTerminateAccess(int id)
  */
 u_long vhost::warningslogTerminateAccess(int id)
 {
-	return warningsLogFileAccess.myserver_mutex_unlock(id);
+	warningsLogFile.terminateAccess();
+  return 0;
 }
 
 /*!
 *Write to the accesses log file
 */
-u_long vhost::accessesLogWrite(char* str)
+int vhost::accessesLogWrite(char* str)
 {
-	u_long nbw;
-	if(accessesLogFile->getFileSize() > getMaxLogSize())
-		return 0;
-	accessesLogFile->writeToFile(str, (u_long)strlen(str), &nbw);
-	return nbw;
+	return accessesLogFile.write(str);
 }
 
 /*!
- *Return a pointer to the file used by the accesses log
+ *Return a pointer to the file used by the accesses log.
  */
 MYSERVER_FILE* vhost::getAccessesLogFile()
 {
-	return accessesLogFile;
+	return accessesLogFile.getFile();
 }
 
 /*!
- *Write to the warnings log file
+ *Get the log object for the warnings.
  */
-u_long vhost::warningsLogWrite(char* str)
+MYSERVER_LOG_MANAGER* vhost::getWarningsLog()
 {
-	u_long nbw;
-	if(warningsLogFile->getFileSize()>getMaxLogSize())
-		return 0;
-	warningsLogFile->writeToFile(str,(u_long)strlen(str),&nbw);
-	return nbw;
+  return &warningsLogFile;
+}
+
+/*!
+ *Get the log object for the accesses.
+ */
+MYSERVER_LOG_MANAGER* vhost::getAccessesLog()
+{
+  return &accessesLogFile;
+}
+
+/*!
+ *Write to the warnings log file.
+ */
+int vhost::warningsLogWrite(char* str)
+{
+	return warningsLogFile.write(str);
 }
 /*!
- *Return a pointer to the file used by the warnings log
+ *Return a pointer to the file used by the warnings log.
  */
 MYSERVER_FILE* vhost::getWarningsLogFile()
 {
-	return warningsLogFile;
+	return warningsLogFile.getFile();
 }
 
 /*!
  *Set the max size of the log files.
  */
-void vhost::setMaxLogSize(u_long newSize)
+void vhost::setMaxLogSize(int newSize)
 {
-	maxLogSize=newSize;
+  warningsLogFile.setMaxSize(newSize);
+  accessesLogFile.setMaxSize(newSize);  
 }
 
 /*!
  *Get the max size of the log files.
  */
-u_long vhost::getMaxLogSize()
+int vhost::getMaxLogSize()
 {
-	return maxLogSize;
+  /*!
+   *warningsLogFile max log size is equal to the  
+   *accessesLogFile one.
+   */
+	return warningsLogFile.getMaxSize( );
 }
 
 /*!
- *vhostmanager costructor
+ *vhostmanager costructor.
  */
 void vhostmanager::addvHost(vhost* vHost)
 {
@@ -468,6 +472,7 @@ vhostmanager::vhostmanager()
 	vhostList=0;
   
 }
+
 /*!
  *Clean the virtual hosts.
  */
@@ -678,9 +683,10 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 			cc++;
 		}	
 		strcpy(vh->accessesLogFileName,buffer2);
-		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
-		accesses->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|
-                       MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT );
+		MYSERVER_LOG_MANAGER *accesses=vh->getAccessesLog();
+    
+		accesses->load(buffer2);
+
 		cc++;
 		/*!Get the warnings log file used by the virtual host*/
 		buffer2[0]='\0';
@@ -691,9 +697,8 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 			cc++;
 		}	
 		strcpy(vh->warningsLogFileName,buffer2);
-		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
-		warnings->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|
-                       MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT);
+		MYSERVER_LOG_MANAGER * warnings=vh->getWarningsLog();
+		warnings->load(buffer2);
 		vh->setMaxLogSize(maxlogSize);
 		cc++;
 		addvHost(vh);
@@ -1083,11 +1088,11 @@ int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
     int fileOpts = MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|
                      MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT;
 
-    MYSERVER_FILE *accessLogFile=vh->getAccessesLogFile();
-    accessLogFile->openFile(vh->accessesLogFileName, fileOpts);
+    MYSERVER_LOG_MANAGER *accessLogFile=vh->getAccessesLog();
+    accessLogFile->load(vh->accessesLogFileName);
     
-    MYSERVER_FILE *warningLogFile = vh->getWarningsLogFile();
-    warningLogFile->openFile(vh->warningsLogFileName, fileOpts);
+    MYSERVER_LOG_MANAGER *warningLogFile = vh->getWarningsLog();
+    warningLogFile->load(vh->warningsLogFileName);
 
     vh->setMaxLogSize(maxlogSize);
     vh->initializeSSL();

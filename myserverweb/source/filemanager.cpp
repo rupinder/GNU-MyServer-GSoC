@@ -114,9 +114,9 @@ MYSERVER_FILE::MYSERVER_FILE(char *filename, int opt)
 /*!
  *Open(or create if not exists) a file.
  *If the function have success the return value is nonzero.
- *filename is the name of the file to open
- *opt is a bit-field containing the options on how open it
- *openFile returns the handle on success and NULL on fails.
+ *filename is the name of the file to open.
+ *opt is a bit-field containing the options on how open it.
+ *openFile returns 0 if the call was successfull, any other value on errors.
  */
 int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 {
@@ -172,9 +172,9 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
   {
     if(filename)
     {
-        delete [] filename;
-        }
-	filename = 0;
+      delete [] filename;
+    }
+    filename = 0;
 		return 1;
   }
 	else/*! Open the file. */

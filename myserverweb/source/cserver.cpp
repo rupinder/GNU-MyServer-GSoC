@@ -329,6 +329,10 @@ int cserver::purgeThreads()
       threads_mutex->myserver_mutex_unlock();
       return prev_threads_count- nThreads;
     }
+
+    /*!
+     *Shutdown all threads that can be destroyed.
+     */
     if(thread->isToDestroy())
     {
       if(prev)

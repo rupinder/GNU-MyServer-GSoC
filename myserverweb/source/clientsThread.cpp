@@ -59,6 +59,7 @@ ClientsTHREAD::ClientsTHREAD()
   next = 0;
   toDestroy = 0;
   staticThread = 0;
+  nBytesToRead = 0;
 }
 
 /*!
@@ -256,7 +257,7 @@ int ClientsTHREAD::controlConnections()
 	lserver->connections_mutex_unlock();
 
   /*! Number of bytes waiting to be read. */
-  nBytesToRead=c->socket.bytesToRead();
+  nBytesToRead = c->socket.bytesToRead();
 
 	if(nBytesToRead || c->getForceParsing())
 	{

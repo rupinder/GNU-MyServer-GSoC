@@ -420,7 +420,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 	}
 	/*! TokenOff is the length of the token starting from the location token.  */
 	int tokenOff;
-	tokenOff = getCharInString(token,cmdseps,HTTP_REQUEST_CMD_DIM);
+	tokenOff = getCharInString(token, cmdseps, HTTP_REQUEST_CMD_DIM);
 	do
 	{
 		/*! Reset the flag lineControlled.  */
