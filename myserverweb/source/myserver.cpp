@@ -25,7 +25,7 @@ extern "C" {
 #ifdef WIN32
 #include <direct.h>
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
@@ -72,7 +72,7 @@ int reboot_console()
 	console_service(argn,argv);
 }
 
-#ifndef WIN32
+#ifdef NOT_WIN
 void Sig_Quit(int signal)
 {
 	printf("Exiting...\n");
@@ -88,7 +88,7 @@ int main (int argn, char **argv)
 	::argn=argn;
 	::argv=argv;
 	rebootMyServerConsole=0;
-#ifndef WIN32
+#ifdef NOT_WIN
 	struct sigaction sig1, sig2;
 	sig1.sa_handler=SIG_IGN;
 	sig2.sa_handler=Sig_Quit;

@@ -25,7 +25,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#ifdef __linux__
+#ifdef NOT_WIN
 #include <stdio.h>
 #endif
 }
@@ -372,7 +372,7 @@ int hexToInt(const char *str)
 }
 
 
-#ifdef __linux__
+#ifdef NOT_WIN 
 char* strupr(char * string)
 {
     unsigned int len = strlen(string);

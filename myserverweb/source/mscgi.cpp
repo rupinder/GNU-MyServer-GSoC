@@ -29,7 +29,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
-#else
+#endif
+#ifdef HAVE_DL
 #include <dlfcn.h>
 #define HMODULE void *
 #endif
@@ -48,6 +49,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	*Usually these files are faster than standard CGI.
 	*Actually myServerCGI(.mscgi) is only at an alpha status.
 	*/
+#ifndef DO_NOT_USE_MSCGI
 
 	static HMODULE hinstLib; 
     static CGIMAIN ProcMain;
@@ -68,7 +70,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	data.stdOut.openFile(outFile,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 #ifdef WIN32
 	hinstLib = LoadLibrary(exec);
-#else
+#endif
+#ifdef HAVE_DL
 	hinstLib = dlopen(exec, RTLD_LAZY);
 #endif
 	if (hinstLib) 
@@ -79,7 +82,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		setcwd(td->scriptDir);
 #ifdef WIN32
 		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
-#else
+#endif
+#ifdef HAVE_DL
 		ProcMain = (CGIMAIN) dlsym(hinstLib, "main");
 #endif
 		if(ProcMain)
@@ -88,7 +92,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		}
 #ifdef WIN32
 		FreeLibrary(hinstLib); 
-#else
+#endif
+#ifdef HAVE_DL
 		dlclose(hinstLib);
 #endif
 		/*
@@ -142,11 +147,13 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	data.stdOut.closeFile();
 	MYSERVER_FILE::deleteFile(outFile);
 	return 1;
+#else
 	/*!
 	*On the platforms that is not available the support for the MSCGI send a 
 	*non implemented error.
 	*/
 	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
+#endif
 }
 /*!
 *Store the MSCGI library module handle.
@@ -160,7 +167,8 @@ int mscgi::loadMSCGILib()
 {
 #ifdef WIN32
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
-#else
+#endif
+#ifdef HAVE_DL
 	mscgiModule=dlopen("cgi-lib/cgi-lib.so", RTLD_NOW | RTLD_GLOBAL);
 #endif
 	return (mscgiModule)?1:0;
@@ -176,6 +184,10 @@ int mscgi::freeMSCGILib()
 	*/
 	return((mscgiModule)?(FreeLibrary(mscgiModule)?1:0):0);
 #else
+#ifdef HAVE_DL
 	return((mscgiModule)?(dlclose(mscgiModule)?1:0):0);
+#else
+	return 1;
+#endif
 #endif
 }

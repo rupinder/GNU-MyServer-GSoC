@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef WIN32
 typedef void *MYSERVER_FILE_HANDLE;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 typedef FILE*  MYSERVER_FILE_HANDLE;
 #endif
 

@@ -21,10 +21,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/cXMLParser.h"
 
-#ifdef __linux__
-using namespace std;
-#endif
-
 /*!
 *Source code to manage the MIME types in MyServer.
 *MIME types are recorded in a static buffer "data", that is a strings array.

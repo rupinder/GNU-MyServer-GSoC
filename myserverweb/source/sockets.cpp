@@ -128,7 +128,7 @@ int MYSERVER_SOCKET::bind(MYSERVER_SOCKADDR* sa,int namelen)
 #ifdef WIN32	
 	return ::bind((SOCKET)socketHandle,sa,namelen);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return ::bind((int)socketHandle,sa,namelen);
 #endif
 }
@@ -140,7 +140,7 @@ int MYSERVER_SOCKET::listen(int max)
 #ifdef WIN32
 	return ::listen(socketHandle,max);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return ::listen((int)socketHandle,max);
 #endif
 }
@@ -158,7 +158,7 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 	MYSERVER_SOCKET_HANDLE h=(MYSERVER_SOCKET_HANDLE)::accept(socketHandle,sa,sockaddrlen);
 	s.setHandle(h);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	socklen_t Connect_Size = *sockaddrlen;
 	int as = ::accept((int)socketHandle,sa,&Connect_Size);
 	s.setHandle(as);
@@ -177,7 +177,7 @@ int MYSERVER_SOCKET::closesocket()
 #ifdef WIN32
 	return ::closesocket(socketHandle);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return ::close((int)socketHandle);
 #endif
 }
@@ -190,7 +190,7 @@ MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 	HOSTENT *he=::gethostbyaddr(addr,len,type);
 	return he;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	struct hostent * he=::gethostbyaddr(addr,len,type);
 	return he;
 #endif
@@ -218,7 +218,7 @@ int MYSERVER_SOCKET::shutdown(int how)
 #ifdef WIN32
 	return ::shutdown(socketHandle,how);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return ::shutdown((int)socketHandle,how);
 #endif
 }
@@ -248,7 +248,7 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 #ifdef WIN32
 	return	::send(socketHandle,buffer,len,flags);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return	::send((int)socketHandle,buffer,len,flags);
 #endif
 }
@@ -260,7 +260,7 @@ int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
 #ifdef WIN32
 	return ::ioctlsocket(socketHandle,cmd,argp);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	int int_argp = 0;
 	int ret = ::ioctl((int)socketHandle,cmd,&int_argp);
 	*argp = int_argp;
@@ -276,7 +276,7 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 #ifdef WIN32
 	return ::connect((SOCKET)socketHandle,sa,na);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return ::connect((int)socketHandle,sa,na);
 #endif
 }
@@ -438,7 +438,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 	else 
 		return err;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	err=::recv((int)socketHandle,buffer,len,flags);
 	if(err == 0)
 		err = -1;
@@ -478,7 +478,7 @@ int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 #ifdef WIN32
 	return ::getsockname(socketHandle,ad,namelen);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	socklen_t len = *namelen;
 	int ret = ::getsockname((int)socketHandle,ad,&len);
 	*namelen = len;

@@ -24,7 +24,7 @@ extern int mustEndServer;
 static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
-#ifndef WIN32
+#ifdef NOT_WIN
 extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
@@ -88,7 +88,7 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 #ifdef WIN32
 	return WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	*nbw = write((int)handle, buffer, buffersize);
 	return 0;
 #endif
@@ -153,7 +153,7 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 	}
 
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	struct stat F_Stats;
 	int F_Flags;
 	
@@ -276,7 +276,7 @@ int	MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 	*/
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	*nbr = read((int)handle, buffer, buffersize);
 	
 	return (*nbr<=buffersize)? 1 : 0 ;
@@ -301,7 +301,7 @@ int MYSERVER_FILE::closeFile()
 		FlushFileBuffers((HANDLE)handle);
 		ret=CloseHandle((HANDLE)handle);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 		fsync((int)handle);
 		ret=close((int)handle);
 #endif
@@ -317,7 +317,7 @@ int MYSERVER_FILE::deleteFile(char *filename)
 #ifdef WIN32
 	DeleteFile(filename);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	remove(filename);
 #endif
 	return 0;
@@ -331,7 +331,7 @@ u_long MYSERVER_FILE::getFileSize()
 #ifdef WIN32
 	size=GetFileSize((HANDLE)handle,NULL);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	struct stat F_Stats;
 	fstat((int)handle, &F_Stats);
 	size = F_Stats.st_size;
@@ -348,7 +348,7 @@ int MYSERVER_FILE::setFilePointer(u_long initialByte)
 #ifdef WIN32
 	return (SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return (lseek((int)handle, initialByte, SEEK_SET))?1:0;
 #endif
 }
@@ -364,7 +364,7 @@ int MYSERVER_FILE::isFolder(char *filename)
 	else
 		return 0;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	//sprintf("in isFolder filename = %s\n", filename);
 	struct stat F_Stats;
 	if(stat(filename, &F_Stats) < 0)
@@ -393,7 +393,7 @@ int MYSERVER_FILE::fileExists(char* filename)
 		return 1;
 	}
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	struct stat F_Stats;
 	if(stat(filename, &F_Stats) < 0)
 		return 0;
@@ -412,7 +412,7 @@ time_t MYSERVER_FILE::getLastModTime(char *filename)
 	struct _stat sf;
 	res=_stat(filename,&sf);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	struct stat sf;
 	res=stat(filename,&sf);
 #endif
@@ -439,7 +439,7 @@ time_t MYSERVER_FILE::getCreationTime(char *filename)
 	struct _stat sf;
 	res=_stat(filename,&sf);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	struct stat sf;
 	res=stat(filename,&sf);
 #endif
@@ -465,7 +465,7 @@ time_t MYSERVER_FILE::getLastAccTime(char *filename)
 	struct _stat sf;
 	res=_stat(filename,&sf);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	struct stat sf;
 	res=stat(filename,&sf);
 #endif
@@ -570,7 +570,7 @@ int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 #ifdef WIN32
 	GetShortPathName(filename,out,buffersize);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	strncpy(out,filename,buffersize);
 #endif
 	return 0;
@@ -583,7 +583,7 @@ int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
 #ifdef WIN32
 	GetShortPathName(filePath,out,buffersize);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	strncpy(out,filePath,buffersize);
 #endif
 	return 0;
@@ -596,7 +596,7 @@ void MYSERVER_FILE::completePath(char *fileName)
 #ifdef WIN32
 	GetFullPathName(fileName,MAX_PATH,fileName,0);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	if(fileName[0]=='/')
 		return;
 	char buffer[MAX_PATH];

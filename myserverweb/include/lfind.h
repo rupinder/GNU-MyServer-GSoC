@@ -12,7 +12,9 @@ extern "C"
 #include <stdio.h>
 }
 
+#ifndef EACCES
 #define EACCES 1
+#endif
 #define MAX_NAME 256
 #define FILE_ATTRIBUTE_DIRECTORY 1
 

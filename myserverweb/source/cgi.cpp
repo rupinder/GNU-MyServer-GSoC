@@ -35,11 +35,19 @@ extern "C" {
 #include <string.h>
 }
 
-#ifndef WIN32
+#ifndef lstrcpy
 #define lstrcpy strcpy
+#endif
+#ifndef lstrlen
 #define lstrlen strlen
+#endif
+#ifndef lstrcpyn
 #define lstrcpyn strncpy
+#endif
+#ifndef strcat
 #define strcat strcat
+#endif
+#ifndef strnicmp
 #define strnicmp strncmp
 #endif
 
@@ -263,9 +271,12 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int
 
 #ifdef WIN32
 	strcat(cgiEnvString," (WIN32)");
+#else
+#ifdef HOST_STR
+	strcat(cgiEnvString, HOST_STR);
+#else
+	strcat(cgiEnvString, " (Unknown)");
 #endif
-#ifdef __linux__
-	strcat(cgiEnvString," (Linux)");
 #endif
 	/*!
 	*Must use REDIRECT_STATUS for php and others

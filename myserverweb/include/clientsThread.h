@@ -29,7 +29,7 @@ class  ClientsTHREAD
 #ifdef WIN32
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 	friend  void* startClientsTHREAD(void* pParam);
 #endif
 #ifdef WIN32
@@ -60,7 +60,7 @@ public:
 #ifdef WIN32
 unsigned int __stdcall startClientsTHREAD(void* pParam); 
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 void* startClientsTHREAD(void* pParam);
 #endif
 

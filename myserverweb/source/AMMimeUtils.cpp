@@ -23,7 +23,7 @@ extern "C" {
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef __linux__
+#ifdef NOT_WIN
 #include <stdio.h>
 #include <ctype.h>
 #endif

@@ -6,7 +6,7 @@ myserver_SOURCES = protocol.cpp AMMimeUtils.cpp http_headers.cpp gzip.cpp MIME_m
 INCLUDES = $(all_includes)
 
 myserver_LDFLAGS = $(all_libraries)
-myserver_CXXFLAGS = $(XML_CFLAGS)
+myserver_CXXFLAGS = $(XML_CFLAGS) -DHOST_STR=\"$(build)\"
 myserver_LDADD = $(PTHREAD_LIB) $(XNET_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) $(XML_LIBS)
 
 all : myserver

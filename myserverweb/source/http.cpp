@@ -37,13 +37,13 @@ extern "C"
 #include <direct.h>
 #include <errno.h>
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 #include <string.h>
 #include <errno.h>
 #endif
 }
 
-#ifndef WIN32
+#ifdef NOT_WIN
 #include "../include/lfind.h"
 
 #define INVALID_SOCKET -1
@@ -132,7 +132,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 #ifdef WIN32
 	sprintf(filename,"%s/*",folder);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	sprintf(filename,"%s/",folder);
 #endif
 	strcpy(td->buffer2,"\r\n<BODY><H1>\r\n");
@@ -147,7 +147,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 #ifdef WIN32
 	if(ff==-1)
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	if((int)ff==-1)
 #endif
 	{
@@ -787,7 +787,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		}
 		return lisapi.sendISAPI(td,s,td->filenamePath,ext,data,0);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 		return raiseHTTPError(td,s,e_501);
 #endif
 	}else if(mimeCMD==CGI_CMD_EXECUTEISAPI)
@@ -799,7 +799,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		}
 		return lisapi.sendISAPI(td,s,td->filenamePath,ext,data,1);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 		return raiseHTTPError(td,s,e_501);
 #endif
 	}

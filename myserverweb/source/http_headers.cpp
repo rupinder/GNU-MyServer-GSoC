@@ -31,13 +31,13 @@ extern "C" {
 #include <direct.h>
 #include <errno.h>
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 #include <string.h>
 #include <errno.h>
 #endif
 }
 
-#ifndef WIN32
+#ifdef NOT_WIN
 #include "../include/lfind.h"
 
 #define INVALID_SOCKET -1

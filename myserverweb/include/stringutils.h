@@ -32,20 +32,36 @@ void translateEscapeString(char *TargetStr);
 int hexToInt(const char *str);
 
 
-#ifdef __linux__
+#ifdef NOT_WIN
 extern "C" {
 char* strupr(char * string);
 
 #include <string.h>
 }
+#endif
 
+#ifndef lstrcmp
 #define lstrcmp strcmp
+#endif
+#ifndef strcmpi
 #define strcmpi strcasecmp
+#endif
+#ifndef lstrcmpi
 #define lstrcmpi strcasecmp
+#endif
+#ifndef _stricmp
 #define _stricmp strcasecmp
+#endif
+#ifndef lstrcpy
 #define lstrcpy strcpy
+#endif
+#ifndef lstrcat
 #define lstrcat strcat
+#endif
+#ifndef lstrlen
 #define lstrlen strlen
+#endif
+#ifndef lstrcpyn
 #define lstrcpyn strncpy
 #endif
 

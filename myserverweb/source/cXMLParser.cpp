@@ -25,7 +25,7 @@ extern "C" {
 #include <string.h>
 }
 
-#ifndef WIN32
+#ifndef lstrlen
 #define lstrlen strlen
 #endif
 

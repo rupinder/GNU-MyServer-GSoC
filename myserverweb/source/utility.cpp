@@ -77,9 +77,12 @@ int getOSVersion()
 		ret=OS_WINDOWS_XP;
 		break;
 	}
-#endif
+#else
 #ifdef __linux__
         ret = OS_LINUX;
+#else
+	ret = 0;
+#endif
 #endif
 	return ret;
 }	
@@ -95,7 +98,7 @@ u_long getCPUCount()
 	GetSystemInfo(&si);
 	ret=si.dwNumberOfProcessors;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	ret=sysconf(_SC_NPROCESSORS_CONF); 
 #endif
 	return ret;
@@ -135,7 +138,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	CloseHandle( pi.hThread );
 	return exitCode;
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	int pid = fork();
 	if(pid < 0) // a bad thing happend
 		return 0;
@@ -217,7 +220,7 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
     CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
 	return (*((u_long*)&pi.hProcess));
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	int pid = fork();
 	if(pid < 0) // a bad thing happend
 		return 0;
@@ -279,7 +282,7 @@ int terminateProcess(u_long id)
 #ifdef WIN32
 	return TerminateProcess(*((HANDLE*)&id),0);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	/*!
 	*id is the process id
 	*/
@@ -347,7 +350,7 @@ int setcwdBuffer()
 	if(currentPath[strlen(currentPath)]=='/')
 		currentPath[strlen(currentPath)]='\0';
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	getcwd(currentPath,MAX_PATH);
 	retval=1;
 	if(currentPath[strlen(currentPath)]=='/') 
@@ -364,7 +367,7 @@ char *getdefaultwd(char *path,int len)
 #ifdef WIN32
 		lstrcpyn(path,currentPath,len);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 		strncpy(path,currentPath,len);
 #endif
 	return currentPath;
@@ -379,7 +382,7 @@ int setcwd(char *dir)
 #ifdef WIN32	
 	return _chdir(dir);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	return chdir(dir);
 #endif
 }
@@ -391,7 +394,7 @@ void wait(u_long time)
 #ifdef WIN32
 	Sleep(time);
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	usleep(time);
 #endif
 

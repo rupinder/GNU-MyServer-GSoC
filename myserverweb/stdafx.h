@@ -19,6 +19,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef STDAFX_H
 #define STDAFX_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+/* If we are not windows, assume *nix */
+#ifndef WIN32
+#define NOT_WIN
+#endif
+
 extern "C" {
 #include <stdio.h>
 #include <fcntl.h>
@@ -34,13 +43,6 @@ extern "C" {
 #include <tchar.h>
 #include <process.h>
 #include <io.h>
-#endif
-
-#ifdef __linux__
-#warning Magic number used.  Possable buffer overflow
-#define MAX_PATH 256
-#define MAX_COMPUTERNAME_LENGTH 256
-#define MAXIMUM_PROCESSORS 256
 #endif
 
 #ifndef MAX_PATH

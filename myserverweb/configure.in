@@ -46,6 +46,7 @@ if test x$have_dl != xyes; then
    MAKE_MSCGI = no
    AC_SUBST(MAKE_MSCGI)
 else
+   AC_DEFINE(HAVE_DL, 1, [LibDL suport, define to 1 to enable])
    DL_LIB="-ldl"
 fi
 AC_SUBST(DL_LIB)

@@ -27,7 +27,7 @@ extern "C" {
 #include <Ws2tcpip.h>
 #include <direct.h>
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -35,11 +35,13 @@ extern "C" {
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#ifdef HAVE_PTHREAD
 #include <pthread.h>
+#endif
 #endif
 }
 
-#ifndef WIN32
+#ifdef NOT_WIN
 #define LPINT int *
 #define INVALID_SOCKET -1
 #define WORD unsigned int
@@ -95,7 +97,7 @@ void cserver::start()
 	_flushall();
 	system("cls");
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 	/*!
 	*Under an UNIX environment, clearing the screen can be done in a similar method
 	*/
@@ -194,7 +196,7 @@ void cserver::start()
 #ifdef WIN32
 			ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
 			printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i+1,inet_ntoa(ia));
@@ -253,7 +255,7 @@ void cserver::start()
 #ifdef WIN32
 	unsigned int ID;
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 	pthread_t ID;
 #endif
 	threads=new ClientsTHREAD[nThreads];
@@ -270,7 +272,7 @@ void cserver::start()
 #ifdef WIN32
 		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 		pthread_create(&ID, NULL, &::startClientsTHREAD, (void *)&(threads[i].id));
 #endif
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
@@ -384,7 +386,7 @@ void cserver::start()
 			} 
 		}
 #endif
-#ifdef __linux__
+#ifdef NOT_WIN
 		sleep(1);
 #endif
 	}
@@ -415,7 +417,7 @@ int cserver::createServerAndListener(u_long port)
 	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 	sock_inserverSocket.sin_port=htons((u_short)port);
 
-#ifdef __linux__
+#ifdef NOT_WIN
 	/*!
 	*Under the unix environment the application needs some time before create a new socket
 	*for the same address. To avoid this behavior we use the current code.
@@ -471,7 +473,7 @@ int cserver::createServerAndListener(u_long port)
 	unsigned int ID;
 	_beginthreadex(NULL,0,&::listenServer,argv,0,&ID);
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 	pthread_t ID;
 	pthread_create(&ID, NULL, &::listenServer, (void *)(argv));
 #endif
@@ -483,11 +485,11 @@ int cserver::createServerAndListener(u_long port)
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* params)
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 void * listenServer(void* params)
 #endif
 {
-#ifndef WIN32
+#ifdef NOT_WIN
 	// Block SigTerm, SigInt, and SigPipe in threads
 	sigset_t sigmask;
 	sigemptyset(&sigmask);
@@ -529,7 +531,7 @@ void * listenServer(void* params)
 #ifdef WIN32
 	_endthread();
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 	pthread_exit(0);
 #endif
 

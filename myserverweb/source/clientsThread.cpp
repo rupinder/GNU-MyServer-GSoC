@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/stringutils.h"
 
-#ifndef WIN32
+#ifdef NOT_WIN
 extern "C" {
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -34,7 +34,7 @@ extern "C" {
 #include <signal.h>
 #include <unistd.h>
 #include <time.h>
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 #include <pthread.h>
 #endif
 }
@@ -59,11 +59,11 @@ ClientsTHREAD::~ClientsTHREAD()
 #ifdef WIN32
 unsigned int __stdcall startClientsTHREAD(void* pParam)
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 void * startClientsTHREAD(void* pParam)
 #endif
 {
-#ifndef WIN32
+#ifdef NOT_WIN
 	// Block SigTerm, SigInt, and SigPipe in threads
 	sigset_t sigmask;
 	sigemptyset(&sigmask);
@@ -99,7 +99,7 @@ void * startClientsTHREAD(void* pParam)
 #ifdef WIN32
 	_endthread();
 #endif
-#ifdef __linux__
+#ifdef HAVE_PTHREAD
 	pthread_exit(0);
 #endif
 	return 0;
