@@ -398,7 +398,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 			ret=FALSE;
 		}
 			
-	}
+	}/*TODO: ALL_RAW*/
 	else
 	{
 		/*

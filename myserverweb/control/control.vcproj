@@ -66,6 +66,15 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="configuration.cpp">
+			</File>
+			<File
+				RelativePath="configuration.h">
+			</File>
+			<File
+				RelativePath="configureMIME.cpp">
+			</File>
+			<File
 				RelativePath="control.cpp">
 			</File>
 			<File
@@ -83,6 +92,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="Resource.h">
+			</File>
+			<File
+				RelativePath="configureMIME.h">
 			</File>
 			<File
 				RelativePath="control.h">

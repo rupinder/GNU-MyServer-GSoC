@@ -72,7 +72,8 @@ mesh,model/mesh,SEND NONE;
 silo,model/mesh,SEND NONE;
 rtx,text/richtext,SEND NONE;
 rtf,text/rtf,SEND NONE;	
-sgml sgm,text/sgml,SEND NONE;	
+sgml,text/sgml,SEND NONE;
+sgm,text/sgml,SEND NONE;	
 tsv,text/tab-separated-values,SEND NONE;
 etx,text/x-setext,SEND NONE;
 xsl,text/xml,SEND NONE;
@@ -132,9 +133,9 @@ wbxml,application/vnd.wap.wbxml,SEND NONE;
 wmlc,application/vnd.wap.wmlc,SEND NONE;
 wmlsc,application/vnd.wap.wmlscriptc,SEND NONE;
 smil,application/smil,SEND NONE;
+eps,application/postscript,SEND NONE;
+ps,application/postscript,SEND NONE;
 movie,video/x-sgi-movie,SEND NONE;
 ice,x-conference/x-cooltalk,SEND NONE;
 msxu,video/vnd.mpegurl,SEND NONE;
-ai,application/postscript,SEND NONE;	
-eps,application/postscript,SEND NONE;	
-ps,application/postscript,SEND NONE;#
+ai,application/postscript,SEND NONE;#

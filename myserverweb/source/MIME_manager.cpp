@@ -52,22 +52,22 @@ int MIME_Manager::load(char *filename)
 		while((buffer[nc]==' ') || (buffer[nc]=='\r') ||(buffer[nc]=='\n'))
 			nc++;
 		/*
-		*If reached the # character or the end of the string end the loop.
+		*If is reached the # character or the end of the string end the loop.
 		*/
 		if(buffer[nc]=='#'||buffer[nc]=='\0')
 			break;
 		while(buffer[nc]!=',')
 		{
-			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
-				record.extension[lstrlen(record.extension)]=buffer[nc];
-				
+			if(isalpha(buffer[nc])||isdigit(buffer[nc]))
+				if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
+					record.extension[lstrlen(record.extension)]=buffer[nc];
 			nc++;
 		}
 		nc++;
 		while(buffer[nc]!=',')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
-				record.mime_type[lstrlen(record.mime_type)]=buffer[nc];
+				record.mime_type[strlen(record.mime_type)]=buffer[nc];
 			nc++;
 		}
 		nc++;
@@ -176,8 +176,41 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 			{
 					lstrcpy(dest2,mr->cgi_manager);
 			}
+			else
+			{
+					dest2[0]='\0';
+			}
 			return mr->command;
 		}
+	}
+	/*
+	*If the ext is not registered send the file as it is.
+	*/
+	return CGI_CMD_SEND;
+}
+/*
+*Pass only the position of the record in the list.
+*/
+int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
+{
+	int i=0;
+	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next)
+	{
+		if(i==id)
+		{
+			lstrcpy(ext,mr->extension);
+			lstrcpy(dest,mr->mime_type);
+			if(dest2 && mr->cgi_manager[0])
+			{
+					lstrcpy(dest2,mr->cgi_manager);
+			}
+			else
+			{
+					dest2[0]='\0';
+			}
+			return mr->command;
+		}
+		i++;
 	}
 	/*
 	*If the ext is not registered send the file as it is.

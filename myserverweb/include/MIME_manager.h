@@ -43,7 +43,7 @@ class MIME_Manager
 	struct mime_record
 	{
 		char extension[10];
-		char mime_type[16];
+		char mime_type[60];
 		int command;
 		char cgi_manager[MAX_PATH];
 		mime_record* next;
@@ -60,6 +60,7 @@ public:
 	int load(char *filename);
 	int save(char *filename);
 	int getMIME(char* ext,char *dest,char *dest2);
+	int getMIME(int id,char* ext,char *dest,char *dest2);
 	VOID clean();
 };
 #endif 

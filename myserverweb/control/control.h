@@ -19,8 +19,13 @@
 #pragma once
 #include "resource.h" 
 #include <wx/wx.h> 
+#include <wx/taskbar.h>
+#include "configuration.h"
 #ifdef WIN32
 #include <windows.h>
+#define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
+#include "..\include\MIME_Manager.h"
+#include "..\include\cXMLParser.h"
 #endif          
 #pragma comment(lib,"odbc32.lib")
 #pragma comment(lib,"odbccp32.lib")
@@ -35,21 +40,43 @@
 #pragma comment(lib,"wxmsw.lib")
 
 
-class myServerControl : public wxApp
+class taskBarIcon: public wxTaskBarIcon
 {
 public:
-	virtual bool OnInit();
+    taskBarIcon() {};
+    virtual void OnMouseMove(wxEvent&);
+    virtual void OnLButtonDown(wxEvent&);
+    virtual void OnLButtonUp(wxEvent&);
+    virtual void OnRButtonDown(wxEvent&);
+    virtual void OnRButtonUp(wxEvent&);
+    virtual void OnLButtonDClick(wxEvent&);
+    virtual void OnRButtonDClick(wxEvent&);
+
+    void OnMenuRestore(wxCommandEvent&);
+    void OnMenuExit(wxCommandEvent&);
+
+DECLARE_EVENT_TABLE()
 };
 class mainFrame : public wxFrame
 {
 public:
+#if wxUSE_MENUS
+    wxMenu *menuFile;
+    wxMenu *helpMenu;
+	wxMenu *serviceMenu;
+	wxMenu *configureMenu;
+	configurationFrame* configurationWnd;
+#endif
 	mainFrame(const wxString& title, const wxPoint& pos, const wxSize& size,
 		long style = wxDEFAULT_FRAME_STYLE);
-
+    taskBarIcon   m_taskBarIcon;
+	void *myServerControlApp;
 	void OnQuit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void runConsole(wxCommandEvent& event);
 	void removeService(wxCommandEvent& event);
+	void iconize(wxCommandEvent& event);
+	void configureWnd(wxCommandEvent& event);
 	void runService(wxCommandEvent& event);
 	void registerService(wxCommandEvent& event);
 	void stopService(wxCommandEvent& event);
@@ -57,4 +84,11 @@ public:
 
 private:
 	DECLARE_EVENT_TABLE()
+};
+extern mainFrame *lmainFrame;
+class myServerControl : public wxApp
+{
+	mainFrame *wndFrame;
+public:
+	virtual bool OnInit();
 };
