@@ -38,7 +38,7 @@ char HTTP_ERROR_MSGS[13][64]=
 	"Bad gateway"					//502
 };
 /*
-*This file describe the HTTP files for personalized errors page
+*This array describe the HTTP files for personalized errors page
 */
 char HTTP_ERROR_HTMLS[13][64]=
 {

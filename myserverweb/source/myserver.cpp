@@ -20,12 +20,16 @@
 #include "..\stdafx.h"
 #include "..\include\cserver.h"
 #include <direct.h>
+
 /*
 *external libraries to be included in the project
 */
+#ifdef WIN32
 #pragma comment(lib,"ws2_32.lib")
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"winmm.lib")
+#endif
+
 
 void console_service (int, char **);
 
@@ -115,7 +119,7 @@ void console_service (int, char **)
 
 
 /*
-*These functions are available only on windows platform
+*These functions are available only on the windows platform
 */
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus; 
