@@ -194,9 +194,12 @@ DWORD getCPUCount()
 	return ret;
 }
 /*
-*Execute an hidden process and wait until it ends itself.
+*Execute an hidden process and wait until it ends itself or its execution
+*time is greater than the timeout value.
+*Returns 1 if the process ended itself or returns 0 if the process was
+*closed by the server
 */
-DWORD execHiddenProcess(START_PROC_INFO *spi)
+DWORD execHiddenProcess(START_PROC_INFO *spi,DWORD timeout)
 {
 #ifdef WIN32
     /*
@@ -217,10 +220,10 @@ DWORD execHiddenProcess(START_PROC_INFO *spi)
 	/*
 	*Wait until it's ending by itself.
 	*/
-	WaitForSingleObject(pi.hProcess,0xFFFFFFFF);
+	DWORD ret=WaitForSingleObject(pi.hProcess,timeout);
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
-	return 1;
+	return (ret==WAIT_TIMEOUT)?0:1;
 #endif
 }
 
@@ -263,7 +266,7 @@ INT requestAccess(DWORD* ac,DWORD id)
 		return 0;
 	}
 	/*
-	*Wait until another thread ends the access then set our access.
+	*Wait until another thread ends the access, then set our access.
 	*/
 	while(*ac!=id);
 	*ac=id;
