@@ -1,4 +1,4 @@
-;NSIS Installation script for myServer
+;NSIS Installation script for MyServer
 
 SetCompressor bzip2
 !include "MUI.nsh"
