@@ -320,9 +320,9 @@ int cserver::createServerAndListener(u_long port)
 	printf("%s\n", languageParser.getValue("MSG_SLISTEN"));
 	if (serverSocket.listen(SOMAXCONN))
 	{ 
-        preparePrintError();
+        	preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_LISTEN"));
-        endPrintError();	
+        	endPrintError();	
 		return 0; 
 	}
 
@@ -417,17 +417,13 @@ void * listenServer(void* params)
 		*Every new connection is sended to cserver::addConnection function;
 		*this function sends connections between the various threads.
 		*/
-		if(serverSocket.dataOnRead()==0)
-		{
-			wait(10);
-			continue;
-		}
+		wait(10);
 		asock=serverSocket.accept((struct sockaddr*)&asock_in, (LPINT)&asock_inLen);
-		asock.setServerSocket(&serverSocket);
 		if(asock.getHandle()==0)
 			continue;
 		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 			continue;
+		asock.setServerSocket(&serverSocket);		
 		lserver->addConnection(asock, &asock_in);
 	}
 	
