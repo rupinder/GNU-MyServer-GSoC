@@ -127,8 +127,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		*Do not specify the Content-Length field if it is used
 		*the chunked Transfer-Encoding.
 		*/
-		if(response->TRANSFER_ENCODING.find("chunked",0,response->TRANSFER_ENCODING.length())
-                                                 >= response->TRANSFER_ENCODING.length())
+		if(response->TRANSFER_ENCODING.find("chunked",0) == string::npos )
 		{
 			strcat(str,"Content-Length: ");
 			strcat(str,response->CONTENT_LENGTH.c_str());
