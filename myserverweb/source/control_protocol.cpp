@@ -357,7 +357,6 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   /*! Is the specified command a know one? */
   int knownCommand = 0;
 
-
   /*! 
    *Create an out file. This can be used by commands that
    *need it.
@@ -419,28 +418,19 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     return 0;
   }
 
-
   if(!strcmp(command, "SHOWCONNECTIONS"))
   {
     knownCommand = 1;
-    u_long nbw;
-    lserver->connections_mutex_lock();
-    LPCONNECTION con = lserver->getConnections();
-    while(con)
-    {
-      sprintf(b1, "%s - %s - %s\r\n", con->ipAddr, con->login, con->password);
-      Ofile->writeToFile(b1, strlen(b1), &nbw);   
-      con = con->next;
-    }
-    lserver->connections_mutex_unlock();
-   
+    ret = SHOWCONNECTIONS(Ofile, b1, bs1);
   }
- 
 
   if(knownCommand)
   {
     Ofile->setFilePointer(0);
-    sendResponse(b2, bs2, a, CONTROL_OK, Ofile);
+    if(ret)
+      sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
+    else
+      sendResponse(b2, bs2, a, CONTROL_OK, Ofile);
     if(Ifile)
     {
       Ifile->closeFile();
@@ -553,5 +543,24 @@ int control_protocol::sendResponse(char *buffer, int buffersize, LPCONNECTION co
     }
   }
 
-  return 0;
+  return 0; 
+}
+
+/*!
+ *Show the currect active connections.
+ */
+int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
+{
+  int ret =  0;
+  u_long nbw;
+  lserver->connections_mutex_lock();
+  LPCONNECTION con = lserver->getConnections();
+  while(con)
+  {
+    sprintf(b1, "%s - %s - %s\r\n", con->ipAddr, con->login, con->password);
+    ret = out->writeToFile(b1, strlen(b1), &nbw);   
+    con = con->next;
+  }
+  lserver->connections_mutex_unlock();
+  return ret;
 }

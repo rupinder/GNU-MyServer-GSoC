@@ -36,6 +36,7 @@ class control_protocol : public protocol
   /*! Use control_header to parse the request. */
   control_header header;
   int checkAuth();
+  int SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1,int bs1);
 public:
   int sendResponse(char*, int, LPCONNECTION, int, MYSERVER_FILE* = 0);
   static int loadProtocol(cXMLParser* languageParser, char* /*confFile*/);

@@ -39,6 +39,9 @@ typedef u_long CONNECTION_PROTOCOL;
 class CONNECTION
 {
 public:
+  /*! IDentifier for the CONNECTION. */
+  u_long ID;
+
 	/*! Pointer to the thread struct that is using the CONNECTION. */
 	void *thread;
 

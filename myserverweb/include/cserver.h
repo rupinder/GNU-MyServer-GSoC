@@ -143,7 +143,8 @@ public:
 	int connections_mutex_unlock();
   LPCONNECTION getConnections();
 	LPCONNECTION getConnectionToParse(int);
-	LPCONNECTION findConnection(MYSERVER_SOCKET);
+	LPCONNECTION findConnectionBySocket(MYSERVER_SOCKET);
+	LPCONNECTION findConnectionByID(u_long ID);
 	u_long getTimeout();
 	int getListeningThreadCount();
 	void increaseListeningThreadCount();

@@ -991,6 +991,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
                         MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, 
                         char *localIpAddr, int port, int localPort, int /*id*/)
 {
+  static u_long connection_ID = 0;
 	u_long conection_size=sizeof(CONNECTION);
 	LPCONNECTION new_connection=new CONNECTION;
 	if(!new_connection)
@@ -1049,6 +1050,8 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
 	}
 	/*! Update the list. */
 	lserver->connections_mutex_lock();
+  connection_ID++;
+  new_connection->ID = connection_ID;
 	new_connection->next = connections;
    	connections=new_connection;
 	nConnections++;
@@ -1165,13 +1168,32 @@ void cserver::clearAllConnections()
 /*!
  *Find a connection passing its socket.
  */
-LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
+LPCONNECTION cserver::findConnectionBySocket(MYSERVER_SOCKET a)
 {
 	connections_mutex_lock();
 	LPCONNECTION c;
 	for(c=connections;c;c=c->next )
 	{
 		if(c->socket==a)
+		{
+			connections_mutex_unlock();
+			return c;
+		}
+	}
+	connections_mutex_unlock();
+	return NULL;
+}
+
+/*!
+ *Find a CONNECTION in the list by its ID.
+ */
+LPCONNECTION cserver::findConnectionByID(u_long ID)
+{
+	connections_mutex_lock();
+	LPCONNECTION c;
+	for(c=connections;c;c=c->next )
+	{
+		if(c->ID==ID)
 		{
 			connections_mutex_unlock();
 			return c;
