@@ -15,15 +15,16 @@ extern "C" int main (char *cmd,cgi_data* data)
 	}     
 	else     
 	{ 	
-		u_int a = 0;
-		u_int b = 0;
+		int a = 0;
+		int b = 0;
 		char *tmp;
 		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.gif\">\r\n<p align=\"center\">\r\n\r\n");
+		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
 		tmp = cm.GetParam("a");
 		if (tmp && tmp[0] != '\0')
 		{
-			if (strlen(tmp) > 10) // a 32-bit number has a maximun of 10 digits
-				tmp[10] = '\0';
+			if (strlen(tmp) > 11) 
+				tmp[11] = '\0';
 			a = atoi(tmp);
 			cm.Write(tmp);
 		}
@@ -33,21 +34,20 @@ extern "C" int main (char *cmd,cgi_data* data)
 		tmp = cm.GetParam("b");
 		if (tmp && tmp[0] != '\0')
 		{
-			if (strlen(tmp) > 10) // a 32-bit number has a maximun of 10 digits
-				tmp[10] = '\0';
+			if (strlen(tmp) > 11)
+				tmp[11] = '\0';
 			b = atoi(tmp);
 			cm.Write(tmp);
 		}
 		else
 			cm.Write("0");
 		cm.Write(" = ");
-		char res[11]; // a 32-bit number has a maximun of 10 digits
-#ifdef	itoa
-		itoa(res, a+b, 10);
-#elif snprintf 
-		snprintf(res,10,"%i", a+b);
+		const long long iRes = a + b;
+		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
+#ifdef	_WIN32
+		_i64toa(iRes, res, 10);
 #else
-		sprintf(res,"%i", a+b);
+		sprintf(res,"%i", iRes);
 #endif
 		cm.Write(res);
 
