@@ -910,7 +910,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			spi.cwd=0;
 			spi.envString=0; 
 			spi.cmd=path;
-			spi.stdIn = (File_HANDLE)new_server->DESCRIPTOR.fileHandle;
+			spi.stdIn = (FileHandle)new_server->DESCRIPTOR.fileHandle;
 			spi.cmdLine=path;
 
 			/*! No argument so clear it. */
@@ -925,7 +925,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
       }
 			strcpy(new_server->path, spi.cmd);
 
-			spi.stdOut = spi.stdError =(File_HANDLE) -1;
+			spi.stdOut = spi.stdError =(FileHandle) -1;
 
 			new_server->pid=execConcurrentProcess(&spi);
 
