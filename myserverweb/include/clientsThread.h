@@ -71,6 +71,7 @@ public:
   int isToDestroy();
   void setToDestroy(int);
   int isStatic();
+  int isParsing();
   void setStatic(int);
 };
 #ifdef WIN32

@@ -140,6 +140,7 @@ private:
 	char *vhost_configuration_file;
 	char *mime_configuration_file;
 public:
+  int countAvailableThreads();
   int addThread(int staticThread = 0);
   int removeThread(u_long ID);
   int isServerReady();

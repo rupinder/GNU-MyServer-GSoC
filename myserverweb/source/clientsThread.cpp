@@ -485,3 +485,11 @@ CMemBuf *ClientsTHREAD::GetBuffer2()
 {
 	return &buffer2;
 }
+
+/*!
+ *Check if the thread is working.
+ */
+int ClientsTHREAD::isParsing()
+{
+  return parsing;
+}

@@ -1033,6 +1033,15 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 	if( s.getHandle() == 0 )
 		return 0;
 
+  /*!
+   *If there are not availables threads and we can still create other ones,
+   *create a thread.
+   */
+  if((nThreads < nMaxThreads) && (countAvailableThreads() == 0))
+  {
+    addThread(0);
+  }
+
 	int ret=1;
 	/*!
    *ip is the string containing the address of the remote host 
@@ -1862,8 +1871,25 @@ int cserver::removeThread(u_long ID)
     thread = thread->next;
   }
 
-
 	threads_mutex->myserver_mutex_unlock();
   return ret_code;
 
+}
+
+/*!
+ *Check how many threads are not working.
+ */
+int cserver::countAvailableThreads()
+{
+  int count = 0;
+	threads_mutex->myserver_mutex_lock();
+  ClientsTHREAD* thread = threads;
+  while(thread)
+  {
+    if(!thread->isParsing())
+      count++;
+    thread = thread->next;
+  }
+	threads_mutex->myserver_mutex_unlock();
+  return count;
 }
