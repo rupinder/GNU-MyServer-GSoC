@@ -93,8 +93,6 @@ int main (int argn, char **argc)
 	setcwd(path);
 	
 	cmdShow=0;
-	u_long i;
-
 
 	if(!lstrcmpi(argc[1],"VERSION"))
 	{

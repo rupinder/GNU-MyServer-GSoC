@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lwininet -lwsock32 -llibxml2 -llibeay32 -lssleay32_@@_
+Linker=-lwininet -lwsock32 -lz -llibz -llibxml2 -llibeay32 -lssleay32_@@_
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -488,6 +488,16 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit45]
+FileName=source\gzip.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit2]
 FileName=source\stringutils.cpp
 CompileCpp=1
@@ -497,4 +507,3 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-

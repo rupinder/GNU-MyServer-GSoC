@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/winCGI.h"
 #include "../include/fastCGI.h"
 #include "../include/utility.h"
+#include "../include/gzip.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
 extern "C" {
@@ -118,7 +119,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 
 #ifdef WIN32
-	sprintf(filename,"%s/*!.*",folder);
+	sprintf(filename,"%s/*",folder);
 #endif
 #ifdef __linux__
 	sprintf(filename,"%s/",folder);
@@ -234,6 +235,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	*Open the file and save its handle.
 	*/
 	int ret;
+	int useGZIP=0;/*Use GZIP compression to send data?*/
 	MYSERVER_FILE h;
 	ret=h.openFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(ret==0)
@@ -251,11 +253,20 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	if(lastByte == -1)
 	{
 		lastByte=bytesToSend;
+		
+		if(bytesToSend > (1<<20))/*Use GZIP compression to send big files*/
+			useGZIP=1;
 	}
 	else/*!If the client use ranges set the right value for the last byte number*/
 	{
 		lastByte=min((u_long)lastByte,bytesToSend);
 	}
+	/*
+	*Be sure that client accept GZIP compressed data.
+	*/
+	if(useGZIP)
+		useGZIP &= (strstr(td->request.ACCEPTENC,"gzip")!=0);
+
 	/*!
 	*bytesToSend is the interval between the first and the last byte.
 	*/
@@ -273,7 +284,14 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	/*!If a Range was requested send 206 and not 200 for success*/
 	if((lastByte == -1)|(firstByte))
 		td->response.httpStatus = 206;
+	
 	sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
+	
+	if(useGZIP)
+	{
+		strcpy(td->response.CONTENT_ENCODING,"gzip");
+		strcpy(td->response.TRANSFER_ENCODING,"chunked");
+	}
 	time_t lastmodTime=h.getLastModTime();
 	getRFC822LocalTime(lastmodTime,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	buildHTTPResponseHeader(td->buffer,&td->response);
@@ -289,21 +307,48 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	for(;;)
 	{
 		u_long nbr;
+		u_long bytestoread;
+		
+		if(useGZIP)
+		{
+			bytestoread=min(bytesToSend,td->buffersize2/2);
+			/*!
+			*Read from the file the bytes to send.
+			*/
+			h.readFromFile(td->buffer2,bytestoread,&nbr);
+			if(nbr)
+				nbr=gzip_compress(td->buffer2,nbr,td->buffer,td->buffersize);
+		}
+		else
+		{
+			bytestoread=min(bytesToSend,td->buffersize);
+			/*!
+			*Read from the file the bytes to send.
+			*/
+			h.readFromFile(td->buffer,bytestoread,&nbr);
+		}
+		if(useGZIP)
+		{
+			char chunksize[12];
+			sprintf(chunksize,"%x\r\n",nbr);
+			if(s->socket.send(chunksize,strlen(chunksize), 0) == SOCKET_ERROR)
+				break;
+		}
 		/*!
-		*Read from the file the bytes to send.
+		*If there are bytes to send, send them.
 		*/
-		h.readFromFile(td->buffer,min(bytesToSend,td->buffersize),&nbr);
+		if(nbr)
+			if(s->socket.send(td->buffer,nbr, 0) == SOCKET_ERROR)
+				break;
+		if(useGZIP)
+			s->socket.send("\r\n",2, 0);
 		/*!
 		*When the bytes number read from the file is zero, stop to send the file.
 		*/
 		if(nbr==0)
 			break;
-		/*!
-		*If there are bytes to send, send them.
-		*/
-		if(s->socket.send(td->buffer,nbr, 0) == SOCKET_ERROR)
-			break;
 	}
+
 	h.closeFile();
 	return 1;
 
@@ -1118,15 +1163,28 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 
 		}
 		/*!
-		*Now replace the file with the encoded one.
+		*Now replace the file with the not-chunked one.
 		*/
 		td.inputData.closeFile();
 		td.inputData.deleteFile(td.inputData.getFilename());
 		td.inputData=newStdIn;
+	}else	
+	/*
+	*If is specified anothe Transfer Encoding not supported by the server send a 501 error.
+	*/
+	if(strlen(td.request.TRANSFER_ENCODING))
+	{
+			raiseHTTPError(&td,a,e_501);
+			if(td.inputData.getHandle())
+			{
+				td.inputData.closeFile();
+			}
+			logHTTPaccess(&td,a);
+			return 0;		
 	}
 
 
-	if(!(retvalue&2))/*!If return value is not setted.*/
+	if(!(retvalue&2))/*!If return value is not configured propertly.*/
 	{
 		/*!
 		*How is expressly said in the rfc2616 a client that sends an 
@@ -1327,7 +1385,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		*Do not specify the Content-Length field if it is used
 		*the chunked Transfer-Encoding.
 		*/
-		if(strcmpi(response->TRANSFER_ENCODING,"chunked"))
+		if(!strstr(response->TRANSFER_ENCODING,"chunked"))
 		{
 			strcat(str,"Content-Length: ");
 			strcat(str,response->CONTENT_LENGTH);
@@ -1424,6 +1482,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		strcat(str,response->LOCATION);
 		strcat(str,"\r\n");
 	}
+
 	if(response->OTHER[0])
 	{
 		strcat(str,response->OTHER);
@@ -1433,6 +1492,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	*MyServer supports the bytes range.
 	*/
 	strcat(str,"Accept-Ranges: bytes\r\n");
+
 	/*!
 	*The HTTP header ends with a \r\n sequence.
 	*/

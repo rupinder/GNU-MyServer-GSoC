@@ -161,6 +161,9 @@
 				RelativePath="source\filemanager.cpp">
 			</File>
 			<File
+				RelativePath="source\gzip.cpp">
+			</File>
+			<File
 				RelativePath="source\http.cpp">
 			</File>
 			<File
@@ -250,6 +253,9 @@
 			</File>
 			<File
 				RelativePath="include\ftpcommand.h">
+			</File>
+			<File
+				RelativePath="include\gzip.h">
 			</File>
 			<File
 				RelativePath="include\http.h">
