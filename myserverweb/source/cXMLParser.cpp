@@ -154,7 +154,13 @@ char *cXMLParser::getValue(char* vName)
 			last_node = lcur;
 			if(lcur->children->content)
       {
-				strncpy(buffer,(char*)lcur->children->content,250);
+        int outlen = 250;
+        int inlen = strlen((const char*)lcur->children->content);
+        if(UTF8Toisolat1((unsigned char*)buffer, &outlen, 
+                         (unsigned char*)lcur->children->content, &inlen) >= 0 )
+          buffer[outlen]='\0';
+        else
+          strncpy(buffer,(char*)lcur->children->content,250);
         ret = buffer;
       }
 			break;
