@@ -154,7 +154,8 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		}
 		envp[index] = NULL;
 		// change to working dir
-		chdir((const char*)(spi->cwd));
+		if(spi->cwd)
+			chdir((const char*)(spi->cwd));
 		// map stdio to files
 		close(0); // close stdin
 		dup2((int)spi->stdIn, 0);
@@ -221,7 +222,8 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 		}
 		envp[index] = NULL;
 		// change to working dir
-		chdir((const char*)(spi->cwd));
+		if(spi->cwd)
+			chdir((const char*)(spi->cwd));
 		// map stdio to files
 		close(0); // close stdin
 		dup2((int)spi->stdIn, 0);

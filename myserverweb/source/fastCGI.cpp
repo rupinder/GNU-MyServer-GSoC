@@ -429,7 +429,8 @@ int runFcgiServer(fCGIContext *con,char* path)
 		fCGIservers[fCGIserversN].dupsock.ms_setHandle((MYSERVER_SOCKET_HANDLE)destHandle);
 		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=(unsigned long)destHandle;
 #else
-		fCGIservers[fCGIserversN].DESCRIPTOR.sock=fCGIservers[fCGIserversN].dupsock.ms_getHandle();
+		fCGIservers[fCGIserversN].dupsock.ms_setHandle(fCGIservers[fCGIserversN].socket.ms_getHandle());
+		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].dupsock.ms_getHandle();
 #endif
 	}
 	START_PROC_INFO spi;
@@ -437,21 +438,19 @@ int runFcgiServer(fCGIContext *con,char* path)
 	char cmd[MAX_PATH];
 	spi.cmd=cmd;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
-	spi.arg=con->td->buffer2;
 	spi.cmdLine=cmd;
 
 	sprintf(spi.cmd,"%s%s",con->td->cgiRoot,con->td->cgiFile);
 	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 	spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
-	
+
+#ifdef FASTCGIDBG
 	printf("spi.cmd=%s\nspi.arg=%s\n", spi.cmd, spi.arg);
-	
+#endif	
 	fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
     
 	
-	if(fCGIservers[fCGIserversN].pid)
-		fCGIserversN;
-	else
+	if(!fCGIservers[fCGIserversN].pid)
 		return -3;
 
 	return fCGIserversN++;
