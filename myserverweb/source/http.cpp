@@ -730,7 +730,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    *With this code we manage a request of a file or a directory or anything 
    *that we must send over the HTTP.
    */
-	char *filename;
+	char* filename;
 	int keepalive;
   char ext[10];
   int permissions;
@@ -797,7 +797,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	permissions= MYSERVER_PERMISSION_READ |  MYSERVER_PERMISSION_BROWSE ;
 	if(!systemrequest)
 	{
-		char *directory;
+		char* directory;
 		char auth_type[16];
 		if(MYSERVER_FILE::isDirectory(td->filenamePath))
     {
@@ -1142,7 +1142,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	}
 	else if( mimeCMD == CGI_CMD_RUNMSCGI )
 	{
-		char *target;
+		char* target;
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
       if(data)
@@ -1167,7 +1167,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	}
   else if( mimeCMD == CGI_CMD_EXECUTEWINCGI )
 	{
-		char *cgipath=0;
+		char* cgipath=0;
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
       if(data)
@@ -1233,8 +1233,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	else if( mimeCMD == CGI_CMD_SENDLINK )
 	{
 		u_long nbr;
-		char *linkpath;
-		char *pathInfo;
+		char* linkpath;
+		char* pathInfo;
     int linkpathSize;
 		if(!(permissions & MYSERVER_PERMISSION_READ))
 		{

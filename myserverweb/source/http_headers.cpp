@@ -300,7 +300,7 @@ void http_headers::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
  *nLinesptr is a value of the lines number in the HEADER.
  *ncharsptr is a value of the characters number in the HEADER.
  */
-int http_headers::validHTTPResponse(char *req,httpThreadContext* td, 
+int http_headers::validHTTPResponse(char *res,httpThreadContext* td, 
                                     u_long* nLinesptr, u_long* ncharsptr)
 {
 	u_long i;
@@ -310,16 +310,16 @@ int http_headers::validHTTPResponse(char *req,httpThreadContext* td,
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
-	if(req==0)
+	if(res==0)
 		return 0;
 	/*!
    *Count the number of lines in the header.
    */
 	for(i=nLines=0;;i++)
 	{
-		if(req[i]=='\n')
+		if(res[i]=='\n')
 		{
-			if((req[i+2]=='\n')|(req[i+1]=='\0')|(req[i+1]=='\n'))
+			if((res[i+2]=='\n')|(res[i+1]=='\0')|(res[i+1]=='\n'))
 			{
 				maxTotchars=i+3;
 				if(maxTotchars>buffersize)
@@ -363,7 +363,7 @@ int http_headers::validHTTPResponse(char *req,httpThreadContext* td,
  *httpThreadContext structure.
  */
 int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
-                                               httpThreadContext *td, char *input)
+                                               httpThreadContext* td, char* input)
 {
 	/*!
    *In this function there is the HTTP protocol parse.
