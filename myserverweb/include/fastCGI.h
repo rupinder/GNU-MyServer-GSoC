@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 #include "../include/stringutils.h"
 #include "../include/threads.h"
+#include "../include/http_data_handler.h"
 
 /*!
  * Listening socket file number
@@ -181,7 +182,8 @@ struct fCGIContext
 	MYSERVER_SOCKET sock;
 	MYSERVER_FILE tempOut;
 };
-class fastcgi
+
+class fastcgi  : public http_data_handler
 {
 private:
 	static int timeout;

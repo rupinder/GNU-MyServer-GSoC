@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002,2003,2004 The MyServer Team
+*Copyright (C) 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -16,21 +16,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef WINCGI_H
-#define WINCGI_H
-
-#include "../include/Response_RequestStructs.h"
-#include "../include/MIME_manager.h"
-#include "../include/security.h"
+#ifndef HTTP_DIR_H
+#define HTTP_DIR_H
+#include "../stdafx.h"
+#include "../include/protocol.h"
 #include "../include/http_headers.h"
 #include "../include/http_data_handler.h"
 
-extern const char *versionOfSoftware;
-
-class wincgi : public http_data_handler
+class http_dir : public http_data_handler
 {
+private:
+
 public:
-	int send(httpThreadContext*,LPCONNECTION s,char* filename, 
-           int execute, int only_header=0);
+  static int load();
+  static int unload();
+	int send(httpThreadContext*,LPCONNECTION s,char* directory, 
+                        char* cgi, int only_header=0);
+  http_dir();
+  virtual ~http_dir();
 };
+
+
 #endif

@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/security_cache.h"
 #include "../include/cXMLParser.h"
 #include "../include/threads.h"
+#include "../include/http_file.h"
+#include "../include/http_dir.h"
 
 /*!
  *Data used only by an HTTP user.
@@ -77,6 +79,8 @@ private:
 	isapi lisapi;
 	cgi lcgi;
 	fastcgi lfastcgi;
+  http_file lhttp_file;
+  http_dir lhttp_dir;
 	struct httpThreadContext td;
   void clean();
 protected:
@@ -95,10 +99,6 @@ public:
                         int yetmapped=0);
 	int deleteHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
                          int yetmapped=0);
-	int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,
-                   int OnlyHeader=0);
-	int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* directory, 
-                        int only_header);
 	int raiseHTTPError(httpThreadContext*, LPCONNECTION a, int ID);
 	int sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a);
 	int sendAuth(httpThreadContext* td, LPCONNECTION a);
@@ -113,7 +113,8 @@ public:
 	virtual ~http();
 	void computeDigest(httpThreadContext* td, char*, char*);
 	u_long checkDigest(httpThreadContext* td, LPCONNECTION s);
-	
+  char* getBrowseDirCSSFile();
+	u_long get_gzip_threshold();
 	/*! The function is used to the request and build a response.  */
 	virtual char* registerName(char*,int len);
 	int controlConnection(LPCONNECTION a, char *b1, char *b2, int bs1, 

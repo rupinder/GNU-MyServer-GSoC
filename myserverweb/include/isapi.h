@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/connectionstruct.h"
 #include "../include/threads.h"
+#include "../include/http_data_handler.h"
 
 #ifdef WIN32
 
@@ -123,7 +124,7 @@ typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 
 #endif
 
-class isapi
+class isapi  : public http_data_handler
 {
 private:
 	static int initialized;

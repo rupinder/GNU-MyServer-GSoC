@@ -24,9 +24,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/mscgi.h"
 #include "../include/security.h"
 #include "../include/http_headers.h"
+#include "../include/http_data_handler.h"
+
 extern const char *versionOfSoftware;
 
-class cgi
+class cgi : public http_data_handler
 {
   static int cgi_timeout;
 public:
@@ -37,3 +39,4 @@ public:
 	static void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
 };
 #endif
+

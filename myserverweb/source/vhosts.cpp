@@ -52,6 +52,7 @@ vhost::vhost()
   accessesLogFileName=0;
   warningsLogFileName=0;
 }
+
 /*!
  *Destroy the vhost. 
  */

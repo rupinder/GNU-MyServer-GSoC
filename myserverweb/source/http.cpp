@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/winCGI.h"
 #include "../include/fastCGI.h"
 #include "../include/utility.h"
-#include "../include/gzip.h"
 #include "../include/md5.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
@@ -93,320 +92,6 @@ security_cache http::sec_cache;
 
 /*! Access the security cache safely. */
 myserver_mutex http::sec_cache_mutex;
-
-/*!
- *Browse a directory printing its contents in an HTML file.
- */
-int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, 
-                            char* directory, int only_header)
-{
-
-	/*! Send the directory content.  */
-	u_long nbw;
-	int ret;
-  int outputDataPathLen = getdefaultwdlen() + 20;
-	_finddata_t fd;
-	char *filename = 0;
-	int startchar=0;
-	int nDirectories=0;
-	int i;
-	long ff;
-	char fileSize[20];
-	char fileTime[32];
-	char *bufferloop;
-  if(td->outputDataPath)
-    delete [] td->outputDataPath;
-  td->outputDataPath = new char[outputDataPathLen];
-  if(td->outputDataPath==0)
-    return sendHTTPhardError500(td, s);
-  
-	getdefaultwd(td->outputDataPath, outputDataPathLen);
-	MYSERVER_FILE_HANDLE outputDataHandle = td->outputData.getHandle();
-	if( outputDataHandle == 0 )
-	{
-		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
-            "/stdOutFile_%u", (u_int) td->id);
-		ret = td->outputData.openFile(td->outputDataPath, 
-                     MYSERVER_FILE_CREATE_ALWAYS |MYSERVER_FILE_OPEN_READ |
-                                  MYSERVER_FILE_OPEN_WRITE);
-		if(ret)
-		{
-			/*! Return an internal server error.  */
-			return raiseHTTPError(td, s, e_500);
-		}
-	}
-
-	for(i=0;td->request.URI[i];i++)
-	{
-		if(td->request.URI[i]=='/')
-			nDirectories++;
-	}
-	for(startchar=0, i=0;td->request.URI[i];i++)
-	{
-		if(td->request.URI[i]=='/')
-		{
-			startchar++;
-			if(startchar==nDirectories)
-			{
-				/*!
-         *At the end of the loop set startchar to te real value.
-         *startchar indicates the initial position in td->request.URI 
-         *of the file path.
-         */
-				startchar=i+1;
-				break;
-			}
-		}
-	}
-	td->buffer2->SetLength(0);
-	*td->buffer2<<"<html>\r\n<head>\r\n<title>" ;
-	*td->buffer2<< td->request.URI ;
-	*td->buffer2<< "</title>\r\n</head>\r\n" ; 
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
-                                    (u_long)td->buffer2->GetLength(), &nbw);
-	if(ret)
-	{
-		td->outputData.closeFile();
-		return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
-	}
-	/*! 
-   *If it is defined a CSS file for the graphic layout of 
-   *the browse directory insert it in the page.  
-   */
-	if(browseDirCSSpath != 0)
-	{
-		MYSERVER_FILE cssHandle;
-		ret=cssHandle.openFile(browseDirCSSpath, MYSERVER_FILE_OPEN_IFEXISTS | 
-                           MYSERVER_FILE_OPEN_READ);
-		if(ret == 0)
-		{
-			u_long nbr;
-			ret = cssHandle.readFromFile((char*)td->buffer->GetBuffer(), 
-                                   td->buffer->GetRealLength(), &nbr);
-			if(ret == 0)
-			{
-				td->buffer2->SetLength(0);
-				*td->buffer2 << "<style>\r\n<!--\r\n" ;
-				ret=td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
-                                       (u_long)td->buffer2->GetLength(), &nbw);
-				if(ret)
-				{
-					td->outputData.closeFile();
-					/* Return an internal server error.  */
-					return raiseHTTPError(td, s, e_500);
-				}
-				ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(),
-                                          (u_long)nbr, &nbw);
-				if(ret)
-				{
-					td->outputData.closeFile();
-					/* Return an internal server error.  */
-					return raiseHTTPError(td, s, e_500);
-				}
-
-				td->buffer2->SetLength(0);
-				*td->buffer2 << "-->\r\n</style>\r\n";
-				ret=td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
-                                       (u_long)td->buffer2->GetLength(), &nbw);
-				if(ret)
-				{
-					td->outputData.closeFile();
-					/* Return an internal server error.  */
-					return raiseHTTPError(td, s, e_500);
-				}
-			}
-			cssHandle.closeFile();
-
-		}
-	}
-
-#ifdef WIN32
-  filename = new char[strlen(directory)+3];
-  if(filename==0)
-  {
-    delete [] td->outputDataPath;
-    td->outputDataPath = 0;
-    return sendHTTPhardError500(td, s);
-  }
-	sprintf(filename, "%s/*", directory);
-#endif
-#ifdef NOT_WIN
-  filename = new char[strlen(directory)+2];
-  if(filename==0)
-  {
-    delete [] td->outputDataPath;
-    td->outputDataPath=0;
-    return sendHTTPhardError500(td, s);
-  }
-	sprintf(filename, "%s/", directory);
-#endif
-	td->buffer2->SetLength(0);
-	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of directory ";
-	*td->buffer2 <<  &td->request.URI[startchar] ;
-	*td->buffer2 << "</h1>\r\n<p>\r\n<hr />\r\n";
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
-                                   (u_long)td->buffer2->GetLength(), &nbw);
-	if(ret)
-	{
-		td->outputData.closeFile();
-		/*! Return an internal server error.  */
-		return raiseHTTPError(td, s, e_500);
-	}
-	ff=_findfirst(filename, &fd);
-  delete [] filename;
-  filename = 0;
-#ifdef WIN32
-	if(ff==-1)
-#endif
-#ifdef NOT_WIN
-	if((int)ff==-1)
-#endif
-	{
-		return raiseHTTPError(td, s, e_404);
-	}
-	/*! 
-   *With the current code we build the HTML TABLE to indicize the
-   *files in the directory.
-   */
-	td->buffer2->SetLength(0);
-	*td->buffer2 << "<table width=\"100\%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n  \
-                 <td><b>Last Modified</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
-                                    (u_long)td->buffer2->GetLength(), &nbw);
-	if(ret)
-	{
-		td->outputData.closeFile();
-		/* Return an internal server error.  */
-		return raiseHTTPError(td, s, e_500);
-	}
-
-	do
-	{	
-		if(fd.name[0]=='.')
-			continue;
-		/*! Do not show the security file.  */
-		if(!strcmp(fd.name, "security"))
-			continue;
-		td->buffer2->SetLength(0);
-		*td->buffer2 << "<tr>\r\n<td><a href=\"";
-		if(!td->request.uriEndsWithSlash)
-		{
-			*td->buffer2 << &td->request.URI[startchar];
-			*td->buffer2 << "/" ;
-		}
-		*td->buffer2 << fd.name ;
-		*td->buffer2 << "\">" ;
-		*td->buffer2 << fd.name;
-		*td->buffer2 << "</td>\r\n<td>";
-	
-		getRFC822GMTTime((time_t)fd.time_write, fileTime, 32);
-
-		*td->buffer2 << fileTime ;
-		*td->buffer2 << "</td>\r\n<td>";
-		
-		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			*td->buffer2 << "[directory]";
-		}
-		else
-		{
-			sprintf(fileSize, "%u bytes", (u_int) fd.size);
-			*td->buffer2 << fileSize;
-		}
-		*td->buffer2 << "</td>\r\n</tr>\r\n";
-		ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
-                                     (u_long)td->buffer2->GetLength(), &nbw);
-		if(ret)
-		{
-			_findclose(ff);
-			td->outputData.closeFile();
-			/* Return an internal server error.  */
-			return raiseHTTPError(td, s, e_500);
-		}
-	}while(!_findnext(ff, &fd));
-	td->buffer2->SetLength(0);
-	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " << versionOfSoftware;
-              
-  if(td->request.HOST[0])
-  {    
-    char port_buff[6];
-    *td->buffer2 << " on ";
-    *td->buffer2 << td->request.HOST ;
-    *td->buffer2 << " Port ";
-
-    u_short port = td->connection->getLocalPort();
-    sprintf(port_buff,"%u", port);
-    *td->buffer2 << port_buff;
-  }
-	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
-                                   (u_long)td->buffer2->GetLength(), &nbw);
-	if(ret)
-	{
-		_findclose(ff);
-		td->outputData.closeFile();
-		/* Return an internal server error.  */
-		return raiseHTTPError(td, s, e_500);
-	}	
-	_findclose(ff);
-  *td->buffer2 << end_str;
-	/*! Changes the \ character in the / character.  */
-	bufferloop=(char*)td->buffer2->GetBuffer();
-	while(*bufferloop++)
-		if(*bufferloop=='\\')
-			*bufferloop='/';
-	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
-		strcpy(td->response.CONNECTION, "Keep-Alive");
-	sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)td->outputData.getFileSize());
-
-	/*! If we haven't to append the output build the HTTP header and send the data.  */
-	if(!td->appendOutputs)
-  {
-		u_long nbr=0;
-    int nbs=0;
-		td->outputData.setFilePointer(0);
-		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
-                                          &(td->response));
-		nbs=s->socket.send((char*)td->buffer->GetBuffer(), 
-                       (u_long)strlen((char*)td->buffer->GetBuffer()), 0);
-		if(nbs == SOCKET_ERROR)
-		{
-			/* Remove the connection.  */
-			return 0;
-		}	
-
-    if(only_header)
-      return 1;
-
-    do
-		{
-			ret = td->outputData.readFromFile((char*)td->buffer->GetBuffer(), 
-                                        td->buffer->GetRealLength(), &nbr);
-			if(ret)
-			{
-				td->outputData.closeFile();
-				/* Return an internal server error.  */
-				return 0;
-			}
-			if(nbr)
-				nbs=s->socket.send((char*)td->buffer->GetBuffer(), nbr, 0);
-      else
-        nbs = 0;
-			if(nbs==SOCKET_ERROR)
-			{
-				/* Return an internal server error.  */
-				return 0;
-			}
-		}while(nbr && nbs);
-	}
-  else
-  {
-    http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
-                                          &(td->response));
-  }
-	return 1;
-
-}
 
 /*!
  *Build a response for an OPTIONS request.
@@ -491,13 +176,13 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
 	/*! Check if the host allows HTTP trace.  */
 	char *filename;
   char *http_trace_value;
+	cXMLParser parser;
   filename = new char[strlen(((vhost*)(s->host))->documentRoot) + 10];
   if(filename==0)
   {
     return sendHTTPhardError500(td, s);
   }
 	sprintf(filename, "%s/security", ((vhost*)(s->host))->documentRoot);
-	cXMLParser parser;
 	if(parser.open(filename))
 	{
 		return 0;
@@ -517,273 +202,6 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
 		ret = 0;
 	parser.close();
 	return ret;
-}
-
-/*!
- *Send a file to the client using the HTTP protocol.
- */
-int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, 
-                       char *filenamePath, int only_header)
-{
-	/*!
-   *With this routine we send a file through the HTTP protocol.
-   *Open the file and save its handle.
-   */
-	int ret;
-	/*! 
-   *Will we use GZIP compression to send data?
-   */
-	int use_gzip=0;
-	MYSERVER_FILE h;
-	u_long bytes_to_send;
-  u_long firstByte = td->request.RANGEBYTEBEGIN; 
-  u_long lastByte = td->request.RANGEBYTEEND;
-  int keepalive;
-  char chunksize[12];
-
- 	/*! gzip compression object.  */
-	gzip gzip;
-	/*! Is the GZIP header still added to the buffer?  */
-	u_long gzipheaderadded=0;
-	
-	/*! Number of bytes created by the zip compressor by loop.  */
-	u_long gzip_dataused=0;
-	u_long dataSent=0;
-
-	ret  = h.openFile(filenamePath, MYSERVER_FILE_OPEN_IFEXISTS | 
-                   MYSERVER_FILE_OPEN_READ);
-	if(ret)
-	{	
-		return 0;
-	}
-	/*! 
-   *Read how many bytes are waiting to be send.  
-   */
-	bytes_to_send=h.getFileSize();
-	if(lastByte == 0)
-	{
-		lastByte = bytes_to_send;
-	}
-	else
-	{
-    /*! 
-     *If the client use ranges set the right value 
-     *for the last byte number.  
-     */
-		lastByte = min((u_long)lastByte, bytes_to_send);
-	}
-
-  /*! 
-   *Use GZIP compression to send files bigger than GZIP threshold.  
-   */
-  if(bytes_to_send > gzip_threshold)
-	{
-    use_gzip=1;
-  }
-	keepalive = !lstrcmpi(td->request.CONNECTION, "Keep-Alive");
-
-#ifndef DO_NOT_USE_GZIP
-	/*! 
-   *Be sure that the client accept GZIP compressed data.  
-   */
-	if(use_gzip)
-		use_gzip &= (strstr(td->request.ACCEPTENC, "gzip")!=0);
-#else
-	/*! 
-   *If compiled without GZIP support force the server to don't use it.  
-   */
-	use_gzip=0;
-#endif	
-	if(td->appendOutputs)
-		use_gzip=0;
-
-	/*! 
-   *bytes_to_send is the interval between the first and the last byte.  
-   */
-	bytes_to_send=lastByte-firstByte;
-
-	/*! 
-   *If failed to set the file pointer returns an internal server error.  
-   */
-	ret = h.setFilePointer(firstByte);
-	if(ret)
-	{
-		h.closeFile();
-		return raiseHTTPError(td, s, e_500);
-	}
-
-	td->buffer->SetLength(0);
-	
-	/*! If a Range was requested send 206 and not 200 for success.  */
-	if(lastByte | firstByte )
-  {	
-    td->response.httpStatus = 206;
-    use_gzip = 0;
-	}
-
-	if(keepalive)
-		sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)bytes_to_send);
-	else
-		strcpy(td->response.CONNECTION, "close");
-	
-	if(use_gzip)
-	{
-		/*! Do not use chunked transfer with old HTTP/1.0 clients.  */
-		if(keepalive)
-			strcpy(td->response.TRANSFER_ENCODING, "chunked");
-		strcpy(td->response.CONTENT_ENCODING, "gzip");
-	}
-
-	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
-                                        &td->response);
-	td->buffer->SetLength((u_long)strlen((char*)td->buffer->GetBuffer()));
-	if(!td->appendOutputs)
-	{
-		/*! Send the HTTP header.  */
-		if(s->socket.send((char*)td->buffer->GetBuffer(), 
-                      (u_long)td->buffer->GetLength(), 0)== SOCKET_ERROR)
-		{
-			h.closeFile();
- 			return 0;
-		}
-	}
-
-	/*! 
-   *If is requested only the header exit from the function; 
-   *used by the HEAD request.  
-   */
-	if(only_header)
-	{
-		h.closeFile();
-		return 1;
-	}
-	if(use_gzip)
-		gzip.gzip_initialize((char*)td->buffer2->GetBuffer(), 
-                         td->buffer2->GetRealLength(), 
-                         (char*)td->buffer->GetBuffer(), 
-                         td->buffer->GetRealLength());
-	for(;;)
-	{
-		u_long nbr;
-
-		if(use_gzip)
-		{
-			gzip_dataused=0;
-			u_long datatoread=min(bytes_to_send, td->buffer2->GetRealLength()/2);
-			/*! Read from the file the bytes to send.  */
-			if(h.readFromFile((char*)td->buffer2->GetBuffer(), datatoread, &nbr))
-			{
-				h.closeFile();
-        sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
-				return 0;
-			}
-      
-			if(nbr)
-			{
-				if(gzipheaderadded==0)
-				{
-					gzip_dataused+=gzip.gzip_getHEADER((char*)td->buffer->GetBuffer(), 
-                                             td->buffer->GetLength());
-					gzipheaderadded=1;
-				}
-				gzip_dataused+=gzip.gzip_compress((char*)td->buffer2->GetBuffer(), 
-                       nbr, &(((char*)td->buffer->GetBuffer())[gzip_dataused]),
-                              td->buffer->GetRealLength()-gzip_dataused);
-			}
-			else
-			{
-				gzip_dataused=gzip.gzip_flush((char*)td->buffer->GetBuffer(), 
-                                      td->buffer->GetLength());
-				gzip.gzip_free((char*)td->buffer2->GetBuffer(), nbr, 
-                       (char*)td->buffer->GetBuffer(), 
-                       td->buffer->GetRealLength());
-			}
-			if(keepalive)
-			{
-				sprintf(chunksize, "%x\r\n", (u_int)gzip_dataused);
-				ret = s->socket.send(chunksize, (int)strlen(chunksize), 0);
-				if(ret == SOCKET_ERROR)
-					break;
-			}
-			if(gzip_dataused)
-			{
-				ret=s->socket.send((char*)td->buffer->GetBuffer(), gzip_dataused, 0);
-				if(ret == SOCKET_ERROR)
-					break;
-				dataSent+=ret;
-			}
-			if(keepalive)
-			{
-				ret=s->socket.send("\r\n", 2, 0);
-				if(ret == SOCKET_ERROR)
-					break;
-			}
-      
-		}
-		else
-		{
-			/*! Read from the file the bytes to send. */
-      ret = h.readFromFile((char*)td->buffer->GetBuffer(), 
-                        min(bytes_to_send,td->buffer->GetRealLength()), &nbr);
-			if(ret)
-			{
-				h.closeFile();
-        sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
-				return 0;
-			}
-      bytes_to_send-=nbr;
-			/*! If there are bytes to send, send them. */
-			if(nbr)
-			{
-				if(!td->appendOutputs)
-				{
-					ret=(u_long)s->socket.send((char*)td->buffer->GetBuffer(), nbr, 0);
-					if(ret==SOCKET_ERROR)
-					{
-						h.closeFile();
-            sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
-						return 0;
-					}
-          dataSent+=ret;
-				}
-				else
-				{
-          u_long nbw;
-					ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(), 
-                                           nbr, &nbw);
-				  if(ret)
-					{
-						h.closeFile();
-            sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
-						return 0;
-					}
-          dataSent+=nbw;
-					
-				}
-			}
-    }
-		/*! 
-     *When the bytes number read from the file is zero, 
-     *stop to send the file.  
-     */
-		if(nbr==0)
-		{
-			if(keepalive && use_gzip )
-			{
-				ret=s->socket.send("0\r\n\r\n", 5, 0);
-				if(ret==SOCKET_ERROR)
-				{
-					h.closeFile();
-          sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
-					return 0;
-				}
-			}
-			break;
-		}
-	}/*End for loop. */
-	h.closeFile();
-  sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
-	return 1;
 }
 
 /*!
@@ -1119,7 +537,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		MYSERVER_FILE::splitPath(td->filenamePath, directory, filename);
+		MYSERVER_FILE::splitPath(td->filenamePath, directory, 0);
   }
 
 	if(s->protocolBuffer==0)
@@ -1547,6 +965,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    */
 	if(td->pathInfo)
 	{
+    int ptlen;
    	if(td->pathTranslated)
       delete [] td->pathTranslated;
     td->pathTranslated = 0;
@@ -1554,7 +973,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
      * Start from the second character because the first is a
      * slash character.  
      */
-		int ptlen = getPath(td, s, &(td->pathTranslated), &((td->pathInfo)[1]), 0);
+		ptlen = getPath(td, s, &(td->pathTranslated), &((td->pathInfo)[1]), 0);
 		MYSERVER_FILE::completePath(&(td->pathTranslated), &ptlen );
 	}
 	else
@@ -1571,6 +990,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    */
 	if(MYSERVER_FILE::isDirectory((char *)(td->filenamePath)))
 	{
+		int i;
 		if(!(permissions & MYSERVER_PERMISSION_BROWSE))
 		{
       delete []  filename;
@@ -1583,7 +1003,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       }
 			return sendAuth(td, s);
 		}
-		int i;
 		for(i=0;;i++)
     {
 			char *defaultFileNamePath=getDefaultFilenamePath(i);
@@ -1655,7 +1074,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       delete [] defaultFileName;
     }
     delete [] filename;
-		return sendHTTPDIRECTORY(td, s, td->filenamePath, only_header) & keepalive;
+		return lhttp_dir.send(td, s, td->filenamePath, 0, only_header) & keepalive;
 	}
 
   delete [] filename;
@@ -1693,8 +1112,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
     if(data)
       delete [] data;
     return (ret & keepalive);
-	}else 
- if(mimeCMD == CGI_CMD_RUNISAPI)
+	}
+  else if(mimeCMD == CGI_CMD_RUNISAPI)
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
@@ -1893,7 +1312,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 			return sendHTTPNonModified(td, s);
     }
 	}
-  ret = sendHTTPFILE(td, s, td->filenamePath, only_header);
+  ret = lhttp_file.send(td, s, td->filenamePath, 0, only_header);
 	return (keepalive & ret);
 }
 /*!
@@ -2024,7 +1443,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
     /*! Be sure that the client can handle the 100 status code. */
     if(strcmp(td.request.VER, "HTTP/1.0"))
     {
-			char* msg="HTTP/1.1 100 Continue\r\n\r\n";
+			char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
 			if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
 				return 0;/*Remove the connection from the list*/
     }
@@ -2875,6 +2294,21 @@ int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath
 }
 
 /*!
+ *Get the CSS file used in a direcotry browsing.
+ */
+char* http::getBrowseDirCSSFile()
+{
+  return browseDirCSSpath;
+}
+/*!
+ *Get the GZIP threshold.
+ */
+u_long http::get_gzip_threshold()
+{
+  return gzip_threshold;
+}
+
+/*!
  *Send a redirect message to the client.
  */
 int http::sendHTTPRedirect(httpThreadContext* td, LPCONNECTION a, char *newURL)
@@ -2976,7 +2410,11 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 
 	/*! Load the MSCGI library.  */
 	mscgiLoaded=mscgi::load();
+
+  http_file::load();
 	
+  http_dir::load();
+
 	if(mscgiLoaded)
   {
 		lserver->logWriteln( languageParser->getValue("MSG_LOADMSCGI") );
@@ -3070,10 +2508,10 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	else
 	{
 		u_long i;
+    int cursor = 0;
 		if(defaultFilename)
 			delete [] defaultFilename;
 		defaultFilename = new char [defaultFilenameSize];
-    int cursor = 0;
 		for(i=0;defaultFilename && (i<nDefaultFilename);i++)
 		{
 			char xmlMember[21];
@@ -3111,6 +2549,11 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
    *Clean MSCGI.
    */
 	mscgi::unload();
+ 
+  http_file::unload();
+	
+  http_dir::unload();
+  
   sec_cache.free();
 
   sec_cache_mutex.myserver_mutex_destroy();

@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/utility.h"
 #include "../include/stringutils.h"
-extern int mustEndServer; 
 
 #ifdef NOT_WIN
 extern "C" {
@@ -38,6 +37,8 @@ extern "C" {
 }
 #endif
 
+extern int mustEndServer; 
+
 /*!
  *Return the recursion of the path.
  *Return -1 on errors.
@@ -46,12 +47,13 @@ int MYSERVER_FILE::getPathRecursionLevel(char* path)
 {
 	char *lpath;
   int lpath_len = strlen(path) + 1;
+	int rec=0;
+	char *token;
   lpath = new char[lpath_len];
   if(lpath == 0)
     return -1;
 	strcpy(lpath,path);
-	int rec=0;
-	char *token = strtok( lpath, "\\/" );
+  token = strtok( lpath, "\\/" );
 	do
 	{
 		if(token != NULL) 
@@ -122,11 +124,12 @@ MYSERVER_FILE::MYSERVER_FILE(char *nfilename, int opt)
 int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 {
 	long ret=0;
+  int filename_len;
   if(filename)
   {
     delete [] filename;
- }
-  int filename_len = strlen(nfilename) + 1;
+  }
+  filename_len = strlen(nfilename) + 1;
   filename = new char[filename_len];
   if(filename == 0)
     return -1;
@@ -200,15 +203,13 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 #ifdef NOT_WIN
 	struct stat F_Stats;
 	int F_Flags;
-	
+  char Buffer[strlen(filename)+1];
 	if(opt && MYSERVER_FILE_OPEN_READ && MYSERVER_FILE_OPEN_WRITE)
 		F_Flags = O_RDWR;
 	else if(opt & MYSERVER_FILE_OPEN_READ)
 		F_Flags = O_RDONLY;
 	else if(opt & MYSERVER_FILE_OPEN_WRITE)
 		F_Flags = O_WRONLY;
-
-	char Buffer[strlen(filename)+1];
 		
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 	{
@@ -670,14 +671,14 @@ void MYSERVER_FILE::getFilename(const char *path, char *filename)
  */
 void MYSERVER_FILE::splitPathLength(const char *path, int *dir, int *filename)
 {
-	int splitpoint, i, j;
+	int splitpoint, i, j, len;
 	if(path == 0)
 	{
 		*dir=0;
 		*filename=0;
 		return;
 	}
-  int len = strlen(path);
+  len = strlen(path);
 	i = 0;
 	j = 0;
 	splitpoint =(int)(len-1);
@@ -707,25 +708,33 @@ void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
 		dir[0] = 0;
-		strcpy(filename, path);
+    if(filename)
+      strcpy(filename, path);
 	}
 	else
 	{
-		splitpoint++;
-		while (i < splitpoint)
-		{
-			dir[i] = path[i];
-			i++;
-		}
-		dir[i] = 0;
-
-		while (path[i] != 0)
-		{
-			filename[j] = path[i];
-			j++;
-			i++;
-		}
-		filename[j] = 0;
+    if(dir)
+    {
+		 splitpoint++;
+		 while (i < splitpoint)
+		  {
+      
+        dir[i] = path[i];
+			  i++;
+		  }
+		  dir[i] = 0;
+    }
+    i = splitpoint;
+    if(filename)
+    {
+      while (path[i] != 0)
+      {
+        filename[j] = path[i];
+        j++;
+        i++;
+      }
+      filename[j] = 0;
+    }
 	}
 }
 /*!
@@ -800,13 +809,14 @@ int MYSERVER_FILE::completePath(char **fileName,int *size, int dontRealloc)
 #ifdef WIN32
   char *buffer;
   int bufferLen = strlen(*fileName) + 1;
+  int bufferNewLen;
   buffer = new char[bufferLen];
   if(buffer == 0)
   {
     return -1;
   }
   strcpy(buffer, *fileName);
-  int bufferNewLen = GetFullPathName(buffer, 0, *fileName, 0) + 1;
+  bufferNewLen = GetFullPathName(buffer, 0, *fileName, 0) + 1;
   if(dontRealloc)
   {
     if(*size < bufferNewLen )
@@ -834,11 +844,12 @@ int MYSERVER_FILE::completePath(char **fileName,int *size, int dontRealloc)
 		return 0;
 	char *buffer;
   int bufferLen = strlen(*fileName) + 1;
+  int bufferNewLen;
   buffer = new char[bufferLen];
   if(buffer == 0)
     return 0;
 	strcpy(buffer, *fileName);
-  int bufferNewLen =  getdefaultwdlen() +  bufferLen + 1 ;
+  bufferNewLen =  getdefaultwdlen() +  bufferLen + 1 ;
   if(dontRealloc)
   {
     if(*size < bufferNewLen )
