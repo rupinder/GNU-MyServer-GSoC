@@ -208,10 +208,10 @@ public:
   static void setMaxFcgiServers(int);
   static int getMaxFcgiServers();
 	fastcgi();
-	static int initializeFASTCGI();
-	int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
+	static int load();
+	int send(httpThreadContext* td,LPCONNECTION connection,
                   char* scriptpath,char *cgipath,int execute,
                   int onlyHeader);
-	static int cleanFASTCGI();
+	static int unload();
 };
 #endif

@@ -41,12 +41,12 @@ public:
 	/*!
 	*Functions to Load and Free the MSCGI library.
 	*/
-	static int loadMSCGILib();
-	static int freeMSCGILib();
+	static int load();
+	static int unload();
 	/*!
 	*Use this to send a MSCGI file through the HTTP protocol.
 	*/
-	int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,
+	int send(httpThreadContext*, LPCONNECTION s, char* exec,
                 char* cmdLine=0, int execute=0, int only_header=0);
 	typedef int (*CGIMAIN)(char*,cgi_data*); 
 };

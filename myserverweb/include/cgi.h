@@ -32,7 +32,7 @@ class cgi
 public:
   static void setTimeout(int);
   static int getTimeout();
-	int sendCGI(httpThreadContext*,LPCONNECTION s,char* scriptpath,char* exec,
+	int send(httpThreadContext*,LPCONNECTION s,char* scriptpath,char* exec,
               int execute, int only_header=0);
 	static void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
 };

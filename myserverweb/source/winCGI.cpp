@@ -35,8 +35,8 @@ extern "C"
 #include <string.h>
 }
 
-int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename, 
-                       int /*execute*/, int only_header)
+int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename, 
+                 int /*execute*/, int only_header)
 {
 #ifdef WIN32
 	u_long nbr;

@@ -1667,10 +1667,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-    ret = lcgi.sendCGI(td, s, td->filenamePath, data, 0,  only_header);
+    ret = lcgi.send(td, s, td->filenamePath, data, 0,  only_header);
     if(data)
       delete [] data;
-    return ret;
+    return (ret & keepalive);
 	}else	if(mimeCMD==CGI_CMD_EXECUTE )
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
@@ -1679,10 +1679,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-    ret = lcgi.sendCGI(td, s, td->filenamePath, data, 1, only_header);
+    ret = lcgi.send(td, s, td->filenamePath, data, 1, only_header);
     if(data)
       delete [] data;
-    return ret;
+    return (ret & keepalive);
 	}else 
  if(mimeCMD == CGI_CMD_RUNISAPI)
 	{
@@ -1692,10 +1692,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		ret = lisapi.sendISAPI(td, s, td->filenamePath, data, 0, only_header);
+		ret = lisapi.send(td, s, td->filenamePath, data, 0, only_header);
     if(data)
       delete [] data;
-    return ret & keepalive;
+    return (ret & keepalive);
 
 	}
   else if(mimeCMD==CGI_CMD_EXECUTEISAPI)
@@ -1706,10 +1706,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-  	ret = lisapi.sendISAPI(td, s, td->filenamePath, data, 1, only_header);
+  	ret = lisapi.send(td, s, td->filenamePath, data, 1, only_header);
     if(data)
       delete [] data;
-    return ret & keepalive;
+    return (ret & keepalive);
 	}
 	else if( mimeCMD == CGI_CMD_RUNMSCGI )
 	{
@@ -1729,9 +1729,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		{
       if(data)
         delete [] data;
-			return lmscgi.sendMSCGI(td, s, td->filenamePath, 
-                              target, 1, only_header)&keepalive;
-		}
+			ret=lmscgi.send(td, s, td->filenamePath, target, 1, only_header);
+      return (ret & keepalive);
+    }
     if(data)
       delete [] data;
 		return raiseHTTPError(td, s, e_500);
@@ -1769,7 +1769,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
     }
     if(data)
       delete [] data;
-    ret=lwincgi.sendWINCGI(td, s, cgipath, 1, only_header);
+    ret=lwincgi.send(td, s, cgipath, 1, only_header);
 		if(cgipath)
 	      delete [] cgipath;
 		return (ret&keepalive);
@@ -1783,7 +1783,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}	
-		ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, data, 0, only_header);
+		ret = lfastcgi.send(td, s, td->filenamePath, data, 0, only_header);
     if(data)
       delete [] data;
 		return (ret & keepalive);
@@ -1796,7 +1796,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, data, 1, only_header);
+		ret = lfastcgi.send(td, s, td->filenamePath, data, 1, only_header);
     if(data)
       delete [] data;
 		return (ret & keepalive);
@@ -2968,13 +2968,13 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
   sec_cache_mutex.myserver_mutex_init();
 		
 	/*! Initialize ISAPI.  */
-	isapi::initISAPI();
+	isapi::load();
 	
 	/*! Initialize FastCGI.  */
-	fastcgi::initializeFASTCGI();	
+	fastcgi::load();	
 
 	/*! Load the MSCGI library.  */
-	mscgiLoaded=mscgi::loadMSCGILib();
+	mscgiLoaded=mscgi::load();
 	
 	if(mscgiLoaded)
   {
@@ -3101,16 +3101,15 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
 	/*!
    *Clean ISAPI.
    */
-	isapi::cleanupISAPI();
+	isapi::unload();
 	/*!
    *Clean FastCGI.
    */
-	fastcgi::cleanFASTCGI();
+	fastcgi::unload();
 	/*!
    *Clean MSCGI.
    */
-	mscgi::freeMSCGILib();
-
+	mscgi::unload();
   sec_cache.free();
 
   sec_cache_mutex.myserver_mutex_destroy();

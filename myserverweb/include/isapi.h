@@ -142,10 +142,10 @@ public:
 #endif	
 	isapi();
 	static myserver_mutex *isapi_mutex;
-	static void initISAPI();
-	static void cleanupISAPI();
-	int sendISAPI(httpThreadContext* td,LPCONNECTION connection, char* scriptpath,
-                char *cgipath, int execute, int only_header);
+	static int load();
+	static int unload();
+	int send(httpThreadContext* td,LPCONNECTION connection, char* scriptpath,
+           char *cgipath, int execute, int only_header);
 };
 
 #ifdef WIN32	

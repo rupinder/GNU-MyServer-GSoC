@@ -70,8 +70,8 @@ int fastcgi::getMaxFcgiServers()
 /*!
  *Entry-Point to manage a FastCGI request.
  */
-int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
-             char* scriptpath,char *cgipath,int execute, int only_header)
+int fastcgi::send(httpThreadContext* td,LPCONNECTION connection,
+                  char* scriptpath,char *cgipath,int execute, int only_header)
 {
 	fCGIContext con;
 	con.td=td;
@@ -721,7 +721,7 @@ fastcgi::fastcgi()
 /*!
  *Initialize the FastCGI protocol implementation
  */
-int fastcgi::initializeFASTCGI()
+int fastcgi::load()
 {
 	if(initialized)
 		return 1;
@@ -736,7 +736,7 @@ int fastcgi::initializeFASTCGI()
 /*!
  *Clean the memory and the processes occuped by the FastCGI servers
  */
-int fastcgi::cleanFASTCGI()
+int fastcgi::unload()
 {
   sfCGIservers* list = fCGIservers;
   servers_mutex.myserver_mutex_lock();

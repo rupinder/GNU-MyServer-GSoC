@@ -580,8 +580,8 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 /*!
  *Main procedure to call an ISAPI module.
  */
-int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection, 
-                     char* scriptpath,char *cgipath, int execute,int only_header)
+int isapi::send(httpThreadContext* td,LPCONNECTION connection, 
+                char* scriptpath,char *cgipath, int execute,int only_header)
 {
   /*!
    *ISAPI works only on the windows architecture.
@@ -887,7 +887,7 @@ isapi::isapi()
 /*!
 *Initialize the ISAPI engine under WIN32.
 */
-void isapi::initISAPI()
+int isapi::load()
 {
 #ifdef WIN32
 	if(initialized)
@@ -903,12 +903,13 @@ void isapi::initISAPI()
 	InitializeCriticalSection(&GetTableEntryCritSec);	
 	initialized=1;
 #endif
+  return 0;
 }
 
 /*!
  *Cleanup the memory used by ISAPI
  */
-void isapi::cleanupISAPI()
+int isapi::unload()
 {
 #ifdef WIN32
 	delete isapi_mutex;
@@ -918,4 +919,5 @@ void isapi::cleanupISAPI()
 	connTable=0;
 	initialized=0;
 #endif
+  return 0;
 }

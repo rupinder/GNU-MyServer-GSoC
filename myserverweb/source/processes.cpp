@@ -173,7 +173,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
   {
     if(count >= timeout)
     {
-      kill(pid, SIGINT);
+      kill(pid, SIGKILL);
       ret = -1;
       break;
     }
