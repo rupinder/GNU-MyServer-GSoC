@@ -19,6 +19,7 @@
 
 #include "../stdafx.h"
 #include "../include/cserver.h"
+#include "../include/stringutils.h"
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
@@ -28,13 +29,6 @@ extern "C" {
 #include <signal.h>
 #endif
 }
-
-#ifndef WIN32
-#define lstrcmpi strcmp
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
-#endif
 
 
 /*

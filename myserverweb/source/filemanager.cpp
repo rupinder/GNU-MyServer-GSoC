@@ -33,11 +33,6 @@ extern "C" {
 #include <fcntl.h>
 #include <string.h>
 }
-
-#define lstrcmpi strcmp
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
 #endif
 
 /*

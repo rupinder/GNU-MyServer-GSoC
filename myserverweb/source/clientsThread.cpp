@@ -22,6 +22,7 @@
 #include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/sockets.h"
+#include "../include/stringutils.h"
 
 #ifndef WIN32
 extern "C" {
@@ -32,11 +33,6 @@ extern "C" {
 #include <pthread.h>
 #endif
 }
-
-#define lstrcmpi strcmp
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
 #endif
 
 // Define SD_BOTH in case it is not defined

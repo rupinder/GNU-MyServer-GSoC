@@ -19,15 +19,9 @@
 
 #include "../include/MIME_manager.h"
 #include "../include/filemanager.h"
+#include "../include/stringutils.h"
 
 using namespace std;
-
-#ifndef WIN32
-#define lstrcmpi strcmp
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
-#endif
 
 
 /*

@@ -40,10 +40,6 @@ extern "C" {
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
-#define lstrcmpi strcmp
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
 #endif
 
 // Bloodshed Dev-C++ Helper
@@ -658,8 +654,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	/*
 	*If the connection is not Keep-Alive remove it from the connections list returning 0.
 	*/  
-	strupr(td.request.CONNECTION);                    // Fix to be universal: Mozilla uses keep-alive
-	if(!lstrcmpi(td.request.CONNECTION,"KEEP-ALIVE")) // IE uses Keep-Alive, so make eveything uppercase insted
+	if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive")) 
 	{
 		retvalue|=1;/*Set first bit to 1*/
 		retvalue|=2;/*Set second bit to 1*/

@@ -20,6 +20,7 @@
 #include "../stdafx.h"
 #include "../include/cserver.h"
 #include "../include/security.h"
+#include "../include/stringutils.h"
 extern "C" {
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -40,11 +41,6 @@ extern "C" {
 #include "../include/isapi.h"
 
 #ifndef WIN32
-#define lstrcmpi strcmp
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
-
 #define LPINT int *
 #define INVALID_SOCKET -1
 #define WORD unsigned int

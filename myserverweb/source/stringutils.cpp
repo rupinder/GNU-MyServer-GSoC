@@ -119,13 +119,9 @@ void splitPath(const char *path, char *dir, char *filename)
 */
 void StrTrim(char* str,const char* trimchars)
 {
-	#ifdef WIN32
 	u_short lenTrimchars=(u_short)lstrlen(trimchars);
 	u_short lenStr=(u_short)lstrlen(str);
-	#else
-	u_short lenTrimchars=(u_short)strlen(trimchars);
-	u_short lenStr=(u_short)strlen(str);
-	#endif
+
 	/*
 	*Number of characters to remove from the initial position of the string.
 	*/
@@ -158,17 +154,9 @@ void StrTrim(char* str,const char* trimchars)
 		}
 	}
 	if(ncharToRemove)
-	#ifdef WIN32
 		lstrcpy(str,&str[ncharToRemove]);
-	#else
-		strcpy(str,&str[ncharToRemove]);
-	#endif
 	doBreak=false;
-	#ifdef WIN32
 	for(j=lstrlen(str)-1;j;j-- )
-	#else
-	for(j=strlen(str)-1;j;j-- )
-	#endif
 	{
 		if(doBreak)
 			break;
@@ -301,4 +289,14 @@ void strupr(char * string)
        string[i] = toupper(string[i]);
 }
 
+int lstrcmpi(const char * a, const char * b)
+{
+    char Buff_a[strlen(a)];
+    char Buff_b[strlen(b)];
+    strcpy(Buff_a, a);
+    strcpy(Buff_b, b);
+    strupr(Buff_a);
+    strupr(Buff_b);
+    return strcmp(Buff_a, Buff_b);
+}
 #endif
