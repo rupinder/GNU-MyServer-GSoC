@@ -156,6 +156,7 @@ void ClientsTHREAD::controlConnections()
 			if(retcode==0)
 			{
 				deleteConnection(c);
+				continue;
 			}
 			else if(retcode==1)
 			{
@@ -182,7 +183,10 @@ void ClientsTHREAD::controlConnections()
 			*configured remove the connection from the connections pool
 			*/
 			if((clock()- c->timeout) > lserver->connectionTimeout)
+			{
 				deleteConnection(c);
+				continue;
+			}
 		}
 	}
 	terminateAccess(&connectionWriteAccess,this->id);
@@ -319,8 +323,6 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 				prev->Next=i->Next;
 			else
 				connections=i->Next;
-			i->socket.shutdown(2);
-			i->socket.closesocket();
 			free(i);
 			ret=1;
 			break;
