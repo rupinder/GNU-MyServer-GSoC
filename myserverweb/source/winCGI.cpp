@@ -309,7 +309,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename,
 	OutFileHandle.closeFile();
 	MYSERVER_FILE::deleteFile(outFilePath);
 	MYSERVER_FILE::deleteFile(dataFilePath);
-	return !lstrcmpi(td->request.CONNECTION,"Keep-Alive");
+	return 1;
 #endif
 #ifdef NOT_WIN
   /*! WinCGI is available only under windows. */
