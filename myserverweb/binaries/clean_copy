@@ -22,6 +22,8 @@ cp languages/*.xml $1/languages
 mkdir $1/web/cgi-bin
 cp web/cgi-bin/*.* $1/web/cgi-bin
 
+mkdir $1/logs
+
 mkdir $1/web/downloads
 cp web/downloads/*.* $1/web/downloads
 
