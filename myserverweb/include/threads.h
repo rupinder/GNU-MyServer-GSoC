@@ -23,14 +23,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
 
+#ifdef HAVE_PTHREAD
+	typedef pthread_mutex_t  myserver_mutex;
+#else
+	typedef (void*) myserver_mutex;
+#endif
 
 
 void wait(u_long);
-
+int	myserver_mutex_init(myserver_mutex*);
+int myserver_mutex_destroy(myserver_mutex*);
 /*!
 *These functions are a simple trasposition of the mutex mechanism.
 */
-int requestAccess(u_long*,u_long);
-int terminateAccess(u_long*,u_long);
+int myserver_mutex_lock(myserver_mutex*,u_long id=0);
+int myserver_mutex_unlock(myserver_mutex*,u_long id=0);
 
 #endif

@@ -101,8 +101,8 @@ public:
 	int isIPAllowed(char*);
 	void setMaxLogSize(u_long);
 	u_long getMaxLogSize();
-	u_long accessesLogFileAccess;
-	u_long warningsLogFileAccess;
+	myserver_mutex accessesLogFileAccess;
+	myserver_mutex warningsLogFileAccess;
 
 	u_long accesseslogRequestAccess(int id);
 	u_long warningslogRequestAccess(int id);

@@ -28,6 +28,9 @@ extern "C" {
 #ifndef WIN32
 #include <unistd.h>
 #include <signal.h>
+#ifdef HAVE_PTHREAD
+#include <pthread.h>
+#endif
 #include <sys/types.h>
 #include <sys/wait.h>
 #endif
@@ -41,8 +44,11 @@ extern "C" {
 /*!
 *This function is similar to the Windows API WaitForSingleObject(..)
 */
-int requestAccess(u_long* ac,u_long id)
+int myserver_mutex_lock(myserver_mutex* ac,u_long id)
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock(ac);
+#else	
 	/*!
 	*If the access ID is equal to the thread ID we don't do nothing.
 	*/
@@ -57,7 +63,7 @@ int requestAccess(u_long* ac,u_long id)
 		if(*ac==0)
 		{
 			*ac=id;
-			requestAccess(ac,id);
+			myserver_mutex_lock(ac,id);
 			return 0;
 		}
 	}
@@ -68,18 +74,23 @@ int requestAccess(u_long* ac,u_long id)
 
 
 	*ac=id;
-	requestAccess(ac,id);
+	myserver_mutex_lock(ac,id);
+#endif
 	return 0;
 }
 /*!
 *Reset the owner of the access.
 */
-int terminateAccess(u_long* ac,u_long/*! id*/)
+int myserver_mutex_unlock(myserver_mutex* ac,u_long/*! id*/)
 {
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock(ac);
+#else		
 	/*!
 	*Only set to Zero the owner of the access.
 	*/
 	*ac=0;
+#endif
 	return 0;
 }
 
@@ -95,4 +106,27 @@ void wait(u_long time)
 	usleep(time);
 #endif
 
+}
+/*!
+*Initialize a mutex.
+*/
+int	myserver_mutex_init(myserver_mutex* mutex)
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_init(mutex, NULL);
+#else
+	*mutex=0;
+#endif
+	
+	return 1;
+}
+/*!
+*Destroy a mutex.
+*/
+int myserver_mutex_destroy(myserver_mutex *mutex)
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_destroy(mutex);	
+#endif
+	return 1;
 }

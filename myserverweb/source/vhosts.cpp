@@ -37,7 +37,8 @@ vhost::vhost()
 	sslContext.password[0] = '\0';
 	ipList=0;
 	hostList=0;
-	accessesLogFileAccess=warningsLogFileAccess=0;
+	myserver_mutex_init(&accessesLogFileAccess);
+	myserver_mutex_init(&warningsLogFileAccess);
 }
 /*!
 *vhost class destructor
@@ -52,6 +53,9 @@ vhost::~vhost()
 	if(warningsLogFile.getHandle())
 		warningsLogFile.closeFile();
 	memset(this,0,sizeof(vhost));
+	myserver_mutex_destroy(&accessesLogFileAccess);
+	myserver_mutex_destroy(&warningsLogFileAccess);
+	
 }
 /*!
 *Clear the list of the hosts
@@ -245,28 +249,28 @@ void vhost::addHost(char *host)
 */
 u_long vhost::accesseslogRequestAccess(int id)
 {
-	return requestAccess(&accessesLogFileAccess,id);
+	return myserver_mutex_lock(&accessesLogFileAccess,id);
 }
 /*!
 *Here threads get the permission to use the warnings log file.
 */
 u_long vhost::warningslogRequestAccess(int id)
 {
-	return requestAccess(&warningsLogFileAccess,id);
+	return myserver_mutex_lock(&warningsLogFileAccess,id);
 }
 /*!
 *Here threads release the permission to use the access log file.
 */
 u_long vhost::accesseslogTerminateAccess(int id)
 {
-	return terminateAccess(&accessesLogFileAccess,id);
+	return myserver_mutex_unlock(&accessesLogFileAccess,id);
 }
 /*!
 *Here threads release the permission to use the warnings log file.
 */
 u_long vhost::warningslogTerminateAccess(int id)
 {
-	return terminateAccess(&warningsLogFileAccess,id);
+	return myserver_mutex_unlock(&warningsLogFileAccess,id);
 }
 
 /*!

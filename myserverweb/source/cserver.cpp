@@ -65,18 +65,13 @@ int mustEndServer;
 
 cserver::cserver()
 {
-#ifdef HAVE_PTHREAD
-	pthread_mutex_init(&c_mutex, NULL);
-#endif
+
 }
 
 cserver::~cserver()
 {
-#ifdef HAVE_PTHREAD
-	pthread_mutex_destroy(&c_mutex);
-#endif
+
 }
- 
 
 void cserver::start()
 {
@@ -159,6 +154,11 @@ void cserver::start()
 	http::loadProtocol(&languageParser,"myserver.xml");
 	https::loadProtocol(&languageParser,"myserver.xml");
 	protocols.loadProtocols("external/protocols",&languageParser,"myserver.xml",this);
+
+	/*!
+	*Create the mutex for the connections.
+	*/
+	myserver_mutex_init(&c_mutex);
 
 	/*!
 	*Initialize the SSL library
@@ -656,6 +656,11 @@ void cserver::terminate()
 	http::unloadProtocol(&languageParser);
 	https::unloadProtocol(&languageParser);
 	protocols.unloadProtocols(&languageParser);
+
+	/*!
+	*Destroy the connections mutex.
+	*/
+	myserver_mutex_destroy(&c_mutex);
 	
 	delete[] threads;
 	if(verbosity>1)
@@ -856,11 +861,8 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 */
 LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
 {
-#ifdef HAVE_PTHREAD
-	pthread_mutex_lock(&c_mutex);
-#else
-	requestAccess(&connectionWriteAccess,id);
-#endif
+	myserver_mutex_lock(&c_mutex);
+
 	u_long cs=sizeof(CONNECTION);
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
@@ -935,11 +937,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	if(maxConnections && (nConnections>maxConnections))
 		nc->toRemove=CONNECTION_REMOVE_OVERLOAD;
 	
-#ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(&c_mutex);
-#else
-	terminateAccess(&connectionWriteAccess,id);
-#endif
+	myserver_mutex_unlock(&c_mutex);
 	return nc;
 }
 
@@ -950,11 +948,9 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 {
 	if(!s)
 		return 0;
-#ifdef HAVE_PTHREAD
-	pthread_mutex_lock(&c_mutex);
-#else
-	requestAccess(&connectionWriteAccess,id);
-#endif
+
+	myserver_mutex_lock(&c_mutex);
+
 	int ret=0,err;
 	/*!
 	*Remove the connection from the active connections list.
@@ -980,11 +976,9 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 			prev=i;
 		}
 	}
-#ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(&c_mutex);
-#else
-	terminateAccess(&connectionWriteAccess,id);
-#endif
+
+	myserver_mutex_unlock(&c_mutex);
+
 	nConnections--;
 	/*!
 	*Close the socket communication.
@@ -1009,11 +1003,8 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 {
 	if(connections==0)
 		return 0;
-#ifdef HAVE_PTHREAD
-	pthread_mutex_lock(&c_mutex);
-#else
-	requestAccess(&connectionWriteAccess,id);
-#endif
+	myserver_mutex_lock(&c_mutex);
+
 	if(connectionToParse)
 	{
 		/*!Be sure that connectionToParse is a valid connection struct*/
@@ -1028,11 +1019,9 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 	}
 	if(connectionToParse==0)
 		connectionToParse=connections;
-#ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(&c_mutex);
-#else
-	terminateAccess(&connectionWriteAccess,id);
-#endif
+
+	myserver_mutex_unlock(&c_mutex);
+
 	return connectionToParse;
 }
 /*!
@@ -1043,11 +1032,8 @@ void cserver::clearAllConnections()
 	/*!
 	*Keep access to the connections list
 	*/
-#ifdef HAVE_PTHREAD
-	pthread_mutex_lock(&c_mutex);
-#else
-	requestAccess(&connectionWriteAccess,1);
-#endif
+	myserver_mutex_lock(&c_mutex);
+
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
 	while(c)
@@ -1062,11 +1048,7 @@ void cserver::clearAllConnections()
 	nConnections=0;
 	connections=0;
 	connectionToParse=0;
-#ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(&c_mutex);
-#else
-	terminateAccess(&connectionWriteAccess,1);
-#endif
+	myserver_mutex_unlock(&c_mutex);
 }
 
 
@@ -1075,22 +1057,16 @@ void cserver::clearAllConnections()
 */
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 {
-#ifdef HAVE_PTHREAD
-	pthread_mutex_lock(&c_mutex);
-#else
-	requestAccess(&connectionWriteAccess,1);
-#endif
+	myserver_mutex_lock(&c_mutex);
+
 	LPCONNECTION c;
 	for(c=connections;c;c=c->next )
 	{
 		if(c->socket==a)
 			return c;
 	}
-#ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(&c_mutex);
-#else
-	terminateAccess(&connectionWriteAccess,1);
-#endif
+	myserver_mutex_unlock(&c_mutex);
+
 	return NULL;
 }
 
