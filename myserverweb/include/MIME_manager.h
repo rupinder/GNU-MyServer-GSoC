@@ -35,6 +35,10 @@ extern "C" {
 #endif
 }
 
+#include <string>
+
+using namespace std;
+
 /*!
 *This enum describes all the way that a file is handled by the server.
 */
@@ -103,6 +107,8 @@ public:
 	int save(char *filename);
 	int getMIME(char* ext,char *dest,char **dest2);
 	int getMIME(int id,char* ext,char *dest,char **dest2);
+  int getMIME(string& ext,string& dest,string& dest2);
+  int getMIME(int id,string& ext,string& dest,string& dest2);
 	void clean();
   int isLoaded();
 };

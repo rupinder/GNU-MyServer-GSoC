@@ -34,9 +34,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
 
-#include <string>
-#include <sstream>
-
 extern "C" 
 {
 #ifdef WIN32
@@ -2326,6 +2323,22 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
  */
 int Http::getMIME(HttpThreadContext* td, char *MIME, char *filename, 
                   char *ext, char **dest2)
+{
+	File::getFileExt(ext, filename);
+	
+  if(((Vhost*)(td->connection->host))->isMIME() )
+  {
+    return ((Vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
+  }
+	return lserver->mimeManager.getMIME(ext, MIME, dest2);
+}
+
+/*!
+ *Returns the MIME type passing its extension.
+ *Returns 1 if the file is registered.
+ */
+int Http::getMIME(HttpThreadContext* td, string& MIME, string& filename, 
+                  string& ext, string& dest2)
 {
 	File::getFileExt(ext, filename);
 	

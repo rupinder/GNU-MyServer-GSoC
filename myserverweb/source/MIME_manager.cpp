@@ -359,6 +359,7 @@ int MimeManager::save(char *filename)
 
 	return 1;
 }
+
 /*!
  *This function returns the type of action to do for handle this file type.
  *Passing a file extension ext this function fills the strings dest and dest2
@@ -395,9 +396,41 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
    */
 	return CGI_CMD_SEND;
 }
+
 /*!
-*Pass only the position of the record in the list.
-*/
+ *This function returns the type of action to do for handle this file type.
+ *Passing a file extension ext this function fills the strings dest and dest2
+ *respectly with the MIME type description and if there are the path to the 
+ *CGI manager.
+ */
+int MimeManager::getMIME(string& ext,string& dest,string& dest2)
+{
+	for(MimeManager::MimeRecord *mr=data;mr;mr=mr->next )
+	{
+		if(!lstrcmpi(ext.c_str(),mr->extension))
+		{
+			dest.assign(mr->mime_type);
+
+      if(mr->cgi_manager)
+      {
+        dest2.assign(mr->cgi_manager);
+      }
+      else
+        dest2.assign("");
+    
+			return mr->command;
+		}
+	}
+	/*!
+   *If the ext is not registered send the file as it is.
+   */
+	return CGI_CMD_SEND;
+}
+
+
+/*!
+ *Get a MIME type by the position of the record in the list.
+ */
 int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 {
 	int i=0;
@@ -427,10 +460,41 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 		i++;
 	}
 	/*!
-	*If the ext is not registered send the file as it is.
-	*/
+   *If the ext is not registered send the file as it is.
+   */
 	return CGI_CMD_SEND;
 }
+
+/*!
+ *Get a MIME type by the position of the record in the list.
+ */
+int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
+{
+	int i=0;
+	for(MimeManager::MimeRecord *mr=data;mr;mr=mr->next )
+	{
+		if(i==id)
+		{
+      ext.assign(mr->extension);
+      dest.assign(mr->mime_type);
+			
+      if(mr->cgi_manager)
+      {
+        dest2.assign(mr->cgi_manager);
+      }
+      else
+        dest2.assign("");
+			
+			return mr->command;
+		}
+		i++;
+	}
+	/*!
+   *If the ext is not registered send the file as it is.
+   */
+	return CGI_CMD_SEND;
+}
+
 
 /*!
  *Destroy the object.

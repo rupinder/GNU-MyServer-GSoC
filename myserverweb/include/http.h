@@ -32,6 +32,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http_file.h"
 #include "../include/http_dir.h"
 
+#include <string>
+#include <sstream>
+
+using namespace std;
+
 /*!
  *Data used only by an HTTP user.
  */
@@ -106,6 +111,8 @@ public:
                const char *filename,int systemrequest);
 	int getMIME(HttpThreadContext* td, char *MIME, char *filename, 
               char *dest, char **dest2);
+	int getMIME(HttpThreadContext* td, string& MIME, string& filename, 
+              string& dest, string& dest2);
 	int logHTTPaccess(HttpThreadContext* td,ConnectionPtr a);
 	int sendHTTPRedirect(HttpThreadContext* td,ConnectionPtr a, const char *newURL);
 	int sendHTTPNonModified(HttpThreadContext* td,ConnectionPtr a);
