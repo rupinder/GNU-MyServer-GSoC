@@ -33,9 +33,9 @@ int hexToInt(const char *str);
 
 
 #ifdef __linux__
-void strupr(char * string);
-
 extern "C" {
+char* strupr(char * string);
+
 #include <string.h>
 }
 
