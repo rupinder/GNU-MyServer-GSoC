@@ -44,7 +44,7 @@ Section "MyServer core" SecCore
   File "libxml2.dll"
   File "libiconv-2.dll"
   File "libcharset-1.dll"
-  File "libpng12.dll"
+  File "libpng13.dll"
   File "zlib1.dll"
   File "libssl32.dll"
   File "rx.dll"
