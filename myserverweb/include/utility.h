@@ -31,6 +31,8 @@
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
 #define OS_WINDOWS_XP		4
+#undef min
+#undef max
 #define min(a,b)		((a<b)?a:b)
 #define max(a,b)		((a>b)?a:b)
 

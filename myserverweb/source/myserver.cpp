@@ -35,10 +35,9 @@ void console_service (int, char **);
 
 #ifdef WIN32
 
-BOOL __stdcall control_handler (DWORD control_type);
+BOOL __stdcall control_handler(DWORD control_type);
 VOID __stdcall myServerCtrlHandler(DWORD fdwControl);
 VOID __stdcall myServerMain (DWORD argc, LPTSTR *argv); 
-BOOL isServiceInstalled();
 void runService();
 
 #endif
@@ -228,26 +227,5 @@ void runService()
 		else
 			printf("Error running service\n");
 	}
-}
-/*
-*Check if the myServer service is installed on the current machine
-*/
-BOOL isServiceInstalled()
-{
-	SC_HANDLE service,manager;
-	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
-	if (manager)
-	{
-		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
-		if (service)
-		{
-			CloseServiceHandle (service);
-			CloseServiceHandle (manager);
-			return TRUE;
-		}
-		CloseServiceHandle (manager);
-		return FALSE;
-	}
-	return FALSE;
 }
 #endif
