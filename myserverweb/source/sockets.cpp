@@ -130,8 +130,8 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 	s.setHandle(h);
 #endif
 #ifdef __linux__
-	unsigned int Connect_Size = *sockaddrlen;
-	int as = ::accept((int)socketHandle,sa,(int*)&Connect_Size);
+	socklen_t Connect_Size = *sockaddrlen;
+	int as = ::accept((int)socketHandle,sa,&Connect_Size);
 	s.setHandle(as);
 #endif
 
@@ -395,7 +395,7 @@ int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 	return ::getsockname(socketHandle,ad,namelen);
 #endif
 #ifdef __linux__
-	int len = *namelen;
+	socklen_t len = *namelen;
 	int ret = ::getsockname((int)socketHandle,ad,&len);
 	*namelen = len;
 	return ret;
