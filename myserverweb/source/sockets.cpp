@@ -36,7 +36,13 @@ extern "C" {
 #ifdef WIN32
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"ws2_32.lib")
+#pragma comment(lib,"libeay32.lib")/*Import the OpenSSL library*/
+#pragma comment(lib,"ssleay32.lib")/*Import the OpenSSL library*/
 #endif
+
+#define CERT_FILE "server.pem"		
+#define KEY_FILE  "server.key"
+#define CIPHER_LIST  "aRSA"
 
 /*
 *Source code to wrap the socket library to myServer project.
@@ -45,7 +51,7 @@ int startupSocketLib(u_short ver)
 {
 #ifdef WIN32	
 	/*
-	*Under windows you need to initialize the socket library before use it.
+	*Under windows we need to initialize the socket library before use it.
 	*/
 	WSADATA wsaData;
 	return WSAStartup(ver, &wsaData);
@@ -68,12 +74,22 @@ int MYSERVER_SOCKET::operator==(MYSERVER_SOCKET s)
 }
 int MYSERVER_SOCKET::operator=(MYSERVER_SOCKET s)
 {
-	socketHandle=s.socketHandle;
+	socketHandle = s.socketHandle;
+	sslConnection = s.sslConnection;
+	sslContext = s.sslContext;
+	clientCert = s.clientCert;
+	sslSocket = s.sslSocket;
 	return 1;
 }
-int MYSERVER_SOCKET::socket(int af,int type,int protocol)
+int MYSERVER_SOCKET::socket(int af,int type,int protocol,int useSSL)
 {
+	sslSocket=useSSL;
 	socketHandle=::socket(af,type,protocol);
+	if(sslSocket)
+	{
+		initializeSSLContext();
+		initializeSSL();
+	}
 	return	(int)socketHandle;
 }
 MYSERVER_SOCKET::MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE handle)
@@ -82,6 +98,9 @@ MYSERVER_SOCKET::MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE handle)
 }
 MYSERVER_SOCKET::MYSERVER_SOCKET()
 {
+	sslSocket=0;
+	sslConnection=0;
+	sslContext=0;
 	setHandle(0);
 }
 int MYSERVER_SOCKET::bind(MYSERVER_SOCKADDR* sa,int namelen)
@@ -106,19 +125,53 @@ int MYSERVER_SOCKET::listen(int max)
 
 MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen)
 {
+	if(sslSocket)
+	{
+		freeSSL();
+		initializeSSL();
+	}
+	MYSERVER_SOCKET s;
+	s.sslConnection=0;
+	s.sslContext=0;
+	s.sslSocket=0;
 #ifdef WIN32
 	MYSERVER_SOCKET_HANDLE h=(MYSERVER_SOCKET_HANDLE)::accept(socketHandle,sa,sockaddrlen);
-	MYSERVER_SOCKET s;
 	s.setHandle(h);
-	return s;
 #endif
 #ifdef __linux__
 	unsigned int Connect_Size = *sockaddrlen;
 	int as = ::accept((int)socketHandle,sa,&Connect_Size);
-	MYSERVER_SOCKET s;
 	s.setHandle(as);
-	return s;
 #endif
+	if(sslSocket)
+	{
+		s.setSSL(1);
+		int ssl_accept;
+		SSL_set_accept_state(sslConnection);
+		SSL_set_fd(sslConnection,s.getHandle());
+		do
+		{
+			ssl_accept = SSL_accept(sslConnection);
+		}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,ssl_accept) ==SSL_ERROR_WANT_READ);
+		if(ssl_accept != 1 )
+		{
+			freeSSL();
+			s.shutdown(2);
+			s.closesocket();
+			s.setHandle(0);
+		}
+		clientCert = SSL_get_peer_certificate(sslConnection);
+		if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
+		{
+			freeSSL();
+			s.shutdown(2);
+			s.closesocket();
+			s.setHandle(0);
+		}
+
+	}
+
+	return s;
 }
 
 int MYSERVER_SOCKET::closesocket()
@@ -129,6 +182,8 @@ int MYSERVER_SOCKET::closesocket()
 #ifdef __linux__
 	return ::close((int)socketHandle);
 #endif
+	freeSSL();
+	freeSSLContext();
 }
 MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 {
@@ -163,6 +218,15 @@ int	MYSERVER_SOCKET::setsockopt(int level,int optname,const char *optval,int opt
 
 int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 {
+	if(sslSocket)
+	{
+		int err;
+		do
+		{	
+			err=SSL_write(sslConnection,buffer,len);
+		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
+		return err;
+	}
 #ifdef WIN32
 	return	::send(socketHandle,buffer,len,flags);
 #endif
@@ -205,9 +269,67 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
 	return -1;
 
 }
+int MYSERVER_SOCKET::freeSSL()
+{
+	if(sslConnection)
+	{
+		SSL_free(sslConnection);
+		sslConnection=0;
+	}
+	return 1;
+}
+int MYSERVER_SOCKET::initializeSSLContext()
+{
+	freeSSLContext();
+	sslContext=SSL_CTX_new(SSLv23_server_method());
+	return 1;
+}
+int MYSERVER_SOCKET::freeSSLContext()
+{
+	if(sslContext)
+	{
+		SSL_CTX_free(sslContext);
+		sslContext=0;
+	}
+	return 1;
+}
+int MYSERVER_SOCKET::initializeSSL(SSL* connection)
+{
+	freeSSL();
+	if(sslContext==0)
+		initializeSSLContext();
+	if(connection)
+		sslConnection = connection;
+	else
+		sslConnection =(SSL *)SSL_new(sslContext);
+	return 1;
+}
+void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
+{
+	if(sslSocket && (nSSL==0))
+		freeSSL();
+	if(nSSL && (sslSocket==0))
+		initializeSSL(connection);
+	sslSocket=nSSL;
+}
+int MYSERVER_SOCKET::getSSL()
+{
+	return sslSocket;
+}
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
 	int err;
+	if(sslSocket)
+	{
+		do
+		{	
+			SSL_read(sslConnection,buffer,len);
+		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
+		if(SSL_get_error(sslConnection,err)!=SSL_ERROR_ZERO_RETURN)
+			return err;
+		else 
+			return -1;
+	}
 #ifdef WIN32
 	err=::recv(socketHandle,buffer,len,flags);
 	if(err==SOCKET_ERROR)

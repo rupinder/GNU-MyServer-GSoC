@@ -20,7 +20,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define SOCKETS_H
 
 #include "../stdafx.h"
-
+#include<openssl/ssl.h>
+#include<openssl/crypto.h>
+#include<openssl/lhash.h>
+#include<openssl/err.h>
+#include<openssl/bn.h>
+#include<openssl/pem.h>
+#include<openssl/x509.h>
+#include<openssl/rand.h>
 #ifdef WIN32
 #ifndef SOCKETLIBINCLUDED
 #include <winsock2.h>
@@ -50,13 +57,23 @@ class MYSERVER_SOCKET
 {
 private:
 	MYSERVER_SOCKET_HANDLE socketHandle;
+	int sslSocket;
+	SSL *sslConnection;
+	SSL_CTX *sslContext;
+	X509 * clientCert;
 public:
+	void setSSL(int,SSL* connection = 0);
+	int getSSL();
+	int initializeSSL(SSL* connection = 0);
+	int freeSSL();
+	int initializeSSLContext();
+	int freeSSLContext();
 	MYSERVER_SOCKET_HANDLE getHandle();
 	int setHandle(MYSERVER_SOCKET_HANDLE);
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr,int len,int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
 	static int gethostname(char*,int);
-	int socket(int,int,int);
+	int socket(int,int,int,int=0);
 	int bind(MYSERVER_SOCKADDR*,int);
 	int listen(int);
 	MYSERVER_SOCKET();

@@ -465,6 +465,8 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		}
 		if(!strcmp(buffer2,"HTTP"))
 			vh->protocol=PROTOCOL_HTTP;
+		if(!strcmp(buffer2,"HTTPS"))
+			vh->protocol=PROTOCOL_HTTPS;
 		if(!strcmp(buffer2,"FTP"))
 			vh->protocol=PROTOCOL_FTP;
 		cc++;
@@ -593,6 +595,11 @@ void vhostmanager::saveConfigurationFile(char *filename)
 			strcpy(buffer,"HTTP;");
 			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
+		if(vh->protocol==PROTOCOL_HTTPS)
+		{
+			strcpy(buffer,"HTTPS;");
+			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+		}
 		if(vh->protocol==PROTOCOL_FTP)
 		{
 			strcpy(buffer,"FTP;");
@@ -716,6 +723,8 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			{
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTP"))
 					vh->protocol=PROTOCOL_HTTP;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTPS"))
+					vh->protocol=PROTOCOL_HTTPS;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"FTP"))
 					vh->protocol=PROTOCOL_FTP;
 			}
@@ -806,6 +815,9 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		{
 			case PROTOCOL_HTTP:
 				out.writeToFile("HTTP",4,&nbw);
+				break;
+			case PROTOCOL_HTTPS:
+				out.writeToFile("HTTPS",5,&nbw);
 				break;
 			case PROTOCOL_FTP:
 				out.writeToFile("FTP",3,&nbw);

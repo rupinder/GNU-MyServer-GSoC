@@ -697,6 +697,18 @@ void cserver::initialize(int OSVer)
 	configurationFileManager.close();
 
 }
+char* cserver::getServerKey()
+{
+	return m_server_key;
+}
+char* cserver::getServerCertificate()
+{
+	return m_server_certificate;
+}
+char* cserver::getCipher()
+{
+	return m_str_cipher;
+}
 /*
 *Get the max size of the logs file
 */
