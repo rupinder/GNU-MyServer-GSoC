@@ -1168,10 +1168,10 @@ void cserver::reboot()
 	if(mustEndServer)
 		return;
 	lserver->stopListening=1;
-	wait(5);
+	wait(100);
 	terminate();
 	lserver->stopListening=0;
-	wait(5);
+	wait(10);
 	initialize(0);
 	loadSettings();
 
