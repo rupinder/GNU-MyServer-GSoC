@@ -24,8 +24,8 @@ extern "C" {
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef __linux__
 #include <ctype.h>
+#ifdef __linux__
 #include <stdio.h>
 #endif
 }
