@@ -24,5 +24,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "../stdafx.h"
-unsigned int strlcat(char *destination, const char *source, unsigned int size);
-unsigned int strlcpy(char *destination, const char *source, unsigned int size);
+#ifndef SECURESTR_H
+#define SECURESTR_H
+unsigned int myserver_strlcat(char *destination, const char *source, unsigned int size);
+unsigned int myserver_strlcpy(char *destination, const char *source, unsigned int size);
+#endif

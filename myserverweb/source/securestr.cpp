@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/securestr.h"
 #include <string.h>
 
-unsigned int strlcat(char *destination, const char *source, size_t size)
+unsigned int myserver_strlcat(char *destination, const char *source, size_t size)
 {
     char *dstptr=destination;
     size_t dstlen,tocopy=size;
@@ -56,7 +56,7 @@ unsigned int strlcat(char *destination, const char *source, size_t size)
 }
 
    
-unsigned int strlcpy(char *destination, const char *source, unsigned int size)
+unsigned int myserver_strlcpy(char *destination, const char *source, unsigned int size)
 {
     char *dstptr=destination;
     size_t tocopy=size;
@@ -83,4 +83,3 @@ unsigned int strlcpy(char *destination, const char *source, unsigned int size)
     
     return(srcptr-source-1);
 }
-
