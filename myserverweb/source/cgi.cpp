@@ -60,7 +60,7 @@ int cgi::cgi_timeout = MYSERVER_SEC(15);
 /*!
  *Run the standard CGI and send the result to the client.
  */
-int cgi::send(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
+int cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath, 
               char *cgipath, int execute, int only_header)
 {
  	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */

@@ -40,7 +40,7 @@ extern "C" {
  *Sends the MyServer CGI; differently from standard CGI this don't 
  *need a new process to run so it is faster.
  */
-int mscgi::send(httpThreadContext* td,LPCONNECTION s,char* exec,
+int mscgi::send(httpThreadContext* td, ConnectionPtr s,char* exec,
                 char* cmdLine, int /*execute*/, int only_header)
 {
 	/*!

@@ -52,7 +52,7 @@ public:
 
 
 
-class CONNECTION
+class Connection
 {
   /*! IDentifier for the CONNECTION. */
   u_long ID;
@@ -135,7 +135,7 @@ public:
 	MYSERVER_SOCKET socket;
 	
 	/*! Next CONNECTION in linked list.  */
-	CONNECTION* next;
+	Connection* next;
 	
 	/*! Pointer to an host structure.  */
 	void *host;
@@ -155,9 +155,10 @@ public:
 	/*! Buffer for the connecion struct. Used by protocols.  */
 	protocol_buffer *protocolBuffer;
 
-  CONNECTION();
-  virtual ~CONNECTION();
+  Connection();
+  virtual ~Connection();
 };
-typedef CONNECTION* volatile LPCONNECTION;
+                                   
+typedef  Connection* volatile ConnectionPtr;
 
 #endif

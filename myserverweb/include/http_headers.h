@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/filemanager.h"
 #include "../include/MemBuf.h"
+#include "../include/connectionstruct.h"
 
 extern "C" {
 #ifdef WIN32
@@ -52,14 +53,14 @@ extern class CBase64Utils base64Utils;
 #define HTTP_AUTH_SCHEME_DIGEST 1
 
 /*!
-*Structure used by the HTTP protocol parser to describe a thread.
-*/
+ *Structure used by the HTTP protocol parser to describe a thread.
+ */
 struct httpThreadContext
 {
 	int appendOutputs;/*! Used by SSI. */
   int lastError;/*! Used by SSI and set by raiseHTTPError. */
   int only_header;/*! Is the client asking only for the header? */
-	LPCONNECTION connection;
+	ConnectionPtr connection;
 	CMemBuf *buffer;
 	CMemBuf *buffer2;
 	u_long buffersize;

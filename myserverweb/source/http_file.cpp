@@ -41,7 +41,7 @@ extern "C"
 /*!
  *Send a file to the client using the HTTP protocol.
  */
-int http_file::send(httpThreadContext* td, LPCONNECTION s, char *filenamePath, 
+int http_file::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath, 
                     char* /*exec*/,int only_header)
 {
 	/*!

@@ -40,7 +40,7 @@ int protocol::unloadProtocol(cXMLParser* /*languageParser*/)
 /*!
  *Control the connection.
  */
-int protocol::controlConnection(LPCONNECTION /*a*/,char* /*b1*/,
+int protocol::controlConnection(ConnectionPtr /*a*/,char* /*b1*/,
                                 char* /*b2*/,int /*bs1*/,int /*bs2*/,
                                 u_long /*nbtr*/,u_long /*id*/)
 {

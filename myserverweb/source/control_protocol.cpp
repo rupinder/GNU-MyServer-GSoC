@@ -209,8 +209,8 @@ int control_protocol::checkAuth()
 /*!
  *Control the connection.
  */
-int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int bs1, 
-                                        int bs2, u_long nbtr, u_long id)
+int control_protocol::controlConnection(ConnectionPtr a, char *b1, char *b2, 
+                                        int bs1, int bs2, u_long nbtr, u_long id)
 {
   int ret;
   int realHeaderLength;
@@ -668,7 +668,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
 /*!
  *Add the entry to the error log file.
  */
-int control_protocol::addToErrorLog(LPCONNECTION con, char *b1, int bs1)
+int control_protocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
 {
 	char time[33];
   /*!
@@ -689,7 +689,7 @@ int control_protocol::addToErrorLog(LPCONNECTION con, char *b1, int bs1)
 /*!
  *Add the entry to the log file.
  */
-int control_protocol::addToLog(int retCode, LPCONNECTION con, char *b1, int bs1)
+int control_protocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
 {
 	char time[33];
 	getRFC822GMTTime(time, 32);
@@ -707,7 +707,7 @@ int control_protocol::addToLog(int retCode, LPCONNECTION con, char *b1, int bs1)
  *Return nonzero on errors.
  */
 int control_protocol::sendResponse(char *buffer, int buffersize, 
-                                   LPCONNECTION conn, int errID, 
+                                   ConnectionPtr conn, int errID, 
                                    MYSERVER_FILE* outFile)
 {
   u_long dataLength=0;
@@ -783,12 +783,12 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
 /*!
  *Show the currect active connections.
  */
-int  control_protocol::SHOWCONNECTIONS(LPCONNECTION a,MYSERVER_FILE* out, char *b1, 
+int  control_protocol::SHOWCONNECTIONS(ConnectionPtr a,MYSERVER_FILE* out, char *b1, 
                                        int bs1)
 {
   int ret =  0;
   u_long nbw;
-  LPCONNECTION con;
+  ConnectionPtr con;
   lserver->connections_mutex_lock();
   con = lserver->getConnections();
   while(con)
@@ -812,11 +812,11 @@ int  control_protocol::SHOWCONNECTIONS(LPCONNECTION a,MYSERVER_FILE* out, char *
 /*!
  *Kill a connection by its ID.
  */
-int  control_protocol::KILLCONNECTION(LPCONNECTION a, u_long ID, MYSERVER_FILE* out, 
+int  control_protocol::KILLCONNECTION(ConnectionPtr a, u_long ID, MYSERVER_FILE* out, 
                                       char *b1, int bs1)
 {
   int ret = 0;
-  LPCONNECTION con;
+  ConnectionPtr con;
   if(ID == 0)
     return -1;
   con = lserver->findConnectionByID(ID);
@@ -833,7 +833,7 @@ int  control_protocol::KILLCONNECTION(LPCONNECTION a, u_long ID, MYSERVER_FILE* 
 /*!
  *List all the dynamic protocols used by the server.
  */
-int control_protocol::SHOWDYNAMICPROTOCOLS(LPCONNECTION a, MYSERVER_FILE* out, 
+int control_protocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, MYSERVER_FILE* out, 
                                            char *b1,int bs1)
 {
   int i = 0;
@@ -861,7 +861,7 @@ int control_protocol::SHOWDYNAMICPROTOCOLS(LPCONNECTION a, MYSERVER_FILE* out,
 /*!
  *Return the requested file to the client.
  */
-int control_protocol::GETFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in, 
+int control_protocol::GETFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
                               MYSERVER_FILE* out, char *b1,int bs1 )
 {
   char *filename = 0;
@@ -934,7 +934,7 @@ int control_protocol::GETFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in,
 /*!
  *Save the file on the local FS.
  */
-int control_protocol::PUTFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in, 
+int control_protocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
                               MYSERVER_FILE* out, char *b1,int bs1 )
 {
   char *filename = 0;
@@ -1034,7 +1034,7 @@ int control_protocol::PUTFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in,
 /*!
  *Show all the language files that the server can use.
  */
-int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out, 
+int control_protocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out, 
                                         char *b1,int bs1)
 {
   char *path = lserver->getLanguagesPath();
@@ -1107,7 +1107,7 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
 /*!
  *Return the current MyServer version.
  */
-int control_protocol::GETVERSION(LPCONNECTION a, MYSERVER_FILE* out, char *b1,int bs1)
+int control_protocol::GETVERSION(ConnectionPtr a, MYSERVER_FILE* out, char *b1,int bs1)
 {
   u_long nbw;
   sprintf(b1, "MyServer %s", versionOfSoftware);

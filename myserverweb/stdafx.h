@@ -75,18 +75,11 @@ extern "C"
 typedef unsigned long DWORD;
 typedef unsigned long u_long;
 typedef unsigned short u_short;
-typedef int BOOL;
 
 typedef void* HANDLE;
 extern class cserver *lserver;
 extern class CBase64Utils base64Utils;
-struct CONNECTION;
 extern const char *versionOfSoftware;
-extern BOOL mustEndServer;
-
-extern BOOL mustEndServer;
-#define Thread   __declspec( thread )
-typedef CONNECTION* volatile  LPCONNECTION;
-typedef  void* LOGGEDUSERID;
+extern int mustEndServer;
 
 #endif

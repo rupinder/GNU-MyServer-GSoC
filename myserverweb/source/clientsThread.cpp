@@ -237,7 +237,7 @@ int ClientsThread::controlConnections()
    *Control the protocol used by the connection.
    */
   int retcode=0;
-  LPCONNECTION c;
+  ConnectionPtr c;
   dynamic_protocol* dp=0;
 	/*!
    *Get the access to the connections list.

@@ -131,7 +131,7 @@ int dynamic_protocol::getOptions()
 /*!
  *Control the connection.
  */
-int dynamic_protocol::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,
+int dynamic_protocol::controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
                                         int bs2,u_long nbtr,u_long id)
 {
 	controlConnectionPROC Proc;

@@ -96,7 +96,7 @@ myserver_mutex http::sec_cache_mutex;
 /*!
  *Build a response for an OPTIONS request.
  */
-int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
+int http::optionsHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s, 
                               char* /*filename*/, int /*yetmapped*/)
 {
 	int ret;
@@ -131,7 +131,7 @@ int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 /*!
  *Handle the HTTP TRACE command.
  */
-int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
+int http::traceHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s, 
                             char* /*filename*/, int /*yetmapped*/)
 {
 	int ret;
@@ -170,7 +170,7 @@ int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 /*!
  *Check if the host allows the HTTP TRACE command
  */
-int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
+int http::allowHTTPTRACE(httpThreadContext* td, ConnectionPtr s)
 {
 	int ret;
 	/*! Check if the host allows HTTP trace.  */
@@ -215,7 +215,7 @@ int http::getCGItimeout()
 /*!
  *Main function to handle the HTTP PUT command.
  */
-int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
+int http::putHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s, 
                           char *filename, int, int, int yetmapped)
 {
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
@@ -470,7 +470,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 /*!
  *Delete the resource identified by filename.
  */
-int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
+int http::deleteHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s, 
                              char *filename, int yetmapped)
 {
   int permissions=-1;
@@ -634,7 +634,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 /*!
  *Check the Digest authorization
  */
-u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
+u_long http::checkDigest(httpThreadContext* td, ConnectionPtr s)
 {
 	char A1[48];
 	char A2[48];
@@ -725,7 +725,7 @@ void http_user_data::reset()
 /*!
  *Main function to send a resource to a client.
  */
-int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, 
+int http::sendHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s, char *URI, 
                            int systemrequest, int only_header, int yetmapped)
 {
 	/*!
@@ -1320,7 +1320,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 /*!
  *Log the access using the Common Log Format or the Combined one
  */
-int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
+int http::logHTTPaccess(httpThreadContext* td, ConnectionPtr a)
 {
 	char tmpStrInt[12];
 	char time[HTTP_RESPONSE_DATE_DIM + 1];
@@ -1385,7 +1385,7 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
  *This is the HTTP protocol main procedure to parse a request 
  *over the HTTP.
  */
-int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, 
+int http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/, 
                             int bs1, int bs2, u_long nbtr, u_long id)
 {
 	int retvalue=-1;
@@ -2048,7 +2048,7 @@ void http::computeDigest(httpThreadContext* td, char* out , char* buffer)
  *Sends an error page to the client.
  *Nonzero to keep the connection.
  */
-int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
+int http::raiseHTTPError(httpThreadContext* td, ConnectionPtr a, int ID)
 {
   char time[HTTP_RESPONSE_DATE_DIM];
   char* errorFile;
@@ -2206,7 +2206,7 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 /*!
  *Send a hard wired 500 error when we have a system error
  */
-int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
+int http::sendHTTPhardError500(httpThreadContext* td, ConnectionPtr a)
 {
 	char tmpStr[12];
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -2260,7 +2260,7 @@ int http::getMIME(httpThreadContext* td, char *MIME, char *filename,
 /*!
  *Map an URL to the machine file system.
  */
-int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath, 
+int http::getPath(httpThreadContext* td, ConnectionPtr /*s*/, char **filenamePath, 
                    const char *filename, int systemrequest)
 {
 	/*!
@@ -2334,7 +2334,7 @@ u_long http::get_gzip_threshold()
 /*!
  *Send a redirect message to the client.
  */
-int http::sendHTTPRedirect(httpThreadContext* td, LPCONNECTION a, char *newURL)
+int http::sendHTTPRedirect(httpThreadContext* td, ConnectionPtr a, char *newURL)
 {
 	int keepalive=0;
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -2365,7 +2365,7 @@ int http::sendHTTPRedirect(httpThreadContext* td, LPCONNECTION a, char *newURL)
 /*!
  *Send a non-modified message to the client.
  */
-int http::sendHTTPNonModified(httpThreadContext* td, LPCONNECTION a)
+int http::sendHTTPNonModified(httpThreadContext* td, ConnectionPtr a)
 {
 	int keepalive=0;
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -2396,7 +2396,7 @@ int http::sendHTTPNonModified(httpThreadContext* td, LPCONNECTION a)
 /*!
  *Send a 401 error.
  */
-int http::sendAuth(httpThreadContext* td, LPCONNECTION s)
+int http::sendAuth(httpThreadContext* td, ConnectionPtr s)
 {
 	if(s->getnTries() > 2)
 	{

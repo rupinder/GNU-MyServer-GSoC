@@ -88,36 +88,36 @@ protected:
 public:
 	int PROTOCOL_OPTIONS;
 	char *getDefaultFilenamePath(u_long ID);
-	int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
+	int sendHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int putHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
+	int putHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int allowHTTPTRACE(httpThreadContext*,LPCONNECTION s);
-	int optionsHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
+	int allowHTTPTRACE(httpThreadContext*,ConnectionPtr s);
+	int optionsHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
                           int yetmapped=0);
-	int traceHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
+	int traceHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
                         int yetmapped=0);
-	int deleteHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
+	int deleteHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
                          int yetmapped=0);
-	int raiseHTTPError(httpThreadContext*, LPCONNECTION a, int ID);
-	int sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a);
-	int sendAuth(httpThreadContext* td, LPCONNECTION a);
-	int getPath(httpThreadContext* td, LPCONNECTION s, char **filenamePath,
+	int raiseHTTPError(httpThreadContext*, ConnectionPtr a, int ID);
+	int sendHTTPhardError500(httpThreadContext* td, ConnectionPtr a);
+	int sendAuth(httpThreadContext* td, ConnectionPtr a);
+	int getPath(httpThreadContext* td, ConnectionPtr s, char **filenamePath,
                const char *filename,int systemrequest);
 	int getMIME(httpThreadContext* td, char *MIME, char *filename, 
               char *dest, char **dest2);
-	int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
-	int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
-	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
+	int logHTTPaccess(httpThreadContext* td,ConnectionPtr a);
+	int sendHTTPRedirect(httpThreadContext* td,ConnectionPtr a,char *newURL);
+	int sendHTTPNonModified(httpThreadContext* td,ConnectionPtr a);
 	http();
 	virtual ~http();
 	void computeDigest(httpThreadContext* td, char*, char*);
-	u_long checkDigest(httpThreadContext* td, LPCONNECTION s);
+	u_long checkDigest(httpThreadContext* td, ConnectionPtr s);
   char* getBrowseDirCSSFile();
 	u_long get_gzip_threshold();
 	/*! The function is used to the request and build a response.  */
 	virtual char* registerName(char*,int len);
-	int controlConnection(LPCONNECTION a, char *b1, char *b2, int bs1, 
+	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);
 	static int loadProtocol(cXMLParser*,char*);
 	static int unloadProtocol(cXMLParser*);

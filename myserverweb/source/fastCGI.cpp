@@ -70,7 +70,7 @@ int fastcgi::getMaxFcgiServers()
 /*!
  *Entry-Point to manage a FastCGI request.
  */
-int fastcgi::send(httpThreadContext* td,LPCONNECTION connection,
+int fastcgi::send(httpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute, int only_header)
 {
 	fCGIContext con;

@@ -211,7 +211,7 @@ public:
   static int getMaxFcgiServers();
 	fastcgi();
 	static int load();
-	int send(httpThreadContext* td,LPCONNECTION connection,
+	int send(httpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute,
                   int onlyHeader);
 	static int unload();

@@ -22,8 +22,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Send a file to the client using the HTTP protocol.
  */
-int http_data_handler::send(httpThreadContext*/* td*/, LPCONNECTION /*s*/, char* /*filenamePath*/, 
-                            char* /*exec*/,int /*only_header*/)
+int http_data_handler::send(httpThreadContext*/* td*/, ConnectionPtr /*s*/, 
+                            char* /*filenamePath*/, char* /*exec*/,
+                            int /*only_header*/)
 {
   return 0;
 }

@@ -40,21 +40,21 @@ class control_protocol : public protocol
   /*! Use control_header to parse the request. */
   control_header header;
   int checkAuth();
-  int SHOWCONNECTIONS(LPCONNECTION,MYSERVER_FILE* out, char *b1,int bs1);
-  int SHOWDYNAMICPROTOCOLS(LPCONNECTION,MYSERVER_FILE* out, char *b1,int bs1);
-  int SHOWLANGUAGEFILES(LPCONNECTION, MYSERVER_FILE* out, char *b1,int bs1);
-  int KILLCONNECTION(LPCONNECTION,u_long ID, MYSERVER_FILE* out, char *b1,int bs1);
-  int GETFILE(LPCONNECTION, char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
+  int SHOWCONNECTIONS(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
+  int SHOWDYNAMICPROTOCOLS(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
+  int SHOWLANGUAGEFILES(ConnectionPtr, MYSERVER_FILE* out, char *b1,int bs1);
+  int KILLCONNECTION(ConnectionPtr,u_long ID, MYSERVER_FILE* out, char *b1,int bs1);
+  int GETFILE(ConnectionPtr, char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
               char *b1,int bs1 );
-  int PUTFILE(LPCONNECTION,char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
+  int PUTFILE(ConnectionPtr,char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
               char *b1,int bs1 );
-  int GETVERSION(LPCONNECTION,MYSERVER_FILE* out, char *b1,int bs1);
-  int addToErrorLog(LPCONNECTION con, char *b1, int bs1);
-  int addToLog(int retCode, LPCONNECTION con, char *b1, int bs1);
+  int GETVERSION(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
+  int addToErrorLog(ConnectionPtr con, char *b1, int bs1);
+  int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1);
 public:
-  int sendResponse(char*, int, LPCONNECTION, int, MYSERVER_FILE* = 0);
+  int sendResponse(char*, int, ConnectionPtr, int, MYSERVER_FILE* = 0);
   static int loadProtocol(cXMLParser* languageParser, char* /*confFile*/);
-	int controlConnection(LPCONNECTION a, char *b1, char *b2, int bs1, 
+	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);
 	virtual char* registerName(char*,int len);
 	control_protocol();

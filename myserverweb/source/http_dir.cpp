@@ -82,7 +82,7 @@ int http_dir::unload()
 /*!
  *Browse a directory printing its contents in an HTML file.
  */
-int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory, 
+int http_dir::send(httpThreadContext* td, ConnectionPtr s, char* directory, 
                char* /*cgi*/, int only_header)
 {
 	u_long nbw;

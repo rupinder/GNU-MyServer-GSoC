@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 
 /*!
- *Contructor for the CONNECTION class.
+ *Contructor for the Connection class.
  */
-CONNECTION::CONNECTION()
+Connection::Connection()
 {
   thread=0;
   parsing=0;
@@ -46,7 +46,7 @@ CONNECTION::CONNECTION()
 /*!
  *Destroy the object.
  */
-CONNECTION::~CONNECTION()
+Connection::~Connection()
 {
 	socket.shutdown(SD_BOTH);
 	char buffer[256];
@@ -82,7 +82,7 @@ protocol_buffer::~protocol_buffer()
 /*!
  *Return the IDentifier for the connection.
  */
-u_long CONNECTION::getID()
+u_long Connection::getID()
 {
   return ID;
 }
@@ -90,7 +90,7 @@ u_long CONNECTION::getID()
 /*!
  *Set the IDentifier for the connection.
  */
-void CONNECTION::setID(u_long nID)
+void Connection::setID(u_long nID)
 {
   ID = nID;
 }
@@ -98,14 +98,14 @@ void CONNECTION::setID(u_long nID)
 /*!
  *Set the parsing state.
  */
-void CONNECTION::setParsing(int np)
+void Connection::setParsing(int np)
 {
   parsing = np;
 }
 /*!
  *Return if the connection is currently parsed.
  */
-int CONNECTION::isParsing()
+int Connection::isParsing()
 {
   return parsing;
 }
@@ -113,7 +113,7 @@ int CONNECTION::isParsing()
 /*!
  *Get the port used by the connection.
  */
-u_short CONNECTION::getPort()
+u_short Connection::getPort()
 {
   return port;
 }
@@ -121,7 +121,7 @@ u_short CONNECTION::getPort()
 /*!
  *Set the port used by the connection.
  */
-void CONNECTION::setPort(u_short np)
+void Connection::setPort(u_short np)
 {
   port = np;
 }
@@ -129,7 +129,7 @@ void CONNECTION::setPort(u_short np)
 /*!
  *Get the login name used by the connection user.
  */
-char* CONNECTION::getLogin()
+char* Connection::getLogin()
 {
   return login;
 }
@@ -137,7 +137,7 @@ char* CONNECTION::getLogin()
 /*!
  *Set the login name for the connection user.
  */
-void CONNECTION::setLogin(char* l)
+void Connection::setLogin(char* l)
 {
   strncpy(login, l, 20);
 }
@@ -145,21 +145,21 @@ void CONNECTION::setLogin(char* l)
 /*!
  *Set the # of attempts to authenticate the user.
  */
-void CONNECTION::setnTries(char n)
+void Connection::setnTries(char n)
 {
   nTries = n;
 }
 /*!
 *Get the # of attempts to authenticate the user.
  */
-char CONNECTION::getnTries()
+char Connection::getnTries()
 {
   return nTries;
 }
 /*!
  *Increment by 1 the # of attempts to authenticate the user.
  */
-void CONNECTION::incnTries()
+void Connection::incnTries()
 {
   nTries++;
 }
@@ -167,7 +167,7 @@ void CONNECTION::incnTries()
 /*!
  *Get the IP address of the client.
  */
-char* CONNECTION::getipAddr()
+char* Connection::getipAddr()
 {
   return ipAddr;
 }
@@ -175,7 +175,7 @@ char* CONNECTION::getipAddr()
 /*!
  *Set the IP address of the client.
  */
-void CONNECTION::setipAddr(char* na)
+void Connection::setipAddr(char* na)
 {
   strncpy(ipAddr, na, MAX_IP_STRING_LEN);
 }
@@ -183,7 +183,7 @@ void CONNECTION::setipAddr(char* na)
 /*!
  *Get the IP address of the local interface used to connect to.
  */
-char* CONNECTION::getlocalIpAddr()
+char* Connection::getlocalIpAddr()
 {
   return localIpAddr;
 }
@@ -191,7 +191,7 @@ char* CONNECTION::getlocalIpAddr()
 /*!
  *Set the IP address of the local interface used to connect to.
  */
-void CONNECTION::setlocalIpAddr(char* na)
+void Connection::setlocalIpAddr(char* na)
 {
   strncpy(localIpAddr, na, MAX_IP_STRING_LEN);
 }
@@ -199,7 +199,7 @@ void CONNECTION::setlocalIpAddr(char* na)
 /*!
  *Get the local port used to connect to.
  */
-u_short CONNECTION::getLocalPort()
+u_short Connection::getLocalPort()
 {
   return localPort;
 }
@@ -207,16 +207,16 @@ u_short CONNECTION::getLocalPort()
 /*!
  *Set the local port used to connect to.
  */
-void CONNECTION::setLocalPort(u_short np)
+void Connection::setLocalPort(u_short np)
 {
   localPort = np;
 }
 
-u_long CONNECTION::getTimeout()
+u_long Connection::getTimeout()
 {
   return timeout;
 }
-void CONNECTION::setTimeout(u_long nTimeout)
+void Connection::setTimeout(u_long nTimeout)
 {
   timeout = nTimeout;
 }
@@ -224,7 +224,7 @@ void CONNECTION::setTimeout(u_long nTimeout)
 /*!
  *Return the number of bytes read.
  */
-int CONNECTION::getDataRead()
+int Connection::getDataRead()
 {
   return dataRead;
 }
@@ -232,7 +232,7 @@ int CONNECTION::getDataRead()
 /*!
  *Set the number of bytes read.
  */
-void CONNECTION::setDataRead(int dr)
+void Connection::setDataRead(int dr)
 {
   dataRead = dr;
 }
@@ -240,7 +240,7 @@ void CONNECTION::setDataRead(int dr)
 /*!
  *Return if the connection must be removed and why.
  */
-int CONNECTION::getToRemove()
+int Connection::getToRemove()
 {
   return toRemove;
 }
@@ -248,7 +248,7 @@ int CONNECTION::getToRemove()
 /*!
  *Set the reason to remove the connection.
  */
-void CONNECTION::setToRemove(int r)
+void Connection::setToRemove(int r)
 {
   toRemove = r;
 }
@@ -256,14 +256,14 @@ void CONNECTION::setToRemove(int r)
 /*!
  *Get if the connection is forced to be parsed.
  */
-int CONNECTION::getForceParsing()
+int Connection::getForceParsing()
 {
   return forceParsing;
 }
 /*!
  *Force the parsing of this connection on next server loop.
  */
-void CONNECTION::setForceParsing(int fp)
+void Connection::setForceParsing(int fp)
 {
   forceParsing = fp;
 }
@@ -271,7 +271,7 @@ void CONNECTION::setForceParsing(int fp)
 /*!
  *Return the password submitted by the user.
  */
-char* CONNECTION::getPassword()
+char* Connection::getPassword()
 {
   return password;
 }
@@ -279,7 +279,7 @@ char* CONNECTION::getPassword()
 /*!
  *Set the password for the user.
  */
-void CONNECTION::setPassword(char* p)
+void Connection::setPassword(char* p)
 {
   strncpy(password, p, 32);
 }

@@ -107,21 +107,21 @@ private:
 	char *path;
 	char serverAdmin[32];
 	int initialize(int);
-	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,
+	ConnectionPtr addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,
                                    char *ipAddr,char *localIpAddr,int port,
                                    int localPort,int);
   u_long nConnections;
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;
 	void clearAllConnections();
-	int deleteConnection(LPCONNECTION,int);
+	int deleteConnection(ConnectionPtr,int);
 	u_long connectionTimeout;
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 	int loadSettings();
 	myserver_mutex *connections_mutex;
-	LPCONNECTION connectionToParse;
+	ConnectionPtr connectionToParse;
 	u_long nStaticThreads;
   u_long nMaxThreads;
   u_long nThreads;
@@ -130,7 +130,7 @@ private:
   ClientsThread *threads;
 
   int purgeThreads();
-	LPCONNECTION connections;
+	ConnectionPtr connections;
 	void createListenThreads();
 	int reboot();
 	u_int listeningThreads;
@@ -160,10 +160,10 @@ public:
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	int connections_mutex_lock();
 	int connections_mutex_unlock();
-  LPCONNECTION getConnections();
-	LPCONNECTION getConnectionToParse(int);
-	LPCONNECTION findConnectionBySocket(MYSERVER_SOCKET);
-	LPCONNECTION findConnectionByID(u_long ID);
+  ConnectionPtr getConnections();
+	ConnectionPtr getConnectionToParse(int);
+	ConnectionPtr findConnectionBySocket(MYSERVER_SOCKET);
+	ConnectionPtr findConnectionByID(u_long ID);
 	u_long getTimeout();
 	int getListeningThreadCount();
 	void increaseListeningThreadCount();

@@ -1192,13 +1192,13 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
  *Add a new connection.
  *A connection is defined using a CONNECTION struct.
  */
-LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, 
+ConnectionPtr cserver::addConnectionToList(MYSERVER_SOCKET s, 
                         MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, 
                         char *localIpAddr, int port, int localPort, int /*id*/)
 {
   static u_long connection_ID = 0;
 	int doSSLhandshake=0;
-	LPCONNECTION new_connection=new CONNECTION;
+	ConnectionPtr new_connection=new Connection;
 	if(!new_connection)
 	{
 		return NULL;
@@ -1275,7 +1275,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
 /*!
  *Delete a connection from the list.
  */
-int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
+int cserver::deleteConnection(ConnectionPtr s, int /*id*/)
 {
 	/*!
    *Get the access to the  connections list.
@@ -1285,13 +1285,13 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	/*!
    *Remove the connection from the active connections list. 
    */
-	LPCONNECTION prev=0;
+	ConnectionPtr prev=0;
 
 	if(!s)
 	{
 		return 0;
 	}
-	for(LPCONNECTION i=connections;i;i=i->next )
+	for(ConnectionPtr i=connections;i;i=i->next )
 	{
 		if(i->socket == s->socket)
 		{
@@ -1325,7 +1325,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
  *Using this without the right permissions can cause wrong data 
  *returned to the client.
  */
-LPCONNECTION cserver::getConnectionToParse(int /*id*/)
+ConnectionPtr cserver::getConnectionToParse(int /*id*/)
 {
 	/*! Do nothing if there are not connections. */
 	if(connections==0)
@@ -1355,8 +1355,8 @@ LPCONNECTION cserver::getConnectionToParse(int /*id*/)
  */
 void cserver::clearAllConnections()
 {
-	LPCONNECTION c;
-	LPCONNECTION next;
+	ConnectionPtr c;
+	ConnectionPtr next;
 	connections_mutex_lock();	
 	c=connections;
 	next=0;
@@ -1376,9 +1376,9 @@ void cserver::clearAllConnections()
 /*!
  *Find a connection passing its socket.
  */
-LPCONNECTION cserver::findConnectionBySocket(MYSERVER_SOCKET a)
+ConnectionPtr cserver::findConnectionBySocket(MYSERVER_SOCKET a)
 {
-	LPCONNECTION c;
+	ConnectionPtr c;
 	connections_mutex_lock();
 	for(c=connections;c;c=c->next )
 	{
@@ -1395,9 +1395,9 @@ LPCONNECTION cserver::findConnectionBySocket(MYSERVER_SOCKET a)
 /*!
  *Find a CONNECTION in the list by its ID.
  */
-LPCONNECTION cserver::findConnectionByID(u_long ID)
+ConnectionPtr cserver::findConnectionByID(u_long ID)
 {
-	LPCONNECTION c;
+	ConnectionPtr c;
 	connections_mutex_lock();
 	for(c=connections;c;c=c->next )
 	{
@@ -1882,7 +1882,7 @@ char *cserver::getMIMEConfFile()
  *Get the first connection in the linked list.
  *Be sure to have locked connections access before.
  */
-LPCONNECTION cserver::getConnections()
+ConnectionPtr cserver::getConnections()
 {
   return connections;
 }
