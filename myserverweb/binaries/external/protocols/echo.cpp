@@ -34,6 +34,7 @@ extern "C" int loadProtocol(void* languageParser,char* confFile,void* lserver)
 #endif
 {
 	/*Do nothing for load this protocol*/
+	return 1;
 	
 }
 #ifdef WIN32
@@ -43,6 +44,7 @@ extern "C" int unloadProtocol(void* languageParser)
 #endif
 {
 	/*Do nothing for unload*/
+	return 1;
 }
 
 #ifdef WIN32

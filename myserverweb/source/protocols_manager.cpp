@@ -137,7 +137,9 @@ char* dynamic_protocol::registerName(char* out,int len)
 	if(Proc)
 		return Proc(out,len);
 	else
+	{
 		return 0;
+	}
 }
 /*!
 *Constructor for the class protocol.
