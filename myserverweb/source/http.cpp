@@ -1740,7 +1740,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*/
 			strcpy(request->AUTH,"Basic");
 			int len=strlen(token);
-			char *base64=base64Utils.Decode(&token[strlen("Basic:")],&len,0);
+			char *base64=base64Utils.Decode(&token[strlen("Basic:")],&len);
 			char* lbuffer2=base64;
 			int i;
 			for(i=0;(*lbuffer2!=':') && (i<19);i++)
@@ -1755,6 +1755,8 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 				td->connection->password[i]=*lbuffer2++;
 				td->connection->password[i+1]='\0';
 			}
+			if(i && (td->connection->password[i-1]==8))
+				td->connection->password[i-1]='\0';
 			free(base64);
 		}else
 		/*Host*/
