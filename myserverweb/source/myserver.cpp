@@ -108,7 +108,6 @@ static struct argp_option options[] =
 	{"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
 	{"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server(by default console mode)"},
 	{"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
-	{0},
 	{"pidfile", 'p', "pidfile", OPTION_HIDDEN, "Specify the file where write the PID"},	{0}
 };
 
