@@ -375,4 +375,3 @@ CMemBuf *ClientsTHREAD::GetBuffer2()
 {
 	return &buffer2;
 }
-

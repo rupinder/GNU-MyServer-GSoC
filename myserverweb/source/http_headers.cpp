@@ -1148,4 +1148,3 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
 	/*! Return if is a valid request header.  */
 	return isValidCommand;
 }
-
