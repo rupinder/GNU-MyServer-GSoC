@@ -45,6 +45,8 @@ private:
 	char *filename;
 public:
 	MYSERVER_FILE();
+  MYSERVER_FILE(char *,int);
+
 	MYSERVER_FILE_HANDLE getHandle();
 	int setHandle(MYSERVER_FILE_HANDLE);
 	int readFromFile(char* ,u_long ,u_long* );

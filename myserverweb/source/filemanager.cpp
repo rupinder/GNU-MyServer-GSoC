@@ -100,13 +100,23 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 	return (*nbw==buffersize)? 1 : 0 ;
 #endif
 }
+
+/*!
+ *Constructor for the class.
+ */
+MYSERVER_FILE::MYSERVER_FILE(char *filename, int opt) 
+  : filename(0), handle(0)
+{
+  openFile(filename, opt);
+}
+
 /*!
  *Open(or create if not exists) a file.
  *If the function have success the return value is nonzero.
  *filename is the name of the file to open
  *opt is a bit-field containing the options on how open it
  *openFile returns the handle on success and NULL on fails.
-*/
+ */
 int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 {
 	int ret=0;
