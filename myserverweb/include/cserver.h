@@ -96,7 +96,7 @@ public:
 	BOOL  mustUseMessagesFiles();
 	BOOL  mustUseLogonOption();
 	void  setVerbosity(DWORD);
-	void start(INT);
+	void start(int);
 	void stop();
 	void terminate();
 	int hInst;

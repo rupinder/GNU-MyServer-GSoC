@@ -235,6 +235,10 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rSERVER_NAME=");
 	lstrcat(cgiEnvString,lserver->getServerName());
 
+	lstrcat(cgiEnvString,"\rSERVER_SIGNATURE=");
+	lstrcat(cgiEnvString,"myServer");
+	lstrcat(cgiEnvString,versionOfSoftware);
+
 	lstrcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/");
 	lstrcat(cgiEnvString,td->request.VER);		
 
@@ -249,20 +253,33 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rREQUEST_METHOD=");
 	lstrcat(cgiEnvString,td->request.CMD);
 
-	lstrcat(cgiEnvString,"\rCONTENT_TYPE=");
-	lstrcat(cgiEnvString,td->request.CONTENTS_TYPE[0]?td->request.CONTENTS_TYPE:"0");
+	if(td->request.CONTENTS_TYPE[0])
+	{
+		lstrcat(cgiEnvString,"\rCONTENT_TYPE=");
+		lstrcat(cgiEnvString,td->request.CONTENTS_TYPE);
+	}
 	
-	lstrcat(cgiEnvString,"\rCONTENT_LENGTH=");
-	lstrcat(cgiEnvString,td->request.CONTENTS_DIM[0]?td->request.CONTENTS_DIM:"0");
-
+	if(td->request.CONTENTS_DIM[0])
+	{
+		lstrcat(cgiEnvString,"\rCONTENT_LENGTH=");
+		lstrcat(cgiEnvString,td->request.CONTENTS_DIM);
+	}
 	if(td->connection->login[0])
 	{
 		lstrcat(cgiEnvString,"\rREMOTE_USER=");
 		lstrcat(cgiEnvString,td->connection->login);
 	}
 
-	lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
-	lstrcat(cgiEnvString,td->connection->ipAddr);
+	if(td->connection->ipAddr[0])
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
+		lstrcat(cgiEnvString,td->connection->ipAddr);
+	}
+	if(td->connection->port)
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_PORT=");
+		sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",td->connection->port);
+	}
 
 	if(td->request.COOKIE[0])
 	{
@@ -284,20 +301,27 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 		lstrcat(cgiEnvString,"\rHTTP_ACCEPT=");
 		lstrcat(cgiEnvString,td->request.ACCEPT);
 	}
-
-	lstrcat(cgiEnvString,"\rCGI_ROOT=");
-	lstrcat(cgiEnvString,td->cgiRoot);
-	
-	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
-	lstrcat(cgiEnvString,td->connection->ipAddr);
+	if(td->cgiRoot[0])
+	{
+		lstrcat(cgiEnvString,"\rCGI_ROOT=");
+		lstrcat(cgiEnvString,td->cgiRoot);
+	}
+	if(td->connection->ipAddr)
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_HOST=");
+		lstrcat(cgiEnvString,td->connection->ipAddr);
+	}
 
 	if(td->request.CONNECTION[0])
 	{
 		lstrcat(cgiEnvString,"\rHTTP_CONNECTION=");
 		lstrcat(cgiEnvString,td->request.CONNECTION);
 	}
-	lstrcat(cgiEnvString,"\rAUTH_TYPE=");
-	lstrcat(cgiEnvString,td->request.AUTH);
+	if(td->request.AUTH[0])
+	{
+		lstrcat(cgiEnvString,"\rAUTH_TYPE=");
+		lstrcat(cgiEnvString,td->request.AUTH);
+	}
 
 	if(td->request.USER_AGENT[0])
 	{

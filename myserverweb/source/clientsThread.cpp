@@ -144,12 +144,13 @@ void ClientsTHREAD::clean()
 *Add a new connection.
 *Connections are defined using a CONNECTION struct.
 */
-LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr)
+LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr,int port)
 {
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;
+	nc->port=port;
 	nc->protocol=protID;
 	nc->timeout=clock();
 	lstrcpy(nc->ipAddr,ipAddr);

@@ -38,6 +38,7 @@ public:
 	char password[32];
 	char nTries;	
 	char ipAddr[32];
+	int port;
 	MYSERVER_SOCKET socket;	
 	DWORD timeout;	
 	CONNECTION* Next;

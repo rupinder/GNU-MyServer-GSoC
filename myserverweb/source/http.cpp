@@ -168,9 +168,9 @@ BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL O
 {
 	/*
 	*With this routine we send a file through the HTTP protocol.
+	*Open the file and save its handle.
 	*/
-	MYSERVER_FILE_HANDLE h;
-	h=ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	MYSERVER_FILE_HANDLE h=ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 
 	if(h==0)
 	{	
@@ -189,14 +189,14 @@ BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL O
 		}
 	}
 	/*
-	*If h!=0.
+	*If the file is a valid handle.
 	*/
 	DWORD bytesToSend=getFileSize(h);
 	if(lastByte == -1)
 	{
 		lastByte=bytesToSend;
 	}
-	else
+	else/*If the client use ranges set the right value for the last byte number*/
 	{
 		lastByte=min((DWORD)lastByte,bytesToSend);
 	}
@@ -220,7 +220,7 @@ BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL O
 	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
 
 	/*
-	*If is requested only the header returns from the function here; HEAD request.
+	*If is requested only the header exit from the function; used by the HEAD request.
 	*/
 	if(OnlyHeader)
 		return 1;
@@ -235,7 +235,7 @@ BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL O
 	{
 		DWORD nbr;
 		/*
-		*Read from file the bytes to sent.
+		*Read from the file the bytes to sent.
 		*/
 		ms_ReadFromFile(h,td->buffer,min(bytesToSend,td->buffersize),&nbr);
 		/*
@@ -799,6 +799,14 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		}
 		return 0;
 	}
+	/*
+	*If the inputData file was not closed close it.
+	*/
+	if(td.inputData)
+	{
+		ms_CloseFile(td.inputData);
+		td.inputData=0;
+	}
 
 	/*
 	*If the connection is not Keep-Alive remove it from the connections list.
@@ -812,15 +820,13 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		}
 		return 0;
 	}
-	if(td.inputData)
-	{
-		ms_CloseFile(td.inputData);
-		td.inputData=0;
-	}
+	/*
+	*Do not remove the connection from the connection pool if it is Keep-Alive.
+	*/
 	return 1;
 }
 /*
-*Reset an HTTP_REQUEST_HEADER structure.
+*Reset all the HTTP_REQUEST_HEADER structure members.
 */
 VOID resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 {
@@ -865,9 +871,23 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	*Every directive ends with a \r\n sequence.
     */
 	if(response->isError)
-		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM,response->ERROR_TYPE);
+		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->ERROR_TYPE);
 	else
-		sprintf(str,"HTTP/%s 200 OK\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\n",response->VER,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM);
+		sprintf(str,"HTTP/%s 200 OK\r\nServer:%s\r\n",response->VER,response->SERVER_NAME);
+
+	if(response->CONTENTS_DIM[0])
+	{
+		lstrcat(str,"Content-Length:");
+		lstrcat(str,response->CONTENTS_DIM);
+		lstrcat(str,"\r\n");
+	}
+
+	if(response->MIME[0])
+	{
+		lstrcat(str,"Content-Type:");
+		lstrcat(str,response->MIME);
+		lstrcat(str,"\r\n");
+	}
 	if(response->DATE[0])
 	{
 		lstrcat(str,"Date:");
@@ -968,10 +988,16 @@ BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 */
 void getPath(char *filenamePath,const char *filename,BOOL systemrequest)
 {
+	/*
+	*If it is a system request, search the file in the system folder.
+	*/
 	if(systemrequest)
 	{
 		sprintf(filenamePath,"%s/%s",lserver->getSystemPath(),filename);
 	}
+	/*
+	*Else the file is in the web folder.
+	*/
 	else
 	{
 		sprintf(filenamePath,"%s/%s",lserver->getPath(),filename);

@@ -86,7 +86,8 @@ INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* 
 #ifdef WIN32
 	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
 	/*
-	*Return 1 if we don't have problems with the buffersize.
+	*Return 1 if we don't reach the ond of the file.
+	*Return 0 if the end of the file is reached.
 	*/
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
@@ -98,7 +99,7 @@ INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* 
 */
 MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 {
-	MYSERVER_FILE_HANDLE ret;
+	MYSERVER_FILE_HANDLE ret=0;
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};  
     sa.nLength = sizeof(sa);

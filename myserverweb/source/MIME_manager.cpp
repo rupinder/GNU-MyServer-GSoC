@@ -46,13 +46,15 @@ int MIME_Manager::load(char *filename)
 	for(DWORD nc=0;;)
 	{
 		ZeroMemory(&record,sizeof(MIME_Manager::mime_record));
-		while(buffer[nc]==' ')
+		/*
+		*Do not consider the \r \n and space characters.
+		*/
+		while((buffer[nc]==' ') || (buffer[nc]=='\r') ||(buffer[nc]=='\n'))
 			nc++;
-		while(buffer[nc]=='\r')
-			nc++;
-		while(buffer[nc]=='\n')
-			nc++;
-		if(buffer[nc]=='#')
+		/*
+		*If reached the # character or the end of the string end the loop.
+		*/
+		if(buffer[nc]=='#'||buffer[nc]=='\0')
 			break;
 		while(buffer[nc]!=',')
 		{
@@ -69,6 +71,9 @@ int MIME_Manager::load(char *filename)
 			nc++;
 		}
 		nc++;
+		/*
+		*Save the action to do with this type of files.
+		*/
 		char commandString[16];
 		ZeroMemory(commandString,sizeof(commandString));
 		while(buffer[nc]!=' ')

@@ -70,11 +70,33 @@ void cserver::start(int hInst)
 	*/
 	lserver=this;
 
-
+#ifdef WIN32
+	/*
+	*Under the windows platform use the cls operating-system command to clear the screen.
+	*/
+	_flushall();
+	system("cls");
+#endif
+	/*
+	*Print the myServer logo.
+	*/
+	char *software_signature=(char*)malloc(200);
+	sprintf(software_signature,"\************myServer %s************",versionOfSoftware);
+	int i=lstrlen(software_signature);
+	while(i--)
+		printf("*");
+    printf("\n%s\n",software_signature);
+	i=lstrlen(software_signature);
+	while(i--)
+		printf("*");
+	printf("\n");
+	free(software_signature);
+	
+	
 	/*
 	*Setup the server configuration.
 	*/
-	printf("\nInitializing server configuration...\n");
+    printf("Initializing server configuration...\n");
 
 	int OSVer=getOSVersion();
 
@@ -661,6 +683,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONN
 	ret=TRUE;
 	char ip[32];
 	sprintf(ip,"%u.%u.%u.%u",(*asock_in).sin_addr.S_un.S_un_b.s_b1,(*asock_in).sin_addr.S_un.S_un_b.s_b2,(*asock_in).sin_addr.S_un.S_un_b.s_b3,(*asock_in).sin_addr.S_un.S_un_b.s_b4);
+	int port=(*asock_in).sin_port;
 
 	char msg[500];
 	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getHTTPFormattedTime());
@@ -668,7 +691,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONN
 
 	static DWORD local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
-	if(!ct->addConnection(s,protID,&ip[0]))
+	if(!ct->addConnection(s,protID,&ip[0],port))
 	{
 		ret=FALSE;
 		ms_closesocket(s);
