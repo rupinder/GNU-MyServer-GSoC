@@ -470,12 +470,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 
 			if(containOpts)
 			{
-				for(j=0;((int)i<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
+				for(j=0;((int)(i+j+1)<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
 				{
-					++i;
+					++j;
 				}
 			}
-      request->URIOPTS.assign(token, j);
+      request->URIOPTS.assign(&token[i+1], j);
+      i+=j+1;
+
       /*! 
        *Seek the cursor at the end of the spaces. Do not allow more than 
        *10 spaces character between the URI token and the HTTP version. 
