@@ -810,7 +810,7 @@ int cserver::initialize(int /*!os_ver*/)
 		if(ret)
 		{
 			preparePrintError();
-			printf("%s\n", languageParser.getValue("ERR_LOADED"));
+			printf("%s\n", "Error loading configuration file\n");
 			endPrintError();
 			return -1;
 		}
