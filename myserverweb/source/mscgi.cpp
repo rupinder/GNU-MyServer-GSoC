@@ -36,7 +36,7 @@ extern "C" {
 }
 
 /*!
-*Sends the MyServer CGI; differently form standard CGI this don't need a new process to run
+*Sends the MyServer CGI; differently from standard CGI this don't need a new process to run
 *so it is faster.
 */
 int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
