@@ -9,12 +9,12 @@
 <MSG_SSOCKCREATE>Creating server socket...</MSG_SSOCKCREATE>
 <MSG_SSOCKRUN>Server socket created</MSG_SSOCKRUN>
 <ERR_OPENP>Error opening port, port can be used by another application</ERR_OPENP>
-<MSG_BIND_PORT>Trying to binding HTTP port...</MSG_BIND_PORT>
+<MSG_BIND_PORT>Trying to binding port...</MSG_BIND_PORT>
 <ERR_BIND>ERR binding port, port can be used by another application</ERR_BIND>
-<MSG_PORT_BINDED>HTTP port is binded</MSG_PORT_BINDED>
-<MSG_SLHTTP>Trying to listen on HTTP port...</MSG_SLHTTP>
+<MSG_PORT_BINDED>Port is binded</MSG_PORT_BINDED>
+<MSG_SLISTEN>Trying to listen on port...</MSG_SLISTEN>
 <ERR_LISTEN>Error listening</ERR_LISTEN>
-<MSG_LHTTP>Listen on HTTP port</MSG_LHTTP>
+<MSG_LISTEN>Listen on port</MSG_LISTEN>
 <MSG_LOADMIME>Loading MIME types...</MSG_LOADMIME>
 <MSG_GETNAME>Computer name is</MSG_GETNAME>
 <MSG_MIMERUN>MIME types loaded successfully</MSG_MIMERUN>

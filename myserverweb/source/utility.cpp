@@ -209,6 +209,10 @@ DWORD execHiddenProcess(START_PROC_INFO *spi)
 VOID getComputerName(char *dest,DWORD maxLen)
 {
 #ifdef WIN32
+	/*
+	*If we report error using the GetComputerName function 
+	*then we use the default name "localhost"
+	*/
 	if(GetComputerNameA(dest,&maxLen)==0)
 	{
 		lstrcpy(dest,"localhost");
@@ -228,8 +232,8 @@ INT requestAccess(DWORD* ac,DWORD id)
 	if(*ac==id)
 		return 0;
 	/*
-	*if the access doesn't belong to any thread set that it belongs to the caller thread
-	*the check if we have the access now
+	*if the access doesn't belong to any thread then set that it belongs to the caller thread
+	*and check if we have the access now
 	*/
 	if(*ac==0)
 	{
@@ -238,7 +242,7 @@ INT requestAccess(DWORD* ac,DWORD id)
 		return 0;
 	}
 	/*
-	*Wait until another thread end the access then set our access
+	*Wait until another thread ends the access then set our access
 	*/
 	while(*ac!=id);
 	*ac=id;

@@ -31,13 +31,6 @@ LOGGEDUSERID Thread guestLoginHandle;
 char Thread guestLogin[20];
 char Thread guestPassword[32];
 
-#ifndef LOGON32_LOGON_NETWORK
-#define LOGON32_LOGON_NETWORK 3
-#endif
-
-#ifndef LOGON32_PROVIDER_DEFAULT
-#define LOGON32_PROVIDER_DEFAULT
-#endif
 /*
 *Do the logon of an user
 */
@@ -45,6 +38,13 @@ BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
 	BOOL logon=FALSE;
 #ifdef WIN32
+	#ifndef LOGON32_LOGON_NETWORK
+	#define LOGON32_LOGON_NETWORK 3
+	#endif
+
+	#ifndef LOGON32_PROVIDER_DEFAULT
+	#define LOGON32_PROVIDER_DEFAULT
+	#endif
 	logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)(handle));
 #endif
 	return logon;

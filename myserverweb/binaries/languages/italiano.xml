@@ -9,12 +9,12 @@
 <MSG_SSOCKCREATE>Creazione del socket server...</MSG_SSOCKCREATE>
 <MSG_SSOCKRUN>Socket Server creato</MSG_SSOCKRUN>
 <ERR_OPENP>Errore nell'apertura della porta, può essere usata da un'altra applicazione</ERR_OPENP>
-<MSG_BIND_PORTHTTP>Binding della porta...</MSG_BIND_PORTHTTP>
-<ERR_BINDHTTP>Errore nel binding della porta, la porta può essere usata da un altro processo</ERR_BINDHTTP>
-<MSG_PORT_BINDEDHTTP>Bind della porta HTTP avvenuto</MSG_PORT_BINDEDHTTP>
-<MSG_SLHTTP>Tentativo di ascolto sulla porta...</MSG_SLHTTP>
+<MSG_BIND_PORT>Binding della porta...</MSG_BIND_PORT>
+<ERR_BIND>Errore nel binding della porta, la porta può essere usata da un altro processo</ERR_BIND>
+<MSG_PORT_BINDED>Bind della porta avvenuto</MSG_PORT_BINDED>
+<MSG_SLISTEN>Tentativo di ascolto sulla porta...</MSG_SLISTEN>
 <ERR_LISTEN>Errore nell'ascoltare sulla porta</ERR_LISTEN>
-<MSG_LHTTP>Il server ascolta sulla porta</MSG_LHTTP>
+<MSG_LISTEN>Il server ascolta sulla porta</MSG_LISTEN>
 <MSG_LOADMIME>Caricamento tipi MIME...</MSG_LOADMIME>
 <MSG_GETNAME>Nome del Computer </MSG_GETNAME>
 <MSG_MIMERUN>Tipi Mime caricati con successo</MSG_MIMERUN>

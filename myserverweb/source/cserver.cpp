@@ -56,7 +56,6 @@ void cserver::start(INT hInst)
 	/*
 	*Setup the server configuration
 	*/
-
 	printf("\nInitializing server configuration...\n");
 
 	INT OSVer=getOSVersion();
@@ -156,28 +155,28 @@ void cserver::start(INT hInst)
 	/*
 	*Bind the HTTP port
 	*/
-	printf("%s\n",languageParser.getValue("MSG_BIND_PORTHTTP"));
+	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
 
 	if(ms_bind(serverSocketHTTP,(sockaddr*)&sock_inserverSocketHTTP,sizeof(sock_inserverSocketHTTP))!=0)
 	{
-		printf("%s\n",languageParser.getValue("ERR_BINDHTTP"));
+		printf("%s\n",languageParser.getValue("ERR_BIND"));
 		return;
 	}
-	printf("%s\n",languageParser.getValue("MSG_PORT_BINDEDHTTP"));
+	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
 
 
 
 	/*
 	*Set connections listen queque to max allowable
 	*/
-	printf("%s\n",languageParser.getValue("MSG_SLHTTP"));
+	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
 	if (ms_listen(serverSocketHTTP,SOMAXCONN))
 	{ 
 		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
 		return; 
 	}
 
-	printf("%s: %u\n",languageParser.getValue("MSG_LHTTP"),port_HTTP);
+	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port_HTTP);
 
 	/*
 	*Get the machine name
@@ -212,7 +211,6 @@ void cserver::start(INT hInst)
 	/*
 	*Load the MIME types
 	*/
-
 	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
 	if(!mimeManager.load("MIMEtypes.txt"))
 		printf("%s\n",languageParser.getValue("MSG_MIMERUN"));
@@ -235,8 +233,9 @@ void cserver::start(INT hInst)
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
+
 	/*
-	*Create the thread
+	*Create the listen thread
 	*/
 	listenServerHTTPHandle=(int)_beginthreadex(NULL,0,&::listenServerHTTP,0,0,&ID);
 
@@ -319,7 +318,9 @@ void  cserver::setVerbosity(DWORD nv)
 {
 	verbosity=nv;
 }
-
+/*
+*Stop the execution of the server
+*/
 void cserver::stop()
 {
 	mustEndServer=TRUE;
@@ -387,6 +388,9 @@ void cserver::initialize(INT OSVer)
 	verbosity=1;
 	buffersize=1024*1024;
 	buffersize2=1024*1024;
+	/*
+	*Store the default path for web and system folder
+	*/
 	_getcwd(path,MAX_PATH);
 	lstrcat(path,"/web");
 	_getcwd(systemPath,MAX_PATH);
@@ -398,6 +402,15 @@ void cserver::initialize(INT OSVer)
 	for(i=0;i<lstrlen(systemPath);i++)
 		if(systemPath[i]='\\')
 			systemPath[i]='/';
+
+	/*
+	*Store the default name of the logs files
+	*/
+	_getcwd(warningsFileLogName,MAX_PATH);
+	lstrcat(warningsFileLogName,"logs/myServer.err");
+	_getcwd(accessesFileLogName,MAX_PATH);
+	lstrcat(accessesFileLogName,"logs/myServer.log");
+
 
 	useMessagesFiles=TRUE;
 	configurationFileManager.open("myserver.xml");
@@ -502,8 +515,10 @@ void cserver::initialize(INT OSVer)
 	lstrcat(warningsFileLogName,"/");
 	lstrcat(accessesFileLogName,"/");
 
-	lstrcat(warningsFileLogName,configurationFileManager.getValue("WARNINGS_FILE_NAME"));
-	lstrcat(accessesFileLogName,configurationFileManager.getValue("ACCESSES_FILE_NAME"));
+	if(configurationFileManager.getValue("WARNINGS_FILE_NAME"))
+		lstrcat(warningsFileLogName,configurationFileManager.getValue("WARNINGS_FILE_NAME"));
+	if(configurationFileManager.getValue("ACCESSES_FILE_NAME"))
+		lstrcat(accessesFileLogName,configurationFileManager.getValue("ACCESSES_FILE_NAME"));
 
 	configurationFileManager.close();
 	
@@ -516,7 +531,9 @@ void cserver::initialize(INT OSVer)
 	*Logon options cannot be used onto Win9X family.
 	*/
 	useLogonOption=useLogonOption && (OSVer!=OS_WINDOWS_9X);
-
+	/*
+	*Do the logon of the guest user
+	*/
 	logonGuest();
 
 }

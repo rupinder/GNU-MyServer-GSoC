@@ -375,7 +375,6 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	/*
 	*Begin control of the HTTP header
 	*/
-
 	static DWORD i,j,max;
 	static DWORD nLineChars;
 	static BOOL isValidCommand,containOpts;
@@ -731,16 +730,23 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	}
 	accessesLogWrite("\r\n");
 	/*
-	*End of record
+	*End of record the request in the structure
 	*/
 
 	if(!lstrcmpi(request.CMD,"GET"))
 	{
+		/*
+		*How is expressly said in the rfc2616 a client that sends an 
+		*HTTP/1.1 request MUST send a Host header.
+		*Servers MUST report a 400 (Bad Request) error if an HTTP/1.1
+        *request does not include a Host request-header.
+		*/
 		if(lstrlen(request.HOST)==0)
 		{
 			raiseHTTPError(a,e_400);
 			return 0;
 		}
+
 		if(!lstrcmpi(request.RANGETYPE,"bytes"))
 			sendHTTPRESOURCE(a,request.URI,FALSE,FALSE,atoi(request.RANGEBYTEBEGIN),atoi(request.RANGEBYTEEND));
 		else
@@ -788,8 +794,9 @@ void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 {
 	/*
 	*Here is builded the HEADER of a HTTP response.
-	*Passing a HTTP_RESPONSE_HEADER struct this build
+	*Passing a HTTP_RESPONSE_HEADER struct this builds
 	*a header string
+	*Every directive ends with a \r\n sequence
     */
 	if(response->isError)
 		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM,response->ERROR_TYPE);
@@ -813,7 +820,10 @@ void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 		lstrcat(str,"\r\n");
 	}
 	lstrcat(str,"Accept-Ranges: bytes\r\n");
-	lstrcat(str,"\n");
+	/*
+	*The HTTP header ends with a \r\n sequence
+	*/
+	lstrcat(str,"\r\n");
 
 }
 /*
@@ -822,13 +832,24 @@ void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER* response)
 {
 	ZeroMemory(response,sizeof(HTTP_RESPONSE_HEADER));
+	/*
+	*By default use:
+	*1) the MIME type of the page equal to text/html
+	*2) the version of the HTTP protocol to 1.1
+	*3) the date of the page and the expiration date to the current time
+	*4) then set the name of the server
+	*5) set the page that it is not an error page
+	*/
 	lstrcpy(response->MIME,"text/html");
 	lstrcpy(response->VER,"1.1");
+	response->isError=FALSE;
 	lstrcpy(response->DATE,getHTTPFormattedTime());
 	lstrcpy(response->DATEEXP,getHTTPFormattedTime());
 	lstrcpy(response->SERVER_NAME,"MyServer");
 }
-
+/*
+*Sends an error page to the client described by the connection
+*/
 void raiseHTTPError(LPCONNECTION a,int ID)
 {
 	static HTTP_RESPONSE_HEADER response;
@@ -955,6 +976,9 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 		
 	return 1;
 }
+/*
+*Returns the MIME type passing its extension
+*/
 BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 {
 	getFileExt(dest,filename);
@@ -963,6 +987,9 @@ BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 	*/
 	return lserver->mimeManager.getMIME(dest,MIME,dest2);
 }
+/*
+*Map an URL to the machine file system
+*/
 void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 {
 	if(systemrequest)
