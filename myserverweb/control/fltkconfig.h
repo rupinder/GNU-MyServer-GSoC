@@ -359,6 +359,7 @@ public:
   int save_config();
   int save_config_remote();
   int save_myserver_core();
+  void setDynamic(Vector & list);
   int ConfType;
 private:
   const char * getValueXML(const char * name);

@@ -3288,6 +3288,11 @@ else {
 return 0;
 }
 
+void MainDlg::setDynamic(Vector & list) {
+  vHostConf.loadProtocols(list);
+vHostConf.populateProtocol(Protocol);
+}
+
 const char * MainDlg::getValueXML(const char * name) {
   char * chrptr;
 chrptr = xmlFile.getValue((char *)name);

@@ -1791,6 +1791,11 @@ else {
 // End of myserver.xml file
 return 0;} {}
   }
+  Function {setDynamic(Vector & list)} {return_type void
+  } {
+    code {vHostConf.loadProtocols(list);
+vHostConf.populateProtocol(Protocol);} {}
+  }
   decl {int ConfType;} {public
   }
   Function {getValueXML(const char * name)} {private return_type {const char *}

@@ -28,20 +28,33 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/cXMLParser.h"
 #include "../include/filemanager.h"
+#include "../include/vector.h"
 #include "fltkconfig.h"
 
 #ifndef WIN32
-#include "../include/lfind.h"
+# include "../include/lfind.h"
 #endif
 
 extern "C"
 {
 #include <stdio.h>
+#ifdef WIN32
+# include <direct.h>
+#elif HAVE_DL
+# include <dlfcn.h>
+# define HMODULE void *
+#else
+# define HMODULE void *
+#endif
 }
 
 #ifndef intptr_t
-#define intptr_t int
+# define intptr_t int
 #endif
+
+typedef char* (*registerNamePROC)(char*,int);
+
+static void GetDynamicProtocols(const char *, Vector &);
 
 int main(int argc, char * argv[])
 {
@@ -59,8 +72,8 @@ int main(int argc, char * argv[])
 
    /*! Initialize the SSL library. */
 #ifndef DO_NOT_USE_SSL
-	SSL_library_init();
-	SSL_load_error_strings();
+   SSL_library_init();
+   SSL_load_error_strings();
 #endif
 
    // Find the language files:
@@ -74,11 +87,11 @@ int main(int argc, char * argv[])
      }
    else
      {
-#ifdef PREFIX
+# ifdef PREFIX
 	snprintf(languages_path, MAX_PATH, "%s/share/myserver/languages/", PREFIX);
-#else
+# else
 	strncpy(languages_path, "/usr/share/myserver/languages/", MAX_PATH);
-#endif
+# endif
      }
    if(!(MYSERVER_FILE::fileExists(languages_path)))
      {
@@ -221,6 +234,28 @@ int main(int argc, char * argv[])
 	while(!_findnext(ff,&fd));
 	_findclose(ff);
      }
+   
+   // Load the dynamic protocol names
+   Vector list;
+   if(MYSERVER_FILE::fileExists("external/protocols"))
+     {
+	GetDynamicProtocols("external/protocols", list);
+     }
+#ifndef WIN32
+#ifdef PREFIX
+   else if(MYSERVER_FILE::fileExists(PREFIX "/lib/myserver/external/protocols"))
+     {
+	GetDynamicProtocols(PREFIX "/lib/myserver/external/protocols", list);
+     }
+#else
+   else if(MYSERVER_FILE::fileExists("/usr/lib/myserver/external/protocols"))
+     {
+	GetDynamicProtocols("/usr/lib/myserver/external/protocols", list);
+     }
+#endif
+#endif
+   Configure.setDynamic(list);
+   list.clear();
 
    // Load, if found, fist avaible configuration
    Configure.ConfType = conf_location;
@@ -252,4 +287,101 @@ int main(int argc, char * argv[])
 
    // Exit
    return ret;
+}
+
+// get the local dynamic protocols
+// parts taken from protocols_manager.cpp 
+static void GetDynamicProtocols(const char * folder, Vector & list)
+{
+   list.clear();
+
+   HMODULE module;
+   registerNamePROC name;
+   
+   int filenamelen = 0;
+   char *filename = 0;
+#ifdef WIN32
+   filenamelen=strlen(folder)+6;
+   filename=new char[filenamelen];
+   if(filename == 0)
+     return;
+   sprintf(filename,"%s/*.*",folder);
+#endif
+#ifdef NOT_WIN
+   filenamelen=strlen(folder)+2;
+   filename=new char[filenamelen];
+   if(filename == 0)
+     return;
+   strncpy(filename,folder, filenamelen);
+#endif
+   _finddata_t fd;
+   intptr_t ff;
+   ff=(intptr_t)_findfirst(filename,&fd);
+#ifdef WIN32
+   if(ff==-1)
+#endif
+#ifdef NOT_WIN
+     if((int)ff==-1)
+#endif
+       {
+	  delete [] filename;
+	  filename = 0;
+	  return;
+       }
+   char *completeFileName = 0;
+   int completeFileNameLen = 0;
+   do
+     {
+	if(fd.name[0]=='.')
+	  continue;
+	/*
+	 *Do not consider file other than dynamic libraries.
+	 */
+#ifdef WIN32
+	if(!strstr(fd.name,".dll"))
+#endif
+#ifdef NOT_WIN
+	  if(!strstr(fd.name,".so"))
+#endif
+	    continue;
+	completeFileNameLen = strlen(folder) + strlen(fd.name) + 2;
+	completeFileName = new char[completeFileNameLen];
+	if(completeFileName == 0)
+	  {
+	     delete [] filename;
+	     filename = 0;
+	     return;
+	  }
+	sprintf(completeFileName,"%s/%s",folder,fd.name);
+#ifdef WIN32
+	module = LoadLibrary(completeFileName);
+#endif
+#ifdef HAVE_DL
+	module = dlopen(completeFileName, RTLD_LAZY);
+#endif
+	if(module != NULL)
+	  {
+#ifdef WIN32
+	     name = (registerNamePROC)GetProcAddress((HMODULE)module, "registerName");
+#endif
+#ifdef HAVE_DL
+	     name = (registerNamePROC)dlsym(module, "registerName");
+#endif
+	     if(name != NULL)
+	       {
+		  list.add(name(NULL, 0));
+	       }
+	  }
+#ifdef WIN32
+	FreeLibrary((HMODULE)module);
+#endif
+#ifdef HAVE_DL
+	dlclose(module);
+#endif
+	delete [] completeFileName;
+     }
+   while(!_findnext(ff,&fd));
+   _findclose(ff);
+   delete [] filename;
+   filename = 0;
 }
