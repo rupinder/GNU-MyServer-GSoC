@@ -249,7 +249,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 	char buffer2[256];
 	u_long nbr;/*Number of bytes read from the file*/
 	MYSERVER_FILE_HANDLE fh=ms_OpenFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-	if(((int)fh==0)&&((int)fh==-1))/*If the file cannot be opened simply do nothing*/
+	if(((int)fh==0)||((int)fh==-1))/*If the file cannot be opened simply do nothing*/
 		return;
 	char c;
 	for(;;)
