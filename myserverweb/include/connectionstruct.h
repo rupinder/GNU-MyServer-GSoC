@@ -17,6 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
+
 #define PROTOCOL_HTTP		0
 #define PROTOCOL_FTP		1
 

@@ -16,6 +16,7 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
+
 #include "..\include\mime_manager.h"
 #include "..\include\filemanager.h"
 HRESULT MIME_Manager::load(char *filename)

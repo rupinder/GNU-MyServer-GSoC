@@ -65,6 +65,9 @@ void cserver::start(INT hInst)
 	lstrcpy(msgSending,"Sending");
 	lstrcpy(msgRunOn,"Running on");
 	lstrcpy(msgFolderContents,"Contents of folder");
+	lstrcpy(msgNewConnection,"Connection from");
+	lstrcpy(msgErrorConnection,"Error connection from");
+	lstrcpy(msgAtTime,"at time");
 	
 	if(lstrcmpi(languageParser.getValue("MSG_SENDING"),"NONE"))
 		lstrcpy(msgSending,languageParser.getValue("MSG_SENDING"));
@@ -78,6 +81,14 @@ void cserver::start(INT hInst)
 		lstrcpy(msgLModify,languageParser.getValue("MSG_LMODIFY"));
 	if(lstrcmpi(languageParser.getValue("MSG_SIZE"),"NONE"))
 		lstrcpy(msgSize,languageParser.getValue("MSG_SIZE"));
+	if(lstrcmpi(languageParser.getValue("MSG_NEWCONNECTION"),"NONE"))
+		lstrcpy(msgNewConnection,languageParser.getValue("MSG_NEWCONNECTION"));
+	if(lstrcmpi(languageParser.getValue("MSG_ERRORCONNECTION"),"NONE"))
+		lstrcpy(msgErrorConnection,languageParser.getValue("MSG_ERRORCONNECTION"));
+	if(lstrcmpi(languageParser.getValue("MSG_ATTIME"),"NONE"))
+		lstrcpy(msgAtTime,languageParser.getValue("MSG_ATTIME"));
+
+
 
 	printf("%s\n\n",languageParser.getValue("MSG_SERVER_CONF"));
 
@@ -154,9 +165,11 @@ void cserver::start(INT hInst)
 	getComputerName(serverName,(DWORD)sizeof(serverName));
 
 	printf("%s:%s\n",languageParser.getValue("MSG_GETNAME"),serverName);
+
+#ifdef WIN32
 	/*
 	*If the OS support the getaddrinfo function call it
-	*to get info about the address of current machine
+	*to get info about the addresses of the current machine
 	*/
 	if((OSVer==OS_WINDOWS_2000)|(OSVer==OS_WINDOWS_XP))
 	{
@@ -174,7 +187,7 @@ void cserver::start(INT hInst)
 		}while(iai);
 		freeaddrinfo(ai);
 	}
-
+#endif
 
 	/*
 	*Load the MIME types
@@ -477,7 +490,7 @@ VOID cserver::controlSizeLogFile()
 {
 	/*
 	*Control the size of the log file.
-	*If this is major than maxLogFileSize
+	*If this is bigger than maxLogFileSize
 	*delete it.
 	*/
 	if(!logFile)
@@ -502,7 +515,8 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	static BOOL ret;
 	ret=TRUE;
 	if(verbosity>0)
-		fprintf(logFile,"Connection from:%u.%u.%u.%u on %s:%i at time:%s\n", lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,getHTTPFormattedTime());
+
+	fprintf(logFile,"%s:%u.%u.%u.%u -> %s:%i %s:%s\n",msgNewConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
 	fflush(logFile);
 	static DWORD local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
@@ -511,14 +525,16 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 		ret=FALSE;
 		closesocket(s);
 		if(verbosity>0)
-			fprintf(logFile,"Error connection from:%i.%i.%i.%i on %s:%i at time:%s\n", lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,getHTTPFormattedTime());
+			fprintf(logFile,"%s:%i.%i.%i.%i -> %s:%i %s:%s\n",msgErrorConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
 	}
 
 	if(++local_nThreads>=nThreads)
 		local_nThreads=0;
 	return ret;
 }
-
+/*
+*Find a connection passing its socket
+*/
 LPCONNECTION cserver::findConnection(SOCKET s)
 {
 	LPCONNECTION c=NULL;
@@ -530,15 +546,24 @@ LPCONNECTION cserver::findConnection(SOCKET s)
 	}
 	return NULL;
 }
+/*
+*Returns the full path of the system folder
+*/
 char *cserver::getSystemPath()
 {
 	return systemPath;
 }
+/*
+*Returns the full path of the web folder
+*/
 char *cserver::getPath()
 {
 	return path;
 }
-char *cserver::getDefaultFilenamePath()
+/*
+*Returns the default filename
+*/
+char *cserver::getDefaultFilenamePath(DWORD)
 {
 	return defaultFilename;
 }

@@ -17,6 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
+
 #include "..\stdafx.h"
 typedef void *MYSERVER_FILE_HANDLE;
 DWORD logFileWrite(char*);

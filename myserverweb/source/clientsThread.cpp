@@ -17,8 +17,6 @@
 *Boston, MA  02111-1307, USA.
 */
 
-
-
 #include "..\stdafx.h"
 #include "..\include\clientsTHREAD.h"
 #include "..\include\cserver.h"

@@ -17,6 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
+
 #include "..\stdafx.h"
 #include "..\include\utility.h"
 #include "..\include\cXMLParser.h"
@@ -77,7 +78,7 @@ public:
 	FILE *logFile;
 	char  *getSystemPath();
 	char  *getPath();
-	char  *getDefaultFilenamePath();
+	char  *getDefaultFilenamePath(DWORD=0);
 	char  *getServerName();
 	DWORD  getVerbosity();
 	BOOL  mustUseMessagesFiles();

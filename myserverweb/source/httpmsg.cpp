@@ -16,6 +16,7 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
+
 #include "..\stdafx.h"
 char HTTP_ERROR_MSGS[13][64]=
 {
@@ -50,6 +51,9 @@ char HTTP_ERROR_HTMLS[13][64]=
 	"502.html"					//502
 };
 char msgSending[33];
+char msgNewConnection[33];
+char msgErrorConnection[33];
+char msgAtTime[33];
 char msgRunOn[33];
 char msgFolderContents[33];
 char msgFile[33];
