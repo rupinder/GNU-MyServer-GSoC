@@ -14,9 +14,7 @@
 
 @SET_MAKE@
 
-# Makefile for MSCGI-lib
-
-SOURCES = $(libcgi_lib_a_SOURCES)
+SOURCES = $(librx_a_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -24,7 +22,7 @@ VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = ..
+top_builddir = ../..
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = @INSTALL@
 install_sh_DATA = $(install_sh) -c -m 644
@@ -39,7 +37,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
-subdir = CGI-LIB
+subdir = contrib/rx
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gnome-pthread-check.m4 \
@@ -55,23 +53,33 @@ ARFLAGS = cru
 am__installdirs = "$(DESTDIR)$(libdir)"
 libLIBRARIES_INSTALL = $(INSTALL_DATA)
 LIBRARIES = $(lib_LIBRARIES)
-libcgi_lib_a_AR = $(AR) $(ARFLAGS)
-libcgi_lib_a_LIBADD =
-am_libcgi_lib_a_OBJECTS = libcgi_lib_a-cgi_manager.$(OBJEXT) \
-	libcgi_lib_a-utility.$(OBJEXT)
-libcgi_lib_a_OBJECTS = $(am_libcgi_lib_a_OBJECTS)
+librx_a_AR = $(AR) $(ARFLAGS)
+librx_a_LIBADD =
+am_librx_a_OBJECTS = hashrexp.$(OBJEXT) rx.$(OBJEXT) rxanal.$(OBJEXT) \
+	rxbasic.$(OBJEXT) rxbitset.$(OBJEXT) rxcset.$(OBJEXT) \
+	rxdbug.$(OBJEXT) rxgnucomp.$(OBJEXT) rxhash.$(OBJEXT) \
+	rxnfa.$(OBJEXT) rxnode.$(OBJEXT) rxposix.$(OBJEXT) \
+	rxsimp.$(OBJEXT) rxspencer.$(OBJEXT) rxstr.$(OBJEXT) \
+	rxsuper.$(OBJEXT) rxunfa.$(OBJEXT)
+librx_a_OBJECTS = $(am_librx_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/libcgi_lib_a-cgi_manager.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/libcgi_lib_a-utility.Po
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
-SOURCES = $(libcgi_lib_a_SOURCES)
-DIST_SOURCES = $(libcgi_lib_a_SOURCES)
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/hashrexp.Po ./$(DEPDIR)/rx.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxanal.Po ./$(DEPDIR)/rxbasic.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxbitset.Po ./$(DEPDIR)/rxcset.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxdbug.Po ./$(DEPDIR)/rxgnucomp.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxhash.Po ./$(DEPDIR)/rxnfa.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxnode.Po ./$(DEPDIR)/rxposix.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxsimp.Po ./$(DEPDIR)/rxspencer.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxstr.Po ./$(DEPDIR)/rxsuper.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rxunfa.Po
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(librx_a_SOURCES)
+DIST_SOURCES = $(librx_a_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -184,13 +192,12 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-lib_LIBRARIES = libcgi-lib.a
-libcgi_lib_a_SOURCES = cgi_manager.cpp ../source/utility.cpp
-libcgi_lib_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS)
+lib_LIBRARIES = librx.a
+librx_a_SOURCES = hashrexp.c rx.c rxanal.c rxbasic.c rxbitset.c rxcset.c rxdbug.c rxgnucomp.c rxhash.c rxnfa.c rxnode.c rxposix.c rxsimp.c rxspencer.c rxstr.c rxsuper.c rxunfa.c
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .cpp .o .obj
+.SUFFIXES: .c .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -200,9 +207,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  CGI-LIB/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  contrib/rx/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  CGI-LIB/Makefile
+	  $(AUTOMAKE) --gnu  contrib/rx/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -249,6 +256,10 @@ uninstall-libLIBRARIES:
 
 clean-libLIBRARIES:
 	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+librx.a: $(librx_a_OBJECTS) $(librx_a_DEPENDENCIES) 
+	-rm -f librx.a
+	$(librx_a_AR) librx.a $(librx_a_OBJECTS) $(librx_a_LIBADD)
+	$(RANLIB) librx.a
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -256,56 +267,39 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcgi_lib_a-cgi_manager.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcgi_lib_a-utility.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hashrexp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxanal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxbasic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxbitset.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxcset.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxdbug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxgnucomp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxhash.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxnfa.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxnode.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxposix.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxsimp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxspencer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxstr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxsuper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rxunfa.Po@am__quote@
 
-.cpp.o:
-@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
+.c.o:
+@am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c $<
 
-.cpp.obj:
-@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-libcgi_lib_a-cgi_manager.o: cgi_manager.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -MT libcgi_lib_a-cgi_manager.o -MD -MP -MF "$(DEPDIR)/libcgi_lib_a-cgi_manager.Tpo" -c -o libcgi_lib_a-cgi_manager.o `test -f 'cgi_manager.cpp' || echo '$(srcdir)/'`cgi_manager.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libcgi_lib_a-cgi_manager.Tpo" "$(DEPDIR)/libcgi_lib_a-cgi_manager.Po"; else rm -f "$(DEPDIR)/libcgi_lib_a-cgi_manager.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cgi_manager.cpp' object='libcgi_lib_a-cgi_manager.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libcgi_lib_a-cgi_manager.Po' tmpdepfile='$(DEPDIR)/libcgi_lib_a-cgi_manager.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -c -o libcgi_lib_a-cgi_manager.o `test -f 'cgi_manager.cpp' || echo '$(srcdir)/'`cgi_manager.cpp
-
-libcgi_lib_a-cgi_manager.obj: cgi_manager.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -MT libcgi_lib_a-cgi_manager.obj -MD -MP -MF "$(DEPDIR)/libcgi_lib_a-cgi_manager.Tpo" -c -o libcgi_lib_a-cgi_manager.obj `if test -f 'cgi_manager.cpp'; then $(CYGPATH_W) 'cgi_manager.cpp'; else $(CYGPATH_W) '$(srcdir)/cgi_manager.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libcgi_lib_a-cgi_manager.Tpo" "$(DEPDIR)/libcgi_lib_a-cgi_manager.Po"; else rm -f "$(DEPDIR)/libcgi_lib_a-cgi_manager.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cgi_manager.cpp' object='libcgi_lib_a-cgi_manager.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libcgi_lib_a-cgi_manager.Po' tmpdepfile='$(DEPDIR)/libcgi_lib_a-cgi_manager.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -c -o libcgi_lib_a-cgi_manager.obj `if test -f 'cgi_manager.cpp'; then $(CYGPATH_W) 'cgi_manager.cpp'; else $(CYGPATH_W) '$(srcdir)/cgi_manager.cpp'; fi`
-
-libcgi_lib_a-utility.o: ../source/utility.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -MT libcgi_lib_a-utility.o -MD -MP -MF "$(DEPDIR)/libcgi_lib_a-utility.Tpo" -c -o libcgi_lib_a-utility.o `test -f '../source/utility.cpp' || echo '$(srcdir)/'`../source/utility.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libcgi_lib_a-utility.Tpo" "$(DEPDIR)/libcgi_lib_a-utility.Po"; else rm -f "$(DEPDIR)/libcgi_lib_a-utility.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../source/utility.cpp' object='libcgi_lib_a-utility.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libcgi_lib_a-utility.Po' tmpdepfile='$(DEPDIR)/libcgi_lib_a-utility.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -c -o libcgi_lib_a-utility.o `test -f '../source/utility.cpp' || echo '$(srcdir)/'`../source/utility.cpp
-
-libcgi_lib_a-utility.obj: ../source/utility.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -MT libcgi_lib_a-utility.obj -MD -MP -MF "$(DEPDIR)/libcgi_lib_a-utility.Tpo" -c -o libcgi_lib_a-utility.obj `if test -f '../source/utility.cpp'; then $(CYGPATH_W) '../source/utility.cpp'; else $(CYGPATH_W) '$(srcdir)/../source/utility.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/libcgi_lib_a-utility.Tpo" "$(DEPDIR)/libcgi_lib_a-utility.Po"; else rm -f "$(DEPDIR)/libcgi_lib_a-utility.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../source/utility.cpp' object='libcgi_lib_a-utility.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/libcgi_lib_a-utility.Po' tmpdepfile='$(DEPDIR)/libcgi_lib_a-utility.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcgi_lib_a_CXXFLAGS) $(CXXFLAGS) -c -o libcgi_lib_a-utility.obj `if test -f '../source/utility.cpp'; then $(CYGPATH_W) '../source/utility.cpp'; else $(CYGPATH_W) '$(srcdir)/../source/utility.cpp'; fi`
+.c.obj:
+@am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -411,6 +405,8 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+clean: clean-am
+
 clean-am: clean-generic clean-libLIBRARIES mostlyclean-am
 
 distclean: distclean-am
@@ -470,24 +466,7 @@ uninstall-am: uninstall-info-am uninstall-libLIBRARIES
 	uninstall-am uninstall-info-am uninstall-libLIBRARIES
 
 
-all : makemscgi cgi-lib.so
-	cp cgi-lib.so ../binaries/cgi-lib/
-
-libcgi-lib.a :
-
-cgi-lib.so : $(libcgi_lib_a_OBJECTS) $(libcgi_lib_a_DEPENDENCIES)
-	-rm -f cgi-lib.so
-	$(CXX) $(libcgi_lib_a_OBJECTS) $(libcgi_lib_a_LIBADD) -o cgi-lib.so -shared
-
-makemscgi :
-	if test x$(MAKE_MSCGI) = xno; then exit; fi
-
-install : makemscgi cgi-lib.so
-	$(INSTALL) -D 'cgi-lib.so' '$(prefix)/lib/myserver/cgi-lib.so'
-
-clean :
-	rm -f cgi-lib.so
-	rm -f *.o
+install :
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

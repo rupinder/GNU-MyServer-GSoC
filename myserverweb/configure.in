@@ -141,6 +141,8 @@ AC_CONFIG_FILES(Makefile \
 		binaries/logs/Makefile \
 		binaries/system/Makefile \
 		control/Makefile \
+		contrib/Makefile \
+		contrib/rx/Makefile \
 		source/Makefile \
 		CGI-LIB/Makefile)
 AC_OUTPUT
