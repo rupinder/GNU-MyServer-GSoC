@@ -103,7 +103,7 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 {
 	strcpy(MYSERVER_FILE::filename,filename);
 #ifdef WIN32
-	SECURITY_ATTRIBUTES sa = {0};  
+	SECURITY_ATTRIBUTES sa = {0};
     sa.nLength = sizeof(sa);
 	if(opt & MYSERVER_FILE_NO_INHERIT)
 		sa.bInheritHandle = FALSE;
@@ -163,7 +163,7 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		F_Flags = O_RDONLY;
 	else if(opt & MYSERVER_FILE_OPEN_WRITE)
 		F_Flags = O_WRONLY;
-		
+
 	char Buffer[strlen(filename)+1];
 		
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
@@ -559,7 +559,7 @@ int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 	GetShortPathName(filename,out,buffersize);
 #endif
 #ifdef __linux__
-	strncpy(out,filename,buffersize,MAX_PATH);
+	strncpy(out,filename,buffersize);
 #endif
 	return 0;
 }
