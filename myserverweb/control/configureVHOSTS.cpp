@@ -237,8 +237,8 @@ void configurationFrameVHOSTS::loadVHost(wxCommandEvent& event)
 	char port[6];
 	sprintf(port,"%i",currentVHost->port);
 	hostPort->SetValue((wxString)port);
-	hostDoc->SetValue((wxString)currentVHost->documentRootOriginal);
-	hostSys->SetValue((wxString)currentVHost->systemRootOriginal);
+	hostDoc->SetValue((wxString)currentVHost->documentRoot);
+	hostSys->SetValue((wxString)currentVHost->systemRoot);
 	hostAcc->SetValue((wxString)currentVHost->accessesLogFileName);
 	hostWarnings->SetValue((wxString)currentVHost->warningsLogFileName);
 	hostProtocol->SetSelection(currentVHost->protocol);
@@ -267,13 +267,13 @@ void configurationFrameVHOSTS::hostDocMod(wxCommandEvent& event)
 {
 	wxString str = hostDoc->GetValue();
 	if(currentVHost)
-		strcpy(currentVHost->documentRootOriginal,(char*)str.ToAscii());
+		sprintf(currentVHost->documentRootOriginal,"|%s",(char*)str.ToAscii());
 }
 void configurationFrameVHOSTS::hostSysMod(wxCommandEvent& event)
 {
 	wxString str = hostSys->GetValue();
 	if(currentVHost)
-		strcpy(currentVHost->systemRootOriginal,(char*)str.ToAscii());
+		sprintf(currentVHost->systemRootOriginal,"|%s",(char*)str.ToAscii());
 }
 void configurationFrameVHOSTS::hostAccMod(wxCommandEvent& event)
 {

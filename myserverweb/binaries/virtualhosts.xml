@@ -4,8 +4,8 @@
 <NAME>Every connection</NAME>
 <PORT>80</PORT>
 <PROTOCOL>HTTP</PROTOCOL>
-<DOCROOT>web</DOCROOT>
-<SYSFOLDER>system</SYSFOLDER>
+<DOCROOT>|C:/Documents and Settings/gScrivano/Documenti/Progetti di Visual Studio/myserver/myserverweb/binaries/web</DOCROOT>
+<SYSFOLDER>|C:/Documents and Settings/gScrivano/Documenti/Progetti di Visual Studio/myserver/myserverweb/binaries/web</SYSFOLDER>
 <ACCESSESLOG>logs/myServer.log</ACCESSESLOG>
 <WARNINGLOG>logs/myServer.err</WARNINGLOG>
 </VHOST>

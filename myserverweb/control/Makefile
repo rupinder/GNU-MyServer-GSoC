@@ -1,6 +1,6 @@
 # Makefile for myserver control
 
-OBJS = configuration.o configureMIME.o control.o lfind.o
+OBJS = configuration.o configureMIME.o control.o lfind.o configureVHOSTS.o 
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
@@ -20,6 +20,9 @@ configuration.o : configuration.cpp
 
 configureMIME.o : configureMIME.cpp
 	$(CPP) $(CPP-FLAGS) -c configureMIME.cpp
+
+configureVHOSTS.o : configureVHOSTS.cpp
+	$(CPP) $(CPP-FLAGS) -c configureVHOSTS.cpp
 
 control.o : control.cpp
 	$(CPP) $(CPP-FLAGS) -c control.cpp

@@ -1,7 +1,7 @@
 [Project]
 FileName=control.dev
 Name=control
-UnitCount=9
+UnitCount=11
 Type=0
 Ver=1
 ObjFiles=
@@ -126,7 +126,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit10]
-FileName=stdafx.cpp
+FileName=configureVHOSTS.cpp
 CompileCpp=1
 Folder=control
 Compile=1
@@ -137,6 +137,16 @@ BuildCmd=
 
 [Unit8]
 FileName=resource.h
+CompileCpp=1
+Folder=control
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit11]
+FileName=configureVHOSTS.h
 CompileCpp=1
 Folder=control
 Compile=1
