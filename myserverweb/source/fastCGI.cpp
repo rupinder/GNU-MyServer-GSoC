@@ -500,6 +500,5 @@ int runFcgiServer(fCGIContext *con,char* path)
 		}
 		
 	}
-
-	return fCGIserversN++;/*If we arrive here increase the number of running servers*/
+	return fCGIserversN++;/*If we arrive here increase the number of running servers and return the number of server running*/
 }

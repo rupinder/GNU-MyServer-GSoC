@@ -56,7 +56,7 @@ cserver *lserver=0;
 int mustEndServer;
 
 /*
-*These messages are loaded by the application on the startup.
+*These messages are loaded by the application at the startup.
 */
 char msgSending[33];
 char msgNewConnection[33];

@@ -199,6 +199,9 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	strcat(td->buffer2,"\r\n</BODY>\r\n</HTML>\r\n");
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	_findclose(ff);
+	/*
+	*Changes the \ character in the / character 
+	*/
 	char *buffer2Loop=td->buffer2;
 	while(*buffer2Loop++)
 		if(*buffer2Loop=='\\')
