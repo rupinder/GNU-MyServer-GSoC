@@ -657,11 +657,9 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	}
 	/*
 	*If the connection is not Keep-Alive remove it from the connections list returning 0.
-	*/
-	char Buffer[strlen(td.request.CONNECTION)];  // Fix to be universal:
-	strcpy(Buffer, td.request.CONNECTION);       // Mozilla uses keep-alive
-	strupr(Buffer);                              // IE uses Keep-Alive
-	if(!lstrcmpi(Buffer,"KEEP-ALIVE"))           // so make eveything uppercase insted
+	*/  
+	strupr(td.request.CONNECTION);                    // Fix to be universal: Mozilla uses keep-alive
+	if(!lstrcmpi(td.request.CONNECTION,"KEEP-ALIVE")) // IE uses Keep-Alive, so make eveything uppercase insted
 	{
 		retvalue|=1;/*Set first bit to 1*/
 		retvalue|=2;/*Set second bit to 1*/
