@@ -429,7 +429,10 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   if(!strcmp(command, "KILLCONNECTION"))
   {
     knownCommand = 1;
-    u_long ID = header.getOptions() ? atol(header.getOptions()) : 0;
+    char buff[11];
+    strncpy(buff, header.getOptions(), 10 );
+    buff[10] = '\0';
+    u_long ID = header.getOptions() ? atol(buff) : 0;
     ret = KILLCONNECTION( ID ,Ofile, b1, bs1);
   }
 
