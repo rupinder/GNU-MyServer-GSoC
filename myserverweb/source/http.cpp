@@ -284,7 +284,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	{
 		lastByte=min((u_long)lastByte,bytesToSend);
 	}
-	uint keepalive = lstrcmpi(td->request.CONNECTION,"Keep-Alive")==0;
+	int keepalive = !lstrcmpi(td->request.CONNECTION,"Keep-Alive");
 	/*
 	*Be sure that client accept GZIP compressed data.
 	*/
@@ -444,7 +444,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 {
 	int httpStatus=td->response.httpStatus;
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);
-	uint keepalive=0;
+	int keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION,"Keep-Alive");
@@ -748,7 +748,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		http_headers::buildDefaultHTTPResponseHeader(&td->response);
 		td->response.httpStatus=httpStatus;
 	}
-	uint keepalive=0;
+	int keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION,"Keep-Alive");
@@ -1585,7 +1585,7 @@ void http::computeDigest(httpThreadContext* td,char* out ,char* buffer)
 int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	http_headers::buildDefaultHTTPResponseHeader(&(td->response));
-	uint keepalive=0;
+	int keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION,"Keep-Alive");
