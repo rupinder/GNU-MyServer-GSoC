@@ -886,7 +886,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 	out.closeFile();
 }
 /*
-*Initialize SSL on the virtual host
+*Initialize SSL on the virtual host.
 */
 int vhost::initializeSSL()
 {
@@ -908,7 +908,7 @@ int vhost::initializeSSL()
 	return 1;
 }	
 /*
-*Generate a RSA key.
+*Generate a RSA key and assing it to the SSL context.
 */
 void vhost::generateRsaKey()
 {
@@ -929,7 +929,7 @@ SSL_CTX* vhost::getSSLContext()
 	return sslContext.context;
 }
 /*
-*Clean the memory used by SSL.
+*Clean the memory used by the SSL context.
 */
 int vhost::freeSSL()
 {
@@ -942,7 +942,7 @@ int vhost::freeSSL()
 		return 0;
 }
 /*
-*Get a virtual host by its position in the list
+*Get a virtual host by its position in the list.
 *Zero based list.
 */
 vhost* vhostmanager::getVHostByNumber(int n)
@@ -956,7 +956,7 @@ vhost* vhostmanager::getVHostByNumber(int n)
 }
 /*
 *Remove a virtual host by its position in the list
-*Zero based list.
+*First position is zero.
 */
 int vhostmanager::removeVHost(int n)
 {
@@ -982,11 +982,14 @@ int vhostmanager::removeVHost(int n)
 	}
 	return 0;
 }
+/*
+*SSL password callback function.
+*/
 static int password_cb(char *buf,int num,int rwflag,void *userdata)
 {
-	if(num<strlen((char*)userdata)+1)
+	if((size_t)num<strlen((char*)userdata)+1)
 		return(0);
 
 	strcpy(buf,(char*)userdata);
-	return(strlen(buf));
+	return((int)strlen(buf));
 }
