@@ -2672,32 +2672,9 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
 	if(initialized)
 		return 0;
-	char main_configuration_file[CONF_FILES_MAX_PATH];
-#ifndef WIN32
-  /*!
-   * Under an *nix environment look for .xml files in the following order.
-   *1) myserver executable working directory
-   *2) ~/.myserver/
-   *3) /etc/myserver/
-   *4) default files will be copied in myserver executable working	
-   */
-	if(MYSERVER_FILE::fileExists("myserver.xml"))
-	{
-		strcpy(main_configuration_file,"myserver.xml");
-	}
-	else if(MYSERVER_FILE::fileExists("~/.myserver/myserver.xml"))
-	{
-		strcpy(main_configuration_file,"~/.myserver/myserver.xml");
-	}
-	else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
-	{
-		strcpy(main_configuration_file, "/etc/myserver/myserver.xml");
-	}
-	else
-#endif
-	{
-		strcpy(main_configuration_file, "myserver.xml");
-	}
+
+  char *main_configuration_file = lserver->getMainConfFile();
+
 		
 	/*! Initialize ISAPI.  */
 	isapi::initISAPI();

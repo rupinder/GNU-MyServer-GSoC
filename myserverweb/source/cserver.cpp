@@ -69,6 +69,10 @@ cserver::cserver()
 {
 	threads=0;
 	listingThreads=0;
+  languages_path=0;
+	main_configuration_file=0;
+  vhost_configuration_file=0;
+	mime_configuration_file=0;
 }
 
 cserver::~cserver()
@@ -549,6 +553,13 @@ void cserver::terminate()
   delete [] languages_path;
   delete [] languageFile;
 	delete vhostList;
+	delete [] main_configuration_file;
+  delete [] vhost_configuration_file;
+	delete [] mime_configuration_file;
+	
+  main_configuration_file=0;
+  vhost_configuration_file=0;
+  mime_configuration_file=0;
   path = 0;
   languages_path = 0;
   vhostList = 0;
@@ -708,22 +719,31 @@ int cserver::initialize(int /*!os_ver*/)
 #endif 
 
 #ifndef WIN32
-/* Under an *nix environment look for .xml files in the following order.
-*1) myserver executable working directory
-*2) ~/.myserver/
-*3) /etc/myserver/
-*4) default files will be copied in myserver executable working	
-*/
+  /* Under an *nix environment look for .xml files in the following order.
+   *1) myserver executable working directory
+   *2) ~/.myserver/
+   *3) /etc/myserver/
+   *4) default files will be copied in myserver executable working	
+   */
 	if(MYSERVER_FILE::fileExists("myserver.xml"))
 	{
+    main_configuration_file = new char[13];
+    if(main_configuration_file == 0)
+      return 1;
 		strcpy(main_configuration_file,"myserver.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("~/.myserver/myserver.xml"))
 	{
+    main_configuration_file = new char[25];
+    if(main_configuration_file == 0)
+      return 1;
 		strcpy(main_configuration_file,"~/.myserver/myserver.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
 	{
+    main_configuration_file = new char[27];
+    if(main_configuration_file == 0)
+      return 1;
 		strcpy(main_configuration_file,"/etc/myserver/myserver.xml");
 	}
 	else
@@ -731,6 +751,9 @@ int cserver::initialize(int /*!os_ver*/)
 	/*! If the myserver.xml files doesn't exist copy it from the default one. */
 	if(!MYSERVER_FILE::fileExists("myserver.xml"))
 	{
+    main_configuration_file = new char[13];
+    if(main_configuration_file == 0)
+      return 1;
 		strcpy(main_configuration_file,"myserver.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
@@ -766,6 +789,9 @@ int cserver::initialize(int /*!os_ver*/)
 	}
 	else
   {
+    main_configuration_file = new char[13];
+    if(main_configuration_file == 0)
+      return 1;
 		strcpy(main_configuration_file,"myserver.xml");
   }
 	configurationFileManager.open(main_configuration_file);
@@ -993,10 +1019,10 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 	nConnections++;
 	lserver->connections_mutex_unlock();
 	/*
-	If defined maxConnections and the number of active connections is bigger than it
-	*say to the protocol that will parse the connection to remove it from the active
-	*connections list.
-	*/
+   *If defined maxConnections and the number of active connections 
+   *is bigger than it say to the protocol that will parse the connection 
+   *to remove it from the active connections list.
+   */
 	if(maxConnections && (nConnections>maxConnections))
 		new_connection->toRemove=CONNECTION_REMOVE_OVERLOAD;
 
@@ -1022,7 +1048,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
    */
 	int ret=0,  err;
 	/*!
-   * Remove the connection from the active connections list. 
+   *Remove the connection from the active connections list. 
    */
 	LPCONNECTION prev=0;
 	for(LPCONNECTION i=connections;i;i=i->next )
@@ -1211,14 +1237,23 @@ void cserver::loadSettings()
  */
 	if(MYSERVER_FILE::fileExists("MIMEtypes.xml"))
 	{
+    mime_configuration_file = new char[14];
+    if(mime_configuration_file == 0)
+      return;
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("~/.myserver/MIMEtypes.xml"))
 	{
+    mime_configuration_file = new char[26];
+    if(mime_configuration_file == 0)
+      return;
 		strcpy(mime_configuration_file,"~/.myserver/MIMEtypes.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("/etc/myserver/MIMEtypes.xml"))
 	{
+    mime_configuration_file = new char[28];
+    if(mime_configuration_file == 0)
+      return;
 		strcpy(mime_configuration_file,"/etc/myserver/MIMEtypes.xml");
 	}
 	else
@@ -1226,10 +1261,14 @@ void cserver::loadSettings()
 	/*! If the MIMEtypes.xml files doesn't exist copy it from the default one. */
 	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
 	{
+    mime_configuration_file = new char[14];
+    if(mime_configuration_file == 0)
+      return;
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
-		int ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		int ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|
+                            MYSERVER_FILE_OPEN_IFEXISTS);
 		if(ret<1)
 		{
 			preparePrintError();
@@ -1237,7 +1276,8 @@ void cserver::loadSettings()
 			endPrintError();	
 			return;
 		}
-		outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|
+                     MYSERVER_FILE_OPEN_ALWAYS);
 		char buffer[512];
 		u_long nbr, nbw;
 		for(;;)
@@ -1252,13 +1292,17 @@ void cserver::loadSettings()
 	}
 	else
 	{
+    mime_configuration_file = new char[14];
+    if(mime_configuration_file == 0)
+      return;
+
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 	}
 	/*! Load the MIME types. */
 	printf("%s\n", languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
 	{
-		printf("%s: %i\n", 
+		printf("%s: %i\n",
            languageParser.getValue("MSG_MIMERUN"), nMIMEtypes);
 	}
 	else
@@ -1273,22 +1317,31 @@ void cserver::loadSettings()
 
 	
 #ifndef WIN32
-/* Under an *nix environment look for .xml files in the following order.
-*1) myserver executable working directory
-*2) ~/.myserver/
-*3) /etc/myserver/
-*4) default files will be copied in myserver executable working	
-*/
+  /* Under an *nix environment look for .xml files in the following order.
+   *1) myserver executable working directory
+   *2) ~/.myserver/
+   *3) /etc/myserver/
+   *4) default files will be copied in myserver executable working	
+   */
 	if(MYSERVER_FILE::fileExists("virtualhosts.xml"))
 	{
+    vhost_configuration_file = new char[17];
+    if(vhost_configuration_file == 0)
+      return;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("~/.myserver/virtualhosts.xml"))
 	{
+    vhost_configuration_file = new char[29];
+    if(vhost_configuration_file == 0)
+      return;
 		strcpy(vhost_configuration_file,"~/.myserver/virtualhosts.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("/etc/myserver/virtualhosts.xml"))
 	{
+    vhost_configuration_file = new char[31];
+    if(vhost_configuration_file == 0)
+      return;
 		strcpy(vhost_configuration_file,"/etc/myserver/virtualhosts.xml");
 	}
 	else
@@ -1296,10 +1349,13 @@ void cserver::loadSettings()
 	/*! If the virtualhosts.xml file doesn't exist copy it from the default one. */
 	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
 	{
+    vhost_configuration_file = new char[17];
+    if(vhost_configuration_file == 0)
+      return;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
-		int ret = inputF.openFile("virtualhosts.xml.default",  MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS );
+		int ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS );
 		if(ret<1)
 		{
 			preparePrintError();
@@ -1324,6 +1380,9 @@ void cserver::loadSettings()
 	}	
 	else
 	{
+    vhost_configuration_file = new char[17];
+    if(vhost_configuration_file == 0)
+      return;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	}
   vhostList = new vhostmanager();
@@ -1451,4 +1510,26 @@ void cserver::decreaseListeningThreadCount()
 	connections_mutex_lock();
 	--listingThreads;
 	connections_mutex_unlock();
+}
+
+/*!
+ *Return the path to the mail configuration file.
+ */
+char *cserver::getMainConfFile()
+{
+  return main_configuration_file;
+}
+/*!
+ *Return the path to the mail configuration file.
+ */
+char *cserver::getVhostConfFile()
+{
+  return vhost_configuration_file;
+}
+/*!
+ *Return the path to the mail configuration file.
+ */
+char *cserver::getMIMEConfFile()
+{
+  return mime_configuration_file;
 }

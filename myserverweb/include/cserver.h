@@ -124,15 +124,15 @@ private:
 	void reboot();
 	u_int listingThreads;
 	char *languages_path;
-  /*! 
-   *Usually configuration files don't go deep in directory structure.
-   *A fixed length is easier to handle.
-   */
-	char main_configuration_file[CONF_FILES_MAX_PATH];
-	char vhost_configuration_file[CONF_FILES_MAX_PATH];
-	char mime_configuration_file[CONF_FILES_MAX_PATH];
+
+	char *main_configuration_file;
+	char *vhost_configuration_file;
+	char *mime_configuration_file;
 
 public:
+  char *getMainConfFile();
+  char *getVhostConfFile();
+  char *getMIMEConfFile();
 	cserver();
 	~cserver();
 	dynamic_protocol* getDynProtocol(char *protocolName);
