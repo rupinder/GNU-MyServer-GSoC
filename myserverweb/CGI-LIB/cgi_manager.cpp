@@ -201,7 +201,16 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 	}
 	*lpdwSize=(u_int)strlen((char*)lpvBuffer);
 }
-
+/*!
+*Returns the CGI data structure. This structure is shared with the MyServer core so use it carefully!
+*/
+cgi_data* cgi_manager::getCgiData()
+{
+	return cgidata;	
+}
+/*!
+*Specify the type of data sent through HTTP.
+*/
 void cgi_manager::setContentType(char * Type)
 {
 	strncpy(td->response.CONTENT_TYPE, Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
