@@ -54,7 +54,7 @@ int cmdShow;
 /*
 *Change this for every new version of this software.
 */
-const char *versionOfSoftware="0.4.3";
+const char *versionOfSoftware="0.5";
 cserver server;
 
 
