@@ -151,6 +151,14 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 		{
 			(ProcMain)(cmdLine,&data);
 		}
+    else
+      {
+        ((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite("Error accessing entrypoint: ");
+        ((Vhost*)td->connection->host)->warningsLogWrite(exec);
+        ((Vhost*)td->connection->host)->warningsLogWrite("\r\n");
+        ((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+      }
 		hinstLib.close();
 
 		/*
