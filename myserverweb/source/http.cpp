@@ -172,7 +172,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	sprintf(td->buffer2,"<table width=\"100%%\">\r\n<tr>\r\n<td><b>%s</b></td>\r\n<td><b>%s</b></td>\r\n<td><b>%s</b></td>\r\n</tr>\r\n","File","Last modify","Size");
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	static char fileSize[10];
-	static char fileTime[20];
+	static char fileTime[32];
 	do
 	{	
 		if(fd.name[0]=='.')
@@ -197,6 +197,10 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		
 		
 		sprintf(fileTime,"%u\\%u\\%u-%u:%u:%u System time",st->tm_wday,st->tm_mon,st->tm_year,st->tm_hour,st->tm_min,st->tm_sec);
+
+
+		getRFC822GMTTime((time_t)fd.time_write,fileTime,32);
+						
 		strcat(td->buffer2,fileTime);
 
 		strcat(td->buffer2,"</td>\r\n<td>");

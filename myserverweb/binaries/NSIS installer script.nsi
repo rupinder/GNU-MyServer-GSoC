@@ -1,7 +1,7 @@
 ;NSIS Installation script for myServer
 SetCompressor bzip2
 !include "MUI.nsh"
-!define MUI_VERSION "0.6.1"
+!define MUI_VERSION "0.6.2"
 !define MUI_PRODUCT "MyServer"
 !define MUI_COMPONENTSPAGE
 !define MUI_LICENSEPAGE_CHECKBOX
