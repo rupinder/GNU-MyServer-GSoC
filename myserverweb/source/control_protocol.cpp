@@ -1038,16 +1038,16 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
                                         char *b1,int bs1)
 {
   char *path = lserver->getLanguagesPath();
-  _finddata_t fd;
-  intptr_t ff;
+  myserver_finddata_t fd;
+  int ret;
   if(path == 0)
   {
     strcpy(b1,"Error retrieving the language files path");
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
-  ff=_findfirst(path, &fd);
-  if(ff == -1)
+  ret=fd.findfirst(path);
+  if(ret == -1)
   {
     strcpy(b1,"Error in directory lookup");
     addToErrorLog(a,b1, strlen(b1));
@@ -1070,7 +1070,7 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
     {
       strcpy(b1,"Error in allocating memory");
       addToErrorLog(a, b1, strlen(b1));
-      _findclose(ff);
+      fd.findclose();
       return CONTROL_INTERNAL;
     }
     filename = new char[filenameLen + 1];
@@ -1079,7 +1079,7 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
       strcpy(b1,"Error in allocating memory");
       addToErrorLog(a,b1, strlen(b1));
       delete [] dir;
-      _findclose(ff);
+      fd.findclose();
       return CONTROL_INTERNAL;
     }
     MYSERVER_FILE::splitPath(fd.name,dir,filename);
@@ -1099,8 +1099,8 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
       return CONTROL_INTERNAL;
     }
   }
-	while(!_findnext(ff,&fd));
-  _findclose(ff);
+	while(fd.findnext());
+  fd.findclose();
   return 0;
 }
 

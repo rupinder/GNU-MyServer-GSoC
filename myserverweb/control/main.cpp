@@ -31,9 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/vector.h"
 #include "fltkconfig.h"
 
-#ifndef WIN32
 # include "../include/lfind.h"
-#endif
 
 extern "C"
 {
@@ -62,8 +60,8 @@ int main(int argc, char * argv[])
    char main_configuration_file[MAX_PATH];
    int conf_location = 0;
    cXMLParser xmlFile;
-   _finddata_t fd;
-   long ff;
+   myserver_finddata_t fd;
+   int fd_ret;
    bool langFound = true;
    bool confFound = true;
    int ret;
@@ -77,7 +75,7 @@ int main(int argc, char * argv[])
    // Find the language files:
 #ifdef WIN32
    strncpy(languages_path, "languages/", MAX_PATH);
-   ff=_findfirst("languages/*.xml", &fd);
+   fd_ret=fd.findfirst("languages/*.xml");
 #else
    if(MYSERVER_FILE::fileExists("languages"))
      {
@@ -97,7 +95,7 @@ int main(int argc, char * argv[])
 	langFound = false;
      }
    if(langFound)
-     ff=_findfirst(languages_path ,&fd);
+     fd_ret=fd.findfirst(languages_path);
 #endif
 
    // Search for myserver.xml
@@ -229,8 +227,8 @@ int main(int argc, char * argv[])
 	     if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
 	       Configure.Language->add(filename, 0, 0, 0, 0);
 	  }
-	while(!_findnext(ff,&fd));
-	_findclose(ff);
+	while(!fd.findnext());
+	fd.findclose();
      }
    
    // Load the dynamic protocol names
@@ -295,7 +293,9 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
 
    HMODULE module;
    registerNamePROC name;
-   
+
+   myserver_finddata_t fd;
+   int fd_ret;   
    int filenamelen = 0;
    char *filename = 0;
 #ifdef WIN32
@@ -312,15 +312,9 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
      return;
    strncpy(filename,folder, filenamelen);
 #endif
-   _finddata_t fd;
-   long ff;
-   ff=_findfirst(filename,&fd);
-#ifdef WIN32
-   if(ff==-1)
-#endif
-#ifdef NOT_WIN
-     if((int)ff==-1)
-#endif
+
+   fd_ret=fd.findfirst(filename);
+   if(fd_ret==-1)
        {
 	  delete [] filename;
 	  filename = 0;
@@ -378,8 +372,8 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
 #endif
 	delete [] completeFileName;
      }
-   while(!_findnext(ff,&fd));
-   _findclose(ff);
+   while(!fd.findnext());
+   fd.findclose();
    delete [] filename;
    filename = 0;
 }

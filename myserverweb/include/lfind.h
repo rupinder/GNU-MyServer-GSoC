@@ -16,7 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef WIN32
 #ifndef LFIND_H
 #define LFIND_H
 
@@ -24,6 +23,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 extern "C" 
 {
+#ifdef WIN32
+#include <io.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -39,7 +41,11 @@ extern "C"
 #define MAX_NAME NAME_MAX
 #define FILE_ATTRIBUTE_DIRECTORY 1
 
-class _finddata_t 
+#ifndef intptr_t
+#define intptr_t int
+#endif
+
+class myserver_finddata_t 
 { 
  public:
    char * name;
@@ -49,18 +55,17 @@ class _finddata_t
    int findfirst(const char filename[]);
    int findnext();
    int findclose();
-   _finddata_t();
-   ~_finddata_t();
+   myserver_finddata_t();
+   ~myserver_finddata_t();
  private:
+#ifdef WIN32
+	_finddata_t fd;
+   intptr_t  ff;
+#endif
    char *DirName;
-   DIR * dh;
+   DIR *dh;
 };
 
-long  _findfirst(const char filename[], _finddata_t * fdat );
-int _findnext(long crap, _finddata_t * fdat );
-int _findclose(long);
-
 #endif
 
-#endif
 

@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-#ifndef WIN32
 #include "../include/lfind.h"
 
 extern "C"
@@ -34,20 +33,39 @@ void * _alloca(size_t size)
 	return malloc(size);
 }
 
-_finddata_t::_finddata_t()
+myserver_finddata_t::myserver_finddata_t()
 {
+#ifdef NOT_WIN
   DirName = 0;
   dh = 0;
+#endif
 }
-_finddata_t::~_finddata_t()
+myserver_finddata_t::~myserver_finddata_t()
 {
+#ifdef NOT_WIN
   if(DirName)
     delete [] DirName;
   DirName = 0;
+#endif
 }
 
-int _finddata_t::findfirst(const char filename[])
+/*!
+ *Return zero on success.
+ */
+int myserver_finddata_t::findfirst(const char filename[])
 {
+#ifdef WIN32
+  ff = _findfirst(filename, &fd )  ? -1 : 0;
+  if(ff==0)
+  {
+    name = fd.name;
+    attrib = fd.attrib;
+    time_write = fd.time_write;
+    size = fd.size ;
+  }
+  return ff;
+#endif
+#ifdef NOT_WIN
    struct dirent * dirInfo;
    struct stat F_Stats;
    char *TempName=0;
@@ -84,10 +102,23 @@ int _finddata_t::findfirst(const char filename[])
    size = F_Stats.st_size;
    delete [] TempName;
    return 0;
+#endif
 }
 
-int _finddata_t::findnext()
+int myserver_finddata_t::findnext()
 {
+#ifdef WIN32
+  int ret = _findnext(ff, &fd)? -1 : 0 ;
+  if(ret==0)
+  {
+    name = fd.name;
+    attrib = fd.attrib;
+    time_write = fd.time_write;
+    size = fd.size ;
+  }
+  return ret;
+#endif
+#ifdef NOT_WIN
    struct dirent * dirInfo;
    struct stat F_Stats;
    char *TempName;
@@ -112,33 +143,22 @@ int _finddata_t::findnext()
    size = F_Stats.st_size;
    delete [] TempName;
    return 0;
-
+#endif
 }
 
-int _finddata_t::findclose()
+int myserver_finddata_t::findclose()
 {
+#ifdef WIN32
+  _findclose(ff);
+#endif
+#ifdef NOT_WIN
   if(dh)
     closedir(dh);
    if(DirName)
      delete [] DirName;
    DirName = 0;
    return 0;
-}
-
-long _findfirst(const char filename[], _finddata_t * fdat )
-{
-   return (fdat->findfirst(filename) == 0)? (long)fdat : (long)-1;
-}
-
-int _findnext(long crap, _finddata_t * fdat )
-{
-   return fdat->findnext();
-}
-
-int _findclose(long fdat) // a nasty little hack
-{                             // but hey, intptr_t is a void * anyways
-   return ((_finddata_t *)fdat)->findclose();
-}
-
-
 #endif
+}
+
+

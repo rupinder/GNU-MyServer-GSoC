@@ -21,9 +21,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 #include "../include/cserver.h"
 
-#ifdef NOT_WIN
-#include "../include/lfind.h"
 
+#include "../include/lfind.h"
+#ifdef NOT_WIN
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #endif
@@ -300,8 +300,12 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
 int protocols_manager::loadProtocols(char* directory, cXMLParser* parser,
                                      char* confFile, cserver* lserver)
 {
+	myserver_finddata_t fd;
   int filenamelen = 0;
 	char *filename = 0;
+  int ret;
+  char *completeFileName = 0;
+  int completeFileNameLen = 0;
 #ifdef WIN32
   filenamelen=strlen(directory)+6;
   filename=new char[filenamelen];
@@ -317,22 +321,15 @@ int protocols_manager::loadProtocols(char* directory, cXMLParser* parser,
 	strncpy(filename, directory, filenamelen);
 #endif	
 	
-	_finddata_t fd;
-	long ff;
-	ff=(long)_findfirst(filename,&fd);	
-#ifdef WIN32
-	if(ff==-1)
-#endif
-#ifdef NOT_WIN
-	if(ff==-1)
-#endif
+	ret = fd.findfirst(filename);	
+	
+  if(ret==-1)
   {
     delete [] filename;
     filename = 0;
 		return -1;	
   }
-  char *completeFileName = 0;
-  int completeFileNameLen = 0;
+
 	do
 	{	
 		if(fd.name[0]=='.')
@@ -358,8 +355,8 @@ int protocols_manager::loadProtocols(char* directory, cXMLParser* parser,
 		sprintf(completeFileName,"%s/%s", directory, fd.name);
 		addProtocol(completeFileName, parser, confFile, lserver);
 		delete [] completeFileName;
-	}while(!_findnext(ff,&fd));
-	_findclose(ff);
+	}while(fd.findnext());
+	fd.findclose();
   delete [] filename;
   filename = 0;
   return 0;

@@ -38,8 +38,8 @@ extern "C"
 #endif
 }
 
-#ifdef NOT_WIN
 #include "../include/lfind.h"
+#ifdef NOT_WIN
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #endif
@@ -88,12 +88,11 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
 	u_long nbw;
 	int ret;
   int outputDataPathLen = getdefaultwdlen() + 20;
-	_finddata_t fd;
+	myserver_finddata_t fd;
 	char *filename = 0;
 	int startchar=0;
 	int nDirectories=0;
 	int i;
-	long ff;
 	char fileTime[32];
 	char* bufferloop;
   char* browseDirCSSpath;
@@ -241,15 +240,10 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
 		/*! Return an internal server error.  */
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
-	ff=_findfirst(filename, &fd);
+	ret=fd.findfirst(filename);
   delete [] filename;
   filename = 0;
-#ifdef WIN32
-	if(ff==-1)
-#endif
-#ifdef NOT_WIN
-	if((int)ff==-1)
-#endif
+	if(ret==-1)
 	{
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_404);
 	}
@@ -308,12 +302,12 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
                                      (u_long)td->buffer2->GetLength(), &nbw);
 		if(ret)
 		{
-			_findclose(ff);
+			fd.findclose();
 			td->outputData.closeFile();
 			/* Return an internal server error.  */
 			return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
-	}while(!_findnext(ff, &fd));
+	}while(!fd.findnext());
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " << versionOfSoftware;
               
@@ -333,12 +327,12 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
                                    (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
-		_findclose(ff);
+		fd.findclose();
 		td->outputData.closeFile();
 		/* Return an internal server error.  */
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}	
-	_findclose(ff);
+	fd.findclose();
   *td->buffer2 << end_str;
 	/*! Changes the \ character in the / character.  */
 	bufferloop=(char*)td->buffer2->GetBuffer();
