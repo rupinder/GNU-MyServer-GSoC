@@ -204,7 +204,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		if(nph)
 		{
 			/*
-			*Resetting the structure we send only the informations gived by the CGI.
+			*Resetting the structure we send only the information gived by the CGI.
 			*/
 			resetHTTPResponse(&(td->response));
 		}

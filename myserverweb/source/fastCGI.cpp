@@ -109,6 +109,8 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	int exit=0;
 	const clock_t timeout= CLOCKS_PER_SEC * 20; // 20 seconds
 	clock_t time1 = clock();
+	td->outputData.closeFile();	
+	td->outputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_NO_INHERIT);
 	do	
 	{
 		while(!con.sock.bytesToRead())
@@ -123,7 +125,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
 			con.sock.shutdown(2);
 			con.sock.closesocket();
- 			return raiseHTTPError(td,connection,e_500);
+			break;
 		}
 		if(nbr<sizeof(FCGI_Header))
 		{
@@ -133,7 +135,6 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			return raiseHTTPError(td,connection,e_500);
 		}
 		int dim=(tHeader.contentLengthB1<<8) + tHeader.contentLengthB0;
-		int headerSize=0;
 		int dataSent=0;
 		if(dim==0)
 		{
@@ -150,45 +151,10 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 					break;
 				case FCGI_STDOUT:
 					nbr=con.sock.recv(td->buffer,min(dim,td->buffersize),0);
-		
-					for(u_long i=0;i<nbr;i++)
-					{
-						if((td->buffer[i]=='\r')&&(td->buffer[i+1]=='\n')&&(td->buffer[i+2]=='\r')&&(td->buffer[i+3]=='\n'))
-						{
-							headerSize=i+4;
-							break;
-						}
-					}
-					sprintf(td->response.CONTENT_LENGTH,"%u",dim-headerSize);
-					buildHTTPResponseHeaderStruct(&td->response,td,td->buffer);
-					if(td->response.LOCATION[0])
-					{
-						char nURL[MAX_PATH];
-						nURL[0]='\0';
-						u_long j;
-						j=0;
-
-						int start=(int)strlen(nURL);
-						while(td->response.LOCATION[j])
-						{
-
-							nURL[j+start]=td->response.LOCATION[j];
-							nURL[j+start+1]='\0';
-							j++;
-						}
-
-						sendHTTPRedirect(td,connection,nURL);
-						exit = 1;
-						break;
-					}
-					buildHTTPResponseHeader(td->buffer2,&td->response);
-					if(td->connection->socket.send(td->buffer2,strlen(td->buffer2), 0)==0)
-					{
-						exit = 1;
-						break;
-					}
-					dataSent=td->connection->socket.send((char*)(td->buffer+headerSize),nbr-headerSize, 0)+headerSize;
-					if(dataSent==headerSize)
+					u_long nbw;
+					td->outputData.writeToFile(td->buffer,nbr,&nbw);
+					dataSent=nbw;
+					if(dataSent==0)
 					{
 						exit = 1;
 						break;
@@ -202,8 +168,8 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 							exit = 1;
 							break;
 						}
-						td->connection->socket.send(td->buffer2,nbr, 0);
-						dataSent+=nbr;
+						td->outputData.writeToFile((char*)(td->buffer),nbr,&nbw);
+						dataSent+=nbw;
 					}
 					break;
 				case FCGI_END_REQUEST:
@@ -216,7 +182,60 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			}
 		}
 	}while((!exit) && nbr);
-	td->inputData.closeFile();
+	int headerSize=0;
+	td->outputData.setFilePointer(0);
+	td->buffer[0]='\0';
+	td->outputData.readFromFile(td->buffer,KB(5),&nbr);
+	for(u_long i=0;i<nbr;i++)
+	{
+		if((td->buffer[i]=='\r')&&(td->buffer[i+1]=='\n')&&(td->buffer[i+2]=='\r')&&(td->buffer[i+3]=='\n'))
+		{
+			headerSize=i+4;
+			break;
+		}
+	}
+	sprintf(td->response.CONTENT_LENGTH,"%u",td->outputData.getFileSize()-headerSize);
+	buildHTTPResponseHeaderStruct(&td->response,td,td->buffer);
+	for(;;)
+	{
+		if(td->response.LOCATION[0])
+		{
+			char nURL[MAX_PATH];
+			nURL[0]='\0';
+			u_long j;
+			j=0;
+			int start=(int)strlen(nURL);
+			while(td->response.LOCATION[j])
+			{
+				nURL[j+start]=td->response.LOCATION[j];
+				nURL[j+start+1]='\0';
+				j++;
+			}
+			sendHTTPRedirect(td,connection,nURL);
+			break;
+		}
+		buildHTTPResponseHeader(td->buffer2,&td->response);
+		if(td->connection->socket.send(td->buffer2,strlen(td->buffer2), 0)==0)
+		{
+			exit = 1;
+			break;
+		}
+		if(td->connection->socket.send((char*)(td->buffer+headerSize),nbr-headerSize, 0)==0)
+		{
+			exit = 1;
+			break;
+		}
+		do
+		{
+			td->outputData.readFromFile(td->buffer,td->buffersize,&nbr);
+			if(td->connection->socket.send((char*)td->buffer,nbr, 0)==0)
+			{
+				break;
+			}
+		}while(nbr);
+		break;
+	}
+	td->outputData.closeFile();
 	MYSERVER_FILE::deleteFile(td->inputDataPath);
 	con.sock.closesocket();
 	return 1;

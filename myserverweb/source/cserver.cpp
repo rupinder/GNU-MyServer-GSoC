@@ -636,8 +636,6 @@ void cserver::initialize(int OSVer)
 	browseDirCSSpath[0]='\0';
 	mustEndServer=false;
 	verbosity=1;
-	buffersize=1024*1024;
-	buffersize2=1024*1024;
 	serverAdmin[0]='\0';
 
 	useMessagesFiles=true;
@@ -660,7 +658,7 @@ void cserver::initialize(int OSVer)
 	data=configurationFileManager.getValue("BUFFER_SIZE");
 	if(data)
 	{
-		buffersize=buffersize2=max((u_long)atol(data),KB(5));/*BE SURE THAT THE BUFFERSIZE IS AT LEAST 5 KB*/
+		buffersize=buffersize2=max((u_long)atol(data),81920);
 	}
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)

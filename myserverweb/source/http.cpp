@@ -627,6 +627,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*/
 	getdefaultwd(td.inputDataPath,MAX_PATH);
 	sprintf(&td.inputDataPath[strlen(td.inputDataPath)],"/stdInFile_%u",td.id);
+	getdefaultwd(td.outputDataPath,MAX_PATH);
+	sprintf(&td.outputDataPath[strlen(td.outputDataPath)],"/stdOutFile_%u",td.id);
 	if(!lstrcmpi(td.request.CMD,"POST"))
 	{
 		if(td.request.CONTENT_TYPE[0]=='\0')
@@ -842,6 +844,7 @@ void resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 	response->DATEEXP[0]='\0';	
 	response->OTHER[0]='\0';
 	response->LAST_MODIFIED[0]='\0';
+	response->CACHE_CONTROL[0]='\0';
 }
 
 
@@ -880,6 +883,12 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		strcat(str,response->SERVER_NAME);
 		strcat(str,"\r\n");
 	}
+	if(response->CACHE_CONTROL[0])
+	{
+		strcat(str,"Cache-Control:");
+		strcat(str,response->CACHE_CONTROL);
+		strcat(str,"\r\n");
+	}
 	if(response->LAST_MODIFIED[0])
 	{
 		strcat(str,"Last-Modified:");
@@ -894,9 +903,14 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	}
 	if(response->COOKIE[0])
 	{
-		strcat(str,"Set-Cookie:");
-		strcat(str,response->COOKIE);
-		strcat(str,"\r\n");
+		char *token=strtok(response->COOKIE,"\n");
+		do
+		{
+			strcat(str,"Set-Cookie:");
+			strcat(str,token);
+			strcat(str,"\r\n");		
+			token=strtok(NULL,"\n");
+		}while(token);
 	}
 	if(response->P3P[0])
 	{
@@ -1065,10 +1079,9 @@ void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int s
 *nLinesptr is a value of the lines number in the HEADER.
 *ncharsptr is a value of the characters number in the HEADER.
 */
-u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
+u_long validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i;
-	char *req=td->buffer;
 	u_long buffersize=td->buffersize;
 	u_long nLinechars;
 	u_long isValidCommand=0;
@@ -1138,10 +1151,9 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 *nLinesptr is a value of the lines number in the HEADER.
 *ncharsptr is a value of the characters number in the HEADER.
 */
-u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
+u_long validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i;
-	char *req=td->buffer;
 	u_long buffersize=td->buffersize;
 	u_long nLinechars;
 	int isValidCommand=false;
@@ -1173,10 +1185,10 @@ u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsp
 		else
 			nLinechars++;
 		/*
-		*We set a maximal theorical number of characters in a line to 1024.
-		*If a line contains more than 1024 lines we consider the header invalid.
+		*We set a maximal theorical number of characters in a line.
+		*If a line contains more than 4110 lines we consider the header invalid.
 		*/
-		if(nLinechars>1024)
+		if(nLinechars>4110)
 			break;
 	}
 
@@ -1241,7 +1253,9 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 	*/
 	u_long i=0,j=0,max=0;
 	u_long nLines,maxTotchars;
-	u_long validRequest=validHTTPRequest(td,&nLines,&maxTotchars);
+	if(input==0)
+		input=td->buffer;
+	u_long validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
 	if(validRequest==0)
 		return 0;
 	else if(validRequest==-1)
@@ -1440,8 +1454,9 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			token = strtok( NULL, "\n\r" );
 			if(!token)return 0;
 			lineControlled=true;
-			strncpy(request->COOKIE,token,HTTP_REQUEST_COOKIE_DIM);
-			StrTrim(request->COOKIE," ");
+			if(!request->COOKIE[0])
+				strcat(request->COOKIE,";");
+			strncat(request->COOKIE,token,HTTP_REQUEST_COOKIE_DIM);
 		}else
 		/*From*/
 		if(!lstrcmpi(command,"From"))
@@ -1564,13 +1579,16 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 	*The HTTP header ends with a \r\n\r\n sequence.
 	*/
 
+
+	if(input==0)
+		input=td->buffer;
 	/*
 	*Control if the HTTP header is a valid header.
 	*/
-	if((input==0) || (input[0]==0))
+	if(input[0]==0)
 		return 0;
 	u_long nLines,maxTotchars;
-	u_long validRequest=validHTTPResponse(td,&nLines,&maxTotchars);
+	u_long validRequest=validHTTPResponse(input,td,&nLines,&maxTotchars);
 
 	const char cmdseps[]   = ": ,\t\n\r\0";
 
@@ -1652,6 +1670,13 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 			lineControlled=true;
 			response->httpStatus=atoi(token);
 		}else
+		/*Cache-Control*/
+		if(!lstrcmpi(command,"Cache-Control"))
+		{
+			token = strtok( NULL, "\r\n\0" );
+			lineControlled=true;
+			strncpy(response->CACHE_CONTROL,token,HTTP_RESPONSE_CACHE_CONTROL_DIM);
+		}else
 		/*Date*/
 		if(!lstrcmpi(command,"Date"))
 		{
@@ -1681,9 +1706,8 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
-			/*Concatenate string at the end cause can be more than one cookie line.*/
 			strncat(response->COOKIE,token,HTTP_RESPONSE_COOKIE_DIM-strlen(response->COOKIE));
-			StrTrim(response->COOKIE," ");
+			strcat(response->COOKIE,"\n");/*Divide multiple cookies*/
 		}else
 		/*Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
@@ -1734,7 +1758,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 			}
 		}
 		token = strtok( NULL, cmdseps );
-	}while((u_long)(token-td->buffer)<maxTotchars);
+	}while((u_long)(token-input)<maxTotchars);
 	/*
 	*END REQUEST STRUCTURE BUILD.
 	*/
