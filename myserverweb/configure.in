@@ -19,8 +19,11 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LDFLAGS)
 
-dnl Options
-AM_OPTIONS_WXCONFIG
+#dnl Options
+#AM_OPTIONS_WXCONFIG
+
+dnl Look for argp.h
+AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are avaible]))
 
 dnl Look for pthreads
 GNOME_PTHREAD_CHECK
