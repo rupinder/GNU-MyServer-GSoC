@@ -233,9 +233,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			}
 			if(keepalive)
 			{
-        char chunksize[12];
-				sprintf(chunksize, "%x\r\n", (u_int)gzip_dataused);
-				ret = s->socket.send(chunksize, (int)strlen(chunksize), 0);
+        ostringstream buffer;
+        buffer << hex << gzip_dataused << "\r\n";
+				ret = s->socket.send(buffer.str().c_str(), buffer.str().length(), 0);
 				if(ret == SOCKET_ERROR)
 					break;
 			}
