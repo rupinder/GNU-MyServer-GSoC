@@ -944,7 +944,8 @@ int Server::initialize(int /*!os_ver*/)
 #endif 
 
 #ifndef WIN32
-  /*Under an *nix environment look for .xml files in the following order.
+  /*!
+   *Under an *nix environment look for .xml files in the following order.
    *1) myserver executable working directory
    *2) ~/.myserver/
    *3) /etc/myserver/
@@ -1526,7 +1527,8 @@ int Server::loadSettings()
   char buffer[512];
   u_long nbr, nbw;
 #ifndef WIN32
-/*Under an *nix environment look for .xml files in the following order.
+/*! 
+ *Under an *nix environment look for .xml files in the following order.
  *1) myserver executable working directory
  *2) ~/.myserver/
  *3) /etc/myserver/
@@ -1630,7 +1632,7 @@ int Server::loadSettings()
  
 
 #ifndef WIN32
-  /* Under an *nix environment look for .xml files in the following order.
+  /*!Under an *nix environment look for .xml files in the following order.
    *1) myserver executable working directory
    *2) ~/.myserver/
    *3) /etc/myserver/
