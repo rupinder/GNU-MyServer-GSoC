@@ -151,7 +151,9 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	if(nBytesRead==0)
 	{
 		sprintf(td->buffer,"Error CGI zero bytes read\r\n");
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
 	}

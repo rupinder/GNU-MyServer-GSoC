@@ -289,7 +289,9 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	{
 		char msg[500];
 		sprintf(msg,"%s %s\n","Sending",filenamePath);
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(msg);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 	}
 	for(;;)
 	{
@@ -837,6 +839,8 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 */
 int logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 {
+	((vhost*)(td->connection->host))->accesseslogRequestAccess(td->id);
+
 	char localbuffer[HTTP_RESPONSE_DATE_DIM];
 
 	((vhost*)(td->connection->host))->accessesLogWrite(a->ipAddr);
@@ -870,16 +874,18 @@ int logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 	((vhost*)(td->connection->host))->accessesLogWrite("\" ");
 
 	sprintf(localbuffer,"%i",td->response.httpStatus);
+
 	((vhost*)(td->connection->host))->accessesLogWrite(localbuffer);
 	((vhost*)(td->connection->host))->accessesLogWrite(" ");
 	
-	if(td->response.CONTENT_LENGTH[0])
+	if(td->response.CONTENT_LENGTH[0] && (strlen(td->response.CONTENT_LENGTH)<HTTP_RESPONSE_CONTENT_LENGTH_DIM))
 		((vhost*)(td->connection->host))->accessesLogWrite(td->response.CONTENT_LENGTH);
 	else
 	((vhost*)(td->connection->host))->accessesLogWrite("0");
 
 	((vhost*)(td->connection->host))->accessesLogWrite("\r\n");
-	return 1;
+	((vhost*)(td->connection->host))->accesseslogTerminateAccess(td->id);
+    return 1;
 }
 
 /*
@@ -925,13 +931,17 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	if(validRequest==0)
 	{
 		sprintf(td.buffer,"Bad request from: %s\r\n",td.connection->ipAddr);
+		((vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
 		((vhost*)td.connection->host)->warningsLogWrite(td.buffer);
+		((vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
 		return raiseHTTPError(&td,a,e_400);
 	}/*If the URI is too long*/
 	else if(validRequest==414)
 	{
 		sprintf(td.buffer,"URI too long from: %s\r\n",td.connection->ipAddr);
+		((vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
 		((vhost*)td.connection->host)->warningsLogWrite(td.buffer);
+		((vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
 		return raiseHTTPError(&td,a,e_414);
 	}
 	
@@ -1463,7 +1473,6 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 */
 int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
-	logHTTPaccess(td,a);
 	if(ID==e_401AUTH)
 	{
 		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",versionOfSoftware,td->request.CONNECTION);
@@ -1509,7 +1518,9 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 			*Record the error in the log file.
 			*/
 			sprintf(td->buffer,"%s error to: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
@@ -1526,6 +1537,8 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	a->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
 	a->socket.send(HTTP_ERROR_MSGS[ID],(u_long)strlen(HTTP_ERROR_MSGS[ID]), 0);
+
+	logHTTPaccess(td,a);
 	return 1;
 }
 /*
@@ -1534,7 +1547,9 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
 	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
+	((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+	((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 	const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
 		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
 		Internal Server error</font></p>\r\n";
@@ -1735,7 +1750,9 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 		*Record the error in the log file.
 		*/
 		sprintf(td->buffer,"%s redirected to %s\r\n",td->connection->ipAddr,newURL);
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 	}
 	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
 	strcat(td->buffer2,"Date: ");
@@ -1756,7 +1773,9 @@ int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 		*Record the error in the log file.
 		*/
 		sprintf(td->buffer,"Not modified to %s\r\n",td->connection->ipAddr);
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 	}
 	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",versionOfSoftware);
 	strcat(td->buffer2,"Date: ");
@@ -2121,7 +2140,9 @@ int sendAuth(httpThreadContext* td,LPCONNECTION s)
 			*Record the error in the log file.
 			*/
 			sprintf(td->buffer,"Request %s authorization\r\n",td->connection->ipAddr);
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
 		return raiseHTTPError(td,s,e_401);
 	}
@@ -2133,7 +2154,9 @@ int sendAuth(httpThreadContext* td,LPCONNECTION s)
 			*Record the error in the log file.
 			*/
 			sprintf(td->buffer,"%s unauthorized\r\n",td->connection->ipAddr);
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
 		s->nTries++;
 		return raiseHTTPError(td,s,e_401AUTH);

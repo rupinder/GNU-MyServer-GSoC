@@ -79,7 +79,9 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	if (connIndex == max_Connections) 
 	{
 		sprintf(td->buffer,"Error ISAPI max connections\r\n");
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return raiseHTTPError(td,connection,e_500);
 	}
 	AppHnd = LoadLibrary(fullpath);
@@ -92,14 +94,18 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (AppHnd == NULL) 
 	{
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to load ISAPI application module: ");
 		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
 		return raiseHTTPError(td,connection,e_500);
 	}
@@ -110,9 +116,11 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
 		return raiseHTTPError(td,connection,e_500);
 	}
@@ -121,9 +129,11 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		((vhost*)(td->connection->host))->warningsLogWrite("ISAPI GetExtensionVersion() returned FALSE\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
 		return raiseHTTPError(td,connection,e_500);
 	}
@@ -132,9 +142,11 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		((vhost*)(td->connection->host))->warningsLogWrite("ISAPI version not supported\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
 		return raiseHTTPError(td,connection,e_500);
 	}
@@ -205,9 +217,11 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	}
 	if(!FreeLibrary(AppHnd))
 	{
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
 		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+        ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 	}
 
 	connTable[connIndex].Allocated = FALSE;
@@ -408,7 +422,9 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
+		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
 		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("ReadClientExport: invalid hConn\r\n");
+		((vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(ConnInfo->td->id);
 		return FALSE;
 	}
 	ConnInfo->td->inputData.readFromFile((char*)lpvBuffer,*lpdwSize,&NumRead);

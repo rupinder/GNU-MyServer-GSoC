@@ -37,6 +37,7 @@ vhost::vhost()
 	sslContext.password[0] = '\0';
 	ipList=0;
 	hostList=0;
+	accessesLogFileAccess=warningsLogFileAccess=0;
 }
 /*
 *vhost destructor
@@ -239,6 +240,35 @@ void vhost::addHost(char *host)
 	}
 	hostList=hl;
 }
+/*
+*Here threads get the permission to use the access log file.
+*/
+u_long vhost::accesseslogRequestAccess(int id)
+{
+	return requestAccess(&accessesLogFileAccess,id);
+}
+/*
+*Here threads get the permission to use the warnings log file.
+*/
+u_long vhost::warningslogRequestAccess(int id)
+{
+	return requestAccess(&warningsLogFileAccess,id);
+}
+/*
+*Here threads release the permission to use the access log file.
+*/
+u_long vhost::accesseslogTerminateAccess(int id)
+{
+	return terminateAccess(&accessesLogFileAccess,id);
+}
+/*
+*Here threads release the permission to use the warnings log file.
+*/
+u_long vhost::warningslogTerminateAccess(int id)
+{
+	return terminateAccess(&warningsLogFileAccess,id);
+}
+
 /*
 *Write to the accesses log file
 */

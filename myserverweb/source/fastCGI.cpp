@@ -92,7 +92,9 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	if(sendFcgiBody(&con,(char*)&tBody,sizeof(tBody),FCGI_BEGIN_REQUEST,id))
 	{
 		sprintf(td->buffer,"Error FastCGI to begin the request\r\n");
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}
@@ -100,7 +102,9 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	if(sendFcgiBody(&con,td->buffer2,sizeEnvString,FCGI_PARAMS,id))
 	{
 		sprintf(td->buffer,"Error FastCGI to send params\r\n");
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}
@@ -108,14 +112,18 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
 	{
 		sprintf(td->buffer,"Error FastCGI to send params\r\n");
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}	
     if(atoi(td->request.CONTENT_LENGTH))
 	{
 		sprintf(td->buffer,"Error FastCGI to send POST data\r\n");
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
 		con.sock.send((char*)&tHeader,sizeof(tHeader),0);
 		td->inputData.setFilePointer(0);
@@ -129,7 +137,9 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
 	{
 		sprintf(td->buffer,"Error FastCGI to send POST data\r\n");
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}	
@@ -152,7 +162,9 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		else
 		{
 			sprintf(td->buffer,"Error FastCGI timeout\r\n");
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
 			con.sock.shutdown(2);
 			con.sock.closesocket();

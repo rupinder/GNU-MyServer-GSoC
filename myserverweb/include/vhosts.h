@@ -88,6 +88,15 @@ public:
 	void clearHostList();
 	int isHostAllowed(char*);
 	int isIPAllowed(char*);
+
+	u_long accessesLogFileAccess;
+	u_long warningsLogFileAccess;
+
+	u_long accesseslogRequestAccess(int id);
+	u_long warningslogRequestAccess(int id);
+	u_long accesseslogTerminateAccess(int id);
+	u_long warningslogTerminateAccess(int id);
+
 	~vhost();
 	/*
 	*Functions to manage the logs file.
