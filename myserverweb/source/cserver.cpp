@@ -1451,7 +1451,6 @@ char *Server::getServerName()
 	return serverName;
 }
 
-
 /*!
  *Gets the number of threads.
  */
@@ -1506,8 +1505,8 @@ int Server::loadSettings()
   int pathlen;
 	u_long i;
   int ret;
-  char nCPU[6];  
-  char *strCPU;
+  ostringstream nCPU;  
+  string strCPU;
   char buffer[512];
   u_long nbr, nbw;
 #ifndef WIN32
@@ -1589,13 +1588,9 @@ int Server::loadSettings()
 	logWriteln(languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
 	{
-    char *str = new char[strlen(languageParser.getValue("MSG_MIMERUN")) + 
-                                + 12 ];
-    if(str == 0)
-      return -1;
-    sprintf(str, "%s: %i", languageParser.getValue("MSG_MIMERUN"), nMIMEtypes);
-    logWriteln(str);
-    delete [] str;
+    ostringstream stream;
+    stream <<  languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
+    logWriteln(stream.str().c_str());
 	}
 	else
 	{
@@ -1604,16 +1599,12 @@ int Server::loadSettings()
     logEndPrintError();
 		return -1;
 	}
-  sprintf(nCPU, "%u", (u_int)getCPUCount() ); 
-
-  strCPU = new char[strlen(languageParser.getValue("MSG_NUM_CPU")) + 
-                          strlen(nCPU) + 3 ];
-  if(strCPU == 0)
-    return -1;
-  sprintf(strCPU, "%s: %s", languageParser.getValue("MSG_NUM_CPU"),nCPU);
-  logWriteln(strCPU);
-  delete [] strCPU;
+  nCPU << (u_int)getCPUCount();
  
+  strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
+  strCPU.append(" ");
+  strCPU.append(nCPU.str());
+  logWriteln(strCPU.c_str());
 
 #ifndef WIN32
   /*!Under an *nix environment look for .xml files in the following order.
@@ -1715,16 +1706,12 @@ int Server::loadSettings()
     
     if(path == 0)
     {
-      char *str;
+      string str;
 			logPreparePrintError();
-      str = new char[strlen(languageParser.getValue("ERR_ERROR")) + 
-                                  strlen(": Allocating path memory") + 1 ];
-      if(str == 0)
-        return -1;
-      sprintf(str,"%s: Allocating path memory", languageParser.getValue("ERR_ERROR"));
-      logWriteln(str);
+      str.assign(languageParser.getValue("ERR_ERROR"));
+      str.append(": Allocating path memory");
+      logWriteln(str.c_str());
       logEndPrintError(); 
-      delete [] str;
       return -1;
     }
 
@@ -1982,19 +1969,13 @@ int Server::addThread(int staticThread)
                                 (void *)newThread);
   if(ret)
   {
-    char* str;
+    string str;
     delete newThread;
     logPreparePrintError();
-    str = new char[strlen(languageParser.getValue("ERR_ERROR")) + 
-                   strlen( ": Threads creation") +1 ];
-    if(str == 0)
-    {
-      return -1;
-    }
-    sprintf(str,"%s: Threads creation", languageParser.getValue("ERR_ERROR")); 
-    logWriteln(str);
+    str.assign(languageParser.getValue("ERR_ERROR"));
+    str.append(": Threads creation" );
+    logWriteln(str.c_str());
     logEndPrintError();	  
-    delete [] str;
     return -1;
   }
 
@@ -2070,8 +2051,9 @@ int Server::removeThread(u_long ID)
 int Server::countAvailableThreads()
 {
   int count = 0;
+  ClientsThread* thread;
 	threads_mutex->lock();
-  ClientsThread* thread = threads;
+  thread = threads;
   while(thread)
   {
     if(!thread->isParsing())

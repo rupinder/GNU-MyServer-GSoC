@@ -101,7 +101,7 @@ void * startClientsThread(void* pParam)
 
 {
 #ifdef NOT_WIN
-	// Block SigTerm, SigInt, and SigPipe in threads
+	/*! Block SigTerm, SigInt, and SigPipe in threads. */
 	sigset_t sigmask;
 	sigemptyset(&sigmask);
 	sigaddset(&sigmask, SIGPIPE);

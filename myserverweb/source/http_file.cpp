@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http_file.h"
 #include "../include/gzip.h"
 
+#include <sstream>
 
 extern "C" 
 {
@@ -57,7 +58,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
   u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
-  char chunksize[12];
+
 
  	/*! gzip compression object.  */
 	Gzip gzip;
@@ -137,20 +138,20 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 	/*! If a Range was requested send 206 and not 200 for success.  */
 	if( td->request.RANGEBYTEBEGIN ||  td->request.RANGEBYTEEND )
   {	
-    char buffer[40];
+    ostringstream buffer;
     td->response.httpStatus = 206;
-    sprintf(buffer, "bytes %u-%u/%u", (u_long)firstByte, 
-           (u_long) lastByte, (u_long)filesize);
-    td->response.CONTENT_RANGE.assign(buffer);
+    buffer << "bytes "<< (u_long)firstByte << "-" 
+           << (u_long)lastByte << "/" << (u_long)filesize ;
+    td->response.CONTENT_RANGE.assign(buffer.str());
     use_gzip = 0;
 	}
 
   /*! Specify the content length with keep-alive connections. */
 	if(keepalive)
   {
-    char tmp[11];
-		sprintf(tmp, "%u", (u_int)bytes_to_send);
-    td->response.CONTENT_LENGTH.assign(tmp);
+    ostringstream buffer;
+    buffer << (u_int)bytes_to_send;
+    td->response.CONTENT_LENGTH.assign(buffer.str());
   }	
   else
 		td->response.CONNECTION.assign("close");
@@ -203,10 +204,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			/*! Read from the file the bytes to send.  */
 			if(h.readFromFile(td->buffer2->GetBuffer(), datatoread, &nbr))
 			{
-        char tmp[11];
+        ostringstream buffer;
 				h.closeFile();
-        sprintf(tmp,"%i",(int)dataSent);
-        td->response.CONTENT_LENGTH.assign(tmp);
+        buffer << (int)dataSent;
+        td->response.CONTENT_LENGTH.assign(buffer.str());
 				return 0;
 			}
       
@@ -232,6 +233,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			}
 			if(keepalive)
 			{
+        char chunksize[12];
 				sprintf(chunksize, "%x\r\n", (u_int)gzip_dataused);
 				ret = s->socket.send(chunksize, (int)strlen(chunksize), 0);
 				if(ret == SOCKET_ERROR)
@@ -260,10 +262,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
                             bytes_to_send :td->buffer->GetRealLength()  ), &nbr);
 			if(ret)
 			{
-        char tmp[11];
+        ostringstream buffer;
 				h.closeFile();
-        sprintf(tmp,"%i",(int)dataSent);
-        td->response.CONTENT_LENGTH.assign(tmp);
+        buffer << dataSent;
+        td->response.CONTENT_LENGTH.assign(buffer.str().c_str());
 				return 0;
 			}
       bytes_to_send-=nbr;
@@ -275,10 +277,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 					ret=(u_long)s->socket.send(td->buffer->GetBuffer(), nbr, 0);
 					if(ret==SOCKET_ERROR)
 					{
-            char tmp[11];
+            ostringstream buffer;
 						h.closeFile();
-            sprintf(tmp,"%i",(int)dataSent);
-            td->response.CONTENT_LENGTH.assign(tmp);
+            buffer << (int)dataSent;
+            td->response.CONTENT_LENGTH.assign(buffer.str().c_str());
 						return 0;
 					}
           dataSent+=ret;
@@ -310,10 +312,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 				ret=s->socket.send("0\r\n\r\n", 5, 0);
 				if(ret==SOCKET_ERROR)
 				{
-          char tmp[11];
+          ostringstream buffer;
 					h.closeFile();
-          sprintf(tmp,"%i",(int)dataSent);
-          td->response.CONTENT_LENGTH.assign(tmp);
+          buffer << dataSent;
+          td->response.CONTENT_LENGTH.assign(buffer.str());
 					return 0;
 				}
 			}
@@ -322,9 +324,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 	}/*End for loop. */
 	h.closeFile();
   {
-    char tmp[11];
-    sprintf(tmp,"%i",(int)dataSent);
-    td->response.CONTENT_LENGTH.assign(tmp);
+    ostringstream buffer;
+    buffer << dataSent;
+    td->response.CONTENT_LENGTH.assign(buffer.str());
   }
 	return 1;
 }

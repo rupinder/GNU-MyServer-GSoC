@@ -395,6 +395,7 @@ int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 	return (ret == -1) ;
 #endif
 }
+
 /*!
  *Create a temporary file.
  */
@@ -414,17 +415,17 @@ int File::closeFile()
     {
 #ifdef WIN32
       if(handle)
-        {
-          FlushFileBuffers((HANDLE)handle);
-          ret=CloseHandle((HANDLE)handle);
-        }
+      {
+        FlushFileBuffers((HANDLE)handle);
+        ret=CloseHandle((HANDLE)handle);
+      }
 #endif
 #ifdef NOT_WIN
       if(handle)
-        {
-          fsync((long)handle);
-          ret=close((long)handle);
-        }
+      {
+        fsync((long)handle);
+        ret=close((long)handle);
+      }
 #endif
 	}
   if(filename)
@@ -839,11 +840,13 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
 
 #endif
 #ifdef NOT_WIN
+
+	char *buffer;
+  int bufferLen;
+  int bufferNewLen;
 	if((*fileName)[0]=='/')
 		return 0;
-	char *buffer;
-  int bufferLen = strlen(*fileName) + 1;
-  int bufferNewLen;
+  bufferLen = strlen(*fileName) + 1;
   buffer = new char[bufferLen];
   if(buffer == 0)
     return 0;
