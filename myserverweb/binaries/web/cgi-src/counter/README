@@ -1,0 +1,61 @@
+MyServer MSCGI counter example.
+
+Main author: Russ Bohnhoff (MyServer Team)
+
+Description:
+This is a simple counter that creates a image of numbers representing the 
+number of calls to the counter.mscgi program.
+
+Usage:
+Point a <img> link in the HTML page pointing to the counter.mscgi program 
+as demonstrated in the counter.html file.
+
+Advanced:
+The location for the count data is in the same directory as the myserver
+executable.  This file is named count.dat.
+If you wish to change the image used for the counter, you must:
+	1. Create an image with evenly spaced numbers using: 0123456789
+	The image width must be divisible by 10.
+	2. Using Gimp, export an image as a c-source file with no options 
+	selected and prefixed name as numbers_image.
+	3. Remove the const in "static const struct" in the .c file.
+	4. Rename the .c file to numbers.h and copy it to the counter
+	source directory.
+	5. Compile the project or run make.
+There is an example of how the image would look in the source directory
+called: numbers.png
+
+Legal:
+The counter program is licensed under the GPL.  However, it is directly linked
+to writepng.c program that holds this notice:
+
+/*---------------------------------------------------------------------------
+
+   wpng - simple PNG-writing program                             writepng.c
+
+  ---------------------------------------------------------------------------
+
+      Copyright (c) 1998-2000 Greg Roelofs.  All rights reserved.
+
+      This software is provided "as is," without warranty of any kind,
+      express or implied.  In no event shall the author or contributors
+      be held liable for any damages arising in any way from the use of
+      this software.
+
+      Permission is granted to anyone to use this software for any purpose,
+      including commercial applications, and to alter it and redistribute
+      it freely, subject to the following restrictions:
+
+      1. Redistributions of source code must retain the above copyright
+         notice, disclaimer, and this list of conditions.
+      2. Redistributions in binary form must reproduce the above copyright
+         notice, disclaimer, and this list of conditions in the documenta-
+         tion and/or other materials provided with the distribution.
+      3. All advertising materials mentioning features or use of this
+         software must display the following acknowledgment:
+
+            This product includes software developed by Greg Roelofs
+            and contributors for the book, "PNG: The Definitive Guide,"
+            published by O'Reilly and Associates.
+
+  ---------------------------------------------------------------------------*/
