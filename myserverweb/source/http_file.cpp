@@ -95,7 +95,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
   /*! 
    *Use GZIP compression to send files bigger than GZIP threshold.  
    */
-  if(bytes_to_send > ((Http*)td->lhttp)->getGzipThreshold() )
+  if( ((Http*)td->lhttp)->getGzipThreshold() && 
+      (bytes_to_send > ((Http*)td->lhttp)->getGzipThreshold() ))
 	{
     use_gzip=1;
   }
