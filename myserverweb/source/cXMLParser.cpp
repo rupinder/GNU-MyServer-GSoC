@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 #ifdef WIN32
-/*
+/*!
 *Libxml2.lib is the dynamic version of the libxml2 while libxml2_a.lib is static.
 *With static version use the linker options: /NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCMTD.
 */
@@ -40,7 +40,7 @@ extern "C" {
 
 #endif
 
-/*
+/*!
 *This code is used to parse a pseudo-xml file.
 *With the open function we open a file and store it in memory.
 */
@@ -54,7 +54,7 @@ int cXMLParser::open(char* filename)
 		return -1;
 	return 0;
 }
-/*
+/*!
 *Constructor of the cXMLParser class.
 */
 cXMLParser::cXMLParser()
@@ -62,14 +62,14 @@ cXMLParser::cXMLParser()
 	doc=0;
 	cur=0;
 }
-/*
+/*!
 *Return the xml Document.
 */
 xmlDocPtr cXMLParser::getDoc()
 {
 	return doc;
 }
-/*
+/*!
 *Only get the value of the vName root children element.
 */
 char *cXMLParser::getValue(char* vName)
@@ -89,7 +89,7 @@ char *cXMLParser::getValue(char* vName)
 	
 	return buffer;
 }
-/*
+/*!
 *Set the value of the vName root children element.
 */
 int cXMLParser::setValue(char* vName,char *value)
@@ -110,7 +110,7 @@ int cXMLParser::setValue(char* vName,char *value)
 	return 0;
 }
 
-/*
+/*!
 *Free the memory used by the class.
 */
 int cXMLParser::close()
@@ -118,7 +118,7 @@ int cXMLParser::close()
 	xmlFreeDoc(doc);
 	return 0;
 }
-/*
+/*!
 *Save the XML tree to a file
 */
 int cXMLParser::save(char *filename)

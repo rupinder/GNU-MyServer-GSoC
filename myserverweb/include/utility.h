@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
-/*
+/*!
 *Macros to do simple transformations.
 */
 #define KB(x) (x*1024)
@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define min(a,b)		((a<b)?a:b)
 #define max(a,b)		((a>b)?a:b)
 
-/*
+/*!
 *Structure used for start a new process.
 */
 #ifndef START_PROC_INFO_IN
@@ -72,7 +72,7 @@ int setcwdBuffer();
 char *getdefaultwd(char* dwd,int maxlen);
 int setcwd(char * cwd);
 
-/*
+/*!
 *These functions are a simple trasposition of the mutex mechanism.
 */
 int requestAccess(u_long*,u_long);

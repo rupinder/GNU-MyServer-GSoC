@@ -24,7 +24,7 @@ static  u_long max_Connections;
 static ConnTableRecord *connTable;
 static CRITICAL_SECTION GetTableEntryCritSec;
 #define ISAPI_TIMEOUT (10000)
-/*
+/*!
 *Initialize the ISAPI engine under WIN32.
 */
 void initISAPI()
@@ -34,7 +34,7 @@ void initISAPI()
 	ZeroMemory(connTable,sizeof(ConnTableRecord)*max_Connections);
 	InitializeCriticalSection(&GetTableEntryCritSec);	
 }
-/*
+/*!
 *Cleanup the memory used by ISAPI
 */
 void cleanupISAPI()
@@ -43,10 +43,10 @@ void cleanupISAPI()
 	if(connTable)
 		free(connTable);
 }
-/*
+/*!
 *Main procedure to call an ISAPI module.
 */
-int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath,int execute)
+int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
 {
 	DWORD Ret;
 	EXTENSION_CONTROL_BLOCK ExtCtrlBlk;
@@ -150,11 +150,11 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		}
 		return raiseHTTPError(td,connection,e_500);
 	}
-	/*
+	/*!
 	*Store the environment string in the buffer2.
 	*/
 	connTable[connIndex].envString=td->buffer2;
-	/*
+	/*!
 	*Build the environment string.
 	*/
 	lstrcpy(td->scriptPath,scriptpath);
@@ -286,7 +286,7 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 	return TRUE;
 }
 
-/*
+/*!
 *Add a connection to the table.
 */
 ConnTableRecord *HConnRecord(HCONN hConn) 
@@ -307,31 +307,31 @@ ConnTableRecord *HConnRecord(HCONN hConn)
 	return ConnInfo;
 }
 
-/*
+/*!
 *Send an HTTP redirect.
 */
 int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL) 
 {
     return sendHTTPRedirect(td,a,URL);
 }
-/*
+/*!
 *Send an HTTP URI.
 */
 int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL)
 {
 	return sendHTTPRESOURCE(td,a,URL,FALSE,FALSE);
 }
-/*
+/*!
 *Send the ISAPI header.
 */
 int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
 {
 	return sendHTTPRESOURCE(td,a,URL,FALSE,TRUE);
 }
-/*
+/*!
 *Write directly to the output.
 */
-BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*dwReserved*/)
+BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*!dwReserved*/)
 {
 	ConnTableRecord *ConnInfo;
 	if(*lpdwBytes==0)
@@ -378,7 +378,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 			ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0);
 			ConnInfo->headerSent=1;
 
-			/*Send the first chunk*/
+			/*!Send the first chunk*/
 			if(len)
 			{
 				sprintf(chunk_size,"%x\r\n",len);
@@ -392,7 +392,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 		else
 			nbw=*lpdwBytes;
 	}
-	else/*Continue to send data chunks*/
+	else/*!Continue to send data chunks*/
 	{
 		sprintf(chunk_size,"%x\r\n",*lpdwBytes);
 		ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
@@ -411,7 +411,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 		return FALSE;
 	}
 }
-/*
+/*!
 *Read directly from the client.
 */
 BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) 
@@ -441,7 +441,7 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 }
 
 
-/*
+/*!
 *Get server environment variable.
 */
 BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID lpvBuffer, LPDWORD lpdwSize) 
@@ -480,7 +480,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 	}
 	else
 	{
-		/*
+		/*!
 		*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
 		*/
 		((char*)lpvBuffer)[0]='\0';
@@ -502,10 +502,10 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 	*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 	return ret;
 }
-/*
+/*!
 *Build the string that contains all the HTTP headers.
 */
-BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*a*/,LPVOID output,LPDWORD dwMaxLen)
+BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
 	DWORD maxLen=*dwMaxLen;
@@ -578,7 +578,7 @@ BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*a*/,LPVOID output,
 	return 1;
 }
 
-/*
+/*!
 *Build the string that contains all the headers.
 */
 BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD dwMaxLen)

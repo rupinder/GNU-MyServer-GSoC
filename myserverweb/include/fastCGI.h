@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 
 
-/*
+/*!
  * Listening socket file number
  */
 #define FCGI_LISTENSOCK_FILENO 0
@@ -47,23 +47,23 @@ typedef struct {
 
 #define FCGI_MAX_LENGTH 0xffff
 
-/*
+/*!
  * Number of bytes in a FCGI_Header.  Future versions of the protocol
  * will not reduce this number.
  */
 #define FCGI_HEADER_LEN  8
 
-/*
+/*!
  * Value for version component of FCGI_Header
  */
 #define FCGI_VERSION_1           1
 
-/*
+/*!
  * Current version of the FastCGI protocol
  */
 #define FCGI_VERSION FCGI_VERSION_1
 
-/*
+/*!
  * Values for type component of FCGI_Header
  */
 #define FCGI_BEGIN_REQUEST       1
@@ -79,7 +79,7 @@ typedef struct {
 #define FCGI_UNKNOWN_TYPE       11
 #define FCGI_MAXTYPE (FCGI_UNKNOWN_TYPE)
 
-/*
+/*!
  * Value for requestId component of FCGI_Header
  */
 #define FCGI_NULL_REQUEST_ID     0
@@ -97,12 +97,12 @@ typedef struct {
     FCGI_BeginRequestBody body;
 } FCGI_BeginRequestRecord;
 
-/*
+/*!
  * Mask for flags component of FCGI_BeginRequestBody
  */
 #define FCGI_KEEP_CONN  1
 
-/*
+/*!
  * Values for role component of FCGI_BeginRequestBody
  */
 #define FCGI_RESPONDER  1
@@ -124,7 +124,7 @@ typedef struct {
     FCGI_EndRequestBody body;
 } FCGI_EndRequestRecord;
 
-/*
+/*!
  * Values for protocolStatus component of FCGI_EndRequestBody
  */
 #define FCGI_REQUEST_COMPLETE 0
@@ -133,7 +133,7 @@ typedef struct {
 #define FCGI_UNKNOWN_ROLE     3
 
 
-/*
+/*!
  * Variable names for FCGI_GET_VALUES / FCGI_GET_VALUES_RESULT records
  */
 #define FCGI_MAX_CONNS  "FCGI_MAX_CONNS"
@@ -160,7 +160,7 @@ struct fCGIContext
 
 int initializeFASTCGI();
 int FcgiConnectSocket(fCGIContext*,int);
-int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath,int execute);
+int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
 void generateFcgiHeader( FCGI_Header&, int ,int, int );
 MYSERVER_SOCKET getFcgiConnection();
 int buildFASTCGIEnvironmentString(httpThreadContext*,char*,char*);

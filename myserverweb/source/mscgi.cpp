@@ -32,13 +32,13 @@ extern "C" {
 #endif
 }
 
-/*
+/*!
 *Sends the MyServer CGI; differently form standard CGI this don't need a new process to run
 *so it is faster.
 */
 int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 {
-	/*
+	/*!
 	*This is the code for manage a .mscgi file.
 	*This files differently from standard CGI don't need a new process to run
 	*but are allocated in the caller process virtual space.
@@ -100,7 +100,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 			return raiseHTTPError(td,s,errID);
 	}
 	data.stdOut.setFilePointer(0);
-	/*
+	/*!
 	*Compute the response length.
 	*/
 
@@ -117,21 +117,21 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	MYSERVER_FILE::deleteFile(outFile);
 	return 1;
 #else
-	/*
+	/*!
 	*On the platforms that is not available the support for the MSCGI send a 
 	*non implemented error.
 	*/
 	return raiseHTTPError(td,s,e_501);
 #endif
 }
-/*
+/*!
 *Store the MSCGI library module handle.
 */
 #ifdef WIN32
 static HMODULE mscgiModule=0;
 #endif
 
-/*
+/*!
 *Map the library in the address space of the application.
 */
 int loadMSCGILib()
@@ -143,13 +143,13 @@ int loadMSCGILib()
 	return 0;
 #endif
 }
-/*
+/*!
 *Free the memory allocated by the MSCGI library.
 */
 int freeMSCGILib()
 {
 #ifdef WIN32
-	/*
+	/*!
 	*Return 1 if FreeLibrary returns successfully.
 	*/
 	return((mscgiModule)?(FreeLibrary(mscgiModule)?1:0):0);

@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/Response_RequestStructs.h"
 extern const char *versionOfSoftware;
 extern class CBase64Utils base64Utils;
-/*
+/*!
 *Structure used by the HTTP protocol to describe a thread.
 */
 struct httpThreadContext
@@ -54,7 +54,7 @@ struct httpThreadContext
 	MYSERVER_FILE outputData;
 	LPCONNECTION connection;
 };
-/*
+/*!
 *The main function is controlHTTPConnection(...), that parses the request builds a response.
 */
 int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);

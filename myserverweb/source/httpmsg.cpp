@@ -19,65 +19,65 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/HTTPmsg.h"
-/*
+/*!
 *This array is used to describe the errors for the HTTP protocol.
 */
 char HTTP_ERROR_MSGS[24][64]=
 {
-	"Bad request",						/*400*/
-	"Unauthorized",						/*401*/
-	"Execute access forbidden",			/*403*/
-	"File not found",					/*404*/
-	"Method not allowed",				/*405*/
-	"Not acceptable",					/*406*/
-	"Proxy authentication required",	/*407*/
-	"Precondition failed",				/*412*/
-	"Request Entity Too Large",			/*413*/
-	"Request URI too long",				/*414*/
-	"Internal Server error",			/*500*/
-	"Not implemented",					/*501*/
-	"Bad gateway",						/*502*/
-	"OK",								/*200*/
-	"Created",							/*201*/			
-	"Accepted",							/*202*/			
-	"Non-Authoritative Information",	/*203*/			
-	"No Content",						/*204*/			
-	"Multiple Choices",					/*300*/	
-	"Moved Permanently",				/*301*/		
-	"Moved Temporarily",				/*302*/		
-	"See Other",						/*303*/			
-	"Not Modified"						/*304*/
+	"Bad request",						/*!400*/
+	"Unauthorized",						/*!401*/
+	"Execute access forbidden",			/*!403*/
+	"File not found",					/*!404*/
+	"Method not allowed",				/*!405*/
+	"Not acceptable",					/*!406*/
+	"Proxy authentication required",	/*!407*/
+	"Precondition failed",				/*!412*/
+	"Request Entity Too Large",			/*!413*/
+	"Request URI too long",				/*!414*/
+	"Internal Server error",			/*!500*/
+	"Not implemented",					/*!501*/
+	"Bad gateway",						/*!502*/
+	"OK",								/*!200*/
+	"Created",							/*!201*/			
+	"Accepted",							/*!202*/			
+	"Non-Authoritative Information",	/*!203*/			
+	"No Content",						/*!204*/			
+	"Multiple Choices",					/*!300*/	
+	"Moved Permanently",				/*!301*/		
+	"Moved Temporarily",				/*!302*/		
+	"See Other",						/*!303*/			
+	"Not Modified"						/*!304*/
 };
-/*
+/*!
 *This array is used to describe the HTTP files for personalized errors page.
 */
 char HTTP_ERROR_HTMLS[24][64]=
 {
-	"400.html",						/*400*/
-	"401.html",						/*401*/
-	"403.html",						/*403*/
-	"404.html",						/*404*/
-	"405.html",						/*405*/
-	"406.html",						/*406*/
-	"407.html",						/*407*/
-	"412.html",						/*412*/
-	"413.html",						/*413*/
-	"414.html",						/*414*/
-	"500.html",						/*500*/
-	"501.html",						/*501*/
-	"502.html"						/*502*/
-	"200.html",						/*200*/
-	"201.html",						/*201*/			
-	"202.html",						/*202*/			
-	"203.html",						/*203*/			
-	"204.html",						/*204*/			
-	"300.html",						/*300*/	
-	"301.html",						/*301*/		
-	"302.html",						/*302*/		
-	"303.html",						/*303*/			
-	"304.html"						/*304*/
+	"400.html",						/*!400*/
+	"401.html",						/*!401*/
+	"403.html",						/*!403*/
+	"404.html",						/*!404*/
+	"405.html",						/*!405*/
+	"406.html",						/*!406*/
+	"407.html",						/*!407*/
+	"412.html",						/*!412*/
+	"413.html",						/*!413*/
+	"414.html",						/*!414*/
+	"500.html",						/*!500*/
+	"501.html",						/*!501*/
+	"502.html"						/*!502*/
+	"200.html",						/*!200*/
+	"201.html",						/*!201*/			
+	"202.html",						/*!202*/			
+	"203.html",						/*!203*/			
+	"204.html",						/*!204*/			
+	"300.html",						/*!300*/	
+	"301.html",						/*!301*/		
+	"302.html",						/*!302*/		
+	"303.html",						/*!303*/			
+	"304.html"						/*!304*/
 };
-/*
+/*!
 *Return an error ID starting from an HTTP status code.
 */
 int getErrorIDfromHTTPStatusCode(int statusCode)
@@ -156,7 +156,7 @@ int getErrorIDfromHTTPStatusCode(int statusCode)
 	}
 	return -1;
 }
-/*
+/*!
 *Return an HTTP status code starting from an error ID.
 */
 int getHTTPStatusCodeFromErrorID(int statusCode)

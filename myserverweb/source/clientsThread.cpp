@@ -39,7 +39,7 @@ extern "C" {
 
 // Define SD_BOTH in case it is not defined
 #ifndef SD_BOTH
-#define SD_BOTH 2 /* to close tcp connection in both directions */
+#define SD_BOTH 2 /*! to close tcp connection in both directions */
 #endif
 
 ClientsTHREAD::ClientsTHREAD()
@@ -50,7 +50,7 @@ ClientsTHREAD::~ClientsTHREAD()
 {
 	clean();
 }
-/*
+/*!
 *This function starts a new thread controlled by a ClientsTHREAD class instance.
 */
 #ifdef WIN32
@@ -74,7 +74,7 @@ void * startClientsTHREAD(void* pParam)
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
 
-	/*
+	/*!
 	*This function when is alive only call the controlConnections(...) function
 	*of the ClientsTHREAD class instance used for control the thread.
 	*/
@@ -92,7 +92,7 @@ void * startClientsTHREAD(void* pParam)
 #endif
 	return 0;
 }
-/*
+/*!
 *This is the main loop of the thread.
 *Here are controlled all the connections that belongs to the ClientsTHREAD class instance.
 *Every connection is controlled by its protocol.
@@ -107,7 +107,7 @@ void ClientsTHREAD::controlConnections()
 	if(c->check_value!=CONNECTION::check_value_const)
 		return;
 	c->parsing=1;
-	nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
+	nBytesToRead=c->socket.bytesToRead();/*!Number of bytes waiting to be read*/
 	if(nBytesToRead)
 	{
 		err=c->socket.recv(&buffer[c->dataRead],KB(8)-c->dataRead, 0);
@@ -126,20 +126,20 @@ void ClientsTHREAD::controlConnections()
 			return;
 		}
 		memcpy(buffer,c->connectionBuffer,c->dataRead);
-		/*
+		/*!
 		*Control the protocol used by the connection.
 		*/
 		int retcode=0;
 		switch(((vhost*)(c->host))->protocol)
 		{
-			/*
+			/*!
 			*controlHTTPConnection returns 0 if the connection must be removed from
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
 				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
-			/*
+			/*!
 			*Use the same parser for the HTTPS protocol too.
 			*/
 			case PROTOCOL_HTTPS:
@@ -149,7 +149,7 @@ void ClientsTHREAD::controlConnections()
 				retcode=0;
 				break;
 		}
-		/*
+		/*!
 		*The protocols parser functions return:
 		*0 to delete the connection from the active connections list
 		*1 to keep the connection active and clear the connectionBuffer
@@ -166,11 +166,11 @@ void ClientsTHREAD::controlConnections()
 		}
 		else if(retcode==2)
 		{
-			/*
+			/*!
 			*If the header is incomplete save the current received
 			*data in the connection buffer
 			*/
-			memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*Save the header in the connection buffer*/
+			memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*!Save the header in the connection buffer*/
 			c->dataRead+=err;
 				
 		}
@@ -180,7 +180,7 @@ void ClientsTHREAD::controlConnections()
 	{
 		if(clock()-c->timeout>5000)
 			c->nTries=0;
-		/*
+		/*!
 		*If the connection is inactive for a time greater that the value
 		*configured remove the connection from the connections pool
 		*/
@@ -192,12 +192,12 @@ void ClientsTHREAD::controlConnections()
 	}
 	c->parsing=0;
 }
-/*
+/*!
 *Stop the thread
 */
 void ClientsTHREAD::stop()
 {
-	/*
+	/*!
 	*Set the run flag to False
 	*When the current thread find the threadIsRunning
 	*flag setted to 0 automatically destroy the
@@ -206,12 +206,12 @@ void ClientsTHREAD::stop()
 	threadIsRunning=0;
 }
 
-/*
+/*!
 *Clean the memory used by the thread.
 */
 void ClientsTHREAD::clean()
 {
-	if(initialized==0)/*If the thread was not initialized return from the clean function*/
+	if(initialized==0)/*!If the thread was not initialized return from the clean function*/
 		return;
 	threadIsRunning=0;
 	if(buffer)
@@ -223,7 +223,7 @@ void ClientsTHREAD::clean()
 }
 
 
-/*
+/*!
 *Returns a non-null value if the thread is active.
 */
 int ClientsTHREAD::isRunning()
@@ -231,7 +231,7 @@ int ClientsTHREAD::isRunning()
 	return threadIsRunning;
 }
 
-/*
+/*!
 *Returns 1 if the thread is stopped.
 */
 int ClientsTHREAD::isStopped()

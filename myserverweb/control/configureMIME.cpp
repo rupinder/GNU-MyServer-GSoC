@@ -65,7 +65,7 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	btnADDEXT= new wxButton(panel,Configuration_AddExt,"Add a new extension",wxPoint(270,135),wxSize(130,25));
 	btnADDMIME= new wxButton(panel,Configuration_AddExt,"Add a new MIME type",wxPoint(270,160),wxSize(130,25));
 
-	/*
+	/*!
 	*Add the commands in the correct order.
 	*/
 	actiontodoLB->Insert("SEND THE FILE AS IT IS",CGI_CMD_SEND);
@@ -85,10 +85,10 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 		u_long nelements=mm.getNumMIMELoaded();
 		for(int i=0;i<nelements;i++)
 		{
-			char ext[10];/*File extension*/
-			char dest[60];/*MIME type*/
-			char dest2[MAX_PATH];/*CGI manager if any*/
-			int cmd=mm.getMIME(i,ext,dest,dest2);/*Action to do with this file type*/
+			char ext[10];/*!File extension*/
+			char dest[60];/*!MIME type*/
+			char dest2[MAX_PATH];/*!CGI manager if any*/
+			int cmd=mm.getMIME(i,ext,dest,dest2);/*!Action to do with this file type*/
 			if(mimeTypesLB->FindString(_T(dest))==wxNOT_FOUND)
 				mimeTypesLB->Insert(_T(dest),0);
 			extensionsLB->Insert(_T(ext),0);
@@ -111,7 +111,7 @@ void configurationFrameMIME::OnQuit(wxCommandEvent& WXUNUSED(event))
 }
 void configurationFrameMIME::ok(wxCommandEvent& WXUNUSED(event))
 {
-	/*
+	/*!
 	*Save the configuration....
 	*/
 	mm.saveXML(mm.getFilename());
@@ -137,7 +137,7 @@ void configurationFrameMIME::EXTtypeListEvt(wxCommandEvent& event)
 }
 void configurationFrameMIME::save(wxCommandEvent& event)
 {
-	/*
+	/*!
 	*Save the record.
 	*/
 	wxString str=extensionsLB->GetString(extensionsLB->GetSelection());

@@ -37,19 +37,19 @@ extern "C" {
 #include <direct.h>
 #endif
 
-/*
+/*!
 *Various utility functions.
 */
 extern int mustEndServer; 
 static char currentPath[MAX_PATH];
 
-/*
+/*!
 *Returns the version of the operating system.
 */
 int getOSVersion()
 {
 	int ret=0;
-	/*
+	/*!
 	*This is the code for the win32 platform.
 	*/
 #ifdef WIN32
@@ -84,7 +84,7 @@ int getOSVersion()
 	return ret;
 }	
 
-/*
+/*!
 *Returns the number of processors available on the local machine.
 */
 u_long getCPUCount()
@@ -100,7 +100,7 @@ u_long getCPUCount()
 #endif
 	return ret;
 }
-/*
+/*!
 *Execute an hidden process and wait until it ends itself or its execution
 *time is greater than the timeout value.
 *Returns the process exit code.
@@ -108,7 +108,7 @@ u_long getCPUCount()
 u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 {
 #ifdef WIN32
-    /*
+    /*!
     *Set the standard output values for the CGI process.
     */
     STARTUPINFO si;
@@ -125,7 +125,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
     CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
-	/*
+	/*!
 	*Wait until it's ending by itself.
 	*/
 	WaitForSingleObject(pi.hProcess,timeout);
@@ -192,13 +192,13 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 #endif	
 
 }
-/*
+/*!
 *Start a process runned simultaneously with the MyServer process.
 */
 u_long execConcurrentProcess(START_PROC_INFO* spi)
 {
 #ifdef WIN32
-    /*
+    /*!
     *Set the standard output values for the CGI process.
     */
     STARTUPINFO si;
@@ -271,7 +271,7 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 #endif	
 
 }
-/*
+/*!
 *Terminate a process.
 */
 int terminateProcess(u_long id)
@@ -280,7 +280,7 @@ int terminateProcess(u_long id)
 	return TerminateProcess(*((HANDLE*)&id),0);
 #endif
 #ifdef __linux__
-	/*
+	/*!
 	*id is the process id
 	*/
 	return kill((pid_t)id, SIGTERM);
@@ -288,17 +288,17 @@ int terminateProcess(u_long id)
 }
 
 
-/*
+/*!
 *This function is similar to the Windows API WaitForSingleObject(..)
 */
 int requestAccess(u_long* ac,u_long id)
 {
-	/*
+	/*!
 	*If the access ID is equal to the thread ID we don't do nothing.
 	*/
 	if(*ac==id)
 		return 0;
-	/*
+	/*!
 	*if the access doesn't belong to any thread then set that it belongs to the caller thread
 	*and check if we have the access now.
 	*/
@@ -311,7 +311,7 @@ int requestAccess(u_long* ac,u_long id)
 			return 0;
 		}
 	}
-	/*
+	/*!
 	*Wait until another thread ends the access, then set our access.
 	*/
 	while(*ac);
@@ -321,18 +321,18 @@ int requestAccess(u_long* ac,u_long id)
 	requestAccess(ac,id);
 	return 0;
 }
-/*
+/*!
 *Reset the owner of the access.
 */
-int terminateAccess(u_long* ac,u_long/* id*/)
+int terminateAccess(u_long* ac,u_long/*! id*/)
 {
-	/*
+	/*!
 	*Only set to Zero the owner of the access.
 	*/
 	*ac=0;
 	return 0;
 }
-/*
+/*!
 *Save the current working directory.
 */
 int setcwdBuffer()
@@ -355,7 +355,7 @@ int setcwdBuffer()
 #endif
 	return retval;
 }
-/*
+/*!
 *Get the default working directory(Where is the program myserver.exe).
 */
 char *getdefaultwd(char *path,int len)
@@ -371,7 +371,7 @@ char *getdefaultwd(char *path,int len)
 }
 
 
-/*
+/*!
 *Set the current working directory. Returns Zero if successful.
 */
 int setcwd(char *dir)
@@ -383,7 +383,7 @@ int setcwd(char *dir)
 	return chdir(dir);
 #endif
 }
-/*
+/*!
 *Sleep the caller thread.
 */
 void wait(u_long time)
@@ -396,7 +396,7 @@ void wait(u_long time)
 #endif
 
 }
-/*
+/*!
 *Set the text color to red on black.
 */
 void preparePrintError()
@@ -405,7 +405,7 @@ void preparePrintError()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
 #endif
 }
-/*
+/*!
 **Set the text color to white on black.
 */
 void endPrintError()

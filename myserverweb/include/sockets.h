@@ -67,7 +67,7 @@ private:
 	SSL_CTX *sslContext;
 	X509 * clientCert;
 #endif
-	MYSERVER_SOCKET *serverSocket;/*Pointer to the socket used to do the listen*/
+	MYSERVER_SOCKET *serverSocket;/*!Pointer to the socket used to do the listen*/
 public:
 	void setServerSocket(MYSERVER_SOCKET*);
 	MYSERVER_SOCKET* getServerSocket();

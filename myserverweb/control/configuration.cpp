@@ -86,7 +86,7 @@ void configurationFrame::initNotebook()
 	char *verbosityValues[]={"0","1","2","3","4","5","6","7","8","9"};
 	pPage[0]= new wxPanel(m_notebook, -1);
 	pPage[1]= new wxPanel(m_notebook, -1);
-	/*-------------------------FIRST PAGE-------------------------------------------*/
+	/*!-------------------------FIRST PAGE-------------------------------------------*/
 	bufferSize = new wxTextCtrl(pPage[0],-1,confparser.getValue("BUFFER_SIZE"),wxPoint(10,10),wxSize(75,20));
     wxStaticText *bufferSizeStat= new wxStaticText(pPage[0], -1, "Set the size of the memory buffer(in bytes)",wxPoint(85,12), wxSize(250,20));
 
@@ -122,7 +122,7 @@ void configurationFrame::initNotebook()
 	intptr_t ff;
 
 #ifdef WIN32
-      ff=_findfirst("languages/*.xml" ,&fd);
+      ff=_findfirst("languages/*!.xml" ,&fd);
 #else
         ff=_findfirst("languages" ,&fd);
  #endif
@@ -143,12 +143,12 @@ void configurationFrame::initNotebook()
         languageFile->SetSelection(n);
     wxStaticText *languageFileStat= new wxStaticText(pPage[0], -1, "Set the language used by MyServer",wxPoint(85,222), wxSize(250,20));
 
-	/*-------------------------SECOND PAGE-------------------------------------------*/
+	/*!-------------------------SECOND PAGE-------------------------------------------*/
 	adminEmail = new wxTextCtrl(pPage[1],-1,confparser.getValue("SERVER_ADMIN"),wxPoint(10,10),wxSize(150,20));
     wxStaticText *adminEmailStat= new wxStaticText(pPage[1], -1, "Set the administrator e-mail",wxPoint(160,12), wxSize(250,20));
 
 
-	/*-------------------------ADD THE PAGES-------------------------------------------*/
+	/*!-------------------------ADD THE PAGES-------------------------------------------*/
 	m_notebook->AddPage(pPage[0],_T("Server configuration"));
 	m_notebook->AddPage(pPage[1],_T("Administrator"));
 }

@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef WIN32
 #include <windows.h>
 #endif
-#define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
+#define SOCKETLIBINCLUDED/*!Prevent include socket headers file*/
 #include "../include/MIME_manager.h"
 #include "../include/cXMLParser.h"
 #include "../include/vhosts.h"

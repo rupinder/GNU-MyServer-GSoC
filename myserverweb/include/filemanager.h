@@ -41,11 +41,11 @@ private:
 public:
 	MYSERVER_FILE();
 	MYSERVER_FILE_HANDLE getHandle();
+	int setHandle(MYSERVER_FILE_HANDLE);
 	int readFromFile(char * ,u_long ,u_long * );
 	int writeToFile(char * ,u_long ,u_long * );
 	int createTemporaryFile(char * );
 	int openFile(char * ,u_long );
-	int setHandle(MYSERVER_FILE_HANDLE);
 	u_long getFileSize();
 	int setFilePointer(u_long);
 	static int getPathRecursionLevel(char*);

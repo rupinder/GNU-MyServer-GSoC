@@ -38,12 +38,12 @@ extern "C" {
 #define strnicmp strncmp
 #endif
 
-/*
+/*!
 *Run the standard CGI and send the result to the client.
 */
-int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *cgipath,int cmd)
+int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/,char *cgipath,int cmd)
 {
-	/*
+	/*!
 	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
 	*/
 	int nph;
@@ -54,7 +54,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 
-	/*
+	/*!
 	*If the cmd is equal to CGI_CMD_EXECUTE then we must execute the
 	*scriptpath file as an executable.
 	*Then to determine if is a nph CGI we must use the scriptpath
@@ -64,7 +64,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	{
 		MYSERVER_FILE::getFilename(scriptpath,filename);
 #ifdef WIN32
-		/*
+		/*!
 		*Under the windows platform to run a file like an executable
 		*use the sintact "cmd /c filename".
 		*/
@@ -83,7 +83,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	}
 	else
 	{
-		/*
+		/*!
 		*If the command was not recognized send an 501 page error.
 		*/
 		return raiseHTTPError(td,s,e_501);
@@ -91,7 +91,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 
 
 
-    /*
+    /*!
     *Use a temporary file to store CGI output.
     *Every thread has it own tmp file name(td->outputDataPath),
     *so use this name for the file that is going to be
@@ -102,7 +102,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	sprintf(td->outputDataPath,"%s/stdOutFile_%u",currentpath,td->id);
 
 		
-	/*
+	/*!
 	*Standard CGI uses STDOUT to output the result and the STDIN 
 	*to get other params like in a POST request.
 	*/
@@ -112,7 +112,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	td->inputData.closeFile();	
 	stdInFile.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
 
-	/*
+	/*!
 	*Build the environment string used by the CGI started
 	*by the execHiddenProcess(...) function.
 	*Use the td->buffer2 to build the environment string.
@@ -121,7 +121,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	buildCGIEnvironmentString(td,td->buffer2);
 
 
-	/*
+	/*!
 	*With this code we execute the CGI process.
 	*Fill the START_PROC_INFO struct with the correct values and use it
 	*to run the process
@@ -139,7 +139,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	spi.envString=td->buffer2;
 	execHiddenProcess(&spi);
 	td->buffer2[0]='\0';
-	/*
+	/*!
 	*Read the CGI output.
 	*/
 	u_long nBytesRead=0;
@@ -157,7 +157,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
 	}
-	/*
+	/*!
 	*Standard CGI can include an extra HTTP header.
 	*/
 	u_long headerSize=0;
@@ -166,7 +166,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	{
 		if((td->buffer2[i]=='\r')&&(td->buffer2[i+1]=='\n')&&(td->buffer2[i+2]=='\r')&&(td->buffer2[i+3]=='\n'))
 		{
-			/*
+			/*!
 			*The HTTP header ends with a \r\n\r\n sequence so 
 			*determinate where it ends and set the header size
 			*to i + 4.
@@ -174,7 +174,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 			headerSize=i+4;
 			break;
 		}
-		/*
+		/*!
 		*If it is present Location: xxx in the header send a redirect to xxx
 		*/
 		else if(!strncmp(&td->buffer2[i],"Location",8))
@@ -201,19 +201,19 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	}
 	if(!yetoutputted)
 	{
-		/*
+		/*!
 		*Don't send any other HTTP header if the CGI executable has the nph-.... form name.
 		*/
 		if(nph)
 		{
-			/*
+			/*!
 			*Resetting the structure we send only the information gived by the CGI.
 			*/
 			resetHTTPResponse(&(td->response));
 		}
 		if(headerSize)
 			buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
-		/*
+		/*!
 		*Always specify the size of the HTTP contents.
 		*/
 		sprintf(td->response.CONTENT_LENGTH,"%u",stdOutFile.getFileSize()-headerSize);
@@ -230,25 +230,25 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		
 	}
 	
-	/*
+	/*!
 	*Close and delete the stdin and stdout files used by the CGI.
 	*/
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
 	MYSERVER_FILE::deleteFile(td->inputDataPath);
 
-	/*
+	/*!
 	*By default don't close the connection.
 	*/
 	return 1;
 }
-/*
+/*!
 *Write the string that contain the CGI environment to cgiEnvString.
 *This function is used by other server side protocols too.
 */
 void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int processEnv)
 {
-	/*
+	/*!
 	*The Environment string is a null-terminated block of null-terminated strings.
 	*For no problems with the function strcat we use the character \r for the \0 character
 	*and at the end we change every \r in \0.
@@ -262,7 +262,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 #ifdef __linux__
 	strcat(cgiEnvString," (Linux)");
 #endif
-	/*
+	/*!
 	*Must use REDIRECT_STATUS for php and others
 	*/
 	strcat(cgiEnvString,"\rREDIRECT_STATUS=TRUE");
@@ -410,7 +410,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	strcat(cgiEnvString,"\rSCRIPT_FILENAME=");
 	strcat(cgiEnvString,td->filenamePath);
 	
-	/*
+	/*!
 	*For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.
 	*/
 	strcat(cgiEnvString,"\rSCRIPT_NAME=/");

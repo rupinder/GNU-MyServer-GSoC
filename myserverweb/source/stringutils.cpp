@@ -38,7 +38,7 @@ extern "C" {
 static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 
-/*
+/*!
 *This function format current time to the RFC 822 format.
 */
 char *getRFC822GMTTime(char* out,int len)
@@ -47,17 +47,17 @@ char *getRFC822GMTTime(char* out,int len)
 	time( &ltime );
 	return getRFC822GMTTime(ltime,out,len);
 }
-/*
+/*!
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822GMTTime(const time_t ltime,char* out,int /*len*/)
+char *getRFC822GMTTime(const time_t ltime,char* out,int /*!len*/)
 {
 	tm*  GMtime = gmtime( &ltime );
 	GMtime->tm_year+=1900;
 	sprintf(out,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
 	return out;
 }
-/*
+/*!
 *This function convert from a RFC 822 format to a time_t.
 */
 time_t getTime(char* str)
@@ -201,7 +201,7 @@ time_t getTime(char* str)
 	return ret;
 }
 
-/*
+/*!
 *This function format current time to the RFC 822 format.
 */
 char *getRFC822LocalTime(char* out,int len)
@@ -210,10 +210,10 @@ char *getRFC822LocalTime(char* out,int len)
 	time( &ltime );
 	return getRFC822LocalTime(ltime,out,len);
 }
-/*
+/*!
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822LocalTime(const time_t ltime,char* out,int /*len*/)
+char *getRFC822LocalTime(const time_t ltime,char* out,int /*!len*/)
 {
 	tm*  GMtime = localtime( &ltime );
 	GMtime->tm_year+=1900;
@@ -221,7 +221,7 @@ char *getRFC822LocalTime(const time_t ltime,char* out,int /*len*/)
 	return out;
 }
 
-/*
+/*!
 *Trim the string str by the characters trimchars.
 */
 void StrTrim(char* str,const char* trimchars)
@@ -229,7 +229,7 @@ void StrTrim(char* str,const char* trimchars)
 	u_short lenTrimchars=(u_short)strlen(trimchars);
 	u_short lenStr=(u_short)strlen(str);
 
-	/*
+	/*!
 	*Number of characters to remove from the initial position of the string.
 	*/
 	u_short ncharToRemove=0;
@@ -286,7 +286,7 @@ void StrTrim(char* str,const char* trimchars)
 	}
 }
 
-/*
+/*!
 *Set the buffer passed to the next line.
 *A new line is the first character after \n.
 */
@@ -298,7 +298,7 @@ void gotoNextLine(char* cmd)
 
 
 
-/*
+/*!
 *Translates HTTP escape sequences.
 */
 void translateEscapeString(char *str)
@@ -323,7 +323,7 @@ void translateEscapeString(char *str)
 	str[j] = 0;
 }
 
-/*
+/*!
 *This function converts a hexadecimal number to a decimal number.
 */
 int hexVal(char ch)
@@ -343,7 +343,7 @@ int hexVal(char ch)
 		}
 	}
 }
-/*
+/*!
 *Convert from an hex string to an int
 */
 int hexToInt(const char *str)
@@ -376,7 +376,7 @@ int hexToInt(const char *str)
 char* strupr(char * string)
 {
     unsigned int len = strlen(string);
-    for(unsigned int i = 0; i < len; i++)
+    for(register unsigned int i = 0; i < len; i++)
        string[i] = toupper(string[i]);
     return string;
 }

@@ -52,7 +52,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	
 	strcpy(outFilePath,td->outputDataPath);
 	td->inputData.setFilePointer(0);
-	/*
+	/*!
 	*The WinCGI protocol uses a .ini file for the communication between the processes.
 	*/
 	int ret=DataFileHandle.openFile(dataFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
@@ -149,7 +149,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 
 	sprintf(td->buffer2,"Content File=%s\r\n",td->inputData.getFilename());
 	DataFileHandle.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
-	/*
+	/*!
 	*Compute the local offset from the GMT time
 	*/
 	time_t ltime=100;
@@ -164,7 +164,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 
 	DataFileHandle.closeFile();
 
-	/*
+	/*!
 	*Create the out file.
 	*/
 	if(!MYSERVER_FILE::fileExists(outFilePath))
@@ -223,7 +223,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		if((td->buffer2[i]=='\r')&&(td->buffer2[i+1]=='\n')&&(td->buffer2[i+2]=='\r')&&(td->buffer2[i+3]=='\n'))
 		{
-			/*
+			/*!
 			*The HTTP header ends with a \r\n\r\n sequence so 
 			*determinate where it ends and set the header size
 			*to i + 4.
@@ -233,7 +233,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		}
 	}
 	buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
-	/*
+	/*!
 	*Always specify the size of the HTTP contents.
 	*/
 	sprintf(td->response.CONTENT_LENGTH,"%u",OutFileHandle.getFileSize()-headerSize);
@@ -256,7 +256,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 #ifdef __linux__
 	sprintf(td->buffer,"Error WinCGI is not implemented\r\n");
 	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-	return raiseHTTPError(td,s,e_501);/*WinCGI is not available under linux*/
+	return raiseHTTPError(td,s,e_501);/*!WinCGI is not available under linux*/
 #endif
 }
 

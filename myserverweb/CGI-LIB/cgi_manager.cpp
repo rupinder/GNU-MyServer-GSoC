@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma comment(lib,"wsock32.lib")
 
 #include "../source/filemanager.cpp"
-/*
+/*!
 *Write to the stdout.
 */
 int cgi_manager::Write(char* str)
@@ -36,7 +36,7 @@ int cgi_manager::Write(char* str)
 	}
 	return 0;
 }
-/*
+/*!
 *Start the execution of the CGI.
 */
 int cgi_manager::Start(cgi_data* data)
@@ -46,7 +46,7 @@ int cgi_manager::Start(cgi_data* data)
 	td->buffer2[0]='\0';
 	return 1;
 }
-/*
+/*!
 *Clean the memory allocated by the CGI.
 */
 int cgi_manager::Clean()
@@ -71,7 +71,7 @@ cgi_manager::~cgi_manager(void)
 {
 	Clean();
 }
-/*
+/*!
 *Returns the value of a param passed through the URL.
 */
 char* cgi_manager::GetParam(char* param)
@@ -95,7 +95,7 @@ char* cgi_manager::GetParam(char* param)
 		}
 	}
 	u_long len=0;
-	while((c[len]) && (c[len]!='&') && (len < /*LOCAL_BUFFER_DIM-1*/2 ))
+	while((c[len]) && (c[len]!='&') && (len < /*!LOCAL_BUFFER_DIM-1*/2 ))
 	{
 		localbuffer[len]=c[len];
 		localbuffer[len+1]='\0';
@@ -103,7 +103,7 @@ char* cgi_manager::GetParam(char* param)
 	}
 	return localbuffer;
 }
-/*
+/*!
 *Returns the value of a param passed through a POST request.
 */
 char* cgi_manager::PostParam(char* param)
@@ -139,19 +139,19 @@ char* cgi_manager::PostParam(char* param)
 	return localbuffer;
 
 }
-/*
+/*!
 *Write to stdout.
 */
 int cgi_manager::operator <<(char* str)
 {
 	return Write(str);
 }
-/*
+/*!
 *Read from the stdin.
 */
 char *cgi_manager::operator >>(char* str)
 {
-	/*
+	/*!
 	*If it is a POST request return a param from the POST values
 	*else return a GET param.
 	*/
@@ -160,7 +160,7 @@ char *cgi_manager::operator >>(char* str)
 	else
 		return GetParam(str);
 } 
-/*
+/*!
 *Get the value of an environment variable.
 */
 void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)

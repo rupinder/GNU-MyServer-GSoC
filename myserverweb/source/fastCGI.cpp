@@ -16,18 +16,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
  
-/*
+/*!
 *To get more info about the FastCGI protocol please visit the official FastCGI site
 *at: http://www.fastcgi.com, here you can find samples and all the languages supported
 */
 #include "../include/fastCGI.h"
 #define MAX_FCGI_SERVERS	25
-/*
+/*!
 *This structure is used to keep trace of a running fCGI server.
 */
 static struct sfCGIservers
 {
-	char path[MAX_PATH*2];/*server executable path*/
+	char path[MAX_PATH*2];/*!server executable path*/
 	union 
 	{
 	    unsigned long fileHandle;
@@ -36,10 +36,10 @@ static struct sfCGIservers
 	}DESCRIPTOR;
 	MYSERVER_SOCKET socket;
 	char host[128];
-	int pid; /*process ID*/ 
-	u_short port;/*IP port*/
+	int pid; /*!process ID*/ 
+	u_short port;/*!IP port*/
 }fCGIservers[MAX_FCGI_SERVERS];
-static int fCGIserversN;/*Number of thread currently loaded*/
+static int fCGIserversN;/*!Number of thread currently loaded*/
 struct fourchar
 {	
 	union
@@ -48,10 +48,10 @@ struct fourchar
 		unsigned char c[4];
 	};
 };
-/*
+/*!
 *Entry-Point to manage a FastCGI request.
 */
-int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath,int execute)
+int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
 {
 	fCGIContext con;
 	con.td=td;
@@ -144,7 +144,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		return raiseHTTPError(td,connection,e_501);
 	}	
 
-	/*Now read the output*/
+	/*!Now read the output*/
 	int exit=0;
 	const clock_t timeout= CLOCKS_PER_SEC * 20; // 20 seconds
 	clock_t time1 = clock();
@@ -170,7 +170,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			con.sock.closesocket();
 			break;
 		}
-		/*contentLengthB1 is the high word of the content length value
+		/*!contentLengthB1 is the high word of the content length value
 		*while contentLengthB0 is the low one.
 		*To retrieve the value of content length push left contentLengthB1
 		*of eight byte then do a or with contentLengthB0.
@@ -281,7 +281,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	con.sock.closesocket();
 	return 1;
 }
-/*
+/*!
 *Send the buffer content over the FastCGI connection
 */
 int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
@@ -295,7 +295,7 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 		return -1;
 	return 0;
 }
-/*
+/*!
 *Trasform from a standard environment string to the FastCGI environment string.
 */
 int buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
@@ -358,7 +358,7 @@ int buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 	}
 	return (int)(ptr-ep);
 }
-/*
+/*!
 *Fill the FCGI_Header structure
 */
 void generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId, int iContentLength )
@@ -372,7 +372,7 @@ void generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId, int iCo
 	tHeader.paddingLength = 0;
 	tHeader.reserved = 0;
 };
-/*
+/*!
 *Initialize the FastCGI protocol implementation
 */
 int initializeFASTCGI()
@@ -381,21 +381,21 @@ int initializeFASTCGI()
 	memset(&fCGIservers,0,sizeof(fCGIservers));
 	return 1;
 }
-/*
+/*!
 *Clean the memory and the processes occuped by the FastCGI servers
 */
 int cleanFASTCGI()
 {
 	for(int i=0;i<fCGIserversN;i++)
 	{
-		if(fCGIservers[i].path[0]=='@')/*If the server is a remote one do nothing*/
+		if(fCGIservers[i].path[0]=='@')/*!If the server is a remote one do nothing*/
 			continue;
 		fCGIservers[i].socket.closesocket();
 		terminateProcess(fCGIservers[i].pid);
 	}
 	return 1;
 }
-/*
+/*!
 *Return the position in the array of the server indicated by path.
 *A negative value is returned when the server is not running.
 */
@@ -408,7 +408,7 @@ int isFcgiServerRunning(char* path)
 	}
 	return -1;
 }
-/*
+/*!
 *Get a client socket in the fCGI context structure
 */
 int FcgiConnectSocket(fCGIContext* con,int pID)
@@ -423,11 +423,11 @@ int FcgiConnectSocket(fCGIContext* con,int pID)
 	memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
 	sockAddr.sin_port = htons(fCGIservers[pID].port);
 	
-	if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)/*Try to create the socket*/
+	if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)/*!Try to create the socket*/
 	{
 		return -1;
 	}
-	if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)/*If the socket was created try to connect*/
+	if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)/*!If the socket was created try to connect*/
 	{
 		con->sock.closesocket();
 		return -1;
@@ -436,19 +436,19 @@ int FcgiConnectSocket(fCGIContext* con,int pID)
 	con->fcgiPID=pID;
 	return 1;
 }
-/*
+/*!
 *Get a connection to the FastCGI server.
 */
 int FcgiConnect(fCGIContext* con,char* path)
 {
 	int pID;
 	pID=runFcgiServer(con,path);
-	/*
+	/*!
 	*If we find a valid server try the connection to it.
 	*/
 	if(pID>=0)
 	{
-		/*
+		/*!
 		*Connect to the FastCGI server.
 		*/
 		int ret=FcgiConnectSocket(con,pID);
@@ -459,18 +459,18 @@ int FcgiConnect(fCGIContext* con,char* path)
 }
 int runFcgiServer(fCGIContext*,char* path)
 {
-	int localServer;/*Flag to identify a local server(running on localhost) from a remore one*/
-	localServer=path[0]!='@';/*Path that init with @ are not local path*/
-	int pID=isFcgiServerRunning(path);/*Get the server position in the array*/
-	if(pID>=0)/*If the process was yet initialized return its position*/
+	int localServer;/*!Flag to identify a local server(running on localhost) from a remore one*/
+	localServer=path[0]!='@';/*!Path that init with @ are not local path*/
+	int pID=isFcgiServerRunning(path);/*!Get the server position in the array*/
+	if(pID>=0)/*!If the process was yet initialized return its position*/
 		return pID;
 	if(fCGIserversN==MAX_FCGI_SERVERS-2)
 		return -1;
 	static u_short port=3333;
 	{
-		/*Create the server socket*/
+		/*!Create the server socket*/
 		if(localServer)
-		{/*Initialize the local server*/
+		{/*!Initialize the local server*/
 			strcpy(fCGIservers[fCGIserversN].host,"localhost");
 			fCGIservers[fCGIserversN].port=port++;
 			fCGIservers[fCGIserversN].socket.socket(AF_INET,SOCK_STREAM,0);
@@ -478,7 +478,7 @@ int runFcgiServer(fCGIContext*,char* path)
 				return -2;
 			MYSERVER_SOCKADDRIN sock_inserverSocket;
 			sock_inserverSocket.sin_family=AF_INET;
-			/*The FastCGI server accepts connections only by the localhost*/
+			/*!The FastCGI server accepts connections only by the localhost*/
 			sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
 			sock_inserverSocket.sin_port=htons(fCGIservers[fCGIserversN].port);
 			if(fCGIservers[fCGIserversN].socket.bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket)))
@@ -498,7 +498,7 @@ int runFcgiServer(fCGIContext*,char* path)
 			spi.cmd=path;
 			spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 			spi.cmdLine=path;
-			spi.arg = NULL; /* no argument so clear it */
+			spi.arg = NULL; /*! no argument so clear it */
 
 			strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 			spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
@@ -510,13 +510,13 @@ int runFcgiServer(fCGIContext*,char* path)
 				fCGIservers[fCGIserversN].socket.closesocket();
 				return -3;
 			}
-		}/*End local server initialization*/
+		}/*!End local server initialization*/
 		else
-		{/*Fill the structure with a remote server*/
+		{/*!Fill the structure with a remote server*/
 			strcpy(fCGIservers[fCGIserversN].path,path);
-			int i=1;/*Do not consider the @ character*/
+			int i=1;/*!Do not consider the @ character*/
 			memset(fCGIservers[fCGIserversN].host,0,128);
-			/*
+			/*!
 			*A remote server path has the form @hosttoconnect:porttouse
 			*/
 			while(path[i]!=':')
@@ -525,5 +525,5 @@ int runFcgiServer(fCGIContext*,char* path)
 		}
 		
 	}
-	return fCGIserversN++;/*If we arrive here increase the number of running servers and return the number of running servers*/
+	return fCGIserversN++;/*!If we arrive here increase the number of running servers and return the number of running servers*/
 }

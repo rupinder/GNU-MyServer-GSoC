@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
-/*
+/*!
 *Here are listed all the protocol supported by the server.
 */
 #define PROTOCOL_HTTP		0
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 typedef u_long CONNECTION_PROTOCOL;
-/*
+/*!
 *This structure is used to describe a connection.
 */
 struct CONNECTION
@@ -51,7 +51,7 @@ public:
 	CONNECTION* next;
 	void *host;
 	int dataRead;
-	char connectionBuffer[KB(8)];/*This buffer must be used only by the ClientsTHREAD class*/
+	char connectionBuffer[KB(8)];/*!This buffer must be used only by the ClientsTHREAD class*/
 };
 typedef CONNECTION*  volatile LPCONNECTION;
 #endif

@@ -48,7 +48,6 @@ struct listenThreadArgv
 	MYSERVER_SOCKET serverSocket;
 	int SSLsocket;
 };
-
 class cserver
 {
 #ifdef WIN32
@@ -70,7 +69,7 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
-	char ipAddresses[200];/*Buffer that contains all the IP values of the local machine*/
+	char ipAddresses[200];/*!Buffer that contains all the IP values of the local machine*/
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];

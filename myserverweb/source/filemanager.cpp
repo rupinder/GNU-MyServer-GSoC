@@ -40,7 +40,7 @@ extern "C" {
 }
 #endif
 
-/*
+/*!
 *Return the recursion of the path.
 */
 int MYSERVER_FILE::getPathRecursionLevel(char* path)
@@ -63,7 +63,7 @@ int MYSERVER_FILE::getPathRecursionLevel(char* path)
 	while( token != NULL );
 	return rec;
 }
-/*
+/*!
 *Costructor of the class.
 */
 MYSERVER_FILE::MYSERVER_FILE()
@@ -71,7 +71,7 @@ MYSERVER_FILE::MYSERVER_FILE()
 	filename[0]='\0';
 	handle=0;
 }
-/*
+/*!
 *Write data to a file.
 *buffer is the pointer to the data to write
 *buffersize is the number of byte to write
@@ -93,7 +93,7 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 	return 0;
 #endif
 }
-/*
+/*!
 *Open(or create if not exists) a file.
 *If the function have success the return value is different from 0 and -1.
 *filename is the name of the file to open
@@ -137,14 +137,14 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
 	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
-	if(handle==INVALID_HANDLE_VALUE)/*If exists an error*/
+	if(handle==INVALID_HANDLE_VALUE)/*!If exists an error*/
 	{
-		if(GetLastError()==ERROR_ACCESS_DENIED)/*returns -1 if the file is not accessible*/
+		if(GetLastError()==ERROR_ACCESS_DENIED)/*!returns -1 if the file is not accessible*/
 			return -1;
 		else
-			return 0;/*returns 0 for any other error*/
+			return 0;/*!returns 0 for any other error*/
 	}
-	else/*If no error exist in open the file*/
+	else/*!If no error exist in open the file*/
 	{
 		if(opt & MYSERVER_FILE_OPEN_APPEND)
 			setFilePointer(getFileSize());
@@ -225,14 +225,14 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 	
 	return handle?1:0;
 }
-/*
+/*!
 *Returns the file handle.
 */
 MYSERVER_FILE_HANDLE MYSERVER_FILE::getHandle()
 {
 	return handle;
 }
-/*
+/*!
 *Set the file handle.
 */
 int MYSERVER_FILE::setHandle(MYSERVER_FILE_HANDLE hl)
@@ -240,7 +240,7 @@ int MYSERVER_FILE::setHandle(MYSERVER_FILE_HANDLE hl)
 	handle=hl;
 	return 1;
 }
-/*
+/*!
 *define the operator =
 */
 int MYSERVER_FILE::operator =(MYSERVER_FILE f)
@@ -249,28 +249,28 @@ int MYSERVER_FILE::operator =(MYSERVER_FILE f)
 	strcpy(filename,f.filename);
 	return 1;
 }
-/*
+/*!
 *Set the name of the file
 */
 void MYSERVER_FILE::setFilename(char* nfilename)
 {
 	strncpy(filename,nfilename,MAX_PATH);
 }
-/*
+/*!
 *Returns the file path.
 */
 char *MYSERVER_FILE::getFilename()
 {
 	return filename;
 }
-/*
+/*!
 *Read data from a file to a buffer.
 */
 int	MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
-	/*
+	/*!
 	*Return 1 if we don't reach the ond of the file.
 	*Return 0 if the end of the file is reached.
 	*/
@@ -282,14 +282,14 @@ int	MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
 }
-/*
+/*!
 *Create a temporary file.
 */
 int MYSERVER_FILE::createTemporaryFile(char* filename)
 { 
 	return openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY);
 }
-/*
+/*!
 *Close an open file handle.
 */
 int MYSERVER_FILE::closeFile()
@@ -309,7 +309,7 @@ int MYSERVER_FILE::closeFile()
 	handle=0;
 	return ret;
 }
-/*
+/*!
 *Delete an existing file passing the path.
 */
 int MYSERVER_FILE::deleteFile(char *filename)
@@ -322,7 +322,7 @@ int MYSERVER_FILE::deleteFile(char *filename)
 #endif
 	return 0;
 }
-/*
+/*!
 *Returns the file size in bytes.
 */
 u_long MYSERVER_FILE::getFileSize()
@@ -339,7 +339,7 @@ u_long MYSERVER_FILE::getFileSize()
 	
 	return size;
 }
-/*
+/*!
 *Change the position of the pointer to the file.
 *Returns a non-null value if failed.
 */
@@ -352,7 +352,7 @@ int MYSERVER_FILE::setFilePointer(u_long initialByte)
 	return (lseek((int)handle, initialByte, SEEK_SET))?1:0;
 #endif
 }
-/*
+/*!
 *Returns a non-null value if the path is a folder.
 */
 int MYSERVER_FILE::isFolder(char *filename)
@@ -375,7 +375,7 @@ int MYSERVER_FILE::isFolder(char *filename)
 	
 }
 
-/*
+/*!
 *Returns a non-null value if the given path is a valid file.
 */
 int MYSERVER_FILE::fileExists(char* filename)
@@ -402,7 +402,7 @@ int MYSERVER_FILE::fileExists(char* filename)
 #endif
 }
 
-/*
+/*!
 *Returns the time of the last modify to the file.
 */
 time_t MYSERVER_FILE::getLastModTime(char *filename)
@@ -421,12 +421,15 @@ time_t MYSERVER_FILE::getLastModTime(char *filename)
 	else
 		return (-1);
 }
+/*!
+*Get the time of the last modifify did to the file.
+*/
 time_t MYSERVER_FILE::getLastModTime()
 {
 	return getLastModTime(filename);
 }
 
-/*
+/*!
 *Returns the time of the file creation.
 */
 time_t MYSERVER_FILE::getCreationTime(char *filename)
@@ -449,7 +452,7 @@ time_t MYSERVER_FILE::getCreationTime()
 {
 	return getCreationTime(filename);
 }
-/*
+/*!
 *Returns the time of the last access to the file.
 */
 time_t MYSERVER_FILE::getLastAccTime(char *filename)
@@ -474,7 +477,7 @@ time_t MYSERVER_FILE::getLastAccTime()
 }
 
 
-/*
+/*!
 *Get the filename from a path.
 */
 void MYSERVER_FILE::getFilename(const char *path, char *filename)
@@ -502,7 +505,7 @@ void MYSERVER_FILE::getFilename(const char *path, char *filename)
 		filename[j] = 0;
 	}
 }
-/*
+/*!
 *Splits a file path into a directory and filename.
 *Path is an input value while dir and filename are the output values.
 */
@@ -537,7 +540,7 @@ void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
 		filename[j] = 0;
 	}
 }
-/*
+/*!
 *Get the file extension passing its path.
 *Save in ext all the bytes afer the last dot(.) if filename.
 */
@@ -573,7 +576,7 @@ int MYSERVER_FILE::getShortFileName(char *in,char *out,int buffersize)
 #endif
 	return 0;
 }
-/*
+/*!
 *Complete the path of the file.
 */
 void MYSERVER_FILE::completePath(char *fileName)

@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define HTTP_RESPONSE_OTHER_DIM 256
 #define HTTP_RESPONSE_LAST_MODIFIED_DIM 32
 
-/*
+/*!
 *Structure to describe an HTTP response
 */
 struct HTTP_RESPONSE_HEADER
@@ -95,7 +95,7 @@ struct HTTP_RESPONSE_HEADER
 #define HTTP_REQUEST_RANGETYPE_DIM 12		
 #define HTTP_REQUEST_RANGEBYTEBEGIN_DIM 10
 #define HTTP_REQUEST_RANGEBYTEEND_DIM 10
-/*
+/*!
 *Structure to describe an HTTP request.
 */
 

@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "control.h"
 int status;
-/*The wxIcon class is not yet supported with the GTK library so do not use it when use GTK*/
+/*!The wxIcon class is not yet supported with the GTK library so do not use it when use GTK*/
 #ifndef __WXGTK__
 #define USE_ICON
 #endif
@@ -41,12 +41,12 @@ extern "C" {
 }
 #define Sleep usleep
 #endif
-/*
+/*!
 *This is the version of the Control Center and can be different from the MyServer version.
 */
 const char VERSION_OF_SOFTWARE[]="0.5";
 
-/*
+/*!
 *To compile this program you need the library wxwindows distributed under the GNU LGPL(http://www.gnu.org/copyleft/lgpl.html) license terms.
 *You can download wxwindows from http://www.wxwindows.org/.
 *You need to compile it before any use. MyServer Control Center uses the Release Version of this library.
@@ -76,7 +76,7 @@ enum
 	MYSERVER_CONSOLE_ON,
 	MYSERVER_SERVICE_ON,
 };
-/*
+/*!
 *Unique instance of the class mainFrame.
 */
 mainFrame *lmainFrame;
@@ -133,7 +133,7 @@ bool myServerControl::OnInit()
 mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& size, long style)
        : wxFrame(NULL, -1, title, pos, size, style)
 {
-	lmainFrame=this;/*Unique instance of this class*/
+	lmainFrame=this;/*!Unique instance of this class*/
 	char version[50];
 	sprintf(version,"MyServer Control Center %s\n",VERSION_OF_SOFTWARE);
 #ifdef USE_ICON
@@ -229,7 +229,7 @@ void mainFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 	lmainFrame->Show(TRUE);
     lmainFrame->Close(TRUE);
 }
-/*
+/*!
 *Unregister the OS service.
 */
 void mainFrame::removeService(wxCommandEvent& WXUNUSED(event))
@@ -255,7 +255,7 @@ void mainFrame::removeService(wxCommandEvent& WXUNUSED(event))
 #endif
 	lmainFrame->SetStatusText(_T("Service removed"));
 }
-/*
+/*!
 *Display the about window.
 */
 void mainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
@@ -265,7 +265,7 @@ void mainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     wxMessageBox(msg, _T("About"), wxOK | wxICON_INFORMATION, this);
 }
 #ifdef WIN32
-/*
+/*!
 *Wait if the myServer application is ended by itself.
 */
 DWORD WINAPI consoleWatchDogThread(LPVOID param)
@@ -277,7 +277,7 @@ DWORD WINAPI consoleWatchDogThread(LPVOID param)
 	return 0;
 }
 #endif
-/*
+/*!
 *Run myServer like a console.
 */
 void mainFrame::runConsole(wxCommandEvent& event)
@@ -299,7 +299,7 @@ void mainFrame::runConsole(wxCommandEvent& event)
 	lmainFrame->SetStatusText(_T("MyServer started in console mode"));
 }
 
-/*
+/*!
 *Run myServer like an OS service.
 */
 void mainFrame::runService(wxCommandEvent& event)
@@ -326,7 +326,7 @@ void mainFrame::runService(wxCommandEvent& event)
 	status=MYSERVER_SERVICE_ON;
 	lmainFrame->SetStatusText(_T("MyServer started in service mode"));
 }
-/*
+/*!
 *Register the OS service.
 */
 void mainFrame::registerService(wxCommandEvent& event)
@@ -352,7 +352,7 @@ void mainFrame::registerService(wxCommandEvent& event)
 	}
 #endif
 	lmainFrame->SetStatusText(_T("MyServer service installed"));
-	Sleep(1500);/*Sleep 1.5 seconds only for show both the installation and run messages*/
+	Sleep(1500);/*!Sleep 1.5 seconds only for show both the installation and run messages*/
 	runService(event);
 }
 void mainFrame::configureMIME(wxCommandEvent& event)
@@ -365,7 +365,7 @@ void mainFrame::configureVHOSTS(wxCommandEvent& event)
 	configurationFrameVHOSTS *configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure myServer virtual hosts"),wxPoint(70, 70), wxSize(VHOSTSWNDSIZE_X, VHOSTSWNDSIZE_Y));
 	configureVHOSTSWnd->Show(TRUE);
 }
-/*
+/*!
 *Stop the application if run in service mode
 */
 void mainFrame::stopService(wxCommandEvent& event)
@@ -393,7 +393,7 @@ void mainFrame::stopService(wxCommandEvent& event)
 
 }
 #ifdef WIN32
-/*
+/*!
 *Retrieve the service status.
 */
 SERVICE_STATUS queryStatus()
@@ -414,7 +414,7 @@ SERVICE_STATUS queryStatus()
 }
 #endif
 
-/*
+/*!
 *Stop myServer if it is running in console mode.
 */
 void mainFrame::stopConsole(wxCommandEvent& event)
@@ -431,7 +431,7 @@ void mainFrame::stopConsole(wxCommandEvent& event)
 
 
 #ifdef USE_ICON
-/*
+/*!
 *Functions to handle the taskbar icon
 */
 void taskBarIcon::OnMouseMove(wxEvent&)

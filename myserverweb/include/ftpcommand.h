@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/**
+/*!*
  * Include represents the commandlist that needs to be supported for the
  * FTP implementation
  */
@@ -42,7 +42,7 @@ class ftpcommand
    static unsigned int getCommandToken(char * buff);
    static unsigned int checkErrorToken(char * buff);
    
-   /**
+   /*!*
     * structural definition of each error
     */
    struct errstruct
@@ -52,7 +52,7 @@ class ftpcommand
      char * response;
    };
    
-   /**
+   /*!*
     * structural definition of each command
     */
    struct comstruct
@@ -67,7 +67,7 @@ class ftpcommand
    void filler();
 
  public:      
-   /**
+   /*!*
     * structure will be used to decipher incoming buffer requests
     */
    struct commanddef
@@ -78,7 +78,7 @@ class ftpcommand
      char *  paramlist; // string representing rest of paramaters
      char * errorresponse; // empty if not error
    };
-   /**
+   /*!*
     * one ftp command will be created for each received buffer, making it 
     * easier to process information
     */

@@ -28,7 +28,7 @@ extern "C"
 #include <libxml/parser.h>
 #include <libxml/tree.h> 
 }
-/*
+/*!
 *This class is used to open a .xml file and read informations from it.
 */
 class cXMLParser

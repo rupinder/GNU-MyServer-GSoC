@@ -37,21 +37,21 @@ extern "C" {
 #ifdef __linux__
 using namespace std;
 #endif
-/*
+/*!
 *This enum describes all the way that a file is handled by the server.
 */
 enum CGI_COMMANDS
 {
-	CGI_CMD_SEND,			/*Sends the file as it is; for example an HTML page*/
-	CGI_CMD_RUNCGI,			/*Run the cgi_manager program*/
-	CGI_CMD_RUNISAPI,		/*Run the ISAPI module*/
-	CGI_CMD_EXECUTEISAPI,	/*Run the file as a self ISAPI module*/
-	CGI_CMD_RUNMSCGI,		/*Run the the file as a MSCGI script*/
-	CGI_CMD_EXECUTE,		/*Handle the file as an executable*/
-	CGI_CMD_SENDLINK,		/*Send the file included  in the file*/
-	CGI_CMD_EXECUTEWINCGI,	/*Send the file as a WinCGI*/
-	CGI_CMD_RUNFASTCGI,		/*Send the file using the specified FastCGI server*/
-	CGI_CMD_EXECUTEFASTCGI	/*Send the file as a FastCGI*/
+	CGI_CMD_SEND,			/*!Sends the file as it is; for example an HTML page*/
+	CGI_CMD_RUNCGI,			/*!Run the cgi_manager program*/
+	CGI_CMD_RUNISAPI,		/*!Run the ISAPI module*/
+	CGI_CMD_EXECUTEISAPI,	/*!Run the file as a self ISAPI module*/
+	CGI_CMD_RUNMSCGI,		/*!Run the the file as a MSCGI script*/
+	CGI_CMD_EXECUTE,		/*!Handle the file as an executable*/
+	CGI_CMD_SENDLINK,		/*!Send the file included  in the file*/
+	CGI_CMD_EXECUTEWINCGI,	/*!Send the file as a WinCGI*/
+	CGI_CMD_RUNFASTCGI,		/*!Send the file using the specified FastCGI server*/
+	CGI_CMD_EXECUTEFASTCGI	/*!Send the file as a FastCGI*/
 };
 class MIME_Manager
 {

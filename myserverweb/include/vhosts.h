@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/filemanager.h"
-#include "../include/connectionstruct.h"/*Used for protocols IDs*/
+#include "../include/connectionstruct.h"/*!Used for protocols IDs*/
 
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
@@ -49,7 +49,7 @@ public:
 	{
 		char hostName[MAX_COMPUTERNAME_LENGTH+1];
 		sHostList *next;
-	}*hostList;/*List of hosts allowed by the vhost*/
+	}*hostList;/*!List of hosts allowed by the vhost*/
 	struct vhsslcontext
 	{
 		SSL_CTX* context;
@@ -63,21 +63,21 @@ public:
 	{
 		char hostIp[32];
 		sIpList *next; 
-	}*ipList;/*List of IPs allowed by the vhost*/
+	}*ipList;/*!List of IPs allowed by the vhost*/
 
-	u_short port;/*Port to listen on*/
+	u_short port;/*!Port to listen on*/
 
-	CONNECTION_PROTOCOL protocol;/*Protocol used by the virtual host*/
+	CONNECTION_PROTOCOL protocol;/*!Protocol used by the virtual host*/
 	
 	int initializeSSL();
 	int freeSSL();
 	void generateRsaKey();
 	SSL_CTX* getSSLContext();
-	char documentRoot[MAX_PATH];/*Path to the document root*/
-	char systemRoot[MAX_PATH];/*Path to the system root*/
-	char accessesLogFileName[MAX_PATH];/*Path to the accesses log file*/
-	char warningsLogFileName[MAX_PATH];/*Path to the warnings log file*/
-	char name[64];/*Description or name of the virtual host*/
+	char documentRoot[MAX_PATH];/*!Path to the document root*/
+	char systemRoot[MAX_PATH];/*!Path to the system root*/
+	char accessesLogFileName[MAX_PATH];/*!Path to the accesses log file*/
+	char warningsLogFileName[MAX_PATH];/*!Path to the warnings log file*/
+	char name[64];/*!Description or name of the virtual host*/
 	vhost();
 	void addIP(char *);
 	void addHost(char *);
@@ -100,7 +100,7 @@ public:
 	u_long warningslogTerminateAccess(int id);
 
 	~vhost();
-	/*
+	/*!
 	*Functions to manage the logs file.
 	*Derived directly from the filemanager utilities.
 	*/
@@ -121,7 +121,7 @@ public:
 		sVhostList* next;
 	};
 private:
-	sVhostList *vhostList;/*List of virtual hosts*/
+	sVhostList *vhostList;/*!List of virtual hosts*/
 public:
 	vhostmanager();
 	~vhostmanager();
@@ -132,12 +132,12 @@ public:
 	int switchVhosts(int n1,int n2);
 	int switchVhosts(sVhostList*,sVhostList*);
 	vhostmanager::sVhostList*  getvHostList();
-	vhost*  getvHost(char*,char*,u_short);/*Get a pointer to a vhost*/
-	void addvHost(vhost*);/*Add an element to the vhost list*/
-	void loadConfigurationFile(char *,int maxlogSize=0);/*Load the virtual hosts list from a configuration file*/
-	void saveConfigurationFile(char *);/*Save the virtual hosts list to a configuration file*/
-	void loadXMLConfigurationFile(char *,int maxlogSize=0);/*Load the virtual hosts list from a xml configuration file*/
-	void saveXMLConfigurationFile(char *);/*Save the virtual hosts list to a xml configuration file*/
+	vhost*  getvHost(char*,char*,u_short);/*!Get a pointer to a vhost*/
+	void addvHost(vhost*);/*!Add an element to the vhost list*/
+	void loadConfigurationFile(char *,int maxlogSize=0);/*!Load the virtual hosts list from a configuration file*/
+	void saveConfigurationFile(char *);/*!Save the virtual hosts list to a configuration file*/
+	void loadXMLConfigurationFile(char *,int maxlogSize=0);/*!Load the virtual hosts list from a xml configuration file*/
+	void saveXMLConfigurationFile(char *);/*!Save the virtual hosts list to a xml configuration file*/
 };
 
 #endif

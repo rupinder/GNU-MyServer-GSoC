@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using namespace std;
 #endif
 
-/*
+/*!
 *Source code to manage the MIME types in MyServer.
 *MIME types are recorded in a static buffer "data", that is a strings array.
 *Every MIME type is described by three strings:
@@ -53,12 +53,12 @@ int MIME_Manager::load(char *filename)
 	for(u_long nc=0;;)
 	{
 		memset(&record, 0, sizeof(MIME_Manager::mime_record));
-		/*
+		/*!
 		*Do not consider the \r \n and space characters.
 		*/
 		while((buffer[nc]==' ') || (buffer[nc]=='\r') ||(buffer[nc]=='\n'))
 			nc++;
-		/*
+		/*!
 		*If is reached the # character or the end of the string end the loop.
 		*/
 		if(buffer[nc]=='\0'||buffer[nc]=='#'||nc==nbw)
@@ -78,7 +78,7 @@ int MIME_Manager::load(char *filename)
 			nc++;
 		}
 		nc++;
-		/*
+		/*!
 		*Save the action to do with this type of files.
 		*/
 		char commandString[16];
@@ -89,7 +89,7 @@ int MIME_Manager::load(char *filename)
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
 				commandString[strlen(commandString)]=buffer[nc];
 			nc++;
-			/*
+			/*!
 			*Parse all the possible actions.
 			*By default send the file as it is.
 			*/
@@ -122,7 +122,7 @@ int MIME_Manager::load(char *filename)
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
 				record.cgi_manager[strlen(record.cgi_manager)]=buffer[nc];
 			nc++;
-			/*
+			/*!
 			*If the CGI manager path is "NONE" then set the cgi_manager element in 
 			*the record structure to a NULL string
 			*/
@@ -137,7 +137,7 @@ int MIME_Manager::load(char *filename)
 	return numMimeTypesLoaded;
 
 }
-/*
+/*!
 *Get the name of the file opened by the class.
 */
 char *MIME_Manager::getFilename()
@@ -145,7 +145,7 @@ char *MIME_Manager::getFilename()
 	return filename;
 }
 
-/*
+/*!
 *Load the MIME types from a XML file.
 */
 int MIME_Manager::loadXML(char *filename)
@@ -220,7 +220,7 @@ int MIME_Manager::loadXML(char *filename)
 	parser.close();
 	return nm;
 }
-/*
+/*!
 *Save the MIME types to a XML file.
 */
 int MIME_Manager::saveXML(char *filename)
@@ -275,7 +275,7 @@ int MIME_Manager::saveXML(char *filename)
 	return 1;
 }
 
-/*
+/*!
 *Save the MIME types to a file.
 */
 int MIME_Manager::save(char *filename)
@@ -326,7 +326,7 @@ int MIME_Manager::save(char *filename)
 
 	return 1;
 }
-/*
+/*!
 *This function returns the type of action to do for handle this file type.
 *Passing a file extension ext this function fills the strings dest and dest2
 *respectly with the MIME type description and if there are the path to the CGI manager.
@@ -350,12 +350,12 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 			return mr->command;
 		}
 	}
-	/*
+	/*!
 	*If the ext is not registered send the file as it is.
 	*/
 	return CGI_CMD_SEND;
 }
-/*
+/*!
 *Pass only the position of the record in the list.
 */
 int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
@@ -380,13 +380,13 @@ int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
 		}
 		i++;
 	}
-	/*
+	/*!
 	*If the ext is not registered send the file as it is.
 	*/
 	return CGI_CMD_SEND;
 }
 
-/*
+/*!
 *Clean the memory allocated by the structure.
 */
 void MIME_Manager::clean()
@@ -394,7 +394,7 @@ void MIME_Manager::clean()
 	removeAllRecords();
 }
 
-/*
+/*!
 *Constructor of the class.
 */
 MIME_Manager::MIME_Manager()
@@ -404,12 +404,12 @@ MIME_Manager::MIME_Manager()
 	filename[0]='\0';
 }
 
-/*
+/*!
 *Add a new record.
 */
 void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 {
-	/*
+	/*!
 	*If the MIME type already exists remove it.
 	*/
 	if(getRecord(mr.extension))
@@ -421,7 +421,7 @@ void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 	numMimeTypesLoaded++;
 }
 
-/*
+/*!
 *Remove a record by the extension of the MIME type.
 */
 void MIME_Manager::removeRecord(char *ext)
@@ -451,7 +451,7 @@ void MIME_Manager::removeRecord(char *ext)
 		nmr1=nmr1->next;
 	}while(nmr1);
 }
-/*
+/*!
 *Remove all records from the linked list.
 */
 void MIME_Manager::removeAllRecords()
@@ -477,7 +477,7 @@ void MIME_Manager::removeAllRecords()
 	data=0;
 	numMimeTypesLoaded=0;
 }
-/*
+/*!
 *Get a pointer to an existing record passing its extension.
 *Don't modify the member next of the returned structure.
 */
@@ -494,7 +494,7 @@ MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
 	return NULL;
 }
 
-/*
+/*!
 *Returns the number of MIME types loaded.
 */
 u_long MIME_Manager::getNumMIMELoaded()

@@ -32,7 +32,7 @@ extern "C" {
 }
 
 
-/*
+/*!
 *External libraries to be included in the project.
 */
 #ifdef WIN32
@@ -51,7 +51,7 @@ void runService();
 static char path[MAX_PATH];
 
 int cmdShow;
-/*
+/*!
 *Change this to reflect the version of the software.
 */
 const char *versionOfSoftware="0.6";
@@ -76,7 +76,7 @@ int main (int argn, char **argc)
 	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
 	sigaction(SIGTERM,&sig2,NULL); // catch ctrl-c
 #endif
-	/*
+	/*!
 	*By default use the console mode.
 	*/
 	if(argn==1)
@@ -125,13 +125,13 @@ void console_service (int, char **)
 }
 
 
-/*
+/*!
 *These functions are available only on the windows platform.
 */
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
-/*
+/*!
 *Entry-point for the NT service.
 */
 void  __stdcall myServerMain (u_long, LPTSTR*)
@@ -166,7 +166,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 }
 
 
-/*
+/*!
 *Manage the NT service.
 */
 void __stdcall myServerCtrlHandler(u_long fdwControl)
@@ -199,7 +199,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 }
 
 
-/*
+/*!
 *Run myServer like a NT service.
 */
 void runService()

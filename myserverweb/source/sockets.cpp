@@ -40,17 +40,17 @@ extern "C" {
 
 #ifdef WIN32
 #ifndef DO_NOT_USE_SSL
-#pragma comment(lib,"libeay32.lib")/*Import the OpenSSL library*/
-#pragma comment(lib,"ssleay32.lib")/*Import the OpenSSL library*/
+#pragma comment(lib,"libeay32.lib")/*!Import the OpenSSL library*/
+#pragma comment(lib,"ssleay32.lib")/*!Import the OpenSSL library*/
 #endif
 #endif
-/*
+/*!
 *Source code to wrap the socket library to MyServer project.
 */
 int startupSocketLib(u_short ver)
 {
 #ifdef WIN32	
-	/*
+	/*!
 	*Under windows we need to initialize the socket library before use it.
 	*/
 	WSADATA wsaData;
@@ -118,7 +118,7 @@ int MYSERVER_SOCKET::listen(int max)
 	return ::listen((int)socketHandle,max);
 #endif
 }
-MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,int /*sslHandShake*/)
+MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,int /*!sslHandShake*/)
 {
 
 	MYSERVER_SOCKET s;

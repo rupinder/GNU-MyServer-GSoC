@@ -24,12 +24,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 
 
-/*
+/*!
 *Global values for useLogonOption flag and the guest handle.
 */
 int  useLogonOption;
 
-/*
+/*!
 *Do the logon of an user.
 */
 int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
@@ -47,7 +47,7 @@ int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 #endif
 	return logon;
 }
-/*
+/*!
 *Change the owner of current thread.
 */
 void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
@@ -57,7 +57,7 @@ void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 #endif	
 }
 
-/*
+/*!
 *This function terminates the impersonation of a client application.
 */
 void revertToSelf()
@@ -67,7 +67,7 @@ void revertToSelf()
 #endif
 }
 
-/*
+/*!
 *Close the handle of a logged user.
 */
 void cleanLogonUser(LOGGEDUSERID* hImpersonation)
@@ -76,7 +76,7 @@ void cleanLogonUser(LOGGEDUSERID* hImpersonation)
 	CloseHandle((HANDLE)*hImpersonation);
 #endif
 }
-/*
+/*!
 *Change the owner of the thread with the connection login and password informations.
 */
 void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
@@ -100,10 +100,10 @@ void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 		*logonStatus=0;
 	}
 }
-/*
+/*!
 *Logout the hImpersonation handle.
 */
-void logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
+void logout(int /*!logon*/,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
 	{
@@ -115,15 +115,8 @@ void logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
 		}
 	}
 }
-/*
-*Do the logon of the guest client.
-*/
-void logonGuest()
-{
 
-
-}
-/*
+/*!
 *Get the error file for a site. Return 0 to use the default one.
 */
 int getErrorFileName(char *root,int error,char* out)
@@ -173,7 +166,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	tempPassword[0]='\0';
 	folder[MAX_PATH-10]='\0';
 	sprintf(permissionsFile,"%s/security",folder);
-	/*
+	/*!
 	*If the file doesn't exist allow everyone to do everything
 	*/
 	if(!useLogonOption)
@@ -186,13 +179,13 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	}
 	if(!MYSERVER_FILE::fileExists(permissionsFile))
 	{
-		/*
+		/*!
 		*If the security file doesn't exist try with a default one.
 		*/
 		if(sysfolder!=0)
 			return getPermissionMask(user,password,sysfolder,filename,0);
 		else
-		/*
+		/*!
 		*If the default one doesn't exist too send full permissions for everyone
 		*/
 			return (-1);

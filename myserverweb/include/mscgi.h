@@ -33,12 +33,12 @@ struct cgi_data
 	MYSERVER_FILE stdOut;
 
 };
-/*
+/*!
 *Functions to Load and Free the MSCGI library.
 */
 int loadMSCGILib();
 int freeMSCGILib();
-/*
+/*!
 *Use this to send a MSCGI file through the HTTP protocol.
 */
 int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
