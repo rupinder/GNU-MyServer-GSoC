@@ -109,7 +109,10 @@ public: // Static conversion functions (hex, CRC...)
 	static CMemBuf Hex(const void* pAdr, u_int nSize);
 	static CMemBuf UIntToStr(u_int i);
 	static CMemBuf IntToStr(int i);
-
+	u_int StrToUint(const char* pAdr);
+	unsigned char HexCharToNumber(unsigned char c);
+	CMemBuf HexToData(const void* pAdr, u_int nSize);
+	int StrToInt(const char* pAdr);
 	static CMemBuf Hex(CMemBuf& membuf) ;
 	static CMemBuf Hash_MD5(CMemBuf& membuf);
 	static CMemBuf Hash_CRC(CMemBuf& membuf);
