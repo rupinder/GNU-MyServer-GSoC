@@ -96,13 +96,13 @@ configure data throttling for the corresponding virtual host.<br>
 <br>
 <br>
 Also, you can configure the data throttling for individual directories,
-using these configurations in your secutiy file:<br>
+using these configurations in your security file:<br>
 &nbsp;&nbsp;&nbsp; &lt;USER NAME="Guest" PASS="" READ="TRUE"
 WRITE="TRUE" BROWSE="TRUE"<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; EXECUTE="TRUE"
 THROTTLING_RATE="1024"/&gt;
 <br>
-With that, you'd enabling the trottlling of 1024&nbsp; bytes/second
+With that, you'd enabling the trottling of 1024&nbsp; bytes/second
 for the user Guest.<br>
 If you add a line like the following, you will be enabling throttling
 for a file named "bigfile":<br>
@@ -121,7 +121,7 @@ THROTTLING_RATE="1024"/&gt;<br>
 &nbsp;&nbsp;&nbsp; &lt;/ITEM&gt;
 <br>
 <br>
-This is the order of checking for dta throlling configuration:<br>
+This is the order of checking for data throttling configuration:<br>
 1) User &amp; file(USER attribute inside ITEM).<br>
 2) File(ITEM attribute).<br>
 3) User(USER attribute).<br>
