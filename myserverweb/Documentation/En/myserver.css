@@ -13,7 +13,7 @@ html         {   text-align:center;color: #000000;}
 table        {   text-align:center;color: #000000;}
 hr           {   text-align:center;color: #000000;}
 form	     {border-style: solid; border-width: 1px; padding-left: 4px; padding-right: 4px; padding-top: 1px; padding-bottom: 1px}
-DIV	     { color:  #000000;  font-family: veranda;  font-size: 12pt; }
+DIV	     { color:  #000000;  font-family: sans-serif;  font-size: 12pt; }
 .heading     { color:  #0000FF;   font-size: 14pt; font-weight: bold; }
 .current     {color:  #008000;   font-size: 14pt; font-weight: bold;  }
 .link	     { color:  #000000;   font-size: 12pt; }
