@@ -61,7 +61,7 @@ void * startClientsTHREAD(void* pParam)
 #endif
 {
 	u_long id=*((u_long*)pParam);
-	ClientsTHREAD *ct=&lserver->threads[id];
+	ClientsTHREAD *ct=&lserver->threads[id-ClientsTHREAD::ID_OFFSET];
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;

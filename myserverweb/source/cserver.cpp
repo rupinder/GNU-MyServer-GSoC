@@ -227,7 +227,7 @@ void cserver::start()
 	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
-		threads[i].id=(i+2);
+		threads[i].id=(i+ClientsTHREAD::ID_OFFSET);
 #ifdef WIN32
 		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
 #endif
@@ -548,7 +548,7 @@ void cserver::terminate()
 	delete[] threads;
 	if(verbosity>1)
 	{
-		printf("myServer is stopped\n\n");
+		printf("MyServer is stopped\n\n");
 	}
 }
 /*
@@ -769,6 +769,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	strcpy(nc->ipAddr,ipAddr);
 	strcpy(nc->localIpAddr,localIpAddr);
 	nc->Next=connections;
+	terminateAccess(&connectionWriteAccess,id);
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	nc->login[0]='\0';
 	nc->nTries=0;
@@ -813,7 +814,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 			((vhost*)(nc->host))->warningsLogWrite(msg);
 		}
 	}
-	terminateAccess(&connectionWriteAccess,id);
 	return nc;
 }
 
@@ -823,9 +823,9 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 */
 int cserver::deleteConnection(LPCONNECTION s,int id)
 {
-	requestAccess(&connectionWriteAccess,id);
 	if(!s)
 		return 0;
+	requestAccess(&connectionWriteAccess,id);
 	int ret=0,err;
 	/*
 	*First of all close the socket communication.
@@ -859,8 +859,8 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 			prev=i;
 		}
 	}
-	nConnections--;
 	terminateAccess(&connectionWriteAccess,id);
+	nConnections--;
 	return ret;
 }
 /*
