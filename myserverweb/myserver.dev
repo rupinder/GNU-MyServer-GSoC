@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=87
+UnitCount=86
 Type=1
 Ver=1
 ObjFiles=
@@ -150,7 +150,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit27]
-FileName=include\ftpcommand.h
+FileName=include\http.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -178,16 +178,6 @@ ProductVersion=
 AutoIncBuildNr=0
 
 [Unit28]
-FileName=include\http.h
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit29]
 FileName=include\HTTPmsg.h
 CompileCpp=1
 Folder=myserver
@@ -197,7 +187,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
+[Unit29]
 FileName=include\isapi.h
 CompileCpp=1
 Folder=myserver
@@ -207,8 +197,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit30]
 FileName=include\MIME_manager.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=include\mscgi.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -368,16 +368,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit32]
-FileName=include\mscgi.h
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit33]
 FileName=include\Response_RequestStructs.h
 CompileCpp=1
 Folder=myserver
@@ -387,7 +377,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit34]
+[Unit33]
 FileName=stdafx.cpp
 CompileCpp=1
 Folder=myserver
@@ -397,7 +387,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit35]
+[Unit34]
 FileName=stdafx.h
 CompileCpp=1
 Folder=
@@ -407,7 +397,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit36]
+[Unit35]
 FileName=source\Dev-C++.cpp
 CompileCpp=1
 Folder=
@@ -417,7 +407,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit37]
+[Unit36]
 FileName=source\vhosts.cpp
 CompileCpp=1
 Folder=myserver
@@ -427,8 +417,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit38]
+[Unit37]
 FileName=include\vhosts.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit38]
+FileName=source\winCGI.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -461,16 +461,6 @@ BuildCmd=
 ProjectView=1
 
 [Unit39]
-FileName=source\winCGI.cpp
-Folder=myserver
-Compile=1
-CompileCpp=1
-OverrideBuildCmd=0
-BuildCmd=
-Link=1
-Priority=1000
-
-[Unit40]
 FileName=include\winCGI.h
 Folder=myserver
 Compile=1
@@ -480,7 +470,7 @@ BuildCmd=
 Link=1
 Priority=1000
 
-[Unit41]
+[Unit40]
 FileName=source\fastCGI.cpp
 Folder=myserver
 Compile=1
@@ -490,17 +480,17 @@ BuildCmd=
 Link=1
 Priority=1000
 
-[Unit42]
+[Unit41]
 FileName=include\fastCGI.h
-CompileCpp=1
 Folder=myserver
 Compile=1
-Link=1
-Priority=1000
+CompileCpp=1
 OverrideBuildCmd=0
 BuildCmd=
+Link=1
+Priority=1000
 
-[Unit43]
+[Unit42]
 FileName=source\md5.cpp
 CompileCpp=1
 Folder=myserver
@@ -510,7 +500,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit44]
+[Unit43]
 FileName=include\md5.h
 CompileCpp=1
 Folder=myserver
@@ -520,7 +510,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit45]
+[Unit44]
 FileName=source\utility.cpp
 CompileCpp=1
 Folder=myserver
@@ -530,7 +520,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit46]
+[Unit45]
 FileName=source\http_headers.cpp
 CompileCpp=1
 Folder=myserver
@@ -540,7 +530,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit47]
+[Unit46]
 FileName=include\http_headers.h
 CompileCpp=1
 Folder=myserver
@@ -550,8 +540,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit48]
+[Unit47]
 FileName=include\gzip.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit48]
+FileName=include\https.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -571,16 +571,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit49]
-FileName=include\https.h
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit50]
 FileName=source\https.cpp
 CompileCpp=1
 Folder=myserver
@@ -590,7 +580,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit51]
+[Unit50]
 FileName=source\gzip.cpp
 CompileCpp=1
 Folder=myserver
@@ -600,7 +590,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit52]
+[Unit51]
 FileName=source\protocol.cpp
 CompileCpp=1
 Folder=myserver
@@ -610,7 +600,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit53]
+[Unit52]
 FileName=include\protocol.h
 CompileCpp=1
 Folder=myserver
@@ -620,7 +610,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit54]
+[Unit53]
 FileName=include\threads.h
 CompileCpp=1
 Folder=myserver
@@ -630,7 +620,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit55]
+[Unit54]
 FileName=include\processes.h
 CompileCpp=1
 Folder=myserver
@@ -640,7 +630,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit56]
+[Unit55]
 FileName=source\processes.cpp
 CompileCpp=1
 Folder=myserver
@@ -650,7 +640,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit57]
+[Unit56]
 FileName=source\threads.cpp
 CompileCpp=1
 Folder=myserver
@@ -660,7 +650,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit58]
+[Unit57]
 FileName=source\protocols_manager.cpp
 CompileCpp=1
 Folder=myserver
@@ -670,7 +660,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit59]
+[Unit58]
 FileName=include\protocols_manager.h
 CompileCpp=1
 Folder=myserver
@@ -680,7 +670,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit60]
+[Unit59]
 FileName=source\MemBuf.cpp
 CompileCpp=1
 Folder=myserver
@@ -690,7 +680,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit61]
+[Unit60]
 FileName=source\securestr.cpp
 CompileCpp=1
 Folder=myserver
@@ -700,7 +690,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit62]
+[Unit61]
 FileName=include\securestr.h
 CompileCpp=1
 Folder=myserver
@@ -710,7 +700,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit63]
+[Unit62]
 FileName=include\MemBuf.h
 CompileCpp=1
 Folder=myserver
@@ -720,8 +710,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit63]
+FileName=source\myserver_regex.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit64]
-FileName=source\Regex.cpp
+FileName=include\myserver_regex.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -731,16 +731,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit65]
-FileName=include\Regex.h
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit66]
 FileName=source\vector.cpp
 CompileCpp=1
 Folder=myserver
@@ -750,7 +740,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit67]
+[Unit66]
 FileName=include\vector.h
 CompileCpp=1
 Folder=myserver
@@ -760,7 +750,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit68]
+[Unit67]
 FileName=source\control_header.cpp
 CompileCpp=1
 Folder=myserver
@@ -770,7 +760,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit69]
+[Unit68]
 FileName=source\control_protocol.cpp
 CompileCpp=1
 Folder=myserver
@@ -780,7 +770,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit70]
+[Unit69]
 FileName=include\control_protocol.h
 CompileCpp=1
 Folder=myserver
@@ -790,7 +780,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit71]
+[Unit70]
 FileName=include\control_errors.h
 CompileCpp=1
 Folder=myserver
@@ -800,7 +790,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit72]
+[Unit71]
 FileName=include\control_header.h
 CompileCpp=1
 Folder=myserver
@@ -810,7 +800,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit73]
+[Unit72]
 FileName=source\connectionstruct.cpp
 CompileCpp=1
 Folder=myserver
@@ -820,7 +810,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit74]
+[Unit73]
 FileName=source\log_manager.cpp
 CompileCpp=1
 Folder=myserver
@@ -830,7 +820,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit75]
+[Unit74]
 FileName=include\log_manager.h
 CompileCpp=1
 Folder=myserver
@@ -840,7 +830,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit76]
+[Unit75]
 FileName=source\security_cache.cpp
 CompileCpp=1
 Folder=myserver
@@ -850,7 +840,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit77]
+[Unit76]
 FileName=source\hash_dictionary.cpp
 CompileCpp=1
 Folder=myserver
@@ -860,7 +850,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit78]
+[Unit77]
 FileName=include\security_cache.h
 CompileCpp=1
 Folder=myserver
@@ -870,7 +860,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit79]
+[Unit78]
 FileName=include\hash_dictionary.h
 CompileCpp=1
 Folder=myserver
@@ -880,7 +870,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit80]
+[Unit79]
 FileName=source\http_data_handler.cpp
 CompileCpp=1
 Folder=myserver
@@ -890,7 +880,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit81]
+[Unit80]
 FileName=source\http_dir.cpp
 CompileCpp=1
 Folder=myserver
@@ -900,7 +890,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit82]
+[Unit81]
 FileName=source\http_file.cpp
 CompileCpp=1
 Folder=myserver
@@ -910,7 +900,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit83]
+[Unit82]
 FileName=include\http_data_handler.h
 CompileCpp=1
 Folder=myserver
@@ -920,7 +910,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit84]
+[Unit83]
 FileName=include\http_dir.h
 CompileCpp=1
 Folder=myserver
@@ -930,7 +920,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit85]
+[Unit84]
 FileName=include\http_file.h
 CompileCpp=1
 Folder=myserver
@@ -940,8 +930,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit86]
+[Unit85]
 FileName=source\lfind.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit86]
+FileName=include\lfind.h
 CompileCpp=1
 Folder=myserver
 Compile=1
