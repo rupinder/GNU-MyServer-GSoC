@@ -18,9 +18,12 @@
 #include "control_client.h"
 
 //#define DEBUG
+#define MAXHEADERLEN  2048
+#define TIMEOUT       30000
 
 ControlClient::ControlClient()
 {
+   clearCallback();
    Connected = false;
    Buffer.Free();
    UserName[0] = '\0';
@@ -30,10 +33,23 @@ ControlClient::ControlClient()
 
 ControlClient::~ControlClient()
 {
+   clearCallback();
    memset(UserPass, 0, 64); // no memory snoops here
    Buffer.Free();
    if(Connected)
      socket.closesocket();
+}
+
+void ControlClient::setCallback(ControlClientCallback callback, void * parm)
+{
+   Progress = callback;
+   Object = parm;
+}
+
+void ControlClient::clearCallback()
+{
+   Progress = NULL;
+   Object = NULL;
 }
 
 int ControlClient::Login(const char * address, const int port,
@@ -87,14 +103,14 @@ int ControlClient::Login(const char * address, const int port,
 	return ret;
      }
 
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
 int ControlClient::Logout()
 {
    memset(UserPass, 0, 64); // no memory snoops here
-   Buffer.Free();
+   Buffer.SetLength(0);
    if(Connected)
      socket.closesocket();
    Connected = false;
@@ -113,7 +129,7 @@ int ControlClient::getVersion(CMemBuf & data)
    if(DataPos == -1)
      return -1;
    Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -126,7 +142,7 @@ int ControlClient::sendReboot()
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -142,7 +158,7 @@ int ControlClient::getMyserverConf(CMemBuf & data)
    if(DataPos == -1)
      return -1;
    Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -158,7 +174,7 @@ int ControlClient::getVhostsConf(CMemBuf & data)
    if(DataPos == -1)
      return -1;
    Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -174,7 +190,7 @@ int ControlClient::getMIMEtypesConf(CMemBuf & data)
    if(DataPos == -1)
      return -1;
    Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -187,7 +203,7 @@ int ControlClient::sendMyserverConf(CMemBuf & data)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -200,7 +216,7 @@ int ControlClient::sendVhostsConf(CMemBuf & data)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -213,7 +229,7 @@ int ControlClient::sendMIMEtypesConf(CMemBuf & data)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -242,7 +258,7 @@ int ControlClient::getLanguages(Vector & list)
 	     chrptr = &Buffer[i] + 2; // avoid error checking
 	  } // if
      } // for
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -271,7 +287,7 @@ int ControlClient::getDynamicProtocols(Vector & list)
 	     chrptr = &Buffer[i] + 2; // avoid error checking
 	  } // if
      } // for
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -300,7 +316,7 @@ int ControlClient::getConnections(Vector & list)
 	     chrptr = &Buffer[i] + 2; // avoid error checking
 	  } // if
      } // for
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -317,7 +333,7 @@ int ControlClient::sendKillConnection(VectorNode * node)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.Free();
+   Buffer.SetLength(0);
    return 0;
 }
 
@@ -327,7 +343,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt)
      return -1;
 
    int ret;
-   Buffer.Free();
+   Buffer.SetLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
    Buffer << "/LEN 0\r\n";
@@ -337,7 +353,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt)
 #ifdef DEBUG
    write(1, (const char *)Buffer.GetBuffer(), Buffer.GetLength());
 #endif   
-   Buffer.Free();
+   Buffer.SetLength(0);
    return (ret == -1 ? -1 : 0);
 }
 
@@ -347,7 +363,8 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
      return -1;
 
    int ret1, ret2;
-   Buffer.Free();
+   int len, pos;
+   Buffer.SetLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
    Buffer << "/LEN " << CMemBuf::IntToStr(data.GetLength()) << "\r\n";
@@ -357,9 +374,20 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
 #ifdef DEBUG
    write(1, (const char *)Buffer.GetBuffer(), Buffer.GetLength());
 #endif
-   // TODO: change to send smaller chunks (for progress indication)
-   ret2 = socket.send((const char *)data.GetBuffer(), data.GetLength(), 0);
-   Buffer.Free();
+   // send small chuncks for some user feedback
+   len = data.GetLength();
+   pos = 0;
+   while(pos < len)
+     {
+	ret2 = socket.send((const char *)&data[pos], 1024, 0);
+	if(ret2 == -1)
+	  break;
+	pos += ret2;
+	// callback function
+	if(Progress)
+	  Progress(Object, len, pos);
+     }
+   Buffer.SetLength(0);
 #ifdef DEBUG
    if(ret1 == -1)
      write(1, "ret1 is -1\n", strlen("ret1 is -1\n"));
@@ -388,13 +416,13 @@ int ControlClient::getResponse()
    int hLen = 0;
    int returnLEN = 0;
    char cBuffer[1024];
-   Buffer.Free();
+   Buffer.SetLength(0);
 #ifdef DEBUG
    write(1, "Find header:", strlen("Find header:"));
 #endif
    while(Buffer.Find("\r\n\r\n", 4, 0) == -1) // a little costly, may change
      {
-	ret = socket.recv(cBuffer, 1024, 0);
+	ret = socket.recv(cBuffer, 1024, 0, TIMEOUT);
 
 	if(ret == -1)
 	  {
@@ -403,6 +431,12 @@ int ControlClient::getResponse()
 	  }
 
 	Buffer.AddBuffer((const void *)cBuffer, ret);
+	
+	if(Buffer.GetLength() > MAXHEADERLEN)
+	  {
+	     HeaderGetReturn(); // get the code if any
+	     return -1;
+	  }
 #ifdef DEBUG
 	write(1, cBuffer, ret);
 #endif
@@ -442,7 +476,7 @@ int ControlClient::getResponse()
 	DataPos = hLen;
 	while(Buffer.GetLength() < (hLen + returnLEN))
 	  {
-	     ret = socket.recv(cBuffer, 1024, 0);
+	     ret = socket.recv(cBuffer, 1024, 0, TIMEOUT);
 
 	     if(ret == -1)
 	       return -1;  // problem here
@@ -450,7 +484,10 @@ int ControlClient::getResponse()
 	     write(1, cBuffer, ret);
 #endif
 	     Buffer.AddBuffer((const void *)cBuffer, ret);
-	     // TODO: Add progress indication hooks here
+	     
+	     // Callback function
+	     if(Progress)
+	       Progress(Object, returnLEN, Buffer.GetLength() - hLen); 
 	  } // while
      } // if
    else

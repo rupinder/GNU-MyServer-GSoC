@@ -25,11 +25,17 @@
 #include "../include/stringutils.h"
 #include "../include/MemBuf.h"
 
+typedef void (*ControlClientCallback)(void *, unsigned int, unsigned int);
+
 class ControlClient
 {
  public:
    ControlClient();
    ~ControlClient();
+   
+   void setCallback(ControlClientCallback, void *);
+   void clearCallback();
+   
    int Login(const char *, const int, const char *, const char *);
    int Logout();
    
@@ -62,6 +68,8 @@ class ControlClient
  private:
    int HeaderGetReturn();
    int HeaderGetLEN();
+   ControlClientCallback Progress;
+   void * Object;
    char UserName[64];
    char UserPass[64];
 };
