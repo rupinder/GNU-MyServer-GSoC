@@ -289,7 +289,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 	}
 }
-#endif
+
 /*!
  *Manage the NT service.
  */
@@ -321,7 +321,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 	}
 	SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 }
-
+#endif
 
 /*!
  *Run MyServer service.
