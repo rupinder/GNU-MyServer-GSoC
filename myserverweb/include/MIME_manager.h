@@ -82,6 +82,7 @@ public:
 		mime_record* next;
 	};
 private:
+  int loaded;
 	mime_record *data;
 	u_long numMimeTypesLoaded;
 	char *filename;
@@ -101,5 +102,6 @@ public:
 	int getMIME(char* ext,char *dest,char **dest2);
 	int getMIME(int id,char* ext,char *dest,char **dest2);
 	void clean();
+  int isLoaded();
 };
 #endif 

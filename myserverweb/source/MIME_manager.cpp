@@ -22,15 +22,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 
 /*!
-*Source code to manage the MIME types in MyServer.
-*MIME types are recorded in a static buffer "data", that is a strings array.
-*Every MIME type is described by three strings:
-html,text/html,SEND NONE;
-*1)its extension(for example HTML)
-*2)its MIME description(for example text/html)
-*3)simple script to describe the action to do for handle the files of this type.
-*The file is ended by a '#' character.
-*/
+ *Source code to manage the MIME types in MyServer.
+ *MIME types are recorded in a static buffer "data", that is a strings array.
+ *Every MIME type is described by three strings:
+ *html,text/html,SEND NONE;
+ *1)its extension(for example HTML)
+ *2)its MIME description(for example text/html)
+ *3)simple script to describe the action to do for handle the files of this type.
+ *The file is ended by a '#' character.
+ */
 int MIME_Manager::load(char *filename)
 {
   int filenamelen = strlen(filename) + 1;
@@ -146,16 +146,16 @@ int MIME_Manager::load(char *filename)
 
 }
 /*!
-*Get the name of the file opened by the class.
-*/
+ *Get the name of the file opened by the class.
+ */
 char *MIME_Manager::getFilename()
 {
 	return filename;
 }
 
 /*!
-*Load the MIME types from a XML file.
-*/
+ *Load the MIME types from a XML file.
+ */
 int MIME_Manager::loadXML(char *filename)
 {
 	cXMLParser parser;
@@ -239,11 +239,15 @@ int MIME_Manager::loadXML(char *filename)
 		addRecord(rc);
 	}
 	parser.close();
+  
+  /*! Store the loaded status. */
+  loaded = 1;
+
 	return nm;
 }
 /*!
-*Save the MIME types to a XML file.
-*/
+ *Save the MIME types to a XML file.
+ */
 int MIME_Manager::saveXML(char *filename)
 {
 	MYSERVER_FILE::deleteFile(filename);
@@ -297,8 +301,8 @@ int MIME_Manager::saveXML(char *filename)
 }
 
 /*!
-*Save the MIME types to a file.
-*/
+ *Save the MIME types to a file.
+ */
 int MIME_Manager::save(char *filename)
 {
 	MYSERVER_FILE::deleteFile(filename);
@@ -426,34 +430,38 @@ MIME_Manager::~MIME_Manager()
 {
   clean();
 }
+
 /*!
-*Clean the memory allocated by the structure.
-*/
+ *Clean the memory allocated by the structure.
+ */
 void MIME_Manager::clean()
 {
-  delete [] filename;
+  loaded = 0;
+  if(filename)
+    delete [] filename;
   filename = 0;
 	removeAllRecords();
 }
 
 /*!
-*Constructor of the class.
-*/
+ *Constructor of the class.
+ */
 MIME_Manager::MIME_Manager()
 {
-	data=0;
-	numMimeTypesLoaded=0;
-	filename=0;
+	data = 0;
+	numMimeTypesLoaded = 0;
+	filename = 0;
+  loaded = 0;
 }
 
 /*!
-*Add a new record.
-*/
+ *Add a new record.
+ */
 void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 {
 	/*!
-	*If the MIME type already exists remove it.
-	*/
+   *If the MIME type already exists remove it.
+   */
 	if(getRecord(mr.extension))
 		removeRecord(mr.extension);
 	MIME_Manager::mime_record *nmr =new MIME_Manager::mime_record;
@@ -466,8 +474,8 @@ void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 }
 
 /*!
-*Remove a record by the extension of the MIME type.
-*/
+ *Remove a record by the extension of the MIME type.
+ */
 void MIME_Manager::removeRecord(char *ext)
 {
 	MIME_Manager::mime_record *nmr1 = data;
@@ -497,9 +505,10 @@ void MIME_Manager::removeRecord(char *ext)
 		nmr1=nmr1->next;
 	}while(nmr1);
 }
+
 /*!
-*Remove all records from the linked list.
-*/
+ *Remove all records from the linked list.
+ */
 void MIME_Manager::removeAllRecords()
 {
 	if(data==0)
@@ -525,10 +534,11 @@ void MIME_Manager::removeAllRecords()
 	data=0;
 	numMimeTypesLoaded=0;
 }
+
 /*!
-*Get a pointer to an existing record passing its extension.
-*Don't modify the member next of the returned structure.
-*/
+ *Get a pointer to an existing record passing its extension.
+ *Don't modify the member next of the returned structure.
+ */
 MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
 {
 	MIME_Manager::mime_record *nmr1;
@@ -543,9 +553,17 @@ MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
 }
 
 /*!
-*Returns the number of MIME types loaded.
-*/
+ *Returns the number of MIME types loaded.
+ */
 u_long MIME_Manager::getNumMIMELoaded()
 {
 	return numMimeTypesLoaded;
+}
+
+/*!
+ *Check if the MIME manager is loaded.
+ */
+int MIME_Manager::isLoaded()
+{
+  return loaded;
 }

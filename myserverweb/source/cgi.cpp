@@ -465,6 +465,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
         {
           nURL[j] = ((char*)td->buffer2->GetBuffer())[i + j + 9];
         }
+        nURL[j]='\0';
 
 				((http*)td->lhttp)->sendHTTPRedirect(td, s, nURL);
 			
