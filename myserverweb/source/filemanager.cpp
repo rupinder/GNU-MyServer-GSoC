@@ -21,8 +21,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
 #include "../include/stringutils.h"
 extern int mustEndServer; 
-static MYSERVER_FILE_HANDLE warningsLogFile=0;
-static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 #ifdef NOT_WIN
 extern "C" {

@@ -150,7 +150,7 @@ int MIME_Manager::loadXML(char *filename)
 {
 	cXMLParser parser;
 	strncpy(MIME_Manager::filename,filename,MAX_PATH);
-	if(int r=parser.open(filename))
+	if(parser.open(filename))
 	{
 		return -1;
 	}

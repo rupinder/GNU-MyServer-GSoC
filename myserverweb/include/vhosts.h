@@ -39,7 +39,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	#define SSL_CTX int;
 	#define SSL_METHOD int;
 #endif
-static int password_cb(char *buf,int num,int rwflag,void *userdata);
 
 #define LOG_FILES_OPTS_LEN	256
 

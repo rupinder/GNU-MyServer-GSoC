@@ -89,7 +89,7 @@ public:
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
 	void resetHTTPUserData(http_user_data*);
 	http();
-	~http();
+	virtual ~http();
 	void computeDigest(httpThreadContext* td,char*,char*);
 	u_long checkDigest(httpThreadContext* td,LPCONNECTION s);
 	

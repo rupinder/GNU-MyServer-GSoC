@@ -143,22 +143,24 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}	
 
-	/*!Now read the output*/
+	/*! Now read the output.  */
 	int exit=0;
-	const clock_t timeout= CLOCKS_PER_SEC * 20; // 20 seconds
+	
+	/*! Timeout is 20 seconds.  */
+	const clock_t timeout= CLOCKS_PER_SEC * 20;
 	clock_t time1 = get_ticks();
 	
 	char outDataPath[MAX_PATH];
 	
 	getdefaultwd(outDataPath,MAX_PATH);
-	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFile_%u",td->id);
+	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFile_%u",(u_int)td->id);
 	
 	con.tempOut.openFile(outDataPath,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_NO_INHERIT);
 	do	
 	{
 		while(con.sock.bytesToRead()<sizeof(FCGI_Header))
 		{
-			if(get_ticks()-time1>timeout)
+			if(  (clock_t)(get_ticks()-time1) > timeout)
 				break;
 		}
 		if(con.sock.bytesToRead())
@@ -242,7 +244,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 			break;
 		}
 	}
-	sprintf(td->response.CONTENT_LENGTH,"%u",con.tempOut.getFileSize()-headerSize);
+	sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)(con.tempOut.getFileSize()-headerSize));
 	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,(char*)td->buffer->GetBuffer());
 	for(;;)
 	{
@@ -513,7 +515,7 @@ int fastcgi::runFcgiServer(fCGIContext*,char* path)
 			strcpy(fCGIservers[fCGIserversN].host,"localhost");
 			fCGIservers[fCGIserversN].port=port++;
 			fCGIservers[fCGIserversN].socket.socket(AF_INET,SOCK_STREAM,0);
-			if(fCGIservers[fCGIserversN].socket.getHandle()==INVALID_SOCKET)
+			if(fCGIservers[fCGIserversN].socket.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 				return -2;
 			MYSERVER_SOCKADDRIN sock_inserverSocket;
 			sock_inserverSocket.sin_family=AF_INET;

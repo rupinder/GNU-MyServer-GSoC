@@ -104,9 +104,9 @@ u_long getCPUCount()
 	ret=si.dwNumberOfProcessors;
 #endif
 #ifdef NOT_WIN
-	ret=sysconf(_SC_NPROCESSORS_CONF); 
+	ret=(u_long)sysconf(_SC_NPROCESSORS_CONF); 
         /*! Use only a processor if some error happens.  */
-        if(ret==-1)
+        if(ret==(u_long)-1)
           ret = 1;
 #endif
 	return ret;
@@ -180,8 +180,8 @@ int preparePrintError()
 	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
 	if(ret)
 		return 0;
-	return -1;
 #endif
+	return -1;
 }
 
 /*!
@@ -194,9 +194,8 @@ int endPrintError()
 	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 	if(ret)
 		return 0;
-	return -1;
 #endif
-
+	return -1;
 }
 #ifndef WIN32
 static struct timeval tval;

@@ -239,7 +239,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 			if(headerSize)
 				http_headers::buildHTTPResponseHeaderStruct(&td->response, td, (char*)td->buffer2->GetBuffer());
    			/*! Always specify the size of the HTTP contents.  */
-			sprintf(td->response.CONTENT_LENGTH, "%u", (unsigned int)stdOutFile.getFileSize()-headerSize);
+			sprintf(td->response.CONTENT_LENGTH, "%u", (u_int) (stdOutFile.getFileSize()-headerSize));
 			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &td->response);
 			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
 			s->socket.send((char*)td->buffer->GetBuffer(), (int)(td->buffer->GetLength()), 0);

@@ -386,9 +386,11 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		input=(char*)td->buffer->GetBuffer();
 	}
 	int validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
-	if(validRequest==0)/*!Invalid header*/
+	/*! Invalid header.  */
+	if(validRequest==0)
 		return 0;
-	else if(validRequest==-1)/*!Incomplete header*/
+	/*! Incomplete header.  */
+	else if(validRequest==-1)
 		return -1;
 
 	const int max_URI=MAX_PATH+200;
@@ -410,20 +412,17 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		*td->buffer2 << input;
 		input=token=(char*)td->buffer2->GetBuffer();
 	}
-	int tokenOff;/*TokenOff is the length of the token starting from the location token*/
+	/* TokenOff is the length of the token starting from the location token.  */
+	int tokenOff;
 	tokenOff = getCharInString(token,cmdseps,HTTP_REQUEST_CMD_DIM);
 	if(tokenOff== -1 )
 		return 0;
 	do
 	{
-		/*!
-		*Reset the flag lineControlled.
-		*/
+		/*! Reset the flag lineControlled.  */
 		lineControlled=0;
 
-		/*!
-		*Copy the HTTP command.
-		*/
+		/*! Copy the HTTP command.  */
 		strncpy(command,token,tokenOff);
 		token+=tokenOff;
 		command[tokenOff]='\0';
@@ -439,9 +438,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			*GET /index.html HTTP/1.1
 			*/
 			lineControlled=1;
-			/*!
-			*Copy the method type.
-			*/
+			/*! Copy the method type.  */
 			strncpy(request->CMD,command,tokenOff);
 			request->CMD[tokenOff]='\0';
 			tokenOff = getCharInString(token,"\t\n\r",HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
@@ -918,9 +915,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 			*GET /index.html HTTP/1.1
 			*/
 			lineControlled=1;
-			/*!
-			*Copy the HTTP version.
-			*/
+			/*! Copy the HTTP version.  */
 			myserver_strlcpy(response->VER,command,HTTP_RESPONSE_VER_DIM);
 		
 			token = strtok( NULL, " ,\t\n\r" );
@@ -1105,9 +1100,7 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLine
 			}
 			nLinechars=0;
 			nLines++;
-			/*!
-			*If the lines number is greater than 25 we consider the header invalid.
-			*/
+			/*! If the lines number is greater than 25 we consider the header invalid.  */
 			if(nLines>25)
 			{
 				return 0;
@@ -1130,14 +1123,10 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLine
 		}
 	}
 
-	/*!
-	*Set the output variables.
-	*/
+	/*! Set the output variables.  */
 	*nLinesptr=nLines;
 	*ncharsptr=maxTotchars;
 	
-	/*!
-	*Return if is a valid request header.
-	*/
+	/*! Return if is a valid request header.  */
 	return isValidCommand;
 }

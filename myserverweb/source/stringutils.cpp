@@ -34,9 +34,6 @@ extern "C" {
 #endif
 #define u_short unsigned short
 
-static char daysName[7][4]={"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-static char monthsName[12][4]={"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
 /*!
 *This function format current time to the RFC 822 format.
 */
@@ -57,7 +54,7 @@ char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 	out[0]=asct[0];
 	out[1]=asct[1];
 	out[2]=asct[2];
-	out[3]=', ';
+	out[3]=',';
 	out[4]=' ';
 	out[5]=asct[8];
 	out[6]=asct[9];
@@ -96,7 +93,7 @@ time_t getTime(char* str)
 	tm t;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]==', ')
+		if(str[c]==',')
 		{
 			c++;
 			lb[i]='\0';
@@ -249,7 +246,7 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 	out[0]=asct[0];
 	out[1]=asct[1];
 	out[2]=asct[2];
-	out[3]=', ';
+	out[3]=',';
 	out[4]=' ';
 	out[5]=asct[8];
 	out[6]=asct[9];

@@ -68,7 +68,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	if(!td->appendOutputs)
 	{	
 		getdefaultwd(outDataPath,MAX_PATH);	
-		sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileMSCGI_%u",td->id);
+		sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileMSCGI_%u",(u_int)td->id);
 		data.stdOut.openFile(outDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 	}
 	else
@@ -154,7 +154,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	/*!
 	*Compute the response length.
 	*/
-	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.getFileSize());
+	sprintf(td->response.CONTENT_LENGTH,"%u",(u_int)data.stdOut.getFileSize());
 	/*Send all the data to the client if we haven't to append the output*/
 	if(!td->appendOutputs)
 	{
@@ -176,8 +176,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 			data.stdOut.readFromFile(buffer,bufferSize,&nbr);
 			if(nbr)
 			{
-				nbs=s->socket.send(buffer,nbr,0);
-				if(nbs==SOCKET_ERROR)
+				nbs=(u_long)s->socket.send(buffer,nbr,0);
+				if(nbs==(u_long)SOCKET_ERROR)
 				{
 					if(!td->appendOutputs)
 					{

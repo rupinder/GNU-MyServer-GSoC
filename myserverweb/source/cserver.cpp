@@ -179,7 +179,7 @@ void cserver::start()
 #ifdef NOT_WIN
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
-			printf("%s #%u: %s\n", languageParser.getValue("MSG_ADDRESS"), (u_long)(i+1), inet_ntoa(ia));
+			printf("%s #%u: %s\n", languageParser.getValue("MSG_ADDRESS"), (u_int)(i+1), inet_ntoa(ia));
 			sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", strlen(ipAddresses)?", ":"", inet_ntoa(ia));
 		}
 	}
@@ -326,7 +326,7 @@ int cserver::createServerAndListener(u_long port)
 		return 0; 
 	}
 
-	printf("%s: %u\n", languageParser.getValue("MSG_LISTEN"), (u_long)port);
+	printf("%s: %u\n", languageParser.getValue("MSG_LISTEN"), (u_int)port);
 
 	printf("%s\n", languageParser.getValue("MSG_LISTENTR"));
 	/*!
@@ -1139,7 +1139,7 @@ void cserver::loadSettings()
         	endPrintError();
 		return;
 	}
-	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), (u_long)getCPUCount());
+	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), (u_int)getCPUCount());
 
 	/*!
 	*If the virtualhosts.xml file doesn't exist copy it from the default one.
@@ -1192,7 +1192,7 @@ void cserver::loadSettings()
 	}
 	for(i=0;i<nThreads;i++)
 	{
-		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"), i);
+		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"),(u_int) i);
 		threads[i].id=(u_long)(i+ClientsTHREAD::ID_OFFSET);
 		myserver_thread::create(&ID,   &::startClientsTHREAD,  (void *)&(threads[i].id));
 		printf("%s\n", languageParser.getValue("MSG_THREADR"));

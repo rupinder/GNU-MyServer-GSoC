@@ -382,7 +382,7 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 	char *s = input, *result = finalresult;
 	while (*s != '=' && count <= *bufsize)
 	{
-		while (base64map[*s] == SKIP)
+		while (base64map[(int)((char)*s)] == SKIP)
 		{
 			if (*s != '\r' && *s != '\n')
 			{
@@ -474,7 +474,7 @@ char* CQPUtils::Decode(char *input)
 			int ok = 1;
 			for (i = 0; i < 2; i++)
 			{
-				if (hexmap[s[i]] == SKIP)
+				if (hexmap[(int) ((char)s[i]) ] == SKIP)
 				{
 					ok = 0;
 					if (s[i] == '\r' && s[i + 1] == '\n')
@@ -492,9 +492,9 @@ char* CQPUtils::Decode(char *input)
 			if (ok)
 			{
 				s += 2;
-				int m = hexmap[mid[0]];
+				int m = hexmap[(int)((char)mid[0])];
 				m <<= 4;
-				m |= hexmap[mid[1]];
+				m |= hexmap[(int)((char)mid[1])];
 				*(result++) = (char)m;
 			}
 		}
