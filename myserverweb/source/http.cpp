@@ -1835,7 +1835,7 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 	{
 		*td->buffer2 << "?" << td->request.URIOPTS;
 	}
-  sprintf(tmpStrInt, "%u",td->response.httpStatus);
+  sprintf(tmpStrInt, "%u ",td->response.httpStatus);
 
 	*td->buffer2 << td->request.VER  << "\" " << tmpStrInt  << " ";
 	
@@ -1843,11 +1843,11 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 		*td->buffer2  << td->response.CONTENT_LENGTH;
 	else
 		*td->buffer2 << "0";
-        if(strstr((((vhost*)(a->host)))->accessLogOpt, "type=combined"))
-        {
-            	*td->buffer2 << " "  << td->request.REFERER << " "  
-                           << td->request.USER_AGENT;            
-        }
+  if(strstr((((vhost*)(a->host)))->accessLogOpt, "type=combined"))
+  {
+    *td->buffer2 << " "  << td->request.REFERER << " "  
+                 << td->request.USER_AGENT;            
+  }
 	*td->buffer2 << "\r\n" <<end_str;
   /*!
    *Request the access to the log file then write then append the message
