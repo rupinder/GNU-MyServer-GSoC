@@ -116,6 +116,7 @@ int _finddata_t::findnext()
 int _finddata_t::findclose()
 {
    File_List.clear();
+   return 0;
 }
 
 intptr_t _findfirst(const char filename[], _finddata_t * fdat )
