@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=windows-1252">
+  <link rel="stylesheet" type="text/css" href="myserver1.css">
+  <title>MIME Types</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.0.3  (Win32)">
+  <meta name="AUTHOR" content="Kristen Grubb">
+  <meta name="CREATED" content="20030804;21131939">
+  <meta name="CHANGEDBY" content="Kristen Grubb">
+  <meta name="CHANGED" content="20030804;21511707">
+  <style>
+	<!--
+		TD P { color: #000000 }
+		P { color: #000000 }
+		H2 { color: #000000 }
+		H4 { color: #000000 }
+		A:link { color: #0000ff }
+	-->
+	</style>
+</head>
+<body lang="en-US"
+ style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"
+ link="#006600" vlink="#000099" alink="#666666">
+<table bordercolor="#000002" cellpadding="4" cellspacing="0"
+ frame="void" style="page-break-before: always;" border="5">
+</table>
+<table bordercolor="#008000" cellpadding="4" cellspacing="0"
+ frame="void"
+ style="page-break-before: always; width: 993px; height: 776px;"
+ border="4">
+  <thead> <tr valign="top">
+    <td>
+    <div style="text-align: center; color: rgb(0, 102, 0);"><font
+ size="+2"><span style="font-weight: bold;"><br>
+    <img src="images/logo.gif" title="" alt="Logo"
+ style="width: 150px; height: 54px;"><br>
+    <br>
+Table of Contents</span></font> </div>
+    <ol>
+      <li><a href="Background.html">Basic Background Information</a></li>
+      <ol>
+        <li><a href="WebServer.html">Web Server</a> </li>
+        <li><a href="License.html">License</a></li>
+        <li><a href="HelpUS.html">Help Us</a></li>
+        <li><a href="CVS.html">CVS</a><br>
+        </li>
+      </ol>
+      <li>Protocols
+        <ol>
+          <li>HTTP </li>
+          <li>ISAPI </li>
+          <li>CGI </li>
+        </ol>
+      </li>
+      <li>Scripting Languages
+        <ol>
+          <li>HTML </li>
+          <li><a href="PHP.html">PHP</a> </li>
+          <li><a href="Perl.html">Perl</a> </li>
+        </ol>
+      </li>
+      <li>Set Up Guides
+        <ol>
+          <li><a href="RunLinux.html">Linux</a> </li>
+          <li><a href="RunWindows.html">Windows 9X</a></li>
+          <li><a href="WindowsNT.html">Windows NT</a><br>
+          </li>
+        </ol>
+      </li>
+      <li>Configuring
+        <ol>
+          <li><a href="VirtualHosts.html">Creating Virtual Hosts</a> </li>
+          <li><a href="PublishSite.html">Publishing a Web Site</a> </li>
+          <li>Viewing Your Web Site</li>
+          <li><a href="Errors.html">Error Handling</a><br>
+          </li>
+        </ol>
+      </li>
+      <li>Maintenance Tasks
+        <ol>
+          <li>Working with Virtual Hosts </li>
+          <li>Resolving Conflicts </li>
+          <li>Logging and Monitoring Activity </li>
+        </ol>
+      </li>
+      <li>File Handling
+        <ol>
+          <li><font size="+1"><span style="font-weight: bold;">MIME</span></font>
+          </li>
+          <li>Content Management </li>
+          <li>File Uploading </li>
+        </ol>
+      </li>
+      <li>URL Handling </li>
+      <li>Controlling Access </li>
+      <li>Troubleshooting </li>
+    </ol>
+    </td>
+    <td>
+    <p align="right" style="color: rgb(0, 102, 0);"><font size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Next&gt;&gt;</b></font></p>
+    <br>
+    <h1 align="center" style="color: rgb(0, 102, 0);">MIME TYPES</h1>
+    <p>You can modify the MIME types used by MyServer by modifing the
+file
+"MIMEtypes.txt" with a text application such as notepad in Windows or
+Emacs in Linux. Each line describe a different MIME type. For example,
+the following line is used for the files with .html extension:</p>
+    <p
+ style="color: rgb(0, 102, 0); text-align: center; font-family: courier new,courier,monospace;">html,text/html,SEND
+NONE;</p>
+    <br>
+This line indicates the extension to register (<font color="#ffff00"
+ style="color: rgb(0, 102, 0);">html</font>),
+the MIME type to be used (<font color="#ffff00"
+ style="color: rgb(0, 102, 0);">text/html</font>), the
+way to send the file to the client (<font color="#ffff00"
+ style="color: rgb(0, 102, 0);">SEND</font>),
+and finally, an optional path used to fully describe the previous
+command (<font color="#ffff00" style="color: rgb(0, 102, 0);">NONE</font>)<br>
+    <br>
+    <br>
+    <p>Valid values for sending the file to the client are:</p>
+    <div align="left">
+    <ol>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">SEND</font>
+- Send the file statically as
+is. &nbsp;This command is used for files extensions such as .html and
+.jpg that don't need any external intervention from the web server.</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNCGI</font>
+- Run the CGI script
+indicated in the path. &nbsp;It is used for file extensions such as
+.php and .pl that need to be processed before sending any data to the
+client.</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNFASTCGI</font><span
+ style="color: rgb(0, 102, 0);"> </span>- Run the Fastcgi script.
+&nbsp;This type will need a fastcgi parser downloaded (see the PHP
+page).
+&nbsp;It is also used for file extensions such as .php and .pl</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTEFASTCGI</font>
+- This also runs the
+Fastcgi script, but unlike the RUNFASTCGI above, it does not need a
+server to run the script, instead it acts as a self server.</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNMSCGI</font><span
+ style="color: rgb(0, 102, 0);"> </span>- Run the MSCGI script.
+&nbsp;This library is only available for myServer. &nbsp;It is used to
+build fast and efficient CGIs.</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTE </font><span
+ style="color: rgb(0, 102, 0);"><span style="color: rgb(0, 0, 0);">-</span>
+        </span>Treat the file as an
+executable and send the output to the client.&nbsp;</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">SENDLINK</font>
+- Send the file that is
+contained in a link.</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTEWINCGI</font>
+- Send the file as a
+WinCGI</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNISAPI</font>
+- Run the ISAPI script.
+&nbsp;</li>
+      <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTEISAPI</font>
+- Runs the ISAPI script
+but does not need a server to run. Instead, it acts as a self server.</li>
+    </ol>
+    <ol>
+      <br>
+    </ol>
+    </div>
+    <p>A simpler way to manage the MIME types is to use the Control
+Center
+Application.</p>
+    <p style="text-align: center;"><img border="0"
+ src="file:///C:/Documents%20and%20Settings/Owner/My%20Documents/Summer%202003/COMM%20496/Project/images/confMIME.gif"
+ width="417" height="259" alt="Configure MIME types"> </p>
+    <p align="left" style="margin-left: 120px;">In the first menu&nbsp;
+select an extension for the
+MIME
+type (<font color="#ffff00" style="color: rgb(0, 102, 0);">html</font>).
+    <br>
+In the second menu
+select&nbsp; the MIME description to be used (<font color="#ffff00"
+ style="color: rgb(0, 102, 0);">text/html</font>).
+    <br>
+In the third menu select the method used for sending the file (<font
+ color="#ffff00" style="color: rgb(0, 102, 0);">SEND THE FILE AS IT IS</font>).<br>
+Finally, indicate the
+optional path to be used&nbsp; in the text box under the second menu
+(Shown here
+to be empty). <br>
+    </p>
+    <p align="left">To add a new extension click on the "<font
+ color="#ffff00" style="color: rgb(0, 102, 0);">Add a new extension</font>"
+button. &nbsp;To add a new
+MIME type click on the "<font color="#ffff00"
+ style="color: rgb(0, 102, 0);">Add a new MIME type</font>"
+button.<br>
+    </p>
+    <p>Click <font color="#ffff00" style="color: rgb(0, 102, 0);">OK</font>
+to save your modifications..</p>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div style="text-align: right; color: rgb(0, 102, 0);"><font
+ size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Next&gt;&gt;</b></font></div>
+    </td>
+  </tr>
+  </thead>
+</table>
+<p><br>
+<br>
+</p>
+</body>
+</html>
