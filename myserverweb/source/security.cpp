@@ -207,6 +207,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 	int userPermissions2Found=0;
 	int genericPermissions2Found=0;
 
+  u_long tempThrottlingRate=(u_long)-1;
   xmlAttr *attr;
 	xmlNode *node;
 
@@ -301,7 +302,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 			int tempGenericPermissions=0;
 			int rightUser=0;
 			int rightPassword=0;
-      u_long tempThrottlingRate=(u_long)-1;
       attr =  node->properties;
       while(attr)
 			{
@@ -373,7 +373,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 		if(!xmlStrcmp(node->name, (const xmlChar *)"ITEM"))
 		{
       int tempFilePermissions;
-			xmlNode *node2=node->children;
+      xmlNode *node2=node->children;
 			while(node2)
 			{
         tempFilePermissions=0;
@@ -382,7 +382,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 					int tempUserPermissions=0;
 					int rightUser=0;
 					int rightPassword=0;
-          u_long tempThrottlingRate = (u_long)-1;
 					attr = node2->properties;
 					while(attr)
 					{
@@ -430,8 +429,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 						{
               if(st->password2)
                 myserver_strlcpy(st->password2, tempPassword, 32);
-              if(tempThrottlingRate != (u_long) -1) 
-                st->throttlingRate = (u_long)tempThrottlingRate;
 						}
 
 						attr=attr->next;
@@ -439,7 +436,11 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 					if(rightUser) 
 					{
 						if(rightPassword)
+            {
 							userPermissionsFound=2;
+              if(tempThrottlingRate != (u_long) -1) 
+                st->throttlingRate = (u_long)tempThrottlingRate;
+            }
 						userPermissions2Found=2;
 						userPermissions=tempUserPermissions;
 					}
@@ -449,8 +450,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
 
       {
-        u_long tempThrottlingRate = (u_long)-1;
-
         attr = node->properties;
 
         /*! Generic ITEM permissions. */
@@ -478,7 +477,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
           }
           if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
           {
-            tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
+            if((tempThrottlingRate==(u_long)-1) || (userPermissionsFound == 0))
+              tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
           }
           /*! Check if the file name is correct. */
           if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
