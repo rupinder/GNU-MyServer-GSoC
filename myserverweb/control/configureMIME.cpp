@@ -66,6 +66,9 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	btnADDEXT= new wxButton(panel,Configuration_AddExt,"Add a new extension",wxPoint(270,135),wxSize(130,25));
 	btnADDMIME= new wxButton(panel,Configuration_AddExt,"Add a new MIME type",wxPoint(270,160),wxSize(130,25));
 
+	/*
+	*Add the commands in the correct order.
+	*/
 	actiontodoLB->Insert("SEND THE FILE AS IT IS",CGI_CMD_SEND);
 	actiontodoLB->Insert("RUN THE CGI(SPECIFY A PATH)",CGI_CMD_RUNCGI);
 	actiontodoLB->Insert("RUN THE ISAPI(SPECIFY A PATH)",CGI_CMD_RUNISAPI);

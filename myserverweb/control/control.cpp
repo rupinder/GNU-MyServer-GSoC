@@ -235,6 +235,7 @@ void mainFrame::runConsole(wxCommandEvent& event)
 	status=MYSERVER_CONSOLE_ON;
 	lmainFrame->SetStatusText(_T("MyServer started in console mode"));
 }
+#ifdef WIN32
 /*
 *Run myServer like an OS service.
 */
@@ -321,7 +322,7 @@ void mainFrame::stopService(wxCommandEvent& event)
 	lmainFrame->SetStatusText(_T("MyServer service stopped"));
 
 }
-#ifdef WIN32
+
 /*
 *Retrieve the service status.
 */
