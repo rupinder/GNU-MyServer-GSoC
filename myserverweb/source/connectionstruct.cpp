@@ -19,6 +19,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 
 /*!
+ *Create the buffer.
+ */
+ProtocolBuffer::ProtocolBuffer()
+{
+
+}
+
+/*!
+ *Destroy the object.
+ */
+ProtocolBuffer::~ProtocolBuffer()
+{
+
+}
+
+
+/*!
  *Contructor for the Connection class.
  */
 Connection::Connection()
@@ -60,22 +77,6 @@ Connection::~Connection()
 
   if(protocolBuffer)
     delete  protocolBuffer;
-
-}
-
-/*!
- *Create the buffer.
- */
-ProtocolBuffer::ProtocolBuffer()
-{
-
-}
-
-/*!
- *Destroy the object.
- */
-ProtocolBuffer::~ProtocolBuffer()
-{
 
 }
 
