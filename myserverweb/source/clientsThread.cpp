@@ -44,7 +44,6 @@ extern "C" {
 
 ClientsTHREAD::ClientsTHREAD()
 {
-	nConnections=0;
 	err=0;
 }
 ClientsTHREAD::~ClientsTHREAD()
@@ -64,7 +63,6 @@ void * startClientsTHREAD(void* pParam)
 	u_long id=*((u_long*)pParam);
 	ClientsTHREAD *ct=&lserver->threads[id];
 	ct->threadIsRunning=1;
-	ct->connections=0;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
@@ -75,7 +73,6 @@ void * startClientsTHREAD(void* pParam)
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
 
-	terminateAccess(&ct->connectionWriteAccess,ct->id);
 	/*
 	*This function when is alive only call the controlConnections(...) function
 	*of the ClientsTHREAD class instance used for control the thread.
@@ -107,89 +104,89 @@ void * startClientsTHREAD(void* pParam)
 */
 void ClientsTHREAD::controlConnections()
 {
-	requestAccess(&connectionWriteAccess,this->id);
-	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
-	for(c; c && connections ;c=next)
-	{
-		next=c->Next;
-		nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
-		if(nBytesToRead)
-		{
-			err=c->socket.recv(&buffer[c->dataRead],KB(8)-c->dataRead, 0);
-			if(err==-1)
-			{
-				deleteConnection(c);
-				continue;
-			}
-			if((c->dataRead+err)<KB(8))
-			{
-				buffer[c->dataRead+err]='\0';
-			}
-			else
-			{
-				deleteConnection(c);
-				continue;
-			}
-			memcpy(buffer,c->connectionBuffer,c->dataRead);
-			/*
-			*Control the protocol used by the connection.
-			*/
-			int retcode=0;
-			switch(((vhost*)(c->host))->protocol)
-			{
-				/*
-				*controlHTTPConnection returns 0 if the connection must be removed from
-				*the active connections list.
-				*/
-				case PROTOCOL_HTTP:
-					retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 
-					break;
-			}
-			/*
-			*The protocols parser functions return:
-			*0 to delete the connection from the active connections list
-			*1 to keep the connection active and clear the connectionBuffer
-			*2 if the header is incomplete
-			*/
-			if(retcode==0)
-			{
-				deleteConnection(c);
-				continue;
-			}
-			else if(retcode==1)
-			{
-				c->dataRead=0;
-			}
-			else if(retcode==2)
-			{
-				/*
-				*If the header is incomplete save the current received
-				*data in the connection buffer
-				*/
-				memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*Save the header in the connection buffer*/
-				c->dataRead+=err;
-					
-			}
-			c->timeout=clock();
+	LPCONNECTION c=lserver->getConnectionToParse(this->id);
+	if(!c)
+		return;
+	nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
+	if(nBytesToRead)
+	{
+		err=c->socket.recv(&buffer[c->dataRead],KB(8)-c->dataRead, 0);
+		if(err==-1)
+		{
+			lserver->deleteConnection(c,this->id);
+			return;
+		}
+		if((c->dataRead+err)<KB(8))
+		{
+			buffer[c->dataRead+err]='\0';
 		}
 		else
 		{
-			if(clock()-c->timeout>5000)
-				c->nTries=0;
+			lserver->deleteConnection(c,this->id);
+			return;
+		}
+		memcpy(buffer,c->connectionBuffer,c->dataRead);
+		/*
+		*Control the protocol used by the connection.
+		*/
+		int retcode=0;
+		switch(((vhost*)(c->host))->protocol)
+		{
 			/*
-			*If the connection is inactive for a time greater that the value
-			*configured remove the connection from the connections pool
+			*controlHTTPConnection returns 0 if the connection must be removed from
+			*the active connections list.
 			*/
-			if((clock()- c->timeout) > lserver->connectionTimeout)
-			{
-				deleteConnection(c);
-				continue;
-			}
+			case PROTOCOL_HTTP:
+				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				break;
+			default:
+				retcode=0;
+				break;
+		}
+		/*
+		*The protocols parser functions return:
+		*0 to delete the connection from the active connections list
+		*1 to keep the connection active and clear the connectionBuffer
+		*2 if the header is incomplete
+		*/
+		if(retcode==0)
+		{
+			lserver->deleteConnection(c,this->id);
+			return;
+		}
+		else if(retcode==1)
+		{
+			c->dataRead=0;
+		}
+		else if(retcode==2)
+		{
+			/*
+			*If the header is incomplete save the current received
+			*data in the connection buffer
+			*/
+			memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*Save the header in the connection buffer*/
+			c->dataRead+=err;
+				
+		}
+		c->timeout=clock();
+	}
+	else
+	{
+		if(clock()-c->timeout>5000)
+			c->nTries=0;
+		/*
+		*If the connection is inactive for a time greater that the value
+		*configured remove the connection from the connections pool
+		*/
+		if((clock()- c->timeout) > lserver->connectionTimeout)
+		{
+			lserver->deleteConnection(c,this->id);
+			return;
 		}
 	}
-	terminateAccess(&connectionWriteAccess,this->id);
+
 }
 /*
 *Stop the thread
@@ -212,165 +209,14 @@ void ClientsTHREAD::clean()
 {
 	if(initialized==0)/*If the thread was not initialized return from the clean function*/
 		return;
-	requestAccess(&connectionWriteAccess,this->id);
-	if(connections)
-	{
-		clearAllConnections();
-	}
-	delete[] buffer;
-	delete[] buffer2;
+	if(buffer)
+		delete[] buffer;
+	if(buffer2)
+		delete[] buffer2;
 	buffer=buffer2=0;
 	initialized=0;
-	terminateAccess(&connectionWriteAccess,this->id);
-
 }
 
-/*
-*Add a new connection.
-*A connection is defined using a CONNECTION struct.
-*/
-LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort)
-{
-	requestAccess(&connectionWriteAccess,this->id);
-	u_long cs=sizeof(CONNECTION);
-	LPCONNECTION nc=(CONNECTION*)malloc(cs);
-	if(!nc)
-		return NULL;
-	nc->connectionBuffer[0]='\0';
-	nc->socket=s;
-	nc->port=(u_short)port;
-	nc->timeout=clock();
-	nc->dataRead = 0;
-	nc->localPort=(u_short)localPort;
-	strcpy(nc->ipAddr,ipAddr);
-	strcpy(nc->localIpAddr,localIpAddr);
-	nc->Next=connections;
-    nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
-	nc->login[0]='\0';
-	nc->nTries=0;
-	nc->password[0]='\0';
-	if(nc->host==0)
-	{
-		free(nc);
-		return 0;
-	}
-    connections=nc;
-	nConnections++;
-
-	char msg[500];
-#ifdef WIN32
-	sprintf(msg, "%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-	strcat(msg,"\r\n");
-
-#endif
-#ifdef __linux__
-	snprintf(msg, 500,"%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-	strcat(msg,"\r\n");
-
-#endif
-	((vhost*)(nc->host))->accessesLogWrite(msg);
-
-	if(nc==0)
-	{
-		if(lserver->getVerbosity()>0)
-		{
-#ifdef WIN32
-			sprintf(msg, "%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-			strcat(msg,"\r\n");
-#endif
-#ifdef __linux__
-			snprintf(msg, 500,"%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-			strcat(msg,"\r\n");
-#endif
-			((vhost*)(nc->host))->warningsLogWrite(msg);
-		}
-	}
-	terminateAccess(&connectionWriteAccess,this->id);
-	return nc;
-}
-
-/*
-*Delete a connection.
-*/
-int ClientsTHREAD::deleteConnection(LPCONNECTION s)
-{
-	if(!s)
-		return 0;
-	requestAccess(&connectionWriteAccess,this->id);
-	int ret=0;
-	/*
-	*First of all close the socket communication.
-	*/
-	s->socket.shutdown(SD_BOTH );
-	do
-	{
-		err=s->socket.recv(buffer,buffersize,0);
-	}while(err!=-1);
-	while(s->socket.closesocket());
-	/*
-	*Then remove the connection from the active connections list.
-	*/
-	LPCONNECTION prev=0;
-	for(LPCONNECTION i=connections;i;i=i->Next)
-	{
-		if(i->socket == s->socket)
-		{
-			if(prev)
-				prev->Next=i->Next;
-			else
-				connections=i->Next;
-			free(i);
-			ret=1;
-			break;
-		}
-		else
-		{
-			prev=i;
-		}
-	}
-	nConnections--;
-	terminateAccess(&connectionWriteAccess,this->id);
-	return ret;
-}
-
-/*
-*Delete all the active connections.
-*/
-void ClientsTHREAD::clearAllConnections()
-{
-
-	requestAccess(&connectionWriteAccess,this->id);
-	LPCONNECTION c=connections;
-	LPCONNECTION next=0;
-	for(u_long i=0;c && i<nConnections;i++)
-	{
-		next=c->Next;
-		deleteConnection(c);
-		c=next;
-	}
-	nConnections=0;
-	connections=NULL;
-	terminateAccess(&connectionWriteAccess,this->id);
-}
-
-
-/*
-*Find a connection passing its socket.
-*/
-LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
-{
-	LPCONNECTION c;
-	for(c=connections;c;c=c->Next)
-	{
-		if(c->socket==a)
-			return c;
-	}
-	return NULL;
-}
 
 /*
 *Returns a non-null value if the thread is active.

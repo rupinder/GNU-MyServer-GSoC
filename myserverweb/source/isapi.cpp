@@ -648,8 +648,8 @@ BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWO
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
 		lstrcpyn(&ValStr[valLen],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
-		valLen+=strlen(td->request.URI)-strlen(td->pathInfo)+1;
-		valLen+=sprintf(&ValStr[valLen],"\n");
+		valLen+=(DWORD)strlen(td->request.URI)-strlen(td->pathInfo)+1;
+		valLen+=(DWORD)sprintf(&ValStr[valLen],"\n");
 	}
 	else if(valLen+30<maxLen) 
 		return 0;

@@ -69,7 +69,7 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
-	char ipAddresses[200];
+	char ipAddresses[200];/*Buffer that contains all the IP values of the local machine*/
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
@@ -87,13 +87,21 @@ private:
 	u_long buffersize2;
 	u_long getNumConnections();
 	void initialize(int);
-	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
-	LPCONNECTION findConnection(MYSERVER_SOCKET);
+	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int);
+    u_long nConnections;
+	void clearAllConnections();
+	int deleteConnection(LPCONNECTION,int);
+	u_long connectionWriteAccess;
+	LPCONNECTION connections;
 	u_long connectionTimeout;
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
+	LPCONNECTION connectionToParse;
 public:
+	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
+	LPCONNECTION getConnectionToParse(int);
+	LPCONNECTION findConnection(MYSERVER_SOCKET);
 	u_long getTimeout();
 	char *getAddresses();
 	void *envString;

@@ -60,6 +60,8 @@ int mustEndServer;
 void cserver::start()
 {
 	u_long i;
+	nConnections=0;
+	connections=0;
 	/*
 	*Set the current working directory.
 	*/
@@ -225,7 +227,7 @@ void cserver::start()
 	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
-		threads[i].id=(i);
+		threads[i].id=(i+2);
 #ifdef WIN32
 		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
 #endif
@@ -459,17 +461,6 @@ void * listenServer(void* params)
 */
 u_long cserver::getNumConnections()
 {
-	/*
-	*Get the number of connections in all the threads.
-	*/
-	u_long nConnections=0;
-	for(u_long i=0;i<nThreads;i++)
-	{
-		nConnections+=threads[i].nConnections;
-	}
-	/*
-	Returns the number of all the connections.
-	*/
 	return nConnections;
 }
 
@@ -510,6 +501,10 @@ void cserver::terminate()
 		threads[i].stop();
 		if(verbosity>1)
 			printf("%s\n",languageParser.getValue("MSG_TSTOPPED"));
+	}
+	if(connections)
+	{
+		clearAllConnections();
 	}
 	if(verbosity>1)
 	{
@@ -716,7 +711,7 @@ u_long cserver::getTimeout()
 	return connectionTimeout;
 }
 /*
-*This function dispatch a new connection to a thread.
+*This function add a new connection to the list.
 */
 int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 {
@@ -744,34 +739,179 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	int port=ntohs((*asock_in).sin_port);/*Port used by the client*/
 	int myport=ntohs(localsock_in.sin_port);/*Port connected to*/
 
-	static u_long local_nThreads=0;
-	ClientsTHREAD *ct=&threads[local_nThreads];
-	if(!ct->addConnection(s,asock_in,&ip[0],&myIp[0],port,myport))
+	if(!addConnectionToList(s,asock_in,&ip[0],&myIp[0],port,myport,1))
 	{
 		/*If we report error to add the connection to the thread*/
 		ret=0;
 		s.shutdown(2);/*Shutdown the socket both on receive that on send*/
 		s.closesocket();/*Then close it*/
 	}
+	return ret;
+}
 
-	if(++local_nThreads>=nThreads)
-		local_nThreads=0;
+/*
+*Add a new connection.
+*A connection is defined using a CONNECTION struct.
+*/
+LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
+{
+	requestAccess(&connectionWriteAccess,id);
+	u_long cs=sizeof(CONNECTION);
+	LPCONNECTION nc=(CONNECTION*)malloc(cs);
+	if(!nc)
+		return NULL;
+	nc->connectionBuffer[0]='\0';
+	nc->socket=s;
+	nc->port=(u_short)port;
+	nc->timeout=clock();
+	nc->dataRead = 0;
+	nc->localPort=(u_short)localPort;
+	strcpy(nc->ipAddr,ipAddr);
+	strcpy(nc->localIpAddr,localIpAddr);
+	nc->Next=connections;
+    nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	nc->login[0]='\0';
+	nc->nTries=0;
+	nc->password[0]='\0';
+	if(nc->host==0)
+	{
+		free(nc);
+		return 0;
+	}
+    connections=nc;
+	nConnections++;
+
+	char msg[500];
+#ifdef WIN32
+	sprintf(msg, "%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
+	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
+	strcat(msg,"\r\n");
+
+#endif
+#ifdef __linux__
+	snprintf(msg, 500,"%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
+	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
+	strcat(msg,"\r\n");
+
+#endif
+	((vhost*)(nc->host))->accessesLogWrite(msg);
+
+	if(nc==0)
+	{
+		if(lserver->getVerbosity()>0)
+		{
+#ifdef WIN32
+			sprintf(msg, "%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
+			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
+			strcat(msg,"\r\n");
+#endif
+#ifdef __linux__
+			snprintf(msg, 500,"%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
+			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
+			strcat(msg,"\r\n");
+#endif
+			((vhost*)(nc->host))->warningsLogWrite(msg);
+		}
+	}
+	terminateAccess(&connectionWriteAccess,id);
+	return nc;
+}
+
+
+/*
+*Delete a connection.
+*/
+int cserver::deleteConnection(LPCONNECTION s,int id)
+{
+	requestAccess(&connectionWriteAccess,id);
+	if(!s)
+		return 0;
+	int ret=0,err;
+	/*
+	*First of all close the socket communication.
+	*/
+	s->socket.shutdown(SD_BOTH );
+	char buffer[256];
+	int buffersize=256;
+	do
+	{
+		err=s->socket.recv(buffer,buffersize,0);
+	}while(err!=-1);
+	while(s->socket.closesocket());
+	/*
+	*Then remove the connection from the active connections list.
+	*/
+	LPCONNECTION prev=0;
+	for(LPCONNECTION i=connections;i;i=i->Next)
+	{
+		if(i->socket == s->socket)
+		{
+			if(prev)
+				prev->Next=i->Next;
+			else
+				connections=i->Next;
+			free(i);
+			ret=1;
+			break;
+		}
+		else
+		{
+			prev=i;
+		}
+	}
+	nConnections--;
+	terminateAccess(&connectionWriteAccess,id);
 	return ret;
 }
 /*
-*Find a connection by its socket.
+*Get a connection to parse.
 */
-LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
+LPCONNECTION cserver::getConnectionToParse(int id)
 {
-	LPCONNECTION c=NULL;
-	for(u_long i=0;i<nThreads;i++)
+	requestAccess(&connectionWriteAccess,id);
+	
+	if(connectionToParse)
+		connectionToParse=connectionToParse->Next;
+	else
+		connectionToParse=connections;
+	if(connectionToParse==0)
+		connectionToParse=connections;
+
+	terminateAccess(&connectionWriteAccess,id);
+	return connectionToParse;
+}
+/*
+*Delete all the active connections.
+*/
+void cserver::clearAllConnections()
+{
+	LPCONNECTION c=connections;
+	LPCONNECTION next=0;
+	for(u_long i=0;c && i<nConnections;i++)
 	{
-		c=threads[i].findConnection(s);
-		if(c!=NULL)
+		next=c->Next;
+		deleteConnection(c,0);
+		c=next;
+	}
+	nConnections=0;
+	connections=NULL;
+}
+
+
+/*
+*Find a connection passing its socket.
+*/
+LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
+{
+	LPCONNECTION c;
+	for(c=connections;c;c=c->Next)
+	{
+		if(c->socket==a)
 			return c;
 	}
 	return NULL;
 }
+
 /*
 *Returns the full path of the binaries folder.
 */

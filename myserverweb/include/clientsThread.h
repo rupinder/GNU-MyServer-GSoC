@@ -44,20 +44,13 @@ private:
 	int err;
 	int threadIsRunning;
 	int threadIsStopped;
-    u_long nConnections;
 	u_long buffersize;
 	u_long buffersize2;
-	LPCONNECTION addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*,char*,char*,int,int);
-	LPCONNECTION findConnection(MYSERVER_SOCKET s);
 	int isRunning();
 	int isStopped();
 	char *buffer;
 	char *buffer2;
-	void clearAllConnections();
-	int deleteConnection(LPCONNECTION id);
 	void controlConnections();
-	u_long connectionWriteAccess;
-	LPCONNECTION connections;
 	u_long nBytesToRead;
 public:
 	ClientsTHREAD();
