@@ -50,11 +50,11 @@ char GZIP_HEADER[]={(char)0x1f,(char)0x8b,Z_DEFLATED,0,0,0,0,0,0,0x03};
 /*!
 *Initialize the gzip structure value.
 */
-
 u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long ,gzip::gzip_data* data)
 {
 	if(data==0)
 		data=&(this->data);
+#ifndef DO_NOT_USE_GZIP		
 	long level = Z_DEFAULT_COMPRESSION;
 
 	data->initialized=1;
@@ -65,6 +65,9 @@ u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long ,gzip::gzip_data* data
 	data->stream.opaque = Z_NULL;
 	data->stream.data_type=Z_BINARY;
 	return deflateInit2(&(data->stream), level, Z_DEFLATED,-MAX_WBITS, MAX_MEM_LEVEL,0);
+#else 
+	return 0;
+#endif
 
 };
 
@@ -151,8 +154,12 @@ u_long gzip::gzip_updateCRC(char* buffer,int size,gzip::gzip_data* data)
 {
 	if(data==0)
 		data=&(this->data);
+#ifndef DO_NOT_USE_GZIP		
 	data->crc = crc32(data->crc, (const Bytef *) buffer,(u_long)size);
 	return data->crc;
+#else
+	return 0;
+#endif
 }
 /*!
 *Get the GZIP footer.
@@ -161,6 +168,7 @@ u_long gzip::gzip_getFOOTER(char *str,int size,gzip::gzip_data* data)
 {
 	if(data==0)
 		data=&(this->data);
+#ifndef DO_NOT_USE_GZIP		
 	char *footer =  str;
 	footer[0] = (char) (data->crc) & 0xFF;
 	footer[1] = (char) ((data->crc) >> 8) & 0xFF;
@@ -172,4 +180,7 @@ u_long gzip::gzip_getFOOTER(char *str,int size,gzip::gzip_data* data)
 	footer[7] = (char) (data->stream.total_in >> 24) & 0xFF;
 	footer[8] = '\0';
 	return GZIP_FOOTER_LENGTH;
+#else
+	return 0;
+#endif
 }

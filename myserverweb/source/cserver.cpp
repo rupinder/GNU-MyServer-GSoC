@@ -677,6 +677,7 @@ void cserver::initialize(int /*!OSVer*/)
 	browseDirCSSpath[0]='\0';
 	mustEndServer=0;
 	verbosity=1;
+	gzip_threshold=1<<20;
 	serverAdmin[0]='\0';
 
 	useMessagesFiles=1;
@@ -758,6 +759,15 @@ void cserver::initialize(int /*!OSVer*/)
 	*/
 	nThreads=nThreadsA*getCPUCount()+nThreadsB;
 
+	/*!
+	*Determine the min file size that will use GZIP compression.
+	*/
+	data=configurationFileManager.getValue("GZIP_THRESHOLD");
+	if(data)
+	{
+		gzip_threshold=atoi(data);
+	}		
+	
 	/*!
 	*Determine the number of default filenames written in the configuration file.
 	*/
@@ -941,7 +951,13 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	terminateAccess(&connectionWriteAccess,id);
 	return nc;
 }
-
+/*!
+*Get the GZIP threshold value.
+*/
+u_long  cserver::getGZIPthreshold()
+{
+	return gzip_threshold;
+}
 
 /*!
 *Delete a connection from the list.

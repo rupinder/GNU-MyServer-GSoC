@@ -254,7 +254,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	{
 		lastByte=bytesToSend;
 		
-		if(bytesToSend > (1<<20))/*Use GZIP compression to send big files*/
+		if(bytesToSend > lserver->getGZIPthreshold())/*Use GZIP compression to send files bigger than GZIP threshold*/
 			useGZIP=1;
 	}
 	else/*!If the client use ranges set the right value for the last byte number*/

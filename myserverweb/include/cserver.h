@@ -81,6 +81,7 @@ private:
 	char serverAdmin[32];
 	ClientsTHREAD *threads;
 	u_long nThreads;
+	u_long gzip_threshold;
 	u_long verbosity;
 	int useMessagesFiles;
 	u_long buffersize;
@@ -114,6 +115,7 @@ public:
 	char *getBrowseDirCSS();
 	char  *getServerName();
 	u_long  getVerbosity();
+	u_long  getGZIPthreshold();
 	char *getServerAdmin();
 	int getMaxLogFileSize();
 	int  mustUseMessagesFiles();
