@@ -35,7 +35,8 @@ extern "C"
 #include <string.h>
 }
 
-int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
+int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename, 
+                       int only_header)
 {
 #ifdef WIN32
 	u_long nbr;
@@ -271,10 +272,23 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
                                           &td->response);
 		s->socket.send((const char*)td->buffer->GetBuffer(),
                    (int)strlen((const char*)td->buffer->GetBuffer()), 0);
+    if(only_header)
+    {
+      OutFileHandle.closeFile();
+      MYSERVER_FILE::deleteFile(outFilePath);
+      MYSERVER_FILE::deleteFile(dataFilePath);
+      return 1;
+    }
 		s->socket.send((char*)(buffer+headerSize),nBytesRead-headerSize, 0);
 	}
 	else
+  {
+    if(only_header)
+    {
+      return 1;
+    }
 		td->outputData.writeToFile((char*)(buffer+headerSize),nBytesRead-headerSize,&nbw);
+  }
 
   /*! Flush the rest of the file. */
   do

@@ -42,7 +42,8 @@ struct fourchar
  *Entry-Point to manage a FastCGI request.
  */
 int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
-                         char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
+                         char* scriptpath,char* /*!ext*/,char *cgipath,int execute,
+                         int only_header)
 {
 	fCGIContext con;
 	con.td=td;
@@ -168,7 +169,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}
 
-	if(sendFcgiBody(&con,(char*)td->buffer2->GetBuffer(),sizeEnvString,FCGI_PARAMS,id))
+	if(sendFcgiBody(&con,(char*)td->buffer2->GetBuffer(),sizeEnvString,
+                  FCGI_PARAMS,id))
 	{
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send params\r\n" << '\0';
@@ -377,6 +379,11 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 				exit = 1;
 				break;
 			}
+      if(only_header)
+      {
+        exit = 1;
+        break;
+      }
 			if(td->connection->socket.send((char*)(((char*)td->buffer->GetBuffer())
                                      +headerSize), nbr - headerSize, 0)==SOCKET_ERROR)
 			{
@@ -386,6 +393,11 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		}
 		else/*! If appendOutputs. */
 		{
+      if(only_header)
+      {
+        exit = 1;
+        break;
+      }
 			u_long nbw=0;
       /*!
        *Send remaining data stored in the buffer. 

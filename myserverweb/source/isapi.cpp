@@ -174,7 +174,8 @@ int isapi::SendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
 /*!
  *Write directly to the output.
  */
-BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*!dwReserved*/)
+BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, 
+                                    DWORD /*!dwReserved*/)
 {
 	ConnTableRecord *ConnInfo;
 	if(*lpdwBytes==0)
@@ -185,12 +186,15 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
-		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
-		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("isapi::WriteClientExport: invalid hConn\r\n");
-		((vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(ConnInfo->td->id);
+		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
+                                                                ConnInfo->td->id);
+		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
+                                        "isapi::WriteClientExport: invalid hConn\r\n");
+		((vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(
+                                                                ConnInfo->td->id);
 		return 0;
 	}
-	int keepalive = (lstrcmpi(ConnInfo->td->request.CONNECTION, "Keep-Alive")==0) ? 1 : 0 ;
+	int keepalive =(lstrcmpi(ConnInfo->td->request.CONNECTION, "Keep-Alive")==0)?1:0 ;
 
 	char chunk_size[15];
 	u_long nbw=0;
@@ -244,6 +248,9 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 					return 0;
 			}
 			ConnInfo->headerSent=1;
+      
+      if(ConnInfo->headerSent && ConnInfo->only_header)
+        return 0;
 
 			/*!Send the first chunk. */
 			if(len)
@@ -568,7 +575,8 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
  *Main procedure to call an ISAPI module.
  */
 int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection, 
-                     char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
+                     char* scriptpath,char* /*!ext*/,char *cgipath,int execute,
+                     int only_header)
 {
   /*!
    *ISAPI works only on the windows architecture.
@@ -611,7 +619,8 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	if (connIndex == max_Connections) 
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite("Error ISAPI max connections\r\n");
+		((vhost*)td->connection->host)->warningsLogWrite(
+                                                    "Error ISAPI max connections\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
@@ -619,6 +628,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
+  connTable[connIndex].only_header = only_header;
 	connTable[connIndex].headerSent=0;
 	connTable[connIndex].headerSize=0;
 	connTable[connIndex].Allocated = 1;
@@ -627,14 +637,16 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	if (AppHnd == NULL) 
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Failure to load ISAPI application module: ");
+		((vhost*)(td->connection->host))->warningsLogWrite(
+                                         "Failure to load ISAPI application module: ");
 		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		if(!FreeLibrary((HMODULE)AppHnd))
 		{
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(
+                                          "Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -647,12 +659,14 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	if (GetExtensionVersion == NULL) 
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite(
+           "Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		if(!FreeLibrary(AppHnd))
 		{
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(
+                                            "Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -662,12 +676,14 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	if(!GetExtensionVersion(&Ver)) 
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("ISAPI GetExtensionVersion() returned FALSE\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite(
+                                     "ISAPI GetExtensionVersion() returned FALSE\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		if(!FreeLibrary(AppHnd))
 		{
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(
+                                            "Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -677,12 +693,14 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("ISAPI version not supported\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite(
+                                       "ISAPI version not supported\r\n");
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		if(!FreeLibrary((HMODULE)AppHnd))
 		{
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(
+                                    "Failure to FreeLibrary in ISAPI module");
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -799,7 +817,10 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	if (HttpExtensionProc == NULL) 
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite(
+                             "Failure to get pointer to HttpExtensionProc() in ISAPI \
+                              application module\r\n");
+
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		FreeLibrary((HMODULE)AppHnd);
     return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
@@ -829,7 +850,8 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	if(!FreeLibrary((HMODULE)AppHnd))
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+		((vhost*)(td->connection->host))->warningsLogWrite(
+                                      "Failure to FreeLibrary in ISAPI module");
 		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -842,7 +864,8 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
    *On other archs returns a non implemented error. 
    */
 	((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-	((vhost*)td->connection->host)->warningsLogWrite("Error ISAPI is not implemented\r\n");
+	((vhost*)td->connection->host)->warningsLogWrite(
+                                   "Error ISAPI is not implemented\r\n");
 	((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);	
 	return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 #endif	

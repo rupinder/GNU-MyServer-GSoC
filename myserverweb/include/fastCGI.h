@@ -198,7 +198,9 @@ private:
 public:
 	fastcgi();
 	static int initializeFASTCGI();
-	int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
+	int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
+                  char* scriptpath,char* /*!ext*/,char *cgipath,int execute,
+                  int onlyHeader);
 	static int cleanFASTCGI();
 };
 #endif

@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define PROTOCOL_HTTP		1
 #define PROTOCOL_HTTPS		1001
 #define PROTOCOL_FTP		2
-#define PROTOCOL_CONTROL		3
+#define PROTOCOL_CONTROL		1002
 
 /*! Remove the connection due a high server load.  */
 #define CONNECTION_REMOVE_OVERLOAD 1

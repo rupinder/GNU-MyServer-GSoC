@@ -58,6 +58,7 @@ struct httpThreadContext
 {
 	int appendOutputs;/*! Used by SSI. */
   int lastError;/*! Used by SSI and set by raiseHTTPError. */
+  int only_header;/*! Is the client asking only for the header? */
 	LPCONNECTION connection;
 	CMemBuf *buffer;
 	CMemBuf *buffer2;

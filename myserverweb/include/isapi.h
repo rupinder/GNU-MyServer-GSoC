@@ -96,17 +96,20 @@ typedef struct _EXTENSION_CONTROL_BLOCK
   DWORD cbAvailable;
   LPBYTE lpbData;
   LPSTR lpszContentType;
-  BOOL (WINAPI * GetServerVariable)(HCONN hConn, LPSTR lpszVariableName, 						                      							  					
-				                            LPVOID lpvBuffer, LPDWORD lpdwSize);
-  BOOL (WINAPI * WriteClient)(HCONN ConnID, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
+  BOOL (WINAPI * GetServerVariable)(HCONN hConn, LPSTR lpszVariableName,
+                                    LPVOID lpvBuffer, LPDWORD lpdwSize);
+  BOOL (WINAPI * WriteClient)(HCONN ConnID, LPVOID Buffer, LPDWORD lpdwBytes, 
+                              DWORD dwReserved);
   BOOL (WINAPI * ReadClient)(HCONN ConnID, LPVOID lpvBuffer, LPDWORD lpdwSize);
-  BOOL (WINAPI * ServerSupportFunction)(HCONN hConn, DWORD dwHSERRequest, LPVOID lpvBuffer,
-                                        LPDWORD lpdwSize, LPDWORD lpdwDataType);
+  BOOL (WINAPI * ServerSupportFunction)(HCONN hConn, DWORD dwHSERRequest, 
+                                        LPVOID lpvBuffer, LPDWORD lpdwSize, 
+                                        LPDWORD lpdwDataType);
 } EXTENSION_CONTROL_BLOCK, *LPEXTENSION_CONTROL_BLOCK;
 
 struct ConnTableRecord
 {
 	BOOL Allocated;
+  int only_header;
 	int headerSent;
 	int headerSize;
 	httpThreadContext *td;
@@ -132,20 +135,26 @@ public:
 	static ConnTableRecord *HConnRecord(HCONN hConn);
 	static ConnTableRecord *connTable;
 	static  u_long max_Connections;
-	static BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
-	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+	static BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,
+                                  LPDWORD maxLen);
+	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,
+                                 LPDWORD maxLen);
 #endif	
 	isapi();
 	static myserver_mutex *isapi_mutex;
 	static void initISAPI();
 	static void cleanupISAPI();
-	int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
+	int sendISAPI(httpThreadContext* td,LPCONNECTION connection, char* scriptpath,
+                char* /*!ext*/,char *cgipath,int execute, int only_header);
 };
 
 #ifdef WIN32	
-BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType);
+BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
+                                              LPVOID lpvBuffer, LPDWORD lpdwSize, 
+                                              LPDWORD lpdwDataType);
 BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
-BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
+BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, 
+                                    DWORD dwReserved);
 BOOL WINAPI ISAPI_GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
 #endif
 

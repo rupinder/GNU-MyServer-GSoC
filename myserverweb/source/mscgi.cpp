@@ -37,10 +37,11 @@ extern "C" {
 }
 
 /*!
-*Sends the MyServer CGI; differently from standard CGI this don't need a new process to run
-*so it is faster.
-*/
-int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
+ *Sends the MyServer CGI; differently from standard CGI this don't 
+ *need a new process to run so it is faster.
+ */
+int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,
+                     char* cmdLine, int only_header)
 {
 	/*!
    *This is the code for manage a .mscgi file.
@@ -230,6 +231,10 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
       /*! Internal server error. */
       return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
+    if(only_header)
+    {
+      return 1;
+    }
 		do
 		{
 			data.stdOut.readFromFile(buffer,bufferSize,&nbr);

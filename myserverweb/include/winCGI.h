@@ -27,6 +27,6 @@ extern const char *versionOfSoftware;
 class wincgi
 {
 public:
-	int sendWINCGI(httpThreadContext*,LPCONNECTION s,char* filename);
+	int sendWINCGI(httpThreadContext*,LPCONNECTION s,char* filename, int only_header);
 };
 #endif

@@ -88,7 +88,7 @@ int http::initialized=0;
  *Browse a folder printing its contents in an HTML file.
  */
 int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, 
-                            char* folder)
+                            char* folder, int only_header)
 {
 	/*! Send the folder content.  */
 	u_long nbw;
@@ -336,7 +336,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	
 	/* If we haven't to append the output build the HTTP header and send the data.  */
 	if(!td->appendOutputs)
-	{
+  {
 		u_long nbr=0;
       int nbs=0;
 		td->outputData.setFilePointer(0);
@@ -349,6 +349,10 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 			/* Remove the connection.  */
 			return 0;
 		}	
+
+    if(only_header)
+      return 1;
+
 		do
 		{
 			ret = td->outputData.readFromFile((char*)td->buffer->GetBuffer(), 
@@ -370,6 +374,11 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 			}
 		}while(nbr && nbs);
 	}
+  else
+  {
+    http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+                                          &(td->response));
+  }
 	return 1;
 
 }
@@ -1523,7 +1532,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       delete [] defaultFileName;
     }
     delete [] filename;
-		return sendHTTPDIRECTORY(td, s, td->filenamePath) & keepalive;
+		return sendHTTPDIRECTORY(td, s, td->filenamePath, only_header) & keepalive;
 	}
 
   delete [] filename;
@@ -1544,7 +1553,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		int ret  =  lcgi.sendCGI(td, s, td->filenamePath, ext, data, mimeCMD);
+		int ret  =  lcgi.sendCGI(td, s, td->filenamePath, ext, data, mimeCMD,only_header);
     if(data)
       delete [] data;
     return ret;
@@ -1556,7 +1565,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 0);
+		int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 0,only_header);
     if(data)
       delete [] data;
     return ret & keepalive;
@@ -1569,7 +1578,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-  	int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 1);
+  	int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 1,only_header);
     if(data)
       delete [] data;
     return ret & keepalive;
@@ -1592,7 +1601,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		{
       if(data)
         delete [] data;
-			return lmscgi.sendMSCGI(td, s, td->filenamePath, target) & keepalive;
+			return lmscgi.sendMSCGI(td, s, td->filenamePath, target,only_header)&keepalive;
 		}
     if(data)
       delete [] data;
@@ -1627,7 +1636,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 			sprintf(cgipath, "%s", td->filenamePath);
     }
 	
-		int ret=lwincgi.sendWINCGI(td, s, cgipath);
+		int ret=lwincgi.sendWINCGI(td, s, cgipath, only_header);
 		if(cgipath)
 	      delete [] cgipath;
 		return (ret&keepalive);
@@ -1641,7 +1650,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}	
-		int ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 0);
+		int ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 0, only_header);
     if(data)
       delete [] data;
 		return (ret&keepalive);
@@ -1654,7 +1663,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		int ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 1);
+		int ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 1, only_header);
     if(data)
       delete [] data;
 		return (ret&keepalive);
@@ -1824,6 +1833,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
   td.lastError = 0;
 	td.lhttp=this;
 	td.appendOutputs=0;
+  td.only_header = 0;
 	td.inputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	td.outputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	if(td.outputDataPath)
@@ -2374,6 +2384,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		/*! HEAD REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "HEAD"))
 		{
+      td.only_header = 1;
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
 				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1, 
                                atoi(td.request.RANGEBYTEBEGIN),
@@ -2588,7 +2599,7 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
     if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
 		{
 			delete [] errorFile;
-			return sendHTTPRESOURCE(td, a, HTTP_ERROR_HTMLS[ID], 1);
+			return sendHTTPRESOURCE(td, a, HTTP_ERROR_HTMLS[ID], 1, td->only_header);
 		}
 		delete [] errorFile;
 	}
@@ -2635,7 +2646,8 @@ int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
                     (u_long)td->buffer2->GetLength(), 0)!= -1)
 	{
 		/*! Send the body. */
-		a->socket.send(hardHTML, (u_long)strlen(hardHTML), 0);
+    if(!td->only_header)
+   		a->socket.send(hardHTML, (u_long)strlen(hardHTML), 0);
 	}
 	return 0;
 }
@@ -3013,5 +3025,16 @@ http::~http()
     delete [] td.inputDataPath;
   if(td.outputDataPath)
     delete [] td.outputDataPath;
+
+  td.filenamePath=0;
+  td.pathInfo=0;
+  td.pathTranslated=0;
+  td.cgiRoot=0;
+  td.cgiFile=0;
+  td.scriptPath=0;
+  td.scriptDir=0;
+	td.scriptFile=0;
+  td.inputDataPath=0;
+  td.outputDataPath=0;
 }
 

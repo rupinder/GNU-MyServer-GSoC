@@ -56,7 +56,7 @@ extern "C" {
  *Run the standard CGI and send the result to the client.
  */
 int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
-                  char* /*!ext*/, char *cgipath, int cmd)
+                  char* /*!ext*/, char *cgipath, int cmd, int only_header)
 {
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph;
@@ -76,7 +76,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
   if(td->scriptPath == 0)
   {
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite(
+                                                "Error allocating memory\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
@@ -482,7 +483,13 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
         /*! Remove the connection on sockets error. */
         return 0;
       }
+      if(only_header)
+      {
+        delete [] cmdLine;
+        return 1;
+      }
 
+      /*! Send other remaining data in the buffer. */
 			if(s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize), 
                         nBytesRead-headerSize, 0)==SOCKET_ERROR)
       {
@@ -493,6 +500,12 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		}
 		else
     {
+      if(only_header)
+      {
+        delete [] cmdLine;
+        return 1;
+      }
+
       /*! Do not put the HTTP header if appending. */
 			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())
                                          +headerSize), nBytesRead-headerSize, &nbw);

@@ -48,6 +48,7 @@ struct http_user_data
 	int digest;
 	/*! Nonzero if the digest was already checked.  */
 	int digest_checked;
+
 };
 class http : public protocol
 {
@@ -86,7 +87,8 @@ public:
                          int yetmapped=0);
 	int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,
                    int OnlyHeader=0,int firstByte=0,int lastByte=-1);
-	int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
+	int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder, 
+                        int only_header);
 	int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
 	int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a);
 	int sendAuth(httpThreadContext* td,LPCONNECTION a);
