@@ -36,7 +36,7 @@ extern int sscanf(const char *buffer, const char *format,...);
 
 #endif
 
-#include <malloc.h>
+#include <stdlib.h>
 
 #ifdef __STDC__
 
