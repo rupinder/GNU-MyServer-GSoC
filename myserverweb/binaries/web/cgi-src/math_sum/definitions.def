@@ -1,3 +1,0 @@
-LIBRARY math_sum
-EXPORTS 
-	main

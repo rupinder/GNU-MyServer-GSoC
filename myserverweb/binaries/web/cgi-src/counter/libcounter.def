@@ -1,3 +1,0 @@
-; dlltool --base-file C:\DOCUME~1\GSCRIV~1\IMPOST~1\Temp/cca02304.base --output-exp counter.exp --dllname counter.mscgi --output-def libcounter.def --add-stdcall-alias --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\GSCRIV~1\IMPOST~1\Temp/cca02304.def --output-lib libcounter.a
-EXPORTS
-	main @ 1 ; 

@@ -758,7 +758,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	ExtCtrlBlk.lpszLogData[0] = '0';
 	ExtCtrlBlk.lpszMethod = td->request.CMD;
 	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS;
-	ExtCtrlBlk.lpszPathInfo = td->pathInfo ? td->pathInfo : "" ;
+	ExtCtrlBlk.lpszPathInfo = td->pathInfo ? td->pathInfo : (CHAR*)"" ;
 	if(td->pathInfo)
 		ExtCtrlBlk.lpszPathTranslated = td->pathTranslated;
 	else

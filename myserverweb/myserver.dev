@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=65
+UnitCount=67
 Type=1
 Ver=1
 ObjFiles=
@@ -730,6 +730,26 @@ BuildCmd=
 
 [Unit65]
 FileName=include\myserver_regex.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit66]
+FileName=source\vector.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit67]
+FileName=include\vector.h
 CompileCpp=1
 Folder=myserver
 Compile=1
