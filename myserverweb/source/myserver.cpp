@@ -87,7 +87,7 @@ void Sig_Quit(int signal)
 #endif
 
 
-#ifdef NOT_WIN
+#ifdef ARGP
 
 struct argp_input
 {
