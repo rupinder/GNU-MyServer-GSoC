@@ -23,14 +23,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma comment(lib,"wsock32.lib")
 
 #include "../source/filemanager.cpp"
+#define LOCAL_BUFFER_DIM 150
 /*
 *Write to the stdout.
 */
 int cgi_manager::Write(char* str)
 {
-	u_long nbw;
-	cgidata->stdOut.writeToFile(str,(u_long)strlen(str),&nbw);
-	return 1;
+	if(str)
+	{
+		u_long nbw;
+		cgidata->stdOut.writeToFile(str,(u_long)strlen(str),&nbw);
+		return 1;
+	}
+	return 0;
 }
 /*
 *Start the execution of the CGI.
@@ -74,12 +79,12 @@ char* cgi_manager::GetParam(char* param)
 {
 	if(td->request.URIOPTS[0]=='\0')
 		return NULL;
-	static char lb[150];
+	static char lb[LOCAL_BUFFER_DIM];
 	lb[0]='\0';
 	char *c=&(td->request.URIOPTS)[0];
 	for(;;)
 	{
-		while((*c) && strncmp(c,param,strlen(param)))c++;
+		while((*c) && strncmp(c,param,min(strlen(param),strlen(c))))c++;
 		if(*c=='\0')
 			return &lb[0];
 		c+=strlen(param);
@@ -102,8 +107,8 @@ char* cgi_manager::GetParam(char* param)
 */
 char* cgi_manager::PostParam(char* param)
 {
-	static char lb[150];
-	char buffer[200];
+	static char lb[LOCAL_BUFFER_DIM];
+	char buffer[LOCAL_BUFFER_DIM+50];
 	u_long nbr=0;
 	char c[2];
 	c[1]='\0';
@@ -114,11 +119,13 @@ char* cgi_manager::PostParam(char* param)
 	do
 	{
 		cgidata->td->inputData.readFromFile(&c[0],1,&nbr);
+		if(nbr==0)
+			break;
 		if((c[0]=='&') |(toRead==1))
 		{
 			if(!strncmp(param,buffer,strlen(param)))
 			{
-				strcpy(lb,&buffer[strlen(param)]);
+				lstrcpyn(lb,&buffer[strlen(param)],LOCAL_BUFFER_DIM);
 				break;
 			}
 			buffer[0]='\0';

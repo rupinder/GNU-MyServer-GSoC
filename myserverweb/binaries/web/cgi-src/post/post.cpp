@@ -11,7 +11,9 @@ int EXPORTABLE main (char *cmd,cgi_data* data)
 	else
 	{
 		cm.Write("<title>MyServer</title><body bgcolor=\"#000000\" text=\"#00C800\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"></p>Argument posted:");
-		cm.Write(cm.PostParam("T1"));
+		char *post=cm.PostParam("T1");
+		if(post)
+			cm.Write(post);
 	}
 	cm.Clean();
 	return 0;

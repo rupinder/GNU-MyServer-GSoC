@@ -107,7 +107,7 @@ int MYSERVER_SOCKET::listen(int max)
 MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen)
 {
 #ifdef WIN32
-	MYSERVER_SOCKET_HANDLE h=::accept(socketHandle,sa,sockaddrlen);
+	MYSERVER_SOCKET_HANDLE h=(MYSERVER_SOCKET_HANDLE)::accept(socketHandle,sa,sockaddrlen);
 	MYSERVER_SOCKET s;
 	s.setHandle(h);
 	return s;
@@ -216,7 +216,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 
 u_long MYSERVER_SOCKET::bytesToRead()
 {
-	u_long nBytesToRead;
+	u_long nBytesToRead=0;
 	ioctlsocket(FIONREAD,&nBytesToRead);
 	return nBytesToRead;
 }
