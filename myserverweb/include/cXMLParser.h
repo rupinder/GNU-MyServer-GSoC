@@ -22,19 +22,26 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/filemanager.h"
+extern "C" 
+{
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h> 
+}
 /*
 *This class is used to open a .xml file and read informations from it.
 */
 class cXMLParser
 {
-	u_long buffersize;
-	char *buffer;
-	char data[MAX_PATH];
-	MYSERVER_FILE file;
+	xmlDocPtr doc;
+	char buffer[250];
+	xmlNodePtr cur;
 public:
 	cXMLParser();
-	void open(char* filename);
+	xmlDocPtr getDoc();
+	int open(char* filename);
 	char *getValue(char* field);
-	void close();
+	int close();
+	int save(char *filename);
 };
 #endif

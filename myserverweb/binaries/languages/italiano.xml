@@ -1,5 +1,6 @@
 <!--MYSERVER SUPPORTO PER LA LINGUA ITALIANA-->
 <!--COPYRIGHT 2002 Rocky_10_Balboa-->
+<MYSERVER_LANGUAGE_FILE>
 <MSG_LANGUAGE>Uso della lingua italiana</MSG_LANGUAGE>
 <MSG_SERVER_CONF>Configurazione Server terminata</MSG_SERVER_CONF>
 <AL_NO_SECURITY>Non viene usata nessuna sicurezza, tutti possono accedere alla cartella web</AL_NO_SECURITY>
@@ -45,3 +46,4 @@
 <MSG_NEWCONNECTION>Connessione da</MSG_NEWCONNECTION>
 <MSG_ERRORCONNECTION>Errore connessione da</MSG_ERRORCONNECTION>
 <MSG_ATTIME>alle</MSG_ATTIME>
+</MYSERVER_LANGUAGE_FILE>

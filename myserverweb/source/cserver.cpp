@@ -707,7 +707,7 @@ void cserver::initialize(int OSVer)
 	{
 		char xmlMember[21];
 		sprintf(xmlMember,"DEFAULT_FILENAME%i",nDefaultFilename);
-		if(configurationFileManager.getValue(xmlMember)==NULL)
+		if(!strlen(configurationFileManager.getValue(xmlMember)))
 			break;
 		nDefaultFilename++;
 

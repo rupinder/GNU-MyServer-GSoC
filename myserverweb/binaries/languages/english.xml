@@ -1,5 +1,6 @@
 <!--MYSERVER SUPPORT FOR ENGLISH LANGUAGE-->
 <!--COPYRIGHT 2002 Rocky_10_Balboa-->
+<MYSERVER_LANGUAGE_FILE>
 <MSG_LANGUAGE>Using english language</MSG_LANGUAGE>
 <MSG_SERVER_CONF>Server configuration terminated</MSG_SERVER_CONF>
 <AL_NO_SECURITY>Security access is not used, the web folder contents is accessible to anyone</AL_NO_SECURITY>
@@ -45,3 +46,4 @@
 <MSG_NEWCONNECTION>Connection from</MSG_NEWCONNECTION>
 <MSG_ERRORCONNECTION>Error connection from</MSG_ERRORCONNECTION>
 <MSG_ATTIME>at time</MSG_ATTIME>
+</MYSERVER_LANGUAGE_FILE>

@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 #include "../include/utility.h"
 
+
+
 extern "C" {
 #include <string.h>
 }
@@ -27,99 +29,76 @@ extern "C" {
 #define lstrlen strlen
 #endif
 
+#ifdef WIN32
+/*
+*By default use the static version of libxml2.
+*/
+#pragma comment (lib,"libxml2_a.lib")
+/*
+*Use this to use the dynamic version.
+#pragma comment (lib,"libxml2.lib")
+*/
+#endif
+
 /*
 *This code is used to parse a pseudo-xml file.
 *With the open function we open a file and store it in memory.
 */
-void cXMLParser::open(char* filename)
+int cXMLParser::open(char* filename)
 {
-	file.ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-	buffersize=file.ms_getFileSize();
-	buffer=(char*)malloc(buffersize);
-	u_long nbr;
-	if(buffer)
-		file.ms_ReadFromFile(buffer,buffersize,&nbr);
-	else
-		nbr=0;
-	if(nbr==0)
-		buffer[0]='\0';
+	doc = xmlParseFile(filename);
+	if(!doc)
+		return -1;
+    cur = xmlDocGetRootElement(doc);
+	if(!cur)
+		return -1;
+	return 0;
 }
 /*
 *Constructor of the cXMLParser class.
 */
 cXMLParser::cXMLParser()
 {
-	buffer=0;
-	buffersize=0;
-	data[0]='\0';
+	doc=0;
+	cur=0;
 }
 /*
-*Only get the the text "T" in <VALUENAME>T</VALUENAME>.
+*Return the xml Document.
+*/
+xmlDocPtr cXMLParser::getDoc()
+{
+	return doc;
+}
+/*
+*Only get the value of the vName root children element.
 */
 char *cXMLParser::getValue(char* vName)
 {
-	if(buffer==0)
-		return 0;
-	int found;
-	char *ret=NULL;
-	u_long i,j;
-	u_long len=(u_long)strlen(vName);
-	for(i=0;i<buffersize;i++)
+	xmlNodePtr lcur=cur->xmlChildrenNode;
+	buffer[0]='\0';
+	while(lcur)
 	{
- 		if(buffer[i]=='<')
+		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
 		{
-			/*
-			*If there is a comment go to end of this.
-			*/
-			if(buffer[i+1]=='!')
-			if(buffer[i+2]=='-')
-			if(buffer[i+3]=='-')
-			{
-				i+=3;
-				while((buffer[i]!='-')&&(buffer[i+1]!='>'))
-					i++;
-				continue;
-			}
-			/*
-			*If we arrive here this is not a comment.
-			*/
-			found=true;
-			for(j=0;j<len;j++)
-			{
-				if(buffer[i+j+1]!=vName[j])
-				{
-					found=false;
-					break;
-				}
-			}
-			if(buffer[i+j+1]!='>')
-				found=false;
-				
-			while(buffer[i++]!='>');
-			if(found)
-			{
-				for(j=0;;j++)
-				{
-					data[j]=buffer[i+j];
-					data[j+1]='\0';
-					if(buffer[i+j+1]=='<')
-						break;
-				}
-				ret=data;
-				break;
-			}
+			if(lcur->children->content)
+				strcpy(buffer,(char*)lcur->children->content);
+			break;
 		}
+		lcur=lcur->next;
 	}
-	return ret;
+	
+	return buffer;
 }
 
 /*
 *Free the memory used by the class.
 */
-void cXMLParser::close()
+int cXMLParser::close()
 {
-	if(file.ms_GetHandle())
-		file.ms_CloseFile();
-	if(buffer)
-		free(buffer);
+	xmlFreeDoc(doc);
+	return 0;
+}
+int cXMLParser::save(char *filename)
+{
+	return xmlSaveFile(filename,doc);
 }

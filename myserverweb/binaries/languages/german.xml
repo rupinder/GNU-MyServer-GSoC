@@ -1,6 +1,7 @@
 <!--MYSERVER SUPPORT FOR GERMAN LANGUAGE-->
 <!--COPYRIGHT 2002 Rocky_10_Balboa-->
 <!--TRANSLATED BY BINARIX-->
+<MYSERVER_LANGUAGE_FILE>
 <MSG_LANGUAGE>Benutze Deutsche Sprache</MSG_LANGUAGE>
 <MSG_SERVER_CONF>Server Konfiguration beendet</MSG_SERVER_CONF>
 <AL_NO_SECURITY>Sicherheitszugriff wird nicht genutzt, der Inhalt des Webordners ist zugaenglich fuer jeden</AL_NO_SECURITY>
@@ -46,3 +47,4 @@
 <MSG_NEWCONNECTION>Verbindung von</MSG_NEWCONNECTION>
 <MSG_ERRORCONNECTION>Fehler bei der Verbindung von</MSG_ERRORCONNECTION>
 <MSG_ATTIME>Zeit</MSG_ATTIME>
+</MYSERVER_LANGUAGE_FILE>
