@@ -178,7 +178,9 @@ int protocols_manager::addProtocol(char *file,cXMLParser* parser,char* confFile,
 int protocols_manager::unloadProtocols(cXMLParser *parser)
 {
 	dynamic_protocol_list_element* ce=list;
-	dynamic_protocol_list_element* ne=list->next;
+	dynamic_protocol_list_element* ne=0;
+	if(ce)
+		ne=list->next;
 	while(ce)
 	{
 		ce->data.unloadProtocol(parser);
@@ -189,6 +191,7 @@ int protocols_manager::unloadProtocols(cXMLParser *parser)
 		
 	}
 	list=0;
+	return 1;
 }
 
 /*!
@@ -206,7 +209,7 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
 	dynamic_protocol_list_element* ne=list;
 	while(ne)
 	{
-		if(!strcmpi(protocolName,ne->data.getProtocolName()))
+		if(!lstrcmpi(protocolName,ne->data.getProtocolName()))
 			return &(ne->data);
 		ne=ne->next;
 		

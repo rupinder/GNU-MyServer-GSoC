@@ -40,7 +40,7 @@ private:
 	static char browseDirCSSpath[MAX_PATH];
 	static u_long gzip_threshold;
 	static int useMessagesFiles;	
-	static char *defaultFilename;	
+	static char *defaultFilename;
 	static u_long nDefaultFilename;	
 protected:
 	char protocolPrefix[12];	

@@ -24,25 +24,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cgi.h"
 #include "../include/http.h"
 #include "../include/HTTPmsg.h"
-#define MAX_FCGI_SERVERS	25
-/*!
-*This structure is used to keep trace of a running fCGI server.
-*/
-static struct sfCGIservers
-{
-	char path[MAX_PATH*2];/*!server executable path*/
-	union 
-	{
-	    unsigned long fileHandle;
-		SOCKET sock;
-		unsigned int value;
-	}DESCRIPTOR;
-	MYSERVER_SOCKET socket;
-	char host[128];
-	int pid; /*!process ID*/ 
-	u_short port;/*!IP port*/
-}fCGIservers[MAX_FCGI_SERVERS];
-static int fCGIserversN;/*!Number of thread currently loaded*/
+
+struct sfCGIservers fastcgi::fCGIservers[MAX_FCGI_SERVERS];
+int fastcgi::fCGIserversN=0;/*!Number of thread currently loaded*/
+
 struct fourchar
 {	
 	union

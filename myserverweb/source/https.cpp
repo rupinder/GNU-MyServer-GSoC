@@ -43,6 +43,7 @@ extern "C"
 #define intptr_t int
 #endif
 
+
 /*!
 *Returns the name of the protocol. If an out buffer is defined fullfill it with the name too.
 */

@@ -129,6 +129,7 @@ public:
 
 	static ConnTableRecord *HConnRecord(HCONN hConn);
 	static ConnTableRecord *connTable;
+	static  u_long max_Connections;
 	static BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 #endif	

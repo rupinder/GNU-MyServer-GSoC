@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifdef WIN32
 
-static  u_long max_Connections;
+u_long isapi::max_Connections=0;
 static CRITICAL_SECTION GetTableEntryCritSec;
 #define ISAPI_TIMEOUT (10000)
 ConnTableRecord *isapi::connTable=0;
@@ -174,8 +174,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			int len=ConnInfo->headerSize-headerSize;
 			strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
 			http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
-			if(!lstrcmpi(&ConnInfo->td->request.CONNECTION,"Keep-Alive"))
-				strcpy(&ConnInfo->td->response.CONNECTION,"Keep-Alive");			
+			if(!lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive"))
+				strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");			
 			http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
 
 			ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0);
@@ -669,5 +669,6 @@ void isapi::cleanupISAPI()
 	DeleteCriticalSection(&GetTableEntryCritSec);
 	if(connTable)
 		free(connTable);
+	connTable=0;
 #endif
 }

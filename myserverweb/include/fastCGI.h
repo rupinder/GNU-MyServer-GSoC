@@ -132,6 +132,10 @@ typedef struct {
 #define FCGI_OVERLOADED       2
 #define FCGI_UNKNOWN_ROLE     3
 
+/*!
+*Max number of FastCGI server allowed to run
+*/
+#define MAX_FCGI_SERVERS	25
 
 /*!
  * Variable names for FCGI_GET_VALUES / FCGI_GET_VALUES_RESULT records
@@ -157,8 +161,26 @@ struct fCGIContext
 	int fcgiPID;
 	MYSERVER_SOCKET sock;
 };
+struct sfCGIservers
+{
+	char path[MAX_PATH*2];/*!server executable path*/
+	union 
+	{
+	    unsigned long fileHandle;
+		SOCKET sock;
+		unsigned int value;
+	}DESCRIPTOR;
+	MYSERVER_SOCKET socket;
+	char host[128];
+	int pid; /*!process ID*/ 
+	u_short port;/*!IP port*/
+};
+
+
 class fastcgi
 {
+	static struct sfCGIservers fCGIservers[MAX_FCGI_SERVERS];
+	static int fCGIserversN;/*!Number of thread currently loaded*/
 	int FcgiConnectSocket(fCGIContext*,int);
 	void generateFcgiHeader( FCGI_Header&, int ,int, int );
 	MYSERVER_SOCKET getFcgiConnection();

@@ -1098,7 +1098,6 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 					retvalue = raiseHTTPError(&td,a,e_400);
 					logHTTPaccess(&td,a);
 					return retvalue;
-
 				}
 			}
 			/*!
@@ -1304,7 +1303,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 				a->dataRead=min(KB(8),strlen(&td.buffer[td.nHeaderChars]));
 				if(a->dataRead)
 				{
-					memcpy(a->connectionBuffer,&td.buffer[td.nHeaderChars],a->dataRead);	
+					memcpy(a->connectionBuffer,&td.buffer[td.nHeaderChars],a->dataRead+1);	
 					retvalue=3;
 				}
 				else
@@ -1645,13 +1644,15 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 	*/
 	if(nDefaultFilename==0)
 	{
-		defaultFilename =(char*)new char[MAX_PATH];
+		defaultFilename =(char*)malloc(MAX_PATH);
 		strcpy(defaultFilename,"default.html");
 	}
 	else
 	{
 		u_long i;
-		defaultFilename =new char[MAX_PATH*nDefaultFilename];
+		if(defaultFilename)
+			free(defaultFilename);
+		defaultFilename =(char*)malloc(MAX_PATH*nDefaultFilename);
 		for(i=0;i<nDefaultFilename;i++)
 		{
 			char xmlMember[21];
@@ -1681,8 +1682,11 @@ int http::unloadProtocol(cXMLParser* languageParser)
 	*Clean MSCGI.
 	*/
 	mscgi::freeMSCGILib();
-
-	delete[] defaultFilename;
+	if(defaultFilename)
+	{
+		free(defaultFilename);
+		defaultFilename=0;
+	}
 	return 1;
 }
 
