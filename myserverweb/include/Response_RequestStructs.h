@@ -36,7 +36,7 @@ struct HTTP_RESPONSE_HEADER
 	char LOCATION[MAX_PATH];
 	char DATE[30];		
 	char DATEEXP[30];	
-	int isError;		
+
 	char OTHER[256];	
 
 };

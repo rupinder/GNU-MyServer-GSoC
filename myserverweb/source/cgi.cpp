@@ -162,7 +162,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
 	spi.envString=td->buffer2;
 	execHiddenProcess(&spi);
-
+	td->buffer2[0]='\0';
 	/*
 	*Read the CGI output.
 	*/
@@ -171,13 +171,18 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);
 	else
 		td->buffer2[0]='\0';
-
 	int yetoutputted=0;
+	if(nBytesRead==0)
+	{
+		raiseHTTPError(td,s,e_500);
+		yetoutputted=1;
+	}
 	/*
 	*Standard CGI can include an extra HTTP header so do not 
 	*terminate with \r\n the default myServer header.
 	*/
 	u_long headerSize=0;
+
 	for(u_long i=0;i<nBytesRead;i++)
 	{
 		if((td->buffer2[i]=='\r')&&(td->buffer2[i+1]=='\n')&&(td->buffer2[i+2]=='\r')&&(td->buffer2[i+3]=='\n'))

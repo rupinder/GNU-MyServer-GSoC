@@ -45,4 +45,5 @@
 extern char HTTP_ERROR_MSGS[13][64];
 extern char HTTP_ERROR_HTMLS[13][64];
 int getErrorIDfromHTTPStatusCode(int statusCode);
+int getHTTPStatusCodeFromErrorID(int statusCode);
 #endif

@@ -742,7 +742,6 @@ void resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 	response->LOCATION[0]='\0';
 	response->DATE[0]='\0';		
 	response->DATEEXP[0]='\0';	
-	response->isError=0;		
 	response->OTHER[0]='\0';	
 }
 
@@ -757,7 +756,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	*Passing a HTTP_RESPONSE_HEADER struct this builds an header string.
 	*Every directive ends with a \r\n sequence.
     */
-	if(response->isError)
+	if(response->httpStatus!=200)
 		sprintf(str,"HTTP/%s %s\r\nStatus: %s\r\n",response->VER,response->ERROR_TYPE,response->ERROR_TYPE);
 	else
 		sprintf(str,"HTTP/%s 200 OK\r\n",response->VER);
@@ -860,7 +859,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	*/
 	lstrcpy(response->CONTENTS_TYPE,"text/html");
 	lstrcpy(response->VER,"1.1");
-	response->isError=false;
+	response->httpStatus=200;
 	lstrcpy(response->DATE,getRFC822GMTTime());
 	lstrcpy(response->DATEEXP,getRFC822GMTTime());
 	sprintf(response->SERVER_NAME,"MyServer %s",versionOfSoftware);
@@ -882,10 +881,9 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		
 	}
 	buildDefaultHTTPResponseHeader(&(td->response));
-	/*
-	*Set the isError member to true to build an error page.
-	*/
-	td->response.isError=true;
+
+
+	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
 	lstrcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	sprintf(td->response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
 	buildHTTPResponseHeader(td->buffer,&td->response);

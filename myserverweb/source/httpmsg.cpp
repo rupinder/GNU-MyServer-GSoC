@@ -115,3 +115,61 @@ int getErrorIDfromHTTPStatusCode(int statusCode)
 	}
 	return -1;
 }
+/*
+*Return an HTTP status code starting from an error ID.
+*/
+int getHTTPStatusCodeFromErrorID(int statusCode)
+{
+	switch(statusCode)	
+	{
+		case e_200:
+			return 200;
+			break;
+		case e_201:
+			return 201;
+			break;
+		case e_202:
+			return 202;
+			break;
+		case e_400:
+			return 400;
+			break;
+		case e_401:
+			return 401;
+			break;
+		case e_403:
+			return 403;
+			break;
+		case e_404:
+			return 404;
+			break;
+		case e_405:
+			return 405;
+			break;
+		case e_406:
+			return 406;
+			break;
+		case e_407:
+			return 407;
+			break;
+		case e_412:
+			return 412;
+			break;
+		case e_413:
+			return 413;
+			break;
+		case e_414:
+			return 414;
+			break;
+		case e_500:
+			return 500;
+			break;
+		case e_501:
+			return 501;
+			break;
+		case e_502:
+			return 502;
+			break;
+	}
+	return -1;
+}

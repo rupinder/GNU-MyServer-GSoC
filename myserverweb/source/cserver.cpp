@@ -78,11 +78,7 @@ void cserver::start()
 	ms_setcwdBuffer();
 
 	mustEndServer=false;
-#ifdef WIN32
-	ZeroMemory(this,sizeof(cserver));
-#else
 	memset(this, 0, sizeof(cserver));
-#endif
 
 
 	/*
