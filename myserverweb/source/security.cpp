@@ -282,6 +282,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
 	while(node)
 	{
+    tempThrottlingRate = (u_long)-1;
     /*! Retrieve the authorization scheme to use if specified. */
 		if(!xmlStrcmp(node->name, (const xmlChar *)"AUTH"))
 		{
@@ -291,7 +292,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"TYPE"))
 				{
 					if(st && st->auth_type)
-						strncpy(st->auth_type,(const char*)attr->children->content, st->len_auth);
+						strncpy(st->auth_type,(const char*)attr->children->content, 
+                    st->len_auth);
 				}
 				attr=attr->next;
 			}
@@ -376,6 +378,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 		{
       int tempFilePermissions;
       xmlNode *node2=node->children;
+      tempThrottlingRate=(u_long)-1;
 			while(node2)
 			{
         tempFilePermissions=0;
@@ -453,7 +456,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
       {
         attr = node->properties;
-
+        tempThrottlingRate=(u_long)-1;
         /*! Generic ITEM permissions. */
         while(attr)
         {
