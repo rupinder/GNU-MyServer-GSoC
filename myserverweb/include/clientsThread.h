@@ -19,10 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef CLIENTSTHREAD_H
 #define CLIENTSTHREAD_H
 #include "../stdafx.h"
-#include "../include/http.h"
 #include "../include/utility.h"
-#include "../include/HTTPmsg.h"
-#include "../include/Response_RequestStructs.h"
 #include "../include/connectionstruct.h"
 #include "../include/security.h"
 

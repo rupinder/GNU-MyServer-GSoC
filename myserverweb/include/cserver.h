@@ -37,7 +37,7 @@ unsigned int __stdcall listenServer(void* pParam);
 #ifdef __linux__
 void* listenServer(void* pParam);
 #endif
-
+#define MAX_ALLOWED_IPs 8
 /*
 *Defined in myserver.cpp
 */
@@ -70,7 +70,7 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
-	char ipAddresses[200];/*!Buffer that contains all the IP values of the local machine*/
+	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];/*!Buffer that contains all the local machine IP values*/
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];

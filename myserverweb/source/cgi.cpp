@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/cgi.h"
+#include "../include/http_headers.h"
+#include "../include/http.h"
+#include "../include/HTTPmsg.h"
 #include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/AMMimeUtils.h"

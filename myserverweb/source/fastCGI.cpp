@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/fastCGI.h"
 #include "../include/cgi.h"
 #include "../include/http.h"
+#include "../include/HTTPmsg.h"
 #define MAX_FCGI_SERVERS	25
 /*!
 *This structure is used to keep trace of a running fCGI server.

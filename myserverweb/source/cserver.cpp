@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/cserver.h"
+#include "../include/http.h"
 #include "../include/security.h"
 #include "../include/stringutils.h"
 #include "../include/sockets.h"
@@ -188,7 +189,7 @@ void cserver::start()
 	printf("Host: %s\r\n",serverName);
 	if(localhe)
 	{
-		for(i=0;(localhe->h_addr_list[i]);i++)
+		for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
 		{
 #ifdef WIN32
 			ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));

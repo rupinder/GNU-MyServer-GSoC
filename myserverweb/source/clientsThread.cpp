@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/clientsThread.h"
 #include "../include/cserver.h"
 #include "../include/security.h"
+#include "../include/http.h"
+#include "../include/Response_RequestStructs.h"
 #include "../include/sockets.h"
 #include "../include/stringutils.h"
 
@@ -116,7 +118,7 @@ void ClientsTHREAD::controlConnections()
 	if(!c)
 		return;
 	/*
-	*Do not parse a connection that is parsed by another thread
+	*Do not parse a connection that is going to be parsed by another thread
 	*/
 	if(c->parsing==1)
 		return;
@@ -175,16 +177,16 @@ void ClientsTHREAD::controlConnections()
 		*1 to keep the connection active and clear the connectionBuffer
 		*2 if the header is incomplete and to save it in a temporary buffer
 		*/
-		if(retcode==0)
+		if(retcode==0)/*Delete the connection*/
 		{
 			lserver->deleteConnection(c,this->id);
 			return;
 		}
-		else if(retcode==1)
+		else if(retcode==1)/*Keep the connection*/
 		{
 			c->dataRead=0;
 		}
-		else if(retcode==2)
+		else if(retcode==2)/*Incomplete request*/
 		{
 			/*!
 			*If the header is incomplete save the current received

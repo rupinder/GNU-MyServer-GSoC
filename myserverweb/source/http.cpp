@@ -1049,9 +1049,9 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	*containing the informations after the header.
 	*/
 	getdefaultwd(td.inputDataPath,MAX_PATH);
-	sprintf(&td.inputDataPath[strlen(td.inputDataPath)],"/stdInFile_%u",td.id);
+	sprintf(&td.inputDataPath[(u_long)strlen(td.inputDataPath)],"/stdInFile_%u",(u_long)td.id);
 	getdefaultwd(td.outputDataPath,MAX_PATH);
-	sprintf(&td.outputDataPath[strlen(td.outputDataPath)],"/stdOutFile_%u",td.id);
+	sprintf(&td.outputDataPath[(u_long)strlen(td.outputDataPath)],"/stdOutFile_%u",(u_long)td.id);
 	if((!lstrcmpi(td.request.CMD,"POST"))||(!lstrcmpi(td.request.CMD,"PUT")))
 	{
 		if(td.request.CONTENT_TYPE[0]=='\0')

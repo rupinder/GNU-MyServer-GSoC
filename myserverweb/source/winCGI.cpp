@@ -16,12 +16,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/AMMimeUtils.h"
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
 #include "../include/http_headers.h"
+#include "../include/http.h"
+#include "../include/HTTPmsg.h"
 #include "../include/utility.h"
 #include "../include/wincgi.h"
 #define WINCGI_TIMEOUT	(10000)
