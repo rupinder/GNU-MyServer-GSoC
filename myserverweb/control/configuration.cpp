@@ -61,7 +61,7 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 	m_notebook = new wxNotebook(panel,-1,wxPoint(10,0),wxSize(610,390));
 	initNotebook();
 	btnLOADDEF= new wxButton(panel,Configuration_LOADDEF,"Reset",wxPoint(120,390),wxSize(100,25));
-	btnCfgVhosts= new wxButton(panel,Configuration_Save,"Configure vhosts",wxPoint(220,390),wxSize(100,25));
+	btnCfgVhosts= new wxButton(panel,Configuration_VHOSTS,"Configure vhosts",wxPoint(220,390),wxSize(100,25));
 	btnSAVE= new wxButton(panel,Configuration_MIME,"Configure MIME",wxPoint(320,390),wxSize(100,25));
 	btnCfgMime= new wxButton(panel,Configuration_Save,"Save configuration",wxPoint(420,390),wxSize(100,25));
 	btnExit= new wxButton(panel,Configuration_Exit,"Exit",wxPoint(520,390),wxSize(100,25));
@@ -159,7 +159,7 @@ void configurationFrame::configureMIME(wxCommandEvent& event)
 }
 void configurationFrame::configureVHOSTS(wxCommandEvent& event)
 {
-	configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure Virtual hosts"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX+150, MIMEWNDSIZEY));
+	configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure Virtual hosts"),wxPoint(70, 70), wxSize(VHOSTSWNDSIZEX, VHOSTSWNDSIZEY));
 	configureVHOSTSWnd->Show(TRUE);
 }
 void configurationFrame::configureSave(wxCommandEvent& event)

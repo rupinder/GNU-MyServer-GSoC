@@ -362,7 +362,7 @@ void mainFrame::configureMIME(wxCommandEvent& event)
 }
 void mainFrame::configureVHOSTS(wxCommandEvent& event)
 {
-	configurationFrameVHOSTS *configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure myServer virtual hosts"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX+150, MIMEWNDSIZEY));
+	configurationFrameVHOSTS *configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure myServer virtual hosts"),wxPoint(70, 70), wxSize(VHOSTSWNDSIZEX, VHOSTSWNDSIZEY));
 	configureVHOSTSWnd->Show(TRUE);
 }
 /*

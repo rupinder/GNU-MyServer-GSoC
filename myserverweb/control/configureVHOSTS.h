@@ -31,8 +31,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
           
 extern const char VERSION_OF_SOFTWARE[];
-#define MIMEWNDSIZEX	420
-#define MIMEWNDSIZEY	260
+#define VHOSTSWNDSIZEX	640
+#define VHOSTSWNDSIZEY	260
 
 class configurationFrameVHOSTS : public wxFrame
 {
@@ -42,14 +42,31 @@ public:
 	wxButton* btnOK;
 	wxButton* btnCNL;
 	wxButton* btnSAVE;
+	wxButton* btnADDVHOST;
+	wxButton* btnREMOVEVHOST;
+	wxButton* btnADDHOST;
+	wxButton* btnADDIP;
+	wxButton* btnREMOVEHOST;
+	wxButton* btnREMOVEIP;
 	wxListBox *vhostsLB;
 	wxListBox *hostsLB;
 	wxListBox *ipLB;
 	wxTextCtrl *hostPort;
+	wxTextCtrl *hostDoc;
+	wxTextCtrl *hostSys;
+	wxTextCtrl *hostAcc;
+	wxTextCtrl *hostWarnings;
+	wxTextCtrl *hostProtocol;
 	vhost *currentVHost;
 	configurationFrameVHOSTS(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size,long style = wxDEFAULT_FRAME_STYLE);
 	void OnQuit(wxCommandEvent& event);
 	void cancel(wxCommandEvent& event);
+	void addVHost(wxCommandEvent& event);
+	void addHost(wxCommandEvent& event);
+	void addIP(wxCommandEvent& event);
+	void removeVHost(wxCommandEvent& event);
+	void removeHost(wxCommandEvent& event);
+	void removeIP(wxCommandEvent& event);
 	void ok(wxCommandEvent& event);
 	void vhostChange(wxCommandEvent& event);
 	void save(wxCommandEvent& event);
