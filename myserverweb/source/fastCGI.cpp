@@ -208,7 +208,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                                     td->buffer->GetRealLength(),&nbr))
         return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
       
-      }
+      
 			if(nbr)
 			{
 				if(con.sock.send((char*)td->buffer->GetBuffer(),nbr,0) == -1)
