@@ -681,20 +681,6 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
                        (char*)td->buffer->GetBuffer(), 
                        td->buffer->GetRealLength());
 			}
-		}
-		else
-		{
-			/*! Read from the file the bytes to send. */
-			if(h.readFromFile((char*)td->buffer->GetBuffer(), 
-                        min(bytes_to_send,td->buffer->GetRealLength()), &nbr))
-			{
-				h.closeFile();
-				return 0;
-			}
-		}
-		
-		if(use_gzip)
-		{
 			char chunksize[12];
 			if(keepalive)
 			{
@@ -716,10 +702,17 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 				if(ret == SOCKET_ERROR)
 					break;
 			}
+
 		}
-    /*! Do not use GZIP. */
 		else
 		{
+			/*! Read from the file the bytes to send. */
+			if(h.readFromFile((char*)td->buffer->GetBuffer(), 
+                        min(bytes_to_send,td->buffer->GetRealLength()), &nbr))
+			{
+				h.closeFile();
+				return 0;
+			}
 			/*! If there are bytes to send, send them. */
 			if(nbr)
 			{
@@ -743,11 +736,9 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 					}
 					
 				}
-				if(ret == SOCKET_ERROR)
-					break;
 				dataSent+=ret;
 			}
-		}
+    }
 		/*! 
      *When the bytes number read from the file is zero, 
      *stop to send the file.  
