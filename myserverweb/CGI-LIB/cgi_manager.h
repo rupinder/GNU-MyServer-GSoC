@@ -16,15 +16,18 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #define EXPORTABLE _declspec(dllexport)
+#define DO_NOT_USE_SSL
+
 #include "../include/http.h"
 #include "../include/filemanager.h"
 #include "../include/response_requestStructs.h"
-
+#define LOCAL_BUFFER_DIM 150
 class EXPORTABLE cgi_manager
 {
 private:
 	httpThreadContext* td;
 	cgi_data* cgidata;
+	char localbuffer[LOCAL_BUFFER_DIM];
 public:
 	int  setPageError(int);
 	int raiseError(int);

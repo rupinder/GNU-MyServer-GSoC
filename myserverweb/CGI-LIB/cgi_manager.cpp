@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma comment(lib,"wsock32.lib")
 
 #include "../source/filemanager.cpp"
-#define LOCAL_BUFFER_DIM 150
 /*
 *Write to the stdout.
 */
@@ -79,15 +78,14 @@ char* cgi_manager::GetParam(char* param)
 {
 	if(td->request.URIOPTS[0]=='\0')
 		return NULL;
-	static char lb[LOCAL_BUFFER_DIM];
-	lb[0]='\0';
+	localbuffer[0]='\0';
 	char *c=&(td->request.URIOPTS)[0];
 	for(;;)
 	{
 		while((*c) && strncmp(c,param,min(strlen(param),strlen(c))))c++;
 		if(*c=='\0')
 		{
-			return &lb[0];
+			return &localbuffer[0];
 		}
 		c+=strlen(param);
 		if(*c=='=')
@@ -97,32 +95,25 @@ char* cgi_manager::GetParam(char* param)
 		}
 	}
 	u_long len=0;
-	while((c[0]) && (c[0]!='&'))
+	while((c[len]) && (c[len]!='&') && (len < /*LOCAL_BUFFER_DIM-1*/2 ))
 	{
-		if(LOCAL_BUFFER_DIM-1>len)
-		{
-			lb[len]=c[0];
-			lb[++len]='\0';
-		}
-		else
-			break;
-		c++;
-		
+		localbuffer[len]=c[len];
+		localbuffer[len+1]='\0';
+		len++;
 	}
-	return &lb[0];
+	return localbuffer;
 }
 /*
 *Returns the value of a param passed through a POST request.
 */
 char* cgi_manager::PostParam(char* param)
 {
-	static char lb[LOCAL_BUFFER_DIM];
 	char buffer[LOCAL_BUFFER_DIM+50];
 	u_long nbr=0;
 	char c[2];
 	c[1]='\0';
 	buffer[0]='\0';
-	lb[0]='\0';
+	localbuffer[0]='\0';
 	
 	u_long toRead=td->inputData.getFileSize();
 	do
@@ -134,7 +125,7 @@ char* cgi_manager::PostParam(char* param)
 		{
 			if(!strncmp(param,buffer,strlen(param)))
 			{
-				lstrcpyn(lb,&buffer[strlen(param)],LOCAL_BUFFER_DIM);
+				lstrcpyn(localbuffer,&buffer[strlen(param)],LOCAL_BUFFER_DIM);
 				break;
 			}
 			buffer[0]='\0';
@@ -145,7 +136,7 @@ char* cgi_manager::PostParam(char* param)
 		}
 	}while(--toRead);
 
-	return &lb[0];
+	return localbuffer;
 
 }
 /*

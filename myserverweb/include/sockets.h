@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define SOCKETS_H
 
 #include "../stdafx.h"
+#ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
 #include<openssl/crypto.h>
 #include<openssl/lhash.h>
@@ -28,6 +29,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include<openssl/pem.h>
 #include<openssl/x509.h>
 #include<openssl/rand.h>
+#endif
+
 #ifdef WIN32
 #ifndef SOCKETLIBINCLUDED
 #include <winsock2.h>
@@ -59,19 +62,24 @@ class MYSERVER_SOCKET
 private:
 	MYSERVER_SOCKET_HANDLE socketHandle;
 	int sslSocket;
+#ifndef DO_NOT_USE_SSL
 	SSL *sslConnection;
 	SSL_CTX *sslContext;
 	X509 * clientCert;
+#endif
 	MYSERVER_SOCKET *serverSocket;/*Pointer to the socket used to do the listen*/
 public:
 	void setServerSocket(MYSERVER_SOCKET*);
 	MYSERVER_SOCKET* getServerSocket();
-	void setSSL(int,SSL* connection = 0);
-	int getSSL();
-	SSL* getSSLConnection();
-	int initializeSSL(SSL* connection = 0);
+#ifndef DO_NOT_USE_SSL
 	int freeSSL();
 	int setSSLContext(SSL_CTX*);
+	int initializeSSL(SSL* connection = 0);
+	void setSSL(int,SSL* connection = 0);
+	SSL* getSSLConnection();
+	int sslAccept();
+#endif
+	int getSSL();
 	MYSERVER_SOCKET_HANDLE getHandle();
 	int setHandle(MYSERVER_SOCKET_HANDLE);
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr,int len,int type);
@@ -80,7 +88,6 @@ public:
 	int socket(int,int,int,int=0);
 	int bind(MYSERVER_SOCKADDR*,int);
 	int listen(int);
-	int sslAccept();
 	MYSERVER_SOCKET();
 	MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE);
 	MYSERVER_SOCKET accept(MYSERVER_SOCKADDR*,int*,int sslHandShake=0);
