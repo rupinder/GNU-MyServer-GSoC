@@ -361,8 +361,9 @@ int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
 #ifdef NOT_WIN
-	*nbr = read((int)handle, buffer, buffersize);
-	return (*nbr<=buffersize)? 1 : 0 ;
+	int ret  = read((int)handle, buffer, buffersize);
+  *nbr = (u_long)ret;
+	return (ret == -1) ;
 #endif
 }
 /*!

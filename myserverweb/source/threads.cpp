@@ -80,7 +80,8 @@ int myserver_mutex::myserver_mutex_init()
 #ifdef HAVE_PTHREAD
 	pthread_mutexattr_t   mta;
 	pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-	pthread_mutex_init(&mutex, &mta);
+	int ret = pthread_mutex_init(&mutex, &mta);
+  ret=ret;
 #else
 	mutex=CreateMutex(0,0,0);
 #endif
@@ -94,9 +95,11 @@ int myserver_mutex::myserver_mutex_init()
 int myserver_mutex::myserver_mutex_destroy()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_destroy(&mutex);
+  if(initialized)
+    pthread_mutex_destroy(&mutex);
 #else
-	CloseHandle(mutex);
+  if(initialized)
+    CloseHandle(mutex);
 #endif
 	return 1;
 }

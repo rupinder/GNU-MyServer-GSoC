@@ -90,8 +90,9 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	{
 		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
             "/stdOutFile_%u", (u_int) td->id);
-		ret = td->outputData.openFile(td->outputDataPath, MYSERVER_FILE_CREATE_ALWAYS | 
-                                  MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
+		ret = td->outputData.openFile(td->outputDataPath, 
+                     MYSERVER_FILE_CREATE_ALWAYS |MYSERVER_FILE_OPEN_READ |
+                                  MYSERVER_FILE_OPEN_WRITE);
 		if(ret)
 		{
 			/*! Return an internal server error.  */
@@ -322,17 +323,17 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		nbs=s->socket.send((char*)td->buffer->GetBuffer(), (u_long)strlen((char*)td->buffer->GetBuffer()), 0);
 		if(nbs == (u_long)-1)
 		{
-			/* Return an internal server error.  */
-			return raiseHTTPError(td, s, e_500);
+			/* Remove the connection.  */
+			return 0;
 		}	
 		do
 		{
-			ret = !td->outputData.readFromFile((char*)td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbr);
+			ret = td->outputData.readFromFile((char*)td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbr);
 			if( ret )
 			{
 				td->outputData.closeFile();
 				/* Return an internal server error.  */
-				return raiseHTTPError(td, s, e_500);
+				return 0;
 			}
 			nbs = 0;
 			if(nbr)
@@ -340,7 +341,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 			if(nbs==(u_long)-1)
 			{
 				/* Return an internal server error.  */
-				return raiseHTTPError(td, s, e_500);
+				return 0;
 			}
 		}while(nbr && nbs);
 	}
@@ -438,7 +439,10 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
   filename = 0;
 	char *http_trace_value=parser.getAttr("HTTP", "TRACE");
 	
-       /*! If the returned value is equal to ON so the HTTP TRACE is active for this vhost.  */
+  /*! 
+   * If the returned value is equal to ON so the 
+   *HTTP TRACE is active for this vhost.  
+   */
 	if(http_trace_value &&  !lstrcmpi(http_trace_value, "ON"))
 		ret = 1;
 	else
@@ -448,19 +452,22 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
 }
 
 /*!
-*Send a file to the client using the HTTP protocol.
-*/
-int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath, int only_header, int firstByte, int lastByte)
+ *Send a file to the client using the HTTP protocol.
+ */
+int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, 
+                       char *filenamePath, int only_header, 
+                       int firstByte, int lastByte)
 {
 	/*!
-	*With this routine we send a file through the HTTP protocol.
-	*Open the file and save its handle.
-	*/
+   *With this routine we send a file through the HTTP protocol.
+   *Open the file and save its handle.
+   */
 	u_long ret;
 	/*Will we use GZIP compression to send data?*/
 	int use_gzip=0;
 	MYSERVER_FILE h;
-	ret = h.openFile(filenamePath, MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	ret = h.openFile(filenamePath, MYSERVER_FILE_OPEN_IFEXISTS | 
+                   MYSERVER_FILE_OPEN_READ);
 	if(ret)
 	{	
 		return 0;
@@ -537,12 +544,15 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 			strcpy(td->response.TRANSFER_ENCODING, "chunked");
 		strcpy(td->response.CONTENT_ENCODING, "gzip");
 	}
-	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &td->response);
+
+	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+                                        &td->response);
 	td->buffer->SetLength((u_long)strlen((char*)td->buffer->GetBuffer()));
 	if(!td->appendOutputs)
 	{
 		/*! Send the HTTP header.  */
-		if(s->socket.send((char*)td->buffer->GetBuffer(), (u_long)td->buffer->GetLength(), 0)== SOCKET_ERROR)
+		if(s->socket.send((char*)td->buffer->GetBuffer(), 
+                      (u_long)td->buffer->GetLength(), 0)== SOCKET_ERROR)
 		{
 			h.closeFile();
 			return 0;
@@ -566,7 +576,10 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 	u_long gzip_dataused=0;
 	u_long dataSent=0;
 	if(use_gzip)
-		gzip.gzip_initialize((char*)td->buffer2->GetBuffer(), td->buffer2->GetRealLength(), (char*)td->buffer->GetBuffer(), td->buffer->GetRealLength());
+		gzip.gzip_initialize((char*)td->buffer2->GetBuffer(), 
+                         td->buffer2->GetRealLength(), 
+                         (char*)td->buffer->GetBuffer(), 
+                         td->buffer->GetRealLength());
 	for(;;)
 	{
 		u_long nbr;
@@ -590,7 +603,9 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
                                              td->buffer->GetLength());
 					gzipheaderadded=1;
 				}
-				gzip_dataused+=gzip.gzip_compress((char*)td->buffer2->GetBuffer(), nbr, &(((char*)td->buffer->GetBuffer())[gzip_dataused]), td->buffer->GetRealLength()-gzip_dataused);
+				gzip_dataused+=gzip.gzip_compress((char*)td->buffer2->GetBuffer(), 
+                       nbr, &(((char*)td->buffer->GetBuffer())[gzip_dataused]),
+                              td->buffer->GetRealLength()-gzip_dataused);
 			}
 			else
 			{
@@ -1154,7 +1169,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
   char ext[10];
 	/*!
    *td->filenamePath is the file system mapped path while filename 
-   *is the URI requested. systemrequest is 1 if the file is in the system folder.
+   *is the URI requested. systemrequest is 1 if the file is in 
+   *the system folder.
    *If filename is already mapped on the file system don't map it again.
    */
 	if(yetmapped)
@@ -1169,10 +1185,12 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	else
 	{
 		/*!
-     *If the client try to access files that aren't in the web folder send a 401 error.
+     *If the client try to access files that aren't in the 
+     *web folder send a 401 error.
      */
 		translateEscapeString(filename );
-		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
+		if((filename[0] != '\0')&&
+       (MYSERVER_FILE::getPathRecursionLevel(filename)<1))
 		{
       delete [] filename;
       if(td->filenamePath)
@@ -1333,7 +1351,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    	if(td->pathTranslated)
       delete [] td->pathTranslated;
     td->pathTranslated = 0;
-		/*! Start from the second character because the first is a slash character.  */
+		/*!
+     * Start from the second character because the first is a
+     * slash character.  
+     */
 		int ptlen = getPath(td, s, &(td->pathTranslated), &((td->pathInfo)[1]), 0);
 		MYSERVER_FILE::completePath(&(td->pathTranslated), &ptlen );
 	}
@@ -1344,11 +1365,11 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	MYSERVER_FILE::completePath(&(td->filenamePath), &filenamePathLen);
 
 	/*!
-	*If there are not any extension then we do one of this in order:
-	1)We send the default files in the folder in order.
-	2)We send the folder content.
-	3)We send an error.
-	*/
+   *If there are not any extension then we do one of this in order:
+   *	1)We send the default files in the folder in order.
+   *	2)We send the folder content.
+   *	3)We send an error.
+   */
 	if(MYSERVER_FILE::isFolder((char *)(td->filenamePath)))
 	{
 		if(!(permissions & MYSERVER_PERMISSION_BROWSE))
@@ -1372,7 +1393,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       }
 			if(defaultFileNamePath)
       {
-				sprintf(defaultFileName, "%s/%s", td->filenamePath, defaultFileNamePath);
+				sprintf(defaultFileName, "%s/%s", td->filenamePath, 
+                defaultFileNamePath);
       }
 			else
 				break;
@@ -1487,7 +1509,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 			target=td->request.URIOPTSPTR;
 		else
 			target=(char*)&td->request.URIOPTS;
-		if(mscgiLoaded)/*Check ig the MSCGI library is loaded*/
+    /*! Check if the MSCGI library is loaded. */
+		if(mscgiLoaded)
 		{
       if(data)
         delete [] data;
@@ -1527,7 +1550,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
     }
 	
 		int ret=lwincgi.sendWINCGI(td, s, cgipath);
-    delete cgipath;
+    delete [] cgipath;
 		return (ret&keepalive);
 
 	}
@@ -1630,7 +1653,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
   {
 		return raiseHTTPError(td, s, e_500);
   }
-	getRFC822GMTTime(lastMT, td->response.LAST_MODIFIED, HTTP_RESPONSE_LAST_MODIFIED_DIM);
+	getRFC822GMTTime(lastMT, td->response.LAST_MODIFIED, 
+                   HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	if(td->request.IF_MODIFIED_SINCE[0])
 	{
 		if(!strcmp(td->request.IF_MODIFIED_SINCE, td->response.LAST_MODIFIED))
@@ -1638,8 +1662,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 			return sendHTTPNonModified(td, s);
     }
 	}
-	return (keepalive & sendHTTPFILE(td, s, td->filenamePath, only_header, 
-                                   firstByte, lastByte));
+  int ret = sendHTTPFILE(td, s, td->filenamePath, only_header, 
+                         firstByte, lastByte);
+	return (keepalive & ret);
 }
 /*!
  *Log the access using the Common Log Format or the Combined one
@@ -1702,7 +1727,8 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 /*!
 *This is the HTTP protocol main procedure to parse a request made over the HTTP.
 */
-int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1, int bs2, u_long nbtr, u_long id)
+int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, 
+                            int bs1, int bs2, u_long nbtr, u_long id)
 {
 	int retvalue=-1;
 	td.buffer=((ClientsTHREAD*)a->thread)->GetBuffer();
