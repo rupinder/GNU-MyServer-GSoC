@@ -33,7 +33,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/post.mscgi"
 				LinkIncremental="2"
-				ModuleDefinitionFile="libpost.def"
+				ModuleDefinitionFile="definitions.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/post.pdb"
 				SubSystem="2"
