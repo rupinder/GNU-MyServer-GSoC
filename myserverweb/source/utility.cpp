@@ -93,6 +93,7 @@ int getOSVersion()
 */
 u_long getCPUCount()
 {
+	/*! By default use 1 processor.  */
 	u_long ret=1;
 #ifdef WIN32
 	SYSTEM_INFO si;
@@ -101,6 +102,9 @@ u_long getCPUCount()
 #endif
 #ifdef NOT_WIN
 	ret=sysconf(_SC_NPROCESSORS_CONF); 
+        /*! Use only a processor if some error happens.  */
+        if(ret==-1)
+          ret = 1;
 #endif
 	return ret;
 }
@@ -167,6 +171,7 @@ void preparePrintError()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
 #endif
 }
+
 /*!
 **Set the text color to white on black.
 */
@@ -180,6 +185,7 @@ void endPrintError()
 #ifndef WIN32
 static struct timeval tval;
 #endif
+
 /*!
 *Returns the ticks. Used for check time variations.
 */
@@ -188,7 +194,9 @@ u_long get_ticks()
 #ifdef WIN32
 	return GetTickCount();
 #else
-	gettimeofday(&tval, 0);
+	int ret = gettimeofday(&tval, 0);
+        if(ret == -1)
+          return 0;
 	u_long time=(tval.tv_sec * 1000) + (tval.tv_usec / 1000);
 	return time;
 #endif

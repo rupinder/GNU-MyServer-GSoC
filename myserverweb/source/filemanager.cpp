@@ -53,7 +53,7 @@ int MYSERVER_FILE::getPathRecursionLevel(char* path)
 	{
 		if(token != NULL) 
 		{
-			if( strcmp(token,"..") && strcmp(token,".") )
+			if( strcmp(token,"..")  )
 				rec++;
 			else
 				rec--;
@@ -98,9 +98,11 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 *If the function have success the return value is nonzero.
 *filename is the name of the file to open
 *opt is a bit-field containing the options on how open it
+*openFile returns the handle on success and NULL on fails.
 */
 int MYSERVER_FILE::openFile(char* filename,u_long opt)
 {
+	int ret=0;
 	strcpy(MYSERVER_FILE::filename,filename);
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};
@@ -136,15 +138,21 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
-	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
-	if(handle==INVALID_HANDLE_VALUE)/*!If exists an error*/
+	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, creationFlag, attributeFlag, NULL);
+	/*! Return 0 if an error happens.  */
+        if(handle==INVALID_HANDLE_VALUE)
 		return 0;
 	else/*!If no error exist in open the file*/
 	{
 		if(opt & MYSERVER_FILE_OPEN_APPEND)
-			setFilePointer(getFileSize());
+			ret=setFilePointer(getFileSize());
 		else
-			setFilePointer(0);
+			ret=setFilePointer(0);
+  		if(ret)
+		{
+			closeFile();
+			return 0;
+		}
 	}
 
 #endif
@@ -181,33 +189,51 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		
 	if(opt & MYSERVER_FILE_OPEN_IFEXISTS)
 	{
-		if(stat(filename, &F_Stats) < 0)
+		ret = stat(filename, &F_Stats);
+		if(ret  < 0)
 		{
 			return 0;
 		}
-		else
-			handle = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
+		ret = open(Buffer,F_Flags);
+		if(ret == -1)
+			return 0;
+		handle= (MYSERVER_FILE_HANDLE)ret;
 	}
 	else if(opt & MYSERVER_FILE_OPEN_APPEND)
 	{
-		if(stat(filename, &F_Stats) < 0)
-			handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+		ret = stat(filename, &F_Stats);
+		if(ret < 0)
+			ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
-			handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_APPEND | F_Flags);
+			ret = open(Buffer,O_APPEND | F_Flags);
+		if(ret == -1)
+			return 1;
+		else
+			handle=(MYSERVER_FILE_HANDLE)ret;
 	}
 	else if(opt & MYSERVER_FILE_CREATE_ALWAYS)
 	{
-		if(stat(filename, &F_Stats))
+		stat(filename, &F_Stats);
+		if(ret)
 			remove(filename);
 
-		handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+		ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+		if(ret == -1)
+			return 0;
+		else
+			handle=(MYSERVER_FILE_HANDLE)ret;
 	}
 	else if(opt & MYSERVER_FILE_OPEN_ALWAYS)
 	{
-		if(stat(filename, &F_Stats) < 0)
-			handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+		ret = stat(filename, &F_Stats);
+		if(ret < 0)
+			ret =open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
-			handle = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
+			ret = open(Buffer,F_Flags);
+		if(ret == -1)
+			return 0;
+		else
+			 handle=(MYSERVER_FILE_HANDLE)ret;
 	}
 	
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
@@ -215,10 +241,9 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 	
 	if((int)handle < 0)
 		handle = (MYSERVER_FILE_HANDLE)0;
-		
 #endif
 	
-	return handle?1:0;
+	return (int)handle;
 }
 /*!
 *Returns the file handle.
@@ -229,11 +254,12 @@ MYSERVER_FILE_HANDLE MYSERVER_FILE::getHandle()
 }
 /*!
 *Set the file handle.
+*Return a non null-value on errors.
 */
 int MYSERVER_FILE::setHandle(MYSERVER_FILE_HANDLE hl)
 {
 	handle=hl;
-	return 1;
+	return 0;
 }
 /*!
 *define the operator =
@@ -242,7 +268,7 @@ int MYSERVER_FILE::operator =(MYSERVER_FILE f)
 {
 	setHandle(f.getHandle());
 	strcpy(filename,f.filename);
-	return 1;
+	return 0;
 }
 /*!
 *Set the name of the file
@@ -260,15 +286,13 @@ char *MYSERVER_FILE::getFilename()
 }
 /*!
 *Read data from a file to a buffer.
+*Return 1 if we don't reach the ond of the file.
+*Return 0 if the end of the file is reached.
 */
 int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
-	/*!
-	*Return 1 if we don't reach the ond of the file.
-	*Return 0 if the end of the file is reached.
-	*/
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
 #ifdef NOT_WIN
@@ -305,33 +329,45 @@ int MYSERVER_FILE::closeFile()
 }
 /*!
 *Delete an existing file passing the path.
+*Return a non-null value on errors.
 */
 int MYSERVER_FILE::deleteFile(char *filename)
 {
+	int ret;
 #ifdef WIN32
-	DeleteFile(filename);
+	ret = DeleteFile(filename);
+	if(ret)
+		return 0;
 #endif
 #ifdef NOT_WIN
-	remove(filename);
+	ret = remove(filename);
+	return ret;
 #endif
-	return 0;
 }
 /*!
 *Returns the file size in bytes.
+*Returns -1 on errors.
 */
 u_long MYSERVER_FILE::getFileSize()
 {
-	u_long size;
+	u_long ret;
 #ifdef WIN32
-	size=GetFileSize((HANDLE)handle,NULL);
+	ret=GetFileSize((HANDLE)handle,NULL);
+	if(ret!=INVALID_FILE_SIZE)
+	{
+		return ret;
+	}
+	else
+		return -1;
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;
-	fstat((int)handle, &F_Stats);
-	size = F_Stats.st_size;
+	ret = fstat((int)handle, &F_Stats);
+	if(ret)
+		return (u_long)(-1);
+	else
+		return F_Stats.st_size;
 #endif
-	
-	return size;
 }
 /*!
 *Change the position of the pointer to the file.
@@ -339,11 +375,15 @@ u_long MYSERVER_FILE::getFileSize()
 */
 int MYSERVER_FILE::setFilePointer(u_long initialByte)
 {
+	int ret;
 #ifdef WIN32
-	return (SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
+	int ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN)
+        /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
+	return (ret==INVALID_SET_FILE_POINTER)?1:0;
 #endif
 #ifdef NOT_WIN
-	return (lseek((int)handle, initialByte, SEEK_SET))?1:0;
+	ret = lseek((int)handle, initialByte, SEEK_SET);
+	return (ret)?1:0;
 #endif
 }
 /*!
@@ -361,7 +401,8 @@ int MYSERVER_FILE::isFolder(char *filename)
 #ifdef NOT_WIN
 	//sprintf("in isFolder filename = %s\n", filename);
 	struct stat F_Stats;
-	if(stat(filename, &F_Stats) < 0)
+	int ret = stat(filename, &F_Stats);
+	if(ret < 0)
 		return 0;
 
 	return (S_ISDIR(F_Stats.st_mode))? 1 : 0;
@@ -374,19 +415,22 @@ int MYSERVER_FILE::isFolder(char *filename)
 int MYSERVER_FILE::fileExists(char* filename)
 {
 #ifdef WIN32
-	return (OpenFile(filename, &OFSTRUCT(), OF_EXIST) != HFILE_ERROR)?1:0; // OpenFile is now a wrapper for CreateFile
+	int ret = OpenFile(filename, &OFSTRUCT(), OF_EXIST);
+	return (ret != HFILE_ERROR)?1:0; // OpenFile is now a wrapper for CreateFile
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;
-	if(stat(filename, &F_Stats) < 0)
+	int ret = stat(filename, &F_Stats);
+	if(ret < 0)
 		return 0;
-		
+	/*! Return 1 if it is a regular file.  */
 	return (S_ISREG(F_Stats.st_mode))? 1 : 0;
 #endif
 }
 
 /*!
 *Returns the time of the last modify to the file.
+*Returns -1 on errors.
 */
 time_t MYSERVER_FILE::getLastModTime(char *filename)
 {
@@ -414,6 +458,7 @@ time_t MYSERVER_FILE::getLastModTime()
 
 /*!
 *Returns the time of the file creation.
+*Returns -1 on errors.
 */
 time_t MYSERVER_FILE::getCreationTime(char *filename)
 {
@@ -440,6 +485,7 @@ time_t MYSERVER_FILE::getCreationTime()
 }
 /*!
 *Returns the time of the last access to the file.
+*Returns -1 on errors.
 */
 time_t MYSERVER_FILE::getLastAccTime(char *filename)
 {
@@ -535,7 +581,7 @@ void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
 void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
 {
 	int nDot, nPathLen;
-	nPathLen =(int)(strlen(filename) - 1);
+	nPathLen = (int)(strlen(filename) - 1);
 	nDot = nPathLen;
 	while ((nDot > 0) && (filename[nDot] != '.'))
 		nDot--;
@@ -559,16 +605,20 @@ int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 }
 /*!
 *Get the file path in the short form of the specified file
+*Return -1 on errors.
 */
 int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
 {
 #ifdef WIN32
-	GetShortPathName(filePath,out,buffersize);
+	int ret = GetShortPathName(filePath,out,buffersize);
+	if(!ret)
+		return -1;
+	return 0;
 #endif
 #ifdef NOT_WIN
 	strncpy(out,filePath,buffersize);
+	return 0;	
 #endif
-	return 0;
 }
 /*!
 *Complete the path of the file.
@@ -577,6 +627,7 @@ void MYSERVER_FILE::completePath(char *fileName)
 {
 #ifdef WIN32
 	GetFullPathName(fileName,MAX_PATH,fileName,0);
+	return 0;
 #endif
 #ifdef NOT_WIN
 	if(fileName[0]=='/')
@@ -586,5 +637,6 @@ void MYSERVER_FILE::completePath(char *fileName)
 	getdefaultwd(fileName,MAX_PATH);
 	strcat(fileName,"/");
 	strcat(fileName,buffer);
+	return;
 #endif
 }
