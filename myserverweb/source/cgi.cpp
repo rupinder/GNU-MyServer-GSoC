@@ -593,7 +593,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "REQUEST_METHOD=";
 	memCgi << td->request.CMD.c_str();
 
-	memCgi << end_str << "REQUEST_URI=/";
+	memCgi << end_str << "REQUEST_URI=";
 	
  	memCgi << td->request.URI.c_str();
 
@@ -749,10 +749,10 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
    *For the DOCUMENT_URI and SCRIPT_NAME copy the 
    *requested URI without the pathInfo.
    */
-	memCgi << end_str << "SCRIPT_NAME=/";
+	memCgi << end_str << "SCRIPT_NAME=";
 	memCgi << td->request.URI.c_str();
 
-	memCgi << end_str << "SCRIPT_URL=/";
+	memCgi << end_str << "SCRIPT_URL=";
 	memCgi << td->request.URI.c_str();
 
 	memCgi << end_str << "DATE_GMT=";
@@ -766,7 +766,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "DOCUMENT_ROOT=";
 	memCgi << ((Vhost*)(td->connection->host))->documentRoot;
 
-	memCgi << end_str << "DOCUMENT_URI=/";
+	memCgi << end_str << "DOCUMENT_URI=";
 	memCgi << td->request.URI.c_str();
 	
 	memCgi << end_str << "DOCUMENT_NAME=";
