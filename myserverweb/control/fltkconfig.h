@@ -69,8 +69,8 @@ private:
   static void cb_as(Fl_Menu_*, void*);
   inline void cb_as1_i(Fl_Menu_*, void*);
   static void cb_as1(Fl_Menu_*, void*);
-  inline void cb_Cosnole_i(Fl_Menu_*, void*);
-  static void cb_Cosnole(Fl_Menu_*, void*);
+  inline void cb_Console_i(Fl_Menu_*, void*);
+  static void cb_Console(Fl_Menu_*, void*);
   inline void cb_Service_i(Fl_Menu_*, void*);
   static void cb_Service(Fl_Menu_*, void*);
   inline void cb_Quit_i(Fl_Menu_*, void*);

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <MYSERVER_LANGUAGE_FILE>
 <_ABOUT35>&amp;About</_ABOUT35>
 <_FILE167>&amp;File</_FILE167>
@@ -23,7 +23,7 @@
 <CONFIGURATION_FILES_168>File di configurazione posizionato nella directory corrente</CONFIGURATION_FILES_168>
 <CONFIGURATION_FILES_6>File di configurazione posizionato in ~/.myserver</CONFIGURATION_FILES_6>
 <CONNECTION_TIME_OUT_75>Time-out della connessione (in sec):</CONNECTION_TIME_OUT_75>
-<COSNOLE213>Console</COSNOLE213>
+<CONSOLE213>Console</CONSOLE213>
 <DEFAULT_FILE_NAMES_249>Nome dei files di default :</DEFAULT_FILE_NAMES_249>
 <DEFAULT_FILE_TO_SEND62>File da mandare al posto del browsing</DEFAULT_FILE_TO_SEND62>
 <DIRECTORIES129>Directories</DIRECTORIES129>
@@ -34,7 +34,7 @@
 <EXTENSION_250>Estensione:</EXTENSION_250>
 <FTP234>FTP</FTP234>
 <GLOBAL83>Globale</GLOBAL83>
-<GZIP_COMRPESSION_THR48>Soglia della compressione gzip (in bytes):</GZIP_COMRPESSION_THR48>
+<GZIP_COMPRESSION_THR48>Soglia della compressione gzip (in bytes):</GZIP_COMPRESSION_THR48>
 <HTTP65>HTTP</HTTP65>
 <HTTPS148>HTTPS</HTTPS148>
 <HIGHER89>Alto</HIGHER89>
@@ -58,7 +58,7 @@
 <NORMAL107>Normale</NORMAL107>
 <OK154>OK</OK154>
 <PORT_224>Porta:</PORT_224>
-<PRESONALIZED_ERROR_P173>Pagine di errore personalizzate:</PRESONALIZED_ERROR_P173>
+<PERSONALIZED_ERROR_P173>Pagine di errore personalizzate:</PERSONALIZED_ERROR_P173>
 <PROTOCOL85>Protocollo</PROTOCOL85>
 <PROTOCOL_143>Protocollo:</PROTOCOL_143>
 <REMOVE112>Rimuovi</REMOVE112>
@@ -81,7 +81,7 @@
 <SYSTEM135>Sistema</SYSTEM135>
 <SYSTEM_FOLDER_96>Directory di sistema:</SYSTEM_FOLDER_96>
 <THREADS_PER_CPU_121>Threads per CPU:</THREADS_PER_CPU_121>
-<ULR_LINK195>URL link</ULR_LINK195>
+<URL_LINK195>URL link</URL_LINK195>
 <USER160>User</USER160>
 <VERBOSITY_LEVEL_63>Verbosity level:</VERBOSITY_LEVEL_63>
 <WARNING_LOG_FILE_56>Warning log file:</WARNING_LOG_FILE_56>

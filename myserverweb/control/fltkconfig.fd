@@ -115,7 +115,7 @@ if(i != -1) {
             xywh {0 0 100 20} divider
           } {
             menuitem {} {
-              label Cosnole
+              label Console
               callback {StopConsole();}
               xywh {0 0 100 20}
             }
@@ -352,7 +352,7 @@ if(ret) {
             xywh {285 90 115 25} maximum 5.24288e+06 step 1
           }
           Fl_Value_Input Gzip_Threshold {
-            label {Gzip comrpession threshold (in bytes):}
+            label {Gzip compression threshold (in bytes):}
             callback {Changed = true;}
             xywh {285 120 115 25} maximum 5.24288e+06 step 1
           }
@@ -371,7 +371,7 @@ if(chrptr != 0) {
             xywh {410 150 85 25}
           }
           Fl_Check_Button Use_Errors_Files {
-            label {Presonalized error pages:}
+            label {Personalized error pages:}
             callback {Changed = true;}
             xywh {285 180 25 25} down_box DOWN_BOX align 4 when 1
           }
@@ -532,7 +532,7 @@ if(val2 != 0) {
                 xywh {10 10 100 20}
               }
               menuitem {} {
-                label {ULR link}
+                label {URL link}
                 xywh {10 10 100 20}
               }
               menuitem {} {

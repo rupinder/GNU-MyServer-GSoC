@@ -104,11 +104,11 @@ void MainDlg::cb_as1(Fl_Menu_* o, void* v) {
   ((MainDlg*)(o->parent()->user_data()))->cb_as1_i(o,v);
 }
 
-inline void MainDlg::cb_Cosnole_i(Fl_Menu_*, void*) {
+inline void MainDlg::cb_Console_i(Fl_Menu_*, void*) {
   StopConsole();
 }
-void MainDlg::cb_Cosnole(Fl_Menu_* o, void* v) {
-  ((MainDlg*)(o->parent()->user_data()))->cb_Cosnole_i(o,v);
+void MainDlg::cb_Console(Fl_Menu_* o, void* v) {
+  ((MainDlg*)(o->parent()->user_data()))->cb_Console_i(o,v);
 }
 
 inline void MainDlg::cb_Service_i(Fl_Menu_*, void*) {
@@ -282,7 +282,7 @@ Fl_Menu_Item MainDlg::menu_[] = {
  {gettext("as Service"), 0,  (Fl_Callback*)MainDlg::cb_as1, 0, 0, 0, 0, 14, 56},
  {0},
  {gettext("Stop"), 0,  0, 0, 192, 0, 0, 14, 56},
- {gettext("Cosnole"), 0,  (Fl_Callback*)MainDlg::cb_Cosnole, 0, 0, 0, 0, 14, 56},
+ {gettext("Console"), 0,  (Fl_Callback*)MainDlg::cb_Console, 0, 0, 0, 0, 14, 56},
  {gettext("Service"), 0,  (Fl_Callback*)MainDlg::cb_Service, 0, 0, 0, 0, 14, 56},
  {0},
  {gettext("&Quit"), 0,  (Fl_Callback*)MainDlg::cb_Quit, 0, 0, 0, 0, 14, 56},
@@ -556,7 +556,7 @@ void MainDlg::cb_Cmd(Fl_Choice* o, void* v) {
 
 Fl_Menu_Item MainDlg::menu_Cmd[] = {
  {gettext("Send the file"), 0,  0, 0, 0, 0, 0, 14, 56},
- {gettext("ULR link"), 0,  0, 0, 0, 0, 0, 14, 56},
+ {gettext("URL link"), 0,  0, 0, 0, 0, 0, 14, 56},
  {gettext("Run as CGI"), 0,  0, 0, 0, 0, 0, 14, 56},
  {gettext("Run as FastCGI"), 0,  0, 0, 0, 0, 0, 14, 56},
  {gettext("Run as ISAPI"), 0,  0, 0, 0, 0, 0, 14, 56},
@@ -2266,7 +2266,7 @@ Fl_Double_Window* MainDlg::make_window() {
           o->step(1);
           o->callback((Fl_Callback*)cb_Max_Connections);
         }
-        { Fl_Value_Input* o = Gzip_Threshold = new Fl_Value_Input(285, 120, 115, 25, gettext("Gzip comrpession threshold (in bytes):"));
+        { Fl_Value_Input* o = Gzip_Threshold = new Fl_Value_Input(285, 120, 115, 25, gettext("Gzip compression threshold (in bytes):"));
           o->maximum(5.24288e+06);
           o->step(1);
           o->callback((Fl_Callback*)cb_Gzip_Threshold);
@@ -2278,7 +2278,7 @@ Fl_Double_Window* MainDlg::make_window() {
         { Fl_Button* o = new Fl_Button(410, 150, 85, 25, gettext("Browse..."));
           o->callback((Fl_Callback*)cb_Browse);
         }
-        { Fl_Check_Button* o = Use_Errors_Files = new Fl_Check_Button(285, 180, 25, 25, gettext("Presonalized error pages:"));
+        { Fl_Check_Button* o = Use_Errors_Files = new Fl_Check_Button(285, 180, 25, 25, gettext("Personalized error pages:"));
           o->down_box(FL_DOWN_BOX);
           o->callback((Fl_Callback*)cb_Use_Errors_Files);
           o->align(FL_ALIGN_LEFT);
