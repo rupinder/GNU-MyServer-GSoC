@@ -24,8 +24,15 @@ extern "C" {
 #include <stdlib.h>
 #include <math.h>
 #include "png.h"
+#ifndef WIN32
+#include "writepng.h"
+}
+
+#else
 }
 #include "writepng.h"
+
+#endif
 
 cgi_manager * cgi_manager_ptr; // a nasty global 
 
