@@ -66,7 +66,9 @@ void Sig_Quit(int signal)
 	server.stop();
 }
 #endif
-
+/*!
+*Main function for MyServer
+*/
 int main (int argn, char **argc)
 {
 #ifndef WIN32
@@ -115,7 +117,9 @@ int main (int argn, char **argc)
 	return 0;
 } 
 
-
+/*!
+*Start MyServer in console mode
+*/
 void console_service (int, char **)
 {
     printf ("starting in console mode\n");
