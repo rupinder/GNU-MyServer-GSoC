@@ -99,7 +99,7 @@ void * startClientsTHREAD(void* pParam)
 	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetRealLength());
 	memset((char*)ct->buffer2.GetBuffer(), 0,ct->buffer2.GetRealLength());
 	
-	wait(5000);
+	wait(3000);
 	/*!
 	*This function when is alive only call the controlConnections(...) function
 	*of the ClientsTHREAD class instance used for control the thread.
@@ -138,12 +138,10 @@ void ClientsTHREAD::controlConnections()
 		lserver->connections_mutex_unlock();
 		return;
 	}
-	
 	/*!
 	*Set the connection parsing flag to true.
 	*/
 	c->parsing=1;
-	
 	/*!
 	*Unlock connections list access after setting parsing flag.
 	*/
@@ -156,7 +154,9 @@ void ClientsTHREAD::controlConnections()
 			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->dataRead],KB(8) - c->dataRead, 0);
 		if(err==-1)
 		{
+			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c,this->id);
+			lserver->connections_mutex_unlock();
 			return;
 		}
 		if((c->dataRead+err)<KB(8))
@@ -165,7 +165,9 @@ void ClientsTHREAD::controlConnections()
 		}
 		else
 		{
+			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c,this->id);
+			lserver->connections_mutex_unlock();
 			return;
 		}
 		buffer.SetBuffer(c->connectionBuffer, c->dataRead);
@@ -210,7 +212,9 @@ void ClientsTHREAD::controlConnections()
 		*/
 		if(retcode==0)/*Delete the connection*/
 		{
+			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c,this->id);
+			lserver->connections_mutex_unlock();
 			return;
 		}
 		else if(retcode==1)/*Keep the connection*/
@@ -246,7 +250,9 @@ void ClientsTHREAD::controlConnections()
 		*/
 		if((get_ticks()- c->timeout) > lserver->connectionTimeout)
 		{
+			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c,this->id);
+			lserver->connections_mutex_unlock();
 			return;
 		}
 	}

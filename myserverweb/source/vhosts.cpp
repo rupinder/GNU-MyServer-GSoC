@@ -830,11 +830,11 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 				while(attr)
 				{
 					strncat(vh->accessLogOpt,(char*)attr->name,Optslen);
-					Optslen-=strlen((char*)attr->name);
+					Optslen-=(u_long)strlen((char*)attr->name);
 					strncat(vh->accessLogOpt,"=",Optslen);
 					Optslen-=1;
 					strncat(vh->accessLogOpt,(char*)attr->children->content,Optslen);
-					Optslen-=strlen((char*)attr->children->content);
+					Optslen-=(u_long)strlen((char*)attr->children->content);
 					if(attr->next)
 					{
 						strncat(vh->accessLogOpt,",",Optslen);
@@ -853,11 +853,11 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 				while(attr)
 				{
 					strncat(vh->warningLogOpt,(char*)attr->name,Optslen);
-					Optslen-=strlen((char*)attr->name);
+					Optslen-=(u_long)strlen((char*)attr->name);
 					strncat(vh->warningLogOpt,"=",Optslen);
 					Optslen-=1;
 					strncat(vh->warningLogOpt,(char*)attr->children->content,Optslen);
-					Optslen-=strlen((char*)attr->children->content);
+					Optslen-=(u_long)strlen((char*)attr->children->content);
 					if(attr->next)
 					{
 						strncat(vh->warningLogOpt,",",Optslen);

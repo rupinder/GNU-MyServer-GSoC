@@ -123,10 +123,24 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	*to get other params like in a POST request.
 	*/
 	MYSERVER_FILE stdOutFile;
-	stdOutFile.createTemporaryFile(outputDataPath);
+	if(!stdOutFile.createTemporaryFile(outputDataPath))
+	{
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)td->connection->host)->warningsLogWrite("Cannot create CGI stdout file\r\n" );
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+	}
 	MYSERVER_FILE stdInFile;
 	td->inputData.closeFile();
-	stdInFile.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
+	if(!stdInFile.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS))
+	{
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n" );
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		stdOutFile.closeFile();
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+	
+	}
 
 	/*!
 	*Build the environment string used by the CGI started
@@ -241,7 +255,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			*/
 			sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
 			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
-			td->buffer->SetLength(strlen((char*)td->buffer->GetBuffer()));
+			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
 			s->socket.send((char*)td->buffer->GetBuffer(),(int)(td->buffer->GetLength()), 0);
 			s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize),nBytesRead-headerSize, 0);
 		}

@@ -94,7 +94,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "Request Method=" << td->request.CMD << "\r\n";
-	DataFileHandle.writeToFile(buffer,td->buffer2.GetLength(),&nbr);
+	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
 
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "Request Protocol=HTTP/" << td->request.VER << "\r\n";
@@ -180,7 +180,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	if(!MYSERVER_FILE::fileExists(outFilePath))
 	{
 		ret = OutFileHandle.openFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
-		if ((!ret) || (ret==-1)) 
+		if (!ret)
 		{
 			((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI output file\r\n");
@@ -212,7 +212,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	}
 
 	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
-	if ((!ret) || (ret==-1))
+	if (!ret)
 	{
 		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite("Error opening WinCGI output file\r\n");

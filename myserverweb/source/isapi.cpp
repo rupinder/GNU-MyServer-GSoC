@@ -559,7 +559,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to load ISAPI application module: ");
 		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
-		if(!FreeLibrary(AppHnd))
+		if(!FreeLibrary((HMODULE)AppHnd))
 		{
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
@@ -600,7 +600,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
 		((vhost*)(td->connection->host))->warningsLogWrite("ISAPI version not supported\r\n");
-		if(!FreeLibrary(AppHnd))
+		if(!FreeLibrary((HMODULE)AppHnd))
 		{
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
@@ -652,7 +652,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	if (HttpExtensionProc == NULL) 
 	{
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
-		FreeLibrary(AppHnd);
+		FreeLibrary((HMODULE)AppHnd);
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 
@@ -677,7 +677,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 			retvalue=0;
 			break;
 	}
-	if(!FreeLibrary(AppHnd))
+	if(!FreeLibrary((HMODULE)AppHnd))
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
@@ -731,5 +731,6 @@ void isapi::cleanupISAPI()
 	if(connTable)
 		free(connTable);
 	connTable=0;
+	initialized=0;
 #endif
 }

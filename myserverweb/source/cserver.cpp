@@ -201,9 +201,9 @@ void cserver::start()
 	*/
 	while(!mustEndServer)
 	{
-		wait(1000);
+		wait(500);
 		configsCheck++;
-		if(configsCheck>500)/*Do not check for modified configuration files every cycle*/
+		if(configsCheck>10)/*Do not check for modified configuration files every cycle*/
 		{
 			time_t myserver_main_conf_now=MYSERVER_FILE::getLastModTime("myserver.xml");
 			time_t myserver_hosts_conf_now=MYSERVER_FILE::getLastModTime("virtualhosts.xml");
@@ -220,28 +220,32 @@ void cserver::start()
 			configsCheck=0;
 		}
 #ifdef WIN32
-		DWORD cNumRead,i; 
+		DWORD eventsCount,cNumRead,i; 
 		INPUT_RECORD irInBuf[128]; 
-		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
-		for (i = 0; i < cNumRead; i++) 
+		/*ReadConsoleInput is a blocking call, so be sure that there are events before call it*/
+		GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&eventsCount);
+		while(eventsCount--)
 		{
-			switch(irInBuf[i].EventType) 
-			{ 
-				case KEY_EVENT:
-					if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
-						continue;
-					if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
-					{
-						if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|(irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
+			ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
+			for (i = 0; i < cNumRead; i++) 
+			{
+				switch(irInBuf[i].EventType) 
+				{ 
+					case KEY_EVENT:
+						if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
+							continue;
+						if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
 						{
-							printf ("%s\n",languageParser.getValue("MSG_SERVICESTOP"));
-							this->stop();
+							if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|(irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
+							{
+								printf ("%s\n",languageParser.getValue("MSG_SERVICESTOP"));
+								this->stop();
+							}
 						}
-					}
-					break; 
-			} 
+						break; 
+				} 
+			}
 		}
-		
 #endif
 	}
 	this->terminate();
@@ -404,7 +408,7 @@ void * listenServer(void* params)
 		*/
 		if(serverSocket.dataOnRead()==0)
 		{
-			wait(100);
+			wait(10);
 			continue;
 		}
 		asock=serverSocket.accept((struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
@@ -565,7 +569,7 @@ void cserver::stopThreads()
 		*/
 		if(++threadsStopTime > 500 )
 			break;
-		wait(100);
+		wait(200);
 	}
 
 }
@@ -589,14 +593,12 @@ void cserver::initialize(int /*!OSVer*/)
 	/*!
 	*Create the mutex for the connections.
 	*/
-	c_mutex= new myserver_mutex;
-	
+	c_mutex = new myserver_mutex();
 	/*!
 	*Store the default values.
 	*/
 	u_long nThreadsA=1;
 	u_long nThreadsB=0;
-	u_long i=0;
 	socketRcvTimeout = 10;
 	useLogonOption = 1;
 	connectionTimeout = SEC(25);
@@ -773,7 +775,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 *Add a new connection.
 *A connection is defined using a CONNECTION struct.
 */
-LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
+LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int /*id*/)
 {
 	u_long cs=sizeof(CONNECTION);
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
@@ -794,6 +796,10 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	strncpy(nc->ipAddr,ipAddr,MAX_IP_STRING_LEN);
 	strncpy(nc->localIpAddr,localIpAddr,MAX_IP_STRING_LEN);
 	nc->host = (void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	nc->login[0]='\0';
+	nc->nTries=0;
+	nc->password[0]='\0';
+	nc->protocolBuffer=0;
 	if(nc->host == 0) /* No vhost for the connection so bail */
 	{
 		free(nc);
@@ -832,12 +838,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 			return 0;
 		}
 	}
-	
-	nc->login[0]='\0';
-	nc->nTries=0;
-	nc->password[0]='\0';
-	nc->protocolBuffer=0;
-
 	if(nc->host==0)
 	{
 		free(nc);
@@ -865,7 +865,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 /*!
 *Delete a connection from the list.
 */
-int cserver::deleteConnection(LPCONNECTION s,int id)
+int cserver::deleteConnection(LPCONNECTION s,int /*id*/)
 {
 	if(!s)
 	{
@@ -879,7 +879,6 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	/*!
 	*Get the access to the  connections list.
 	*/
-	lserver->connections_mutex_lock();
 	int ret=0,err;
 	/*!
 	*Remove the connection from the active connections list.
@@ -912,7 +911,6 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		free(s->protocolBuffer);
 	free(s);
 
-	lserver->connections_mutex_unlock();
 	/*!
 	*Close the socket communication.
 	*/
@@ -931,7 +929,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 *Get a connection to parse. Be sure to have the connections access for the caller thread before use this.
 *Using this without the right permissions can cause wrong data returned to the client.
 */
-LPCONNECTION cserver::getConnectionToParse(int id)
+LPCONNECTION cserver::getConnectionToParse(int /*id*/)
 {
 	/*
 	*Do nothing if there are not connections.
@@ -968,6 +966,7 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 */
 void cserver::clearAllConnections()
 {
+	connections_mutex_lock();	
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
 	while(c)
@@ -976,6 +975,7 @@ void cserver::clearAllConnections()
 		deleteConnection(c,1);
 		c=next;
 	}
+	connections_mutex_unlock();
 	/*!
 	*Reset everything
 	*/
@@ -1206,7 +1206,7 @@ void cserver::reboot()
 	mustEndServer=1;
 	terminate();
 	mustEndServer=0;
-	wait(1000000);
+	wait(5000);
 	initialize(0);
 	loadSettings();
 

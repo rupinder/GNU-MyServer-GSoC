@@ -91,7 +91,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		setcwd(td->scriptDir);
 		td->buffer2->GetAt(0)='\0';
 #ifdef WIN32
-		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
+		ProcMain = (CGIMAIN) GetProcAddress((HMODULE)hinstLib, "main"); 
 #endif
 #ifdef HAVE_DL
 		ProcMain = (CGIMAIN) dlsym(hinstLib, "main");
@@ -101,7 +101,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 			(ProcMain)(cmdLine,&data);
 		}
 #ifdef WIN32
-		FreeLibrary(hinstLib); 
+		FreeLibrary((HMODULE)hinstLib); 
 #endif
 #ifdef HAVE_DL
 		dlclose(hinstLib);
@@ -226,7 +226,7 @@ int mscgi::freeMSCGILib()
 	/*!
 	*Return 1 if FreeLibrary returns successfully.
 	*/
-	return((mscgiModule)?(FreeLibrary(mscgiModule)?1:0):0);
+	return((mscgiModule)?(FreeLibrary((HMODULE)mscgiModule)?1:0):0);
 #else
 #ifdef HAVE_DL
 	return((mscgiModule)?(dlclose(mscgiModule)?1:0):0);

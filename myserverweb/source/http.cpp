@@ -68,7 +68,7 @@ u_long http::nDefaultFilename=0;
 int http::initialized=0;
 
 /*!
-*Browse a folder printing its contents over the HTTP.
+*Browse a folder printing its contents in an HTML file.
 */
 int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
@@ -115,7 +115,6 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	td->buffer2->SetLength(0);
 	_finddata_t fd;
-	//sprintf(td->buffer2,"<html>\r\n<head>\r\n<title>%s</title>\r\n</head>\r\n",td->request.URI);
 	*td->buffer2<<"<html>\r\n<head>\r\n<title>" ;
 	*td->buffer2<< td->request.URI ;
 	*td->buffer2<< "</title>\r\n</head>\r\n" ; 
@@ -372,7 +371,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		strcpy(td->response.CONTENT_ENCODING,"gzip");
 	}
 	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
-	td->buffer->SetLength(strlen((char*)td->buffer->GetBuffer()));
+	td->buffer->SetLength((u_long)strlen((char*)td->buffer->GetBuffer()));
 	if(!td->appendOutputs)
 	{
 		/*!
@@ -449,8 +448,9 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			{
 				h.closeFile();
 				return 0;
-			}			
+			}
 		}
+		
 		if(useGZIP)
 		{
 			char chunksize[12];
@@ -521,7 +521,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			}
 			break;
 		}
-	}
+	}//End FOR
 	h.closeFile();
 	return keepalive;
 
@@ -1179,10 +1179,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 	}
 	keepalive &= sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte);
 	return keepalive;
-	
-	/***************************************************************************************************************************************/
-	return sendHTTPhardError500(td,s);/*Why we reach this??????????????????!??????????!???!????!??*/
-	/***************************************************************************************************************************************/
 }
 /*!
 *Log the access using the Common Log Format or the Combined one
@@ -1241,7 +1237,7 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 /*!
 *This is the HTTP protocol main procedure to parse a request made over the HTTP.
 */
-int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id)
+int http::controlConnection(LPCONNECTION a,char */*b1*/,char */*b2*/,int bs1,int bs2,u_long nbtr,u_long id)
 {
 	int retvalue=-1;
 	td.buffer=((ClientsTHREAD*)a->thread)->GetBuffer();
@@ -1262,7 +1258,6 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	*Reset the request structure.
 	*/
 	http_headers::resetHTTPRequest(&td.request);
-
 	
 	/*
 	*If the connection must be removed, remove it.
@@ -1560,7 +1555,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 					break;
 				dataRead+=nbr;
 				u_long nbw;
-				if(!newStdIn.writeToFile((char*)td.buffer->GetLength(),nbr,&nbw))
+				if(!newStdIn.writeToFile((char*)td.buffer->GetBuffer(),nbr,&nbw))
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
@@ -1677,7 +1672,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 				a->dataRead=min(KB(8),(u_int)td.buffer->GetLength() - td.nHeaderChars );
 				if(a->dataRead)
 				{
-					memcpy(a->connectionBuffer,&((char*)td.buffer->GetBuffer())[td.nHeaderChars],a->dataRead+1);
+					memcpy(a->connectionBuffer,((char*)td.buffer->GetBuffer() + td.nHeaderChars),a->dataRead);
 					retvalue=3;
 				}
 				else
@@ -1762,7 +1757,7 @@ void http::computeDigest(httpThreadContext* td,char* out ,char* buffer)
 	MYSERVER_MD5Context md5;
 	sprintf(buffer,"%i-%i-%s",clock(),td->id,td->connection->ipAddr);
 	MYSERVER_MD5Init(&md5);
-	MYSERVER_MD5Update(&md5,(const unsigned char*)buffer ,strlen(buffer));
+	MYSERVER_MD5Update(&md5,(const unsigned char*)buffer ,(u_long)strlen(buffer));
 	MYSERVER_MD5End(&md5,out);
 }
 
@@ -1794,21 +1789,28 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		else if(td->auth_scheme==HTTP_AUTH_SCHEME_DIGEST)
 		{
 			if(a->protocolBuffer==0)
+			{
 				a->protocolBuffer=malloc(sizeof(http_user_data));
-			if(a->protocolBuffer==0)
-				return 0;
+				if(!a->protocolBuffer)
+				{
+					sendHTTPhardError500(td,a);
+					return 0;
+				}
+				resetHTTPUserData((http_user_data*)(a->protocolBuffer));
+			}
+
 			strncpy(((http_user_data*)a->protocolBuffer)->realm,td->request.HOST,64);
 			
 			char md5_str[256];/*Just a random string*/
 			strncpy(&(md5_str[2]),td->request.URI,256);
-			md5_str[0]=td->id;
+			md5_str[0]=(char)td->id;
 			md5_str[1]=(char)clock();
 			MYSERVER_MD5Context md5;
 			MYSERVER_MD5Init(&md5);
-			MYSERVER_MD5Update(&md5,(const unsigned char*)md5_str ,strlen(md5_str));
+			MYSERVER_MD5Update(&md5,(const unsigned char*)md5_str ,(u_long)strlen(md5_str));
 			MYSERVER_MD5End(&md5,((http_user_data*)a->protocolBuffer)->opaque);
 			
-			if((!(((http_user_data*)a->protocolBuffer)->digest)) || (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
+			if(a->protocolBuffer && (!(((http_user_data*)a->protocolBuffer)->digest)) || (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
 			{
 				computeDigest(td,((http_user_data*)a->protocolBuffer)->nonce,md5_str);
 				((http_user_data*)a->protocolBuffer)->nc=0;
@@ -1875,7 +1877,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	strncpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID],HTTP_RESPONSE_ERROR_TYPE_DIM);
-	u_long lenErrorFile=strlen(((vhost*)(a->host))->systemRoot)+strlen(HTTP_ERROR_HTMLS[ID])+2;
+	u_long lenErrorFile=strlen(((vhost*)(a->host))->systemRoot)+(u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
 	char *errorFile=(char*)malloc(lenErrorFile);
 	if(errorFile)
 	{
@@ -1917,7 +1919,7 @@ int http::sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
 	*td->buffer2 << versionOfSoftware;
 	*td->buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
-	*td->buffer2  <<   CMemBuf::IntToStr(strlen(hardHTML));
+	*td->buffer2  <<   CMemBuf::IntToStr((int)strlen(hardHTML));
 	*td->buffer2   << "\r\n";
 	*td->buffer2 <<"Date: ";
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -1947,7 +1949,7 @@ int http::getMIME(char *MIME,char *filename,char *dest,char *dest2)
 *Map an URL to the machine file system.
 *The output buffer must be capable of receive MAX_PATH characters.
 */
-void http::getPath(httpThreadContext* td,LPCONNECTION s,char *filenamePath,const char *filename,int systemrequest)
+void http::getPath(httpThreadContext* td,LPCONNECTION /*s*/,char *filenamePath,const char *filename,int systemrequest)
 {
 	/*!
 	*If it is a system request, search the file in the system folder.
@@ -2051,7 +2053,7 @@ int http::sendAuth(httpThreadContext* td,LPCONNECTION s)
 /*!
 *Load the HTTP protocol.
 */
-int http::loadProtocol(cXMLParser* languageParser,char* confFile)
+int http::loadProtocol(cXMLParser* languageParser,char* /*confFile*/)
 {
 	if(initialized)
 		return 0;
@@ -2154,7 +2156,7 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 /*!
 *Unload the HTTP protocol.
 */
-int http::unloadProtocol(cXMLParser* languageParser)
+int http::unloadProtocol(cXMLParser* /*languageParser*/)
 {
 	 if(!initialized)
 		 return 0;

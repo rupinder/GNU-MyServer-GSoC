@@ -26,14 +26,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
-#endif
-#ifdef HAVE_DL
+#elif HAVE_DL
 #include <dlfcn.h>
-#endif
-}
-#ifndef  HMODULE
+#define HMODULE void *
+
+#else
 #define HMODULE void *
 #endif
+}
+
 
 class dynamic_protocol : public protocol
 {

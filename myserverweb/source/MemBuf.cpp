@@ -174,13 +174,13 @@ u_int CMemBuf::Find(const void* pAdr, u_int size, u_int start)
 	const char* pEnd = m_buffer + m_nSize;
 	while ((pLast = (char*) memchr(pPrev, first, size_buf)) != NULL)
 	{
-		size_buf -= (pLast - pPrev);
+		size_buf -= (u_int)(pLast - pPrev);
 		pPrev = pLast + 1;
 
 		if (pLast + size >= pEnd)
 			return (u_int)-1;
 		if (memcmp(pLast, pAdr, size) == 0)
-			return (pLast - m_buffer);
+			return (u_int)(pLast - m_buffer);
 	}
 
 	return (u_int)-1;
@@ -537,7 +537,7 @@ CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 /* Convert a string into an unsigned number */
 u_int CMemBuf::StrToUint(const char* pAdr)
 {
-	int nSize = strlen(pAdr);
+	int nSize = (int)strlen(pAdr);
 	if (nSize > 10) // a (signed/unsigned) 32-bit number as a maximun of 10 digit
 		nSize = 10;
 	u_int nRes = 0;
@@ -632,7 +632,7 @@ CMemBuf CMemBuf::operator+ (CMemBuf& src)
 CMemBuf CMemBuf::operator+ (const char* src) 
 {
 	CMemBuf temp(*this); 
-	temp.AddBuffer((const void*) src, strlen(src)); 
+	temp.AddBuffer((const void*) src, (u_int)strlen(src)); 
 	return temp;
 }
 const CMemBuf& CMemBuf::operator+= (CMemBuf& add) 
@@ -642,7 +642,7 @@ const CMemBuf& CMemBuf::operator+= (CMemBuf& add)
 }
 const CMemBuf& CMemBuf::operator+= (const char* pStr) 
 {
-	AddBuffer(pStr, strlen(pStr)); 
+	AddBuffer(pStr, (u_int)strlen(pStr)); 
 	return *this;
 }
 const CMemBuf& CMemBuf::operator+= (char c) 
@@ -652,7 +652,7 @@ const CMemBuf& CMemBuf::operator+= (char c)
 }
 CMemBuf& CMemBuf::operator<< (const char* pSrc) 
 {
-	AddBuffer(pSrc, strlen(pSrc)); 
+	AddBuffer(pSrc, (u_int)strlen(pSrc)); 
 	return *this;
 }
 CMemBuf& CMemBuf::operator<< (int i) 
@@ -697,7 +697,7 @@ CMemBuf& CMemBuf::operator=(const CMemBuf& src)
 }
 CMemBuf& CMemBuf::operator=(const char* src) 
 {
-	SetBuffer((const void*) src, strlen(src) + 1); 
+	SetBuffer((const void*) src, (u_int)strlen(src) + 1); 
 	return* this;
 }
 	

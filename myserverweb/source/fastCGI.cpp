@@ -431,6 +431,7 @@ int fastcgi::cleanFASTCGI()
 		fCGIservers[i].socket.closesocket();
 		terminateProcess(fCGIservers[i].pid);
 	}
+	initialized=0;
 	return 1;
 }
 /*!

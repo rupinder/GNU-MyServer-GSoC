@@ -55,7 +55,7 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cse
 	}
 	loadProtocolPROC Proc;
 #ifdef WIN32
-		Proc = (loadProtocolPROC) GetProcAddress(hinstLib, "loadProtocol"); 
+		Proc = (loadProtocolPROC) GetProcAddress((HMODULE)hinstLib, "loadProtocol"); 
 #endif
 #ifdef HAVE_DL
 		Proc = (loadProtocolPROC) dlsym(hinstLib, "loadProtocol");
@@ -76,7 +76,7 @@ int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
 	unloadProtocolPROC Proc=0;
 #ifdef WIN32
 	if(hinstLib)
-		Proc = (unloadProtocolPROC) GetProcAddress(hinstLib, "unloadProtocol"); 
+		Proc = (unloadProtocolPROC) GetProcAddress((HMODULE)hinstLib, "unloadProtocol"); 
 #endif
 #ifdef HAVE_DL
 	if(hinstLib)
@@ -90,7 +90,7 @@ int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
 	if(hinstLib)
 	{
 #ifdef WIN32
-		FreeLibrary(hinstLib); 
+		FreeLibrary((HMODULE)hinstLib); 
 #endif
 #ifdef HAVE_DL
 		dlclose(hinstLib);
@@ -123,7 +123,7 @@ int dynamic_protocol::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1
 {
 	controlConnectionPROC Proc;
 #ifdef WIN32
-	Proc = (controlConnectionPROC) GetProcAddress(hinstLib, "controlConnection"); 
+	Proc = (controlConnectionPROC) GetProcAddress((HMODULE)hinstLib, "controlConnection"); 
 #endif
 #ifdef HAVE_DL
 	Proc = (controlConnectionPROC) dlsym(hinstLib, "controlConnection");
@@ -140,7 +140,7 @@ char* dynamic_protocol::registerName(char* out,int len)
 {
 	registerNamePROC Proc;
 #ifdef WIN32
-	Proc = (registerNamePROC) GetProcAddress(hinstLib, "registerName"); 
+	Proc = (registerNamePROC) GetProcAddress((HMODULE)hinstLib, "registerName"); 
 #endif
 #ifdef HAVE_DL
 	Proc = (registerNamePROC) dlsym(hinstLib, "registerName");
