@@ -141,7 +141,6 @@ void cserver::start()
 #endif
 	printf("%s\n",languageParser.getValue("MSG_SERVER_CONF"));
 
-
 	/*!
 	*Startup the socket library.
 	*/
@@ -157,7 +156,6 @@ void cserver::start()
 	} 
 	printf("%s\n",languageParser.getValue("MSG_SOCKSTART"));
 
-	
 	/*!
 	*Get the name of the local machine.
 	*/

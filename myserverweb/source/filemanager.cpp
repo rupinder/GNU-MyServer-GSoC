@@ -109,7 +109,7 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		sa.bInheritHandle = FALSE;
 	else
 		sa.bInheritHandle = TRUE;
-    sa.lpSecurityDescriptor = NULL;
+	sa.lpSecurityDescriptor = NULL;
 	u_long creationFlag=0;
 	u_long openFlag=0;
 	u_long attributeFlag=0;
