@@ -18,6 +18,8 @@
 */
 #include "..\include\cXMLParser.h"
 
+
+
 void cXMLParser::open(char* filename)
 {
 	file = fopen(filename,"rt");
@@ -85,6 +87,7 @@ char *cXMLParser::getValue(char* vName)
 	}
 	return ret;
 }
+
 void cXMLParser::close()
 {
 	if(file)
@@ -92,3 +95,4 @@ void cXMLParser::close()
 	if(buffer)
 		free(buffer);
 }
+

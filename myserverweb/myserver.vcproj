@@ -145,7 +145,7 @@
 				RelativePath="source\MIME_manager.cpp">
 			</File>
 			<File
-				RelativePath="source\cConfigurationFileManager.cpp">
+				RelativePath="source\cXMLParser.cpp">
 			</File>
 			<File
 				RelativePath="source\clientsThread.cpp">
@@ -158,6 +158,9 @@
 			</File>
 			<File
 				RelativePath="source\myserver.cpp">
+			</File>
+			<File
+				RelativePath="source\security.cpp">
 			</File>
 			<File
 				RelativePath="stdafx.cpp">
@@ -197,7 +200,7 @@
 				RelativePath="include\Response_RequestStructs.h">
 			</File>
 			<File
-				RelativePath="include\cConfigurationFileManager.h">
+				RelativePath="include\cXMLParser.h">
 			</File>
 			<File
 				RelativePath="include\clientsThread.h">
@@ -210,6 +213,9 @@
 			</File>
 			<File
 				RelativePath="resource.h">
+			</File>
+			<File
+				RelativePath="include\security.h">
 			</File>
 			<File
 				RelativePath="stdafx.h">

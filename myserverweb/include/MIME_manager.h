@@ -17,6 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
+#include "..\include\utility.h"
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,7 @@
 #ifndef MAX_MIME_TYPES
 #define MAX_MIME_TYPES 250
 #endif
+
 /*
 MIME_Manager::data is formated from this fields
 1)	extension
@@ -44,3 +46,4 @@ public:
 	VOID dumpToHTML(char*);
 	VOID dumpToFILE(char*);
 };
+

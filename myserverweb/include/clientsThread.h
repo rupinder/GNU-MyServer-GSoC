@@ -52,17 +52,14 @@ private:
 	void clearAllConnections();
 	BOOL deleteConnection(LPCONNECTION);
 	void raiseError(LPCONNECTION,int);
-	BOOL sendRESOURCE(LPCONNECTION s,char *filename,BOOL 
-systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-	BOOL sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int 
-firstByte=0,int lastByte=-1);
+	BOOL sendRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+	BOOL sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
 	BOOL sendDIRECTORY(LPCONNECTION s,char* folder);
 	BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine=0);
 	BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char* exec);
 	BOOL controlHTTPConnection(LPCONNECTION);
 	void getPath(char *,char *,BOOL);
 	BOOL getMIME(char *MIME,char *filename,char *dest,char *ext2);
-	void flushDynamicPage(HTTP_RESPONSE_HEADER*,FILE*,LPCONNECTION,DWORD);
 	void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 	void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER*);
 	HANDLE threadHandle;
@@ -70,6 +67,9 @@ firstByte=0,int lastByte=-1);
 	HANDLE connectionMutex;
 	LPCONNECTION connections;
 	DWORD nBytesToRead;
+	VOID logon(LPCONNECTION,BOOL*);
+	VOID logout(BOOL);
+	HANDLE pipeOutRead,pipeOutWrite;
 public:
 	ClientsTHREAD();
 	~ClientsTHREAD();

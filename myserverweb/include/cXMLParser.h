@@ -1,6 +1,5 @@
 #pragma once
 #include "..\StdAfx.h"
-
 class cXMLParser
 {
 	DWORD buffersize;

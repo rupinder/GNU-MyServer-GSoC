@@ -24,6 +24,7 @@
 #include "..\stdafx.h"
 #include "..\include\clientsTHREAD.h"
 #include "..\include\cserver.h"
+#include "..\include\security.h"
 
 ClientsTHREAD::ClientsTHREAD()
 {
@@ -204,45 +205,46 @@ BOOL ClientsTHREAD::sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,i
 }
 BOOL ClientsTHREAD::sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 {
-	ext;
-	static HMODULE hinstLib; 
-    static CGIMAIN ProcMain;
-	static CGIINIT ProcInit;
- 
-    hinstLib = LoadLibrary(exec); 
-	buffer2[0]='\0';
-	if (hinstLib) 
-    { 
-		ProcInit = (CGIINIT) GetProcAddress(hinstLib, "initialize");
-		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
-		if(ProcInit)
-			(ProcInit)((LPVOID)&buffer[0],(LPVOID)&buffer2[0],(LPVOID)&response,(LPVOID)&request);
-		if(ProcMain)
-			(ProcMain)(filename);
-        FreeLibrary(hinstLib); 
-    } 
-	else
-	{
-		if(GetLastError()==ERROR_ACCESS_DENIED)
-		{
-			if(s->nTries > 2)
-			{
-				raiseError(s,e_403);
-			}
-			else
-			{
-				s->nTries++;
-				raiseError(s,e_401AUTH);
-			}
-		}
-		else
-		{
-			raiseError(s,e_404);
-		}
-		return 1;
-	}
+	/*
+	*Change the owner of the thread
+	*/
+	if(lserver->useLogonOption)
+		revertToSelf();
 	static int len;
-	len=lstrlen(buffer2);
+	char cmdLine[MAX_PATH*2];
+	sprintf(cmdLine,"%s %s",exec,filename);
+	ext;/*Prevent from warning*/
+    STARTUPINFO si;     
+    ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+    si.hStdInput = 0;
+    si.hStdOutput = pipeOutWrite;
+    si.hStdOutput=0;
+    si.dwFlags=STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    PROCESS_INFORMATION pi;
+    ZeroMemory( &pi, sizeof(pi) );
+
+    CreateProcess(NULL, cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,NULL,NULL,&si, &pi);
+    
+	
+	buffer2[0]='\0';
+
+	WaitForSingleObject( pi.hProcess, INFINITE );
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+
+	/*
+	*Restore security
+	*/
+	if(lserver->useLogonOption)
+		impersonateLogonUser(hImpersonation);
+	
+	DWORD nBytesRead;
+	ReadFile(pipeOutRead,buffer2,buffersize2,&nBytesRead,NULL);
+	len=min(nBytesRead,buffersize2);
+	buffer2[len]='\0';
+
 	sprintf(response.CONTENTS_DIM,"%u",len);
 	buildHttpResponseHeader(buffer,&response);
 	send(s->socket,buffer,lstrlen(buffer), 0);
@@ -261,7 +263,7 @@ BOOL ClientsTHREAD::sendRESOURCE(LPCONNECTION s,char *filename,BOOL systemreques
 	*/
 	if(getMIME(response.MIME,filename,ext,data))
 	{
-		if(sendCGI(s,filenamePath,ext,data))
+		if(sendCGI(s,filename,ext,data))
 			return 1;
 	}
 	getPath(filenamePath,filename,systemrequest);
@@ -375,6 +377,14 @@ unsigned int WINAPI startClientsTHREAD(void* pParam)
 	char mutexname[20];
 	sprintf(mutexname,"connectionMutex_%u",id);
 	ct->connectionMutex=CreateMutex(NULL,FALSE,mutexname);
+
+    SECURITY_ATTRIBUTES sa = {0};  
+    sa.nLength = sizeof(sa);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
+	
+	CreatePipe(&(ct->pipeOutRead),&(ct->pipeOutWrite),&sa,0);
+	
 	while(ct->threadIsRunning)
 	{
 		ct->controlConnections();
@@ -387,29 +397,13 @@ void ClientsTHREAD::controlConnections()
 {
 	WaitForSingleObject(connectionMutex,INFINITE);
 	LPCONNECTION c=connections;
-	BOOL logon;
+	BOOL logonStatus;
 	for(c; c ;c=c->Next)
 	{
 		ioctlsocket(c->socket,FIONREAD,&nBytesToRead);
 		if(nBytesToRead)
 		{
-			if(lserver->useLogonOption)
-			{
-				if(c->login[0])
-				{
-					logon=LogonUser(c->login,NULL,c->password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT, &hImpersonation);
-				}
-				else
-				{
-					logon=FALSE;
-					hImpersonation=lserver->guestLoginHandle;
-				}
-				ImpersonateLoggedOnUser(hImpersonation);
-			}
-			else
-			{
-				logon=FALSE;
-			}
+			logon(c,&logonStatus);
 			err=recv(c->socket,buffer,buffersize, 0);
 
 			if((err==0) || (err==SOCKET_ERROR)||(err==WSAECONNABORTED)||(err==WSAENOTCONN))
@@ -428,14 +422,7 @@ void ClientsTHREAD::controlConnections()
 				}
 			}
 			c->timeout=getTime();
-			if(lserver->useLogonOption)
-			{
-				RevertToSelf();
-				if(logon)
-				{
-					CloseHandle(hImpersonation);
-				}
-			}
+			logout(logonStatus);
 		}
 		else
 		{
@@ -473,6 +460,8 @@ void ClientsTHREAD::clean()
 	free(buffer2);
 	initialized=FALSE;
 	ReleaseMutex(connectionMutex);
+	CloseHandle(pipeOutRead);
+	CloseHandle(pipeOutWrite);	
 	TerminateThread(threadHandle,0);
 }
 BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
@@ -486,7 +475,7 @@ BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
 	*HTTP header read.
 	*Before of mapping the header in the structure control
 	*if this is a regular request.
-	*The HTTP header is ended by a \r\n\r\n sequence.
+	*The HTTP header ends with a \r\n\r\n sequence.
 	*/
 	
 	/*
@@ -1210,152 +1199,106 @@ void ClientsTHREAD::clearAllConnections()
 void ClientsTHREAD::buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 
 {
-
 	/*
-
 	*Here is builded the HEADER of a HTTP response.
-
 	*Passing a HTTP_RESPONSE_HEADER struct this build
-
 	*a header string
-
     */
-
 	if(response->isError)
-
 		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM,response->ERROR_TYPE);
-
 	else
-
 		sprintf(str,"HTTP/%s 200 OK\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\n",response->VER,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM);
-
-
-
 	if(lstrlen(response->DATE)>5)
-
 	{
-
 		lstrcat(str,"Date:");
-
 		lstrcat(str,response->DATE);
-
 		lstrcat(str,"\r\n");
-
 	}
-
 	if(lstrlen(response->DATEEXP)>5)
-
 	{
-
 		lstrcat(str,"Expires:");
-
 		lstrcat(str,response->DATEEXP);
-
 		lstrcat(str,"\r\n");
-
 	}
-
 	if(lstrlen(response->OTHER)>5)
-
 	{
-
 		lstrcat(str,response->OTHER);
-
 		lstrcat(str,"\r\n");
-
 	}
-
 	lstrcat(str,"Accept-Ranges: bytes\r\n");
-
 	lstrcat(str,"\n");
 
-
-
 }
-
 void ClientsTHREAD::buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER* response)
-
 {
-
 	ZeroMemory(response,sizeof(HTTP_RESPONSE_HEADER));
-
 	lstrcpy(response->MIME,"text/html");
-
 	lstrcpy(response->VER,"1.1");
-
 	lstrcpy(response->DATE,getHTTPFormattedTime());
-
-
-
 	lstrcpy(response->DATEEXP,getHTTPFormattedTime());
-
 	lstrcpy(response->SERVER_NAME,"MyServer");
-
 }
-
-
 
 BOOL ClientsTHREAD::getMIME(char *MIME,char *filename,char *dest,char *dest2)
-
 {
-
 	getFileExt(dest,filename);
-
 	/*
-
 	*Return true if file is registered by a CGI
-
 	*/
-
 	return lserver->mimeManager.getMIME(dest,MIME,dest2);
-
 }
-
 void ClientsTHREAD::raiseError(LPCONNECTION a,int ID)
-
 {
-
 	static HTTP_RESPONSE_HEADER response;
-
 	if(ID==e_401AUTH)
-
 	{
-
 		sprintf(buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->serverName,getHTTPFormattedTime());
-
 		send(a->socket,buffer2,lstrlen(buffer2),0);
-
 		return;
-
 	}
-
 	if(lserver->useMessagesFiles)
-
 	{
-
 		sendRESOURCE(a,HTTP_ERROR_HTMLS[ID],TRUE);
-
 		return;
-
 	}
-
 	buildDefaultHttpResponseHeader(&response);
 
-
-
 	response.isError=TRUE;
-
 	lstrcpy(response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
-
 	sprintf(response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
-
 	buildHttpResponseHeader(buffer,&response);
-
 	lstrcat(buffer,HTTP_ERROR_MSGS[ID]);
-
 	send(a->socket,buffer,lstrlen(buffer), 0);
-
 }
-
-
+VOID ClientsTHREAD::logon(LPCONNECTION c,BOOL *logonStatus)
+{
+	if(lserver->useLogonOption)
+	{
+		if(c->login[0])
+		{
+			*logonStatus=logonCurrentThread(c->login,c->password,&hImpersonation);
+		}
+		else
+		{
+			*logonStatus=FALSE;
+			hImpersonation=lserver->guestLoginHandle;
+		}
+		impersonateLogonUser(hImpersonation);
+	}
+	else
+	{
+		*logonStatus=FALSE;
+	}
+}
+VOID ClientsTHREAD::logout(BOOL logon)
+{
+	if(lserver->useLogonOption)
+	{
+		revertToSelf();
+		if(logon)
+		{
+			cleanLogonUser(hImpersonation);
+		}
+	}
+}
 

@@ -35,7 +35,6 @@ HRESULT MIME_Manager::load(char *filename)
 		if(token==NULL)
 			break;
 		lstrcpy(data[i][0],token);
-
 		token=strtok(NULL,",");
 		if(token==NULL)
 			break;
@@ -49,6 +48,19 @@ HRESULT MIME_Manager::load(char *filename)
 		else
 			data[i][2][0]='\0';
 		numMimeTypesLoaded++;
+
+		while(data[i][0][0]==10)
+			lstrcpy(data[i][0],&data[i][0][1]);
+		while(data[i][1][0]==10)
+			lstrcpy(data[i][1],&data[i][1][1]);
+		while(data[i][2][0]==10)
+			lstrcpy(data[i][2],&data[i][2][1]);
+		while(data[i][0][0]==13)
+			lstrcpy(data[i][0],&data[i][0][1]);
+		while(data[i][1][0]==13)
+			lstrcpy(data[i][1],&data[i][1][1]);
+		while(data[i][2][0]==13)
+			lstrcpy(data[i][2],&data[i][2][1]);
 	}
 	fclose(f);
 	return 0;
