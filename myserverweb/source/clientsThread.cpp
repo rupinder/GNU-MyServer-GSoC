@@ -77,29 +77,27 @@ void ClientsTHREAD::controlConnections()
 		{
 			logon(c,&logonStatus,&hImpersonation);
 			err=ms_recv(c->socket,buffer,buffersize, 0);
-
-			if((err==0) || (err==SOCKET_ERROR)||(err==WSAECONNABORTED)||(err==WSAENOTCONN))
+			if(err==-1)
 			{
 				if(deleteConnection(c))
 					continue;
 			}
-			if(err!=WSAETIMEDOUT)
+
+			/*
+			*Control the protocol used by the connection
+			*/
+			switch(c->protocol)
 			{
 				/*
-				*Control the protocol used by the connection
+				*controlHTTPConnection returns 0 if the connection must be removed from
+				*the active connections list
 				*/
-				switch(c->protocol)
-				{
-					/*
-					*controlHTTPConnection returns 0 if the connection must be removed from
-					*the active connections list
-					*/
-					case PROTOCOL_HTTP:
-						if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation))
-							deleteConnection(c);
-						continue;
-				}
+				case PROTOCOL_HTTP:
+					if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation,id))
+						deleteConnection(c);
+					continue;
 			}
+			
 			c->timeout=clock();
 			logout(logonStatus,&hImpersonation);
 		}
@@ -176,7 +174,7 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	do
 	{
 		err=ms_recv(s->socket,buffer,buffersize,0);
-	}while(err && (err!=SOCKET_ERROR));
+	}while(err!=-1);
 	ms_closesocket(s->socket);
 	/*
 	*Then remove the connection from the active connections list.

@@ -41,7 +41,7 @@ struct httpThreadContext
 /*
 *The main function is controlHTTPConnection(...), that parse the request builds a response.
 */
-BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp);
+BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp,DWORD id);
 BOOL sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
 BOOL sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
 BOOL sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);

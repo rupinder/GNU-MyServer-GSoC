@@ -59,11 +59,6 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			}
 		}
 	}
-
-	if(getPathRecursionLevel(folder)<1)
-	{
-		return raiseHTTPError(td,s,e_401);
-	}
 	ZeroMemory(td->buffer2,200);
 	_finddata_t fd;
 	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD>",&td->request.URI[startChar]);
@@ -278,6 +273,14 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 	getPath(td->filenamePath,filename,systemrequest);
 
 	/*
+	*If the client try to access files that aren't in the web folder send a 401 error.
+	*/
+	if(getPathRecursionLevel(filename)<1)
+	{
+		return raiseHTTPError(td,s,e_401);
+	}
+
+	/*
 	*If there are not any extension then we do one of this in order:
 	1)We send the default file in the folder.
 	2)We send the folder content.
@@ -329,7 +332,7 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 /*
 *This is the HTTP protocol parser.
 */
-BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp)
+BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp,DWORD id)
 {
 	httpThreadContext td;
 	td.buffer=b1;
@@ -339,6 +342,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	td.nBytesToRead=nbtr;
 	td.hImpersonation=*imp;
 	td.connection=a;
+	td.id=id;
 	/*
 	*In this function there is the HTTP protocol parse.
 	*The request is mapped into a HTTP_REQUEST_HEADER structure

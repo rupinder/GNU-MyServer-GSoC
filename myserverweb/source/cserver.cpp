@@ -228,9 +228,21 @@ void cserver::start(INT hInst)
 	*When the mustEndServer flag is set to True exit
 	*from the loop and terminate the server execution.
 	*/
-
-	while(!mustEndServer);
-
+	while(!mustEndServer)
+	{
+#ifdef WIN32
+		MSG msg;
+		/*
+		*Use PeekMessage because GetMessage block the thread until a message is available.
+		*/
+		if(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+		{
+			TranslateMessage(&msg); 
+			DispatchMessage(&msg); 
+		}
+#endif
+	}
+	
 	this->terminate();
 }
 /*

@@ -70,7 +70,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 		return raiseHTTPError(td,s,e_501);
 	}
 	/*
-	*Determine if the CGI executable is nph.
+	*Determine if the CGI executable is nph(Non Parsed Header).
 	*/
 	BOOL nph=(strnicmp("nph-",filename, 4)==0)?1:0;
 	char scriptname[MAX_PATH];
@@ -91,10 +91,8 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	char stdOutFilePath[MAX_PATH];
 	char stdInFilePath[MAX_PATH];
 	ms_getdefaultwd(currentpath,MAX_PATH);
-	static DWORD id=0;
-	id++;
-	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,id);
-	sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,id);
+	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,td->id);
+	sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,td->id);
 		
 	/*
 	*Standard CGI uses standard output to output the result and the standard 
@@ -176,15 +174,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 		else
 			ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
 	}
-	/*
-	*In the buffer2 there are the CGI HTTP header and the 
-	*contents of the page requested through the CGI.
-	*If the client do an HEAD request send only the HTTP header.
-	*/
-	if(!lstrcmpi(td->request.CMD,"HEAD"))
-		ms_send(s->socket,td->buffer2,headerSize, 0);
-	else
-		ms_send(s->socket,td->buffer2,nBytesRead, 0);
+	ms_send(s->socket,td->buffer2,nBytesRead, 0);
 
 	
 	/*
@@ -263,11 +253,11 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rCONTENT_ENCODING=");
 	lstrcat(cgiEnvString,td->request.ACCEPTENC);		
 /*
-	lstrcat(cgiEnvString,"\rPATH_INFO=");
-	lstrcat(cgiEnvString,td->request.URI);
-
 	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
 	lstrcat(cgiEnvString,td->request.HOST);
+
+	lstrcat(cgiEnvString,"\rPATH_INFO=");
+	lstrcat(cgiEnvString,td->request.URI);
 
 	lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
 	lstrcat(cgiEnvString,td->request.URI);
@@ -278,7 +268,6 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
 	lstrcat(cgiEnvString,td->request.HOST);
 */
-	
 	lstrcat(cgiEnvString,"\r\0\0");
 	int max=lstrlen(cgiEnvString);
 	for(int i=0;i<max;i++)

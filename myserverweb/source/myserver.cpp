@@ -42,7 +42,6 @@ void runService();
 
 #endif
 
-VOID appendToLog(char* str);
 static char path[MAX_PATH];
 INT hInst;
 int cmdShow;
@@ -92,17 +91,6 @@ int main (int argn, char **argc)
 
 	return 0;
 } 
-
-/*
-*Use this before the file is opened by the class cserver.
-*/
-VOID appendToLog(char* str)
-{
-	FILE*f=fopen("myServer.log","a+t");
-	fwrite(str,lstrlen(str),1,f);
-	fclose(f);
-	return;
-}
 
 
 void console_service (int, char **)

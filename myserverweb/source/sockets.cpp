@@ -107,7 +107,12 @@ int ms_connect(MYSERVER_SOCKET s,sockaddr* sa,int na)
 int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
 {
 #ifdef WIN32
-	return recv(s,buffer,len,flags);
+	int err;
+	err=recv(s,buffer,len,flags);
+	if((err==0) || (err==SOCKET_ERROR)||(err==WSAECONNABORTED)||(err==WSAENOTCONN)||(err==WSAENETDOWN)||(err==WSAENETRESET)||(err==WSAESHUTDOWN)||(err==WSAEINVAL)||(err==WSAETIMEDOUT))
+		return -1;
+	else 
+		return err;
 #endif
 }
 

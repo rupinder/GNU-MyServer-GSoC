@@ -189,10 +189,10 @@ int ms_setcwdBuffer()
 /*
 *Get the default working directory(Where is the program myserver.exe).
 */
-char *ms_getdefaultwd(char *path,int/*len*/)
+char *ms_getdefaultwd(char *path,int len)
 {
 	if(path)
-		lstrcpy(path,currentPath);
+		lstrcpyn(path,currentPath,len);
 	return path;
 }
 
@@ -204,5 +204,4 @@ int ms_setcwd(char *dir)
 #ifdef WIN32	
 	return _chdir(dir);
 #endif
-
 }
