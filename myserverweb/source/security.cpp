@@ -123,6 +123,49 @@ void logonGuest()
 
 
 }
+/*
+*Get the error file for a site. Return 0 to use the default one.
+*/
+int getErrorFileName(char *root,int error,char* out)
+{
+	char permissionsFile[MAX_PATH];
+	sprintf(permissionsFile,"%s/security",root);
+	if(!MYSERVER_FILE::fileExists(permissionsFile))
+	{
+		return 0;
+	}
+	cXMLParser parser;
+	parser.open(permissionsFile);
+	xmlDocPtr doc=parser.getDoc();
+	xmlNode *node=doc->children->children;
+	int found=0;
+	while(node)
+	{
+		if(!xmlStrcmp(node->name, (const xmlChar *)"ERROR"))
+		{
+			xmlAttr *attr =  node->properties;
+			while(attr)
+			{
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
+				{
+					strcpy(root,(const char*)attr->children->content);
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
+				{
+					int error_id=atoi((const char*)attr->children->content);
+					if(error_id==error)
+						found=1;
+				}
+				attr=attr->next;
+			}
+			if(found)
+				break;
+		}
+		node=node->next;
+	}
+	parser.close();
+	return found;
+}
 int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder)
 {
 	char permissionsFile[MAX_PATH];

@@ -1330,6 +1330,25 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	else
 	{
+		char defFile[MAX_PATH*2];
+		if(getErrorFileName(((vhost*)td->connection->host)->documentRoot,getHTTPStatusCodeFromErrorID(ID),defFile))
+		{
+			/*
+			*Change the URI to reflect the default file name.
+			*/
+			char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
+			if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
+				strcpy(nURL,"http://");
+			strcat(nURL,td->request.HOST);
+			sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
+			if(nURL[strlen(nURL)-1]!='/')
+				strcat(nURL,"/");
+			strcat(nURL,td->request.URI);
+			if(nURL[strlen(nURL)-1]!='/')
+				strcat(nURL,"/");
+			strcat(nURL,defFile);
+			return sendHTTPRedirect(td,a,nURL);
+		}
 		if(lserver->getVerbosity()>1)
 		{
 			/*

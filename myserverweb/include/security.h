@@ -53,6 +53,6 @@ void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
 void logout(int logon,LOGGEDUSERID *hImpersonation);
 
 void logonGuest();
-
+int getErrorFileName(char *root,int error,char* out);
 int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder=0);
 #endif
