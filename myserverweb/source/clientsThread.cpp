@@ -81,13 +81,7 @@ void * startClientsTHREAD(void* pParam)
 	while(ct->threadIsRunning) 
 	{
 		ct->controlConnections();
-
-#ifdef WIN32
-		Sleep(1);
-#endif
-#ifdef __linux__
-		usleep(1);
-#endif
+		wait(1);
 	}
 	ct->threadIsStopped=1;
 #ifdef WIN32

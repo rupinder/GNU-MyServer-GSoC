@@ -761,6 +761,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
 		return NULL;
+	nc->parsing=0;
 	nc->check_value = CONNECTION::check_value_const;
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
@@ -840,7 +841,8 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 {
 	if(!s)
 		return 0;
-	while(s->parsing);/*Do not remove the connection while it is parsed*/
+	while(s->parsing)
+		wait(1);/*Do not remove the connection while it is parsed*/
 	requestAccess(&connectionWriteAccess,id);
 	int ret=0,err;
 	/*
