@@ -20,6 +20,12 @@
 #include "language.h"
 #include "fltkconfig.h"
 
+#ifndef WIN32
+#define DEACTIVATE o->deactivate();
+#else
+#define DEACTIVATE
+#endif
+
 inline void MainDlg::cb_ConfDlg_i(Fl_Double_Window*, void*) {
   if(Changed) {
   if(fl_ask(LanguageXMLLast_Change)) {

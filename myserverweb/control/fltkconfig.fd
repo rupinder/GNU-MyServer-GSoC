@@ -20,10 +20,9 @@ i18n_include "language.h"
 i18n_function gettext 
 header_name {.h} 
 code_name {.cpp}
-class MainDlg {open
+class MainDlg {open selected
 } {
-  Function {make_window()} {open
-  } {
+  Function {make_window()} {} {
     Fl_Window ConfDlg {
       label {MyServer Configure}
       callback {if(Changed) {
@@ -106,10 +105,7 @@ if(i != -1) {
               label {as Service}
               callback {RunAsService();}
               xywh {0 0 100 20}
-              code0 {\#ifndef WIN32}
-              code1 {\#define DEACTIVATE o->deactivate();}
-              code2 {\#endif}
-              code3 {DEACTIVATE;}
+              code0 {DEACTIVATE;}
             }
           }
           submenu {} {
@@ -123,12 +119,9 @@ if(i != -1) {
             }
             menuitem {} {
               label Service
-              callback {StopService();} selected
+              callback {StopService();}
               xywh {0 0 100 20}
-              code0 {\#ifndef WIN32}
-              code1 {\#define DEACTIVATE o->deactivate();}
-              code2 {\#endif}
-              code3 {DEACTIVATE;}
+              code0 {DEACTIVATE;}
             }
           }
           menuitem {} {
@@ -147,10 +140,7 @@ else {
         submenu {} {
           label {Ser&vice} open
           xywh {0 0 100 20}
-          code0 {\#ifndef WIN32}
-          code1 {\#define DEACTIVATE o->deactivate();}
-          code2 {\#endif}
-          code3 {DEACTIVATE;}
+          code0 {DEACTIVATE;}
         } {
           menuitem {} {
             label {Install Service}

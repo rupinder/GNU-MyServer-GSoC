@@ -22,9 +22,6 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
-#ifndef WIN32
-#define DEACTIVATE o->deactivate();
-#endif
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Value_Input.H>
