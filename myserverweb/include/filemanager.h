@@ -25,7 +25,6 @@ void setAccessesLogFile(MYSERVER_FILE_HANDLE);
 
 DWORD warningsLogWrite(char*);
 void setWarningsLogFile(MYSERVER_FILE_HANDLE);
-void getFileExt(char*,char*);
 DWORD getFileSize(MYSERVER_FILE_HANDLE);
 BOOL setFilePointer(MYSERVER_FILE_HANDLE,DWORD);
 int getPathRecursionLevel(char*);

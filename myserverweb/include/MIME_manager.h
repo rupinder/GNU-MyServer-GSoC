@@ -55,7 +55,7 @@ public:
 	VOID removeRecord(char*);
 	DWORD getNumMIMELoaded();
 	int load(char *filename);
-	int getMIME(char* a,char * b,char* c=NULL);
+	int getMIME(char* ext,char *dest,char *dest2);
 	VOID clean();
 };
 #endif 

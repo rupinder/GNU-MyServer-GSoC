@@ -41,8 +41,8 @@ private:
     DWORD nConnections;
 	DWORD buffersize;
 	DWORD buffersize2;
-	LPCONNECTION addConnection(SOCKET,CONNECTION_PROTOCOL,char*);
-	LPCONNECTION findConnection(SOCKET s);
+	LPCONNECTION addConnection(MYSERVER_SOCKET,CONNECTION_PROTOCOL,char*);
+	LPCONNECTION findConnection(MYSERVER_SOCKET s);
 	BOOL isRunning();
 	BOOL isStopped();
 	char *buffer;

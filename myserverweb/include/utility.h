@@ -48,6 +48,7 @@ struct START_PROC_INFO
 	MYSERVER_FILE_HANDLE stdOut;
 	MYSERVER_FILE_HANDLE stdIn;
 	char *cmdLine;
+	char *cwd;
 	void *envString;
 };
 #endif

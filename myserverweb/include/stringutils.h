@@ -19,11 +19,11 @@
 #pragma once
 #include "..\stdafx.h"
 char *getHTTPFormattedTime(void);
-char *getHTTPFormattedTime(tm*);
-VOID StrTrim(LPSTR,LPSTR);
-void getFileExt(char* ext,char*filename);
+char *getHTTPFormattedTime(const tm*);
+VOID StrTrim(char* str,const char* trimChars);
+void getFileExt(char* ext,const char* filename);
 void gotoNextLine(char* cmd);
 int hexVal(char c);
 void translateEscapeString(char *TargetStr);
-void splitPath(char*, char*, char*);
-void getFilename(char *, char *);
+void splitPath(const char* path, char* dir, char*filename);
+void getFilename(const char* path, char* filename);

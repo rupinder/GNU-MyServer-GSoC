@@ -135,7 +135,7 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 }
 
 /*
-*Clean the memory allocated by the structure
+*Clean the memory allocated by the structure.
 */
 VOID MIME_Manager::clean()
 {
@@ -143,7 +143,7 @@ VOID MIME_Manager::clean()
 }
 
 /*
-*Constructor of the class
+*Constructor of the class.
 */
 MIME_Manager::MIME_Manager()
 {
@@ -151,7 +151,7 @@ MIME_Manager::MIME_Manager()
 }
 
 /*
-*Add a record
+*Add a record.
 */
 VOID MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 {
@@ -163,7 +163,7 @@ VOID MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 }
 
 /*
-*Remove a record passing the extension of the MIME type
+*Remove a record passing the extension of the MIME type.
 */
 VOID MIME_Manager::removeRecord(char *ext)
 {
@@ -190,7 +190,7 @@ VOID MIME_Manager::removeRecord(char *ext)
 	}while(nmr1);
 }
 /*
-*Remove all records from the linked list
+*Remove all records from the linked list.
 */
 VOID MIME_Manager::removeAllRecords()
 {
@@ -217,7 +217,7 @@ VOID MIME_Manager::removeAllRecords()
 }
 
 /*
-*Returns the number of MIME types loaded
+*Returns the number of MIME types loaded.
 */
 DWORD MIME_Manager::getNumMIMELoaded()
 {

@@ -44,7 +44,7 @@ char msgFile[33];
 char msgLModify[33];
 char msgSize[33];
 
-void cserver::start(INT hInst)
+void cserver::start(int hInst)
 {
 	/*
 	*Set the current working directory
@@ -76,7 +76,7 @@ void cserver::start(INT hInst)
 	*/
 	printf("\nInitializing server configuration...\n");
 
-	INT OSVer=getOSVersion();
+	int OSVer=getOSVersion();
 
 	initialize(OSVer);
 	
@@ -314,29 +314,28 @@ unsigned int __stdcall listenServer(void* params)
 	delete argv;
 
 	MYSERVER_SOCKADDRIN asock_in;
-	INT asock_inLen=sizeof(asock_in);
+	int asock_inLen=sizeof(asock_in);
 	MYSERVER_SOCKET asock;
 	while(!mustEndServer)
 	{
 		/*
 		*Accept connections.
-		*Every new connection is sended to cserver::addConnection
-		*function; this function dispatch connections 
-		*between the various threads.
+		*Every new connection is sended to cserver::addConnection function;
+		*this function sends connections between the various threads.
 		*/
 		asock=ms_accept(serverSocket,(struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
 		if(asock==0)
 			continue;
 		if(asock==INVALID_SOCKET)
 			continue;
-		
 		lserver->addConnection(asock,&asock_in,protID);
 	}
+	/*
+	*When the flag mustEndServer is TRUE end current thread and clean the socket used for listening.
+	*/
+
 	ms_shutdown(serverSocket, 2);
 	ms_closesocket(serverSocket);
-	/*
-	*When the flag mustEndServer is TRUE end current thread.
-	*/
 	_endthreadex( 0 );
 
 	return 0;
@@ -355,6 +354,9 @@ DWORD cserver::getNumConnections()
 	{
 		nConnections+=threads[i].nConnections;
 	}
+	/*
+	Returns the number of all the connections.
+	*/
 	return nConnections;
 }
 
@@ -443,7 +445,7 @@ void cserver::terminate()
 *Here is loaded the configuration of the server.
 *The configuration file is a pseudo-XML file.
 */
-void cserver::initialize(INT OSVer)
+void cserver::initialize(int OSVer)
 {
 	socketRcvTimeout = 10;
 	useLogonOption = TRUE;

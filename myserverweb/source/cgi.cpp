@@ -16,7 +16,6 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-
 #include "..\include\HTTP.h"
 #include "..\include\cserver.h"
 #include "..\include\security.h"
@@ -30,7 +29,7 @@
 /*
 *Sends the standard CGI to a client.
 */
-BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *execpath,int cmd)
+BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *cgipath,int cmd)
 {
 	/*
 	*Change the owner of the thread to the creator of the process.
@@ -38,8 +37,20 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	if(lserver->mustUseLogonOption())
 		revertToSelf();
+	/*
+	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
+	*/
+	BOOL nph;
 	char cmdLine[MAX_PATH*3+1];
 	char filename[MAX_PATH];
+
+	char scriptfile[MAX_PATH];
+	char scriptdir[MAX_PATH];
+	splitPath(scriptpath,scriptdir,scriptfile);
+
+	char cgidir[MAX_PATH];
+	char cgifile[MAX_PATH];
+	splitPath(cgipath,cgidir,cgifile);
 
 	/*
 	*If the cmd is equal to CGI_CMD_EXECUTE then we must execute the
@@ -55,12 +66,14 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 		*Under the windows platform to run a file like an executable
 		*use the sintact "cmd /c filename".
 		*/
-		lstrcpy(execpath,"cmd /c");
+		sprintf(cmdLine,"cmd /c %s",scriptfile);
+		nph=(strnicmp("nph-",scriptfile, 4)==0)?1:0;
 #endif
 	}
 	else if(cmd==CGI_CMD_RUNCGI)
 	{
-		getFilename(execpath,filename);
+		sprintf(cmdLine,"%s %s",cgipath,scriptfile);
+		nph=(strnicmp("nph-",cgifile, 4)==0)?1:0;
 	}
 	else
 	{
@@ -69,16 +82,8 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 		*/
 		return raiseHTTPError(td,s,e_501);
 	}
-	/*
-	*Determine if the CGI executable is nph(Non Parsed Header).
-	*/
-	BOOL nph=(strnicmp("nph-",filename, 4)==0)?1:0;
-	char scriptname[MAX_PATH];
-	char scriptdir[MAX_PATH];
-	splitPath(scriptpath,scriptdir,scriptname);
-	ms_setcwd(scriptdir);
 
-	sprintf(cmdLine,"%s %s",execpath,scriptname);
+
 
     /*
     *Use a temporary file to store CGI output.
@@ -111,22 +116,30 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	char *endFileStr="\r\n\r\n";
 	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 	setFilePointer(stdInFile,0);
+	/*
+	*Build the environment string used by the CGI started
+	*by the execHiddenProcess(...) function.
+	*Use the td->buffer2 to build the environment string.
+	*/
+	CGI_ENV_STRING_DATA cgiEnvStringData;
+	cgiEnvStringData.pathinfo = 0;
+	cgiEnvStringData.pathtranslated = 0;
+	cgiEnvStringData.cgiroot = cgidir;
+	cgiEnvStringData.scriptpath = scriptpath;
+	cgiEnvStringData.scriptfile = scriptfile;
+	buildCGIEnvironmentString(td,td->buffer2,&cgiEnvStringData);
+
 
 	/*
 	*With this code we execute the CGI process.
-	*Use the td->buffer2 to build the environment string.
 	*/
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
+	spi.cwd=scriptdir;
 	spi.stdError = (MYSERVER_FILE_HANDLE)stdOutFile;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
 	spi.envString=td->buffer2;
-	/*
-	*Build the environment string used by the CGI started
-	*by the execHiddenProcess(...) function.
-	*/
-	buildCGIEnvironmentString(td,td->buffer2);
 	execHiddenProcess(&spi);
 
 	/*
@@ -190,16 +203,12 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	if(lserver->mustUseLogonOption())
 		impersonateLogonUser(&td->hImpersonation);
-	/*
-	*Restore the current working directory.
-	*/
-	ms_setcwd(ms_getdefaultwd(0,0));
 	return 1;
 }
 /*
 *Build the string that contain the CGI environment.
 */
-void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
+void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,CGI_ENV_STRING_DATA *data)
 {
 	cgiEnvString[0]='\0';
 	/*
@@ -208,6 +217,8 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	*and at the end we change every \r in \0.
 	*/
 	lstrcat(cgiEnvString,"SERVER_SOFTWARE=myServer");
+
+	lstrcat(cgiEnvString,"\rSERVER_VERSION=");
 	lstrcat(cgiEnvString,versionOfSoftware);
 
 	lstrcat(cgiEnvString,"\rSERVER_NAME=");
@@ -218,8 +229,9 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 
 	lstrcat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1");
 	
-	lstrcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/1.1");
-	
+	lstrcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/");
+	lstrcat(cgiEnvString,td->request.VER);		
+
 	lstrcat(cgiEnvString,"\rSERVER_PORT=");
 	sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",lserver->port_HTTP);
     
@@ -242,9 +254,15 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,td->request.CONTENTS_DIM[0]?td->request.CONTENTS_DIM:"0");
 
 	lstrcat(cgiEnvString,"\rREMOTE_USER=");
-	lstrcat(cgiEnvString,td->connection->login);
+	lstrcat(cgiEnvString,td->connection->login[0]?td->connection->login:"-");
 
 	lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
+	lstrcat(cgiEnvString,td->connection->ipAddr);
+
+	lstrcat(cgiEnvString,"\rCGI_ROOT=");
+	lstrcat(cgiEnvString,data->cgiroot);
+	
+	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
 	lstrcat(cgiEnvString,td->connection->ipAddr);
 
 	lstrcat(cgiEnvString,"\rAUTH_TYPE=");
@@ -252,18 +270,29 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 
 	lstrcat(cgiEnvString,"\rCONTENT_ENCODING=");
 	lstrcat(cgiEnvString,td->request.ACCEPTENC);		
+	
+	if(data->pathinfo)
+	{
+		lstrcat(cgiEnvString,"\rPATH_INFO=");
+		lstrcat(cgiEnvString,data->pathinfo);
+	}
+
+	if(data->pathtranslated)
+	{
+		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
+		lstrcat(cgiEnvString,data->pathtranslated);
+	}
+	if(data->scriptfile)
+	{
+		lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
+		lstrcat(cgiEnvString,data->scriptfile);
+	}
+	if(data->scriptpath)
+	{
+		lstrcat(cgiEnvString,"\rSCRIPT_PATH=");
+		lstrcat(cgiEnvString,data->scriptpath);
+	}
 /*
-	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
-	lstrcat(cgiEnvString,td->request.HOST);
-
-	lstrcat(cgiEnvString,"\rPATH_INFO=");
-	lstrcat(cgiEnvString,td->request.URI);
-
-	lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
-	lstrcat(cgiEnvString,td->request.URI);
-
-	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
-	lstrcat(cgiEnvString,td->request.URI);
 
 	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
 	lstrcat(cgiEnvString,td->request.HOST);

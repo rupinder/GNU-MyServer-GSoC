@@ -19,7 +19,7 @@
 
 #include "..\stdafx.h"
 #include "..\include\utility.h"
-#include <string.h>
+#include "..\include\stringutils.h"
 extern BOOL mustEndServer; 
 static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;

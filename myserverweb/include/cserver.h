@@ -74,7 +74,7 @@ private:
 	DWORD buffersize;
 	DWORD buffersize2;
 	DWORD getNumConnections();
-	void initialize(INT);
+	void initialize(int);
 	BOOL addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*,CONNECTION_PROTOCOL);
 	LPCONNECTION findConnection(MYSERVER_SOCKET);
 	DWORD connectionTimeout;

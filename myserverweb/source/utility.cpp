@@ -104,7 +104,7 @@ DWORD execHiddenProcess(START_PROC_INFO *spi,DWORD timeout)
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
-    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,spi->envString,NULL,&si, &pi);
+    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,spi->envString,spi->cwd,&si, &pi);
 	/*
 	*Wait until it's ending by itself.
 	*/

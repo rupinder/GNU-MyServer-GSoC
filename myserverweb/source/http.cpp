@@ -360,7 +360,6 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	*Control if the HTTP header is a valid header.
 	*/
 	DWORD i=0,j=0,max=0;
-	BOOL containOpts;
 	DWORD nLines,maxTotChars;
 	DWORD validRequest=validHTTPRequest(&td,&nLines,&maxTotChars);
 
@@ -425,128 +424,59 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		*struct is leaved as a number.
 		*For example HTTP/1.1 in the struct is 1.1
 		*/
-
-
-		/*GET*/
-		if(!lstrcmpi(command,"GET"))
+		lineControlled=TRUE;
+		/*
+		*Copy the method type.
+		*/
+		lstrcpy(td.request.CMD,command);
+	
+		token = strtok( NULL, " ,\t\n\r" );
+		max=lstrlen(token);
+		BOOL containOpts=FALSE;
+		for(i=0;i<max;i++)
 		{
-			lineControlled=TRUE;
-			lstrcpy(td.request.CMD,"GET");
-		
-			token = strtok( NULL, " ,\t\n\r" );
-			max=lstrlen(token);
-			containOpts=FALSE;
-			for(i=0;i<max;i++)
+			if(token[i]=='?')
 			{
-				if(token[i]=='?')
-				{
-					containOpts=TRUE;
-					break;
-				}
-				td.request.URI[i]=token[i];				
+				containOpts=TRUE;
+				break;
 			}
-			td.request.URI[i]='\0';
-
-			if(containOpts)
-			{
-				for(j=0;i<max;j++)
-				{
-					td.request.URIOPTS[j]=token[++i];
-				}
-			}
-			token = strtok( NULL, seps );
-			lstrcpy(td.request.VER,token);
-			StrTrim(td.request.VER,"HTTP /");
-			StrTrim(td.request.URI," /");
-			StrTrim(td.request.URIOPTS," /");
-			if(lstrlen(td.request.URI)>max_URI)
-			{
-				raiseHTTPError(&td,a,e_414);
-				
-				return 0;
-			}
-			else
-			{
-				max=lstrlen(td.request.URI);
-			}
-			td.request.URIOPTSPTR=0;
+			td.request.URI[i]=token[i];
 		}
-		/*POST*/
-		if(!lstrcmpi(command,"POST"))
+		td.request.URI[i]='\0';
+
+		if(containOpts)
 		{
-			lineControlled=TRUE;
-			lstrcpy(td.request.CMD,"POST");
-		
-			token = strtok( NULL, " ,\t\n\r" );
-			max=lstrlen(token);
-			containOpts=FALSE;
-			for(i=0;i<max;i++)
+			for(j=0;i<max;j++)
 			{
-
-				if(token[i]=='?')
-				{
-					containOpts=TRUE;
-					break;
-				}
-				td.request.URI[i]=token[i];				
-			}
-			td.request.URI[i]='\0';
-			if(containOpts)
-			{
-				for(j=0;i<max;j++)
-				{
-					td.request.URIOPTS[j]=token[++i];
-				}
-			}
-			td.request.URIOPTS[0]='\0';
-
-			/*
-			*URIOPTSPTR points to the first byte in the buffer that are the data send by the
-            *client.
-			*/
-			td.request.URIOPTSPTR=&td.buffer[maxTotChars];
-			td.buffer[max(td.nBytesToRead,td.buffersize)]='\0';
-
-			token = strtok( NULL, seps );
-			lstrcpy(td.request.VER,token);
-			StrTrim(td.request.VER,"HTTP /");
-			StrTrim(td.request.URI," /");
-			if(lstrlen(td.request.URI)>max_URI)
-			{
-				raiseHTTPError(&td,a,e_414);
-				
-				return 0;
-			}
-			else
-			{
-				max=lstrlen(td.request.URI);
+				td.request.URIOPTS[j]=token[++i];
 			}
 		}
-		/*HEAD*/
-		if(!lstrcmpi(command,"HEAD"))
+		token = strtok( NULL, seps );
+		lstrcpy(td.request.VER,token);
+		StrTrim(td.request.VER,"HTTP /");
+		StrTrim(td.request.URI," /");
+		StrTrim(td.request.URIOPTS," /");
+		if(lstrlen(td.request.URI)>max_URI)
 		{
-			lineControlled=TRUE;
-			lstrcpy(td.request.CMD,"HEAD");
-		
-			token = strtok( NULL, seps );
-			lstrcpy(td.request.URI,token);
-			token = strtok( NULL, seps );
-			lstrcpy(td.request.VER,token);
-
-			StrTrim(td.request.URI," /");
-			if(lstrlen(td.request.URI)>max_URI)
-			{
-				raiseHTTPError(&td,a,e_414);
-				
-				return 0;
-			}
-		}
-
-		if(!lstrcmpi(command,""))
-		{
-			raiseHTTPError(&td,a,e_501);
+			raiseHTTPError(&td,a,e_414);
 			
 			return 0;
+		}
+		else
+		{
+			max=lstrlen(td.request.URI);
+		}
+		/*
+		*For the methods that accept data after the HTTP header set the correct pointers.
+		*/
+		if(!lstrcmpi(command,"POST"))
+		{
+			td.request.URIOPTSPTR=&td.buffer[maxTotChars];
+			td.buffer[max(td.nBytesToRead,td.buffersize)]='\0';
+		}
+		else
+		{
+			td.request.URIOPTSPTR=0;
 		}
 	}
 	/*User-Agent*/

@@ -130,7 +130,6 @@ smi,application/smil,SEND NONE;
 wbxml,application/vnd.wap.wbxml,SEND NONE;
 wmlc,application/vnd.wap.wmlc,SEND NONE;
 wmlsc,application/vnd.wap.wmlscriptc,SEND NONE;
-
 smil,application/smil,SEND NONE;
 movie,video/x-sgi-movie,SEND NONE;
 ice,x-conference/x-cooltalk,SEND NONE;

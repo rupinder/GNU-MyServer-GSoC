@@ -40,9 +40,10 @@ char *getHTTPFormattedTime(void)
 	return localTimeString;
 }
 /*
-*Splits a file path into a directory and filename
+*Splits a file path into a directory and filename.
+*Path is an input value while dir and filename are the output values.
 */
-void splitPath(char *path, char *dir, char *fname)
+void splitPath(const char *path, char *dir, char *filename)
 {
 	int splitpoint, i, j;
 	i = 0;
@@ -53,7 +54,7 @@ void splitPath(char *path, char *dir, char *fname)
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
 		dir[0] = 0;
-		strcpy(fname, path);
+		strcpy(filename, path);
 	}
 	else
 	{
@@ -66,17 +67,17 @@ void splitPath(char *path, char *dir, char *fname)
 		dir[i] = 0;
 		while (path[i] != 0)
 		{
-			fname[j] = path[i];
+			filename[j] = path[i];
 			j++;
 			i++;
 		}
-		fname[j] = 0;
+		filename[j] = 0;
 	}
 }
 /*
 *This function formats a time gmtime to the HTTP time format.
 */
-char *getHTTPFormattedTime(tm*  gmtime)
+char *getHTTPFormattedTime(const tm* gmtime)
 {
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[gmtime->tm_wday],gmtime->tm_mday,monthsName[gmtime->tm_mon],gmtime->tm_year,gmtime->tm_hour,gmtime->tm_min,gmtime->tm_sec);
 	return localTimeString;
@@ -85,7 +86,7 @@ char *getHTTPFormattedTime(tm*  gmtime)
 /*
 *Trim a string.
 */
-VOID StrTrim(LPSTR str,LPSTR trimChars)
+VOID StrTrim(char* str,const char* trimChars)
 {
 	WORD lenTrimChars=(WORD)lstrlen(trimChars);
 	WORD lenStr=(WORD)lstrlen(str);
@@ -158,7 +159,7 @@ void gotoNextLine(char* cmd)
 /*
 *Get the file extension passing its path.
 */
-void getFileExt(char* ext,char*filename)
+void getFileExt(char* ext,const char* filename)
 {
 	int nDot, nPathLen;
 	nPathLen = strlen(filename) - 1;
@@ -219,9 +220,9 @@ int hexVal(char ch)
 }
 
 /*
-*Get the filename from a path
+*Get the filename from a path.
 */
-void getFilename(char *path, char *fname)
+void getFilename(const char *path, char *filename)
 {
 	int splitpoint, i, j;
 	i = 0;
@@ -231,7 +232,7 @@ void getFilename(char *path, char *fname)
 	splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
-		strcpy(fname, path);
+		strcpy(filename, path);
 	}
 	else
 	{
@@ -239,10 +240,10 @@ void getFilename(char *path, char *fname)
 		i=splitpoint;
 		while (path[i] != 0)
 		{
-			fname[j] = path[i];
+			filename[j] = path[i];
 			j++;
 			i++;
 		}
-		fname[j] = 0;
+		filename[j] = 0;
 	}
 }

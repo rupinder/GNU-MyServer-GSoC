@@ -95,9 +95,8 @@ void ClientsTHREAD::controlConnections()
 				case PROTOCOL_HTTP:
 					if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation,id))
 						deleteConnection(c);
-					continue;
+					break;
 			}
-			
 			c->timeout=clock();
 			logout(logonStatus,&hImpersonation);
 		}
@@ -152,6 +151,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;
 	nc->protocol=protID;
+	nc->timeout=clock();
 	lstrcpy(nc->ipAddr,ipAddr);
 	nc->Next=connections;
 	connections=nc;
@@ -175,7 +175,7 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	{
 		err=ms_recv(s->socket,buffer,buffersize,0);
 	}while(err!=-1);
-	ms_closesocket(s->socket);
+	while(ms_closesocket(s->socket));
 	/*
 	*Then remove the connection from the active connections list.
 	*/
