@@ -147,11 +147,22 @@ void LanguageXMLend()
 static int SetValueXML(char ** dest, const char * tag)
 {
    char * val;
-   val = xmlFile.getValue((char *)tag); 
+   val = xmlFile.getValue((char *)tag);
    if(val != NULL)
      {
 	free(*dest);
 	*dest = strdup(val);
+
+	int outlen = strlen(val);
+	int inlen = outlen;
+	int i;
+	// convert UTF-8 to something readable
+	i = UTF8Toisolat1((unsigned char*)(*dest), &outlen, (unsigned char*)val, &inlen);
+
+	if(i >= 0)
+	  (*dest)[outlen] = '\0';
+	else
+	  strcpy(*dest, val);
      }
 }
 
@@ -184,7 +195,7 @@ int LanguageXMLfile(const char * filename)
    SetValueXML((char **)&LanguageXMLLogin_Failed, "LOGIN_FAILED");
    SetValueXML((char **)&LanguageXMLCannot_Connect, "CANNOT_CONNECT");
    SetValueXML((char **)&LanguageXMLServer_Closed, "SERVER_CLOSED");
-   
+
    return 0;
 }
 
@@ -222,11 +233,11 @@ void LanguageXMLload()
      }
    else
      {
-#ifdef PREFIX
+# ifdef PREFIX
 	snprintf(languages_path, MAX_PATH, "%s/share/myserver/languages/", PREFIX);
-#else
+# else
 	strncpy(languages_path, "/usr/share/myserver/languages/", MAX_PATH);
-#endif
+# endif
      }
    if(!(MYSERVER_FILE::fileExists(languages_path)))
      {
@@ -316,6 +327,22 @@ extern "C" char * gettext(const char * tag)
 
    // allocate new memory and add to list
    text = strdup(val);
+   int outlen = strlen(val);
+   int inlen = outlen;
+   int i;
+   // convert UTF-8 to something readable
+   i = UTF8Toisolat1((unsigned char*)text, &outlen, (unsigned char*)val, &inlen);
+
+   if(i >= 0)
+     text[outlen] = '\0';
+   else
+     strcpy(text, val);
+
+#ifdef DEBUG
+   printf("UTF8 to Isolat1: \"%s\"->\"%s\"\n", val, text);
+   printf("outlen = %d, inlen = %d\n", outlen, inlen);
+#endif
+
    AddText(text);
 
    return text;
