@@ -74,6 +74,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute, int only_header)
 {
 	fCGIContext con;
+	FcgiBeginRequestBody tBody;
 	con.td=td;
 	u_long nbr=0;
 	FcgiHeader header;
@@ -223,7 +224,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 
 	id=td->id+1;
-	FcgiBeginRequestBody tBody;
 	tBody.roleB1 = ( FcgiRESPONDER >> 8 ) & 0xff;
 	tBody.roleB0 = ( FcgiRESPONDER ) & 0xff;
 	tBody.flags = 0;

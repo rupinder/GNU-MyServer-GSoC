@@ -71,14 +71,14 @@ int mustEndServer;
 Server::Server()
 {
   logManager = new LogManager();
-	threads = 0;
+  threads = 0;
   toReboot = 0;
   autoRebootEnabled = 1;
-	listeningThreads = 0;
+  listeningThreads = 0;
   languages_path = 0;
-	main_configuration_file = 0;
+  main_configuration_file = 0;
   vhost_configuration_file = 0;
-	mime_configuration_file = 0;
+  mime_configuration_file = 0;
   serverReady = 0;
   throttlingRate = 0;
 }
@@ -97,31 +97,31 @@ Server::~Server()
  */
 void Server::start()
 {
-	u_long i;
-	u_long configsCheck=0;
-	time_t myserver_main_conf;
-	time_t myserver_hosts_conf;
-	time_t myserver_mime_conf;
+  u_long i;
+  u_long configsCheck=0;
+  time_t myserver_main_conf;
+  time_t myserver_hosts_conf;
+  time_t myserver_mime_conf;
   char* buffer;
   int err = 0;
-	MYSERVER_HOSTENT *localhe=0;
-	int os_ver=getOSVersion();
+  MYSERVER_HOSTENT *localhe=0;
+  int os_ver=getOSVersion();
 #ifdef WIN32
-		DWORD eventsCount, cNumRead; 
-		INPUT_RECORD irInBuf[128]; 
+  DWORD eventsCount, cNumRead; 
+  INPUT_RECORD irInBuf[128]; 
 #endif
   /*!
    *Save the unique instance of this class.
    */
-	lserver=this;
-
+  lserver=this;
+  
   if(logManager->getType() == LogManager::TYPE_CONSOLE )
   {
 #ifdef WIN32
-	/*!
-   *Under the windows platform use the cls operating-system 
-   *command to clear the screen.
-   */
+    /*!
+     *Under the windows platform use the cls operating-system 
+     *command to clear the screen.
+     */
     _flushall();
     system("cls");
 #endif
