@@ -536,7 +536,7 @@ CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 }
 
 /*! Return a CMemBuf with the string representation of "i" using an external buffer. */
-CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative, char* pBufToUse, UINT nBufSize)
+CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
 {
 	CMemBuf strFinal;
 	strFinal.m_nSizeLimit = nBufSize;

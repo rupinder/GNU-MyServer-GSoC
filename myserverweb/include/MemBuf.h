@@ -115,6 +115,9 @@ public: // Static conversion functions (hex, CRC...)
 	static CMemBuf Hex(CMemBuf& membuf) ;
 	static CMemBuf Hash_MD5(CMemBuf& membuf);
 	static CMemBuf Hash_CRC(CMemBuf& membuf);
+	static  CMemBuf UIntToStr(u_int i, char* pBufToUse, u_int nBufSize) ;
+	static CMemBuf XIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);	
+	static CMemBuf IntToStr(int i, char* pBufToUse, u_int nBufSize);
 protected:
 	static CMemBuf XIntToStr(u_int i, int bNegative);
 	void AllocBuffer(u_int size);
