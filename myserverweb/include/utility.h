@@ -40,3 +40,5 @@ char *getHTTPFormattedTime(void);
 char *getHTTPFormattedTime(tm*);
 void getFileSize(DWORD*,FILE*);
 VOID StrTrim(LPSTR,LPSTR);
+DWORD waitForObject(int hnd,DWORD time);
+DWORD getCPUCount();

@@ -19,18 +19,23 @@
 #pragma once
 #include "..\stdafx.h"
 #include "..\include\http.h"
+#include "..\include\utility.h"
+#include "..\include\HTTPmsg.h"
+#include "..\include\Response_RequestStructs.h"
+#include "..\include\ConnectionStruct.h"
+
 
 extern int err;
 
 class  ClientsTHREAD
 {
 	friend class cserver;
-	friend  unsigned int WINAPI startClientsTHREAD(void* pParam);
+	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
 	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM 
 wParam,LPARAM lParam);
 private:
 	BOOL initialized;
-	HANDLE hImpersonation;
+	LOGGEDUSERID hImpersonation;
 	DWORD id;
 	int err;
 	BOOL threadIsRunning;
@@ -43,9 +48,8 @@ private:
 	char *buffer2;
 	void clearAllConnections();
 	BOOL deleteConnection(LPCONNECTION);
-	HANDLE threadHandle;
 	void controlConnections();
-	HANDLE connectionMutex;
+	INT connectionWriteAccess;
 	LPCONNECTION connections;
 	DWORD nBytesToRead;
 public:
@@ -54,5 +58,5 @@ public:
 	void stop();
 	void clean();	
 };
-unsigned int WINAPI startClientsTHREAD(void* pParam); 
+unsigned int __stdcall startClientsTHREAD(void* pParam); 
 

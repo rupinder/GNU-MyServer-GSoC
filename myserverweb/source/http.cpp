@@ -19,17 +19,18 @@
 #include "..\include\http.h"
 #include "..\include\cserver.h"
 #include "..\include\security.h"
+#include "..\include\AMMimeUtils.h"
 
-char *buffer;
-char *buffer2;
-int buffersize;
-int buffersize2;
-DWORD nBytesToRead;
-HTTP_RESPONSE_HEADER response;
-HTTP_REQUEST_HEADER request;
-char filenamePath[MAX_PATH];
-HANDLE tmpBufferFile;
-HANDLE *hImpersonation;
+char Thread *buffer;
+char Thread  *buffer2;
+int  Thread buffersize;
+int  Thread buffersize2;
+DWORD  Thread nBytesToRead;
+HTTP_RESPONSE_HEADER  Thread response;
+HTTP_REQUEST_HEADER  Thread request;
+char Thread filenamePath[MAX_PATH];
+HANDLE Thread tmpBufferFile;
+LOGGEDUSERID Thread hImpersonation;
 BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 {
 	static char filename[MAX_PATH];
@@ -41,15 +42,17 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 		return 1;
 	}
 	ZeroMemory(buffer2,200);
-	static HANDLE  ff;
-	static WIN32_FIND_DATA fd;
+	_finddata_t fd;
 	sprintf(filename,"%s/*.*",folder);
 	sprintf(buffer2,"%s",msgFolderContents);
 	lstrcat(buffer2," ");
 	lstrcat(buffer2,&folder[startChar]);
 	lstrcat(buffer2,"\\<P>\n<HR>");
-	ff=FindFirstFile(filename,&fd);
-	if(ff==INVALID_HANDLE_VALUE)
+	
+	intptr_t ff;
+	ff=_findfirst(filename,&fd);
+
+	if(ff==-1)
 	{
 		if(GetLastError()==ERROR_ACCESS_DENIED)
 		{
@@ -76,39 +79,41 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 	sprintf(buffer2+lstrlen(buffer2),"<TABLE><TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>",msgFile,msgLModify,msgSize);
 	static char fileSize[10];
 	static char fileTime[20];
-	static SYSTEMTIME st;
 	do
-	{
-		if(fd.cFileName[0]=='.')
+	{	
+		if(fd.name[0]=='.')
 			continue;
 		lstrcat(buffer2,"<TR><TD><A HREF=");
 		lstrcat(buffer2,&folder[startChar]);
 		lstrcat(buffer2,"\\");
-		lstrcat(buffer2,fd.cFileName);
+		lstrcat(buffer2,fd.name);
 		lstrcat(buffer2,">");
-		lstrcat(buffer2,fd.cFileName);
+		lstrcat(buffer2,fd.name);
 		lstrcat(buffer2,"</TD><TD>");
-		FileTimeToSystemTime(&fd.ftLastWriteTime,&st);
-		sprintf(fileTime,"%u\\%u\\%u-%u:%u:%u System time",st.wDay,st.wMonth,st.wYear,st.wHour,st.wMinute,st.wSecond);
+			
+		tm *st=gmtime(&fd.time_write);
+
+		sprintf(fileTime,"%u\\%u\\%u-%u:%u:%u System time",st->tm_wday,st->tm_mon,st->tm_year,st->tm_hour,st->tm_min,st->tm_sec);
 		lstrcat(buffer2,fileTime);
 
 		lstrcat(buffer2,"</TD><TD>");
-		if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			lstrcat(buffer2,"<dir>");
 		}
 		else
 		{
-			sprintf(fileSize,"%i bytes",fd.nFileSizeLow);
+			sprintf(fileSize,"%i bytes",fd.size);
 			lstrcat(buffer2,fileSize);
 		}
 		lstrcat(buffer2,"</TD></TR>\n");
-	}while(FindNextFile(ff,&fd));
+	}while(!_findnext(ff,&fd));
 	lstrcat(buffer2,"</TABLE>\n<HR>");
 	lstrcat(buffer2,msgRunOn);
 	lstrcat(buffer2," myServer ");
-	LoadString(lserver->hInst ,IDS_VERSIONAPP,&buffer2[lstrlen(buffer2)],lstrlen(buffer2));
-	FindClose(ff);
+	lstrcat(buffer2,versionOfSoftware);
+
+	_findclose(ff);
 	buildDefaultHttpResponseHeader(&response);	
 	sprintf(response.CONTENTS_DIM,"%u",lstrlen(buffer2));
 	buildHttpResponseHeader(buffer,&response);
@@ -222,7 +227,7 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 	if(lstrlen(ext)==0)
 	{
 		static char fileName[MAX_PATH];
-		sprintf(fileName,"%s\\%s",filenamePath,lserver->getDefaultFilenamePath());
+		sprintf(fileName,"%s/%s",filenamePath,lserver->getDefaultFilenamePath());
 		if(sendHTTPFILE(s,fileName,OnlyHeader,firstByte,lastByte))
 			return 1;
 
@@ -301,14 +306,14 @@ BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 	return 1;
 
 }
-BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,HANDLE *imp)
+BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp)
 {
 	buffer=b1;
 	buffer2=b2;
 	buffersize=bs1;
 	buffersize2=bs2;
 	nBytesToRead=nbtr;
-	hImpersonation=imp;
+	hImpersonation=*imp;
 	/*
 	*In this function there is the HTTP protocol parse.
 	*The REQUEST is mapped into a HTTP_REQUEST_HEADER structure
@@ -834,7 +839,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	/*
 	*Wait until it's ending by itself
 	*/
-	WaitForSingleObject( pi.hProcess, INFINITE );
+	waitForObject((int)pi.hProcess, 0xFFFFFFFF );
 
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
@@ -882,7 +887,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*Restore security on the current thread
 	*/
 	if(lserver->mustUseLogonOption())
-		impersonateLogonUser(*hImpersonation);
+		impersonateLogonUser(&hImpersonation);
 		
 	return 1;
 }
@@ -898,10 +903,10 @@ void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 {
 	if(systemrequest)
 	{
-		sprintf(filenamePath,"%s\\%s",lserver->getSystemPath(),filename);
+		sprintf(filenamePath,"%s/%s",lserver->getSystemPath(),filename);
 	}
 	else
 	{
-		sprintf(filenamePath,"%s\\%s",lserver->getPath(),filename);
+		sprintf(filenamePath,"%s/%s",lserver->getPath(),filename);
 	}
 }

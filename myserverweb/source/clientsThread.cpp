@@ -34,7 +34,7 @@ ClientsTHREAD::~ClientsTHREAD()
 {
 	clean();
 }
-unsigned int WINAPI startClientsTHREAD(void* pParam)
+unsigned int __stdcall startClientsTHREAD(void* pParam)
 {
 	DWORD id=*((DWORD*)pParam);
 	ClientsTHREAD *ct=&lserver->threads[id];
@@ -48,20 +48,19 @@ unsigned int WINAPI startClientsTHREAD(void* pParam)
 	ZeroMemory(ct->buffer,ct->buffersize);
 	ZeroMemory(ct->buffer2,ct->buffersize2);
 	char mutexname[20];
-	sprintf(mutexname,"connectionMutex_%u",id);
-	ct->connectionMutex=CreateMutex(NULL,FALSE,mutexname);
-
+	ct->connectionWriteAccess=0;
 	while(ct->threadIsRunning) 
 	{
 		ct->controlConnections();
 	}
-	_endthreadex( 0 );
+	_endthreadex(0);
 	return 0;
 }
 
 void ClientsTHREAD::controlConnections()
 {
-	WaitForSingleObject(connectionMutex,INFINITE);
+	while(connectionWriteAccess);
+	connectionWriteAccess=this->id;
 	LPCONNECTION c=connections;
 	BOOL logonStatus;
 	for(c; c ;c=c->Next)
@@ -101,7 +100,8 @@ void ClientsTHREAD::controlConnections()
 					continue;
 		}
 	}
-	ReleaseMutex(connectionMutex);
+	connectionWriteAccess=0;
+	
 }
 void ClientsTHREAD::stop()
 {
@@ -120,8 +120,8 @@ void ClientsTHREAD::clean()
 	*/
 	if(initialized==FALSE)
 		return;
-	if(connectionMutex)
-		WaitForSingleObject(connectionMutex,INFINITE);
+	while(connectionWriteAccess);
+	connectionWriteAccess=this->id;
 	if(connections)
 	{
 		clearAllConnections();
@@ -129,8 +129,7 @@ void ClientsTHREAD::clean()
 	free(buffer);
 	free(buffer2);
 	initialized=FALSE;
-	ReleaseMutex(connectionMutex);
-	TerminateThread(threadHandle,0);
+	connectionWriteAccess=0;
 }
 LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 {
@@ -138,7 +137,8 @@ LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	*Add a new connection.
 	*Connections are defined using a CONNECTION struct.
 	*/
-	WaitForSingleObject(connectionMutex,INFINITE);
+	while(connectionWriteAccess);
+	connectionWriteAccess=this->id;
 	const int maxRcvBuffer=KB(5);
 	const BOOL keepAlive=TRUE;
 	setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char*)&maxRcvBuffer,sizeof(maxRcvBuffer));
@@ -151,7 +151,7 @@ LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	nc->Next=connections;
 	connections=nc;
 	nConnections++;
-	ReleaseMutex(connectionMutex);
+	connectionWriteAccess=0;
 	return nc;
 }
 BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
@@ -159,7 +159,8 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	/*
 	*Delete a connection
 	*/
-	WaitForSingleObject(connectionMutex,INFINITE);
+	while(connectionWriteAccess);
+	connectionWriteAccess=this->id;
 	BOOL ret=FALSE;
 	shutdown(s->socket,SD_BOTH );
 	do
@@ -183,12 +184,13 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 		prev=i;
 	}
 	nConnections--;
-	ReleaseMutex(connectionMutex);
+	connectionWriteAccess=0;
 	return ret;
 }
 void ClientsTHREAD::clearAllConnections()
 {
-	WaitForSingleObject(connectionMutex,INFINITE);
+	while(connectionWriteAccess);
+	connectionWriteAccess=this->id;
 	LPCONNECTION c=connections;
 	for(;c;c=c->Next)
 	{
@@ -196,7 +198,7 @@ void ClientsTHREAD::clearAllConnections()
 	}
 	connections=NULL;
 	nConnections=0;
-	ReleaseMutex(connectionMutex);
+	connectionWriteAccess=0;
 }
 
 

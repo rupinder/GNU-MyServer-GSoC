@@ -18,35 +18,46 @@
 */
 #include "..\stdafx.h"
 #include "..\include\cserver.h"
+#include <direct.h>
 #pragma comment(lib,"ws2_32.lib")
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"winmm.lib")
-BOOL WINAPI control_handler (DWORD control_type);
+
+#ifdef WIN32
+
+BOOL __stdcall control_handler (DWORD control_type);
 void console_service (int, char **);
-VOID WINAPI myServerCtrlHandler(DWORD fdwControl);
-VOID WINAPI myServerMain (DWORD argc, LPTSTR *argv); 
-VOID appendToLog(char* str);
+VOID __stdcall myServerCtrlHandler(DWORD fdwControl);
+VOID __stdcall myServerMain (DWORD argc, LPTSTR *argv); 
 BOOL isServiceInstalled();
 void runService();
+
+#endif
+
+VOID appendToLog(char* str);
 cserver server;
 static char path[MAX_PATH];
-HINSTANCE hInst;
+INT hInst;
 int cmdShow;
-
-int main (int , char **)
+/*
+*Change this for every new version of this software
+*/
+char *versionOfSoftware="0.11";
+int main (int argn, char **argc)
 { 
-	GetModuleFileName(NULL,path,MAX_PATH);
+	if(argn==1)
+		argc[1]="CONSOLE";
+	lstrcpy(path,argc[0]);
 	int len=lstrlen(path);
 	while((path[len]!='\\')&(path[len]!='/'))
 		len--;
 	path[len]='\0';
-	SetCurrentDirectory(path);
+	_chdir(path);
+	
 
-	hInst=(HINSTANCE)0;
+	hInst=0;
 	cmdShow=0;
-	LPSTR cmdLine=GetCommandLine();
-	if(lstrlen(cmdLine)==0)
-		cmdLine="CONSOLE";
+	char* cmdLine=argc[1];
 	for(int i=0;i<lstrlen(cmdLine);i++)
 	{
 		if(!lstrcmpi(&cmdLine[i],"CONSOLE"))
@@ -77,9 +88,14 @@ VOID appendToLog(char* str)
 	fclose(f);
 	return;
 }
+
+/*
+*These functions are available only on windows platform
+*/
+#ifdef WIN32
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
-VOID  WINAPI myServerMain (DWORD, LPTSTR*)
+VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 {
 	MyServiceStatus.dwServiceType = SERVICE_WIN32;
 	MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
@@ -112,7 +128,7 @@ VOID  WINAPI myServerMain (DWORD, LPTSTR*)
 
 
 
-VOID WINAPI myServerCtrlHandler(DWORD fdwControl)
+VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
 {
 	switch ( fdwControl )
 	{
@@ -150,7 +166,7 @@ void console_service (int, char **)
 	server.start(hInst);
 }
 
-BOOL WINAPI control_handler (DWORD control_type)
+BOOL __stdcall control_handler (DWORD control_type)
 {
 	switch (control_type)
 	{
@@ -158,7 +174,6 @@ BOOL WINAPI control_handler (DWORD control_type)
 		case CTRL_C_EVENT:
 			printf ("%s\n",lserver->languageParser.getValue("MSG_SERVICESTOP"));
 			server.stop();
-			printf ("service stopped\n");
 			return (TRUE);
 
 	}
@@ -202,3 +217,4 @@ BOOL isServiceInstalled()
 	}
 	return FALSE;
 }
+#endif

@@ -21,11 +21,12 @@
 #include "..\include\cserver.h"
 #include "..\include\security.h"
 #include <Ws2tcpip.h>
+#include <direct.h>
 
 cserver *lserver=0;
 BOOL mustEndServer;
 int err;
-void cserver::start(HINSTANCE hInst)
+void cserver::start(INT hInst)
 {
 	mustEndServer=FALSE;
 	cserver::hInst=hInst;
@@ -38,7 +39,7 @@ void cserver::start(HINSTANCE hInst)
 	if(lserver)
 	{
 		mustEndServer=TRUE;
-		WaitForSingleObject(lserver->listenServerHTTPHandle,INFINITE);
+		waitForObject(lserver->listenServerHTTPHandle,0xFFFFFFFF);
 		mustEndServer=FALSE;
 	}
 	/*
@@ -191,26 +192,23 @@ void cserver::start(HINSTANCE hInst)
 	/*
 	*Create the threads
 	*/
-
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),si.dwNumberOfProcessors);
+	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
 	
 	/*
 	*Create a thread for every CPU.
 	*/
-	nThreads=si.dwNumberOfProcessors;
+	nThreads=getCPUCount();
 
 	unsigned int ID;
 	for(DWORD i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
 		threads[i].id=i;
-		threads[i].threadHandle=(HANDLE)_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
+		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
-	listenServerHTTPHandle=(HANDLE)_beginthreadex(NULL,0,&::listenServerHTTP,0,0,&ID);
+	listenServerHTTPHandle=(int)_beginthreadex(NULL,0,&::listenServerHTTP,0,0,&ID);
 
 
 	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
@@ -227,12 +225,11 @@ void cserver::start(HINSTANCE hInst)
 
 	while(!mustEndServer);
 
-	shutdown(serverSocketHTTP, 2);
-	cserver::terminate();
-	closesocket(serverSocketHTTP);
+	this->terminate();
+	_endthreadex(0);
 }
 
-unsigned int WINAPI listenServerHTTP(void*)
+unsigned int __stdcall listenServerHTTP(void*)
 
 {
 	INT asock_inLenHTTP=sizeof(lserver->asock_inHTTP);
@@ -254,7 +251,9 @@ unsigned int WINAPI listenServerHTTP(void*)
 		lserver->addConnection(lserver->asockHTTP,PROTOCOL_HTTP);
 
 	}	
-
+	/*
+	*When the flag mustEndServer is TRUE end current thread
+	*/
 	_endthreadex( 0 );
 
 	return 0;
@@ -293,24 +292,25 @@ void cserver::stop()
 
 void cserver::terminate()
 {
+	shutdown(serverSocketHTTP, 2);
 	/*
 	*If the guestLoginHandle is allocated close it.
 	*/
 	if(useLogonOption)
-		CloseHandle(guestLoginHandle);
+		cleanLogonUser(&guestLoginHandle);
 
 	/*
 	*Stop server
 	*/
 	for(DWORD i=0;i<nThreads;i++)
 	{
-		if(verbosity>2)
+		if(verbosity>1)
 			printf("%s\n",languageParser.getValue("MSG_STOPT"));
 		threads[i].stop();
-		if(verbosity>2)
+		if(verbosity>1)
 			printf("%s\n",languageParser.getValue("MSG_TSTOPPED"));
 	}
-	if(verbosity>2)
+	if(verbosity>1)
 	{
 		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
 	}
@@ -322,10 +322,12 @@ void cserver::terminate()
 	mimeManager.clean();
 	for(i=0;i<nThreads;i++)
 		threads[i].clean();
-	if(verbosity>2)
+	if(verbosity>1)
 	{
 		printf("myServer is stopped\n\n");
 	}
+	closesocket(serverSocketHTTP);
+
 	fclose(logFile);
 	_fcloseall();
 }
@@ -335,14 +337,12 @@ void cserver::initialize(INT OSVer)
 	*Here is loaded the configuration of the server.
 	*The configuration file is a pseudo-XML file.
 	*/
-
-
 	socketRcvTimeout = 10;
 	useLogonOption = TRUE;
 	guestLoginHandle=0;
 	connectionTimeout = SEC(25);
 	lstrcpy(guestLogin,"myServerUnknown");
-	lstrcpy(languageFile,"languages\\english.xml");
+	lstrcpy(languageFile,"languages/english.xml");
 	lstrcpy(guestPassword,"myServerUnknown");
 	lstrcpy(defaultFilename,"default.html");
 	mustEndServer=FALSE;
@@ -350,10 +350,17 @@ void cserver::initialize(INT OSVer)
 	verbosity=1;
 	buffersize=1024*1024;
 	buffersize2=1024*1024;
-	GetCurrentDirectory(MAX_PATH,path);
-	lstrcat(path,"\\web");
-	GetCurrentDirectory(MAX_PATH,systemPath);
-	lstrcat(systemPath,"\\system");
+	_getcwd(path,MAX_PATH);
+	lstrcat(path,"/web");
+	_getcwd(systemPath,MAX_PATH);
+	lstrcat(systemPath,"/system");
+	for(int i=0;i<lstrlen(path);i++)
+		if(path[i]='\\')
+			path[i]='/';
+	for(i=0;i<lstrlen(systemPath);i++)
+		if(systemPath[i]='\\')
+			systemPath[i]='/';
+
 	useMessagesFiles=TRUE;
 	configurationFileManager.open("myserver.xml");
 	CHAR *data;
@@ -373,7 +380,7 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("LANGUAGE");
 	if(data)
 	{
-		sprintf(languageFile,"languages\\%s",data);	
+		sprintf(languageFile,"languages/%s",data);	
 	}
 
 
@@ -414,16 +421,16 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("WEB_DIRECTORY");
 	if(data)
 	{
-		GetCurrentDirectory(MAX_PATH,path);
-		lstrcat(path,"\\");
+		_getcwd(path,MAX_PATH);
+		lstrcat(path,"/");
 		lstrcat(path,data);
 	}
 
 	data=configurationFileManager.getValue("SYSTEM_DIRECTORY");
 	if(data)
 	{
-		GetCurrentDirectory(MAX_PATH,systemPath);
-		lstrcat(systemPath,"\\");
+		_getcwd(systemPath,MAX_PATH);
+		lstrcat(systemPath,"/");
 		lstrcat(systemPath,data);
 	}
 

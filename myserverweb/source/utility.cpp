@@ -17,12 +17,14 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "..\stdafx.h"
+#include "..\include\utility.h"
 #include <string.h>
 extern BOOL mustEndServer; 
 static FILE* logFile=0;
 INT getOSVersion()
 {
-	INT ret=0;
+	int ret=0;
+#ifdef WIN32
 	OSVERSIONINFO osvi;
 	osvi.dwOSVersionInfoSize=sizeof(osvi);
 	GetVersionEx(&osvi);
@@ -33,7 +35,6 @@ INT getOSVersion()
 			ret=OS_WINDOWS_9X;
 		else
 			ret=OS_WINDOWS_2000;
-
 		break;
 	case 10:
 		ret=OS_WINDOWS_9X;
@@ -48,6 +49,7 @@ INT getOSVersion()
 		ret=OS_WINDOWS_XP;
 		break;
 	}
+#endif
 	return ret;
 }	
 
@@ -182,4 +184,21 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 			}
 		}
 	}
+}
+DWORD getCPUCount()
+{
+	DWORD ret=1;
+#ifdef WIN32
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+	ret=si.dwNumberOfProcessors;
+#endif
+	return ret;
+}
+DWORD waitForObject(int hnd,DWORD time)
+{
+#ifdef WIN32
+	return WaitForSingleObject((HANDLE)hnd,time);
+#endif
+
 }

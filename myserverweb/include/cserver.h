@@ -18,19 +18,34 @@
 */
 #pragma once
 #include "..\stdafx.h"
-#include "utility.h"
+#include "..\include\utility.h"
 #include "..\include\cXMLParser.h"
 #include "..\resource.h"
-#include "ClientsTHREAD.h"
-extern BOOL mustEndServer;
-unsigned int WINAPI listenServerHTTP(void* pParam);
+#include "..\include\ClientsTHREAD.h"
+#include "..\include\utility.h"
+#include "..\include\HTTPmsg.h"
+#include "..\include\Response_RequestStructs.h"
+#include "..\include\ConnectionStruct.h"
+
+
+/*
+*Set MAX_MIME_TYPES to define the maximum
+*number of MIME TYPES records to alloc
+#define MAX_MIME_TYPES
+*/
+#include "..\include\MIME_manager.h"
+
+
+
+
+unsigned int __stdcall listenServerHTTP(void* pParam);
 class cserver
 {
-	friend  unsigned int WINAPI listenServerHTTP(void* pParam);
-	friend  unsigned int WINAPI startClientsTHREAD(void* pParam);
+	friend  unsigned int __stdcall listenServerHTTP(void* pParam);
+	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
 	friend class ClientsTHREAD;
 	friend LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM);
-	friend BOOL WINAPI control_handler (DWORD control_type);
+	friend BOOL __stdcall control_handler (DWORD control_type);
 private:
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
@@ -54,7 +69,7 @@ private:
 	LPCONNECTION findConnection(SOCKET s);
 	DWORD connectionTimeout;
 	DWORD socketRcvTimeout;
-	HANDLE listenServerHTTPHandle;
+	int listenServerHTTPHandle;
 	DWORD maxLogFileSize;
 	VOID controlSizeLogFile();
 public:
@@ -68,9 +83,9 @@ public:
 	BOOL  mustUseMessagesFiles();
 	BOOL  mustUseLogonOption();
 	void  setVerbosity(DWORD);
-	void start(HINSTANCE);
+	void start(INT);
 	void stop();
 	void terminate();
-	HINSTANCE hInst;
+	int hInst;
 
 }; LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 

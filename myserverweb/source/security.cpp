@@ -17,26 +17,31 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "..\include\security.h"
+#include "..\include\utility.h"
+#include "..\include\HTTPmsg.h"
+#include "..\include\ConnectionStruct.h"
+
+
 /*
 *Global values for useLogonOption flag and the guest handle
 */
 BOOL useLogonOption;
-HANDLE guestLoginHandle;
+LOGGEDUSERID guestLoginHandle;
 char guestLogin[20];
 char guestPassword[32];
 
-BOOL logonCurrentThread(char *name,char* password,PHANDLE handle)
+BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
 	BOOL logon=FALSE;
 #ifdef WIN32
-	logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,handle);
+	logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)(handle));
 #endif
 	return logon;
 }
-VOID impersonateLogonUser(HANDLE hImpersonation)
+VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
-	ImpersonateLoggedOnUser(hImpersonation);
+	ImpersonateLoggedOnUser((HANDLE)*hImpersonation);
 #endif	
 }
 VOID revertToSelf()
@@ -46,14 +51,14 @@ VOID revertToSelf()
 #endif
 }
 
-VOID cleanLogonUser(HANDLE hImpersonation)
+VOID cleanLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
-	CloseHandle(hImpersonation);
+	CloseHandle((HANDLE)*hImpersonation);
 #endif
 }
 
-VOID logon(LPCONNECTION c,BOOL *logonStatus,HANDLE *hImpersonation)
+VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
 {
 	*hImpersonation=0;
 	if(useLogonOption)
@@ -74,14 +79,14 @@ VOID logon(LPCONNECTION c,BOOL *logonStatus,HANDLE *hImpersonation)
 		*logonStatus=FALSE;
 	}
 }
-VOID logout(BOOL logon,HANDLE *hImpersonation)
+VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
 	{
 		revertToSelf();
 		if(*hImpersonation)
 		{
-			cleanLogonUser(*hImpersonation);
+			cleanLogonUser(hImpersonation);
 			hImpersonation=0;
 		}
 	}
@@ -90,6 +95,6 @@ VOID logonGuest()
 {
 #ifdef WIN32
 	if(useLogonOption)
-		LogonUser(guestLogin,NULL,guestPassword,LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT, &guestLoginHandle);
+		LogonUser(guestLogin,NULL,guestPassword,LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)&guestLoginHandle);
 #endif
 }

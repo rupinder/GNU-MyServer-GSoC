@@ -26,7 +26,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int fi
 BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder);
 void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER*);
-BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,HANDLE *imp);
+BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp);
 BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine=0);
 BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char* exec);
 void raiseHTTPError(LPCONNECTION a,int ID);

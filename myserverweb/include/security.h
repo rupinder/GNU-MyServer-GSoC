@@ -18,14 +18,15 @@
 */
 #include "..\stdafx.h"
 extern BOOL useLogonOption;
-extern HANDLE guestLoginHandle;
+extern LOGGEDUSERID guestLoginHandle;
 extern char guestLogin[20];
 extern char guestPassword[32];
+
 
 /*
 *Change the ownner of the caller thread
 */
-BOOL logonCurrentThread(char*,char*,PHANDLE);
+BOOL logonCurrentThread(char*,char*,LOGGEDUSERID*);
 /*
 *Change the ownner of the caller thread to the runner of the process
 */
@@ -33,13 +34,13 @@ VOID revertToSelf();
 /*
 *Impersonate the logon user
 */
-VOID impersonateLogonUser(HANDLE hImpersonation);
+VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation);
 /*
 *Close the handle
 */
-VOID cleanLogonUser(HANDLE hImpersonation);
+VOID cleanLogonUser(LOGGEDUSERID* hImpersonation);
 
-VOID logon(LPCONNECTION c,BOOL *logonStatus,HANDLE *hImpersonation);
-VOID logout(BOOL logon,HANDLE *hImpersonation);
+VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation);
+VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation);
 
 VOID logonGuest();
