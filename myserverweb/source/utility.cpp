@@ -103,12 +103,28 @@ u_long getCPUCount()
 	GetSystemInfo(&si);
 	ret=si.dwNumberOfProcessors;
 #endif
-#ifdef NOT_WIN
+
+#ifdef _SC_NPROCESSORS_CONF
 	ret=(u_long)sysconf(_SC_NPROCESSORS_CONF); 
   /*! Use only a processor if some error happens.  */
   if(ret==(u_long)-1)
     ret = 1;
 #endif
+
+
+#ifdef HW_NCPU
+  int err;
+  int mib[2];
+  int nproc;
+  size_t len;
+  mib[0] = CTL_HW;
+  mib[1] = HW_NCPU;
+  len = sizeof(nproc);
+  err = sysctl(mib, 2, &nproc, &len, NULL, 0);
+  if(err == 0)
+    ret = nproc;
+#endif
+
 	return ret;
 }
 
