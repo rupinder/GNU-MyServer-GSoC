@@ -234,7 +234,8 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	ms_DeleteFile(outFilePath);
 	ms_DeleteFile(dataFilePath);
 	return !strcmpi(td->request.CONNECTION,"Keep-Alive");
-#else
+#endif
+#ifdef __linux__
 	return raiseHTTPError(td,s,e_501);
 #endif
 }

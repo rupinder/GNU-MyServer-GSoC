@@ -56,7 +56,8 @@ ClientsTHREAD::~ClientsTHREAD()
 */
 #ifdef WIN32
 unsigned int __stdcall startClientsTHREAD(void* pParam)
-#else
+#endif
+#ifdef __linux__
 void * startClientsTHREAD(void* pParam)
 #endif
 {
@@ -85,7 +86,8 @@ void * startClientsTHREAD(void* pParam)
 
 #ifdef WIN32
 		Sleep(1);
-#else
+#endif
+#ifdef __linux__
 		usleep(1);
 #endif
 	}
@@ -190,11 +192,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 {
 	ms_requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION nc=new CONNECTION;
-#ifdef WIN32
-	ZeroMemory(nc,sizeof(CONNECTION));
-#else
 	memset(nc, 0, sizeof(CONNECTION));
-#endif
 	nc->socket=s;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
@@ -218,7 +216,8 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 	strcat(msg,"\r\n");
 
-#else
+#endif
+#ifdef __linux__
 	snprintf(msg, 500,"%s:%s ->%s %s:", msgNewConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime);
 	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 	strcat(msg,"\r\n");
@@ -234,7 +233,8 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 			sprintf(msg, "%s:%s ->%s %s:", msgErrorConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime);
 			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 			strcat(msg,"\r\n");
-#else
+#endif
+#ifdef __linux__
 			snprintf(msg, 500,"%s:%s ->%s %s:", msgErrorConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime);
 			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 			strcat(msg,"\r\n");

@@ -130,7 +130,8 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
 	return exitCode;
-#else
+#endif
+#ifdef __linux__
 	int pid = fork();
 	if(pid < 0) // a bad thing happend
 		return 0;
@@ -227,7 +228,8 @@ int ms_setcwdBuffer()
 			currentPath[i]='/';
 	if(currentPath[lstrlen(currentPath)]=='/')
 		currentPath[lstrlen(currentPath)]='\0';
-#else
+#endif
+#ifdef __linux__
 	getcwd(currentPath,MAX_PATH);
 	retval=1;
 	if(currentPath[strlen(currentPath)]=='/')
@@ -243,7 +245,8 @@ char *ms_getdefaultwd(char *path,int len)
 	if(path)
 #ifdef WIN32
 		lstrcpyn(path,currentPath,len);
-#else
+#endif
+#ifdef __linux__
 		strncpy(path,currentPath,len);
 #endif
 	return path;
@@ -263,7 +266,8 @@ int ms_setcwd(char *dir)
 {
 #ifdef WIN32	
 	return _chdir(dir);
-#else
+#endif
+#ifdef __linux__
 	return chdir(dir);
 #endif
 }
@@ -274,7 +278,8 @@ void ms_wait(u_long time)
 {
 #ifdef WIN32
 		Sleep(time);
-#else
+#endif
+#ifdef __linux__
 	    usleep(time);
 #endif
 

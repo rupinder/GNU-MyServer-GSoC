@@ -23,7 +23,8 @@
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
-#else
+#endif
+#ifdef __linux__
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
@@ -56,7 +57,8 @@ int cmdShow;
 const char *versionOfSoftware="0.4.1";
 cserver server;
 
-#ifndef WIN32
+
+#ifdef __linux__
 void Sig_Quit(int signal)
 {
 	printf("Exiting...\n");
@@ -86,7 +88,8 @@ int main (int argn, char **argc)
 	path[len]='\0';
 #ifdef WIN32
 	_chdir(path);
-#else
+#endif
+#ifdef __linux__
 	chdir(path);
 #endif
 	

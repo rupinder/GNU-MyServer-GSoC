@@ -26,7 +26,8 @@
 #include <winsock2.h>
 #define SOCKETLIBINCLUDED
 #endif
-#else
+#endif
+#ifdef __linux__
 extern "C" {
 #include <sys/types.h>
 #include <sys/socket.h>

@@ -62,7 +62,8 @@ int ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long*
 {
 #ifdef WIN32
 	return WriteFile((HANDLE)f,buffer,buffersize,nbw,NULL);
-#else
+#endif
+#ifdef __linux__
 	*nbw = write((int)f, buffer, buffersize);
 	return 0;
 #endif
@@ -120,7 +121,8 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 			ms_setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
 	}
 
-#else
+#endif
+#ifdef __linux__
 	struct stat F_Stats;
 	int F_Flags;
 	
@@ -204,7 +206,8 @@ int	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long
 	*Return 0 if the end of the file is reached.
 	*/
 	return (*nbr<=buffersize)? 1 : 0 ;
-#else
+#endif
+#ifdef __linux__
 	*nbr = read((int)f, buffer, buffersize);
 	
 	return (*nbr<=buffersize)? 1 : 0 ;
@@ -225,7 +228,8 @@ int ms_CloseFile(MYSERVER_FILE_HANDLE fh)
 #ifdef WIN32
 	FlushFileBuffers((HANDLE)fh);
 	CloseHandle((HANDLE)fh);
-#else
+#endif
+#ifdef __linux__
 	fsync((int)fh);
 	close((int)fh);
 #endif
@@ -239,7 +243,8 @@ int ms_DeleteFile(char *filename)
 {
 #ifdef WIN32
 	DeleteFile(filename);
-#else
+#endif
+#ifdef __linux__
 	remove(filename);
 #endif
 	return 0;
@@ -252,7 +257,8 @@ u_long ms_getFileSize(MYSERVER_FILE_HANDLE f)
 	u_long size;
 #ifdef WIN32
 	size=GetFileSize((HANDLE)f,NULL);
-#else
+#endif
+#ifdef __linux__
 	struct stat F_Stats;
 	fstat((int)f, &F_Stats);
 	size = F_Stats.st_size;
@@ -268,7 +274,8 @@ int ms_setFilePointer(MYSERVER_FILE_HANDLE h,u_long initialByte)
 {
 #ifdef WIN32
 	return (SetFilePointer((HANDLE)h,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
-#else
+#endif
+#ifdef __linux__
 	return (lseek((int)h, initialByte, SEEK_SET))?1:0;
 #endif
 }
@@ -283,7 +290,8 @@ int ms_IsFolder(char filename[])
 		return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
 	else
 		return 0;
-#else
+#endif
+#ifdef __linux__
 	//sprintf("in ms_IsFolder filename = %s\n", filename);
 	struct stat F_Stats;
 	if(stat(filename, &F_Stats) < 0)
@@ -308,7 +316,8 @@ int ms_FileExists(char* filename)
 	}
 	else
 		return 0;
-#else
+#endif
+#ifdef __linux__
 	struct stat F_Stats;
 	if(stat(filename, &F_Stats) < 0)
 		return 0;
@@ -325,7 +334,8 @@ time_t ms_GetLastModTime(char *filename)
 #ifdef WIN32
 	struct _stat sf;
 	_stat(filename,&sf);
-#else
+#endif
+#ifdef __linux__
 	struct stat sf;
 	stat(filename,&sf);
 #endif
@@ -341,7 +351,8 @@ time_t ms_GetCreationTime(char *filename)
 #ifdef WIN32
 	struct _stat sf;
 	_stat(filename,&sf);
-#else
+#endif
+#ifdef __linux__
 	struct stat sf;
 	stat(filename,&sf);
 #endif
@@ -356,7 +367,8 @@ time_t ms_GetLastAccTime(char *filename)
 #ifdef WIN32
 	struct _stat sf;
 	_stat(filename,&sf);
-#else
+#endif
+#ifdef __linux__
 	struct stat sf;
 	stat(filename,&sf);
 #endif

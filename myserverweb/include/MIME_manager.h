@@ -33,9 +33,9 @@ extern "C" {
 #include <io.h>
 #endif
 }
-
+#ifdef __linux__
 using namespace std;
-
+#endif
 /*
 *This enum describes all the way that a file is handled by the server.
 */

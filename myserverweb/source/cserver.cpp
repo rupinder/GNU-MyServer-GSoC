@@ -25,7 +25,8 @@ extern "C" {
 #ifdef WIN32
 #include <Ws2tcpip.h>
 #include <direct.h>
-#else
+#endif
+#ifdef __linux__
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
@@ -100,7 +101,8 @@ void cserver::start()
 	*/
 	_flushall();
 	system("cls");
-#else
+#endif
+#ifdef __linux__
 	/*
 	*Under an UNIX environment, clearing the screen can be done in a similar method
 	*/
@@ -223,7 +225,8 @@ void cserver::start()
 	{
 #ifdef WIN32
 		ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
-#else
+#endif
+#ifdef __linux__
 		ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
 		printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i,inet_ntoa(ia));
@@ -252,7 +255,8 @@ void cserver::start()
 
 #ifdef WIN32
 	unsigned int ID;
-#else
+#endif
+#ifdef __linux__
 	pthread_t ID;
 #endif
 	threads=new ClientsTHREAD[nThreads];
@@ -352,7 +356,8 @@ void cserver::start()
 					break; 
 			} 
 		}
-#else
+#endif
+#ifdef __linux__
 		sleep(1);
 #endif
 	}
@@ -382,7 +387,7 @@ int cserver::createServerAndListener(u_long port)
 	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 	sock_inserverSocket.sin_port=htons((u_short)port);
 
-#ifndef WIN32
+#ifdef __linux__
 	/*
 	*Under the unix environment the application needs some time before create a new socket
 	*for the same address. To avoid this behavior we use the current code.
@@ -450,7 +455,8 @@ int cserver::createServerAndListener(u_long port)
 */
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* params)
-#else
+#endif
+#ifdef __linux__
 void * listenServer(void* params)
 #endif
 {
@@ -792,7 +798,8 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	MYSERVER_SOCKADDRIN  localsock_in;
 #ifdef WIN32
 	ZeroMemory(&localsock_in,sizeof(localsock_in));
-#else
+#endif
+#ifdef __linux__
 	memset(&localsock_in, 0, sizeof(localsock_in));
 #endif
 	int dim=sizeof(localsock_in);

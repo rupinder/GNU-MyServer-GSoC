@@ -31,7 +31,8 @@ class  ClientsTHREAD
 	friend class cserver;
 #ifdef WIN32
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
-#else
+#endif
+#ifdef __linux__
 	friend  void* startClientsTHREAD(void* pParam);
 #endif
 #ifdef WIN32
@@ -67,7 +68,8 @@ public:
 };
 #ifdef WIN32
 unsigned int __stdcall startClientsTHREAD(void* pParam); 
-#else
+#endif
+#ifdef __linux__
 void* startClientsTHREAD(void* pParam);
 #endif
 

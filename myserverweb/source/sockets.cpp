@@ -60,7 +60,8 @@ int ms_bind(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int namelen)
 {
 #ifdef WIN32	
 	return bind((SOCKET)s,sa,namelen);
-#else
+#endif
+#ifdef __linux__
 	return bind((int)s,sa,namelen);
 #endif
 }
@@ -69,7 +70,8 @@ int ms_listen(MYSERVER_SOCKET s,int max)
 {
 #ifdef WIN32
 	return listen(s,max);
-#else
+#endif
+#ifdef __linux__
 	return listen((int)s,max);
 #endif
 }
@@ -90,7 +92,8 @@ int ms_closesocket(MYSERVER_SOCKET s)
 {
 #ifdef WIN32
 	return closesocket(s);
-#else
+#endif
+#ifdef __linux__
 	return close((int)s);
 #endif
 }
@@ -115,7 +118,8 @@ int ms_shutdown(MYSERVER_SOCKET s,int how)
 {
 #ifdef WIN32
 	return shutdown(s,how);
-#else
+#endif
+#ifdef __linux__
 	return shutdown((int)s,how);
 #endif
 }
@@ -129,7 +133,8 @@ int ms_send(MYSERVER_SOCKET s,const char* buffer,int len,int flags)
 {
 #ifdef WIN32
 	return	send(s,buffer,len,flags);
-#else
+#endif
+#ifdef __linux__
 	return	send((int)s,buffer,len,flags);
 #endif
 }
@@ -138,7 +143,8 @@ int ms_ioctlsocket(MYSERVER_SOCKET s,long cmd,unsigned long* argp)
 {
 #ifdef WIN32
 	return ioctlsocket(s,cmd,argp);
-#else
+#endif
+#ifdef __linux__
 	return ioctl((int)s,cmd,argp);
 #endif
 }
@@ -147,7 +153,8 @@ int ms_connect(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int na)
 {
 #ifdef WIN32
 	return connect((SOCKET)s,sa,na);
-#else
+#endif
+#ifdef __linux__
 	return connect((int)s,sa,na);
 #endif
 }
@@ -161,7 +168,8 @@ int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
 		return -1;
 	else 
 		return err;
-#else
+#endif
+#ifdef __linux__
 	err=recv((int)s,buffer,len,flags);
 	if(err == 0)
 		err = -1;
@@ -183,7 +191,8 @@ int ms_getsockname(MYSERVER_SOCKET s,MYSERVER_SOCKADDR *ad,int *namelen)
 {
 #ifdef WIN32
 	return getsockname(s,ad,namelen);
-#else
+#endif
+#ifdef __linux__
 	unsigned int len = *namelen;
 	int ret = getsockname((int)s,ad,&len);
 	*namelen = len;

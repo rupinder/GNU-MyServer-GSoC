@@ -31,7 +31,8 @@ extern "C" {
 #ifdef WIN32
 #include <direct.h>
 #include <errno.h>
-#else
+#endif
+#ifdef __linux__
 #include <string.h>
 #endif
 }
@@ -98,7 +99,8 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 
 #ifdef WIN32
 	sprintf(filename,"%s/*.*",folder);
-#else
+#endif
+#ifdef __linux__
 	sprintf(filename,"%s/",folder);
 #endif
 	lstrcat(td->buffer2,"<BODY>");
@@ -111,7 +113,8 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 
 #ifdef WIN32
 	if(ff==-1)
-#else
+#endif
+#ifdef __linux__
 	if((int)ff==-1)
 #endif
 	{
@@ -422,7 +425,8 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		{
 #ifdef WIN32
 			return sendISAPI(td,s,td->filenamePath,ext,data);
-#else
+#endif
+#ifdef __linux__
 			return raiseHTTPError(td,s,e_501);
 #endif
 		}

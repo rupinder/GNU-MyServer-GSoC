@@ -35,7 +35,8 @@
 
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* pParam);
-#else
+#endif
+#ifdef __linux__
 void* listenServer(void* pParam);
 #endif
 
@@ -60,7 +61,8 @@ class cserver
 #ifdef WIN32
 	friend  unsigned int __stdcall listenServer(void* pParam);
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
-#else
+#endif
+#ifdef __linux__
 	friend  void* listenServer(void* pParam);
 	friend  void* startClientsTHREAD(void* pParam);
 #endif
@@ -70,7 +72,8 @@ class cserver
 #endif
 #ifdef WIN32
 	friend int __stdcall control_handler (u_long control_type);
-#else
+#endif
+#ifdef __linux__
 	friend int control_handler (u_long control_type);
 #endif
 private:
