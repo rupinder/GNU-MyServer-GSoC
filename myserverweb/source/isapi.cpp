@@ -44,9 +44,11 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
+    lserver->logLockAccess();
 		lserver->logPreparePrintError();
 		lserver->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
 		lserver->logEndPrintError();
+    lserver->logUnlockAccess();
 		return 0;
 	}
 	char *buffer=0;	
@@ -360,9 +362,11 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
+    lserver->logLockAccess();
     lserver->logPreparePrintError();
 		lserver->logWriteln("isapi::GetServerVariableExport: invalid hConn");
 		lserver->logEndPrintError();
+    lserver->logUnlockAccess();
 		return 0;
 	}
 
@@ -417,7 +421,8 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 /*!
  *Build the string that contains all the HTTP headers.
  */
-BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID output,LPDWORD dwMaxLen)
+BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,
+                                LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
 	DWORD maxLen=*dwMaxLen;

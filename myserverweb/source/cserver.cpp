@@ -1729,6 +1729,22 @@ int cserver::loadSettings()
 }
 
 /*!
+ *Lock the access to the log file.
+ */
+int cserver::logLockAccess()
+{
+  return logManager.requestAccess();
+}
+
+/*!
+ *Unlock the access to the log file.
+ */
+int cserver::logUnlockAccess()
+{
+  return logManager.terminateAccess();
+}
+
+/*!
  *Reboot the server.
  *Returns non zero on errors.
  */

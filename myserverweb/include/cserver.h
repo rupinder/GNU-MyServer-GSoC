@@ -190,6 +190,8 @@ public:
   int logWriteln(char*);
   int logPreparePrintError();
   int logEndPrintError();  
+  int logLockAccess();
+  int logUnlockAccess(); 
   int setLogFile(char*);
 }; 
 extern class cserver *lserver;
