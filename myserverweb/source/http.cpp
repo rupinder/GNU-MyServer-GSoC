@@ -55,6 +55,13 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	/*
 	*Send the folder content.
 	*/
+	u_long nbw;
+	MYSERVER_FILE outFile;
+	char outFilePath[MAX_PATH];
+	ms_getdefaultwd(outFilePath,MAX_PATH);
+	sprintf(&outFilePath[lstrlen(outFilePath)],"/stdInFile_%u",td->id);
+	outFile.ms_OpenFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
+
 	static char filename[MAX_PATH];
 	int startchar=0;
 	int nDirectories=0;
@@ -83,7 +90,8 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	td->buffer2[0]='\0';
 	_finddata_t fd;
-	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",td->filenamePath);
+	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",td->request.URI);
+	outFile.ms_WriteToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	/*
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
 	*/
@@ -96,10 +104,11 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		{
 			u_long nbr;
 			cssHandle.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
-			strcat(td->buffer2,"<STYLE><!--");
+			strcpy(td->buffer2,"<STYLE><!--");
 			strcat(td->buffer2,td->buffer);
 			strcat(td->buffer2,"--></STYLE>");
 			cssHandle.ms_CloseFile();
+			outFile.ms_WriteToFile(td->buffer2,strlen(td->buffer2),&nbw);
 		}
 	}
 
@@ -109,11 +118,12 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 #ifdef __linux__
 	sprintf(filename,"%s/",folder);
 #endif
-	strcat(td->buffer2,"<BODY>");
+	strcpy(td->buffer2,"<BODY>");
 	strcat(td->buffer2,msgFolderContents);
 	strcat(td->buffer2," ");
 	strcat(td->buffer2,&td->request.URI[startchar]);
-	strcat(td->buffer2,"\\<P>\n<HR>");
+	strcat(td->buffer2,"<P>\n<HR>");
+	outFile.ms_WriteToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	intptr_t ff;
 	ff=_findfirst(filename,&fd);
 
@@ -148,14 +158,15 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	/*
 	*With the current code we build the HTML TABLE that describes the files in the folder.
 	*/
-	sprintf(td->buffer2+lstrlen(td->buffer2),"<TABLE><TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>",msgFile,msgLModify,msgSize);
+	sprintf(td->buffer2,"<TABLE><TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>",msgFile,msgLModify,msgSize);
+	outFile.ms_WriteToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	static char fileSize[10];
 	static char fileTime[20];
 	do
 	{	
 		if(fd.name[0]=='.')
 			continue;
-		strcat(td->buffer2,"<TR><TD><A HREF=\"");
+		strcpy(td->buffer2,"<TR><TD><A HREF=\"");
 		if(!td->request.uriEndsWithSlash)
 		{
 			strcat(td->buffer2,&td->request.URI[startchar]);
@@ -182,22 +193,32 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			strcat(td->buffer2,fileSize);
 		}
 		strcat(td->buffer2,"</TD></TR>\n");
+		outFile.ms_WriteToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	}while(!_findnext(ff,&fd));
-	strcat(td->buffer2,"</TABLE>\n<HR>");
+	strcpy(td->buffer2,"</TABLE>\n<HR>");
 	strcat(td->buffer2,msgRunOn);
 	strcat(td->buffer2," myServer ");
 	strcat(td->buffer2,versionOfSoftware);
 	strcat(td->buffer2,"</BODY></HTML>");
+	outFile.ms_WriteToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	_findclose(ff);
 	char *buffer2Loop=td->buffer2;
 	while(*buffer2Loop++)
 		if(*buffer2Loop=='\\')
 			*buffer2Loop='/';
 	buildDefaultHTTPResponseHeader(&(td->response));
-	sprintf(td->response.CONTENT_LENGTH,"%u",lstrlen(td->buffer2));
+	sprintf(td->response.CONTENT_LENGTH,"%u",outFile.ms_getFileSize());
+	outFile.ms_setFilePointer(0);
 	buildHTTPResponseHeader(td->buffer,&(td->response));
 	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
-	s->socket.ms_send(td->buffer2,lstrlen(td->buffer2), 0);
+	u_long nbr,nbs;
+	do
+	{
+		outFile.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
+		nbs=s->socket.ms_send(td->buffer,nbr,0);
+	}while(nbr && nbs);
+	outFile.ms_CloseFile();
+	MYSERVER_FILE::ms_DeleteFile(outFilePath);
 	return 1;
 
 }
@@ -400,11 +421,27 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 				/*
 				*Change the URI to reflect the default file name.
 				*/
-				strcat(td->request.URI,"/");
-				strcat(td->request.URI,defaultFileNamePath);
-				strcpy(td->filenamePath,defaultFileName);
-				if(sendHTTPRESOURCE(td,s,defaultFileName,0,0,0,-1,1))
+				char nURL[MAX_PATH];
+				if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
+					strcpy(nURL,"http://");
+				strcat(nURL,td->request.HOST);
+				sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
+				if(nURL[strlen(nURL)-1]!='/')
+					strcat(nURL,"/");
+				strcat(nURL,td->request.URI);
+				if(td->request.URI[strlen(td->request.URI)-1]!='/')
+					strcat(nURL,"/");
+				strcat(nURL,defaultFileNamePath);
+				if(td->request.URIOPTS[0])
+				{
+					strcat(nURL,"?");
+					strcat(nURL,td->request.URIOPTS);
+				}
+
+				if(sendHTTPRedirect(td,s,nURL))
 					return 1;
+				else
+					return 0;
 			}
 		}
 
@@ -415,7 +452,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 
 	if(!MYSERVER_FILE::ms_FileExists(td->filenamePath))
-		raiseHTTPError(td,s,e_404);
+		return raiseHTTPError(td,s,e_404);
 
 	/*
 	*getMIME returns true if the ext is registered by a CGI.
@@ -771,7 +808,8 @@ void resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->URIOPTS[0]='\0';		
 	request->URIOPTSPTR=NULL;		
 	request->REFERER[0]='\0';	
-	request->HOST[0]='\0';		
+	request->HOST[0]='\0';	
+	request->CACHE_CONTROL[0]='\0';
 	request->IF_MODIFIED_SINCE[0]='\0';
 	request->OTHER[0]='\0';
 	request->PRAGMA[0]='\0';

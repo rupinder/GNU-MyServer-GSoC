@@ -195,7 +195,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		return raiseHTTPError(td,s,e_501);
 	}
 	u_long nBytesRead=0;
-	OutFileHandle.ms_ReadFromFile(td->buffer2,KB(200),&nBytesRead);
+	OutFileHandle.ms_ReadFromFile(td->buffer2,KB(5),&nBytesRead);
 	if(nBytesRead==0)
 	{
 		OutFileHandle.ms_CloseFile();

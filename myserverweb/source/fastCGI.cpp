@@ -166,35 +166,6 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 						char nURL[MAX_PATH];
 						nURL[0]='\0';
 						u_long j;
-						if(!td->request.uriEndsWithSlash)
-						{
-							int slashcount=0,slashcountnow=0;
-							for(j=0;j<strlen(td->request.URI);j++)
-								if(td->request.URI[j]=='/')
-									slashcount++;
-
-							for(j=0;j<strlen(td->request.URI);j++)
-							{
-								if(td->request.URI[j]=='/')
-								{
-									slashcountnow++;
-									if(slashcountnow==slashcount-1)
-									{
-										j++;
-										int start=0;
-										while(td->request.URI[j]!='/')
-										{
-											nURL[start]=td->request.URI[j]; 
-											nURL[start+1]='\0'; 
-											j++;
-											start++;
-										}
-										nURL[start]='/'; 
-										nURL[start+1]='\0'; 
-									}
-								}
-							}
-						}
 						j=0;
 
 						int start=(int)strlen(nURL);

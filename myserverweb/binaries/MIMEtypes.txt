@@ -1,3 +1,6 @@
+pl,text/html,RUNISAPI c:/programmi/perl/bin/perlis.dll;
+php3,text/html,RUNCGI c:/programmi/php/php.exe;
+php,text/html,RUNFASTCGI c:/programmi/php/phpfcgi.exe;
 wincgi,text/html,RUNWINCGI NONE;
 ai,application/postscript,SEND NONE;
 msxu,video/vnd.mpegurl,SEND NONE;

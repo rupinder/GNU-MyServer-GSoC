@@ -660,7 +660,7 @@ void cserver::initialize(int OSVer)
 	data=configurationFileManager.getValue("BUFFER_SIZE");
 	if(data)
 	{
-		buffersize=buffersize2=(u_long)atol(data);
+		buffersize=buffersize2=max((u_long)atol(data),KB(5));/*BE SURE THAT THE BUFFERSIZE IS AT LEAST 5 KB*/
 	}
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)

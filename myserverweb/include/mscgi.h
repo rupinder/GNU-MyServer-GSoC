@@ -23,12 +23,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 #include "../include/MIME_manager.h"
 #include "../include/cgi.h"
+#include "../include/filemanager.h"
 struct httpThreadContext;
 struct cgi_data
 {
 	char *envString;
 	httpThreadContext* td;
 	int errorPage;
+	MYSERVER_FILE stdOut;
+
 };
 /*
 *Functions to Load and Free the MSCGI library.

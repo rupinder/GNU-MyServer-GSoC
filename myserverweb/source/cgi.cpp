@@ -148,7 +148,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*/
 	u_long nBytesRead=0;
 	if(!stdOutFile.ms_setFilePointer(0))
-		stdOutFile.ms_ReadFromFile(td->buffer2,KB(200),&nBytesRead);
+		stdOutFile.ms_ReadFromFile(td->buffer2,KB(5),&nBytesRead);
 	else
 		td->buffer2[0]='\0';
 	int yetoutputted=0;
@@ -179,35 +179,6 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 				char nURL[MAX_PATH];
 				nURL[0]='\0';
 				u_long j;
-				if(!td->request.uriEndsWithSlash)
-				{
-					int slashcount=0,slashcountnow=0;
-					for(j=0;j<strlen(td->request.URI);j++)
-						if(td->request.URI[j]=='/')
-							slashcount++;
-
-					for(j=0;j<strlen(td->request.URI);j++)
-					{
-						if(td->request.URI[j]=='/')
-						{
-							slashcountnow++;
-							if(slashcountnow==slashcount-1)
-							{
-								j++;
-								int start=0;
-								while(td->request.URI[j]!='/')
-								{
-									nURL[start]=td->request.URI[j]; 
-									nURL[start+1]='\0'; 
-									j++;
-									start++;
-								}
-								nURL[start]='/'; 
-								nURL[start+1]='\0'; 
-							}
-						}
-					}
-				}
 				j=0;
 
 				int start=(int)strlen(nURL);

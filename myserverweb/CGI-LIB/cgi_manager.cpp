@@ -22,12 +22,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/mscgi.h"
 #pragma comment(lib,"wsock32.lib")
 
+#include "../source/filemanager.cpp"
 /*
 *Write to the stdout.
 */
 int cgi_manager::Write(char* str)
 {
-	strcat(td->buffer2,str);
+	u_long nbw;
+	cgidata->stdOut.ms_WriteToFile(str,strlen(str),&nbw);
 	return 1;
 }
 /*
