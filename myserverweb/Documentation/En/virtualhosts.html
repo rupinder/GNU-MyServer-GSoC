@@ -1,92 +1,174 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <html>
 <head>
-   
-  <meta http-equiv="Content-Language" content="en-gb">
-   <base target="_self">   
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=windows-1252">
   <link rel="stylesheet" type="text/css" href="myserver.css">
-  <title></title>
-   
+  <title>Virtual Hosts</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.0.3  (Win32)">
+  <meta name="AUTHOR" content="Kristen Grubb">
+  <meta name="CREATED" content="20030804;21131939">
+  <meta name="CHANGEDBY" content="Kristen Grubb">
+  <meta name="CHANGED" content="20030804;21511707">
+  <style>
+	<!--
+		TD P { color: #000000 }
+		P { color: #000000 }
+		H2 { color: #000000 }
+		H4 { color: #000000 }
+		A:link { color: #0000ff }
+	-->
+	</style>
 </head>
-      <body>
- 
-<h1 align="center">VIRTUAL HOSTS</h1>
- In theory, virtual hosts allow users to lodge an infinite number of sites 
-on a  single machine. For example http://mypc.net is different from  http://sub.mypc.net. 
-To define virtual hosts in myServer open the file virtualhosts.txt in a text 
-editor (such as notepad in Windows or Emacs in Linux). In  this file every 
-line describes a different virtual host. Every line must end&nbsp; with a
-"diesis ("#) character and the final one with two ddiesis ("##).   
-<p align="left">An host description line has the form: <font
- color="#ffff00">a;b;c;d;e;f;g;h</font>; </p>
-   
-<div align="left"><font color="#ffff00">a</font> is a list of the hosts allowed 
-to connect to the virtual hosts. <br>
- <font color="#ffff00">b</font> is a list of the local machine IP allowed 
-to use the virtual hosts. <br>
- <font color="#ffff00">c </font>is the port used for accepting connections.<br>
- <font color="#ffff00">d </font>is the protocol used by the hosts. <br>
- <font color="#ffff00">e </font>is the web folder.<br>
- <font color="#ffff00">f</font> is the system folder.<br>
- <font color="#ffff00">g</font> is the accesses log file used by the virtual 
-   host. <br>
- <font color="#ffff00">h</font> is the errors log file used by the virtual 
-host.   </div>
-   
-<p>&nbsp;</p>
-   
-<p>If you want to allow every host to use the same virtual host simply put 
-0 in  <font color="#ffff00">a</font>, the same thing can be done for the IP
-list (<font color="#ffff00">b</font>). MyServer does an orderly search  for
-the virtual hosts, starting from the first record. &nbsp;It is searching for
-a full matching virtual host to make the&nbsp; connection.  The current line
-allow every connection to see the contents of the folder web.  It listens 
-on the default HTTP port, saves the accesses log file in logs/myServer.log 
- and the errors log in logs/myServer.err. The folder that contains the system 
-files is system. </p>
-     
-<p><font color="#ffff00">  0;0;80;HTTP;web;system;logs/myServer.log;logs/myServer.err## 
-</font></p>
-   
-<p>The directories are relative to  the MyServer main folder, if you would 
-rather use a full path folder,  put the character "|" before the folder name. 
-For example the same line with web  folder in c:\web and system in c:\system 
-looks like: </p>
-   
-<p><font color="#ffff00"> 0;0;80;HTTP;|c:\web;|c:\system;logs/myServer.log;logs/myServer.err## 
-</font></p>
-   
-<p><font size="+1"><br>
- </font></p>
- 
-<p><font size="+1">Configuring for an Intranet</font><br>
- </p>
- 
-<p>If your machine is connected to internet and to a local intranet, and you
- would like to have two different sites for every zone, you would write the
-host  configuration file in a similar way. The following two lines tell MyServer
-that all of  the incoming connections to the internet IP 192.168.0.1 use
-the first host and all the  incoming connection to the local IP 56.76.46.74 
-use the second host. </p>
-   
-<p><font color="#ffff00">  0;192.168.0.1;80;HTTP;intranetweb;intranetsystem;logs/myServerIntranet.log;logs/myServerIntranet.err# 
- 0;56.76.46.74;80;HTTP;internetweb;internetsystem;logs/myServerInternet.log;logs/myServerInternet.err##<br>
- </font></p>
- 
-<p><font color="#ffff00"> </font></p>
-<big><br>
-Configuring for multiple virtual host names</big><br>
-   
-<p>If you would like to use a list of valid  hosts names for a single virtual 
-host you could divide the hosts names with a  single comma(","). The same 
-mechanism is used for the IPs list. For example: </p>
-   
-<p><font color="#ffff00">  sub.mypc.net,mypc.net;0;80;HTTP;web;system;logs/myServer.log;logs/myServer.err##
- </font></p>
-   
-<p>Allow to access the virtual host from both the sub.mypc.net connection
-and the mypc.net connection. IPs are not considered in this example.</p>
- <br>
- 
+<body lang="en-US"
+ style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"
+ link="#006600" vlink="#000099" alink="#666666">
+<table bordercolor="#000002" cellpadding="4" cellspacing="0"
+ frame="void" style="page-break-before: always;" border="5">
+</table>
+<table bordercolor="#008000" cellpadding="4" cellspacing="0"
+ frame="void"
+ style="page-break-before: always; width: 993px; height: 776px;"
+ border="4">
+  <thead> <tr valign="top">
+    <td>
+    <div style="text-align: center; color: rgb(0, 102, 0);"><font
+ size="+2"><span style="font-weight: bold;"><br>
+    <img src="images/logo.gif" title="" alt="Logo"
+ style="width: 150px; height: 54px;"><br>
+    <br>
+Table of Contents</span></font> </div>
+    <ol>
+      <li><a href="Background.html">Basic Background Information</a></li>
+      <ol>
+        <li><a href="WebServer.html">Web Server</a> </li>
+        <li><a href="License.html">License</a></li>
+        <li><a href="HelpUS.html">Help Us</a></li>
+        <li><a href="CVS.html">CVS</a><br>
+        </li>
+      </ol>
+      <li>Protocols
+        <ol>
+          <li>HTTP </li>
+          <li>ISAPI </li>
+          <li>CGI </li>
+        </ol>
+      </li>
+      <li>Scripting Languages
+        <ol>
+          <li>HTML </li>
+          <li><a href="PHP.html">PHP</a> </li>
+          <li><a href="Perl.html">Perl</a> </li>
+        </ol>
+      </li>
+      <li>Set Up Guides
+        <ol>
+          <li><a href="RunLinux.html">Linux</a> </li>
+          <li><a href="RunWindows.html">Windows 9X</a></li>
+          <li><a href="WindowsNT.html">Windows NT</a><br>
+          </li>
+        </ol>
+      </li>
+      <li>Configuring
+        <ol>
+          <li style="font-weight: bold;"><font size="+1">Creating
+Virtual Hosts</font> </li>
+          <li><a href="PublishWebSite.html">Publishing a Web Site</a> </li>
+          <li>Viewing Your Web Site</li>
+          <li><a href="errorfiles.html">Error Handling</a><br>
+          </li>
+        </ol>
+      </li>
+      <li>Maintenance Tasks
+        <ol>
+          <li>Working
+with Virtual Hosts </li>
+          <li>Resolving Conflicts </li>
+          <li>Logging and Monitoring Activity </li>
+        </ol>
+      </li>
+      <li>File Handling
+        <ol>
+          <li><a href="mimetypes.html">MIME</a> </li>
+          <li>Content Management </li>
+          <li>File Uploading </li>
+        </ol>
+      </li>
+      <li>URL Handling </li>
+      <li>Controlling Access </li>
+      <li>Troubleshooting </li>
+    </ol>
+    </td>
+    <td>
+    <p align="right" style="color: rgb(0, 102, 0);"><font size="4"><b><a
+ href="services.html">&lt;&lt;Previous</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="PublishWebSite.html">Next&gt;&gt;</a></b></font></p>
+    <br>
+    <h1 align="center" style="color: rgb(0, 102, 0);">VIRTUAL HOSTS</h1>
+In theory, virtual hosts allow users to lodge an infinite number of
+sites on a single machine. For example http://mypc.net is different
+from http://sub.mypc.net. To define virtual hosts in myServer open the
+file virtualhosts.xml&nbsp; in a text editor (such as notepad in
+Windows or
+Emacs in Linux).&nbsp; A sample virtual hosts configuration file looks
+like:<br>
+    <br>
+    <div style="margin-left: 120px;">-<br>
+&nbsp;&nbsp;&nbsp; &lt;VHOSTS&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br>
+&lt;NAME&gt;Every connection&lt;/NAME&gt;<br>
+&lt;PORT&gt;80&lt;/PORT&gt;<br>
+&lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br>
+&lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br>
+&lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br>
+&lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br>
+&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br>
+&lt;/VHOST&gt;<br>
+&lt;/VHOSTS&gt;<br>
+    </div>
+    <br>
+    <span style="color: rgb(0, 102, 0);">&lt;NAME&gt;</span>&nbsp;
+gives the server administrator an idea of what the virtual host is such
+as internal Ethernet, external ethernet or every connection.&nbsp; <br>
+    <br>
+    <span style="color: rgb(0, 102, 0);">&lt;PORT&gt;</span> is the
+port used for accepting connections<br>
+    <br>
+    <span style="color: rgb(0, 102, 0);">&lt;PROTOCOL&gt;</span>&nbsp;
+is the protocol to be used by the host<br>
+    <br>
+    <span style="color: rgb(0, 102, 0);">&lt;DOCROOT&gt;</span> is the
+folder where the files are found<br>
+    <br>
+    <span style="color: rgb(0, 102, 0);">&lt;SYSFOLDER&gt;</span> is
+the system folder<br>
+    <br>
+    <span style="color: rgb(0, 102, 0);">&lt;ACCESSLOG&gt;</span> is
+the access log used by the virtual host<br>
+    <br>
+    <span style="color: rgb(0, 102, 0);">&lt;WARNINGLOG&gt;</span> is
+the errors log file used by the virtual host.<br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div style="text-align: right; color: rgb(0, 102, 0);"><font
+ size="4"><b><a href="services.html">&lt;&lt;Previous</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="PublishWebSite">Next&gt;&gt;</a></b></font></div>
+    </td>
+  </tr>
+  </thead>
+</table>
+<p><br>
+<br>
+</p>
 </body>
 </html>

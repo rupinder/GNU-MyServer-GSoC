@@ -1,55 +1,217 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <html>
 <head>
-                   
-  <meta http-equiv="Content-Language" content="en-gb">
-       <base target="_self">               
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=windows-1252">
   <link rel="stylesheet" type="text/css" href="myserver.css">
-  <title></title>
+  <meta name="AUTHOR" content="Kristen Grubb">
+  <meta name="CHANGEDBY" content="Kristen Grubb">
+  <meta name="CHANGED" content="20030804;21511707">
+  <style>
+	<!--
+		TD P { color: #000000 }
+		P { color: #000000 }
+		H2 { color: #000000 }
+		H4 { color: #000000 }
+		A:link { color: #0000ff }
+	-->
+	</style>
+  <title>Web Server</title>
 </head>
-  <body>
-         
-<h1 align="center">WEB SERVER</h1>
-              
-<h2>What is a web server? </h2>
-         
-<p align="center">A web server is an  application to allow users to share 
-  documents over internet or a local network.<br>
-       To connect to the web server you need only a browser.</p>
-      <img src="images/webserver.gif" width="394" height="513"
- alt="Webserver">
-         
-<p align="left"> This image shows how various clients can be connected with
-  your  server at the same time. Through the network, the request arrives
-at  your server. &nbsp;The server prepares a response and sends it to the
-client.  With the evolution of the  internet, the model server-client is
-the simplest  mode to share information easily,  allowing each user to decide
-what he or  she wants to share with others users</p>
-         
-<h3 align="center">How are the files shared?</h3>
-     At the basic level, the server shares HTML documents and images. &nbsp;These
-  documents and images are very simple and static and are the  basic files
- you see when you access a website. &nbsp;These files are transferred by
-a  protocol called Hypertext Transfer Protocol (HTTP). &nbsp;<br>
-     <br>
-     If dynamic content is needed, for example - to run an ecommerce site,
- there  are different protocols needed. &nbsp;Some of the protocols are <span
- class="postbody">Common Gateway Interface (CGI), ISAPI, fastCGI, Hypertext
-Transmission Protocol, Secure (HTTPS). </span><br>
-     If files need to be transfered, there is another protocol. &nbsp;File
- Transfer  Protocol, (FTP) allows the easy transfer of files such as programs
- from one  computer to another.<br>
-     <br>
-     At this time, myServer does not support FTP, SSl  (used by the HTTPS 
-protocol), NSAPI, or dynamic plugins, but these applications are in the works. 
-&nbsp;Please refer to the <font color="#da00e0"><a
- href="http://myserverweb.sourceforge.net/">TODO</a></font> page to view
-a development plan for myServer.<br>
-      
-<div align="left"><br>
-   </div>
-   <br>
-  <br>
- <br>
+<body style="background-color: white;" lang="EN-US" link="blue"
+ vlink="#000099" alink="#666666">
+<div class="Section1">
+<p class="MsoNormal"><span style="color: black; display: none;"><o:p>&nbsp;</o:p></span></p>
+<table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0"
+ width="993" style="border: 3pt outset green; width: 744.75pt;"
+ frame="void">
+  <thead> <tr style="">
+    <td valign="top" style="border: 1pt inset green; padding: 3pt;"><b><span
+ style="font-size: 18pt; font-family: &quot;Times New Roman&quot;; color: rgb(0, 102, 0);"><br
+ clear="all" style="page-break-before: always;">
+    </span></b>
+    <p class="MsoNormal" align="center" style="text-align: center;"><b><span
+ style="font-size: 18pt; color: rgb(0, 102, 0);"><img width="308"
+ height="111" id="_x0000_i1025" src="images/logo.gif"
+ style="height: 54px; width: 150px;" alt="Logo" title=""><br clear="all"
+ style="page-break-before: always;">
+    <br clear="all" style="page-break-before: always;">
+Table of Contents</span></b><span style="color: rgb(0, 102, 0);"> <o:p></o:p></span></p>
+    <ol start="1" type="1">
+      <li class="MsoNormal" style=""><a href="Background.html">Basic
+Background Information</a></li>
+      <ol start="1" type="1">
+        <li class="MsoNormal" style="font-weight: bold;"><font size="+1">Web
+Server</font> </li>
+        <li class="MsoNormal" style=""><a href="license.html">License</a></li>
+        <li class="MsoNormal" style=""><a href="helpus.html">Help Us</a></li>
+        <li class="MsoNormal" style=""><a href="cvsversion.html">CVS</a><a
+ href="License.html"><b> <o:p></o:p></b></a></li>
+      </ol>
+      <li class="MsoNormal" style="">Protocols </li>
+      <ol start="1" type="1">
+        <li class="MsoNormal" style="">HTTP </li>
+        <li class="MsoNormal" style="">ISAPI </li>
+        <li class="MsoNormal" style="">CGI </li>
+      </ol>
+      <li class="MsoNormal" style="">Scripting Languages </li>
+      <ol start="1" type="1">
+        <li class="MsoNormal" style="">HTML </li>
+        <li class="MsoNormal" style=""><a href="php.html">PHP</a> </li>
+        <li class="MsoNormal" style=""><a href="perl.html">Perl</a> </li>
+      </ol>
+      <li class="MsoNormal" style="">Set Up Guides </li>
+      <ol start="1" type="1">
+        <li class="MsoNormal" style=""><a href="Linuxrun.html">Linux</a>
+        </li>
+        <li class="MsoNormal" style=""><a href="runWindows9x.html">Windows
+9x</a></li>
+        <li class="MsoNormal" style=""><a href="services.html">Windows
+NT</a><br>
+        </li>
+      </ol>
+      <li class="MsoNormal" style="">Configuring </li>
+      <ol start="1" type="1">
+        <li class="MsoNormal" style=""><a href="virtualhosts.html">Creating
+Virtual Hosts</a> </li>
+        <li class="MsoNormal" style=""><a href="PublishWebSite.html">Publishing
+a Web Site</a> </li>
+        <li class="MsoNormal" style="">Viewing Your Web Site</li>
+        <li class="MsoNormal" style=""><a href="errorfiles.html">Error
+Handling</a><br>
+        </li>
+      </ol>
+      <li class="MsoNormal" style="">Maintenance Tasks </li>
+      <ol start="1" type="1">
+        <li class="MsoNormal" style="">Working with Virtual Hosts </li>
+        <li class="MsoNormal" style="">Resolving Conflicts </li>
+        <li class="MsoNormal" style="">Logging and Monitoring Activity </li>
+      </ol>
+      <li class="MsoNormal" style="">File Handling </li>
+      <ol start="1" type="1">
+        <li class="MsoNormal" style=""><a href="mimetypes.html">MIME</a>
+        </li>
+        <li class="MsoNormal" style="">Content Management </li>
+        <li class="MsoNormal" style="">File Uploading </li>
+      </ol>
+      <li class="MsoNormal" style="">URL Handling </li>
+      <li class="MsoNormal" style="">Controlling Access </li>
+      <li class="MsoNormal" style="">Troubleshooting </li>
+    </ol>
+    </td>
+    <td valign="top" style="border: 1pt inset green; padding: 3pt;">
+    <p class="NormalWeb1" align="right" style="text-align: right;"><b><span
+ style="font-size: 13.5pt; color: rgb(0, 102, 0);"><a
+ href="Background.html">&lt;&lt;Previous&nbsp;</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="license.html">Next&gt;&gt;</a></span></b><span
+ style="color: rgb(0, 102, 0);"><o:p></o:p></span></p>
+    <h1
+ style="font-weight: bold; color: rgb(0, 102, 0); text-align: center;">WEB
+SERVER</h1>
+    <div style="text-align: center;"> </div>
+    <div> </div>
+    <h2 style="text-align: center;">What is a web server? </h2>
+    <p class="NormalWeb1" style="margin-left: 1.25in; text-align: left;">A
+web server is an
+application to allow users to share documents over internet or a local
+network.</p>
+    <div> </div>
+    <div> </div>
+    <div style="text-align: center;"> </div>
+    <p class="MsoNormal"
+ style="margin-bottom: 12pt; text-align: center;">To
+connect to the web
+server you need only a browser.</p>
+    <div align="center">
+    <div style="text-align: left;"> </div>
+    <div style="margin-left: 40px;">
+    <table cellpadding="2" cellspacing="2"
+ style="text-align: left; width: 684px; height: 553px;">
+      <tbody>
+        <tr>
+          <td style="vertical-align: top; width: 30%;"><br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <small>Many clients connecting<br>
+&nbsp;to one server.</small><br>
+          </td>
+          <td style="vertical-align: top;"><img
+ src="images/webserver.gif" title="" alt="Clients connecting to Server"
+ style="width: 492px; height: 533px;"><br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    </div>
+    <div style="text-align: left; margin-left: 40px;"><br>
+    </div>
+    </div>
+    <p class="MsoNormal"><o:p></o:p></p>
+    <div style="margin-left: 2.5in;">
+    <p class="MsoNormal"><o:p></o:p></p>
+    </div>
+    <p class="MsoNormal" align="center"
+ style="margin-bottom: 12pt; text-align: center;"><o:p></o:p></p>
+    <p class="NormalWeb1">This image shows how various clients can be
+connected with your server at the same time. Through the network, the
+request arrives at your server. &nbsp;The server prepares a response
+and sends it to the client. With the evolution of the internet, the
+model server-client is the simplest mode to share information easily,
+allowing each user to decide what he or she wants to share with others
+users</p>
+    <h3 align="center" style="text-align: center;">How are the files
+shared?</h3>
+    <p class="MsoNormal">At the basic level, the server shares HTML
+documents and images. &nbsp;These documents and images are very simple
+and static and are the basic files you see when you access a website.
+&nbsp;These files are transferred by a protocol called Hypertext
+Transfer Protocol (HTTP). &nbsp;<br>
+    <br>
+If dynamic content is needed, for example - to run an ecommerce site,
+there are different protocols needed. &nbsp;Some of the protocols are <span
+ class="postbody">Common Gateway Interface (CGI), ISAPI, fastCGI,
+Hypertext Transmission Protocol, Secure (HTTPS). </span><br>
+If files need to be transfered, there is another protocol. &nbsp;File
+Transfer Protocol, (FTP) allows the easy transfer of files such as
+programs from one computer to another.<br>
+    <br>
+At this time, myServer does not support FTP, SSl (used by the HTTPS
+protocol), NSAPI, or dynamic plugins, but these applications are in the
+works. &nbsp;Please refer to the <span style="color: rgb(218, 0, 224);"><a
+ href="http://myserverweb.sourceforge.net/" target="_blank">TODO</a></span>
+page to view a development plan for myServer. </p>
+    <p class="NormalWeb1"><o:p>&nbsp;</o:p></p>
+    <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+    <p class="MsoNormal" align="right" style="text-align: right;"><b><span
+ style="font-size: 13.5pt; color: rgb(0, 102, 0);"><a
+ href="Background.html">&lt;&lt;Previous</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a
+ href="license.html">
+Next&gt;&gt;</a></span></b><span style="color: rgb(0, 102, 0);"><o:p></o:p></span></p>
+    </td>
+  </tr>
+  </thead>
+</table>
+<p style="margin-bottom: 12pt;"><o:p>&nbsp;</o:p></p>
+</div>
 </body>
 </html>

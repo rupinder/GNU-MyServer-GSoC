@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="CONTENT-TYPE"
  content="text/html; charset=windows-1252">
-  <link rel="stylesheet" type="text/css" href="myserver1.css">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
   <title>MIME Types</title>
   <meta name="GENERATOR" content="OpenOffice.org 1.0.3  (Win32)">
   <meta name="AUTHOR" content="Kristen Grubb">
@@ -72,7 +72,7 @@ Table of Contents</span></font> </div>
       <li>Configuring
         <ol>
           <li><a href="virtualhosts.html">Creating Virtual Hosts</a> </li>
-          <li><a href="PublishSite.html">Publishing a Web Site</a> </li>
+          <li><a href="PublishWebSite.html">Publishing a Web Site</a> </li>
           <li>Viewing Your Web Site</li>
           <li><a href="errorfiles.html">Error Handling</a><br>
           </li>
@@ -105,24 +105,37 @@ Next&gt;&gt;</b></font></p>
     <h1 align="center" style="color: rgb(0, 102, 0);">MIME TYPES</h1>
     <p>You can modify the MIME types used by MyServer by modifing the
 file
-"MIMEtypes.txt" with a text application such as notepad in Windows or
-Emacs in Linux. Each line describe a different MIME type. For example,
-the following line is used for the files with .html extension:</p>
-    <p
- style="color: rgb(0, 102, 0); text-align: center; font-family: courier new,courier,monospace;">html,text/html,SEND
-NONE;</p>
+"MIMEtypes.xml" with a text application such as notepad in Windows or
+Emacs in Linux. The following is an example of the .xml file:<br>
+    </p>
+    <p style="margin-left: 200px;">&lt;MIMETYPES&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+&lt;EXT&gt;htm&lt;/EXT&gt;<br>
+&lt;MIME&gt;text/html&lt;/MIME&gt;<br>
+&lt;CMD&gt;SEND&lt;/CMD&gt;<br>
+&lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br>
+&lt;/MIMETYPE&gt;<br>
+    </p>
+    <p><br>
+Each line describe a different MIME type. </p>
+    <span style="color: rgb(0, 102, 0);">&lt;EXT&gt;</span> is the type
+of file<br>
     <br>
-This line indicates the extension to register (<font color="#ffff00"
- style="color: rgb(0, 102, 0);">html</font>),
-the MIME type to be used (<font color="#ffff00"
- style="color: rgb(0, 102, 0);">text/html</font>), the
-way to send the file to the client (<font color="#ffff00"
- style="color: rgb(0, 102, 0);">SEND</font>),
-and finally, an optional path used to fully describe the previous
-command (<font color="#ffff00" style="color: rgb(0, 102, 0);">NONE</font>)<br>
+    <span style="color: rgb(0, 102, 0);">&lt;MIME&gt;</span> is the
+Mime type.<br>
+    <br style="color: rgb(0, 102, 0);">
+    <span style="color: rgb(0, 102, 0);">&lt;CMD&gt;</span> is the way
+to send the file to the client.<br>
     <br>
+    <span style="color: rgb(0, 102, 0);">&lt;MANAGER&gt;</span>
+describes the &lt;CMD&gt; command.<br>
     <br>
-    <p>Valid values for sending the file to the client are:</p>
+    <p>The following values for sending the file to the client are
+valid in the &lt;MANAGER&gt; section:<br>
+    </p>
     <div align="left">
     <ol>
       <li><font color="#ffff00" style="color: rgb(0, 102, 0);">SEND</font>
@@ -164,41 +177,10 @@ WinCGI</li>
 - Runs the ISAPI script
 but does not need a server to run. Instead, it acts as a self server.</li>
     </ol>
-    <ol>
-      <br>
-    </ol>
     </div>
-    <p>A simpler way to manage the MIME types is to use the Control
-Center
-Application.</p>
-    <p style="text-align: center;"><img
- style="border: 0px solid ; width: 417px; height: 259px;"
- src="images/confMIME.gif" alt="Configure MIME types" title=""> </p>
-    <p align="left" style="margin-left: 120px;">In the first menu&nbsp;
-select an extension for the
-MIME
-type (<font color="#ffff00" style="color: rgb(0, 102, 0);">html</font>).
-    <br>
-In the second menu
-select&nbsp; the MIME description to be used (<font color="#ffff00"
- style="color: rgb(0, 102, 0);">text/html</font>). <br>
-In the third menu select the method used for sending the file (<font
- color="#ffff00" style="color: rgb(0, 102, 0);">SEND THE FILE AS IT IS</font>).<br>
-Finally, indicate the
-optional path to be used&nbsp; in the text box under the second menu
-(Shown here
-to be empty). <br>
-    </p>
-    <p align="left">To add a new extension click on the "<font
- color="#ffff00" style="color: rgb(0, 102, 0);">Add a new extension</font>"
-button. &nbsp;To add a new
-MIME type click on the "<font color="#ffff00"
- style="color: rgb(0, 102, 0);">Add a new MIME type</font>"
-button.<br>
-    </p>
-    <p>Click <font color="#ffff00" style="color: rgb(0, 102, 0);">OK</font>
-to save your modifications..</p>
-    <br>
+Most applications are already handled in the .xml file.&nbsp; If you
+would like to add a MIME type append the file and use the code as an
+example.<br>
     <br>
     <br>
     <br>
