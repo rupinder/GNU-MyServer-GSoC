@@ -526,9 +526,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
  			}
       else
 				request->uriEndsWithSlash=0;
-
-      trim(request->URI, " /");
-			trim(request->URIOPTS, " /");
+      request->URI=trim(request->URI, " /");
+			request->URIOPTS=trim(request->URIOPTS, " /");
 		}else
 		/*!User-Agent*/
 		if(!lstrcmpi(command,"User-Agent"))
