@@ -429,7 +429,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 				if(nURL[strlen(nURL)-1]!='/')
 					strcat(nURL,"/");
 				strcat(nURL,td->request.URI);
-				if(td->request.URI[strlen(td->request.URI)-1]!='/')
+				if(nURL[strlen(nURL)-1]!='/')
 					strcat(nURL,"/");
 				strcat(nURL,defaultFileNamePath);
 				if(td->request.URIOPTS[0])
