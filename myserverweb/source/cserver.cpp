@@ -103,7 +103,7 @@ void cserver::start()
   int err = 0;
 	int os_ver=getOSVersion();
 #ifdef WIN32
-		DWORD eventsCount, cNumRead, i; 
+		DWORD eventsCount, cNumRead; 
 		INPUT_RECORD irInBuf[128]; 
 #endif
   /*!
