@@ -26,9 +26,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../include/http.h"
 #include "../include/filemanager.h"
-#include "../include/response_requestStructs.h"
+#include "../include/Response_RequestStructs.h"
+#include "../include/stringutils.h"
 #define LOCAL_BUFFER_DIM 150
+
+#ifdef WIN32
 class EXPORTABLE cgi_manager
+#else
+class cgi_manager
+#endif
 {
 private:
 	httpThreadContext* td;
