@@ -21,6 +21,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 static struct sfCGIservers
 {
 	char path[MAX_PATH];/*exec path*/
+	union 
+	{
+	    HANDLE fileHandle;
+		SOCKET sock;
+		unsigned int value;
+	}DESCRIPTOR;
 	MYSERVER_SOCKET socket;
 	int pid; /*process ID*/
 	int port;/*IP port*/
@@ -92,7 +98,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			return raiseHTTPError(td,connection,e_501);
 		}
 		int dim=(tHeader.contentLengthB1<<8) + tHeader.contentLengthB0;
-		int headerSize;
+		int headerSize=0;
 		switch(tHeader.type)
 		{
 			case FCGI_STDERR:
@@ -136,7 +142,8 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 	generateFcgiHeader( tHeader, type, id, len );
 	
 	con->sock.ms_send((char*)&tHeader,sizeof(tHeader),0);
-	con->sock.ms_send(buffer,len,0);
+	if(buffer && len)
+		con->sock.ms_send(buffer,len,0);
 	return 0;
 }
 /*
@@ -147,7 +154,6 @@ int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 	int j=0;
 	char *ptr=ep;
 	char *sptr=sp;
-	int xx=0;
 	char varName[100];
 	char varValue[300];
 	char varBuffer[400];
@@ -266,7 +272,7 @@ int runFcgiServer(fCGIContext *con,char* path)
 		MYSERVER_SOCKADDRIN sock_inserverSocket;
 		sock_inserverSocket.sin_family=AF_INET;
 		sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-		fCGIservers[fCGIserversN].port=port;
+		fCGIservers[fCGIserversN].port=port+fCGIserversN;
 		sock_inserverSocket.sin_port=htons((u_short)port++);
 		if(fCGIservers[fCGIserversN].socket.ms_bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
 		{
@@ -274,15 +280,20 @@ int runFcgiServer(fCGIContext *con,char* path)
 			return -2;
 		}
 		fCGIservers[fCGIserversN].socket.ms_listen(SOMAXCONN);
+
+		fCGIservers[fCGIserversN].DESCRIPTOR.sock=fCGIservers[fCGIserversN].socket.ms_getHandle();
 	}
 	START_PROC_INFO spi;
 	memset(&spi,0,sizeof(spi));
 	char cmd[MAX_PATH];
 	spi.cmd=cmd;
-	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].socket.ms_getHandle();
+	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 	spi.cwd=con->td->cgiRoot;
 	spi.arg=con->td->buffer2;
 	spi.cmdLine=cmd;
+#ifdef WIN32
+    SetHandleInformation(fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle, HANDLE_FLAG_INHERIT,TRUE);
+#endif
 	sprintf(spi.cmd,"%s/%s",con->td->cgiRoot,con->td->cgiFile);
 	spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
 	fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
