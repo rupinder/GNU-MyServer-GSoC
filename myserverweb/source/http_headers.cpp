@@ -18,12 +18,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/http_headers.h"
-#include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/http.h"
 #include "../include/AMMimeUtils.h"
 #include "../include/filemanager.h"
-#include "../include/sockets.h"
 #include "../include/utility.h"
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
@@ -64,9 +62,9 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	{
 		if(response->ERROR_TYPE[0]=='\0')
 		{
-			int errID=getErrorIDfromHTTPStatusCode(response->httpStatus);
+			int errID = getErrorIDfromHTTPStatusCode(response->httpStatus);
 			if(errID!=-1)
-				strncpy(response->ERROR_TYPE,HTTP_ERROR_MSGS[errID], 
+				strncpy(response->ERROR_TYPE, HTTP_ERROR_MSGS[errID], 
                 HTTP_RESPONSE_ERROR_TYPE_DIM);
 		}
 		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus, 
@@ -130,7 +128,7 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	}
 	if(response->COOKIE[0])
 	{
-		char *token=strtok(response->COOKIE,"\n");
+		char *token = strtok(response->COOKIE,"\n");
 		do
 		{
 			strcat(str,"Set-Cookie: ");
@@ -386,12 +384,25 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 	int max=0;
 	u_long nLines,maxTotchars;
 	int noinputspecified=0;
+	int validRequest;
+	const int max_URI = HTTP_REQUEST_URI_DIM + 200 ;
+	const char seps[]   = "\n\r";
+	const char cmdseps[]   = ": ,\t\n\r";
+
+	char *token=0;
+	char command[96];
+
+	int nLineControlled = 0;
+	int lineControlled = 0;
+
+	/*! TokenOff is the length of the token starting from the location token.  */
+	int tokenOff;
 	if(input==0)
 	{
 		noinputspecified=1;
 		input=(char*)td->buffer->GetBuffer();
 	}
-	int validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
+	validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
 	/*! Invalid header.  */
 	if(validRequest==0)
 		return 0;
@@ -399,17 +410,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 	else if(validRequest==-1)
 		return -1;
 
-	const int max_URI = HTTP_REQUEST_URI_DIM + 200 ;
-	const char seps[]   = "\n\r";
-	const char cmdseps[]   = ": ,\t\n\r";
+  token=0;
 
-	static char *token=0;
-	static char command[96];
-
-	static int nLineControlled;
-	nLineControlled=0;
-	static int lineControlled;
-	
 	if(!noinputspecified)
 		token=input;
 	else
@@ -418,14 +420,9 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		*td->buffer2 << input;
 		input=token=(char*)td->buffer2->GetBuffer();
 	}
-	/*! TokenOff is the length of the token starting from the location token.  */
-	int tokenOff;
 	tokenOff = getCharInString(token, cmdseps, HTTP_REQUEST_CMD_DIM);
 	do
 	{
-		/*! Reset the flag lineControlled.  */
-		lineControlled=0;
-
 		if(tokenOff== -1 )
 			return 0;
 		
@@ -441,6 +438,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		nLineControlled++;
 		if(nLineControlled==1)
 		{
+			int containOpts=0;
 			/*!
        *The first line has the form:
        *GET /index.html HTTP/1.1
@@ -457,7 +455,6 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 			max=(int)tokenOff;
 			while((token[max]!=' ') && (len_token-max<HTTP_REQUEST_VER_DIM))
 				max--;
-			int containOpts=0;
 			for(i=0;((int)i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
 			{
 				if(token[i]=='?')
@@ -520,6 +517,10 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 				char *base64=&token[strlen("Basic ")];
 				int len=(int)strlen(base64);
 				char *tmp = base64 + len - 1;
+				char* lbuffer2;
+				char* keep_lbuffer2;
+        char *login;
+        char* password;
 				while (len > 0 && (*tmp == '\r' || *tmp == '\n'))
 				{
 					tmp--;
@@ -527,9 +528,9 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 				}
 				if (len <= 1)
 					return 0;
-				char* lbuffer2=base64Utils.Decode(base64,&len);
-				char* keep_lbuffer2=lbuffer2;
-        char *login = td->connection->getLogin();
+				lbuffer2=base64Utils.Decode(base64,&len);
+				keep_lbuffer2=lbuffer2;
+        login = td->connection->getLogin();
 				for(i=0;(*lbuffer2!=':') && (i<19);i++)
 				{
 					login[i]=*lbuffer2++;
@@ -537,7 +538,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 				}
 				myserver_strlcpy(td->identity,td->connection->getLogin(),32+1);
         lbuffer2++;
-        char* password = td->connection->getPassword();
+        password = td->connection->getPassword();
 				for(i=0;(*lbuffer2)&&(i<31);i++)
 				{
 					password[i]=*lbuffer2++;
@@ -547,16 +548,18 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 			}
 			else if(!lstrcmpi(request->AUTH,"Digest"))
 			{
+				char *digestBuff;
+				char *digestToken;
 				token+=tokenOff;
 				while(*token==' ')
 					token++;
 				tokenOff = getCharInString(token,"\r\n",0);
-				char *digestBuff=new char[tokenOff];
+				digestBuff=new char[tokenOff];
 				if(!digestBuff)
 					return 0;
 				memcpy(digestBuff,token,tokenOff);
 				digestBuff[tokenOff]='\0';
-				char *digestToken = strtok( digestBuff, "=" );
+				digestToken = strtok( digestBuff, "=" );
 				if(!digestToken)
 					return 0;
 				do
@@ -637,7 +640,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Host"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_HOST_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->HOST,token,tokenOff+1);
 			request->HOST[tokenOff]='\0';
@@ -657,7 +661,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Content-Type"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_TYPE_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->CONTENT_TYPE,token,tokenOff+1);
 			request->CONTENT_TYPE[tokenOff]='\0';
@@ -667,7 +672,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"If-Modified-Since"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->IF_MODIFIED_SINCE,token,tokenOff+1);
 			request->IF_MODIFIED_SINCE[tokenOff]='\0';
@@ -681,7 +687,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 			if(max < 0)
 				return 0;
 			tokenOff = getCharInString(token,seps,max);
-			if(tokenOff == -1)return 0;
+			if(tokenOff == -1)
+        return 0;
 			lineControlled=1;
 			strncat(request->ACCEPT,token,tokenOff+1);
 			request->ACCEPT[oldlen+tokenOff]='\0';
@@ -691,7 +698,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Accept-Language"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTLAN_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->ACCEPTLAN,token,tokenOff+1);
 			request->ACCEPTLAN[tokenOff]='\0';
@@ -701,7 +709,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Accept-Charset"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTCHARSET_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->ACCEPTCHARSET,token,tokenOff+1);
 			request->ACCEPTCHARSET[tokenOff]='\0';
@@ -711,7 +720,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Accept-Encoding"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTENC_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->ACCEPTENC,token,tokenOff+1);
 			request->ACCEPTENC[tokenOff]='\0';
@@ -721,7 +731,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Connection"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONNECTION_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->CONNECTION,token,tokenOff+1);
 			request->CONNECTION[tokenOff]='\0';
@@ -731,7 +742,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Cookie"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_COOKIE_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->COOKIE,token,tokenOff+1);
 			request->COOKIE[tokenOff]='\0';
@@ -740,7 +752,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"From"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_FROM_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->FROM,token,tokenOff+1);
 			request->FROM[tokenOff]='\0';
@@ -750,7 +763,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Content-Length"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_LENGTH_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->CONTENT_LENGTH,token,tokenOff+1);
 			request->CONTENT_LENGTH[tokenOff]='\0';
@@ -759,7 +773,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		if(!lstrcmpi(command,"Cache-Control"))
 		{
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)
+        return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->CACHE_CONTROL,token,tokenOff+1);
 			request->CACHE_CONTROL[tokenOff]='\0';
@@ -767,13 +782,14 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		/*!Range*/
 		if(!lstrcmpi(command,"Range"))
 		{
+			int i=0;
 			request->RANGETYPE[0]='\0';
 			request->RANGEBYTEBEGIN[0]='\0';
 			request->RANGEBYTEEND[0]='\0';
 			lineControlled=1;
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
-			if(tokenOff==-1)return 0;
-			int i=0;
+			if(tokenOff==-1)
+        return 0;
 			do
 			{
 				request->RANGETYPE[i++]=*token;
@@ -859,6 +875,17 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
    *The HTTP header ends with a \r\n\r\n sequence.
    */
 	int noinputspecified=0;
+	char *newInput;
+	u_long nLines,maxTotchars;
+	u_long validResponse;
+	const char cmdseps[]   = ": ,\t\n\r\0";
+
+	int containStatusLine=0;
+	char *token=0;
+	char command[96];
+
+	int lineControlled = 0;
+	int nLineControlled = 0;
 
 	if(input==0)
 	{
@@ -868,10 +895,8 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
 	/*! Control if the HTTP header is a valid header.  */
 	if(input[0]==0)
 		return 0;
-	u_long nLines,maxTotchars;
-	u_long validResponse=validHTTPResponse(input, td, &nLines, &maxTotchars);
-	
-	char *newInput;
+	validResponse=validHTTPResponse(input, td, &nLines, &maxTotchars);
+
 	if(validResponse)
 	{
 		newInput=new char[maxTotchars + 1];
@@ -884,17 +909,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
 	}
 	else
 		return 0;
-	
-	const char cmdseps[]   = ": ,\t\n\r\0";
 
-	int containStatusLine=0;
-	static char *token=0;
-	static char command[96];
-
-	static int nLineControlled;
-	nLineControlled=0;
-	static int lineControlled;
-	
 	token=input;
 	
 	/*! Check if is specified the first line containing the HTTP status.  */
@@ -924,7 +939,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
 		if((nLineControlled==1)&& containStatusLine)
 		{
 			lineControlled=1;
-			/*! Copy the HTTP version.  */
+			/*! Copy the HTTP version. */
 			myserver_strlcpy(response->VER, command, HTTP_RESPONSE_VER_DIM);
 		
 			token = strtok( NULL, " ,\t\n\r" );

@@ -62,24 +62,22 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,
 #endif
 
 #ifndef DO_NOT_USE_MSCGI 
-	static HMODULE hinstLib; 
-  static CGIMAIN ProcMain;
+	HMODULE hinstLib=0; 
+  CGIMAIN ProcMain=0;
 	u_long nbr=0;
   int nbs=0;
 	cgi_data data;
-	data.envString=td->request.URIOPTSPTR ?
-                    td->request.URIOPTSPTR : (char*) td->buffer->GetBuffer();
-	
-	data.td = td;
-	data.errorPage=0;
-
-
   int scriptDirLen = 0;
   int scriptFileLen = 0;
   int cgiRootLen = 0;
   int cgiFileLen = 0;
   int scriptpathLen = strlen(exec) + 1;
 	char *outDataPath=0;
+	data.envString=td->request.URIOPTSPTR ?
+                    td->request.URIOPTSPTR : (char*) td->buffer->GetBuffer();
+	
+	data.td = td;
+	data.errorPage=0;
 
   if(td->scriptPath)
     delete [] td->scriptPath;
