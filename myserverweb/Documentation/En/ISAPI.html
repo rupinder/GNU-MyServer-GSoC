@@ -11,22 +11,17 @@
 ISAPI (Internet Server Application Program Interface) is a protocol
 used by Windows based computers to run an application directly from the
 Web page instead of having the server process the application as a <a
- href="CGI.html">CGI </a>script.&nbsp; In order to use ISAPI, you must
-create a DLL (dynamic link library) that is run as part of the <a href="HTTP.html">HTTP</a>
-application. <br>
+ href="CGI.html">CGI </a>script. In order to use ISAPI, you must
+create a DLL (dynamic link library) that exports some symbols called by the web server.<br>
 <br>
 The DLL is loaded in to the calling computer's memory when the web page
-is opened and remains there until the user closes the web page.&nbsp;
-ISAPI is a faster way to process applications as it does not require
-any additional action by the Web Server. <br>
+is opened and remains there until the user closes the web page.
+ISAPI is a faster way to process applications than standard CGI.<br>
 <br>
 <font class="warning">Warning</font>: If an ISAPI application crashes it may cause the calling application to fail also so it can be a MyServer crash cause.<br>
 <br>
 <br>
 For more information, you can read Microsoft's <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI Overview</a>.<br>
-<br>
-<br>
-<br>
 <br>
 </body>
 </html>
