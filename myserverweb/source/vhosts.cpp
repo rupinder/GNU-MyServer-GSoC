@@ -1227,14 +1227,29 @@ int vhost::initializeSSL()
     sslContext.context = SSL_CTX_new(sslContext.method);
     if(sslContext.context==0)
         return -1;
+
+    /*!
+     *The specified file doesn't exist.
+     */
+    if(MYSERVER_FILE::fileExists(sslContext.certificateFile) == 0)
+    {
+      return -1;
+    }
+
     if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,
                                             sslContext.certificateFile)))
-	return -1;
+      return -1;
     SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, sslContext.password);
     SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
+    /*!
+     *The specified file doesn't exist.
+     */
+    if(MYSERVER_FILE::fileExists(sslContext.privateKeyFile) == 0)
+      return -1;
     if(!(SSL_CTX_use_PrivateKey_file(sslContext.context, sslContext.privateKeyFile, 
                                      SSL_FILETYPE_PEM)))
         return -1;
+
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
 		SSL_CTX_set_verify_depth(ctx,1);
 #endif
