@@ -19,7 +19,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 <head>\r\n<title>MyServer</title>\r\n\
 <meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n\
 </head>\r\n<body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
-<br />\r\n<img src=\"/icons/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n\
+<br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n\
 <form action=\"math_sum.mscgi\" method=\"get\" enctype=\"text/plain\">\r\n\
 <div>\r\n<input type=\"text\" name=\"a\" size=\"20\" />\r\n<br /><br />\r\n+<br /><br /><br />\r\n<input type=\"text\" name=\"b\" size=\"20\" />\r\n<br /><br />\r\n<input type=\"submit\" value=\"Compute!\" />\r\n</div>\r\n</form>\r\n<br />\r\n</div>\r\n</body>\r\n</html>");
 	}     
@@ -37,7 +37,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 <meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n\
 </head>\
 <body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
-<br /><br />\r\n<img src=\"/icons/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n");		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
+<br /><br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n");		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
 		tmp = cm.getParam("a");
 		if (tmp && tmp[0] != '\0')
 		{
