@@ -276,7 +276,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	switch(((vhost*)(td->connection->host))->protocol)
 	{
 		case PROTOCOL_HTTP:
-			strcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/");
+			strcat(cgiEnvString,"\rSERVER_PROTOCOL=");
 			strcat(cgiEnvString,td->request.VER);		
 			break;
 	}

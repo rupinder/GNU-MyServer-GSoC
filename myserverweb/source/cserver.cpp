@@ -818,7 +818,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 
 
 /*
-*Delete a connection.
+*Delete a connection from the list.
 */
 int cserver::deleteConnection(LPCONNECTION s,int id)
 {

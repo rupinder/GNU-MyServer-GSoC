@@ -1538,7 +1538,7 @@ u_long validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long
 				return 0;
 		}
 		else if(req[i]==0)
-			return -1;
+			return ((u_long)-1);
 		else
 		{
 			nLinechars++;
@@ -1800,9 +1800,10 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*Assume that it is Basic anyway.
 			*/
 			strcpy(request->AUTH,"Basic");
-			int len=(int)strlen(token);
-			char *base64=base64Utils.Decode(&token[strlen("Basic:")],&len);
-			char* lbuffer2=base64;
+			char *base64=&token[strlen("Basic ")];
+			int len=(int)strlen(base64);
+			char* lbuffer2=base64Utils.Decode(base64,&len);
+			char* keep_lbuffer2=lbuffer2;
 			int i;
 			for(i=0;(*lbuffer2!=':') && (i<19);i++)
 			{
@@ -1818,7 +1819,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			}
 			if(i && (td->connection->password[i-1]==8))
 				td->connection->password[i-1]='\0';
-			free(base64);
+			free(keep_lbuffer2);
 		}else
 		/*Host*/
 		if(!lstrcmpi(command,"Host"))
