@@ -1721,14 +1721,22 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		MYSERVER_FILE newStdIn;
 		char buffer[20];
 		char c;
-		u_long nbr;
+    u_long nbr;
 		u_long bufferlen;
-		sprintf(td.inputDataPath, "%s_encoded", td.inputData.getFilename());
+    char *newfilename=new char[strlen(td.inputDataPath)+10];
+    if(newfilename == 0)
+    {
+      td.inputData.closeFile();
+			td.inputData.deleteFile(td.inputDataPath);
+			return 0;
+    }
+		sprintf(newfilename, "%s_encoded", td.inputData.getFilename());
 		if(newStdIn.openFile(td.inputDataPath, MYSERVER_FILE_CREATE_ALWAYS | 
                          MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
 		{
 			td.inputData.closeFile();
 			td.inputData.deleteFile(td.inputDataPath);
+      delete [] newfilename;
 			return 0;
 		}
 		for(;;)
@@ -1742,7 +1750,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
 					newStdIn.closeFile();
-					newStdIn.deleteFile(td.inputDataPath);
+					newStdIn.deleteFile(newfilename);
+          delete [] newfilename;
 					return 0;
 				}
 				if(nbr!=1)
@@ -1765,7 +1774,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 				td.inputData.closeFile();
 				td.inputData.deleteFile(td.inputDataPath);
 				newStdIn.closeFile();
-				newStdIn.deleteFile(td.inputDataPath);
+        newStdIn.deleteFile(newfilename);
+        delete [] newfilename;
 				return 0;
 			}
 			u_long dataToRead=(u_long)hexToInt(buffer);
@@ -1784,7 +1794,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
 					newStdIn.closeFile();
-					newStdIn.deleteFile(td.inputDataPath);	
+          newStdIn.deleteFile(newfilename);
+          delete [] newfilename;
 					return 0;
 				}
 				if(nbr==0)
@@ -1796,7 +1807,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
 					newStdIn.closeFile();
-					newStdIn.deleteFile(td.inputDataPath);	
+          newStdIn.deleteFile(newfilename);
+          delete [] newfilename;
 					return 0;
 				}
 				if(nbw!=nbr)
@@ -1808,8 +1820,11 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
      *Now replace the file with the not-chunked one.
      */
 		td.inputData.closeFile();
-		td.inputData.deleteFile(td.inputData.getFilename());
+		td.inputData.deleteFile(td.inputDataPath);
+    delete[] td.inputDataPath;
+    td.inputDataPath = newfilename;
 		td.inputData=newStdIn;
+    td.inputData.setFilePointer(0);
 	}else	
 	/*!
    *If is specified another Transfer Encoding not supported by the 

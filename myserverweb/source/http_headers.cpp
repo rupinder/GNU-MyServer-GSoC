@@ -668,6 +668,16 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 			request->CONTENT_ENCODING[tokenOff]='\0';
 			StrTrim(request->CONTENT_ENCODING," ");
 		}else
+		/*!Transfer-Encoding*/
+		if(!lstrcmpi(command,"Transfer-Encoding"))
+		{
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_TRANSFER_ENCODING_DIM);
+			if(tokenOff==-1)return 0;
+			lineControlled=1;
+			myserver_strlcpy(request->TRANSFER_ENCODING,token,tokenOff+1);
+			request->TRANSFER_ENCODING[tokenOff]='\0';
+			StrTrim(request->TRANSFER_ENCODING," ");
+		}else
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
 		{
@@ -1135,7 +1145,7 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
 	u_long i=0;
 	u_long buffersize=td->buffer->GetRealLength();
 	u_long nLinechars=0;
-	u_long isValidCommand=-1;
+	int isValidCommand=-1;
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;

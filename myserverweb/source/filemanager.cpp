@@ -339,14 +339,13 @@ int MYSERVER_FILE::operator =(MYSERVER_FILE f)
   if(filename)
     delete [] filename;
   filename = 0;
-
+  setHandle(f.getHandle());
   if(f.filename)
   {
     int filename_len = strlen(f.filename)+1;
     filename = new char[filename_len];
     if(filename == 0)
       return -1;
-    setHandle(f.getHandle());
     strcpy(filename,f.filename);
   }
   else
