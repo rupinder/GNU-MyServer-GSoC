@@ -16,23 +16,26 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#ifndef cserver_IN
-#define cserver_IN
+#ifndef CSERVER_IN
+#define CSERVER_IN
 
-#include "..\include\ClientsTHREAD.h"
-#include "..\include\utility.h"
-#include "..\include\cXMLParser.h"
-#include "..\include\utility.h"
-#include "..\include\HTTPmsg.h"
-#include "..\include\Response_RequestStructs.h"
-#include "..\include\ConnectionStruct.h"
-#include "..\include\sockets.h"
-#include "..\include\MIME_manager.h"
-#include "..\include\connectionstruct.h"
+#include "../include/clientsThread.h"
+#include "../include/utility.h"
+#include "../include/cXMLParser.h"
+#include "../include/utility.h"
+#include "../include/HTTPmsg.h"
+#include "../include/Response_RequestStructs.h"
+#include "../include/connectionstruct.h"
+#include "../include/sockets.h"
+#include "../include/MIME_manager.h"
+#include "../include/connectionstruct.h"
 extern const char *versionOfSoftware;
 extern class cserver *lserver;
+#ifdef WIN32
 unsigned int __stdcall listenServer(void* pParam);
+#else
+void* listenServer(void* pParam);
+#endif
 
 extern char msgSending[33];
 extern char msgRunOn[33];
@@ -52,11 +55,22 @@ struct listenThreadArgv
 };
 class cserver
 {
+#ifdef WIN32
 	friend  unsigned int __stdcall listenServer(void* pParam);
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
+#else
+	friend  void* listenServer(void* pParam);
+	friend  void* startClientsTHREAD(void* pParam);
+#endif
 	friend class ClientsTHREAD;
+#ifdef WIN32
 	friend LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM);
+#endif
+#ifdef WIN32
 	friend int __stdcall control_handler (u_long control_type);
+#else
+	friend int control_handler (u_long control_type);
+#endif
 private:
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
@@ -105,5 +119,8 @@ public:
 	void terminate();
 }; 
 
+#ifdef WIN32
 LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 
+#endif
+
 #endif

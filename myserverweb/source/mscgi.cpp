@@ -17,14 +17,19 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\include\HTTP.h"
-#include "..\include\cserver.h"
-#include "..\include\security.h"
-#include "..\include\AMMimeUtils.h"
-#include "..\include\filemanager.h"
-#include "..\include\sockets.h"
-#include "..\include\utility.h"
+#include "../include/http.h"
+#include "../include/cserver.h"
+#include "../include/security.h"
+#include "../include/AMMimeUtils.h"
+#include "../include/filemanager.h"
+#include "../include/sockets.h"
+#include "../include/utility.h"
+
+extern "C" {
+#ifdef WIN32
 #include <direct.h>
+#endif
+}
 
 /*
 *Sends the myServer CGI; differently form standard CGI this don't need a new process to run
@@ -87,7 +92,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
 	ms_send(s->socket,td->buffer2,len, 0);
 	return 1;
-#elif
+#else
 	/*
 	*On the platforms that is not available the support for the MSCGI send a 
 	*non implemented error.
@@ -111,6 +116,7 @@ int loadMSCGILib()
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
 	return (mscgiModule)?1:0;
 #endif
+	return 0;
 }
 /*
 *Free the memory allocated by the MSCGI library.
@@ -123,4 +129,5 @@ int freeMSCGILib()
 	*/
 	return((mscgiModule)?(FreeLibrary(mscgiModule)?1:0):0);
 #endif
+	return 0;
 }

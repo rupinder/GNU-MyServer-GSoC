@@ -17,9 +17,25 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\stdafx.h"
-#include "..\include\cserver.h"
+#include "../stdafx.h"
+#include "../include/cserver.h"
+extern "C" {
+#ifdef WIN32
 #include <direct.h>
+#else
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#endif
+}
+
+#ifndef WIN32
+#define lstrcmpi strcmp
+#define lstrcpy strcpy
+#define lstrcat strcat
+#define lstrlen strlen
+#endif
+
 
 /*
 *External libraries to be included in the project.
@@ -47,8 +63,24 @@ int cmdShow;
 const char *versionOfSoftware="0.3.1";
 cserver server;
 
+#ifndef WIN32
+void Sig_Quit(int signal)
+{
+	printf("Exiting...\n");
+	sync();
+	server.stop();
+}
+#endif
+
 int main (int argn, char **argc)
-{ 
+{
+#ifndef WIN32
+	struct sigaction sig1, sig2;
+	sig1.sa_handler=SIG_IGN;
+	sig2.sa_handler=Sig_Quit;
+	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
+	sigaction(SIGTERM,&sig2,NULL); // catch ctrl-c
+#endif
 	/*
 	*By default use the console mode.
 	*/
@@ -59,7 +91,12 @@ int main (int argn, char **argc)
 	while((path[len]!='\\')&(path[len]!='/'))
 		len--;
 	path[len]='\0';
+#ifdef WIN32
 	_chdir(path);
+#else
+	chdir(path);
+#endif
+
 	
 	cmdShow=0;
 	char* cmdLine=argc[1];

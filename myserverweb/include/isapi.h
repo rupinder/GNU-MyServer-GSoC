@@ -16,17 +16,18 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#ifdef WIN32
+#ifndef ISAPI_H
+#define ISAPI_H
 
+#ifdef WIN32
 #include <windows.h>
-#define SOCKETLIBINCLUDED
-#include "..\stdafx.h"
-#include "..\include\http.h"
-#include "..\include\utility.h"
-#include "..\include\cserver.h"
-#include "..\include\HTTPmsg.h"
-#include "..\include\connectionstruct.h"
+
+#include "../stdafx.h"
+#include "../include/http.h"
+#include "../include/utility.h"
+#include "../include/cserver.h"
+#include "../include/HTTPmsg.h"
+#include "../include/connectionstruct.h"
 
 
 typedef LPVOID HCONN;
@@ -134,5 +135,5 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 BOOL WINAPI GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
 BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
-
+#endif
 #endif

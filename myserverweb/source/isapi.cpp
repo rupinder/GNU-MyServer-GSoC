@@ -17,7 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #ifdef WIN32
-
+ 
 #include "../include/isapi.h"
 
 static  u_long max_Connections;
@@ -414,7 +414,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 	else
 	{
 		/*
-		*Find in ConnInfo->envString the value lpszVariableName and copy the next string in lpvBuffer.
+		*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
 		*/
 		((char*)lpvBuffer)[0]='\0';
 		char *localEnv=ConnInfo->envString;

@@ -1,0 +1,80 @@
+# Project: myserver
+# Makefile created by Dev-C++ 4.9.7.6
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = stringutils.o utility.o AMMimeUtils.o cgi.o clientsThread.o cserver.o cXMLParser.o filemanager.o http.o httpmsg.o isapi.o MIME_manager.o mscgi.o myserver.o security.o sockets.o ../stdafx.o Dev-C++.o $(RES)
+LINKOBJ  = stringutils.o utility.o AMMimeUtils.o cgi.o clientsThread.o cserver.o cXMLParser.o filemanager.o http.o httpmsg.o isapi.o MIME_manager.o mscgi.o myserver.o security.o sockets.o ../stdafx.o Dev-C++.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" ../../../../../Dev-Cpp/lib/libwininet.a ../../../../../Dev-Cpp/lib/libwsock32.a 
+INCS =  -I"C:/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Dev-Cpp/include/c++/3.2"  -I"C:/Dev-Cpp/include" 
+BIN  = myserver.exe
+CXXFLAGS = $(CXXINCS)  -Wall -pipe
+CFLAGS = $(INCS)  -Wall -pipe
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before myserver.exe all-after
+
+
+clean: clean-custom
+	rm -f $(OBJ) $(BIN)
+
+$(BIN): $(LINKOBJ)
+	$(CPP) $(LINKOBJ) -o "myserver.exe" $(LIBS) $(CXXFLAGS)
+
+stringutils.o: stringutils.cpp
+	$(CPP) -c stringutils.cpp -o stringutils.o $(CXXFLAGS)
+
+utility.o: utility.cpp
+	$(CPP) -c utility.cpp -o utility.o $(CXXFLAGS)
+
+AMMimeUtils.o: AMMimeUtils.cpp
+	$(CPP) -c AMMimeUtils.cpp -o AMMimeUtils.o $(CXXFLAGS)
+
+cgi.o: cgi.cpp
+	$(CPP) -c cgi.cpp -o cgi.o $(CXXFLAGS)
+
+clientsThread.o: clientsThread.cpp
+	$(CPP) -c clientsThread.cpp -o clientsThread.o $(CXXFLAGS)
+
+cserver.o: cserver.cpp
+	$(CPP) -c cserver.cpp -o cserver.o $(CXXFLAGS)
+
+cXMLParser.o: cXMLParser.cpp
+	$(CPP) -c cXMLParser.cpp -o cXMLParser.o $(CXXFLAGS)
+
+filemanager.o: filemanager.cpp
+	$(CPP) -c filemanager.cpp -o filemanager.o $(CXXFLAGS)
+
+http.o: http.cpp
+	$(CPP) -c http.cpp -o http.o $(CXXFLAGS)
+
+httpmsg.o: httpmsg.cpp
+	$(CPP) -c httpmsg.cpp -o httpmsg.o $(CXXFLAGS)
+
+isapi.o: isapi.cpp
+	$(CPP) -c isapi.cpp -o isapi.o $(CXXFLAGS)
+
+MIME_manager.o: MIME_manager.cpp
+	$(CPP) -c MIME_manager.cpp -o MIME_manager.o $(CXXFLAGS)
+
+mscgi.o: mscgi.cpp
+	$(CPP) -c mscgi.cpp -o mscgi.o $(CXXFLAGS)
+
+myserver.o: myserver.cpp
+	$(CPP) -c myserver.cpp -o myserver.o $(CXXFLAGS)
+
+security.o: security.cpp
+	$(CPP) -c security.cpp -o security.o $(CXXFLAGS)
+
+sockets.o: sockets.cpp
+	$(CPP) -c sockets.cpp -o sockets.o $(CXXFLAGS)
+
+../stdafx.o: ../stdafx.cpp
+	$(CPP) -c ../stdafx.cpp -o ../stdafx.o $(CXXFLAGS)
+
+Dev-C++.o: Dev-C++.cpp
+	$(CPP) -c Dev-C++.cpp -o Dev-C++.o $(CXXFLAGS)

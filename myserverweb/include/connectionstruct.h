@@ -16,8 +16,9 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#include "..\include\sockets.h"
+#ifndef CONNECTIONSTRUCT_H
+#define CONNECTIONSTRUCT_H
+#include "../include/sockets.h"
 /*
 *Here are listed all the protocol supported by the server.
 */
@@ -25,8 +26,6 @@
 #define PROTOCOL_FTP		1
 
 typedef u_long CONNECTION_PROTOCOL;
-#ifndef CONNECTION_IN
-#define CONNECTION_IN
 /*
 *This structure is used to describe a connection.
 */

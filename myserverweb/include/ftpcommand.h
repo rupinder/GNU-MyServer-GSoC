@@ -3,10 +3,10 @@
  * FTP implementation
  */
 
-#ifndef ftpcommand_h
-#define ftpcommand_h
+#ifndef FTPCOMMAND_H
+#define FTPCOMMAND_H
 
-#include "./stdafx.h"
+#include "../stdafx.h"
 #define unsupportedresponse  " Command not supported at this point"
 
 class ftpcommand

@@ -16,9 +16,8 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#ifndef HTTP_RESPONSE_REQUEST_HEADER_IN
-#define HTTP_RESPONSE_REQUEST_HEADER_IN
+#ifndef RESPONSE_REQUESTSTRUCTS_H
+#define RESPONSE_REQUESTSTRUCTS_H
 /*
 *Structure to describe an HTTP response
 */

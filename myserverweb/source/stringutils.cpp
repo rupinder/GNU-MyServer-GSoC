@@ -17,12 +17,17 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\stdafx.h"
-#include "..\include\stringutils.h"
+#include "../stdafx.h"
+#include "../include/stringutils.h"
+extern "C" {
 #include <string.h>
-#include <direct.h>
 #include <stdlib.h>
 #include <stdio.h>
+}
+
+#ifdef WIN32
+#include <direct.h>
+#endif
 
 static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dic"};
@@ -109,13 +114,18 @@ void splitPath(const char *path, char *dir, char *filename)
 */
 void StrTrim(char* str,const char* trimchars)
 {
+	#ifdef WIN32
 	u_short lenTrimchars=(u_short)lstrlen(trimchars);
 	u_short lenStr=(u_short)lstrlen(str);
+	#else
+	u_short lenTrimchars=(u_short)strlen(trimchars);
+	u_short lenStr=(u_short)strlen(str);
+	#endif
 	/*
 	*Number of characters to remove from the initial position of the string.
 	*/
 	u_short ncharToRemove=0;
-	int doBreak=FALSE;
+	int doBreak=false;
 	if(lenStr==0)
 		return;
 	if(lenTrimchars==0)
@@ -136,16 +146,24 @@ void StrTrim(char* str,const char* trimchars)
 			{
 				if((i==lenTrimchars-1)||(str[j]=='\0'))
 				{
-					doBreak=TRUE;
+					doBreak=true;
 					break;
 				}
 			}
 		}
 	}
 	if(ncharToRemove)
+	#ifdef WIN32
 		lstrcpy(str,&str[ncharToRemove]);
-	doBreak=FALSE;
+	#else
+		strcpy(str,&str[ncharToRemove]);
+	#endif
+	doBreak=false;
+	#ifdef WIN32
 	for(j=lstrlen(str)-1;j;j-- )
+	#else
+	for(j=strlen(str)-1;j;j-- )
+	#endif
 	{
 		if(doBreak)
 			break;
@@ -160,7 +178,7 @@ void StrTrim(char* str,const char* trimchars)
 			{
 				if(i==lenTrimchars-1)
 				{
-					doBreak=TRUE;
+					doBreak=true;
 					break;
 				}
 			}

@@ -17,13 +17,24 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\stdafx.h"
-#include "..\include\utility.h"
-#include "..\include\sockets.h"
+#include "../stdafx.h"
+#include "../include/utility.h"
+#include "../include/sockets.h"
+
+extern "C" {
 #include <string.h>
-#include <direct.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef WIN32
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#endif
+}
+
+#ifdef WIN32
+#include <direct.h>
+#endif
 
 /*
 *Various utility functions.
@@ -34,7 +45,7 @@ static char currentPath[MAX_PATH];
 /*
 *Returns the version of the operating system.
 */
-INT ms_getOSVersion()
+int ms_getOSVersion()
 {
 	int ret=0;
 	/*
@@ -65,6 +76,9 @@ INT ms_getOSVersion()
 		ret=OS_WINDOWS_XP;
 		break;
 	}
+#endif
+#ifdef __linux__
+        ret = OS_LINUX;
 #endif
 	return ret;
 }	
@@ -114,13 +128,60 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
 	return exitCode;
-#endif
+#else
+	int pid = fork();
+	
+	if(pid < 0) // a bad thing happend
+		return 0;
+	else if(pid == 0) // child
+	{	
+		// Set env vars
+		int i = 0;
+		int index = 0;
+		char * envp[100];
+		
+		while(*((char *)(spi->envString) + i) != '\0')
+		{
+			envp[index] = ((char *)(spi->envString) + i);
+			index++;
+			
+			while(*((char *)(spi->envString) + i) != '\0')
+				i++;
+			i++;
+		}
+		envp[index] = NULL;
+			
+		// change to working dir
+		chdir((const char*)(spi->cwd));
+			
+		// map stdio to files
+	
+		close(0); // close stdin
+		dup2((int)spi->stdIn, 0);
+		close(1); // close stdout
+		dup2((int)spi->stdOut, 1);
+		//close(2); // close stderr
+		//dup2((int)spi->stdError, 2);
+
+		// Run the script
+		execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		
+		// never should be here
+		exit(1);
+	} // end else if(pid == 0)
+	
+	// Parent
+	// Wait till child dies
+	waitpid(pid, NULL, 0);
+	
+	return 0;
+#endif	
 }
 
 /*
 *This function is similar to the Windows API WaitForSingleObject(..)
 */
-INT ms_requestAccess(u_long* ac,u_long id)
+int ms_requestAccess(u_long* ac,u_long id)
 {
 	/*
 	*If the access ID is equal to the thread ID we don't do nothing.
@@ -145,7 +206,7 @@ INT ms_requestAccess(u_long* ac,u_long id)
 	ms_requestAccess(ac,id);
 	return 0;
 }
-INT ms_terminateAccess(u_long* ac,u_long/* id*/)
+int ms_terminateAccess(u_long* ac,u_long/* id*/)
 {
 	/*
 	*Only set to Zero the owner of the access.
@@ -162,12 +223,17 @@ int ms_setcwdBuffer()
 #ifdef WIN32	
 	_getcwd(currentPath,MAX_PATH);
 	retval=1;
-#endif
 	for(u_long i=0;i<(u_long)lstrlen(currentPath);i++)
 		if(currentPath[i]=='\\')
 			currentPath[i]='/';
 	if(currentPath[lstrlen(currentPath)]=='/')
 		currentPath[lstrlen(currentPath)]='\0';
+#else
+	getcwd(currentPath,MAX_PATH);
+	retval=1;
+	if(currentPath[strlen(currentPath)]=='/')
+		currentPath[strlen(currentPath)]='\0';
+#endif
 	return retval;
 }
 /*
@@ -176,7 +242,11 @@ int ms_setcwdBuffer()
 char *ms_getdefaultwd(char *path,int len)
 {
 	if(path)
+#ifdef WIN32
 		lstrcpyn(path,currentPath,len);
+#else
+		strncpy(path,currentPath,len);
+#endif
 	return path;
 }
 /*
@@ -184,9 +254,7 @@ char *ms_getdefaultwd(char *path,int len)
 */
 void ms_getComputerName(char *dest,u_long maxLen)
 {
-#ifdef WIN32
 	ms_gethostname(dest,maxLen);
-#endif
 }
 
 /*
@@ -196,6 +264,8 @@ int ms_setcwd(char *dir)
 {
 #ifdef WIN32	
 	return _chdir(dir);
+#else
+	return chdir(dir);
 #endif
 }
 /*
@@ -205,15 +275,18 @@ void ms_wait(u_long time)
 {
 #ifdef WIN32
 		Sleep(time);
+#else
+	    usleep(time);
 #endif
+
 }
 /*
 *Set the text color to red on black.
 */
 void preparePrintError()
 {
-#ifdef WIN32 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED|FOREGROUND_INTENSITY);
+#ifdef WIN32
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
 #endif
 }
 /*
@@ -221,7 +294,7 @@ void preparePrintError()
 */
 void endPrintError()
 {
-#ifdef WIN32 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+#ifdef WIN32
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 #endif
 }

@@ -16,22 +16,27 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#ifndef ClientsTHREAD_IN
-#define ClientsTHREAD_IN
-#include "..\stdafx.h"
-#include "..\include\HTTP.h"
-#include "..\include\utility.h"
-#include "..\include\HTTPmsg.h"
-#include "..\include\Response_RequestStructs.h"
-#include "..\include\ConnectionStruct.h"
-#include "..\include\security.h"
+#ifndef CLIENTSTHREAD_H
+#define CLIENTSTHREAD_H
+#include "../stdafx.h"
+#include "../include/http.h"
+#include "../include/utility.h"
+#include "../include/HTTPmsg.h"
+#include "../include/Response_RequestStructs.h"
+#include "../include/connectionstruct.h"
+#include "../include/security.h"
 
 class  ClientsTHREAD
 {
 	friend class cserver;
+#ifdef WIN32
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
+#else
+	friend  void* startClientsTHREAD(void* pParam);
+#endif
+#ifdef WIN32
 	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+#endif
 private:
 	int initialized;
 	LOGGEDUSERID hImpersonation;
@@ -60,5 +65,10 @@ public:
 	void stop();
 	void clean();	
 };
+#ifdef WIN32
 unsigned int __stdcall startClientsTHREAD(void* pParam); 
+#else
+void* startClientsTHREAD(void* pParam);
+#endif
+
 #endif

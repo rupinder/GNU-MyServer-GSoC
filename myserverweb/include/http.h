@@ -16,12 +16,13 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#include "..\stdafx.h"
-#include "..\include\cgi.h"
-#include "..\include\connectionstruct.h"
-#include "..\include\security.h"
-#include "..\include\Response_RequestStructs.h"
+#ifndef HTTP_H
+#define HTTP_H
+#include "../stdafx.h"
+#include "../include/cgi.h"
+#include "../include/connectionstruct.h"
+#include "../include/security.h"
+#include "../include/Response_RequestStructs.h"
 extern const char *versionOfSoftware;
 extern class CBase64Utils base64Utils;
 /*
@@ -55,8 +56,8 @@ struct httpThreadContext
 *The main function is controlHTTPConnection(...), that parses the request builds a response.
 */
 int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,LOGGEDUSERID *imp,u_long id);
-int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=FALSE,int OnlyHeader=FALSE,int firstByte=0,int lastByte=-1,int yetmapped=0);
-int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,int OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=false,int OnlyHeader=false,int firstByte=0,int lastByte=-1,int yetmapped=0);
+int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,int OnlyHeader=false,int firstByte=0,int lastByte=-1);
 int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
 void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
@@ -71,3 +72,4 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
 int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input=0);
 int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input=0);
+#endif

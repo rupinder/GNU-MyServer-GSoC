@@ -17,11 +17,28 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\StdAfx.h"
-#include "..\include\AMMimeUtils.h"
+#include "../stdafx.h"
+#include "../include/AMMimeUtils.h"
+
+extern "C" {
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __linux__
+#include <ctype.h>
+#include <stdio.h>
+#endif
+}
+
+#ifdef __linux__
+void strupr(char * string)
+{
+    unsigned int len = strlen(string);
+    for(unsigned int i = 0; i < len; i++)
+       string[i] = toupper(string[i]);
+}
+#endif
+
 void *_alloca(size_t size);
 /*
 *Unique instance of this class
@@ -542,7 +559,11 @@ char* CQPUtils::Encode(char *input)
 			}
 			finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, false);
 			char mids[3];
+#ifdef WIN32
 			itoa(mid, mids, 16);
+#else
+			snprintf(mids, 3, "%X", mid);
+#endif
 			strupr(mids);
 			*(fresult++) = '=';
 			*(fresult++) = mids[0];

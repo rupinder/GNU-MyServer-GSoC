@@ -16,9 +16,10 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef FILEMANAGER_H
+#define FILEMANAGER_H
 
-#include "..\stdafx.h"
+#include "../stdafx.h"
 typedef void *MYSERVER_FILE_HANDLE;
 u_long ms_accessesLogWrite(char*);
 void ms_setAccessesLogFile(MYSERVER_FILE_HANDLE);
@@ -38,11 +39,12 @@ int ms_getPathRecursionLevel(char*);
 #define MYSERVER_FILE_OPEN_APPEND (1<<6)
 #define MYSERVER_FILE_CREATE_ALWAYS (1<<7)
 
-INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE,char*,u_long,u_long*);
-INT	ms_WriteToFile(MYSERVER_FILE_HANDLE,char*,u_long,u_long*);
-MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char*);
-MYSERVER_FILE_HANDLE ms_OpenFile(char*,u_long);
-INT	ms_IsFolder(char*);
-INT ms_CloseFile(MYSERVER_FILE_HANDLE);
-INT ms_FileExists(char*);
-INT ms_DeleteFile(char*);
+int ms_ReadFromFile(MYSERVER_FILE_HANDLE ,char * ,u_long ,u_long * );
+int ms_WriteToFile(MYSERVER_FILE_HANDLE ,char * ,u_long ,u_long * );
+MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char * );
+MYSERVER_FILE_HANDLE ms_OpenFile(char * ,u_long );
+int ms_IsFolder(char [] );
+int ms_CloseFile(MYSERVER_FILE_HANDLE);
+int ms_FileExists(char * );
+int ms_DeleteFile(char * );
+#endif

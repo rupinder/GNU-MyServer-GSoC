@@ -17,13 +17,41 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\stdafx.h"
-#include "..\include\cserver.h"
-#include "..\include\security.h"
+#include "../stdafx.h"
+#include "../include/cserver.h"
+#include "../include/security.h"
+extern "C" {
+#ifdef WIN32
 #include <Ws2tcpip.h>
 #include <direct.h>
-#include "..\include\sockets.h"
-#include "..\include\isapi.h"
+#else
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#ifdef __linux__
+#include <pthread.h>
+#endif
+#endif
+}
+#include "../include/sockets.h"
+#include "../include/isapi.h"
+
+#ifndef WIN32
+#define lstrcmpi strcmp
+#define lstrcpy strcpy
+#define lstrcat strcat
+#define lstrlen strlen
+
+#define LPINT int *
+#define INVALID_SOCKET -1
+#define WORD unsigned int
+#define BYTE unsigned char
+#define MAKEWORD(a, b) ((WORD) (((BYTE) (a)) | ((WORD) ((BYTE) (b))) << 8)) 
+#endif
+
 /*
 *These variables are the unique istance of the class cserver in the application and the flag
 *mustEndServer. When mustEndServer is true all the threads are stopped and the application stop
@@ -31,7 +59,6 @@
 */
 cserver *lserver=0;
 int mustEndServer;
-
 
 /*
 *These messages are loaded by the application on the startup.
@@ -54,8 +81,12 @@ void cserver::start()
 	*/
 	ms_setcwdBuffer();
 
-	mustEndServer=FALSE;
+	mustEndServer=false;
+#ifdef WIN32
 	ZeroMemory(this,sizeof(cserver));
+#else
+	memset(this, 0, sizeof(cserver));
+#endif
 
 
 	/*
@@ -63,9 +94,9 @@ void cserver::start()
 	*/
 	if(lserver)
 	{
-		mustEndServer=TRUE;
+		mustEndServer=true;
 		lserver->terminate();
-		mustEndServer=FALSE;
+		mustEndServer=false;
 	}
 	/*
 	*Save the unique instance of this class.
@@ -78,7 +109,14 @@ void cserver::start()
 	*/
 	_flushall();
 	system("cls");
+#else
+	/*
+	*Under an UNIX environment, clearing the screen can be done in a similar method
+	*/
+	sync();
+	system("clear");
 #endif
+	
 	/*
 	*Print the myServer logo.
 	*/
@@ -103,11 +141,12 @@ void cserver::start()
 	int OSVer=ms_getOSVersion();
 
 	initialize(OSVer);
-	
-	warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	if(!warningsLogFile)
+		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	ms_setWarningsLogFile(warningsLogFile);
 	
-	accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	if(!accessesLogFile)
+		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	ms_setAccessesLogFile(accessesLogFile);
 	
 	controlSizeLogFile();
@@ -183,7 +222,6 @@ void cserver::start()
 		lstrcpy(msgAtTime,languageParser.getValue("MSG_ATTIME"));
 
 
-
 	printf("%s\n",languageParser.getValue("MSG_SERVER_CONF"));
 
 	/*
@@ -191,10 +229,10 @@ void cserver::start()
 	*/
 	if(guestLoginHandle==0)
 	{
-		preparePrintError();
+        preparePrintError();		
 		printf("%s\n",languageParser.getValue("AL_NO_SECURITY"));
-		endPrintError();
-		useLogonOption=FALSE;
+        endPrintError();
+		useLogonOption=false;
 	}
 
 	/*
@@ -205,7 +243,7 @@ void cserver::start()
 	if (err != 0) 
 	{ 
 
-		preparePrintError();
+        preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_ISOCK"));
 		endPrintError();
 		return; 
@@ -226,7 +264,11 @@ void cserver::start()
 	in_addr ia;
 	for(i=0;localhe->h_addr_list[i];i++)
 	{
+#ifdef WIN32
 		ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+#else
+		ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
+#endif
 		printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i,inet_ntoa(ia));
 	}
 	
@@ -243,19 +285,28 @@ void cserver::start()
 		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
 	else
 	{
-		preparePrintError();
+        preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
-		endPrintError();
+        endPrintError();
 	}
 
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),ms_getCPUCount());
-	
+
+#ifdef WIN32
 	unsigned int ID;
+#else
+	pthread_t ID;
+#endif
 	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
 		threads[i].id=i;
+#ifdef WIN32
 		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
+#endif
+#ifdef __linux__
+		pthread_create(&ID, NULL, &::startClientsTHREAD, (void *)&(threads[i].id));
+#endif
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
 
@@ -282,6 +333,8 @@ void cserver::start()
 		*Control if we must end the application every second.
 		*/
 		Sleep(SEC(1));
+#else
+		sleep(1);
 #endif
 	}
 	this->terminate();
@@ -299,10 +352,11 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
 	if(serverSocket==INVALID_SOCKET)
 	{
-		preparePrintError();
+        preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_OPENP"));
-		endPrintError();
+        endPrintError();		
 		return;
+
 	}
 	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
 	sock_inserverSocket.sin_family=AF_INET;
@@ -315,13 +369,14 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	*for the same address. To avoid this behavior we use the current code.
 	*/
 	int optvalReuseAddr=1;
-	if(ms_setsockopt(serverSocket,SOL_SOCKET,SO_REUSEADDR,&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
+	if(ms_setsockopt(serverSocket,SOL_SOCKET,SO_REUSEADDR,(const char *)&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
 	{
-		preparePrintError();
+        preparePrintError();
 		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
-		endPrintError();
+        endPrintError();
 		return;
 	}
+
 #endif
 
 	/*
@@ -331,10 +386,9 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 
 	if(ms_bind(serverSocket,(sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
 	{
-		
 		preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_BIND"));
-		endPrintError();
+        endPrintError();
 		return;
 	}
 	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
@@ -345,9 +399,9 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
 	if (ms_listen(serverSocket,SOMAXCONN))
 	{ 
-		preparePrintError();
+        preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
-		endPrintError();
+        endPrintError();	
 		return; 
 	}
 
@@ -363,12 +417,22 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	argv->protID=protID;
 	argv->port=port;
 	argv->serverSocket=serverSocket;
+#ifdef WIN32
 	_beginthreadex(NULL,0,&::listenServer,argv,0,0);
+#endif
+#ifdef __linux__
+	pthread_t ID;
+	pthread_create(&ID, NULL, &::listenServer, (void *)(argv));
+#endif
 }
 /*
 *This is the thread that listens for a new connection on the port specified by the protocol.
 */
+#ifdef WIN32
 unsigned int __stdcall listenServer(void* params)
+#else
+void * listenServer(void* params)
+#endif
 {
 	listenThreadArgv *argv=(listenThreadArgv*)params;
 	u_long protID=argv->protID;
@@ -393,12 +457,17 @@ unsigned int __stdcall listenServer(void* params)
 		lserver->addConnection(asock,&asock_in,protID);
 	}
 	/*
-	*When the flag mustEndServer is TRUE end current thread and clean the socket used for listening.
+	*When the flag mustEndServer is true end current thread and clean the socket used for listening.
 	*/
 
 	ms_shutdown(serverSocket, 2);
 	ms_closesocket(serverSocket);
+#ifdef WIN32
 	_endthreadex( 0 );
+#endif
+#ifdef __linux__
+	pthread_exit(0);
+#endif
 
 	return 0;
 
@@ -443,7 +512,7 @@ void  cserver::setVerbosity(u_long nv)
 */
 void cserver::stop()
 {
-	mustEndServer=TRUE;
+	mustEndServer=true;
 }
 
 void cserver::terminate()
@@ -522,7 +591,7 @@ void cserver::initialize(int OSVer)
 	*Store the default values for these variables.
 	*/
 	socketRcvTimeout = 10;
-	useLogonOption = TRUE;
+	useLogonOption = true;
 	guestLoginHandle=0;
 	connectionTimeout = SEC(25);
 	lstrcpy(guestLogin,"myServerUnknown");
@@ -530,7 +599,7 @@ void cserver::initialize(int OSVer)
 	lstrcpy(guestPassword,"myServerUnknown");
 	lstrcpy(defaultFilename,"default.html");
 	browseDirCSSpath[0]='\0';
-	mustEndServer=FALSE;
+	mustEndServer=false;
 	port_HTTP=80;
 	verbosity=1;
 	buffersize=1024*1024;
@@ -548,12 +617,12 @@ void cserver::initialize(int OSVer)
 	*Store the default name of the logs files.
 	*/
 	ms_getdefaultwd(warningsFileLogName,MAX_PATH);
-	lstrcat(warningsFileLogName,"logs/myServer.err");
+	lstrcat(warningsFileLogName,"/logs/myServer.err");
 	ms_getdefaultwd(accessesFileLogName,MAX_PATH);
-	lstrcat(accessesFileLogName,"logs/myServer.log");
+	lstrcat(accessesFileLogName,"/logs/myServer.log");
 
 
-	useMessagesFiles=TRUE;
+	useMessagesFiles=true;
 	configurationFileManager.open("myserver.xml");
 	char *data;
 
@@ -638,18 +707,18 @@ void cserver::initialize(int OSVer)
 	if(data)
 	{
 		if(!lstrcmpi(data,"YES"))
-			useMessagesFiles=TRUE;
+			useMessagesFiles=true;
 		else
-			useMessagesFiles=FALSE;
+			useMessagesFiles=false;
 	}
 
 	data=configurationFileManager.getValue("USE_LOGON_OPTIONS");
 	if(data)
 	{
 		if(!lstrcmpi(data,"YES"))
-			useLogonOption=TRUE;
+			useLogonOption=true;
 		else
-			useLogonOption=FALSE;
+			useLogonOption=false;
 	}
 
 	data=configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
@@ -714,7 +783,7 @@ void cserver::controlSizeLogFile()
 	*Controls the accesses file too.
 	*/
 	if(!accessesLogFile)
-	{
+	{;
 		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	fs=ms_getFileSize(accessesLogFile);
@@ -733,27 +802,42 @@ void cserver::controlSizeLogFile()
 int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNECTION_PROTOCOL protID)
 {
 	if(s==0)
-		return FALSE;
+		return false;
 	static int ret;
-	ret=TRUE;
+	ret=true;
 	char ip[32];
+#ifdef WIN32
+#warning Buffer overflow posable
 	sprintf(ip,"%u.%u.%u.%u",(*asock_in).sin_addr.S_un.S_un_b.s_b1,(*asock_in).sin_addr.S_un.S_un_b.s_b2,(*asock_in).sin_addr.S_un.S_un_b.s_b3,(*asock_in).sin_addr.S_un.S_un_b.s_b4);
+#else
+	strncpy(ip, inet_ntoa(asock_in->sin_addr), 32); // NOTE: inet_ntop supports IPv6
+#endif
 	int port=ntohs((*asock_in).sin_port);
 
 	char msg[500];
+#ifdef WIN32
+#warning Buffer overflow posable
 	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getRFC822GMTTime());
+#else
+	snprintf(msg, 500,"%s:%s ->%s %s:%s\r\n", msgNewConnection, inet_ntoa(asock_in->sin_addr), serverName, msgAtTime, getRFC822GMTTime());
+#endif
 	ms_accessesLogWrite(msg);
 
 	static u_long local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
 	if(!ct->addConnection(s,protID,&ip[0],port))
 	{
-		ret=FALSE;
+		ret=false;
 		ms_closesocket(s);
 		if(verbosity>0)
 		{
 			char buffer[500];
+#ifdef WIN32
+#warning Buffer overflow posable
 			sprintf(buffer,"%s:%i.%i.%i.%i ->%s %s:%s\r\n",msgErrorConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getRFC822GMTTime());
+#else
+			snprintf(buffer, 500,"%s:%s ->%s %s:%s\r\n", msgErrorConnection, inet_ntoa(asock_in->sin_addr), serverName, msgAtTime, getRFC822GMTTime());
+#endif
 			ms_warningsLogWrite(buffer);
 		}
 	}

@@ -17,11 +17,33 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\stdafx.h"
-#include "..\include\clientsTHREAD.h"
-#include "..\include\cserver.h"
-#include "..\include\security.h"
-#include "..\include\sockets.h"
+#include "../stdafx.h"
+#include "../include/clientsThread.h"
+#include "../include/cserver.h"
+#include "../include/security.h"
+#include "../include/sockets.h"
+
+#ifndef WIN32
+extern "C" {
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+#ifdef __linux__
+#include <pthread.h>
+#endif
+}
+
+#define lstrcmpi strcmp
+#define lstrcpy strcpy
+#define lstrcat strcat
+#define lstrlen strlen
+#endif
+
+// Define SD_BOTH in case it is not defined
+#ifndef SD_BOTH
+#define SD_BOTH 2 /* to close tcp connection in both directions */
+#endif
+
 ClientsTHREAD::ClientsTHREAD()
 {
 	err=0;
@@ -33,20 +55,29 @@ ClientsTHREAD::~ClientsTHREAD()
 /*
 *This function starts a new thread controlled by a ClientsTHREAD class instance.
 */
+#ifdef WIN32
 unsigned int __stdcall startClientsTHREAD(void* pParam)
+#else
+void * startClientsTHREAD(void* pParam)
+#endif
 {
 	u_long id=*((u_long*)pParam);
 	ClientsTHREAD *ct=&lserver->threads[id];
-	ct->threadIsRunning=TRUE;
+	ct->threadIsRunning=true;
 	ct->connections=0;
-	ct->threadIsStopped=FALSE;
+	ct->threadIsStopped=false;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
 	ct->buffer=(char*)malloc(ct->buffersize);
 	ct->buffer2=(char*)malloc(ct->buffersize2);
-	ct->initialized=TRUE;
+	ct->initialized=true;
+#ifdef WIN32
 	ZeroMemory(ct->buffer,ct->buffersize);
 	ZeroMemory(ct->buffer2,ct->buffersize2);
+#else
+	memset(ct->buffer, 0, ct->buffersize);
+	memset(ct->buffer2, 0, ct->buffersize2);
+#endif
 	ms_terminateAccess(&ct->connectionWriteAccess,ct->id);
 	/*
 	*This function when is alive only call the controlConnections(...) function
@@ -58,10 +89,17 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 
 #ifdef WIN32
 		Sleep(1);
+#else
+		usleep(1);
 #endif
 	}
-	ct->threadIsStopped=TRUE;
+	ct->threadIsStopped=true;
+#ifdef WIN32
 	_endthreadex(0);
+#endif
+#ifdef __linux__
+	pthread_exit(0);
+#endif
 	return 0;
 }
 /*
@@ -120,10 +158,10 @@ void ClientsTHREAD::stop()
 	/*
 	*Set the run flag to False
 	*When the current thread find the threadIsRunning
-	*flag setted to FALSE automatically destroy the
+	*flag setted to false automatically destroy the
 	*thread.
 	*/
-	threadIsRunning=FALSE;
+	threadIsRunning=false;
 }
 
 /*
@@ -131,7 +169,7 @@ void ClientsTHREAD::stop()
 */
 void ClientsTHREAD::clean()
 {
-	if(initialized==FALSE)
+	if(initialized==false)
 		return;
 	ms_requestAccess(&connectionWriteAccess,this->id);
 	if(connections)
@@ -140,7 +178,7 @@ void ClientsTHREAD::clean()
 	}
 	free(buffer);
 	free(buffer2);
-	initialized=FALSE;
+	initialized=false;
 	ms_terminateAccess(&connectionWriteAccess,this->id);
 
 }
@@ -153,7 +191,11 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 {
 	ms_requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
+#ifdef WIN32
 	ZeroMemory(nc,sizeof(CONNECTION));
+#else
+	memset(nc, 0, sizeof(CONNECTION));
+#endif
 	nc->socket=s;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
@@ -172,7 +214,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 {
 	ms_requestAccess(&connectionWriteAccess,this->id);
-	int ret=FALSE;
+	int ret=false;
 	/*
 	*First of all close the socket communication.
 	*/
@@ -195,7 +237,7 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 			else
 				connections=i->Next;
 			free(i);
-			ret=TRUE;
+			ret=true;
 			break;
 		}
 		else
@@ -244,7 +286,7 @@ LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 }
 
 /*
-*Returns TRUE if the thread is active.
+*Returns true if the thread is active.
 */
 int ClientsTHREAD::isRunning()
 {
@@ -252,7 +294,7 @@ int ClientsTHREAD::isRunning()
 }
 
 /*
-*Returns TRUE if the thread is stopped.
+*Returns true if the thread is stopped.
 */
 int ClientsTHREAD::isStopped()
 {

@@ -16,12 +16,11 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef CXMLPARSER_IN
+#define CXMLPARSER_IN
 
-#include "..\StdAfx.h"
-#include "..\include\fileManager.h"
-#ifndef cXMLParser_IN
-#define cXMLParser_IN
+#include "../stdafx.h"
+#include "../include/filemanager.h"
 /*
 *This class is used to open a .xml file and read informations from it.
 */

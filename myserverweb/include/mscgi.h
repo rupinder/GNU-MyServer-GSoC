@@ -16,14 +16,13 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
 #ifndef MSCGI_H
 #define MSCGI_H
-#include "..\stdafx.h"
-#include "..\include\Response_RequestStructs.h"
-#include "..\include\connectionstruct.h"
-#include "..\include\mime_manager.h"
-#include "..\include\cgi.h"
+#include "../stdafx.h"
+#include "../include/Response_RequestStructs.h"
+#include "../include/connectionstruct.h"
+#include "../include/MIME_manager.h"
+#include "../include/cgi.h"
 struct httpThreadContext;
 /*
 *Functions to Load and Free the MSCGI library.

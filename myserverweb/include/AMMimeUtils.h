@@ -17,7 +17,9 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#pragma once
+#ifndef AMMIMEUTILS_H
+#define AMMIMEUTILS_H
+
 char* MimeDecodeMailHeaderField(char *s);
 #ifndef CBase64Utils_IN
 #define CBase64Utils_IN
@@ -44,4 +46,5 @@ public:
 	CQPUtils();
 	~CQPUtils();
 }; 
+#endif
 #endif

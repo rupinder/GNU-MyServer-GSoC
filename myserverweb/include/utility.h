@@ -16,11 +16,12 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef UTILITY_H
+#define UTILITY_H
 
-#include "..\stdafx.h"
-#include "..\include\FileManager.h"
-#include "..\include\Stringutils.h"
+#include "../stdafx.h"
+#include "../include/filemanager.h"
+#include "../include/stringutils.h"
 /*
 *Macros to do simple transformations.
 */
@@ -32,6 +33,7 @@
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
 #define OS_WINDOWS_XP		4
+#define OS_LINUX	      100  // Add room for future windows
 #undef min
 #undef max
 #define min(a,b)		((a<b)?a:b)
@@ -49,6 +51,10 @@ struct START_PROC_INFO
 	MYSERVER_FILE_HANDLE stdIn;
 	char *cmdLine;
 	char *cwd;
+	// added for unix support
+	char *cmd;
+	char *arg;
+	
 	void *envString;
 };
 #endif
@@ -56,7 +62,7 @@ struct START_PROC_INFO
 void preparePrintError();
 void endPrintError();
 
-INT ms_getOSVersion();
+int ms_getOSVersion();
 u_long ms_getCPUCount();
 void ms_wait(u_long);
 u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
@@ -68,5 +74,7 @@ int ms_setcwd(char * cwd);
 /*
 *These functions are a simple trasposition of the mutex mechanism.
 */
-INT ms_requestAccess(u_long*,u_long);
-INT ms_terminateAccess(u_long*,u_long);
+int ms_requestAccess(u_long*,u_long);
+int ms_terminateAccess(u_long*,u_long);
+
+#endif

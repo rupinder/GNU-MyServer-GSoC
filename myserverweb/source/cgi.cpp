@@ -16,14 +16,28 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#include "..\include\HTTP.h"
-#include "..\include\cserver.h"
-#include "..\include\security.h"
-#include "..\include\AMMimeUtils.h"
-#include "..\include\filemanager.h"
-#include "..\include\sockets.h"
-#include "..\include\utility.h"
+#include "../include/http.h"
+#include "../include/cserver.h"
+#include "../include/security.h"
+#include "../include/AMMimeUtils.h"
+#include "../include/filemanager.h"
+#include "../include/sockets.h"
+#include "../include/utility.h"
+
+extern "C" {
+#ifdef WIN32
 #include <direct.h>
+#endif
+#include <string.h>
+}
+
+#ifndef WIN32
+#define lstrcpy strcpy
+#define lstrlen strlen
+#define lstrcpyn strncpy
+#define lstrcat strcat
+#define strnicmp strncmp
+#endif
 
 /*
 *Run the standard CGI and send the result to the client.
@@ -137,6 +151,10 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
 	spi.cwd=td->scriptDir;
+	// added for unix support
+	spi.cmd = cgipath;
+	spi.arg = td->scriptFile;
+	
 	spi.stdError = (MYSERVER_FILE_HANDLE)stdOutFile;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
@@ -171,19 +189,19 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 			break;
 		}
 		else if(!strncmp(&td->buffer2[i],"Location",8))
-		{
-			char nURL[MAX_PATH];
-			int j=0;
-			while(td->buffer2[i+j+10]!='\r')
 			{
-				nURL[j]=td->buffer2[i+j+10];
-				nURL[j+1]='\0';
-				j++;
+				char nURL[MAX_PATH];
+				int j=0;
+				while(td->buffer2[i+j+10]!='\r')
+				{
+					nURL[j]=td->buffer2[i+j+10];
+					nURL[j+1]='\0';
+					j++;
+				}
+				if(!yetoutputted)
+					sendHTTPRedirect(td,s,nURL);
+				yetoutputted=1;
 			}
-			if(!yetoutputted)
-				sendHTTPRedirect(td,s,nURL);
-			yetoutputted=1;
-		}
 	}
 	if(!yetoutputted)
 	{
@@ -239,6 +257,12 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,versionOfSoftware);
 #ifdef WIN32
 	lstrcat(cgiEnvString," (Win32)");
+#endif
+#ifdef __linux__
+	lstrcat(cgiEnvString," (Linux)");
+	
+	// Must use REDIRECT_STATUS for php and others
+	lstrcat(cgiEnvString,"\rREDIRECT_STATUS=TRUE");
 #endif
 
 	lstrcat(cgiEnvString,"\rSERVER_NAME=");
@@ -366,7 +390,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	*interpretation if no PATH_INFO is provided. 	
 	*/
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
-		getPath(td->pathTranslated,td->request.URI,FALSE);
+		getPath(td->pathTranslated,td->request.URI,false);
 		lstrcat(cgiEnvString,td->pathTranslated);	
 	}
 

@@ -17,10 +17,10 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\include\security.h"
-#include "..\include\utility.h"
-#include "..\include\HTTPmsg.h"
-#include "..\include\ConnectionStruct.h"
+#include "../include/security.h"
+#include "../include/utility.h"
+#include "../include/HTTPmsg.h"
+#include "../include/connectionstruct.h"
 
 
 /*
@@ -36,7 +36,7 @@ char guestPassword[32];
 */
 int ms_logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
-	int ms_logon=FALSE;
+	int ms_logon=false;
 #ifdef WIN32
 	#ifndef LOGON32_LOGON_NETWORK
 	#define LOGON32_LOGON_NETWORK 3
@@ -92,14 +92,14 @@ void ms_logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 		}
 		else
 		{
-			*logonStatus=FALSE;
+			*logonStatus=false;
 			*hImpersonation=guestLoginHandle;
 		}
 		ms_impersonateLogonUser(hImpersonation);
 	}
 	else
 	{
-		*logonStatus=FALSE;
+		*logonStatus=false;
 	}
 }
 /*

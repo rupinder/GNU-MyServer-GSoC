@@ -17,8 +17,8 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\stdafx.h"
-#include "..\include\httpmsg.h"
+#include "../stdafx.h"
+#include "../include/HTTPmsg.h"
 /*
 *This array is used to describe the errors for the HTTP protocol.
 */

@@ -16,16 +16,26 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#include "..\include\utility.h"
+#ifndef MIME_MANAGER_H
+#define MIME_MANAGER_H
+
+#include "../include/utility.h"
+#ifdef WIN32
 #include <windows.h>
+#endif
+extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#ifdef WIN32
 #include <tchar.h>
 #include <io.h>
+#endif
+}
 
-#ifndef MIME_Manager_IN
-#define MIME_Manager_IN
+using namespace std;
+
 /*
 *This enum describes all the way that a file is handled by the server.
 */
@@ -56,15 +66,15 @@ private:
 public:
 	char *getFilename();
 	MIME_Manager();
-	VOID addRecord(MIME_Manager::mime_record);
+	void addRecord(MIME_Manager::mime_record);
 	MIME_Manager::mime_record *getRecord(char ext[10]);
-	VOID removeAllRecords();
-	VOID removeRecord(char*);
+	void removeAllRecords();
+	void removeRecord(char*);
 	u_long getNumMIMELoaded();
 	int load(char *filename);
 	int save(char *filename);
 	int getMIME(char* ext,char *dest,char *dest2);
 	int getMIME(int id,char* ext,char *dest,char *dest2);
-	VOID clean();
+	void clean();
 };
 #endif 

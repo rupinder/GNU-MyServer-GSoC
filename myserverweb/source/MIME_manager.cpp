@@ -17,8 +17,18 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\include\mime_manager.h"
-#include "..\include\filemanager.h"
+#include "../include/MIME_manager.h"
+#include "../include/filemanager.h"
+
+using namespace std;
+
+#ifndef WIN32
+#define lstrcmpi strcmp
+#define lstrcpy strcpy
+#define lstrcat strcat
+#define lstrlen strlen
+#endif
+
 
 /*
 *Source code to manage the MIME types in myServer.
@@ -46,7 +56,11 @@ int MIME_Manager::load(char *filename)
 	MIME_Manager::mime_record record;
 	for(u_long nc=0;;)
 	{
+#ifdef WIN32
 		ZeroMemory(&record,sizeof(MIME_Manager::mime_record));
+#else
+		memset(&record, 0, sizeof(MIME_Manager::mime_record));
+#endif
 		/*
 		*Do not consider the \r \n and space characters.
 		*/
@@ -76,7 +90,11 @@ int MIME_Manager::load(char *filename)
 		*Save the action to do with this type of files.
 		*/
 		char commandString[16];
+#ifdef WIN32
 		ZeroMemory(commandString,sizeof(commandString));
+#else
+		memset(commandString, 0, sizeof(commandString));
+#endif
 		while(buffer[nc]!=' ')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
@@ -245,7 +263,11 @@ void MIME_Manager::clean()
 */
 MIME_Manager::MIME_Manager()
 {
+#ifdef WIN32
 	ZeroMemory(this,sizeof(MIME_Manager));
+#else
+	memset(this, 0, sizeof(MIME_Manager));
+#endif
 }
 
 /*

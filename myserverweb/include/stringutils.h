@@ -16,16 +16,19 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
-#include "..\stdafx.h"
+#ifndef STRINGUTILS_H
+#define STRINGUTILS_H
+
+#include "../stdafx.h"
 char *getRFC822GMTTime(void);
 char *getRFC822GMTTime(const time_t);
 char *getRFC822LocalTime(void);
 char *getRFC822LocalTime(const time_t);
-VOID StrTrim(char* str,const char* trimChars);
+void StrTrim(char* str,const char* trimChars);
 void getFileExt(char* ext,const char* filename);
 void gotoNextLine(char* cmd);
 int hexVal(char c);
 void translateEscapeString(char *TargetStr);
 void splitPath(const char* path, char* dir, char*filename);
 void getFilename(const char* path, char* filename);
+#endif

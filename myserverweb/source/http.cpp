@@ -17,16 +17,38 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\include\HTTP.h"
-#include "..\include\cserver.h"
-#include "..\include\security.h"
-#include "..\include\AMMimeUtils.h"
-#include "..\include\filemanager.h"
-#include "..\include\sockets.h"
-#include "..\include\utility.h"
-#include "..\include\isapi.h"
+#include "../include/http.h"
+#include "../include/cserver.h"
+#include "../include/security.h"
+#include "../include/AMMimeUtils.h"
+#include "../include/filemanager.h"
+#include "../include/sockets.h"
+#include "../include/utility.h"
+#include "../include/isapi.h"
+extern "C" {
+#ifdef WIN32
 #include <direct.h>
 #include <errno.h>
+#else
+#include <string.h>
+#endif
+}
+
+#ifndef WIN32
+#include "lfind.h"
+
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define lstrcmpi strcmp
+#define lstrcpy strcpy
+#define lstrcat strcat
+#define lstrlen strlen
+#endif
+
+// Bloodshed Dev-C++ Helper
+#ifndef intptr_t
+#define intptr_t int
+#endif
 
 int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
@@ -76,7 +98,11 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		ms_CloseFile(cssHandle);
 	}
 
+#ifdef WIN32
 	sprintf(filename,"%s/*.*",folder);
+#else
+	sprintf(filename,"%s/",folder);
+#endif
 	lstrcat(td->buffer2,"<BODY>");
 	lstrcat(td->buffer2,msgFolderContents);
 	lstrcat(td->buffer2," ");
@@ -85,7 +111,11 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	intptr_t ff;
 	ff=_findfirst(filename,&fd);
 
+#ifdef WIN32
 	if(ff==-1)
+#else
+	if((int)ff==-1)
+#endif
 	{
 		if(errno==EACCES)
 		{
@@ -274,10 +304,9 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*If filename is already mapped on the file system don't map it again.
 	*/
 	if(yetmapped)
-		lstrcpy(td->filenamePath,filename);
+		lstrcpy((td->filenamePath),filename);
 	else
-		getPath(td->filenamePath,filename,systemrequest);
-	
+		getPath((td->filenamePath),filename,systemrequest);
 
 	/*
 	*Get the PATH_INFO value.
@@ -286,7 +315,8 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*is a file. If it is a file send the rest of the URI as PATH_INFO.
 	*/
 	char dirscan[MAX_PATH];
-	dirscan[0]='\0';
+	//dirscan[0]='\0';
+	memset(dirscan, 0, MAX_PATH);
 	td->pathInfo[0]='\0';
 	td->pathTranslated[0]='\0';
 	for(int i=0;;i++)
@@ -300,7 +330,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		int len=lstrlen(dirscan);
 		if((td->filenamePath)[i]==0)/*If we are at the end of the string break the loop*/
 			break;
-        else if((td->filenamePath)[i]!='/')/*If there is a character different from '/'*/
+        else if((td->filenamePath)[i]!='/' || i==0)/*If there is a character different from '/'*/
 		{
 			dirscan[len]=(td->filenamePath)[i];
 			dirscan[len+1]='\0';
@@ -323,6 +353,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			dirscan[len+1]='\0';
 		}
 	}
+	
 	/*
 	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
 	*PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
@@ -333,7 +364,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		/*
 		*Start from the second character because the first is a slash character.
 		*/
-		getPath(td->pathTranslated,&((td->pathInfo)[1]),FALSE);
+		getPath((td->pathTranslated),&((td->pathInfo)[1]),false);
 	}
 	else
 	{
@@ -342,7 +373,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	/*
 	*If the client try to access files that aren't in the web folder send a 401 error.
 	*/
-	if(ms_getPathRecursionLevel(filename)<1)
+	if((ms_getPathRecursionLevel(filename)<1) && filename[0] != '\0')
 	{
 		return raiseHTTPError(td,s,e_401);
 	}
@@ -353,7 +384,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	2)We send the folder content.
 	3)We send an error.
 	*/
-	if(ms_IsFolder(td->filenamePath))
+	if(ms_IsFolder((char *)(td->filenamePath)))
 	{
 		static char defaultFileName[MAX_PATH];
 		sprintf(defaultFileName,"%s/%s",td->filenamePath,lserver->getDefaultFilenamePath());
@@ -367,7 +398,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		return raiseHTTPError(td,s,e_404);
 	}
 	/*
-	*getMIME return TRUE if the ext is registered by a CGI.
+	*getMIME return true if the ext is registered by a CGI.
 	*/
 	int mimeCMD=getMIME(td->response.CONTENTS_TYPE,td->filenamePath,ext,data);
 
@@ -419,7 +450,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		else
 			return raiseHTTPError(td,s,e_404);
 	}
-
+	
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
 
@@ -581,23 +612,24 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		if(!lstrcmpi(td.request.CMD,"GET"))/*GET REQUEST*/
 		{
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+
+				sendHTTPRESOURCE(&td,a,td.request.URI,false,false,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
 		}
 		else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
 		{
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td,a,td.request.URI,false,false,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
 		}
 		else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
 		{
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td,a,td.request.URI,false,true,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
-				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE);
+				sendHTTPRESOURCE(&td,a,td.request.URI,false,true);
 		}
 		else
 		{
@@ -660,7 +692,7 @@ void resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->RANGETYPE[0]='\0';		
 	request->RANGEBYTEBEGIN[0]='\0';
 	request->RANGEBYTEEND[0]='\0';
-	request->uriEndsWithSlash=FALSE;
+	request->uriEndsWithSlash=false;
 }
 /*
 *Reset all the HTTP_RESPONSE_HEADER structure members.
@@ -798,7 +830,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	*/
 	lstrcpy(response->CONTENTS_TYPE,"text/html");
 	lstrcpy(response->VER,"1.1");
-	response->isError=FALSE;
+	response->isError=false;
 	lstrcpy(response->DATE,getRFC822GMTTime());
 	lstrcpy(response->DATEEXP,getRFC822GMTTime());
 	sprintf(response->SERVER_NAME,"MyServer %s",versionOfSoftware);
@@ -816,14 +848,14 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	if(lserver->mustUseMessagesFiles())
 	{
-		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],TRUE);
+		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],true);
 		
 	}
 	buildDefaultHTTPResponseHeader(&(td->response));
 	/*
-	*Set the isError member to TRUE to build an error page.
+	*Set the isError member to true to build an error page.
 	*/
-	td->response.isError=TRUE;
+	td->response.isError=true;
 	lstrcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	sprintf(td->response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
 	buildHTTPResponseHeader(td->buffer,&td->response);
@@ -876,7 +908,7 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 	char *req=td->buffer;
 	u_long buffersize=td->buffersize;
 	u_long nLinechars;
-	int isValidCommand=FALSE;
+	int isValidCommand=false;
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
@@ -894,10 +926,10 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 				maxTotchars=i+3;
 				if(maxTotchars>buffersize)
 				{
-					isValidCommand=FALSE;
+					isValidCommand=false;
 					break;				
 				}
-				isValidCommand=TRUE;
+				isValidCommand=true;
 				break;
 			}
 			nLines++;
@@ -937,7 +969,7 @@ u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsp
 	char *req=td->buffer;
 	u_long buffersize=td->buffersize;
 	u_long nLinechars;
-	int isValidCommand=FALSE;
+	int isValidCommand=false;
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
@@ -955,10 +987,10 @@ u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsp
 				maxTotchars=i+3;
 				if(maxTotchars>buffersize)
 				{
-					isValidCommand=FALSE;
+					isValidCommand=false;
 					break;				
 				}
-				isValidCommand=TRUE;
+				isValidCommand=true;
 				break;
 			}
 			nLines++;
@@ -1049,7 +1081,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		/*
 		*Reset the flag lineControlled.
 		*/
-		lineControlled=FALSE;
+		lineControlled=false;
 
 		/*
 		*Copy the HTTP command.
@@ -1064,7 +1096,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 			*The first line has the form:
 			*GET /index.html HTTP/1.1
 			*/
-			lineControlled=TRUE;
+			lineControlled=true;
 			/*
 			*Copy the method type.
 			*/
@@ -1072,12 +1104,12 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			max=lstrlen(token);
-			int containOpts=FALSE;
+			int containOpts=false;
 			for(i=0;i<max;i++)
 			{
 				if(token[i]=='?')
 				{
-					containOpts=TRUE;
+					containOpts=true;
 					break;
 				}
 				td->request.URI[i]=token[i];
@@ -1100,9 +1132,9 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 			*/
 			StrTrim(td->request.VER,"HTTP /");
 			if(td->request.URI[lstrlen(td->request.URI)-1]=='/')
-				td->request.uriEndsWithSlash=TRUE;
+				td->request.uriEndsWithSlash=true;
 			else
-				td->request.uriEndsWithSlash=FALSE;
+				td->request.uriEndsWithSlash=false;
 			StrTrim(td->request.URI," /");
 			StrTrim(td->request.URIOPTS," /");
 			max=lstrlen(td->request.URI);
@@ -1115,7 +1147,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"User-Agent"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.USER_AGENT,token);
 			StrTrim(td->request.USER_AGENT," ");
 		}else
@@ -1123,7 +1155,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Authorization"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;		
+			lineControlled=true;		
 			td->buffer2[0]='\0';
 			/*
 			*Basic authorization in base64 is login:password.
@@ -1148,7 +1180,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Host"))
 		{
 			token = strtok( NULL, seps );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.HOST,token);
 			StrTrim(td->request.HOST," ");
 		}else
@@ -1156,7 +1188,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Accept"))
 		{
 			token = strtok( NULL, "\n\r" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcat(td->request.ACCEPT,token);
 			StrTrim(td->request.ACCEPT," ");
 		}else
@@ -1164,7 +1196,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Accept-Language"))
 		{
 			token = strtok( NULL, "\n\r" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.ACCEPTLAN,token);
 			StrTrim(td->request.ACCEPTLAN," ");
 		}else
@@ -1172,7 +1204,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Accept-charset"))
 		{
 			token = strtok( NULL, "\n\r" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.ACCEPTCHARSET,token);
 			StrTrim(td->request.ACCEPTCHARSET," ");
 		}else
@@ -1180,7 +1212,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Accept-Encoding"))
 		{
 			token = strtok( NULL, "\n\r" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.ACCEPTENC,token);
 			StrTrim(td->request.ACCEPTENC," ");
 		}else
@@ -1188,7 +1220,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Connection"))
 		{
 			token = strtok( NULL, "\n\r" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.CONNECTION,token);
 			StrTrim(td->request.CONNECTION," ");
 		}else
@@ -1196,7 +1228,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Cookie"))
 		{
 			token = strtok( NULL, "\n\r" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.COOKIE,token);
 			StrTrim(td->request.COOKIE," ");
 		}else
@@ -1204,7 +1236,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"From"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.FROM,token);
 			StrTrim(td->request.FROM," ");
 		}else
@@ -1212,7 +1244,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Content-Length"))
 		{
 			token = strtok( NULL, "\n\r" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.CONTENTS_DIM,token);
 		}else
 		/*Range*/
@@ -1221,7 +1253,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 			td->request.RANGETYPE[0]='\0';
 			td->request.RANGEBYTEBEGIN[0]='\0';
 			td->request.RANGEBYTEEND[0]='\0';
-			lineControlled=TRUE;
+			lineControlled=true;
 			token = strtok( NULL, "\r\n\t" );
 			do
 			{
@@ -1252,7 +1284,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Referer"))
 		{
 			token = strtok( NULL, seps );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.REFERER,token);
 			StrTrim(td->request.REFERER," ");
 		}else
@@ -1260,7 +1292,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Pragma"))
 		{
 			token = strtok( NULL, seps );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->request.PRAGMA,token);
 			StrTrim(td->request.PRAGMA," ");
 		}
@@ -1327,7 +1359,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		/*
 		*Reset the flag lineControlled.
 		*/
-		lineControlled=FALSE;
+		lineControlled=false;
 
 		/*
 		*Copy the HTTP command.
@@ -1342,7 +1374,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 			*The first line has the form:
 			*GET /index.html HTTP/1.1
 			*/
-			lineControlled=TRUE;
+			lineControlled=true;
 			/*
 			*Copy the HTTP version, do not include "HTTP/".
 			*/
@@ -1359,7 +1391,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Server"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.SERVER_NAME,token);
 			StrTrim(td->response.SERVER_NAME," ");
 		}else
@@ -1367,7 +1399,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Location"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.LOCATION,token);
 			StrTrim(td->response.LOCATION," ");
 		}else
@@ -1375,7 +1407,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Date"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.DATE,token);
 			StrTrim(td->response.DATE," ");
 		}else
@@ -1383,7 +1415,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Content-Type"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.CONTENTS_TYPE,token);
 			StrTrim(td->response.CONTENTS_TYPE," ");
 		}else
@@ -1391,7 +1423,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"MIME-Version"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.MIMEVER,token);
 			StrTrim(td->response.MIMEVER," ");
 		}else
@@ -1399,7 +1431,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Set-Cookie"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			/*Concatenate string at the end cause can be more that one cookie line.*/
 			lstrcat(td->response.COOKIE,token);
 			StrTrim(td->response.COOKIE," ");
@@ -1408,7 +1440,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Content-Length"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.CONTENTS_DIM,token);
 			StrTrim(td->response.CONTENTS_DIM," ");
 		}else
@@ -1416,7 +1448,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"P3P"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.P3P,token);
 			StrTrim(td->response.P3P," ");
 		}else
@@ -1424,7 +1456,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Connection"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.CONNECTION,token);
 			StrTrim(td->response.CONNECTION," ");
 		}else
@@ -1432,7 +1464,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lstrcmpi(command,"Expires"))
 		{
 			token = strtok( NULL, "\r\n" );
-			lineControlled=TRUE;
+			lineControlled=true;
 			lstrcpy(td->response.DATEEXP,token);
 			StrTrim(td->response.DATEEXP," ");
 		}

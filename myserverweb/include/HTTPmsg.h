@@ -16,7 +16,8 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef HTTPMSG_H
+#define HTTPMSG_H
 /*
 *Error over 1000 are simply warnings.
 */
@@ -44,3 +45,4 @@
 extern char HTTP_ERROR_MSGS[13][64];
 extern char HTTP_ERROR_HTMLS[13][64];
 int getErrorIDfromHTTPStatusCode(int statusCode);
+#endif

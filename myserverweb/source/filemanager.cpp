@@ -17,12 +17,31 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\stdafx.h"
-#include "..\include\utility.h"
-#include "..\include\stringutils.h"
+#include "../stdafx.h"
+#include "../include/utility.h"
+#include "../include/stringutils.h"
 extern int mustEndServer; 
 static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;
+
+#ifndef WIN32
+extern "C" {
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
+}
+
+static bool Temp_List_Int = false;
+static char * Temp_Files[100];
+
+#define lstrcmpi strcmp
+#define lstrcpy strcpy
+#define lstrcat strcat
+#define lstrlen strlen
+#endif
 
 /*
 *Write the message to the log file.
@@ -69,7 +88,7 @@ int ms_getPathRecursionLevel(char* path)
 	char *token = strtok( lpath, "\\/" );
 	do
 	{
-		if(lstrcmpi(token,".."))
+		if(token != NULL && lstrcmpi(token,".."))
 			rec++;
 		else
 			rec--;
@@ -81,10 +100,13 @@ int ms_getPathRecursionLevel(char* path)
 /*
 *Write data to a file.
 */
-INT ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbw)
+int ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbw)
 {
 #ifdef WIN32
 	return WriteFile((HANDLE)f,buffer,buffersize,nbw,NULL);
+#else
+	*nbw = write((int)f, buffer, buffersize);
+	return 0;
 #endif
 }
 /*
@@ -140,13 +162,96 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 			ms_setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
 	}
 
+#else
+	if(!Temp_List_Int)
+	{
+		memset(Temp_Files, 0, 100);
+		Temp_List_Int = true;
+	}
+	
+	struct stat F_Stats;
+	int F_Flags;
+	
+	if(opt && MYSERVER_FILE_OPEN_READ && MYSERVER_FILE_OPEN_WRITE)
+		F_Flags = O_RDWR;
+	else if(opt & MYSERVER_FILE_OPEN_READ)
+		F_Flags = O_RDONLY;
+	else if(opt & MYSERVER_FILE_OPEN_WRITE)
+		F_Flags = O_WRONLY;
+		
+	char Buffer[strlen(filename)+1];
+		
+	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
+	{
+		unsigned int index;
+		Buffer[0] = '\0';
+		for(index = strlen(filename); index >= 0; index--)
+			if(filename[index] == '/')
+			{
+				index++;
+				break;
+			}
+		if(index > 0)
+			strncat(Buffer, filename, index);
+		strcat(Buffer, ".");
+		strcat(Buffer, filename + index);
+	}
+	else
+		strcpy(Buffer, filename);
+		
+	if(opt & MYSERVER_FILE_OPEN_IFEXISTS)
+	{
+		if(stat(filename, &F_Stats) < 0)
+		{
+			return (MYSERVER_FILE_HANDLE)0;
+		}
+		else
+			ret = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
+	}
+	else if(opt & MYSERVER_FILE_OPEN_APPEND)
+	{
+		if(stat(filename, &F_Stats) < 0)
+			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags);
+		else
+			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_APPEND | F_Flags);
+	}
+	else if(opt & MYSERVER_FILE_CREATE_ALWAYS)
+	{
+		if(stat(filename, &F_Stats))
+			remove(filename);
+
+		ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags);
+	}
+	else if(opt & MYSERVER_FILE_OPEN_ALWAYS)
+	{
+		ret = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
+	}
+	
+	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
+	{
+		Temp_Files[(int)ret] = new char[strlen(Buffer)];
+		strcpy(Temp_Files[(int)ret], Buffer);
+	}
+	else
+	{
+		if(Temp_Files[(int)ret] != NULL)
+			delete[] Temp_Files[(int)ret];
+		Temp_Files[(int)ret] = NULL;
+	}
+	
+	if(ret < 0)
+	{
+		ret = 0;
+	}
+
 #endif
+	
 	return ret;
 }
 /*
 *Read data from a file to a buffer.
 */
-INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbr)
+int	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
@@ -155,35 +260,52 @@ INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long
 	*Return 0 if the end of the file is reached.
 	*/
 	return (*nbr<=buffersize)? 1 : 0 ;
+#else
+	*nbr = read((int)f, buffer, buffersize);
+	
+	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
 }
 /*
 *Create a temporary file.
 */
 MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char* filename)
-{
-#ifdef WIN32
+{ 
 	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY|MYSERVER_FILE_CREATE_ALWAYS);
-#endif
 }
 /*
 *Close an open file handle.
 */
-INT ms_CloseFile(MYSERVER_FILE_HANDLE fh)
+int ms_CloseFile(MYSERVER_FILE_HANDLE fh)
 {
 #ifdef WIN32
 	FlushFileBuffers((HANDLE)fh);
 	CloseHandle((HANDLE)fh);
+#else
+	fsync((int)fh);
+	close((int)fh);
+	
+	// see if it was a temp
+	if(Temp_Files[(int)fh] != NULL)
+	{
+		remove(Temp_Files[(int)fh]);
+		delete[] Temp_Files[(int)fh];
+		Temp_Files[(int)fh] = NULL;
+	}
+
 #endif
+	
 	return 0;
 }
 /*
 *Delete an existing file passing its path.
 */
-INT ms_DeleteFile(char *filename)
+int ms_DeleteFile(char *filename)
 {
 #ifdef WIN32
 	DeleteFile(filename);
+#else
+	remove(filename);
 #endif
 	return 0;
 }
@@ -195,7 +317,12 @@ u_long ms_getFileSize(MYSERVER_FILE_HANDLE f)
 	u_long size;
 #ifdef WIN32
 	size=GetFileSize((HANDLE)f,NULL);
+#else
+	struct stat F_Stats;
+	fstat((int)f, &F_Stats);
+	size = F_Stats.st_size;
 #endif
+	
 	return size;
 }
 /*
@@ -206,12 +333,14 @@ int ms_setFilePointer(MYSERVER_FILE_HANDLE h,u_long initialByte)
 {
 #ifdef WIN32
 	return (SetFilePointer((HANDLE)h,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
+#else
+	return (lseek((int)h, initialByte, SEEK_SET))?1:0;
 #endif
 }
 /*
 *Returns a non-null value if the path is a folder.
 */
-INT	ms_IsFolder(char *filename)
+int ms_IsFolder(char filename[])
 {
 #ifdef WIN32
 	u_long fa=GetFileAttributes(filename);
@@ -219,13 +348,21 @@ INT	ms_IsFolder(char *filename)
 		return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
 	else
 		return 0;
+#else
+	//sprintf("in ms_IsFolder filename = %s\n", filename);
+	struct stat F_Stats;
+	if(stat(filename, &F_Stats) < 0)
+		return 0;
+
+	return (S_ISDIR(F_Stats.st_mode))? 1 : 0;
 #endif
+	
 }
 
 /*
 *Returns a non-null value if the given path is a valid file.
 */
-INT ms_FileExists(char* filename)
+int ms_FileExists(char* filename)
 {
 #ifdef WIN32
 	MYSERVER_FILE_HANDLE fh=ms_OpenFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
@@ -236,5 +373,11 @@ INT ms_FileExists(char* filename)
 	}
 	else
 		return 0;
+#else
+	struct stat F_Stats;
+	if(stat(filename, &F_Stats) < 0)
+		return 0;
+		
+	return (S_ISREG(F_Stats.st_mode))? 1 : 0;
 #endif
 }

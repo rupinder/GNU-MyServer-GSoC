@@ -17,8 +17,16 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\include\cXMLParser.h"
-#include "..\include\Utility.h"
+#include "../include/cXMLParser.h"
+#include "../include/utility.h"
+
+extern "C" {
+#include <string.h>
+}
+
+#ifndef WIN32
+#define lstrlen strlen
+#endif
 
 /*
 *This code is used to parse a pseudo-xml file.
@@ -77,17 +85,17 @@ char *cXMLParser::getValue(char* vName)
 			/*
 			*If we arrive here this is not a comment.
 			*/
-			found=TRUE;
+			found=true;
 			for(j=0;j<len;j++)
 			{
 				if(buffer[i+j+1]!=vName[j])
 				{
-					found=FALSE;
+					found=false;
 					break;
 				}
 			}
 			if(buffer[i+j+1]!='>')
-				found=FALSE;
+				found=false;
 				
 			while(buffer[i++]!='>');
 			if(found)

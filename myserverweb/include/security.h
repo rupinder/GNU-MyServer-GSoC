@@ -16,10 +16,11 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef SECURITY_H
+#define SECURITY_H
 
-#include "..\stdafx.h"
-#include "..\include\connectionstruct.h"
+#include "../stdafx.h"
+#include "../include/connectionstruct.h"
 
 extern int useLogonOption;
 typedef  void* LOGGEDUSERID;
@@ -35,17 +36,18 @@ int ms_logonCurrentThread(char*,char*,LOGGEDUSERID*);
 /*
 *Change the ownner of the caller thread to the runner of the process.
 */
-VOID ms_revertToSelf();
+void ms_revertToSelf();
 /*
 *Impersonate the ms_logon user.
 */
-VOID ms_impersonateLogonUser(LOGGEDUSERID* hImpersonation);
+void ms_impersonateLogonUser(LOGGEDUSERID* hImpersonation);
 /*
 *Close the handle.
 */
-VOID ms_cleanLogonUser(LOGGEDUSERID* hImpersonation);
+void ms_cleanLogonUser(LOGGEDUSERID* hImpersonation);
 
-VOID ms_logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
-VOID ms_logout(int ms_logon,LOGGEDUSERID *hImpersonation);
+void ms_logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
+void ms_logout(int ms_logon,LOGGEDUSERID *hImpersonation);
 
-VOID ms_logonGuest();
+void ms_logonGuest();
+#endif

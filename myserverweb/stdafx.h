@@ -16,22 +16,34 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef STDAFX_H
+#define STDAFX_H
 
+extern "C" {
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
-#include <tchar.h>
 
 #include <math.h>
-#include <process.h>
 
-#include <winsock2.h>
 #include <time.h>
-#include <io.h>
+}
 
+#ifdef WIN32
+#include <winsock2.h>
+#include <tchar.h>
+#include <process.h>
+#include <io.h>
+#endif
+
+#ifdef __linux__
+#warning Magic number used.  Possable buffer overflow
+#define MAX_PATH 256
+#define MAX_COMPUTERNAME_LENGTH 256
+#define MAXIMUM_PROCESSORS 256
+#endif
 
 typedef unsigned long DWORD;
 typedef int BOOL;
@@ -40,12 +52,15 @@ typedef void* HANDLE;
 extern class cserver *lserver;
 extern class CBase64Utils base64Utils;
 struct CONNECTION;
-extern char *versionOfSoftware;
+extern const char *versionOfSoftware;
 extern BOOL mustEndServer;
 
 extern BOOL mustEndServer;
 #define Thread   __declspec( thread )
 typedef int (*CGIMAIN)(char*); 
-typedef int (*CGIINIT)(void*,void*,void*,void*); 
+typedef int (*CGIINIT)(struct httpThreadContext*, struct CONNECTION*);
+//typedef int (*CGIINIT)(void*,void*,void*,void*); 
 typedef CONNECTION*  volatile LPCONNECTION;
 typedef  void* LOGGEDUSERID;
+
+#endif

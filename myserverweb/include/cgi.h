@@ -16,12 +16,13 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef CGI_H
+#define CGI_H
 
-#include "..\include\Response_RequestStructs.h"
-#include "..\include\mime_manager.h"
-#include "..\include\mscgi.h"
-#include "..\include\security.h"
+#include "../include/Response_RequestStructs.h"
+#include "../include/MIME_manager.h"
+#include "../include/mscgi.h"
+#include "../include/security.h"
 extern const char *versionOfSoftware;
 /*
 *Structure used by the HTTP protocol to describe a thread.
@@ -30,3 +31,5 @@ struct httpThreadContext;
 
 int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
 void buildCGIEnvironmentString(httpThreadContext*,char*);
+
+#endif
