@@ -640,10 +640,10 @@ void MYSERVER_FILE::splitPathLength(const char *path, int *dir, int *filename)
 		splitpoint--;
 
   if(dir)
-    *dir = splitpoint + 1;
+    *dir = splitpoint + 2;
 
   if(filename)
-    *filename = len - splitpoint + 1 ;
+    *filename = len - splitpoint + 2;
 }
 /*!
  *Splits a file path into a directory and filename.

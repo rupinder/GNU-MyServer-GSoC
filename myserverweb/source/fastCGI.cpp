@@ -48,50 +48,50 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	u_long nbr=0;
 	FCGI_Header header;
 
-  int scriptDirLen=0;
-  int scriptFileLen= 0;
-  int cgiRootLen= 0;
-  int  cgiFileLen =0  ;
-  int  scriptpathLen = strlen(scriptpath) + 1;
+  int scriptDirLen = 0;
+  int scriptFileLen = 0;
+  int cgiRootLen = 0;
+  int cgiFileLen = 0;
+  int scriptpathLen = strlen(scriptpath) + 1;
+
 
   if(td->scriptPath)
     delete [] td->scriptPath;
-  
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
     return 0;
 	lstrcpy(td->scriptPath, scriptpath);
 
   MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
-  
+  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+
   if(td->scriptDir)
     delete [] td->scriptDir;
-  td->scriptDir = new char[scriptDirLen];
+  td->scriptDir = new char[scriptDirLen+1];
   if(td->scriptDir == 0)
     return 0;
 
   if(td->scriptFile)
     delete [] td->scriptFile;
-  td->scriptFile = new char[scriptFileLen];
+  td->scriptFile = new char[scriptFileLen+1];
   if(td->scriptFile == 0)
     return 0;
 
-  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
-
-  if(td->scriptDir)
+  if(td->cgiRoot)
     delete [] td->cgiRoot;
-  td->cgiRoot = new char[cgiRootLen];
+  td->cgiRoot = new char[cgiRootLen+1];
   if(td->cgiRoot == 0)
     return 0;
 
   if(td->cgiFile)
     delete [] td->cgiFile;
-  td->cgiFile = new char[cgiFileLen];
+  td->cgiFile = new char[cgiFileLen+1];
   if(td->cgiFile == 0)
     return 0;
 
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
+
 
   td->buffer->SetLength(0);
 	td->buffer2->GetAt(0)='\0';
