@@ -87,8 +87,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
     return 0;
 	lstrcpy(td->scriptPath, exec);
 
-  MYSERVER_FILE::splitPathLength(exec, &scriptDirLen, &scriptFileLen);
-  MYSERVER_FILE::splitPathLength(exec, &cgiRootLen, &cgiFileLen);
+  File::splitPathLength(exec, &scriptDirLen, &scriptFileLen);
+  File::splitPathLength(exec, &cgiRootLen, &cgiFileLen);
 
   if(td->scriptDir)
     delete [] td->scriptDir;
@@ -114,8 +114,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
   if(td->cgiFile == 0)
     return 0;
 
-	MYSERVER_FILE::splitPath(exec, td->scriptDir, td->scriptFile);
-	MYSERVER_FILE::splitPath(exec, td->cgiRoot, td->cgiFile);
+	File::splitPath(exec, td->scriptDir, td->scriptFile);
+	File::splitPath(exec, td->cgiRoot, td->cgiFile);
 
 	Cgi::buildCGIEnvironmentString(td,data.envString);
 	
@@ -130,8 +130,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
     }
 		getdefaultwd(outDataPath, outDataPathLen );	
 		sprintf(&(outDataPath)[wdLen-1],"/stdOutFileMSCGI_%u",(u_int)td->id);
-		if(data.stdOut.openFile(outDataPath, MYSERVER_FILE_CREATE_ALWAYS | 
-                            MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_WRITE))
+		if(data.stdOut.openFile(outDataPath, File_CREATE_ALWAYS | 
+                            File_OPEN_READ | File_OPEN_WRITE))
     {
       delete [] outDataPath;
       return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
@@ -182,7 +182,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
     if(!td->appendOutputs)
     {	
       data.stdOut.closeFile();
-      MYSERVER_FILE::deleteFile(outDataPath);
+      File::deleteFile(outDataPath);
     }
     if(outDataPath)
       delete [] outDataPath;
@@ -195,7 +195,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 		if(errID!=-1)
     {
 			data.stdOut.closeFile();
-			MYSERVER_FILE::deleteFile(outDataPath);
+			File::deleteFile(outDataPath);
       if(outDataPath)
         delete [] outDataPath;
 			return ((Http*)td->lhttp)->raiseHTTPError(td,s,errID);
@@ -220,7 +220,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 			if(!td->appendOutputs)
 			{
 				data.stdOut.closeFile();
-				MYSERVER_FILE::deleteFile(outDataPath);
+				File::deleteFile(outDataPath);
         if(outDataPath)
           delete [] outDataPath;
 			}
@@ -243,7 +243,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 					if(!td->appendOutputs)
 					{
 						data.stdOut.closeFile();
-						MYSERVER_FILE::deleteFile(outDataPath);
+						File::deleteFile(outDataPath);
           }
           if(outDataPath)
             delete [] outDataPath;	
@@ -255,7 +255,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 		if(!td->appendOutputs)
 		{
 			data.stdOut.closeFile();
-			MYSERVER_FILE::deleteFile(outDataPath);
+			File::deleteFile(outDataPath);
 		}
 	}
   if(outDataPath)
@@ -281,7 +281,7 @@ int MsCgi::load()
 #ifdef HAVE_DL
 	char *mscgi_path=0;
 	
-	if(MYSERVER_FILE::fileExists("cgi-lib/cgi-lib.so"))
+	if(File::fileExists("cgi-lib/cgi-lib.so"))
 	{
     mscgi_path = new char[19];
     if(mscgi_path)

@@ -31,13 +31,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 struct START_PROC_INFO
 {
 	/*! STDIN file for new process.  */
-	MYSERVER_FILE_HANDLE stdIn;	
+	File_HANDLE stdIn;	
 	
 	/*! STDOUT file for new process.  */
-	MYSERVER_FILE_HANDLE stdOut;
+	File_HANDLE stdOut;
 	
 	/*! STDERR file for new process.  */
-	MYSERVER_FILE_HANDLE stdError;
+	File_HANDLE stdError;
 	
 	char *cmdLine;
 	char *cwd;

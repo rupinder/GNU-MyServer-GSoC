@@ -180,7 +180,7 @@ struct fCGIContext
 	HttpThreadContext* td;
   sfCGIservers* server;
 	MYSERVER_SOCKET sock;
-	MYSERVER_FILE tempOut;
+	File tempOut;
 };
 
 class FastCgi  : public HttpDataHandler

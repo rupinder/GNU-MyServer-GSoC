@@ -41,13 +41,13 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	unsigned long int count;
 	u_long nbw;
 	
-	MYSERVER_FILE msfile;
+	File msfile;
 	memset(&msfile, 0, sizeof(msfile));
 
-	if(MYSERVER_FILE::fileExists("count.dat"))
+	if(File::fileExists("count.dat"))
 	{
 		// read the last number
-		if(msfile.openFile("count.dat", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS) == 0)
+		if(msfile.openFile("count.dat", File_OPEN_READ|File_OPEN_IFEXISTS) == 0)
 		{
 			msfile.readFromFile((char *)&count, sizeof(count), &nbw);
 			msfile.closeFile();
@@ -61,7 +61,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 			count = 1;
 			
 		//now save it
-		if(msfile.openFile("count.dat", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS)==0)
+		if(msfile.openFile("count.dat", File_OPEN_WRITE|File_OPEN_ALWAYS)==0)
 		{
 		  msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		  msfile.closeFile();
@@ -73,7 +73,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 		count = 1;
 		
 		//now save it
-		msfile.openFile("count.dat", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_CREATE_ALWAYS);
+		msfile.openFile("count.dat", File_OPEN_WRITE|File_CREATE_ALWAYS);
 		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		msfile.closeFile();
 	}

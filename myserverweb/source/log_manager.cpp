@@ -63,8 +63,8 @@ int MYSERVER_LOG_MANAGER::load(char *filename)
   if(loaded)
     close();
 
-  opt = MYSERVER_FILE_OPEN_APPEND | MYSERVER_FILE_OPEN_ALWAYS |
-            MYSERVER_FILE_OPEN_WRITE | MYSERVER_FILE_NO_INHERIT;
+  opt = File_OPEN_APPEND | File_OPEN_ALWAYS |
+            File_OPEN_WRITE | File_NO_INHERIT;
 
   ret = file.openFile(filename, opt);
 
@@ -205,7 +205,7 @@ int MYSERVER_LOG_MANAGER::endPrintError()
 /*!
  *Get a pointer to the file object.
  */
-MYSERVER_FILE *MYSERVER_LOG_MANAGER::getFile()
+File *MYSERVER_LOG_MANAGER::getFile()
 {
   return &file;
 }

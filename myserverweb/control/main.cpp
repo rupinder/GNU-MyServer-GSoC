@@ -85,7 +85,7 @@ int main(int argc, char * argv[])
    strncpy(languages_path, "languages/", MAX_PATH);
    fd_ret=fd.findfirst("languages/*.xml");
 #else
-   if(MYSERVER_FILE::fileExists("languages"))
+   if(File::fileExists("languages"))
      {
 	strncpy(languages_path, "languages/", MAX_PATH);
      }
@@ -97,7 +97,7 @@ int main(int argc, char * argv[])
 	strncpy(languages_path, "/usr/share/myserver/languages/", MAX_PATH);
 # endif
      }
-   if(!(MYSERVER_FILE::fileExists(languages_path)))
+   if(!(File::fileExists(languages_path)))
      {
 	fl_alert("Languages directory not found.");
 	langFound = false;
@@ -117,17 +117,17 @@ int main(int argc, char * argv[])
    // just a little hack
    snprintf(main_configuration_file, MAX_PATH, "%s/.myserver/myserver.xml", getenv("HOME"));
 #endif
-   if(MYSERVER_FILE::fileExists("myserver.xml"))
+   if(File::fileExists("myserver.xml"))
      {
 	conf_location = 1;
 	strncpy(main_configuration_file,"myserver.xml", MAX_PATH);
      }
 #ifndef WIN32
-   else if(MYSERVER_FILE::fileExists(main_configuration_file))
+   else if(File::fileExists(main_configuration_file))
      {
 	conf_location = 2;
      }
-   else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
+   else if(File::fileExists("/etc/myserver/myserver.xml"))
      {
 	conf_location = 3;
 	strncpy(main_configuration_file,"/etc/myserver/myserver.xml", MAX_PATH);
@@ -140,9 +140,9 @@ int main(int argc, char * argv[])
      {
 	conf_location = 1;
 	strncpy(main_configuration_file,"myserver.xml", MAX_PATH);
-	MYSERVER_FILE inputF;
-	MYSERVER_FILE outputF;
-	if(!MYSERVER_FILE::fileExists("myserver.xml.default"))
+	File inputF;
+	File outputF;
+	if(!File::fileExists("myserver.xml.default"))
 	  {  // no configuration files found
 	     fl_alert("Default configuration files not found.  Loading empty values.");
 	     confFound = false;
@@ -153,8 +153,8 @@ int main(int argc, char * argv[])
 	     char buffer[512];
 	     u_long nbr, nbw;
 	     fl_alert("Configuration files not found.  Loading default files.");
-	     inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-	     outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	     inputF.openFile("myserver.xml.default", File_OPEN_READ|File_OPEN_IFEXISTS);
+	     outputF.openFile("myserver.xml", File_OPEN_WRITE|File_OPEN_ALWAYS);
 	     for(;;)
 	       {
 		  inputF.readFromFile(buffer, 512, &nbr );
@@ -165,12 +165,12 @@ int main(int argc, char * argv[])
 	     inputF.closeFile();
 	     outputF.closeFile();
 
-	     if(MYSERVER_FILE::fileExists("MIMEtypes.xml.default"))
+	     if(File::fileExists("MIMEtypes.xml.default"))
 	       {
 		  char buffer[512];
 		  u_long nbr, nbw;
-		  inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-		  outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		  inputF.openFile("MIMEtypes.xml.default", File_OPEN_READ|File_OPEN_IFEXISTS);
+		  outputF.openFile("MIMEtypes.xml", File_OPEN_WRITE|File_OPEN_ALWAYS);
 		  for(;;)
 		    {
 		       inputF.readFromFile(buffer, 512, &nbr );
@@ -182,12 +182,12 @@ int main(int argc, char * argv[])
 		  outputF.closeFile();
 	       }
 
-	     if(MYSERVER_FILE::fileExists("virtualhosts.xml.default"))
+	     if(File::fileExists("virtualhosts.xml.default"))
 	       {
 		  char buffer[512];
 		  u_long nbr, nbw;
-		  inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-		  outputF.openFile("virtualhosts.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		  inputF.openFile("virtualhosts.xml.default", File_OPEN_READ|File_OPEN_IFEXISTS);
+		  outputF.openFile("virtualhosts.xml", File_OPEN_WRITE|File_OPEN_ALWAYS);
 		  for(;;)
 		    {
 		       inputF.readFromFile(buffer, 512, &nbr );
@@ -231,7 +231,7 @@ int main(int argc, char * argv[])
 	     char filename[MAX_PATH];
 	     if(fd.name[0]=='.')
 	       continue;
-	     MYSERVER_FILE::splitPath(fd.name,dir,filename);
+	     File::splitPath(fd.name,dir,filename);
 	     if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
 	       Configure.Language->add(filename, 0, 0, 0, 0);
 	  }
@@ -241,18 +241,18 @@ int main(int argc, char * argv[])
    
    // Load the dynamic protocol names
    Vector list;
-   if(MYSERVER_FILE::fileExists("external/protocols"))
+   if(File::fileExists("external/protocols"))
      {
 	GetDynamicProtocols("external/protocols", list);
      }
 #ifndef WIN32
 #ifdef PREFIX
-   else if(MYSERVER_FILE::fileExists(PREFIX "/lib/myserver/external/protocols"))
+   else if(File::fileExists(PREFIX "/lib/myserver/external/protocols"))
      {
 	GetDynamicProtocols(PREFIX "/lib/myserver/external/protocols", list);
      }
 #else
-   else if(MYSERVER_FILE::fileExists("/usr/lib/myserver/external/protocols"))
+   else if(File::fileExists("/usr/lib/myserver/external/protocols"))
      {
 	GetDynamicProtocols("/usr/lib/myserver/external/protocols", list);
      }

@@ -40,8 +40,8 @@ int MimeManager::load(char *filename)
 	strncpy(MimeManager::filename,filename,MAX_PATH);
 	numMimeTypesLoaded=0;
 	char *buffer;
-	MYSERVER_FILE f;
-	int ret=f.openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	File f;
+	int ret=f.openFile(filename,File_OPEN_READ|File_OPEN_IFEXISTS);
 	if(ret)
 		return 0;
 	u_long fs=f.getFileSize();
@@ -250,10 +250,10 @@ int MimeManager::loadXML(char *filename)
  */
 int MimeManager::saveXML(char *filename)
 {
-	MYSERVER_FILE::deleteFile(filename);
-	MYSERVER_FILE f;
+	File::deleteFile(filename);
+	File f;
 	u_long nbw;
-	f.openFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	f.openFile(filename,File_OPEN_WRITE|File_OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
 	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
 	mime_record *rc=data;
@@ -305,9 +305,9 @@ int MimeManager::saveXML(char *filename)
  */
 int MimeManager::save(char *filename)
 {
-	MYSERVER_FILE::deleteFile(filename);
-	MYSERVER_FILE f;
-	f.openFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	File::deleteFile(filename);
+	File f;
+	f.openFile(filename,File_OPEN_WRITE|File_OPEN_ALWAYS);
 	MimeManager::mime_record *nmr1;
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )

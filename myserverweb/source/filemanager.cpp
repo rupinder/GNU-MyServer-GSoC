@@ -43,7 +43,7 @@ extern int mustEndServer;
  *Return the recursion of the path.
  *Return -1 on errors.
  */
-int MYSERVER_FILE::getPathRecursionLevel(char* path)
+int File::getPathRecursionLevel(char* path)
 {
 	char *lpath;
   int lpath_len = strlen(path) + 1;
@@ -75,7 +75,7 @@ int MYSERVER_FILE::getPathRecursionLevel(char* path)
 /*!
  *Costructor of the class.
  */
-MYSERVER_FILE::MYSERVER_FILE()
+File::File()
 {
 	filename=0;
 	handle=0;
@@ -87,7 +87,7 @@ MYSERVER_FILE::MYSERVER_FILE()
  *nbw is a pointer to an unsigned long that receive the number of the
  *bytes written correctly.
  */
-int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
+int File::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 {
 	if(buffersize==0)
 	{
@@ -107,7 +107,7 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 /*!
  *Constructor for the class.
  */
-MYSERVER_FILE::MYSERVER_FILE(char *nfilename, int opt) 
+File::File(char *nfilename, int opt) 
   : handle(0)
 {
   filename = 0;
@@ -121,7 +121,7 @@ MYSERVER_FILE::MYSERVER_FILE(char *nfilename, int opt)
  *opt is a bit-field containing the options on how open it.
  *openFile returns 0 if the call was successfull, any other value on errors.
  */
-int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
+int File::openFile(char* nfilename,u_long opt)
 {
 	long ret=0;
   int filename_len;
@@ -137,7 +137,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};
 	sa.nLength = sizeof(sa);
-	if(opt & MYSERVER_FILE_NO_INHERIT)
+	if(opt & File_NO_INHERIT)
 		sa.bInheritHandle = FALSE;
 	else
 		sa.bInheritHandle = TRUE;
@@ -146,29 +146,29 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	u_long openFlag=0;
 	u_long attributeFlag=0;
 
-	if(opt & MYSERVER_FILE_OPEN_ALWAYS)
+	if(opt & File_OPEN_ALWAYS)
 		creationFlag|=OPEN_ALWAYS;
-	if(opt & MYSERVER_FILE_OPEN_IFEXISTS)
+	if(opt & File_OPEN_IFEXISTS)
 		creationFlag|=OPEN_EXISTING;
-	if(opt & MYSERVER_FILE_CREATE_ALWAYS)
+	if(opt & File_CREATE_ALWAYS)
 		creationFlag|=CREATE_ALWAYS;
 
-	if(opt & MYSERVER_FILE_OPEN_READ)
+	if(opt & File_OPEN_READ)
 		openFlag|=GENERIC_READ;
-	if(opt & MYSERVER_FILE_OPEN_WRITE)
+	if(opt & File_OPEN_WRITE)
 		openFlag|=GENERIC_WRITE;
 
-	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
+	if(opt & File_OPEN_TEMPORARY)
 	{
 		openFlag|=FILE_ATTRIBUTE_TEMPORARY; 
 		attributeFlag|=FILE_FLAG_DELETE_ON_CLOSE;
 	}
-	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
+	if(opt & File_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
-	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag, 
+	handle=(File_HANDLE)CreateFile(filename, openFlag, 
                                           FILE_SHARE_READ | FILE_SHARE_WRITE, 
                                           &sa, creationFlag, attributeFlag, NULL);
 	/*! Return 1 if an error happens.  */
@@ -183,7 +183,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
   }
 	else/*! Open the file. */
 	{
-		if(opt & MYSERVER_FILE_OPEN_APPEND)
+		if(opt & File_OPEN_APPEND)
 			ret=setFilePointer(getFileSize());
 		else
 			ret=setFilePointer(0);
@@ -204,14 +204,14 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	struct stat F_Stats;
 	int F_Flags;
   char Buffer[strlen(filename)+1];
-	if(opt && MYSERVER_FILE_OPEN_READ && MYSERVER_FILE_OPEN_WRITE)
+	if(opt && File_OPEN_READ && File_OPEN_WRITE)
 		F_Flags = O_RDWR;
-	else if(opt & MYSERVER_FILE_OPEN_READ)
+	else if(opt & File_OPEN_READ)
 		F_Flags = O_RDONLY;
-	else if(opt & MYSERVER_FILE_OPEN_WRITE)
+	else if(opt & File_OPEN_WRITE)
 		F_Flags = O_WRONLY;
 		
-	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
+	if(opt & File_OPEN_HIDDEN)
 	{
 		int index;
 		Buffer[0] = '\0';
@@ -229,7 +229,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	else
 		strcpy(Buffer, filename);
 		
-	if(opt & MYSERVER_FILE_OPEN_IFEXISTS)
+	if(opt & File_OPEN_IFEXISTS)
 	{
 		ret = stat(filename, &F_Stats);
 		if(ret  < 0)
@@ -247,9 +247,9 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
       filename = 0;
 			return 1;
     }
-		handle= (MYSERVER_FILE_HANDLE)ret;
+		handle= (File_HANDLE)ret;
 	}
-	else if(opt & MYSERVER_FILE_OPEN_APPEND)
+	else if(opt & File_OPEN_APPEND)
 	{
 		ret = stat(filename, &F_Stats);
 		if(ret < 0)
@@ -264,9 +264,9 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 			return 1;
     }
 		else
-			handle=(MYSERVER_FILE_HANDLE)ret;
+			handle=(File_HANDLE)ret;
 	}
-	else if(opt & MYSERVER_FILE_CREATE_ALWAYS)
+	else if(opt & File_CREATE_ALWAYS)
 	{
 		stat(filename, &F_Stats);
 		if(ret)
@@ -281,9 +281,9 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 			return 1;
     }
 		else
-			handle=(MYSERVER_FILE_HANDLE)ret;
+			handle=(File_HANDLE)ret;
 	}
-	else if(opt & MYSERVER_FILE_OPEN_ALWAYS)
+	else if(opt & File_OPEN_ALWAYS)
 	{
 		ret = stat(filename, &F_Stats);
 		if(ret < 0)
@@ -298,15 +298,15 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 			return 1;
     }
 		else
-			 handle=(MYSERVER_FILE_HANDLE)ret;
+			 handle=(File_HANDLE)ret;
 	}
 	
-	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
+	if(opt & File_OPEN_TEMPORARY)
 		unlink(Buffer); // Remove File on close
 	
 	if((long)handle < 0)
   {
-		handle = (MYSERVER_FILE_HANDLE)0;
+		handle = (File_HANDLE)0;
     if(filename)
       delete [] filename;
     filename = 0;
@@ -318,7 +318,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 /*!
  *Returns the file handle.
  */
-MYSERVER_FILE_HANDLE MYSERVER_FILE::getHandle()
+File_HANDLE File::getHandle()
 {
 	return handle;
 }
@@ -326,7 +326,7 @@ MYSERVER_FILE_HANDLE MYSERVER_FILE::getHandle()
  *Set the file handle.
  *Return a non null-value on errors.
  */
-int MYSERVER_FILE::setHandle(MYSERVER_FILE_HANDLE hl)
+int File::setHandle(File_HANDLE hl)
 {
 	handle=hl;
 	return 0;
@@ -334,7 +334,7 @@ int MYSERVER_FILE::setHandle(MYSERVER_FILE_HANDLE hl)
 /*!
  *define the operator =
  */
-int MYSERVER_FILE::operator =(MYSERVER_FILE f)
+int File::operator =(File f)
 {
   if(filename)
     delete [] filename;
@@ -359,7 +359,7 @@ int MYSERVER_FILE::operator =(MYSERVER_FILE f)
  *Set the name of the file
  *Return Non-zero on errors.
  */
-int MYSERVER_FILE::setFilename(char* nfilename)
+int File::setFilename(char* nfilename)
 {
   if(filename)
     delete [] filename;
@@ -374,7 +374,7 @@ int MYSERVER_FILE::setFilename(char* nfilename)
 /*!
  *Returns the file path.
  */
-char *MYSERVER_FILE::getFilename()
+char *File::getFilename()
 {
 	return filename;
 }
@@ -383,7 +383,7 @@ char *MYSERVER_FILE::getFilename()
  *Return 1 or errors.
  *Return 0 on success.
  */
-int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
+int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
 	int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
@@ -398,16 +398,16 @@ int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 /*!
  *Create a temporary file.
  */
-int MYSERVER_FILE::createTemporaryFile(char* filename)
+int File::createTemporaryFile(char* filename)
 { 
-	return openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE
-                  |MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_TEMPORARY);
+	return openFile(filename,File_OPEN_READ|File_OPEN_WRITE
+                  |File_CREATE_ALWAYS|File_OPEN_TEMPORARY);
 
 }
 /*!
  *Close an open file handle.
  */
-int MYSERVER_FILE::closeFile()
+int File::closeFile()
 {
 	int ret=0;
 	if(handle)
@@ -437,7 +437,7 @@ int MYSERVER_FILE::closeFile()
  *Delete an existing file passing the path.
  *Return a non-null value on errors.
  */
-int MYSERVER_FILE::deleteFile(char *filename)
+int File::deleteFile(char *filename)
 {
 	int ret;
 #ifdef WIN32
@@ -454,7 +454,7 @@ int MYSERVER_FILE::deleteFile(char *filename)
  *Returns the file size in bytes.
  *Returns -1 on errors.
  */
-u_long MYSERVER_FILE::getFileSize()
+u_long File::getFileSize()
 {
 	u_long ret;
 #ifdef WIN32
@@ -478,7 +478,7 @@ u_long MYSERVER_FILE::getFileSize()
 /*!
  *Change the position of the pointer to the file.
  */
-int MYSERVER_FILE::setFilePointer(u_long initialByte)
+int File::setFilePointer(u_long initialByte)
 {
 	u_long ret;
 #ifdef WIN32
@@ -494,7 +494,7 @@ int MYSERVER_FILE::setFilePointer(u_long initialByte)
 /*!
  *Returns a non-null value if the path is a directory.
  */
-int MYSERVER_FILE::isDirectory(char *filename)
+int File::isDirectory(char *filename)
 {
 #ifdef WIN32
 	u_long fa=GetFileAttributes(filename);
@@ -516,7 +516,7 @@ int MYSERVER_FILE::isDirectory(char *filename)
 /*!
  *Returns a non-null value if the given path is a valid file.
  */
-int MYSERVER_FILE::fileExists(char* filename)
+int File::fileExists(char* filename)
 {
 #ifdef WIN32
 	OFSTRUCT of;
@@ -538,7 +538,7 @@ int MYSERVER_FILE::fileExists(char* filename)
  *Returns the time of the last modify to the file.
  *Returns -1 on errors.
  */
-time_t MYSERVER_FILE::getLastModTime(char *filename)
+time_t File::getLastModTime(char *filename)
 {
 	int res;
 #ifdef WIN32
@@ -557,7 +557,7 @@ time_t MYSERVER_FILE::getLastModTime(char *filename)
 /*!
  *Get the time of the last modifify did to the file.
  */
-time_t MYSERVER_FILE::getLastModTime()
+time_t File::getLastModTime()
 {
 	return getLastModTime(filename);
 }
@@ -566,7 +566,7 @@ time_t MYSERVER_FILE::getLastModTime()
  *Returns the time of the file creation.
  *Returns -1 on errors.
  */
-time_t MYSERVER_FILE::getCreationTime(char *filename)
+time_t File::getCreationTime(char *filename)
 {
 	int res;
 #ifdef WIN32
@@ -585,7 +585,7 @@ time_t MYSERVER_FILE::getCreationTime(char *filename)
 /*!
  *This function returns the creation time of the file.
  */
-time_t MYSERVER_FILE::getCreationTime()
+time_t File::getCreationTime()
 {
 	return getCreationTime(filename);
 }
@@ -593,7 +593,7 @@ time_t MYSERVER_FILE::getCreationTime()
  *Returns the time of the last access to the file.
  *Returns -1 on errors.
  */
-time_t MYSERVER_FILE::getLastAccTime(char *filename)
+time_t File::getLastAccTime(char *filename)
 {
 	int res;
 #ifdef WIN32
@@ -612,7 +612,7 @@ time_t MYSERVER_FILE::getLastAccTime(char *filename)
 /*!
  *Returns the time of the last access to the file.
  */
-time_t MYSERVER_FILE::getLastAccTime()
+time_t File::getLastAccTime()
 {
 	return getLastAccTime(filename);
 }
@@ -620,7 +620,7 @@ time_t MYSERVER_FILE::getLastAccTime()
 /*!
  *Get the length of the file in the path.
  */
-int MYSERVER_FILE::getFilenameLength(const char *path, int *filename)
+int File::getFilenameLength(const char *path, int *filename)
 {
 	int splitpoint, i, j;
 	i = 0;
@@ -638,7 +638,7 @@ int MYSERVER_FILE::getFilenameLength(const char *path, int *filename)
  *Be sure that the filename buffer is at least getFilenameLength(...) bytes
  *before call this function.
  */
-void MYSERVER_FILE::getFilename(const char *path, char *filename)
+void File::getFilename(const char *path, char *filename)
 {
 	int splitpoint, i, j;
 	i = 0;
@@ -668,7 +668,7 @@ void MYSERVER_FILE::getFilename(const char *path, char *filename)
  *Use this function before call splitPath to be sure that the buffers
  *dir and filename are bigger enough to contain the data.
  */
-void MYSERVER_FILE::splitPathLength(const char *path, int *dir, int *filename)
+void File::splitPathLength(const char *path, int *dir, int *filename)
 {
 	int splitpoint, i, j, len;
 	if(path == 0)
@@ -694,7 +694,7 @@ void MYSERVER_FILE::splitPathLength(const char *path, int *dir, int *filename)
  *Splits a file path into a directory and filename.
  *Path is an input value while dir and filename are the output values.
  */
-void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
+void File::splitPath(const char *path, char *dir, char *filename)
 {
 	int splitpoint, i, j;
 	i = 0;
@@ -740,7 +740,7 @@ void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
 *Get the file extension passing its path.
 *Save in ext all the bytes afer the last dot(.) if filename.
 */
-void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
+void File::getFileExt(char* ext,const char* filename)
 {
 	int nDot, nPathLen;
 	nPathLen = (int)(strlen(filename) - 1);
@@ -755,7 +755,7 @@ void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
 /*!
 *Get the file path in the short form.
 */
-int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
+int File::getShortFileName(char *out,int buffersize)
 {
 #ifdef WIN32
   if(filename)
@@ -782,7 +782,7 @@ int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 *Get the file path in the short form of the specified file
 *Return -1 on errors.
 */
-int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
+int File::getShortFileName(char *filePath,char *out,int buffersize)
 {
 #ifdef WIN32
 	int ret = GetShortPathName(filePath,out,buffersize);
@@ -801,7 +801,7 @@ int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
  *Return non-zero on errors.
  *If dontRealloc is selected don't realloc memory.
  */
-int MYSERVER_FILE::completePath(char **fileName,int *size, int dontRealloc)
+int File::completePath(char **fileName,int *size, int dontRealloc)
 {
   if((fileName == 0) ||( *fileName==0))
     return -1;

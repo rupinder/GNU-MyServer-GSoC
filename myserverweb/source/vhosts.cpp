@@ -375,7 +375,7 @@ int Vhost::accessesLogWrite(char* str)
 /*!
  *Return a pointer to the file used by the accesses log.
  */
-MYSERVER_FILE* Vhost::getAccessesLogFile()
+File* Vhost::getAccessesLogFile()
 {
 	return accessesLogFile.getFile();
 }
@@ -406,7 +406,7 @@ int Vhost::warningsLogWrite(char* str)
 /*!
  *Return a pointer to the file used by the warnings log.
  */
-MYSERVER_FILE* Vhost::getWarningsLogFile()
+File* Vhost::getWarningsLogFile()
 {
 	return warningsLogFile.getFile();
 }
@@ -548,10 +548,10 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 	char buffer[MYSERVER_KB(10)];/*!Exists a line greater than 10 KB?!?*/
 	char buffer2[256];
 	u_long nbr;/*!Number of bytes read from the file*/
-	MYSERVER_FILE fh;
+	File fh;
 	Vhost *vh;
 	char c;
-	int ret=fh.openFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	int ret=fh.openFile(filename,File_OPEN_IFEXISTS|File_OPEN_READ);
 	if(ret)/*!If the file cannot be opened simply do nothing*/
 		return -1;
 
@@ -736,8 +736,8 @@ void VhostManager::saveConfigurationFile(char *filename)
 		return;
 	sVhostList*vhl=vhostList;
 	u_long nbw;
-	MYSERVER_FILE fh;
-	fh.openFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+	File fh;
+	fh.openFile(filename,File_CREATE_ALWAYS|File_OPEN_WRITE);
 	for(;vhl;vhl=vhl->next )
 	{
 		Vhost* vh=vhl->host;
@@ -1138,9 +1138,9 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
  */
 void VhostManager::saveXMLConfigurationFile(char *filename)
 {
-	MYSERVER_FILE out;
+	File out;
 	u_long nbw;
-	out.openFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+	out.openFile(filename,File_CREATE_ALWAYS|File_OPEN_WRITE);
 	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
 	sVhostList *list=this->getvHostList();
 	while(list)
@@ -1266,7 +1266,7 @@ int Vhost::initializeSSL()
   /*!
    *The specified file doesn't exist.
    */
-  if(MYSERVER_FILE::fileExists(sslContext.certificateFile) == 0)
+  if(File::fileExists(sslContext.certificateFile) == 0)
   {
     return -1;
   }
@@ -1279,7 +1279,7 @@ int Vhost::initializeSSL()
   /*!
    *The specified file doesn't exist.
    */
-  if(MYSERVER_FILE::fileExists(sslContext.privateKeyFile) == 0)
+  if(File::fileExists(sslContext.privateKeyFile) == 0)
     return -1;
   if(!(SSL_CTX_use_PrivateKey_file(sslContext.context, sslContext.privateKeyFile, 
                                    SSL_FILETYPE_PEM)))

@@ -81,8 +81,8 @@ struct HttpThreadContext
 	char *inputDataPath;
 	char *outputDataPath;
 	char identity[32];
-	MYSERVER_FILE inputData;
-	MYSERVER_FILE outputData;
+	File inputData;
+	File outputData;
 	int auth_scheme;
 	void* lhttp;
 };

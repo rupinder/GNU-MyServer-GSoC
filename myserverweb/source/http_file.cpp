@@ -54,7 +54,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
    */
 	int use_gzip=0;
   u_long filesize=0;
-	MYSERVER_FILE h;
+	File h;
 	u_long bytes_to_send;
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
   u_long lastByte = td->request.RANGEBYTEEND;
@@ -70,8 +70,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 	u_long gzip_dataused=0;
 	u_long dataSent=0;
 
-	ret  = h.openFile(filenamePath, MYSERVER_FILE_OPEN_IFEXISTS | 
-                   MYSERVER_FILE_OPEN_READ);
+	ret  = h.openFile(filenamePath, File_OPEN_IFEXISTS | 
+                   File_OPEN_READ);
 	if(ret)
 	{	
 		return 0;

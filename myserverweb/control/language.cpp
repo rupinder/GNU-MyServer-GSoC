@@ -252,7 +252,7 @@ void LanguageXMLload()
 #ifdef WIN32
    strncpy(languages_path, "languages/", MAX_PATH);
 #else
-   if(MYSERVER_FILE::fileExists("languages"))
+   if(File::fileExists("languages"))
      {
 	strncpy(languages_path, "languages/", MAX_PATH);
      }
@@ -264,7 +264,7 @@ void LanguageXMLload()
 	strncpy(languages_path, "/usr/share/myserver/languages/", MAX_PATH);
 # endif
      }
-   if(!(MYSERVER_FILE::fileExists(languages_path)))
+   if(!(File::fileExists(languages_path)))
      {
 	loadok = false;
 	langFound = false;
@@ -282,16 +282,16 @@ void LanguageXMLload()
    // just a little hack
    snprintf(main_configuration_file, MAX_PATH, "%s/.myserver/myserver.xml", getenv("HOME"));
 #endif
-   if(MYSERVER_FILE::fileExists("myserver.xml"))
+   if(File::fileExists("myserver.xml"))
      {
 	strncpy(main_configuration_file,"myserver.xml", MAX_PATH);
      }
 #ifndef WIN32
-   else if(MYSERVER_FILE::fileExists(main_configuration_file))
+   else if(File::fileExists(main_configuration_file))
      {
 	// do nothing
      }
-   else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
+   else if(File::fileExists("/etc/myserver/myserver.xml"))
      {
 	strncpy(main_configuration_file,"/etc/myserver/myserver.xml", MAX_PATH);
      }

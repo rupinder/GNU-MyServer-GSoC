@@ -57,7 +57,7 @@ int getErrorFileName(char *root,int error,char** out, XmlParser* parser)
     if(permissionsFile==0)
       return 0;
     sprintf(permissionsFile,"%s/security",root);
-    if(!MYSERVER_FILE::fileExists(permissionsFile))
+    if(!File::fileExists(permissionsFile))
     {
       delete [] permissionsFile;
       return 0;
@@ -167,7 +167,7 @@ int getPermissionMask(char* user, char* password,char* directory,
     {
       filename[filenamelen--]='\0';
     }
-    if(!MYSERVER_FILE::fileExists(permissionsFile))
+    if(!File::fileExists(permissionsFile))
     {
       /*!
        *If the security file doesn't exist try with a default one.

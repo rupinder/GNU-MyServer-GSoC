@@ -83,7 +83,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	char  dataFilePath[MAX_PATH];/*! Use MAX_PATH under windows. */
   char outFilePath[MAX_PATH];  /*! Use MAX_PATH under windows. */
   char *buffer;
-	MYSERVER_FILE DataFileHandle, OutFileHandle;
+	File DataFileHandle, OutFileHandle;
 	time_t ltime=100;
 	int gmhour;
 	int bias;
@@ -92,10 +92,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	char execname[MAX_PATH];/*! Use MAX_PATH under windows. */
 	char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
 
-	if(!MYSERVER_FILE::fileExists(filename))
+	if(!File::fileExists(filename))
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_404);
 
-	MYSERVER_FILE::splitPath(filename,pathname,execname);
+	File::splitPath(filename,pathname,execname);
 	
 	getdefaultwd(dataFilePath,MAX_PATH);
 	GetShortPathName(dataFilePath,dataFilePath,MAX_PATH);
@@ -109,7 +109,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
    *The WinCGI protocol uses a .ini file to send data to the new process.
    */
 	ret=DataFileHandle.openFile(dataFilePath,
-                     MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+                     File_CREATE_ALWAYS|File_OPEN_WRITE);
 	if ( ret ) 
 	{
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
@@ -227,9 +227,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	/*!
    *Create the out file.
    */
-	if(!MYSERVER_FILE::fileExists(outFilePath))
+	if(!File::fileExists(outFilePath))
 	{
-		ret = OutFileHandle.openFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
+		ret = OutFileHandle.openFile(outFilePath,File_CREATE_ALWAYS);
 		if (ret)
 		{
 			((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
@@ -237,8 +237,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
                                       "Error creating WinCGI output file\r\n");
 			((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
-			MYSERVER_FILE::deleteFile(outFilePath);
-			MYSERVER_FILE::deleteFile(dataFilePath);
+			File::deleteFile(outFilePath);
+			File::deleteFile(dataFilePath);
 			return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
 	}
@@ -258,13 +258,13 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 		((Vhost*)td->connection->host)->warningsLogWrite(
                             "Error executing WinCGI process\r\n");
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
-		MYSERVER_FILE::deleteFile(outFilePath);
-		MYSERVER_FILE::deleteFile(dataFilePath);
+		File::deleteFile(outFilePath);
+		File::deleteFile(dataFilePath);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 
-	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|
-                             MYSERVER_FILE_OPEN_READ);
+	ret=OutFileHandle.openFile(outFilePath,File_OPEN_ALWAYS|
+                             File_OPEN_READ);
 	if (ret)
 	{
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
@@ -282,8 +282,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
                     "Error zero bytes read from the WinCGI output file\r\n");
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		OutFileHandle.closeFile();
-		MYSERVER_FILE::deleteFile(outFilePath);
-		MYSERVER_FILE::deleteFile(dataFilePath);
+		File::deleteFile(outFilePath);
+		File::deleteFile(dataFilePath);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	u_long headerSize=0;
@@ -323,8 +323,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
     if(only_header)
     {
       OutFileHandle.closeFile();
-      MYSERVER_FILE::deleteFile(outFilePath);
-      MYSERVER_FILE::deleteFile(dataFilePath);
+      File::deleteFile(outFilePath);
+      File::deleteFile(dataFilePath);
       return 1;
     }
     /*!
@@ -357,8 +357,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
         if(ret)
         {
           OutFileHandle.closeFile();
-          MYSERVER_FILE::deleteFile(outFilePath);
-          MYSERVER_FILE::deleteFile(dataFilePath);
+          File::deleteFile(outFilePath);
+          File::deleteFile(dataFilePath);
           return 0;
         }
       }			
@@ -368,8 +368,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
         if(ret == -1)
         {
           OutFileHandle.closeFile();
-          MYSERVER_FILE::deleteFile(outFilePath);
-          MYSERVER_FILE::deleteFile(dataFilePath);
+          File::deleteFile(outFilePath);
+          File::deleteFile(dataFilePath);
           return 0;
         }
       }
@@ -380,8 +380,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	}while(nBytesRead);
 	
 	OutFileHandle.closeFile();
-	MYSERVER_FILE::deleteFile(outFilePath);
-	MYSERVER_FILE::deleteFile(dataFilePath);
+	File::deleteFile(outFilePath);
+	File::deleteFile(dataFilePath);
 	return 1;
 #endif
 

@@ -31,28 +31,28 @@ class ControlProtocol : public Protocol
   /*! Thread ID. */
   int id;
   /*! Input file. */
-  MYSERVER_FILE *Ifile;
+  File *Ifile;
   /*! Output file. */
-  MYSERVER_FILE *Ofile;
+  File *Ofile;
   /*! Protocol level disable */
   bool Reboot;
 
   /*! Use control_header to parse the request. */
   ControlHeader header;
   int checkAuth();
-  int SHOWCONNECTIONS(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
-  int SHOWDYNAMICPROTOCOLS(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
-  int SHOWLANGUAGEFILES(ConnectionPtr, MYSERVER_FILE* out, char *b1,int bs1);
-  int KILLCONNECTION(ConnectionPtr,u_long ID, MYSERVER_FILE* out, char *b1,int bs1);
-  int GETFILE(ConnectionPtr, char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
+  int SHOWCONNECTIONS(ConnectionPtr,File* out, char *b1,int bs1);
+  int SHOWDYNAMICPROTOCOLS(ConnectionPtr,File* out, char *b1,int bs1);
+  int SHOWLANGUAGEFILES(ConnectionPtr, File* out, char *b1,int bs1);
+  int KILLCONNECTION(ConnectionPtr,u_long ID, File* out, char *b1,int bs1);
+  int GETFILE(ConnectionPtr, char*, File* in, File* out, 
               char *b1,int bs1 );
-  int PUTFILE(ConnectionPtr,char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
+  int PUTFILE(ConnectionPtr,char*, File* in, File* out, 
               char *b1,int bs1 );
-  int GETVERSION(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
+  int GETVERSION(ConnectionPtr,File* out, char *b1,int bs1);
   int addToErrorLog(ConnectionPtr con, char *b1, int bs1);
   int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1);
 public:
-  int sendResponse(char*, int, ConnectionPtr, int, MYSERVER_FILE* = 0);
+  int sendResponse(char*, int, ConnectionPtr, int, File* = 0);
   static int loadProtocol(XmlParser* languageParser, char* /*confFile*/);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);

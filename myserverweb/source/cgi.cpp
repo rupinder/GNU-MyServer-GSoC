@@ -84,8 +84,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
    *Standard CGI uses STDOUT to output the result and the STDIN 
    *to get other params like in a POST request.
    */
-	MYSERVER_FILE stdOutFile;
-	MYSERVER_FILE stdInFile;
+	File stdOutFile;
+	File stdInFile;
 
   if(td->scriptPath)
     delete [] td->scriptPath;
@@ -101,8 +101,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   }
 	lstrcpy(td->scriptPath, scriptpath);
 
-  MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
-  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+  File::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
+  File::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
 
   if(td->scriptDir)
     delete [] td->scriptDir;
@@ -152,13 +152,13 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 
-	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
-	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
+	File::splitPath(scriptpath, td->scriptDir, td->scriptFile);
+	File::splitPath(cgipath, td->cgiRoot, td->cgiFile);
 
 	if(execute)
   {
     int filenameLen = 0;
-    MYSERVER_FILE::getFilenameLength(scriptpath, &filenameLen);
+    File::getFilenameLength(scriptpath, &filenameLen);
     
     filename = new char[filenameLen+1];
     if(filename == 0)
@@ -171,7 +171,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
     
-		MYSERVER_FILE::getFilename(scriptpath, filename);
+		File::getFilename(scriptpath, filename);
 #ifdef WIN32
 		/*!
      *Under the windows platform to run a file like an executable
@@ -224,7 +224,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	else
 	{
      /*! Check if the CGI executable exists. */
-		if((!cgipath) || (!MYSERVER_FILE::fileExists(cgipath)))
+		if((!cgipath) || (!File::fileExists(cgipath)))
 		{
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       if(cgipath)
@@ -325,8 +325,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	td->inputData.closeFile();
   
   /*! Open the stdin file for the new CGI process. */
-	if(stdInFile.openFile(td->inputDataPath, MYSERVER_FILE_OPEN_READ|
-                        MYSERVER_FILE_OPEN_ALWAYS))
+	if(stdInFile.openFile(td->inputDataPath, File_OPEN_READ|
+                        File_OPEN_ALWAYS))
 	{
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
@@ -520,7 +520,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         delete [] filename;
         stdInFile.closeFile();
         stdOutFile.closeFile();
-        MYSERVER_FILE::deleteFile(td->inputDataPath);
+        File::deleteFile(td->inputDataPath);
         /*! Remove the connection on sockets error. */
         return 0;
       }
@@ -528,7 +528,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        MYSERVER_FILE::deleteFile(td->inputDataPath);
+        File::deleteFile(td->inputDataPath);
         if(cmdLine)
           delete [] cmdLine;
         delete [] filename;
@@ -544,7 +544,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         delete [] filename;
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        MYSERVER_FILE::deleteFile(td->inputDataPath);
+        File::deleteFile(td->inputDataPath);
         /*! Remove the connection on sockets error. */
         return 0;       
       }
@@ -555,7 +555,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        MYSERVER_FILE::deleteFile(td->inputDataPath);
+        File::deleteFile(td->inputDataPath);
         delete [] filename;
         if(cmdLine)
           delete [] cmdLine;
@@ -577,7 +577,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         delete [] filename;
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        MYSERVER_FILE::deleteFile(td->inputDataPath);
+        File::deleteFile(td->inputDataPath);
         /*! Remove the connection on sockets error. */
         return 0;      
       }
@@ -594,7 +594,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
             delete [] filename;
             stdOutFile.closeFile();
             stdInFile.closeFile();
-            MYSERVER_FILE::deleteFile(td->inputDataPath);
+            File::deleteFile(td->inputDataPath);
             /*! Remove the connection on sockets error. */
             return 0;      
           }
@@ -609,7 +609,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
             delete [] filename;
             stdOutFile.closeFile();
             stdInFile.closeFile();
-            MYSERVER_FILE::deleteFile(td->inputDataPath);
+            File::deleteFile(td->inputDataPath);
             /*! Remove the connection on sockets error. */
             return 0;      
           }
@@ -623,7 +623,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	/*! Close and delete the stdin and stdout files used by the CGI.  */
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
-	MYSERVER_FILE::deleteFile(td->inputDataPath);
+	File::deleteFile(td->inputDataPath);
   if(cmdLine)
     delete [] cmdLine;
   delete [] filename;

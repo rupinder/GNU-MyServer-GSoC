@@ -22,33 +22,33 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 
 #ifdef WIN32
-typedef void* MYSERVER_FILE_HANDLE;
+typedef void* File_HANDLE;
 #endif
 #ifdef NOT_WIN
-typedef long  MYSERVER_FILE_HANDLE;
+typedef long  File_HANDLE;
 #endif
 
-#define MYSERVER_FILE_OPEN_READ (1<<0)
-#define MYSERVER_FILE_OPEN_WRITE (1<<1)
-#define MYSERVER_FILE_OPEN_TEMPORARY (1<<2)
-#define MYSERVER_FILE_OPEN_HIDDEN (1<<3)
-#define MYSERVER_FILE_OPEN_ALWAYS (1<<4)
-#define MYSERVER_FILE_OPEN_IFEXISTS (1<<5)
-#define MYSERVER_FILE_OPEN_APPEND (1<<6)
-#define MYSERVER_FILE_CREATE_ALWAYS (1<<7)
-#define MYSERVER_FILE_NO_INHERIT (1<<8)
+#define File_OPEN_READ (1<<0)
+#define File_OPEN_WRITE (1<<1)
+#define File_OPEN_TEMPORARY (1<<2)
+#define File_OPEN_HIDDEN (1<<3)
+#define File_OPEN_ALWAYS (1<<4)
+#define File_OPEN_IFEXISTS (1<<5)
+#define File_OPEN_APPEND (1<<6)
+#define File_CREATE_ALWAYS (1<<7)
+#define File_NO_INHERIT (1<<8)
 
-class MYSERVER_FILE
+class File
 {
 private:
-	MYSERVER_FILE_HANDLE handle;
+	File_HANDLE handle;
 	char *filename;
 public:
-	MYSERVER_FILE();
-  MYSERVER_FILE(char *,int);
+	File();
+  File(char *,int);
 
-	MYSERVER_FILE_HANDLE getHandle();
-	int setHandle(MYSERVER_FILE_HANDLE);
+	File_HANDLE getHandle();
+	int setHandle(File_HANDLE);
 	int readFromFile(char* ,u_long ,u_long* );
 	int writeToFile(char* ,u_long ,u_long* );
 	int createTemporaryFile(char* );
@@ -64,7 +64,7 @@ public:
 	time_t getLastAccTime();
 	char *getFilename();
 	int setFilename(char*);
-	int operator =(MYSERVER_FILE);
+	int operator =(File);
 	int closeFile();
 	int getShortFileName(char*,int);
 	static int completePath(char**, int *size, int dontRealloc=0);

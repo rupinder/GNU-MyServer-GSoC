@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 class MYSERVER_LOG_MANAGER
 {
 private:
-  MYSERVER_FILE file;
+  File file;
   int type;
   /*!
    *loaded is used to store if the file object is initialized correctly.
@@ -37,7 +37,7 @@ private:
 public:
   const static int TYPE_CONSOLE;
   const static int TYPE_FILE;
-  MYSERVER_FILE *getFile();
+  File *getFile();
   MYSERVER_LOG_MANAGER();
   ~MYSERVER_LOG_MANAGER();
   u_long setMaxSize( u_long );

@@ -127,7 +127,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		}
 		// If stdOut is -1, pipe to /dev/null
 		if((long)spi->stdOut == -1)
-			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null", O_WRONLY);
+			spi->stdOut = (File_HANDLE)open("/dev/null", O_WRONLY);
 		// map stdio to files
 		ret=close(0); // close stdin
 		if(ret == -1)
@@ -263,7 +263,7 @@ int execConcurrentProcess(START_PROC_INFO* spi)
 			chdir((const char*)(spi->cwd));
 		// If stdOut is -1, pipe to /dev/null
 		if((long)spi->stdOut == -1)
-			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null",O_WRONLY);
+			spi->stdOut = (File_HANDLE)open("/dev/null",O_WRONLY);
 		// map stdio to files
 		ret = close(0); // close stdin
 		if(ret == -1)

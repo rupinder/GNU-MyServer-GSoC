@@ -65,7 +65,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
       delete [] permissionsFile;
       return 0;
     }
-    if(!MYSERVER_FILE::fileExists(permissionsFile))
+    if(!File::fileExists(permissionsFile))
     {
       /*!
        *If the security file doesn't exist try with a default one.
@@ -189,7 +189,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
       delete [] permissionsFile;
       return 0;
     }
-    if(!MYSERVER_FILE::fileExists(permissionsFile))
+    if(!File::fileExists(permissionsFile))
     {
       /*!
        *If the security file doesn't exist try with a default one.

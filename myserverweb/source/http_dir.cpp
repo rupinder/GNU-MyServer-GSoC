@@ -96,7 +96,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	char fileTime[32];
 	char* bufferloop;
   char* browseDirCSSpath;
-	MYSERVER_FILE_HANDLE outputDataHandle = td->outputData.getHandle();
+	File_HANDLE outputDataHandle = td->outputData.getHandle();
   /*!
    *Create a new file if the old is not valid.
    */
@@ -113,8 +113,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
             "/stdOutFile_%u", (u_int) td->id);
 		ret = td->outputData.openFile(td->outputDataPath, 
-                     MYSERVER_FILE_CREATE_ALWAYS |MYSERVER_FILE_OPEN_READ |
-                                  MYSERVER_FILE_OPEN_WRITE);
+                     File_CREATE_ALWAYS |File_OPEN_READ |
+                                  File_OPEN_WRITE);
 		if(ret)
 		{
 			/*! Return an internal server error.  */
@@ -163,9 +163,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
    */
 	if(browseDirCSSpath != 0)
 	{
-		MYSERVER_FILE cssHandle;
-		ret=cssHandle.openFile(browseDirCSSpath, MYSERVER_FILE_OPEN_IFEXISTS | 
-                           MYSERVER_FILE_OPEN_READ);
+		File cssHandle;
+		ret=cssHandle.openFile(browseDirCSSpath, File_OPEN_IFEXISTS | 
+                           File_OPEN_READ);
 		if(ret == 0)
 		{
 			u_long nbr;

@@ -53,7 +53,7 @@ void RunAsConsole()
    int pid = fork();
    if(pid == 0)
      {
-	if(MYSERVER_FILE::fileExists("myserver"))
+	if(File::fileExists("myserver"))
 	  execlp("xterm", "xterm", "-e", "./myserver", NULL);
 	else
 	  execlp("xterm", "xterm", "-e", "myserver", NULL);

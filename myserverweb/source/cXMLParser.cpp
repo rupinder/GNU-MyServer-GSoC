@@ -80,7 +80,7 @@ int XmlParser::cleanXML()
 int XmlParser::open(char* filename)
 {
 	cur=0;
-	if(!MYSERVER_FILE::fileExists(filename))
+	if(!File::fileExists(filename))
 		return -1;
 	if(doc==0)
   {

@@ -99,7 +99,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         return 0;
       }
-      if(MYSERVER_FILE::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
+      if(File::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
       {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         return 0;
@@ -752,7 +752,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   }
 	lstrcpy(td->scriptPath, scriptpath);
 
-  MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
+  File::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
   
   if(td->scriptDir)
     delete [] td->scriptDir;
@@ -776,7 +776,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
   }
   
-  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+  File::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
   
   if(td->scriptDir)
     delete [] td->cgiRoot;
@@ -800,8 +800,8 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
   }
   
-	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
-	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
+	File::splitPath(scriptpath, td->scriptDir, td->scriptFile);
+	File::splitPath(cgipath, td->cgiRoot, td->cgiFile);
   
 	connTable[connIndex].envString[0]='\0';
 	Cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);

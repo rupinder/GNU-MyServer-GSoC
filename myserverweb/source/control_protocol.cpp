@@ -267,7 +267,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   if(specified_length)
   {
     int IfilePathLen;
-    Ifile = new MYSERVER_FILE();
+    Ifile = new File();
     if(Ifile == 0)
     {
       strcpy(b2,"Error allocating memory");
@@ -296,7 +296,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       addToErrorLog(a,b2, strlen(b2));
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       Ifile->closeFile();
-      MYSERVER_FILE::deleteFile(IfilePath);
+      File::deleteFile(IfilePath);
       delete [] IfilePath;
       delete Ifile;
       return 0;
@@ -314,7 +314,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         Ifile->closeFile();
         if(IfilePath)
         {
-          MYSERVER_FILE::deleteFile(IfilePath);
+          File::deleteFile(IfilePath);
           delete [] IfilePath;
         }
         delete Ifile;
@@ -341,7 +341,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
           Ifile->closeFile();
           if(IfilePath)
           {
-            MYSERVER_FILE::deleteFile(IfilePath);
+            File::deleteFile(IfilePath);
             delete [] IfilePath;
           }
           delete Ifile;
@@ -358,7 +358,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
           Ifile->closeFile();
           if(IfilePath)
           {
-            MYSERVER_FILE::deleteFile(IfilePath);
+            File::deleteFile(IfilePath);
             delete [] IfilePath;
           }
           delete Ifile;
@@ -377,7 +377,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         Ifile->closeFile();
         if(IfilePath)
         {
-          MYSERVER_FILE::deleteFile(IfilePath);
+          File::deleteFile(IfilePath);
           delete [] IfilePath;
         }
         delete Ifile;
@@ -405,7 +405,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       Ifile->closeFile();
       if(IfilePath)
       {
-        MYSERVER_FILE::deleteFile(IfilePath);
+        File::deleteFile(IfilePath);
         delete [] IfilePath;
       }
       delete Ifile;
@@ -429,7 +429,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       Ifile->closeFile();
       if(IfilePath)
       {
-        MYSERVER_FILE::deleteFile(IfilePath);
+        File::deleteFile(IfilePath);
         delete [] IfilePath;
       }
       delete Ifile;
@@ -451,7 +451,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       Ifile->closeFile();
       if(IfilePath)
       {
-        MYSERVER_FILE::deleteFile(IfilePath);
+        File::deleteFile(IfilePath);
         delete [] IfilePath;
       }
       delete Ifile;
@@ -470,7 +470,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
    *Create an out file. This can be used by commands that
    *needs it.
    */
-  Ofile = new MYSERVER_FILE();
+  Ofile = new File();
   if(Ofile == 0)
   {
     strcpy(b2,"Error in allocating memory");
@@ -479,7 +479,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     Ifile->closeFile();
     if(IfilePath)
     {
-      MYSERVER_FILE::deleteFile(IfilePath);
+      File::deleteFile(IfilePath);
       delete [] IfilePath;
     }
       delete Ifile;
@@ -496,7 +496,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     Ifile->closeFile();
     if(IfilePath)
     {
-      MYSERVER_FILE::deleteFile(IfilePath);
+      File::deleteFile(IfilePath);
       delete [] IfilePath;
     }
     delete Ifile;
@@ -519,12 +519,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     delete Ifile;
     if(IfilePath)
     {
-      MYSERVER_FILE::deleteFile(IfilePath);
+      File::deleteFile(IfilePath);
       delete [] IfilePath;
     }
     if(OfilePath)
     {
-      MYSERVER_FILE::deleteFile(OfilePath);
+      File::deleteFile(OfilePath);
       delete [] OfilePath;
     }
     Ifile=0;
@@ -613,12 +613,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     }
     if(OfilePath)
     {
-      MYSERVER_FILE::deleteFile(OfilePath);
+      File::deleteFile(OfilePath);
       delete [] OfilePath;
     }
     if(IfilePath)
     {
-      MYSERVER_FILE::deleteFile(IfilePath);
+      File::deleteFile(IfilePath);
       delete [] IfilePath;
     }
     connection = header.getConnection();
@@ -651,13 +651,13 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     }
     if(OfilePath)
     {
-      MYSERVER_FILE::deleteFile(OfilePath);
+      File::deleteFile(OfilePath);
       delete [] OfilePath;
     }
 
     if(IfilePath)
     {
-      MYSERVER_FILE::deleteFile(IfilePath);
+      File::deleteFile(IfilePath);
       delete [] IfilePath;
     }
     
@@ -708,7 +708,7 @@ int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
  */
 int ControlProtocol::sendResponse(char *buffer, int buffersize, 
                                    ConnectionPtr conn, int errID, 
-                                   MYSERVER_FILE* outFile)
+                                   File* outFile)
 {
   u_long dataLength=0;
   int err;
@@ -783,7 +783,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
 /*!
  *Show the currect active connections.
  */
-int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,MYSERVER_FILE* out, char *b1, 
+int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,File* out, char *b1, 
                                        int bs1)
 {
   int ret =  0;
@@ -812,7 +812,7 @@ int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,MYSERVER_FILE* out, char *
 /*!
  *Kill a connection by its ID.
  */
-int  ControlProtocol::KILLCONNECTION(ConnectionPtr a, u_long ID, MYSERVER_FILE* out, 
+int  ControlProtocol::KILLCONNECTION(ConnectionPtr a, u_long ID, File* out, 
                                       char *b1, int bs1)
 {
   int ret = 0;
@@ -833,7 +833,7 @@ int  ControlProtocol::KILLCONNECTION(ConnectionPtr a, u_long ID, MYSERVER_FILE* 
 /*!
  *List all the dynamic protocols used by the server.
  */
-int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, MYSERVER_FILE* out, 
+int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, File* out, 
                                            char *b1,int bs1)
 {
   int i = 0;
@@ -861,11 +861,11 @@ int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, MYSERVER_FILE* out,
 /*!
  *Return the requested file to the client.
  */
-int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
-                              MYSERVER_FILE* out, char *b1,int bs1 )
+int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in, 
+                              File* out, char *b1,int bs1 )
 {
   char *filename = 0;
-  MYSERVER_FILE localfile;
+  File localfile;
   int ret = 0;
   /*! # of bytes read. */
   u_long nbr = 0;
@@ -893,7 +893,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in,
     return CONTROL_FILE_NOT_FOUND;
   }
 
-  ret = localfile.openFile(fn, MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+  ret = localfile.openFile(fn, File_OPEN_READ|File_OPEN_IFEXISTS);
 
   /*! An internal server error happens. */
   if(ret)
@@ -934,11 +934,11 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in,
 /*!
  *Save the file on the local FS.
  */
-int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
-                              MYSERVER_FILE* out, char *b1,int bs1 )
+int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in, 
+                              File* out, char *b1,int bs1 )
 {
   char *filename = 0;
-  MYSERVER_FILE localfile;
+  File localfile;
   int isAutoRebootToEnable = lserver->isAutorebootEnabled();
   int ret = 0;
   /*! # of bytes read. */
@@ -969,7 +969,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in,
     return CONTROL_FILE_NOT_FOUND;
   }
 
-  ret = MYSERVER_FILE::deleteFile(fn);
+  ret = File::deleteFile(fn);
 
   /*! An internal server error happens. */
   if(ret)
@@ -982,7 +982,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in,
     return CONTROL_INTERNAL;
   }
 
-  ret = localfile.openFile(fn, MYSERVER_FILE_OPEN_WRITE | MYSERVER_FILE_OPEN_ALWAYS);
+  ret = localfile.openFile(fn, File_OPEN_WRITE | File_OPEN_ALWAYS);
 
   /*! An internal server error happens. */
   if(ret)
@@ -1034,7 +1034,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in,
 /*!
  *Show all the language files that the server can use.
  */
-int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out, 
+int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out, 
                                         char *b1,int bs1)
 {
   char *path = lserver->getLanguagesPath();
@@ -1064,7 +1064,7 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out,
     /*! Do not show files starting with a dot. */
     if(fd.name[0]=='.')
       continue;
-    MYSERVER_FILE::splitPathLength(fd.name, &dirLen, &filenameLen);
+    File::splitPathLength(fd.name, &dirLen, &filenameLen);
     dir = new char[dirLen + 1];
     if(dir == 0)
     {
@@ -1082,7 +1082,7 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out,
       fd.findclose();
       return CONTROL_INTERNAL;
     }
-    MYSERVER_FILE::splitPath(fd.name,dir,filename);
+    File::splitPath(fd.name,dir,filename);
     if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
     {
       ret = out->writeToFile(filename, strlen(filename), &nbw);
@@ -1107,7 +1107,7 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out,
 /*!
  *Return the current MyServer version.
  */
-int ControlProtocol::GETVERSION(ConnectionPtr a, MYSERVER_FILE* out, char *b1,int bs1)
+int ControlProtocol::GETVERSION(ConnectionPtr a, File* out, char *b1,int bs1)
 {
   u_long nbw;
   sprintf(b1, "MyServer %s", versionOfSoftware);

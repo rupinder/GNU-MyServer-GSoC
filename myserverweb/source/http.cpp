@@ -257,7 +257,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
      */
 		translateEscapeString(filename);
 		if((filename[0] != '\0') && 
-       (MYSERVER_FILE::getPathRecursionLevel(filename)<1))
+       (File::getPathRecursionLevel(filename)<1))
 		{
 			return raiseHTTPError(td, s, e_401);
 		}
@@ -268,7 +268,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     }
 		getPath(td, s, &(td->filenamePath), filename, 0);
 	}
-	if(MYSERVER_FILE::isDirectory(td->filenamePath))
+	if(File::isDirectory(td->filenamePath))
   {
     int directory_size = strlen(td->filenamePath);
     directory = new char[directory_size + 1];
@@ -282,7 +282,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   }
 	else
   {
-		MYSERVER_FILE::splitPathLength(td->filenamePath, &directoryLen, 0);
+		File::splitPathLength(td->filenamePath, &directoryLen, 0);
     directory = new char[directoryLen + 1];
     if(directory == 0)
     {
@@ -290,7 +290,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		MYSERVER_FILE::splitPath(td->filenamePath, directory, filename);
+		File::splitPath(td->filenamePath, directory, filename);
   }
 	if(s->protocolBuffer==0)
 	{
@@ -363,12 +363,12 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     td->filenamePath = 0;
 		return sendAuth(td, s);
 	}
-	if(MYSERVER_FILE::fileExists(td->filenamePath))
+	if(File::fileExists(td->filenamePath))
 	{
 		/*! If the file exists update it.  */
-		MYSERVER_FILE file;
-		if(file.openFile(td->filenamePath, MYSERVER_FILE_OPEN_IFEXISTS | 
-                     MYSERVER_FILE_OPEN_WRITE))
+		File file;
+		if(file.openFile(td->filenamePath, File_OPEN_IFEXISTS | 
+                     File_OPEN_WRITE))
 		{
       delete [] td->filenamePath;
       td->filenamePath = 0;
@@ -423,9 +423,9 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		/*!
 		*If the file doesn't exist create it.
 		*/
-		MYSERVER_FILE file;
+		File file;
 		if(file.openFile(td->filenamePath, 
-                      MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE))
+                      File_CREATE_ALWAYS|File_OPEN_WRITE))
     {
       delete [] td->filenamePath;
       td->filenamePath = 0;
@@ -506,7 +506,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
      *send a HTTP 401 error page.
      */
 		translateEscapeString(filename );
-		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
+		if((filename[0] != '\0')&&(File::getPathRecursionLevel(filename)<1))
 		{
 			return raiseHTTPError(td, s, e_401);
 		}
@@ -515,7 +515,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     td->filenamePath = 0;
 		getPath(td, s, &(td->filenamePath), filename, 0);
 	}
-	if(MYSERVER_FILE::isDirectory(td->filenamePath))
+	if(File::isDirectory(td->filenamePath))
   {
     int directory_len = strlen(td->filenamePath)+1;
     directory = new char[directory_len];
@@ -530,7 +530,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	else
   {
     int directory_len=0;
-    MYSERVER_FILE::splitPathLength(td->filenamePath, &directory_len, 0);
+    File::splitPathLength(td->filenamePath, &directory_len, 0);
     directory = new char[directory_len];
     if(directory == 0)
     {
@@ -538,7 +538,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		MYSERVER_FILE::splitPath(td->filenamePath, directory, 0);
+		File::splitPath(td->filenamePath, directory, 0);
   }
 
 	if(s->protocolBuffer==0)
@@ -612,12 +612,12 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     td->filenamePath = 0;
 		return sendAuth(td, s);
 	}
-	if(MYSERVER_FILE::fileExists(td->filenamePath))
+	if(File::fileExists(td->filenamePath))
 	{
     delete [] directory;
     delete [] td->filenamePath;
     td->filenamePath = 0;
-		MYSERVER_FILE::deleteFile(td->filenamePath);
+		File::deleteFile(td->filenamePath);
     /*! Successful deleted. */
 		return raiseHTTPError(td, s, e_202);
 	}
@@ -781,7 +781,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
      */
 		translateEscapeString(filename );
 		if((filename[0] != '\0')&&
-       (MYSERVER_FILE::getPathRecursionLevel(filename)<1))
+       (File::getPathRecursionLevel(filename)<1))
 		{
       delete [] filename;
       if(td->filenamePath)
@@ -801,7 +801,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	{
 		char* directory;
 		char auth_type[16];
-		if(MYSERVER_FILE::isDirectory(td->filenamePath))
+		if(File::isDirectory(td->filenamePath))
     {
       directory = new char[strlen(td->filenamePath) + 1];
       if(directory == 0)
@@ -816,7 +816,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		else
     {
       int directorylen=0;
-      MYSERVER_FILE::splitPathLength(td->filenamePath, &directorylen, 0);
+      File::splitPathLength(td->filenamePath, &directorylen, 0);
       directory = new char[directorylen];
       if(directory == 0)
       {
@@ -825,7 +825,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
         td->filenamePath = 0;
         return sendHTTPhardError500(td, s);
       }
-			MYSERVER_FILE::splitPath(td->filenamePath, directory, filename);
+			File::splitPath(td->filenamePath, directory, filename);
     }
 
 		if(s->protocolBuffer==0)
@@ -926,7 +926,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
       /*!
        *If the token is a file.
        */
-			if(!MYSERVER_FILE::isDirectory(dirscan))
+			if(!File::isDirectory(dirscan))
 			{
         if(td->pathInfo)
           delete [] td->pathInfo;
@@ -976,13 +976,13 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
      * slash character.  
      */
 		ptlen = getPath(td, s, &(td->pathTranslated), &((td->pathInfo)[1]), 0);
-		MYSERVER_FILE::completePath(&(td->pathTranslated), &ptlen );
+		File::completePath(&(td->pathTranslated), &ptlen );
 	}
 	else
 	{
     td->pathTranslated=0;
 	}
-	MYSERVER_FILE::completePath(&(td->filenamePath), &filenamePathLen);
+	File::completePath(&(td->filenamePath), &filenamePathLen);
 
 	/*!
    *  If there are not any extension then we do one of this in order:
@@ -990,7 +990,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
    *	2)We send the directory content.
    *	3)We send an error.
    */
-	if(MYSERVER_FILE::isDirectory((char *)(td->filenamePath)))
+	if(File::isDirectory((char *)(td->filenamePath)))
 	{
 		int i;
 		if(!(permissions & MYSERVER_PERMISSION_BROWSE))
@@ -1027,7 +1027,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 				break;
       }
 
-			if(MYSERVER_FILE::fileExists(defaultFileName))
+			if(File::fileExists(defaultFileName))
 			{
 				char *nURL;
 				if(td->request.uriEndsWithSlash)
@@ -1081,7 +1081,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 
   delete [] filename;
 
-	if(!MYSERVER_FILE::fileExists(td->filenamePath))
+	if(!File::fileExists(td->filenamePath))
 		return raiseHTTPError(td, s, e_404);
 
 	/*!
@@ -1244,9 +1244,9 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		MYSERVER_FILE h;
+		File h;
 		if(h.openFile(td->filenamePath, 
-                   MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ))
+                   File_OPEN_IFEXISTS|File_OPEN_READ))
     {
       if(data)
         delete [] data;
@@ -1300,7 +1300,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		return sendAuth(td, s);
 	}
 
-	lastMT=MYSERVER_FILE::getLastModTime(td->filenamePath);
+	lastMT=File::getLastModTime(td->filenamePath);
 	if(lastMT==-1)
   {
 		return raiseHTTPError(td, s, e_500);
@@ -1408,8 +1408,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	td.lhttp=this;
 	td.appendOutputs=0;
   td.only_header = 0;
-	td.inputData.setHandle((MYSERVER_FILE_HANDLE)0);
-	td.outputData.setHandle((MYSERVER_FILE_HANDLE)0);
+	td.inputData.setHandle((File_HANDLE)0);
+	td.outputData.setHandle((File_HANDLE)0);
 	if(td.outputDataPath)
     delete [] td.outputDataPath;
 	if(td.filenamePath)
@@ -1548,8 +1548,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *Create the file that contains the data posted.
        *This data is the stdin file in the CGI.
        */
-			if(td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS | 
-                             MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
+			if(td.inputData.openFile(td.inputDataPath,File_CREATE_ALWAYS | 
+                             File_OPEN_READ|File_OPEN_WRITE))
 				return 0;
 			nbw=0;
       total_nbr=min(td.nBytesToRead, 
@@ -1585,7 +1585,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					if(td.inputData.getHandle())
 					{
 						td.inputData.closeFile();
-						MYSERVER_FILE::deleteFile(td.inputDataPath);
+						File::deleteFile(td.inputDataPath);
 					}
 					/*!
            *If the outputData file was not closed close it.
@@ -1593,7 +1593,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					if(td.outputData.getHandle())
 					{
 						td.outputData.closeFile();
-						MYSERVER_FILE::deleteFile(td.outputDataPath);
+						File::deleteFile(td.outputDataPath);
 					}
 					retvalue = raiseHTTPError(&td, a, e_400);
 					logHTTPaccess(&td, a);
@@ -1726,7 +1726,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
    */
 	if(!lstrcmpi(td.request.TRANSFER_ENCODING, "chunked"))
 	{
-		MYSERVER_FILE newStdIn;
+		File newStdIn;
 		char buffer[20];
 		char c;
     u_long nbr;
@@ -1739,8 +1739,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			return 0;
     }
 		sprintf(newfilename, "%s_encoded", td.inputData.getFilename());
-		if(newStdIn.openFile(td.inputDataPath, MYSERVER_FILE_CREATE_ALWAYS | 
-                         MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
+		if(newStdIn.openFile(td.inputDataPath, File_CREATE_ALWAYS | 
+                         File_OPEN_READ|File_OPEN_WRITE))
 		{
 			td.inputData.closeFile();
 			td.inputData.deleteFile(td.inputDataPath);
@@ -1846,7 +1846,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			if(td.inputData.getHandle())
 			{
 				td.inputData.closeFile();
-				MYSERVER_FILE::deleteFile(td.inputDataPath);
+				File::deleteFile(td.inputDataPath);
 			}
 			/*!
        *If the outputData file was not closed close it.
@@ -1854,7 +1854,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			if(td.outputData.getHandle())
 			{
 				td.outputData.closeFile();
-				MYSERVER_FILE::deleteFile(td.outputDataPath);
+				File::deleteFile(td.outputDataPath);
 			}
 			logHTTPaccess(&td, a);
 			return 0;
@@ -1877,7 +1877,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			if(td.inputData.getHandle())
 			{
 				td.inputData.closeFile();
-				MYSERVER_FILE::deleteFile(td.inputDataPath);
+				File::deleteFile(td.inputDataPath);
 			}
 			/*!
        *If the outputData file was not closed close it.
@@ -1885,7 +1885,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			if(td.outputData.getHandle())
 			{
 				td.outputData.closeFile();
-				MYSERVER_FILE::deleteFile(td.outputDataPath);
+				File::deleteFile(td.outputDataPath);
 			}
 			logHTTPaccess(&td, a);
 			return 0;
@@ -1906,7 +1906,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				if(td.inputData.getHandle())
 				{
 					td.inputData.closeFile();
-					MYSERVER_FILE::deleteFile(td.inputDataPath);
+					File::deleteFile(td.inputDataPath);
 				}
 				/*!
 				*If the outputData file was not closed close it.
@@ -1914,7 +1914,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				if(td.outputData.getHandle())
 				{
 					td.outputData.closeFile();
-					MYSERVER_FILE::deleteFile(td.outputDataPath);
+					File::deleteFile(td.outputDataPath);
 				}	
 				logHTTPaccess(&td, a);
 				return 0;
@@ -2015,7 +2015,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	if(td.inputData.getHandle())
 	{
 		td.inputData.closeFile();
-		MYSERVER_FILE::deleteFile(td.inputDataPath);
+		File::deleteFile(td.inputDataPath);
 	}
 	/*!
    *If the outputData file was not closed close it.
@@ -2023,7 +2023,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	if(td.outputData.getHandle())
 	{
 		td.outputData.closeFile();
-		MYSERVER_FILE::deleteFile(td.outputDataPath);
+		File::deleteFile(td.outputDataPath);
 	}
   ret &= (!strcmpi(td.request.CONNECTION,"keep-alive"));
 	return ret? ((retvalue!=0) ?retvalue:1 ) :0;
@@ -2186,7 +2186,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
   {
     sprintf(errorFile, "%s/%s", ((Vhost*)(a->host))->systemRoot, 
             HTTP_ERROR_HTMLS[ID]);
-    if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
+    if(useMessagesFiles && File::fileExists(errorFile))
 		{
 			delete [] errorFile;
 			return sendHTTPRESOURCE(td, a, HTTP_ERROR_HTMLS[ID], 1, td->only_header);
@@ -2248,7 +2248,7 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 int Http::getMIME(HttpThreadContext* td, char *MIME, char *filename, 
                   char *ext, char **dest2)
 {
-	MYSERVER_FILE::getFileExt(ext, filename);
+	File::getFileExt(ext, filename);
 	
   if(((Vhost*)(td->connection->host))->isMIME() )
   {

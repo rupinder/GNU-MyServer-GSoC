@@ -158,10 +158,10 @@ public:
 	~Vhost();
 
 	int accessesLogWrite(char*);
-	MYSERVER_FILE* getAccessesLogFile();
+	File* getAccessesLogFile();
 
   int warningsLogWrite(char*);
-	MYSERVER_FILE* getWarningsLogFile();
+	File* getWarningsLogFile();
 };
 
 

@@ -246,9 +246,9 @@ void Server::start()
 	}
 	loadSettings();
 
-	myserver_main_conf = MYSERVER_FILE::getLastModTime(main_configuration_file);
-	myserver_hosts_conf = MYSERVER_FILE::getLastModTime(vhost_configuration_file);
-	myserver_mime_conf = MYSERVER_FILE::getLastModTime(mime_configuration_file);
+	myserver_main_conf = File::getLastModTime(main_configuration_file);
+	myserver_hosts_conf = File::getLastModTime(vhost_configuration_file);
+	myserver_mime_conf = File::getLastModTime(mime_configuration_file);
 	
 	/*!
    *Keep thread alive.
@@ -265,11 +265,11 @@ void Server::start()
       if(configsCheck>10)
       {
         time_t myserver_main_conf_now=
-          MYSERVER_FILE::getLastModTime(main_configuration_file);
+          File::getLastModTime(main_configuration_file);
         time_t myserver_hosts_conf_now=
-          MYSERVER_FILE::getLastModTime(vhost_configuration_file);
+          File::getLastModTime(vhost_configuration_file);
         time_t myserver_mime_conf_now=
-          MYSERVER_FILE::getLastModTime(mime_configuration_file);
+          File::getLastModTime(mime_configuration_file);
 
         /*! If a configuration file was modified reboot the server. */
         if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
@@ -848,7 +848,7 @@ int Server::initialize(int /*!os_ver*/)
    *Do not use the files in the directory /usr/share/myserver/languages
    *if exists a local directory.
    */
-	if(MYSERVER_FILE::fileExists("languages"))
+	if(File::fileExists("languages"))
 	{
     int languages_pathLen = strlen ("languages/") + 1 ;
     languages_path = new char[languages_pathLen];
@@ -934,21 +934,21 @@ int Server::initialize(int /*!os_ver*/)
    *3) /etc/myserver/
    *4) default files will be copied in myserver executable working	
    */
-	if(MYSERVER_FILE::fileExists("myserver.xml"))
+	if(File::fileExists("myserver.xml"))
 	{
     main_configuration_file = new char[13];
     if(main_configuration_file == 0)
       return -1;
 		strcpy(main_configuration_file,"myserver.xml");
 	}
-	else if(MYSERVER_FILE::fileExists("~/.myserver/myserver.xml"))
+	else if(File::fileExists("~/.myserver/myserver.xml"))
 	{
     main_configuration_file = new char[25];
     if(main_configuration_file == 0)
       return -1;
 		strcpy(main_configuration_file,"~/.myserver/myserver.xml");
 	}
-	else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
+	else if(File::fileExists("/etc/myserver/myserver.xml"))
 	{
     main_configuration_file = new char[27];
     if(main_configuration_file == 0)
@@ -958,16 +958,16 @@ int Server::initialize(int /*!os_ver*/)
 	else
 #endif
 	/*! If the myserver.xml files doesn't exist copy it from the default one. */
-	if(!MYSERVER_FILE::fileExists("myserver.xml"))
+	if(!File::fileExists("myserver.xml"))
 	{
     main_configuration_file = new char[13];
     if(main_configuration_file == 0)
       return -1;
 		strcpy(main_configuration_file,"myserver.xml");
-		MYSERVER_FILE inputF;
-		MYSERVER_FILE outputF;
+		File inputF;
+		File outputF;
 		ret = inputF.openFile("myserver.xml.default", 
-                              MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+                              File_OPEN_READ|File_OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -975,8 +975,8 @@ int Server::initialize(int /*!os_ver*/)
 			logEndPrintError();
 			return -1;
 		}
-		ret = outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE | 
-                     MYSERVER_FILE_OPEN_ALWAYS);
+		ret = outputF.openFile("myserver.xml", File_OPEN_WRITE | 
+                     File_OPEN_ALWAYS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1495,21 +1495,21 @@ int Server::loadSettings()
  *3) /etc/myserver/
  *4) default files will be copied in myserver executable working	
  */
-	if(MYSERVER_FILE::fileExists("MIMEtypes.xml"))
+	if(File::fileExists("MIMEtypes.xml"))
 	{
     mime_configuration_file = new char[14];
     if(mime_configuration_file == 0)
       return -1;
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 	}
-	else if(MYSERVER_FILE::fileExists("~/.myserver/MIMEtypes.xml"))
+	else if(File::fileExists("~/.myserver/MIMEtypes.xml"))
 	{
     mime_configuration_file = new char[26];
     if(mime_configuration_file == 0)
       return -1;
 		strcpy(mime_configuration_file,"~/.myserver/MIMEtypes.xml");
 	}
-	else if(MYSERVER_FILE::fileExists("/etc/myserver/MIMEtypes.xml"))
+	else if(File::fileExists("/etc/myserver/MIMEtypes.xml"))
 	{
     mime_configuration_file = new char[28];
     if(mime_configuration_file == 0)
@@ -1519,16 +1519,16 @@ int Server::loadSettings()
 	else
 #endif
 	/*! If the MIMEtypes.xml files doesn't exist copy it from the default one. */
-	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
+	if(!File::fileExists("MIMEtypes.xml"))
 	{
     mime_configuration_file = new char[14];
     if(mime_configuration_file == 0)
       return -1;
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
-		MYSERVER_FILE inputF;
-		MYSERVER_FILE outputF;
-    ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|
-                        MYSERVER_FILE_OPEN_IFEXISTS);
+		File inputF;
+		File outputF;
+    ret=inputF.openFile("MIMEtypes.xml.default", File_OPEN_READ|
+                        File_OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1536,8 +1536,8 @@ int Server::loadSettings()
 			logEndPrintError();	
 			return -1;
 		}
-		ret = outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|
-                           MYSERVER_FILE_OPEN_ALWAYS);
+		ret = outputF.openFile("MIMEtypes.xml", File_OPEN_WRITE|
+                           File_OPEN_ALWAYS);
     if(ret)
       return -1;
 
@@ -1599,21 +1599,21 @@ int Server::loadSettings()
    *3) /etc/myserver/
    *4) default files will be copied in myserver executable working	
    */
-	if(MYSERVER_FILE::fileExists("virtualhosts.xml"))
+	if(File::fileExists("virtualhosts.xml"))
 	{
     vhost_configuration_file = new char[17];
     if(vhost_configuration_file == 0)
       return -1;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	}
-	else if(MYSERVER_FILE::fileExists("~/.myserver/virtualhosts.xml"))
+	else if(File::fileExists("~/.myserver/virtualhosts.xml"))
 	{
     vhost_configuration_file = new char[29];
     if(vhost_configuration_file == 0)
       return -1;
 		strcpy(vhost_configuration_file,"~/.myserver/virtualhosts.xml");
 	}
-	else if(MYSERVER_FILE::fileExists("/etc/myserver/virtualhosts.xml"))
+	else if(File::fileExists("/etc/myserver/virtualhosts.xml"))
 	{
     vhost_configuration_file = new char[31];
     if(vhost_configuration_file == 0)
@@ -1623,16 +1623,16 @@ int Server::loadSettings()
 	else
 #endif
 	/*! If the virtualhosts.xml file doesn't exist copy it from the default one. */
-	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
+	if(!File::fileExists("virtualhosts.xml"))
 	{
     vhost_configuration_file = new char[17];
     if(vhost_configuration_file == 0)
       return -1;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
-		MYSERVER_FILE inputF;
-		MYSERVER_FILE outputF;
-		ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | 
-                              MYSERVER_FILE_OPEN_IFEXISTS );
+		File inputF;
+		File outputF;
+		ret = inputF.openFile("virtualhosts.xml.default", File_OPEN_READ | 
+                              File_OPEN_IFEXISTS );
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1641,7 +1641,7 @@ int Server::loadSettings()
 			return -1;
 		}
 		ret = outputF.openFile("virtualhosts.xml", 
-                           MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+                           File_OPEN_WRITE|File_OPEN_ALWAYS);
     if(ret)
       return -1;
     for(;;)
@@ -1679,7 +1679,7 @@ int Server::loadSettings()
 	Https::loadProtocol(&languageParser, "myserver.xml");
   ControlProtocol::loadProtocol(&languageParser, "myserver.xml");
 #ifdef NOT_WIN
-	if(MYSERVER_FILE::fileExists("external/protocols"))
+	if(File::fileExists("external/protocols"))
 	{
 		protocols.loadProtocols("external/protocols", 
                             &languageParser, "myserver.xml", this);
