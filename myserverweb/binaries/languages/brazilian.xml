@@ -1,0 +1,52 @@
+<!--MYSERVER SUPPORT FOR PORTUGUESE (br) LANGUAGE-->
+<!--COPYRIGHT 2002 Rocky_10_Balboa-->
+<MYSERVER_LANGUAGE_FILE>
+<MSG_LANGUAGE>Usando português (brasileiro)</MSG_LANGUAGE>
+<MSG_SERVER_CONF>Configuração do servidor terminada</MSG_SERVER_CONF>
+<AL_NO_SECURITY>Não está sendo usada segurança no acesso, o conteúdo da 
+pasta web é acessível por todo mundo</AL_NO_SECURITY>
+<MSG_ISOCK>Inicializando biblioteca de socket...</MSG_ISOCK>
+<ERR_ISOCK>Erro inicializando biblioteca de socket</ERR_ISOCK>
+<MSG_SOCKSTART>Biblioteca de socket inicializada</MSG_SOCKSTART>
+<MSG_SSOCKCREATE>Criando socket do servidor...</MSG_SSOCKCREATE>
+<MSG_SSOCKRUN>Socket do servidor criado</MSG_SSOCKRUN>
+<ERR_OPENP>Erro ao abrir a porta, ela pode estar sendo usada por outra 
+aplicação</ERR_OPENP>
+<MSG_BIND_PORT>Tentando dar bind na porta...</MSG_BIND_PORT>
+<ERR_BIND>Erro de binding na porta, ela pode estar sendo usada por 
+outra aplicação</ERR_BIND>
+<MSG_PORT_BINDED>Está feito o binding na porta</MSG_PORT_BINDED>
+<MSG_SLISTEN>Tentando ouvir na porta...</MSG_SLISTEN>
+<ERR_LISTEN>Erro ao ouvir na porta</ERR_LISTEN>
+<MSG_LISTEN>Ouvindo na porta</MSG_LISTEN>
+<MSG_LOADMIME>Carregando MIME types...</MSG_LOADMIME>
+<MSG_GETNAME>O nome do computador é</MSG_GETNAME>
+<MSG_LOADED>Carregado</MSG_LOADED>
+<ERR_LOADED>Erro ao carregar</ERR_LOADED>
+<MSG_MIMERUN>MIME types carregados com sucesso</MSG_MIMERUN>
+<MSG_ADDRESS>Endereço IP</MSG_ADDRESS>
+<ERR_LOADMIME>MIME types não podem ser carregados</ERR_LOADMIME>
+<ERR_ERROR>Erro genérico</ERR_ERROR>
+<MSG_NUM_CPU>Número de processadores:</MSG_NUM_CPU>
+<MSG_CREATET>Criando thread</MSG_CREATET>
+<MSG_THREADR>Thread criada</MSG_THREADR>
+<MSG_LISTENT>Criando thread de escuta...</MSG_LISTENT>
+<MSG_LISTENTR>Thread de escuta criada</MSG_LISTENTR>
+<MSG_READY>myServer está pronto para aceitar conexões agora</MSG_READY>
+<MSG_BREAK>Use o Ctrl+C para abortar a execução</MSG_BREAK>
+<MSG_STOPT>Terminando threads...</MSG_STOPT>
+<MSG_TSTOPPED>Threads terminadas</MSG_TSTOPPED>
+<MSG_MEMCLEAN>Limpando a memória...</MSG_MEMCLEAN>
+<MSG_SERVICESTOP>Serviço parando...</MSG_SERVICESTOP>
+
+<!--THESE MEMBERS MAX 32 CHARACTERS-->
+<MSG_SENDING>Enviando</MSG_SENDING>
+<MSG_RUNON>Rodando em</MSG_RUNON>
+<MSG_FOLDERCONT>Conteúdo da pasta</MSG_FOLDERCONT>
+<MSG_FILE>Arquivo</MSG_FILE>
+<MSG_LMODIFY>Última alteração</MSG_LMODIFY>
+<MSG_SIZE>Tamanho</MSG_SIZE>
+<MSG_NEWCONNECTION>Conexão de</MSG_NEWCONNECTION>
+<MSG_ERRORCONNECTION>Erro na conexão a partir de</MSG_ERRORCONNECTION>
+<MSG_ATTIME>às</MSG_ATTIME>
+</MYSERVER_LANGUAGE_FILE>
