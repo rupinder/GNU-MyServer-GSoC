@@ -1,4 +1,6 @@
+#ifdef WIN32
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
+#endif
 
 #include "../../../cgi-lib/cgi_manager.h"
 

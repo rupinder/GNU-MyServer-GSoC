@@ -16,7 +16,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifdef WIN32
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
+#endif
 #include "../../../cgi-lib/cgi_manager.h"
 #include "counter_output.h"
 #include <limits.h>

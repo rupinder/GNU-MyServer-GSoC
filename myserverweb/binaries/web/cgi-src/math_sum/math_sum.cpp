@@ -1,4 +1,6 @@
+#ifdef WIN32
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
+#endif
 
 #include "../../../cgi-lib/cgi_manager.h"
 
@@ -18,6 +20,8 @@ extern "C" int main (char *cmd,cgi_data* data)
 		int a = 0;
 		int b = 0;
 		char *tmp;
+		int iRes;
+		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
 		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.png\">\r\n<p align=\"center\">\r\n\r\n");		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
 		tmp = cm.GetParam("a");
 		if (tmp && tmp[0] != '\0')
@@ -41,12 +45,11 @@ extern "C" int main (char *cmd,cgi_data* data)
 		else
 			cm.Write("0");
 		cm.Write(" = ");
-		const long iRes = a + b;
-		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
-#ifdef	_WIN32
+    iRes = a + b;
+#ifdef	WIN32
 		_i64toa(iRes, res, 10);
 #else
-		sprintf(res,"%i", iRes);
+		sprintf(res,"%i", (int)iRes);
 #endif
 		cm.Write(res);
 
