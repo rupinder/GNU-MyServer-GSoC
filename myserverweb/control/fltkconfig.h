@@ -207,23 +207,6 @@ private:
   inline void cb_Remove3_i(Fl_Button*, void*);
   static void cb_Remove3(Fl_Button*, void*);
 public:
-  Fl_Browser *Host;
-  Fl_Browser *Ip;
-private:
-  inline void cb_Add4_i(Fl_Button*, void*);
-  static void cb_Add4(Fl_Button*, void*);
-  inline void cb_Remove4_i(Fl_Button*, void*);
-  static void cb_Remove4(Fl_Button*, void*);
-  inline void cb_Add5_i(Fl_Button*, void*);
-  static void cb_Add5(Fl_Button*, void*);
-  inline void cb_Remove5_i(Fl_Button*, void*);
-  static void cb_Remove5(Fl_Button*, void*);
-public:
-  Fl_Value_Input *Port;
-private:
-  inline void cb_Port_i(Fl_Value_Input*, void*);
-  static void cb_Port(Fl_Value_Input*, void*);
-public:
   Fl_Choice *Protocol;
 private:
   inline void cb_Protocol_i(Fl_Choice*, void*);
@@ -254,6 +237,23 @@ public:
 private:
   inline void cb_SslButton2_i(Fl_Button*, void*);
   static void cb_SslButton2(Fl_Button*, void*);
+public:
+  Fl_Browser *Host;
+  Fl_Browser *Ip;
+private:
+  inline void cb_Add4_i(Fl_Button*, void*);
+  static void cb_Add4(Fl_Button*, void*);
+  inline void cb_Remove4_i(Fl_Button*, void*);
+  static void cb_Remove4(Fl_Button*, void*);
+  inline void cb_Add5_i(Fl_Button*, void*);
+  static void cb_Add5(Fl_Button*, void*);
+  inline void cb_Remove5_i(Fl_Button*, void*);
+  static void cb_Remove5(Fl_Button*, void*);
+public:
+  Fl_Value_Input *Port;
+private:
+  inline void cb_Port_i(Fl_Value_Input*, void*);
+  static void cb_Port(Fl_Value_Input*, void*);
 public:
   Fl_Input *Docroot;
 private:

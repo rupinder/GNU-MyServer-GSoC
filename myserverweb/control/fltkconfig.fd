@@ -79,7 +79,10 @@ if(ret) {
             callback {int i = ask_type();
 if(i != -1) {
   ConfType = i;
-  save_config();
+  i = save_config();
+  if(i) {
+    fl_alert(LanguageXMLNot_Save);
+  }
 }}
             xywh {0 0 100 20}
           }
@@ -730,8 +733,123 @@ else {
               xywh {20 120 510 220}
             } {
               Fl_Group {} {
-                label Arpa open
+                label Protocol open
                 xywh {20 145 510 195}
+              } {
+                Fl_Choice Protocol {
+                  label {Protocol:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setProtocol(i, Protocol->value());
+int pval = Protocol->value();
+if(pval != 1 && pval != 3) {
+  vHostConf.setSsl_Privatekey(i, EMPTY);
+  vHostConf.setSsl_Certificate(i, EMPTY);
+  vHostConf.setSsl_Password(i, EMPTY);
+  Ssl_Privatekey->value(EMPTY);
+  Ssl_Certificate->value(EMPTY);
+  Ssl_Password->value(EMPTY);
+  Ssl_Privatekey->deactivate();
+  Ssl_Certificate->deactivate();
+  Ssl_Password->deactivate();
+  SslButton1->deactivate();
+  SslButton2->deactivate();
+}
+else {
+  Ssl_Privatekey->activate();
+  Ssl_Certificate->activate();
+  Ssl_Password->activate();
+  SslButton1->activate();
+  SslButton2->activate();
+}
+
+// set default vals
+switch(pval) {
+  case 0 :
+    Port->value(80);
+    vHostConf.setPort(i, 80);
+    break;
+  case 1 :
+    Port->value(443);
+    vHostConf.setPort(i, 443);
+    break;
+  case 2 :
+    Port->value(21);
+    vHostConf.setPort(i, 21);
+    break;
+  case 3 :
+    Port->value(270);
+    vHostConf.setPort(i, 270);
+    break;
+  default :
+    break;
+}} open
+                  xywh {180 155 215 25} down_box BORDER_BOX when 1
+                } {
+                  menuitem {} {
+                    label HTTP
+                    xywh {5 5 100 20}
+                  }
+                  menuitem {} {
+                    label HTTPS
+                    xywh {5 5 100 20}
+                  }
+                  menuitem {} {
+                    label FTP
+                    xywh {5 5 100 20} deactivate
+                  }
+                  menuitem {} {
+                    label CONTROL
+                    xywh {0 0 100 20}
+                  }
+                }
+                Fl_Input Ssl_Privatekey {
+                  label {SSL private key:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());}
+                  xywh {180 185 215 25} when 1 deactivate
+                }
+                Fl_Input Ssl_Certificate {
+                  label {SSL certificate:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Certificate(i, Ssl_Certificate->value());}
+                  xywh {180 215 215 25} when 1 deactivate
+                }
+                Fl_Input Ssl_Password {
+                  label {SSL password:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Password(i, Ssl_Password->value());}
+                  xywh {180 245 215 25} type Secret when 1 deactivate
+                }
+                Fl_Button SslButton1 {
+                  label {Browse...}
+                  callback {char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setSsl_Privatekey(i, chrptr);
+  Ssl_Privatekey->value(chrptr);
+}}
+                  xywh {405 185 85 25} deactivate
+                }
+                Fl_Button SslButton2 {
+                  label {Browse...}
+                  callback {char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setSsl_Certificate(i, chrptr);
+  Ssl_Certificate->value(chrptr);
+}}
+                  xywh {405 215 85 25} deactivate
+                }
+              }
+              Fl_Group {} {
+                label Arpa open
+                xywh {20 145 510 195} hide
               } {
                 Fl_Browser Host {
                   label Host
@@ -799,99 +917,6 @@ if(i != 0) {
 int i = Name->value();
 vHostConf.setPort(i, (int)Port->value());}
                   xywh {435 165 65 25} maximum 10240 step 1
-                }
-              }
-              Fl_Group {} {
-                label Protocol open
-                xywh {20 145 510 195} hide
-              } {
-                Fl_Choice Protocol {
-                  label {Protocol:}
-                  callback {Changed = true;
-int i = Name->value();
-vHostConf.setProtocol(i, Protocol->value());
-int pval = Protocol->value();
-if(pval != 1 && pval != 3) {
-  vHostConf.setSsl_Privatekey(i, EMPTY);
-  vHostConf.setSsl_Certificate(i, EMPTY);
-  vHostConf.setSsl_Password(i, EMPTY);
-  Ssl_Privatekey->value(EMPTY);
-  Ssl_Certificate->value(EMPTY);
-  Ssl_Password->value(EMPTY);
-  Ssl_Privatekey->deactivate();
-  Ssl_Certificate->deactivate();
-  Ssl_Password->deactivate();
-  SslButton1->deactivate();
-  SslButton2->deactivate();
-}
-else {
-  Ssl_Privatekey->activate();
-  Ssl_Certificate->activate();
-  Ssl_Password->activate();
-  SslButton1->activate();
-  SslButton2->activate();
-}} open
-                  xywh {180 155 215 25} down_box BORDER_BOX when 1
-                } {
-                  menuitem {} {
-                    label HTTP
-                    xywh {5 5 100 20}
-                  }
-                  menuitem {} {
-                    label HTTPS
-                    xywh {5 5 100 20}
-                  }
-                  menuitem {} {
-                    label FTP
-                    xywh {5 5 100 20} deactivate
-                  }
-                  menuitem {} {
-                    label CONTROL
-                    xywh {0 0 100 20}
-                  }
-                }
-                Fl_Input Ssl_Privatekey {
-                  label {SSL private key:}
-                  callback {Changed = true;
-int i = Name->value();
-vHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());}
-                  xywh {180 185 215 25} when 1 deactivate
-                }
-                Fl_Input Ssl_Certificate {
-                  label {SSL certificate:}
-                  callback {Changed = true;
-int i = Name->value();
-vHostConf.setSsl_Certificate(i, Ssl_Certificate->value());}
-                  xywh {180 215 215 25} when 1 deactivate
-                }
-                Fl_Input Ssl_Password {
-                  label {SSL password:}
-                  callback {Changed = true;
-int i = Name->value();
-vHostConf.setSsl_Password(i, Ssl_Password->value());}
-                  xywh {180 245 215 25} type Secret when 1 deactivate
-                }
-                Fl_Button SslButton1 {
-                  label {Browse...}
-                  callback {char * chrptr = fl_file_chooser("", "", "");
-if(chrptr != 0) {
-  Changed = true;
-  int i = Name->value();
-  vHostConf.setSsl_Privatekey(i, chrptr);
-  Ssl_Privatekey->value(chrptr);
-}}
-                  xywh {405 185 85 25} deactivate
-                }
-                Fl_Button SslButton2 {
-                  label {Browse...}
-                  callback {char * chrptr = fl_file_chooser("", "", "");
-if(chrptr != 0) {
-  Changed = true;
-  int i = Name->value();
-  vHostConf.setSsl_Certificate(i, chrptr);
-  Ssl_Certificate->value(chrptr);
-}}
-                  xywh {405 215 85 25} deactivate
                 }
               }
               Fl_Group {} {
@@ -1066,7 +1091,7 @@ AboutText->buffer(atext);} {}
       }
       Fl_Value_Input LoginDlgPort {
         label {Port:}
-        xywh {420 20 70 25} maximum 10240 step 1
+        xywh {420 20 70 25} maximum 10240 step 1 value 270
       }
       Fl_Input LoginDlgName {
         label {Login name:}

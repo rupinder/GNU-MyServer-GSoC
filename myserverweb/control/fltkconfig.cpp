@@ -71,7 +71,10 @@ inline void MainDlg::cb_Save_i(Fl_Menu_*, void*) {
   int i = ask_type();
 if(i != -1) {
   ConfType = i;
-  save_config();
+  i = save_config();
+  if(i) {
+    fl_alert(LanguageXMLNot_Save);
+  }
 };
 }
 void MainDlg::cb_Save(Fl_Menu_* o, void* v) {
@@ -725,6 +728,119 @@ void MainDlg::cb_Remove3(Fl_Button* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->user_data()))->cb_Remove3_i(o,v);
 }
 
+inline void MainDlg::cb_Protocol_i(Fl_Choice*, void*) {
+  Changed = true;
+int i = Name->value();
+vHostConf.setProtocol(i, Protocol->value());
+int pval = Protocol->value();
+if(pval != 1 && pval != 3) {
+  vHostConf.setSsl_Privatekey(i, EMPTY);
+  vHostConf.setSsl_Certificate(i, EMPTY);
+  vHostConf.setSsl_Password(i, EMPTY);
+  Ssl_Privatekey->value(EMPTY);
+  Ssl_Certificate->value(EMPTY);
+  Ssl_Password->value(EMPTY);
+  Ssl_Privatekey->deactivate();
+  Ssl_Certificate->deactivate();
+  Ssl_Password->deactivate();
+  SslButton1->deactivate();
+  SslButton2->deactivate();
+}
+else {
+  Ssl_Privatekey->activate();
+  Ssl_Certificate->activate();
+  Ssl_Password->activate();
+  SslButton1->activate();
+  SslButton2->activate();
+}
+
+// set default vals
+switch(pval) {
+  case 0 :
+    Port->value(80);
+    vHostConf.setPort(i, 80);
+    break;
+  case 1 :
+    Port->value(443);
+    vHostConf.setPort(i, 443);
+    break;
+  case 2 :
+    Port->value(21);
+    vHostConf.setPort(i, 21);
+    break;
+  case 3 :
+    Port->value(270);
+    vHostConf.setPort(i, 270);
+    break;
+  default :
+    break;
+};
+}
+void MainDlg::cb_Protocol(Fl_Choice* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Protocol_i(o,v);
+}
+
+Fl_Menu_Item MainDlg::menu_Protocol[] = {
+ {gettext("HTTP"), 0,  0, 0, 0, 0, 0, 14, 56},
+ {gettext("HTTPS"), 0,  0, 0, 0, 0, 0, 14, 56},
+ {gettext("FTP"), 0,  0, 0, 1, 0, 0, 14, 56},
+ {gettext("CONTROL"), 0,  0, 0, 0, 0, 0, 14, 56},
+ {0}
+};
+
+inline void MainDlg::cb_Ssl_Privatekey_i(Fl_Input*, void*) {
+  Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());
+}
+void MainDlg::cb_Ssl_Privatekey(Fl_Input* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Privatekey_i(o,v);
+}
+
+inline void MainDlg::cb_Ssl_Certificate_i(Fl_Input*, void*) {
+  Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Certificate(i, Ssl_Certificate->value());
+}
+void MainDlg::cb_Ssl_Certificate(Fl_Input* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Certificate_i(o,v);
+}
+
+inline void MainDlg::cb_Ssl_Password_i(Fl_Input*, void*) {
+  Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Password(i, Ssl_Password->value());
+}
+void MainDlg::cb_Ssl_Password(Fl_Input* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Password_i(o,v);
+}
+
+inline void MainDlg::cb_SslButton1_i(Fl_Button*, void*) {
+  char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setSsl_Privatekey(i, chrptr);
+  Ssl_Privatekey->value(chrptr);
+};
+}
+void MainDlg::cb_SslButton1(Fl_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_SslButton1_i(o,v);
+}
+
+inline void MainDlg::cb_SslButton2_i(Fl_Button*, void*) {
+  char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setSsl_Certificate(i, chrptr);
+  Ssl_Certificate->value(chrptr);
+};
+}
+void MainDlg::cb_SslButton2(Fl_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_SslButton2_i(o,v);
+}
+
 inline void MainDlg::cb_Add4_i(Fl_Button*, void*) {
   char * val;
 int NameNo, i;
@@ -792,97 +908,6 @@ vHostConf.setPort(i, (int)Port->value());
 }
 void MainDlg::cb_Port(Fl_Value_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Port_i(o,v);
-}
-
-inline void MainDlg::cb_Protocol_i(Fl_Choice*, void*) {
-  Changed = true;
-int i = Name->value();
-vHostConf.setProtocol(i, Protocol->value());
-int pval = Protocol->value();
-if(pval != 1 && pval != 3) {
-  vHostConf.setSsl_Privatekey(i, EMPTY);
-  vHostConf.setSsl_Certificate(i, EMPTY);
-  vHostConf.setSsl_Password(i, EMPTY);
-  Ssl_Privatekey->value(EMPTY);
-  Ssl_Certificate->value(EMPTY);
-  Ssl_Password->value(EMPTY);
-  Ssl_Privatekey->deactivate();
-  Ssl_Certificate->deactivate();
-  Ssl_Password->deactivate();
-  SslButton1->deactivate();
-  SslButton2->deactivate();
-}
-else {
-  Ssl_Privatekey->activate();
-  Ssl_Certificate->activate();
-  Ssl_Password->activate();
-  SslButton1->activate();
-  SslButton2->activate();
-};
-}
-void MainDlg::cb_Protocol(Fl_Choice* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Protocol_i(o,v);
-}
-
-Fl_Menu_Item MainDlg::menu_Protocol[] = {
- {gettext("HTTP"), 0,  0, 0, 0, 0, 0, 14, 56},
- {gettext("HTTPS"), 0,  0, 0, 0, 0, 0, 14, 56},
- {gettext("FTP"), 0,  0, 0, 1, 0, 0, 14, 56},
- {gettext("CONTROL"), 0,  0, 0, 0, 0, 0, 14, 56},
- {0}
-};
-
-inline void MainDlg::cb_Ssl_Privatekey_i(Fl_Input*, void*) {
-  Changed = true;
-int i = Name->value();
-vHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());
-}
-void MainDlg::cb_Ssl_Privatekey(Fl_Input* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Privatekey_i(o,v);
-}
-
-inline void MainDlg::cb_Ssl_Certificate_i(Fl_Input*, void*) {
-  Changed = true;
-int i = Name->value();
-vHostConf.setSsl_Certificate(i, Ssl_Certificate->value());
-}
-void MainDlg::cb_Ssl_Certificate(Fl_Input* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Certificate_i(o,v);
-}
-
-inline void MainDlg::cb_Ssl_Password_i(Fl_Input*, void*) {
-  Changed = true;
-int i = Name->value();
-vHostConf.setSsl_Password(i, Ssl_Password->value());
-}
-void MainDlg::cb_Ssl_Password(Fl_Input* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Password_i(o,v);
-}
-
-inline void MainDlg::cb_SslButton1_i(Fl_Button*, void*) {
-  char * chrptr = fl_file_chooser("", "", "");
-if(chrptr != 0) {
-  Changed = true;
-  int i = Name->value();
-  vHostConf.setSsl_Privatekey(i, chrptr);
-  Ssl_Privatekey->value(chrptr);
-};
-}
-void MainDlg::cb_SslButton1(Fl_Button* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_SslButton1_i(o,v);
-}
-
-inline void MainDlg::cb_SslButton2_i(Fl_Button*, void*) {
-  char * chrptr = fl_file_chooser("", "", "");
-if(chrptr != 0) {
-  Changed = true;
-  int i = Name->value();
-  vHostConf.setSsl_Certificate(i, chrptr);
-  Ssl_Certificate->value(chrptr);
-};
-}
-void MainDlg::cb_SslButton2(Fl_Button* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_SslButton2_i(o,v);
 }
 
 inline void MainDlg::cb_Docroot_i(Fl_Input*, void*) {
@@ -2353,36 +2378,7 @@ Fl_Double_Window* MainDlg::make_window() {
         { Fl_Group* o = new Fl_Group(10, 110, 530, 240);
           o->box(FL_ENGRAVED_FRAME);
           { Fl_Tabs* o = new Fl_Tabs(20, 120, 510, 220);
-            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Arpa"));
-              { Fl_Browser* o = Host = new Fl_Browser(30, 165, 170, 135, gettext("Host"));
-                o->type(2);
-                o->align(FL_ALIGN_TOP);
-              }
-              { Fl_Browser* o = Ip = new Fl_Browser(210, 165, 170, 135, gettext("IP"));
-                o->type(2);
-                o->align(FL_ALIGN_TOP);
-              }
-              { Fl_Button* o = new Fl_Button(40, 305, 70, 25, gettext("Add..."));
-                o->callback((Fl_Callback*)cb_Add4);
-              }
-              { Fl_Button* o = new Fl_Button(120, 305, 70, 25, gettext("Remove"));
-                o->callback((Fl_Callback*)cb_Remove4);
-              }
-              { Fl_Button* o = new Fl_Button(220, 305, 70, 25, gettext("Add..."));
-                o->callback((Fl_Callback*)cb_Add5);
-              }
-              { Fl_Button* o = new Fl_Button(300, 305, 70, 25, gettext("Remove"));
-                o->callback((Fl_Callback*)cb_Remove5);
-              }
-              { Fl_Value_Input* o = Port = new Fl_Value_Input(435, 165, 65, 25, gettext("Port:"));
-                o->maximum(10240);
-                o->step(1);
-                o->callback((Fl_Callback*)cb_Port);
-              }
-              o->end();
-            }
             { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Protocol"));
-              o->hide();
               { Fl_Choice* o = Protocol = new Fl_Choice(180, 155, 215, 25, gettext("Protocol:"));
                 o->down_box(FL_BORDER_BOX);
                 o->callback((Fl_Callback*)cb_Protocol);
@@ -2412,6 +2408,35 @@ Fl_Double_Window* MainDlg::make_window() {
               { Fl_Button* o = SslButton2 = new Fl_Button(405, 215, 85, 25, gettext("Browse..."));
                 o->callback((Fl_Callback*)cb_SslButton2);
                 o->deactivate();
+              }
+              o->end();
+            }
+            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Arpa"));
+              o->hide();
+              { Fl_Browser* o = Host = new Fl_Browser(30, 165, 170, 135, gettext("Host"));
+                o->type(2);
+                o->align(FL_ALIGN_TOP);
+              }
+              { Fl_Browser* o = Ip = new Fl_Browser(210, 165, 170, 135, gettext("IP"));
+                o->type(2);
+                o->align(FL_ALIGN_TOP);
+              }
+              { Fl_Button* o = new Fl_Button(40, 305, 70, 25, gettext("Add..."));
+                o->callback((Fl_Callback*)cb_Add4);
+              }
+              { Fl_Button* o = new Fl_Button(120, 305, 70, 25, gettext("Remove"));
+                o->callback((Fl_Callback*)cb_Remove4);
+              }
+              { Fl_Button* o = new Fl_Button(220, 305, 70, 25, gettext("Add..."));
+                o->callback((Fl_Callback*)cb_Add5);
+              }
+              { Fl_Button* o = new Fl_Button(300, 305, 70, 25, gettext("Remove"));
+                o->callback((Fl_Callback*)cb_Remove5);
+              }
+              { Fl_Value_Input* o = Port = new Fl_Value_Input(435, 165, 65, 25, gettext("Port:"));
+                o->maximum(10240);
+                o->step(1);
+                o->callback((Fl_Callback*)cb_Port);
               }
               o->end();
             }
@@ -2556,6 +2581,7 @@ Fl_Double_Window* MainDlg::make_login() {
     { Fl_Value_Input* o = LoginDlgPort = new Fl_Value_Input(420, 20, 70, 25, gettext("Port:"));
       o->maximum(10240);
       o->step(1);
+      o->value(270);
     }
     LoginDlgName = new Fl_Input(185, 50, 180, 25, gettext("Login name:"));
     { Fl_Input* o = LoginDlgPass = new Fl_Input(185, 80, 180, 25, gettext("Login password:"));
