@@ -68,7 +68,6 @@ void wait(u_long);
 u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
 u_long execConcurrentProcess(START_PROC_INFO* spi);
 int terminateProcess(u_long);
-void getComputerName(char* name,u_long maxlen);
 int setcwdBuffer();
 char *getdefaultwd(char* dwd,int maxlen);
 int setcwd(char * cwd);

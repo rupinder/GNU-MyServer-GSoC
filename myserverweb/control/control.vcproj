@@ -73,6 +73,9 @@
 				RelativePath="configureMIME.cpp">
 			</File>
 			<File
+				RelativePath="configureVHOSTS.cpp">
+			</File>
+			<File
 				RelativePath="control.cpp">
 			</File>
 			<File
@@ -96,6 +99,9 @@
 			</File>
 			<File
 				RelativePath="configureMIME.h">
+			</File>
+			<File
+				RelativePath="configureVHOSTS.h">
 			</File>
 			<File
 				RelativePath="control.h">

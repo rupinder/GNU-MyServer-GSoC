@@ -73,7 +73,7 @@ public:
 	configurationFrame* configurationWnd;
 #endif
 	mainFrame(const wxString& title, const wxPoint& pos, const wxSize& size,
-		long style = wxDEFAULT_FRAME_STYLE);
+	long style = wxDEFAULT_FRAME_STYLE);
 #ifndef __WXGTK__
     taskBarIcon   m_taskBarIcon;
 #endif
@@ -85,6 +85,7 @@ public:
 	void iconize(wxCommandEvent& event);
 	void configureWnd(wxCommandEvent& event);
 	void configureMIME(wxCommandEvent& event);
+	void configureVHOSTS(wxCommandEvent& event);
 	void runService(wxCommandEvent& event);
 	void registerService(wxCommandEvent& event);
 	void stopService(wxCommandEvent& event);

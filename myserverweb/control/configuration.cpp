@@ -27,6 +27,7 @@ enum
     Configuration_Quit = 1,
 	Configuration_LOADDEF,
 	Configuration_MIME,
+	Configuration_VHOSTS,
 	Configuration_Save,
 	Configuration_Exit
 };
@@ -38,6 +39,7 @@ EVT_BUTTON(Configuration_Save,  configurationFrame::configureSave)
 EVT_BUTTON(Configuration_LOADDEF,  configurationFrame::loadDefault)
 EVT_BUTTON(Configuration_Exit,  configurationFrame::OnQuit)
 EVT_MENU(Configuration_MIME,configurationFrame::configureMIME)
+EVT_MENU(Configuration_VHOSTS,configurationFrame::configureVHOSTS)
 EVT_WINDOW_DESTROY(configurationFrame::OnQuit)
 EVT_CLOSE(configurationFrame::OnQuit)
 END_EVENT_TABLE()
@@ -58,7 +60,8 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 	wxPanel *panel = new wxPanel(this, -1);
 	m_notebook = new wxNotebook(panel,-1,wxPoint(10,0),wxSize(610,390));
 	initNotebook();
-	btnLOADDEF= new wxButton(panel,Configuration_LOADDEF,"Reset",wxPoint(220,390),wxSize(100,25));
+	btnLOADDEF= new wxButton(panel,Configuration_LOADDEF,"Reset",wxPoint(120,390),wxSize(100,25));
+	btnCfgVhosts= new wxButton(panel,Configuration_Save,"Configure vhosts",wxPoint(220,390),wxSize(100,25));
 	btnSAVE= new wxButton(panel,Configuration_MIME,"Configure MIME",wxPoint(320,390),wxSize(100,25));
 	btnCfgMime= new wxButton(panel,Configuration_Save,"Save configuration",wxPoint(420,390),wxSize(100,25));
 	btnExit= new wxButton(panel,Configuration_Exit,"Exit",wxPoint(520,390),wxSize(100,25));
@@ -132,7 +135,7 @@ void configurationFrame::initNotebook()
 		if(fd.name[0]=='.')
 			continue;
 		MYSERVER_FILE::splitPath(fd.name,dir,filename);
-                            languageFile->Append(_T(filename));
+		languageFile->Append(_T(filename));
 		if(!strcmp(confparser.getValue("LANGUAGE"),filename))
 			n=c;
 		else c++;
@@ -151,8 +154,13 @@ void configurationFrame::initNotebook()
 }
 void configurationFrame::configureMIME(wxCommandEvent& event)
 {
-	configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX, MIMEWNDSIZEY));
+	configureMIMEWnd=new configurationFrameMIME(this,_T("Configure MyServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX, MIMEWNDSIZEY));
 	configureMIMEWnd->Show(TRUE);
+}
+void configurationFrame::configureVHOSTS(wxCommandEvent& event)
+{
+	configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure Virtual hosts"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX+150, MIMEWNDSIZEY));
+	configureVHOSTSWnd->Show(TRUE);
 }
 void configurationFrame::configureSave(wxCommandEvent& event)
 {

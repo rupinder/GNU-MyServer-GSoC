@@ -213,7 +213,7 @@ void cserver::start()
 	/*
 	*Get the name of the local machine.
 	*/
-	getComputerName(serverName,(u_long)sizeof(serverName));
+	MYSERVER_SOCKET::gethostname(serverName,(u_long)sizeof(serverName));
 	printf("%s: %s\n",languageParser.getValue("MSG_GETNAME"),serverName);
 
 	/*

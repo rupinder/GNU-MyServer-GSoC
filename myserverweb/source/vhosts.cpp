@@ -283,7 +283,8 @@ void vhostmanager::loadConfigurationFile(char* filename)
 	space.
 	In 5) and 6) for use absolute path use the character | before the full path.
 	*/
-
+	char path[MAX_PATH];
+	getdefaultwd(path,MAX_PATH);
 	char buffer[KB(10)];/*Exists a line greater than 10 KB?!?*/
 	char buffer2[256];
 	u_long nbr;/*Number of bytes read from the file*/
@@ -392,7 +393,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 		}	
 		strcpy(vh->documentRootOriginal,buffer2);
 		if(buffer2[0]!='|')
-			sprintf(vh->documentRoot,"%s/%s",lserver->getPath(),buffer2);
+			sprintf(vh->documentRoot,"%s/%s",path,buffer2);
 		else
 			strcpy(vh->documentRoot,&buffer2[1]);
 		cc++;
@@ -406,7 +407,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 		}	
 		strcpy(vh->systemRootOriginal,buffer2);
 		if(buffer2[0]!='|')
-			sprintf(vh->systemRoot,"%s/%s",lserver->getPath(),buffer2);
+			sprintf(vh->systemRoot,"%s/%s",path,buffer2);
 		else
 			strcpy(vh->systemRoot,&buffer2[1]);
 		cc++;
@@ -539,6 +540,8 @@ vhostmanager::sVhostList* vhostmanager::getvHostList()
 */
 void vhostmanager::loadXMLConfigurationFile(char *filename)
 {
+	char path[MAX_PATH];
+	getdefaultwd(path,MAX_PATH);
 	cXMLParser parser;
 	if(int r=parser.open(filename))
 	{
@@ -579,7 +582,7 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 			{
 				strcpy(vh->documentRootOriginal,(char*)lcur->children->content);
 				if(vh->documentRootOriginal[0]!='|')
-					sprintf(vh->documentRoot,"%s/%s",lserver->getPath(),vh->documentRootOriginal);
+					sprintf(vh->documentRoot,"%s/%s",path,vh->documentRootOriginal);
 				else
 					strcpy(vh->documentRoot,&(vh->documentRootOriginal)[1]);				
 			}
@@ -587,7 +590,7 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 			{
 				strcpy(vh->systemRootOriginal,(char*)lcur->children->content);
 				if(vh->systemRootOriginal[0]!='|')
-					sprintf(vh->systemRoot,"%s/%s",lserver->getPath(),vh->systemRootOriginal);
+					sprintf(vh->systemRoot,"%s/%s",path,vh->systemRootOriginal);
 				else
 					strcpy(vh->systemRoot,&(vh->documentRootOriginal[1]));
 			}

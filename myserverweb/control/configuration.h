@@ -39,6 +39,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
         
 #include "configureMIME.h"
+#include "configureVHOSTS.h"
 extern const char VERSION_OF_SOFTWARE[];
 
 #define N_PAGES 7
@@ -57,15 +58,18 @@ class configurationFrame : public wxFrame
 
 
 	configurationFrameMIME* configureMIMEWnd;
+	configurationFrameVHOSTS* configureVHOSTSWnd;
 	wxButton* btnSAVE;	
 	wxButton* btnLOADDEF;	
 	wxButton* btnCfgMime;
+	wxButton* btnCfgVhosts;
 	wxButton* btnExit;
 	cXMLParser confparser;
 	wxPanel *pPage[N_PAGES];
 	wxNotebook *m_notebook;
 public:
 	void configureMIME(wxCommandEvent& event);
+	void configureVHOSTS(wxCommandEvent& event);
 	void configureSave(wxCommandEvent& event);
 	void loadDefault(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);

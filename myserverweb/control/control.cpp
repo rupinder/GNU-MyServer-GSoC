@@ -65,6 +65,7 @@ enum
 	ControlCenter_RemoveService,
 	ControlCenter_Configure,
 	ControlCenter_ConfigureMIME,
+	ControlCenter_ConfigureVHOSTS,
 	PU_RESTORE,
 	PU_EXIT,
     ControlCenter_About = wxID_ABOUT
@@ -92,6 +93,7 @@ BEGIN_EVENT_TABLE(taskBarIcon, wxTaskBarIcon)
     EVT_MENU(ControlCenter_StopConsole,  mainFrame::stopConsole)
 	EVT_MENU(ControlCenter_Configure,mainFrame::configureWnd)
 	EVT_MENU(ControlCenter_ConfigureMIME,mainFrame::configureMIME)
+	EVT_MENU(ControlCenter_ConfigureVHOSTS,mainFrame::configureVHOSTS)
 	EVT_MENU(ControlCenter_About, mainFrame::OnAbout)
     EVT_MENU(ControlCenter_RemoveService, mainFrame::removeService)
 END_EVENT_TABLE()
@@ -105,6 +107,7 @@ BEGIN_EVENT_TABLE(mainFrame, wxFrame)
     EVT_MENU(ControlCenter_StopService,  mainFrame::stopService)
     EVT_MENU(ControlCenter_StopConsole,  mainFrame::stopConsole)
 	EVT_MENU(ControlCenter_ConfigureMIME,mainFrame::configureMIME)
+	EVT_MENU(ControlCenter_ConfigureVHOSTS,mainFrame::configureVHOSTS)
     EVT_MENU(ControlCenter_About, mainFrame::OnAbout)
 	EVT_MENU(ControlCenter_Configure,mainFrame::configureWnd)
     EVT_MENU(ControlCenter_RemoveService, mainFrame::removeService)
@@ -158,6 +161,7 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	
 	configureMenu->Append(ControlCenter_Configure,_T("Configure MyServer"),_T("Configure MyServer"));
 	configureMenu->Append(ControlCenter_ConfigureMIME,_T("Configure MIME types"),_T("Configure MyServer MIME types"));
+	configureMenu->Append(ControlCenter_ConfigureVHOSTS,_T("Configure virtual hosts"),_T("Configure virtual hosts"));
 
     wxMenuBar *menuBar = new wxMenuBar();
     menuBar->Append(menuFile, _T("&File"));
@@ -355,6 +359,11 @@ void mainFrame::configureMIME(wxCommandEvent& event)
 {
 	configurationFrameMIME *configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX, MIMEWNDSIZEY));
 	configureMIMEWnd->Show(TRUE);
+}
+void mainFrame::configureVHOSTS(wxCommandEvent& event)
+{
+	configurationFrameVHOSTS *configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure myServer virtual hosts"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX+150, MIMEWNDSIZEY));
+	configureVHOSTSWnd->Show(TRUE);
 }
 /*
 *Stop the application if run in service mode

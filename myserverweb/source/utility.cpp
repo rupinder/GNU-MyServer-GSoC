@@ -356,13 +356,7 @@ char *getdefaultwd(char *path,int len)
 #endif
 	return path;
 }
-/*
-*Get the local machine name.
-*/
-void getComputerName(char *dest,u_long maxLen)
-{
-	MYSERVER_SOCKET::gethostname(dest,maxLen);
-}
+
 
 /*
 *Set the current working directory. Returns Zero if successful.
