@@ -60,7 +60,7 @@ static char *path;
 /*!
  *Change this to reflect the version of the software.
  */
-const char *versionOfSoftware="0.7.2";
+const char *versionOfSoftware="0.8";
 cserver server;
 int argn;
 char **argv;
