@@ -102,20 +102,31 @@ time_t getTime(char* str)
 		else
 			lb[i]=str[c++];
 	}
-	if(!strcmp(lb, "Sun"))
-		t.tm_wday = 0;
-	if(!strcmp(lb, "Mon"))
-		t.tm_wday = 1;
-	if(!strcmp(lb, "Tue"))
-		t.tm_wday = 2;
-	if(!strcmp(lb, "Wed"))
-		t.tm_wday = 3;
-	if(!strcmp(lb, "Thu"))
-		t.tm_wday = 4;
-	if(!strcmp(lb, "Fri"))
-		t.tm_wday = 5;
-	if(!strcmp(lb, "Sat"))
-		t.tm_wday = 6;
+	i=lb[0]+lb[1]+lb[3];
+	switch(i)
+	{
+		case 310:
+			t.tm_wday = 0;	//Sun
+			break;
+		case 298:
+			t.tm_wday = 1;	//Mon
+			break;
+		case 302:
+			t.tm_wday = 2;	//Tue
+			break;
+		case 288:
+			t.tm_wday = 3;	//Wed
+			break;
+		case 305:
+			t.tm_wday = 4;	//Thu
+			break;
+		case 289:
+			t.tm_wday = 5;	//Fri
+			break;
+		case 296:
+			t.tm_wday = 6;	//Sat
+			break;
+	}
 
 	c++;
 	for(i=0;i<30;i++)
@@ -142,30 +153,46 @@ time_t getTime(char* str)
 		else
 			lb[i]=str[c++];
 	}
-	if(!strcmp(lb, "Jan"))
-		t.tm_mon = 0;
-	if(!strcmp(lb, "Feb"))
-		t.tm_mon = 1;
-	if(!strcmp(lb, "Mar"))
-		t.tm_mon = 2;
-	if(!strcmp(lb, "Apr"))
-		t.tm_mon = 3;
-	if(!strcmp(lb, "May"))
-		t.tm_mon = 4;
-	if(!strcmp(lb, "Jun"))
-		t.tm_mon = 5;
-	if(!strcmp(lb, "Jul"))
-		t.tm_mon = 6;	
-	if(!strcmp(lb, "Aug"))
-		t.tm_mon = 7;
-	if(!strcmp(lb, "Sep"))
-		t.tm_mon = 8;
-	if(!strcmp(lb, "Oct"))
-		t.tm_mon = 9;
-	if(!strcmp(lb, "Nov"))
-		t.tm_mon = 10;
-	if(!strcmp(lb, "Dec"))
-		t.tm_mon = 11;
+	i=lb[0]+lb[1]+lb[3];
+	switch(i)
+	{
+		case 281:
+			t.tm_wday = 0;	//Jan
+			break;
+		case 269:
+			t.tm_wday = 1;	//Feb
+			break;
+		case 288:
+			t.tm_wday = 2;	//Mar
+			break;
+		case 291:
+			t.tm_wday = 3;	//Apr
+			break;
+		case 295:
+			t.tm_wday = 4;	//May
+			break;
+		case 301:
+			t.tm_wday = 5;	//Jun
+			break;
+		case 299:
+			t.tm_wday = 6;	//Jul
+			break;
+		case 285:
+			t.tm_wday = 7;	//Aug
+			break;
+		case 296:
+			t.tm_wday = 8;	//Sep
+			break;
+		case 294:
+			t.tm_wday = 9;	//Oct
+			break;
+		case 307:
+			t.tm_wday = 10;	//Nov
+			break;
+		case 268:
+			t.tm_wday = 11;	//Dec
+			break;
+	}
 
 	for(i=0;i<30;i++)
 	{
