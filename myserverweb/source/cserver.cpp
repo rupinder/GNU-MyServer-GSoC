@@ -232,9 +232,9 @@ void cserver::start()
         if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
             (myserver_mime_conf_now!=-1)) || toReboot)
         {
-          if( (myserver_main_conf_now != myserver_main_conf)  || 
+          if( ((myserver_main_conf_now != myserver_main_conf)  || 
               (myserver_hosts_conf_now != myserver_hosts_conf)  || 
-              (myserver_mime_conf_now != myserver_mime_conf)          )
+              (myserver_mime_conf_now != myserver_mime_conf))   || toReboot  )
           {
             reboot();
             /*! Store new mtime values. */
@@ -313,10 +313,12 @@ int cserver::createServerAndListener(u_long port)
    *Create the server socket.
    */
 	printf("%s\n", languageParser.getValue("MSG_SSOCKCREATE"));
-	MYSERVER_SOCKET serverSocket;
-	serverSocket.socket(AF_INET, SOCK_STREAM, 0);
+	MYSERVER_SOCKET *serverSocket = new MYSERVER_SOCKET();
+  if(!serverSocket)
+    return 0;
+	serverSocket->socket(AF_INET, SOCK_STREAM, 0);
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
-	if(serverSocket.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
+	if(serverSocket->getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 	{
 		preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_OPENP"));
@@ -327,17 +329,17 @@ int cserver::createServerAndListener(u_long port)
 	sock_inserverSocket.sin_family=AF_INET;
 	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 	sock_inserverSocket.sin_port=htons((u_short)port);
-
+ 
 #ifdef NOT_WIN
 	/*!
    *Under the unix environment the application needs some time before
-   * create a new socket
-   *for the same address. To avoid this behavior we use the current code.
+   * create a new socket for the same address. 
+   *To avoid this behavior we use the current code.
    */
 	int optvalReuseAddr=1;
-	if(serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 
-                             (const char *)&optvalReuseAddr, 
-                             sizeof(optvalReuseAddr))<0)
+	if(serverSocket->setsockopt(SOL_SOCKET, SO_REUSEADDR, 
+                              (const char *)&optvalReuseAddr, 
+                              sizeof(optvalReuseAddr))<0)
   {
     preparePrintError();
 		printf("%s setsockopt\n", languageParser.getValue("ERR_ERROR"));
@@ -350,8 +352,8 @@ int cserver::createServerAndListener(u_long port)
    */
 	printf("%s\n", languageParser.getValue("MSG_BIND_PORT"));
 
-	if(serverSocket.bind((sockaddr*)&sock_inserverSocket, 
-                       sizeof(sock_inserverSocket))!=0)
+	if(serverSocket->bind((sockaddr*)&sock_inserverSocket, 
+                        sizeof(sock_inserverSocket))!=0)
 	{
 		preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_BIND"));
@@ -364,7 +366,7 @@ int cserver::createServerAndListener(u_long port)
    *Set connections listen queque to max allowable.
    */
 	printf("%s\n", languageParser.getValue("MSG_SLISTEN"));
-	if (serverSocket.listen(SOMAXCONN))
+	if (serverSocket->listen(SOMAXCONN))
 	{ 
     preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_LISTEN"));
@@ -385,8 +387,7 @@ int cserver::createServerAndListener(u_long port)
 
 	myserver_thread_ID t_id;
 	
-	myserver_thread::create(&t_id,  &::listenServer,  (void *)(argv));
-	
+	myserver_thread::create(&t_id, &::listenServer,  (void *)(argv));
 	return (t_id)?1:0;
 }
 
@@ -451,12 +452,16 @@ void * listenServer(void* params)
 	sigprocmask(SIG_SETMASK, &sigmask, NULL);
 #endif
 	listenThreadArgv *argv=(listenThreadArgv*)params;
-	MYSERVER_SOCKET serverSocket=argv->serverSocket;
+	MYSERVER_SOCKET *serverSocket=argv->serverSocket;
 	delete argv;
 
 	MYSERVER_SOCKADDRIN asock_in;
 	int asock_inLen=sizeof(asock_in);
 	MYSERVER_SOCKET asock;
+
+  u_long nonblock = 1;
+  int ret = serverSocket->ioctlsocket( FIONBIO, &nonblock);
+
 	lserver->increaseListeningThreadCount();
 	while(!mustEndServer)
 	{
@@ -465,22 +470,19 @@ void * listenServer(void* params)
      *Every new connection is sended to cserver::addConnection function;
      *this function sends connections between the various threads.
      */
-#ifdef WIN32
-		if(serverSocket.dataOnRead()==0)
+		if(serverSocket->dataOnRead()==0)
 		{
 			wait(10);
 			continue;
 		}
-#else
-		wait(10);
-#endif
-		asock = serverSocket.accept((struct sockaddr*)&asock_in, 
-                                (LPINT)&asock_inLen);
+
+		asock = serverSocket->accept((struct sockaddr*)&asock_in, 
+                                 (LPINT)&asock_inLen);
 		if(asock.getHandle()==0)
 			continue;
 		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 			continue;
-		asock.setServerSocket(&serverSocket);
+		asock.setServerSocket(serverSocket);
 		lserver->addConnection(asock, &asock_in);
 	}
 	
@@ -488,14 +490,15 @@ void * listenServer(void* params)
    *When the flag mustEndServer is 1 end current thread and clean
    *the socket used for listening.
    */
-	serverSocket.shutdown( SD_BOTH);
+	serverSocket->shutdown( SD_BOTH);
 	char buffer[256];
 	int err;
 	do
 	{
-		err=serverSocket.recv(buffer, 256, 0);
+		err=serverSocket->recv(buffer, 256, 0);
 	}while(err!=-1);
-	serverSocket.closesocket();
+	serverSocket->closesocket();
+  delete serverSocket;
 	lserver->decreaseListeningThreadCount();
 	
 	/*!
@@ -689,7 +692,7 @@ int cserver::initialize(int /*!os_ver*/)
 	verbosity=1;
 	maxConnections=0;
 	serverAdmin[0]='\0';
-	
+	autoRebootEnabled = 1;
 #ifndef WIN32
 	/*! 
    *Do not use the files in the directory /usr/share/myserver/languages
@@ -1548,7 +1551,7 @@ int cserver::loadSettings()
  */
 int cserver::reboot()
 {
-  int ret;
+  int ret = 0;
   /*! Reset the toReboot flag. */
   toReboot = 0;
   /*! Print the Reboot message and do a beep(0x7). */
@@ -1566,8 +1569,8 @@ int cserver::reboot()
   if(ret)
     return ret;
 	ret = loadSettings();
-  if(ret)
-    return ret;
+
+  return ret;
 
 }
 

@@ -67,6 +67,7 @@ private:
 	cgi lcgi;
 	fastcgi lfastcgi;
 	struct httpThreadContext td;
+  void clean();
 protected:
 	char protocolPrefix[12];
 public:

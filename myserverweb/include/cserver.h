@@ -62,7 +62,7 @@ extern int rebootMyServerConsole;
 struct listenThreadArgv
 {
 	u_long port;
-	MYSERVER_SOCKET serverSocket;
+	MYSERVER_SOCKET *serverSocket;
 	int SSLsocket;
 };
 

@@ -2963,8 +2963,10 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
 		defaultFilename=0;
 	}
   if(browseDirCSSpath)
+  {
     delete [] browseDirCSSpath;
-
+    browseDirCSSpath = 0;
+  }
 	initialized=0;
 	return 1;
 }
@@ -3028,6 +3030,14 @@ http::http()
  *Destructor for the class http
  */
 http::~http()
+{
+  clean();
+}
+
+/*!
+ *Clean the used memory.
+ */
+void http::clean()
 {
   if(td.filenamePath)
     delete [] td.filenamePath;
