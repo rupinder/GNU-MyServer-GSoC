@@ -87,7 +87,9 @@ void * startClientsTHREAD(void* pParam)
 	ct->buffersize2=lserver->buffersize2;
 	
 	ct->buffer.SetLength(ct->buffersize);
+	ct->buffer.m_nSizeLimit = ct->buffersize;
 	ct->buffer2.SetLength(ct->buffersize2);
+	ct->buffer2.m_nSizeLimit = ct->buffersize2;
 	
 	ct->http_parser = new http();
 	ct->https_parser = new https();
@@ -167,7 +169,6 @@ void ClientsTHREAD::controlConnections()
 			return;
 		}
 		buffer.SetBuffer(c->connectionBuffer, c->dataRead);
-		buffer.SetLength( c->dataRead);
 		/*!
 		*Control the protocol used by the connection.
 		*/

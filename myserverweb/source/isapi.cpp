@@ -647,7 +647,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	ExtCtrlBlk.lpszContentType = (LPSTR)(&(td->request.CONTENT_TYPE[0]));
 
 	connTable[connIndex].td->buffer->SetLength(0);
-	((char*)connTable[connIndex].td->buffer->GetBuffer())[0]='\0';
+	connTable[connIndex].td->buffer->GetAt(0)='\0';
 	HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)GetProcAddress(AppHnd, "HttpExtensionProc");
 	if (HttpExtensionProc == NULL) 
 	{

@@ -50,7 +50,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	td->buffer->SetLength(0);
-	((char*)td->buffer2->GetBuffer())[0]='\0';
+	td->buffer2->GetAt(0)='\0';
 	cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
 	char fullpath[MAX_PATH*2];
 	if(execute)

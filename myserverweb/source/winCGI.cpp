@@ -69,6 +69,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
+	td->buffer2->SetLength(0);
 	char *buffer=(char*)td->buffer2->GetBuffer();
 
 	strcpy(buffer,"[CGI]\r\n");
@@ -77,8 +78,8 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	strcpy(buffer,"CGI Version=CGI/1.3a WIN\r\n");
 	DataFileHandle.writeToFile(buffer,26,&nbr);
 
-	sprintf(buffer,"Server Admin=%s\r\n",lserver->getServerAdmin());
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	*td->buffer2 << "Server Admin=" << lserver->getServerAdmin() << "\r\n";
+	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
 
 	if(lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
@@ -91,14 +92,16 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		DataFileHandle.writeToFile(buffer,24,&nbr);
 	}
 
-	sprintf(buffer,"Request Method=%s\r\n",td->request.CMD);
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	td->buffer2->SetLength(0);
+	*td->buffer2 << "Request Method=" << td->request.CMD << "\r\n";
+	DataFileHandle.writeToFile(buffer,td->buffer2.GetLength(),&nbr);
 
-	sprintf(buffer ,"Request Protocol=HTTP/%s\r\n",td->request.VER);
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	td->buffer2->SetLength(0);
+	*td->buffer2 << "Request Protocol=HTTP/" << td->request.VER << "\r\n";
+	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
 
-	sprintf(buffer,"Executable Path=%s\r\n",execname);
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	td->buffer2 << "Executable Path=" << execname << "\r\n";
+	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
 
 	if(td->request.URIOPTS[0])
 	{
@@ -260,7 +263,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	else
 		td->outputData.writeToFile((char*)(buffer+headerSize),nBytesRead-headerSize,&nbw);
 		
-	while(OutFileHandle.readFromFile(buffer,td->buffersize2,&nBytesRead))
+	while(OutFileHandle.readFromFile(buffer,td->buffer2->GetLength(),&nBytesRead))
 	{
 		if(nBytesRead)
 		{
