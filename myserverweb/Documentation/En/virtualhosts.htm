@@ -1,12 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
 <head>
-  <meta http-equiv="content-type"
- content="text/html; charset=ISO-8859-1">
-  <link rel="stylesheet" type="text/css" href="myserver.css">
-  <title>Virtual Hosts</title>
+<title>MyServer Documentation - Creating Virtual Hosts - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="myserver.css" />
 </head>
 <body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
 <h1 class="title">VIRTUAL HOSTS</h1>
 In theory, virtual hosts allow users to lodge an infinite number of
 sites on a single machine. For example http://mypc.net is different
@@ -14,64 +18,67 @@ from http://sub.mypc.net. To define virtual hosts in myServer open the
 file virtualhosts.xml&nbsp; in a text editor (such as notepad in
 Windows or
 Emacs in Linux).&nbsp; A sample virtual hosts configuration file looks
-like:<br>
-<br>
-<p class="code">&lt;VHOSTS&gt;<br>
-  -<br>
-  &nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br>
-  &lt;NAME&gt;Every connection&lt;/NAME&gt;<br>
-  &lt;PORT&gt;80&lt;/PORT&gt;<br>
-  &lt;IP&gt;127.0.0.1&lt;/IP&gt; <br>
-  &lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br>
-  &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br>
-  &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br>
-  &lt;HOST useRegex=&quot;YES&quot;&gt;www.mysite.com&lt;/HOST&gt; <br>
-  &lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br>
-  &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br>
-  &lt;/VHOST&gt;<br>
-  &lt;/VHOSTS&gt;<br>
+like:<br />
+<br />
+<p class="code">&lt;VHOSTS&gt;<br />
+  -<br />
+  &nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br />
+  &lt;NAME&gt;Every connection&lt;/NAME&gt;<br />
+  &lt;PORT&gt;80&lt;/PORT&gt;<br />
+  &lt;IP&gt;127.0.0.1&lt;/IP&gt; <br />
+  &lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br />
+  &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br />
+  &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br />
+  &lt;HOST useRegex=&quot;YES&quot;&gt;www.mysite.com&lt;/HOST&gt; <br />
+  &lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br />
+  &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br />
+  &lt;/VHOST&gt;<br />
+  &lt;/VHOSTS&gt;<br />
 </p>
-<p><br>
-  <font class="code">&lt;NAME&gt;</font>&nbsp; gives the server administrator 
+<p><br />
+  <span class="code">&lt;NAME&gt;</span>&nbsp; gives the server administrator 
   an idea of what the virtual host is such as internal Ethernet, external ethernet 
-  or every connection.&nbsp; <br>
-  <br>
-  <font class="code">&lt;PORT&gt;</font> is the port used for accepting connections<br>
-  <font class="code">&lt;IP&gt;</font>&nbsp; is optional. It is the IP address 
-  your virtual host will be working on. The optional <font class="code">useRegex=&quot;YES&quot;</font> 
+  or every connection.&nbsp; <br />
+  <br />
+  <span class="code">&lt;PORT&gt;</span> is the port used for accepting connections<br />
+  <span class="code">&lt;IP&gt;</span>&nbsp; is optional. It is the IP address 
+  your virtual host will be working on. The optional <span class="code">useRegex=&quot;YES&quot;</span> 
   means the address would act as a regular expression, not only a fixed value. 
-  This is more useful for networks with dynamic IP addressing.<br>
-  <font class="code">&lt;PROTOCOL&gt;</font>&nbsp; is the protocol to be used 
-  by the host<br>
-  <font class="code"></font><font class="code">&lt;DOCROOT&gt;</font> is the folder 
-  where the files are found<br>
-  <font class="code">&lt;SYSFOLDER&gt;</font> is the system folder<br>
-  <font class="code">&lt;HOST&gt;</font> is your virtual host's name. The optional 
-  <font class="code">useRegex=&quot;YES&quot;</font> means the address would act 
-  as a regular expression, not only a fixed value.<br>
+  This is more useful for networks with dynamic IP addressing.<br />
+  <span class="code">&lt;PROTOCOL&gt;</span>&nbsp; is the protocol to be used 
+  by the host<br />
+  <span class="code"></span><span class="code">&lt;DOCROOT&gt;</span> is the folder 
+  where the files are found<br />
+  <span class="code">&lt;SYSFOLDER&gt;</span> is the system folder<br />
+  <span class="code">&lt;HOST&gt;</span> is your virtual host's name. The optional 
+  <span class="code">useRegex=&quot;YES&quot;</span> means the address would act 
+  as a regular expression, not only a fixed value.<br />
 </p>
-<p><font class="code">&lt;ACCESSLOG&gt;</font> is the access log used
-by the virtual host<br>
-This flag may appear in the format below:<br>
-<font class="code">&lt;ACCESSESLOG type="combined"&gt;</font>logs/myServerHTTP.log<font
- class="code">&lt;/ACCESSESLOG&gt;</font> <br>
+<p><span class="code">&lt;ACCESSLOG&gt;</span> is the access log used
+by the virtual host<br />
+This flag may appear in the format below:<br />
+<span class="code">&lt;ACCESSESLOG type="combined"&gt;</span>logs/myServerHTTP.log<span
+ class="code">&lt;/ACCESSESLOG&gt;</span> <br />
 With this option, the logs will have two extra fields: HTTP Referer and
 HTTP User Agent</p>
-<p><font class="code">&lt;WARNINGLOG&gt;</font> is the errors log file
-used by the virtual host.<br>
-<br>
+<p><span class="code">&lt;WARNINGLOG&gt;</span> is the errors log file
+used by the virtual host.<br />
+<br />
 </p>
-<hr>
-<p align="center">MyServer gives you the option to enable the HTTP
+<hr />
+<p class="center">MyServer gives you the option to enable the HTTP
 TRACE command for each virtual host. All you need to do is edit the
 security.xml file of the root of your virtual host (not a subdirectory
 in it! if the file doesn't exist, you may create a new one, in the
 format described in the <a href="Security.html">Security</a> section
 of this documentation), and add the parameter</p>
-<p class="code" align="center">&lt;HTTP TRACE="ON" /&gt;</p>
-<p align="center">Once you do that, you enable HTTP TRACE command. By
+<p class="code">&lt;HTTP TRACE="ON" /&gt;</p>
+<p class="center">Once you do that, you enable HTTP TRACE command. By
 default, it's disabled (so, simply delete the line, if you want to
 disable it)</p>
 <p>&nbsp; </p>
+</td>
+</tr>
+</table>
 </body>
 </html>

@@ -1,85 +1,93 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
 <head>
-  <meta http-equiv="content-type"
- content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="myserver.css">
-  <title>MIME Types</title>
+<title>MyServer Documentation - MIME - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="myserver.css" />
 </head>
 <body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
 <h1 class="title">MIME TYPES</h1>
 <p>You can modify the MIME types used by MyServer by modifing the
 file "MIMEtypes.xml" with a text application such as notepad in Windows or
-Emacs in Linux. The following is an example of the .xml file:<br>
+Emacs in Linux. The following is an example of the .xml file:<br />
 </p>
-<p class="code">&lt;MIMETYPES&gt;<br>
--<br>
-&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
--<br>
-&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
-&lt;EXT&gt;htm&lt;/EXT&gt;<br>
-&lt;MIME&gt;text/html&lt;/MIME&gt;<br>
-&lt;CMD&gt;SEND&lt;/CMD&gt;<br>
-&lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br>
+<p class="code">&lt;MIMETYPES&gt;<br />
+-<br />
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br />
+-<br />
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br />
+&lt;EXT&gt;htm&lt;/EXT&gt;<br />
+&lt;MIME&gt;text/html&lt;/MIME&gt;<br />
+&lt;CMD&gt;SEND&lt;/CMD&gt;<br />
+&lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br />
 &lt;/MIMETYPE&gt;
 </p>
-<p><br>
+<p><br />
 Each block describe a different MIME type. </p>
-<font class="code">&lt;EXT&gt;</font> is the type
-of file<br>
-<br>
-<font class="code">&lt;MIME&gt;</font> is the
-Mime type.<br>
-<br>
-<font class="code">&lt;CMD&gt;</font> is the way
-to send the file to the client.<br>
-<br>
-<font class="code">&lt;MANAGER&gt;</font>
-describes the <font class="code">&lt;CMD&gt;</font> command.<br>
-<br>
+<span class="code">&lt;EXT&gt;</span> is the type
+of file<br />
+<br />
+<span class="code">&lt;MIME&gt;</span> is the
+Mime type.<br />
+<br />
+<span class="code">&lt;CMD&gt;</span> is the way
+to send the file to the client.<br />
+<br />
+<span class="code">&lt;MANAGER&gt;</span>
+describes the <span class="code">&lt;CMD&gt;</span> command.<br />
+<br />
 <p>The following values for sending the file to the client are
-valid in the <font class="code">&lt;MANAGER&gt;</font> section:<br>
+valid in the <span class="code">&lt;MANAGER&gt;</span> section:<br />
 </p>
-<div align="left">
+<div class="left">
 <ol>
-  <li><font class="code">SEND</font>
+  <li><span class="code">SEND</span>
 - Send the file statically as
 is. &nbsp;This command is used for files extensions such as .html and
 .jpg that don't need any external intervention from the web server.</li>
-  <li><font class="code">RUNCGI</font>
+  <li><span class="code">RUNCGI</span>
 - Run the CGI script
 indicated in the path. &nbsp;It is used for file extensions such as
 .php and .pl that need to be processed before sending any data to the
 client.</li>
-  <li><font class="code">RUNFASTCGI</font><span
+  <li><span class="code">RUNFASTCGI</span><span
  style="color: rgb(0, 102, 0);"> </span>- Run the Fastcgi script.
 &nbsp;This type will need a fastcgi parser downloaded (see the PHP
 page).
 &nbsp;It is also used for file extensions such as .php and .pl</li>
-  <li><font class="code">EXECUTEFASTCGI</font>
+  <li><span class="code">EXECUTEFASTCGI</span>
 - This also runs the
 Fastcgi script, but unlike the RUNFASTCGI above, it does not need a
 server to run the script, instead it acts as a self server.</li>
-  <li><font class="code">RUNMSCGI</font>- Run the MSCGI script. This library is only available for myServer. 
+  <li><span class="code">RUNMSCGI</span>- Run the MSCGI script. This library is only available for myServer. 
 It is used to build fast and efficient CGIs.</li>
-  <li><font class="code">EXECUTE </font>-Treat the file as an
+  <li><span class="code">EXECUTE </span>-Treat the file as an
 executable and send the output to the client.&nbsp;</li>
-  <li><font class="code">SENDLINK</font>
+  <li><span class="code">SENDLINK</span>
 - Send the file that is
 contained in a link.</li>
-  <li><font class="code">EXECUTEWINCGI</font>
+  <li><span class="code">EXECUTEWINCGI</span>
 - Send the file as a
 WinCGI</li>
-  <li><font class="code">RUNISAPI</font>
+  <li><span class="code">RUNISAPI</span>
 - Run the ISAPI script.
 &nbsp;</li>
-  <li><font class="code">EXECUTEISAPI</font>
+  <li><span class="code">EXECUTEISAPI</span>
 - Runs the ISAPI script
 but does not need a server to run. Instead, it acts as a self server.</li>
 </ol>
 </div>
 Most applications are already handled in the .xml file.&nbsp; If you
 would like to add a MIME type append the file and use the code as an
-example.<br>
+example.
+</td>
+</tr>
+</table>
 </body>
 </html>

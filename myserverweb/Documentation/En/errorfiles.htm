@@ -1,18 +1,23 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
 <head>
-  <meta http-equiv="content-type"
- content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="myserver.css">
-  <title>Error Pages</title>
+<title>MyServer Documentation - Error Handling - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="myserver.css" />
 </head>
 <body>
-<h1 align="center" class="title">ERROR PAGES</h1>
-<br>
-<br>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="center">ERROR PAGES</h1>
+<br />
+<br />
 You can modify the html pages that are sent when an error occurs.<br />
 <br />
-The default files are contained in the <font class="code">system</font> directory used by the host and can be replaced with your own files. Different <a href="virtualhosts.html">Virtual Hosts</a> can use different error files.<br />
+The default files are contained in the <span class="code">system</span> directory used by the host and can be replaced with your own files. Different <a href="virtualhosts.html">Virtual Hosts</a> can use different error files.<br />
 <br />
 The pages must not contain any references to other documents in the system directory. <br />
 
@@ -21,20 +26,24 @@ The pages must not contain any references to other documents in the system direc
 
 
 
-<br>
-<img src="images/sample404.png" title="" alt="Sample 404 Error">
-<br>
+<br />
+<img src="images/sample404.png" title="" alt="Sample 404 Error" />
+<br />
 The famous 404 error happens when a file
 cannot be found on the server.
-<p ><br>
+<p><br />
 </p>
 To define a personalized error page file for a virtual host you can add a line like the following in the primary virtual host security file. Defining a different error file, the server will look in the <span class="code">web</span> directory instead of the <span class="code">system</span> one. If no personalized files are used the server will look for the file <span class="code">x.html</span> in the <span class="code">system</span> folder, where <span class="code">x</span> is the error number(for example: <span class="code">404.html</span>). A primary security file for a virtual host is the security file that is located in the main directory of the virtual host. After ####### will be used the default specified in the system directory, if this file doesn't exist too the error will be communicated trough the HTTP error message.
-<p  class="code">
+<span  class="code">
 &lt;ERROR FILE="error404.html" ID="404" /&gt;
-</p>
-<br>
-<br>
+</span>
+<br />
+<br />
 For more information on the error pages consult the RFC2068
-document found at&nbsp; <a href="http://www.w3.org" ;="" target="_blank">www.w3c.org</a>.
+document found at&nbsp; <a href="http://www.w3.org" target="_blank">www.w3c.org</a>.
+
+</td>
+</tr>
+</table>
 </body>
 </html>

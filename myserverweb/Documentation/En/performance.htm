@@ -1,44 +1,48 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
 <head>
-  <meta http-equiv="content-type"
- content="text/html; charset=ISO-8859-1">
-  <link rel="stylesheet" type="text/css" href="myserver.css">
-  <title>Performance</title>
+<title>MyServer Documentation - Performance Tuning - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="myserver.css" />
 </head>
 <body>
-<h1 class="title">PERFORMANCE TUNING<br>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">PERFORMANCE TUNING<br />
 </h1>
 Here you can see a few options you can set to tune the performance of
-your webserver.<br>
-<br>
-<div style="margin-left: 40px;">
-<div style="text-align: left;">
+your webserver.<br />
+<br />
+<div class="left">
 Here you can see a few options you can set to tune the performance of your webserver.<br />
 
-<span style="font-weight: bold;"><font class="code">Threads Tuning:</font></span>
+<span style="font-weight: bold;"><span class="code">Threads Tuning:</span></span>
 In the myserver.xml file you can setup the amount of threads MyServer will use. In the lines below, you configure the two configurable parameters NTHREADS_STATIC and NTHREADS_MAX, the first one is used to define number of threads always alive, the second one is used to define the highest number of threads that myserver can create.<br />
 &lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br />
 &lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;<br />
 
 <br /><br />
 
-<span style="font-weight: bold;"><font class="code">Buffer Size:</font></span><br />
+<span style="font-weight: bold;"><span class="code">Buffer Size:</span></span><br />
 You can set  the size of the Buffers used by MyServer, by setting the line below, in the myserver.xml file:<br />
 &lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br />
 Just change the default value 102400 to your desired number. Remember that, in fact, your Buffer will be twice the value you set here (in Bytes), multiplied by the number of running threads.
 <br /><br /><br />
 
-<span style="font-weight: bold;"><font class="code">
-Connection Timeout:</font></span><br />
+<span style="font-weight: bold;"><span class="code">
+Connection Timeout:</span></span><br />
 
 In myserver.xml, you can set the Timeout for client connections to your server, in the line below:<br />
 &lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br />
 The time unit is seconds. So, in the line above, if your client doesn't access your site for more than 60 seconds, the connection will be closed. Or if you prefer, set this value to 0 and you won't have HTTP Keep-Alive Connections.
 <br /><br /><br />
 
-<span style="font-weight: bold;"><font class="code">
-Max Connections:</font></span><br />
+<span style="font-weight: bold;"><span class="code">
+Max Connections:</span></span><br />
 
 You can change the default maximum number of connections your webserver will accept, by changing the line below in myserver.xml:<br />
 &lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
@@ -46,13 +50,13 @@ The default value 0 means you will accept infinite connections. Any other value 
 
 <br /><br /><br />
 
-<span style="font-weight: bold;"><font class="code">Max FastCGI Servers:</font></span>
+<span style="font-weight: bold;"><span class="code">Max FastCGI Servers:</span></span>
 <br />
 MyServer lets you configure the maximum number of FastCGI servers allowed to run, by changing the value in the line below, in myserver.xml:<br />
 &lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />
 <br /><br /><br />
 
-<span style="font-weight: bold;"><font class="code">Setting CGI Timeout:</font></span><br />
+<span style="font-weight: bold;"><span class="code">Setting CGI Timeout:</span></span><br />
 
 You can set the default timeout for your CGI scripts in MyServer by changing the value of the variable CGI_TIMEOUT in your myserver.xml file.<br />
 Just change the line below to fit your need:<br />
@@ -60,7 +64,7 @@ Just change the line below to fit your need:<br />
 The configuration above would mean you are setting the CGI Timeout to 15 seconds (unit is "seconds")
 <br /><br /><br />
 
-<span style="font-weight: bold;"><font class="code">Setting data throttling:</font></span><br />
+<span style="font-weight: bold;"><span class="code">Setting data throttling:</span></span><br />
 
 You can set the data throttling rate for connections in MyServer (by default, it's disabled) by adding a line like the following, in you myserver.xml file:<br />
 &lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;<br />
@@ -91,18 +95,10 @@ This is the order of checking for data throttling configuration:<br />
 <br />
 <br />
 
-
-
-
-
-
-<br>
-<br>
-<br>
-<br>
 </div>
-</div>
-<br>
-</div>
+
+</td>
+</tr>
+</table>
 </body>
 </html>
