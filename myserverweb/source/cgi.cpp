@@ -53,9 +53,10 @@ extern "C" {
 #endif
 
 /*!
-*Run the standard CGI and send the result to the client.
-*/
-int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* /*!ext*/, char *cgipath, int cmd)
+ *Run the standard CGI and send the result to the client.
+ */
+int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
+                  char* /*!ext*/, char *cgipath, int cmd)
 {
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph;
@@ -73,7 +74,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     delete [] td->scriptPath;
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
-    return 0;
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
 	lstrcpy(td->scriptPath, scriptpath);
 
   MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
@@ -83,25 +84,30 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     delete [] td->scriptDir;
   td->scriptDir = new char[scriptDirLen+1];
   if(td->scriptDir == 0)
-    return 0;
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
 
   if(td->scriptFile)
     delete [] td->scriptFile;
   td->scriptFile = new char[scriptFileLen+1];
+
   if(td->scriptFile == 0)
-    return 0;
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+
 
   if(td->cgiRoot)
     delete [] td->cgiRoot;
   td->cgiRoot = new char[cgiRootLen+1];
+
   if(td->cgiRoot == 0)
-    return 0;
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
 
   if(td->cgiFile)
     delete [] td->cgiFile;
   td->cgiFile = new char[cgiFileLen+1];
+
   if(td->cgiFile == 0)
-    return 0;
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+
 
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
@@ -148,7 +154,9 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
       return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
 
-		sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, td->pathInfo[0]?&td->pathInfo[1]:td->pathInfo);
+		sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, 
+            td->pathInfo[0]?&td->pathInfo[1]:td->pathInfo);
+
 		nph=(strnicmp("nph-", td->scriptFile, 4)==0)?1:0;
 #endif
 	}
@@ -433,8 +441,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 		else
     {
       /*! Do not put the HTTP header if appending. */
-			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())+headerSize),
-                                 nBytesRead-headerSize, &nbw);
+			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())
+                                         +headerSize), nBytesRead-headerSize, &nbw);
     }
 
     /*! Flush other data. */
@@ -446,7 +454,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 				if(!td->appendOutputs)
 					s->socket.send((char*)td->buffer2->GetBuffer(), nBytesRead, 0);
 				else
-					td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), nBytesRead, &nbw);
+					td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                     nBytesRead, &nbw);
 			}
 			else
 				break;
@@ -463,9 +472,9 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 }
 
 /*!
-*Write the string that contain the CGI environment to cgiEnvString.
-*This function is used by other server side protocols too.
-*/
+ *Write the string that contain the CGI environment to cgiEnvString.
+ *This function is used by other server side protocols too.
+ */
 void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string, 
                                     int processEnv)
 {
@@ -502,7 +511,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "SERVER_PROTOCOL=";
 	memCgi << td->request.VER;	
 	
-	memCgi << end_str << "SERVER_PORT=" << CMemBuf::UIntToStr(td->connection->localPort);
+	memCgi << end_str << "SERVER_PORT="<< CMemBuf::UIntToStr(td->connection->localPort);
 
 	memCgi << end_str << "SERVER_ADMIN=";
 	memCgi << lserver->getServerAdmin();

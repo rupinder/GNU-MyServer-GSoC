@@ -59,7 +59,9 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
     delete [] td->scriptPath;
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
-    return 0;
+  {
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+  }
 	lstrcpy(td->scriptPath, scriptpath);
 
   MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
@@ -69,25 +71,33 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
     delete [] td->scriptDir;
   td->scriptDir = new char[scriptDirLen+1];
   if(td->scriptDir == 0)
-    return 0;
+  {
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+  }
 
   if(td->scriptFile)
     delete [] td->scriptFile;
   td->scriptFile = new char[scriptFileLen+1];
   if(td->scriptFile == 0)
-    return 0;
+  {
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+  }
 
   if(td->cgiRoot)
     delete [] td->cgiRoot;
   td->cgiRoot = new char[cgiRootLen+1];
   if(td->cgiRoot == 0)
-    return 0;
+  {
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection); 
+  }
 
   if(td->cgiFile)
     delete [] td->cgiFile;
   td->cgiFile = new char[cgiFileLen+1];
   if(td->cgiFile == 0)
-    return 0;
+  {
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection); 
+  }
 
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
@@ -104,7 +114,9 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
       int fullpathLen = strlen(cgipath) + strlen(td->filenamePath) + 4;
       fullpath = new char[fullpathLen];
       if(fullpath == 0)
-        return 0;
+      {
+        return ((http*)td->lhttp)->sendHTTPhardError500(td, connection); 
+      }
 			sprintf(fullpath,"%s \"%s\"", cgipath, td->filenamePath);
     }
 		else
@@ -122,8 +134,9 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	{
 		sprintf(fullpath,"%s",cgipath);
 	}
-	int sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),
-                                                  (char*)td->buffer2->GetBuffer());
+  int sizeEnvString;
+  sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),
+                                              (char*)td->buffer2->GetBuffer());
 	td->inputData.closeFile();
 	td->inputData.openFile(td->inputDataPath,
                          MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS | 
@@ -206,7 +219,9 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send POST data\r\n"<< '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((vhost*)td->connection->host)->
+                            warningsLogWrite((char*)td->buffer->GetBuffer());
+
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
     return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
@@ -338,8 +353,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 			return ((http*)td->lhttp)->sendHTTPRedirect(td, connection, 
                                                   td->response.LOCATION);
 		}
-		
-		if(!td->appendOutputs)/*Send the header*/
+		/*! Send the header. */
+		if(!td->appendOutputs)
 		{
 			if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 				strcpy(td->response.CONNECTION,"Keep-Alive");		
@@ -347,14 +362,13 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                                             &td->response);
 			if(td->connection->socket.send( (char*)td->buffer2->GetBuffer(),
                                       (int)strlen((char*)td->buffer2->GetBuffer()),
-                                      0) ==    0 )
+                                      0) == 0 )
 			{
 				exit = 1;
 				break;
 			}
-			if(td->connection->socket.send((char*)
-                                     (((char*)td->buffer2->GetBuffer())+headerSize), 
-                                     nbr - headerSize, 0)==0)
+			if(td->connection->socket.send((char*)(((char*)td->buffer2->GetBuffer())
+                                             +headerSize), nbr - headerSize, 0)==0)
 			{
 				exit = 1;
 				break;
@@ -367,8 +381,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
        *Send remaining data stored in the buffer. 
        *This is the HTTP header.
        */
-			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())+headerSize),
-                                 nbr - headerSize, &nbw);
+			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())
+                                         + headerSize), nbr - headerSize, &nbw);
 		}
 
     /*! Flush the data. */
@@ -472,10 +486,12 @@ int fastcgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 	}
 	return (int)(ptr-ep);
 }
+
 /*!
-*Fill the FCGI_Header structure
-*/
-void fastcgi::generateFcgiHeader( FCGI_Header &header, int iType,int iRequestId, int iContentLength )
+ *Fill the FCGI_Header structure
+ */
+void fastcgi::generateFcgiHeader( FCGI_Header &header, int iType,
+                                  int iRequestId, int iContentLength )
 {
 	header.version = FCGI_VERSION_1;
 	header.type = (u_char)iType;
@@ -486,16 +502,18 @@ void fastcgi::generateFcgiHeader( FCGI_Header &header, int iType,int iRequestId,
 	header.paddingLength = 0;
 	header.reserved = 0;
 };
+
 /*!
-*Constructor for the FASTCGI class
-*/
+ *Constructor for the FASTCGI class
+ */
 fastcgi::fastcgi()
 {
 	initialized=0;
 }
+
 /*!
-*Initialize the FastCGI protocol implementation
-*/
+ *Initialize the FastCGI protocol implementation
+ */
 int fastcgi::initializeFASTCGI()
 {
 	if(initialized)
@@ -505,37 +523,43 @@ int fastcgi::initializeFASTCGI()
 	initialized=1;
 	return 1;
 }
+
 /*!
-*Clean the memory and the processes occuped by the FastCGI servers
-*/
+ *Clean the memory and the processes occuped by the FastCGI servers
+ */
 int fastcgi::cleanFASTCGI()
 {
 	for(int i=0;i<fCGIserversN;i++)
 	{
-		if(fCGIservers[i].path[0]=='@')/*!If the server is a remote one do nothing*/
-			continue;
-		fCGIservers[i].socket.closesocket();
-		terminateProcess(fCGIservers[i].pid);
+    /*! If the server is a remote one do nothing. */
+		if(fCGIservers[i].path[0]!='@')
+    {
+      fCGIservers[i].socket.closesocket();
+      terminateProcess(fCGIservers[i].pid);
+    }
+    delete [] fCGIservers[i].path;
 	}
 	initialized=0;
 	return 1;
 }
+
 /*!
-*Return the position in the array of the server indicated by path.
-*A negative value is returned when the server is not running.
-*/
+ *Return the position in the array of the server indicated by path.
+ *A negative value is returned when the server is not running.
+ */
 int fastcgi::isFcgiServerRunning(char* path)
 {
 	for(int i=0;i<fCGIserversN;i++)
 	{
-		if(!lstrcmpi(path,fCGIservers[i].path))
+		if(fCGIservers[i].path && (!lstrcmpi(path,fCGIservers[i].path)))
 			return i;
 	}
 	return -1;
 }
+
 /*!
-*Get a client socket in the fCGI context structure
-*/
+ *Get a client socket in the fCGI context structure
+ */
 int fastcgi::FcgiConnectSocket(fCGIContext* con,int pID)
 {
 	unsigned long pLong = 1L;
@@ -552,7 +576,8 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con,int pID)
 	{
 		return -1;
 	}
-	if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)/*!If the socket was created try to connect*/
+  /*! If the socket was created try to connect. */
+	if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
 	{
 		con->sock.closesocket();
 		return -1;
@@ -561,21 +586,22 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con,int pID)
 	con->fcgiPID=pID;
 	return 1;
 }
+
 /*!
-*Get a connection to the FastCGI server.
-*/
+ *Get a connection to the FastCGI server.
+ */
 int fastcgi::FcgiConnect(fCGIContext* con,char* path)
 {
 	int pID;
 	pID=runFcgiServer(con,path);
 	/*!
-	*If we find a valid server try the connection to it.
-	*/
+   *If we find a valid server try the connection to it.
+   */
 	if(pID>=0)
 	{
 		/*!
-		*Connect to the FastCGI server.
-		*/
+     *Connect to the FastCGI server.
+     */
 		int ret=FcgiConnectSocket(con,pID);
 		if(ret==-1)
 			return -1;
@@ -584,10 +610,17 @@ int fastcgi::FcgiConnect(fCGIContext* con,char* path)
 }
 int fastcgi::runFcgiServer(fCGIContext*,char* path)
 {
-	int localServer;/*!Flag to identify a local server(running on localhost) from a remote one*/
-	localServer=path[0]!='@';/*!Path that init with @ are not local path*/
-	int pID=isFcgiServerRunning(path);/*!Get the server position in the array*/
-	if(pID>=0)/*!If the process was yet initialized return its position*/
+  /*! Flag to identify a local server(running on localhost) from a remote one. */
+	int localServer;
+  
+  /*! Path that init with @ are not local path. */
+	localServer=path[0]!='@';
+
+  /*! Get the server position in the array. */
+	int pID=isFcgiServerRunning(path);
+
+  /*! If the process was yet initialized return its position. */
+	if(pID>=0)
 		return pID;
 	if(fCGIserversN==MAX_FCGI_SERVERS-2)
 		return -1;
@@ -599,14 +632,18 @@ int fastcgi::runFcgiServer(fCGIContext*,char* path)
 			strcpy(fCGIservers[fCGIserversN].host,"localhost");
 			fCGIservers[fCGIserversN].port=port++;
 			fCGIservers[fCGIserversN].socket.socket(AF_INET,SOCK_STREAM,0);
-			if(fCGIservers[fCGIserversN].socket.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
+			if(fCGIservers[fCGIserversN].socket.getHandle()==
+                            (MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 				return -2;
+
 			MYSERVER_SOCKADDRIN sock_inserverSocket;
 			sock_inserverSocket.sin_family=AF_INET;
-			/*!The FastCGI server accepts connections only by the localhost*/
+
+			/*! The FastCGI server accepts connections only by the localhost. */
 			sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
 			sock_inserverSocket.sin_port=htons(fCGIservers[fCGIserversN].port);
-			if(fCGIservers[fCGIserversN].socket.bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket)))
+			if(fCGIservers[fCGIserversN].socket.bind((sockaddr*)&sock_inserverSocket, 
+                                               sizeof(sock_inserverSocket)))
 			{
 				fCGIservers[fCGIserversN].socket.closesocket();
 				return -2;
@@ -616,17 +653,24 @@ int fastcgi::runFcgiServer(fCGIContext*,char* path)
 				fCGIservers[fCGIserversN].socket.closesocket();
 				return -2;
 			}
-			fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].socket.getHandle();
+			fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=
+                                   fCGIservers[fCGIserversN].socket.getHandle();
 			START_PROC_INFO spi;
 			spi.cwd=0;
 			spi.envString=0; 
 			spi.cmd=path;
-			spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
+			spi.stdIn =
+             (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 			spi.cmdLine=path;
+
 			/*! no argument so clear it. */
 			spi.arg = NULL; 
+      fCGIservers[fCGIserversN].path = new char[strlen(spi.cmd)+1];
 
-			strncpy(fCGIservers[fCGIserversN].path,spi.cmd,MAX_PATH);
+      if(fCGIservers[fCGIserversN].path == 0)
+        return -1;
+			strcpy(fCGIservers[fCGIserversN].path, spi.cmd);
+
 			spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
 
 			fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
@@ -636,12 +680,19 @@ int fastcgi::runFcgiServer(fCGIContext*,char* path)
 				fCGIservers[fCGIserversN].socket.closesocket();
 				return -3;
 			}
-		}/*!End local server initialization*/
+		}/*!End local server initialization. */
 		else
 		{/*!Fill the structure with a remote server*/
-			strncpy(fCGIservers[fCGIserversN].path,path,MAX_PATH);
-			int i=1;/*!Do not consider the @ character*/
+      fCGIservers[fCGIserversN].path = new char[ strlen(path) + 1 ];
+      if(fCGIservers[fCGIserversN].path == 0)
+        return -1;
+			strcpy(fCGIservers[fCGIserversN].path, path);
+
+      /*!Do not copy the @ character*/
+			int i=1;
+
 			memset(fCGIservers[fCGIserversN].host,0,128);
+
 			/*!
 			*A remote server path has the form @hosttoconnect:porttouse
 			*/
@@ -651,5 +702,10 @@ int fastcgi::runFcgiServer(fCGIContext*,char* path)
 		}
 		
 	}
-	return fCGIserversN++;/*!If we arrive here increase the number of running servers and return the number of running servers*/
+
+  /*!
+   *If we arrive here increase the number of running servers and 
+   *return the number of running servers.
+   */
+	return fCGIserversN++;
 }

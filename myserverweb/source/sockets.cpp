@@ -340,6 +340,7 @@ int MYSERVER_SOCKET::setSSLContext(SSL_CTX* context)
 	sslContext=context;
 	return 1;
 }
+
 /*!
  *Initialize the SSL connection.
  *Returns nonzero on errors.
@@ -403,7 +404,8 @@ int MYSERVER_SOCKET::sslAccept()
 	do
 	{
 		ssl_accept = SSL_accept(sslConnection);
-	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,ssl_accept) ==SSL_ERROR_WANT_READ);
+	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP 
+         || SSL_get_error(sslConnection,ssl_accept) ==SSL_ERROR_WANT_READ);
 
 	if(ssl_accept != 1 )
 	{
@@ -444,6 +446,7 @@ int MYSERVER_SOCKET::getSSL()
 {
 	return sslSocket;
 }
+
 /*!
  *Receive data from the socket.
  *Returns -1 on errors.
@@ -484,6 +487,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 #endif
 
 }
+
 /*!
  *Returns the number of bytes waiting to be read.
  */
@@ -504,6 +508,7 @@ u_long MYSERVER_SOCKET::bytesToRead()
   }
 	return nBytesToRead;
 }
+
 /*!
  *Returns the hostname.
  */
@@ -511,6 +516,7 @@ int MYSERVER_SOCKET::gethostname(char *name,int namelen)
 {
 	return ::gethostname(name,namelen);
 }
+
 /*!
  *Returns the sockname.
  */
@@ -526,6 +532,7 @@ int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 	return ret;
 #endif
 }
+
 /*!
  *Set the socket used by the server.
  */

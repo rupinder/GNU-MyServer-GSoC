@@ -164,7 +164,7 @@ struct fCGIContext
 };
 struct sfCGIservers
 {
-	char path[MAX_PATH*2];/*!server executable path*/
+	char *path;/*!server executable path*/
 	union 
 	{
 	    unsigned long fileHandle;

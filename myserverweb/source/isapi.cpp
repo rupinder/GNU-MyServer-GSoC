@@ -72,52 +72,56 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 				lstrcpyn(URI,ConnInfo->td->request.URI,
                  (int)(strlen(ConnInfo->td->request.URI)-
                        strlen(ConnInfo->td->pathInfo)+1));
+
 			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                             (char**)&buffer,URI,0);
-            if(buffer==0)
-            {
-		        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-		        return 0;            
-            }
-            if(strlen(buffer) < *lpdwSize)
-            {
-                strcpy((char*)lpvBuffer, buffer);
-                delete [] buffer;
-            }
-            else
-            {
-                delete [] buffer;
-		        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-		        return 0;
-            }
-			if(MYSERVER_FILE::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
-   			{
-		        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-		        return 0;
-		    }
-			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
-			break;
-		case HSE_REQ_SEND_URL_REDIRECT_RESP:
-			return ((isapi*)ConnInfo->lisapi)->Redirect(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
-			break;
-		case HSE_REQ_SEND_URL:
-			return ((isapi*)ConnInfo->lisapi)->SendURI(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
-			break;
-		case HSE_REQ_SEND_RESPONSE_HEADER:
-			return ((isapi*)ConnInfo->lisapi)->SendHeader(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
-			break;
-		case HSE_REQ_DONE_WITH_SESSION:
-			ConnInfo->td->response.httpStatus=*(DWORD*)lpvBuffer;
-			SetEvent(ConnInfo->ISAPIDoneEvent);
-			break;
-		case HSE_REQ_IS_KEEP_CONN:
-			if(!lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive"))
-				*((BOOL*)lpvBuffer)=1;
-			else
-				*((BOOL*)lpvBuffer)=0;
-			break;
-		default:
-			return 0;
+      if(buffer==0)
+      {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return 0;            
+      }
+      if(strlen(buffer) < *lpdwSize)
+      {
+        strcpy((char*)lpvBuffer, buffer);
+        delete [] buffer;
+      }
+      else
+      {
+        delete [] buffer;
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return 0;
+      }
+      if(MYSERVER_FILE::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
+      {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return 0;
+      }
+      *lpdwSize=(DWORD)strlen((char*)lpvBuffer);
+      break;
+  case HSE_REQ_SEND_URL_REDIRECT_RESP:
+    return ((isapi*)ConnInfo->lisapi)->Redirect(ConnInfo->td,
+                              ConnInfo->connection,(char *)lpvBuffer);
+    break;
+  case HSE_REQ_SEND_URL:
+    return ((isapi*)ConnInfo->lisapi)->SendURI(ConnInfo->td,
+                                           ConnInfo->connection,(char *)lpvBuffer);
+    break;
+  case HSE_REQ_SEND_RESPONSE_HEADER:
+    return ((isapi*)ConnInfo->lisapi)->SendHeader(ConnInfo->td,
+                                           ConnInfo->connection,(char *)lpvBuffer);
+    break;
+  case HSE_REQ_DONE_WITH_SESSION:
+    ConnInfo->td->response.httpStatus=*(DWORD*)lpvBuffer;
+    SetEvent(ConnInfo->ISAPIDoneEvent);
+    break;
+  case HSE_REQ_IS_KEEP_CONN:
+    if(!lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive"))
+      *((BOOL*)lpvBuffer)=1;
+    else
+      *((BOOL*)lpvBuffer)=0;
+    break;
+  default:
+    return 0;
 	}
 	return 1;
 }
@@ -190,7 +194,9 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 
 	char chunk_size[15];
 	u_long nbw=0;
-	if(!ConnInfo->headerSent)/*If the HTTP header was sent do not send it again*/
+
+  /*If the HTTP header was sent do not send it again*/
+	if(!ConnInfo->headerSent)
 	{
 		strncat(buffer,(char*)Buffer,*lpdwBytes);
 		ConnInfo->headerSize+=*lpdwBytes;
@@ -223,14 +229,18 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			{
 				if(keepalive)
 					strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
-				http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,(char*)ConnInfo->td->buffer->GetBuffer());
+				http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,
+                              ConnInfo->td,(char*)ConnInfo->td->buffer->GetBuffer());
 				if(keepalive)
 					strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
 				else
 					strcpy(ConnInfo->td->response.CONNECTION,"Close");
-				http_headers::buildHTTPResponseHeader((char*)ConnInfo->td->buffer2->GetBuffer(),&(ConnInfo->td->response));
+				http_headers::buildHTTPResponseHeader(
+                 (char*)ConnInfo->td->buffer2->GetBuffer(),&(ConnInfo->td->response));
 	
-				if(ConnInfo->connection->socket.send((char*)ConnInfo->td->buffer2->GetBuffer(),(int)strlen((char*)ConnInfo->td->buffer2->GetBuffer()), 0)==-1)
+				if(ConnInfo->connection->socket.send(
+                     (char*)ConnInfo->td->buffer2->GetBuffer(),
+                     (int)strlen((char*)ConnInfo->td->buffer2->GetBuffer()), 0)==-1)
 					return 0;
 			}
 			ConnInfo->headerSent=1;
@@ -373,14 +383,16 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 	else
 	{
 		/*!
-		*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
-		*/
+     *Find in ConnInfo->envString the value lpszVariableName 
+     *and copy next string in lpvBuffer.
+     */
 		((char*)lpvBuffer)[0]='\0';
 		char *localEnv=ConnInfo->envString;
 		int variableNameLen=(int)strlen(lpszVariableName);
 		for(u_long i=0;;i+=(u_long)strlen(&localEnv[i])+1)
 		{
-			if(((localEnv[i+variableNameLen])=='=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
+			if(((localEnv[i+variableNameLen])=='=')&&
+         (!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
 			{
 				strncpy((char*)lpvBuffer,&localEnv[i+variableNameLen+1],*lpdwSize);
 				break;
@@ -395,8 +407,8 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 	return ret;
 }
 /*!
-*Build the string that contains all the HTTP headers.
-*/
+ *Build the string that contains all the HTTP headers.
+ */
 BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
@@ -409,12 +421,14 @@ BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID
 		return 0;
 
 	if(td->request.ACCEPTLAN[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",td->request.ACCEPTLAN);
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
+                    td->request.ACCEPTLAN);
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.ACCEPTENC[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",td->request.ACCEPTENC);
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",
+                    td->request.ACCEPTENC);
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -439,7 +453,8 @@ BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID
 		return 0;
 
 	if(td->request.MODIFIED_SINCE[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",td->request.MODIFIED_SINCE);
+		valLen+=sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
+                    td->request.MODIFIED_SINCE);
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -471,9 +486,10 @@ BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID
 }
 
 /*!
-*Build the string that contains all the headers.
-*/
-BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD dwMaxLen)
+ *Build the string that contains all the headers.
+ */
+BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
+                               LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
 	DWORD maxLen=*dwMaxLen;
