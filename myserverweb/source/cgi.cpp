@@ -426,15 +426,14 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     /*! If we have not to append the output send data directly to the client. */
 		if(!td->appendOutputs)
 		{
-      char tmp[11];
+      ostringstream tmp;
       /*! Send the header.  */
 			if(headerSize)
 				HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
                                                     td->buffer2->GetBuffer());
       /*! Always specify the size of the HTTP contents.  */
-			sprintf(tmp, "%u", 
-              (u_int) (stdOutFile.getFileSize()-headerSize));
-      td->response.CONTENT_LENGTH.assign(tmp);
+			tmp << (u_int) (stdOutFile.getFileSize()-headerSize);
+      td->response.CONTENT_LENGTH.assign(tmp.str());
 			HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
                                             &td->response);
 

@@ -2117,9 +2117,8 @@ void Http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
 int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 {
   char time[HTTP_RESPONSE_DATE_DIM];
-  char* errorFile;
+  ostringstream errorFile;
   Md5 md5;
-  u_long lenErrorFile;
   td->lastError = ID;
 	HttpHeaders::buildDefaultHTTPResponseHeader(&(td->response));
 	if(!lstrcmpi(td->request.CONNECTION.c_str(),("Keep-Alive")))
@@ -2263,20 +2262,13 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 	td->response.ERROR_TYPE.assign(HTTP_ERROR_MSGS[ID], 
                    HTTP_RESPONSE_ERROR_TYPE_DIM);
 
-	lenErrorFile=(u_long)strlen(((Vhost*)(a->host))->systemRoot)+
-                              (u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
-	errorFile=new char[lenErrorFile];
-	if(errorFile)
-  {
-    sprintf(errorFile, "%s/%s", ((Vhost*)(a->host))->systemRoot, 
-            HTTP_ERROR_HTMLS[ID]);
-    if(useMessagesFiles && File::fileExists(errorFile))
-		{
-			delete [] errorFile;
-			return sendHTTPResource(td, a, HTTP_ERROR_HTMLS[ID], 1, td->only_header);
-		}
-		delete [] errorFile;
-	}
+  errorFile  << ((Vhost*)(a->host))->systemRoot << "/" << HTTP_ERROR_HTMLS[ID];
+  if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
+	{
+    return sendHTTPResource(td, a, HTTP_ERROR_HTMLS[ID], 1, td->only_header);
+  }
+
+  
 	/*! Send the error over the HTTP. */
 	td->response.CONTENT_LENGTH.assign("0");
 
