@@ -215,7 +215,7 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
     CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
-	return (u_long)pi.hProcess;
+	return (*((u_long*)&pi.hProcess));
 #endif
 #ifdef __linux__
 	int pid = fork();
@@ -277,7 +277,7 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 int terminateProcess(u_long id)
 {
 #ifdef WIN32
-	return TerminateProcess((HANDLE)id,0);
+	return TerminateProcess(*((HANDLE*)&id),0);
 #endif
 #ifdef __linux__
 	/*

@@ -445,6 +445,7 @@ void MIME_Manager::removeRecord(char *ext)
 				free(nmr1);
 			}
 			numMimeTypesLoaded--;
+			break;
 		}
 		nmr2=nmr1;
 		nmr1=nmr1->next;
