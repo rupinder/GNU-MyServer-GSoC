@@ -477,32 +477,38 @@ void VhostManager::addVHost(Vhost* VHost)
 	
 }
 /*!
- *Get the vhost for the connection(if any)
+ *Get the vhost for the connection. A return value of 0 means that
+ *a valid host was not found. 
  */
-Vhost* VhostManager::getVHost(char* host,char* ip,u_short port)
+Vhost* VhostManager::getVHost(char* host, char* ip, u_short port)
 {
 	sVhostList* vhl;
+  if(extSource)
+    return extSource->getVHost(host, ip, port);
 	for(vhl=vhostList;vhl;vhl=vhl->next )
 	{
-		if(vhl->host->port!=port)/*!control if the host port is the correct one*/
+    /*! Control if the host port is the correct one. */
+		if(vhl->host->port!=port)
 			continue;
-    /*!If ip is defined check that it is allowed to connect to the host.*/
+    /*! If ip is defined check that it is allowed to connect to the host. */
 		if(ip && !vhl->host->isIPAllowed(ip))
 			continue;
-    /*!If host is defined check that it is allowed to connect to the host.*/
+    /*! If host is defined check that it is allowed to connect to the host. */
 		if(host && !vhl->host->isHostAllowed(host))
 			continue;
-		return vhl->host;/*!we find a valid host*/
+    /*! We find a valid host. */
+		return vhl->host;
 	}
 	return 0;
 }
+
 /*!
  *VhostManager costructor
  */
 VhostManager::VhostManager()
 {
 	vhostList=0;
-  
+  extSource=0;
 }
 
 /*!
@@ -564,6 +570,8 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 	u_long nbr;/*!Number of bytes read from the file*/
 	File fh;
 	Vhost *vh;
+  LogManager *accesses;
+	LogManager * warnings;
 	char c;
 	int ret=fh.openFile(filename,FILE_OPEN_IFEXISTS|FILE_OPEN_READ);
 	if(ret)/*!If the file cannot be opened simply do nothing*/
@@ -716,7 +724,7 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 			cc++;
 		}	
 		strcpy(vh->accessesLogFileName,buffer2);
-		LogManager *accesses=vh->getAccessesLog();
+		accesses=vh->getAccessesLog();
     
 		accesses->load(buffer2);
 
@@ -730,7 +738,7 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 			cc++;
 		}	
 		strcpy(vh->warningsLogFileName,buffer2);
-		LogManager * warnings=vh->getWarningsLog();
+		warnings=vh->getWarningsLog();
 		warnings->load(buffer2);
 		vh->setMaxLogSize(maxlogSize);
 		cc++;
@@ -1159,11 +1167,12 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
  */
 void VhostManager::saveXMLConfigurationFile(char *filename)
 {
+	sVhostList *list;
 	File out;
 	u_long nbw;
 	out.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
 	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
-	sVhostList *list=this->getVHostList();
+	list=this->getVHostList();
 	while(list)
 	{
 		char port[6];
@@ -1376,6 +1385,8 @@ int Vhost::freeSSL()
 Vhost* VhostManager::getVHostByNumber(int n)
 {
 	sVhostList *hl=vhostList;
+  if(extSource)
+    return extSource->getVHostByNumber(n);
 	for(int i=0;(i<n)&& hl;i++)
 	{
 		hl=hl->next;
@@ -1412,3 +1423,58 @@ int VhostManager::removeVHost(int n)
 	return 0;
 }
 
+/*!
+ *Set an external source for the virtual hosts.
+ */
+void VhostManager::setExternalSource(VhostSource* nExtSource)
+{
+  extSource = nExtSource;
+}
+
+/*!
+ *Construct the object.
+ */
+VhostSource::VhostSource()
+{
+
+}
+
+/*!
+ *Destroy the object.
+ */
+VhostSource::~VhostSource()
+{
+
+}
+
+/*!
+ *Load the object.
+ */
+int VhostSource::load()
+{
+  return 0;
+}
+
+/*!
+ *Free the object.
+ */
+int VhostSource::free()
+{
+  return 0;
+}
+
+/*!
+ *Get a virtual host.
+ */
+Vhost* VhostSource::getVHost(char*,char*,u_short)
+{
+  return 0;
+}
+
+/*!
+ *Get a virtual host by its number.
+ */
+Vhost* VhostSource::getVHostByNumber(int n)
+{
+  return 0;
+}

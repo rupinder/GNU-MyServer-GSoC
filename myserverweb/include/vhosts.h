@@ -168,6 +168,16 @@ public:
 	File* getWarningsLogFile();
 };
 
+class VhostSource
+{
+public:
+  VhostSource();
+  ~VhostSource();
+  int load();
+  int free();
+  Vhost* getVHost(char*,char*,u_short);
+	Vhost* getVHostByNumber(int n);
+};
 
 class VhostManager
 {
@@ -178,10 +188,11 @@ public:
 		sVhostList* next;
 	};
 private:
-	
+	VhostSource* extSource;
 	/*! List of virtual hosts. */
 	sVhostList *vhostList;
 public:
+  void setExternalSource(VhostSource* extSource);
 	VhostManager();
 	~VhostManager();
 	int getHostsNumber();
@@ -193,7 +204,7 @@ public:
 	VhostManager::sVhostList*  getVHostList();
 	
 	/*! Get a pointer to a vhost.  */
-	Vhost*  getVHost(char*,char*,u_short);
+	Vhost* getVHost(char*,char*,u_short);
 	
 	/*! Add an element to the vhost list.  */
 	void addVHost(Vhost*);
