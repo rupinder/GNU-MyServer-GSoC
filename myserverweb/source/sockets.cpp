@@ -314,7 +314,6 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
     sslMethod = SSLv23_method();
     /*! Create the local context. */
     sslContext = SSL_CTX_new(sslMethod);
-    char buffer[512];
     if(sslContext == 0)
       return -1;
 
