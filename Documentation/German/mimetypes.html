@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>MIME Types</title>
+</head>
+<body>
+<h1 class="title">MIME TYPEN</h1>
+<p>Sie k&ouml;nnen MIME Typen, die von MyServer genutzt werden, indem Sie die Datei "MIMEtypes.xml" mit einem Texteditor, wie notepad bei Windows oder
+Emacs bei Linux, editieren. Das folgende Beispiel zeigt den Ihalt der .xml Datei:<br>
+</p>
+<p class="code">&lt;MIMETYPES&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+&lt;EXT&gt;htm&lt;/EXT&gt;<br>
+&lt;MIME&gt;text/html&lt;/MIME&gt;<br>
+&lt;CMD&gt;SEND&lt;/CMD&gt;<br>
+&lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br>
+&lt;/MIMETYPE&gt;
+</p>
+<p><br>
+Jede Zeile beschreibt einen anderen MIME Typ.</p>
+<font class="code">&lt;EXT&gt;</font> ist der Dateityp<br>
+<br>
+<font class="code">&lt;MIME&gt;</font> ist der Mime Typ.<br>
+<br>
+<font class="code">&lt;CMD&gt;</font> ist die &Uuml;bertragungsart um eine Datei zum Client zu senden.<br>
+<br>
+<font class="code">&lt;MANAGER&gt;</font> beschreibt das <font class="code">&lt;CMD&gt;</font> Kommando.<br>
+<br>
+<p>Die Folgenden Eigenschaften um eine Datei zum Client zu senden, sind im <font class="code">&lt;MANAGER&gt;</font> Abschnitt g&uuml;ltig:<br>
+</p>
+<div align="left">
+<ol>
+  <li><font class="code">SEND</font>
+- Sende die Datei statisch "as is". &nbsp;Dieses Kommando wird f&uuml;r Dateien mit Erweiterungen, wie .html und
+.jpg benutzt, die kein externes Eingreifen vom Server ben&ouml;tigen.</li>
+  <li><font class="code">RUNCGI</font>
+- Ausf&uuml;hren des CGI Skrtips und verweisen auf den Pfad. Dies wird f&uuml;r Dateien mit Erweiterungen, wie .php und .pl benutzt, die 
+verarbeitet werden m&uuml;ssen, bevor Sie an den Client geschickt werden.</li>
+  <li><font class="code">RUNFASTCGI</font><span
+ style="color: rgb(0, 102, 0);"> </span>- Das FastCGI Skript ausf&uuml;hren.
+&nbsp;Dieser Typ braucht einen heruntergeladenen FastCGI Parser (schauen Sie auf die PHP Seite in der Dokumentation).
+&nbsp;Es wird auch f&uuml;r Dateien mit Erweiterungen, wie .php und .pl benutzt.</li>
+  <li><font class="code">EXECUTEFASTCGI</font>
+- Dies f&uuml;hrt auch das FastCGI Skript aus, jedoch nicht so wie RUNFASTCGI, es braucht keinen Server, um das Skript auszuf&uuml;hren, es agiert anstatt als 
+selbstst&auml;ndiger Server.</li>
+  <li><font class="code">RUNMSCGI</font>- MSCGI Skript ausf&uuml;hren. Diese library ist nur f&uuml;r MyServer verf&uuml;gbar. Sie wird benutzt, um 
+schnelle und effektive CGIs zu erstellen.</li>
+  <li><font class="code">EXECUTE </font>- Behandelt die Datei, wie eine ausf&uuml;hrbare Datei und sendet die Ausgabe an den Client</li>
+  <li><font class="code">SENDLINK</font>
+- Schickt die Datei, die in einem Link enthalten ist.</li>
+  <li><font class="code">EXECUTEWINCGI</font>
+- Sendet die Datei alsWinCGI</li>
+  <li><font class="code">RUNISAPI</font>
+- F&uuml;hrt das ISAPI Skript aus.
+&nbsp;</li>
+  <li><font class="code">EXECUTEISAPI</font>
+- F&uuml;hrt das ISAPI Skript aus, braucht aber keinen Server f&uuml;rs Ausf&uuml;hren. Es agiert anstatt selbst als Server.</li>
+</ol>
+</div>
+Die meisten Applikatinen wurden bereits in der .xml Datei konfiguriert. Falls Sie MIME Code f&uuml;r eine Datei hinzuf&uuml;gen m&ouml;chten, schauen Sie sich den Beispiel Code an.<br>
+</body>
+</html>

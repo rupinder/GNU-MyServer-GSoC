@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+   
+  <meta http-equiv="Content-language" content="text/html"; charset=iso-8859-2">
+  <base target="_self">   
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title></title>
+   
+</head>
+<body>
+ 
+<h1 align="center">Wykorzystanie PHP z serwerem MyServer</h1>
+<br>
+<br>
+W chwili obecnaj PHP (Personal Home Page) jest najczęciej wykorzystywanym językiem skryptowym na wiecie. Skrypty PHP działajš po stronie serwera i sš wykorzystywane do tworzenia stron internetowych z dynamicznš zawartociš. 
+MyServer umożliwia wykorzystywanie PHP na dwa sposoby - jako standardowe wywołania CGI oraz jako serwer FastCGI. W pierwszym przypadku MyServer będzie tworzył nowy proces dla każdej wywoływanej strony. Natomiast w trybie FastCGI MyServer nie rozpoczyna nowego procesu dla każdego żšdania, przez co serwer działa sprawniej. Szczegółowe informacje na temat FastCGI znajdujš się na oficjalnych stronach FastCGI.
+
+ <br>
+ <br>
+ 
+Pierwszym krokiem do uruchomienia PHP jest cišgnięcie wersji instalacyjnej ze strony: <a href="http://www.php.net">www.php.net</a>.   
+
+<p><b><font size="+1">Konfiguracja dla CGI</font></b></p><br>
+ 
+<p>
+Aby używać PHP pod kontrolš MyServer'a konieczne jest skojarzenie odpowiednich rozszerzeń plików z parserem PHP. &nbsp; Aby to zrobić należy zmodyfikować plik <font color="#ffff00">MIMEtypes.txt</font> i dodać lub zmodyfikować linijkę: 
+</p>
+   
+<p><font color="#ffff00">php,text/html,RUNCGI c:/php/php.exe; </font></p>
+   
+<p>
+Pozwoli to na przekazanie żšdanych plików .php do parsera i wysłanie wyniku do klienta. Konieczne jest aby "c:\php\php.exe" było odpowiedniš cieżkš dostępu do parsera PHP.
+</p>
+<br>
+
+ 
+<p><b><font size="+1">Konfiguracja dla FastCGI</font></b></p><br>
+ 
+<p>
+Jeli PHP ma działać w trybie FastCGI konieczne jest cišgnięcie pliku parsera parsera - phpfcgi.exe ze strony: &nbsp;<a href="www.caraveo.com/fastcgi">www.caraveo.com/fastcgi</a> i skopiowanie go do katalogu, w którym zainstalowany jest PHP (zwykle c:\php\). &nbsp; Następnie należy zmodyfikować plik <font color="#ffff00">Mimetypes.txt</font>, w taki sposób aby zawierał linijkę:
+</p>
+   
+<p><font color="#ffff00">php,text/html,RUNFASTCGI c:/php/phpfcgi.exe; </font></p>
+   
+<p>
+W przypadku ostatnich wersji PHP konieczna będzie także ustawienie opcji cgi.force_redirect na zero w pliku <font color="#ffff00">php.ini</font>. Aby to zrobić należy odnaleć następujšcš linijkę w pliku konfiguracyjnym:
+</p>
+   
+<p><font color="#ffff00">&nbsp;;cgi.force_redirect = 0</font></p>
+   
+<p>
+a następnie usunšć rednik z jej poczštku.<br>
+Linijka po zmianie powinna wyglšdać następujšco:<br>
+</p>
+
+<p><font color="#ffff00">&nbsp;cgi.force_redirect = 0</font></p>
+<br>
+
+Więcej informacji na temat PHP wraz z przykładami kodu znajduje się na stronie PHP
+( <a href="http://www.php.net">www.php.net</a> ).<br>
+ 
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Virtual Hosts</title>
+</head>
+<body>
+<h1 class="title">VIRTUAL HOSTS</h1>
+In teoria, i virtual hosts permettono agli utenti di ospitare infiniti siti sul proprio PC.
+Per esempio http://mypc.net &egrave; differisce da http://sub.mypc.net. 
+Per definire virtual hosts con MyServer apri il file virtualhosts.xml in un editor di testo(come notepad per windows ed Emacs per linux). 
+Un tipico virtual hosts somiglia a:<br>
+<br>
+<p class="code">&lt;VHOSTS&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br>
+&lt;NAME&gt;Every connection&lt;/NAME&gt;<br>
+&lt;PORT&gt;80&lt;/PORT&gt;<br>
+&lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br>
+&lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br>
+&lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br>
+&lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br>
+&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br>
+&lt;/VHOST&gt;<br>
+&lt;/VHOSTS&gt;<br>
+</p>
+<br>
+<font class="code">&lt;NAME&gt;</font>
+d&agrave; all'amministratore un idea di cosa il virtual host &egrave; come internal Ethernet, external internet o every connection.&nbsp; <br>
+<br>
+<font class="code">&lt;PORT&gt;</font> la porta TCP usata per il listening<br>
+<font class="code">&lt;PROTOCOL&gt;</font> protocollo usato dal virtual host,<br>
+<font class="code">&lt;DOCROOT&gt;</font> la cartella dove sono i files.<br>
+<font class="code">&lt;SYSFOLDER&gt;</font> la cartella con i files di sistema.<br>
+<font class="code">&lt;ACCESSLOG&gt;</font> il file di log per gli accessi.<br>
+Questa riga pu&ograve; apparire nella forma:
+<font class="code">&lt;ACCESSESLOG type=&quot;combined&quot;&gt;</font>logs/myServerHTTP.log
+Con questa forma vengono aggiunti due ulteriori campi nel file di log per ogni record, HTTP Referer e HTTP User Agent.
+
+<font class="code">&lt;WARNINGLOG&gt;</font> il file di log per gli errori e i warnings.<br>
+<br>
+</p>
+<hr>
+<p align="center">Con MyServer &egrave; possibile attivare l'HTTP
+TRACE per ogni virtual host che usa L'HTTP. Per attivarlo bisogna modificare il file
+security nella cartella radice dell'host (non una sottocartella). Se il file non esiste, bisogna crearne uno nuovo, seguendo le indicazioni del file <a href="Security.html">Security</a> e aggiungendo i parametri</p>
+<p class="code" align="center">&lt;HTTP TRACE="ON" /&gt;</p>
+<p align="center">Una volta fatto questo l'HTTP TRACE &egrave; attivo. Di default è disattivato per evitare problemi di sicurezza.</p>
+<p>&nbsp; </p>
+</body>
+</html>

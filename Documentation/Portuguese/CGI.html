@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>CGI</title>
+</head>
+<body>
+<h1 class="title" align="center">CGI<br>
+</h1>
+<p>CGI (Common Gateway Interface) &eacute; a forma padr&atilde;o com
+que um servidor web passa os dados do usu&aacute;rio para uma
+aplica&ccedil;&atilde;o e ent&atilde;o retorna informa&ccedil;&atilde;o
+ao usu&aacute;rio. CGI depende de scipts freq&uuml;entemente escritos
+em linguagens com <a href="php.html">PHP</a> ou <a href="perl.html">Perl</a>
+para realizar as a&ccedil;&otilde;es que s&atilde;o requisitadas pelo
+usu&aacute;rio. Para acessar o script CGI, o nome da
+aplica&ccedil;&atilde;o &eacute; indicado no c&oacute;digo HTML.</p>
+<p>Por exemplo, se voc&ecirc; estiver criando um formul&aacute;rio, a
+URL do script &eacute; indicada nos tags FORMs:<br>
+</p>
+<p class="code"> &lt;FORM METHOD=POST
+ACTION=www.myfiles.com/cgi-bin/myprog.pl&gt;<br>
+</p>
+<p>Obs:&nbsp; Qualquer Linguagem de&nbsp; Script que
+consegue fazer 'pipe' para sa&iacute;da pode ser usada - voc&ecirc;
+pode ter scripts em Shell Script, Python, etc. Voc&ecirc; s&oacute;
+precisa configurar corretamente os MIME-Types correspondentes, e sua
+linguagem favorita de scripts funcionar&aacute; no MyServer.<br>
+</p>
+<p>Caso queira manter os scripts em um lugar, voc&ecirc; pode criar um
+diret&oacute;rio <span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">cgi-bin</span>
+dentro do diret&oacute;rio <span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">web</span>
+no MyServer, como visto abaixo:<br>
+<br>
+</p>
+<div style="text-align: center;"><img src="images/myfiles.gif" title=""
+ alt="Web folder" height="260" width="468"><br>
+</div>
+<div style="text-align: center;">A pasta cgi-bin est&aacute;
+diretamente abaixo da pasta web selecionada.<br>
+</div>
+<p><br>
+<br>
+<br>
+<br>
+Contudo, scripts de CGI podem ser colocados em qualquer lugar, contanto
+que suas localiza&ccedil;&otilde;es sejam indicadas no c&oacute;digo
+HTML.<br>
+<br>
+Scripts de CGI requerem um servidor web para processar a
+informa&ccedil;&atilde;o.&nbsp; Uma alternativa &eacute; ter o
+protocolo <a href="ISAPI.html">ISAPI</a>.<br>
+</p>
+</body>
+</html>

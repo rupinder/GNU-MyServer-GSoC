@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>MIME Types</title>
+</head>
+<body>
+<h1 class="title">MIME TYPES</h1>
+<p>Voc&ecirc; pode modificar os MIME types usados pelo MyServer, alterando o arquivo 
+  "MIMEtypes.xml" com um editor de texto, como o notepad no Windows, ou o Emacs 
+  no Linux. O que segue &eacute; um exemplo de um arquivo .xml:<br>
+</p>
+<p class="code">&lt;MIMETYPES&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+&lt;EXT&gt;htm&lt;/EXT&gt;<br>
+&lt;MIME&gt;text/html&lt;/MIME&gt;<br>
+&lt;CMD&gt;SEND&lt;/CMD&gt;<br>
+&lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br>
+&lt;/MIMETYPE&gt;
+</p>
+<p><br>
+  Cada linha descreve um MIME type diferente.</p>
+<font class="code">&lt;EXT&gt;</font> &eacute; o tipo do arquivo<br>
+<br>
+<font class="code">&lt;MIME&gt;</font> &eacute; o Mime type.<br>
+<br>
+<font class="code">&lt;CMD&gt;</font> &eacute; o modo de enviar o arquivo ao cliente<br>
+<br>
+<font class="code">&lt;MANAGER&gt;</font> descreve o comando <font class="code">&lt;CMD&gt;</font>.<br>
+<br>
+<p>Os seguintes valores para enviar o arquivo ao cliente s&atilde;o v&aacute;lidos 
+  na se&ccedil;&atilde;o <font class="code">&lt;MANAGER&gt;</font>:<br>
+</p>
+<div align="left"> 
+  <ol>
+    <li><font class="code">SEND</font> - Envia o arquivo estaticamente como ele 
+      &eacute;. Esse comando &eacute; usado para extens&otilde;es de arquivo tais 
+      como .html e .jpg, que n&atilde;o precisam de interven&ccedil;&atilde;o 
+      externa do servidor web.</li>
+    <li><font class="code">RUNCGI</font> - Executa o script CGI indicado no caminho. 
+      &Eacute; usado para extens&otilde;es de arquivo tais como .php e .pl, necess&aacute;rios 
+      de serem processados antes de enviar qualquer dado para o cliente. </li>
+    <li><font class="code">RUNFASTCGI</font><span
+ style="color: rgb(0, 102, 0);"> </span>- Roda o script Fastcgi. Esse tipo precisa 
+      de um parser de Fastcgi (veja a p&aacute;gina do PHP). &Eacute; tamb&eacute;m 
+      usado para extens&otilde;es de arquivo como .php e .pl</li>
+    <li><font class="code">EXECUTEFASTCGI</font> - Isso tamb&eacute;m roda o script 
+      Fastcgi, mas diferentemente do RUNFASTCGI acima, n&atilde;o precisa de um 
+      servidor para rodar o script, ao inv&eacute;s, ele age como um auto-servidor.</li>
+    <li><font class="code">RUNMSCGI</font>- Roda o script MSCGI. Essa library 
+      s&oacute; est&aacute; dispon&iacute;vel para o myServer. &Eacute; usada 
+      para construir CGIs r&aacute;pidos e eficientes.</li>
+    <li><font class="code">EXECUTE </font>-Trata o arquivo como um execut&aacute;vel 
+      e envia a sa&iacute;da gerada para o cliente.&nbsp;</li>
+    <li><font class="code">SENDLINK</font> -Envia o arquivo contido em um link. 
+    </li>
+    <li><font class="code">EXECUTEWINCGI</font> - Envia o arquivo como um WinCGI</li>
+    <li><font class="code">RUNISAPI</font> - Roda o script ISAPI.</li>
+    <li><font class="code">EXECUTEISAPI</font> - Roda o script ISAPI mas n&atilde;o 
+      precisa de um servidor para executar. Ao inv&eacute;s disso, ele age como 
+      um auto-servidor.</li>
+  </ol>
+</div>
+<p>A maioria das aplica&ccedil;&otilde;es j&aacute; est&atilde;o listadas no arquivo 
+  .xml. Se voc&ecirc; gostaria de adicionar um MIME type, coloque no fim do arquivo 
+  e uso o c&oacute;digo como um exemplo.</p>
+</body>
+</html>

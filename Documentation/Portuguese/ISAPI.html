@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>ISAPI</title>
+</head>
+<body>
+<h1 class="title">ISAPI</h1>
+<p>ISAPI (Internet Server Application Program Interface) &eacute; um protocolo 
+  usado por computadores baseados no Windows para rodar uma aplica&ccedil;&atilde;o 
+  diretamente da p&aacute;gina web ao inv&eacute;s de ter que o servidor processe 
+  a aplica&ccedil;&atilde;o como um script <a
+ href="CGI.html">CGI</a>. Para usar o ISAPI, voc&ecirc; tem que criar uma DLL 
+  (biblioteca de v&iacute;nculos din&acirc;micos - dynamic link library) que &eacute; 
+  executada como parte da aplica&ccedil;&atilde;o <a href="HTTP.html">HTTP</a>.<br>
+  <br>
+  A DLL &eacute; carregada na mem&oacute;ria do computador que est&aacute; chamando 
+  o arquivo, quando a p&aacute;gina &eacute; aberta, e continua l&aacute; at&eacute; 
+  que o usu&aacute;rio feche a p&aacute;gina web. ISAPI &eacute; um modo mais 
+  r&aacute;pido de processar aplica&ccedil;&otilde;es j&aacute; que ele n&atilde;o 
+  requer qualquer a&ccedil;&atilde;o adicional pelo servidor web.<br>
+  <br>
+  <font class="warning">Aten&ccedil;&atilde;o</font>: Se uma aplica&ccedil;&atilde;o 
+  ISAPI travar, pode causar uma falha na aplica&ccedil;&atilde;o tamb&eacute;m, 
+  de modo que pode ser uma causa de travar o MyServer.<br>
+  <br>
+  <br>
+  Para mais informa&ccedil;&otilde;es, voc&ecirc; pode ler um <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">Overview 
+  do ISAPI</a> da Microsoft.</p>
+</body>
+</html>

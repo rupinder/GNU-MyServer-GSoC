@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Web Server</title>
+</head>
+<body>
+<h1 class="title">HTTPS</h1>
+1) Kurze Anmerkung zur Datenverschl&uuml;sslung<br>
+2) Erstellung von SSL Zertifikaten mit OpenSSL<br>
+3) Benutzung von Zertifikaten in MyServer<br>
+
+<h2>Kurze Anmerkung zur Datenverschl&uuml;sslung</h2>
+<p>Datenverschl&uuml;sselung wird zum Schutz von Daten, die zwischen Client und Server ausgetauscht werden benutzt. Es gibt zwei Algorithmentypen: 
+symmetrische und asymmetrische Datenverschl&uuml;sselungsalgorithmen. Die beiden Algorithmentypen unterscheiden sich dadurch, dass f&uuml;r 
+den symmetrischen Algorithmus der gleiche Schl&uuml;ssel f&uuml;r das Ver- und das Entschl&uuml;sseln benutzt wird. Diese Art von Algorithmen 
+wird nicht von Servern genutzt, die eine hohe Anzahl von Clients haben, weil die Daten aufgefangen und von jedem Client, der den Schl&uuml;ssel kennt, entschl&uuml;sselt werden 
+k&ouml;nnen und weil die Schl&uuml;ssel auf sichere Art (zum Beispiel auf einer Diskette) verteilt werden m&uuml;ssen und nicht in einem rie&szlig;igen 
+Netzwerk, wie dem Internet verteilt werden k&ouml;nnen. Die asymmetrischen Algorithmen arbeiten anders, die mit einem Schl&uuml;ssel verschl&uuml;sselten 
+Daten, k&ouml;nnen nur mit dem anderen Schl&uuml;ssel und viceversa entschl&uuml;sselt werden. Jeder kennt den &ouml;ffentlichen Schl&uuml;ssel, 
+jedoch nur der Besitzer den privaten Schl&uuml;ssel. Auf diese Art muss der Schl&uuml;sselbesitzer nicht den Schl&uuml;ssel and bekannte Clients 
+verteilen, sondern kann ihn in einem groﬂen, weitgreifenden Netzwerk verteilen.
+<h2> Erstellung von SSL Zertifikaten mit OpenSSL </h2>
+<p>Ein Zertifikat wird ben&ouml;tigt, um Ihre Identit&auml;t durch eine CA (Certification Authority) zu zertifizieren. Sie k&ouml;nnen ein 
+Zertifikat benutzen, ohne es bei dritten CA zu registrieren, aber ein Root Zertifizierungs Zertifikat erstellen. Sie finden alles Notwendige in 
+der OpenSSL library: www.openssl.org. Nach der Installation, wechseln Sie in den Binary Ordner und tippen Sie:
+<p  class="code">
+openssl genrsa -out server.key 
+</p>
+Dies erstellt einen privaten Schl&uuml;ssel, um Ihre Daten zu verschl&uuml;sseln. Danach f&uuml;hren Sie diesen Befehl aus: 
+<p  class="code">
+openssl req -new -x509 -days 730 -config openssl.cnf -key server.key -out server.pem 
+</p>
+Um ein &ouml;ffentliches Zertifikat zu erstelln: In diesem Beispiel kann das Zertifikat f&uuml;r 730 Tage benutzt werden und der 
+&ouml;ffentliche Schl&uuml;ssel ist die server.pem Datei.
+<h2>Benutzung von Zertifikaten in MyServer</h2>
+<p>Um Zertifikate in MyServer zu konfigurieren, m&uuml;ssen Sie die zwei Dateien: server.key, server.pem in den certificates Ordner in das MyServer 
+Installationsverzeichnis ablegen. Danach m&uuml;ssen Sie einen virtuellen HTTPS Host in der virtualhosts.xml Datei konfigurieren. 
+<p  class="code">
+&lt;VHOST&gt; </br>
+&lt;NAME&gt;Every connection&lt;/NAME&gt;</br>
+&lt;PORT&gt;443&lt;/PORT&gt; </br>
+&lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt; </br>
+&lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE&gt; </br>
+&lt;PROTOCOL&gt;HTTPS&lt;/PROTOCOL&gt; </br>
+&lt;DOCROOT&gt;web&lt;/DOCROOT&gt; </br>
+&lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt; </br>
+&lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt; </br>
+&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt; </br>
+&lt;/VHOST&gt; </br>
+</p>
+Durch diesen Host, erstellen wir eine HTTPS Abfrage auf Port 443 (Standardport f&uuml;r https) und benutzen die Datei certificates/server.key 
+als privaten Schl&uuml;ssel und die Datei certificates/server.pem file als &ouml;ffentlichen Schl&uuml;ssel.
+</body>
+</html>

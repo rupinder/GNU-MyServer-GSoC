@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Basic Server Configuration</title>
+</head>
+<body>
+<h1 class="title">SERVER GRUNDEINSTELLUNGEN<br>
+</h1>
+In der Datei <font class="code">myserver.xml</font> kann man die Startseite f&uuml;r Ihre mit MyServer gehosteten Webseiten.<br>
+<br>
+Folgende Zeilen sind bereits in der Konfigurationsdatei enthalten:<br>
+<p class="code">&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME0&gt;default.html&lt;/DEFAULT_FILENAME0&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME1&gt;default.php&lt;/DEFAULT_FILENAME1&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME2&gt;default.php3&lt;/DEFAULT_FILENAME2&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME3&gt;index.html&lt;/DEFAULT_FILENAME3&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME4&gt;index.php&lt;/DEFAULT_FILENAME4&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME5&gt;index.php3&lt;/DEFAULT_FILENAME5&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME6&gt;default.htm&lt;/DEFAULT_FILENAME6&gt; <br>
+</p>
+<p><br>
+  Falls Sie einen <a class="code" href="virtualhosts.html">Virtuellen Host</a>
+http://mypc.net besitzen, wird die angezeigte Seite, wenn Sie auf diese Adresse in ihrem Browser zugreifen, eine von den oben angegebenen Dateien sein.<br />
+Sie k&ouml;nnen mehr Zeilen hinzuf&uuml;gen oder eine dieser Zeilen &auml;ndern, wenn Sie z.B. einen anderen Dateinamen brauchen. Der selbe Mechnismus wird f&uuml;r jedes<br />
+Verzeichnis und nicht nur f&uuml;r das Wurzelverzeichnis benutzt.<br>
+  <br>
+</p>
+<hr style="width: 100%; height: 2px;"><br> 
+Im Abschnitt <a class="code" href="errorfiles.html">Fehler</a> haben Sie gelernt, wie man eigene Fehlerseiten erstellt und benutzt. Sie k&ouml;nnen aber auch die standard Fehlerseiten deaktivieren,<br />
+indem Sie folgende Zeile &auml;ndern:<br>
+<font class="code">&lt;USE_ERRORS_FILES&gt;YES&lt;/USE_ERRORS_FILES&gt;<br>
+</font>Wenn Sie den Wert auf NO setzten, wie in der n&auml;chsten Zeile<br>
+<font class="code">&lt;USE_ERRORS_FILES&gt;NO&lt;/USE_ERRORS_FILES&gt;<br>
+</font>erhalten Sie TEXT Nachrichten anstatt von HTML Seiten f&uuml;r auftretende Fehler.<br>
+<hr style="width: 100%; height: 2px;">
+Sie k&ouml;nnen das Aussehen der Ordnerinhalts-Seite &auml;ndern (, die angezeigt wird, wenn Sie keine Standard-Seite haben, diese wird im Abschnitt <a href="browsefolder.html">Ordnerinhalte durchsehen</a> beschrieben).<br />
+Folgende Zeile, in der Datei in myserver.xml, verweist auf eine CSS Datei, die benutzt wird um das Aussehen dieser Seite zu konfigurieren:<br>
+<font class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</font><br>
+<hr style="width: 100%; height: 2px;"><br>
+CGI Skripte k&ouml;nnen die Server Administrator E-mail Adresse auslesen und sie dem Benutzer anzeigen. Deshalb ist es von gro&szlig;er Bedeutung diese Adresse ordentlich anzugeben,<br />
+indem Sie den Wert in der Datei myserver.xml, wie in folgender Zeile gezeigt wird, &auml;ndern:<br>
+<font class="code">&lt;SERVER_ADMIN&gt;administrator@localhost&lt;/SERVER_ADMIN&gt;<br>
+</font><br>
+</body>
+</html>

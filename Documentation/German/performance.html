@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Performance</title>
+</head>
+<body>
+<h1 class="title">LEISTUNGS-TUNING<br>
+</h1>
+Hier sehen Sie einige Optionen, die Sie einstellen k&ouml;nnen, um die Leistung Ihres Webservers zu verbessern.<br>
+<br>
+<div style="margin-left: 40px;">
+<div style="text-align: left;">
+<div align="left"><span style="font-weight: bold;"><font class="code">Threads
+Tuning:<br>
+</font> <br>
+</span>In der Dateimyserver.xml k&ouml;nnen Sie die Anzahl der Threads, die MyServer benutzen wird einstellen. In den folgenden Zeilen konfigurieren Sie<br />
+2 einstellbare Parameter A und B, der Gleichung N=A+CB, bei der N die Anzahl der zu benutzenden Threads ist und C die Anzahl der im Computer<br />
+verf&uuml;gbaren
+Prozessoren ist:<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_A&gt;10&lt;/NTHREADS_A&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_B&gt;10&lt;/NTHREADS_B&gt;<br>
+In dem Sie, den f&uuml;r Sie zutreffenden Wert (Standard=10) in den oben aufgelisteten Variablen verwenden, &auml;ndern Sie den Wert von N.<br>
+<br>
+<br>
+<br>
+<span style="font-weight: bold;"><font class="code">Buffer Gr&ouml;&szlig;e:<br>
+</font> <br>
+</span>Sie k&ouml;nnen die Buffer Gr&ouml;&szlig;e, die von MyServer verwendet wird &auml;ndern, indem Sie folgende Zeile in der Datei myserver.xml &auml;ndern:<br>
+&nbsp;&nbsp;&nbsp; &lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br>
+Sie brauchen blo&szlig; den standard Wert 102400 in die von Ihnen gew&uuml;nsche G&ouml;&szlig;e zu &auml;ndern. Ber&uuml;cksichtigen Sie, dass der Buffer doppelt so gro&szlig; sein wird,<br />
+  wie der Wert (in
+Bytes), den Sie hier eingestellt haben, multipliziert mit der Anzahl der laufenden Threads.<br>
+<br>
+<span style="font-weight: bold;"><br>
+<font class="code"> Verbindungs Timeout:<br>
+</font> <br>
+</span>In der  myserver.xml k&ouml;nnen Sie den Timeout f&uuml;r Client Verbindungen zu Ihrem Server einstellen, wie folgende Zeile zeigt:<br>
+&nbsp;&nbsp;&nbsp;
+&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br>
+Die Zeit Einheit ist in Sekunden. In der Zeile sieht man, dass die Verbindung zu einem Client, der auf Ihre Seite l&auml;nger als 60 Sekunden nicht mehr<br />
+zugreift geschlossen wird. Falls Sie es bevorzugen keine HTTP
+Keep-Alive Vebindungen zu benutzen, setzen Sie den Wert auf 0.<br>
+<br>
+<span style="font-weight: bold;"><br>
+<font class="code"> Max Verbindungen:<br>
+</font> <br>
+</span>Sie k&ouml;nnen die Standard-Anzahl der Verbindungen, die Ihr Webserver akzeptiert &auml;ndern, in dem Sie folgenden Zeile in der myserver.xml &auml;ndern:<br>
+&nbsp;&nbsp;&nbsp; &lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br>
+Durch den Standardwert 0 akzeptiert Ihr Server unendlich viele Verbindungen. Jeder andere Wert beschr&auml;nkt die Anzahl der Benutzer, die auf Ihren Server zugreifen werden k&ouml;nnen.<br>
+<br>
+<br>
+<br>
+<br>
+</div>
+</div>
+<br>
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>WinCGI</title>
+</head>
+<body>
+<h1 class="title" align="center">WinCGI<br>
+</h1>
+WinCGI &egrave; un modo per scrivere CGI attraverso Visual Basic. Il protocollo WinCGI &egrave;
+disponibile solo sulla piattaforma Windows.<br>
+<br>
+Per attivare WinCGI in MyServer, bisogna configurare il corretto <a
+ href="mimetypes.html" class="code">tipo MIME</a> corrispondente ai tuoi files WinCGI, 
+e configurarli come (<font class="code">EXECUTEWINCGI</font>)<br>.
+<br>
+Dopo la configurazione tutto quello di cui hai bisogno è di accedere alla tua CGI, 
+puoi usare del codice HTML come il seguente:<br>
+<p class="code">&lt;FORM METHOD=POST
+ACTION=www.myfiles.com/cgi-bin/mywincgi.exe&gt;</p>
+Attraverso questo codice la tua applicazione WinCGI sar&agrave; contattata attraverso
+POST.<br>
+<br>
+Come per le CGI standards tu puoi mettere tutti i tuoi files nella sottodirectory <span class="code">cgi-bin</span>
+di <span class="code">web</span> 
+come visualizzato qui sotto:<br>
+<br>
+<br>
+<div style="text-align: center;"><img src="images/myfiles.gif" title=""
+ alt="Web folder" height="260" width="468"><br>
+</div>
+<div style="text-align: center;"><small>cgi-bin è una sottodirectory di web.</small><br>
+</div>
+<br>
+<br>
+<br>
+In ogni caso le applicazioni WinCGI possono essere messe da qualsiasi parte essendo configurate 
+attraverso la loro estensione e non la posizione sul FS.<br>
+<br>
+</body>
+</html>

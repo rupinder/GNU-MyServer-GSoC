@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Language" content="en-gb">
+  <base target="_self">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>BrowseFolder</title>
+</head>
+<body>
+<h1 align="center" class="title">NAVEGA&Ccedil;&Atilde;O DE PASTAS </h1>
+Quando um cliente requisita uma pasta (diret&oacute;rio, subdiret&oacute;rio) 
+do servidor, e o servidor n&atilde;o conseguir encontrar um arquivo default para 
+enviar, ele indexa a pasta e envia uma lista dos arquivos para o cliente. Isso 
+permite ao cliente navegar pela pasta e acessar qualquer arquivo dentro dela.<br>
+<p style="text-align: center;"><img src="images/browsefolder.gif"
+ style="width: 420px; height: 276px;" title="" alt="Browse Folder"></p>
+<div style="text-align: center;"><small>Pasta indexada para Navega&ccedil;&atilde;o</small><br>
+</div>
+<small><br>
+<br>
+</small>Se voc&ecirc; quiser definir um estilo CSS para a p&aacute;gina de &iacute;ndice 
+  de pastas, voc&ecirc; pode modificar o arquivo<span
+ class="code"> myserver.xml.</span><br>
+<br>
+Localize a linha: <br>
+e substitua <font  class="code">system/folderstyle.css</font> com o nome de seu 
+arquivo .css. 
+<p>O arquivo <font class="code">system/folderstyle.css</font> tem a forma default:</p>
+<p
+  class="code">body
+{ font-family: Arial; color: #000000;background-color:#FFFFFF }</p>
+<br>
+<br>
+</body>
+</html>

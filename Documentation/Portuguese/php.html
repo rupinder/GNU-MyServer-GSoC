@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>PHP</title>
+</head>
+<body>
+<h1 class="title">COMO USAR PHP NO MYSERVER</h1>
+<br>
+<br>
+PHP (Hypertext Preprocessor) &eacute; a linguagem de script server-side mais usada 
+no mundo. Uma linguagem server-side &eacute; usada para criar p&aacute;ginas web 
+com conte&uacute;do din&acirc;mico. Voc&ecirc; pode usar PHP no MyServer como 
+um execut&aacute;vel CGI padr&atilde;o ou como um servidor Fastcgi. Usando PHP 
+como um execut&aacute;vel CGI, MyServer criar&aacute; um novo processo para cada 
+p&aacute;gina requisitada.&nbsp;Usando PHP no modo FastCGI, o MyServer n&atilde;o 
+cria um novo proceso para cada request, e ent&atilde;o, o servidor tem melhor 
+performance. Por favor, veja mais informa&ccedil;&otilde;es sobre FastCGI no  <a
+ href="http://www.fastcgi.com/" target="_blank">site 
+oficial do FastCGI</a>.<br>
+<br>
+Para usar PHP, voc&ecirc; deve fazer o download do instalador em:<font class="code"> 
+<a href="http://www.php.net" target="_blank">www.php.net</a></font>. 
+<p><font color="#ffff00"> </font></p>
+<p>Com as &uacute;ltimas vers&otilde;es do PHP voc&ecirc; vai precisar modificar 
+  o arquivo <font class="code">php.ini</font> para setar a op&ccedil;&atilde;o 
+  cgi.force_redirect para nulo. Encontre a linha abaixo no arquivo de configura&ccedil;&atilde;o 
+  do php:</p>
+<p  class="code">;cgi.force_redirect= 0</p>
+<p>e remova o ponto-e-v&iacute;rgula do in&iacute;cio.<br>
+  A linha ficar&aacute; assim:<br>
+</p>
+<p class="code">cgi.force_redirect = 0</p>
+<p>
+<h3>Servidores FastCGI Remotos<br>
+</h3><p></p>
+<p>O MyServer tem a capacidade de usar um servidor FastCGI remoto. O seguinte 
+  MIME type usa uma conex&atilde;o remota:<br>
+</p>
+<p class="code"><font size="2"
+ face="Arial">&lt;MIMETYPE&gt;
+&lt;EXT&gt;php&lt;/EXT&gt;
+&lt;MIME&gt;text/html&lt;/MIME&gt;
+&lt;CMD&gt;RUNFASTCGI&lt;/CMD&gt;
+<div style="margin-left: 200px;"></div>
+<p class="code">
+&lt;MANAGER&gt;@host:port&lt;/MANAGER&gt;
+&lt;/MIMETYPE&gt;
+<p class="code">
+<p><br>
+  A defini&ccedil;&atilde;o para um gerente remoto deve come&ccedil;ar com @.<br>
+</p>
+<p>Se voc&ecirc; estiver configurando os MIME types pela aplica&ccedil;&atilde;o 
+  Centro de Controle, voc&ecirc; pode adicionar um servidor remoto adicionando 
+  a linha abaixo no formul&aacute;rio<br>
+</p>
+<p class="code">@HOST:PORT
+</p>
+no campo do caminho do FastCGI. <p></p> 
+</font></body>
+</html>

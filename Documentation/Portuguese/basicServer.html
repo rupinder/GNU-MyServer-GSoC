@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Basic Server Configuration</title>
+</head>
+<body>
+<h1 class="title">CONFIGURA&Ccedil;&Atilde;O B&Aacute;SICA DO SERVIDOR<br>
+</h1>
+No arquivo <font class="code">myserver.xml</font> voc&ecirc;
+pode setar a p&aacute;gina default para seus websites
+hospedados no MyServer.<br>
+<br>
+As linhas abaixo j&aacute; existem no seu arquivo de
+configura&ccedil;&atilde;o:<br>
+<p class="code">&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME0&gt;default.html&lt;/DEFAULT_FILENAME0&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME1&gt;default.php&lt;/DEFAULT_FILENAME1&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME2&gt;default.php3&lt;/DEFAULT_FILENAME2&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME3&gt;index.html&lt;/DEFAULT_FILENAME3&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME4&gt;index.php&lt;/DEFAULT_FILENAME4&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME5&gt;index.php3&lt;/DEFAULT_FILENAME5&gt;<br>
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME6&gt;default.htm&lt;/DEFAULT_FILENAME6&gt; <br>
+</p>
+<br>
+Assim, se voc&ecirc; tem um <a class="code" href="virtualhosts.html">Virtual
+Host</a>
+http://mypc.net, a p&aacute;gina que vai aparecer quando voc&ecirc;
+acessar aquele endere&ccedil;o no browser, ser&aacute; um dos arquivos
+acima. Voc&ecirc; pode adicionar mais linhas, ou mudar qualquer uma
+delas, se precisar de um nome de arquivo diferente. O mesmo
+m&eacute;todo &eacute; usado para cada diret&oacute;rio, e n&atilde;o
+s&oacute; o diret&oacute;rio raiz do site.<br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+Na se&ccedil;&atilde;o de <a class="code" href="errorfiles.html">Errors</a>
+voc&ecirc; aprendeu como criar suas pr&oacute;prias p&aacute;ginas de
+erro. Mas voc&ecirc; tamb&eacute;m pode desabilitar as p&aacute;ginas
+personalizadas, mudando a linha abaixo:<br>
+<font class="code">&lt;USE_ERRORS_FILES&gt;YES&lt;/USE_ERRORS_FILES&gt;<br>
+</font>Desse modo, se voc&ecirc; setar o valor para NO, como nessa linha<font
+ class="code"><br>
+&lt;USE_ERRORS_FILES&gt;NO&lt;/USE_ERRORS_FILES&gt;</font><br>
+voc&ecirc; ter&aacute; mensagens de TEXTO ao inv&eacute;s de
+p&aacute;ginas HTML para os erros.<br>
+<hr style="width: 100%; height: 2px;">Voc&ecirc; pode mudar o layout da
+p&aacute;gina de Navega&ccedil;&atilde;o de Pastas (usada quando
+voc&ecirc; n&atilde;o tem uma p&aacute;gina default, como descrito na
+se&ccedil;&atilde;o <a href="browsefolder.html">Navega&ccedil;&atilde;o
+de Pastas</a>). A linha abaixo, no myserver.xml, aponta para o arquivo
+CSS usado para configurar o layout de tal p&aacute;gina:<br>
+<font class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</font><br>
+<hr style="width: 100%; height: 2px;"><br>
+Scripts CGI podem obter o E-mail do Administrador do Servidor e
+mostr&aacute;-lo ao usu&aacute;rio. Ent&atilde;o &eacute; importante
+que voc&ecirc; defina esse endere&ccedil;o corretamente, setando o
+valor na linha abaixo, no myserver.xml:<br>
+<font class="code">&lt;SERVER_ADMIN&gt;administrator@localhost&lt;/SERVER_ADMIN&gt;<br>
+</font><br>
+</body>
+</html>

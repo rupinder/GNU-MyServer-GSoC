@@ -1,0 +1,69 @@
+<html>
+<head>
+   
+  <meta http-equiv="content-language" content="text/html"; charset=iso-8859-2">
+  <base target="_self">   
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title></title>
+   
+</head>
+<body>
+ 
+<h1 align="center">SERWERY WIRTUALNE</h1>
+W teorii serwery wirtualne umożliwiajš umieszczenie nieskończonej iloci stron na pojedynczym komputerze. Dla przykładu pomiędzy adresami http://mypc.net a http://sub.mypc.net istnieje różnica. 
+Aby zdefiniować listę serwerów wirtualnych dla MyServer należy dokonać edycji pliku virualhosts.txt używajšc dowolnego edytora tekstu ( np. notatnika w systemie Windows lub Emacsa w Linux'ie). W tym pliku każda linijka opisuje osobny serwer wirualny. Każda linia musi kończyć się znakiem '#' a ostatnia linia w pliku dwoma '##'.
+
+<p align="left">Każda linijka ma postać: <font color="#ffff00">a;b;c;d;e;f;g;h</font>: </p>
+   
+<div align="left"><font color="#ffff00">a</font> jest listš adresów, dla których dozwolone jest połšczenie z danym serwerem wirtualnym<br>
+ <font color="#ffff00">b</font> jest listš lokalnych adresów IP, dla których dozolone jest wykorzystywanie serwera wirtualnego <br>
+ <font color="#ffff00">c </font>oznacza numer portu wykorzystywanego do przyjmowania połšczeń<br>
+ <font color="#ffff00">d </font>jest protokołem wykorzystywanym przez serwer<br>
+ <font color="#ffff00">e </font>jest katalogiem zawierajšcym dane udostępniane w sieci<br>
+ <font color="#ffff00">f</font> jest katalogiem systemowym<br>
+ <font color="#ffff00">g</font> jest plikiem, w którym zapisywane sš informacje dotyczšce serwera<br>
+ <font color="#ffff00">h</font> jest plikiem zawierajšcym komunikaty o błędach zapisywanych przez serwer</div>
+   
+<p>&nbsp;</p>
+   
+  <p>
+	Jeżeli chcemy, aby każde przychodzšce żšdanie kierowane było do tego samego wirtualnego serwera musimy ustwaić 0 jako 	wartoć parametru <font color="#ffff00">a</font>, to samo może zostać zrobione dla listy adresów IP - parametr (<font 	color="#ffff00">b</font>). MyServer przeprowadza uporzšdkowane wyszukiwanie wirtualnego serwera zaczynajšc od 	pierwszego zapisu w pliku konfiguracyjnym. Dla ustanowienia połšczenia wyszukuje w pełni pasujšcego serwera 	wirtualnego. Poniższa linijka pozwala na dostęp do katalogu "web" dla każdego przychodzšcego połšczenia. Serwer 	oczekuje na połšczenie na domylnym porcie HTTP, zapisuje informacje na temat dostępu w pliku logs/myServer.log a 	informacje o błędach w logs/myServer.err. Katalogiem, w którym znajdujš się pliki systemowe jest "system".
+  </p>
+     
+<p><font color="#ffff00">  0;0;80;HTTP;web;system;logs/myServer.log;logs/myServer.err## </font></p>
+   
+  <p>
+	cieżki dostępnu sš względne w stosunku do głównego katalogu MyServer'a. Aby używać pełnej cieżki dostępu należy 	przed nazwš katalogu umiecić znak "|". Dla przykładu:
+  </p>
+   
+<p><font color="#ffff00"> 0;0;80;HTTP;|c:\web;|c:\system;logs/myServer.log;logs/myServer.err## 
+</font></p>
+   
+<p><font size="+1"><br></font></p>
+ 
+	<p><font size="+1">Konfiguracja dla Intranetu</font><br> </p>
+
+  <p>
+	Jeżeli komputer podłšczony jest do internetu i jednoczenie do lokalnego intranetu, a chcemy mieć osobne strony dla 	tych dwóch stref, tworzymy plik konfiguracyjny w podobny sposób. Poniższe dwie linijki mówiš MyServer'owi, że 		wszystkie przychodzšce 	połšczenia na internetowe IP 192.168.0.1 łšczš się z pierwszym hostem, a przychodzšce z 	lokalnego IP 56.76.46.74 łšczš się z drugim.
+  </p>
+   
+<p><font color="#ffff00">  0;192.168.0.1;80;HTTP;intranetweb;intranetsystem;logs/myServerIntranet.log;logs/myServerIntranet.err# 
+0;56.76.46.74;80;HTTP;internetweb;internetsystem;logs/myServerInternet.log;logs/myServerInternet.err##<br>
+ </font></p>
+ 
+<p><font color="#ffff00"> </font></p>
+<big><br> Konfigurowanie dostępu przez nazwy hostów</big><br>
+   
+<p>
+Jeżeli chcielibymy dla pojedynczego serwera wirtualnego stworzyć listę dozwolonych adresów musimy rozdzielić je przecinkami (","). To samo dotyczy również adresów IP. Na przykład:
+</p>
+
+<p> <font color="#ffff00">  sub.mypc.net,mypc.net;0;80;HTTP;web;system;logs/myServer.log;logs/myServer.err## </font> </p>
+   
+  <p>
+	Powyższa konstrukcja pozwala na dostęp do serwera wirtualnego dla połšczeń z adresów sub.mypc.net oraz mypc.net. W 	tym przykładzie nie użyto adresów IP.
+  </p>
+  <br>
+ 
+</body>
+</html>

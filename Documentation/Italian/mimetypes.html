@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>TIPI MIME</title>
+</head>
+<body>
+<h1 class="title">TIPI MIME</h1>
+<p>Puoi modificare i tipi MIME usati da MyServer attraverso il file "MIMEtypes.xml" 
+con un semplice editor di testi. Il seguente &egrave; un esempio del file:<br>
+</p>
+<p class="code">&lt;MIMETYPES&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+-<br>
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+&lt;EXT&gt;htm&lt;/EXT&gt;<br>
+&lt;MIME&gt;text/html&lt;/MIME&gt;<br>
+&lt;CMD&gt;SEND&lt;/CMD&gt;<br>
+&lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br>
+&lt;/MIMETYPE&gt;
+</p>
+<p><br>
+Ogni blocco rappresenta un tipo MIME differente. </p>
+<font class="code">&lt;EXT&gt;</font> &egrave; l'estensione del file.<br>
+<br>
+<font class="code">&lt;MIME&gt;</font> &egrave; il tipo MIME.<br>
+<br>
+<font class="code">&lt;CMD&gt;</font> &egrave; il modo in cui usare questo tipo di files.<br>
+<br>
+<font class="code">&lt;MANAGER&gt;</font> &egrave; il manager usato per usare il tipo di file.<br>
+<br>
+<p>I seguenti valori sono validi per la sezione <font class="code">&lt;CMD&gt;</font><br>
+</p>
+<div align="left">
+<ol>
+  <li><font class="code">SEND</font>
+ - Invia il file in modo statico senza nessun intervento del web server.</li>
+  <li><font class="code">RUNCGI</font>
+- Esegue lo script CGI specificato nella path. Usato da files tipo .php e .pl che necessitano un intervento esterno.</li>
+  <li><font class="code">RUNFASTCGI</font><span
+ style="color: rgb(0, 102, 0);"> </span>- Esegue il server FastCGI. Anche questo pu&ograve; essere usato con file come .php e .pl</li>
+  <li><font class="code">EXECUTEFASTCGI</font>
+- Anche questo esegue uno script FastCGI ma differentemente dal precedente questo viene eseguito come un server a s&egrave; stante.</li>
+  <li><font class="code">RUNMSCGI</font> - Esegue uno script MSCGI direttamente implementato nel web server. Usato per scrivere CGIs molto efficienti per MyServer.</li>
+  <li><font class="code">EXECUTE </font> - Il file &egrave; un file eseguibile. Viene eseguito attraverso CGI.</li>
+  <li><font class="code">SENDLINK</font>
+- Invia il file la cui path &egrave; contenuta all'interno di questo tipo di files.</li>
+  <li><font class="code">EXECUTEWINCGI</font>
+- Esegue come WinCGI</li>
+  <li><font class="code">RUNISAPI</font>
+- Esegue attraverso ISAPI.</li>
+  <li><font class="code">EXECUTEISAPI</font>
+- Esegue come un modulo ISAPI a s&egrave; stante.</li>
+</ol>
+</div>
+Molti tipi MIME sono gi&agrave; presenti nel file .xml file. Se vuoi aggiungerne altri puoi farlo semplicamente aggiungendone altri alla file del file come nell'esempio.<br>
+</body>
+</html>

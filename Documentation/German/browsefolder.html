@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Language" content="en-gb">
+  <base target="_self">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>BrowseFolder</title>
+</head>
+<body>
+<h1 align="center" class="title">ORDNERINHALTE DURCHSEHEN</h1>
+Wenn ein Client ein Verzeichnis vom Server anfordert und der Server die standard Datei nicht finden kann, sendet der Server eine &Uuml;bersicht mit dem Verzeichnisinhalt 
+and den Client. Dies erm&ouml;glicht dem Client den Ordner durch zu sehen und auf jede Datei in diesem Verzeichnis zu zu greifen.<br>
+<p style="text-align: center;"><img src="images/browsefolder.gif"
+ style="width: 420px; height: 276px;" title="" alt="Browse Folder"></p>
+<div style="text-align: center;"><small>&Uuml;bersicht des Verzeichnisinhalts</small><br>
+</div>
+<small><br>
+<br>
+</small>Wenn Sie ein Cascading Style Sheet (CSS) f&uuml;r die Verzeichnis Indexseite benutzen m&ouml;chten, k&ouml;nnen Sie die Datei <span
+ class="code">myserver.xml</span> editieren.<br>
+<br>
+</font>Finden Sie diese Zeile:
+<font  class="code">
+<br>
+&ltBROWSEFOLDER_CSS&gtsystem/folderstyle.css&lt/BROWSEFOLDER_CSS&gt
+</font>
+<br>
+<br>und ersetzen Sie <font  class="code">system/folderstyle.css</font> mit dem Namen Ihrer .css Datei.
+<p>Die Datei <font class="code">system/folderstyle.css</font> sieht standardm&auml;&szlig;ig so aus:</p>
+<p
+  class="code">body
+{ font-family: Arial; color: #000000;background-color:#FFFFFF }</p>
+<br>
+<br>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>CGI</title>
+</head>
+<body>
+<h1 class="title" align="center">CGI<br>
+</h1>
+CGI (Common Gateway Interface) ist der Standard, bei dem der Webserver
+Benutzerdaten an eine Applikation weiterleitet und dann Informationen
+an den Benutzer zur&uuml;ck gibt. CGI ist Skript abh&auml;ngig, die
+meistens in Skriptsprachen, wie <a href="php.html">PHP </a> oder <a
+ href="perl.html">Perl</a> geschrieben werden, um die Anfragen, die vom
+Benutzer angefordert werden verarbeitet zu k&ouml;nnen. Um auf ein CGI
+Skript zugreifen zu k&ouml;nnen, muss man im HTML Code auf den Namen
+der Applikation verweisen.<br>
+<br>
+Zum Beispiel, wenn man ein Formular erstellen m&ouml;chte, verweist man
+auf die URL im FORM tag:<br>
+<p class="code"> &lt;FORM METHOD=POST
+ACTION=www.myfiles.com/cgi-bin/myprog.pl&gt;</p>
+Hinweis: Jede Skriptsprache, die Ausgaben pipen (weiterleiten) kann,
+kann benutzt werden, obwohl man auch Skripte in Shell Script, Python,
+etc. benutzten kann. Sie brauchen nur<br>
+den korrekten MIME-Typ zu konfigurieren und Ihre
+Lieblings-Skriptsprache funktioniert auch in MyServer.<br>
+<br>
+Um eine &Uuml;bersicht &uuml;ber die CGI Skripte zu haben, kann man sie
+in das <span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">cgi-bin</span>
+Verzeichnis im <span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">web</span>
+Verzeichnis in MyServer ablegen:<br>
+<br>
+<br>
+<div style="text-align: center;"><img src="images/myfiles.gif" title=""
+ alt="Web folder"><br>
+</div>
+<div style="text-align: center;"><small>Das cgi-bin Verzeichnis ist
+direkt
+unter dem ausgew&auml;hlten web Verzeichnis.</small><br>
+</div>
+<br>
+<br>
+<br>
+<font size="-1">.</font><br>
+CGI Skripte k&ouml;nnen &uuml;berall abgelegt werden, solange man auf
+Sie im HTML Code verweist.<br>
+<br>
+CGI Skripte brauchen den Server um Informationen zu verarbeiten. Eine
+Alternative ist die Benutzung des <a href="ISAPI.html">ISAPI</a>
+Protokolls.<br>
+<br>
+<br>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Performance</title>
+</head>
+<body>
+<h1 class="title">PERFORMANCE TUNING<br>
+</h1>
+Here you can see a few options you can set to tune the performance of
+your webserver.<br>
+<br>
+<div style="margin-left: 40px;">
+<div style="text-align: left;">
+<div align="left"><span style="font-weight: bold;"><font class="code">Threads
+Tuning:<br>
+</font> <br>
+</span>In the myserver.xml file you can setup the amount of threads
+MyServer will use. In the lines below, you configure the two
+configurable parameters A and B, of the equation N=A+CB, where N is the
+number of threads to use, and C is the number of CPUs available in your
+machine:<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_A&gt;10&lt;/NTHREADS_A&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_B&gt;10&lt;/NTHREADS_B&gt;<br>
+By setting the proper value (default=10) in the variables above, you
+change the value of N.<br>
+<br>
+<br>
+<br>
+<span style="font-weight: bold;"><font class="code">Buffer Size:<br>
+</font> <br>
+</span>You can set&nbsp; the size of the Buffers used by MyServer, by
+setting the line below, in the myserver.xml file:<br>
+&nbsp;&nbsp;&nbsp; &lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br>
+Just change the default value 102400 to your desired number. Remember
+that, in fact, your Buffer will be twice the value you set here (in
+Bytes), multiplied by the number of running threads.<br>
+<br>
+<span style="font-weight: bold;"><br>
+<font class="code"> Connection Timeout:<br>
+</font> <br>
+</span>In myserver.xml, you can set the Timeout for client connections
+to your server, in the line below:<br>
+&nbsp;&nbsp;&nbsp;
+&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br>
+The time unit is seconds. So, in the line above, if your client doesn't
+access your site for more than 60 seconds, the connection will be
+closed. Or if you prefer, set this value to 0 and you won't have HTTP
+Keep-Alive Connections.<br>
+<br>
+<span style="font-weight: bold;"><br>
+<font class="code"> Max Connections:<br>
+</font> <br>
+</span>You can change the default maximum number of 
+connections your webserver will accept, by changing the line below in
+myserver.xml:<br>
+&nbsp;&nbsp;&nbsp; &lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br>
+The default value 0 means you will accept infinite connections. Any
+other value will limit how many users will be accessing your server.<br>
+<br>
+<br>
+<br>
+<br>
+</div>
+</div>
+<br>
+</div>
+</body>
+</html>
