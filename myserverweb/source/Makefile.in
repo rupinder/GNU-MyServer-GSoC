@@ -200,7 +200,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-myserver_SOURCES = threads.cpp processes.cpp protocol.cpp protocols_manager.cpp AMMimeUtils.cpp http_headers.cpp gzip.cpp MIME_manager.cpp winCGI.cpp cXMLParser.cpp cgi.cpp clientsThread.cpp cserver.cpp filemanager.cpp http.cpp httpmsg.cpp isapi.cpp lfind.cpp mscgi.cpp myserver.cpp security.cpp sockets.cpp stringutils.cpp utility.cpp vhosts.cpp fastCGI.cpp md5.cpp https.cpp securestr.cpp MemBuf.cpp
+myserver_SOURCES = threads.cpp processes.cpp protocol.cpp protocols_manager.cpp AMMimeUtils.cpp http_headers.cpp gzip.cpp MIME_manager.cpp winCGI.cpp cXMLParser.cpp cgi.cpp clientsThread.cpp cserver.cpp filemanager.cpp http.cpp httpmsg.cpp isapi.cpp lfind.cpp mscgi.cpp myserver.cpp security.cpp sockets.cpp stringutils.cpp utility.cpp vhosts.cpp fastCGI.cpp md5.cpp https.cpp securestr.cpp MemBuf.cpp 
 INCLUDES = $(all_includes)
 myserver_LDFLAGS = $(all_libraries)
 myserver_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
