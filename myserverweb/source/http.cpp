@@ -1351,7 +1351,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			else
 				putHTTPRESOURCE(&td,a,td.request.URI,0,1);
 		}
-		else
+		else	/*Return Method not implemented(501)*/
 		{
 			raiseHTTPError(&td,a,e_501);
 			retvalue=0;
@@ -1430,14 +1430,19 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	strncpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID],HTTP_RESPONSE_ERROR_TYPE_DIM);
-	char errorFile[MAX_PATH];
-	sprintf(errorFile,"%s/%s",((vhost*)(td->connection->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
-	if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
+	u_long lenErrorFile=strlen(((vhost*)(td->connection->host))->systemRoot)+strlen(HTTP_ERROR_HTMLS[ID])+2;
+	char *errorFile=(char*)malloc(lenErrorFile);
+	if(errorFile)
 	{
-		return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
+		sprintf(errorFile,"%s/%s",((vhost*)(td->connection->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
+		if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
+		{
+			return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
+		}
+		free(errorFile);
 	}
 	/*
-	*Send the error over the HTTP
+	*Send the error over the HTTP.
 	*/
 	sprintf(td->response.CONTENT_LENGTH,"%i",(u_long)strlen(HTTP_ERROR_MSGS[ID]));
 

@@ -80,8 +80,8 @@ void * startClientsTHREAD(void* pParam)
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
-	ct->buffer=new char[ct->buffersize];
-	ct->buffer2=new char[ct->buffersize2];
+	ct->buffer=(char*)malloc(ct->buffersize);
+	ct->buffer2=(char*)malloc(ct->buffersize2);
 	ct->initialized=1;
 
 	memset(ct->buffer, 0, ct->buffersize);
@@ -105,6 +105,7 @@ void * startClientsTHREAD(void* pParam)
 #endif
 	return 0;
 }
+
 /*!
 *This is the main loop of the thread.
 *Here are controlled all the connections that belongs to the ClientsTHREAD class instance.
@@ -112,23 +113,38 @@ void * startClientsTHREAD(void* pParam)
 */
 void ClientsTHREAD::controlConnections()
 {
+	lserver->connections_mutex_lock();
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
-	/*
+	/*!
 	*Check if c exists
 	*/
 	if(!c)
+	{
+		lserver->connections_mutex_unlock();
 		return;
-	/*
+	}
+	/*!
 	*Do not parse a connection that is going to be parsed by another thread
 	*/
 	if(c->parsing==1)
+	{
+		lserver->connections_mutex_unlock();
 		return;
-	/*
+	}
+	/*!
 	*Check if c is a valid connection structure
 	*/
 	if(c->check_value!=CONNECTION::check_value_const)
+	{
+		lserver->connections_mutex_unlock();
 		return;
+	}
 	c->parsing=1;
+	/*!
+	*Unlock connections list access after setting parsing flag.
+	*/
+	lserver->connections_mutex_unlock();	
+	
 	nBytesToRead=c->socket.bytesToRead();/*!Number of bytes waiting to be read*/
 	if(nBytesToRead || c->forceParsing)
 	{
@@ -217,6 +233,9 @@ void ClientsTHREAD::controlConnections()
 	}
 	else
 	{
+		/*!
+		*Reset nTries after 5 seconds.
+		*/
 		if(clock()-c->timeout>5000)
 			c->nTries=0;
 		/*!
@@ -229,8 +248,12 @@ void ClientsTHREAD::controlConnections()
 			return;
 		}
 	}
+	/*!
+	*Reset the parsing flag.
+	*/
 	c->parsing=0;
 }
+
 /*!
 *Stop the thread
 */
@@ -254,9 +277,9 @@ void ClientsTHREAD::clean()
 		return;
 	threadIsRunning=0;
 	if(buffer)
-		delete[] buffer;
+		free(buffer);
 	if(buffer2)
-		delete[] buffer2;
+		free(buffer2);
 	buffer=buffer2=0;
 	initialized=0;
 }

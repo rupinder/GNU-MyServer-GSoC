@@ -653,7 +653,7 @@ void cserver::terminate()
 	*Under WIN32 cleanup environment strings.
 	*/
 	FreeEnvironmentStrings((LPTSTR)envString);
-#endif	
+#endif
 	http::unloadProtocol(&languageParser);
 	https::unloadProtocol(&languageParser);
 	protocols.unloadProtocols(&languageParser);
@@ -778,7 +778,9 @@ void cserver::initialize(int /*!OSVer*/)
 	{
 		maxConnections=atoi(data);
 	}			
-	
+	/*!
+	*Load the server administrator e-mail.
+	*/	
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
 	{
@@ -862,8 +864,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 */
 LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
 {
-	c_mutex.myserver_mutex_lock();
-
+	connections_mutex_lock();
 	u_long cs=sizeof(CONNECTION);
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
@@ -937,8 +938,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	*/
 	if(maxConnections && (nConnections>maxConnections))
 		nc->toRemove=CONNECTION_REMOVE_OVERLOAD;
-	
-	c_mutex.myserver_mutex_unlock();
+	connections_mutex_unlock();
 	return nc;
 }
 
@@ -949,9 +949,11 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 {
 	if(!s)
 		return 0;
-
-	c_mutex.myserver_mutex_lock();
-
+	/*!
+	*Get the access to the  connections list.
+	*/
+	connections_mutex_lock();
+	
 	int ret=0,err;
 	/*!
 	*Remove the connection from the active connections list.
@@ -979,7 +981,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	}
 
 	nConnections--;
-	c_mutex.myserver_mutex_unlock();
+	connections_mutex_unlock();
 	
 	/*!
 	*Close the socket communication.
@@ -998,13 +1000,16 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	return ret;
 }
 /*!
-*Get a connection to parse.
+*Get a connection to parse. Be sure to have the connections access for the caller thread before use this.
+*Using this without the right permissions can cause wrong data returned to the client.
 */
 LPCONNECTION cserver::getConnectionToParse(int id)
 {
+	/*
+	*Do nothing if there are not connections.
+	*/
 	if(connections==0)
 		return 0;
-	c_mutex.myserver_mutex_lock();
 
 	if(connectionToParse)
 	{
@@ -1014,14 +1019,13 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 		else
 			connectionToParse=connectionToParse->next;
 	}
-	if(!connectionToParse)
-	{/*!Restart loop if the connectionToParse points to the last element*/
+	else
+	{
 		connectionToParse=connections;
 	}
 	if(connectionToParse==0)
 		connectionToParse=connections;
 
-	c_mutex.myserver_mutex_unlock();
 
 	return connectionToParse;
 }
@@ -1052,7 +1056,7 @@ void cserver::clearAllConnections()
 */
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 {
-	c_mutex.myserver_mutex_lock();
+	connections_mutex_lock();
 
 	LPCONNECTION c;
 	for(c=connections;c;c=c->next )
@@ -1060,13 +1064,13 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 		if(c->socket==a)
 			return c;
 	}
-	c_mutex.myserver_mutex_unlock();
+	connections_mutex_unlock();
 
 	return NULL;
 }
 
 /*!
-*Returns the full path of the binaries folder.
+*Returns the full path of the binaries folder. The folder where the file myserver(.exe) is.
 */
 char *cserver::getPath()
 {
@@ -1107,4 +1111,22 @@ char *cserver::getAddresses()
 dynamic_protocol* cserver::getDynProtocol(char *protocolName)
 {
 	return protocols.getDynProtocol(protocolName);
+}
+
+/*!
+*Lock connections list access to the caller thread.
+*/
+int cserver::connections_mutex_lock()
+{
+	c_mutex.myserver_mutex_lock();
+	return 1;
+}
+
+/*!
+*Unlock connections list access.
+*/
+int cserver::connections_mutex_unlock()
+{
+	c_mutex.myserver_mutex_unlock();
+	return 1;
 }

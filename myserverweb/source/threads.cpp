@@ -57,7 +57,7 @@ void wait(u_long time)
 /*!
 *Initialize a mutex.
 */
-int	myserver_mutex::myserver_mutex_init()
+int myserver_mutex::myserver_mutex_init()
 {
 #ifdef HAVE_PTHREAD
 	pthread_mutex_init(&mutex, NULL);
@@ -91,7 +91,7 @@ int myserver_mutex::myserver_mutex_lock(u_long id)
 #else	
 	WaitForSingleObject(mutex,INFINITE);
 #endif
-	return 0;
+	return 1;
 }
 /*!
 *Unlock the mutex access.
@@ -103,5 +103,5 @@ int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 #else		
 	ReleaseMutex(mutex);
 #endif
-	return 0;
+	return 1;
 }

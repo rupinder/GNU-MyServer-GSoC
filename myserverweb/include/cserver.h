@@ -87,7 +87,7 @@ private:
 	u_long getNumConnections();
 	void initialize(int);
 	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int);
-    u_long nConnections;
+    	u_long nConnections;
 	u_long maxConnections;
 	void clearAllConnections();
 	int deleteConnection(LPCONNECTION,int);
@@ -103,6 +103,8 @@ public:
 	~cserver();
 	dynamic_protocol* getDynProtocol(char *protocolName);
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
+	int connections_mutex_lock();
+	int connections_mutex_unlock();
 	LPCONNECTION getConnectionToParse(int);
 	LPCONNECTION findConnection(MYSERVER_SOCKET);
 	u_long getTimeout();
