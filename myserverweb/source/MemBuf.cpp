@@ -276,7 +276,7 @@ void CMemBuf::SetLength(u_int newSize)
 
 // Static conversion functions
 
-CMemBuf& CMemBuf::Hex(const void* pAdr, u_int nSize)
+CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 {
 	CMemBuf hexFinal;
 	hexFinal.m_bCanDelete = 0;
@@ -293,7 +293,7 @@ CMemBuf& CMemBuf::Hex(const void* pAdr, u_int nSize)
 	return hexFinal;
 }
 
-CMemBuf& CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
+CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 {
 	CMemBuf mem_MD5;
 	mem_MD5.m_bCanDelete = 0;
@@ -379,7 +379,7 @@ u_int  CMemBuf::crc32Table[256] =
 	0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 };
 		 
-CMemBuf& CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
+CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 {
 	CMemBuf membuf;
 	membuf.m_bCanDelete = 0;
@@ -396,7 +396,7 @@ CMemBuf& CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 	return membuf;
 }
 
-CMemBuf& CMemBuf::XIntToStr(u_int i, int bNegative)
+CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 {
 	CMemBuf strFinal;
 	strFinal.m_bCanDelete = 0;
@@ -570,11 +570,11 @@ CMemBuf& CMemBuf::operator=(const char* src)
 	return* this;
 }
 	
-CMemBuf& CMemBuf::u_intToStr(u_int i) 
+CMemBuf CMemBuf::u_intToStr(u_int i) 
 {
 	return XIntToStr(i, 0);
 }
-CMemBuf& CMemBuf::IntToStr(int i) 
+CMemBuf CMemBuf::IntToStr(int i) 
 {
 	if (i < 0) 
 		return XIntToStr((u_int)(-i), 1); 
@@ -582,15 +582,15 @@ CMemBuf& CMemBuf::IntToStr(int i)
 		return XIntToStr((u_int) i, 0);
 }
 
-CMemBuf& CMemBuf::Hex(CMemBuf& membuf)
+CMemBuf CMemBuf::Hex(CMemBuf& membuf)
 {
 	return Hex(membuf.m_buffer, membuf.m_nSize);
 }
-CMemBuf& CMemBuf::Hash_MD5(CMemBuf& membuf) 
+CMemBuf CMemBuf::Hash_MD5(CMemBuf& membuf) 
 {
 	return Hash_MD5(membuf.m_buffer, membuf.m_nSize);
 }
-CMemBuf& CMemBuf::Hash_CRC(CMemBuf& membuf) 
+CMemBuf CMemBuf::Hash_CRC(CMemBuf& membuf) 
 {
 	return Hash_CRC(membuf.m_buffer, membuf.m_nSize);
 }

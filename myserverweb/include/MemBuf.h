@@ -103,17 +103,17 @@ public:
 	u_int m_nBlockLength; // Minimun size of new allocated blocks during addings
 						 // We assume that m_nBlockLength < m_nSizeLimit
 public: // Static conversion functions (hex, CRC...)
-	static CMemBuf& Hash_MD5(const void* pAdr, u_int nSize);
-	static CMemBuf& Hash_CRC(const void* pAdr, u_int nSize);
-	static CMemBuf& Hex(const void* pAdr, u_int nSize);
-	static CMemBuf& u_intToStr(u_int i);
-	static CMemBuf& IntToStr(int i);
+	static CMemBuf Hash_MD5(const void* pAdr, u_int nSize);
+	static CMemBuf Hash_CRC(const void* pAdr, u_int nSize);
+	static CMemBuf Hex(const void* pAdr, u_int nSize);
+	static CMemBuf u_intToStr(u_int i);
+	static CMemBuf IntToStr(int i);
 
-	static CMemBuf& Hex(CMemBuf& membuf) ;
-	static CMemBuf& Hash_MD5(CMemBuf& membuf);
-	static CMemBuf& Hash_CRC(CMemBuf& membuf);
+	static CMemBuf Hex(CMemBuf& membuf) ;
+	static CMemBuf Hash_MD5(CMemBuf& membuf);
+	static CMemBuf Hash_CRC(CMemBuf& membuf);
 protected:
-	static CMemBuf& XIntToStr(u_int i, int bNegative);
+	static CMemBuf XIntToStr(u_int i, int bNegative);
 	void AllocBuffer(u_int size);
 	char* m_buffer; // Using of char* instead of void* because the C++ Compilator doesn't know the size of a void* !!!!!
 	u_int m_nSize;
