@@ -93,7 +93,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	td->buffer2[0]='\0';
 	_finddata_t fd;
-	sprintf(td->buffer2,"<HTML>\r\n<HEAD>\r\n<TITLE>%s</TITLE>\r\n</HEAD>\r\n",td->request.URI);
+	sprintf(td->buffer2,"<HTML>\r\n<HEAD>\r\n<TITLE>%s</TITLE>\r\n<\HEAD>\r\n",td->request.URI);
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	/*
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
@@ -107,11 +107,13 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		{
 			u_long nbr;
 			cssHandle.readFromFile(td->buffer,td->buffersize,&nbr);
-			strcpy(td->buffer2,"<STYLE>\r\n<!--");
-			strcat(td->buffer2,td->buffer);
-			strcat(td->buffer2,"-->\r\n</STYLE>\r\n");
-			cssHandle.closeFile();
+			strcpy(td->buffer2,"<STYLE>\r\n<!--\r\n");
 			outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
+			outFile.writeToFile(td->buffer,(u_long)nbr,&nbw);
+			strcpy(td->buffer2,"-->\r\n</STYLE>\r\n");
+			outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
+			cssHandle.closeFile();
+
 		}
 	}
 
@@ -121,11 +123,11 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 #ifdef __linux__
 	sprintf(filename,"%s/",folder);
 #endif
-	strcpy(td->buffer2,"\r\n<BODY>\r\n");
+	strcpy(td->buffer2,"\r\n<BODY><H1>\r\n");
 	strcat(td->buffer2,msgFolderContents);
 	strcat(td->buffer2," ");
 	strcat(td->buffer2,&td->request.URI[startchar]);
-	strcat(td->buffer2,"\r\n<P>\r\n<HR>\r\n");
+	strcat(td->buffer2,"</H1>\r\n<P>\r\n<HR>\r\n");
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	intptr_t ff;
 	ff=_findfirst(filename,&fd);
@@ -196,7 +198,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	strcat(td->buffer2,msgRunOn);
 	strcat(td->buffer2," MyServer ");
 	strcat(td->buffer2,versionOfSoftware);
-	strcat(td->buffer2,"\r\n</BODY>\r\n</HTML>\r\n");
+	strcat(td->buffer2,"</ADDRESS>\r\n</BODY>\r\n</HTML>\r\n");
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	_findclose(ff);
 	/*
