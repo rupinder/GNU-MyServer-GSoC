@@ -17,6 +17,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "control.h"
 int status;
+/*The wxIcon class is not yet supported with the GTK library so do not use it when use GTK*/
+#ifndef __WXGTK__
+#define USE_ICON
+#endif
 #ifdef WIN32
 DWORD WINAPI consoleWatchDogThread(LPVOID);
 HANDLE consoleModeWatchDog;
@@ -76,7 +80,7 @@ enum
 */
 mainFrame *lmainFrame;
 
-#ifndef __WXGTK__
+#ifdef USE_ICON
 BEGIN_EVENT_TABLE(taskBarIcon, wxTaskBarIcon)
     EVT_MENU(PU_RESTORE, taskBarIcon::OnMenuRestore)
     EVT_MENU(PU_EXIT,    taskBarIcon::OnMenuExit)
@@ -127,12 +131,12 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
        : wxFrame(NULL, -1, title, pos, size, style)
 {
 	lmainFrame=this;/*Unique instance of this class*/
-    wxIcon icon(_T("myserver.ico"),wxBITMAP_TYPE_ICO);
-    SetIcon(icon);
 	char version[50];
 	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
-#ifndef __WXGTK__
-    m_taskBarIcon.SetIcon(icon, version);
+#ifdef USE_ICON
+    wxIcon icon(_T("myserver.ico"),wxBITMAP_TYPE_ICO);
+    SetIcon(icon);
+	m_taskBarIcon.SetIcon(icon, version);
 #endif
 #if wxUSE_MENUS
     menuFile = new wxMenu;
@@ -416,7 +420,7 @@ void mainFrame::stopConsole(wxCommandEvent& event)
 
 
 
-#ifndef __WXGTK__
+#ifdef USE_ICON
 /*
 *Functions to handle the taskbar icon
 */

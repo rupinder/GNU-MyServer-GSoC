@@ -117,7 +117,12 @@ void configurationFrame::initNotebook()
 	languageFile = new wxComboBox(pPage[0],-1,_T(confparser.getValue("LANGUAGE")),wxPoint(10,220),wxSize(75,20),0,0,wxCB_DROPDOWN|wxCB_READONLY);
 	_finddata_t fd;
 	intptr_t ff;
-	ff=_findfirst("languages/*.xml",&fd);
+
+#ifdef WIN32
+      ff=_findfirst("languages/*.xml" ,&fd);
+#else
+        ff=_findfirst("languages" ,&fd);
+ #endif
 	n=0;
 	int c=0;
 	do
@@ -127,18 +132,18 @@ void configurationFrame::initNotebook()
 		if(fd.name[0]=='.')
 			continue;
 		MYSERVER_FILE::splitPath(fd.name,dir,filename);
-        languageFile->Append(_T(filename));
+                            languageFile->Append(_T(filename));
 		if(!strcmp(confparser.getValue("LANGUAGE"),filename))
 			n=c;
 		else c++;
 	}while(!_findnext(ff,&fd));
-	languageFile->SetSelection(n);
+        languageFile->SetSelection(n);
     wxStaticText *languageFileStat= new wxStaticText(pPage[0], -1, "Set the language used by MyServer",wxPoint(85,222), wxSize(250,20));
 
 	/*-------------------------SECOND PAGE-------------------------------------------*/
 	adminEmail = new wxTextCtrl(pPage[1],-1,confparser.getValue("SERVER_ADMIN"),wxPoint(10,10),wxSize(150,20));
     wxStaticText *adminEmailStat= new wxStaticText(pPage[1], -1, "Set the administrator e-mail",wxPoint(160,12), wxSize(250,20));
-	
+
 	m_notebook->AddPage(pPage[0],_T("Server configuration"));
 	m_notebook->AddPage(pPage[1],_T("Administrator"));
 

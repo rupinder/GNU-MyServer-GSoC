@@ -4,8 +4,8 @@ OBJS = AMMimeUtils.o MIME_manager.o winCGI.o cXMLParser.o cgi.o clientsThread.o 
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
-CPP-LIBS = -pthread `xml2-config --libs`
-CPP-FLAGS = `xml2-config --cflags`
+CPP-LIBS = -pthread `/usr/local/bin/xml2-config --libs`
+CPP-FLAGS = `/usr/local/bin/xml2-config --cflags`
 #-O2 -pipe
 
 all : myserver
@@ -80,6 +80,7 @@ release :
 	rm -f *.o
 
 #install : all
+
 
 
 
