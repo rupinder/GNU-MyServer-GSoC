@@ -196,7 +196,10 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 			ret=TRUE;
 			break;
 		}
-		prev=i;
+		else
+		{
+			prev=i;
+		}
 	}
 	nConnections--;
 	terminateAccess(&connectionWriteAccess,this->id);
@@ -211,7 +214,7 @@ void ClientsTHREAD::clearAllConnections()
 
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
-	for(;c;c=c->Next)
+	for(;connections && c;c=c->Next)
 	{
 		deleteConnection(c);
 	}
