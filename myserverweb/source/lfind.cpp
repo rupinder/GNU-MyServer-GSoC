@@ -77,6 +77,8 @@ int _finddata_t::findnext()
    stat(TempName, &F_Stats);
    if(S_ISDIR(F_Stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
+   else
+     attrib = 0;
    time_write = F_Stats.st_mtime;
    size = F_Stats.st_size;
    
