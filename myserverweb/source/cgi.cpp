@@ -482,7 +482,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       }
 
       /*! Do not put the HTTP header if appending. */
-			td->outputData.writeToFile(td->buffer2->GetBuffer()+headerSize, nBytesRead-headerSize, &nbw);
+			td->outputData.writeToFile(td->buffer2->GetBuffer()+headerSize, 
+                                 nBytesRead-headerSize, &nbw);
     }
     do
     {
