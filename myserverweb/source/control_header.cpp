@@ -236,7 +236,7 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
       if(!strncmp(field, "/AUTH ", 6))
       {
         offset += 6;
-        int len = getCharInString(offset, "\:", 64);
+        int len = getCharInString(offset, ":", 64);
         if(len == -1)
           return CONTROL_MALFORMED;
         myserver_strlcpy(authLogin, offset, min(len + 1, 64));
