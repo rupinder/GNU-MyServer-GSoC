@@ -284,7 +284,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	{
 		lastByte=min((u_long)lastByte,bytesToSend);
 	}
-
+	uint keepalive = lstrcmpi(td->request.CONNECTION,"Keep-Alive")==0;
 	/*
 	*Be sure that client accept GZIP compressed data.
 	*/
@@ -297,6 +297,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	*/
 	useGZIP=0;
 #endif	
+
 	/*!
 	*bytesToSend is the interval between the first and the last byte.
 	*/
@@ -315,12 +316,15 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	/*!If a Range was requested send 206 and not 200 for success*/
 	if((lastByte == -1)|(firstByte))
 		td->response.httpStatus = 206;
-	
-	sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
+	if(keepalive)
+		sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
+	else
+		strcpy(td->response.CONNECTION,"Close");
 	
 	if(useGZIP)
 	{
-		strcpy(td->response.TRANSFER_ENCODING,"chunked");
+		if(keepalive)/*Do not use chunked transfer with old 1.0 clients*/
+			strcpy(td->response.TRANSFER_ENCODING,"chunked");
 		strcpy(td->response.CONTENT_ENCODING,"gzip");
 	}
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
@@ -395,13 +399,17 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		if(useGZIP)
 		{
 			char chunksize[12];
-			sprintf(chunksize,"%x\r\n",gzip_dataused);
-			if(s->socket.send(chunksize,(int)strlen(chunksize), 0) == SOCKET_ERROR)
-				break;
+			if(keepalive)
+			{
+				sprintf(chunksize,"%x\r\n",gzip_dataused);
+				if(s->socket.send(chunksize,(int)strlen(chunksize), 0) == SOCKET_ERROR)
+					break;
+			}
 			if(gzip_dataused)
 				if(s->socket.send(td->buffer,gzip_dataused, 0) == SOCKET_ERROR)
 					break;
-			s->socket.send("\r\n",2, 0);
+			if(keepalive)
+				s->socket.send("\r\n",2, 0);
 		}
 		else
 		{
@@ -419,13 +427,14 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		*/
 		if((nbr==0) || (gzip_dataused==GZIP_FOOTER_LENGTH))
 		{
-			s->socket.send("0\r\n\r\n",5, 0);
+			if(keepalive)
+				s->socket.send("0\r\n\r\n",5, 0);
 			break;
 		}
 	}
 
 	h.closeFile();
-	return 1;
+	return keepalive;
 
 }
 /*!
@@ -435,8 +444,12 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 {
 	int httpStatus=td->response.httpStatus;
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);
+	uint keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+	{
 		strcpy(td->response.CONNECTION,"Keep-Alive");
+		keepalive=1;
+	}
 	td->response.httpStatus=httpStatus;
 	/*!
 	*td->filenamePath is the file system mapped path while filename is the URI requested.
@@ -532,7 +545,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 		}
 		file.closeFile();
 		raiseHTTPError(td,s,e_200);/*!Successful updated*/
-		return 1;
+		return keepalive;
 	}
 	else
 	{
@@ -570,7 +583,9 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 	int httpStatus=td->response.httpStatus;
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+	{
 		strcpy(td->response.CONNECTION,"Keep-Alive");
+	}
 	td->response.httpStatus=httpStatus;
 	/*!
 	*td->filenamePath is the file system mapped path while filename is the URI requested.
@@ -604,7 +619,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 	{
 		s->protocolBuffer=malloc(sizeof(http_user_data));
 		if(!s->protocolBuffer)
-			return 0;		
+			return 0;
 		resetHTTPUserData((http_user_data*)(s->protocolBuffer));
 	}
 	int permissions2=0;
@@ -733,8 +748,12 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		http_headers::buildDefaultHTTPResponseHeader(&td->response);
 		td->response.httpStatus=httpStatus;
 	}
+	uint keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+	{
 		strcpy(td->response.CONNECTION,"Keep-Alive");
+		keepalive=1;
+	}
 	static char ext[10];
 	static char data[MAX_PATH];
 	/*!
@@ -772,7 +791,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			s->protocolBuffer=malloc(sizeof(http_user_data));
 			if(!s->protocolBuffer)
-				return 0;			
+				return 0;
 			resetHTTPUserData((http_user_data*)(s->protocolBuffer));
 		}
 		int permissions2=0;
@@ -916,14 +935,14 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 				}
 
 				if(sendHTTPRedirect(td,s,nURL))
-					return 1;
+					return keepalive;
 				else
 					return 0;
 			}
 		}
 
 		if(sendHTTPDIRECTORY(td,s,td->filenamePath))
-			return 1;	
+			return keepalive;
 		return raiseHTTPError(td,s,e_404);
 	}
 
@@ -1007,7 +1026,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			td->inputData.closeFile();
 			MYSERVER_FILE::deleteFile(td->inputDataPath);
 		}
-		return ret;
+		return (ret&keepalive);
 
 	}
 	else if(mimeCMD==CGI_CMD_RUNFASTCGI)
@@ -1027,7 +1046,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			td->inputData.closeFile();
 			MYSERVER_FILE::deleteFile(td->inputDataPath);
 		}
-		return ret;
+		return (ret&keepalive);
 	}
 	else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
 	{
@@ -1046,7 +1065,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			td->inputData.closeFile();
 			MYSERVER_FILE::deleteFile(td->inputDataPath);
 		}
-		return ret;
+		return (ret&keepalive);
 	}
 	else if(mimeCMD==CGI_CMD_SENDLINK)
 	{
@@ -1086,7 +1105,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			return sendHTTPNonModified(td,s);
 	}
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
-		return 1;
+		return keepalive;
 	return sendHTTPhardError500(td,s);
 	
 }
@@ -1213,8 +1232,14 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		logHTTPaccess(&td,a);
 		return retvalue;
 	}
+	/*Do not use Keep-Alive over HTTP version older than 1.1*/
+	if(!strcmp(td.request.VER,"HTTP/1.1"))
+	{
+		if(td.request.CONNECTION[0])
+		strcpy(td.request.CONNECTION,"Close");
+	}
+		
 	u_long content_len=0;/*!POST data size if any*/
-	
 	
 	/*!
 	*For methods that accept data after the HTTP header set the correct pointer and create a file
@@ -1560,8 +1585,12 @@ void http::computeDigest(httpThreadContext* td,char* out ,char* buffer)
 int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	http_headers::buildDefaultHTTPResponseHeader(&(td->response));
+	uint keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+	{
 		strcpy(td->response.CONNECTION,"Keep-Alive");
+		keepalive=1;
+	}
 	if(ID==e_401AUTH)
 	{
 		td->response.httpStatus = 401;
@@ -1610,7 +1639,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 		strcat(td->buffer2,"\r\n\r\n");
 		a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
-		return 1;
+		return keepalive;
 	}
 	else
 	{
@@ -1662,7 +1691,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 	a->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
 
-	return 1;
+	return keepalive;
 }
 /*!
 *Send a hard wired 500 error when we have a system error
@@ -1736,11 +1765,11 @@ int http::sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
 	td->response.httpStatus=302;
 	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
-	int ret=0;
+	int keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcat(td->buffer2,"Connection: Keep-Alive\r\n");	
-		ret = 1;
+		keepalive = 1;
 	}
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
@@ -1748,7 +1777,7 @@ int http::sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 
 	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
 
-	return ret;
+	return keepalive;
 }
 /*!
 *Send a non-modified message to the client.
@@ -1757,18 +1786,18 @@ int http::sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
 	td->response.httpStatus=304;
 	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\n",versionOfSoftware);
-	int ret=0;
+	int keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcat(td->buffer2,"Connection: Keep-Alive\r\n");	
-		ret = 1;
+		keepalive = 1;
 	}	
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
 	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
-	return ret;
+	return keepalive;
 }
 
 /*!
