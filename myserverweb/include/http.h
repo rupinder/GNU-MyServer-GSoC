@@ -26,7 +26,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/fastCGI.h"
 #include "../include/mscgi.h"
 #include "../include/isapi.h"
+#include "../include/security_cache.h"
 #include "../include/cXMLParser.h"
+#include "../include/threads.h"
 
 /*!
  *Data used only by an HTTP user.
@@ -58,6 +60,8 @@ public:
 class http : public protocol
 {
 private:
+  static  myserver_mutex sec_cache_mutex;
+  static security_cache sec_cache;
 	static int initialized;
 	/*! Store if the MSCGI library was loaded.  */
 	static int mscgiLoaded;

@@ -42,6 +42,7 @@ public:
 	static int startXML();
 	static int cleanXML();
 	cXMLParser();
+	~cXMLParser();
 	xmlDocPtr getDoc();
 	int open(char* filename);
 	int openMemBuf(CMemBuf &);

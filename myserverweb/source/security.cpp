@@ -41,25 +41,34 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *Return other valus on success, please note to free
  *out after its use.
  */
-int getErrorFileName(char *root,int error,char** out)
+int getErrorFileName(char *root,int error,char** out, cXMLParser* parser)
 {
 	char *permissionsFile;
   *out = 0;
-  int permissionsFileLen = strlen(root) + 10;
-  permissionsFile = new char[permissionsFileLen];
-  if(permissionsFile==0)
-    return 0;
-	sprintf(permissionsFile,"%s/security",root);
-	if(!MYSERVER_FILE::fileExists(permissionsFile))
-	{
+  int permissionsFileLen;
+	cXMLParser local_parser;  
+  xmlDocPtr doc;
+  if(parser == 0)
+  { 
+    permissionsFileLen = strlen(root) + 10;
+    permissionsFile = new char[permissionsFileLen];
+    if(permissionsFile==0)
+      return 0;
+    sprintf(permissionsFile,"%s/security",root);
+    if(!MYSERVER_FILE::fileExists(permissionsFile))
+    {
+      delete [] permissionsFile;
+      return 0;
+    }
+    if(local_parser.open(permissionsFile)== -1 )
+      return -1;
     delete [] permissionsFile;
-		return 0;
-	}
-	cXMLParser parser;
-	if(parser.open(permissionsFile)== -1 )
-    return -1;
-  delete [] permissionsFile;
-	xmlDocPtr doc=parser.getDoc();
+    doc=local_parser.getDoc();
+  }
+  else
+  {
+    doc=parser->getDoc();
+  }
 	xmlNode *node=doc->children->children;
 	int found=0;
 	while(node)
@@ -76,7 +85,10 @@ int getErrorFileName(char *root,int error,char** out)
           *out = new char[strlen((const char*)attr->children->content)+1];
           if(*out == 0)
           {
-            parser.close();
+            if(parser == 0)
+            {
+              local_parser.close();
+            }
             return -1;
           }
 					strcpy(*out,(const char*)attr->children->content);
@@ -94,12 +106,20 @@ int getErrorFileName(char *root,int error,char** out)
 		}
 		node=node->next;
 	}
-	parser.close();
+  if(parser== 0)
+    local_parser.close();
 	return found;
 }
-int getPermissionMask(char* user, char* password,char* folder,
-                      char* filename,char *sysfolder, char *password2,
-                      char* auth_type,int len_auth,int *permission2)
+
+/*!
+ *Get the permissions mask for the file[filename]. The file [directory]/security will
+ *be parsed. If a [parser] is specified, it will be used instead of opening 
+ *the security file.
+ */
+int getPermissionMask(char* user, char* password,char* directory,
+                      char* filename,char *sysdirectory, char *password2,
+                      char* auth_type,int len_auth,int *permission2, 
+                      cXMLParser* parser)
 {
 	char *permissionsFile;
 	char tempPassword[32];
@@ -107,41 +127,56 @@ int getPermissionMask(char* user, char* password,char* folder,
 	tempPassword[0]='\0';
 	if(auth_type)
 		auth_type[0]='\0';
-  int permissionsFileLen = strlen(folder)+10;
-  permissionsFile = new char[permissionsFileLen];
-  if(permissionsFile == 0)
-    return 0;
-	sprintf(permissionsFile,"%s/security",folder);
-
-	u_long filenamelen=(u_long)(strlen(filename));
-	while(filenamelen && filename[filenamelen]=='.')
-	{
-		filename[filenamelen--]='\0';
-	}
-	if(!MYSERVER_FILE::fileExists(permissionsFile))
-	{
-		/*!
-     *If the security file doesn't exist try with a default one.
-     */
-		if(sysfolder!=0)
-			ret = getPermissionMask(user, password, sysfolder, filename, 0);
-		else
-		/*!
-     *If the default one doesn't exist too send full permissions for everyone
-     */
-			ret = 0;
-    delete [] permissionsFile;
-    return ret;
-	}
-	cXMLParser parser;
-	if(parser.open(permissionsFile)==-1)
+  int permissionsFileLen;
+	cXMLParser local_parser;
+  xmlDocPtr doc;
+  if(parser == 0)
   {
-    delete [] permissionsFile;
-		return 0;
+    permissionsFileLen = strlen(directory)+10;
+    permissionsFile = new char[permissionsFileLen];
+    if(permissionsFile == 0)
+      return 0;
+    sprintf(permissionsFile,"%s/security",directory);
+
+    u_long filenamelen=(u_long)(strlen(filename));
+    while(filenamelen && filename[filenamelen]=='.')
+    {
+      filename[filenamelen--]='\0';
+    }
+    if(!MYSERVER_FILE::fileExists(permissionsFile))
+    {
+      /*!
+       *If the security file doesn't exist try with a default one.
+       */
+      if(sysdirectory!=0)
+        ret = getPermissionMask(user, password, sysdirectory, filename, 0, password2,
+                                auth_type,len_auth,permission2, parser);
+      else
+      {
+        /*!
+         *If the default one doesn't exist too send 0 permissions for everyone.
+         */
+        ret = 0;
+      }
+      delete [] permissionsFile;
+      return ret;
+    }
+    else
+    {
+      if(local_parser.open(permissionsFile)==-1)
+      {
+        delete [] permissionsFile;
+        return 0;
+      }
+      delete [] permissionsFile;
+      doc=local_parser.getDoc();
+    }
+  }
+  else
+  {
+    doc=parser->getDoc();
   }
 
-  delete [] permissionsFile;
-	xmlDocPtr doc=parser.getDoc();
 	if(!doc)
 		return 0;
 	xmlNode *node=doc->children->children;
@@ -342,7 +377,10 @@ int getPermissionMask(char* user, char* password,char* folder,
 		node=node->next;
 	}
 
-	parser.close();
+  if(parser == 0)
+  {
+    local_parser.close();
+  }
 	if(permission2)
 	{
 		*permission2=0;
@@ -370,7 +408,6 @@ int getPermissionMask(char* user, char* password,char* folder,
 
 	if(genericPermissionsFound==1)
 		return genericPermissions;
-		
 		
 	return 0;
 }

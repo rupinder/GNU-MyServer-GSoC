@@ -83,9 +83,14 @@ int cXMLParser::open(char* filename)
 	if(!MYSERVER_FILE::fileExists(filename))
 		return -1;
 	if(doc==0)
+  {
 		doc = xmlParseFile(filename);
+  }
 	else
+  {
 		close();
+		doc = xmlParseFile(filename);
+  }
 	if(!doc)
 		return -1;
 	cur = xmlDocGetRootElement(doc);
@@ -125,10 +130,17 @@ int cXMLParser::openMemBuf(CMemBuf & memory)
  */
 cXMLParser::cXMLParser()
 {
-	doc=0;
-	cur=0;
-	prev_cur=0;
-	last_node=0;
+  doc = 0;
+	cur = 0;
+	prev_cur = 0;
+	last_node = 0;
+}
+/*!
+ *Destroy the cXMLParser object.
+ */
+cXMLParser::~cXMLParser()
+{
+	close();
 }
 /*!
  *Return the xml Document.
@@ -221,7 +233,8 @@ char *cXMLParser::getAttr(char* field,char *attr)
  */
 int cXMLParser::close()
 {
-	xmlFreeDoc(doc);
+  if(doc)
+    xmlFreeDoc(doc);
 	doc=0;
 	cur=0;
 	prev_cur=0;
@@ -254,8 +267,8 @@ int cXMLParser::saveMemBuf(CMemBuf & memory,int *nbytes)
   xmlOutputBufferPtr callback;
   callback = xmlOutputBufferCreateIO(MemBufWriteCallback,
                                      MemBufCloseCallback,
-				     (void *)&memory,
-				     NULL);
+                                     (void *)&memory,
+                                     NULL);
   
   /* clear out the buffer */
   memory.Free(); 

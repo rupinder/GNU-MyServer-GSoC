@@ -88,6 +88,12 @@ int http::cgi_timeout=SEC(15);
 /*! Max number of FastCGI servers allowed to run. */
 int http::fastcgi_servers;
 
+/*! Cache for security files. */
+security_cache http::sec_cache;
+
+/*! Access the security cache safely. */
+myserver_mutex http::sec_cache_mutex;
+
 /*!
  *Browse a folder printing its contents in an HTML file.
  */
@@ -863,15 +869,23 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	int permissions2=0;
 	char auth_type[16];	
 	if(td->request.AUTH[0])
-		permissions=getPermissionMask(s->getLogin(), s->getPassword(), folder, filename, 
-                                  ((vhost*)(s->host))->systemRoot, 
+  {
+    sec_cache_mutex.myserver_mutex_lock();
+		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), folder, 
+                                            filename, ((vhost*)(s->host))->systemRoot, 
                                   ((http_user_data*)s->protocolBuffer)->needed_password
                                   , auth_type, 16, &permissions2);
+    sec_cache_mutex.myserver_mutex_unlock();  
+  }
 	else/*!The default user is Guest with a null password*/
-		permissions=getPermissionMask("Guest", "", folder, filename, 
+  {
+    sec_cache_mutex.myserver_mutex_lock();
+		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
                                   ((vhost*)(s->host))->systemRoot, 
                                   ((http_user_data*)s->protocolBuffer)->needed_password
                                   , auth_type, 16);
+    sec_cache_mutex.myserver_mutex_unlock();
+  }
 
 	/*! Check if we have to use digest for the current directory.  */
 	if(!lstrcmpi(auth_type, "Digest"))
@@ -897,10 +911,14 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	}	
 	/*! If there are no permissions, use the Guest permissions.  */
 	if(td->request.AUTH[0] && (permissions==0))
-		permissions=getPermissionMask("Guest", "", folder, filename, 
-                ((vhost*)(s->host))->systemRoot, 
-                ((http_user_data*)s->protocolBuffer)->needed_password, 
-                                  auth_type, 16);		
+  {
+    sec_cache_mutex.myserver_mutex_lock();
+		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
+                                            ((vhost*)(s->host))->systemRoot, 
+                         ((http_user_data*)s->protocolBuffer)->needed_password, 
+                                            auth_type, 16);		
+    sec_cache_mutex.myserver_mutex_unlock();
+  }
   delete [] folder;
 
 	if(!(permissions & MYSERVER_PERMISSION_WRITE))
@@ -1102,16 +1120,23 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	char auth_type[16];
 	
 	if(td->request.AUTH[0])
-		permissions=getPermissionMask(s->getLogin(), s->getPassword(), folder, filename, 
-                                  ((vhost*)(s->host))->systemRoot, 
+  {
+    sec_cache_mutex.myserver_mutex_lock();
+		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), folder, 
+                                            filename,((vhost*)(s->host))->systemRoot, 
                                   ((http_user_data*)s->protocolBuffer)->needed_password
                                   , auth_type, 16, &permissions2);
+    sec_cache_mutex.myserver_mutex_unlock();
+  }
 	else/*!The default user is Guest with a null password*/
-		permissions=getPermissionMask("Guest", "", folder, filename, 
+  {
+    sec_cache_mutex.myserver_mutex_lock();
+		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
                                ((vhost*)(s->host))->systemRoot, 
                                ((http_user_data*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
-		
+    sec_cache_mutex.myserver_mutex_unlock();
+	}	
   /*! Check if we have to use digest for the current directory. */
 	if(!lstrcmpi(auth_type, "Digest"))
 	{
@@ -1137,11 +1162,14 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	}	
 	/*If there are no permissions, use the Guest permissions*/
 	if(td->request.AUTH[0] && (permissions==0))
-		permissions=getPermissionMask("Guest", "", folder, filename, 
+  {
+    sec_cache_mutex.myserver_mutex_lock();
+		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
                                   ((vhost*)(s->host))->systemRoot, 
-                                  ((http_user_data*)s->protocolBuffer)->needed_password
-                                  , auth_type, 16);		
-
+                                ((http_user_data*)s->protocolBuffer)->needed_password,
+                                 auth_type, 16);	
+    sec_cache_mutex.myserver_mutex_unlock();
+  }
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	{
     delete [] folder;
@@ -1372,16 +1400,23 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		}
 		int permissions2=0;
 		if(td->request.AUTH[0])
-			permissions=getPermissionMask(s->getLogin(), s->getPassword(), folder, filename,
-                                 ((vhost*)(s->host))->systemRoot,
+    {
+      sec_cache_mutex.myserver_mutex_lock();
+			permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), folder, 
+                                             filename,((vhost*)(s->host))->systemRoot,
                                  ((http_user_data*)s->protocolBuffer)->needed_password,
                                     auth_type, 16, &permissions2);
+      sec_cache_mutex.myserver_mutex_unlock();
+    }
 		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest", "", folder, filename,
+    {
+      sec_cache_mutex.myserver_mutex_lock();
+			permissions=sec_cache.getPermissionMask("Guest", "", folder, filename,
                                   ((vhost*)(s->host))->systemRoot,
                                  ((http_user_data*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
-			
+      sec_cache_mutex.myserver_mutex_unlock();
+		}	
     /*! Check if we have to use digest for the current directory. */
 		if(!lstrcmpi(auth_type, "Digest"))
 		{
@@ -1406,11 +1441,14 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		}	
 		/*!If there are no permissions, use the Guest permissions. */
 		if(td->request.AUTH[0] && (permissions==0))
-			permissions=getPermissionMask("Guest", "", folder, filename,
+    {
+      sec_cache_mutex.myserver_mutex_lock();
+			permissions=sec_cache.getPermissionMask("Guest", "", folder, filename,
                                 ((vhost*)(s->host))->systemRoot,
                                 ((http_user_data*)s->protocolBuffer)->needed_password,
-                                   auth_type, 16);	
-		
+                                   auth_type, 16);
+      sec_cache_mutex.myserver_mutex_unlock();
+		}
     delete [] folder;
 	}
 	/*!
@@ -2876,8 +2914,8 @@ int http::sendAuth(httpThreadContext* td, LPCONNECTION s)
 }
 
 /*!
-*Load the HTTP protocol.
-*/
+ *Load the HTTP protocol.
+ */
 int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
 	if(initialized)
@@ -2885,6 +2923,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 
   char *main_configuration_file = lserver->getMainConfFile();
 
+  sec_cache_mutex.myserver_mutex_init();
 		
 	/*! Initialize ISAPI.  */
 	isapi::initISAPI();
@@ -3031,6 +3070,11 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
    *Clean MSCGI.
    */
 	mscgi::freeMSCGILib();
+
+  sec_cache.free();
+
+  sec_cache_mutex.myserver_mutex_destroy();
+
 	if(defaultFilename)
 	{
 		delete [] defaultFilename;

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/connectionstruct.h"
+#include "../include/cXMLParser.h"
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
 #include<openssl/crypto.h>
@@ -63,7 +64,10 @@ void cleanLogonUser(LOGGEDUSERID* hImpersonation);
 void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
 void logout(int logon,LOGGEDUSERID *hImpersonation);
 
-int getErrorFileName(char *root,int error,char** out);
-int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder=0,char *password2=0,char* auth_type=0,int len_auth=0,int *permission2=0);
+int getErrorFileName(char *root,int error,char** out,cXMLParser* parser=0);
+int getPermissionMask(char* user, char* password,char* directory,
+                      char* filename,char *sysdirectory=0,char *password2=0,
+                      char* auth_type=0,int len_auth=0,int *permission2=0, 
+                      cXMLParser* parser=0);
 
 #endif
