@@ -232,6 +232,9 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	}
 	else	
 	{
+		/*
+		*Return the correct HTTP error
+		*/
 		raiseHTTPError(td,connection,getErrorIDfromHTTPStatusCode(ExtCtrlBlk.dwHttpStatusCode));
 	}
 	int retvalue=0;

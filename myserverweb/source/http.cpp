@@ -639,15 +639,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	}
 
 	/*
-	*If the server verbosity is > 4 then save the HTTP request header.
-	*/
-	if(lserver->getVerbosity()>4)
-	{
-		td.buffer[td.nBytesToRead]='\n';
-		td.buffer[td.nBytesToRead+1]='\0';
-		((vhost*)td.connection->host)->warningsLogWrite(td.buffer);
-	}
-	/*
 	*If the header is an invalid request send the correct error message to the client and return immediately.
 	*/
 	if(validRequest==0)
@@ -699,7 +690,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				err=0;
 				if(content_len)
 				{
-					while(clock()-timeout<lserver->getTimeout())
+					while(clock()-timeout<SEC(5))
 					{
 						if(td.connection->socket.bytesToRead())
 						{				

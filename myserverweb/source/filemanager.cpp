@@ -70,6 +70,10 @@ MYSERVER_FILE::MYSERVER_FILE()
 }
 /*
 *Write data to a file.
+*buffer is the pointer to the data to write
+*buffersize is the number of byte to write
+*nbw is a pointer to an unsigned long that receive the number of the
+*bytes written correctly.
 */
 int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 {
@@ -84,6 +88,8 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 /*
 *Open(or create if not exists) a file.
 *If the function have success the return value is different from 0 and -1.
+*filename is the name of the file to open
+*opt is a bit-field containing the options on how open it
 */
 int MYSERVER_FILE::openFile(char* filename,u_long opt)
 {
@@ -506,6 +512,7 @@ void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
 }
 /*
 *Get the file extension passing its path.
+*Save in ext all the bytes afer the last dot(.) if filename.
 */
 void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
 {

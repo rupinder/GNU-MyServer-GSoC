@@ -46,7 +46,7 @@ public:
 	CONNECTION* Next;
 	void *host;
 	int dataRead;
-	char connectionBuffer[KB(8)];
+	char connectionBuffer[KB(8)];/*This buffer must be used only by the ClientsTHREAD class*/
 };
 typedef CONNECTION*  volatile LPCONNECTION;
 #endif

@@ -31,6 +31,7 @@ static struct sfCGIservers
 	int pid; /*process ID*/ 
 	u_short port;/*IP port*/
 }fCGIservers[MAX_FCGI_SERVERS];
+static int fCGIserversN;/*Number of thread currently loaded*/
 struct fourchar
 {	
 	union
@@ -39,7 +40,6 @@ struct fourchar
 		unsigned char c[4];
 	};
 };
-static int fCGIserversN;
 /*
 *Entry-Point to manage a FastCGI request.
 */

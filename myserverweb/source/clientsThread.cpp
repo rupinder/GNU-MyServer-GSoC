@@ -147,6 +147,12 @@ void ClientsTHREAD::controlConnections()
 
 					break;
 			}
+			/*
+			*The protocols parser functions return:
+			*0 to delete the connection from the active connections list
+			*1 to keep the connection active and clear the connectionBuffer
+			*2 if the header is incomplete
+			*/
 			if(retcode==0)
 			{
 				deleteConnection(c);
@@ -157,6 +163,10 @@ void ClientsTHREAD::controlConnections()
 			}
 			else if(retcode==2)
 			{
+				/*
+				*If the header is incomplete save the current received
+				*data in the connection buffer
+				*/
 				memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*Save the header in the connection buffer*/
 				c->dataRead+=err;
 					
@@ -165,6 +175,10 @@ void ClientsTHREAD::controlConnections()
 		}
 		else
 		{
+			/*
+			*If the connection is inactive for a time greater that the value
+			*configured remove the connection from the connections pool
+			*/
 			if((clock()- c->timeout) > lserver->connectionTimeout)
 				deleteConnection(c);
 		}
@@ -190,7 +204,7 @@ void ClientsTHREAD::stop()
 */
 void ClientsTHREAD::clean()
 {
-	if(initialized==false)
+	if(initialized==false)/*If the thread was not initialized return from the clean function*/
 		return;
 	requestAccess(&connectionWriteAccess,this->id);
 	if(connections)

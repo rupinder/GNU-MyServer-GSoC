@@ -382,10 +382,10 @@ int setcwd(char *dir)
 void wait(u_long time)
 {
 #ifdef WIN32
-		Sleep(time);
+	Sleep(time);
 #endif
 #ifdef __linux__
-	    usleep(time);
+	usleep(time);
 #endif
 
 }
@@ -395,7 +395,7 @@ void wait(u_long time)
 void preparePrintError()
 {
 #ifdef WIN32
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
 #endif
 }
 /*
@@ -404,7 +404,7 @@ void preparePrintError()
 void endPrintError()
 {
 #ifdef WIN32
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 #endif
 
 }

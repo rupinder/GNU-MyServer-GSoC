@@ -186,13 +186,13 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return raiseHTTPError(td,s,e_501);
+		return raiseHTTPError(td,s,e_500);
 	}
 
 	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
 	if ((!ret) || (ret==-1)) 
 	{
-		return raiseHTTPError(td,s,e_501);
+		return raiseHTTPError(td,s,e_500);
 	}
 	u_long nBytesRead=0;
 	OutFileHandle.readFromFile(td->buffer2,KB(5),&nBytesRead);
@@ -240,7 +240,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	return !strcmpi(td->request.CONNECTION,"Keep-Alive");
 #endif
 #ifdef __linux__
-	return raiseHTTPError(td,s,e_501);
+	return raiseHTTPError(td,s,e_501);/*WinCGI is not available under linux*/
 #endif
 }
 
