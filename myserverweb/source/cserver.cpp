@@ -1,12 +1,12 @@
 /*
 *MyServer
-*Copyright (C) 2002,2003,2004 The MyServer Team
+*Copyright (C) 2002, 2003, 2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+This program is distributed in the hope that it will be useful, 
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -50,7 +50,7 @@ extern "C" {
 #define WORD unsigned int
 #define BYTE unsigned char
 #define MAKEWORD(a, b) ((WORD) (((BYTE) (a)) | ((WORD) ((BYTE) (b))) << 8)) 
-#define max(a,b) ((a>b)?a:b)
+#define max(a, b) ((a>b)?a:b)
 #endif
 
 /*!
@@ -1045,7 +1045,7 @@ u_long cserver::getNumThreads()
 }
 /*!
 *Returns a comma-separated local machine IPs list.
-*For example: 192.168.0.1,61.62.63.64,65.66.67.68.69
+*For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
 */
 char *cserver::getAddresses()
 {

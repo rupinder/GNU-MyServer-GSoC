@@ -72,7 +72,7 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	}
 	else
 		sprintf(str,"%s 200 OK\r\n",response->VER);
-
+	
 	if(response->SERVER_NAME[0])
 	{
 		strcat(str,"Server: ");
@@ -101,7 +101,6 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	{
 		strcat(str,"Connection: Close\r\n");
 	}
-
 	if(response->TRANSFER_ENCODING[0])
 	{
 		strcat(str,"Transfer-Encoding: ");
@@ -127,7 +126,6 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 			strcat(str,"\r\n");
 		}
 	}
-	
 	if(response->COOKIE[0])
 	{
 		char *token=strtok(response->COOKIE,"\n");
@@ -245,16 +243,16 @@ void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->DATEEXP[0]='\0';	
 	request->MODIFIED_SINCE[0]='\0';
 	request->LAST_MODIFIED[0]='\0';	
-	request->URI[0]='\0';			
-	request->URIOPTS[0]='\0';		
-	request->URIOPTSPTR=NULL;		
-	request->REFERER[0]='\0';	
-	request->HOST[0]='\0';	
+	request->URI[0]='\0';
+	request->URIOPTS[0]='\0';
+	request->URIOPTSPTR=NULL;
+	request->REFERER[0]='\0';
+	request->HOST[0]='\0';
 	request->CACHE_CONTROL[0]='\0';
 	request->IF_MODIFIED_SINCE[0]='\0';
 	request->OTHER[0]='\0';
 	request->PRAGMA[0]='\0';
-	request->RANGETYPE[0]='\0';		
+	request->RANGETYPE[0]='\0';
 	request->RANGEBYTEBEGIN[0]='\0';
 	request->RANGEBYTEEND[0]='\0';
 	request->uriEndsWithSlash=0;
