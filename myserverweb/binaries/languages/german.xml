@@ -1,0 +1,48 @@
+<!--MYSERVER SUPPORT FOR GERMAN LANGUAGE-->
+<!--COPYRIGHT 2002 Rocky_10_Balboa-->
+<!--TRANSLATED BY BINARIX-->
+<MSG_LANGUAGE>Benutze Deutsche Sprache</MSG_LANGUAGE>
+<MSG_SERVER_CONF>Server Konfiguration beendet</MSG_SERVER_CONF>
+<AL_NO_SECURITY>Sicherheitszugriff wird nicht genutzt, der Inhalt des Webordners ist zugaenglich fuer jeden</AL_NO_SECURITY>
+<MSG_ISOCK>Initialisiere Socket Library...</MSG_ISOCK>
+<ERR_ISOCK>Fehler beim Initialisieren der Socket Library</ERR_ISOCK>
+<MSG_SOCKSTART>Socket Library wurde initialisiert</MSG_SOCKSTART>
+<MSG_SSOCKCREATE>Erstelle server socket...</MSG_SSOCKCREATE>
+<MSG_SSOCKRUN>Server socket wurde erstellt</MSG_SSOCKRUN>
+<ERR_OPENP>Fehler beim Oeffnen des Ports, Port kann bereits von einer anderen Applikation benutzt werden</ERR_OPENP>
+<MSG_BIND_PORT>Versuche Port zu binden...</MSG_BIND_PORT>
+<ERR_BIND>Fehler beim Binden des Ports, Port kann bereits von einer anderen Applikation bentutz werden</ERR_BIND>
+<MSG_PORT_BINDED>Port wurde gebunden</MSG_PORT_BINDED>
+<MSG_SLISTEN>Versuche auf Port zu hoeren...</MSG_SLISTEN>
+<ERR_LISTEN>Fehler beim Hoeren</ERR_LISTEN>
+<MSG_LISTEN>Hoere auf Port</MSG_LISTEN>
+<MSG_LOADMIME>Lade MIME types...</MSG_LOADMIME>
+<MSG_GETNAME>Computer Name ist</MSG_GETNAME>
+<MSG_LOADED>Geladen</MSG_LOADED>
+<ERR_LOADED>Fehler beim Laden</ERR_LOADED>
+<MSG_MIMERUN>MIME types erfolgreich geladen</MSG_MIMERUN>
+<MSG_ADDRESS>IP Adresse</MSG_ADDRESS>
+<ERR_LOADMIME>MIME types konnten nicht geladen werden</ERR_LOADMIME>
+<ERR_ERROR>Allgemeiner Fehler</ERR_ERROR>
+<MSG_NUM_CPU>Nummer des Prozessors:</MSG_NUM_CPU>
+<MSG_CREATET>Erstelle Thread</MSG_CREATET>
+<MSG_THREADR>Thread erstellt</MSG_THREADR>
+<MSG_LISTENT>Erstelle hoerenden Thread...</MSG_LISTENT>
+<MSG_LISTENTR>Hoerender Thread wurde erstellt</MSG_LISTENTR>
+<MSG_READY>myServer kann jetzt Verbindungen akzeptieren</MSG_READY>
+<MSG_BREAK>Druecke Strg+C um die Anwendung abzubrechen</MSG_BREAK>
+<MSG_STOPT>Beende Threads...</MSG_STOPT>
+<MSG_TSTOPPED>Threads beendet</MSG_TSTOPPED>
+<MSG_MEMCLEAN>Loesche Speicher...</MSG_MEMCLEAN>
+<MSG_SERVICESTOP>Stoppe Service...</MSG_SERVICESTOP>
+
+<!--THESE MEMBERS MAX 32 CHARACTERS-->
+<MSG_SENDING>Sende</MSG_SENDING>
+<MSG_RUNON>Laufe auf</MSG_RUNON>
+<MSG_FOLDERCONT>Inhalt des Ordners</MSG_FOLDERCONT>
+<MSG_FILE>Datei</MSG_FILE>
+<MSG_LMODIFY>Letze Aenderung</MSG_LMODIFY>
+<MSG_SIZE>Groesse</MSG_SIZE>
+<MSG_NEWCONNECTION>Verbindung von</MSG_NEWCONNECTION>
+<MSG_ERRORCONNECTION>Fehler bei der Verbindung von</MSG_ERRORCONNECTION>
+<MSG_ATTIME>Zeit</MSG_ATTIME>
