@@ -1183,7 +1183,9 @@ void cserver::loadSettings()
 		outputF.closeFile();
 	}
 	else
+	{
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
+	}
 	/*! Load the MIME types. */
 	printf("%s\n", languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
@@ -1250,7 +1252,9 @@ void cserver::loadSettings()
 		outputF.closeFile();
 	}	
 	else
+	{
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
+	}
 	/*! Load the virtual hosts configuration from the xml file. */
 	vhostList.loadXMLConfigurationFile(vhost_configuration_file, this->getMaxLogFileSize());
 

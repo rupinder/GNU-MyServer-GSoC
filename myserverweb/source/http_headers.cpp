@@ -266,6 +266,7 @@ void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->digest_qop[0]='\0';
 	request->digest_nc[0]='\0';
 }
+
 /*!
 *Reset all the HTTP_RESPONSE_HEADER structure members.
 */
@@ -424,7 +425,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			return 0;
 		
 		/*! Copy the HTTP command.  */
-		strncpy(command, token, min(96, tokenOff) );
+		myserver_strlcpy(command, token, min(96, tokenOff) );
+	
 		token+=tokenOff;
 		command[tokenOff]='\0';
 		if(*token==':')
@@ -906,7 +908,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		/*!
 		*Copy the HTTP command.
 		*/
-		myserver_strlcpy(command,token,96);
+		myserver_strlcpy(command, token, 96);
 		
 		nLineControlled++;
 		if((nLineControlled==1)&& containStatusLine)

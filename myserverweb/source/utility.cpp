@@ -119,7 +119,7 @@ u_long getCPUCount()
 */
 int setcwdBuffer()
 {
-#ifdef WIN32	
+#ifdef WIN32
 	char* ret =(char*) _getcwd(currentPath,MAX_PATH);
 	if(ret == 0)
 		return -1;

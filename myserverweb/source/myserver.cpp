@@ -155,56 +155,56 @@ int main (int argn, char **argv)
 	while((path[len]!='\\')&&(path[len]!='/'))
 		len--;
 	path[len]='\0';
-  /*! Configure the current working directory. */
+  	/*! Configure the current working directory. */
 	setcwd(path);
 	
 	cmdShow=0;
 #ifdef NOT_WIN
-  struct argp_input input;
-  /*! Reset the struct. */
-  input.version = 0;
-  input.runas = MYSERVER_RUNAS_CONSOLE;
-  /*! Call the parser. */
-  argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
-  runas=input.runas;
-  /*! If the version flag is up, show the version and exit. */
-  if(input.version)
-  {
-     printf("MyServer %s\r\n",versionOfSoftware);
-     return 0;   
-  }
+	struct argp_input input;
+	/*! Reset the struct. */
+	input.version = 0;
+	input.runas = MYSERVER_RUNAS_CONSOLE;
+	/*! Call the parser. */
+	argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
+	runas=input.runas;
+	/*! If the version flag is up, show the version and exit. */
+	if(input.version)
+	{
+		printf("MyServer %s\r\n",versionOfSoftware);
+		return 0;   
+	}
 #endif
 
 #ifdef WIN32
-  if(argn > 1)
-  {	
-    if(!lstrcmpi(argv[1],"VERSION"))
-    {
-        printf("MyServer %s\r\n",versionOfSoftware);
-        return 0;
-    }
-    if(!lstrcmpi(argv[1],"CONSOLE"))
-    {
-        runas = MYSERVER_RUNAS_CONSOLE;
-    }
-    if(!lstrcmpi(argv[1],"SERVICE"))
-    {
-        runas = MYSERVER_RUNAS_SERVICE;
-    }
-  }
+	if(argn > 1)
+	{	
+		if(!lstrcmpi(argv[1],"VERSION"))
+		{
+			printf("MyServer %s\r\n",versionOfSoftware);
+			return 0;
+		}
+		if(!lstrcmpi(argv[1],"CONSOLE"))
+		{
+			runas = MYSERVER_RUNAS_CONSOLE;
+		}
+		if(!lstrcmpi(argv[1],"SERVICE"))
+		{
+			runas = MYSERVER_RUNAS_SERVICE;
+		}
+	}
 #endif
   switch(runas)
   {
-      case MYSERVER_RUNAS_CONSOLE:
-        console_service(argn,argv);
-        if(rebootMyServerConsole)
-          reboot_console();
-        break;
-      case MYSERVER_RUNAS_SERVICE:
+	case MYSERVER_RUNAS_CONSOLE:
+		console_service(argn,argv);
+		if(rebootMyServerConsole)
+		reboot_console();
+		break;
+	case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
-        runService();
+		runService();
 #endif
-        break;
+		break;
   }
 
 	return 0;
@@ -233,6 +233,7 @@ void console_service (int, char **)
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
+
 /*!
 *Entry-point for the NT service.
 */
@@ -266,7 +267,6 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 	}
 }
-
 
 /*!
 *Manage the NT service.
@@ -315,11 +315,17 @@ void runService()
 	if(!StartServiceCtrlDispatcher( serviceTable ))
 	{
 		if(GetLastError()==ERROR_INVALID_DATA)
+		{
 			printf("Invalid data\n");
+		}
 		else if(GetLastError()==ERROR_SERVICE_ALREADY_RUNNING)
+		{
 			printf("Already running\n");
+		}
 		else
+		{
 			printf("Error running service\n");
+		}
 	}
 }
 
