@@ -187,7 +187,6 @@ public:
 	void stop();
 	void finalCleanup();
 	int terminate();
-  int logWrite(char*);
   int logWriteln(char*);
   int logPreparePrintError();
   int logEndPrintError();  

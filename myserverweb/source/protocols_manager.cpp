@@ -53,9 +53,13 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,
 #endif
 	if(hinstLib==0)
 	{
-    lserver->logWrite(languageParser->getValue("ERR_LOADED"));
-    lserver->logWrite(" ");
-    lserver->logWriteln(filename);  
+    char *log_str = new char[strlen(languageParser->getValue("ERR_LOADED")) +
+                             strlen(filename) +2 ];
+    if(log_str == 0)
+      return 0;
+    sprintf(log_str,"%s %s", languageParser->getValue("ERR_LOADED"), filename);
+    lserver->logWriteln(log_str);  
+    delete [] log_str;
 		return 0;
 	}
 	loadProtocolPROC Proc;
@@ -209,16 +213,19 @@ int dynamic_protocol::setFilename(char *nf)
 int protocols_manager::addProtocol(char *file,cXMLParser* parser,
                                    char* confFile,cserver* lserver)
 {
-	dynamic_protocol_list_element* ne=new dynamic_protocol_list_element();
+	dynamic_protocol_list_element* ne = new dynamic_protocol_list_element();
 	ne->data.setFilename(file);
-	ne->data.loadProtocol(parser,confFile,lserver);
+	ne->data.loadProtocol(parser, confFile, lserver);
 	ne->next=list;
 	list=ne;
-  lserver->logWrite(parser->getValue("MSG_LOADED"));
-  lserver->logWrite(" ");
-  lserver->logWrite(file);
-  lserver->logWrite(" --> ");
-  lserver->logWriteln( ne->data.getProtocolName() );
+  char *log_buf = new char[strlen(parser->getValue("MSG_LOADED")) + strlen(file) 
+                           + strlen( ne->data.getProtocolName()) + 7 ];
+  if(log_buf == 0)
+    return 1;
+  sprintf(log_buf, "%s %s --> %s", parser->getValue("MSG_LOADED"), file, 
+          ne->data.getProtocolName() );
+  lserver->logWriteln( log_buf );
+  delete [] log_buf;
 	return 1;
 }
 
