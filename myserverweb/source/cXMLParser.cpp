@@ -77,7 +77,7 @@ int XmlParser::cleanXML()
  *With the open function we open a file and store it in memory.
  *Return nonzero on errors.
  */
-int XmlParser::open(char* filename)
+int XmlParser::open(const char* filename)
 {
 	cur=0;
 	if(!File::fileExists(filename))

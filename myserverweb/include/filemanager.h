@@ -82,13 +82,20 @@ public:
 	time_t getCreationTime();
 	time_t getLastAccTime();
 	const char *getFilename();
-	int setFilename(char*);
+	int setFilename(const char*);
+  int setFilename(const string& name)
+    {return setFilename(name.c_str());}
+
 	int operator =(File);
 	int closeFile();
-	int getShortFileName(char*,int);
+  int getShortFileName(char*,int);
+
 	static int completePath(char**, int *size, int dontRealloc=0);
-	static int isDirectory(char*);
-	static int getShortFileName(char*,char*,int);
+  static int completePath(string &fileName);
+
+	static int isDirectory(const char*);
+  static int isDirectory(string& dir){return isDirectory(dir.c_str());}
+  static int getShortFileName(char*,char*,int);
 
 	static int fileExists(const char * );
 	static int fileExists(string& file)
@@ -103,10 +110,15 @@ public:
     {return renameFile(before.c_str(), after.c_str());}
 
 	static void getFileExt(char* ext,const char* filename);
+	static void getFileExt(string& ext,const string& filename);
+
   static void splitPathLength(const char *path, int *dir, int *filename);
 	static void splitPath(const char* path, char* dir, char*filename);
+	static void splitPath(const string& path, string& dir, string& filename);
+
   static int getFilenameLength(const char*, int *);
 	static void getFilename(const char* path, char* filename);
+	static void getFilename(const string& path, string& filename);
 
 };
 #endif

@@ -32,17 +32,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *3)simple script to describe the action to do for handle the files of this type.
  *The file is ended by a '#' character.
  */
-int MimeManager::load(char *filename)
+int MimeManager::load(char *fn)
 {
-  int filenamelen = strlen(filename) + 1;
-  filename = new char[filenamelen];
+  int filenamelen;
+	char *buffer;
+	int ret;
+  char commandString[16];
+	File f;
   if(filename == 0)
     return -1;
+  filenamelen = strlen(fn) + 1;
+  filename = new char[filenamelen];
+	
 	strncpy(MimeManager::filename,filename,MAX_PATH);
 	numMimeTypesLoaded=0;
-	char *buffer;
-	File f;
-	int ret=f.openFile(filename,FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
+
+	ret=f.openFile(filename,FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 	if(ret)
 		return 0;
 	u_long fs=f.getFileSize();
@@ -84,7 +89,6 @@ int MimeManager::load(char *filename)
 		/*!
      *Save the action to do with this type of files.
      */
-		char commandString[16];
 		memset(commandString, 0, sizeof(commandString));
 
 		while(buffer[nc]!=' ')
@@ -160,7 +164,10 @@ char *MimeManager::getFilename()
 int MimeManager::loadXML(char *filename)
 {
 	XmlParser parser;
-  int filenamelen=strlen(filename)+1;
+	xmlNodePtr node;
+  xmlDocPtr doc;
+	int nm;
+  int filenamelen;
   MimeManager::filename = new char[filenamelen];
   if(MimeManager::filename==0)
     return -1;
@@ -169,9 +176,9 @@ int MimeManager::loadXML(char *filename)
 	{
 		return -1;
 	}
-	xmlDocPtr doc = parser.getDoc();
-	xmlNodePtr node=doc->children->children;
-	int nm=0;
+	doc = parser.getDoc();
+	node=doc->children->children;
+	nm=0;
 	for(;node;node=node->next )
 	{
 		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
@@ -260,12 +267,12 @@ int MimeManager::saveXML(char *filename)
 	MimeRecord *rc=data;
 	while(rc)
 	{
+		char command[16];
 		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
 		f.writeToFile(rc->extension,(u_long)strlen(rc->extension),&nbw);
 		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
 		f.writeToFile(rc->mime_type,(u_long)strlen(rc->mime_type),&nbw);
 		f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
-		char command[16];
 		if(rc->command==CGI_CMD_SEND)
 			strcpy(command,"SEND");
 		else if(rc->command==CGI_CMD_RUNCGI)
@@ -306,18 +313,18 @@ int MimeManager::saveXML(char *filename)
  */
 int MimeManager::save(char *filename)
 {
-	File::deleteFile(filename);
 	File f;
-	f.openFile(filename,FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	MimeManager::MimeRecord *nmr1;
-	u_long nbw;
+  u_long nbw;
+	File::deleteFile(filename);
+	f.openFile(filename,FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
+		char command[16];
 		f.writeToFile(nmr1->extension,(u_long)strlen(nmr1->extension),&nbw);
 		f.writeToFile(",",1,&nbw);
 		f.writeToFile(nmr1->mime_type,(u_long)strlen(nmr1->mime_type),&nbw);
 		f.writeToFile(",",1,&nbw);
-		char command[16];
 		if(nmr1->command==CGI_CMD_SEND)
 			strcpy(command,"SEND ");
 		else if(nmr1->command==CGI_CMD_RUNCGI)

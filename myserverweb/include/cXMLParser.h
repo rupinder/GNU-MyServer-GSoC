@@ -45,7 +45,7 @@ public:
 	XmlParser();
 	~XmlParser();
 	xmlDocPtr getDoc();
-	int open(char* filename);
+	int open(const char* filename);
 	int openMemBuf(CMemBuf &);
 	char *getValue(char* field);
 	char *getAttr(char* field,char *attr);

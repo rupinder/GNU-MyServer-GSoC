@@ -37,6 +37,11 @@ extern "C" {
 }
 #endif
 
+#include <string>
+#include <sstream>
+
+using namespace std;
+
 extern int mustEndServer; 
 
 /*!
@@ -323,7 +328,7 @@ int File::operator =(File f)
  *Set the name of the file
  *Return Non-zero on errors.
  */
-int File::setFilename(char* nfilename)
+int File::setFilename(const char* nfilename)
 {
 	filename.assign(nfilename);
   return 0;
@@ -465,7 +470,7 @@ int File::setFilePointer(u_long initialByte)
 /*!
  *Returns a non-null value if the path is a directory.
  */
-int File::isDirectory(char *filename)
+int File::isDirectory(const char *filename)
 {
 #ifdef WIN32
 	u_long fa=GetFileAttributes(filename);
@@ -636,6 +641,21 @@ void File::getFilename(const char *path, char *filename)
 }
 
 /*!
+ *Get the filename from a path.
+ */
+void File::getFilename(const string& path, string& filename)
+{
+  int splitpoint = path.find_last_of("\\/");
+  if(splitpoint != string::npos)
+  {
+    filename=path.substr(splitpoint+1, path.length()-1);
+  }
+  else
+    filename.assign("");
+
+}
+
+/*!
  *Use this function before call splitPath to be sure that the buffers
  *dir and filename are bigger enough to contain the data.
  */
@@ -711,10 +731,31 @@ void File::splitPath(const char *path, char *dir, char *filename)
     }
 	}
 }
+
 /*!
-*Get the file extension passing its path.
-*Save in ext all the bytes afer the last dot(.) if filename.
-*/
+ *Split a path in a dir and a filename.
+ */
+void File::splitPath(const string& path, string& dir, string& filename)
+{
+  int splitpoint;
+  int len = path.length();
+  splitpoint = path.find_last_of("\\/");
+  if(splitpoint != string::npos)
+  {
+    dir  = path.substr(0, splitpoint);
+    filename = path.substr(splitpoint+1, len-1);
+  }
+  else
+  {
+    dir  = path;
+    filename.assign("");
+  }
+}
+
+/*!
+ *Get the file extension passing its path.
+ *Save in ext all the bytes afer the last dot(.) in filename.
+ */
 void File::getFileExt(char* ext,const char* filename)
 {
 	int nDot, nPathLen;
@@ -727,9 +768,28 @@ void File::getFileExt(char* ext,const char* filename)
 	else
 		ext[0] = 0;
 }
+
 /*!
-*Get the file path in the short form.
-*/
+ *Get the file extension passing its path.
+ *Save in ext all the bytes afer the last dot(.) in filename.
+ */
+void File::getFileExt(string& ext,const string& filename)
+{
+  int pos = filename.find_last_of('.');
+  if(pos != string::npos)
+  {
+    ext = filename.substr(pos+1, filename.length()-1);
+  }
+  else
+  {
+    ext.assign("");
+  }
+  
+}
+
+/*!
+ *Get the file path in the short form.
+ */
 int File::getShortFileName(char *out,int buffersize)
 {
 #ifdef WIN32
@@ -754,9 +814,9 @@ int File::getShortFileName(char *out,int buffersize)
 #endif
 }
 /*!
-*Get the file path in the short form of the specified file
-*Return -1 on errors.
-*/
+ *Get the file path in the short form of the specified file
+ *Return -1 on errors.
+ */
 int File::getShortFileName(char *filePath,char *out,int buffersize)
 {
 #ifdef WIN32
@@ -791,10 +851,18 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
   }
   strcpy(buffer, *fileName);
   bufferNewLen = GetFullPathName(buffer, 0, *fileName, 0) + 1;
+  if(bufferNewLen == 0)
+  {
+    delete [] buffer;
+    return -1;
+  }
   if(dontRealloc)
   {
     if(*size < bufferNewLen )
+    {
+      delete [] buffer;
       return -1;
+    }
   }
   else
   {
@@ -808,16 +876,21 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
     }
     *size = bufferNewLen;
   }
-  GetFullPathName(buffer, bufferNewLen, *fileName, 0);
+  if(GetFullPathName(buffer, bufferNewLen, *fileName, 0) == 0)
+  {
+    delete [] buffer;
+    return -1;
+  }
+
   delete [] buffer;
   return 0;
-
 #endif
-#ifdef NOT_WIN
 
+#ifdef NOT_WIN
 	char *buffer;
   int bufferLen;
   int bufferNewLen;
+  /*! We assume that path starting with / are yet completed. */
 	if((*fileName)[0]=='/')
 		return 0;
   bufferLen = strlen(*fileName) + 1;
@@ -846,6 +919,46 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
  
   sprintf(*fileName, "%s/%s", getdefaultwd(0, 0), buffer );
   delete [] buffer;
+	return 0;
+#endif
+}
+
+/*!
+ *Complete the path of the file.
+ *Return non-zero on errors.
+ */
+int File::completePath(string &fileName)
+{
+#ifdef WIN32
+  char *buffer;
+  int bufferLen;
+
+  bufferLen = GetFullPathName(buffer, 0, fileName.c_str(), 0) + 1;
+  if(bufferLen == 0)
+    return -1;
+  buffer = new char[bufferLen];
+  if(buffer == 0)
+  {
+    return -1;
+  }
+  if(GetFullPathName(buffer, bufferLen, fileName.c_str(), 0) == 0)
+  {
+    delete [] buffer;
+    return -1;
+  }
+  fileName.assign(buffer);
+  delete [] buffer;
+  return 0;
+#endif
+
+#ifdef NOT_WIN
+  ostringstream stream;
+  /*! We assume that path starting with / are yet completed. */
+  if(fileName[0] != '/')
+  {
+    stream << getdefaultwd(0, 0) << "/" <<  fileName.c_str();
+    fileName.assign(stream.str());
+  }
 	return 0;
 #endif
 }

@@ -125,6 +125,7 @@ void* HashDictionary::removeNode(char* name)
   {
     if(node_hash == cur->hash)
     {
+      void *data;
       if(prev)
       {
         prev->next = cur->next;
@@ -133,7 +134,7 @@ void* HashDictionary::removeNode(char* name)
       {
         node = cur->next;
       }
-      void *data = cur->data;
+      data = cur->data;
       delete cur;
       nodes_count--;
       return data;
@@ -173,10 +174,10 @@ void HashDictionary::free()
  */
 void *HashDictionary::getData(int order)
 {
+  int i;
   if(order == 0)
     return 0;
   sNode *cur = node;
-  int i;
   for(i = 1; (i < order) && ( cur ); i++)
   {
     cur = cur->next;
@@ -197,6 +198,9 @@ int HashDictionary::isEmpty()
  */
 int HashDictionary::insertAt(char* name, void* data, int pos)
 {
+  int i;
+  sNode *cur;
+  sNode *prev;
   if(name == 0)
     return -1;
   sNode *newNode = new sNode();
@@ -204,9 +208,8 @@ int HashDictionary::insertAt(char* name, void* data, int pos)
     return -1;
   newNode->hash = hash(name);
   newNode->data = data;
-  int i;
-  sNode *cur = node;
-  sNode *prev = 0;
+  cur = node;
+  prev = 0;
   for(i = 1; i < pos; i++)
   {
     if(cur == 0)

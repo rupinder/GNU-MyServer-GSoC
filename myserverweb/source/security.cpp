@@ -24,6 +24,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 #include "../include/securestr.h"
 
+#include <string>
+#include <sstream>
+
 #ifdef WIN32
 #ifndef LOGON32_LOGON_NETWORK
 #define LOGON32_LOGON_NETWORK 3
@@ -33,6 +36,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define LOGON32_PROVIDER_DEFAULT
 #endif
 #endif
+
+using namespace std;
 
 /*!
  *Create the object.
@@ -69,27 +74,20 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
                                       char** out, XmlParser* parser)
 {
 	xmlNode *node;
-	char *permissionsFile;
-  int permissionsFileLen;
+	ostringstream permissionsFile;
 	XmlParser localParser;  
   xmlDocPtr doc;
 	int found=0;
   *out = 0;
   if(parser == 0)
   { 
-    permissionsFileLen = strlen(sysDir) + 10;
-    permissionsFile = new char[permissionsFileLen];
-    if(permissionsFile==0)
-      return 0;
-    sprintf(permissionsFile,"%s/security", sysDir);
-    if(!File::fileExists(permissionsFile))
+    permissionsFile << sysDir << "/security" ;
+    if(!File::fileExists(permissionsFile.str().c_str()))
     {
-      delete [] permissionsFile;
       return 0;
     }
-    if(localParser.open(permissionsFile)== -1 )
+    if(localParser.open(permissionsFile.str().c_str()) == -1 )
       return -1;
-    delete [] permissionsFile;
     doc=localParser.getDoc();
   }
   else
@@ -184,8 +182,7 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
 int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 {
 
-	char *permissionsFile;
-  int permissionsFileLen;
+	ostringstream permissionsFile;
 
 	char tempPassword[32];
   int ret = 0;
@@ -230,11 +227,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   if(parser == 0)
   {
     u_long filenamelen;
-    permissionsFileLen = strlen(st->directory)+10;
-    permissionsFile = new char[permissionsFileLen];
-    if(permissionsFile == 0)
-      return 0;
-    sprintf(permissionsFile,"%s/security",st->directory);
+    permissionsFile << st->directory << "/security";
 
     filenamelen=(u_long)(strlen(st->filename));
     while(filenamelen && st->filename[filenamelen]=='.')
@@ -242,20 +235,16 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       st->filename[filenamelen--]='\0';
     }
     /*! If the specified file doesn't exist return 0. */
-    if(!File::fileExists(permissionsFile))
+    if(!File::fileExists(permissionsFile.str().c_str()))
     {
-      ret = 0;
-      delete [] permissionsFile;
-      return ret;
+      return 0;
     }
     else
     {
-      if(localParser.open(permissionsFile)==-1)
+      if(localParser.open(permissionsFile.str().c_str()) == -1)
       {
-        delete [] permissionsFile;
         return 0;
       }
-      delete [] permissionsFile;
       doc=localParser.getDoc();
     }
   }

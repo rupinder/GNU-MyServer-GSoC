@@ -55,6 +55,8 @@ extern "C" {
 #define strnicmp strncmp
 #endif
 
+using namespace std;
+
 /*!
  *By default use a timeout of 15 seconds on new processes.
  */
@@ -628,18 +630,18 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	if(td->request.RANGEBYTEBEGIN || td->request.RANGEBYTEEND)
 	{
-    char rangeBuffer[13];
+    ostringstream rangeBuffer;
 		memCgi << end_str << "HTTP_RANGE=" << RANGETYPE << "=" ;
     if(td->request.RANGEBYTEBEGIN)
     {
-      sprintf(rangeBuffer,"%i", (int)td->request.RANGEBYTEBEGIN);
-      memCgi << rangeBuffer;
+      rangeBuffer << (int)td->request.RANGEBYTEBEGIN;
+      memCgi << rangeBuffer.str();
     }
     memCgi << "-";
     if(td->request.RANGEBYTEEND)
     {
-      sprintf(rangeBuffer,"%i", (int)td->request.RANGEBYTEEND  );
-      memCgi << rangeBuffer;
+      rangeBuffer << td->request.RANGEBYTEEND;
+      memCgi << rangeBuffer.str();
     }   
 
 	}
