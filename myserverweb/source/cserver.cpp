@@ -225,7 +225,7 @@ void cserver::start()
 	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
-		threads[i].id=i;
+		threads[i].id=(i);
 #ifdef WIN32
 		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
 #endif

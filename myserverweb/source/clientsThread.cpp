@@ -228,7 +228,8 @@ void ClientsTHREAD::clean()
 LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort)
 {
 	requestAccess(&connectionWriteAccess,this->id);
-	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
+	u_long cs=sizeof(CONNECTION);
+	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
 		return NULL;
 	nc->connectionBuffer[0]='\0';
