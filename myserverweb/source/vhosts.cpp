@@ -555,7 +555,7 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		}	
 		strcpy(vh->accessesLogFileName,buffer2);
 		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
-		accesses->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		accesses->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT );
 		cc++;
 		/*Get the warnings log file used by the virtual host*/
 		buffer2[0]='\0';
@@ -567,7 +567,7 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		}	
 		strcpy(vh->warningsLogFileName,buffer2);
 		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
-		warnings->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		warnings->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT);
 		vh->setMaxLogSize(maxlogSize);
 		cc++;
 		addvHost(vh);
@@ -804,9 +804,9 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			lcur=lcur->next;
 		}
 		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
-		accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT);
 		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
-		warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT);
 		vh->setMaxLogSize(maxlogSize);
 		vh->initializeSSL();
 		addvHost(vh);

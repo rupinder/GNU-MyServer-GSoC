@@ -491,9 +491,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 		int httpStatus=td->response.httpStatus;
 		buildDefaultHTTPResponseHeader(&td->response);
 		td->response.httpStatus=httpStatus;
-		/*
-		*The response will be recorded by the error handler function.
-		*/
 	}
 
 	static char ext[10];
@@ -832,52 +829,50 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 */
 int logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 {
-	((vhost*)(td->connection->host))->accesseslogRequestAccess(td->id);
-
-	char localbuffer[HTTP_RESPONSE_DATE_DIM];
-
-	((vhost*)(td->connection->host))->accessesLogWrite(a->ipAddr);
-	((vhost*)(td->connection->host))->accessesLogWrite(" ");
+	strcpy(td->buffer,a->ipAddr);
+	strcat(td->buffer," ");
 	
 	if(td->identity[0])
-		((vhost*)(td->connection->host))->accessesLogWrite(td->identity);
+		strcat(td->buffer,td->identity);
 	else
-		((vhost*)(td->connection->host))->accessesLogWrite("-");
+		strcat(td->buffer,"-");
 
-	((vhost*)(td->connection->host))->accessesLogWrite(" ");
+	strcat(td->buffer," ");
 
 	if(td->identity[0])
-		((vhost*)(td->connection->host))->accessesLogWrite(td->identity);
+		strcat(td->buffer,td->identity);
 	else
-		((vhost*)(td->connection->host))->accessesLogWrite("-");
+		strcat(td->buffer,"-");
 
-	((vhost*)(td->connection->host))->accessesLogWrite(" [");
-	getRFC822GMTTime(localbuffer,HTTP_RESPONSE_DATE_DIM);
-	((vhost*)(td->connection->host))->accessesLogWrite(localbuffer);
-	((vhost*)(td->connection->host))->accessesLogWrite("] \"");
-	((vhost*)(td->connection->host))->accessesLogWrite(td->request.CMD);
-	((vhost*)(td->connection->host))->accessesLogWrite(" ");
-	((vhost*)(td->connection->host))->accessesLogWrite(td->request.URI);
+	strcat(td->buffer," [");
+
+	getRFC822GMTTime(&td->buffer[strlen(td->buffer)],HTTP_RESPONSE_DATE_DIM);
+	strcat(td->buffer,"] \"");
+	strcat(td->buffer,td->request.CMD);
+	strcat(td->buffer," ");
+	strcat(td->buffer,td->request.URI);
 	if(td->request.URIOPTS[0])
 	{
-		((vhost*)(td->connection->host))->accessesLogWrite("?");
-		((vhost*)(td->connection->host))->accessesLogWrite(td->request.URIOPTS);
+		strcat(td->buffer,"?");
+		strcat(td->buffer,td->request.URIOPTS);
 	}
-	((vhost*)(td->connection->host))->accessesLogWrite(td->request.VER);
-	((vhost*)(td->connection->host))->accessesLogWrite("\" ");
+	strcat(td->buffer,td->request.VER);
+	strcat(td->buffer,"\" ");
 
-	sprintf(localbuffer,"%i",td->response.httpStatus);
+	sprintf(&td->buffer[strlen(td->buffer)],"%i",td->response.httpStatus);
 
-	((vhost*)(td->connection->host))->accessesLogWrite(localbuffer);
-	((vhost*)(td->connection->host))->accessesLogWrite(" ");
+	strcat(td->buffer," ");
 	
 	if(td->response.CONTENT_LENGTH[0] && (strlen(td->response.CONTENT_LENGTH)<HTTP_RESPONSE_CONTENT_LENGTH_DIM))
-		((vhost*)(td->connection->host))->accessesLogWrite(td->response.CONTENT_LENGTH);
+		strcat(td->buffer,td->response.CONTENT_LENGTH);
 	else
-	((vhost*)(td->connection->host))->accessesLogWrite("0");
-
-	((vhost*)(td->connection->host))->accessesLogWrite("\r\n");
+		strcat(td->buffer,"0");
+	strcat(td->buffer,"\r\n");
+	
+	((vhost*)(td->connection->host))->accesseslogRequestAccess(td->id);
+	((vhost*)(td->connection->host))->accessesLogWrite(td->buffer);
 	((vhost*)(td->connection->host))->accesseslogTerminateAccess(td->id);
+
     return 1;
 }
 
@@ -923,11 +918,15 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*/
 	if(validRequest==0)
 	{
-		return raiseHTTPError(&td,a,e_400);
+		retvalue = raiseHTTPError(&td,a,e_400);
+		logHTTPaccess(&td,a);
+		return retvalue;
 	}/*If the URI is too long*/
 	else if(validRequest==414)
 	{
-		return raiseHTTPError(&td,a,e_414);
+		retvalue = raiseHTTPError(&td,a,e_414);
+		logHTTPaccess(&td,a);
+		return retvalue;
 	}
 	
 
@@ -972,7 +971,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
-					return raiseHTTPError(&td,a,e_400);
+					retvalue = raiseHTTPError(&td,a,e_400);
+					logHTTPaccess(&td,a);
+					return retvalue;
+
 				}
 			}
 			/*
@@ -1026,7 +1028,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 					*/
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
-					return raiseHTTPError(&td,a,e_500);
+					retvalue = raiseHTTPError(&td,a,e_500);
+					logHTTPaccess(&td,a);
+					return retvalue;
+
 				}
 			}
 			else if(content_len==0)/*If CONTENT-LENGTH is not specified read all the data*/
@@ -1131,6 +1136,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			{
 				td.inputData.closeFile();
 			}
+			logHTTPaccess(&td,a);
 			return 0;
 		}
 		else
@@ -1158,7 +1164,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,0,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
-			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
 		{
@@ -1166,7 +1171,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,0,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
-			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
 		{
@@ -1174,12 +1178,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,1,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,1);
-			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"DELETE"))/*DELETE REQUEST*/
 		{
 			deleteHTTPRESOURCE(&td,a,td.request.URI,0);
-			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"PUT"))/*PUT REQUEST*/
 		{
@@ -1187,13 +1189,13 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				putHTTPRESOURCE(&td,a,td.request.URI,0,1,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				putHTTPRESOURCE(&td,a,td.request.URI,0,1);
-			logHTTPaccess(&td,a);
 		}
 		else
 		{
 			raiseHTTPError(&td,a,e_501);
 			retvalue=(~1);/*Set first bit to 0*/
 		}
+		logHTTPaccess(&td,a);
 	}
 	/*
 	*If the connection is not Keep-Alive remove it from the connections list returning 0.
@@ -1322,44 +1324,44 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		*/
 		if(strcmpi(response->TRANSFER_ENCODING,"chunked"))
 		{
-			strcat(str,"Content-Length:");
+			strcat(str,"Content-Length: ");
 			strcat(str,response->CONTENT_LENGTH);
 			strcat(str,"\r\n");
 		}
 	}
 	if(response->SERVER_NAME[0])
 	{
-		strcat(str,"Server:");
+		strcat(str,"Server: ");
 		strcat(str,response->SERVER_NAME);
 		strcat(str,"\r\n");
 	}
 	if(response->CACHE_CONTROL[0])
 	{
-		strcat(str,"Cache-Control:");
+		strcat(str,"Cache-Control: ");
 		strcat(str,response->CACHE_CONTROL);
 		strcat(str,"\r\n");
 	}
 	if(response->LAST_MODIFIED[0])
 	{
-		strcat(str,"Last-Modified:");
+		strcat(str,"Last-Modified: ");
 		strcat(str,response->LAST_MODIFIED);
 		strcat(str,"\r\n");
 	}
 	if(response->CONNECTION[0])
 	{
-		strcat(str,"Connection:");
+		strcat(str,"Connection: ");
 		strcat(str,response->CONNECTION);
 		strcat(str,"\r\n");
 	}
 	if(response->CONTENT_ENCODING[0])
 	{
-		strcat(str,"Content-Encoding:");
+		strcat(str,"Content-Encoding: ");
 		strcat(str,response->CONTENT_ENCODING);
 		strcat(str,"\r\n");
 	}
 	if(response->TRANSFER_ENCODING[0])
 	{
-		strcat(str,"Transfer-Encoding:");
+		strcat(str,"Transfer-Encoding: ");
 		strcat(str,response->TRANSFER_ENCODING);
 		strcat(str,"\r\n");
 	}
@@ -1368,7 +1370,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		char *token=strtok(response->COOKIE,"\n");
 		do
 		{
-			strcat(str,"Set-Cookie:");
+			strcat(str,"Set-Cookie: ");
 			strcat(str,token);
 			strcat(str,"\r\n");		
 			token=strtok(NULL,"\n");
@@ -1376,44 +1378,44 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	}
 	if(response->P3P[0])
 	{
-		strcat(str,"P3P:");
+		strcat(str,"P3P: ");
 		strcat(str,response->P3P);
 		strcat(str,"\r\n");
 	}
 	if(response->MIMEVER[0])
 	{
-		strcat(str,"MIME-Version:");
+		strcat(str,"MIME-Version: ");
 		strcat(str,response->MIMEVER);
 		strcat(str,"\r\n");
 	}
 	if(response->CONTENT_TYPE[0])
 	{
-		strcat(str,"Content-Type:");
+		strcat(str,"Content-Type: ");
 		strcat(str,response->CONTENT_TYPE);
 		strcat(str,"\r\n");
 	}
 	if(response->DATE[0])
 	{
-		strcat(str,"Date:");
+		strcat(str,"Date: ");
 		strcat(str,response->DATE);
 		strcat(str,"\r\n");
 	}
 	if(response->DATEEXP[0])
 	{
-		strcat(str,"Expires:");
+		strcat(str,"Expires: ");
 		strcat(str,response->DATEEXP);
 		strcat(str,"\r\n");
 	}
 	if(response->AUTH[0])
 	{
-		strcat(str,"WWW-Authenticate:");
+		strcat(str,"WWW-Authenticate: ");
 		strcat(str,response->AUTH);
 		strcat(str,"\r\n");
 	}
 	
 	if(response->LOCATION[0])
 	{
-		strcat(str,"Location:");
+		strcat(str,"Location: ");
 		strcat(str,response->LOCATION);
 		strcat(str,"\r\n");
 	}
@@ -1460,6 +1462,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	if(ID==e_401AUTH)
 	{
+		td->response.httpStatus = 401;
 		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",versionOfSoftware,td->request.CONNECTION);
 		strcat(td->buffer2,"Date: ");
 		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
@@ -1469,6 +1472,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	else
 	{
+		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
 		char defFile[MAX_PATH*2];
 		if(getErrorFileName(((vhost*)td->connection->host)->documentRoot,getHTTPStatusCodeFromErrorID(ID),defFile))
 		{
@@ -1499,13 +1503,12 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		}
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
-	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
 	strncpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID],HTTP_RESPONSE_ERROR_TYPE_DIM);
 	char errorFile[MAX_PATH];
 	sprintf(errorFile,"%s/%s",((vhost*)(td->connection->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
 	if(lserver->mustUseMessagesFiles() && MYSERVER_FILE::fileExists(errorFile))
 	{
-		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
+		return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
 	}
 	sprintf(td->response.CONTENT_LENGTH,"%i",(u_long)strlen(HTTP_ERROR_MSGS[ID]));
 
@@ -1513,7 +1516,6 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	a->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
 	a->socket.send(HTTP_ERROR_MSGS[ID],(u_long)strlen(HTTP_ERROR_MSGS[ID]), 0);
 
-	logHTTPaccess(td,a);
 	return 1;
 }
 /*
@@ -1521,6 +1523,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 */
 int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
+	td->response.httpStatus=500;
 	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
 	const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
 		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
@@ -1533,6 +1536,7 @@ int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 	a->socket.send(td->buffer2,(u_long)strlen(td->buffer2),0);
 
 	a->socket.send(hardHTML,(u_long)strlen(hardHTML), 0);
+	
 	return 1;
 }
 /*
@@ -1716,12 +1720,14 @@ u_long validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_lon
 */
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
+	td->response.httpStatus=302;
 	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
 	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
+
 	return 1;
 }
 /*
@@ -1729,6 +1735,7 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 */
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
+	td->response.httpStatus=304;
 	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",versionOfSoftware);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
