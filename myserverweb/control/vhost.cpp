@@ -142,11 +142,17 @@ int vHostXML::load(const char * filename)
 	       }
 	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
 	       {
-		  setDocroot(NameNo, (char*)lcur->children->content);
+      if(lcur->children &&  lcur->children->content)
+        setDocroot(NameNo, (char*)lcur->children->content);
+      else
+        setDocroot(NameNo, "");
 	       }
 	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
 	       {
-		  setSysfolder(NameNo, (char*)lcur->children->content);
+      if(lcur->children &&  lcur->children->content)
+        setSysfolder(NameNo, (char*)lcur->children->content);
+      else
+        setSysfolder(NameNo, "");
 	       }
 	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 	       {
