@@ -94,6 +94,7 @@ INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* 
 
 /*
 *Open(or create if not exists) a file.
+*If the function have success the return value is different from 0 and -1.
 */
 MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 {
@@ -120,19 +121,29 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 		openFlag|=GENERIC_WRITE;
 
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
+	{
 		openFlag|=FILE_ATTRIBUTE_TEMPORARY;
+		attributeFlag|=FILE_FLAG_DELETE_ON_CLOSE;
+	}
 
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
 	ret=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
-	if(ret==INVALID_HANDLE_VALUE)
-		ret=0;
-
-	if(ret && (opt & MYSERVER_FILE_OPEN_APPEND))
-		setFilePointer((MYSERVER_FILE_HANDLE)ret,getFileSize((MYSERVER_FILE_HANDLE)ret));
-	else
-		setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
+	if(ret==INVALID_HANDLE_VALUE)/*If exists an error*/
+	{
+		if(GetLastError()==ERROR_ACCESS_DENIED)/*returns -1 if the file is not accessible*/
+			return (MYSERVER_FILE_HANDLE)-1;
+		else
+			ret=0;/*returns 0 for any other error*/
+	}
+	else/*If no error exist in open the file*/
+	{
+		if(ret && (opt & MYSERVER_FILE_OPEN_APPEND))
+			setFilePointer((MYSERVER_FILE_HANDLE)ret,getFileSize((MYSERVER_FILE_HANDLE)ret));
+		else
+			setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
+	}
 
 #endif
 	return ret;

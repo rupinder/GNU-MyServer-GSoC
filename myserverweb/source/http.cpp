@@ -86,7 +86,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 
 	if(ff==-1)
 	{
-		if(GetLastError()==ERROR_ACCESS_DENIED)
+		if(errno==EACCES)
 		{
 			/*
 			*If client have tried to post a login
@@ -167,31 +167,27 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByte,int lastByte)
 {
 	/*
-	*With this code we send a file through the HTTP protocol.
+	*With this routine we send a file through the HTTP protocol.
 	*/
 	MYSERVER_FILE_HANDLE h;
 	h=ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 
 	if(h==0)
 	{	
-		if(GetLastError()==ERROR_ACCESS_DENIED)
+		return 0;
+	}
+	else if(h==(MYSERVER_FILE_HANDLE)-1)
+	{
+		if(s->nTries > 2)
 		{
-			if(s->nTries > 2)
-			{
-				return raiseHTTPError(td,s,e_401);
-			}
-			else
-			{
-				s->nTries++;
-				return raiseHTTPError(td,s,e_401AUTH);
-			}
+			return raiseHTTPError(td,s,e_401);
 		}
 		else
 		{
-			return 0;
+			s->nTries++;
+			return raiseHTTPError(td,s,e_401AUTH);
 		}
 	}
-
 	/*
 	*If h!=0.
 	*/
@@ -341,7 +337,7 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 	if(ms_IsFolder(td->filenamePath))
 	{
 		static char defaultFileName[MAX_PATH];
-		sprintf(defaultFileName,"%s%s",td->filenamePath,lserver->getDefaultFilenamePath());
+		sprintf(defaultFileName,"%s/%s",td->filenamePath,lserver->getDefaultFilenamePath());
 
 		if(sendHTTPFILE(td,s,defaultFileName,OnlyHeader,firstByte,lastByte))
 			return 1;
@@ -688,7 +684,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	*For methods that accept data after the HTTP header set the correct pointer and create a file
 	*containing the informations after the header.
 	*/
-	if(!lstrcmpi(command,"POST"))
+	if(!lstrcmpi(td.request.CMD,"POST"))
 	{
 		td.request.URIOPTSPTR=&td.buffer[maxTotChars];
 		td.buffer[min(td.nBytesToRead,td.buffersize)]='\0';
@@ -718,7 +714,6 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 					*/
 					ms_CloseFile(td.inputData);
 					td.inputData=0;
-					ms_DeleteFile(stdInFilePath);
 					return 0;
 				}
 				ms_WriteToFile(td.inputData,td.buffer2,err,&nbw);
@@ -995,8 +990,7 @@ DWORD validHTTPRequest(httpThreadContext* td,DWORD* nLinesptr,DWORD* nCharsptr)
 	char *req=td->buffer;
 	DWORD buffersize=td->buffersize;
 	DWORD nLineChars;
-	BOOL isValidCommand;
-	isValidCommand=FALSE;
+	BOOL isValidCommand=FALSE;
 	nLineChars=0;
 	DWORD nLines=0;
 	DWORD maxTotChars=0;

@@ -209,9 +209,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*Close and delete the stdin and stdout files used by the CGI.
 	*/
 	ms_CloseFile(stdOutFile);
-	ms_DeleteFile(stdOutFilePath);
 	ms_CloseFile(stdInFile);
-	ms_DeleteFile(stdInFilePath);
 	td->inputData=(MYSERVER_FILE_HANDLE)0;
 
 	/*

@@ -43,7 +43,7 @@ struct HTTP_RESPONSE_HEADER
 struct HTTP_REQUEST_HEADER
 {
 	char CMD[16];		
-	char VER[6];		
+	char VER[10];		
 	char ACCEPT[128];
 	char AUTH[32];
 	char ACCEPTENC[64];	
