@@ -10,7 +10,7 @@
  * with every copy.
  *
  * To compute the message digest of a chunk of bytes, declare an
- * MYSERVER_MD5Context structure, pass it to MD5Init, call MD5Update as
+ * Md5Context structure, pass it to MD5Init, call MD5Update as
  * needed on buffers full of bytes, and then call MD5Final, which
  * will fill a supplied 16-byte array with the digest.
  */
@@ -20,26 +20,27 @@
 
 #ifdef WORDS_BIGENDIAN
 void
-byteSwap(unsigned int *buf, unsigned words)
+byteSwap(unsigned int *buf, unsigned int words)
 {
 	unsigned char *p = (unsigned char *)buf;
 
 	do {
 		*buf++ = (unsigned long)((unsigned int)p[3] << 8 | p[2]) << 16 |
-			((unsigned)p[1] << 8 | p[0]);
+			((unsigned int)p[1] << 8 | p[0]);
 		p += 4;
 	} while (--words);
 }
 #else
+/*! On the little endian architectures does nothing. */
 #define byteSwap(buf,words)
 #endif
 
-/*
- * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
- * initialization constants.
+/*!
+ *Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
+ *initialization constants.
  */
 void
-MYSERVER_MD5Init(struct MYSERVER_MD5Context *ctx)
+MYSERVER_MD5Init(struct Md5Context *ctx)
 {
 	ctx->buf[0] = 0x67452301;
 	ctx->buf[1] = 0xefcdab89;
@@ -50,12 +51,12 @@ MYSERVER_MD5Init(struct MYSERVER_MD5Context *ctx)
 	ctx->bytes[1] = 0;
 }
 
-/*
- * Update context to reflect the concatenation of another buffer full
- * of bytes.
+/*!
+ *Update context to reflect the concatenation of another buffer full
+ *of bytes.
  */
 void
-MYSERVER_MD5Update(struct MYSERVER_MD5Context *ctx, unsigned char const *buf, unsigned long len)
+MYSERVER_MD5Update(struct Md5Context *ctx, unsigned char const *buf, unsigned long len)
 {
 	unsigned int t;
 
@@ -66,7 +67,8 @@ MYSERVER_MD5Update(struct MYSERVER_MD5Context *ctx, unsigned char const *buf, un
 		ctx->bytes[1]++;	/* Carry from low to high */
 
 	t = 64 - (t & 0x3f);	/* Space available in ctx->in (at least 1) */
-	if (t > len) {
+	if (t > len) 
+  {
 		memcpy((unsigned char *)ctx->in + 64 - t, buf, len);
 		return;
 	}
@@ -78,7 +80,8 @@ MYSERVER_MD5Update(struct MYSERVER_MD5Context *ctx, unsigned char const *buf, un
 	len -= t;
 
 	/* Process data in 64-byte chunks */
-	while (len >= 64) {
+	while (len >= 64) 
+  {
 		memcpy(ctx->in, buf, 64);
 		byteSwap(ctx->in, 16);
 		MYSERVER_MD5Transform(ctx->buf,ctx->in);
@@ -90,12 +93,12 @@ MYSERVER_MD5Update(struct MYSERVER_MD5Context *ctx, unsigned char const *buf, un
 	memcpy(ctx->in, buf, len);
 }
 
-/*
- * Final wrapup - pad to 64-byte boundary with the bit pattern 
- * 1 0* (64-bit count of bits processed, MSB-first)
+/*!
+ *Final wrapup - pad to 64-byte boundary with the bit pattern 
+ *1 0* (64-bit count of bits processed, MSB-first)
  */
 void
-MYSERVER_MD5Final(unsigned char digest[16], struct MYSERVER_MD5Context *ctx)
+MYSERVER_MD5Final(unsigned char digest[16], struct Md5Context *ctx)
 {
 	long count = ctx->bytes[0] & 0x3f;	/* Number of bytes in ctx->in */
 	unsigned char *p = (unsigned char *)ctx->in + count;
@@ -140,10 +143,10 @@ MYSERVER_MD5Final(unsigned char digest[16], struct MYSERVER_MD5Context *ctx)
 #define MD5STEP(f,w,x,y,z,in,s) \
 	 (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
 
-/*
- * The core of the MD5 algorithm, this alters an existing MD5 hash to
- * reflect the addition of 16 longwords of new data.  MYSERVER_MD5Update blocks
- * the data and converts bytes longo longwords for this routine.
+/*!
+ *The core of the MD5 algorithm, this alters an existing MD5 hash to
+ *reflect the addition of 16 longwords of new data.  MYSERVER_MD5Update blocks
+ *the data and converts bytes longo longwords for this routine.
  */
 void
 MYSERVER_MD5Transform(unsigned int buf[4], unsigned int const in[16])
@@ -229,7 +232,10 @@ MYSERVER_MD5Transform(unsigned int buf[4], unsigned int const in[16])
 	buf[3] += d;
 }
 
-char * MYSERVER_MD5End(MYSERVER_MD5Context *ctx, char *buf)
+/*!
+ *Write the final hash on te buffer.
+ */
+char * MYSERVER_MD5End(Md5Context *ctx, char *buf)
 {
 	long i;
 	unsigned char digest[16];

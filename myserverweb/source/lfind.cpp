@@ -27,7 +27,7 @@ extern "C"
 /*!
  *Initialize class members.
  */
-myserver_finddata_t::myserver_finddata_t()
+FindData::FindData()
 {
 #ifdef WIN32
   ff = 0;
@@ -41,7 +41,7 @@ myserver_finddata_t::myserver_finddata_t()
 /*!
  *Free class members.
  */
-myserver_finddata_t::~myserver_finddata_t()
+FindData::~FindData()
 {
 #ifdef NOT_WIN
   if(DirName)
@@ -54,7 +54,7 @@ myserver_finddata_t::~myserver_finddata_t()
  *Find the first file using its name.
  *Return -1 or errors.
  */
-int myserver_finddata_t::findfirst(const char filename[])
+int FindData::findfirst(const char filename[])
 {
 #ifdef WIN32
   ff = _findfirst(filename, &fd );
@@ -110,7 +110,7 @@ int myserver_finddata_t::findfirst(const char filename[])
 /*!
  *Find the next file in the directory.
  */
-int myserver_finddata_t::findnext()
+int FindData::findnext()
 {
 #ifdef WIN32
   if(!ff)
@@ -156,7 +156,7 @@ int myserver_finddata_t::findnext()
 /*!
  *Free the used resources.
  */
-int myserver_finddata_t::findclose()
+int FindData::findclose()
 {
 #ifdef WIN32
   int ret;

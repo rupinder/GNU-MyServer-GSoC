@@ -42,7 +42,7 @@ int FastCgi::timeout=MYSERVER_SEC(15);
 /*! Mutex used to access fastCGI servers. */
 Mutex FastCgi::servers_mutex;
 
-struct fourchar
+struct FourChar
 {	
 	union
 	{
@@ -76,7 +76,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	fCGIContext con;
 	con.td=td;
 	u_long nbr=0;
-	FCGI_Header header;
+	FcgiHeader header;
   
   int scriptDirLen = 0;
   int scriptFileLen = 0;
@@ -223,13 +223,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 
 	id=td->id+1;
-	FCGI_BeginRequestBody tBody;
-	tBody.roleB1 = ( FCGI_RESPONDER >> 8 ) & 0xff;
-	tBody.roleB0 = ( FCGI_RESPONDER ) & 0xff;
+	FcgiBeginRequestBody tBody;
+	tBody.roleB1 = ( FcgiRESPONDER >> 8 ) & 0xff;
+	tBody.roleB0 = ( FcgiRESPONDER ) & 0xff;
 	tBody.flags = 0;
 	memset( tBody.reserved, 0, sizeof( tBody.reserved ) );
 
-	if(sendFcgiBody(&con,(char*)&tBody,sizeof(tBody),FCGI_BEGIN_REQUEST,id))
+	if(sendFcgiBody(&con,(char*)&tBody,sizeof(tBody),FcgiBEGIN_REQUEST,id))
 	{
     td->inputData.closeFile();
 		File::deleteFile(td->inputDataPath);
@@ -243,7 +243,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	}
 
 	if(sendFcgiBody(&con,(char*)td->buffer2->GetBuffer(),sizeEnvString,
-                  FCGI_PARAMS,id))
+                  FcgiPARAMS,id))
 	{
     td->inputData.closeFile();
 		File::deleteFile(td->inputDataPath);
@@ -256,7 +256,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}
 
-	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
+	if(sendFcgiBody(&con,0,0,FcgiPARAMS,id))
 	{
     td->inputData.closeFile();
 		File::deleteFile(td->inputDataPath);
@@ -275,7 +275,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		generateFcgiHeader( header, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
+		generateFcgiHeader( header, FcgiSTDIN, id, atoi(td->request.CONTENT_LENGTH));
 		if(con.sock.send((char*)&header,sizeof(header),0)==-1)
     {
       td->inputData.closeFile();
@@ -316,7 +316,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			}
 		}while(nbr==td->buffer->GetRealLength());
 	}
-	if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
+	if(sendFcgiBody(&con,0,0,FcgiSTDIN,id))
 	{
     td->inputData.closeFile();
 		File::deleteFile(td->inputDataPath);
@@ -356,7 +356,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 	getdefaultwd(outDataPath, outDataPathLen);
-	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFCGI_%u",(u_int)td->id);
+	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFcgi%u",(u_int)td->id);
 	
 	if(con.tempOut.openFile(outDataPath,File::OPEN_WRITE | 
                           File::OPEN_READ | File::CREATE_ALWAYS |
@@ -377,14 +377,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 	do	
 	{
-		while(con.sock.bytesToRead()<sizeof(FCGI_Header))
+		while(con.sock.bytesToRead()<sizeof(FcgiHeader))
 		{
 			if((clock_t)(get_ticks()-time1) > timeout)
 				break;
 		}
 		if(con.sock.bytesToRead())
     {
-			nbr=con.sock.recv((char*)&header,sizeof(FCGI_Header),0);
+			nbr=con.sock.recv((char*)&header,sizeof(FcgiHeader),0);
       if(nbr == (u_long)-1)
       {
         td->buffer->SetLength(0);
@@ -393,7 +393,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         ((Vhost*)td->connection->host)->warningsLogWrite(
                                              (char*)td->buffer->GetBuffer());
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-        sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
+        sendFcgiBody(&con,0,0,FcgiABORT_REQUEST,id);
         con.sock.shutdown(2);
         con.sock.closesocket();
         break;
@@ -406,7 +406,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
+			sendFcgiBody(&con,0,0,FcgiABORT_REQUEST,id);
 			con.sock.shutdown(2);
 			con.sock.closesocket();
 			break;
@@ -428,13 +428,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		{
 			switch(header.type)
 			{
-				case FCGI_STDERR:
+				case FcgiSTDERR:
 					con.sock.closesocket();
 					((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 					exit = 1;
           ret = 0;
 					break;
-				case FCGI_STDOUT:
+				case FcgiSTDOUT:
 					nbr=con.sock.recv((char*)td->buffer->GetBuffer(),
                             min(dim,td->buffer->GetRealLength()),0);
 					u_long nbw;
@@ -468,11 +468,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 						data_sent+=nbw;
 					}
 					break;
-				case FCGI_END_REQUEST:
+				case FcgiEND_REQUEST:
 					exit = 1;
 					break;			
-				case FCGI_GET_VALUES_RESULT:
-				case FCGI_UNKNOWN_TYPE:
+				case FcgiGET_VALUES_RESULT:
+				case FcgiUNKNOWN_TYPE:
 				default:
 					break;
 			}
@@ -616,7 +616,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
  */
 int FastCgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 {
-	FCGI_Header header;
+	FcgiHeader header;
 	generateFcgiHeader( header, type, id, len );
 	
 	if(con->sock.send((char*)&header,sizeof(header),0)==-1)
@@ -637,8 +637,8 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*,char* sp,char* ep)
 	char varValue[2500];
 	for(;;)
 	{
-		fourchar varNameLen;
-		fourchar varValueLen;
+		FourChar varNameLen;
+		FourChar varValueLen;
 
 		varNameLen.i=varValueLen.i=0;
 		varName[0]='\0';
@@ -697,12 +697,12 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*,char* sp,char* ep)
 }
 
 /*!
- *Fill the FCGI_Header structure
+ *Fill the FcgiHeader structure
  */
-void FastCgi::generateFcgiHeader( FCGI_Header &header, int iType,
+void FastCgi::generateFcgiHeader( FcgiHeader &header, int iType,
                                   int iRequestId, int iContentLength )
 {
-	header.version = FCGI_VERSION_1;
+	header.version = FcgiVERSION_1;
 	header.type = (u_char)iType;
 	header.requestIdB1 = (u_char)((iRequestId >> 8 ) & 0xff);
 	header.requestIdB0 = (u_char)((iRequestId ) & 0xff);

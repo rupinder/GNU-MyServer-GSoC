@@ -435,12 +435,12 @@ int Vhost::getMaxLogSize()
 /*!
  *vhostmanager costructor.
  */
-void VhostManager::addvHost(Vhost* vHost)
+void VhostManager::addVHost(Vhost* VHost)
 {
 	if(vhostList==0)
 	{
 		vhostList=new sVhostList();	
-		vhostList->host=vHost;
+		vhostList->host=VHost;
 		vhostList->next =0;
 	}
 	else
@@ -458,14 +458,14 @@ void VhostManager::addvHost(Vhost* vHost)
     if(hostl->next==0)
       return;
 		hostl->next->next =0; /*!Make sure that next is null*/
-		hostl->next->host=vHost;
+		hostl->next->host=VHost;
 	}
 	
 }
 /*!
  *Get the vhost for the connection(if any)
  */
-Vhost* VhostManager::getvHost(char* host,char* ip,u_short port)
+Vhost* VhostManager::getVHost(char* host,char* ip,u_short port)
 {
 	sVhostList* vhl;
 	for(vhl=vhostList;vhl;vhl=vhl->next )
@@ -720,7 +720,7 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 		warnings->load(buffer2);
 		vh->setMaxLogSize(maxlogSize);
 		cc++;
-		addvHost(vh);
+		addVHost(vh);
 	}
 	fh.closeFile();
   return 0;
@@ -835,7 +835,7 @@ void VhostManager::saveConfigurationFile(char *filename)
 /*!
  *Returns the entire virtual hosts list.
  */
-VhostManager::sVhostList* VhostManager::getvHostList()
+VhostManager::sVhostList* VhostManager::getVHostList()
 {
 	return this->vhostList;
 }
@@ -1126,7 +1126,7 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 
     vh->setMaxLogSize(maxlogSize);
     vh->initializeSSL();
-    addvHost(vh);
+    addVHost(vh);
     
   }
   parser.close();
@@ -1142,7 +1142,7 @@ void VhostManager::saveXMLConfigurationFile(char *filename)
 	u_long nbw;
 	out.openFile(filename,File::CREATE_ALWAYS|File::OPEN_WRITE);
 	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
-	sVhostList *list=this->getvHostList();
+	sVhostList *list=this->getVHostList();
 	while(list)
 	{
 		char port[6];

@@ -88,7 +88,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	u_long nbw;
 	int ret;
   int outputDataPathLen = getdefaultwdlen() + 20;
-	myserver_finddata_t fd;
+	FindData fd;
 	char *filename = 0;
 	int startchar=0;
 	int nDirectories=0;

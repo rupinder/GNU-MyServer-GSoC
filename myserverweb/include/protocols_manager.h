@@ -55,16 +55,16 @@ public:
 	int getOptions();
 };
 
-struct dynamic_protocol_list_element
+struct DynamicProtocolListElement
 {
 	DynamicProtocol data;
-	dynamic_protocol_list_element* next;
+	DynamicProtocolListElement* next;
 	
 };
 class ProtocolsManager
 {
 private:
-	dynamic_protocol_list_element* list;
+	DynamicProtocolListElement* list;
 public:
 	ProtocolsManager();
   DynamicProtocol* getDynProtocolByOrder(int order);

@@ -604,17 +604,17 @@ void MainDlg::cb_ManagerButton(Fl_Button* o, void* v) {
 
 inline void MainDlg::cb_Name_i(Fl_Choice*, void*) {
   int i = Name->value();
-vHostConf.populateHost(i, Host);
-vHostConf.populateIp(i, Ip);
-Port->value(vHostConf.getPort(i));
-Protocol->value(vHostConf.getProtocol(i));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
-Ssl_Password->value(vHostConf.getSsl_Password(i));
-Docroot->value(vHostConf.getDocroot(i));
-Sysfolder->value(vHostConf.getSysfolder(i));
-Accesseslog->value(vHostConf.getAccesseslog(i));
-Warninglog->value(vHostConf.getWarninglog(i));
+VHostConf.populateHost(i, Host);
+VHostConf.populateIp(i, Ip);
+Port->value(VHostConf.getPort(i));
+Protocol->value(VHostConf.getProtocol(i));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(i));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(i));
+Ssl_Password->value(VHostConf.getSsl_Password(i));
+Docroot->value(VHostConf.getDocroot(i));
+Sysfolder->value(VHostConf.getSysfolder(i));
+Accesseslog->value(VHostConf.getAccesseslog(i));
+Warninglog->value(VHostConf.getWarninglog(i));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -641,20 +641,20 @@ int i;
 val = (char *)fl_input(LanguageXMLEnter_Name);
 if(val != 0) {
   Changed = true;
-  i = vHostConf.addName(val);
-  vHostConf.populateName(Name);
+  i = VHostConf.addName(val);
+  VHostConf.populateName(Name);
   Name->value(i);
-  vHostConf.populateHost(i, Host);
-  vHostConf.populateIp(i, Ip);
-  Port->value(vHostConf.getPort(i));
-  Protocol->value(vHostConf.getProtocol(i));
-  Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
-  Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
-  Ssl_Password->value(vHostConf.getSsl_Password(i));
-  Docroot->value(vHostConf.getDocroot(i));
-  Sysfolder->value(vHostConf.getSysfolder(i));
-  Accesseslog->value(vHostConf.getAccesseslog(i));
-  Warninglog->value(vHostConf.getWarninglog(i));
+  VHostConf.populateHost(i, Host);
+  VHostConf.populateIp(i, Ip);
+  Port->value(VHostConf.getPort(i));
+  Protocol->value(VHostConf.getProtocol(i));
+  Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(i));
+  Ssl_Certificate->value(VHostConf.getSsl_Certificate(i));
+  Ssl_Password->value(VHostConf.getSsl_Password(i));
+  Docroot->value(VHostConf.getDocroot(i));
+  Sysfolder->value(VHostConf.getSysfolder(i));
+  Accesseslog->value(VHostConf.getAccesseslog(i));
+  Warninglog->value(VHostConf.getWarninglog(i));
   i = Protocol->value();
   if(i != 1 && i != 3) {
     Ssl_Privatekey->deactivate();
@@ -679,21 +679,21 @@ void MainDlg::cb_Add3(Fl_Button* o, void* v) {
 inline void MainDlg::cb_Remove3_i(Fl_Button*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.removeName(i);
+VHostConf.removeName(i);
 i = 0;
-vHostConf.populateName(Name);
+VHostConf.populateName(Name);
 Name->value(i);
-vHostConf.populateHost(i, Host);
-vHostConf.populateIp(i, Ip);
-Port->value(vHostConf.getPort(i));
-Protocol->value(vHostConf.getProtocol(i));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
-Ssl_Password->value(vHostConf.getSsl_Password(i));
-Docroot->value(vHostConf.getDocroot(i));
-Sysfolder->value(vHostConf.getSysfolder(i));
-Accesseslog->value(vHostConf.getAccesseslog(i));
-Warninglog->value(vHostConf.getWarninglog(i));
+VHostConf.populateHost(i, Host);
+VHostConf.populateIp(i, Ip);
+Port->value(VHostConf.getPort(i));
+Protocol->value(VHostConf.getProtocol(i));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(i));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(i));
+Ssl_Password->value(VHostConf.getSsl_Password(i));
+Docroot->value(VHostConf.getDocroot(i));
+Sysfolder->value(VHostConf.getSysfolder(i));
+Accesseslog->value(VHostConf.getAccesseslog(i));
+Warninglog->value(VHostConf.getWarninglog(i));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -717,12 +717,12 @@ void MainDlg::cb_Remove3(Fl_Button* o, void* v) {
 inline void MainDlg::cb_Protocol_i(Fl_Choice*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setProtocol(i, Protocol->value());
+VHostConf.setProtocol(i, Protocol->value());
 int pval = Protocol->value();
 if(pval != 1 && pval != 3) {
-  vHostConf.setSsl_Privatekey(i, EMPTY);
-  vHostConf.setSsl_Certificate(i, EMPTY);
-  vHostConf.setSsl_Password(i, EMPTY);
+  VHostConf.setSsl_Privatekey(i, EMPTY);
+  VHostConf.setSsl_Certificate(i, EMPTY);
+  VHostConf.setSsl_Password(i, EMPTY);
   Ssl_Privatekey->value(EMPTY);
   Ssl_Certificate->value(EMPTY);
   Ssl_Password->value(EMPTY);
@@ -744,19 +744,19 @@ else {
 switch(pval) {
   case 0 :
     Port->value(80);
-    vHostConf.setPort(i, 80);
+    VHostConf.setPort(i, 80);
     break;
   case 1 :
     Port->value(443);
-    vHostConf.setPort(i, 443);
+    VHostConf.setPort(i, 443);
     break;
   case 2 :
     Port->value(21);
-    vHostConf.setPort(i, 21);
+    VHostConf.setPort(i, 21);
     break;
   case 3 :
     Port->value(270);
-    vHostConf.setPort(i, 270);
+    VHostConf.setPort(i, 270);
     break;
   default :
     break;
@@ -777,7 +777,7 @@ Fl_Menu_Item MainDlg::menu_Protocol[] = {
 inline void MainDlg::cb_Ssl_Privatekey_i(Fl_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());
+VHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());
 }
 void MainDlg::cb_Ssl_Privatekey(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Privatekey_i(o,v);
@@ -786,7 +786,7 @@ void MainDlg::cb_Ssl_Privatekey(Fl_Input* o, void* v) {
 inline void MainDlg::cb_Ssl_Certificate_i(Fl_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setSsl_Certificate(i, Ssl_Certificate->value());
+VHostConf.setSsl_Certificate(i, Ssl_Certificate->value());
 }
 void MainDlg::cb_Ssl_Certificate(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Certificate_i(o,v);
@@ -795,7 +795,7 @@ void MainDlg::cb_Ssl_Certificate(Fl_Input* o, void* v) {
 inline void MainDlg::cb_Ssl_Password_i(Fl_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setSsl_Password(i, Ssl_Password->value());
+VHostConf.setSsl_Password(i, Ssl_Password->value());
 }
 void MainDlg::cb_Ssl_Password(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Ssl_Password_i(o,v);
@@ -806,7 +806,7 @@ inline void MainDlg::cb_SslButton1_i(Fl_Button*, void*) {
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setSsl_Privatekey(i, chrptr);
+  VHostConf.setSsl_Privatekey(i, chrptr);
   Ssl_Privatekey->value(chrptr);
 };
 }
@@ -819,7 +819,7 @@ inline void MainDlg::cb_SslButton2_i(Fl_Button*, void*) {
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setSsl_Certificate(i, chrptr);
+  VHostConf.setSsl_Certificate(i, chrptr);
   Ssl_Certificate->value(chrptr);
 };
 }
@@ -834,8 +834,8 @@ val = (char *)fl_input(LanguageXMLEnter_Host);
 if(val != 0) {
   Changed = true;
   NameNo = Name->value();
-  i = vHostConf.addHost(NameNo, val, true);
-  vHostConf.populateHost(NameNo, Host);
+  i = VHostConf.addHost(NameNo, val, true);
+  VHostConf.populateHost(NameNo, Host);
   Host->value(i + 1);
 };
 }
@@ -849,8 +849,8 @@ i = Host->value();
 if(i != 0) {
   Changed = true;
   NameNo = Name->value();
-  vHostConf.removeHost(NameNo, i - 1);
-  vHostConf.populateHost(NameNo, Host);
+  VHostConf.removeHost(NameNo, i - 1);
+  VHostConf.populateHost(NameNo, Host);
 };
 }
 void MainDlg::cb_Remove4(Fl_Button* o, void* v) {
@@ -864,8 +864,8 @@ val = (char *)fl_input(LanguageXMLEnter_Ip);
 if(val != 0) {
   Changed = true;
   NameNo = Name->value();
-  i = vHostConf.addIp(NameNo, val, true);
-  vHostConf.populateIp(NameNo, Ip);
+  i = VHostConf.addIp(NameNo, val, true);
+  VHostConf.populateIp(NameNo, Ip);
   Ip->value(i + 1);
 };
 }
@@ -879,8 +879,8 @@ i = Ip->value();
 if(i != 0) {
   Changed = true;
   NameNo = Name->value();
-  vHostConf.removeIp(NameNo, i - 1);
-  vHostConf.populateIp(NameNo, Ip);
+  VHostConf.removeIp(NameNo, i - 1);
+  VHostConf.populateIp(NameNo, Ip);
 };
 }
 void MainDlg::cb_Remove5(Fl_Button* o, void* v) {
@@ -890,7 +890,7 @@ void MainDlg::cb_Remove5(Fl_Button* o, void* v) {
 inline void MainDlg::cb_Port_i(Fl_Value_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setPort(i, (int)Port->value());
+VHostConf.setPort(i, (int)Port->value());
 }
 void MainDlg::cb_Port(Fl_Value_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Port_i(o,v);
@@ -899,7 +899,7 @@ void MainDlg::cb_Port(Fl_Value_Input* o, void* v) {
 inline void MainDlg::cb_Docroot_i(Fl_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setDocroot(i, Docroot->value());
+VHostConf.setDocroot(i, Docroot->value());
 }
 void MainDlg::cb_Docroot(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Docroot_i(o,v);
@@ -908,7 +908,7 @@ void MainDlg::cb_Docroot(Fl_Input* o, void* v) {
 inline void MainDlg::cb_Sysfolder_i(Fl_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setSysfolder(i, Sysfolder->value());
+VHostConf.setSysfolder(i, Sysfolder->value());
 }
 void MainDlg::cb_Sysfolder(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Sysfolder_i(o,v);
@@ -919,7 +919,7 @@ inline void MainDlg::cb_Browse1_i(Fl_Button*, void*) {
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setDocroot(i, chrptr);
+  VHostConf.setDocroot(i, chrptr);
   Docroot->value(chrptr);
 };
 }
@@ -932,7 +932,7 @@ inline void MainDlg::cb_Browse2_i(Fl_Button*, void*) {
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setSysfolder(i, chrptr);
+  VHostConf.setSysfolder(i, chrptr);
   Sysfolder->value(chrptr);
 };
 }
@@ -943,7 +943,7 @@ void MainDlg::cb_Browse2(Fl_Button* o, void* v) {
 inline void MainDlg::cb_Accesseslog_i(Fl_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setAccesseslog(i, Accesseslog->value());
+VHostConf.setAccesseslog(i, Accesseslog->value());
 }
 void MainDlg::cb_Accesseslog(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Accesseslog_i(o,v);
@@ -952,7 +952,7 @@ void MainDlg::cb_Accesseslog(Fl_Input* o, void* v) {
 inline void MainDlg::cb_Warninglog_i(Fl_Input*, void*) {
   Changed = true;
 int i = Name->value();
-vHostConf.setWarninglog(i, Warninglog->value());
+VHostConf.setWarninglog(i, Warninglog->value());
 }
 void MainDlg::cb_Warninglog(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Warninglog_i(o,v);
@@ -2745,23 +2745,23 @@ switch(ConfType) {
 }
 
 // Load the file
-if(vHostConf.load(filename))
+if(VHostConf.load(filename))
   return -1;
 
 // Populate the interface
-vHostConf.populateName(Name);
+VHostConf.populateName(Name);
 Name->value(0);
-vHostConf.populateHost(0, Host);
-vHostConf.populateIp(0, Ip);
-Port->value(vHostConf.getPort(0));
-Protocol->value(vHostConf.getProtocol(0));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(0));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(0));
-Ssl_Password->value(vHostConf.getSsl_Password(0));
-Docroot->value(vHostConf.getDocroot(0));
-Sysfolder->value(vHostConf.getSysfolder(0));
-Accesseslog->value(vHostConf.getAccesseslog(0));
-Warninglog->value(vHostConf.getWarninglog(0));
+VHostConf.populateHost(0, Host);
+VHostConf.populateIp(0, Ip);
+Port->value(VHostConf.getPort(0));
+Protocol->value(VHostConf.getProtocol(0));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(0));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(0));
+Ssl_Password->value(VHostConf.getSsl_Password(0));
+Docroot->value(VHostConf.getDocroot(0));
+Sysfolder->value(VHostConf.getSysfolder(0));
+Accesseslog->value(VHostConf.getAccesseslog(0));
+Warninglog->value(VHostConf.getWarninglog(0));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -2824,8 +2824,8 @@ if(ret) {
   StatusDlg->hide();
   return -1;
 }
-vHostConf.loadProtocols(list);
-vHostConf.populateProtocol(Protocol);
+VHostConf.loadProtocols(list);
+VHostConf.populateProtocol(Protocol);
 
 // ======== Progress display ========
 fl_wait(50);  // small delay
@@ -2891,26 +2891,26 @@ if(ret) {
   return -1;
 }
 
-ret = vHostConf.loadMemBuf(Buffer);
+ret = VHostConf.loadMemBuf(Buffer);
 if(ret) {
   StatusDlg->hide();
   return -2;
 }
 
 // Populate the interface
-vHostConf.populateName(Name);
+VHostConf.populateName(Name);
 Name->value(0);
-vHostConf.populateHost(0, Host);
-vHostConf.populateIp(0, Ip);
-Port->value(vHostConf.getPort(0));
-Protocol->value(vHostConf.getProtocol(0));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(0));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(0));
-Ssl_Password->value(vHostConf.getSsl_Password(0));
-Docroot->value(vHostConf.getDocroot(0));
-Sysfolder->value(vHostConf.getSysfolder(0));
-Accesseslog->value(vHostConf.getAccesseslog(0));
-Warninglog->value(vHostConf.getWarninglog(0));
+VHostConf.populateHost(0, Host);
+VHostConf.populateIp(0, Ip);
+Port->value(VHostConf.getPort(0));
+Protocol->value(VHostConf.getProtocol(0));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(0));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(0));
+Ssl_Password->value(VHostConf.getSsl_Password(0));
+Docroot->value(VHostConf.getDocroot(0));
+Sysfolder->value(VHostConf.getSysfolder(0));
+Accesseslog->value(VHostConf.getAccesseslog(0));
+Warninglog->value(VHostConf.getWarninglog(0));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -3101,7 +3101,7 @@ switch(ConfType) {
 }
 
 // Save the file
-if(vHostConf.save(filename))
+if(VHostConf.save(filename))
   return -1;
 
 // End of function
@@ -3169,7 +3169,7 @@ fl_wait(50);  // small delay
 // ======== Progress display ========
 
 // Send virtualhosts.xml
-ret = vHostConf.saveMemBuf(Buffer);
+ret = VHostConf.saveMemBuf(Buffer);
 if(ret) {
   StatusDlg->hide();
   return -2;
@@ -3275,7 +3275,7 @@ if(Control_Enabled->value() == 1) {
   const char * chrptr = Control_Password->value();
   if(chrptr[0] != '\0') {
     char tempbuffer[32];
-    MYSERVER_MD5Context md5;
+    Md5Context md5;
     MYSERVER_MD5Init(&md5);
     MYSERVER_MD5Update(&md5,(const unsigned char*)chrptr,
                        strlen(chrptr));
@@ -3293,8 +3293,8 @@ return 0;
 }
 
 void MainDlg::setDynamic(Vector & list) {
-  vHostConf.loadProtocols(list);
-vHostConf.populateProtocol(Protocol);
+  VHostConf.loadProtocols(list);
+VHostConf.populateProtocol(Protocol);
 }
 
 const char * MainDlg::getValueXML(const char * name) {

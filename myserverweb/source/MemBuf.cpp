@@ -463,7 +463,7 @@ CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 	CMemBuf mem_MD5;
 	mem_MD5.m_bCanDelete = 0;
 	mem_MD5.SetLength(16);
-	MYSERVER_MD5Context ctx;
+	Md5Context ctx;
 	MYSERVER_MD5Init(&ctx);
 	MYSERVER_MD5Update(&ctx, (unsigned char*) pAdr, nSize);
 	MYSERVER_MD5Final((unsigned char*) mem_MD5.GetBuffer(), &ctx);

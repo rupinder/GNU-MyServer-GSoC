@@ -17,17 +17,17 @@
 #ifndef MD5_H
 #define MD5_H
 
-struct MYSERVER_MD5Context {
+struct Md5Context {
 	unsigned int buf[4];
 	unsigned int bytes[2];
 	unsigned int in[16];
 };
 
-void MYSERVER_MD5Init(MYSERVER_MD5Context *context);
-void MYSERVER_MD5Update(struct MYSERVER_MD5Context *context, unsigned char const *buf, unsigned long len);
-void MYSERVER_MD5Final(unsigned char digest[16], struct MYSERVER_MD5Context *context);
+void MYSERVER_MD5Init(Md5Context *context);
+void MYSERVER_MD5Update(struct Md5Context *context, unsigned char const *buf, unsigned long len);
+void MYSERVER_MD5Final(unsigned char digest[16], struct Md5Context *context);
 void MYSERVER_MD5Transform(unsigned int buf[4], unsigned int const in[16]);
-char * MYSERVER_MD5End(MYSERVER_MD5Context *ctx, char *buf);
+char * MYSERVER_MD5End(Md5Context *ctx, char *buf);
 
 
 #endif /*! !MD5_H */

@@ -96,7 +96,7 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   char tmpPassword[64];
   tmpName[0]='\0';
   tmpPassword[0]='\0';
-  MYSERVER_MD5Context md5;
+  Md5Context md5;
 
   /*! Is the value in the config file still in MD5? */
   int adminNameMD5ized = 0;
@@ -182,7 +182,7 @@ int ControlProtocol::checkAuth()
   char authPasswordHeaderMD5[64];
   char *headerLogin;
   char *headerPassword;
-  MYSERVER_MD5Context md5;
+  Md5Context md5;
   /*! Return 0 if we haven't enabled the service. */
   if(!controlEnabled)
     return 0;
@@ -1036,8 +1036,8 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
                                         char *b1,int bs1)
 {
   char *path = lserver->getLanguagesPath();
-  myserver_finddata_t fd;
-  int ret;
+  FindData fd;
+  int ret = 0;
   if(path == 0)
   {
     strcpy(b1,"Error retrieving the language files path");
@@ -1058,7 +1058,6 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
     int dirLen = 0;
     int filenameLen = 0;
     u_long nbw = 0;
-    int ret = 0;
     /*! Do not show files starting with a dot. */
     if(fd.name[0]=='.')
       continue;
@@ -1097,7 +1096,7 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
       return CONTROL_INTERNAL;
     }
   }
-	while(fd.findnext());
+	while(!fd.findnext());
   fd.findclose();
   return 0;
 }

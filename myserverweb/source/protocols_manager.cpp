@@ -213,7 +213,7 @@ int DynamicProtocol::setFilename(char *nf)
 int ProtocolsManager::addProtocol(char *file, XmlParser* parser,
                                    char* confFile, Server* lserver)
 {
-	dynamic_protocol_list_element* ne = new dynamic_protocol_list_element();
+	DynamicProtocolListElement* ne = new DynamicProtocolListElement();
 	ne->data.setFilename(file);
 	ne->data.loadProtocol(parser, confFile, lserver);
 	ne->next=list;
@@ -235,8 +235,8 @@ int ProtocolsManager::addProtocol(char *file, XmlParser* parser,
  */
 int ProtocolsManager::unloadProtocols(XmlParser *parser)
 {
-	dynamic_protocol_list_element* ce=list;
-	dynamic_protocol_list_element* ne=0;
+	DynamicProtocolListElement* ce=list;
+	DynamicProtocolListElement* ne=0;
 	if(ce)
 		ne=list->next;
 	while(ce)
@@ -266,7 +266,7 @@ ProtocolsManager::ProtocolsManager()
 DynamicProtocol* ProtocolsManager::getDynProtocolByOrder(int order)
 {
   int i = 0;
-	dynamic_protocol_list_element* ne=list;
+	DynamicProtocolListElement* ne=list;
   while(order != i)
   {
     if(ne == 0)
@@ -282,7 +282,7 @@ DynamicProtocol* ProtocolsManager::getDynProtocolByOrder(int order)
  */
 DynamicProtocol* ProtocolsManager::getDynProtocol(char *protocolName)
 {
-	dynamic_protocol_list_element* ne=list;
+	DynamicProtocolListElement* ne=list;
 	while(ne)
 	{
 		if(!lstrcmpi(protocolName,ne->data.getProtocolName()))
@@ -300,7 +300,7 @@ DynamicProtocol* ProtocolsManager::getDynProtocol(char *protocolName)
 int ProtocolsManager::loadProtocols(char* directory, XmlParser* parser,
                                      char* confFile, Server* lserver)
 {
-	myserver_finddata_t fd;
+	FindData fd;
   int filenamelen = 0;
 	char *filename = 0;
   int ret;
@@ -355,7 +355,7 @@ int ProtocolsManager::loadProtocols(char* directory, XmlParser* parser,
 		sprintf(completeFileName,"%s/%s", directory, fd.name);
 		addProtocol(completeFileName, parser, confFile, lserver);
 		delete [] completeFileName;
-	}while(fd.findnext());
+	}while(!fd.findnext());
 	fd.findclose();
   delete [] filename;
   filename = 0;

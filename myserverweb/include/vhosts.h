@@ -56,7 +56,7 @@ public:
 	struct sHostList
 	{
 		char hostName[MAX_COMPUTERNAME_LENGTH+1];
-    myserver_regex hostRegex;
+    Regex hostRegex;
 		sHostList *next;
 	};
 
@@ -83,7 +83,7 @@ public:
 	struct sIpList
 	{
     char hostIp[32];
-    myserver_regex ipRegex;
+    Regex ipRegex;
     sIpList *next; 
 	};
 	
@@ -186,13 +186,13 @@ public:
 	int removeVHost(int n);
 	int switchVhosts(int n1,int n2);
 	int switchVhosts(sVhostList*,sVhostList*);
-	VhostManager::sVhostList*  getvHostList();
+	VhostManager::sVhostList*  getVHostList();
 	
 	/*! Get a pointer to a vhost.  */
-	Vhost*  getvHost(char*,char*,u_short);
+	Vhost*  getVHost(char*,char*,u_short);
 	
 	/*! Add an element to the vhost list.  */
-	void addvHost(Vhost*);
+	void addVHost(Vhost*);
 	
 	/*! Load the virtual hosts list from a configuration file.  */
 	int loadConfigurationFile(char *,int maxlogSize=0);

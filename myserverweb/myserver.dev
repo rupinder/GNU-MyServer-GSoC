@@ -721,7 +721,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit64]
-FileName=source\myserver_regex.cpp
+FileName=source\Regex.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -731,7 +731,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit65]
-FileName=include\myserver_regex.h
+FileName=include\Regex.h
 CompileCpp=1
 Folder=myserver
 Compile=1

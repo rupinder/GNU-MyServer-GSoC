@@ -50,12 +50,11 @@ public:
 	virtual ~ProtocolBuffer();
 };
 
-
-
 class Connection
 {
-  /*! IDentifier for the CONNECTION. */
+  /*! Identifier for the CONNECTION. */
   u_long ID;
+
 	/*! The server is parsing this connection. */
 	int parsing;
 

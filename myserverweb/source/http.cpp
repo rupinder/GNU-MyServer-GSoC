@@ -642,7 +642,7 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	char *method;
 	char *uri;
 	u_long digest_count;
-  MYSERVER_MD5Context md5;
+  Md5Context md5;
 	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
        ((HttpUserData*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
 		return 0;
@@ -1894,7 +1894,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			/*!
        *Find the virtual host to check both host name and IP value.
        */
-			a->host=lserver->vhostList->getvHost(td.request.HOST, a->getlocalIpAddr(), 
+			a->host=lserver->vhostList->getVHost(td.request.HOST, a->getlocalIpAddr(), 
                                            a->getLocalPort());
 			if(a->host==0)
 			{
@@ -2035,7 +2035,7 @@ void Http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
 {
 	if(!out)
 		return;
-	MYSERVER_MD5Context md5;
+	Md5Context md5;
 	sprintf(buffer, "%i-%u-%s", (int)clock(), (u_int)td->id, 
           td->connection->getipAddr());
 	MYSERVER_MD5Init(&md5);
@@ -2090,7 +2090,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 			strncpy(&(md5_str[2]), td->request.URI, 256-2);
 			md5_str[0]=(char)td->id;
 			md5_str[1]=(char)clock();
-			MYSERVER_MD5Context md5;
+			Md5Context md5;
 			MYSERVER_MD5Init(&md5);
 			MYSERVER_MD5Update(&md5, (unsigned char const*)md5_str,  (unsigned int)strlen(md5_str));
 			MYSERVER_MD5End(&md5, ((HttpUserData*)a->protocolBuffer)->opaque);

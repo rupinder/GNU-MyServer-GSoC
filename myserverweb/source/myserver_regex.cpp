@@ -24,7 +24,7 @@ regmatch_t match;
 /*!
  *Compile the regex pattern.
  */
-int myserver_regex::compile(char *pattern, int flags)
+int Regex::compile(char *pattern, int flags)
 {
   int ret = regcomp(&compiled_regex, pattern, flags);
   if(!ret)
@@ -35,7 +35,7 @@ int myserver_regex::compile(char *pattern, int flags)
 /*!
  *Match the pattern against strings.
  */
-int myserver_regex::exec(char *text, size_t nmatch, regmatch_t matchptr [], int eflags)
+int Regex::exec(char *text, size_t nmatch, regmatch_t matchptr [], int eflags)
 {
   if(!compiled)
     return 1;
@@ -46,7 +46,7 @@ int myserver_regex::exec(char *text, size_t nmatch, regmatch_t matchptr [], int 
 /*!
  *Free the used memory.
  */
-void myserver_regex::free()
+void Regex::free()
 {
   if(compiled)
     regfree(&compiled_regex);
@@ -56,7 +56,7 @@ void myserver_regex::free()
 /*!
  *Constructor for the class.
  */
-myserver_regex::myserver_regex()
+Regex::Regex()
 {
   compiled = 0;
 }
@@ -64,7 +64,7 @@ myserver_regex::myserver_regex()
 /*!
  *Destructor for the class
  */
-myserver_regex::~myserver_regex()
+Regex::~Regex()
 {
   free();
 }
@@ -72,14 +72,14 @@ myserver_regex::~myserver_regex()
 /*!
  *Constructor for the class.
  */
-myserver_regex::myserver_regex(char *pattern, int flags)
+Regex::Regex(char *pattern, int flags)
 {
   compile(pattern, flags);
 }
 /*!
  *Return a nonzero value if the regex was compiled.
  */
-int myserver_regex::isCompiled()
+int Regex::isCompiled()
 {
   return compiled;
 }

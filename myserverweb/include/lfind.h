@@ -50,7 +50,7 @@ extern "C"
 #define intptr_t int
 #endif
 
-class myserver_finddata_t 
+class FindData 
 { 
  public:
    char * name;
@@ -60,8 +60,8 @@ class myserver_finddata_t
    int findfirst(const char filename[]);
    int findnext();
    int findclose();
-   myserver_finddata_t();
-   ~myserver_finddata_t();
+   FindData();
+   ~FindData();
  private:
 #ifdef WIN32
 	_finddata_t fd;

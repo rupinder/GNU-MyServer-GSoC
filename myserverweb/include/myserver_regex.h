@@ -35,15 +35,15 @@ extern "C"
 /*!
 *This class is used to manage regular expressions in MyServer.
 */
-class myserver_regex
+class Regex
 {
   regex_t compiled_regex;
   regmatch_t match;
   int compiled;
 public:
-  myserver_regex();
-  myserver_regex(char *pattern, int flags);
-  ~myserver_regex();
+  Regex();
+  Regex(char *pattern, int flags);
+  ~Regex();
   int isCompiled();
   int compile(char *pattern, int flags);
   int exec(char *string, size_t nmatch, regmatch_t matchptr [], int eflags);

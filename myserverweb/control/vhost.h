@@ -36,7 +36,7 @@ enum
 
 extern const char * EMPTY;
 
-struct vHostNode
+struct VHostNode
 {
    Vector Host;
    Vector Ip;
@@ -51,10 +51,10 @@ struct vHostNode
    char * Warninglog;
 };
 
-class vHostXML
+class VHostXML
 {
  public:
-   ~vHostXML();
+   ~VHostXML();
    void clear();
    int load(const char *);
    int loadMemBuf(CMemBuf &);
@@ -93,8 +93,8 @@ class vHostXML
    void populateProtocol(Fl_Choice *);
    void loadProtocols(Vector &);
  private :
-   void DeletevHostNode(vHostNode *);
-   Vector vHosts;
+   void DeleteVHostNode(VHostNode *);
+   Vector VHosts;
    Vector Dynamic;
 };
 

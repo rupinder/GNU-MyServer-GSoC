@@ -20,10 +20,7 @@ extern "C"
 {
 #include <stdlib.h>
 }
-
 #include "../include/vector.h"
-
-using namespace std;
 
 Vector::Vector()
 {

@@ -370,7 +370,7 @@ private:
   const char * mystrcat(const char * a, const char * b);
   bool Changed;
   MIMEtypeXML MimeConf;
-  vHostXML vHostConf;
+  VHostXML VHostConf;
   XmlParser xmlFile;
   ControlClient Server;
 };

@@ -598,17 +598,17 @@ if(chrptr != 0) {
             Fl_Choice Name {
               label {Name:}
               callback {int i = Name->value();
-vHostConf.populateHost(i, Host);
-vHostConf.populateIp(i, Ip);
-Port->value(vHostConf.getPort(i));
-Protocol->value(vHostConf.getProtocol(i));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
-Ssl_Password->value(vHostConf.getSsl_Password(i));
-Docroot->value(vHostConf.getDocroot(i));
-Sysfolder->value(vHostConf.getSysfolder(i));
-Accesseslog->value(vHostConf.getAccesseslog(i));
-Warninglog->value(vHostConf.getWarninglog(i));
+VHostConf.populateHost(i, Host);
+VHostConf.populateIp(i, Ip);
+Port->value(VHostConf.getPort(i));
+Protocol->value(VHostConf.getProtocol(i));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(i));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(i));
+Ssl_Password->value(VHostConf.getSsl_Password(i));
+Docroot->value(VHostConf.getDocroot(i));
+Sysfolder->value(VHostConf.getSysfolder(i));
+Accesseslog->value(VHostConf.getAccesseslog(i));
+Warninglog->value(VHostConf.getWarninglog(i));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -633,20 +633,20 @@ int i;
 val = (char *)fl_input(LanguageXMLEnter_Name);
 if(val != 0) {
   Changed = true;
-  i = vHostConf.addName(val);
-  vHostConf.populateName(Name);
+  i = VHostConf.addName(val);
+  VHostConf.populateName(Name);
   Name->value(i);
-  vHostConf.populateHost(i, Host);
-  vHostConf.populateIp(i, Ip);
-  Port->value(vHostConf.getPort(i));
-  Protocol->value(vHostConf.getProtocol(i));
-  Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
-  Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
-  Ssl_Password->value(vHostConf.getSsl_Password(i));
-  Docroot->value(vHostConf.getDocroot(i));
-  Sysfolder->value(vHostConf.getSysfolder(i));
-  Accesseslog->value(vHostConf.getAccesseslog(i));
-  Warninglog->value(vHostConf.getWarninglog(i));
+  VHostConf.populateHost(i, Host);
+  VHostConf.populateIp(i, Ip);
+  Port->value(VHostConf.getPort(i));
+  Protocol->value(VHostConf.getProtocol(i));
+  Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(i));
+  Ssl_Certificate->value(VHostConf.getSsl_Certificate(i));
+  Ssl_Password->value(VHostConf.getSsl_Password(i));
+  Docroot->value(VHostConf.getDocroot(i));
+  Sysfolder->value(VHostConf.getSysfolder(i));
+  Accesseslog->value(VHostConf.getAccesseslog(i));
+  Warninglog->value(VHostConf.getWarninglog(i));
   i = Protocol->value();
   if(i != 1 && i != 3) {
     Ssl_Privatekey->deactivate();
@@ -669,21 +669,21 @@ if(val != 0) {
               label Remove
               callback {Changed = true;
 int i = Name->value();
-vHostConf.removeName(i);
+VHostConf.removeName(i);
 i = 0;
-vHostConf.populateName(Name);
+VHostConf.populateName(Name);
 Name->value(i);
-vHostConf.populateHost(i, Host);
-vHostConf.populateIp(i, Ip);
-Port->value(vHostConf.getPort(i));
-Protocol->value(vHostConf.getProtocol(i));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
-Ssl_Password->value(vHostConf.getSsl_Password(i));
-Docroot->value(vHostConf.getDocroot(i));
-Sysfolder->value(vHostConf.getSysfolder(i));
-Accesseslog->value(vHostConf.getAccesseslog(i));
-Warninglog->value(vHostConf.getWarninglog(i));
+VHostConf.populateHost(i, Host);
+VHostConf.populateIp(i, Ip);
+Port->value(VHostConf.getPort(i));
+Protocol->value(VHostConf.getProtocol(i));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(i));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(i));
+Ssl_Password->value(VHostConf.getSsl_Password(i));
+Docroot->value(VHostConf.getDocroot(i));
+Sysfolder->value(VHostConf.getSysfolder(i));
+Accesseslog->value(VHostConf.getAccesseslog(i));
+Warninglog->value(VHostConf.getWarninglog(i));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -716,12 +716,12 @@ else {
                   label {Protocol:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setProtocol(i, Protocol->value());
+VHostConf.setProtocol(i, Protocol->value());
 int pval = Protocol->value();
 if(pval != 1 && pval != 3) {
-  vHostConf.setSsl_Privatekey(i, EMPTY);
-  vHostConf.setSsl_Certificate(i, EMPTY);
-  vHostConf.setSsl_Password(i, EMPTY);
+  VHostConf.setSsl_Privatekey(i, EMPTY);
+  VHostConf.setSsl_Certificate(i, EMPTY);
+  VHostConf.setSsl_Password(i, EMPTY);
   Ssl_Privatekey->value(EMPTY);
   Ssl_Certificate->value(EMPTY);
   Ssl_Password->value(EMPTY);
@@ -743,19 +743,19 @@ else {
 switch(pval) {
   case 0 :
     Port->value(80);
-    vHostConf.setPort(i, 80);
+    VHostConf.setPort(i, 80);
     break;
   case 1 :
     Port->value(443);
-    vHostConf.setPort(i, 443);
+    VHostConf.setPort(i, 443);
     break;
   case 2 :
     Port->value(21);
-    vHostConf.setPort(i, 21);
+    VHostConf.setPort(i, 21);
     break;
   case 3 :
     Port->value(270);
-    vHostConf.setPort(i, 270);
+    VHostConf.setPort(i, 270);
     break;
   default :
     break;
@@ -783,21 +783,21 @@ switch(pval) {
                   label {SSL private key:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());}
+VHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());}
                   xywh {180 185 215 25} when 1 deactivate
                 }
                 Fl_Input Ssl_Certificate {
                   label {SSL certificate:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setSsl_Certificate(i, Ssl_Certificate->value());}
+VHostConf.setSsl_Certificate(i, Ssl_Certificate->value());}
                   xywh {180 215 215 25} when 1 deactivate
                 }
                 Fl_Input Ssl_Password {
                   label {SSL password:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setSsl_Password(i, Ssl_Password->value());}
+VHostConf.setSsl_Password(i, Ssl_Password->value());}
                   xywh {180 245 215 25} type Secret when 1 deactivate
                 }
                 Fl_Button SslButton1 {
@@ -806,7 +806,7 @@ vHostConf.setSsl_Password(i, Ssl_Password->value());}
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setSsl_Privatekey(i, chrptr);
+  VHostConf.setSsl_Privatekey(i, chrptr);
   Ssl_Privatekey->value(chrptr);
 }}
                   xywh {405 185 85 25} deactivate
@@ -817,7 +817,7 @@ if(chrptr != 0) {
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setSsl_Certificate(i, chrptr);
+  VHostConf.setSsl_Certificate(i, chrptr);
   Ssl_Certificate->value(chrptr);
 }}
                   xywh {405 215 85 25} deactivate
@@ -843,8 +843,8 @@ val = (char *)fl_input(LanguageXMLEnter_Host);
 if(val != 0) {
   Changed = true;
   NameNo = Name->value();
-  i = vHostConf.addHost(NameNo, val, true);
-  vHostConf.populateHost(NameNo, Host);
+  i = VHostConf.addHost(NameNo, val, true);
+  VHostConf.populateHost(NameNo, Host);
   Host->value(i + 1);
 }}
                   xywh {30 305 80 25}
@@ -856,8 +856,8 @@ i = Host->value();
 if(i != 0) {
   Changed = true;
   NameNo = Name->value();
-  vHostConf.removeHost(NameNo, i - 1);
-  vHostConf.populateHost(NameNo, Host);
+  VHostConf.removeHost(NameNo, i - 1);
+  VHostConf.populateHost(NameNo, Host);
 }}
                   xywh {120 305 80 25}
                 }
@@ -869,8 +869,8 @@ val = (char *)fl_input(LanguageXMLEnter_Ip);
 if(val != 0) {
   Changed = true;
   NameNo = Name->value();
-  i = vHostConf.addIp(NameNo, val, true);
-  vHostConf.populateIp(NameNo, Ip);
+  i = VHostConf.addIp(NameNo, val, true);
+  VHostConf.populateIp(NameNo, Ip);
   Ip->value(i + 1);
 }}
                   xywh {210 305 80 25}
@@ -882,8 +882,8 @@ i = Ip->value();
 if(i != 0) {
   Changed = true;
   NameNo = Name->value();
-  vHostConf.removeIp(NameNo, i - 1);
-  vHostConf.populateIp(NameNo, Ip);
+  VHostConf.removeIp(NameNo, i - 1);
+  VHostConf.populateIp(NameNo, Ip);
 }}
                   xywh {300 305 80 25}
                 }
@@ -891,7 +891,7 @@ if(i != 0) {
                   label {Port:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setPort(i, (int)Port->value());}
+VHostConf.setPort(i, (int)Port->value());}
                   xywh {435 165 65 25} maximum 10240 step 1
                 }
               }
@@ -903,14 +903,14 @@ vHostConf.setPort(i, (int)Port->value());}
                   label {Document root:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setDocroot(i, Docroot->value());}
+VHostConf.setDocroot(i, Docroot->value());}
                   xywh {180 155 215 25} when 1
                 }
                 Fl_Input Sysfolder {
                   label {System folder:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setSysfolder(i, Sysfolder->value());}
+VHostConf.setSysfolder(i, Sysfolder->value());}
                   xywh {180 185 215 25} when 1
                 }
                 Fl_Button {} {
@@ -919,7 +919,7 @@ vHostConf.setSysfolder(i, Sysfolder->value());}
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setDocroot(i, chrptr);
+  VHostConf.setDocroot(i, chrptr);
   Docroot->value(chrptr);
 }}
                   xywh {405 155 85 25}
@@ -930,7 +930,7 @@ if(chrptr != 0) {
 if(chrptr != 0) {
   Changed = true;
   int i = Name->value();
-  vHostConf.setSysfolder(i, chrptr);
+  VHostConf.setSysfolder(i, chrptr);
   Sysfolder->value(chrptr);
 }}
                   xywh {405 185 85 25}
@@ -944,14 +944,14 @@ if(chrptr != 0) {
                   label {Accesses log file:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setAccesseslog(i, Accesseslog->value());}
+VHostConf.setAccesseslog(i, Accesseslog->value());}
                   xywh {180 155 215 25} when 1
                 }
                 Fl_Input Warninglog {
                   label {Warning log file:}
                   callback {Changed = true;
 int i = Name->value();
-vHostConf.setWarninglog(i, Warninglog->value());}
+VHostConf.setWarninglog(i, Warninglog->value());}
                   xywh {180 185 215 25} when 1
                 }
               }
@@ -1237,23 +1237,23 @@ switch(ConfType) {
 }
 
 // Load the file
-if(vHostConf.load(filename))
+if(VHostConf.load(filename))
   return -1;
 
 // Populate the interface
-vHostConf.populateName(Name);
+VHostConf.populateName(Name);
 Name->value(0);
-vHostConf.populateHost(0, Host);
-vHostConf.populateIp(0, Ip);
-Port->value(vHostConf.getPort(0));
-Protocol->value(vHostConf.getProtocol(0));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(0));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(0));
-Ssl_Password->value(vHostConf.getSsl_Password(0));
-Docroot->value(vHostConf.getDocroot(0));
-Sysfolder->value(vHostConf.getSysfolder(0));
-Accesseslog->value(vHostConf.getAccesseslog(0));
-Warninglog->value(vHostConf.getWarninglog(0));
+VHostConf.populateHost(0, Host);
+VHostConf.populateIp(0, Ip);
+Port->value(VHostConf.getPort(0));
+Protocol->value(VHostConf.getProtocol(0));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(0));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(0));
+Ssl_Password->value(VHostConf.getSsl_Password(0));
+Docroot->value(VHostConf.getDocroot(0));
+Sysfolder->value(VHostConf.getSysfolder(0));
+Accesseslog->value(VHostConf.getAccesseslog(0));
+Warninglog->value(VHostConf.getWarninglog(0));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -1316,8 +1316,8 @@ if(ret) {
   StatusDlg->hide();
   return -1;
 }
-vHostConf.loadProtocols(list);
-vHostConf.populateProtocol(Protocol);
+VHostConf.loadProtocols(list);
+VHostConf.populateProtocol(Protocol);
 
 // ======== Progress display ========
 fl_wait(50);  // small delay
@@ -1383,26 +1383,26 @@ if(ret) {
   return -1;
 }
 
-ret = vHostConf.loadMemBuf(Buffer);
+ret = VHostConf.loadMemBuf(Buffer);
 if(ret) {
   StatusDlg->hide();
   return -2;
 }
 
 // Populate the interface
-vHostConf.populateName(Name);
+VHostConf.populateName(Name);
 Name->value(0);
-vHostConf.populateHost(0, Host);
-vHostConf.populateIp(0, Ip);
-Port->value(vHostConf.getPort(0));
-Protocol->value(vHostConf.getProtocol(0));
-Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(0));
-Ssl_Certificate->value(vHostConf.getSsl_Certificate(0));
-Ssl_Password->value(vHostConf.getSsl_Password(0));
-Docroot->value(vHostConf.getDocroot(0));
-Sysfolder->value(vHostConf.getSysfolder(0));
-Accesseslog->value(vHostConf.getAccesseslog(0));
-Warninglog->value(vHostConf.getWarninglog(0));
+VHostConf.populateHost(0, Host);
+VHostConf.populateIp(0, Ip);
+Port->value(VHostConf.getPort(0));
+Protocol->value(VHostConf.getProtocol(0));
+Ssl_Privatekey->value(VHostConf.getSsl_Privatekey(0));
+Ssl_Certificate->value(VHostConf.getSsl_Certificate(0));
+Ssl_Password->value(VHostConf.getSsl_Password(0));
+Docroot->value(VHostConf.getDocroot(0));
+Sysfolder->value(VHostConf.getSysfolder(0));
+Accesseslog->value(VHostConf.getAccesseslog(0));
+Warninglog->value(VHostConf.getWarninglog(0));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -1593,7 +1593,7 @@ switch(ConfType) {
 }
 
 // Save the file
-if(vHostConf.save(filename))
+if(VHostConf.save(filename))
   return -1;
 
 // End of function
@@ -1661,7 +1661,7 @@ fl_wait(50);  // small delay
 // ======== Progress display ========
 
 // Send virtualhosts.xml
-ret = vHostConf.saveMemBuf(Buffer);
+ret = VHostConf.saveMemBuf(Buffer);
 if(ret) {
   StatusDlg->hide();
   return -2;
@@ -1767,7 +1767,7 @@ if(Control_Enabled->value() == 1) {
   const char * chrptr = Control_Password->value();
   if(chrptr[0] != '\\0') {
     char tempbuffer[32];
-    MYSERVER_MD5Context md5;
+    Md5Context md5;
     MYSERVER_MD5Init(&md5);
     MYSERVER_MD5Update(&md5,(const unsigned char*)chrptr,
                        strlen(chrptr));
@@ -1785,8 +1785,8 @@ return 0;} {}
   }
   Function {setDynamic(Vector & list)} {return_type void
   } {
-    code {vHostConf.loadProtocols(list);
-vHostConf.populateProtocol(Protocol);} {}
+    code {VHostConf.loadProtocols(list);
+VHostConf.populateProtocol(Protocol);} {}
   }
   decl {int ConfType;} {public
   }
@@ -1982,7 +1982,7 @@ return temp;} {}
   }
   decl {bool Changed;} {}
   decl {MIMEtypeXML MimeConf;} {}
-  decl {vHostXML vHostConf;} {}
+  decl {VHostXML VHostConf;} {}
   decl {XmlParser xmlFile;} {}
   decl {ControlClient Server;} {}
 } 

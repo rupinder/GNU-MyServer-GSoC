@@ -68,7 +68,7 @@ int main(int argc, char * argv[])
    char main_configuration_file[MAX_PATH];
    int conf_location = 0;
    XmlParser xmlFile;
-   myserver_finddata_t fd;
+   FindData fd;
    int fd_ret;
    bool langFound = true;
    bool confFound = true;
@@ -304,7 +304,7 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
    HMODULE module;
    registerNamePROC name;
 
-   myserver_finddata_t fd;
+   FindData fd;
    int fd_ret;   
    int filenamelen = 0;
    char *filename = 0;

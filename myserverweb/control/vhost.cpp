@@ -30,20 +30,20 @@ using namespace std;
 
 const char * EMPTY = "";
 
-vHostXML::~vHostXML()
+VHostXML::~VHostXML()
 {
    clear();
    Dynamic.clear();
 }
 
-void vHostXML::clear()
+void VHostXML::clear()
 {
-   for(int i = 0; i < vHosts.size(); i++)
-     DeletevHostNode((vHostNode *)(vHosts.at(i)->Data));
-   vHosts.clear();
+   for(int i = 0; i < VHosts.size(); i++)
+     DeleteVHostNode((VHostNode *)(VHosts.at(i)->Data));
+   VHosts.clear();
 }
 
-int vHostXML::load(const char * filename)
+int VHostXML::load(const char * filename)
 {
    XmlParser parser;
    if(parser.open((char *)filename))  // But I promis not to change filename
@@ -54,7 +54,7 @@ int vHostXML::load(const char * filename)
    return ret;
 }
 
-int vHostXML::loadMemBuf(CMemBuf & buffer)
+int VHostXML::loadMemBuf(CMemBuf & buffer)
 {
    XmlParser parser;
    if(parser.openMemBuf(buffer))
@@ -67,7 +67,7 @@ int vHostXML::loadMemBuf(CMemBuf & buffer)
 
 // from vhosts.cpp with modification
 // TODO: Change to use libxml2 or cXMLParser more "proper"
-int vHostXML::load_core(XmlParser & parser)
+int VHostXML::load_core(XmlParser & parser)
 {
    int NameNo = 0;
 
@@ -190,7 +190,7 @@ int vHostXML::load_core(XmlParser & parser)
    return 0;
 }
 
-int vHostXML::save(const char * filename)
+int VHostXML::save(const char * filename)
 {
    XmlParser xmlFile;
    int ret = save_core(xmlFile);
@@ -199,7 +199,7 @@ int vHostXML::save(const char * filename)
    return ret;
 }
 
-int vHostXML::saveMemBuf(CMemBuf & buffer)
+int VHostXML::saveMemBuf(CMemBuf & buffer)
 {
    XmlParser xmlFile;
    int ret = save_core(xmlFile);
@@ -210,9 +210,9 @@ int vHostXML::saveMemBuf(CMemBuf & buffer)
 
 // from vhosts.cpp with modification
 // Old text way removed to make use of CMemBuf
-int vHostXML::save_core(XmlParser & xmlFile)
+int VHostXML::save_core(XmlParser & xmlFile)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return -1;
 
    // New xml way...
@@ -220,20 +220,20 @@ int vHostXML::save_core(XmlParser & xmlFile)
    
    xmlFile.newfile("VHOSTS");
    
-   for(i = 0; i < vHosts.size(); i++)
+   for(i = 0; i < VHosts.size(); i++)
      {
 	xmlFile.addGroup("VHOST");
 
-	xmlFile.addChild("NAME", vHosts.at(i)->Text);
+	xmlFile.addChild("NAME", VHosts.at(i)->Text);
 
-	for(i2 = 0; i2 < ((vHostNode *)(vHosts.at(i)->Data))->Ip.size(); i2++)
+	for(i2 = 0; i2 < ((VHostNode *)(VHosts.at(i)->Data))->Ip.size(); i2++)
 	  {
-	     xmlFile.addChild("IP", ((vHostNode *)(vHosts.at(i)->Data))->Ip.at(i2)->Text);
+	     xmlFile.addChild("IP", ((VHostNode *)(VHosts.at(i)->Data))->Ip.at(i2)->Text);
 	  }
 
-	for(i2 = 0; i2 < ((vHostNode *)(vHosts.at(i)->Data))->Host.size(); i2++)
+	for(i2 = 0; i2 < ((VHostNode *)(VHosts.at(i)->Data))->Host.size(); i2++)
 	  {
-	     xmlFile.addChild("HOST", ((vHostNode *)(vHosts.at(i)->Data))->Host.at(i2)->Text);
+	     xmlFile.addChild("HOST", ((VHostNode *)(VHosts.at(i)->Data))->Host.at(i2)->Text);
 	  }
 
 	char port[6];
@@ -287,36 +287,36 @@ int vHostXML::save_core(XmlParser & xmlFile)
    return 0;
 }
 
-void vHostXML::populateName(Fl_Choice * o)
+void VHostXML::populateName(Fl_Choice * o)
 {
    o->clear();
-   for(int i = 0; i < vHosts.size(); i++)
-     o->add(vHosts.at(i)->Text);
-   if(vHosts.size() == 0)
+   for(int i = 0; i < VHosts.size(); i++)
+     o->add(VHosts.at(i)->Text);
+   if(VHosts.size() == 0)
      o->add(" ");
 }
 
-void vHostXML::populateHost(int vHostNo, Fl_Browser * o)
+void VHostXML::populateHost(int VHostNo, Fl_Browser * o)
 {
    o->clear();
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   for(int i = 0; i < ((vHostNode *)(vHosts.at(vHostNo)->Data))->Host.size(); i++)
-     o->add(((vHostNode *)(vHosts.at(vHostNo)->Data))->Host.at(i)->Text);
+   for(int i = 0; i < ((VHostNode *)(VHosts.at(VHostNo)->Data))->Host.size(); i++)
+     o->add(((VHostNode *)(VHosts.at(VHostNo)->Data))->Host.at(i)->Text);
 }
 
-void vHostXML::populateIp(int vHostNo, Fl_Browser * o)
+void VHostXML::populateIp(int VHostNo, Fl_Browser * o)
 {
    o->clear();
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   for(int i = 0; i < ((vHostNode *)(vHosts.at(vHostNo)->Data))->Ip.size(); i++)
-     o->add(((vHostNode *)(vHosts.at(vHostNo)->Data))->Ip.at(i)->Text);
+   for(int i = 0; i < ((VHostNode *)(VHosts.at(VHostNo)->Data))->Ip.size(); i++)
+     o->add(((VHostNode *)(VHosts.at(VHostNo)->Data))->Ip.at(i)->Text);
 }
 
-int vHostXML::addName(const char * Text)
+int VHostXML::addName(const char * Text)
 {
-   vHostNode * NewNode = new vHostNode;
+   VHostNode * NewNode = new VHostNode;
    NewNode->Host.clear();
    NewNode->Ip.clear();
    NewNode->Port = 0;
@@ -328,63 +328,63 @@ int vHostXML::addName(const char * Text)
    NewNode->Sysfolder = (char *)EMPTY;
    NewNode->Accesseslog = (char *)EMPTY;
    NewNode->Warninglog = (char *)EMPTY;
-   VectorNode * ret = vHosts.add(Text, (void *)NewNode);
-   vHosts.sort();
+   VectorNode * ret = VHosts.add(Text, (void *)NewNode);
+   VHosts.sort();
    return ret->Number;
 }
 
-int vHostXML::addHost(int vHostNo, const char * Text, bool isRegx)
+int VHostXML::addHost(int VHostNo, const char * Text, bool isRegx)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return 0;
-   VectorNode * ret = ((vHostNode *)(vHosts.at(vHostNo)->Data))->Host.add(Text, (void *)isRegx);
-   ((vHostNode *)(vHosts.at(vHostNo)->Data))->Host.sort();
+   VectorNode * ret = ((VHostNode *)(VHosts.at(VHostNo)->Data))->Host.add(Text, (void *)isRegx);
+   ((VHostNode *)(VHosts.at(VHostNo)->Data))->Host.sort();
    return ret->Number;
 }
 
-int vHostXML::addIp(int vHostNo, const char * Text, bool isRegx)
+int VHostXML::addIp(int VHostNo, const char * Text, bool isRegx)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return 0;
-   VectorNode * ret = ((vHostNode *)(vHosts.at(vHostNo)->Data))->Ip.add(Text, (void *)isRegx);
-   ((vHostNode *)(vHosts.at(vHostNo)->Data))->Ip.sort();
+   VectorNode * ret = ((VHostNode *)(VHosts.at(VHostNo)->Data))->Ip.add(Text, (void *)isRegx);
+   ((VHostNode *)(VHosts.at(VHostNo)->Data))->Ip.sort();
    return ret->Number;
 }
 
-void vHostXML::removeName(int vHostNo)
+void VHostXML::removeName(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   DeletevHostNode((vHostNode *)(vHosts.at(vHostNo)->Data));
-   vHosts.remove(vHostNo);
+   DeleteVHostNode((VHostNode *)(VHosts.at(VHostNo)->Data));
+   VHosts.remove(VHostNo);
 }
 
-void vHostXML::removeHost(int vHostNo, int index)
+void VHostXML::removeHost(int VHostNo, int index)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   ((vHostNode *)(vHosts.at(vHostNo)->Data))->Host.remove(index);
+   ((VHostNode *)(VHosts.at(VHostNo)->Data))->Host.remove(index);
 }
 
-void vHostXML::removeIp(int vHostNo, int index)
+void VHostXML::removeIp(int VHostNo, int index)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   ((vHostNode *)(vHosts.at(vHostNo)->Data))->Ip.remove(index);
+   ((VHostNode *)(VHosts.at(VHostNo)->Data))->Ip.remove(index);
 }
 
-void vHostXML::setPort(int vHostNo, int val)
+void VHostXML::setPort(int VHostNo, int val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   ((vHostNode *)(vHosts.at(vHostNo)->Data))->Port = val;
+   ((VHostNode *)(VHosts.at(VHostNo)->Data))->Port = val;
 }
 
-void vHostXML::setProtocol(int vHostNo, int val)
+void VHostXML::setProtocol(int VHostNo, int val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   ((vHostNode *)(vHosts.at(vHostNo)->Data))->Protocol = val;
+   ((VHostNode *)(VHosts.at(VHostNo)->Data))->Protocol = val;
 }
 
 static inline void setstr(char *& dest, const char * val)
@@ -397,119 +397,119 @@ static inline void setstr(char *& dest, const char * val)
      dest = strdup(val);
 }
 
-void vHostXML::setSsl_Privatekey(int vHostNo, const char * val)
+void VHostXML::setSsl_Privatekey(int VHostNo, const char * val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   setstr(((vHostNode *)(vHosts.at(vHostNo)->Data))->Ssl_Privatekey, val);
+   setstr(((VHostNode *)(VHosts.at(VHostNo)->Data))->Ssl_Privatekey, val);
 }
 
-void vHostXML::setSsl_Certificate(int vHostNo, const char * val)
+void VHostXML::setSsl_Certificate(int VHostNo, const char * val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   setstr(((vHostNode *)(vHosts.at(vHostNo)->Data))->Ssl_Certificate, val);
+   setstr(((VHostNode *)(VHosts.at(VHostNo)->Data))->Ssl_Certificate, val);
 }
 
-void vHostXML::setSsl_Password(int vHostNo, const char * val)
+void VHostXML::setSsl_Password(int VHostNo, const char * val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   setstr(((vHostNode *)(vHosts.at(vHostNo)->Data))->Ssl_Password, val);
+   setstr(((VHostNode *)(VHosts.at(VHostNo)->Data))->Ssl_Password, val);
 }
 
-void vHostXML::setDocroot(int vHostNo, const char * val)
+void VHostXML::setDocroot(int VHostNo, const char * val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   setstr(((vHostNode *)(vHosts.at(vHostNo)->Data))->Docroot, val);
+   setstr(((VHostNode *)(VHosts.at(VHostNo)->Data))->Docroot, val);
 }
 
-void vHostXML::setSysfolder(int vHostNo, const char * val)
+void VHostXML::setSysfolder(int VHostNo, const char * val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   setstr(((vHostNode *)(vHosts.at(vHostNo)->Data))->Sysfolder, val);
+   setstr(((VHostNode *)(VHosts.at(VHostNo)->Data))->Sysfolder, val);
 }
 
-void vHostXML::setAccesseslog(int vHostNo, const char * val)
+void VHostXML::setAccesseslog(int VHostNo, const char * val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   setstr(((vHostNode *)(vHosts.at(vHostNo)->Data))->Accesseslog, val);
+   setstr(((VHostNode *)(VHosts.at(VHostNo)->Data))->Accesseslog, val);
 }
 
-void vHostXML::setWarninglog(int vHostNo, const char * val)
+void VHostXML::setWarninglog(int VHostNo, const char * val)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return;
-   setstr(((vHostNode *)(vHosts.at(vHostNo)->Data))->Warninglog, val);
+   setstr(((VHostNode *)(VHosts.at(VHostNo)->Data))->Warninglog, val);
 }
 
-int vHostXML::getPort(int vHostNo)
+int VHostXML::getPort(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return 0;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Port;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Port;
 }
 
-int vHostXML::getProtocol(int vHostNo)
+int VHostXML::getProtocol(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return 0;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Protocol;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Protocol;
 }
 
-const char * vHostXML::getSsl_Privatekey(int vHostNo)
+const char * VHostXML::getSsl_Privatekey(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return EMPTY;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Ssl_Privatekey;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Ssl_Privatekey;
 }
 
-const char * vHostXML::getSsl_Certificate(int vHostNo)
+const char * VHostXML::getSsl_Certificate(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return EMPTY;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Ssl_Certificate;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Ssl_Certificate;
 }
 
-const char * vHostXML::getSsl_Password(int vHostNo)
+const char * VHostXML::getSsl_Password(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return EMPTY;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Ssl_Password;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Ssl_Password;
 }
 
-const char * vHostXML::getDocroot(int vHostNo)
+const char * VHostXML::getDocroot(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return EMPTY;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Docroot;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Docroot;
 }
 
-const char * vHostXML::getSysfolder(int vHostNo)
+const char * VHostXML::getSysfolder(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return EMPTY;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Sysfolder;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Sysfolder;
 }
 
-const char * vHostXML::getAccesseslog(int vHostNo)
+const char * VHostXML::getAccesseslog(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return EMPTY;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Accesseslog;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Accesseslog;
 }
 
-const char * vHostXML::getWarninglog(int vHostNo)
+const char * VHostXML::getWarninglog(int VHostNo)
 {
-   if(vHosts.isempty())
+   if(VHosts.isempty())
      return EMPTY;
-   return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Warninglog;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Warninglog;
 }
 
-void vHostXML::populateProtocol(Fl_Choice * o)
+void VHostXML::populateProtocol(Fl_Choice * o)
 {
    // Fl_Menu_ has a "terminator" item
    while(o->size() - 1 > PROTOCOL_DYNAMIC)
@@ -522,7 +522,7 @@ void vHostXML::populateProtocol(Fl_Choice * o)
      }
 }
 
-void vHostXML::loadProtocols(Vector & list)
+void VHostXML::loadProtocols(Vector & list)
 {
    Dynamic.clear();
    Dynamic.add(list);
@@ -534,7 +534,7 @@ static inline void delstr(char * val)
      free(val);
 }
 
-void vHostXML::DeletevHostNode(vHostNode * Node)
+void VHostXML::DeleteVHostNode(VHostNode * Node)
 {
    Node->Host.clear();
    Node->Ip.clear();

@@ -505,10 +505,10 @@ void Server::createListenThreads()
    *Create the listens threads.
    *Every port uses a thread.
    */
-	for(VhostManager::sVhostList *list=vhostList->getvHostList();list;list=list->next )
+	for(VhostManager::sVhostList *list=vhostList->getVHostList();list;list=list->next )
 	{
 		int needThread=1;
-		VhostManager::sVhostList *list2=vhostList->getvHostList();
+		VhostManager::sVhostList *list2=vhostList->getVHostList();
 		for(;;)
 		{
 			list2=list2->next;
@@ -850,7 +850,7 @@ int Server::initialize(int /*!os_ver*/)
    */
 	if(File::fileExists("languages"))
 	{
-    int languages_pathLen = strlen ("languages/") + 1 ;
+    int languages_pathLen = getdefaultwdlen() + strlen ("languages/") + 2 ;
     languages_path = new char[languages_pathLen];
     if(languages_path == 0)
     {
@@ -865,7 +865,7 @@ int Server::initialize(int /*!os_ver*/)
       logEndPrintError();
       return -1;
     }
-		strcpy(languages_path,"languages/");
+		sprintf(languages_path,"%s/languages/", getdefaultwd(0, 0) );
 	}
 	else
 	{
@@ -1210,7 +1210,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	new_connection->setLocalPort((u_short)localPort);
 	new_connection->setipAddr(ipAddr);
 	new_connection->setlocalIpAddr(localIpAddr);
-	new_connection->host = (void*)lserver->vhostList->getvHost(0, localIpAddr, 
+	new_connection->host = (void*)lserver->vhostList->getVHost(0, localIpAddr, 
                                                              (u_short)localPort);
 
   /*! No vhost for the connection so bail. */
