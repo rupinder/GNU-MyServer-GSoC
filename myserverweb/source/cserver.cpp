@@ -70,6 +70,7 @@ int mustEndServer;
 cserver::cserver()
 {
 	threads=0;
+  toReboot = 0;
 	listeningThreads=0;
   languages_path=0;
 	main_configuration_file=0;
@@ -225,8 +226,8 @@ void cserver::start()
 			time_t myserver_mime_conf_now=
                        MYSERVER_FILE::getLastModTime(mime_configuration_file);
 			/*If a configuration file was modified reboot the server*/
-			if((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
-         (myserver_mime_conf_now!=-1))
+			if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
+         (myserver_mime_conf_now!=-1)) || toReboot)
 			{
 				if( (myserver_main_conf_now != myserver_main_conf)  || 
             (myserver_hosts_conf_now != myserver_hosts_conf)  || 
@@ -1545,6 +1546,8 @@ int cserver::loadSettings()
 int cserver::reboot()
 {
   int ret;
+  /*! Reset the toReboot flag. */
+  toReboot = 0;
   /*! Print the Reboot message and do a beep(0x7). */
 	printf("%c\n\nRebooting.......\n\n", 0x7);
 	if(mustEndServer)
@@ -1563,6 +1566,14 @@ int cserver::reboot()
   if(ret)
     return ret;
 
+}
+
+/*!
+ *Reboot the server on the next loop.
+ */
+void cserver::rebootOnNextLoop()
+{
+  toReboot = 1;
 }
 
 /*!

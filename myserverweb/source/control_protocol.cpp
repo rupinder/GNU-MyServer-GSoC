@@ -431,7 +431,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     knownCommand = 1;
     ret = SHOWCONNECTIONS(Ofile, b1, bs1);
   }
-  if(!strcmp(command, "KILLCONNECTION"))
+  else if(!strcmp(command, "KILLCONNECTION"))
   {
     knownCommand = 1;
     char buff[11];
@@ -439,6 +439,12 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     buff[10] = '\0';
     u_long ID = header.getOptions() ? atol(buff) : 0;
     ret = KILLCONNECTION( ID ,Ofile, b1, bs1);
+  }
+  else if(!strcmp(command, "REBOOT"))
+  {
+    knownCommand = 1;
+    lserver->rebootOnNextLoop();
+    ret = 0;
   }
 
   if(knownCommand)

@@ -94,6 +94,7 @@ private:
 	protocols_manager protocols;
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
+  int toReboot;
 	u_long nThreads;
 	u_long verbosity;
 	u_long buffersize;
@@ -126,12 +127,11 @@ private:
 	int reboot();
 	u_int listeningThreads;
 	char *languages_path;
-
 	char *main_configuration_file;
 	char *vhost_configuration_file;
 	char *mime_configuration_file;
-
 public:
+  void rebootOnNextLoop();
   char *getMainConfFile();
   char *getVhostConfFile();
   char *getMIMEConfFile();
