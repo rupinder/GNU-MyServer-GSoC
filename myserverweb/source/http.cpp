@@ -641,6 +641,8 @@ u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
 	char response[48];
 	char *method;
 	char *uri;
+	u_long digest_count;
+  MYSERVER_MD5Context md5;
 	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
        ((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
 		return 0;
@@ -648,14 +650,13 @@ u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
 	if(lstrcmp(td->request.digest_realm, ((http_user_data*)s->protocolBuffer)->realm))
 		return 0;
 	
-	u_long digest_count = hexToInt(td->request.digest_nc);
+	digest_count = hexToInt(td->request.digest_nc);
 	
 	if(digest_count != ((http_user_data*)s->protocolBuffer)->nc+1)
 		return 0;
 	else
 		((http_user_data*)s->protocolBuffer)->nc++;
    
-  MYSERVER_MD5Context md5;
 	MYSERVER_MD5Init(&md5);
 	td->buffer2->SetLength(0);
 	*td->buffer2 << td->request.digest_username << ":" << td->request.digest_realm 
@@ -1391,6 +1392,10 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
   int ret = 0;
 	int validRequest;
   int cwdLen;
+  u_long dataRead=0;
+  u_long dataToRead=0;
+  /*! Dimension of the POST data. */
+	u_long content_len=0;
 	td.buffer=((ClientsTHREAD*)a->thread)->GetBuffer();
 	td.buffer2=((ClientsTHREAD*)a->thread)->GetBuffer2();
 	td.buffersize=bs1;
@@ -1488,9 +1493,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		if(td.request.CONNECTION[0])
 			strcpy(td.request.CONNECTION, "close");
 	}
-	/*! POST data size if any. */
-	u_long content_len=0;
-	
+
 	/*!
 	 *For methods that accept data after the HTTP header set the correct 
    *pointer and create a file containing the informations after the header.
@@ -1535,7 +1538,10 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		 *Read POST data
 		 */
 		{
-			td.request.URIOPTSPTR=&((char*)td.buffer->GetBuffer())[td.nHeaderChars];
+      u_long nbw=0;
+			u_long total_nbr=0;
+			u_long timeout;
+      td.request.URIOPTSPTR=&((char*)td.buffer->GetBuffer())[td.nHeaderChars];
 			((char*)td.buffer->GetBuffer())[min(td.nBytesToRead, 
                                           td.buffer->GetRealLength()-1)]='\0';
 			/*!
@@ -1545,8 +1551,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 			if(td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS | 
                              MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
 				return 0;
-			u_long nbw=0;
-			u_long total_nbr=min(td.nBytesToRead, 
+			nbw=0;
+      total_nbr=min(td.nBytesToRead, 
                            td.buffer->GetRealLength()-1)-td.nHeaderChars;
 			if(total_nbr)
       {
@@ -1597,7 +1603,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 			/*!
        *If there are others bytes to read from the socket.
        */
-			u_long timeout=get_ticks();
+			timeout=get_ticks();
 			if((content_len)&&(content_len!=nbw))
 			{
 				int ret;
@@ -1780,15 +1786,15 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
         delete [] newfilename;
 				return 0;
 			}
-			u_long dataToRead=(u_long)hexToInt(buffer);
+			dataToRead=(u_long)hexToInt(buffer);
 
 			/*! The last chunk length is 0. */
 			if(dataToRead==0)
 				break;
 
-			u_long dataRead=0;
 			while(dataRead<dataToRead)
 			{
+				u_long nbw;
 				if(td.inputData.readFromFile((char*)td.buffer->GetBuffer(), 
                                       min(dataToRead-dataRead, 
                                           td.buffer->GetRealLength()-1), &nbr))
@@ -1803,7 +1809,6 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 				if(nbr==0)
 					break;
 				dataRead+=nbr;
-				u_long nbw;
 				if(newStdIn.writeToFile((char*)td.buffer->GetBuffer(), nbr, &nbw))
 				{
 					td.inputData.closeFile();
@@ -2282,6 +2287,7 @@ int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath
 		if(filename[0])
 		{
       int filenamePathLen;
+      u_long len;
       if(*filenamePath)
         delete [] (*filenamePath);
       filenamePathLen = strlen(((vhost*)(td->connection->host))->documentRoot) + 
@@ -2290,7 +2296,7 @@ int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath
       if(*filenamePath == 0)
         return 0;
 			strcpy(*filenamePath, ((vhost*)(td->connection->host))->documentRoot);
-			u_long len=(u_long)(strlen(*filenamePath)+1);
+      len=(u_long)(strlen(*filenamePath)+1);
 			(*filenamePath)[len-1]='/';
 			strcpy(&(*filenamePath)[len], filename);
 		}

@@ -171,8 +171,8 @@ int main (int argn, char **argv)
   sig3.sa_handler = Sig_Hup;
 	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
 	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
-	sigaction(SIGTERM,&sig2,NULL); // catch the kill command
-	sigaction(SIGHUP,&sig3,NULL); // catch the HUP command
+	sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
+	sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
 #endif
   path_len = strlen(argv[0]) +1 ;
   path = new char[path_len];

@@ -63,8 +63,7 @@ int cgi::cgi_timeout = MYSERVER_SEC(15);
 int cgi::send(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
               char *cgipath, int execute, int only_header)
 {
-
-	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
+ 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
   int cmdLineLen;
 	char *cmdLine = 0;
