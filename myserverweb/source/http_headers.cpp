@@ -257,6 +257,14 @@ void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->RANGEBYTEBEGIN[0]='\0';
 	request->RANGEBYTEEND[0]='\0';
 	request->uriEndsWithSlash=0;
+	request->digest_realm[0]='\0';
+	request->digest_opaque[0]='\0';
+	request->digest_nonce[0]='\0';
+	request->digest_cnonce[0]='\0';
+	request->digest_username[0]='\0';
+	request->digest_response[0]='\0';
+	request->digest_qop[0]='\0';
+	request->digest_nc[0]='\0';
 }
 /*!
 *Reset all the HTTP_RESPONSE_HEADER structure members.
@@ -480,32 +488,108 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		/*!Authorization*/
 		if(!lstrcmpi(command,"Authorization"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, " " );
 			if(!token)return 0;
-			lineControlled=1;		
-			/*!
-			*Basic authorization in base64 is login:password.
-			*Assume that it is Basic anyway.
-			*/
-			strcpy(request->AUTH,"Basic");
-			char *base64=&token[strlen("Basic ")];
-			int len=(int)strlen(base64);
-			char* lbuffer2=base64Utils.Decode(base64,&len);
-			char* keep_lbuffer2=lbuffer2;
-			int i;
-			for(i=0;(*lbuffer2!=':') && (i<19);i++)
+			lineControlled=1;
+			
+			strcpy(request->AUTH,token);
+			if(!lstrcmpi(token,"Basic"))
 			{
-				td->connection->login[i]=*lbuffer2++;
-				td->connection->login[i+1]='\0';
+				u_long i;
+				char *base64=&token[strlen("Basic ")];
+				int len=(int)strlen(base64);
+				char* lbuffer2=base64Utils.Decode(base64,&len);
+				char* keep_lbuffer2=lbuffer2;
+				for(i=0;(*lbuffer2!=':') && (i<19);i++)
+				{
+					td->connection->login[i]=*lbuffer2++;
+					td->connection->login[i+1]='\0';
+				}
+				strncpy(td->identity,td->connection->login,32);
+				lbuffer2++;
+				for(i=0;(*lbuffer2)&&(i<31);i++)
+				{
+					td->connection->password[i]=*lbuffer2++;
+					td->connection->password[i+1]='\0';
+				}
+				free(keep_lbuffer2);
+				token = strtok( NULL, "\r\n");
 			}
-			strncpy(td->identity,td->connection->login,32);
-			lbuffer2++;
-			for(i=0;(*lbuffer2)&&(i<31);i++)
+			else if(!lstrcmpi(token,"Digest"))
 			{
-				td->connection->password[i]=*lbuffer2++;
-				td->connection->password[i+1]='\0';
+				LPCONNECTION a = td->connection;
+				if(a->protocolBuffer==0)
+					return 0;
+				while(token = strtok( NULL, "=" ))
+				{
+					StrTrim(token," ");
+					if(!lstrcmpi(token,"nonce"))
+					{
+						token = strtok( NULL, "," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_nonce,token,48);
+					}
+					else if(!lstrcmpi(token,"opaque"))
+					{
+						token = strtok( NULL, "," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_opaque,token,48);
+					}
+					else if(!lstrcmpi(token,"uri"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_uri,token,1024);
+					}
+					else if(!lstrcmpi(token,"method"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_method,token,16);
+					}										
+					else if(!lstrcmpi(token,"qop"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_qop,token,16);
+					}					
+					else if(!lstrcmpi(token,"realm"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_realm,token,48);
+					}
+					else if(!lstrcmpi(token,"cnonce"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token," \"");
+						strncpy(td->request.digest_cnonce,token,48);
+					}
+					else if(!lstrcmpi(token,"username"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_username,token,16);
+						strncpy(td->connection->login,token,48);						
+					}
+					else if(!lstrcmpi(token,"response"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_response,token,48);
+					}
+					else if(!lstrcmpi(token,"nc"))
+					{
+						token = strtok( NULL, "\r\n," );
+						StrTrim(token,"\" ");
+						strncpy(td->request.digest_nc,token,10);
+					}
+					else 
+					{
+						token = strtok( NULL, "\r\n," );
+					}
+				}
 			}
-			free(keep_lbuffer2);
 		}else
 		/*!Host*/
 		if(!lstrcmpi(command,"Host"))

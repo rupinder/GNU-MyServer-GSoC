@@ -27,6 +27,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/mscgi.h"
 #include "../include/isapi.h"
 #include "../include/cXMLParser.h"
+/*!
+*Data used only by an HTTP user.
+*/
+struct http_user_data
+{
+	char realm[48];/*Realm string used by Digest authorization scheme*/
+	char opaque[48];/*Opaque string used by Digest authorization scheme*/
+	char nonce[48];/*Nonce string used by Digest authorization scheme*/
+	char cnonce[48];/*Cnonce string used by Digest authorization scheme*/
+	char needed_password[16];/*Password string used by Digest authorization scheme*/
+	u_long nc;/*Nonce count used by Digest authorization scheme*/
+	int digest;/*Nonzero if the user was authenticated trough the Digest scheme*/
+};
 class http : public protocol
 {
 private:
@@ -60,7 +73,9 @@ public:
 	int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
 	int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
+	void resetHTTPUserData(http_user_data*);
 	http();
+	u_long checkDigest(httpThreadContext* td,LPCONNECTION s);
 	/*!
 	*The function is used to the request and build a response.
 	*/

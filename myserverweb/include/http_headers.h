@@ -46,6 +46,8 @@ extern "C" {
 #endif
 extern class CBase64Utils base64Utils;
 
+#define HTTP_AUTH_SCHEME_BASIC 0
+#define HTTP_AUTH_SCHEME_DIGEST 1
 
 /*!
 *Structure used by the HTTP protocol parser to describe a thread.
@@ -54,7 +56,7 @@ struct httpThreadContext
 {
 	LPCONNECTION connection;
 	char *buffer;
-	char *buffer2;	
+	char *buffer2;
 	u_long buffersize;
 	u_long buffersize2;
 	u_long id;
@@ -75,6 +77,7 @@ struct httpThreadContext
 	char outputDataPath[MAX_PATH];
 	MYSERVER_FILE inputData;
 	MYSERVER_FILE outputData;
+	int auth_scheme;
 	void* lhttp;
 };
 

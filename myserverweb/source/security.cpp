@@ -159,12 +159,14 @@ int getErrorFileName(char *root,int error,char* out)
 	parser.close();
 	return found;
 }
-int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder,char *password2)
+int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder,char *password2,char* auth_type,int len_auth,int *permission2)
 {
 	char permissionsFile[MAX_PATH];
 	char tempPassword[32];
 	tempPassword[0]='\0';
 	folder[MAX_PATH-10]='\0';
+	if(auth_type)
+		auth_type[0]='\0';
 	sprintf(permissionsFile,"%s/security",folder);
 	/*!
 	*If the file doesn't exist allow everyone to do everything
@@ -206,8 +208,27 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	int userPermissions=0;
 	int userPermissionsFound=0;
 
+	int filePermissions2Found=0;
+	int userPermissions2Found=0;
+	int genericPermissions2Found=0;
+
+	
 	while(node)
 	{
+		if(!xmlStrcmp(node->name, (const xmlChar *)"AUTH"))
+		{
+			xmlAttr *attr =  node->properties;
+			while(attr)
+			{
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"TYPE"))
+				{
+					if(auth_type)
+						strncpy(auth_type,(const char*)attr->children->content,len_auth);
+				}
+				attr=attr->next;
+			}
+		}
+	
 		if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
 		{
 			xmlAttr *attr =  node->properties;
@@ -252,14 +273,18 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)password))
 						rightPassword=1;
 				}
-				if(rightUser && password2 && (filePermissions==0)&& (userPermissions==0))
-					strcpy(password2,tempPassword);
+				if(rightUser && password2 && (filePermissions==0) && (userPermissions==0))
+				{
+					strncpy(password2,tempPassword,16);
+				}
 
 				attr=attr->next;
 			}
-			if(rightUser && rightPassword)
+			if(rightUser)
 			{
-				genericPermissionsFound=1;
+				if(rightPassword)
+					genericPermissionsFound=1;
+				genericPermissions2Found=1;
 				genericPermissions=tempGenericPermissions;
 			}
 
@@ -309,13 +334,17 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 								rightPassword=1;
 						}
 						if(rightUser && password2)
-							strcpy(password2,tempPassword);
+						{
+							strncpy(password2,tempPassword,16);
+						}
 
 						attr=attr->next;
 					}
-					if(rightUser && rightPassword)
+					if(rightUser) 
 					{
-						userPermissionsFound=2;
+						if(rightPassword)
+							userPermissionsFound=2;
+						userPermissions2Found=2;
 						userPermissions=tempUserPermissions;
 					}
 				}
@@ -350,8 +379,12 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 					if(!lstrcmpi((const char*)attr->children->content,filename))
 					{					
 						filePermissionsFound=1;
+						filePermissions2Found=1;
 						if(userPermissionsFound==2)
 							userPermissionsFound=1;
+						if(userPermissions2Found==2)
+							userPermissions2Found=1;
+					
 					}
 				}
 				attr=attr->next;
@@ -364,7 +397,25 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	}
 
 	parser.close();
+	if(permission2)
+	{
+		*permission2=0;
+		if(genericPermissions2Found)
+		{
+			*permission2=genericPermissions;
+		}
+	
+		if(filePermissions2Found==1)
+		{
+			*permission2=filePermissions;
+		}
+				
+		if(userPermissions2Found==1)
+		{
+			*permission2=userPermissions;
+		}
 
+	}
 	if(userPermissionsFound==1)
 		return userPermissions;
 
@@ -373,5 +424,9 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 
 	if(genericPermissionsFound==1)
 		return genericPermissions;
+		
+		
 	return 0;
 }
+
+

@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/fastCGI.h"
 #include "../include/utility.h"
 #include "../include/gzip.h"
+#include "../include/md5.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
 #define min(a,b)((a<b)?a:b)
@@ -455,6 +456,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 		translateEscapeString(filename );
 		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
 		{
+		
 			return raiseHTTPError(td,s,e_401);
 		}
 		getPath(td,s,td->filenamePath,filename,0);
@@ -465,15 +467,40 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 		strncpy(folder,td->filenamePath,MAX_PATH);
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
-	
-		if(s->login[0])
+	if(s->protocolBuffer==0)
+	{
+		s->protocolBuffer=malloc(sizeof(http_user_data));
+		if(!s->protocolBuffer)
+			return 0;
+		resetHTTPUserData((http_user_data*)(s->protocolBuffer));
+	}
+	int permissions2=0;
+	char auth_type[16];	
+	if(td->request.AUTH[0])
+		permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16,&permissions2);
+	else/*!The default user is Guest with a null password*/
+		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);
+
+	if(!strcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
+	{
+		if(!lstrcmpi(td->request.AUTH,"Digest"))
 		{
-			permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot);
-			if(permissions==0)
-				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
+			((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+			if(((http_user_data*)s->protocolBuffer)->digest==1)
+			{
+				strcpy(s->password,((http_user_data*)s->protocolBuffer)->needed_password);
+				permissions=permissions2;
+			}
 		}
-		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
+		td->auth_scheme=HTTP_AUTH_SCHEME_DIGEST;
+	}
+	else/*By default use the Basic authentication scheme*/
+	{
+		td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
+	}	
+	/*If there are no permissions, use the Guest permissions*/
+	if(td->request.AUTH[0] && (permissions==0))
+		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);		
 
 	if(!(permissions & MYSERVER_PERMISSION_WRITE))
 	{
@@ -570,15 +597,42 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 		strncpy(folder,td->filenamePath,MAX_PATH);
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
-	
-		if(s->login[0])
+
+	if(s->protocolBuffer==0)
+	{
+		s->protocolBuffer=malloc(sizeof(http_user_data));
+		if(!s->protocolBuffer)
+			return 0;		
+		resetHTTPUserData((http_user_data*)(s->protocolBuffer));
+	}
+	int permissions2=0;
+	char auth_type[16];
+	if(td->request.AUTH[0])
+		permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16,&permissions2);
+	else/*!The default user is Guest with a null password*/
+		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);
+		
+
+	if(!strcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
+	{
+		if(!lstrcmpi(td->request.AUTH,"Digest"))
 		{
-			permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot);
-			if(permissions==0)
-				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
+			((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+			if(((http_user_data*)s->protocolBuffer)->digest==1)
+			{
+				strcpy(s->password,((http_user_data*)s->protocolBuffer)->needed_password);
+				permissions=permissions2;
+			}
 		}
-		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
+		td->auth_scheme=HTTP_AUTH_SCHEME_DIGEST;
+	}
+	else/*By default use the Basic authentication scheme*/
+	{
+		td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
+	}	
+	/*If there are no permissions, use the Guest permissions*/
+	if(td->request.AUTH[0] && (permissions==0))
+		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);		
 
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	{
@@ -593,6 +647,66 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 	{
 		return raiseHTTPError(td,s,e_204);/*!No content*/
 	}
+}
+/*!
+*Check the Digest authorization
+*/
+u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
+{
+	if(lstrcmp(td->request.digest_opaque,((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
+		return 0;
+	
+	if(lstrcmp(td->request.digest_realm,((http_user_data*)s->protocolBuffer)->realm))/*If is not equal return 0*/
+		return 0;
+	
+	if(atoi(td->request.digest_nc) != ((http_user_data*)s->protocolBuffer)->nc+1)
+		return 0;
+	else
+		((http_user_data*)s->protocolBuffer)->nc++;
+
+	char A1[48];
+	char A2[48];
+	char response[48];
+	   
+   	MYSERVER_MD5Context md5;
+	MYSERVER_MD5Init(&md5);
+	sprintf(td->buffer2,"%s:%s:%s",td->request.digest_username,td->request.digest_realm,((http_user_data*)s->protocolBuffer)->needed_password);
+	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,strlen(td->buffer2));
+	MYSERVER_MD5End(&md5,A1);
+	
+	MYSERVER_MD5Init(&md5);
+	char *method=td->request.CMD;
+	char *uri=td->request.URIOPTS;
+	if(td->request.digest_method[0])
+		method=td->request.digest_method;
+	if(td->request.digest_uri[0])
+		uri=td->request.digest_uri;
+	sprintf(td->buffer2,"%s:%s",method,uri);
+	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,strlen(td->buffer2));
+	MYSERVER_MD5End(&md5,A2);
+	
+	MYSERVER_MD5Init(&md5);
+	sprintf(td->buffer2,"%s:%s:%s:%s:%s:%s",A1,td->request.digest_nonce,td->request.digest_nc,td->request.digest_cnonce,td->request.digest_qop,A2);
+	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,strlen(td->buffer2));
+	MYSERVER_MD5End(&md5,response);	
+
+	if(!lstrcmp(response,td->request.digest_response))
+		return 1;
+
+
+}
+/*!
+*Reset an http_user_data structure.
+*/
+void http::resetHTTPUserData(http_user_data* ud)
+{
+	ud->realm[0]='\0';
+	ud->opaque[0]='\0';
+	ud->nonce[0]='\0';
+	ud->cnonce[0]='\0';
+	ud->needed_password[0]='\0';
+	ud->nc=0;
+	ud->digest=0;
 }
 /*!
 *Main function to send a resource to a client.
@@ -645,20 +759,48 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 	if(!systemrequest)
 	{
 		char folder[MAX_PATH];
+		char auth_type[16];
 		if(MYSERVER_FILE::isFolder(td->filenamePath))
 			strncpy(folder,td->filenamePath,MAX_PATH);
 		else
 			MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
-		if(s->login[0])
-		{
-			permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot);
-			if(permissions==0)
-				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
-		}
-		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
 
+		if(s->protocolBuffer==0)
+		{
+			s->protocolBuffer=malloc(sizeof(http_user_data));
+			if(!s->protocolBuffer)
+				return 0;			
+			resetHTTPUserData((http_user_data*)(s->protocolBuffer));
+		}
+		int permissions2=0;
+		if(td->request.AUTH[0])
+			permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16,&permissions2);
+		else/*!The default user is Guest with a null password*/
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);
+			
+
+		if(!strcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
+		{
+			if(!lstrcmpi(td->request.AUTH,"Digest"))
+			{
+				((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+				if(((http_user_data*)s->protocolBuffer)->digest==1)
+				{
+					strcpy(s->password,((http_user_data*)s->protocolBuffer)->needed_password);
+					permissions=permissions2;
+				}
+			}
+			td->auth_scheme=HTTP_AUTH_SCHEME_DIGEST;
+		}
+		else/*By default use the Basic authentication scheme*/
+		{
+			td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
+		}	
+		/*If there are no permissions, use the Guest permissions*/
+		if(td->request.AUTH[0] && (permissions==0))
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);		
 	}
+	
 	/*!
 	*Get the PATH_INFO value.
 	*Use dirscan as a buffer for put temporary directory scan.
@@ -1407,8 +1549,51 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	if(ID==e_401AUTH)
 	{
 		td->response.httpStatus = 401;
-		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",versionOfSoftware,td->request.CONNECTION);
+		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",versionOfSoftware,td->request.CONNECTION);
+		if(td->auth_scheme==HTTP_AUTH_SCHEME_BASIC)
+		{
+			strcat(td->buffer2,"WWW-Authenticate: Basic\r\n");
+		}
+		else if(td->auth_scheme==HTTP_AUTH_SCHEME_DIGEST)
+		{
+			if(a->protocolBuffer==0)
+				a->protocolBuffer=malloc(sizeof(http_user_data));
+			if(a->protocolBuffer==0)
+				return 0;
+			strncpy(((http_user_data*)a->protocolBuffer)->realm,td->request.HOST,64);
+			
+			char md5_str[256];/*Just a random string*/
+			strncpy(&(md5_str[2]),td->request.URI,256);
+			md5_str[0]=td->id;
+			md5_str[1]=clock();
+			MYSERVER_MD5Context md5;
+			MYSERVER_MD5Init(&md5);
+			MYSERVER_MD5Update(&md5,(const unsigned char*)md5_str ,strlen(md5_str));
+			MYSERVER_MD5End(&md5,((http_user_data*)a->protocolBuffer)->opaque);
+			
+			if(!(((http_user_data*)a->protocolBuffer)->digest) || (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
+			{
+				sprintf(md5_str,"%i-%i-%s",clock(),td->id,a->ipAddr);
+				MYSERVER_MD5Init(&md5);
+				MYSERVER_MD5Update(&md5,(const unsigned char*)md5_str ,strlen(md5_str));
+				MYSERVER_MD5End(&md5,((http_user_data*)a->protocolBuffer)->nonce);
+				((http_user_data*)a->protocolBuffer)->nc=0;
+			}
+			strcat(td->buffer2,"WWW-Authenticate: Digest ");
+			sprintf(&(td->buffer2[lstrlen(td->buffer2)])," qop=\"auth\", algorithm =\"MD5\", realm =\"%s\",  opaque =\"%s\",  nonce =\"%s\" ", ((http_user_data*)a->protocolBuffer)->realm, ((http_user_data*)a->protocolBuffer)->opaque, ((http_user_data*)a->protocolBuffer)->nonce);
+			if(((http_user_data*)a->protocolBuffer)->cnonce[0])
+				sprintf(&(td->buffer2[lstrlen(td->buffer2)]),", cnonce =\"%s\" ", ((http_user_data*)a->protocolBuffer)->cnonce);
+			strcat(td->buffer2,"\r\n");
+		}		
+		else
+		{
+			/*!
+			*Just send a non implemented error page.
+			*/
+			return raiseHTTPError(td,a,501);
+		}				
 		strcat(td->buffer2,"Date: ");
+		
 		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 		strcat(td->buffer2,"\r\n\r\n");
 		a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
@@ -1663,7 +1848,8 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 	if(nDefaultFilename==0)
 	{
 		defaultFilename =(char*)malloc(MAX_PATH);
-		strcpy(defaultFilename,"default.html");
+		if(defaultFilename)
+			strcpy(defaultFilename,"default.html");
 	}
 	else
 	{
@@ -1671,7 +1857,7 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 		if(defaultFilename)
 			free(defaultFilename);
 		defaultFilename =(char*)malloc(MAX_PATH*nDefaultFilename);
-		for(i=0;i<nDefaultFilename;i++)
+		for(i=0;defaultFilename && (i<nDefaultFilename);i++)
 		{
 			char xmlMember[21];
 			sprintf(xmlMember,"DEFAULT_FILENAME%i",i);

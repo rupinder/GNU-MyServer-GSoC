@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define HTTP_RESPONSE_TRANSFER_ENCODING_DIM 16
 #define HTTP_RESPONSE_DATEEXP_DIM 32
 #define HTTP_RESPONSE_CACHE_CONTROL_DIM 64
-#define HTTP_RESPONSE_AUTH_DIM 48
+#define HTTP_RESPONSE_AUTH_DIM 256
 #define HTTP_RESPONSE_OTHER_DIM 256
 #define HTTP_RESPONSE_LAST_MODIFIED_DIM 32
 
@@ -133,5 +133,18 @@ struct HTTP_REQUEST_HEADER
 	char RANGEBYTEBEGIN[HTTP_REQUEST_RANGEBYTEBEGIN_DIM+1];
 	char RANGEBYTEEND[HTTP_REQUEST_RANGEBYTEEND_DIM+1];
 	int uriEndsWithSlash;
+	
+	/*Digest authorization scheme stuff*/
+	char digest_realm[48];
+	char digest_opaque[48];
+	char digest_nonce[48];
+	char digest_cnonce[48];
+	char digest_uri[1024];
+	char digest_method[16];		
+	char digest_username[16];
+	char digest_response[48];
+	char digest_qop[16];
+	char digest_nc[10];
+		
 }; 
 #endif

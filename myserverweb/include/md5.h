@@ -17,27 +17,32 @@
 #ifndef MD5_H
 #define MD5_H
 
+#define MD5_BYTES 16
+
 #ifdef __alpha
 typedef unsigned int uint32;
 #else
 typedef unsigned long uint32;
 #endif
 
-struct MD5Context {
+struct MYSERVER_MD5Context {
 	uint32 buf[4];
 	uint32 bits[2];
 	unsigned char in[64];
 };
 
-void MD5Init(struct MD5Context *context);
-void MD5Update(struct MD5Context *context, unsigned char const *buf,
-	       unsigned len);
-void MD5Final(unsigned char digest[16], struct MD5Context *context);
-void MD5Transform(uint32 buf[4], uint32 const in[16]);
-
+void MYSERVER_MD5Init(MYSERVER_MD5Context *context);
+void MYSERVER_MD5Update(struct MYSERVER_MD5Context *context, unsigned char const *buf,unsigned len);
+void MYSERVER_MD5Final(unsigned char digest[MD5_BYTES], struct MYSERVER_MD5Context *context);
+void MYSERVER_MD5Transform(uint32 buf[4], uint32 const in[16]);
+char * MYSERVER_MD5End(MYSERVER_MD5Context *ctx, char *buf);
 /*!
  * This is needed to make RSAREF happy on some MS-DOS compilers.
  */
-typedef struct MD5Context MD5_CTX;
+#ifndef MD5_CTX
+#ifdef DO_NOT_USE_SSL
+typedef struct MYSERVER_MD5Context MD5_CTX;
+#endif
+#endif
 
 #endif /*! !MD5_H */
