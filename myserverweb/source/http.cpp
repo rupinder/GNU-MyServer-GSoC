@@ -897,11 +897,12 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			u_long content_len=atoi(td.request.CONTENT_LENGTH);
 			/*
 			*If the connection is Keep-Alive be sure that the client specify a the
-			*HTTP CONTENT-LENGTH field
+			*HTTP CONTENT-LENGTH field.
+			*If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not always needed.
 			*/
 			if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
 			{
-				if(td.request.CONTENT_LENGTH[0]=='\0')
+				if((td.request.CONTENT_ENCODING[0]=='\0') && (td.request.CONTENT_LENGTH[0]=='\0'))
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
@@ -972,7 +973,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				do
 				{
 					err=0;
-					while(clock()-timeout<SEC(1))
+					while(clock()-timeout<SEC(3))
 					{
 						if(td.connection->socket.bytesToRead())
 						{				
@@ -983,7 +984,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 							break;
 						}
 					}
-					if(clock()-timeout>=SEC(1))
+					if(clock()-timeout>=SEC(3))
 						break;
 				}
 				while(content_len!=total_nbr);

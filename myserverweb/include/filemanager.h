@@ -57,6 +57,7 @@ public:
 	time_t getLastAccTime();
 	static void completePath(char*);
 	char *getFilename();
+	void setFilename(char*);
 	int operator =(MYSERVER_FILE);
 	static int isFolder(char*);
 	int closeFile();

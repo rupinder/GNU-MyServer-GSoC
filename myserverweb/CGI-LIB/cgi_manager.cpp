@@ -86,7 +86,9 @@ char* cgi_manager::GetParam(char* param)
 	{
 		while((*c) && strncmp(c,param,min(strlen(param),strlen(c))))c++;
 		if(*c=='\0')
+		{
 			return &lb[0];
+		}
 		c+=strlen(param);
 		if(*c=='=')
 		{
@@ -95,13 +97,15 @@ char* cgi_manager::GetParam(char* param)
 		}
 	}
 	u_long len=0;
-	while((*c) && (*c!='&'))
+	while((c[0]) && (c[0]!='&'))
 	{
-		if(LOCAL_BUFFER_DIM<++len)
+		if(LOCAL_BUFFER_DIM-1>len)
 		{
-			lb[strlen(lb)+1]='\0';
-			lb[strlen(lb)]=*c;
+			lb[len]=c[0];
+			lb[++len]='\0';
 		}
+		else
+			break;
 		c++;
 		
 	}

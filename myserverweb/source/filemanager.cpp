@@ -250,6 +250,13 @@ int MYSERVER_FILE::operator =(MYSERVER_FILE f)
 	return 1;
 }
 /*
+*Set the name of the file
+*/
+void MYSERVER_FILE::setFilename(char* nfilename)
+{
+	strncpy(filename,nfilename,MAX_PATH);
+}
+/*
 *Returns the file path.
 */
 char *MYSERVER_FILE::getFilename()
