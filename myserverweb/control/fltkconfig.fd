@@ -105,7 +105,6 @@ if(i != -1) {
               label {as Service}
               callback {RunAsService();}
               xywh {0 0 100 20}
-              code0 {DEACTIVATE;}
             }
           }
           submenu {} {
@@ -415,14 +414,8 @@ if(val != 0) {
   Cmd->value(MimeConf.getCmd(val));
   
   if(Cmd->value() >= 2 && Cmd->value() <= 4) {
-    Manager->activate();
-    ManagerButton->activate();
   }
-  else {
-    Manager->deactivate();
-    ManagerButton->deactivate();
-  }
-  
+
   Mime->value(MimeConf.getType(val));
 
   Manager->value(MimeConf.getManager(val));
@@ -442,14 +435,6 @@ if(val != 0) {
 
   Cmd->value(MimeConf.getCmd(i));
   
-  if(Cmd->value() >= 2 && Cmd->value() <= 4) {
-    Manager->activate();
-    ManagerButton->activate();
-  }
-  else {
-    Manager->deactivate();
-    ManagerButton->deactivate();
-  }
   
   Mime->value(MimeConf.getType(i));
 
@@ -503,15 +488,11 @@ if(val != 0) {
               callback {int val = Cmd->value();
 int val2 = Ext->value();
 if(val >= 2 && val <= 4) {
-  Manager->activate();
-  ManagerButton->activate();
 }
 else {
   if(val2 != 0)
     MimeConf.setManager(val2 - 1, NONE);
   Manager->value(NONE);
-  Manager->deactivate();
-  ManagerButton->deactivate();
 }
 
 if(val2 != 0) {
@@ -570,7 +551,7 @@ if(val != 0) {
   MimeConf.setManager(val, Manager->value());
   Changed = true;
 }}
-              xywh {310 205 220 25} when 1 deactivate
+              xywh {310 205 220 25}
             }
             Fl_Button ManagerButton {
               label {Browse...}
@@ -584,7 +565,7 @@ if(chrptr != 0) {
     Changed = true;
   }
 }}
-              xywh {310 235 90 25} deactivate
+              xywh {310 235 90 25}
             }
           }
         }

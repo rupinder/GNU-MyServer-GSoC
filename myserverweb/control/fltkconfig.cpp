@@ -27,8 +27,6 @@
 #define DEACTIVATE
 #endif
 
-
-
 inline void MainDlg::cb_ConfDlg_i(Fl_Double_Window*, void*) {
   if(Changed) {
   if(fl_ask(LanguageXMLLast_Change)) {
@@ -445,14 +443,8 @@ if(val != 0) {
   Cmd->value(MimeConf.getCmd(val));
   
   if(Cmd->value() >= 2 && Cmd->value() <= 4) {
-    Manager->activate();
-    ManagerButton->activate();
   }
-  else {
-    Manager->deactivate();
-    ManagerButton->deactivate();
-  }
-  
+
   Mime->value(MimeConf.getType(val));
 
   Manager->value(MimeConf.getManager(val));
@@ -474,14 +466,6 @@ if(val != 0) {
 
   Cmd->value(MimeConf.getCmd(i));
   
-  if(Cmd->value() >= 2 && Cmd->value() <= 4) {
-    Manager->activate();
-    ManagerButton->activate();
-  }
-  else {
-    Manager->deactivate();
-    ManagerButton->deactivate();
-  }
   
   Mime->value(MimeConf.getType(i));
 
@@ -542,15 +526,11 @@ inline void MainDlg::cb_Cmd_i(Fl_Choice*, void*) {
   int val = Cmd->value();
 int val2 = Ext->value();
 if(val >= 2 && val <= 4) {
-  Manager->activate();
-  ManagerButton->activate();
 }
 else {
   if(val2 != 0)
     MimeConf.setManager(val2 - 1, NONE);
   Manager->value(NONE);
-  Manager->deactivate();
-  ManagerButton->deactivate();
 }
 
 if(val2 != 0) {
@@ -2217,9 +2197,6 @@ Fl_Double_Window* MainDlg::make_window() {
     w = o;
     o->callback((Fl_Callback*)cb_ConfDlg, (void*)(this));
     { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 550, 25);
-      { Fl_Menu_Item* o = &menu_[6];
-        DEACTIVATE;
-      }
       { Fl_Menu_Item* o = &menu_[10];
         DEACTIVATE;
       }
@@ -2345,12 +2322,9 @@ Fl_Double_Window* MainDlg::make_window() {
           }
           { Fl_Input* o = Manager = new Fl_Input(310, 205, 220, 25, gettext("Manager:"));
             o->callback((Fl_Callback*)cb_Manager);
-            o->when(FL_WHEN_CHANGED);
-            o->deactivate();
           }
           { Fl_Button* o = ManagerButton = new Fl_Button(310, 235, 90, 25, gettext("Browse..."));
             o->callback((Fl_Callback*)cb_ManagerButton);
-            o->deactivate();
           }
           o->end();
         }
