@@ -1650,8 +1650,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			/*!
        *If the connection is Keep-Alive be sure that the client specify the
        *HTTP CONTENT-LENGTH field.
-       *If a CONTENT-ENCODING is specified the CONTENT-LENGTH 
-       *is not always needed.
+       *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not 
+       *always needed.
        */
 			if(!lstrcmpi(td.request.CONNECTION, "Keep-Alive"))
 			{

@@ -133,11 +133,11 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
        }
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
 				{
-					int error_id = atoi((const char*)attr->children->content);
+					int errorId;
           if(*out)
             delete [] (*out);
-
-					if(error_id==error)
+          errorId = atoi((const char*)attr->children->content);
+					if(errorId == error)
 						found=1;
           else
             continue;
@@ -341,8 +341,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				{
           myserver_strlcpy(tempPassword,(char*)attr->children->content, 32);
           /*! If a password is provided check that it is valid. */
-					if(st->password && 
-             (!xmlStrcmp(attr->children->content, (const xmlChar *)st->password)) )
+					if(st->password && (!xmlStrcmp(attr->children->content, 
+                                         (const xmlChar *)st->password)) )
 						rightPassword=1;
 				}
         else if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
