@@ -46,10 +46,10 @@ Section "MyServer core" SecCore
   File "zlib1.dll"
   File "libeay32.dll"
   File "ssleay32.dll"
-  File "MIMEtypes.xml"
-  File "myserver.xml"
+  File "MIMEtypes.xml.default"
+  File "myserver.xml.default"
+  File "virtualhosts.xml.default"
   File "readme.txt"
-  File "virtualhosts.xml"
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
   File "web\*.*"

@@ -219,9 +219,40 @@ void cserver::start()
 		printf("%s\n",languageParser.getValue("ERR_LOADMSCGI"));
 		endPrintError();
 	}
+
+	/*!
+	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
+	*/
+	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
+	{
+			printf("aaa\r\n\r\n\r\n\r\n");
+			MYSERVER_FILE inputF;
+			MYSERVER_FILE outputF;
+			int ret=inputF.openFile("MIMEtypes.xml.default",MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+			if(ret<1)
+			{
+				preparePrintError();
+				printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
+				endPrintError();				
+				return;
+			}
+			outputF.openFile("MIMEtypes.xml",MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+			char buffer[512];
+			u_long nbr,nbw;
+			for(;;)
+			{
+				inputF.readFromFile(buffer,512,&nbr );
+				if(nbr==0)
+					break;
+				outputF.writeToFile(buffer,nbr,&nbw);
+			}
+			
+			inputF.closeFile();
+			outputF.closeFile();
+	}
 	/*!
 	*Load the MIME types.
-	*/
+	*/		
 	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML("MIMEtypes.xml"))
 	{
@@ -268,6 +299,36 @@ void cserver::start()
 	*have a listen thread.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
+	
+	/*!
+	*If the virtualhosts.xml files doesn't exist copy it from the default one.
+	*/
+	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
+	{
+			MYSERVER_FILE inputF;
+			MYSERVER_FILE outputF;
+			int ret=inputF.openFile("virtualhosts.xml.default",MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+			if(ret<1)
+			{
+				preparePrintError();
+				printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
+				endPrintError();				
+				return;
+			}
+			outputF.openFile("virtualhosts.xml",MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+			char buffer[512];
+			u_long nbr,nbw;
+			for(;;)
+			{
+				inputF.readFromFile(buffer,512,&nbr );
+				if(nbr==0)
+					break;
+				outputF.writeToFile(buffer,nbr,&nbw);
+			}
+			
+			inputF.closeFile();
+			outputF.closeFile();
+	}	
 	/*!
 	*Load the virtual hosts configuration from the xml file
 	*/
@@ -619,6 +680,37 @@ void cserver::initialize(int /*!OSVer*/)
 	serverAdmin[0]='\0';
 
 	useMessagesFiles=1;
+	
+	/*!
+	*If the myserver.xml files doesn't exist copy it from the default one.
+	*/
+	if(!MYSERVER_FILE::fileExists("myserver.xml"))
+	{
+			MYSERVER_FILE inputF;
+			MYSERVER_FILE outputF;
+			int ret=inputF.openFile("myserver.xml.default",MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+			if(ret<1)
+			{
+				preparePrintError();
+				printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
+				endPrintError();				
+				return;
+			}
+			outputF.openFile("myserver.xml",MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+			char buffer[512];
+			u_long nbr,nbw;
+			for(;;)
+			{
+				inputF.readFromFile(buffer,512,&nbr );
+				if(nbr==0)
+					break;
+				outputF.writeToFile(buffer,nbr,&nbw);
+			}
+			
+			inputF.closeFile();
+			outputF.closeFile();
+	}		
+	
 	configurationFileManager.open("myserver.xml");
 	char *data;
 

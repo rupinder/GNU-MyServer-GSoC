@@ -2,31 +2,17 @@
 <MIMETYPES>
 
 <MIMETYPE>
-<EXT>fpl</EXT>
+<EXT>mscgi</EXT>
 <MIME>text/html</MIME>
-<CMD>EXECUTEFASTCGI</CMD>
-<MANAGER>c:/programmi/perl/bin/perl.exe</MANAGER>
+<CMD>RUNMSCGI</CMD>
+<MANAGER>NONE</MANAGER>
 </MIMETYPE>
 
 <MIMETYPE>
-<EXT>pl</EXT>
+<EXT>cgi</EXT>
 <MIME>text/html</MIME>
-<CMD>RUNISAPI</CMD>
-<MANAGER>C:\Programmi\Perl\bin\perlis.dll</MANAGER>
-</MIMETYPE>
-
-<MIMETYPE>
-<EXT>php3</EXT>
-<MIME>text/html</MIME>
-<CMD>RUNCGI</CMD>
-<MANAGER>/usr/bin/php</MANAGER>
-</MIMETYPE>
-
-<MIMETYPE>
-<EXT>php</EXT>
-<MIME>text/html</MIME>
-<CMD>RUNCGI</CMD>
-<MANAGER>/usr/bin/php</MANAGER>
+<CMD>EXECUTE</CMD>
+<MANAGER>NONE</MANAGER>
 </MIMETYPE>
 
 <MIMETYPE>
@@ -929,20 +915,6 @@
 <EXT>wrl</EXT>
 <MIME>model/vrml</MIME>
 <CMD>SEND</CMD>
-<MANAGER>NONE</MANAGER>
-</MIMETYPE>
-
-<MIMETYPE>
-<EXT>mscgi</EXT>
-<MIME>text/html</MIME>
-<CMD>RUNMSCGI</CMD>
-<MANAGER>NONE</MANAGER>
-</MIMETYPE>
-
-<MIMETYPE>
-<EXT>cgi</EXT>
-<MIME>text/html</MIME>
-<CMD>EXECUTE</CMD>
 <MANAGER>NONE</MANAGER>
 </MIMETYPE>
 
