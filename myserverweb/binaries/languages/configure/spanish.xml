@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<MYSERVER_LANGUAGE_FILE>
+<_ABOUT35>&amp;Sobre</_ABOUT35>
+<_FILE167>&amp;Archivo</_FILE167>
+<_HELP176>&amp;Ayuda</_HELP176>
+<_OPEN___68>&amp;Abrir...</_OPEN___68>
+<_QUIT202>&amp;Salir</_QUIT202>
+<_REVERT160>&amp;Invertir</_REVERT160>
+<_SAVE___65>&amp;Grabar...</_SAVE___65>
+<ABOUT252>Sobre</ABOUT252>
+<ACCESSES_LOG_FILE_140>Acceso al fichero diario:</ACCESSES_LOG_FILE_140>
+<ACTION_154>Accion:</ACTION_154>
+<ADD___148>Añadir...</ADD___148>
+<ADMINISTRATOR102>Administrador</ADMINISTRATOR102>
+<ADMINISTRATOR_E_MAIL247>Administrador e-mail:</ADMINISTRATOR_E_MAIL247>
+<ALWAYS_ACTIVE_THREAD90>Siempre activar threads:</ALWAYS_ACTIVE_THREAD90>
+<ARPA133>Arpa</ARPA133>
+<BROWSE___254>Buscar...</BROWSE___254>
+<CANCEL72>Cancelar</CANCEL72>
+<CHOSE_LOCATION80>Elija Localizacion</CHOSE_LOCATION80>
+<CHOSE_CONFIGURATION_10>Elija configuracion de Archivo localizado:</CHOSE_CONFIGURATION_10>
+<CONFIGURATION_FILES_197>Elija Archivo localizado en /etc/myserver</CONFIGURATION_FILES_197>
+<CONFIGURATION_FILES_168>Configuracion de Archivo localizado en directorio</CONFIGURATION_FILES_168>
+<CONFIGURATION_FILES_6>Configuracion de Archivo localizado en ~/.myserver</CONFIGURATION_FILES_6>
+<CONNECTION_TIME_OUT_75>Conexion time-out (en segundos):</CONNECTION_TIME_OUT_75>
+<CONSOLE213>Consola</CONSOLE213>
+<DEFAULT_FILE_NAMES_249>Nombre del Archivo:</DEFAULT_FILE_NAMES_249>
+<DEFAULT_FILE_TO_SEND62>Archivo para enviar en un directorio cuando no se especifica ninguno</DEFAULT_FILE_TO_SEND62>
+<DIRECTORIES129>Directorios</DIRECTORIES129>
+<DOCUMENT_ROOT_98>Documento root:</DOCUMENT_ROOT_98>
+<EXECUTE213>Ejecutar</EXECUTE213>
+<EXECUTE_AS_AN_ISAPI_250>Ejecutar como  ISAPI modulo</EXECUTE_AS_AN_ISAPI_250>
+<EXECUTE_SELF_CONTAIN253>Ejectuar propio contenido FastCGI</EXECUTE_SELF_CONTAIN253>
+<EXTENSION_250>Extension:</EXTENSION_250>
+<FTP234>FTP</FTP234>
+<GLOBAL83>Global</GLOBAL83>
+<GZIP_COMPRESSION_THR48>Gzip compresion en su limite (en bytes):</GZIP_COMPRESSION_THR48>
+<HTTP65>HTTP</HTTP65>
+<HTTPS148>HTTPS</HTTPS148>
+<HIGHER89>Higher</HIGHER89>
+<HIGHEST206>Highest</HIGHEST206>
+<HOST159>Host</HOST159>
+<HOSTS19>Hosts</HOSTS19>
+<IP153>IP</IP153>
+<INSTALL_SERVICE205>Instalar Servicio</INSTALL_SERVICE205>
+<LANGUAGE_97>Lenguaje:</LANGUAGE_97>
+<LOCAL236>Local</LOCAL236>
+<LOGS150>Logs</LOGS150>
+<MIME41>MIME</MIME41>
+<MIME_TYPE_39>MIME Tipo:</MIME_TYPE_39>
+<MANAGER_247>Manager:</MANAGER_247>
+<MAX_CONNECTIONS_41>Max conexiones:</MAX_CONNECTIONS_41>
+<MAX_LOG_FILE_SIZE__I245>Max log Archivo (en bytes):</MAX_LOG_FILE_SIZE__I245>
+<MEMORY_BUFFER__IN_BY228>Memory buffer (en bytes):</MEMORY_BUFFER__IN_BY228>
+<MYSERVER_CONFIGURE6>MyServer Configuracion</MYSERVER_CONFIGURE6>
+<NAME_188>Nombre:</NAME_188>
+<NONE145>Ninguno</NONE145>
+<NORMAL107>Normal</NORMAL107>
+<OK154>OK</OK154>
+<PORT_224>Puerto:</PORT_224>
+<PERSONALIZED_ERROR_P173>Personalisar paginas de error:</PERSONALIZED_ERROR_P173>
+<PROTOCOL85>Protocolo</PROTOCOL85>
+<PROTOCOL_143>Protocolo:</PROTOCOL_143>
+<REMOVE112>Remover</REMOVE112>
+<REMOVE_SERVICE100>Remover Servicio</REMOVE_SERVICE100>
+<RUN54>funcionamiento</RUN54>
+<RUN_AS_CGI31>Funcionamiento como CGI</RUN_AS_CGI31>
+<RUN_AS_FASTCGI174>Funcionamiento como FastCGI</RUN_AS_FASTCGI174>
+<RUN_AS_ISAPI194>Funcionamiento como ISAPI</RUN_AS_ISAPI194>
+<RUN_AS_MSCGI191>Funcionamiento como MSCGI</RUN_AS_MSCGI191>
+<RUN_AS_WINCGI14>Funcionamiento como WINCGI</RUN_AS_WINCGI14>
+<SSL_CERTIFICATE_212>SSL certificado:</SSL_CERTIFICATE_212>
+<SSL_PASSWORD_195>SSL clave:</SSL_PASSWORD_195>
+<SSL_PRIVATE_KEY_181>SSL privado key:</SSL_PRIVATE_KEY_181>
+<SEND_THE_FILE175>Enviar el archivo</SEND_THE_FILE175>
+<SER_VICE249>Ser&amp;vicio</SER_VICE249>
+<SERVER121>Server</SERVER121>
+<SERVICE211>Servicio</SERVICE211>
+<STOP167>Parar</STOP167>
+<STYLESHEET_104>Stylesheet:</STYLESHEET_104>
+<SYSTEM135>Systema</SYSTEM135>
+<SYSTEM_FOLDER_96>Carpeta de Systema:</SYSTEM_FOLDER_96>
+<THREADS_PER_CPU_121>Threads por CPU:</THREADS_PER_CPU_121>
+<URL_LINK195>URL link</URL_LINK195>
+<USER160>Usuario</USER160>
+<VERBOSITY_LEVEL_63>Verbosity level:</VERBOSITY_LEVEL_63>
+<WARNING_LOG_FILE_56>Peligro de log Archivo:</WARNING_LOG_FILE_56>
+<AS_CONSOLE202>Como Consola</AS_CONSOLE202>
+<AS_SERVICE200>Como Servicio</AS_SERVICE200>
+<CONTROL35>CONTROL</CONTROL35>
+<RE_MOTE148>Re&amp;moto</RE_MOTE148>
+<LOGIN___133>Conexion...</LOGIN___133>
+<LOGOUT124>Salir</LOGOUT124>
+<GET_CONFIG153>Tener Config</GET_CONFIG153>
+<SEND_CONFIG4>Enviar Config...</SEND_CONFIG4>
+<CONNECTIONS___18>Connectar...</CONNECTIONS___18>
+<REBOOT___247>Reboot...</REBOOT___247>
+<REMOTE_LOGIN137>Remota Conexion</REMOTE_LOGIN137>
+<ADDRESS_3>Direccion:</ADDRESS_3>
+<LOGIN_NAME_247>Nombre de Conexion:</LOGIN_NAME_247>
+<LOGIN_PASSWORD_203>Clave de Conexion:</LOGIN_PASSWORD_203>
+<STATUS134>Status</STATUS134>
+<CONNECTIONS135>Conexiones</CONNECTIONS135>
+<SERVER_179>Server:</SERVER_179>
+<CONNECTIONS__ID___IP90>Conexiones (ID - IP - Port - LocalIP - LocalPort - Login - PWord)</CONNECTIONS__ID___IP90>
+<UPDATE_RATE_109>Tarifa de la actualización:</UPDATE_RATE_109>
+<KILL_CONNECTION225>Matar Conexion</KILL_CONNECTION225>
+<DONE135>Terminar</DONE135>
+<ADMINISTRATOR_USER_N68>Administrador nombre:</ADMINISTRATOR_USER_N68>
+<ADMINISTRATOR_PASSWO55>Administrador clave:</ADMINISTRATOR_PASSWO55>
+<ENABLE_CONTROL_PROTO61>Permita el protocolo del control:</ENABLE_CONTROL_PROTO61>
+<ABOUT_TEXT>MyServer Configuracion (FLTK)
+Copyright (C) 2002, 2003, 2004
+Licencian al equipo de MyServer este programa bajo GLP</ABOUT_TEXT>
+<LAST_CHANGE>Cambio pasado no ahorrado.  ¿Continúe de todos modos?</LAST_CHANGE>
+<NOT_FOUND>Config de archivo no encontrada.</NOT_FOUND>
+<RELOAD_PREV>Valores previous de la recarga?</RELOAD_PREV>
+<ENTER_DEFAULT>Incorpore por favor un nombre del archivo del defecto:</ENTER_DEFAULT>
+<ENTER_EXTENSION>Entrar una nueva extension (Ejemplo: html):</ENTER_EXTENSION>
+<ENTER_MIME>Entrar una nueva MIME tipo (Example: text/html):</ENTER_MIME>
+<ENTER_NAME>Entrar un nuevo nombre:</ENTER_NAME>
+<ENTER_HOST>Entrar un nuevo host nombre:</ENTER_HOST>
+<ENTER_IP>Entrar un nuevo IP:</ENTER_IP>
+<DOWNLAD_CONFIG>Descargar config Archivo:</DOWNLAD_CONFIG>
+<DOWNLAD_FAILED>Descarga codigo fallado: </DOWNLAD_FAILED>
+<KILL_ALL>Vas a matar/desconectar todo.  Estas seguro?</KILL_ALL>
+<SEND_CONFIG>Enviando config Archivos:</SEND_CONFIG>
+<UPLOAD_FAILED>Upload codigo fallado: </UPLOAD_FAILED>
+<NOT_SAVE>No se pudo guardar.</NOT_SAVE>
+<REBOOT_FAILED>Reboot falla.</REBOOT_FAILED>
+<CONNECT_SERVER>Conneccion al server:</CONNECT_SERVER>
+<LOGIN_FAILED>Conexion failed.  Code: </LOGIN_FAILED>
+<CANNOT_CONNECT>No se pudo conectar al server.</CANNOT_CONNECT>
+<SERVER_CLOSED>Server cerrando.  Code: </SERVER_CLOSED>
+</MYSERVER_LANGUAGE_FILE>
+
