@@ -783,7 +783,7 @@ void cserver::controlSizeLogFile()
 	*Controls the accesses file too.
 	*/
 	if(!accessesLogFile)
-	{;
+	{
 		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	fs=ms_getFileSize(accessesLogFile);
