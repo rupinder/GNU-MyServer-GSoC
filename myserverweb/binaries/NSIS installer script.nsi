@@ -1,7 +1,7 @@
 ;NSIS Installation script for myServer
 SetCompressor bzip2
 !include "MUI.nsh"
-!define MUI_VERSION "0.4.3"
+!define MUI_VERSION "0.5"
 !define MUI_PRODUCT "MyServer"
 !define MUI_COMPONENTSPAGE
 !define MUI_LICENSEPAGE_CHECKBOX
@@ -92,14 +92,16 @@ Section "MSCGI lib" SecMSCGI
   SetOutPath $INSTDIR\cgi-lib
   File "cgi-lib\cgi-lib.dll"
   File "cgi-lib\cgi_manager.h"
-  File "cgi-lib\CGI-LIB.exp"
+  File "cgi-lib\CGI-LIB.a"
   File "cgi-lib\license.txt"
 SectionEnd
 
 
 Section "Documentation" SecDocumentation
-  SetOutPath "$INSTDIR"
-  CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\MyServer documentation.lnk" "$INSTDIR\myserver.chm"
+  SetOutPath "$INSTDIR\web\documentation"
+  File "web\documentation\*.*"
+  SetOutPath "$INSTDIR\web\documentation\images"
+  File "web\documentation\images\*.*"
 SectionEnd
 
 Section "Install other languages" SecLanguages
@@ -114,7 +116,7 @@ SectionEnd
 
 !insertmacro MUI_FUNCTIONS_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Install the MyServer core application(this element is required)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install the myServer documentation"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install the MyServer documentation"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecControl} "Install the Control Center application(the installation of this element is highly recommended)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMSCGI} "Copy the MyServer MSCGI library(premature status yet)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecLanguages} "Copy all the languages files(by default only the english language is copied)"
@@ -123,18 +125,14 @@ SectionEnd
 
 !insertmacro MUI_FUNCTIONS_DESCRIPTION_END
 
-
 OutFile setup.exe ;NSIS output
-
 
 Function .onInit
 	Push $0
-
 	StrCpy $1 ${SecCore}
 	SectionGetFlags ${SecCore} $0
 	IntOp $0 $0 | ${SF_RO}
-	SectionSetFlags ${SecCore} $0 ;Make the myServer core installed in every case
-
+	SectionSetFlags ${SecCore} $0 ;Make the MyServer core installed in every case
 	Pop $0
 FunctionEnd
 
@@ -155,6 +153,8 @@ Section "Uninstall"
   Delete "$INSTDIR\languages\*.*"
   Delete "$INSTDIR\logs\*.*"
   Delete "$INSTDIR\*.*"
+  Delete "$INSTDIR\documentation\*.*"
+  Delete "$INSTDIR\documentation\images\*.*"
   RMDir "$INSTDIR\cgi-lib"
   RMDir "$INSTDIR\web\cgi-bin"
   RMDir "$INSTDIR\web\cgi-src\post"
@@ -162,6 +162,9 @@ Section "Uninstall"
   RMDir "$INSTDIR\web\downloads"
   RMDir "$INSTDIR\web\cgi-src"
   RMDir "$INSTDIR\web\"
+  RMDir "$INSTDIR\documentation"
+  RMDir "$INSTDIR\images"
+
   RMDir "$INSTDIR\system"
   RMDir "$INSTDIR\languages"
   RMDir "$INSTDIR\logs"

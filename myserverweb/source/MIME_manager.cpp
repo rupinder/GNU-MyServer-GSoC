@@ -26,7 +26,7 @@ using namespace std;
 #endif
 
 /*
-*Source code to manage the MIME types in myServer.
+*Source code to manage the MIME types in MyServer.
 *MIME types are recorded in a static buffer "data", that is a strings array.
 *Every MIME type is described by three strings:
 html,text/html,SEND NONE;

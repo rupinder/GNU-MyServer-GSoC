@@ -989,7 +989,6 @@
 <MANAGER>NONE</MANAGER>
 </MIMETYPE>
 
-
 <MIMETYPE>
 <EXT>php3</EXT>
 <MIME>text/html</MIME>
@@ -1019,5 +1018,6 @@
 <CMD>EXECUTEFASTCGI</CMD>
 <MANAGER>c:/programmi/perl/bin/perl.exe</MANAGER>
 </MIMETYPE>
+
 
 </MIMETYPES>
