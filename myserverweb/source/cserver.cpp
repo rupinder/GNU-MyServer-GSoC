@@ -301,10 +301,10 @@ int cserver::createServerAndListener(u_long port)
 	*/
 	int optvalReuseAddr=1;
 	if(serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr, sizeof(optvalReuseAddr))<0)
-	{
-        	preparePrintError();
+  {
+    preparePrintError();
 		printf("%s setsockopt\n", languageParser.getValue("ERR_ERROR"));
-	        endPrintError();
+    endPrintError();
 		return 0;
 	}
 #endif
@@ -317,7 +317,7 @@ int cserver::createServerAndListener(u_long port)
 	{
 		preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_BIND"));
-        endPrintError();
+    endPrintError();
 		return 0;
 	}
 	printf("%s\n", languageParser.getValue("MSG_PORT_BINDED"));
@@ -328,9 +328,9 @@ int cserver::createServerAndListener(u_long port)
 	printf("%s\n", languageParser.getValue("MSG_SLISTEN"));
 	if (serverSocket.listen(SOMAXCONN))
 	{ 
-       	preparePrintError();
+    preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_LISTEN"));
-       	endPrintError();	
+    endPrintError();	
 		return 0; 
 	}
 
@@ -532,6 +532,8 @@ void cserver::terminate()
 	{
 		clearAllConnections();
 	}
+  delete [] path;
+  delete [] languages_path;
 	vhostList.clean();
 	languageParser.close();
 	mimeManager.clean();
@@ -625,7 +627,6 @@ int cserver::initialize(int /*!os_ver*/)
 	socketRcvTimeout = 10;
 	useLogonOption = 1;
 	connectionTimeout = SEC(25);
-	strcpy(languages_path, "languages/" );
 	mustEndServer=0;
 	verbosity=1;
 	maxConnections=0;
@@ -636,17 +637,57 @@ int cserver::initialize(int /*!os_ver*/)
    *exists a local directory.*/
 	if(MYSERVER_FILE::fileExists("languages"))
 	{
+    int languages_pathLen = strlen ("languages/") + 1 ;
+    languages_path = new char[languages_pathLen];
+    if(languages_path == 0)
+    {
+      preparePrintError();
+			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
+			endPrintError();
+    }
 		strcpy(languages_path,"languages/");
 	}
 	else
 	{
 #ifdef PREFIX
+    int languages_pathLen = strlen(PREFIX)+strlen("/share/myserver/languages/") + 1 ;
+    languages_path = new char[languages_pathLen];
+    if(languages_path == 0)
+    {
+      preparePrintError();
+			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
+			endPrintError();
+      return 1;
+    }
     sprintf(languages_path,"%s/share/myserver/languages/", PREFIX ) ;
 #else
+    /*! Default PREFIX is /usr/. */
+    int languages_pathLen = strlen("/usr/share/myserver/languages/") + 1 ;
+    languages_path = new char[languages_pathLen];
+    if(languages_path == 0)
+    {
+      preparePrintError();
+			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
+			endPrintError();
+      return 1;
+    }
 		strcpy(languages_path,"/usr/share/myserver/languages/");
 #endif
 	}
 #endif
+
+#ifdef WIN32
+  int languages_pathLen = strlen("languages/") + 1 ;
+  languages_path = new char[languages_pathLen];
+  if(languages_path == 0)
+  {
+    preparePrintError();
+    printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
+    endPrintError();
+    return 1;
+  }
+  strcpy(languages_path, "languages/" );
+#endif 
 
 #ifndef WIN32
 /* Under an *nix environment look for .xml files in the following order.
@@ -697,8 +738,9 @@ int cserver::initialize(int /*!os_ver*/)
 		outputF.closeFile();
 	}
 	else
+  {
 		strcpy(main_configuration_file,"myserver.xml");
-
+  }
 	configurationFileManager.open(main_configuration_file);
 	char *data;
 
@@ -710,10 +752,28 @@ int cserver::initialize(int /*!os_ver*/)
 	data=configurationFileManager.getValue("LANGUAGE");
 	if(data)
 	{
+    int languageFileLen = strlen(languages_path) + strlen(data) + 2 ;
+    languageFile = new char[languageFileLen];
+    if(languageFile == 0)
+    {
+      preparePrintError();
+			printf("%s\n", languageParser.getValue("ERR_LOADED"));
+			endPrintError();
+			return 1;    
+    }
 		sprintf(languageFile, "%s/%s", languages_path, data);	
 	}
 	else
 	{
+    int languageFileLen = strlen("languages/english.xml");
+    languageFile = new char[languageFileLen];
+    if(languageFile == 0)
+    {
+      preparePrintError();
+			printf("%s\n", languageParser.getValue("ERR_LOADED"));
+			endPrintError();
+			return 1;    
+    }
 		strcpy(languageFile, "languages/english.xml");
 	}
 
@@ -1196,9 +1256,9 @@ void cserver::loadSettings()
 	}
 	else
 	{
-        	preparePrintError();
+    preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
-        	endPrintError();
+    endPrintError();
 		return;
 	}
 	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), (u_int)getCPUCount());
@@ -1270,14 +1330,23 @@ void cserver::loadSettings()
   else
   {
 #ifdef PREFIX
-    char path[MAX_PATH];
+    char *path;
+    int pathlen = strlen(PREFIX)+strlen("/lib/myserver/external/protocols")+1;
+    path = new char[pathlen];
+    
+    if(path == 0)
+    {
+			preparePrintError();
+			printf("%s: Allocating path memory\n", languageParser.getValue("ERR_ERROR"));
+			endPrintError(); 
+    }
+
     sprintf(path,"%s/lib/myserver/external/protocols",PREFIX);
     protocols.loadProtocols(path, &languageParser, "myserver.xml", this);
 #else
     protocols.loadProtocols("/usr/lib/myserver/external/protocols", &languageParser, "myserver.xml", this);
 #endif
   }
- 
 
 #endif 
 #if WIN32
@@ -1297,12 +1366,17 @@ void cserver::loadSettings()
 	}
 	for(i=0;i<nThreads;i++)
 	{
-		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"),(u_int) i);
+		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"), (u_int)i);
 		threads[i].id=(u_long)(i+ClientsTHREAD::ID_OFFSET);
 		myserver_thread::create(&ID,   &::startClientsTHREAD,  (void *)&(threads[i].id));
 		printf("%s\n", languageParser.getValue("MSG_THREADR"));
 	}
-	getdefaultwd(path, MAX_PATH);
+  int pathlen = getdefaultwdlen();
+  path = new char[pathlen];
+  /*! Return 1 if we had an allocation problem.  */
+  if(path == 0)
+    return;
+	getdefaultwd(path, pathlen);
 	/*!
 	*Then we create here all the listens threads. Check that all the port used for listening
 	*have a listen thread.

@@ -85,8 +85,8 @@ private:
 	/*! Buffer that contains all the local machine IP values.  */
 	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
-	char languageFile[MAX_PATH];
-	char path[MAX_PATH];
+	char *languageFile;
+	char *path;
 	char serverAdmin[32];
 	int initialize(int);
 	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int);
@@ -106,10 +106,14 @@ private:
 	void createListenThreads();
 	void reboot();
 	u_int listingThreads;
-	char languages_path[MAX_PATH];
+	char *languages_path;
+  /*! At the current state these members cannot have a long path.
+   *MAX_PATH is enough and easier to handle.
+   */
 	char main_configuration_file[MAX_PATH];
 	char vhost_configuration_file[MAX_PATH];
 	char mime_configuration_file[MAX_PATH];
+
 public:
 	cserver();
 	~cserver();
