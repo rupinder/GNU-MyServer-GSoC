@@ -33,16 +33,15 @@
 void console_service (int, char **);
 
 #ifdef WIN32
-
 int __stdcall control_handler(u_long control_type);
 VOID __stdcall myServerCtrlHandler(u_long fdwControl);
 VOID __stdcall myServerMain (u_long argc, LPTSTR *argv); 
 void runService();
-
+int hInst;
 #endif
 
 static char path[MAX_PATH];
-INT hInst;
+
 int cmdShow;
 /*
 *Change this for every new version of this software.
@@ -64,28 +63,23 @@ int main (int argn, char **argc)
 	path[len]='\0';
 	_chdir(path);
 	
-
 	hInst=0;
 	cmdShow=0;
 	char* cmdLine=argc[1];
 	int i;
+
 	for(i=0;i<lstrlen(cmdLine);i++)
 	{
 		if(!lstrcmpi(&cmdLine[i],"CONSOLE"))
 		{
 			console_service(0,0);
-			return 0;
 		}
-	}
-	for(i=0;i<lstrlen(cmdLine);i++)
-	{
+#ifdef WIN32
 		if(!lstrcmpi(&cmdLine[i],"SERVICE"))
 		{
-#ifdef WIN32
 			runService();
-#endif
-			return 0;
 		}
+#endif
 	}
 
 	return 0;
@@ -101,7 +95,7 @@ void console_service (int, char **)
 #endif
 
 	printf("started in console mode\n");
-	server.start(hInst);
+	server.start((int)hInst);
 }
 
 
@@ -134,7 +128,7 @@ VOID  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		server.start(hInst);
+		server.start((int)hInst);
 	
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
@@ -216,4 +210,7 @@ void runService()
 			printf("Error running service\n");
 	}
 }
+
+
+
 #endif
