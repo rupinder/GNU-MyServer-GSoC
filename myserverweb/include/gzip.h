@@ -46,6 +46,7 @@ public:
 	u_long gzip_initialize(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
 	u_long gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
 	u_long gzip_free(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
+	u_long gzip_flush(char *out,u_long sizeOUT,gzip_data* data);
 private:
 	gzip_data data;
 };

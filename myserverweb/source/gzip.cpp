@@ -64,7 +64,7 @@ u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long ,gzip::gzip_data* data
 	data->stream.zfree = Z_NULL;
 	data->stream.opaque = Z_NULL;
 	data->stream.data_type=Z_BINARY;
-	return deflateInit2(&(data->stream), level, Z_DEFLATED,-MAX_WBITS, MAX_MEM_LEVEL,Z_DEFAULT_STRATEGY);
+	return deflateInit2(&(data->stream), level, Z_DEFLATED,-MAX_WBITS, MAX_MEM_LEVEL,0);
 
 };
 
@@ -77,7 +77,7 @@ u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip:
 		data=&(this->data);
 #ifndef DO_NOT_USE_GZIP	
 	u_long old_total_out=data->stream.total_out;
-	uLongf destLen=sizeIN;
+	uLongf destLen=sizeOUT;
 	int ret;
 
 #ifdef GZIP_CHECK_BOUNDS
@@ -90,6 +90,7 @@ u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip:
 	data->stream.next_out = (Bytef*) out;
 	data->stream.avail_out = destLen;
 	ret = deflate(&(data->stream), Z_FULL_FLUSH);
+
 	data->data_size+=data->stream.total_out-old_total_out;
 	data->crc = crc32(data->crc, (const Bytef *) in, sizeIN);
 	return data->stream.total_out-old_total_out;
@@ -117,6 +118,31 @@ u_long gzip::gzip_free(char* ,u_long ,char *,u_long ,gzip::gzip_data* data)
 	ret = deflateEnd(&(data->stream));
 #endif
 	return 0;
+}
+/*!
+*Flush all the data
+*/
+u_long gzip::gzip_flush(char *out,u_long sizeOUT,gzip::gzip_data* data)
+{
+	if(data==0)
+		data=&(this->data);
+#ifndef DO_NOT_USE_GZIP	
+	u_long old_total_out=data->stream.total_out;
+	uLongf destLen=sizeOUT;
+	int ret;
+
+	data->stream.data_type=Z_BINARY;
+	data->stream.next_in = 0;
+	data->stream.avail_in = 0;
+	data->stream.next_out = (Bytef*) out;
+	data->stream.avail_out = destLen;
+	ret = deflate(&(data->stream), Z_FINISH);
+
+	data->data_size+=data->stream.total_out-old_total_out;
+	return data->stream.total_out-old_total_out;
+#else 
+	return 0;
+#endif
 }
 /*!
 *Update the existent CRC

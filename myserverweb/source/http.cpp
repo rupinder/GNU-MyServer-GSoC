@@ -267,7 +267,6 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	*/
 	if(useGZIP)
 		useGZIP &= (strstr(td->request.ACCEPTENC,"gzip")!=0);
-
 	/*!
 	*bytesToSend is the interval between the first and the last byte.
 	*/
@@ -333,23 +332,18 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 
 			if(nbr)
 			{
-				td->buffer2[datatoread]='\n';
-				nbr++;
-			}
-			if(nbr)
-			{
 				if(gzipheaderadded==0)
 				{
 					memcpy(td->buffer,GZIP_HEADER,GZIP_HEADER_LENGTH);
 					gzip_dataused+=GZIP_HEADER_LENGTH;
 					gzipheaderadded=1;
 				}
-				nbr=gzip.gzip_compress(td->buffer2,nbr,&td->buffer[gzip_dataused],td->buffersize-gzip_dataused,0);
-				gzip_dataused+=nbr;
+				gzip_dataused+=gzip.gzip_compress(td->buffer2,nbr,&td->buffer[gzip_dataused],td->buffersize-gzip_dataused,0);
 			}
 			else
 			{
-				gzip_dataused=gzip.gzip_free(td->buffer2,nbr,td->buffer,td->buffersize,0);
+				gzip_dataused=gzip.gzip_flush(td->buffer,td->buffersize,0);
+				gzip.gzip_free(td->buffer2,nbr,td->buffer,td->buffersize,0);
 			}
 
 
@@ -388,6 +382,8 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 		*/
 		if((nbr==0) || (gzip_dataused==GZIP_FOOTER_LENGTH))
 		{
+			if(useGZIP)
+				s->socket.send("0\r\n\r\n",5, 0);
 			break;
 		}
 	}
