@@ -194,7 +194,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		if(*buffer2Loop=='\\')
 			*buffer2Loop='/';
 	buildDefaultHTTPResponseHeader(&(td->response));
-	sprintf(td->response.CONTENTS_DIM,"%u",lstrlen(td->buffer2));
+	sprintf(td->response.CONTENT_LENGTH,"%u",lstrlen(td->buffer2));
 	buildHTTPResponseHeader(td->buffer,&(td->response));
 	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
 	s->socket.ms_send(td->buffer2,lstrlen(td->buffer2), 0);
@@ -253,7 +253,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 
 	td->buffer[0]='\0';
 
-	sprintf(td->response.CONTENTS_DIM,"%u",bytesToSend);
+	sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
 	time_t lastmodTime=h.ms_GetLastModTime();
 	getRFC822LocalTime(lastmodTime,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	buildHTTPResponseHeader(td->buffer,&td->response);
@@ -420,7 +420,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	/*
 	*getMIME returns true if the ext is registered by a CGI.
 	*/
-	int mimeCMD=getMIME(td->response.CONTENTS_TYPE,td->filenamePath,ext,data);
+	int mimeCMD=getMIME(td->response.CONTENT_TYPE,td->filenamePath,ext,data);
 
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
@@ -591,6 +591,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	sprintf(&td.inputDataPath[lstrlen(td.inputDataPath)],"/stdInFile_%u",td.id);
 	if(!lstrcmpi(td.request.CMD,"POST"))
 	{
+		if(td.request.CONTENT_TYPE[0]=='\0')
+			strcpy(td.request.CONTENT_TYPE,"application/x-www-form-urlencoded");
 		td.request.URIOPTSPTR=&td.buffer[td.nHeaderChars];
 		td.buffer[min(td.nBytesToRead,td.buffersize)]='\0';
 		/*
@@ -758,8 +760,8 @@ void resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->CONNECTION[0]='\0';
 	request->USER_AGENT[0]='\0';
 	request->COOKIE[0]='\0';
-	request->CONTENTS_TYPE[0]='\0';
-	request->CONTENTS_DIM[0]='\0';
+	request->CONTENT_TYPE[0]='\0';
+	request->CONTENT_LENGTH[0]='\0';
 	request->DATE[0]='\0';
 	request->FROM[0]='\0';
 	request->DATEEXP[0]='\0';	
@@ -786,12 +788,12 @@ void resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 	response->httpStatus=200;
 	response->VER[0]='\0';	
 	response->SERVER_NAME[0]='\0';
-	response->CONTENTS_TYPE[0]='\0';
+	response->CONTENT_TYPE[0]='\0';
 	response->CONNECTION[0]='\0';
 	response->MIMEVER[0]='\0';
 	response->P3P[0]='\0';
 	response->COOKIE[0]='\0';
-	response->CONTENTS_DIM[0]='\0';
+	response->CONTENT_LENGTH[0]='\0';
 	response->ERROR_TYPE[0]='\0';
 	response->LOCATION[0]='\0';
 	response->DATE[0]='\0';		
@@ -825,10 +827,10 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	else
 		sprintf(str,"HTTP/%s 200 OK\r\n",response->VER);
 
-	if(response->CONTENTS_DIM[0])
+	if(response->CONTENT_LENGTH[0])
 	{
 		strcat(str,"Content-Length:");
-		strcat(str,response->CONTENTS_DIM);
+		strcat(str,response->CONTENT_LENGTH);
 		strcat(str,"\r\n");
 	}
 	if(response->SERVER_NAME[0])
@@ -867,10 +869,10 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		strcat(str,response->MIMEVER);
 		strcat(str,"\r\n");
 	}
-	if(response->CONTENTS_TYPE[0])
+	if(response->CONTENT_TYPE[0])
 	{
 		strcat(str,"Content-Type:");
-		strcat(str,response->CONTENTS_TYPE);
+		strcat(str,response->CONTENT_TYPE);
 		strcat(str,"\r\n");
 	}
 	if(response->DATE[0])
@@ -927,7 +929,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	*4) set the name of the server.
 	*5) set the page that it is not an error page.
 	*/
-	strcpy(response->CONTENTS_TYPE,"text/html");
+	strcpy(response->CONTENT_TYPE,"text/html");
 	strcpy(response->VER,"1.1");
 	response->httpStatus=200;
 	getRFC822GMTTime(response->DATE,HTTP_RESPONSE_DATE_DIM);
@@ -955,7 +957,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	{
 		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],true);
 	}
-	sprintf(td->response.CONTENTS_DIM,"%i",strlen(HTTP_ERROR_MSGS[ID]));
+	sprintf(td->response.CONTENT_LENGTH,"%i",strlen(HTTP_ERROR_MSGS[ID]));
 
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	a->socket.ms_send(td->buffer,strlen(td->buffer), 0);
@@ -1409,13 +1411,21 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			strncpy(request->FROM,token,HTTP_REQUEST_FROM_DIM);
 			StrTrim(request->FROM," ");
 		}else
-		/*Connection*/
+		/*Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
 		{
 			token = strtok( NULL, "\n\r" );
 			if(!token)return 0;
 			lineControlled=true;
-			strncpy(request->CONTENTS_DIM,token,HTTP_REQUEST_CONTENTS_DIM_DIM);
+			strncpy(request->CONTENT_LENGTH,token,HTTP_REQUEST_CONTENT_LENGTH_DIM);
+		}else
+		/*Cache-Control*/
+		if(!lstrcmpi(command,"Cache-Control"))
+		{
+			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
+			lineControlled=true;
+			strncpy(request->CACHE_CONTROL,token,HTTP_REQUEST_CACHE_CONTROL_DIM);
 		}else
 		/*Range*/
 		if(!lstrcmpi(command,"Range"))
@@ -1516,7 +1526,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 	/*
 	*Control if the HTTP header is a valid header.
 	*/
-	if((input==0) || (strlen(input)==0))
+	if((input==0) || (input[0]==0))
 		return 0;
 	u_long nLines,maxTotchars;
 	u_long validRequest=validHTTPResponse(td,&nLines,&maxTotchars);
@@ -1614,8 +1624,8 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
-			strncpy(response->CONTENTS_TYPE,token,HTTP_RESPONSE_CONTENTS_TYPE_DIM);
-			StrTrim(response->CONTENTS_TYPE," ");
+			strncpy(response->CONTENT_TYPE,token,HTTP_RESPONSE_CONTENT_TYPE_DIM);
+			StrTrim(response->CONTENT_TYPE," ");
 		}else
 		/*MIME-Version*/
 		if(!lstrcmpi(command,"MIME-Version"))
@@ -1639,8 +1649,8 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
-			strncpy(response->CONTENTS_DIM,token,HTTP_RESPONSE_CONTENTS_DIM_DIM);
-			StrTrim(response->CONTENTS_DIM," ");
+			strncpy(response->CONTENT_LENGTH,token,HTTP_RESPONSE_CONTENT_LENGTH_DIM);
+			StrTrim(response->CONTENT_LENGTH," ");
 		}else
 		/*P3P*/
 		if(!lstrcmpi(command,"P3P"))

@@ -242,7 +242,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		/*
 		*Always specify the size of the HTTP contents.
 		*/
-		sprintf(td->response.CONTENTS_DIM,"%u",stdOutFile.ms_getFileSize()-headerSize);
+		sprintf(td->response.CONTENT_LENGTH,"%u",stdOutFile.ms_getFileSize()-headerSize);
 		buildHTTPResponseHeader(td->buffer,&td->response);
 		s->socket.ms_send(td->buffer,(int)strlen(td->buffer), 0);
 		s->socket.ms_send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
@@ -322,16 +322,16 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 
 	strcat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1");
 
-	if(td->request.CONTENTS_TYPE[0])
+	if(td->request.CONTENT_TYPE[0])
 	{
 		strcat(cgiEnvString,"\rCONTENT_TYPE=");
-		strcat(cgiEnvString,td->request.CONTENTS_TYPE);
+		strcat(cgiEnvString,td->request.CONTENT_TYPE);
 	}
 	
-	if(td->request.CONTENTS_DIM[0])
+	if(td->request.CONTENT_LENGTH[0])
 	{
 		strcat(cgiEnvString,"\rCONTENT_LENGTH=");
-		strcat(cgiEnvString,td->request.CONTENTS_DIM);
+		strcat(cgiEnvString,td->request.CONTENT_LENGTH);
 	}
 
 	if(td->request.COOKIE[0])
@@ -345,7 +345,11 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rHTTP_REFERER=");
 		strcat(cgiEnvString,td->request.REFERER);
 	}
-
+	if(td->request.CACHE_CONTROL[0])
+	{
+		strcat(cgiEnvString,"\rHTTP_CACHE_CONTROL=");
+		strcat(cgiEnvString,td->request.CACHE_CONTROL);
+	}
 	if(td->request.ACCEPT[0])
 	{
 		strcat(cgiEnvString,"\rHTTP_ACCEPT=");
@@ -434,7 +438,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	strcat(cgiEnvString,((vhost*)(td->connection->host))->documentRoot);
 
 	strcat(cgiEnvString,"\rDOCUMENT_URI=/");
-	lstrcpy(&cgiEnvString[strlen(cgiEnvString)],td->request.URI);/*,strlen(td->request.URI)-strlen(td->pathInfo)+1*/
+	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
 
 	strcat(cgiEnvString,"\rDOCUMENT_NAME=");
 	strcat(cgiEnvString,td->filenamePath);
@@ -448,8 +452,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 #ifdef WIN32
 	if(processEnv)
 	{
-		strcat(cgiEnvString," (Win32)\r");
-
+		strcat(cgiEnvString,"\r");
 		LPTSTR lpszVariable; 
 		LPVOID lpvEnv; 
 		 

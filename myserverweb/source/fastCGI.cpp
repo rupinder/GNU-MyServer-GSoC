@@ -87,9 +87,9 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		con.sock.ms_closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}	
-    if(atoi(td->request.CONTENTS_DIM))
+    if(atoi(td->request.CONTENT_LENGTH))
 	{
-		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENTS_DIM));
+		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
 		con.sock.ms_send((char*)&tHeader,sizeof(tHeader),0);
 		td->inputData.ms_setFilePointer(0);
 		do
@@ -159,7 +159,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 							break;
 						}
 					}
-					sprintf(td->response.CONTENTS_DIM,"%u",dim-headerSize);
+					sprintf(td->response.CONTENT_LENGTH,"%u",dim-headerSize);
 					buildHTTPResponseHeaderStruct(&td->response,td,td->buffer);
 					if(td->response.LOCATION[0])
 					{

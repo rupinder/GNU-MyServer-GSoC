@@ -146,10 +146,10 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS;
 	ExtCtrlBlk.lpszPathInfo = td->pathInfo;
 	ExtCtrlBlk.lpszPathTranslated = td->pathTranslated;
-	ExtCtrlBlk.cbTotalBytes = atoi(td->request.CONTENTS_DIM);
+	ExtCtrlBlk.cbTotalBytes = atoi(td->request.CONTENT_LENGTH);
 	ExtCtrlBlk.cbAvailable = 0;
 	ExtCtrlBlk.lpbData = 0;
-	ExtCtrlBlk.lpszContentType = (LPSTR)(&(td->request.CONTENTS_TYPE[0]));
+	ExtCtrlBlk.lpszContentType = (LPSTR)(&(td->request.CONTENT_TYPE[0]));
 
 	HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)GetProcAddress(AppHnd, "HttpExtensionProc");
 	if (HttpExtensionProc == NULL) 
@@ -216,7 +216,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	if(ExtCtrlBlk.dwHttpStatusCode==200)/*HTTP status code is 200*/
 	{
 		buildHTTPResponseHeaderStruct(&td->response,td,connTable[connIndex].td->buffer);
-		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",connTable[connIndex].td->outputData.ms_getFileSize()-headerSize);
+		sprintf(connTable[connIndex].td->response.CONTENT_LENGTH,"%u",connTable[connIndex].td->outputData.ms_getFileSize()-headerSize);
 		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
 		connTable[connIndex].connection->socket.ms_send(connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
 		connTable[connIndex].connection->socket.ms_send((char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);

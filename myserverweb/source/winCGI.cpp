@@ -103,9 +103,9 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		sprintf(td->buffer2,"Referer=%s\r\n",td->request.REFERER);
 		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
-	if(td->request.CONTENTS_TYPE[0])
+	if(td->request.CONTENT_TYPE[0])
 	{
-		sprintf(td->buffer2,"Content Type=%s\r\n",td->request.CONTENTS_TYPE);
+		sprintf(td->buffer2,"Content Type=%s\r\n",td->request.CONTENT_TYPE);
 		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 
@@ -118,9 +118,9 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	sprintf(td->buffer2,"Content File=%s\r\n",td->inputData.ms_GetFilename());
 	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
-	if(td->request.CONTENTS_DIM[0])
+	if(td->request.CONTENT_LENGTH[0])
 	{
-		sprintf(td->buffer2,"Content Length=%s\r\n",td->request.CONTENTS_DIM);
+		sprintf(td->buffer2,"Content Length=%s\r\n",td->request.CONTENT_LENGTH);
 		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 	else
@@ -222,7 +222,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	/*
 	*Always specify the size of the HTTP contents.
 	*/
-	sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
+	sprintf(td->response.CONTENT_LENGTH,"%u",nBytesRead-headerSize);
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.ms_send(td->buffer,(int)strlen(td->buffer), 0);
 	s->socket.ms_send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);

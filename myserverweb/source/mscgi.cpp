@@ -51,7 +51,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
     static CGIMAIN ProcMain;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
-	data.envString+=atoi(td->request.CONTENTS_DIM);
+	data.envString+=atoi(td->request.CONTENT_LENGTH);
 	
 	data.td = td;
 	data.errorPage=0;
@@ -100,7 +100,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	*/
 	static int len;
 	len=lstrlen(td->buffer2);
-	sprintf(td->response.CONTENTS_DIM,"%u",len);
+	sprintf(td->response.CONTENT_LENGTH,"%u",len);
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
 	s->socket.ms_send(td->buffer2,len, 0);
