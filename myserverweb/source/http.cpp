@@ -156,7 +156,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	*With the current code we build the HTML TABLE that describes the files in the folder.
 	*/
 	sprintf(td->buffer2,"<TABLE width=\"100%%\">\r\n<TR>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n</TR>\r\n","File","Last modify","Size");
-	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
+	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	static char fileSize[10];
 	static char fileTime[20];
 	do
@@ -195,14 +195,14 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			strcat(td->buffer2,fileSize);
 		}
 		strcat(td->buffer2,"</TD>\r\n</TR>\r\n");
-		outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
+		outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	}while(!_findnext(ff,&fd));
 	strcpy(td->buffer2,"</TABLE>\r\n<HR>\r\n<ADDRESS>\r\n");
 	strcat(td->buffer2,"Running on");
 	strcat(td->buffer2," MyServer ");
 	strcat(td->buffer2,versionOfSoftware);
 	strcat(td->buffer2,"</ADDRESS>\r\n</BODY>\r\n</HTML>\r\n");
-	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
+	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	_findclose(ff);
 	/*
 	*Changes the \ character in the / character 
@@ -215,7 +215,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	sprintf(td->response.CONTENT_LENGTH,"%u",outFile.getFileSize());
 	outFile.setFilePointer(0);
 	buildHTTPResponseHeader(td->buffer,&(td->response));
-	s->socket.send(td->buffer,strlen(td->buffer), 0);
+	s->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
 	u_long nbr,nbs;
 	do
 	{
@@ -277,7 +277,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	time_t lastmodTime=h.getLastModTime();
 	getRFC822LocalTime(lastmodTime,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	s->socket.send(td->buffer,strlen(td->buffer), 0);
+	s->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
 
 	/*
 	*If is requested only the header exit from the function; used by the HEAD request.
@@ -1454,11 +1454,11 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	{
 		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
 	}
-	sprintf(td->response.CONTENT_LENGTH,"%i",strlen(HTTP_ERROR_MSGS[ID]));
+	sprintf(td->response.CONTENT_LENGTH,"%i",(u_long)strlen(HTTP_ERROR_MSGS[ID]));
 
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	a->socket.send(td->buffer,(int)strlen(td->buffer), 0);
-	a->socket.send(HTTP_ERROR_MSGS[ID],strlen(HTTP_ERROR_MSGS[ID]), 0);
+	a->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
+	a->socket.send(HTTP_ERROR_MSGS[ID],(u_long)strlen(HTTP_ERROR_MSGS[ID]), 0);
 	return 1;
 }
 /*
@@ -1476,9 +1476,9 @@ int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
-	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
+	a->socket.send(td->buffer2,(u_long)strlen(td->buffer2),0);
 
-	a->socket.send(hardHTML,(int)strlen(hardHTML), 0);
+	a->socket.send(hardHTML,(u_long)strlen(hardHTML), 0);
 	return 1;
 }
 /*
@@ -1791,9 +1791,10 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 
 			if(containOpts)
 			{
-				for(j=0;(i<max) && (j<HTTP_REQUEST_URIOPTS_DIM);j++)
+				for(j=0;(i<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
 				{
 					request->URIOPTS[j]=token[++i];
+					request->URIOPTS[j+1]='/0';
 				}
 			}
 			strncpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM);
