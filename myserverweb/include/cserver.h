@@ -104,7 +104,6 @@ private:
 	/*! Buffer that contains all the local machine IP values.  */
 	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
-	char *languageFile;
 	char *path;
 	char serverAdmin[32];
 	int initialize(int);
@@ -127,6 +126,7 @@ private:
 	void createListenThreads();
 	int reboot();
 	u_int listeningThreads;
+	char *languageFile;
 	char *languages_path;
 	char *main_configuration_file;
 	char *vhost_configuration_file;
@@ -139,6 +139,8 @@ public:
   char *getMainConfFile();
   char *getVhostConfFile();
   char *getMIMEConfFile();
+  char *getLanguagesPath();
+  char *getLanguageFile();
 	cserver();
 	~cserver();
 	dynamic_protocol* getDynProtocol(char *protocolName);

@@ -79,11 +79,17 @@ cserver::cserver()
 	mime_configuration_file=0;
 }
 
+/*!
+ *Destroy the object.
+ */
 cserver::~cserver()
 {
 
 }
 
+/*!
+ *Start the server.
+ */
 void cserver::start()
 {
 	u_long i;
@@ -1658,10 +1664,27 @@ void cserver::enableAutoReboot()
   autoRebootEnabled = 1;
 }
 
+
 /*!
  *Return the protocol_manager object.
  */
 protocols_manager *cserver::getProtocolsManager()
 {
   return &protocols;
+}
+
+/*!
+ *Get the path to the directory containing all the language files.
+ */
+char *cserver::getLanguagesPath()
+{
+  return languages_path;
+}
+
+/*!
+ *Get the current language file.
+ */
+char *cserver::getLanguageFile()
+{
+  return languageFile;
 }

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 #include "../include/md5.h"
 #include "../include/cserver.h"
+#include "../include/lfind.h"
 #include "../include/protocols_manager.h"
 #include "../include/control_errors.h"
 extern "C" 
@@ -520,6 +521,17 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     knownCommand = 1;
     ret = PUTFILE(header.getOptions(), Ifile, Ofile, b1, bs1);
   }
+  else if(!strcmp(command, "SHOWLANGUAGEFILES"))
+  {
+    knownCommand = 1;
+    ret = SHOWLANGUAGEFILES(Ofile, b1, bs1);
+  }
+  else if(!strcmp(command, "SHOWDYNAMICPROTOCOLS"))
+  {
+    knownCommand = 1;
+    ret = SHOWDYNAMICPROTOCOLS(Ofile, b1, bs1);
+  }
+
 
   if(knownCommand)
   {
@@ -842,3 +854,62 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   return 0;
 }
 
+/*!
+ *Show all the language files that the server can use.
+ */
+int control_protocol::SHOWLANGUAGEFILES(MYSERVER_FILE* out, char *b1,int bs1)
+{
+  char *path = lserver->getLanguagesPath();
+  if(path == 0)
+    return CONTROL_INTERNAL;
+  _finddata_t fd;
+  intptr_t ff;
+  ff=_findfirst(path, &fd);
+  if(ff == -1)
+  {
+    return CONTROL_INTERNAL;
+  }
+	do
+	  {
+	     char *dir;
+	     char *filename;
+       int dirLen = 0;
+       int filenameLen = 0;
+       u_long nbw = 0;
+       /*! Do not show files starting with a dot. */
+	     if(fd.name[0]=='.')
+	       continue;
+       MYSERVER_FILE::splitPathLength(fd.name, &dirLen, &filenameLen);
+       dir = new char[dirLen + 1];
+       if(dir == 0)
+       {
+         _findclose(ff);
+         return CONTROL_INTERNAL;
+       }
+       filename = new char[filenameLen + 1];
+       if(filename == 0)
+       {
+         delete [] dir;
+         _findclose(ff);
+         return CONTROL_INTERNAL;
+       }
+	     MYSERVER_FILE::splitPath(fd.name,dir,filename);
+       int ret = 0;
+	     if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
+       {
+	       ret = out->writeToFile(filename, strlen(filename), &nbw);
+         if(ret == 0)
+           ret = out->writeToFile("\r\n", 2, &nbw);
+       }
+
+       delete [] dir;
+       delete [] filename;
+       if(ret)
+       {
+         return CONTROL_INTERNAL;
+       }
+	  }
+	while(!_findnext(ff,&fd));
+  _findclose(ff);
+  return 0;
+}
