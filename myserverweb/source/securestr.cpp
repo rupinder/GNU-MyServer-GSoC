@@ -23,20 +23,20 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-size_t strlcat(char *destination, const char *source, size_t size)
+#include "../include/securestr.h"
+unsigned int strlcat(char *destination, const char *source, size_t size)
 {
     char *dstptr=destination;
     size_t dstlen,tocopy=size;
     const char *srcptr=source;
     
     while(tocopy-- && *dstptr)
-    dstptr++;
+    	dstptr++;
     
     dstlen=dstptr-destination;
     
     if(!(tocopy=size-dstlen))
-    return(dstlen+strlen(source));
+    	return(dstlen+strlen(source));
     
     while(*srcptr)
     {
@@ -55,7 +55,7 @@ size_t strlcat(char *destination, const char *source, size_t size)
 }
 
    
-size_t strlcpy(char *destination, const char *source, size_t size)
+unsigned int strlcpy(char *destination, const char *source, unsigned int size)
 {
     char *dstptr=destination;
     size_t tocopy=size;
