@@ -360,6 +360,11 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rREMOTE_USER=");
 		strcat(cgiEnvString,td->connection->login);
 	}
+	
+	if(((vhost*)(td->connection->host))->protocol==PROTOCOL_HTTPS)
+		strcat(cgiEnvString,"\rSSL=ON");
+	else
+		strcat(cgiEnvString,"\rSSL=OFF");
 
 	if(td->request.CONNECTION[0])
 	{

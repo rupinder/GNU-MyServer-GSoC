@@ -328,7 +328,7 @@ int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int syst
 	*/
 	if(yetmapped)
 	{
-		strcpy(td->filenamePath,filename);
+		strncpy(td->filenamePath,filename,MAX_PATH);
 	}
 	else
 	{
@@ -345,7 +345,7 @@ int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int syst
 	int permissions=-1;
 	char folder[MAX_PATH];
 	if(MYSERVER_FILE::isFolder(td->filenamePath))
-		strcpy(folder,td->filenamePath);
+		strncpy(folder,td->filenamePath,MAX_PATH);
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 	
@@ -426,7 +426,7 @@ int deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int y
 	*/
 	if(yetmapped)
 	{
-		strcpy(td->filenamePath,filename);
+		strncpy(td->filenamePath,filename,MAX_PATH);
 	}
 	else
 	{
@@ -443,7 +443,7 @@ int deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int y
 	int permissions=-1;
 	char folder[MAX_PATH];
 	if(MYSERVER_FILE::isFolder(td->filenamePath))
-		strcpy(folder,td->filenamePath);
+		strncpy(folder,td->filenamePath,MAX_PATH);
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 	
@@ -500,7 +500,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 	*/
 	if(yetmapped)
 	{
-		strcpy(td->filenamePath,filename);
+		strncpy(td->filenamePath,filename,MAX_PATH);
 	}
 	else
 	{
@@ -519,7 +519,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 	{
 		char folder[MAX_PATH];
 		if(MYSERVER_FILE::isFolder(td->filenamePath))
-			strcpy(folder,td->filenamePath);
+			strncpy(folder,td->filenamePath,MAX_PATH);
 		else
 			MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 		if(td->connection->login[0])
@@ -553,8 +553,8 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 				/*
 				*If the token is a file.
 				*/
-				strcpy(td->pathInfo,&td->filenamePath[len]);
-				strcpy(td->filenamePath,dirscan);
+				strncpy(td->pathInfo,&td->filenamePath[len],MAX_PATH);
+				strncpy(td->filenamePath,dirscan,MAX_PATH);
 				break;
 			}
 		}
@@ -613,6 +613,8 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
 				if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
 					strcpy(nURL,"http://");
+				if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTPS)
+					strcpy(nURL,"https://");
 				strcat(nURL,td->request.HOST);
 				int isPortSpecified=0;
 				for(int i=0;td->request.HOST[i];i++)
@@ -786,7 +788,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 		h.readFromFile(linkpath,MAX_PATH,&nbr);
 		h.closeFile();
 		linkpath[nbr]='\0';
-		strcpy(pathInfo,td->pathInfo);
+		strncpy(pathInfo,td->pathInfo,MAX_PATH);
 		translateEscapeString(pathInfo);
 		strcat(linkpath,pathInfo);
 
@@ -1415,8 +1417,20 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 			char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
 			if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
 				strcpy(nURL,"http://");
+			if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTPS)
+				strcpy(nURL,"https://");
 			strcat(nURL,td->request.HOST);
-			sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
+			int isPortSpecified=0;
+			for(int i=0;td->request.HOST[i];i++)
+			{
+				if(td->request.HOST[i]==':')
+				{
+					isPortSpecified	= 1;
+					break;
+				}
+			}
+			if(!isPortSpecified)
+				sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
 			if(nURL[strlen(nURL)-1]!='/')
 				strcat(nURL,"/");
 			strcat(nURL,defFile);
@@ -1433,7 +1447,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-	strcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
+	strncpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID],HTTP_RESPONSE_ERROR_TYPE_DIM);
 	char errorFile[MAX_PATH];
 	sprintf(errorFile,"%s/%s",((vhost*)(td->connection->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
 	if(lserver->mustUseMessagesFiles() && MYSERVER_FILE::fileExists(errorFile))
@@ -1480,6 +1494,7 @@ int getMIME(char *MIME,char *filename,char *dest,char *dest2)
 }
 /*
 *Map an URL to the machine file system.
+*The output buffer must be capable of receive MAX_PATH characters.
 */
 void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest)
 {
@@ -1742,7 +1757,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		/*
 		*Copy the HTTP command.
 		*/
-		strcpy(command,token);
+		strncpy(command,token,96);
 		
 		nLineControlled++;
 		if(nLineControlled==1)
@@ -1826,7 +1841,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 				td->connection->login[i]=*lbuffer2++;
 				td->connection->login[i+1]='\0';
 			}
-			strcpy(td->identity,td->connection->login);
+			strncpy(td->identity,td->connection->login,32);
 			lbuffer2++;
 			for(i=0;(*lbuffer2)&&(i<31);i++)
 			{
@@ -1984,9 +1999,9 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			StrTrim(request->RANGEBYTEEND,"- ");
 			
 			if(request->RANGEBYTEBEGIN[0]==0)
-				strcpy(request->RANGEBYTEBEGIN,"0");
+				strncpy(request->RANGEBYTEBEGIN,"0",HTTP_REQUEST_RANGEBYTEBEGIN_DIM);
 			if(request->RANGEBYTEEND[0]==0)
-				strcpy(request->RANGEBYTEEND,"-1");
+				strncpy(request->RANGEBYTEEND,"-1",HTTP_REQUEST_RANGEBYTEEND_DIM);
 
 		}else
 		/*Referer*/
@@ -2112,7 +2127,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*
 		*Copy the HTTP command.
 		*/
-		strcpy(command,token);
+		strncpy(command,token,96);
 		
 		
 		nLineControlled++;
