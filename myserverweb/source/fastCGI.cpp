@@ -54,7 +54,6 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	td->buffer[0]='\0';
-	strcpy(td->buffer,"FCGI_ROLE=RESPONDER\r");
 	buildCGIEnvironmentString(td,td->buffer);
 
 	int sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer,td->buffer2);
@@ -81,6 +80,12 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		con.sock.ms_closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}
+
+	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
+	{
+		con.sock.ms_closesocket();
+		return raiseHTTPError(td,connection,e_501);
+	}	
     if(atoi(td->request.CONTENTS_DIM))
 	{
 		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENTS_DIM));
@@ -91,17 +96,14 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			td->inputData.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
 			if(nbr)
 				con.sock.ms_send(td->buffer,nbr,0);
-		}while(nbr);
+		}while(nbr==td->buffersize);
 	}
-	else
+	if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
 	{
-		if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
-		{
-			con.sock.ms_closesocket();
-			return raiseHTTPError(td,connection,e_501);
-		}	
-	}
-	
+		con.sock.ms_closesocket();
+		return raiseHTTPError(td,connection,e_501);
+	}	
+
 	/*Now read the output*/
 	int exit=0;
 	const clock_t timeout=5000;

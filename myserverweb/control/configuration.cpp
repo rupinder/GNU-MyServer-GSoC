@@ -87,7 +87,7 @@ void configurationFrame::initNotebook()
 	int n;
 	for ( n = 0; n < 10; n++ )
 	{
-        verbosity->Append(_T(verbosityValues[index]));
+        verbosity->Append(_T(verbosityValues[n]));
 	}
 	verbosity->SetSelection(atoi(confparser.getValue("VERBOSITY")));
     wxStaticText *verbosityStat= new wxStaticText(pPage[0], -1, "Set the verbosity on the logs files",wxPoint(85,42), wxSize(250,20));

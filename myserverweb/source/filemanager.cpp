@@ -86,7 +86,7 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};  
     sa.nLength = sizeof(sa);
-    sa.bInheritHandle = TRUE;
+    sa.bInheritHandle = FALSE;
     sa.lpSecurityDescriptor = NULL;
 	u_long creationFlag=0;
 	u_long openFlag=0;
@@ -113,7 +113,7 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
-	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,&sa,creationFlag,attributeFlag, NULL);
+	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
 	if(handle==INVALID_HANDLE_VALUE)/*If exists an error*/
 	{
 		if(GetLastError()==ERROR_ACCESS_DENIED)/*returns -1 if the file is not accessible*/

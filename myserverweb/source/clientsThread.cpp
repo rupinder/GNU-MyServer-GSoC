@@ -190,6 +190,7 @@ void ClientsTHREAD::clean()
 	}
 	delete[] buffer;
 	delete[] buffer2;
+	buffer=buffer2=0;
 	initialized=false;
 	ms_terminateAccess(&connectionWriteAccess,this->id);
 
