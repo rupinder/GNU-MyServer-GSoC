@@ -139,10 +139,6 @@ int ControlClient::sendReboot()
    ret = sendRequest("REBOOT", "");
    if(ret)
      return -1;
-   ret = getResponse();
-   if(ret)
-     return ret;
-   Buffer.SetLength(0);
    return 0;
 }
 

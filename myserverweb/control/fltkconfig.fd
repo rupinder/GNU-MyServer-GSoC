@@ -208,7 +208,7 @@ else {
   else if(ret) {
     fl_alert(LanguageXMLNot_Found);
   }
-}} selected
+}}
             xywh {0 0 100 20} deactivate
           }
           menuitem MenuSendConfig {
@@ -244,13 +244,9 @@ else if(ret) {
             callback {int ret;
 ret = fl_ask("This will kill all connections.  Are you sure?");
 if(ret) {
-  fl_wait(50);
-  ret = Server.sendReboot();
-  if(ret) {
-    fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
-    ServerLogout();
-  }
-}}
+  Server.sendReboot();
+  ServerLogout();
+}} selected
             xywh {0 0 100 20} deactivate
           }
         }
@@ -1065,14 +1061,12 @@ AboutText->buffer(atext);} {}
       } {
         Fl_Progress StatusDlgProgress {
           xywh {25 50 230 25} selection_color 229
+          code0 {StatusDlgProgress->maximum(100);}
+          code1 {StatusDlgProgress->minimum(0);}
+          code2 {Server.setCallback(ProgressCallback, (void *)StatusDlgProgress);}
         }
       }
     }
-    code {StatusDlgProgress->maximum(100);
-StatusDlgProgress->minimum(0);
-StatusDlgProgress->value(0);
-StatusDlgProgress->label("0%");
-Server.setCallback(ProgressCallback, (void *)StatusDlgProgress);} {}
   }
   Function {ask_type()} {open return_type int
   } {

@@ -238,12 +238,8 @@ inline void MainDlg::cb_MenuReboot_i(Fl_Menu_*, void*) {
   int ret;
 ret = fl_ask("This will kill all connections.  Are you sure?");
 if(ret) {
-  fl_wait(50);
-  ret = Server.sendReboot();
-  if(ret) {
-    fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
-    ServerLogout();
-  }
+  Server.sendReboot();
+  ServerLogout();
 };
 }
 void MainDlg::cb_MenuReboot(Fl_Menu_* o, void* v) {
@@ -2546,17 +2542,15 @@ Fl_Double_Window* MainDlg::make_status() {
       o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
       { Fl_Progress* o = StatusDlgProgress = new Fl_Progress(25, 50, 230, 25);
         o->selection_color((Fl_Color)229);
+        StatusDlgProgress->maximum(100);
+        StatusDlgProgress->minimum(0);
+        Server.setCallback(ProgressCallback, (void *)StatusDlgProgress);
       }
       o->end();
     }
     o->set_modal();
     o->end();
   }
-  StatusDlgProgress->maximum(100);
-StatusDlgProgress->minimum(0);
-StatusDlgProgress->value(0);
-StatusDlgProgress->label("0%");
-Server.setCallback(ProgressCallback, (void *)StatusDlgProgress);
   return w;
 }
 
