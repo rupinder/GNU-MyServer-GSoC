@@ -29,6 +29,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
 #include "../include/MemBuf.h"
 
+#include <string>
+#include <sstream>
+
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
@@ -65,8 +68,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 {
  	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
-  int cmdLineLen;
-	char *cmdLine = 0;
+	ostringstream cmdLine;
 	char *filename = 0;
 	int yetoutputted=0;
   int scriptDirLen = 0;
@@ -177,35 +179,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
      *Under the windows platform to run a file like an executable
      *use the sintact "cmd /c filename".
      */
-    cmdLineLen = strlen(td->scriptFile) + td->pathInfo[0] ? 
-                        strlen(&td->pathInfo[1]) : strlen (td->pathInfo) +1;
     if(cgipath)
-      cmdLineLen += strlen(cgipath) + 1;
-    cmdLine = new char[cmdLineLen];
-    if(cmdLine == 0)
-    {
-      delete [] filename;
-      delete [] td->scriptPath;
-      delete [] td->scriptFile;
-      delete [] td->scriptDir;
-      delete [] td->cgiFile;
-      td->cgiFile = 0;
-      td->scriptFile = 0;
-      td->scriptDir = 0;
-      td->scriptPath = 0;
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)(td->connection->host))->warningsLogWrite
-                                          ("Error allocating memory\r\n");
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-      /*! If we cannot allocate the memory return a 500 error message. */
-      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
-    }
-    if(cgipath)
-      sprintf(cmdLine, "cmd /c %s %s %s",cgipath, td->scriptFile, 
-              td->pathInfo?&td->pathInfo[1]:td->pathInfo);
+      cmdLine << "cmd /c " << cgipath << " " << 
+        td->scriptFile <<  (td->pathInfo ? &td->pathInfo[1]:td->pathInfo) ;
     else
-      sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, 
-              td->pathInfo?&td->pathInfo[1]:td->pathInfo);
+      cmdLine << "cmd /c " << td->scriptFile << " " <<
+              (td->pathInfo ? &td->pathInfo[1] : td->pathInfo);
 #endif
 		nph=(strnicmp("nph-", td->scriptFile, 4)==0)?1:0;
     
@@ -235,7 +214,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 			}
       else
       {
-        ((Vhost*)td->connection->host)->warningsLogWrite("Executable file not specified\r\n");
+        ((Vhost*)td->connection->host)->warningsLogWrite(
+                                          "Executable file not specified\r\n");
       }
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
       delete [] filename;
@@ -247,32 +227,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       td->cgiFile = 0;
       td->scriptFile = 0;
       td->scriptDir = 0;
-      if(cmdLine)
-        delete [] cmdLine;
 			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
-    /*! Alloc the cmdLine memory. */
-    cmdLineLen = strlen(td->scriptFile) + strlen(cgipath) + 2;
-    cmdLine = new char[cmdLineLen];
-    if(cmdLine == 0)
-    {
-      delete [] filename;
-      delete [] td->scriptFile;
-      delete [] td->scriptDir;
-      delete [] td->cgiFile;
-      delete [] td->scriptPath;
-      td->scriptPath = 0;
-      td->cgiFile = 0;
-      td->scriptFile = 0;
-      td->scriptDir = 0;
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)(td->connection->host))->warningsLogWrite(
-                                                       "Error allocating memory\r\n");
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-      /*! If we cannot allocate the memory return a 500 error message. */
-      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
-    }
-    sprintf(cmdLine, "%s %s", cgipath, td->scriptFile);
+    cmdLine << cgipath << " " << td->scriptFile;
     nph=(strnicmp("nph-", td->cgiFile, 4)==0)?1:0;
 
     spi.cmd = cgipath;
@@ -297,7 +254,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     delete [] filename;
-    delete [] cmdLine;
     return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
   
@@ -316,7 +272,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
                                         ("Cannot create CGI stdout file\r\n" );
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     delete [] outputDataPath;
-    delete [] cmdLine;
     delete [] filename;
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
@@ -332,7 +287,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 		((Vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
-    delete [] cmdLine;
     delete [] filename;
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
@@ -350,7 +304,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
    *Fill the StartProcInfo struct with the correct values and use it
    *to run the process.
    */
-	spi.cmdLine = cmdLine;
+	spi.cmdLine =(char*) cmdLine.str().c_str();
 	spi.cwd=td->scriptDir;
   
 	spi.stdError = stdOutFile.getHandle();
@@ -363,8 +317,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
-    if(cmdLine)
-      delete [] cmdLine;
     delete [] filename;
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)(td->connection->host))->warningsLogWrite
@@ -384,8 +336,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
-    if(cmdLine)
-      delete [] cmdLine;
     delete [] filename;
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)(td->connection->host))->warningsLogWrite
@@ -399,8 +349,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
-    if(cmdLine)
-      delete [] cmdLine;
     delete [] filename;
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)(td->connection->host))->warningsLogWrite
@@ -457,8 +405,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         {
           stdInFile.closeFile();
           stdOutFile.closeFile();
-          if(cmdLine)
-            delete [] cmdLine;
           delete [] filename;
           return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
         }
@@ -516,8 +462,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 			if(s->socket.send(td->buffer->GetBuffer(),
                         (int)(td->buffer->GetLength()), 0)==SOCKET_ERROR)
       {
-        if(cmdLine)
-          delete [] cmdLine;
         delete [] filename;
         stdInFile.closeFile();
         stdOutFile.closeFile();
@@ -530,8 +474,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         stdOutFile.closeFile();
         stdInFile.closeFile();
         File::deleteFile(td->inputDataPath);
-        if(cmdLine)
-          delete [] cmdLine;
         delete [] filename;
         return 1;
       }
@@ -540,8 +482,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 			if(s->socket.send((td->buffer2->GetBuffer() + headerSize), 
                         nBytesRead-headerSize, 0)==SOCKET_ERROR)
       {
-        if(cmdLine)
-          delete [] cmdLine;
         delete [] filename;
         stdOutFile.closeFile();
         stdInFile.closeFile();
@@ -558,8 +498,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         stdInFile.closeFile();
         File::deleteFile(td->inputDataPath);
         delete [] filename;
-        if(cmdLine)
-          delete [] cmdLine;
         return 1;
       }
 
@@ -572,8 +510,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       if(stdOutFile.readFromFile(td->buffer2->GetBuffer(), 
                                  td->buffer2->GetRealLength(), &nBytesRead))
       {
-        if(cmdLine)
-          delete [] cmdLine;
         delete [] filename;
         stdOutFile.closeFile();
         stdInFile.closeFile();
@@ -589,8 +525,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
           if(s->socket.send(td->buffer2->GetBuffer(), nBytesRead, 0)
              ==SOCKET_ERROR)
           {
-            if(cmdLine)
-              delete [] cmdLine;
             delete [] filename;
             stdOutFile.closeFile();
             stdInFile.closeFile();
@@ -604,8 +538,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
           if(td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                         nBytesRead, &nbw))
           {
-            if(cmdLine)
-              delete [] cmdLine;
             delete [] filename;
             stdOutFile.closeFile();
             stdInFile.closeFile();
@@ -624,8 +556,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
 	File::deleteFile(td->inputDataPath);
-  if(cmdLine)
-    delete [] cmdLine;
   delete [] filename;
 	return 1;  
 }
