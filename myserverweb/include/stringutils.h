@@ -29,6 +29,7 @@ void StrTrim(char* str,const char* trimChars);
 void gotoNextLine(char* cmd);
 int hexVal(char c);
 void translateEscapeString(char *TargetStr);
+int hexToInt(const char *str);
 
 
 #ifdef __linux__

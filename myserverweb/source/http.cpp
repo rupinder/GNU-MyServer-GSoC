@@ -538,7 +538,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 	dirscan[0]='\0';
 	td->pathInfo[0]='\0';
 	td->pathTranslated[0]='\0';
-	int filenamePathLen=strlen(td->filenamePath);
+	int filenamePathLen=(int)strlen(td->filenamePath);
 	for(int i=0,len=0;i<filenamePathLen;i++)
 	{
 		/*
@@ -870,17 +870,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		if(td.request.CONTENT_TYPE[0]=='\0')
 			strcpy(td.request.CONTENT_TYPE,"application/x-www-form-urlencoded");
-		if(!strcmpi(td.request.CONTENT_ENCODING,"chunked"))
-		{
-			/*
-			*TODO
-			*Control here the chunked transfer encoding.
-			*/	
-			u_long total_nbr=min(td.nBytesToRead,td.buffersize)-td.nHeaderChars;
 
-
-		}
-		else/*Read the data normally*/
+		/*
+		*Read POST data
+		*/
 		{
 			td.request.URIOPTSPTR=&td.buffer[td.nHeaderChars];
 			td.buffer[min(td.nBytesToRead,td.buffersize)]='\0';
@@ -962,8 +955,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 					*/
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
-					retvalue|=1;/*set return value to 1*/
-					retvalue|=2;
 					return raiseHTTPError(&td,a,e_500);
 				}
 			}
@@ -1000,6 +991,59 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		td.request.URIOPTSPTR=0;
 	}
+	if(!strcmpi(td.request.CONTENT_ENCODING,"chunked"))
+	{
+		MYSERVER_FILE newStdIn;
+		sprintf(td.inputDataPath,"%s_encoded",td.inputData.getFilename());
+		newStdIn.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);		
+		char buffer[20];
+		char c;
+		u_long nbr;
+		u_long bufferlen;
+		for(;;)
+		{
+			bufferlen=0;
+			buffer[0]='\0';
+			for(;;)
+			{
+				td.inputData.readFromFile(&c,1,&nbr);
+				if(nbr=!1)
+					break;
+				if((c!='\r') && (bufferlen<19))
+				{
+					buffer[bufferlen++]=c;
+					buffer[bufferlen]='\0';
+				}
+				else
+					break;
+			}
+			td.inputData.readFromFile(&c,1,&nbr);/*Read the \n char too*/
+			u_long dataToRead=(u_long)hexToInt(buffer);
+			if(dataToRead==0)/*The last chunk length is 0*/
+				break;
+
+			u_long dataRead=0;
+			while(dataRead<dataToRead)
+			{
+				td.inputData.readFromFile(td.buffer,min(dataToRead-dataRead,td.buffersize),&nbr);
+				if(nbr==0)
+					break;
+				dataRead+=nbr;
+				u_long nbw;
+				newStdIn.writeToFile(td.buffer,nbr,&nbw);
+				if(nbw!=nbr)
+					break;
+			}
+
+		}
+		/*
+		*Now replace the file with the encoded one.
+		*/
+		td.inputData.closeFile();
+		td.inputData.deleteFile(td.inputData.getFilename());
+		td.inputData=newStdIn;
+	}
+
 
 	if(!(retvalue&2))/*If return value is not setted.*/
 	{
@@ -1347,7 +1391,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		strcat(td->buffer2,"Date: ");
 		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 		strcat(td->buffer2,"\r\n\r\n");
-		a->socket.send(td->buffer2,strlen(td->buffer2),0);
+		a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
 		return 1;
 	}
 	else
@@ -1389,7 +1433,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	sprintf(td->response.CONTENT_LENGTH,"%i",strlen(HTTP_ERROR_MSGS[ID]));
 
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	a->socket.send(td->buffer,strlen(td->buffer), 0);
+	a->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 	a->socket.send(HTTP_ERROR_MSGS[ID],strlen(HTTP_ERROR_MSGS[ID]), 0);
 	return 1;
 }
@@ -1408,9 +1452,9 @@ int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
-	a->socket.send(td->buffer2,strlen(td->buffer2),0);
+	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
 
-	a->socket.send(hardHTML,strlen(hardHTML), 0);
+	a->socket.send(hardHTML,(int)strlen(hardHTML), 0);
 	return 1;
 }
 /*
@@ -1761,7 +1805,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*Assume that it is Basic anyway.
 			*/
 			strcpy(request->AUTH,"Basic");
-			int len=strlen(token);
+			int len=(int)strlen(token);
 			char *base64=base64Utils.Decode(&token[strlen("Basic:")],&len);
 			char* lbuffer2=base64;
 			int i;
