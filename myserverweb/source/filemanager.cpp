@@ -754,7 +754,7 @@ int MYSERVER_FILE::completePath(char **fileName,int *size, int dontRealloc)
 #ifdef WIN32
   char *buffer;
   int bufferLen = strlen(*fileName) + 1;
-  buffer = new char[*fileName];
+  buffer = new char[bufferLen];
   if(buffer == 0)
   {
     return -1;

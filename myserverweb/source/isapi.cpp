@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/isapi.h"
 #include "../include/http.h"
 #include "../include/cserver.h"
+#include "../include/filemanager.h"
 #include "../include/HTTPmsg.h"
 #include "../include/cgi.h"
 
@@ -48,6 +49,8 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 		endPrintError();
 		return 0;
 	}
+	char *buffer;	
+	char URI[MAX_PATH];/*! Under windows use MAX_PATH. */
 	switch (dwHSERRequest) 
 	{
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
@@ -63,23 +66,35 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
         | HSE_URL_FLAGS_EXECUTE;
 			break;
 		case HSE_REQ_MAP_URL_TO_PATH:
-			char URI[MAX_PATH];/*! Under windows use MAX_PATH. */
 			if(((char*)lpvBuffer)[0])
 				strcpy(URI,(char*)lpvBuffer);
 			else
 				lstrcpyn(URI,ConnInfo->td->request.URI,
                  (int)(strlen(ConnInfo->td->request.URI)-
                        strlen(ConnInfo->td->pathInfo)+1));
-
 			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
-                                            (char*)lpvBuffer,URI,0);
-
-			if(MYSERVER_FILE::completePath((char*)lpvBuffer,(int*)lpdwSize,  1))
-      {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        ret=0;
-        return 0;
-      }
+                                            (char**)&buffer,URI,0);
+            if(buffer==0)
+            {
+		        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+		        return 0;            
+            }
+            if(strlen(buffer) < *lpdwSize)
+            {
+                strcpy((char*)lpvBuffer, buffer);
+                delete [] buffer;
+            }
+            else
+            {
+                delete [] buffer;
+		        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+		        return 0;
+            }
+			if(MYSERVER_FILE::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
+   			{
+		        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+		        return 0;
+		    }
 			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
