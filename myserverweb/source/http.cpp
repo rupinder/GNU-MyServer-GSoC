@@ -1339,6 +1339,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 	td.identity[0]='\0';
 	td.connection=a;
 	td.id=id;
+  td.lastError = 0;
 	td.lhttp=this;
 	td.appendOutputs=0;
 	td.inputData.setHandle((MYSERVER_FILE_HANDLE)0);
@@ -1887,6 +1888,7 @@ void http::computeDigest(httpThreadContext* td, char* out , char* buffer)
 */
 int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 {
+  td->lastError = ID;
 	http_headers::buildDefaultHTTPResponseHeader(&(td->response));
 	int keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))

@@ -56,7 +56,8 @@ extern class CBase64Utils base64Utils;
 */
 struct httpThreadContext
 {
-	int appendOutputs;/*Used by SSI*/
+	int appendOutputs;/*! Used by SSI. */
+  int lastError;/*! Used by SSI and set by raiseHTTPError. */
 	LPCONNECTION connection;
 	CMemBuf *buffer;
 	CMemBuf *buffer2;
