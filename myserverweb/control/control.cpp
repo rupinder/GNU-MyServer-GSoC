@@ -344,7 +344,7 @@ void mainFrame::registerService(wxCommandEvent& event)
 	}
 #endif
 	lmainFrame->SetStatusText(_T("MyServer service installed"));
-	Sleep(1500);/*Sleep 1.5 seconds only for show boot the installation and run messages*/
+	Sleep(1500);/*Sleep 1.5 seconds only for show both the installation and run messages*/
 	runService(event);
 }
 void mainFrame::configureMIME(wxCommandEvent& event)

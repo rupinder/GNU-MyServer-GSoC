@@ -326,7 +326,6 @@ void cserver::start()
 	{
 #ifdef WIN32
 		Sleep(1);
-
 		DWORD cNumRead,i; 
 		INPUT_RECORD irInBuf[128]; 
 		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);

@@ -283,12 +283,12 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT|HSE_URL_FLAGS_EXECUTE;
 			break;
 		case HSE_REQ_MAP_URL_TO_PATH:
-			char URL[MAX_PATH];
+			char URI[MAX_PATH];
 			if(((char*)lpvBuffer)[0])
-				lstrcpy(URL,(char*)lpvBuffer);
+				strcpy(URI,(char*)lpvBuffer);
 			else
-				lstrcpyn(URL,ConnInfo->td->request.URI,lstrlen(ConnInfo->td->request.URI)-lstrlen(ConnInfo->td->pathInfo)+1);
-			getPath(ConnInfo->td,(char*)lpvBuffer,URL,FALSE);
+				lstrcpyn(URI,ConnInfo->td->request.URI,strlen(ConnInfo->td->request.URI)-strlen(ConnInfo->td->pathInfo)+1);
+			getPath(ConnInfo->td,(char*)lpvBuffer,URI,FALSE);
 			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
