@@ -55,7 +55,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	u_long nbr,nbs;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
-	//data.envString+=atoi(td->request.CONTENT_LENGTH);
+	data.envString+=atoi(td->request.CONTENT_LENGTH);
 	
 	data.td = td;
 	data.errorPage=0;
