@@ -34,6 +34,7 @@ typedef u_long CONNECTION_PROTOCOL;
 struct CONNECTION
 {
 public:
+	int check_value;
 	char login[20];	
 	char password[32];
 	char nTries;	

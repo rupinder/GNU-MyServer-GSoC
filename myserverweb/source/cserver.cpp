@@ -62,6 +62,7 @@ void cserver::start()
 	u_long i;
 	nConnections=0;
 	connections=0;
+	connectionToParse=0;
 	/*
 	*Set the current working directory.
 	*/
@@ -760,6 +761,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
 		return NULL;
+	nc->check_value = 0x20;
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
 	nc->port=(u_short)port;
@@ -869,14 +871,18 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 LPCONNECTION cserver::getConnectionToParse(int id)
 {
 	requestAccess(&connectionWriteAccess,id);
-	
+	int a;
 	if(connectionToParse)
-		connectionToParse=connectionToParse->Next;
+	{
+		if(connectionToParse->check_value!=0x20)
+			connectionToParse=connections;
+		else
+			connectionToParse=connectionToParse->Next;
+	}
 	else
 		connectionToParse=connections;
 	if(connectionToParse==0)
 		connectionToParse=connections;
-
 	terminateAccess(&connectionWriteAccess,id);
 	return connectionToParse;
 }
@@ -890,7 +896,7 @@ void cserver::clearAllConnections()
 	for(u_long i=0;c && i<nConnections;i++)
 	{
 		next=c->Next;
-		deleteConnection(c,0);
+		deleteConnection(c,1);
 		c=next;
 	}
 	nConnections=0;

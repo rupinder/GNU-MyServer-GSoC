@@ -91,7 +91,6 @@ private:
     u_long nConnections;
 	void clearAllConnections();
 	int deleteConnection(LPCONNECTION,int);
-	u_long connectionWriteAccess;
 	LPCONNECTION connections;
 	u_long connectionTimeout;
 	u_long socketRcvTimeout;
@@ -99,6 +98,7 @@ private:
 	int createServerAndListener(u_long);
 	LPCONNECTION connectionToParse;
 public:
+	u_long connectionWriteAccess;
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	LPCONNECTION getConnectionToParse(int);
 	LPCONNECTION findConnection(MYSERVER_SOCKET);

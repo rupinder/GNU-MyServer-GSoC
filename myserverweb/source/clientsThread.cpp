@@ -104,10 +104,10 @@ void * startClientsTHREAD(void* pParam)
 */
 void ClientsTHREAD::controlConnections()
 {
-	LPCONNECTION next=0;
-
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
 	if(!c)
+		return;
+	if(c->check_value!=0x20)
 		return;
 	nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
 	if(nBytesToRead)
