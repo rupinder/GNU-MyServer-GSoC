@@ -217,7 +217,17 @@ int mscgi::loadMSCGILib()
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
 #endif
 #ifdef HAVE_DL
-	mscgiModule=dlopen("cgi-lib/cgi-lib.so", RTLD_NOW | RTLD_GLOBAL);
+	char mscgi_path;
+	
+	if(MYSERVER_FILE::fileExists("cgi-lib/cgi-lib.so"))
+	{
+		strcpy(mscgi_path, "cgi-lib/cgi-lib.so");
+	}
+	else
+	{
+		strcpy(mscgi_path, "/usr/lib/myserver/cgi-lib.so");
+	}
+	mscgiModule=dlopen(mscgi_path, RTLD_NOW | RTLD_GLOBAL);
 #endif
 	return (mscgiModule)?1:0;
 }
