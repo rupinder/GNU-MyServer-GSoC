@@ -997,6 +997,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
 	{
 		return NULL;
 	}
+  new_connection->socket = s;
 	new_connection->port=(u_short)port;
 	new_connection->timeout=get_ticks();
 	new_connection->localPort=(u_short)localPort;

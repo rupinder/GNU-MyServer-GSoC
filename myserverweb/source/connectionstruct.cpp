@@ -32,7 +32,6 @@ CONNECTION::CONNECTION()
   localIpAddr[0]='\0';
   port = 0;
 	localPort = 0;
-  socket = 0;
   timeout = 0;
   next = 0;
   host = 0;
