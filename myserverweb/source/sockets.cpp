@@ -333,6 +333,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 			return -1;
 	}
 #endif
+
 #ifdef WIN32
 	err=::recv(socketHandle,buffer,len,flags);
 	if(err==SOCKET_ERROR)
@@ -354,6 +355,8 @@ u_long MYSERVER_SOCKET::bytesToRead()
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
+		char b;
+		SSL_peek(sslConnection,&b,1);
 		nBytesToRead=SSL_pending(sslConnection);
 		return nBytesToRead;
 	}
