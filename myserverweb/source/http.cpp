@@ -654,8 +654,8 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	u_long digest_count;
   Md5 md5;
   /*! Return 0 if the password is different. */
-	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
-       ((HttpUserData*)s->protocolBuffer)->opaque))
+	if(td->request.digest_opaque[0] && lstrcmp(td->request.digest_opaque, 
+                                             ((HttpUserData*)s->protocolBuffer)->opaque))
 		return 0;
   /*! If is not equal return 0. */
 	if(lstrcmp(td->request.digest_realm, ((HttpUserData*)s->protocolBuffer)->realm))
@@ -673,7 +673,8 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	*td->buffer2 << td->request.digest_username << ":" << td->request.digest_realm 
                << ":" << ((HttpUserData*)s->protocolBuffer)->needed_password;
 
-	md5.update((unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
+	md5.update((unsigned char const*)td->buffer2->GetBuffer(), 
+             (unsigned int)td->buffer2->GetLength());
 	md5.end(A1);
 	
 	md5.init();
@@ -691,7 +692,8 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	*td->buffer2 << A1 << ":"  << ((HttpUserData*)s->protocolBuffer)->nonce << ":" 
                << td->request.digest_nc << ":"  << td->request.digest_cnonce << ":" 
                << td->request.digest_qop  << ":" << A2;
-	md5.update((unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
+	md5.update((unsigned char const*)td->buffer2->GetBuffer(), 
+             (unsigned int)td->buffer2->GetLength());
 	md5.end(response);	
 
 	if(!lstrcmp(response, td->request.digest_response))
@@ -2382,7 +2384,6 @@ u_long Http::getGzipThreshold()
  */
 int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
 {
-	int keepalive=0;
 	char time[HTTP_RESPONSE_DATE_DIM];
 	td->response.httpStatus=302;
 	td->buffer2->SetLength(0);
@@ -2395,17 +2396,16 @@ int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		*td->buffer2 << "Connection: Keep-Alive\r\n";	
-		keepalive = 1;
 	}
 	*td->buffer2<< "Date: ";
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time ;
 	*td->buffer2 << "\r\n\r\n";
-	if(!a->socket.send(td->buffer2->GetBuffer(), 
-                     (int)td->buffer2->GetLength(), 0))
+	if(a->socket.send(td->buffer2->GetBuffer(), 
+                    (int)td->buffer2->GetLength(), 0) == -1)
 		return 0;
 
-	return keepalive;
+	return 1;
 }
 
 /*!
@@ -2413,7 +2413,6 @@ int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
  */
 int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 {
-	int keepalive=0;
 	char time[HTTP_RESPONSE_DATE_DIM];
 	td->response.httpStatus=304;
 	td->buffer2->SetLength(0);
@@ -2426,17 +2425,16 @@ int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		*td->buffer2 << "Connection: Keep-Alive\r\n";	
-		keepalive = 1;
 	}	
 	*td->buffer2 << "Date: ";
 	
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time << "\r\n\r\n";
 
-	if(!a->socket.send(td->buffer2->GetBuffer(), 
-                     (int)td->buffer2->GetLength(), 0))
+	if(a->socket.send(td->buffer2->GetBuffer(), 
+                    (int)td->buffer2->GetLength(), 0) == -1)
 		return 0;
-	return keepalive;
+	return 1;
 }
 
 /*!

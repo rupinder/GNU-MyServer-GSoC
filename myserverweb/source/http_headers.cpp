@@ -644,11 +644,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				while(*token==' ')
 					token++;
 				tokenOff = getEndLine(token, 1024);
-				digestBuff=new char[tokenOff];
+				digestBuff=new char[tokenOff+1];
 				if(!digestBuff)
 					return 0;
 				memcpy(digestBuff,token,tokenOff);
-				digestBuff[tokenOff]='\0';
+				digestBuff[tokenOff+1]='\0';
 				digestToken = strtok( digestBuff, "=" );
 				if(!digestToken)
 					return 0;
