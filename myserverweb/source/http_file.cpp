@@ -22,8 +22,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http_file.h"
 #include "../include/gzip.h"
 
-#undef min
-#define min( a, b )( ( a < b ) ? a : b  )
 
 extern "C" 
 {
@@ -91,7 +89,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
      *If the client use ranges set the right value 
      *for the last byte number.  
      */
-		lastByte = min((u_long)lastByte, bytes_to_send);
+		lastByte = ((u_long)lastByte < bytes_to_send) ? lastByte : bytes_to_send;
 	}
 
   /*! 
@@ -108,7 +106,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
    *Be sure that the client accept GZIP compressed data.  
    */
 	if(use_gzip)
-		use_gzip &= (td->request.ACCEPTENC.find("gzip")!=0);
+		use_gzip &= (td->request.ACCEPTENC.find("gzip") != string::npos);
 #else
 	/*! 
    *If compiled without GZIP support force the server to don't use it.  
@@ -256,8 +254,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		else
 		{
 			/*! Read from the file the bytes to send. */
-      ret = h.readFromFile(td->buffer->GetBuffer(), 
-                        min(bytes_to_send,td->buffer->GetRealLength()), &nbr);
+      ret = h.readFromFile(td->buffer->GetBuffer(),
+                           (bytes_to_send<td->buffer->GetRealLength()? 
+                            bytes_to_send :td->buffer->GetRealLength()  ), &nbr);
 			if(ret)
 			{
         char tmp[11];
