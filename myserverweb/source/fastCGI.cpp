@@ -86,8 +86,12 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENTS_DIM) );
 		fCGIservers[con.fcgiPID].socket.ms_send((char*)&tHeader,sizeof(tHeader),0);
 		td->inputData.ms_setFilePointer(0);
-		while(nbr=td->inputData.ms_ReadFromFile(td->buffer,td->buffersize,&nbr))
+
+		for(;;)
 		{
+			td->inputData.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
+			if(!nbr)
+				break;
 			fCGIservers[con.fcgiPID].socket.ms_send(td->buffer,nbr,0);
 		}
 	}
@@ -102,7 +106,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	
 	/*Now read the output*/
 	int exit=0;
-	int timeout=200;
+	int timeout=1000;
 	do	
 	{
 		while(timeout && (!con.sock.ms_bytesToRead()))
@@ -150,6 +154,55 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 					}
 					sprintf(td->response.CONTENTS_DIM,"%u",dim-headerSize);
 					buildHTTPResponseHeaderStruct(&td->response,td,td->buffer);
+					if(td->response.LOCATION[0])
+					{
+						char nURL[MAX_PATH];
+						nURL[0]='\0';
+						u_long j;
+						if(!td->request.uriEndsWithSlash)
+						{
+							int slashcount=0,slashcountnow=0;
+							for(j=0;j<strlen(td->request.URI);j++)
+								if(td->request.URI[j]=='/')
+									slashcount++;
+
+							for(j=0;j<strlen(td->request.URI);j++)
+							{
+								if(td->request.URI[j]=='/')
+								{
+									slashcountnow++;
+									if(slashcountnow==slashcount-1)
+									{
+										j++;
+										int start=0;
+										while(td->request.URI[j]!='/')
+										{
+											nURL[start]=td->request.URI[j]; 
+											nURL[start+1]='\0'; 
+											j++;
+											start++;
+										}
+										nURL[start]='/'; 
+										nURL[start+1]='\0'; 
+									}
+								}
+							}
+						}
+						j=0;
+
+						int start=(int)strlen(nURL);
+						while(td->response.LOCATION[j])
+						{
+
+							nURL[j+start]=td->response.LOCATION[j];
+							nURL[j+start+1]='\0';
+							j++;
+						}
+
+						sendHTTPRedirect(td,connection,nURL);
+						exit = 1;
+						break;
+					}
 					buildHTTPResponseHeader(td->buffer2,&td->response);
 					if(td->connection->socket.ms_send(td->buffer2,strlen(td->buffer2), 0)==0)
 					{
@@ -157,6 +210,11 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 						break;
 					}
 					dataSent=td->connection->socket.ms_send((char*)(td->buffer+headerSize),nbr-headerSize, 0)+headerSize;
+					if(dataSent==headerSize)
+					{
+						exit = 1;
+						break;
+					}
 					while(dataSent<dim)
 					{
 						if( con.sock.ms_bytesToRead() )
