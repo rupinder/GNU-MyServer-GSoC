@@ -23,7 +23,7 @@
 <MSG_NUM_CPU>Numero di processori:</MSG_NUM_CPU>
 <MSG_CREATET>Creazione del thread</MSG_CREATET>
 <MSG_THREADR>Thread creato</MSG_THREADR>
-<MSG_LISTENT>Creazione del thread di ascolto</MSG_LISTENT>
+<MSG_LISTENT>Creazione del thread di ascolto...</MSG_LISTENT>
 <MSG_LISTENTR>Thread di ascolto creato con successo</MSG_LISTENTR>
 <MSG_READY>myServer pronto ad accettare connessioni</MSG_READY>
 <MSG_BREAK>Premere Ctrl+C per terminare l'esecuzione</MSG_BREAK>

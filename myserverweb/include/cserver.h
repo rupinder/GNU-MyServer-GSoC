@@ -17,6 +17,8 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
+#ifndef cserver_IN
+#define cserver_IN
 
 #include "..\stdafx.h"
 #include "..\include\utility.h"
@@ -37,12 +39,16 @@
 */
 #include "..\include\MIME_manager.h"
 
-unsigned int __stdcall listenServerHTTP(void* pParam);
-#ifndef cserver_IN
-#define cserver_IN
+unsigned int __stdcall listenServer(void* pParam);
+struct listenThreadArgv
+{
+	DWORD protID;
+	DWORD port;
+	MYSERVER_SOCKET serverSocket;
+};
 class cserver
 {
-	friend  unsigned int __stdcall listenServerHTTP(void* pParam);
+	friend  unsigned int __stdcall listenServer(void* pParam);
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
 	friend class ClientsTHREAD;
 	friend LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM);
@@ -62,19 +68,17 @@ private:
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
 	DWORD verbosity;
 	BOOL useMessagesFiles;
-	MYSERVER_SOCKET serverSocketHTTP,asockHTTP;
-	sockaddr_in sock_inserverSocketHTTP,asock_inHTTP;
 	DWORD buffersize;
 	DWORD buffersize2;
 	DWORD getNumConnections();
 	void initialize(INT);
-	BOOL addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL=PROTOCOL_FTP);
+	BOOL addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*,CONNECTION_PROTOCOL);
 	LPCONNECTION findConnection(MYSERVER_SOCKET s);
 	DWORD connectionTimeout;
 	DWORD socketRcvTimeout;
-	int listenServerHTTPHandle;
 	DWORD maxLogFileSize;
 	VOID controlSizeLogFile();
+	VOID createServerAndListener(DWORD,DWORD);
 public:
 	MIME_Manager mimeManager;
 	MYSERVER_FILE_HANDLE warningsLogFile;
@@ -93,5 +97,5 @@ public:
 	int hInst;
 
 }; 
-#endif
 LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 
+#endif

@@ -19,6 +19,7 @@
 #pragma once
 #include "..\stdafx.h"
 typedef unsigned int MYSERVER_SOCKET;
+typedef sockaddr_in MYSERVER_SOCKADDRIN;
 int ms_startupSocketLib(WORD);
 MYSERVER_SOCKET ms_socket(int,int,int);
 int ms_bind(MYSERVER_SOCKET,sockaddr*,int);

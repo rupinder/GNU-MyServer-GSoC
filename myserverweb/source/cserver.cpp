@@ -137,48 +137,6 @@ void cserver::start(INT hInst)
 	printf("%s\n",languageParser.getValue("MSG_SOCKSTART"));
 
 	/*
-	*Create the HTTP server socket
-	*/
-	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
-	serverSocketHTTP=ms_socket(AF_INET,SOCK_STREAM,0);
-	if(serverSocketHTTP==INVALID_SOCKET)
-	{
-		printf("%s\n",languageParser.getValue("ERR_OPENP"));
-		return;
-
-	}
-	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
-	sock_inserverSocketHTTP.sin_family=AF_INET;
-	sock_inserverSocketHTTP.sin_addr.s_addr=htonl(INADDR_ANY);
-	sock_inserverSocketHTTP.sin_port=htons(port_HTTP);
-
-	/*
-	*Bind the HTTP port
-	*/
-	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
-
-	if(ms_bind(serverSocketHTTP,(sockaddr*)&sock_inserverSocketHTTP,sizeof(sock_inserverSocketHTTP))!=0)
-	{
-		printf("%s\n",languageParser.getValue("ERR_BIND"));
-		return;
-	}
-	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
-
-
-
-	/*
-	*Set connections listen queque to max allowable
-	*/
-	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
-	if (ms_listen(serverSocketHTTP,SOMAXCONN))
-	{ 
-		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
-		return; 
-	}
-
-	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port_HTTP);
-
-	/*
 	*Get the machine name
 	*/
 	getComputerName(serverName,(DWORD)sizeof(serverName));
@@ -200,7 +158,7 @@ void cserver::start(INT hInst)
 		do
 		{
 			addresses_count++;
-			sockaddr_in *sai=(sockaddr_in*)(iai->ai_addr);
+			MYSERVER_SOCKADDRIN *sai=(MYSERVER_SOCKADDRIN*)(iai->ai_addr);
 			printf("%s #%u: %u.%u.%u.%u\n",languageParser.getValue("MSG_ADDRESS"),addresses_count,sai->sin_addr.S_un.S_un_b.s_b1,sai->sin_addr.S_un.S_un_b.s_b2,sai->sin_addr.S_un.S_un_b.s_b3,sai->sin_addr.S_un.S_un_b.s_b4);
 			iai=ai->ai_next;
 		}while(iai);
@@ -232,20 +190,16 @@ void cserver::start(INT hInst)
 		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
+	/*
+	*Then we create here all the listens threads
+	*/
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
 
-	/*
-	*Create the listen thread
-	*/
-	listenServerHTTPHandle=(int)_beginthreadex(NULL,0,&::listenServerHTTP,0,0,&ID);
 
-
-	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
+	createServerAndListener(port_HTTP,PROTOCOL_HTTP);
 
 	printf("%s\n",languageParser.getValue("MSG_READY"));
 	printf("%s\n",languageParser.getValue("MSG_BREAK"));
-	
-
 	/*
 	*Keep thread alive.
 	*When the mustEndServer flag is set to True exit
@@ -257,11 +211,79 @@ void cserver::start(INT hInst)
 	this->terminate();
 }
 /*
-*This is the thread that listens for a new connection on the HTTP port
+*This function is used to create a socket server and a thread listener for a protocol
 */
-unsigned int __stdcall listenServerHTTP(void*)
+VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 {
-	INT asock_inLenHTTP=sizeof(lserver->asock_inHTTP);
+	/*
+	*Create the server socket
+	*/
+	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
+	MYSERVER_SOCKET serverSocket=ms_socket(AF_INET,SOCK_STREAM,0);
+	MYSERVER_SOCKADDRIN sock_inserverSocket;
+	if(serverSocket==INVALID_SOCKET)
+	{
+		printf("%s\n",languageParser.getValue("ERR_OPENP"));
+		return;
+
+	}
+	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
+	sock_inserverSocket.sin_family=AF_INET;
+	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
+	sock_inserverSocket.sin_port=htons(port);
+
+	/*
+	*Bind the  port
+	*/
+	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
+
+	if(ms_bind(serverSocket,(sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
+	{
+		printf("%s\n",languageParser.getValue("ERR_BIND"));
+		return;
+	}
+	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
+
+
+
+	/*
+	*Set connections listen queque to max allowable
+	*/
+	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
+	if (ms_listen(serverSocket,SOMAXCONN))
+	{ 
+		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
+		return; 
+	}
+
+	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port);
+
+	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
+
+
+	/*
+	*Create the listen thread
+	*/
+	listenThreadArgv* argv=new listenThreadArgv;
+	argv->protID=protID;
+	argv->port=port;
+	argv->serverSocket=serverSocket;
+	_beginthreadex(NULL,0,&::listenServer,argv,0,0);
+}
+/*
+*This is the thread that listens for a new connection on the port specified by the protocol
+*/
+unsigned int __stdcall listenServer(void* params)
+{
+	listenThreadArgv *argv=(listenThreadArgv*)params;
+	DWORD protID=argv->protID;
+	DWORD port=argv->port;
+	MYSERVER_SOCKET serverSocket=argv->serverSocket;
+	delete argv;
+
+	MYSERVER_SOCKADDRIN asock_in;
+	INT asock_inLen=sizeof(asock_in);
+	MYSERVER_SOCKET asock;
 	while(!mustEndServer)
 	{
 		/*
@@ -270,14 +292,16 @@ unsigned int __stdcall listenServerHTTP(void*)
 		*function; this function dispatch connections 
 		*between the various threads.
 		*/
-		lserver->asockHTTP=ms_accept(lserver->serverSocketHTTP,(struct sockaddr*)&lserver->asock_inHTTP,(LPINT)&asock_inLenHTTP);
-		if(lserver->asockHTTP==0)
+		asock=ms_accept(serverSocket,(struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
+		if(asock==0)
 			continue;
-		if(lserver->asockHTTP==INVALID_SOCKET)
+		if(asock==INVALID_SOCKET)
 			continue;
 		
-		lserver->addConnection(lserver->asockHTTP,PROTOCOL_HTTP);
-	}	
+		lserver->addConnection(asock,&asock_in,protID);
+	}
+	ms_shutdown(serverSocket, 2);
+	ms_closesocket(serverSocket);
 	/*
 	*When the flag mustEndServer is TRUE end current thread
 	*/
@@ -328,7 +352,6 @@ void cserver::stop()
 
 void cserver::terminate()
 {
-	ms_shutdown(serverSocketHTTP, 2);
 	/*
 	*If the guestLoginHandle is allocated close it.
 	*/
@@ -363,7 +386,6 @@ void cserver::terminate()
 	{
 		printf("myServer is stopped\n\n");
 	}
-	ms_closesocket(serverSocketHTTP);
 
 	ms_CloseFile(warningsLogFile);
 	ms_CloseFile(accessesLogFile);
@@ -578,17 +600,17 @@ VOID cserver::controlSizeLogFile()
 /*
 *This function dispatch a new connection to a thread
 */
-BOOL cserver::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
+BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNECTION_PROTOCOL protID)
 {
 	if(s==0)
 		return FALSE;
 	static BOOL ret;
 	ret=TRUE;
 	char ip[32];
-	sprintf(ip,"%u.%u.%u.%u",lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4);
+	sprintf(ip,"%u.%u.%u.%u",(*asock_in).sin_addr.S_un.S_un_b.s_b1,(*asock_in).sin_addr.S_un.S_un_b.s_b2,(*asock_in).sin_addr.S_un.S_un_b.s_b3,(*asock_in).sin_addr.S_un.S_un_b.s_b4);
 
 	char msg[500];
-	sprintf(msg,"%s:%u.%u.%u.%u -> %s:%i %s:%s\r\n",msgNewConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
+	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getHTTPFormattedTime());
 	accessesLogWrite(msg);
 
 	static DWORD local_nThreads=0;
@@ -600,7 +622,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
 		if(verbosity>0)
 		{
 			char buffer[500];
-			sprintf(buffer,"%s:%i.%i.%i.%i -> %s:%i %s:%s\r\n",msgErrorConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
+			sprintf(buffer,"%s:%i.%i.%i.%i ->%s %s:%s\r\n",msgErrorConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getHTTPFormattedTime());
 			warningsLogWrite(buffer);
 		}
 	}

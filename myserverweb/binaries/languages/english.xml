@@ -23,7 +23,7 @@
 <MSG_NUM_CPU>Number of processors:</MSG_NUM_CPU>
 <MSG_CREATET>Creating thread</MSG_CREATET>
 <MSG_THREADR>Thread created</MSG_THREADR>
-<MSG_LISTENT>Creating listening thread</MSG_LISTENT>
+<MSG_LISTENT>Creating listening thread...</MSG_LISTENT>
 <MSG_LISTENTR>Listening thread is created</MSG_LISTENTR>
 <MSG_READY>myServer is now ready to accept connections</MSG_READY>
 <MSG_BREAK>Press Ctrl+C to break execution</MSG_BREAK>
