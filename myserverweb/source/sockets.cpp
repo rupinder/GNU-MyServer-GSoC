@@ -86,6 +86,7 @@ int MYSERVER_SOCKET::operator==(MYSERVER_SOCKET s)
 */
 int MYSERVER_SOCKET::operator=(MYSERVER_SOCKET s)
 {
+  /*! Do a raw memory copy.*/
 	memcpy(this,&s,sizeof(s));
 	return 1;
 }
@@ -116,6 +117,7 @@ MYSERVER_SOCKET::MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE handle)
 */
 MYSERVER_SOCKET::MYSERVER_SOCKET()
 {
+  /*! Reset everything. */
 #ifndef DO_NOT_USE_SSL
 	sslSocket=0;
 	sslConnection=0;
@@ -124,6 +126,7 @@ MYSERVER_SOCKET::MYSERVER_SOCKET()
 	serverSocket=0;
 	setHandle(0);
 }
+
 /*!
 *Bind the port to the socket
 */
@@ -136,6 +139,7 @@ int MYSERVER_SOCKET::bind(MYSERVER_SOCKADDR* sa,int namelen)
 	return ::bind((int)socketHandle,sa,namelen);
 #endif
 }
+
 /*!
 *Listen for other connections
 */
@@ -148,6 +152,7 @@ int MYSERVER_SOCKET::listen(int max)
 	return ::listen((int)socketHandle,max);
 #endif
 }
+
 /*!
 *Accept a new connection
 */
@@ -172,6 +177,7 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 
 	return s;
 }
+
 /*!
 *Close the socket
 */
@@ -187,6 +193,7 @@ int MYSERVER_SOCKET::closesocket()
 	return ::close((int)socketHandle);
 #endif
 }
+
 /*!
 *Returns an host by its address
 */
@@ -201,6 +208,7 @@ MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 	return he;
 #endif
 }
+
 /*!
 *Returns an host by its name
 */
@@ -234,6 +242,7 @@ int	MYSERVER_SOCKET::setsockopt(int level,int optname,const char *optval,int opt
 {
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
 }
+
 /*!
 *Send data over the socket.
 *Return -1 on error.
@@ -258,6 +267,7 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 	return	::send((int)socketHandle,buffer,len,flags);
 #endif
 }
+
 /*!
 *Function used to control the socket.
 */
@@ -274,6 +284,7 @@ int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
 
 #endif
 }
+
 /*!
 *Connect the socket.
 */
@@ -286,6 +297,7 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 	return ::connect((int)socketHandle,sa,na);
 #endif
 }
+
 /*!
 *Receive data from the socket.
 */
@@ -294,6 +306,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,u_long timeout)
 	int time=get_ticks();
 	while(get_ticks()-time<timeout)
 	{
+    /*! Check if there is data to read before do any read. */
 		if(dataOnRead())
 			return recv(buffer,len,flags);
 	}
@@ -306,6 +319,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,u_long timeout)
 */
 int MYSERVER_SOCKET::freeSSL()
 {
+  /*! Free up the SSL context. */
 	if(sslConnection)
 	{
 		SSL_free(sslConnection);
@@ -324,6 +338,7 @@ int MYSERVER_SOCKET::setSSLContext(SSL_CTX* context)
 }
 /*!
 *Initialize the SSL connection.
+*Returns nonzero on errors.
 */
 int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 {
@@ -333,26 +348,33 @@ int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 	else
 	{
 		if(sslContext==0)
-			return 0;
+			return 1;
 		sslConnection =(SSL *)SSL_new(sslContext);
+    if(sslConnection == 0)
+      return 1;
 		SSL_set_read_ahead(sslConnection,1);
 	}
-	return 1;
+	return 0;
 }
 /*!
 *Set SSL for the socket.
+*Return nonzero on errors.
 */
-void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
+int MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
 {
+  int ret=0;
 	if(sslSocket && (nSSL==0))
 		freeSSL();
 	if(nSSL && (sslSocket==0))
-		initializeSSL(connection);
+		ret = initializeSSL(connection);
+
 	sslSocket=nSSL;
+  return ret;
 }
 
 /*!
 *SSL handshake procedure.
+*Return nonzero on errors.
 */
 int MYSERVER_SOCKET::sslAccept()
 {
@@ -397,7 +419,7 @@ int MYSERVER_SOCKET::sslAccept()
 		closesocket();
 		return -1;
 	}
-	return 1;
+	return 0;
 
 }
 /*!
@@ -511,6 +533,7 @@ MYSERVER_SOCKET* MYSERVER_SOCKET::getServerSocket()
 
 /*!
 *Check for data to be read on the socket
+*Returns 1 if there is data to read, 0 if not.
 */
 int MYSERVER_SOCKET::dataOnRead()
 {

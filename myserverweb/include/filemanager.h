@@ -47,10 +47,10 @@ public:
 	MYSERVER_FILE();
 	MYSERVER_FILE_HANDLE getHandle();
 	int setHandle(MYSERVER_FILE_HANDLE);
-	int readFromFile(char * ,u_long ,u_long * );
-	int writeToFile(char * ,u_long ,u_long * );
-	int createTemporaryFile(char * );
-	int openFile(char * ,u_long );
+	int readFromFile(char* ,u_long ,u_long* );
+	int writeToFile(char* ,u_long ,u_long* );
+	int createTemporaryFile(char* );
+	int openFile(char* ,u_long );
 	u_long getFileSize();
 	int setFilePointer(u_long);
 	static int getPathRecursionLevel(char*);
@@ -72,6 +72,7 @@ public:
 	static int deleteFile(char * );
 	static void getFileExt(char* ext,const char* filename);
 	static void splitPath(const char* path, char* dir, char*filename);
+  static int getFilenameLength(const char*, int *);
 	static void getFilename(const char* path, char* filename);
 
 };

@@ -141,18 +141,28 @@ int setcwdBuffer()
 	return (-1);
 }
 /*!
+ *Get the defauklt working directory length.
+ */
+int getdefaultwdlen()
+{
+  return strlen(currentPath);
+}
+
+/*!
 *Get the default working directory(Where is the main executable).
 */
 char *getdefaultwd(char *path,int len)
 {
-#ifdef WIN32
+
 	if(path)
-		lstrcpyn(path,currentPath,len);
-#endif
-#ifdef NOT_WIN
-	if(path)
-		strncpy(path,currentPath,len);
-#endif
+  {
+    /*! If len is equal to zero we assume no limit. */
+    if(len)
+      lstrcpyn(path,currentPath,len);
+    else
+      lstrcpy(path,currentPath);
+  }
+
 	return currentPath;
 }
 

@@ -78,7 +78,7 @@ public:
 	int freeSSL();
 	int setSSLContext(SSL_CTX*);
 	int initializeSSL(SSL* connection = 0);
-	void setSSL(int,SSL* connection = 0);
+	int setSSL(int,SSL* connection = 0);
 	SSL* getSSLConnection();
 	int sslAccept();
 #endif

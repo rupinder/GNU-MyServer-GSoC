@@ -23,8 +23,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "connectionstruct.h"
 /*! Various options that can be use for the protocol.  */
 #define PROTOCOL_USES_SSL 1
+
 /*!
-*This is the base class to derive from other protocols implementations for the server.
+*This is the base class to derive other protocols implementations for the server.
 */
 class protocol 
 {

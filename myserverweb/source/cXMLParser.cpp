@@ -39,6 +39,7 @@ extern "C" {
 #pragma comment (lib,"libxml2.lib")
 
 #endif
+
 /*!
 *Initialize the libxml2 library
 */
@@ -47,6 +48,7 @@ int cXMLParser::startXML()
 	xmlInitParser();
 	return 1;
 }
+
 /*!
 *Cleanup the libxml2 library.
 */
@@ -55,6 +57,7 @@ int cXMLParser::cleanXML()
 	xmlCleanupParser();
 	return 1;
 }
+
 /*!
 *With the open function we open a file and store it in memory.
 *Return nonzero on errors.
@@ -117,6 +120,7 @@ char *cXMLParser::getValue(char* vName)
 }
 /*!
 *Set the value of the vName root children element.
+*Returns nonzero on errors.
 */
 int cXMLParser::setValue(char* vName,char *value)
 {
@@ -128,11 +132,11 @@ int cXMLParser::setValue(char* vName,char *value)
 		{
 			if(lcur->children->content)
 				strcpy((char*)lcur->children->content,value);
-			return 1;
+			return 0;
 		}
 		lcur=lcur->next;
 	}
-	return 0;
+	return 1;
 }
 /*!
 *Get the attribute attr for the node field
@@ -170,8 +174,15 @@ int cXMLParser::close()
 }
 /*!
 *Save the XML tree to a file
+*Return nonzero on errors
+*If no errors nbytes[optional] will cointain the number 
+*of bytes written.
 */
-int cXMLParser::save(char *filename)
+int cXMLParser::save(char *filename,int *nbytes)
 {
-	return xmlSaveFile(filename,doc);
+  int err = xmlSaveFile(filename,doc);
+  if(nbytes)
+    *nbytes = err;
+
+  return err;
 }

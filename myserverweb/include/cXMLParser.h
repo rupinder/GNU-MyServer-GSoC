@@ -45,6 +45,6 @@ public:
 	char *getAttr(char* field,char *attr);
 	int setValue(char* field,char *value);
 	int close();
-	int save(char *filename);
+	int save(char *filename,int *nbytes=0);
 };
 #endif

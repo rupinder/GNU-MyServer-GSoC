@@ -40,7 +40,9 @@ subdir = Documentation/En
 DIST_COMMON = $(dist_myserverdata_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.in
+am__aclocal_m4_deps = $(top_srcdir)/m4/gnome-pthread-check.m4 \
+	$(top_srcdir)/m4/libpng.m4 $(top_srcdir)/m4/libxml.m4 \
+	$(top_srcdir)/m4/wxwin.m4 $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -99,6 +101,9 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
+LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
+LIBPNG_CONFIG = @LIBPNG_CONFIG@
+LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
@@ -114,6 +119,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PTHREAD_LIB = @PTHREAD_LIB@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -129,7 +135,7 @@ WX_LIBS = @WX_LIBS@
 WX_LIBS_STATIC = @WX_LIBS_STATIC@
 WX_VERSION = @WX_VERSION@
 XML2_CONFIG = @XML2_CONFIG@
-XML_CPPFLAGS = @XML_CPPFLAGS@
+XML_CFLAGS = @XML_CFLAGS@
 XML_LIBS = @XML_LIBS@
 XNET_LIB = @XNET_LIB@
 ZLIB_LIB = @ZLIB_LIB@

@@ -515,8 +515,25 @@ time_t MYSERVER_FILE::getLastAccTime()
 }
 
 /*!
-*Get the filename from a path.
-*/
+ *Get the length of the file in the path.
+ */
+int MYSERVER_FILE::getFilenameLength(const char *path, int *filename)
+{
+	int splitpoint, i, j;
+	i = 0;
+	j = 0;
+	splitpoint =(int)(strlen(path) - 1);
+	while ((splitpoint > 0) && (path[splitpoint] != '/'))
+    splitpoint--;
+  return splitpoint;
+
+}
+
+/*!
+ *Get the filename from a path.
+ *Be sure that the filename buffer is at least getFilenameLength(...) bytes
+ *before call this function.
+ */
 void MYSERVER_FILE::getFilename(const char *path, char *filename)
 {
 	int splitpoint, i, j;
@@ -524,16 +541,16 @@ void MYSERVER_FILE::getFilename(const char *path, char *filename)
 	j = 0;
 	splitpoint =(int)(strlen(path) - 1);
 	while ((splitpoint > 0) && (path[splitpoint] != '/'))
-	splitpoint--;
+    splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
-		strncpy(filename, path,MAX_PATH);
+		strcpy(filename, path);
 	}
 	else
 	{
 		splitpoint++;
 		i=splitpoint;
-		while (path[i] != 0)
+		while(path[i] != 0)
 		{
 			filename[j] = path[i];
 			j++;
