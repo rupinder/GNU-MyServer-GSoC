@@ -292,10 +292,10 @@ void CMemBuf::SetExternalBuffer(const void* pAdr, u_int size)
 }
 
 /*! Return the internal buffer by setting previously a specific length */
-void* CMemBuf::GetBufferSetLength(u_int newSize)
+char* CMemBuf::GetBufferSetLength(u_int newSize)
 {
 	SetLength(newSize);
-	return m_buffer;
+	return (char*)m_buffer;
 }
 
 /*!
@@ -656,9 +656,9 @@ int CMemBuf::IsValid()
 	return ((m_nSize != 0) || (m_buffer != NULL))?1:0;
 }
 
-const void* CMemBuf::GetBuffer() 
+char* CMemBuf::GetBuffer() 
 {
-	return (const void*) m_buffer;
+	return ( char*) m_buffer;
 }
 
 CMemBuf::operator const void*()

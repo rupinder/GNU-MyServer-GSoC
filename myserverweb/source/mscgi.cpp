@@ -211,7 +211,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
    */
 	if(!td->appendOutputs)
 	{
-		char *buffer = (char*)td->buffer2->GetBuffer();
+		char *buffer = td->buffer2->GetBuffer();
 		u_long bufferSize= td->buffer2->GetRealLength();
 		data.stdOut.setFilePointer(0);
 		HttpHeaders::buildHTTPResponseHeader(buffer,&(td->response));

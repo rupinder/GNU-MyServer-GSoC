@@ -118,7 +118,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	td->buffer2->SetLength(0);
-	buffer=(char*)td->buffer2->GetBuffer();
+	buffer=td->buffer2->GetBuffer();
 
 	strcpy(buffer,"[CGI]\r\n");
 	DataFileHandle.writeToFile(buffer,7,&nbr);
@@ -316,7 +316,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
     /*!
      *Send the header if it is not appending.
      */
-		HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+		HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
                                           &td->response);
 		s->socket.send((const char*)td->buffer->GetBuffer(),
                    (int)strlen((const char*)td->buffer->GetBuffer()), 0);
@@ -334,7 +334,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	}
 	else
   {
-		HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+		HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
                                           &td->response);
     if(only_header)
     {
@@ -390,7 +390,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	td->buffer->SetLength(0);
 	*td->buffer << "Error WinCGI is not implemented\r\n" << '\0';
 	((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-	((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+	((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->GetBuffer());
 	((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 	return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_501);
 #endif

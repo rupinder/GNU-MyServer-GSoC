@@ -410,7 +410,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	if(input==0)
 	{
 		noinputspecified=1;
-		input=(char*)td->buffer->GetBuffer();
+		input=td->buffer->GetBuffer();
 	}
 	validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
 	/*! Invalid header.  */
@@ -426,7 +426,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		token=input;
 	else
 	{
-		input=token=(char*)td->buffer->GetBuffer();
+		input=token=td->buffer->GetBuffer();
 	}
 	tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
 	do
@@ -967,7 +967,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 
 	if(input==0)
 	{
-		input=(char*)td->buffer2->GetBuffer();
+		input=td->buffer2->GetBuffer();
 		noinputspecified=1;
 	}
 	/*! Control if the HTTP header is a valid header.  */

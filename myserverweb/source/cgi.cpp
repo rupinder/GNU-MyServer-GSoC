@@ -342,8 +342,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
    *by the execHiddenProcess(...) function.
    *Use the td->buffer2 to build the environment string.
    */
-	((char*)td->buffer2->GetBuffer())[0]='\0';
-	buildCGIEnvironmentString(td, (char*)td->buffer2->GetBuffer());
+	(td->buffer2->GetBuffer())[0]='\0';
+	buildCGIEnvironmentString(td, td->buffer2->GetBuffer());
   
 	/*!
    *With this code we execute the CGI process.
@@ -356,7 +356,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	spi.stdError = stdOutFile.getHandle();
 	spi.stdIn = stdInFile.getHandle();
 	spi.stdOut = stdOutFile.getHandle();
-	spi.envString=(char*)td->buffer2->GetBuffer();
+	spi.envString=td->buffer2->GetBuffer();
   
   /*! Execute the CGI process. */
 	if( execHiddenProcess(&spi, cgi_timeout) )
@@ -394,7 +394,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   
-  if(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
+  if(stdOutFile.readFromFile(td->buffer2->GetBuffer(), 
                              td->buffer2->GetRealLength()-1, &nBytesRead))
   {
     stdInFile.closeFile();
@@ -409,7 +409,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
 		
-	((char*)td->buffer2->GetBuffer())[nBytesRead]='\0';
+	(td->buffer2->GetBuffer())[nBytesRead]='\0';
 		
 	if(nBytesRead==0)
 	{
@@ -424,7 +424,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 
 	for(u_long i=0; i<nBytesRead; i++)
 	{
-		char *buff=(char*)td->buffer2->GetBuffer();
+		char *buff=td->buffer2->GetBuffer();
 		if( (buff[i]=='\r') && (buff[i+1]=='\n') 
         && (buff[i+2]=='\r') && (buff[i+3]=='\n') )
 		{
@@ -437,7 +437,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 			break;
 		}
 		/*! If it is present Location: xxx in the header send a redirect to xxx.  */
-		else if(!strncmp(&((char*)td->buffer2->GetBuffer())[i], "Location:", 9))
+		else if(!strncmp(&(td->buffer2->GetBuffer())[i], "Location:", 9))
 		{
       /*! If no other data was send, send the redirect. */
 			if(!yetoutputted)
@@ -446,7 +446,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         u_long j = 0;
         u_long len = 0;
 
-        while( ((char*)td->buffer2->GetBuffer())[i + len + 9] != '\r' )
+        while( (td->buffer2->GetBuffer())[i + len + 9] != '\r' )
         {
             len++;
         }
@@ -466,7 +466,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         /*! Copy the redirection destination in the nURL buffer. */
         for(j=0;j<len;j++)
         {
-          nURL[j] = ((char*)td->buffer2->GetBuffer())[i + j + 9];
+          nURL[j] = (td->buffer2->GetBuffer())[i + j + 9];
         }
         nURL[j]='\0';
 
@@ -502,17 +502,17 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       /*! Send the header.  */
 			if(headerSize)
 				HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
-                                                    (char*)td->buffer2->GetBuffer());
+                                                    td->buffer2->GetBuffer());
       /*! Always specify the size of the HTTP contents.  */
 			sprintf(td->response.CONTENT_LENGTH, "%u", 
               (u_int) (stdOutFile.getFileSize()-headerSize));
 
-			HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+			HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
                                             &td->response);
 
-			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
+			td->buffer->SetLength((u_int)strlen(td->buffer->GetBuffer()));
 
-			if(s->socket.send((char*)td->buffer->GetBuffer(),
+			if(s->socket.send(td->buffer->GetBuffer(),
                         (int)(td->buffer->GetLength()), 0)==SOCKET_ERROR)
       {
         if(cmdLine)
@@ -536,7 +536,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       }
 
       /*! Send other remaining data in the buffer. */
-			if(s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize), 
+			if(s->socket.send((td->buffer2->GetBuffer() + headerSize), 
                         nBytesRead-headerSize, 0)==SOCKET_ERROR)
       {
         if(cmdLine)
@@ -563,13 +563,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       }
 
       /*! Do not put the HTTP header if appending. */
-			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())
-                                         +headerSize), nBytesRead-headerSize, &nbw);
+			td->outputData.writeToFile(td->buffer2->GetBuffer()+headerSize, nBytesRead-headerSize, &nbw);
     }
     do
     {
       /*! Flush other data. */
-      if(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
+      if(stdOutFile.readFromFile(td->buffer2->GetBuffer(), 
                                  td->buffer2->GetRealLength(), &nBytesRead))
       {
         if(cmdLine)
@@ -586,7 +585,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 
         if(!td->appendOutputs)
         {
-          if(s->socket.send((char*)td->buffer2->GetBuffer(), nBytesRead, 0)
+          if(s->socket.send(td->buffer2->GetBuffer(), nBytesRead, 0)
              ==SOCKET_ERROR)
           {
             if(cmdLine)
@@ -601,7 +600,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         }
         else
         {
-          if(td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+          if(td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                         nBytesRead, &nbw))
           {
             if(cmdLine)

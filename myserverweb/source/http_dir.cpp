@@ -148,7 +148,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	*td->buffer2<<"<html>\r\n<head>\r\n<title>" ;
 	*td->buffer2<< td->request.URI ;
 	*td->buffer2<< "</title>\r\n</head>\r\n" ; 
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                     (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
@@ -169,13 +169,13 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		if(ret == 0)
 		{
 			u_long nbr;
-			ret = cssHandle.readFromFile((char*)td->buffer->GetBuffer(), 
+			ret = cssHandle.readFromFile(td->buffer->GetBuffer(), 
                                    td->buffer->GetRealLength(), &nbr);
 			if(ret == 0)
 			{
 				td->buffer2->SetLength(0);
 				*td->buffer2 << "<style>\r\n<!--\r\n" ;
-				ret=td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+				ret=td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                        (u_long)td->buffer2->GetLength(), &nbw);
 				if(ret)
 				{
@@ -183,7 +183,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 					/* Return an internal server error.  */
 					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
-				ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(),
+				ret = td->outputData.writeToFile(td->buffer->GetBuffer(),
                                           (u_long)nbr, &nbw);
 				if(ret)
 				{
@@ -194,7 +194,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 
 				td->buffer2->SetLength(0);
 				*td->buffer2 << "-->\r\n</style>\r\n";
-				ret=td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
+				ret=td->outputData.writeToFile(td->buffer2->GetBuffer(),
                                        (u_long)td->buffer2->GetLength(), &nbw);
 				if(ret)
 				{
@@ -232,7 +232,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of directory ";
 	*td->buffer2 <<  &td->request.URI[startchar] ;
 	*td->buffer2 << "</h1>\r\n<p>\r\n<hr />\r\n";
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                    (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
@@ -254,7 +254,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "<table width=\"100\%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n  \
                  <td><b>Last Modified</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                     (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
@@ -298,7 +298,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 			*td->buffer2 << fileSize;
 		}
 		*td->buffer2 << "</td>\r\n</tr>\r\n";
-		ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+		ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                      (u_long)td->buffer2->GetLength(), &nbw);
 		if(ret)
 		{
@@ -323,7 +323,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
     *td->buffer2 << port_buff;
   }
 	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
-	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
+	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(),
                                    (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
@@ -335,7 +335,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	fd.findclose();
   *td->buffer2 << end_str;
 	/*! Changes the \ character in the / character.  */
-	bufferloop=(char*)td->buffer2->GetBuffer();
+	bufferloop=td->buffer2->GetBuffer();
 	while(*bufferloop++)
 		if(*bufferloop=='\\')
 			*bufferloop='/';
@@ -349,10 +349,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		u_long nbr=0;
     int nbs=0;
 		td->outputData.setFilePointer(0);
-		HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+		HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
                                           &(td->response));
-		nbs=s->socket.send((char*)td->buffer->GetBuffer(), 
-                       (u_long)strlen((char*)td->buffer->GetBuffer()), 0);
+		nbs=s->socket.send(td->buffer->GetBuffer(), 
+                       (u_long)strlen(td->buffer->GetBuffer()), 0);
 		if(nbs == SOCKET_ERROR)
 		{
 			/* Remove the connection.  */
@@ -364,7 +364,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
     
     do
 		{
-			ret = td->outputData.readFromFile((char*)td->buffer->GetBuffer(), 
+			ret = td->outputData.readFromFile(td->buffer->GetBuffer(), 
                                         td->buffer->GetRealLength(), &nbr);
 			if(ret)
 			{
@@ -373,7 +373,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 				return 0;
 			}
 			if(nbr)
-				nbs=s->socket.send((char*)td->buffer->GetBuffer(), nbr, 0);
+				nbs=s->socket.send(td->buffer->GetBuffer(), nbr, 0);
       else
         nbs = 0;
 			if(nbs==SOCKET_ERROR)
@@ -385,7 +385,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	}
   else
   {
-    HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+    HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
                                           &(td->response));
   }
 	return 1;

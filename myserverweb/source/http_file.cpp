@@ -158,13 +158,13 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		strcpy(td->response.CONTENT_ENCODING, "gzip");
 	}
 
-	HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+	HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
                                         &td->response);
-	td->buffer->SetLength((u_long)strlen((char*)td->buffer->GetBuffer()));
+	td->buffer->SetLength((u_long)strlen(td->buffer->GetBuffer()));
 	if(!td->appendOutputs)
 	{
 		/*! Send the HTTP header.  */
-		if(s->socket.send((char*)td->buffer->GetBuffer(), 
+		if(s->socket.send(td->buffer->GetBuffer(), 
                       (u_long)td->buffer->GetLength(), 0)== SOCKET_ERROR)
 		{
 			h.closeFile();
@@ -182,9 +182,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		return 1;
 	}
 	if(use_gzip)
-		gzip.initialize((char*)td->buffer2->GetBuffer(), 
+		gzip.initialize(td->buffer2->GetBuffer(), 
                     td->buffer2->GetRealLength(), 
-                    (char*)td->buffer->GetBuffer(), 
+                    td->buffer->GetBuffer(), 
                     td->buffer->GetRealLength());
 	for(;;)
 	{
@@ -195,7 +195,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			gzip_dataused=0;
 			u_long datatoread=min(bytes_to_send, td->buffer2->GetRealLength()/2);
 			/*! Read from the file the bytes to send.  */
-			if(h.readFromFile((char*)td->buffer2->GetBuffer(), datatoread, &nbr))
+			if(h.readFromFile(td->buffer2->GetBuffer(), datatoread, &nbr))
 			{
 				h.closeFile();
         sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
@@ -206,20 +206,20 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			{
 				if(gzipheaderadded==0)
 				{
-					gzip_dataused+=gzip.getHEADER((char*)td->buffer->GetBuffer(), 
+					gzip_dataused+=gzip.getHEADER(td->buffer->GetBuffer(), 
                                         td->buffer->GetLength());
 					gzipheaderadded=1;
 				}
-				gzip_dataused+=gzip.compress((char*)td->buffer2->GetBuffer(), 
-                       nbr, &(((char*)td->buffer->GetBuffer())[gzip_dataused]),
+				gzip_dataused+=gzip.compress(td->buffer2->GetBuffer(), 
+                       nbr, &((td->buffer->GetBuffer())[gzip_dataused]),
                               td->buffer->GetRealLength()-gzip_dataused);
 			}
 			else
 			{
-				gzip_dataused=gzip.flush((char*)td->buffer->GetBuffer(), 
+				gzip_dataused=gzip.flush(td->buffer->GetBuffer(), 
                                       td->buffer->GetLength());
-				gzip.free((char*)td->buffer2->GetBuffer(), nbr, 
-                  (char*)td->buffer->GetBuffer(), 
+				gzip.free(td->buffer2->GetBuffer(), nbr, 
+                  td->buffer->GetBuffer(), 
                   td->buffer->GetRealLength());
 			}
 			if(keepalive)
@@ -231,7 +231,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			}
 			if(gzip_dataused)
 			{
-				ret=s->socket.send((char*)td->buffer->GetBuffer(), gzip_dataused, 0);
+				ret=s->socket.send(td->buffer->GetBuffer(), gzip_dataused, 0);
 				if(ret == SOCKET_ERROR)
 					break;
 				dataSent+=ret;
@@ -247,7 +247,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		else
 		{
 			/*! Read from the file the bytes to send. */
-      ret = h.readFromFile((char*)td->buffer->GetBuffer(), 
+      ret = h.readFromFile(td->buffer->GetBuffer(), 
                         min(bytes_to_send,td->buffer->GetRealLength()), &nbr);
 			if(ret)
 			{
@@ -261,7 +261,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			{
 				if(!td->appendOutputs)
 				{
-					ret=(u_long)s->socket.send((char*)td->buffer->GetBuffer(), nbr, 0);
+					ret=(u_long)s->socket.send(td->buffer->GetBuffer(), nbr, 0);
 					if(ret==SOCKET_ERROR)
 					{
 						h.closeFile();
@@ -273,7 +273,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 				else
 				{
           u_long nbw;
-					ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(), 
+					ret = td->outputData.writeToFile(td->buffer->GetBuffer(), 
                                            nbr, &nbw);
 				  if(ret)
 					{

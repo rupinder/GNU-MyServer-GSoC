@@ -75,14 +75,14 @@ public:
 	int GetPart(u_int nStart, u_int nEnd, CMemBuf& result);
 	int GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result);
 
-	void* GetBufferSetLength(u_int newSize);
+	char* GetBufferSetLength(u_int newSize);
 
 	u_int GetLength();
 	u_int GetRealLength();
 
 	int IsValid();
 
-	const void* GetBuffer();
+	char* GetBuffer();
 	operator const void*() ;
 public:
 	CMemBuf operator+ (CMemBuf& src);

@@ -731,7 +731,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	/*!
    *Store the environment string in the buffer2.
 	*/
-	connTable[connIndex].envString=(char*)td->buffer2->GetBuffer();
+	connTable[connIndex].envString=td->buffer2->GetBuffer();
 	
 	/*!
    *Build the environment string.

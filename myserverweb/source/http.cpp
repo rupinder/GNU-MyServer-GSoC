@@ -119,7 +119,7 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		*td->buffer2 << "\r\n\r\n";
 	
 	/*! Send the HTTP header.  */
-	ret = s->socket.send((char*)td->buffer2->GetBuffer(), 
+	ret = s->socket.send(td->buffer2->GetBuffer(), 
                        (u_long)td->buffer2->GetLength(), 0);
 	if( ret == SOCKET_ERROR )
 	{
@@ -150,7 +150,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
                << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
 	
 	/*! Send our HTTP header.  */
-	ret = s->socket.send((char*)td->buffer2->GetBuffer(), 
+	ret = s->socket.send(td->buffer2->GetBuffer(), 
                        (u_long)td->buffer2->GetLength(), 0);
 	if( ret == SOCKET_ERROR )
 	{
@@ -158,7 +158,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	}
 	
 	/*! Send the client request header as the HTTP body.  */
-	ret = s->socket.send((char*)td->buffer->GetBuffer(), content_len, 0);
+	ret = s->socket.send(td->buffer->GetBuffer(), content_len, 0);
 	if(ret == SOCKET_ERROR)
 	{
 		return 0;
@@ -379,7 +379,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		for(;;)
 		{
 			u_long nbr=0, nbw=0;
-			if(td->inputData.readFromFile((char*)td->buffer->GetBuffer(), 
+			if(td->inputData.readFromFile(td->buffer->GetBuffer(), 
                                     td->buffer->GetRealLength(), &nbr))
 			{
 				file.closeFile();
@@ -390,7 +390,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 			}
 			if(nbr)
 			{
-				if(file.writeToFile((char*)td->buffer->GetBuffer(), nbr, &nbw))
+				if(file.writeToFile(td->buffer->GetBuffer(), nbr, &nbw))
 				{
 					file.closeFile();
           delete [] td->filenamePath;
@@ -437,7 +437,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		for(;;)
 		{
 			u_long nbr=0, nbw=0;
-			if(td->inputData.readFromFile((char*)td->buffer->GetBuffer(), 
+			if(td->inputData.readFromFile(td->buffer->GetBuffer(), 
                                     td->buffer->GetRealLength(), &nbr))
 			{
 				file.closeFile();
@@ -445,7 +445,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 			}
 			if(nbr)
 			{
-				if(file.writeToFile((char*)td->buffer->GetBuffer(), nbr, &nbw))
+				if(file.writeToFile(td->buffer->GetBuffer(), nbr, &nbw))
 				{
 					file.closeFile();
 					return raiseHTTPError(td, s, e_500);
@@ -1151,7 +1151,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		if(td->request.URIOPTSPTR)
 			target=td->request.URIOPTSPTR;
 		else
-			target=(char*)&td->request.URIOPTS;
+			target=td->request.URIOPTS;
     /*! Check if the MSCGI library is loaded. */
 		if(mscgiLoaded)
 		{
@@ -1371,7 +1371,7 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
    *Request the access to the log file then write then append the message
    */
 	((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
-	((Vhost*)(a->host))->accessesLogWrite((char*)td->buffer2->GetBuffer());
+	((Vhost*)(a->host))->accessesLogWrite(td->buffer2->GetBuffer());
 	((Vhost*)(a->host))->accesseslogTerminateAccess(td->id);
 	td->buffer2->SetLength(0);
 
@@ -1540,9 +1540,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       u_long nbw=0;
 			u_long total_nbr=0;
 			u_long timeout;
-      td.request.URIOPTSPTR=&((char*)td.buffer->GetBuffer())[td.nHeaderChars];
-			((char*)td.buffer->GetBuffer())[min(td.nBytesToRead, 
-                                          td.buffer->GetRealLength()-1)]='\0';
+      td.request.URIOPTSPTR=&(td.buffer->GetBuffer())[td.nHeaderChars];
+			td.buffer->GetBuffer()[min(td.nBytesToRead, 
+                                 td.buffer->GetRealLength()-1)]='\0';
 			/*!
        *Create the file that contains the data posted.
        *This data is the stdin file in the CGI.
@@ -1623,7 +1623,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 								/*!
                  *Read the unwanted bytes but do not save them.
                  */
-								ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), 
+								ret=td.connection->socket.recv(td.buffer2->GetBuffer(), 
                                                td.buffer2->GetRealLength(), 0);
 							}
 							break;
@@ -1633,8 +1633,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 							u_long tr=min(content_len-total_nbr, 
                             td.buffer2->GetRealLength());
 
-							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), 
-                                             tr, 0);
+							ret=td.connection->socket.recv(td.buffer2->GetBuffer(), tr, 0);
 							if(ret==-1)
 							{
 								td.inputData.closeFile();
@@ -1642,8 +1641,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 								return 0;
 							}
 							
-							if(td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),
-                                          (u_long)ret, &nbw))
+							if(td.inputData.writeToFile(td.buffer2->GetBuffer(), (u_long)ret, &nbw))
 							{
 								td.inputData.closeFile();
 								td.inputData.deleteFile(td.inputDataPath);
@@ -1685,11 +1683,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					{
 						if(td.connection->socket.bytesToRead())
 						{
-							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), 
+							ret=td.connection->socket.recv(td.buffer2->GetBuffer(), 
                                              td.buffer2->GetRealLength(), 0);
 
-							if(td.inputData.writeToFile((char*)td.buffer2->GetBuffer(), 
-                                          ret, &nbw))
+							if(td.inputData.writeToFile(td.buffer2->GetBuffer(), ret, &nbw))
 							{
 								td.inputData.deleteFile(td.inputDataPath);
 								td.inputData.closeFile();
@@ -1730,7 +1727,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		char c;
     u_long nbr;
 		u_long bufferlen;
-    char *newfilename=new char[strlen(td.inputDataPath)+10];
+    char *newfilename = new char[strlen(td.inputDataPath)+10];
     if(newfilename == 0)
     {
       td.inputData.closeFile();
@@ -1794,8 +1791,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			while(dataRead<dataToRead)
 			{
 				u_long nbw;
-				if(td.inputData.readFromFile((char*)td.buffer->GetBuffer(), 
-                                      min(dataToRead-dataRead, 
+				if(td.inputData.readFromFile(td.buffer->GetBuffer(), min(dataToRead-dataRead, 
                                           td.buffer->GetRealLength()-1), &nbr))
 				{
 					td.inputData.closeFile();
@@ -1808,7 +1804,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				if(nbr==0)
 					break;
 				dataRead+=nbr;
-				if(newStdIn.writeToFile((char*)td.buffer->GetBuffer(), nbr, &nbw))
+				if(newStdIn.writeToFile(td.buffer->GetBuffer(), nbr, &nbw))
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
@@ -1930,11 +1926,11 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				/*!
          *connectionBuffer is 8 KB, so don't copy more bytes.
          */
-				a->setDataRead(min(MYSERVER_KB(8), (int)strlen((char*)td.buffer->GetBuffer()) -
+				a->setDataRead(min(MYSERVER_KB(8), (int)strlen(td.buffer->GetBuffer()) -
                            td.nHeaderChars ) );
 				if(a->getDataRead() )
 				{
-					memcpy(a->connectionBuffer, ((char*)td.buffer->GetBuffer() +
+					memcpy(a->connectionBuffer, (td.buffer->GetBuffer() +
                                        td.nHeaderChars), a->getDataRead() );
 					retvalue=3;
 				}
@@ -2128,7 +2124,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 		getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 		*td->buffer2  << time;
 		*td->buffer2 << "\r\n\r\n";
-		if(a->socket.send((char*)td->buffer2->GetBuffer(), 
+		if(a->socket.send(td->buffer2->GetBuffer(), 
                       td->buffer2->GetLength(), 0)==-1)
 		{
 			return 0;
@@ -2194,9 +2190,9 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 	/*! Send the error over the HTTP. */
 	sprintf(td->response.CONTENT_LENGTH, "%i", 0);
 
-	HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &td->response);
-	if(a->socket.send((char*)td->buffer->GetBuffer(), 
-                    (u_long)strlen((char*)td->buffer->GetBuffer()), 0)==-1)
+	HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), &td->response);
+	if(a->socket.send(td->buffer->GetBuffer(), 
+                    (u_long)strlen(td->buffer->GetBuffer()), 0)==-1)
 		return 0;
 	return 1;
 }
@@ -2229,7 +2225,7 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 	*td->buffer2 << time;
 	*td->buffer2 << "\r\n\r\n";
 	/*! Send the header. */
-	if(a->socket.send((char*)td->buffer2->GetBuffer(), 
+	if(a->socket.send(td->buffer2->GetBuffer(), 
                     (u_long)td->buffer2->GetLength(), 0)!= -1)
 	{
 		/*! Send the body. */
@@ -2353,7 +2349,7 @@ int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time ;
 	*td->buffer2 << "\r\n\r\n";
-	if(!a->socket.send((char*)td->buffer2->GetBuffer(), 
+	if(!a->socket.send(td->buffer2->GetBuffer(), 
                      (int)td->buffer2->GetLength(), 0))
 		return 0;
 
@@ -2385,7 +2381,7 @@ int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time << "\r\n\r\n";
 
-	if(!a->socket.send((char*)td->buffer2->GetBuffer(), 
+	if(!a->socket.send(td->buffer2->GetBuffer(), 
                      (int)td->buffer2->GetLength(), 0))
 		return 0;
 	return keepalive;
