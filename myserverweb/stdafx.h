@@ -45,7 +45,22 @@ extern "C" {
 #define MAXIMUM_PROCESSORS 256
 #endif
 
+#ifndef MAX_PATH
+#define MAX_PATH 256
+#endif
+
+#ifndef MAX_COMPUTERNAME_LENGTH
+#define MAX_COMPUTERNAME_LENGTH 256
+#endif
+
+#ifndef MAXIMUM_PROCESSORS
+#define MAXIMUM_PROCESSORS 256
+#endif
+
+
 typedef unsigned long DWORD;
+typedef unsigned long u_long;
+typedef unsigned short u_short;
 typedef int BOOL;
 
 typedef void* HANDLE;

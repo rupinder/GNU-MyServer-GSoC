@@ -33,6 +33,7 @@ extern "C" {
 #ifdef WIN32
 #include <direct.h>
 #endif
+#define u_short unsigned short
 
 static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dic"};
@@ -119,8 +120,8 @@ void splitPath(const char *path, char *dir, char *filename)
 */
 void StrTrim(char* str,const char* trimchars)
 {
-	u_short lenTrimchars=(u_short)lstrlen(trimchars);
-	u_short lenStr=(u_short)lstrlen(str);
+	u_short lenTrimchars=(u_short)strlen(trimchars);
+	u_short lenStr=(u_short)strlen(str);
 
 	/*
 	*Number of characters to remove from the initial position of the string.
@@ -154,9 +155,9 @@ void StrTrim(char* str,const char* trimchars)
 		}
 	}
 	if(ncharToRemove)
-		lstrcpy(str,&str[ncharToRemove]);
+		strcpy(str,&str[ncharToRemove]);
 	doBreak=false;
-	for(j=lstrlen(str)-1;j;j-- )
+	for(j=strlen(str)-1;j;j-- )
 	{
 		if(doBreak)
 			break;

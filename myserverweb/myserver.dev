@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lwininet -lwsock32
+Linker=-lwininet -lwsock32_@@_
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -25,8 +25,7 @@ CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000000000000000000
-Order=
+CompilerSettings=000001000000000000
 Resources=
 
 [Unit14]
@@ -168,13 +167,14 @@ LanguageID=1033
 CharsetID=1252
 CompanyName=
 FileVersion=
-FileDescription=Developed using the Dev-C++ IDE
+FileDescription=
 InternalName=
 LegalCopyright=
 LegalTrademarks=
 OriginalFilename=
 ProductName=
 ProductVersion=
+AutoIncBuildNr=0
 
 [Unit28]
 FileName=include\ftpcommand.h
@@ -436,6 +436,8 @@ Compile=1
 CompileCpp=1
 OverrideBuildCmd=0
 BuildCmd=
+Link=1
+Priority=1000
 
 [Unit40]
 FileName=source\winCGI.cpp
@@ -444,6 +446,8 @@ Compile=1
 CompileCpp=1
 OverrideBuildCmd=0
 BuildCmd=
+Link=1
+Priority=1000
 
 [Unit41]
 FileName=include\winCGI.h
@@ -452,4 +456,6 @@ Compile=1
 CompileCpp=1
 OverrideBuildCmd=0
 BuildCmd=
+Link=1
+Priority=1000
 

@@ -31,8 +31,6 @@ extern "C" {
 }
 
 
-void *_alloca(size_t size);
-
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
 char* strustr(char *source, char *s)
 {
@@ -189,7 +187,7 @@ char* MimeDecodeMailHeaderField(char *s)
 	if (strupos(s1, "=?") > 0)
 	{
 		int startendpos =(int)strupos(s1, "=?");
-		start = (char*)_alloca((startendpos + 1) * sizeof(char));
+		start = (char*)malloc((startendpos + 1) * sizeof(char));
 		strncpy(start, s, startendpos);
 		start[startendpos] = '\0';
 		s1 += startendpos;
@@ -214,7 +212,7 @@ char* MimeDecodeMailHeaderField(char *s)
 			s1[plainpos] = '\0';
 			if (strlen(mid) > 0)
 			{
-				rest = (char*)_alloca(strlen(mid) + sizeof(char));
+				rest = (char*)malloc(strlen(mid) + sizeof(char));
 				strcpy(rest, mid);
 			}
 		}
