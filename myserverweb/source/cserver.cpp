@@ -253,15 +253,10 @@ void cserver::start(int hInst)
 	while(!mustEndServer)
 	{
 #ifdef WIN32
-		MSG msg;
 		/*
-		*Use PeekMessage because GetMessage block the thread until a message is available.
+		*Control if we must end the application every second.
 		*/
-		if(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
-		{
-			TranslateMessage(&msg); 
-			DispatchMessage(&msg); 
-		}
+		Sleep(SEC(1));
 #endif
 	}
 	

@@ -55,6 +55,10 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 	while(ct->threadIsRunning) 
 	{
 		ct->controlConnections();
+
+#ifdef WIN32
+		Sleep(1);
+#endif
 	}
 	ct->threadIsStopped=TRUE;
 	_endthreadex(0);
@@ -107,7 +111,6 @@ void ClientsTHREAD::controlConnections()
 		}
 	}
 	terminateAccess(&connectionWriteAccess,this->id);
-	
 }
 void ClientsTHREAD::stop()
 {
