@@ -24,6 +24,7 @@ enum
 {
     Configuration_Quit = 1,
 	Configuration_Ok,
+	Configuration_EXTtypeListEvt,
 	Configuration_Cancel
 };
 
@@ -31,6 +32,7 @@ enum
 BEGIN_EVENT_TABLE(configurationFrameMIME, wxFrame)
 EVT_BUTTON(Configuration_Ok,  configurationFrameMIME::ok)
 EVT_WINDOW_DESTROY(configurationFrameMIME::OnQuit)
+EVT_LISTBOX_DCLICK(Configuration_EXTtypeListEvt,configurationFrameMIME::EXTtypeListEvt)
 EVT_CLOSE(configurationFrameMIME::OnQuit)
 EVT_BUTTON(Configuration_Cancel,  configurationFrameMIME::cancel)  
 END_EVENT_TABLE()
@@ -48,9 +50,18 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	char version[50];
 	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
-    extensionsLB=new wxListBox(panel,3,wxPoint(0,0), wxSize(120,100),0, NULL,wxLB_HSCROLL);
-    mimeTypesLB=new wxListBox(panel,3,wxPoint(120,0), wxSize(190,100),0, NULL,wxLB_HSCROLL);
-	MIME_Manager mm;
+	actiontodoLB=new wxListBox(panel,-1,wxPoint(0,100), wxSize(120,100),0,NULL,wxLB_HSCROLL);
+	extensionsLB=new wxListBox(panel,Configuration_EXTtypeListEvt,wxPoint(0,0), wxSize(120,100),0, NULL,wxLB_HSCROLL);
+    mimeTypesLB=new wxListBox(panel,-1,wxPoint(120,0), wxSize(190,100),0, NULL,wxLB_HSCROLL);
+
+
+	actiontodoLB->Insert("SEND",CGI_CMD_SEND);
+	actiontodoLB->Insert("RUNCGI",CGI_CMD_RUNCGI);
+	actiontodoLB->Insert("RUNISAPI",CGI_CMD_RUNISAPI);
+	actiontodoLB->Insert("RUNMSCGI",CGI_CMD_RUNMSCGI);
+	actiontodoLB->Insert("EXECUTE",CGI_CMD_EXECUTE);
+	actiontodoLB->Insert("SENDLINK",CGI_CMD_SENDLINK);
+
 	mm.load("MIMEtypes.txt");
 	u_long nelements=mm.getNumMIMELoaded();
 	for(int i=0;i<nelements;i++)
@@ -63,18 +74,20 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 			mimeTypesLB->Insert(_T(dest),0);
 		extensionsLB->Insert(_T(ext),0);
 	}
-	mm.clean();
+
 	wxButton* btnOK= new wxButton(panel,Configuration_Ok,"OK",wxPoint(160,160),wxSize(50,25));
 	wxButton* btnCNL= new wxButton(panel,Configuration_Cancel,"Cancel",wxPoint(210,160),wxSize(50,25));
 	yetVisible=1;
 }
 void configurationFrameMIME::cancel(wxCommandEvent& WXUNUSED(event))
 {
+	mm.clean();
 	yetVisible=0;
 	Destroy();
 }
 void configurationFrameMIME::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
+	mm.clean();
 	Show(FALSE);
 	yetVisible=0;
 }
@@ -83,6 +96,24 @@ void configurationFrameMIME::ok(wxCommandEvent& WXUNUSED(event))
 	/*
 	*Save the configuration....
 	*/
+	mm.clean();
 	Destroy();
 	yetVisible=0;
+}
+void configurationFrameMIME::EXTtypeListEvt(wxCommandEvent& event)
+{
+	int sel=event.GetSelection();
+	wxString str=extensionsLB->GetString(sel);
+/*	MessageBox(0,str.mb_str(),"",0);*/
+	char EXT[10];
+	wxCharBuffer cb=str.ToAscii();
+	sprintf(EXT,"%s",(const char*)cb);
+	char MIME[60];
+	int cmd=mm.getMIME(EXT,MIME,NULL);
+	mimeTypesLB->SetSelection(mimeTypesLB->GetSelection(),FALSE);
+	mimeTypesLB->SetSelection(mimeTypesLB->FindString(MIME),TRUE);
+
+	
+	actiontodoLB->SetSelection(actiontodoLB->GetSelection(),FALSE);
+	actiontodoLB->SetSelection(cmd,TRUE);
 }

@@ -171,13 +171,16 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 	{
 		if(!lstrcmpi(ext,mr->extension))
 		{
-			lstrcpy(dest,mr->mime_type);
+			if(dest)
+				lstrcpy(dest,mr->mime_type);
+
 			if(dest2 && mr->cgi_manager[0])
 			{
-					lstrcpy(dest2,mr->cgi_manager);
+				lstrcpy(dest2,mr->cgi_manager);
 			}
 			else
 			{
+				if(dest2)
 					dest2[0]='\0';
 			}
 			return mr->command;
@@ -198,14 +201,19 @@ int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
 	{
 		if(i==id)
 		{
-			lstrcpy(ext,mr->extension);
-			lstrcpy(dest,mr->mime_type);
+			if(ext)
+				lstrcpy(ext,mr->extension);
+
+			if(dest)
+				lstrcpy(dest,mr->mime_type);
+
 			if(dest2 && mr->cgi_manager[0])
 			{
 					lstrcpy(dest2,mr->cgi_manager);
 			}
 			else
 			{
+				if(dest2)
 					dest2[0]='\0';
 			}
 			return mr->command;

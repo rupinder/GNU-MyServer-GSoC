@@ -5,7 +5,7 @@ jpg,image/jpeg,SEND NONE;
 jpeg,image/jpeg,SEND NONE;
 jpe,image/jpeg,SEND NONE;
 xml,text/xml,SEND NONE;
-link,text/xml,SENDLINK NONE;
+link,NONE,SENDLINK NONE;
 txt,text/html,SEND NONE;
 asc,text/html,SEND NONE;
 cgi,text/html,EXECUTE NONE;
