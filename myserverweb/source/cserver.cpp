@@ -770,7 +770,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	nc->localPort=(u_short)localPort;
 	strcpy(nc->ipAddr,ipAddr);
 	strcpy(nc->localIpAddr,localIpAddr);
-	nc->Next=connections;
+	nc->next=connections;
 	terminateAccess(&connectionWriteAccess,id);
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	nc->login[0]='\0';
@@ -844,14 +844,17 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	*Then remove the connection from the active connections list.
 	*/
 	LPCONNECTION prev=0;
-	for(LPCONNECTION i=connections;i;i=i->Next)
+	for(LPCONNECTION i=connections;i;i=i->next)
 	{
 		if(i->socket == s->socket)
 		{
+			if(connectionToParse->socket==s->socket)
+				connectionToParse=connectionToParse->next;
+
 			if(prev)
-				prev->Next=i->Next;
+				prev->next=i->next;
 			else
-				connections=i->Next;
+				connections=i->next;
 			free(i);
 			ret=1;
 			break;
@@ -871,16 +874,18 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 LPCONNECTION cserver::getConnectionToParse(int id)
 {
 	requestAccess(&connectionWriteAccess,id);
-	int a;
 	if(connectionToParse)
 	{
+		/*Be sure that connectionToParse is a valid connection struct*/
 		if(connectionToParse->check_value!=0x20)
 			connectionToParse=connections;
 		else
-			connectionToParse=connectionToParse->Next;
+			connectionToParse=connectionToParse->next;
 	}
 	else
+	{/*Restart loop if the connectionToParse points to the last element*/
 		connectionToParse=connections;
+	}
 	if(connectionToParse==0)
 		connectionToParse=connections;
 	terminateAccess(&connectionWriteAccess,id);
@@ -895,7 +900,7 @@ void cserver::clearAllConnections()
 	LPCONNECTION next=0;
 	for(u_long i=0;c && i<nConnections;i++)
 	{
-		next=c->Next;
+		next=c->next;
 		deleteConnection(c,1);
 		c=next;
 	}
@@ -910,7 +915,7 @@ void cserver::clearAllConnections()
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 {
 	LPCONNECTION c;
-	for(c=connections;c;c=c->Next)
+	for(c=connections;c;c=c->next)
 	{
 		if(c->socket==a)
 			return c;

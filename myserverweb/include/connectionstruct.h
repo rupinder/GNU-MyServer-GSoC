@@ -44,7 +44,7 @@ public:
 	u_short localPort;
 	MYSERVER_SOCKET socket;	
 	u_long timeout;	
-	CONNECTION* Next;
+	CONNECTION* next;
 	void *host;
 	int dataRead;
 	char connectionBuffer[KB(8)];/*This buffer must be used only by the ClientsTHREAD class*/

@@ -58,7 +58,7 @@ void vhost::clearHostList()
 		if(prevshl)
 			delete prevshl;
 		prevshl=shl;
-		shl=shl->next;
+		shl=shl->next ;
 	}
 	if(prevshl)
 		delete prevshl;
@@ -76,7 +76,7 @@ void vhost::clearIPList()
 		if(prevsil)
 			delete prevsil;
 		prevsil=sil;
-		sil=sil->next;
+		sil=sil->next ;
 	}
 	if(prevsil)
 		delete prevsil;
@@ -91,11 +91,11 @@ void vhost::addIP(char *ip)
 	strcpy(il->hostIp,ip);
 	if(ipList)
 	{
-		il->next=ipList;
+		il->next =ipList;
 	}
 	else
 	{
-		il->next=0;
+		il->next =0;
 	}
 	ipList=il;
 }
@@ -117,19 +117,19 @@ void vhost::removeIP(char *ip)
 		{
 			if(iteratorBack)
 			{
-				iteratorBack->next=iterator->next;
+				iteratorBack->next =iterator->next ;
 				delete iterator;
 				return;
 			}
 			else
 			{
-				ipList=iterator->next;
+				ipList=iterator->next ;
 				delete iterator;
 				return;
 			}
 		}
 		iteratorBack=iterator;	
-		iterator=iterator->next;
+		iterator=iterator->next ;
 	}
 
 }
@@ -151,19 +151,19 @@ void vhost::removeHost(char *host)
 		{
 			if(iteratorBack)
 			{
-				iteratorBack->next=iterator->next;
+				iteratorBack->next =iterator->next ;
 				delete iterator;
 				return;
 			}
 			else
 			{
-				hostList=iterator->next;
+				hostList=iterator->next ;
 				delete iterator;
 				return;
 			}
 		}
 		iteratorBack=iterator;	
-		iterator=iterator->next;
+		iterator=iterator->next ;
 	}
 }
 /*
@@ -178,7 +178,7 @@ int vhost::isHostAllowed(char* host)
 	{
 		if(!strcmp(host,lhl->hostName))
 			return 1;
-		lhl=lhl->next;
+		lhl=lhl->next ;
 	}
 	return 0;
 }
@@ -212,7 +212,7 @@ int vhost::isIPAllowed(char* ip)
 	{
 		if(!strcmp(ip,lipl->hostIp))
 			return 1;
-		lipl=lipl->next;
+		lipl=lipl->next ;
 	}
 	return 0;
 }
@@ -225,11 +225,11 @@ void vhost::addHost(char *host)
 	strcpy(hl->hostName,host);
 	if(hostList)
 	{
-		hl->next=hostList;
+		hl->next =hostList;
 	}
 	else
 	{
-		hl->next=0;
+		hl->next =0;
 	}
 	hostList=hl;
 }
@@ -276,22 +276,22 @@ void vhostmanager::addvHost(vhost* vHost)
 	{
 		vhostList=new sVhostList();	
 		vhostList->host=vHost;
-		vhostList->next=0;
+		vhostList->next =0;
 	}
 	else
 	{
 		sVhostList* hostl=vhostList;
 		for(;;)/*Append the new host to the end of the linked list*/
 		{
-			if(hostl->next)
-				hostl=hostl->next;
+			if(hostl->next )
+				hostl=hostl->next ;
 			else
 				break;
 		}
-		hostl->next=new sVhostList();	
+		hostl->next =new sVhostList();	
 
-		hostl->next->next=0;/*Make sure that next is null*/
-		hostl->next->host=vHost;
+		hostl->next ->next =0;/*Make sure that next is null*/
+		hostl->next ->host=vHost;
 	}
 	
 }
@@ -301,7 +301,7 @@ void vhostmanager::addvHost(vhost* vHost)
 vhost* vhostmanager::getvHost(char* host,char* ip,u_short port)
 {
 	sVhostList* vhl;
-	for(vhl=vhostList;vhl;vhl=vhl->next)
+	for(vhl=vhostList;vhl;vhl=vhl->next )
 	{
 		if(vhl->host->port!=port)/*control if the host port is the correct one*/
 			continue;
@@ -332,7 +332,7 @@ void vhostmanager::clean()
 		if(prevshl)
 			delete prevshl;
 		prevshl=shl;
-		shl=shl->next;
+		shl=shl->next ;
 	}
 	if(prevshl)
 		delete prevshl;
@@ -543,7 +543,7 @@ void vhostmanager::saveConfigurationFile(char *filename)
 	u_long nbw;
 	MYSERVER_FILE fh;
 	fh.openFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
-	for(;vhl;vhl=vhl->next)
+	for(;vhl;vhl=vhl->next )
 	{
 		vhost*vh=vhl->host;
 		vhost::sHostList* hl=vh->hostList;
@@ -554,8 +554,8 @@ void vhostmanager::saveConfigurationFile(char *filename)
 				fh.writeToFile(hl->hostName,(u_long)strlen(hl->hostName),&nbw);
 				strcpy(buffer,",");
 				fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-				if(hl->next)
-					hl=hl->next;
+				if(hl->next )
+					hl=hl->next ;
 			}
 		}
 		else
@@ -571,13 +571,13 @@ void vhostmanager::saveConfigurationFile(char *filename)
 			while(il)
 			{ 
 				fh.writeToFile(il->hostIp,(u_long)strlen(il->hostIp),&nbw);
-				if(il->next)
+				if(il->next )
 				{
 					strcpy(buffer,",");
 					fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 				}
 
-				il=il->next;
+				il=il->next ;
 			}
 		}
 		else
@@ -612,7 +612,7 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
 		fh.writeToFile(vh->warningsLogFileName,(u_long)strlen(vh->warningsLogFileName),&nbw);
-		if(vhl->next)
+		if(vhl->next )
 			strcpy(buffer,";#\r\n");
 		else
 			strcpy(buffer,";##\r\n\0");
@@ -639,12 +639,12 @@ int vhostmanager::switchVhosts(int n1,int n2)
 	int i;
 	for(i=0;i<n1;i++)
 	{
-		vh1=vh1->next;
+		vh1=vh1->next ;
 	}
 	sVhostList *vh2 = vhostList;
 	for(i=0;i<n2;i++)
 	{
-		vh2=vh2->next;
+		vh2=vh2->next ;
 	}
 	return switchVhosts(vh1,vh2);
 
@@ -668,7 +668,7 @@ int vhostmanager::getHostsNumber()
 {
 	sVhostList *vh = vhostList;
 	int i;
-	for(i=0;vh;i++,vh=vh->next);
+	for(i=0;vh;i++,vh=vh->next );
 	return i;
 }
 
@@ -686,7 +686,7 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 	}
 	xmlDocPtr doc = parser.getDoc();
 	xmlNodePtr node=doc->children->children;
-	for(;node;node=node->next)
+	for(;node;node=node->next )
 	{
 		if(xmlStrcmp(node->name, (const xmlChar *)"VHOST"))
 			continue;
@@ -736,7 +736,7 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 				strcpy(vh->warningsLogFileName,(char*)lcur->children->content);
 			}
 			
-			lcur=lcur->next;
+			lcur=lcur->next ;
 		}
 		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
 		accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
@@ -785,7 +785,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 			out.writeToFile("<IP>",4,&nbw);
 			out.writeToFile(ipList->hostIp,(u_long)strlen(ipList->hostIp),&nbw);
 			out.writeToFile("</IP>\r\n",7,&nbw);
-			ipList=ipList->next;
+			ipList=ipList->next ;
 		}
 		vhost::sHostList *hostList = list->host->hostList;
 		while(hostList)
@@ -793,7 +793,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 			out.writeToFile("<HOST>",6,&nbw);
 			out.writeToFile(hostList->hostName,(u_long)strlen(hostList->hostName),&nbw);
 			out.writeToFile("</HOST>\r\n",9,&nbw);
-			hostList=hostList->next;
+			hostList=hostList->next ;
 		}
 		out.writeToFile("<PORT>",6,&nbw);
 		char port[6];
@@ -830,7 +830,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
 
 		out.writeToFile("</VHOST>\r\n",10,&nbw);
-		list=list->next;
+		list=list->next ;
 	}
 	out.writeToFile("</VHOSTS>\r\n",11,&nbw);
 	out.closeFile();
@@ -844,7 +844,7 @@ vhost* vhostmanager::getVHostByNumber(int n)
 	sVhostList *hl=vhostList;
 	for(int i=0;(i<n)&& hl;i++)
 	{
-		hl=hl->next;
+		hl=hl->next ;
 	}
 	return hl->host;
 }
@@ -862,17 +862,17 @@ int vhostmanager::removeVHost(int n)
 		{
 			if(bl)
 			{
-				bl->next=hl->next;
+				bl->next =hl->next ;
 			}
 			else
 			{
-				vhostList->next=hl->next;
+				vhostList->next =hl->next ;
 			}
 			delete hl->host;
 			return 1;
 		}
 		bl=hl;
-		hl=hl->next;
+		hl=hl->next ;
 	}
 	return 0;
 }

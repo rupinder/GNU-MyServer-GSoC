@@ -123,7 +123,7 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 	while(sl)
 	{
 		vhostsLB->Append(_T(sl->host->name));
-		sl=sl->next;
+		sl=sl->next ;
 	}
 
 	yetVisible=1;
@@ -248,14 +248,14 @@ void configurationFrameVHOSTS::loadVHost(wxCommandEvent& event)
 	while(hl)
 	{
 		hostsLB->Insert(hl->hostName,i++);
-		hl=hl->next;
+		hl=hl->next ;
 	}
 	vhost::sIpList *il = currentVHost->ipList;
 	i=0;
 	while(il)
 	{
 		ipLB->Insert(il->hostIp,i++);
-		il=il->next;
+		il=il->next ;
 	}
 }
 void configurationFrameVHOSTS::hostPortMod(wxCommandEvent& event)

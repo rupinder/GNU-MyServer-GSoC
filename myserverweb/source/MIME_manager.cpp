@@ -158,7 +158,7 @@ int MIME_Manager::loadXML(char *filename)
 	xmlDocPtr doc = parser.getDoc();
 	xmlNodePtr node=doc->children->children;
 	int nm=0;
-	for(;node;node=node->next)
+	for(;node;node=node->next )
 	{
 		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
 			continue;
@@ -211,7 +211,7 @@ int MIME_Manager::loadXML(char *filename)
 						rc.cgi_manager[0]='\0';
 				}
 			}
-			lcur=lcur->next;
+			lcur=lcur->next ;
 		}
 		nm++;
 		addRecord(rc);
@@ -267,7 +267,7 @@ int MIME_Manager::saveXML(char *filename)
 		else
 			f.writeToFile("NONE",4,&nbw);
 		f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);
-		rc=rc->next;	
+		rc=rc->next ;	
 	}
 	f.writeToFile("\r\n</MIMETYPES>",14,&nbw);
 	f.closeFile();
@@ -284,7 +284,7 @@ int MIME_Manager::save(char *filename)
 	f.openFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	MIME_Manager::mime_record *nmr1;
 	u_long nbw;
-	for(nmr1 = data;nmr1;nmr1 = nmr1->next)
+	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
 		f.writeToFile(nmr1->extension,strlen(nmr1->extension),&nbw);
 		f.writeToFile(",",strlen(","),&nbw);
@@ -332,7 +332,7 @@ int MIME_Manager::save(char *filename)
 */
 int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 {
-	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next)
+	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next )
 	{
 		if(!lstrcmpi(ext,mr->extension))
 		{
@@ -360,7 +360,7 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
 {
 	int i=0;
-	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next)
+	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next )
 	{
 		if(i==id)
 		{
@@ -415,7 +415,7 @@ void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 		removeRecord(mr.extension);
 	MIME_Manager::mime_record *nmr =(MIME_Manager::mime_record*)malloc(sizeof(mime_record));
 	memcpy(nmr,&mr,sizeof(mime_record));
-	nmr->next=data;
+	nmr->next =data;
 	data=nmr;
 	numMimeTypesLoaded++;
 }
@@ -435,18 +435,18 @@ void MIME_Manager::removeRecord(char *ext)
 		{
 			if(nmr2)
 			{
-				nmr2->next = nmr1->next;
+				nmr2->next  = nmr1->next ;
 				free(nmr1);
 			}
 			else
 			{
-				data=nmr1->next;
+				data=nmr1->next ;
 				free(nmr1);
 			}
 			numMimeTypesLoaded--;
 		}
 		nmr2=nmr1;
-		nmr1=nmr1->next;
+		nmr1=nmr1->next ;
 	}while(nmr1);
 }
 /*
@@ -464,7 +464,7 @@ void MIME_Manager::removeAllRecords()
 		nmr2=nmr1;
 		if(nmr2)
 		{
-			nmr1=nmr1->next;
+			nmr1=nmr1->next ;
 			free(nmr2);
 		}
 		else
@@ -482,7 +482,7 @@ void MIME_Manager::removeAllRecords()
 MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
 {
 	MIME_Manager::mime_record *nmr1;
-	for(nmr1 = data;nmr1;nmr1 = nmr1->next)
+	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
 		if(!lstrcmpi(nmr1->extension,ext))
 		{
