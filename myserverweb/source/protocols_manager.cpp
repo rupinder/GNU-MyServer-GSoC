@@ -297,24 +297,24 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
  *Load all the protocols present in the directory.
  *Returns Nonzero on errors.
  */
-int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,
-                                     char* confFile,cserver* lserver)
+int protocols_manager::loadProtocols(char* directory, cXMLParser* parser,
+                                     char* confFile, cserver* lserver)
 {
   int filenamelen = 0;
 	char *filename = 0;
 #ifdef WIN32
-  filenamelen=strlen(folder)+6;
+  filenamelen=strlen(directory)+6;
   filename=new char[filenamelen];
   if(filename == 0)
     return -1;
-	sprintf(filename,"%s/*.*",folder);
+	sprintf(filename,"%s/*.*", directory);
 #endif	
 #ifdef NOT_WIN
-  filenamelen=strlen(folder)+2;
+  filenamelen=strlen(directory)+2;
   filename=new char[filenamelen];
   if(filename == 0)
     return -1;
-	strncpy(filename,folder, filenamelen);
+	strncpy(filename, directory, filenamelen);
 #endif	
 	
 	_finddata_t fd;
@@ -347,7 +347,7 @@ int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,
 		if(!strstr(fd.name,".so"))
 #endif		
 			continue;
-    completeFileNameLen = strlen(folder) + strlen(fd.name) + 2;
+    completeFileNameLen = strlen(directory) + strlen(fd.name) + 2;
 		completeFileName = new char[completeFileNameLen];
     if(completeFileName == 0)
     {
@@ -355,8 +355,8 @@ int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,
       filename = 0;
       return -1;
     }
-		sprintf(completeFileName,"%s/%s",folder,fd.name);
-		addProtocol(completeFileName,parser,confFile,lserver);
+		sprintf(completeFileName,"%s/%s", directory, fd.name);
+		addProtocol(completeFileName, parser, confFile, lserver);
 		delete [] completeFileName;
 	}while(!_findnext(ff,&fd));
 	_findclose(ff);		

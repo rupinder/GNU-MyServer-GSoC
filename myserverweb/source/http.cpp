@@ -95,13 +95,13 @@ security_cache http::sec_cache;
 myserver_mutex http::sec_cache_mutex;
 
 /*!
- *Browse a folder printing its contents in an HTML file.
+ *Browse a directory printing its contents in an HTML file.
  */
 int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, 
-                            char* folder, int only_header)
+                            char* directory, int only_header)
 {
 
-	/*! Send the folder content.  */
+	/*! Send the directory content.  */
 	u_long nbw;
 	int ret;
   int outputDataPathLen = getdefaultwdlen() + 20;
@@ -171,7 +171,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	}
 	/*! 
    *If it is defined a CSS file for the graphic layout of 
-   *the browse folder insert it in the page.  
+   *the browse directory insert it in the page.  
    */
 	if(browseDirCSSpath != 0)
 	{
@@ -221,24 +221,24 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	}
 
 #ifdef WIN32
-  filename = new char[strlen(folder)+3];
+  filename = new char[strlen(directory)+3];
   if(filename==0)
   {
     delete [] td->outputDataPath;
     td->outputDataPath = 0;
     return sendHTTPhardError500(td, s);
   }
-	sprintf(filename, "%s/*", folder);
+	sprintf(filename, "%s/*", directory);
 #endif
 #ifdef NOT_WIN
-  filename = new char[strlen(folder)+2];
+  filename = new char[strlen(directory)+2];
   if(filename==0)
   {
     delete [] td->outputDataPath;
     td->outputDataPath=0;
     return sendHTTPhardError500(td, s);
   }
-	sprintf(filename, "%s/", folder);
+	sprintf(filename, "%s/", directory);
 #endif
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of directory ";
@@ -266,7 +266,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	}
 	/*! 
    *With the current code we build the HTML TABLE to indicize the
-   *files in the folder.  
+   *files in the directory.
    */
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "<table width=\"100\%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n  \
@@ -789,10 +789,10 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
                           int, int firstByte, int /*!lastByte*/, int yetmapped)
 {
   int permissions=-1;
-  char *folder=0;
+  char *directory=0;
 	int httpStatus=td->response.httpStatus;
 	int keepalive=0;
-  int folderLen=0;
+  int directoryLen=0;
   int permissions2=0;
   char auth_type[16];	
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);
@@ -805,7 +805,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	/*!
    *td->filenamePath is the file system mapped path while filename 
    *is the URI requested.
-   *systemrequest is 1 if the file is in the system folder.
+   *systemrequest is 1 if the file is in the system directory.
    *If filename is already mapped on the file system don't map it again.
    */
 	if(yetmapped)
@@ -821,7 +821,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	else
 	{
 		/*! 
-     *If the client try to access files that aren't in the web folder 
+     *If the client try to access files that aren't in the web directory 
      *send a 401 error.  
      */
 		translateEscapeString(filename);
@@ -838,33 +838,34 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	}
 	if(MYSERVER_FILE::isDirectory(td->filenamePath))
   {
-    folder = new char[strlen(td->filenamePath) + 1];
-    if(folder == 0)
+    int directory_size = strlen(td->filenamePath);
+    directory = new char[directory_size + 1];
+    if(directory == 0)
     {
       delete [] td->filenamePath;
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		strcpy(folder, td->filenamePath);
+		strncpy(directory, td->filenamePath, directory_size);
   }
 	else
   {
-		MYSERVER_FILE::splitPathLength(td->filenamePath, &folderLen, 0);
-    folder = new char[folderLen + 1];
-    if(folder == 0)
+		MYSERVER_FILE::splitPathLength(td->filenamePath, &directoryLen, 0);
+    directory = new char[directoryLen + 1];
+    if(directory == 0)
     {
       delete [] td->filenamePath;
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		MYSERVER_FILE::splitPath(td->filenamePath, folder, filename);
+		MYSERVER_FILE::splitPath(td->filenamePath, directory, filename);
   }
 	if(s->protocolBuffer==0)
 	{
 		s->protocolBuffer=new http_user_data;
 		if(!s->protocolBuffer)
     {
-      delete [] folder;
+      delete [] directory;
       delete [] td->filenamePath;
       td->filenamePath = 0;
 			return sendHTTPhardError500(td, s);
@@ -874,7 +875,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	if(td->request.AUTH[0])
   {
     sec_cache_mutex.myserver_mutex_lock();
-		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), folder, 
+		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
                                             filename, ((vhost*)(s->host))->systemRoot, 
                                   ((http_user_data*)s->protocolBuffer)->needed_password
                                   , auth_type, 16, &permissions2);
@@ -883,7 +884,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	else/*!The default user is Guest with a null password*/
   {
     sec_cache_mutex.myserver_mutex_lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
+		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                   ((vhost*)(s->host))->systemRoot, 
                                   ((http_user_data*)s->protocolBuffer)->needed_password
                                   , auth_type, 16);
@@ -916,13 +917,13 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	if(td->request.AUTH[0] && (permissions==0))
   {
     sec_cache_mutex.myserver_mutex_lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
+		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                             ((vhost*)(s->host))->systemRoot, 
                          ((http_user_data*)s->protocolBuffer)->needed_password, 
                                             auth_type, 16);		
     sec_cache_mutex.myserver_mutex_unlock();
   }
-  delete [] folder;
+  delete [] directory;
 
 	if(!(permissions & MYSERVER_PERMISSION_WRITE))
 	{
@@ -1041,7 +1042,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
                              char *filename, int yetmapped)
 {
   int permissions=-1;
-  char *folder;
+  char *directory;
 	int httpStatus=td->response.httpStatus;
 	int permissions2=0;
 	char auth_type[16];
@@ -1084,28 +1085,28 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	}
 	if(MYSERVER_FILE::isDirectory(td->filenamePath))
   {
-    int folder_len = strlen(td->filenamePath)+1;
-    folder = new char[folder_len];
-    if(folder == 0)
+    int directory_len = strlen(td->filenamePath)+1;
+    directory = new char[directory_len];
+    if(directory == 0)
     {
       delete [] td->filenamePath;
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		strcpy(folder, td->filenamePath);
+		strncpy(directory, td->filenamePath, directory_len);
   }
 	else
   {
-    int folder_len=0;
-    MYSERVER_FILE::splitPathLength(td->filenamePath, &folder_len, 0);
-    folder = new char[folder_len];
-    if(folder == 0)
+    int directory_len=0;
+    MYSERVER_FILE::splitPathLength(td->filenamePath, &directory_len, 0);
+    directory = new char[directory_len];
+    if(directory == 0)
     {
       delete [] td->filenamePath;
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		MYSERVER_FILE::splitPath(td->filenamePath, folder, filename);
+		MYSERVER_FILE::splitPath(td->filenamePath, directory, filename);
   }
 
 	if(s->protocolBuffer==0)
@@ -1113,7 +1114,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 		s->protocolBuffer=new http_user_data;
 		if(!s->protocolBuffer)
     {
-      delete [] folder;
+      delete [] directory;
       delete [] td->filenamePath;
       td->filenamePath = 0;
 			return 0;
@@ -1124,16 +1125,16 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	if(td->request.AUTH[0])
   {
     sec_cache_mutex.myserver_mutex_lock();
-		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), folder, 
+		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
                                             filename,((vhost*)(s->host))->systemRoot, 
-                                  ((http_user_data*)s->protocolBuffer)->needed_password
-                                  , auth_type, 16, &permissions2);
+                               ((http_user_data*)s->protocolBuffer)->needed_password,
+                                            auth_type, 16, &permissions2);
     sec_cache_mutex.myserver_mutex_unlock();
   }
 	else/*!The default user is Guest with a null password*/
   {
     sec_cache_mutex.myserver_mutex_lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
+		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                ((vhost*)(s->host))->systemRoot, 
                                ((http_user_data*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
@@ -1166,7 +1167,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	if(td->request.AUTH[0] && (permissions==0))
   {
     sec_cache_mutex.myserver_mutex_lock();
-		permissions=sec_cache.getPermissionMask("Guest", "", folder, filename, 
+		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                   ((vhost*)(s->host))->systemRoot, 
                                 ((http_user_data*)s->protocolBuffer)->needed_password,
                                  auth_type, 16);	
@@ -1174,14 +1175,14 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
   }
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	{
-    delete [] folder;
+    delete [] directory;
     delete [] td->filenamePath;
     td->filenamePath = 0;
 		return sendAuth(td, s);
 	}
 	if(MYSERVER_FILE::fileExists(td->filenamePath))
 	{
-    delete [] folder;
+    delete [] directory;
     delete [] td->filenamePath;
     td->filenamePath = 0;
 		MYSERVER_FILE::deleteFile(td->filenamePath);
@@ -1190,7 +1191,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	}
 	else
 	{
-    delete [] folder;
+    delete [] directory;
     delete [] td->filenamePath;
     td->filenamePath = 0;
     /*! No content. */
@@ -1296,7 +1297,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
                            int lastByte, int yetmapped)
 {
 	/*!
-   *With this code we manage a request of a file or a folder or anything 
+   *With this code we manage a request of a file or a directory or anything 
    *that we must send over the HTTP.
    */
 	char *filename;
@@ -1328,7 +1329,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	/*!
    *td->filenamePath is the file system mapped path while filename 
    *is the URI requested. systemrequest is 1 if the file is in 
-   *the system folder.
+   *the system directory.
    *If filename is already mapped on the file system don't map it again.
    */
 	if(yetmapped)
@@ -1344,7 +1345,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	{
 		/*!
      *If the client try to access files that aren't in the 
-     *web folder send a 401 error.
+     *web directory send a 401 error.
      */
 		translateEscapeString(filename );
 		if((filename[0] != '\0')&&
@@ -1366,33 +1367,33 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	permissions= MYSERVER_PERMISSION_READ |  MYSERVER_PERMISSION_BROWSE ;
 	if(!systemrequest)
 	{
-		char *folder;
+		char *directory;
 		char auth_type[16];
 		if(MYSERVER_FILE::isDirectory(td->filenamePath))
     {
-      folder = new char[strlen(td->filenamePath) + 1];
-      if(folder == 0)
+      directory = new char[strlen(td->filenamePath) + 1];
+      if(directory == 0)
       {
         delete [] td->filenamePath;
         delete [] filename;
         td->filenamePath = 0;
         return sendHTTPhardError500(td, s);
       }
-			strcpy(folder, td->filenamePath);
+			strcpy(directory, td->filenamePath);
     }
 		else
     {
-      int folderlen=0;
-      MYSERVER_FILE::splitPathLength(td->filenamePath, &folderlen, 0);
-      folder = new char[folderlen];
-      if(folder == 0)
+      int directorylen=0;
+      MYSERVER_FILE::splitPathLength(td->filenamePath, &directorylen, 0);
+      directory = new char[directorylen];
+      if(directory == 0)
       {
         delete [] td->filenamePath;
         delete [] filename;
         td->filenamePath = 0;
         return sendHTTPhardError500(td, s);
       }
-			MYSERVER_FILE::splitPath(td->filenamePath, folder, filename);
+			MYSERVER_FILE::splitPath(td->filenamePath, directory, filename);
     }
 
 		if(s->protocolBuffer==0)
@@ -1409,8 +1410,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		if(td->request.AUTH[0])
     {
       sec_cache_mutex.myserver_mutex_lock();
-			permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), folder, 
-                                             filename,((vhost*)(s->host))->systemRoot,
+			permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), 
+                                              directory, filename,
+                                              ((vhost*)(s->host))->systemRoot,
                                  ((http_user_data*)s->protocolBuffer)->needed_password,
                                     auth_type, 16, &permissions2);
       sec_cache_mutex.myserver_mutex_unlock();
@@ -1418,7 +1420,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		else/*!The default user is Guest with a null password*/
     {
       sec_cache_mutex.myserver_mutex_lock();
-			permissions=sec_cache.getPermissionMask("Guest", "", folder, filename,
+			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
                                   ((vhost*)(s->host))->systemRoot,
                                  ((http_user_data*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
@@ -1450,13 +1452,13 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		if(td->request.AUTH[0] && (permissions==0))
     {
       sec_cache_mutex.myserver_mutex_lock();
-			permissions=sec_cache.getPermissionMask("Guest", "", folder, filename,
+			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
                                 ((vhost*)(s->host))->systemRoot,
                                 ((http_user_data*)s->protocolBuffer)->needed_password,
                                    auth_type, 16);
       sec_cache_mutex.myserver_mutex_unlock();
 		}
-    delete [] folder;
+    delete [] directory;
 	}
 	/*!
    *Get the PATH_INFO value.
@@ -1551,8 +1553,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 
 	/*!
    *  If there are not any extension then we do one of this in order:
-   *	1)We send the default files in the folder in order.
-   *	2)We send the folder content.
+   *	1)We send the default files in the directory in order.
+   *	2)We send the directory content.
    *	3)We send an error.
    */
 	if(MYSERVER_FILE::isDirectory((char *)(td->filenamePath)))
@@ -2799,7 +2801,7 @@ int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath
                    const char *filename, int systemrequest)
 {
 	/*!
-   *If it is a system request, search the file in the system folder.
+   *If it is a system request, search the file in the system directory.
    */
 	if(systemrequest)
 	{
@@ -2815,7 +2817,7 @@ int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath
             filename);
 	}
 	/*!
-   *Else the file is in the web folder.
+   *Else the file is in the web directory.
    */
 	else
 	{	

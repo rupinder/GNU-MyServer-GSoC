@@ -1415,8 +1415,8 @@ LPCONNECTION cserver::findConnectionByID(u_long ID)
 }
 
 /*!
- *Returns the full path of the binaries folder. 
- *The folder where the file myserver(.exe) is.
+ *Returns the full path of the binaries directory. 
+ *The directory where the file myserver(.exe) is.
  */
 char *cserver::getPath()
 {
