@@ -21,23 +21,24 @@ char* MimeDecodeMailHeaderField(char *s);
 class CBase64Utils
 {
 private:
-  int ErrorCode;
+	int ErrorCode;
 public:
-  int GetLastError() {return ErrorCode;};
+	int GetLastError() {return ErrorCode;};
 	CBase64Utils();
 	~CBase64Utils();
-  char* Decode(char *input, int *bufsize);
-  char* Encode(char *input, int bufsize);
+	char* Decode(char *input, int *bufsize);
+	char* Encode(char *input, int bufsize);
 };
 class CQPUtils
 {
 private:
-  char* ExpandBuffer(char *buffer, int UsedSize, int *BufSize, bool SingleChar = true);
-  int ErrorCode;
+	char* ExpandBuffer(char *buffer, int UsedSize, int *BufSize, bool SingleChar = true);
+	int ErrorCode;
 public:
-  int GetLastError() {return ErrorCode;};
+	int GetLastError() {return ErrorCode;};
 	char* Decode(char *input);
 	char* Encode(char *input);
 	CQPUtils();
 	~CQPUtils();
-};
+}; 
+

@@ -113,4 +113,5 @@ cgi_manager::operator <<(char* str)
 char *cgi_manager::operator >>(char* str)
 {
 	return GetParam(str);
-}
+} 
+

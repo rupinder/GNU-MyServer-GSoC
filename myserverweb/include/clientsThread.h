@@ -30,7 +30,8 @@ class  ClientsTHREAD
 {
 	friend class cserver;
 	friend  unsigned int WINAPI startClientsTHREAD(void* pParam);
-	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM 
+wParam,LPARAM lParam);
 private:
 	CBase64Utils base64Utils;
 	BOOL initialized;
@@ -51,8 +52,10 @@ private:
 	void clearAllConnections();
 	BOOL deleteConnection(LPCONNECTION);
 	void raiseError(LPCONNECTION,int);
-	BOOL sendRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-	BOOL sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+	BOOL sendRESOURCE(LPCONNECTION s,char *filename,BOOL 
+systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+	BOOL sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int 
+firstByte=0,int lastByte=-1);
 	BOOL sendDIRECTORY(LPCONNECTION s,char* folder);
 	BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine=0);
 	BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char* exec);
@@ -73,4 +76,5 @@ public:
 	void stop();
 	void clean();	
 };
-unsigned int WINAPI startClientsTHREAD(void* pParam);
+unsigned int WINAPI startClientsTHREAD(void* pParam); 
+

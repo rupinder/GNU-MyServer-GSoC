@@ -16,7 +16,6 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-
 #include "..\stdafx.h"
 #include "..\include\cserver.h"
 #pragma comment(lib,"ws2_32.lib")
@@ -29,8 +28,6 @@ VOID WINAPI myServerMain (DWORD argc, LPTSTR *argv);
 VOID appendToLog(char* str);
 BOOL isServiceInstalled();
 void runService();
-void printHelpInfo();
-
 cserver server;
 static char path[MAX_PATH];
 HINSTANCE hInst;
@@ -66,7 +63,7 @@ int main (int , char **)
 			return 0;
 		}
 	}
-	printHelpInfo();
+
 	return 0;
 } 
 
@@ -82,7 +79,6 @@ VOID appendToLog(char* str)
 }
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
-
 VOID  WINAPI myServerMain (DWORD, LPTSTR*)
 {
 	MyServiceStatus.dwServiceType = SERVICE_WIN32;
@@ -156,17 +152,17 @@ void console_service (int, char **)
 
 BOOL WINAPI control_handler (DWORD control_type)
 {
-    switch (control_type)
-      {
-        case CTRL_BREAK_EVENT:
-        case CTRL_C_EVENT:
-			printf ("stopping service\n");
-            server.stop();
+	switch (control_type)
+	{
+		case CTRL_BREAK_EVENT:
+		case CTRL_C_EVENT:
+			printf ("%s\n",lserver->languageParser.getValue("MSG_SERVICESTOP"));
+			server.stop();
 			printf ("service stopped\n");
-            return (TRUE);
+			return (TRUE);
 
-      }
-    return (FALSE);
+	}
+	return (FALSE);
 }
 
 
@@ -186,22 +182,11 @@ void runService()
 			printf("Already running\n");
 		else
 			printf("Error running service\n");
-			printf("Use instead of this the control panel application to run myServer\n");
 	}
-}
-void printHelpInfo()
-{
-	printf("On Windows 2000 platform use myServer as a service\n");
-	printf("On Windows XP and .NET myServer can be used as a stand-alone program\n");
-	printf("Older versions of Windows don't support security options\n");
-	printOSInfo();
-	printf("Press a key to continue\n");
-	getchar();
 }
 BOOL isServiceInstalled()
 {
 	SC_HANDLE service,manager;
-
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{

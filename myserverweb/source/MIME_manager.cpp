@@ -17,7 +17,6 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "..\include\mime_manager.h"
-
 HRESULT MIME_Manager::load(char *filename)
 {
 	numMimeTypesLoaded=0;

@@ -30,6 +30,7 @@ void cserver::start(HINSTANCE hInst)
 	cserver::hInst=hInst;
 	ZeroMemory(this,sizeof(cserver));
 
+
 	/*
 	*If another instance of the class exists destroy it
 	*/
@@ -47,57 +48,66 @@ void cserver::start(HINSTANCE hInst)
 	setLogFile(logFile);
 	controlSizeLogFile();
 
-	if(verbosity>2)
-		printSystemInfoOnLogFile();
-	
-
-	/*
-	*Get the OS version.
-	*/
-	INT OSVer=getOSVersion();
-	printOSInfo(OSVer);
-
-
 	/*
 	*Setup the server configuration
 	*/
+
 	printf("\nInitializing server configuration...\n");
+
+	INT OSVer=getOSVersion();
+
 	initialize(OSVer);
-	printf("Server configuration terminated\n\n");
+	languageParser.open(languageFile);
+	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
+
+	lstrcpy(msgSending,"Sending");
+	lstrcpy(msgRunOn,"Running on");
+	lstrcpy(msgFolderContents,"Contents of folder");
 	
+	if(lstrcmpi(languageParser.getValue("MSG_SENDING"),"NONE"))
+		lstrcpy(msgSending,languageParser.getValue("MSG_SENDING"));
+	if(lstrcmpi(languageParser.getValue("MSG_RUNON"),"NONE"))
+		lstrcpy(msgRunOn,languageParser.getValue("MSG_RUNON"));
+	if(lstrcmpi(languageParser.getValue("MSG_FOLDERCONT"),"NONE"))
+		lstrcpy(msgFolderContents,languageParser.getValue("MSG_FOLDERCONT"));
+	
+
+	printf("%s\n\n",languageParser.getValue("MSG_SERVER_CONF"));
+
+
 	if(guestLoginHandle==0)
 	{
-		logFileWrite("Security access is not used, the web folder contents is accessible to anyone\n");
-		printf("Security access is not used, the web folder contents is accessible to anyone\n");
+		
+		printf("%s\n",languageParser.getValue("AL_NO_SECURITY"));
 		useLogonOption=FALSE;
 	}
 
 	/*
 	*Startup the socket library
 	*/
+
 	WSADATA wsaData;
-	printf("Initializing socket library...\n");
+	printf("%s\n",languageParser.getValue("MSG_ISOCK"));
 	if ((err = WSAStartup(/*MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1), &wsaData)) != 0) 
 	{ 
-		logFileWrite("Error initializing socket library\n");
-		printf("Error initializing socket library\n");
+		printf("%s\n",languageParser.getValue("ERR_ISOCK"));
 		return; 
 	} 
-	printf("Socket library was initialized...\n");
-
+	printf("%s\n",languageParser.getValue("MSG_SOCKSTART"));
 	/*
 	*Create the server socket
 	*/
-	printf("Creating server socket...\n");
+
+	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
 	serverSocketHTTP=socket(AF_INET,SOCK_STREAM,0);
 	if(serverSocketHTTP==INVALID_SOCKET)
 	{
-		logFileWrite("Error opening port, port can be used by another application\n");
-		printf("Error opening port, port can be used by another application\n");
+		printf("%s\n",languageParser.getValue("ERR_OPENP"));
 		return;
-	}
-	printf("Server socket created\n");
 
+	}
+
+	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
 
 	sock_inserverSocketHTTP.sin_family=AF_INET;
 	sock_inserverSocketHTTP.sin_addr.s_addr=htonl(INADDR_ANY);
@@ -106,26 +116,29 @@ void cserver::start(HINSTANCE hInst)
 	/*
 	*Bind the HTTP port
 	*/
-	printf("Trying to binding HTTP port...\n");
+	printf("%s\n",languageParser.getValue("MSG_BIND_PORTHTTP"));
+
 	if(bind(serverSocketHTTP,(sockaddr*)&sock_inserverSocketHTTP,sizeof(sock_inserverSocketHTTP))!=0)
 	{
-		logFileWrite("Error binding port, port can be used by another application\n");
-		printf("Error binding port, port can be used by another application\n");
+		printf("%s\n",languageParser.getValue("ERR_BINDHTTP"));
 		return;
 	}
-	printf("HTTP port is binded\n");
+	printf("%s\n",languageParser.getValue("MSG_PORT_BINDEDHTTP"));
+
+
 
 	/*
 	*Set connections listen queque to max allowable
 	*/
-	printf("Trying to listen on HTTP port...\n");
+	printf("%s\n",languageParser.getValue("MSG_SLHTTP"));
 	if (listen(serverSocketHTTP,SOMAXCONN))
 	{ 
-		logFileWrite("Error listening\n");
-		printf("Error listening\n");
+		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
 		return; 
 	}
-	printf("Listen on HTTP port successfully\n");
+
+	printf("%s\n",languageParser.getValue("MSG_LHTTP"));
+
 
 
 	/*
@@ -136,8 +149,7 @@ void cserver::start(HINSTANCE hInst)
 	{
 		lstrcpy(serverName,"localhost");
 	}
-	printf("Computer name is:%s\n",serverName);
-
+	printf("%s:%s\n",languageParser.getValue("MSG_GETNAME"),serverName);
 	/*
 	*If the OS support the getaddrinfo function call it
 	*to get info about the address of current machine
@@ -153,35 +165,31 @@ void cserver::start(HINSTANCE hInst)
 		{
 			addresses_count++;
 			sockaddr_in *sai=(sockaddr_in*)(iai->ai_addr);
-			printf("Address #%u: %u.%u.%u.%u\n",addresses_count,sai->sin_addr.S_un.S_un_b.s_b1,sai->sin_addr.S_un.S_un_b.s_b2,sai->sin_addr.S_un.S_un_b.s_b3,sai->sin_addr.S_un.S_un_b.s_b4);
+			printf("%s #%u: %u.%u.%u.%u\n",languageParser.getValue("MSG_ADDRESS"),addresses_count,sai->sin_addr.S_un.S_un_b.s_b1,sai->sin_addr.S_un.S_un_b.s_b2,sai->sin_addr.S_un.S_un_b.s_b3,sai->sin_addr.S_un.S_un_b.s_b4);
 			iai=ai->ai_next;
 		}while(iai);
 		freeaddrinfo(ai);
 	}
 
+
 	/*
 	*Load the MIME types
 	*/
-	printf("Loading MIME types...\n");
+
+	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
 	if(!mimeManager.load("MIMEtypes.txt"))
-		printf("MIME types loaded successfully\n");
+		printf("%s\n",languageParser.getValue("MSG_MIMERUN"));
 	else
-		printf("MIME types cannot be loaded\n");
+		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
 
 	/*
 	*Create the threads
 	*/
+
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
-	switch(si.dwNumberOfProcessors)
-	{
-		case 1:
-			printf("Machine with single CPU detected\n");
-			break;
-		default:
-			printf("Machine with %u CPUs detected\n",si.dwNumberOfProcessors);
-			break;
-	}
+	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),si.dwNumberOfProcessors);
+	
 	/*
 	*Create a thread for every CPU.
 	*/
@@ -190,29 +198,36 @@ void cserver::start(HINSTANCE hInst)
 	unsigned int ID;
 	for(DWORD i=0;i<nThreads;i++)
 	{
-		printf("Creating thread %u...\n",i);
+		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
 		threads[i].id=i;
 		threads[i].threadHandle=(HANDLE)_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
-		printf("Thread %u created\n",i);
+		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
-	printf("Creating listening thread\n");
+	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
 	listenServerHTTPHandle=(HANDLE)_beginthreadex(NULL,0,&::listenServerHTTP,0,0,&ID);
+
+
+	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
+
+	printf("%s\n",languageParser.getValue("MSG_READY"));
+	printf("%s\n",languageParser.getValue("MSG_BREAK"));
 	
-	printf("Listening thread is created\n");
-	printf("myServer is now ready to accept connections\nPress Ctrl+C to break execution\n");
 
 	/*
 	*Keep thread alive.
 	*When the mustEndServer flag is set to True exit
 	*from the loop and terminate the server execution
 	*/
+
 	while(!mustEndServer);
 
 	shutdown(serverSocketHTTP, 2);
 	cserver::terminate();
 	closesocket(serverSocketHTTP);
 }
+
 unsigned int WINAPI listenServerHTTP(void*)
+
 {
 	INT asock_inLenHTTP=sizeof(lserver->asock_inHTTP);
 	while(!mustEndServer)
@@ -229,11 +244,17 @@ unsigned int WINAPI listenServerHTTP(void*)
 		if(lserver->asockHTTP==INVALID_SOCKET)
 			continue;
 		
+
 		lserver->addConnection(lserver->asockHTTP,PROTOCOL_HTTP);
+
 	}	
+
 	_endthreadex( 0 );
+
 	return 0;
+
 }
+
 DWORD cserver::getNumConnections()
 {
 	/*
@@ -247,10 +268,13 @@ DWORD cserver::getNumConnections()
 	return nConnections;
 }
 
+
+
 DWORD cserver::getVerbosity()
 {
 	return verbosity;
 }
+
 void  cserver::setVerbosity(DWORD nv)
 {
 	verbosity=nv;
@@ -260,6 +284,7 @@ void cserver::stop()
 {
 	mustEndServer=TRUE;
 }
+
 void cserver::terminate()
 {
 	/*
@@ -267,24 +292,27 @@ void cserver::terminate()
 	*/
 	if(useLogonOption)
 		CloseHandle(guestLoginHandle);
+
 	/*
 	*Stop server
 	*/
 	for(DWORD i=0;i<nThreads;i++)
 	{
 		if(verbosity>2)
-			printf("Terminating threads...\n");
+			printf("%s\n",languageParser.getValue("MSG_STOPT"));
 		threads[i].stop();
 		if(verbosity>2)
-			printf("Threads terminated\n");
+			printf("%s\n",languageParser.getValue("MSG_TSTOPPED"));
 	}
 	if(verbosity>2)
 	{
-		printf("Cleaning memory...\n");
+		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
 	}
 	/*
 	*Clean memory allocated here
 	*/
+	languageParser.close();
+	
 	mimeManager.clean();
 	for(i=0;i<nThreads;i++)
 		threads[i].clean();
@@ -302,13 +330,13 @@ void cserver::initialize(INT OSVer)
 	*The configuration file is a pseudo-XML file.
 	*/
 
+
 	socketRcvTimeout = 10;
-
-
 	useLogonOption = TRUE;
 	guestLoginHandle=0;
 	connectionTimeout = SEC(25);
 	lstrcpy(guestLogin,"myServerUnknown");
+	lstrcpy(languageFile,"languages\\english.xml");
 	lstrcpy(guestPassword,"myServerUnknown");
 	lstrcpy(defaultFilename,"default.html");
 	mustEndServer=FALSE;
@@ -321,8 +349,6 @@ void cserver::initialize(INT OSVer)
 	GetCurrentDirectory(MAX_PATH,systemPath);
 	lstrcat(systemPath,"\\system");
 	useMessagesFiles=TRUE;
-
-
 	configurationFileManager.open("myserver.xml");
 	CHAR *data;
 
@@ -338,6 +364,13 @@ void cserver::initialize(INT OSVer)
 		verbosity=(DWORD)atoi(data);
 	}
 
+	data=configurationFileManager.getValue("LANGUAGE");
+	if(data)
+	{
+		sprintf(languageFile,"languages\\%s",data);	
+	}
+
+
 	data=configurationFileManager.getValue("BUFFER_SIZE");
 	if(data)
 	{
@@ -347,9 +380,10 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
 	{
-		connectionTimeout=SEC((DWORD)atol(data));
-	}
 
+		connectionTimeout=SEC((DWORD)atol(data));
+
+	}
 
 	data=configurationFileManager.getValue("GUEST_LOGIN");
 	if(data)
@@ -357,12 +391,12 @@ void cserver::initialize(INT OSVer)
 		lstrcpy(guestLogin,data);
 	}
 
+
 	data=configurationFileManager.getValue("GUEST_PASSWORD");
 	if(data)
 	{
 		lstrcpy(guestPassword,data);
 	}
-
 
 	data=configurationFileManager.getValue("DEFAULT_FILENAME");
 	if(data)
@@ -379,7 +413,6 @@ void cserver::initialize(INT OSVer)
 		lstrcat(path,data);
 	}
 
-
 	data=configurationFileManager.getValue("SYSTEM_DIRECTORY");
 	if(data)
 	{
@@ -388,7 +421,7 @@ void cserver::initialize(INT OSVer)
 		lstrcat(systemPath,data);
 	}
 
-	data=configurationFileManager.getValue("USE_ERRORS_FILES");
+	data=configurationFileManager.getValue("USE_ERRS_FILES");
 	if(data)
 	{
 		if(!lstrcmpi(data,"YES"))
@@ -414,9 +447,6 @@ void cserver::initialize(INT OSVer)
 	}
 
 	configurationFileManager.close();
-
-	printf("Web folder:%s\nSystem folder:%s\n",path,systemPath);
-	printf("myServer listen on port %u\n",port_HTTP);
 	
 	/*
 	*Actually is supported only the WinNT access
@@ -430,7 +460,9 @@ void cserver::initialize(INT OSVer)
 
 	if(useLogonOption)
 		LogonUser(guestLogin,NULL,guestPassword,LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT, &guestLoginHandle);
+
 }
+
 
 VOID cserver::controlSizeLogFile()
 {
@@ -453,6 +485,7 @@ VOID cserver::controlSizeLogFile()
 	}
 	setLogFile(logFile);
 }
+
 BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 {
 	if(s==0)
@@ -462,7 +495,6 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	if(verbosity>0)
 		fprintf(logFile,"Connection from:%u.%u.%u.%u on %s:%i at time:%s\n", lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,getHTTPFormattedTime());
 	fflush(logFile);
-
 	static DWORD local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
 	if(!ct->addConnection(s,protID))
@@ -470,7 +502,7 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 		ret=FALSE;
 		closesocket(s);
 		if(verbosity>0)
-			fprintf(logFile,"Error connection from:%i.%i.%i.%i on %s:%i at time:%s\n", lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,getHTTPFormattedTime());
+			fprintf(logFile,"ERR connection from:%i.%i.%i.%i on %s:%i at time:%s\n", lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,getHTTPFormattedTime());
 	}
 
 	if(++local_nThreads>=nThreads)

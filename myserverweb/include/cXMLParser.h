@@ -1,7 +1,7 @@
 #pragma once
 #include "..\StdAfx.h"
 
-class cConfigurationFileManager
+class cXMLParser
 {
 	DWORD buffersize;
 	char *buffer;

@@ -17,10 +17,9 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
-
 #include "..\stdafx.h"
 #include "utility.h"
-#include "..\include\cConfigurationFileManager.h"
+#include "..\include\cXMLParser.h"
 #include "..\resource.h"
 #include "ClientsTHREAD.h"
 extern BOOL mustEndServer;
@@ -31,11 +30,14 @@ class cserver
 	friend  unsigned int WINAPI startClientsTHREAD(void* pParam);
 	friend class ClientsTHREAD;
 	friend LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM);
+	friend BOOL WINAPI control_handler (DWORD control_type);
 private:
-	cConfigurationFileManager configurationFileManager;
+	cXMLParser configurationFileManager;
+	cXMLParser languageParser;
 	HINSTANCE hInst;
 	MIME_Manager mimeManager;
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
+	char languageFile[MAX_PATH];
 	WORD port_HTTP;
 	DWORD nThreads;
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
@@ -62,11 +64,13 @@ private:
 	HANDLE listenServerHTTPHandle;
 	DWORD maxLogFileSize;
 	VOID controlSizeLogFile();
+	char msgSending[33];
+	char msgRunOn[33];
+	char msgFolderContents[33];
 public:
 	DWORD getVerbosity();
 	void  setVerbosity(DWORD);
 	void start(HINSTANCE);
 	void stop();
 	void terminate();
-};
-LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM);
+}; LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 

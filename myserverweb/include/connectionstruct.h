@@ -32,4 +32,5 @@ public:
 	SOCKET socket;	
 	DWORD timeout;	
 	CONNECTION* Next;
-};
+}; 
+

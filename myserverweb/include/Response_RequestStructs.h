@@ -56,4 +56,5 @@ struct HTTP_REQUEST_HEADER
 	char RANGEBYTEBEGIN[10];
 	char RANGEBYTEEND[10];	
 
-};
+}; 
+

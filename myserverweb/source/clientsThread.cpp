@@ -6,10 +6,12 @@
 *License as published by the Free Software Foundation; either
 *version 2 of the License, or (at your option) any later version.
 
+
 *This library is distributed in the hope that it will be useful,
 *but WITHOUT ANY WARRANTY; without even the implied warranty of
 *MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 *Library General Public License for more details.
+
 
 *You should have received a copy of the GNU Library General Public
 *License along with this library; if not, write to the
@@ -17,11 +19,11 @@
 *Boston, MA  02111-1307, USA.
 */
 
+
+
 #include "..\stdafx.h"
 #include "..\include\clientsTHREAD.h"
 #include "..\include\cserver.h"
-
-
 
 ClientsTHREAD::ClientsTHREAD()
 {
@@ -48,7 +50,10 @@ BOOL ClientsTHREAD::sendDIRECTORY(LPCONNECTION s,char* folder)
 	static HANDLE  ff;
 	static WIN32_FIND_DATA fd;
 	sprintf(filename,"%s/*.*",folder);
-	sprintf(buffer2,"Folder contents %s//<P>\n<HR>",&folder[startChar]);
+	sprintf(buffer2,"%s",lserver->msgFolderContents);
+	lstrcat(buffer2," ");
+	lstrcat(buffer2,&folder[startChar]);
+	lstrcat(buffer2,"\\<P>\n<HR>");
 	ff=FindFirstFile(filename,&fd);
 	if(ff==INVALID_HANDLE_VALUE)
 	{
@@ -105,7 +110,9 @@ BOOL ClientsTHREAD::sendDIRECTORY(LPCONNECTION s,char* folder)
 		}
 		lstrcat(buffer2,"</TD></TR>\n");
 	}while(FindNextFile(ff,&fd));
-	lstrcat(buffer2,"</TABLE>\n<HR>Running on myServer ");
+	lstrcat(buffer2,"</TABLE>\n<HR>");
+	lstrcat(buffer2,lserver->msgRunOn);
+	lstrcat(buffer2," myServer ");
 	LoadString(lserver->hInst ,IDS_VERSIONAPP,&buffer2[lstrlen(buffer2)],lstrlen(buffer2));
 	FindClose(ff);
 	buildDefaultHttpResponseHeader(&response);	
@@ -178,7 +185,7 @@ BOOL ClientsTHREAD::sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,i
 	static DWORD bytesSent;
 	bytesToSend=filesize;
 	if(lserver->verbosity>2)
-		fprintf(lserver->logFile,"Sending %s\n",filenamePath);
+		fprintf(lserver->logFile,"%s %s\n",lserver->msgSending,filenamePath);
 	for(;;)
 	{
 		fread(buffer,buffersize,1,h);
@@ -512,14 +519,16 @@ BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
 			break;
 	}
 	if(nLines<(DWORD)(nLineChars/100))
-		isValidCommand=FALSE;
+
+	isValidCommand=FALSE;
 	if(lserver->verbosity>4)
 	{
 		if(lserver->verbosity>5)
 			buffer[this->nBytesToRead]='\0';
 		else
 			buffer[maxTotChars]='\0';
-		fprintf(lserver->logFile,"%s\n",buffer);
+
+	fprintf(lserver->logFile,"%s\n",buffer);
 	}
 	if(isValidCommand==FALSE)
 	{
@@ -527,14 +536,15 @@ BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
 		deleteConnection(a);
 		return 0;
 	}
+
 	/*
 	*End control of the HTTP header
 	*/
 
-
 	const int max_URI=MAX_PATH+200;
 	const char seps[]   = " ,\t\n\r";
 	const char cmdseps[]   = ": ,\t\n\r";
+
 	static char *token=0;
 	static char command[96];
 	ZeroMemory(&request,sizeof(request));
@@ -544,8 +554,9 @@ BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
 	const int maxLineToControl=25;
 	static BOOL lineControlled;
 	token=buffer;
+
 	token = strtok( token, cmdseps );
-controlAnotherLine:
+	controlAnotherLine:
 	lineControlled=FALSE;
 	lstrcpy(command,token);
 	
@@ -557,6 +568,7 @@ controlAnotherLine:
 		deleteConnection(a);
 		return 0;
 	}
+
 	if(nLineControlled==1)
 	{
 		/*
@@ -585,6 +597,7 @@ controlAnotherLine:
 				request.URI[i]=token[i];				
 			}
 			request.URI[i]='\0';
+
 			if(containOpts)
 			{
 				for(j=0;i<max;j++)
@@ -625,6 +638,7 @@ controlAnotherLine:
 			containOpts=FALSE;
 			for(i=0;i<max;i++)
 			{
+
 				if(token[i]=='?')
 				{
 					containOpts=TRUE;
@@ -641,6 +655,7 @@ controlAnotherLine:
 				}
 			}
 			request.URIOPTS[0]='\0';
+
 
 			request.URIOPTSPTR=&buffer[maxTotChars];
 			buffer[max(nBytesToRead,buffersize)]='\0';
@@ -675,6 +690,7 @@ controlAnotherLine:
 			lstrcpy(request.URI,token);
 			token = strtok( NULL, seps );
 			lstrcpy(request.VER,token);
+
 			StrTrim(request.URI," /");
 			if(lstrlen(request.URI)>max_URI)
 			{
@@ -718,315 +734,628 @@ controlAnotherLine:
 			a->login[lstrlen(a->login)]=*lbuffer2++;
 		}
 		lbuffer2++;
+
 		while(*lbuffer2)
+
 		{
+
 			a->password[lstrlen(a->password)]=*lbuffer2++;
+
 		}
+
 		free(base64);
+
 	}
+
 	/*Host*/
+
 	if(!lstrcmpi(command,"Host"))
+
 	{
+
 		token = strtok( NULL, seps );
+
 		lineControlled=TRUE;
+
 		lstrcpy(request.HOST,token);
+
 		StrTrim(request.HOST," ");
+
 	}
+
 	/*Accept*/
+
 	if(!lstrcmpi(command,"Accept"))
+
 	{
+
 		token = strtok( NULL, "\n\r" );
+
 		lineControlled=TRUE;
+
 		lstrcat(request.ACCEPT,token);
+
 		StrTrim(request.ACCEPT," ");
+
 	}
+
 	/*Accept-Language*/
+
 	if(!lstrcmpi(command,"Accept-Language"))
+
 	{
+
 		token = strtok( NULL, "\n\r" );
+
 		lineControlled=TRUE;
+
 		lstrcpy(request.ACCEPTLAN,token);
+
 		StrTrim(request.ACCEPTLAN," ");
+
 	}
+
 	/*Accept-Charset*/
+
 	if(!lstrcmpi(command,"Accept-Charset"))
+
 	{
+
 		token = strtok( NULL, "\n\r" );
+
 		lineControlled=TRUE;
+
 		lstrcpy(request.ACCEPTCHARSET,token);
+
 		StrTrim(request.ACCEPTCHARSET," ");
+
 	}
+
+
 
 	/*Accept-Encoding*/
+
 	if(!lstrcmpi(command,"Accept-Encoding"))
+
 	{
+
 		token = strtok( NULL, "\n\r" );
+
 		lineControlled=TRUE;
+
 		lstrcpy(request.ACCEPTENC,token);
+
 		StrTrim(request.ACCEPTENC," ");
+
 	}
+
 	/*Connection*/
+
 	if(!lstrcmpi(command,"Connection"))
+
 	{
+
 		token = strtok( NULL, "\n\r" );
+
 		lineControlled=TRUE;
+
 		lstrcpy(request.CONNECTION,token);
+
 		StrTrim(request.CONNECTION," ");
+
 	}
+
 	/*Range*/
+
 	if(!lstrcmpi(command,"Range"))
+
 	{
+
 		ZeroMemory(request.RANGETYPE,30);
+
 		ZeroMemory(request.RANGEBYTEBEGIN,30);
+
 		ZeroMemory(request.RANGEBYTEEND,30);
+
 		lineControlled=TRUE;
+
 		token = strtok( NULL, "\r\n\t" );
+
 		do
+
 		{
+
 			request.RANGETYPE[lstrlen(request.RANGETYPE)]=*token;
+
 		}
+
 		while(*token++ != '=');
+
 		do
+
 		{
+
 			request.RANGEBYTEBEGIN[lstrlen(request.RANGEBYTEBEGIN)]=*token;
+
 		}
+
 		while(*token++ != '-');
+
 		do
+
 		{
+
 			request.RANGEBYTEEND[lstrlen(request.RANGEBYTEEND)]=*token;
+
 		}
+
 		while(*token++);
+
 		StrTrim(request.RANGETYPE,"= ");
+
 		StrTrim(request.RANGEBYTEBEGIN,"- ");
+
 		StrTrim(request.RANGEBYTEEND," ");
+
 		
+
 		if(lstrlen(request.RANGEBYTEBEGIN)==0)
+
 			lstrcpy(request.RANGEBYTEBEGIN,"0");
+
 		if(lstrlen(request.RANGEBYTEEND)==0)
+
 			lstrcpy(request.RANGEBYTEEND,"-1");
 
+
+
 	}
+
 	/*Referer*/
+
 	if(!lstrcmpi(command,"Referer"))
+
 	{
+
 		token = strtok( NULL, seps );
+
 		lineControlled=TRUE;
+
 		lstrcpy(request.REFERER,token);
+
 		StrTrim(request.REFERER," ");
+
 	}
+
 	if(!lineControlled)
+
 	{
+
 		token = strtok( NULL, "\n" );
+
 	}
+
 	token = strtok( NULL, cmdseps );
+
 	if((token-buffer)<maxTotChars)
+
 		goto controlAnotherLine; 
 
+
+
 	/*
+
 	*END REQUEST STRUCTURE BUILD
+
 	*/
+
 	if(!lstrcmpi(request.CMD,"GET"))
+
 	{
+
 		if(lstrlen(request.HOST)==0)
+
 		{
+
 			raiseError(a,e_400);
+
 			return 0;
+
 		}
+
 		if(!lstrcmpi(request.RANGETYPE,"bytes"))
+
 			sendRESOURCE(a,request.URI,FALSE,FALSE,atoi(request.RANGEBYTEBEGIN),atoi(request.RANGEBYTEEND));
+
 		else
+
 			sendRESOURCE(a,request.URI);
+
 	}else if(!lstrcmpi(request.CMD,"POST"))
+
 	{
+
 		if(lstrlen(request.HOST)==0)
+
 		{
+
 			raiseError(a,e_400);
+
 			return 0;
+
 		}
+
 		if(!lstrcmpi(request.RANGETYPE,"bytes"))
+
 			sendRESOURCE(a,request.URI,FALSE,FALSE,atoi(request.RANGEBYTEBEGIN),atoi(request.RANGEBYTEEND));
+
 		else
+
 			sendRESOURCE(a,request.URI);
+
 	}else if(!lstrcmpi(request.CMD,"HEAD"))
+
 	{
+
 		if(lstrlen(request.HOST)==0)
+
 		{
+
 			raiseError(a,e_400);
+
 			deleteConnection(a);
+
 			return 0;
+
 		}
+
 		sendRESOURCE(a,request.URI,FALSE,TRUE);
+
 	}
+
 	else
+
 	{
+
 		raiseError(a,e_501);
+
 		deleteConnection(a);
+
 		return 0;
+
 	}
+
 	if(lstrcmpi(request.CONNECTION,"Keep-Alive"))
+
 	{
+
 		deleteConnection(a);
+
 		return 0;
+
 	}
+
 	return 1;
 
+
+
 }
+
 LPCONNECTION ClientsTHREAD::findConnection(SOCKET a)
+
 {
+
 	/*
+
 	*Find a connection passing the socket that control it
+
 	*/
+
 	LPCONNECTION c;
+
 	for(c=connections;c;c=c->Next)
+
 	{
+
 		if(c->socket==a)
+
 			return c;
+
 	}
+
 	return NULL;
+
 }
+
 LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
+
 {
+
 	/*
+
 	*Add a new connection.
+
 	*Connections are defined using a CONNECTION struct.
+
 	*/
+
 	WaitForSingleObject(connectionMutex,INFINITE);
+
 	const int maxRcvBuffer=KB(5);
+
 	const BOOL keepAlive=TRUE;
+
 	setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char*)&maxRcvBuffer,sizeof(maxRcvBuffer));
+
 	setsockopt( s,SOL_SOCKET, SO_SNDTIMEO,(char *)&lserver->socketRcvTimeout,sizeof(lserver->socketRcvTimeout));
+
 	setsockopt( s,SOL_SOCKET, SO_KEEPALIVE,(char *)&keepAlive,sizeof(keepAlive));
 
+
+
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
+
 	ZeroMemory(nc,sizeof(CONNECTION));
+
 	nc->socket=s;
+
 	nc->protocol=protID;
+
 	nc->Next=connections;
+
 	connections=nc;
+
 	nConnections++;
+
 	ReleaseMutex(connectionMutex);
+
 	return nc;
+
 }
+
 BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
+
 {
+
 	/*
+
 	*Delete a connection
+
 	*/
+
 	WaitForSingleObject(connectionMutex,INFINITE);
+
 	BOOL ret=FALSE;
+
 	shutdown(s->socket,SD_BOTH );
+
 	do
+
 	{
+
 		err=recv(s->socket,buffer,buffersize,0);
+
 	}while(err && (err!=SOCKET_ERROR));
+
 	closesocket(s->socket); 
 
+
+
 	LPCONNECTION prev=0;
+
 	for(LPCONNECTION i=connections;i;i=i->Next)
+
 	{
+
 		if(i->socket == s->socket)
+
 		{
+
 			if(prev)
+
 				prev->Next=i->Next;
+
 			else
+
 				connections=i->Next;
+
 			free(i);
+
 			ret=TRUE;
+
 			break;
+
 		}
+
 		prev=i;
+
 	}
+
 	nConnections--;
+
 	ReleaseMutex(connectionMutex);
+
 	return ret;
+
 }
+
 void ClientsTHREAD::clearAllConnections()
+
 {
+
 	WaitForSingleObject(connectionMutex,INFINITE);
+
 	LPCONNECTION c=connections;
+
 	for(;c;c=c->Next)
+
 	{
+
 		deleteConnection(c);
+
 	}
+
 	connections=NULL;
+
 	nConnections=0;
+
 	ReleaseMutex(connectionMutex);
+
 }
+
+
+
 
 
 void ClientsTHREAD::buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
+
 {
+
 	/*
+
 	*Here is builded the HEADER of a HTTP response.
+
 	*Passing a HTTP_RESPONSE_HEADER struct this build
+
 	*a header string
+
     */
+
 	if(response->isError)
+
 		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM,response->ERROR_TYPE);
+
 	else
+
 		sprintf(str,"HTTP/%s 200 OK\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\n",response->VER,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM);
 
+
+
 	if(lstrlen(response->DATE)>5)
+
 	{
+
 		lstrcat(str,"Date:");
+
 		lstrcat(str,response->DATE);
+
 		lstrcat(str,"\r\n");
+
 	}
+
 	if(lstrlen(response->DATEEXP)>5)
+
 	{
+
 		lstrcat(str,"Expires:");
+
 		lstrcat(str,response->DATEEXP);
+
 		lstrcat(str,"\r\n");
+
 	}
+
 	if(lstrlen(response->OTHER)>5)
+
 	{
+
 		lstrcat(str,response->OTHER);
+
 		lstrcat(str,"\r\n");
+
 	}
+
 	lstrcat(str,"Accept-Ranges: bytes\r\n");
+
 	lstrcat(str,"\n");
 
+
+
 }
+
 void ClientsTHREAD::buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER* response)
+
 {
+
 	ZeroMemory(response,sizeof(HTTP_RESPONSE_HEADER));
+
 	lstrcpy(response->MIME,"text/html");
+
 	lstrcpy(response->VER,"1.1");
+
 	lstrcpy(response->DATE,getHTTPFormattedTime());
 
+
+
 	lstrcpy(response->DATEEXP,getHTTPFormattedTime());
+
 	lstrcpy(response->SERVER_NAME,"MyServer");
+
 }
+
+
 
 BOOL ClientsTHREAD::getMIME(char *MIME,char *filename,char *dest,char *dest2)
+
 {
+
 	getFileExt(dest,filename);
+
 	/*
+
 	*Return true if file is registered by a CGI
+
 	*/
+
 	return lserver->mimeManager.getMIME(dest,MIME,dest2);
+
 }
+
 void ClientsTHREAD::raiseError(LPCONNECTION a,int ID)
+
 {
+
 	static HTTP_RESPONSE_HEADER response;
+
 	if(ID==e_401AUTH)
+
 	{
+
 		sprintf(buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->serverName,getHTTPFormattedTime());
+
 		send(a->socket,buffer2,lstrlen(buffer2),0);
+
 		return;
+
 	}
+
 	if(lserver->useMessagesFiles)
+
 	{
+
 		sendRESOURCE(a,HTTP_ERROR_HTMLS[ID],TRUE);
+
 		return;
+
 	}
+
 	buildDefaultHttpResponseHeader(&response);
 
+
+
 	response.isError=TRUE;
+
 	lstrcpy(response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
+
 	sprintf(response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
+
 	buildHttpResponseHeader(buffer,&response);
+
 	lstrcat(buffer,HTTP_ERROR_MSGS[ID]);
+
 	send(a->socket,buffer,lstrlen(buffer), 0);
+
 }
+
+
 

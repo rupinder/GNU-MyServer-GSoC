@@ -276,7 +276,8 @@ void pause()
 		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
 		if (service)
 		{
-			ControlService (service, SERVICE_CONTROL_PAUSE,&MyServiceStatus);
+			ControlService (service, 
+SERVICE_CONTROL_PAUSE,&MyServiceStatus);
 			Invalidate2();
 			paint(hWnd);
 			while (QueryServiceStatus (service, &MyServiceStatus))
@@ -301,7 +302,8 @@ void stop()
 		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
 		if (service)
 		{
-			ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);
+			ControlService (service, 
+SERVICE_CONTROL_STOP,&MyServiceStatus);
 			Invalidate2();
 			paint(hWnd);
 			while (QueryServiceStatus (service, &MyServiceStatus))
@@ -346,7 +348,10 @@ VOID install_service()
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{
-		service = CreateService(manager,"myServer","myServer",SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,SERVICE_DEMAND_START, SERVICE_ERROR_IGNORE, path,0, 0, 0, 0, 0);
+		service = 
+CreateService(manager,"myServer","myServer",SERVICE_ALL_ACCESS, 
+SERVICE_WIN32_OWN_PROCESS,SERVICE_DEMAND_START, SERVICE_ERROR_IGNORE, path,0, 0, 
+0, 0, 0);
 
 		if (service)
 		{
@@ -366,7 +371,8 @@ VOID remove_service()
 		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
 		if (service)
 		{
-			ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);
+			ControlService (service, 
+SERVICE_CONTROL_STOP,&MyServiceStatus);
 			while (QueryServiceStatus (service, &MyServiceStatus))
 			if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
 				break;
@@ -433,4 +439,5 @@ void paint(HWND hWnd)
 VOID register_GuestUser()
 {
 
-}
+} 
+

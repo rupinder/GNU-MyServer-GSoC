@@ -5,12 +5,10 @@
 *modify it under the terms of the GNU Library General Public
 *License as published by the Free Software Foundation; either
 *version 2 of the License, or (at your option) any later version.
-
 *This library is distributed in the hope that it will be useful,
 *but WITHOUT ANY WARRANTY; without even the implied warranty of
 *MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 *Library General Public License for more details.
-
 *You should have received a copy of the GNU Library General Public
 *License along with this library; if not, write to the
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -18,7 +16,6 @@
 */
 #pragma once
 #include "..\stdafx.h"
-
 #define KB(x) (x*1024)
 #define MB(x) (KB(x)*1024)
 #define SEC(x) (x*1000)
@@ -32,7 +29,6 @@
 
 INT getOSVersion();
 int getPathRecursionLevel(char*);
-void printSystemInfoOnLogFile();
 DWORD logFileWrite(char*);
 void setLogFile(FILE*);
 void gotoNextLine(char*);
@@ -42,4 +38,3 @@ char *getHTTPFormattedTime(void);
 char *getHTTPFormattedTime(tm*);
 void getFileSize(DWORD*,FILE*);
 VOID StrTrim(LPSTR,LPSTR);
-void printOSInfo(INT nVer=0);

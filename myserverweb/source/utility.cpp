@@ -50,48 +50,7 @@ INT getOSVersion()
 	}
 	return ret;
 }	
-void printSystemInfoOnLogFile()
-{
-	SYSTEM_INFO si;
-	OSVERSIONINFO osvi;
-	GetSystemInfo(&si);
-	char localbuffer[128];
-	sprintf(localbuffer,"myServer is running on a %u\n",si.dwProcessorType);
-	logFileWrite(localbuffer);
-	sprintf(localbuffer,"Number of processors:%u\n",si.dwNumberOfProcessors);
-	logFileWrite(localbuffer);
 
-	osvi.dwOSVersionInfoSize=sizeof(osvi);
-	GetVersionEx(&osvi);
-	switch(osvi.dwMinorVersion)
-	{
-	case 0:
-		if(osvi.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-			logFileWrite("Running on Windows 95\n");
-		else
-			logFileWrite("Running on Windows 2000 or NT 4.0\n");
-
-		break;
-	case 10:
-		logFileWrite("Running on Windows 98\n");
-		break;	
-	case 90:
-		logFileWrite("Running on Windows ME\n");
-		break;
-	case 51:
-		logFileWrite("Running on Windows NT 3.51\n");
-		break;
-	case 1:
-		logFileWrite("Running on Windows XP or .NET SERVER family\n");
-		break;
-	}
-	if(osvi.dwPlatformId==VER_PLATFORM_WIN32s)
-	{
-		logFileWrite("myServer cannot run on a 16 bit platform\n");
-		mustEndServer=TRUE;
-		return;
-	}
-}
 DWORD logFileWrite(char* str)
 {
 	DWORD nbr=lstrlen(str);
@@ -143,7 +102,6 @@ char *getHTTPFormattedTime(tm*  gmtime)
 	return localTimeString;
 }
 
-
 void getFileSize(DWORD* fsd,FILE *f)
 {
 	static __int64 fs;
@@ -170,6 +128,7 @@ int getPathRecursionLevel(char* path)
 	while( token != NULL );
 	return rec;
 }
+
 
 VOID StrTrim(LPSTR str,LPSTR trimChars)
 {
@@ -222,29 +181,5 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 				}
 			}
 		}
-	}
-}
-
-void printOSInfo(INT nVer)
-{
-	if(nVer==0)
-		nVer=getOSVersion();
-	switch(nVer)
-	{
-		case OS_WINDOWS_2000:
-			printf("Current OS is Windows 2000 or NT4\n");
-			break;
-		case OS_WINDOWS_NT3:
-			printf("Current OS is Windows NT\n");
-			break;
-		case OS_WINDOWS_9X:
-			printf("Current OS is Windows 9X\n");
-			break;
-		case OS_WINDOWS_XP:
-			printf("Current OS is Windows XP or .NET\n");
-			break;
-		default:
-			printf("Unknown OS\n");
-			break;
 	}
 }
