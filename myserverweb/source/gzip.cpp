@@ -50,21 +50,19 @@ char GZIP_HEADER[]={(char)0x1f,(char)0x8b,Z_DEFLATED,0,0,0,0,0,0,0x03};
 /*!
 *Initialize the gzip structure value.
 */
-u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long ,gzip::gzip_data* data)
+u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long)
 {
-	if(data==0)
-		data=&(this->data);
 #ifndef DO_NOT_USE_GZIP		
 	long level = Z_DEFAULT_COMPRESSION;
 
-	data->initialized=1;
-	data->data_size=0;
-	data->crc = crc32(0L, Z_NULL, 0);
-	data->stream.zalloc = Z_NULL;
-	data->stream.zfree = Z_NULL;
-	data->stream.opaque = Z_NULL;
-	data->stream.data_type=Z_BINARY;
-	return deflateInit2(&(data->stream), level, Z_DEFLATED,-MAX_WBITS, MAX_MEM_LEVEL,0);
+	data.initialized=1;
+	data.data_size=0;
+	data.crc = crc32(0L, Z_NULL, 0);
+	data.stream.zalloc = Z_NULL;
+	data.stream.zfree = Z_NULL;
+	data.stream.opaque = Z_NULL;
+	data.stream.data_type=Z_BINARY;
+	return deflateInit2(&(data.stream), level, Z_DEFLATED,-MAX_WBITS, MAX_MEM_LEVEL,0);
 #else 
 	return 0;
 #endif
@@ -74,12 +72,10 @@ u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long ,gzip::gzip_data* data
 /*!
 *Compress the in buffer to the out buffer using the gzip compression.
 */
-u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip::gzip_data* data)
+u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT)
 {
-	if(data==0)
-		data=&(this->data);
 #ifndef DO_NOT_USE_GZIP	
-	u_long old_total_out=data->stream.total_out;
+	u_long old_total_out=data.stream.total_out;
 	uLongf destLen=sizeOUT;
 	int ret;
 
@@ -87,16 +83,16 @@ u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip:
 	if(compressBound(sizeIN)>(u_long)sizeOUT)
 		return 0;
 #endif
-	data->stream.data_type=Z_BINARY;
-	data->stream.next_in = (Bytef*) in;
-	data->stream.avail_in = sizeIN;
-	data->stream.next_out = (Bytef*) out;
-	data->stream.avail_out = destLen;
-	ret = deflate(&(data->stream), Z_FULL_FLUSH);
+	data.stream.data_type=Z_BINARY;
+	data.stream.next_in = (Bytef*) in;
+	data.stream.avail_in = sizeIN;
+	data.stream.next_out = (Bytef*) out;
+	data.stream.avail_out = destLen;
+	ret = deflate(&(data.stream), Z_FULL_FLUSH);
 
-	data->data_size+=data->stream.total_out-old_total_out;
-	data->crc = crc32(data->crc, (const Bytef *) in, sizeIN);
-	return data->stream.total_out-old_total_out;
+	data.data_size+=data.stream.total_out-old_total_out;
+	data.crc = crc32(data.crc, (const Bytef *) in, sizeIN);
+	return data.stream.total_out-old_total_out;
 #else 
 	/*
 	*If is specified DO_NOT_USE_GZIP copy the input buffer to the output one as it is.
@@ -109,40 +105,36 @@ u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip:
 /*!
 *Close the gzip compression
 */
-u_long gzip::gzip_free(char* ,u_long ,char *,u_long ,gzip::gzip_data* data)
+u_long gzip::gzip_free(char* ,u_long ,char *,u_long)
 {
-	if(data==0)
-		data=&(this->data);
 #ifndef DO_NOT_USE_GZIP
-	if(data->initialized=0)
+	if(data.initialized=0)
 		return 0;
-	data->initialized=0;
+	data.initialized=0;
 	int ret;
-	ret = deflateEnd(&(data->stream));
+	ret = deflateEnd(&(data.stream));
 #endif
 	return 0;
 }
 /*!
 *Flush all the data
 */
-u_long gzip::gzip_flush(char *out,u_long sizeOUT,gzip::gzip_data* data)
+u_long gzip::gzip_flush(char *out,u_long sizeOUT)
 {
-	if(data==0)
-		data=&(this->data);
 #ifndef DO_NOT_USE_GZIP	
-	u_long old_total_out=data->stream.total_out;
+	u_long old_total_out=data.stream.total_out;
 	uLongf destLen=sizeOUT;
 	int ret;
 
-	data->stream.data_type=Z_BINARY;
-	data->stream.next_in = 0;
-	data->stream.avail_in = 0;
-	data->stream.next_out = (Bytef*) out;
-	data->stream.avail_out = destLen;
-	ret = deflate(&(data->stream), Z_FINISH);
+	data.stream.data_type=Z_BINARY;
+	data.stream.next_in = 0;
+	data.stream.avail_in = 0;
+	data.stream.next_out = (Bytef*) out;
+	data.stream.avail_out = destLen;
+	ret = deflate(&(data.stream), Z_FINISH);
 
-	data->data_size+=data->stream.total_out-old_total_out;
-	return data->stream.total_out-old_total_out;
+	data.data_size+=data.stream.total_out-old_total_out;
+	return data.stream.total_out-old_total_out;
 #else 
 	return 0;
 #endif
@@ -150,13 +142,11 @@ u_long gzip::gzip_flush(char *out,u_long sizeOUT,gzip::gzip_data* data)
 /*!
 *Update the existent CRC
 */
-u_long gzip::gzip_updateCRC(char* buffer,int size,gzip::gzip_data* data)
+u_long gzip::gzip_updateCRC(char* buffer,int size)
 {
-	if(data==0)
-		data=&(this->data);
 #ifndef DO_NOT_USE_GZIP		
-	data->crc = crc32(data->crc, (const Bytef *) buffer,(u_long)size);
-	return data->crc;
+	data.crc = crc32(data.crc, (const Bytef *) buffer,(u_long)size);
+	return data.crc;
 #else
 	return 0;
 #endif
@@ -164,23 +154,31 @@ u_long gzip::gzip_updateCRC(char* buffer,int size,gzip::gzip_data* data)
 /*!
 *Get the GZIP footer.
 */
-u_long gzip::gzip_getFOOTER(char *str,int size,gzip::gzip_data* data)
+u_long gzip::gzip_getFOOTER(char *str,int size)
 {
-	if(data==0)
-		data=&(this->data);
 #ifndef DO_NOT_USE_GZIP		
 	char *footer =  str;
-	footer[0] = (char) (data->crc) & 0xFF;
-	footer[1] = (char) ((data->crc) >> 8) & 0xFF;
-	footer[2] = (char) ((data->crc) >> 16) & 0xFF;
-	footer[3] = (char) ((data->crc) >> 24) & 0xFF;
-	footer[4] = (char) data->stream.total_in & 0xFF;
-	footer[5] = (char) (data->stream.total_in >> 8) & 0xFF;
-	footer[6] = (char) (data->stream.total_in >> 16) & 0xFF;
-	footer[7] = (char) (data->stream.total_in >> 24) & 0xFF;
+	footer[0] = (char) (data.crc) & 0xFF;
+	footer[1] = (char) ((data.crc) >> 8) & 0xFF;
+	footer[2] = (char) ((data.crc) >> 16) & 0xFF;
+	footer[3] = (char) ((data.crc) >> 24) & 0xFF;
+	footer[4] = (char) data.stream.total_in & 0xFF;
+	footer[5] = (char) (data.stream.total_in >> 8) & 0xFF;
+	footer[6] = (char) (data.stream.total_in >> 16) & 0xFF;
+	footer[7] = (char) (data.stream.total_in >> 24) & 0xFF;
 	footer[8] = '\0';
 	return GZIP_FOOTER_LENGTH;
 #else
 	return 0;
 #endif
+}
+/*!
+*Copy the GZIP header in the buffer.
+*/
+u_long gzip::gzip_getHEADER(char *buffer,u_long buffersize)
+{
+	if(buffersize<GZIP_HEADER_LENGTH)
+		return 0;
+	memcpy(buffer,GZIP_HEADER,GZIP_HEADER_LENGTH);
+	return GZIP_HEADER_LENGTH;
 }

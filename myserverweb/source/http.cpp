@@ -316,7 +316,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	*/
 	u_long gzip_dataused=0;
 	if(useGZIP)
-		gzip.gzip_initialize(td->buffer2,td->buffersize2,&td->buffer[GZIP_HEADER_LENGTH],td->buffersize,0);
+		gzip.gzip_initialize(td->buffer2,td->buffersize2,td->buffer,td->buffersize);
 	for(;;)
 	{
 		u_long nbr;
@@ -334,16 +334,15 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 			{
 				if(gzipheaderadded==0)
 				{
-					memcpy(td->buffer,GZIP_HEADER,GZIP_HEADER_LENGTH);
-					gzip_dataused+=GZIP_HEADER_LENGTH;
+					gzip_dataused+=gzip.gzip_getHEADER(td->buffer,td->buffersize);
 					gzipheaderadded=1;
 				}
-				gzip_dataused+=gzip.gzip_compress(td->buffer2,nbr,&td->buffer[gzip_dataused],td->buffersize-gzip_dataused,0);
+				gzip_dataused+=gzip.gzip_compress(td->buffer2,nbr,&td->buffer[gzip_dataused],td->buffersize-gzip_dataused);
 			}
 			else
 			{
-				gzip_dataused=gzip.gzip_flush(td->buffer,td->buffersize,0);
-				gzip.gzip_free(td->buffer2,nbr,td->buffer,td->buffersize,0);
+				gzip_dataused=gzip.gzip_flush(td->buffer,td->buffersize);
+				gzip.gzip_free(td->buffer2,nbr,td->buffer,td->buffersize);
 			}
 
 

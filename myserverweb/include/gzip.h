@@ -41,12 +41,13 @@ public:
 		u_long data_size;
 		u_long initialized;
 	};
-	u_long gzip_updateCRC(char* buffer,int size,gzip_data* data);
-	u_long gzip_getFOOTER(char *str,int size,gzip_data* data);
-	u_long gzip_initialize(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
-	u_long gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
-	u_long gzip_free(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
-	u_long gzip_flush(char *out,u_long sizeOUT,gzip_data* data);
+	u_long gzip_updateCRC(char* buffer,int size);
+	u_long gzip_getFOOTER(char *str,int size);
+	u_long gzip_initialize(char* in,u_long sizeIN,char *out,u_long sizeOUT);
+	u_long gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT);
+	u_long gzip_free(char* in,u_long sizeIN,char *out,u_long sizeOUT);
+	u_long gzip_flush(char *out,u_long sizeOUT);
+	u_long gzip_getHEADER(char *buffer,u_long buffersize);
 private:
 	gzip_data data;
 };
