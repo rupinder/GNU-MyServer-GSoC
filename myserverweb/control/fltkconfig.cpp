@@ -2787,7 +2787,7 @@ Vector list;
 // Say something...
 StatusDlgProgress->value(0);
 StatusDlgProgress->label("0%");
-StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (1/4)"));
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (1/5)"));
 StatusDlg->show();
 fl_wait(200);  // let fltk do its thing
 // ======== Progress display ========
@@ -2804,10 +2804,28 @@ for(i = 0; i < list.size(); i++) {
 }
 
 // ======== Progress display ========
+// Say something...
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (2/5)"));
+StatusDlg->show();
+fl_wait(200);  // let fltk do its thing
+// ======== Progress display ========
+
+// Get remote protocols
+ret = Server.getDynamicProtocols(list);
+if(ret) {
+  StatusDlg->hide();
+  return -1;
+}
+vHostConf.loadProtocols(list);
+vHostConf.populateProtocol(Protocol);
+
+// ======== Progress display ========
 fl_wait(50);  // small delay
 StatusDlgProgress->value(0);
 StatusDlgProgress->label("0%");
-StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (2/4)"));
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (3/5)"));
 fl_wait(50);  // small delay
 // ======== Progress display ========
 
@@ -2831,7 +2849,7 @@ load_myserver_core();
 fl_wait(50);  // small delay
 StatusDlgProgress->value(0);
 StatusDlgProgress->label("0%");
-StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (3/4)"));
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (4/5)"));
 fl_wait(50);  // small delay
 // ======== Progress display ========
 
@@ -2856,7 +2874,7 @@ MimeConf.populateMime(Mime);
 fl_wait(50);  // small delay
 StatusDlgProgress->value(0);
 StatusDlgProgress->label("0%");
-StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (4/4)"));
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (5/5)"));
 fl_wait(50);  // small delay
 // ======== Progress display ========
 

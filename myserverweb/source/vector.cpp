@@ -58,6 +58,14 @@ VectorNode * Vector::add(const char * Text, void * Data)
    return NewNode;
 }
 
+void Vector::add(Vector & cpy)
+{
+   for(int i = 0; i < cpy.size(); i++)
+     {
+	add(cpy.at(i)->Text, cpy.at(i)->Data);
+     }
+}
+
 void Vector::remove(int index)
 {
    if(VectorSize == 0)

@@ -34,6 +34,7 @@ class Vector
    Vector();
    ~Vector();
    VectorNode * add(const char * Text, void * Data = NULL);
+   void add(Vector &);
    void remove(int );  // you must free/delete "Data"
    void clear();       // before calling
    int size();

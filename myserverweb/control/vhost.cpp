@@ -33,6 +33,7 @@ const char * EMPTY = "";
 vHostXML::~vHostXML()
 {
    clear();
+   Dynamic.clear();
 }
 
 void vHostXML::clear()
@@ -153,8 +154,12 @@ int vHostXML::load_core(cXMLParser & parser)
 		  else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"CONTROL"))
 		    setProtocol(NameNo, PROTOCOL_CONTROL);
 		  else
-		    {
-		       // Do nothing?
+		    { // dynamic protocol
+		       int i = Dynamic.get((const char *)lcur->children->content);
+		       if(i != -1)
+			 setProtocol(NameNo, i + PROTOCOL_DYNAMIC);
+		       else
+			 setProtocol(NameNo, PROTOCOL_HTTP);
 		    }
 	       }
 	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
@@ -264,8 +269,8 @@ int vHostXML::save_core(cXMLParser & xmlFile)
 	   case PROTOCOL_CONTROL:
 	     xmlFile.addChild("PROTOCOL", "CONTROL");
 	     break;
-	   default:
-	     // do something here?
+	   default: // Dynamic protocol
+	     xmlFile.addChild("PROTOCOL", Dynamic.at(getProtocol(i) - PROTOCOL_DYNAMIC)->Text);
 	     break;
 	  }
 
@@ -502,6 +507,25 @@ const char * vHostXML::getWarninglog(int vHostNo)
    if(vHosts.isempty())
      return EMPTY;
    return ((vHostNode *)(vHosts.at(vHostNo)->Data))->Warninglog;
+}
+
+void vHostXML::populateProtocol(Fl_Choice * o)
+{
+   // Fl_Menu_ has a "terminator" item
+   while(o->size() - 1 > PROTOCOL_DYNAMIC)
+     {
+	o->remove(o->size() - 2);
+     }
+   for(int i = 0; i < Dynamic.size(); i++)
+     {
+	o->add(Dynamic.at(i)->Text, 0, 0, 0, 0);
+     }
+}
+
+void vHostXML::loadProtocols(Vector & list)
+{
+   Dynamic.clear();
+   Dynamic.add(list);
 }
 
 static inline void delstr(char * val)

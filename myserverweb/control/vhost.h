@@ -30,7 +30,8 @@ enum
    PROTOCOL_HTTP = 0,
    PROTOCOL_HTTPS,
    PROTOCOL_FTP,
-   PROTOCOL_CONTROL
+   PROTOCOL_CONTROL,
+   PROTOCOL_DYNAMIC
 };
 
 extern const char * EMPTY;
@@ -88,9 +89,13 @@ class vHostXML
    const char * getSysfolder(int);
    const char * getAccesseslog(int);
    const char * getWarninglog(int);
+   /* Dynamic protocals */
+   void populateProtocol(Fl_Choice *);
+   void loadProtocols(Vector &);
  private :
    void DeletevHostNode(vHostNode *);
    Vector vHosts;
+   Vector Dynamic;
 };
 
 #endif

@@ -272,10 +272,10 @@ int ControlClient::getDynamicProtocols(Vector & list)
    ret = getResponse();
    if(ret)
      return ret;
-   if(DataPos == -1)
-     return -1;
-   /* Warning: this is destructive to Buffer */
    list.clear();
+   if(DataPos == -1)
+     return 0; // empty list
+   /* Warning: this is destructive to Buffer */
    int i, len;
    char * chrptr = &Buffer[DataPos];
    len = Buffer.GetLength();
@@ -301,10 +301,10 @@ int ControlClient::getConnections(Vector & list)
    ret = getResponse();
    if(ret)
      return ret;
-   if(DataPos == -1)
-     return -1;
-   /* Warning: this is destructive to Buffer */
    list.clear();
+   if(DataPos == -1)
+     return 0; // empty list
+   /* Warning: this is destructive to Buffer */
    int i, len;
    char * chrptr = &Buffer[DataPos];
    len = Buffer.GetLength();
