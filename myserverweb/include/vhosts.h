@@ -69,8 +69,8 @@ public:
 		void* context;
 		void* method;
 #endif
-		char certificateFile[MAX_PATH];
-		char privateKeyFile[MAX_PATH];
+		char *certificateFile;
+		char *privateKeyFile;
 		char password[32];
 	};
 	
@@ -109,6 +109,7 @@ public:
 #else
 	void* getSSLContext();
 #endif
+  /*! Additional data for log files. Defined in configuration files. */
 	char accessLogOpt[LOG_FILES_OPTS_LEN];
 	char warningLogOpt[LOG_FILES_OPTS_LEN];
 	

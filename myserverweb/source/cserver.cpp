@@ -69,7 +69,7 @@ int mustEndServer;
 cserver::cserver()
 {
 	threads=0;
-	listingThreads=0;
+	listeningThreads=0;
   languages_path=0;
 	main_configuration_file=0;
   vhost_configuration_file=0;
@@ -535,8 +535,9 @@ void cserver::stop()
 
 /*!
  *Unload the server.
+ *Return nonzero on errors.
  */
-void cserver::terminate()
+int cserver::terminate()
 {
 	/*!
    *Stop the server execution.
@@ -607,6 +608,7 @@ void cserver::terminate()
 	{
 		printf("MyServer is stopped.\n\n");
 	}
+  return 0;
 }
 
 /*!
@@ -659,6 +661,7 @@ char *cserver::getServerAdmin()
 /*!
  *Here is loaded the configuration of the server.
  *The configuration file is a XML file.
+ *Return nonzero on errors.
  */
 int cserver::initialize(int /*!os_ver*/)
 {
@@ -695,6 +698,7 @@ int cserver::initialize(int /*!os_ver*/)
       preparePrintError();
 			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
 			endPrintError();
+      return -1;
     }
 		strcpy(languages_path,"languages/");
 	}
@@ -708,7 +712,7 @@ int cserver::initialize(int /*!os_ver*/)
       preparePrintError();
 			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
 			endPrintError();
-      return 1;
+      return -1;
     }
     sprintf(languages_path,"%s/share/myserver/languages/", PREFIX ) ;
 #else
@@ -720,7 +724,7 @@ int cserver::initialize(int /*!os_ver*/)
       preparePrintError();
 			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
 			endPrintError();
-      return 1;
+      return -1;
     }
 		strcpy(languages_path,"/usr/share/myserver/languages/");
 #endif
@@ -735,7 +739,7 @@ int cserver::initialize(int /*!os_ver*/)
     preparePrintError();
     printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
     endPrintError();
-    return 1;
+    return -1;
   }
   strcpy(languages_path, "languages/" );
 #endif 
@@ -751,21 +755,21 @@ int cserver::initialize(int /*!os_ver*/)
 	{
     main_configuration_file = new char[13];
     if(main_configuration_file == 0)
-      return 1;
+      return -1;
 		strcpy(main_configuration_file,"myserver.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("~/.myserver/myserver.xml"))
 	{
     main_configuration_file = new char[25];
     if(main_configuration_file == 0)
-      return 1;
+      return -1;
 		strcpy(main_configuration_file,"~/.myserver/myserver.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
 	{
     main_configuration_file = new char[27];
     if(main_configuration_file == 0)
-      return 1;
+      return -1;
 		strcpy(main_configuration_file,"/etc/myserver/myserver.xml");
 	}
 	else
@@ -775,18 +779,18 @@ int cserver::initialize(int /*!os_ver*/)
 	{
     main_configuration_file = new char[13];
     if(main_configuration_file == 0)
-      return 1;
+      return -1;
 		strcpy(main_configuration_file,"myserver.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
-		int ret=inputF.openFile("myserver.xml.default", 
-                            MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		int ret = inputF.openFile("myserver.xml.default", 
+                              MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 		if(ret)
 		{
 			preparePrintError();
 			printf("%s\n", languageParser.getValue("ERR_LOADED"));
 			endPrintError();
-			return 1;
+			return -1;
 		}
 		ret = outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE | 
                      MYSERVER_FILE_OPEN_ALWAYS);
@@ -795,16 +799,20 @@ int cserver::initialize(int /*!os_ver*/)
 			preparePrintError();
 			printf("%s\n", languageParser.getValue("ERR_LOADED"));
 			endPrintError();
-			return 1;
+			return -1;
 		}
 		char buffer[512];
 		u_long nbr, nbw;
 		for(;;)
 		{
-			inputF.readFromFile(buffer, 512, &nbr );
+			ret = inputF.readFromFile(buffer, 512, &nbr );
+      if(ret)
+        return -1;
 			if(nbr==0)
 				break;
-			outputF.writeToFile(buffer, nbr, &nbw);
+			ret = outputF.writeToFile(buffer, nbr, &nbw);
+      if(ret)
+        return -1;
 		}
 		inputF.closeFile();
 		outputF.closeFile();
@@ -813,7 +821,7 @@ int cserver::initialize(int /*!os_ver*/)
   {
     main_configuration_file = new char[13];
     if(main_configuration_file == 0)
-      return 1;
+      return -1;
 		strcpy(main_configuration_file,"myserver.xml");
   }
 	configurationFileManager.open(main_configuration_file);
@@ -834,7 +842,7 @@ int cserver::initialize(int /*!os_ver*/)
       preparePrintError();
 			printf("%s\n", languageParser.getValue("ERR_LOADED"));
 			endPrintError();
-			return 1;    
+			return -1;    
     }
 		sprintf(languageFile, "%s/%s", languages_path, data);	
 	}
@@ -847,7 +855,7 @@ int cserver::initialize(int /*!os_ver*/)
       preparePrintError();
 			printf("%s\n", languageParser.getValue("ERR_LOADED"));
 			endPrintError();
-			return 1;    
+			return -1;    
     }
 		strcpy(languageFile, "languages/english.xml");
 	}
@@ -904,7 +912,7 @@ int cserver::initialize(int /*!os_ver*/)
 	if(languageParser.open(languageFile))
   {
       printf("Error loading %s\n", languageFile);
-      return 1;
+      return -1;
   }
 	printf("%s\n", languageParser.getValue("MSG_LANGUAGE"));
 	return 0;
@@ -1262,10 +1270,15 @@ int cserver::connections_mutex_unlock()
 	c_mutex->myserver_mutex_unlock();
 	return 1;
 }
-void cserver::loadSettings()
+/*!
+ *Load the main server settings.
+ *Return nonzero on errors.
+ */
+int cserver::loadSettings()
 {
 
 	u_long i;
+  int ret;
 
 #ifndef WIN32
 /* Under an *nix environment look for .xml files in the following order.
@@ -1278,21 +1291,21 @@ void cserver::loadSettings()
 	{
     mime_configuration_file = new char[14];
     if(mime_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("~/.myserver/MIMEtypes.xml"))
 	{
     mime_configuration_file = new char[26];
     if(mime_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(mime_configuration_file,"~/.myserver/MIMEtypes.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("/etc/myserver/MIMEtypes.xml"))
 	{
     mime_configuration_file = new char[28];
     if(mime_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(mime_configuration_file,"/etc/myserver/MIMEtypes.xml");
 	}
 	else
@@ -1302,29 +1315,36 @@ void cserver::loadSettings()
 	{
     mime_configuration_file = new char[14];
     if(mime_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
-		int ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|
-                            MYSERVER_FILE_OPEN_IFEXISTS);
-		if(ret<1)
+    ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|
+                        MYSERVER_FILE_OPEN_IFEXISTS);
+		if(ret)
 		{
 			preparePrintError();
 			printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
 			endPrintError();	
-			return;
+			return -1;
 		}
-		outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|
-                     MYSERVER_FILE_OPEN_ALWAYS);
+		ret = outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|
+                           MYSERVER_FILE_OPEN_ALWAYS);
+    if(ret)
+      return -1;
+
 		char buffer[512];
 		u_long nbr, nbw;
 		for(;;)
 		{
-			inputF.readFromFile(buffer, 512, &nbr );
+			ret = inputF.readFromFile(buffer, 512, &nbr );
+      if(ret)
+        return -1;
 			if(nbr==0)
 				break;
-			outputF.writeToFile(buffer, nbr, &nbw);
+			ret = outputF.writeToFile(buffer, nbr, &nbw);
+      if(ret)
+        return -1;
 		}
 		inputF.closeFile();
 		outputF.closeFile();
@@ -1333,8 +1353,7 @@ void cserver::loadSettings()
 	{
     mime_configuration_file = new char[14];
     if(mime_configuration_file == 0)
-      return;
-
+      return -1;
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 	}
 	/*! Load the MIME types. */
@@ -1349,7 +1368,7 @@ void cserver::loadSettings()
     preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
     endPrintError();
-		return;
+		return -1;
 	}
 	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), 
          (u_int)getCPUCount());
@@ -1366,21 +1385,21 @@ void cserver::loadSettings()
 	{
     vhost_configuration_file = new char[17];
     if(vhost_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("~/.myserver/virtualhosts.xml"))
 	{
     vhost_configuration_file = new char[29];
     if(vhost_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(vhost_configuration_file,"~/.myserver/virtualhosts.xml");
 	}
 	else if(MYSERVER_FILE::fileExists("/etc/myserver/virtualhosts.xml"))
 	{
     vhost_configuration_file = new char[31];
     if(vhost_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(vhost_configuration_file,"/etc/myserver/virtualhosts.xml");
 	}
 	else
@@ -1390,31 +1409,37 @@ void cserver::loadSettings()
 	{
     vhost_configuration_file = new char[17];
     if(vhost_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
-		int ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | 
+		ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | 
                               MYSERVER_FILE_OPEN_IFEXISTS );
-		if(ret<1)
+		if(ret)
 		{
 			preparePrintError();
 			printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
 			endPrintError();	
-			return;
+			return -1;
 		}
-		outputF.openFile("virtualhosts.xml", 
-                     MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		ret = outputF.openFile("virtualhosts.xml", 
+                           MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+    if(ret)
+      return -1;
 		char buffer[512];
 		u_long nbr, nbw;
 		for(;;)
 		{
-			inputF.readFromFile(buffer, 512, &nbr );
+			ret = inputF.readFromFile(buffer, 512, &nbr );
+      if(ret)
+        return -1;
 			if(nbr==0)
 				break;
-			outputF.writeToFile(buffer, nbr, &nbw);
+			ret = outputF.writeToFile(buffer, nbr, &nbw);
+      if(ret)
+        return -1;
 		}
-		
+
 		inputF.closeFile();
 		outputF.closeFile();
 	}	
@@ -1422,13 +1447,13 @@ void cserver::loadSettings()
 	{
     vhost_configuration_file = new char[17];
     if(vhost_configuration_file == 0)
-      return;
+      return -1;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	}
   vhostList = new vhostmanager();
   if(vhostList == 0)
   {
-    return;
+    return -1;
   }
 	/*! Load the virtual hosts configuration from the xml file. */
 	vhostList->loadXMLConfigurationFile(vhost_configuration_file, 
@@ -1454,6 +1479,7 @@ void cserver::loadSettings()
 			printf("%s: Allocating path memory\n", 
              languageParser.getValue("ERR_ERROR"));
 			endPrintError(); 
+      return -1;
     }
 
     sprintf(path,"%s/lib/myserver/external/protocols",PREFIX);
@@ -1474,26 +1500,37 @@ void cserver::loadSettings()
 	if(threads)
 		delete [] threads;
 	threads=new ClientsTHREAD[nThreads];
+  if(threads == 0)
+    return -1;
 	memset(threads, 0, sizeof(ClientsTHREAD)*nThreads);
-	if(threads==NULL)
+	if(threads==0)
 	{
 		preparePrintError();
 		printf("%s: Threads creation\n", languageParser.getValue("ERR_ERROR"));
    	endPrintError();	
+    return -1;
 	}
 	for(i=0;i<nThreads;i++)
 	{
+    int ret;
 		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"), (u_int)i);
 		threads[i].id=(u_long)(i+ClientsTHREAD::ID_OFFSET);
-		myserver_thread::create(&ID,   &::startClientsTHREAD, 
-                            (void *)&(threads[i].id));
+		ret = myserver_thread::create(&ID,   &::startClientsTHREAD, 
+                                  (void *)&(threads[i].id));
+    if(ret)
+    {
+  		preparePrintError();
+      printf("%s: Threads creation\n", languageParser.getValue("ERR_ERROR"));
+      endPrintError();	  
+      return -1;
+    }
 		printf("%s\n", languageParser.getValue("MSG_THREADR"));
 	}
   int pathlen = getdefaultwdlen();
   path = new char[pathlen];
   /*! Return 1 if we had an allocation problem.  */
   if(path == 0)
-    return;
+    return -1;
 	getdefaultwd(path, pathlen);
 	/*!
    *Then we create here all the listens threads. 
@@ -1505,23 +1542,32 @@ void cserver::loadSettings()
 
 	printf("%s\n", languageParser.getValue("MSG_READY"));
 	printf("%s\n", languageParser.getValue("MSG_BREAK"));
-
 }
 
 /*!
  *Reboot the server.
+ *Returns non zero on errors.
  */
-void cserver::reboot()
+int cserver::reboot()
 {
-	printf("%c\n\nRebooting.......\n\n", 0x7);/*0x7 is the beep*/
+  int ret;
+  /*! Print the Reboot message and do a beep(0x7). */
+	printf("%c\n\nRebooting.......\n\n", 0x7);
 	if(mustEndServer)
-		return;
+		return 0;
 	mustEndServer=1;
-	terminate();
+	ret = terminate();
+  if(ret)
+    return ret;
 	mustEndServer=0;
+  /*! Wait a bit before restart the server. */
 	wait(5000);
-	initialize(0);
-	loadSettings();
+	ret = initialize(0);
+  if(ret)
+    return ret;
+	ret = loadSettings();
+  if(ret)
+    return ret;
 
 }
 
@@ -1530,7 +1576,7 @@ void cserver::reboot()
  */
 int cserver::getListeningThreadCount()
 {
-	return listingThreads;
+	return listeningThreads;
 }
 
 /*!
@@ -1539,7 +1585,7 @@ int cserver::getListeningThreadCount()
 void cserver::increaseListeningThreadCount()
 {
 	connections_mutex_lock();
-	++listingThreads;
+	++listeningThreads;
 	connections_mutex_unlock();
 }
 
@@ -1549,7 +1595,7 @@ void cserver::increaseListeningThreadCount()
 void cserver::decreaseListeningThreadCount()
 {
 	connections_mutex_lock();
-	--listingThreads;
+	--listeningThreads;
 	connections_mutex_unlock();
 }
 

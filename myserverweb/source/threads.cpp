@@ -93,7 +93,7 @@ int myserver_mutex::myserver_mutex_init()
 	mutex=CreateMutex(0,0,0);
 #endif
 	initialized=1;
-	return 1;
+	return 0;
 }
 
 /*!
@@ -109,7 +109,7 @@ int myserver_mutex::myserver_mutex_destroy()
     CloseHandle(mutex);
 #endif
 	initialized=0;
-	return 1;
+	return 0;
 }
 
 /*!
@@ -130,7 +130,7 @@ int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
 #else	
 	WaitForSingleObject(mutex,INFINITE);
 #endif
-	return 1;
+	return 0;
 }
 
 /*!
@@ -151,10 +151,13 @@ int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 *Create a new thread.
 */
 #ifdef WIN32
-int myserver_thread::create(myserver_thread_ID*  ID, unsigned int  (_stdcall *start_routine)(void *), void * arg)
+int myserver_thread::create(myserver_thread_ID*  ID, 
+                            unsigned int  (_stdcall *start_routine)(void *), 
+                            void * arg)
 #endif
 #ifdef HAVE_PTHREAD
-int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(void *), void * arg)
+int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(void *), 
+                            void * arg)
 #endif
 {
 #ifdef WIN32
@@ -163,7 +166,7 @@ int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(voi
 #ifdef HAVE_PTHREAD
 	pthread_create((pthread_t*)ID, NULL, start_routine, (void *)(arg));
 #endif
-	return 1;
+	return 0;
 }
 
 /*!

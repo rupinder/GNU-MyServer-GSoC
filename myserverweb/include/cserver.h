@@ -106,8 +106,10 @@ private:
 	char *path;
 	char serverAdmin[32];
 	int initialize(int);
-	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int);
-    	u_long nConnections;
+	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,
+                                   char *ipAddr,char *localIpAddr,int port,
+                                   int localPort,int);
+  u_long nConnections;
 	u_long maxConnections;
 	void clearAllConnections();
 	int deleteConnection(LPCONNECTION,int);
@@ -115,14 +117,14 @@ private:
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
-	void loadSettings();
+	int loadSettings();
 	myserver_mutex *c_mutex;
 	LPCONNECTION connectionToParse;
 	ClientsTHREAD *threads;
 	LPCONNECTION connections;
 	void createListenThreads();
-	void reboot();
-	u_int listingThreads;
+	int reboot();
+	u_int listeningThreads;
 	char *languages_path;
 
 	char *main_configuration_file;
@@ -161,7 +163,7 @@ public:
 	void start();
 	void stop();
 	void finalCleanup();
-	void terminate();
+	int terminate();
 }; 
 extern class cserver *lserver;
 #ifdef WIN32

@@ -61,11 +61,15 @@ ClientsTHREAD::~ClientsTHREAD()
 *This function starts a new thread controlled by a ClientsTHREAD class instance.
 */
 #ifdef WIN32
+#define ClientsTHREAD_TYPE int
 unsigned int __stdcall startClientsTHREAD(void* pParam)
 #endif
+
 #ifdef HAVE_PTHREAD
+#define ClientsTHREAD_TYPE void*
 void * startClientsTHREAD(void* pParam)
 #endif
+
 {
 #ifdef NOT_WIN
 	// Block SigTerm, SigInt, and SigPipe in threads
@@ -80,9 +84,9 @@ void * startClientsTHREAD(void* pParam)
 
 	ClientsTHREAD *ct=&lserver->threads[id];
 
-  /*! Do nothing if the thread is still initialized. */
+  /*! Return an error if the thread is initialized. */
 	if(ct->initialized)
-		return 0;
+		return (ClientsTHREAD_TYPE) -1;
 
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
@@ -95,8 +99,13 @@ void * startClientsTHREAD(void* pParam)
 	ct->buffer2.m_nSizeLimit = ct->buffersize2;
 	
 	ct->http_parser = new http();
-	ct->https_parser = new https();
-	
+  if(ct->http_parser==0)
+    return (ClientsTHREAD_TYPE)-1;
+
+  ct->https_parser = new https();
+	if(ct->https_parser==0)
+    return (ClientsTHREAD_TYPE)-1;
+
 	ct->initialized=1;
 
   /*! Reset thread buffers. */

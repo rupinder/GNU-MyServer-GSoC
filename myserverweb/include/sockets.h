@@ -65,11 +65,16 @@ private:
 	MYSERVER_SOCKET_HANDLE socketHandle;
 	int sslSocket;
 #ifndef DO_NOT_USE_SSL
+  /*! This is defined if all SSL members are used only by this socket. */
+  int localSSL;
 	SSL *sslConnection;
 	SSL_CTX *sslContext;
-	X509 * clientCert;
+	X509 *clientCert;
+
+  /*! This is used only by clientside sockets. */
+  SSL_METHOD* sslMethod;
 #endif
-	/*! Pointer to the socket that has accepted this connection  */
+	/*! Pointer to the socket that has accepted this connection.  */
 	MYSERVER_SOCKET *serverSocket;
 public:
 	void setServerSocket(MYSERVER_SOCKET*);

@@ -51,24 +51,26 @@ extern "C" {
 #endif
 
 /*!
-*Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure.
-*/
+ *Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure.
+ */
 void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 {
 	/*!
-	*Here is builded the HEADER of a HTTP response.
-	*Passing a HTTP_RESPONSE_HEADER struct this builds an header string.
-	*Every directive ends with a \r\n sequence.
-    */
+   *Here is builded the HEADER of a HTTP response.
+   *Passing a HTTP_RESPONSE_HEADER struct this builds an header string.
+   *Every directive ends with a \r\n sequence.
+   */
 	if(response->httpStatus!=200)
 	{
 		if(response->ERROR_TYPE[0]=='\0')
 		{
 			int errID=getErrorIDfromHTTPStatusCode(response->httpStatus);
 			if(errID!=-1)
-				strncpy(response->ERROR_TYPE,HTTP_ERROR_MSGS[errID],HTTP_RESPONSE_ERROR_TYPE_DIM);
+				strncpy(response->ERROR_TYPE,HTTP_ERROR_MSGS[errID], 
+                HTTP_RESPONSE_ERROR_TYPE_DIM);
 		}
-		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus,response->ERROR_TYPE,response->ERROR_TYPE);
+		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus, 
+            response->ERROR_TYPE,response->ERROR_TYPE);
 	}
 	else
 		sprintf(str,"%s 200 OK\r\n",response->VER);
@@ -116,9 +118,9 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	if(response->CONTENT_LENGTH[0])
 	{
 		/*!
-		*Do not specify the Content-Length field if it is used
-		*the chunked Transfer-Encoding.
-		*/
+     *Do not specify the Content-Length field if it is used
+     *the chunked Transfer-Encoding.
+     */
 		if(!strstr(response->TRANSFER_ENCODING,"chunked"))
 		{
 			strcat(str,"Content-Length: ");
@@ -187,29 +189,29 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	}
 
 	/*!
-	*MyServer supports the bytes range.
-	*/
+   *MyServer supports the bytes range.
+   */
 	strcat(str,"Accept-Ranges: bytes\r\n");
-
+  
 	/*!
-	*The HTTP header ends with a \r\n sequence.
-	*/
+   *The HTTP header ends with a \r\n sequence.
+   */
 	strcat(str,"\r\n\0\0\0\0\0");
 }
 /*!
-*Set the defaults value for a HTTP_RESPONSE_HEADER structure.
-*/
+ *Set the defaults value for a HTTP_RESPONSE_HEADER structure.
+ */
 void http_headers::buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 {
 	resetHTTPResponse(response);
 	/*!
-	*By default use:
-	*1) the MIME type of the page equal to text/html.
-	*2) the version of the HTTP protocol to 1.1.
-	*3) the date of the page and the expire date to the current time.
-	*4) set the name of the server.
-	*5) set the page that it is not an error page.
-	*/
+   *By default use:
+   *1) the MIME type of the page equal to text/html.
+   *2) the version of the HTTP protocol to 1.1.
+   *3) the date of the page and the expire date to the current time.
+   *4) set the name of the server.
+   *5) set the page that it is not an error page.
+   */
 	strcpy(response->CONTENT_TYPE,"text/html");
 	strcpy(response->VER,"HTTP/1.1");
 	response->httpStatus=200;
@@ -220,8 +222,8 @@ void http_headers::buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response
 
 
 /*!
-*Reset all the HTTP_REQUEST_HEADER structure members.
-*/
+ *Reset all the HTTP_REQUEST_HEADER structure members.
+ */
 void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 {
 	request->TRANSFER_ENCODING[0]='\0';	
@@ -268,8 +270,8 @@ void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 }
 
 /*!
-*Reset all the HTTP_RESPONSE_HEADER structure members.
-*/
+ *Reset all the HTTP_RESPONSE_HEADER structure members.
+ */
 void http_headers::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 {
 	response->httpStatus=200;
@@ -295,12 +297,13 @@ void http_headers::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 
 
 /*!
-*Controls if the req string is a valid HTTP response header.
-*Returns 0 if req is an invalid header, a non-zero value if is a valid header.
-*nLinesptr is a value of the lines number in the HEADER.
-*ncharsptr is a value of the characters number in the HEADER.
-*/
-int http_headers::validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
+ *Controls if the req string is a valid HTTP response header.
+ *Returns 0 if req is an invalid header, a non-zero value if is a valid header.
+ *nLinesptr is a value of the lines number in the HEADER.
+ *ncharsptr is a value of the characters number in the HEADER.
+ */
+int http_headers::validHTTPResponse(char *req,httpThreadContext* td, 
+                                    u_long* nLinesptr, u_long* ncharsptr)
 {
 	u_long i;
 	u_long buffersize=td->buffersize;
@@ -312,8 +315,8 @@ int http_headers::validHTTPResponse(char *req,httpThreadContext* td,u_long* nLin
 	if(req==0)
 		return 0;
 	/*!
-	*Count the number of lines in the header.
-	*/
+   *Count the number of lines in the header.
+   */
 	for(i=nLines=0;;i++)
 	{
 		if(req[i]=='\n')
@@ -336,47 +339,49 @@ int http_headers::validHTTPResponse(char *req,httpThreadContext* td,u_long* nLin
 			nLinechars++;
 		}
 		/*!
-		*We set a maximal theorical number of characters in a line.
-		*If a line contains more than 4110 characters we consider the header invalid.
-		*/
+     *We set a maximal theorical number of characters in a line.
+     *If a line contains more than 4110 characters we consider the header invalid.
+     */
 		if(nLinechars>4110)
 			break;
 	}
 
 	/*!
-	*Set the output variables.
-	*/
+   *Set the output variables.
+   */
 	*nLinesptr=nLines;
 	*ncharsptr=maxTotchars;
 	
 	/*!
-	*Return if is a valid request header.
-	*/
+   *Return if is a valid request header.
+   */
 	return((isValidCommand)?1:0);
 }
 
 
 /*!
-*Build the HTTP REQUEST HEADER string.
-*If no input is setted the input is the main buffer of the httpThreadContext structure.
-*/
-int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext *td,char *input)
+ *Build the HTTP REQUEST HEADER string.
+ *If no input is setted the input is the main buffer of the 
+ *httpThreadContext structure.
+ */
+int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
+                                               httpThreadContext *td, char *input)
 {
 	/*!
-	*In this function there is the HTTP protocol parse.
-	*The request is mapped into a HTTP_REQUEST_HEADER structure
-	*And at the end of this every command is treated
-	*differently. We use this mode for parse the HTTP
-	*cause especially in the CGI is requested a continous
-	*HTTP header access.
-	*Before mapping the header in the structure 
-	*control if this is a regular request.
-	*The HTTP header ends with a \r\n\r\n sequence.
-	*/
-
+   *In this function there is the HTTP protocol parse.
+   *The request is mapped into a HTTP_REQUEST_HEADER structure
+   *And at the end of this every command is treated
+   *differently. We use this mode for parse the HTTP
+   *cause especially in the CGI is requested a continous
+   *HTTP header access.
+   *Before mapping the header in the structure 
+   *control if this is a regular request.
+   *The HTTP header ends with a \r\n\r\n sequence.
+   */
+  
 	/*!
-	*Control if the HTTP header is a valid header.
-	*/
+   *Control if the HTTP header is a valid header.
+   */
 	u_long i=0,j=0;
 	int max=0;
 	u_long nLines,maxTotchars;
@@ -413,7 +418,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		*td->buffer2 << input;
 		input=token=(char*)td->buffer2->GetBuffer();
 	}
-	/* TokenOff is the length of the token starting from the location token.  */
+	/*! TokenOff is the length of the token starting from the location token.  */
 	int tokenOff;
 	tokenOff = getCharInString(token,cmdseps,HTTP_REQUEST_CMD_DIM);
 	do
@@ -437,14 +442,15 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		if(nLineControlled==1)
 		{
 			/*!
-			*The first line has the form:
-			*GET /index.html HTTP/1.1
-			*/
+       *The first line has the form:
+       *GET /index.html HTTP/1.1
+       */
 			lineControlled=1;
 			/*! Copy the method type.  */
 			strncpy(request->CMD,command,tokenOff);
 			request->CMD[tokenOff]='\0';
-			tokenOff = getCharInString(token,"\t\n\r",HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
+			tokenOff = getCharInString(token,"\t\n\r", 
+                                 HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
 			u_long len_token =tokenOff;
 			if(tokenOff==-1)
 				return 0;
@@ -825,18 +831,20 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		tokenOff = getCharInString(token,":",maxTotchars);
 	}while((u_long)(token-input)<maxTotchars);
 	/*!
-	*END REQUEST STRUCTURE BUILD.
-	*/
+   *END REQUEST STRUCTURE BUILD.
+   */
 	td->nHeaderChars=maxTotchars;
 	return validRequest;
 }
 
 /*!
-*Build the HTTP RESPONSE HEADER string.
-*If no input is setted the input is the main buffer of the httpThreadContext structure.
-*Return 0 on invalid input or internal errors.
-*/
-int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadContext *td,char *input)
+ *Build the HTTP RESPONSE HEADER string.
+ *If no input is setted the input is the main buffer of the 
+ *httpThreadContext structure.
+ *Return 0 on invalid input or internal errors.
+ */
+int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
+                                                httpThreadContext *td,char *input)
 {
 	/*!
 	*In this function there is the HTTP protocol parse.
@@ -889,7 +897,8 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	token=input;
 	
 	/*! Check if is specified the first line containing the HTTP status.  */
-	if((input[0]=='H')&&(input[1]=='T')&&(input[2]=='T')&&(input[3]=='P')&&(input[4]==' '))
+	if((input[0]=='H')&&(input[1]=='T')&&(input[2]=='T')
+     &&(input[3]=='P')&&(input[4]==' '))
 	{
 		containStatusLine=1;
 		token = strtok( token, " " );
@@ -914,9 +923,9 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		if((nLineControlled==1)&& containStatusLine)
 		{
 			/*!
-			*The first line has the form:
-			*GET /index.html HTTP/1.1
-			*/
+       *The first line has the form:
+       *GET /index.html HTTP/1.1
+       */
 			lineControlled=1;
 			/*! Copy the HTTP version.  */
 			myserver_strlcpy(response->VER,command,HTTP_RESPONSE_VER_DIM);
@@ -966,7 +975,8 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			myserver_strlcpy(response->CONTENT_ENCODING,token,HTTP_RESPONSE_CONTENT_ENCODING_DIM);
+			myserver_strlcpy(response->CONTENT_ENCODING,token, 
+                       HTTP_RESPONSE_CONTENT_ENCODING_DIM);
 			StrTrim(response->CONTENT_ENCODING," ");
 		}else
 		/*!Cache-Control*/
@@ -1005,7 +1015,8 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncat(response->COOKIE,token,HTTP_RESPONSE_COOKIE_DIM-strlen(response->COOKIE));
+			strncat(response->COOKIE,token,
+              HTTP_RESPONSE_COOKIE_DIM-strlen(response->COOKIE));
 			strcat(response->COOKIE,"\n");/*!Divide multiple cookies*/
 		}else
 		/*!Content-Length*/
@@ -1013,7 +1024,8 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			myserver_strlcpy(response->CONTENT_LENGTH,token,HTTP_RESPONSE_CONTENT_LENGTH_DIM);
+			myserver_strlcpy(response->CONTENT_LENGTH,token, 
+                       HTTP_RESPONSE_CONTENT_LENGTH_DIM);
 			StrTrim(response->CONTENT_LENGTH," ");
 		}else
 		/*!P3P*/
@@ -1041,37 +1053,39 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 			StrTrim(response->DATEEXP," ");
 		}
 		/*!
-		*If the line is not controlled arrive with the token
-		*at the end of the line.
-		*/
+     *If the line is not controlled arrive with the token
+     *at the end of the line.
+     */
 		if( (!lineControlled)&&  ((!containStatusLine) || (nLineControlled!=1)) )
 		{
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
-				strncat(response->OTHER,command,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
+				strncat(response->OTHER,command,
+                HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 				strncat(response->OTHER,token,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 			}
 		}
 		token = strtok( NULL, cmdseps );
 	}while((u_long)(token-input)<maxTotchars);
 	/*!
-	*END REQUEST STRUCTURE BUILD.
-	*/
+   *END REQUEST STRUCTURE BUILD.
+   */
 	td->nBytesToRead=maxTotchars;
 	delete [] input;
 	return validResponse;
 }
 
 /*!
-*Controls if the req string is a valid HTTP request header.
-*Returns 0 if req is an invalid header, 
-*Returns -1 if the header is incomplete,
-*Returns another non-zero value if is a valid header.
-*nLinesptr is a value of the lines number in the HEADER.
-*ncharsptr is a value of the characters number in the HEADER.
-*/
-int http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
+ *Controls if the req string is a valid HTTP request header.
+ *Returns 0 if req is an invalid header, 
+ *Returns -1 if the header is incomplete,
+ *Returns another non-zero value if is a valid header.
+ *nLinesptr is a value of the lines number in the HEADER.
+ *ncharsptr is a value of the characters number in the HEADER.
+ */
+int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
+                                   u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i=0;
 	u_long buffersize=td->buffer->GetRealLength();
@@ -1116,9 +1130,9 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLine
 			nLinechars++;
 		}
 		/*!
-		*We set a maximal theorical number of characters in a line to 1024.
-		*If a line contains more than N characters we consider the header invalid.
-		*/
+     *We set a maximal theorical number of characters in a line to 1024.
+     *If a line contains more than N characters we consider the header invalid.
+     */
 		if(nLinechars>2048)
 		{
 			isValidCommand=0;
@@ -1133,3 +1147,4 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLine
 	/*! Return if is a valid request header.  */
 	return isValidCommand;
 }
+
