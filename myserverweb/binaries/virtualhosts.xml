@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<VHOSTS>
+
+<VHOST>
+<PORT>80</PORT>
+<PROTOCOL>HTTP</PROTOCOL>
+<DOCROOT>web</DOCROOT>
+<SYSFOLDER>system</SYSFOLDER>
+<ACCESSESLOG>logs/myServer.log</ACCESSESLOG>
+<WARNINGLOG>logs/myServer.err</WARNINGLOG>
+
+</VHOST>
+
+
+</VHOSTS>

@@ -287,7 +287,10 @@ void cserver::start()
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
 
-	vhostList.loadConfigurationFile("virtualhosts.txt");
+	/*vhostList.loadConfigurationFile("virtualhosts.txt");*/
+	vhostList.loadXMLConfigurationFile("virtualhosts.xml");
+
+	vhostList.saveXMLConfigurationFile("virtualhosts2.xml");
 	
 	/*
 	*Create the listens threads.
@@ -307,6 +310,8 @@ void cserver::start()
 			if(list2->host->port==list->host->port)
 				needThread=0;
 		}
+		if(list->host->port==0)
+			continue;
 		if(needThread)
 		{
 			if(createServerAndListener(list->host->port)==0)

@@ -88,6 +88,8 @@ public:
 	void addvHost(vhost*);/*Add an element to the vhost list*/
 	void loadConfigurationFile(char *);/*Load the virtual hosts list from a configuration file*/
 	void saveConfigurationFile(char *);/*Save the virtual hosts list to a configuration file*/
+	void loadXMLConfigurationFile(char *);/*Load the virtual hosts list from a xml configuration file*/
+	void saveXMLConfigurationFile(char *);/*Save the virtual hosts list to a xml configuration file*/
 };
 
 #endif

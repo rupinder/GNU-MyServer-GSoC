@@ -488,3 +488,138 @@ vhostmanager::sVhostList* vhostmanager::getvHostList()
 	return this->vhostList;
 }
 
+void vhostmanager::loadXMLConfigurationFile(char *filename)
+{
+	cXMLParser parser;
+	if(int r=parser.open(filename))
+	{
+		return;
+	}
+	xmlDocPtr doc = parser.getDoc();
+	xmlNodePtr node=doc->children->children;
+	for(;node;node=node->next)
+	{
+		if(xmlStrcmp(node->name, (const xmlChar *)"VHOST"))
+			continue;
+		xmlNodePtr lcur=node->children;
+		vhost *vh=new vhost();
+		memset(vh,0,sizeof(vh));
+
+		while(lcur)
+		{
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
+			{
+				vh->addHost((char*)lcur->children->content);
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
+			{
+				vh->addIP((char*)lcur->children->content);
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
+			{
+				vh->port=atoi((char*)lcur->children->content);
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
+			{
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTP"))
+					vh->protocol=PROTOCOL_HTTP;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"FTP"))
+					vh->protocol=PROTOCOL_FTP;
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
+			{
+				strcpy(vh->documentRootOriginal,(char*)lcur->children->content);
+				if(vh->documentRootOriginal[0]!='|')
+					sprintf(vh->documentRoot,"%s/%s",lserver->getPath(),vh->documentRootOriginal);
+				else
+					strcpy(vh->documentRoot,&(vh->documentRootOriginal)[1]);				
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
+			{
+				strcpy(vh->systemRootOriginal,(char*)lcur->children->content);
+				if(vh->systemRootOriginal[0]!='|')
+					sprintf(vh->systemRoot,"%s/%s",lserver->getPath(),vh->systemRootOriginal);
+				else
+					strcpy(vh->systemRoot,&(vh->documentRootOriginal[1]));
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
+			{
+				strcpy(vh->accessesLogFileName,(char*)lcur->children->content);
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
+			{
+				strcpy(vh->warningsLogFileName,(char*)lcur->children->content);
+			}
+			
+			lcur=lcur->next;
+		}
+		addvHost(vh);
+	}
+	parser.close();
+}
+void vhostmanager::saveXMLConfigurationFile(char *filename)
+{
+	MYSERVER_FILE out;
+	u_long nbw;
+	out.openFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
+	sVhostList *list=this->getvHostList();
+	while(list)
+	{
+		out.writeToFile("<VHOST>\r\n",9,&nbw);
+		vhost::sIpList *ipList = list->host->ipList;
+		while(ipList)
+		{
+			out.writeToFile("<IP>",4,&nbw);
+			out.writeToFile(ipList->hostIp,strlen(ipList->hostIp),&nbw);
+			out.writeToFile("</IP>\r\n",7,&nbw);
+			ipList=ipList->next;
+		}
+		vhost::sHostList *hostList = list->host->hostList;
+		while(hostList)
+		{
+			out.writeToFile("<HOST>",6,&nbw);
+			out.writeToFile(hostList->hostName,strlen(hostList->hostName),&nbw);
+			out.writeToFile("</HOST>\r\n",9,&nbw);
+			hostList=hostList->next;
+		}
+		out.writeToFile("<PORT>",6,&nbw);
+		char port[6];
+		sprintf(port,"%i",list->host->port);
+		out.writeToFile(port,strlen(port),&nbw);
+		out.writeToFile("</PORT>\r\n",9,&nbw);
+
+		out.writeToFile("<PROTOCOL>",10,&nbw);
+		switch( list->host->protocol)
+		{
+			case PROTOCOL_HTTP:
+				out.writeToFile("HTTP",4,&nbw);
+				break;
+			case PROTOCOL_FTP:
+				out.writeToFile("FTP",3,&nbw);
+				break;
+		}
+		out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
+
+		out.writeToFile("<DOCROOT>",9,&nbw);
+		out.writeToFile(list->host->documentRootOriginal,strlen(list->host->documentRootOriginal),&nbw);
+		out.writeToFile("</DOCROOT>\r\n",12,&nbw);
+
+		out.writeToFile("<SYSFOLDER>",11,&nbw);
+		out.writeToFile(list->host->systemRootOriginal,strlen(list->host->systemRootOriginal),&nbw);
+		out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
+
+		out.writeToFile("<ACCESSESLOG>",13,&nbw);
+		out.writeToFile(list->host->accessesLogFileName,strlen(list->host->accessesLogFileName),&nbw);
+		out.writeToFile("</ACCESSESLOG>\r\n",16,&nbw);
+
+		out.writeToFile("<WARNINGLOG>",12,&nbw);
+		out.writeToFile(list->host->warningsLogFileName,strlen(list->host->warningsLogFileName),&nbw);
+		out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
+
+		out.writeToFile("</VHOST>\r\n",10,&nbw);
+		list=list->next;
+	}
+	out.writeToFile("</VHOSTS>\r\n",11,&nbw);
+	out.closeFile();
+}

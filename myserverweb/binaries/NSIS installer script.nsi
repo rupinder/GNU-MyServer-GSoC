@@ -43,10 +43,10 @@ Section "MyServer core" SecCore
   WriteUninstaller "remove.exe"
   File "myserver.exe"
   File "libxml2.dll"
-  File "MIMEtypes.txt"
+  File "MIMEtypes.xml"
   File "myserver.xml"
   File "readme.txt"
-  File "virtualhosts.txt"
+  File "virtualhosts.xml"
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
   File "web\*.*"
