@@ -165,28 +165,29 @@ AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
 
 dnl AC_CONFIG_SUBDIRS()
 AC_CONFIG_FILES(Makefile \
-		binaries/Makefile \
-		binaries/certificates/Makefile \
-		binaries/external/Makefile \
+  binaries/Makefile \
+  binaries/certificates/Makefile \
+  binaries/external/Makefile \
     binaries/languages/Makefile \
-		binaries/languages/configure/Makefile \
-		binaries/web/Makefile \
+  binaries/languages/configure/Makefile \
+  binaries/web/Makefile \
     binaries/web/icons/codes/Makefile \
-    binaries/web/icons/Makefile	\
+    binaries/web/icons/Makefile \
     binaries/web/downloads/Makefile \
     binaries/web/cgi-bin/Makefile \
-		binaries/web/cgi-src/Makefile \
-		binaries/web/cgi-src/post/Makefile \
-		binaries/web/cgi-src/counter/Makefile \
-		binaries/web/cgi-src/math_sum/Makefile \
-		binaries/logs/Makefile \
-		binaries/system/Makefile \
-		control/Makefile \
-		contrib/Makefile \
-		contrib/rx/Makefile \
-		Documentation/Makefile \
-		Documentation/En/Makefile \
-		Documentation/En/images/Makefile \
-		source/Makefile \
-		CGI-LIB/Makefile)
+  binaries/web/cgi-src/Makefile \
+  binaries/web/cgi-src/post/Makefile \
+  binaries/web/cgi-src/counter/Makefile \
+  binaries/web/cgi-src/math_sum/Makefile \
+  binaries/logs/Makefile \
+  binaries/system/Makefile \
+    binaries/system/errors/Makefile \
+  control/Makefile \
+  contrib/Makefile \
+  contrib/rx/Makefile \
+  Documentation/Makefile \
+  Documentation/En/Makefile \
+  Documentation/En/images/Makefile \
+  source/Makefile \
+  CGI-LIB/Makefile)
 AC_OUTPUT

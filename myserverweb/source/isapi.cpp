@@ -44,7 +44,10 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                                               LPDWORD lpdwDataType) 
 {
 	ConnTableRecord *ConnInfo;
-	
+  int ret;
+	char *buffer=0;	
+	char URI[MAX_PATH];/*! Under windows use MAX_PATH. */	
+
 	Isapi::isapi_mutex->lock();
 	ConnInfo = Isapi::HConnRecord(hConn);
 	Isapi::isapi_mutex->unlock();
@@ -57,16 +60,17 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     lserver->logUnlockAccess();
 		return 0;
 	}
-	char *buffer=0;	
-	char URI[MAX_PATH];/*! Under windows use MAX_PATH. */
+
 	switch (dwHSERRequest) 
 	{
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
       mapInfo->lpszPath = 0;
-			((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
+			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                            &mapInfo->lpszPath,(char*)lpvBuffer,0);
+      if(ret!=e_200)
+        return 1;
 			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
       delete [] mapInfo->lpszPath;
@@ -81,12 +85,18 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                  (int)ConnInfo->td->request.URI.length()-
 				 (ConnInfo->td->pathInfo?strlen(ConnInfo->td->pathInfo):0) +1);
 			
-			((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
+			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                             (char**)&buffer,URI,0);
       if(buffer==0)
       {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         return 0;            
+      }
+      if(ret!=e_200)
+      {
+        if(buffer)
+          delete [] buffer;
+        return 1;
       }
       if(strlen(buffer) < *lpdwSize)
       {

@@ -59,35 +59,35 @@ char HTTP_ERROR_MSGS[29][64]=
 */
 char HTTP_ERROR_HTMLS[29][64]=
 {
-	"400.html",						/*!400*/
-	"401.html",						/*!401*/
-	"403.html",						/*!403*/
-	"404.html",						/*!404*/
-	"405.html",						/*!405*/
-	"406.html",						/*!406*/
-	"407.html",						/*!407*/
-	"412.html",						/*!412*/
-	"413.html",						/*!413*/
-	"414.html",						/*!414*/
-	"500.html",						/*!500*/
-	"501.html",						/*!501*/
-	"502.html", 					/*!502*/
-	"503.html",						/*!503*/
-	"200.html",						/*!200*/
-	"201.html",						/*!201*/			
-	"202.html",						/*!202*/			
-	"203.html",						/*!203*/			
-	"204.html",						/*!204*/			
-	"205.html",						/*!205*/			
-	"206.html",						/*!206*/				
-	"300.html",						/*!300*/	
-	"301.html",						/*!301*/		
-	"302.html",						/*!302*/		
-	"303.html",						/*!303*/			
-	"304.html",						/*!304*/
-	"100.html",						/*!100*/	
-	"504.html",						/*!504*/
-	"505.html"						/*!505*/		
+	"/errors/400.html",						/*!400*/
+	"/errors/401.html",						/*!401*/
+	"/errors/403.html",						/*!403*/
+	"/errors/404.html",						/*!404*/
+	"/errors/405.html",						/*!405*/
+	"/errors/406.html",						/*!406*/
+	"/errors/407.html",						/*!407*/
+	"/errors/412.html",						/*!412*/
+	"/errors/413.html",						/*!413*/
+	"/errors/414.html",						/*!414*/
+	"/errors/500.html",						/*!500*/
+	"/errors/501.html",						/*!501*/
+	"/errors/502.html", 					/*!502*/
+	"/errors/503.html",						/*!503*/
+	"/errors/200.html",						/*!200*/
+	"/errors/201.html",						/*!201*/			
+	"/errors/202.html",						/*!202*/			
+	"/errors/203.html",						/*!203*/			
+	"/errors/204.html",						/*!204*/			
+	"/errors/205.html",						/*!205*/			
+	"/errors/206.html",						/*!206*/				
+	"/errors/300.html",						/*!300*/	
+	"/errors/301.html",						/*!301*/		
+	"/errors/302.html",						/*!302*/		
+	"/errors/303.html",						/*!303*/			
+	"/errors/304.html",						/*!304*/
+	"/errors/100.html",						/*!100*/	
+	"/errors/504.html",						/*!504*/
+	"/errors/505.html"						/*!505*/		
 };
 /*!
 *Return an error ID starting from an HTTP status code.

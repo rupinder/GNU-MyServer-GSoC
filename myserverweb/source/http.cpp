@@ -255,6 +255,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	}
 	else
 	{
+    int ret;
 		/*! 
      *If the client try to access files that aren't in the web directory 
      *send a 401 error.  
@@ -270,7 +271,9 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       delete [] td->filenamePath;
       td->filenamePath = 0;
     }
-		getPath(td, s, &(td->filenamePath), filename, 0);
+		ret = getPath(td, s, &(td->filenamePath), filename, 0);
+    if(ret!=e_200)
+      return raiseHTTPError(td, s, ret);
 	}
 	if(File::isDirectory(td->filenamePath))
   {
@@ -522,6 +525,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	}
 	else
 	{
+    int ret;
 		/*!
      *If the client try to access files that aren't in the web directory 
      *send a HTTP 401 error page.
@@ -534,7 +538,9 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(td->filenamePath)
       delete [] td->filenamePath;
     td->filenamePath = 0;
-		getPath(td, s, &(td->filenamePath), filename, 0);
+		ret=getPath(td, s, &(td->filenamePath), filename, 0);
+    if(ret!=e_200)
+      return raiseHTTPError(td, s, ret);
 	}
 	if(File::isDirectory(td->filenamePath))
   {
@@ -816,6 +822,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	}
 	else
 	{
+    int ret;
 		/*!
      *If the client try to access files that aren't in the 
      *web directory send a 401 error.
@@ -834,7 +841,9 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
       delete [] td->filenamePath;
     td->filenamePath = 0;
     /*! getPath will alloc the buffer for filenamePath. */
-		getPath(td, s, &(td->filenamePath), filename, systemrequest);
+		ret=getPath(td, s, &(td->filenamePath), filename, systemrequest);
+    if(ret!=e_200)
+      return raiseHTTPError(td, s, ret);
 	}
   /*! By default allows only few actions. */
 	permissions= MYSERVER_PERMISSION_READ |  MYSERVER_PERMISSION_BROWSE ;
@@ -1022,7 +1031,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
    */
 	if(td->pathInfo)
 	{
-    int ptlen;
+    int ptlen=0;
+    int ret;
    	if(td->pathTranslated)
       delete [] td->pathTranslated;
     td->pathTranslated = 0;
@@ -1030,7 +1040,9 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
      * Start from the second character because the first is a
      * slash character.  
      */
-		ptlen = getPath(td, s, &(td->pathTranslated), &((td->pathInfo)[1]), 0);
+		ret=getPath(td, s, &(td->pathTranslated), &((td->pathInfo)[1]), 0);
+    if(ret!=e_200)
+      return raiseHTTPError(td, s, ret);
 		File::completePath(&(td->pathTranslated), &ptlen );
 	}
 	else
@@ -2350,7 +2362,8 @@ int Http::getMIME(HttpThreadContext* td, string& MIME, string& filename,
 }
 
 /*!
- *Map an URL to the machine file system.
+ *Map an URL to the machine file system. Return e_200 on success. Any other return
+ *value is the HTTP error.
  */
 int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePath, 
                    const char *filename, int systemrequest)
@@ -2363,6 +2376,11 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
     int filenamePathLen;
     if(*filenamePath)
       delete [] (*filenamePath);
+    if(!((Vhost*)(td->connection->host))->systemRoot 
+       || File::getPathRecursionLevel(filename)< 2 )
+    {
+      return e_401;
+    }
     filenamePathLen = strlen(((Vhost*)(td->connection->host))->systemRoot) + 
                           strlen(filename) + 2;
     *filenamePath = new char[filenamePathLen];
@@ -2380,14 +2398,32 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
 		{
       int filenamePathLen;
       u_long len;
+      char *root;
       if(*filenamePath)
         delete [] (*filenamePath);
-      filenamePathLen = strlen(((Vhost*)(td->connection->host))->documentRoot) + 
-                            strlen(filename) + 3;
+      if(filename[0] == '/' && filename[1] == '/')
+      {
+        root=((Vhost*)(td->connection->host))->systemRoot;
+        /*! 
+         *Do not allow access to the system directory root but only
+         *to subdirectories. 
+         */
+        if(!root || File::getPathRecursionLevel(filename)< 2 )
+        {
+          return e_401;
+        }
+      }
+      else
+      {
+        root=((Vhost*)(td->connection->host))->documentRoot;
+      }
+      if(*filenamePath)
+        delete [] (*filenamePath);
+      filenamePathLen = strlen(root) + strlen(filename) + 3;
       *filenamePath = new char[filenamePathLen];
       if(*filenamePath == 0)
-        return 0;
-			strcpy(*filenamePath, ((Vhost*)(td->connection->host))->documentRoot);
+        return e_500;
+			strcpy(*filenamePath, root);
       len=(u_long)(strlen(*filenamePath)+1);
 			(*filenamePath)[len-1]='/';
 			strcpy(&(*filenamePath)[len], filename);
@@ -2397,15 +2433,16 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
       int filenamePathLen;
       if(*filenamePath)
         delete [] (*filenamePath);
+
       filenamePathLen = strlen(((Vhost*)(td->connection->host))->documentRoot)+1;
       *filenamePath = new char[filenamePathLen];
       if(filenamePath == 0)
-        return 0;
+        return e_500;
 			strcpy(*filenamePath, ((Vhost*)(td->connection->host))->documentRoot);
 		}
 
 	}
-  return 0;
+  return e_200;
 }
 
 /*!

@@ -557,7 +557,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
        *Do not maintain any slash character if the URI has them at 
        *the begin or at the end.
        */
-      request->URI=trim(request->URI, " /");
+      request->URI=trimRight(request->URI, " /");
 			request->URIOPTS=trim(request->URIOPTS, " ");
 
 		}else
