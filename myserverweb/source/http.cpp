@@ -322,7 +322,6 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	{
 		strcpy(td->response.TRANSFER_ENCODING,"chunked");
 		strcpy(td->response.CONTENT_ENCODING,"gzip");
-		sprintf(td->response.CONTENT_LENGTH,"%u",gzip::gzip_compressBound(bytesToSend));
 	}
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 	/*!
