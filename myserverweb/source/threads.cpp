@@ -42,31 +42,6 @@ extern "C" {
 
 
 /*!
-*Lock the mutex
-*/
-int myserver_mutex_lock(myserver_mutex* ac,u_long id)
-{
-#ifdef HAVE_PTHREAD
-	pthread_mutex_lock(ac);
-#else	
-	WaitForSingleObject(*ac,INFINITE);
-#endif
-	return 0;
-}
-/*!
-*Reset the owner of the access.
-*/
-int myserver_mutex_unlock(myserver_mutex* ac,u_long/*! id*/)
-{
-#ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(ac);
-#else		
-	ReleaseMutex(*ac);
-#endif
-	return 0;
-}
-
-/*!
 *Sleep the caller thread.
 */
 void wait(u_long time)
@@ -82,12 +57,12 @@ void wait(u_long time)
 /*!
 *Initialize a mutex.
 */
-int	myserver_mutex_init(myserver_mutex* mutex)
+int	myserver_mutex::myserver_mutex_init()
 {
 #ifdef HAVE_PTHREAD
 	pthread_mutex_init(mutex, NULL);
 #else
-	*mutex=CreateMutex(0,0,0);
+	mutex=CreateMutex(0,0,0);
 #endif
 	
 	return 1;
@@ -95,12 +70,38 @@ int	myserver_mutex_init(myserver_mutex* mutex)
 /*!
 *Destroy a mutex.
 */
-int myserver_mutex_destroy(myserver_mutex *mutex)
+int myserver_mutex::myserver_mutex_destroy()
 {
 #ifdef HAVE_PTHREAD
 	pthread_mutex_destroy(mutex);	
 #else
-	CloseHandle(*mutex);
+	CloseHandle(mutex);
 #endif
 	return 1;
+}
+
+
+/*!
+*Lock the mutex
+*/
+int myserver_mutex::myserver_mutex_lock(u_long id)
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_lock(mutex);
+#else	
+	WaitForSingleObject(mutex,INFINITE);
+#endif
+	return 0;
+}
+/*!
+*Unlock the mutex access.
+*/
+int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
+{
+#ifdef HAVE_PTHREAD
+	pthread_mutex_unlock(mutex);
+#else		
+	ReleaseMutex(mutex);
+#endif
+	return 0;
 }

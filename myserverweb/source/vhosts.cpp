@@ -18,13 +18,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../include/vhosts.h"
 #include "../include/filemanager.h"
-#include "../include/utility.h"
 #include "../include/cserver.h"
 #include "../include/cXMLParser.h"
 #include "../include/connectionstruct.h"/*!Used for protocols IDs*/
 #include "../include/stringutils.h"
-
-
+#include "../include/threads.h"
 
 /*!
 *vhost costructor
@@ -37,8 +35,8 @@ vhost::vhost()
 	sslContext.password[0] = '\0';
 	ipList=0;
 	hostList=0;
-	myserver_mutex_init(&accessesLogFileAccess);
-	myserver_mutex_init(&warningsLogFileAccess);
+	accessesLogFileAccess.myserver_mutex_init();
+	warningsLogFileAccess.myserver_mutex_init();
 }
 /*!
 *vhost class destructor
@@ -53,8 +51,8 @@ vhost::~vhost()
 	if(warningsLogFile.getHandle())
 		warningsLogFile.closeFile();
 	memset(this,0,sizeof(vhost));
-	myserver_mutex_destroy(&accessesLogFileAccess);
-	myserver_mutex_destroy(&warningsLogFileAccess);
+	accessesLogFileAccess.myserver_mutex_destroy();
+	warningsLogFileAccess.myserver_mutex_destroy();
 	
 }
 /*!
@@ -249,28 +247,28 @@ void vhost::addHost(char *host)
 */
 u_long vhost::accesseslogRequestAccess(int id)
 {
-	return myserver_mutex_lock(&accessesLogFileAccess,id);
+	return accessesLogFileAccess.myserver_mutex_lock(id);
 }
 /*!
 *Here threads get the permission to use the warnings log file.
 */
 u_long vhost::warningslogRequestAccess(int id)
 {
-	return myserver_mutex_lock(&warningsLogFileAccess,id);
+	return warningsLogFileAccess.myserver_mutex_lock(id);
 }
 /*!
 *Here threads release the permission to use the access log file.
 */
 u_long vhost::accesseslogTerminateAccess(int id)
 {
-	return myserver_mutex_unlock(&accessesLogFileAccess,id);
+	return accessesLogFileAccess.myserver_mutex_unlock(id);
 }
 /*!
 *Here threads release the permission to use the warnings log file.
 */
 u_long vhost::warningslogTerminateAccess(int id)
 {
-	return myserver_mutex_unlock(&warningsLogFileAccess,id);
+	return warningsLogFileAccess.myserver_mutex_unlock(id);
 }
 
 /*!

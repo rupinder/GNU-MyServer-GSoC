@@ -47,6 +47,8 @@ enum
 #define DO_NOT_USE_SSL
 #include "../source/vhosts.cpp"
 #include "../source/utility.cpp"
+#include "../source/threads.cpp"
+#include "../source/processes.cpp"
 
 BEGIN_EVENT_TABLE(configurationFrameVHOSTS, wxFrame)
 EVT_BUTTON(Configuration_Ok,  configurationFrameVHOSTS::ok)
