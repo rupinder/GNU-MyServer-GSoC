@@ -40,7 +40,7 @@ extern "C" {
 /*
 *This is the version of the Control Center and can be different from the myServer version.
 */
-const char VERSION_OF_SOFTWARE[]="0.4.1";
+const char VERSION_OF_SOFTWARE[]="0.4.2";
 
 /*
 *To compile this program you need the library wxwindows distributed under the GNU LGPL(http://www.gnu.org/copyleft/lgpl.html) license terms.

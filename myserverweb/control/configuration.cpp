@@ -17,6 +17,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "control.h"
 #include "configuration.h"
+
+#ifndef WIN32
+#include "../source/lfind.cpp"
+#endif
 static int yetVisible=0;
 enum
 {
@@ -163,3 +167,4 @@ void configurationFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 	Show(FALSE);
 	yetVisible=0;
 }
+
