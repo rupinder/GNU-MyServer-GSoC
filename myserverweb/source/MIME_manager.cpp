@@ -37,12 +37,12 @@ HRESULT MIME_Manager::load(char *filename)
 	char buffer[MAX_MIME_TYPES*2*32];
 	ZeroMemory(&(data[0][0][0]),sizeof(buffer));
 	ZeroMemory(buffer,sizeof(buffer));
-	MYSERVER_FILE_HANDLE f=openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	if(f==0)
 		return 1;
 	DWORD nbw;
-	readFromFile(f,buffer,sizeof(buffer),&nbw);
-	closeFile(f);
+	ms_ReadFromFile(f,buffer,sizeof(buffer),&nbw);
+	ms_CloseFile(f);
 	DWORD nc=0;
 	for(DWORD i=0;i<MAX_MIME_TYPES;i++)
 	{
@@ -111,10 +111,10 @@ BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 */
 VOID MIME_Manager::dumpToFILE(char *file)
 {
-	MYSERVER_FILE_HANDLE f=openFile(file,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	MYSERVER_FILE_HANDLE f=ms_OpenFile(file,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	DWORD nbw;
-	writeToFile(f,&data[0][0][0],sizeof(data),&nbw);
-	closeFile(f);
+	ms_WriteToFile(f,&data[0][0][0],sizeof(data),&nbw);
+	ms_CloseFile(f);
 }
 
 VOID MIME_Manager::clean()

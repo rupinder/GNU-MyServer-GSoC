@@ -35,9 +35,9 @@ int getPathRecursionLevel(char*);
 #define MYSERVER_FILE_OPEN_IFEXISTS (1<<5)
 #define MYSERVER_FILE_OPEN_APPEND (1<<6)
 
-INT	readFromFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
-INT	writeToFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
-MYSERVER_FILE_HANDLE createTemporaryFile(char*);
-MYSERVER_FILE_HANDLE openFile(char*,DWORD);
-INT closeFile(MYSERVER_FILE_HANDLE);
-INT deleteFile(char*);
+INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
+INT	ms_WriteToFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
+MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char*);
+MYSERVER_FILE_HANDLE ms_OpenFile(char*,DWORD);
+INT ms_CloseFile(MYSERVER_FILE_HANDLE);
+INT ms_DeleteFile(char*);

@@ -29,7 +29,7 @@ static MYSERVER_FILE_HANDLE logFile=0;
 DWORD logFileWrite(char* str)
 {
 	DWORD nbw;
-	writeToFile(logFile,str,lstrlen(str),&nbw);
+	ms_WriteToFile(logFile,str,lstrlen(str),&nbw);
 	return nbw;
 }
 void setLogFile(MYSERVER_FILE_HANDLE nlg)
@@ -60,7 +60,7 @@ int getPathRecursionLevel(char* path)
 /*
 *Write data to a file
 */
-INT	writeToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbw)
+INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbw)
 {
 #ifdef WIN32
 	return WriteFile((HANDLE)f,buffer,buffersize,nbw,NULL);
@@ -69,7 +69,7 @@ INT	writeToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbw)
 /*
 *Read data from a file to a buffer
 */
-INT	readFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbr)
+INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
@@ -83,7 +83,7 @@ INT	readFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbr
 /*
 *Open(or create if not exists) a file
 */
-MYSERVER_FILE_HANDLE openFile(char* filename,DWORD opt)
+MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 {
 	MYSERVER_FILE_HANDLE ret;
 #ifdef WIN32
@@ -123,16 +123,16 @@ MYSERVER_FILE_HANDLE openFile(char* filename,DWORD opt)
 /*
 *Create a temporary file
 */
-MYSERVER_FILE_HANDLE createTemporaryFile(char* filename)
+MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char* filename)
 {
 #ifdef WIN32
-	return openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_TEMPORARY|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_ALWAYS);
+	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_TEMPORARY|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_ALWAYS);
 #endif
 }
 /*
 *Close an open file handle
 */
-INT closeFile(MYSERVER_FILE_HANDLE fh)
+INT ms_CloseFile(MYSERVER_FILE_HANDLE fh)
 {
 #ifdef WIN32
 	CloseHandle((HANDLE)fh);
@@ -142,7 +142,7 @@ INT closeFile(MYSERVER_FILE_HANDLE fh)
 /*
 *Delete an existing file passing its path
 */
-INT deleteFile(char *filename)
+INT ms_DeleteFile(char *filename)
 {
 #ifdef WIN32
 	DeleteFile(filename);

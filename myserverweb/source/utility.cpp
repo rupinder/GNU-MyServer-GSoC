@@ -58,18 +58,18 @@ INT getOSVersion()
 #endif
 	return ret;
 }	
-
+/*
+*Set the buffer cmd to the next line
+*/
 void gotoNextLine(char* cmd)
 {
 	while(*cmd++!='\n')if(*cmd=='\0')break;
 
 }
-char gotoNextLine(FILE* f)
-{
-	char c=(char)fgetc(f);
-	while(c!='\n')if(feof(f))return EOF; else c=(char)fgetc(f);
-	return c;
-}
+
+/*
+*Get the file extension
+*/
 void getFileExt(char* ext,char*filename)
 {
 	DWORD len,i;
@@ -84,6 +84,9 @@ void getFileExt(char* ext,char*filename)
 static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dic"};
 static char localTimeString[31];
+/*
+*This function format current time to the HTTP time format
+*/
 char *getHTTPFormattedTime(void)
 {
 	__int64 ltime;
@@ -92,6 +95,10 @@ char *getHTTPFormattedTime(void)
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[gmtime->tm_wday],gmtime->tm_mday,monthsName[gmtime->tm_mon],gmtime->tm_year,gmtime->tm_hour,gmtime->tm_min,gmtime->tm_sec);
 	return localTimeString;
 }
+/*
+*This function format a time gmtime to the HTTP time format
+*/
+
 char *getHTTPFormattedTime(tm*  gmtime)
 {
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[gmtime->tm_wday],gmtime->tm_mday,monthsName[gmtime->tm_mon],gmtime->tm_year,gmtime->tm_hour,gmtime->tm_min,gmtime->tm_sec);
@@ -153,6 +160,9 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 		}
 	}
 }
+/*
+*Returns the number of processors that are on the local machine
+*/
 DWORD getCPUCount()
 {
 	DWORD ret=1;
@@ -163,7 +173,9 @@ DWORD getCPUCount()
 #endif
 	return ret;
 }
-
+/*
+*Excute an hidden process and wait until it end itself
+*/
 DWORD execHiddenProcess(START_PROC_INFO *spi)
 {
 #ifdef WIN32
@@ -180,9 +192,6 @@ DWORD execHiddenProcess(START_PROC_INFO *spi)
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
-	/*
-	*To set the CGI path modify the MIMEtypes file in the bin folder
-	*/
     CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_SEPARATE_WOW_VDM|CREATE_NEW_CONSOLE,NULL,NULL,&si, &pi);
 	/*
 	*Wait until it's ending by itself
@@ -205,6 +214,8 @@ VOID getComputerName(char *dest,DWORD maxLen)
 	}
 #endif
 }
+
+
 /*
 *This function is similar to the Windows API WaitForSingleObject(..)
 */

@@ -144,7 +144,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	*With this code we send a file through the HTTP protocol
 	*/
 	MYSERVER_FILE_HANDLE h;
-	h=openFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	h=ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(h==0)
 	{	
 		if(GetLastError()==ERROR_ACCESS_DENIED)
@@ -206,13 +206,13 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	for(;;)
 	{
 		DWORD nbr;
-		readFromFile(h,buffer,buffersize,&nbr);
+		ms_ReadFromFile(h,buffer,buffersize,&nbr);
 		if(nbr==0)
 			break;
 		if(ms_send(s->socket,buffer,nbr, 0) == SOCKET_ERROR)
 			break;
 	}
-	closeFile(h);
+	ms_CloseFile(h);
 	return 1;
 
 }
@@ -852,14 +852,14 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*input to get other params like in a POST request
 	*/
 
-	MYSERVER_FILE_HANDLE stdOutFile = createTemporaryFile(stdOutFilePath);
-	MYSERVER_FILE_HANDLE stdInFile = createTemporaryFile(stdInFilePath);
+	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
+	MYSERVER_FILE_HANDLE stdInFile = ms_CreateTemporaryFile(stdInFilePath);
 	
 	DWORD nbw;
 	if(request.URIOPTSPTR)
-		writeToFile(stdInFile,request.URIOPTSPTR,atoi(request.CONTENTS_DIM),&nbw);
+		ms_WriteToFile(stdInFile,request.URIOPTSPTR,atoi(request.CONTENTS_DIM),&nbw);
 	char *endFileStr="\r\n\r\n\0";
-	writeToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
+	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 	setFilePointer(stdInFile,0);
 
 	START_PROC_INFO spi;
@@ -871,7 +871,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	
 	DWORD nBytesRead;
 	setFilePointer(stdOutFile,0);
-	readFromFile(stdOutFile,buffer2,buffersize2,&nBytesRead);
+	ms_ReadFromFile(stdOutFile,buffer2,buffersize2,&nBytesRead);
 	buffer2[max(buffersize2,nBytesRead)]='\0';
 
 	/*
@@ -904,10 +904,10 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*/
 	ms_send(s->socket,buffer2,nBytesRead, 0);
 
-	closeFile(stdOutFile);
-	deleteFile(stdOutFilePath);
-	closeFile(stdInFile);
-	deleteFile(stdInFilePath);
+	ms_CloseFile(stdOutFile);
+	ms_DeleteFile(stdOutFilePath);
+	ms_CloseFile(stdInFile);
+	ms_DeleteFile(stdInFilePath);
 
 	/*
 	*Restore security on the current thread

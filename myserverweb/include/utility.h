@@ -48,7 +48,6 @@ struct START_PROC_INFO
 INT getOSVersion();
 DWORD getCPUCount();
 void gotoNextLine(char*);
-char gotoNextLine(FILE*);
 char *getHTTPFormattedTime(void);
 char *getHTTPFormattedTime(tm*);
 VOID StrTrim(LPSTR,LPSTR);

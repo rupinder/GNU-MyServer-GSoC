@@ -50,7 +50,7 @@ int ms_listen(MYSERVER_SOCKET s,int max)
 
 MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET s,sockaddr* sa,int* sockaddrlen)
 {
-	return accept(s,sa,sockaddrlen);
+	return (MYSERVER_SOCKET)accept(s,sa,sockaddrlen);
 }
 
 int ms_closesocket(MYSERVER_SOCKET s)

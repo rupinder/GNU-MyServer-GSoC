@@ -25,12 +25,12 @@
 */
 void cXMLParser::open(char* filename)
 {
-	file=openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	file=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	buffersize=getFileSize(file);
 	buffer=(char*)malloc(buffersize);
 	DWORD nbr;
 	if(buffer)
-		readFromFile(file,buffer,buffersize,&nbr);
+		ms_ReadFromFile(file,buffer,buffersize,&nbr);
 	if(nbr==0)
 		buffer[0]='#';
 }
@@ -97,7 +97,7 @@ char *cXMLParser::getValue(char* vName)
 void cXMLParser::close()
 {
 	if(file)
-		closeFile(file);
+		ms_CloseFile(file);
 	if(buffer)
 		free(buffer);
 }

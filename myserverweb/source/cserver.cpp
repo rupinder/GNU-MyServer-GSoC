@@ -51,7 +51,7 @@ void cserver::start(INT hInst)
 	*Save the unique instance of this class
 	*/
 	lserver=this;
-	logFile=openFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	logFile=ms_OpenFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	setLogFile(logFile);
 	controlSizeLogFile();
 
@@ -212,9 +212,6 @@ void cserver::start(INT hInst)
 	else
 		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
 
-	/*
-	*Create the threads
-	*/
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
 	
 	/*
@@ -231,6 +228,9 @@ void cserver::start(INT hInst)
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
+	/*
+	*Create the thread
+	*/
 	listenServerHTTPHandle=(int)_beginthreadex(NULL,0,&::listenServerHTTP,0,0,&ID);
 
 
@@ -348,7 +348,7 @@ void cserver::terminate()
 	}
 	ms_closesocket(serverSocketHTTP);
 
-	closeFile(logFile);
+	ms_CloseFile(logFile);
 }
 void cserver::initialize(INT OSVer)
 {
@@ -504,15 +504,15 @@ VOID cserver::controlSizeLogFile()
 	*/
 	if(!logFile)
 	{
-		logFile=openFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		logFile=ms_OpenFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	DWORD fs=0;
 	fs=getFileSize(logFile);
 	if(fs>maxLogFileSize)
 	{
-		closeFile(logFile);
-		deleteFile("myServer.log");
-		logFile=openFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		ms_CloseFile(logFile);
+		ms_DeleteFile("myServer.log");
+		logFile=ms_OpenFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	setLogFile(logFile);
 }
