@@ -162,6 +162,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
 			case CONNECTION_REMOVE_OVERLOAD:
         sendResponse(b2, bs2, a, CONTROL_SERVER_BUSY, 0);
 				return 0;
+      default:
+        return 0;
 		}
 	}
 
@@ -423,6 +425,12 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     knownCommand = 1;
     ret = SHOWCONNECTIONS(Ofile, b1, bs1);
   }
+  if(!strcmp(command, "KILLCONNECTION"))
+  {
+    knownCommand = 1;
+    u_long ID = header.getOptions() ? atol(header.getOptions()) : 0;
+    ret = KILLCONNECTION( ID ,Ofile, b1, bs1);
+  }
 
   if(knownCommand)
   {
@@ -557,9 +565,30 @@ int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
   LPCONNECTION con = lserver->getConnections();
   while(con)
   {
-    sprintf(b1, "%s - %s - %s\r\n", con->ipAddr, con->login, con->password);
+    sprintf(b1, "%s - %i  - %s - %s\r\n", con->ipAddr, con->ID, 
+            con->login, con->password);
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     con = con->next;
+  }
+  lserver->connections_mutex_unlock();
+  return ret;
+}
+
+/*!
+ *Kill a connection by its ID.
+ */
+int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out, char *b1, int bs1)
+{
+  int ret = 0;
+  u_long nbw;
+  if(ID == 0)
+    return -1;
+  LPCONNECTION con = lserver->findConnectionByID(ID);
+  lserver->connections_mutex_lock();
+  if(con)
+  {
+    /*! Define why the connection is killed. */
+    con->toRemove = CONNECTION_USER_KILL;
   }
   lserver->connections_mutex_unlock();
   return ret;

@@ -34,6 +34,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*! Remove the connection due a high server load.  */
 #define CONNECTION_REMOVE_OVERLOAD 1
 
+/*! Remove the connection if the administrator decided this.  */
+#define CONNECTION_USER_KILL        2
+
+
 typedef u_long CONNECTION_PROTOCOL;
 
 class CONNECTION

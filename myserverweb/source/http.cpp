@@ -1872,10 +1872,12 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		switch(td.connection->toRemove)
 		{
       /*! Remove the connection from the list. */
-			case CONNECTION_REMOVE_OVERLOAD:
-				retvalue = raiseHTTPError(&td, a, e_503);
+      case CONNECTION_REMOVE_OVERLOAD:
+        retvalue = raiseHTTPError(&td, a, e_503);
 				logHTTPaccess(&td, a);
 				return 0;
+      default:
+        return 0;
 		}
 	}
 	int validRequest;
