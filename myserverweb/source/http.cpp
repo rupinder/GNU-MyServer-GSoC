@@ -94,6 +94,7 @@ int http::fastcgi_servers;
 int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, 
                             char* folder, int only_header)
 {
+
 	/*! Send the folder content.  */
 	u_long nbw;
 	int ret;
@@ -348,7 +349,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 		strcpy(td->response.CONNECTION, "Keep-Alive");
 	sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)td->outputData.getFileSize());
-	
+
 	/*! If we haven't to append the output build the HTTP header and send the data.  */
 	if(!td->appendOutputs)
   {
@@ -368,7 +369,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
     if(only_header)
       return 1;
 
-		do
+    do
 		{
 			ret = td->outputData.readFromFile((char*)td->buffer->GetBuffer(), 
                                         td->buffer->GetRealLength(), &nbr);

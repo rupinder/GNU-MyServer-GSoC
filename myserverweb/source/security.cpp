@@ -98,7 +98,7 @@ int getErrorFileName(char *root,int error,char** out)
 	return found;
 }
 int getPermissionMask(char* user, char* password,char* folder,
-                      char* filename,char *sysfolder,char *password2,
+                      char* filename,char *sysfolder, char *password2,
                       char* auth_type,int len_auth,int *permission2)
 {
 	char *permissionsFile;
@@ -124,12 +124,12 @@ int getPermissionMask(char* user, char* password,char* folder,
      *If the security file doesn't exist try with a default one.
      */
 		if(sysfolder!=0)
-			ret = getPermissionMask(user,password,sysfolder,filename,0);
+			ret = getPermissionMask(user, password, sysfolder, filename, 0);
 		else
 		/*!
      *If the default one doesn't exist too send full permissions for everyone
      */
-			ret = (-1);
+			ret = 0;
     delete [] permissionsFile;
     return ret;
 	}
@@ -137,12 +137,13 @@ int getPermissionMask(char* user, char* password,char* folder,
 	if(parser.open(permissionsFile)==-1)
   {
     delete [] permissionsFile;
-		return (0);
+		return 0;
   }
+
   delete [] permissionsFile;
 	xmlDocPtr doc=parser.getDoc();
 	if(!doc)
-		return (-1);
+		return 0;
 	xmlNode *node=doc->children->children;
 
 	int filePermissions=0;
