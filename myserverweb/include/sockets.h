@@ -59,6 +59,8 @@ public:
 	int socket(int,int,int);
 	int bind(MYSERVER_SOCKADDR*,int);
 	int listen(int);
+	MYSERVER_SOCKET();
+	MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE);
 	MYSERVER_SOCKET accept(MYSERVER_SOCKADDR*,int*);
 	int closesocket();
 	int setsockopt(int,int,const char*,int);

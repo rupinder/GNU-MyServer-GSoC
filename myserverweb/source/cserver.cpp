@@ -669,8 +669,6 @@ void cserver::initialize(int OSVer)
 	{
 		lstrcpy(browseDirCSSpath,data);
 	}
-
-
 	data=configurationFileManager.getValue("NTHREADS_A");
 	if(data)
 	{

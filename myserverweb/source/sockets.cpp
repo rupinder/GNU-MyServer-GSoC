@@ -44,6 +44,9 @@ extern "C" {
 int startupSocketLib(u_short ver)
 {
 #ifdef WIN32	
+	/*
+	*Under windows you need to initialize the socket library before use it.
+	*/
 	WSADATA wsaData;
 	return WSAStartup(ver, &wsaData);
 #else
@@ -73,7 +76,14 @@ int MYSERVER_SOCKET::socket(int af,int type,int protocol)
 	socketHandle=::socket(af,type,protocol);
 	return	(int)socketHandle;
 }
-
+MYSERVER_SOCKET::MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE handle)
+{
+	setHandle(handle);
+}
+MYSERVER_SOCKET::MYSERVER_SOCKET()
+{
+	setHandle(0);
+}
 int MYSERVER_SOCKET::bind(MYSERVER_SOCKADDR* sa,int namelen)
 {
 #ifdef WIN32	

@@ -18,12 +18,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  
 #include "../include/fastCGI.h"
 #define MAX_FCGI_SERVERS	25
+/*
+*Thi strucure is used to keep trace of a running fCGI server.
+*/
 static struct sfCGIservers
 {
-	char path[MAX_PATH*2];/*exec path*/
+	char path[MAX_PATH*2];/*server executable path*/
 	union 
 	{
-	    /*HANDLE*/unsigned long fileHandle;
+	    unsigned long fileHandle;
 		SOCKET sock;
 		unsigned int value;
 	}DESCRIPTOR;
@@ -246,7 +249,7 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 	return 0;
 }
 /*
-*Trasform from an environment string to the FastCGI environment string.
+*Trasform from a standard environment string to the FastCGI environment string.
 */
 int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 {
@@ -299,9 +302,6 @@ int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 		{
 			*ptr++=varValueLen.c[0];
 		}
-
-
-
 		for(i=0;i<varNameLen.i;i++)
 			*ptr++=varName[i];
 		for(i=0;i<varValueLen.i;i++)
