@@ -273,13 +273,9 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	strcat(cgiEnvString,versionOfSoftware);
 	strcat(cgiEnvString,"</address>");
 
-	switch(((vhost*)(td->connection->host))->protocol)
-	{
-		case PROTOCOL_HTTP:
-			strcat(cgiEnvString,"\rSERVER_PROTOCOL=");
-			strcat(cgiEnvString,td->request.VER);		
-			break;
-	}
+	strcat(cgiEnvString,"\rSERVER_PROTOCOL=");
+	strcat(cgiEnvString,td->request.VER);		
+
 	strcat(cgiEnvString,"\rSERVER_PORT=");
 	sprintf(&cgiEnvString[strlen(cgiEnvString)],"%u",td->connection->localPort);
 

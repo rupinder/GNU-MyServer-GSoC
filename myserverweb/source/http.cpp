@@ -1069,7 +1069,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
 		*request does not include a Host request-header.
 		*/
-		if((!strcmp(td.request.VER,"1.1")) && td.request.HOST[0]==0)
+		if((!strcmp(td.request.VER,"HTTP/1.1")) && td.request.HOST[0]==0)
 		{
 			raiseHTTPError(&td,a,e_400);
 			if(td.inputData.getHandle())
