@@ -135,7 +135,7 @@ cgi_manager::operator <<(char* str)
 char *cgi_manager::operator >>(char* str)
 {
 	/*
-	*If is a POST request return a param from the POST values
+	*If it is a POST request return a param from the POST values
 	*else return a GET param.
 	*/
 	if(td->request.URIOPTS)
@@ -144,9 +144,9 @@ char *cgi_manager::operator >>(char* str)
 		return GetParam(str);
 } 
 /*
-*Get the name of an environment variable.
+*Get the value of an environment variable.
 */
-void cgi_manager::getEnvVariable(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)
+void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)
 {
 	((char*)lpvBuffer)[0]='\0';
 	char *localEnv=cgidata->envString;
@@ -165,3 +165,4 @@ void cgi_manager::getEnvVariable(char* lpszVariableName,char *lpvBuffer,unsigned
 	}
 	*lpdwSize=lstrlen((char*)lpvBuffer);
 }
+

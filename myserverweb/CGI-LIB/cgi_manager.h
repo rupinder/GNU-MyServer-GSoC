@@ -34,7 +34,7 @@ public:
 	char* operator >>(char*);
 	int Start(cgi_data* data);
 	int Clean();
-	void getEnvVariable(char*,char*,unsigned int*);
+	void getenv(char*,char*,unsigned int*);
 	char* GetParam(char*);
 	char* PostParam(char*);
 	int Write(char*);

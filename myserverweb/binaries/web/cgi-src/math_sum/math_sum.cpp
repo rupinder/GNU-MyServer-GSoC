@@ -27,11 +27,11 @@ int EXPORTABLE main (char *cmd,cgi_data* data)
 
 		unsigned int dim=120;
 		char lb[120];
-		cm.getEnvVariable("SERVER_NAME",lb,&dim);
+		cm.getenv("SERVER_NAME",lb,&dim);
 		cm.Write("<BR>Running on: ");
 		cm.Write(lb);
 		cm.Write("(");
-		cm.getEnvVariable("HTTP_HOST",lb,&dim);
+		cm.getenv("HTTP_HOST",lb,&dim);
 		cm.Write(lb);
 		cm.Write(")");
 		
