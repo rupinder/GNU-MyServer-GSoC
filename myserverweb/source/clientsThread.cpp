@@ -170,7 +170,15 @@ void ClientsTHREAD::controlConnections()
 				retcode=https_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			default:
-				retcode=0;
+				dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
+				if(dp==0)
+				{
+					retcode=0;
+				}
+				else
+				{
+					retcode=dp->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				}
 				break;
 		}
 		/*!

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/MIME_manager.h"
 #include "../include/vhosts.h"
+#include "../include/protocols_manager.h"
 #include "../include/connectionstruct.h"
 
 
@@ -70,6 +71,7 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
+	protocols_manager protocols;
 	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];/*!Buffer that contains all the local machine IP values*/
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
@@ -96,6 +98,7 @@ private:
 	int createServerAndListener(u_long);
 	LPCONNECTION connectionToParse;
 public:
+	dynamic_protocol* getDynProtocol(char *protocolName);
 	u_long connectionWriteAccess;
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	LPCONNECTION getConnectionToParse(int);

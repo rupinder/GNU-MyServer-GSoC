@@ -144,6 +144,7 @@ void cserver::start()
 
 	http::loadProtocol(&languageParser,"myserver.xml");
 	https::loadProtocol(&languageParser,"myserver.xml");
+	protocols.loadProtocols("external/protocols",&languageParser,"myserver.xml",this);
 
 	/*!
 	*Initialize the SSL library
@@ -634,7 +635,8 @@ void cserver::terminate()
 #endif	
 	http::unloadProtocol(&languageParser);
 	https::unloadProtocol(&languageParser);
-
+	protocols.unloadProtocols(&languageParser);
+	
 	delete[] threads;
 	if(verbosity>1)
 	{
@@ -1066,4 +1068,11 @@ u_long cserver::getNumThreads()
 char *cserver::getAddresses()
 {
 	return ipAddresses;
+}
+/*!
+*Get the dynamic protocol to use for that connection.
+*/
+dynamic_protocol* cserver::getDynProtocol(char *protocolName)
+{
+	return protocols.getDynProtocol(protocolName);
 }

@@ -20,15 +20,27 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/protocols_manager.h"
 #include "../include/cXMLParser.h"
 
-typedef char* (*loadProtocolPROC)(cXMLParser*,char*); 
-typedef char* (*unloadProtocolPROC)(cXMLParser* languageParser); 
-typedef int (*controlConnectionPROC)(LPCONNECTION ,char*,char*,int,int,u_long,u_long); 
+#ifdef NOT_WIN
+#include "../include/lfind.h"
+
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#endif
+
+// Bloodshed Dev-C++ Helper
+#ifndef intptr_t
+#define intptr_t int
+#endif
+
+typedef int (*loadProtocolPROC)(void*,char*,void*); 
+typedef int (*unloadProtocolPROC)(void* languageParser); 
+typedef int (*controlConnectionPROC)(void* ,char*,char*,int,int,u_long,u_long); 
 typedef char* (*registerNamePROC)(char*,int); 
 
 /*!
 *Load the protocol. Called once at runtime.
 */
-int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile)
+int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cserver* lserver)
 {
 #ifdef WIN32
 	hinstLib = LoadLibrary(filename);
@@ -36,7 +48,8 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile)
 #ifdef HAVE_DL
 	hinstLib = dlopen(filename, RTLD_LAZY);
 #endif
-
+	if(hinstLib==0)
+		return 0;
 	loadProtocolPROC Proc;
 #ifdef WIN32
 		Proc = (loadProtocolPROC) GetProcAddress(hinstLib, "loadProtocol"); 
@@ -46,10 +59,9 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile)
 #endif	
 	int ret=0;
 	if(Proc)
-		ret = ((Proc(languageParser,confFile)[0]!='\0')?1:0);
-
-	registerName(protocolName,16);
-
+		ret = (Proc((void*)languageParser,confFile,(void*)lserver));
+	if(ret)
+		ret = registerName(protocolName,16)[0]!='\0' ?1:0;
 	return ret;
 }
 
@@ -60,13 +72,13 @@ int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
 {
 	unloadProtocolPROC Proc;
 #ifdef WIN32
-	Proc = (unloadProtocolPROC) GetProcAddress(hinstLib, "registerName"); 
+	Proc = (unloadProtocolPROC) GetProcAddress(hinstLib, "unloadProtocol"); 
 #endif
 #ifdef HAVE_DL
-	Proc = (unloadProtocolPROC) dlsym(hinstLib, "registerName");
+	Proc = (unloadProtocolPROC) dlsym(hinstLib, "unloadProtocol");
 #endif	
 	if(Proc)
-		Proc(languageParser);
+		Proc((void*)languageParser);
 	/*
 	*Free the loaded module too.
 	*/
@@ -103,7 +115,7 @@ int dynamic_protocol::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1
 	Proc = (controlConnectionPROC) dlsym(hinstLib, "controlConnection");
 #endif	
 	if(Proc)
-		return Proc(a,b1,b2,bs1,bs2,nbtr,id);
+		return Proc((void*)a,b1,b2,bs1,bs2,nbtr,id);
 	else
 		return 0;
 }
@@ -145,27 +157,30 @@ int dynamic_protocol::setFilename(char *nf)
 /*!
 *Add a new protocol to the list by its module name.
 */
-int protocols_manager::addProtocol(char *file)
+int protocols_manager::addProtocol(char *file,cXMLParser* parser,char* confFile,cserver* lserver)
 {
 	dynamic_protocol_list_element* ne=new dynamic_protocol_list_element();
 	ne->data.setFilename(file);
+	ne->data.loadProtocol(parser,confFile,lserver);
 	ne->next=list;
 	list=ne;
-	
+	printf("%s %s --> %s\n",parser->getValue("MSG_LOADED"),file,ne->data.getProtocolName());
 	return 1;
 }
 /*!
 *Unload evey loaded protocol.
 */
-int protocols_manager::unloadProtocols()
+int protocols_manager::unloadProtocols(cXMLParser *parser)
 {
 	dynamic_protocol_list_element* ce=list;
 	dynamic_protocol_list_element* ne=list->next;
 	while(ce)
 	{
+		ce->data.unloadProtocol(parser);
 		delete ce;
 		ce=ne;
-		ne=ne->next;
+		if(ne)
+			ne=ne->next;
 		
 	}
 	list=0;
@@ -193,4 +208,50 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
 	}
 	return 0;
 	
+}
+/*!
+*Load all the protocols present in the folder.
+*/
+void protocols_manager::loadProtocols(char* folder,cXMLParser* parser,char* confFile,cserver* lserver)
+{
+	char filename[MAX_PATH];
+#ifdef WIN32
+	sprintf(filename,"%s/*.*",folder);
+#endif	
+#ifdef NOT_WIN
+	sprintf(filename,"%s/",folder);
+#endif	
+	
+	_finddata_t fd;
+	intptr_t ff;
+	ff=(intptr_t)_findfirst(filename,&fd);	
+#ifdef WIN32
+	if(ff==-1)
+#endif
+#ifdef NOT_WIN
+	if((int)ff==-1)
+#endif
+		return;	
+	do
+	{	
+		if(fd.name[0]=='.')
+			continue;
+		/*
+		*Do not consider file other than dynamic libraries
+		*/
+#ifdef WIN32
+		if(!strstr(fd.name,".dll"))
+#endif
+#ifdef NOT_WIN
+		if(!strstr(fd.name,".so"))
+#endif		
+			continue;
+		
+		sprintf(filename,"%s/%s",folder,fd.name);
+		
+		addProtocol(filename,parser,confFile,lserver);
+		
+	}while(!_findnext(ff,&fd));
+	_findclose(ff);		
+
 }
