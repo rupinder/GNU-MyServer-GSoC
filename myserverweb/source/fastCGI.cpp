@@ -766,7 +766,7 @@ int FastCgi::unload()
 }
 
 /*!
- *Return the the running server speicified by path.
+ *Return the the running server specified by path.
  *If the server is not running returns 0.
  */
 sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
