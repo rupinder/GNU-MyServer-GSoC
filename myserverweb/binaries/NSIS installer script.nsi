@@ -75,12 +75,12 @@ SectionEnd
 Section "Web examples" SecWebEx
   SetOutPath "$INSTDIR\web\cgi-bin"
   File "web\cgi-bin\*.*"
-  SetOutPath $INSTDIR\web\cgi-src\math_sum
-  File "web\cgi-src\math_sum\*.*"
-  SetOutPath "$INSTDIR\web\cgi-src\post"
-  File "web\cgi-src\post\*.*"
-  SetOutPath "$INSTDIR\web\cgi-src\counter"
-  File "web\cgi-src\counter\*.*"
+;  SetOutPath $INSTDIR\web\cgi-src\math_sum
+;  File "web\cgi-src\math_sum\*.*"
+;  SetOutPath "$INSTDIR\web\cgi-src\post"
+;  File "web\cgi-src\post\*.*"
+;  SetOutPath "$INSTDIR\web\cgi-src\counter"
+;  File "web\cgi-src\counter\*.*"
   SetOutPath "$INSTDIR\web\downloads"
   File "web\downloads\*.*"
 SectionEnd
