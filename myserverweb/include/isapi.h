@@ -145,7 +145,7 @@ public:
                                  LPVOID output, LPDWORD maxLen);
 #endif	
 	Isapi();
-	static myserver_mutex *isapi_mutex;
+	static Mutex *isapi_mutex;
 	static int load();
 	static int unload();
 	static void setTimeout(u_long);

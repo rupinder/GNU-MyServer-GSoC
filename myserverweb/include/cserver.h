@@ -119,13 +119,13 @@ private:
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 	int loadSettings();
-	myserver_mutex *connections_mutex;
+	Mutex *connections_mutex;
 	ConnectionPtr connectionToParse;
 	u_long nStaticThreads;
   u_long nMaxThreads;
   u_long nThreads;
 
-  myserver_mutex *threads_mutex;
+  Mutex *threads_mutex;
   ClientsThread *threads;
 
   int purgeThreads();

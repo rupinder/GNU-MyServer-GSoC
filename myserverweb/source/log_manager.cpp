@@ -35,7 +35,7 @@ LogManager::LogManager()
    */
   type = TYPE_CONSOLE;
   max_size = 0;
-	mutex.myserver_mutex_init();
+	mutex.init();
 }
 
 /*!
@@ -46,7 +46,7 @@ LogManager::~LogManager()
   /*!
    *Try to close the file.
    */
-	mutex.myserver_mutex_destroy();
+	mutex.destroy();
   close();
 }
 
@@ -215,7 +215,7 @@ File *LogManager::getFile()
  */
 int LogManager::requestAccess()
 {
-  mutex.myserver_mutex_lock();
+  mutex.lock();
   return 0;
 }
 
@@ -224,7 +224,7 @@ int LogManager::requestAccess()
  */
 int LogManager::terminateAccess()
 {
-  mutex.myserver_mutex_unlock();
+  mutex.unlock();
   return 0;
 }
 

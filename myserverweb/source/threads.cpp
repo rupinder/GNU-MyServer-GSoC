@@ -61,20 +61,20 @@ void wait(u_long time)
 /*!
  *Constructor for the mutex class.
  */
-myserver_mutex::myserver_mutex()
+Mutex::Mutex()
 {
 	initialized=0;
-	myserver_mutex_init();
+	init();
 }
 /*!
  *Initialize a mutex.
  */
-int myserver_mutex::myserver_mutex_init()
+int Mutex::init()
 {
   int ret;
 	if(initialized)
 	{
-		myserver_mutex_destroy();
+		destroy();
 		initialized=0;
 	}
 #ifdef HAVE_PTHREAD
@@ -99,7 +99,7 @@ int myserver_mutex::myserver_mutex_init()
 /*!
  *Destroy a mutex.
  */
-int myserver_mutex::myserver_mutex_destroy()
+int Mutex::destroy()
 {
 #ifdef HAVE_PTHREAD
   if(initialized)
@@ -115,7 +115,7 @@ int myserver_mutex::myserver_mutex_destroy()
 /*!
  *Lock the mutex.
  */
-int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
+int Mutex::lock(u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
 #ifdef PTHREAD_ALTERNATE_LOCK
@@ -136,7 +136,7 @@ int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
 /*!
 *Unlock the mutex access.
 */
-int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
+int Mutex::unlock(u_long/*! id*/)
 {
 #ifdef HAVE_PTHREAD
 	int err;
@@ -151,12 +151,12 @@ int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 *Create a new thread.
 */
 #ifdef WIN32
-int myserver_thread::create(myserver_thread_ID*  ID, 
+int Thread::create(ThreadID*  ID, 
                             unsigned int  (_stdcall *start_routine)(void *), 
                             void * arg)
 #endif
 #ifdef HAVE_PTHREAD
-int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(void *), 
+int Thread::create(ThreadID*  ID, void * (*start_routine)(void *), 
                             void * arg)
 #endif
 {
@@ -172,7 +172,7 @@ int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(voi
 /*!
 *Terminate the caller thread.
 */
-void myserver_thread::terminate()
+void Thread::terminate()
 {
 #ifdef WIN32
 	_endthread();
@@ -185,7 +185,7 @@ void myserver_thread::terminate()
 /*!
 *Destroy the object.
 */
-myserver_mutex::~myserver_mutex()
+Mutex::~Mutex()
 {
-	myserver_mutex_destroy();
+	destroy();
 }

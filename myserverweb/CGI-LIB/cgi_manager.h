@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define LOCAL_BUFFER_DIM 150
 
 #ifdef WIN32
-class EXPORTABLE cgi_manager
+class EXPORTABLE CgiManager
 #else
 class CgiManager
 #endif
@@ -55,13 +55,13 @@ public:
 	~CgiManager(void);
 	int  operator <<(char*);
 	char*  operator >>(char*);
-	int   Start(MsCgiData* data);
-	int Clean();
+	int   start(MsCgiData* data);
+	int clean();
 	void   getenv(char*,char*,unsigned int*);
-	char*  GetParam(char*);
-	char*  PostParam(char*);
-	int Write(char*);
-	int Write(void*, int);
+	char*  getParam(char*);
+	char*  postParam(char*);
+	int write(char*);
+	int write(void*, int);
 };
 
 #endif

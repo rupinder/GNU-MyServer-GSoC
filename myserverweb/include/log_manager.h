@@ -33,7 +33,7 @@ private:
    */
   int loaded;
   u_long max_size;
-	myserver_mutex mutex;
+	Mutex mutex;
 public:
   const static int TYPE_CONSOLE;
   const static int TYPE_FILE;

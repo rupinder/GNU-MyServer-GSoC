@@ -62,7 +62,7 @@ public:
 class Http : public Protocol
 {
 private:
-  static  myserver_mutex sec_cache_mutex;
+  static  Mutex sec_cache_mutex;
   static SecurityCache sec_cache;
 	static int initialized;
 	/*! Store if the MSCGI library was loaded.  */
@@ -88,7 +88,7 @@ protected:
 public:
 	int PROTOCOL_OPTIONS;
 	char *getDefaultFilenamePath(u_long ID);
-	int sendHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
+	int sendHTTPResource(HttpThreadContext*,ConnectionPtr s,char *filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
 	int putHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);

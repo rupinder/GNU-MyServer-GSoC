@@ -35,9 +35,9 @@ unsigned int HashDictionary::hash(char * name)
 {
    unsigned int ret,x;
    int i;
-   int str_len = strlen(name);
+   int strLen = strlen(name);
    ret = x = i = 0;  
-   for(i = 0; i < str_len; name++, i++)
+   for(i = 0; i < strLen; name++, i++)
    {
       ret = (ret << 4) + (*name);
       x = ret & 0xF0000000L;
@@ -63,11 +63,11 @@ HashDictionary::~HashDictionary()
  */
 void *HashDictionary::getData(char* name)
 {
-  unsigned int name_hash = hash(name);
+  unsigned int nameHash = hash(name);
   sNode* cur = node;
   while(cur)
   {
-    if(cur->hash == name_hash)
+    if(cur->hash == nameHash)
       return cur->data;
     cur = cur->next;
   }
@@ -83,16 +83,16 @@ int HashDictionary::append(char* name, void* data)
 {
   if(name == 0)
     return 0;
-  sNode *new_node = new sNode();
-  if(new_node == 0)
+  sNode *newNode = new sNode();
+  if(newNode == 0)
     return 0;
-  new_node->hash = hash(name);
-  new_node->data = data;
-  new_node->next = 0;
+  newNode->hash = hash(name);
+  newNode->data = data;
+  newNode->next = 0;
 
   if(node == 0)
   {
-    node = new_node;
+    node = newNode;
     nodes_count++;
     return 1;
   }
@@ -105,7 +105,7 @@ int HashDictionary::append(char* name, void* data)
       cur = cur->next;
       ret++;
     }
-    cur->next = new_node;
+    cur->next = newNode;
     nodes_count++;
     return ret;
   }
@@ -199,11 +199,11 @@ int HashDictionary::insertAt(char* name, void* data, int pos)
 {
   if(name == 0)
     return -1;
-  sNode *new_node = new sNode();
-  if(new_node == 0)
+  sNode *newNode = new sNode();
+  if(newNode == 0)
     return -1;
-  new_node->hash = hash(name);
-  new_node->data = data;
+  newNode->hash = hash(name);
+  newNode->data = data;
   int i;
   sNode *cur = node;
   sNode *prev = 0;
@@ -211,7 +211,7 @@ int HashDictionary::insertAt(char* name, void* data, int pos)
   {
     if(cur == 0)
     {
-      delete new_node;
+      delete newNode;
       return -1;
     }
     prev = cur;
@@ -219,13 +219,13 @@ int HashDictionary::insertAt(char* name, void* data, int pos)
   }
   if(prev)
   {
-    prev->next = new_node;
+    prev->next = newNode;
   }
   else
   {
-    node = new_node;
+    node = newNode;
   }
-  new_node->next = cur;
+  newNode->next = cur;
   nodes_count++;
   return pos;
 }
@@ -237,12 +237,12 @@ int HashDictionary::insert(char* name,void* data)
 {
   if(name == 0)
     return -1;
-  sNode *new_node = new sNode();
-  if(new_node == 0)
+  sNode *newNode = new sNode();
+  if(newNode == 0)
     return -1;
-  new_node->hash = hash(name);
-  new_node->data = data;
-  new_node->next = node;
+  newNode->hash = hash(name);
+  newNode->data = data;
+  newNode->next = node;
   return  0;
 }
 
@@ -255,6 +255,7 @@ void* HashDictionary::removeNodeAt(int order)
   sNode *cur = node;
   sNode *prev = 0;
   int pos = 1;
+  void *data = 0;
   while((pos<order) && cur)
   {
     pos++;
@@ -271,7 +272,7 @@ void* HashDictionary::removeNodeAt(int order)
   {
     node = cur->next;
   }
-  void *data = cur->data;
+  data = cur->data;
   delete cur;
   nodes_count--;
   return data;

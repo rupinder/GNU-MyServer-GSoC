@@ -91,7 +91,7 @@ int Http::fastcgi_servers;
 SecurityCache Http::sec_cache;
 
 /*! Access the security cache safely. */
-myserver_mutex Http::sec_cache_mutex;
+Mutex Http::sec_cache_mutex;
 
 /*!
  *Build a response for an OPTIONS request.
@@ -306,21 +306,21 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	}
 	if(td->request.AUTH[0])
   {
-    sec_cache_mutex.myserver_mutex_lock();
+    sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
                                             filename, ((Vhost*)(s->host))->systemRoot, 
                                   ((HttpUserData*)s->protocolBuffer)->needed_password
                                   , auth_type, 16, &permissions2);
-    sec_cache_mutex.myserver_mutex_unlock();  
+    sec_cache_mutex.unlock();  
   }
 	else/*!The default user is Guest with a null password*/
   {
-    sec_cache_mutex.myserver_mutex_lock();
+    sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                   ((Vhost*)(s->host))->systemRoot, 
                                   ((HttpUserData*)s->protocolBuffer)->needed_password
                                   , auth_type, 16);
-    sec_cache_mutex.myserver_mutex_unlock();
+    sec_cache_mutex.unlock();
   }
 
 	/*! Check if we have to use digest for the current directory.  */
@@ -348,12 +348,12 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	/*! If there are no permissions, use the Guest permissions.  */
 	if(td->request.AUTH[0] && (permissions==0))
   {
-    sec_cache_mutex.myserver_mutex_lock();
+    sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                             ((Vhost*)(s->host))->systemRoot, 
                          ((HttpUserData*)s->protocolBuffer)->needed_password, 
                                             auth_type, 16);		
-    sec_cache_mutex.myserver_mutex_unlock();
+    sec_cache_mutex.unlock();
   }
   delete [] directory;
 
@@ -556,21 +556,21 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 
 	if(td->request.AUTH[0])
   {
-    sec_cache_mutex.myserver_mutex_lock();
+    sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
                                             filename,((Vhost*)(s->host))->systemRoot, 
                                ((HttpUserData*)s->protocolBuffer)->needed_password,
                                             auth_type, 16, &permissions2);
-    sec_cache_mutex.myserver_mutex_unlock();
+    sec_cache_mutex.unlock();
   }
 	else/*!The default user is Guest with a null password*/
   {
-    sec_cache_mutex.myserver_mutex_lock();
+    sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                ((Vhost*)(s->host))->systemRoot, 
                                ((HttpUserData*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
-    sec_cache_mutex.myserver_mutex_unlock();
+    sec_cache_mutex.unlock();
 	}	
   /*! Check if we have to use digest for the current directory. */
 	if(!lstrcmpi(auth_type, "Digest"))
@@ -598,12 +598,12 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	/*If there are no permissions, use the Guest permissions*/
 	if(td->request.AUTH[0] && (permissions==0))
   {
-    sec_cache_mutex.myserver_mutex_lock();
+    sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                   ((Vhost*)(s->host))->systemRoot, 
                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
                                  auth_type, 16);	
-    sec_cache_mutex.myserver_mutex_unlock();
+    sec_cache_mutex.unlock();
   }
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	{
@@ -725,7 +725,7 @@ void HttpUserData::reset()
 /*!
  *Main function to send a resource to a client.
  */
-int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI, 
+int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI, 
                            int systemrequest, int only_header, int yetmapped)
 {
 	/*!
@@ -841,22 +841,22 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		permissions2=0;
 		if(td->request.AUTH[0])
     {
-      sec_cache_mutex.myserver_mutex_lock();
+      sec_cache_mutex.lock();
 			permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), 
                                               directory, filename,
                                               ((Vhost*)(s->host))->systemRoot,
                                  ((HttpUserData*)s->protocolBuffer)->needed_password,
                                     auth_type, 16, &permissions2);
-      sec_cache_mutex.myserver_mutex_unlock();
+      sec_cache_mutex.unlock();
     }
 		else/*!The default user is Guest with a null password*/
     {
-      sec_cache_mutex.myserver_mutex_lock();
+      sec_cache_mutex.lock();
 			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
                                   ((Vhost*)(s->host))->systemRoot,
                                  ((HttpUserData*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
-      sec_cache_mutex.myserver_mutex_unlock();
+      sec_cache_mutex.unlock();
 		}	
     /*! Check if we have to use digest for the current directory. */
 		if(!lstrcmpi(auth_type, "Digest"))
@@ -883,12 +883,12 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		/*!If there are no permissions, use the Guest permissions. */
 		if(td->request.AUTH[0] && (permissions==0))
     {
-      sec_cache_mutex.myserver_mutex_lock();
+      sec_cache_mutex.lock();
 			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
                                 ((Vhost*)(s->host))->systemRoot,
                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
                                    auth_type, 16);
-      sec_cache_mutex.myserver_mutex_unlock();
+      sec_cache_mutex.unlock();
 		}
     delete [] directory;
 	}
@@ -1282,7 +1282,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		translateEscapeString(pathInfo);
 		strcat(linkpath, pathInfo);
 		if(nbr)
-			ret = sendHTTPRESOURCE(td, s, linkpath, systemrequest, only_header, 1);
+			ret = sendHTTPResource(td, s, linkpath, systemrequest, only_header, 1);
 		else
 			ret = raiseHTTPError(td, s, e_404);
     delete [] linkpath;
@@ -1956,26 +1956,26 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		if(!lstrcmpi(td.request.CMD, "GET"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0);
+				ret = sendHTTPResource(&td, a, td.request.URI, 0, 0);
 			else
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI);
+				ret = sendHTTPResource(&td, a, td.request.URI);
 		}
 		/*! POST REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "POST"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0);
+				ret = sendHTTPResource(&td, a, td.request.URI, 0, 0);
 			else
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI);
+				ret = sendHTTPResource(&td, a, td.request.URI);
 		}
 		/*! HEAD REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "HEAD"))
 		{
       td.only_header = 1;
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
+				ret = sendHTTPResource(&td, a, td.request.URI, 0, 1);
 			else
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
+				ret = sendHTTPResource(&td, a, td.request.URI, 0, 1);
 		}
 		/*! DELETE REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "DELETE"))
@@ -2142,11 +2142,11 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 		char *defFile = 0 ;
     int ret;
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-    sec_cache_mutex.myserver_mutex_lock();
+    sec_cache_mutex.lock();
 		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot, 
                                      getHTTPStatusCodeFromErrorID(ID),
                                      ((Vhost*)(a->host))->systemRoot, &defFile);
-    sec_cache_mutex.myserver_mutex_unlock();
+    sec_cache_mutex.unlock();
     if(ret == -1)
     {
       sendHTTPhardError500(td, a);
@@ -2189,7 +2189,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     if(useMessagesFiles && File::fileExists(errorFile))
 		{
 			delete [] errorFile;
-			return sendHTTPRESOURCE(td, a, HTTP_ERROR_HTMLS[ID], 1, td->only_header);
+			return sendHTTPResource(td, a, HTTP_ERROR_HTMLS[ID], 1, td->only_header);
 		}
 		delete [] errorFile;
 	}
@@ -2423,7 +2423,7 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
 
   main_configuration_file = lserver->getMainConfFile();
 
-  sec_cache_mutex.myserver_mutex_init();
+  sec_cache_mutex.init();
 		
 	/*! Initialize ISAPI.  */
 	Isapi::load();
@@ -2584,7 +2584,7 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
   
   sec_cache.free();
 
-  sec_cache_mutex.myserver_mutex_destroy();
+  sec_cache_mutex.destroy();
 
 	if(defaultFilename)
 	{

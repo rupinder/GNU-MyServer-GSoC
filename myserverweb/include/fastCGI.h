@@ -189,7 +189,7 @@ private:
 	static int timeout;
   static  int max_fcgi_servers;
 	static int initialized;
-  static myserver_mutex servers_mutex;
+  static Mutex servers_mutex;
 	static struct sfCGIservers *fCGIservers;
 
 	/*! Number of thread currently loaded.  */

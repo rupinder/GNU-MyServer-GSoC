@@ -125,6 +125,7 @@ int XmlParser::openMemBuf(CMemBuf & memory)
 	}
 	return 0;
 }
+
 /*!
  *Constructor of the XmlParser class.
  */
@@ -135,6 +136,7 @@ XmlParser::XmlParser()
 	prev_cur = 0;
 	last_node = 0;
 }
+
 /*!
  *Destroy the XmlParser object.
  */
@@ -142,6 +144,7 @@ XmlParser::~XmlParser()
 {
 	close();
 }
+
 /*!
  *Return the xml Document.
  */
@@ -149,6 +152,7 @@ xmlDocPtr XmlParser::getDoc()
 {
 	return doc;
 }
+
 /*!
  *Only get the value of the vName root children element.
  */
@@ -182,10 +186,11 @@ char *XmlParser::getValue(char* vName)
 	
 	return ret;
 }
+
 /*!
  *Set the value of the vName root children element.
  *Returns nonzero on errors.
-*/
+ */
 int XmlParser::setValue(char* vName,char *value)
 {
 	xmlNodePtr lcur=cur->xmlChildrenNode;
@@ -203,6 +208,7 @@ int XmlParser::setValue(char* vName,char *value)
 	}
 	return 1;
 }
+
 /*!
  *Get the attribute attr for the node field
  */
@@ -228,6 +234,7 @@ char *XmlParser::getAttr(char* field,char *attr)
 	}
 	return 0;
 }
+
 /*!
  *Free the memory used by the class.
  */
@@ -241,6 +248,7 @@ int XmlParser::close()
 	last_node=0;
 	return 0;
 }
+
 /*!
  *Save the XML tree to a file
  *Returns nonzero on errors
@@ -255,6 +263,7 @@ int XmlParser::save(char *filename,int *nbytes)
 
   return err;
 }
+
 /*!
  *Save the XML tree to memory
  *Returns nonzero on errors
@@ -263,17 +272,17 @@ int XmlParser::save(char *filename,int *nbytes)
  */
 int XmlParser::saveMemBuf(CMemBuf & memory,int *nbytes)
 {
-  /* initilize the callback struct */
+  /*! Initialize the callback struct. */
   xmlOutputBufferPtr callback;
   callback = xmlOutputBufferCreateIO(MemBufWriteCallback,
                                      MemBufCloseCallback,
                                      (void *)&memory,
                                      NULL);
   
-  /* clear out the buffer */
+  /*! Clear out the buffer. */
   memory.Free(); 
   
-  /* let libxml2 fill the MemBuf class with our interal callbacks */
+  /*! Let libxml2 fill the MemBuf class with our interal callbacks. */
   int err = xmlSaveFileTo(callback, doc, NULL);
   if(nbytes)
     *nbytes = err;

@@ -351,7 +351,7 @@ int Server::purgeThreads()
   if(nThreads == nStaticThreads)
     return 0;
 
-  threads_mutex->myserver_mutex_lock();
+  threads_mutex->lock();
   ClientsThread *thread = threads;
   ClientsThread *prev = 0;
   int prev_threads_count = nThreads;
@@ -359,7 +359,7 @@ int Server::purgeThreads()
   {
     if(nThreads == nStaticThreads)
     {
-      threads_mutex->myserver_mutex_unlock();
+      threads_mutex->unlock();
       return prev_threads_count- nThreads;
     }
 
@@ -386,7 +386,7 @@ int Server::purgeThreads()
     prev = thread;
     thread = thread->next;
   }
-  threads_mutex->myserver_mutex_unlock();
+  threads_mutex->unlock();
 
   return prev_threads_count- nThreads;
 }
@@ -490,9 +490,9 @@ int Server::createServerAndListener(u_long port)
 	argv->port=port;
 	argv->serverSocket=serverSocket;
 
-	myserver_thread_ID t_id;
+	ThreadID t_id;
 	
-	myserver_thread::create(&t_id, &::listenServer,  (void *)(argv));
+	Thread::create(&t_id, &::listenServer,  (void *)(argv));
 	return (t_id)?1:0;
 }
 
@@ -614,7 +614,7 @@ void * listenServer(void* params)
 	/*!
    *Automatically free the current thread.
    */	
-	myserver_thread::terminate();
+	Thread::terminate();
 	return 0;
 
 }
@@ -822,12 +822,12 @@ int Server::initialize(int /*!os_ver*/)
 	/*!
    *Create the mutex for the connections.
    */
-	connections_mutex = new myserver_mutex();
+	connections_mutex = new Mutex();
 
   /*!
    *Create the mutex for the threads.
    */
-  threads_mutex = new myserver_mutex();
+  threads_mutex = new Mutex();
 
 	/*!
    *Store the default values.
@@ -1462,7 +1462,7 @@ DynamicProtocol* Server::getDynProtocol(char *protocolName)
  */
 int Server::connections_mutex_lock()
 {
-	connections_mutex->myserver_mutex_lock();
+	connections_mutex->lock();
 	return 1;
 }
 
@@ -1471,7 +1471,7 @@ int Server::connections_mutex_lock()
  */
 int Server::connections_mutex_unlock()
 {
-	connections_mutex->myserver_mutex_unlock();
+	connections_mutex->unlock();
 	return 1;
 }
 /*!
@@ -1944,7 +1944,7 @@ int Server::isAutorebootEnabled()
 int Server::addThread(int staticThread)
 {
   int ret;
-	myserver_thread_ID ID;
+	ThreadID ID;
 
   ClientsThread* newThread = new ClientsThread();
 
@@ -1955,7 +1955,7 @@ int Server::addThread(int staticThread)
   
   newThread->id=(u_long)(++currentThreadID);
 
-  ret = myserver_thread::create(&ID, &::startClientsThread, 
+  ret = Thread::create(&ID, &::startClientsThread, 
                                 (void *)newThread);
   if(ret)
   {
@@ -1979,7 +1979,7 @@ int Server::addThread(int staticThread)
    *If everything was done correctly add the new thread to the linked list.
    */
 
-	threads_mutex->myserver_mutex_lock();
+	threads_mutex->lock();
 
   if(threads == 0)
   {
@@ -1993,7 +1993,7 @@ int Server::addThread(int staticThread)
   }
   nThreads++;
 
-	threads_mutex->myserver_mutex_unlock();
+	threads_mutex->unlock();
 
   return 0;
 }
@@ -2005,7 +2005,7 @@ int Server::addThread(int staticThread)
 int Server::removeThread(u_long ID)
 {
   int ret_code = 1;
-  threads_mutex->myserver_mutex_lock();
+  threads_mutex->lock();
   ClientsThread *thread = threads;
   ClientsThread *prev = 0;
   /*!
@@ -2036,7 +2036,7 @@ int Server::removeThread(u_long ID)
     thread = thread->next;
   }
 
-	threads_mutex->myserver_mutex_unlock();
+	threads_mutex->unlock();
   return ret_code;
 
 }
@@ -2047,7 +2047,7 @@ int Server::removeThread(u_long ID)
 int Server::countAvailableThreads()
 {
   int count = 0;
-	threads_mutex->myserver_mutex_lock();
+	threads_mutex->lock();
   ClientsThread* thread = threads;
   while(thread)
   {
@@ -2055,7 +2055,7 @@ int Server::countAvailableThreads()
       count++;
     thread = thread->next;
   }
-	threads_mutex->myserver_mutex_unlock();
+	threads_mutex->unlock();
   return count;
 }
 

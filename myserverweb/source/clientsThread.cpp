@@ -187,7 +187,7 @@ void * startClientsThread(void* pParam)
 	}
 	ct->threadIsStopped = 1;
 	
-	myserver_thread::terminate();
+	Thread::terminate();
 	return 0;
 }
 

@@ -35,7 +35,7 @@ u_long Isapi::timeout=MYSERVER_SEC(15);
 u_long Isapi::max_Connections=0;
 static CRITICAL_SECTION GetTableEntryCritSec;
 int Isapi::initialized=0;
-myserver_mutex *Isapi::isapi_mutex=0;
+Mutex *Isapi::isapi_mutex=0;
 ConnTableRecord *Isapi::connTable=0;
 
 
@@ -45,9 +45,9 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 {
 	ConnTableRecord *ConnInfo;
 	
-	Isapi::isapi_mutex->myserver_mutex_lock();
+	Isapi::isapi_mutex->lock();
 	ConnInfo = Isapi::HConnRecord(hConn);
-	Isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->unlock();
 	if (ConnInfo == NULL) 
 	{
     lserver->logLockAccess();
@@ -168,7 +168,7 @@ int Isapi::Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL)
  */
 int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
-	return ((Http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,0);
+	return ((Http*)td->lhttp)->sendHTTPResource(td,a,URL,0,0);
 }
 
 /*!
@@ -176,7 +176,7 @@ int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
  */
 int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
-	return ((Http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,1);
+	return ((Http*)td->lhttp)->sendHTTPResource(td,a,URL,0,1);
 }
 
 /*!
@@ -190,10 +190,10 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	u_long nbw=0;
 	if(*lpdwBytes==0)
 		return 1;
-	Isapi::isapi_mutex->myserver_mutex_lock();
+	Isapi::isapi_mutex->lock();
 	ConnInfo = Isapi::HConnRecord(hConn);
 	char* buffer=(char*)ConnInfo->td->buffer->GetBuffer();
-	Isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->unlock();
 	if (ConnInfo == NULL) 
 	{
 		((Vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
@@ -371,9 +371,9 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 {
 	ConnTableRecord *ConnInfo;
 	BOOL ret =1;
-	Isapi::isapi_mutex->myserver_mutex_lock();
+	Isapi::isapi_mutex->lock();
 	ConnInfo = Isapi::HConnRecord(hConn);
-	Isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->unlock();
 	if (ConnInfo == NULL) 
 	{
     lserver->logLockAccess();
@@ -635,12 +635,12 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	}
 	EnterCriticalSection(&GetTableEntryCritSec);
 	connIndex = 0;
-	Isapi::isapi_mutex->myserver_mutex_lock();
+	Isapi::isapi_mutex->lock();
 	while ((connTable[connIndex].Allocated != 0) && (connIndex < max_Connections)) 
 	{
 		connIndex++;
 	}
-	Isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->unlock();
 	LeaveCriticalSection(&GetTableEntryCritSec);
 
 	if (connIndex == max_Connections) 
@@ -904,7 +904,7 @@ int Isapi::load()
   u_long n_threads = lserver->getNumThreads();
 	if(initialized)
 		return 0;
-	isapi_mutex = new myserver_mutex;
+	isapi_mutex = new Mutex;
 	max_Connections= n_threads ? n_threads : 20 ;
 	
 	if(connTable)

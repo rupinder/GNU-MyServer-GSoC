@@ -24,44 +24,44 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 
 #ifdef HAVE_PTHREAD
-	typedef pthread_mutex_t myserver_mutex_handle;
+	typedef pthread_mutex_t MutexHandle;
 #else
-	typedef HANDLE myserver_mutex_handle;
+	typedef HANDLE MutexHandle;
 #endif
 
 void wait(u_long);
 
-class myserver_mutex
+class Mutex
 {
 private:
 	int initialized;
-	myserver_mutex_handle mutex;
+	MutexHandle mutex;
 public:
-	myserver_mutex();
-	~myserver_mutex();
-	int myserver_mutex_init();
-	int myserver_mutex_destroy();
+	Mutex();
+	~Mutex();
+	int init();
+	int destroy();
 	
 	/*! These functions are a simple trasposition of the mutex mechanism.  */
-	int myserver_mutex_lock(u_long id=0);
-	int myserver_mutex_unlock(u_long id=0);
+	int lock(u_long id=0);
+	int unlock(u_long id=0);
 };
 
 #ifdef WIN32
-	typedef unsigned int myserver_thread_ID;
+	typedef unsigned int ThreadID;
 #endif
 #ifdef HAVE_PTHREAD
-	typedef pthread_t myserver_thread_ID;
+	typedef pthread_t ThreadID;
 #endif
 
-class myserver_thread
+class Thread
 {
 public:
 #ifdef WIN32
-	static int  create(myserver_thread_ID*  thread, unsigned int (_stdcall *start_routine)(void *), void * arg);
+	static int  create(ThreadID*  thread, unsigned int (_stdcall *start_routine)(void *), void * arg);
 #endif
 #ifdef HAVE_PTHREAD
-	static int  create(myserver_thread_ID*  thread, void * (*start_routine)(void *), void * arg);
+	static int  create(ThreadID*  thread, void * (*start_routine)(void *), void * arg);
 #endif
 	static void terminate();  
 };

@@ -40,7 +40,7 @@ int FastCgi::max_fcgi_servers=25;
 int FastCgi::timeout=MYSERVER_SEC(15);
 
 /*! Mutex used to access fastCGI servers. */
-myserver_mutex FastCgi::servers_mutex;
+Mutex FastCgi::servers_mutex;
 
 struct fourchar
 {	
@@ -731,7 +731,7 @@ int FastCgi::load()
 	fCGIserversN=0;
 	memset(&fCGIservers, 0, sizeof(fCGIservers));
 	initialized=1;
-  servers_mutex.myserver_mutex_init();
+  servers_mutex.init();
 	return 1;
 }
 
@@ -741,7 +741,7 @@ int FastCgi::load()
 int FastCgi::unload()
 {
   sfCGIservers* list = fCGIservers;
-  servers_mutex.myserver_mutex_lock();
+  servers_mutex.lock();
   while(list)
   {
     /*! If the server is a remote one do nothing. */
@@ -756,9 +756,9 @@ int FastCgi::unload()
     list = list->next;
     delete toremove;
   }
-  servers_mutex.myserver_mutex_unlock();
+  servers_mutex.unlock();
   list = 0;
-  servers_mutex.myserver_mutex_destroy();
+  servers_mutex.destroy();
 	initialized=0;
 	return 1;
 }
@@ -769,19 +769,19 @@ int FastCgi::unload()
  */
 sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
 {
-  servers_mutex.myserver_mutex_lock();
+  servers_mutex.lock();
 
   sfCGIservers *cur = fCGIservers;
   while(cur)
   {
     if(cur->path && (!lstrcmpi(path,cur->path)))
     {
-      servers_mutex.myserver_mutex_unlock();
+      servers_mutex.unlock();
 			return cur;  
     }
   }
 
-  servers_mutex.myserver_mutex_unlock();
+  servers_mutex.unlock();
 	return 0;
 }
 
@@ -861,13 +861,13 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 	if(fCGIserversN==max_fcgi_servers-2)
 		return 0;
 
-  servers_mutex.myserver_mutex_lock();
+  servers_mutex.lock();
 	static u_short port=3333;
 
   sfCGIservers* new_server = new sfCGIservers();
   if(new_server == 0)
   {
-    servers_mutex.myserver_mutex_unlock();
+    servers_mutex.unlock();
     return 0;
   }
 
@@ -880,7 +880,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			new_server->socket.socket(AF_INET,SOCK_STREAM,0);
 			if(new_server->socket.getHandle() == (SocketHandle)INVALID_SOCKET)
       {
-        servers_mutex.myserver_mutex_unlock();
+        servers_mutex.unlock();
         delete new_server;
 				return 0;
       }
@@ -894,14 +894,14 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			if(new_server->socket.bind((sockaddr*)&sock_inserverSocket, 
                                                sizeof(sock_inserverSocket)))
 			{
-        servers_mutex.myserver_mutex_unlock();
+        servers_mutex.unlock();
 				new_server->socket.closesocket();
         delete new_server;
 				return 0;
 			}
 			if(new_server->socket.listen(SOMAXCONN))
 			{
-        servers_mutex.myserver_mutex_unlock();
+        servers_mutex.unlock();
         new_server->socket.closesocket();
 				return 0;
 			}
@@ -919,7 +919,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 
       if(new_server->path == 0)
       {
-        servers_mutex.myserver_mutex_unlock();
+        servers_mutex.unlock();
         delete new_server;
         return 0;
       }
@@ -931,7 +931,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 
 			if(new_server->pid == -1)
 			{
-        servers_mutex.myserver_mutex_unlock();
+        servers_mutex.unlock();
 				new_server->socket.closesocket();
         delete new_server;
 				return 0;
@@ -943,7 +943,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
       new_server->path = new char[ strlen(path) + 1 ];
       if(fCGIservers[fCGIserversN].path == 0)
       {
-        servers_mutex.myserver_mutex_unlock();
+        servers_mutex.unlock();
         delete new_server;
         return 0;
       }
@@ -971,7 +971,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
    */
   fCGIserversN++;
 
-  servers_mutex.myserver_mutex_unlock();  
+  servers_mutex.unlock();  
 
   /*!
    *Return the new server.
