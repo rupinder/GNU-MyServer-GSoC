@@ -59,7 +59,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			}
 		}
 	}
-	ZeroMemory(td->buffer2,200);
+	td->buffer2[0]='\0';
 	_finddata_t fd;
 	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",td->filenamePath);
 	/*
@@ -369,7 +369,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	/*
 	*getMIME return TRUE if the ext is registered by a CGI.
 	*/
-	int mimeCMD=getMIME(td->response.MIME,td->filenamePath,ext,data);
+	int mimeCMD=getMIME(td->response.CONTENTS_TYPE,td->filenamePath,ext,data);
 
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
@@ -657,6 +657,27 @@ void resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->RANGEBYTEEND[0]='\0';
 	request->uriEndsWithSlash=FALSE;
 }
+/*
+*Reset all the HTTP_RESPONSE_HEADER structure members.
+*/
+void resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
+{
+	response->httpStatus=200;
+	response->VER[0]='\0';	
+	response->SERVER_NAME[0]='\0';
+	response->CONTENTS_TYPE[0]='\0';
+	response->CONNECTION[0]='\0';
+	response->MIMEVER[0]='\0';
+	response->P3P[0]='\0';
+	response->COOKIE[0]='\0';
+	response->CONTENTS_DIM[0]='\0';
+	response->ERROR_TYPE[0]='\0';
+	response->LOCATION[0]='\0';
+	response->DATE[0]='\0';		
+	response->DATEEXP[0]='\0';	
+	response->isError=0;		
+	response->OTHER[0]='\0';	
+}
 
 
 /*
@@ -680,11 +701,40 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		lstrcat(str,response->CONTENTS_DIM);
 		lstrcat(str,"\r\n");
 	}
-
-	if(response->MIME[0])
+	if(response->CONNECTION[0])
+	{
+		lstrcat(str,"Connection:");
+		lstrcat(str,response->CONNECTION);
+		lstrcat(str,"\r\n");
+	}
+	if(response->COOKIE[0])
+	{
+		lstrcat(str,"Set-Cookie:");
+		lstrcat(str,response->COOKIE);
+		lstrcat(str,"\r\n");
+	}
+	if(response->P3P[0])
+	{
+		lstrcat(str,"P3P:");
+		lstrcat(str,response->P3P);
+		lstrcat(str,"\r\n");
+	}
+	if(response->SERVER_NAME[0])
+	{
+		lstrcat(str,"Server:");
+		lstrcat(str,response->SERVER_NAME);
+		lstrcat(str,"\r\n");
+	}
+	if(response->MIMEVER[0])
+	{
+		lstrcat(str,"MIME-Version:");
+		lstrcat(str,response->MIMEVER);
+		lstrcat(str,"\r\n");
+	}
+	if(response->CONTENTS_TYPE[0])
 	{
 		lstrcat(str,"Content-Type:");
-		lstrcat(str,response->MIME);
+		lstrcat(str,response->CONTENTS_TYPE);
 		lstrcat(str,"\r\n");
 	}
 	if(response->DATE[0])
@@ -726,7 +776,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 */
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 {
-	ZeroMemory(response,sizeof(HTTP_RESPONSE_HEADER));
+	resetHTTPResponse(response);
 	/*
 	*By default use:
 	*1) the MIME type of the page equal to text/html.
@@ -735,7 +785,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	*4) then set the name of the server.
 	*5) set the page that it is not an error page.
 	*/
-	lstrcpy(response->MIME,"text/html");
+	lstrcpy(response->CONTENTS_TYPE,"text/html");
 	lstrcpy(response->VER,"1.1");
 	response->isError=FALSE;
 	lstrcpy(response->DATE,getRFC822GMTTime());
@@ -844,7 +894,68 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 		else
 			nLinechars++;
 		/*
-		*We set a maximum theorical number of characters in a line to 1024.
+		*We set a maximal theorical number of characters in a line to 1024.
+		*If a line contains more than 1024 lines we consider the header invalid.
+		*/
+		if(nLinechars>1024)
+			break;
+	}
+
+	/*
+	*Set the output variables.
+	*/
+	*nLinesptr=nLines;
+	*ncharsptr=maxTotchars;
+	
+	/*
+	*Return if is a valid request header.
+	*/
+    return((isValidCommand)?1:0);
+}
+
+
+/*
+*Controls if the req string is a valid HTTP response header.
+*Returns 0 if req is an invalid header, a non-zero value if is a valid header.
+*nLinesptr is a value of the lines number in the HEADER.
+*ncharsptr is a value of the characters number in the HEADER.
+*/
+u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
+{
+	u_long i;
+	char *req=td->buffer;
+	u_long buffersize=td->buffersize;
+	u_long nLinechars;
+	int isValidCommand=FALSE;
+	nLinechars=0;
+	u_long nLines=0;
+	u_long maxTotchars=0;
+	if(req==0)
+		return 0;
+	/*
+	*Count the number of lines in the header.
+	*/
+	for(nLines=i=0;;i++)
+	{
+		if(req[i]=='\n')
+		{
+			if((req[i+2]=='\n')|(req[i+1]=='\0'))
+			{
+				maxTotchars=i+3;
+				if(maxTotchars>buffersize)
+				{
+					isValidCommand=FALSE;
+					break;				
+				}
+				isValidCommand=TRUE;
+				break;
+			}
+			nLines++;
+		}
+		else
+			nLinechars++;
+		/*
+		*We set a maximal theorical number of characters in a line to 1024.
 		*If a line contains more than 1024 lines we consider the header invalid.
 		*/
 		if(nLinechars>1024)
@@ -882,9 +993,10 @@ int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 	return 1;
 }
 /*
-*Build the HTTP REQUEST HEADER.
+*Build the HTTP REQUEST HEADER string.
+*If no input is setted the input is the main buffer of the httpThreadContext structure.
 */
-int buildHTTPRequestHeaderStruct(httpThreadContext* td)
+int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 {
 	/*
 	*In this function there is the HTTP protocol parse.
@@ -915,7 +1027,10 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td)
 	static int nLineControlled;
 	nLineControlled=0;
 	static int lineControlled;
-	token=td->buffer;
+	if(input)
+		token=input;
+	else
+		token=td->buffer;
 
 	token = strtok( token, cmdseps );
 	do
@@ -998,14 +1113,14 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td)
 		{
 			token = strtok( NULL, "\r\n" );
 			lineControlled=TRUE;		
-			ZeroMemory(td->buffer2,300);
+			td->buffer2[0]='\0';
 			/*
 			*Basic authorization in base64 is login:password.
 			*Assume that it is Basic anyway.
 			*/
 			lstrcpy(td->request.AUTH,"Basic");
 			int len=lstrlen(token);
-			char *base64=base64Utils.Decode(&token[lstrlen("Basic: ")],&len);
+			char *base64=base64Utils.Decode(&token[lstrlen("Basic:")],&len);
 			char* lbuffer2=base64;
 			while(*lbuffer2!=':')
 			{
@@ -1085,9 +1200,9 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td)
 		/*Range*/
 		if(!lstrcmpi(command,"Range"))
 		{
-			ZeroMemory(td->request.RANGETYPE,30);
-			ZeroMemory(td->request.RANGEBYTEBEGIN,30);
-			ZeroMemory(td->request.RANGEBYTEEND,30);
+			td->request.RANGETYPE[0]='\0';
+			td->request.RANGEBYTEBEGIN[0]='\0';
+			td->request.RANGEBYTEEND[0]='\0';
 			lineControlled=TRUE;
 			token = strtok( NULL, "\r\n\t" );
 			do
@@ -1132,6 +1247,177 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td)
 			StrTrim(td->request.PRAGMA," ");
 		}
 		
+		/*
+		*If the line is not controlled arrive with the token
+		*at the end of the line.
+		*/
+		if(!lineControlled)
+		{
+			token = strtok( NULL, "\n" );
+		}
+		token = strtok( NULL, cmdseps );
+	}while((u_long)(token-td->buffer)<maxTotchars);
+	/*
+	*END REQUEST STRUCTURE BUILD.
+	*/
+	td->nBytesToRead=maxTotchars;
+	return validRequest;
+}
+
+
+/*
+*Build the HTTP RESPONSE HEADER string.
+*If no input is setted the input is the main buffer of the httpThreadContext structure.
+*/
+int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
+{
+	/*
+	*In this function there is the HTTP protocol parse.
+	*The request is mapped into a HTTP_REQUEST_HEADER structure
+	*And at the end of this every command is treated
+	*differently. We use this mode for parse the HTTP
+	*because especially in the CGI is requested a continous
+	*HTTP header access.
+	*Before mapping the header in the structure 
+	*control if this is a regular request.
+	*The HTTP header ends with a \r\n\r\n sequence.
+	*/
+
+	/*
+	*Control if the HTTP header is a valid header.
+	*/
+	u_long nLines,maxTotchars;
+	u_long validRequest=validHTTPResponse(td,&nLines,&maxTotchars);
+
+	const char seps[]   = " ,\t\n\r";
+	const char cmdseps[]   = ": ,\t\n\r";
+
+	static char *token=0;
+	static char command[96];
+
+	static int nLineControlled;
+	nLineControlled=0;
+	static int lineControlled;
+	if(input)
+		token=input;
+	else
+		token=td->buffer;
+
+	token = strtok( token, cmdseps );
+	do
+	{
+		/*
+		*Reset the flag lineControlled.
+		*/
+		lineControlled=FALSE;
+
+		/*
+		*Copy the HTTP command.
+		*/
+		lstrcpy(command,token);
+		
+		
+		nLineControlled++;
+		if(nLineControlled==1)
+		{
+			/*
+			*The first line has the form:
+			*GET /index.html HTTP/1.1
+			*/
+			lineControlled=TRUE;
+			/*
+			*Copy the HTTP version, do not include "HTTP/".
+			*/
+			lstrcpy(td->response.VER,&command[5]);
+		
+			token = strtok( NULL, " ,\t\n\r" );
+			td->response.httpStatus=atoi(token);
+			
+			token = strtok( NULL, seps );
+			strcpy(td->response.ERROR_TYPE,token);
+
+		}
+		/*Server*/
+		if(!lstrcmpi(command,"Server"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.SERVER_NAME,token);
+			StrTrim(td->response.SERVER_NAME," ");
+		}
+		/*Location*/
+		if(!lstrcmpi(command,"Location"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.LOCATION,token);
+			StrTrim(td->response.LOCATION," ");
+		}
+		/*Date*/
+		if(!lstrcmpi(command,"Date"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.DATE,token);
+			StrTrim(td->response.DATE," ");
+		}
+		/*Content-Type*/
+		if(!lstrcmpi(command,"Content-Type"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.CONTENTS_TYPE,token);
+			StrTrim(td->response.CONTENTS_TYPE," ");
+		}
+		/*MIME-Version*/
+		if(!lstrcmpi(command,"MIME-Version"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.MIMEVER,token);
+			StrTrim(td->response.MIMEVER," ");
+		}
+		/*Set-Cookie*/
+		if(!lstrcmpi(command,"Set-Cookie"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			/*Concatenate string at the end cause can be more that one cookie line.*/
+			lstrcat(td->response.COOKIE,token);
+			StrTrim(td->response.COOKIE," ");
+		}
+		/*Content-Length*/
+		if(!lstrcmpi(command,"Content-Length"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.CONTENTS_DIM,token);
+			StrTrim(td->response.CONTENTS_DIM," ");
+		}
+		/*P3P*/
+		if(!lstrcmpi(command,"P3P"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.P3P,token);
+			StrTrim(td->response.P3P," ");
+		}
+		/*Connection*/
+		if(!lstrcmpi(command,"Connection"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.CONNECTION,token);
+			StrTrim(td->response.CONNECTION," ");
+		}
+		/*Expires*/
+		if(!lstrcmpi(command,"Expires"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td->response.DATEEXP,token);
+			StrTrim(td->response.DATEEXP," ");
+		}
 		/*
 		*If the line is not controlled arrive with the token
 		*at the end of the line.

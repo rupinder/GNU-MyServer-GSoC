@@ -109,7 +109,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	buildCGIEnvironmentString(td,connTable[connIndex].envString);
 
-	memset(&ExtCtrlBlk, 0, sizeof(ExtCtrlBlk));
+	ZeroMemory(&ExtCtrlBlk, 0);
 	ExtCtrlBlk.cbSize = sizeof(ExtCtrlBlk);
 	ExtCtrlBlk.dwVersion = MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR);
 	ExtCtrlBlk.GetServerVariable = GetServerVariableExport;
@@ -118,7 +118,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	ExtCtrlBlk.ServerSupportFunction = ServerSupportFunctionExport;
 	ExtCtrlBlk.ConnID = (HCONN) (connIndex + 1);
 	ExtCtrlBlk.dwHttpStatusCode = 200;
-	ExtCtrlBlk.lpszLogData[0] = '\0';
+	ExtCtrlBlk.lpszLogData[0] = '0';
 	ExtCtrlBlk.lpszMethod = td->request.CMD;
 	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS;
 	ExtCtrlBlk.lpszPathInfo = td->pathInfo;
@@ -144,7 +144,6 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	/*
 	*Flush the output to the client.
 	*/
-
 	u_long headerSize=0;
 	u_long len=lstrlen(connTable[connIndex].td->buffer);
 	for(u_long i=0;i<len;i++)
@@ -175,6 +174,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 						*determinate where it ends and set the header size
 						*to i + 4.
 						*/
+						connTable[connIndex].td->buffer[i+2]='\0';
 						headerSize=i+4;
 						break;
 					}
@@ -183,65 +183,17 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		}
 
 	}
-	if(ExtCtrlBlk.dwHttpStatusCode!=200)
+	int errorID=getErrorIDfromHTTPStatusCode(ExtCtrlBlk.dwHttpStatusCode);
+	if(errorID!=e_200)
 	{
-		switch(ExtCtrlBlk.dwHttpStatusCode)	
-		{
-			case 400:
-				raiseHTTPError(td,connection,e_400);
-				break;
-			case 401:
-				raiseHTTPError(td,connection,e_401);
-				break;
-			case 403:
-				raiseHTTPError(td,connection,e_403);
-				break;
-			case 404:
-				raiseHTTPError(td,connection,e_404);
-				break;
-			case 405:
-				raiseHTTPError(td,connection,e_405);
-				break;
-			case 406:
-				raiseHTTPError(td,connection,e_406);
-				break;
-			case 407:
-				raiseHTTPError(td,connection,e_407);
-				break;
-			case 412:
-				raiseHTTPError(td,connection,e_412);
-				break;
-			case 413:
-				raiseHTTPError(td,connection,e_413);
-				break;
-			case 414:
-				raiseHTTPError(td,connection,e_414);
-				break;
-			case 500:
-				raiseHTTPError(td,connection,e_500);
-				break;
-			case 501:
-				raiseHTTPError(td,connection,e_501);
-				break;
-			case 502:
-				raiseHTTPError(td,connection,e_502);
-				break;
-
-		}
+		raiseHTTPError(td,connection,errorID);
 	}
 	else/*HTTP status code is 200*/
 	{
+		buildHTTPResponseHeaderStruct(td,connTable[connIndex].td->buffer);
 		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",len-headerSize);
 		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
-		if(headerSize)
-			ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2)-2, 0);
-		else
-			ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2), 0);
-
-		char lbuffer[100];
-		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer,headerSize-2, 0);
-		sprintf(lbuffer,"\r\nContent-Length:%i\r\n\r\n",len-headerSize);
-		ms_send(connTable[connIndex].connection->socket,lbuffer,lstrlen(lbuffer), 0);
+		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,strlen(connTable[connIndex].td->buffer2), 0);
 		ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
 	}
 	int retvalue=0;
@@ -263,6 +215,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		warningsLogWrite(cgipath);
 		warningsLogWrite("\r\n");
 	}
+
 	connTable[connIndex].Allocated = FALSE;
 	return retvalue;
 }
@@ -285,8 +238,10 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 			char URL[MAX_PATH];
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
-			lstrcpy(URL,(char*)lpvBuffer);
-			lstrcat(URL,"tmp/a.pl");
+			if(((char*)lpvBuffer)[0])
+				lstrcpy(URL,(char*)lpvBuffer);
+			else
+				lstrcpyn(URL,ConnInfo->td->request.URI,lstrlen(ConnInfo->td->request.URI)-lstrlen(ConnInfo->td->pathInfo)+1 );
 			getPath((char*)lpvBuffer,URL,FALSE);
 			*lpdwSize=lstrlen((char*)lpvBuffer);
 			lstrcpy(mapInfo->lpszPath,(char*)lpvBuffer);
@@ -301,7 +256,16 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 			return ISAPISendHeader(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
 			break;
 		case HSE_REQ_DONE_WITH_SESSION:
+			ConnInfo->td->response.httpStatus=*(DWORD*)lpvBuffer;
 			SetEvent(ConnInfo->ISAPIDoneEvent);
+			break;
+		case HSE_REQ_ASYNC_READ_CLIENT:
+			break;
+		case HSE_REQ_IS_KEEP_CONN:
+			if(!lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive"))
+				*((BOOL*)lpvBuffer)=TRUE;
+			else
+				*((BOOL*)lpvBuffer)=FALSE;
 			break;
 		default:
 			return FALSE;
@@ -341,7 +305,7 @@ int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL)
     return sendHTTPRedirect(td,a,URL);
 }
 /*
-*Send an HTTP location.
+*Send an HTTP URI.
 */
 int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL)
 {

@@ -24,9 +24,14 @@
 */
 struct HTTP_RESPONSE_HEADER
 {
+	int httpStatus;
 	char VER[10];	
-	char SERVER_NAME[16];
-	char MIME[12];		
+	char SERVER_NAME[32];
+	char CONTENTS_TYPE[30];
+	char CONNECTION[32];
+	char MIMEVER[8];
+	char P3P[200];
+	char COOKIE[2048];
 	char CONTENTS_DIM[8];
 	char ERROR_TYPE[20];
 	char LOCATION[MAX_PATH];
@@ -51,8 +56,8 @@ struct HTTP_REQUEST_HEADER
 	char ACCEPTCHARSET[64];
 	char CONNECTION[32];
 	char USER_AGENT[128];
-	char COOKIE[300];
-	char CONTENTS_TYPE[12];
+	char COOKIE[2048];
+	char CONTENTS_TYPE[30];
 	char CONTENTS_DIM[8];
 	char DATE[30];		
 	char DATEEXP[30];	

@@ -18,11 +18,17 @@
 */
 #pragma once
 /*
-*Error 401AUTH don't use any web personalized page.
+*Error over 1000 are simply warnings.
 */
+#define e_200			1001
+#define e_201			1002
+#define e_202			1003
+#define e_301			1004
+#define e_302			1005
+#define e_304			1006
 #define e_400			0
 #define e_401			1
-#define e_401AUTH		1001
+#define e_401AUTH		1004
 #define e_403			2
 #define e_404			3
 #define e_405			4
@@ -37,3 +43,4 @@
 
 extern char HTTP_ERROR_MSGS[13][64];
 extern char HTTP_ERROR_HTMLS[13][64];
+int getErrorIDfromHTTPStatusCode(int statusCode);

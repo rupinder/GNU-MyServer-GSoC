@@ -18,6 +18,7 @@
 */
 
 #include "..\stdafx.h"
+#include "..\include\httpmsg.h"
 /*
 *This array is used to describe the errors for the HTTP protocol.
 */
@@ -56,3 +57,61 @@ char HTTP_ERROR_HTMLS[13][64]=
 	"501.html",						/*501*/
 	"502.html"						/*502*/
 };
+/*
+*Return an error ID starting from an HTTP status code.
+*/
+int getErrorIDfromHTTPStatusCode(int statusCode)
+{
+	switch(statusCode)	
+	{
+		case 200:
+			return e_200;
+			break;
+		case 201:
+			return e_201;
+			break;
+		case 202:
+			return e_202;
+			break;
+		case 400:
+			return e_400;
+			break;
+		case 401:
+			return e_401;
+			break;
+		case 403:
+			return e_403;
+			break;
+		case 404:
+			return e_404;
+			break;
+		case 405:
+			return e_405;
+			break;
+		case 406:
+			return e_406;
+			break;
+		case 407:
+			return e_407;
+			break;
+		case 412:
+			return e_412;
+			break;
+		case 413:
+			return e_413;
+			break;
+		case 414:
+			return e_414;
+			break;
+		case 500:
+			return e_500;
+			break;
+		case 501:
+			return e_501;
+			break;
+		case 502:
+			return e_502;
+			break;
+	}
+	return -1;
+}

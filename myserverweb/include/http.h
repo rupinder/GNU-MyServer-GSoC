@@ -51,7 +51,7 @@ struct httpThreadContext
 	LPCONNECTION connection;
 };
 /*
-*The main function is controlHTTPConnection(...), that parse the request builds a response.
+*The main function is controlHTTPConnection(...), that parses the request builds a response.
 */
 int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,LOGGEDUSERID *imp,u_long id);
 int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=FALSE,int OnlyHeader=FALSE,int firstByte=0,int lastByte=-1,int yetmapped=0);
@@ -63,7 +63,10 @@ int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
 void getPath(char *filenamePath,const char *filename,int systemrequest);
 int getMIME(char *MIME,char *filename,char *dest,char *dest2);
 u_long validHTTPRequest(httpThreadContext*,u_long*,u_long*);
+u_long validHTTPResponse(httpThreadContext*,u_long*,u_long*);
 void resetHTTPRequest(HTTP_REQUEST_HEADER *request);
+void resetHTTPResponse(HTTP_RESPONSE_HEADER *response);
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
-int buildHTTPRequestHeaderStruct(httpThreadContext* td);
+int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input=0);
+int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input=0);
