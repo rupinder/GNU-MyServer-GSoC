@@ -42,7 +42,8 @@ Section "MyServer core" SecCore
   WriteUninstaller "remove.exe"
   File "myserver.exe"
   File "libxml2.dll"
-  File "iconv.dll"
+  File "libiconv-2.dll"
+  File "libcharset-1.dll"
   File "libpng12.dll"
   File "zlib1.dll"
   File "libssl32.dll"
@@ -60,7 +61,7 @@ Section "MyServer core" SecCore
   SetOutPath $INSTDIR\languages
   File "languages\English.xml"
   SetOutPath $INSTDIR\languages\control
-  File "languages\control\English.xml"
+  File "languages\configure\english.xml"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN
     CreateDirectory "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}"

@@ -45,7 +45,7 @@ extern "C" int main (char *cmd,cgi_data* data)
 	if(MYSERVER_FILE::fileExists("count.dat"))
 	{
 		// read the last number
-		if(msfile.openFile("count.dat", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS) == 0)
+		if(msfile.openFile("count.dat", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS) == 0)
 		{
 			msfile.readFromFile((char *)&count, sizeof(count), &nbw);
 			msfile.closeFile();
@@ -59,9 +59,11 @@ extern "C" int main (char *cmd,cgi_data* data)
 			count = 1;
 			
 		//now save it
-		msfile.openFile("count.dat", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
-		msfile.closeFile();
+		if(msfile.openFile("count.dat", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS)==0)
+		{
+		  msfile.writeToFile((char *)&count, sizeof(count), &nbw);
+		  msfile.closeFile();
+        }
 	}
 	else
 	{
