@@ -22,30 +22,15 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <stdlib.h>
+#include <errno.h>
 #include <tchar.h>
 
 #include <math.h>
 #include <process.h>
 
+#ifdef WIN32
 #include <winsock2.h>
+#endif
+
 #include <time.h>
 #include <io.h>
-
-
-typedef unsigned long DWORD;
-typedef int BOOL;
-
-typedef void* HANDLE;
-extern class cserver *lserver;
-extern class CBase64Utils base64Utils;
-struct CONNECTION;
-extern char *versionOfSoftware;
-extern BOOL mustEndServer;
-
-extern BOOL mustEndServer;
-#define Thread   __declspec( thread )
-typedef int (*CGIMAIN)(char*); 
-typedef int (*CGIINIT)(void*,void*,void*,void*); 
-typedef CONNECTION*  volatile LPCONNECTION;
-typedef  void* LOGGEDUSERID;

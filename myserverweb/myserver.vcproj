@@ -44,7 +44,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE:MULTIPLE /NODEFAULTLIB:LIBCMT"
+				AdditionalOptions="/FORCE:MULTIPLE "
 				OutputFile="$(OutDir)/myserver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -55,68 +55,6 @@
 				LargeAddressAware="2"
 				EnableCOMDATFolding="0"
 				SupportUnloadOfDelayLoadedDLL="TRUE"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="binaries"
-			IntermediateDirectory="tmp"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			CharacterSet="2"
-			ManagedExtensions="FALSE"
-			DeleteExtensionsOnClean="*.obj;*.ilk;*.pdb;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.bat"
-			WholeProgramOptimization="TRUE">
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="TRUE"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="TRUE"
-				EnableFiberSafeOptimizations="TRUE"
-				OptimizeForProcessor="2"
-				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				StringPooling="TRUE"
-				MinimalRebuild="TRUE"
-				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="3"
-				WarningLevel="0"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="0"/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE:MULTIPLE /NODEFAULTLIB:LIBCMT"
-				OutputFile="$(OutDir)/myserver.exe"
-				LinkIncremental="1"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				HeapReserveSize="0"
-				HeapCommitSize="0"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -148,6 +86,9 @@
 				RelativePath="source\cXMLParser.cpp">
 			</File>
 			<File
+				RelativePath="source\cgi.cpp">
+			</File>
+			<File
 				RelativePath="source\clientsThread.cpp">
 			</File>
 			<File
@@ -163,6 +104,9 @@
 				RelativePath="source\httpmsg.cpp">
 			</File>
 			<File
+				RelativePath="source\mscgi.cpp">
+			</File>
+			<File
 				RelativePath="source\myserver.cpp">
 			</File>
 			<File
@@ -175,7 +119,7 @@
 				RelativePath="stdafx.cpp">
 			</File>
 			<File
-				RelativePath="external\libhoard\uselibhoard.cpp">
+				RelativePath="source\stringutils.cpp">
 			</File>
 			<File
 				RelativePath="source\utility.cpp">
@@ -184,12 +128,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="1"/>
 				</FileConfiguration>
 			</File>
 		</Filter>
@@ -212,6 +150,9 @@
 				RelativePath="include\cXMLParser.h">
 			</File>
 			<File
+				RelativePath="include\cgi.h">
+			</File>
+			<File
 				RelativePath="include\clientsThread.h">
 			</File>
 			<File
@@ -227,6 +168,9 @@
 				RelativePath="include\http.h">
 			</File>
 			<File
+				RelativePath="include\mscgi.h">
+			</File>
+			<File
 				RelativePath="include\security.h">
 			</File>
 			<File
@@ -236,6 +180,9 @@
 				RelativePath="stdafx.h">
 			</File>
 			<File
+				RelativePath="include\stringutils.h">
+			</File>
+			<File
 				RelativePath="include\utility.h">
 			</File>
 		</Filter>
@@ -243,9 +190,6 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 		</Filter>
-		<File
-			RelativePath="external\libhoard\libhoard.lib">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
