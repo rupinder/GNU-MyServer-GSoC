@@ -51,11 +51,10 @@ void console_service (int, char **);
 #ifdef WIN32
 void __stdcall myServerCtrlHandler(u_long fdwControl);
 void __stdcall myServerMain (u_long , LPTSTR *argv); 
+#endif
 void runService();
 void registerService();
 void removeService();
-#endif
-
 static char *path;
 
 /*!
@@ -325,10 +324,11 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 
 
 /*!
- *Run MyServer like a NT service.
+ *Run MyServer service.
  */
 void runService()
 {
+#ifdef WIN32
 	printf("Running service...\n");
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
@@ -350,17 +350,17 @@ void runService()
 			printf("Error running service\n");
 		}
 	}
+#endif
 }
 
 
 
-#ifdef WIN32
 /*!
- *Register the WIN32 service
+ *Register the service
  */
 void registerService()
 {
-
+#ifdef WIN32
 	SC_HANDLE service,manager;
 	char path [MAX_PATH];
 	GetCurrentDirectory(MAX_PATH,path);
@@ -381,7 +381,7 @@ void registerService()
 
 		CloseServiceHandle (manager);
 	}
-
+#endif
 }
 
 /*!
@@ -389,6 +389,7 @@ void registerService()
 */
 void removeService()
 {
+#ifdef WIN32
 	SC_HANDLE service,manager;
   manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
@@ -405,5 +406,6 @@ void removeService()
 			CloseServiceHandle (manager);
 		}
 	}
-}
 #endif
+}
+
