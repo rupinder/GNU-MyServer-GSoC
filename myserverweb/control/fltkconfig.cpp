@@ -164,12 +164,6 @@ inline void MainDlg::cb_MenuGetConfig_i(Fl_Menu_*, void*) {
   int ret;
 if(Changed) {
   if(fl_ask(LanguageXMLLast_Change)) {
-    // Say something...
-    StatusDlgProgress->value(0);
-    StatusDlgProgress->label("0%");
-    StatusDlgGroup->label(LanguageXMLDownload_Config);
-    StatusDlg->show();
-    fl_wait(200);  // let fltk do its thing
 
     ret = load_config_remote();
 
@@ -179,9 +173,6 @@ if(Changed) {
         ret = load_config_remote();
       }
     }
-
-    fl_wait(500);  // oooo aaa effect
-    StatusDlg->hide();
 
     if(ret == -1) {
       fl_alertcat(LanguageXMLDownload_Failed, Server.LastCode);
@@ -193,12 +184,6 @@ if(Changed) {
   }
 }
 else {
-  // Say something...
-  StatusDlgProgress->value(0);
-  StatusDlgProgress->label("0%");
-  StatusDlgGroup->label(LanguageXMLDownload_Config);
-  StatusDlg->show();
-  fl_wait(200);  // let fltk do its thing
 
   ret = load_config_remote();
 
@@ -208,9 +193,6 @@ else {
       ret = load_config_remote();   
     }
   }
-
-  fl_wait(500);  // oooo aaa effect
-  StatusDlg->hide();
 
   if(ret == -1) {
     fl_alertcat(LanguageXMLDownload_Failed, Server.LastCode);
@@ -229,12 +211,6 @@ inline void MainDlg::cb_MenuSendConfig_i(Fl_Menu_*, void*) {
   int ret;
 ret = fl_ask(LanguageXMLKill_All);
 if(ret) {
-  // Say something...
-  StatusDlgProgress->value(0);
-  StatusDlgProgress->label("0%");
-  StatusDlgGroup->label(LanguageXMLSend_Config);
-  StatusDlg->show();
-  fl_wait(200);  // let fltk do its thing
 
   ret = save_config_remote();
 
@@ -244,9 +220,6 @@ if(ret) {
       ret = save_config_remote();
     }
   }
-
-  fl_wait(500);  // oooo aaa effect
-  StatusDlg->hide();
 
   if(ret == -1) {
     fl_alertcat(LanguageXMLUpload_Failed, Server.LastCode);
@@ -2801,48 +2774,95 @@ int ret;
 CMemBuf Buffer;
 Vector list;
 
+// ======== Progress display ========
+// Say something...
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (1/4)"));
+StatusDlg->show();
+fl_wait(200);  // let fltk do its thing
+// ======== Progress display ========
+
 // Get remote languages listing
 ret = Server.getLanguages(list);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
 Language->clear();
 for(i = 0; i < list.size(); i++) {
   Language->add(list.at(i)->Text);
 }
 
+// ======== Progress display ========
+fl_wait(50);  // small delay
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (2/4)"));
+fl_wait(50);  // small delay
+// ======== Progress display ========
+
 // Load remote myserver.xml
 ret = Server.getMyserverConf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
 
 xmlFile.close();
 ret = xmlFile.openMemBuf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -2;
+}
 
 load_myserver_core();
 
+// ======== Progress display ========
+fl_wait(50);  // small delay
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (3/4)"));
+fl_wait(50);  // small delay
+// ======== Progress display ========
+
 // Load remote MIMEtypes.xml
 ret = Server.getMIMEtypesConf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
 
 ret = MimeConf.loadMemBuf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -2;
+}
 
 // Populate the interface
 MimeConf.populateExt(Ext);
 MimeConf.populateMime(Mime);
 
+// ======== Progress display ========
+fl_wait(50);  // small delay
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLDownload_Config, " (4/4)"));
+fl_wait(50);  // small delay
+// ======== Progress display ========
+
 // Load remote virtualhosts.xml
 ret = Server.getVhostsConf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
 
 ret = vHostConf.loadMemBuf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -2;
+}
 
 // Populate the interface
 vHostConf.populateName(Name);
@@ -2873,6 +2893,11 @@ else {
   SslButton1->activate();
   SslButton2->activate();
 }
+
+// ======== Progress display ========
+fl_wait(500);  // oooo aaa effect
+StatusDlg->hide();
+// ======== Progress display ========
 
 // End of function
 Changed = false;
@@ -3056,9 +3081,20 @@ int MainDlg::save_config_remote() {
   int ret;
 CMemBuf Buffer;
 
+// ======== Progress display ========
+// Say something...
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLSend_Config, " (1/3)"));
+StatusDlg->show();
+fl_wait(200);  // let fltk do its thing
+// ======== Progress display ========
+
 ret = Server.sendDisableReboot();
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
 
 // Send myserver.xml
 save_myserver_core();
@@ -3066,30 +3102,63 @@ save_myserver_core();
 xmlFile.saveMemBuf(Buffer);
 
 ret = Server.sendMyserverConf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
+
+// ======== Progress display ========
+fl_wait(50);  // small delay
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLSend_Config, " (2/3)"));
+fl_wait(50);  // small delay
+// ======== Progress display ========
 
 // Send MIMEtypes.xml
 ret = MimeConf.saveMemBuf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -2;
+}
 
 ret = Server.sendMIMEtypesConf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
+
+// ======== Progress display ========
+fl_wait(50);  // small delay
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label(mystrcat(LanguageXMLSend_Config, " (3/3)"));
+fl_wait(50);  // small delay
+// ======== Progress display ========
 
 // Send virtualhosts.xml
 ret = vHostConf.saveMemBuf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -2;
+}
 
 ret = Server.sendVhostsConf(Buffer);
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
 
 ret = Server.sendEnableReboot();
-if(ret)
+if(ret) {
+  StatusDlg->hide();
   return -1;
+}
+
+// ======== Progress display ========
+fl_wait(500);  // oooo aaa effect
+StatusDlg->hide();
+// ======== Progress display ========
 
 // End of function
 Changed = false;
@@ -3281,6 +3350,7 @@ int i;
 CMemBuf MSvr;
 Vector list;
 ConnectionsDlgVr->value("");
+ConnectionsDlgList->clear();
 ConnectionsDlg->show();
 fl_wait(200);
 
@@ -3335,11 +3405,11 @@ for(;;) {
         break;
       } // if
       // A cheap trick
-      time = get_ticks() - ConnectionsDlgRate->value() * 2000;
+      time = get_ticks() - (int)ConnectionsDlgRate->value() * 2000;
     } // if
   } // else if
 
-  if(get_ticks() - time > ConnectionsDlgRate->value() * 1000) {
+  if(get_ticks() - time > (int)ConnectionsDlgRate->value() * 1000) {
     time = get_ticks();
     ConnectionsDlgList->clear();
     ret = Server.getConnections(list);
@@ -3372,4 +3442,11 @@ void MainDlg::fl_wait(int len) {
 while(get_ticks() - time < len) {
   Fl::wait(0);
 }
+}
+
+const char * MainDlg::mystrcat(const char * a, const char * b) {
+  static char temp[255];
+strncpy(temp, a, 255);
+strncat(temp, b, 255);
+return temp;
 }

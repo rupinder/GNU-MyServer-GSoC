@@ -366,6 +366,7 @@ private:
   void ServerConnections();
   void fl_alertcat(const char * c1, const char * c2);
   void fl_wait(int len);
+  const char * mystrcat(const char * a, const char * b);
   bool Changed;
   MIMEtypeXML MimeConf;
   vHostXML vHostConf;

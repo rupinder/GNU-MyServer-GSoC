@@ -322,9 +322,10 @@ int ControlClient::getConnections(Vector & list)
 
 int ControlClient::sendKillConnection(VectorNode * node)
 {
-   int len = ((int)memchr(node->Text, '-', strlen(node->Text)) - (int)node->Text);
-   if(len < 0)
+   char * chrptr = (char *)memchr(node->Text, '-', strlen(node->Text));
+   if(chrptr == NULL)
      return -1;
+   int len = (int)(chrptr - node->Text);
    char id[len];
    memcpy(id, node->Text, len);
    id[len] = '\0';
@@ -365,6 +366,7 @@ int ControlClient::sendEnableReboot()
 
 int ControlClient::sendRequest(const char * cmd, const char * opt)
 {
+   memset(LastCode, 0, 4);
    if(!Connected)
      return -1;
 
@@ -385,9 +387,10 @@ int ControlClient::sendRequest(const char * cmd, const char * opt)
 
 int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & data)
 {
+   memset(LastCode, 0, 4);
    if(!Connected)
      return -1;
-
+   
    int ret1, ret2;
    int len, pos;
    int bytes;
