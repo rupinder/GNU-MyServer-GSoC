@@ -305,10 +305,16 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		lstrcpy((td->filenamePath),filename);
 	else
 	{
+		/*
+		*If the client try to access files that aren't in the web folder send a 401 error.
+		*/
+		if((filename[0] != '\0')&&(ms_getPathRecursionLevel(filename)<1))
+		{
+			return raiseHTTPError(td,s,e_401);
+		}
 		translateEscapeString(filename );
 		getPath(td,td->filenamePath,filename,systemrequest);
 	}
-
 	/*
 	*Get the PATH_INFO value.
 	*Use dirscan as a buffer for put temporary directory scan.
@@ -361,14 +367,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	{
         td->pathTranslated[0]='\0';
 	}
-	/*
-	*If the client try to access files that aren't in the web folder send a 401 error.
-	*/
-	if((ms_getPathRecursionLevel(filename)<1) && filename[0] != '\0')
-	{
-		return raiseHTTPError(td,s,e_401);
-	}
-
 	/*
 	*If there are not any extension then we do one of this in order:
 	1)We send the default files in the folder in order.
@@ -436,9 +434,13 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			target=td->request.URIOPTSPTR;
 		else
 			target=(char*)&td->request.URIOPTS;
-		if(sendMSCGI(td,s,td->filenamePath,target))
-			return 1;
-		return raiseHTTPError(td,s,e_404);
+		if(lserver->mscgiLoaded)
+		{
+			if(sendMSCGI(td,s,td->filenamePath,target))
+				return 1;
+			return raiseHTTPError(td,s,e_404);
+		}
+		return raiseHTTPError(td,s,e_500);
 	}else if(mimeCMD==CGI_CMD_WINCGI)
 	{
 	

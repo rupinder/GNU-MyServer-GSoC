@@ -233,7 +233,7 @@ void cserver::start()
 	/*
 	*Load the MSCGI library.
 	*/
-	loadMSCGILib();
+	mscgiLoaded=loadMSCGILib();
 	/*
 	*Load the MIME types.
 	*/

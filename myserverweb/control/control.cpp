@@ -41,7 +41,7 @@ extern "C" {
 /*
 *This is the version of the Control Center and can be different from the myServer version.
 */
-const char VERSION_OF_SOFTWARE[]="0.4";
+const char VERSION_OF_SOFTWARE[]="0.4.1";
 
 /*
 *To compile this program you need the library wxwindows distributed under the GNU LGPL(http://www.gnu.org/copyleft/lgpl.html) license terms.
@@ -167,6 +167,36 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 #if wxUSE_STATUSBAR
     CreateStatusBar(1);
     SetStatusText(_T("myServer Control Panel"));
+#endif
+#ifdef WIN32
+	char *cmdLine=GetCommandLine();
+	for(int i=0;i<strlen(cmdLine);i++)
+	{
+		if(!memcmp(&cmdLine[i]," REGISTER",9))
+		{
+			registerService((wxCommandEvent)0);
+			Destroy();
+			return;
+		}
+		if(!memcmp(&cmdLine[i]," CONSOLE",8))
+		{
+			runConsole((wxCommandEvent)0);
+			Destroy();
+			return;
+		}
+		if(!memcmp(&cmdLine[i]," SERVICE",8))
+		{
+			runService((wxCommandEvent)0);
+			Destroy();
+			return;
+		}
+		if(!memcmp(&cmdLine[i]," UNREGISTER",11))
+		{
+			removeService((wxCommandEvent)0);
+			Destroy();
+			return;
+		}
+	}
 #endif
 }
 void mainFrame::configureWnd(wxCommandEvent& WXUNUSED(event))

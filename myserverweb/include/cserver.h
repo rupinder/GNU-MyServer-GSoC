@@ -98,6 +98,7 @@ private:
 	u_long maxLogFileSize;
 	void createServerAndListener(u_long);
 public:
+	int mscgiLoaded;
 	vhostmanager vhostList;
 	MIME_Manager mimeManager;
 	char  *getPath();
