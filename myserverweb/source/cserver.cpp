@@ -889,6 +889,8 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 */
 LPCONNECTION cserver::getConnectionToParse(int id)
 {
+	if(connections==0)
+		return 0;
 	requestAccess(&connectionWriteAccess,id);
 	if(connectionToParse)
 	{

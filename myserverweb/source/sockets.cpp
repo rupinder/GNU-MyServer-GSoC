@@ -170,7 +170,7 @@ MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyname(const char *hostname)
 int MYSERVER_SOCKET::shutdown(int how)
 {
 #ifndef DO_NOT_USE_SSL
-	if(sslSocket)
+	if(sslSocket && sslConnection)
 	{
 		if(SSL_shutdown(sslConnection)==0)
 			SSL_shutdown(sslConnection);
@@ -294,8 +294,8 @@ int MYSERVER_SOCKET::sslAccept()
 	SSL_set_accept_state(sslConnection);
 	if(SSL_set_fd(sslConnection,socketHandle)==0)
 	{
-		freeSSL();
 		shutdown(2);
+		freeSSL();
 		closesocket();
 		return -1;
 	}
@@ -307,8 +307,8 @@ int MYSERVER_SOCKET::sslAccept()
 
 	if(ssl_accept != 1 )
 	{
-		freeSSL();
 		shutdown(2);
+		freeSSL();
 		closesocket();
 		return -1;
 	}
@@ -318,8 +318,8 @@ int MYSERVER_SOCKET::sslAccept()
 
 	if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
 	{
-		freeSSL();
 		shutdown(2);
+		freeSSL();
 		closesocket();
 		return -1;
 	}
