@@ -458,8 +458,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
         /*! If we cannot allocate memory return a 500 HTTP error page. */
         if(nURL == 0)
         {
-          stdOutFile.closeFile();
           stdInFile.closeFile();
+          stdOutFile.closeFile();
           delete [] cmdLine;
           delete [] filename;
           return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
@@ -519,12 +519,20 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
                         (int)(td->buffer->GetLength()), 0)==SOCKET_ERROR)
       {
         delete [] cmdLine;
+        delete [] filename;
+        stdInFile.closeFile();
+        stdOutFile.closeFile();
+        MYSERVER_FILE::deleteFile(td->inputDataPath);
         /*! Remove the connection on sockets error. */
         return 0;
       }
       if(only_header)
       {
+        stdOutFile.closeFile();
+        stdInFile.closeFile();
+        MYSERVER_FILE::deleteFile(td->inputDataPath);
         delete [] cmdLine;
+        delete [] filename;
         return 1;
       }
 
@@ -533,6 +541,10 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
                         nBytesRead-headerSize, 0)==SOCKET_ERROR)
       {
         delete [] cmdLine;
+        delete [] filename;
+        stdOutFile.closeFile();
+        stdInFile.closeFile();
+        MYSERVER_FILE::deleteFile(td->inputDataPath);
         /*! Remove the connection on sockets error. */
         return 0;       
       }
@@ -541,6 +553,10 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
     {
       if(only_header)
       {
+        stdOutFile.closeFile();
+        stdInFile.closeFile();
+        MYSERVER_FILE::deleteFile(td->inputDataPath);
+        delete [] filename;
         delete [] cmdLine;
         return 1;
       }
@@ -552,16 +568,48 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
     do
     {
       /*! Flush other data. */
-      stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
-                            td->buffer2->GetRealLength(), &nBytesRead);
+      if(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
+                                 td->buffer2->GetRealLength(), &nBytesRead))
+      {
+        delete [] cmdLine;
+        delete [] filename;
+        stdOutFile.closeFile();
+        stdInFile.closeFile();
+        MYSERVER_FILE::deleteFile(td->inputDataPath);
+        /*! Remove the connection on sockets error. */
+        return 0;      
+      }
       if(nBytesRead)
       {
 
         if(!td->appendOutputs)
-          s->socket.send((char*)td->buffer2->GetBuffer(), nBytesRead, 0);
+        {
+          if(s->socket.send((char*)td->buffer2->GetBuffer(), nBytesRead, 0)
+             ==SOCKET_ERROR)
+          {
+            delete [] cmdLine;
+            delete [] filename;
+            stdOutFile.closeFile();
+            stdInFile.closeFile();
+            MYSERVER_FILE::deleteFile(td->inputDataPath);
+            /*! Remove the connection on sockets error. */
+            return 0;      
+          }
+        }
         else
-          td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
-                                   nBytesRead, &nbw);
+        {
+          if(td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                        nBytesRead, &nbw))
+          {
+            delete [] cmdLine;
+            delete [] filename;
+            stdOutFile.closeFile();
+            stdInFile.closeFile();
+            MYSERVER_FILE::deleteFile(td->inputDataPath);
+            /*! Remove the connection on sockets error. */
+            return 0;      
+          }
+        }
       }
 
 		}while(nBytesRead);

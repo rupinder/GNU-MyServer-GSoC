@@ -56,7 +56,8 @@ int getErrorFileName(char *root,int error,char** out)
 		return 0;
 	}
 	cXMLParser parser;
-	parser.open(permissionsFile);
+	if(parser.open(permissionsFile)== -1 )
+    return -1;
   delete [] permissionsFile;
 	xmlDocPtr doc=parser.getDoc();
 	xmlNode *node=doc->children->children;
@@ -157,7 +158,6 @@ int getPermissionMask(char* user, char* password,char* folder,
 	int userPermissions2Found=0;
 	int genericPermissions2Found=0;
 
-	
 	while(node)
 	{
 		if(!xmlStrcmp(node->name, (const xmlChar *)"AUTH"))
@@ -373,5 +373,3 @@ int getPermissionMask(char* user, char* password,char* folder,
 		
 	return 0;
 }
-
-

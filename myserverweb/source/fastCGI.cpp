@@ -287,8 +287,11 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
     return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}	
 
-	/*! Now read the output.  */
+	/*! Now read the output. This flag is used by the external loop. */
 	int exit=0;
+
+  /*! Return 1 if keep the connection. */
+  int ret = 1;
 	
 	/*! Timeout is 20 seconds.  */
 	const clock_t timeout= CLOCKS_PER_SEC * 20;
@@ -335,7 +338,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
         sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
         con.sock.shutdown(2);
         con.sock.closesocket();
-			break;
+        break;
       }
     }
 		else
@@ -360,7 +363,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		u_long data_sent=0;
 		if(dim==0)
 		{
-			exit = 1;
+      exit = 1;
+      ret = 1;
 		}
 		else
 		{
@@ -370,6 +374,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 					con.sock.closesocket();
 					((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 					exit = 1;
+          ret = 0;
 					break;
 				case FCGI_STDOUT:
 					nbr=con.sock.recv((char*)td->buffer->GetBuffer(),
@@ -380,6 +385,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 					if(data_sent==0)
 					{
 						exit = 1;
+            ret = 0;
 						break;
 					}
 					while(data_sent<dim)
@@ -391,11 +397,13 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
             }
 						else
 						{
+              ret = 0;
 							exit = 1;
 							break;
 						}
 						if(con.tempOut.writeToFile((char*)(td->buffer->GetBuffer()),nbr,&nbw))
             {
+              ret = 0;
               exit = 1;
               break;
             }
@@ -456,19 +464,22 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                                       0) == SOCKET_ERROR )
       {
 				exit = 1;
+        ret = 0;
 				break;
 			}
 
       if(only_header)
       {
         exit = 1;
+        ret = 1;
         break;
       }
 
 			if(td->connection->socket.send((char*)(((char*)td->buffer->GetBuffer())
                                      +headerSize), nbr - headerSize, 0)==SOCKET_ERROR)
 			{
-				exit = 1;
+				exit = 0;
+        ret = 0;
 				break;
 			}
 		}
@@ -477,6 +488,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
       if(only_header)
       {
         exit = 1;
+        ret = 1;
         break;
       }
 			u_long nbw=0;
@@ -489,6 +501,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                                             + headerSize), nbr - headerSize, &nbw))
       {
 				exit = 1;
+        ret = 0;
 				break;
       }
 		}
@@ -500,15 +513,17 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                                   td->buffer->GetRealLength(), &nbr))
       {
         exit = 1;
+        ret = 0;
 				break;
       }
 			
 			if(!td->appendOutputs)
 			{
 				if(td->connection->socket.send((char*)td->buffer->GetBuffer(),nbr, 0)
-                                      ==SOCKET_ERROR)
+                                      == SOCKET_ERROR)
         {
           exit=1;
+          ret = 0;
 					break;
         }
 			}
@@ -518,6 +533,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 				if(td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&nbw))
         {
           exit=1;
+          ret = 0;
 					break;     
         }
 			}
@@ -527,7 +543,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	con.tempOut.closeFile();
 	MYSERVER_FILE::deleteFile(outDataPath);
 	con.sock.closesocket();
-	return 1;
+	return ret;
 }
 
 /*!
@@ -690,6 +706,7 @@ int fastcgi::cleanFASTCGI()
 sfCGIservers* fastcgi::isFcgiServerRunning(char* path)
 {
   servers_mutex.myserver_mutex_lock();
+
   sfCGIservers *cur = fCGIservers;
   while(cur)
   {
@@ -699,6 +716,7 @@ sfCGIservers* fastcgi::isFcgiServerRunning(char* path)
 			return cur;  
     }
   }
+
   servers_mutex.myserver_mutex_unlock();
 	return 0;
 }
@@ -710,6 +728,9 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 {
 	unsigned long pLong = 1L;
 	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(server->host);
+
+  if(hp == 0)
+    return -1;
 
 	struct sockaddr_in sockAddr;
 	int sockLen = sizeof(sockAddr);
@@ -776,11 +797,16 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 		return server;
 	if(fCGIserversN==max_fcgi_servers-2)
 		return 0;
+
+  servers_mutex.myserver_mutex_lock();
 	static u_short port=3333;
 
   sfCGIservers* new_server = new sfCGIservers();
   if(new_server == 0)
+  {
+    servers_mutex.myserver_mutex_unlock();
     return 0;
+  }
 
 	{
 		/*! Create the server socket. */
@@ -791,6 +817,7 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 			new_server->socket.socket(AF_INET,SOCK_STREAM,0);
 			if(new_server->socket.getHandle() == (MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
       {
+        servers_mutex.myserver_mutex_unlock();
         delete new_server;
 				return 0;
       }
@@ -804,12 +831,14 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 			if(new_server->socket.bind((sockaddr*)&sock_inserverSocket, 
                                                sizeof(sock_inserverSocket)))
 			{
+        servers_mutex.myserver_mutex_unlock();
 				new_server->socket.closesocket();
         delete new_server;
 				return 0;
 			}
 			if(new_server->socket.listen(SOMAXCONN))
 			{
+        servers_mutex.myserver_mutex_unlock();
         new_server->socket.closesocket();
 				return 0;
 			}
@@ -827,6 +856,7 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 
       if(new_server->path == 0)
       {
+        servers_mutex.myserver_mutex_unlock();
         delete new_server;
         return 0;
       }
@@ -838,6 +868,7 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 
 			if(new_server->pid == -1)
 			{
+        servers_mutex.myserver_mutex_unlock();
 				new_server->socket.closesocket();
         delete new_server;
 				return 0;
@@ -849,6 +880,7 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
       new_server->path = new char[ strlen(path) + 1 ];
       if(fCGIservers[fCGIserversN].path == 0)
       {
+        servers_mutex.myserver_mutex_unlock();
         delete new_server;
         return 0;
       }
@@ -868,17 +900,15 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 		}
 		
 	}
-
-  servers_mutex.myserver_mutex_lock();
   new_server->next = fCGIservers;
   fCGIservers = new_server;
-  servers_mutex.myserver_mutex_unlock();
 
   /*!
    *Increase the number of running servers.
    */
   fCGIserversN++;
-  
+
+  servers_mutex.myserver_mutex_unlock();  
 
   /*!
    *Return the new server.
