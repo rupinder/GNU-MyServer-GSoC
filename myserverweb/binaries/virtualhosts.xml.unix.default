@@ -5,7 +5,7 @@
 <NAME>Every connection</NAME>
 <PORT>80</PORT>
 <PROTOCOL>HTTP</PROTOCOL>
-<DOCROOT>/var/myserver/web/</DOCROOT>
+<DOCROOT>/var/web/</DOCROOT>
 <SYSFOLDER>/usr/share/myserver/system/</SYSFOLDER>
 <ACCESSESLOG>/var/log/myServerHTTP.log</ACCESSESLOG>
 <WARNINGLOG>var/log/myServerHTTP.err</WARNINGLOG>
