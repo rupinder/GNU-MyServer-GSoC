@@ -422,9 +422,7 @@ int runFcgiServer(fCGIContext *con,char* path)
 			fCGIservers[fCGIserversN].socket.ms_closesocket();
 			return -2;
 		}
-#ifdef WIN32
 		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].socket.ms_getHandle();
-#endif
 	}
 	START_PROC_INFO spi;
 	memset(&spi,0,sizeof(spi));
