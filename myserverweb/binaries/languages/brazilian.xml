@@ -39,7 +39,7 @@ outra aplicação</ERR_BIND>
 <MSG_TSTOPPED>Threads terminadas</MSG_TSTOPPED>
 <MSG_MEMCLEAN>Limpando a memória...</MSG_MEMCLEAN>
 <MSG_SERVICESTOP>Serviço parando...</MSG_SERVICESTOP>
-<MSG_LOADMSCGI>MSCGI-LIB carregados com sucesso</MSG_LOADMSCGI>
-<ERR_LOADMSCGI>MSCGI-LIB não podem ser carregados</ERR_LOADMSCGI>
+<MSG_LOADMSCGI>MSCGI-LIB carregada com sucesso</MSG_LOADMSCGI>
+<ERR_LOADMSCGI>MSCGI-LIB não pode ser carregada</ERR_LOADMSCGI>
 
 </MYSERVER_LANGUAGE_FILE>
