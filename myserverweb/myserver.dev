@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lwininet -lwsock32 -lz -llibz -llibxml2 -llibssl  -lcrypto_@@_-lrx_@@_
+Linker=-lwininet -lwsock32 -lz.dll -llibxml2 -llibssl  -lcrypto_@@_-lrx_@@_
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -25,7 +25,7 @@ CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000000000000000000
+CompilerSettings=000000000000000100
 
 [Unit14]
 FileName=source\myserver.cpp

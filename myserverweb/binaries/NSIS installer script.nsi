@@ -1,7 +1,7 @@
 ;NSIS Installation script for myServer
 SetCompressor bzip2
 !include "MUI.nsh"
-!define MUI_VERSION "0.7.2"
+!define MUI_VERSION "0.8"
 !define MUI_PRODUCT "MyServer"
 !define MUI_COMPONENTSPAGE
 !define MUI_LICENSEPAGE_CHECKBOX
@@ -46,6 +46,7 @@ Section "MyServer core" SecCore
   File "libpng12.dll"
   File "zlib1.dll"
   File "libssl32.dll"
+  File "rx.dll"
   File "libeay32.dll"
   File "MIMEtypes.xml.default"
   File "myserver.xml.default"
@@ -58,6 +59,8 @@ Section "MyServer core" SecCore
   File "system\*.*"
   SetOutPath $INSTDIR\languages
   File "languages\English.xml"
+  SetOutPath $INSTDIR\languages\control
+  File "languages\control\English.xml"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN
     CreateDirectory "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}"
@@ -114,6 +117,8 @@ SectionEnd
 Section "Install other languages" SecLanguages
   SetOutPath $INSTDIR\languages
   File "languages\*.*"
+  SetOutPath $INSTDIR\languages\configure
+  File "languages\configure\*.*"
 SectionEnd
 
 Section "Install the service" SecService

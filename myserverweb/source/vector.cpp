@@ -46,7 +46,7 @@ VectorNode * Vector::add(const char * Text, void * Data)
    NewNode->Data = Data;
    NewNode->Number = VectorSize;
 
-   VectorNode ** NewArray = new (VectorNode *)[VectorSize + 1];
+   VectorNode ** NewArray = (VectorNode **) new void*[sizeof(VectorNode *)*(VectorSize + 1)];
    for(i = 0; i < VectorSize; i++)
      NewArray[i] = Array[i];
 
@@ -79,7 +79,7 @@ void Vector::remove(int index)
 	return;
      }
 
-   VectorNode ** NewArray = new (VectorNode *)[VectorSize - 1];
+   VectorNode ** NewArray = (VectorNode **) new void*[sizeof(VectorNode *)*(VectorSize - 1)];
 
    int a, b;
    a = b = 0;

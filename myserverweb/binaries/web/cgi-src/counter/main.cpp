@@ -31,8 +31,6 @@ extern "C" int main (char *cmd,cgi_data* data)
 	
 	Counter_Output counter;
 	
-	MYSERVER_FILE msfile;
-	
 	cm.setContentType("image/png");
 	
 	counter.setWrite(&cm); //set the png writer function
@@ -41,12 +39,19 @@ extern "C" int main (char *cmd,cgi_data* data)
 	unsigned long int count;
 	u_long nbw;
 	
-	if(msfile.fileExists("count.dat"))
+	MYSERVER_FILE msfile;
+	memset(&msfile, 0, sizeof(msfile));
+
+	if(MYSERVER_FILE::fileExists("count.dat"))
 	{
 		// read the last number
-		msfile.openFile("count.dat", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
-		msfile.readFromFile((char *)&count, sizeof(count), &nbw);
-		msfile.closeFile();
+		if(msfile.openFile("count.dat", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS) == 0)
+		{
+			msfile.readFromFile((char *)&count, sizeof(count), &nbw);
+			msfile.closeFile();
+        }
+        else
+                count = 0;
 		
 		count++; // add the hit
 		
@@ -68,9 +73,7 @@ extern "C" int main (char *cmd,cgi_data* data)
 		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		msfile.closeFile();
 	}
-	
 	counter.setNumber(count);
-	
 	counter.run();
 	
 	cm.Clean();

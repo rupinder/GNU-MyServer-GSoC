@@ -122,7 +122,9 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 {
 	int ret=0;
   if(filename)
+  {
     delete [] filename;
+ }
   int filename_len = strlen(nfilename) + 1;
   filename = new char[filename_len];
   if(filename == 0)
@@ -168,7 +170,10 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	/*! Return 1 if an error happens.  */
   if(handle==INVALID_HANDLE_VALUE)
   {
-    delete [] filename;
+    if(filename)
+    {
+        delete [] filename;
+        }
 	filename = 0;
 		return 1;
   }
@@ -222,14 +227,16 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		ret = stat(filename, &F_Stats);
 		if(ret  < 0)
 		{
-      delete [] filename;
+      if(filename)
+        delete [] filename;
 	  filename = 0;
 			return 1;
 		}
 		ret = open(Buffer,F_Flags);
 		if(ret == -1)
     {
-      delete [] filename;
+      if(filename)
+        delete [] filename;
 	  filename = 0;
 			return 1;
     }
@@ -243,8 +250,9 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		else
 			ret = open(Buffer,O_APPEND | F_Flags);
 		if(ret == -1)
-    {
-      delete [] filename;
+     {
+      if(filename)
+        delete [] filename;
 	  filename = 0;
 			return 1;
     }
@@ -260,7 +268,8 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		if(ret == -1)
     {
-      delete [] filename;
+      if(filename)
+        delete [] filename;
 	  filename = 0;
 			return 1;
     }
@@ -276,7 +285,8 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 			ret = open(Buffer,F_Flags);
 		if(ret == -1)
     {
-      delete [] filename;
+      if(filename)
+        delete [] filename;
 	  filename = 0;
 			return 1;
     }
@@ -290,7 +300,8 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	if((int)handle < 0)
   {
 		handle = (MYSERVER_FILE_HANDLE)0;
-    delete [] filename;
+    if(filename)
+      delete [] filename;
 	filename = 0;
   }
 #endif
@@ -396,12 +407,18 @@ int MYSERVER_FILE::closeFile()
 	if(handle)
 	{
 #ifdef WIN32
-		FlushFileBuffers((HANDLE)handle);
-		ret=CloseHandle((HANDLE)handle);
+        if(handle)
+        {
+		  FlushFileBuffers((HANDLE)handle);
+		  ret=CloseHandle((HANDLE)handle);
+        }
 #endif
 #ifdef NOT_WIN
-		fsync((int)handle);
-		ret=close((int)handle);
+        if(handle)
+        {
+		  fsync((int)handle);
+		  ret=close((int)handle);
+        }
 #endif
 	}
   if(filename)
