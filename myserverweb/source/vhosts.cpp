@@ -100,6 +100,67 @@ void vhost::addIP(char *ip)
 	ipList=il;
 }
 /*
+*Remove the IP address to the list
+*/
+void vhost::removeIP(char *ip)
+{
+	vhost::sIpList *iterator=ipList;
+	vhost::sIpList *iteratorBack=0;
+	if(iterator==0)
+		return;
+	while(iterator)
+	{
+		if(!strcmp(iterator->hostIp,ip))
+		{
+			if(iteratorBack)
+			{
+				iteratorBack->next=iterator->next;
+				delete iterator;
+				return;
+			}
+			else
+			{
+				ipList=iterator->next;
+				delete iterator;
+				return;
+			}
+		}
+		iteratorBack=iterator;	
+		iterator=iterator->next;
+	}
+
+}
+/*
+*Remove the host address to the list
+*/
+void vhost::removeHost(char *host)
+{
+	vhost::sHostList *iterator=hostList;
+	vhost::sHostList *iteratorBack=0;
+	if(iterator==0)
+		return;
+	while(iterator)
+	{
+		if(!strcmp(iterator->hostName,host))
+		{
+			if(iteratorBack)
+			{
+				iteratorBack->next=iterator->next;
+				delete iterator;
+				return;
+			}
+			else
+			{
+				hostList=iterator->next;
+				delete iterator;
+				return;
+			}
+		}
+		iteratorBack=iterator;	
+		iterator=iterator->next;
+	}
+}
+/*
 *Check if an host is allowed to the connection
 */
 int vhost::isHostAllowed(char* host)
@@ -113,6 +174,24 @@ int vhost::isHostAllowed(char* host)
 			return 1;
 		lhl=lhl->next;
 	}
+	return 0;
+}
+/*
+*Check if all the host are allowed to the connection
+*/
+int vhost::areAllHostAllowed()
+{
+	if(hostList==0)
+		return 1;
+	return 0;
+}
+/*
+*Check if all the IPs are allowed to the connection
+*/
+int vhost::areAllIPAllowed()
+{
+	if(ipList==0)
+		return 1;
 	return 0;
 }
 /*
@@ -536,6 +615,51 @@ vhostmanager::sVhostList* vhostmanager::getvHostList()
 	return this->vhostList;
 }
 /*
+*Switch the position between two virtual hosts
+*Zero based index
+*/
+int vhostmanager::switchVhosts(int n1,int n2)
+{
+	if(max(n1,n2)>=getHostsNumber())
+		return 0;
+	sVhostList *vh1 = vhostList;
+	int i;
+	for(i=0;i<n1;i++)
+	{
+		vh1=vh1->next;
+	}
+	sVhostList *vh2 = vhostList;
+	for(i=0;i<n2;i++)
+	{
+		vh2=vh2->next;
+	}
+	return switchVhosts(vh1,vh2);
+
+}
+/*
+*Switch two virtual hosts
+*/
+int vhostmanager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
+{
+	if((vh1==0)|(vh2==0))
+		return 0;
+	vhost* vh3=vh1->host;
+	vh1->host = vh2->host;
+	vh2->host = vh3;
+	return 1;
+}
+/*
+*Returns the number of hosts in the list
+*/
+int vhostmanager::getHostsNumber()
+{
+	sVhostList *vh = vhostList;
+	int i;
+	for(i=0;vh;i++,vh=vh->next);
+	return i;
+}
+
+/*
 *Load the virtual hosts from a XML configuration file
 */
 void vhostmanager::loadXMLConfigurationFile(char *filename)
@@ -562,6 +686,10 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
 			{
 				vh->addHost((char*)lcur->children->content);
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
+			{
+				strcpy(vh->name,((char*)lcur->children->content));
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
 			{
@@ -622,6 +750,11 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 	while(list)
 	{
 		out.writeToFile("<VHOST>\r\n",9,&nbw);
+
+		out.writeToFile("<NAME>",6,&nbw);
+		out.writeToFile(list->host->name,strlen(list->host->name),&nbw);
+		out.writeToFile("</NAME>\r\n",9,&nbw);
+
 		vhost::sIpList *ipList = list->host->ipList;
 		while(ipList)
 		{
@@ -677,4 +810,45 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 	}
 	out.writeToFile("</VHOSTS>\r\n",11,&nbw);
 	out.closeFile();
+}
+/*
+*Get a virtual host by its position in the list
+*Zero based list.
+*/
+vhost* vhostmanager::getVHostByNumber(int n)
+{
+	sVhostList *hl=vhostList;
+	for(int i=0;(i<n)&& hl;i++)
+	{
+		hl=hl->next;
+	}
+	return hl->host;
+}
+/*
+*Remove a virtual host by its position in the list
+*Zero based list.
+*/
+int vhostmanager::removeVHost(int n)
+{
+	sVhostList *hl=vhostList;
+	sVhostList *bl=0;
+	for(int i=0;hl;i++)
+	{
+		if(i==n)
+		{
+			if(bl)
+			{
+				bl->next=hl->next;
+			}
+			else
+			{
+				vhostList->next=hl->next;
+			}
+			delete hl->host;
+			return 1;
+		}
+		bl=hl;
+		hl=hl->next;
+	}
+	return 0;
 }

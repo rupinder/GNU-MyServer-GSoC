@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "resource.h" 
 #include <wx/wx.h> 
 #include <wx/taskbar.h>
+#include <wx/textctrl.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -38,12 +39,13 @@ class configurationFrameVHOSTS : public wxFrame
 {
 public:
 	vhostmanager hostmanager;
-	MIME_Manager mm;
 	wxButton* btnOK;
 	wxButton* btnCNL;
 	wxButton* btnSAVE;
 	wxButton* btnADDVHOST;
 	wxButton* btnREMOVEVHOST;
+	wxButton* btnUPVHOST;
+	wxButton* btnDOWNVHOST;
 	wxButton* btnADDHOST;
 	wxButton* btnADDIP;
 	wxButton* btnREMOVEHOST;
@@ -56,20 +58,29 @@ public:
 	wxTextCtrl *hostSys;
 	wxTextCtrl *hostAcc;
 	wxTextCtrl *hostWarnings;
-	wxTextCtrl *hostProtocol;
+	wxListBox *hostProtocol;
 	vhost *currentVHost;
 	configurationFrameVHOSTS(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size,long style = wxDEFAULT_FRAME_STYLE);
 	void OnQuit(wxCommandEvent& event);
 	void cancel(wxCommandEvent& event);
 	void addVHost(wxCommandEvent& event);
+	void upVHost(wxCommandEvent& event);
 	void addHost(wxCommandEvent& event);
 	void addIP(wxCommandEvent& event);
 	void removeVHost(wxCommandEvent& event);
+	void downVHost(wxCommandEvent& event);
 	void removeHost(wxCommandEvent& event);
 	void removeIP(wxCommandEvent& event);
 	void ok(wxCommandEvent& event);
 	void vhostChange(wxCommandEvent& event);
 	void save(wxCommandEvent& event);
+	void loadVHost(wxCommandEvent& event);
+	void hostPortMod(wxCommandEvent& event);
+	void hostDocMod(wxCommandEvent& event);
+	void hostSysMod(wxCommandEvent& event);
+	void hostAccMod(wxCommandEvent& event);
+	void protocolMod(wxCommandEvent& event);
+	void hostWarningsMod(wxCommandEvent& event);
 private:
 	DECLARE_EVENT_TABLE()
 };

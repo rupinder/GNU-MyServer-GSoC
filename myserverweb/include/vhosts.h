@@ -49,9 +49,14 @@ public:
 	char systemRootOriginal[MAX_PATH];/*Path to the system root(as it is in the configuration file)*/
 	char accessesLogFileName[MAX_PATH];/*Path to the accesses log file*/
 	char warningsLogFileName[MAX_PATH];/*Path to the warnings log file*/
+	char name[64];/*Description or name of the virtual host*/
 	vhost();
 	void addIP(char *);
 	void addHost(char *);
+	void removeIP(char *);
+	void removeHost(char *);
+	int areAllHostAllowed();
+	int areAllIPAllowed();
 	void clearIPList();
 	void clearHostList();
 	int isHostAllowed(char*);
@@ -82,7 +87,12 @@ private:
 public:
 	vhostmanager();
 	~vhostmanager();
+	int getHostsNumber();
+	vhost* getVHostByNumber(int n);
 	void clean();
+	int removeVHost(int n);
+	int switchVhosts(int n1,int n2);
+	int switchVhosts(sVhostList*,sVhostList*);
 	vhostmanager::sVhostList*  getvHostList();
 	vhost*  getvHost(char*,char*,u_short);/*Get a pointer to a vhost*/
 	void addvHost(vhost*);/*Add an element to the vhost list*/
