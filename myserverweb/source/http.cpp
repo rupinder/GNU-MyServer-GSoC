@@ -870,117 +870,130 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		if(td.request.CONTENT_TYPE[0]=='\0')
 			strcpy(td.request.CONTENT_TYPE,"application/x-www-form-urlencoded");
-		td.request.URIOPTSPTR=&td.buffer[td.nHeaderChars];
-		td.buffer[min(td.nBytesToRead,td.buffersize)]='\0';
-		/*
-		*Create the file that contains the data posted.
-		*This data is the stdin file in the CGI.
-		*/
-		td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
-		u_long nbw;
-		u_long total_nbr=min(td.nBytesToRead,td.buffersize)-td.nHeaderChars;
-		td.inputData.writeToFile(td.request.URIOPTSPTR,total_nbr,&nbw);
-		
-		u_long content_len=atoi(td.request.CONTENT_LENGTH);
+		if(!strcmpi(td.request.CONTENT_ENCODING,"chunked"))
+		{
+			/*
+			*TODO
+			*Control here the chunked transfer encoding.
+			*/	
+			u_long total_nbr=min(td.nBytesToRead,td.buffersize)-td.nHeaderChars;
 
-		/*
-		*If the connection is Keep-Alive be sure that the client specify a the
-		*HTTP CONTENT-LENGTH field
-		*/
-		if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
-		{
-			if(td.request.CONTENT_LENGTH[0]=='\0')
-			{
-				td.inputData.closeFile();
-				td.inputData.deleteFile(td.inputDataPath);
-				return raiseHTTPError(&td,a,e_400);
-			}
+
 		}
-		/*
-		*If there are others bytes to read from the socket.
-		*/
-		u_long timeout=clock();
-		if((content_len)&&(content_len!=nbw))
+		else/*Read the data normally*/
 		{
-			int err;
-			u_long fs;
-			do
+			td.request.URIOPTSPTR=&td.buffer[td.nHeaderChars];
+			td.buffer[min(td.nBytesToRead,td.buffersize)]='\0';
+			/*
+			*Create the file that contains the data posted.
+			*This data is the stdin file in the CGI.
+			*/
+			td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
+			u_long nbw;
+			u_long total_nbr=min(td.nBytesToRead,td.buffersize)-td.nHeaderChars;
+			
+			td.inputData.writeToFile(td.request.URIOPTSPTR,total_nbr,&nbw);
+			
+			u_long content_len=atoi(td.request.CONTENT_LENGTH);
+			/*
+			*If the connection is Keep-Alive be sure that the client specify a the
+			*HTTP CONTENT-LENGTH field
+			*/
+			if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
 			{
-				err=0;
-				fs=td.inputData.getFileSize();
-				while(clock()-timeout<SEC(5))
+				if(td.request.CONTENT_LENGTH[0]=='\0')
 				{
-					if(content_len==total_nbr)
+					td.inputData.closeFile();
+					td.inputData.deleteFile(td.inputDataPath);
+					return raiseHTTPError(&td,a,e_400);
+				}
+			}
+			/*
+			*If there are others bytes to read from the socket.
+			*/
+			u_long timeout=clock();
+			if((content_len)&&(content_len!=nbw))
+			{
+				int err;
+				u_long fs;
+				do
+				{
+					err=0;
+					fs=td.inputData.getFileSize();
+					while(clock()-timeout<SEC(5))
 					{
-						/*
-						*Consider only CONTENT-LENGTH bytes of data.
-						*/
-						while(td.connection->socket.bytesToRead())
+						if(content_len==total_nbr)
 						{
 							/*
-							*Read the unwanted bytes but do not save them.
+							*Consider only CONTENT-LENGTH bytes of data.
 							*/
-							err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
+							while(td.connection->socket.bytesToRead())
+							{
+								/*
+								*Read the unwanted bytes but do not save them.
+								*/
+								err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
+							}
+							break;
 						}
-						break;
+						if((content_len>fs)&&(td.connection->socket.bytesToRead()))
+						{				
+							u_long tr=min(content_len-total_nbr,td.buffersize2);
+							err=td.connection->socket.recv(td.buffer2,tr, 0);
+							td.inputData.writeToFile(td.buffer2,min((u_long)err, (content_len-fs)),&nbw);	
+							total_nbr+=nbw;
+							timeout=clock();
+							break;
+						}
 					}
-					if((content_len>fs)&&(td.connection->socket.bytesToRead()))
-					{				
-						u_long tr=min(content_len-total_nbr,td.buffersize2);
-						err=td.connection->socket.recv(td.buffer2,tr, 0);
-						td.inputData.writeToFile(td.buffer2,min((u_long)err, (content_len-fs)),&nbw);	
-						total_nbr+=nbw;
-						timeout=clock();
+					if(clock()-timeout>=SEC(5))
 						break;
-					}
 				}
-				if(clock()-timeout>=SEC(5))
-					break;
-			}
-			while(content_len!=total_nbr);
+				while(content_len!=total_nbr);
 
-			
+				
 
-			fs=td.inputData.getFileSize();
-			if(content_len!=fs)
-			{
-				/*
-				If we get an error remove the file and the connection.
-				*/
-				td.inputData.closeFile();
-				td.inputData.deleteFile(td.inputDataPath);
-				retvalue|=1;/*set return value to 1*/
-				retvalue|=2;
-				return raiseHTTPError(&td,a,e_500);
-			}
-		}
-		else if(content_len==0)/*If CONTENT-LENGTH is not specified read all the data*/
-		{
-			int err;
-			do
-			{
-				err=0;
-				while(clock()-timeout<SEC(1))
+				fs=td.inputData.getFileSize();
+				if(content_len!=fs)
 				{
-					if(td.connection->socket.bytesToRead())
-					{				
-						err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
-						td.inputData.writeToFile(td.buffer2,err,&nbw);	
-						total_nbr+=nbw;
-						timeout=clock();
-						break;
-					}
+					/*
+					If we get an error remove the file and the connection.
+					*/
+					td.inputData.closeFile();
+					td.inputData.deleteFile(td.inputDataPath);
+					retvalue|=1;/*set return value to 1*/
+					retvalue|=2;
+					return raiseHTTPError(&td,a,e_500);
 				}
-				if(clock()-timeout>=SEC(1))
-					break;
 			}
-			while(content_len!=total_nbr);
-			sprintf(td.response.CONTENT_LENGTH,"%u",td.inputData.getFileSize());
-	
-		}
-		td.inputData.setFilePointer(0);
-		td.buffer2[0]='\0';
+			else if(content_len==0)/*If CONTENT-LENGTH is not specified read all the data*/
+			{
+				int err;
+				do
+				{
+					err=0;
+					while(clock()-timeout<SEC(1))
+					{
+						if(td.connection->socket.bytesToRead())
+						{				
+							err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
+							td.inputData.writeToFile(td.buffer2,err,&nbw);	
+							total_nbr+=nbw;
+							timeout=clock();
+							break;
+						}
+					}
+					if(clock()-timeout>=SEC(1))
+						break;
+				}
+				while(content_len!=total_nbr);
+				sprintf(td.response.CONTENT_LENGTH,"%u",td.inputData.getFileSize());
+		
+			}
+			td.inputData.setFilePointer(0);
+			td.buffer2[0]='\0';
 
+		}
 	}
 	else
 	{

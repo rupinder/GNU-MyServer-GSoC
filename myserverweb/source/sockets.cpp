@@ -195,7 +195,17 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 	return ::connect((int)socketHandle,sa,na);
 #endif
 }
+int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
+{
+	int time=clock();
+	while(clock()-time<timeout)
+	{
+		if(bytesToRead())
+			return recv(buffer,len,flags);
+	}
+	return -1;
 
+}
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
 	int err;
