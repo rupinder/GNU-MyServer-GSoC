@@ -9,6 +9,7 @@ CPP-FLAGS =
 #-O2 -pipe
 
 all : myserver
+	
 
 myserver : $(OBJS)
 	$(LD) $(CPP-LIBS) $(OBJS) -o ../binaries/myserver
@@ -66,5 +67,8 @@ utility.o : utility.cpp
 
 clean :
 	rm -f *.o ../binaries/myserver
+
+release :
+	rm -f *.o
 
 #install : all
