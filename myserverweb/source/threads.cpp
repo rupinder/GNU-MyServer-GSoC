@@ -24,21 +24,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 extern "C" {
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <stdio.h>
 #ifndef WIN32
+#include <errno.h>
+#include <getopt.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <signal.h>
 #ifdef HAVE_PTHREAD
 #include <pthread.h>
 #endif
-#include <sys/types.h>
 #include <sys/wait.h>
 #endif
 }
 
+#include <sys/types.h>
+
 #ifdef WIN32
 #include <direct.h>
 #endif
+
+
+
 
 
 /*!

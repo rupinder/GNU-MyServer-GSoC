@@ -36,6 +36,9 @@ extern "C" {
 #ifdef HAVE_PTHREAD
 #include <pthread.h>
 #endif
+#include <sys/types.h>
+#include <sys/wait.h>
+
 }
 #endif
 
@@ -87,7 +90,8 @@ void * startClientsTHREAD(void* pParam)
 
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
-
+	
+	wait(5000);
 	/*!
 	*This function when is alive only call the controlConnections(...) function
 	*of the ClientsTHREAD class instance used for control the thread.
@@ -114,6 +118,10 @@ void * startClientsTHREAD(void* pParam)
 */
 void ClientsTHREAD::controlConnections()
 {
+	static int i=0;
+	/*!
+	*Get the access to the connections list.
+	*/
 	lserver->connections_mutex_lock();
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
 	/*!
@@ -134,8 +142,7 @@ void ClientsTHREAD::controlConnections()
 	/*!
 	*Unlock connections list access after setting parsing flag.
 	*/
-	lserver->connections_mutex_unlock();	
-	
+	lserver->connections_mutex_unlock();
 	nBytesToRead=c->socket.bytesToRead();/*!Number of bytes waiting to be read*/
 	if(nBytesToRead || c->forceParsing)
 	{

@@ -894,8 +894,10 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 		doSSLhandshake=1;
 	}
 	else if(((vhost*)nc->host)->protocol==PROTOCOL_UNKNOWN)
-	{		
-		/*Do nothing ATM*/
+	{	
+		dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(nc->host))->protocol_name);	
+		if(dp->getOptions() & PROTOCOL_USES_SSL)
+			doSSLhandshake=1;	
 	}
 	
 	/*!
@@ -931,11 +933,11 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	/*!
 	*Update the list.
 	*/
-	connections_mutex_lock();
+	lserver->connections_mutex_lock();
 	nc->next = connections;
-    connections=nc;
+    	connections=nc;
 	nConnections++;
-	connections_mutex_unlock();
+	lserver->connections_mutex_unlock();
 	/*
 	If defined maxConnections and the number of active connections is bigger than it
 	*say to the protocol that will parse the connection to remove it from the active
@@ -956,12 +958,13 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		return 0;
 	if(s->check_value!=CONNECTION::check_value_const)
 		return 0;
+	if(s->parsing)
+		return 0;
 	MYSERVER_SOCKET socket=s->socket;
 	/*!
 	*Get the access to the  connections list.
 	*/
-	connections_mutex_lock();
-	
+	lserver->connections_mutex_lock();
 	int ret=0,err;
 	/*!
 	*Remove the connection from the active connections list.
@@ -994,8 +997,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		free(s->protocolBuffer);
 	free(s);
 
-	connections_mutex_unlock();
-
+	lserver->connections_mutex_unlock();
 	/*!
 	*Close the socket communication.
 	*/
@@ -1068,7 +1070,6 @@ void cserver::clearAllConnections()
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 {
 	connections_mutex_lock();
-
 	LPCONNECTION c;
 	for(c=connections;c;c=c->next )
 	{
@@ -1079,7 +1080,6 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 		}
 	}
 	connections_mutex_unlock();
-
 	return NULL;
 }
 

@@ -106,6 +106,15 @@ char *dynamic_protocol::getProtocolName()
 }
 
 /*!
+*Get the options for the protocol.
+*/
+int dynamic_protocol::getOptions()
+{
+	return  PROTOCOL_OPTIONS;
+}
+
+
+/*!
 *Control the connection
 */
 int dynamic_protocol::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id)
@@ -172,6 +181,8 @@ int protocols_manager::addProtocol(char *file,cXMLParser* parser,char* confFile,
 	printf("%s %s --> %s\n",parser->getValue("MSG_LOADED"),file,ne->data.getProtocolName());
 	return 1;
 }
+
+
 /*!
 *Unload evey loaded protocol.
 */
