@@ -345,6 +345,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				}
         if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
 				{
+          if((tempThrottlingRate == (u_long)-1) || 
+             ((userPermissionsFound==0)&&(filePermissionsFound==0)) )
           tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
 				}
         /*! 
