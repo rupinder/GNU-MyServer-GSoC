@@ -17,6 +17,18 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "../include/vhosts.h"
+
+#ifndef WIN32
+extern "C" {
+#include <string.h>
+}
+
+#define lstrcmpi strcmp
+#define lstrcpy strcpy
+#define lstrcat strcat
+#define lstrlen strlen
+#endif
+
 /*
 *vhost
 */
