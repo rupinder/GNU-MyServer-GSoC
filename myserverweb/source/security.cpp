@@ -41,7 +41,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *Return other valus on success, please note to free
  *out after its use.
  */
-int SecurityManager::getErrorFileName(char* sysDir,int error, char** out, XmlParser* parser)
+int SecurityManager::getErrorFileName(char* sysDir,int error, 
+                                      char** out, XmlParser* parser)
 {
 	xmlNode *node;
 	char *permissionsFile;
@@ -153,37 +154,52 @@ int SecurityManager::getErrorFileName(char* sysDir,int error, char** out, XmlPar
  *Get the permissions mask for the file[filename]. The file [directory]/security will
  *be parsed. If a [parser] is specified, it will be used instead of opening 
  *the security file.
+ *[permission2] is the permission mask that the [user] will have if providing a 
+ *[password2].
  */
 int SecurityManager::getPermissionMask(char* user, char* password, char* directory,
                                        char* filename, char *password2, 
                                        char* auth_type, int len_auth, 
                                        int *permission2, XmlParser* parser)
 {
-	char *permissionsFile;
-	char tempPassword[32];
-  int ret =0;
-  int permissionsFileLen;
-	XmlParser local_parser;
-  xmlDocPtr doc;
-	int filePermissions=0;
-	int filePermissionsFound=0;
 
+	char *permissionsFile;
+  int permissionsFileLen;
+
+	char tempPassword[32];
+  int ret = 0;
+
+  /*! Generic permission data mask for the user. */
 	int genericPermissions=0;
 	int genericPermissionsFound=0;
 
+  /*! Permission data for the file. */
+	int filePermissions=0;
+	int filePermissionsFound=0;
+
+  /*! Permission data for the user and the file. */
 	int userPermissions=0;
 	int userPermissionsFound=0;
 
+  /*! Store what we found for password2. */
 	int filePermissions2Found=0;
 	int userPermissions2Found=0;
 	int genericPermissions2Found=0;
+
   xmlAttr *attr;
 	xmlNode *node;
+
+	XmlParser local_parser;
+  xmlDocPtr doc;
 
 	tempPassword[0]='\0';
 	if(auth_type)
 		auth_type[0]='\0';
 
+  /*! 
+   *If there is not specified the parser to use, create a new parser
+   *object and initialize it. 
+   */
   if(parser == 0)
   {
     u_long filenamelen;
@@ -218,20 +234,31 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
   }
   else
   {
+    /*! If the parser object is specified get the doc from it. */
     doc=parser->getDoc();
   }
 
-	if(!doc)
-		return 0;
+  if(!doc)
+    return 0;
 
-  node=doc->children->children;
+  /*! 
+   *If the file is not valid, returns 0.
+   *Clean the parser object if was created here.
+   */
+  if(doc->children && doc->children->children)
+    node=doc->children->children;
+  else if(parser == 0)
+  {
+    local_parser.close();
+    return 0;
+  }
 
 	while(node)
 	{
-    /*! Retrieve the authorization scheme to use. */
+    /*! Retrieve the authorization scheme to use if specified. */
 		if(!xmlStrcmp(node->name, (const xmlChar *)"AUTH"))
 		{
-			attr =  node->properties;
+			attr = node->properties;
 			while(attr)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"TYPE"))
@@ -242,7 +269,7 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 				attr=attr->next;
 			}
 		}
-	
+    /*! USER block. */
 		if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
 		{
 			int tempGenericPermissions=0;
@@ -254,27 +281,27 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempGenericPermissions|=MYSERVER_PERMISSION_READ;
+						tempGenericPermissions |= MYSERVER_PERMISSION_READ;
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempGenericPermissions|=MYSERVER_PERMISSION_WRITE;
+						tempGenericPermissions |= MYSERVER_PERMISSION_WRITE;
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"BROWSE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempGenericPermissions|=MYSERVER_PERMISSION_BROWSE;
+						tempGenericPermissions |= MYSERVER_PERMISSION_BROWSE;
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempGenericPermissions|=MYSERVER_PERMISSION_EXECUTE;
+						tempGenericPermissions |= MYSERVER_PERMISSION_EXECUTE;
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempGenericPermissions|=MYSERVER_PERMISSION_DELETE;
+						tempGenericPermissions |= MYSERVER_PERMISSION_DELETE;
 				}
 				if(!lstrcmpi((const char*)attr->name,"NAME"))
 				{
@@ -287,9 +314,13 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)password))
 						rightPassword=1;
 				}
+        /*! 
+         *USER is the weakest permission considered. Be sure that no others are
+         *specified before save the password2.
+         */
 				if(rightUser && password2 && (filePermissions==0) && (userPermissions==0))
 				{
-					strncpy(password2,tempPassword,16);
+					strncpy(password2, tempPassword, 16);
 				}
 
 				attr=attr->next;
@@ -303,6 +334,7 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 			}
 
 		}
+    /*! ITEM block. */
 		if(!xmlStrcmp(node->name, (const xmlChar *)"ITEM"))
 		{
       int tempFilePermissions;
@@ -349,6 +381,10 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 							if(!lstrcmp((const char*)attr->children->content,password))
 								rightPassword=1;
 						}
+            /*! 
+             *USER inside ITEM is the strongest mask considered. 
+             *Do not check for other masks to save it.
+             */
 						if(rightUser && password2)
 						{
 							strncpy(password2,tempPassword,16);
@@ -369,6 +405,7 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 
       attr = node->properties;
 
+      /*! Generic ITEM permissions. */
 			while(attr)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
@@ -391,9 +428,12 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempFilePermissions|=MYSERVER_PERMISSION_DELETE;
 				}
+
+        /*! Check if the file name is correct. */
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
 				{
-					if(!lstrcmpi((const char*)attr->children->content, filename))
+          if(attr->children && attr->children->content &&
+             (!xmlStrcmp(attr->children->content, (const xmlChar *)filename)))
 					{					
 						filePermissionsFound=1;
 						filePermissions2Found=1;
@@ -417,7 +457,8 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
   {
     local_parser.close();
   }
-	if(permission2)
+
+  if(permission2)
 	{
 		*permission2=0;
 		if(genericPermissions2Found)
@@ -436,6 +477,7 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 		}
 
 	}
+
 	if(userPermissionsFound==1)
 		return userPermissions;
 
