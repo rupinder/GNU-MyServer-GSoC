@@ -115,6 +115,7 @@ private:
                                    int localPort,int);
   u_long nConnections;
 	u_long maxConnections;
+	u_long maxConnectionsToAccept;
 	void clearAllConnections();
 	int deleteConnection(LPCONNECTION,int);
 	u_long connectionTimeout;

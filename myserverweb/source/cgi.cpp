@@ -64,7 +64,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
                  char* /*!ext*/, char *cgipath, int cmd, int only_header, int buildArg)
 {
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
-	int nph;
+	int nph = 0;
 	char *cmdLine = 0;
 	char *filename = 0;
 
@@ -375,7 +375,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
                                ("Error in the CGI execution\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
-  }   
+  }
 
   /*! Reset the buffer2 length counter. */
 	td->buffer2->SetLength(0);

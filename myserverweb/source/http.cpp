@@ -316,8 +316,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 		}
 	}while(!_findnext(ff, &fd));
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " ;
-	*td->buffer2 << versionOfSoftware ;
+	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " << versionOfSoftware;
+              
   if(td->request.HOST[0])
   {
     *td->buffer2 << " on ";
@@ -339,6 +339,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 		return raiseHTTPError(td, s, e_500);
 	}	
 	_findclose(ff);
+  *td->buffer2 << end_str;
 	/*! Changes the \ character in the / character.  */
 	char *buffer2Loop=(char*)td->buffer2->GetBuffer();
 	while(*buffer2Loop++)

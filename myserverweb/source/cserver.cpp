@@ -827,6 +827,7 @@ int cserver::initialize(int /*!os_ver*/)
 	mustEndServer=0;
 	verbosity=1;
 	maxConnections=0;
+  maxConnectionsToAccept=0;
 	serverAdmin[0]='\0';
 	autoRebootEnabled = 1;
 #ifndef WIN32
@@ -1057,6 +1058,12 @@ int cserver::initialize(int /*!os_ver*/)
 	{
 		maxConnections=atoi(data);
 	}
+	/*! Get the max connections number to allow. */
+	data = configurationFileManager.getValue("MAX_CONNECTIONS_TO_ACCEPT");
+	if(data)
+	{
+		maxConnectionsToAccept=atoi(data);
+	}
 	/*! Load the server administrator e-mail. */
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
@@ -1110,6 +1117,12 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 {
 	if( s.getHandle() == 0 )
 		return 0;
+  
+  /*!
+   *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is defined.
+   */
+  if(maxConnectionsToAccept && (nConnections >= maxConnectionsToAccept))
+    return 0;
 
   /*!
    *If there are not availables threads and we can still create other ones,
@@ -1124,7 +1137,7 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 	/*!
    *ip is the string containing the address of the remote host 
    *connecting to the server.
-   * local_ip is the local addrress used by the connection.
+   *local_ip is the local addrress used by the connection.
    */
 	char ip[MAX_IP_STRING_LEN];
 	char local_ip[MAX_IP_STRING_LEN];
