@@ -1,12 +1,12 @@
 /*
 *MyServer
-*Copyright (C) 2002,2003,2004 The MyServer Team
+*Copyright (C) 2002, 2003, 2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of the License,  or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+This program is distributed in the hope that it will be useful, 
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -34,22 +34,22 @@ extern "C" {
 #endif
 #define u_short unsigned short
 
-static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
-static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+static char daysName[7][4]={"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+static char monthsName[12][4]={"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 /*!
 *This function format current time to the RFC 822 format.
 */
-char *getRFC822GMTTime(char* out,int len)
+char *getRFC822GMTTime(char* out, int len)
 {
 	time_t ltime;
 	time( &ltime );
-	return getRFC822GMTTime(ltime,out,len);
+	return getRFC822GMTTime(ltime, out, len);
 }
 /*!
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822GMTTime(const time_t ltime,char* out,int /*!len*/)
+char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 {
 	tm*  GMtime = gmtime( &ltime );
 	GMtime->tm_year+=1900;
@@ -57,7 +57,7 @@ char *getRFC822GMTTime(const time_t ltime,char* out,int /*!len*/)
 	out[0]=asct[0];
 	out[1]=asct[1];
 	out[2]=asct[2];
-	out[3]=',';
+	out[3]=', ';
 	out[4]=' ';
 	out[5]=asct[8];
 	out[6]=asct[9];
@@ -66,7 +66,7 @@ char *getRFC822GMTTime(const time_t ltime,char* out,int /*!len*/)
 	out[9]=asct[5];
 	out[10]=asct[6];
 	out[11]=' ';
-	sprintf(&out[12],"%i",GMtime->tm_year);
+	sprintf(&out[12], "%i", GMtime->tm_year);
 	out[16]=' ';
 	out[17]=asct[11];
 	out[18]=asct[12];
@@ -96,7 +96,7 @@ time_t getTime(char* str)
 	tm t;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]==',')
+		if(str[c]==', ')
 		{
 			c++;
 			lb[i]='\0';
@@ -105,19 +105,19 @@ time_t getTime(char* str)
 		else
 			lb[i]=str[c++];
 	}
-	if(!strcmp(lb,"Sun"))
+	if(!strcmp(lb, "Sun"))
 		t.tm_wday = 0;
-	if(!strcmp(lb,"Mon"))
+	if(!strcmp(lb, "Mon"))
 		t.tm_wday = 1;
-	if(!strcmp(lb,"Tue"))
+	if(!strcmp(lb, "Tue"))
 		t.tm_wday = 2;
-	if(!strcmp(lb,"Wed"))
+	if(!strcmp(lb, "Wed"))
 		t.tm_wday = 3;
-	if(!strcmp(lb,"Thu"))
+	if(!strcmp(lb, "Thu"))
 		t.tm_wday = 4;
-	if(!strcmp(lb,"Fri"))
+	if(!strcmp(lb, "Fri"))
 		t.tm_wday = 5;
-	if(!strcmp(lb,"Sat"))
+	if(!strcmp(lb, "Sat"))
 		t.tm_wday = 6;
 
 	c++;
@@ -145,29 +145,29 @@ time_t getTime(char* str)
 		else
 			lb[i]=str[c++];
 	}
-	if(!strcmp(lb,"Jan"))
+	if(!strcmp(lb, "Jan"))
 		t.tm_mon = 0;
-	if(!strcmp(lb,"Feb"))
+	if(!strcmp(lb, "Feb"))
 		t.tm_mon = 1;
-	if(!strcmp(lb,"Mar"))
+	if(!strcmp(lb, "Mar"))
 		t.tm_mon = 2;
-	if(!strcmp(lb,"Apr"))
+	if(!strcmp(lb, "Apr"))
 		t.tm_mon = 3;
-	if(!strcmp(lb,"May"))
+	if(!strcmp(lb, "May"))
 		t.tm_mon = 4;
-	if(!strcmp(lb,"Jun"))
+	if(!strcmp(lb, "Jun"))
 		t.tm_mon = 5;
-	if(!strcmp(lb,"Jul"))
+	if(!strcmp(lb, "Jul"))
 		t.tm_mon = 6;	
-	if(!strcmp(lb,"Aug"))
+	if(!strcmp(lb, "Aug"))
 		t.tm_mon = 7;
-	if(!strcmp(lb,"Sep"))
+	if(!strcmp(lb, "Sep"))
 		t.tm_mon = 8;
-	if(!strcmp(lb,"Oct"))
+	if(!strcmp(lb, "Oct"))
 		t.tm_mon = 9;
-	if(!strcmp(lb,"Nov"))
+	if(!strcmp(lb, "Nov"))
 		t.tm_mon = 10;
-	if(!strcmp(lb,"Dec"))
+	if(!strcmp(lb, "Dec"))
 		t.tm_mon = 11;
 
 	for(i=0;i<30;i++)
@@ -232,16 +232,16 @@ time_t getTime(char* str)
 /*!
 *This function format current time to the RFC 822 format.
 */
-char *getRFC822LocalTime(char* out,int len)
+char *getRFC822LocalTime(char* out, int len)
 {
 	time_t ltime;
 	time( &ltime );
-	return getRFC822LocalTime(ltime,out,len);
+	return getRFC822LocalTime(ltime, out, len);
 }
 /*!
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822LocalTime(const time_t ltime,char* out,int /*!len*/)
+char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
 	tm*  GMtime = localtime( &ltime );
 	GMtime->tm_year+=1900;
@@ -249,7 +249,7 @@ char *getRFC822LocalTime(const time_t ltime,char* out,int /*!len*/)
 	out[0]=asct[0];
 	out[1]=asct[1];
 	out[2]=asct[2];
-	out[3]=',';
+	out[3]=', ';
 	out[4]=' ';
 	out[5]=asct[8];
 	out[6]=asct[9];
@@ -258,7 +258,7 @@ char *getRFC822LocalTime(const time_t ltime,char* out,int /*!len*/)
 	out[9]=asct[5];
 	out[10]=asct[6];
 	out[11]=' ';
-	sprintf(&out[12],"%i",GMtime->tm_year);
+	sprintf(&out[12], "%i", GMtime->tm_year);
 	out[16]=' ';
 	out[17]=asct[11];
 	out[18]=asct[12];
@@ -281,7 +281,7 @@ char *getRFC822LocalTime(const time_t ltime,char* out,int /*!len*/)
 /*!
 *Trim the string str by the characters trimchars.
 */
-void StrTrim(char* str,const char* trimchars)
+void StrTrim(char* str, const char* trimchars)
 {
 	u_short lenTrimchars=(u_short)strlen(trimchars);
 	u_short lenStr=(u_short)strlen(str);
@@ -420,7 +420,7 @@ int hexToInt(const char *str)
 /*!
 *Get the offset from string start of a character.
 */
-int getCharInString(char* str,const char* characters,int max)
+int getCharInString(char* str, const char* characters, int max)
 {
 	int nChars=(int)strlen(characters);
 	int i;

@@ -228,14 +228,15 @@ int MYSERVER_SOCKET::shutdown(int how)
 #endif
 }
 /*!
-*Set socket options
+*Set socket options.
 */
 int	MYSERVER_SOCKET::setsockopt(int level,int optname,const char *optval,int optlen)
 {
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
 }
 /*!
-*Send dta over the socket
+*Send data over the socket.
+*Return -1 on error.
 */
 int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 {

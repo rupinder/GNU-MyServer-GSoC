@@ -1,12 +1,12 @@
 /*
 *MyServer
-*Copyright (C) 2002,2003,2004 The MyServer Team
+*Copyright (C) 2002, 2003, 2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+This program is distributed in the hope that it will be useful, 
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -97,7 +97,7 @@ void * startClientsTHREAD(void* pParam)
 	ct->initialized=1;
 
 	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetRealLength());
-	memset((char*)ct->buffer2.GetBuffer(), 0,ct->buffer2.GetRealLength());
+	memset((char*)ct->buffer2.GetBuffer(), 0, ct->buffer2.GetRealLength());
 	
 	wait(3000);
 	/*!
@@ -150,11 +150,11 @@ void ClientsTHREAD::controlConnections()
 	{
 		c->forceParsing=0;
 		if(nBytesToRead)
-			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->dataRead],KB(8) - c->dataRead, 0);
+			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->dataRead], KB(8) - c->dataRead, 0);
 		if(err==-1)
 		{
 			lserver->connections_mutex_lock();
-			lserver->deleteConnection(c,this->id);
+			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
 			return;
 		}
@@ -165,7 +165,7 @@ void ClientsTHREAD::controlConnections()
 		else
 		{
 			lserver->connections_mutex_lock();
-			lserver->deleteConnection(c,this->id);
+			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
 			return;
 		}
@@ -182,13 +182,13 @@ void ClientsTHREAD::controlConnections()
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
-				retcode=http_parser->controlConnection(c,(char*)buffer.GetBuffer(),(char*)buffer2.GetBuffer(),buffer.GetLength(),buffer2.GetLength(),nBytesToRead,id);
+				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
 				break;
 			/*!
 			*Parse an HTTPS connection request.
 			*/
 			case PROTOCOL_HTTPS:
-				retcode=https_parser->controlConnection(c,(char*)buffer.GetBuffer(),(char*)buffer2.GetBuffer(),buffer.GetLength(),buffer2.GetLength(),nBytesToRead,id);
+				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
 				break;
 			default:
 				dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
@@ -198,7 +198,7 @@ void ClientsTHREAD::controlConnections()
 				}
 				else
 				{
-					retcode=dp->controlConnection(c,(char*)buffer.GetBuffer(),(char*)buffer2.GetBuffer(),buffer.GetLength(),buffer2.GetLength(),nBytesToRead,id);
+					retcode=dp->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
 				}
 				break;
 		}
@@ -212,7 +212,7 @@ void ClientsTHREAD::controlConnections()
 		if(retcode==0)/*Delete the connection*/
 		{
 			lserver->connections_mutex_lock();
-			lserver->deleteConnection(c,this->id);
+			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
 			return;
 		}
@@ -227,22 +227,21 @@ void ClientsTHREAD::controlConnections()
 			*If the header is incomplete save the current received
 			*data in the connection buffer
 			*/
-			memcpy(c->connectionBuffer,(char*)buffer.GetBuffer(),c->dataRead+err);/*!Save the header in the connection buffer*/
-			c->dataRead+=err;
+			memcpy(c->connectionBuffer, (char*)buffer.GetBuffer(), c->dataRead+err);/*!Save the header in the connection buffer*/
+			c->dataRead += err;
 		}
-		else if(retcode==3)/*Incomplete request yet in the buffer*/
+		/*! Incomplete request bufferized by the protocol.  */
+		else if(retcode == 3)
 		{
-			c->forceParsing=1;
+			c->forceParsing = 1;
 		}		
-		c->timeout=get_ticks();
+		c->timeout = get_ticks();
 	}
 	else
 	{
-		/*!
-		*Reset nTries after 5 seconds.
-		*/
-		if(get_ticks()-c->timeout>5000)
-			c->nTries=0;
+		/*! Reset nTries after 5 seconds.  */
+		if(get_ticks() - c->timeout > 5000)
+			c->nTries = 0;
 		/*!
 		*If the connection is inactive for a time greater that the value
 		*configured remove the connection from the connections pool
@@ -250,14 +249,12 @@ void ClientsTHREAD::controlConnections()
 		if((get_ticks()- c->timeout) > lserver->connectionTimeout)
 		{
 			lserver->connections_mutex_lock();
-			lserver->deleteConnection(c,this->id);
+			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
 			return;
 		}
 	}
-	/*!
-	*Reset the parsing flag.
-	*/
+	/*! Reset the parsing flag.  */
 	c->parsing=0;
 }
 
@@ -272,7 +269,7 @@ void ClientsTHREAD::stop()
 	*flag setted to 0 automatically destroy the
 	*thread.
 	*/
-	threadIsRunning=0;
+	threadIsRunning = 0;
 }
 
 /*!
@@ -280,7 +277,8 @@ void ClientsTHREAD::stop()
 */
 void ClientsTHREAD::clean()
 {
-	if(initialized==0)/*!If the thread was not initialized return from the clean function*/
+	/*! If the thread was not initialized return from the clean function.  */
+	if(initialized == 0)
 		return;
 	threadIsRunning=0;
 	buffer.Free();

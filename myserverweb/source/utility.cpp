@@ -203,7 +203,8 @@ static struct timeval tval;
 #endif
 
 /*!
-*Returns the ticks. Used for check time variations.
+*Return the ticks count. Used for check time variations.
+*Return 0 on errors.
 */
 u_long get_ticks()
 {
