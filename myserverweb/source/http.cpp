@@ -412,8 +412,6 @@ int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char* /*filen
 	}
 	return 1;
 
-	
-
 }
 
 /*!
@@ -474,31 +472,46 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 	{
 		lastByte=bytes_to_send;
 		
-		if(bytes_to_send > gzip_threshold)/*! Use GZIP compression to send files bigger than GZIP threshold.  */
+    /*! 
+     *Use GZIP compression to send files bigger than GZIP threshold.  
+     */
+		if(bytes_to_send > gzip_threshold)
 		{
 			use_gzip=1;
 		}
 	}
-	else/*! If the client use ranges set the right value for the last byte number.  */
+	else
 	{
+    /*! 
+     *If the client use ranges set the right value 
+     *for the last byte number.  
+     */
 		lastByte=min((u_long)lastByte, bytes_to_send);
 	}
 	int keepalive = !lstrcmpi(td->request.CONNECTION, "Keep-Alive");
 
 #ifndef DO_NOT_USE_GZIP
-	/*! Be sure that the client accept GZIP compressed data.  */
+	/*! 
+   *Be sure that the client accept GZIP compressed data.  
+   */
 	if(use_gzip)
 		use_gzip &= (strstr(td->request.ACCEPTENC, "gzip")!=0);
 #else
-	/*! If compiled without GZIP support force the server to don't use it.  */
+	/*! 
+   *If compiled without GZIP support force the server to don't use it.  
+   */
 	use_gzip=0;
 #endif	
 	if(td->appendOutputs)
 		use_gzip=0;
-	/*! bytes_to_send is the interval between the first and the last byte.  */
+	/*! 
+   *bytes_to_send is the interval between the first and the last byte.  
+   */
 	bytes_to_send=lastByte-firstByte;
 
-	/*! If failed to set the file pointer returns an internal server error.  */
+	/*! 
+   *If failed to set the file pointer returns an internal server error.  
+   */
 	ret = h.setFilePointer(firstByte);
 	if(ret)
 	{
@@ -535,7 +548,10 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 			return 0;
 		}
 	}
-	/*! If is requested only the header exit from the function; used by the HEAD request.  */
+	/*! 
+   *If is requested only the header exit from the function; 
+   *used by the HEAD request.  
+   */
 	if(only_header)
 	{
 		h.closeFile();
@@ -570,21 +586,26 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 			{
 				if(gzipheaderadded==0)
 				{
-					gzip_dataused+=gzip.gzip_getHEADER((char*)td->buffer->GetBuffer(), td->buffer->GetLength());
+					gzip_dataused+=gzip.gzip_getHEADER((char*)td->buffer->GetBuffer(), 
+                                             td->buffer->GetLength());
 					gzipheaderadded=1;
 				}
 				gzip_dataused+=gzip.gzip_compress((char*)td->buffer2->GetBuffer(), nbr, &(((char*)td->buffer->GetBuffer())[gzip_dataused]), td->buffer->GetRealLength()-gzip_dataused);
 			}
 			else
 			{
-				gzip_dataused=gzip.gzip_flush((char*)td->buffer->GetBuffer(), td->buffer->GetLength());
-				gzip.gzip_free((char*)td->buffer2->GetBuffer(), nbr, (char*)td->buffer->GetBuffer(), td->buffer->GetRealLength());
+				gzip_dataused=gzip.gzip_flush((char*)td->buffer->GetBuffer(), 
+                                      td->buffer->GetLength());
+				gzip.gzip_free((char*)td->buffer2->GetBuffer(), nbr, 
+                       (char*)td->buffer->GetBuffer(), 
+                       td->buffer->GetRealLength());
 			}
 		}
 		else
 		{
 			/*! Read from the file the bytes to send. */
-			if(h.readFromFile((char*)td->buffer->GetBuffer(), min(bytes_to_send, td->buffer->GetRealLength()), &nbr))
+			if(h.readFromFile((char*)td->buffer->GetBuffer(), 
+                        min(bytes_to_send,td->buffer->GetRealLength()), &nbr))
 			{
 				h.closeFile();
 				return 0;
@@ -631,7 +652,8 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 				}
 				else
 				{
-					ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(), nbr, 0);
+					ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(), 
+                                           nbr, 0);
 				  if(ret)
 					{
 						h.closeFile();
@@ -644,7 +666,10 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 				dataSent+=ret;
 			}
 		}
-		/*! When the bytes number read from the file is zero, stop to send the file.  */
+		/*! 
+     *When the bytes number read from the file is zero, 
+     *stop to send the file.  
+     */
 		if(nbr==0)
 		{
 			if(keepalive && use_gzip )
@@ -665,8 +690,8 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 }
 
 /*!
-*Main function to handle the HTTP PUT command.
-*/
+ *Main function to handle the HTTP PUT command.
+ */
 int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename, int /*!systemrequest*/, int, int firstByte, int /*!lastByte*/, int yetmapped)
 {
 	int httpStatus=td->response.httpStatus;
@@ -679,10 +704,11 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 	}
 	td->response.httpStatus=httpStatus;
 	/*!
-	*td->filenamePath is the file system mapped path while filename is the URI requested.
-	*systemrequest is 1 if the file is in the system folder.
-	*If filename is already mapped on the file system don't map it again.
-	*/
+   *td->filenamePath is the file system mapped path while filename 
+   *is the URI requested.
+   *systemrequest is 1 if the file is in the system folder.
+   *If filename is already mapped on the file system don't map it again.
+   */
 	if(yetmapped)
   {
     if(td->filenamePath)
@@ -778,9 +804,9 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 	/*! If there are no permissions, use the Guest permissions.  */
 	if(td->request.AUTH[0] && (permissions==0))
 		permissions=getPermissionMask("Guest", "", folder, filename, 
-                                  ((vhost*)(s->host))->systemRoot, 
-                                  ((http_user_data*)s->protocolBuffer)->needed_password
-                                  , auth_type, 16);		
+                ((vhost*)(s->host))->systemRoot, 
+                ((http_user_data*)s->protocolBuffer)->needed_password, 
+                                  auth_type, 16);		
   delete [] folder;
 
 	if(!(permissions & MYSERVER_PERMISSION_WRITE))
@@ -1380,7 +1406,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
             delete [] filename;
             return sendHTTPhardError500(td, s);
           }
- 					sprintf(nURL, "%s/%s",&URI[last_slash_offset+1], defaultFileNamePath);
+ 					sprintf(nURL, "%s/%s",&URI[last_slash_offset+1], 
+                  defaultFileNamePath);
 				}
         int ret =0;
  				/*! Send a redirect to the new location.  */
@@ -2703,7 +2730,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	{
 		char xmlMember[32];
 		sprintf(xmlMember, "DEFAULT_FILENAME%u", (u_int)nDefaultFilename);
-		if(!strlen(configurationFileManager.getValue(xmlMember)))
+		if(!configurationFileManager.getValue(xmlMember))
 			break;
 		nDefaultFilename++;
     defaultFilenameSize += strlen(configurationFileManager.getValue(xmlMember)) +1 ;

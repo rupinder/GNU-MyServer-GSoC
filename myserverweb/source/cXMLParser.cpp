@@ -97,12 +97,13 @@ xmlDocPtr cXMLParser::getDoc()
 	return doc;
 }
 /*!
-*Only get the value of the vName root children element.
-*/
+ *Only get the value of the vName root children element.
+ */
 char *cXMLParser::getValue(char* vName)
 {
 	if(!cur)
 		return 0;
+  char *ret = 0;
 	xmlNodePtr lcur=cur->xmlChildrenNode;
 	buffer[0]='\0';
 	while(lcur)
@@ -110,13 +111,16 @@ char *cXMLParser::getValue(char* vName)
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
 		{
 			if(lcur->children->content)
+      {
 				strncpy(buffer,(char*)lcur->children->content,250);
+        ret = buffer;
+      }
 			break;
 		}
 		lcur=lcur->next;
 	}
 	
-	return buffer;
+	return ret;
 }
 /*!
 *Set the value of the vName root children element.

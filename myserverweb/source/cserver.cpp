@@ -153,7 +153,7 @@ void cserver::start()
 	if (err != 0) 
 	{ 
 
-	        preparePrintError();
+    preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_ISOCK"));
 		endPrintError();
 		return; 
@@ -184,8 +184,10 @@ void cserver::start()
 #ifdef NOT_WIN
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
-			printf("%s #%u: %s\n", languageParser.getValue("MSG_ADDRESS"), (u_int)(i+1), inet_ntoa(ia));
-			sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", strlen(ipAddresses)?", ":"", inet_ntoa(ia));
+			printf("%s #%u: %s\n", languageParser.getValue("MSG_ADDRESS"), 
+             (u_int)(i+1), inet_ntoa(ia));
+			sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", 
+              strlen(ipAddresses)?", ":"", inet_ntoa(ia));
 		}
 	}
 	loadSettings();
@@ -249,8 +251,10 @@ void cserver::start()
 						if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||
                irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
 						{
-							if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|
-                 (irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
+							if((irInBuf[i].Event.KeyEvent.dwControlKeyState & 
+                  LEFT_CTRL_PRESSED)|
+                 (irInBuf[i].Event.KeyEvent.dwControlKeyState & 
+                  RIGHT_CTRL_PRESSED))
 							{
 								printf ("%s\n", languageParser.getValue("MSG_SERVICESTOP"));
 								this->stop();
@@ -304,7 +308,9 @@ int cserver::createServerAndListener(u_long port)
    *for the same address. To avoid this behavior we use the current code.
    */
 	int optvalReuseAddr=1;
-	if(serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr, sizeof(optvalReuseAddr))<0)
+	if(serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 
+                             (const char *)&optvalReuseAddr, 
+                             sizeof(optvalReuseAddr))<0)
   {
     preparePrintError();
 		printf("%s setsockopt\n", languageParser.getValue("ERR_ERROR"));
@@ -439,7 +445,8 @@ void * listenServer(void* params)
 #else
 		wait(10);
 #endif
-		asock = serverSocket.accept((struct sockaddr*)&asock_in, (LPINT)&asock_inLen);
+		asock = serverSocket.accept((struct sockaddr*)&asock_in, 
+                                (LPINT)&asock_inLen);
 		if(asock.getHandle()==0)
 			continue;
 		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
@@ -1275,7 +1282,8 @@ void cserver::loadSettings()
 	printf("%s\n", languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
 	{
-		printf("%s: %i\n", languageParser.getValue("MSG_MIMERUN"), nMIMEtypes);
+		printf("%s: %i\n", 
+           languageParser.getValue("MSG_MIMERUN"), nMIMEtypes);
 	}
 	else
 	{
@@ -1284,7 +1292,8 @@ void cserver::loadSettings()
     endPrintError();
 		return;
 	}
-	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), (u_int)getCPUCount());
+	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), 
+         (u_int)getCPUCount());
 
 	
 #ifndef WIN32
@@ -1322,7 +1331,8 @@ void cserver::loadSettings()
 			endPrintError();	
 			return;
 		}
-		outputF.openFile("virtualhosts.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		outputF.openFile("virtualhosts.xml", 
+                     MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 		char buffer[512];
 		u_long nbr, nbw;
 		for(;;)
@@ -1365,20 +1375,23 @@ void cserver::loadSettings()
     if(path == 0)
     {
 			preparePrintError();
-			printf("%s: Allocating path memory\n", languageParser.getValue("ERR_ERROR"));
+			printf("%s: Allocating path memory\n", 
+             languageParser.getValue("ERR_ERROR"));
 			endPrintError(); 
     }
 
     sprintf(path,"%s/lib/myserver/external/protocols",PREFIX);
     protocols.loadProtocols(path, &languageParser, "myserver.xml", this);
 #else
-    protocols.loadProtocols("/usr/lib/myserver/external/protocols", &languageParser, "myserver.xml", this);
+    protocols.loadProtocols("/usr/lib/myserver/external/protocols", 
+                            &languageParser, "myserver.xml", this);
 #endif
   }
 
 #endif 
 #if WIN32
-    protocols.loadProtocols("external/protocols", &languageParser, "myserver.xml", this);
+    protocols.loadProtocols("external/protocols", &languageParser, 
+                            "myserver.xml", this);
 #endif
 
 	myserver_thread_ID ID;
@@ -1396,7 +1409,8 @@ void cserver::loadSettings()
 	{
 		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"), (u_int)i);
 		threads[i].id=(u_long)(i+ClientsTHREAD::ID_OFFSET);
-		myserver_thread::create(&ID,   &::startClientsTHREAD,  (void *)&(threads[i].id));
+		myserver_thread::create(&ID,   &::startClientsTHREAD, 
+                            (void *)&(threads[i].id));
 		printf("%s\n", languageParser.getValue("MSG_THREADR"));
 	}
   int pathlen = getdefaultwdlen();
