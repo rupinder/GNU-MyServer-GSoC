@@ -154,6 +154,9 @@
 				RelativePath="source\cserver.cpp">
 			</File>
 			<File
+				RelativePath="source\http.cpp">
+			</File>
+			<File
 				RelativePath="source\httpmsg.cpp">
 			</File>
 			<File
@@ -210,6 +213,9 @@
 			</File>
 			<File
 				RelativePath="include\cserver.h">
+			</File>
+			<File
+				RelativePath="include\http.h">
 			</File>
 			<File
 				RelativePath="resource.h">

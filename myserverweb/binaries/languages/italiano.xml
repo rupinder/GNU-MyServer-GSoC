@@ -36,3 +36,6 @@
 <MSG_SENDING>Invio</MSG_SENDING>
 <MSG_RUNON>In esecuzione su</MSG_RUNON>
 <MSG_FOLDERCONT>Contenuto della folder</MSG_FOLDERCONT>
+<MSG_SIZE>Dimensione</MSG_SIZE>
+<MSG_LMODIFY>Ultima modifica</MSG_LMODIFY>
+<MSG_FILE>File</MSG_FILE>

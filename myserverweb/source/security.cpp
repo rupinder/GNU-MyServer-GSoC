@@ -17,9 +17,17 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "..\include\security.h"
+/*
+*Global values for useLogonOption flag and the guest handle
+*/
+BOOL useLogonOption;
+HANDLE guestLoginHandle;
+char guestLogin[20];
+char guestPassword[32];
+
 BOOL logonCurrentThread(char *name,char* password,PHANDLE handle)
 {
-	BOOL logon;
+	BOOL logon=FALSE;
 #ifdef WIN32
 	logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,handle);
 #endif
@@ -42,5 +50,46 @@ VOID cleanLogonUser(HANDLE hImpersonation)
 {
 #ifdef WIN32
 	CloseHandle(hImpersonation);
+#endif
+}
+
+VOID logon(LPCONNECTION c,BOOL *logonStatus,HANDLE *hImpersonation)
+{
+	*hImpersonation=0;
+	if(useLogonOption)
+	{
+		if(c->login[0])
+		{
+			*logonStatus=logonCurrentThread(c->login,c->password,hImpersonation);
+		}
+		else
+		{
+			*logonStatus=FALSE;
+			*hImpersonation=guestLoginHandle;
+		}
+		impersonateLogonUser(hImpersonation);
+	}
+	else
+	{
+		*logonStatus=FALSE;
+	}
+}
+VOID logout(BOOL logon,HANDLE *hImpersonation)
+{
+	if(useLogonOption)
+	{
+		revertToSelf();
+		if(*hImpersonation)
+		{
+			cleanLogonUser(*hImpersonation);
+			hImpersonation=0;
+		}
+	}
+}
+VOID logonGuest()
+{
+#ifdef WIN32
+	if(useLogonOption)
+		LogonUser(guestLogin,NULL,guestPassword,LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT, &guestLoginHandle);
 #endif
 }

@@ -19,6 +19,7 @@
 
 #include "..\stdafx.h"
 #include "..\include\cserver.h"
+#include "..\include\security.h"
 #include <Ws2tcpip.h>
 
 cserver *lserver=0;
@@ -70,7 +71,12 @@ void cserver::start(HINSTANCE hInst)
 		lstrcpy(msgRunOn,languageParser.getValue("MSG_RUNON"));
 	if(lstrcmpi(languageParser.getValue("MSG_FOLDERCONT"),"NONE"))
 		lstrcpy(msgFolderContents,languageParser.getValue("MSG_FOLDERCONT"));
-	
+	if(lstrcmpi(languageParser.getValue("MSG_FILE"),"NONE"))
+		lstrcpy(msgFile,languageParser.getValue("MSG_FILE"));
+	if(lstrcmpi(languageParser.getValue("MSG_LMODIFY"),"NONE"))
+		lstrcpy(msgLModify,languageParser.getValue("MSG_LMODIFY"));
+	if(lstrcmpi(languageParser.getValue("MSG_SIZE"),"NONE"))
+		lstrcpy(msgSize,languageParser.getValue("MSG_SIZE"));
 
 	printf("%s\n\n",languageParser.getValue("MSG_SERVER_CONF"));
 
@@ -137,7 +143,7 @@ void cserver::start(HINSTANCE hInst)
 		return; 
 	}
 
-	printf("%s\n",languageParser.getValue("MSG_LHTTP"));
+	printf("%s: %u\n",languageParser.getValue("MSG_LHTTP"),port_HTTP);
 
 
 
@@ -458,8 +464,7 @@ void cserver::initialize(INT OSVer)
 	*/
 	useLogonOption=useLogonOption && (OSVer!=OS_WINDOWS_9X);
 
-	if(useLogonOption)
-		LogonUser(guestLogin,NULL,guestPassword,LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT, &guestLoginHandle);
+	logonGuest();
 
 }
 
@@ -502,7 +507,7 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 		ret=FALSE;
 		closesocket(s);
 		if(verbosity>0)
-			fprintf(logFile,"ERR connection from:%i.%i.%i.%i on %s:%i at time:%s\n", lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,getHTTPFormattedTime());
+			fprintf(logFile,"Error connection from:%i.%i.%i.%i on %s:%i at time:%s\n", lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,getHTTPFormattedTime());
 	}
 
 	if(++local_nThreads>=nThreads)
@@ -520,4 +525,28 @@ LPCONNECTION cserver::findConnection(SOCKET s)
 			return c;
 	}
 	return NULL;
+}
+char *cserver::getSystemPath()
+{
+	return systemPath;
+}
+char *cserver::getPath()
+{
+	return path;
+}
+char *cserver::getDefaultFilenamePath()
+{
+	return defaultFilename;
+}
+char *cserver::getServerName()
+{
+	return serverName;
+}
+BOOL cserver::mustUseMessagesFiles()
+{
+	return useMessagesFiles;
+}
+BOOL cserver::mustUseLogonOption()
+{
+	return useLogonOption;
 }

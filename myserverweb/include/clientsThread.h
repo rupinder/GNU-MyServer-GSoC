@@ -18,13 +18,9 @@
 */
 #pragma once
 #include "..\stdafx.h"
+#include "..\include\http.h"
 
 extern int err;
-extern BOOL mustEndServer;
-#define Thread   __declspec( thread )
-typedef int (*CGIMAIN)(char*); 
-typedef int (*CGIINIT)(void*,void*,void*,void*); 
-typedef CONNECTION*  volatile LPCONNECTION;
 
 class  ClientsTHREAD
 {
@@ -33,14 +29,10 @@ class  ClientsTHREAD
 	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM 
 wParam,LPARAM lParam);
 private:
-	CBase64Utils base64Utils;
 	BOOL initialized;
-	HTTP_RESPONSE_HEADER response;
-	HTTP_REQUEST_HEADER request;
 	HANDLE hImpersonation;
 	DWORD id;
 	int err;
-	char filenamePath[MAX_PATH];
 	BOOL threadIsRunning;
 	DWORD nConnections;
 	DWORD buffersize;
@@ -51,26 +43,11 @@ private:
 	char *buffer2;
 	void clearAllConnections();
 	BOOL deleteConnection(LPCONNECTION);
-	void raiseError(LPCONNECTION,int);
-	BOOL sendRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-	BOOL sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-	BOOL sendDIRECTORY(LPCONNECTION s,char* folder);
-	BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine=0);
-	BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char* exec);
-	BOOL controlHTTPConnection(LPCONNECTION);
-	void getPath(char *,char *,BOOL);
-	BOOL getMIME(char *MIME,char *filename,char *dest,char *ext2);
-	void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
-	void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER*);
 	HANDLE threadHandle;
 	void controlConnections();
 	HANDLE connectionMutex;
 	LPCONNECTION connections;
 	DWORD nBytesToRead;
-	VOID logon(LPCONNECTION,BOOL*);
-	VOID logout(BOOL);
-	char tmpBufferFilePath[MAX_PATH];
-	HANDLE tmpBufferFile;
 public:
 	ClientsTHREAD();
 	~ClientsTHREAD();

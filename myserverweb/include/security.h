@@ -17,6 +17,11 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "..\stdafx.h"
+extern BOOL useLogonOption;
+extern HANDLE guestLoginHandle;
+extern char guestLogin[20];
+extern char guestPassword[32];
+
 /*
 *Change the ownner of the caller thread
 */
@@ -33,3 +38,8 @@ VOID impersonateLogonUser(HANDLE hImpersonation);
 *Close the handle
 */
 VOID cleanLogonUser(HANDLE hImpersonation);
+
+VOID logon(LPCONNECTION c,BOOL *logonStatus,HANDLE *hImpersonation);
+VOID logout(BOOL logon,HANDLE *hImpersonation);
+
+VOID logonGuest();

@@ -14,7 +14,7 @@
 <MSG_PORT_BINDED>HTTP port is binded</MSG_PORT_BINDED>
 <MSG_SLHTTP>Trying to listen on HTTP port...</MSG_SLHTTP>
 <ERR_LISTEN>Error listening</ERR_LISTEN>
-<MSG_LHTTP>Listen on HTTP port successfully</MSG_LHTTP>
+<MSG_LHTTP>Listen on HTTP port</MSG_LHTTP>
 <MSG_LOADMIME>Loading MIME types...</MSG_LOADMIME>
 <MSG_GETNAME>Computer name is</MSG_GETNAME>
 <MSG_MIMERUN>MIME types loaded successfully</MSG_MIMERUN>
@@ -36,3 +36,6 @@
 <MSG_SENDING>Sending</MSG_SENDING>
 <MSG_RUNON>Running on</MSG_RUNON>
 <MSG_FOLDERCONT>Contents of folder</MSG_FOLDERCONT>
+<MSG_FILE>File</MSG_FILE>
+<MSG_LMODIFY>Last modify</MSG_LMODIFY>
+<MSG_SIZE>Size</MSG_SIZE>

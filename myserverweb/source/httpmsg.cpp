@@ -49,3 +49,9 @@ char HTTP_ERROR_HTMLS[13][64]=
 	"501.html",					//501
 	"502.html"					//502
 };
+char msgSending[33];
+char msgRunOn[33];
+char msgFolderContents[33];
+char msgFile[33];
+char msgLModify[33];
+char msgSize[33];

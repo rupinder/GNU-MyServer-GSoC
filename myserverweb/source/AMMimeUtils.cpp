@@ -21,6 +21,10 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
+/*
+*Unique instance of this class
+*/
+CBase64Utils base64Utils;
 
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
 char* strustr(char *source, char *s)

@@ -40,6 +40,7 @@
 
 #include "resource.h"
 
+
 #include "include\utility.h"
 #include "include\HTTPmsg.h"
 extern class cserver *lserver;
@@ -54,4 +55,10 @@ extern class cserver *lserver;
 */
 #include "include\MIME_manager.h"
 #include "include\AMMimeUtils.h"
+extern CBase64Utils base64Utils;
 
+extern BOOL mustEndServer;
+#define Thread   __declspec( thread )
+typedef int (*CGIMAIN)(char*); 
+typedef int (*CGIINIT)(void*,void*,void*,void*); 
+typedef CONNECTION*  volatile LPCONNECTION;
