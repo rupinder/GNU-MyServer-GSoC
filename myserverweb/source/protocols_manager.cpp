@@ -113,8 +113,8 @@ char *dynamic_protocol::getProtocolName()
 }
 
 /*!
-*Get the options for the protocol.
-*/
+ *Get the options for the protocol.
+ */
 int dynamic_protocol::getOptions()
 {
 	return  PROTOCOL_OPTIONS;
@@ -136,7 +136,7 @@ int dynamic_protocol::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1
 	Proc = (controlConnectionPROC) dlsym(hinstLib, "controlConnection");
 #endif	
 	if(Proc)
-		return Proc((void*)a,b1,b2,bs1,bs2,nbtr,id);
+		return Proc((void*)a, b1, b2, bs1, bs2, nbtr, id);
 	else
 		return 0;
 }

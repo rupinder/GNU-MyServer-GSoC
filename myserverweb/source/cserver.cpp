@@ -1251,6 +1251,8 @@ char *cserver::getAddresses()
 
 /*!
  *Get the dynamic protocol to use for that connection.
+ *While built-in protocols have an object per thread, for dynamic
+ *protocols there is only one object shared among the threads.
  */
 dynamic_protocol* cserver::getDynProtocol(char *protocolName)
 {

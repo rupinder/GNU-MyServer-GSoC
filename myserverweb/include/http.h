@@ -27,9 +27,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/mscgi.h"
 #include "../include/isapi.h"
 #include "../include/cXMLParser.h"
+
 /*!
-*Data used only by an HTTP user.
-*/
+ *Data used only by an HTTP user.
+ */
 class http_user_data : public protocol_buffer
 {
 public:
@@ -53,6 +54,7 @@ public:
   ~http_user_data();
 	void reset();
 };
+
 class http : public protocol
 {
 private:

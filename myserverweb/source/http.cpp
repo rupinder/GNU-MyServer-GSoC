@@ -344,7 +344,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 		strcpy(td->response.CONNECTION, "Keep-Alive");
 	sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)td->outputData.getFileSize());
 	
-	/* If we haven't to append the output build the HTTP header and send the data.  */
+	/*! If we haven't to append the output build the HTTP header and send the data.  */
 	if(!td->appendOutputs)
   {
 		u_long nbr=0;
@@ -394,8 +394,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 }
 
 /*!
-*Build a response for an OPTIONS request.
-*/
+ *Build a response for an OPTIONS request.
+ */
 int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
                               char* /*filename*/, int /*yetmapped*/)
 {
@@ -492,7 +492,7 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
 	char *http_trace_value=parser.getAttr("HTTP", "TRACE");
 	
   /*! 
-   * If the returned value is equal to ON so the 
+   *If the returned value is equal to ON so the 
    *HTTP TRACE is active for this vhost.  
    */
 	if(http_trace_value &&  !lstrcmpi(http_trace_value, "ON"))
@@ -515,7 +515,9 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
    *Open the file and save its handle.
    */
 	int ret;
-	/*Will we use GZIP compression to send data?*/
+	/*! 
+   *Will we use GZIP compression to send data?
+   */
 	int use_gzip=0;
 	MYSERVER_FILE h;
 	ret  = h.openFile(filenamePath, MYSERVER_FILE_OPEN_IFEXISTS | 
@@ -525,7 +527,9 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 		return 0;
 	}
 
-	/*! *If the file is a valid handle.  */
+	/*! 
+   *Read how many bytes are waiting to be send.  
+   */
 	u_long bytes_to_send=h.getFileSize();
 	if(lastByte == -1)
 	{
@@ -563,6 +567,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 #endif	
 	if(td->appendOutputs)
 		use_gzip=0;
+
 	/*! 
    *bytes_to_send is the interval between the first and the last byte.  
    */
@@ -610,6 +615,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 			return 0;
 		}
 	}
+
 	/*! 
    *If is requested only the header exit from the function; 
    *used by the HEAD request.  
@@ -619,11 +625,13 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 		h.closeFile();
 		return 1;
 	}
+
 	/*! Is the GZIP header still added to the buffer?  */
 	u_long gzipheaderadded=0;
 	
- 	/*! gzip compression manager.  */
+ 	/*! gzip compression object.  */
 	gzip gzip;
+
 	/*! Number of bytes created by the zip compressor by loop.  */
 	u_long gzip_dataused=0;
 	u_long dataSent=0;
@@ -703,7 +711,8 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 					break;
 			}
 		}
-		else/*Do not use GZIP*/
+    /*! Do not use GZIP. */
+		else
 		{
 			/*! If there are bytes to send, send them. */
 			if(nbr)
@@ -750,7 +759,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 			}
 			break;
 		}
-	}//End FOR
+	}/*End for loop. */
 
 	h.closeFile();
 	return 1;

@@ -87,7 +87,6 @@ void * startClientsTHREAD(void* pParam)
   /*! Return an error if the thread is initialized. */
 	if(ct->initialized)
 		return (ClientsTHREAD_TYPE) -1;
-
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
@@ -102,12 +101,12 @@ void * startClientsTHREAD(void* pParam)
   if(ct->http_parser==0)
     return (ClientsTHREAD_TYPE)-1;
 
-	ct->control_protocol_parser = new control_protocol();
-  if(ct->control_protocol_parser == 0)
-    return (ClientsTHREAD_TYPE)-1;
-
   ct->https_parser = new https();
 	if(ct->https_parser==0)
+    return (ClientsTHREAD_TYPE)-1;
+
+	ct->control_protocol_parser = new control_protocol();
+  if(ct->control_protocol_parser == 0)
     return (ClientsTHREAD_TYPE)-1;
 
 	ct->initialized=1;
