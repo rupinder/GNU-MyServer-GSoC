@@ -39,14 +39,15 @@ int MIME_Manager::load(char *filename)
 	strcpy(this->filename,filename);
 	numMimeTypesLoaded=0;
 	char *buffer;
-	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-	if(f==0)
+	MYSERVER_FILE f;
+	int ret=f.ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	if(ret<1)
 		return 0;
-	u_long fs=ms_getFileSize(f);
+	u_long fs=f.ms_getFileSize();
 	buffer=(char*)malloc(fs+1);
 	u_long nbw;
-	ms_ReadFromFile(f,buffer,fs,&nbw);
-	ms_CloseFile(f);
+	f.ms_ReadFromFile(buffer,fs,&nbw);
+	f.ms_CloseFile();
 	MIME_Manager::mime_record record;
 	for(u_long nc=0;;)
 	{
@@ -140,16 +141,17 @@ char *MIME_Manager::getFilename()
 */
 int MIME_Manager::save(char *filename)
 {
-	ms_DeleteFile(filename);
-	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	MYSERVER_FILE::ms_DeleteFile(filename);
+	MYSERVER_FILE f;
+	f.ms_OpenFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	MIME_Manager::mime_record *nmr1;
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next)
 	{
-		ms_WriteToFile(f,nmr1->extension,lstrlen(nmr1->extension),&nbw);
-		ms_WriteToFile(f,",",lstrlen(","),&nbw);
-		ms_WriteToFile(f,nmr1->mime_type,lstrlen(nmr1->mime_type),&nbw);
-		ms_WriteToFile(f,",",lstrlen(","),&nbw);
+		f.ms_WriteToFile(nmr1->extension,lstrlen(nmr1->extension),&nbw);
+		f.ms_WriteToFile(",",lstrlen(","),&nbw);
+		f.ms_WriteToFile(nmr1->mime_type,lstrlen(nmr1->mime_type),&nbw);
+		f.ms_WriteToFile(",",lstrlen(","),&nbw);
 		char command[16];
 		if(nmr1->command==CGI_CMD_SEND)
 			strcpy(command,"SEND ");
@@ -167,16 +169,16 @@ int MIME_Manager::save(char *filename)
 			strcpy(command,"RUNWINCGI ");
 		
 
-		ms_WriteToFile(f,command,lstrlen(command),&nbw);
+		f.ms_WriteToFile(command,lstrlen(command),&nbw);
 		if(nmr1->cgi_manager[0])
-			ms_WriteToFile(f,nmr1->cgi_manager,lstrlen(nmr1->cgi_manager),&nbw);
+			f.ms_WriteToFile(nmr1->cgi_manager,lstrlen(nmr1->cgi_manager),&nbw);
 		else
-			ms_WriteToFile(f,"NONE",lstrlen("NONE"),&nbw);
-		ms_WriteToFile(f,";\r\n",lstrlen(";\r\n"),&nbw);
+			f.ms_WriteToFile("NONE",lstrlen("NONE"),&nbw);
+		f.ms_WriteToFile(";\r\n",lstrlen(";\r\n"),&nbw);
 	}
-	ms_setFilePointer(f,ms_getFileSize(f)-2);
-	ms_WriteToFile(f,"#\0",2,&nbw);
-	ms_CloseFile(f);
+	f.ms_setFilePointer(f.ms_getFileSize()-2);
+	f.ms_WriteToFile("#\0",2,&nbw);
+	f.ms_CloseFile();
 
 	return 1;
 }

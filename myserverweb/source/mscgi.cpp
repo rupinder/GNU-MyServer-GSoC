@@ -102,8 +102,8 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	len=lstrlen(td->buffer2);
 	sprintf(td->response.CONTENTS_DIM,"%u",len);
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
-	ms_send(s->socket,td->buffer2,len, 0);
+	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
+	s->socket.ms_send(td->buffer2,len, 0);
 	return 1;
 #else
 	/*

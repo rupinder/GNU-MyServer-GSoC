@@ -30,7 +30,7 @@ class cXMLParser
 	u_long buffersize;
 	char *buffer;
 	char data[MAX_PATH];
-	MYSERVER_FILE_HANDLE file;
+	MYSERVER_FILE file;
 public:
 	cXMLParser();
 	void open(char* filename);

@@ -113,11 +113,11 @@ void ClientsTHREAD::controlConnections()
 	for(c; c && connections ;c=next)
 	{
 		next=c->Next;
-		nBytesToRead=ms_bytesToRead(c->socket);/*Number of bytes waiting to be read*/
+		nBytesToRead=c->socket.ms_bytesToRead();/*Number of bytes waiting to be read*/
 		if(nBytesToRead)
 		{
 			ms_logon(c,&logonStatus,&hImpersonation);
-			err=ms_recv(c->socket,buffer,KB(2), 0);
+			err=c->socket.ms_recv(buffer,KB(2), 0);
 			if(err==-1)
 			{
 				if(deleteConnection(c))
@@ -257,12 +257,12 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	/*
 	*First of all close the socket communication.
 	*/
-	ms_shutdown(s->socket,SD_BOTH );
+	s->socket.ms_shutdown(SD_BOTH );
 	do
 	{
-		err=ms_recv(s->socket,buffer,buffersize,0);
+		err=s->socket.ms_recv(buffer,buffersize,0);
 	}while(err!=-1);
-	while(ms_closesocket(s->socket));
+	while(s->socket.ms_closesocket());
 	/*
 	*Then remove the connection from the active connections list.
 	*/

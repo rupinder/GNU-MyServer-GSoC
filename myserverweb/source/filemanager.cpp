@@ -38,7 +38,7 @@ extern "C" {
 /*
 *Return the recursion of the path.
 */
-int ms_getPathRecursionLevel(char* path)
+int MYSERVER_FILE::ms_getPathRecursionLevel(char* path)
 {
 	static char lpath[MAX_PATH];
 	lstrcpy(lpath,path);
@@ -56,15 +56,23 @@ int ms_getPathRecursionLevel(char* path)
 	return rec;
 }
 /*
+*Costructor of the class.
+*/
+MYSERVER_FILE::MYSERVER_FILE()
+{
+	filename[0]='\0';
+	handle=0;
+}
+/*
 *Write data to a file.
 */
-int ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbw)
+int MYSERVER_FILE::ms_WriteToFile(char* buffer,u_long buffersize,u_long* nbw)
 {
 #ifdef WIN32
-	return WriteFile((HANDLE)f,buffer,buffersize,nbw,NULL);
+	return WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
 #endif
 #ifdef __linux__
-	*nbw = write((int)f, buffer, buffersize);
+	*nbw = write((int)handle, buffer, buffersize);
 	return 0;
 #endif
 }
@@ -72,9 +80,9 @@ int ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long*
 *Open(or create if not exists) a file.
 *If the function have success the return value is different from 0 and -1.
 */
-MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
+int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 {
-	MYSERVER_FILE_HANDLE ret=0;
+	strcpy(MYSERVER_FILE::filename,filename);
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};  
     sa.nLength = sizeof(sa);
@@ -105,20 +113,20 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
-	ret=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
-	if(ret==INVALID_HANDLE_VALUE)/*If exists an error*/
+	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
+	if(handle==INVALID_HANDLE_VALUE)/*If exists an error*/
 	{
 		if(GetLastError()==ERROR_ACCESS_DENIED)/*returns -1 if the file is not accessible*/
-			return (MYSERVER_FILE_HANDLE)-1;
+			return -1;
 		else
-			ret=0;/*returns 0 for any other error*/
+			return 0;/*returns 0 for any other error*/
 	}
 	else/*If no error exist in open the file*/
 	{
-		if(ret && (opt & MYSERVER_FILE_OPEN_APPEND))
-			ms_setFilePointer((MYSERVER_FILE_HANDLE)ret,ms_getFileSize((MYSERVER_FILE_HANDLE)ret));
+		if(opt & MYSERVER_FILE_OPEN_APPEND)
+			ms_setFilePointer(ms_getFileSize());
 		else
-			ms_setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
+			ms_setFilePointer(0);
 	}
 
 #endif
@@ -160,47 +168,78 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 			return (MYSERVER_FILE_HANDLE)0;
 		}
 		else
-			ret = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
+			handle = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
 	}
 	else if(opt & MYSERVER_FILE_OPEN_APPEND)
 	{
 		if(stat(filename, &F_Stats) < 0)
-			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+			handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
-			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_APPEND | F_Flags);
+			handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_APPEND | F_Flags);
 	}
 	else if(opt & MYSERVER_FILE_CREATE_ALWAYS)
 	{
 		if(stat(filename, &F_Stats))
 			remove(filename);
 
-		ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+		handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 	}
 	else if(opt & MYSERVER_FILE_OPEN_ALWAYS)
 	{
 		if(stat(filename, &F_Stats) < 0)
-			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+			handle = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
-			ret = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
+			handle = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
 	}
 	
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
 		unlink(Buffer); // Remove File on close
 	
-	if((int)ret < 0)
-		ret = (MYSERVER_FILE_HANDLE)0;
+	if((int)handle < 0)
+		handle = (MYSERVER_FILE_HANDLE)0;
 		
 #endif
 	
-	return ret;
+	return handle?1:0;
+}
+/*
+*Returns the file handle.
+*/
+MYSERVER_FILE_HANDLE MYSERVER_FILE::ms_GetHandle()
+{
+	return handle;
+}
+/*
+*Set the file handle.
+*/
+int MYSERVER_FILE::ms_SetHandle(MYSERVER_FILE_HANDLE hl)
+{
+	handle=hl;
+	return 1;
+}
+/*
+*define the operator =
+*/
+int MYSERVER_FILE::operator =(MYSERVER_FILE f)
+{
+	ms_SetHandle(f.ms_GetHandle());
+	strcpy(filename,f.filename);
+	return 1;
+}
+/*
+*Returns the file path.
+*/
+char *MYSERVER_FILE::ms_GetFilename()
+{
+	return filename;
 }
 /*
 *Read data from a file to a buffer.
 */
-int	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbr)
+int	MYSERVER_FILE::ms_ReadFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
-	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
+	ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
 	/*
 	*Return 1 if we don't reach the ond of the file.
 	*Return 0 if the end of the file is reached.
@@ -208,7 +247,7 @@ int	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
 #ifdef __linux__
-	*nbr = read((int)f, buffer, buffersize);
+	*nbr = read((int)handle, buffer, buffersize);
 	
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
@@ -216,30 +255,30 @@ int	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long
 /*
 *Create a temporary file.
 */
-MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char* filename)
+int MYSERVER_FILE::ms_CreateTemporaryFile(char* filename)
 { 
 	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY|MYSERVER_FILE_CREATE_ALWAYS);
 }
 /*
 *Close an open file handle.
 */
-int ms_CloseFile(MYSERVER_FILE_HANDLE fh)
+int MYSERVER_FILE::ms_CloseFile()
 {
 #ifdef WIN32
-	FlushFileBuffers((HANDLE)fh);
-	CloseHandle((HANDLE)fh);
+	FlushFileBuffers((HANDLE)handle);
+	CloseHandle((HANDLE)handle);
 #endif
 #ifdef __linux__
-	fsync((int)fh);
-	close((int)fh);
+	fsync((int)handle);
+	close((int)handle);
 #endif
-	
+	handle=0;
 	return 0;
 }
 /*
-*Delete an existing file passing its path.
+*Delete an existing file passing the path.
 */
-int ms_DeleteFile(char *filename)
+int MYSERVER_FILE::ms_DeleteFile(char *filename)
 {
 #ifdef WIN32
 	DeleteFile(filename);
@@ -252,15 +291,15 @@ int ms_DeleteFile(char *filename)
 /*
 *Returns the file size in bytes.
 */
-u_long ms_getFileSize(MYSERVER_FILE_HANDLE f)
+u_long MYSERVER_FILE::ms_getFileSize()
 {
 	u_long size;
 #ifdef WIN32
-	size=GetFileSize((HANDLE)f,NULL);
+	size=GetFileSize((HANDLE)handle,NULL);
 #endif
 #ifdef __linux__
 	struct stat F_Stats;
-	fstat((int)f, &F_Stats);
+	fstat((int)handle, &F_Stats);
 	size = F_Stats.st_size;
 #endif
 	
@@ -270,19 +309,19 @@ u_long ms_getFileSize(MYSERVER_FILE_HANDLE f)
 *Change the position of the pointer to the file.
 *Returns a non-null value if failed.
 */
-int ms_setFilePointer(MYSERVER_FILE_HANDLE h,u_long initialByte)
+int MYSERVER_FILE::ms_setFilePointer(u_long initialByte)
 {
 #ifdef WIN32
-	return (SetFilePointer((HANDLE)h,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
+	return (SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
 #endif
 #ifdef __linux__
-	return (lseek((int)h, initialByte, SEEK_SET))?1:0;
+	return (lseek((int)handle, initialByte, SEEK_SET))?1:0;
 #endif
 }
 /*
 *Returns a non-null value if the path is a folder.
 */
-int ms_IsFolder(char filename[])
+int MYSERVER_FILE::ms_IsFolder(char *filename)
 {
 #ifdef WIN32
 	u_long fa=GetFileAttributes(filename);
@@ -305,17 +344,20 @@ int ms_IsFolder(char filename[])
 /*
 *Returns a non-null value if the given path is a valid file.
 */
-int ms_FileExists(char* filename)
+int MYSERVER_FILE::ms_FileExists(char* filename)
 {
 #ifdef WIN32
-	MYSERVER_FILE_HANDLE fh=ms_OpenFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-	if(fh)
+	SECURITY_ATTRIBUTES sa = {0}; 
+	MYSERVER_FILE_HANDLE fhandle=(MYSERVER_FILE_HANDLE)CreateFile(filename, GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL, NULL);
+	if(fhandle==INVALID_HANDLE_VALUE)
 	{
-		ms_CloseFile(fh);
-		return 1;
+		return 0;
 	}
 	else
-		return 0;
+	{
+		CloseHandle(fhandle);
+		return 1;
+	}
 #endif
 #ifdef __linux__
 	struct stat F_Stats;
@@ -329,7 +371,7 @@ int ms_FileExists(char* filename)
 /*
 *Returns the time of the last modify to the file.
 */
-time_t ms_GetLastModTime(char *filename)
+time_t MYSERVER_FILE::ms_GetLastModTime(char *filename)
 {
 #ifdef WIN32
 	struct _stat sf;
@@ -342,11 +384,15 @@ time_t ms_GetLastModTime(char *filename)
 	time(&sf.st_mtime);
 	return sf.st_mtime;
 }
+time_t MYSERVER_FILE::ms_GetLastModTime()
+{
+	return ms_GetLastModTime(filename);
+}
 
 /*
 *Returns the time of the file creation.
 */
-time_t ms_GetCreationTime(char *filename)
+time_t MYSERVER_FILE::ms_GetCreationTime(char *filename)
 {
 #ifdef WIN32
 	struct _stat sf;
@@ -358,11 +404,14 @@ time_t ms_GetCreationTime(char *filename)
 #endif
 	return sf.st_ctime;
 }
-
+time_t MYSERVER_FILE::ms_GetCreationTime()
+{
+	return ms_GetCreationTime(filename);
+}
 /*
 *Returns the time of the last access to the file.
 */
-time_t ms_GetLastAccTime(char *filename)
+time_t MYSERVER_FILE::ms_GetLastAccTime(char *filename)
 {
 #ifdef WIN32
 	struct _stat sf;
@@ -373,4 +422,8 @@ time_t ms_GetLastAccTime(char *filename)
 	stat(filename,&sf);
 #endif
 	return sf.st_atime;
+}
+time_t MYSERVER_FILE::ms_GetLastAccTime()
+{
+	return ms_GetLastAccTime(filename);
 }

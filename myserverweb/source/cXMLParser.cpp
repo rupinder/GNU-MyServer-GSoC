@@ -33,12 +33,12 @@ extern "C" {
 */
 void cXMLParser::open(char* filename)
 {
-	file=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-	buffersize=ms_getFileSize(file);
+	file.ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	buffersize=file.ms_getFileSize();
 	buffer=(char*)malloc(buffersize);
 	u_long nbr;
 	if(buffer)
-		ms_ReadFromFile(file,buffer,buffersize,&nbr);
+		file.ms_ReadFromFile(buffer,buffersize,&nbr);
 	else
 		nbr=0;
 	if(nbr==0)
@@ -51,7 +51,6 @@ cXMLParser::cXMLParser()
 {
 	buffer=0;
 	buffersize=0;
-	file=(MYSERVER_FILE_HANDLE)0;
 	data[0]='\0';
 }
 /*
@@ -119,8 +118,8 @@ char *cXMLParser::getValue(char* vName)
 */
 void cXMLParser::close()
 {
-	if(file)
-		ms_CloseFile(file);
+	if(file.ms_GetHandle())
+		file.ms_CloseFile();
 	if(buffer)
 		free(buffer);
 }

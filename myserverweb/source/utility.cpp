@@ -256,7 +256,7 @@ char *ms_getdefaultwd(char *path,int len)
 */
 void ms_getComputerName(char *dest,u_long maxLen)
 {
-	ms_gethostname(dest,maxLen);
+	MYSERVER_SOCKET::ms_gethostname(dest,maxLen);
 }
 
 /*

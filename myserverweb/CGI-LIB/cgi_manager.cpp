@@ -165,10 +165,3 @@ void cgi_manager::getEnvVariable(char* lpszVariableName,char *lpvBuffer,unsigned
 	}
 	*lpdwSize=lstrlen((char*)lpvBuffer);
 }
-/*
-*Get the input data file.
-*/
-MYSERVER_FILE_HANDLE cgi_manager::getInputDataFile()
-{
-	return td->inputData;
-}

@@ -50,54 +50,77 @@ int ms_startupSocketLib(u_short ver)
 	return 0;
 #endif
 }
-
-MYSERVER_SOCKET ms_socket(int af,int type,int protocol)
+MYSERVER_SOCKET_HANDLE MYSERVER_SOCKET::ms_getHandle()
 {
-	return	(MYSERVER_SOCKET)socket(af,type,protocol);
+	return socketHandle;
+}
+int MYSERVER_SOCKET::ms_setHandle(MYSERVER_SOCKET_HANDLE h)
+{
+	socketHandle=h;
+	return 1;
+}
+int MYSERVER_SOCKET::operator==(MYSERVER_SOCKET s)
+{
+	return socketHandle==s.socketHandle;
+}
+int MYSERVER_SOCKET::operator=(MYSERVER_SOCKET s)
+{
+	socketHandle=s.socketHandle;
+	return 1;
+}
+int MYSERVER_SOCKET::ms_socket(int af,int type,int protocol)
+{
+	socketHandle=socket(af,type,protocol);
+	return	(int)socketHandle;
 }
 
-int ms_bind(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int namelen)
+int MYSERVER_SOCKET::ms_bind(MYSERVER_SOCKADDR* sa,int namelen)
 {
 #ifdef WIN32	
-	return bind((SOCKET)s,sa,namelen);
+	return bind((SOCKET)socketHandle,sa,namelen);
 #endif
 #ifdef __linux__
-	return bind((int)s,sa,namelen);
+	return bind((int)socketHandle,sa,namelen);
 #endif
 }
 
-int ms_listen(MYSERVER_SOCKET s,int max)
+int MYSERVER_SOCKET::ms_listen(int max)
 {
 #ifdef WIN32
-	return listen(s,max);
+	return listen(socketHandle,max);
 #endif
 #ifdef __linux__
-	return listen((int)s,max);
+	return listen((int)socketHandle,max);
 #endif
 }
 
-MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int* sockaddrlen)
+MYSERVER_SOCKET MYSERVER_SOCKET::ms_accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen)
 {
 #ifdef WIN32
-	return (MYSERVER_SOCKET)accept(s,sa,sockaddrlen);
+	MYSERVER_SOCKET_HANDLE h=accept(socketHandle,sa,sockaddrlen);
+	MYSERVER_SOCKET s;
+	s.ms_setHandle(h);
+	return s;
 #endif
 #ifdef __linux__
 	unsigned int Connect_Size = *sockaddrlen;
-	int as = accept((int)s,sa,&Connect_Size);
-	return (MYSERVER_SOCKET)as;
+	int as = accept((int)socketHandle,sa,&Connect_Size);
+	MYSERVER_SOCKET s;
+	s.ms_setHandle(as);
+	return s;
 #endif
 }
 
-int ms_closesocket(MYSERVER_SOCKET s)
+int MYSERVER_SOCKET::ms_closesocket()
 {
 #ifdef WIN32
-	return closesocket(s);
+	return closesocket(socketHandle);
 #endif
 #ifdef __linux__
-	return close((int)s);
+	return close((int)socketHandle);
 #endif
 }
-MYSERVER_HOSTENT *ms_gethostbyaddr(char* addr,int len,int type)
+MYSERVER_HOSTENT *MYSERVER_SOCKET::ms_gethostbyaddr(char* addr,int len,int type)
 {
 #ifdef WIN32
 	HOSTENT *he=gethostbyaddr(addr,len,type);
@@ -108,93 +131,93 @@ MYSERVER_HOSTENT *ms_gethostbyaddr(char* addr,int len,int type)
 	return he;
 #endif
 }
-MYSERVER_HOSTENT *ms_gethostbyname(const char *hostname)
+MYSERVER_HOSTENT *MYSERVER_SOCKET::ms_gethostbyname(const char *hostname)
 {	
 	return (MYSERVER_HOSTENT *)gethostbyname(hostname);
 }
 
 
-int ms_shutdown(MYSERVER_SOCKET s,int how)
+int MYSERVER_SOCKET::ms_shutdown(int how)
 {
 #ifdef WIN32
-	return shutdown(s,how);
+	return shutdown(socketHandle,how);
 #endif
 #ifdef __linux__
-	return shutdown((int)s,how);
+	return shutdown((int)socketHandle,how);
 #endif
 }
 
-int	ms_setsockopt(MYSERVER_SOCKET s,int level,int optname,const char *optval,int optlen)
+int	MYSERVER_SOCKET::ms_setsockopt(int level,int optname,const char *optval,int optlen)
 {
-	return setsockopt(s,level, optname,optval,optlen);
+	return setsockopt(socketHandle,level, optname,optval,optlen);
 }
 
-int ms_send(MYSERVER_SOCKET s,const char* buffer,int len,int flags)
-{
-#ifdef WIN32
-	return	send(s,buffer,len,flags);
-#endif
-#ifdef __linux__
-	return	send((int)s,buffer,len,flags);
-#endif
-}
-
-int ms_ioctlsocket(MYSERVER_SOCKET s,long cmd,unsigned long* argp)
+int MYSERVER_SOCKET::ms_send(const char* buffer,int len,int flags)
 {
 #ifdef WIN32
-	return ioctlsocket(s,cmd,argp);
+	return	send(socketHandle,buffer,len,flags);
 #endif
 #ifdef __linux__
-	return ioctl((int)s,cmd,argp);
+	return	send((int)socketHandle,buffer,len,flags);
 #endif
 }
 
-int ms_connect(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int na)
+int MYSERVER_SOCKET::ms_ioctlsocket(long cmd,unsigned long* argp)
 {
 #ifdef WIN32
-	return connect((SOCKET)s,sa,na);
+	return ioctlsocket(socketHandle,cmd,argp);
 #endif
 #ifdef __linux__
-	return connect((int)s,sa,na);
+	return ioctl((int)socketHandle,cmd,argp);
 #endif
 }
 
-int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
+int MYSERVER_SOCKET::ms_connect(MYSERVER_SOCKADDR* sa,int na)
+{
+#ifdef WIN32
+	return connect((SOCKET)socketHandle,sa,na);
+#endif
+#ifdef __linux__
+	return connect((int)socketHandle,sa,na);
+#endif
+}
+
+int MYSERVER_SOCKET::ms_recv(char* buffer,int len,int flags)
 {
 	int err;
 #ifdef WIN32
-	err=recv(s,buffer,len,flags);
+	err=recv(socketHandle,buffer,len,flags);
 	if(err==SOCKET_ERROR)
 		return -1;
 	else 
 		return err;
 #endif
 #ifdef __linux__
-	err=recv((int)s,buffer,len,flags);
+	err=recv((int)socketHandle,buffer,len,flags);
 	if(err == 0)
 		err = -1;
 	return err;
 #endif
 }
 
-u_long ms_bytesToRead(MYSERVER_SOCKET c)
+u_long MYSERVER_SOCKET::ms_bytesToRead()
 {
 	u_long nBytesToRead;
-	ms_ioctlsocket(c,FIONREAD,&nBytesToRead);
+	ms_ioctlsocket(FIONREAD,&nBytesToRead);
 	return nBytesToRead;
 }
-int ms_gethostname(char *name,int namelen)
+int MYSERVER_SOCKET::ms_gethostname(char *name,int namelen)
 {
 	return gethostname(name,namelen);
 }
-int ms_getsockname(MYSERVER_SOCKET s,MYSERVER_SOCKADDR *ad,int *namelen)
+int MYSERVER_SOCKET::ms_getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 {
 #ifdef WIN32
-	return getsockname(s,ad,namelen);
+	return getsockname(socketHandle,ad,namelen);
 #endif
 #ifdef __linux__
 	unsigned int len = *namelen;
-	int ret = getsockname((int)s,ad,&len);
+	int ret = getsockname((int)socketHandle,ad,&len);
 	*namelen = len;
 	return ret;
 #endif

@@ -50,8 +50,8 @@ struct httpThreadContext
 	char identity[32];
 	char inputDataPath[MAX_PATH];
 	char outputDataPath[MAX_PATH];
-	MYSERVER_FILE_HANDLE inputData;
-	MYSERVER_FILE_HANDLE outputData;
+	MYSERVER_FILE inputData;
+	MYSERVER_FILE outputData;
 	LOGGEDUSERID hImpersonation;
 	LPCONNECTION connection;
 };

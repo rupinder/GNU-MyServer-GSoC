@@ -80,7 +80,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	}
 	else if(cmd==CGI_CMD_RUNCGI)
 	{
-		if(!ms_FileExists(cgipath))
+		if(!MYSERVER_FILE::ms_FileExists(cgipath))
 		{
 			return raiseHTTPError(td,s,e_500);
 		}
@@ -112,29 +112,30 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*Standard CGI uses standard output to output the result and the standard 
 	*input to get other params like in a POST request.
 	*/
-	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(td->outputDataPath);
-	MYSERVER_FILE_HANDLE stdInFile;
+	MYSERVER_FILE stdOutFile;
+	stdOutFile.ms_CreateTemporaryFile(td->outputDataPath);
+	MYSERVER_FILE stdInFile;
 	
-	if(td->inputData==0)
+	if(td->inputData.ms_GetHandle()==0)
 /*If no exists the stdin file create one and copy in all the necessary informations*/
 	{
 		u_long nbw;/*Number of bytes written to the stdin file if any*/
 		sprintf(td->inputDataPath,"%s/stdInFile_%u",currentpath,td->id);
-		stdInFile = ms_CreateTemporaryFile(td->inputDataPath);
+		stdInFile.ms_CreateTemporaryFile(td->inputDataPath);
 
 
 		if(td->request.URIOPTSPTR)
-			ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
+			stdInFile.ms_WriteToFile(td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
 		else
-			ms_WriteToFile(stdInFile,td->request.URIOPTS,lstrlen(td->request.URIOPTS),&nbw);
+			stdInFile.ms_WriteToFile(td->request.URIOPTS,lstrlen(td->request.URIOPTS),&nbw);
 
 		char *endFileStr="\r\n\r\n";
-		ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
-		ms_setFilePointer(stdInFile,0);
+		stdInFile.ms_WriteToFile(endFileStr,lstrlen(endFileStr),&nbw);
+		stdInFile.ms_setFilePointer(0);
 	}
 	else
 	{
-		stdInFile = td->inputData;
+		stdInFile.ms_SetHandle(td->inputData.ms_GetHandle());
 	}
 	/*
 	*Build the environment string used by the CGI started
@@ -154,9 +155,9 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	spi.cmd = cgipath;
 	spi.arg = td->scriptFile;
 	
-	spi.stdError = (MYSERVER_FILE_HANDLE)stdOutFile;
-	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
-	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
+	spi.stdError = stdOutFile.ms_GetHandle();
+	spi.stdIn = stdInFile.ms_GetHandle();
+	spi.stdOut = stdOutFile.ms_GetHandle();
 	spi.envString=td->buffer2;
 	execHiddenProcess(&spi);
 	td->buffer2[0]='\0';
@@ -164,8 +165,8 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*Read the CGI output.
 	*/
 	u_long nBytesRead=0;
-	if(!ms_setFilePointer(stdOutFile,0))
-		ms_ReadFromFile(stdOutFile,td->buffer2,KB(200),&nBytesRead);
+	if(!stdOutFile.ms_setFilePointer(0))
+		stdOutFile.ms_ReadFromFile(td->buffer2,KB(200),&nBytesRead);
 	else
 		td->buffer2[0]='\0';
 	int yetoutputted=0;
@@ -261,12 +262,12 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		*/
 		sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
 		buildHTTPResponseHeader(td->buffer,&td->response);
-		ms_send(s->socket,td->buffer,(int)strlen(td->buffer), 0);
-		ms_send(s->socket,(char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
-		while(	ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead))
+		s->socket.ms_send(td->buffer,(int)strlen(td->buffer), 0);
+		s->socket.ms_send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+		while(stdOutFile.ms_ReadFromFile(td->buffer2,td->buffersize2,&nBytesRead))
 		{
 			if(nBytesRead)
-				ms_send(s->socket,(char*)td->buffer2,nBytesRead, 0);
+				s->socket.ms_send((char*)td->buffer2,nBytesRead, 0);
 			else
 				break;
 		}
@@ -276,9 +277,8 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	/*
 	*Close and delete the stdin and stdout files used by the CGI.
 	*/
-	ms_CloseFile(stdOutFile);
-	ms_CloseFile(stdInFile);
-	td->inputData=(MYSERVER_FILE_HANDLE)0;
+	stdOutFile.ms_CloseFile();
+	stdInFile.ms_CloseFile();
 
 	/*
 	*Restore security on the current thread.

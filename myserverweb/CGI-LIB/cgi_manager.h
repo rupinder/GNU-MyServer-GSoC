@@ -38,6 +38,5 @@ public:
 	char* GetParam(char*);
 	char* PostParam(char*);
 	int Write(char*);
-	MYSERVER_FILE_HANDLE getInputDataFile();
 }; 
 

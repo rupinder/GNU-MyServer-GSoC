@@ -220,7 +220,7 @@ void cserver::start()
 	/*
 	*Determine all the IP addresses of the local machine.
 	*/
-	MYSERVER_HOSTENT *localhe=ms_gethostbyname(serverName);
+	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::ms_gethostbyname(serverName);
 	in_addr ia;
 	for(i=0;localhe->h_addr_list[i];i++)
 	{
@@ -351,7 +351,7 @@ void cserver::start()
 					}
 					if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode==VK_F1)
 					{
-						if(ms_FileExists("myserver.chm"))
+						if(MYSERVER_FILE::ms_FileExists("myserver.chm"))
 							system("myserver.chm");
 					}
 					break; 
@@ -373,9 +373,10 @@ int cserver::createServerAndListener(u_long port)
 	*Create the server socket.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
-	MYSERVER_SOCKET serverSocket=ms_socket(AF_INET,SOCK_STREAM,0);
+	MYSERVER_SOCKET serverSocket;
+	serverSocket.ms_socket(AF_INET,SOCK_STREAM,0);
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
-	if(serverSocket==INVALID_SOCKET)
+	if(serverSocket.ms_getHandle()==INVALID_SOCKET)
 	{
         preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_OPENP"));
@@ -409,7 +410,7 @@ int cserver::createServerAndListener(u_long port)
 	*/
 	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
 
-	if(ms_bind(serverSocket,(sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
+	if(serverSocket.ms_bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
 	{
 		preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_BIND"));
@@ -422,7 +423,7 @@ int cserver::createServerAndListener(u_long port)
 	*Set connections listen queque to max allowable.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
-	if (ms_listen(serverSocket,SOMAXCONN))
+	if (serverSocket.ms_listen(SOMAXCONN))
 	{ 
         preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
@@ -475,10 +476,10 @@ void * listenServer(void* params)
 		*Every new connection is sended to cserver::addConnection function;
 		*this function sends connections between the various threads.
 		*/
-		asock=ms_accept(serverSocket,(struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
-		if(asock==0)
+		asock=serverSocket.ms_accept((struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
+		if(asock.ms_getHandle()==0)
 			continue;
-		if(asock==INVALID_SOCKET)
+		if(asock.ms_getHandle()==INVALID_SOCKET)
 			continue;
 		lserver->addConnection(asock,&asock_in);
 	}
@@ -486,8 +487,8 @@ void * listenServer(void* params)
 	*When the flag mustEndServer is true end current thread and clean the socket used for listening.
 	*/
 
-	ms_shutdown(serverSocket, 2);
-	ms_closesocket(serverSocket);
+	serverSocket.ms_shutdown( 2);
+	serverSocket.ms_closesocket();
 #ifdef WIN32
 	_endthread();
 #endif
@@ -790,7 +791,7 @@ int cserver::getMaxLogFileSize()
 */
 int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 {
-	if(s==0)
+	if(s.ms_getHandle()==0)
 		return false;
 	static int ret;
 	ret=true;
@@ -805,7 +806,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	memset(&localsock_in, 0, sizeof(localsock_in));
 #endif
 	int dim=sizeof(localsock_in);
-	ms_getsockname(s,(MYSERVER_SOCKADDR*)&localsock_in,&dim);
+	s.ms_getsockname((MYSERVER_SOCKADDR*)&localsock_in,&dim);
 
 	strncpy(ip, inet_ntoa(asock_in->sin_addr), 32); // NOTE: inet_ntop supports IPv6
 	strncpy(myIp, inet_ntoa(localsock_in.sin_addr), 32); // NOTE: inet_ntop supports IPv6
@@ -820,7 +821,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	if(!ct->addConnection(s,asock_in,&ip[0],&myIp[0],port,myport))
 	{
 		ret=false;
-		ms_closesocket(s);
+		s.ms_closesocket();
 	}
 
 	if(++local_nThreads>=nThreads)

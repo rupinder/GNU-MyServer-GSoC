@@ -22,9 +22,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 typedef void *MYSERVER_FILE_HANDLE;
 
-u_long ms_getFileSize(MYSERVER_FILE_HANDLE);
-int ms_setFilePointer(MYSERVER_FILE_HANDLE,u_long);
-int ms_getPathRecursionLevel(char*);
 
 #define MYSERVER_FILE_OPEN_READ (1<<0)
 #define MYSERVER_FILE_OPEN_WRITE (1<<1)
@@ -35,16 +32,33 @@ int ms_getPathRecursionLevel(char*);
 #define MYSERVER_FILE_OPEN_APPEND (1<<6)
 #define MYSERVER_FILE_CREATE_ALWAYS (1<<7)
 
-int ms_ReadFromFile(MYSERVER_FILE_HANDLE ,char * ,u_long ,u_long * );
-int ms_WriteToFile(MYSERVER_FILE_HANDLE ,char * ,u_long ,u_long * );
-MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char * );
-MYSERVER_FILE_HANDLE ms_OpenFile(char * ,u_long );
-
-time_t ms_GetLastModTime(char *filename);
-time_t ms_GetCreationTime(char *filename);
-time_t ms_GetLastAccTime(char *filename);
-int ms_IsFolder(char [] );
-int ms_CloseFile(MYSERVER_FILE_HANDLE);
-int ms_FileExists(char * );
-int ms_DeleteFile(char * );
+class MYSERVER_FILE
+{
+private:
+	MYSERVER_FILE_HANDLE handle;
+	char filename[MAX_PATH];
+public:
+	MYSERVER_FILE();
+	MYSERVER_FILE_HANDLE ms_GetHandle();
+	int ms_ReadFromFile(char * ,u_long ,u_long * );
+	int ms_WriteToFile(char * ,u_long ,u_long * );
+	int ms_CreateTemporaryFile(char * );
+	int ms_OpenFile(char * ,u_long );
+	int ms_SetHandle(MYSERVER_FILE_HANDLE);
+	u_long ms_getFileSize();
+	int ms_setFilePointer(u_long);
+	static int ms_getPathRecursionLevel(char*);
+	static time_t ms_GetLastModTime(char *filename);
+	static time_t ms_GetCreationTime(char *filename);
+	static time_t ms_GetLastAccTime(char *filename);
+	time_t ms_GetLastModTime();
+	time_t ms_GetCreationTime();
+	time_t ms_GetLastAccTime();
+	char *ms_GetFilename();
+	int operator =(MYSERVER_FILE);
+	static int ms_IsFolder(char*);
+	int ms_CloseFile();
+	static int ms_FileExists(char * );
+	static int ms_DeleteFile(char * );
+};
 #endif

@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"/*Used for protocols IDs*/
 class vhost
 {
-	MYSERVER_FILE_HANDLE warningsLogFile;
-	MYSERVER_FILE_HANDLE accessesLogFile;
+	MYSERVER_FILE warningsLogFile;
+	MYSERVER_FILE accessesLogFile;
 public:
 	struct sHostList
 	{
@@ -62,10 +62,10 @@ public:
 	*Derived directly from the filemanager utilities.
 	*/
 	u_long ms_accessesLogWrite(char*);
-	void ms_setAccessesLogFile(MYSERVER_FILE_HANDLE);
+	MYSERVER_FILE* ms_getAccessesLogFile();
 
 	u_long ms_warningsLogWrite(char*);
-	void ms_setWarningsLogFile(MYSERVER_FILE_HANDLE);
+	MYSERVER_FILE* ms_getWarningsLogFile();
 };
 
 

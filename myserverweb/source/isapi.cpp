@@ -167,10 +167,10 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	*Flush the output to the client.
 	*/
 	u_long len=0;
-	if(connTable[connIndex].td->outputData)
+	if(connTable[connIndex].td->outputData.ms_GetHandle())
 	{
-		ms_setFilePointer(connTable[connIndex].td->outputData,0);
-		ms_ReadFromFile(connTable[connIndex].td->outputData,connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
+		connTable[connIndex].td->outputData.ms_setFilePointer(0);
+		connTable[connIndex].td->outputData.ms_ReadFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
 	}
 
 	u_long headerSize=0;
@@ -215,20 +215,19 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	if(ExtCtrlBlk.dwHttpStatusCode==200)/*HTTP status code is 200*/
 	{
 		buildHTTPResponseHeaderStruct(&td->response,td,connTable[connIndex].td->buffer);
-		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",ms_getFileSize(connTable[connIndex].td->outputData)-headerSize);
+		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",connTable[connIndex].td->outputData.ms_getFileSize()-headerSize);
 		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
-		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
-		ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
+		connTable[connIndex].connection->socket.ms_send(connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
+		connTable[connIndex].connection->socket.ms_send((char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
 
 		for(;;)
 		{
-			ms_ReadFromFile(connTable[connIndex].td->outputData,connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
+			connTable[connIndex].td->outputData.ms_ReadFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
 			if(len==0)
 				break;
-			ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer),len, 0);
+			connTable[connIndex].connection->socket.ms_send((char*)(connTable[connIndex].td->buffer),len, 0);
 		}
-		ms_CloseFile(connTable[connIndex].td->outputData);
-		connTable[connIndex].td->outputData=0;
+		connTable[connIndex].td->outputData.ms_CloseFile();
 	}
 	else	
 	{
@@ -376,15 +375,15 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 		((vhost*)(ConnInfo->td->connection->host))->ms_warningsLogWrite("WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	if(ConnInfo->td->outputData==0)
+	if(ConnInfo->td->outputData.ms_GetHandle()==0)
 	{
 		char stdOutFilePath[MAX_PATH];
 		ms_getdefaultwd(stdOutFilePath,MAX_PATH);
 		sprintf(&stdOutFilePath[lstrlen(stdOutFilePath)],"/stdOutFile_%u",ConnInfo->td->id);
-		ConnInfo->td->outputData=ms_CreateTemporaryFile(stdOutFilePath);
+		ConnInfo->td->outputData.ms_CreateTemporaryFile(stdOutFilePath);
 	}
 	DWORD nbw;
-	ms_WriteToFile(ConnInfo->td->outputData,(char*)Buffer,*lpdwBytes,&nbw);
+	ConnInfo->td->outputData.ms_WriteToFile((char*)Buffer,*lpdwBytes,&nbw);
 
 	*lpdwBytes = nbw;
 	if (nbw) 
@@ -410,7 +409,7 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 		((vhost*)(ConnInfo->td->connection->host))->ms_warningsLogWrite("ReadClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	ms_ReadFromFile(ConnInfo->td->inputData ,(char*)lpvBuffer,*lpdwSize,&NumRead);
+	ConnInfo->td->inputData.ms_ReadFromFile((char*)lpvBuffer,*lpdwSize,&NumRead);
 	if (NumRead == -1) 
 	{
 		*lpdwSize = 0;

@@ -88,13 +88,18 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	*/
 	if(lserver->getBrowseDirCSS()[0])
 	{
-		MYSERVER_FILE_HANDLE cssHandle=ms_OpenFile(lserver->getBrowseDirCSS(),MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-		u_long nbr;
-		ms_ReadFromFile(cssHandle,td->buffer,td->buffersize,&nbr);
-		lstrcat(td->buffer2,"<STYLE><!--");
-		lstrcat(td->buffer2,td->buffer);
-		lstrcat(td->buffer2,"--></STYLE>");
-		ms_CloseFile(cssHandle);
+		MYSERVER_FILE cssHandle;
+		int ret;
+		ret=cssHandle.ms_OpenFile(lserver->getBrowseDirCSS(),MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+		if(ret>0)
+		{
+			u_long nbr;
+			cssHandle.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
+			lstrcat(td->buffer2,"<STYLE><!--");
+			lstrcat(td->buffer2,td->buffer);
+			lstrcat(td->buffer2,"--></STYLE>");
+			cssHandle.ms_CloseFile();
+		}
 	}
 
 #ifdef WIN32
@@ -190,8 +195,8 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	buildDefaultHTTPResponseHeader(&(td->response));
 	sprintf(td->response.CONTENTS_DIM,"%u",lstrlen(td->buffer2));
 	buildHTTPResponseHeader(td->buffer,&(td->response));
-	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
-	ms_send(s->socket,td->buffer2,lstrlen(td->buffer2), 0);
+	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
+	s->socket.ms_send(td->buffer2,lstrlen(td->buffer2), 0);
 	return 1;
 
 }
@@ -201,13 +206,15 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	*With this routine we send a file through the HTTP protocol.
 	*Open the file and save its handle.
 	*/
-	MYSERVER_FILE_HANDLE h=ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	int ret;
+	MYSERVER_FILE h;
+	ret=h.ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 
-	if(h==0)
+	if(ret==0)
 	{	
 		return 0;
 	}
-	else if(h==(MYSERVER_FILE_HANDLE)-1)
+	else if(ret==-1)
 	{
 		if(s->nTries > 2)
 		{
@@ -222,7 +229,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	/*
 	*If the file is a valid handle.
 	*/
-	u_long bytesToSend=ms_getFileSize(h);
+	u_long bytesToSend=h.ms_getFileSize();
 	if(lastByte == -1)
 	{
 		lastByte=bytesToSend;
@@ -239,7 +246,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	/*
 	*If failed to set the file pointer returns an internal server error.
 	*/
-	if(ms_setFilePointer(h,firstByte))
+	if(h.ms_setFilePointer(firstByte))
 	{
 		return raiseHTTPError(td,s,e_500);
 	}
@@ -248,7 +255,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 
 	sprintf(td->response.CONTENTS_DIM,"%u",bytesToSend);
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
+	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
 
 	/*
 	*If is requested only the header exit from the function; used by the HEAD request.
@@ -268,7 +275,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 		/*
 		*Read from the file the bytes to sent.
 		*/
-		ms_ReadFromFile(h,td->buffer,min(bytesToSend,td->buffersize),&nbr);
+		h.ms_ReadFromFile(td->buffer,min(bytesToSend,td->buffersize),&nbr);
 		/*
 		*When the bytes read from the file are zero, stop to send the file.
 		*/
@@ -277,10 +284,10 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 		/*
 		*If there are bytes to send, send them.
 		*/
-		if(ms_send(s->socket,td->buffer,nbr, 0) == SOCKET_ERROR)
+		if(s->socket.ms_send(td->buffer,nbr, 0) == SOCKET_ERROR)
 			break;
 	}
-	ms_CloseFile(h);
+	h.ms_CloseFile();
 	return 1;
 
 }
@@ -305,13 +312,13 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*If filename is already mapped on the file system don't map it again.
 	*/
 	if(yetmapped)
-		lstrcpy((td->filenamePath),filename);
+		strcpy((td->filenamePath),filename);
 	else
 	{
 		/*
 		*If the client try to access files that aren't in the web folder send a 401 error.
 		*/
-		if((filename[0] != '\0')&&(ms_getPathRecursionLevel(filename)<1))
+		if((filename[0] != '\0')&&(MYSERVER_FILE::ms_getPathRecursionLevel(filename)<1))
 		{
 			return raiseHTTPError(td,s,e_401);
 		}
@@ -337,9 +344,9 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		*environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
 		*to QUERY_INFO_VALUE.
 		*/
-		if(i&& (td->filenamePath[i]=='/'))/*There is the '/' character check if dirscan is a file*/
+		if(i && (td->filenamePath[i]=='/'))/*There is the '/' character check if dirscan is a file*/
 		{
-			if(!ms_IsFolder(dirscan))
+			if(!MYSERVER_FILE::ms_IsFolder(dirscan))
 			{
 				/*
 				*If the token is a file.
@@ -375,7 +382,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	2)We send the folder content.
 	3)We send an error.
 	*/
-	if(ms_IsFolder((char *)(td->filenamePath)))
+	if(MYSERVER_FILE::ms_IsFolder((char *)(td->filenamePath)))
 	{
 		int i;
 		for(i=0;;i++)
@@ -386,7 +393,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 				sprintf(defaultFileName,"%s/%s",td->filenamePath,defaultFileNamePath);
 			else
 				break;
-			if(ms_FileExists(defaultFileName))
+			if(MYSERVER_FILE::ms_FileExists(defaultFileName))
 			{
 				/*
 				*Change the URI to reflect the default file name.
@@ -405,7 +412,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		return raiseHTTPError(td,s,e_404);
 	}
 
-	if(!ms_FileExists(td->filenamePath))
+	if(!MYSERVER_FILE::ms_FileExists(td->filenamePath))
 		raiseHTTPError(td,s,e_404);
 
 	/*
@@ -415,13 +422,13 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
-		if(ms_FileExists(td->filenamePath))
+		if(MYSERVER_FILE::ms_FileExists(td->filenamePath))
 			if(sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
 				return 1;
 		return raiseHTTPError(td,s,e_404);
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
-		if(ms_FileExists(td->filenamePath))
+		if(MYSERVER_FILE::ms_FileExists(td->filenamePath))
 		{
 #ifdef WIN32
 			return sendISAPI(td,s,td->filenamePath,ext,data);
@@ -454,23 +461,24 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 	else if(mimeCMD==CGI_CMD_SENDLINK)
 	{
-		MYSERVER_FILE_HANDLE h=ms_OpenFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+		MYSERVER_FILE h;
+		h.ms_OpenFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 		u_long nbr;
 		char linkpath[MAX_PATH];
 		char pathInfo[MAX_PATH];
-		ms_ReadFromFile(h,linkpath,MAX_PATH,&nbr);
-		ms_CloseFile(h);
+		h.ms_ReadFromFile(linkpath,MAX_PATH,&nbr);
+		h.ms_CloseFile();
 		linkpath[nbr]='\0';
 		lstrcpy(pathInfo,td->pathInfo);
 		translateEscapeString(pathInfo);
-		lstrcat(linkpath,pathInfo);
+		strcat(linkpath,pathInfo);
 
 		if(nbr)
 			return sendHTTPRESOURCE(td,s,linkpath,systemrequest,OnlyHeader,firstByte,lastByte,1);
 		else
 			return raiseHTTPError(td,s,e_404);
 	}
-	time_t lastMT=ms_GetLastModTime(td->filenamePath);
+	time_t lastMT=MYSERVER_FILE::ms_GetLastModTime(td->filenamePath);
 	getRFC822GMTTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	if(td->request.IF_MODIFIED_SINCE[0])
 	{
@@ -508,8 +516,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	td.identity[0]='\0';
 	td.connection=a;
 	td.id=id;
-	td.inputData =(MYSERVER_FILE_HANDLE)0;
-	td.outputData =(MYSERVER_FILE_HANDLE)0;
 
 	/*
 	*Reset the request structure.
@@ -555,34 +561,33 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*/
 		ms_getdefaultwd(td.inputDataPath,MAX_PATH);
 		sprintf(&td.inputDataPath[lstrlen(td.inputDataPath)],"/stdInFile_%u",td.id);
-		td.inputData=ms_CreateTemporaryFile(td.inputDataPath);
+		td.inputData.ms_CreateTemporaryFile(td.inputDataPath);
 		u_long nbw;
-		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
+		td.inputData.ms_WriteToFile(td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
 
 		/*
 		*If there are others bytes to read from the socket.
 		*/
-		if(ms_bytesToRead(td.connection->socket))
+		if(td.connection->socket.ms_bytesToRead())
 		{
 			int err;
 			do
 			{
-				err=ms_recv(td.connection->socket,td.buffer2,td.buffersize2, 0);
+				err=td.connection->socket.ms_recv(td.buffer2,td.buffersize2, 0);
 				if(err==-1)
 				{
 					/*
 					If we get an error remove the file and the connection.
 					*/
-					ms_CloseFile(td.inputData);
-					td.inputData=0;
+					td.inputData.ms_CloseFile();
 					retvalue|=1;/*set return value to 1.*/
 					retvalue|=2;
 				}
-				ms_WriteToFile(td.inputData,td.buffer2,err,&nbw);
+				td.inputData.ms_WriteToFile(td.buffer2,err,&nbw);
 			}
 			while(err);
 		}
-		ms_setFilePointer(td.inputData,0);
+		td.inputData.ms_setFilePointer(0);
 		td.buffer2[0]='\0';
 	}
 	else
@@ -619,10 +624,9 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		if(td.request.HOST[0]==0)
 		{
 			raiseHTTPError(&td,a,e_400);
-			if(td.inputData)
+			if(td.inputData.ms_GetHandle())
 			{
-				ms_CloseFile(td.inputData);
-				td.inputData=0;
+				td.inputData.ms_CloseFile();
 			}
 			return 0;
 		}
@@ -634,10 +638,9 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			a->host=lserver->vhostList.getvHost(td.request.HOST,a->localIpAddr,a->localPort);
 			if(a->host==0)
 			{
-				if(td.inputData)
+				if(td.inputData.ms_GetHandle())
 				{
-					ms_CloseFile(td.inputData);
-					td.inputData=0;
+					td.inputData.ms_CloseFile();
 				}
 				return 0;
 			}
@@ -691,18 +694,16 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	/*
 	*If the inputData file was not closed close it.
 	*/
-	if(td.inputData)
+	if(td.inputData.ms_GetHandle())
 	{
-		ms_CloseFile(td.inputData);
-		td.inputData=0;
+		td.inputData.ms_CloseFile();
 	}
 	/*
 	*If the outputData file was not closed close it.
 	*/
-	if(td.inputData)
+	if(td.outputData.ms_GetHandle())
 	{
-		ms_CloseFile(td.outputData);
-		td.outputData=0;
+		td.outputData.ms_CloseFile();
 	}	
 	return (retvalue&1)?1:0;
 }
@@ -890,8 +891,8 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	*4) set the name of the server.
 	*5) set the page that it is not an error page.
 	*/
-	lstrcpy(response->CONTENTS_TYPE,"text/html");
-	lstrcpy(response->VER,"1.1");
+	strcpy(response->CONTENTS_TYPE,"text/html");
+	strcpy(response->VER,"1.1");
 	response->httpStatus=200;
 	getRFC822GMTTime(response->DATE,HTTP_RESPONSE_DATE_DIM);
 	strncpy(response->DATEEXP,response->DATE,HTTP_RESPONSE_DATEEXP_DIM);
@@ -908,18 +909,18 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		strcat(td->buffer2,"Date: ");
 		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 		strcat(td->buffer2,"\r\n\r\n");
-		ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
+		a->socket.ms_send(td->buffer2,lstrlen(td->buffer2),0);
 		return 1;
 	}
 	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-	lstrcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
+	strcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	if(lserver->mustUseMessagesFiles())
 	{
 		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],true);
 	}
 	sprintf(td->response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	ms_send(a->socket,td->buffer,lstrlen(td->buffer), 0);
+	a->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
 	return 1;
 }
 /*
@@ -935,9 +936,9 @@ Internal Server error</font></p>\r\n";
        strcat(td->buffer2,"Date: ");
        getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
        strcat(td->buffer2,"\r\n\r\n");
-       ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
+       a->socket.ms_send(td->buffer2,lstrlen(td->buffer2),0);
   
-       ms_send(a->socket,hardHTML,lstrlen(hardHTML), 0);
+       a->socket.ms_send(hardHTML,lstrlen(hardHTML), 0);
        return 1;
 }
 /*
@@ -1110,7 +1111,7 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
-	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
+	a->socket.ms_send(td->buffer2,lstrlen(td->buffer2),0);
 	return 1;
 }
 /*
@@ -1123,7 +1124,7 @@ int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
-	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
+	a->socket.ms_send(td->buffer2,lstrlen(td->buffer2),0);
 	return 1;
 }
 /*

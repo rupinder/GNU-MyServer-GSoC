@@ -37,9 +37,9 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	char cmdLine[MAX_PATH + 120];
 	char  dataFilePath[MAX_PATH], outFilePath[MAX_PATH];
 
-	MYSERVER_FILE_HANDLE DataFileHandle, OutFileHandle;
+	MYSERVER_FILE DataFileHandle, OutFileHandle;
 
-	if(!ms_FileExists(filename))
+	if(!MYSERVER_FILE::ms_FileExists(filename))
 		return raiseHTTPError(td,s,e_404);
 	GetShortPathName(filename,filename,MAX_PATH);
 
@@ -55,124 +55,124 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	ms_getdefaultwd(outFilePath,MAX_PATH);
 	GetShortPathName(outFilePath,outFilePath,MAX_PATH);
 	sprintf(&outFilePath[lstrlen(outFilePath)],"/out_%u",td->id);
-	ms_setFilePointer(td->inputData,0);
+	td->inputData.ms_setFilePointer(0);
 
-	DataFileHandle = ms_OpenFile(dataFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
-	if ((!DataFileHandle) || ((int)DataFileHandle==-1)) 
+	int ret=DataFileHandle.ms_OpenFile(dataFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+	if ((!ret) || (ret==-1)) 
 	{
 		return raiseHTTPError(td,s,e_500);
 	}
 
 
 	strcpy(td->buffer2,"[CGI]\r\n");
-	ms_WriteToFile(DataFileHandle,td->buffer2,7,&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,7,&nbr);
 
 	strcpy(td->buffer2,"CGI Version=CGI/1.3a WIN\r\n");
-	ms_WriteToFile(DataFileHandle,td->buffer2,26,&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,26,&nbr);
 
 	sprintf(td->buffer2,"Server Admin=%s\r\n",lserver->getServerAdmin());
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	if(strcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcpy(td->buffer2,"Request Keep-Alive=No\r\n");
-		ms_WriteToFile(DataFileHandle,td->buffer2,23,&nbr);
+		DataFileHandle.ms_WriteToFile(td->buffer2,23,&nbr);
 	}
 	else
 	{
 		strcpy(td->buffer2,"Request Keep-Alive=Yes\r\n");
-		ms_WriteToFile(DataFileHandle,td->buffer2,24,&nbr);
+		DataFileHandle.ms_WriteToFile(td->buffer2,24,&nbr);
 	}
 
 	sprintf(td->buffer2,"Request Method=%s\r\n",td->request.CMD);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	sprintf(td->buffer2 ,"Request Protocol=HTTP/%s\r\n",td->request.VER);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	sprintf(td->buffer2,"Executable Path=%s\r\n",execname);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	if(td->request.URIOPTS[0])
 	{
 		sprintf(td->buffer2,"Query String=%s\r\n",td->request.URIOPTS);
-		ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 	if(td->request.REFERER[0])
 	{
 		sprintf(td->buffer2,"Referer=%s\r\n",td->request.REFERER);
-		ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 	if(td->request.CONTENTS_TYPE[0])
 	{
 		sprintf(td->buffer2,"Content Type=%s\r\n",td->request.CONTENTS_TYPE);
-		ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 
 	if(td->request.USER_AGENT[0])
 	{
 		sprintf(td->buffer2,"User Agent=%s\r\n",td->request.USER_AGENT);
-		ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 
-	sprintf(td->buffer2,"Content File=%s\r\n",td->inputDataPath);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	sprintf(td->buffer2,"Content File=%s\r\n",td->inputData.ms_GetFilename());
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	if(td->request.CONTENTS_DIM[0])
 	{
 		sprintf(td->buffer2,"Content Length=%s\r\n",td->request.CONTENTS_DIM);
-		ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+		DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 	else
 	{
 		strcpy(td->buffer2,"Content Length=0\r\n");
-		ms_WriteToFile(DataFileHandle,td->buffer2,18,&nbr);	
+		DataFileHandle.ms_WriteToFile(td->buffer2,18,&nbr);	
 	}
 
 	strcpy(td->buffer2,"Server Software=myServer\r\n");
-	ms_WriteToFile(DataFileHandle,td->buffer2,26,&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,26,&nbr);
 
 	sprintf(td->buffer2,"Remote Address=%s\r\n",td->connection->ipAddr);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	sprintf(td->buffer2,"Server Port=%u\r\n",td->connection->localPort);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	sprintf(td->buffer2,"Server Name=%s\r\n",td->request.HOST);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	strcpy(td->buffer2,"[System]\r\n");
-	ms_WriteToFile(DataFileHandle,td->buffer2,10,&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,10,&nbr);
 
 	sprintf(td->buffer2,"Output File=%s\r\n",outFilePath);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
-	sprintf(td->buffer2,"Content File=%s\r\n",td->inputDataPath);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	sprintf(td->buffer2,"Content File=%s\r\n",td->inputData.ms_GetFilename());
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	time_t ltime=100;
 	int gmhour=gmtime( &ltime)->tm_hour;
 	int bias=localtime(&ltime)->tm_hour-gmhour;
 
 	sprintf(td->buffer2,"GMT Offset=%i\r\n",bias);
-	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	sprintf(td->buffer2,"Debug Mode=No\r\n",bias);
-	ms_WriteToFile(DataFileHandle,td->buffer2,15,&nbr);
+	DataFileHandle.ms_WriteToFile(td->buffer2,15,&nbr);
 
-	ms_CloseFile(DataFileHandle);
+	DataFileHandle.ms_CloseFile();
 
 	/*
 	*Create the out file.
 	*/
-	OutFileHandle = ms_OpenFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
-	if ((!OutFileHandle) || ((int)OutFileHandle==-1)) 
+	ret = OutFileHandle.ms_OpenFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
+	if ((!ret) || (ret==-1)) 
 	{
-		ms_DeleteFile(outFilePath);
-		ms_DeleteFile(dataFilePath);
+		MYSERVER_FILE::ms_DeleteFile(outFilePath);
+		MYSERVER_FILE::ms_DeleteFile(dataFilePath);
 		return raiseHTTPError(td,s,e_501);
 	}
-	ms_CloseFile(OutFileHandle);
+	OutFileHandle.ms_CloseFile();
 	strcpy(cmdLine,"cmd /c \"");
 	strcat(cmdLine, filename);
 	strcat(cmdLine, "\" ");
@@ -184,19 +184,23 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	
 	if (execHiddenProcess(&spi,WINCGI_TIMEOUT))
 	{
-		ms_DeleteFile(outFilePath);
-		ms_DeleteFile(dataFilePath);
+		MYSERVER_FILE::ms_DeleteFile(outFilePath);
+		MYSERVER_FILE::ms_DeleteFile(dataFilePath);
 		return raiseHTTPError(td,s,e_501);
 	}
 
-	OutFileHandle = ms_OpenFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
+	ret=OutFileHandle.ms_OpenFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
+	if ((!ret) || (ret==-1)) 
+	{
+		return raiseHTTPError(td,s,e_501);
+	}
 	u_long nBytesRead=0;
-	ms_ReadFromFile(OutFileHandle,td->buffer2,KB(200),&nBytesRead);
+	OutFileHandle.ms_ReadFromFile(td->buffer2,KB(200),&nBytesRead);
 	if(nBytesRead==0)
 	{
-		ms_CloseFile(OutFileHandle);
-		ms_DeleteFile(outFilePath);
-		ms_DeleteFile(dataFilePath);
+		OutFileHandle.ms_CloseFile();
+		MYSERVER_FILE::ms_DeleteFile(outFilePath);
+		MYSERVER_FILE::ms_DeleteFile(dataFilePath);
 		return raiseHTTPError(td,s,e_500);
 	}
 	u_long headerSize=0;
@@ -220,19 +224,19 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	*/
 	sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	ms_send(s->socket,td->buffer,(int)strlen(td->buffer), 0);
-	ms_send(s->socket,(char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
-	while(	ms_ReadFromFile(OutFileHandle,td->buffer2,td->buffersize2,&nBytesRead))
+	s->socket.ms_send(td->buffer,(int)strlen(td->buffer), 0);
+	s->socket.ms_send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+	while(OutFileHandle.ms_ReadFromFile(td->buffer2,td->buffersize2,&nBytesRead))
 	{
 		if(nBytesRead)
-			ms_send(s->socket,(char*)td->buffer2,nBytesRead, 0);
+			s->socket.ms_send((char*)td->buffer2,nBytesRead, 0);
 		else
 			break;
 	}
 	
-	ms_CloseFile(OutFileHandle);
-	ms_DeleteFile(outFilePath);
-	ms_DeleteFile(dataFilePath);
+	OutFileHandle.ms_CloseFile();
+	MYSERVER_FILE::ms_DeleteFile(outFilePath);
+	MYSERVER_FILE::ms_DeleteFile(dataFilePath);
 	return !strcmpi(td->request.CONNECTION,"Keep-Alive");
 #endif
 #ifdef __linux__
