@@ -1,0 +1,1272 @@
+# MyServer
+# Copyright (C) 2002,2003,2004 The MyServer Team
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0104 
+i18n_type 1 
+i18n_include "language.h" 
+i18n_function gettext 
+header_name {.h} 
+code_name {.cpp}
+class MainDlg {open
+} {
+  Function {make_window()} {open
+  } {
+    Fl_Window ConfDlg {
+      label {MyServer Configure}
+      callback {if(Changed) {
+  if(fl_ask(LanguageXMLLast_Change)) {
+    ConfDlg->hide();
+  }
+}
+else {
+  ConfDlg->hide();
+}} open
+      xywh {374 360 550 360} type Double hide
+    } {
+      Fl_Menu_Bar {} {open
+        xywh {0 0 550 25}
+      } {
+        submenu {} {
+          label {&File} open
+          xywh {0 0 100 20}
+        } {
+          menuitem {} {
+            label {&Open...}
+            callback {int ret;
+if(Changed) {
+  if(fl_ask(LanguageXMLLast_Change)) {
+    ret = ask_type();
+    if(ret == -1) {
+      ret = 0;
+    }
+    else {
+      ConfType = ret;
+      ret = load_config();
+    }
+  }
+}
+else {
+  ret = ask_type();
+  if(ret == -1) {
+    ret = 0;
+  }
+  else {
+    ConfType = ret;
+    ret = load_config();
+  }
+}
+
+if(ret) {
+  fl_alert(LanguageXMLNot_Found);
+}}
+            xywh {0 0 100 20}
+          }
+          menuitem {} {
+            label {&Save...}
+            callback {int i = ask_type();
+if(i != -1) {
+  ConfType = i;
+  save_config();
+}}
+            xywh {0 0 100 20}
+          }
+          menuitem {} {
+            label {&Revert}
+            callback {if(fl_ask(LanguageXMLReload_Prev)) {
+  load_config();
+}}
+            xywh {0 0 100 20} divider
+          }
+          submenu {} {
+            label Run open
+            xywh {0 0 100 20}
+          } {
+            menuitem {} {
+              label {as Console}
+              callback {RunAsConsole();}
+              xywh {0 0 100 20}
+            }
+            menuitem {} {
+              label {as Service}
+              callback {RunAsService();}
+              xywh {0 0 100 20}
+            }
+          }
+          submenu {} {
+            label Stop open
+            xywh {0 0 100 20} divider
+          } {
+            menuitem {} {
+              label Cosnole
+              callback {StopConsole();}
+              xywh {0 0 100 20}
+            }
+            menuitem {} {
+              label Service
+              callback {StopService();}
+              xywh {0 0 100 20}
+            }
+          }
+          menuitem {} {
+            label {&Quit}
+            callback {if(Changed) {
+  if(fl_ask(LanguageXMLLast_Change)) {
+    ConfDlg->hide();
+  }
+}
+else {
+  ConfDlg->hide();
+}}
+            xywh {0 0 100 20}
+          }
+        }
+        submenu {} {
+          label {Ser&vice} open
+          xywh {0 0 100 20}
+        } {
+          menuitem {} {
+            label {Install Service}
+            callback {InstallService();}
+            xywh {0 0 100 20}
+          }
+          menuitem {} {
+            label {Remove Service}
+            callback {RemoveService();}
+            xywh {0 0 100 20}
+          }
+        }
+        submenu {} {
+          label {&Help} open
+          xywh {0 0 100 20}
+        } {
+          menuitem {} {
+            label {&About}
+            callback {AboutDlg->show();}
+            xywh {0 0 100 20}
+          }
+        }
+      }
+      Fl_Tabs {} {open
+        xywh {0 25 550 335}
+      } {
+        Fl_Group {} {
+          label System open
+          xywh {0 50 550 310}
+        } {
+          Fl_Value_Input Buffer_Size {
+            label {Memory buffer (in bytes):}
+            callback {Changed = true;}
+            xywh {285 60 115 25} maximum -1 step 10
+          }
+          Fl_Choice Verbosity {
+            label {Verbosity level:}
+            callback {Changed = true;} open
+            xywh {285 90 115 25} down_box BORDER_BOX when 1
+          } {
+            menuitem {} {
+              label None
+              xywh {5 5 100 20}
+            }
+            menuitem {} {
+              label Normal
+              xywh {5 5 100 20}
+            }
+            menuitem {} {
+              label Higher
+              xywh {5 5 100 20}
+            }
+            menuitem {} {
+              label Highest
+              xywh {5 5 100 20}
+            }
+          }
+          Fl_Value_Input Max_Log_File_Size {
+            label {Max log file size (in bytes):}
+            callback {Changed = true;}
+            xywh {285 120 115 25} step 10
+          }
+          Fl_Value_Input Nthreads_A {
+            label {Threads per CPU:}
+            callback {Changed = true;}
+            xywh {285 150 115 25} maximum -1 step 10
+          }
+          Fl_Value_Input Nthreads_B {
+            label {Always active threads:}
+            callback {Changed = true;}
+            xywh {285 180 115 30} maximum -1 step 10
+          }
+          Fl_Choice Language {
+            label {Language:}
+            callback {Changed = true;} open
+            xywh {285 215 115 25} down_box BORDER_BOX when 1
+          } {}
+        }
+        Fl_Group {} {
+          label Server open
+          xywh {0 50 550 310} hide
+        } {
+          Fl_Value_Input Connection_Timeout {
+            label {Connection time-out (in sec):}
+            callback {Changed = true;}
+            xywh {285 60 115 25} maximum -1 step 10
+          }
+          Fl_Value_Input Max_Connections {
+            label {Max connections:}
+            callback {Changed = true;}
+            xywh {285 90 115 25} maximum -1 step 10
+          }
+          Fl_Value_Input Gzip_Threshold {
+            label {Gzip comrpession threshold (in bytes):}
+            callback {Changed = true;}
+            xywh {285 120 115 25} maximum -1 step 10
+          }
+          Fl_Input Browsefolder_Css {
+            label {Stylesheet:}
+            callback {Changed = true;}
+            xywh {285 150 115 25} when 1
+          }
+          Fl_Button {} {
+            label {Browse...}
+            callback {char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  Changed = true;
+  Browsefolder_Css->value(chrptr);
+}}
+            xywh {410 150 85 25}
+          }
+          Fl_Check_Button Use_Errors_Files {
+            label {Presonalized error pages:}
+            callback {Changed = true;}
+            xywh {285 180 25 25} down_box DOWN_BOX align 4 when 1
+          }
+          Fl_Group {} {
+            label {Default file names:} open
+            tooltip {Default file to send in a directory when none is specified} xywh {115 205 345 145} box ENGRAVED_BOX align 17
+          } {
+            Fl_Browser Default_Filename {
+              xywh {135 230 195 105} type Hold
+            }
+            Fl_Button {} {
+              label {Add...}
+              callback {char * val;
+val = (char *)fl_input(LanguageXMLEnter_Default);
+if(val != 0) {
+  Changed = true;
+  Default_Filename->add(val);
+}}
+              xywh {350 230 85 25}
+            }
+            Fl_Button {} {
+              label Remove
+              callback {if(Default_Filename->value() != 0) {
+  Changed = true;
+  Default_Filename->remove(Default_Filename->value());
+}}
+              xywh {350 265 85 25}
+            }
+          }
+        }
+        Fl_Group {} {
+          label MIME open
+          xywh {0 50 550 310} hide
+        } {
+          Fl_Group {} {open
+            xywh {10 60 530 290} box ENGRAVED_FRAME
+          } {
+            Fl_Group {} {
+              label {Extension:} open
+              xywh {20 70 195 270} box ENGRAVED_FRAME align 17
+            } {
+              Fl_Browser Ext {
+                callback {int val = Ext->value();
+if(val != 0) {
+  val -= 1;
+  
+  Cmd->value(MimeConf.getCmd(val));
+  
+  if(Cmd->value() >= 2 && Cmd->value() <= 4) {
+    Manager->activate();
+    ManagerButton->activate();
+  }
+  else {
+    Manager->deactivate();
+    ManagerButton->deactivate();
+  }
+  
+  Mime->value(MimeConf.getType(val));
+
+  Manager->value(MimeConf.getManager(val));
+}}
+                xywh {31 95 170 190} type Hold
+              }
+              Fl_Button {} {
+                label {Add...}
+                callback {char * val;
+int i;
+val = (char *)fl_input(LanguageXMLEnter_Extension);
+if(val != 0) {
+  Changed = true;
+  i = MimeConf.addExt(val);
+  MimeConf.populateExt(Ext);
+  Ext->value(i + 1);
+
+  Cmd->value(MimeConf.getCmd(i));
+  
+  if(Cmd->value() >= 2 && Cmd->value() <= 4) {
+    Manager->activate();
+    ManagerButton->activate();
+  }
+  else {
+    Manager->deactivate();
+    ManagerButton->deactivate();
+  }
+  
+  Mime->value(MimeConf.getType(i));
+
+  Manager->value(MimeConf.getManager(i));
+}}
+                xywh {30 300 75 25}
+              }
+              Fl_Button {} {
+                label Remove
+                callback {int val;
+val = Ext->value();
+if(val != 0) {
+  Changed = true;
+  val--;
+  MimeConf.removeExt(val);
+  MimeConf.populateExt(Ext);
+}}
+                xywh {125 300 75 25}
+              }
+            }
+            Fl_Choice Mime {
+              label {MIME Type:}
+              callback {int val = Ext->value();
+if(val != 0) {
+  val--;
+  Changed = true;
+  MimeConf.setType(val, Mime->value());
+}} open
+              xywh {310 95 220 25} down_box BORDER_BOX when 1
+            } {}
+            Fl_Button {} {
+              label {Add...}
+              callback {char * val;
+int i, ret;
+val = (char *)fl_input(LanguageXMLEnter_MIME);
+if(val != 0) {
+  Changed = true;
+  i = MimeConf.addMime(val);
+  MimeConf.populateMime(Mime);
+  Mime->value(i);
+  ret = Ext->value();
+  if(ret != 0) {
+    ret--;
+    MimeConf.setType(ret, i);
+  }
+}}
+              xywh {310 125 90 25}
+            }
+            Fl_Choice Cmd {
+              label {Action:}
+              callback {int val = Cmd->value();
+int val2 = Ext->value();
+if(val >= 2 && val <= 4) {
+  Manager->activate();
+  ManagerButton->activate();
+}
+else {
+  if(val2 != 0)
+    MimeConf.setManager(val2 - 1, NONE);
+  Manager->value(NONE);
+  Manager->deactivate();
+  ManagerButton->deactivate();
+}
+
+if(val2 != 0) {
+  val2--;
+  MimeConf.setCmd(val2, val);
+  Changed = true;
+}} open
+              xywh {310 165 220 25} down_box BORDER_BOX when 1
+            } {
+              menuitem {} {
+                label {Send the file}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {ULR link}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {Run as CGI}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {Run as FastCGI}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {Run as ISAPI}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {Run as MSCGI}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {Run as WINCGI}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label Execute
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {Execute as an ISAPI module}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
+                label {Execute self contained FastCGI}
+                xywh {10 10 100 20}
+              }
+            }
+            Fl_Input Manager {
+              label {Manager:}
+              callback {int val = Ext->value();
+if(val != 0) {
+  val--;
+  MimeConf.setManager(val, Manager->value());
+  Changed = true;
+}}
+              xywh {310 205 220 25} when 1 deactivate
+            }
+            Fl_Button ManagerButton {
+              label {Browse...}
+              callback {int val = Ext->value();
+char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  if(val != 0) {
+    val--;
+    MimeConf.setManager(val, chrptr);
+    Manager->value(chrptr);
+    Changed = true;
+  }
+}}
+              xywh {310 235 90 25} deactivate
+            }
+          }
+        }
+        Fl_Group {} {
+          label Hosts open
+          xywh {0 50 550 310} hide
+        } {
+          Fl_Group {} {open
+            xywh {10 60 530 45} box ENGRAVED_FRAME
+          } {
+            Fl_Choice Name {
+              label {Name:}
+              callback {int i = Name->value();
+vHostConf.populateHost(i, Host);
+vHostConf.populateIp(i, Ip);
+Port->value(vHostConf.getPort(i));
+Protocol->value(vHostConf.getProtocol(i));
+Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
+Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
+Ssl_Password->value(vHostConf.getSsl_Password(i));
+Docroot->value(vHostConf.getDocroot(i));
+Sysfolder->value(vHostConf.getSysfolder(i));
+Accesseslog->value(vHostConf.getAccesseslog(i));
+Warninglog->value(vHostConf.getWarninglog(i));
+i = Protocol->value();
+if(i != 1) {
+  Ssl_Privatekey->deactivate();
+  Ssl_Certificate->deactivate();
+  Ssl_Password->deactivate();
+  SslButton1->deactivate();
+  SslButton2->deactivate();
+}
+else {
+  Ssl_Privatekey->activate();
+  Ssl_Certificate->activate();
+  Ssl_Password->activate();
+  SslButton1->activate();
+  SslButton2->activate();
+}} open
+              xywh {75 70 285 25} down_box BORDER_BOX when 1
+            } {}
+            Fl_Button {} {
+              label {Add...}
+              callback {char * val;
+int i;
+val = (char *)fl_input(LanguageXMLEnter_Name);
+if(val != 0) {
+  Changed = true;
+  i = vHostConf.addName(val);
+  vHostConf.populateName(Name);
+  Name->value(i);
+  vHostConf.populateHost(i, Host);
+  vHostConf.populateIp(i, Ip);
+  Port->value(vHostConf.getPort(i));
+  Protocol->value(vHostConf.getProtocol(i));
+  Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
+  Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
+  Ssl_Password->value(vHostConf.getSsl_Password(i));
+  Docroot->value(vHostConf.getDocroot(i));
+  Sysfolder->value(vHostConf.getSysfolder(i));
+  Accesseslog->value(vHostConf.getAccesseslog(i));
+  Warninglog->value(vHostConf.getWarninglog(i));
+  i = Protocol->value();
+  if(i != 1) {
+    Ssl_Privatekey->deactivate();
+    Ssl_Certificate->deactivate();
+    Ssl_Password->deactivate();
+    SslButton1->deactivate();
+    SslButton2->deactivate();
+  }
+  else {
+    Ssl_Privatekey->activate();
+    Ssl_Certificate->activate();
+    Ssl_Password->activate();
+    SslButton1->activate();
+    SslButton2->activate();
+  }
+}}
+              xywh {370 70 75 25}
+            }
+            Fl_Button {} {
+              label Remove
+              callback {Changed = true;
+int i = Name->value();
+vHostConf.removeName(i);
+i = 0;
+vHostConf.populateName(Name);
+Name->value(i);
+vHostConf.populateHost(i, Host);
+vHostConf.populateIp(i, Ip);
+Port->value(vHostConf.getPort(i));
+Protocol->value(vHostConf.getProtocol(i));
+Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(i));
+Ssl_Certificate->value(vHostConf.getSsl_Certificate(i));
+Ssl_Password->value(vHostConf.getSsl_Password(i));
+Docroot->value(vHostConf.getDocroot(i));
+Sysfolder->value(vHostConf.getSysfolder(i));
+Accesseslog->value(vHostConf.getAccesseslog(i));
+Warninglog->value(vHostConf.getWarninglog(i));
+i = Protocol->value();
+if(i != 1) {
+  Ssl_Privatekey->deactivate();
+  Ssl_Certificate->deactivate();
+  Ssl_Password->deactivate();
+  SslButton1->deactivate();
+  SslButton2->deactivate();
+}
+else {
+  Ssl_Privatekey->activate();
+  Ssl_Certificate->activate();
+  Ssl_Password->activate();
+  SslButton1->activate();
+  SslButton2->activate();
+}}
+              xywh {455 70 75 25}
+            }
+          }
+          Fl_Group {} {open
+            xywh {10 110 530 240} box EMBOSSED_FRAME
+          } {
+            Fl_Tabs {} {open
+              xywh {20 120 510 220}
+            } {
+              Fl_Group {} {
+                label Arpa open
+                xywh {20 145 510 195}
+              } {
+                Fl_Browser Host {
+                  label Host
+                  xywh {30 165 170 135} type Hold align 1
+                }
+                Fl_Browser Ip {
+                  label IP
+                  xywh {210 165 170 135} type Hold align 1
+                }
+                Fl_Button {} {
+                  label {Add...}
+                  callback {char * val;
+int NameNo, i;
+val = (char *)fl_input(LanguageXMLEnter_Host);
+if(val != 0) {
+  Changed = true;
+  NameNo = Name->value();
+  i = vHostConf.addHost(NameNo, val, true);
+  vHostConf.populateHost(NameNo, Host);
+  Host->value(i + 1);
+}}
+                  xywh {40 305 70 25}
+                }
+                Fl_Button {} {
+                  label Remove
+                  callback {int i, NameNo;
+i = Host->value();
+if(i != 0) {
+  Changed = true;
+  NameNo = Name->value();
+  vHostConf.removeHost(NameNo, i - 1);
+  vHostConf.populateHost(NameNo, Host);
+}}
+                  xywh {120 305 70 25}
+                }
+                Fl_Button {} {
+                  label {Add...}
+                  callback {char * val;
+int NameNo, i;
+val = (char *)fl_input(LanguageXMLEnter_Ip);
+if(val != 0) {
+  Changed = true;
+  NameNo = Name->value();
+  i = vHostConf.addIp(NameNo, val, true);
+  vHostConf.populateIp(NameNo, Ip);
+  Ip->value(i + 1);
+}}
+                  xywh {220 305 70 25}
+                }
+                Fl_Button {} {
+                  label Remove
+                  callback {int i, NameNo;
+i = Ip->value();
+if(i != 0) {
+  Changed = true;
+  NameNo = Name->value();
+  vHostConf.removeIp(NameNo, i - 1);
+  vHostConf.populateIp(NameNo, Ip);
+}}
+                  xywh {300 305 70 25}
+                }
+                Fl_Value_Input Port {
+                  label {Port:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setPort(i, (int)Port->value());}
+                  xywh {435 165 65 25} maximum -1 step 10
+                }
+              }
+              Fl_Group {} {
+                label Protocol open
+                xywh {20 145 510 195} hide
+              } {
+                Fl_Choice Protocol {
+                  label {Protocol:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setProtocol(i, Protocol->value());
+int pval = Protocol->value();
+if(pval != 1) {
+  vHostConf.setSsl_Privatekey(i, EMPTY);
+  vHostConf.setSsl_Certificate(i, EMPTY);
+  vHostConf.setSsl_Password(i, EMPTY);
+  Ssl_Privatekey->value(EMPTY);
+  Ssl_Certificate->value(EMPTY);
+  Ssl_Password->value(EMPTY);
+  Ssl_Privatekey->deactivate();
+  Ssl_Certificate->deactivate();
+  Ssl_Password->deactivate();
+  SslButton1->deactivate();
+  SslButton2->deactivate();
+}
+else {
+  Ssl_Privatekey->activate();
+  Ssl_Certificate->activate();
+  Ssl_Password->activate();
+  SslButton1->activate();
+  SslButton2->activate();
+}} open
+                  xywh {180 155 215 25} down_box BORDER_BOX when 1
+                } {
+                  menuitem {} {
+                    label HTTP
+                    xywh {5 5 100 20}
+                  }
+                  menuitem {} {
+                    label HTTPS
+                    xywh {5 5 100 20}
+                  }
+                  menuitem {} {
+                    label FTP
+                    xywh {5 5 100 20} deactivate
+                  }
+                }
+                Fl_Input Ssl_Privatekey {
+                  label {SSL private key:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Privatekey(i, Ssl_Privatekey->value());}
+                  xywh {180 185 215 25} when 1 deactivate
+                }
+                Fl_Input Ssl_Certificate {
+                  label {SSL certificate:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Certificate(i, Ssl_Certificate->value());}
+                  xywh {180 215 215 25} when 1 deactivate
+                }
+                Fl_Input Ssl_Password {
+                  label {SSL password:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setSsl_Password(i, Ssl_Password->value());}
+                  xywh {180 245 215 25} type Secret when 1 deactivate
+                }
+                Fl_Button SslButton1 {
+                  label {Browse...}
+                  callback {char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setSsl_Privatekey(i, chrptr);
+  Ssl_Privatekey->value(chrptr);
+}}
+                  xywh {405 185 85 25} deactivate
+                }
+                Fl_Button SslButton2 {
+                  label {Browse...}
+                  callback {char * chrptr = fl_file_chooser("", "", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setSsl_Certificate(i, chrptr);
+  Ssl_Certificate->value(chrptr);
+}}
+                  xywh {405 215 85 25} deactivate
+                }
+              }
+              Fl_Group {} {
+                label Directories open
+                xywh {20 145 510 195} hide
+              } {
+                Fl_Input Docroot {
+                  label {Document root:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setDocroot(i, Docroot->value());}
+                  xywh {180 155 215 25} when 1
+                }
+                Fl_Input Sysfolder {
+                  label {System folder:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setSysfolder(i, Sysfolder->value());}
+                  xywh {180 185 215 25} when 1
+                }
+                Fl_Button {} {
+                  label {Browse...}
+                  callback {char * chrptr = fl_dir_chooser("", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setDocroot(i, chrptr);
+  Docroot->value(chrptr);
+}}
+                  xywh {405 155 85 25}
+                }
+                Fl_Button {} {
+                  label {Browse...}
+                  callback {char * chrptr = fl_dir_chooser("", "");
+if(chrptr != 0) {
+  Changed = true;
+  int i = Name->value();
+  vHostConf.setSysfolder(i, chrptr);
+  Sysfolder->value(chrptr);
+}}
+                  xywh {405 185 85 25}
+                }
+              }
+              Fl_Group {} {
+                label Logs open
+                xywh {20 145 510 195} hide
+              } {
+                Fl_Input Accesseslog {
+                  label {Accesses log file:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setAccesseslog(i, Accesseslog->value());}
+                  xywh {180 155 215 25} when 1
+                }
+                Fl_Input Warninglog {
+                  label {Warning log file:}
+                  callback {Changed = true;
+int i = Name->value();
+vHostConf.setWarninglog(i, Warninglog->value());}
+                  xywh {180 185 215 25} when 1
+                }
+              }
+            }
+          }
+        }
+        Fl_Group {} {
+          label Administrator open
+          xywh {0 50 550 310} hide
+        } {
+          Fl_Input Server_Admin {
+            label {Administrator e-mail:}
+            callback {Changed = true;}
+            xywh {285 60 190 25} when 1
+          }
+        }
+      }
+    }
+    code {// Set FLTK function's text
+(char *)fl_ok = gettext("OK");
+(char *)fl_cancel = gettext("Cancel");} {}
+  }
+  Function {make_type()} {open
+  } {
+    Fl_Window ConfTypeDlg {
+      label {Chose Location} open
+      xywh {532 584 303 152} type Double align 0 hide modal
+    } {
+      Fl_Group {} {
+        label {Chose configuration file location:} open
+        xywh {0 0 305 100} align 17
+      } {
+        Fl_Round_Button ConfTypeDlgLocal {
+          label Local
+          callback {ConfType = 1;}
+          tooltip {Configuration files located in current directory} xywh {105 25 70 25} type Radio down_box ROUND_DOWN_BOX
+        }
+        Fl_Round_Button ConfTypeDlgUser {
+          label User
+          callback {ConfType = 2;}
+          tooltip {Configuration files located in ~/.myserver} xywh {105 45 70 25} type Radio down_box ROUND_DOWN_BOX
+        }
+        Fl_Round_Button ConfTypeDlgGlobal {
+          label Global
+          callback {ConfType = 3;}
+          tooltip {Configuration files located in /etc/myserver} xywh {105 65 70 25} type Radio down_box ROUND_DOWN_BOX
+        }
+      }
+      Fl_Return_Button ConfTypeDlgOK {
+        label OK
+        xywh {65 108 65 30}
+      }
+      Fl_Button ConfTypeDlgCancel {
+        label Cancel
+        xywh {165 110 65 30}
+      }
+    }
+  }
+  Function {make_about()} {open
+  } {
+    Fl_Window AboutDlg {
+      label About open selected
+      xywh {360 453 559 119} type Double hide modal
+    } {
+      Fl_Group {} {open
+        image {../binaries/web/logo.png} xywh {15 20 120 75} align 21
+      } {}
+      Fl_Text_Display AboutText {
+        xywh {150 10 305 95} align 0
+      }
+      Fl_Return_Button {} {
+        label OK
+        callback {AboutDlg->hide();}
+        xywh {470 10 75 25}
+      }
+    }
+    code {Fl_Text_Buffer * atext = new Fl_Text_Buffer;
+atext->text(LanguageXMLAbout_Text);
+AboutText->buffer(atext);} {}
+  }
+  Function {ask_type()} {open return_type int
+  } {
+    code {\#ifdef WIN32
+return 1;
+\#else
+ConfTypeDlg->show();
+int ret;
+for(;;) {
+  Fl_Widget *o = Fl::readqueue();
+  if(!o) Fl::wait();
+  else if(o == ConfTypeDlgOK) {ret = 0; break;}
+  else if(o == ConfTypeDlgCancel) {ret = -1; break;}
+  else if(o == ConfTypeDlg) {ret = -1; break;}
+}
+if(ret != -1) {
+  if(ConfTypeDlgLocal->value())
+    ret = 1;
+  else if(ConfTypeDlgUser->value())
+    ret = 2;
+  else if(ConfTypeDlgGlobal->value())
+    ret = 3;
+}
+ConfTypeDlg->hide();
+return ret;
+\#endif} {}
+  }
+  Function {load_config()} {open return_type int
+  } {
+    code {char * filename;
+char * chrptr;
+char Buffer[50];
+int i;
+\#ifndef WIN32
+const int FBSIZE = strlen(getenv("HOME")) + 40;
+char FileBuffer[FBSIZE];
+\#endif
+
+// Loading of main myserver.xml file
+
+switch(ConfType) {
+  case 1 :
+    filename = "myserver.xml";
+    break;
+\#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/myserver.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/myserver.xml";
+    break;
+\#endif
+  default :
+    return -1;
+    break;
+}
+
+if(xmlFile.open(filename) != 0)
+  return -1;
+
+// <LANGUAGE>
+Language->value(0);
+for(i = 0; i < Language->size(); i++) {
+  if(strcmpi(getValueXML("LANGUAGE"), Language->text(i)) == 0) {
+    Language->value(i);
+    break;
+  }
+}
+
+// <VERBOSITY>
+Verbosity->value(atoi(getValueXML("VERBOSITY")));
+
+// <NTHREADS_A>
+Nthreads_A->value(atoi(getValueXML("NTHREADS_A")));
+
+// <NTHREADS_B>
+Nthreads_B->value(atoi(getValueXML("NTHREADS_B")));
+
+// <BUFFER_SIZE>
+Buffer_Size->value(atoi(getValueXML("BUFFER_SIZE")));
+
+// <DEFAULT_FILENAMEx>
+Default_Filename->clear();
+i = 0;
+snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
+chrptr = xmlFile.getValue(Buffer);
+while(chrptr != 0) {
+  Default_Filename->add(chrptr);
+  i++;
+  snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
+  chrptr = xmlFile.getValue(Buffer);
+}
+
+// <CONNECTION_TIMEOUT>
+Connection_Timeout->value(atoi(getValueXML("CONNECTION_TIMEOUT")));
+
+// <USE_ERRORS_FILES>
+chrptr = xmlFile.getValue("USE_ERRORS_FILES");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E')
+  Use_Errors_Files->set();
+else
+  Use_Errors_Files->clear();
+
+// <MAX_CONNECTIONS>
+Max_Connections->value(atoi(getValueXML("MAX_CONNECTIONS")));
+
+// <MAX_LOG_FILE_SIZE>
+Max_Log_File_Size->value(atoi(getValueXML("MAX_LOG_FILE_SIZE")));
+
+// <BROWSEFOLDER_CSS>
+Browsefolder_Css->value(getValueXML("BROWSEFOLDER_CSS"));
+
+// <SERVER_ADMIN>
+Server_Admin->value(getValueXML("SERVER_ADMIN"));
+
+// <GZIP_THRESHOLD>
+Gzip_Threshold->value(atoi(getValueXML("GZIP_THRESHOLD")));
+
+// End of myserver.xml file
+xmlFile.close();
+
+// Loading of MIMEtypes.xml file
+switch(ConfType) {
+  case 1 :
+    filename = "MIMEtypes.xml";
+    break;
+\#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/MIMEtypes.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/MIMEtypes.xml";
+    break;
+\#endif
+  default :
+    return -1;
+    break;
+}
+
+// Load the file
+if(MimeConf.load(filename))
+  return -1;
+
+// Populate the interface
+MimeConf.populateExt(Ext);
+MimeConf.populateMime(Mime);
+
+// Loading of virtualhosts.xml file
+switch(ConfType) {
+  case 1 :
+    filename = "virtualhosts.xml";
+    break;
+\#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/virtualhosts.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/virtualhosts.xml";
+    break;
+\#endif
+  default :
+    return -1;
+    break;
+}
+
+// Load the file
+if(vHostConf.load(filename))
+  return -1;
+
+// Populate the interface
+vHostConf.populateName(Name);
+Name->value(0);
+vHostConf.populateHost(0, Host);
+vHostConf.populateIp(0, Ip);
+Port->value(vHostConf.getPort(0));
+Protocol->value(vHostConf.getProtocol(0));
+Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(0));
+Ssl_Certificate->value(vHostConf.getSsl_Certificate(0));
+Ssl_Password->value(vHostConf.getSsl_Password(0));
+Docroot->value(vHostConf.getDocroot(0));
+Sysfolder->value(vHostConf.getSysfolder(0));
+Accesseslog->value(vHostConf.getAccesseslog(0));
+Warninglog->value(vHostConf.getWarninglog(0));
+i = Protocol->value();
+if(i != 1) {
+  Ssl_Privatekey->deactivate();
+  Ssl_Certificate->deactivate();
+  Ssl_Password->deactivate();
+  SslButton1->deactivate();
+  SslButton2->deactivate();
+}
+else {
+  Ssl_Privatekey->activate();
+  Ssl_Certificate->activate();
+  Ssl_Password->activate();
+  SslButton1->activate();
+  SslButton2->activate();
+}
+
+// End of function
+Changed = false;
+return 0;} {}
+  }
+  Function {save_config()} {open return_type int
+  } {
+    code {char * filename;
+char * chrptr;
+char Buffer[256];
+int i;
+\#ifndef WIN32
+const int FBSIZE = strlen(getenv("HOME")) + 40;
+char FileBuffer[FBSIZE];
+\#endif
+
+// Saveing of main myserver.xml file
+
+switch(ConfType) {
+  case 1 :
+    filename = "myserver.xml";
+    break;
+\#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/myserver.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/myserver.xml";
+    break;
+\#endif
+  default :
+    return -1;
+    break;
+}
+
+i = xmlFile.open(filename);
+
+if(i != 0) {  // the file dose not exist so make one
+   xmlFile.newfile("MYSERVER");
+}
+
+// <LANGUAGE>
+setValueXML("LANGUAGE", Language->text());
+
+// <VERBOSITY>
+i = (int)Verbosity->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("VERBOSITY", Buffer);
+
+// <NTHREADS_A>
+i = (int)Nthreads_A->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("NTHREADS_A", Buffer);
+
+// <NTHREADS_B>
+i = (int)Nthreads_B->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("NTHREADS_B", Buffer);
+
+// <BUFFER_SIZE>
+i = (int)Buffer_Size->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("BUFFER_SIZE", Buffer);
+
+// <DEFAULT_FILENAMEx>
+for(i = 0; i < Default_Filename->size(); i++) {
+  snprintf(Buffer, 256, "DEFAULT_FILENAME%d", i);
+  setValueXML(Buffer, Default_Filename->text(i + 1));
+}
+
+// <CONNECTION_TIMEOUT>
+i = (int)Connection_Timeout->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("CONNECTION_TIMEOUT", Buffer);
+
+// <USE_ERRORS_FILES>
+if(Use_Errors_Files->value())
+  setValueXML("USE_ERRORS_FILES", "YES");
+else
+  setValueXML("USE_ERRORS_FILES", "NO");
+
+// <MAX_CONNECTIONS>
+i = (int)Max_Connections->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("MAX_CONNECTIONS", Buffer);
+
+// <MAX_LOG_FILE_SIZE>
+i = (int)Max_Log_File_Size->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("MAX_LOG_FILE_SIZE", Buffer);
+
+// <BROWSEFOLDER_CSS>
+setValueXML("BROWSEFOLDER_CSS", Browsefolder_Css->value());
+
+// <SERVER_ADMIN>
+setValueXML("SERVER_ADMIN", Server_Admin->value());
+
+// <GZIP_THRESHOLD>
+i = (int)Gzip_Threshold->value();
+snprintf(Buffer, 256, "%d", i);
+setValueXML("GZIP_THRESHOLD", Buffer);
+
+// End of myserver.xml file
+xmlFile.save(filename);
+xmlFile.close();
+
+// Saveing of MIMEtypes.xml file
+switch(ConfType) {
+  case 1 :
+    filename = "MIMEtypes.xml";
+    break;
+\#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/MIMEtypes.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/MIMEtypes.xml";
+    break;
+\#endif
+  default :
+    return -1;
+    break;
+}
+
+// Save the file
+if(MimeConf.save(filename))
+  return -1;
+
+// Saveing of virtualhosts.xml file
+switch(ConfType) {
+  case 1 :
+    filename = "virtualhosts.xml";
+    break;
+\#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/virtualhosts.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/virtualhosts.xml";
+    break;
+\#endif
+  default :
+    return -1;
+    break;
+}
+
+// Save the file
+if(vHostConf.save(filename))
+  return -1;
+
+// End of function
+Changed = false;
+return 0;} {}
+  }
+  decl {int ConfType;} {public
+  }
+  Function {getValueXML(const char * name)} {open private return_type {const char *}
+  } {
+    code {char * chrptr;
+chrptr = xmlFile.getValue((char *)name);
+if(chrptr == 0)
+  return "";
+return chrptr;} {}
+  }
+  Function {setValueXML(const char * name, const char * value)} {open private return_type void
+  } {
+    code {char * chrptr;
+chrptr = xmlFile.getValue((char *)name);
+if(chrptr == 0)
+  xmlFile.addChild(name, value);
+else
+  xmlFile.setValue((char *)name, (char *)value);} {}
+  }
+  decl {bool Changed;} {}
+  decl {MIMEtypeXML MimeConf;} {}
+  decl {vHostXML vHostConf;} {}
+  decl {cXMLParser xmlFile;} {}
+} 

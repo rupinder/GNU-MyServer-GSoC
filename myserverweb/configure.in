@@ -118,11 +118,23 @@ else
     MAKE_COUNTER=yes
 fi
 
-dnl Look for wxwindows
-AM_PATH_WXCONFIG(2.4.0, have_wxwindows=yes)
-if test x$have_wxwindows != xyes; then
+#dnl Look for wxwindows
+#AM_PATH_WXCONFIG(2.4.0, have_wxwindows=yes)
+#if test x$have_wxwindows != xyes; then
+#    AC_MSG_WARN([
+#*** Cannot find wxWindows
+#*** control program will not be built
+#])
+#    MAKE_CONTROL=no
+#else
+#    MAKE_CONTROL=yes
+#fi
+
+dnl Look for FLTK
+AM_PATH_FLTK(1.1.0, have_fltk=yes)
+if test x$have_fltk != xyes; then
     AC_MSG_WARN([
-*** Cannot find wxWindows
+*** Cannot find FLTK (www.fltk.org)
 *** control program will not be built
 ])
     MAKE_CONTROL=no
@@ -140,6 +152,7 @@ AC_CONFIG_FILES(Makefile \
 		binaries/certificates/Makefile \
 		binaries/external/Makefile \
                 binaries/languages/Makefile \
+		binaries/languages/configure/Makefile \
 		binaries/web/Makefile \
                 binaries/web/downloads/Makefile \
                 binaries/web/cgi-bin/Makefile \
