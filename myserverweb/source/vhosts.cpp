@@ -822,24 +822,24 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		out.writeToFile(port,(u_long)strlen(port),&nbw);
 		out.writeToFile("</PORT>\r\n",9,&nbw);
 
-		if(vh->sslContext.privateKeyFile[0])
+		if(list->host->sslContext.privateKeyFile[0])
 		{
 			out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
-			out.writeToFile(vh->sslContext.privateKeyFile,(u_long)strlen(vh->sslContext.privateKeyFile),&nbw);
+			out.writeToFile(list->host->sslContext.privateKeyFile,(u_long)strlen(list->host->sslContext.privateKeyFile),&nbw);
 			out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
 		}
 
-		if(vh->sslContext.certificateFile[0])
+		if(list->host->sslContext.certificateFile[0])
 		{
 			out.writeToFile("<SSL_CERTIFICATE>",20,&nbw);
-			out.writeToFile(vh->sslContext.certificateFile,(u_long)strlen(vh->sslContext.certificateFile),&nbw);
+			out.writeToFile(list->host->sslContext.certificateFile,(u_long)strlen(list->host->sslContext.certificateFile),&nbw);
 			out.writeToFile("</SSL_CERTIFICATE>\r\n",23,&nbw);
 		}
 
-		if(vh->sslContext.password[0])
+		if(list->host->sslContext.password[0])
 		{
 			out.writeToFile("<SSL_PASSWORD>",15,&nbw);
-			out.writeToFile(vh->sslContext.password,(u_long)strlen(vh->sslContext.password),&nbw);
+			out.writeToFile(list->host->sslContext.password,(u_long)strlen(list->host->sslContext.password),&nbw);
 			out.writeToFile("</SSL_PASSWORD>\r\n",18,&nbw);
 		}
 
