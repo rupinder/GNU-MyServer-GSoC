@@ -526,7 +526,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 				break;
 			}
 		}
-		else/*! If appendOutputs. */
+		else/*! If appendOutputs . */
 		{
       if(only_header)
       {
