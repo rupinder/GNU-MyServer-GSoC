@@ -10,7 +10,7 @@ SetCompressor bzip2
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "MyServer"
 !define MUI_FINISHPAGE
 !define MUI_STARTMENUPAGE
-!insertmacro MUI_RESERVEFILE_WELCOMEFINISHPAGE
+;!insertmacro MUI_RESERVEFILE_WELCOMEFINISHPAGE
 !define MUI_ICON ${NSISDIR}\Contrib\Icons\setup.ico
 !define SF_RO         16
 XPStyle on
