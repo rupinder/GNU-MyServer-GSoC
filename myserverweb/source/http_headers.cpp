@@ -448,6 +448,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(nLineControlled==1)
 		{
 			int containOpts=0;
+			u_long len_token =tokenOff;
 			/*!
        *The first line has the form:
        *GET /index.html HTTP/1.1
@@ -458,7 +459,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			request->CMD[tokenOff] = '\0';
 			tokenOff = getCharInString(token, "\t\n\r", 
                                  HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
-			u_long len_token =tokenOff;
+			len_token = tokenOff;
 			if(tokenOff==-1)
 				return 0;
 			max=(int)tokenOff;
@@ -489,6 +490,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			else
 				request->uriEndsWithSlash=0;
 			StrTrim(request->URI," /");
+			StrTrim(request->VER," /\r\n");
 			StrTrim(request->URIOPTS," /");
 			max=strlen(request->URI);
 			if(max>max_URI)
