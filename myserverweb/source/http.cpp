@@ -788,9 +788,9 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 */
 u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 {
-	if(lstrcmp(td->request.digest_opaque,((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
+	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
 		return 0;
-	
+
 	if(lstrcmp(td->request.digest_realm,((http_user_data*)s->protocolBuffer)->realm))/*If is not equal return 0*/
 		return 0;
 	
