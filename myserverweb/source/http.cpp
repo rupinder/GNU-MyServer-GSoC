@@ -110,7 +110,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	int startchar=0;
 	int nDirectories=0;
 	int i;
-	intptr_t ff;
+	long ff;
 	char fileSize[20];
 	char fileTime[32];
 	char *bufferloop;
@@ -252,7 +252,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 		/*! Return an internal server error.  */
 		return raiseHTTPError(td, s, e_500);
 	}
-	ff=(intptr_t)_findfirst(filename, &fd);
+	ff=_findfirst(filename, &fd);
   delete [] filename;
   filename = 0;
 #ifdef WIN32
