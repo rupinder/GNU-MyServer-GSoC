@@ -608,7 +608,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 				/*
 				*Change the URI to reflect the default file name.
 				*/
-				char nURL[MAX_PATH];
+				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
 				if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
 					strcpy(nURL,"http://");
 				strcat(nURL,td->request.HOST);
