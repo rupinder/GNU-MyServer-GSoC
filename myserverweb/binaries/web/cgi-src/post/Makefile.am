@@ -4,7 +4,7 @@ libpost_a_SOURCES = post.cpp
 
 libpost_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS)
 
-all : makemscgi post.mscgi
+all : all-am post.mscgi
 	cp post.mscgi ../../cgi-bin/
 
 libpost.a :
@@ -13,9 +13,6 @@ libpost.a :
 post.mscgi : $(libpost_a_OBJECTS) $(libpost_a_DEPENDENCIES)
 	-rm -f post.mscgi
 	$(CXX) $(libpost_a_OBJECTS) $(libpost_a_LIBADD) -o post.mscgi -shared
-
-makemscgi :
-	if test x$(MAKE_MSCGI) = xno; then exit; fi
 
 install : makemscgi post.mscgi
 	$(INSTALL) -D 'post.mscgi' '$(root_prefix)/var/web/cgi-bin/post.mscgi'

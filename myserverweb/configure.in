@@ -50,9 +50,9 @@ if test x$have_dl != xyes; then
 ])
    AC_DEFINE(DO_NOT_USE_MSCGI, 1, [MSCGI suport in MyServer, define to 1 to disable])
    DL_LIB=""
-   MAKE_MSCGI = no
-   AC_SUBST(MAKE_MSCGI)
+   MAKE_MSCGI=no
 else
+   MAKE_MSCGI=yes
    AC_DEFINE(HAVE_DL, 1, [LibDL suport, define to 1 to enable])
    DL_LIB="-ldl"
 fi
@@ -112,8 +112,9 @@ if test x$have_png != xyes; then
 *** Cannot find libPNG
 *** counter MSCGI example will not be built
 ])
-    MAKE_COUNTER = no
-    AC_SUBST(MAKE_COUNTER)
+    MAKE_COUNTER=no
+else
+    MAKE_COUNTER=yes
 fi
 
 dnl Look for wxwindows
@@ -123,9 +124,14 @@ if test x$have_wxwindows != xyes; then
 *** Cannot find wxWindows
 *** control program will not be built
 ])
-    MAKE_CONTROL = no
-    AC_SUBST(MAKE_CONTROL)
+    MAKE_CONTROL=no
+else
+    MAKE_CONTROL=yes
 fi
+
+AM_CONDITIONAL(BUILD_MSCGI, test "$MAKE_MSCGI" = "yes")
+AM_CONDITIONAL(BUILD_COUNTER, test "$MAKE_COUNTER" = "yes")
+AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
 
 dnl AC_CONFIG_SUBDIRS()
 AC_CONFIG_FILES(Makefile \

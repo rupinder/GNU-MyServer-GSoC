@@ -1,4 +1,9 @@
-SUBDIRS = cgi-bin cgi-src downloads
+
+if BUILD_MSCGI
+CGI_SRC = cgi-src
+endif
+
+SUBDIRS = cgi-bin $(CGI_SRC) downloads
 
 myserverdatadir = $(root_prefix)/var/web
 

@@ -1,4 +1,12 @@
 # Makefile : Builds myserver, control, CGI-LIB, math_sum, counter, and post
 #
 
-SUBDIRS = contrib source control CGI-LIB binaries Documentation 
+if BUILD_CONTROL
+CONTROL = control
+endif
+
+if BUILD_MSCGI
+CGI_LIB = CGI-LIB
+endif
+
+SUBDIRS = contrib source $(CONTROL) $(CGI_LIB) binaries Documentation 

@@ -4,7 +4,7 @@ libmath_sum_a_SOURCES = math_sum.cpp
 
 libmath_sum_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS)
 
-all : makemscgi math_sum.mscgi
+all : all-am math_sum.mscgi
 	cp math_sum.mscgi ../../cgi-bin/
 
 libmath_sum.a :
@@ -13,9 +13,6 @@ libmath_sum.a :
 math_sum.mscgi : $(libmath_sum_a_OBJECTS) $(libmath_sum_a_DEPENDENCIES)
 	-rm -f math_sum.mscgi
 	$(CXX) $(libmath_sum_a_OBJECTS) $(libmath_sum_a_LIBADD) -o math_sum.mscgi -shared
-
-makemscgi :
-	if test x$(MAKE_MSCGI) = xno; then exit; fi
 
 install : makemscgi math_sum.mscgi
 	$(INSTALL) -D 'math_sum.mscgi' '$(root_prefix)/var/web/cgi-bin/math_sum.mscgi'
