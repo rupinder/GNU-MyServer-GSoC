@@ -832,6 +832,53 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 	return sendHTTPhardError500(td,s);
 	
 }
+/*
+*Log the access using the Common Log Format
+*/
+int logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
+{
+	char localbuffer[HTTP_RESPONSE_DATE_DIM];
+
+	((vhost*)(td->connection->host))->accessesLogWrite(a->ipAddr);
+	((vhost*)(td->connection->host))->accessesLogWrite(" ");
+	
+	if(td->identity[0])
+		((vhost*)(td->connection->host))->accessesLogWrite(td->identity);
+	else
+		((vhost*)(td->connection->host))->accessesLogWrite("-");
+
+	if(td->identity[0])
+		((vhost*)(td->connection->host))->accessesLogWrite(td->identity);
+	else
+		((vhost*)(td->connection->host))->accessesLogWrite("-");
+
+	((vhost*)(td->connection->host))->accessesLogWrite(" [");
+	getRFC822GMTTime(localbuffer,HTTP_RESPONSE_DATE_DIM);
+	((vhost*)(td->connection->host))->accessesLogWrite(localbuffer);
+	((vhost*)(td->connection->host))->accessesLogWrite("] \"");
+	((vhost*)(td->connection->host))->accessesLogWrite(td->request.CMD);
+	((vhost*)(td->connection->host))->accessesLogWrite(" ");
+	((vhost*)(td->connection->host))->accessesLogWrite(td->request.URI);
+	if(td->request.URIOPTS[0])
+	{
+		((vhost*)(td->connection->host))->accessesLogWrite("?");
+		((vhost*)(td->connection->host))->accessesLogWrite(td->request.URIOPTS);
+	}
+	((vhost*)(td->connection->host))->accessesLogWrite(td->request.VER);
+	((vhost*)(td->connection->host))->accessesLogWrite("\" ");
+
+	sprintf(localbuffer,"%i",td->response.httpStatus);
+	((vhost*)(td->connection->host))->accessesLogWrite(localbuffer);
+	((vhost*)(td->connection->host))->accessesLogWrite(" ");
+	
+	if(td->response.CONTENT_LENGTH[0])
+		((vhost*)(td->connection->host))->accessesLogWrite(td->response.CONTENT_LENGTH);
+	else
+	((vhost*)(td->connection->host))->accessesLogWrite("0");
+
+	((vhost*)(td->connection->host))->accessesLogWrite("\r\n");
+	return 1;
+}
 
 /*
 *This is the HTTP protocol main procedure to parse a request made over the HTTP.
@@ -1075,24 +1122,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	if(!(retvalue&2))/*If return value is not setted.*/
 	{
 		/*
-		*Record the request in the log file.
-		*/
-		((vhost*)(td.connection->host))->accessesLogWrite(a->ipAddr);
-		((vhost*)(td.connection->host))->accessesLogWrite(":");
-		((vhost*)(td.connection->host))->accessesLogWrite(td.request.CMD);
-		((vhost*)(td.connection->host))->accessesLogWrite(" ");
-		((vhost*)(td.connection->host))->accessesLogWrite(td.request.URI);
-		if(td.request.URIOPTS[0])
-		{
-			((vhost*)(td.connection->host))->accessesLogWrite("?");
-			((vhost*)(td.connection->host))->accessesLogWrite(td.request.URIOPTS);
-		}
-		((vhost*)(td.connection->host))->accessesLogWrite("\r\n");
-		/*
-		*End record the request in the structure.
-		*/
-
-		/*
 		*How is expressly said in the rfc2616 a client that sends an 
 		*HTTP/1.1 request MUST sends a Host header.
 		*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
@@ -1132,6 +1161,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,0,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
+			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
 		{
@@ -1139,6 +1169,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,0,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
+			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
 		{
@@ -1146,10 +1177,12 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,1,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,1);
+			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"DELETE"))/*DELETE REQUEST*/
 		{
 			deleteHTTPRESOURCE(&td,a,td.request.URI,0);
+			logHTTPaccess(&td,a);
 		}
 		else if(!lstrcmpi(td.request.CMD,"PUT"))/*PUT REQUEST*/
 		{
@@ -1157,6 +1190,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				putHTTPRESOURCE(&td,a,td.request.URI,0,1,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				putHTTPRESOURCE(&td,a,td.request.URI,0,1);
+			logHTTPaccess(&td,a);
 		}
 		else
 		{
@@ -1427,6 +1461,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 */
 int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
+	logHTTPaccess(td,a);
 	if(ID==e_401AUTH)
 	{
 		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",versionOfSoftware,td->request.CONNECTION);

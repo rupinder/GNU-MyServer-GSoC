@@ -799,7 +799,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	}
     connections=nc;
 	nConnections++;
-
+/*
 	char msg[500];
 #ifdef WIN32
 	sprintf(msg, "%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
@@ -830,6 +830,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 			((vhost*)(nc->host))->warningsLogWrite(msg);
 		}
 	}
+*/
 	terminateAccess(&connectionWriteAccess,id);
 	return nc;
 }

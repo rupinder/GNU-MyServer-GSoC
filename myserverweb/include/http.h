@@ -70,6 +70,7 @@ int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a);
 int sendAuth(httpThreadContext* td,LPCONNECTION a);
 void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest);
 int getMIME(char *MIME,char *filename,char *dest,char *dest2);
+int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
 u_long validHTTPRequest(char*,httpThreadContext*,u_long*,u_long*);
 u_long validHTTPResponse(char*,httpThreadContext*,u_long*,u_long*);
 void resetHTTPRequest(HTTP_REQUEST_HEADER *request);
