@@ -154,7 +154,7 @@ void ClientsTHREAD::controlConnections()
    *Check if c is a valid connection structure.
    *Do not parse a connection that is going to be parsed by another thread.
    */
-	if((!c)  || c->parsing)
+	if((!c)  || c->isParsing())
 	{
 		lserver->connections_mutex_unlock();
 		return;
@@ -162,7 +162,7 @@ void ClientsTHREAD::controlConnections()
 	/*!
    *Set the connection parsing flag to true.
    */
-	c->parsing=1;
+	c->setParsing(1);
 
 	/*!
    *Unlock connections list access after setting parsing flag.
@@ -172,15 +172,15 @@ void ClientsTHREAD::controlConnections()
   /*!Number of bytes waiting to be read. */
   nBytesToRead=c->socket.bytesToRead();
 
-	if(nBytesToRead || c->forceParsing)
+	if(nBytesToRead || c->getForceParsing())
 	{
-		c->forceParsing=0;
+		c->setForceParsing(0);
 		if(nBytesToRead)
-			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->dataRead], 
-                         KB(8) - c->dataRead, 0);
+			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->getDataRead()],
+                         KB(8) - c->getDataRead(), 0);
 
     /*! Refresh with the right value. */
-    nBytesToRead = c->dataRead + err;
+    nBytesToRead = c->getDataRead() + err;
 
 		if(err==-1)
 		{
@@ -189,9 +189,9 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_unlock();
 			return;
 		}
-		if((c->dataRead+err)<KB(8))
+		if((c->getDataRead() + err)<KB(8))
 		{
-			((char*)buffer.GetBuffer())[c->dataRead+err]='\0';
+			((char*)buffer.GetBuffer())[c->getDataRead() + err]='\0';
 		}
 		else
 		{
@@ -200,7 +200,7 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_unlock();
 			return;
 		}
-		buffer.SetBuffer(c->connectionBuffer, c->dataRead);
+		buffer.SetBuffer(c->connectionBuffer, c->getDataRead());
 
 		/*!
      *Control the protocol used by the connection.
@@ -263,7 +263,7 @@ void ClientsTHREAD::controlConnections()
 		}
 		else if(retcode==1)/*Keep the connection*/
 		{
-			c->dataRead=0;
+			c->setDataRead(0);
 			c->connectionBuffer[0]='\0';
 		}
 		else if(retcode==2)/*Incomplete request to buffer*/
@@ -273,28 +273,28 @@ void ClientsTHREAD::controlConnections()
        *data in the connection buffer.
        *Save the header in the connection buffer.
        */
-			memcpy(c->connectionBuffer, (char*)buffer.GetBuffer(), c->dataRead+err);
+			memcpy(c->connectionBuffer, (char*)buffer.GetBuffer(), c->getDataRead() + err);
 
-			c->dataRead += err;
+			c->setDataRead(c->getDataRead() + err);
 		}
 		/*! Incomplete request bufferized by the protocol.  */
 		else if(retcode == 3)
 		{
-			c->forceParsing = 1;
+			c->setForceParsing(1);
 		}		
-		c->timeout = get_ticks();
+		c->setTimeout( get_ticks() );
 	}
 	else
 	{
 		/*! Reset nTries after 5 seconds.  */
-		if(get_ticks() - c->timeout > 5000)
-			c->nTries = 0;
+		if(get_ticks() - c->getTimeout() > 5000)
+			c->setnTries( 0 );
 
 		/*!
      *If the connection is inactive for a time greater that the value
      *configured remove the connection from the connections pool
      */
-		if((get_ticks()- c->timeout) > lserver->connectionTimeout)
+		if((get_ticks()- c->getTimeout()) > lserver->connectionTimeout)
 		{
 			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
@@ -303,7 +303,7 @@ void ClientsTHREAD::controlConnections()
 		}
 	}
 	/*! Reset the parsing flag on the connection.  */
-	c->parsing=0;
+	c->setParsing(0);
 }
 
 /*!

@@ -835,7 +835,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	int permissions2=0;
 	char auth_type[16];	
 	if(td->request.AUTH[0])
-		permissions=getPermissionMask(s->login, s->password, folder, filename, 
+		permissions=getPermissionMask(s->getLogin(), s->getPassword(), folder, filename, 
                                   ((vhost*)(s->host))->systemRoot, 
                                   ((http_user_data*)s->protocolBuffer)->needed_password
                                   , auth_type, 16, &permissions2);
@@ -855,7 +855,9 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 			((http_user_data*)s->protocolBuffer)->digest_checked=1;
 			if(((http_user_data*)s->protocolBuffer)->digest==1)
 			{
-				strcpy(s->password, ((http_user_data*)s->protocolBuffer)->needed_password);
+				strcpy(s->getPassword(), 
+               ((http_user_data*)s->protocolBuffer)->needed_password);
+
 				permissions=permissions2;
 			}
 		}
@@ -1072,7 +1074,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	char auth_type[16];
 	
 	if(td->request.AUTH[0])
-		permissions=getPermissionMask(s->login, s->password, folder, filename, 
+		permissions=getPermissionMask(s->getLogin(), s->getPassword(), folder, filename, 
                                   ((vhost*)(s->host))->systemRoot, 
                                   ((http_user_data*)s->protocolBuffer)->needed_password
                                   , auth_type, 16, &permissions2);
@@ -1080,7 +1082,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 		permissions=getPermissionMask("Guest", "", folder, filename, 
                                ((vhost*)(s->host))->systemRoot, 
                                ((http_user_data*)s->protocolBuffer)->needed_password,
-                               auth_type, 16);
+                                  auth_type, 16);
 		
   /*! Check if we have to use digest for the current directory. */
 	if(!lstrcmpi(auth_type, "Digest"))
@@ -1092,7 +1094,9 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 			((http_user_data*)s->protocolBuffer)->digest_checked=1;
 			if(((http_user_data*)s->protocolBuffer)->digest==1)
 			{
-				strcpy(s->password, ((http_user_data*)s->protocolBuffer)->needed_password);
+				strcpy(s->getPassword(), 
+               ((http_user_data*)s->protocolBuffer)->needed_password);
+
 				permissions=permissions2;
 			}
 		}
@@ -1142,7 +1146,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
 {
 	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
- ((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
+       ((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
 		return 0;
   /*! If is not equal return 0. */
 	if(lstrcmp(td->request.digest_realm, ((http_user_data*)s->protocolBuffer)->realm))
@@ -1324,7 +1328,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		}
 		int permissions2=0;
 		if(td->request.AUTH[0])
-			permissions=getPermissionMask(s->login, s->password, folder, filename,
+			permissions=getPermissionMask(s->getLogin(), s->getPassword(), folder, filename,
                                  ((vhost*)(s->host))->systemRoot,
                                  ((http_user_data*)s->protocolBuffer)->needed_password,
                                     auth_type, 16, &permissions2);
@@ -1344,7 +1348,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 				((http_user_data*)s->protocolBuffer)->digest_checked=1;
 				if(((http_user_data*)s->protocolBuffer)->digest==1)
 				{
-					strcpy(s->password, ((http_user_data*)s->protocolBuffer)->needed_password);
+					strcpy(s->getPassword(), 
+                 ((http_user_data*)s->protocolBuffer)->needed_password);
+
 					permissions=permissions2;
 				}
 			}
@@ -1777,7 +1783,7 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 	char time[HTTP_RESPONSE_DATE_DIM + 1];
 
 	td->buffer2->SetLength(0);
-	*td->buffer2 << a->ipAddr;
+	*td->buffer2 << a->getipAddr();
 	*td->buffer2<< " ";
 	
 	if(td->identity[0])
@@ -1867,9 +1873,9 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 	/*!
 	 *If the connection must be removed, remove it.
 	 */
-	if(td.connection->toRemove)
+	if(td.connection->getToRemove())
 	{
-		switch(td.connection->toRemove)
+		switch(td.connection->getToRemove())
 		{
       /*! Remove the connection from the list. */
       case CONNECTION_REMOVE_OVERLOAD:
@@ -2320,8 +2326,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 			/*!
        *Find the virtual host to check both host name and IP value.
        */
-			a->host=lserver->vhostList->getvHost(td.request.HOST, a->localIpAddr, 
-                                           a->localPort);
+			a->host=lserver->vhostList->getvHost(td.request.HOST, a->getlocalIpAddr(), 
+                                           a->getLocalPort());
 			if(a->host==0)
 			{
 				raiseHTTPError(&td, a, e_400);
@@ -2356,12 +2362,12 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 				/*!
          *connectionBuffer is 8 KB, so don't copy more bytes.
          */
-				a->dataRead=min(KB(8), (int)strlen((char*)td.buffer->GetBuffer()) -
-                                                        td.nHeaderChars );
-				if(a->dataRead)
+				a->setDataRead(min(KB(8), (int)strlen((char*)td.buffer->GetBuffer()) -
+                                                        td.nHeaderChars ) );
+				if(a->getDataRead() )
 				{
 					memcpy(a->connectionBuffer, ((char*)td.buffer->GetBuffer() +
-                                       td.nHeaderChars), a->dataRead);
+                                       td.nHeaderChars), a->getDataRead() );
 					retvalue=3;
 				}
 				else
@@ -2470,7 +2476,8 @@ void http::computeDigest(httpThreadContext* td, char* out , char* buffer)
 	if(!out)
 		return;
 	MYSERVER_MD5Context md5;
-	sprintf(buffer, "%i-%u-%s", (int)clock(), (u_int)td->id, td->connection->ipAddr);
+	sprintf(buffer, "%i-%u-%s", (int)clock(), (u_int)td->id, 
+          td->connection->getipAddr());
 	MYSERVER_MD5Init(&md5);
 	MYSERVER_MD5Update(&md5, (const unsigned char*)buffer , (u_long)strlen(buffer));
 	MYSERVER_MD5End(&md5, out);
@@ -2640,7 +2647,7 @@ int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
 	td->buffer->SetLength(0);
 	*td->buffer <<  HTTP_ERROR_MSGS[e_500];
 	*td->buffer << " from: " ;
-	*td->buffer << a-> ipAddr ;
+	*td->buffer << a->getipAddr() ;
 	*td->buffer << "\r\n";
 	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\">"
           "<p align=\"center\">"
@@ -2801,13 +2808,13 @@ int http::sendHTTPNonModified(httpThreadContext* td, LPCONNECTION a)
 */
 int http::sendAuth(httpThreadContext* td, LPCONNECTION s)
 {
-	if(s->nTries > 2)
+	if(s->getnTries() > 2)
 	{
 		return raiseHTTPError(td, s, e_401);
 	}
 	else
 	{	
-		s->nTries++;
+		s->incnTries();
 		return raiseHTTPError(td, s, e_401AUTH);
 	}
 }

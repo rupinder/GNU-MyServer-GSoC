@@ -154,9 +154,9 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   char *IfilePath=0;
   char *OfilePath=0;
 
-	if(a->toRemove)
+	if(a->getToRemove())
 	{
-		switch(a->toRemove)
+		switch(a->getToRemove())
 		{
       /*! Remove the connection from the list. */
 			case CONNECTION_REMOVE_OVERLOAD:
@@ -570,8 +570,8 @@ int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
   LPCONNECTION con = lserver->getConnections();
   while(con)
   {
-    sprintf(b1, "%s - %i  - %s - %s\r\n", con->ipAddr, con->ID, 
-            con->login, con->password);
+    sprintf(b1, "%s - %i  - %s - %s\r\n", con->getipAddr(), con->getID(), 
+            con->getLogin(), con->getPassword());
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     con = con->next;
   }
@@ -594,7 +594,7 @@ int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out,
   if(con)
   {
     /*! Define why the connection is killed. */
-    con->toRemove = CONNECTION_USER_KILL;
+    con->setToRemove(CONNECTION_USER_KILL);
   }
   lserver->connections_mutex_unlock();
   return ret;

@@ -147,10 +147,10 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename,
 	strcpy(buffer,"Server Software=MyServer\r\n");
 	DataFileHandle.writeToFile(buffer,26,&nbr);
 
-	sprintf(buffer,"Remote Address=%s\r\n",td->connection->ipAddr);
+	sprintf(buffer,"Remote Address=%s\r\n",td->connection->getipAddr());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
-	sprintf(buffer,"Server Port=%u\r\n",td->connection->localPort);
+	sprintf(buffer,"Server Port=%u\r\n",td->connection->getLocalPort());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
 	sprintf(buffer,"Server Name=%s\r\n",td->request.HOST);

@@ -999,11 +999,11 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
 		return NULL;
 	}
   new_connection->socket = s;
-	new_connection->port=(u_short)port;
-	new_connection->timeout=get_ticks();
-	new_connection->localPort=(u_short)localPort;
-	strncpy(new_connection->ipAddr, ipAddr, MAX_IP_STRING_LEN);
-	strncpy(new_connection->localIpAddr, localIpAddr, MAX_IP_STRING_LEN);
+	new_connection->setPort(port);
+	new_connection->setTimeout( get_ticks() );
+	new_connection->setLocalPort((u_short)localPort);
+	new_connection->setipAddr(ipAddr);
+	new_connection->setlocalIpAddr(localIpAddr);
 	new_connection->host = (void*)lserver->vhostList->getvHost(0, localIpAddr, 
                                                              (u_short)localPort);
 
@@ -1051,7 +1051,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
 	/*! Update the list. */
 	lserver->connections_mutex_lock();
   connection_ID++;
-  new_connection->ID = connection_ID;
+  new_connection->setID(connection_ID);
 	new_connection->next = connections;
    	connections=new_connection;
 	nConnections++;
@@ -1062,7 +1062,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
    *to remove it from the active connections list.
    */
 	if(maxConnections && (nConnections>maxConnections))
-		new_connection->toRemove=CONNECTION_REMOVE_OVERLOAD;
+		new_connection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
 	return new_connection;
 }
@@ -1193,7 +1193,7 @@ LPCONNECTION cserver::findConnectionByID(u_long ID)
 	LPCONNECTION c;
 	for(c=connections;c;c=c->next )
 	{
-		if(c->ID==ID)
+		if(c->getID()==ID)
 		{
 			connections_mutex_unlock();
 			return c;

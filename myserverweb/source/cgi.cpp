@@ -580,7 +580,8 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "SERVER_PROTOCOL=";
 	memCgi << td->request.VER;	
 	
-	memCgi << end_str << "SERVER_PORT="<< CMemBuf::UIntToStr(td->connection->localPort);
+	memCgi << end_str << "SERVER_PORT="<< CMemBuf::UIntToStr(
+                                                 td->connection->getLocalPort());
 
 	memCgi << end_str << "SERVER_ADMIN=";
 	memCgi << lserver->getServerAdmin();
@@ -652,22 +653,22 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << td->request.HOST;
 	}
 
-	if(td->connection->ipAddr[0])
+	if(td->connection->getipAddr()[0])
 	{
 		memCgi << end_str << "REMOTE_ADDR=";
-		memCgi << td->connection->ipAddr;
+		memCgi << td->connection->getipAddr();
 	}
 
-	if(td->connection->port)
+	if(td->connection->getPort())
 	{
 	 	memCgi << end_str << "REMOTE_PORT=";
-		memCgi << CMemBuf::UIntToStr(td->connection->port);
+		memCgi << CMemBuf::UIntToStr(td->connection->getPort() );
 	}
 
-	if(td->connection->login[0])
+	if(td->connection->getLogin()[0])
 	{
-	  	memCgi << end_str << "REMOTE_USER=";
-		memCgi << td->connection->login;
+    memCgi << end_str << "REMOTE_USER=";
+		memCgi << td->connection->getLogin();
 	}
 	
 	if(((vhost*)(td->connection->host))->protocol==PROTOCOL_HTTPS)

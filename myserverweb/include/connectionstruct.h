@@ -42,50 +42,36 @@ typedef u_long CONNECTION_PROTOCOL;
 
 class CONNECTION
 {
-public:
   /*! IDentifier for the CONNECTION. */
   u_long ID;
-
-	/*! Pointer to the thread struct that is using the CONNECTION. */
-	void *thread;
-
 	/*! The server is parsing this connection. */
 	int parsing;
-	
+
+	/*! Remote port used.  */
+	u_short port;
+
 	/*! Login name. */
 	char login[20];
 	
 	/*! Password used to log in. */
 	char password[32];
-	
+
 	/*! # of tries for an authorized login. */
 	char nTries;
-	
+
 	/*! Remote IP address.  */
 	char ipAddr[MAX_IP_STRING_LEN];
 	
 	/*! Local IP used to connect to.  */
 	char localIpAddr[MAX_IP_STRING_LEN];
-	
-	/*! Remote port used.  */
-	u_short port;
-	
+
 	/*! Local port used to connect to.  */
 	u_short localPort;
-	
-	/*! Connection socket.  */
-	MYSERVER_SOCKET socket;
-	
+
 	/*! Current timeout for the connection.  */
 	u_long timeout;
-	
-	/*! Next CONNECTION in linked list.  */
-	CONNECTION* next;
-	
-	/*! Pointer to an host structure.  */
-	void *host;
-	
-	/*! Data size read in the buffersize2.  */
+
+  /*! Number of bytes ready in the buffer. */
 	int dataRead;
 	
 	/*
@@ -98,6 +84,58 @@ public:
 	
 	/*! Force the connection to be parsed.  */
 	int forceParsing;
+public:
+  u_long getID();
+  void setID(u_long);
+
+	/*! Pointer to the thread struct that is using the CONNECTION. */
+	void *thread;
+
+  void setParsing(int);
+  int isParsing();
+
+  u_short getPort();
+  void setPort(u_short);
+	
+  u_short getLocalPort();
+  void setLocalPort(u_short);
+
+  char* getLogin();
+  void setLogin(char*);
+
+  char* getPassword();
+  void setPassword(char*);
+
+	void setnTries(char);
+	char getnTries();
+	void incnTries();
+
+  char* getipAddr();
+  void setipAddr(char*);
+
+  char* getlocalIpAddr();
+  void setlocalIpAddr(char*);
+
+	u_long getTimeout();
+  void setTimeout(u_long);
+
+	/*! Connection socket.  */
+	MYSERVER_SOCKET socket;
+	
+	/*! Next CONNECTION in linked list.  */
+	CONNECTION* next;
+	
+	/*! Pointer to an host structure.  */
+	void *host;
+	
+  int getDataRead();
+  void setDataRead(int);
+
+  int getToRemove();
+  void setToRemove(int);
+
+  int getForceParsing();
+  void setForceParsing(int);	
 	
 	/*! This buffer must be used only by the ClientsTHREAD class.  */
 	char connectionBuffer[KB(8)];

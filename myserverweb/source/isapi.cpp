@@ -531,7 +531,7 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 		return 0;
 
 	if(valLen+30<maxLen)
-		valLen+=sprintf(&ValStr[valLen],"SERVER_PORT:%u\n",td->connection->localPort);
+		valLen+=sprintf(&ValStr[valLen],"SERVER_PORT:%u\n",td->connection->getLocalPort());
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -541,13 +541,13 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->connection->ipAddr[0] && valLen+30<maxLen)
-		valLen+=sprintf(&ValStr[valLen],"REMOTE_ADDR:\n",td->connection->ipAddr);
+	if(td->connection->getipAddr()[0] && valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"REMOTE_ADDR:\n",td->connection->getipAddr());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->connection->port && valLen+30<maxLen)
-		valLen+=sprintf(&ValStr[valLen],"REMOTE_PORT:%u\n",td->connection->port);
+	if(td->connection->getPort() && valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"REMOTE_PORT:%u\n",td->connection->getPort());
 	else if(valLen+30<maxLen) 
 		return 0;
 

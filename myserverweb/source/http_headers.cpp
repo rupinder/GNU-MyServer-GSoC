@@ -529,17 +529,19 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 					return 0;
 				char* lbuffer2=base64Utils.Decode(base64,&len);
 				char* keep_lbuffer2=lbuffer2;
+        char *login = td->connection->getLogin();
 				for(i=0;(*lbuffer2!=':') && (i<19);i++)
 				{
-					td->connection->login[i]=*lbuffer2++;
-					td->connection->login[i+1]='\0';
+					login[i]=*lbuffer2++;
+          login[i+1]='\0';
 				}
-				myserver_strlcpy(td->identity,td->connection->login,32+1);
-                		lbuffer2++;
+				myserver_strlcpy(td->identity,td->connection->getLogin(),32+1);
+        lbuffer2++;
+        char* password = td->connection->getPassword();
 				for(i=0;(*lbuffer2)&&(i<31);i++)
 				{
-					td->connection->password[i]=*lbuffer2++;
-					td->connection->password[i+1]='\0';
+					password[i]=*lbuffer2++;
+					password[i+1]='\0';
 				}
 				tokenOff = getCharInString(token,"\r\n",HTTP_REQUEST_AUTH_DIM);
 			}
@@ -600,14 +602,14 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken," \"");
-						myserver_strlcpy(td->request.digest_cnonce,digestToken,48+1);
+						myserver_strlcpy(td->request.digest_cnonce, digestToken, 48+1);
 					}
-					else if(!lstrcmpi(digestToken,"username"))
+					else if(!lstrcmpi(digestToken, "username"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_username,digestToken,48+1);
-						myserver_strlcpy(td->connection->login,digestToken,48+1);
+						StrTrim(digestToken, "\" ");
+						myserver_strlcpy(td->request.digest_username, digestToken, 48+1);
+						myserver_strlcpy(td->connection->getLogin(), digestToken, 48+1);
 					}
 					else if(!lstrcmpi(digestToken,"response"))
 					{
