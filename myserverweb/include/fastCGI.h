@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/connectionstruct.h"
 #include "../include/stringutils.h"
-
+#include "../include/threads.h"
 
 /*!
  * Listening socket file number
@@ -155,19 +155,13 @@ typedef struct {
     FCGI_UnknownTypeBody body;
 } FCGI_UnknownTypeRecord;
 
-struct fCGIContext
-{
-	httpThreadContext* td;
-	int fcgiPID;
-	MYSERVER_SOCKET sock;
-	MYSERVER_FILE tempOut;
-};
 struct sfCGIservers
 {
-	char *path;/*!server executable path*/
+  /*! Server executable path. */
+	char *path;
 	union 
 	{
-	    unsigned long fileHandle;
+    unsigned long fileHandle;
 		SOCKET sock;
 		unsigned int value;
 	}DESCRIPTOR;
@@ -177,25 +171,39 @@ struct sfCGIservers
 	int pid; 
 	/*! IP port.  */
 	u_short port;
+  sfCGIservers* next;
 };
 
-
+struct fCGIContext
+{
+	httpThreadContext* td;
+  sfCGIservers* server;
+	MYSERVER_SOCKET sock;
+	MYSERVER_FILE tempOut;
+};
 class fastcgi
 {
 private:
+  static  int max_fcgi_servers;
 	static int initialized;
-	static struct sfCGIservers fCGIservers[MAX_FCGI_SERVERS];
+  static myserver_mutex servers_mutex;
+	static struct sfCGIservers *fCGIservers;
+
 	/*! Number of thread currently loaded.  */
 	static int fCGIserversN;
-	int FcgiConnectSocket(fCGIContext*,int);
+
+	int FcgiConnectSocket(fCGIContext*,sfCGIservers*);
 	void generateFcgiHeader( FCGI_Header&, int ,int, int );
 	MYSERVER_SOCKET getFcgiConnection();
 	int buildFASTCGIEnvironmentString(httpThreadContext*,char*,char*);
 	int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
-	int isFcgiServerRunning(char*);
-	int runFcgiServer(fCGIContext*,char*);
-	int FcgiConnect(fCGIContext*,char*);
+	sfCGIservers* isFcgiServerRunning(char*);
+  sfCGIservers* runFcgiServer(fCGIContext*,char*);
+	sfCGIservers* FcgiConnect(fCGIContext*,char*);
+
 public:
+  static void setMaxFcgiServers(int);
+  static int getMaxFcgiServers();
 	fastcgi();
 	static int initializeFASTCGI();
 	int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,

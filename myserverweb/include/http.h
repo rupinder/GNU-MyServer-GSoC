@@ -66,6 +66,8 @@ private:
 	static int useMessagesFiles;	
 	static char *defaultFilename;
 	static u_long nDefaultFilename;	
+  static int cgi_timeout;
+  static int fastcgi_servers;
 	mscgi lmscgi;
 	wincgi lwincgi;
 	isapi lisapi;
@@ -116,6 +118,7 @@ public:
                         int bs2, u_long nbtr, u_long id);
 	static int loadProtocol(cXMLParser*,char*);
 	static int unloadProtocol(cXMLParser*);
+  int getCGItimeout();
 };
 
 

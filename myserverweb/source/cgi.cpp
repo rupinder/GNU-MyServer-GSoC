@@ -53,6 +53,11 @@ extern "C" {
 #endif
 
 /*!
+ *By default use a timeout of 15 seconds on new processes.
+ */
+int cgi::cgi_timeout = SEC(15);
+
+/*!
  *Run the standard CGI and send the result to the client.
  */
 int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
@@ -359,7 +364,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	spi.envString=(char*)td->buffer2->GetBuffer();
 
   /*! Execute the CGI process. */
-	if(execHiddenProcess(&spi, SEC(15) ))
+	if( execHiddenProcess(&spi, cgi_timeout) )
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
@@ -808,3 +813,18 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str;
 }
 
+/*!
+ *Set the CGI timeout for the new processes.
+ */
+void cgi::setTimeout(int nt)
+{
+   cgi_timeout = nt;
+}
+
+/*!
+ *Get the timeout value for CGI processes.
+ */
+int cgi::getTimeout()
+{
+  return cgi_timeout;
+}

@@ -67,7 +67,6 @@ int http::mscgiLoaded=0;
 /*! Path to the .css file used by directory browsing.  */
 char *http::browseDirCSSpath=0;
 
-
 /*! Threshold value to send data in gzip.  */
 u_long http::gzip_threshold=0;
 
@@ -83,6 +82,11 @@ u_long http::nDefaultFilename=0;
 /*! Is the HTTP protocol loaded?  */
 int http::initialized=0;
 
+/*! If not specified differently use a timeout of 15 seconds.  */
+int http::cgi_timeout=SEC(15);
+
+/*! Max number of FastCGI servers allowed to run. */
+int http::fastcgi_servers;
 
 /*!
  *Browse a folder printing its contents in an HTML file.
@@ -764,6 +768,14 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 	h.closeFile();
 	return 1;
 
+}
+
+/*!
+ *Get the timeout for the cgi.
+ */
+int http::getCGItimeout()
+{
+  return cgi_timeout;
 }
 
 /*!
@@ -2903,6 +2915,8 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
    *Store defaults value.  
    *By default use GZIP with files bigger than a MB.  
    */
+  cgi_timeout = SEC(15);
+  fastcgi_servers = 25;
 	gzip_threshold=1<<20;
 	useMessagesFiles=1;
   if(browseDirCSSpath)
@@ -2919,6 +2933,16 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	if(data)
 	{
 		gzip_threshold=atoi(data);
+	}	
+	data=configurationFileManager.getValue("CGI_TIMEOUT");
+	if(data)
+	{
+		cgi_timeout=SEC(atoi(data));
+	}	
+	data=configurationFileManager.getValue("FASTCGI_MAX_SERVERS");
+	if(data)
+	{
+    fastcgi_servers=atoi(data);
 	}	
 	data=configurationFileManager.getValue("USE_ERRORS_FILES");
 	if(data)
@@ -2938,6 +2962,9 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
       strcpy(browseDirCSSpath, data);
     }
 	}
+
+  cgi::setTimeout(cgi_timeout);
+  fastcgi::setMaxFcgiServers(fastcgi_servers);
 
 	/*! Determine the number of default filenames written in the configuration file.  */
 	nDefaultFilename=0;

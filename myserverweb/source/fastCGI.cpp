@@ -26,10 +26,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 #include "../include/HTTPmsg.h"
 
-struct sfCGIservers fastcgi::fCGIservers[MAX_FCGI_SERVERS];
-int fastcgi::fCGIserversN=0;/*!Number of thread currently loaded*/
+struct sfCGIservers *fastcgi::fCGIservers = 0;
+
+/*! Number of thread currently loaded. */
+int fastcgi::fCGIserversN=0;
+
+/*! Is the fastcgi initialized? */
 int fastcgi::initialized=0;
 
+/*! By default allows 25 servers. */
+int fastcgi::max_fcgi_servers=25;
+
+/*! Mutex used to access fastCGI servers. */
+myserver_mutex fastcgi::servers_mutex;
 struct fourchar
 {	
 	union
@@ -38,6 +47,22 @@ struct fourchar
 		unsigned char c[4];
 	};
 };
+
+/*!
+ *Set a new value for the max number of servers that can be executed.
+ */
+void fastcgi::setMaxFcgiServers(int max)
+{
+  max_fcgi_servers = max;
+}
+
+/*!
+ *Get the max number of servers that can be executed.
+ */
+int fastcgi::getMaxFcgiServers()
+{
+  return max_fcgi_servers;
+}
 
 /*!
  *Entry-Point to manage a FastCGI request.
@@ -145,9 +170,9 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                          MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS | 
                          MYSERVER_FILE_NO_INHERIT);
 
-	int p_id = FcgiConnect(&con,fullpath);
+  sfCGIservers* server = FcgiConnect(&con,fullpath);
   delete [] fullpath;
-	if(p_id<0)
+	if(server == 0)
   {
 		td->buffer->SetLength(0);
 		*td->buffer<< "Error FastCGI to get process ID\r\n" << '\0';
@@ -606,9 +631,11 @@ int fastcgi::initializeFASTCGI()
 {
 	if(initialized)
 		return 1;
+  fCGIservers = 0;
 	fCGIserversN=0;
 	memset(&fCGIservers, 0, sizeof(fCGIservers));
 	initialized=1;
+  servers_mutex.myserver_mutex_init();
 	return 1;
 }
 
@@ -617,48 +644,63 @@ int fastcgi::initializeFASTCGI()
  */
 int fastcgi::cleanFASTCGI()
 {
-	for(int i=0;i<fCGIserversN;i++)
-	{
+  sfCGIservers* list = fCGIservers;
+  servers_mutex.myserver_mutex_lock();
+  while(list)
+  {
     /*! If the server is a remote one do nothing. */
-		if(fCGIservers[i].path[0]!='@')
+		if(list->path[0]!='@')
     {
-      fCGIservers[i].socket.closesocket();
-      terminateProcess(fCGIservers[i].pid);
+      list->socket.closesocket();
+      terminateProcess(list->pid);
     }
-    delete [] fCGIservers[i].path;
-	}
+    delete [] list->path;
+
+    sfCGIservers* toremove = list;
+    list = list->next;
+    delete toremove;
+  }
+  servers_mutex.myserver_mutex_unlock();
+  list = 0;
+  servers_mutex.myserver_mutex_destroy();
 	initialized=0;
 	return 1;
 }
 
 /*!
- *Return the position in the array of the server indicated by path.
- *A negative value is returned when the server is not running.
+ *Return the the running server speicified by path.
+ *If the server is not running returns 0.
  */
-int fastcgi::isFcgiServerRunning(char* path)
+sfCGIservers* fastcgi::isFcgiServerRunning(char* path)
 {
-	for(int i=0;i<fCGIserversN;i++)
-	{
-		if(fCGIservers[i].path && (!lstrcmpi(path,fCGIservers[i].path)))
-			return i;
-	}
-	return -1;
+  servers_mutex.myserver_mutex_lock();
+  sfCGIservers *cur = fCGIservers;
+  while(cur)
+  {
+    if(cur->path && (!lstrcmpi(path,cur->path)))
+    {
+      servers_mutex.myserver_mutex_unlock();
+			return cur;  
+    }
+  }
+  servers_mutex.myserver_mutex_unlock();
+	return 0;
 }
 
 /*!
  *Get a client socket in the fCGI context structure
  */
-int fastcgi::FcgiConnectSocket(fCGIContext* con,int pID)
+int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 {
 	unsigned long pLong = 1L;
-	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(fCGIservers[pID].host);
+	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(server->host);
 
 	struct sockaddr_in sockAddr;
 	int sockLen = sizeof(sockAddr);
   memset(&sockAddr, 0, sizeof(sockAddr));
   sockAddr.sin_family = AF_INET;
 	memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
-	sockAddr.sin_port = htons(fCGIservers[pID].port);
+	sockAddr.sin_port = htons(server->port);
   
 	/*! Try to create the socket. */
 	if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)
@@ -672,37 +714,37 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con,int pID)
 		return -1;
 	}
 	con->sock.ioctlsocket(FIONBIO, &pLong);
-	con->fcgiPID=pID;
+	con->server = server;
 	return 1;
 }
 
 /*!
  *Get a connection to the FastCGI server.
  */
-int fastcgi::FcgiConnect(fCGIContext* con,char* path)
+sfCGIservers* fastcgi::FcgiConnect(fCGIContext* con,char* path)
 {
-	int pID;
-	pID=runFcgiServer(con, path);
+
+	sfCGIservers* server = runFcgiServer(con, path);
 	/*!
    *If we find a valid server try the connection to it.
    */
-	if(pID>=0)
+	if(server)
 	{
 		/*!
      *Connect to the FastCGI server.
      */
-		int ret=FcgiConnectSocket(con,pID);
+		int ret=FcgiConnectSocket(con, server);
 		if(ret==-1)
-			return -1;
+			return 0;
 	}
-	return pID;
+	return server;
 }
 
 /*!
  *Run the FastCGI server.
  *If the path starts with a @ character, the path is handled as a remote server.
  */
-int fastcgi::runFcgiServer(fCGIContext*,char* path)
+sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 {
   /*! Flag to identify a local server(running on localhost) from a remote one. */
 	int localServer;
@@ -711,95 +753,119 @@ int fastcgi::runFcgiServer(fCGIContext*,char* path)
 	localServer=path[0]!='@';
 
   /*! Get the server position in the array. */
-	int pID=isFcgiServerRunning(path);
+  sfCGIservers* server	= isFcgiServerRunning(path);
 
   /*! If the process was yet initialized return its position. */
-	if(pID>=0)
-		return pID;
-	if(fCGIserversN==MAX_FCGI_SERVERS-2)
-		return -1;
+	if(server)
+		return server;
+	if(fCGIserversN==max_fcgi_servers-2)
+		return 0;
 	static u_short port=3333;
+
+  sfCGIservers* new_server = new sfCGIservers();
+  if(new_server == 0)
+    return 0;
+
 	{
 		/*! Create the server socket. */
 		if(localServer)
 		{/*! Initialize the local server. */
-			strcpy(fCGIservers[fCGIserversN].host,"localhost");
-			fCGIservers[fCGIserversN].port=port++;
-			fCGIservers[fCGIserversN].socket.socket(AF_INET,SOCK_STREAM,0);
-			if(fCGIservers[fCGIserversN].socket.getHandle()==
-                            (MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
-				return -2;
+			strcpy(new_server->host, "localhost");
+			new_server->port=port++;
+			new_server->socket.socket(AF_INET,SOCK_STREAM,0);
+			if(new_server->socket.getHandle() == (MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
+      {
+        delete new_server;
+				return 0;
+      }
 
 			MYSERVER_SOCKADDRIN sock_inserverSocket;
 			sock_inserverSocket.sin_family=AF_INET;
 
 			/*! The FastCGI server accepts connections only by the localhost. */
 			sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
-			sock_inserverSocket.sin_port=htons(fCGIservers[fCGIserversN].port);
-			if(fCGIservers[fCGIserversN].socket.bind((sockaddr*)&sock_inserverSocket, 
+			sock_inserverSocket.sin_port=htons(new_server->port);
+			if(new_server->socket.bind((sockaddr*)&sock_inserverSocket, 
                                                sizeof(sock_inserverSocket)))
 			{
-				fCGIservers[fCGIserversN].socket.closesocket();
-				return -2;
+				new_server->socket.closesocket();
+        delete new_server;
+				return 0;
 			}
-			if(fCGIservers[fCGIserversN].socket.listen(SOMAXCONN))
+			if(new_server->socket.listen(SOMAXCONN))
 			{
-				fCGIservers[fCGIserversN].socket.closesocket();
-				return -2;
+        new_server->socket.closesocket();
+				return 0;
 			}
-			fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=
-                                   fCGIservers[fCGIserversN].socket.getHandle();
+			new_server->DESCRIPTOR.fileHandle = new_server->socket.getHandle();
 			START_PROC_INFO spi;
 			spi.cwd=0;
 			spi.envString=0; 
 			spi.cmd=path;
-			spi.stdIn =
-             (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
+			spi.stdIn = (MYSERVER_FILE_HANDLE)new_server->DESCRIPTOR.fileHandle;
 			spi.cmdLine=path;
 
 			/*! No argument so clear it. */
 			spi.arg = NULL; 
-      fCGIservers[fCGIserversN].path = new char[strlen(spi.cmd)+1];
+      new_server->path = new char[strlen(spi.cmd)+1];
 
-      if(fCGIservers[fCGIserversN].path == 0)
-        return -1;
-			strcpy(fCGIservers[fCGIserversN].path, spi.cmd);
+      if(new_server->path == 0)
+      {
+        delete new_server;
+        return 0;
+      }
+			strcpy(new_server->path, spi.cmd);
 
 			spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
 
-			fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
+			new_server->pid=execConcurrentProcess(&spi);
 
-			if(fCGIservers[fCGIserversN].pid == -1)
+			if(new_server->pid == -1)
 			{
-				fCGIservers[fCGIserversN].socket.closesocket();
-				return -3;
+				new_server->socket.closesocket();
+        delete new_server;
+				return 0;
 			}
 		}/*! End local server initialization. */
 		else
-		{/*! Fill the structure with a remote server. */
-      fCGIservers[fCGIserversN].path = new char[ strlen(path) + 1 ];
+		{
+      /*! Fill the structure with a remote server. */
+      new_server->path = new char[ strlen(path) + 1 ];
       if(fCGIservers[fCGIserversN].path == 0)
-        return -1;
+      {
+        delete new_server;
+        return 0;
+      }
 			strcpy(fCGIservers[fCGIserversN].path, path);
 
       /*! Do not copy the @ character. */
 			int i=1;
 
-			memset(fCGIservers[fCGIserversN].host,0,128);
+			memset(new_server->host, 0, 128);
 
 			/*!
        *A remote server path has the form @hosttoconnect:porttouse.
        */
 			while(path[i]!=':')
-				fCGIservers[fCGIserversN].host[i-1]=path[i++];
-			fCGIservers[fCGIserversN].port=(u_short)atoi(&path[++i]);
+				new_server->host[i-1]=path[i++];
+			new_server->port=(u_short)atoi(&path[++i]);
 		}
 		
 	}
 
+  servers_mutex.myserver_mutex_lock();
+  new_server->next = fCGIservers;
+  fCGIservers = new_server;
+  servers_mutex.myserver_mutex_unlock();
+
   /*!
-   *If we arrive here increase the number of running servers and 
-   *return the number of running servers.
+   *Increase the number of running servers.
    */
-	return fCGIserversN++;
+  fCGIserversN++;
+  
+
+  /*!
+   *Return the new server.
+   */
+  return new_server;
 }

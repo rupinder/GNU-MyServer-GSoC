@@ -28,7 +28,10 @@ extern const char *versionOfSoftware;
 
 class cgi
 {
+  static int cgi_timeout;
 public:
+  static void setTimeout(int);
+  static int getTimeout();
 	int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,
               int cmd=CGI_CMD_RUNCGI, int only_header=0,int buildArg = 1);
 	static void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
