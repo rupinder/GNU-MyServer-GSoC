@@ -258,7 +258,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit24]
-FileName=rxrxnode.c
+FileName=rxnode.c
 CompileCpp=0
 Folder=librx
 Compile=1
@@ -268,7 +268,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit25]
-FileName=rxrxnode.h
+FileName=rxnode.h
 CompileCpp=0
 Folder=librx
 Compile=1
