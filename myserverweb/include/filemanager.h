@@ -55,6 +55,7 @@ public:
 	time_t getLastModTime();
 	time_t getCreationTime();
 	time_t getLastAccTime();
+	static void completePath(char*);
 	char *getFilename();
 	int operator =(MYSERVER_FILE);
 	static int isFolder(char*);

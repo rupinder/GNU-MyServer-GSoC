@@ -41,7 +41,6 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 
 	if(!MYSERVER_FILE::fileExists(filename))
 		return raiseHTTPError(td,s,e_404);
-	GetShortPathName(filename,filename,MAX_PATH);
 
 	char execname[MAX_PATH];
 	char pathname[MAX_PATH];

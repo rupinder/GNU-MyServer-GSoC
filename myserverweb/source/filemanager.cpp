@@ -485,7 +485,7 @@ void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
 	i = 0;
 	j = 0;
 	splitpoint =(int)( strlen(path) - 1);
-	while ((splitpoint > 0) && (path[splitpoint] != '/'))
+	while ((splitpoint > 0) && ((path[splitpoint] != '/')&&(path[splitpoint] != '\\')))
 		splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
@@ -525,4 +525,23 @@ void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
 		strcpy(ext, filename + nDot + 1);
 	else
 		ext[0] = 0;
+}
+/*
+*Complete the path of the file.
+*/
+void MYSERVER_FILE::completePath(char *fileName)
+{
+#ifdef WIN32
+	GetFullPathName(fileName,MAX_PATH,fileName,0);
+#endif
+#ifdef __linux__
+	if(filename[0]=='/')
+		return;
+	char buffer[MAX_PATH];
+	strcpy(buffer,fileName);
+	getdefaultwd(fileName);
+	strcat(fileName,"/");
+	strcat(fileName,buffer);
+#endif
+
 }

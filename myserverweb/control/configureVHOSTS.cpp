@@ -99,23 +99,23 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 	btnCNL= new wxButton(panel,Configuration_Cancel,"Cancel",wxPoint(270,200),wxSize(50,25));
 	btnSAVE= new wxButton(panel,Configuration_Save,"Save",wxPoint(220,200),wxSize(50,25));
 
-	wxStaticText *hostPortS= new wxStaticText(panel, -1, "Set the port used",wxPoint(320,10), wxSize(100,40));
-	hostPort=new wxTextCtrl(panel,Configuration_hostPortMod,"",wxPoint(420,10), wxSize(40,20));
+	wxStaticText *hostPortS= new wxStaticText(panel, -1, "Listening port",wxPoint(320,10), wxSize(100,40));
+	hostPort=new wxTextCtrl(panel,Configuration_hostPortMod,"",wxPoint(390,10), wxSize(40,20));
 
 	wxStaticText *hostDocS= new wxStaticText(panel, -1, "Document root",wxPoint(320,30), wxSize(100,40));
-	hostDoc=new wxTextCtrl(panel,Configuration_hostDocMod,"",wxPoint(420,30), wxSize(210,20));
+	hostDoc=new wxTextCtrl(panel,Configuration_hostDocMod,"",wxPoint(390,30), wxSize(240,20));
 
 	wxStaticText *hostSysS= new wxStaticText(panel, -1, "System folder",wxPoint(320,50), wxSize(100,40));
-	hostSys=new wxTextCtrl(panel,Configuration_hostSysMod,"",wxPoint(420,50), wxSize(210,20));
+	hostSys=new wxTextCtrl(panel,Configuration_hostSysMod,"",wxPoint(390,50), wxSize(240,20));
 
-	wxStaticText *hostAccS= new wxStaticText(panel, -1, "Accesses log file",wxPoint(320,70), wxSize(100,40));
-	hostAcc=new wxTextCtrl(panel,Configuration_hostAccMod,"",wxPoint(420,70), wxSize(210,20));
+	wxStaticText *hostAccS= new wxStaticText(panel, -1, "Accesses log",wxPoint(320,70), wxSize(100,40));
+	hostAcc=new wxTextCtrl(panel,Configuration_hostAccMod,"",wxPoint(390,70), wxSize(240,20));
 
-	wxStaticText *hostWarningsS= new wxStaticText(panel, -1, "Warnings log file",wxPoint(320,90), wxSize(100,40));
-	hostWarnings=new wxTextCtrl(panel,Configuration_hostWarningsMod,"",wxPoint(420,90), wxSize(210,20));
+	wxStaticText *hostWarningsS= new wxStaticText(panel, -1, "Warnings log",wxPoint(320,90), wxSize(100,40));
+	hostWarnings=new wxTextCtrl(panel,Configuration_hostWarningsMod,"",wxPoint(390,90), wxSize(240,20));
 
 	wxStaticText *hostProtocolS= new wxStaticText(panel, -1, "Protocol used",wxPoint(320,110), wxSize(100,40));
-	hostProtocol=new wxListBox(panel,Configuration_protocolMod,wxPoint(420,110), wxSize(210,20),0, NULL,wxLB_HSCROLL);
+	hostProtocol=new wxListBox(panel,Configuration_protocolMod,wxPoint(390,110), wxSize(240,20),0, NULL,wxLB_HSCROLL);
 	hostProtocol->Insert(_T("HTTP"),PROTOCOL_HTTP);
 
 	vhostmanager::sVhostList *sl = hostmanager.getvHostList();

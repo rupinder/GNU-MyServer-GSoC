@@ -204,7 +204,12 @@ int MIME_Manager::loadXML(char *filename)
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
 			{
 				if(lcur->children->content)
-					strcpy(rc.cgi_manager,(char*)lcur->children->content);
+				{
+					if(strcmpi((char*)lcur->children->content,"NONE"))
+						strcpy(rc.cgi_manager,(char*)lcur->children->content);
+					else
+						rc.cgi_manager[0]='\0';
+				}
 			}
 			lcur=lcur->next;
 		}

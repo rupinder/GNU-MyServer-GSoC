@@ -353,7 +353,9 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*If filename is already mapped on the file system don't map it again.
 	*/
 	if(yetmapped)
-		strcpy((td->filenamePath),filename);
+	{
+		strcpy(td->filenamePath,filename);
+	}
 	else
 	{
 		/*
@@ -364,7 +366,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		{
 			return raiseHTTPError(td,s,e_401);
 		}
-
 		getPath(td,td->filenamePath,filename,systemrequest);
 	}
 	/*
@@ -406,18 +407,20 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
 	*PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
 	*/
-	if((td->pathInfo[0])&&(td->pathInfo[0]!='/'))
+	if(td->pathInfo[0])
 	{
         td->pathTranslated[0]='\0';
 		/*
-		*Start from the second character cause the first is a slash character.
+		*Start from the second character because the first is a slash character.
 		*/
 		getPath(td,(td->pathTranslated),&((td->pathInfo)[1]),false);
+		MYSERVER_FILE::completePath(td->pathTranslated);
 	}
 	else
 	{
         td->pathTranslated[0]='\0';
 	}
+	MYSERVER_FILE::completePath(td->filenamePath);
 	/*
 	*If there are not any extension then we do one of this in order:
 	1)We send the default files in the folder in order.
@@ -494,7 +497,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	{
 #ifdef WIN32
 		char cgipath[MAX_PATH*2];
-		sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		if(data[0])
+			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		else
+			sprintf(cgipath,"%s",td->filenamePath);
+
 		return sendISAPI(td,s,td->filenamePath,ext,cgipath);
 #endif
 #ifdef __linux__
@@ -518,7 +525,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)
 	{
 		char cgipath[MAX_PATH*2];
-		sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		if(data[0])
+			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		else
+			sprintf(cgipath,"%s",td->filenamePath);
 	
 		int ret=sendWINCGI(td,s,cgipath);
 		if(td->outputData.getHandle())
@@ -553,7 +563,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
 	{
 		char cgipath[MAX_PATH*2];
-		sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		if(data[0])
+			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		else
+			sprintf(cgipath,"%s",td->filenamePath);
+
 		int ret = sendFASTCGI(td,s,td->filenamePath,ext,cgipath);
 		if(td->outputData.getHandle())
 		{
