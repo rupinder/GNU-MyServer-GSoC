@@ -93,7 +93,7 @@ void cserver::start()
 	{
 		mustEndServer=1;
 		lserver->terminate();
-		wait(2000);/*!Wait for a while*/
+		wait(5000);/*!Wait for a while*/
 		mustEndServer=0;
 	}
 	/*!
@@ -119,18 +119,20 @@ void cserver::start()
 	*Print the MyServer signature.
 	*/
 	char *software_signature=(char*)malloc(200);
-	sprintf(software_signature,"************MyServer %s************",versionOfSoftware);
-
-	i=(u_long)strlen(software_signature);
-	while(i--)
-		printf("*");
-    	printf("\n%s\n",software_signature);
-	i=(u_long)strlen(software_signature);
-	while(i--)
-		printf("*");
-	printf("\n");
-	free(software_signature);
-
+	if(software_signature)
+	{
+		sprintf(software_signature,"************MyServer %s************",versionOfSoftware);
+	
+		i=(u_long)strlen(software_signature);
+		while(i--)
+			printf("*");
+			printf("\n%s\n",software_signature);
+		i=(u_long)strlen(software_signature);
+		while(i--)
+			printf("*");
+		printf("\n");
+		free(software_signature);
+	}
 	/*!
 	*Set the current working directory.
 	*/
@@ -229,7 +231,6 @@ void cserver::start()
 	*/
 	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
 	{
-			printf("aaa\r\n\r\n\r\n\r\n");
 			MYSERVER_FILE inputF;
 			MYSERVER_FILE outputF;
 			int ret=inputF.openFile("MIMEtypes.xml.default",MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
@@ -1013,7 +1014,7 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 		else
 			connectionToParse=connectionToParse->next;
 	}
-	else
+	if(!connectionToParse)
 	{/*!Restart loop if the connectionToParse points to the last element*/
 		connectionToParse=connections;
 	}

@@ -41,7 +41,9 @@ int MIME_Manager::load(char *filename)
 	if(ret<1)
 		return 0;
 	u_long fs=f.getFileSize();
-	buffer=(char*)malloc(fs+1);
+	buffer=(char*)malloc(fs+1);	
+	if(!buffer)
+		return 0;
 	u_long nbw;
 	f.readFromFile(buffer,fs,&nbw);
 	f.closeFile();
@@ -411,6 +413,8 @@ void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 	if(getRecord(mr.extension))
 		removeRecord(mr.extension);
 	MIME_Manager::mime_record *nmr =(MIME_Manager::mime_record*)malloc(sizeof(mime_record));
+	if(!nmr)	
+		return;
 	memcpy(nmr,&mr,sizeof(mime_record));
 	nmr->next =data;
 	data=nmr;
