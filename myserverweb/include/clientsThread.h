@@ -39,6 +39,7 @@ class  ClientsTHREAD
 	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 #endif
 private:
+	int working;
 	int initialized;
 	u_long id;
 	int err;

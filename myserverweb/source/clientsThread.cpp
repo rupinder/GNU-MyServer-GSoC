@@ -65,6 +65,7 @@ void * startClientsTHREAD(void* pParam)
 	ClientsTHREAD *ct=&lserver->threads[id];
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
+	ct->working=0;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
 	ct->buffer=new char[ct->buffersize];
@@ -80,7 +81,9 @@ void * startClientsTHREAD(void* pParam)
 	*/
 	while(ct->threadIsRunning) 
 	{
+		ct->working=1;
 		ct->controlConnections();
+		ct->working=0;
 		wait(1);
 	}
 	ct->threadIsStopped=1;
@@ -104,14 +107,12 @@ void ClientsTHREAD::controlConnections()
 		return;
 	if(c->check_value!=CONNECTION::check_value_const)
 		return;
-	c->parsing=1;
 	nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
 	if(nBytesToRead)
 	{
 		err=c->socket.recv(&buffer[c->dataRead],KB(8)-c->dataRead, 0);
 		if(err==-1)
 		{
-			c->parsing=0;
 			lserver->deleteConnection(c,this->id);
 			return;
 		}
@@ -121,7 +122,6 @@ void ClientsTHREAD::controlConnections()
 		}
 		else
 		{
-			c->parsing=0;
 			lserver->deleteConnection(c,this->id);
 			return;
 		}
@@ -157,7 +157,6 @@ void ClientsTHREAD::controlConnections()
 		*/
 		if(retcode==0)
 		{
-			c->parsing=0;
 			lserver->deleteConnection(c,this->id);
 			return;
 		}
@@ -187,12 +186,10 @@ void ClientsTHREAD::controlConnections()
 		*/
 		if((clock()- c->timeout) > lserver->connectionTimeout)
 		{
-			c->parsing=0;
 			lserver->deleteConnection(c,this->id);
 			return;
 		}
 	}
-	c->parsing=0;
 }
 /*
 *Stop the thread
@@ -213,6 +210,7 @@ void ClientsTHREAD::stop()
 */
 void ClientsTHREAD::clean()
 {
+	while(working);
 	if(initialized==0)/*If the thread was not initialized return from the clean function*/
 		return;
 	if(buffer)
