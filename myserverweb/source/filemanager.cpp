@@ -34,9 +34,6 @@ extern "C" {
 #include <string.h>
 }
 
-static bool Temp_List_Int = false;
-static char * Temp_Files[100];
-
 #define lstrcmpi strcmp
 #define lstrcpy strcpy
 #define lstrcat strcat
@@ -163,12 +160,6 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 	}
 
 #else
-	if(!Temp_List_Int)
-	{
-		memset(Temp_Files, 0, 100);
-		Temp_List_Int = true;
-	}
-	
 	struct stat F_Stats;
 	int F_Flags;
 	
@@ -183,7 +174,7 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 		
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 	{
-		unsigned int index;
+		int index;
 		Buffer[0] = '\0';
 		for(index = strlen(filename); index >= 0; index--)
 			if(filename[index] == '/')
@@ -211,7 +202,7 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 	else if(opt & MYSERVER_FILE_OPEN_APPEND)
 	{
 		if(stat(filename, &F_Stats) < 0)
-			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags);
+			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
 			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_APPEND | F_Flags);
 	}
@@ -220,7 +211,7 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 		if(stat(filename, &F_Stats))
 			remove(filename);
 
-		ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags);
+		ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 	}
 	else if(opt & MYSERVER_FILE_OPEN_ALWAYS)
 	{
@@ -228,22 +219,11 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 	}
 	
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
-	{
-		Temp_Files[(int)ret] = new char[strlen(Buffer)];
-		strcpy(Temp_Files[(int)ret], Buffer);
-	}
-	else
-	{
-		if(Temp_Files[(int)ret] != NULL)
-			delete[] Temp_Files[(int)ret];
-		Temp_Files[(int)ret] = NULL;
-	}
+		unlink(Buffer); // Remove File on close
 	
-	if(ret < 0)
-	{
-		ret = 0;
-	}
-
+	if((int)ret < 0)
+		ret = (MYSERVER_FILE_HANDLE)0;
+		
 #endif
 	
 	return ret;
@@ -284,15 +264,6 @@ int ms_CloseFile(MYSERVER_FILE_HANDLE fh)
 #else
 	fsync((int)fh);
 	close((int)fh);
-	
-	// see if it was a temp
-	if(Temp_Files[(int)fh] != NULL)
-	{
-		remove(Temp_Files[(int)fh]);
-		delete[] Temp_Files[(int)fh];
-		Temp_Files[(int)fh] = NULL;
-	}
-
 #endif
 	
 	return 0;

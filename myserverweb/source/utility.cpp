@@ -154,8 +154,10 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		// map stdio to files
 		close(0); // close stdin
 		dup2((int)spi->stdIn, 0);
+		close((int)spi->stdIn);
 		close(1); // close stdout
 		dup2((int)spi->stdOut, 1);
+		close((int)spi->stdOut);
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
