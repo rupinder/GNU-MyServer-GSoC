@@ -44,7 +44,7 @@ int MimeManager::load(char *fn)
   filenamelen = strlen(fn) + 1;
   filename = new char[filenamelen];
 	
-	strncpy(MimeManager::filename,filename,MAX_PATH);
+	strncpy(MimeManager::filename,fn ,MAX_PATH);
 	numMimeTypesLoaded=0;
 
 	ret=f.openFile(filename,FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
