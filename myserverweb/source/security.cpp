@@ -148,21 +148,21 @@ int getPermissionMask(char* user, char* password,char* directory,
 	int userPermissions2Found=0;
 	int genericPermissions2Found=0;
   xmlAttr *attr;
-
+	xmlNode *node;
 	tempPassword[0]='\0';
 	if(auth_type)
 		auth_type[0]='\0';
 
-	xmlNode *node;
   if(parser == 0)
   {
+    u_long filenamelen;
     permissionsFileLen = strlen(directory)+10;
     permissionsFile = new char[permissionsFileLen];
     if(permissionsFile == 0)
       return 0;
     sprintf(permissionsFile,"%s/security",directory);
 
-    u_long filenamelen=(u_long)(strlen(filename));
+    filenamelen=(u_long)(strlen(filename));
     while(filenamelen && filename[filenamelen]=='.')
     {
       filename[filenamelen--]='\0';
@@ -208,6 +208,7 @@ int getPermissionMask(char* user, char* password,char* directory,
 
 	while(node)
 	{
+    /*! Retrieve the authorization scheme to use. */
 		if(!xmlStrcmp(node->name, (const xmlChar *)"AUTH"))
 		{
 			attr =  node->properties;
@@ -216,7 +217,7 @@ int getPermissionMask(char* user, char* password,char* directory,
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"TYPE"))
 				{
 					if(auth_type)
-						strncpy(auth_type,(const char*)attr->children->content,len_auth);
+						strncpy(auth_type,(const char*)attr->children->content, len_auth);
 				}
 				attr=attr->next;
 			}
