@@ -13,7 +13,15 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	CgiManager cm(data);     
 	if(strlen(cmd)==0)     
 	{  	
-		cm.write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.png\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"text\" ID=\"T1\" size=\"20\">\r\n<p align=\"center\">\r\n+</p>\r\n</p>\r\n<p align=\"center\">\r\n <input type=\"text\" ID=\"T2\" size=\"20\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\">\r\n</p>\r\n<SCRIPT LANGUAGE=\"JavaScript\">\r\nfunction send()\r\n{\r\nvar url=\"math_sum.mscgi?a=\" + document.getElementById(\"T1\").value + \"&b=\" + document.getElementById(\"T2\").value;\r\nwindow.location.assign(url);\r\n}\r\n</SCRIPT>\r\n");
+		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
+\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n\
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\r\n\
+<head>\r\n<title>MyServer</title>\r\n\
+<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n\
+</head>\r\n<body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
+<br />\r\n<img src=\"logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n\
+<form action=\"math_sum.mscgi\" method=\"get\" enctype=\"text/plain\">\r\n\
+<div>\r\n<input type=\"text\" name=\"a\" size=\"20\" />\r\n<br /><br />\r\n+<br /><br /><br />\r\n<input type=\"text\" name=\"b\" size=\"20\" />\r\n<br /><br />\r\n<input type=\"submit\" value=\"Compute!\" />\r\n</div>\r\n</form>\r\n<br />\r\n</div>\r\n</body>\r\n</html>");
 	}     
 	else     
 	{ 	
@@ -22,7 +30,14 @@ extern "C" int main (char *cmd, MsCgiData* data)
 		char *tmp;
 		int iRes;
 		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
-		cm.write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.png\">\r\n<p align=\"center\">\r\n\r\n");		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
+		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
+\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n\
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\r\n\
+<head>\r\n<title>MyServer</title>\r\n\
+<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n\
+</head>\
+<body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
+<br /><br />\r\n<img src=\"logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n");		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
 		tmp = cm.getParam("a");
 		if (tmp && tmp[0] != '\0')
 		{
@@ -56,14 +71,14 @@ extern "C" int main (char *cmd, MsCgiData* data)
 		unsigned int dim=120;
 		char lb[120];
 		cm.getenv("SERVER_NAME",lb,&dim);
-		cm.write("\r\n<BR>\r\nRunning on: ");
+		cm.write("\r\n<br />\r\nRunning on: ");
 		cm.write(lb);
 		cm.write("(");
 		cm.getenv("HTTP_HOST",lb,&dim);
 		cm.write(lb);
 		cm.write(")\r\n");
 		
-		cm.write("</p>\r\n\r\n");
+		cm.write("</div>\r\n</body>\r\n</html>");
 	}
      cm.clean();
      return 0; 
