@@ -1,0 +1,107 @@
+AC_INIT(MyServer,0.6.1)
+AM_CONFIG_HEADER(config.h)
+AC_CANONICAL_HOST
+AM_INIT_AUTOMAKE
+AC_PROG_CC
+AC_PROG_CPP
+AC_AIX
+AC_ISC_POSIX
+AC_MINIX
+AC_HEADER_STDC
+AC_PROG_CXX
+AC_PROG_CXXCPP
+
+dnl Options
+AM_OPTIONS_WXCONFIG
+
+dnl Look for pthreads
+GNOME_PTHREAD_CHECK
+if test x$PTHREAD_LIB = x; then
+   AC_MSG_ERROR([
+*** This system apears to have no posix threads
+*** Threads are required for MyServer
+])
+fi
+AC_DEFINE(HAVE_PTHREAD, 1, [POSIX threads required for MyServer in a non-windows envorment])
+
+dnl Look for dl
+AC_CHECK_LIB(dl, dlopen, have_dl=yes)
+if test x$have_dl != xyes; then
+   AC_MSG_WARN([
+*** dlLIB not found
+*** MSCGI suport will not function
+])
+   DL_LIB=""
+else
+   DL_LIB="-ldl"
+fi
+AC_SUBST(DL_LIB)
+
+dnl Look for XML2
+AM_PATH_XML2(2.6.0, have_xml2=yes)
+if test x$have_xml2 != xyes; then
+    AC_MSG_ERROR([
+*** Cannot find libXML2
+*** libXML2 is required for MyServer
+])
+fi
+
+dnl Look for OpenSSL
+AC_CHECK_LIB(ssl, SSL_accept, have_ssl=yes)
+if test x$have_ssl != xyes; then
+   AC_MSG_WARN([
+*** Cannot find OpenSSL
+*** HTTPS and other SSL proticals will not be enabled
+])
+    AC_DEFINE(DO_NOT_USE_SSL, 1, [SSL suport in MyServer, define to 1 to disable])
+    OPENSSL_LIB=""
+else
+    OPENSSL_LIB="-lssl"
+fi
+AC_SUBST(OPENSSL_LIB)
+
+dnl Look for Zlib
+AC_CHECK_LIB(z, uncompress, have_libz=yes)
+if test x$have_libz != xyes; then
+    AC_MSG_WARN([
+*** Cannot find Zlib (http://www.gzip.org/zlib/)
+*** gzip file transfer will not be enabled
+])
+    AC_DEFINE(DO_NOT_USE_GZIP, 1, [Zlib compression, define to 1 to disable])
+    ZLIB_LIB=""
+else
+    ZLIB_LIB="-lz"
+    dnl Be sure that it is a good vr
+    AC_CHECK_LIB(z, compressBound, have_libz=yes)
+    if test x$have_libz != xyes; then
+        AC_MSG_WARN([
+*** Zlib is to old (http://www.gzip.org/zlib/)
+*** compressBound checking will not be enabled
+])
+    else
+        AC_DEFINE(GZIP_CHECK_BOUNDS, 1, [Memory checking for Zlib, not defined in older vrs])
+    fi
+fi
+AC_SUBST(ZLIB_LIB)
+
+dnl Look for libPNG
+AM_PATH_LIBPNG(1.2.0, have_png=yes)
+if test x$have_png != xyes; then
+    AC_MSG_WARN([
+*** Cannot find libPNG
+*** counter MSCGI example will not be built
+])
+fi
+
+dnl Look for wxwindows
+AM_PATH_WXCONFIG(2.4.0, have_wxwindows=yes)
+if test x$have_wxwindows != xyes; then
+    AC_MSG_WARN([
+*** Cannot find wxWindows
+*** control program will not be built
+])
+fi
+
+dnl AC_CONFIG_SUBDIRS()
+AC_CONFIG_FILES(Makefile source/Makefile)
+AC_OUTPUT
