@@ -24,17 +24,23 @@ extern "C"
 #include <string.h>
 }
 
-#ifndef PATH_MAX
-#define PATH_MAX 255
-#endif
-
+/*!
+ *Initialize class members.
+ */
 myserver_finddata_t::myserver_finddata_t()
 {
+#ifdef WIN32
+  ff = 0;
+#endif
 #ifdef NOT_WIN
   DirName = 0;
   dh = 0;
 #endif
 }
+
+/*!
+ *Free class members.
+ */
 myserver_finddata_t::~myserver_finddata_t()
 {
 #ifdef NOT_WIN
@@ -107,6 +113,8 @@ int myserver_finddata_t::findfirst(const char filename[])
 int myserver_finddata_t::findnext()
 {
 #ifdef WIN32
+  if(!ff)
+    return -1;
   int ret = _findnext(ff, &fd)? -1 : 0 ;
   if(ret!=-1)
   {
@@ -151,7 +159,12 @@ int myserver_finddata_t::findnext()
 int myserver_finddata_t::findclose()
 {
 #ifdef WIN32
-  _findclose(ff);
+  int ret;
+  if(!ff)
+    return -1;
+  ret = _findclose(ff);
+  ff = 0;
+  return ret;
 #endif
 #ifdef NOT_WIN
   if(dh)
