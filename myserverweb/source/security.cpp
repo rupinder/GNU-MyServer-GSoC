@@ -80,6 +80,7 @@ VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
 		*logonStatus=FALSE;
 	}
 }
+
 VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
@@ -92,6 +93,7 @@ VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
 		}
 	}
 }
+
 VOID logonGuest()
 {
 #ifdef WIN32
