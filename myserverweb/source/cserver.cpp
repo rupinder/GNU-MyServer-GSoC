@@ -47,6 +47,7 @@ extern "C" {
 #endif
 #endif
 }
+#include <sstream>
 
 #ifdef NOT_WIN
 #define LPINT int *
@@ -102,7 +103,7 @@ void Server::start()
   time_t myserver_main_conf;
   time_t myserver_hosts_conf;
   time_t myserver_mime_conf;
-  char* buffer;
+  string buffer;
   int err = 0;
   MYSERVER_HOSTENT *localhe=0;
   int os_ver=getOSVersion();
@@ -139,23 +140,24 @@ void Server::start()
    */
   if(logManager->getType() == LogManager::TYPE_CONSOLE )
   {
-    char *software_signature=new char[200];
+    string *software_signature=new string();
     if(software_signature)
     {
-      sprintf(software_signature, "************MyServer %s************", 
-              versionOfSoftware);
+      software_signature->assign("************MyServer ");
+      software_signature->append(versionOfSoftware);
+      software_signature->append("************");
 	
-      i=(u_long)strlen(software_signature);
+      i=software_signature->length();
       while(i--)
         logManager->write("*");
       logManager->writeln("");
-      logManager->write(software_signature);
+      logManager->write(software_signature->c_str());
       logManager->write("\n");    
-      i=(u_long)strlen(software_signature);
+      i=software_signature->length();
       while(i--)
         logManager->write("*");
       logManager->writeln("");
-      delete [] software_signature;
+      delete software_signature;
     }
   }
 	/*!
@@ -199,13 +201,11 @@ void Server::start()
    *Get the name of the local machine.
    */
 	Socket::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
-  buffer = new char[strlen(languageParser.getValue("MSG_GETNAME")) + 
-                    strlen(serverName) + 3];
-  if(buffer == 0)
-    return;
-  sprintf(buffer, "%s: %s", languageParser.getValue("MSG_GETNAME"), serverName);
-  logWriteln(buffer); 
-  delete [] buffer;
+  
+  buffer.assign(languageParser.getValue("MSG_GETNAME"));
+  buffer.append(" ");
+  buffer.append(serverName);
+  logWriteln(buffer.c_str()); 
 
 	/*!
    *Find the IP addresses of the local machine.
@@ -213,35 +213,26 @@ void Server::start()
 	localhe=Socket::gethostbyname(serverName);
 	in_addr ia;
 	ipAddresses[0]='\0';
-  buffer =  new char[ strlen(serverName) + 7];
-  if(buffer == 0)
-    return ;
-  sprintf(buffer, "Host: %s", serverName);
-  logWriteln(buffer ); 
-  delete [] buffer;
+  buffer.assign("Host: ");
+  buffer.append(serverName);
+  logWriteln(buffer.c_str() ); 
 	if(localhe)
 	{
-		/* Print all the interfaces IPs. */
+		/*! Print all the interfaces IPs. */
 		for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
 		{
-      char *inet_res;
+      ostringstream stream;
 #ifdef WIN32
 			ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 #endif
 #ifdef NOT_WIN
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
-      inet_res=inet_ntoa(ia);
-   
-      buffer = new char[strlen(languageParser.getValue("MSG_ADDRESS")) 
-                         + strlen(inet_res) + 10];
-      if(buffer == 0)
-        return;
-      sprintf(buffer,"%s #%u: %s",  languageParser.getValue("MSG_ADDRESS"), 
-             (u_int)(i+1) , inet_res);
 
-      logWriteln(buffer);
-      delete [] buffer;
+      stream <<  languageParser.getValue("MSG_ADDRESS") << " #" 
+             << (u_int)(i+1) << ": " << inet_ntoa(ia);
+      
+      logWriteln(stream.str().c_str());
 
 			sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", 
               strlen(ipAddresses)?", ":"", inet_ntoa(ia));
@@ -2101,7 +2092,7 @@ int Server::countAvailableThreads()
 /*!
  *Write a string to the log file and terminate the line.
  */
-int Server::logWriteln(char* str)
+int Server::logWriteln(const char* str)
 {
   /*!
    *If the log receiver is not the console output a timestamp.
@@ -2122,7 +2113,7 @@ int Server::logWriteln(char* str)
     if(logManager->write(time))
       return 1;
   }
-  return logManager->writeln(str);
+  return logManager->writeln((char*)str);
 }
 
 /*!
