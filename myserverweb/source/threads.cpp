@@ -60,7 +60,7 @@ void wait(u_long time)
 int	myserver_mutex::myserver_mutex_init()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_init(mutex, NULL);
+	pthread_mutex_init(&mutex, NULL);
 #else
 	mutex=CreateMutex(0,0,0);
 #endif
@@ -73,7 +73,7 @@ int	myserver_mutex::myserver_mutex_init()
 int myserver_mutex::myserver_mutex_destroy()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_destroy(mutex);	
+	pthread_mutex_destroy(&mutex);	
 #else
 	CloseHandle(mutex);
 #endif
@@ -87,7 +87,7 @@ int myserver_mutex::myserver_mutex_destroy()
 int myserver_mutex::myserver_mutex_lock(u_long id)
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_lock(mutex);
+	pthread_mutex_lock(&mutex);
 #else	
 	WaitForSingleObject(mutex,INFINITE);
 #endif
@@ -99,7 +99,7 @@ int myserver_mutex::myserver_mutex_lock(u_long id)
 int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(mutex);
+	pthread_mutex_unlock(&mutex);
 #else		
 	ReleaseMutex(mutex);
 #endif
