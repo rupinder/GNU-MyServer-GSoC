@@ -21,16 +21,13 @@
  */
 
 
-
 /*
  * Tom Lord (lord@cygnus.com, lord@gnu.ai.mit.edu)
  */
 
-
 #include "rxbitset.h"
 #include "rxcset.h"
 
-
 
 enum rexp_node_type
 {
@@ -65,18 +62,18 @@ struct rexp_node
 {
   int refs;
   enum rexp_node_type type;
-    struct s_pair
-      {
-	struct rexp_node *left;
-	struct rexp_node *right;
-      };  
+  
   struct
   {
     int cset_size;
     rx_Bitset cset;
-    int intval;
-    int intval2;
-    struct s_pair  pair;
+    long intval;
+    long intval2;
+    struct s_pair
+    {
+      struct rexp_node *left;
+      struct rexp_node *right;
+    }  pair;
     struct rx_string cstr;
   } params;
   int id;
@@ -87,7 +84,6 @@ struct rexp_node
 };
 
 
-
 #ifdef __STDC__
 extern int rx_adjoin_string (struct rx_string *str, char c);
 extern struct rexp_node * rexp_node (int type);

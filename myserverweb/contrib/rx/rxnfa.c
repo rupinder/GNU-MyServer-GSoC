@@ -16,20 +16,20 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-
+
 /*
  * Tom Lord (lord@cygnus.com, lord@gnu.ai.mit.edu)
  */
-
+
 
 #include "rxall.h"
 #include "rxnfa.h"
 
-
+
 
 #define remalloc(M, S) (M ? realloc (M, S) : malloc (S))
 
-
+
 /* {Low Level Data Structure Code}
  */
 
@@ -229,21 +229,21 @@ rx_build_nfa (rx, rexp, start, end)
 #endif
 {
   struct rx_nfa_edge *edge;
-
+  
   /* Start & end nodes may have been allocated by the caller. */
   *start = *start ? *start : rx_nfa_state (rx);
 
   if (!*start)
     return 0;
-
+  
   if (!rexp)
     {
       *end = *start;
       return 1;
     }
-
+  
   *end = *end ? *end : rx_nfa_state (rx);
-
+  
   if (!*end)
     {
       rx_free_nfa_state (*start);
@@ -268,132 +268,130 @@ rx_build_nfa (rx, rexp, start, end)
 
     case r_string:
       {
-	if (rexp->params.cstr.len == 1)
-	  {
-	    edge = rx_nfa_edge (rx, ne_cset, *start, *end);
-	    (*start)->has_cset_edges = 1;
-	    if (!edge)
-	      return 0;
-	    edge->params.cset = rx_cset (rx->local_cset_size);
-	    if (!edge->params.cset)
-	      {
-		rx_free_nfa_edge (edge);
-		return 0;
-	      }
-	    RX_bitset_enjoin (edge->params.cset, rexp->params.cstr.contents[0]);
-	    return 1;
-	  }
-	else
-	  {
-	    struct rexp_node copied;
-	    struct rx_nfa_state * shared;
-
-	    copied = *rexp;
-	    shared = 0;
-	    copied.params.cstr.len--;
-	    copied.params.cstr.contents++;
-	    if (!rx_build_nfa (rx, &copied, &shared, end))
-	      return 0;
-	    copied.params.cstr.len = 1;
-	    copied.params.cstr.contents--;
-	    return rx_build_nfa (rx, &copied, start, &shared);
-	  }
+        if (rexp->params.cstr.len == 1)
+          {
+            edge = rx_nfa_edge (rx, ne_cset, *start, *end);
+            (*start)->has_cset_edges = 1;
+            if (!edge)
+              return 0;
+            edge->params.cset = rx_cset (rx->local_cset_size);
+            if (!edge->params.cset)
+              {
+                rx_free_nfa_edge (edge);
+                return 0;
+              }
+            RX_bitset_enjoin (edge->params.cset, rexp->params.cstr.contents[0]);
+            return 1;
+          }
+        else
+          {
+            struct rexp_node copied;
+            struct rx_nfa_state * shared;
+            
+            copied = *rexp;
+            shared = 0;
+            copied.params.cstr.len--;
+            copied.params.cstr.contents++;
+            if (!rx_build_nfa (rx, &copied, &shared, end))
+              return 0;
+            copied.params.cstr.len = 1;
+            copied.params.cstr.contents--;
+            return rx_build_nfa (rx, &copied, start, &shared);
+          }
       }
- 
+      
     case r_opt:
       return (rx_build_nfa (rx, rexp->params.pair.left, start, end)
-	      && rx_nfa_edge (rx, ne_epsilon, *start, *end));
+              && rx_nfa_edge (rx, ne_epsilon, *start, *end));
 
     case r_plus:
       {
-	struct rx_nfa_state * star_start = 0;
-	struct rx_nfa_state * star_end = 0;
-	struct rx_nfa_state * shared;
-
-	shared = 0;
-	if (!rx_build_nfa (rx, rexp->params.pair.left, start, &shared))
-	  return 0;
-	return (rx_build_nfa (rx, rexp->params.pair.left,
-			      &star_start, &star_end)
-		&& star_start
-		&& star_end
-		&& rx_nfa_edge (rx, ne_epsilon, star_start, star_end)
-		&& rx_nfa_edge (rx, ne_epsilon, shared, star_start)
-		&& rx_nfa_edge (rx, ne_epsilon, star_end, *end)
-		&& rx_nfa_edge (rx, ne_epsilon, star_end, star_start));
+        struct rx_nfa_state * star_start = 0;
+        struct rx_nfa_state * star_end = 0;
+        struct rx_nfa_state * shared;
+        
+        shared = 0;
+        if (!rx_build_nfa (rx, rexp->params.pair.left, start, &shared))
+          return 0;
+        return (rx_build_nfa (rx, rexp->params.pair.left,
+                              &star_start, &star_end)
+                && star_start
+                && star_end
+                && rx_nfa_edge (rx, ne_epsilon, star_start, star_end)
+                && rx_nfa_edge (rx, ne_epsilon, shared, star_start)
+                && rx_nfa_edge (rx, ne_epsilon, star_end, *end)
+                && rx_nfa_edge (rx, ne_epsilon, star_end, star_start));
       }
 
     case r_interval:
     case r_star:
       {
-	struct rx_nfa_state * star_start = 0;
-	struct rx_nfa_state * star_end = 0;
-	return (rx_build_nfa (rx, rexp->params.pair.left,
-			      &star_start, &star_end)
-		&& star_start
-		&& star_end
-		&& rx_nfa_edge (rx, ne_epsilon, star_start, star_end)
-		&& rx_nfa_edge (rx, ne_epsilon, *start, star_start)
-		&& rx_nfa_edge (rx, ne_epsilon, star_end, *end)
-
-		&& rx_nfa_edge (rx, ne_epsilon, star_end, star_start));
+        struct rx_nfa_state * star_start = 0;
+        struct rx_nfa_state * star_end = 0;
+        return (rx_build_nfa (rx, rexp->params.pair.left,
+                              &star_start, &star_end)
+                && star_start
+                && star_end
+          && rx_nfa_edge (rx, ne_epsilon, star_start, star_end)
+                && rx_nfa_edge (rx, ne_epsilon, *start, star_start)
+          && rx_nfa_edge (rx, ne_epsilon, star_end, *end)
+                && rx_nfa_edge (rx, ne_epsilon, star_end, star_start));
       }
-
+      
     case r_cut:
       {
-	struct rx_nfa_state * cut_end = 0;
-
-	cut_end = rx_nfa_state (rx);
-	if (!(cut_end && rx_nfa_edge (rx, ne_epsilon, *start, cut_end)))
-	  {
-	    rx_free_nfa_state (*start);
-	    rx_free_nfa_state (*end);
-	    if (cut_end)
-	      rx_free_nfa_state (cut_end);
-	    return 0;
-	  }
-	cut_end->is_final = rexp->params.intval;
-	return 1;
+        struct rx_nfa_state * cut_end = 0;
+        
+        cut_end = rx_nfa_state (rx);
+        if (!(cut_end && rx_nfa_edge (rx, ne_epsilon, *start, cut_end)))
+          {
+            rx_free_nfa_state (*start);
+            rx_free_nfa_state (*end);
+            if (cut_end)
+              rx_free_nfa_state (cut_end);
+            return 0;
+          }
+        cut_end->is_final = rexp->params.intval;
+        return 1;
       }
-
+      
     case r_parens:
       return rx_build_nfa (rx, rexp->params.pair.left, start, end);
-
+      
     case r_concat:
       {
-	struct rx_nfa_state *shared = 0;
-	return
-	  (rx_build_nfa (rx, rexp->params.pair.left, start, &shared)
-	   && rx_build_nfa (rx, rexp->params.pair.right, &shared, end));
+        struct rx_nfa_state *shared = 0;
+        return
+          (rx_build_nfa (rx, rexp->params.pair.left, start, &shared)
+           && rx_build_nfa (rx, rexp->params.pair.right, &shared, end));
       }
-
+      
     case r_alternate:
       {
-	struct rx_nfa_state *ls = 0;
-	struct rx_nfa_state *le = 0;
-	struct rx_nfa_state *rs = 0;
-	struct rx_nfa_state *re = 0;
-	return (rx_build_nfa (rx, rexp->params.pair.left, &ls, &le)
-		&& rx_build_nfa (rx, rexp->params.pair.right, &rs, &re)
-		&& rx_nfa_edge (rx, ne_epsilon, *start, ls)
-		&& rx_nfa_edge (rx, ne_epsilon, *start, rs)
-		&& rx_nfa_edge (rx, ne_epsilon, le, *end)
-		&& rx_nfa_edge (rx, ne_epsilon, re, *end));
+        struct rx_nfa_state *ls = 0;
+        struct rx_nfa_state *le = 0;
+        struct rx_nfa_state *rs = 0;
+        struct rx_nfa_state *re = 0;
+        return (rx_build_nfa (rx, rexp->params.pair.left, &ls, &le)
+                && rx_build_nfa (rx, rexp->params.pair.right, &rs, &re)
+                && rx_nfa_edge (rx, ne_epsilon, *start, ls)
+                && rx_nfa_edge (rx, ne_epsilon, *start, rs)
+                && rx_nfa_edge (rx, ne_epsilon, le, *end)
+                && rx_nfa_edge (rx, ne_epsilon, re, *end));
       }
-
+      
     case r_context:
       edge = rx_nfa_edge (rx, ne_side_effect, *start, *end);
       if (!edge)
-	return 0;
+        return 0;
       edge->params.side_effect = (void *)rexp->params.intval;
       return 1;
     }
-
+  
   /* this should never happen */
   return 0;
 }
 
-
 /* {Low Level Data Structures for the Static NFA->SuperNFA Analysis}
  *
  * There are side effect lists -- lists of side effects occuring
@@ -653,7 +651,7 @@ nfa_set_enjoin (rx, memo, state, set)
     }
 }
 
-
+
 /* {Computing Epsilon/Side-effect Closures.}
  */
 
@@ -805,7 +803,7 @@ rx_state_possible_futures (rx, n)
 }
 
 
-
+
 /* {Storing the NFA in a Contiguous Region of Memory}
  */
 

@@ -228,7 +228,7 @@ print_nfa_state (struct rx *rx, struct rx_nfa_state * state)
       if (e->type == ne_cset)
 	print_cset (rx->local_cset_size, e->params.cset);
       else
-	printf ("%d", (int)e->params.side_effect);
+	printf ("%d", (long)e->params.side_effect);
       putchar ('\n');
     }
 }

@@ -16,19 +16,15 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-
-
 #include "rx.h"
 #include "rxall.h"
 #include "rxhash.h"
 #include "rxnfa.h"
 #include "rxsuper.h"
 
-
 
 const char rx_version_string[] = "GNU Rx version 1.5";
 
-
 #ifdef __STDC__
 struct rx *
 rx_make_rx (int cset_size)
@@ -40,7 +36,7 @@ rx_make_rx (cset_size)
 {
   static int rx_id = 0;
   struct rx * new_rx;
-  new_rx = (struct rx *)malloc (sizeof (*new_rx));
+  new_rx = (struct rx *) malloc (sizeof (*new_rx));
   rx_bzero ((char *)new_rx, sizeof (*new_rx));
   new_rx->rx_id = rx_id++;
   new_rx->cache = rx_default_cache;

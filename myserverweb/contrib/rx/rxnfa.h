@@ -21,14 +21,13 @@
  */
 
 
-
 /*
  * Tom Lord (lord@cygnus.com, lord@gnu.ai.mit.edu)
  */
-
+
 #include "_rx.h"
 #include "rxnode.h"
-
+
 
 /* NFA
  *
@@ -162,7 +161,7 @@ struct rx_nfa_edge
   union
   {
     rx_Bitset cset;
-    void * side_effect;
+    void* side_effect;
   } params;
 };
 

@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define EXPORTABLE _declspec(dllexport)
 #endif
 
+#include "../stdafx.h"
 /*
 *Do not link the library using with the SSL support.
 */

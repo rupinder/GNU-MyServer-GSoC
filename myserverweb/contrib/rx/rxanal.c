@@ -15,15 +15,11 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330, 
  * Boston, MA 02111-1307, USA. 
  */
-
-
-
 #include "rxall.h"
 #include "rxanal.h"
 #include "rxbitset.h"
 #include "rxsuper.h"
 
-
 
 
 #ifdef __STDC__
@@ -409,7 +405,7 @@ rx_fit_p (frame, burst, len)
 		    - ((unsigned long)
 		       ((struct rx_superstate *)0)->transitions)));
 
-	  switch ((int)inx->inx)
+	  switch ((long)inx->inx)
 	    {
 	    case rx_backtrack:
 	      /* RX_BACKTRACK means that we've reached the empty
@@ -426,18 +422,18 @@ rx_fit_p (frame, burst, len)
 	       * This invokes one step in the lazy-conversion.
 	       */
 	      inx = 
-		rx_handle_cache_miss
-		  (frame->rx, state, *burst, inx->data_2);
+          rx_handle_cache_miss
+          (frame->rx, state, *burst, inx->data_2);
 
 	      if (!inx)
-		{
-		  frame->state = 0;
-		  return rx_bogus;
-		}
+          {
+            frame->state = 0;
+            return rx_bogus;
+          }
 	      next_table = (struct rx_inx *)inx->data;
 	      continue;
 		
-
+        
 	      /* No other instructions are legal here.
 	       * (In particular, this function does not handle backtracking
 	       * or the related instructions.)
@@ -445,31 +441,31 @@ rx_fit_p (frame, burst, len)
 	    default:
 	      frame->state = 0;
 	      return rx_bogus;
-	  }
+      }
 	}
       inx_table = next_table;
       ++burst;
     }
-
+  
   if (inx->data_2)		/* indicates a final superstate */
     {
-      frame->final_tag = (int)inx->data_2;
+      frame->final_tag = (long)inx->data_2;
       frame->state = ((struct rx_superstate *)
-		      ((char *)inx_table
-		       - ((unsigned long)
-			  ((struct rx_superstate *)0)->transitions)));
+                      ((char *)inx_table
+                       - ((unsigned long)
+                          ((struct rx_superstate *)0)->transitions)));
       rx_lock_superstate (frame->rx, frame->state);
       return rx_yes;
     }
   frame->state = ((struct rx_superstate *)
-		  ((char *)inx_table
-		   - ((unsigned long)
-		      ((struct rx_superstate *)0)->transitions)));
+                  ((char *)inx_table
+                   - ((unsigned long)
+                      ((struct rx_superstate *)0)->transitions)));
   rx_lock_superstate (frame->rx, frame->state);
   return rx_no;
 }
 
-
+
 
 
 #ifdef __STDC__
@@ -509,7 +505,7 @@ rx_advance (frame, burst, len)
 		    - ((unsigned long)
 		       ((struct rx_superstate *)0)->transitions)));
 
-	  switch ((int)inx->inx)
+	  switch ((long)inx->inx)
 	    {
 	    case rx_backtrack:
 	      /* RX_BACKTRACK means that we've reached the empty
@@ -611,7 +607,7 @@ rx_advance_to_final (frame, burst, len)
 		    - ((unsigned long)
 		       ((struct rx_superstate *)0)->transitions)));
 	  
-	  switch ((int)inx->inx)
+	  switch ((long)inx->inx)
 	    {
 	    case rx_backtrack:
 	      /* RX_BACKTRACK means that we've reached the empty

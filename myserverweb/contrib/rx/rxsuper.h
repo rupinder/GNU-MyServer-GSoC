@@ -23,11 +23,9 @@
 
 /*  lord	Sun May  7 12:40:17 1995	*/
 
-
 
 #include "rxnfa.h"
 
-
 
 /* This begins the description of the superstate NFA.
  *
@@ -235,7 +233,7 @@ struct rx_superset
   struct rx_superstate * superstate;
 
   /* That is_final field of the constiuent nfa states which has the greatest magnitude. */
-  int is_final;
+  long is_final;
 
   /* The OR of the corresponding fields of the constiuent nfa states. */
   int has_cset_edges;

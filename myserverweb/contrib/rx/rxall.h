@@ -29,16 +29,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rx.h"
-#include "malloc.h"
 
-#ifdef WIN32
+
 #include <ctype.h>
-#endif
-
 extern int sscanf(const char *buffer, const char *format,...);
 
 #endif
 
+#include <malloc.h>
 
 #ifdef __STDC__
 
