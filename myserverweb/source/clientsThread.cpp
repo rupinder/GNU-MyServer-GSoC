@@ -157,13 +157,13 @@ void ClientsTHREAD::controlConnections()
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
-				retcode=http_parser.controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=http_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			/*!
 			*Use the same parser for the HTTPS protocol too.
 			*/
 			case PROTOCOL_HTTPS:
-				retcode=http_parser.controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=http_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			default:
 				retcode=0;

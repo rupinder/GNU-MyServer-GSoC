@@ -215,7 +215,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit32]
 FileName=include\http_headers.h
 CompileCpp=1
 Folder=myserver
@@ -225,7 +225,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit33]
 FileName=source\http_headers.cpp
 CompileCpp=1
 Folder=myserver
@@ -234,6 +234,27 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+
+[Unit34]
+FileName=include\protocol.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit35]
+FileName=source\protocol.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 
 [Unit1]
 FileName=source\sockets.cpp

@@ -198,19 +198,10 @@
 			</File>
 			<File
 				RelativePath="source\utility.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="1"/>
-				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="source\protocol.cpp">
+			</File>			
 			<File
 				RelativePath="source\vhosts.cpp">
 			</File>
@@ -239,6 +230,9 @@
 			<File
 				RelativePath="include\cgi.h">
 			</File>
+			<File
+				RelativePath="include\protocol.h">
+			</File>			
 			<File
 				RelativePath="include\http_header.h">
 			</File>			

@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef HTTP_H
 #define HTTP_H
 #include "../stdafx.h"
+#include "../include/protocol.h"
 #include "../include/http_headers.h"
 #include "../include/cgi.h"
 #include "../include/wincgi.h"
@@ -26,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/mscgi.h"
 #include "../include/isapi.h"
 #include "../include/cXMLParser.h"
-class http
+class http : public protocol
 {
 private:
 	struct httpThreadContext td;
@@ -53,7 +54,7 @@ public:
 	/*!
 	*The function is used to the request and build a response.
 	*/
-	int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
+	int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
 	static int loadProtocol(cXMLParser*);
 	static int unloadProtocol(cXMLParser*);
 

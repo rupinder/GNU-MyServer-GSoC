@@ -44,14 +44,17 @@ extern "C" {
 #define WORD unsigned int
 #define BYTE unsigned char
 #define MAKEWORD(a, b) ((WORD) (((BYTE) (a)) | ((WORD) ((BYTE) (b))) << 8)) 
+#define max(a,b) ((a>b)?a:b)
 #endif
 
 /*!
-*These variables are the unique istance of the class cserver in the application and the flag
-*mustEndServer. When mustEndServer is 1 all the threads are stopped and the application stop
-*its execution.
+*This is the unique istance for the class cserver in the application.
 */
 cserver *lserver=0;
+/*!
+When the flag mustEndServer is 1 all the threads are stopped and the application stop
+*its execution.
+*/
 int mustEndServer;
 
 
@@ -62,7 +65,9 @@ void cserver::start()
 	nConnections=0;
 	connections=0;
 	connectionToParse=0;
-
+	/*!
+	*Reset flag
+	*/
 	mustEndServer=0;
 	memset(this, 0, sizeof(cserver));
 
