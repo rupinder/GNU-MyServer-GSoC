@@ -187,7 +187,11 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 		return 1;
 
 	if(lserver->getVerbosity()>2)
-		fprintf(lserver->logFile,"%s %s\n",msgSending,filenamePath);
+	{
+		char msg[500];
+		sprintf(msg,"%s %s\n",msgSending,filenamePath);
+		logFileWrite(msg);
+	}
 	for(;;)
 	{
 		DWORD nbr;
@@ -372,12 +376,9 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	isValidCommand=FALSE;
 	if(lserver->getVerbosity()>4)
 	{
-		if(lserver->getVerbosity()>5)
-			buffer[nBytesToRead]='\0';
-		else
-			buffer[maxTotChars]='\0';
-
-	fprintf(lserver->logFile,"%s\n",buffer);
+		buffer[nBytesToRead]='\n';
+		buffer[nBytesToRead+1]='\0';
+		logFileWrite(buffer);
 	}
 	if(isValidCommand==FALSE)
 	{

@@ -22,11 +22,14 @@
 
 void cXMLParser::open(char* filename)
 {
-	file = fopen(filename,"rt");
-	getFileSize(&buffersize,file);
+	file=openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	buffersize=getFileSize(file);
 	buffer=(char*)malloc(buffersize);
+	DWORD nbr;
 	if(buffer)
-		fread(buffer,buffersize,1,file);
+		readFromFile(file,buffer,buffersize,&nbr);
+	if(nbr==0)
+		buffer[0]='#';
 }
 /*
 *Only get the the text T in <VALUENAME>T</VALUENAME>
@@ -91,7 +94,7 @@ char *cXMLParser::getValue(char* vName)
 void cXMLParser::close()
 {
 	if(file)
-		fclose(file);
+		closeFile(file);
 	if(buffer)
 		free(buffer);
 }

@@ -21,32 +21,22 @@
 #include "..\include\utility.h"
 #include <string.h>
 extern BOOL mustEndServer; 
-static FILE* logFile=0;
+static MYSERVER_FILE_HANDLE logFile=0;
 
 /*
 *Functions to manage a log file
 */
 DWORD logFileWrite(char* str)
 {
-	return fprintf(logFile,"%s",str);
+	DWORD nbw;
+	writeToFile(logFile,str,lstrlen(str),&nbw);
+	return nbw;
 }
-void setLogFile(FILE* nlg)
+void setLogFile(MYSERVER_FILE_HANDLE nlg)
 {
-	if(logFile)
-		fclose(logFile);
 	logFile=nlg;
 }
-/*
-*Return the size of the file in bytes
-*/
-void getFileSize(DWORD* fsd,FILE *f)
-{
-	static __int64 fs;
-	fseek(f, 0, SEEK_END);
-	fgetpos(f, &fs);
-	fseek(f, 0, SEEK_SET);
-	*fsd=(DWORD)fs;
-}
+
 /*
 *Return the recursion of the path
 */
@@ -123,6 +113,10 @@ MYSERVER_FILE_HANDLE openFile(char* filename,DWORD opt)
 	ret=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
 	if(ret==INVALID_HANDLE_VALUE)
 		ret=0;
+
+	if(ret && (opt & MYSERVER_FILE_OPEN_APPEND))
+		setFilePointer((MYSERVER_FILE_HANDLE)ret,getFileSize((MYSERVER_FILE_HANDLE)ret));
+
 #endif
 	return ret;
 }

@@ -19,12 +19,13 @@
 #pragma once
 
 #include "..\StdAfx.h"
+#include "..\include\fileManager.h"
 class cXMLParser
 {
 	DWORD buffersize;
 	char *buffer;
 	char data[MAX_PATH];
-	FILE *file;
+	MYSERVER_FILE_HANDLE file;
 public:
 	void open(char*);
 	char *getValue(char*);

@@ -46,7 +46,7 @@ void cserver::start(INT hInst)
 	*Save the unique instance of this class
 	*/
 	lserver=this;
-	logFile=fopen("myServer.log","a+t");
+	logFile=openFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	setLogFile(logFile);
 	controlSizeLogFile();
 
@@ -338,8 +338,7 @@ void cserver::terminate()
 	}
 	closesocket(serverSocketHTTP);
 
-	fclose(logFile);
-	_fcloseall();
+	closeFile(logFile);
 }
 void cserver::initialize(INT OSVer)
 {
@@ -495,15 +494,15 @@ VOID cserver::controlSizeLogFile()
 	*/
 	if(!logFile)
 	{
-		logFile=fopen("myServer.log","a+t");
+		logFile=openFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	DWORD fs=0;
-	getFileSize(&fs,logFile);
+	fs=getFileSize(logFile);
 	if(fs>maxLogFileSize)
 	{
-		fclose(logFile);
-		DeleteFile("myServer.log");
-		logFile=fopen("myServer.log","a+t");
+		closeFile(logFile);
+		deleteFile("myServer.log");
+		logFile=openFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	setLogFile(logFile);
 }
@@ -515,9 +514,12 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	static BOOL ret;
 	ret=TRUE;
 	if(verbosity>0)
+	{
+		char msg[500];
+		sprintf(msg,"%s:%u.%u.%u.%u -> %s:%i %s:%s\r\n",msgNewConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
+		logFileWrite(msg);
+	}
 
-	fprintf(logFile,"%s:%u.%u.%u.%u -> %s:%i %s:%s\n",msgNewConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
-	fflush(logFile);
 	static DWORD local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
 	if(!ct->addConnection(s,protID))
@@ -525,7 +527,11 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 		ret=FALSE;
 		closesocket(s);
 		if(verbosity>0)
-			fprintf(logFile,"%s:%i.%i.%i.%i -> %s:%i %s:%s\n",msgErrorConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
+		{
+			char buffer[500];
+			sprintf(buffer,"%s:%i.%i.%i.%i -> %s:%i %s:%s\r\n",msgErrorConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
+			logFileWrite(buffer);
+		}
 	}
 
 	if(++local_nThreads>=nThreads)

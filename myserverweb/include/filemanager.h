@@ -21,9 +21,8 @@
 #include "..\stdafx.h"
 typedef void *MYSERVER_FILE_HANDLE;
 DWORD logFileWrite(char*);
-void setLogFile(FILE*);
+void setLogFile(MYSERVER_FILE_HANDLE);
 void getFileExt(char*,char*);
-void getFileSize(DWORD*,FILE*);
 DWORD getFileSize(MYSERVER_FILE_HANDLE);
 BOOL setFilePointer(MYSERVER_FILE_HANDLE,DWORD);
 int getPathRecursionLevel(char*);
@@ -34,6 +33,7 @@ int getPathRecursionLevel(char*);
 #define MYSERVER_FILE_OPEN_HIDDEN (1<<3)
 #define MYSERVER_FILE_OPEN_ALWAYS (1<<4)
 #define MYSERVER_FILE_OPEN_IFEXISTS (1<<5)
+#define MYSERVER_FILE_OPEN_APPEND (1<<6)
 
 INT	readFromFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
 INT	writeToFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);

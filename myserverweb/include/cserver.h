@@ -75,7 +75,7 @@ private:
 	VOID controlSizeLogFile();
 public:
 	MIME_Manager mimeManager;
-	FILE *logFile;
+	MYSERVER_FILE_HANDLE logFile;
 	char  *getSystemPath();
 	char  *getPath();
 	char  *getDefaultFilenamePath(DWORD=0);

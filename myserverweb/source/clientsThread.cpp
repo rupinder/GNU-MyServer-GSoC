@@ -82,7 +82,7 @@ void ClientsTHREAD::controlConnections()
 					*the active connections list
 					*/
 					case PROTOCOL_HTTP:
-						if(controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation))
+						if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation))
 							deleteConnection(c);
 						continue;
 				}
@@ -92,7 +92,7 @@ void ClientsTHREAD::controlConnections()
 		}
 		else
 		{
-			if( getTime()- c->timeout > lserver->connectionTimeout)
+			if((getTime()- c->timeout) > lserver->connectionTimeout)
 				if(deleteConnection(c))
 					continue;
 		}
