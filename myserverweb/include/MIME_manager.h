@@ -40,6 +40,7 @@ enum CGI_COMMANDS
 };
 class MIME_Manager
 {
+public:
 	struct mime_record
 	{
 		char extension[10];
@@ -48,12 +49,15 @@ class MIME_Manager
 		char cgi_manager[MAX_PATH];
 		mime_record* next;
 	};
+private:
 	mime_record *data;
 	u_long numMimeTypesLoaded;
+	char filename[MAX_PATH];
 public:
+	char *getFilename();
 	MIME_Manager();
 	VOID addRecord(MIME_Manager::mime_record);
-	MIME_Manager::mime_record *getRecord(char extension[10]);
+	MIME_Manager::mime_record *getRecord(char ext[10]);
 	VOID removeAllRecords();
 	VOID removeRecord(char*);
 	u_long getNumMIMELoaded();

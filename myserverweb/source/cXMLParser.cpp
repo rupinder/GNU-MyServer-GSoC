@@ -27,7 +27,7 @@
 void cXMLParser::open(char* filename)
 {
 	file=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-	buffersize=getFileSize(file);
+	buffersize=ms_getFileSize(file);
 	buffer=(char*)malloc(buffersize);
 	u_long nbr;
 	if(buffer)

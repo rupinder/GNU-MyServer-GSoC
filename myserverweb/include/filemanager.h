@@ -23,11 +23,11 @@ typedef void *MYSERVER_FILE_HANDLE;
 u_long accessesLogWrite(char*);
 void setAccessesLogFile(MYSERVER_FILE_HANDLE);
 
-u_long warningsLogWrite(char*);
-void setWarningsLogFile(MYSERVER_FILE_HANDLE);
-u_long getFileSize(MYSERVER_FILE_HANDLE);
-int setFilePointer(MYSERVER_FILE_HANDLE,u_long);
-int getPathRecursionLevel(char*);
+u_long ms_warningsLogWrite(char*);
+void ms_setWarningsLogFile(MYSERVER_FILE_HANDLE);
+u_long ms_getFileSize(MYSERVER_FILE_HANDLE);
+int ms_setFilePointer(MYSERVER_FILE_HANDLE,u_long);
+int ms_getPathRecursionLevel(char*);
 
 #define MYSERVER_FILE_OPEN_READ (1<<0)
 #define MYSERVER_FILE_OPEN_WRITE (1<<1)

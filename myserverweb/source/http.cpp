@@ -191,7 +191,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	/*
 	*If the file is a valid handle.
 	*/
-	u_long bytesToSend=getFileSize(h);
+	u_long bytesToSend=ms_getFileSize(h);
 	if(lastByte == -1)
 	{
 		lastByte=bytesToSend;
@@ -208,7 +208,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	/*
 	*If failed to set the file pointer returns an internal server error.
 	*/
-	if(setFilePointer(h,firstByte))
+	if(ms_setFilePointer(h,firstByte))
 	{
 		return raiseHTTPError(td,s,e_500);
 	}
@@ -229,7 +229,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	{
 		char msg[500];
 		sprintf(msg,"%s %s\n",msgSending,filenamePath);
-		warningsLogWrite(msg);
+		ms_warningsLogWrite(msg);
 	}
 	for(;;)
 	{
@@ -342,7 +342,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	/*
 	*If the client try to access files that aren't in the web folder send a 401 error.
 	*/
-	if(getPathRecursionLevel(filename)<1)
+	if(ms_getPathRecursionLevel(filename)<1)
 	{
 		return raiseHTTPError(td,s,e_401);
 	}
@@ -464,7 +464,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		td.buffer[td.nBytesToRead]='\n';
 		td.buffer[td.nBytesToRead+1]='\0';
-		warningsLogWrite(td.buffer);
+		ms_warningsLogWrite(td.buffer);
 	}
 	/*
 	*If the header is an invalid request send the correct error message to the client and return immediately.
@@ -524,7 +524,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			}
 			while(err);
 		}
-		setFilePointer(td.inputData,0);
+		ms_setFilePointer(td.inputData,0);
 		td.buffer2[0]='\0';
 	}
 	else

@@ -27,7 +27,7 @@ static MYSERVER_FILE_HANDLE accessesLogFile=0;
 /*
 *Write the message to the log file.
 */
-u_long warningsLogWrite(char* str)
+u_long ms_warningsLogWrite(char* str)
 {
 	u_long nbw;
 	ms_WriteToFile(warningsLogFile,str,lstrlen(str),&nbw);
@@ -36,7 +36,7 @@ u_long warningsLogWrite(char* str)
 /*
 *Set the log file handle.
 */
-void setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
+void ms_setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 {
 	warningsLogFile=nlg;
 }
@@ -61,7 +61,7 @@ void setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
 /*
 *Return the recursion of the path.
 */
-int getPathRecursionLevel(char* path)
+int ms_getPathRecursionLevel(char* path)
 {
 	static char lpath[MAX_PATH];
 	lstrcpy(lpath,path);
@@ -135,9 +135,9 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 	else/*If no error exist in open the file*/
 	{
 		if(ret && (opt & MYSERVER_FILE_OPEN_APPEND))
-			setFilePointer((MYSERVER_FILE_HANDLE)ret,getFileSize((MYSERVER_FILE_HANDLE)ret));
+			ms_setFilePointer((MYSERVER_FILE_HANDLE)ret,ms_getFileSize((MYSERVER_FILE_HANDLE)ret));
 		else
-			setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
+			ms_setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
 	}
 
 #endif
@@ -190,7 +190,7 @@ INT ms_DeleteFile(char *filename)
 /*
 *Returns the file size in bytes.
 */
-u_long getFileSize(MYSERVER_FILE_HANDLE f)
+u_long ms_getFileSize(MYSERVER_FILE_HANDLE f)
 {
 	u_long size;
 #ifdef WIN32
@@ -202,7 +202,7 @@ u_long getFileSize(MYSERVER_FILE_HANDLE f)
 *Change the position of the pointer to the file.
 *Returns a non-null value if failed.
 */
-int setFilePointer(MYSERVER_FILE_HANDLE h,u_long initialByte)
+int ms_setFilePointer(MYSERVER_FILE_HANDLE h,u_long initialByte)
 {
 #ifdef WIN32
 	return (SetFilePointer((HANDLE)h,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;

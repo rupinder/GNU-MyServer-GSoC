@@ -34,7 +34,12 @@ class configurationFrameMIME : public wxFrame
 {
 public:
 	MIME_Manager mm;
+	wxButton* btnOK;
+	wxButton* btnCNL;
+	wxButton* btnSAVE;
+	wxButton* btnADD;
 	wxListBox *actiontodoLB;
+	wxTextCtrl *cgiManagerTB;
 	wxListBox *mimeTypesLB;
 	wxListBox *extensionsLB;
 	configurationFrameMIME(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size,long style = wxDEFAULT_FRAME_STYLE);
@@ -42,7 +47,8 @@ public:
 	void EXTtypeListEvt(wxCommandEvent& event);
 	void cancel(wxCommandEvent& event);
 	void ok(wxCommandEvent& event);
-
+	void save(wxCommandEvent& event);
+	void add(wxCommandEvent& event);
 private:
 	DECLARE_EVENT_TABLE()
 };

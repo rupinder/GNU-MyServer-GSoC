@@ -116,7 +116,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 
 		char *endFileStr="\r\n\r\n";
 		ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
-		setFilePointer(stdInFile,0);
+		ms_setFilePointer(stdInFile,0);
 	}
 	else
 	{
@@ -147,7 +147,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*Read the CGI output.
 	*/
 	u_long nBytesRead=0;
-	if(!setFilePointer(stdOutFile,0))
+	if(!ms_setFilePointer(stdOutFile,0))
 		ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);
 	else
 		td->buffer2[0]='\0';

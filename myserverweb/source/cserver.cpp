@@ -104,7 +104,7 @@ void cserver::start()
 	initialize(OSVer);
 	
 	warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	setWarningsLogFile(warningsLogFile);
+	ms_setWarningsLogFile(warningsLogFile);
 	
 	accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	setAccessesLogFile(accessesLogFile);
@@ -145,8 +145,8 @@ void cserver::start()
 		lstrcat(libhoardpath,"/external/libhoard.dll");
 		if(!LoadLibraryA(libhoardpath))
 		{
-			warningsLogWrite(languageParser.getValue("ERR_LOADED"));
-			warningsLogWrite(" libhoard\r\n");
+			ms_warningsLogWrite(languageParser.getValue("ERR_LOADED"));
+			ms_warningsLogWrite(" libhoard\r\n");
 		}
 	}
 	/*
@@ -684,14 +684,14 @@ void cserver::controlSizeLogFile()
 		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	u_long fs=0;
-	fs=getFileSize(warningsLogFile);
+	fs=ms_getFileSize(warningsLogFile);
 	if(fs>maxLogFileSize)
 	{
 		ms_CloseFile(warningsLogFile);
 		ms_DeleteFile(warningsFileLogName);
 		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
-	setWarningsLogFile(warningsLogFile);
+	ms_setWarningsLogFile(warningsLogFile);
 
 
 	/*
@@ -701,7 +701,7 @@ void cserver::controlSizeLogFile()
 	{
 		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
-	fs=getFileSize(accessesLogFile);
+	fs=ms_getFileSize(accessesLogFile);
 	if(fs>maxLogFileSize)
 	{
 		ms_CloseFile(accessesLogFile);
@@ -738,7 +738,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 		{
 			char buffer[500];
 			sprintf(buffer,"%s:%i.%i.%i.%i ->%s %s:%s\r\n",msgErrorConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getRFC822GMTTime());
-			warningsLogWrite(buffer);
+			ms_warningsLogWrite(buffer);
 		}
 	}
 

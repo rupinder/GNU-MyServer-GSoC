@@ -32,12 +32,13 @@ html,text/html,SEND NONE;
 */
 int MIME_Manager::load(char *filename)
 {
+	lstrcpy(this->filename,filename);
 	numMimeTypesLoaded=0;
 	char *buffer;
 	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	if(f==0)
 		return 0;
-	u_long fs=getFileSize(f);
+	u_long fs=ms_getFileSize(f);
 	buffer=(char*)malloc(fs+1);
 	u_long nbw;
 	ms_ReadFromFile(f,buffer,fs,&nbw);
@@ -121,11 +122,19 @@ int MIME_Manager::load(char *filename)
 
 }
 /*
+*Get the name of the file opened by the class.
+*/
+char *MIME_Manager::getFilename()
+{
+	return filename;
+}
+/*
 *Save the MIME types to a file.
 */
 int MIME_Manager::save(char *filename)
 {
-	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	ms_DeleteFile(filename);
+	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	MIME_Manager::mime_record *nmr1;
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next)
@@ -136,17 +145,17 @@ int MIME_Manager::save(char *filename)
 		ms_WriteToFile(f,",",lstrlen(","),&nbw);
 		char command[16];
 		if(nmr1->command==CGI_CMD_SEND)
-			lstrcpy(command,"SEND");
+			lstrcpy(command,"SEND ");
 		else if(nmr1->command==CGI_CMD_RUNCGI)
-			lstrcpy(command,"RUNCGI");
+			lstrcpy(command,"RUNCGI ");
 		else if(nmr1->command==CGI_CMD_RUNMSCGI)
-			lstrcpy(command,"CGI_CMD_RUNMSCGI");
+			lstrcpy(command,"CGI_CMD_RUNMSCGI ");
 		else if(nmr1->command==CGI_CMD_EXECUTE)
-			lstrcpy(command,"CGI_CMD_EXECUTE");
+			lstrcpy(command,"CGI_CMD_EXECUTE ");
 		else if(nmr1->command==CGI_CMD_SENDLINK)
-			lstrcpy(command,"SENDLINK");
+			lstrcpy(command,"SENDLINK ");
 		else if(nmr1->command==CGI_CMD_RUNISAPI)
-			lstrcpy(command,"RUNISAPI");
+			lstrcpy(command,"RUNISAPI ");
 
 		ms_WriteToFile(f,command,lstrlen(command),&nbw);
 		if(nmr1->cgi_manager[0])
@@ -155,6 +164,7 @@ int MIME_Manager::save(char *filename)
 			ms_WriteToFile(f,"NONE",lstrlen("NONE"),&nbw);
 		ms_WriteToFile(f,";\r\n",lstrlen(";\r\n"),&nbw);
 	}
+	ms_setFilePointer(f,ms_getFileSize(f)-2);
 	ms_WriteToFile(f,"#",lstrlen("#"),&nbw);
 	ms_CloseFile(f);
 
@@ -174,13 +184,11 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 			if(dest)
 				lstrcpy(dest,mr->mime_type);
 
-			if(dest2 && mr->cgi_manager[0])
+			if(dest2)
 			{
-				lstrcpy(dest2,mr->cgi_manager);
-			}
-			else
-			{
-				if(dest2)
+				if(mr->cgi_manager[0])
+					lstrcpy(dest2,mr->cgi_manager);
+				else
 					dest2[0]='\0';
 			}
 			return mr->command;
@@ -207,13 +215,11 @@ int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
 			if(dest)
 				lstrcpy(dest,mr->mime_type);
 
-			if(dest2 && mr->cgi_manager[0])
+			if(dest2)
 			{
+				if(mr->cgi_manager[0])
 					lstrcpy(dest2,mr->cgi_manager);
-			}
-			else
-			{
-				if(dest2)
+				else
 					dest2[0]='\0';
 			}
 			return mr->command;
@@ -314,7 +320,7 @@ void MIME_Manager::removeAllRecords()
 }
 /*
 *Get a pointer to an existing record passing its extension.
-*Don't modify the next member of the structure returned.
+*Don't modify the member next of the returned structure.
 */
 MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
 {
