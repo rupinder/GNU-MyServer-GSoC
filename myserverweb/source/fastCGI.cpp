@@ -749,6 +749,7 @@ int FastCgi::unload()
   servers_mutex.lock();
   while(list)
   {
+    sfCGIservers* toremove;
     /*! If the server is a remote one do nothing. */
 		if(list->path[0]!='@')
     {
@@ -757,7 +758,7 @@ int FastCgi::unload()
     }
     delete [] list->path;
 
-    sfCGIservers* toremove = list;
+    toremove = list;
     list = list->next;
     delete toremove;
   }

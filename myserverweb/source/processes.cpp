@@ -58,7 +58,8 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
     *Set the standard output values for the CGI process.
     */
 	STARTUPINFO si;
-	
+  PROCESS_INFORMATION pi;
+	char *cwd;
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 	si.hStdInput = (HANDLE)spi->stdIn;
@@ -68,10 +69,11 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 	if(si.hStdInput||si.hStdOutput||si.hStdError)
 		si.dwFlags|=STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
-	PROCESS_INFORMATION pi;
+
+  cwd=spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
 	ZeroMemory( &pi, sizeof(pi) );
 	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
-                      spi->envString, (char*)spi->cwd.c_str(), &si, &pi);
+                      spi->envString, cwd, &si, &pi);
 	if(!ret)
 		return (-1);
 	/*!
@@ -218,19 +220,21 @@ int execConcurrentProcess(StartProcInfo* spi)
    */
 	STARTUPINFO si;
   PROCESS_INFORMATION pi;
+  char* cwd;   
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 	si.hStdInput = (HANDLE)spi->stdIn;
 	si.hStdOutput =(HANDLE)spi->stdOut;
 	si.hStdError= (HANDLE)spi->stdError;
 	si.dwFlags=(u_long)STARTF_USESHOWWINDOW;
+  cwd =(char*)spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
 	if(si.hStdInput||si.hStdOutput||si.hStdError)
 		si.dwFlags|=STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
 	ZeroMemory( &pi, sizeof(pi) );
 
 	ret=CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
-                    spi->envString, (char*)spi->cwd.c_str(), &si, &pi);
+                    spi->envString, cwd, &si, &pi);
 	if(!ret)
 		return (-1);	
 	return (*((int*)&pi.hProcess));
