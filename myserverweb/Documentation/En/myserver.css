@@ -1,7 +1,7 @@
 body         { text-align: center; color: #00C800; background-color: #000000; font-family:Verdana }
-a:link       { color: #0000ff }
-a:visited    { color: #00ff00 }
-a:active     { color: #3366ff }
+a:link       { color: #00FF00 }
+a:visited    { color: #008000 }
+a:active     { color: #00C800 }
 textarea     {  background-color: #000000; }
 html         {  background-color: #000000; }
 table        {  background-color: #000000;  }
