@@ -55,18 +55,7 @@ extern "C" {
 cserver *lserver=0;
 int mustEndServer;
 
-/*
-*These messages are loaded by the application at the startup.
-*/
-char msgSending[33];
-char msgNewConnection[33];
-char msgErrorConnection[33];
-char msgAtTime[33];
-char msgRunOn[33];
-char msgFolderContents[33];
-char msgFile[33];
-char msgLModify[33];
-char msgSize[33];
+
 
 void cserver::start()
 {
@@ -137,16 +126,6 @@ void cserver::start()
 	
 	languageParser.open(languageFile);
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
-	
-	/*
-	*These are the defaults values of these strings.
-	*/
-	lstrcpy(msgSending,"Sending");
-	lstrcpy(msgRunOn,"Running on");
-	lstrcpy(msgFolderContents,"Contents of folder");
-	lstrcpy(msgNewConnection,"Connection from");
-	lstrcpy(msgErrorConnection,"Error connection from");
-	lstrcpy(msgAtTime,"at time");
 
 #ifdef WIN32
 	/*
@@ -155,33 +134,6 @@ void cserver::start()
 	initISAPI();
 #endif	
 	initializeFASTCGI();
-
-	/*
-	*Load the strings buffers with the right values.
-	*We do this for don't call parser while the application execution
-	*There are two good reasons to do this:
-	*1)Application performance
-	*2)Avoid of errors due to the parser
-	*/
-	if(lstrcmpi(languageParser.getValue("MSG_SENDING"),"NONE"))
-		lstrcpy(msgSending,languageParser.getValue("MSG_SENDING"));
-	if(lstrcmpi(languageParser.getValue("MSG_RUNON"),"NONE"))
-		lstrcpy(msgRunOn,languageParser.getValue("MSG_RUNON"));
-	if(lstrcmpi(languageParser.getValue("MSG_FOLDERCONT"),"NONE"))
-		lstrcpy(msgFolderContents,languageParser.getValue("MSG_FOLDERCONT"));
-	if(lstrcmpi(languageParser.getValue("MSG_FILE"),"NONE"))
-		lstrcpy(msgFile,languageParser.getValue("MSG_FILE"));
-	if(lstrcmpi(languageParser.getValue("MSG_LMODIFY"),"NONE"))
-		lstrcpy(msgLModify,languageParser.getValue("MSG_LMODIFY"));
-	if(lstrcmpi(languageParser.getValue("MSG_SIZE"),"NONE"))
-		lstrcpy(msgSize,languageParser.getValue("MSG_SIZE"));
-	if(lstrcmpi(languageParser.getValue("MSG_NEWCONNECTION"),"NONE"))
-		lstrcpy(msgNewConnection,languageParser.getValue("MSG_NEWCONNECTION"));
-	if(lstrcmpi(languageParser.getValue("MSG_ERRORCONNECTION"),"NONE"))
-		lstrcpy(msgErrorConnection,languageParser.getValue("MSG_ERRORCONNECTION"));
-	if(lstrcmpi(languageParser.getValue("MSG_ATTIME"),"NONE"))
-		lstrcpy(msgAtTime,languageParser.getValue("MSG_ATTIME"));
-
 
 	printf("%s\n",languageParser.getValue("MSG_SERVER_CONF"));
 

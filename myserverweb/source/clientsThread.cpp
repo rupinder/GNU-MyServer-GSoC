@@ -254,13 +254,13 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 
 	char msg[500];
 #ifdef WIN32
-	sprintf(msg, "%s:%s ->%s %s:", msgNewConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime);
+	sprintf(msg, "%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
 	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 	strcat(msg,"\r\n");
 
 #endif
 #ifdef __linux__
-	snprintf(msg, 500,"%s:%s ->%s %s:", msgNewConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime);
+	snprintf(msg, 500,"%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
 	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 	strcat(msg,"\r\n");
 
@@ -272,12 +272,12 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 		if(lserver->getVerbosity()>0)
 		{
 #ifdef WIN32
-			sprintf(msg, "%s:%s ->%s %s:", msgErrorConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime);
+			sprintf(msg, "%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
 			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 			strcat(msg,"\r\n");
 #endif
 #ifdef __linux__
-			snprintf(msg, 500,"%s:%s ->%s %s:", msgErrorConnection, inet_ntoa(asock_in->sin_addr), lserver->getServerName(), msgAtTime);
+			snprintf(msg, 500,"%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
 			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 			strcat(msg,"\r\n");
 #endif

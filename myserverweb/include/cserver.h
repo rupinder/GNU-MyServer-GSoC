@@ -40,15 +40,7 @@ unsigned int __stdcall listenServer(void* pParam);
 void* listenServer(void* pParam);
 #endif
 
-extern char msgSending[33];
-extern char msgRunOn[33];
-extern char msgFolderContents[33];
-extern char msgFile[33];
-extern char msgLModify[33];
-extern char msgSize[33];
-extern char msgNewConnection[33];
-extern char msgErrorConnection[33];
-extern char msgAtTime[33];
+
 
 struct listenThreadArgv
 {

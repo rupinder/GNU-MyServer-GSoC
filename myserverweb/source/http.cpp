@@ -124,7 +124,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	sprintf(filename,"%s/",folder);
 #endif
 	strcpy(td->buffer2,"\r\n<BODY><H1>\r\n");
-	strcat(td->buffer2,msgFolderContents);
+	strcat(td->buffer2,"Contents of folder");
 	strcat(td->buffer2," ");
 	strcat(td->buffer2,&td->request.URI[startchar]);
 	strcat(td->buffer2,"</H1>\r\n<P>\r\n<HR>\r\n");
@@ -155,7 +155,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	/*
 	*With the current code we build the HTML TABLE that describes the files in the folder.
 	*/
-	sprintf(td->buffer2,"<TABLE width=\"100%%\">\r\n<TR>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n</TR>\r\n",msgFile,msgLModify,msgSize);
+	sprintf(td->buffer2,"<TABLE width=\"100%%\">\r\n<TR>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n</TR>\r\n","File","Last modify","Size");
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	static char fileSize[10];
 	static char fileTime[20];
@@ -198,7 +198,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	}while(!_findnext(ff,&fd));
 	strcpy(td->buffer2,"</TABLE>\r\n<HR>\r\n<ADDRESS>\r\n");
-	strcat(td->buffer2,msgRunOn);
+	strcat(td->buffer2,"Running on");
 	strcat(td->buffer2," MyServer ");
 	strcat(td->buffer2,versionOfSoftware);
 	strcat(td->buffer2,"</ADDRESS>\r\n</BODY>\r\n</HTML>\r\n");
@@ -286,7 +286,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	if(lserver->getVerbosity()>2)
 	{
 		char msg[500];
-		sprintf(msg,"%s %s\n",msgSending,filenamePath);
+		sprintf(msg,"%s %s\n","Sending",filenamePath);
 		((vhost*)td->connection->host)->warningsLogWrite(msg);
 	}
 	for(;;)
