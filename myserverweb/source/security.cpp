@@ -202,7 +202,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 				}
 				if(!strcmpi((const char*)attr->name,"NAME"))
 				{
-					if(!xmlStrcmp(attr->children->content, (const xmlChar *)user))
+					if(!strcmpi((const char*)attr->children->content,user))
 						rightUser=1;
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
@@ -254,7 +254,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 						}
 						if(!strcmpi((const char*)attr->name,"NAME"))
 						{
-							if(!xmlStrcmp(attr->children->content, (const xmlChar *)user))
+							if(!strcmpi((const char*)attr->children->content,user))
 								rightUser=1;
 						}
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
