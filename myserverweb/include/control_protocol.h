@@ -28,6 +28,8 @@ class control_protocol : public protocol
   static char adminLogin[64];
   static char adminPassword[64];
   static int controlEnabled;
+  /*! Thread ID. */
+  int id;
   /*! Input file. */
   MYSERVER_FILE *Ifile;
   /*! Output file. */
@@ -45,6 +47,7 @@ class control_protocol : public protocol
   int GETFILE(char*, MYSERVER_FILE* in, MYSERVER_FILE* out, char *b1,int bs1 );
   int PUTFILE(char*, MYSERVER_FILE* in, MYSERVER_FILE* out, char *b1,int bs1 );
   int GETVERSION(MYSERVER_FILE* out, char *b1,int bs1);
+  int addToLog(int retCode, LPCONNECTION con, char *b1, int bs1);
 public:
   int sendResponse(char*, int, LPCONNECTION, int, MYSERVER_FILE* = 0);
   static int loadProtocol(cXMLParser* languageParser, char* /*confFile*/);

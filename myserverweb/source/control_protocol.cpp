@@ -217,7 +217,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   int dataWritten = 0;
   char *IfilePath=0;
   char *OfilePath=0;
-
+  control_protocol::id = id;
 	if(a->getToRemove())
 	{
 		switch(a->getToRemove())
@@ -625,6 +625,21 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   }
 }
 
+/*!
+ *Add the entry to the log file.
+ */
+int control_protocol::addToLog(int retCode, LPCONNECTION con, char *b1, int bs1)
+{
+	char time[33];
+	getRFC822GMTTime(time, 32);
+  sprintf(b1,"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getipAddr(), time, 
+          header.getCommand(),  header.getVersion(), header.getOptions(), 
+          header.getAuthLogin() , retCode);
+	((vhost*)(con->host))->accesseslogRequestAccess(id);
+	((vhost*)(con->host))->accessesLogWrite(b1);
+	((vhost*)(con->host))->accesseslogTerminateAccess(id);
+  return 0;
+}
 
 /*!
  *Send the response with status=errID and the data contained in the outFile.
@@ -636,6 +651,9 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
 {
   u_long dataLength=0;
   int err;
+  err =  addToLog(errID,conn,buffer, buffersize);
+  if(err)
+    return err;
   if(outFile)
     dataLength = outFile->getFileSize();
   /*! Build and send the first line. */
