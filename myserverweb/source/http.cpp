@@ -1,6 +1,6 @@
 /*
 *myServer
-*Copyright (C) 2002 Giuseppe Scrivano
+*Copyright (C) 2002 The MyServer team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -192,7 +192,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}while(!_findnext(ff,&fd));
 	strcpy(td->buffer2,"</TABLE>\n<HR>");
 	strcat(td->buffer2,msgRunOn);
-	strcat(td->buffer2," myServer ");
+	strcat(td->buffer2," MyServer ");
 	strcat(td->buffer2,versionOfSoftware);
 	strcat(td->buffer2,"</BODY></HTML>");
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
