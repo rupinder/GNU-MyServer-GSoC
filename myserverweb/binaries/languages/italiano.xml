@@ -3,7 +3,7 @@
 <MYSERVER_LANGUAGE_FILE>
 <MSG_LANGUAGE>Uso della lingua italiana</MSG_LANGUAGE>
 <MSG_SERVER_CONF>Configurazione Server terminata</MSG_SERVER_CONF>
-<AL_NO_SECURITY>Non viene usata nessuna sicurezza, tutti possono accedere alla cartella web</AL_NO_SECURITY>
+<AL_NO_SECURITY>Non viene usata nessuna sicurezza, tutti possono accedere alla cartella web<AL_NO_SECURITY>
 <MSG_ISOCK>Inizializzazione della libreria socket...</MSG_ISOCK>
 <ERR_ISOCK>Errore nella inizializzazione della libreria socket</ERR_ISOCK>
 <MSG_SOCKSTART>Libreria socket inizializzata con successo</MSG_SOCKSTART>
@@ -36,7 +36,6 @@
 <MSG_LOADED>Caricata</MSG_LOADED>
 <ERR_LOADED>Errore nel caricare</ERR_LOADED>
 <ERR_LOADVHOSTS>Errore nel caricare i virtual hosts</ERR_LOADVHOSTS>
-<MSG_LOADMSCGI>Tipi MSCGI-LIB caricati con successo</MSG_LOADMSCGI>
-<ERR_LOADMSCGI>I tipi MSCGI-LIB non sono stati caricati correttamente</ERR_LOADMSCGI>
-
+<MSG_LOADMSCGI>MSCGI-LIB caricata con successo</MSG_LOADMSCGI>
+<ERR_LOADMSCGI>Errore nel caricare MSCGI-LIB</ERR_LOADMSCGI> 
 </MYSERVER_LANGUAGE_FILE>
