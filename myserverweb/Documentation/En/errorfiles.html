@@ -1,192 +1,62 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <meta http-equiv="CONTENT-TYPE"
- content="text/html; charset=windows-1252">
-  <link rel="stylesheet" type="text/css" href="myserver.css">
-  <meta name="AUTHOR" content="Kristen Grubb">
-  <meta name="CHANGEDBY" content="Kristen Grubb">
-  <meta name="CHANGED" content="20030804;21511707">
-  <style>
-	<!--
-		TD P { color: #000000 }
-		P { color: #000000 }
-		H2 { color: #000000 }
-		H4 { color: #000000 }
-		A:link { color: #0000ff }
-	-->
-	</style>
-  <title>Error Handling</title>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Error Pages</title>
 </head>
-<body style="background-color: white;" lang="EN-US" link="blue"
- vlink="#000099" alink="#666666">
-<div class="Section1">
-<p class="MsoNormal"><span style="color: black; display: none;"><o:p>&nbsp;</o:p></span></p>
-<table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0"
- style="border: 3pt outset green; width: 744.75pt;" frame="void">
-  <thead> <tr style="">
-    <td
- style="border: 1pt inset green; padding: 3pt; vertical-align: top; width: 20%;"><b><span
- style="font-size: 18pt; font-family: &quot;Times New Roman&quot;; color: rgb(0, 102, 0);"><br
- clear="all" style="page-break-before: always;">
-    </span></b>
-    <p class="MsoNormal" align="center" style="text-align: center;"><b><span
- style="font-size: 18pt; color: rgb(0, 102, 0);"><img width="308"
- height="111" id="_x0000_i1025" src="images/logo.gif"
- style="height: 54px; width: 150px;" alt="Logo" title=""><br clear="all"
- style="page-break-before: always;">
-    <br clear="all" style="page-break-before: always;">
-Table of Contents</span></b><span style="color: rgb(0, 102, 0);"> <o:p></o:p></span></p>
-    <ol start="1" type="1">
-      <li class="MsoNormal" style=""><a href="Background.html">Basic
-Background Information</a></li>
-      <ol start="1" type="1">
-        <li class="MsoNormal"><a href="webserver.html">Web
-Server</a> </li>
-        <li class="MsoNormal" style=""><a href="license.html">License</a></li>
-        <li class="MsoNormal"><a href="helpus.html">Help Us</a></li>
-        <li class="MsoNormal" style=""><a href="cvsversion.html">CVS</a><a
- href="License.html"><b> <o:p></o:p></b></a></li>
-      </ol>
-      <li class="MsoNormal" style="">Protocols </li>
-      <ol start="1" type="1">
-        <li class="MsoNormal" style="">HTTP </li>
-        <li class="MsoNormal" style="">ISAPI </li>
-        <li class="MsoNormal" style="">CGI </li>
-      </ol>
-      <li class="MsoNormal" style="">Scripting Languages </li>
-      <ol start="1" type="1">
-        <li class="MsoNormal" style=""><a href="Htmlfiles.html">HTML</a>
-        </li>
-        <li class="MsoNormal" style=""><a href="php.html">PHP</a> </li>
-        <li class="MsoNormal" style=""><a href="perl.html">Perl</a> </li>
-      </ol>
-      <li class="MsoNormal" style="">Set Up Guides </li>
-      <ol start="1" type="1">
-        <li class="MsoNormal" style=""><a href="Linuxrun.html">Linux</a>
-        </li>
-        <li class="MsoNormal" style=""><a href="runWindows9x.html">Windows
-9x</a></li>
-        <li class="MsoNormal" style=""><a href="services.html">Windows
-NT</a><br>
-        </li>
-      </ol>
-      <li class="MsoNormal" style="">Configuring </li>
-      <ol start="1" type="1">
-        <li class="MsoNormal" style=""><a href="virtualhosts.html">Creating
-Virtual Hosts</a> </li>
-        <li class="MsoNormal" style=""><a href="PublishWebSite.html">Publishing
-a Web Site</a> </li>
-        <li class="MsoNormal" style=""><a href="ViewingSite.html">Viewing
-Your Web Site</a></li>
-        <li class="MsoNormal" style=""><font size="+1"><span
- style="font-weight: bold;">Error Handling</span></font><br>
-        </li>
-      </ol>
-      <li class="MsoNormal" style="">Maintenance Tasks </li>
-      <ol start="1" type="1">
-        <li class="MsoNormal" style="">Working with Virtual Hosts </li>
-        <li class="MsoNormal" style="">Resolving Conflicts </li>
-        <li class="MsoNormal" style="">Logging and Monitoring Activity </li>
-      </ol>
-      <li class="MsoNormal" style="">File Handling </li>
-      <ol start="1" type="1">
-        <li class="MsoNormal" style=""><a href="mimetypes.html">MIME</a>
-        </li>
-        <li class="MsoNormal" style="">Content Management </li>
-        <li class="MsoNormal" style="">File Uploading </li>
-      </ol>
-      <li class="MsoNormal" style="">URL Handling </li>
-      <li class="MsoNormal" style=""><a href="Security.html">Controlling
-Access</a> </li>
-      <li class="MsoNormal" style="">Troubleshooting </li>
-    </ol>
-    </td>
-    <td valign="top" style="border: 1pt inset green; padding: 3pt;">
-    <p class="NormalWeb1" align="right" style="text-align: right;"><b><span
- style="font-size: 13.5pt; color: rgb(0, 102, 0);">&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Next&gt;&gt;<br>
-    </span></b></p>
-    <p class="NormalWeb1" align="right" style="text-align: right;"><span
- style="color: rgb(0, 102, 0);"><o:p></o:p></span></p>
-    <p class="MsoNormal"><o:p></o:p></p>
-    <div style="margin-left: 2.5in;">
-    <p class="MsoNormal"><o:p></o:p></p>
-    </div>
-    <p class="MsoNormal" align="center"
- style="margin-bottom: 12pt; text-align: center;"><o:p></o:p></p>
-    <h1 align="center" style="color: rgb(0, 102, 0);">ERROR PAGES</h1>
-    <br>
-    <br>
+<body>
+<h1 align="center" style="color: rgb(0, 102, 0);">ERROR PAGES</h1>
+<br>
+<br>
 You can modify the html pages that are sent when an error occurs. <br>
-    <br>
-    <br>
-    <br>
+<br>
 The default files are contained in the <font color="#ffff00"
  style="color: rgb(0, 102, 0); font-family: courier new,courier,monospace;">system</font>
 folder used by the host and can be replaced with your own
-files.&nbsp;&nbsp; Different <a href="virtualhosts.html">Virtual Hosts</a>
+files.&nbsp;&nbsp; Different <a
+ href="file:///C:/Documents%20and%20Settings/Owner/My%20Documents/My%20Server%20Documentation/Myserver%20CVS/myserverweb/Documentation/En/virtualhosts.html">Virtual
+Hosts</a>
 can use different error files.<br>
-    <br>
-    <br>
-    <br>
+<br>
 The pages must not contain any references to other documents in the
 system folder. <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <table cellpadding="2" cellspacing="2" border="0"
+<br>
+<br>
+<br>
+<br>
+<br>
+<table cellpadding="2" cellspacing="2" border="0"
  style="text-align: left; width: 698px; height: 262px; margin-left: auto; margin-right: auto;">
-      <tbody>
-        <tr>
-          <td style="vertical-align: top; width: 20%;">
-          <div style="text-align: center;"><br>
-          </div>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <font size="-1">The famous 404 error happens when a file
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; width: 20%;">
+      <div style="text-align: center;"><br>
+      </div>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <font size="-1">The famous 404 error happens when a file
 cannot be found on the server.</font><br>
-          </td>
-          <td style="vertical-align: top;"><img
- src="images/sample404.gif" title="" alt="Sample 404 Error"
- style="width: 527px; height: 250px;"><br>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="text-align: center;"><br>
-    </p>
-    <br>
-    <br>
+      </td>
+      <td style="vertical-align: top;"><img
+ src="images/sample404.gif"
+ title="" alt="Sample 404 Error" style="width: 527px; height: 250px;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p style="text-align: center;"><br>
+</p>
+<br>
+<br>
 &nbsp;For&nbsp; more information on the error pages consult the RFC2068
 document found at&nbsp; <a href="http://www.w3.org" ;=""
  target="_blank">www.w3c.org</a>.
-    <p style="margin-left: 40px;">.</p>
-    <p class="NormalWeb1"><o:p>&nbsp;</o:p></p>
-    <p class="MsoNormal"><o:p>&nbsp;<br>
-    <br>
-    </o:p></p>
-    <p class="MsoNormal" align="right" style="text-align: right;"><b><span
- style="font-size: 13.5pt; color: rgb(0, 102, 0);"><br>
-    </span></b></p>
-    <p class="MsoNormal" align="right" style="text-align: right;"><b><span
- style="font-size: 13.5pt; color: rgb(0, 102, 0);"><br>
-    </span></b></p>
-    <p class="MsoNormal" align="right" style="text-align: right;"><b><span
- style="font-size: 13.5pt; color: rgb(0, 102, 0);">&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Next&gt;&gt;</span></b><span style="color: rgb(0, 102, 0);"><o:p></o:p></span></p>
-    </td>
-  </tr>
-  </thead>
-</table>
-<p style="margin-bottom: 12pt;"><o:p>&nbsp;</o:p></p>
-</div>
 </body>
 </html>

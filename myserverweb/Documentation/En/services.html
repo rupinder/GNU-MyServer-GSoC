@@ -1,253 +1,143 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <meta http-equiv="CONTENT-TYPE"
- content="text/html; charset=windows-1252">
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet" type="text/css" href="myserver.css">
   <title>Run Like a Service</title>
-  <meta name="GENERATOR" content="OpenOffice.org 1.0.3  (Win32)">
-  <meta name="AUTHOR" content="Kristen Grubb">
-  <meta name="CREATED" content="20030804;21131939">
-  <meta name="CHANGEDBY" content="Kristen Grubb">
-  <meta name="CHANGED" content="20030804;21511707">
-  <style>
-	<!--
-		TD P { color: #000000 }
-		P { color: #000000 }
-		H2 { color: #000000 }
-		H4 { color: #000000 }
-		A:link { color: #0000ff }
-	-->
-	</style>
 </head>
-<body alink="#666666" vlink="#000099" link="#006600"
- style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"
- lang="en-US">
-<table bordercolor="#000002" cellpadding="4" cellspacing="0"
- frame="void" style="page-break-before: always;" border="5">
-</table>
-<table bordercolor="#008000" cellpadding="4" cellspacing="0"
- frame="void"
- style="page-break-before: always; width: 993px; height: 776px;"
- border="4">
-  <thead> <tr valign="top">
-    <td style="width: 20%;">
-    <div style="text-align: center; color: rgb(0, 102, 0);"><font
- size="+2"><span style="font-weight: bold;"><br>
-    <img src="images/logo.gif" title="" alt="Logo"
- style="width: 150px; height: 54px;"><br>
-    <br>
-Table of Contents</span></font> </div>
-    <ol>
-      <li><a href="Background.html">Basic Background Information</a></li>
-      <ol>
-        <li><a href="WebServer.html">Web Server</a> </li>
-        <li><a href="license.html">License</a></li>
-        <li><a href="helpus.html">Help Us</a></li>
-        <li><a href="cvsversion.html">CVS</a><br>
-        </li>
-      </ol>
-      <li>Protocols
-        <ol>
-          <li>HTTP </li>
-          <li>ISAPI </li>
-          <li>CGI </li>
-        </ol>
-      </li>
-      <li>Scripting Languages
-        <ol>
-          <li><a href="Htmlfiles.html">HTML</a> </li>
-          <li><a href="php.html">PHP</a> </li>
-          <li><a href="perl.html">Perl</a> </li>
-        </ol>
-      </li>
-      <li>Set Up Guides
-        <ol>
-          <li><a href="RunLinux.html">Linux</a> </li>
-          <li><a href="RunWindows.html">Windows 9x</a></li>
-          <li><font size="+1" style="font-weight: bold;"><span
- style="font-weight: normal;">Windows NT</span></font><font size="+1"><br>
-            </font></li>
-        </ol>
-      </li>
-      <li>Configuring
-        <ol>
-          <li><a href="virtualhosts.html">Creating Virtual Hosts</a> </li>
-          <li><a href="PublishSite.html">Publishing a Web Site</a> </li>
-          <li><a href="ViewingSite.html">Viewing Your Web Site</a></li>
-          <li><a href="errorfiles.html">Error Handling</a><br>
-          </li>
-        </ol>
-      </li>
-      <li>Maintenance Tasks
-        <ol>
-          <li>Working with Virtual Hosts </li>
-          <li>Resolving Conflicts </li>
-          <li>Logging and Monitoring Activity </li>
-        </ol>
-      </li>
-      <li>File Handling
-        <ol>
-          <li><a href="mimetypes.html">MIME</a> </li>
-          <li>Content Management </li>
-          <li>File Uploading </li>
-        </ol>
-      </li>
-      <li>URL Handling </li>
-      <li><a href="Security.html">Controlling Access</a> </li>
-      <li>Troubleshooting </li>
-    </ol>
-    </td>
-    <td>
-    <p align="right" style="color: rgb(0, 102, 0);"><font size="4"><b><a
- href="runWindows9x.html">&lt;&lt;Previous</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="virtualhosts.html">Next&gt;&gt;</a></b></font></p>
-    <br>
-    <h1 align="center" style="color: rgb(0, 102, 0);">RUN LIKE A SERVICE</h1>
-    <div style="text-align: center;"><b><font size="+2">Windows NT
+<body>
+<h1 align="center" style="color: rgb(0, 102, 0);">RUN LIKE A SERVICE</h1>
+<div style="text-align: center;"><b><font size="+2">Windows NT
 Family </font></b><br>
-    </div>
-    <font size="+1"><br>
-    </font>
-    <div align="left"><font size="+1">Registering the Service on the
+</div>
+<font size="+1"><br>
+</font>
+<div align="left"><font size="+1">Registering the Service on the
 Operating System</font><br>
-    </div>
-    <br>
+</div>
+<br>
 If you are using the Windows NT family(NT, 2000, XP, .NET), &nbsp;you
 can run MyServer as a
 Operating System Service.&nbsp; Before running the service, you must
 first
 register it as a service with the OS.&nbsp;<br>
-    <div align="left" style="margin-left: 120px;">&nbsp;&nbsp;&nbsp;
+<div align="left" style="margin-left: 120px;">&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 1. &nbsp;Open
 the Control Center from the Start Menu<br>
-    </div>
-    <div style="margin-left: 120px;"> </div>
-    <p align="left" style="margin-left: 120px;"> &nbsp;&nbsp;&nbsp;
+</div>
+<div style="margin-left: 120px;"> </div>
+<p align="left" style="margin-left: 120px;"> &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 2. &nbsp;Click
 on Install/Remove service on the tool bar.<br>
-    </p>
-    <div style="margin-left: 120px;"> &nbsp;&nbsp;&nbsp;
+</p>
+<div style="margin-left: 120px;"> &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;3. &nbsp;Click
 on register service.<br>
-    </div>
-    <div align="left"> <br>
-    </div>
-    <div style="text-align: center;">
-    <table cellpadding="5" cellspacing="5" border="0"
+</div>
+<div align="left"> <br>
+</div>
+<div style="text-align: center;">
+<table cellpadding="5" cellspacing="5" border="0"
  style="text-align: left; height: 252px; width: 359px; margin-left: auto; margin-right: auto;">
-      <tbody>
-        <tr>
-          <td style="vertical-align: top; width: 20px;"><font size="-1"><br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; width: 20px;"><font size="-1"><br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
 Registering the Service</font><br>
-          </td>
-          <td style="vertical-align: top;"><img
- src="images/control_service.gif" title="" alt="Registering Service"
- style="width: 320px; height: 240px;"><br>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    <p style="text-align: center;"><font size="-1"><br>
-    </font></p>
-    <p><br>
-    </p>
-    <div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp;
+      </td>
+      <td style="vertical-align: top;"><img
+ src="images/control_service.gif" title="" alt="Registering Service" style="width: 320px; height: 240px;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p style="text-align: center;"><font size="-1"><br>
+</font></p>
+<p><br>
+</p>
+<div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Note: &nbsp; If you would like to
 remove the service at a later date, you may do so by clicking remove
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 service.&nbsp; This will not
-remove the program, it will just remove the registration
+remove the program, it will just &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; remove the registration
 from the OS.<br>
-    </div>
-    <br>
-    <div align="left"><font size="+1"><br>
+</div>
+<br>
+<div align="left"><font size="+1"><br>
 Starting and Stopping the Service<br>
-    <br>
-    </font>Once you have registered the service with the OS, you can
+<br>
+</font>Once you have registered the service with the OS, you can
 start and stop the service easily from the
 Control Center.<br>
-    </div>
-    <br>
-    <div align="left">
-    <div style="margin-left: 80px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+</div>
+<br>
+<div align="left">
+<div style="margin-left: 80px;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; 1. &nbsp;Under the file menu, choose Run as a
 Service to start the program.<br>
-    <br>
+<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; 2. &nbsp;When you no
 longer want the program to run, click Stop the service under the file
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; menu.<br>
-    <br>
-    </div>
-    <div align="center"><br>
-    </div>
-    <div align="center">
-    <table cellpadding="5" cellspacing="5"
+<br>
+</div>
+<div align="center"><br>
+</div>
+<div align="center">
+<table cellpadding="5" cellspacing="5"
  style="text-align: left; margin-left: auto; margin-right: auto; width: 532px; height: 264px;">
-      <tbody>
-        <tr>
-          <td style="vertical-align: top; width: 20%;"><br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <font size="-1">Starting and Stopping the Service</font><br>
-          </td>
-          <td style="vertical-align: top;"><img
- src="images/control_file.gif" title=""
- alt="Starting and Stopping the Service"
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; width: 20%;"><br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <font size="-1">Starting and Stopping the Service</font><br>
+      </td>
+      <td style="vertical-align: top;"><img
+ src="images/control_file.gif"
+ title="" alt="Starting and Stopping the Service"
  style="width: 320px; height: 240px;"><br>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <br>
-    </div>
-    </div>
-    <p align="left"><font color="#99ff99" style="color: rgb(204, 0, 0);">Warning</font><span
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</div>
+</div>
+<p align="left"><font color="#99ff99" style="color: rgb(204, 0, 0);">Warning</font><span
  style="color: rgb(204, 0, 0);">:</span> &nbsp;In order to close the
 Control Center be careful to choose the exit command. &nbsp;The Web
 server and the Control Center are two distinct applications, closing
 the Control Center will not affect the Web server.<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>
-    </p>
-    <p>For more informations about the services visit the Microsoft
-site at <a href="http://www.microsoft.com" ;="" target="_blank">www.microsoft.com</a>
+</p>
+<p>For more informations about the services visit the Microsoft
+site at <a href="http://www.microsoft.com" target="_blank">www.microsoft.com</a>
 and
 search for services.</p>
-    <br>
-    <br>
-    <div style="text-align: right; color: rgb(0, 102, 0);"><font
- size="4"><b><a href="runWindows9x.html">&lt;&lt;Previous</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="virtualhosts.html">Next&gt;&gt;</a></b></font></div>
-    </td>
-  </tr>
-  </thead>
-</table>
-<p><br>
 <br>
-</p>
 </body>
 </html>
