@@ -16,6 +16,8 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
+#ifdef WIN32
+
 #include "../include/isapi.h"
 
 static  u_long max_Connections;
@@ -109,7 +111,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	buildCGIEnvironmentString(td,connTable[connIndex].envString);
 
-	ZeroMemory(&ExtCtrlBlk, 0);
+	ZeroMemory(&ExtCtrlBlk, sizeof(ExtCtrlBlk));
 	ExtCtrlBlk.cbSize = sizeof(ExtCtrlBlk);
 	ExtCtrlBlk.dwVersion = MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR);
 	ExtCtrlBlk.GetServerVariable = GetServerVariableExport;
@@ -582,3 +584,5 @@ BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWO
 		return 0;
 
 }
+
+#endif

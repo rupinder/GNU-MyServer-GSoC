@@ -381,7 +381,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	{
 		if(ms_FileExists(td->filenamePath))
 		{
+#ifdef WIN32
 			return sendISAPI(td,s,td->filenamePath,ext,data);
+#else
+			return raiseHTTPError(td,s,e_501);
+#endif
 		}
 		else
 			return raiseHTTPError(td,s,e_404);

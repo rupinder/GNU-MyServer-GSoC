@@ -17,6 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
+#ifdef WIN32
 
 #include <windows.h>
 #define SOCKETLIBINCLUDED
@@ -133,3 +134,5 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 BOOL WINAPI GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
 BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+
+#endif
