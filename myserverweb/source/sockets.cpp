@@ -55,7 +55,7 @@ MYSERVER_SOCKET ms_socket(int af,int type,int protocol)
 	return	(MYSERVER_SOCKET)socket(af,type,protocol);
 }
 
-int ms_bind(MYSERVER_SOCKET s,sockaddr* sa,int namelen)
+int ms_bind(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int namelen)
 {
 #ifdef WIN32	
 	return bind((SOCKET)s,sa,namelen);
@@ -73,7 +73,7 @@ int ms_listen(MYSERVER_SOCKET s,int max)
 #endif
 }
 
-MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET s,sockaddr* sa,int* sockaddrlen)
+MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int* sockaddrlen)
 {
 #ifdef WIN32
 	return (MYSERVER_SOCKET)accept(s,sa,sockaddrlen);
@@ -144,7 +144,7 @@ int ms_ioctlsocket(MYSERVER_SOCKET s,long cmd,unsigned long* argp)
 #endif
 }
 
-int ms_connect(MYSERVER_SOCKET s,sockaddr* sa,int na)
+int ms_connect(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int na)
 {
 #ifdef WIN32
 	return connect((SOCKET)s,sa,na);
@@ -177,4 +177,8 @@ u_long ms_bytesToRead(MYSERVER_SOCKET c)
 int ms_gethostname(char *name,int namelen)
 {
 	return gethostname(name,namelen);
+}
+int ms_getsockname(MYSERVER_SOCKET s,MYSERVER_SOCKADDR *ad,int *namelen)
+{
+	return getsockname(s,ad,namelen);
 }

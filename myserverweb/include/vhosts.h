@@ -46,6 +46,8 @@ public:
 	void addHost(char *);
 	void clearIPList();
 	void clearHostList();
+	int isHostAllowed(char*);
+	int isIPAllowed(char*);
 	~vhost();
 	/*
 	*Functions to manage the logs file.

@@ -690,7 +690,7 @@ void cserver::initialize(int OSVer)
 	*Determine the number of default filenames written in the configuration file.
 	*/
 	nDefaultFilename=0;
-	while(true)
+	for(;;)
 	{
 		char xmlMember[21];
 		sprintf(xmlMember,"DEFAULT_FILENAME%i",nDefaultFilename);
@@ -845,9 +845,19 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 		return false;
 	static int ret;
 	ret=true;
+	
 	char ip[32];
+	char myIp[32];
+	MYSERVER_SOCKADDRIN  localsock_in;
+	ZeroMemory(&localsock_in,sizeof(localsock_in));
+	int dim=sizeof(localsock_in);
+	ms_getsockname(s,(MYSERVER_SOCKADDR*)&localsock_in,&dim);
+
 	strncpy(ip, inet_ntoa(asock_in->sin_addr), 32); // NOTE: inet_ntop supports IPv6
+	strncpy(myIp, inet_ntoa(localsock_in.sin_addr), 32); // NOTE: inet_ntop supports IPv6
+
 	int port=ntohs((*asock_in).sin_port);
+
 
 	char msg[500];
 #ifdef WIN32
@@ -859,7 +869,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 
 	static u_long local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
-	if(!ct->addConnection(s,protID,&ip[0],port))
+	if(!ct->addConnection(s,protID,&ip[0],&myIp[0],port))
 	{
 		ret=false;
 		ms_closesocket(s);

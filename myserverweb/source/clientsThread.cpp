@@ -187,7 +187,7 @@ void ClientsTHREAD::clean()
 *Add a new connection.
 *Connections are defined using a CONNECTION struct.
 */
-LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr,int port)
+LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr,char *localIpAddr,int port)
 {
 	ms_requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
@@ -201,6 +201,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	nc->timeout=clock();
 	nc->protocol=protID;
 	lstrcpy(nc->ipAddr,ipAddr);
+	lstrcpy(nc->localIpAddr,localIpAddr);
 	nc->Next=connections;
 	connections=nc;
 	nConnections++;

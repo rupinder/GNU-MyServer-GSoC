@@ -38,8 +38,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit15]
 FileName=security.cpp
@@ -50,8 +48,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit16]
 FileName=sockets.cpp
@@ -62,8 +58,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit17]
 FileName=..\include\security.h
@@ -74,8 +68,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit18]
 FileName=..\include\sockets.h
@@ -86,8 +78,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit19]
 FileName=..\include\stringutils.h
@@ -98,8 +88,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit20]
 FileName=..\include\utility.h
@@ -110,8 +98,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit21]
 FileName=..\include\AMMimeUtils.h
@@ -122,8 +108,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit22]
 FileName=..\include\cgi.h
@@ -134,8 +118,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit23]
 FileName=..\include\clientsThread.h
@@ -146,8 +128,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit24]
 FileName=..\include\connectionstruct.h
@@ -158,8 +138,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit25]
 FileName=..\include\cserver.h
@@ -170,8 +148,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit27]
 FileName=..\include\filemanager.h
@@ -182,8 +158,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [VersionInfo]
 Major=0
@@ -211,8 +185,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit29]
 FileName=..\include\http.h
@@ -223,8 +195,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit30]
 FileName=..\include\HTTPmsg.h
@@ -235,8 +205,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit31]
 FileName=..\include\isapi.h
@@ -247,8 +215,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit1]
 FileName=stringutils.cpp
@@ -259,8 +225,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit2]
 FileName=utility.cpp
@@ -271,8 +235,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit5]
 FileName=clientsThread.cpp
@@ -283,8 +245,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit6]
 FileName=cserver.cpp
@@ -295,8 +255,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit7]
 FileName=cXMLParser.cpp
@@ -307,8 +265,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit8]
 FileName=filemanager.cpp
@@ -319,8 +275,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit9]
 FileName=http.cpp
@@ -331,8 +285,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit10]
 FileName=httpmsg.cpp
@@ -343,8 +295,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit11]
 FileName=isapi.cpp
@@ -355,8 +305,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit12]
 FileName=MIME_manager.cpp
@@ -367,8 +315,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit13]
 FileName=mscgi.cpp
@@ -379,8 +325,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit26]
 FileName=..\include\cXMLParser.h
@@ -391,8 +335,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit32]
 FileName=..\include\MIME_manager.h
@@ -403,8 +345,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit33]
 FileName=..\include\mscgi.h
@@ -415,8 +355,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit34]
 FileName=..\include\Response_RequestStructs.h
@@ -427,8 +365,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit35]
 FileName=..\stdafx.cpp
@@ -439,8 +375,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit36]
 FileName=..\stdafx.h
@@ -451,8 +385,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit37]
 FileName=Dev-C++.cpp
@@ -463,8 +395,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit38]
 FileName=..\stdafx.h
@@ -485,8 +415,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Unit4]
 FileName=cgi.cpp
@@ -497,8 +425,6 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-Open=0
-Top=0
 
 [Views]
 ProjectView=1

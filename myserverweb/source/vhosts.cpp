@@ -17,6 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "../include/vhosts.h"
+#include "../include/connectionstruct.h"/*Used for protocols IDs*/
 
 #ifndef WIN32
 extern "C" {
@@ -92,6 +93,30 @@ void vhost::addIP(char *ip)
 	}
 	ipList=il;
 }
+
+int vhost::isHostAllowed(char* host)
+{
+	sHostList *lhl=hostList;
+	while(lhl)
+	{
+		if(!strcmp(host,lhl->hostName))
+			return 1;
+		lhl=lhl->next;
+	}
+	return 0;
+}
+int vhost::isIPAllowed(char* ip)
+{
+	sIpList *lipl=ipList;
+	while(lipl)
+	{
+		if(!strcmp(ip,lipl->hostIp))
+			return 1;
+		lipl=lipl->next;
+	}
+	return 0;
+}
+
 void vhost::addHost(char *host)
 {
 	sHostList* hl=new sHostList();
@@ -145,24 +170,39 @@ void vhostmanager::addvHost(vhost* vHost)
 	}
 	else
 	{
-		while(hostl->next)
+		for(;;)/*Append the new host to the end of the linked list*/
 		{
-			hostl->next;
+			if(hostl->next)
+				hostl=hostl->next;
+			else
+				break;
 		}
-		hostl=new sVhostList();	
-		hostl->next->next=0;/*Make sure that next is null*/
-		hostl->next->host=vHost;
+		sVhostList* newvhl=hostl->next=new sVhostList();	
+
+		newvhl->next=0;/*Make sure that next is null*/
+		newvhl->host=vHost;
 	}
 	
 }
-void vhostmanager::getvHost(vhost* out,char*,char*,u_short)
+void vhostmanager::getvHost(vhost* out,char* host,char* ip,u_short port)
 {
-
+	sVhostList* vhl;
+	out=0;/*set out to be Zero*/
+	for(vhl=vhostList;vhl;vhl=vhl->next)
+	{
+		if(vhl->host->port!=port)/*control if the host port is the correct one*/
+			continue;
+		if(ip && !vhl->host->isIPAllowed(ip)) /*If ip is defined check that it is allowed to connect to the host*/
+			continue;
+		if(host && !vhl->host->isHostAllowed(host))/*If host is defined check that it is allowed to connect to the host*/
+			continue;
+		out=vhl->host;/*we find a valid host*/
+	}
 }
 
 vhostmanager::vhostmanager()
 {
-
+	vhostList=0;
 }
 vhostmanager::~vhostmanager()
 {

@@ -37,6 +37,7 @@ public:
 	char password[32];
 	char nTries;	
 	char ipAddr[32];
+	char localIpAddr[32];
 	u_short port;
 	MYSERVER_SOCKET socket;	
 	u_long timeout;	

@@ -582,7 +582,7 @@ BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWO
 	}
 	else if(valLen+30<maxLen) 
 		return 0;
-
+	return 1;
 }
 
 #endif
