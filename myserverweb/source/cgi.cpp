@@ -557,7 +557,6 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
    */
 	CMemBuf memCgi;
 	char strTmp[32];
-	char RANGETYPE[HTTP_REQUEST_RANGETYPE_DIM+1];	
 
 	memCgi.SetExternalBuffer(cgi_env_string, td->buffer2->GetRealLength());
 	memCgi << "SERVER_SOFTWARE=MyServer " << versionOfSoftware;
@@ -631,7 +630,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	if(td->request.RANGEBYTEBEGIN || td->request.RANGEBYTEEND)
 	{
     ostringstream rangeBuffer;
-		memCgi << end_str << "HTTP_RANGE=" << RANGETYPE << "=" ;
+		memCgi << end_str << "HTTP_RANGE=" << td->request.RANGETYPE << "=" ;
     if(td->request.RANGEBYTEBEGIN)
     {
       rangeBuffer << (int)td->request.RANGEBYTEBEGIN;
