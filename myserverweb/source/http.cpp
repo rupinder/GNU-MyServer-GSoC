@@ -31,12 +31,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/gzip.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
+#define min(a,b)((a<b)?a:b)
+
 extern "C" 
 {
 #ifdef WIN32
 #include <direct.h>
 #include <errno.h>
 #endif
+
 #ifdef NOT_WIN
 #include <string.h>
 #include <errno.h>
@@ -45,7 +48,6 @@ extern "C"
 
 #ifdef NOT_WIN
 #include "../include/lfind.h"
-
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #endif
@@ -994,14 +996,7 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 */
 int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id)
 {
-	/*!
-	*Bit mask.
-	*|...|31|32|
-	*Bit 32		->	Return value;
-	*Bit 31		->	Return from the function;
-	*Bits 1-30	->	Not used.
-	*/
-	int retvalue=0;
+	int retvalue=-1;
 	td.buffer=b1;
 	td.buffer2=b2;
 	td.buffersize=bs1;
@@ -1024,6 +1019,8 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	u_long validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request,&td);
 	if(validRequest==-1)/*!If the header is incomplete returns 2*/
 	{
+		retvalue = raiseHTTPError(&td,a,e_100);
+		logHTTPaccess(&td,a);		
 		return 2;
 	}
 	/*
@@ -1055,6 +1052,8 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		logHTTPaccess(&td,a);
 		return retvalue;
 	}
+	u_long content_len=0;/*!POST data size if any*/
+	
 	/*!
 	*For methods that accept data after the HTTP header set the correct pointer and create a file
 	*containing the informations after the header.
@@ -1084,7 +1083,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			
 			td.inputData.writeToFile(td.request.URIOPTSPTR,total_nbr,&nbw);
 			
-			u_long content_len=atoi(td.request.CONTENT_LENGTH);
+			content_len=atoi(td.request.CONTENT_LENGTH);
 			/*!
 			*If the connection is Keep-Alive be sure that the client specify a the
 			*HTTP CONTENT-LENGTH field.
@@ -1248,7 +1247,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		td.inputData=newStdIn;
 	}else	
 	/*
-	*If is specified anothe Transfer Encoding not supported by the server send a 501 error.
+	*If is specified another Transfer Encoding not supported by the server send a 501 error.
 	*/
 	if(strlen(td.request.TRANSFER_ENCODING))
 	{
@@ -1261,8 +1260,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			return 0;		
 	}
 
-
-	if(!(retvalue&2))/*!If return value is not configured propertly.*/
+	if(retvalue==-1)/*!If return value is not configured propertly.*/
 	{
 		/*!
 		*How is expressly said in the rfc2616 a client that sends an 
@@ -1295,7 +1293,31 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 				return 0;
 			}
 		}
-	
+		
+		if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive")) 
+		{
+			/*!
+			*Support for HTTP pipelining.
+			*/
+			if(content_len==0)
+			{
+				a->dataRead=min(KB(8),strlen(&td.buffer[td.nHeaderChars]));
+				if(a->dataRead)
+				{
+					memcpy(a->connectionBuffer,&td.buffer[td.nHeaderChars],a->dataRead);	
+					retvalue=3;
+				}
+				else
+					retvalue=1;
+				
+			}	
+			else
+				retvalue=1;
+		}
+		else
+			retvalue=0;
+
+		
 		/*!
 		*Here we control all the HTTP commands.
 		*/
@@ -1334,23 +1356,11 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		else
 		{
 			raiseHTTPError(&td,a,e_501);
-			retvalue=(~1);/*!Set first bit to 0*/
+			retvalue=0;
 		}
 		logHTTPaccess(&td,a);
 	}
-	/*!
-	*If the connection is not Keep-Alive remove it from the connections list returning 0.
-	*/  
-	if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive")) 
-	{
-		retvalue|=1;/*!Set first bit to 1*/
-		retvalue|=2;/*!Set second bit to 1*/
-	}
-	else
-	{
-		retvalue=(~1);/*!Set first bit to 0*/
-		retvalue|=2;/*!Set second bit to 1*/
-	}
+
 	/*!
 	*If the inputData file was not closed close it.
 	*/
@@ -1367,7 +1377,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		td.outputData.closeFile();
 		MYSERVER_FILE::deleteFile(td.outputDataPath);
 	}	
-	return (retvalue&1)?1:0;
+	return retvalue;
 }
 
 
@@ -1446,7 +1456,7 @@ int http::sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
 	td->response.httpStatus=500;
 	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
-	const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
+	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\"><p align=\"center\">\
 		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
 		Internal Server error</font></p>\r\n";
 
@@ -1458,7 +1468,7 @@ int http::sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 
 	a->socket.send(hardHTML,(u_long)strlen(hardHTML), 0);
 	
-	return 1;
+	return 0;
 }
 /*!
 *Returns the MIME type passing its extension.
@@ -1511,13 +1521,19 @@ int http::sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
 	td->response.httpStatus=302;
 	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
+	int ret=0;
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+	{
+		strcat(td->buffer2,"Connection: Keep-Alive\r\n");	
+		ret = 1;
+	}
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
 	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
 
-	return 1;
+	return ret;
 }
 /*!
 *Send a non-modified message to the client.
@@ -1526,12 +1542,18 @@ int http::sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
 	td->response.httpStatus=304;
 	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",versionOfSoftware);
+	int ret=0;
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+	{
+		strcat(td->buffer2,"Connection: Keep-Alive\r\n");	
+		ret = 1;
+	}	
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
 	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
-	return 1;
+	return ret;
 }
 
 /*!

@@ -50,7 +50,7 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cse
 #endif
 	if(hinstLib==0)
 	{
-		printf("%s %s\n",parser->getValue("ERR_LOADED"),filename);		
+		printf("%s %s\n",languageParser->getValue("ERR_LOADED"),filename);		
 		return 0;
 	}
 	loadProtocolPROC Proc;

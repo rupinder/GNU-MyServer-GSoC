@@ -362,8 +362,12 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	*/
 	u_long i=0,j=0,max=0;
 	u_long nLines,maxTotchars;
+	int noinputspecified=0;
 	if(input==0)
+	{
+		noinputspecified=1;
 		input=td->buffer;
+	}
 	u_long validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
 	if(validRequest==0)/*!Invalid header*/
 		return 0;
@@ -380,10 +384,14 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	static int nLineControlled;
 	nLineControlled=0;
 	static int lineControlled;
-	if(input)
+	
+	if(!noinputspecified)
 		token=input;
 	else
-		token=td->buffer;
+	{
+		strncpy(td->buffer2,input,maxTotchars);
+		input=token=td->buffer2;
+	}
 
 	token = strtok( token, cmdseps );
 	if(!token)return 0;
@@ -467,7 +475,6 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			token = strtok( NULL, "\r\n" );
 			if(!token)return 0;
 			lineControlled=1;		
-			td->buffer2[0]='\0';
 			/*!
 			*Basic authorization in base64 is login:password.
 			*Assume that it is Basic anyway.
@@ -675,7 +682,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			if(!token)return 0;
 		}
 		token = strtok( NULL, cmdseps );
-	}while((u_long)(token-td->buffer)<maxTotchars);
+	}while((u_long)(token-input)<maxTotchars);
 	/*!
 	*END REQUEST STRUCTURE BUILD.
 	*/
@@ -700,10 +707,13 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	*control if this is a regular request.
 	*The HTTP header ends with a \r\n\r\n sequence.
 	*/
-
+	int noinputspecified=0;
 
 	if(input==0)
+	{
 		input=td->buffer;
+		noinputspecified=1;
+	}
 	/*!
 	*Control if the HTTP header is a valid header.
 	*/
@@ -720,10 +730,15 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	static int nLineControlled;
 	nLineControlled=0;
 	static int lineControlled;
-	if(input)
-		token=input;
+	if(noinputspecified)
+	{
+		strncpy(td->buffer2,input,maxTotchars);
+		input=token=td->buffer2;
+	}
 	else
-		token=td->buffer;
+	{
+		token=input;
+	}
 
 	token = strtok( token, cmdseps );
 	do

@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define e_302			23
 #define e_303			24
 #define e_304			25
+#define e_100			26
 #define e_400			0
 #define e_401			1
 #define e_401AUTH		1001
@@ -48,8 +49,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define e_502			12
 #define e_503			13
 
-extern char HTTP_ERROR_MSGS[26][64];
-extern char HTTP_ERROR_HTMLS[26][64];
+extern char HTTP_ERROR_MSGS[27][64];
+extern char HTTP_ERROR_HTMLS[27][64];
 int getErrorIDfromHTTPStatusCode(int statusCode);
 int getHTTPStatusCodeFromErrorID(int statusCode);
 #endif

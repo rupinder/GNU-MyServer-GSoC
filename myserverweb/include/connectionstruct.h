@@ -56,9 +56,9 @@ public:
 	int dataRead;/*Data size read in the buffersize2*/
 	int toRemove;/*If nonzero the server is saying to the protocol to remove the connection.
 	*Protocols can not consider this but is a good idea do it to avoid server overloads. 
-	*Reasons to remove the connection are defined at the begin of this page.
+	*Reasons to remove the connection are defined at the begin of this file.
 	*/
-
+	int forceParsing;/*Force the connection to be parsed.*/
 	char connectionBuffer[KB(8)];/*!This buffer must be used only by the ClientsTHREAD class*/
 	void *protocolBuffer;/*!Buffer for the connecion struct. Used by protocols.*/
 };

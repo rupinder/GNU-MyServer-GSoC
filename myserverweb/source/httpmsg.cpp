@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *This array is used to describe the errors for the HTTP protocol.
 */
-char HTTP_ERROR_MSGS[26][64]=
+char HTTP_ERROR_MSGS[27][64]=
 {
 	"Bad request",						/*!400*/
 	"Unauthorized",						/*!401*/
@@ -49,12 +49,13 @@ char HTTP_ERROR_MSGS[26][64]=
 	"Moved Permanently",				/*!301*/		
 	"Moved Temporarily",				/*!302*/		
 	"See Other",						/*!303*/			
-	"Not Modified"						/*!304*/
+	"Not Modified",						/*!304*/
+	"Continue"						/*!100*/	
 };
 /*!
 *This array is used to describe the HTTP files for personalized errors page.
 */
-char HTTP_ERROR_HTMLS[26][64]=
+char HTTP_ERROR_HTMLS[27][64]=
 {
 	"400.html",						/*!400*/
 	"401.html",						/*!401*/
@@ -82,6 +83,7 @@ char HTTP_ERROR_HTMLS[26][64]=
 	"302.html",						/*!302*/		
 	"303.html",						/*!303*/			
 	"304.html"							/*!304*/
+	"100.html"							/*!100*/	
 };
 /*!
 *Return an error ID starting from an HTTP status code.
@@ -168,6 +170,9 @@ int getErrorIDfromHTTPStatusCode(int statusCode)
 		case 503:
 			return e_503;
 			break;
+		case 100:
+			return e_100;
+			break;		
 
 	}
 	return -1;
@@ -257,6 +262,9 @@ int getHTTPStatusCodeFromErrorID(int statusCode)
 		case e_503:
 			return 503;
 			break;		
+		case e_100:
+			return 100;
+			break;				
 	}
 	return -1;
 }

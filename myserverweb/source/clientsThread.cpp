@@ -130,9 +130,11 @@ void ClientsTHREAD::controlConnections()
 		return;
 	c->parsing=1;
 	nBytesToRead=c->socket.bytesToRead();/*!Number of bytes waiting to be read*/
-	if(nBytesToRead)
+	if(nBytesToRead || c->forceParsing)
 	{
-		err=c->socket.recv(&buffer[c->dataRead],KB(8)-c->dataRead, 0);
+		c->forceParsing=0;
+		if(nBytesToRead)
+			err=c->socket.recv(&buffer[c->dataRead],KB(8) - c->dataRead, 0);
 		if(err==-1)
 		{
 			lserver->deleteConnection(c,this->id);
@@ -186,6 +188,7 @@ void ClientsTHREAD::controlConnections()
 		*0 to delete the connection from the active connections list
 		*1 to keep the connection active and clear the connectionBuffer
 		*2 if the header is incomplete and to save it in a temporary buffer
+		*3 if the header is incomplete without save it in a temporary buffer
 		*/
 		if(retcode==0)/*Delete the connection*/
 		{
@@ -196,7 +199,7 @@ void ClientsTHREAD::controlConnections()
 		{
 			c->dataRead=0;
 		}
-		else if(retcode==2)/*Incomplete request*/
+		else if(retcode==2)/*Incomplete request to buffer*/
 		{
 			/*!
 			*If the header is incomplete save the current received
@@ -206,6 +209,10 @@ void ClientsTHREAD::controlConnections()
 			c->dataRead+=err;
 				
 		}
+		else if(retcode==3)/*Incomplete request yet in the buffer*/
+		{
+			c->forceParsing=1;
+		}		
 		c->timeout=clock();
 	}
 	else

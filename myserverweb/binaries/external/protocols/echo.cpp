@@ -75,6 +75,7 @@ extern "C" int controlConnection(void * a,char* b1,char* b2,int bs1,int bs2,u_lo
 	*0 to delete the connection from the active connections list
 	*1 to keep the connection active and clear the connectionBuffer
 	*2 if the header is incomplete and to save it in a temporary buffer
+	*3 if the header is incomplete without save it in a temporary buffer
 	*/
 	return 0;
 

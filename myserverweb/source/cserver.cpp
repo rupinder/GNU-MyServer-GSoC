@@ -845,6 +845,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
 	nc->toRemove=0;
+	nc->forceParsing=0;
 	nc->parsing=0;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
