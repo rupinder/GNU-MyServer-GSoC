@@ -28,9 +28,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/lfind.h"
 #endif
 
+// Bloodshed Dev-C++ Helper
+#ifndef intptr_t
+#define intptr_t int
+#endif
+
 #define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
 #include "../include/MIME_manager.h"
 #include "../include/cXMLParser.h"
+
         
 #include "configureMIME.h"
 extern const char VERSION_OF_SOFTWARE[];

@@ -20,10 +20,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "stdafx.h"
 #include "resource.h" 
+
 #include <wx/wx.h> 
 #include <wx/taskbar.h>
 #include "configuration.h"
-
+#include "control.h"
 #define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
 #include "../include/MIME_manager.h"
 #include "../include/cXMLParser.h"

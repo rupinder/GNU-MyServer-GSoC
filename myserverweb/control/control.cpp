@@ -175,33 +175,34 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	char *cmdLine=GetCommandLine();
 	for(int i=0;i<strlen(cmdLine);i++)
 	{
+		wxCommandEvent e;
 		if(!memcmp(&cmdLine[i]," REGISTER",9))
 		{
-			registerService((wxCommandEvent)0);
+			registerService(e);
 			Destroy();
 			return;
 		}
 		if(!memcmp(&cmdLine[i]," STARTCONSOLE",8))
 		{
-			runConsole((wxCommandEvent)0);
+			runConsole(e);
 			Destroy();
 			return;
 		}
 		if(!memcmp(&cmdLine[i]," STOPSERVICE",8))
 		{
-			stopService((wxCommandEvent)0);
+			stopService(e);
 			Destroy();
 			return;
 		}
 		if(!memcmp(&cmdLine[i]," STARTSERVICE",8))
 		{
-			runService((wxCommandEvent)0);
+			runService(e);
 			Destroy();
 			return;
 		}
 		if(!memcmp(&cmdLine[i]," UNREGISTER",11))
 		{
-			removeService((wxCommandEvent)0);
+			removeService(e);
 			Destroy();
 			return;
 		}
