@@ -190,13 +190,13 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     
     if(cgipath)
     {
-      spi.cmd = cgipath;
-      spi.arg = td->scriptFile;
+      spi.cmd.assign(cgipath);
+      spi.arg.assign(td->scriptFile);
     }
     else
     {
-      spi.cmd = scriptpath;
-      spi.arg =  td->pathInfo?&td->pathInfo[1]:td->pathInfo;
+      spi.cmd.assign(scriptpath);
+      spi.arg.assign(td->pathInfo?&td->pathInfo[1]:td->pathInfo);
     }
 
 	}
@@ -232,8 +232,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     cmdLine << cgipath << " " << td->scriptFile;
     nph=(strnicmp("nph-", td->cgiFile, 4)==0)?1:0;
 
-    spi.cmd = cgipath;
-    spi.arg = td->scriptFile;
+    spi.cmd.assign(cgipath);
+    spi.arg.assign(td->scriptFile);
 	}
   
 	/*!
@@ -304,8 +304,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
    *Fill the StartProcInfo struct with the correct values and use it
    *to run the process.
    */
-	spi.cmdLine =(char*) cmdLine.str().c_str();
-	spi.cwd=td->scriptDir;
+	spi.cmdLine = cmdLine.str();
+	spi.cwd.assign(td->scriptDir);
   
 	spi.stdError = stdOutFile.getHandle();
 	spi.stdIn = stdInFile.getHandle();

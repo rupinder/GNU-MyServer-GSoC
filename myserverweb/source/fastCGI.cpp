@@ -874,6 +874,8 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
   }
 
 	{
+    StartProcInfo spi;
+    MYSERVER_SOCKADDRIN sock_inserverSocket;
 		/*! Create the server socket. */
 		if(localServer)
 		{/*! Initialize the local server. */
@@ -887,7 +889,6 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 				return 0;
       }
 
-			MYSERVER_SOCKADDRIN sock_inserverSocket;
 			sock_inserverSocket.sin_family=AF_INET;
 
 			/*! The FastCGI server accepts connections only by the localhost. */
@@ -908,16 +909,12 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 				return 0;
 			}
 			new_server->DESCRIPTOR.fileHandle = new_server->socket.getHandle();
-			StartProcInfo spi;
-			spi.cwd=0;
 			spi.envString=0; 
-			spi.cmd=path;
 			spi.stdIn = (FileHandle)new_server->DESCRIPTOR.fileHandle;
-			spi.cmdLine=path;
+			spi.cmd.assign(path);
+			spi.cmdLine.assign(path);
 
-			/*! No argument so clear it. */
-			spi.arg = NULL; 
-      new_server->path = new char[strlen(spi.cmd)+1];
+      new_server->path = new char[spi.cmd.length()+1];
 
       if(new_server->path == 0)
       {
@@ -925,7 +922,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
         delete new_server;
         return 0;
       }
-			strcpy(new_server->path, spi.cmd);
+			strcpy(new_server->path, path);
 
 			spi.stdOut = spi.stdError =(FileHandle) -1;
 

@@ -58,10 +58,12 @@ class Thread
 {
 public:
 #ifdef WIN32
-	static int  create(ThreadID*  thread, unsigned int (_stdcall *start_routine)(void *), void * arg);
+	static int  create(ThreadID*  thread, 
+                     unsigned int (_stdcall *start_routine)(void *), void * arg);
 #endif
 #ifdef HAVE_PTHREAD
-	static int  create(ThreadID*  thread, void * (*start_routine)(void *), void * arg);
+	static int  create(ThreadID*  thread, void * (*start_routine)(void *), 
+                     void * arg);
 #endif
 	static void terminate();  
 };

@@ -70,14 +70,14 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 	si.wShowWindow = SW_HIDE;
 	PROCESS_INFORMATION pi;
 	ZeroMemory( &pi, sizeof(pi) );
-	ret = CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,
-                      spi->envString,spi->cwd,&si, &pi);
+	ret = CreateProcess(NULL, spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
+                      spi->envString, spi->cwd.c_str(), &si, &pi);
 	if(!ret)
 		return (-1);
 	/*!
 	*Wait until the process stops its execution.
 	*/
-	ret=WaitForSingleObject(pi.hProcess,timeout);
+	ret=WaitForSingleObject(pi.hProcess, timeout);
 	if(ret == WAIT_FAILED)
 		return (u_long)(-1);
 	ret=CloseHandle( pi.hProcess );
@@ -119,9 +119,9 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 			envp[0] = NULL;
 		
 		// change to working dir
-		if(spi->cwd)
+		if(spi->cwd.length())
 		{
-			ret=chdir((const char*)(spi->cwd));
+			ret=chdir((const char*)(spi->cwd.c_str()));
 			if(ret == -1)
 				return (u_long)(-1);
 		}
@@ -150,17 +150,21 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-		if(spi->arg != NULL)
+		if(spi->arg.length())
 		{
-			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), 
-                 (const char*)(spi->arg), NULL, envp);
+			ret=execle((const char*)(spi->cmd.c_str()), 
+                 (const char*)(spi->cmd.c_str()), 
+                 (const char*)(spi->arg.c_str()), NULL, envp);
+
 			if(ret == -1)
 				return (-1);
 		}
 		else
 		{
-			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), 
+			ret=execle((const char*)(spi->cmd.c_str()), 
+                 (const char*)(spi->cmd.c_str()), 
                  NULL, envp);
+
 			if(ret == -1)
 				return (-1);	
 		}
@@ -225,8 +229,8 @@ int execConcurrentProcess(StartProcInfo* spi)
 	si.wShowWindow = SW_HIDE;
 	ZeroMemory( &pi, sizeof(pi) );
 
-	ret=CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE, 0, 
-                    spi->envString, spi->cwd, &si, &pi);
+	ret=CreateProcess(NULL, spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
+                    spi->envString, spi->cwd.c_str(), &si, &pi);
 	if(!ret)
 		return (-1);	
 	return (*((int*)&pi.hProcess));
@@ -259,8 +263,8 @@ int execConcurrentProcess(StartProcInfo* spi)
 			envp[0] = NULL;
 		
 		// change to working dir
-		if(spi->cwd)
-			chdir((const char*)(spi->cwd));
+		if(spi->cwd.length())
+			chdir((const char*)(spi->cwd.c_str()));
 		// If stdOut is -1, pipe to /dev/null
 		if((long)spi->stdOut == -1)
 			spi->stdOut = (FileHandle)open("/dev/null",O_WRONLY);
@@ -286,16 +290,18 @@ int execConcurrentProcess(StartProcInfo* spi)
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-		if(spi->arg != NULL)
+		if(spi->arg.length())
 		{
-			ret = execle((const char*)(spi->cmd), (const char*)(spi->cmd), 
-                   (const char*)(spi->arg), NULL, envp);
+			ret = execle((const char*)(spi->cmd.c_str()), 
+                   (const char*)(spi->cmd.c_str()), 
+                   (const char*)(spi->arg.c_str()), NULL, envp);
 			if(ret == -1)
 				return (-1);
 		}
 		else	
 		{
-			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
+			ret=execle((const char*)(spi->cmd.c_str()), 
+                 (const char*)(spi->cmd.c_str()), NULL, envp);
 			if(ret == -1)
 				return (-1);
 		}

@@ -35,6 +35,60 @@ extern "C" {
 #define u_short unsigned short
 
 /*!
+ *This function format current time to the RFC 822 format and output 
+ *it to a string.
+ */
+const char *getRFC822GMTTime(string& out,int len)
+{
+	time_t ltime;
+	time( &ltime );
+	return getRFC822GMTTime(ltime, out, len);
+}
+
+/*!
+ *This function format current time to the RFC 822 format and output 
+ *it to a string.
+ */
+const char *getRFC822GMTTime(const time_t t, string& out, int len)
+{
+  /*! 
+   *FIXME: Do not use a temporary buffer but access directly the string
+   *class data. 
+   */
+  char buff[32];
+  getRFC822GMTTime(t, buff, 32);
+  out.assign(buff);
+  return out.c_str();
+}
+
+/*!
+ *This function format current time to the RFC 822 format and output 
+ *it to a string.
+ */
+const char *getRFC822LocalTime(string& out,int len)
+{
+	time_t ltime;
+	time( &ltime );
+	return getRFC822LocalTime(ltime, out, len);
+}
+
+/*!
+ *This function format current time to the RFC 822 format and output 
+ *it to a string.
+ */
+const char *getRFC822LocalTime(const time_t t, string &out,int len)
+{
+  /*! 
+   *FIXME: Do not use a temporary buffer but access directly the string
+   *class data. 
+   */
+  char buff[32];
+  getRFC822LocalTime(t, buff, 32);
+  out.assign(buff);
+  return out.c_str();
+}
+
+/*!
  *This function format current time to the RFC 822 format.
  */
 char *getRFC822GMTTime(char* out, int len)
@@ -48,9 +102,10 @@ char *getRFC822GMTTime(char* out, int len)
  */
 char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 {
-	tm*  GMtime = gmtime( &ltime );
+  char *asct;
+	tm* GMtime = gmtime( &ltime );
 	GMtime->tm_year+=1900;
-	char *asct=asctime(GMtime);
+	asct=asctime(GMtime);
 	out[0]=asct[0];
 	out[1]=asct[1];
 	out[2]=asct[2];
@@ -85,7 +140,7 @@ char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 /*!
  *This function convert from a RFC 822 format to a time_t.
  */
-time_t getTime(char* str)
+time_t getTime(const char* str)
 {
 	char lb[30];
 	int c=0;
@@ -249,8 +304,8 @@ time_t getTime(char* str)
 	t.tm_wday=0;	
 
 	t.tm_isdst=-1;
-	time_t ret=mktime(&t);
-	return ret;
+
+  return mktime(&t);
 }
 
 /*!
@@ -267,9 +322,10 @@ char *getRFC822LocalTime(char* out, int len)
  */
 char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
+	char *asct;
 	tm*  GMtime = localtime( &ltime );
 	GMtime->tm_year+=1900;
-	char *asct=asctime(GMtime);
+	asct=asctime(GMtime);
 	out[0]=asct[0];
 	out[1]=asct[1];
 	out[2]=asct[2];
@@ -307,8 +363,8 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
  */
 string trimRight ( const string & s, const string & t  )
 {
-       string str = s;
-       return str.erase ( str.find_last_not_of ( t ) + 1 ) ;
+  string str = s;
+  return str.erase ( str.find_last_not_of ( t ) + 1 ) ;
 }
 
 
@@ -317,8 +373,8 @@ string trimRight ( const string & s, const string & t  )
  */
 string trimLeft ( const string & s , const string & t )
 {
-       std::string str = s;
-       return str.erase ( 0 , s.find_first_not_of ( t ) ) ;
+  std::string str = s;
+  return str.erase ( 0 , s.find_first_not_of ( t ) ) ;
 }
 
 /*!
@@ -539,7 +595,7 @@ int getCharInString(char* str, const char* characters, int max)
 /*!
  *Get the offset from string start of the first \r or \n.
  */
-int getEndLine(char* str, int max)
+int getEndLine(const char* str, int max)
 {
 	int i;
 	

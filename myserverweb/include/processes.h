@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
 
+#include <string>
+
 /*!
 *Structure used for start a new process.
 */
@@ -39,12 +41,12 @@ struct StartProcInfo
 	/*! STDERR file for new process.  */
 	FileHandle stdError;
 	
-	char *cmdLine;
-	char *cwd;
+	string cmdLine;
+	string cwd;
 	
 	/*! added for unix support.  */
-	char *cmd;
-	char *arg;
+	string cmd;
+	string arg;
 	
 	void *envString;
 };

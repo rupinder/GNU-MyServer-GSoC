@@ -28,17 +28,35 @@ char *getRFC822GMTTime(char* out,int len);
 char *getRFC822GMTTime(const time_t,char* out,int len);
 char *getRFC822LocalTime(char* out,int len);
 char *getRFC822LocalTime(const time_t,char* out,int len);
+
+const char *getRFC822GMTTime(string& out,int len);
+const char *getRFC822GMTTime(const time_t, string& out, int len);
+const char *getRFC822LocalTime(string& out,int len);
+const char *getRFC822LocalTime(const time_t, string &out,int len);
+
 int getCharInString(char*,const char*,int max);
-time_t getTime(char* str);
+
+time_t getTime(const char* str);
+inline time_t getTime(const string& str){ return getTime(str.c_str()); };
+
 void StrTrim(char* str, char* trimChars);
+
 void gotoNextLine(char** cmd);
+
 int hexVal(char c);
+
 void translateEscapeString(char *TargetStr);
+
 int hexToInt(const char *str);
-int getEndLine(char* str, int max);
-string trim(const string & s , const string & t = " ");
-string trimLeft ( const string & s , const string & t = " " );
-string trimRight ( const string & s , const string & t = " " );
+inline time_t hexToInt(const string& str){ return hexToInt(str.c_str()); };
+
+int getEndLine(const char* str, int max);
+inline int getEndLine(const string& str, int max)
+                {return getEndLine(str.c_str(), max); };
+
+string trim(const string& s , const string& t = " ");
+string trimLeft ( const string& s , const string& t = " " );
+string trimRight ( const string& s , const string& t = " " );
 
 #ifdef NOT_WIN
 extern "C" {

@@ -84,6 +84,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
   char outFilePath[MAX_PATH];  /*! Use MAX_PATH under windows. */
   char *buffer;
 	File DataFileHandle, OutFileHandle;
+	StartProcInfo spi;
 	time_t ltime=100;
 	int gmhour;
 	int bias;
@@ -247,10 +248,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	strcat(cmdLine, filename);
 	strcat(cmdLine, "\" ");
 	strcat(cmdLine, dataFilePath);
-	StartProcInfo spi;
-	memset(&spi,0,sizeof(spi));
-	spi.cwd = pathname;
-	spi.cmdLine = cmdLine;
+	spi.cwd.assign(pathname);
+	spi.cmdLine.assign(cmdLine);
 
 	if (execHiddenProcess(&spi, timeout))
 	{

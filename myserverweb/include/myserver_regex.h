@@ -32,6 +32,9 @@ extern "C"
 }
 #endif
 
+#include <string>
+using namespace std;
+
 /*!
 *This class is used to manage regular expressions in MyServer.
 */
@@ -42,11 +45,16 @@ class Regex
   int compiled;
 public:
   Regex();
-  Regex(char *pattern, int flags);
+  Regex(const char *pattern, int flags);
   ~Regex();
   int isCompiled();
-  int compile(char *pattern, int flags);
-  int exec(char *string, size_t nmatch, regmatch_t matchptr [], int eflags);
+  int compile(const char *pattern, int flags);
+  int exec(const char *string, size_t nmatch, regmatch_t matchptr [], int eflags);
   void free();
+
+  Regex(const string& pattern, int flags){Regex(pattern.c_str(), flags);}
+  int compile(const string& str, int flags){return compile(str.c_str(), flags );}
+  int exec(const string& str, size_t nmatch, regmatch_t matchptr [], int eflags)
+    {return exec(str.c_str(), nmatch, matchptr, eflags);}
 };
 #endif

@@ -24,7 +24,7 @@ regmatch_t match;
 /*!
  *Compile the regex pattern.
  */
-int Regex::compile(char *pattern, int flags)
+int Regex::compile(const char *pattern, int flags)
 {
   int ret = regcomp(&compiled_regex, pattern, flags);
   if(!ret)
@@ -35,7 +35,8 @@ int Regex::compile(char *pattern, int flags)
 /*!
  *Match the pattern against strings.
  */
-int Regex::exec(char *text, size_t nmatch, regmatch_t matchptr [], int eflags)
+int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [], 
+                int eflags)
 {
   if(!compiled)
     return 1;
@@ -72,7 +73,7 @@ Regex::~Regex()
 /*!
  *Constructor for the class.
  */
-Regex::Regex(char *pattern, int flags)
+Regex::Regex(const char *pattern, int flags)
 {
   compile(pattern, flags);
 }
