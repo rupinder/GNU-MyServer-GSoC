@@ -158,7 +158,7 @@ void cserver::start()
 	/*!
 	*Create the mutex for the connections.
 	*/
-	myserver_mutex_init(&c_mutex);
+	c_mutex.myserver_mutex_init();
 
 	/*!
 	*Initialize the SSL library
@@ -660,7 +660,7 @@ void cserver::terminate()
 	/*!
 	*Destroy the connections mutex.
 	*/
-	myserver_mutex_destroy(&c_mutex);
+	c_mutex.myserver_mutex_destroy();
 	
 	delete[] threads;
 	if(verbosity>1)
@@ -861,7 +861,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 */
 LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
 {
-	myserver_mutex_lock(&c_mutex);
+	c_mutex.myserver_mutex_lock();
 
 	u_long cs=sizeof(CONNECTION);
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
@@ -937,7 +937,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	if(maxConnections && (nConnections>maxConnections))
 		nc->toRemove=CONNECTION_REMOVE_OVERLOAD;
 	
-	myserver_mutex_unlock(&c_mutex);
+	c_mutex.myserver_mutex_unlock();
 	return nc;
 }
 
@@ -949,7 +949,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	if(!s)
 		return 0;
 
-	myserver_mutex_lock(&c_mutex);
+	c_mutex.myserver_mutex_lock();
 
 	int ret=0,err;
 	/*!
@@ -977,8 +977,12 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		}
 	}
 
+<<<<<<< cserver.cpp
+	c_mutex.myserver_mutex_unlock();
+=======
 	nConnections--;
 	myserver_mutex_unlock(&c_mutex);
+>>>>>>> 1.163
 
 	/*!
 	*Close the socket communication.
@@ -1003,7 +1007,7 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 {
 	if(connections==0)
 		return 0;
-	myserver_mutex_lock(&c_mutex);
+	c_mutex.myserver_mutex_lock();
 
 	if(connectionToParse)
 	{
@@ -1020,7 +1024,7 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 	if(connectionToParse==0)
 		connectionToParse=connections;
 
-	myserver_mutex_unlock(&c_mutex);
+	c_mutex.myserver_mutex_unlock();
 
 	return connectionToParse;
 }
@@ -1051,7 +1055,7 @@ void cserver::clearAllConnections()
 */
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 {
-	myserver_mutex_lock(&c_mutex);
+	c_mutex.myserver_mutex_lock();
 
 	LPCONNECTION c;
 	for(c=connections;c;c=c->next )
@@ -1059,7 +1063,7 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 		if(c->socket==a)
 			return c;
 	}
-	myserver_mutex_unlock(&c_mutex);
+	c_mutex.myserver_mutex_unlock();
 
 	return NULL;
 }
