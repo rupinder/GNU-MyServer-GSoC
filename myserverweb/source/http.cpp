@@ -612,7 +612,17 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 				if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
 					strcpy(nURL,"http://");
 				strcat(nURL,td->request.HOST);
-				sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
+				int isPortSpecified=0;
+				for(int i=0;td->request.HOST[i];i++)
+				{
+					if(td->request.HOST[i]==':')
+					{
+						isPortSpecified	= 1;
+						break;
+					}
+				}
+				if(!isPortSpecified)
+					sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
 				if(nURL[strlen(nURL)-1]!='/')
 					strcat(nURL,"/");
 				strcat(nURL,td->request.URI);

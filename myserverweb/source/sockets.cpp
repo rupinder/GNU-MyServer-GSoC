@@ -156,7 +156,6 @@ int MYSERVER_SOCKET::shutdown(int how)
 	return ::shutdown((int)socketHandle,how);
 #endif
 }
-
 int	MYSERVER_SOCKET::setsockopt(int level,int optname,const char *optval,int optlen)
 {
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
