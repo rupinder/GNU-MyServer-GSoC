@@ -177,7 +177,6 @@ AC_CONFIG_FILES(Makefile \
   binaries/languages/Makefile \
   binaries/languages/configure/Makefile \
   binaries/web/Makefile \
-  binaries/web/icons/Makefile \
   binaries/web/downloads/Makefile \
   binaries/web/cgi-bin/Makefile \
   binaries/web/cgi-src/Makefile \

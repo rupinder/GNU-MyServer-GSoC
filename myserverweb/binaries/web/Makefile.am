@@ -3,7 +3,7 @@ if BUILD_MSCGI
 CGI_SRC = cgi-src
 endif
 
-SUBDIRS = cgi-bin $(CGI_SRC) downloads icons
+SUBDIRS = cgi-bin $(CGI_SRC) downloads
 
 myserverdatadir = $(root_prefix)/var/web
 
