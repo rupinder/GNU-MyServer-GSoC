@@ -1318,11 +1318,6 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 */
 int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
-	/*
-	*Record the error in the log file.
-	*/
-	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
-	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	if(ID==e_401AUTH)
 	{
 		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",lserver->getServerName(),td->request.CONNECTION);
@@ -1331,6 +1326,14 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		strcat(td->buffer2,"\r\n\r\n");
 		a->socket.send(td->buffer2,strlen(td->buffer2),0);
 		return 1;
+	}
+	else
+	{
+		/*
+		*Record the error in the log file.
+		*/
+		sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
@@ -1715,6 +1718,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 				td->connection->login[i]=*lbuffer2++;
 				td->connection->login[i+1]='\0';
 			}
+			strcpy(td->identity,td->connection->login);
 			lbuffer2++;
 			for(i=0;(*lbuffer2)&&(i<31);i++)
 			{
