@@ -1,4 +1,5 @@
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
+
 #include "../../../cgi-lib/cgi_manager.h"
 
 #ifdef WIN32
@@ -16,6 +17,8 @@ extern "C" int main (char *cmd,cgi_data* data)
 	{
 		cm.Write("<title>MyServer</title><body bgcolor=\"#FFFFFF\" text=\"#666699\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"></p>Argument posted:");
 		char *post=cm.PostParam("T1");
+		if(post==0)
+			post=cm.GetParam("T1");
 		if(post)
 			cm.Write(post);
 	}

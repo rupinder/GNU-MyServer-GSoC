@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define SOCKETLIBINCLUDED
 #endif
 #endif
+
 #ifdef NOT_WIN
 extern "C" {
 #include <sys/types.h>
@@ -51,6 +52,7 @@ extern "C" {
 #define INVALID_SOCKET -1
 #define SD_BOTH SHUT_RDWR
 #endif
+
 #define MAX_IP_STRING_LEN	32
 typedef unsigned int MYSERVER_SOCKET_HANDLE;
 typedef struct sockaddr_in MYSERVER_SOCKADDRIN;

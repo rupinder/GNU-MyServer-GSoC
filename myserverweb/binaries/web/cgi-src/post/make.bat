@@ -5,5 +5,4 @@ move *.mscgi ..\..\cgi-bin\
 del *.obj
 del *.exp
 del *.lib
-
 pause

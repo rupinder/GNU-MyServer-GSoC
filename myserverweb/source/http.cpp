@@ -1446,11 +1446,10 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	/*
 	*Send the error over the HTTP.
 	*/
-	sprintf(td->response.CONTENT_LENGTH,"%i",(u_long)strlen(HTTP_ERROR_MSGS[ID]));
+	sprintf(td->response.CONTENT_LENGTH,"%i",0);
 
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 	a->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
-	a->socket.send(HTTP_ERROR_MSGS[ID],(u_long)strlen(HTTP_ERROR_MSGS[ID]), 0);
 
 	return 1;
 }

@@ -50,5 +50,8 @@ class _finddata_t
 intptr_t _findfirst(const char filename[], _finddata_t * fdat );
 int _findnext(intptr_t crap, _finddata_t * fdat );
 int _findclose(_finddata_t * fdat);
+
 #endif
+
 #endif
+

@@ -5,6 +5,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "control", "control\control.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CGI-LIB", "CGI-LIB\CGI-LIB.vcproj", "{AA2FC8CC-2355-4403-96F9-CD6AC93D44BA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "post", "binaries\web\cgi-src\post\post.vcproj", "{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "math_sum", "binaries\web\cgi-src\math_sum\math_sum.vcproj", "{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "counter", "binaries\web\cgi-src\counter\counter.vcproj", "{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -25,6 +31,18 @@ Global
 		{AA2FC8CC-2355-4403-96F9-CD6AC93D44BA}.Debug.Build.0 = Debug|Win32
 		{AA2FC8CC-2355-4403-96F9-CD6AC93D44BA}.Release.ActiveCfg = Release|Win32
 		{AA2FC8CC-2355-4403-96F9-CD6AC93D44BA}.Release.Build.0 = Release|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Debug.ActiveCfg = Debug|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Debug.Build.0 = Debug|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.ActiveCfg = Release|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.Build.0 = Release|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Debug.ActiveCfg = Debug|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Debug.Build.0 = Debug|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.ActiveCfg = Release|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.Build.0 = Release|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Debug.ActiveCfg = Debug|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Debug.Build.0 = Debug|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.ActiveCfg = Release|Win32
+		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
