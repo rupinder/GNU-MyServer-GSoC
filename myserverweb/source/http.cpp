@@ -920,7 +920,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 					{				
 						u_long tr=min(content_len-total_nbr,td.buffersize2);
 						err=td.connection->socket.recv(td.buffer2,tr, 0);
-						td.inputData.writeToFile(td.buffer2,min(err,content_len-fs),&nbw);	
+						td.inputData.writeToFile(td.buffer2,min((u_long)err, (content_len-fs)),&nbw);	
 						total_nbr+=nbw;
 						timeout=clock();
 						break;

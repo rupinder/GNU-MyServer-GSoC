@@ -379,7 +379,7 @@ int isFcgiServerRunning(char* path)
 {
 	for(int i=0;i<fCGIserversN;i++)
 	{
-		if(!strcmpi(path,fCGIservers[i].path))
+		if(!lstrcmpi(path,fCGIservers[i].path))
 			return i;
 	}
 	return -1;

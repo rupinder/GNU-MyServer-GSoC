@@ -205,7 +205,7 @@ int MIME_Manager::loadXML(char *filename)
 			{
 				if(lcur->children->content)
 				{
-					if(strcmpi((char*)lcur->children->content,"NONE"))
+					if(lstrcmpi((char*)lcur->children->content,"NONE"))
 						strcpy(rc.cgi_manager,(char*)lcur->children->content);
 					else
 						rc.cgi_manager[0]='\0';

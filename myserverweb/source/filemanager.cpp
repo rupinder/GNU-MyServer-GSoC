@@ -552,11 +552,11 @@ void MYSERVER_FILE::completePath(char *fileName)
 	GetFullPathName(fileName,MAX_PATH,fileName,0);
 #endif
 #ifdef __linux__
-	if(filename[0]=='/')
+	if(fileName[0]=='/')
 		return;
 	char buffer[MAX_PATH];
 	strcpy(buffer,fileName);
-	getdefaultwd(fileName);
+	getdefaultwd(fileName,MAX_PATH);
 	strcat(fileName,"/");
 	strcat(fileName,buffer);
 #endif
