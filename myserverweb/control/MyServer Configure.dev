@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=25
+UnitCount=28
 Type=0
 Ver=1
 ObjFiles=
@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DWIN32_@@_
 CppCompiler=
-Linker=-lfltk -lole32  -luuid -lcomctl32 -lm -lz -lxml2 -liconv -llibintl -llibssl  -lcrypto   -llibz -lwininet -lwsock32 _@@_
+Linker=-lfltk -lole32  -luuid -lcomctl32 -lm -lz -lxml2 -liconv -llibintl -llibssl  -lcrypto   -llibz -lwininet -lwsock32  _@@_
 IsCpp=1
 Icon=MyServer Configure.ico
 ExeOutput=..\binaries
@@ -296,3 +296,34 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+
+[Unit26]
+FileName=control_client.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit27]
+FileName=..\source\sockets.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit28]
+FileName=control_client.h
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+

@@ -87,12 +87,12 @@ Section "Web examples" SecWebEx
 SectionEnd
 
 
-Section "MyServer control center" SecControl
+Section "MyServer center" SecControl
   DetailPrint "Control Center Application"
   SetOutPath $INSTDIR
-  File "control.exe"
+  File "Myserver Configure.exe"
   File "myserver.ico"
-  CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Control Center.lnk" "$INSTDIR\control.exe"
+  CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Control Center.lnk" "$INSTDIR\Myserver Configure.exe"
 SectionEnd
 
 Section "MSCGI lib" SecMSCGI
