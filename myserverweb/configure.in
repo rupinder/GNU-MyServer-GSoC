@@ -26,7 +26,7 @@ dnl Look for pthreads
 GNOME_PTHREAD_CHECK
 if test x$PTHREAD_LIB = x; then
    AC_MSG_ERROR([
-*** This system apears to have no posix threads
+*** This system appears to have no posix threads
 *** Threads are required for MyServer
 ])
 fi
@@ -46,7 +46,7 @@ AC_CHECK_LIB(dl, dlopen, have_dl=yes)
 if test x$have_dl != xyes; then
    AC_MSG_WARN([
 *** dlLIB not found
-*** MSCGI suport will not function
+*** MSCGI support will not function
 ])
    AC_DEFINE(DO_NOT_USE_MSCGI, 1, [MSCGI suport in MyServer, define to 1 to disable])
    DL_LIB=""
@@ -72,7 +72,7 @@ AC_CHECK_LIB(ssl, SSL_accept, have_ssl=yes)
 if test x$have_ssl != xyes; then
    AC_MSG_WARN([
 *** Cannot find OpenSSL
-*** HTTPS and other SSL proticals will not be enabled
+*** HTTPS and other SSL protocols will not be enabled
 ])
     AC_DEFINE(DO_NOT_USE_SSL, 1, [SSL suport in MyServer, define to 1 to disable])
     OPENSSL_LIB=""
@@ -96,7 +96,7 @@ else
     AC_CHECK_LIB(z, compressBound, have_libz=yes)
     if test x$have_libz != xyes; then
         AC_MSG_WARN([
-*** Zlib is to old (http://www.gzip.org/zlib/)
+*** Zlib is too old (http://www.gzip.org/zlib/)
 *** compressBound checking will not be enabled
 ])
     else
