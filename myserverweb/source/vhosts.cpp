@@ -30,6 +30,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 vhost::vhost()
 {
+	sslContext.certificateFile[0]='\0';
+	sslContext.method = 0;
+	sslContext.privateKeyFile[0] = '\0';
+	sslContext.password[0] = '\0';
 	ipList=0;
 	hostList=0;
 }
@@ -529,6 +533,7 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 			}
 		}
 		cc++;
+		vh->initializeSSL();
 		addvHost(vh);
 	}
 	fh.closeFile();
@@ -885,6 +890,8 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 */
 int vhost::initializeSSL()
 {
+	if(this->protocol!=PROTOCOL_HTTPS)
+		return -2;
 	sslContext.method = SSLv23_method();
 	sslContext.context = SSL_CTX_new(sslContext.method);
 	if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,sslContext.certificateFile)))
@@ -894,6 +901,7 @@ int vhost::initializeSSL()
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
 		SSL_CTX_set_verify_depth(ctx,1);
 #endif
+	return 1;
 }	
 /*
 *Generate a RSA key.
