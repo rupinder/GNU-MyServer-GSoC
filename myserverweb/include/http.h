@@ -44,6 +44,7 @@ struct http_user_data
 class http : public protocol
 {
 private:
+	static int initialized;
 	static int mscgiLoaded;/*Store if the MSCGI library was loaded.*/
 	static char browseDirCSSpath[MAX_PATH];
 	static u_long gzip_threshold;
@@ -76,6 +77,7 @@ public:
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
 	void resetHTTPUserData(http_user_data*);
 	http();
+	~http();
 	void computeDigest(httpThreadContext* td,char*,char*);
 	u_long checkDigest(httpThreadContext* td,LPCONNECTION s);
 	/*!

@@ -121,18 +121,20 @@ typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 
 class isapi
 {
+private:
+	static int initialized;
 public:	
 #ifdef WIN32	
 	int Redirect(httpThreadContext* td,LPCONNECTION a,char *URL);
 	int SendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
 	int SendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
-
 	static ConnTableRecord *HConnRecord(HCONN hConn);
 	static ConnTableRecord *connTable;
 	static  u_long max_Connections;
 	static BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 #endif	
+	isapi();
 	static void initISAPI();
 	static void cleanupISAPI();
 	int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);

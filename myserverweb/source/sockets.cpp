@@ -505,3 +505,28 @@ MYSERVER_SOCKET* MYSERVER_SOCKET::getServerSocket()
 {
 	return serverSocket;
 }
+
+/*!
+*Check for data to be read on the socket
+*/
+int MYSERVER_SOCKET::dataOnRead()
+{
+	struct timeval tv;
+	fd_set readfds;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 500;
+
+	FD_ZERO(&readfds);
+#ifdef WIN32
+	FD_SET((SOCKET)socketHandle, &readfds);
+#else
+	FD_SET(socketHandle, &readfds);
+#endif
+	::select(socketHandle+1, &readfds, NULL, NULL, &tv);
+
+	if (FD_ISSET(socketHandle, &readfds))
+		return 1;
+	else
+		return 0;
+}

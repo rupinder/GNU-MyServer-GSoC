@@ -46,8 +46,8 @@ private:
 	int threadIsStopped;
 	u_long buffersize;
 	u_long buffersize2;
-	http* http_parser;
-	https* https_parser;
+	http *http_parser;
+	https *https_parser;
 	int isRunning();
 	int isStopped();
 	char *buffer;

@@ -45,10 +45,13 @@ extern "C" {
 */
 int cXMLParser::open(char* filename)
 {
-	doc = xmlParseFile(filename);
+	if(doc==0)
+		doc = xmlParseFile(filename);
+	else
+		close();
 	if(!doc)
 		return -1;
-    cur = xmlDocGetRootElement(doc);
+	cur = xmlDocGetRootElement(doc);
 	if(!cur)
 		return -1;
 	return 0;
@@ -115,6 +118,7 @@ int cXMLParser::setValue(char* vName,char *value)
 int cXMLParser::close()
 {
 	xmlFreeDoc(doc);
+	doc=0;
 	return 0;
 }
 /*!

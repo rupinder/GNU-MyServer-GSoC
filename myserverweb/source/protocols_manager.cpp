@@ -73,12 +73,14 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cse
 */
 int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
 {
-	unloadProtocolPROC Proc;
+	unloadProtocolPROC Proc=0;
 #ifdef WIN32
-	Proc = (unloadProtocolPROC) GetProcAddress(hinstLib, "unloadProtocol"); 
+	if(hinstLib)
+		Proc = (unloadProtocolPROC) GetProcAddress(hinstLib, "unloadProtocol"); 
 #endif
 #ifdef HAVE_DL
-	Proc = (unloadProtocolPROC) dlsym(hinstLib, "unloadProtocol");
+	if(hinstLib)
+		Proc = (unloadProtocolPROC) dlsym(hinstLib, "unloadProtocol");
 #endif	
 	if(Proc)
 		Proc((void*)languageParser);

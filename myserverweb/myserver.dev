@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=59
+UnitCount=63
 Type=1
 Ver=1
 ObjFiles=
@@ -679,7 +679,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit60]
-FileName=source\CMemBuf.cpp
+FileName=source\MemBuf.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -689,16 +689,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit61]
-FileName=include\CMemBuf.h
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit62]
 FileName=source\securestr.cpp
 CompileCpp=1
 Folder=myserver
@@ -708,8 +698,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit63]
+[Unit62]
 FileName=include\securestr.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit63]
+FileName=include\MemBuf.h
 CompileCpp=1
 Folder=myserver
 Compile=1

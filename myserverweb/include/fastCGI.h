@@ -179,6 +179,8 @@ struct sfCGIservers
 
 class fastcgi
 {
+private:
+	static int initialized;
 	static struct sfCGIservers fCGIservers[MAX_FCGI_SERVERS];
 	static int fCGIserversN;/*!Number of thread currently loaded*/
 	int FcgiConnectSocket(fCGIContext*,int);
@@ -190,6 +192,7 @@ class fastcgi
 	int runFcgiServer(fCGIContext*,char*);
 	int FcgiConnect(fCGIContext*,char*);
 public:
+	fastcgi();
 	static int initializeFASTCGI();
 	int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
 	static int cleanFASTCGI();

@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 u_long isapi::max_Connections=0;
 static CRITICAL_SECTION GetTableEntryCritSec;
+int isapi::initialized=0;
 #define ISAPI_TIMEOUT (10000)
 ConnTableRecord *isapi::connTable=0;
 
@@ -182,7 +183,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				strcpy(ConnInfo->td->response.CONNECTION,"Close");
 			http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
 
-			ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0);
+			if(ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0)==-1)
+				return 0;
 			ConnInfo->headerSent=1;
 
 			/*!Send the first chunk*/
@@ -191,12 +193,16 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				if(keepalive)
 				{
 					sprintf(chunk_size,"%x\r\n",len);
-					ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
+					if(ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0)==-1)
+						return 0;
 				}
 				nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
+				if(nbw==-1)
+					return 0;
 				if(keepalive)
 				{
-					ConnInfo->connection->socket.send("\r\n",2, 0);
+					if(ConnInfo->connection->socket.send("\r\n",2, 0)==-1)
+						return 0;
 				}
 			}
 
@@ -210,12 +216,14 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		if(keepalive)
 		{
 			sprintf(chunk_size,"%x\r\n",*lpdwBytes);
-			ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
+			if(ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0)==-1)
+				return 0;
 		}
 		nbw=ConnInfo->connection->socket.send((char*)Buffer,*lpdwBytes, 0);
 		if(keepalive)
 		{
-			ConnInfo->connection->socket.send("\r\n",2, 0);
+			if(ConnInfo->connection->socket.send("\r\n",2, 0)==-1)
+				return 0;
 		}
 	}
 
@@ -282,7 +290,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 			ret=TRUE;
 		else
 		{
-            SetLastError(ERROR_INSUFFICIENT_BUFFER);
+            		SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			ret=FALSE;
 		}
 			
@@ -292,7 +300,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 			ret=TRUE;
 		else
 		{
-            SetLastError(ERROR_INSUFFICIENT_BUFFER);
+            		SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			ret=FALSE;
 		}
 			
@@ -665,15 +673,32 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 #endif	
 }
 /*!
+*Constructor for the ISAPI class.
+*/
+isapi::isapi()
+{
+#ifdef WIN32
+	connTable=0;
+	initialized=0;
+#endif
+}
+/*!
 *Initialize the ISAPI engine under WIN32.
 */
 void isapi::initISAPI()
 {
 #ifdef WIN32
+	if(initialized)
+		return;
 	max_Connections=lserver->getNumThreads();
+	
+	if(connTable)
+		free(connTable);
+		
 	connTable=(ConnTableRecord *)malloc(sizeof(ConnTableRecord)*max_Connections);
 	ZeroMemory(connTable,sizeof(ConnTableRecord)*max_Connections);
 	InitializeCriticalSection(&GetTableEntryCritSec);	
+	initialized=1;
 #endif
 }
 /*!

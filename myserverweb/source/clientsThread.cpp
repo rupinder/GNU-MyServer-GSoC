@@ -85,8 +85,8 @@ void * startClientsTHREAD(void* pParam)
 	ct->buffer2=(char*)malloc(ct->buffersize2);
 	ct->initialized=1;
 
-	ct->http_parser=new http;
-	ct->https_parser=new https;
+	ct->http_parser = new http();
+	ct->https_parser = new https();
 
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);

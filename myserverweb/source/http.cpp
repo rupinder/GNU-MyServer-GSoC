@@ -64,7 +64,7 @@ u_long http::gzip_threshold=0;
 int http::useMessagesFiles=0;	
 char *http::defaultFilename=0;	
 u_long http::nDefaultFilename=0;
-
+int http::initialized=0;
 /*!
 *Browse a folder printing its contents over the HTTP.
 */
@@ -897,7 +897,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		int i;
 		for(i=0;;i++)
 		{
-			static char defaultFileName[MAX_PATH];
+			char defaultFileName[MAX_PATH];
 			char *defaultFileNamePath=getDefaultFilenamePath(i);
 			if(defaultFileNamePath)
 				sprintf(defaultFileName,"%s/%s",td->filenamePath,defaultFileNamePath);
@@ -1820,6 +1820,8 @@ int http::sendAuth(httpThreadContext* td,LPCONNECTION s)
 */
 int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 {
+	if(initialized)
+		return 0;
 	/*!
 	*Initialize ISAPI.
 	*/
@@ -1844,7 +1846,7 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 	/*!
 	*Store defaults value.
 	*/
-	gzip_threshold=1<<20;
+	gzip_threshold=1<<20;/*By default use GZIP with files bigger than a MB*/
 	useMessagesFiles=1;
 	browseDirCSSpath[0]='\0';
 	cXMLParser configurationFileManager;
@@ -1884,6 +1886,9 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 		nDefaultFilename++;
 
 	}
+	if(defaultFilename)
+		free(defaultFilename);
+	defaultFilename=0;
 	/*!
 	*Copy the right values in the buffer.
 	*/
@@ -1898,6 +1903,7 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 		u_long i;
 		if(defaultFilename)
 			free(defaultFilename);
+		defaultFilename=0;
 		defaultFilename =(char*)malloc(MAX_PATH*nDefaultFilename);
 		for(i=0;defaultFilename && (i<nDefaultFilename);i++)
 		{
@@ -1909,6 +1915,7 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 		}
 	}	
 	configurationFileManager.close();
+	initialized=1;
 	return 1;	
 }
 /*!
@@ -1916,6 +1923,8 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 */
 int http::unloadProtocol(cXMLParser* languageParser)
 {
+	 if(!initialized)
+		 return 0;
 	/*!
 	*Clean ISAPI.
 	*/
@@ -1933,6 +1942,7 @@ int http::unloadProtocol(cXMLParser* languageParser)
 		free(defaultFilename);
 		defaultFilename=0;
 	}
+	initialized=0;
 	return 1;
 }
 
@@ -1965,4 +1975,11 @@ http::http()
 {
 	strcpy(protocolPrefix,"http://");
 	PROTOCOL_OPTIONS=0;
+}
+/*!
+*Destructor for the class http
+*/
+http::~http()
+{
+
 }

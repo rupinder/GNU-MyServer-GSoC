@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 struct sfCGIservers fastcgi::fCGIservers[MAX_FCGI_SERVERS];
 int fastcgi::fCGIserversN=0;/*!Number of thread currently loaded*/
+int fastcgi::initialized=0;
 
 struct fourchar
 {	
@@ -106,20 +107,24 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		con.sock.closesocket();
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}	
-    if(atoi(td->request.CONTENT_LENGTH))
+	if(atoi(td->request.CONTENT_LENGTH))
 	{
 		sprintf(td->buffer,"Error FastCGI to send POST data\r\n");
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
-		con.sock.send((char*)&tHeader,sizeof(tHeader),0);
+		if(con.sock.send((char*)&tHeader,sizeof(tHeader),0)==-1)
+			return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 		td->inputData.setFilePointer(0);
 		do
 		{
 			td->inputData.readFromFile(td->buffer,td->buffersize,&nbr);
 			if(nbr)
-				con.sock.send(td->buffer,nbr,0);
+			{
+				if(con.sock.send(td->buffer,nbr,0)==-1)
+					return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+			}
 		}while(nbr==td->buffersize);
 	}
 	if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
@@ -363,12 +368,22 @@ void fastcgi::generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId
 	tHeader.reserved = 0;
 };
 /*!
+*Constructor for the FASTCGI class
+*/
+fastcgi::fastcgi()
+{
+	initialized=0;
+}
+/*!
 *Initialize the FastCGI protocol implementation
 */
 int fastcgi::initializeFASTCGI()
 {
+	if(initialized)
+		return 1;
 	fCGIserversN=0;
 	memset(&fCGIservers,0,sizeof(fCGIservers));
+	initialized=1;
 	return 1;
 }
 /*!

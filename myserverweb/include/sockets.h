@@ -105,5 +105,6 @@ public:
 	int operator==(MYSERVER_SOCKET);
 	int operator=(MYSERVER_SOCKET);
 	int getsockname(MYSERVER_SOCKADDR*,int*);
+	int dataOnRead();
 };
 #endif

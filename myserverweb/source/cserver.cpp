@@ -65,7 +65,7 @@ int mustEndServer;
 
 cserver::cserver()
 {
-
+	threads=0;
 }
 
 cserver::~cserver()
@@ -85,17 +85,6 @@ void cserver::start()
 	mustEndServer=0;
 	memset(this, 0, sizeof(cserver));
 
-
-	/*!
-	*If another instance of the class exists destroy it.
-	*/
-	if(lserver)
-	{
-		mustEndServer=1;
-		lserver->terminate();
-		wait(10000);/*!Wait for a while*/
-		mustEndServer=0;
-	}
 	/*!
 	*Save the unique instance of this class.
 	*/
@@ -138,30 +127,14 @@ void cserver::start()
 	*/
 	setcwdBuffer();
 	
-	
 	/*!
 	*Setup the server configuration.
 	*/
     	printf("Initializing server configuration...\n");
-#ifdef WIN32
-	envString=GetEnvironmentStrings();
-#endif
+
 	int OSVer=getOSVersion();
 
-	initialize(OSVer);
-	
-	languageParser.open(languageFile);
-	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
-
-	http::loadProtocol(&languageParser,"myserver.xml");
-	https::loadProtocol(&languageParser,"myserver.xml");
-	protocols.loadProtocols("external/protocols",&languageParser,"myserver.xml",this);
-
-	/*!
-	*Create the mutex for the connections.
-	*/
-	c_mutex.myserver_mutex_init();
-
+	initialize(OSVer);	
 	/*!
 	*Initialize the SSL library
 	*/
@@ -189,7 +162,7 @@ void cserver::start()
 	if (err != 0) 
 	{ 
 
-        preparePrintError();
+	        preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_ISOCK"));
 		endPrintError();
 		return; 
@@ -224,115 +197,134 @@ void cserver::start()
 			sprintf(&ipAddresses[strlen(ipAddresses)],"%s%s",strlen(ipAddresses)?",":"",inet_ntoa(ia));
 		}
 	}
-	
+	loadSettings();
+	/*!
+	*Keep thread alive.
+	*When the mustEndServer flag is set to True exit
+	*from the loop and terminate the server execution.
+	*/
+	while(!mustEndServer)
+	{
+#ifdef WIN32
+		Sleep(1);
+		DWORD cNumRead,i; 
+		INPUT_RECORD irInBuf[128]; 
+		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
+		for (i = 0; i < cNumRead; i++) 
+		{
+			switch(irInBuf[i].EventType) 
+			{ 
+				case KEY_EVENT:
+					if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
+						continue;
+					if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
+					{
+						if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|(irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
+						{
+							printf ("%s\n",languageParser.getValue("MSG_SERVICESTOP"));
+							this->stop();
+						}
+					}
+					break; 
+			} 
+		}
+		
+#endif
+#ifdef NOT_WIN
+		sleep(1);
+#endif
+
+	}
+	this->terminate();
+}
+/*!
+*This function is used to create a socket server and a thread listener for a protocol.
+*/
+int cserver::createServerAndListener(u_long port)
+{
+	/*!
+	*Create the server socket.
+	*/
+	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
+	MYSERVER_SOCKET serverSocket;
+	serverSocket.socket(AF_INET,SOCK_STREAM,0);
+	MYSERVER_SOCKADDRIN sock_inserverSocket;
+	if(serverSocket.getHandle()==INVALID_SOCKET)
+	{
+		preparePrintError();
+		printf("%s\n",languageParser.getValue("ERR_OPENP"));
+		endPrintError();		
+		return 0;
+
+	}
+	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
+	sock_inserverSocket.sin_family=AF_INET;
+	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
+	sock_inserverSocket.sin_port=htons((u_short)port);
+
+#ifdef NOT_WIN
+	/*!
+	*Under the unix environment the application needs some time before create a new socket
+	*for the same address. To avoid this behavior we use the current code.
+	*/
+	int optvalReuseAddr=1;
+	if(serverSocket.setsockopt(SOL_SOCKET,SO_REUSEADDR,(const char *)&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
+	{
+        preparePrintError();
+		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
+        endPrintError();
+		return 0;
+	}
+#endif
+	/*!
+	*Bind the port.
+	*/
+	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
+
+	if(serverSocket.bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
+	{
+		preparePrintError();
+		printf("%s\n",languageParser.getValue("ERR_BIND"));
+        endPrintError();
+		return 0;
+	}
+	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
 
 	/*!
-	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
+	*Set connections listen queque to max allowable.
 	*/
-	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
-	{
-			MYSERVER_FILE inputF;
-			MYSERVER_FILE outputF;
-			int ret=inputF.openFile("MIMEtypes.xml.default",MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-			if(ret<1)
-			{
-				preparePrintError();
-				printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
-				endPrintError();				
-				return;
-			}
-			outputF.openFile("MIMEtypes.xml",MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-			char buffer[512];
-			u_long nbr,nbw;
-			for(;;)
-			{
-				inputF.readFromFile(buffer,512,&nbr );
-				if(nbr==0)
-					break;
-				outputF.writeToFile(buffer,nbr,&nbw);
-			}
-			
-			inputF.closeFile();
-			outputF.closeFile();
+	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
+	if (serverSocket.listen(SOMAXCONN))
+	{ 
+        preparePrintError();
+		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
+        endPrintError();	
+		return 0; 
 	}
+
+	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port);
+
+
+	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
 	/*!
-	*Load the MIME types.
-	*/		
-	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
-	if(int nMIMEtypes=mimeManager.loadXML("MIMEtypes.xml"))
-	{
-		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
-	}
-	else
-	{
-        	preparePrintError();
-		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
-        	endPrintError();
-		return;
-	}
-	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
+	*Create the listen thread.
+	*/
+	listenThreadArgv* argv=new listenThreadArgv;
+	argv->port=port;
+	argv->serverSocket=serverSocket;
 
 	myserver_thread_ID ID;
 	
-	threads=new ClientsTHREAD[nThreads];
-	if(threads==NULL)
-	{
-		preparePrintError();
-		printf("%s: Threads creation\n",languageParser.getValue("ERR_ERROR"));
-        	endPrintError();	
-	}
-	for(i=0;i<nThreads;i++)
-	{
-		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
-		threads[i].id=(i+ClientsTHREAD::ID_OFFSET);
-
-		myserver_thread::create(&ID,  &::startClientsTHREAD, (void *)&(threads[i].id));
-		
-		printf("%s\n",languageParser.getValue("MSG_THREADR"));
-	}
-
-	getdefaultwd(path,MAX_PATH);
-	/*!
-	*Then we create here all the listens threads. Check that all the port used for listening
-	*have a listen thread.
-	*/
-	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
+	myserver_thread::create(&ID, &::listenServer, (void *)(argv));
 	
-	/*!
-	*If the virtualhosts.xml files doesn't exist copy it from the default one.
-	*/
-	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
-	{
-			MYSERVER_FILE inputF;
-			MYSERVER_FILE outputF;
-			int ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS );
-			if(ret<1)
-			{
-				preparePrintError();
-				printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
-				endPrintError();				
-				return;
-			}
-			outputF.openFile("virtualhosts.xml",MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-			char buffer[512];
-			u_long nbr,nbw;
-			for(;;)
-			{
-				inputF.readFromFile(buffer,512,&nbr );
-				if(nbr==0)
-					break;
-				outputF.writeToFile(buffer,nbr,&nbw);
-			}
-			
-			inputF.closeFile();
-			outputF.closeFile();
-	}	
-	/*!
-	*Load the virtual hosts configuration from the xml file
-	*/
-	vhostList.loadXMLConfigurationFile("virtualhosts.xml",this->getMaxLogFileSize());
+	return (ID)?1:0;
+}
 
-
+/*!
+*Create a listen thread for every port used by MyServer
+*/
+void cserver::createListenThreads()
+{
 	/*!
 	*Create the listens threads.
 	*Every port uses a thread.
@@ -365,129 +357,9 @@ void cserver::start()
 		}
 	}
 
-	printf("%s\n",languageParser.getValue("MSG_READY"));
-	printf("%s\n",languageParser.getValue("MSG_BREAK"));
 
-	/*!
-	*Keep thread alive.
-	*When the mustEndServer flag is set to True exit
-	*from the loop and terminate the server execution.
-	*/
-	while(!mustEndServer)
-	{
-#ifdef WIN32
-		Sleep(1);
-		DWORD cNumRead,i; 
-		INPUT_RECORD irInBuf[128]; 
-		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
-		for (i = 0; i < cNumRead; i++) 
-		{
-			switch(irInBuf[i].EventType) 
-			{ 
-				case KEY_EVENT:
-					if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
-						continue;
-					if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
-					{
-						if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|(irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
-						{
-							printf ("%s\n",languageParser.getValue("MSG_SERVICESTOP"));
-							this->stop();
-						}
-					}
-					break; 
-			} 
-		}
-#endif
-#ifdef NOT_WIN
-		sleep(1);
-#endif
-	}
-	this->terminate();
 }
-/*!
-*This function is used to create a socket server and a thread listener for a protocol.
-*/
-int cserver::createServerAndListener(u_long port)
-{
-	/*!
-	*Create the server socket.
-	*/
-	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
-	MYSERVER_SOCKET serverSocket;
-	serverSocket.socket(AF_INET,SOCK_STREAM,0);
-	MYSERVER_SOCKADDRIN sock_inserverSocket;
-	if(serverSocket.getHandle()==INVALID_SOCKET)
-	{
-        	preparePrintError();
-		printf("%s\n",languageParser.getValue("ERR_OPENP"));
-        	endPrintError();		
-		return 0;
 
-	}
-	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
-	sock_inserverSocket.sin_family=AF_INET;
-	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-	sock_inserverSocket.sin_port=htons((u_short)port);
-
-#ifdef NOT_WIN
-	/*!
-	*Under the unix environment the application needs some time before create a new socket
-	*for the same address. To avoid this behavior we use the current code.
-	*/
-	int optvalReuseAddr=1;
-	if(serverSocket.setsockopt(SOL_SOCKET,SO_REUSEADDR,(const char *)&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
-	{
-        	preparePrintError();
-		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
-        	endPrintError();
-		return 0;
-	}
-
-#endif
-
-	/*!
-	*Bind the port.
-	*/
-	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
-
-	if(serverSocket.bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
-	{
-		preparePrintError();
-		printf("%s\n",languageParser.getValue("ERR_BIND"));
-        	endPrintError();
-		return 0;
-	}
-	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
-
-	/*!
-	*Set connections listen queque to max allowable.
-	*/
-	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
-	if (serverSocket.listen(SOMAXCONN))
-	{ 
-        	preparePrintError();
-		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
-        	endPrintError();	
-		return 0; 
-	}
-
-	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port);
-
-
-	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
-	/*!
-	*Create the listen thread.
-	*/
-	listenThreadArgv* argv=new listenThreadArgv;
-	argv->port=port;
-	argv->serverSocket=serverSocket;
-	myserver_thread_ID ID;
-	
-	myserver_thread::create(&ID, &::listenServer, (void *)(argv));
-	
-	return (ID)?1:0;
-}
 /*!
 *This is the thread that listens for a new connection on the port specified by the protocol.
 */
@@ -514,13 +386,16 @@ void * listenServer(void* params)
 	MYSERVER_SOCKADDRIN asock_in;
 	int asock_inLen=sizeof(asock_in);
 	MYSERVER_SOCKET asock;
-	while(!mustEndServer)
+
+	while((!mustEndServer) && (!lserver->stopListening))
 	{
 		/*!
 		*Accept connections.
 		*Every new connection is sended to cserver::addConnection function;
 		*this function sends connections between the various threads.
 		*/
+		if(serverSocket.dataOnRead()==0)
+			continue;
 		asock=serverSocket.accept((struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
 		asock.setServerSocket(&serverSocket);
 		if(asock.getHandle()==0)
@@ -573,7 +448,9 @@ void cserver::stop()
 {
 	mustEndServer=1;
 }
-
+/*!
+*Unload the server.
+*/
 void cserver::terminate()
 {
 	/*!
@@ -592,36 +469,8 @@ void cserver::terminate()
 	{
 		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
 	}
-	/*!
-	*Clean here the memory allocated.
-	*/
-	u_long threadsStopped=0;
-
-	/*!
-	*Wait before clean the threads that all the threads are stopped.
-	*/
-
-	for(i=0;i<nThreads;i++)
-		threads[i].clean();
-	u_long threadsStopTime=0;
-	for(;;)
-	{
-		threadsStopped=0;
-		for(i=0;i<nThreads;i++)
-			if(threads[i].isStopped())
-				threadsStopped++;
-		/*!
-		*If all the threads are stopped break the loop.
-		*/
-		if(threadsStopped==nThreads)
-			break;
-		/*!
-		*Do not wait more than 5 seconds for killing threads.
-		*/
-		if(++threadsStopTime > 500 )
-			break;
-		wait(10);
-	}
+	stopThreads();
+	
 	/*!
 	*If there are open connections close them.
 	*/
@@ -645,13 +494,53 @@ void cserver::terminate()
 	/*!
 	*Destroy the connections mutex.
 	*/
-	c_mutex.myserver_mutex_destroy();
-	
-	delete[] threads;
+	delete c_mutex;
+	if(threads)
+		free(threads);
+	threads=0;
+	nThreads=0;
 	if(verbosity>1)
 	{
 		printf("MyServer is stopped.\n\n");
 	}
+}
+
+/*!
+*Stop all the threads.
+*/
+void cserver::stopThreads()
+{
+	/*!
+	*Clean here the memory allocated.
+	*/
+	u_long threadsStopped=0;
+
+	/*!
+	*Wait before clean the threads that all the threads are stopped.
+	*/
+	u_long i;
+	for(i=0;i<nThreads;i++)
+		threads[i].clean();
+	u_long threadsStopTime=0;
+	for(;;)
+	{
+		threadsStopped=0;
+		for(i=0;i<nThreads;i++)
+			if(threads[i].isStopped())
+				threadsStopped++;
+		/*!
+		*If all the threads are stopped break the loop.
+		*/
+		if(threadsStopped==nThreads)
+			break;
+		/*!
+		*Do not wait a lot to kill the thread.
+		*/
+		if(++threadsStopTime > 500 )
+			break;
+		wait(10);
+	}
+
 }
 /*!
 *Get the server administrator e-mail address.
@@ -667,11 +556,19 @@ char *cserver::getServerAdmin()
 */
 void cserver::initialize(int /*!OSVer*/)
 {
+#ifdef WIN32
+	envString=GetEnvironmentStrings();
+#endif
+	/*!
+	*Create the mutex for the connections.
+	*/
+	c_mutex= new myserver_mutex;
 	/*!
 	*Store the default values.
 	*/
 	u_long nThreadsA=1;
 	u_long nThreadsB=0;
+	u_long i=0;
 	socketRcvTimeout = 10;
 	useLogonOption = 1;
 	connectionTimeout = SEC(25);
@@ -747,12 +644,12 @@ void cserver::initialize(int /*!OSVer*/)
 	{
 		nThreadsB=atoi(data);
 	}
+	
 	/*!
 	*The number of the threads used by the server is:
 	*N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive;
 	*/
 	nThreads=nThreadsA*getCPUCount()+nThreadsB;
-
 
 	/*!
 	*Get the max connections number to allow.
@@ -787,7 +684,12 @@ void cserver::initialize(int /*!OSVer*/)
 	}
 	
 	configurationFileManager.close();
+	
+	
+	languageParser.open(languageFile);
+	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
+	
 }
 /*!
 *This function returns the max size of the logs file as defined in the 
@@ -1011,7 +913,13 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 	*/
 	if(connections==0)
 		return 0;
-
+	/*!
+	*Stop the thread if the server is pausing.
+	*/
+	while(pausing)
+	{
+		wait(5);
+	}
 	if(connectionToParse)
 	{
 		/*!Be sure that connectionToParse is a valid connection struct*/
@@ -1120,7 +1028,7 @@ dynamic_protocol* cserver::getDynProtocol(char *protocolName)
 */
 int cserver::connections_mutex_lock()
 {
-	c_mutex.myserver_mutex_lock();
+	c_mutex->myserver_mutex_lock();
 	return 1;
 }
 
@@ -1129,6 +1037,142 @@ int cserver::connections_mutex_lock()
 */
 int cserver::connections_mutex_unlock()
 {
-	c_mutex.myserver_mutex_unlock();
+	c_mutex->myserver_mutex_unlock();
 	return 1;
+}
+void cserver::loadSettings()
+{
+	u_long i;
+	/*!
+	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
+	*/
+	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
+	{
+		MYSERVER_FILE inputF;
+		MYSERVER_FILE outputF;
+		int ret=inputF.openFile("MIMEtypes.xml.default",MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		if(ret<1)
+		{
+			preparePrintError();
+			printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
+			endPrintError();				
+			return;
+		}
+		outputF.openFile("MIMEtypes.xml",MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		char buffer[512];
+		u_long nbr,nbw;
+		for(;;)
+		{
+			inputF.readFromFile(buffer,512,&nbr );
+			if(nbr==0)
+				break;
+			outputF.writeToFile(buffer,nbr,&nbw);
+		}
+		
+		inputF.closeFile();
+		outputF.closeFile();
+	}
+	/*!
+	*Load the MIME types.
+	*/		
+	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
+	if(int nMIMEtypes=mimeManager.loadXML("MIMEtypes.xml"))
+	{
+		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
+	}
+	else
+	{
+        	preparePrintError();
+		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
+        	endPrintError();
+		return;
+	}
+	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
+
+	
+	
+	/*!
+	*If the virtualhosts.xml file doesn't exist copy it from the default one.
+	*/
+	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
+	{
+		MYSERVER_FILE inputF;
+		MYSERVER_FILE outputF;
+		int ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS );
+		if(ret<1)
+		{
+			preparePrintError();
+			printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
+			endPrintError();				
+			return;
+		}
+		outputF.openFile("virtualhosts.xml",MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		char buffer[512];
+		u_long nbr,nbw;
+		for(;;)
+		{
+			inputF.readFromFile(buffer,512,&nbr );
+			if(nbr==0)
+				break;
+			outputF.writeToFile(buffer,nbr,&nbw);
+		}
+		
+		inputF.closeFile();
+		outputF.closeFile();
+	}	
+	/*!
+	*Load the virtual hosts configuration from the xml file
+	*/
+	vhostList.loadXMLConfigurationFile("virtualhosts.xml",this->getMaxLogFileSize());
+
+	http::loadProtocol(&languageParser,"myserver.xml");
+	https::loadProtocol(&languageParser,"myserver.xml");
+	protocols.loadProtocols("external/protocols",&languageParser,"myserver.xml",this);
+
+	
+	myserver_thread_ID ID;
+	if(threads)
+		free(threads);
+	threads=(ClientsTHREAD*)malloc(sizeof(ClientsTHREAD)*nThreads);
+	if(threads==NULL)
+	{
+		preparePrintError();
+		printf("%s: Threads creation\n",languageParser.getValue("ERR_ERROR"));
+        	endPrintError();	
+	}
+	for(i=0;i<nThreads;i++)
+	{
+		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
+		threads[i].id=(i+ClientsTHREAD::ID_OFFSET);
+		myserver_thread::create(&ID,  &::startClientsTHREAD, (void *)&(threads[i].id));
+		printf("%s\n",languageParser.getValue("MSG_THREADR"));
+	}
+	getdefaultwd(path,MAX_PATH);
+	/*!
+	*Then we create here all the listens threads. Check that all the port used for listening
+	*have a listen thread.
+	*/
+	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
+	
+	createListenThreads();
+
+	printf("%s\n",languageParser.getValue("MSG_READY"));
+	printf("%s\n",languageParser.getValue("MSG_BREAK"));
+}
+/*!
+*Reboot the server.
+*/
+void cserver::reboot()
+{
+	printf("%c\n\nRebooting.......\n\n",0x7);/*0x7 is the beep*/
+	if(mustEndServer)
+		return;
+	lserver->stopListening=1;
+	wait(5);
+	terminate();
+	lserver->stopListening=0;
+	wait(5);
+	initialize(0);
+	loadSettings();
+
 }

@@ -71,6 +71,8 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
+	void stopThreads();
+	int pausing;/*Used when rebooting to load new configuration files*/
 	protocols_manager protocols;
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
@@ -94,11 +96,15 @@ private:
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
-	myserver_mutex c_mutex;
+	void loadSettings();
+	myserver_mutex *c_mutex;
 	LPCONNECTION connectionToParse;
 	ClientsTHREAD *threads;
 	LPCONNECTION connections;
+	void createListenThreads();
+	void reboot();
 public:
+	int stopListening;/*Stop listening threads. Pay attention they are stopped by mustEndServer*/
 	cserver();
 	~cserver();
 	dynamic_protocol* getDynProtocol(char *protocolName);

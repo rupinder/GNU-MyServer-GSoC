@@ -33,8 +33,11 @@ void wait(u_long);
 class myserver_mutex
 {
 private:
+	int initialized;
 	myserver_mutex_handle mutex;
 public:
+	myserver_mutex();
+	~myserver_mutex();
 	int myserver_mutex_init();
 	int myserver_mutex_destroy();
 	/*!

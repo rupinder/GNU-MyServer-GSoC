@@ -63,16 +63,29 @@ void wait(u_long time)
 
 }
 /*!
+*Constructor for the mutex class.
+*/
+myserver_mutex::myserver_mutex()
+{
+	initialized=0;
+	myserver_mutex_init();
+}
+/*!
 *Initialize a mutex.
 */
 int myserver_mutex::myserver_mutex_init()
 {
+	if(initialized)
+	{
+		myserver_mutex_destroy();
+		initialized=0;
+	}
 #ifdef HAVE_PTHREAD
 	pthread_mutex_init(&mutex, NULL);
 #else
 	mutex=CreateMutex(0,0,0);
 #endif
-	
+	initialized=1;
 	return 1;
 }
 /*!
@@ -152,4 +165,11 @@ void myserver_thread::terminate()
 #ifdef HAVE_PTHREAD
 	pthread_exit(0);
 #endif
+}
+/*!
+*Destroy the object.
+*/
+myserver_mutex::~myserver_mutex()
+{
+	myserver_mutex_destroy();
 }

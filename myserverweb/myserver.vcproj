@@ -143,6 +143,9 @@
 				RelativePath="source\MIME_manager.cpp">
 			</File>
 			<File
+				RelativePath="source\MemBuf.cpp">
+			</File>
+			<File
 				RelativePath="source\cXMLParser.cpp">
 			</File>
 			<File
@@ -154,9 +157,6 @@
 			<File
 				RelativePath="source\cserver.cpp">
 			</File>
-			<File
-				RelativePath="source\protocols_manager.cpp">
-			</File>			
 			<File
 				RelativePath="source\fastCGI.cpp">
 			</File>
@@ -182,12 +182,6 @@
 				RelativePath="source\isapi.cpp">
 			</File>
 			<File
-				RelativePath="source\processes.cpp">
-			</File>			
-			<File
-				RelativePath="source\threads.cpp">
-			</File>			
-			<File
 				RelativePath="source\md5.cpp">
 			</File>
 			<File
@@ -197,7 +191,16 @@
 				RelativePath="source\myserver.cpp">
 			</File>
 			<File
+				RelativePath="source\processes.cpp">
+			</File>
+			<File
 				RelativePath="source\protocol.cpp">
+			</File>
+			<File
+				RelativePath="source\protocols_manager.cpp">
+			</File>
+			<File
+				RelativePath="source\securestr.cpp">
 			</File>
 			<File
 				RelativePath="source\security.cpp">
@@ -212,14 +215,11 @@
 				RelativePath="source\stringutils.cpp">
 			</File>
 			<File
-				RelativePath="source\utility.cpp">
+				RelativePath="source\threads.cpp">
 			</File>
 			<File
-				RelativePath="source\CMemBuf.cpp">
-			</File>			
-			<File
-				RelativePath="source\securestr.cpp">
-			</File>						
+				RelativePath="source\utility.cpp">
+			</File>
 			<File
 				RelativePath="source\vhosts.cpp">
 			</File>
@@ -238,6 +238,9 @@
 			</File>
 			<File
 				RelativePath="include\MIME_manager.h">
+			</File>
+			<File
+				RelativePath="include\MemBuf.h">
 			</File>
 			<File
 				RelativePath="include\Response_RequestStructs.h">
@@ -288,20 +291,20 @@
 				RelativePath="include\mscgi.h">
 			</File>
 			<File
+				RelativePath="include\processes.h">
+			</File>
+			<File
 				RelativePath="include\protocol.h">
 			</File>
 			<File
 				RelativePath="include\protocols_manager.h">
-			</File>			
+			</File>
+			<File
+				RelativePath="include\securestr.h">
+			</File>
 			<File
 				RelativePath="include\security.h">
 			</File>
-			<File
-				RelativePath="include\processes.h">
-			</File>			
-			<File
-				RelativePath="include\threads.h">
-			</File>			
 			<File
 				RelativePath="include\sockets.h">
 			</File>
@@ -312,6 +315,9 @@
 				RelativePath="include\stringutils.h">
 			</File>
 			<File
+				RelativePath="include\threads.h">
+			</File>
+			<File
 				RelativePath="include\utility.h">
 			</File>
 			<File
@@ -320,12 +326,6 @@
 			<File
 				RelativePath="include\winCGI.h">
 			</File>
-			<File
-				RelativePath="include\securestr.h">
-			</File>			
-			<File
-				RelativePath="include\CMemBuf.h">
-			</File>			
 		</Filter>
 		<Filter
 			Name="Resource Files"
