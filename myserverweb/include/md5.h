@@ -14,20 +14,23 @@
  * needed on buffers full of bytes, and then call MD5Final, which
  * will fill a supplied 16-byte array with the digest.
  */
+
 #ifndef MD5_H
 #define MD5_H
 
-struct Md5Context {
-	unsigned int buf[4];
-	unsigned int bytes[2];
-	unsigned int in[16];
+class Md5
+{
+  unsigned int buf[4];
+  unsigned int bytes[2];
+  unsigned int in[16];
+  void transform(unsigned int buf[4], unsigned int const in[16]);
+public:
+  Md5();
+  ~Md5();
+  void init();
+  void update(unsigned char const *buf, unsigned long len);
+  void final(unsigned char digest[16]);
+  char* end(char *buf);
 };
-
-void MYSERVER_MD5Init(Md5Context *context);
-void MYSERVER_MD5Update(struct Md5Context *context, unsigned char const *buf, unsigned long len);
-void MYSERVER_MD5Final(unsigned char digest[16], struct Md5Context *context);
-void MYSERVER_MD5Transform(unsigned int buf[4], unsigned int const in[16]);
-char * MYSERVER_MD5End(Md5Context *ctx, char *buf);
-
 
 #endif /*! !MD5_H */

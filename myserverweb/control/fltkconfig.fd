@@ -1767,11 +1767,10 @@ if(Control_Enabled->value() == 1) {
   const char * chrptr = Control_Password->value();
   if(chrptr[0] != '\\0') {
     char tempbuffer[32];
-    Md5Context md5;
-    MYSERVER_MD5Init(&md5);
-    MYSERVER_MD5Update(&md5,(const unsigned char*)chrptr,
-                       strlen(chrptr));
-    MYSERVER_MD5End(&md5, tempbuffer);
+    Md5 md5;
+    md5.init();
+    md5.update((const unsigned char*)chrptr, strlen(chrptr));
+    md5.end(tempbuffer);
     setValueXML("CONTROL_PASSWORD", tempbuffer);
     xmlFile.setAttr("MD5", "YES");
   }

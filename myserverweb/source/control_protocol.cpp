@@ -96,7 +96,7 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   char tmpPassword[64];
   tmpName[0]='\0';
   tmpPassword[0]='\0';
-  Md5Context md5;
+  Md5 md5;
 
   /*! Is the value in the config file still in MD5? */
   int adminNameMD5ized = 0;
@@ -151,9 +151,9 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   }
   else
   {
-    MYSERVER_MD5Init(&md5);
-    MYSERVER_MD5Update(&md5, (unsigned char const*)tmpName, (unsigned int)strlen(tmpName) );
-    MYSERVER_MD5End(&md5, adminLogin);
+    md5.init();
+    md5.update((unsigned char const*)tmpName, (unsigned int)strlen(tmpName) );
+    md5.end( adminLogin);
   }
 
   if(adminPasswordMD5ized)
@@ -162,9 +162,9 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   }
   else
   {
-    MYSERVER_MD5Init(&md5);
-    MYSERVER_MD5Update(&md5, (unsigned char const*)tmpPassword,(unsigned int)strlen(tmpPassword) );
-    MYSERVER_MD5End(&md5, adminPassword);
+    md5.init();
+    md5.update((unsigned char const*)tmpPassword,(unsigned int)strlen(tmpPassword) );
+    md5.end(adminPassword);
   }
 
   
@@ -182,20 +182,20 @@ int ControlProtocol::checkAuth()
   char authPasswordHeaderMD5[64];
   char *headerLogin;
   char *headerPassword;
-  Md5Context md5;
+  Md5 md5;
   /*! Return 0 if we haven't enabled the service. */
   if(!controlEnabled)
     return 0;
   headerLogin = header.getAuthLogin();
   headerPassword = header.getAuthPassword();
   authLoginHeaderMD5[0] = authPasswordHeaderMD5[0] = '\0';
-  MYSERVER_MD5Init(&md5);
-  MYSERVER_MD5Update(&md5, (unsigned char const*) headerLogin, (unsigned int)strlen( headerLogin ) );
-  MYSERVER_MD5End(&md5, authLoginHeaderMD5);
+  md5.init();
+  md5.update((unsigned char const*) headerLogin, (unsigned int)strlen( headerLogin ) );
+  md5.end( authLoginHeaderMD5);
 
-  MYSERVER_MD5Init(&md5);
-  MYSERVER_MD5Update(&md5,(unsigned char const*) headerPassword,(unsigned int)strlen(headerPassword) );
-  MYSERVER_MD5End(&md5, authPasswordHeaderMD5);
+  md5.init();
+  md5.update((unsigned char const*) headerPassword,(unsigned int)strlen(headerPassword) );
+  md5.end(authPasswordHeaderMD5);
 
   if((!strcmpi(adminLogin, authLoginHeaderMD5)) &&
      (!strcmpi(adminPassword, authPasswordHeaderMD5)) )

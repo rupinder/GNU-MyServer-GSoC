@@ -39,70 +39,67 @@ byteSwap(unsigned int *buf, unsigned int words)
  *Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
  *initialization constants.
  */
-void
-MYSERVER_MD5Init(struct Md5Context *ctx)
+void Md5::init()
 {
-	ctx->buf[0] = 0x67452301;
-	ctx->buf[1] = 0xefcdab89;
-	ctx->buf[2] = 0x98badcfe;
-	ctx->buf[3] = 0x10325476;
+	buf[0] = 0x67452301;
+	buf[1] = 0xefcdab89;
+	buf[2] = 0x98badcfe;
+	buf[3] = 0x10325476;
 
-	ctx->bytes[0] = 0;
-	ctx->bytes[1] = 0;
+	bytes[0] = 0;
+	bytes[1] = 0;
 }
 
 /*!
  *Update context to reflect the concatenation of another buffer full
  *of bytes.
  */
-void
-MYSERVER_MD5Update(struct Md5Context *ctx, unsigned char const *buf, unsigned long len)
+void Md5::update(unsigned char const *buf, unsigned long len)
 {
 	unsigned int t;
 
 	/* Update byte count */
 
-	t = ctx->bytes[0];
-	if ((ctx->bytes[0] = t + len) < t)
-		ctx->bytes[1]++;	/* Carry from low to high */
+	t = bytes[0];
+	if ((bytes[0] = t + len) < t)
+		bytes[1]++;	/* Carry from low to high */
 
-	t = 64 - (t & 0x3f);	/* Space available in ctx->in (at least 1) */
+	t = 64 - (t & 0x3f);	/* Space available in in (at least 1) */
 	if (t > len) 
   {
-		memcpy((unsigned char *)ctx->in + 64 - t, buf, len);
+		memcpy((unsigned char *)in + 64 - t, buf, len);
 		return;
 	}
 	/* First chunk is an odd size */
-	memcpy((unsigned char *)ctx->in + 64 - t, buf, t);
-	byteSwap(ctx->in, 16);
-	MYSERVER_MD5Transform( ctx->buf, ctx->in);
+	memcpy((unsigned char *)in + 64 - t, buf, t);
+	byteSwap(in, 16);
+	transform( this->buf, in);
 	buf += t;
 	len -= t;
 
 	/* Process data in 64-byte chunks */
 	while (len >= 64) 
   {
-		memcpy(ctx->in, buf, 64);
-		byteSwap(ctx->in, 16);
-		MYSERVER_MD5Transform(ctx->buf,ctx->in);
+		memcpy(in, buf, 64);
+		byteSwap(in, 16);
+		transform(this->buf, in);
 		buf += 64;
 		len -= 64;
 	}
 
 	/* Handle any remaining bytes of data. */
-	memcpy(ctx->in, buf, len);
+	memcpy(in, buf, len);
 }
 
 /*!
  *Final wrapup - pad to 64-byte boundary with the bit pattern 
  *1 0* (64-bit count of bits processed, MSB-first)
  */
-void
-MYSERVER_MD5Final(unsigned char digest[16], struct Md5Context *ctx)
+void Md5::final(unsigned char digest[16])
 {
-	long count = ctx->bytes[0] & 0x3f;	/* Number of bytes in ctx->in */
-	unsigned char *p = (unsigned char *)ctx->in + count;
-
+	long count = bytes[0] & 0x3f;	/* Number of bytes in in */
+	unsigned char *p = (unsigned char *)in + count;
+  unsigned int i;
 	/* Set the first char of padding to 0x80.  There is always room. */
 	*p++ = 0x80;
 
@@ -111,22 +108,32 @@ MYSERVER_MD5Final(unsigned char digest[16], struct Md5Context *ctx)
 
 	if (count < 0) {	/* Padding forces an extra block */
 		memset(p, 0, count + 8);
-		byteSwap(ctx->in, 16);
-		MYSERVER_MD5Transform( ctx->buf,ctx->in);
-		p = (unsigned char *)ctx->in;
+		byteSwap(in, 16);
+		transform( buf, in);
+		p = (unsigned char *)in;
 		count = 56;
 	}
 	memset(p, 0, count);
-	byteSwap(ctx->in, 14);
+	byteSwap(in, 14);
 
 	/* Append length in bits and transform */
-	ctx->in[14] = ctx->bytes[0] << 3;
-	ctx->in[15] = ctx->bytes[1] << 3 | ctx->bytes[0] >> 29;
-	MYSERVER_MD5Transform(ctx->buf,ctx->in);
+	in[14] = bytes[0] << 3;
+	in[15] = bytes[1] << 3 | bytes[0] >> 29;
+	transform(buf, in);
 
-	byteSwap(ctx->buf, 4);
-	memcpy(digest, ctx->buf, 16);
-	memset(ctx, 0, sizeof(ctx));	/* In case it's sensitive */
+	byteSwap(buf, 4);
+
+	memcpy(digest, buf, 16);
+
+  for(i=0;i<4;i++)
+    buf[i]=0;
+
+  for(i=0;i<2;i++)
+    bytes[i]=0;
+
+  for(i=0;i<16;i++) 
+    in[i]=0;
+
 }
 
 #ifndef ASM_MD5
@@ -145,11 +152,10 @@ MYSERVER_MD5Final(unsigned char digest[16], struct Md5Context *ctx)
 
 /*!
  *The core of the MD5 algorithm, this alters an existing MD5 hash to
- *reflect the addition of 16 longwords of new data.  MYSERVER_MD5Update blocks
+ *reflect the addition of 16 longwords of new data.  update blocks
  *the data and converts bytes longo longwords for this routine.
  */
-void
-MYSERVER_MD5Transform(unsigned int buf[4], unsigned int const in[16])
+void Md5::transform(unsigned int buf[4], unsigned int const in[16])
 {
 	register unsigned int a, b, c, d;
 
@@ -233,9 +239,23 @@ MYSERVER_MD5Transform(unsigned int buf[4], unsigned int const in[16])
 }
 
 /*!
+ *Initialize the object via a constructor.
+ */
+Md5::Md5()
+{
+  init();
+}
+
+/*!
+ *Destroy the object.
+ */
+Md5::~Md5()
+{}
+
+/*!
  *Write the final hash on te buffer.
  */
-char * MYSERVER_MD5End(Md5Context *ctx, char *buf)
+char* Md5::end(char *buf)
 {
 	long i;
 	unsigned char digest[16];
@@ -243,7 +263,7 @@ char * MYSERVER_MD5End(Md5Context *ctx, char *buf)
 	
 	if (!buf)
 		return 0;
-	MYSERVER_MD5Final(digest,ctx);
+	final(digest);
 	for (i=0;i<16;i++) 
 	{
 		buf[i+i] = hex[digest[i] >> 4];

@@ -461,12 +461,13 @@ CMemBuf CMemBuf::HexToData(const void* pAdr, u_int nSize)
 CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 {
 	CMemBuf mem_MD5;
+	Md5 md5;
 	mem_MD5.m_bCanDelete = 0;
 	mem_MD5.SetLength(16);
-	Md5Context ctx;
-	MYSERVER_MD5Init(&ctx);
-	MYSERVER_MD5Update(&ctx, (unsigned char*) pAdr, nSize);
-	MYSERVER_MD5Final((unsigned char*) mem_MD5.GetBuffer(), &ctx);
+
+	md5.init();
+	md5.update((unsigned char*) pAdr, nSize);
+	md5.final((unsigned char*) mem_MD5.GetBuffer());
 	mem_MD5.m_nSize = 16;
 	return mem_MD5;
 }

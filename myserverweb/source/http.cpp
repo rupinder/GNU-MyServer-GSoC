@@ -642,7 +642,7 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	char *method;
 	char *uri;
 	u_long digest_count;
-  Md5Context md5;
+  Md5 md5;
 	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
        ((HttpUserData*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
 		return 0;
@@ -657,31 +657,31 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	else
 		((HttpUserData*)s->protocolBuffer)->nc++;
    
-	MYSERVER_MD5Init(&md5);
+	md5.init();
 	td->buffer2->SetLength(0);
 	*td->buffer2 << td->request.digest_username << ":" << td->request.digest_realm 
                << ":" << ((HttpUserData*)s->protocolBuffer)->needed_password;
 
-	MYSERVER_MD5Update(&md5, (unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
-	MYSERVER_MD5End(&md5, A1);
+	md5.update((unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
+	md5.end(A1);
 	
-	MYSERVER_MD5Init(&md5);
+	md5.init();
 	method=td->request.CMD;
 	uri=td->request.URIOPTS;
 	if(td->request.digest_uri[0])
 		uri=td->request.digest_uri;
 	td->buffer2->SetLength(0);
 	*td->buffer2 << method << ":" << uri;
-	MYSERVER_MD5Update(&md5, (unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
-	MYSERVER_MD5End(&md5, A2);
+	md5.update((unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
+	md5.end( A2);
 	
-	MYSERVER_MD5Init(&md5);
+	md5.init();
 	td->buffer2->SetLength(0);
 	*td->buffer2 << A1 << ":"  << ((HttpUserData*)s->protocolBuffer)->nonce << ":" 
                << td->request.digest_nc << ":"  << td->request.digest_cnonce << ":" 
                << td->request.digest_qop  << ":" << A2;
-	MYSERVER_MD5Update(&md5, (unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
-	MYSERVER_MD5End(&md5, response);	
+	md5.update((unsigned char const*)td->buffer2->GetBuffer(), (unsigned int)td->buffer2->GetLength());
+	md5.end(response);	
 
 	if(!lstrcmp(response, td->request.digest_response))
 		return 1;
@@ -2033,14 +2033,14 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
  */
 void Http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
 {
+	Md5 md5;
 	if(!out)
 		return;
-	Md5Context md5;
 	sprintf(buffer, "%i-%u-%s", (int)clock(), (u_int)td->id, 
           td->connection->getipAddr());
-	MYSERVER_MD5Init(&md5);
-	MYSERVER_MD5Update(&md5, (unsigned char const*)buffer , (unsigned int)strlen(buffer));
-	MYSERVER_MD5End(&md5, out);
+	md5.init();
+	md5.update((unsigned char const*)buffer , (unsigned int)strlen(buffer));
+	md5.end(out);
 }
 
 /*!
@@ -2090,10 +2090,10 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 			strncpy(&(md5_str[2]), td->request.URI, 256-2);
 			md5_str[0]=(char)td->id;
 			md5_str[1]=(char)clock();
-			Md5Context md5;
-			MYSERVER_MD5Init(&md5);
-			MYSERVER_MD5Update(&md5, (unsigned char const*)md5_str,  (unsigned int)strlen(md5_str));
-			MYSERVER_MD5End(&md5, ((HttpUserData*)a->protocolBuffer)->opaque);
+			Md5 md5;
+			md5.init();
+			md5.update((unsigned char const*)md5_str,  (unsigned int)strlen(md5_str));
+			md5.end(((HttpUserData*)a->protocolBuffer)->opaque);
 			
 			if(a->protocolBuffer && (!(((HttpUserData*)a->protocolBuffer)->digest)) || 
          (((HttpUserData*)a->protocolBuffer)->nonce[0]=='\0'))
