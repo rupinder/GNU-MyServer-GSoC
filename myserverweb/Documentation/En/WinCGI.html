@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>WinCGI</title>
+</head>
+<body>
+<h1 class="title" align="center">WinCGI<br>
+</h1>
+WinCGI is a method for writing CGI scripts in Visual Basic. It's not a
+"web standard", as it will work only on servers running in Windows
+environment.<br>
+<br>
+All you'd need to do to run your WinCGI script, is to use the script as
+the 'action' of your web form, like this:<br>
+<br>
+<p class="code">&lt;FORM METHOD=POST
+ACTION=www.myfiles.com/cgi-bin/mywincgi.exe&gt;</p>
+With this, MyServer will decode and send the data of your form to the
+WinCGI script.<br>
+<br>
+Like in CGI, you can place all your scripts in a <span class="code">cgi-bin</span>
+directory in the <span class="code">web</span> directory in MyServer
+as seen below:<br>
+<br>
+<br>
+<div style="text-align: center;"><img src="images/myfiles.gif"
+ title="" alt="Web folder" height="260" width="468"><br>
+</div>
+<div style="text-align: center;"><small>The cgi-bin folder is directly
+beneath the selected web folder.</small><br>
+</div>
+<br>
+<br>
+<br>
+However, WinCGI scripts can be placed anywhere as long as their
+location
+is indicated in the HTML code.<br>
+</body>
+</html>
