@@ -206,49 +206,107 @@ BOOL ClientsTHREAD::sendFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,i
 BOOL ClientsTHREAD::sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 {
 	/*
-	*Change the owner of the thread
+	*Change the owner of the thread to the creator of the process.
+	*This because anonymous users cannot go through our files.
 	*/
 	if(lserver->useLogonOption)
 		revertToSelf();
 	static int len;
 	char cmdLine[MAX_PATH*2];
-	sprintf(cmdLine,"%s %s",exec,filename);
-	ext;/*Prevent from warning*/
-    STARTUPINFO si;     
+	
+	sprintf(cmdLine,"%s \"%s%s\"",exec,lserver->path,filename);
+	char *c=&cmdLine[0];
+	while(*c)
+	{
+		if(*c=='\\')
+			*c='/';
+		c++;
+	}
+    SECURITY_ATTRIBUTES sa = {0};  
+    sa.nLength = sizeof(sa);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
+    /*
+    *Use a temporary file to store CGI output.
+    *Every thread has it own tmp file name(tmpBufferFilePath),
+    *so use this name for the file that is going to be
+    *created because more threads can access more CGI in the same time.
+    */
+
+	tmpBufferFile = CreateFile (tmpBufferFilePath, GENERIC_READ | GENERIC_WRITE,
+                                     FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                                      &sa, OPEN_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_ATTRIBUTE_HIDDEN, NULL);
+    /*
+    *Set the standard output values for the CGI process
+    */
+    STARTUPINFO si;
     ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
     si.hStdInput = 0;
-    si.hStdOutput = pipeOutWrite;
-    si.hStdOutput=0;
-    si.dwFlags=STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.hStdOutput = tmpBufferFile;
+    si.hStdError= 0;
+    si.dwFlags=STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
-
-    CreateProcess(NULL, cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,NULL,NULL,&si, &pi);
-    
-	
 	buffer2[0]='\0';
-
+	/*
+	*To set the CGI path modify the MIMEtypes file in the bin folder
+	*/
+    CreateProcess(NULL, cmdLine, NULL, NULL, TRUE,CREATE_SEPARATE_WOW_VDM|CREATE_NEW_CONSOLE,NULL,NULL,&si, &pi);
+	/*
+	*Wait until it's ending by itself
+	*/
 	WaitForSingleObject( pi.hProcess, INFINITE );
+
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
 
-	/*
-	*Restore security
-	*/
-	if(lserver->useLogonOption)
-		impersonateLogonUser(hImpersonation);
 	
 	DWORD nBytesRead;
-	ReadFile(pipeOutRead,buffer2,buffersize2,&nBytesRead,NULL);
-	len=min(nBytesRead,buffersize2);
+	SetFilePointer(tmpBufferFile,0,0,SEEK_SET);
+	ReadFile(tmpBufferFile,buffer2,buffersize2,&nBytesRead,NULL);
+	len=nBytesRead;
 	buffer2[len]='\0';
+	/*
+	*Standards CGI can include an extra HTTP header
+	*so don't terminate with \r\n myServer header.
+	*/	
+	DWORD headerSize;
+	for(headerSize=0;headerSize<len;headerSize++)
+	{
+		if(buffer2[headerSize]=='\r')
+			if(buffer2[headerSize+1]=='\n')
+				if(buffer2[headerSize+2]=='\r')
+					if(buffer2[headerSize+3]=='\n')			
+						break;
+	}
+	headerSize+=4;
+	len=nBytesRead-headerSize;
 
 	sprintf(response.CONTENTS_DIM,"%u",len);
 	buildHttpResponseHeader(buffer,&response);
-	send(s->socket,buffer,lstrlen(buffer), 0);
-	send(s->socket,buffer2,len, 0);
+
+	/*
+	*Send lstrlen(buffer)-2 because last two characters
+	*are \r\n that terminating the HTTP header
+	*/
+	send(s->socket,buffer,lstrlen(buffer)-2, 0);
+	/*
+	*In buffer2 there are the CGI HTTP header and the 
+	*contents of the page requested through the CGI
+	*/
+	send(s->socket,buffer2,nBytesRead, 0);
+
+	CloseHandle(tmpBufferFile);
+	DeleteFile(tmpBufferFilePath);
+
+	/*
+	*Restore security on the current thread
+	*/
+	if(lserver->useLogonOption)
+		impersonateLogonUser(hImpersonation);
+		
 	return 1;
 }
 BOOL ClientsTHREAD::sendRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
@@ -378,14 +436,10 @@ unsigned int WINAPI startClientsTHREAD(void* pParam)
 	sprintf(mutexname,"connectionMutex_%u",id);
 	ct->connectionMutex=CreateMutex(NULL,FALSE,mutexname);
 
-    SECURITY_ATTRIBUTES sa = {0};  
-    sa.nLength = sizeof(sa);
-    sa.bInheritHandle = TRUE;
-    sa.lpSecurityDescriptor = NULL;
-	
-	CreatePipe(&(ct->pipeOutRead),&(ct->pipeOutWrite),&sa,0);
-	
-	while(ct->threadIsRunning)
+	char currentpath[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH,currentpath);
+	sprintf(ct->tmpBufferFilePath,"%s/%tmpbuffer_%u",currentpath,id);
+	while(ct->threadIsRunning) 
 	{
 		ct->controlConnections();
 	}
@@ -460,8 +514,6 @@ void ClientsTHREAD::clean()
 	free(buffer2);
 	initialized=FALSE;
 	ReleaseMutex(connectionMutex);
-	CloseHandle(pipeOutRead);
-	CloseHandle(pipeOutWrite);	
 	TerminateThread(threadHandle,0);
 }
 BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
@@ -723,473 +775,238 @@ BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
 			a->login[lstrlen(a->login)]=*lbuffer2++;
 		}
 		lbuffer2++;
-
 		while(*lbuffer2)
-
 		{
-
 			a->password[lstrlen(a->password)]=*lbuffer2++;
-
 		}
-
 		free(base64);
-
 	}
-
 	/*Host*/
-
 	if(!lstrcmpi(command,"Host"))
-
 	{
-
 		token = strtok( NULL, seps );
-
 		lineControlled=TRUE;
-
 		lstrcpy(request.HOST,token);
-
 		StrTrim(request.HOST," ");
-
 	}
-
 	/*Accept*/
-
 	if(!lstrcmpi(command,"Accept"))
-
 	{
-
 		token = strtok( NULL, "\n\r" );
-
 		lineControlled=TRUE;
-
 		lstrcat(request.ACCEPT,token);
-
 		StrTrim(request.ACCEPT," ");
-
 	}
-
 	/*Accept-Language*/
-
 	if(!lstrcmpi(command,"Accept-Language"))
-
 	{
-
 		token = strtok( NULL, "\n\r" );
-
 		lineControlled=TRUE;
-
 		lstrcpy(request.ACCEPTLAN,token);
-
 		StrTrim(request.ACCEPTLAN," ");
-
 	}
-
 	/*Accept-Charset*/
-
 	if(!lstrcmpi(command,"Accept-Charset"))
-
 	{
-
 		token = strtok( NULL, "\n\r" );
-
 		lineControlled=TRUE;
-
 		lstrcpy(request.ACCEPTCHARSET,token);
-
 		StrTrim(request.ACCEPTCHARSET," ");
-
 	}
-
-
 
 	/*Accept-Encoding*/
-
 	if(!lstrcmpi(command,"Accept-Encoding"))
-
 	{
-
 		token = strtok( NULL, "\n\r" );
-
 		lineControlled=TRUE;
-
 		lstrcpy(request.ACCEPTENC,token);
-
 		StrTrim(request.ACCEPTENC," ");
-
 	}
-
 	/*Connection*/
-
 	if(!lstrcmpi(command,"Connection"))
-
 	{
-
 		token = strtok( NULL, "\n\r" );
-
 		lineControlled=TRUE;
-
 		lstrcpy(request.CONNECTION,token);
-
 		StrTrim(request.CONNECTION," ");
-
 	}
-
 	/*Range*/
-
 	if(!lstrcmpi(command,"Range"))
-
 	{
-
 		ZeroMemory(request.RANGETYPE,30);
-
 		ZeroMemory(request.RANGEBYTEBEGIN,30);
-
 		ZeroMemory(request.RANGEBYTEEND,30);
-
 		lineControlled=TRUE;
-
 		token = strtok( NULL, "\r\n\t" );
-
 		do
-
 		{
-
 			request.RANGETYPE[lstrlen(request.RANGETYPE)]=*token;
-
 		}
-
 		while(*token++ != '=');
-
 		do
-
 		{
-
 			request.RANGEBYTEBEGIN[lstrlen(request.RANGEBYTEBEGIN)]=*token;
-
 		}
-
 		while(*token++ != '-');
-
 		do
-
 		{
-
 			request.RANGEBYTEEND[lstrlen(request.RANGEBYTEEND)]=*token;
-
 		}
-
 		while(*token++);
-
 		StrTrim(request.RANGETYPE,"= ");
-
 		StrTrim(request.RANGEBYTEBEGIN,"- ");
-
 		StrTrim(request.RANGEBYTEEND," ");
-
 		
-
 		if(lstrlen(request.RANGEBYTEBEGIN)==0)
-
 			lstrcpy(request.RANGEBYTEBEGIN,"0");
-
 		if(lstrlen(request.RANGEBYTEEND)==0)
-
 			lstrcpy(request.RANGEBYTEEND,"-1");
 
-
-
 	}
-
 	/*Referer*/
-
 	if(!lstrcmpi(command,"Referer"))
-
 	{
-
 		token = strtok( NULL, seps );
-
 		lineControlled=TRUE;
-
 		lstrcpy(request.REFERER,token);
-
 		StrTrim(request.REFERER," ");
-
 	}
-
 	if(!lineControlled)
-
 	{
-
 		token = strtok( NULL, "\n" );
-
 	}
-
 	token = strtok( NULL, cmdseps );
-
 	if((token-buffer)<maxTotChars)
-
 		goto controlAnotherLine; 
 
-
-
 	/*
-
 	*END REQUEST STRUCTURE BUILD
-
 	*/
-
 	if(!lstrcmpi(request.CMD,"GET"))
-
 	{
-
 		if(lstrlen(request.HOST)==0)
-
 		{
-
 			raiseError(a,e_400);
-
 			return 0;
-
 		}
-
 		if(!lstrcmpi(request.RANGETYPE,"bytes"))
-
 			sendRESOURCE(a,request.URI,FALSE,FALSE,atoi(request.RANGEBYTEBEGIN),atoi(request.RANGEBYTEEND));
-
 		else
-
 			sendRESOURCE(a,request.URI);
-
-	}else if(!lstrcmpi(request.CMD,"POST"))
-
+	}
+	else if(!lstrcmpi(request.CMD,"POST"))
 	{
-
 		if(lstrlen(request.HOST)==0)
-
 		{
-
 			raiseError(a,e_400);
-
 			return 0;
-
 		}
-
 		if(!lstrcmpi(request.RANGETYPE,"bytes"))
-
 			sendRESOURCE(a,request.URI,FALSE,FALSE,atoi(request.RANGEBYTEBEGIN),atoi(request.RANGEBYTEEND));
-
 		else
-
 			sendRESOURCE(a,request.URI);
-
-	}else if(!lstrcmpi(request.CMD,"HEAD"))
-
+	}
+	else if(!lstrcmpi(request.CMD,"HEAD"))
 	{
-
 		if(lstrlen(request.HOST)==0)
-
 		{
-
 			raiseError(a,e_400);
-
 			deleteConnection(a);
-
 			return 0;
-
 		}
-
 		sendRESOURCE(a,request.URI,FALSE,TRUE);
-
 	}
-
 	else
-
 	{
-
 		raiseError(a,e_501);
-
 		deleteConnection(a);
-
 		return 0;
-
 	}
-
 	if(lstrcmpi(request.CONNECTION,"Keep-Alive"))
-
 	{
-
 		deleteConnection(a);
-
 		return 0;
-
 	}
-
 	return 1;
-
-
-
 }
-
 LPCONNECTION ClientsTHREAD::findConnection(SOCKET a)
-
 {
-
 	/*
-
 	*Find a connection passing the socket that control it
-
 	*/
-
 	LPCONNECTION c;
-
 	for(c=connections;c;c=c->Next)
-
 	{
-
 		if(c->socket==a)
-
 			return c;
-
 	}
-
 	return NULL;
-
 }
-
 LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
-
 {
-
 	/*
-
 	*Add a new connection.
-
 	*Connections are defined using a CONNECTION struct.
-
 	*/
-
 	WaitForSingleObject(connectionMutex,INFINITE);
-
 	const int maxRcvBuffer=KB(5);
-
 	const BOOL keepAlive=TRUE;
-
 	setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char*)&maxRcvBuffer,sizeof(maxRcvBuffer));
-
 	setsockopt( s,SOL_SOCKET, SO_SNDTIMEO,(char *)&lserver->socketRcvTimeout,sizeof(lserver->socketRcvTimeout));
-
 	setsockopt( s,SOL_SOCKET, SO_KEEPALIVE,(char *)&keepAlive,sizeof(keepAlive));
-
-
-
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
-
 	ZeroMemory(nc,sizeof(CONNECTION));
-
 	nc->socket=s;
-
 	nc->protocol=protID;
-
 	nc->Next=connections;
-
 	connections=nc;
-
 	nConnections++;
-
 	ReleaseMutex(connectionMutex);
-
 	return nc;
-
 }
-
 BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
-
 {
-
 	/*
-
 	*Delete a connection
-
 	*/
-
 	WaitForSingleObject(connectionMutex,INFINITE);
-
 	BOOL ret=FALSE;
-
 	shutdown(s->socket,SD_BOTH );
-
 	do
-
 	{
-
 		err=recv(s->socket,buffer,buffersize,0);
-
 	}while(err && (err!=SOCKET_ERROR));
-
 	closesocket(s->socket); 
-
-
-
 	LPCONNECTION prev=0;
-
 	for(LPCONNECTION i=connections;i;i=i->Next)
-
 	{
-
 		if(i->socket == s->socket)
-
 		{
-
 			if(prev)
-
 				prev->Next=i->Next;
-
 			else
-
 				connections=i->Next;
-
 			free(i);
-
 			ret=TRUE;
-
 			break;
-
 		}
-
 		prev=i;
-
 	}
-
 	nConnections--;
-
 	ReleaseMutex(connectionMutex);
-
 	return ret;
-
 }
-
 void ClientsTHREAD::clearAllConnections()
-
 {
-
 	WaitForSingleObject(connectionMutex,INFINITE);
-
 	LPCONNECTION c=connections;
-
 	for(;c;c=c->Next)
-
 	{
-
 		deleteConnection(c);
-
 	}
-
 	connections=NULL;
-
 	nConnections=0;
-
 	ReleaseMutex(connectionMutex);
-
 }
 
 

@@ -69,7 +69,8 @@ private:
 	DWORD nBytesToRead;
 	VOID logon(LPCONNECTION,BOOL*);
 	VOID logout(BOOL);
-	HANDLE pipeOutRead,pipeOutWrite;
+	char tmpBufferFilePath[MAX_PATH];
+	HANDLE tmpBufferFile;
 public:
 	ClientsTHREAD();
 	~ClientsTHREAD();

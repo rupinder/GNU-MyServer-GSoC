@@ -27,40 +27,38 @@ HRESULT MIME_Manager::load(char *filename)
 	if(!f)
 		return 1;
 	fread(buffer,sizeof(buffer),1,f);
-	char *token=strtok(buffer,",;");
+	DWORD nc=0;
 	for(DWORD i=0;i<MAX_MIME_TYPES;i++)
 	{
-		if(i)
-			token=strtok(NULL,",");
-		if(token==NULL)
+		while(buffer[nc]==' ')
+			nc++;
+		if(buffer[nc]=='#')
 			break;
-		lstrcpy(data[i][0],token);
-		token=strtok(NULL,",");
-		if(token==NULL)
-			break;
-		lstrcpy(data[i][1],token);
-
-		token=strtok(NULL,";");
-		if(token==NULL)
-			break;
-		if(lstrcmpi(token,"NONE"))
-			lstrcpy(data[i][2],token);
-		else
-			data[i][2][0]='\0';
+		while(buffer[nc]!=',')
+		{
+			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
+				data[i][0][lstrlen(data[i][0])]=buffer[nc];
+			nc++;
+		}
+		nc++;
+		while(buffer[nc]!=',')
+		{
+			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
+				data[i][1][lstrlen(data[i][1])]=buffer[nc];
+			nc++;
+		}
+		nc++;
+		while(buffer[nc]!=';')
+		{
+			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
+				data[i][2][lstrlen(data[i][2])]=buffer[nc];
+			nc++;
+			if(!lstrcmpi(data[i][2],"NONE"))
+				data[i][2][0]='\0';
+			
+		}
 		numMimeTypesLoaded++;
-
-		while(data[i][0][0]==10)
-			lstrcpy(data[i][0],&data[i][0][1]);
-		while(data[i][1][0]==10)
-			lstrcpy(data[i][1],&data[i][1][1]);
-		while(data[i][2][0]==10)
-			lstrcpy(data[i][2],&data[i][2][1]);
-		while(data[i][0][0]==13)
-			lstrcpy(data[i][0],&data[i][0][1]);
-		while(data[i][1][0]==13)
-			lstrcpy(data[i][1],&data[i][1][1]);
-		while(data[i][2][0]==13)
-			lstrcpy(data[i][2],&data[i][2][1]);
+		nc++;
 	}
 	fclose(f);
 	return 0;

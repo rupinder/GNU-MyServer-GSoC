@@ -6,5 +6,4 @@ jpeg,image/jpeg,NONE;
 xml,text/xml,NONE;
 txt,text/html,NONE;
 mp3,sound/mp3,NONE;
-php,text/html,D:/Programmi/php/php.exe;
-
+php,text/html,c:/php/php.exe;#
