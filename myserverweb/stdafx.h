@@ -77,7 +77,7 @@ typedef unsigned long u_long;
 typedef unsigned short u_short;
 
 typedef void* HANDLE;
-extern class cserver *lserver;
+extern class Server *lserver;
 extern class CBase64Utils base64Utils;
 extern const char *versionOfSoftware;
 extern int mustEndServer;

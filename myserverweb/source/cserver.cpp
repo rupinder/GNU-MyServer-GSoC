@@ -58,16 +58,17 @@ extern "C" {
 #endif
 
 /*!
-*This is the unique istance for the class cserver in the application.
-*/
-cserver *lserver=0;
+ *This is the unique istance for the class Server in the application.
+ */
+Server *lserver=0;
+
 /*!
-When the flag mustEndServer is 1 all the threads are stopped and the application stop
-*its execution.
-*/
+  When the flag mustEndServer is 1 all the threads are stopped and the application stop
+  *its execution.
+  */
 int mustEndServer;
 
-cserver::cserver()
+Server::Server()
 {
   logManager = new MYSERVER_LOG_MANAGER();
 	threads = 0;
@@ -84,7 +85,7 @@ cserver::cserver()
 /*!
  *Destroy the object.
  */
-cserver::~cserver()
+Server::~Server()
 {
  delete logManager;
 }
@@ -92,7 +93,7 @@ cserver::~cserver()
 /*!
  *Start the server.
  */
-void cserver::start()
+void Server::start()
 {
 	u_long i;
 	u_long configsCheck=0;
@@ -342,7 +343,7 @@ void cserver::start()
 /*!
  *Removed threads that can be destroyed.
  */
-int cserver::purgeThreads()
+int Server::purgeThreads()
 {
   /*!
    *We don't need to do anything.
@@ -393,7 +394,7 @@ int cserver::purgeThreads()
 /*!
  *Do the final cleanup. Called only once.
  */
-void cserver::finalCleanup()
+void Server::finalCleanup()
 {
 	XmlParser::cleanXML();
   freecwdBuffer();
@@ -401,7 +402,7 @@ void cserver::finalCleanup()
 /*!
  *This function is used to create a socket server and a thread listener for a protocol.
  */
-int cserver::createServerAndListener(u_long port)
+int Server::createServerAndListener(u_long port)
 {
 	int optvalReuseAddr=1;
   char port_buff[6];
@@ -498,7 +499,7 @@ int cserver::createServerAndListener(u_long port)
 /*!
  *Create a listen thread for every port used by MyServer.
  */
-void cserver::createListenThreads()
+void Server::createListenThreads()
 {
 	/*!
    *Create the listens threads.
@@ -579,7 +580,7 @@ void * listenServer(void* params)
 	{
 		/*!
      *Accept connections.
-     *Every new connection is sended to cserver::addConnection function;
+     *Every new connection is sended to Server::addConnection function;
      *this function sends connections between the various threads.
      */
 		if(serverSocket->dataOnRead(5, 0) == 0 )
@@ -621,7 +622,7 @@ void * listenServer(void* params)
 /*!
  *Returns the numbers of active connections the list.
  */
-u_long cserver::getNumConnections()
+u_long Server::getNumConnections()
 {
 	return nConnections;
 }
@@ -629,7 +630,7 @@ u_long cserver::getNumConnections()
 /*!
  *Get the verbosity value.
  */
-u_long cserver::getVerbosity()
+u_long Server::getVerbosity()
 {
 	return verbosity;
 }
@@ -637,7 +638,7 @@ u_long cserver::getVerbosity()
 /*!
  *Set the verbosity value.
  */
-void  cserver::setVerbosity(u_long nv)
+void  Server::setVerbosity(u_long nv)
 {
 	verbosity=nv;
 }
@@ -645,7 +646,7 @@ void  cserver::setVerbosity(u_long nv)
 /*!
  *Stop the execution of the server.
  */
-void cserver::stop()
+void Server::stop()
 {
 	mustEndServer=1;
 }
@@ -654,7 +655,7 @@ void cserver::stop()
  *Unload the server.
  *Return nonzero on errors.
  */
-int cserver::terminate()
+int Server::terminate()
 {
 	/*!
    *Stop the server execution.
@@ -749,7 +750,7 @@ int cserver::terminate()
 /*!
  *Stop all the threads.
  */
-void cserver::stopThreads()
+void Server::stopThreads()
 {
 	/*!
    *Clean here the memory allocated.
@@ -797,7 +798,7 @@ void cserver::stopThreads()
  *Get the server administrator e-mail address.
  *To change this use the main configuration file.
  */
-char *cserver::getServerAdmin()
+char *Server::getServerAdmin()
 {
 	return serverAdmin;
 }
@@ -807,7 +808,7 @@ char *cserver::getServerAdmin()
  *The configuration file is a XML file.
  *Return nonzero on errors.
  */
-int cserver::initialize(int /*!os_ver*/)
+int Server::initialize(int /*!os_ver*/)
 {
   int languages_pathLen;
 	char *data;
@@ -1109,21 +1110,21 @@ int cserver::initialize(int /*!os_ver*/)
  *This function returns the max size of the logs file as defined in the 
  *configuration file.
  */
-int cserver::getMaxLogFileSize()
+int Server::getMaxLogFileSize()
 {
 	return maxLogFileSize;
 }
 /*!
  *Returns the connection timeout.
  */
-u_long cserver::getTimeout()
+u_long Server::getTimeout()
 {
 	return connectionTimeout;
 }
 /*!
  *This function add a new connection to the list.
  */
-int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
+int Server::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 {
 
 	int ret=1;
@@ -1192,7 +1193,7 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
  *Add a new connection.
  *A connection is defined using a CONNECTION struct.
  */
-ConnectionPtr cserver::addConnectionToList(MYSERVER_SOCKET s, 
+ConnectionPtr Server::addConnectionToList(MYSERVER_SOCKET s, 
                         MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, 
                         char *localIpAddr, int port, int localPort, int /*id*/)
 {
@@ -1275,7 +1276,7 @@ ConnectionPtr cserver::addConnectionToList(MYSERVER_SOCKET s,
 /*!
  *Delete a connection from the list.
  */
-int cserver::deleteConnection(ConnectionPtr s, int /*id*/)
+int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 {
 	/*!
    *Get the access to the  connections list.
@@ -1325,7 +1326,7 @@ int cserver::deleteConnection(ConnectionPtr s, int /*id*/)
  *Using this without the right permissions can cause wrong data 
  *returned to the client.
  */
-ConnectionPtr cserver::getConnectionToParse(int /*id*/)
+ConnectionPtr Server::getConnectionToParse(int /*id*/)
 {
 	/*! Do nothing if there are not connections. */
 	if(connections==0)
@@ -1353,7 +1354,7 @@ ConnectionPtr cserver::getConnectionToParse(int /*id*/)
 /*!
  *Delete all the active connections.
  */
-void cserver::clearAllConnections()
+void Server::clearAllConnections()
 {
 	ConnectionPtr c;
 	ConnectionPtr next;
@@ -1376,7 +1377,7 @@ void cserver::clearAllConnections()
 /*!
  *Find a connection passing its socket.
  */
-ConnectionPtr cserver::findConnectionBySocket(MYSERVER_SOCKET a)
+ConnectionPtr Server::findConnectionBySocket(MYSERVER_SOCKET a)
 {
 	ConnectionPtr c;
 	connections_mutex_lock();
@@ -1395,7 +1396,7 @@ ConnectionPtr cserver::findConnectionBySocket(MYSERVER_SOCKET a)
 /*!
  *Find a CONNECTION in the list by its ID.
  */
-ConnectionPtr cserver::findConnectionByID(u_long ID)
+ConnectionPtr Server::findConnectionByID(u_long ID)
 {
 	ConnectionPtr c;
 	connections_mutex_lock();
@@ -1415,7 +1416,7 @@ ConnectionPtr cserver::findConnectionByID(u_long ID)
  *Returns the full path of the binaries directory. 
  *The directory where the file myserver(.exe) is.
  */
-char *cserver::getPath()
+char *Server::getPath()
 {
 	return path;
 }
@@ -1423,7 +1424,7 @@ char *cserver::getPath()
 /*!
  *Returns the name of the server(the name of the current PC).
  */
-char *cserver::getServerName()
+char *Server::getServerName()
 {
 	return serverName;
 }
@@ -1432,7 +1433,7 @@ char *cserver::getServerName()
 /*!
  *Gets the number of threads.
  */
-u_long cserver::getNumThreads()
+u_long Server::getNumThreads()
 {
 	return nThreads;
 }
@@ -1441,7 +1442,7 @@ u_long cserver::getNumThreads()
  *Returns a comma-separated local machine IPs list.
  *For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
  */
-char *cserver::getAddresses()
+char *Server::getAddresses()
 {
 	return ipAddresses;
 }
@@ -1451,7 +1452,7 @@ char *cserver::getAddresses()
  *While built-in protocols have an object per thread, for dynamic
  *protocols there is only one object shared among the threads.
  */
-DynamicProtocol* cserver::getDynProtocol(char *protocolName)
+DynamicProtocol* Server::getDynProtocol(char *protocolName)
 {
 	return protocols.getDynProtocol(protocolName);
 }
@@ -1459,7 +1460,7 @@ DynamicProtocol* cserver::getDynProtocol(char *protocolName)
 /*!
  *Lock connections list access to the caller thread.
  */
-int cserver::connections_mutex_lock()
+int Server::connections_mutex_lock()
 {
 	connections_mutex->myserver_mutex_lock();
 	return 1;
@@ -1468,7 +1469,7 @@ int cserver::connections_mutex_lock()
 /*!
  *Unlock connections list access.
  */
-int cserver::connections_mutex_unlock()
+int Server::connections_mutex_unlock()
 {
 	connections_mutex->myserver_mutex_unlock();
 	return 1;
@@ -1477,7 +1478,7 @@ int cserver::connections_mutex_unlock()
  *Load the main server settings.
  *Return nonzero on errors.
  */
-int cserver::loadSettings()
+int Server::loadSettings()
 {
   char *path;
   int pathlen;
@@ -1760,7 +1761,7 @@ int cserver::loadSettings()
 /*!
  *Lock the access to the log file.
  */
-int cserver::logLockAccess()
+int Server::logLockAccess()
 {
   return logManager->requestAccess();
 }
@@ -1768,7 +1769,7 @@ int cserver::logLockAccess()
 /*!
  *Unlock the access to the log file.
  */
-int cserver::logUnlockAccess()
+int Server::logUnlockAccess()
 {
   return logManager->terminateAccess();
 }
@@ -1777,7 +1778,7 @@ int cserver::logUnlockAccess()
  *Reboot the server.
  *Returns non zero on errors.
  */
-int cserver::reboot()
+int Server::reboot()
 {
   int ret = 0;
   serverReady = 0;
@@ -1813,7 +1814,7 @@ int cserver::reboot()
 /*!
  *Returns if the server is ready.
  */
-int cserver::isServerReady()
+int Server::isServerReady()
 {
   return serverReady;
 }
@@ -1821,7 +1822,7 @@ int cserver::isServerReady()
 /*!
  *Reboot the server on the next loop.
  */
-void cserver::rebootOnNextLoop()
+void Server::rebootOnNextLoop()
 {
   toReboot = 1;
 }
@@ -1829,7 +1830,7 @@ void cserver::rebootOnNextLoop()
 /*!
  *Get the number of active listening threads.
  */
-int cserver::getListeningThreadCount()
+int Server::getListeningThreadCount()
 {
 	return listeningThreads;
 }
@@ -1837,7 +1838,7 @@ int cserver::getListeningThreadCount()
 /*!
  *Increase of one the number of active listening threads.
  */
-void cserver::increaseListeningThreadCount()
+void Server::increaseListeningThreadCount()
 {
 	connections_mutex_lock();
 	++listeningThreads;
@@ -1847,7 +1848,7 @@ void cserver::increaseListeningThreadCount()
 /*!
  *Decrease of one the number of active listening threads.
  */
-void cserver::decreaseListeningThreadCount()
+void Server::decreaseListeningThreadCount()
 {
 	connections_mutex_lock();
 	--listeningThreads;
@@ -1857,7 +1858,7 @@ void cserver::decreaseListeningThreadCount()
 /*!
  *Return the path to the mail configuration file.
  */
-char *cserver::getMainConfFile()
+char *Server::getMainConfFile()
 {
   return main_configuration_file;
 }
@@ -1865,7 +1866,7 @@ char *cserver::getMainConfFile()
 /*!
  *Return the path to the mail configuration file.
  */
-char *cserver::getVhostConfFile()
+char *Server::getVhostConfFile()
 {
   return vhost_configuration_file;
 }
@@ -1873,7 +1874,7 @@ char *cserver::getVhostConfFile()
 /*!
  *Return the path to the mail configuration file.
  */
-char *cserver::getMIMEConfFile()
+char *Server::getMIMEConfFile()
 {
   return mime_configuration_file;
 }
@@ -1882,7 +1883,7 @@ char *cserver::getMIMEConfFile()
  *Get the first connection in the linked list.
  *Be sure to have locked connections access before.
  */
-ConnectionPtr cserver::getConnections()
+ConnectionPtr Server::getConnections()
 {
   return connections;
 }
@@ -1890,7 +1891,7 @@ ConnectionPtr cserver::getConnections()
 /*!
  *Disable the autoreboot.
  */
-void cserver::disableAutoReboot()
+void Server::disableAutoReboot()
 {
   autoRebootEnabled = 0;
 }
@@ -1898,7 +1899,7 @@ void cserver::disableAutoReboot()
 /*!
  *Enable the autoreboot
  */
-void cserver::enableAutoReboot()
+void Server::enableAutoReboot()
 {
   autoRebootEnabled = 1;
 }
@@ -1907,7 +1908,7 @@ void cserver::enableAutoReboot()
 /*!
  *Return the protocol_manager object.
  */
-ProtocolsManager *cserver::getProtocolsManager()
+ProtocolsManager *Server::getProtocolsManager()
 {
   return &protocols;
 }
@@ -1915,7 +1916,7 @@ ProtocolsManager *cserver::getProtocolsManager()
 /*!
  *Get the path to the directory containing all the language files.
  */
-char *cserver::getLanguagesPath()
+char *Server::getLanguagesPath()
 {
   return languages_path;
 }
@@ -1923,7 +1924,7 @@ char *cserver::getLanguagesPath()
 /*!
  *Get the current language file.
  */
-char *cserver::getLanguageFile()
+char *Server::getLanguageFile()
 {
   return languageFile;
 }
@@ -1931,7 +1932,7 @@ char *cserver::getLanguageFile()
 /*!
  *Return nonzero if the autoreboot is enabled.
  */
-int cserver::isAutorebootEnabled()
+int Server::isAutorebootEnabled()
 {
   return autoRebootEnabled;
 }
@@ -1940,7 +1941,7 @@ int cserver::isAutorebootEnabled()
 /*!
  *Create a new thread.
  */
-int cserver::addThread(int staticThread)
+int Server::addThread(int staticThread)
 {
   int ret;
 	myserver_thread_ID ID;
@@ -2001,7 +2002,7 @@ int cserver::addThread(int staticThread)
  *Remove a thread.
  *Return zero if a thread was removed.
  */
-int cserver::removeThread(u_long ID)
+int Server::removeThread(u_long ID)
 {
   int ret_code = 1;
   threads_mutex->myserver_mutex_lock();
@@ -2043,7 +2044,7 @@ int cserver::removeThread(u_long ID)
 /*!
  *Check how many threads are not working.
  */
-int cserver::countAvailableThreads()
+int Server::countAvailableThreads()
 {
   int count = 0;
 	threads_mutex->myserver_mutex_lock();
@@ -2061,7 +2062,7 @@ int cserver::countAvailableThreads()
 /*!
  *Write a string to the log file and terminate the line.
  */
-int cserver::logWriteln(char* str)
+int Server::logWriteln(char* str)
 {
   /*!
    *If the log receiver is not the console output a timestamp.
@@ -2088,7 +2089,7 @@ int cserver::logWriteln(char* str)
 /*!
  *Prepare the log to print an error.
  */
-int cserver::logPreparePrintError()
+int Server::logPreparePrintError()
 {
   logManager->preparePrintError();
   return 0;
@@ -2097,7 +2098,7 @@ int cserver::logPreparePrintError()
 /*!
  *Exit from the error printing mode.
  */
-int cserver::logEndPrintError()
+int Server::logEndPrintError()
 {
   logManager->endPrintError();
   return 0;
@@ -2106,7 +2107,7 @@ int cserver::logEndPrintError()
 /*!
  *Use a specified file as log.
  */
-int cserver::setLogFile(char* fileName)
+int Server::setLogFile(char* fileName)
 {
   if(fileName == 0)
   {
@@ -2119,7 +2120,7 @@ int cserver::setLogFile(char* fileName)
 /*!
  *Get the size for the first buffer.
  */
-u_long cserver::getBuffersize()
+u_long Server::getBuffersize()
 {
   return buffersize;
 }
@@ -2127,7 +2128,7 @@ u_long cserver::getBuffersize()
 /*!
  *Get the size for the second buffer.
  */
-u_long cserver::getBuffersize2()
+u_long Server::getBuffersize2()
 {
   return buffersize2;
 }

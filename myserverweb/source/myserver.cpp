@@ -37,7 +37,7 @@ extern "C" {
 #endif
 }
 
-cserver server;
+Server server;
 
 
 /*! External libraries to be included in the project. */

@@ -50,7 +50,7 @@ public:
 	char* registerName(char*,int len);
 	virtual int controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
                                 int bs2,u_long nbtr,u_long id);
-	int loadProtocol(XmlParser*, char*, cserver*);
+	int loadProtocol(XmlParser*, char*, Server*);
 	int unloadProtocol(XmlParser*);	
 	int getOptions();
 };
@@ -69,8 +69,8 @@ public:
 	ProtocolsManager();
   DynamicProtocol* getDynProtocolByOrder(int order);
 	DynamicProtocol* getDynProtocol(char *protocolName);
-	int	addProtocol(char*, XmlParser*, char*, cserver* lserver);
+	int	addProtocol(char*, XmlParser*, char*, Server* lserver);
 	int unloadProtocols(XmlParser*);
-	int loadProtocols(char* directory, XmlParser*, char*, cserver* lserver);
+	int loadProtocols(char* directory, XmlParser*, char*, Server* lserver);
 };
 #endif

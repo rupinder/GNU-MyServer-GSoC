@@ -42,7 +42,7 @@ typedef char* (*registerNamePROC)(char*,int);
 *Load the protocol. Called once at runtime.
 */
 int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
-                                   cserver* lserver)
+                                   Server* lserver)
 {
   errorParser = languageParser;
 #ifdef WIN32
@@ -211,7 +211,7 @@ int DynamicProtocol::setFilename(char *nf)
  *Add a new protocol to the list by its module name.
  */
 int ProtocolsManager::addProtocol(char *file, XmlParser* parser,
-                                   char* confFile, cserver* lserver)
+                                   char* confFile, Server* lserver)
 {
 	dynamic_protocol_list_element* ne = new dynamic_protocol_list_element();
 	ne->data.setFilename(file);
@@ -298,7 +298,7 @@ DynamicProtocol* ProtocolsManager::getDynProtocol(char *protocolName)
  *Returns Nonzero on errors.
  */
 int ProtocolsManager::loadProtocols(char* directory, XmlParser* parser,
-                                     char* confFile, cserver* lserver)
+                                     char* confFile, Server* lserver)
 {
 	myserver_finddata_t fd;
   int filenamelen = 0;

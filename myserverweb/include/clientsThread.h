@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/control_protocol.h"
 class  ClientsThread
 {
-	friend class cserver;
+	friend class Server;
 
 #ifdef WIN32
 	friend  unsigned int __stdcall startClientsThread(void* pParam);

@@ -68,7 +68,7 @@ struct listenThreadArgv
 };
 
 
-class cserver
+class Server
 {
   friend class ClientsThread;
 #ifdef WIN32
@@ -154,8 +154,8 @@ public:
   char *getMIMEConfFile();
   char *getLanguagesPath();
   char *getLanguageFile();
-	cserver();
-	~cserver();
+	Server();
+	~Server();
 	DynamicProtocol* getDynProtocol(char *protocolName);
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	int connections_mutex_lock();
@@ -194,6 +194,6 @@ public:
 	u_long getBuffersize();
 	u_long getBuffersize2();
 }; 
-extern class cserver *lserver;
+extern class Server *lserver;
 
 #endif
