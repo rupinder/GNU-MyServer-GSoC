@@ -23,7 +23,7 @@ static ConnTableRecord *connTable;
 static CRITICAL_SECTION GetTableEntryCritSec;
 #define ISAPI_TIMEOUT (INFINITE)
 /*
-*Initialize the ISAPI engine.
+*Initialize the ISAPI engine under WIN32.
 */
 void initISAPI()
 {

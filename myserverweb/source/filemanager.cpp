@@ -25,7 +25,7 @@ static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 /*
-*Write to the log file.
+*Write the message to the log file.
 */
 u_long warningsLogWrite(char* str)
 {
@@ -41,7 +41,7 @@ void setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 	warningsLogFile=nlg;
 }
 /*
-*Write to the accesses file.
+*Write the message to the accesses file.
 */
 u_long accessesLogWrite(char* str)
 {
@@ -81,7 +81,7 @@ int getPathRecursionLevel(char* path)
 /*
 *Write data to a file.
 */
-INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbw)
+INT ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbw)
 {
 #ifdef WIN32
 	return WriteFile((HANDLE)f,buffer,buffersize,nbw,NULL);

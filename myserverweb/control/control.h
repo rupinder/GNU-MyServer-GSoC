@@ -51,9 +51,8 @@ public:
     virtual void OnRButtonUp(wxEvent&);
     virtual void OnLButtonDClick(wxEvent&);
     virtual void OnRButtonDClick(wxEvent&);
-
-    void OnMenuRestore(wxCommandEvent&);
     void OnMenuExit(wxCommandEvent&);
+    void OnMenuRestore(wxCommandEvent&);
 
 DECLARE_EVENT_TABLE()
 };

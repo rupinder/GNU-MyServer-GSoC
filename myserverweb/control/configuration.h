@@ -35,9 +35,8 @@ class configurationFrame : public wxFrame
 	configurationFrameMIME* configureMIMEWnd;
 public:
 	void configureMIME(wxCommandEvent& event);
-	configurationFrame(const wxString& title, const wxPoint& pos, const wxSize& size,long style = wxDEFAULT_FRAME_STYLE);
 	void OnQuit(wxCommandEvent& event);
-
+	configurationFrame(const wxString& title, const wxPoint& pos, const wxSize& size,long style=wxDEFAULT_FRAME_STYLE);
 private:
 	DECLARE_EVENT_TABLE()
 };

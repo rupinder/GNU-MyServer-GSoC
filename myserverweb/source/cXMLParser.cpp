@@ -44,8 +44,8 @@ cXMLParser::cXMLParser()
 {
 	buffer=0;
 	buffersize=0;
-	data[0]='\0';
 	file=(MYSERVER_FILE_HANDLE)0;
+	data[0]='\0';
 }
 /*
 *Only get the the text "T" in <VALUENAME>T</VALUENAME>.
