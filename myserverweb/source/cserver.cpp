@@ -936,6 +936,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 
 	return ret;
 }
+
 /*!
 *Get a connection to parse. Be sure to have the connections access for the caller thread before use this.
 *Using this without the right permissions can cause wrong data returned to the client.
@@ -972,6 +973,7 @@ LPCONNECTION cserver::getConnectionToParse(int /*id*/)
 
 	return connectionToParse;
 }
+
 /*!
 *Delete all the active connections.
 */
@@ -994,7 +996,6 @@ void cserver::clearAllConnections()
 	connections=0;
 	connectionToParse=0;
 }
-
 
 /*!
 *Find a connection passing its socket.
@@ -1022,6 +1023,7 @@ char *cserver::getPath()
 {
 	return path;
 }
+
 /*!
 *Returns the name of the server(the name of the current PC).
 */
@@ -1029,6 +1031,7 @@ char *cserver::getServerName()
 {
 	return serverName;
 }
+
 /*!
 *Returns if we use the logon.
 */
@@ -1036,6 +1039,7 @@ int cserver::mustUseLogonOption()
 {
 	return useLogonOption;
 }
+
 /*!
 *Gets the number of threads.
 */
@@ -1043,6 +1047,7 @@ u_long cserver::getNumThreads()
 {
 	return nThreads;
 }
+
 /*!
 *Returns a comma-separated local machine IPs list.
 *For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
@@ -1051,6 +1056,7 @@ char *cserver::getAddresses()
 {
 	return ipAddresses;
 }
+
 /*!
 *Get the dynamic protocol to use for that connection.
 */
@@ -1115,13 +1121,13 @@ void cserver::loadSettings()
 				break;
 			outputF.writeToFile(buffer, nbr, &nbw);
 		}
-		
 		inputF.closeFile();
 		outputF.closeFile();
 	}
+	
 	/*!
 	*Load the MIME types.
-	*/		
+	*/
 	printf("%s\n", languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML("MIMEtypes.xml"))
 	{
@@ -1136,8 +1142,6 @@ void cserver::loadSettings()
 	}
 	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), getCPUCount());
 
-	
-	
 	/*!
 	*If the virtualhosts.xml file doesn't exist copy it from the default one.
 	*/
@@ -1206,6 +1210,7 @@ void cserver::loadSettings()
 	printf("%s\n", languageParser.getValue("MSG_READY"));
 	printf("%s\n", languageParser.getValue("MSG_BREAK"));
 }
+
 /*!
 *Reboot the server.
 */
@@ -1230,6 +1235,7 @@ int cserver::getListeningThreadCount()
 {
 	return listingThreads;
 }
+
 /*!
 *Increase of one the number of active listening threads.
 */

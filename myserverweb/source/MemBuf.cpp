@@ -783,7 +783,6 @@ CMemBuf CMemBuf::Hash_CRC(CMemBuf& membuf)
 
 void CMemBuf::AllocBuffer(u_int size)
 {
-	printf("Buffer allocated\n");
 	Free();
 	m_buffer = mem_alloc(size); 
 	m_nRealSize = size;

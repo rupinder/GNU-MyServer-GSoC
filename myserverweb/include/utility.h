@@ -42,8 +42,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define max(a,b)		((a>b)?a:b)
 
 
-void preparePrintError();
-void endPrintError();
+int preparePrintError();
+int endPrintError();
 
 int getOSVersion();
 u_long getCPUCount();

@@ -46,6 +46,7 @@ static char currentPath[MAX_PATH];
 
 /*!
 *Returns the version of the operating system.
+*Return 0 on fails.
 */
 int getOSVersion()
 {
@@ -56,7 +57,9 @@ int getOSVersion()
 #ifdef WIN32
 	OSVERSIONINFO osvi;
 	osvi.dwOSVersionInfoSize=sizeof(osvi);
-	GetVersionEx(&osvi);
+	ret = GetVersionEx(&osvi);
+	if(!ret)
+		return 0;	
 	switch(osvi.dwMinorVersion)
 	{
 	case 0:
@@ -111,13 +114,17 @@ u_long getCPUCount()
 
 /*!
 *Save the current working directory.
+*Return -1 on fails.
+*Return 0 on success.
 */
 int setcwdBuffer()
 {
-	int retval=0;
+	int ret=(-1);
 #ifdef WIN32	
-	_getcwd(currentPath,MAX_PATH);
-	retval=1;
+	ret =(int) _getcwd(currentPath,MAX_PATH);
+	if(!ret)
+		return -1;
+	ret=0;
 	for(u_long i=0;i<(u_long)strlen(currentPath);i++)
 		if(currentPath[i]=='\\')
 			currentPath[i]='/';
@@ -125,12 +132,14 @@ int setcwdBuffer()
 		currentPath[strlen(currentPath)]='\0';
 #endif
 #ifdef NOT_WIN
-	getcwd(currentPath,MAX_PATH);
-	retval=1;
+	ret=getcwd(currentPath,MAX_PATH);
+	if(!ret)
+		return -1;
+	ret=0;
 	if(currentPath[strlen(currentPath)]=='/') 
 		currentPath[strlen(currentPath)]='\0';
 #endif
-	return retval;
+	return ret;
 }
 /*!
 *Get the default working directory(Where is the main executable).
@@ -164,21 +173,29 @@ int setcwd(char *dir)
 
 /*!
 *Set the text color to red on black.
+*Return 0 on success.
 */
-void preparePrintError()
+int preparePrintError()
 {
 #ifdef WIN32
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
+	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
+	if(ret)
+		return 0;
+	return -1;
 #endif
 }
 
 /*!
-**Set the text color to white on black.
+*Set the text color to white on black.
+*Return 0 on success.
 */
-void endPrintError()
+int endPrintError()
 {
 #ifdef WIN32
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+	if(ret)
+		return 0;
+	return -1;
 #endif
 
 }

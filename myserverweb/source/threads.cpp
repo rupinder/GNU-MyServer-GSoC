@@ -58,6 +58,7 @@ void wait(u_long time)
 #endif
 
 }
+
 /*!
 *Constructor for the mutex class.
 */
@@ -84,19 +85,19 @@ int myserver_mutex::myserver_mutex_init()
 	initialized=1;
 	return 1;
 }
+
 /*!
 *Destroy a mutex.
 */
 int myserver_mutex::myserver_mutex_destroy()
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_destroy(&mutex);	
+	pthread_mutex_destroy(&mutex);
 #else
 	CloseHandle(mutex);
 #endif
 	return 1;
 }
-
 
 /*!
 *Lock the mutex
@@ -118,6 +119,7 @@ int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
 #endif
 	return 1;
 }
+
 /*!
 *Unlock the mutex access.
 */
@@ -130,6 +132,7 @@ int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 #endif
 	return 1;
 }
+
 /*!
 *Create a new thread.
 */
@@ -141,7 +144,7 @@ int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(voi
 #endif
 {
 #ifdef WIN32
-	_beginthreadex(NULL,0,start_routine,arg,0,(unsigned int*)ID);
+	_beginthreadex(NULL, 0, start_routine, arg, 0, (unsigned int*)ID);
 #endif
 #ifdef HAVE_PTHREAD
 	pthread_create((pthread_t*)ID, NULL, start_routine, (void *)(arg));
@@ -161,6 +164,7 @@ void myserver_thread::terminate()
 	pthread_exit(0);
 #endif
 }
+
 /*!
 *Destroy the object.
 */

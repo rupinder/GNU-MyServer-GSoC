@@ -341,8 +341,8 @@ int MYSERVER_FILE::deleteFile(char *filename)
 #endif
 #ifdef NOT_WIN
 	ret = remove(filename);
-	return ret;
 #endif
+	return ret;
 }
 /*!
 *Returns the file size in bytes.
@@ -358,7 +358,7 @@ u_long MYSERVER_FILE::getFileSize()
 		return ret;
 	}
 	else
-		return -1;
+		return (u_long)-1;
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;
@@ -377,7 +377,7 @@ int MYSERVER_FILE::setFilePointer(u_long initialByte)
 {
 	int ret;
 #ifdef WIN32
-	int ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN)
+	ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN);
         /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
 	return (ret==INVALID_SET_FILE_POINTER)?1:0;
 #endif
@@ -415,8 +415,10 @@ int MYSERVER_FILE::isFolder(char *filename)
 int MYSERVER_FILE::fileExists(char* filename)
 {
 #ifdef WIN32
-	int ret = OpenFile(filename, &OFSTRUCT(), OF_EXIST);
-	return (ret != HFILE_ERROR)?1:0; // OpenFile is now a wrapper for CreateFile
+	OFSTRUCT of;
+	/*! OpenFile is now a wrapper for CreateFile.  */
+	int ret = OpenFile(filename, &of, OF_EXIST);
+	return (ret != HFILE_ERROR)?1:0;
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;
@@ -627,7 +629,7 @@ void MYSERVER_FILE::completePath(char *fileName)
 {
 #ifdef WIN32
 	GetFullPathName(fileName,MAX_PATH,fileName,0);
-	return 0;
+	return;
 #endif
 #ifdef NOT_WIN
 	if(fileName[0]=='/')

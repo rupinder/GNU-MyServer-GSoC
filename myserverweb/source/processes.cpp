@@ -42,10 +42,12 @@ extern int mustEndServer;
 /*!
 *Execute an hidden process and wait until it ends itself or its execution
 *time is greater than the timeout value.
-*Returns the process exit code.
+*Return -1 on fails.
+*Return 0 on success.
 */
 u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 {
+	int ret;
 #ifdef WIN32
     /*!
     *Set the standard output values for the CGI process.
@@ -63,16 +65,22 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	si.wShowWindow = SW_HIDE;
 	PROCESS_INFORMATION pi;
 	ZeroMemory( &pi, sizeof(pi) );
-	CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+	ret = CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+	if(!ret)
+		return (u_long)(-1);
 	/*!
 	*Wait until it's ending by itself.
 	*/
-	WaitForSingleObject(pi.hProcess,timeout);
-	u_long exitCode;
-	GetExitCodeProcess(pi.hProcess,&exitCode);
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-	return exitCode;
+	ret=WaitForSingleObject(pi.hProcess,timeout);
+	if(ret == WAIT_FAILED)
+		return (u_long)(-1);
+	ret=CloseHandle( pi.hProcess );
+	if(!ret)
+		return (u_long)(-1);
+	ret=CloseHandle( pi.hThread );
+	if(!ret)
+		return (u_long)(-1);	
+	return 0;
 #endif
 #ifdef NOT_WIN
 	int pid = fork();
@@ -107,29 +115,55 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		
 		// change to working dir
 		if(spi->cwd)
-			chdir((const char*)(spi->cwd));
+		{
+			ret=chdir((const char*)(spi->cwd));
+			if(ret == -1)
+				return (u_long)(-1);
+		}
 		// If stdOut is -1, pipe to /dev/null
 		if((int)spi->stdOut == -1)
 			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null",O_WRONLY);
 		// map stdio to files
-		close(0); // close stdin
-		dup2((int)spi->stdIn, 0);
-		close((int)spi->stdIn);
-		close(1); // close stdout
-		dup2((int)spi->stdOut, 1);
-		close((int)spi->stdOut);
+		ret=close(0); // close stdin
+		if(ret == -1)
+			return (u_long)(-1);
+		ret=dup2((int)spi->stdIn, 0);
+		if(ret == -1)
+			return (u_long)(-1);
+		ret=close((int)spi->stdIn);
+		if(ret == -1)
+			return (u_long)(-1);
+		ret=close(1); // close stdout
+		if(ret == -1)
+			return (u_long)(-1);
+		ret=dup2((int)spi->stdOut, 1);
+		if(ret == -1)
+			return (u_long)(-1);
+		ret=close((int)spi->stdOut);
+		if(ret == -1)
+			return (u_long)(-1);
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
 		if(spi->arg != NULL)
-			execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		{
+			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+			if(ret == -1)
+				return (u_long)(-1);
+		}
 		else
-			execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
+		{
+			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
+			if(ret == -1)
+				return (u_long)(-1);	
+		}
 		exit(1);
 	} // end else if(pid == 0)
 	// Parent
 	// Wait till child dies
-	waitpid(pid, NULL, 0);
+	ret = waitpid(pid, NULL, 0);
+	if(ret == -1)
+		return (u_long)(-1);
 	return 0;
 
 #endif	
@@ -138,9 +172,12 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 
 /*!
 *Start a process runned simultaneously with the MyServer process.
+*Return -1 on fails.
+*Return the new process handle on success.
 */
 u_long execConcurrentProcess(START_PROC_INFO* spi)
 {
+	int ret;
 #ifdef WIN32
 	/*!
 	*Set the standard output values for the CGI process.
@@ -158,7 +195,10 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 	si.wShowWindow = SW_HIDE;
 	PROCESS_INFORMATION pi;
 	ZeroMemory( &pi, sizeof(pi) );
-	CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+	
+	ret=CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+	if(!ret)
+		return (u_long)(-1);	
 	return (*((u_long*)&pi.hProcess));
 #endif
 #ifdef NOT_WIN
@@ -195,19 +235,39 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 		if((int)spi->stdOut == -1)
 			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null",O_WRONLY);
 		// map stdio to files
-		close(0); // close stdin
-		dup2((int)spi->stdIn, 0);
-		close((int)spi->stdIn);
-		close(1); // close stdout
-		dup2((int)spi->stdOut, 1);
-		close((int)spi->stdOut);
+		ret = close(0); // close stdin
+		if(ret == -1)
+			return (u_long)(-1);
+		ret=dup2((int)spi->stdIn, 0);
+		if(ret == -1)
+			return (u_long)(-1);	
+		ret=close((int)spi->stdIn);
+		if(ret == -1)
+			return (u_long)(-1);	
+		ret=close(1); // close stdout
+		if(ret == -1)
+			return (u_long)(-1);
+		ret=dup2((int)spi->stdOut, 1);
+		if(ret == -1)
+			return (u_long)(-1);	
+		ret=close((int)spi->stdOut);
+		if(ret == -1)
+			return (u_long)(-1);	
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
 		if(spi->arg != NULL)
-			execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		{
+			ret = execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+			if(ret == -1)
+				return (u_long)(-1);
+		}
 		else	
-			execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
+		{
+			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
+			if(ret == -1)
+				return (u_long)(-1);
+		}
 		exit(1);
 	} // end else if(pid == 0)
 	return (u_long)pid;
@@ -218,16 +278,21 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 
 /*!
 *Terminate a process.
+*Return 0 on success.
+*Return nonzero on fails.
 */
 int terminateProcess(u_long id)
 {
+	int ret;
 #ifdef WIN32
-	return TerminateProcess(*((HANDLE*)&id),0);
+	ret = TerminateProcess(*((HANDLE*)&id),0);
+	return (!ret);
 #endif
 #ifdef NOT_WIN
 	/*!
 	*id is the process id
 	*/
-	return kill((pid_t)id, SIGTERM);
+	ret = kill((pid_t)id, SIGTERM);
+	return ret;
 #endif	
 }

@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
 
+#undef min
 #define min( a, b )( ( a < b ) ? a : b  )
 
 extern "C" 
@@ -1103,9 +1104,19 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 				break;
 			if(MYSERVER_FILE::fileExists(defaultFileName))
 			{
-				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
-				strcpy(nURL, defaultFileNamePath);/*HTTP/1.0 header can be without HOST specified*/
+				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12+1];
+				if(td->request.uriEndsWithSlash)
+					strcpy(nURL, defaultFileNamePath);
+				else
+				{
+					int last_slash_offset = (int) strlen(URI);
+					while(last_slash_offset && URI[last_slash_offset]!='/')
+						--last_slash_offset;
+					
+					sprintf(nURL, "%s/%s",&URI[last_slash_offset+1], defaultFileNamePath);
+				}
 
+				/*! Send a redirect to the new location.  */
 				if(sendHTTPRedirect(td, s, nURL))
 					return keepalive;
 				else

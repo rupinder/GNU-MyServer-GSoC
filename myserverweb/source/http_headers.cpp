@@ -428,6 +428,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		command[tokenOff]='\0';
 		if(*token==':')
 			token++;
+		while(*token ==' ')
+			token++;
 		nLineControlled++;
 		if(nLineControlled==1)
 		{
@@ -488,7 +490,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 						
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->USER_AGENT,token,tokenOff);
+			myserver_strlcpy(request->USER_AGENT,token,tokenOff+1);
 			request->USER_AGENT[tokenOff]='\0';
 			StrTrim(request->USER_AGENT," ");
 		}else
@@ -503,7 +505,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		
 			lineControlled=1;
 	
-			myserver_strlcpy(request->AUTH,token,tokenOff);
+			myserver_strlcpy(request->AUTH,token,tokenOff+1);
 			request->AUTH[tokenOff]='\0';
 			if(!lstrcmpi(request->AUTH,"Basic"))
 			{
@@ -548,68 +550,70 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					{
 						digestToken = strtok( NULL, "," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_nonce,digestToken,48);
+						myserver_strlcpy(td->request.digest_nonce,digestToken,48+1);
 					}
 					else if(!lstrcmpi(digestToken,"opaque"))
 					{
 						digestToken = strtok( NULL, "," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_opaque,digestToken,48);
+						myserver_strlcpy(td->request.digest_opaque,digestToken,48+1);
 					}
 					else if(!lstrcmpi(digestToken,"uri"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_uri,digestToken,1024);
+						myserver_strlcpy(td->request.digest_uri,digestToken,1024+1);
 					}
 					else if(!lstrcmpi(digestToken,"method"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_method,digestToken,16);
+						myserver_strlcpy(td->request.digest_method,digestToken,16+1);
 					}	
 					else if(!lstrcmpi(digestToken,"qop"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_qop,digestToken,16);
+						myserver_strlcpy(td->request.digest_qop,digestToken,16+1);
 					}					
 					else if(!lstrcmpi(digestToken,"realm"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_realm,digestToken,48);
+						myserver_strlcpy(td->request.digest_realm,digestToken,48+1);
 					}
 					else if(!lstrcmpi(digestToken,"cnonce"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken," \"");
-						myserver_strlcpy(td->request.digest_cnonce,digestToken,48);
+						myserver_strlcpy(td->request.digest_cnonce,digestToken,48+1);
 					}
 					else if(!lstrcmpi(digestToken,"username"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_username,digestToken,48);
-						myserver_strlcpy(td->connection->login,digestToken,48);
+						myserver_strlcpy(td->request.digest_username,digestToken,48+1);
+						myserver_strlcpy(td->connection->login,digestToken,48+1);
 					}
 					else if(!lstrcmpi(digestToken,"response"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_response,digestToken,48);
+						myserver_strlcpy(td->request.digest_response,digestToken,48+1);
 					}
 					else if(!lstrcmpi(digestToken,"nc"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_nc,digestToken,10);
+						myserver_strlcpy(td->request.digest_nc,digestToken,10+1);
 					}
 					else 
 					{
 						digestToken = strtok( NULL, "\r\n," );
 					}
-				}while(digestToken = strtok( NULL, "=" ));
+					/*! Update digestToken. */
+					digestToken = strtok( NULL, "=" );
+				}while(digestToken);
 				free(digestBuff);
 			}
 		}else
@@ -619,7 +623,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_HOST_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->HOST,token,tokenOff);
+			myserver_strlcpy(request->HOST,token,tokenOff+1);
 			request->HOST[tokenOff]='\0';
 			StrTrim(request->HOST," ");
 		}else
@@ -629,7 +633,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_ENCODING_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->CONTENT_ENCODING,token,tokenOff);
+			myserver_strlcpy(request->CONTENT_ENCODING,token,tokenOff+1);
 			request->CONTENT_ENCODING[tokenOff]='\0';
 			StrTrim(request->CONTENT_ENCODING," ");
 		}else
@@ -639,7 +643,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_TYPE_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->CONTENT_TYPE,token,tokenOff);
+			myserver_strlcpy(request->CONTENT_TYPE,token,tokenOff+1);
 			request->CONTENT_TYPE[tokenOff]='\0';
 			StrTrim(request->CONTENT_TYPE," ");
 		}else
@@ -649,7 +653,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->IF_MODIFIED_SINCE,token,tokenOff);
+			myserver_strlcpy(request->IF_MODIFIED_SINCE,token,tokenOff+1);
 			request->IF_MODIFIED_SINCE[tokenOff]='\0';
 			StrTrim(request->IF_MODIFIED_SINCE," ");
 		}else
@@ -663,7 +667,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,max);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncat(request->ACCEPT,token,tokenOff);
+			strncat(request->ACCEPT,token,tokenOff+1);
 			request->ACCEPT[oldlen+tokenOff]='\0';
 			StrTrim(request->ACCEPT," ");
 		}else
@@ -673,7 +677,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTLAN_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->ACCEPTLAN,token,tokenOff);
+			myserver_strlcpy(request->ACCEPTLAN,token,tokenOff+1);
 			request->ACCEPTLAN[tokenOff]='\0';
 			StrTrim(request->ACCEPTLAN," ");
 		}else
@@ -683,7 +687,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTCHARSET_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->ACCEPTCHARSET,token,tokenOff);
+			myserver_strlcpy(request->ACCEPTCHARSET,token,tokenOff+1);
 			request->ACCEPTCHARSET[tokenOff]='\0';
 			StrTrim(request->ACCEPTCHARSET," ");
 		}else
@@ -693,7 +697,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTENC_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->ACCEPTENC,token,tokenOff);
+			myserver_strlcpy(request->ACCEPTENC,token,tokenOff+1);
 			request->ACCEPTENC[tokenOff]='\0';
 			StrTrim(request->ACCEPTENC," ");
 		}else
@@ -703,7 +707,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONNECTION_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->CONNECTION,token,tokenOff);
+			myserver_strlcpy(request->CONNECTION,token,tokenOff+1);
 			request->CONNECTION[tokenOff]='\0';
 			StrTrim(request->CONNECTION," ");
 		}else
@@ -713,7 +717,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_COOKIE_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->COOKIE,token,tokenOff);
+			myserver_strlcpy(request->COOKIE,token,tokenOff+1);
 			request->COOKIE[tokenOff]='\0';
 		}else
 		/*!From*/
@@ -722,7 +726,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_FROM_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->FROM,token,tokenOff);
+			myserver_strlcpy(request->FROM,token,tokenOff+1);
 			request->FROM[tokenOff]='\0';
 			StrTrim(request->FROM," ");
 		}else
@@ -732,7 +736,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_LENGTH_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->CONTENT_LENGTH,token,tokenOff);
+			myserver_strlcpy(request->CONTENT_LENGTH,token,tokenOff+1);
 			request->CONTENT_LENGTH[tokenOff]='\0';
 		}else
 		/*!Cache-Control*/
@@ -741,7 +745,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->CACHE_CONTROL,token,tokenOff);
+			myserver_strlcpy(request->CACHE_CONTROL,token,tokenOff+1);
 			request->CACHE_CONTROL[tokenOff]='\0';
 		}else
 		/*!Range*/
@@ -790,7 +794,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_REFERER_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->REFERER,token,tokenOff);
+			myserver_strlcpy(request->REFERER,token,tokenOff+1);
 			request->REFERER[tokenOff]='\0';
 			StrTrim(request->REFERER," ");
 		}else
@@ -800,14 +804,14 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_PRAGMA_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			myserver_strlcpy(request->PRAGMA,token,tokenOff);
+			myserver_strlcpy(request->PRAGMA,token,tokenOff+1);
 			request->PRAGMA[tokenOff]='\0';
 			StrTrim(request->PRAGMA," ");
 		}
 		tokenOff = getCharInString(token,seps,maxTotchars);
 		if(tokenOff==-1)return 0;
 		token+=tokenOff;
-		while((*token=='\r')  || (*token=='\n'))
+		while( (*token=='\r')  || (*token=='\n'))
 			token++;
 		tokenOff = getCharInString(token,":",maxTotchars);
 	}while((u_long)(token-input)<maxTotchars);
