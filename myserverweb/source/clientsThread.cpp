@@ -117,19 +117,20 @@ void ClientsTHREAD::controlConnections()
 		if(nBytesToRead)
 		{
 			ms_logon(c,&logonStatus,&hImpersonation);
-			err=c->socket.ms_recv(buffer,KB(2), 0);
+			err=c->socket.ms_recv(&buffer[c->dataRead],KB(2), 0);
 			if(err==-1)
 			{
 				if(deleteConnection(c))
 					continue;
 			}
-			if(err<KB(2))
+			if((c->dataRead+err)<KB(2))
 			{
-				buffer[err]='\0';
+				buffer[c->dataRead+err]='\0';
 			}
 			/*
 			*Control the protocol used by the connection.
 			*/
+			int retcode=0;
 			switch(((vhost*)(c->host))->protocol)
 			{
 				/*
@@ -137,8 +138,19 @@ void ClientsTHREAD::controlConnections()
 				*the active connections list.
 				*/
 				case PROTOCOL_HTTP:
-					if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,													  nBytesToRead,&hImpersonation,id))
+					retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation,id);
+					if(retcode==0)
+					{
 						deleteConnection(c);
+					}
+					else if(retcode==1)
+					{
+						c->dataRead=0;
+					}
+					else if(retcode==2)
+					{
+						c->dataRead+=err;
+					}
 					break;
 			}
 			c->timeout=clock();
@@ -195,6 +207,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	nc->socket=s;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
+	nc->dataRead = 0;
 	nc->localPort=(u_short)localPort;
 	lstrcpy(nc->ipAddr,ipAddr);
 	lstrcpy(nc->localIpAddr,localIpAddr);

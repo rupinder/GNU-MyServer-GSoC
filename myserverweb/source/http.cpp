@@ -529,7 +529,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	resetHTTPRequest(&td.request);
 
 	u_long validRequest=buildHTTPRequestHeaderStruct(&td.request,&td);
-
+	if(validRequest==-1)
+	{
+		return 2;
+	}
 
 	/*
 	*If the server verbosity is > 4 then save the HTTP request header.
@@ -918,6 +921,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		a->socket.ms_send(td->buffer2,lstrlen(td->buffer2),0);
 		return 1;
 	}
+	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
 	strcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	if(lserver->mustUseMessagesFiles())
@@ -925,6 +929,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],true);
 	}
 	sprintf(td->response.CONTENTS_DIM,"%i",strlen(HTTP_ERROR_MSGS[ID]));
+
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	a->socket.ms_send(td->buffer,strlen(td->buffer), 0);
 	a->socket.ms_send(HTTP_ERROR_MSGS[ID],strlen(HTTP_ERROR_MSGS[ID]), 0);
@@ -996,7 +1001,7 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 	char *req=td->buffer;
 	u_long buffersize=td->buffersize;
 	u_long nLinechars;
-	int isValidCommand=false;
+	u_long isValidCommand=0;
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
@@ -1005,7 +1010,7 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 	/*
 	*Count the number of lines in the header.
 	*/
-	for(nLines=i=0;i<KB(2) && req[i];i++)
+	for(nLines=i=0;(i<KB(2));i++)
 	{
 		if(req[i]=='\n')
 		{
@@ -1014,23 +1019,32 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 				maxTotchars=i+3;
 				if(maxTotchars>buffersize)
 				{
-					isValidCommand=false;
+					isValidCommand=0;
 					break;				
 				}
-				isValidCommand=true;
+				isValidCommand=1;
 				break;
 			}
 			nLines++;
+			/*
+			*If the lines number is greater than 25 we consider the header invalid.
+			*/
+			if(nLines>25)
+				return 0;
 		}
+		else if(req[i]==0)
+			return -1;
 		else
+		{
 			nLinechars++;
+		}
 		/*
 		*We set a maximal theorical number of characters in a line to 1024.
 		*If a line contains more than 1024 lines we consider the header invalid.
 		*/
 		if(nLinechars>1024)
 		{
-			isValidCommand=false;
+			isValidCommand=0;
 			break;
 		}
 	}
@@ -1044,7 +1058,7 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 	/*
 	*Return if is a valid request header.
 	*/
-    return((isValidCommand)?1:0);
+    return isValidCommand;
 }
 
 
@@ -1158,8 +1172,10 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 	u_long i=0,j=0,max=0;
 	u_long nLines,maxTotchars;
 	u_long validRequest=validHTTPRequest(td,&nLines,&maxTotchars);
-	if(!validRequest)
+	if(validRequest==0)
 		return 0;
+	else if(validRequest==-1)
+		return -1;
 
 	const int max_URI=MAX_PATH+200;
 	const char seps[]   = "\t\n\r";
@@ -1177,6 +1193,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		token=td->buffer;
 
 	token = strtok( token, cmdseps );
+	if(!token)return 0;
 	do
 	{
 		/*
@@ -1204,6 +1221,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			strncpy(request->CMD,command,HTTP_REQUEST_CMD_DIM);
 		
 			token = strtok( NULL, " ,\t\n\r" );
+			if(!token)return 0;
 			max=lstrlen(token);
 			int containOpts=false;
 			for(i=0;(i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
@@ -1225,6 +1243,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 				}
 			}
 			token = strtok( NULL, seps );
+			if(!token)return 0;
 			strncpy(request->VER,token,HTTP_REQUEST_VER_DIM);
 			/*
 			*Version of the protocol in the HTTP_REQUEST_HEADER
@@ -1248,6 +1267,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"User-Agent"))
 		{
 			token = strtok( NULL, "\r\n" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->USER_AGENT,token,HTTP_REQUEST_USER_AGENT_DIM);
 			StrTrim(request->USER_AGENT," ");
@@ -1256,6 +1276,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Authorization"))
 		{
 			token = strtok( NULL, "\r\n" );
+			if(!token)return 0;
 			lineControlled=true;		
 			td->buffer2[0]='\0';
 			/*
@@ -1284,6 +1305,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Host"))
 		{
 			token = strtok( NULL, seps );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->HOST,token,HTTP_REQUEST_HOST_DIM);
 			StrTrim(request->HOST," ");
@@ -1292,6 +1314,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"If-Modified-Since"))
 		{
 			token = strtok( NULL, seps );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->IF_MODIFIED_SINCE,token,HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
 			StrTrim(request->IF_MODIFIED_SINCE," ");
@@ -1300,6 +1323,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Accept"))
 		{
 			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncat(request->ACCEPT,token,HTTP_REQUEST_ACCEPT_DIM-strlen(request->ACCEPT));
 			StrTrim(request->ACCEPT," ");
@@ -1308,6 +1332,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Accept-Language"))
 		{
 			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->ACCEPTLAN,token,HTTP_REQUEST_ACCEPTLAN_DIM);
 			StrTrim(request->ACCEPTLAN," ");
@@ -1316,6 +1341,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Accept-charset"))
 		{
 			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->ACCEPTCHARSET,token,HTTP_REQUEST_ACCEPTCHARSET_DIM);
 			StrTrim(request->ACCEPTCHARSET," ");
@@ -1324,6 +1350,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Accept-Encoding"))
 		{
 			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->ACCEPTENC,token,HTTP_REQUEST_ACCEPTENC_DIM);
 			StrTrim(request->ACCEPTENC," ");
@@ -1332,6 +1359,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Connection"))
 		{
 			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->CONNECTION,token,HTTP_REQUEST_CONNECTION_DIM);
 			StrTrim(request->CONNECTION," ");
@@ -1340,6 +1368,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Cookie"))
 		{
 			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->COOKIE,token,HTTP_REQUEST_COOKIE_DIM);
 			StrTrim(request->COOKIE," ");
@@ -1348,6 +1377,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"From"))
 		{
 			token = strtok( NULL, "\r\n" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->FROM,token,HTTP_REQUEST_FROM_DIM);
 			StrTrim(request->FROM," ");
@@ -1356,6 +1386,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Content-Length"))
 		{
 			token = strtok( NULL, "\n\r" );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->CONTENTS_DIM,token,HTTP_REQUEST_CONTENTS_DIM_DIM);
 		}else
@@ -1367,6 +1398,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			request->RANGEBYTEEND[0]='\0';
 			lineControlled=true;
 			token = strtok( NULL, "\r\n\t" );
+			if(!token)return 0;
 			int i=0;
 			do
 			{
@@ -1402,6 +1434,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Referer"))
 		{
 			token = strtok( NULL, seps );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->REFERER,token,HTTP_REQUEST_REFERER_DIM);
 			StrTrim(request->REFERER," ");
@@ -1410,6 +1443,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lstrcmpi(command,"Pragma"))
 		{
 			token = strtok( NULL, seps );
+			if(!token)return 0;
 			lineControlled=true;
 			strncpy(request->PRAGMA,token,HTTP_REQUEST_PRAGMA_DIM);
 			StrTrim(request->PRAGMA," ");
@@ -1422,6 +1456,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		if(!lineControlled)
 		{
 			token = strtok( NULL, "\n" );
+			if(!token)return 0;
 		}
 		token = strtok( NULL, cmdseps );
 	}while((u_long)(token-td->buffer)<maxTotchars);

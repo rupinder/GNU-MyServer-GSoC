@@ -43,6 +43,7 @@ public:
 	u_long timeout;	
 	CONNECTION* Next;
 	void *host;
+	int dataRead;
 };
 typedef CONNECTION*  volatile LPCONNECTION;
 #endif
