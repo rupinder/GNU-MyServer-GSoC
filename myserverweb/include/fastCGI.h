@@ -159,7 +159,7 @@ struct fCGIContext
 };
 
 int initializeFASTCGI();
-int FcgiConectSocket(fCGIContext*,int);
+int FcgiConnectSocket(fCGIContext*,int);
 int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath,int execute);
 void generateFcgiHeader( FCGI_Header&, int ,int, int );
 MYSERVER_SOCKET getFcgiConnection();

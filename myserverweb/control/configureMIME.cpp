@@ -80,7 +80,7 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	actiontodoLB->Insert("HANDLE AS A SELF FASTCGI SERVER",CGI_CMD_EXECUTEFASTCGI);
 				
 
-	if(mm.load("MIMEtypes.txt"))
+	if(mm.loadXML("MIMEtypes.xml"))
 	{
 		u_long nelements=mm.getNumMIMELoaded();
 		for(int i=0;i<nelements;i++)
@@ -114,7 +114,7 @@ void configurationFrameMIME::ok(wxCommandEvent& WXUNUSED(event))
 	/*
 	*Save the configuration....
 	*/
-	mm.save(mm.getFilename());
+	mm.saveXML(mm.getFilename());
 	mm.clean();
 	Destroy();
 	yetVisible=0;
