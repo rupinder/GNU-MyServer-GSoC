@@ -547,7 +547,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
     {
       /*! Flush other data. */
       stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
-                            td->buffer2->GetLength(), &nBytesRead);
+                            td->buffer2->GetRealLength(), &nBytesRead);
       if(nBytesRead)
       {
 
