@@ -98,7 +98,7 @@ public:
 	CMemBuf& operator<< (unsigned char c) ;
 	CMemBuf& operator<< (const CMemBuf &src) ;
 public:
-	CMemBuf& operator=(CMemBuf& src) ;
+	CMemBuf& operator=(const CMemBuf& src) ;
 	CMemBuf& operator=(const char* src);
 public:
 	u_int m_nSizeLimit; // The maximun size that the buffer can reached ; 0 if none
@@ -125,9 +125,6 @@ protected:
 	u_int m_nRealSize;
 	int m_bCanDelete;
 	static u_int crc32Table[256];
-protected:
-       void SetExternalBuffer(const void* pAdr, u_int size); 
-	
 };
 
 #endif
