@@ -258,7 +258,10 @@ void cserver::start()
           configsCheck=7;
         }
 			}
-		}
+		}//end  if(autoRebootEnabled)
+    
+    purgeThreads();
+
 #ifdef WIN32
 		DWORD eventsCount, cNumRead, i; 
 		INPUT_RECORD irInBuf[128]; 
@@ -303,6 +306,54 @@ void cserver::start()
 	this->terminate();
 	finalCleanup();
 }
+
+/*!
+ *Removed threads that can be destroyed.
+ */
+int cserver::purgeThreads()
+{
+  /*!
+   *We don't need to do anything.
+   */
+  if(nThreads == nStaticThreads)
+    return 0;
+
+  threads_mutex->myserver_mutex_lock();
+  ClientsTHREAD *thread = threads;
+  ClientsTHREAD *prev = 0;
+  int prev_threads_count = nThreads;
+  while(thread)
+  {
+    if(nThreads == nStaticThreads)
+    {
+      threads_mutex->myserver_mutex_unlock();
+      return prev_threads_count- nThreads;
+    }
+    if(thread->isToDestroy())
+    {
+      if(prev)
+        prev->next = thread->next;
+      else
+        threads = thread->next;
+      thread->stop();
+      while(!thread->threadIsStopped)
+      {
+        wait(100);
+      }
+      nThreads--;
+      ClientsTHREAD *toremove = thread;
+      thread = thread->next;
+      delete toremove;
+      continue;
+    }
+    prev = thread;
+    thread = thread->next;
+  }
+  threads_mutex->myserver_mutex_unlock();
+
+  return prev_threads_count- nThreads;
+}
+
 /*!
  *Do the final cleanup. Called only once.
  */
@@ -676,7 +727,7 @@ void cserver::stopThreads()
 		/*!
      *If all the threads are stopped break the loop.
      */
-		if(threadsStopped==nStaticThreads)
+		if(threadsStopped == nStaticThreads)
 			break;
 
 		/*!
@@ -981,6 +1032,7 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 {
 	if( s.getHandle() == 0 )
 		return 0;
+
 	int ret=1;
 	/*!
    *ip is the string containing the address of the remote host 
@@ -1535,7 +1587,7 @@ int cserver::loadSettings()
   printf("%s...\n", languageParser.getValue("MSG_CREATET"));
 	for(i=0; i<nStaticThreads; i++)
 	{
-    ret = addThread();
+    ret = addThread(1);
     if(ret)
       return -1;
 	}
@@ -1724,12 +1776,14 @@ int cserver::isAutorebootEnabled()
 /*!
  *Create a new thread.
  */
-int cserver::addThread()
+int cserver::addThread(int staticThread)
 {
   int ret;
 	myserver_thread_ID ID;
 
   ClientsTHREAD* newThread = new ClientsTHREAD();
+
+  newThread->setStatic(staticThread);
 
   if(newThread == 0)
     return -1;
@@ -1798,6 +1852,7 @@ int cserver::removeThread(u_long ID)
       {
         wait(100);
       }
+      nThreads--;
       delete thread;
       ret_code = 0;
       break;
@@ -1806,7 +1861,7 @@ int cserver::removeThread(u_long ID)
     prev = thread;
     thread = thread->next;
   }
-  nThreads++;
+
 
 	threads_mutex->myserver_mutex_unlock();
   return ret_code;

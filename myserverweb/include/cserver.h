@@ -129,6 +129,7 @@ private:
   myserver_mutex *threads_mutex;
   ClientsTHREAD *threads;
 
+  int purgeThreads();
 	LPCONNECTION connections;
 	void createListenThreads();
 	int reboot();
@@ -139,7 +140,7 @@ private:
 	char *vhost_configuration_file;
 	char *mime_configuration_file;
 public:
-  int addThread();
+  int addThread(int staticThread = 0);
   int removeThread(u_long ID);
   int isServerReady();
   protocols_manager *getProtocolsManager();

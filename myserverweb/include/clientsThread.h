@@ -37,7 +37,10 @@ class  ClientsTHREAD
 	friend  void* startClientsTHREAD(void* pParam);
 #endif
 private:
+  int toDestroy;
+  int timeout;
 	int initialized;
+  int staticThread;
 	u_long id;
 	int err;
   int parsing;
@@ -52,7 +55,7 @@ private:
   control_protocol  *control_protocol_parser;
 	CMemBuf buffer;
 	CMemBuf buffer2;
-	void controlConnections();
+	int controlConnections();
 	u_long nBytesToRead;
 public:
   ClientsTHREAD *next;
@@ -63,6 +66,12 @@ public:
 	~ClientsTHREAD();
 	void stop();
 	void clean();	
+  int getTimeout();
+  void setTimeout(int);
+  int isToDestroy();
+  void setToDestroy(int);
+  int isStatic();
+  void setStatic(int);
 };
 #ifdef WIN32
 unsigned int __stdcall startClientsTHREAD(void* pParam); 

@@ -48,16 +48,43 @@ extern "C" {
 #define SD_BOTH 2 /*! to close TCP connection in both directions */
 #endif
 
+
+/*!
+ *Construct the object.
+ */
 ClientsTHREAD::ClientsTHREAD()
 {
 	err=0;
 	initialized=0;
   next = 0;
+  toDestroy = 0;
+  staticThread = 0;
 }
+
+/*!
+ *Destroy the ClientsTHREAD object.
+ */
 ClientsTHREAD::~ClientsTHREAD()
 {
 	clean();
 }
+
+/*!
+ *Get the timeout value.
+ */
+int ClientsTHREAD::getTimeout()
+{
+  return timeout;
+}
+
+/*!
+ *Set the timeout value for the thread.
+ */
+void ClientsTHREAD::setTimeout(int new_timeout)
+{
+  timeout=new_timeout;
+}
+
 /*!
 *This function starts a new thread controlled by a ClientsTHREAD class instance.
 */
@@ -119,10 +146,36 @@ void * startClientsTHREAD(void* pParam)
    */
 	while(ct->threadIsRunning) 
 	{
+    wait(1);
+    /*!
+     *If the thread can be destroyed don't use it.
+     */
+    if((!ct->isStatic()) && ct->isToDestroy() )
+    {
+      continue;
+    }
+      
     ct->parsing = 1;
-		ct->controlConnections();
+		int ret = ct->controlConnections();
     ct->parsing = 0;
-		wait(1);
+
+    /*!
+     *The thread served the connection, so update the timeout value.
+     */
+    if(ret != 1)
+    {
+      ct->setTimeout( get_ticks() );
+    }
+    else
+    {
+      /*!
+       *Long inactive non static thread... Maybe we don't need it.
+       */
+      if(!ct->isStatic())
+        if(get_ticks() - ct->getTimeout() > SEC(15) )
+          ct->setToDestroy(1);
+        
+    }
 	}
 	ct->threadIsStopped = 1;
 	
@@ -131,12 +184,46 @@ void * startClientsTHREAD(void* pParam)
 }
 
 /*!
+ *Returns if the thread can be destroyed.
+ */
+int ClientsTHREAD::isToDestroy()
+{
+  return toDestroy;
+}
+
+/*!
+ *Check if the thread is a static one.
+ */
+int ClientsTHREAD::isStatic()
+{
+  return staticThread;
+}
+
+/*!
+ *Set the thread to be static.
+ */
+void ClientsTHREAD::setStatic(int value)
+{
+  staticThread = value;
+}
+
+/*!
+ *Set if the thread can be destroyed.
+ */
+void ClientsTHREAD::setToDestroy(int value)
+{
+  toDestroy = value;
+}
+
+/*!
  *This is the main loop of the thread.
  *Here are controlled all the connections that belongs to the 
  *ClientsTHREAD class instance.
  *Every connection is controlled by its protocol.
+ *Return 1 if no connections to serve are available.
+ *Return 0 in all other cases.
  */
-void ClientsTHREAD::controlConnections()
+int ClientsTHREAD::controlConnections()
 {
 	/*!
    *Get the access to the connections list.
@@ -148,10 +235,15 @@ void ClientsTHREAD::controlConnections()
    *Check if c is a valid connection structure.
    *Do not parse a connection that is going to be parsed by another thread.
    */
+  if(!c)
+  {
+		lserver->connections_mutex_unlock();
+    return 1;
+  }
 	if((!c)  || c->isParsing())
 	{
 		lserver->connections_mutex_unlock();
-		return;
+		return 0;
 	}
 	/*!
    *Set the connection parsing flag to true.
@@ -181,7 +273,7 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
-			return;
+			return 0;
 		}
  		if((c->getDataRead() + err)<KB(8))
 		{
@@ -192,7 +284,7 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
-			return;
+			return 0;
 		}
 
 		buffer.SetBuffer(c->connectionBuffer, c->getDataRead());
@@ -215,7 +307,7 @@ void ClientsTHREAD::controlConnections()
         {
           http_parser = new http();
           if(http_parser==0)
-            return;
+            return 0;
         }
 				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
                      (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
@@ -229,7 +321,7 @@ void ClientsTHREAD::controlConnections()
         {
           https_parser = new https();
           if(https_parser==0)
-            return;
+            return 0;
         }
 				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
                      (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
@@ -240,7 +332,7 @@ void ClientsTHREAD::controlConnections()
         {
           control_protocol_parser = new control_protocol();
           if(control_protocol_parser == 0)
-            return;
+            return 0;
         }
         retcode=control_protocol_parser->controlConnection(c, 
                      (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), 
@@ -273,7 +365,7 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
-			return;
+			return 0;
 		}
 		else if(retcode==1)/*Keep the connection*/
 		{
@@ -313,11 +405,12 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
 			lserver->connections_mutex_unlock();
-			return;
+			return 0;
 		}
 	}
 	/*! Reset the parsing flag on the connection.  */
 	c->setParsing(0);
+  return 0;
 }
 
 /*!
