@@ -70,7 +70,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	if(!ret)
 		return (-1);
 	/*!
-	*Wait until it's ending by itself.
+	*Wait until the process stops its execution.
 	*/
 	ret=WaitForSingleObject(pi.hProcess,timeout);
 	if(ret == WAIT_FAILED)
@@ -173,7 +173,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
       ret = -1;
       break;
     }
-    ret = waitpid(pid, NULL, 0/*WNOHANG*/);
+    ret = waitpid(pid, NULL, WNOHANG);
     if(ret == -1)
     {
       return (-1);
@@ -315,8 +315,8 @@ int terminateProcess(u_long id)
 #endif
 #ifdef NOT_WIN
 	/*!
-	*id is the process id
-	*/
+   *id is the PID.
+   */
 	ret = kill((pid_t)id, SIGTERM);
 	return ret;
 #endif	

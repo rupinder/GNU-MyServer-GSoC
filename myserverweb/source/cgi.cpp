@@ -313,7 +313,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 
   /*! Open the stdin file for the new CGI process. */
 	if(stdInFile.openFile(td->inputDataPath, MYSERVER_FILE_OPEN_READ|
-                         MYSERVER_FILE_OPEN_ALWAYS))
+                        MYSERVER_FILE_OPEN_ALWAYS))
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
@@ -345,6 +345,9 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	/*! Added for unix support. */
 	spi.cmd = cgipath;
   
+  /*!
+   *If buildArg is set, send an arguments string to the new process.
+   */
   if(buildArg)
     spi.arg = td->scriptFile;
 	else
