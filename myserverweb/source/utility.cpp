@@ -124,7 +124,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
-    CreateProcess(NULL, spi->cmdLine,cartoni animati NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+    CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
 	/*!
 	*Wait until it's ending by itself.
 	*/

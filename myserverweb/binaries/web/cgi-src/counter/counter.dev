@@ -12,13 +12,13 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DBUILDING_DLL=1_@@_
 CppCompiler=
-Linker=--no-export-all-symbols --add-stdcall-alias -lm -lz -lpng_@@_../../../cgi-lib/CGI-LIB.lib_@@_../../../../tmp/utility.o_@@_../../../../tmp/filemanager.o_@@_
+Linker=--no-export-all-symbols --add-stdcall-alias -lm -lz -lpng_@@_../../../cgi-lib/CGI-LIB.lib_@@_../../../../tmp/utility.o_@@_../../../../tmp/filemanager.o_@@_-llibz_@@_
 IsCpp=1
 Icon=
-ExeOutput=
+ExeOutput=..\..\cgi-bin
 ObjectOutput=
-OverrideOutput=0
-OverrideOutputName=counter.dll
+OverrideOutput=1
+OverrideOutputName=counter.mscgi
 HostApplication=
 Folders=
 CommandLine=
@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000000000000
+CompilerSettings=000000000000000000
 
 [Unit1]
 FileName=writepng.h

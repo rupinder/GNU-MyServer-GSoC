@@ -1,15 +1,15 @@
 -----------------------------------------------------------------------------------------------------
--------------------------------------------MYSERVER----------------------------------------
+-------------------------------------------MYSERVER-------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 
 
--------------------------------------------BRIEF NOTES--------------------------------------
+-------------------------------------------BRIEF NOTES---------------------------------------------
 The primary goal of this software is to create a free and simple to manage web server. 
 MyServer is distribuited under the terms of the GNU Library General Public License as published by the Free Software Foundation; 
 either version 2 of the License, or (at your option) any later version. Read the full license agrement before install any copy of MyServer.
 
 
----------------------------------------INSTALLATION NOTES------------------------------
+---------------------------------------INSTALLATION NOTES-----------------------------------------
 This software is developed to run under all versions of windows and linux.
 This software is supported on the windows platform in two ways: the first like a normal application, the second like a service. Running like a
 service is supported onto Windows 2000 and XP and give options security and the application can be managed from the service manager; 
@@ -27,20 +27,14 @@ has console mode and that is the default running mode.  The control program can 
 To run them, open a terminal, cd into the drectory that myserver and control are located and type ./myserver for the server itself or ./control for 
 the contol program that also can run the myserver program. 
 
---------------------------------------------CURRENT STATUS-------------------------------
-MyServer isn't at a mature status too. If you are interested to complete anything in the TODO list please contact the project administrator on 
-SourceForge. The linux portion is not suitable for running as root due to posable security flaws in the program.  
-To run the server as a user, you must change the port to something like 8080 in the virtualhost configuration because under *nix users can only 
-use port numbers larger than 1024. 
-
----------------------------------------------ADDITIONAL INFO---------------------------------
+------------------------------------------------ADDITIONAL INFO-----------------------------------
 For additional info and news about this project see the project site at:  	
-http://myserverweb.sourceforge.net
+http://www.myserverproject.net
 
 
 ------------------------------------------------HELP US--------------------------------------------
 If you report problems running MyServer, post your messages on the forum at:
-http://myserverweb.sourceforge.net
+http://www.myserverproject.net
 
 
 We hope that you find this software useful.

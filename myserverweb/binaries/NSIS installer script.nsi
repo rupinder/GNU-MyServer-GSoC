@@ -1,7 +1,7 @@
 ;NSIS Installation script for myServer
 SetCompressor bzip2
 !include "MUI.nsh"
-!define MUI_VERSION "0.6"
+!define MUI_VERSION "0.6.1"
 !define MUI_PRODUCT "MyServer"
 !define MUI_COMPONENTSPAGE
 !define MUI_LICENSEPAGE_CHECKBOX
@@ -42,6 +42,8 @@ Section "MyServer core" SecCore
   WriteUninstaller "remove.exe"
   File "myserver.exe"
   File "libxml2.dll"
+  File "libpng12.dll"
+  File "zlib1.dll"
   File "libeay32.dll"
   File "ssleay32.dll"
   File "MIMEtypes.xml"
@@ -77,6 +79,8 @@ Section "Web examples" SecWebEx
   File "web\cgi-src\math_sum\*.*"
   SetOutPath "$INSTDIR\web\cgi-src\post"
   File "web\cgi-src\post\*.*"
+  SetOutPath "$INSTDIR\web\cgi-src\counter"
+  File "web\cgi-src\counter\*.*"
   SetOutPath "$INSTDIR\web\downloads"
   File "web\downloads\*.*"
 SectionEnd
