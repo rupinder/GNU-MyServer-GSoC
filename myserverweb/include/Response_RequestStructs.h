@@ -68,7 +68,7 @@ struct HTTP_RESPONSE_HEADER
 #define HTTP_REQUEST_CMD_DIM 16		
 #define HTTP_REQUEST_VER_DIM 10		
 #define HTTP_REQUEST_ACCEPT_DIM 2048
-#define HTTP_REQUEST_AUTH_DIM 48
+#define HTTP_REQUEST_AUTH_DIM 16
 #define HTTP_REQUEST_ACCEPTENC_DIM 64	
 #define HTTP_REQUEST_ACCEPTLAN_DIM 64	
 #define HTTP_REQUEST_ACCEPTCHARSET_DIM 64
@@ -141,7 +141,7 @@ struct HTTP_REQUEST_HEADER
 	char digest_cnonce[48];
 	char digest_uri[1024];
 	char digest_method[16];		
-	char digest_username[16];
+	char digest_username[48];
 	char digest_response[48];
 	char digest_qop[16];
 	char digest_nc[10];

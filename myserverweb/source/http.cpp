@@ -199,7 +199,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		td->outputData.closeFile();
 		return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
 	}
-	char fileSize[10];
+	char fileSize[20];
 	char fileTime[32];
 	do
 	{	
@@ -294,7 +294,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 /*!
 *Build a response for an OPTIONS request.
 */
-int http::optionsHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int yetmapped)
+int http::optionsHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char* /*filename*/,int /*yetmapped*/)
 {
 	char time[HTTP_RESPONSE_DATE_DIM];
 	getRFC822GMTTime(time,HTTP_RESPONSE_DATE_DIM);
@@ -324,7 +324,7 @@ int http::optionsHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filenam
 /*!
 *Handle the HTTP TRACE command.
 */
-int http::traceHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int yetmapped)
+int http::traceHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char* /*filename*/,int /*yetmapped*/)
 {
 	int content_len=(int)td->nHeaderChars;
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -361,7 +361,7 @@ int http::traceHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,
 /*!
 *Check if the host allows the HTTP TRACE command
 */
-int http::allowHTTPTRACE(httpThreadContext* td,LPCONNECTION s)
+int http::allowHTTPTRACE(httpThreadContext* /*td*/,LPCONNECTION s)
 {
 	int ret;
 	/*Check if the host allows HTTP trace.*/

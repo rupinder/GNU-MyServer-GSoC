@@ -32,7 +32,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/post.mscgi"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				ModuleDefinitionFile="definitions.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/post.pdb"

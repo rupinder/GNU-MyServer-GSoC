@@ -50,6 +50,8 @@
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/myserver.pdb"
 				SubSystem="1"
+				HeapReserveSize="0"
+				HeapCommitSize="0"
 				LargeAddressAware="2"
 				EnableCOMDATFolding="0"
 				SupportUnloadOfDelayLoadedDLL="TRUE"

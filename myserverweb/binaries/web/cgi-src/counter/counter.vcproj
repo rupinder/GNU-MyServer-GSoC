@@ -33,7 +33,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libpng.lib libpng10.lib libz.lib"
 				OutputFile="$(OutDir)/counter.mscgi"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				ModuleDefinitionFile="libcounter.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/counter.pdb"

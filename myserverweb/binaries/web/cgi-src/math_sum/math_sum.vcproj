@@ -32,7 +32,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/math_sum.mscgi"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				ModuleDefinitionFile="definitions.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/math_sum.pdb"

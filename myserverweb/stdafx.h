@@ -67,6 +67,7 @@ extern "C" {
 #define MAXIMUM_PROCESSORS 256
 #endif
 
+#define USE_NEW
 
 typedef unsigned long DWORD;
 typedef unsigned long u_long;

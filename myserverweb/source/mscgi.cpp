@@ -52,7 +52,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 #ifndef DO_NOT_USE_MSCGI
 	static HMODULE hinstLib; 
    	static CGIMAIN ProcMain;
-	u_long nbr,nbs;
+	u_long nbr=0,nbs=0;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:(char*)td->buffer->GetBuffer();
 	

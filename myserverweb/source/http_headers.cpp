@@ -261,6 +261,7 @@ void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->digest_opaque[0]='\0';
 	request->digest_nonce[0]='\0';
 	request->digest_cnonce[0]='\0';
+	request->digest_method[0]='\0';
 	request->digest_username[0]='\0';
 	request->digest_response[0]='\0';
 	request->digest_qop[0]='\0';
@@ -494,6 +495,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		/*!Authorization*/
 		if(!lstrcmpi(command,"Authorization"))
 		{
+			while(*token==' ')
+				token++;
 			tokenOff = getCharInString(token," ",HTTP_REQUEST_AUTH_DIM);
 						
 			if(tokenOff==-1)return 0;
@@ -502,7 +505,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	
 			strncpy(request->AUTH,token,tokenOff);
 			request->AUTH[tokenOff]='\0';
-			if(!lstrcmpi(token,"Basic"))
+			if(!lstrcmpi(request->AUTH,"Basic"))
 			{
 				u_long i;
 				char *base64=&token[strlen("Basic ")];
@@ -524,19 +527,23 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 				free(keep_lbuffer2);
 				tokenOff = getCharInString(token,"\r\n",HTTP_REQUEST_AUTH_DIM);
 			}
-			else if(!lstrcmpi(token,"Digest"))
+			else if(!lstrcmpi(request->AUTH,"Digest"))
 			{
+				token+=tokenOff;
+				while(*token==' ')
+					token++;
 				tokenOff = getCharInString(token,"\r\n",0);
 				char *digestBuff=(char*)malloc(tokenOff);
-				memcpy(digestBuff,token,tokenOff);
 				if(!digestBuff)
 					return 0;
+				memcpy(digestBuff,token,tokenOff);
+				digestBuff[tokenOff]='\0';
 				char *digestToken = strtok( digestBuff, "=" );
 				if(!digestToken)
 					return 0;
 				do
 				{
-					StrTrim(token," ");
+					StrTrim(digestToken," ");
 					if(!lstrcmpi(digestToken,"nonce"))
 					{
 						digestToken = strtok( NULL, "," );
@@ -555,7 +562,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 						StrTrim(digestToken,"\" ");
 						strncpy(td->request.digest_uri,digestToken,1024);
 					}
-					else if(!lstrcmpi(token,"method"))
+					else if(!lstrcmpi(digestToken,"method"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
@@ -583,10 +590,10 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_username,digestToken,16);
-						strncpy(td->connection->login,token,48);
+						strncpy(td->request.digest_username,digestToken,48);
+						strncpy(td->connection->login,digestToken,48);
 					}
-					else if(!lstrcmpi(token,"response"))
+					else if(!lstrcmpi(digestToken,"response"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
@@ -649,8 +656,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		/*!Accept*/
 		if(!lstrcmpi(command,"Accept"))
 		{
-			int max=HTTP_REQUEST_ACCEPT_DIM-strlen(request->ACCEPT);
-			int oldlen=strlen(request->ACCEPT);
+			int max=HTTP_REQUEST_ACCEPT_DIM-(int)strlen(request->ACCEPT);
+			int oldlen=(int)strlen(request->ACCEPT);
 			if(max<0)
 				return 0;
 			tokenOff = getCharInString(token,seps,max);
