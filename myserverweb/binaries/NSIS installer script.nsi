@@ -42,6 +42,7 @@ Section "MyServer core" SecCore
   WriteUninstaller "remove.exe"
   File "myserver.exe"
   File "libxml2.dll"
+  File "iconv.dll"
   File "libpng12.dll"
   File "zlib1.dll"
   File "libssl32.dll"

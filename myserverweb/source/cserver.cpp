@@ -230,7 +230,9 @@ void cserver::start()
 		DWORD eventsCount, cNumRead, i; 
 		INPUT_RECORD irInBuf[128]; 
 		/*ReadConsoleInput is a blocking call, so be sure that there are events before call it*/
-		GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &eventsCount);
+		err = GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &eventsCount);
+		if(!err)
+			eventsCount = 0;
 		while(eventsCount--)
 		{
 			if(!mustEndServer)
