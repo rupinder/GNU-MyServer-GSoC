@@ -309,8 +309,8 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
                                             filename, ((Vhost*)(s->host))->systemRoot, 
-                                  ((HttpUserData*)s->protocolBuffer)->needed_password
-                                  , auth_type, 16, &permissions2);
+                                      ((HttpUserData*)s->protocolBuffer)->needed_password,
+                                            auth_type, 16, &permissions2);
     sec_cache_mutex.unlock();  
   }
 	else/*!The default user is Guest with a null password*/
@@ -421,8 +421,8 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	else
 	{
 		/*!
-		*If the file doesn't exist create it.
-		*/
+     *If the file doesn't exist create it.
+     */
 		File file;
 		if(file.openFile(td->filenamePath, 
                       FILE_CREATE_ALWAYS|FILE_OPEN_WRITE))
@@ -582,8 +582,8 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 			((HttpUserData*)s->protocolBuffer)->digest_checked=1;
 			if(((HttpUserData*)s->protocolBuffer)->digest==1)
 			{
-				strcpy(s->getPassword(), 
-               ((HttpUserData*)s->protocolBuffer)->needed_password);
+				strncpy(s->getPassword(), 
+               ((HttpUserData*)s->protocolBuffer)->needed_password, 32);
 
 				permissions=permissions2;
 			}
@@ -643,8 +643,9 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	char *uri;
 	u_long digest_count;
   Md5 md5;
+  /*! Return 0 if the password is different. */
 	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
-       ((HttpUserData*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
+       ((HttpUserData*)s->protocolBuffer)->opaque))
 		return 0;
   /*! If is not equal return 0. */
 	if(lstrcmp(td->request.digest_realm, ((HttpUserData*)s->protocolBuffer)->realm))
@@ -687,6 +688,7 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 		return 1;
 	return 0;
 }
+
 /*!
  *Create the buffer.
  */
@@ -1315,7 +1317,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	return (keepalive & ret);
 }
 /*!
- *Log the access using the Common Log Format or the Combined one
+ *Log the access using the Common Log Format or the Combined one.
  */
 int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
 {
@@ -2348,6 +2350,7 @@ char* Http::getBrowseDirCSSFile()
 {
   return browseDirCSSpath;
 }
+
 /*!
  *Get the GZIP threshold.
  */
