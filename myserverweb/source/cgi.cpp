@@ -78,7 +78,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	char outputDataFile[32];
 	char *outputDataPath;
   int outputDataPathLen ;
-
+	START_PROC_INFO spi;
+	u_long nBytesRead;
 	/*!
    *Standard CGI uses STDOUT to output the result and the STDIN 
    *to get other params like in a POST request.
@@ -347,7 +348,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
    *Fill the START_PROC_INFO struct with the correct values and use it
    *to run the process.
    */
-	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
 	spi.cwd=td->scriptDir;
 
@@ -385,7 +385,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	td->buffer2->SetLength(0);
 
 	/*! Read the CGI output.  */
-	u_long nBytesRead=0;
+	nBytesRead=0;
 
   /*! Return an internal error if we cannot seek on the file. */
 	if(stdOutFile.setFilePointer(0))
@@ -487,6 +487,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 
 	if(!yetoutputted)
 	{
+		u_long nbw=0;
 		if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 			strcpy(td->response.CONNECTION, "Keep-Alive");
 		/*!
@@ -499,8 +500,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 			http_headers::resetHTTPResponse(&(td->response));
       strcpy(td->response.VER, td->request.VER);
 		}
-
-		u_long nbw=0;
 
     /*! If we have not to append the output send data directly to the client. */
 		if(!td->appendOutputs)

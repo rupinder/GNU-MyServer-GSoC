@@ -48,6 +48,8 @@ int getErrorFileName(char *root,int error,char** out, cXMLParser* parser)
   int permissionsFileLen;
 	cXMLParser local_parser;  
   xmlDocPtr doc;
+	int found=0;
+	xmlNode *node;
   if(parser == 0)
   { 
     permissionsFileLen = strlen(root) + 10;
@@ -72,12 +74,11 @@ int getErrorFileName(char *root,int error,char** out, cXMLParser* parser)
   if(doc == 0)
     return 0;
 
-	xmlNode *node=doc->children->children;
+  node=doc->children->children;
 
   if(node == 0)
     return 0;
 
-	int found=0;
 	while(node)
 	{
 		if(!xmlStrcmp(node->name, (const xmlChar *)"ERROR"))
@@ -131,12 +132,28 @@ int getPermissionMask(char* user, char* password,char* directory,
 	char *permissionsFile;
 	char tempPassword[32];
   int ret =0;
-	tempPassword[0]='\0';
-	if(auth_type)
-		auth_type[0]='\0';
   int permissionsFileLen;
 	cXMLParser local_parser;
   xmlDocPtr doc;
+	int filePermissions=0;
+	int filePermissionsFound=0;
+
+	int genericPermissions=0;
+	int genericPermissionsFound=0;
+
+	int userPermissions=0;
+	int userPermissionsFound=0;
+
+	int filePermissions2Found=0;
+	int userPermissions2Found=0;
+	int genericPermissions2Found=0;
+  xmlAttr *attr;
+
+	tempPassword[0]='\0';
+	if(auth_type)
+		auth_type[0]='\0';
+
+	xmlNode *node;
   if(parser == 0)
   {
     permissionsFileLen = strlen(directory)+10;
@@ -186,26 +203,14 @@ int getPermissionMask(char* user, char* password,char* directory,
 
 	if(!doc)
 		return 0;
-	xmlNode *node=doc->children->children;
 
-	int filePermissions=0;
-	int filePermissionsFound=0;
-
-	int genericPermissions=0;
-	int genericPermissionsFound=0;
-
-	int userPermissions=0;
-	int userPermissionsFound=0;
-
-	int filePermissions2Found=0;
-	int userPermissions2Found=0;
-	int genericPermissions2Found=0;
+  node=doc->children->children;
 
 	while(node)
 	{
 		if(!xmlStrcmp(node->name, (const xmlChar *)"AUTH"))
 		{
-			xmlAttr *attr =  node->properties;
+			attr =  node->properties;
 			while(attr)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"TYPE"))
@@ -219,7 +224,7 @@ int getPermissionMask(char* user, char* password,char* directory,
 	
 		if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
 		{
-			xmlAttr *attr =  node->properties;
+			attr =  node->properties;
 			int tempGenericPermissions=0;
 			int rightUser=0;
 			int rightPassword=0;
@@ -279,15 +284,17 @@ int getPermissionMask(char* user, char* password,char* directory,
 		}
 		if(!xmlStrcmp(node->name, (const xmlChar *)"ITEM"))
 		{
+      int tempFilePermissions;
 			xmlNode *node2=node->children;
 			while(node2)
 			{
-				if(!xmlStrcmp(node2->name, (const xmlChar *)"USER"))
+        tempFilePermissions=0;
+        if(!xmlStrcmp(node2->name, (const xmlChar *)"USER"))
 				{
-					xmlAttr *attr =  node2->properties;
 					int tempUserPermissions=0;
 					int rightUser=0;
 					int rightPassword=0;
+					attr =  node2->properties;
 					while(attr)
 					{
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
@@ -338,8 +345,9 @@ int getPermissionMask(char* user, char* password,char* directory,
 				}
 				node2=node2->next;
 			}
-			xmlAttr *attr =  node->properties;
-			int tempFilePermissions=0;
+
+      attr = node->properties;
+
 			while(attr)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
@@ -364,7 +372,7 @@ int getPermissionMask(char* user, char* password,char* directory,
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
 				{
-					if(!lstrcmpi((const char*)attr->children->content,filename))
+					if(!lstrcmpi((const char*)attr->children->content, filename))
 					{					
 						filePermissionsFound=1;
 						filePermissions2Found=1;

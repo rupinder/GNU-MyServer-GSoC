@@ -56,16 +56,17 @@ MYSERVER_LOG_MANAGER::~MYSERVER_LOG_MANAGER()
  */
 int MYSERVER_LOG_MANAGER::load(char *filename)
 {
+  int opt, ret;
   /*!
    *If the file is still loaded close it before load again.
    */
   if(loaded)
     close();
 
-  int opt = MYSERVER_FILE_OPEN_APPEND | MYSERVER_FILE_OPEN_ALWAYS |
+  opt = MYSERVER_FILE_OPEN_APPEND | MYSERVER_FILE_OPEN_ALWAYS |
             MYSERVER_FILE_OPEN_WRITE | MYSERVER_FILE_NO_INHERIT;
 
-  int ret = file.openFile(filename, opt);
+  ret = file.openFile(filename, opt);
 
   if(ret)
   {
@@ -131,6 +132,7 @@ int MYSERVER_LOG_MANAGER::writeln(char *str)
  */
 int MYSERVER_LOG_MANAGER::write(char *str, int len)
 {
+  int ret;
   if(type == TYPE_CONSOLE)
   {
     printf("%s", str);
@@ -160,7 +162,7 @@ int MYSERVER_LOG_MANAGER::write(char *str, int len)
      *If the len specified is equal to zero write the string as
      *a null character terminated one.
      */
-    int ret = file.writeToFile(str, len ? len : (u_long)strlen(str), &nbw);
+    ret = file.writeToFile(str, len ? len : (u_long)strlen(str), &nbw);
     return ret;
   }
   return 0;

@@ -328,11 +328,12 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " << versionOfSoftware;
               
   if(td->request.HOST[0])
-  {
+  {    
+    char port_buf[6];
     *td->buffer2 << " on ";
     *td->buffer2 << td->request.HOST ;
     *td->buffer2 << " Port ";
-    char port_buf[6];
+
     u_short port = td->connection->getLocalPort();
     sprintf(port_buf,"%u", port);
     *td->buffer2 << port_buf;
