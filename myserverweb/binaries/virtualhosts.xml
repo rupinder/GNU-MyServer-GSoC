@@ -9,4 +9,18 @@
 <ACCESSESLOG>logs/myServer.log</ACCESSESLOG>
 <WARNINGLOG>logs/myServer.err</WARNINGLOG>
 </VHOST>
+
+<VHOST>
+<NAME>Every connection</NAME>
+<PORT>443</PORT>
+<PROTOCOL>HTTPS</PROTOCOL>
+<DOCROOT>web</DOCROOT>
+<SYSFOLDER>system</SYSFOLDER>
+<ACCESSESLOG>logs/myServer.log</ACCESSESLOG>
+<WARNINGLOG>logs/myServer.err</WARNINGLOG>
+<SSL_PRIVATEKEY>certificates/server.key</SSL_PRIVATEKEY>
+<SSL_CERTIFICATE>certificates/server.pem</SSL_CERTIFICATE>
+<SSL_PASSWORD>logs/myServer.err</SSL_PASSWORD>
+</VHOST>
+
 </VHOSTS>

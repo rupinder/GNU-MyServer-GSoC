@@ -141,6 +141,9 @@ void ClientsTHREAD::controlConnections()
 			case PROTOCOL_HTTP:
 				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
+			case PROTOCOL_HTTPS:
+				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				break;
 			default:
 				retcode=0;
 				break;

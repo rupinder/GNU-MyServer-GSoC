@@ -40,8 +40,8 @@ extern "C" {
 #pragma comment(lib,"ssleay32.lib")/*Import the OpenSSL library*/
 #endif
 
-#define CERT_FILE "server.pem"		
-#define KEY_FILE  "server.key"
+#define CERT_FILE "certificates/server.pem"		
+#define KEY_FILE  "certificates/server.key"
 #define CIPHER_LIST  "aRSA"
 
 /*
@@ -310,12 +310,12 @@ int MYSERVER_SOCKET::getSSL()
 }
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
-	int err;
+	int err=0;
 	if(sslSocket)
 	{
 		do
 		{	
-			SSL_read(sslConnection,buffer,len);
+			err=SSL_read(sslConnection,buffer,len);
 		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
 		if(SSL_get_error(sslConnection,err)!=SSL_ERROR_ZERO_RETURN)
 			return err;

@@ -533,7 +533,6 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 			}
 		}
 		cc++;
-		vh->initializeSSL();
 		addvHost(vh);
 	}
 	fh.closeFile();
@@ -783,6 +782,7 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 				warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 			}
 		}
+		vh->initializeSSL();
 		addvHost(vh);
 	}
 	parser.close();
