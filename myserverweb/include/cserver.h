@@ -141,6 +141,7 @@ public:
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	int connections_mutex_lock();
 	int connections_mutex_unlock();
+  LPCONNECTION getConnections();
 	LPCONNECTION getConnectionToParse(int);
 	LPCONNECTION findConnection(MYSERVER_SOCKET);
 	u_long getTimeout();

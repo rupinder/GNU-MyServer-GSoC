@@ -20,8 +20,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cserver.h"
 
 /*! Include headers for built-in protocols. */
-#include "../include/http.h"	/*Include the HTTP protocol*/
-#include "../include/https.h" /*Include the HTTPS protocol*/
+#include "../include/http.h"	/*Include the HTTP protocol. */
+#include "../include/https.h" /*Include the HTTPS protocol. */
+#include "../include/control_protocol.h" /*Include the control protocol. */
 
 #include "../include/security.h"
 #include "../include/stringutils.h"
@@ -594,6 +595,7 @@ int cserver::terminate()
 #endif
 	http::unloadProtocol(&languageParser);
 	https::unloadProtocol(&languageParser);
+  control_protocol::unloadProtocol(&languageParser);
 	protocols.unloadProtocols(&languageParser);
 
 	/*!
@@ -1461,6 +1463,7 @@ int cserver::loadSettings()
 
 	http::loadProtocol(&languageParser, "myserver.xml");
 	https::loadProtocol(&languageParser, "myserver.xml");
+  control_protocol::loadProtocol(&languageParser, "myserver.xml");
 #ifdef NOT_WIN
 	if(MYSERVER_FILE::fileExists("external"))
 	{
@@ -1621,4 +1624,13 @@ char *cserver::getVhostConfFile()
 char *cserver::getMIMEConfFile()
 {
   return mime_configuration_file;
+}
+
+/*!
+ *Get the first connection in the linked list.
+ *Be sure to have locked connections access before.
+ */
+LPCONNECTION cserver::getConnections()
+{
+  return connections;
 }

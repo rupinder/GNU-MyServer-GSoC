@@ -87,7 +87,8 @@ int http::initialized=0;
 /*!
  *Browse a folder printing its contents in an HTML file.
  */
-int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
+int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, 
+                            char* folder)
 {
 	/*! Send the folder content.  */
 	u_long nbw;
@@ -171,8 +172,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 			{
 				td->buffer2->SetLength(0);
 				*td->buffer2 << "<style>\r\n<!--\r\n" ;
-				ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
-                                          (u_long)td->buffer2->GetLength(), &nbw);
+				ret=td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                       (u_long)td->buffer2->GetLength(), &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
@@ -190,8 +191,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 
 				td->buffer2->SetLength(0);
 				*td->buffer2 << "-->\r\n</style>\r\n";
-				ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
-                                         (u_long)td->buffer2->GetLength(), &nbw);
+				ret=td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
+                                       (u_long)td->buffer2->GetLength(), &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
@@ -376,7 +377,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 /*!
 *Build a response for an OPTIONS request.
 */
-int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char* /*filename*/, int /*yetmapped*/)
+int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
+                              char* /*filename*/, int /*yetmapped*/)
 {
 	int ret;
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -405,8 +407,8 @@ int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char* /*fil
 }
 
 /*!
-*Handle the HTTP TRACE command.
-*/
+ *Handle the HTTP TRACE command.
+ */
 int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
                             char* /*filename*/, int /*yetmapped*/)
 {
@@ -444,8 +446,8 @@ int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 }
 
 /*!
-*Check if the host allows the HTTP TRACE command
-*/
+ *Check if the host allows the HTTP TRACE command
+ */
 int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
 {
 	int ret;
@@ -1146,7 +1148,7 @@ u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
 	char A2[48];
 	char response[48];
 	   
-   	MYSERVER_MD5Context md5;
+  MYSERVER_MD5Context md5;
 	MYSERVER_MD5Init(&md5);
 	td->buffer2->SetLength(0);
 	*td->buffer2 << td->request.digest_username << ":" << td->request.digest_realm 
@@ -2106,6 +2108,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 					}
 					if(get_ticks()-timeout>=SEC(3))
 						break;
+          /*! Wait a bit. */
+          wait(2);
 				}
 				while(content_len!=total_nbr);
 				sprintf(td.response.CONTENT_LENGTH, "%u", 

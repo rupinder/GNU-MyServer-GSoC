@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 #include "../include/MemBuf.h"
 #include "../include/https.h"
-
+#include "../include/control_protocol.h"
 class  ClientsTHREAD
 {
 	friend class cserver;
@@ -49,6 +49,7 @@ private:
 	u_long buffersize2;
 	http *http_parser;
 	https *https_parser;
+  control_protocol  *control_protocol_parser;
 	int isRunning();
 	int isStopped();
 	CMemBuf buffer;

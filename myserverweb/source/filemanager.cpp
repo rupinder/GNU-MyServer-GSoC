@@ -450,19 +450,18 @@ u_long MYSERVER_FILE::getFileSize()
 }
 /*!
  *Change the position of the pointer to the file.
- *Returns a non-null value if failed.
  */
 int MYSERVER_FILE::setFilePointer(u_long initialByte)
 {
 	int ret;
 #ifdef WIN32
 	ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN);
-        /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
+  /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
 	return (ret==INVALID_SET_FILE_POINTER)?1:0;
 #endif
 #ifdef NOT_WIN
 	ret = lseek((int)handle, initialByte, SEEK_SET);
-	return (ret)?1:0;
+	return (ret!=initialByte)?1:0;
 #endif
 }
 /*!

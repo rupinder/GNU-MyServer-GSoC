@@ -415,8 +415,8 @@ int hexToInt(const char *str)
 	return u;
 }
 /*!
-*Get the offset from string start of a character.
-*/
+ *Get the offset from string start of a character.
+ */
 int getCharInString(char* str, const char* characters, int max)
 {
 	int nChars=(int)strlen(characters);

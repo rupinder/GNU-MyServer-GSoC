@@ -102,6 +102,10 @@ void * startClientsTHREAD(void* pParam)
   if(ct->http_parser==0)
     return (ClientsTHREAD_TYPE)-1;
 
+	ct->control_protocol_parser = new control_protocol();
+  if(ct->control_protocol_parser == 0)
+    return (ClientsTHREAD_TYPE)-1;
+
   ct->https_parser = new https();
 	if(ct->https_parser==0)
     return (ClientsTHREAD_TYPE)-1;
@@ -212,16 +216,22 @@ void ClientsTHREAD::controlConnections()
        */
 			case PROTOCOL_HTTP:
 				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
-                     (char*)buffer2.GetBuffer(), buffer.GetLength(), 
-                     buffer2.GetLength(), nBytesToRead, id);
+                     (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
+                     buffer2.GetRealLength(), nBytesToRead, id);
 				break;
 			/*!
        *Parse an HTTPS connection request.
        */
 			case PROTOCOL_HTTPS:
 				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
-                     (char*)buffer2.GetBuffer(), buffer.GetLength(), 
-                     buffer2.GetLength(), nBytesToRead, id);
+                     (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
+                     buffer2.GetRealLength(), nBytesToRead, id);
+				break;
+			case PROTOCOL_CONTROL:
+				retcode=control_protocol_parser->controlConnection(c, 
+                     (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), 
+                     buffer.GetRealLength(), buffer2.GetRealLength(), 
+                                                           nBytesToRead, id);
 				break;
 			default:
         dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
@@ -232,8 +242,8 @@ void ClientsTHREAD::controlConnections()
 				else
 				{
 					retcode=dp->controlConnection(c, (char*)buffer.GetBuffer(), 
-                  (char*)buffer2.GetBuffer(), buffer.GetLength(), 
-                  buffer2.GetLength(), nBytesToRead, id);
+                  (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
+                  buffer2.GetRealLength(), nBytesToRead, id);
 				}
 				break;
 		}
@@ -326,6 +336,7 @@ void ClientsTHREAD::clean()
 	threadIsRunning=0;
 	delete http_parser;
 	delete https_parser;
+  delete control_protocol_parser;
 
 	buffer.Free();
 	buffer2.Free();

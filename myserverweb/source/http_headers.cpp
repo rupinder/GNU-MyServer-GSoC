@@ -447,9 +447,9 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
        */
 			lineControlled=1;
 			/*! Copy the method type.  */
-			strncpy(request->CMD,command,tokenOff);
-			request->CMD[tokenOff]='\0';
-			tokenOff = getCharInString(token,"\t\n\r", 
+			strncpy(request->CMD, command, tokenOff);
+			request->CMD[tokenOff] = '\0';
+			tokenOff = getCharInString(token, "\t\n\r", 
                                  HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
 			u_long len_token =tokenOff;
 			if(tokenOff==-1)

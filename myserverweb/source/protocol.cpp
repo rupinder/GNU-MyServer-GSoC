@@ -22,43 +22,50 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 /*!
-*Load the protocol. Called once at runtime.
-*/
+ *Load the protocol. Called once at runtime.
+ */
 int protocol::loadProtocol(cXMLParser* /*languageParser*/,char* /*confFile*/)
 {
 	return 1;
 }
+
 /*!
-*Unload the protocol. Called once.
-*/
+ *Unload the protocol. Called once.
+ */
 int protocol::unloadProtocol(cXMLParser* /*languageParser*/)
 {
 	return 1;
 }
+
 /*!
-*Control the connection
-*/
-int protocol::controlConnection(LPCONNECTION /*a*/,char* /*b1*/,char* /*b2*/,int /*bs1*/,int /*bs2*/,u_long /*nbtr*/,u_long /*id*/)
+ *Control the connection.
+ */
+int protocol::controlConnection(LPCONNECTION /*a*/,char* /*b1*/,
+                                char* /*b2*/,int /*bs1*/,int /*bs2*/,
+                                u_long /*nbtr*/,u_long /*id*/)
 {
 	/*!
-	*Returns value are:
-	*0 to delete the connection from the active connections list
-	*1 to keep the connection active and clear the connectionBuffer
-	*2 if the header is incomplete and to save it in a temporary buffer
-	*3 if the header is incomplete without save it in a temporary buffer
-	*/
+   *Returns value are:
+   *0 to delete the connection from the active connections list
+   *1 to keep the connection active and clear the connectionBuffer
+   *2 if the header is incomplete and to save it in a temporary buffer
+   *3 if the header is incomplete without save it in a temporary buffer
+   */
 	return 0;
 }
+
 /*!
-*Returns the name of the protocol. If an out buffer is defined fullfill it with the name too.
-*/
+ *Returns the name of the protocol. If an out buffer is 
+ *defined fullfill it with the name too.
+ */
 char* protocol::registerName(char* /*out*/,int /*len*/)
 {
 	return 0;
 }
+
 /*!
-*Constructor for the class protocol.
-*/
+ *Constructor for the class protocol.
+ */
 protocol::protocol()
 {
 	PROTOCOL_OPTIONS=0;

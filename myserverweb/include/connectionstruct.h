@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define PROTOCOL_HTTP		1
 #define PROTOCOL_HTTPS		1001
 #define PROTOCOL_FTP		2
+#define PROTOCOL_CONTROL		3
 
 /*! Remove the connection due a high server load.  */
 #define CONNECTION_REMOVE_OVERLOAD 1
@@ -41,22 +42,22 @@ typedef u_long CONNECTION_PROTOCOL;
 struct CONNECTION
 {
 public:
-	/*! Pointer to the thread struct that is using the CONNECTION.  */
+	/*! Pointer to the thread struct that is using the CONNECTION. */
 	void *thread;
 	
-	/*! Const value for the CONNECTION structure to check integrity.  */
+	/*! Const value for the CONNECTION structure to check integrity. */
 	const static int check_value_const=0x20;
 	
-	/*! The server is parsing this connection.  */
+	/*! The server is parsing this connection. */
 	int parsing;
 	
-	/*! Check if this is equal to check_value_const to ha a valid structure.  */
+	/*! Check if this is equal to check_value_const to ha a valid structure. */
 	int check_value;
 	
-	/*! Login name.  */
+	/*! Login name. */
 	char login[20];
 	
-	/*! Password used to log in.  */
+	/*! Password used to log in. */
 	char password[32];
 	
 	/*! # of tries for an authorized login. */
@@ -89,9 +90,9 @@ public:
 	/*! Data size read in the buffersize2.  */
 	int dataRead;
 	
-	/*! If nonzero the server is saying to the protocol to remove the connection.
+	/*!If nonzero the server is saying to the protocol to remove the connection.
    *Protocols can not consider this but is a good idea do it to avoid server
-   * overloads. 
+   *overloads. 
    *Reasons to remove the connection are defined at the begin of this file.  */
 	int toRemove;
 	
