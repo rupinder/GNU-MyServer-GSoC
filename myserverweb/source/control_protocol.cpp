@@ -659,6 +659,11 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
  */
 int control_protocol::addToErrorLog(LPCONNECTION con, char *b1, int bs1)
 {
+  /*!
+   *Check that the verbosity is at least 1.
+   */
+  if(lserver->getVerbosity() < 1)
+    return 0;
 	char time[33];
 	getRFC822GMTTime(time, 32);
   sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getipAddr(), time, 
