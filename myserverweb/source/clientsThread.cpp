@@ -78,7 +78,7 @@ void ClientsTHREAD::controlConnections()
 			if(err!=WSAETIMEDOUT)
 			{
 				/*
-				*Control the right protocol used by the connection
+				*Control the protocol used by the connection
 				*/
 				switch(c->protocol)
 				{
@@ -190,6 +190,9 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 }
 void ClientsTHREAD::clearAllConnections()
 {
+	/*
+	*Delete all the connections
+	*/
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	for(;c;c=c->Next)

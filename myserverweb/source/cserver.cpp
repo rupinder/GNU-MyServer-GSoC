@@ -68,7 +68,7 @@ void cserver::start(INT hInst)
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
 	/*
-	*This are the defaults values of this strings
+	*These are the defaults values of this strings
 	*/
 	lstrcpy(msgSending,"Sending");
 	lstrcpy(msgRunOn,"Running on");

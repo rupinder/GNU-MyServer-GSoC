@@ -21,7 +21,6 @@
 #include "..\stdafx.h"
 #include "..\include\utility.h"
 #include "..\include\cXMLParser.h"
-#include "..\resource.h"
 #include "..\include\ClientsTHREAD.h"
 #include "..\include\utility.h"
 #include "..\include\HTTPmsg.h"
