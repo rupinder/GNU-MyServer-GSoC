@@ -49,7 +49,7 @@ void cserver::start(INT hInst)
 	/*
 	*Set the current working directory
 	*/
-	ms_setcwd();
+	ms_setcwdBuffer();
 
 	mustEndServer=FALSE;
 	cserver::hInst=hInst;
@@ -441,6 +441,7 @@ void cserver::initialize(INT OSVer)
 	lstrcpy(languageFile,"languages/english.xml");
 	lstrcpy(guestPassword,"myServerUnknown");
 	lstrcpy(defaultFilename,"default.html");
+	lstrcpy(browseDirCSSpath,"system/foldersyle.css");
 	mustEndServer=FALSE;
 	port_HTTP=80;
 	verbosity=1;
@@ -449,24 +450,17 @@ void cserver::initialize(INT OSVer)
 	/*
 	*Store the default path for web and system folder.
 	*/
-	ms_getcwd(path,MAX_PATH);
+	ms_getdefaultwd(path,MAX_PATH);
 	lstrcat(path,"/web");
-	ms_getcwd(systemPath,MAX_PATH);
+	ms_getdefaultwd(systemPath,MAX_PATH);
 	lstrcat(systemPath,"/system");
-	int i;
-	for(i=0;i<lstrlen(path);i++)
-		if(path[i]=='\\')
-			path[i]='/';
-	for(i=0;i<lstrlen(systemPath);i++)
-		if(systemPath[i]=='\\')
-			systemPath[i]='/';
 
 	/*
 	*Store the default name of the logs files.
 	*/
-	ms_getcwd(warningsFileLogName,MAX_PATH);
+	ms_getdefaultwd(warningsFileLogName,MAX_PATH);
 	lstrcat(warningsFileLogName,"logs/myServer.err");
-	ms_getcwd(accessesFileLogName,MAX_PATH);
+	ms_getdefaultwd(accessesFileLogName,MAX_PATH);
 	lstrcat(accessesFileLogName,"logs/myServer.log");
 
 
@@ -506,6 +500,13 @@ void cserver::initialize(INT OSVer)
 		connectionTimeout=SEC((DWORD)atol(data));
 	}
 
+	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
+	if(data)
+	{
+		lstrcpy(browseDirCSSpath,data);
+	}
+
+
 	data=configurationFileManager.getValue("GUEST_LOGIN");
 	if(data)
 	{
@@ -529,7 +530,7 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("WEB_DIRECTORY");
 	if(data)
 	{
-		ms_getcwd(path,MAX_PATH);
+		ms_getdefaultwd(path,MAX_PATH);
 		lstrcat(path,"/");
 		lstrcat(path,data);
 	}
@@ -537,7 +538,7 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("SYSTEM_DIRECTORY");
 	if(data)
 	{
-		ms_getcwd(systemPath,MAX_PATH);
+		ms_getdefaultwd(systemPath,MAX_PATH);
 		lstrcat(systemPath,"/");
 		lstrcat(systemPath,data);
 	}
@@ -567,8 +568,8 @@ void cserver::initialize(INT OSVer)
 		controlSizeLogFile();
 	}
 	
-	ms_getcwd(warningsFileLogName,MAX_PATH);
-	ms_getcwd(accessesFileLogName,MAX_PATH);
+	ms_getdefaultwd(warningsFileLogName,MAX_PATH);
+	ms_getdefaultwd(accessesFileLogName,MAX_PATH);
 	lstrcat(warningsFileLogName,"/");
 	lstrcat(accessesFileLogName,"/");
 
@@ -720,10 +721,16 @@ BOOL cserver::mustUseMessagesFiles()
 	return useMessagesFiles;
 }
 /*
-*Returns if we use the logon
+*Returns if we use the logon.
 */
 BOOL cserver::mustUseLogonOption()
 {
 	return useLogonOption;
 }
-
+/*
+*Returns the file name of the css used to browse a directory.
+*/
+char *cserver::getBrowseDirCSS()
+{
+	return browseDirCSSpath;
+}

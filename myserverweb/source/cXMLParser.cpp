@@ -97,7 +97,7 @@ char *cXMLParser::getValue(char* vName)
 }
 
 /*
-*Deallocate the memory used by the class.
+*Free the memory used by the class.
 */
 void cXMLParser::close()
 {

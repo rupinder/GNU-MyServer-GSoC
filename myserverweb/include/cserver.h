@@ -63,6 +63,7 @@ private:
 	char languageFile[MAX_PATH];
 	char systemPath[MAX_PATH];
 	char path[MAX_PATH];
+	char browseDirCSSpath[MAX_PATH];
 	char defaultFilename[MAX_PATH];
 	char warningsFileLogName[MAX_PATH];
 	char accessesFileLogName[MAX_PATH];
@@ -89,6 +90,7 @@ public:
 	char  *getSystemPath();
 	char  *getPath();
 	char  *getDefaultFilenamePath(DWORD=0);
+	char *getBrowseDirCSS();
 	char  *getServerName();
 	DWORD  getVerbosity();
 	BOOL  mustUseMessagesFiles();

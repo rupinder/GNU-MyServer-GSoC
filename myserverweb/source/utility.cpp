@@ -172,7 +172,7 @@ INT terminateAccess(DWORD* ac,DWORD/* id*/)
 /*
 *Save the current working directory.
 */
-int ms_setcwd()
+int ms_setcwdBuffer()
 {
 	int retval=0;
 #ifdef WIN32	
@@ -187,10 +187,22 @@ int ms_setcwd()
 	return retval;
 }
 /*
-*Get the current working directory.
+*Get the default working directory(Where is the program myserver.exe).
 */
-char *ms_getcwd(char *path,int/*len*/)
+char *ms_getdefaultwd(char *path,int/*len*/)
 {
-	lstrcpy(path,currentPath);
+	if(path)
+		lstrcpy(path,currentPath);
 	return path;
+}
+
+/*
+*Set the current working directory. Returns Zero if successful.
+*/
+int ms_setcwd(char *dir)
+{
+#ifdef WIN32	
+	return _chdir(dir);
+#endif
+
 }

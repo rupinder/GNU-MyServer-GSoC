@@ -73,19 +73,24 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*Determine if the CGI executable is nph.
 	*/
 	BOOL nph=(strnicmp("nph-",filename, 4)==0)?1:0;
+	char scriptname[MAX_PATH];
+	char scriptdir[MAX_PATH];
+	splitPath(scriptpath,scriptdir,scriptname);
+	ms_setcwd(scriptdir);
 
-	sprintf(cmdLine,"\"%s\" \"%s\"",execpath,scriptpath);
+	sprintf(cmdLine,"%s %s",execpath,scriptname);
+
     /*
     *Use a temporary file to store CGI output.
     *Every thread has it own tmp file name(stdOutFilePath),
     *so use this name for the file that is going to be
-    *created because more threads can access more CGI in the same time.
+    *created because more threads can access more CGI at the same time.
     */
 
 	char currentpath[MAX_PATH];
 	char stdOutFilePath[MAX_PATH];
 	char stdInFilePath[MAX_PATH];
-	ms_getcwd(currentpath,MAX_PATH);
+	ms_getdefaultwd(currentpath,MAX_PATH);
 	static DWORD id=0;
 	id++;
 	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,id);
@@ -115,7 +120,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
-	spi.stdError = (MYSERVER_FILE_HANDLE)0;
+	spi.stdError = (MYSERVER_FILE_HANDLE)stdOutFile;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
 	spi.envString=td->buffer2;
@@ -195,7 +200,10 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	if(lserver->mustUseLogonOption())
 		impersonateLogonUser(&td->hImpersonation);
-		
+	/*
+	*Restore the current working directory.
+	*/
+	ms_setcwd(ms_getdefaultwd(0,0));
 	return 1;
 }
 /*
@@ -231,14 +239,17 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rHTTP_USER_AGENT=");
 	lstrcat(cgiEnvString,td->request.USER_AGENT);
 
+	lstrcat(cgiEnvString,"\rHTTP_REFERER=");
+	lstrcat(cgiEnvString,td->request.URI);
+
 	lstrcat(cgiEnvString,"\rHTTP_ACCEPT=");
 	lstrcat(cgiEnvString,td->request.ACCEPT);
 	
 	lstrcat(cgiEnvString,"\rCONTENT_TYPE=");
-	lstrcat(cgiEnvString,td->request.CONTENTS_TYPE);
+	lstrcat(cgiEnvString,td->request.CONTENTS_TYPE[0]?td->request.CONTENTS_TYPE:"0");
 	
 	lstrcat(cgiEnvString,"\rCONTENT_LENGTH=");
-	lstrcat(cgiEnvString,td->request.CONTENTS_DIM);
+	lstrcat(cgiEnvString,td->request.CONTENTS_DIM[0]?td->request.CONTENTS_DIM:"0");
 
 	lstrcat(cgiEnvString,"\rREMOTE_USER=");
 	lstrcat(cgiEnvString,td->connection->login);

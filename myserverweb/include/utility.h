@@ -57,8 +57,9 @@ DWORD getCPUCount();
 void gotoNextLine(char*);
 DWORD execHiddenProcess(START_PROC_INFO*,DWORD=0xFFFFFFFF);
 VOID getComputerName(char*,DWORD);
-int ms_setcwd();
-char *ms_getcwd(char*,int);
+int ms_setcwdBuffer();
+char *ms_getdefaultwd(char*,int);
+int ms_setcwd(char *);
 
 /*
 *These functions are a simple trasposition of the mutex mechanism.

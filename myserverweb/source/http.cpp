@@ -29,22 +29,63 @@
 BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
 	/*
-	*Send the content of a folder if there are not any default
+	*Send the content of a folder if there is not any default
 	*file to send.
 	*/
 	static char filename[MAX_PATH];
-	static DWORD startChar=lstrlen(lserver->getPath())+1;
-	
+	int startChar=0;
+	int nDirectories=0;
+	int i;
+	for(i=0;td->request.URI[i];i++)
+	{
+		if(td->request.URI[i]=='/')
+			nDirectories++;
+	}
+
+	for(startChar=0,i=0;td->request.URI[i];i++)
+	{
+		if(td->request.URI[i]=='/')
+		{
+			startChar++;
+			if(startChar==nDirectories)
+			{
+				/*
+				*At the end of the loop set startChar to te real value.
+				*startChar indicates the initial position in td->requet.URI 
+				*of the file path.
+				*/
+				startChar=i+1;
+				break;
+			}
+		}
+	}
+
 	if(getPathRecursionLevel(folder)<1)
 	{
 		return raiseHTTPError(td,s,e_401);
 	}
 	ZeroMemory(td->buffer2,200);
 	_finddata_t fd;
+	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD>",&td->request.URI[startChar]);
+	/*
+	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
+	*/
+	MYSERVER_FILE_HANDLE cssHandle=ms_OpenFile(lserver->getBrowseDirCSS(),MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	if(cssHandle)
+	{
+		DWORD nbr;
+		ms_ReadFromFile(cssHandle,td->buffer,td->buffersize,&nbr);
+		lstrcat(td->buffer2,"<STYLE><!--");
+		lstrcat(td->buffer2,td->buffer);
+		lstrcat(td->buffer2,"--></STYLE>");
+		ms_CloseFile(cssHandle);
+	}
+
 	sprintf(filename,"%s/*.*",folder);
-	sprintf(td->buffer2,"%s",msgFolderContents);
+	lstrcat(td->buffer2,"<BODY>");
+	lstrcat(td->buffer2,msgFolderContents);
 	lstrcat(td->buffer2," ");
-	lstrcat(td->buffer2,&folder[startChar]);
+	lstrcat(td->buffer2,&td->request.URI[startChar]);
 	lstrcat(td->buffer2,"\\<P>\n<HR>");
 	intptr_t ff;
 	ff=_findfirst(filename,&fd);
@@ -62,7 +103,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 				return raiseHTTPError(td,s,e_401);
 			}
 			else
-			{
+			{	
 				s->nTries++;
 				return raiseHTTPError(td,s,e_401AUTH);
 			}
@@ -83,7 +124,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		if(fd.name[0]=='.')
 			continue;
 		lstrcat(td->buffer2,"<TR><TD><A HREF=\"");
-		lstrcat(td->buffer2,&folder[startChar]);
+		lstrcat(td->buffer2,&td->request.URI[startChar]);
 		lstrcat(td->buffer2,"/");
 		lstrcat(td->buffer2,fd.name);
 		lstrcat(td->buffer2,"\">");
@@ -111,6 +152,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	lstrcat(td->buffer2,msgRunOn);
 	lstrcat(td->buffer2," myServer ");
 	lstrcat(td->buffer2,versionOfSoftware);
+	lstrcat(td->buffer2,"</BODY></HTML>");
 	_findclose(ff);
 	char *buffer2Loop=td->buffer2;
 	while(*buffer2Loop++)
@@ -118,10 +160,10 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			*buffer2Loop='/';
 	buildDefaultHTTPResponseHeader(&(td->response));
 	sprintf(td->response.CONTENTS_DIM,"%u",lstrlen(td->buffer2));
+	lstrcpy(td->response.LOCATION,td->request.URI);
 	buildHTTPResponseHeader(td->buffer,&(td->response));
 	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
 	ms_send(s->socket,td->buffer2,lstrlen(td->buffer2), 0);
-
 	return 1;
 
 }
@@ -675,7 +717,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		/*
 		*How is expressly said in the rfc2616 a client that sends an 
 		*HTTP/1.1 request MUST send a Host header.
-		*Servers MUST report a 400 (Bad request) error if an HTTP/1.1
+		*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
         *request does not include a Host request-header.
 		*/
 		if(lstrlen(td.request.HOST)==0)
@@ -738,25 +780,32 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM,response->ERROR_TYPE);
 	else
 		sprintf(str,"HTTP/%s 200 OK\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\n",response->VER,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM);
-	if(lstrlen(response->DATE)>5)
+	if(lstrlen(response->DATE)>2)
 	{
 		lstrcat(str,"Date:");
 		lstrcat(str,response->DATE);
 		lstrcat(str,"\r\n");
 	}
-	if(lstrlen(response->DATEEXP)>5)
+	if(lstrlen(response->DATEEXP)>2)
 	{
 		lstrcat(str,"Expires:");
 		lstrcat(str,response->DATEEXP);
 		lstrcat(str,"\r\n");
 	}
-	if(lstrlen(response->OTHER)>5)
+	if(lstrlen(response->LOCATION)>2)
+	{
+		lstrcat(str,"Location:");
+		lstrcat(str,response->LOCATION);
+		lstrcat(str,"\r\n");
+	}
+	if(lstrlen(response->OTHER)>2)
 	{
 		lstrcat(str,response->OTHER);
 		lstrcat(str,"\r\n");
 	}
+
 	/*
-	*myServer support the bytes range
+	*myServer supports the bytes range
 	*/
 	lstrcat(str,"Accept-Ranges: bytes\r\n");
 	/*

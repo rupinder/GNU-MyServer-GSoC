@@ -29,6 +29,7 @@ struct HTTP_RESPONSE_HEADER
 	char MIME[12];		
 	char CONTENTS_DIM[8];
 	char ERROR_TYPE[20];
+	char LOCATION[MAX_PATH];
 	char DATE[30];		
 	char DATEEXP[30];	
 	int isError;		
