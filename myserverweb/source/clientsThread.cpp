@@ -113,7 +113,7 @@ void * startClientsTHREAD(void* pParam)
 
   /*! Return an error if the thread is initialized. */
 	if(ct->initialized)
-		return 1;
+		return (ClientsTHREAD_TYPE)1;
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
@@ -182,7 +182,7 @@ void * startClientsTHREAD(void* pParam)
 	ct->threadIsStopped = 1;
 	
 	myserver_thread::terminate();
-	return 0;
+	return (ClientsTHREAD_TYPE)0;
 }
 
 /*!
