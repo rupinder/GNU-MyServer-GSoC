@@ -180,7 +180,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		if ((!ret) || (ret==-1)) 
 		{
 			((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-			((vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI output file\r\n";);
+			((vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI output file\r\n");
 			((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
 			MYSERVER_FILE::deleteFile(outFilePath);

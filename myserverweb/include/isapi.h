@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
 #include "../include/HTTPmsg.h"
 #include "../include/connectionstruct.h"
+#include "../include/threads.h"
 
 #ifdef WIN32
 
@@ -135,6 +136,7 @@ public:
 	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 #endif	
 	isapi();
+	static myserver_mutex *isapi_mutex;
 	static void initISAPI();
 	static void cleanupISAPI();
 	int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);

@@ -195,7 +195,7 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	/*!
 	*The HTTP header ends with a \r\n sequence.
 	*/
-	strcat(str,"\r\n");
+	strcat(str,"\r\n\0\0\0\0\0");
 }
 /*!
 *Set the defaults value for a HTTP_RESPONSE_HEADER structure.
@@ -987,13 +987,11 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		*If the line is not controlled arrive with the token
 		*at the end of the line.
 		*/
-		if(!lineControlled)
+		if((!lineControlled)&&((nLineControlled!=1)))
 		{
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
-				if(response->OTHER[0])
-					strncat(response->OTHER,"\r\n",HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 				strncat(response->OTHER,command,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 				strncat(response->OTHER,": ",HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 				strncat(response->OTHER,token,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));

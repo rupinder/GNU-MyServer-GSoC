@@ -1596,6 +1596,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			*/
 			if(content_len==0)
 			{
+				/*connectionBuffer is 8 KB, so don't copy more bytes.*/
 				a->dataRead=min(KB(8),(u_int)td.buffer->GetLength() - td.nHeaderChars );
 				if(a->dataRead)
 				{

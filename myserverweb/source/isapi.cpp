@@ -28,14 +28,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 u_long isapi::max_Connections=0;
 static CRITICAL_SECTION GetTableEntryCritSec;
 int isapi::initialized=0;
+myserver_mutex *isapi::isapi_mutex=0;
 #define ISAPI_TIMEOUT (10000)
 ConnTableRecord *isapi::connTable=0;
 
 BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType) 
 {
 	ConnTableRecord *ConnInfo;
-
+	
+	isapi::isapi_mutex->myserver_mutex_lock();
 	ConnInfo = isapi::HConnRecord(hConn);
+	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
 		preparePrintError();
@@ -141,7 +144,10 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	ConnTableRecord *ConnInfo;
 	if(*lpdwBytes==0)
 		return TRUE;
+	isapi::isapi_mutex->myserver_mutex_lock();
 	ConnInfo = isapi::HConnRecord(hConn);
+	char* buffer=(char*)ConnInfo->td->buffer->GetBuffer();
+	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
 		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
@@ -155,11 +161,10 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	u_long nbw=0;
 	if(!ConnInfo->headerSent)/*If the HTTP header was sent do not send it again*/
 	{
-		ConnInfo->td->buffer << (char*)Buffer;
+		strncat(buffer,(char*)Buffer,*lpdwBytes);
 		ConnInfo->headerSize+=*lpdwBytes;
 		int headerSize=0;
-		char* buffer=(char*)ConnInfo->td->buffer.GetBuffer();
-		for(u_long i=0;i<(u_long)(strlen(ConnInfo->td->buffer));i++)
+		for(u_long i=0;i<(u_long)strlen(buffer);i++)
 		{
 			if(buffer[i]=='\r')
 				if(buffer[i+1]=='\n')
@@ -170,7 +175,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 							buffer[i+2]='\0';
 							break;
 						}
-			if(buffer[i]=='\n'))
+			if(buffer[i]=='\n')
 			{
 				if(buffer[i+1]=='\n')
 				{
@@ -187,14 +192,14 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			{
 				if(keepalive)
 					strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
-				http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
+				http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,(char*)ConnInfo->td->buffer->GetBuffer());
 				if(keepalive)
 					strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
 				else
 					strcpy(ConnInfo->td->response.CONNECTION,"Close");
-				http_headers::buildHTTPResponseHeader((char*)ConnInfo->td->buffer2.GetBuffer(),&(ConnInfo->td->response));
+				http_headers::buildHTTPResponseHeader((char*)ConnInfo->td->buffer2->GetBuffer(),&(ConnInfo->td->response));
 	
-				if(ConnInfo->connection->socket.send((char*)ConnInfo->td->buffer2.GetBuffer(),(int)strlen((char*)ConnInfo->td->buffer2.GetBuffer()), 0)==-1)
+				if(ConnInfo->connection->socket.send((char*)ConnInfo->td->buffer2->GetBuffer(),(int)strlen((char*)ConnInfo->td->buffer2->GetBuffer()), 0)==-1)
 					return 0;
 			}
 			ConnInfo->headerSent=1;
@@ -287,7 +292,9 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 {
 	ConnTableRecord *ConnInfo;
 	BOOL ret =TRUE;
+	isapi::isapi_mutex->myserver_mutex_lock();
 	ConnInfo = isapi::HConnRecord(hConn);
+	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
 		preparePrintError();
@@ -521,10 +528,12 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	}
 	EnterCriticalSection(&GetTableEntryCritSec);
 	connIndex = 0;
+	isapi::isapi_mutex->myserver_mutex_lock();
 	while ((connTable[connIndex].Allocated != FALSE) && (connIndex < max_Connections)) 
 	{
 		connIndex++;
 	}
+	isapi::isapi_mutex->myserver_mutex_unlock();
 	LeaveCriticalSection(&GetTableEntryCritSec);
 
 	if (connIndex == max_Connections) 
@@ -637,6 +646,8 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	ExtCtrlBlk.lpbData = 0;
 	ExtCtrlBlk.lpszContentType = (LPSTR)(&(td->request.CONTENT_TYPE[0]));
 
+	connTable[connIndex].td->buffer->SetLength(0);
+	((char*)connTable[connIndex].td->buffer->GetBuffer())[0]='\0';
 	HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)GetProcAddress(AppHnd, "HttpExtensionProc");
 	if (HttpExtensionProc == NULL) 
 	{
@@ -688,10 +699,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 */
 isapi::isapi()
 {
-#ifdef WIN32
-	connTable=0;
-	initialized=0;
-#endif
+
 }
 /*!
 *Initialize the ISAPI engine under WIN32.
@@ -701,6 +709,7 @@ void isapi::initISAPI()
 #ifdef WIN32
 	if(initialized)
 		return;
+	isapi_mutex = new myserver_mutex;
 	max_Connections=lserver->getNumThreads();
 	
 	if(connTable)
@@ -718,6 +727,7 @@ void isapi::initISAPI()
 void isapi::cleanupISAPI()
 {
 #ifdef WIN32
+	delete isapi_mutex;
 	DeleteCriticalSection(&GetTableEntryCritSec);
 	if(connTable)
 		free(connTable);

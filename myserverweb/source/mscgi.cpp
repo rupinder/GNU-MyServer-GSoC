@@ -89,6 +89,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		*Set the working directory to the MSCGI file one.
 		*/
 		setcwd(td->scriptDir);
+		td->buffer2->GetAt(0)='\0';
 #ifdef WIN32
 		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
 #endif
