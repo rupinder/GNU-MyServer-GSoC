@@ -296,11 +296,11 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	{
 		u_long nbr;
 		/*
-		*Read from the file the bytes to sent.
+		*Read from the file the bytes to send.
 		*/
 		h.readFromFile(td->buffer,min(bytesToSend,td->buffersize),&nbr);
 		/*
-		*When the bytes read from the file are zero, stop to send the file.
+		*When the bytes number read from the file is zero, stop to send the file.
 		*/
 		if(nbr==0)
 			break;
@@ -325,7 +325,24 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*over the HTTP.
 	*/
 	td->buffer[0]='\0';
-	buildDefaultHTTPResponseHeader(&td->response);
+	if(!systemrequest)
+	{
+		buildDefaultHTTPResponseHeader(&td->response);
+		/*
+		*Record the response.
+		*/
+		sprintf(td->buffer,"Send file %s to %s\r\n",filename,td->connection->ipAddr);
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+	}
+	else
+	{
+		int httpStatus=td->response.httpStatus;
+		buildDefaultHTTPResponseHeader(&td->response);
+		td->response.httpStatus=httpStatus;
+		/*
+		*The response will be recorded by the error handler function.
+		*/
+	}
 
 	static char ext[10];
 	static char data[MAX_PATH];
@@ -613,10 +630,14 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*/
 	if(validRequest==0)
 	{
+		sprintf(td.buffer,"Bad request from: %s\r\n",td.connection->ipAddr);
+		((vhost*)td.connection->host)->warningsLogWrite(td.buffer);
 		return raiseHTTPError(&td,a,e_400);
 	}/*If the URI is too long*/
 	else if(validRequest==414)
 	{
+		sprintf(td.buffer,"URI too long from: %s\r\n",td.connection->ipAddr);
+		((vhost*)td.connection->host)->warningsLogWrite(td.buffer);
 		return raiseHTTPError(&td,a,e_414);
 	}
 	
@@ -996,6 +1017,11 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 */
 int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
+	/*
+	*Record the error in the log file.
+	*/
+	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
+	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	if(ID==e_401AUTH)
 	{
 		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",lserver->getServerName());
@@ -1024,6 +1050,8 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 */
 int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
+		sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
        const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
 <font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
 Internal Server error</font></p>\r\n";
@@ -1209,6 +1237,8 @@ u_long validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_lon
 */
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
+	sprintf(td->buffer,"%s redirected to %s\r\n",td->connection->ipAddr,newURL);
+	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",lserver->getServerName(),newURL);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
@@ -1222,6 +1252,9 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 */
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
+	sprintf(td->buffer,"Not modified to %s\r\n",td->connection->ipAddr);
+	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+
 	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",lserver->getServerName());
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
@@ -1454,9 +1487,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			token = strtok( NULL, "\n\r" );
 			if(!token)return 0;
 			lineControlled=true;
-			if(!request->COOKIE[0])
-				strcat(request->COOKIE,";");
-			strncat(request->COOKIE,token,HTTP_REQUEST_COOKIE_DIM);
+			strncpy(request->COOKIE,token,HTTP_REQUEST_COOKIE_DIM);
 		}else
 		/*From*/
 		if(!lstrcmpi(command,"From"))
