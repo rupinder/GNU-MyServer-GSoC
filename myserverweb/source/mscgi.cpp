@@ -52,9 +52,10 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 #ifndef DO_NOT_USE_MSCGI
 	static HMODULE hinstLib; 
     	static CGIMAIN ProcMain;
+	u_long nbr,nbs;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
-	data.envString+=atoi(td->request.CONTENT_LENGTH);
+	//data.envString+=atoi(td->request.CONTENT_LENGTH);
 	
 	data.td = td;
 	data.errorPage=0;
@@ -62,18 +63,19 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	MYSERVER_FILE::splitPath(exec,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(exec,td->cgiRoot,td->cgiFile);
 	cgi::buildCGIEnvironmentString(td,data.envString);
-
-	getdefaultwd(td->outputDataPath,MAX_PATH);
 	
-	if(td->outputData.getHandle()==0)
-	{
-		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)],"/stdOutFile_%u",td->id);	
-		td->outputData.openFile(td->outputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
-		data.stdOut.openFile(td->outputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
-		
+	char outDataPath[MAX_PATH];
+	
+	if(!td->appendOutputs)
+	{	
+		getdefaultwd(outDataPath,MAX_PATH);	
+		sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileMSCGI_%u",td->id);
+		data.stdOut.openFile(outDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 	}
 	else
+	{
 		data.stdOut.setHandle(td->outputData.getHandle());
+	}
 
 #ifdef WIN32
 	hinstLib = LoadLibrary(exec);
@@ -107,7 +109,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		*Restore the working directory.
 		*/
 		setcwd(getdefaultwd(0,0));		
-    } 
+	} 
 	else
 	{
 #ifdef WIN32
@@ -115,11 +117,18 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		{
 			if(s->nTries > 2)
 			{
+				data.stdOut.closeFile();
+				MYSERVER_FILE::deleteFile(outDataPath);
 				return ((http*)td->lhttp)->raiseHTTPError(td,s,e_403);
 			}
 			else
 			{
 				s->nTries++;
+				if(!td->appendOutputs)
+				{
+					data.stdOut.closeFile();
+					MYSERVER_FILE::deleteFile(outDataPath);
+				}
 				return ((http*)td->lhttp)->raiseHTTPError(td,s,e_401AUTH);
 			}
 		}
@@ -133,12 +142,15 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	}
 	if(data.errorPage)
 	{
+		if(!td->appendOutputs)
+		{
+			data.stdOut.closeFile();
+			MYSERVER_FILE::deleteFile(outDataPath);
+		}
 		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
 		if(errID!=-1)
 			return ((http*)td->lhttp)->raiseHTTPError(td,s,errID);
 	}
-	u_long nbr,nbs;
-	
 	/*!
 	*Compute the response length.
 	*/
@@ -146,12 +158,16 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	/*Send all the data to the client if we haven't to append the output*/
 	if(!td->appendOutputs)	
 	{
+		data.stdOut.setFilePointer(0);
 		http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 		if(s->socket.send(td->buffer,(int)strlen(td->buffer), 0)==SOCKET_ERROR)
 		{
-			data.stdOut.closeFile();
-			MYSERVER_FILE::deleteFile(td->outputDataPath);
-			return 0;	
+			if(!td->appendOutputs)
+			{
+				data.stdOut.closeFile();
+				MYSERVER_FILE::deleteFile(outDataPath);
+			}
+			return 0;
 		}
 		do
 		{
@@ -159,13 +175,19 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 			nbs=s->socket.send(td->buffer,nbr,0);
 			if(nbs==SOCKET_ERROR)
 			{
-				data.stdOut.closeFile();
-				MYSERVER_FILE::deleteFile(td->outputDataPath);
+				if(!td->appendOutputs)
+				{
+					data.stdOut.closeFile();
+					MYSERVER_FILE::deleteFile(outDataPath);
+				}
 				return 0;
 			}		
 		}while(nbr && nbs);
-		data.stdOut.closeFile();
-		MYSERVER_FILE::deleteFile(td->outputDataPath);
+		if(!td->appendOutputs)
+		{
+			data.stdOut.closeFile();
+			MYSERVER_FILE::deleteFile(outDataPath);
+		}
 	}
 	return 1;
 #else

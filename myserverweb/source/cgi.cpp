@@ -104,12 +104,12 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 
 
 
-    /*!
-    *Use a temporary file to store CGI output.
-    *Every thread has it own tmp file name(td->outputDataPath),
-    *so use this name for the file that is going to be
-    *created because more threads can access more CGI at the same time.
-    */
+	/*!
+	*Use a temporary file to store CGI output.
+	*Every thread has it own tmp file name(td->outputDataPath),
+	*so use this name for the file that is going to be
+	*created because more threads can access more CGI at the same time.
+	*/
 	char currentpath[MAX_PATH];
 	char outputDataPath[MAX_PATH];
 	getdefaultwd(currentpath,MAX_PATH);
