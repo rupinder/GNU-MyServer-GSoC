@@ -1503,6 +1503,14 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	/*! Do not use Keep-Alive over HTTP version older than 1.1. */
 	if( strcmp(td.request.VER, "HTTP/1.1") )
 	{
+    /*! Check if we support the HTTP version specified. */
+    if( strcmp(td.request.VER, "HTTP/1.0") &&  strcmp(td.request.VER, "HTTP/0.9") )
+    {
+      /*! Raise a version not supported error. */
+      raiseHTTPError(&td, a, e_505);
+      logHTTPaccess(&td, a);
+      return 0;      
+    }
 		if(td.request.CONNECTION[0])
 			strcpy(td.request.CONNECTION, "close");
 	}

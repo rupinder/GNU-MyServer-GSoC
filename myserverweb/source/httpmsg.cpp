@@ -50,8 +50,8 @@ char HTTP_ERROR_MSGS[29][64]=
 	"Moved Temporarily",				/*!302*/		
 	"See Other",						/*!303*/			
 	"Not Modified",						/*!304*/
-	"Continue"						/*!100*/	
-	"Gateway Timeout"					/*!504*/
+	"Continue",						/*!100*/	
+	"Gateway Timeout",					/*!504*/
 	"HTTP Version Not Supported"		/*!505*/		
 };
 /*!
@@ -71,8 +71,8 @@ char HTTP_ERROR_HTMLS[29][64]=
 	"414.html",						/*!414*/
 	"500.html",						/*!500*/
 	"501.html",						/*!501*/
-	"502.html"							/*!502*/
-	"503.html"							/*!503*/
+	"502.html", 					/*!502*/
+	"503.html",						/*!503*/
 	"200.html",						/*!200*/
 	"201.html",						/*!201*/			
 	"202.html",						/*!202*/			
@@ -84,9 +84,9 @@ char HTTP_ERROR_HTMLS[29][64]=
 	"301.html",						/*!301*/		
 	"302.html",						/*!302*/		
 	"303.html",						/*!303*/			
-	"304.html"						/*!304*/
-	"100.html"						/*!100*/	
-	"504.html"						/*!504*/
+	"304.html",						/*!304*/
+	"100.html",						/*!100*/	
+	"504.html",						/*!504*/
 	"505.html"						/*!505*/		
 };
 /*!
