@@ -43,7 +43,6 @@ AC_SUBST(XNET_LIB)
 
 dnl Look for dl
 AC_CHECK_LIB(dl ,dlopen, have_dl=yes)
-AC_CHECK_LIB(c,dlopen, have_dl=yes)
 
 if test x$have_dl != xyes; then
    AC_MSG_WARN([
