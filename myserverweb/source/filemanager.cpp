@@ -51,10 +51,11 @@ int MYSERVER_FILE::getPathRecursionLevel(char* path)
 	{
 		if(token != NULL) 
 		{
-			if( strcmp(token,"..")  )
-				rec++;
-			else
+			if( !strcmp(token,"..")  )
 				rec--;
+			/*! "." keeps recursion level equal to the previous. */
+			else if(strcmp(token,".") )
+				rec++;
 		}
 		token = strtok( NULL, "\\/" );
 	}
