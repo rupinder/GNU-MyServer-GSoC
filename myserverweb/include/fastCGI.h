@@ -20,10 +20,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define FASTCGI_H
 
 #include "../stdafx.h"
-#include "../include/http.h"
+#include "../include/http_headers.h"
 #include "../include/utility.h"
-#include "../include/cserver.h"
 #include "../include/sockets.h"
+#include "../include/vhosts.h"
 #include "../include/HTTPmsg.h"
 #include "../include/connectionstruct.h"
 #include "../include/stringutils.h"
@@ -159,17 +159,17 @@ struct fCGIContext
 };
 class fastcgi
 {
-	static int FcgiConnectSocket(fCGIContext*,int);
-	static void generateFcgiHeader( FCGI_Header&, int ,int, int );
-	static MYSERVER_SOCKET getFcgiConnection();
-	static int buildFASTCGIEnvironmentString(httpThreadContext*,char*,char*);
-	static int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
-	static int isFcgiServerRunning(char*);
-	static int runFcgiServer(fCGIContext*,char*);
-	static int FcgiConnect(fCGIContext*,char*);
+	int FcgiConnectSocket(fCGIContext*,int);
+	void generateFcgiHeader( FCGI_Header&, int ,int, int );
+	MYSERVER_SOCKET getFcgiConnection();
+	int buildFASTCGIEnvironmentString(httpThreadContext*,char*,char*);
+	int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
+	int isFcgiServerRunning(char*);
+	int runFcgiServer(fCGIContext*,char*);
+	int FcgiConnect(fCGIContext*,char*);
 public:
 	static int initializeFASTCGI();
-	static int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
+	int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
 	static int cleanFASTCGI();
 };
 #endif

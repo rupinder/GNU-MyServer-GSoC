@@ -43,7 +43,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	MYSERVER_FILE DataFileHandle, OutFileHandle;
 
 	if(!MYSERVER_FILE::fileExists(filename))
-		return http::raiseHTTPError(td,s,e_404);
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_404);
 
 	char execname[MAX_PATH];
 	char pathname[MAX_PATH];
@@ -63,7 +63,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		strcpy(td->buffer,"Error creating WinCGI file\r\n");
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-		return http::raiseHTTPError(td,s,e_500);
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 
 
@@ -180,7 +180,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 			DataFileHandle.closeFile();
 			MYSERVER_FILE::deleteFile(outFilePath);
 			MYSERVER_FILE::deleteFile(dataFilePath);
-			return http::raiseHTTPError(td,s,e_500);
+			return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
 	}
 	OutFileHandle.closeFile();
@@ -199,7 +199,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return http::raiseHTTPError(td,s,e_500);
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 
 	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
@@ -207,7 +207,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		sprintf(td->buffer,"Error opening WinCGI output file\r\n");
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-		return http::raiseHTTPError(td,s,e_500);
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	u_long nBytesRead=0;
 	OutFileHandle.readFromFile(td->buffer2,KB(5),&nBytesRead);
@@ -218,7 +218,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		OutFileHandle.closeFile();
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return http::raiseHTTPError(td,s,e_500);
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	u_long headerSize=0;
 
@@ -259,6 +259,6 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 #ifdef __linux__
 	sprintf(td->buffer,"Error WinCGI is not implemented\r\n");
 	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-	return http::raiseHTTPError(td,s,e_501);/*!WinCGI is not available under linux*/
+	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);/*!WinCGI is not available under linux*/
 #endif
 }

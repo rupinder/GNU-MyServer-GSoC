@@ -18,15 +18,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifndef ISAPI_H
 #define ISAPI_H
-
-#ifdef WIN32
 #include "../stdafx.h"
-#include "../include/http.h"
+#include "../include/http_headers.h"
 #include "../include/utility.h"
-#include "../include/cserver.h"
 #include "../include/HTTPmsg.h"
 #include "../include/connectionstruct.h"
 
+#ifdef WIN32
 
 typedef LPVOID HCONN;
 
@@ -118,11 +116,13 @@ struct ConnTableRecord
 typedef BOOL (WINAPI * PFN_GETEXTENSIONVERSION)(HSE_VERSION_INFO *pVer);
 typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 
+#endif
+
 class isapi
 {
+#ifdef WIN32	
 	ConnTableRecord *HConnRecord(HCONN hConn);
 	static ConnTableRecord *connTable;
-	
 	static void initISAPI();
 	static void cleanupISAPI();
 	int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL);
@@ -131,16 +131,15 @@ class isapi
 	/*!
 	*Use this to execute an ISAPI file on the server.
 	*/
-
 	BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType);
 	BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
 	BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
 	BOOL WINAPI GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
 	BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 	BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+#endif	
 public:	
-	static int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);	
+	int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
 };
 
-#endif
 #endif

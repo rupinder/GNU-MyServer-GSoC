@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "../include/fastCGI.h"
 #include "../include/cgi.h"
+#include "../include/http.h"
 #define MAX_FCGI_SERVERS	25
 /*!
 *This structure is used to keep trace of a running fCGI server.
@@ -81,7 +82,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 
 	int pID = FcgiConnect(&con,fullpath);
 	if(pID<0)
-		return http::raiseHTTPError(td,connection,e_500);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 
 	int id=td->id+1;
 	FCGI_BeginRequestBody tBody;
@@ -97,7 +98,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return http::raiseHTTPError(td,connection,e_501);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,td->buffer2,sizeEnvString,FCGI_PARAMS,id))
@@ -107,7 +108,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return http::raiseHTTPError(td,connection,e_501);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
@@ -117,7 +118,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return http::raiseHTTPError(td,connection,e_501);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}	
     if(atoi(td->request.CONTENT_LENGTH))
 	{
@@ -142,7 +143,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return http::raiseHTTPError(td,connection,e_501);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}	
 
 	/*!Now read the output*/
@@ -188,7 +189,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 			{
 				case FCGI_STDERR:
 					con.sock.closesocket();
-					http::raiseHTTPError(td,connection,e_501);
+					((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 					exit = 1;
 					break;
 				case FCGI_STDOUT:
@@ -253,7 +254,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 				nURL[j+start+1]='\0';
 				j++;
 			}
-			http::sendHTTPRedirect(td,connection,nURL);
+			((http*)td->lhttp)->sendHTTPRedirect(td,connection,nURL);
 			break;
 		}
 		http_headers::buildHTTPResponseHeader(td->buffer2,&td->response);

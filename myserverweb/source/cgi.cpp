@@ -78,7 +78,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	{
 		if(!MYSERVER_FILE::fileExists(cgipath))
 		{
-			return http::raiseHTTPError(td,s,e_500);
+			return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
 		sprintf(cmdLine,"%s %s",cgipath,td->scriptFile);
 		nph=(strnicmp("nph-",td->cgiFile, 4)==0)?1:0;
@@ -88,7 +88,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		/*!
 		*If the command was not recognized send an 501 page error.
 		*/
-		return http::raiseHTTPError(td,s,e_501);
+		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
 	}
 
 
@@ -156,7 +156,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		http::raiseHTTPError(td,s,e_500);
+		((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
 	}
 	/*!
@@ -196,7 +196,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			}
 			if(!yetoutputted)
 			{
-				http::sendHTTPRedirect(td,s,nURL);
+				((http*)td->lhttp)->sendHTTPRedirect(td,s,nURL);
 			}
 			yetoutputted=1;
 		}

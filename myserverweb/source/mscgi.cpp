@@ -103,18 +103,18 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		{
 			if(s->nTries > 2)
 			{
-				return http::raiseHTTPError(td,s,e_403);
+				return ((http*)td->lhttp)->raiseHTTPError(td,s,e_403);
 			}
 			else
 			{
 				s->nTries++;
-				return http::raiseHTTPError(td,s,e_401AUTH);
+				return ((http*)td->lhttp)->raiseHTTPError(td,s,e_401AUTH);
 			}
 		}
 		else
 		{
 #endif
-			return http::raiseHTTPError(td,s,e_404);
+			return  ((http*)td->lhttp)->raiseHTTPError(td,s,e_404);
 #ifdef WIN32
 		}
 #endif
@@ -123,7 +123,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	{
 		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
 		if(errID!=-1)
-			return http::raiseHTTPError(td,s,errID);
+			return ((http*)td->lhttp)->raiseHTTPError(td,s,errID);
 	}
 	data.stdOut.setFilePointer(0);
 	/*!
@@ -146,7 +146,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	*On the platforms that is not available the support for the MSCGI send a 
 	*non implemented error.
 	*/
-	return http::raiseHTTPError(td,s,e_501);
+	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
 }
 /*!
 *Store the MSCGI library module handle.

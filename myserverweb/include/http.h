@@ -20,26 +20,35 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define HTTP_H
 #include "../stdafx.h"
 #include "../include/http_headers.h"
-
+#include "../include/cgi.h"
+#include "../include/wincgi.h"
+#include "../include/fastcgi.h"
+#include "../include/mscgi.h"
+#include "../include/isapi.h"
 
 class http
 {
 private:
-	httpThreadContext td;
+	struct httpThreadContext td;
+	mscgi lmscgi;
+	wincgi lwincgi;
+	isapi lisapi;
+	cgi lcgi;
+	fastcgi lfastcgi;	
 public:
-	static int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
-	static int putHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
-	static int deleteHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int yetmapped=0);
-	static int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,int OnlyHeader=0,int firstByte=0,int lastByte=-1);
-	static int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
-	static int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
-	static int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a);
-	static int sendAuth(httpThreadContext* td,LPCONNECTION a);
-	static void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest);
-	static int getMIME(char *MIME,char *filename,char *dest,char *dest2);
-	static int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
-	static int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
-	static int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
+	int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
+	int putHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
+	int deleteHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int yetmapped=0);
+	int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,int OnlyHeader=0,int firstByte=0,int lastByte=-1);
+	int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
+	int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
+	int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a);
+	int sendAuth(httpThreadContext* td,LPCONNECTION a);
+	void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest);
+	int getMIME(char *MIME,char *filename,char *dest,char *dest2);
+	int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
+	int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
+	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
 
 	/*!
 	*The main function is controlHTTPConnection(...), that parses the request builds a response.

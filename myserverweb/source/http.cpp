@@ -765,7 +765,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			return sendAuth(td,s);
 		}
-		if(cgi::sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
+		if(lcgi.sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
 			return 1;
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
@@ -774,7 +774,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			return sendAuth(td,s);
 		}
-		return isapi::sendISAPI(td,s,td->filenamePath,ext,data,0);
+		return lisapi.sendISAPI(td,s,td->filenamePath,ext,data,0);
 #endif
 #ifdef __linux__
 		return raiseHTTPError(td,s,e_501);
@@ -786,7 +786,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			return sendAuth(td,s);
 		}
-		return isapi::sendISAPI(td,s,td->filenamePath,ext,data,1);
+		return lisapi.sendISAPI(td,s,td->filenamePath,ext,data,1);
 #endif
 #ifdef __linux__
 		return raiseHTTPError(td,s,e_501);
@@ -805,7 +805,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			target=(char*)&td->request.URIOPTS;
 		if(lserver->mscgiLoaded)
 		{
-			if(mscgi::sendMSCGI(td,s,td->filenamePath,target))
+			if(lmscgi.sendMSCGI(td,s,td->filenamePath,target))
 				return 1;
 			return raiseHTTPError(td,s,e_404);
 		}
@@ -822,7 +822,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		else
 			sprintf(cgipath,"%s",td->filenamePath);
 	
-		int ret=wincgi::sendWINCGI(td,s,cgipath);
+		int ret=lwincgi.sendWINCGI(td,s,cgipath);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();
@@ -842,7 +842,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			return sendAuth(td,s);
 		}	
-		int ret = fastcgi::sendFASTCGI(td,s,td->filenamePath,ext,data,0);
+		int ret = lfastcgi.sendFASTCGI(td,s,td->filenamePath,ext,data,0);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();
@@ -861,7 +861,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			return sendAuth(td,s);
 		}
-		int ret = fastcgi::sendFASTCGI(td,s,td->filenamePath,ext,data,1);
+		int ret = lfastcgi.sendFASTCGI(td,s,td->filenamePath,ext,data,1);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();
@@ -992,6 +992,8 @@ int http::controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2
 	td.identity[0]='\0';
 	td.connection=a;
 	td.id=id;
+	td.lhttp=this;
+	
 	td.inputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	td.outputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	td.outputDataPath[0]='\0';

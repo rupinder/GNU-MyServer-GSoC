@@ -23,13 +23,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/MIME_manager.h"
 #include "../include/mscgi.h"
 #include "../include/security.h"
-#include "../include/http.h"
+#include "../include/http_headers.h"
 extern const char *versionOfSoftware;
 
 class cgi
 {
 public:
-	static int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
+	int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
 	static void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
 };
 #endif
