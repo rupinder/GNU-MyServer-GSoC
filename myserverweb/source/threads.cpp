@@ -130,8 +130,6 @@ int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 #ifdef HAVE_PTHREAD
 	int err;
 	err = pthread_mutex_unlock(&mutex);
-	if (err)
-		printf("UNLOCK -- status = %i\nerr = %i\n",mutex.__m_lock.__status,err);	
 #else	
 	ReleaseMutex(mutex);
 #endif
