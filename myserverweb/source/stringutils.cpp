@@ -35,8 +35,8 @@ extern "C" {
 #define u_short unsigned short
 
 /*!
-*This function format current time to the RFC 822 format.
-*/
+ *This function format current time to the RFC 822 format.
+ */
 char *getRFC822GMTTime(char* out, int len)
 {
 	time_t ltime;
@@ -44,8 +44,8 @@ char *getRFC822GMTTime(char* out, int len)
 	return getRFC822GMTTime(ltime, out, len);
 }
 /*!
-*This function formats a time to the RFC 822 format.
-*/
+ *This function formats a time to the RFC 822 format.
+ */
 char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 {
 	tm*  GMtime = gmtime( &ltime );
@@ -83,8 +83,8 @@ char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 	return out;
 }
 /*!
-*This function convert from a RFC 822 format to a time_t.
-*/
+ *This function convert from a RFC 822 format to a time_t.
+ */
 time_t getTime(char* str)
 {
 	char lb[30];
@@ -227,8 +227,8 @@ time_t getTime(char* str)
 }
 
 /*!
-*This function format current time to the RFC 822 format.
-*/
+ *This function format current time to the RFC 822 format.
+ */
 char *getRFC822LocalTime(char* out, int len)
 {
 	time_t ltime;
@@ -236,8 +236,8 @@ char *getRFC822LocalTime(char* out, int len)
 	return getRFC822LocalTime(ltime, out, len);
 }
 /*!
-*This function formats a time to the RFC 822 format.
-*/
+ *This function formats a time to the RFC 822 format.
+ */
 char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
 	tm*  GMtime = localtime( &ltime );
@@ -276,16 +276,16 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 }
 
 /*!
-*Trim the string str by the characters trimchars.
-*/
+ *Trim the string str by the characters trimchars.
+ */
 void StrTrim(char* str, const char* trimchars)
 {
 	u_short lenTrimchars=(u_short)strlen(trimchars);
 	u_short lenStr=(u_short)strlen(str);
 	u_long continueLoop;
 	/*!
-	*Number of characters to remove from the initial position of the string.
-	*/
+   *Number of characters to remove from the initial position of the string.
+   */
 	u_short ncharToRemove=0;
 	if(lenStr==0)
 		return;
@@ -331,20 +331,18 @@ void StrTrim(char* str, const char* trimchars)
 }
 
 /*!
-*Set the buffer passed to the next line.
-*A new line is the first character after \n.
-*/
+ *Set the buffer passed to the next line.
+ *A new line is the first character after \n.
+ */
 void gotoNextLine(char** cmd)
 {
 	while(*(*cmd++)!='\n')if(**cmd=='\0')break;
 
 }
 
-
-
 /*!
-*Translates HTTP escape sequences.
-*/
+ *Translates HTTP escape sequences.
+ */
 void translateEscapeString(char *str)
 {
 	int i, j;
@@ -368,8 +366,8 @@ void translateEscapeString(char *str)
 }
 
 /*!
-*This function converts a hexadecimal number to a decimal number.
-*/
+ *This function converts a hexadecimal number to a decimal number.
+ */
 int hexVal(char ch)
 {
 	if (ch >= '0' && ch <= '9')
@@ -387,9 +385,10 @@ int hexVal(char ch)
 		}
 	}
 }
+
 /*!
-*Convert from an hex string to an int
-*/
+ *Convert from an hex string to an int
+ */
 int hexToInt(const char *str)
 {
 	register u_long u;

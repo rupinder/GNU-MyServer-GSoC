@@ -1425,15 +1425,15 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
      */
 
     /*!
-     *There is the '/' character check if dirscan is a file
+     *If there is the '/' character check if dirscan is a file.
      */
 		if(i && (td->filenamePath[i]=='/'))
 		{
+      /*!
+       *If the token is a file.
+       */
 			if(!MYSERVER_FILE::isDirectory(dirscan))
 			{
-				/*!
-         *If the token is a file.
-         */
         if(td->pathInfo)
           delete [] td->pathInfo;
         td->pathInfo = new char[strlen(&td->filenamePath[len])+1];
@@ -1528,7 +1528,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
                 defaultFileNamePath);
       }
 			else
+      {
 				break;
+      }
 
 
 			if(MYSERVER_FILE::fileExists(defaultFileName))
