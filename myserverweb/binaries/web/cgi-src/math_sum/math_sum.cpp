@@ -1,4 +1,4 @@
-#pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib") 
+#pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
 #include "..\..\..\cgi-lib\cgi_manager.h" 
 
 int EXPORTABLE main (char *cmd,cgi_data* data)
@@ -14,9 +14,15 @@ int EXPORTABLE main (char *cmd,cgi_data* data)
 		char a[16];
 		char b[16];
 		char c[16];
-		a[0]=b[0]=c[0]=0;
-		strcpy(a,cm.GetParam("a"));
-		strcpy(b,cm.GetParam("b"));
+		char *tmp;
+		a[0]=b[0]=c[0]='0';
+		a[1]=b[1]=c[1]='\0';		
+		tmp=cm.GetParam("a");
+		if(tmp)
+		 strcpy(a,tmp);
+		tmp=cm.GetParam("b");
+		if(tmp)
+		 strcpy(b,tmp);
 		cm.Write("<title>myServer</title><body bgcolor=\"#000000\" text=\"#00C800\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"><p align=\"center\">");
 		cm.Write(a);
 		cm.Write(" + ");

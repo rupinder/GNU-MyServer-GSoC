@@ -44,7 +44,7 @@ extern "C" {
 /*
 *This is the version of the Control Center and can be different from the myServer version.
 */
-const char VERSION_OF_SOFTWARE[]="0.4.2";
+const char VERSION_OF_SOFTWARE[]="0.4.3";
 
 /*
 *To compile this program you need the library wxwindows distributed under the GNU LGPL(http://www.gnu.org/copyleft/lgpl.html) license terms.
@@ -120,7 +120,7 @@ bool myServerControl::OnInit()
 	ZeroMemory(&pi,sizeof(pi));
 #endif
 	status=MYSERVER_ALL_OFF;
-    wndFrame = new mainFrame(_T("myServer Control"),wxPoint(50, 50), wxSize(320, 240));
+    wndFrame = new mainFrame(_T("MyServer Control"),wxPoint(50, 50), wxSize(320, 240));
 	wndFrame->myServerControlApp=(void*)this;
     wndFrame->Show(TRUE);
     return TRUE;
@@ -132,7 +132,7 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 {
 	lmainFrame=this;/*Unique instance of this class*/
 	char version[50];
-	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
+	sprintf(version,"MyServer Control Center %s\n",VERSION_OF_SOFTWARE);
 #ifdef USE_ICON
     wxIcon icon(_T("myserver.ico"),wxBITMAP_TYPE_ICO);
     SetIcon(icon);
@@ -145,31 +145,31 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	configureMenu = new wxMenu;
     helpMenu->Append(ControlCenter_About, _T("&About...\tF1"), _T("Show about dialog"));
 
-    menuFile->Append(ControlCenter_RunConsole, _T("Run as console\t"), _T("Run myServer in console mode\t"));
-    menuFile->Append(ControlCenter_StopConsole, _T("Stop the console\t"), _T("Stop myServer if running in console mode\t"));
+    menuFile->Append(ControlCenter_RunConsole, _T("Run as console\t"), _T("Run MyServer in console mode\t"));
+    menuFile->Append(ControlCenter_StopConsole, _T("Stop the console\t"), _T("Stop MyServer if running in console mode\t"));
 	menuFile->AppendSeparator();
-	menuFile->Append(ControlCenter_RunService, _T("Run as service\t"),_T("Run myServer as an OS service\t"));
+	menuFile->Append(ControlCenter_RunService, _T("Run as service\t"),_T("Run MyServer as an OS service\t"));
     menuFile->Append(ControlCenter_StopService, _T("Stop the service\t"),_T("Stop the service if it is running\t"));
 	menuFile->AppendSeparator();
-	menuFile->Append(ControlCenter_Quit, _T("E&xit\t"), _T("Quit this program(this doesn't stop myServer execution)"));
+	menuFile->Append(ControlCenter_Quit, _T("E&xit\t"), _T("Quit this program(this doesn't stop MyServer execution)"));
 
 	serviceMenu->Append(ControlCenter_RegisterService, _T("Register service\t"), _T("Register the OS service\t"));
 	serviceMenu->Append(ControlCenter_RemoveService, _T("Remove service\t"), _T("Remove the OS service\t"));
 	
-	configureMenu->Append(ControlCenter_Configure,_T("Configure myServer"),_T("Configure myServer"));
-	configureMenu->Append(ControlCenter_ConfigureMIME,_T("Configure MIME types"),_T("Configure myServer MIME types"));
+	configureMenu->Append(ControlCenter_Configure,_T("Configure MyServer"),_T("Configure MyServer"));
+	configureMenu->Append(ControlCenter_ConfigureMIME,_T("Configure MIME types"),_T("Configure MyServer MIME types"));
 
     wxMenuBar *menuBar = new wxMenuBar();
     menuBar->Append(menuFile, _T("&File"));
 	menuBar->Append(serviceMenu, _T("&Install/Remove service"));
-	menuBar->Append(configureMenu, _T("&Configure myServer"));
+	menuBar->Append(configureMenu, _T("&Configure MyServer"));
     menuBar->Append(helpMenu, _T("&Help"));
     SetMenuBar(menuBar);
 #endif
 
 #if wxUSE_STATUSBAR
     CreateStatusBar(1);
-    SetStatusText(_T("myServer Control Panel"));
+    SetStatusText(_T("MyServer Control Panel"));
 #endif
 #ifdef WIN32
 	char *cmdLine=GetCommandLine();
@@ -210,7 +210,7 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 }
 void mainFrame::configureWnd(wxCommandEvent& WXUNUSED(event))
 {
-	configurationWnd=new configurationFrame(this,_T("Configure myServer"),wxPoint(60, 60), wxSize(640, 480));
+	configurationWnd=new configurationFrame(this,_T("Configure MyServer"),wxPoint(60, 60), wxSize(640, 480));
 	configurationWnd->Show(TRUE);
 }
 
@@ -235,7 +235,7 @@ void mainFrame::removeService(wxCommandEvent& WXUNUSED(event))
     manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{
-		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
+		service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
 		if (service)
 		{
 			ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);
@@ -256,7 +256,7 @@ void mainFrame::removeService(wxCommandEvent& WXUNUSED(event))
 void mainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxString msg;
-    msg.Printf( _T("myServer Control Center %s\n"),VERSION_OF_SOFTWARE);
+    msg.Printf( _T("MyServer Control Center %s\n"),VERSION_OF_SOFTWARE);
     wxMessageBox(msg, _T("About"), wxOK | wxICON_INFORMATION, this);
 }
 #ifdef WIN32
@@ -299,14 +299,14 @@ void mainFrame::runConsole(wxCommandEvent& event)
 */
 void mainFrame::runService(wxCommandEvent& event)
 {
-	lmainFrame->SetStatusText(_T("Starting myServer in service mode"));
+	lmainFrame->SetStatusText(_T("Starting MyServer in service mode"));
 #ifdef WIN32
 	SC_HANDLE service,manager;
 
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{
-		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
+		service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
 		if (service)
 		{
 			StartService(service,0,NULL);
@@ -337,7 +337,7 @@ void mainFrame::registerService(wxCommandEvent& event)
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{
-		service = CreateService(manager,"myServer","myServer",SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,0, 0, 0, 0, 0);
+		service = CreateService(manager,"MyServer","MyServer",SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,0, 0, 0, 0, 0);
 		if (service)
 		{
 			CloseServiceHandle (service);
@@ -366,7 +366,7 @@ void mainFrame::stopService(wxCommandEvent& event)
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{
-		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
+		service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
 		if (service)
 		{
 			ControlService (service,SERVICE_CONTROL_STOP,&MyServiceStatus);
@@ -392,7 +392,7 @@ SERVICE_STATUS queryStatus()
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{
-		service = OpenService (manager, "myServer", SERVICE_ALL_ACCESS);
+		service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
 		if (service)
 		{
 			QueryServiceStatus (service, &MyServiceStatus);
@@ -409,7 +409,7 @@ SERVICE_STATUS queryStatus()
 */
 void mainFrame::stopConsole(wxCommandEvent& event)
 {
-	lmainFrame->SetStatusText(_T("Stopping myServer console mode"));
+	lmainFrame->SetStatusText(_T("Stopping MyServer console mode"));
 #ifdef WIN32
 	if(pi.hProcess)
 		TerminateProcess(pi.hProcess,0);

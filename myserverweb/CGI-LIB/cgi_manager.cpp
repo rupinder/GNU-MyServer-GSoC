@@ -79,7 +79,9 @@ char* cgi_manager::GetParam(char* param)
 	char *c=&(td->request.URIOPTS)[0];
 	for(;;)
 	{
-		while(strncmp(c,param,strlen(param)))c++;
+		while((*c) && strncmp(c,param,strlen(param)))c++;
+		if(*c=='\0')
+			return &lb[0];
 		c+=strlen(param);
 		if(*c=='=')
 		{

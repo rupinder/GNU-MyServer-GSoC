@@ -54,7 +54,7 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 	}
 	confparser.open("myserver.xml");
 	char version[50];
-	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
+	sprintf(version,"MyServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
 	m_notebook = new wxNotebook(panel,-1,wxPoint(10,0),wxSize(610,390));
 	initNotebook();
@@ -144,9 +144,10 @@ void configurationFrame::initNotebook()
 	adminEmail = new wxTextCtrl(pPage[1],-1,confparser.getValue("SERVER_ADMIN"),wxPoint(10,10),wxSize(150,20));
     wxStaticText *adminEmailStat= new wxStaticText(pPage[1], -1, "Set the administrator e-mail",wxPoint(160,12), wxSize(250,20));
 
+
+	/*-------------------------ADD THE PAGES-------------------------------------------*/
 	m_notebook->AddPage(pPage[0],_T("Server configuration"));
 	m_notebook->AddPage(pPage[1],_T("Administrator"));
-
 }
 void configurationFrame::configureMIME(wxCommandEvent& event)
 {

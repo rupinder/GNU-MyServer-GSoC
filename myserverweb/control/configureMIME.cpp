@@ -51,7 +51,7 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 		return;
 	}
 	char version[50];
-	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
+	sprintf(version,"MyServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
 
 	actiontodoLB=new wxListBox(panel,-1,wxPoint(0,110), wxSize(210,MIMEWNDSIZEY-140),0,NULL,wxLB_HSCROLL);
