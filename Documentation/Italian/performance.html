@@ -70,12 +70,48 @@ file myserver.xml:<br>
 &nbsp;&nbsp;&nbsp; &lt;CGI_TIMEOUT&gt;20&lt;/CGI_TIMEOUT&gt;<br>
 In questo modo stiamo specificando un timeout di 20 secondi. (L'unit&agrave; di misura &egrave; il "secondo")
 <br>
-<br>
-<br>
-<br>
-</div>
 </div>
 <br>
+<div style="text-align: left;"><span style="font-weight: bold;"><font
+ class="code"><br>
+Data throttling: <br>
+<br>
+</font></span>SI pu&ograve; specificare un limite per la quantit&agrave; di dati inviati dal server(di default non &grave; configurato alcun limite) aggiungendo una riga come la seguente nel file myserver.xml:<br>
+&nbsp;&nbsp;&nbsp; &lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;
+<br>
+(L'unit&agrave; di misura &grave; il bytes/secondo)<br>
+Una riga simile nel file virtualhost.xml attiver&agrave; il limite solo per le connessioni al virtual host specificato. <br>
+<br>
+<br>
+Inoltre, &egrave; possibile specificare un limite in base ad ogni utente usando il file security della directory:<br>
+&nbsp;&nbsp;&nbsp; &lt;USER NAME="Guest" PASS="" READ="TRUE"
+WRITE="TRUE" BROWSE="TRUE"<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; EXECUTE="TRUE"
+THROTTLING_RATE="1024"/&gt;
+<br>
+Con la riga precedente si attiva un throttling di 1024&nbsp; bytes/second
+per l'utente Guest.<br>
+Con una riga come la seguente invece, si attiva il throttling sul file "bigfile":<br>
+&nbsp;&nbsp;&nbsp; &lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE"
+EXECUTE="FALSE" THROTTLING_RATE="1024" /&gt;
+
+<br>
+Si possono usare le due opzioni contemporaneamente per avere un limite su un determinato file e 
+per un determinato utente:<br>
+&nbsp;&nbsp;&nbsp;&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;
+<br>
+&nbsp;&nbsp;&nbsp;&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt; 
+<br>
+&nbsp;&nbsp;&nbsp;&lt;/ITEM&gt;
+<br>
+<br>
+Le limitazioni sulla banda vengono considerate nel seguente ordine:<br>
+1) Utente &amp; file(attributo di USER dentro un blocco ITEM).<br>
+2) File(attributo di ITEM).<br>
+3) User(attributo di USER).<br>
+4) Virtual host(file virtualhosts.xml).<br>
+5) Server(file myserver.xml).<br>
+</div>
 </div>
 </body>
 </html>
