@@ -175,6 +175,7 @@ void ClientsTHREAD::controlConnections()
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
+//				printf("Buffer =%s, nBytesToRead=%i,c->dataRead=%i\n",buffer,nBytesToRead,c->dataRead);
 				retcode=http_parser->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			/*!
@@ -210,6 +211,7 @@ void ClientsTHREAD::controlConnections()
 		else if(retcode==1)/*Keep the connection*/
 		{
 			c->dataRead=0;
+			c->connectionBuffer[0]='\0';
 		}
 		else if(retcode==2)/*Incomplete request to buffer*/
 		{
@@ -219,7 +221,6 @@ void ClientsTHREAD::controlConnections()
 			*/
 			memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*!Save the header in the connection buffer*/
 			c->dataRead+=err;
-				
 		}
 		else if(retcode==3)/*Incomplete request yet in the buffer*/
 		{

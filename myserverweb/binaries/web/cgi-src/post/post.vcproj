@@ -13,7 +13,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="./"
-			IntermediateDirectory="./"
+			IntermediateDirectory="tmp"
 			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
@@ -61,7 +61,7 @@ del *.lib
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="./"
-			IntermediateDirectory="./"
+			IntermediateDirectory="tmp"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool

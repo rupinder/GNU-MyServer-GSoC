@@ -72,19 +72,6 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 	else
 		sprintf(str,"%s 200 OK\r\n",response->VER);
 
-	if(response->CONTENT_LENGTH[0])
-	{
-		/*!
-		*Do not specify the Content-Length field if it is used
-		*the chunked Transfer-Encoding.
-		*/
-		if(!strstr(response->TRANSFER_ENCODING,"chunked"))
-		{
-			strcat(str,"Content-Length: ");
-			strcat(str,response->CONTENT_LENGTH);
-			strcat(str,"\r\n");
-		}
-	}
 	if(response->SERVER_NAME[0])
 	{
 		strcat(str,"Server: ");
@@ -126,6 +113,20 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 		strcat(str,response->CONTENT_ENCODING);
 		strcat(str,"\r\n");
 	}
+	if(response->CONTENT_LENGTH[0])
+	{
+		/*!
+		*Do not specify the Content-Length field if it is used
+		*the chunked Transfer-Encoding.
+		*/
+		if(!strstr(response->TRANSFER_ENCODING,"chunked"))
+		{
+			strcat(str,"Content-Length: ");
+			strcat(str,response->CONTENT_LENGTH);
+			strcat(str,"\r\n");
+		}
+	}
+	
 	if(response->COOKIE[0])
 	{
 		char *token=strtok(response->COOKIE,"\n");
@@ -399,7 +400,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		strncpy(td->buffer2,input,maxTotchars);
 		input=token=td->buffer2;
 	}
-
+	while((token[i]=='\n')||(token[i]=='\r'))token++;
 	token = strtok( token, cmdseps );
 	if(!token)return 0;
 	do
@@ -937,6 +938,7 @@ u_long http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nL
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
+	nLines=i=0;
 	if(req==0)
 	{
 		return 0;
@@ -944,7 +946,8 @@ u_long http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nL
 	/*!
 	*Count the number of lines in the header.
 	*/
-	for(nLines=i=0;(i<KB(8));i++)
+	while((req[i]=='\n')||(req[i]=='\r'))i++;
+	for(;(i<KB(8));i++)
 	{
 		if(req[i]=='\n')
 		{

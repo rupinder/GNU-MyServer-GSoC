@@ -195,10 +195,6 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			
 		tm *st=gmtime(&fd.time_write);
 		
-		
-		sprintf(fileTime,"%u\\%u\\%u-%u:%u:%u System time",st->tm_wday,st->tm_mon,st->tm_year,st->tm_hour,st->tm_min,st->tm_sec);
-
-
 		getRFC822GMTTime((time_t)fd.time_write,fileTime,32);
 						
 		strcat(td->buffer2,fileTime);
@@ -952,53 +948,53 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 */
 int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 {
-	strncpy(td->buffer,a->ipAddr,td->buffersize);
-	strcat(td->buffer," ");
+	strncpy(td->buffer2,a->ipAddr,td->buffersize2);
+	strcat(td->buffer2," ");
 	
 	if(td->identity[0])
-		strcat(td->buffer,td->identity);
+		strcat(td->buffer2,td->identity);
 	else
-		strcat(td->buffer,"-");
+		strcat(td->buffer2,"-");
 
-	strcat(td->buffer," ");
+	strcat(td->buffer2," ");
 
 	if(td->identity[0])
-		strcat(td->buffer,td->identity);
+		strcat(td->buffer2,td->identity);
 	else
-		strcat(td->buffer,"-");
+		strcat(td->buffer2,"-");
 
-	strcat(td->buffer," [");
+	strcat(td->buffer2," [");
 
-	getRFC822GMTTime(&td->buffer[strlen(td->buffer)],HTTP_RESPONSE_DATE_DIM);
-	strcat(td->buffer,"] \"");
-	strcat(td->buffer,td->request.CMD);
-	strcat(td->buffer," ");
-	strcat(td->buffer,td->request.URI);
+	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
+	strcat(td->buffer2,"] \"");
+	strcat(td->buffer2,td->request.CMD);
+	strcat(td->buffer2," ");
+	strcat(td->buffer2,td->request.URI);
 	if(td->request.URIOPTS[0])
 	{
-		strcat(td->buffer,"?");
-		strcat(td->buffer,td->request.URIOPTS);
+		strcat(td->buffer2,"?");
+		strcat(td->buffer2,td->request.URIOPTS);
 	}
-	strcat(td->buffer,td->request.VER);
-	strcat(td->buffer,"\" ");
+	strcat(td->buffer2,td->request.VER);
+	strcat(td->buffer2,"\" ");
 
-	sprintf(&td->buffer[strlen(td->buffer)],"%i",td->response.httpStatus);
+	sprintf(&td->buffer2[strlen(td->buffer2)],"%i",td->response.httpStatus);
 
-	strcat(td->buffer," ");
+	strcat(td->buffer2," ");
 	
 	if(td->response.CONTENT_LENGTH[0] && (strlen(td->response.CONTENT_LENGTH)<HTTP_RESPONSE_CONTENT_LENGTH_DIM))
-		strcat(td->buffer,td->response.CONTENT_LENGTH);
+		strcat(td->buffer2,td->response.CONTENT_LENGTH);
 	else
-		strcat(td->buffer,"0");
-	strcat(td->buffer,"\r\n");
+		strcat(td->buffer2,"0");
+	strcat(td->buffer2,"\r\n");
 	/*
 	*Request the access to the log file then write then append the message
 	*/
 	((vhost*)(a->host))->accesseslogRequestAccess(td->id);
-	((vhost*)(a->host))->accessesLogWrite(td->buffer);
+	((vhost*)(a->host))->accessesLogWrite(td->buffer2);
 	((vhost*)(a->host))->accesseslogTerminateAccess(td->id);
-	td->buffer[0]='\0';
-    return 1;
+	td->buffer2[0]='\0';
+	return 1;
 }
 
 /*!
@@ -1026,13 +1022,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	*/
 	http_headers::resetHTTPRequest(&td.request);
 
-	u_long validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request,&td);
-	if(validRequest==-1)/*!If the header is incomplete returns 2*/
-	{
-		retvalue = raiseHTTPError(&td,a,e_100);
-		logHTTPaccess(&td,a);		
-		return 2;
-	}
+	
 	/*
 	*If the connection must be removed, remove it.
 	*/
@@ -1046,6 +1036,20 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 				return 0;/*Remove the connection from the list*/
 		}
 	}
+	
+	
+	u_long validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request,&td);
+	if(validRequest==-1)/*!If the header is incomplete returns 2*/
+	{
+		if(!strcmp(td.request.VER,"HTTP/1.1"))
+		{
+			char* msg="HTTP/1.1 100 Continue\r\n\r\n";
+			a->socket.send(msg,(int)strlen(msg),0);
+		}
+		logHTTPaccess(&td,a);
+		return 2;
+	}
+	
 	td.nBytesToRead+=a->dataRead;/*Offset to the buffer after the HTTP header.*/
 	/*!
 	*If the header is an invalid request send the correct error message to the client and return immediately.
@@ -1063,6 +1067,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		return retvalue;
 	}
 	u_long content_len=0;/*!POST data size if any*/
+	
 	
 	/*!
 	*For methods that accept data after the HTTP header set the correct pointer and create a file
