@@ -921,6 +921,9 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 	setFilePointer(stdInFile,0);
 
+	/*
+	*With this code we execute the CGI process
+	*/
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
 	spi.stdError = (MYSERVER_FILE_HANDLE)0;
@@ -928,6 +931,9 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
 	execHiddenProcess(&spi);
 	
+	/*
+	*Read the CGI output
+	*/
 	DWORD nBytesRead;
 	setFilePointer(stdOutFile,0);
 	ms_ReadFromFile(stdOutFile,buffer2,buffersize2,&nBytesRead);
