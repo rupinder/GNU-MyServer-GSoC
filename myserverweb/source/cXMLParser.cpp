@@ -259,5 +259,5 @@ void cXMLParser::setAttr(const char * name, const char * value)
 {
 	if(last_node == 0)
 		return;
-	xmlNewProp(last_node, (const xmlChar*)name, (const xmlChar*)value);
+	xmlSetProp(last_node, (const xmlChar*)name, (const xmlChar*)value);
 }
