@@ -322,9 +322,9 @@ void StrTrim(char* str, char* trimchars)
 	/*!
 	*Here we trim the characters of the head of the string.
 	*Just cycle through the trimchars and compare,
-	*if we find one char in the str, increment the str to check the next char,
-	*also set the trimchars to the beggining.
-	*The first time it fails to finds a char in the str, it just leaves.
+	*if we find a char in str, increment the str to check the next char,
+	*and set the trimchars to the beggining.
+	*The first time it fails to find a char in str, it just leaves.
 	*/
 	while(*trimptr && *strptr)
 	{
@@ -341,15 +341,15 @@ void StrTrim(char* str, char* trimchars)
 	
 	/*!
 	*Here we push the string back to occupy the potencial
-	*empty spaces created at the begining of the string.
+	*empty spaces created at the beginning of the string.
 	*If the string was completly trimmed (if(!(*strptr))),
 	*just return an empty string. 
-	*But if no 'holes' were created (!if(str!=strptr)) we move
+	*If no 'holes' were created (!if(str!=strptr)) just move
 	*the pointer to the tail of the string to check there now.
 	*/
 	if(str!=strptr)			//Holes were created
 	{
-		if(!(*strptr))
+		if(!(*strptr))		//Full trim
 		{
 			*str=0;
 			return;
@@ -374,13 +374,13 @@ void StrTrim(char* str, char* trimchars)
 	/*!
 	*Here we trim the characters of the tail of the string.
 	*Just cycle through the trimchars and compare,
-	*if we find one char in the str, reset it and decrement the str to
-	*check the previous char, also set the trimchars to the beggining.
-	*The first time it fails to finds a char in the str, it just leaves.
-	*Note: Here i only check *trimptr in the while and not *str,
+	*if we find a char in the str, decrement the str to
+	*check the previous char, and set the trimchars to the beggining.
+	*The first time it fails to find a char in str, it just leaves.
+	*Note: Here we only check *trimptr in the while loop and not *str,
 	*that's because i know there is at least one character in there that
 	*isn't on trimchars, the character that stoped the first trim up there,
-	*so that character will allways be reach before NULL.
+	*so that character will allways be reach before str's NULL.
 	*/
 	while(*trimptr)
 	{
