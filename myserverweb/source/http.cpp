@@ -507,7 +507,9 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		if(MYSERVER_FILE::fileExists(td->filenamePath))
 		{
 #ifdef WIN32
-			return sendISAPI(td,s,td->filenamePath,ext,td->filenamePath);
+			char cgipath[MAX_PATH*2];
+			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+			return sendISAPI(td,s,td->filenamePath,ext,cgipath);
 #endif
 #ifdef __linux__
 			return raiseHTTPError(td,s,e_501);
@@ -532,8 +534,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		return raiseHTTPError(td,s,e_500);
 	}else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)
 	{
+		char cgipath[MAX_PATH*2];
+		sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
 	
-		int ret=sendWINCGI(td,s,td->filenamePath);
+		int ret=sendWINCGI(td,s,cgipath);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();
@@ -565,8 +569,9 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 	else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
 	{
-		/*Use the same file both for the server that for the script path*/	
-		int ret = sendFASTCGI(td,s,td->filenamePath,ext,td->filenamePath);
+		char cgipath[MAX_PATH*2];
+		sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
+		int ret = sendFASTCGI(td,s,td->filenamePath,ext,cgipath);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();

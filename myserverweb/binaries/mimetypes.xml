@@ -1012,4 +1012,11 @@
 <MANAGER>c:/programmi/perl/bin/perlis.dll</MANAGER>
 </MIMETYPE>
 
+<MIMETYPE>
+<EXT>fpl</EXT>
+<MIME>text/html</MIME>
+<CMD>EXECUTEFASTCGI</CMD>
+<MANAGER>c:/programmi/perl/bin/perl.exe</MANAGER>
+</MIMETYPE>
+
 </MIMETYPES>

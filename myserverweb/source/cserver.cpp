@@ -290,8 +290,7 @@ void cserver::start()
 	/*vhostList.loadConfigurationFile("virtualhosts.txt");*/
 	vhostList.loadXMLConfigurationFile("virtualhosts.xml");
 
-	vhostList.saveXMLConfigurationFile("virtualhosts2.xml");
-	
+
 	/*
 	*Create the listens threads.
 	*Every port uses a thread.

@@ -95,6 +95,9 @@ u_long getCPUCount()
 	GetSystemInfo(&si);
 	ret=si.dwNumberOfProcessors;
 #endif
+#ifdef __linux__
+	ret=sysconf(_SC_NPROCESSORS_CONF); 
+#endif
 	return ret;
 }
 /*

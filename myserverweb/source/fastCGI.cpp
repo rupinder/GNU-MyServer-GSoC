@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define MAX_FCGI_SERVERS	25
 static struct sfCGIservers
 {
-	char path[MAX_PATH];/*exec path*/
+	char path[MAX_PATH*2];/*exec path*/
 	union 
 	{
 	    /*HANDLE*/unsigned long fileHandle;
@@ -113,7 +113,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	td->outputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_NO_INHERIT);
 	do	
 	{
-		while(!con.sock.bytesToRead())
+		while(con.sock.bytesToRead()<sizeof(FCGI_Header))
 		{
 			if(clock()-time1>timeout)
 				break;
@@ -126,13 +126,6 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			con.sock.shutdown(2);
 			con.sock.closesocket();
 			break;
-		}
-		if(nbr<sizeof(FCGI_Header))
-		{
-			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
-			con.sock.shutdown(2);
-			con.sock.closesocket();
-			return raiseHTTPError(td,connection,e_500);
 		}
 		int dim=(tHeader.contentLengthB1<<8) + tHeader.contentLengthB0;
 		int dataSent=0;
