@@ -921,8 +921,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	id++;
 	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,id);
 	sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,id);
-	buffer2[0]='\0';
-	
+		
 	/*
 	*Standard CGI uses standard output to output the result and the standard 
 	*input to get other params like in a POST request
@@ -940,17 +939,26 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 
 	/*
 	*With this code we execute the CGI process
+	*Use the buffer2 to build the environment string
 	*/
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
 	spi.stdError = (MYSERVER_FILE_HANDLE)0;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
-	execHiddenProcess(&spi);
+
+/*	
+*	This reports some errors yet
+*	buildCGIEnvironmentString(buffer2);
+*/	
+	buffer2[0]='\0';
+	execHiddenProcess(&spi,(VOID*)buffer2);
+
 	
 	/*
 	*Read the CGI output
 	*/
+	buffer2[0]='\0';
 	DWORD nBytesRead;
 	setFilePointer(stdOutFile,0);
 	ms_ReadFromFile(stdOutFile,buffer2,buffersize2,&nBytesRead);
@@ -958,7 +966,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 
 	/*
 	*Standard CGI can include an extra HTTP header
-	*so don't terminate with \r\n the default myServer header.
+	*so do not terminate with \r\n the default myServer header.
 	*/	
 	DWORD headerSize=0;
 	for(DWORD i=0;i<nBytesRead;i++)
@@ -990,7 +998,10 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*In buffer2 there are the CGI HTTP header and the 
 	*contents of the page requested through the CGI
 	*/
-	ms_send(s->socket,buffer2,nBytesRead, 0);
+	if(!lstrcmpi(request.CMD,"HEAD"))
+		ms_send(s->socket,buffer2,headerSize, 0);
+	else
+		ms_send(s->socket,buffer2,nBytesRead, 0);
 
 	ms_CloseFile(stdOutFile);
 	ms_DeleteFile(stdOutFilePath);
@@ -1029,4 +1040,74 @@ void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 	{
 		sprintf(filenamePath,"%s/%s",lserver->getPath(),filename);
 	}
+}
+/*
+*Build the string that contain the CGI environment
+*/
+void buildCGIEnvironmentString(char *cgiEnvString)
+{
+	cgiEnvString[0]='\"';
+	cgiEnvString[1]='\0';
+
+	lstrcat(cgiEnvString,"SERVER_SOFTWARE=myServer");
+	lstrcat(cgiEnvString,versionOfSoftware);
+
+	lstrcat(cgiEnvString," SERVER_NAME=");
+	lstrcat(cgiEnvString,lserver->getServerName());
+
+	lstrcat(cgiEnvString," QUERY_STRING=");
+	lstrcat(cgiEnvString,request.URIOPTS);
+
+	lstrcat(cgiEnvString," GATEWAY_INTERFACE=CGI/1.1");
+	
+	lstrcat(cgiEnvString," SERVER_PROTOCOL=HTTP/1.1");
+	
+	lstrcat(cgiEnvString," SERVER_PORT=");
+	char port[10];
+	sprintf(port,"%u",lserver->port_HTTP);
+	lstrcat(cgiEnvString,port);
+    
+	lstrcat(cgiEnvString," REQUEST_METHOD=");
+	lstrcat(cgiEnvString,request.CMD);
+
+	lstrcat(cgiEnvString," HTTP_USER_AGENT=");
+	lstrcat(cgiEnvString,request.USER_AGENT);
+
+
+	lstrcat(cgiEnvString," HTTP_ACCEPT=");
+	lstrcat(cgiEnvString,request.ACCEPT);
+	
+	lstrcat(cgiEnvString," CONTENT_TYPE=");
+	lstrcat(cgiEnvString,request.CONTENTS_TYPE);
+	
+	lstrcat(cgiEnvString," CONTENT_LENGTH=");
+	lstrcat(cgiEnvString,request.CONTENTS_DIM);
+
+/*
+	lstrcat(cgiEnvString," PATH_INFO=");
+	lstrcat(cgiEnvString,request.URI);
+
+	lstrcat(cgiEnvString," REMOTE_HOST=");
+	lstrcat(cgiEnvString,request.HOST);
+
+	lstrcat(cgiEnvString," PATH_TRANSLATED=");
+	lstrcat(cgiEnvString,request.URI);
+
+	lstrcat(cgiEnvString," SCRIPT_NAME=");
+	lstrcat(cgiEnvString,request.URI);
+
+	lstrcat(cgiEnvString," REMOTE_ADDR=");
+	lstrcat(cgiEnvString,request.HOST);
+
+	lstrcat(cgiEnvString," AUTH_TYPE=");
+	lstrcat(cgiEnvString,request.HOST);
+
+	lstrcat(cgiEnvString," REMOTE_USER=");
+	lstrcat(cgiEnvString,request.HOST);
+
+	lstrcat(cgiEnvString," REMOTE_IDENT=");
+	lstrcat(cgiEnvString,request.HOST);
+*/
+
+	lstrcat(cgiEnvString,"\0\0");
 }

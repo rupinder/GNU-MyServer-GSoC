@@ -55,7 +55,6 @@ private:
 	char defaultFilename[MAX_PATH];
 	char warningsFileLogName[MAX_PATH];
 	char accessesFileLogName[MAX_PATH];
-	WORD port_HTTP;
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
 	DWORD nThreads;
 	DWORD verbosity;
@@ -72,6 +71,7 @@ private:
 	VOID controlSizeLogFile();
 	VOID createServerAndListener(DWORD,DWORD);
 public:
+	WORD port_HTTP;
 	MIME_Manager mimeManager;
 	MYSERVER_FILE_HANDLE warningsLogFile;
 	MYSERVER_FILE_HANDLE accessesLogFile;

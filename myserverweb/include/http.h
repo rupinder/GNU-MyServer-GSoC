@@ -33,3 +33,4 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char* exec);
 BOOL raiseHTTPError(LPCONNECTION a,int ID);
 BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2);
 void getPath(char *filenamePath,char *filename,BOOL systemrequest);
+void buildCGIEnvironmentString(char *cgiEnvString);

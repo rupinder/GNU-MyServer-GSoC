@@ -182,13 +182,14 @@ DWORD getCPUCount()
 /*
 *Execute an hidden process and wait until it ends itself
 */
-DWORD execHiddenProcess(START_PROC_INFO *spi)
+DWORD execHiddenProcess(START_PROC_INFO *spi,LPVOID env)
 {
 #ifdef WIN32
     /*
     *Set the standard output values for the CGI process
     */
     STARTUPINFO si;
+	
     ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
     si.hStdInput = (HANDLE)spi->stdIn;
@@ -198,7 +199,7 @@ DWORD execHiddenProcess(START_PROC_INFO *spi)
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
-    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_SEPARATE_WOW_VDM|CREATE_NEW_CONSOLE,NULL,NULL,&si, &pi);
+    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,env,NULL,&si, &pi);
 	/*
 	*Wait until it's ending by itself
 	*/

@@ -56,7 +56,7 @@ void gotoNextLine(char*);
 char *getHTTPFormattedTime(void);
 char *getHTTPFormattedTime(tm*);
 VOID StrTrim(LPSTR,LPSTR);
-DWORD execHiddenProcess(START_PROC_INFO*);
+DWORD execHiddenProcess(START_PROC_INFO*,LPVOID env=NULL);
 VOID getComputerName(char*,DWORD);
 int ms_setcwd();
 char *ms_getcwd(char*,int);
