@@ -15,9 +15,9 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-#pragma once
 #define EXPORTABLE _declspec(dllexport)
 #include "../include/http.h"
+#include "../include/filemanager.h"
 #include "../include/response_requestStructs.h"
 
 class EXPORTABLE cgi_manager
@@ -26,17 +26,17 @@ private:
 	httpThreadContext* td;
 	cgi_data* cgidata;
 public:
-	int setPageError(int);
-	int raiseError(int);
+	int  setPageError(int);
+	int  raiseError(int);
 	cgi_manager(cgi_data* data);
 	~cgi_manager(void);
-	operator <<(char*);
-	char* operator >>(char*);
-	int Start(cgi_data* data);
+	int  operator <<(char*);
+	char*  operator >>(char*);
+	int   Start(cgi_data* data);
 	int Clean();
-	void getenv(char*,char*,unsigned int*);
-	char* GetParam(char*);
-	char* PostParam(char*);
+	void   getenv(char*,char*,unsigned int*);
+	char*  GetParam(char*);
+	char*  PostParam(char*);
 	int Write(char*);
 }; 
 

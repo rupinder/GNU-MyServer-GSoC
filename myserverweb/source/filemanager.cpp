@@ -26,12 +26,17 @@ static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 #ifndef WIN32
 extern "C" {
-#include <stdio.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
+#include <stdio.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <time.h>
 }
 #endif
 
@@ -41,12 +46,12 @@ extern "C" {
 int MYSERVER_FILE::getPathRecursionLevel(char* path)
 {
 	static char lpath[MAX_PATH];
-	lstrcpy(lpath,path);
+	strcpy(lpath,path);
 	int rec=0;
 	char *token = strtok( lpath, "\\/" );
 	do
 	{
-		if(token != NULL && lstrcmpi(token,".."))
+		if(token != NULL && strcmp(token,".."))
 			rec++;
 		else
 			rec--;

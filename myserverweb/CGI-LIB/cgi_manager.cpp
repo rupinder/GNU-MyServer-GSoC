@@ -135,7 +135,7 @@ char* cgi_manager::PostParam(char* param)
 /*
 *Write to stdout.
 */
-cgi_manager::operator <<(char* str)
+int cgi_manager::operator <<(char* str)
 {
 	return Write(str);
 }
