@@ -59,24 +59,39 @@ int startupSocketLib(u_short ver)
 	return 0;
 #endif
 }
+/*!
+*Returns the socket handle
+*/
 MYSERVER_SOCKET_HANDLE MYSERVER_SOCKET::getHandle()
 {
 	return socketHandle;
 }
+/*!
+*Set the handle for the socket
+*/
 int MYSERVER_SOCKET::setHandle(MYSERVER_SOCKET_HANDLE h)
 {
 	socketHandle=h;
 	return 1;
 }
+/*!
+*Check if the two sockets have the same handle descriptor
+*/
 int MYSERVER_SOCKET::operator==(MYSERVER_SOCKET s)
 {
 	return socketHandle==s.socketHandle;
 }
+/*!
+*Set the socket using the = operator
+*/
 int MYSERVER_SOCKET::operator=(MYSERVER_SOCKET s)
 {
 	memcpy(this,&s,sizeof(s));
 	return 1;
 }
+/*!
+*Create the socket
+*/
 int MYSERVER_SOCKET::socket(int af,int type,int protocol,int useSSL)
 {
 	sslSocket=useSSL;
@@ -87,10 +102,16 @@ int MYSERVER_SOCKET::socket(int af,int type,int protocol,int useSSL)
 	}
 	return	(int)socketHandle;
 }
+/*!
+*Set the socket handle
+*/
 MYSERVER_SOCKET::MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE handle)
 {
 	setHandle(handle);
 }
+/*!
+*Costructor of the class
+*/
 MYSERVER_SOCKET::MYSERVER_SOCKET()
 {
 	sslSocket=0;
@@ -99,6 +120,9 @@ MYSERVER_SOCKET::MYSERVER_SOCKET()
 	serverSocket=0;
 	setHandle(0);
 }
+/*!
+*Bind the port to the socket
+*/
 int MYSERVER_SOCKET::bind(MYSERVER_SOCKADDR* sa,int namelen)
 {
 #ifdef WIN32	
@@ -108,7 +132,9 @@ int MYSERVER_SOCKET::bind(MYSERVER_SOCKADDR* sa,int namelen)
 	return ::bind((int)socketHandle,sa,namelen);
 #endif
 }
-
+/*!
+*Listen for other connections
+*/
 int MYSERVER_SOCKET::listen(int max)
 {
 #ifdef WIN32
@@ -118,6 +144,9 @@ int MYSERVER_SOCKET::listen(int max)
 	return ::listen((int)socketHandle,max);
 #endif
 }
+/*!
+*Accept a new connection
+*/
 MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,int /*!sslHandShake*/)
 {
 
@@ -137,7 +166,9 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 
 	return s;
 }
-
+/*!
+*Close the socket
+*/
 int MYSERVER_SOCKET::closesocket()
 {
 #ifndef DO_NOT_USE_SSL
@@ -150,6 +181,9 @@ int MYSERVER_SOCKET::closesocket()
 	return ::close((int)socketHandle);
 #endif
 }
+/*!
+*Returns an host by its address
+*/
 MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 {
 #ifdef WIN32
@@ -161,12 +195,17 @@ MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 	return he;
 #endif
 }
+/*!
+*Returns an host by its name
+*/
 MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyname(const char *hostname)
 {	
 	return (MYSERVER_HOSTENT *)::gethostbyname(hostname);
 }
 
-
+/*!
+*Shutdown the socket
+*/
 int MYSERVER_SOCKET::shutdown(int how)
 {
 #ifndef DO_NOT_USE_SSL
@@ -183,11 +222,16 @@ int MYSERVER_SOCKET::shutdown(int how)
 	return ::shutdown((int)socketHandle,how);
 #endif
 }
+/*!
+*Set socket options
+*/
 int	MYSERVER_SOCKET::setsockopt(int level,int optname,const char *optval,int optlen)
 {
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
 }
-
+/*!
+*Send dta over the socket
+*/
 int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 {
 #ifndef DO_NOT_USE_SSL
@@ -208,7 +252,9 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 	return	::send((int)socketHandle,buffer,len,flags);
 #endif
 }
-
+/*!
+*Function used to control the socket
+*/
 int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
 {
 #ifdef WIN32
@@ -222,7 +268,9 @@ int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
 
 #endif
 }
-
+/*!
+*Connect the socket
+*/
 int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 {
 #ifdef WIN32
@@ -232,6 +280,9 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 	return ::connect((int)socketHandle,sa,na);
 #endif
 }
+/*!
+*Receive data from the socket
+*/
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
 {
 	int time=clock();
@@ -244,7 +295,9 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
 
 }
 #ifndef DO_NOT_USE_SSL
-
+/*!
+*Free the SSL connection
+*/
 int MYSERVER_SOCKET::freeSSL()
 {
 	if(sslConnection)
@@ -254,11 +307,17 @@ int MYSERVER_SOCKET::freeSSL()
 	}
 	return 1;
 }
+/*!
+*Set the SSL context
+*/
 int MYSERVER_SOCKET::setSSLContext(SSL_CTX* context)
 {
 	sslContext=context;
 	return 1;
 }
+/*!
+*Initialize the SSL connection
+*/
 int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 {
 	freeSSL();
@@ -272,6 +331,9 @@ int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 	}
 	return 1;
 }
+/*!
+*Set SSL for the socket
+*/
 void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
 {
 	if(sslSocket && (nSSL==0))
@@ -280,6 +342,9 @@ void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
 		initializeSSL(connection);
 	sslSocket=nSSL;
 }
+/*!
+*SSL handshake
+*/
 int MYSERVER_SOCKET::sslAccept()
 {
 	if(sslContext==0)
@@ -326,6 +391,9 @@ int MYSERVER_SOCKET::sslAccept()
 	return 1;
 
 }
+/*!
+*Returns the SSL connection
+*/
 SSL* MYSERVER_SOCKET::getSSLConnection()
 {
 	return sslConnection;
@@ -333,11 +401,16 @@ SSL* MYSERVER_SOCKET::getSSLConnection()
 
 #endif
 
-
+/*!
+*Returns if the connection is using SSL
+*/
 int MYSERVER_SOCKET::getSSL()
 {
 	return sslSocket;
 }
+/*!
+*Receive data from the socket
+*/
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
 #ifndef DO_NOT_USE_SSL
@@ -369,7 +442,9 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 	return err;
 #endif
 }
-
+/*!
+*Returns the number of bytes waiting to be read
+*/
 u_long MYSERVER_SOCKET::bytesToRead()
 {
 	u_long nBytesToRead=0;
@@ -385,10 +460,16 @@ u_long MYSERVER_SOCKET::bytesToRead()
 	ioctlsocket(FIONREAD,&nBytesToRead);
 	return nBytesToRead;
 }
+/*!
+*Returns the hostname
+*/
 int MYSERVER_SOCKET::gethostname(char *name,int namelen)
 {
 	return ::gethostname(name,namelen);
 }
+/*!
+*Returns the sockname
+*/
 int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 {
 #ifdef WIN32
@@ -401,10 +482,16 @@ int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 	return ret;
 #endif
 }
+/*!
+*Set the socket used by the server
+*/
 void MYSERVER_SOCKET::setServerSocket(MYSERVER_SOCKET* sock)
 {
 	serverSocket=sock;
 }
+/*!
+*Returns the server socket
+*/
 MYSERVER_SOCKET* MYSERVER_SOCKET::getServerSocket()
 {
 	return serverSocket;

@@ -868,7 +868,9 @@ int logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 	else
 		strcat(td->buffer,"0");
 	strcat(td->buffer,"\r\n");
-	
+	/*
+	*Request the access to the log file then write then append the message
+	*/
 	((vhost*)(td->connection->host))->accesseslogRequestAccess(td->id);
 	((vhost*)(td->connection->host))->accessesLogWrite(td->buffer);
 	((vhost*)(td->connection->host))->accesseslogTerminateAccess(td->id);
@@ -1067,6 +1069,9 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		td.request.URIOPTSPTR=0;
 	}
+	/*
+	*Manage chunked transfers
+	*/
 	if(!strcmpi(td.request.TRANSFER_ENCODING,"chunked"))
 	{
 		MYSERVER_FILE newStdIn;

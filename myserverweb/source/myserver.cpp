@@ -54,7 +54,7 @@ int cmdShow;
 /*!
 *Change this to reflect the version of the software.
 */
-const char *versionOfSoftware="0.6";
+const char *versionOfSoftware="0.6.5";
 cserver server;
 
 
@@ -95,6 +95,11 @@ int main (int argn, char **argc)
 
 	for(i=0;i<(u_long)strlen(cmdLine);i++)
 	{
+		if(!lstrcmpi(&cmdLine[i],"VERSION"))
+		{
+			printf("MyServer %s\r\n",versionOfSoftware);
+			return 0;
+		}
 		if(!lstrcmpi(&cmdLine[i],"CONSOLE"))
 		{
 			console_service(argn,argc);
@@ -144,7 +149,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 	MyServiceStatus.dwCheckPoint = 0;
 	MyServiceStatus.dwWaitHint = 0;
 
-	MyServiceStatusHandle = RegisterServiceCtrlHandler( "myServer", myServerCtrlHandler );
+	MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer", myServerCtrlHandler );
 	if ( MyServiceStatusHandle )
 	{
 		MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
@@ -200,14 +205,14 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 
 
 /*!
-*Run myServer like a NT service.
+*Run MyServer like a NT service.
 */
 void runService()
 {
 	printf("Running service...\n");
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
-		{ "myServer", myServerMain },
+		{ "MyServer", myServerMain },
 		{ 0, 0 }
 	};
 	if(!StartServiceCtrlDispatcher( serviceTable ))

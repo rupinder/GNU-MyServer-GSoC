@@ -100,10 +100,19 @@ void * startClientsTHREAD(void* pParam)
 void ClientsTHREAD::controlConnections()
 {
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
+	/*
+	*Check if c exists
+	*/
 	if(!c)
 		return;
+	/*
+	*Do not parse a connection that is parsed by another thread
+	*/
 	if(c->parsing==1)
 		return;
+	/*
+	*Check if c is a valid connection structure
+	*/
 	if(c->check_value!=CONNECTION::check_value_const)
 		return;
 	c->parsing=1;

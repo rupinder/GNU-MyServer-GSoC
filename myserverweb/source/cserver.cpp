@@ -793,6 +793,9 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 		int ret=nc->socket.sslAccept();
 		if(ret<0)
 		{
+			/*
+			*Free the connection on errors.
+			*/
 			free(nc);
 			return 0;
 		}
