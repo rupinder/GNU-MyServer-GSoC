@@ -212,12 +212,11 @@ MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 {
 #ifdef WIN32
 	HOSTENT *he=::gethostbyaddr(addr,len,type);
-	return he;
 #endif
 #ifdef NOT_WIN
 	struct hostent * he=::gethostbyaddr(addr,len,type);
-	return he;
 #endif
+	return he;
 }
 
 /*!

@@ -221,13 +221,14 @@ void cserver::start()
 		for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
 		{
       char ip_buffer[7];
-      char *inet_res=inet_ntoa(ia);
+      char *inet_res;
 #ifdef WIN32
 			ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 #endif
 #ifdef NOT_WIN
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
+      inet_res=inet_ntoa(ia);
       sprintf(ip_buffer, "#%u:",  (u_int)(i+1));
 
       buffer = new char[strlen(languageParser.getValue("MSG_ADDRESS")) 
