@@ -289,7 +289,7 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 /*!
 *Receive data from the socket.
 */
-int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
+int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,u_long timeout)
 {
 	int time=get_ticks();
 	while(get_ticks()-time<timeout)

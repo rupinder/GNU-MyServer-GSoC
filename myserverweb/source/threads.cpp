@@ -125,10 +125,14 @@ int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 /*!
 *Create a new thread.
 */
+#ifdef WIN32
+int myserver_thread::create(myserver_thread_ID*  ID, unsigned int  (_stdcall *start_routine)(void *), void * arg)
+#endif
+#ifdef HAVE_PTHREAD
 int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(void *), void * arg)
+#endif
 {
 #ifdef WIN32
-	unsigned int ID;
 	_beginthreadex(NULL,0,start_routine,arg,0,(unsigned int*)ID);
 #endif
 #ifdef HAVE_PTHREAD

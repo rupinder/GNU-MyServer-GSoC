@@ -38,7 +38,7 @@ int protocol::unloadProtocol(cXMLParser* /*languageParser*/)
 /*!
 *Control the connection
 */
-int protocol::controlConnection(LPCONNECTION /*a*/,char */*b1*/,char */*b2*/,int /*bs1*/,int /*bs2*/,u_long /*nbtr*/,u_long /*id*/)
+int protocol::controlConnection(LPCONNECTION /*a*/,char* /*b1*/,char* /*b2*/,int /*bs1*/,int /*bs2*/,u_long /*nbtr*/,u_long /*id*/)
 {
 	/*!
 	*Returns value are:
@@ -52,7 +52,7 @@ int protocol::controlConnection(LPCONNECTION /*a*/,char */*b1*/,char */*b2*/,int
 /*!
 *Returns the name of the protocol. If an out buffer is defined fullfill it with the name too.
 */
-char* protocol::registerName(char* out,int len)
+char* protocol::registerName(char* /*out*/,int /*len*/)
 {
 	return 0;
 }

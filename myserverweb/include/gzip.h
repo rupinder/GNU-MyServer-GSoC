@@ -41,6 +41,9 @@ public:
 		u_long data_size;
 		u_long initialized;
 	};
+#ifdef GZIP_CHECK_BOUNDS	
+	static u_long gzip_compressBound(int size);
+#endif
 	u_long gzip_updateCRC(char* buffer,int size);
 	u_long gzip_getFOOTER(char *str,int size);
 	u_long gzip_initialize(char* in,u_long sizeIN,char *out,u_long sizeOUT);

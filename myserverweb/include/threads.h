@@ -53,7 +53,12 @@ public:
 class myserver_thread
 {
 public:
+#ifdef WIN32
+	static int  create(myserver_thread_ID*  thread, unsigned int (_stdcall *start_routine)(void *), void * arg);
+#endif
+#ifdef HAVE_PTHREAD
 	static int  create(myserver_thread_ID*  thread, void * (*start_routine)(void *), void * arg);
+#endif
 	static void   terminate();  
 };
 #endif

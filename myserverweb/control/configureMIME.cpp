@@ -83,7 +83,7 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	if(mm.loadXML("MIMEtypes.xml"))
 	{
 		u_long nelements=mm.getNumMIMELoaded();
-		for(int i=0;i<nelements;i++)
+		for(u_long i=0;i<nelements;i++)
 		{
 			char ext[10];/*!File extension*/
 			char dest[60];/*!MIME type*/

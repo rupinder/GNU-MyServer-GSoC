@@ -177,7 +177,7 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 #endif
 #ifdef WIN32
 	char *cmdLine=GetCommandLine();
-	for(int i=0;i<strlen(cmdLine);i++)
+	for(int i=0;i<(int)strlen(cmdLine);i++)
 	{
 		wxCommandEvent e;
 		if(!memcmp(&cmdLine[i]," REGISTER",9))

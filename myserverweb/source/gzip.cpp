@@ -69,6 +69,13 @@ u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long)
 
 };
 
+#ifdef GZIP_CHECK_BOUNDS	
+u_long gzip::gzip_compressBound(int size)
+{
+	return compressBound(size);
+}
+#endif
+
 /*!
 *Compress the in buffer to the out buffer using the gzip compression.
 */

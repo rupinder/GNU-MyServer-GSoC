@@ -1,6 +1,6 @@
-
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
-#include "../../../cgi-lib/cgi_manager.h" 
+
+#include "../../../cgi-lib/cgi_manager.h"
 
 #ifdef WIN32
 int EXPORTABLE main (char *cmd,cgi_data* data)
@@ -42,7 +42,7 @@ extern "C" int main (char *cmd,cgi_data* data)
 		else
 			cm.Write("0");
 		cm.Write(" = ");
-		const long long iRes = a + b;
+		const long iRes = a + b;
 		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
 #ifdef	_WIN32
 		_i64toa(iRes, res, 10);

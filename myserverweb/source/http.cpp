@@ -276,7 +276,9 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		lastByte=bytesToSend;
 		
 		if(bytesToSend > gzip_threshold)/*Use GZIP compression to send files bigger than GZIP threshold*/
+		{
 			useGZIP=1;
+		}
 	}
 	else/*!If the client use ranges set the right value for the last byte number*/
 	{
@@ -315,11 +317,12 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		td->response.httpStatus = 206;
 	
 	sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
-
+	
 	if(useGZIP)
 	{
 		strcpy(td->response.TRANSFER_ENCODING,"chunked");
 		strcpy(td->response.CONTENT_ENCODING,"gzip");
+		sprintf(td->response.CONTENT_LENGTH,"%u",gzip::gzip_compressBound(bytesToSend));
 	}
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 	/*!
@@ -330,7 +333,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		h.closeFile();
 		return 0;
 	}
-
+	
 	/*!
 	*If is requested only the header exit from the function; used by the HEAD request.
 	*/
@@ -396,11 +399,9 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			sprintf(chunksize,"%x\r\n",gzip_dataused);
 			if(s->socket.send(chunksize,(int)strlen(chunksize), 0) == SOCKET_ERROR)
 				break;
-
 			if(gzip_dataused)
 				if(s->socket.send(td->buffer,gzip_dataused, 0) == SOCKET_ERROR)
-					break;		
-
+					break;
 			s->socket.send("\r\n",2, 0);
 		}
 		else
@@ -419,8 +420,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		*/
 		if((nbr==0) || (gzip_dataused==GZIP_FOOTER_LENGTH))
 		{
-			if(useGZIP)
-				s->socket.send("0\r\n\r\n",5, 0);
+			s->socket.send("0\r\n\r\n",5, 0);
 			break;
 		}
 	}
@@ -481,7 +481,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 	else/*!The default user is Guest with a null password*/
 		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);
 
-	if(!strcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
+	if(!lstrcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
 	{
 		if(!lstrcmpi(td->request.AUTH,"Digest"))
 		{
@@ -617,7 +617,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);
 		
 
-	if(!strcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
+	if(!lstrcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
 	{
 		if(!lstrcmpi(td->request.AUTH,"Digest"))
 		{
@@ -679,7 +679,7 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
    	MYSERVER_MD5Context md5;
 	MYSERVER_MD5Init(&md5);
 	sprintf(td->buffer2,"%s:%s:%s",td->request.digest_username,td->request.digest_realm,((http_user_data*)s->protocolBuffer)->needed_password);
-	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,strlen(td->buffer2));
+	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,(u_int)strlen(td->buffer2));
 	MYSERVER_MD5End(&md5,A1);
 	
 	MYSERVER_MD5Init(&md5);
@@ -688,12 +688,12 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 	if(td->request.digest_uri[0])
 		uri=td->request.digest_uri;
 	sprintf(td->buffer2,"%s:%s",method,uri);
-	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,strlen(td->buffer2));
+	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,(u_int)strlen(td->buffer2));
 	MYSERVER_MD5End(&md5,A2);
 	
 	MYSERVER_MD5Init(&md5);
 	sprintf(td->buffer2,"%s:%s:%s:%s:%s:%s",A1,((http_user_data*)s->protocolBuffer)->nonce,td->request.digest_nc,td->request.digest_cnonce,td->request.digest_qop,A2);
-	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,strlen(td->buffer2));
+	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,(u_int)strlen(td->buffer2));
 	MYSERVER_MD5End(&md5,response);	
 
 	if(!lstrcmp(response,td->request.digest_response))
@@ -783,7 +783,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);
 			
 
-		if(!strcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
+		if(!lstrcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
 		{
 			if(!lstrcmpi(td->request.AUTH,"Digest"))
 			{
@@ -838,7 +838,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 				break;
 			}
 		}
-		if(len<MAX_PATH)
+		if(len+1<MAX_PATH)
 		{
 			dirscan[len++]=(td->filenamePath)[i];
 			dirscan[len]='\0';
@@ -1463,10 +1463,10 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			*/
 			if(content_len==0)
 			{
-				a->dataRead=min(KB(8),strlen(&td.buffer[td.nHeaderChars]));
+				a->dataRead=min(KB(8),(u_int)strlen(&td.buffer[td.nHeaderChars]));
 				if(a->dataRead)
 				{
-					memcpy(a->connectionBuffer,&td.buffer[td.nHeaderChars],a->dataRead+1);	
+					memcpy(a->connectionBuffer,&td.buffer[td.nHeaderChars],a->dataRead+1);
 					retvalue=3;
 				}
 				else

@@ -172,7 +172,6 @@ void ClientsTHREAD::controlConnections()
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
-//				printf("Buffer =%s, nBytesToRead=%i,c->dataRead=%i\n",buffer,nBytesToRead,c->dataRead);
 				retcode=http_parser->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			/*!

@@ -100,7 +100,7 @@ public:
 	int send(const char*,int,int);
 	int connect(MYSERVER_SOCKADDR*,int);
 	int recv(char*,int,int);
-	int recv(char*,int,int,int);
+	int recv(char*,int,int,u_long);
 	u_long bytesToRead();
 	int operator==(MYSERVER_SOCKET);
 	int operator=(MYSERVER_SOCKET);

@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 #include "../stdafx.h"
-#include "../include/cXMLParser.h"
-#include "../include/connectionstruct.h"
+#include "cXMLParser.h"
+#include "connectionstruct.h"
 /*Various options that can be use for the protocol*/
 #define PROTOCOL_USES_SSL 1
 /*!
