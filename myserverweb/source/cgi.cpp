@@ -132,7 +132,6 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	*/
 	buildCGIEnvironmentString(td,(char*)td->buffer2->GetBuffer());
 
-
 	/*!
 	*With this code we execute the CGI process.
 	*Fill the START_PROC_INFO struct with the correct values and use it
@@ -156,17 +155,15 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	*/
 	u_long nBytesRead=0;
 	if(!stdOutFile.setFilePointer(0))
-		stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(),td->buffer2->GetLength(),&nBytesRead);
+		stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(),td->buffer2->GetRealLength(),&nBytesRead);
 		
 	((char*)td->buffer2->GetBuffer())[nBytesRead]='\0';
 		
 	int yetoutputted=0;
 	if(nBytesRead==0)
 	{
-		td->buffer->SetLength(0);
-		*td->buffer << "Error CGI zero bytes read\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((vhost*)td->connection->host)->warningsLogWrite("Error CGI zero bytes read\r\n" );
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
@@ -200,10 +197,10 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			j=0;
 
 			int start=(int)strlen(nURL);
-			while(((char*)td->buffer2->GetLength())[i+j+10]!='\r')
+			while(((char*)td->buffer2->GetBuffer())[i+j+10]!='\r')
 			{
 
-				nURL[j+start]=((char*)td->buffer2->GetLength())[i+j+10];
+				nURL[j+start]=((char*)td->buffer2->GetBuffer())[i+j+10];
 				nURL[j+start+1]='\0';
 				j++;
 			}

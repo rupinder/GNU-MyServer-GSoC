@@ -407,7 +407,6 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	{
 		td->buffer2->SetLength(0);
 		*td->buffer2 << input;
-		*td->buffer2 << maxTotchars;
 		input=token=(char*)td->buffer2->GetBuffer();
 	}
 	while((token[i]=='\n')||(token[i]=='\r'))token++;
@@ -1020,7 +1019,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 u_long http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i=0;
-	u_long buffersize=td->buffersize;
+	u_long buffersize=td->buffer->GetRealLength();
 	u_long nLinechars=0;
 	u_long isValidCommand=0;
 	nLinechars=0;

@@ -167,6 +167,7 @@ void ClientsTHREAD::controlConnections()
 			return;
 		}
 		buffer.SetBuffer(c->connectionBuffer, c->dataRead);
+		buffer.SetLength( c->dataRead);
 		/*!
 		*Control the protocol used by the connection.
 		*/

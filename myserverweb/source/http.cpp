@@ -244,6 +244,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		u_long nbr,nbs;	
 		td->outputData.setFilePointer(0);
 		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&(td->response));	
+		td->buffer->SetLength(strlen((char*)td->buffer->GetBuffer()));
 		s->socket.send((char*)td->buffer->GetBuffer(),(u_long)td->buffer->GetLength(), 0);
 		do
 		{
@@ -334,12 +335,12 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	
 	if(useGZIP)
 	{
-		if(keepalive)/*Do not use chunked transfer with old 1.0 clients*/
+		if(keepalive)/*Do not use chunked transfer with old HTTP/1.0 clients*/
 			strcpy(td->response.TRANSFER_ENCODING,"chunked");
 		strcpy(td->response.CONTENT_ENCODING,"gzip");
 	}
 	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
-	
+	td->buffer->SetLength(strlen((char*)td->buffer->GetBuffer()));
 	if(!td->appendOutputs)
 	{
 		/*!
@@ -392,18 +393,16 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			{
 				if(gzipheaderadded==0)
 				{
-					gzip_dataused+=gzip.gzip_getHEADER((char*)td->buffer->GetBuffer(),td->buffer->GetRealLength());
+					gzip_dataused+=gzip.gzip_getHEADER((char*)td->buffer->GetBuffer(),td->buffer->GetLength());
 					gzipheaderadded=1;
 				}
 				gzip_dataused+=gzip.gzip_compress((char*)td->buffer2->GetBuffer(),nbr,&(((char*)td->buffer->GetBuffer())[gzip_dataused]),td->buffer->GetRealLength()-gzip_dataused);
 			}
 			else
 			{
-				gzip_dataused=gzip.gzip_flush((char*)td->buffer->GetBuffer(),td->buffer->GetRealLength());
+				gzip_dataused=gzip.gzip_flush((char*)td->buffer->GetBuffer(),td->buffer->GetLength());
 				gzip.gzip_free((char*)td->buffer2->GetBuffer(),nbr,(char*)td->buffer->GetBuffer(),td->buffer->GetRealLength());
 			}
-
-
 		}
 		else
 		{
@@ -1259,7 +1258,6 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		}
 	}
 	
-	
 	u_long validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request,&td);
 	if(validRequest==-1)/*!If the header is incomplete returns 2*/
 	{
@@ -1811,6 +1809,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	sprintf(td->response.CONTENT_LENGTH,"%i",0);
 
 	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
+	td->buffer->SetLength(strlen((char*)td->buffer->GetBuffer()));
 	a->socket.send((char*)td->buffer->GetBuffer(),(u_long)td->buffer->GetLength(), 0);
 
 	return keepalive;

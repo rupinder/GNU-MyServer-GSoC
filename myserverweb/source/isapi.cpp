@@ -155,26 +155,27 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	u_long nbw=0;
 	if(!ConnInfo->headerSent)/*If the HTTP header was sent do not send it again*/
 	{
-		ConnInfo->td->buffer << Buffer;
+		ConnInfo->td->buffer << (char*)Buffer;
 		ConnInfo->headerSize+=*lpdwBytes;
 		int headerSize=0;
+		char* buffer=(char*)ConnInfo->td->buffer.GetBuffer();
 		for(u_long i=0;i<(u_long)(strlen(ConnInfo->td->buffer));i++)
 		{
-			if((((char*)ConnInfo->td->buffer.GetBuffer())[i]=='\r'))
-				if(((char*)ConnInfo->td->buffer.GetBuffer())[i+1]=='\n')
-					if(((char*)ConnInfo->td->buffer.GetBuffer())[i+2]=='\r')
-						if(((char*)ConnInfo->td->buffer.GetBuffer())[i+3]=='\n')
+			if(buffer[i]=='\r')
+				if(buffer[i+1]=='\n')
+					if(buffer[i+2]=='\r')
+						if(buffer[i+3]=='\n')
 						{
 							headerSize=i+4;
-							ConnInfo->td->buffer[i+2]='\0';
+							buffer[i+2]='\0';
 							break;
 						}
-			if((((char*)ConnInfo->td->buffer.GetBuffer())[i]=='\n'))
+			if(buffer[i]=='\n'))
 			{
-				if(((char*)ConnInfo->td->buffer.GetBuffer())[i+1]=='\n')
+				if(buffer[i+1]=='\n')
 				{
 					headerSize=i+2;
-					ConnInfo->td->buffer[i+1]='\0';
+					buffer[i+1]='\0';
 					break;
 				}
 			}
@@ -191,9 +192,9 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 					strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
 				else
 					strcpy(ConnInfo->td->response.CONNECTION,"Close");
-				http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
+				http_headers::buildHTTPResponseHeader((char*)ConnInfo->td->buffer2.GetBuffer(),&(ConnInfo->td->response));
 	
-				if(ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0)==-1)
+				if(ConnInfo->connection->socket.send((char*)ConnInfo->td->buffer2.GetBuffer(),(int)strlen((char*)ConnInfo->td->buffer2.GetBuffer()), 0)==-1)
 					return 0;
 			}
 			ConnInfo->headerSent=1;
@@ -208,9 +209,9 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 						return 0;
 				}
 				if(ConnInfo->td->appendOutputs)
-					ConnInfo->td->outputData.writeToFile((char*)(ConnInfo->td->buffer+headerSize),len,&nbw);
+					ConnInfo->td->outputData.writeToFile((char*)(buffer+headerSize),len,&nbw);
 				else
-					nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
+					nbw=ConnInfo->connection->socket.send((char*)(buffer+headerSize),len, 0);
 				if(nbw==-1)
 					return 0;
 				if(keepalive && (!ConnInfo->td->appendOutputs))
@@ -219,8 +220,6 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 						return 0;
 				}
 			}
-
-
 		}
 		else
 			nbw=*lpdwBytes;
@@ -530,9 +529,8 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 
 	if (connIndex == max_Connections) 
 	{
-		sprintf(td->buffer,"Error ISAPI max connections\r\n");
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)td->connection->host)->warningsLogWrite("Error ISAPI max connections\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
@@ -606,7 +604,8 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	/*!
 	*Store the environment string in the buffer2.
 	*/
-	connTable[connIndex].envString=td->buffer2;
+	connTable[connIndex].envString=(char*)td->buffer2->GetBuffer();
+	
 	/*!
 	*Build the environment string.
 	*/
@@ -680,9 +679,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	connTable[connIndex].Allocated = FALSE;
 	return retvalue;
 #else
-	td->buffer->SetLength(0);
-	*td->buffer << "Error ISAPI is not implemented\r\n" << '\0';
-	((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+	((vhost*)td->connection->host)->warningsLogWrite("Error ISAPI is not implemented\r\n");
 	return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);/*!ISAPI is available only on windows*/
 #endif	
 }
