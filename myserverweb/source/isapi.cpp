@@ -143,6 +143,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("isapi::WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
+	uint keepalive = lstrcmpi(td->request.CONNECTION,"Keep-Alive")==0;
 	char chunk_size[15];
 	int nbw=0;
 	if(!ConnInfo->headerSent)
@@ -172,10 +173,13 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		if(headerSize)
 		{
 			int len=ConnInfo->headerSize-headerSize;
-			strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
+			if(keepalive)
+				strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
 			http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
-			if(!lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive"))
-				strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");			
+			if(keepalive)
+				strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
+			else
+				strcpy(ConnInfo->td->response.CONNECTION,"Close");
 			http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
 
 			ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0);
@@ -184,10 +188,16 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			/*!Send the first chunk*/
 			if(len)
 			{
-				sprintf(chunk_size,"%x\r\n",len);
-				ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
+				if(keepalive)
+				{
+					sprintf(chunk_size,"%x\r\n",len);
+					ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
+				}
 				nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
-				ConnInfo->connection->socket.send("\r\n",2, 0);
+				if(keepalive)
+				{
+					ConnInfo->connection->socket.send("\r\n",2, 0);
+				}
 			}
 
 
@@ -197,10 +207,16 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	}
 	else/*!Continue to send data chunks*/
 	{
-		sprintf(chunk_size,"%x\r\n",*lpdwBytes);
-		ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
+		if(keepalive)
+		{
+			sprintf(chunk_size,"%x\r\n",*lpdwBytes);
+			ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
+		}
 		nbw=ConnInfo->connection->socket.send((char*)Buffer,*lpdwBytes, 0);
-		ConnInfo->connection->socket.send("\r\n",2, 0);
+		if(keepalive)
+		{
+			ConnInfo->connection->socket.send("\r\n",2, 0);
+		}
 	}
 
 	*lpdwBytes = nbw;
