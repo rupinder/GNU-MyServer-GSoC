@@ -40,13 +40,16 @@ class control_protocol : public protocol
   /*! Use control_header to parse the request. */
   control_header header;
   int checkAuth();
-  int SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1,int bs1);
-  int SHOWDYNAMICPROTOCOLS(MYSERVER_FILE* out, char *b1,int bs1);
-  int SHOWLANGUAGEFILES(MYSERVER_FILE* out, char *b1,int bs1);
-  int KILLCONNECTION(u_long ID, MYSERVER_FILE* out, char *b1,int bs1);
-  int GETFILE(char*, MYSERVER_FILE* in, MYSERVER_FILE* out, char *b1,int bs1 );
-  int PUTFILE(char*, MYSERVER_FILE* in, MYSERVER_FILE* out, char *b1,int bs1 );
-  int GETVERSION(MYSERVER_FILE* out, char *b1,int bs1);
+  int SHOWCONNECTIONS(LPCONNECTION,MYSERVER_FILE* out, char *b1,int bs1);
+  int SHOWDYNAMICPROTOCOLS(LPCONNECTION,MYSERVER_FILE* out, char *b1,int bs1);
+  int SHOWLANGUAGEFILES(LPCONNECTION, MYSERVER_FILE* out, char *b1,int bs1);
+  int KILLCONNECTION(LPCONNECTION,u_long ID, MYSERVER_FILE* out, char *b1,int bs1);
+  int GETFILE(LPCONNECTION, char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
+              char *b1,int bs1 );
+  int PUTFILE(LPCONNECTION,char*, MYSERVER_FILE* in, MYSERVER_FILE* out, 
+              char *b1,int bs1 );
+  int GETVERSION(LPCONNECTION,MYSERVER_FILE* out, char *b1,int bs1);
+  int addToErrorLog(LPCONNECTION con, char *b1, int bs1);
   int addToLog(int retCode, LPCONNECTION con, char *b1, int bs1);
 public:
   int sendResponse(char*, int, LPCONNECTION, int, MYSERVER_FILE* = 0);

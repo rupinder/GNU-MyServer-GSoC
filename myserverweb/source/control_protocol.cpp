@@ -259,6 +259,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     Ifile = new MYSERVER_FILE();
     if(Ifile == 0)
     {
+      strcpy(b2,"Error allocating memory");
+      addToErrorLog(a,b2, strlen(b2));
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       return 0;                                   
     }
@@ -266,6 +268,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     IfilePath = new char[IfilePathLen];
     if(IfilePath == 0)
     {
+      strcpy(b2,"Error allocating memory");
+      addToErrorLog(a,b2, strlen(b2));
       delete Ifile;
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       return 0;                                   
@@ -277,6 +281,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     ret = Ifile->createTemporaryFile(IfilePath);
     if(ret)
     {
+      strcpy(b2,"Error in the temporary file creation");
+      addToErrorLog(a,b2, strlen(b2));
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       Ifile->closeFile();
       MYSERVER_FILE::deleteFile(IfilePath);
@@ -291,6 +297,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
       dataWritten += nbw;
       if(ret)
       {
+        strcpy(b2,"Error writing to temporary file");
+        addToErrorLog(a,b2, strlen(b2));
         sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
         Ifile->closeFile();
         if(IfilePath)
@@ -316,6 +324,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
         ret = a->socket.recv(b2, bs2, 0);
         if(ret == -1)
         {
+          strcpy(b2,"Error in communication");
+          addToErrorLog(a,b2, strlen(b2));
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
           Ifile->closeFile();
           if(IfilePath)
@@ -331,6 +341,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
         dataWritten += nbw;
         if(ret)
         {
+          strcpy(b2,"Error trying to write on the temporary file");
+          addToErrorLog(a,b2, strlen(b2));
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
           Ifile->closeFile();
           if(IfilePath)
@@ -348,6 +360,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
       }
       else if(get_ticks() - timeout > SEC(5))
       {
+        strcpy(b2,"Bad content length specified");
+        addToErrorLog(a,b2, strlen(b2));
         sendResponse(b2, bs2, a, CONTROL_BAD_LEN, 0);
         Ifile->closeFile();
         if(IfilePath)
@@ -373,6 +387,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
 
   if(strcmpi(version, "CONTROL/1.0"))
   {
+    strcpy(b2,"Bad version specified");
+    addToErrorLog(a,b2, strlen(b2));
     if(Ifile)
     {
       Ifile->closeFile();
@@ -395,6 +411,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
    */
   if(authorized ==0)
   {
+    strcpy(b2,"Bad authorization");
+    addToErrorLog(a,b2, strlen(b2));
     if(Ifile)
     {
       Ifile->closeFile();
@@ -415,6 +433,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
    */
   if(dataWritten != specified_length)
   {
+    strcpy(b2,"Bad content length specified");
+    addToErrorLog(a,b2, strlen(b2));
     if(Ifile)
     {
       Ifile->closeFile();
@@ -443,6 +463,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   Ofile = new MYSERVER_FILE();
   if(Ofile == 0)
   {
+    strcpy(b2,"Error in allocating memory");
+    addToErrorLog(a,b2, strlen(b2));
     sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
     Ifile->closeFile();
     if(IfilePath)
@@ -458,7 +480,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   OfilePath = new char[OfilePathLen];
   if(OfilePath == 0)
   {
-
+    strcpy(b2,"Error in allocating memory");
+    addToErrorLog(a,b2, strlen(b2));
     delete Ofile;
     Ifile->closeFile();
     if(IfilePath)
@@ -478,6 +501,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   ret = Ofile->createTemporaryFile(OfilePath);
   if(ret)
   {
+    strcpy(b2,"Error creating temporary file");
+    addToErrorLog(a,b2, strlen(b2));
     sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
     delete Ofile;
     Ifile->closeFile();
@@ -499,7 +524,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   if(!strcmp(command, "SHOWCONNECTIONS"))
   {
     knownCommand = 1;
-    ret = SHOWCONNECTIONS(Ofile, b1, bs1);
+    ret = SHOWCONNECTIONS(a, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "KILLCONNECTION"))
   {
@@ -508,7 +533,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     strncpy(buff, header.getOptions(), 10 );
     buff[10] = '\0';
     u_long ID = header.getOptions() ? atol(buff) : 0;
-    ret = KILLCONNECTION( ID ,Ofile, b1, bs1);
+    ret = KILLCONNECTION(a, ID ,Ofile, b1, bs1);
   }
   else if(!strcmp(command, "REBOOT"))
   {
@@ -519,12 +544,12 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   else if(!strcmp(command, "GETFILE"))
   {
     knownCommand = 1;
-    ret = GETFILE(header.getOptions(), Ifile, Ofile, b1, bs1);
+    ret = GETFILE(a,header.getOptions(), Ifile, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "PUTFILE"))
   {
     knownCommand = 1;
-    ret = PUTFILE(header.getOptions(), Ifile, Ofile, b1, bs1);
+    ret = PUTFILE(a,header.getOptions(), Ifile, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "DISABLEREBOOT"))
   {
@@ -541,24 +566,26 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   else if(!strcmp(command, "SHOWLANGUAGEFILES"))
   {
     knownCommand = 1;
-    ret = SHOWLANGUAGEFILES(Ofile, b1, bs1);
+    ret = SHOWLANGUAGEFILES(a, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "SHOWDYNAMICPROTOCOLS"))
   {
     knownCommand = 1;
-    ret = SHOWDYNAMICPROTOCOLS(Ofile, b1, bs1);
+    ret = SHOWDYNAMICPROTOCOLS(a, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "VERSION"))
   {
     knownCommand = 1;
-    ret = GETVERSION(Ofile, b1, bs1);
+    ret = GETVERSION(a, Ofile, b1, bs1);
   }
 
   if(knownCommand)
   {
     Ofile->setFilePointer(0);
     if(ret)
+    {
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
+    }
     else
       sendResponse(b2, bs2, a, CONTROL_OK, Ofile);
     if(Ifile)
@@ -595,6 +622,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   }
   else
   {
+    strcpy(b2,"Command unknown");
+    addToErrorLog(a,b2, strlen(b2));
     sendResponse(b2, bs2, a, CONTROL_CMD_NOT_FOUND, 0);
 
     if(Ifile)
@@ -626,6 +655,22 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
 }
 
 /*!
+ *Add the entry to the error log file.
+ */
+int control_protocol::addToErrorLog(LPCONNECTION con, char *b1, int bs1)
+{
+	char time[33];
+	getRFC822GMTTime(time, 32);
+  sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getipAddr(), time, 
+          header.getCommand(),  header.getVersion(), header.getOptions(), 
+          header.getAuthLogin());
+	((vhost*)(con->host))->warningslogRequestAccess(id);
+	((vhost*)(con->host))->warningsLogWrite(b1);
+	((vhost*)(con->host))->warningslogTerminateAccess(id);
+  return 0;
+}
+
+/*!
  *Add the entry to the log file.
  */
 int control_protocol::addToLog(int retCode, LPCONNECTION con, char *b1, int bs1)
@@ -651,27 +696,43 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
 {
   u_long dataLength=0;
   int err;
-  err =  addToLog(errID,conn,buffer, buffersize);
+  err = addToLog(errID,conn,buffer, buffersize);
   if(err)
+  {
+    strcpy(buffer,"Error registering the connection to the log");
+    addToErrorLog(conn,buffer, strlen(buffer));
     return err;
+  }
   if(outFile)
     dataLength = outFile->getFileSize();
   /*! Build and send the first line. */
   sprintf(buffer, "/%i\r\n", errID);
   err = conn->socket.send(buffer, strlen(buffer), 0);
   if(err == -1)
+  {
+    strcpy(buffer,"Error sending data");
+    addToErrorLog(conn,buffer, strlen(buffer));
     return -1;
+  }
 
   /*! Build and send the Length line. */
   sprintf(buffer, "/LEN %u\r\n", dataLength);
   err = conn->socket.send(buffer, strlen(buffer), 0);
   if(err == -1)
+  {
+    strcpy(buffer,"Error sending data");
+    addToErrorLog(conn,buffer, strlen(buffer));
     return -1;
+  }
 
   /*! Send the end of the header. */
   err = conn->socket.send("\r\n", 2, 0);
   if(err == -1)
+  {
+    strcpy(buffer,"Error sending data");
+    addToErrorLog(conn,buffer, strlen(buffer));
     return -1;
+  }
 
   /*! Flush the content of the file if any. */
   if(dataLength)
@@ -682,13 +743,21 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
     {
       err = outFile->readFromFile(buffer, min(dataToSend, buffersize), &nbr);
       if(err)
+      {
+        strcpy(buffer,"Error reading from temporary file");
+        addToErrorLog(conn,buffer, strlen(buffer));
         return -1;
+      }
       dataToSend -= nbr;
       err = conn->socket.send(buffer, nbr, 0);
       if(dataToSend == 0)
         break;
       if(err == -1)
+      {
+        strcpy(buffer,"Error sending data");
+        addToErrorLog(conn,buffer, strlen(buffer));
         return -1;
+      }
     }
   }
 
@@ -698,7 +767,8 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
 /*!
  *Show the currect active connections.
  */
-int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
+int  control_protocol::SHOWCONNECTIONS(LPCONNECTION a,MYSERVER_FILE* out, char *b1, 
+                                       int bs1)
 {
   int ret =  0;
   u_long nbw;
@@ -710,6 +780,11 @@ int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
             con->getID(),  con->getipAddr(), con->getPort(), con->getlocalIpAddr(),  
             con->getLocalPort(), con->getLogin(), con->getPassword());
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
+    if(ret)
+    {
+      strcpy(b1,"Error in writing to file");
+      addToErrorLog(a,b1, strlen(b1));
+    }
     con = con->next;
   }
   lserver->connections_mutex_unlock();
@@ -719,7 +794,7 @@ int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
 /*!
  *Kill a connection by its ID.
  */
-int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out, 
+int  control_protocol::KILLCONNECTION(LPCONNECTION a, u_long ID, MYSERVER_FILE* out, 
                                       char *b1, int bs1)
 {
   int ret = 0;
@@ -740,7 +815,8 @@ int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out,
 /*!
  *List all the dynamic protocols used by the server.
  */
-int control_protocol::SHOWDYNAMICPROTOCOLS(MYSERVER_FILE* out, char *b1,int bs1)
+int control_protocol::SHOWDYNAMICPROTOCOLS(LPCONNECTION a, MYSERVER_FILE* out, 
+                                           char *b1,int bs1)
 {
   int i = 0;
   dynamic_protocol* dp;
@@ -754,7 +830,11 @@ int control_protocol::SHOWDYNAMICPROTOCOLS(MYSERVER_FILE* out, char *b1,int bs1)
     sprintf(b1,"%s\r\n", dp->getProtocolName() );
     ret = out->writeToFile(b1, strlen(b1), &nbw);
     if(ret)
+    {
+      strcpy(b1,"Error in writing to file");
+      addToErrorLog(a,b1, strlen(b1));
       return CONTROL_INTERNAL;
+    }
     i++;
   }
   return 0;
@@ -763,7 +843,7 @@ int control_protocol::SHOWDYNAMICPROTOCOLS(MYSERVER_FILE* out, char *b1,int bs1)
 /*!
  *Return the requested file to the client.
  */
-int control_protocol::GETFILE(char* fn, MYSERVER_FILE* in, 
+int control_protocol::GETFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in, 
                               MYSERVER_FILE* out, char *b1,int bs1 )
 {
   char *filename = 0;
@@ -783,13 +863,21 @@ int control_protocol::GETFILE(char* fn, MYSERVER_FILE* in,
   }  
   /*! If we cannot find the file send the right error ID. */
   if(!filename)
+  {
+    strcpy(b1,"Requested file doesn't exist");
+    addToErrorLog(a,b1, strlen(b1));
     return CONTROL_FILE_NOT_FOUND;
+  }
 
   ret = localfile.openFile(fn, MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 
   /*! An internal server error happens. */
   if(ret)
+  {
+    strcpy(b1,"Error in opening the file");
+    addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
+  }
   /*! # of bytes read. */
   u_long nbr = 0;
 
@@ -799,7 +887,11 @@ int control_protocol::GETFILE(char* fn, MYSERVER_FILE* in,
   {
     ret = localfile.readFromFile(b1, bs1, &nbr);
     if(ret)
+    {
+      strcpy(b1,"Error in reading from file");
+      addToErrorLog(a,b1, strlen(b1));
       return CONTROL_INTERNAL;
+    }
 
     /*! Break the loop when we can't read no more data.*/
     if(!nbr)
@@ -808,7 +900,11 @@ int control_protocol::GETFILE(char* fn, MYSERVER_FILE* in,
     ret = Ofile->writeToFile(b1, nbr, &nbw);
 
     if(ret)
+    {
+      strcpy(b1,"Error in writing to file");
+      addToErrorLog(a,b1, strlen(b1));
       return CONTROL_INTERNAL;
+    }
 
   }
 
@@ -819,7 +915,7 @@ int control_protocol::GETFILE(char* fn, MYSERVER_FILE* in,
 /*!
  *Save the file on the local FS.
  */
-int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in, 
+int control_protocol::PUTFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in, 
                               MYSERVER_FILE* out, char *b1,int bs1 )
 {
   char *filename = 0;
@@ -842,6 +938,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   /*! If we cannot find the file send the right error ID. */
   if(!filename)
   {
+    strcpy(b1,"Requested file doesn't exist");
+    addToErrorLog(a, b1, strlen(b1));
     Reboot = true;
     if(isAutoRebootToEnable)
       lserver->enableAutoReboot();
@@ -853,6 +951,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   /*! An internal server error happens. */
   if(ret)
   {
+    strcpy(b1,"Error deleting the file");
+    addToErrorLog(a, b1, strlen(b1));
     Reboot = true;
     if(isAutoRebootToEnable)
       lserver->enableAutoReboot();
@@ -864,6 +964,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   /*! An internal server error happens. */
   if(ret)
   {
+    strcpy(b1,"Error opening the file");
+    addToErrorLog(a, b1, strlen(b1));
     Reboot = true;
     if(isAutoRebootToEnable)
       lserver->enableAutoReboot();
@@ -880,6 +982,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
     ret = Ifile->readFromFile(b1, bs1, &nbr);
     if(ret)
     {
+      strcpy(b1,"Error in reading from file");
+      addToErrorLog(a, b1, strlen(b1));
       Reboot = true;
       if(isAutoRebootToEnable)
         lserver->enableAutoReboot();
@@ -894,6 +998,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
 
     if(ret)
     {
+      strcpy(b1,"Error in writing to file");
+      addToErrorLog(a, b1, strlen(b1));
       Reboot = true;
       if(isAutoRebootToEnable)
         lserver->enableAutoReboot();
@@ -911,58 +1017,71 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
 /*!
  *Show all the language files that the server can use.
  */
-int control_protocol::SHOWLANGUAGEFILES(MYSERVER_FILE* out, char *b1,int bs1)
+int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out, 
+                                        char *b1,int bs1)
 {
   char *path = lserver->getLanguagesPath();
   if(path == 0)
+  {
+    strcpy(b1,"Error retrieving the language files path");
+    addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
+  }
   _finddata_t fd;
   intptr_t ff;
   ff=_findfirst(path, &fd);
   if(ff == -1)
   {
+    strcpy(b1,"Error in directory lookup");
+    addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
 	do
-	  {
-	     char *dir;
-	     char *filename;
-       int dirLen = 0;
-       int filenameLen = 0;
-       u_long nbw = 0;
-       /*! Do not show files starting with a dot. */
-	     if(fd.name[0]=='.')
-	       continue;
-       MYSERVER_FILE::splitPathLength(fd.name, &dirLen, &filenameLen);
-       dir = new char[dirLen + 1];
-       if(dir == 0)
-       {
-         _findclose(ff);
-         return CONTROL_INTERNAL;
-       }
-       filename = new char[filenameLen + 1];
-       if(filename == 0)
-       {
-         delete [] dir;
-         _findclose(ff);
-         return CONTROL_INTERNAL;
-       }
-	     MYSERVER_FILE::splitPath(fd.name,dir,filename);
-       int ret = 0;
-	     if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
-       {
-	       ret = out->writeToFile(filename, strlen(filename), &nbw);
-         if(ret == 0)
-           ret = out->writeToFile("\r\n", 2, &nbw);
-       }
+	{
+    char *dir;
+    char *filename;
+    int dirLen = 0;
+    int filenameLen = 0;
+    u_long nbw = 0;
+    /*! Do not show files starting with a dot. */
+    if(fd.name[0]=='.')
+      continue;
+    MYSERVER_FILE::splitPathLength(fd.name, &dirLen, &filenameLen);
+    dir = new char[dirLen + 1];
+    if(dir == 0)
+    {
+      strcpy(b1,"Error in allocating memory");
+      addToErrorLog(a, b1, strlen(b1));
+      _findclose(ff);
+      return CONTROL_INTERNAL;
+    }
+    filename = new char[filenameLen + 1];
+    if(filename == 0)
+    {
+      strcpy(b1,"Error in allocating memory");
+      addToErrorLog(a,b1, strlen(b1));
+      delete [] dir;
+      _findclose(ff);
+      return CONTROL_INTERNAL;
+    }
+    MYSERVER_FILE::splitPath(fd.name,dir,filename);
+    int ret = 0;
+    if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
+    {
+      ret = out->writeToFile(filename, strlen(filename), &nbw);
+      if(ret == 0)
+        ret = out->writeToFile("\r\n", 2, &nbw);
+    }
 
-       delete [] dir;
-       delete [] filename;
-       if(ret)
-       {
-         return CONTROL_INTERNAL;
-       }
-	  }
+    delete [] dir;
+    delete [] filename;
+    if(ret)
+    {
+      strcpy(b1,"Error in writing to temporary file");
+      addToErrorLog(a,b1, strlen(b1));
+      return CONTROL_INTERNAL;
+    }
+  }
 	while(!_findnext(ff,&fd));
   _findclose(ff);
   return 0;
@@ -971,7 +1090,7 @@ int control_protocol::SHOWLANGUAGEFILES(MYSERVER_FILE* out, char *b1,int bs1)
 /*!
  *Return the current MyServer version.
  */
-int control_protocol::GETVERSION(MYSERVER_FILE* out, char *b1,int bs1)
+int control_protocol::GETVERSION(LPCONNECTION a, MYSERVER_FILE* out, char *b1,int bs1)
 {
   u_long nbw;
   sprintf(b1, "MyServer %s", versionOfSoftware);
