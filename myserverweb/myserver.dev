@@ -26,7 +26,6 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=000001000000000000
-Resources=
 
 [Unit14]
 FileName=source\myserver.cpp

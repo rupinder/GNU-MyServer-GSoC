@@ -457,10 +457,10 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
 
 	lstrcat(cgiEnvString,"\rDATE_GMT=");
-	lstrcat(cgiEnvString,getRFC822GMTTime());
+	getRFC822GMTTime(&cgiEnvString[strlen(cgiEnvString)],HTTP_RESPONSE_DATE_DIM);
 
 	lstrcat(cgiEnvString,"\rDATE_LOCAL=");
-	lstrcat(cgiEnvString,getRFC822LocalTime());
+	getRFC822LocalTime(&cgiEnvString[strlen(cgiEnvString)],HTTP_RESPONSE_DATE_DIM);
 
 	lstrcat(cgiEnvString,"\rDOCUMENT_ROOT=");
 	lstrcat(cgiEnvString,lserver->getPath());

@@ -20,10 +20,10 @@
 #define STRINGUTILS_H
 
 #include "../stdafx.h"
-char *getRFC822GMTTime(void);
-char *getRFC822GMTTime(const time_t);
-char *getRFC822LocalTime(void);
-char *getRFC822LocalTime(const time_t);
+char *getRFC822GMTTime(char* out,int len);
+char *getRFC822GMTTime(const time_t,char* out,int len);
+char *getRFC822LocalTime(char* out,int len);
+char *getRFC822LocalTime(const time_t,char* out,int len);
 time_t getTime(char* str);
 void StrTrim(char* str,const char* trimChars);
 void getFileExt(char* ext,const char* filename);

@@ -467,12 +467,12 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			return raiseHTTPError(td,s,e_404);
 	}
 	time_t lastMT=ms_GetLastModTime(td->filenamePath);
-	strncpy(td->response.LAST_MODIFIED,getRFC822GMTTime(lastMT),HTTP_RESPONSE_LAST_MODIFIED_DIM);
+	getRFC822GMTTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	if(td->request.IF_MODIFIED_SINCE[0])
 	{
-		if(getTime(td->request.IF_MODIFIED_SINCE)<lastMT)
+		time_t timeMS=getTime(td->request.IF_MODIFIED_SINCE);
+		if(timeMS<lastMT)
 			return sendHTTPNonModified(td,s);
-
 	}
 
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
@@ -874,25 +874,28 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	*By default use:
 	*1) the MIME type of the page equal to text/html.
 	*2) the version of the HTTP protocol to 1.1.
-	*3) the date of the page and the expiration date to the current time.
-	*4) then set the name of the server.
+	*3) the date of the page and the expire date to the current time.
+	*4) set the name of the server.
 	*5) set the page that it is not an error page.
 	*/
 	lstrcpy(response->CONTENTS_TYPE,"text/html");
 	lstrcpy(response->VER,"1.1");
 	response->httpStatus=200;
-	lstrcpy(response->DATE,getRFC822GMTTime());
-	lstrcpy(response->DATEEXP,getRFC822GMTTime());
+	getRFC822GMTTime(response->DATE,HTTP_RESPONSE_DATE_DIM);
+	strncpy(response->DATEEXP,response->DATE,HTTP_RESPONSE_DATEEXP_DIM);
 	sprintf(response->SERVER_NAME,"MyServer %s",versionOfSoftware);
 }
 /*
-*Sends an error page to the client described by the connection.
+*Sends an error page to the client.
 */
 int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	if(ID==e_401AUTH)
 	{
-		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime());
+		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",lserver->getServerName());
+		strcat(td->buffer2,"Date: ");
+		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
+		strcat(td->buffer2,"\r\n\r\n");
 		ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
 		return 1;
 	}
@@ -1073,7 +1076,11 @@ u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsp
 */
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
-	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime(),newURL);
+	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",lserver->getServerName(),newURL);
+	strcat(td->buffer2,"Date: ");
+	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
+	strcat(td->buffer2,"\r\n\r\n");
+
 	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
 	return 1;
 }
@@ -1082,7 +1089,11 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 */
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
-	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime());
+	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",lserver->getServerName());
+	strcat(td->buffer2,"Date: ");
+	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
+	strcat(td->buffer2,"\r\n\r\n");
+
 	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
 	return 1;
 }
@@ -1114,7 +1125,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		return 0;
 
 	const int max_URI=MAX_PATH+200;
-	const char seps[]   = " ,\t\n\r";
+	const char seps[]   = "\t\n\r";
 	const char cmdseps[]   = ": ,\t\n\r";
 
 	static char *token=0;

@@ -37,26 +37,25 @@ extern "C" {
 
 static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dic"};
-static char localTimeString[31];
 
 /*
 *This function format current time to the RFC 822 format.
 */
-char *getRFC822GMTTime(void)
+char *getRFC822GMTTime(char* out,int len)
 {
 	time_t ltime;
 	time( &ltime );
-	return getRFC822GMTTime(ltime);
+	return getRFC822GMTTime(ltime,out,len);
 }
 /*
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822GMTTime(const time_t ltime)
+char *getRFC822GMTTime(const time_t ltime,char* out,int len)
 {
 	tm*  GMtime = gmtime( &ltime );
 	GMtime->tm_year+=1900;
-	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
-	return localTimeString;
+	sprintf(out,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
+	return out;
 }
 /*
 *This function convert from a RFC 822 format to a time_t.
@@ -96,7 +95,7 @@ time_t getTime(char* str)
 	c++;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]=' ')
+		if(i && str[c]==' ')
 		{
 			c++;
 			lb[i]='\0';
@@ -107,10 +106,9 @@ time_t getTime(char* str)
 	}
 	t.tm_mday=atoi(lb);
 	
-	c++;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]==' ')
+		if(i && str[c]==' ')
 		{
 			c++;
 			lb[i]='\0';
@@ -144,10 +142,9 @@ time_t getTime(char* str)
 	if(!strcmp(lb,"Dec"))
 		t.tm_mon = 11;
 
-	c++;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]==' ')
+		if(i && str[c]==' ')
 		{
 			c++;
 			lb[i]='\0';
@@ -156,12 +153,11 @@ time_t getTime(char* str)
 		else
 			lb[i]=str[c++];
 	}
-	t.tm_year=atoi(lb);
+	t.tm_year=atoi(lb)-1900;
 	
-	c++;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]==':')
+		if(i && str[c]==':')
 		{
 			c++;
 			lb[i]='\0';
@@ -172,10 +168,9 @@ time_t getTime(char* str)
 	}
 	t.tm_hour = atoi(lb);
 
-	c++;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]==':')
+		if(i && str[c]==':')
 		{
 			c++;
 			lb[i]='\0';
@@ -186,10 +181,9 @@ time_t getTime(char* str)
 	}
 	t.tm_min = atoi(lb);
 
-	c++;
 	for(i=0;i<30;i++)
 	{
-		if(str[c]==':')
+		if(i && str[c]==':')
 		{
 			c++;
 			lb[i]='\0';
@@ -199,27 +193,32 @@ time_t getTime(char* str)
 			lb[i]=str[c++];
 	}
 	t.tm_sec = atoi(lb);
-	return mktime(&t);
+	t.tm_yday=0;
+	t.tm_wday=0;	
+
+	t.tm_isdst=-1;
+	time_t ret=mktime(&t);
+	return ret;
 }
 
 /*
 *This function format current time to the RFC 822 format.
 */
-char *getRFC822LocalTime(void)
+char *getRFC822LocalTime(char* out,int len)
 {
 	time_t ltime;
 	time( &ltime );
-	return getRFC822LocalTime(ltime);
+	return getRFC822LocalTime(ltime,out,len);
 }
 /*
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822LocalTime(const time_t ltime)
+char *getRFC822LocalTime(const time_t ltime,char* out,int len)
 {
 	tm*  GMtime = localtime( &ltime );
 	GMtime->tm_year+=1900;
-	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
-	return localTimeString;
+	sprintf(out,"%s, %i %s %i %i:%i:%i",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
+	return out;
 }
 
 
