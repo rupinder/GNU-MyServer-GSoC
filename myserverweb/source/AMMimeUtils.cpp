@@ -57,8 +57,8 @@ char* strustr(char *source, char *s)
 	return result;
 }
 /*!
-*Unique instance of this class
-*/
+ *Unique instance of this class
+ */
 CBase64Utils base64Utils;
 
 const char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -201,7 +201,8 @@ char* MimeDecodeMailHeaderField(char *s)
 	}
 	if (strupos(s1, "=?") == 0)
 	{
-
+    int alloclen;
+		char *decodedText=0;
 		int plainpos =(int)strupos(s1, "Q?=");
 		if (plainpos > 0)
 		{
@@ -223,27 +224,27 @@ char* MimeDecodeMailHeaderField(char *s)
 				strcpy(rest, mid);
 			}
 		}
-		char *decodedText=0;
 		if (strupos(s1, "?Q?") > 0)
 		{
+			CQPUtils qp;
 			int pos =(int)strupos(s1, "?Q?");
 			s1 += pos;
 			if (strlen(s1) < 4) return s;
 			s1 += 3;
-			CQPUtils qp;
 			decodedText = qp.Decode(s1);
 		}
 		if (strupos(s1, "?B?") > 0)
 		{
+      CBase64Utils bu;
+      int sLen;
 			int pos =(int)strupos(s1, "?B?");
 			s1 += pos;
 			if (strlen(s1) < 4) return s; 
 			s1 += 3;
-			CBase64Utils bu;
-			int sLen =(int)strlen(s1);
+      sLen =(int)strlen(s1);
 			decodedText = bu.Decode(s1, &sLen);
 		}
-		int alloclen =(int)strlen(decodedText) + 1;
+		alloclen =(int)strlen(decodedText) + 1;
 		if (start != NULL) alloclen +=(int)strlen(start);
 		if (rest != NULL) alloclen +=(int)strlen(rest);
 		alloclen *= sizeof(char);
@@ -274,12 +275,13 @@ CBase64Utils::~CBase64Utils()
 
 }
 /*!
-*Decode a string using the Base64 codification
-*/
+ *Decode a string using the Base64 codification
+ */
 char* CBase64Utils::Encode(char *input, int bufsize)
 {
 	int alsize = ((bufsize * 4) / 3);
-	char *finalresult = (char*)calloc(alsize + ((alsize / 76) * 2) + (10 * sizeof(char)), sizeof(char));
+	char *finalresult = (char*)calloc(alsize + ((alsize / 76) * 2) + 
+                                    (10 * sizeof(char)), sizeof(char));
 	int count = 0;
 	int LineLen = 0;
 	char* fresult = finalresult;
@@ -383,8 +385,8 @@ char* CBase64Utils::Encode(char *input, int bufsize)
 	return finalresult;
 }
 /*!
-*Decode a string from a Base64 codification
-*/
+ *Decode a string from a Base64 codification
+ */
 char* CBase64Utils::Decode(char *input, int *bufsize)
 {
 	int std = 0, count = 1, resultlen = 0;
@@ -430,12 +432,12 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 	count--;
 	if (count % 4 != 0)
 	{
+		int tmp;
 		for (int i = 0; i < 4 - (count % 4); i++)
 		{
 			std <<= 6;
 			resultlen++;
 		}
-		int tmp;
 		std >>= 6;
 		tmp = std;
 		tmp >>= 16;
@@ -480,8 +482,8 @@ char* CQPUtils::Decode(char *input)
 				}
 			}
 			char mid[3];
-			s++;
 			int ok = 1;
+			s++;
 			for (i = 0; i < 2; i++)
 			{
 				if (hexmap[(int) ((char)s[i]) ] == SKIP)
@@ -501,8 +503,9 @@ char* CQPUtils::Decode(char *input)
 			}
 			if (ok)
 			{
+        int m;
 				s += 2;
-				int m = hexmap[(int)((char)mid[0])];
+				m = hexmap[(int)((char)mid[0])];
 				m <<= 4;
 				m |= hexmap[(int)((char)mid[1])];
 				*(result++) = (char)m;
@@ -521,7 +524,8 @@ char* CQPUtils::Decode(char *input)
 
 
 
-char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize, int Singlechar)
+char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize, 
+                             int Singlechar)
 {
 	int AddVal;
 	if (Singlechar) AddVal = 3;
@@ -550,6 +554,7 @@ char* CQPUtils::Encode(char *input)
 			LineLen = 0;
 		if (QpEncodeMap[mid] == SKIP)
 		{
+			char mids[3];
 			if (LineLen >= MaxLineLength - 4)
 			{
 				finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, 0);
@@ -560,7 +565,6 @@ char* CQPUtils::Encode(char *input)
 				LineLen = 0;
 			}
 			finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, 0);
-			char mids[3];
 #ifdef WIN32
 			itoa(mid, mids, 16);
 #else
