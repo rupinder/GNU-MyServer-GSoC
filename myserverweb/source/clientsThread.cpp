@@ -116,7 +116,6 @@ void ClientsTHREAD::controlConnections()
 		nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
 		if(nBytesToRead)
 		{
-			logon(c,&logonStatus,&hImpersonation);
 			err=c->socket.recv(&buffer[c->dataRead],KB(5), 0);
 			if(err==-1)
 			{
@@ -138,7 +137,7 @@ void ClientsTHREAD::controlConnections()
 				*the active connections list.
 				*/
 				case PROTOCOL_HTTP:
-					retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation,id);
+					retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 					if(retcode==0)
 					{
 						deleteConnection(c);
@@ -154,7 +153,6 @@ void ClientsTHREAD::controlConnections()
 					break;
 			}
 			c->timeout=clock();
-			logout(logonStatus,&hImpersonation);
 		}
 		else
 		{

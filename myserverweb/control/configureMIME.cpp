@@ -71,11 +71,13 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	actiontodoLB->Insert("SEND THE FILE AS IT IS",CGI_CMD_SEND);
 	actiontodoLB->Insert("RUN THE CGI(SPECIFY A PATH)",CGI_CMD_RUNCGI);
 	actiontodoLB->Insert("RUN THE ISAPI(SPECIFY A PATH)",CGI_CMD_RUNISAPI);
+	actiontodoLB->Insert("EXECUTE THE ISAPI MODULE",CGI_CMD_EXECUTEISAPI);
 	actiontodoLB->Insert("RUN AS A MSCGI",CGI_CMD_RUNMSCGI);
 	actiontodoLB->Insert("HANDLE AS AN EXECUTABLE",CGI_CMD_EXECUTE);
 	actiontodoLB->Insert("HANDLE AS A LINK",CGI_CMD_SENDLINK);
 	actiontodoLB->Insert("HANDLE AS A WINCGI",CGI_CMD_WINCGI);
-	actiontodoLB->Insert("HANDLE AS A FASTCGI",CGI_CMD_FASTCGI);
+	actiontodoLB->Insert("HANDLE AS A FASTCGI(SPECIFY A PATH)",CGI_CMD_RUNFASTCGI);
+	actiontodoLB->Insert("HANDLE AS A SELF FASTCGI SERVER",CGI_CMD_EXECUTEFASTCGI);
 				
 
 	if(mm.load("MIMEtypes.txt"))

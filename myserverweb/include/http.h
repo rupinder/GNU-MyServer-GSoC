@@ -52,13 +52,12 @@ struct httpThreadContext
 	char outputDataPath[MAX_PATH];
 	MYSERVER_FILE inputData;
 	MYSERVER_FILE outputData;
-	LOGGEDUSERID hImpersonation;
 	LPCONNECTION connection;
 };
 /*
 *The main function is controlHTTPConnection(...), that parses the request builds a response.
 */
-int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,LOGGEDUSERID *imp,u_long id);
+int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
 int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=false,int OnlyHeader=false,int firstByte=0,int lastByte=-1,int yetmapped=0);
 int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,int OnlyHeader=false,int firstByte=0,int lastByte=-1);
 int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);

@@ -40,7 +40,6 @@ class  ClientsTHREAD
 #endif
 private:
 	int initialized;
-	LOGGEDUSERID hImpersonation;
 	u_long id;
 	int err;
 	int threadIsRunning;

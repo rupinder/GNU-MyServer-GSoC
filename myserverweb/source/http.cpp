@@ -496,6 +496,19 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		}
 		else
 			return raiseHTTPError(td,s,e_404);
+	}else if(mimeCMD==CGI_CMD_EXECUTEISAPI)
+	{
+		if(MYSERVER_FILE::fileExists(td->filenamePath))
+		{
+#ifdef WIN32
+			return sendISAPI(td,s,td->filenamePath,ext,td->filenamePath);
+#endif
+#ifdef __linux__
+			return raiseHTTPError(td,s,e_501);
+#endif
+		}
+		else
+			return raiseHTTPError(td,s,e_404);
 	}
 	else if(mimeCMD==CGI_CMD_RUNMSCGI)
 	{
@@ -528,10 +541,26 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		return ret;
 
 	}
-	else if(mimeCMD==CGI_CMD_FASTCGI)
+	else if(mimeCMD==CGI_CMD_RUNFASTCGI)
 	{
 	
 		int ret = sendFASTCGI(td,s,td->filenamePath,ext,data);
+		if(td->outputData.getHandle())
+		{
+			td->outputData.closeFile();
+			MYSERVER_FILE::deleteFile(td->outputDataPath);
+		}
+		if(td->inputData.getHandle())
+		{
+			td->inputData.closeFile();
+			MYSERVER_FILE::deleteFile(td->inputDataPath);
+		}
+		return ret;
+	}
+	else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
+	{
+		/*Use the same file both for the server that for the script path*/	
+		int ret = sendFASTCGI(td,s,td->filenamePath,ext,td->filenamePath);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();
@@ -581,14 +610,14 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 /*
 *This is the HTTP protocol main procedure.
 */
-int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,LOGGEDUSERID *imp,u_long id)
+int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id)
 {
 	/*
 	*Bit mask.
 	*|...|31|32|
 	*Bit 32		->	Return value;
 	*Bit 31		->	Return from the function;
-	*Bits 1-30	->	Don't used.
+	*Bits 1-30	->	Not used.
 	*/
 	int retvalue=0;
 	httpThreadContext td;
@@ -597,7 +626,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	td.buffersize=bs1;
 	td.buffersize2=bs2;
 	td.nBytesToRead=nbtr;
-	td.hImpersonation=*imp;
 	td.identity[0]='\0';
 	td.connection=a;
 	td.id=id;

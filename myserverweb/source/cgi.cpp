@@ -44,12 +44,6 @@ extern "C" {
 int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *cgipath,int cmd)
 {
 	/*
-	*Change the owner of the thread to the creator of the process.
-	*This because anonymous users cannot go through our files.
-	*/
-	if(lserver->mustUseLogonOption())
-		revertToSelf();
-	/*
 	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
 	*/
 	int nph;
@@ -233,11 +227,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
 	MYSERVER_FILE::deleteFile(td->inputDataPath);
-	/*
-	*Restore security on the current thread.
-	*/
-	if(lserver->mustUseLogonOption())
-		impersonateLogonUser(&td->hImpersonation);
+
 	/*
 	*By default don't close the connection.
 	*/

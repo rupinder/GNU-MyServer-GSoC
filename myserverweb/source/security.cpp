@@ -27,9 +27,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *Global values for useLogonOption flag and the guest handle.
 */
 int  useLogonOption;
-LOGGEDUSERID guestLoginHandle;
-char guestLogin[20];
-char guestPassword[32];
 
 /*
 *Do the logon of an user.
@@ -93,7 +90,7 @@ void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 		else
 		{
 			*logonStatus=false;
-			*hImpersonation=guestLoginHandle;
+			*hImpersonation=0;
 		}
 		impersonateLogonUser(hImpersonation);
 	}
@@ -123,7 +120,7 @@ void logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
 void logonGuest()
 {
 #ifdef WIN32
-	if(useLogonOption)
-		LogonUser(guestLogin,NULL,guestPassword,LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)&guestLoginHandle);
+//	if(useLogonOption)
+//		LogonUser("Guest",NULL,"guest",LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)&guestLoginHandle);
 #endif
 }

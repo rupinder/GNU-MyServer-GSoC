@@ -104,12 +104,16 @@ int MIME_Manager::load(char *filename)
 				record.command=CGI_CMD_EXECUTE;
 			if(!lstrcmpi(commandString,"RUNISAPI"))
 				record.command=CGI_CMD_RUNISAPI;
+			if(!lstrcmpi(commandString,"EXECUTEISAPI"))
+				record.command=CGI_CMD_EXECUTEISAPI;
 			if(!lstrcmpi(commandString,"SENDLINK"))
 				record.command=CGI_CMD_SENDLINK;
 			if(!lstrcmpi(commandString,"RUNWINCGI"))
 				record.command=CGI_CMD_WINCGI;
 			if(!lstrcmpi(commandString,"RUNFASTCGI"))
-				record.command=CGI_CMD_FASTCGI;
+				record.command=CGI_CMD_RUNFASTCGI;
+			if(!lstrcmpi(commandString,"EXECUTEFASTCGI"))
+				record.command=CGI_CMD_EXECUTEFASTCGI;
 			
 		}
 		nc++;
@@ -182,12 +186,16 @@ int MIME_Manager::loadXML(char *filename)
 					rc.command=CGI_CMD_EXECUTE;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNISAPI"))
 					rc.command=CGI_CMD_RUNISAPI;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEISAPI"))
+					rc.command=CGI_CMD_EXECUTEISAPI;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
 					rc.command=CGI_CMD_SENDLINK;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNWINCGI"))
 					rc.command=CGI_CMD_WINCGI;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
-					rc.command=CGI_CMD_FASTCGI;
+					rc.command=CGI_CMD_RUNFASTCGI;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
+					rc.command=CGI_CMD_EXECUTEFASTCGI;
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
 			{
@@ -234,10 +242,14 @@ int MIME_Manager::saveXML(char *filename)
 			strcpy(command,"SENDLINK");
 		else if(rc->command==CGI_CMD_RUNISAPI)
 			strcpy(command,"RUNISAPI");
+		else if(rc->command==CGI_CMD_EXECUTEISAPI)
+			strcpy(command,"EXECUTEISAPI");
 		else if(rc->command==CGI_CMD_WINCGI)
 			strcpy(command,"RUNWINCGI");
-		else if(rc->command==CGI_CMD_FASTCGI)
-			strcpy(command,"RUNFASTCGI");		
+		else if(rc->command==CGI_CMD_RUNFASTCGI)
+			strcpy(command,"RUNFASTCGI");	
+		else if(rc->command==CGI_CMD_EXECUTEFASTCGI)
+			strcpy(command,"EXECUTEFASTCGI");	
 		f.writeToFile(command,strlen(command),&nbw);
 
 		f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
@@ -282,10 +294,14 @@ int MIME_Manager::save(char *filename)
 			strcpy(command,"SENDLINK ");
 		else if(nmr1->command==CGI_CMD_RUNISAPI)
 			strcpy(command,"RUNISAPI ");
+		else if(nmr1->command==CGI_CMD_EXECUTEISAPI)
+			strcpy(command,"EXECUTEISAPI ");
 		else if(nmr1->command==CGI_CMD_WINCGI)
 			strcpy(command,"RUNWINCGI ");
-		else if(nmr1->command==CGI_CMD_FASTCGI)
-			strcpy(command,"RUNFASTCGI ");		
+		else if(nmr1->command==CGI_CMD_RUNFASTCGI)
+			strcpy(command,"RUNFASTCGI ");	
+		else if(nmr1->command==CGI_CMD_EXECUTEFASTCGI)
+			strcpy(command,"EXECUTEFASTCGI ");	
 
 		f.writeToFile(command,strlen(command),&nbw);
 		if(nmr1->cgi_manager[0])

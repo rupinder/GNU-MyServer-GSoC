@@ -187,12 +187,11 @@ void cserver::start()
 	/*
 	*The guestLoginHandle value is filled by the call to cserver::initialize.
 	*/
-	if(guestLoginHandle==0)
+	if(useLogonOption==0)
 	{
         preparePrintError();		
 		printf("%s\n",languageParser.getValue("AL_NO_SECURITY"));
         endPrintError();
-		useLogonOption=false;
 	}
 
 	/*
@@ -546,12 +545,6 @@ void cserver::stop()
 void cserver::terminate()
 {
 	/*
-	*If the guestLoginHandle is allocated close it.
-	*/
-	if(useLogonOption)
-		cleanLogonUser(&guestLoginHandle);
-
-	/*
 	*Stop the server execution.
 	*/
 	u_long i;
@@ -628,11 +621,8 @@ void cserver::initialize(int OSVer)
 	u_long nThreadsB=0;
 	socketRcvTimeout = 10;
 	useLogonOption = true;
-	guestLoginHandle=0;
 	connectionTimeout = SEC(25);
-	lstrcpy(guestLogin,"myServerUnknown");
 	lstrcpy(languageFile,"languages/english.xml");
-	lstrcpy(guestPassword,"myServerUnknown");
 	browseDirCSSpath[0]='\0';
 	mustEndServer=false;
 	verbosity=1;
@@ -672,11 +662,6 @@ void cserver::initialize(int OSVer)
 		lstrcpy(browseDirCSSpath,data);
 	}
 
-	data=configurationFileManager.getValue("GUEST_LOGIN");
-	if(data)
-	{
-		lstrcpy(guestLogin,data);
-	}
 
 	data=configurationFileManager.getValue("NTHREADS_A");
 	if(data)
@@ -690,11 +675,6 @@ void cserver::initialize(int OSVer)
 	}
 	nThreads=nThreadsA*getCPUCount()+nThreadsB;
 
-	data=configurationFileManager.getValue("GUEST_PASSWORD");
-	if(data)
-	{
-		lstrcpy(guestPassword,data);
-	}
 	/*
 	*Determine the number of default filenames written in the configuration file.
 	*/
@@ -762,20 +742,6 @@ void cserver::initialize(int OSVer)
 	}
 	
 	configurationFileManager.close();
-	
-	/*
-	*Actually is supported only the WinNT access
-	*security options.
-	*The useLogonOption variable is used like a intean,
-	*in the future this can be used like an ID of the
-	*security access engine used.
-	*Logon options cannot be used onto Win9X family.
-	*/
-	useLogonOption=useLogonOption && (OSVer!=OS_WINDOWS_9X);
-	/*
-	*Do the logon of the guest user.
-	*/
-	logonGuest();
 
 }
 /*
