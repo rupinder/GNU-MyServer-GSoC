@@ -219,9 +219,10 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
       /*! Get the length of the field name. */
       fieldLen = getCharInString(field, " ", 32);
 
-      /*! Return nonzero on errors. */
       if(fieldLen == -1)
-        return CONTROL_MALFORMED;
+      {
+        return -1;
+      }
 
       if(!strncmp(field, "/AUTH ", 6))
       {
