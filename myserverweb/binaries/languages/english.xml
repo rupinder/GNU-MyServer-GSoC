@@ -3,7 +3,7 @@
 <MYSERVER_LANGUAGE_FILE>
 <MSG_LANGUAGE>Using english language</MSG_LANGUAGE>
 <MSG_SERVER_CONF>Server configuration terminated</MSG_SERVER_CONF>
-<AL_NO_SECURITY>Security access is not used, the web folder contents is accessible to anyone<AL_NO_SECURITY>
+<AL_NO_SECURITY>Security access is not used, the web folder contents is accessible to anyone</AL_NO_SECURITY>
 <MSG_ISOCK>Initializing socket library...</MSG_ISOCK>
 <ERR_ISOCK>Error initializing socket library</ERR_ISOCK>
 <MSG_SOCKSTART>Socket library was initialized</MSG_SOCKSTART>

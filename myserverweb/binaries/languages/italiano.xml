@@ -3,7 +3,7 @@
 <MYSERVER_LANGUAGE_FILE>
 <MSG_LANGUAGE>Uso della lingua italiana</MSG_LANGUAGE>
 <MSG_SERVER_CONF>Configurazione Server terminata</MSG_SERVER_CONF>
-<AL_NO_SECURITY>Non viene usata nessuna sicurezza, tutti possono accedere alla cartella web<AL_NO_SECURITY>
+<AL_NO_SECURITY>Non viene usata nessuna sicurezza, tutti possono accedere alla cartella web</AL_NO_SECURITY>
 <MSG_ISOCK>Inizializzazione della libreria socket...</MSG_ISOCK>
 <ERR_ISOCK>Errore nella inizializzazione della libreria socket</ERR_ISOCK>
 <MSG_SOCKSTART>Libreria socket inizializzata con successo</MSG_SOCKSTART>
