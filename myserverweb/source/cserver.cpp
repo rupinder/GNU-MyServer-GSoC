@@ -33,6 +33,11 @@ cserver *lserver=0;
 BOOL mustEndServer;
 void cserver::start(INT hInst)
 {
+	/*
+	*Set the current working directory
+	*/
+	ms_setcwd();
+
 	mustEndServer=FALSE;
 	cserver::hInst=hInst;
 	ZeroMemory(this,sizeof(cserver));
@@ -413,9 +418,9 @@ void cserver::initialize(INT OSVer)
 	/*
 	*Store the default path for web and system folder.
 	*/
-	_getcwd(path,MAX_PATH);
+	ms_getcwd(path,MAX_PATH);
 	lstrcat(path,"/web");
-	_getcwd(systemPath,MAX_PATH);
+	ms_getcwd(systemPath,MAX_PATH);
 	lstrcat(systemPath,"/system");
 	int i;
 	for(i=0;i<lstrlen(path);i++)
@@ -428,9 +433,9 @@ void cserver::initialize(INT OSVer)
 	/*
 	*Store the default name of the logs files.
 	*/
-	_getcwd(warningsFileLogName,MAX_PATH);
+	ms_getcwd(warningsFileLogName,MAX_PATH);
 	lstrcat(warningsFileLogName,"logs/myServer.err");
-	_getcwd(accessesFileLogName,MAX_PATH);
+	ms_getcwd(accessesFileLogName,MAX_PATH);
 	lstrcat(accessesFileLogName,"logs/myServer.log");
 
 
@@ -495,7 +500,7 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("WEB_DIRECTORY");
 	if(data)
 	{
-		_getcwd(path,MAX_PATH);
+		ms_getcwd(path,MAX_PATH);
 		lstrcat(path,"/");
 		lstrcat(path,data);
 	}
@@ -503,7 +508,7 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("SYSTEM_DIRECTORY");
 	if(data)
 	{
-		_getcwd(systemPath,MAX_PATH);
+		ms_getcwd(systemPath,MAX_PATH);
 		lstrcat(systemPath,"/");
 		lstrcat(systemPath,data);
 	}
@@ -533,8 +538,8 @@ void cserver::initialize(INT OSVer)
 		controlSizeLogFile();
 	}
 	
-	_getcwd(warningsFileLogName,MAX_PATH);
-	_getcwd(accessesFileLogName,MAX_PATH);
+	ms_getcwd(warningsFileLogName,MAX_PATH);
+	ms_getcwd(accessesFileLogName,MAX_PATH);
 	lstrcat(warningsFileLogName,"/");
 	lstrcat(accessesFileLogName,"/");
 

@@ -58,6 +58,8 @@ char *getHTTPFormattedTime(tm*);
 VOID StrTrim(LPSTR,LPSTR);
 DWORD execHiddenProcess(START_PROC_INFO*);
 VOID getComputerName(char*,DWORD);
+int ms_setcwd();
+char *ms_getcwd(char*,int);
 
 /*
 *These functions are a simple trasposition of the mutex mechanism

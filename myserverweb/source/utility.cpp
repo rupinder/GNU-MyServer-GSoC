@@ -20,10 +20,15 @@
 #include "..\stdafx.h"
 #include "..\include\utility.h"
 #include <string.h>
+#include <direct.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 /*
 *Various utility functions
 */
 extern BOOL mustEndServer; 
+static char currentPath[MAX_PATH];
 INT getOSVersion()
 {
 	int ret=0;
@@ -256,4 +261,21 @@ INT terminateAccess(DWORD* ac,DWORD id)
 	*/
 	*ac=0;
 	return 0;
+}
+int ms_setcwd()
+{
+	int retval=0;
+#ifdef WIN32	
+	_getcwd(currentPath,MAX_PATH);
+	retval=1;
+#endif
+	for(DWORD i=0;i<lstrlen(currentPath);i++)
+		if(currentPath[i]=='\\')
+			currentPath[i]='/';
+	return retval;
+}
+char *ms_getcwd(char *path,int len)
+{
+	lstrcpy(path,currentPath);
+	return path;
 }

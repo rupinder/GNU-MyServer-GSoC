@@ -916,7 +916,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	char currentpath[MAX_PATH];
 	char stdOutFilePath[MAX_PATH];
 	char stdInFilePath[MAX_PATH];
-	_getcwd(currentpath,MAX_PATH);
+	ms_getcwd(currentpath,MAX_PATH);
 	static DWORD id=0;
 	id++;
 	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,id);

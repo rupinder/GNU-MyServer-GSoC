@@ -50,7 +50,7 @@ int cmdShow;
 /*
 *Change this for every new version of this software
 */
-char *versionOfSoftware="0.11";
+char *versionOfSoftware="0.2";
 int main (int argn, char **argc)
 { 
 	/*
