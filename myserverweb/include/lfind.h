@@ -31,13 +31,8 @@ extern "C"
 #include <stdio.h>
 #include <dirent.h>
 #include <limits.h>
+#include <stdint.h>
 }
-
-
-typedef  int intptr_t;
-
-using namespace std;
-
 
 #ifndef EACCES
 #define EACCES 1
@@ -62,9 +57,9 @@ class _finddata_t
    DIR * dh;
 };
 
-intptr_t _findfirst(const char filename[], _finddata_t * fdat );
-int _findnext(intptr_t crap, _finddata_t * fdat );
-int _findclose(intptr_t fdat);
+long  _findfirst(const char filename[], _finddata_t * fdat );
+int _findnext(long crap, _finddata_t * fdat );
+int _findclose(long);
 
 #endif
 

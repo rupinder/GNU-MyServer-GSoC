@@ -37,7 +37,7 @@ void * _alloca(size_t size)
 _finddata_t::_finddata_t()
 {
   DirName = 0;
-
+  dh = 0;
 }
 _finddata_t::~_finddata_t()
 {
@@ -117,24 +117,25 @@ int _finddata_t::findnext()
 
 int _finddata_t::findclose()
 {
-   closedir(dh);
+  if(dh)
+    closedir(dh);
    if(DirName)
      delete [] DirName;
    DirName = 0;
    return 0;
 }
 
-intptr_t _findfirst(const char filename[], _finddata_t * fdat )
+long _findfirst(const char filename[], _finddata_t * fdat )
 {
-   return (fdat->findfirst(filename) == 0)? (intptr_t)fdat : (intptr_t)-1;
+   return (fdat->findfirst(filename) == 0)? (long)fdat : (long)-1;
 }
 
-int _findnext(intptr_t crap, _finddata_t * fdat )
+int _findnext(long crap, _finddata_t * fdat )
 {
    return fdat->findnext();
 }
 
-int _findclose(intptr_t fdat) // a nasty little hack
+int _findclose(long fdat) // a nasty little hack
 {                             // but hey, intptr_t is a void * anyways
    return ((_finddata_t *)fdat)->findclose();
 }

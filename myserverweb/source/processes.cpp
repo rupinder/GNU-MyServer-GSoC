@@ -126,25 +126,25 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 				return (u_long)(-1);
 		}
 		// If stdOut is -1, pipe to /dev/null
-		if((int)spi->stdOut == -1)
+		if((long)spi->stdOut == -1)
 			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null", O_WRONLY);
 		// map stdio to files
 		ret=close(0); // close stdin
 		if(ret == -1)
 			return (-1);
-		ret=dup2((int)spi->stdIn, 0);
+		ret=dup2(spi->stdIn, 0);
 		if(ret == -1)
 			return (-1);
-		ret=close((int)spi->stdIn);
+		ret=close(spi->stdIn);
 		if(ret == -1)
 			return (-1);
 		ret=close(1); // close stdout
 		if(ret == -1)
 			return (-1);
-		ret=dup2((int)spi->stdOut, 1);
+		ret=dup2(spi->stdOut, 1);
 		if(ret == -1)
 			return (-1);
-		ret=close((int)spi->stdOut);
+		ret=close(spi->stdOut);
 		if(ret == -1)
 			return (u_long)(-1);
 		//close(2); // close stderr
@@ -262,25 +262,25 @@ int execConcurrentProcess(START_PROC_INFO* spi)
 		if(spi->cwd)
 			chdir((const char*)(spi->cwd));
 		// If stdOut is -1, pipe to /dev/null
-		if((int)spi->stdOut == -1)
+		if((long)spi->stdOut == -1)
 			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null",O_WRONLY);
 		// map stdio to files
 		ret = close(0); // close stdin
 		if(ret == -1)
 			return (-1);
-		ret=dup2((int)spi->stdIn, 0);
+		ret=dup2((long)spi->stdIn, 0);
 		if(ret == -1)
 			return (-1);	
-		ret=close((int)spi->stdIn);
+		ret=close((long)spi->stdIn);
 		if(ret == -1)
 			return (-1);	
 		ret=close(1); // close stdout
 		if(ret == -1)
 			return (-1);
-		ret=dup2((int)spi->stdOut, 1);
+		ret=dup2((long)spi->stdOut, 1);
 		if(ret == -1)
 			return (-1);	
-		ret=close((int)spi->stdOut);
+		ret=close((long)spi->stdOut);
 		if(ret == -1)
 			return (-1);	
 		//close(2); // close stderr

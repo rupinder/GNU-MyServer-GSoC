@@ -318,13 +318,13 @@ int protocols_manager::loadProtocols(char* directory, cXMLParser* parser,
 #endif	
 	
 	_finddata_t fd;
-	intptr_t ff;
-	ff=(intptr_t)_findfirst(filename,&fd);	
+	long ff;
+	ff=(long)_findfirst(filename,&fd);	
 #ifdef WIN32
 	if(ff==-1)
 #endif
 #ifdef NOT_WIN
-	if((int)ff==-1)
+	if(ff==-1)
 #endif
   {
     delete [] filename;
@@ -359,7 +359,7 @@ int protocols_manager::loadProtocols(char* directory, cXMLParser* parser,
 		addProtocol(completeFileName, parser, confFile, lserver);
 		delete [] completeFileName;
 	}while(!_findnext(ff,&fd));
-	_findclose(ff);		
+	_findclose(ff);
   delete [] filename;
   filename = 0;
   return 0;

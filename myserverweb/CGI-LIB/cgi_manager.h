@@ -25,7 +25,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*
 *Do not link the library using with the SSL support.
 */
+#ifndef DO_NOT_USE_SSL
 #define DO_NOT_USE_SSL
+#endif
 
 #include "../include/http.h"
 #include "../include/filemanager.h"

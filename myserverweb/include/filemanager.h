@@ -22,10 +22,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 
 #ifdef WIN32
-typedef void *MYSERVER_FILE_HANDLE;
+typedef void* MYSERVER_FILE_HANDLE;
 #endif
 #ifdef NOT_WIN
-typedef FILE*  MYSERVER_FILE_HANDLE;
+typedef long  MYSERVER_FILE_HANDLE;
 #endif
 
 #define MYSERVER_FILE_OPEN_READ (1<<0)

@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002,2003,2004 The MyServer Team
+*Copyright (C) 2002,2003,2004,2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -97,7 +97,7 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 	return (!ret);
 #endif
 #ifdef NOT_WIN
-	*nbw = write((int)handle, buffer, buffersize);
+	*nbw =  write((long)handle, buffer, buffersize);
 	return (*nbw==buffersize)? 0 : 1 ;
 #endif
 }
@@ -120,7 +120,7 @@ MYSERVER_FILE::MYSERVER_FILE(char *filename, int opt)
  */
 int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 {
-	int ret=0;
+	long ret=0;
   if(filename)
   {
     delete [] filename;
@@ -302,7 +302,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
 		unlink(Buffer); // Remove File on close
 	
-	if((int)handle < 0)
+	if((long)handle < 0)
   {
 		handle = (MYSERVER_FILE_HANDLE)0;
     if(filename)
@@ -389,7 +389,7 @@ int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 	return (!ret);
 #endif
 #ifdef NOT_WIN
-	int ret  = read((int)handle, buffer, buffersize);
+	int ret  = read((long)handle, buffer, buffersize);
   *nbr = (u_long)ret;
 	return (ret == -1) ;
 #endif
@@ -410,19 +410,19 @@ int MYSERVER_FILE::closeFile()
 {
 	int ret=0;
 	if(handle)
-	{
+    {
 #ifdef WIN32
-        if(handle)
+      if(handle)
         {
-		  FlushFileBuffers((HANDLE)handle);
-		  ret=CloseHandle((HANDLE)handle);
+          FlushFileBuffers((HANDLE)handle);
+          ret=CloseHandle((HANDLE)handle);
         }
 #endif
 #ifdef NOT_WIN
-        if(handle)
+      if(handle)
         {
-		  fsync((int)handle);
-		  ret=close((int)handle);
+          fsync((long)handle);
+          ret=close((long)handle);
         }
 #endif
 	}
@@ -467,7 +467,7 @@ u_long MYSERVER_FILE::getFileSize()
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;
-	ret = fstat((int)handle, &F_Stats);
+	ret = fstat((long)handle, &F_Stats);
 	if(ret)
 		return (u_long)(-1);
 	else
@@ -486,7 +486,7 @@ int MYSERVER_FILE::setFilePointer(u_long initialByte)
 	return (ret==INVALID_SET_FILE_POINTER)?1:0;
 #endif
 #ifdef NOT_WIN
-	ret = lseek((int)handle, initialByte, SEEK_SET);
+	ret = lseek((long)handle, initialByte, SEEK_SET);
 	return (ret!=initialByte)?1:0;
 #endif
 }
