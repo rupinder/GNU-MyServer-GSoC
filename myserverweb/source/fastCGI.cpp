@@ -112,7 +112,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   File::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
   if(cgipath)
-	File::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+    File::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
 
   if(td->scriptDir)
     delete [] td->scriptDir;
