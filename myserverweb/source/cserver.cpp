@@ -78,7 +78,6 @@ cserver::~cserver()
 
 void cserver::start()
 {
-	myserver_regex mr;
 	u_long i;
 	u_long configsCheck=0;
 	time_t myserver_main_conf;
