@@ -14,12 +14,12 @@
 
 <h2>Brief notes on data encryption </h2>
 <p>
-The data encryption is used to protect the data that is sent between the client and the server. There are two types of algorithm: symmetric and asymmetric data encryption algorithms. The difference between the two types of algorithm is that for the asymmetric algorithms the same key is used both for encryption and decryption. These algorithms are not used by servers with a potentially large number of clients because the data captured can be decrypted by any client that know the key and because the key needs to be distribuite in a safe manner(for example using a floppy disk) and not distributing it on a large network like internet. The asymmetric algorithms work in a different way, the data encrypted with a key can be decrypted only with the other key and viceversa. Anyone know the public key but only the owner knows the private one. In this way the key owner do not have to distribuite the key only to know clients but he can distributes it to a large scale network. 
+The data encryption is used to protect the data that is sent between the client and the server. There are two types of algorithm: symmetric and asymmetric data encryption algorithms. The difference between the two types of algorithm is that for the symmetric algorithms the same key is used both for encryption and decryption. These algorithms are not used by servers with a potentially large number of clients because the data captured can be decrypted by any client that know the key and because the key needs to be distribuite in a safe manner(for example using a floppy disk) and not distributing it on a large network like internet. The asymmetric algorithms work in a different way, the data encrypted with a key can be decrypted only with the other key and viceversa. Anyone know the public key but only the owner knows the private one. In this way the key owner do not have to distribuite the key only to know clients but he can distributes it to a large scale network. 
 
 
 <h2>How create SSL certificates with OpenSSL </h2>
 <p>
-A certificate is needed to certify your identity through a CA(Certification Authority). You can use a certificate without register it to third party CA but creating a Root Certification certificate. To create certificate the library OpenSSL, you can find it at: www.openssl.org, can help you in this process. 
+A certificate is needed to certify your identity through a CA(Certification Authority). You can use a certificate without register it to third party CA but creating a Root Certification certificate. You can find all the necessary to create certificates in the library OpenSSL at: www.openssl.org. 
 After its installation go in the binaries folder and type: 
 <p  class="code">
 openssl genrsa -out server.key 
