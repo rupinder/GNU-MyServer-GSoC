@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer team
+*Copyright (C) 2002 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -358,32 +358,40 @@ int isFcgiServerRunning(char* path)
 	}
 	return -1;
 }
+int FcgiConectSocket(fCGIContext* con,int pID)
+{
+	unsigned long pLong = 1L;
+	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname("localhost");
+
+	struct sockaddr_in sockAddr;
+	int sockLen = sizeof(sockAddr);
+    memset(&sockAddr, 0, sizeof(sockAddr));
+    sockAddr.sin_family = AF_INET;
+	memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
+	sockAddr.sin_port = htons(fCGIservers[pID].port);
+	
+	if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)
+	{
+		return -1;
+	}
+	if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
+	{
+		con->sock.closesocket();
+		return -1;
+	}
+	con->sock.ioctlsocket(FIONBIO, &pLong);
+	con->fcgiPID=pID;
+
+}
 int FcgiConnect(fCGIContext* con,char* path)
 {
 	int pID;
 	unsigned long pLong = 1L;
 	if((pID=runFcgiServer(con,path))>=0)
 	{
-		MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname("localhost");
-
-		struct sockaddr_in sockAddr;
-		int sockLen = sizeof(sockAddr);
-        memset(&sockAddr, 0, sizeof(sockAddr));
-        sockAddr.sin_family = AF_INET;
-	    memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
-	    sockAddr.sin_port = htons(fCGIservers[pID].port);
-		
-		if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)
-		{
+		int ret=FcgiConectSocket(con,pID);
+		if(ret==-1)
 			return -1;
-		}
-		if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
-		{
-			con->sock.closesocket();
-			return -1;
-		}
-		con->sock.ioctlsocket(FIONBIO, &pLong);
-		con->fcgiPID=pID;
 	}
 	return pID;
 }

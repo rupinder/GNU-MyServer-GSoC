@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer team
+*Copyright (C) 2002 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -159,6 +159,7 @@ struct fCGIContext
 };
 
 int initializeFASTCGI();
+int FcgiConectSocket(fCGIContext*,int);
 int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath,int execute);
 void generateFcgiHeader( FCGI_Header&, int ,int, int );
 MYSERVER_SOCKET getFcgiConnection();

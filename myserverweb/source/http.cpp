@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer team
+*Copyright (C) 2002 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -50,7 +50,9 @@ extern "C" {
 #ifndef intptr_t
 #define intptr_t int
 #endif
-
+/*
+*Browse of a folder
+*/
 int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
 	/*
@@ -91,7 +93,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	td->buffer2[0]='\0';
 	_finddata_t fd;
-	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",td->request.URI);
+	sprintf(td->buffer2,"<HTML>\r\n<HEAD>\r\n<TITLE>%s</TITLE>\r\n</HEAD>\r\n",td->request.URI);
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	/*
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
@@ -105,9 +107,9 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		{
 			u_long nbr;
 			cssHandle.readFromFile(td->buffer,td->buffersize,&nbr);
-			strcpy(td->buffer2,"<STYLE><!--");
+			strcpy(td->buffer2,"<STYLE>\r\n<!--");
 			strcat(td->buffer2,td->buffer);
-			strcat(td->buffer2,"--></STYLE>");
+			strcat(td->buffer2,"-->\r\n</STYLE>\r\n");
 			cssHandle.closeFile();
 			outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 		}
@@ -119,11 +121,11 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 #ifdef __linux__
 	sprintf(filename,"%s/",folder);
 #endif
-	strcpy(td->buffer2,"<BODY>");
+	strcpy(td->buffer2,"\r\n<BODY>\r\n");
 	strcat(td->buffer2,msgFolderContents);
 	strcat(td->buffer2," ");
 	strcat(td->buffer2,&td->request.URI[startchar]);
-	strcat(td->buffer2,"<P>\n<HR>");
+	strcat(td->buffer2,"\r\n<P>\r\n<HR>\r\n");
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	intptr_t ff;
 	ff=_findfirst(filename,&fd);
@@ -151,7 +153,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	/*
 	*With the current code we build the HTML TABLE that describes the files in the folder.
 	*/
-	sprintf(td->buffer2,"<TABLE><TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>",msgFile,msgLModify,msgSize);
+	sprintf(td->buffer2,"<TABLE>\r\n<TR>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n</TR>\r\n",msgFile,msgLModify,msgSize);
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	static char fileSize[10];
 	static char fileTime[20];
@@ -161,7 +163,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			continue;
 		if(!strcmp(fd.name,"security"))
 			continue;
-		strcpy(td->buffer2,"<TR><TD><A HREF=\"");
+		strcpy(td->buffer2,"<TR>\r\n<TD><A HREF=\"");
 		if(!td->request.uriEndsWithSlash)
 		{
 			strcat(td->buffer2,&td->request.URI[startchar]);
@@ -170,14 +172,14 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		strcat(td->buffer2,fd.name);
 		strcat(td->buffer2,"\">");
 		strcat(td->buffer2,fd.name);
-		strcat(td->buffer2,"</TD><TD>");
+		strcat(td->buffer2,"</TD>\r\n<TD>");
 			
 		tm *st=gmtime(&fd.time_write);
 
 		sprintf(fileTime,"%u\\%u\\%u-%u:%u:%u System time",st->tm_wday,st->tm_mon,st->tm_year,st->tm_hour,st->tm_min,st->tm_sec);
 		strcat(td->buffer2,fileTime);
 
-		strcat(td->buffer2,"</TD><TD>");
+		strcat(td->buffer2,"</TD>\r\n<TD>");
 		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			strcat(td->buffer2,"[dir]");
@@ -187,14 +189,14 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			sprintf(fileSize,"%i bytes",fd.size);
 			strcat(td->buffer2,fileSize);
 		}
-		strcat(td->buffer2,"</TD></TR>\n");
+		strcat(td->buffer2,"</TD>\r\n</TR>\r\n");
 		outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	}while(!_findnext(ff,&fd));
-	strcpy(td->buffer2,"</TABLE>\n<HR>");
+	strcpy(td->buffer2,"</TABLE>\r\n<HR>\r\n");
 	strcat(td->buffer2,msgRunOn);
 	strcat(td->buffer2," MyServer ");
 	strcat(td->buffer2,versionOfSoftware);
-	strcat(td->buffer2,"</BODY></HTML>");
+	strcat(td->buffer2,"\r\n</BODY>\r\n</HTML>\r\n");
 	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
 	_findclose(ff);
 	char *buffer2Loop=td->buffer2;
