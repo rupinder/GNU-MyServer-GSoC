@@ -902,7 +902,12 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	strncpy(nc->ipAddr,ipAddr,MAX_IP_STRING_LEN);
 	strncpy(nc->localIpAddr,localIpAddr,MAX_IP_STRING_LEN);
 	nc->next =connections;
-    nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	if(nc->host == 0) /* No vhost for the connection so bail */
+	{
+		free(nc);
+		return 0;
+	}
 	/*!
 	*If the protocol is HTTPS do the SSL handshake
 	*/
