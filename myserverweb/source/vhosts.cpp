@@ -25,6 +25,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 
 
+#ifdef WIN32
+#pragma comment(lib,"libeay32.lib")/*Import the OpenSSL library*/
+#pragma comment(lib,"ssleay32.lib")/*Import the OpenSSL library*/
+#endif
+
+
 /*
 *vhost costructor
 */
@@ -725,7 +731,10 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
 			{
-				strcpy(vh->sslContext.password,((char*)lcur->children->content));
+				if(lcur->children)
+					strcpy(vh->sslContext.password,((char*)lcur->children->content));
+				else
+					vh->sslContext.password[0]='\0';
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
 			{
@@ -908,7 +917,7 @@ int vhost::initializeSSL()
 	return 1;
 }	
 /*
-*Generate a RSA key and assing it to the SSL context.
+*Generate a RSA key and pass it to the SSL context.
 */
 void vhost::generateRsaKey()
 {

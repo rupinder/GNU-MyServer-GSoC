@@ -118,6 +118,7 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 	wxStaticText *hostProtocolS= new wxStaticText(panel, -1, "Protocol used",wxPoint(320,110), wxSize(100,40));
 	hostProtocol=new wxListBox(panel,Configuration_protocolMod,wxPoint(400,110), wxSize(230,20),0, NULL,wxLB_HSCROLL);
 	hostProtocol->Insert(_T("HTTP"),PROTOCOL_HTTP);
+	hostProtocol->Insert(_T("HTTPS"),PROTOCOL_HTTPS);
 
 	vhostmanager::sVhostList *sl = hostmanager.getvHostList();
 	while(sl)

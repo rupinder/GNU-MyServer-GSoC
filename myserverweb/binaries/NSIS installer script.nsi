@@ -42,6 +42,8 @@ Section "MyServer core" SecCore
   WriteUninstaller "remove.exe"
   File "myserver.exe"
   File "libxml2.dll"
+  File "libeay32.dll"
+  File "ssleay32.dll"
   File "MIMEtypes.xml"
   File "myserver.xml"
   File "readme.txt"

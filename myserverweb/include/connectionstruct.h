@@ -24,9 +24,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*
 *Here are listed all the protocol supported by the server.
 */
-#define PROTOCOL_HTTP		1
-#define PROTOCOL_HTTPS		2
-#define PROTOCOL_FTP		3
+#define PROTOCOL_HTTP		0
+#define PROTOCOL_HTTPS		1
+#define PROTOCOL_FTP		2
 
 
 typedef u_long CONNECTION_PROTOCOL;

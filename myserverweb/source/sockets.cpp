@@ -36,8 +36,6 @@ extern "C" {
 #ifdef WIN32
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"ws2_32.lib")
-#pragma comment(lib,"libeay32.lib")/*Import the OpenSSL library*/
-#pragma comment(lib,"ssleay32.lib")/*Import the OpenSSL library*/
 #endif
 
 #define CERT_FILE "certificates/server.pem"		

@@ -142,6 +142,9 @@ void ClientsTHREAD::controlConnections()
 			case PROTOCOL_HTTP:
 				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
+			/*
+			*Use the same parser for the HTTPS protocol too.
+			*/
 			case PROTOCOL_HTTPS:
 				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;

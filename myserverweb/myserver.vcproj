@@ -45,7 +45,6 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/NODEFAULTLIB:libcmtd.lib"
 				OutputFile="$(OutDir)/myserver.exe"
 				LinkIncremental="0"
 				GenerateDebugInformation="TRUE"
