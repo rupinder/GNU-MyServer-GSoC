@@ -44,7 +44,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/FORCE:MULTIPLE /NODEFAULTLIB:LIBCMT"
+				AdditionalOptions="/NODEFAULTLIB:LIBCMT"
 				OutputFile="$(OutDir)/myserver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -201,6 +201,9 @@
 						CompileAs="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="source\vhosts.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -245,9 +248,6 @@
 				RelativePath="include\isapi.h">
 			</File>
 			<File
-				RelativePath="include\lfind.h">
-			</File>
-			<File
 				RelativePath="include\mscgi.h">
 			</File>
 			<File
@@ -264,6 +264,9 @@
 			</File>
 			<File
 				RelativePath="include\utility.h">
+			</File>
+			<File
+				RelativePath="include\vhosts.h">
 			</File>
 		</Filter>
 		<Filter
