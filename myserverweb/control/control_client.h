@@ -56,6 +56,9 @@ class ControlClient
    int getConnections(Vector &);
    int sendKillConnection(VectorNode *);
 
+   int sendDisableReboot();
+   int sendEnableReboot();
+   
    char LastCode[4];
  protected:
    int sendRequest(const char *, const char *);

@@ -32,6 +32,8 @@ class control_protocol : public protocol
   MYSERVER_FILE *Ifile;
   /*! Output file. */
   MYSERVER_FILE *Ofile;
+  /*! Protocol level disable */
+  bool Reboot;
 
   /*! Use control_header to parse the request. */
   control_header header;

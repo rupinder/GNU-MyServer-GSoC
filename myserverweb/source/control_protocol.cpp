@@ -76,6 +76,7 @@ control_protocol::control_protocol()
   Ifile=0;
   Ofile=0;
 	PROTOCOL_OPTIONS = 0;
+  Reboot = true;
 }
 
 /*!
@@ -820,6 +821,7 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   /*! If we cannot find the file send the right error ID. */
   if(!filename)
   {
+    Reboot = true;
     lserver->enableAutoReboot();
     return CONTROL_FILE_NOT_FOUND;
   }
@@ -829,6 +831,7 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   /*! An internal server error happens. */
   if(ret)
   {
+    Reboot = true;
     lserver->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
@@ -838,6 +841,7 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   /*! An internal server error happens. */
   if(ret)
   {
+    Reboot = true;
     lserver->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
@@ -852,6 +856,7 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
     ret = Ifile->readFromFile(b1, bs1, &nbr);
     if(ret)
     {
+      Reboot = true;
       lserver->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
@@ -864,12 +869,14 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
 
     if(ret)
     {
+      Reboot = true;
       lserver->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
   }
   localfile.closeFile();
-  lserver->enableAutoReboot();
+  if(Reboot)
+    lserver->enableAutoReboot();
   return 0;
 }
 
@@ -949,6 +956,7 @@ int control_protocol::GETVERSION(MYSERVER_FILE* out, char *b1,int bs1)
 int control_protocol::DISABLEREBOOT()
 {
   lserver->disableAutoReboot();
+  Reboot = false;
   return 0;
 }
 /*
@@ -957,5 +965,6 @@ int control_protocol::DISABLEREBOOT()
 int control_protocol::ENABLEREBOOT()
 {
   lserver->enableAutoReboot();
+  Reboot = true;
   return 0;
 }

@@ -349,7 +349,7 @@ private:
   const char * getValueXML(const char * name);
   void setValueXML(const char * name, const char * value);
   void ServerLogout();
-  void ServerLogin();
+  int ServerLogin(bool stat);
   void fl_alertcat(const char * c1, const char * c2);
   void fl_wait(int len);
   bool Changed;

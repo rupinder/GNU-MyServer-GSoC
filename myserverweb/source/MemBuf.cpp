@@ -171,7 +171,7 @@ u_int CMemBuf::Find(const void* pAdr, u_int size, u_int start)
 	char* pLast;
 	const char* pPrev = m_buffer + start;
 	u_int size_buf = m_nSize - start;
-	const char* pEnd = m_buffer + m_nSize;
+	const char* pEnd = m_buffer + m_nSize + 1;
 	while ((pLast = (char*) memchr(pPrev, first, size_buf)) != NULL)
 	{
 		size_buf -= (u_int)(pLast - pPrev);

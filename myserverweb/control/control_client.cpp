@@ -18,8 +18,12 @@
 #include "control_client.h"
 
 //#define DEBUG
+/* Max read of header before failure */
 #define MAXHEADERLEN  2048
+/* Max wait time before failure */
 #define TIMEOUT       30000
+/* Buffer size.  Make smaller for more dramatic effect */
+#define BUFFSIZE      16
 
 ControlClient::ControlClient()
 {
@@ -333,6 +337,30 @@ int ControlClient::sendKillConnection(VectorNode * node)
    return 0;
 }
 
+int ControlClient::sendDisableReboot()
+{
+   int ret;
+   ret = sendRequest("DISABLEREBOOT", "");
+   if(ret)
+     return -1;
+   ret = getResponse();
+   if(ret)
+     return ret;
+   return 0;
+}
+
+int ControlClient::sendEnableReboot()
+{
+   int ret;
+   ret = sendRequest("ENABLEREBOOT", "");
+   if(ret)
+     return -1;
+   ret = getResponse();
+   if(ret)
+     return ret;
+   return 0;
+}
+
 int ControlClient::sendRequest(const char * cmd, const char * opt)
 {
    if(!Connected)
@@ -360,7 +388,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
 
    int ret1, ret2;
    int len, pos;
-   int bites;
+   int bytes;
    Buffer.SetLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
@@ -376,8 +404,8 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
    pos = 0;
    while(pos < len)
      {
-	bites = (len - pos < 1024 ? len - pos : 1024);
-	ret2 = socket.send((const char *)&data[pos], bites, 0);
+	bytes = (len - pos < BUFFSIZE ? len - pos : BUFFSIZE);
+	ret2 = socket.send((const char *)&data[pos], bytes, 0);
 	if(ret2 == -1)
 	  break;
 	pos += ret2;
@@ -413,14 +441,14 @@ int ControlClient::getResponse()
    int ret = 0;
    int hLen = 0;
    int returnLEN = 0;
-   char cBuffer[1024];
+   char cBuffer[BUFFSIZE];
    Buffer.SetLength(0);
 #ifdef DEBUG
    write(1, "Find header:", strlen("Find header:"));
 #endif
    while(Buffer.Find("\r\n\r\n", 4, 0) == -1) // a little costly, may change
      {
-	ret = socket.recv(cBuffer, 1024, 0, TIMEOUT);
+	ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 
 	if(ret == -1)
 	  {
@@ -440,6 +468,10 @@ int ControlClient::getResponse()
 #endif
      }
 
+#ifdef DEBUG
+   write(1, "\nDone\n", strlen("\nDone\n"));
+#endif
+   
    // get header len
    hLen = Buffer.Find("\r\n\r\n", 4, 0) + 4;
 
@@ -474,7 +506,7 @@ int ControlClient::getResponse()
 	DataPos = hLen;
 	while(Buffer.GetLength() < (hLen + returnLEN))
 	  {
-	     ret = socket.recv(cBuffer, 1024, 0, TIMEOUT);
+	     ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 
 	     if(ret == -1)
 	       return -1;  // problem here
@@ -487,6 +519,9 @@ int ControlClient::getResponse()
 	     if(Progress)
 	       Progress(Object, returnLEN, Buffer.GetLength() - hLen); 
 	  } // while
+#ifdef DEBUG
+   write(1, "\nDone\n", strlen("\nDone\n"));
+#endif
      } // if
    else
      DataPos = -1; // no data

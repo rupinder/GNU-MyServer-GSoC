@@ -154,7 +154,7 @@ else {
         } {
           menuitem {} {
             label {Login...}
-            callback {ServerLogin();}
+            callback {ServerLogin(true);}
             xywh {0 0 100 20}
           }
           menuitem MenuLogout {
@@ -176,11 +176,18 @@ if(Changed) {
 
     ret = load_config_remote();
 
+    if(ret) {
+      ret = ServerLogin(false);
+      if(!ret) {
+        ret = load_config_remote();
+      }
+    }
+
     fl_wait(500);  // oooo aaa effect
     StatusDlg->hide();
 
     if(ret == -1) {
-      fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
+      fl_alertcat("Download failed.  Code: ", Server.LastCode);
       ServerLogout();
     }
     else if(ret) {
@@ -198,11 +205,18 @@ else {
 
   ret = load_config_remote();
 
+  if(ret) {
+    ret = ServerLogin(false);
+    if(!ret) {
+      ret = load_config_remote();   
+    }
+  }
+
   fl_wait(500);  // oooo aaa effect
   StatusDlg->hide();
 
   if(ret == -1) {
-    fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
+    fl_alertcat("Download failed.  Code: ", Server.LastCode);
     ServerLogout();
   }
   else if(ret) {
@@ -214,25 +228,35 @@ else {
           menuitem MenuSendConfig {
             label {Send Config}
             callback {int ret;
-// Say something...
-StatusDlgProgress->value(0);
-StatusDlgProgress->label("0%");
-StatusDlgGroup->label("Sending config files:");
-StatusDlg->show();
-fl_wait(200);  // let fltk do its thing
+ret = fl_ask("This will kill all connections.  Are you sure?");
+if(ret) {
+  // Say something...
+  StatusDlgProgress->value(0);
+  StatusDlgProgress->label("0%");
+  StatusDlgGroup->label("Sending config files:");
+  StatusDlg->show();
+  fl_wait(200);  // let fltk do its thing
 
-ret = save_config_remote();
+  ret = save_config_remote();
 
-StatusDlg->hide();
-fl_wait(500);  // oooo aaa effect
+  if(ret) {
+    ret = ServerLogin(false);
+    if(!ret) {
+      ret = save_config_remote();
+    }
+  }
 
-if(ret == -1) {
-  fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
-  ServerLogout();
+  fl_wait(500);  // oooo aaa effect
+  StatusDlg->hide();
+
+  if(ret == -1) {
+    fl_alertcat("Upload failed.  Code: ", Server.LastCode);
+  }
+  else if(ret) {
+    fl_alert("Could not save.");
+  }
 }
-else if(ret) {
-  fl_alert("Could not save.");
-}}
+ServerLogout();} selected
             xywh {0 0 100 20} deactivate divider
           }
           menuitem MenuConnections {
@@ -244,9 +268,21 @@ else if(ret) {
             callback {int ret;
 ret = fl_ask("This will kill all connections.  Are you sure?");
 if(ret) {
-  Server.sendReboot();
+  ret = Server.sendReboot();
+  
+  if(ret) {
+    ret = ServerLogin(false);
+    if(!ret) {
+      ret = Server.sendReboot();
+    }
+  }
+
+  if(ret) {
+    fl_alert("Reboot failed.");
+  }
+
   ServerLogout();
-}} selected
+}}
             xywh {0 0 100 20} deactivate
           }
         }
@@ -1466,6 +1502,10 @@ return 0;} {}
     code {int ret;
 CMemBuf Buffer;
 
+ret = Server.sendDisableReboot();
+if(ret)
+  return -1;
+
 // Send myserver.xml
 save_myserver_core();
 
@@ -1490,6 +1530,10 @@ if(ret)
   return -2;
 
 ret = Server.sendVhostsConf(Buffer);
+if(ret)
+  return -1;
+
+ret = Server.sendEnableReboot();
 if(ret)
   return -1;
 
@@ -1621,7 +1665,7 @@ MenuSendConfig->deactivate();
 MenuConnections->deactivate();
 MenuReboot->deactivate();} {}
   }
-  Function {ServerLogin()} {open private return_type void
+  Function {ServerLogin(bool stat)} {open private return_type int
   } {
     code {LoginDlg->show();
 int ret;
@@ -1636,15 +1680,17 @@ LoginDlg->hide();
 
 if(ret) {
   LoginDlgPass->value("");
-  return;
+  return -1;
 }
 
-// Say something...
-StatusDlgProgress->value(0);
-StatusDlgProgress->label("0%");
-StatusDlgGroup->label("Connecting to server:");
-StatusDlg->show();
-fl_wait(200);  // let fltk do its thing
+if(stat) {
+  // Say something...
+  StatusDlgProgress->value(0);
+  StatusDlgProgress->label("0%");
+  StatusDlgGroup->label("Connecting to server:");
+  StatusDlg->show();
+  fl_wait(200);  // let fltk do its thing
+}
 
 ret = Server.Login(LoginDlgAddress->value(),
                    (int)LoginDlgPort->value(),
@@ -1656,7 +1702,7 @@ LoginDlgPass->value("");
 if(ret) {
   StatusDlg->hide();
   fl_alertcat("Login failed.  Code: ", Server.LastCode);
-  return;
+  return -1;
 }
 
 MenuLogout->activate();
@@ -1665,11 +1711,15 @@ MenuSendConfig->activate();
 MenuConnections->activate();
 MenuReboot->activate();
 
-// Show we are done...
-StatusDlgProgress->value(100);
-StatusDlgProgress->label("100%");
-fl_wait(500);  // oooo aaa effect
-StatusDlg->hide();} {}
+if(stat) {
+  // Show we are done...
+  StatusDlgProgress->value(100);
+  StatusDlgProgress->label("100%");
+  fl_wait(500);  // oooo aaa effect
+  StatusDlg->hide();
+}
+
+return 0;} {}
   }
   Function {fl_alertcat(const char * c1, const char * c2)} {open private return_type void
   } {
