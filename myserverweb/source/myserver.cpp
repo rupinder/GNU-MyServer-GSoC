@@ -60,7 +60,7 @@ int cmdShow;
 /*
 *Change this for every new version of this software.
 */
-const char *versionOfSoftware="0.3.1";
+const char *versionOfSoftware="0.4";
 cserver server;
 
 #ifndef WIN32
