@@ -17,7 +17,8 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
-
+#ifndef MSCGI_H
+#define MSCGI_H
 #include "..\stdafx.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\connectionstruct.h"
@@ -29,4 +30,5 @@ int freeMSCGILib();
 int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
 typedef int (*CGIMAIN)(char*); 
 typedef int (*CGIINIT)(httpThreadContext*,LPCONNECTION); 
+#endif
 

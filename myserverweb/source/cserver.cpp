@@ -130,7 +130,7 @@ void cserver::start()
 	*Libhoard is a free library by Emery Berger,
 	*it is distribuite under the GNU Library General Public License.
 	*You can download it at: http://www.hoard.org/.
-	*For use libhoard in myServer simply put the libhoard.dll file in the 
+	*For use libhoard in myServer simply put the libhoard.dll executable file in the 
 	*myServer external folder.
 	*/
 	if(ms_FileExists("external/libhoard.dll"))
