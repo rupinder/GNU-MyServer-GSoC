@@ -279,7 +279,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 					{
             ostringstream buffer;
 						h.closeFile();
-            buffer << (int)dataSent;
+            buffer << dataSent;
             td->response.CONTENT_LENGTH.assign(buffer.str().c_str());
 						return 0;
 					}
