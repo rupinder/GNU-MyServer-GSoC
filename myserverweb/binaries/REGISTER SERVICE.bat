@@ -1,1 +1,2 @@
 control.exe REGISTER
+exit

@@ -1,1 +1,2 @@
 myserver.exe CONSOLE
+exit

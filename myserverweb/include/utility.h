@@ -53,6 +53,9 @@ struct START_PROC_INFO
 };
 #endif
 
+void preparePrintError();
+void endPrintError();
+
 INT ms_getOSVersion();
 u_long ms_getCPUCount();
 void ms_wait(u_long);

@@ -1,1 +1,2 @@
 control.exe UNREGISTER
+exit

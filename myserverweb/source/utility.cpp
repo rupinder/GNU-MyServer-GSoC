@@ -207,3 +207,21 @@ void ms_wait(u_long time)
 		Sleep(time);
 #endif
 }
+/*
+*Set the text color to red on black.
+*/
+void preparePrintError()
+{
+#ifdef WIN32 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
+}
+/*
+**Set the text color to white on black.
+*/
+void endPrintError()
+{
+#ifdef WIN32 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+#endif
+}
