@@ -29,7 +29,6 @@ extern "C" {
 #elif HAVE_DL
 #include <dlfcn.h>
 #define HMODULE void *
-
 #else
 #define HMODULE void *
 #endif

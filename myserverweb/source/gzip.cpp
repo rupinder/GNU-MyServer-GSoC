@@ -165,7 +165,7 @@ u_long gzip::gzip_updateCRC(char* buffer,int size)
 /*!
 *Get the GZIP footer.
 */
-u_long gzip::gzip_getFOOTER(char *str,int size)
+u_long gzip::gzip_getFOOTER(char *str,int /*size*/)
 {
 #ifndef DO_NOT_USE_GZIP		
 	char *footer =  str;

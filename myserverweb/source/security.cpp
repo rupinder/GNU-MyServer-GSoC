@@ -193,7 +193,8 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 			return (-1);
 	}
 	cXMLParser parser;
-	parser.open(permissionsFile);
+	if(parser.open(permissionsFile)==-1)
+		return (-1);
 	xmlDocPtr doc=parser.getDoc();
 	if(!doc)
 		return (-1);

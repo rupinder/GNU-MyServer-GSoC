@@ -1093,7 +1093,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			if(lmscgi.sendMSCGI(td,s,td->filenamePath,target))
 				return 1;
-			return raiseHTTPError(td,s,e_404);
+			return raiseHTTPError(td,s,e_500);
 		}
 		return raiseHTTPError(td,s,e_500);
 	}else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)

@@ -374,7 +374,7 @@ int MYSERVER_FILE::isFolder(char *filename)
 int MYSERVER_FILE::fileExists(char* filename)
 {
 #ifdef WIN32
-	return (OpenFile(filename, &OFSTRUCT(), OF_EXIST) != HFILE_ERROR); // OpenFile is now a wrapper for CreateFile
+	return (OpenFile(filename, &OFSTRUCT(), OF_EXIST) != HFILE_ERROR)?1:0; // OpenFile is now a wrapper for CreateFile
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;

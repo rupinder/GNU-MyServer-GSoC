@@ -51,11 +51,10 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	*/
 #ifndef DO_NOT_USE_MSCGI
 	static HMODULE hinstLib; 
-    	static CGIMAIN ProcMain;
+   	static CGIMAIN ProcMain;
 	u_long nbr,nbs;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:(char*)td->buffer->GetBuffer();
-	data.envString+=atoi(td->request.CONTENT_LENGTH);
 	
 	data.td = td;
 	data.errorPage=0;
@@ -109,7 +108,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		/*
 		*Restore the working directory.
 		*/
-		setcwd(getdefaultwd(0,0));		
+		setcwd(getdefaultwd(0,0));
 	} 
 	else
 	{
@@ -157,11 +156,13 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	*/
 	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.getFileSize());
 	/*Send all the data to the client if we haven't to append the output*/
-	if(!td->appendOutputs)	
+	if(!td->appendOutputs)
 	{
+		char *buffer= (char*)td->buffer2->GetBuffer();
+		u_long bufferSize= td->buffer2->GetRealLength();
 		data.stdOut.setFilePointer(0);
-		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
-		if(s->socket.send((char*)td->buffer->GetBuffer(),(int)td->buffer->GetLength(), 0)==SOCKET_ERROR)
+		http_headers::buildHTTPResponseHeader(buffer,&(td->response));
+		if(s->socket.send(buffer,strlen(buffer), 0)==SOCKET_ERROR)
 		{
 			if(!td->appendOutputs)
 			{
@@ -172,8 +173,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		}
 		do
 		{
-			data.stdOut.readFromFile((char*)td->buffer->GetBuffer(),(int)td->buffer->GetLength(),&nbr);
-			nbs=s->socket.send((char*)td->buffer->GetBuffer(),nbr,0);
+			data.stdOut.readFromFile(buffer,bufferSize,&nbr);
+			nbs=s->socket.send(buffer,nbr,0);
 			if(nbs==SOCKET_ERROR)
 			{
 				if(!td->appendOutputs)

@@ -46,6 +46,8 @@ extern "C" {
 int cXMLParser::open(char* filename)
 {
 	cur=0;
+	if(!MYSERVER_FILE::fileExists(filename))
+		return -1;
 	if(doc==0)
 		doc = xmlParseFile(filename);
 	else

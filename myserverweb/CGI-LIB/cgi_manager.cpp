@@ -230,7 +230,7 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 */
 cgi_data* cgi_manager::getCgiData()
 {
-	return cgidata;	
+	return cgidata;
 }
 /*!
 *Specify the type of data sent through HTTP.
