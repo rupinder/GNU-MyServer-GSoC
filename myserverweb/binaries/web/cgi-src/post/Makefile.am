@@ -14,7 +14,7 @@ post.mscgi : $(libpost_a_OBJECTS) $(libpost_a_DEPENDENCIES)
 	-rm -f post.mscgi
 	$(CXX) $(libpost_a_OBJECTS) $(libpost_a_LIBADD) -o post.mscgi -shared
 
-install : makemscgi post.mscgi
+install : post.mscgi
 	$(INSTALL) -D 'post.mscgi' '$(root_prefix)/var/web/cgi-bin/post.mscgi'
 
 clean :
