@@ -108,8 +108,8 @@ u_long Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
 	/*
 	*If is specified DO_NOT_USE_GZIP copy the input buffer to the output one as it is.
 	*/
-	memcpy(out,in,min(sizeIN,sizeOUT));
-	return min(sizeIN,sizeOUT);
+	memcpy(out, in, min(sizeIn,sizeOut));
+	return min(sizeIn, sizeOut);
 #endif
 }
 
@@ -190,6 +190,6 @@ u_long Gzip::getHEADER(char *buffer,u_long buffersize)
 {
 	if(buffersize<GZIP_HEADER_LENGTH)
 		return 0;
-	memcpy(buffer,GZIP_HEADER,GZIP_HEADER_LENGTH);
+	memcpy(buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
 	return GZIP_HEADER_LENGTH;
 }
