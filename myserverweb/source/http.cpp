@@ -349,10 +349,15 @@ int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int syst
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 	
-	if(td->connection->login[0])
-		permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
-	else/*The default user is Guest with a null password*/
-		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+		if(td->connection->login[0])
+		{
+			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			if(permissions==0)
+				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+		}
+		else/*The default user is Guest with a null password*/
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+
 	if(!(permissions & MYSERVER_PERMISSION_WRITE))
 	{
 		return sendAuth(td,s);
@@ -447,10 +452,15 @@ int deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int y
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 	
-	if(td->connection->login[0])
-		permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
-	else/*The default user is Guest with a null password*/
-		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+		if(td->connection->login[0])
+		{
+			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			if(permissions==0)
+				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+		}
+		else/*The default user is Guest with a null password*/
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	{
 		return sendAuth(td,s);
@@ -523,9 +533,14 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 		else
 			MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 		if(td->connection->login[0])
+		{
 			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			if(permissions==0)
+				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+		}
 		else/*The default user is Guest with a null password*/
 			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+
 	}
 	/*
 	*Get the PATH_INFO value.
