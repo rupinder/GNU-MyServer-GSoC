@@ -202,7 +202,7 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
       if(optionsLen == -1)
         cmdOptions[0]='\0';
       else
-        myserver_strlcpy(cmdOptions, offset, min(versionLen + 1, 12) );
+        myserver_strlcpy(cmdOptions, offset, min(optionsLen + 1, 12) );
       /*! Put the offset at the end of \r\n. */
       offset += ((optionsLen!= -1)?optionsLen:0) + 2 ;
     }
