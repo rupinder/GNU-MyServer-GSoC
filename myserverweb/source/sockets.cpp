@@ -110,8 +110,28 @@ int Socket::socket(int af,int type,int protocol,int useSSL)
  */
 Socket::Socket(SocketHandle handle)
 {
+  throttlingRate = 0;
 	setHandle(handle);
 }
+
+/*!
+ *Return the throttling rate(bytes/second) used by the socket. A return value
+ *of zero means that no throttling is used.
+ */
+u_long Socket::getThrottling()
+{
+  return throttlingRate;
+}
+
+/*!
+ *Set the throttling rate(bytes/second) for the socket. 
+ *Use a zero rate to disable throttling.
+ */
+void Socket::setThrottling(u_long tr)
+{
+  throttlingRate = tr;
+}
+
 /*!
  *Constructor of the class.
  */
@@ -125,6 +145,7 @@ Socket::Socket()
 	sslContext=0;
   sslMethod = 0;
 #endif
+  throttlingRate = 0;
 	serverSocket=0;
 	setHandle(0);
 }
@@ -262,11 +283,13 @@ int	Socket::setsockopt(int level,int optname,
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
 }
 
+
 /*!
  *Send data over the socket.
  *Return -1 on error.
+ *This routine is acccessible only from the Socket class.
  */
-int Socket::send(const char* buffer,int len,int flags)
+int Socket::rawSend(const char* buffer,int len,int flags)
 {
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
@@ -274,7 +297,7 @@ int Socket::send(const char* buffer,int len,int flags)
 		int err;
 		do
 		{
-			err=SSL_write(sslConnection, buffer, len);
+			err=SSL_write(sslConnection,buffer,len);
 		}while((err<=0) &&(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE 
                   || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
     if(err<=0)
@@ -287,12 +310,51 @@ int Socket::send(const char* buffer,int len,int flags)
 	int ret;
 	do
   {
-    ret=::send(socketHandle, buffer, len, flags);
+    ret=::send(socketHandle,buffer,len,flags);
   }while((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
 #endif
 #ifdef NOT_WIN
-	return	::send((int)socketHandle, buffer, len, flags);
+	return	::send((int)socketHandle,buffer,len,flags);
 #endif
+}
+
+/*!
+ *Send data over the socket.
+ *Return -1 on error.
+ *If a throttling rate is specified, send will use it.
+ */
+int Socket::send(const char* buffer, int len, int flags)
+{
+  u_long toSend =(u_long) len;
+	int ret;
+  /*! If no throttling is specified, send only one big data chunk. */
+  if(throttlingRate == 0)
+    ret = rawSend(buffer, len, flags);
+  else
+  {
+    for(;;)
+    {
+      u_long time = get_ticks() + (1000*1024/throttlingRate) ;
+      /*! If a throttling rate is specified, send chunks of 1024 bytes. */
+      ret = rawSend( buffer+(len-toSend), min(toSend, 1024), flags); 
+      
+      /*! On errors returns directly -1. */
+      if(ret < 0)
+        return -1;
+      toSend -= (u_long)ret;
+      /*! If there are other bytes to send wait before cycle again. */
+      if(toSend)
+      {
+        
+        while(get_ticks() <= time)
+          wait(1);
+      }    
+      else
+        break;
+    }
+  }
+  /*! Return the number of sent bytes. */
+	return len-toSend;
 }
 
 /*!

@@ -79,6 +79,9 @@ private:
 #endif
 	/*! Pointer to the socket that has accepted this connection.  */
 	Socket *serverSocket;
+  u_long throttlingRate;
+
+  int rawSend(const char* buffer,int len,int flags);
 public:
 	void setServerSocket(Socket*);
 	Socket* getServerSocket();
@@ -116,5 +119,7 @@ public:
 	int getsockname(MYSERVER_SOCKADDR*,int*);
   int setNonBlocking(int);
 	int dataOnRead(int sec = 0, int usec = 500);
+  u_long getThrottling();
+  void setThrottling(u_long);
 };
 #endif
