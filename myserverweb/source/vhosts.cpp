@@ -248,7 +248,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 	char buffer2[256];
 	u_long nbr;/*Number of bytes read from the file*/
 	MYSERVER_FILE_HANDLE fh=ms_OpenFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-	if(((int)fh==0)||((int)fh==-1))/*If the file cannot be opened simply do nothing*/
+	if(((long)fh==0)||((long)fh==-1))/*If the file cannot be opened simply do nothing*/
 		return;
 	char c;
 	for(;;)
@@ -326,7 +326,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			buffer2[strlen(buffer2)]=buffer[cc];
 			cc++;
 		}
-		vh->port=atoi(buffer2);
+		vh->port=(u_short)atoi(buffer2);
 		cc++;		
 		/*Get the protocol used by the virtual host*/
 		buffer2[0]='\0';
@@ -413,9 +413,9 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		{
 			while(hl)
 			{ 
-				ms_WriteToFile(fh,hl->hostName,strlen(hl->hostName),&nbw);
+				ms_WriteToFile(fh,hl->hostName,(u_long)strlen(hl->hostName),&nbw);
 				strcpy(buffer,",");
-				ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+				ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 				if(hl->next)
 					hl=hl->next;
 			}
@@ -423,20 +423,20 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		else
 		{
 			strcpy(buffer,"0");
-			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+			ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 		}
 		strcpy(buffer,";");
-		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 		vhost::sIpList* il=vh->ipList;
 		if(il)
 		{
 			while(il)
 			{ 
-				ms_WriteToFile(fh,il->hostIp,strlen(il->hostIp),&nbw);
+				ms_WriteToFile(fh,il->hostIp,(u_long)strlen(il->hostIp),&nbw);
 				if(il->next)
 				{
 					strcpy(buffer,",");
-					ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+					ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 				}
 
 				il=il->next;
@@ -445,40 +445,40 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		else
 		{
 			strcpy(buffer,"0");
-			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+			ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 		}
 		sprintf(buffer,";%u;",vh->port);
-		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 
 		if(vh->protocol==PROTOCOL_HTTP)
 		{
 			strcpy(buffer,"HTTP;");
-			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+			ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 		}
 		if(vh->protocol==PROTOCOL_FTP)
 		{
 			strcpy(buffer,"FTP;");
-			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+			ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 		}
 
-		ms_WriteToFile(fh,vh->documentRootOriginal,strlen(vh->documentRootOriginal),&nbw);
+		ms_WriteToFile(fh,vh->documentRootOriginal,(u_long)strlen(vh->documentRootOriginal),&nbw);
 		strcpy(buffer,";");
-		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 
-		ms_WriteToFile(fh,vh->systemRootOriginal,strlen(vh->systemRootOriginal),&nbw);
+		ms_WriteToFile(fh,vh->systemRootOriginal,(u_long)strlen(vh->systemRootOriginal),&nbw);
 		strcpy(buffer,";");
-		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 
-		ms_WriteToFile(fh,vh->accessesLogFileName,strlen(vh->accessesLogFileName),&nbw);
+		ms_WriteToFile(fh,vh->accessesLogFileName,(u_long)strlen(vh->accessesLogFileName),&nbw);
 		strcpy(buffer,";");
-		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 
-		ms_WriteToFile(fh,vh->warningsLogFileName,strlen(vh->warningsLogFileName),&nbw);
+		ms_WriteToFile(fh,vh->warningsLogFileName,(u_long)strlen(vh->warningsLogFileName),&nbw);
 		if(vhl->next)
 			strcpy(buffer,";#\r\n");
 		else
 			strcpy(buffer,";##\r\n\0");
-		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		ms_WriteToFile(fh,buffer,(u_long)strlen(buffer),&nbw);
 	}
 	ms_CloseFile(fh);
 }

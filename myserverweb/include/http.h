@@ -49,6 +49,7 @@ struct httpThreadContext
 	char scriptFile[MAX_PATH];
 	char identity[32];
 	MYSERVER_FILE_HANDLE inputData;
+	MYSERVER_FILE_HANDLE outputData;
 	LOGGEDUSERID hImpersonation;
 	LPCONNECTION connection;
 };

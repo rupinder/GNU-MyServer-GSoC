@@ -66,6 +66,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		return raiseHTTPError(td,connection,e_501);
 	}
 	AppHnd = LoadLibrary(cgipath);
+
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
 	connTable[connIndex].Allocated = TRUE;
@@ -156,17 +157,28 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
+
+//	FreeLibrary(AppHnd);
+
+//	raiseHTTPError(td,connection,e_501);
+//	return 1;
+
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
 	if (Ret == HSE_STATUS_PENDING) 
 	{
 		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, ISAPI_TIMEOUT);
 	}
-
 	/*
 	*Flush the output to the client.
 	*/
+	u_long len=0;
+	if(connTable[connIndex].td->outputData)
+	{
+		ms_setFilePointer(connTable[connIndex].td->outputData,0);
+		ms_ReadFromFile(connTable[connIndex].td->outputData,connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
+	}
+
 	u_long headerSize=0;
-	u_long len=lstrlen(connTable[connIndex].td->buffer);
 	for(u_long i=0;i<len;i++)
 	{
 		if(connTable[connIndex].td->buffer[i]=='\n')
@@ -208,10 +220,20 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	if(ExtCtrlBlk.dwHttpStatusCode==200)/*HTTP status code is 200*/
 	{
 		buildHTTPResponseHeaderStruct(td,connTable[connIndex].td->buffer);
-		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",len-headerSize);
+		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",ms_getFileSize(connTable[connIndex].td->outputData)-headerSize);
 		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
 		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
 		ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
+
+		for(;;)
+		{
+			ms_ReadFromFile(connTable[connIndex].td->outputData,connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
+			if(len==0)
+				break;
+			ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer),len, 0);
+		}
+		ms_CloseFile(connTable[connIndex].td->outputData);
+		connTable[connIndex].td->outputData=0;
 	}
 	else	
 	{
@@ -270,9 +292,9 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 			if(((char*)lpvBuffer)[0])
 				lstrcpy(URL,(char*)lpvBuffer);
 			else
-				lstrcpyn(URL,ConnInfo->td->request.URI,lstrlen(ConnInfo->td->request.URI)-lstrlen(ConnInfo->td->pathInfo)+1 );
+				lstrcpyn(URL,ConnInfo->td->request.URI,lstrlen(ConnInfo->td->request.URI)-lstrlen(ConnInfo->td->pathInfo)+1);
 			getPath(ConnInfo->td,(char*)lpvBuffer,URL,FALSE);
-			*lpdwSize=lstrlen((char*)lpvBuffer);
+			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
 			return ISAPIRedirect(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
@@ -309,7 +331,7 @@ ConnTableRecord *HConnRecord(HCONN hConn)
 {
 	u_long connIndex;
 
-	connIndex =((int) hConn) - 1;
+	connIndex =((u_long) hConn) - 1;
 	ConnTableRecord *ConnInfo;
 	if ((connIndex < 0) || (connIndex >= max_Connections)) 
 	{
@@ -359,15 +381,24 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 		((vhost*)(ConnInfo->td->connection->host))->ms_warningsLogWrite("WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	strncat(ConnInfo->td->buffer,(char*)Buffer,*lpdwBytes);
-	if (*lpdwBytes == -1) 
+	if(ConnInfo->td->outputData==0)
 	{
-		*lpdwBytes = 0;
-		return FALSE;
+		char stdOutFilePath[MAX_PATH];
+		ms_getdefaultwd(stdOutFilePath,MAX_PATH);
+		sprintf(&stdOutFilePath[lstrlen(stdOutFilePath)],"/stdOutFile__%u",ConnInfo->td->id);
+		ConnInfo->td->outputData=ms_CreateTemporaryFile(stdOutFilePath);
+	}
+	DWORD nbw;
+	ms_WriteToFile(ConnInfo->td->outputData,(char*)Buffer,*lpdwBytes,&nbw);
+
+	*lpdwBytes = nbw;
+	if (nbw) 
+	{
+		return TRUE;
 	}
 	else 
 	{
-		return TRUE;
+		return FALSE;
 	}
 }
 /*

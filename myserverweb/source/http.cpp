@@ -496,6 +496,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	td.connection=a;
 	td.id=id;
 	td.inputData =(MYSERVER_FILE_HANDLE)0;
+	td.outputData =(MYSERVER_FILE_HANDLE)0;
 
 
 	/*
@@ -687,6 +688,14 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		ms_CloseFile(td.inputData);
 		td.inputData=0;
+	}
+	/*
+	*If the outputData file was not closed close it.
+	*/
+	if(td.inputData)
+	{
+		ms_CloseFile(td.outputData);
+		td.outputData=0;
 	}	
 	return (retvalue&1)?1:0;
 }
@@ -1364,6 +1373,8 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 	/*
 	*Control if the HTTP header is a valid header.
 	*/
+	if((input==0) || (strlen(input)==0))
+		return 0;
 	u_long nLines,maxTotchars;
 	u_long validRequest=validHTTPResponse(td,&nLines,&maxTotchars);
 

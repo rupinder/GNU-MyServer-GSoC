@@ -153,27 +153,7 @@ void cserver::start()
 
 #ifdef WIN32
 	/*
-	*If the libhoard executable exists load it.
-	*Libhoard is a free library by Emery Berger,
-	*it is distribuited under the GNU Library General Public License.
-	*You can download it at: http://www.hoard.org/.
-	*For use libhoard in myServer simply put the libhoard.dll executable file in the 
-	*myServer external folder.
-	*/
-	if(ms_FileExists("external/libhoard.dll"))
-	{
-		char libhoardpath[MAX_PATH];
-		ms_getdefaultwd(libhoardpath,MAX_PATH);
-		lstrcat(libhoardpath,"/external/libhoard.dll");
-		if(!LoadLibraryA(libhoardpath))
-		{
-			preparePrintError();
-			printf("%s  libhoard\r\n",languageParser.getValue("ERR_LOADED"));
-			endPrintError();
-		}	
-	}
-	/*
-	*Under WIN32 include initialize ISAPI too.
+	*Under WIN32 initialize ISAPI.
 	*/
 	initISAPI();
 #endif	
@@ -466,7 +446,7 @@ void * listenServer(void* params)
 	ms_shutdown(serverSocket, 2);
 	ms_closesocket(serverSocket);
 #ifdef WIN32
-	_endthreadex( 0 );
+	_endthread();
 #endif
 #ifdef __linux__
 	pthread_exit(0);

@@ -91,7 +91,7 @@ void * startClientsTHREAD(void* pParam)
 	}
 	ct->threadIsStopped=true;
 #ifdef WIN32
-	_endthreadex(0);
+	_endthread();
 #endif
 #ifdef __linux__
 	pthread_exit(0);
