@@ -127,8 +127,8 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	*Build the environment string.
 	*/
 	lstrcpy(td->scriptPath,scriptpath);
-	splitPath(scriptpath,td->scriptDir,td->scriptFile);
-	splitPath(cgipath,td->cgiRoot,td->cgiFile);
+	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
+	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	buildCGIEnvironmentString(td,connTable[connIndex].envString);
 
 	ZeroMemory(&ExtCtrlBlk, sizeof(ExtCtrlBlk));

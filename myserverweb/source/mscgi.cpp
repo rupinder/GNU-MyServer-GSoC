@@ -56,8 +56,8 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	data.td = td;
 	data.errorPage=0;
 	strcpy(td->scriptPath,exec);
-	splitPath(exec,td->scriptDir,td->scriptFile);
-	splitPath(exec,td->cgiRoot,td->cgiFile);
+	MYSERVER_FILE::splitPath(exec,td->scriptDir,td->scriptFile);
+	MYSERVER_FILE::splitPath(exec,td->cgiRoot,td->cgiFile);
 	buildCGIEnvironmentString(td,data.envString);
 
     hinstLib = LoadLibrary(exec); 

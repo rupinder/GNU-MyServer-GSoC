@@ -223,41 +223,7 @@ char *getRFC822LocalTime(const time_t ltime,char* out,int len)
 
 
 
-/*
-*Splits a file path into a directory and filename.
-*Path is an input value while dir and filename are the output values.
-*/
-void splitPath(const char *path, char *dir, char *filename)
-{
-	int splitpoint, i, j;
-	i = 0;
-	j = 0;
-	splitpoint =(int)( strlen(path) - 1);
-	while ((splitpoint > 0) && (path[splitpoint] != '/'))
-		splitpoint--;
-	if ((splitpoint == 0) && (path[splitpoint] != '/'))
-	{
-		dir[0] = 0;
-		strcpy(filename, path);
-	}
-	else
-	{
-		splitpoint++;
-		while (i < splitpoint)
-		{
-			dir[i] = path[i];
-			i++;
-		}
-		dir[i] = 0;
-		while (path[i] != 0)
-		{
-			filename[j] = path[i];
-			j++;
-			i++;
-		}
-		filename[j] = 0;
-	}
-}
+
 
 /*
 *Trim a string.
@@ -334,21 +300,6 @@ void gotoNextLine(char* cmd)
 
 }
 
-/*
-*Get the file extension passing its path.
-*/
-void getFileExt(char* ext,const char* filename)
-{
-	int nDot, nPathLen;
-	nPathLen =(int)(strlen(filename) - 1);
-	nDot = nPathLen;
-	while ((nDot > 0) && (filename[nDot] != '.'))
-		nDot--;
-	if (nDot > 0)
-		strcpy(ext, filename + nDot + 1);
-	else
-		ext[0] = 0;
-}
 
 
 /*
@@ -394,35 +345,6 @@ int hexVal(char ch)
 			else
 				return 0;
 		}
-	}
-}
-
-/*
-*Get the filename from a path.
-*/
-void getFilename(const char *path, char *filename)
-{
-	int splitpoint, i, j;
-	i = 0;
-	j = 0;
-	splitpoint =(int)(strlen(path) - 1);
-	while ((splitpoint > 0) && (path[splitpoint] != '/'))
-	splitpoint--;
-	if ((splitpoint == 0) && (path[splitpoint] != '/'))
-	{
-		strcpy(filename, path);
-	}
-	else
-	{
-		splitpoint++;
-		i=splitpoint;
-		while (path[i] != 0)
-		{
-			filename[j] = path[i];
-			j++;
-			i++;
-		}
-		filename[j] = 0;
 	}
 }
 

@@ -26,12 +26,9 @@ char *getRFC822LocalTime(char* out,int len);
 char *getRFC822LocalTime(const time_t,char* out,int len);
 time_t getTime(char* str);
 void StrTrim(char* str,const char* trimChars);
-void getFileExt(char* ext,const char* filename);
 void gotoNextLine(char* cmd);
 int hexVal(char c);
 void translateEscapeString(char *TargetStr);
-void splitPath(const char* path, char* dir, char*filename);
-void getFilename(const char* path, char* filename);
 
 
 #ifdef __linux__

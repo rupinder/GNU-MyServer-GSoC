@@ -45,7 +45,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 
 	char execname[MAX_PATH];
 	char pathname[MAX_PATH];
-	splitPath(filename,pathname,execname);
+	MYSERVER_FILE::splitPath(filename,pathname,execname);
 	
 	ms_getdefaultwd(dataFilePath,MAX_PATH);
 	GetShortPathName(dataFilePath,dataFilePath,MAX_PATH);

@@ -56,9 +56,9 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	char cmdLine[MAX_PATH*3+1];
 	char filename[MAX_PATH];
 	lstrcpy(td->scriptPath,scriptpath);
-	splitPath(scriptpath,td->scriptDir,td->scriptFile);
+	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 
-	splitPath(cgipath,td->cgiRoot,td->cgiFile);
+	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 
 	/*
 	*If the cmd is equal to CGI_CMD_EXECUTE then we must execute the
@@ -68,7 +68,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*/
 	if(cmd==CGI_CMD_EXECUTE)
 	{
-		getFilename(scriptpath,filename);
+		MYSERVER_FILE::getFilename(scriptpath,filename);
 #ifdef WIN32
 		/*
 		*Under the windows platform to run a file like an executable

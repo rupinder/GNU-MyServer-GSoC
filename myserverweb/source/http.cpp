@@ -946,7 +946,7 @@ Internal Server error</font></p>\r\n";
 */
 int getMIME(char *MIME,char *filename,char *dest,char *dest2)
 {
-	getFileExt(dest,filename);
+	MYSERVER_FILE::getFileExt(dest,filename);
 	/*
 	*Returns true if file is registered by a CGI.
 	*/

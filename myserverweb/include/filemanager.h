@@ -60,5 +60,9 @@ public:
 	int ms_CloseFile();
 	static int ms_FileExists(char * );
 	static int ms_DeleteFile(char * );
+	static void getFileExt(char* ext,const char* filename);
+	static void splitPath(const char* path, char* dir, char*filename);
+	static void getFilename(const char* path, char* filename);
+
 };
 #endif

@@ -427,3 +427,83 @@ time_t MYSERVER_FILE::ms_GetLastAccTime()
 {
 	return ms_GetLastAccTime(filename);
 }
+
+
+/*
+*Get the filename from a path.
+*/
+void MYSERVER_FILE::getFilename(const char *path, char *filename)
+{
+	int splitpoint, i, j;
+	i = 0;
+	j = 0;
+	splitpoint =(int)(strlen(path) - 1);
+	while ((splitpoint > 0) && (path[splitpoint] != '/'))
+	splitpoint--;
+	if ((splitpoint == 0) && (path[splitpoint] != '/'))
+	{
+		strcpy(filename, path);
+	}
+	else
+	{
+		splitpoint++;
+		i=splitpoint;
+		while (path[i] != 0)
+		{
+			filename[j] = path[i];
+			j++;
+			i++;
+		}
+		filename[j] = 0;
+	}
+}
+/*
+*Splits a file path into a directory and filename.
+*Path is an input value while dir and filename are the output values.
+*/
+void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
+{
+	int splitpoint, i, j;
+	i = 0;
+	j = 0;
+	splitpoint =(int)( strlen(path) - 1);
+	while ((splitpoint > 0) && (path[splitpoint] != '/'))
+		splitpoint--;
+	if ((splitpoint == 0) && (path[splitpoint] != '/'))
+	{
+		dir[0] = 0;
+		strcpy(filename, path);
+	}
+	else
+	{
+		splitpoint++;
+		while (i < splitpoint)
+		{
+			dir[i] = path[i];
+			i++;
+		}
+		dir[i] = 0;
+		while (path[i] != 0)
+		{
+			filename[j] = path[i];
+			j++;
+			i++;
+		}
+		filename[j] = 0;
+	}
+}
+/*
+*Get the file extension passing its path.
+*/
+void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
+{
+	int nDot, nPathLen;
+	nPathLen =(int)(strlen(filename) - 1);
+	nDot = nPathLen;
+	while ((nDot > 0) && (filename[nDot] != '.'))
+		nDot--;
+	if (nDot > 0)
+		strcpy(ext, filename + nDot + 1);
+	else
+		ext[0] = 0;
+}
