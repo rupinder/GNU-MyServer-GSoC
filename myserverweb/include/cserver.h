@@ -72,32 +72,32 @@ class cserver
 #endif
 private:
 	protocols_manager protocols;
-	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];/*!Buffer that contains all the local machine IP values*/
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
-	char serverName[MAX_COMPUTERNAME_LENGTH+1];
-	char languageFile[MAX_PATH];
-	char path[MAX_PATH];
-	char serverAdmin[32];
-	ClientsTHREAD *threads;
 	u_long nThreads;
 	u_long verbosity;
 	u_long buffersize;
 	u_long buffersize2;
 	u_long getNumConnections();
+	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];/*!Buffer that contains all the local machine IP values*/
+	char serverName[MAX_COMPUTERNAME_LENGTH+1];
+	char languageFile[MAX_PATH];
+	char path[MAX_PATH];
+	char serverAdmin[32];
 	void initialize(int);
 	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int);
-    	u_long nConnections;
+    u_long nConnections;
 	u_long maxConnections;
 	void clearAllConnections();
 	int deleteConnection(LPCONNECTION,int);
-	LPCONNECTION connections;
 	u_long connectionTimeout;
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
-	LPCONNECTION connectionToParse;
 	myserver_mutex c_mutex;
+	LPCONNECTION connectionToParse;
+	ClientsTHREAD *threads;
+	LPCONNECTION connections;
 public:
 	cserver();
 	~cserver();

@@ -954,6 +954,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 {
 	if(!s)
 		return 0;
+	MYSERVER_SOCKET socket=s->socket;
 	/*!
 	*Get the access to the  connections list.
 	*/
@@ -987,18 +988,18 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 
 	nConnections--;
 	connections_mutex_unlock();
-	
+
 	/*!
 	*Close the socket communication.
 	*/
-	s->socket.shutdown(SD_BOTH);
+	socket.shutdown(SD_BOTH);
 	char buffer[256];
 	int buffersize=256;
 	do
 	{
-		err=s->socket.recv(buffer,buffersize,0);
+		err=socket.recv(buffer,buffersize,0);
 	}while(err!=-1);
-	s->socket.closesocket();
+	socket.closesocket();
 	if(s->protocolBuffer)
 		free(s->protocolBuffer);
 	free(s);

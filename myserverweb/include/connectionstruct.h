@@ -62,5 +62,5 @@ public:
 	char connectionBuffer[KB(8)];/*!This buffer must be used only by the ClientsTHREAD class*/
 	void *protocolBuffer;/*!Buffer for the connecion struct. Used by protocols.*/
 };
-typedef CONNECTION*  volatile LPCONNECTION;
+typedef CONNECTION* volatile LPCONNECTION;
 #endif

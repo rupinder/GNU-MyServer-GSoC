@@ -457,14 +457,14 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 	
-		if(td->connection->login[0])
+		if(s->login[0])
 		{
-			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot);
 			if(permissions==0)
-				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
 		}
 		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
 
 	if(!(permissions & MYSERVER_PERMISSION_WRITE))
 	{
@@ -562,14 +562,14 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 	else
 		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 	
-		if(td->connection->login[0])
+		if(s->login[0])
 		{
-			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot);
 			if(permissions==0)
-				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
 		}
 		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
 
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	{
@@ -640,14 +640,14 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			strncpy(folder,td->filenamePath,MAX_PATH);
 		else
 			MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
-		if(td->connection->login[0])
+		if(s->login[0])
 		{
-			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot);
 			if(permissions==0)
-				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+				permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
 		}
 		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot);
 
 	}
 	/*!
@@ -746,7 +746,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 					}
 				}
 				if(!isPortSpecified)
-					sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
+					sprintf(&nURL[strlen(nURL)],":%u",((vhost*)s->host)->port);
 				if(nURL[strlen(nURL)-1]!='/')
 					strcat(nURL,"/");
 				strcat(nURL,td->request.URI);
@@ -983,10 +983,10 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 	/*
 	*Request the access to the log file then write then append the message
 	*/
-	((vhost*)(td->connection->host))->accesseslogRequestAccess(td->id);
-	((vhost*)(td->connection->host))->accessesLogWrite(td->buffer);
-	((vhost*)(td->connection->host))->accesseslogTerminateAccess(td->id);
-
+	((vhost*)(a->host))->accesseslogRequestAccess(td->id);
+	((vhost*)(a->host))->accessesLogWrite(td->buffer);
+	((vhost*)(a->host))->accesseslogTerminateAccess(td->id);
+	td->buffer[0]='\0';
     return 1;
 }
 
@@ -1315,7 +1315,6 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		else
 			retvalue=0;
 
-		
 		/*!
 		*Here we control all the HTTP commands.
 		*/
@@ -1403,7 +1402,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	{
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
 		char defFile[MAX_PATH*2];
-		if(getErrorFileName(((vhost*)td->connection->host)->documentRoot,getHTTPStatusCodeFromErrorID(ID),defFile))
+		if(getErrorFileName(((vhost*)a->host)->documentRoot,getHTTPStatusCodeFromErrorID(ID),defFile))
 		{
 			/*!
 			*Change the URI to reflect the default file name.
@@ -1421,7 +1420,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 				}
 			}
 			if(!isPortSpecified)
-				sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
+				sprintf(&nURL[strlen(nURL)],":%u",((vhost*)a->host)->port);
 			if(nURL[strlen(nURL)-1]!='/')
 				strcat(nURL,"/");
 			strcat(nURL,defFile);
@@ -1430,11 +1429,11 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	strncpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID],HTTP_RESPONSE_ERROR_TYPE_DIM);
-	u_long lenErrorFile=strlen(((vhost*)(td->connection->host))->systemRoot)+strlen(HTTP_ERROR_HTMLS[ID])+2;
+	u_long lenErrorFile=strlen(((vhost*)(a->host))->systemRoot)+strlen(HTTP_ERROR_HTMLS[ID])+2;
 	char *errorFile=(char*)malloc(lenErrorFile);
 	if(errorFile)
 	{
-		sprintf(errorFile,"%s/%s",((vhost*)(td->connection->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
+		sprintf(errorFile,"%s/%s",((vhost*)(a->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
 		if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
 		{
 			return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
@@ -1458,7 +1457,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 int http::sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
 	td->response.httpStatus=500;
-	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
+	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],a->ipAddr);
 	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\"><p align=\"center\">\
 		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
 		Internal Server error</font></p>\r\n";

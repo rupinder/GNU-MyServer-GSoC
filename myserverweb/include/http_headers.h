@@ -52,6 +52,7 @@ extern class CBase64Utils base64Utils;
 */
 struct httpThreadContext
 {
+	LPCONNECTION connection;
 	char *buffer;
 	char *buffer2;	
 	u_long buffersize;
@@ -74,7 +75,6 @@ struct httpThreadContext
 	char outputDataPath[MAX_PATH];
 	MYSERVER_FILE inputData;
 	MYSERVER_FILE outputData;
-	LPCONNECTION connection;
 	void* lhttp;
 };
 

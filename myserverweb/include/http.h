@@ -30,18 +30,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 class http : public protocol
 {
 private:
-	struct httpThreadContext td;
-	mscgi lmscgi;
-	wincgi lwincgi;
-	isapi lisapi;
-	cgi lcgi;
-	fastcgi lfastcgi;
 	static int mscgiLoaded;/*Store if the MSCGI library was loaded.*/
 	static char browseDirCSSpath[MAX_PATH];
 	static u_long gzip_threshold;
 	static int useMessagesFiles;	
 	static char *defaultFilename;
 	static u_long nDefaultFilename;	
+	mscgi lmscgi;
+	wincgi lwincgi;
+	isapi lisapi;
+	cgi lcgi;
+	fastcgi lfastcgi;
+	struct httpThreadContext td;
 protected:
 	char protocolPrefix[12];	
 public:

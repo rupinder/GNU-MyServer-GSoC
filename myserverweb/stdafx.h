@@ -72,7 +72,7 @@ extern BOOL mustEndServer;
 
 extern BOOL mustEndServer;
 #define Thread   __declspec( thread )
-typedef CONNECTION*  volatile LPCONNECTION;
+typedef CONNECTION* volatile  LPCONNECTION;
 typedef  void* LOGGEDUSERID;
 
 #endif

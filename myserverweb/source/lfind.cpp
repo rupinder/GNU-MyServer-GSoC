@@ -1,5 +1,6 @@
 // A quick and durty (incompleat) _finddata_t implimintation
 //
+#ifndef WIN32
 #include "../include/lfind.h"
 
 extern "C" {
@@ -137,3 +138,5 @@ int _findclose(_finddata_t * fdat)
    return fdat->findclose();
 }
 
+
+#endif
