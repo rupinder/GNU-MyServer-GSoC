@@ -1,2 +1,0 @@
-myserver.exe STARTCONSOLE
-exit
