@@ -39,8 +39,8 @@ typedef int (*controlConnectionPROC)(void* ,char*,char*,int,int,u_long,u_long);
 typedef char* (*registerNamePROC)(char*,int); 
 
 /*!
-*Load the protocol. Called once at runtime.
-*/
+ *Load the protocol. Called once at runtime.
+ */
 int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
                                    Server* lserver)
 {
@@ -78,8 +78,8 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
 }
 
 /*!
-*Unload the protocol. Called once.
-*/
+ *Unload the protocol. Called once.
+ */
 int DynamicProtocol::unloadProtocol(XmlParser* languageParser)
 {
   if(filename)
@@ -96,9 +96,9 @@ int DynamicProtocol::unloadProtocol(XmlParser* languageParser)
 #endif	
 	if(Proc)
 		Proc((void*)languageParser);
-	/*
-	*Free the loaded module too.
-	*/
+	/*!
+   *Free the loaded module too.
+   */
 	if(hinstLib)
 	{
 #ifdef WIN32
@@ -112,8 +112,8 @@ int DynamicProtocol::unloadProtocol(XmlParser* languageParser)
 	return 1;
 }
 /*!
-*Return the protocol name.
-*/
+ *Return the protocol name.
+ */
 char *DynamicProtocol::getProtocolName()
 {
 	return protocolName;	
@@ -196,10 +196,11 @@ DynamicProtocol::~DynamicProtocol()
  */
 int DynamicProtocol::setFilename(char *nf)
 {
+  int filenamelen;
   if(filename)
     delete [] filename;
   filename = 0;
-  int filenamelen = strlen(nf) + 1;
+  filenamelen = strlen(nf) + 1;
   filename = new char[filenamelen];
   if(filename == 0)
     return 1;
@@ -334,7 +335,7 @@ int ProtocolsManager::loadProtocols(char* directory, XmlParser* parser,
 	{	
 		if(fd.name[0]=='.')
 			continue;
-		/*
+		/*!
      *Do not consider file other than dynamic libraries.
      */
 #ifdef WIN32
