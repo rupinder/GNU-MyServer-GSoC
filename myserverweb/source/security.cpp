@@ -148,7 +148,7 @@ int getErrorFileName(char *root,int error,char* out)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
 				{
-					strcpy(root,(const char*)attr->children->content);
+					strcpy(out,(const char*)attr->children->content);
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
 				{
@@ -169,6 +169,7 @@ int getErrorFileName(char *root,int error,char* out)
 int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder)
 {
 	char permissionsFile[MAX_PATH];
+	folder[MAX_PATH-10]='\0';
 	sprintf(permissionsFile,"%s/security",folder);
 	/*
 	*If the file doesn't exist allow everyone to do everything
@@ -197,6 +198,8 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	cXMLParser parser;
 	parser.open(permissionsFile);
 	xmlDocPtr doc=parser.getDoc();
+	if(!doc)
+		return (-1);
 	xmlNode *node=doc->children->children;
 
 	int filePermissions=0;

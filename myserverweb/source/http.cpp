@@ -475,7 +475,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 	*over the HTTP.
 	*/
 	char filename[MAX_PATH];
-	strcpy(filename,URI);
+	strncpy(filename,URI,MAX_PATH);
 	td->buffer[0]='\0';
 	if(!systemrequest)
 	{
@@ -1341,9 +1341,6 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 				strcpy(nURL,"http://");
 			strcat(nURL,td->request.HOST);
 			sprintf(&nURL[strlen(nURL)],":%u",((vhost*)td->connection->host)->port);
-			if(nURL[strlen(nURL)-1]!='/')
-				strcat(nURL,"/");
-			strcat(nURL,td->request.URI);
 			if(nURL[strlen(nURL)-1]!='/')
 				strcat(nURL,"/");
 			strcat(nURL,defFile);
