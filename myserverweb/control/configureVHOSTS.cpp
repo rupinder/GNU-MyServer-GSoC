@@ -110,28 +110,29 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 	*/
 	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
 	{
-			strcpy(vhost_configuration_file, "virtualhosts.xml");
-			MYSERVER_FILE inputF;
-			MYSERVER_FILE outputF;
-			int ret=inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-			if(ret<1)
-			{
-				return;
-			}
-			outputF.openFile("virtualhosts.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-			char buffer[512];
-			u_long nbr, nbw;
-			for(;;)
-			{
-				inputF.readFromFile(buffer, 512, &nbr );
-				if(nbr==0)
-					break;
-				outputF.writeToFile(buffer, nbr, &nbw);
-			}
-			inputF.closeFile();
-			outputF.closeFile();
+		strcpy(vhost_configuration_file, "virtualhosts.xml");
+		MYSERVER_FILE inputF;
+		MYSERVER_FILE outputF;
+		int ret=inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		if(ret<1)
+		{
+			return;
+		}
+		outputF.openFile("virtualhosts.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		char buffer[512];
+		u_long nbr, nbw;
+		for(;;)
+		{
+			inputF.readFromFile(buffer, 512, &nbr );
+			if(nbr==0)
+				break;
+			outputF.writeToFile(buffer, nbr, &nbw);
+		}
+		inputF.closeFile();
+		outputF.closeFile();
 	}	
-	
+	else
+		strcpy(vhost_configuration_file, "virtualhosts.xml");
 	
 	hostmanager.loadXMLConfigurationFile(vhost_configuration_file);
 	wxPanel *panel = new wxPanel(this, -1);

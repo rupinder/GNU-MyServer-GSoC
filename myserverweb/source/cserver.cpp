@@ -313,7 +313,7 @@ int cserver::createServerAndListener(u_long port)
 	{
 		preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_BIND"));
-	        endPrintError();
+        endPrintError();
 		return 0;
 	}
 	printf("%s\n", languageParser.getValue("MSG_PORT_BINDED"));
@@ -324,9 +324,9 @@ int cserver::createServerAndListener(u_long port)
 	printf("%s\n", languageParser.getValue("MSG_SLISTEN"));
 	if (serverSocket.listen(SOMAXCONN))
 	{ 
-        	preparePrintError();
+       	preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_LISTEN"));
-        	endPrintError();	
+       	endPrintError();	
 		return 0; 
 	}
 
@@ -421,8 +421,16 @@ void * listenServer(void* params)
 		*Every new connection is sended to cserver::addConnection function;
 		*this function sends connections between the various threads.
 		*/
+#ifdef WIN32
+		if(serverSocket.dataOnRead()==0)
+		{
+			wait(10);
+			continue;
+		}
+#else
 		wait(10);
-		asock=serverSocket.accept((struct sockaddr*)&asock_in, (LPINT)&asock_inLen);
+#endif
+		asock = serverSocket.accept((struct sockaddr*)&asock_in, (LPINT)&asock_inLen);
 		if(asock.getHandle()==0)
 			continue;
 		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
@@ -655,31 +663,33 @@ int cserver::initialize(int /*!os_ver*/)
 	/*! If the myserver.xml files doesn't exist copy it from the default one. */
 	if(!MYSERVER_FILE::fileExists("myserver.xml"))
 	{
-			strcpy(main_configuration_file,"myserver.xml");
-			MYSERVER_FILE inputF;
-			MYSERVER_FILE outputF;
-			int ret=inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-			if(ret<1)
-			{
-				preparePrintError();
-				printf("%s\n", languageParser.getValue("ERR_LOADED"));
-				endPrintError();
-				return 1;
-			}
-			outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-			char buffer[512];
-			u_long nbr, nbw;
-			for(;;)
-			{
-				inputF.readFromFile(buffer, 512, &nbr );
-				if(nbr==0)
-					break;
-				outputF.writeToFile(buffer, nbr, &nbw);
-			}
-			inputF.closeFile();
-			outputF.closeFile();
-	}		
-	
+		strcpy(main_configuration_file,"myserver.xml");
+		MYSERVER_FILE inputF;
+		MYSERVER_FILE outputF;
+		int ret=inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		if(ret<1)
+		{
+			preparePrintError();
+			printf("%s\n", languageParser.getValue("ERR_LOADED"));
+			endPrintError();
+			return 1;
+		}
+		outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		char buffer[512];
+		u_long nbr, nbw;
+		for(;;)
+		{
+			inputF.readFromFile(buffer, 512, &nbr );
+			if(nbr==0)
+				break;
+			outputF.writeToFile(buffer, nbr, &nbw);
+		}
+		inputF.closeFile();
+		outputF.closeFile();
+	}
+	else
+		strcpy(main_configuration_file,"myserver.xml");
+
 	configurationFileManager.open(main_configuration_file);
 	char *data;
 
@@ -1181,7 +1191,8 @@ void cserver::loadSettings()
 		inputF.closeFile();
 		outputF.closeFile();
 	}
-	
+	else
+		strcpy(mime_configuration_file,"MIMEtypes.xml");
 	/*!
 	*Load the MIME types.
 	*/
@@ -1251,6 +1262,8 @@ void cserver::loadSettings()
 		inputF.closeFile();
 		outputF.closeFile();
 	}	
+	else
+		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	/*!
 	*Load the virtual hosts configuration from the xml file
 	*/

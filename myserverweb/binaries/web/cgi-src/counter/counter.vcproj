@@ -31,7 +31,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libpng.lib libpng10.lib libz.lib"
+				AdditionalDependencies="libpng.lib  libz.lib libpng10.lib"
 				OutputFile="$(OutDir)/counter.mscgi"
 				LinkIncremental="1"
 				ModuleDefinitionFile="libcounter.def"

@@ -72,7 +72,10 @@ int cXMLParser::open(char* filename)
 		return -1;
 	cur = xmlDocGetRootElement(doc);
 	if(!cur)
+	{
+		close();
 		return -1;
+	}
 	return 0;
 }
 /*!

@@ -126,6 +126,8 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 		inputF.closeFile();
 		outputF.closeFile();
 	}
+	else
+		strcpy(mime_configuration_file, "MIMEtypes.xml");
 	
 	
 	if(mm.loadXML(mime_configuration_file))

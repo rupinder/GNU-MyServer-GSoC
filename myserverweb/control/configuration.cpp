@@ -102,6 +102,8 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 			inputF.closeFile();
 			outputF.closeFile();
 	}	
+	else
+		strcpy(main_configuration_file,"myserver.xml");
 	
 	
 	confparser.open(main_configuration_file);
