@@ -359,7 +359,7 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 */
 
 
-/*
+/*!
 This funtions takes two strings, first the str we're going to work on,
 and second a list of characters that the funtion is going to remove from the head and tail of the first string.
 Ex:		char str[16]="Hellow World!!!";
@@ -374,7 +374,7 @@ void StrTrim(char* str, char* trimchars)
 	char *strptr=str;
 	char *trimptr=trimchars;
 	
-	/*
+	/*!
 	Here we trim the characters of the head of the string.
 	Just cycle through the trimchars and compare,
 	if we find one char in the str, reset it and increment the str to check the next char,
@@ -395,7 +395,7 @@ void StrTrim(char* str, char* trimchars)
 
 	trimptr=trimchars;
 	
-	/*
+	/*!
 	Here we push the string back to occupy the potencial empty spaces created at the begining of the string.
 	But if no 'holes' were created (if(str!=strptr)) we avoid this time consuming task.
 	*/
@@ -409,7 +409,7 @@ void StrTrim(char* str, char* trimchars)
 		}
 	}
 	
-	/*
+	/*!
 	Now str-1 is exactly at the end of the string, we'll start trim from there then.
 	Unless, str is null, wich means that the str was intirely trimed already(we have an empty string),
 	so triming the rest would be pointless and 'str--;' would actually access invalid memory.
@@ -418,7 +418,7 @@ void StrTrim(char* str, char* trimchars)
 	{
 		*str=0;		//Null terminating the string, since it's now shorter.
 		str--;
-		/*
+		/*!
 		Here we trim the characters of the tail of the string.
 		Just cycle through the trimchars and compare,
 		if we find one char in the str, reset it and decrement the str to check the previous char,
@@ -426,7 +426,7 @@ void StrTrim(char* str, char* trimchars)
 		The first time it fails to finds a char in the str, it just leaves.
 		Note: Here i only check *trimptr in the while and not *str,
 		that's because i know there is at least one character in there that isn't on trimchars,
-		the character that stoped the first trim up there.
+		the character that stoped the first trim up there, so that character will allways be reach before NULL.
 		*/
 		while(*trimptr)
 		{
