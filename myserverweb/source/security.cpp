@@ -175,9 +175,9 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
 }
 
 /*!
- *Get the permissions mask for the file[filename]. The file [directory]/security 
- *will be parsed. If a [parser] is specified, it will be used instead of opening 
- *the security file.
+ *Get the permissions mask for the file[filename]. 
+ *The file [directory]/security will be parsed. If a [parser] is specified, 
+ *it will be used instead of opening the security file.
  *[permission2] is the permission mask that the [user] will have if providing a 
  *[password2].
  */
@@ -312,32 +312,32 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions |= MYSERVER_PERMISSION_READ;
 				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
+				else if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions |= MYSERVER_PERMISSION_WRITE;
 				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"BROWSE"))
+				else if(!xmlStrcmp(attr->name, (const xmlChar *)"BROWSE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions |= MYSERVER_PERMISSION_BROWSE;
 				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
+				else if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions |= MYSERVER_PERMISSION_EXECUTE;
 				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
+				else if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions |= MYSERVER_PERMISSION_DELETE;
 				}
-				if(!lstrcmpi((const char*)attr->name,"NAME"))
+				else if(!lstrcmpi((const char*)attr->name,"NAME"))
 				{
 					if(!lstrcmpi((const char*)attr->children->content, st->user))
 						rightUser=1;
 				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
+				else if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 				{
           myserver_strlcpy(tempPassword,(char*)attr->children->content, 32);
           /*! If a password is provided check that it is valid. */
@@ -345,7 +345,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
              (!xmlStrcmp(attr->children->content, (const xmlChar *)st->password)) )
 						rightPassword=1;
 				}
-        if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
+        else if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
 				{
           if((tempThrottlingRate == (u_long)-1) || 
              ((userPermissionsFound==0)&&(filePermissionsFound==0)) )
@@ -395,34 +395,34 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 								tempUserPermissions|=MYSERVER_PERMISSION_READ;
 						}
-						if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
+						else if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
 						{
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 								tempUserPermissions|=MYSERVER_PERMISSION_WRITE;
 						}
-						if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
+						else if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
 						{
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 								tempUserPermissions|=MYSERVER_PERMISSION_EXECUTE;
 						}
-						if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
+						else if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
 						{
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 								tempUserPermissions|=MYSERVER_PERMISSION_DELETE;
 						}
-						if(!lstrcmpi((const char*)attr->name,"NAME"))
+						else if(!lstrcmpi((const char*)attr->name,"NAME"))
 						{
 							if(!lstrcmpi((const char*)attr->children->content, st->user))
 								rightUser=1;
 						}
-						if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
+						else if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 						{
 							myserver_strlcpy(tempPassword, (char*)attr->children->content, 32);
 							if(st->password && 
                  (!lstrcmp((const char*)attr->children->content, st->password)))
 								rightPassword=1;
 						}
-            if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
+            else if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
             {
               tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
             }
@@ -465,22 +465,22 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
             if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
               tempFilePermissions|=MYSERVER_PERMISSION_READ;
           }
-          if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
+          else if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
           {
             if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
               tempFilePermissions|=MYSERVER_PERMISSION_WRITE;
           }
-          if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
+          else if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
           {
             if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
               tempFilePermissions|=MYSERVER_PERMISSION_EXECUTE;
           }
-          if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
+          else if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
           {
             if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
               tempFilePermissions|=MYSERVER_PERMISSION_DELETE;
           }
-          if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
+          else if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
           {
             if((tempThrottlingRate==(u_long)-1) || (userPermissionsFound == 0))
               tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
@@ -489,7 +489,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
           if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
           {
             if(attr->children && attr->children->content &&
-               (!xmlStrcmp(attr->children->content, (const xmlChar *)st->filename)))
+               (!xmlStrcmp(attr->children->content, 
+                           (const xmlChar *)st->filename)))
             {					
               filePermissionsFound=1;
               filePermissions2Found=1;
@@ -504,8 +505,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
         }/*! End attributes loop. */
 
         /*! 
-         *Check that was not specified a file permission mask before overwrite these
-         *items.
+         *Check that was not specified a file permission mask 
+         *before overwrite these items.
          */
         if(filePermissionsFound && (userPermissionsFound==0))
 				{
