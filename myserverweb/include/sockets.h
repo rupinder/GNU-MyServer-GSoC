@@ -35,6 +35,8 @@ extern "C" {
 #include <netdb.h>
 #include <stdio.h>
 }
+#define SOCKET int
+#define INVALID_SOCKET -1
 #endif
 
 typedef unsigned int MYSERVER_SOCKET_HANDLE;

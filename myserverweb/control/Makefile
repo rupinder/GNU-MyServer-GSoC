@@ -4,8 +4,8 @@ OBJS = configuration.o  configureMIME.o  control.o
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
-CPP-LIBS = `wx-config --libs` 
-CPP-FLAGS =  `wx-config --cppflags` -O2 -pipe
+CPP-LIBS = `wx-config --libs` `xml-config --libs`
+CPP-FLAGS =  `wx-config --cppflags` -O2 -pipe -I/usr/include/libxml2 `xml-config --cflags`
 
 all : wxInstalled control
 
