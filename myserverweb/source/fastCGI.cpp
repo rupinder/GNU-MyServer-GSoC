@@ -639,13 +639,13 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*,char* sp,char* ep)
 	char varValue[2500];
 	for(;;)
 	{
+    int max = 100;
 		FourChar varNameLen;
 		FourChar varValueLen;
 
 		varNameLen.i=varValueLen.i=0;
 		varName[0]='\0';
 		varValue[0]='\0';
-    int max = 100;
 		while((--max) && *sptr != '=')
 		{
 			varName[varNameLen.i++]=*sptr++;
