@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type"
  content="text/html; charset=ISO-8859-1">
-  <link rel="stylesheet" type="text/css" href="myserver.css">
+<link rel="stylesheet" type="text/css" href="../style/myserver.css">
   <title>Virtual Hosts</title>
 </head>
 <body>
@@ -29,23 +29,28 @@ like:<br>
 &lt;/VHOST&gt;<br>
 &lt;/VHOSTS&gt;<br>
 </p>
-<br>
-<font class="code">&lt;NAME&gt;</font>&nbsp;
-gives the server administrator an idea of what the virtual host is such
-as internal Ethernet, external ethernet or every connection.&nbsp; <br>
-<br>
-<font class="code">&lt;PORT&gt;</font> is the
-port used for accepting connections<br>
-<font class="code">&lt;PROTOCOL&gt;</font>&nbsp;
-is the protocol to be used by the host<br>
-<font class="code">&lt;DOCROOT&gt;</font> is the
-folder where the files are found<br>
-<font class="code">&lt;SYSFOLDER&gt;</font> is
-the system folder<br>
-<font class="code">&lt;ACCESSLOG&gt;</font> is
-the access log used by the virtual host<br>
-<font class="code">&lt;WARNINGLOG&gt;</font> is
-the errors log file used by the virtual host.<br>
-<br>
+<p><br>
+  <font class="code">&lt;NAME&gt;</font>&nbsp; gives the server administrator 
+  an idea of what the virtual host is such as internal Ethernet, external ethernet 
+  or every connection.&nbsp; <br>
+  <br>
+  <font class="code">&lt;PORT&gt;</font> is the port used for accepting connections<br>
+  <font class="code">&lt;PROTOCOL&gt;</font>&nbsp; is the protocol to be used 
+  by the host<br>
+  <font class="code">&lt;DOCROOT&gt;</font> is the folder where the files are 
+  found<br>
+  <font class="code">&lt;SYSFOLDER&gt;</font> is the system folder<br>
+</p>
+<p><font class="code">&lt;ACCESSLOG&gt;</font> is the access log used by the virtual 
+  host<br>
+  This flag may appear in the format below<br>
+  <font class="code">&lt;ACCESSESLOG type=&quot;combined&quot;&gt;</font>logs/myServerHTTP.log<font class="code">&lt;/ACCESSESLOG&gt;</font> 
+  <br>
+  With this option, the logs will have two extra fields: HTTP Referer and HTTP 
+  User Agent</p>
+<p><font class="code">&lt;WARNINGLOG&gt;</font> is the errors log file used by 
+  the virtual host.<br>
+  <br>
+</p>
 </body>
 </html>
