@@ -46,7 +46,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 	ConnTableRecord *ConnInfo;
 	
 	Isapi::isapi_mutex->myserver_mutex_lock();
-	ConnInfo = isapi::HConnRecord(hConn);
+	ConnInfo = Isapi::HConnRecord(hConn);
 	Isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{

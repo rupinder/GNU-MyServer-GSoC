@@ -113,7 +113,7 @@ struct ConnTableRecord
   int only_header;
 	int headerSent;
 	int headerSize;
-	httpThreadContext *td;
+	HttpThreadContext *td;
 	char* envString;
 	ConnectionPtr connection;
 	HANDLE ISAPIDoneEvent;
