@@ -539,7 +539,8 @@ int fastcgi::runFcgiServer(fCGIContext*,char* path)
 			spi.cmd=path;
 			spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 			spi.cmdLine=path;
-			spi.arg = NULL; /*! no argument so clear it */
+			/*! no argument so clear it. */
+			spi.arg = NULL; 
 
 			strncpy(fCGIservers[fCGIserversN].path,spi.cmd,MAX_PATH);
 			spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
