@@ -906,7 +906,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 				return 0;
 			}
 			new_server->DESCRIPTOR.fileHandle = new_server->socket.getHandle();
-			START_PROC_INFO spi;
+			StartProcInfo spi;
 			spi.cwd=0;
 			spi.envString=0; 
 			spi.cmd=path;

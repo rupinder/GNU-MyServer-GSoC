@@ -26,9 +26,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *Structure used for start a new process.
 */
-#ifndef START_PROC_INFO_IN
-#define START_PROC_INFO_IN
-struct START_PROC_INFO
+#ifndef StartProcInfo_IN
+#define StartProcInfo_IN
+struct StartProcInfo
 {
 	/*! STDIN file for new process.  */
 	FileHandle stdIn;	
@@ -50,7 +50,7 @@ struct START_PROC_INFO
 };
 #endif
 
-int execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
-int execConcurrentProcess(START_PROC_INFO* spi);
+int execHiddenProcess(StartProcInfo* spi,u_long timeout=0xFFFFFFFF);
+int execConcurrentProcess(StartProcInfo* spi);
 int terminateProcess(u_long);
 #endif

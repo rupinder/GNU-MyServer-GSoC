@@ -247,7 +247,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	strcat(cmdLine, filename);
 	strcat(cmdLine, "\" ");
 	strcat(cmdLine, dataFilePath);
-	START_PROC_INFO spi;
+	StartProcInfo spi;
 	memset(&spi,0,sizeof(spi));
 	spi.cwd = pathname;
 	spi.cmdLine = cmdLine;

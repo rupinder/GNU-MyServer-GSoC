@@ -45,7 +45,7 @@ extern int mustEndServer;
  *Return -1 on fails.
  *Return 0 on success.
  */
-int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
+int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 {
 	int ret=0;
 #ifdef NOT_WIN
@@ -202,7 +202,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
  *Return -1 on fails.
  *Return the new process identifier on success.
  */
-int execConcurrentProcess(START_PROC_INFO* spi)
+int execConcurrentProcess(StartProcInfo* spi)
 {
 	int ret;
 #ifdef NOT_WIN

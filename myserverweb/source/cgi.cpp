@@ -78,7 +78,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	char outputDataFile[32];
 	char *outputDataPath;
   int outputDataPathLen ;
-	START_PROC_INFO spi;
+	StartProcInfo spi;
 	u_long nBytesRead;
 	/*!
    *Standard CGI uses STDOUT to output the result and the STDIN 
@@ -347,7 +347,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   
 	/*!
    *With this code we execute the CGI process.
-   *Fill the START_PROC_INFO struct with the correct values and use it
+   *Fill the StartProcInfo struct with the correct values and use it
    *to run the process.
    */
 	spi.cmdLine = cmdLine;
