@@ -1671,9 +1671,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
  */
 int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 {
-	char* tmpStrInt = new char[12];
-  if(tmpStrInt == 0)
-    return -1;
+	char tmpStrInt[12];
+
 	td->buffer2->SetLength(0);
 	*td->buffer2 << a->ipAddr;
 	*td->buffer2<< " ";
@@ -1720,7 +1719,7 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 	((vhost*)(a->host))->accessesLogWrite((char*)td->buffer2->GetBuffer());
 	((vhost*)(a->host))->accesseslogTerminateAccess(td->id);
 	td->buffer2->SetLength(0);
-  delete [] tmpStrInt;
+
 	return 0;
 }
 

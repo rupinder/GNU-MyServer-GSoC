@@ -602,7 +602,7 @@ int CMemBuf::StrToInt(const char* pAdr)
 /*! Destructor */
 CMemBuf::~CMemBuf()
 {
-	if (m_buffer != NULL && m_bCanDelete)
+	if(m_buffer != NULL && m_bCanDelete)
 		mem_free(m_buffer);
 };
 	

@@ -78,10 +78,17 @@ int myserver_mutex::myserver_mutex_init()
 		initialized=0;
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutexattr_t   mta;
+
+
+#if 0
+  pthread_mutexattr_t   mta = NULL;
 	pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
 	int ret = pthread_mutex_init(&mutex, &mta);
-  ret=ret;
+#else
+	int ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
+#endif
+
+
 #else
 	mutex=CreateMutex(0,0,0);
 #endif

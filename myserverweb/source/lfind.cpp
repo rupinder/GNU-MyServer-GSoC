@@ -34,13 +34,30 @@ void * _alloca(size_t size)
 	return malloc(size);
 }
 
+_finddata_t::_finddata_t()
+{
+  DirName = 0;
+
+}
+_finddata_t::~_finddata_t()
+{
+  if(DirName)
+    delete [] DirName;
+  DirName = 0;
+}
+
 int _finddata_t::findfirst(const char filename[])
 {
    struct dirent * dirInfo;
    struct stat F_Stats;
-   char *TempName= new char[strlen(filename)+1];
-   if(TempName == 0)
+   char *TempName=0;
+
+   if(DirName)
+     delete [] DirName;
+   DirName= new char[strlen(filename)+1];
+   if(DirName == 0)
      return -1;
+
    strcpy(DirName, filename);
    
    if(DirName[strlen(DirName) - 1] == '/')
@@ -51,7 +68,12 @@ int _finddata_t::findfirst(const char filename[])
      return -1;
    
    dirInfo = readdir(dh);
-   snprintf(TempName, PATH_MAX, "%s/%s", DirName, dirInfo->d_name);
+
+   TempName = new char[strlen(DirName) + strlen(dirInfo->d_name) + 2];
+   if(TempName == 0)
+     return -1;
+
+   sprintf(TempName, "%s/%s", DirName, dirInfo->d_name);
    
    name = dirInfo->d_name;
 
@@ -96,6 +118,9 @@ int _finddata_t::findnext()
 int _finddata_t::findclose()
 {
    closedir(dh);
+   if(DirName)
+     delete [] DirName;
+   DirName = 0;
    return 0;
 }
 

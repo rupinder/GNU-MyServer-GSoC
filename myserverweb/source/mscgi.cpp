@@ -281,20 +281,26 @@ int mscgi::loadMSCGILib()
 	if(MYSERVER_FILE::fileExists("cgi-lib/cgi-lib.so"))
 	{
     mscgi_path = new char[19];
-		strcpy(mscgi_path, "cgi-lib/cgi-lib.so");
+    if(mscgi_path)
+      strcpy(mscgi_path, "cgi-lib/cgi-lib.so");
 	}
 	else
 	{
 #ifdef PREFIX
     mscgi_path = new char[strlen(PREFIX)+25];
-    sprintf(mscgi_path, "%s/lib/myserver/cgi-lib.so", PREFIX );
+    if(mscgi_path)
+      sprintf(mscgi_path, "%s/lib/myserver/cgi-lib.so", PREFIX );
 #else
     mscgi_path = new char[29];
-		strcpy(mscgi_path, "/usr/lib/myserver/cgi-lib.so");
+    if(mscgi_path)
+      strcpy(mscgi_path, "/usr/lib/myserver/cgi-lib.so");
 #endif
 	}
-  delete [] mscgi_path;
-	mscgiModule=dlopen(mscgi_path, RTLD_NOW | RTLD_GLOBAL);
+  if(mscgi_path)
+  {
+    mscgiModule=dlopen(mscgi_path, RTLD_NOW | RTLD_GLOBAL);
+    delete [] mscgi_path;
+  }
 #endif
 	return (mscgiModule)?1:0;
 }

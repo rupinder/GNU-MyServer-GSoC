@@ -55,8 +55,10 @@ class _finddata_t
    int findfirst(const char filename[]);
    int findnext();
    int findclose();
+   _finddata_t();
+   ~_finddata_t();
  private:
-   char DirName[PATH_MAX];
+   char *DirName;
    DIR * dh;
 };
 
