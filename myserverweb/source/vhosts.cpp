@@ -239,7 +239,7 @@ void vhost::addHost(char *host)
 u_long vhost::accessesLogWrite(char* str)
 {
 	u_long nbw;
-	accessesLogFile.writeToFile(str,strlen(str),&nbw);
+	accessesLogFile.writeToFile(str,(u_long)strlen(str),&nbw);
 	return nbw;
 }
 /*
@@ -255,7 +255,7 @@ MYSERVER_FILE* vhost::getAccessesLogFile()
 u_long vhost::warningsLogWrite(char* str)
 {
 	u_long nbw;
-	warningsLogFile.writeToFile(str,strlen(str),&nbw);
+	warningsLogFile.writeToFile(str,(u_long)strlen(str),&nbw);
 	return nbw;
 }
 /*
@@ -695,7 +695,7 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
 			{
-				vh->port=atoi((char*)lcur->children->content);
+				vh->port=(u_short)atoi((char*)lcur->children->content);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
 			{
@@ -746,14 +746,14 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		out.writeToFile("<VHOST>\r\n",9,&nbw);
 
 		out.writeToFile("<NAME>",6,&nbw);
-		out.writeToFile(list->host->name,strlen(list->host->name),&nbw);
+		out.writeToFile(list->host->name,(u_long)strlen(list->host->name),&nbw);
 		out.writeToFile("</NAME>\r\n",9,&nbw);
 
 		vhost::sIpList *ipList = list->host->ipList;
 		while(ipList)
 		{
 			out.writeToFile("<IP>",4,&nbw);
-			out.writeToFile(ipList->hostIp,strlen(ipList->hostIp),&nbw);
+			out.writeToFile(ipList->hostIp,(u_long)strlen(ipList->hostIp),&nbw);
 			out.writeToFile("</IP>\r\n",7,&nbw);
 			ipList=ipList->next;
 		}
@@ -761,14 +761,14 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		while(hostList)
 		{
 			out.writeToFile("<HOST>",6,&nbw);
-			out.writeToFile(hostList->hostName,strlen(hostList->hostName),&nbw);
+			out.writeToFile(hostList->hostName,(u_long)strlen(hostList->hostName),&nbw);
 			out.writeToFile("</HOST>\r\n",9,&nbw);
 			hostList=hostList->next;
 		}
 		out.writeToFile("<PORT>",6,&nbw);
 		char port[6];
 		sprintf(port,"%i",list->host->port);
-		out.writeToFile(port,strlen(port),&nbw);
+		out.writeToFile(port,(u_long)strlen(port),&nbw);
 		out.writeToFile("</PORT>\r\n",9,&nbw);
 
 		out.writeToFile("<PROTOCOL>",10,&nbw);
@@ -784,19 +784,19 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
 
 		out.writeToFile("<DOCROOT>",9,&nbw);
-		out.writeToFile(list->host->documentRoot,strlen(list->host->documentRoot),&nbw);
+		out.writeToFile(list->host->documentRoot,(u_long)strlen(list->host->documentRoot),&nbw);
 		out.writeToFile("</DOCROOT>\r\n",12,&nbw);
 
 		out.writeToFile("<SYSFOLDER>",11,&nbw);
-		out.writeToFile(list->host->systemRoot,strlen(list->host->systemRoot),&nbw);
+		out.writeToFile(list->host->systemRoot,(u_long)strlen(list->host->systemRoot),&nbw);
 		out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
 
 		out.writeToFile("<ACCESSESLOG>",13,&nbw);
-		out.writeToFile(list->host->accessesLogFileName,strlen(list->host->accessesLogFileName),&nbw);
+		out.writeToFile(list->host->accessesLogFileName,(u_long)strlen(list->host->accessesLogFileName),&nbw);
 		out.writeToFile("</ACCESSESLOG>\r\n",16,&nbw);
 
 		out.writeToFile("<WARNINGLOG>",12,&nbw);
-		out.writeToFile(list->host->warningsLogFileName,strlen(list->host->warningsLogFileName),&nbw);
+		out.writeToFile(list->host->warningsLogFileName,(u_long)strlen(list->host->warningsLogFileName),&nbw);
 		out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
 
 		out.writeToFile("</VHOST>\r\n",10,&nbw);

@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 
 extern int useLogonOption;
+/*
+*Various allowable permissions
+*/
 #define MYSERVER_PERMISSION_READ	(1)
 #define MYSERVER_PERMISSION_WRITE	(2)
 #define MYSERVER_PERMISSION_EXECUTE	(4)

@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 int cgi_manager::Write(char* str)
 {
 	u_long nbw;
-	cgidata->stdOut.writeToFile(str,strlen(str),&nbw);
+	cgidata->stdOut.writeToFile(str,(u_long)strlen(str),&nbw);
 	return 1;
 }
 /*
@@ -173,6 +173,6 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 			break;
 		}
 	}
-	*lpdwSize=strlen((char*)lpvBuffer);
+	*lpdwSize=(u_int)strlen((char*)lpvBuffer);
 }
 
