@@ -856,14 +856,10 @@ int Server::initialize(int /*!os_ver*/)
     languages_path = new char[languages_pathLen];
     if(languages_path == 0)
     {
-      char *err = new char[strlen(languageParser.getValue("ERR_ERROR")) +
-                           strlen( ": Alloc Memory") +1 ];
-      if(err == 0)
-        return -1;
+      ostringstream err;
       logPreparePrintError();
-      sprintf(err,"%s: Alloc Memory",  languageParser.getValue("ERR_ERROR") );
-      logWriteln( err );     
-      delete [] err;
+      err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
+      logWriteln( err.str().c_str() );     
       logEndPrintError();
       return -1;
     }
@@ -876,15 +872,11 @@ int Server::initialize(int /*!os_ver*/)
     languages_path = new char[languages_pathLen];
     if(languages_path == 0)
     {
-      char *err = new char[strlen(languageParser.getValue("ERR_ERROR")) +
-                           strlen( ": Alloc Memory") +1 ];
-      if(err == 0)
-        return -1;
+      ostringstream err;
       logPreparePrintError();
-      sprintf(err,"%s: Alloc Memory",  languageParser.getValue("ERR_ERROR") );
-      logWriteln( err );     
+      err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
+      logWriteln( err.str().c_str() );     
       logEndPrintError();
-      delete [] err;
       return -1;
     }
     sprintf(languages_path,"%s/share/myserver/languages/", PREFIX ) ;
@@ -894,15 +886,11 @@ int Server::initialize(int /*!os_ver*/)
     languages_path = new char[languages_pathLen];
     if(languages_path == 0)
     {
-      char *err = new char[strlen(languageParser.getValue("ERR_ERROR")) +
-                           strlen( ": Alloc Memory") +1 ];
-      if(err == 0)
-        return -1;
+      ostringstream err;
       logPreparePrintError();
-      sprintf(err,"%s: Alloc Memory",  languageParser.getValue("ERR_ERROR") );
-      logWriteln( err );     
+      err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
+      logWriteln( err.str().c_str() );     
       logEndPrintError();
-      delete [] err;
       return -1;
     }
 		strcpy(languages_path,"/usr/share/myserver/languages/");
@@ -915,15 +903,11 @@ int Server::initialize(int /*!os_ver*/)
   languages_path = new char[languages_pathLen];
   if(languages_path == 0)
   {
-    char *err = new char[strlen(languageParser.getValue("ERR_ERROR")) +
-                         strlen( ": Alloc Memory") +1 ];
-    if(err == 0)
-      return -1;
+    ostringstream err;
     logPreparePrintError();
-    sprintf(err,"%s: Alloc Memory",  languageParser.getValue("ERR_ERROR") );
-    logWriteln( err );     
+    err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
+    logWriteln( err.str().c_str() );     
     logEndPrintError();
-    delete [] err;
     return -1;
   }
   strcpy(languages_path, "languages/" );

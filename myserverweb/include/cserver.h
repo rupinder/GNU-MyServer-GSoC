@@ -32,6 +32,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 #include "../include/log_manager.h"
 
+#include <string>
+using namespace std;
+
 /*!
  *Definition for new threads entry-point.
  */
@@ -186,6 +189,7 @@ public:
 	void finalCleanup();
 	int terminate();
   int logWriteln(const char*);
+  int logWriteln(string& str){return logWriteln(str.c_str());};
   int logPreparePrintError();
   int logEndPrintError();  
   int logLockAccess();
