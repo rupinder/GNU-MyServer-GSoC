@@ -20,7 +20,7 @@ extern "C" int main (char *cmd,cgi_data* data)
 		char *tmp;
 		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.gif\">\r\n<p align=\"center\">\r\n\r\n");
 		tmp = cm.GetParam("a");
-		if (tmp)
+		if (tmp && tmp[0] != '\0')
 		{
 			if (strlen(tmp) > 10) // a 32-bit number has a maximun of 10 digits
 				tmp[10] = '\0';
@@ -31,7 +31,7 @@ extern "C" int main (char *cmd,cgi_data* data)
 			cm.Write("0");
 		cm.Write(" + ");
 		tmp = cm.GetParam("b");
-		if (tmp)
+		if (tmp && tmp[0] != '\0')
 		{
 			if (strlen(tmp) > 10) // a 32-bit number has a maximun of 10 digits
 				tmp[10] = '\0';
