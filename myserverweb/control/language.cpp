@@ -92,27 +92,27 @@ void ClearList()
 // Initilize pointers and logic values
 void LanguageXMLinit()
 {
-   (char *)LanguageXMLLast_Change = strdup("Last change not saved.  Continue anyways?");
-   (char *)LanguageXMLNot_Found = strdup("Config files not found.");
-   (char *)LanguageXMLReload_Prev = strdup("Reload prevous values?");
-   (char *)LanguageXMLEnter_Default = strdup("Please enter a default file name:");
-   (char *)LanguageXMLAbout_Text = strdup("MyServer Configure (FLTK)\nCopyright (C) 2002, 2003, 2004\nThe MyServer Team\nThis program is licensed under the GPL.");
-   (char *)LanguageXMLEnter_Extension = strdup("Enter new extension (Example: html):");
-   (char *)LanguageXMLEnter_MIME = strdup("Enter new MIME type (Example: text/html):");
-   (char *)LanguageXMLEnter_Name = strdup("Enter a new name:");
-   (char *)LanguageXMLEnter_Host = strdup("Enter a new host name:");
-   (char *)LanguageXMLEnter_Ip = strdup("Enter a new IP:");
-   (char *)LanguageXMLDownload_Config = strdup("Downloading config files:");
-   (char *)LanguageXMLDownload_Failed = strdup("Download failed.  Code: ");
-   (char *)LanguageXMLKill_All = strdup("This will kill all connections.  Are you sure?");
-   (char *)LanguageXMLSend_Config = strdup("Sending config files:");
-   (char *)LanguageXMLUpload_Failed = strdup("Upload failed.  Code: ");
-   (char *)LanguageXMLNot_Save = strdup("Could not save.");
-   (char *)LanguageXMLReboot_Failed = strdup("Reboot failed.");
-   (char *)LanguageXMLConnect_Server = strdup("Connecting to server:");
-   (char *)LanguageXMLLogin_Failed = strdup("Login failed.  Code: ");
-   (char *)LanguageXMLCannot_Connect = strdup("Could not connect to server.");
-   (char *)LanguageXMLServer_Closed = strdup("Server closed connection.  Code: ");
+   LanguageXMLLast_Change = strdup("Last change not saved.  Continue anyways?");
+   LanguageXMLNot_Found = strdup("Config files not found.");
+   LanguageXMLReload_Prev = strdup("Reload prevous values?");
+   LanguageXMLEnter_Default = strdup("Please enter a default file name:");
+   LanguageXMLAbout_Text = strdup("MyServer Configure (FLTK)\nCopyright (C) 2002, 2003, 2004\nThe MyServer Team\nThis program is licensed under the GPL.");
+   LanguageXMLEnter_Extension = strdup("Enter new extension (Example: html):");
+   LanguageXMLEnter_MIME = strdup("Enter new MIME type (Example: text/html):");
+   LanguageXMLEnter_Name = strdup("Enter a new name:");
+   LanguageXMLEnter_Host = strdup("Enter a new host name:");
+   LanguageXMLEnter_Ip = strdup("Enter a new IP:");
+   LanguageXMLDownload_Config = strdup("Downloading config files:");
+   LanguageXMLDownload_Failed = strdup("Download failed.  Code: ");
+   LanguageXMLKill_All = strdup("This will kill all connections.  Are you sure?");
+   LanguageXMLSend_Config = strdup("Sending config files:");
+   LanguageXMLUpload_Failed = strdup("Upload failed.  Code: ");
+   LanguageXMLNot_Save = strdup("Could not save.");
+   LanguageXMLReboot_Failed = strdup("Reboot failed.");
+   LanguageXMLConnect_Server = strdup("Connecting to server:");
+   LanguageXMLLogin_Failed = strdup("Login failed.  Code: ");
+   LanguageXMLCannot_Connect = strdup("Could not connect to server.");
+   LanguageXMLServer_Closed = strdup("Server closed connection.  Code: ");
    loaded = false;
    loadok = true;
 }
