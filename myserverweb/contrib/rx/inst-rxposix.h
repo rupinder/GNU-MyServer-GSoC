@@ -124,12 +124,16 @@ typedef struct rx_registers
 /* For regnexec only.  Allocate register storage and return that. */
 #define REG_ALLOC_REGS (REG_NOTEOL << 1)
 
+#ifdef WIN32
+
 #ifdef _VC
+
 #ifdef _LIB
 #define EXPORT __declspec(dllexport)
 #else
 #define EXPORT  extern "C" 
 #endif
+
 EXPORT int  regncomp (regex_t * preg, const char * pattern, int len, int cflags);
 EXPORT int   regcomp (regex_t * preg, const char * pattern, int cflags);
 size_t regerror (int errcode, const regex_t *preg,
@@ -175,4 +179,38 @@ void regfree ();
 
 }
 #endif
+
+#else
+
+#ifdef __STDC__
+extern int regncomp (regex_t * preg,
+		     const char * pattern, int len,
+		     int cflags);
+extern int regcomp (regex_t * preg, const char * pattern, int cflags);
+extern size_t regerror (int errcode,
+			const regex_t *preg,
+			char *errbuf, size_t errbuf_size);
+extern int regnexec (const regex_t *preg,
+		     const char *string, int len,
+		     size_t nmatch, regmatch_t **pmatch,
+		     int eflags);
+extern int regexec (const regex_t *preg,
+		    const char *string,
+		    size_t nmatch, regmatch_t pmatch[],
+		    int eflags);
+extern void regfree (regex_t *preg);
+
+#else /* STDC */
+extern int regncomp ();
+extern int regcomp ();
+extern size_t regerror ();
+extern int regnexec ();
+extern int regexec ();
+extern void regfree ();
+
+#endif /* STDC */
+
+
+#endif
+
 #endif  /* INST_RXPOSIXH */
