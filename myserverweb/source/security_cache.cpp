@@ -51,8 +51,15 @@ int SecurityCache::getErrorFileName(char *directory, int error,
    */
   if(parser)
   {
+    /*! If the file was modified reload it. */
+    if(parser->getLastModTime() != File::getLastModTime(permissionsFile))
+    {
+      parser->close();
+      parser->open(permissionsFile);
+    }
     delete [] permissionsFile;
     return ::getErrorFileName(directory, error, out, parser);
+
   }
   else
   {
@@ -65,6 +72,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
       delete [] permissionsFile;
       return 0;
     }
+   
     if(!File::fileExists(permissionsFile))
     {
       /*!
@@ -174,6 +182,12 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
    */
   if(parser)
   {
+    /*! If the file was modified reload it. */
+    if(parser->getLastModTime() != File::getLastModTime(permissionsFile))
+    {
+      parser->close();
+      parser->open(permissionsFile);
+    }
     delete [] permissionsFile;
     return ::getPermissionMask(user, password, directory, filename, sysdirectory, 
                              password2, auth_type, len_auth, permission2, parser);

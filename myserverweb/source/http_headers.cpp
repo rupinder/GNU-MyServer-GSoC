@@ -646,6 +646,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					password[i]=*lbuffer2++;
 					password[i+1]='\0';
 				}
+        tokenOff = getCharInString(token,"\r\n", 100);
 			}
 			else if(!lstrcmpi(request->AUTH,"Digest"))
 			{
@@ -736,7 +737,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}while(digestToken);
 				delete  [] digestBuff;
 			}
-			tokenOff = getCharInString(token,"\r\n", 100);
 		}else
 		/*!Host*/
 		if(!lstrcmpi(command,"Host"))

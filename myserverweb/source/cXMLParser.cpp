@@ -99,14 +99,25 @@ int XmlParser::open(char* filename)
 		close();
 		return -1;
 	}
+  mtime = File::getLastModTime(filename);
 	return 0;
 }
+
+/*!
+ *Get the last modification time for the parsed file.
+ */
+time_t XmlParser::getLastModTime()
+{
+  return mtime;
+}
+
 /*!
  *Read the xml data from a char array
  *Return nonzero on errors.
  */
 int XmlParser::openMemBuf(CMemBuf & memory)
 {
+  mtime=0;
 	cur=0;
 	if(memory.GetLength() == 0)
 		return -1;

@@ -38,6 +38,7 @@ class XmlParser
 	xmlNodePtr cur;
 	xmlNodePtr prev_cur;
 	xmlNodePtr last_node;
+  time_t mtime;
 public:
 	static int startXML();
 	static int cleanXML();
@@ -57,6 +58,7 @@ public:
 	void addGroup(const char * name);
 	void endGroup();
 	void setAttr(const char * name, const char * value);
+  time_t getLastModTime();
 };
 
 #endif
