@@ -293,6 +293,10 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rCONTENT_TYPE=");
 		strcat(cgiEnvString,td->request.CONTENT_TYPE);
 	}
+	else
+	{
+		sprintf(&cgiEnvString[strlen(cgiEnvString)],"\rCONTENT_TYPE=%u",td->inputData.getFileSize());
+	}
 	
 	if(td->request.CONTENT_LENGTH[0])
 	{

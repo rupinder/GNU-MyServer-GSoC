@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef CONNECTIONSTRUCT_H
 #define CONNECTIONSTRUCT_H
 #include "../include/sockets.h"
+#include "../include/utility.h"
+
 /*
 *Here are listed all the protocol supported by the server.
 */
@@ -44,6 +46,7 @@ public:
 	CONNECTION* Next;
 	void *host;
 	int dataRead;
+	char connectionBuffer[KB(8)];
 };
 typedef CONNECTION*  volatile LPCONNECTION;
 #endif

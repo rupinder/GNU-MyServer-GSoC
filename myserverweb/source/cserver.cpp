@@ -762,7 +762,13 @@ int cserver::getMaxLogFileSize()
 {
 	return maxLogFileSize;
 }
-
+/*
+*Returns the connection timeout
+*/
+u_long cserver::getTimeout()
+{
+	return connectionTimeout;
+}
 /*
 *This function dispatch a new connection to a thread.
 */

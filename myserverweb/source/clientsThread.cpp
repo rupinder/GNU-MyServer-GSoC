@@ -116,16 +116,22 @@ void ClientsTHREAD::controlConnections()
 		nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
 		if(nBytesToRead)
 		{
-			err=c->socket.recv(&buffer[c->dataRead],KB(5), 0);
+			err=c->socket.recv(&buffer[c->dataRead],KB(8)-c->dataRead, 0);
 			if(err==-1)
 			{
 				deleteConnection(c);
 					continue;
 			}
-			if((c->dataRead+err)<KB(5))
+			if((c->dataRead+err)<KB(8))
 			{
 				buffer[c->dataRead+err]='\0';
 			}
+			else
+			{
+				deleteConnection(c);
+					continue;
+			}
+			memcpy(buffer,c->connectionBuffer,c->dataRead);
 			/*
 			*Control the protocol used by the connection.
 			*/
@@ -138,19 +144,22 @@ void ClientsTHREAD::controlConnections()
 				*/
 				case PROTOCOL_HTTP:
 					retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
-					if(retcode==0)
-					{
-						deleteConnection(c);
-					}
-					else if(retcode==1)
-					{
-						c->dataRead=0;
-					}
-					else if(retcode==2)
-					{
-						c->dataRead+=err;
-					}
+
 					break;
+			}
+			if(retcode==0)
+			{
+				deleteConnection(c);
+			}
+			else if(retcode==1)
+			{
+				c->dataRead=0;
+			}
+			else if(retcode==2)
+			{
+				memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*Save the header in the connection buffer*/
+				c->dataRead+=err;
+					
 			}
 			c->timeout=clock();
 		}
@@ -204,7 +213,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 {
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
-	memset(nc, 0, sizeof(CONNECTION));
+	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
@@ -214,6 +223,9 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	strcpy(nc->localIpAddr,localIpAddr);
 	nc->Next=connections;
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	nc->login[0]='\0';
+	nc->nTries=0;
+	nc->password[0]='\0';
 	if(nc->host==0)
 	{
 		s.shutdown(2);

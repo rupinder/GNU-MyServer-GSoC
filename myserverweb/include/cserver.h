@@ -102,6 +102,7 @@ private:
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 public:
+	u_long getTimeout();
 	char *getAddresses();
 	void *envString;
 	int mscgiLoaded;

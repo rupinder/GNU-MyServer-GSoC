@@ -633,7 +633,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	resetHTTPRequest(&td.request);
 
 	u_long validRequest=buildHTTPRequestHeaderStruct(&td.request,&td);
-	if(validRequest==-1)
+	if(validRequest==-1)/*If the header is incomplete returns 2*/
 	{
 		return 2;
 	}
@@ -684,25 +684,53 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*/
 		td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 		u_long nbw;
+		u_long total_nbr=0;
 		td.inputData.writeToFile(td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
-
+		u_long content_len=atoi(td.request.CONTENT_LENGTH);
 		/*
 		*If there are others bytes to read from the socket.
 		*/
-		if(td.connection->socket.bytesToRead())
+		u_long timeout=clock();
+		if((content_len==0)||(content_len!=nbw))
 		{
 			int err;
 			do
 			{
-				err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
-				if(err==-1)
+				err=0;
+				if(content_len)
+				{
+					while(clock()-timeout<lserver->getTimeout())
+					{
+						if(td.connection->socket.bytesToRead())
+						{				
+							err=td.connection->socket.recv(td.buffer2,min(content_len-total_nbr,td.buffersize2), 0);
+							timeout=clock();
+							break;
+						}
+					}
+					total_nbr+=err;
+				}
+				else
+				{
+					if(td.connection->socket.bytesToRead())
+					{
+						err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
+						total_nbr+=err;
+					}
+
+				}
+
+
+				if(((content_len==0) && (err==0))||(err==-1))
 				{
 					/*
 					If we get an error remove the file and the connection.
 					*/
 					td.inputData.closeFile();
-					retvalue|=1;/*set return value to 1.*/
+					td.inputData.deleteFile(td.inputDataPath);
+					retvalue|=1;/*set return value to 1*/
 					retvalue|=2;
+					return raiseHTTPError(&td,a,e_500);
 				}
 				td.inputData.writeToFile(td.buffer2,err,&nbw);
 			}
@@ -710,12 +738,30 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		}
 		td.inputData.setFilePointer(0);
 		td.buffer2[0]='\0';
+		/*
+		*If the connection is Keep-Alive be sure that the data sent by the client is equal
+		*to the HTTP CONTENT-LENGTH field
+		*/
+		if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
+		{
+			if(td.inputData.getHandle())
+			{
+				if(td.inputData.getFileSize()!=total_nbr)
+				{
+					td.inputData.closeFile();
+					td.inputData.deleteFile(td.inputDataPath);
+					return raiseHTTPError(&td,a,e_400);/*If the post data sent is not equal to the CONTENT-LENGTH HTTP header field send a bad request error page*/
+				}
+			}
+			else
+				return raiseHTTPError(&td,a,e_500);
+		}
 	}
 	else
 	{
 		td.request.URIOPTSPTR=0;
 	}
-	
+
 	if(!(retvalue&2))/*If return value is not setted.*/
 	{
 		/*
@@ -1045,7 +1091,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	if(ID==e_401AUTH)
 	{
-		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",lserver->getServerName());
+		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",lserver->getServerName(),td->request.CONNECTION);
 		strcat(td->buffer2,"Date: ");
 		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 		strcat(td->buffer2,"\r\n\r\n");
@@ -1071,20 +1117,20 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 */
 int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
-		sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
-		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-       const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
-<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
-Internal Server error</font></p>\r\n";
-   
-       sprintf(td->buffer2,"HTTP/1.1 500 System Error\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: %d\r\n",lserver->getServerName(),strlen(hardHTML));
-       strcat(td->buffer2,"Date: ");
-       getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
-       strcat(td->buffer2,"\r\n\r\n");
-       a->socket.send(td->buffer2,strlen(td->buffer2),0);
-  
-       a->socket.send(hardHTML,strlen(hardHTML), 0);
-       return 1;
+	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
+	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+	const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
+		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
+		Internal Server error</font></p>\r\n";
+
+	sprintf(td->buffer2,"HTTP/1.1 500 System Error\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: %d\r\n",lserver->getServerName(),strlen(hardHTML));
+	strcat(td->buffer2,"Date: ");
+	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
+	strcat(td->buffer2,"\r\n\r\n");
+	a->socket.send(td->buffer2,strlen(td->buffer2),0);
+
+	a->socket.send(hardHTML,strlen(hardHTML), 0);
+	return 1;
 }
 /*
 *Returns the MIME type passing its extension.
@@ -1124,7 +1170,9 @@ void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int s
 
 /*
 *Controls if the req string is a valid HTTP request header.
-*Returns 0 if req is an invalid header, a non-zero value if is a valid header.
+*Returns 0 if req is an invalid header, 
+*Returns -1 if the header is incomplete,
+*Returns another non-zero value if is a valid header.
 *nLinesptr is a value of the lines number in the HEADER.
 *ncharsptr is a value of the characters number in the HEADER.
 */
@@ -1142,7 +1190,7 @@ u_long validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long
 	/*
 	*Count the number of lines in the header.
 	*/
-	for(nLines=i=0;(i<KB(5));i++)
+	for(nLines=i=0;(i<KB(8));i++)
 	{
 		if(req[i]=='\n')
 		{
@@ -1310,9 +1358,9 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 	if(input==0)
 		input=td->buffer;
 	u_long validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
-	if(validRequest==0)
+	if(validRequest==0)/*Invalid header*/
 		return 0;
-	else if(validRequest==-1)
+	else if(validRequest==-1)/*Incomplete header*/
 		return -1;
 
 	const int max_URI=MAX_PATH+200;
