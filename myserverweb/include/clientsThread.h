@@ -53,7 +53,7 @@ private:
 	void controlConnections();
 	u_long nBytesToRead;
 public:
-	const static int ID_OFFSET = 200;
+	const static u_long ID_OFFSET = 200;
 	ClientsTHREAD();
 	~ClientsTHREAD();
 	void stop();

@@ -60,8 +60,9 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 void * startClientsTHREAD(void* pParam)
 #endif
 {
-	u_long id=*((u_long*)pParam);
-	ClientsTHREAD *ct=&lserver->threads[id-ClientsTHREAD::ID_OFFSET];
+	u_long id=*((u_long*)pParam) - ClientsTHREAD::ID_OFFSET;
+
+	ClientsTHREAD *ct=&lserver->threads[id];
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
@@ -107,7 +108,7 @@ void ClientsTHREAD::controlConnections()
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
 	if(!c)
 		return;
-	if(c->check_value!=0x20)
+	if(c->check_value!=CONNECTION::check_value_const)
 		return;
 	nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
 	if(nBytesToRead)
