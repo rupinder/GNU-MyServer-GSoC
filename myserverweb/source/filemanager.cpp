@@ -136,7 +136,7 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
-	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
+	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
 	if(handle==INVALID_HANDLE_VALUE)/*!If exists an error*/
 	{
 		if(GetLastError()==ERROR_ACCESS_DENIED)/*!returns -1 if the file is not accessible*/
@@ -381,17 +381,7 @@ int MYSERVER_FILE::isFolder(char *filename)
 int MYSERVER_FILE::fileExists(char* filename)
 {
 #ifdef WIN32
-	SECURITY_ATTRIBUTES sa = {0}; 
-	MYSERVER_FILE_HANDLE fhandle=(MYSERVER_FILE_HANDLE)CreateFile(filename, GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL, NULL);
-	if(fhandle==INVALID_HANDLE_VALUE)
-	{
-		return 0;
-	}
-	else
-	{
-		CloseHandle(fhandle);
-		return 1;
-	}
+	return (OpenFile(filename, &OFSTRUCT(), OF_EXIST) != HFILE_ERROR); // OpenFile is now a wrapper for CreateFile
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;
