@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/AMMimeUtils.h"
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
+#include "../include/cserver.h"
 #include "../include/http_headers.h"
 #include "../include/http.h"
 #include "../include/HTTPmsg.h"
@@ -77,7 +78,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	sprintf(td->buffer2,"Server Admin=%s\r\n",lserver->getServerAdmin());
 	DataFileHandle.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
-	if(strcmpi(td->request.CONNECTION,"Keep-Alive"))
+	if(lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcpy(td->buffer2,"Request Keep-Alive=No\r\n");
 		DataFileHandle.writeToFile(td->buffer2,23,&nbr);
@@ -236,12 +237,12 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 			break;
 		}
 	}
-	buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
+	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
 	/*!
 	*Always specify the size of the HTTP contents.
 	*/
 	sprintf(td->response.CONTENT_LENGTH,"%u",OutFileHandle.getFileSize()-headerSize);
-	buildHTTPResponseHeader(td->buffer,&td->response);
+	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 	s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
 	while(OutFileHandle.readFromFile(td->buffer2,td->buffersize2,&nBytesRead))
@@ -255,7 +256,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	OutFileHandle.closeFile();
 	MYSERVER_FILE::deleteFile(outFilePath);
 	MYSERVER_FILE::deleteFile(dataFilePath);
-	return !strcmpi(td->request.CONNECTION,"Keep-Alive");
+	return !lstrcmpi(td->request.CONNECTION,"Keep-Alive");
 #endif
 #ifdef NOT_WIN
 	sprintf(td->buffer,"Error WinCGI is not implemented\r\n");

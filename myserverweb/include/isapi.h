@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef ISAPI_H
-#define ISAPI_H
+#ifndef isapi_H
+#define isapi_H
 #include "../stdafx.h"
 #include "../include/http_headers.h"
 #include "../include/utility.h"
@@ -112,6 +112,7 @@ struct ConnTableRecord
 	char* envString;
 	LPCONNECTION connection;
 	HANDLE ISAPIDoneEvent;
+	void *lisapi;
 };
 typedef BOOL (WINAPI * PFN_GETEXTENSIONVERSION)(HSE_VERSION_INFO *pVer);
 typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
@@ -120,26 +121,29 @@ typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 
 class isapi
 {
-#ifdef WIN32	
-	ConnTableRecord *HConnRecord(HCONN hConn);
-	static ConnTableRecord *connTable;
-	int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL);
-	int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
-	int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
-	/*!
-	*Use this to execute an ISAPI file on the server.
-	*/
-	BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType);
-	BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
-	BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
-	BOOL WINAPI GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
-	BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
-	BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
-#endif	
 public:	
+#ifdef WIN32	
+	int Redirect(httpThreadContext* td,LPCONNECTION a,char *URL);
+	int SendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
+	int SendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
+
+	static ConnTableRecord *HConnRecord(HCONN hConn);
+	static ConnTableRecord *connTable;
+	static BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+#endif	
 	static void initISAPI();
 	static void cleanupISAPI();
 	int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
 };
+
+#ifdef WIN32	
+BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType);
+BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
+BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
+BOOL WINAPI ISAPI_GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
+#endif
+
+
 
 #endif

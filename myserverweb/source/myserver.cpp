@@ -45,7 +45,7 @@ void console_service (int, char **);
 
 #ifdef WIN32
 void __stdcall myServerCtrlHandler(u_long fdwControl);
-void __stdcall myServerMain (u_long argv, LPTSTR *argv); 
+void __stdcall myServerMain (u_long , LPTSTR *argv); 
 void runService();
 #endif
 
@@ -70,6 +70,7 @@ int reboot_console()
 {
 	server.stop();	
 	console_service(argn,argv);
+	return 0;
 }
 
 #ifdef NOT_WIN

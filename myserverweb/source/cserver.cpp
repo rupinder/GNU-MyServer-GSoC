@@ -144,7 +144,7 @@ void cserver::start()
 
 	http::loadProtocol(&languageParser,"myserver.xml");
 	https::loadProtocol(&languageParser,"myserver.xml");
-	
+
 	/*!
 	*Initialize the SSL library
 	*/

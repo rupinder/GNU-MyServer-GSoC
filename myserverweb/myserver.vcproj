@@ -158,9 +158,6 @@
 				RelativePath="source\fastCGI.cpp">
 			</File>
 			<File
-				RelativePath="source\http_header.cpp">
-			</File>			
-			<File
 				RelativePath="source\filemanager.cpp">
 			</File>
 			<File
@@ -170,10 +167,13 @@
 				RelativePath="source\http.cpp">
 			</File>
 			<File
-				RelativePath="source\https.cpp">
-			</File>			
+				RelativePath="source\http_headers.cpp">
+			</File>
 			<File
 				RelativePath="source\httpmsg.cpp">
+			</File>
+			<File
+				RelativePath="source\https.cpp">
 			</File>
 			<File
 				RelativePath="source\isapi.cpp">
@@ -186,6 +186,9 @@
 			</File>
 			<File
 				RelativePath="source\myserver.cpp">
+			</File>
+			<File
+				RelativePath="source\protocol.cpp">
 			</File>
 			<File
 				RelativePath="source\security.cpp">
@@ -202,9 +205,6 @@
 			<File
 				RelativePath="source\utility.cpp">
 			</File>
-			<File
-				RelativePath="source\protocol.cpp">
-			</File>			
 			<File
 				RelativePath="source\vhosts.cpp">
 			</File>
@@ -234,12 +234,6 @@
 				RelativePath="include\cgi.h">
 			</File>
 			<File
-				RelativePath="include\protocol.h">
-			</File>			
-			<File
-				RelativePath="include\http_header.h">
-			</File>			
-			<File
 				RelativePath="include\clientsThread.h">
 			</File>
 			<File
@@ -264,8 +258,11 @@
 				RelativePath="include\http.h">
 			</File>
 			<File
+				RelativePath="include\http_headers.h">
+			</File>
+			<File
 				RelativePath="include\https.h">
-			</File>			
+			</File>
 			<File
 				RelativePath="include\isapi.h">
 			</File>
@@ -274,6 +271,9 @@
 			</File>
 			<File
 				RelativePath="include\mscgi.h">
+			</File>
+			<File
+				RelativePath="include\protocol.h">
 			</File>
 			<File
 				RelativePath="include\security.h">

@@ -259,7 +259,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 *Write the string that contain the CGI environment to cgiEnvString.
 *This function is used by other server side protocols too.
 */
-void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int /*processEnv*/)
+void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int processEnv)
 {
 	/*!
 	*The Environment string is a null-terminated block of null-terminated strings.

@@ -224,9 +224,12 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		if(*buffer2Loop=='\\')
 			*buffer2Loop='/';
 	http_headers::buildDefaultHTTPResponseHeader(&(td->response));
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+		strcpy(td->response.CONNECTION,"Keep-Alive");
 	sprintf(td->response.CONTENT_LENGTH,"%u",outFile.getFileSize());
 	outFile.setFilePointer(0);
 	http_headers::buildHTTPResponseHeader(td->buffer,&(td->response));
+	
 	s->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
 	u_long nbr,nbs;
 	do
@@ -394,8 +397,10 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			*If there are bytes to send, send them.
 			*/
 			if(nbr)
+			{
 				if(s->socket.send(td->buffer,nbr, 0) == SOCKET_ERROR)
 					break;		
+			}
 		}
 		/*!
 		*When the bytes number read from the file is zero, stop to send the file.
@@ -419,6 +424,8 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 {
 	int httpStatus=td->response.httpStatus;
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+		strcpy(td->response.CONNECTION,"Keep-Alive");
 	td->response.httpStatus=httpStatus;
 	/*!
 	*td->filenamePath is the file system mapped path while filename is the URI requested.
@@ -522,6 +529,8 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 
 	int httpStatus=td->response.httpStatus;
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+		strcpy(td->response.CONNECTION,"Keep-Alive");
 	td->response.httpStatus=httpStatus;
 	/*!
 	*td->filenamePath is the file system mapped path while filename is the URI requested.
@@ -596,7 +605,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		http_headers::buildDefaultHTTPResponseHeader(&td->response);
 		td->response.httpStatus=httpStatus;
 	}
-
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+		strcpy(td->response.CONNECTION,"Keep-Alive");
 	static char ext[10];
 	static char data[MAX_PATH];
 	/*!
@@ -1045,8 +1055,6 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		logHTTPaccess(&td,a);
 		return retvalue;
 	}
-	
-
 	/*!
 	*For methods that accept data after the HTTP header set the correct pointer and create a file
 	*containing the informations after the header.
@@ -1187,7 +1195,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	/*
 	*Manage chunked transfers
 	*/
-	if(!strcmpi(td.request.TRANSFER_ENCODING,"chunked"))
+	if(!lstrcmpi(td.request.TRANSFER_ENCODING,"chunked"))
 	{
 		MYSERVER_FILE newStdIn;
 		sprintf(td.inputDataPath,"%s_encoded",td.inputData.getFilename());
@@ -1371,6 +1379,8 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	http_headers::buildDefaultHTTPResponseHeader(&(td->response));
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+		strcpy(td->response.CONNECTION,"Keep-Alive");
 	if(ID==e_401AUTH)
 	{
 		td->response.httpStatus = 401;
@@ -1630,7 +1640,7 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 		}
 	}	
 	configurationFileManager.close();
-	
+	return 1;	
 }
 /*!
 *Unload the HTTP protocol.
@@ -1651,6 +1661,7 @@ int http::unloadProtocol(cXMLParser* languageParser)
 	mscgi::freeMSCGILib();
 
 	delete[] defaultFilename;
+	return 1;
 }
 
 /*!

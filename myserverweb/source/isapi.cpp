@@ -19,23 +19,26 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  
 #include "../include/isapi.h"
 #include "../include/http.h"
+#include "../include/cserver.h"
 #include "../include/HTTPmsg.h"
+#include "../include/cgi.h"
 
 #ifdef WIN32
 
 static  u_long max_Connections;
 static CRITICAL_SECTION GetTableEntryCritSec;
 #define ISAPI_TIMEOUT (10000)
+ConnTableRecord *isapi::connTable=0;
 
-BOOL WINAPI isapi::ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType) 
+BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType) 
 {
 	ConnTableRecord *ConnInfo;
 
-	ConnInfo = HConnRecord(hConn);
+	ConnInfo = isapi::HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
 		preparePrintError();
-		printf("ServerSupportFunctionExport: invalid hConn\r\n");
+		printf("isapi::ServerSupportFunctionExport: invalid hConn\r\n");
 		endPrintError();
 		return FALSE;
 	}
@@ -44,7 +47,7 @@ BOOL WINAPI isapi::ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
-			getPath(ConnInfo->td,mapInfo->lpszPath,(char*)lpvBuffer,FALSE);
+			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,mapInfo->lpszPath,(char*)lpvBuffer,FALSE);
 			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT|HSE_URL_FLAGS_EXECUTE;
@@ -55,18 +58,18 @@ BOOL WINAPI isapi::ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 				strcpy(URI,(char*)lpvBuffer);
 			else
 				lstrcpyn(URI,ConnInfo->td->request.URI,(int)(strlen(ConnInfo->td->request.URI)-strlen(ConnInfo->td->pathInfo)+1));
-			getPath(ConnInfo->td,(char*)lpvBuffer,URI,FALSE);
+			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,(char*)lpvBuffer,URI,FALSE);
 			MYSERVER_FILE::completePath((char*)lpvBuffer);
 			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
-			return ISAPIRedirect(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
+			return ((isapi*)ConnInfo->lisapi)->Redirect(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL:
-			return ISAPISendURI(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
+			return ((isapi*)ConnInfo->lisapi)->SendURI(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_RESPONSE_HEADER:
-			return ISAPISendHeader(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
+			return ((isapi*)ConnInfo->lisapi)->SendHeader(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
 			break;
 		case HSE_REQ_DONE_WITH_SESSION:
 			ConnInfo->td->response.httpStatus=*(DWORD*)lpvBuffer;
@@ -108,36 +111,36 @@ ConnTableRecord *isapi::HConnRecord(HCONN hConn)
 /*!
 *Send an HTTP redirect.
 */
-int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL) 
+int isapi::Redirect(httpThreadContext* td,LPCONNECTION a,char *URL) 
 {
-    return sendHTTPRedirect(td,a,URL);
+	return ((http*)td->lhttp)->sendHTTPRedirect(td,a,URL);
 }
 /*!
 *Send an HTTP URI.
 */
-int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL)
+int isapi::SendURI(httpThreadContext* td,LPCONNECTION a,char *URL)
 {
-	return sendHTTPRESOURCE(td,a,URL,FALSE,FALSE);
+	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,FALSE,FALSE);
 }
 /*!
 *Send the ISAPI header.
 */
-int isapi::ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
+int isapi::SendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
 {
-	return sendHTTPRESOURCE(td,a,URL,FALSE,TRUE);
+	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,FALSE,TRUE);
 }
 /*!
 *Write directly to the output.
 */
-BOOL WINAPI isapi::WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*!dwReserved*/)
+BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*!dwReserved*/)
 {
 	ConnTableRecord *ConnInfo;
 	if(*lpdwBytes==0)
 		return TRUE;
-	ConnInfo = HConnRecord(hConn);
+	ConnInfo = isapi::HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("WriteClientExport: invalid hConn\r\n");
+		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("isapi::WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
 	char chunk_size[15];
@@ -170,8 +173,8 @@ BOOL WINAPI isapi::WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
 		{
 			int len=ConnInfo->headerSize-headerSize;
 			strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
-			buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
-			buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
+			http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
+			http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
 
 			ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0);
 			ConnInfo->headerSent=1;
@@ -212,16 +215,16 @@ BOOL WINAPI isapi::WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
 /*!
 *Read directly from the client.
 */
-BOOL WINAPI isapi::ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) 
+BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) 
 {
 	ConnTableRecord *ConnInfo;
 	u_long NumRead;
 
-	ConnInfo = HConnRecord(hConn);
+	ConnInfo = isapi::HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
 		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
-		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("ReadClientExport: invalid hConn\r\n");
+		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("isapi::ReadClientExport: invalid hConn\r\n");
 		((vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(ConnInfo->td->id);
 		return FALSE;
 	}
@@ -242,22 +245,22 @@ BOOL WINAPI isapi::ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwS
 /*!
 *Get server environment variable.
 */
-BOOL WINAPI isapi::GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID lpvBuffer, LPDWORD lpdwSize) 
+BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID lpvBuffer, LPDWORD lpdwSize) 
 {
 	ConnTableRecord *ConnInfo;
 	BOOL ret =TRUE;
-	ConnInfo = HConnRecord(hConn);
+	ConnInfo = isapi::HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
 		preparePrintError();
-		printf("GetServerVariableExport: invalid hConn\r\n");
+		printf("isapi::GetServerVariableExport: invalid hConn\r\n");
 		endPrintError();
 		return FALSE;
 	}
 
 	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
 	{
-		if(buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
+		if(isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
 			ret=TRUE;
 		else
 		{
@@ -267,7 +270,7 @@ BOOL WINAPI isapi::GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, 
 			
 	}else if(!strcmp(lpszVariableName, "ALL_RAW")) 
 	{
-		if(buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
+		if(isapi::buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
 			ret=TRUE;
 		else
 		{
@@ -501,6 +504,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	connTable[connIndex].headerSent=0;
 	connTable[connIndex].headerSize=0;
 	connTable[connIndex].Allocated = TRUE;
+	connTable[connIndex].lisapi = this;
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (AppHnd == NULL) 
 	{
@@ -571,15 +575,15 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	connTable[connIndex].envString[0]='\0';
-	buildCGIEnvironmentString(td,connTable[connIndex].envString);
+	cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);
 
 	ZeroMemory(&ExtCtrlBlk, sizeof(ExtCtrlBlk));
 	ExtCtrlBlk.cbSize = sizeof(ExtCtrlBlk);
 	ExtCtrlBlk.dwVersion = MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR);
-	ExtCtrlBlk.GetServerVariable = GetServerVariableExport;
-	ExtCtrlBlk.ReadClient  = ReadClientExport;
-	ExtCtrlBlk.WriteClient = WriteClientExport;
-	ExtCtrlBlk.ServerSupportFunction = ServerSupportFunctionExport;
+	ExtCtrlBlk.GetServerVariable = ISAPI_GetServerVariableExport;
+	ExtCtrlBlk.ReadClient  = ISAPI_ReadClientExport;
+	ExtCtrlBlk.WriteClient = ISAPI_WriteClientExport;
+	ExtCtrlBlk.ServerSupportFunction = ISAPI_ServerSupportFunctionExport;
 	ExtCtrlBlk.ConnID = (HCONN) (connIndex + 1);
 	ExtCtrlBlk.dwHttpStatusCode = 200;
 	ExtCtrlBlk.lpszLogData[0] = '0';
@@ -637,9 +641,9 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	connTable[connIndex].Allocated = FALSE;
 	return retvalue;
 #else
-	sprintf(td->buffer,"Error WinCGI is not implemented\r\n");
+	sprintf(td->buffer,"Error ISAPI is not implemented\r\n");
 	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-	return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);/*!WinCGI is available only on windows*/
+	return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);/*!ISAPI is available only on windows*/
 #endif	
 }
 /*!
