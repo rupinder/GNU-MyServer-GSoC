@@ -77,7 +77,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			if(((char*)lpvBuffer)[0])
 				strcpy(URI,(char*)lpvBuffer);
 			else
-        lstrcpyn(URI,ConnInfo->td->request.URI,
+        lstrcpyn(URI,ConnInfo->td->request.URI.c_str(),
                  (int)ConnInfo->td->request.URI.length()-
 				 (ConnInfo->td->pathInfo?strlen(ConnInfo->td->pathInfo):0) +1);
 			
