@@ -261,6 +261,13 @@ void MainDlg::cb_MenuSendConfig(Fl_Menu_* o, void* v) {
   ((MainDlg*)(o->parent()->user_data()))->cb_MenuSendConfig_i(o,v);
 }
 
+inline void MainDlg::cb_MenuConnections_i(Fl_Menu_*, void*) {
+  ServerConnections();
+}
+void MainDlg::cb_MenuConnections(Fl_Menu_* o, void* v) {
+  ((MainDlg*)(o->parent()->user_data()))->cb_MenuConnections_i(o,v);
+}
+
 inline void MainDlg::cb_MenuReboot_i(Fl_Menu_*, void*) {
   int ret;
 ret = fl_ask(LanguageXMLKill_All);
@@ -316,7 +323,7 @@ Fl_Menu_Item MainDlg::menu_[] = {
  {gettext("Logout"), 0,  (Fl_Callback*)MainDlg::cb_MenuLogout, 0, 129, 0, 0, 14, 56},
  {gettext("Get Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuGetConfig, 0, 1, 0, 0, 14, 56},
  {gettext("Send Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuSendConfig, 0, 129, 0, 0, 14, 56},
- {gettext("Connections..."), 0,  0, 0, 1, 0, 0, 14, 56},
+ {gettext("Connections..."), 0,  (Fl_Callback*)MainDlg::cb_MenuConnections, 0, 1, 0, 0, 14, 56},
  {gettext("Reboot..."), 0,  (Fl_Callback*)MainDlg::cb_MenuReboot, 0, 1, 0, 0, 14, 56},
  {0},
  {gettext("&Help"), 0,  0, 0, 64, 0, 0, 14, 56},
@@ -2616,6 +2623,32 @@ Fl_Double_Window* MainDlg::make_status() {
   return w;
 }
 
+Fl_Double_Window* MainDlg::make_connections() {
+  Fl_Double_Window* w;
+  { Fl_Double_Window* o = ConnectionsDlg = new Fl_Double_Window(488, 341, gettext("Connections"));
+    w = o;
+    o->user_data((void*)(this));
+    ConnectionsDlgVr = new Fl_Output(65, 15, 140, 25, gettext("Server:"));
+    { Fl_Browser* o = ConnectionsDlgList = new Fl_Browser(10, 60, 470, 235, gettext("Connections (ID - IP - Port - LocalIP - LocalPort - Login - PWord)"));
+      o->type(2);
+      o->align(FL_ALIGN_TOP);
+    }
+    { Fl_Counter* o = ConnectionsDlgRate = new Fl_Counter(95, 305, 85, 25, gettext("Update rate:"));
+      o->type(1);
+      o->minimum(1);
+      o->maximum(30);
+      o->step(1);
+      o->value(10);
+      o->align(FL_ALIGN_LEFT);
+    }
+    ConnectionsDlgKill = new Fl_Button(195, 305, 130, 25, gettext("Kill connection"));
+    ConnectionsDlgDone = new Fl_Button(340, 305, 130, 25, gettext("Done"));
+    o->set_modal();
+    o->end();
+  }
+  return w;
+}
+
 int MainDlg::ask_type() {
   #ifdef WIN32
 return 1;
@@ -3229,6 +3262,90 @@ if(stat) {
 }
 
 return 0;
+}
+
+void MainDlg::ServerConnections() {
+  int ret;
+int time;
+int i;
+CMemBuf MSvr;
+Vector list;
+ConnectionsDlgVr->value("");
+ConnectionsDlg->show();
+fl_wait(200);
+
+// see if we are connected by getting the vr
+ret = Server.getVersion(MSvr);
+
+if(ret) { // relogin?
+  ret = ServerLogin(false);
+  if(!ret) {
+    ret = Server.getVersion(MSvr);
+  }
+}
+
+if(ret) { // no dice
+  fl_alert("Could not connect to server.");
+  ConnectionsDlg->hide();
+  return;
+}
+
+// update display
+MSvr << '\0';
+ConnectionsDlgVr->value((const char *)MSvr.GetBuffer());
+
+time = get_ticks();
+ConnectionsDlgList->clear();
+ret = Server.getConnections(list);
+
+if(ret) {
+  fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+  ConnectionsDlg->hide();
+  ServerLogout();
+  return;
+}
+
+list.sort();
+for(i = 0; i < list.size(); i++) {
+  ConnectionsDlgList->add(list.at(i)->Text);
+}
+
+for(;;) {
+  Fl_Widget *o = Fl::readqueue();
+  if(!o) Fl::wait(1);
+  else if(o == ConnectionsDlgDone) {break; }
+  else if(o == ConnectionsDlg) {break; }
+  else if(o == ConnectionsDlgKill) {
+    i = ConnectionsDlgList->value();
+    if(i != 0) {
+      ret = Server.sendKillConnection(list.at(i - 1));
+      if(ret) {
+        fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+        ServerLogout();
+        break;
+      } // if
+    } // if
+  } // else if
+
+  if(get_ticks() - time > ConnectionsDlgRate->value() * 1000) {
+    time = get_ticks();
+    ConnectionsDlgList->clear();
+    ret = Server.getConnections(list);
+
+    if(ret) {
+      fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+      ServerLogout();
+      break;
+    } // if
+
+    list.sort();
+    for(i = 0; i < list.size(); i++) {
+      ConnectionsDlgList->add(list.at(i)->Text);
+    } // for
+  } // if
+} // for
+
+ConnectionsDlg->hide();
 }
 
 void MainDlg::fl_alertcat(const char * c1, const char * c2) {

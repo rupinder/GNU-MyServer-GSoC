@@ -20,10 +20,9 @@ i18n_include "language.h"
 i18n_function gettext 
 header_name {.h} 
 code_name {.cpp}
-class MainDlg {open selected
+class MainDlg {open
 } {
-  Function {make_window()} {open
-  } {
+  Function {make_window()} {} {
     Fl_Window ConfDlg {
       label {MyServer Configure}
       callback {if(Changed) {
@@ -34,7 +33,7 @@ class MainDlg {open selected
 else {
   ConfDlg->hide();
 }} open
-      xywh {244 90 550 360} type Double hide
+      xywh {215 255 550 360} type Double hide
     } {
       Fl_Menu_Bar {} {open
         xywh {0 0 550 25}
@@ -264,6 +263,7 @@ ServerLogout();}
           }
           menuitem MenuConnections {
             label {Connections...}
+            callback {ServerConnections();}
             xywh {0 0 100 20} deactivate
           }
           menuitem MenuReboot {
@@ -1021,8 +1021,7 @@ else {
 (char *)fl_ok = gettext("OK");
 (char *)fl_cancel = gettext("Cancel");} {}
   }
-  Function {make_type()} {open
-  } {
+  Function {make_type()} {} {
     Fl_Window ConfTypeDlg {
       label {Chose Location} open
       xywh {532 584 303 152} type Double align 0 hide modal
@@ -1057,8 +1056,7 @@ else {
       }
     }
   }
-  Function {make_about()} {open
-  } {
+  Function {make_about()} {} {
     Fl_Window AboutDlg {
       label About open
       xywh {360 453 559 119} type Double hide modal
@@ -1079,8 +1077,7 @@ else {
 atext->text(LanguageXMLAbout_Text);
 AboutText->buffer(atext);} {}
   }
-  Function {make_login()} {open
-  } {
+  Function {make_login()} {} {
     Fl_Window LoginDlg {
       label {Remote Login} open
       xywh {328 239 607 124} type Double hide modal
@@ -1111,8 +1108,7 @@ AboutText->buffer(atext);} {}
       }
     }
   }
-  Function {make_status()} {open
-  } {
+  Function {make_status()} {} {
     Fl_Window StatusDlg {
       label Status open
       xywh {372 471 279 100} type Double hide modal
@@ -1129,7 +1125,35 @@ AboutText->buffer(atext);} {}
       }
     }
   }
-  Function {ask_type()} {open return_type int
+  Function {make_connections()} {open
+  } {
+    Fl_Window ConnectionsDlg {
+      label Connections open
+      xywh {269 258 488 341} type Double hide modal
+    } {
+      Fl_Output ConnectionsDlgVr {
+        label {Server:}
+        xywh {65 15 140 25}
+      }
+      Fl_Browser ConnectionsDlgList {
+        label {Connections (ID - IP - Port - LocalIP - LocalPort - Login - PWord)}
+        xywh {10 60 470 235} type Hold align 1
+      }
+      Fl_Counter ConnectionsDlgRate {
+        label {Update rate:}
+        xywh {95 305 85 25} type Simple align 4 minimum 1 maximum 30 step 1 value 10
+      }
+      Fl_Button ConnectionsDlgKill {
+        label {Kill connection}
+        xywh {195 305 130 25}
+      }
+      Fl_Button ConnectionsDlgDone {
+        label Done
+        xywh {340 305 130 25}
+      }
+    }
+  }
+  Function {ask_type()} {return_type int
   } {
     code {\#ifdef WIN32
 return 1;
@@ -1155,7 +1179,7 @@ ConfTypeDlg->hide();
 return ret;
 \#endif} {}
   }
-  Function {load_config()} {open return_type int
+  Function {load_config()} {return_type int
   } {
     code {char * filename;
 int i;
@@ -1275,7 +1299,7 @@ else {
 Changed = false;
 return 0;} {}
   }
-  Function {load_config_remote()} {open return_type int
+  Function {load_config_remote()} {return_type int
   } {
     code {int i;
 int ret;
@@ -1349,7 +1373,7 @@ else {
 Changed = false;
 return 0;} {}
   }
-  Function {load_myserver_core()} {open return_type int
+  Function {load_myserver_core()} {return_type int
   } {
     code {char * chrptr;
 char Buffer[50];
@@ -1434,7 +1458,7 @@ else {
 // End of myserver.xml file
 return 0;} {}
   }
-  Function {save_config()} {open return_type int
+  Function {save_config()} {return_type int
   } {
     code {char * filename;
 int i;
@@ -1522,7 +1546,7 @@ if(vHostConf.save(filename))
 Changed = false;
 return 0;} {}
   }
-  Function {save_config_remote()} {open return_type int
+  Function {save_config_remote()} {return_type int
   } {
     code {int ret;
 CMemBuf Buffer;
@@ -1566,7 +1590,7 @@ if(ret)
 Changed = false;
 return 0;} {}
   }
-  Function {save_myserver_core()} {open return_type int
+  Function {save_myserver_core()} {return_type int
   } {
     code {char * chrptr;
 char Buffer[256];
@@ -1664,7 +1688,7 @@ return 0;} {}
   }
   decl {int ConfType;} {public
   }
-  Function {getValueXML(const char * name)} {open private return_type {const char *}
+  Function {getValueXML(const char * name)} {private return_type {const char *}
   } {
     code {char * chrptr;
 chrptr = xmlFile.getValue((char *)name);
@@ -1672,7 +1696,7 @@ if(chrptr == 0)
   return "";
 return chrptr;} {}
   }
-  Function {setValueXML(const char * name, const char * value)} {open private return_type void
+  Function {setValueXML(const char * name, const char * value)} {private return_type void
   } {
     code {char * chrptr;
 chrptr = xmlFile.getValue((char *)name);
@@ -1681,7 +1705,7 @@ if(chrptr == 0)
 else
   xmlFile.setValue((char *)name, (char *)value);} {}
   }
-  Function {ServerLogout()} {open private return_type void
+  Function {ServerLogout()} {private return_type void
   } {
     code {Server.Logout();
 MenuLogout->deactivate();
@@ -1690,7 +1714,7 @@ MenuSendConfig->deactivate();
 MenuConnections->deactivate();
 MenuReboot->deactivate();} {}
   }
-  Function {ServerLogin(bool stat)} {open private return_type int
+  Function {ServerLogin(bool stat)} {private return_type int
   } {
     code {LoginDlg->show();
 int ret;
@@ -1746,14 +1770,99 @@ if(stat) {
 
 return 0;} {}
   }
-  Function {fl_alertcat(const char * c1, const char * c2)} {open private return_type void
+  Function {ServerConnections()} {open private return_type void
+  } {
+    code {int ret;
+int time;
+int i;
+CMemBuf MSvr;
+Vector list;
+ConnectionsDlgVr->value("");
+ConnectionsDlg->show();
+fl_wait(200);
+
+// see if we are connected by getting the vr
+ret = Server.getVersion(MSvr);
+
+if(ret) { // relogin?
+  ret = ServerLogin(false);
+  if(!ret) {
+    ret = Server.getVersion(MSvr);
+  }
+}
+
+if(ret) { // no dice
+  fl_alert("Could not connect to server.");
+  ConnectionsDlg->hide();
+  return;
+}
+
+// update display
+MSvr << '\\0';
+ConnectionsDlgVr->value((const char *)MSvr.GetBuffer());
+
+time = get_ticks();
+ConnectionsDlgList->clear();
+ret = Server.getConnections(list);
+
+if(ret) {
+  fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+  ConnectionsDlg->hide();
+  ServerLogout();
+  return;
+}
+
+list.sort();
+for(i = 0; i < list.size(); i++) {
+  ConnectionsDlgList->add(list.at(i)->Text);
+}
+
+for(;;) {
+  Fl_Widget *o = Fl::readqueue();
+  if(!o) Fl::wait(1);
+  else if(o == ConnectionsDlgDone) {break; }
+  else if(o == ConnectionsDlg) {break; }
+  else if(o == ConnectionsDlgKill) {
+    i = ConnectionsDlgList->value();
+    if(i != 0) {
+      ret = Server.sendKillConnection(list.at(i - 1));
+      if(ret) {
+        fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+        ServerLogout();
+        break;
+      } // if
+    } // if
+  } // else if
+
+  if(get_ticks() - time > ConnectionsDlgRate->value() * 1000) {
+    time = get_ticks();
+    ConnectionsDlgList->clear();
+    ret = Server.getConnections(list);
+
+    if(ret) {
+      fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+      ServerLogout();
+      break;
+    } // if
+
+    list.sort();
+    for(i = 0; i < list.size(); i++) {
+      ConnectionsDlgList->add(list.at(i)->Text);
+    } // for
+  } // if
+} // for
+
+ConnectionsDlg->hide();} {selected
+    }
+  }
+  Function {fl_alertcat(const char * c1, const char * c2)} {private return_type void
   } {
     code {char temp[strlen(c1) + strlen(c2)];
 strcpy(temp, c1);
 strcat(temp, c2);
 fl_alert(temp);} {}
   }
-  Function {fl_wait(int len)} {open private return_type void
+  Function {fl_wait(int len)} {private return_type void
   } {
     code {int time = get_ticks();
 while(get_ticks() - time < len) {

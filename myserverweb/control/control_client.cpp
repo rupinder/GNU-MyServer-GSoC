@@ -322,12 +322,14 @@ int ControlClient::getConnections(Vector & list)
 
 int ControlClient::sendKillConnection(VectorNode * node)
 {
-   char * id = strdup(node->Text);
-   char * chrptr = strchr(id, '-');
-   chrptr = '\0';
+   int len = ((int)memchr(node->Text, '-', strlen(node->Text)) - (int)node->Text);
+   if(len < 0)
+     return -1;
+   char id[len];
+   memcpy(id, node->Text, len);
+   id[len] = '\0';
    int ret;
    ret = sendRequest("KILLCONNECTION", id);
-   free(id);
    if(ret)
      return -1;
    ret = getResponse();

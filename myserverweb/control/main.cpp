@@ -193,6 +193,7 @@ int main(int argc, char * argv[])
    Configure.make_type();
    Configure.make_login();
    Configure.make_status();
+   Configure.make_connections();
 
    // Show the main window
    Configure.ConfDlg->show(argc, argv);

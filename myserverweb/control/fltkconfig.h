@@ -34,6 +34,8 @@
 #include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Text_Display.H>
 #include <FL/Fl_Progress.H>
+#include <FL/Fl_Output.H>
+#include <FL/Fl_Counter.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/fl_ask.H>
 #include "../include/cXMLParser.h"
@@ -94,6 +96,10 @@ private:
   static void cb_MenuSendConfig(Fl_Menu_*, void*);
 public:
   static Fl_Menu_Item *MenuConnections;
+private:
+  inline void cb_MenuConnections_i(Fl_Menu_*, void*);
+  static void cb_MenuConnections(Fl_Menu_*, void*);
+public:
   static Fl_Menu_Item *MenuReboot;
 private:
   inline void cb_MenuReboot_i(Fl_Menu_*, void*);
@@ -337,6 +343,13 @@ public:
   Fl_Double_Window *StatusDlg;
   Fl_Group *StatusDlgGroup;
   Fl_Progress *StatusDlgProgress;
+  Fl_Double_Window* make_connections();
+  Fl_Double_Window *ConnectionsDlg;
+  Fl_Output *ConnectionsDlgVr;
+  Fl_Browser *ConnectionsDlgList;
+  Fl_Counter *ConnectionsDlgRate;
+  Fl_Button *ConnectionsDlgKill;
+  Fl_Button *ConnectionsDlgDone;
   int ask_type();
   int load_config();
   int load_config_remote();
@@ -350,6 +363,7 @@ private:
   void setValueXML(const char * name, const char * value);
   void ServerLogout();
   int ServerLogin(bool stat);
+  void ServerConnections();
   void fl_alertcat(const char * c1, const char * c2);
   void fl_wait(int len);
   bool Changed;
