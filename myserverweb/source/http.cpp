@@ -716,7 +716,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 							break;
 						}
 					}
-					
 				}
 				else
 				{

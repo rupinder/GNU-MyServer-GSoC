@@ -169,7 +169,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return raiseHTTPError(td,s,e_501);
+		return raiseHTTPError(td,s,e_500);
 	}
 	OutFileHandle.closeFile();
 	strcpy(cmdLine,"cmd /c \"");
@@ -221,7 +221,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	/*
 	*Always specify the size of the HTTP contents.
 	*/
-	sprintf(td->response.CONTENT_LENGTH,"%u",nBytesRead-headerSize);
+	sprintf(td->response.CONTENT_LENGTH,"%u",OutFileHandle.getFileSize()-headerSize);
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 	s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);

@@ -63,7 +63,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 
 	if (connIndex == max_Connections) 
 	{
-		return raiseHTTPError(td,connection,e_501);
+		return raiseHTTPError(td,connection,e_500);
 	}
 	AppHnd = LoadLibrary(cgipath);
 
@@ -82,7 +82,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
-		return raiseHTTPError(td,connection,e_501);
+		return raiseHTTPError(td,connection,e_500);
 	}
 
 	GetExtensionVersion = (PFN_GETEXTENSIONVERSION) GetProcAddress(AppHnd, "GetExtensionVersion");
@@ -95,7 +95,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
-		return raiseHTTPError(td,connection,e_501);
+		return raiseHTTPError(td,connection,e_500);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
@@ -106,7 +106,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
-		return raiseHTTPError(td,connection,e_501);
+		return raiseHTTPError(td,connection,e_500);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
@@ -117,7 +117,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
-		return raiseHTTPError(td,connection,e_501);
+		return raiseHTTPError(td,connection,e_500);
 	}
 	/*
 	*Store the environment string in the buffer2.
@@ -156,7 +156,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	{
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
 		FreeLibrary(AppHnd);
-		return raiseHTTPError(td,connection,e_501);
+		return raiseHTTPError(td,connection,e_500);
 	}
 
 	Ret = HttpExtensionProc(&ExtCtrlBlk);

@@ -75,7 +75,7 @@ void cserver::start()
 	*Set the current working directory.
 	*/
 	setcwdBuffer();
-	mustEndServer=false;
+	mustEndServer=0;
 	memset(this, 0, sizeof(cserver));
 
 
@@ -84,9 +84,10 @@ void cserver::start()
 	*/
 	if(lserver)
 	{
-		mustEndServer=true;
+		mustEndServer=1;
 		lserver->terminate();
-		mustEndServer=false;
+		wait(2000);/*Wait for a while*/
+		mustEndServer=0;
 	}
 	/*
 	*Save the unique instance of this class.
@@ -546,7 +547,7 @@ void  cserver::setVerbosity(u_long nv)
 */
 void cserver::stop()
 {
-	mustEndServer=true;
+	mustEndServer=1;
 }
 
 void cserver::terminate()
@@ -632,7 +633,7 @@ void cserver::initialize(int OSVer)
 	connectionTimeout = SEC(25);
 	lstrcpy(languageFile,"languages/english.xml");
 	browseDirCSSpath[0]='\0';
-	mustEndServer=false;
+	mustEndServer=0;
 	verbosity=1;
 	serverAdmin[0]='\0';
 

@@ -302,7 +302,10 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	}
 	else
 	{
-		sprintf(&cgiEnvString[strlen(cgiEnvString)],"\rCONTENT_LENGTH=%u",td->inputData.getFileSize());
+		u_long fs=0;
+		if(td->inputData.getHandle())
+			fs=td->inputData.getFileSize();
+		sprintf(&cgiEnvString[strlen(cgiEnvString)],"\rCONTENT_LENGTH=%u",fs);
 	}
 
 	if(td->request.COOKIE[0])
