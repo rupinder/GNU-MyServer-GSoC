@@ -47,8 +47,7 @@ extern "C"
 #endif
 
 
-char control_protocol::adminName[32]="";
-char control_protocol::adminPassword[32]="";
+char control_protocol::adminAuth[64]="";
 int  control_protocol::controlEnabled = 0;
 
 /*!
@@ -87,8 +86,21 @@ control_protocol::~control_protocol()
  */
 int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
+  char adminName[32];
+  char adminPassword[32];
+  char adminNameMD5[32];
+  char adminPasswordMD5[32];
   adminName[0]='\0';
   adminPassword[0]='\0';
+  adminNameMD5[0]='\0';
+  adminPasswordMD5[0]='\0';
+
+  /*! Is the value in the config file still in MD5? */
+  int adminNameMD5ized = 0;
+
+  /*! Is the value in the config file still in MD5? */
+  int adminPasswordMD5ized = 0;
+
   char *data = 0;
   char *main_configuration_file = lserver->getMainConfFile();
 	cXMLParser configurationFileManager;
@@ -115,6 +127,53 @@ int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*
 	{
     strncpy(adminPassword, data, 32);
 	}	
+
+	data=configurationFileManager.getAttr("CONTROL_ADMIN", "MD5");
+	if(data)
+	{
+    if(strcmpi(data, "YES"))
+      adminNameMD5ized = 1;
+	}	
+
+	data=configurationFileManager.getAttr("CONTROL_PASSWORD", "MD5");
+	if(data)
+	{
+    if(strcmpi(data, "YES"))
+      adminPasswordMD5ized = 1;
+	}	
+  MYSERVER_MD5Context md5;
+
+  if(adminNameMD5ized)
+  {
+    strncpy(adminNameMD5, adminName, 64);
+  }
+  else
+  {
+    MYSERVER_MD5Init(&md5);
+    MYSERVER_MD5Update(&md5,(const unsigned  char*) adminName, 
+                       (unsigned)strlen(adminName));
+    MYSERVER_MD5End(&md5, adminNameMD5);
+  }
+
+  if(adminPasswordMD5ized)
+  {
+    strncpy(adminPasswordMD5, adminPassword, 64);
+  }
+  else
+  {
+    MYSERVER_MD5Init(&md5);
+    MYSERVER_MD5Update(&md5,(const unsigned  char*) adminPassword, 
+                       (unsigned)strlen(adminPassword));
+    MYSERVER_MD5End(&md5, adminPasswordMD5);
+  }
+
+
+  char out[64];
+  char buffer[64];
+  sprintf(buffer, "%s:%s", adminName, adminPassword);
+	MYSERVER_MD5Init(&md5);
+	MYSERVER_MD5Update(&md5,(const unsigned  char*) buffer, (unsigned)strlen(buffer));
+	MYSERVER_MD5End(&md5, adminAuth);
   
 	configurationFileManager.close();
 
@@ -129,14 +188,7 @@ int control_protocol::checkAuth()
   /*! Return 0 if we haven't enabled the service. */
   if(!controlEnabled)
     return 0;
-  char out[64];
-  char buffer[64];
-  sprintf(buffer, "%s:%s", adminName, adminPassword);
-  MYSERVER_MD5Context md5;
-	MYSERVER_MD5Init(&md5);
-	MYSERVER_MD5Update(&md5,(const unsigned  char*) buffer, (unsigned)strlen(buffer));
-	MYSERVER_MD5End(&md5, out); 
-  if(!strcmpi(out, header.getAuthName()))
+  if(!strcmpi(adminAuth, header.getAuthName()))
     return 1;
   else
     return 0;
