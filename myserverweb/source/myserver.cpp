@@ -86,12 +86,8 @@ int main (int argn, char **argc)
 	while((path[len]!='\\')&&(path[len]!='/'))
 		len--;
 	path[len]='\0';
-#ifdef WIN32
-	_chdir(path);
-#endif
-#ifdef __linux__
-	chdir(path);
-#endif
+
+	setcwd(path);
 	
 	cmdShow=0;
 	char* cmdLine=argc[1];

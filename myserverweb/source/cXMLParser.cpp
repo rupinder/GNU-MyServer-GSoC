@@ -81,7 +81,7 @@ char *cXMLParser::getValue(char* vName)
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
 		{
 			if(lcur->children->content)
-				strcpy(buffer,(char*)lcur->children->content);
+				strncpy(buffer,(char*)lcur->children->content,250);
 			break;
 		}
 		lcur=lcur->next;

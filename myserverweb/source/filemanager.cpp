@@ -487,7 +487,7 @@ void MYSERVER_FILE::getFilename(const char *path, char *filename)
 	splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
-		strcpy(filename, path);
+		strncpy(filename, path,MAX_PATH);
 	}
 	else
 	{
@@ -559,7 +559,7 @@ int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 	GetShortPathName(filename,out,buffersize);
 #endif
 #ifdef __linux__
-	strncpy(out,filename,buffersize);
+	strncpy(out,filename,buffersize,MAX_PATH);
 #endif
 	return 0;
 }
