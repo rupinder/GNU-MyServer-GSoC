@@ -34,7 +34,7 @@ class MainDlg {open
 else {
   ConfDlg->hide();
 }} open
-      xywh {374 360 550 360} type Double hide
+      xywh {374 360 550 360} type Double visible
     } {
       Fl_Menu_Bar {} {open
         xywh {0 0 550 25}
@@ -163,7 +163,7 @@ else {
         xywh {0 25 550 335}
       } {
         Fl_Group {} {
-          label System open
+          label System open selected
           xywh {0 50 550 310}
         } {
           Fl_Value_Input Buffer_Size {
@@ -493,7 +493,7 @@ Sysfolder->value(vHostConf.getSysfolder(i));
 Accesseslog->value(vHostConf.getAccesseslog(i));
 Warninglog->value(vHostConf.getWarninglog(i));
 i = Protocol->value();
-if(i != 1) {
+if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
   Ssl_Certificate->deactivate();
   Ssl_Password->deactivate();
@@ -531,7 +531,7 @@ if(val != 0) {
   Accesseslog->value(vHostConf.getAccesseslog(i));
   Warninglog->value(vHostConf.getWarninglog(i));
   i = Protocol->value();
-  if(i != 1) {
+  if(i != 1 && i != 3) {
     Ssl_Privatekey->deactivate();
     Ssl_Certificate->deactivate();
     Ssl_Password->deactivate();
@@ -568,7 +568,7 @@ Sysfolder->value(vHostConf.getSysfolder(i));
 Accesseslog->value(vHostConf.getAccesseslog(i));
 Warninglog->value(vHostConf.getWarninglog(i));
 i = Protocol->value();
-if(i != 1) {
+if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
   Ssl_Certificate->deactivate();
   Ssl_Password->deactivate();
@@ -586,7 +586,7 @@ else {
             }
           }
           Fl_Group {} {open
-            xywh {10 110 530 240} box EMBOSSED_FRAME
+            xywh {10 110 530 240} box ENGRAVED_FRAME
           } {
             Fl_Tabs {} {open
               xywh {20 120 510 220}
@@ -673,7 +673,7 @@ vHostConf.setPort(i, (int)Port->value());}
 int i = Name->value();
 vHostConf.setProtocol(i, Protocol->value());
 int pval = Protocol->value();
-if(pval != 1) {
+if(pval != 1 && pval != 3) {
   vHostConf.setSsl_Privatekey(i, EMPTY);
   vHostConf.setSsl_Certificate(i, EMPTY);
   vHostConf.setSsl_Password(i, EMPTY);
@@ -706,6 +706,10 @@ else {
                   menuitem {} {
                     label FTP
                     xywh {5 5 100 20} deactivate
+                  }
+                  menuitem {} {
+                    label CONTROL
+                    xywh {0 0 100 20}
                   }
                 }
                 Fl_Input Ssl_Privatekey {
@@ -824,6 +828,26 @@ vHostConf.setWarninglog(i, Warninglog->value());}
             callback {Changed = true;}
             xywh {285 60 190 25} when 1
           }
+          Fl_Input Control_Admin {
+            label {Administrator user name:}
+            xywh {285 90 190 25} deactivate
+          }
+          Fl_Input Control_Password {
+            label {Administrator password:}
+            xywh {285 120 190 25} type Secret deactivate
+          }
+          Fl_Check_Button Control_Enabled {
+            label {Enable control protocol:}
+            callback {if(Control_Enabled->value() == 1) {
+  Control_Admin->activate();
+  Control_Password->activate();
+}
+else {
+  Control_Admin->deactivate();
+  Control_Password->deactivate();
+}}
+            xywh {285 150 25 25} down_box DOWN_BOX align 4
+          }
         }
       }
     }
@@ -870,7 +894,7 @@ vHostConf.setWarninglog(i, Warninglog->value());}
   Function {make_about()} {open
   } {
     Fl_Window AboutDlg {
-      label About open selected
+      label About open
       xywh {360 453 559 119} type Double hide modal
     } {
       Fl_Group {} {open
@@ -1007,6 +1031,25 @@ Server_Admin->value(getValueXML("SERVER_ADMIN"));
 // <GZIP_THRESHOLD>
 Gzip_Threshold->value(atoi(getValueXML("GZIP_THRESHOLD")));
 
+// <CONTROL_ENABLED>
+chrptr = xmlFile.getValue("CONTROL_ENABLED");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Control_Enabled->set();
+  Control_Admin->activate();
+  Control_Password->activate();
+  // <CONTROL_ADMIN>
+  Control_Admin->value(getValueXML("CONTROL_ADMIN"));
+  // <CONTROL_PASSWORD>
+  Control_Password->value(getValueXML("CONTROL_PASSWORD"));
+}
+else {
+  Control_Enabled->clear();
+  Control_Admin->deactivate();
+  Control_Password->deactivate();
+  Control_Admin->value("");
+  Control_Password->value("");
+}
+
 // End of myserver.xml file
 xmlFile.close();
 
@@ -1075,7 +1118,7 @@ Sysfolder->value(vHostConf.getSysfolder(0));
 Accesseslog->value(vHostConf.getAccesseslog(0));
 Warninglog->value(vHostConf.getWarninglog(0));
 i = Protocol->value();
-if(i != 1) {
+if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
   Ssl_Certificate->deactivate();
   Ssl_Password->deactivate();
@@ -1191,6 +1234,18 @@ setValueXML("SERVER_ADMIN", Server_Admin->value());
 i = (int)Gzip_Threshold->value();
 snprintf(Buffer, 256, "%d", i);
 setValueXML("GZIP_THRESHOLD", Buffer);
+
+// <CONTROL_ENABLED>
+if(Control_Enabled->value() == 1) {
+  setValueXML("CONTROL_ENABLED", "YES");
+  // <CONTROL_ADMIN>
+  setValueXML("CONTROL_ADMIN", Control_Admin->value());
+  // <CONTROL_PASSWORD>
+  setValueXML("CONTROL_PASSWORD", Control_Password->value());
+}
+else {
+  setValueXML("CONTROL_ENABLED", "NO");
+}
 
 // End of myserver.xml file
 xmlFile.save(filename);

@@ -256,6 +256,13 @@ private:
   inline void cb_Server_Admin_i(Fl_Input*, void*);
   static void cb_Server_Admin(Fl_Input*, void*);
 public:
+  Fl_Input *Control_Admin;
+  Fl_Input *Control_Password;
+  Fl_Check_Button *Control_Enabled;
+private:
+  inline void cb_Control_Enabled_i(Fl_Check_Button*, void*);
+  static void cb_Control_Enabled(Fl_Check_Button*, void*);
+public:
   Fl_Double_Window* make_type();
   Fl_Double_Window *ConfTypeDlg;
   Fl_Round_Button *ConfTypeDlgLocal;

@@ -133,6 +133,8 @@ int vHostXML::load(const char * filename)
 		    setProtocol(NameNo, PROTOCOL_HTTPS);
 		  else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"FTP"))
 		    setProtocol(NameNo, PROTOCOL_FTP);
+		  else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"CONTROL"))
+		    setProtocol(NameNo, PROTOCOL_CONTROL);
 		  else
 		    {
 		       // Do nothing?
@@ -221,6 +223,9 @@ int vHostXML::save(const char * filename)
 	   case PROTOCOL_FTP:
 	     xmlFile.addChild("PROTOCOL", "FTP");
 	     break;
+	   case PROTOCOL_CONTROL:
+	     xmlFile.addChild("PROTOCOL", "CONTROL");
+	     break;
 	   default:
 	     // do something here?
 	     break;
@@ -305,6 +310,9 @@ int vHostXML::save(const char * filename)
 	     break;
 	   case PROTOCOL_FTP:
 	     out.writeToFile("FTP",3,&nbw);
+	     break;
+	   case PROTOCOL_CONTROL:
+	     out.writeToFile("CONTROL",7,&nbw);
 	     break;
 	   default:
 	     // do something here?

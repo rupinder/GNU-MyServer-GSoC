@@ -475,7 +475,7 @@ Sysfolder->value(vHostConf.getSysfolder(i));
 Accesseslog->value(vHostConf.getAccesseslog(i));
 Warninglog->value(vHostConf.getWarninglog(i));
 i = Protocol->value();
-if(i != 1) {
+if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
   Ssl_Certificate->deactivate();
   Ssl_Password->deactivate();
@@ -515,7 +515,7 @@ if(val != 0) {
   Accesseslog->value(vHostConf.getAccesseslog(i));
   Warninglog->value(vHostConf.getWarninglog(i));
   i = Protocol->value();
-  if(i != 1) {
+  if(i != 1 && i != 3) {
     Ssl_Privatekey->deactivate();
     Ssl_Certificate->deactivate();
     Ssl_Password->deactivate();
@@ -554,7 +554,7 @@ Sysfolder->value(vHostConf.getSysfolder(i));
 Accesseslog->value(vHostConf.getAccesseslog(i));
 Warninglog->value(vHostConf.getWarninglog(i));
 i = Protocol->value();
-if(i != 1) {
+if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
   Ssl_Certificate->deactivate();
   Ssl_Password->deactivate();
@@ -647,7 +647,7 @@ inline void MainDlg::cb_Protocol_i(Fl_Choice*, void*) {
 int i = Name->value();
 vHostConf.setProtocol(i, Protocol->value());
 int pval = Protocol->value();
-if(pval != 1) {
+if(pval != 1 && pval != 3) {
   vHostConf.setSsl_Privatekey(i, EMPTY);
   vHostConf.setSsl_Certificate(i, EMPTY);
   vHostConf.setSsl_Password(i, EMPTY);
@@ -676,6 +676,7 @@ Fl_Menu_Item MainDlg::menu_Protocol[] = {
  {gettext("HTTP"), 0,  0, 0, 0, 0, 0, 14, 56},
  {gettext("HTTPS"), 0,  0, 0, 0, 0, 0, 14, 56},
  {gettext("FTP"), 0,  0, 0, 1, 0, 0, 14, 56},
+ {gettext("CONTROL"), 0,  0, 0, 0, 0, 0, 14, 56},
  {0}
 };
 
@@ -799,6 +800,20 @@ inline void MainDlg::cb_Server_Admin_i(Fl_Input*, void*) {
 }
 void MainDlg::cb_Server_Admin(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Server_Admin_i(o,v);
+}
+
+inline void MainDlg::cb_Control_Enabled_i(Fl_Check_Button*, void*) {
+  if(Control_Enabled->value() == 1) {
+  Control_Admin->activate();
+  Control_Password->activate();
+}
+else {
+  Control_Admin->deactivate();
+  Control_Password->deactivate();
+};
+}
+void MainDlg::cb_Control_Enabled(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Control_Enabled_i(o,v);
 }
 
 inline void MainDlg::cb_ConfTypeDlgLocal_i(Fl_Round_Button*, void*) {
@@ -2168,7 +2183,7 @@ Fl_Double_Window* MainDlg::make_window() {
           o->end();
         }
         { Fl_Group* o = new Fl_Group(10, 110, 530, 240);
-          o->box(FL_EMBOSSED_FRAME);
+          o->box(FL_ENGRAVED_FRAME);
           { Fl_Tabs* o = new Fl_Tabs(20, 120, 510, 220);
             { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Arpa"));
               { Fl_Browser* o = Host = new Fl_Browser(30, 165, 170, 135, gettext("Host"));
@@ -2273,6 +2288,18 @@ Fl_Double_Window* MainDlg::make_window() {
         { Fl_Input* o = Server_Admin = new Fl_Input(285, 60, 190, 25, gettext("Administrator e-mail:"));
           o->callback((Fl_Callback*)cb_Server_Admin);
           o->when(FL_WHEN_CHANGED);
+        }
+        { Fl_Input* o = Control_Admin = new Fl_Input(285, 90, 190, 25, gettext("Administrator user name:"));
+          o->deactivate();
+        }
+        { Fl_Input* o = Control_Password = new Fl_Input(285, 120, 190, 25, gettext("Administrator password:"));
+          o->type(5);
+          o->deactivate();
+        }
+        { Fl_Check_Button* o = Control_Enabled = new Fl_Check_Button(285, 150, 25, 25, gettext("Enable control protocol:"));
+          o->down_box(FL_DOWN_BOX);
+          o->callback((Fl_Callback*)cb_Control_Enabled);
+          o->align(FL_ALIGN_LEFT);
         }
         o->end();
       }
@@ -2464,6 +2491,25 @@ Server_Admin->value(getValueXML("SERVER_ADMIN"));
 // <GZIP_THRESHOLD>
 Gzip_Threshold->value(atoi(getValueXML("GZIP_THRESHOLD")));
 
+// <CONTROL_ENABLED>
+chrptr = xmlFile.getValue("CONTROL_ENABLED");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Control_Enabled->set();
+  Control_Admin->activate();
+  Control_Password->activate();
+  // <CONTROL_ADMIN>
+  Control_Admin->value(getValueXML("CONTROL_ADMIN"));
+  // <CONTROL_PASSWORD>
+  Control_Password->value(getValueXML("CONTROL_PASSWORD"));
+}
+else {
+  Control_Enabled->clear();
+  Control_Admin->deactivate();
+  Control_Password->deactivate();
+  Control_Admin->value("");
+  Control_Password->value("");
+}
+
 // End of myserver.xml file
 xmlFile.close();
 
@@ -2532,7 +2578,7 @@ Sysfolder->value(vHostConf.getSysfolder(0));
 Accesseslog->value(vHostConf.getAccesseslog(0));
 Warninglog->value(vHostConf.getWarninglog(0));
 i = Protocol->value();
-if(i != 1) {
+if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
   Ssl_Certificate->deactivate();
   Ssl_Password->deactivate();
@@ -2648,6 +2694,18 @@ setValueXML("SERVER_ADMIN", Server_Admin->value());
 i = (int)Gzip_Threshold->value();
 snprintf(Buffer, 256, "%d", i);
 setValueXML("GZIP_THRESHOLD", Buffer);
+
+// <CONTROL_ENABLED>
+if(Control_Enabled->value() == 1) {
+  setValueXML("CONTROL_ENABLED", "YES");
+  // <CONTROL_ADMIN>
+  setValueXML("CONTROL_ADMIN", Control_Admin->value());
+  // <CONTROL_PASSWORD>
+  setValueXML("CONTROL_PASSWORD", Control_Password->value());
+}
+else {
+  setValueXML("CONTROL_ENABLED", "NO");
+}
 
 // End of myserver.xml file
 xmlFile.save(filename);

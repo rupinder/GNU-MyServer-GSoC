@@ -28,7 +28,8 @@ enum
 {
    PROTOCOL_HTTP = 0,
    PROTOCOL_HTTPS,
-   PROTOCOL_FTP
+   PROTOCOL_FTP,
+   PROTOCOL_CONTROL
 };
 
 extern const char * EMPTY;
