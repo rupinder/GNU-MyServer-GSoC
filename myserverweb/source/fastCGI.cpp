@@ -133,7 +133,6 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 
   td->buffer->SetLength(0);
 	td->buffer2->GetAt(0)='\0';
-	cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
 	char *fullpath;
 	if(execute)
 	{
@@ -163,6 +162,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		sprintf(fullpath,"%s",cgipath);
 	}
   int sizeEnvString;
+	cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),
                                               (char*)td->buffer2->GetBuffer());
 	td->inputData.closeFile();

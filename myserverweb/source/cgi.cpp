@@ -810,7 +810,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	}
 #endif
 
-	memCgi << end_str;
+	memCgi << end_str << "\0\0\0\0";
 }
 
 /*!
