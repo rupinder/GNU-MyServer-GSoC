@@ -113,7 +113,9 @@ int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
 
 DWORD bytesToRead(MYSERVER_SOCKET c)
 {
+#ifdef WIN32
 	DWORD nBytesToRead;
 	ms_ioctlsocket(c,FIONREAD,&nBytesToRead);
 	return nBytesToRead;
+#endif
 }

@@ -19,6 +19,7 @@
 #include "StdAfx.h"
 #include "cgi_manager.h"
 #include "../include/Response_RequestStructs.h"
+#include "../include/stringutils.h"
 #pragma comment(lib,"wsock32.lib")
 static char* buffer;
 static char* buffer2;

@@ -286,65 +286,6 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 
 	return raiseHTTPError(td,s,e_404);
 }
-/*
-*Sends the myServer CGI; differently form standard CGI this don't need a new process to run
-*so it is faster.
-*/
-BOOL sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
-{
-	/*
-	*This is the code for manage a .mscgi file.
-	*This files differently from standard CGI don't need a new process to run
-	*but are allocated in the caller process virtual space.
-	*Usually these files are faster than standard CGI.
-	*Actually myServerCGI(.mscgi) is only at an alpha status.
-	*/
-#ifdef WIN32
-	static HMODULE hinstLib; 
-    static CGIMAIN ProcMain;
-	static CGIINIT ProcInit;
- 
-    hinstLib = LoadLibrary(exec); 
-	td->buffer2[0]='\0';
-	if (hinstLib) 
-    { 
-		ProcInit = (CGIINIT) GetProcAddress(hinstLib, "initialize");
-		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
-		if(ProcInit && ProcMain)
-		{
-			(ProcInit)((LPVOID)&td->buffer[0],(LPVOID)&td->buffer2[0],(LPVOID)&td->response,(LPVOID)&td->request);
-			(ProcMain)(cmdLine);
-		}
-        FreeLibrary(hinstLib); 
-    } 
-	else
-	{
-		if(GetLastError()==ERROR_ACCESS_DENIED)
-		{
-			if(s->nTries > 2)
-			{
-				return raiseHTTPError(td,s,e_403);
-			}
-			else
-			{
-				s->nTries++;
-				return raiseHTTPError(td,s,e_401AUTH);
-			}
-		}
-		else
-		{
-			return raiseHTTPError(td,s,e_404);
-		}
-	}
-	static int len;
-	len=lstrlen(td->buffer2);
-	sprintf(td->response.CONTENTS_DIM,"%u",len);
-	buildHTTPResponseHeader(td->buffer,&td->response);
-	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
-	ms_send(s->socket,td->buffer2,len, 0);
-	return 1;
-#endif
-}
 
 /*
 *This is the HTTP protocol parser.
@@ -358,6 +299,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	td.buffersize2=bs2;
 	td.nBytesToRead=nbtr;
 	td.hImpersonation=*imp;
+	td.connection=a;
 	/*
 	*In this function there is the HTTP protocol parse.
 	*The request is mapped into a HTTP_REQUEST_HEADER structure
@@ -582,6 +524,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		*Basic authorization in base64 is login:password.
 		*Assume that it is Basic anyway.
 		*/
+		lstrcpy(td.request.AUTH,"Basic");
 		int len=lstrlen(token);
 		char *base64=base64Utils.Decode(&token[lstrlen("Basic: ")],&len);
 		char* lbuffer2=base64;
@@ -869,138 +812,6 @@ BOOL raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 }
 
 /*
-*Sends the standard CGI to a client.
-*/
-BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* filename,char* /*ext*/,char *exec)
-{
-	/*
-	*Change the owner of the thread to the creator of the process.
-	*This because anonymous users cannot go through our files.
-	*/
-	if(lserver->mustUseLogonOption())
-		revertToSelf();
-	char cmdLine[MAX_PATH*2];
-	
-	sprintf(cmdLine,"%s \"%s\"",exec,filename);
-
-    /*
-    *Use a temporary file to store CGI output.
-    *Every thread has it own tmp file name(stdOutFilePath),
-    *so use this name for the file that is going to be
-    *created because more threads can access more CGI in the same time.
-    */
-
-	char currentpath[MAX_PATH];
-	char stdOutFilePath[MAX_PATH];
-	char stdInFilePath[MAX_PATH];
-	ms_getcwd(currentpath,MAX_PATH);
-	static DWORD id=0;
-	id++;
-	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,id);
-	sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,id);
-		
-	/*
-	*Standard CGI uses standard output to output the result and the standard 
-	*input to get other params like in a POST request.
-	*/
-	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
-	MYSERVER_FILE_HANDLE stdInFile = ms_CreateTemporaryFile(stdInFilePath);
-	
-	DWORD nbw;
-	if(td->request.URIOPTSPTR)
-	{
-		ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
-		char *endFileStr="\r\n\r\n\0";
-		ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
-	}
-
-	/*
-	*With this code we execute the CGI process.
-	*Use the td->buffer2 to build the environment string.
-	*/
-	START_PROC_INFO spi;
-	spi.cmdLine = cmdLine;
-	spi.stdError = (MYSERVER_FILE_HANDLE)0;
-	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
-	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
-	spi.envString=td->buffer2;
-	/*
-	*Build the environment string used by the CGI started
-	*by the execHiddenProcess(...) function.
-	*/
-	buildCGIEnvironmentString(td,td->buffer2);
-	execHiddenProcess(&spi);
-
-	
-	/*
-	*Read the CGI output.
-	*/
-	DWORD nBytesRead;
-	if(!setFilePointer(stdOutFile,0))
-		ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);
-	else
-		td->buffer2[0]='\0';
-	/*
-	*Standard CGI can include an extra HTTP header so do not 
-	*terminate with \r\n the default myServer header.
-	*/
-	DWORD headerSize=0;
-	for(DWORD i=0;i<nBytesRead;i++)
-	{
-		if(td->buffer2[i]=='\r')
-			if(td->buffer2[i+1]=='\n')
-				if(td->buffer2[i+2]=='\r')
-					if(td->buffer2[i+3]=='\n')
-					{
-						/*
-						*The HTTP header ends with a \r\n\r\n sequence so 
-						*determinate where it ends and set the header size
-						*to i + 4.
-						*/
-						headerSize=i+4;
-						break;
-					}
-	}
-	sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
-	buildHTTPResponseHeader(td->buffer,&td->response);
-
-	/*
-	*If there is an extra header, send lstrlen(td->buffer)-2 because the
-	*last two characters are \r\n that terminating the HTTP header.
-	*/
-	if(headerSize)
-		ms_send(s->socket,td->buffer,lstrlen(td->buffer)-2, 0);
-	else
-		ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
-
-	/*
-	*In the buffer2 there are the CGI HTTP header and the 
-	*contents of the page requested through the CGI.
-	*If the client do an HEAD request send only the HTTP header.
-	*/
-	if(!lstrcmpi(td->request.CMD,"HEAD"))
-		ms_send(s->socket,td->buffer2,headerSize, 0);
-	else
-		ms_send(s->socket,td->buffer2,nBytesRead, 0);
-
-	
-	/*
-	*Close and delete the stdin and stdout files used by the CGI.
-	*/
-	ms_CloseFile(stdOutFile);
-	ms_DeleteFile(stdOutFilePath);
-	ms_CloseFile(stdInFile);
-	ms_DeleteFile(stdInFilePath);
-
-	/*
-	*Restore security on the current thread.
-	*/
-	if(lserver->mustUseLogonOption())
-		impersonateLogonUser(&td->hImpersonation);
-		
-	return 1;
-}
-/*
 *Returns the MIME type passing its extension.
 */
 BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
@@ -1025,82 +836,7 @@ void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 		sprintf(filenamePath,"%s/%s",lserver->getPath(),filename);
 	}
 }
-/*
-*Build the string that contain the CGI environment.
-*/
-void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
-{
-	cgiEnvString[0]='\0';
-	/*
-	*The Environment string is a null-terminated block of null-terminated strings.
-	*Cause we use the function lstrcat we use the character \r for the \0 character
-	*and at the end we change every \r in \0.
-	*/
-	lstrcat(cgiEnvString,"SERVER_SOFTWARE=myServer");
-	lstrcat(cgiEnvString,versionOfSoftware);
 
-	lstrcat(cgiEnvString,"\rSERVER_NAME=");
-	lstrcat(cgiEnvString,lserver->getServerName());
-
-	lstrcat(cgiEnvString,"\rQUERY_STRING=");
-	lstrcat(cgiEnvString,td->request.URIOPTS);
-
-	lstrcat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1");
-	
-	lstrcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/1.1");
-	
-	lstrcat(cgiEnvString,"\rSERVER_PORT=");
-	char port[10];
-	sprintf(port,"%u",lserver->port_HTTP);
-	lstrcat(cgiEnvString,port);
-    
-	lstrcat(cgiEnvString,"\rREQUEST_METHOD=");
-	lstrcat(cgiEnvString,td->request.CMD);
-
-	lstrcat(cgiEnvString,"\rHTTP_USER_AGENT=");
-	lstrcat(cgiEnvString,td->request.USER_AGENT);
-
-
-	lstrcat(cgiEnvString,"\rHTTP_ACCEPT=");
-	lstrcat(cgiEnvString,td->request.ACCEPT);
-	
-	lstrcat(cgiEnvString,"\rCONTENT_TYPE=");
-	lstrcat(cgiEnvString,td->request.CONTENTS_TYPE);
-	
-	lstrcat(cgiEnvString,"\rCONTENT_LENGTH=");
-	lstrcat(cgiEnvString,td->request.CONTENTS_DIM);
-
-/*
-	lstrcat(cgiEnvString,"\rPATH_INFO=");
-	lstrcat(cgiEnvString,td->request.URI);
-
-	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
-	lstrcat(cgiEnvString,td->request.HOST);
-
-	lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
-	lstrcat(cgiEnvString,td->request.URI);
-
-	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
-	lstrcat(cgiEnvString,td->request.URI);
-
-	lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
-	lstrcat(cgiEnvString,td->request.HOST);
-
-	lstrcat(cgiEnvString,"\rAUTH_TYPE=");
-	lstrcat(cgiEnvString,td->request.HOST);
-
-	lstrcat(cgiEnvString,"\rREMOTE_USER=");
-	lstrcat(cgiEnvString,td->request.HOST);
-
-	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
-	lstrcat(cgiEnvString,td->request.HOST);
-*/
-	lstrcat(cgiEnvString,"\0\0");
-	int max=lstrlen(cgiEnvString);
-	for(int i=0;i<max;i++)
-		if(cgiEnvString[i]=='\r')
-			cgiEnvString[i]='\0';
-}
 /*
 *Controls if the req string is a valid HTTP request header.
 *Returns 0 if req is an invalid header, a non-zero value if is a valid header.

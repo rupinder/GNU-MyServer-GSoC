@@ -20,6 +20,7 @@
 
 #include "..\stdafx.h"
 #include "..\include\FileManager.h"
+#include "..\include\Stringutils.h"
 /*
 *Macros to do simple transformations.
 */
@@ -54,9 +55,6 @@ struct START_PROC_INFO
 INT getOSVersion();
 DWORD getCPUCount();
 void gotoNextLine(char*);
-char *getHTTPFormattedTime(void);
-char *getHTTPFormattedTime(tm*);
-VOID StrTrim(LPSTR,LPSTR);
 DWORD execHiddenProcess(START_PROC_INFO*,DWORD=0xFFFFFFFF);
 VOID getComputerName(char*,DWORD);
 int ms_setcwd();

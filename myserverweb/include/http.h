@@ -20,6 +20,7 @@
 
 #include "..\stdafx.h"
 #include "..\include\Response_RequestStructs.h"
+#include "..\include\cgi.h"
 /*
 *Structure used by the HTTP protocol to describe a thread
 */
@@ -35,9 +36,9 @@ struct httpThreadContext
 	HTTP_REQUEST_HEADER  request;
 	char filenamePath[MAX_PATH];
 	LOGGEDUSERID hImpersonation;
+	LPCONNECTION connection;
 };
 /*
-*Functions used by the HTTP parser.
 *The main function is controlHTTPConnection(...), that parse the request builds a response.
 */
 BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp);
@@ -46,10 +47,7 @@ BOOL sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,BOOL Only
 BOOL sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
 void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
-BOOL sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
-BOOL sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec);
 BOOL raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
 void getPath(char *path,char *filename,BOOL systemrequest);
 BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2);
-void buildCGIEnvironmentString(httpThreadContext*,char*);
 DWORD validHTTPRequest(httpThreadContext*,DWORD*,DWORD*);

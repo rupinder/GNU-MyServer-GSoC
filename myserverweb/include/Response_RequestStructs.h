@@ -43,7 +43,8 @@ struct HTTP_REQUEST_HEADER
 {
 	char CMD[16];		
 	char VER[10];		
-	char ACCEPT[128];	
+	char ACCEPT[128];
+	char AUTH[32];
 	char ACCEPTENC[64];	
 	char ACCEPTLAN[64];	
 	char ACCEPTCHARSET[64];
@@ -60,7 +61,7 @@ struct HTTP_REQUEST_HEADER
 	char *URIOPTSPTR;		
 	char REFERER[MAX_PATH];	
 	char HOST[128];			
-	char OTHER[256];		
+	char OTHER[256];
 	char RANGETYPE[12];		
 	char RANGEBYTEBEGIN[10];
 	char RANGEBYTEEND[10];	
