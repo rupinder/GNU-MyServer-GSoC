@@ -924,9 +924,10 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	{
 		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],true);
 	}
-	sprintf(td->response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
+	sprintf(td->response.CONTENTS_DIM,"%i",strlen(HTTP_ERROR_MSGS[ID]));
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	a->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
+	a->socket.ms_send(td->buffer,strlen(td->buffer), 0);
+	a->socket.ms_send(HTTP_ERROR_MSGS[ID],strlen(HTTP_ERROR_MSGS[ID]), 0);
 	return 1;
 }
 /*

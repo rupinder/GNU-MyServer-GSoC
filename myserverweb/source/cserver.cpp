@@ -741,7 +741,7 @@ void cserver::initialize(int OSVer)
 	}
 
 
-	data=configurationFileManager.getValue("USE_ERRS_FILES");
+	data=configurationFileManager.getValue("USE_ERRORS_FILES");
 	if(data)
 	{
 		if(!lstrcmpi(data,"YES"))

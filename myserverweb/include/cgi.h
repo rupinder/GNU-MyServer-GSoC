@@ -28,6 +28,6 @@ extern const char *versionOfSoftware;
 
 
 int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
-void buildCGIEnvironmentString(httpThreadContext*,char*);
+void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
 
 #endif

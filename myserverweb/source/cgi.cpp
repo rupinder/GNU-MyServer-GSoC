@@ -292,7 +292,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 /*
 *Write the string that contain the CGI environment to cgiEnvString.
 */
-void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
+void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int processEnv)
 {
 	/*
 	*The Environment string is a null-terminated block of null-terminated strings.
@@ -463,22 +463,25 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	}
 
 #ifdef WIN32
-	lstrcat(cgiEnvString," (Win32)\r");
+	if(processEnv)
+	{
+		lstrcat(cgiEnvString," (Win32)\r");
 
-	LPTSTR lpszVariable; 
-	LPVOID lpvEnv; 
-	 
-	lpvEnv = lserver->envString; 
+		LPTSTR lpszVariable; 
+		LPVOID lpvEnv; 
+		 
+		lpvEnv = lserver->envString; 
 
-	for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
-	{ 
-		if(((char*)lpszVariable)[0] !='=')
-		{
-			strcat(cgiEnvString,(char*)lpszVariable);
-			strcat(cgiEnvString,"\r");
-		}
-		while (*lpszVariable)*lpszVariable++;
-	} 
+		for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
+		{ 
+			if(((char*)lpszVariable)[0] !='=')
+			{
+				strcat(cgiEnvString,(char*)lpszVariable);
+				strcat(cgiEnvString,"\r");
+			}
+			while (*lpszVariable)*lpszVariable++;
+		} 
+	}
 
 #endif
 

@@ -176,7 +176,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 #endif	
 
 }
-int execConcurrentProcess(START_PROC_INFO* spi)
+u_long execConcurrentProcess(START_PROC_INFO* spi)
 {
 #ifdef WIN32
     /*
@@ -196,7 +196,7 @@ int execConcurrentProcess(START_PROC_INFO* spi)
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
     CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,spi->envString,spi->cwd,&si, &pi);
-	return (int)pi.hProcess;
+	return (u_long)pi.hProcess;
 #endif
 #ifdef __linux__
 	int pid = fork();
@@ -235,19 +235,19 @@ int execConcurrentProcess(START_PROC_INFO* spi)
 		// never should be here
 		exit(1);
 	} // end else if(pid == 0)
-	return pid;
+	return (u_long)pid;
 
 #endif	
 
 }
-int terminateProcess(int id)
+int terminateProcess(u_long id)
 {
 #ifdef WIN32
-	return CloseHandle((HANDLE)id);
+	return TerminateProcess((HANDLE)id,0);
 #endif
 #ifdef __linux__
 	/*
-	*id is the pid
+	*id is the process id
 	*/
 #endif	
 
