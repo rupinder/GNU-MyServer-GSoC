@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/cserver.h"
 
+/*! Include headers for built-in protocols. */
 #include "../include/http.h"	/*Include the HTTP protocol*/
 #include "../include/https.h" /*Include the HTTPS protocol*/
 
@@ -87,25 +88,28 @@ void cserver::start()
 	time_t myserver_main_conf;
 	time_t myserver_hosts_conf;
 	time_t myserver_mime_conf;
+
 	/*! Set everything to 0.  */
 	memset(this, 0, sizeof(cserver));
 
 	/*!
-	*Save the unique instance of this class.
-	*/
+   *Save the unique instance of this class.
+   */
 	lserver=this;
 	
 #ifdef WIN32
 	/*!
-	*Under the windows platform use the cls operating-system command to clear the screen.
-	*/
+   *Under the windows platform use the cls operating-system 
+   *command to clear the screen.
+   */
 	_flushall();
 	system("cls");
 #endif
 #ifdef NOT_WIN
 	/*!
-	*Under an UNIX environment, clearing the screen can be done in a similar method
-	*/
+   *Under an UNIX environment, clearing the screen 
+   *can be done in a similar method
+   */
 	sync();
 	system("clear");
 #endif
@@ -115,7 +119,8 @@ void cserver::start()
 	char *software_signature=new char[200];
 	if(software_signature)
 	{
-		sprintf(software_signature, "************MyServer %s************", versionOfSoftware);
+		sprintf(software_signature, "************MyServer %s************", 
+            versionOfSoftware);
 	
 		i=(u_long)strlen(software_signature);
 		while(i--)
@@ -128,15 +133,15 @@ void cserver::start()
 		delete [] software_signature;
 	}
 	/*!
-	*Set the current working directory.
-	*/
+   *Set the current working directory.
+   */
 	setcwdBuffer();
 	
 	cXMLParser::startXML();
 	/*!
-	*Setup the server configuration.
-	*/
-    printf("Initializing server configuration...\n");
+   *Setup the server configuration.
+   */
+  printf("Initializing server configuration...\n");
   int err = 0;
 	int os_ver=getOSVersion();
 
@@ -165,21 +170,21 @@ void cserver::start()
 	printf("%s\n", languageParser.getValue("MSG_SOCKSTART"));
 
 	/*!
-	*Get the name of the local machine.
-	*/
+   *Get the name of the local machine.
+   */
 	MYSERVER_SOCKET::gethostname(serverName, (u_long)sizeof(serverName));
 	printf("%s: %s\n", languageParser.getValue("MSG_GETNAME"), serverName);
 
 	/*!
-	*Determine all the IP addresses of the local machine.
-	*/
+   *Determine all the IP addresses of the local machine.
+   */
 	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::gethostbyname(serverName);
 	in_addr ia;
 	ipAddresses[0]='\0';
 	printf("Host: %s\r\n", serverName);
 	if(localhe)
 	{
-		/*Print all the interfaces IPs*/
+		/* Print all the interfaces IPs. */
 		for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
 		{
 #ifdef WIN32
@@ -201,10 +206,10 @@ void cserver::start()
 	myserver_mime_conf=MYSERVER_FILE::getLastModTime(mime_configuration_file);
 	
 	/*!
-	*Keep thread alive.
-	*When the mustEndServer flag is set to True exit
-	*from the loop and terminate the server execution.
-	*/
+   *Keep thread alive.
+   *When the mustEndServer flag is set to True exit
+   *from the loop and terminate the server execution.
+   */
 	while(!mustEndServer)
 	{
 		wait(500);
@@ -212,16 +217,22 @@ void cserver::start()
 		/*! Do not check for modified configuration files every cycle. */
 		if(configsCheck>10)
 		{
-			time_t myserver_main_conf_now=MYSERVER_FILE::getLastModTime(main_configuration_file);
-			time_t myserver_hosts_conf_now=MYSERVER_FILE::getLastModTime(vhost_configuration_file);
-			time_t myserver_mime_conf_now=MYSERVER_FILE::getLastModTime(mime_configuration_file);
+			time_t myserver_main_conf_now=
+                              MYSERVER_FILE::getLastModTime(main_configuration_file);
+			time_t myserver_hosts_conf_now=
+                              MYSERVER_FILE::getLastModTime(vhost_configuration_file);
+			time_t myserver_mime_conf_now=
+                              MYSERVER_FILE::getLastModTime(mime_configuration_file);
 			/*If a configuration file was modified reboot the server*/
-			if((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && (myserver_mime_conf_now!=-1))
+			if((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
+         (myserver_mime_conf_now!=-1))
 			{
-				if( (myserver_main_conf_now != myserver_main_conf)  || (myserver_hosts_conf_now != myserver_hosts_conf)  || (myserver_mime_conf_now != myserver_mime_conf)  )
+				if( (myserver_main_conf_now != myserver_main_conf)  || 
+            (myserver_hosts_conf_now != myserver_hosts_conf)  || 
+            (myserver_mime_conf_now != myserver_mime_conf)          )
 				{
 					reboot();
-					/*Store new mtime values*/
+					/*! Store new mtime values. */
 					myserver_main_conf = myserver_main_conf_now;
 					myserver_hosts_conf=myserver_hosts_conf_now;
 					myserver_mime_conf=myserver_mime_conf_now;
@@ -229,13 +240,19 @@ void cserver::start()
 				configsCheck=0;
 			}
 			else
-				configsCheck=7;/*If there are problems in loading mtimes check again after a bit*/
+      {
+        /*! If there are problems in loading mtimes check again after a bit. */
+				configsCheck=7;
+      }
 			
 		}
 #ifdef WIN32
 		DWORD eventsCount, cNumRead, i; 
 		INPUT_RECORD irInBuf[128]; 
-		/*ReadConsoleInput is a blocking call, so be sure that there are events before call it*/
+		/*!
+     *ReadConsoleInput is a blocking call, so be sure that there are 
+     *events before call it
+     */
 		err = GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &eventsCount);
 		if(!err)
 			eventsCount = 0;
@@ -273,6 +290,7 @@ void cserver::start()
 	this->terminate();
 	finalCleanup();
 }
+
 /*!
  *Do the final cleanup. Called only once.
  */
@@ -327,7 +345,8 @@ int cserver::createServerAndListener(u_long port)
    */
 	printf("%s\n", languageParser.getValue("MSG_BIND_PORT"));
 
-	if(serverSocket.bind((sockaddr*)&sock_inserverSocket, sizeof(sock_inserverSocket))!=0)
+	if(serverSocket.bind((sockaddr*)&sock_inserverSocket, 
+                       sizeof(sock_inserverSocket))!=0)
 	{
 		preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_BIND"));
@@ -351,6 +370,7 @@ int cserver::createServerAndListener(u_long port)
 	printf("%s: %u\n", languageParser.getValue("MSG_LISTEN"), (u_int)port);
 
 	printf("%s\n", languageParser.getValue("MSG_LISTENTR"));
+
 	/*!
    *Create the listen thread.
    */
@@ -490,37 +510,37 @@ u_long cserver::getNumConnections()
 }
 
 /*!
-*Get the verbosity value.
-*/
+ *Get the verbosity value.
+ */
 u_long cserver::getVerbosity()
 {
 	return verbosity;
 }
 
 /*!
-*Set the verbosity value.
-*/
+ *Set the verbosity value.
+ */
 void  cserver::setVerbosity(u_long nv)
 {
 	verbosity=nv;
 }
 
 /*!
-*Stop the execution of the server.
-*/
+ *Stop the execution of the server.
+ */
 void cserver::stop()
 {
 	mustEndServer=1;
 }
 
 /*!
-*Unload the server.
-*/
+ *Unload the server.
+ */
 void cserver::terminate()
 {
 	/*!
-	*Stop the server execution.
-	*/
+   *Stop the server execution.
+   */
 	u_long i;
 	for(i=0;i<nThreads;i++)
 	{
@@ -662,8 +682,10 @@ int cserver::initialize(int /*!os_ver*/)
 	serverAdmin[0]='\0';
 	
 #ifndef WIN32
-	/*! Do not use the files in the directory /usr/share/myserver/languages if 
-   *exists a local directory.*/
+	/*! 
+   *Do not use the files in the directory /usr/share/myserver/languages
+   *if exists a local directory.
+   */
 	if(MYSERVER_FILE::fileExists("languages"))
 	{
     int languages_pathLen = strlen ("languages/") + 1 ;
@@ -853,8 +875,8 @@ int cserver::initialize(int /*!os_ver*/)
 	}
 	
 	/*!
-	* The number of the threads used by the server is:
-	* N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive.
+	*The number of the threads used by the server is:
+	*N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive.
 	*/
 	nThreads=nThreadsA*getCPUCount()+nThreadsB;
 
@@ -889,32 +911,33 @@ int cserver::initialize(int /*!os_ver*/)
 	
 }
 /*!
-*This function returns the max size of the logs file as defined in the 
-*configuration file.
-*/
+ *This function returns the max size of the logs file as defined in the 
+ *configuration file.
+ */
 int cserver::getMaxLogFileSize()
 {
 	return maxLogFileSize;
 }
 /*!
-*Returns the connection timeout.
-*/
+ *Returns the connection timeout.
+ */
 u_long cserver::getTimeout()
 {
 	return connectionTimeout;
 }
 /*!
-*This function add a new connection to the list.
-*/
+ *This function add a new connection to the list.
+ */
 int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 {
 	if(s.getHandle()==0)
 		return 0;
 	int ret=1;
 	/*!
-	*ip is the string containing the address of the remote host connecting to the server
-	*local_ip is the address of the network adapter connected to.
-	*/
+   *ip is the string containing the address of the remote host 
+   *connecting to the server local_ip is the address of the network 
+   *adapter connected to.
+   */
 	char ip[MAX_IP_STRING_LEN];
 	char local_ip[MAX_IP_STRING_LEN];
 	MYSERVER_SOCKADDRIN  localsock_in;
@@ -924,10 +947,15 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 	int dim=sizeof(localsock_in);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
 
-	strncpy(ip,  inet_ntoa(asock_in->sin_addr),  MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
-	strncpy(local_ip,  inet_ntoa(localsock_in.sin_addr),  MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
+  // NOTE: inet_ntop supports IPv6
+	strncpy(ip,  inet_ntoa(asock_in->sin_addr),  MAX_IP_STRING_LEN); 
+
+  // NOTE: inet_ntop supports IPv6
+	strncpy(local_ip,  inet_ntoa(localsock_in.sin_addr),  MAX_IP_STRING_LEN); 
+
   /*! Port used by the client. */
 	int port=ntohs((*asock_in).sin_port);
+
   /*! Port connected to. */
 	int myport=ntohs(localsock_in.sin_port);
 
@@ -935,8 +963,10 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 	{
 		/*! If we report error to add the connection to the thread. */
 		ret=0;
+
     /*! Shutdown the socket both on receive that on send. */
 		s.shutdown(2);
+
     /*! Then close it. */
 		s.closesocket();
 	}
@@ -944,10 +974,12 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 }
 
 /*!
-*Add a new connection.
-*A connection is defined using a CONNECTION struct.
-*/
-LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, char *localIpAddr, int port, int localPort, int /*id*/)
+ *Add a new connection.
+ *A connection is defined using a CONNECTION struct.
+ */
+LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, 
+                        MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, 
+                        char *localIpAddr, int port, int localPort, int /*id*/)
 {
 	u_long conection_size=sizeof(CONNECTION);
 	LPCONNECTION new_connection=new CONNECTION;
@@ -967,11 +999,13 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 	new_connection->localPort=(u_short)localPort;
 	strncpy(new_connection->ipAddr, ipAddr, MAX_IP_STRING_LEN);
 	strncpy(new_connection->localIpAddr, localIpAddr, MAX_IP_STRING_LEN);
-	new_connection->host = (void*)lserver->vhostList->getvHost(0, localIpAddr, (u_short)localPort);
+	new_connection->host = (void*)lserver->vhostList->getvHost(0, localIpAddr, 
+                                                             (u_short)localPort);
 	new_connection->login[0]='\0';
 	new_connection->nTries=0;
 	new_connection->password[0]='\0';
 	new_connection->protocolBuffer=0;
+
   /*! No vhost for the connection so bail. */
 	if(new_connection->host == 0) 
 	{
@@ -985,12 +1019,13 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 	}
 	else if(((vhost*)new_connection->host)->protocol==PROTOCOL_UNKNOWN)
 	{	
-		dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(new_connection->host))->protocol_name);	
+		dynamic_protocol* dp;
+    dp=lserver->getDynProtocol(((vhost*)(new_connection->host))->protocol_name);	
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;	
 	}
 	
-	/*!Do the SSL handshake if required. */
+	/*! Do the SSL handshake if required. */
 	if(doSSLhandshake)
 	{
 		int ret =0;
@@ -1003,7 +1038,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 		if(ret<0)
 		{
 			/*! Free the connection on errors. */
-			delete  new_connection;
+			delete new_connection;
 			return 0;
 		}
 	}
@@ -1030,8 +1065,8 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 }
 
 /*!
-*Delete a connection from the list.
-*/
+ *Delete a connection from the list.
+ */
 int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 {
 	if(!s)
@@ -1046,7 +1081,8 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	/*!
    *Get the access to the  connections list.
    */
-	int ret=0,  err;
+	int ret=0, err=0;
+
 	/*!
    *Remove the connection from the active connections list. 
    */
@@ -1092,9 +1128,11 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 }
 
 /*!
-*Get a connection to parse. Be sure to have the connections access for the caller thread before use this.
-*Using this without the right permissions can cause wrong data returned to the client.
-*/
+ *Get a connection to parse. Be sure to have the connections access for the 
+ *caller thread before use this.
+ *Using this without the right permissions can cause wrong data 
+ *returned to the client.
+ */
 LPCONNECTION cserver::getConnectionToParse(int /*id*/)
 {
 	/*! Do nothing if there are not connections. */
@@ -1125,8 +1163,8 @@ LPCONNECTION cserver::getConnectionToParse(int /*id*/)
 }
 
 /*!
-*Delete all the active connections.
-*/
+ *Delete all the active connections.
+ */
 void cserver::clearAllConnections()
 {
 	connections_mutex_lock();	
@@ -1146,8 +1184,8 @@ void cserver::clearAllConnections()
 }
 
 /*!
-*Find a connection passing its socket.
-*/
+ *Find a connection passing its socket.
+ */
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 {
 	connections_mutex_lock();
@@ -1165,16 +1203,17 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 }
 
 /*!
-*Returns the full path of the binaries folder. The folder where the file myserver(.exe) is.
-*/
+ *Returns the full path of the binaries folder. 
+ *The folder where the file myserver(.exe) is.
+ */
 char *cserver::getPath()
 {
 	return path;
 }
 
 /*!
-*Returns the name of the server(the name of the current PC).
-*/
+ *Returns the name of the server(the name of the current PC).
+ */
 char *cserver::getServerName()
 {
 	return serverName;
@@ -1182,33 +1221,33 @@ char *cserver::getServerName()
 
 
 /*!
-*Gets the number of threads.
-*/
+ *Gets the number of threads.
+ */
 u_long cserver::getNumThreads()
 {
 	return nThreads;
 }
 
 /*!
-*Returns a comma-separated local machine IPs list.
-*For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
-*/
+ *Returns a comma-separated local machine IPs list.
+ *For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
+ */
 char *cserver::getAddresses()
 {
 	return ipAddresses;
 }
 
 /*!
-*Get the dynamic protocol to use for that connection.
-*/
+ *Get the dynamic protocol to use for that connection.
+ */
 dynamic_protocol* cserver::getDynProtocol(char *protocolName)
 {
 	return protocols.getDynProtocol(protocolName);
 }
 
 /*!
-*Lock connections list access to the caller thread.
-*/
+ *Lock connections list access to the caller thread.
+ */
 int cserver::connections_mutex_lock()
 {
 	c_mutex->myserver_mutex_lock();
@@ -1216,8 +1255,8 @@ int cserver::connections_mutex_lock()
 }
 
 /*!
-*Unlock connections list access.
-*/
+ *Unlock connections list access.
+ */
 int cserver::connections_mutex_unlock()
 {
 	c_mutex->myserver_mutex_unlock();
@@ -1355,7 +1394,8 @@ void cserver::loadSettings()
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
-		int ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS );
+		int ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | 
+                              MYSERVER_FILE_OPEN_IFEXISTS );
 		if(ret<1)
 		{
 			preparePrintError();
@@ -1391,7 +1431,8 @@ void cserver::loadSettings()
     return;
   }
 	/*! Load the virtual hosts configuration from the xml file. */
-	vhostList->loadXMLConfigurationFile(vhost_configuration_file, this->getMaxLogFileSize());
+	vhostList->loadXMLConfigurationFile(vhost_configuration_file, 
+                                      this->getMaxLogFileSize());
 
 	http::loadProtocol(&languageParser, "myserver.xml");
 	https::loadProtocol(&languageParser, "myserver.xml");
@@ -1455,9 +1496,9 @@ void cserver::loadSettings()
     return;
 	getdefaultwd(path, pathlen);
 	/*!
-	*Then we create here all the listens threads. 
-  *Check that all the port used for listening have a listen thread.
-	*/
+   *Then we create here all the listens threads. 
+   *Check that all the port used for listening have a listen thread.
+   */
 	printf("%s\n", languageParser.getValue("MSG_LISTENT"));
 	
 	createListenThreads();
@@ -1468,8 +1509,8 @@ void cserver::loadSettings()
 }
 
 /*!
-*Reboot the server.
-*/
+ *Reboot the server.
+ */
 void cserver::reboot()
 {
 	printf("%c\n\nRebooting.......\n\n", 0x7);/*0x7 is the beep*/
@@ -1485,16 +1526,16 @@ void cserver::reboot()
 }
 
 /*!
-*Get the number of active listening threads.
-*/
+ *Get the number of active listening threads.
+ */
 int cserver::getListeningThreadCount()
 {
 	return listingThreads;
 }
 
 /*!
-*Increase of one the number of active listening threads.
-*/
+ *Increase of one the number of active listening threads.
+ */
 void cserver::increaseListeningThreadCount()
 {
 	connections_mutex_lock();
@@ -1503,8 +1544,8 @@ void cserver::increaseListeningThreadCount()
 }
 
 /*!
-*Decrease of one the number of active listening threads.
-*/
+ *Decrease of one the number of active listening threads.
+ */
 void cserver::decreaseListeningThreadCount()
 {
 	connections_mutex_lock();
@@ -1519,6 +1560,7 @@ char *cserver::getMainConfFile()
 {
   return main_configuration_file;
 }
+
 /*!
  *Return the path to the mail configuration file.
  */
@@ -1526,6 +1568,7 @@ char *cserver::getVhostConfFile()
 {
   return vhost_configuration_file;
 }
+
 /*!
  *Return the path to the mail configuration file.
  */

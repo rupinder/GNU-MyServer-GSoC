@@ -267,7 +267,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
   outputDataPath = new char[outputDataPathLen];
  
   /*!
-   * Return an HTTP 500 error message on allocation errors. 
+   *Return an HTTP 500 error message on allocation errors. 
    */
   if(outputDataPath == 0)
   {
@@ -291,7 +291,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	MYSERVER_FILE stdOutFile;
 
   /*!
-   * Open the stdout file for the new CGI process. 
+   *Open the stdout file for the new CGI process. 
    */
 	if(stdOutFile.createTemporaryFile(outputDataPath))
 	{
@@ -448,8 +448,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 			strcpy(td->response.CONNECTION, "Keep-Alive");
 		/*!
-     *Don't send any other HTTP header if the CGI executable
-     * has the nph-. form name.  
+     *Do not send any other HTTP header if the CGI executable
+     *has the nph-. form name.  
      */
 		if(nph)
 		{
@@ -475,11 +475,19 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 
 			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
 
-			s->socket.send((char*)td->buffer->GetBuffer(),
-                     (int)(td->buffer->GetLength()), 0);
+			if(s->socket.send((char*)td->buffer->GetBuffer(),
+                        (int)(td->buffer->GetLength()), 0))
+      {
+        /*! Remove the connection on sockets error. */
+        return 0;
+      }
 
-			s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize), 
-                     nBytesRead-headerSize, 0);
+			if(s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize), 
+                        nBytesRead-headerSize, 0))
+      {
+        /*! Remove the connection on sockets error. */
+        return 0;       
+      }
 		}
 		else
     {
@@ -602,11 +610,13 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << end_str << "HTTP_REFERER=";
 		memCgi << td->request.REFERER;
 	}
+
 	if(td->request.CACHE_CONTROL[0])
 	{
 		memCgi << end_str << "HTTP_CACHE_CONTROL=";
 		memCgi << td->request.CACHE_CONTROL;
 	}
+
 	if(td->request.ACCEPT[0])
 	{
 		memCgi << end_str << "HTTP_ACCEPT=";
@@ -618,16 +628,19 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << end_str << "CGI_ROOT=";
 		memCgi << td->cgiRoot;
 	}
+
 	if(td->request.HOST[0])
 	{
 		memCgi << end_str << "HTTP_HOST=";
 		memCgi << td->request.HOST;
 	}
+
 	if(td->connection->ipAddr[0])
 	{
 		memCgi << end_str << "REMOTE_ADDR=";
 		memCgi << td->connection->ipAddr;
 	}
+
 	if(td->connection->port)
 	{
 	 	memCgi << end_str << "REMOTE_PORT=";
@@ -650,26 +663,31 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << end_str << "HTTP_CONNECTION=";
 		memCgi << td->request.CONNECTION;
 	}
+
 	if(td->request.AUTH[0])
 	{
 		memCgi << end_str << "AUTH_TYPE=";
 		memCgi << td->request.AUTH;
 	}
+
 	if(td->request.USER_AGENT[0])
 	{
 		memCgi << end_str << "HTTP_USER_AGENT=";
 		memCgi << td->request.USER_AGENT;
 	}
+
 	if(td->request.ACCEPTENC[0])
 	{
 		memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
 		memCgi << td->request.ACCEPTENC;
 	}
+
 	if(td->request.ACCEPTLAN[0])
 	{
 		memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
 	  	memCgi << td->request.ACCEPTLAN;
 	}
+
 	if(td->pathInfo)
 	{
 		memCgi << end_str << "PATH_INFO=";
@@ -680,7 +698,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	}
 	else
 	{
-  		memCgi << end_str << "PATH_TRANSLATED=";
+    memCgi << end_str << "PATH_TRANSLATED=";
 		memCgi << td->filenamePath;
 	}
 
@@ -739,3 +757,4 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 
 	memCgi << end_str;
 }
+

@@ -43,9 +43,9 @@ extern "C" {
 }
 #endif
 
-// Define SD_BOTH in case it is not defined
+/*! Define SD_BOTH in case it is not defined. */
 #ifndef SD_BOTH
-#define SD_BOTH 2 /*! to close tcp connection in both directions */
+#define SD_BOTH 2 /*! to close TCP connection in both directions */
 #endif
 
 ClientsTHREAD::ClientsTHREAD()
@@ -79,8 +79,11 @@ void * startClientsTHREAD(void* pParam)
 	u_long id=*((u_long*)pParam) - ClientsTHREAD::ID_OFFSET;
 
 	ClientsTHREAD *ct=&lserver->threads[id];
+
+  /*! Do nothing if the thread is still initialized. */
 	if(ct->initialized)
 		return 0;
+
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
@@ -96,10 +99,13 @@ void * startClientsTHREAD(void* pParam)
 	
 	ct->initialized=1;
 
+  /*! Reset thread buffers. */
 	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetRealLength());
 	memset((char*)ct->buffer2.GetBuffer(), 0, ct->buffer2.GetRealLength());
-	
+
+	/*! Wait before go in the running loop. */
 	wait(3000);
+
 	/*!
    *This function when is alive only call the controlConnections(...) function
    *of the ClientsTHREAD class instance used for control the thread.
@@ -144,6 +150,7 @@ void ClientsTHREAD::controlConnections()
    *Set the connection parsing flag to true.
    */
 	c->parsing=1;
+
 	/*!
    *Unlock connections list access after setting parsing flag.
    */
@@ -181,6 +188,7 @@ void ClientsTHREAD::controlConnections()
 			return;
 		}
 		buffer.SetBuffer(c->connectionBuffer, c->dataRead);
+
 		/*!
      *Control the protocol used by the connection.
      */
@@ -347,3 +355,4 @@ CMemBuf *ClientsTHREAD::GetBuffer2()
 {
 	return &buffer2;
 }
+
