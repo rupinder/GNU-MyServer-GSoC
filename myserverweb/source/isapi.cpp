@@ -79,7 +79,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			else
         lstrcpyn(URI,ConnInfo->td->request.URI,
                  (int)(ConnInfo->td->request.URI.length()-
-				 (ConnInfo->td->pathInfo?strlen(ConnInfo->td->pathInfo):0) +1));
+				 (ConnInfo->td->pathInfo?ConnInfo->td->pathInfo.length():0) +1));
 			
 			((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                             (char**)&buffer,URI,0);
@@ -582,9 +582,9 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	if(valLen+MAX_PATH<maxLen)
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
-		lstrcpyn(&ValStr[valLen],td->request.URI,(int)(strlen(td->request.URI)-
-                                                   strlen(td->pathInfo)+1));
-		valLen+=(DWORD)strlen(td->request.URI)-strlen(td->pathInfo)+1;
+		lstrcpyn(&ValStr[valLen],td->request.URI.c_str(),
+             td->request.URI.length()- td->pathInfo.length()+1));
+		valLen+=(DWORD)td->request.URI.length()-strlen(pathInfo.length)+1;
 		valLen+=(DWORD)sprintf(&ValStr[valLen],"\n");
 	}
 	else if(valLen+30<maxLen) 
@@ -817,8 +817,8 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.ConnID = (HCONN) (connIndex + 1);
 	ExtCtrlBlk.dwHttpStatusCode = 200;
 	ExtCtrlBlk.lpszLogData[0] = '0';
-	ExtCtrlBlk.lpszMethod = td->request.CMD.c_str();
-	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS.c_str();
+	ExtCtrlBlk.lpszMethod = (char*)td->request.CMD.c_str();
+	ExtCtrlBlk.lpszQueryString =(char*) td->request.URIOPTS.c_str();
 	ExtCtrlBlk.lpszPathInfo = td->pathInfo ? td->pathInfo : (CHAR*)"" ;
 	if(td->pathInfo)
 		ExtCtrlBlk.lpszPathTranslated = td->pathTranslated;
@@ -827,7 +827,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.cbTotalBytes = td->inputData.getFileSize();
 	ExtCtrlBlk.cbAvailable = 0;
 	ExtCtrlBlk.lpbData = 0;
-	ExtCtrlBlk.lpszContentType = td->request.CONTENT_TYPE.c_str();
+	ExtCtrlBlk.lpszContentType =(char*)td->request.CONTENT_TYPE.c_str();
 
 	connTable[connIndex].td->buffer->SetLength(0);
 	connTable[connIndex].td->buffer->GetAt(0)='\0';
