@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DBUILDING_DLL=1_@@_
 CppCompiler=-DBUILDING_DLL=1_@@_
-Linker=--add-stdcall-alias  -lpng -lzdll -lm_@@_../../../cgi-lib/CGI-LIB.lib_@@_
+Linker=--add-stdcall-alias  -lpng -lz.dll -lm_@@_../../../cgi-lib/CGI-LIB.lib_@@_
 IsCpp=1
 Icon=
 ExeOutput=..\..\cgi-bin

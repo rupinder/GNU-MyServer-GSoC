@@ -31,7 +31,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma comment(lib,"wsock32.lib")
 #endif
 
-#include "../source/filemanager.cpp"
 /*!
 *Write to the stdout.
 */

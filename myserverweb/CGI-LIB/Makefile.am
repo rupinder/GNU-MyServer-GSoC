@@ -1,9 +1,9 @@
 # Makefile for MSCGI-lib
 
 lib_LIBRARIES = libcgi-lib.a
-libcgi_lib_a_SOURCES = cgi_manager.cpp ../source/utility.cpp
+libcgi_lib_a_SOURCES = cgi_manager.cpp ../source/utility.cpp ../source/filemanager.cpp
 
-libcgi_lib_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS)
+libcgi_lib_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DDO_NOT_USE_SSL
 
 all : makemscgi cgi-lib.so
 	cp cgi-lib.so ../binaries/cgi-lib/

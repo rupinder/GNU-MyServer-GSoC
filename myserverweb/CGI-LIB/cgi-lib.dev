@@ -1,7 +1,7 @@
 [Project]
 FileName=cgi-lib.dev
 Name=CGI-LIB
-UnitCount=4
+UnitCount=5
 Type=3
 Ver=1
 ObjFiles=
@@ -10,7 +10,7 @@ Libs=
 PrivateResource=
 ResourceIncludes=
 MakeIncludes=
-Compiler=-DBUILDING_DLL=1_@@_
+Compiler=-DBUILDING_DLL=1 -DDO_NOT_USE_SSL_@@_
 CppCompiler=
 Linker=--add-stdcall-alias --output-def ../binaries/cgi-lib/CGI-LIB.def_@@_--output-lib ../binaries/cgi-lib/CGI-LIB.lib_@@_
 IsCpp=1
@@ -87,4 +87,14 @@ OriginalFilename=
 ProductName=
 ProductVersion=
 AutoIncBuildNr=0
+
+[Unit5]
+FileName=..\source\filemanager.cpp
+CompileCpp=1
+Folder=CGI-LIB
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 
