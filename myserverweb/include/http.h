@@ -17,12 +17,11 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
-
 #include "..\stdafx.h"
-#include "..\include\Response_RequestStructs.h"
 #include "..\include\cgi.h"
 #include "..\include\connectionstruct.h"
 #include "..\include\security.h"
+#include "..\include\Response_RequestStructs.h"
 extern const char *versionOfSoftware;
 extern class CBase64Utils base64Utils;
 /*
@@ -46,6 +45,7 @@ struct httpThreadContext
 	char scriptPath[MAX_PATH];
 	char scriptDir[MAX_PATH];
 	char scriptFile[MAX_PATH];
+	char identity[32];
 	MYSERVER_FILE_HANDLE inputData;
 	LOGGEDUSERID hImpersonation;
 	LPCONNECTION connection;

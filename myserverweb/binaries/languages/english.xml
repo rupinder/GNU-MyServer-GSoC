@@ -18,7 +18,7 @@
 <MSG_LOADMIME>Loading MIME types...</MSG_LOADMIME>
 <MSG_GETNAME>Computer name is</MSG_GETNAME>
 <MSG_MIMERUN>MIME types loaded successfully</MSG_MIMERUN>
-<MSG_ADDRESS>Address</MSG_ADDRESS>
+<MSG_ADDRESS>IP Address</MSG_ADDRESS>
 <ERR_LOADMIME>MIME types cannot be loaded</ERR_LOADMIME>
 <ERR_ERROR>Generic error</ERR_ERROR>
 <MSG_NUM_CPU>Number of processors:</MSG_NUM_CPU>

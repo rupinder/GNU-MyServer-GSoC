@@ -18,11 +18,13 @@
 */
 #pragma once
 #define EXPORTABLE _declspec(dllexport)
+#define NO_INCLUDE_SOCKETLIB
+#include "../include/http.h"
 /*
 *Do not use this method in a CGI script.
 *It is used for server internal operations.
 */
-int EXPORTABLE initialize(void*,void*,void*,void*);
+int EXPORTABLE initialize(httpThreadContext*,LPCONNECTION);
 class EXPORTABLE cgi_manager
 {
 private:

@@ -100,15 +100,11 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
 	MYSERVER_FILE_HANDLE stdInFile;
 	
-	if(td->inputData==0)
-	{
-		sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,td->id);
-		stdInFile = ms_CreateTemporaryFile(stdInFilePath);
-	}
-	else/*If no exists the stdin file create one and copy in all the necessary informations*/
+	if(td->inputData==0)/*If no exists the stdin file create one and copy in all the necessary informations*/
 	{
 		u_long nbw;/*Number of bytes written to the stdin file if any*/
-		stdInFile = td->inputData;
+		sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,td->id);
+		stdInFile = ms_CreateTemporaryFile(stdInFilePath);
 		if(td->request.URIOPTSPTR)
 			ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
 		else
@@ -117,7 +113,10 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		char *endFileStr="\r\n\r\n";
 		ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 		setFilePointer(stdInFile,0);
-
+	}
+	else
+	{
+		stdInFile = td->inputData;
 	}
 
 	/*
@@ -244,13 +243,14 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rSERVER_PORT=");
 	sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",lserver->port_HTTP);
 
+	lstrcat(cgiEnvString,"\rREQUEST_METHOD=");
+	lstrcat(cgiEnvString,td->request.CMD);
+
 	lstrcat(cgiEnvString,"\rQUERY_STRING=");
 	lstrcat(cgiEnvString,td->request.URIOPTS);
 
 	lstrcat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1");
 	    
-	lstrcat(cgiEnvString,"\rREQUEST_METHOD=");
-	lstrcat(cgiEnvString,td->request.CMD);
 
 	if(td->request.CONTENTS_TYPE[0])
 	{
@@ -262,22 +262,6 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	{
 		lstrcat(cgiEnvString,"\rCONTENT_LENGTH=");
 		lstrcat(cgiEnvString,td->request.CONTENTS_DIM);
-	}
-	if(td->connection->login[0])
-	{
-		lstrcat(cgiEnvString,"\rREMOTE_USER=");
-		lstrcat(cgiEnvString,td->connection->login);
-	}
-
-	if(td->connection->ipAddr[0])
-	{
-		lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
-		lstrcat(cgiEnvString,td->connection->ipAddr);
-	}
-	if(td->connection->port)
-	{
-		lstrcat(cgiEnvString,"\rREMOTE_PORT=");
-		sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",td->connection->port);
 	}
 
 	if(td->request.COOKIE[0])
@@ -292,8 +276,8 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 		lstrcat(cgiEnvString,td->request.REFERER);
 	}
 
-	lstrcat(cgiEnvString,"\rREQUEST_URI=");
-		lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
+	lstrcat(cgiEnvString,"\rREQUEST_URI=/");
+	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
 
 	if(td->request.ACCEPT[0])
 	{
@@ -309,6 +293,22 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	{
 		lstrcat(cgiEnvString,"\rREMOTE_HOST=");
 		lstrcat(cgiEnvString,td->connection->ipAddr);
+	}
+	if(td->connection->ipAddr[0])
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
+		lstrcat(cgiEnvString,td->connection->ipAddr);
+	}
+	if(td->connection->port)
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_PORT=");
+		sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",td->connection->port);
+	}
+
+	if(td->connection->login[0])
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_USER=");
+		lstrcat(cgiEnvString,td->connection->login);
 	}
 
 	if(td->request.CONNECTION[0])
@@ -342,11 +342,20 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	{
 		lstrcat(cgiEnvString,"\rPATH_INFO=");
 		lstrcat(cgiEnvString,td->pathInfo);
-	}
-	if(td->pathTranslated[0])
-	{
+
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
 		lstrcat(cgiEnvString,td->pathTranslated);
+	}
+	else
+	/*
+	*Several packages have chosen to interpret PATH_TRANSLATED as the physical translated path 
+	*of the request. To accomodate these applications, PATH_TRANSLATED is mapped to this 
+	*interpretation if no PATH_INFO is provided. 	
+	*/
+	{
+		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
+		getPath(td->pathTranslated,td->request.URI,FALSE);
+		lstrcat(cgiEnvString,td->pathTranslated);	
 	}
 
 	lstrcat(cgiEnvString,"\rSCRIPT_FILENAME=");
@@ -358,16 +367,15 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rDOCUMENT_ROOT=");
 	lstrcat(cgiEnvString,lserver->getPath());
 
-/*
-
 	lstrcat(cgiEnvString,"\rDOCUMENT_URI=");
 	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
-*/	
-/*
 
-	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
-	lstrcat(cgiEnvString,td->request.HOST);
-*/
+	if(td->identity[0])
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
+		lstrcat(cgiEnvString,td->identity);
+	}
+
 	lstrcat(cgiEnvString,"\r\0\0");
 	int max=lstrlen(cgiEnvString);
 	for(int i=0;i<max;i++)

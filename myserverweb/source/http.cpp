@@ -450,231 +450,231 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	token=td.buffer;
 
 	token = strtok( token, cmdseps );
-	controlAnotherLine:
-	/*
-	*Reset the flag lineControlled.
-	*/
-	lineControlled=FALSE;
+	do
+	{
+		/*
+		*Reset the flag lineControlled.
+		*/
+		lineControlled=FALSE;
 
-	/*
-	*Copy in the command string the header field name.
-	*/
-	lstrcpy(command,token);
-	
-	
-	nLineControlled++;
-	if(nLineControlled==1)
-	{
 		/*
-		*The first line has the form:
-		*GET /index.html HTTP/1.1
+		*Copy in the command string the header field name.
 		*/
-		lineControlled=TRUE;
-		/*
-		*Copy the method type.
-		*/
-		lstrcpy(td.request.CMD,command);
-	
-		token = strtok( NULL, " ,\t\n\r" );
-		max=lstrlen(token);
-		int containOpts=FALSE;
-		for(i=0;i<max;i++)
-		{
-			if(token[i]=='?')
-			{
-				containOpts=TRUE;
-				break;
-			}
-			td.request.URI[i]=token[i];
-		}
-		td.request.URI[i]='\0';
-
-		if(containOpts)
-		{
-			for(j=0;i<max;j++)
-			{
-				td.request.URIOPTS[j]=token[++i];
-			}
-		}
-		token = strtok( NULL, seps );
-		lstrcpy(td.request.VER,token);
-		/*
-		*Version of the protocol in the HTTP_REQUEST_HEADER
-		*struct is leaved as a number.
-		*For example HTTP/1.1 in the struct is 1.1
-		*/
-		StrTrim(td.request.VER,"HTTP /");
-		if(td.request.URI[lstrlen(td.request.URI)-1]=='/')
-			td.request.uriEndsWithSlash=TRUE;
-		else
-			td.request.uriEndsWithSlash=FALSE;
-		StrTrim(td.request.URI," /");
-		StrTrim(td.request.URIOPTS," /");
-		if(max=lstrlen(td.request.URI)>max_URI)
-		{
-			raiseHTTPError(&td,a,e_414);
-			
-			return 0;
-		}
-	}
-	/*User-Agent*/
-	if(!lstrcmpi(command,"User-Agent"))
-	{
-		token = strtok( NULL, "\r\n" );
-		lineControlled=TRUE;
-		lstrcpy(td.request.USER_AGENT,token);
-		StrTrim(td.request.USER_AGENT," ");
-	}
-	/*Authorization*/
-	if(!lstrcmpi(command,"Authorization"))
-	{
-		token = strtok( NULL, "\r\n" );
-		lineControlled=TRUE;		
-		ZeroMemory(td.buffer2,300);
-		/*
-		*Basic authorization in base64 is login:password.
-		*Assume that it is Basic anyway.
-		*/
-		lstrcpy(td.request.AUTH,"Basic");
-		int len=lstrlen(token);
-		char *base64=base64Utils.Decode(&token[lstrlen("Basic: ")],&len);
-		char* lbuffer2=base64;
-		while(*lbuffer2!=':')
-		{
-			a->login[lstrlen(a->login)]=*lbuffer2++;
-		}
-		lbuffer2++;
-		while(*lbuffer2)
-		{
-			a->password[lstrlen(a->password)]=*lbuffer2++;
-		}
-		free(base64);
-	}
-	/*Host*/
-	if(!lstrcmpi(command,"Host"))
-	{
-		token = strtok( NULL, seps );
-		lineControlled=TRUE;
-		lstrcpy(td.request.HOST,token);
-		StrTrim(td.request.HOST," ");
-	}
-	/*Accept*/
-	if(!lstrcmpi(command,"Accept"))
-	{
-		token = strtok( NULL, "\n\r" );
-		lineControlled=TRUE;
-		lstrcat(td.request.ACCEPT,token);
-		StrTrim(td.request.ACCEPT," ");
-	}
-	/*Accept-Language*/
-	if(!lstrcmpi(command,"Accept-Language"))
-	{
-		token = strtok( NULL, "\n\r" );
-		lineControlled=TRUE;
-		lstrcpy(td.request.ACCEPTLAN,token);
-		StrTrim(td.request.ACCEPTLAN," ");
-	}
-	/*Accept-Charset*/
-	if(!lstrcmpi(command,"Accept-Charset"))
-	{
-		token = strtok( NULL, "\n\r" );
-		lineControlled=TRUE;
-		lstrcpy(td.request.ACCEPTCHARSET,token);
-		StrTrim(td.request.ACCEPTCHARSET," ");
-	}
-
-	/*Accept-Encoding*/
-	if(!lstrcmpi(command,"Accept-Encoding"))
-	{
-		token = strtok( NULL, "\n\r" );
-		lineControlled=TRUE;
-		lstrcpy(td.request.ACCEPTENC,token);
-		StrTrim(td.request.ACCEPTENC," ");
-	}
-	/*Connection*/
-	if(!lstrcmpi(command,"Connection"))
-	{
-		token = strtok( NULL, "\n\r" );
-		lineControlled=TRUE;
-		lstrcpy(td.request.CONNECTION,token);
-		StrTrim(td.request.CONNECTION," ");
-	}
-	/*Cookie*/
-	if(!lstrcmpi(command,"Cookie"))
-	{
-		token = strtok( NULL, "\n\r" );
-		lineControlled=TRUE;
-		lstrcpy(td.request.COOKIE,token);
-		StrTrim(td.request.COOKIE," ");
-	}
-	/*Connection*/
-	if(!lstrcmpi(command,"Content-Length"))
-	{
-		token = strtok( NULL, "\n\r" );
-		lineControlled=TRUE;
-		lstrcpy(td.request.CONTENTS_DIM,token);
-	}
-	/*Range*/
-	if(!lstrcmpi(command,"Range"))
-	{
-		ZeroMemory(td.request.RANGETYPE,30);
-		ZeroMemory(td.request.RANGEBYTEBEGIN,30);
-		ZeroMemory(td.request.RANGEBYTEEND,30);
-		lineControlled=TRUE;
-		token = strtok( NULL, "\r\n\t" );
-		do
-		{
-			td.request.RANGETYPE[lstrlen(td.request.RANGETYPE)]=*token;
-		}
-		while(*token++ != '=');
-		do
-		{
-			td.request.RANGEBYTEBEGIN[lstrlen(td.request.RANGEBYTEBEGIN)]=*token;
-		}
-		while(*token++ != '-');
-		do
-		{
-			td.request.RANGEBYTEEND[lstrlen(td.request.RANGEBYTEEND)]=*token;
-		}
-		while(*token++);
-		StrTrim(td.request.RANGETYPE,"= ");
-		StrTrim(td.request.RANGEBYTEBEGIN,"- ");
-		StrTrim(td.request.RANGEBYTEEND,"- ");
+		lstrcpy(command,token);
 		
-		if(td.request.RANGEBYTEBEGIN[0]==0)
-			lstrcpy(td.request.RANGEBYTEBEGIN,"0");
-		if(td.request.RANGEBYTEEND[0]==0)
-			lstrcpy(td.request.RANGEBYTEEND,"-1");
+		
+		nLineControlled++;
+		if(nLineControlled==1)
+		{
+			/*
+			*The first line has the form:
+			*GET /index.html HTTP/1.1
+			*/
+			lineControlled=TRUE;
+			/*
+			*Copy the method type.
+			*/
+			lstrcpy(td.request.CMD,command);
+		
+			token = strtok( NULL, " ,\t\n\r" );
+			max=lstrlen(token);
+			int containOpts=FALSE;
+			for(i=0;i<max;i++)
+			{
+				if(token[i]=='?')
+				{
+					containOpts=TRUE;
+					break;
+				}
+				td.request.URI[i]=token[i];
+			}
+			td.request.URI[i]='\0';
 
-	}
-	/*Referer*/
-	if(!lstrcmpi(command,"Referer"))
-	{
-		token = strtok( NULL, seps );
-		lineControlled=TRUE;
-		lstrcpy(td.request.REFERER,token);
-		StrTrim(td.request.REFERER," ");
-	}
-	/*Pragma*/
-	if(!lstrcmpi(command,"Pragma"))
-	{
-		token = strtok( NULL, seps );
-		lineControlled=TRUE;
-		lstrcpy(td.request.PRAGMA,token);
-		StrTrim(td.request.PRAGMA," ");
-	}
-	
-	/*
-	*If the line is not controlled arrive with the token
-	*at the end of the line.
-	*/
-	if(!lineControlled)
-	{
-		token = strtok( NULL, "\n" );
-	}
-	token = strtok( NULL, cmdseps );
-	if((u_long)(token-td.buffer)<maxTotChars)
-		goto controlAnotherLine; 
+			if(containOpts)
+			{
+				for(j=0;i<max;j++)
+				{
+					td.request.URIOPTS[j]=token[++i];
+				}
+			}
+			token = strtok( NULL, seps );
+			lstrcpy(td.request.VER,token);
+			/*
+			*Version of the protocol in the HTTP_REQUEST_HEADER
+			*struct is leaved as a number.
+			*For example HTTP/1.1 in the struct is 1.1
+			*/
+			StrTrim(td.request.VER,"HTTP /");
+			if(td.request.URI[lstrlen(td.request.URI)-1]=='/')
+				td.request.uriEndsWithSlash=TRUE;
+			else
+				td.request.uriEndsWithSlash=FALSE;
+			StrTrim(td.request.URI," /");
+			StrTrim(td.request.URIOPTS," /");
+			max=lstrlen(td.request.URI);
+			if(max>max_URI)
+			{
+				raiseHTTPError(&td,a,e_414);
+			return 0;
+			}
+		}
+		/*User-Agent*/
+		if(!lstrcmpi(command,"User-Agent"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;
+			lstrcpy(td.request.USER_AGENT,token);
+			StrTrim(td.request.USER_AGENT," ");
+		}
+		/*Authorization*/
+		if(!lstrcmpi(command,"Authorization"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=TRUE;		
+			ZeroMemory(td.buffer2,300);
+			/*
+			*Basic authorization in base64 is login:password.
+			*Assume that it is Basic anyway.
+			*/
+			lstrcpy(td.request.AUTH,"Basic");
+			int len=lstrlen(token);
+			char *base64=base64Utils.Decode(&token[lstrlen("Basic: ")],&len);
+			char* lbuffer2=base64;
+			while(*lbuffer2!=':')
+			{
+				a->login[lstrlen(a->login)]=*lbuffer2++;
+			}
+			lbuffer2++;
+			while(*lbuffer2)
+			{
+				a->password[lstrlen(a->password)]=*lbuffer2++;
+			}
+			free(base64);
+		}
+		/*Host*/
+		if(!lstrcmpi(command,"Host"))
+		{
+			token = strtok( NULL, seps );
+			lineControlled=TRUE;
+			lstrcpy(td.request.HOST,token);
+			StrTrim(td.request.HOST," ");
+		}
+		/*Accept*/
+		if(!lstrcmpi(command,"Accept"))
+		{
+			token = strtok( NULL, "\n\r" );
+			lineControlled=TRUE;
+			lstrcat(td.request.ACCEPT,token);
+			StrTrim(td.request.ACCEPT," ");
+		}
+		/*Accept-Language*/
+		if(!lstrcmpi(command,"Accept-Language"))
+		{
+			token = strtok( NULL, "\n\r" );
+			lineControlled=TRUE;
+			lstrcpy(td.request.ACCEPTLAN,token);
+			StrTrim(td.request.ACCEPTLAN," ");
+		}
+		/*Accept-Charset*/
+		if(!lstrcmpi(command,"Accept-Charset"))
+		{
+			token = strtok( NULL, "\n\r" );
+			lineControlled=TRUE;
+			lstrcpy(td.request.ACCEPTCHARSET,token);
+			StrTrim(td.request.ACCEPTCHARSET," ");
+		}
+
+		/*Accept-Encoding*/
+		if(!lstrcmpi(command,"Accept-Encoding"))
+		{
+			token = strtok( NULL, "\n\r" );
+			lineControlled=TRUE;
+			lstrcpy(td.request.ACCEPTENC,token);
+			StrTrim(td.request.ACCEPTENC," ");
+		}
+		/*Connection*/
+		if(!lstrcmpi(command,"Connection"))
+		{
+			token = strtok( NULL, "\n\r" );
+			lineControlled=TRUE;
+			lstrcpy(td.request.CONNECTION,token);
+			StrTrim(td.request.CONNECTION," ");
+		}
+		/*Cookie*/
+		if(!lstrcmpi(command,"Cookie"))
+		{
+			token = strtok( NULL, "\n\r" );
+			lineControlled=TRUE;
+			lstrcpy(td.request.COOKIE,token);
+			StrTrim(td.request.COOKIE," ");
+		}
+		/*Connection*/
+		if(!lstrcmpi(command,"Content-Length"))
+		{
+			token = strtok( NULL, "\n\r" );
+			lineControlled=TRUE;
+			lstrcpy(td.request.CONTENTS_DIM,token);
+		}
+		/*Range*/
+		if(!lstrcmpi(command,"Range"))
+		{
+			ZeroMemory(td.request.RANGETYPE,30);
+			ZeroMemory(td.request.RANGEBYTEBEGIN,30);
+			ZeroMemory(td.request.RANGEBYTEEND,30);
+			lineControlled=TRUE;
+			token = strtok( NULL, "\r\n\t" );
+			do
+			{
+				td.request.RANGETYPE[lstrlen(td.request.RANGETYPE)]=*token;
+			}
+			while(*token++ != '=');
+			do
+			{
+				td.request.RANGEBYTEBEGIN[lstrlen(td.request.RANGEBYTEBEGIN)]=*token;
+			}
+			while(*token++ != '-');
+			do
+			{
+				td.request.RANGEBYTEEND[lstrlen(td.request.RANGEBYTEEND)]=*token;
+			}
+			while(*token++);
+			StrTrim(td.request.RANGETYPE,"= ");
+			StrTrim(td.request.RANGEBYTEBEGIN,"- ");
+			StrTrim(td.request.RANGEBYTEEND,"- ");
+			
+			if(td.request.RANGEBYTEBEGIN[0]==0)
+				lstrcpy(td.request.RANGEBYTEBEGIN,"0");
+			if(td.request.RANGEBYTEEND[0]==0)
+				lstrcpy(td.request.RANGEBYTEEND,"-1");
+
+		}
+		/*Referer*/
+		if(!lstrcmpi(command,"Referer"))
+		{
+			token = strtok( NULL, seps );
+			lineControlled=TRUE;
+			lstrcpy(td.request.REFERER,token);
+			StrTrim(td.request.REFERER," ");
+		}
+		/*Pragma*/
+		if(!lstrcmpi(command,"Pragma"))
+		{
+			token = strtok( NULL, seps );
+			lineControlled=TRUE;
+			lstrcpy(td.request.PRAGMA,token);
+			StrTrim(td.request.PRAGMA," ");
+		}
+		
+		/*
+		*If the line is not controlled arrive with the token
+		*at the end of the line.
+		*/
+		if(!lineControlled)
+		{
+			token = strtok( NULL, "\n" );
+		}
+		token = strtok( NULL, cmdseps );
+	}while((u_long)(token-td.buffer)<maxTotChars);
 	/*
 	*END REQUEST STRUCTURE BUILD
 	*/
@@ -808,7 +808,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	}
 
 	/*
-	*If the connection is not Keep-Alive remove it from the connections list.
+	*If the connection is not Keep-Alive remove it from the connections list returning 0.
 	*/
 	if(lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
 	{
@@ -820,7 +820,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		return 0;
 	}
 	/*
-	*Do not remove the connection from the connection pool if it is Keep-Alive.
+	*Do not remove the connection from the connection pool if it is Keep-Alive returning 1.
 	*/
 	return 1;
 }

@@ -32,6 +32,8 @@ void cXMLParser::open(char* filename)
 	u_long nbr;
 	if(buffer)
 		ms_ReadFromFile(file,buffer,buffersize,&nbr);
+	else
+		nbr=0;
 	if(nbr==0)
 		buffer[0]='#';
 }
@@ -55,7 +57,7 @@ char *cXMLParser::getValue(char* vName)
 	int found;
 	char *ret=NULL;
 	unsigned int i,j;
-	int len=lstrlen(vName);
+	unsigned int len=lstrlen(vName);
 	for(i=0;i<buffersize;i++)
 	{
  		if(buffer[i]=='<')

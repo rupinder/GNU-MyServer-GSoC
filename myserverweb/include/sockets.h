@@ -19,6 +19,7 @@
 #pragma once
 #include "..\stdafx.h"
 
+#ifndef NO_INCLUDE_SOCKETLIB
 #ifdef WIN32
 #include <winsock2.h>
 #else
@@ -27,9 +28,11 @@
 #include <netinet/in.h>
 #include <uninstd.h>
 #endif
+#endif
 
 typedef unsigned int MYSERVER_SOCKET;
 typedef sockaddr_in MYSERVER_SOCKADDRIN;
+typedef HOSTENT MYSERVER_HOSTENT;
 int ms_startupSocketLib(WORD);
 MYSERVER_SOCKET ms_socket(int,int,int);
 int ms_bind(MYSERVER_SOCKET,sockaddr*,int);
@@ -42,4 +45,6 @@ int ms_ioctlsocket(MYSERVER_SOCKET,long,unsigned long*);
 int ms_send(MYSERVER_SOCKET,const char*,int,int);
 int ms_connect(MYSERVER_SOCKET,sockaddr*,int);
 int ms_recv(MYSERVER_SOCKET,char*,int,int);
+MYSERVER_HOSTENT *ms_gethostbyaddr(char* addr,int len,int type=AF_INET);
+MYSERVER_HOSTENT *ms_gethostbyname(char *name);
 u_long bytesToRead(MYSERVER_SOCKET);

@@ -55,6 +55,7 @@ struct START_PROC_INFO
 
 INT getOSVersion();
 u_long getCPUCount();
+void wait(u_long);
 void gotoNextLine(char*);
 u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
 VOID getComputerName(char* name,u_long maxlen);

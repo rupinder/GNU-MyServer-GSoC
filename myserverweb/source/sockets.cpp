@@ -71,6 +71,21 @@ int ms_closesocket(MYSERVER_SOCKET s)
 	return closesocket(s);
 #endif
 }
+MYSERVER_HOSTENT *ms_gethostbyaddr(char* addr,int len,int type)
+{
+#ifdef WIN32
+	HOSTENT *he=gethostbyaddr(addr,len,type);
+	return he;
+#endif
+}
+MYSERVER_HOSTENT *ms_gethostbyname(char *name)
+{
+#ifdef WIN32	
+	HOSTENT *he=gethostbyname(name);
+	return he;
+#endif
+}
+
 
 int ms_shutdown(MYSERVER_SOCKET s,int how)
 {

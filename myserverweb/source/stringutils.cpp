@@ -48,7 +48,7 @@ void splitPath(const char *path, char *dir, char *filename)
 	int splitpoint, i, j;
 	i = 0;
 	j = 0;
-	splitpoint = strlen(path) - 1;
+	splitpoint =(int)( strlen(path) - 1);
 	while ((splitpoint > 0) && (path[splitpoint] != '/'))
 		splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
@@ -163,7 +163,7 @@ void gotoNextLine(char* cmd)
 void getFileExt(char* ext,const char* filename)
 {
 	int nDot, nPathLen;
-	nPathLen = strlen(filename) - 1;
+	nPathLen =(int)(strlen(filename) - 1);
 	nDot = nPathLen;
 	while ((nDot > 0) && (filename[nDot] != '.'))
 		nDot--;
@@ -186,7 +186,7 @@ void translateEscapeString(char *str)
 	{
 		if ((str[i] == '%') && (str[i+1] != 0) && (str[i+2] != 0))
 		{
-			str[j] = 16 * hexVal(str[i+1]) + hexVal(str[i+2]);
+			str[j] =(char) (16 * hexVal(str[i+1]) + hexVal(str[i+2]));
 			i = i + 3;
 		}
 		else
@@ -228,7 +228,7 @@ void getFilename(const char *path, char *filename)
 	int splitpoint, i, j;
 	i = 0;
 	j = 0;
-	splitpoint = strlen(path) - 1;
+	splitpoint =(int)(strlen(path) - 1);
 	while ((splitpoint > 0) && (path[splitpoint] != '/'))
 	splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))

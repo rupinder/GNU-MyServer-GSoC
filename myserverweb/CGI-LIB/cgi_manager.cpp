@@ -19,6 +19,8 @@
 #include "StdAfx.h"
 #include "cgi_manager.h"
 #include "../include/Response_RequestStructs.h"
+#include "../include/http.h"
+#include "../include/mscgi.h"
 #pragma comment(lib,"wsock32.lib")
 static char* buffer;
 static char* buffer2;
@@ -28,12 +30,12 @@ static struct HTTP_REQUEST_HEADER *req;
 /*
 *Initialize the globals variables.
 */
-int initialize(void* p1,void* p2,void* p3,void* p4)
+int initialize(httpThreadContext* td,LPCONNECTION s)
 {
-	buffer=(char*)p1;
-	buffer2=(char*)p2;
-	res=(HTTP_RESPONSE_HEADER*)p3;
-	req=(HTTP_REQUEST_HEADER*)p4;
+	buffer=td->buffer;
+	buffer2=td->buffer2;
+	res=(HTTP_RESPONSE_HEADER*)&(td->response);
+	req=(HTTP_REQUEST_HEADER*)&(td->request);
 	return 1;
 }
 /*

@@ -39,6 +39,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	*Usually these files are faster than standard CGI.
 	*Actually myServerCGI(.mscgi) is only at an alpha status.
 	*/
+
 #ifdef WIN32
 	static HMODULE hinstLib; 
     static CGIMAIN ProcMain;
@@ -52,7 +53,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
 		if(ProcInit && ProcMain)
 		{
-			(ProcInit)((LPVOID)td->buffer,(LPVOID)td->buffer2,(LPVOID)&(td->response),(LPVOID)&(td->request));
+			(ProcInit)(td,s);
 			(ProcMain)(cmdLine);
 		}
         FreeLibrary(hinstLib); 

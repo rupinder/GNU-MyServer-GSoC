@@ -19,6 +19,7 @@
 
 #include "..\stdafx.h"
 #include "..\include\utility.h"
+#include "..\include\sockets.h"
 #include <string.h>
 #include <direct.h>
 #include <stdlib.h>
@@ -121,14 +122,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 VOID getComputerName(char *dest,u_long maxLen)
 {
 #ifdef WIN32
-	/*
-	*If we report error using the GetComputerName function 
-	*then we use the default name "localhost".
-	*/
-	if(GetComputerNameA(dest,&maxLen)==0)
-	{
-		lstrcpy(dest,"localhost");
-	}
+	gethostname(dest,maxLen);
 #endif
 }
 
@@ -203,5 +197,14 @@ int ms_setcwd(char *dir)
 {
 #ifdef WIN32	
 	return _chdir(dir);
+#endif
+}
+/*
+*Sleep a thread.
+*/
+void wait(u_long time)
+{
+#ifdef WIN32
+		Sleep(time);
 #endif
 }

@@ -46,6 +46,7 @@ char msgSize[33];
 
 void cserver::start(int hInst)
 {
+	u_long i;
 	/*
 	*Set the current working directory
 	*/
@@ -81,8 +82,8 @@ void cserver::start(int hInst)
 	*Print the myServer logo.
 	*/
 	char *software_signature=(char*)malloc(200);
-	sprintf(software_signature,"\************myServer %s************",versionOfSoftware);
-	int i=lstrlen(software_signature);
+	sprintf(software_signature,"************myServer %s************",versionOfSoftware);
+	i=lstrlen(software_signature);
 	while(i--)
 		printf("*");
     printf("\n%s\n",software_signature);
@@ -176,35 +177,23 @@ void cserver::start(int hInst)
 	} 
 	printf("%s\n",languageParser.getValue("MSG_SOCKSTART"));
 
+	
 	/*
 	*Get the name of the local machine.
 	*/
 	getComputerName(serverName,(u_long)sizeof(serverName));
-
 	printf("%s: %s\n",languageParser.getValue("MSG_GETNAME"),serverName);
 
-#ifdef WIN32
 	/*
-	*If the OS support the getaddrinfo function call it
-	*to get info about the addresses of the current machine.
+	*Determine all the IP addresses of the local machine.
 	*/
-	if((OSVer==OS_WINDOWS_2000)|(OSVer==OS_WINDOWS_XP))
+	MYSERVER_HOSTENT *localhe=gethostbyname("localhost");
+	in_addr ia;
+	for(i=0;localhe->h_addr_list[i];i++)
 	{
-		addrinfo *ai;
-		addrinfo *iai;
-		getaddrinfo(serverName,NULL,NULL,&ai);
-		iai=ai;
-		WORD addresses_count=0;
-		do
-		{
-			addresses_count++;
-			MYSERVER_SOCKADDRIN *sai=(MYSERVER_SOCKADDRIN*)(iai->ai_addr);
-			printf("%s #%u: %u.%u.%u.%u\n",languageParser.getValue("MSG_ADDRESS"),addresses_count,sai->sin_addr.S_un.S_un_b.s_b1,sai->sin_addr.S_un.S_un_b.s_b2,sai->sin_addr.S_un.S_un_b.s_b3,sai->sin_addr.S_un.S_un_b.s_b4);
-			iai=ai->ai_next;
-		}while(iai);
-		freeaddrinfo(ai);
+		ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+		printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i,inet_ntoa(ia));
 	}
-#endif
 	/*
 	*Load the MSCGI library.
 	*/
@@ -226,7 +215,7 @@ void cserver::start(int hInst)
 	nThreads=getCPUCount();
 
 	unsigned int ID;
-	for(u_long i=0;i<nThreads;i++)
+	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
 		threads[i].id=i;
@@ -282,7 +271,7 @@ VOID cserver::createServerAndListener(u_long port,u_long protID)
 	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
 	sock_inserverSocket.sin_family=AF_INET;
 	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-	sock_inserverSocket.sin_port=htons(port);
+	sock_inserverSocket.sin_port=htons((u_short)port);
 
 #ifndef WIN32
 	/*

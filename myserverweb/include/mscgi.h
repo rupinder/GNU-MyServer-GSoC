@@ -28,5 +28,5 @@ int loadMSCGILib();
 int freeMSCGILib();
 int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
 typedef int (*CGIMAIN)(char*); 
-typedef int (*CGIINIT)(void*,void*,void*,void*); 
+typedef int (*CGIINIT)(httpThreadContext*,LPCONNECTION); 
 

@@ -76,7 +76,8 @@ void ClientsTHREAD::controlConnections()
 	int logonStatus;
 	for(c; c ;c=c->Next)
 	{
-		if(nBytesToRead=bytesToRead(c->socket))
+		nBytesToRead=bytesToRead(c->socket);
+		if(nBytesToRead)
 		{
 			logon(c,&logonStatus,&hImpersonation);
 			err=ms_recv(c->socket,buffer,KB(2), 0);
@@ -152,7 +153,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;
-	nc->port=port;
+	nc->port=(u_short)port;
 	nc->protocol=protID;
 	nc->timeout=clock();
 	lstrcpy(nc->ipAddr,ipAddr);
