@@ -123,8 +123,6 @@ class isapi
 #ifdef WIN32	
 	ConnTableRecord *HConnRecord(HCONN hConn);
 	static ConnTableRecord *connTable;
-	static void initISAPI();
-	static void cleanupISAPI();
 	int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL);
 	int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
 	int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
@@ -139,6 +137,8 @@ class isapi
 	BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
 #endif	
 public:	
+	static void initISAPI();
+	static void cleanupISAPI();
 	int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
 };
 

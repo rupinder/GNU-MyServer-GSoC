@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 #include "../include/HTTPmsg.h"
 #include "../include/utility.h"
-#include "../include/wincgi.h"
+#include "../include/winCGI.h"
 #define WINCGI_TIMEOUT	(10000)
 extern "C" 
 {
