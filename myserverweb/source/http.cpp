@@ -409,7 +409,10 @@ int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	*td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
 	*td->buffer2 <<"\r\nContent-length: 0\r\nAccept-Ranges: bytes\r\n";
 	*td->buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
-	
+
+	/*!
+   *Check if the TRACE command is allowed on the virtual host.
+   */
 	if(allowHTTPTRACE(td, s))
 		*td->buffer2 << ", TRACE\r\n\r\n";
 	else
