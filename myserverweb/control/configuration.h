@@ -22,9 +22,7 @@
 #include "resource.h" 
 #include <wx/wx.h> 
 #include <wx/taskbar.h>
-#ifdef WIN32
-#include <windows.h>
-#endif  
+
 #define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
 #include "../include/MIME_manager.h"
 #include "../include/cXMLParser.h"

@@ -15,7 +15,7 @@ The linux binaries are myserver and control are dynamicaly linked with glibc6 an
 
 ----------------------------------------------------CURRENT STATUS----------------------------------------------------------- MyServer isn't at a mature status too if you are interested to complete anything in the TODO list please contact the
 project administrator on SourceForge.
-The linux portion is not sutable for running as root due to posable secuity flaws in the program.  To run the server as a user, you must change the port to something like 8080 in the myserver.xwl file because users can only use port numbers larger than 1024. 
+The linux portion is not sutable for running as root due to posable secuity flaws in the program.  To run the server as a user, you must change the port to something like 8080 in the myserver.xml file because users can only use port numbers larger than 1024. 
 
 -----------------------------------------------ADDITIONAL INFO---------------------------------------------------------------                                                     
 For additional info about this project see the site at:  	
