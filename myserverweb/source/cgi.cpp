@@ -38,7 +38,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	if(lserver->mustUseLogonOption())
 		revertToSelf();
-	char cmdLine[MAX_PATH*2+1];
+	char cmdLine[MAX_PATH*3+1];
 	char filename[MAX_PATH];
 
 	/*
@@ -74,7 +74,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	BOOL nph=(strnicmp("nph-",filename, 4)==0)?1:0;
 
-	sprintf(cmdLine,"%s \"%s\"",execpath,scriptpath);
+	sprintf(cmdLine,"\"%s\" \"%s\"",execpath,scriptpath);
     /*
     *Use a temporary file to store CGI output.
     *Every thread has it own tmp file name(stdOutFilePath),
@@ -105,9 +105,10 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	else
 		ms_WriteToFile(stdInFile,td->request.URIOPTS,lstrlen(td->request.URIOPTS),&nbw);
 
-	char *endFileStr="\r\n\r\n\0";
+	char *endFileStr="\r\n\r\n";
 	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 	setFilePointer(stdInFile,0);
+
 	/*
 	*With this code we execute the CGI process.
 	*Use the td->buffer2 to build the environment string.

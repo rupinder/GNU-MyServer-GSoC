@@ -94,3 +94,32 @@ BOOL sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	return raiseHTTPError(td,s,e_501);
 #endif
 }
+/*
+*Store the MSCGI library module handle.
+*/
+#ifdef WIN32
+static HMODULE mscgiModule=0;
+#endif
+
+/*
+*Map the library in the address space of the application.
+*/
+BOOL loadMSCGILib()
+{
+#ifdef WIN32
+	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
+	return (mscgiModule)?1:0;
+#endif
+}
+/*
+*Free the memory allocated by the MSCGI library.
+*/
+BOOL freeMSCGILib()
+{
+#ifdef WIN32
+	/*
+	*Return 1 if FreeLibrary returns successfully.
+	*/
+	return((mscgiModule)?(FreeLibrary(mscgiModule)?1:0):0);
+#endif
+}

@@ -232,6 +232,7 @@ LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 	}
 	return NULL;
 }
+
 /*
 *Returns TRUE if the thread is active.
 */
@@ -239,6 +240,7 @@ BOOL ClientsTHREAD::isRunning()
 {
 	return threadIsRunning;
 }
+
 /*
 *Returns TRUE if the thread is stopped.
 */

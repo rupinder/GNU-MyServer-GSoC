@@ -585,6 +585,13 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		lstrcpy(td.request.CONNECTION,token);
 		StrTrim(td.request.CONNECTION," ");
 	}
+	/*Connection*/
+	if(!lstrcmpi(command,"Content-Length"))
+	{
+		token = strtok( NULL, "\n\r" );
+		lineControlled=TRUE;
+		lstrcpy(td.request.CONTENTS_DIM,token);
+	}
 	/*Range*/
 	if(!lstrcmpi(command,"Range"))
 	{

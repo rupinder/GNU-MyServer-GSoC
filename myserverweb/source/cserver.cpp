@@ -183,13 +183,10 @@ void cserver::start(INT hInst)
 		freeaddrinfo(ai);
 	}
 #endif
-#ifdef WIN32
 	/*
-	*On the win32 platform load the MSCCGI library.
+	*Load the MSCGI library.
 	*/
-	LoadLibrary("CGI-LIB\\CGI-LIB.dll");
-#endif
-
+	loadMSCGILib();
 	/*
 	*Load the MIME types.
 	*/
@@ -398,11 +395,12 @@ void cserver::terminate()
 		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
 	}
 	/*
-	*Clean memory allocated here.
+	*Here clean the memory allocated.
 	*/
 	languageParser.close();
 	mimeManager.clean();
 	DWORD threadsStopped=0;
+	freeMSCGILib();
 	/*
 	*Wait before clean the threads that all the threads are stopped.
 	*/
@@ -412,6 +410,9 @@ void cserver::terminate()
 		for(i=0;i<nThreads;i++)
 			if(threads[i].isStopped())
 				threadsStopped++;
+		/*
+		*If all the threads are stopped break the loop.
+		*/
 		if(threadsStopped==nThreads)
 			break;
 	}
