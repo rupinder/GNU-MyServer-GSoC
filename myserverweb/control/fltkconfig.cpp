@@ -2799,6 +2799,16 @@ int MainDlg::load_config_remote() {
   int i;
 int ret;
 CMemBuf Buffer;
+Vector list;
+
+// Get remote languages listing
+ret = Server.getLanguages(list);
+if(ret)
+  return -1;
+Language->clear();
+for(i = 0; i < list.size(); i++) {
+  Language->add(list.at(i)->Text);
+}
 
 // Load remote myserver.xml
 ret = Server.getMyserverConf(Buffer);
@@ -3285,7 +3295,7 @@ if(ret) { // relogin?
 }
 
 if(ret) { // no dice
-  fl_alert("Could not connect to server.");
+  fl_alert(LanguageXMLCannot_Connect);
   ConnectionsDlg->hide();
   return;
 }
@@ -3299,7 +3309,7 @@ ConnectionsDlgList->clear();
 ret = Server.getConnections(list);
 
 if(ret) {
-  fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+  fl_alertcat(LanguageXMLServer_Closed, Server.LastCode);
   ConnectionsDlg->hide();
   ServerLogout();
   return;
@@ -3320,10 +3330,12 @@ for(;;) {
     if(i != 0) {
       ret = Server.sendKillConnection(list.at(i - 1));
       if(ret) {
-        fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+        fl_alertcat(LanguageXMLServer_Closed, Server.LastCode);
         ServerLogout();
         break;
       } // if
+      // A cheap trick
+      time = get_ticks() - ConnectionsDlgRate->value() * 2000;
     } // if
   } // else if
 
@@ -3333,7 +3345,7 @@ for(;;) {
     ret = Server.getConnections(list);
 
     if(ret) {
-      fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+      fl_alertcat(LanguageXMLServer_Closed, Server.LastCode);
       ServerLogout();
       break;
     } // if

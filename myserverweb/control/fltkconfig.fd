@@ -20,7 +20,7 @@ i18n_include "language.h"
 i18n_function gettext 
 header_name {.h} 
 code_name {.cpp}
-class MainDlg {open
+class MainDlg {open selected
 } {
   Function {make_window()} {} {
     Fl_Window ConfDlg {
@@ -1125,8 +1125,7 @@ AboutText->buffer(atext);} {}
       }
     }
   }
-  Function {make_connections()} {open
-  } {
+  Function {make_connections()} {} {
     Fl_Window ConnectionsDlg {
       label Connections open
       xywh {269 258 488 341} type Double hide modal
@@ -1304,6 +1303,16 @@ return 0;} {}
     code {int i;
 int ret;
 CMemBuf Buffer;
+Vector list;
+
+// Get remote languages listing
+ret = Server.getLanguages(list);
+if(ret)
+  return -1;
+Language->clear();
+for(i = 0; i < list.size(); i++) {
+  Language->add(list.at(i)->Text);
+}
 
 // Load remote myserver.xml
 ret = Server.getMyserverConf(Buffer);
@@ -1770,7 +1779,7 @@ if(stat) {
 
 return 0;} {}
   }
-  Function {ServerConnections()} {open private return_type void
+  Function {ServerConnections()} {private return_type void
   } {
     code {int ret;
 int time;
@@ -1792,7 +1801,7 @@ if(ret) { // relogin?
 }
 
 if(ret) { // no dice
-  fl_alert("Could not connect to server.");
+  fl_alert(LanguageXMLCannot_Connect);
   ConnectionsDlg->hide();
   return;
 }
@@ -1806,7 +1815,7 @@ ConnectionsDlgList->clear();
 ret = Server.getConnections(list);
 
 if(ret) {
-  fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+  fl_alertcat(LanguageXMLServer_Closed, Server.LastCode);
   ConnectionsDlg->hide();
   ServerLogout();
   return;
@@ -1827,10 +1836,12 @@ for(;;) {
     if(i != 0) {
       ret = Server.sendKillConnection(list.at(i - 1));
       if(ret) {
-        fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+        fl_alertcat(LanguageXMLServer_Closed, Server.LastCode);
         ServerLogout();
         break;
       } // if
+      // A cheap trick
+      time = get_ticks() - ConnectionsDlgRate->value() * 2000;
     } // if
   } // else if
 
@@ -1840,7 +1851,7 @@ for(;;) {
     ret = Server.getConnections(list);
 
     if(ret) {
-      fl_alertcat("Server closed connection.  Code: ", Server.LastCode);
+      fl_alertcat(LanguageXMLServer_Closed, Server.LastCode);
       ServerLogout();
       break;
     } // if
@@ -1852,8 +1863,7 @@ for(;;) {
   } // if
 } // for
 
-ConnectionsDlg->hide();} {selected
-    }
+ConnectionsDlg->hide();} {}
   }
   Function {fl_alertcat(const char * c1, const char * c2)} {private return_type void
   } {

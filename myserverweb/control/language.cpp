@@ -64,6 +64,8 @@ const char * LanguageXMLNot_Save;
 const char * LanguageXMLReboot_Failed;
 const char * LanguageXMLConnect_Server;
 const char * LanguageXMLLogin_Failed;
+const char * LanguageXMLCannot_Connect;
+const char * LanguageXMLServer_Closed;
 
 // Add the ptr to the list for latter deletetion
 void AddText(char * val)
@@ -109,6 +111,8 @@ void LanguageXMLinit()
    (char *)LanguageXMLReboot_Failed = strdup("Reboot failed.");
    (char *)LanguageXMLConnect_Server = strdup("Connecting to server:");
    (char *)LanguageXMLLogin_Failed = strdup("Login failed.  Code: ");
+   (char *)LanguageXMLCannot_Connect = strdup("Could not connect to server.");
+   (char *)LanguageXMLServer_Closed = strdup("Server closed connection.  Code: ");
    loaded = false;
    loadok = true;
 }
@@ -135,6 +139,8 @@ void LanguageXMLend()
    free((char *)LanguageXMLReboot_Failed);
    free((char *)LanguageXMLConnect_Server);
    free((char *)LanguageXMLLogin_Failed);
+   free((char *)LanguageXMLCannot_Connect);
+   free((char *)LanguageXMLServer_Closed);
    ClearList();
 }
 
@@ -176,6 +182,8 @@ int LanguageXMLfile(const char * filename)
    SetValueXML((char **)&LanguageXMLReboot_Failed, "REBOOT_FAILED");
    SetValueXML((char **)&LanguageXMLConnect_Server, "CONNECT_SERVER");
    SetValueXML((char **)&LanguageXMLLogin_Failed, "LOGIN_FAILED");
+   SetValueXML((char **)&LanguageXMLCannot_Connect, "CANNOT_CONNECT");
+   SetValueXML((char **)&LanguageXMLServer_Closed, "SERVER_CLOSED");
    
    return 0;
 }
