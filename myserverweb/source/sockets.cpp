@@ -96,10 +96,12 @@ int MYSERVER_SOCKET::socket(int af,int type,int protocol,int useSSL)
 {
 	sslSocket=useSSL;
 	socketHandle=(MYSERVER_SOCKET_HANDLE)::socket(af,type,protocol);
+#ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
 		initializeSSL();
 	}
+#endif
 	return	(int)socketHandle;
 }
 /*!
@@ -114,9 +116,11 @@ MYSERVER_SOCKET::MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE handle)
 */
 MYSERVER_SOCKET::MYSERVER_SOCKET()
 {
+#ifndef DO_NOT_USE_SSL
 	sslSocket=0;
 	sslConnection=0;
 	sslContext=0;
+#endif
 	serverSocket=0;
 	setHandle(0);
 }
@@ -151,9 +155,11 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 {
 
 	MYSERVER_SOCKET s;
+#ifndef DO_NOT_USE_SSL	
 	s.sslConnection=0;
 	s.sslContext=0;
 	s.sslSocket=0;
+#endif
 #ifdef WIN32
 	MYSERVER_SOCKET_HANDLE h=(MYSERVER_SOCKET_HANDLE)::accept(socketHandle,sa,sockaddrlen);
 	s.setHandle(h);
@@ -416,8 +422,8 @@ int MYSERVER_SOCKET::getSSL()
 */
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
-#ifndef DO_NOT_USE_SSL
 	int err=0;
+#ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
 		do

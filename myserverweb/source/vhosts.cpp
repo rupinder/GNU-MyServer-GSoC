@@ -972,6 +972,8 @@ void vhost::generateRsaKey()
 	RSA_free(rsa);
 #endif
 }
+
+#ifndef DO_NOT_USE_SSL
 /*!
 *Get the SSL context.
 */
@@ -979,6 +981,7 @@ SSL_CTX* vhost::getSSLContext()
 {
 	return sslContext.context;
 }
+#endif
 /*!
 *Clean the memory used by the SSL context.
 */

@@ -1041,7 +1041,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	u_long validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request,&td);
 	if(validRequest==-1)/*!If the header is incomplete returns 2*/
 	{
-		if(!strcmp(td.request.VER,"HTTP/1.1"))
+		if(!strcmp(td.request.VER,"HTTP/1.1"))/*Be sure that the client can handle the 100 status code*/
 		{
 			char* msg="HTTP/1.1 100 Continue\r\n\r\n";
 			a->socket.send(msg,(int)strlen(msg),0);

@@ -905,11 +905,13 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	*/
 	if(doSSLhandshake)
 	{
+		int ret =0;
 #ifndef DO_NOT_USE_SSL		
 		SSL_CTX* ctx=((vhost*)nc->host)->getSSLContext();
 		nc->socket.setSSLContext(ctx);
+		ret=nc->socket.sslAccept();
+		
 #endif		
-		int ret=nc->socket.sslAccept();
 		if(ret<0)
 		{
 			/*
