@@ -576,7 +576,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
   /*! 
    *Use GZIP compression to send files bigger than GZIP threshold.  
    */
-  if(lastByte - firstByte > gzip_threshold)
+  if(bytes_to_send > gzip_threshold)
 	{
     use_gzip=1;
   }
@@ -616,8 +616,11 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 	
 	/*! If a Range was requested send 206 and not 200 for success.  */
 	if(lastByte | firstByte )
-		td->response.httpStatus = 206;
-	
+  {	
+    td->response.httpStatus = 206;
+    use_gzip = 0;
+	}
+
 	if(keepalive)
 		sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)bytes_to_send);
 	else
@@ -781,7 +784,6 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 	h.closeFile();
   sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
 	return 1;
-
 }
 
 /*!
