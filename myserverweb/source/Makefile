@@ -4,14 +4,17 @@ OBJS = AMMimeUtils.o MIME_manager.o winCGI.o cXMLParser.o cgi.o clientsThread.o 
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
-CPP-LIBS = -lssl -pthread `xml2-config --libs`
-CPP-FLAGS = `xml2-config --cflags`
+# -pthread is moved by -lpthread, defined by xml2-config
+CPP-LIBS = -lssl -lcrypto `xml2-config --libs`
+
+# Comment -D__linux__, if compiling not under linux
+CPP-FLAGS = `xml2-config --cflags` -D__linux__
 #-O2 -pipe
 
 all : myserver
 	
 myserver : $(OBJS)
-	$(LD) $(CPP-LIBS) $(OBJS) -o ../binaries/myserver
+	$(LD) $(OBJS) $(CPP-LIBS) -o ../binaries/myserver
 
 AMMimeUtils.o : AMMimeUtils.cpp
 	$(CPP) $(CPP-FLAGS) -c AMMimeUtils.cpp
