@@ -622,7 +622,8 @@ int MYSERVER_FILE::getFilenameLength(const char *path, int *filename)
 	splitpoint =(int)(strlen(path) - 1);
 	while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
-  return splitpoint;
+  *filename = splitpoint + 1;
+  return *filename;
 
 }
 
