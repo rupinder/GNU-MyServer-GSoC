@@ -86,10 +86,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
                   char* /*cgi*/, int only_header)
 {
 	u_long nbw;
+  string filename;
 	int ret;
   int outputDataPathLen = getdefaultwdlen() + 20;
 	FindData fd;
-	char *filename = 0;
 	int startchar=0;
 	int nDirectories=0;
 	int i;
@@ -209,25 +209,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		}
 	}
 
+  filename = directory;
 #ifdef WIN32
-  filename = new char[strlen(directory)+3];
-  if(filename==0)
-  {
-    delete [] td->outputDataPath;
-    td->outputDataPath = 0;
-    return  ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
-  }
-	sprintf(filename, "%s/*", directory);
+  filename.append("/*");
 #endif
 #ifdef NOT_WIN
-  filename = new char[strlen(directory)+2];
-  if(filename==0)
-  {
-    delete [] td->outputDataPath;
-    td->outputDataPath=0;
-    return  ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
-  }
-	sprintf(filename, "%s/", directory);
+  filename.append("*");
 #endif
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of directory ";
@@ -241,9 +228,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		/*! Return an internal server error.  */
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
-	ret=fd.findfirst(filename);
-  delete [] filename;
-  filename = 0;
+	ret=fd.findfirst(filename.c_str());
 	if(ret==-1)
 	{
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_404);
