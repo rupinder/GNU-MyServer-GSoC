@@ -503,11 +503,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 		}
 		getPath(td,td->filenamePath,filename,systemrequest);
 	}
-	/*
-	*If the security file is requested send the HTTP 404 error
-	*/
-	if(!strcmp(&filename[strlen(filename)-8],"security"))
-		return raiseHTTPError(td,s,e_404);
 
 	int permissions=-1;/*By default everything is permitted*/
 	if(!systemrequest)
@@ -575,6 +570,18 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
         td->pathTranslated[0]='\0';
 	}
 	MYSERVER_FILE::completePath(td->filenamePath);
+
+	int filenamelen=strlen(td->filenamePath)-1;
+	while(td->filenamePath[filenamelen]=='.')
+	{
+		td->filenamePath[filenamelen--]='\0';
+	}
+	/*
+	*If the security file is requested send the HTTP 404 error
+	*/
+	if(!strcmp(&td->filenamePath[strlen(td->filenamePath)-8],"security"))
+		return raiseHTTPError(td,s,e_404);
+
 	/*
 	*If there are not any extension then we do one of this in order:
 	1)We send the default files in the folder in order.
