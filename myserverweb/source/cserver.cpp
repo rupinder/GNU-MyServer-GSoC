@@ -142,7 +142,7 @@ void cserver::start()
 	/*!
 	*Setup the server configuration.
 	*/
-    printf("Initializing server configuration...\n");
+    	printf("Initializing server configuration...\n");
 #ifdef WIN32
 	envString=GetEnvironmentStrings();
 #endif
@@ -176,9 +176,9 @@ void cserver::start()
 	*/
 	if(useLogonOption==0)
 	{
-        preparePrintError();		
+        	preparePrintError();		
 		printf("%s\n",languageParser.getValue("AL_NO_SECURITY"));
-        endPrintError();
+        	endPrintError();
 	}
 
 	/*!

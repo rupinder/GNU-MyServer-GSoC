@@ -68,7 +68,8 @@ am_myserver_OBJECTS = myserver-threads.$(OBJEXT) \
 	myserver-security.$(OBJEXT) myserver-sockets.$(OBJEXT) \
 	myserver-stringutils.$(OBJEXT) myserver-utility.$(OBJEXT) \
 	myserver-vhosts.$(OBJEXT) myserver-fastCGI.$(OBJEXT) \
-	myserver-md5.$(OBJEXT) myserver-https.$(OBJEXT)
+	myserver-md5.$(OBJEXT) myserver-https.$(OBJEXT) \
+	myserver-securestr.$(OBJEXT) myserver-MemBuf.$(OBJEXT)
 myserver_OBJECTS = $(am_myserver_OBJECTS)
 am__DEPENDENCIES_1 =
 myserver_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -79,6 +80,7 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/myserver-AMMimeUtils.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-MIME_manager.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/myserver-MemBuf.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-cXMLParser.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-cgi.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-clientsThread.Po \
@@ -98,6 +100,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-processes.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-protocol.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-protocols_manager.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/myserver-securestr.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-security.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-sockets.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/myserver-stringutils.Po \
@@ -224,7 +227,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-myserver_SOURCES = threads.cpp processes.cpp protocol.cpp protocols_manager.cpp AMMimeUtils.cpp http_headers.cpp gzip.cpp MIME_manager.cpp winCGI.cpp cXMLParser.cpp cgi.cpp clientsThread.cpp cserver.cpp filemanager.cpp http.cpp httpmsg.cpp isapi.cpp lfind.cpp mscgi.cpp myserver.cpp security.cpp sockets.cpp stringutils.cpp utility.cpp vhosts.cpp fastCGI.cpp md5.cpp https.cpp
+myserver_SOURCES = threads.cpp processes.cpp protocol.cpp protocols_manager.cpp AMMimeUtils.cpp http_headers.cpp gzip.cpp MIME_manager.cpp winCGI.cpp cXMLParser.cpp cgi.cpp clientsThread.cpp cserver.cpp filemanager.cpp http.cpp httpmsg.cpp isapi.cpp lfind.cpp mscgi.cpp myserver.cpp security.cpp sockets.cpp stringutils.cpp utility.cpp vhosts.cpp fastCGI.cpp md5.cpp https.cpp securestr.cpp MemBuf.cpp
 INCLUDES = $(all_includes)
 myserver_LDFLAGS = $(all_libraries)
 myserver_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DHOST_STR=\"$(build)\"
@@ -297,6 +300,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-AMMimeUtils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-MIME_manager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-MemBuf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-cXMLParser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-cgi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-clientsThread.Po@am__quote@
@@ -316,6 +320,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-processes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-protocol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-protocols_manager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-securestr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-security.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-sockets.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myserver-stringutils.Po@am__quote@
@@ -787,6 +792,38 @@ myserver-https.obj: https.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/myserver-https.Po' tmpdepfile='$(DEPDIR)/myserver-https.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -c -o myserver-https.obj `if test -f 'https.cpp'; then $(CYGPATH_W) 'https.cpp'; else $(CYGPATH_W) '$(srcdir)/https.cpp'; fi`
+
+myserver-securestr.o: securestr.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -MT myserver-securestr.o -MD -MP -MF "$(DEPDIR)/myserver-securestr.Tpo" -c -o myserver-securestr.o `test -f 'securestr.cpp' || echo '$(srcdir)/'`securestr.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/myserver-securestr.Tpo" "$(DEPDIR)/myserver-securestr.Po"; else rm -f "$(DEPDIR)/myserver-securestr.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='securestr.cpp' object='myserver-securestr.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/myserver-securestr.Po' tmpdepfile='$(DEPDIR)/myserver-securestr.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -c -o myserver-securestr.o `test -f 'securestr.cpp' || echo '$(srcdir)/'`securestr.cpp
+
+myserver-securestr.obj: securestr.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -MT myserver-securestr.obj -MD -MP -MF "$(DEPDIR)/myserver-securestr.Tpo" -c -o myserver-securestr.obj `if test -f 'securestr.cpp'; then $(CYGPATH_W) 'securestr.cpp'; else $(CYGPATH_W) '$(srcdir)/securestr.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/myserver-securestr.Tpo" "$(DEPDIR)/myserver-securestr.Po"; else rm -f "$(DEPDIR)/myserver-securestr.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='securestr.cpp' object='myserver-securestr.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/myserver-securestr.Po' tmpdepfile='$(DEPDIR)/myserver-securestr.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -c -o myserver-securestr.obj `if test -f 'securestr.cpp'; then $(CYGPATH_W) 'securestr.cpp'; else $(CYGPATH_W) '$(srcdir)/securestr.cpp'; fi`
+
+myserver-MemBuf.o: MemBuf.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -MT myserver-MemBuf.o -MD -MP -MF "$(DEPDIR)/myserver-MemBuf.Tpo" -c -o myserver-MemBuf.o `test -f 'MemBuf.cpp' || echo '$(srcdir)/'`MemBuf.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/myserver-MemBuf.Tpo" "$(DEPDIR)/myserver-MemBuf.Po"; else rm -f "$(DEPDIR)/myserver-MemBuf.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='MemBuf.cpp' object='myserver-MemBuf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/myserver-MemBuf.Po' tmpdepfile='$(DEPDIR)/myserver-MemBuf.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -c -o myserver-MemBuf.o `test -f 'MemBuf.cpp' || echo '$(srcdir)/'`MemBuf.cpp
+
+myserver-MemBuf.obj: MemBuf.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -MT myserver-MemBuf.obj -MD -MP -MF "$(DEPDIR)/myserver-MemBuf.Tpo" -c -o myserver-MemBuf.obj `if test -f 'MemBuf.cpp'; then $(CYGPATH_W) 'MemBuf.cpp'; else $(CYGPATH_W) '$(srcdir)/MemBuf.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/myserver-MemBuf.Tpo" "$(DEPDIR)/myserver-MemBuf.Po"; else rm -f "$(DEPDIR)/myserver-MemBuf.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='MemBuf.cpp' object='myserver-MemBuf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/myserver-MemBuf.Po' tmpdepfile='$(DEPDIR)/myserver-MemBuf.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(myserver_CXXFLAGS) $(CXXFLAGS) -c -o myserver-MemBuf.obj `if test -f 'MemBuf.cpp'; then $(CYGPATH_W) 'MemBuf.cpp'; else $(CYGPATH_W) '$(srcdir)/MemBuf.cpp'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
