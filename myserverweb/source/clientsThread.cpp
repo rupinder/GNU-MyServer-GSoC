@@ -6,12 +6,10 @@
 *License as published by the Free Software Foundation; either
 *version 2 of the License, or (at your option) any later version.
 
-
 *This library is distributed in the hope that it will be useful,
 *but WITHOUT ANY WARRANTY; without even the implied warranty of
 *MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 *Library General Public License for more details.
-
 
 *You should have received a copy of the GNU Library General Public
 *License along with this library; if not, write to the
@@ -47,8 +45,7 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 	ct->initialized=TRUE;
 	ZeroMemory(ct->buffer,ct->buffersize);
 	ZeroMemory(ct->buffer2,ct->buffersize2);
-	char mutexname[20];
-	ct->connectionWriteAccess=0;
+	terminateAccess(&ct->connectionWriteAccess,ct->id);
 	while(ct->threadIsRunning) 
 	{
 		ct->controlConnections();
@@ -59,8 +56,7 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 
 void ClientsTHREAD::controlConnections()
 {
-	while(connectionWriteAccess);
-	connectionWriteAccess=this->id;
+	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	BOOL logonStatus;
 	for(c; c ;c=c->Next)
@@ -103,7 +99,7 @@ void ClientsTHREAD::controlConnections()
 					continue;
 		}
 	}
-	connectionWriteAccess=0;
+	terminateAccess(&connectionWriteAccess,this->id);
 	
 }
 void ClientsTHREAD::stop()
@@ -123,8 +119,7 @@ void ClientsTHREAD::clean()
 	*/
 	if(initialized==FALSE)
 		return;
-	while(connectionWriteAccess);
-	connectionWriteAccess=this->id;
+	requestAccess(&connectionWriteAccess,this->id);
 	if(connections)
 	{
 		clearAllConnections();
@@ -132,7 +127,8 @@ void ClientsTHREAD::clean()
 	free(buffer);
 	free(buffer2);
 	initialized=FALSE;
-	connectionWriteAccess=0;
+	terminateAccess(&connectionWriteAccess,this->id);
+
 }
 LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 {
@@ -140,8 +136,7 @@ LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	*Add a new connection.
 	*Connections are defined using a CONNECTION struct.
 	*/
-	while(connectionWriteAccess);
-	connectionWriteAccess=this->id;
+	requestAccess(&connectionWriteAccess,this->id);
 	const int maxRcvBuffer=KB(5);
 	const BOOL keepAlive=TRUE;
 	setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char*)&maxRcvBuffer,sizeof(maxRcvBuffer));
@@ -154,7 +149,8 @@ LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	nc->Next=connections;
 	connections=nc;
 	nConnections++;
-	connectionWriteAccess=0;
+	terminateAccess(&connectionWriteAccess,this->id);
+
 	return nc;
 }
 BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
@@ -162,8 +158,7 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	/*
 	*Delete a connection
 	*/
-	while(connectionWriteAccess);
-	connectionWriteAccess=this->id;
+	requestAccess(&connectionWriteAccess,this->id);
 	BOOL ret=FALSE;
 	shutdown(s->socket,SD_BOTH );
 	do
@@ -187,13 +182,12 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 		prev=i;
 	}
 	nConnections--;
-	connectionWriteAccess=0;
+	terminateAccess(&connectionWriteAccess,this->id);
 	return ret;
 }
 void ClientsTHREAD::clearAllConnections()
 {
-	while(connectionWriteAccess);
-	connectionWriteAccess=this->id;
+	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	for(;c;c=c->Next)
 	{
@@ -201,7 +195,7 @@ void ClientsTHREAD::clearAllConnections()
 	}
 	connections=NULL;
 	nConnections=0;
-	connectionWriteAccess=0;
+	terminateAccess(&connectionWriteAccess,this->id);
 }
 
 

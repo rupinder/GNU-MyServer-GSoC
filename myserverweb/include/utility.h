@@ -18,6 +18,7 @@
 */
 #pragma once
 #include "..\stdafx.h"
+#include "..\include\FileManager.h"
 /*
 *Macros to do simple transformation
 */
@@ -34,26 +35,27 @@
 /*
 *Structure used for start a new process
 */
+
 struct START_PROC_INFO
 {
-	INT stdError;
-	INT stdOut;
-	INT stdIn;
+	MYSERVER_FILE_HANDLE stdError;
+	MYSERVER_FILE_HANDLE stdOut;
+	MYSERVER_FILE_HANDLE stdIn;
 	char *cmdLine;
 };
 
 INT getOSVersion();
-int getPathRecursionLevel(char*);
-DWORD logFileWrite(char*);
-void setLogFile(FILE*);
 void gotoNextLine(char*);
 char gotoNextLine(FILE*);
-void getFileExt(char*,char*);
 char *getHTTPFormattedTime(void);
 char *getHTTPFormattedTime(tm*);
-void getFileSize(DWORD*,FILE*);
 VOID StrTrim(LPSTR,LPSTR);
-DWORD waitForObject(int hnd,DWORD time);
 DWORD getCPUCount();
 DWORD execHiddenProcess(START_PROC_INFO*);
 VOID getComputerName(char*,DWORD);
+
+/*
+*These functions are a simple trasposition of the mutex mechanism
+*/
+INT requestAccess(DWORD*,DWORD);
+INT terminateAccess(DWORD*,DWORD);

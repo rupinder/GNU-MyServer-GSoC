@@ -20,6 +20,7 @@
 #include "..\include\cserver.h"
 #include "..\include\security.h"
 #include "..\include\AMMimeUtils.h"
+#include "..\include\filemanager.h"
 #include <direct.h>
 
 /*
@@ -33,7 +34,6 @@ DWORD  Thread nBytesToRead;
 HTTP_RESPONSE_HEADER  Thread response;
 HTTP_REQUEST_HEADER  Thread request;
 char Thread filenamePath[MAX_PATH];
-HANDLE Thread tmpBufferFile;
 LOGGEDUSERID Thread hImpersonation;
 
 
@@ -811,10 +811,6 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	
 	sprintf(cmdLine,"%s \"%s%s\"",exec,lserver->getPath(),filename);
 
-    SECURITY_ATTRIBUTES sa = {0};  
-    sa.nLength = sizeof(sa);
-    sa.bInheritHandle = TRUE;
-    sa.lpSecurityDescriptor = NULL;
     /*
     *Use a temporary file to store CGI output.
     *Every thread has it own tmp file name(tmpBufferFilePath),
@@ -830,22 +826,17 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	sprintf(tmpBufferFilePath,"%s/%tmpbuffer_%u",currentpath,id);
 	buffer2[0]='\0';
 	
-
-	tmpBufferFile = CreateFile (tmpBufferFilePath, GENERIC_READ | GENERIC_WRITE,
-                                     FILE_SHARE_READ | FILE_SHARE_WRITE, 
-                                      &sa, OPEN_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_ATTRIBUTE_HIDDEN, NULL);
+	MYSERVER_FILE_HANDLE tmpBufferFile = createTemporaryFile(tmpBufferFilePath);
 
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
-	spi.stdError = spi.stdIn = 0;
-	spi.stdOut = (INT)tmpBufferFile;
+	spi.stdError = spi.stdIn = (MYSERVER_FILE_HANDLE)0;
+	spi.stdOut = (MYSERVER_FILE_HANDLE)tmpBufferFile;
 	execHiddenProcess(&spi);
 	
 	DWORD nBytesRead;
-	SetFilePointer(tmpBufferFile,0,0,SEEK_SET);
-	ReadFile(tmpBufferFile,buffer2,buffersize2,&nBytesRead,NULL);
-	len=nBytesRead;
-	buffer2[len]='\0';
+	readFromFile(tmpBufferFile,buffer2,buffersize2,&nBytesRead);
+
 	/*
 	*Standards CGI can include an extra HTTP header
 	*so don't terminate with \r\n myServer header.
@@ -876,8 +867,8 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*/
 	send(s->socket,buffer2,nBytesRead, 0);
 
-	CloseHandle(tmpBufferFile);
-	DeleteFile(tmpBufferFilePath);
+	closeFile(tmpBufferFile);
+	deleteFile(tmpBufferFilePath);
 
 	/*
 	*Restore security on the current thread

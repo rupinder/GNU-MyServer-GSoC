@@ -49,7 +49,7 @@ private:
 	void clearAllConnections();
 	BOOL deleteConnection(LPCONNECTION);
 	void controlConnections();
-	INT connectionWriteAccess;
+	DWORD connectionWriteAccess;
 	LPCONNECTION connections;
 	DWORD nBytesToRead;
 public:

@@ -20,7 +20,6 @@
 #include "..\include\utility.h"
 #include <string.h>
 extern BOOL mustEndServer; 
-static FILE* logFile=0;
 INT getOSVersion()
 {
 	int ret=0;
@@ -56,18 +55,6 @@ INT getOSVersion()
 	return ret;
 }	
 
-DWORD logFileWrite(char* str)
-{
-	DWORD nbr=lstrlen(str);
-	if(logFile)
-		fwrite(str,nbr,1,logFile);
-	fflush(logFile);
-	return nbr;
-}
-void setLogFile(FILE *f)
-{
-	logFile =f;
-}
 void gotoNextLine(char* cmd)
 {
 	while(*cmd++!='\n')if(*cmd=='\0')break;
@@ -107,32 +94,7 @@ char *getHTTPFormattedTime(tm*  gmtime)
 	return localTimeString;
 }
 
-void getFileSize(DWORD* fsd,FILE *f)
-{
-	static __int64 fs;
-	fseek(f, 0, SEEK_END);
-	fgetpos(f, &fs);
-	fseek(f, 0, SEEK_SET);
-	*fsd=(DWORD)fs;
-}
 
-int getPathRecursionLevel(char* path)
-{
-	static char lpath[MAX_PATH];
-	lstrcpy(lpath,path);
-	int rec=0;
-	char *token = strtok( lpath, "\\/" );
-	do
-	{
-		if(lstrcmpi(token,".."))
-			rec++;
-		else
-			rec--;
-		token = strtok( NULL, "\\/" );
-	}
-	while( token != NULL );
-	return rec;
-}
 
 VOID StrTrim(LPSTR str,LPSTR trimChars)
 {
@@ -197,13 +159,7 @@ DWORD getCPUCount()
 #endif
 	return ret;
 }
-DWORD waitForObject(int hnd,DWORD time)
-{
-#ifdef WIN32
-	return WaitForSingleObject((HANDLE)hnd,time);
-#endif
-	return 0;
-}
+
 DWORD execHiddenProcess(START_PROC_INFO *spi)
 {
 #ifdef WIN32
@@ -227,12 +183,15 @@ DWORD execHiddenProcess(START_PROC_INFO *spi)
 	/*
 	*Wait until it's ending by itself
 	*/
-	waitForObject((int)pi.hProcess, 0xFFFFFFFF );
+	WaitForSingleObject(pi.hProcess,0xFFFFFFFF);
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
 	return 1;
 #endif
 }
+/*
+*Get the local machine name
+*/
 VOID getComputerName(char *dest,DWORD maxLen)
 {
 #ifdef WIN32
@@ -241,4 +200,40 @@ VOID getComputerName(char *dest,DWORD maxLen)
 		lstrcpy(dest,"localhost");
 	}
 #endif
+}
+/*
+*This function is similar to the Windows API WaitForSingleObject(..)
+*/
+INT requestAccess(DWORD* ac,DWORD id)
+{
+	/*
+	*If the access ID is equal to the thread ID we don't do nothing
+	*/
+	if(*ac==id)
+		return 0;
+	/*
+	*if the access doesn't belong to any thread set that it belongs to the caller thread
+	*the check if we have the access now
+	*/
+	if(*ac==0)
+	{
+		*ac=id;
+		requestAccess(ac,id);
+		return 0;
+	}
+	/*
+	*Wait until another thread end the access then set our access
+	*/
+	while(*ac!=id);
+	*ac=id;
+	requestAccess(ac,id);
+	return 0;
+}
+INT terminateAccess(DWORD* ac,DWORD id)
+{
+	/*
+	*Only set to Zero the owner of the access
+	*/
+	*ac=0;
+	return 0;
 }

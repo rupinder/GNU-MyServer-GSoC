@@ -119,7 +119,7 @@ void console_service (int, char **)
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
 /*
-*Main function for the NT service
+*Entry-point for the NT service
 */
 VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 {
@@ -154,7 +154,7 @@ VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 
 
 /*
-*Function to manage the NT service
+*Manage the NT service
 */
 VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
 {

@@ -39,7 +39,7 @@ void cserver::start(INT hInst)
 	if(lserver)
 	{
 		mustEndServer=TRUE;
-		waitForObject(lserver->listenServerHTTPHandle,0xFFFFFFFF);
+		lserver->terminate();
 		mustEndServer=FALSE;
 	}
 	/*
