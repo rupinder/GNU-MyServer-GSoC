@@ -31,7 +31,6 @@ extern "C"
 #include <stdio.h>
 #include <dirent.h>
 #include <limits.h>
-#include <stdint.h>
 }
 
 #ifndef EACCES
