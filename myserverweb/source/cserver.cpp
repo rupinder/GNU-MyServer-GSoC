@@ -77,6 +77,10 @@ cserver::~cserver()
 void cserver::start()
 {
 	u_long i;
+	u_long configsCheck=0;
+	time_t myserver_main_conf;
+	time_t myserver_hosts_conf;
+	time_t myserver_mime_conf;
 	/*!
 	*Set everything to 0.
 	*/
@@ -112,7 +116,7 @@ void cserver::start()
 		i=(u_long)strlen(software_signature);
 		while(i--)
 			printf("*");
-			printf("\n%s\n",software_signature);
+		printf("\n%s\n",software_signature);
 		i=(u_long)strlen(software_signature);
 		while(i--)
 			printf("*");
@@ -171,6 +175,7 @@ void cserver::start()
 	printf("Host: %s\r\n",serverName);
 	if(localhe)
 	{
+		/*Print all the interfaces IPs*/
 		for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
 		{
 #ifdef WIN32
@@ -184,6 +189,11 @@ void cserver::start()
 		}
 	}
 	loadSettings();
+
+	myserver_main_conf=MYSERVER_FILE::getLastModTime("myserver.xml");
+	myserver_hosts_conf=MYSERVER_FILE::getLastModTime("virtualhosts.xml");
+	myserver_mime_conf=MYSERVER_FILE::getLastModTime("MIMEtypes.xml");
+	
 	/*!
 	*Keep thread alive.
 	*When the mustEndServer flag is set to True exit
@@ -192,6 +202,23 @@ void cserver::start()
 	while(!mustEndServer)
 	{
 		wait(1000);
+		configsCheck++;
+		if(configsCheck>50)/*Do not check for modified configuration files every cycle*/
+		{
+			time_t myserver_main_conf_now=MYSERVER_FILE::getLastModTime("myserver.xml");
+			time_t myserver_hosts_conf_now=MYSERVER_FILE::getLastModTime("virtualhosts.xml");
+			time_t myserver_mime_conf_now=MYSERVER_FILE::getLastModTime("MIMEtypes.xml");
+			/*If a configuration file was modified reboot the server*/
+			if( (myserver_main_conf_now != myserver_main_conf)  || (myserver_hosts_conf_now != myserver_hosts_conf)  || (myserver_mime_conf_now != myserver_mime_conf)  )
+			{
+				reboot();
+			}
+			/*Store new mtime values*/
+			myserver_main_conf = myserver_main_conf_now;
+			myserver_hosts_conf=myserver_hosts_conf_now;
+			myserver_mime_conf=myserver_mime_conf_now;
+			configsCheck=0;
+		}
 #ifdef WIN32
 		DWORD cNumRead,i; 
 		INPUT_RECORD irInBuf[128]; 

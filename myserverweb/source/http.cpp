@@ -951,42 +951,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 				break;
 			if(MYSERVER_FILE::fileExists(defaultFileName))
 			{
-				/*!
-				*Change the URI to reflect the default file name.
-				*/
 				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
-				if(!strcmp(td->request.VER,"HTTP/1.1"))
-				{
-					strcpy(nURL,protocolPrefix);
-					strcat(nURL,td->request.HOST);
-					int isPortSpecified=0;
-					for(int i=0;td->request.HOST[i];i++)
-					{
-						if(td->request.HOST[i]==':')
-						{
-							isPortSpecified	= 1;
-							break;
-						}
-					}
-					if(!isPortSpecified)
-						sprintf(&nURL[strlen(nURL)],":%u",((vhost*)s->host)->port);
-					if(nURL[strlen(nURL)-1]!='/')
-						strcat(nURL,"/");
-					strcat(nURL,td->request.URI);
-					if(nURL[strlen(nURL)-1]!='/')
-						strcat(nURL,"/");
-					strcat(nURL,defaultFileNamePath);
-					if(td->request.URIOPTS[0])
-					{
-						strcat(nURL,"?");
-						strcat(nURL,td->request.URIOPTS);
-					}
-				}
-				else
-				{
-					strcpy(nURL,defaultFileNamePath);/*HTTP/1.0 header can be without HOST specified*/
-				}
-					
+				strcpy(nURL,defaultFileNamePath);/*HTTP/1.0 header can be without HOST specified*/
 
 				if(sendHTTPRedirect(td,s,nURL))
 					return keepalive;

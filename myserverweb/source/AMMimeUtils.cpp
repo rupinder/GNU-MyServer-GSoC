@@ -29,10 +29,6 @@ extern "C" {
 #include <ctype.h>
 #endif
 }
-
-
-
-
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
 char* strustr(char *source, char *s)
 {
