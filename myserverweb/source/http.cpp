@@ -1287,12 +1287,18 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		}
 		int permissions2=0;
 		if(td->request.AUTH[0])
-			permissions=getPermissionMask(s->login, s->password, folder, filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16, &permissions2);
+			permissions=getPermissionMask(s->login, s->password, folder, filename,
+                                 ((vhost*)(s->host))->systemRoot,
+                                 ((http_user_data*)s->protocolBuffer)->needed_password,
+                                    auth_type, 16, &permissions2);
 		else/*!The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest", "", folder, filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);
+			permissions=getPermissionMask("Guest", "", folder, filename,
+                                  ((vhost*)(s->host))->systemRoot,
+                                 ((http_user_data*)s->protocolBuffer)->needed_password,
+                                  auth_type, 16);
 			
-
-		if(!lstrcmpi(auth_type, "Digest"))/*Check if we have to use digest for the current folder*/
+    /*! Check if we have to use digest for the current directory. */
+		if(!lstrcmpi(auth_type, "Digest"))
 		{
 			if(!lstrcmpi(td->request.AUTH, "Digest"))
 			{
@@ -1313,7 +1319,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		}	
 		/*!If there are no permissions, use the Guest permissions. */
 		if(td->request.AUTH[0] && (permissions==0))
-			permissions=getPermissionMask("Guest", "", folder, filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);	
+			permissions=getPermissionMask("Guest", "", folder, filename,
+                                ((vhost*)(s->host))->systemRoot,
+                                ((http_user_data*)s->protocolBuffer)->needed_password,
+                                   auth_type, 16);	
 		
     delete [] folder;
 	}
@@ -1751,7 +1760,8 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 		*td->buffer2 << "0";
         if(strstr((((vhost*)(a->host)))->accessLogOpt, "type=combined"))
         {
-            	*td->buffer2 << " "  << td->request.REFERER << " "  << td->request.USER_AGENT;            
+            	*td->buffer2 << " "  << td->request.REFERER << " "  
+                           << td->request.USER_AGENT;            
         }
 	*td->buffer2 << "\r\n" <<end_str;
   /*!
@@ -2445,7 +2455,8 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 			md5_str[1]=(char)clock();
 			MYSERVER_MD5Context md5;
 			MYSERVER_MD5Init(&md5);
-			MYSERVER_MD5Update(&md5, (const unsigned char*)md5_str , (u_long)strlen(md5_str));
+			MYSERVER_MD5Update(&md5, (const unsigned char*)md5_str , 
+                         (u_long)strlen(md5_str));
 			MYSERVER_MD5End(&md5, ((http_user_data*)a->protocolBuffer)->opaque);
 			
 			if(a->protocolBuffer && (!(((http_user_data*)a->protocolBuffer)->digest)) || 
@@ -2457,7 +2468,9 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 			*td->buffer2 << "WWW-Authenticate: Digest ";
 			*td->buffer2 << " qop=\"auth\", algorithm =\"MD5\", realm =\"";
       *td->buffer2 << ((http_user_data*)a->protocolBuffer)->realm ;
-			*td->buffer2 << "\",  opaque =\"" << ((http_user_data*)a->protocolBuffer)->opaque;
+			*td->buffer2 << "\",  opaque =\"" 
+                   << ((http_user_data*)a->protocolBuffer)->opaque;
+
 			*td->buffer2<< "\",  nonce =\""<< ((http_user_data*)a->protocolBuffer)->nonce;
 			*td->buffer2 <<"\" ";
 			if(((http_user_data*)a->protocolBuffer)->cnonce[0])
@@ -2561,9 +2574,10 @@ int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
 	*td->buffer << " from: " ;
 	*td->buffer << a-> ipAddr ;
 	*td->buffer << "\r\n";
-	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\"><p align=\"center\">\
-		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
-		Internal Server error</font></p>\r\n";
+	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\">"
+          "<p align=\"center\">"
+     "<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\">"    
+     "<font size=\"5\" color=\"#00C800\">Internal Server error</font></p>\r\n";
 	
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
@@ -2576,10 +2590,11 @@ int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time;
 	*td->buffer2 << "\r\n\r\n";
-	//Send the header
-	if(a->socket.send((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), 0)!= -1)
+	/*! Send the header. */
+	if(a->socket.send((char*)td->buffer2->GetBuffer(), 
+                    (u_long)td->buffer2->GetLength(), 0)!= -1)
 	{
-		//Send the body
+		/*! Send the body. */
 		a->socket.send(hardHTML, (u_long)strlen(hardHTML), 0);
 	}
 	return 0;
@@ -2614,7 +2629,8 @@ int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath
     *filenamePath = new char[filenamePathLen];
     if(*filenamePath == 0)
       return 0;
-		sprintf(*filenamePath, "%s/%s", ((vhost*)(td->connection->host))->systemRoot, filename);
+		sprintf(*filenamePath, "%s/%s", ((vhost*)(td->connection->host))->systemRoot, 
+            filename);
 	}
 	/*!
    *Else the file is in the web folder.
@@ -2674,7 +2690,8 @@ int http::sendHTTPRedirect(httpThreadContext* td, LPCONNECTION a, char *newURL)
 	*td->buffer2 << time ;
 	*td->buffer2 << "\r\n\r\n";
 
-	if(!a->socket.send((char*)td->buffer2->GetBuffer(), (int)td->buffer2->GetLength(), 0))
+	if(!a->socket.send((char*)td->buffer2->GetBuffer(), 
+                     (int)td->buffer2->GetLength(), 0))
 		return 0;
 
 	return keepalive;
@@ -2687,7 +2704,9 @@ int http::sendHTTPNonModified(httpThreadContext* td, LPCONNECTION a)
 {
 	td->response.httpStatus=304;
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
+	*td->buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
+                  "Server: MyServer " ;
+
 	*td->buffer2 << versionOfSoftware  ;
 	*td->buffer2 <<  "\r\n";
 	int keepalive=0;
@@ -2702,7 +2721,8 @@ int http::sendHTTPNonModified(httpThreadContext* td, LPCONNECTION a)
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time << "\r\n\r\n";
 
-	if(!a->socket.send((char*)td->buffer2->GetBuffer(), (int)td->buffer2->GetLength(), 0))
+	if(!a->socket.send((char*)td->buffer2->GetBuffer(), 
+                     (int)td->buffer2->GetLength(), 0))
 		return 0;
 	return keepalive;
 }
@@ -2843,8 +2863,8 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 }
 
 /*!
-*Unload the HTTP protocol.
-*/
+ *Unload the HTTP protocol.
+ */
 int http::unloadProtocol(cXMLParser* /*languageParser*/)
 {
 	 if(!initialized)
@@ -2874,8 +2894,8 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
 }
 
 /*!
-*Returns the default filename.
-*/
+ *Returns the default filename.
+ */
 char *http::getDefaultFilenamePath(u_long ID)
 {
   int pos = 0;
@@ -2897,8 +2917,9 @@ char *http::getDefaultFilenamePath(u_long ID)
 }
 
 /*!
-*Returns the name of the protocol. If an out buffer is defined fullfill it with the name too.
-*/
+ *Returns the name of the protocol. If an out buffer is defined fullfill 
+ *it with the name too.
+ */
 char* http::registerName(char* out, int len)
 {
 	if(out)
@@ -2909,8 +2930,8 @@ char* http::registerName(char* out, int len)
 }
 
 /*!
-*Constructor for the class http
-*/
+ *Constructor for the class http
+ */
 http::http()
 {
 	strcpy(protocolPrefix, "http://");
@@ -2928,8 +2949,8 @@ http::http()
 }
 
 /*!
-*Destructor for the class http
-*/
+ *Destructor for the class http
+ */
 http::~http()
 {
   if(td.filenamePath)
@@ -2953,3 +2974,4 @@ http::~http()
   if(td.outputDataPath)
     delete [] td.outputDataPath;
 }
+
