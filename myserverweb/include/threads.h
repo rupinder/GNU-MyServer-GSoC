@@ -24,19 +24,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 
 #ifdef HAVE_PTHREAD
-	typedef pthread_mutex_t  myserver_mutex;
+	typedef pthread_mutex_t  myserver_mutex_handle;
 #else
-	typedef HANDLE myserver_mutex;
+	typedef HANDLE myserver_mutex_handle;
 #endif
 
-
 void wait(u_long);
-int	myserver_mutex_init(myserver_mutex*);
-int myserver_mutex_destroy(myserver_mutex*);
-/*!
-*These functions are a simple trasposition of the mutex mechanism.
-*/
-int myserver_mutex_lock(myserver_mutex*,u_long id=0);
-int myserver_mutex_unlock(myserver_mutex*,u_long id=0);
-
+class myserver_mutex
+{
+private:
+	myserver_mutex_handle mutex;
+public:
+	int	myserver_mutex_init();
+	int myserver_mutex_destroy();
+	/*!
+	*These functions are a simple trasposition of the mutex mechanism.
+	*/
+	int myserver_mutex_lock(u_long id=0);
+	int myserver_mutex_unlock(u_long id=0);
+};
 #endif
