@@ -1,7 +1,7 @@
 [Project]
 FileName=counter.dev
 Name=counter
-UnitCount=6
+UnitCount=8
 Type=3
 Ver=1
 ObjFiles=
@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DBUILDING_DLL=1_@@_
 CppCompiler=-DBUILDING_DLL=1_@@_
-Linker=--add-stdcall-alias  -lpng -lz.dll  -lm  ../../../cgi-lib/CGI-LIB.lib ../../../../tmp/utility.o ../../../../tmp/filemanager.o_@@_
+Linker=--add-stdcall-alias  -lpng -lz -lm_@@_../../../cgi-lib/CGI-LIB.lib_@@_
 IsCpp=1
 Icon=
 ExeOutput=..\..\cgi-bin
@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000100000000000000
+CompilerSettings=0001000000000000000000
 
 [Unit3]
 FileName=counter_output.h
@@ -99,6 +99,26 @@ BuildCmd=
 
 [Unit6]
 FileName=writepng.c
+CompileCpp=1
+Folder=counter
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit7]
+FileName=..\..\..\..\source\utility.cpp
+CompileCpp=1
+Folder=counter
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit8]
+FileName=..\..\..\..\source\filemanager.cpp
 CompileCpp=1
 Folder=counter
 Compile=1
