@@ -37,8 +37,8 @@ public:
 	char login[20];	
 	char password[32];
 	char nTries;	
-	char ipAddr[32];
-	char localIpAddr[32];
+	char ipAddr[MAX_IP_STRING_LEN];
+	char localIpAddr[MAX_IP_STRING_LEN];
 	u_short port;
 	u_short localPort;
 	MYSERVER_SOCKET socket;	

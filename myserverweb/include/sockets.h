@@ -40,7 +40,7 @@ extern "C" {
 #define SOCKET int
 #define INVALID_SOCKET -1
 #endif
-
+#define MAX_IP_STRING_LEN	32
 typedef unsigned int MYSERVER_SOCKET_HANDLE;
 typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
 typedef struct sockaddr MYSERVER_SOCKADDR;

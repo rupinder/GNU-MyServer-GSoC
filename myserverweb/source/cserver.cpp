@@ -725,8 +725,8 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	static int ret;
 	ret=1;
 	
-	char ip[32];
-	char myIp[32];
+	char ip[MAX_IP_STRING_LEN];
+	char myIp[MAX_IP_STRING_LEN];
 	MYSERVER_SOCKADDRIN  localsock_in;
 #ifdef WIN32
 	ZeroMemory(&localsock_in,sizeof(localsock_in));
@@ -737,8 +737,8 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	int dim=sizeof(localsock_in);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in,&dim);
 
-	strncpy(ip, inet_ntoa(asock_in->sin_addr), 32); // NOTE: inet_ntop supports IPv6
-	strncpy(myIp, inet_ntoa(localsock_in.sin_addr), 32); // NOTE: inet_ntop supports IPv6
+	strncpy(ip, inet_ntoa(asock_in->sin_addr), MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
+	strncpy(myIp, inet_ntoa(localsock_in.sin_addr), MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
 
 
 	int port=ntohs((*asock_in).sin_port);/*Port used by the client*/
