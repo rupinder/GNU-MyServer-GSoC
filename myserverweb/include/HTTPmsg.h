@@ -37,13 +37,3 @@
 
 extern char HTTP_ERROR_MSGS[13][64];
 extern char HTTP_ERROR_HTMLS[13][64];
-extern char msgSending[33];
-extern char msgRunOn[33];
-extern char msgFolderContents[33];
-extern char msgFile[33];
-extern char msgLModify[33];
-extern char msgSize[33];
-extern char msgNewConnection[33];
-extern char msgErrorConnection[33];
-extern char msgAtTime[33];
-

@@ -26,7 +26,7 @@
 #include "..\include\utility.h"
 #include <direct.h>
 
-BOOL sendHTTPDIRECTORY(httpThreadDescriptor* td,LPCONNECTION s,char* folder)
+BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
 	/*
 	*Send the content of a folder if there are not any default
@@ -46,7 +46,7 @@ BOOL sendHTTPDIRECTORY(httpThreadDescriptor* td,LPCONNECTION s,char* folder)
 	lstrcat(td->buffer2," ");
 	lstrcat(td->buffer2,&folder[startChar]);
 	lstrcat(td->buffer2,"\\<P>\n<HR>");
-	__int64 ff;
+	intptr_t ff;
 	ff=_findfirst(filename,&fd);
 
 	if(ff==-1)
@@ -125,7 +125,7 @@ BOOL sendHTTPDIRECTORY(httpThreadDescriptor* td,LPCONNECTION s,char* folder)
 	return 1;
 
 }
-BOOL sendHTTPFILE(httpThreadDescriptor* td,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByte,int lastByte)
+BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByte,int lastByte)
 {
 	/*
 	*With this code we send a file through the HTTP protocol.
@@ -152,33 +152,40 @@ BOOL sendHTTPFILE(httpThreadDescriptor* td,LPCONNECTION s,char *filenamePath,BOO
 			return 0;
 		}
 	}
+
 	/*
 	*If h!=0.
 	*/
-
-	DWORD filesize=getFileSize(h);
-	if(lastByte != -1)
+	DWORD bytesToSend=getFileSize(h);
+	if(lastByte == -1)
 	{
-		lastByte=min((DWORD)lastByte,filesize);
-		filesize-=(filesize-firstByte);
+		lastByte=bytesToSend;
 	}
-	if(firstByte)
-		filesize-=firstByte;
+	else
+	{
+		lastByte=min((DWORD)lastByte,bytesToSend);
+	}
+	/*
+	*bytesToSend is the interval between the first and the last byte.
+	*/
+	bytesToSend=lastByte-firstByte;
 
+	/*
+	*If failed to set the file pointer returns an internal server error.
+	*/
 	if(setFilePointer(h,firstByte))
 	{
-		return	raiseHTTPError(td,s,e_500);
+		return raiseHTTPError(td,s,e_500);
 	}
 
+	td->buffer[0]='\0';
 
-	ZeroMemory(td->buffer,300);
-
-	sprintf(td->response.CONTENTS_DIM,"%u",filesize);
+	sprintf(td->response.CONTENTS_DIM,"%u",bytesToSend);
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
 
 	/*
-	*If is requested only the header; HEAD request.
+	*If is requested only the header returns from the function here; HEAD request.
 	*/
 	if(OnlyHeader)
 		return 1;
@@ -192,9 +199,18 @@ BOOL sendHTTPFILE(httpThreadDescriptor* td,LPCONNECTION s,char *filenamePath,BOO
 	for(;;)
 	{
 		DWORD nbr;
-		ms_ReadFromFile(h,td->buffer,td->buffersize,&nbr);
+		/*
+		*Read from file the bytes to sent.
+		*/
+		ms_ReadFromFile(h,td->buffer,min(bytesToSend,td->buffersize),&nbr);
+		/*
+		*When the bytes read from the file are zero, stop to send the file.
+		*/
 		if(nbr==0)
 			break;
+		/*
+		*If there are bytes to send, send them.
+		*/
 		if(ms_send(s->socket,td->buffer,nbr, 0) == SOCKET_ERROR)
 			break;
 	}
@@ -206,11 +222,11 @@ BOOL sendHTTPFILE(httpThreadDescriptor* td,LPCONNECTION s,char *filenamePath,BOO
 /*
 *Main function to send a resource to a client.
 */
-BOOL sendHTTPRESOURCE(httpThreadDescriptor* td,LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
+BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
 {
 	/*
 	*With this code we manage a request of a file or a folder or anything that we must send
-	*over the HTTP
+	*over the HTTP.
 	*/
 	td->buffer[0]='\0';
 	buildDefaultHTTPResponseHeader(&td->response);
@@ -218,10 +234,10 @@ BOOL sendHTTPRESOURCE(httpThreadDescriptor* td,LPCONNECTION s,char *filename,BOO
 	static char ext[MAX_PATH];
 	static char data[MAX_PATH];
 	getPath(td->filenamePath,filename,systemrequest);
+
 	/*
 	*getMIME return TRUE if the ext is registered by a CGI.
 	*/
-
 	if(getMIME(td->response.MIME,filename,ext,data))
 	{
 		if(ms_FileExists(td->filenamePath))
@@ -274,7 +290,7 @@ BOOL sendHTTPRESOURCE(httpThreadDescriptor* td,LPCONNECTION s,char *filename,BOO
 *Sends the myServer CGI; differently form standard CGI this don't need a new process to run
 *so it is faster.
 */
-BOOL sendMSCGI(httpThreadDescriptor* td,LPCONNECTION s,char* exec,char* cmdLine)
+BOOL sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 {
 	/*
 	*This is the code for manage a .mscgi file.
@@ -328,7 +344,6 @@ BOOL sendMSCGI(httpThreadDescriptor* td,LPCONNECTION s,char* exec,char* cmdLine)
 	ms_send(s->socket,td->buffer2,len, 0);
 	return 1;
 #endif
-	return 0;
 }
 
 /*
@@ -336,7 +351,7 @@ BOOL sendMSCGI(httpThreadDescriptor* td,LPCONNECTION s,char* exec,char* cmdLine)
 */
 BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp)
 {
-	httpThreadDescriptor td;
+	httpThreadContext td;
 	td.buffer=b1;
 	td.buffer2=b2;
 	td.buffersize=bs1;
@@ -348,63 +363,43 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	*The request is mapped into a HTTP_REQUEST_HEADER structure
 	*And at the end of this every command is treated
 	*differently. We use this mode for parse the HTTP
-	*because especially in the CGI is requested a continue
-	*HTTP header read.
-	*Before of mapping the header in the structure control
-	*if this is a regular request.
+	*because especially in the CGI is requested a continous
+	*HTTP header access.
+	*Before mapping the header in the structure 
+	*control if this is a regular request.
 	*The HTTP header ends with a \r\n\r\n sequence.
 	*/
 	
-	/*
-	*Begin control of the HTTP header.
-	*/
-	static DWORD i,j,max;
-	static DWORD nLineChars;
-	static BOOL isValidCommand,containOpts;
-	isValidCommand=FALSE;
-	nLineChars=0;
-	td.buffer=td.buffer;
-	static DWORD nLines;
-	static DWORD maxTotChars=min(2048,td.buffersize-3);
-		
-	for(nLines=i=0;i<min(1024,td.buffersize-5);i++)
-	{
-		if(td.buffer[i]=='\n')
-		{
-			if(td.buffer[i+2]=='\n')
-			{
-				maxTotChars=i+3;
-				isValidCommand=TRUE;
-				break;
-			}
-			nLines++;
-		}
-		else
-			nLineChars++;
-		if(nLineChars>1024)
-			break;
-	}
-	if(nLines<(DWORD)(nLineChars/100))
-		isValidCommand=FALSE;
 
+	/*
+	*Control if the HTTP header is a valid header.
+	*/
+	DWORD i=0,j=0,max=0;
+	BOOL containOpts;
+	DWORD nLines,maxTotChars;
+	DWORD validRequest=validHTTPRequest(&td,&nLines,&maxTotChars);
+
+
+	/*
+	*If the server verbosity is > 4 then save the HTTP request header.
+	*/
 	if(lserver->getVerbosity()>4)
 	{
 		td.buffer[td.nBytesToRead]='\n';
 		td.buffer[td.nBytesToRead+1]='\0';
 		warningsLogWrite(td.buffer);
 	}
-	if(isValidCommand==FALSE)
+	/*
+	*If the header is an invalid request send the correct error message to the client.
+	*/
+	if(validRequest==0)
 	{
 		raiseHTTPError(&td,a,e_400);
 		/*
-		*Returning Zero we remove the connection from the connections list
+		*Returning Zero we remove the connection from the connections list.
 		*/
 		return 0;
 	}
-
-	/*
-	*End control of the HTTP header.
-	*/
 
 	const int max_URI=MAX_PATH+200;
 	const char seps[]   = " ,\t\n\r";
@@ -412,31 +407,35 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 
 	static char *token=0;
 	static char command[96];
+	/*
+	*Reset the request structure.
+	*/
 	ZeroMemory(&td.request,sizeof(td.request));
 
 	static int nLineControlled;
 	nLineControlled=0;
-	const int maxLineToControl=25;
 	static BOOL lineControlled;
 	token=td.buffer;
 
 	token = strtok( token, cmdseps );
 	controlAnotherLine:
+	/*
+	*Reset the flag lineControlled.
+	*/
 	lineControlled=FALSE;
+
+	/*
+	*Copy in the command string the header field name.
+	*/
 	lstrcpy(command,token);
 	
 	
 	nLineControlled++;
-	if(nLineControlled>maxLineToControl)
-	{
-		raiseHTTPError(&td,a,e_413);
-		
-		return 0;
-	}
-
 	if(nLineControlled==1)
 	{
 		/*
+		*The first line has the form:
+		*GET /index.html HTTP/1.1
 		*Version of the protocol in the HTTP_REQUEST_HEADER
 		*struct is leaved as a number.
 		*For example HTTP/1.1 in the struct is 1.1
@@ -671,7 +670,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		while(*token++);
 		StrTrim(td.request.RANGETYPE,"= ");
 		StrTrim(td.request.RANGEBYTEBEGIN,"- ");
-		StrTrim(td.request.RANGEBYTEEND," ");
+		StrTrim(td.request.RANGEBYTEEND,"- ");
 		
 		if(lstrlen(td.request.RANGEBYTEBEGIN)==0)
 			lstrcpy(td.request.RANGEBYTEBEGIN,"0");
@@ -687,6 +686,10 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		lstrcpy(td.request.REFERER,token);
 		StrTrim(td.request.REFERER," ");
 	}
+	/*
+	*If the line is not controlled arrive with the token
+	*at the end of the line.
+	*/
 	if(!lineControlled)
 	{
 		token = strtok( NULL, "\n" );
@@ -694,7 +697,6 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	token = strtok( NULL, cmdseps );
 	if((token-td.buffer)<maxTotChars)
 		goto controlAnotherLine; 
-
 	/*
 	*END REQUEST STRUCTURE BUILD
 	*/
@@ -714,8 +716,9 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	}
 	accessesLogWrite("\r\n");
 	/*
-	*End of record the request in the structure
+	*End record the request in the structure
 	*/
+	
 	
 	/*
 	*Here we control all the HTTP commands.
@@ -805,6 +808,9 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		lstrcat(str,response->OTHER);
 		lstrcat(str,"\r\n");
 	}
+	/*
+	*myServer support the bytes range
+	*/
 	lstrcat(str,"Accept-Ranges: bytes\r\n");
 	/*
 	*The HTTP header ends with a \r\n sequence.
@@ -836,7 +842,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 /*
 *Sends an error page to the client described by the connection.
 */
-BOOL raiseHTTPError(httpThreadDescriptor* td,LPCONNECTION a,int ID)
+BOOL raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	if(ID==e_401AUTH)
 	{
@@ -865,7 +871,7 @@ BOOL raiseHTTPError(httpThreadDescriptor* td,LPCONNECTION a,int ID)
 /*
 *Sends the standard CGI to a client.
 */
-BOOL sendCGI(httpThreadDescriptor* td,LPCONNECTION s,char* filename,char* ext,char *exec)
+BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* filename,char* /*ext*/,char *exec)
 {
 	/*
 	*Change the owner of the thread to the creator of the process.
@@ -897,17 +903,16 @@ BOOL sendCGI(httpThreadDescriptor* td,LPCONNECTION s,char* filename,char* ext,ch
 	*Standard CGI uses standard output to output the result and the standard 
 	*input to get other params like in a POST request.
 	*/
-
 	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
 	MYSERVER_FILE_HANDLE stdInFile = ms_CreateTemporaryFile(stdInFilePath);
 	
 	DWORD nbw;
 	if(td->request.URIOPTSPTR)
+	{
 		ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
-	char *endFileStr="\r\n\r\n\0";
-	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
-	setFilePointer(stdInFile,0);
-	setFilePointer(stdOutFile,0);
+		char *endFileStr="\r\n\r\n\0";
+		ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
+	}
 
 	/*
 	*With this code we execute the CGI process.
@@ -918,22 +923,27 @@ BOOL sendCGI(httpThreadDescriptor* td,LPCONNECTION s,char* filename,char* ext,ch
 	spi.stdError = (MYSERVER_FILE_HANDLE)0;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
-
+	spi.envString=td->buffer2;
+	/*
+	*Build the environment string used by the CGI started
+	*by the execHiddenProcess(...) function.
+	*/
 	buildCGIEnvironmentString(td,td->buffer2);
-	execHiddenProcess(&spi,(VOID*)td->buffer2);
+	execHiddenProcess(&spi);
 
 	
 	/*
 	*Read the CGI output.
 	*/
 	DWORD nBytesRead;
-	setFilePointer(stdOutFile,0);
-	ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);
-
+	if(!setFilePointer(stdOutFile,0))
+		ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);
+	else
+		td->buffer2[0]='\0';
 	/*
-	*Standard CGI can include an extra HTTP header
-	*so do not terminate with \r\n the default myServer header.
-	*/	
+	*Standard CGI can include an extra HTTP header so do not 
+	*terminate with \r\n the default myServer header.
+	*/
 	DWORD headerSize=0;
 	for(DWORD i=0;i<nBytesRead;i++)
 	{
@@ -943,7 +953,7 @@ BOOL sendCGI(httpThreadDescriptor* td,LPCONNECTION s,char* filename,char* ext,ch
 					if(td->buffer2[i+3]=='\n')
 					{
 						/*
-						*The http header ends with a \r\n\r\n sequence so 
+						*The HTTP header ends with a \r\n\r\n sequence so 
 						*determinate where it ends and set the header size
 						*to i + 4.
 						*/
@@ -975,7 +985,7 @@ BOOL sendCGI(httpThreadDescriptor* td,LPCONNECTION s,char* filename,char* ext,ch
 
 	
 	/*
-	*Close and delete the files used by the CGI as stdin and stdout.
+	*Close and delete the stdin and stdout files used by the CGI.
 	*/
 	ms_CloseFile(stdOutFile);
 	ms_DeleteFile(stdOutFilePath);
@@ -1018,7 +1028,7 @@ void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 /*
 *Build the string that contain the CGI environment.
 */
-void buildCGIEnvironmentString(httpThreadDescriptor* td,char *cgiEnvString)
+void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 {
 	cgiEnvString[0]='\0';
 	/*
@@ -1085,10 +1095,68 @@ void buildCGIEnvironmentString(httpThreadDescriptor* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
 	lstrcat(cgiEnvString,td->request.HOST);
 */
+	lstrcat(cgiEnvString,"\0\0");
 	int max=lstrlen(cgiEnvString);
 	for(int i=0;i<max;i++)
 		if(cgiEnvString[i]=='\r')
 			cgiEnvString[i]='\0';
+}
+/*
+*Controls if the req string is a valid HTTP request header.
+*Returns 0 if req is an invalid header, a non-zero value if is a valid header.
+*nLinesptr is a value of the lines number in the HEADER.
+*nCharsptr is a value of the characters number in the HEADER.
+*/
+DWORD validHTTPRequest(httpThreadContext* td,DWORD* nLinesptr,DWORD* nCharsptr)
+{
+	DWORD i;
+	char *req=td->buffer;
+	DWORD buffersize=td->buffersize;
+	DWORD nLineChars;
+	BOOL isValidCommand;
+	isValidCommand=FALSE;
+	nLineChars=0;
+	DWORD nLines=0;
+	DWORD maxTotChars=0;
+	if(req==0)
+		return 0;
+	/*
+	*Count the number of lines in the header.
+	*/
+	for(nLines=i=0;;i++)
+	{
+		if(req[i]=='\n')
+		{
+			if(req[i+2]=='\n')
+			{
+				maxTotChars=i+3;
+				if(maxTotChars>buffersize)
+				{
+					isValidCommand=FALSE;
+					break;				
+				}
+				isValidCommand=TRUE;
+				break;
+			}
+			nLines++;
+		}
+		else
+			nLineChars++;
+		/*
+		*We set a maximum theorical number of characters in a line to 1024.
+		*If a line contains more than 1024 lines we consider the header invalid.
+		*/
+		if(nLineChars>1024)
+			break;
+	}
 
-	lstrcat(cgiEnvString,"\0\0");
+	/*
+	*Set the output variables
+	*/
+	*nLinesptr=nLines;
+	*nCharsptr=maxTotChars;
+	/*
+	*Return if is a valid request header
+	*/
+	return((isValidCommand)?1:0);
 }

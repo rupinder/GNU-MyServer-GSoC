@@ -23,48 +23,36 @@
 */
 char HTTP_ERROR_MSGS[13][64]=
 {
-	"Bad request",					/*400*/
-	"Unauthorized",					/*401*/
-	"Execute access forbidden",		/*403*/
-	"File not found",				/*404*/
-	"Method not allowed",			/*405*/
-	"Not acceptable",				/*406*/
-	"Proxy authentication required",/*407*/
-	"Precondition failed",			/*412*/
-	"Request Entity Too Large",		/*413*/
-	"Request URI too long",			/*414*/
-	"Internal Server error",		/*500*/
-	"Not implemented",				/*501*/
-	"Bad gateway"					/*502*/
+	"Bad request",						/*400*/
+	"Unauthorized",						/*401*/
+	"Execute access forbidden",			/*403*/
+	"File not found",					/*404*/
+	"Method not allowed",				/*405*/
+	"Not acceptable",					/*406*/
+	"Proxy authentication required",	/*407*/
+	"Precondition failed",				/*412*/
+	"Request Entity Too Large",			/*413*/
+	"Request URI too long",				/*414*/
+	"Internal Server error",			/*500*/
+	"Not implemented",					/*501*/
+	"Bad gateway"						/*502*/
 };
 /*
 *This array is used to describe the HTTP files for personalized errors page.
 */
 char HTTP_ERROR_HTMLS[13][64]=
 {
-	"400.html",					/*400*/
-	"401.html",					/*401*/
-	"403.html",					/*403*/
-	"404.html",					/*404*/
-	"405.html",					/*405*/
-	"406.html",					/*406*/
-	"407.html",					/*407*/
-	"412.html",					/*412*/
-	"413.html",					/*413*/
-	"414.html",					/*414*/
-	"500.html",					/*500*/
-	"501.html",					/*501*/
-	"502.html"					/*502*/
+	"400.html",						/*400*/
+	"401.html",						/*401*/
+	"403.html",						/*403*/
+	"404.html",						/*404*/
+	"405.html",						/*405*/
+	"406.html",						/*406*/
+	"407.html",						/*407*/
+	"412.html",						/*412*/
+	"413.html",						/*413*/
+	"414.html",						/*414*/
+	"500.html",						/*500*/
+	"501.html",						/*501*/
+	"502.html"						/*502*/
 };
-/*
-*These messages are loaded by the application on the startup.
-*/
-char msgSending[33];
-char msgNewConnection[33];
-char msgErrorConnection[33];
-char msgAtTime[33];
-char msgRunOn[33];
-char msgFolderContents[33];
-char msgFile[33];
-char msgLModify[33];
-char msgSize[33];

@@ -23,7 +23,7 @@
 /*
 *Structure used by the HTTP protocol to describe a thread
 */
-struct httpThreadDescriptor
+struct httpThreadContext
 {
 	char *buffer;
 	char *buffer2;	
@@ -38,17 +38,18 @@ struct httpThreadDescriptor
 };
 /*
 *Functions used by the HTTP parser.
-*The main function is controlHTTPConnection(...), that parsing the request builds a response.
+*The main function is controlHTTPConnection(...), that parse the request builds a response.
 */
 BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp);
-BOOL sendHTTPRESOURCE(httpThreadDescriptor*,LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-BOOL sendHTTPFILE(httpThreadDescriptor*,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-BOOL sendHTTPDIRECTORY(httpThreadDescriptor*,LPCONNECTION s,char* folder);
+BOOL sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+BOOL sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+BOOL sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
 void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
-BOOL sendMSCGI(httpThreadDescriptor*,LPCONNECTION s,char* exec,char* cmdLine=0);
-BOOL sendCGI(httpThreadDescriptor*,LPCONNECTION s,char* filename,char* ext,char* exec);
-BOOL raiseHTTPError(httpThreadDescriptor*,LPCONNECTION a,int ID);
+BOOL sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
+BOOL sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec);
+BOOL raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
 void getPath(char *path,char *filename,BOOL systemrequest);
 BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2);
-void buildCGIEnvironmentString(httpThreadDescriptor*,char *cgiEnvString);
+void buildCGIEnvironmentString(httpThreadContext*,char*);
+DWORD validHTTPRequest(httpThreadContext*,DWORD*,DWORD*);

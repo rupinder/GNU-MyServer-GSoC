@@ -38,7 +38,7 @@ char* strustr(char *source, char *s)
 	char *result = strstr(csource, cs);
 	if (result != NULL)
 	{
-		int pos = result - csource;
+		int pos =(int) (result - csource);
 		result = source;
 		result += pos;
 	}
@@ -178,7 +178,7 @@ char* MimeDecodeMailHeaderField(char *s)
 	while (*s1 == ' ') s1++;
 	if (strupos(s1, "=?") > 0)
 	{
-		int startendpos = strupos(s1, "=?");
+		int startendpos =(int)strupos(s1, "=?");
 		start = (char*)_alloca((startendpos + 1) * sizeof(char));
 		strncpy(start, s, startendpos);
 		start[startendpos] = '\0';
@@ -187,16 +187,16 @@ char* MimeDecodeMailHeaderField(char *s)
 	if (strupos(s1, "=?") == 0)
 	{
 
-		int plainpos = strupos(s1, "Q?=");
+		int plainpos =(int)strupos(s1, "Q?=");
 		if (plainpos > 0)
 		{
 			plainpos += 3;
 			char *m = s1 + plainpos;
-			plainpos += strupos(m, "?=");
+			plainpos +=(int)strupos(m, "?=");
 		}
 		else
 		{
-			plainpos = strupos(s1, "?=");
+			plainpos =(int)strupos(s1, "?=");
 		}
 		if (plainpos > 1)
 		{
@@ -211,7 +211,7 @@ char* MimeDecodeMailHeaderField(char *s)
 		char *decodedText=0;
 		if (strupos(s1, "?Q?") > 0)
 		{
-			int pos =  strupos(s1, "?Q?");
+			int pos =(int)strupos(s1, "?Q?");
 			s1 += pos;
 			if (strlen(s1) < 4) return s;
 			s1 += 3;
@@ -220,17 +220,17 @@ char* MimeDecodeMailHeaderField(char *s)
 		}
 		if (strupos(s1, "?B?") > 0)
 		{
-			int pos =  strupos(s1, "?B?");
+			int pos =(int)strupos(s1, "?B?");
 			s1 += pos;
 			if (strlen(s1) < 4) return s; 
 			s1 += 3;
 			CBase64Utils bu;
-			int sLen = strlen(s1);
+			int sLen =(int)strlen(s1);
 			decodedText = bu.Decode(s1, &sLen);
 		}
-		int alloclen = strlen(decodedText) + 1;
-		if (start != NULL) alloclen += strlen(start);
-		if (rest != NULL) alloclen += strlen(rest);
+		int alloclen =(int)strlen(decodedText) + 1;
+		if (start != NULL) alloclen +=(int)strlen(start);
+		if (rest != NULL) alloclen +=(int)strlen(rest);
 		alloclen *= sizeof(char);
 		s = (char*)realloc(s, alloclen);
 		s[0] = '\0';

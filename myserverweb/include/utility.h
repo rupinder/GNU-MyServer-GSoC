@@ -47,6 +47,7 @@ struct START_PROC_INFO
 	MYSERVER_FILE_HANDLE stdOut;
 	MYSERVER_FILE_HANDLE stdIn;
 	char *cmdLine;
+	void *envString;
 };
 #endif
 
@@ -56,7 +57,7 @@ void gotoNextLine(char*);
 char *getHTTPFormattedTime(void);
 char *getHTTPFormattedTime(tm*);
 VOID StrTrim(LPSTR,LPSTR);
-DWORD execHiddenProcess(START_PROC_INFO*,LPVOID env=NULL);
+DWORD execHiddenProcess(START_PROC_INFO*);
 VOID getComputerName(char*,DWORD);
 int ms_setcwd();
 char *ms_getcwd(char*,int);

@@ -118,7 +118,10 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 		openFlag|=GENERIC_WRITE;
 
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
+	{
 		openFlag|=FILE_ATTRIBUTE_TEMPORARY;
+		attributeFlag|=FILE_FLAG_DELETE_ON_CLOSE;
+	}
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
@@ -140,7 +143,7 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char* filename)
 {
 #ifdef WIN32
-	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_TEMPORARY|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_ALWAYS);
+	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY|MYSERVER_FILE_OPEN_ALWAYS);
 #endif
 }
 /*
@@ -149,6 +152,7 @@ MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char* filename)
 INT ms_CloseFile(MYSERVER_FILE_HANDLE fh)
 {
 #ifdef WIN32
+	FlushFileBuffers((HANDLE)fh);
 	CloseHandle((HANDLE)fh);
 #endif
 	return 0;
@@ -181,7 +185,7 @@ DWORD getFileSize(MYSERVER_FILE_HANDLE f)
 BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
 {
 #ifdef WIN32
-	return (SetFilePointer((HANDLE)h,initialByte,0,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
+	return (SetFilePointer((HANDLE)h,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
 #endif
 }
 /*

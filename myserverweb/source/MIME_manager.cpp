@@ -49,6 +49,10 @@ HRESULT MIME_Manager::load(char *filename)
 		ZeroMemory(&record,sizeof(MIME_Manager::mime_record));
 		while(buffer[nc]==' ')
 			nc++;
+		while(buffer[nc]=='\r')
+			nc++;
+		while(buffer[nc]=='\n')
+			nc++;
 		if(buffer[nc]=='#')
 			break;
 		while(buffer[nc]!=',')

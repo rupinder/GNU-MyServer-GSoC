@@ -31,6 +31,19 @@
 */
 cserver *lserver=0;
 BOOL mustEndServer;
+/*
+*These messages are loaded by the application on the startup.
+*/
+char msgSending[33];
+char msgNewConnection[33];
+char msgErrorConnection[33];
+char msgAtTime[33];
+char msgRunOn[33];
+char msgFolderContents[33];
+char msgFile[33];
+char msgLModify[33];
+char msgSize[33];
+
 void cserver::start(INT hInst)
 {
 	/*
@@ -195,6 +208,7 @@ void cserver::start(INT hInst)
 		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
+
 	/*
 	*Then we create here all the listens threads.
 	*/
@@ -205,6 +219,7 @@ void cserver::start(INT hInst)
 
 	printf("%s\n",languageParser.getValue("MSG_READY"));
 	printf("%s\n",languageParser.getValue("MSG_BREAK"));
+
 	/*
 	*Keep thread alive.
 	*When the mustEndServer flag is set to True exit
@@ -249,8 +264,6 @@ VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 	}
 	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
 
-
-
 	/*
 	*Set connections listen queque to max allowable.
 	*/
@@ -282,7 +295,6 @@ unsigned int __stdcall listenServer(void* params)
 {
 	listenThreadArgv *argv=(listenThreadArgv*)params;
 	DWORD protID=argv->protID;
-	DWORD port=argv->port;
 	MYSERVER_SOCKET serverSocket=argv->serverSocket;
 	delete argv;
 
@@ -383,8 +395,20 @@ void cserver::terminate()
 	*Clean memory allocated here.
 	*/
 	languageParser.close();
-	
 	mimeManager.clean();
+	DWORD threadsStopped=0;
+	/*
+	*Wait before clean the threads that all the threads are stopped.
+	*/
+	for(;;)
+	{
+		threadsStopped=0;
+		for(i=0;i<nThreads;i++)
+			if(threads[i].isStopped())
+				threadsStopped++;
+		if(threadsStopped==nThreads)
+			break;
+	}
 	for(i=0;i<nThreads;i++)
 		threads[i].clean();
 	if(verbosity>1)
@@ -424,10 +448,10 @@ void cserver::initialize(INT OSVer)
 	lstrcat(systemPath,"/system");
 	int i;
 	for(i=0;i<lstrlen(path);i++)
-		if(path[i]='\\')
+		if(path[i]=='\\')
 			path[i]='/';
 	for(i=0;i<lstrlen(systemPath);i++)
-		if(systemPath[i]='\\')
+		if(systemPath[i]=='\\')
 			systemPath[i]='/';
 
 	/*
@@ -687,7 +711,11 @@ BOOL cserver::mustUseMessagesFiles()
 {
 	return useMessagesFiles;
 }
+/*
+*Returns if we use the logon
+*/
 BOOL cserver::mustUseLogonOption()
 {
 	return useLogonOption;
 }
+

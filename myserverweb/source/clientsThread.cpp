@@ -40,6 +40,7 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 	ClientsTHREAD *ct=&lserver->threads[id];
 	ct->threadIsRunning=TRUE;
 	ct->connections=0;
+	ct->threadIsStopped=FALSE;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
 	ct->buffer=(char*)malloc(ct->buffersize);
@@ -56,6 +57,7 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 	{
 		ct->controlConnections();
 	}
+	ct->threadIsStopped=TRUE;
 	_endthreadex(0);
 	return 0;
 }
@@ -117,7 +119,7 @@ void ClientsTHREAD::stop()
 	*Set the run flag to False
 	*When the current thread find the threadIsRunning
 	*flag setted to FALSE automatically destroy the
-	*thread
+	*thread.
 	*/
 	threadIsRunning=FALSE;
 }
@@ -148,7 +150,6 @@ void ClientsTHREAD::clean()
 LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr)
 {
 	requestAccess(&connectionWriteAccess,this->id);
-	const BOOL keepAlive=TRUE;
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;
@@ -230,4 +231,18 @@ LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 			return c;
 	}
 	return NULL;
+}
+/*
+*Returns TRUE if the thread is active.
+*/
+BOOL ClientsTHREAD::isRunning()
+{
+	return threadIsRunning;
+}
+/*
+*Returns TRUE if the thread is stopped.
+*/
+BOOL ClientsTHREAD::isStopped()
+{
+	return threadIsStopped;
 }

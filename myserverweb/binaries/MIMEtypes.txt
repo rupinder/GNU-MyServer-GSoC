@@ -9,4 +9,4 @@ mp3,sound/mp3,NONE;
 cgi,text/html,cmd /c;
 php,text/html,c:/programmi/php/php.exe;
 php3,text/html,c:/programmi/php/php.exe;
-pl,text/html,c:/programmi/perl/perl.exe;#
+pl,text/html,c:/programmi/perl/bin/perl.exe;#

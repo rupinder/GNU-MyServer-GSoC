@@ -37,11 +37,14 @@ private:
 	DWORD id;
 	int err;
 	BOOL threadIsRunning;
-	DWORD nConnections;
+	BOOL threadIsStopped;
+    DWORD nConnections;
 	DWORD buffersize;
 	DWORD buffersize2;
 	LPCONNECTION addConnection(SOCKET,CONNECTION_PROTOCOL,char*);
 	LPCONNECTION findConnection(SOCKET s);
+	BOOL isRunning();
+	BOOL isStopped();
 	char *buffer;
 	char *buffer2;
 	void clearAllConnections();

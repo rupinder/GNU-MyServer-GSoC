@@ -29,6 +29,10 @@
 */
 extern BOOL mustEndServer; 
 static char currentPath[MAX_PATH];
+
+/*
+*Returns the version of the operating system.
+*/
 INT getOSVersion()
 {
 	int ret=0;
@@ -63,6 +67,7 @@ INT getOSVersion()
 #endif
 	return ret;
 }	
+
 /*
 *Set the buffer passed to the next line.
 *A new line is the first character after \n.
@@ -90,6 +95,7 @@ void getFileExt(char* ext,char*filename)
 static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dic"};
 static char localTimeString[31];
+
 /*
 *This function format current time to the HTTP time format.
 */
@@ -112,19 +118,23 @@ char *getHTTPFormattedTime(tm*  gmtime)
 }
 
 
-
+/*
+*Trim a string.
+*/
 VOID StrTrim(LPSTR str,LPSTR trimChars)
 {
-	WORD lenTrimChars=lstrlen(trimChars);
-	WORD lenStr=lstrlen(str);
+	WORD lenTrimChars=(WORD)lstrlen(trimChars);
+	WORD lenStr=(WORD)lstrlen(str);
 	/*
 	*Number of characters to remove from the initial position of the string.
 	*/
 	WORD ncharToRemove=0;
 	BOOL doBreak=FALSE;
-	if(!(lenStr&lenTrimChars))
+	if(lenStr==0)
 		return;
-	int j=0;
+	if(lenTrimChars==0)
+		return;
+	int j;
 	for(j=0;j<=lenStr;j++)
 	{
 		if(doBreak)
@@ -134,10 +144,11 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 			if(str[j]==trimChars[i])
 			{
 				ncharToRemove++;
+				break;
 			}
 			else
 			{
-				if((i==lenTrimChars-1)||(str[j]==0))
+				if((i==lenTrimChars-1)||(str[j]=='\0'))
 				{
 					doBreak=TRUE;
 					break;
@@ -146,7 +157,8 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 		}
 	}
 	lstrcpy(str,&str[ncharToRemove]);
-	for(j=0;j=lstrlen(str)-1;j--)
+	doBreak=FALSE;
+	for(j=lstrlen(str)-1;j;j-- )
 	{
 		if(doBreak)
 			break;
@@ -155,10 +167,11 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 			if(str[j]==trimChars[i])
 			{
 				str[j]='\0';
+				break;
 			}
 			else
 			{
-				if(str[j]==0)
+				if(i==lenTrimChars-1)
 				{
 					doBreak=TRUE;
 					break;
@@ -183,7 +196,7 @@ DWORD getCPUCount()
 /*
 *Execute an hidden process and wait until it ends itself.
 */
-DWORD execHiddenProcess(START_PROC_INFO *spi,LPVOID env)
+DWORD execHiddenProcess(START_PROC_INFO *spi)
 {
 #ifdef WIN32
     /*
@@ -200,7 +213,7 @@ DWORD execHiddenProcess(START_PROC_INFO *spi,LPVOID env)
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );
-    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,env,NULL,&si, &pi);
+    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,spi->envString,NULL,&si, &pi);
 	/*
 	*Wait until it's ending by itself.
 	*/
@@ -210,6 +223,7 @@ DWORD execHiddenProcess(START_PROC_INFO *spi,LPVOID env)
 	return 1;
 #endif
 }
+
 /*
 *Get the local machine name.
 */
@@ -256,7 +270,7 @@ INT requestAccess(DWORD* ac,DWORD id)
 	requestAccess(ac,id);
 	return 0;
 }
-INT terminateAccess(DWORD* ac,DWORD id)
+INT terminateAccess(DWORD* ac,DWORD/* id*/)
 {
 	/*
 	*Only set to Zero the owner of the access.
@@ -264,6 +278,9 @@ INT terminateAccess(DWORD* ac,DWORD id)
 	*ac=0;
 	return 0;
 }
+/*
+*Save the current working directory.
+*/
 int ms_setcwd()
 {
 	int retval=0;
@@ -271,14 +288,17 @@ int ms_setcwd()
 	_getcwd(currentPath,MAX_PATH);
 	retval=1;
 #endif
-	for(DWORD i=0;i<lstrlen(currentPath);i++)
+	for(DWORD i=0;i<(DWORD)lstrlen(currentPath);i++)
 		if(currentPath[i]=='\\')
 			currentPath[i]='/';
 	if(currentPath[lstrlen(currentPath)]=='/')
 		currentPath[lstrlen(currentPath)]='\0';
 	return retval;
 }
-char *ms_getcwd(char *path,int len)
+/*
+*Get the current working directory.
+*/
+char *ms_getcwd(char *path,int/*len*/)
 {
 	lstrcpy(path,currentPath);
 	return path;
