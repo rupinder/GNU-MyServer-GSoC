@@ -711,6 +711,18 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			{
 				strcpy(vh->name,((char*)lcur->children->content));
 			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
+			{
+				strcpy(vh->sslContext.privateKeyFile,((char*)lcur->children->content));
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
+			{
+				strcpy(vh->sslContext.certificateFile,((char*)lcur->children->content));
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
+			{
+				strcpy(vh->sslContext.password,((char*)lcur->children->content));
+			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
 			{
 				vh->addIP((char*)lcur->children->content);
@@ -809,6 +821,27 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		sprintf(port,"%i",list->host->port);
 		out.writeToFile(port,(u_long)strlen(port),&nbw);
 		out.writeToFile("</PORT>\r\n",9,&nbw);
+
+		if(vh->sslContext.privateKeyFile[0])
+		{
+			out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
+			out.writeToFile(vh->sslContext.privateKeyFile,(u_long)strlen(vh->sslContext.privateKeyFile),&nbw);
+			out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
+		}
+
+		if(vh->sslContext.certificateFile[0])
+		{
+			out.writeToFile("<SSL_CERTIFICATE>",20,&nbw);
+			out.writeToFile(vh->sslContext.certificateFile,(u_long)strlen(vh->sslContext.certificateFile),&nbw);
+			out.writeToFile("</SSL_CERTIFICATE>\r\n",23,&nbw);
+		}
+
+		if(vh->sslContext.password[0])
+		{
+			out.writeToFile("<SSL_PASSWORD>",15,&nbw);
+			out.writeToFile(vh->sslContext.password,(u_long)strlen(vh->sslContext.password),&nbw);
+			out.writeToFile("</SSL_PASSWORD>\r\n",18,&nbw);
+		}
 
 		out.writeToFile("<PROTOCOL>",10,&nbw);
 		switch( list->host->protocol)
