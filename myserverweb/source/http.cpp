@@ -485,7 +485,10 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 	{
 		if(!lstrcmpi(td->request.AUTH,"Digest"))
 		{
-			((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+			if(!((http_user_data*)s->protocolBuffer)->digest_checked)
+				((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+			((http_user_data*)s->protocolBuffer)->digest_checked=1;
+								
 			if(((http_user_data*)s->protocolBuffer)->digest==1)
 			{
 				strcpy(s->password,((http_user_data*)s->protocolBuffer)->needed_password);
@@ -607,6 +610,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 	}
 	int permissions2=0;
 	char auth_type[16];
+	
 	if(td->request.AUTH[0])
 		permissions=getPermissionMask(s->login,s->password,folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16,&permissions2);
 	else/*!The default user is Guest with a null password*/
@@ -617,7 +621,9 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 	{
 		if(!lstrcmpi(td->request.AUTH,"Digest"))
 		{
-			((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+			if(!((http_user_data*)s->protocolBuffer)->digest_checked)
+				((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+			((http_user_data*)s->protocolBuffer)->digest_checked=1;
 			if(((http_user_data*)s->protocolBuffer)->digest==1)
 			{
 				strcpy(s->password,((http_user_data*)s->protocolBuffer)->needed_password);
@@ -659,7 +665,9 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 	if(lstrcmp(td->request.digest_realm,((http_user_data*)s->protocolBuffer)->realm))/*If is not equal return 0*/
 		return 0;
 	
-	if(atoi(td->request.digest_nc) != ((http_user_data*)s->protocolBuffer)->nc+1)
+	u_long digest_count = hexToInt(td->request.digest_nc);
+	
+	if(digest_count != ((http_user_data*)s->protocolBuffer)->nc+1)
 		return 0;
 	else
 		((http_user_data*)s->protocolBuffer)->nc++;
@@ -677,8 +685,6 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 	MYSERVER_MD5Init(&md5);
 	char *method=td->request.CMD;
 	char *uri=td->request.URIOPTS;
-	if(td->request.digest_method[0])
-		method=td->request.digest_method;
 	if(td->request.digest_uri[0])
 		uri=td->request.digest_uri;
 	sprintf(td->buffer2,"%s:%s",method,uri);
@@ -686,14 +692,12 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 	MYSERVER_MD5End(&md5,A2);
 	
 	MYSERVER_MD5Init(&md5);
-	sprintf(td->buffer2,"%s:%s:%s:%s:%s:%s",A1,td->request.digest_nonce,td->request.digest_nc,td->request.digest_cnonce,td->request.digest_qop,A2);
+	sprintf(td->buffer2,"%s:%s:%s:%s:%s:%s",A1,((http_user_data*)s->protocolBuffer)->nonce,td->request.digest_nc,td->request.digest_cnonce,td->request.digest_qop,A2);
 	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2,strlen(td->buffer2));
 	MYSERVER_MD5End(&md5,response);	
 
 	if(!lstrcmp(response,td->request.digest_response))
 		return 1;
-
-
 }
 /*!
 *Reset an http_user_data structure.
@@ -783,7 +787,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			if(!lstrcmpi(td->request.AUTH,"Digest"))
 			{
-				((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+				if(!((http_user_data*)s->protocolBuffer)->digest_checked)
+					((http_user_data*)s->protocolBuffer)->digest = checkDigest(td,s);
+				((http_user_data*)s->protocolBuffer)->digest_checked=1;
 				if(((http_user_data*)s->protocolBuffer)->digest==1)
 				{
 					strcpy(s->password,((http_user_data*)s->protocolBuffer)->needed_password);
@@ -1154,7 +1160,6 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	td.connection=a;
 	td.id=id;
 	td.lhttp=this;
-	
 	td.inputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	td.outputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	td.outputDataPath[0]='\0';
@@ -1191,7 +1196,8 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 		logHTTPaccess(&td,a);
 		return 2;
 	}
-	
+	if(a->protocolBuffer)
+		((http_user_data*)a->protocolBuffer)->digest_checked=0;	
 	td.nBytesToRead+=a->dataRead;/*Offset to the buffer after the HTTP header.*/
 	/*!
 	*If the header is an invalid request send the correct error message to the client and return immediately.
@@ -1535,8 +1541,19 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 	return retvalue;
 }
 
-
-
+/*!
+*Compute the Digest to out using a buffer.
+*/
+void http::computeDigest(httpThreadContext* td,char* out ,char* buffer)
+{
+	if(!out)
+		return;
+	MYSERVER_MD5Context md5;
+	sprintf(buffer,"%i-%i-%s",clock(),td->id,td->connection->ipAddr);
+	MYSERVER_MD5Init(&md5);
+	MYSERVER_MD5Update(&md5,(const unsigned char*)buffer ,strlen(buffer));
+	MYSERVER_MD5End(&md5,out);
+}
 
 /*!
 *Sends an error page to the client.
@@ -1571,12 +1588,9 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 			MYSERVER_MD5Update(&md5,(const unsigned char*)md5_str ,strlen(md5_str));
 			MYSERVER_MD5End(&md5,((http_user_data*)a->protocolBuffer)->opaque);
 			
-			if(!(((http_user_data*)a->protocolBuffer)->digest) || (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
+			if((!(((http_user_data*)a->protocolBuffer)->digest)) || (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
 			{
-				sprintf(md5_str,"%i-%i-%s",clock(),td->id,a->ipAddr);
-				MYSERVER_MD5Init(&md5);
-				MYSERVER_MD5Update(&md5,(const unsigned char*)md5_str ,strlen(md5_str));
-				MYSERVER_MD5End(&md5,((http_user_data*)a->protocolBuffer)->nonce);
+				computeDigest(td,((http_user_data*)a->protocolBuffer)->nonce,md5_str);
 				((http_user_data*)a->protocolBuffer)->nc=0;
 			}
 			strcat(td->buffer2,"WWW-Authenticate: Digest ");
@@ -1722,7 +1736,7 @@ void http::getPath(httpThreadContext* td,LPCONNECTION s,char *filenamePath,const
 int http::sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
 	td->response.httpStatus=302;
-	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
+	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
 	int ret=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
@@ -1743,7 +1757,7 @@ int http::sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 int http::sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
 	td->response.httpStatus=304;
-	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\n",versionOfSoftware);
+	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\n",versionOfSoftware);
 	int ret=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{

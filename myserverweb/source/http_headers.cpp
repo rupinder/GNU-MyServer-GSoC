@@ -1015,22 +1015,19 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 */
 u_long http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
 {
-	u_long i;
+	u_long i=0;
 	u_long buffersize=td->buffersize;
-	u_long nLinechars;
+	u_long nLinechars=0;
 	u_long isValidCommand=0;
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
-	nLines=i=0;
+	nLines=0;
 	if(req==0)
 	{
 		return 0;
 	}
-	/*!
-	*Count the number of lines in the header.
-	*/
-	while((req[i]=='\n')||(req[i]=='\r'))i++;
+	
 	for(;(i<KB(8));i++)
 	{
 		if(req[i]=='\n')
@@ -1064,9 +1061,9 @@ u_long http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nL
 		}
 		/*!
 		*We set a maximal theorical number of characters in a line to 1024.
-		*If a line contains more than 1024 lines we consider the header invalid.
+		*If a line contains more than N characters we consider the header invalid.
 		*/
-		if(nLinechars>1024)
+		if(nLinechars>2048)
 		{
 			isValidCommand=0;
 			break;
@@ -1082,5 +1079,5 @@ u_long http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nL
 	/*!
 	*Return if is a valid request header.
 	*/
-    return isValidCommand;
+	return isValidCommand;
 }

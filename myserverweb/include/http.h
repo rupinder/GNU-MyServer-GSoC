@@ -39,6 +39,7 @@ struct http_user_data
 	char needed_password[16];/*Password string used by Digest authorization scheme*/
 	u_long nc;/*Nonce count used by Digest authorization scheme*/
 	int digest;/*Nonzero if the user was authenticated trough the Digest scheme*/
+	int digest_checked;/*Nonzero if the digest was already checked*/
 };
 class http : public protocol
 {
@@ -75,6 +76,7 @@ public:
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
 	void resetHTTPUserData(http_user_data*);
 	http();
+	void computeDigest(httpThreadContext* td,char*,char*);
 	u_long checkDigest(httpThreadContext* td,LPCONNECTION s);
 	/*!
 	*The function is used to the request and build a response.
