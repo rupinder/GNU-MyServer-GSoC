@@ -243,7 +243,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 {
 	/*
 	*The Environment string is a null-terminated block of null-terminated strings.
-	*For no errors with the function strcat we use the character \r for the \0 character
+	*For no problems with the function strcat we use the character \r for the \0 character
 	*and at the end we change every \r in \0.
 	*/
 	strcat(cgiEnvString,"SERVER_SOFTWARE=MyServer");
@@ -338,10 +338,10 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rCGI_ROOT=");
 		strcat(cgiEnvString,td->cgiRoot);
 	}
-	if(td->connection->ipAddr[0])
+	if(td->request.HOST[0])
 	{
 		strcat(cgiEnvString,"\rHTTP_HOST=");
-		strcat(cgiEnvString,td->connection->ipAddr);
+		strcat(cgiEnvString,td->request.HOST);
 	}
 	if(td->connection->ipAddr[0])
 	{

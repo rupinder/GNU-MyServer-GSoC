@@ -46,7 +46,7 @@ void cleanupISAPI()
 /*
 *Main procedure to call an ISAPI module.
 */
-int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath)
+int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath,int execute)
 {
 	DWORD Ret;
 	EXTENSION_CONTROL_BLOCK ExtCtrlBlk;
@@ -56,6 +56,18 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	PFN_GETEXTENSIONVERSION GetExtensionVersion;
 	PFN_HTTPEXTENSIONPROC HttpExtensionProc;
 
+	char fullpath[MAX_PATH*2];
+	if(execute)
+	{
+		if(cgipath[0])
+			sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath);
+		else
+			sprintf(fullpath,"%s",td->filenamePath);
+	}
+	else
+	{
+		sprintf(fullpath,"%s",cgipath);
+	}
 	EnterCriticalSection(&GetTableEntryCritSec);
 	connIndex = 0;
 	while ((connTable[connIndex].Allocated != FALSE) && (connIndex < max_Connections)) 
@@ -68,7 +80,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	{
 		return raiseHTTPError(td,connection,e_500);
 	}
-	AppHnd = LoadLibrary(cgipath);
+	AppHnd = LoadLibrary(fullpath);
 
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
@@ -148,8 +160,11 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	ExtCtrlBlk.lpszMethod = td->request.CMD;
 	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS;
 	ExtCtrlBlk.lpszPathInfo = td->pathInfo;
-	ExtCtrlBlk.lpszPathTranslated = td->pathTranslated;
-	ExtCtrlBlk.cbTotalBytes = atoi(td->request.CONTENT_LENGTH);
+	if(td->pathInfo[0])
+		ExtCtrlBlk.lpszPathTranslated = td->pathTranslated;
+	else
+		ExtCtrlBlk.lpszPathTranslated = td->filenamePath;
+	ExtCtrlBlk.cbTotalBytes = td->inputData.getFileSize();
 	ExtCtrlBlk.cbAvailable = 0;
 	ExtCtrlBlk.lpbData = 0;
 	ExtCtrlBlk.lpszContentType = (LPSTR)(&(td->request.CONTENT_TYPE[0]));
@@ -295,6 +310,7 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 			else
 				lstrcpyn(URI,ConnInfo->td->request.URI,strlen(ConnInfo->td->request.URI)-strlen(ConnInfo->td->pathInfo)+1);
 			getPath(ConnInfo->td,(char*)lpvBuffer,URI,FALSE);
+			MYSERVER_FILE::completePath((char*)lpvBuffer);
 			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:

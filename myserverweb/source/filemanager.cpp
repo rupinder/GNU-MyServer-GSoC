@@ -77,6 +77,11 @@ MYSERVER_FILE::MYSERVER_FILE()
 */
 int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 {
+	if(buffersize==0)
+	{
+		*nbw=0;
+		return -1;
+	}
 #ifdef WIN32
 	return WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
 #endif

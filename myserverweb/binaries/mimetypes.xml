@@ -1010,7 +1010,7 @@
 <EXT>pl</EXT>
 <MIME>text/html</MIME>
 <CMD>RUNISAPI</CMD>
-<MANAGER>c:/programmi/perl/bin/perlis.dll</MANAGER>
+<MANAGER>C:\Programmi\Perl\bin\perlis.dll</MANAGER>
 </MIMETYPE>
 
 <MIMETYPE>

@@ -120,7 +120,7 @@ void ClientsTHREAD::controlConnections()
 			if(err==-1)
 			{
 				deleteConnection(c);
-					continue;
+				continue;
 			}
 			if((c->dataRead+err)<KB(8))
 			{
@@ -129,7 +129,7 @@ void ClientsTHREAD::controlConnections()
 			else
 			{
 				deleteConnection(c);
-					continue;
+				continue;
 			}
 			memcpy(buffer,c->connectionBuffer,c->dataRead);
 			/*

@@ -46,7 +46,7 @@ struct fourchar
 /*
 *Entry-Point to manage a FastCGI request.
 */
-int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath)
+int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath,int execute)
 {
 	fCGIContext con;
 	con.td=td;
@@ -57,12 +57,23 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	td->buffer[0]='\0';
 	buildCGIEnvironmentString(td,td->buffer);
-
+	char fullpath[MAX_PATH*2];
+	if(execute)
+	{
+		if(cgipath[0])
+			sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath);
+		else
+			sprintf(fullpath,"%s",td->filenamePath);	
+	}
+	else
+	{
+		sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath);
+	}
 	int sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer,td->buffer2);
 	td->inputData.closeFile();
 	td->inputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_NO_INHERIT);
 
-	int pID = FcgiConnect(&con,cgipath);
+	int pID = FcgiConnect(&con,fullpath);
 	if(pID<0)
 		return raiseHTTPError(td,connection,e_500);
 
@@ -409,20 +420,21 @@ int runFcgiServer(fCGIContext *con,char* path)
 	}
 	START_PROC_INFO spi;
 	memset(&spi,0,sizeof(spi));
-	char cmd[MAX_PATH];
-	spi.cmd=cmd;
+	spi.cmd=path;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
-	spi.cmdLine=cmd;
+	spi.cmdLine=path;
 	spi.arg = NULL; /* no argument so clear it */
 
-	sprintf(spi.cmd,"%s%s",con->td->cgiRoot,con->td->cgiFile);
 	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 	spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
 	
 	fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
     
 	if(!fCGIservers[fCGIserversN].pid)
+	{
+		fCGIservers[fCGIserversN].socket.closesocket();
 		return -3;
+	}
 
 	return fCGIserversN++;
 }

@@ -92,7 +92,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	td->buffer2[0]='\0';
 	_finddata_t fd;
 	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",td->request.URI);
-	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
+	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	/*
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
 	*/
@@ -109,7 +109,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			strcat(td->buffer2,td->buffer);
 			strcat(td->buffer2,"--></STYLE>");
 			cssHandle.closeFile();
-			outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
+			outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 		}
 	}
 
@@ -302,10 +302,102 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 
 }
 /*
+*Main function to handle the HTTP PUT command.
+*/
+int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int systemrequest,int,int firstByte,int lastByte,int yetmapped)
+{
+	int httpStatus=td->response.httpStatus;
+	buildDefaultHTTPResponseHeader(&td->response);
+	td->response.httpStatus=httpStatus;
+	/*
+	*td->filenamePath is the file system mapped path while filename is the URI requested.
+	*systemrequest is true if the file is in the system folder.
+	*If filename is already mapped on the file system don't map it again.
+	*/
+	if(yetmapped)
+	{
+		strcpy(td->filenamePath,filename);
+	}
+	else
+	{
+		/*
+		*If the client try to access files that aren't in the web folder send a 401 error.
+		*/
+		translateEscapeString(filename );
+		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
+		{
+			return raiseHTTPError(td,s,e_401);
+		}
+		getPath(td,td->filenamePath,filename,0);
+	}
+	int permissions=-1;
+	char folder[MAX_PATH];
+	if(MYSERVER_FILE::isFolder(td->filenamePath))
+		strcpy(folder,td->filenamePath);
+	else
+		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
+	
+	if(td->connection->login[0])
+		permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+	else/*The default user is Guest with a null password*/
+		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+	if(!(permissions & MYSERVER_PERMISSION_WRITE))
+	{
+		return sendAuth(td,s);
+	}
+	if(MYSERVER_FILE::fileExists(td->filenamePath))
+	{
+		MYSERVER_FILE file;
+		file.openFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_WRITE);
+		file.setFilePointer(firstByte);
+		for(;;)
+		{
+			u_long nbr=0,nbw=0;
+			td->inputData.readFromFile(td->buffer,td->buffersize,&nbr);
+			if(nbr)
+				file.writeToFile(td->buffer,nbr,&nbw);
+			else
+				break;
+			if(nbw!=nbr)
+			{
+				file.closeFile();
+				return raiseHTTPError(td,s,e_500);/*Internal server error*/
+			}
+		}
+		file.closeFile();
+		raiseHTTPError(td,s,e_200);/*Successful updated*/
+		return 1;
+	}
+	else
+	{
+		MYSERVER_FILE file;
+		file.openFile(td->filenamePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		for(;;)
+		{
+			u_long nbr=0,nbw=0;
+			td->inputData.readFromFile(td->buffer,td->buffersize,&nbr);
+			if(nbr)
+				file.writeToFile(td->buffer,nbr,&nbw);
+			else
+				break;
+			if(nbw!=nbr)
+			{
+				file.closeFile();
+				return raiseHTTPError(td,s,e_500);/*Internal server error*/
+			}
+		}
+		file.closeFile();
+		raiseHTTPError(td,s,e_201);/*Successful created*/
+		return 1;
+	}
+	
+}
+/*
 *Delete the resource identified by filename
 */
 int deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int yetmapped)
 {
+
 	int httpStatus=td->response.httpStatus;
 	buildDefaultHTTPResponseHeader(&td->response);
 	td->response.httpStatus=httpStatus;
@@ -358,12 +450,14 @@ int deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int y
 /*
 *Main function to send a resource to a client.
 */
-int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int systemrequest,int OnlyHeader,int firstByte,int lastByte,int yetmapped)
+int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemrequest,int OnlyHeader,int firstByte,int lastByte,int yetmapped)
 {
 	/*
 	*With this code we manage a request of a file or a folder or anything that we must send
 	*over the HTTP.
 	*/
+	char filename[MAX_PATH];
+	strcpy(filename,URI);
 	td->buffer[0]='\0';
 	if(!systemrequest)
 	{
@@ -542,7 +636,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*getMIME returns the type of command registered by the extension.
 	*/
 	int mimeCMD=getMIME(td->response.CONTENT_TYPE,td->filenamePath,ext,data);
-
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
@@ -558,7 +651,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		{
 			return sendAuth(td,s);
 		}
-		return sendISAPI(td,s,td->filenamePath,ext,data);
+		return sendISAPI(td,s,td->filenamePath,ext,data,0);
 #endif
 #ifdef __linux__
 		return raiseHTTPError(td,s,e_501);
@@ -570,13 +663,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		{
 			return sendAuth(td,s);
 		}
-		char cgipath[MAX_PATH*2];
-		if(data[0])
-			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
-		else
-			sprintf(cgipath,"%s",td->filenamePath);
-
-		return sendISAPI(td,s,td->filenamePath,ext,cgipath);
+		return sendISAPI(td,s,td->filenamePath,ext,data,1);
 #endif
 #ifdef __linux__
 		return raiseHTTPError(td,s,e_501);
@@ -632,7 +719,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		{
 			return sendAuth(td,s);
 		}	
-		int ret = sendFASTCGI(td,s,td->filenamePath,ext,data);
+		int ret = sendFASTCGI(td,s,td->filenamePath,ext,data,0);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();
@@ -651,13 +738,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		{
 			return sendAuth(td,s);
 		}
-		char cgipath[MAX_PATH*2];
-		if(data[0])
-			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
-		else
-			sprintf(cgipath,"%s",td->filenamePath);
-
-		int ret = sendFASTCGI(td,s,td->filenamePath,ext,cgipath);
+		int ret = sendFASTCGI(td,s,td->filenamePath,ext,data,1);
 		if(td->outputData.getHandle())
 		{
 			td->outputData.closeFile();
@@ -749,7 +830,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		return 2;
 	}
-
+	td.nBytesToRead+=a->dataRead;
 	/*
 	*If the header is an invalid request send the correct error message to the client and return immediately.
 	*/
@@ -775,7 +856,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	sprintf(&td.inputDataPath[strlen(td.inputDataPath)],"/stdInFile_%u",td.id);
 	getdefaultwd(td.outputDataPath,MAX_PATH);
 	sprintf(&td.outputDataPath[strlen(td.outputDataPath)],"/stdOutFile_%u",td.id);
-	if(!lstrcmpi(td.request.CMD,"POST"))
+	if((!lstrcmpi(td.request.CMD,"POST"))||(!lstrcmpi(td.request.CMD,"PUT")))
 	{
 		if(td.request.CONTENT_TYPE[0]=='\0')
 			strcpy(td.request.CONTENT_TYPE,"application/x-www-form-urlencoded");
@@ -787,82 +868,109 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*/
 		td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 		u_long nbw;
-		u_long total_nbr=0;
-		td.inputData.writeToFile(td.request.URIOPTSPTR,total_nbr=min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
+		u_long total_nbr=min(td.nBytesToRead,td.buffersize)-td.nHeaderChars;
+		td.inputData.writeToFile(td.request.URIOPTSPTR,total_nbr,&nbw);
 		
 		u_long content_len=atoi(td.request.CONTENT_LENGTH);
+
+		/*
+		*If the connection is Keep-Alive be sure that the client specify a the
+		*HTTP CONTENT-LENGTH field
+		*/
+		if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
+		{
+			if(td.request.CONTENT_LENGTH[0]='\0')
+			{
+				td.inputData.closeFile();
+				td.inputData.deleteFile(td.inputDataPath);
+				return raiseHTTPError(&td,a,e_400);
+			}
+		}
 		/*
 		*If there are others bytes to read from the socket.
 		*/
 		u_long timeout=clock();
-		if((content_len==0)||(content_len!=nbw))
+		if((content_len)&&(content_len!=nbw))
+		{
+			int err;
+			u_long fs;
+			do
+			{
+				err=0;
+				fs=td.inputData.getFileSize();
+				while(clock()-timeout<SEC(5))
+				{
+					if(content_len==total_nbr)
+					{
+						/*
+						*Consider only CONTENT-LENGTH bytes of data.
+						*/
+						while(td.connection->socket.bytesToRead())
+						{
+							/*
+							*Read the unwanted bytes but do not save them.
+							*/
+							err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
+						}
+						break;
+					}
+					if((content_len>fs)&&(td.connection->socket.bytesToRead()))
+					{				
+						u_long tr=min(content_len-total_nbr,td.buffersize2);
+						err=td.connection->socket.recv(td.buffer2,tr, 0);
+						td.inputData.writeToFile(td.buffer2,min(err,content_len-fs),&nbw);	
+						total_nbr+=nbw;
+						timeout=clock();
+						break;
+					}
+				}
+				if(clock()-timeout>=SEC(5))
+					break;
+			}
+			while(content_len!=total_nbr);
+
+			
+
+			fs=td.inputData.getFileSize();
+			if(content_len!=fs)
+			{
+				/*
+				If we get an error remove the file and the connection.
+				*/
+				td.inputData.closeFile();
+				td.inputData.deleteFile(td.inputDataPath);
+				retvalue|=1;/*set return value to 1*/
+				retvalue|=2;
+				return raiseHTTPError(&td,a,e_500);
+			}
+		}
+		else if(content_len==0)/*If CONTENT-LENGTH is not specified read all the data*/
 		{
 			int err;
 			do
 			{
 				err=0;
-				if(content_len)
-				{
-					while(clock()-timeout<SEC(5))
-					{
-						if(td.connection->socket.bytesToRead())
-						{				
-							err=td.connection->socket.recv(td.buffer2,min(content_len-total_nbr,td.buffersize2), 0);
-							td.inputData.writeToFile(td.buffer2,err,&nbw);	
-							total_nbr+=nbw;
-							timeout=clock();
-							break;
-						}
-					}
-				}
-				else
+				while(clock()-timeout<SEC(1))
 				{
 					if(td.connection->socket.bytesToRead())
-					{
+					{				
 						err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
 						td.inputData.writeToFile(td.buffer2,err,&nbw);	
 						total_nbr+=nbw;
+						timeout=clock();
+						break;
 					}
-
 				}
-
-
-				if(((content_len==0) && (err==0))||(err==-1))
-				{
-					/*
-					If we get an error remove the file and the connection.
-					*/
-					td.inputData.closeFile();
-					td.inputData.deleteFile(td.inputDataPath);
-					retvalue|=1;/*set return value to 1*/
-					retvalue|=2;
-					return raiseHTTPError(&td,a,e_500);
-				}
-				td.inputData.writeToFile(td.buffer2,err,&nbw);
+				if(clock()-timeout>=SEC(1))
+					break;
 			}
-			while(err);
+			while(content_len!=total_nbr);
+			sprintf(td.response.CONTENT_LENGTH,"%u",td.inputData.getFileSize());
+	
 		}
 		td.inputData.setFilePointer(0);
 		td.buffer2[0]='\0';
-		/*
-		*If the connection is Keep-Alive be sure that the data sent by the client is equal
-		*to the HTTP CONTENT-LENGTH field
-		*/
-		if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
-		{
-			if(td.inputData.getHandle())
-			{
-				u_long fileSize=td.inputData.getFileSize();
-				if(fileSize!=total_nbr)
-				{
-					td.inputData.closeFile();
-					td.inputData.deleteFile(td.inputDataPath);
-					return raiseHTTPError(&td,a,e_400);/*If the post data sent is not equal to the CONTENT-LENGTH HTTP header field send a bad request error page*/
-				}
-			}
-			else
-				return raiseHTTPError(&td,a,e_500);
-		}
+
 	}
 	else
 	{
@@ -944,9 +1052,16 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI,0,1);
 		}
-		else if(!lstrcmpi(td.request.CMD,"DELETE"))/*HEAD REQUEST*/
+		else if(!lstrcmpi(td.request.CMD,"DELETE"))/*DELETE REQUEST*/
 		{
 			deleteHTTPRESOURCE(&td,a,td.request.URI,0);
+		}
+		else if(!lstrcmpi(td.request.CMD,"PUT"))/*PUT REQUEST*/
+		{
+			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
+				putHTTPRESOURCE(&td,a,td.request.URI,0,1,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+			else
+				putHTTPRESOURCE(&td,a,td.request.URI,0,1);
 		}
 		else
 		{
