@@ -9,9 +9,9 @@
 <MSG_SOCKSTART>Libreria socket inizializzata con successo</MSG_SOCKSTART>
 <MSG_SSOCKCREATE>Creazione del socket server...</MSG_SSOCKCREATE>
 <MSG_SSOCKRUN>Socket Server creato</MSG_SSOCKRUN>
-<ERR_OPENP>Errore nell'apertura della porta, può essere usata da un'altra applicazione</ERR_OPENP>
+<ERR_OPENP>Errore nell'apertura della porta</ERR_OPENP>
 <MSG_BIND_PORT>Binding della porta...</MSG_BIND_PORT>
-<ERR_BIND>Errore nel binding della porta, la porta può essere usata da un altro processo</ERR_BIND>
+<ERR_BIND>Errore nel binding della porta</ERR_BIND>
 <MSG_PORT_BINDED>Bind della porta avvenuto</MSG_PORT_BINDED>
 <MSG_SLISTEN>Tentativo di ascolto sulla porta...</MSG_SLISTEN>
 <ERR_LISTEN>Errore nell'ascoltare sulla porta</ERR_LISTEN>
