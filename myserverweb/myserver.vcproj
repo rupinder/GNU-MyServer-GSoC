@@ -39,18 +39,17 @@
 				PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				DebugInformationFormat="3"
+				CallingConvention="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/myserver.exe"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/myserver.pdb"
 				SubSystem="1"
-				HeapReserveSize="0"
-				HeapCommitSize="0"
 				LargeAddressAware="2"
 				EnableCOMDATFolding="0"
 				SupportUnloadOfDelayLoadedDLL="TRUE"
