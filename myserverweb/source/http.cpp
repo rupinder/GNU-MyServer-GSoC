@@ -93,7 +93,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	td->buffer2[0]='\0';
 	_finddata_t fd;
-	sprintf(td->buffer2,"<HTML>\r\n<HEAD>\r\n<TITLE>%s</TITLE>\r\n<\HEAD>\r\n",td->request.URI);
+	sprintf(td->buffer2,"<HTML>\r\n<HEAD>\r\n<TITLE>%s</TITLE>\r\n</HEAD>\r\n",td->request.URI);
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	/*
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
@@ -887,7 +887,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*/
 		if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
 		{
-			if(td.request.CONTENT_LENGTH[0]='\0')
+			if(td.request.CONTENT_LENGTH[0]=='\0')
 			{
 				td.inputData.closeFile();
 				td.inputData.deleteFile(td.inputDataPath);
@@ -1333,7 +1333,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 			/*
 			*Record the error in the log file.
 			*/
-			sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
+			sprintf(td->buffer,"%s error to: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
 			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		}
 	}
@@ -1547,14 +1547,20 @@ u_long validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_lon
 */
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
-	sprintf(td->buffer,"%s redirected to %s\r\n",td->connection->ipAddr,newURL);
-	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+	if(lserver->getVerbosity()>1)
+	{
+		/*
+		*Record the error in the log file.
+		*/
+		sprintf(td->buffer,"%s redirected to %s\r\n",td->connection->ipAddr,newURL);
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+	}
 	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",lserver->getServerName(),newURL);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
-	a->socket.send(td->buffer2,strlen(td->buffer2),0);
+	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
 	return 1;
 }
 /*
@@ -1562,15 +1568,20 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 */
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
-	sprintf(td->buffer,"Not modified to %s\r\n",td->connection->ipAddr);
-	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-
+	if(lserver->getVerbosity()>1)
+	{
+		/*
+		*Record the error in the log file.
+		*/
+		sprintf(td->buffer,"Not modified to %s\r\n",td->connection->ipAddr);
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+	}
 	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",lserver->getServerName());
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
 
-	a->socket.send(td->buffer2,strlen(td->buffer2),0);
+	a->socket.send(td->buffer2,(int)strlen(td->buffer2),0);
 	return 1;
 }
 /*
@@ -1633,7 +1644,6 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		*/
 		strcpy(command,token);
 		
-		
 		nLineControlled++;
 		if(nLineControlled==1)
 		{
@@ -1649,7 +1659,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			if(!token)return 0;
-			max=strlen(token);
+			max=(u_long)strlen(token);
 			int containOpts=0;
 			for(i=0;(i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
 			{
@@ -1684,7 +1694,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 				request->uriEndsWithSlash=0;
 			StrTrim(request->URI," /");
 			StrTrim(request->URIOPTS," /");
-			max=strlen(request->URI);
+			max=(u_long)strlen(request->URI);
 			if(max>max_URI)
 			{
 				return 414;
@@ -1908,10 +1918,26 @@ int sendAuth(httpThreadContext* td,LPCONNECTION s)
 {
 	if(s->nTries > 2)
 	{
+		if(lserver->getVerbosity()>1)
+		{
+			/*
+			*Record the error in the log file.
+			*/
+			sprintf(td->buffer,"Request %s authorization\r\n",td->connection->ipAddr);
+			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		}
 		return raiseHTTPError(td,s,e_401);
 	}
 	else
 	{	
+		if(lserver->getVerbosity()>1)
+		{
+			/*
+			*Record the error in the log file.
+			*/
+			sprintf(td->buffer,"%s unauthorized\r\n",td->connection->ipAddr);
+			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		}
 		s->nTries++;
 		return raiseHTTPError(td,s,e_401AUTH);
 	}
