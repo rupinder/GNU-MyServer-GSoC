@@ -1,11 +1,12 @@
 #Create a linux copy to be easily distribute
 if [  $# = 0 ]; then
-  echo "Usage: $0 folder_to_create"
+  echo "Usage: $0 folder_to_create [tar.gz2]"
   exit
 fi
 
 mkdir $1
 cp myserver $1
+cp control $1
 cp *.default $1
 cp readme.txt $1
 
@@ -34,3 +35,12 @@ cp ../Documentation/En/*.* $1/web/documentation/
 
 mkdir $1/web/documentation/images
 cp ../Documentation/En/images/*.* $1/web/documentation/images/
+
+
+if [  $# = 2 ]; then
+tar -cvf $2.tar $1
+bzip2 $2.tar 
+rm -f -r $1
+fi
+
+
