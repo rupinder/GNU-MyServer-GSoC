@@ -17,23 +17,16 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
-#include "..\include\sockets.h"
-/*
-*Here are listed all the protocol supported by the server
-*/
-#define PROTOCOL_HTTP		0
-#define PROTOCOL_FTP		1
-
-typedef DWORD CONNECTION_PROTOCOL;
-
-struct CONNECTION
-{
-public:
-	CONNECTION_PROTOCOL protocol;
-	char login[20];	
-	char password[32];
-	char nTries;	
-	MYSERVER_SOCKET socket;	
-	DWORD timeout;	
-	CONNECTION* Next;
-};
+#include "..\stdafx.h"
+typedef unsigned int MYSERVER_SOCKET;
+int ms_startupSocketLib(WORD);
+MYSERVER_SOCKET ms_socket(int,int,int);
+int ms_bind(MYSERVER_SOCKET,sockaddr*,int);
+int ms_listen(MYSERVER_SOCKET,int);
+MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET,sockaddr*,int*);
+int ms_closesocket(MYSERVER_SOCKET);
+int	ms_setsockopt(MYSERVER_SOCKET,int,int,const char*,int);
+int ms_shutdown(MYSERVER_SOCKET s,int how);
+int ms_send(MYSERVER_SOCKET,const char*,int,int);
+int ms_ioctlsocket(MYSERVER_SOCKET,long,unsigned long*);
+int ms_recv(MYSERVER_SOCKET,char*,int,int);

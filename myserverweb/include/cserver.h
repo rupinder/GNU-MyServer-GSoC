@@ -27,6 +27,8 @@
 #include "..\include\HTTPmsg.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\ConnectionStruct.h"
+#include "..\include\sockets.h"
+
 
 
 /*
@@ -57,14 +59,14 @@ private:
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
 	DWORD verbosity;
 	BOOL useMessagesFiles;
-	SOCKET serverSocketHTTP,asockHTTP;
+	MYSERVER_SOCKET serverSocketHTTP,asockHTTP;
 	sockaddr_in sock_inserverSocketHTTP,asock_inHTTP;
 	DWORD buffersize;
 	DWORD buffersize2;
 	DWORD getNumConnections();
 	void initialize(INT);
-	BOOL addConnection(SOCKET s,CONNECTION_PROTOCOL=PROTOCOL_FTP);
-	LPCONNECTION findConnection(SOCKET s);
+	BOOL addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL=PROTOCOL_FTP);
+	LPCONNECTION findConnection(MYSERVER_SOCKET s);
 	DWORD connectionTimeout;
 	DWORD socketRcvTimeout;
 	int listenServerHTTPHandle;

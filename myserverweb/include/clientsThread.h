@@ -29,8 +29,7 @@ class  ClientsTHREAD
 {
 	friend class cserver;
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
-	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM 
-wParam,LPARAM lParam);
+	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 private:
 	BOOL initialized;
 	LOGGEDUSERID hImpersonation;

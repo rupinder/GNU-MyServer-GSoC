@@ -22,6 +22,7 @@
 #include "..\include\security.h"
 #include <Ws2tcpip.h>
 #include <direct.h>
+#include "..\include\sockets.h"
 
 /*
 *These variables are the unique istance of the class cserver in the application and the flag
@@ -66,6 +67,9 @@ void cserver::start(INT hInst)
 	languageParser.open(languageFile);
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
+	/*
+	*This are the defaults values of this strings
+	*/
 	lstrcpy(msgSending,"Sending");
 	lstrcpy(msgRunOn,"Running on");
 	lstrcpy(msgFolderContents,"Contents of folder");
@@ -73,6 +77,14 @@ void cserver::start(INT hInst)
 	lstrcpy(msgErrorConnection,"Error connection from");
 	lstrcpy(msgAtTime,"at time");
 	
+
+	/*
+	*Load the strings buffers with the right values.
+	*We do this for don't call parser while the application execution
+	*There are two good reasons to do this:
+	*1)Application performance
+	*2)Avoid of errors due to the parser
+	*/
 	if(lstrcmpi(languageParser.getValue("MSG_SENDING"),"NONE"))
 		lstrcpy(msgSending,languageParser.getValue("MSG_SENDING"));
 	if(lstrcmpi(languageParser.getValue("MSG_RUNON"),"NONE"))
@@ -96,7 +108,9 @@ void cserver::start(INT hInst)
 
 	printf("%s\n\n",languageParser.getValue("MSG_SERVER_CONF"));
 
-
+	/*
+	*The guestLoginHandle value is filled by the call to cserver::initialize
+	*/
 	if(guestLoginHandle==0)
 	{
 		
@@ -107,31 +121,27 @@ void cserver::start(INT hInst)
 	/*
 	*Startup the socket library
 	*/
-
-	WSADATA wsaData;
 	printf("%s\n",languageParser.getValue("MSG_ISOCK"));
-	int err;
-	if ((err = WSAStartup(/*MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1), &wsaData)) != 0) 
+	int err= ms_startupSocketLib(/*MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
+	if (err != 0) 
 	{ 
 		printf("%s\n",languageParser.getValue("ERR_ISOCK"));
 		return; 
 	} 
 	printf("%s\n",languageParser.getValue("MSG_SOCKSTART"));
-	/*
-	*Create the server socket
-	*/
 
+	/*
+	*Create the HTTP server socket
+	*/
 	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
-	serverSocketHTTP=socket(AF_INET,SOCK_STREAM,0);
+	serverSocketHTTP=ms_socket(AF_INET,SOCK_STREAM,0);
 	if(serverSocketHTTP==INVALID_SOCKET)
 	{
 		printf("%s\n",languageParser.getValue("ERR_OPENP"));
 		return;
 
 	}
-
 	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
-
 	sock_inserverSocketHTTP.sin_family=AF_INET;
 	sock_inserverSocketHTTP.sin_addr.s_addr=htonl(INADDR_ANY);
 	sock_inserverSocketHTTP.sin_port=htons(port_HTTP);
@@ -141,7 +151,7 @@ void cserver::start(INT hInst)
 	*/
 	printf("%s\n",languageParser.getValue("MSG_BIND_PORTHTTP"));
 
-	if(bind(serverSocketHTTP,(sockaddr*)&sock_inserverSocketHTTP,sizeof(sock_inserverSocketHTTP))!=0)
+	if(ms_bind(serverSocketHTTP,(sockaddr*)&sock_inserverSocketHTTP,sizeof(sock_inserverSocketHTTP))!=0)
 	{
 		printf("%s\n",languageParser.getValue("ERR_BINDHTTP"));
 		return;
@@ -154,15 +164,13 @@ void cserver::start(INT hInst)
 	*Set connections listen queque to max allowable
 	*/
 	printf("%s\n",languageParser.getValue("MSG_SLHTTP"));
-	if (listen(serverSocketHTTP,SOMAXCONN))
+	if (ms_listen(serverSocketHTTP,SOMAXCONN))
 	{ 
 		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
 		return; 
 	}
 
 	printf("%s: %u\n",languageParser.getValue("MSG_LHTTP"),port_HTTP);
-
-
 
 	/*
 	*Get the machine name
@@ -255,15 +263,13 @@ unsigned int __stdcall listenServerHTTP(void*)
 		*function; this function dispatch connections 
 		*between the various threads.
 		*/
-		lserver->asockHTTP=accept(lserver->serverSocketHTTP,(struct sockaddr*)&lserver->asock_inHTTP,(LPINT)&asock_inLenHTTP);
+		lserver->asockHTTP=ms_accept(lserver->serverSocketHTTP,(struct sockaddr*)&lserver->asock_inHTTP,(LPINT)&asock_inLenHTTP);
 		if(lserver->asockHTTP==0)
 			continue;
 		if(lserver->asockHTTP==INVALID_SOCKET)
 			continue;
 		
-
 		lserver->addConnection(lserver->asockHTTP,PROTOCOL_HTTP);
-
 	}	
 	/*
 	*When the flag mustEndServer is TRUE end current thread
@@ -306,7 +312,7 @@ void cserver::stop()
 
 void cserver::terminate()
 {
-	shutdown(serverSocketHTTP, 2);
+	ms_shutdown(serverSocketHTTP, 2);
 	/*
 	*If the guestLoginHandle is allocated close it.
 	*/
@@ -340,7 +346,7 @@ void cserver::terminate()
 	{
 		printf("myServer is stopped\n\n");
 	}
-	closesocket(serverSocketHTTP);
+	ms_closesocket(serverSocketHTTP);
 
 	closeFile(logFile);
 }
@@ -511,7 +517,7 @@ VOID cserver::controlSizeLogFile()
 	setLogFile(logFile);
 }
 
-BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
+BOOL cserver::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
 {
 	if(s==0)
 		return FALSE;
@@ -529,7 +535,7 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	if(!ct->addConnection(s,protID))
 	{
 		ret=FALSE;
-		closesocket(s);
+		ms_closesocket(s);
 		if(verbosity>0)
 		{
 			char buffer[500];
@@ -545,7 +551,7 @@ BOOL cserver::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 /*
 *Find a connection passing its socket
 */
-LPCONNECTION cserver::findConnection(SOCKET s)
+LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 {
 	LPCONNECTION c=NULL;
 	for(DWORD i=0;i<nThreads;i++)

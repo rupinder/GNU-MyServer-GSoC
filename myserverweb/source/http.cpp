@@ -22,6 +22,7 @@
 #include "..\include\security.h"
 #include "..\include\AMMimeUtils.h"
 #include "..\include\filemanager.h"
+#include "..\include\sockets.h"
 #include <direct.h>
 
 /*
@@ -131,8 +132,8 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 	buildDefaultHttpResponseHeader(&response);	
 	sprintf(response.CONTENTS_DIM,"%u",lstrlen(buffer2));
 	buildHttpResponseHeader(buffer,&response);
-	send(s->socket,buffer,lstrlen(buffer), 0);
-	send(s->socket,buffer2,lstrlen(buffer2), 0);
+	ms_send(s->socket,buffer,lstrlen(buffer), 0);
+	ms_send(s->socket,buffer2,lstrlen(buffer2), 0);
 
 	return 1;
 
@@ -188,7 +189,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 
 	sprintf(response.CONTENTS_DIM,"%u",filesize);
 	buildHttpResponseHeader(buffer,&response);
-	send(s->socket,buffer,lstrlen(buffer), 0);
+	ms_send(s->socket,buffer,lstrlen(buffer), 0);
 
 	/*
 	*If is requested only the header; HEAD request
@@ -208,7 +209,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 		readFromFile(h,buffer,buffersize,&nbr);
 		if(nbr==0)
 			break;
-		if(send(s->socket,buffer,nbr, 0) == SOCKET_ERROR)
+		if(ms_send(s->socket,buffer,nbr, 0) == SOCKET_ERROR)
 			break;
 	}
 	closeFile(h);
@@ -334,8 +335,8 @@ BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 	len=lstrlen(buffer2);
 	sprintf(response.CONTENTS_DIM,"%u",len);
 	buildHttpResponseHeader(buffer,&response);
-	send(s->socket,buffer,lstrlen(buffer), 0);
-	send(s->socket,buffer2,len, 0);
+	ms_send(s->socket,buffer,lstrlen(buffer), 0);
+	ms_send(s->socket,buffer2,len, 0);
 	return 1;
 #endif
 	return 0;
@@ -798,7 +799,7 @@ void raiseHTTPError(LPCONNECTION a,int ID)
 	if(ID==e_401AUTH)
 	{
 		sprintf(buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getHTTPFormattedTime());
-		send(a->socket,buffer2,lstrlen(buffer2),0);
+		ms_send(a->socket,buffer2,lstrlen(buffer2),0);
 		return;
 	}
 	if(lserver->mustUseMessagesFiles())
@@ -813,7 +814,7 @@ void raiseHTTPError(LPCONNECTION a,int ID)
 	sprintf(response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
 	buildHttpResponseHeader(buffer,&response);
 	lstrcat(buffer,HTTP_ERROR_MSGS[ID]);
-	send(a->socket,buffer,lstrlen(buffer), 0);
+	ms_send(a->socket,buffer,lstrlen(buffer), 0);
 }
 
 
@@ -896,12 +897,12 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*Send lstrlen(buffer)-2 because last two characters
 	*are \r\n that terminating the HTTP header
 	*/
-	send(s->socket,buffer,lstrlen(buffer)-2, 0);
+	ms_send(s->socket,buffer,lstrlen(buffer)-2, 0);
 	/*
 	*In buffer2 there are the CGI HTTP header and the 
 	*contents of the page requested through the CGI
 	*/
-	send(s->socket,buffer2,nBytesRead, 0);
+	ms_send(s->socket,buffer2,nBytesRead, 0);
 
 	closeFile(stdOutFile);
 	deleteFile(stdOutFilePath);

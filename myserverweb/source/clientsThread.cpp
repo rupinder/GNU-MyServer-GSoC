@@ -21,6 +21,7 @@
 #include "..\include\clientsTHREAD.h"
 #include "..\include\cserver.h"
 #include "..\include\security.h"
+#include "..\include\sockets.h"
 
 ClientsTHREAD::ClientsTHREAD()
 {
@@ -51,7 +52,11 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 	_endthreadex(0);
 	return 0;
 }
-
+/*
+*This is the main loop of the thread
+*Here are controlled all the connections that belongs to the ClientsTHREAD class instance.
+*Every connection is controlled by its protoco
+*/
 void ClientsTHREAD::controlConnections()
 {
 	requestAccess(&connectionWriteAccess,this->id);
@@ -59,11 +64,11 @@ void ClientsTHREAD::controlConnections()
 	BOOL logonStatus;
 	for(c; c ;c=c->Next)
 	{
-		ioctlsocket(c->socket,FIONREAD,&nBytesToRead);
+		ms_ioctlsocket(c->socket,FIONREAD,&nBytesToRead);
 		if(nBytesToRead)
 		{
 			logon(c,&logonStatus,&hImpersonation);
-			err=recv(c->socket,buffer,buffersize, 0);
+			err=ms_recv(c->socket,buffer,buffersize, 0);
 
 			if((err==0) || (err==SOCKET_ERROR)||(err==WSAECONNABORTED)||(err==WSAENOTCONN))
 			{
@@ -128,7 +133,7 @@ void ClientsTHREAD::clean()
 	terminateAccess(&connectionWriteAccess,this->id);
 
 }
-LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
+LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
 {
 	/*
 	*Add a new connection.
@@ -137,9 +142,9 @@ LPCONNECTION ClientsTHREAD::addConnection(SOCKET s,CONNECTION_PROTOCOL protID)
 	requestAccess(&connectionWriteAccess,this->id);
 	const int maxRcvBuffer=KB(5);
 	const BOOL keepAlive=TRUE;
-	setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char*)&maxRcvBuffer,sizeof(maxRcvBuffer));
-	setsockopt( s,SOL_SOCKET, SO_SNDTIMEO,(char *)&lserver->socketRcvTimeout,sizeof(lserver->socketRcvTimeout));
-	setsockopt( s,SOL_SOCKET, SO_KEEPALIVE,(char *)&keepAlive,sizeof(keepAlive));
+	ms_setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char*)&maxRcvBuffer,sizeof(maxRcvBuffer));
+	ms_setsockopt( s,SOL_SOCKET, SO_SNDTIMEO,(char *)&lserver->socketRcvTimeout,sizeof(lserver->socketRcvTimeout));
+	ms_setsockopt( s,SOL_SOCKET, SO_KEEPALIVE,(char *)&keepAlive,sizeof(keepAlive));
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;
@@ -158,12 +163,12 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	*/
 	requestAccess(&connectionWriteAccess,this->id);
 	BOOL ret=FALSE;
-	shutdown(s->socket,SD_BOTH );
+	ms_shutdown(s->socket,SD_BOTH );
 	do
 	{
-		err=recv(s->socket,buffer,buffersize,0);
+		err=ms_recv(s->socket,buffer,buffersize,0);
 	}while(err && (err!=SOCKET_ERROR));
-	closesocket(s->socket); 
+	ms_closesocket(s->socket); 
 	LPCONNECTION prev=0;
 	for(LPCONNECTION i=connections;i;i=i->Next)
 	{
@@ -198,7 +203,7 @@ void ClientsTHREAD::clearAllConnections()
 
 
 
-LPCONNECTION ClientsTHREAD::findConnection(SOCKET a)
+LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 {
 	/*
 	*Find a connection passing the socket that control it
