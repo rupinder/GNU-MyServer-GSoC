@@ -38,9 +38,19 @@ SecurityCache::SecurityCache()
 int SecurityCache::getErrorFileName(char *directory, int error, 
                                      char* sysdirectory, char** out)
 {
-  int permissionsFileLen = strlen(directory)+10;
-  char* permissionsFile = new char[permissionsFileLen];
+  int permissionsFileLen ; 
+  char* permissionsFile;
   XmlParser *parser;
+  if(directory == 0)
+  {
+    if(sysdirectory == 0)
+      return 0;
+    directory = sysdirectory;
+    sysdirectory = 0;
+  }
+  permissionsFileLen = strlen(directory)+10;
+  permissionsFile = new char[permissionsFileLen];
+
   if(permissionsFile == 0)
     return 0;
   sprintf(permissionsFile,"%s/security",directory);
@@ -89,7 +99,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
       {
         delete parser;
         delete [] permissionsFile;
-        return getErrorFileName(directory, error, 0, out);
+        return getErrorFileName(sysdirectory, error, 0, out);
       }
       else
       {
@@ -206,7 +216,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
 
     }
     delete [] permissionsFile;
-    return sm.getPermissionMask(user, password, directory, filename, sysdirectory, 
+    return sm.getPermissionMask(user, password, directory, filename, 
                              password2, auth_type, len_auth, permission2, parser);
   }
   else
@@ -258,7 +268,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
       return 0;
     }
     delete [] permissionsFile;
-    return sm.getPermissionMask(user, password, directory, filename, sysdirectory, 
+    return sm.getPermissionMask(user, password, directory, filename, 
                              password2, auth_type, len_auth, permission2, parser);  
   }
 

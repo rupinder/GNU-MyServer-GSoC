@@ -61,9 +61,9 @@ class SecurityManager
 public:
   SecurityManager();
   ~SecurityManager();
-  int getErrorFileName(char *sysDir,int error,char** out,XmlParser* parser=0);
+  int getErrorFileName(char *sysDir,int error, char** out,XmlParser* parser=0);
   int getPermissionMask(char* user, char* password,char* directory,
-                        char* filename,char *sysdirectory=0,char *password2=0,
+                        char* filename, char *password2=0,
                         char* auth_type=0,int len_auth=0,int *permission2=0, 
                         XmlParser* parser=0);
 };

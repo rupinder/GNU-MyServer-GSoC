@@ -23,7 +23,7 @@ Il famoso errore 404 avviene quando il server non trova il file sul server.
 <p ><br>
 </p>
 Per definire una pagina di errore personalizzata per un virtual host puoi aggiungere una linea come la seguente nel 
-primo security.xml file del virtual host(il file security presente nella directory system del virtual host). Se vengono definiti files personalizzati 
+primo file security del virtual host(il file security presente nella directory web del virtual host). Se vengono definiti files personalizzati 
 i files verrano cercati nella cartella del <span class="code">web</span> invece che in quella <span class="code">system</span>.<br> 
 I files cercati nella cartella <span class="code">system</span> devono avere un nome <span class="code">x.html</span> dove x &egrave; 
 l'errore HTTP da inviare al client. Se neanche questo file viene trovato il server invier&agrave; al client l'errore solo attraverso il codice di errore HTTP.

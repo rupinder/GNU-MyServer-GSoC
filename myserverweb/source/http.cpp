@@ -2164,7 +2164,11 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     int ret;
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
     sec_cache_mutex.lock();
-		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->systemRoot, 
+    /*! 
+     *The specified error file name must be in the web directory 
+     *of the virtual host. 
+     */
+		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot, 
                                      getHTTPStatusCodeFromErrorID(ID),
                                      ((Vhost*)(a->host))->systemRoot, &defFile);
     sec_cache_mutex.unlock();

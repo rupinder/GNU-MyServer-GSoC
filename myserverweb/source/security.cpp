@@ -41,8 +41,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *Return other valus on success, please note to free
  *out after its use.
  */
-int SecurityManager::getErrorFileName(char *sysDir, int error, 
-                                      char** out, XmlParser* parser)
+int SecurityManager::getErrorFileName(char* sysDir,int error, char** out, XmlParser* parser)
 {
 	xmlNode *node;
 	char *permissionsFile;
@@ -156,8 +155,8 @@ int SecurityManager::getErrorFileName(char *sysDir, int error,
  *the security file.
  */
 int SecurityManager::getPermissionMask(char* user, char* password, char* directory,
-                                       char* filename, char *sysdirectory, 
-                                       char *password2, char* auth_type, int len_auth, 
+                                       char* filename, char *password2, 
+                                       char* auth_type, int len_auth, 
                                        int *permission2, XmlParser* parser)
 {
 	char *permissionsFile;
@@ -199,21 +198,10 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
     {
       filename[filenamelen--]='\0';
     }
+    /*! If the specified file doesn't exist return 0. */
     if(!File::fileExists(permissionsFile))
     {
-      /*!
-       *If the security file doesn't exist try with a default one.
-       */
-      if(sysdirectory!=0)
-        ret = getPermissionMask(user, password, sysdirectory, filename, 0, password2,
-                                auth_type,len_auth,permission2, parser);
-      else
-      {
-        /*!
-         *If the default one doesn't exist too send 0 permissions for everyone.
-         */
-        ret = 0;
-      }
+      ret = 0;
       delete [] permissionsFile;
       return ret;
     }
