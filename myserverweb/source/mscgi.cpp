@@ -217,7 +217,7 @@ int mscgi::loadMSCGILib()
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
 #endif
 #ifdef HAVE_DL
-	char mscgi_path;
+	char mscgi_path[MAX_PATH];
 	
 	if(MYSERVER_FILE::fileExists("cgi-lib/cgi-lib.so"))
 	{

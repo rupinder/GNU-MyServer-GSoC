@@ -26,6 +26,7 @@ extern "C" {
 #include <direct.h>
 #endif
 #ifdef NOT_WIN
+#include <argp.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
@@ -33,13 +34,13 @@ extern "C" {
 }
 
 
-/*!
-*External libraries to be included in the project.
-*/
+/*! External libraries to be included in the project. */
 #ifdef WIN32
 #pragma comment(lib,"winmm.lib")
 #endif
 
+#define MYSERVER_RUNAS_CONSOLE 1
+#define MYSERVER_RUNAS_SERVICE 2
 
 void console_service (int, char **);
 
@@ -81,11 +82,63 @@ void Sig_Quit(int signal)
 	server.stop();
 }
 #endif
+
+
+#ifdef NOT_WIN
+
+struct argp_input
+{
+  /*! Print the version for MyServer? */
+  int version;
+  /*! Define how run the server. */
+  int runas;
+};
+
+static char doc[] = "MyServer ";
+static char args_doc[] = "";
+
+/*! Use the GNU C argp parser under not windows environments. */
+static struct argp_option options[] = 
+{
+  /*LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION*/
+	{"version",'v',"VERSION",OPTION_ARG_OPTIONAL,"Print the version for the application"},
+	{"run",'r',"RUN",OPTION_ARG_OPTIONAL,"Specify how run the server(by default console mode)"},
+	{0}
+};
+
+static error_t parse_opt(int key, char *arg, struct argp_state *state)
+{	
+  argp_input *in = (argp_input*)state->input;
+  switch(key)
+  {
+     case 'v':
+       in->version = 1;
+       break;
+     case 'r':
+       /*! At the moment only CONSOLE mode is available. */
+       if(!strcmpi(arg, "CONSOLE"))
+         in->runas = MYSERVER_RUNAS_CONSOLE;
+         break;
+     case ARGP_KEY_ARG:
+     case ARGP_KEY_END:
+       break;
+     default:
+       return ARGP_ERR_UNKNOWN;
+  }
+  return 0;
+}
+
+static struct argp myserver_argp = {options, parse_opt, args_doc, doc};
+
+#endif
+
+
 /*!
 *Main function for MyServer
 */
 int main (int argn, char **argv)
 {
+  int runas=MYSERVER_RUNAS_CONSOLE;
 	::argn=argn;
 	::argv=argv;
 	rebootMyServerConsole=0;
@@ -97,40 +150,62 @@ int main (int argn, char **argv)
 	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
 	sigaction(SIGTERM,&sig2,NULL); // catch the kill command
 #endif
-	/*!
-	*By default use the console mode.
-	*/
-	if(argn==1)
-		argv[1]="CONSOLE";
 	lstrcpy(path,argv[0]);
 	u_long len=(u_long)strlen(path);
 	while((path[len]!='\\')&&(path[len]!='/'))
 		len--;
 	path[len]='\0';
-
+  /*! Configure the current working directory. */
 	setcwd(path);
 	
 	cmdShow=0;
-
-	if(!lstrcmpi(argv[1],"VERSION"))
-	{
-		printf("MyServer %s\r\n",versionOfSoftware);
-		return 0;
-	}
-
-	if(!lstrcmpi(argv[1],"CONSOLE"))
-	{
-		console_service(argn,argv);
-		if(rebootMyServerConsole)
-			reboot_console();
-	}
-#ifdef WIN32
-	if(!lstrcmpi(argv[1],"SERVICE"))
-	{
-		runService();
-	}
+#ifdef NOT_WIN
+  struct argp_input input;
+  /*! Reset the struct. */
+  input.version = 0;
+  input.runas = MYSERVER_RUNAS_CONSOLE;
+  /*! Call the parser. */
+  argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
+  runas=input.runas;
+  /*! If the version flag is up, show the version and exit. */
+  if(input.version)
+  {
+     printf("MyServer %s\r\n",versionOfSoftware);
+     return 0;   
+  }
 #endif
 
+#ifdef WIN32
+  if(argn > 1)
+  {	
+    if(!lstrcmpi(argv[1],"VERSION"))
+    {
+        printf("MyServer %s\r\n",versionOfSoftware);
+        return 0;
+    }
+    if(!lstrcmpi(argv[1],"CONSOLE"))
+    {
+        runas = MYSERVER_RUNAS_CONSOLE;
+    }
+    if(!lstrcmpi(argv[1],"SERVICE"))
+    {
+        runas = MYSERVER_RUNAS_SERVICE;
+    }
+  }
+#endif
+  switch(runas)
+  {
+      case MYSERVER_RUNAS_CONSOLE:
+        console_service(argn,argv);
+        if(rebootMyServerConsole)
+          reboot_console();
+        break;
+      case MYSERVER_RUNAS_SERVICE:
+#ifdef WIN32
+        runService();
+#endif
+        break;
+  }
 
 	return 0;
 } 
