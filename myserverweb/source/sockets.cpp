@@ -23,7 +23,7 @@
 #include <string.h>
 
 /*
-*Source code to wrap the socket library
+*Source code to wrap the socket library to myServer project
 */
 
 int ms_startupSocketLib(WORD ver)

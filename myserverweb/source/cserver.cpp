@@ -39,7 +39,7 @@ void cserver::start(INT hInst)
 
 
 	/*
-	*If another instance of the class exists destroy it
+	*If another instance of the class exists destroy it.
 	*/
 	if(lserver)
 	{
@@ -48,13 +48,13 @@ void cserver::start(INT hInst)
 		mustEndServer=FALSE;
 	}
 	/*
-	*Save the unique instance of this class
+	*Save the unique instance of this class.
 	*/
 	lserver=this;
 
 
 	/*
-	*Setup the server configuration
+	*Setup the server configuration.
 	*/
 	printf("\nInitializing server configuration...\n");
 
@@ -74,7 +74,7 @@ void cserver::start(INT hInst)
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
 	/*
-	*These are the defaults values of this strings
+	*These are the defaults values of these strings.
 	*/
 	lstrcpy(msgSending,"Sending");
 	lstrcpy(msgRunOn,"Running on");
@@ -115,7 +115,7 @@ void cserver::start(INT hInst)
 	printf("%s\n\n",languageParser.getValue("MSG_SERVER_CONF"));
 
 	/*
-	*The guestLoginHandle value is filled by the call to cserver::initialize
+	*The guestLoginHandle value is filled by the call to cserver::initialize.
 	*/
 	if(guestLoginHandle==0)
 	{
@@ -125,7 +125,7 @@ void cserver::start(INT hInst)
 	}
 
 	/*
-	*Startup the socket library
+	*Startup the socket library.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_ISOCK"));
 	int err= ms_startupSocketLib(/*MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
@@ -146,7 +146,7 @@ void cserver::start(INT hInst)
 #ifdef WIN32
 	/*
 	*If the OS support the getaddrinfo function call it
-	*to get info about the addresses of the current machine
+	*to get info about the addresses of the current machine.
 	*/
 	if((OSVer==OS_WINDOWS_2000)|(OSVer==OS_WINDOWS_XP))
 	{
@@ -167,7 +167,7 @@ void cserver::start(INT hInst)
 #endif
 
 	/*
-	*Load the MIME types
+	*Load the MIME types.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
 	if(!mimeManager.load("MIMEtypes.txt"))
@@ -191,7 +191,7 @@ void cserver::start(INT hInst)
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
 	/*
-	*Then we create here all the listens threads
+	*Then we create here all the listens threads.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
 
@@ -203,7 +203,7 @@ void cserver::start(INT hInst)
 	/*
 	*Keep thread alive.
 	*When the mustEndServer flag is set to True exit
-	*from the loop and terminate the server execution
+	*from the loop and terminate the server execution.
 	*/
 
 	while(!mustEndServer);
@@ -211,12 +211,12 @@ void cserver::start(INT hInst)
 	this->terminate();
 }
 /*
-*This function is used to create a socket server and a thread listener for a protocol
+*This function is used to create a socket server and a thread listener for a protocol.
 */
 VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 {
 	/*
-	*Create the server socket
+	*Create the server socket.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_SSOCKCREATE"));
 	MYSERVER_SOCKET serverSocket=ms_socket(AF_INET,SOCK_STREAM,0);
@@ -233,7 +233,7 @@ VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 	sock_inserverSocket.sin_port=htons(port);
 
 	/*
-	*Bind the  port
+	*Bind the  port.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
 
@@ -247,7 +247,7 @@ VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 
 
 	/*
-	*Set connections listen queque to max allowable
+	*Set connections listen queque to max allowable.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
 	if (ms_listen(serverSocket,SOMAXCONN))
@@ -262,7 +262,7 @@ VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 
 
 	/*
-	*Create the listen thread
+	*Create the listen thread.
 	*/
 	listenThreadArgv* argv=new listenThreadArgv;
 	argv->protID=protID;
@@ -271,7 +271,7 @@ VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 	_beginthreadex(NULL,0,&::listenServer,argv,0,0);
 }
 /*
-*This is the thread that listens for a new connection on the port specified by the protocol
+*This is the thread that listens for a new connection on the port specified by the protocol.
 */
 unsigned int __stdcall listenServer(void* params)
 {
@@ -303,7 +303,7 @@ unsigned int __stdcall listenServer(void* params)
 	ms_shutdown(serverSocket, 2);
 	ms_closesocket(serverSocket);
 	/*
-	*When the flag mustEndServer is TRUE end current thread
+	*When the flag mustEndServer is TRUE end current thread.
 	*/
 	_endthreadex( 0 );
 
@@ -311,7 +311,7 @@ unsigned int __stdcall listenServer(void* params)
 
 }
 /*
-*Returns the numbers of active connections on all the threads
+*Returns the numbers of active connections on all the threads.
 */
 DWORD cserver::getNumConnections()
 {
@@ -328,7 +328,7 @@ DWORD cserver::getNumConnections()
 
 
 /*
-*Get the verbosity value
+*Get the verbosity value.
 */
 DWORD cserver::getVerbosity()
 {
@@ -336,14 +336,14 @@ DWORD cserver::getVerbosity()
 }
 
 /*
-*Set the verbosity value
+*Set the verbosity value.
 */
 void  cserver::setVerbosity(DWORD nv)
 {
 	verbosity=nv;
 }
 /*
-*Stop the execution of the server
+*Stop the execution of the server.
 */
 void cserver::stop()
 {
@@ -359,7 +359,7 @@ void cserver::terminate()
 		cleanLogonUser(&guestLoginHandle);
 
 	/*
-	*Stop server
+	*Stop server.
 	*/
 	DWORD i;
 	for(i=0;i<nThreads;i++)
@@ -375,7 +375,7 @@ void cserver::terminate()
 		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
 	}
 	/*
-	*Clean memory allocated here
+	*Clean memory allocated here.
 	*/
 	languageParser.close();
 	
@@ -411,7 +411,7 @@ void cserver::initialize(INT OSVer)
 	buffersize=1024*1024;
 	buffersize2=1024*1024;
 	/*
-	*Store the default path for web and system folder
+	*Store the default path for web and system folder.
 	*/
 	_getcwd(path,MAX_PATH);
 	lstrcat(path,"/web");
@@ -426,7 +426,7 @@ void cserver::initialize(INT OSVer)
 			systemPath[i]='/';
 
 	/*
-	*Store the default name of the logs files
+	*Store the default name of the logs files.
 	*/
 	_getcwd(warningsFileLogName,MAX_PATH);
 	lstrcat(warningsFileLogName,"logs/myServer.err");
@@ -555,7 +555,7 @@ void cserver::initialize(INT OSVer)
 	*/
 	useLogonOption=useLogonOption && (OSVer!=OS_WINDOWS_9X);
 	/*
-	*Do the logon of the guest user
+	*Do the logon of the guest user.
 	*/
 	logonGuest();
 
@@ -582,7 +582,7 @@ VOID cserver::controlSizeLogFile()
 
 
 	/*
-	*Controls the accesses file too
+	*Controls the accesses file too.
 	*/
 	if(!accessesLogFile)
 	{
@@ -599,7 +599,7 @@ VOID cserver::controlSizeLogFile()
 
 }
 /*
-*This function dispatch a new connection to a thread
+*This function dispatch a new connection to a thread.
 */
 BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNECTION_PROTOCOL protID)
 {
@@ -633,7 +633,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONN
 	return ret;
 }
 /*
-*Find a connection passing its socket
+*Find a connection passing its socket.
 */
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 {
@@ -647,28 +647,28 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 	return NULL;
 }
 /*
-*Returns the full path of the system folder
+*Returns the full path of the system folder.
 */
 char *cserver::getSystemPath()
 {
 	return systemPath;
 }
 /*
-*Returns the full path of the web folder
+*Returns the full path of the web folder.
 */
 char *cserver::getPath()
 {
 	return path;
 }
 /*
-*Returns the default filename
+*Returns the default filename.
 */
 char *cserver::getDefaultFilenamePath(DWORD)
 {
 	return defaultFilename;
 }
 /*
-*Returns the name of the server(the name of the current PC)
+*Returns the name of the server(the name of the current PC).
 */
 char *cserver::getServerName()
 {
@@ -676,7 +676,7 @@ char *cserver::getServerName()
 }
 /*
 *Returns true if we use personalized errors page
-*false if we don't use personalized errors page
+*false if we don't use personalized errors page.
 */
 BOOL cserver::mustUseMessagesFiles()
 {

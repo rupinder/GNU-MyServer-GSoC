@@ -64,7 +64,7 @@ char *cXMLParser::getValue(char* vName)
 				continue;
 			}
 			/*
-			*If we arrive here this isn't a comment
+			*If we arrive here this is not a comment
 			*/
 			found=TRUE;
 			for(j=0;j<len;j++)

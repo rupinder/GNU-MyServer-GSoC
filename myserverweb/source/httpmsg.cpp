@@ -19,7 +19,7 @@
 
 #include "..\stdafx.h"
 /*
-*This array describe the HTTP errors
+*This array is used to describe the HTTP errors.
 */
 char HTTP_ERROR_MSGS[13][64]=
 {
@@ -38,7 +38,7 @@ char HTTP_ERROR_MSGS[13][64]=
 	"Bad gateway"					/*502*/
 };
 /*
-*This array describe the HTTP files for personalized errors page
+*This array is used to describe the HTTP files for personalized errors page.
 */
 char HTTP_ERROR_HTMLS[13][64]=
 {
@@ -57,7 +57,7 @@ char HTTP_ERROR_HTMLS[13][64]=
 	"502.html"					/*502*/
 };
 /*
-*These messages are loaded by the application on the startup
+*These messages are loaded by the application on the startup.
 */
 char msgSending[33];
 char msgNewConnection[33];

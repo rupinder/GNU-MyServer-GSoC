@@ -745,7 +745,10 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	/*
 	*End of record the request in the structure
 	*/
-
+	
+	/*
+	*Here we control all the HTTP commands
+	*/
 	if(!lstrcmpi(request.CMD,"GET"))
 	{
 		/*
