@@ -466,6 +466,7 @@ int runFcgiServer(fCGIContext*,char* path)
 				return -2;
 			MYSERVER_SOCKADDRIN sock_inserverSocket;
 			sock_inserverSocket.sin_family=AF_INET;
+			/*The FastCGI server accepts connections only by the localhost*/
 			sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
 			sock_inserverSocket.sin_port=htons(fCGIservers[fCGIserversN].port);
 			if(fCGIservers[fCGIserversN].socket.bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket)))
