@@ -9,8 +9,8 @@ Point a <img> link in the HTML page pointing to the counter.mscgi program
 as demonstrated in the counter.html file.
 
 Advanced:
-The location for the count data is in the same directory as the myserver
-executable.  This file is named count.dat.
+The location for the count data is in the same directory as the counter.mscgi
+program.  This file is named count.dat.
 If you wish to change the image used for the counter, you must:
 	1. Create an image with evenly spaced numbers using: 0123456789
 	The image width must be divisible by 10.
