@@ -1740,7 +1740,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*/
 			strcpy(request->AUTH,"Basic");
 			int len=strlen(token);
-			char *base64=base64Utils.Decode(&token[strlen("Basic:")],&len);
+			char *base64=base64Utils.Decode(&token[strlen("Basic:")],&len,0);
 			char* lbuffer2=base64;
 			int i;
 			for(i=0;(*lbuffer2!=':') && (i<19);i++)

@@ -31,7 +31,7 @@ public:
 	int GetLastError() {return ErrorCode;};
 	CBase64Utils();
 	~CBase64Utils();
-	char* Decode(char *in, int *bufsize);
+	char* Decode(char *in, int *bufsize,int standardmode=1);
 	char* Encode(char *in, int bufsize);
 };
 class CQPUtils

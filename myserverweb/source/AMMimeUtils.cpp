@@ -377,7 +377,7 @@ char* CBase64Utils::Encode(char *input, int bufsize)
 /*
 *Decode a string from a Base64 codification
 */
-char* CBase64Utils::Decode(char *input, int *bufsize)
+char* CBase64Utils::Decode(char *input, int *bufsize,int standardmode)
 {
 	int std = 0, count = 1, resultlen = 0;
 	char *finalresult = (char*)calloc(*bufsize + sizeof(char), sizeof(char));
@@ -420,7 +420,7 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 		count++;
 	}
 	count--;
-	if (count % 4 != 0)
+	if ((standardmode)&&(count % 4 != 0))
 	{
 		for (int i = 0; i < 4 - (count % 4); i++)
 		{

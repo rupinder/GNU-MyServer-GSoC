@@ -305,7 +305,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 						}
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 						{
-							if(!xmlStrcmp(attr->children->content, (const xmlChar *)password))
+							if(!lstrcmp((const char*)attr->children->content,password))
 								rightPassword=1;
 						}
 						attr=attr->next;
