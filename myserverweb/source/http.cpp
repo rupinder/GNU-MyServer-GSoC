@@ -847,6 +847,8 @@ int logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 	else
 		((vhost*)(td->connection->host))->accessesLogWrite("-");
 
+	((vhost*)(td->connection->host))->accessesLogWrite(" ");
+
 	if(td->identity[0])
 		((vhost*)(td->connection->host))->accessesLogWrite(td->identity);
 	else
