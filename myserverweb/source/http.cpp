@@ -957,7 +957,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 				*/
 				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
 				strcpy(nURL,protocolPrefix);
-				strcat(nURL,td->request.HOST);
+				if(!strcmp(td->request.VER,"HTTP/1.1"))
+					strcat(nURL,td->request.HOST);
+				else
+					strcat(nURL,s->localIpAddr);
 				int isPortSpecified=0;
 				for(int i=0;td->request.HOST[i];i++)
 				{
