@@ -24,6 +24,7 @@
 #include "..\include\filemanager.h"
 #include "..\include\sockets.h"
 #include "..\include\utility.h"
+#include "..\include\isapi.h"
 #include <direct.h>
 #include <errno.h>
 
@@ -377,8 +378,16 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			if(sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
 				return 1;
 		return raiseHTTPError(td,s,e_404);
+	}else if(mimeCMD==CGI_CMD_RUNISAPI)
+	{
+		if(ms_FileExists(td->filenamePath))
+		{
+			return sendISAPI(td,s,td->filenamePath,ext,data);
+		}
+		else
+			return raiseHTTPError(td,s,e_404);
 	}
-	if(mimeCMD==CGI_CMD_RUNMSCGI)
+	else if(mimeCMD==CGI_CMD_RUNMSCGI)
 	{
 		char *target;
 		if(td->request.URIOPTSPTR)
@@ -389,7 +398,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			return 1;
 		return raiseHTTPError(td,s,e_404);
 	}
-	if(mimeCMD==CGI_CMD_SENDLINK)
+	else if(mimeCMD==CGI_CMD_SENDLINK)
 	{
 		MYSERVER_FILE_HANDLE h=ms_OpenFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 		u_long nbr;
@@ -419,6 +428,15 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 */
 int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,LOGGEDUSERID *imp,u_long id)
 {
+	/*
+	*Bit mask.
+	*|...|31|32|
+	*Bit 32		->	Return value;
+	*Bit 31		->	Return from the function;
+	*Bits 1-30	->	Don't used.
+	*/
+	int retvalue=0;
+
 	httpThreadContext td;
 	td.buffer=b1;
 	td.buffer2=b2;
@@ -461,7 +479,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		warningsLogWrite(td.buffer);
 	}
 	/*
-	*If the header is an invalid request send the correct error message to the client.
+	*If the header is an invalid request send the correct error message to the client and return immediately.
 	*/
 	if(validRequest==0)
 	{
@@ -715,7 +733,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		token = strtok( NULL, cmdseps );
 	}while((u_long)(token-td.buffer)<maxTotchars);
 	/*
-	*END REQUEST STRUCTURE BUILD
+	*END REQUEST STRUCTURE BUILD.
 	*/
 
 	/*
@@ -752,7 +770,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 					*/
 					ms_CloseFile(td.inputData);
 					td.inputData=0;
-					return 0;
+					retvalue|=1;/*set return value to 1.*/
+					retvalue|=2;
 				}
 				ms_WriteToFile(td.inputData,td.buffer2,err,&nbw);
 			}
@@ -765,77 +784,88 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		td.request.URIOPTSPTR=0;
 	}
-
-
-	/*
-	*Record the request in the log file.
-	*/
-	accessesLogWrite(a->ipAddr);
-	accessesLogWrite(":");
-	accessesLogWrite(td.request.CMD);
-	accessesLogWrite(" ");
-	accessesLogWrite(td.request.URI);
-	if(td.request.URIOPTS[0])
-	{
-		accessesLogWrite("?");
-		accessesLogWrite(td.request.URIOPTS);
-	}
-	accessesLogWrite("\r\n");
-	/*
-	*End record the request in the structure.
-	*/
-
-	/*
-	*How is expressly said in the rfc2616 a client that sends an 
-	*HTTP/1.1 request MUST sends a Host header.
-	*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
-    *request does not include a Host request-header.
-	*/
-	if(td.request.HOST[0]==0)
-	{
-		raiseHTTPError(&td,a,e_400);
-		if(td.inputData)
-		{
-			ms_CloseFile(td.inputData);
-			td.inputData=0;
-		}
-		return 0;
-	}
-
 	
+	if(!(retvalue&2))/*If return value is not setted.*/
+	{
+		/*
+		*Record the request in the log file.
+		*/
+		accessesLogWrite(a->ipAddr);
+		accessesLogWrite(":");
+		accessesLogWrite(td.request.CMD);
+		accessesLogWrite(" ");
+		accessesLogWrite(td.request.URI);
+		if(td.request.URIOPTS[0])
+		{
+			accessesLogWrite("?");
+			accessesLogWrite(td.request.URIOPTS);
+		}
+		accessesLogWrite("\r\n");
+		/*
+		*End record the request in the structure.
+		*/
+
+		/*
+		*How is expressly said in the rfc2616 a client that sends an 
+		*HTTP/1.1 request MUST sends a Host header.
+		*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
+		*request does not include a Host request-header.
+		*/
+		if(td.request.HOST[0]==0)
+		{
+			raiseHTTPError(&td,a,e_400);
+			if(td.inputData)
+			{
+				ms_CloseFile(td.inputData);
+				td.inputData=0;
+			}
+			retvalue=0xFFFFFFFE & (~1);/*Set last bit to 0*/
+			return 0;
+		}
+
+		
+		/*
+		*Here we control all the HTTP commands.
+		*/
+		if(!lstrcmpi(td.request.CMD,"GET"))/*GET REQUEST*/
+		{
+			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
+				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+			else
+				sendHTTPRESOURCE(&td,a,td.request.URI);
+		}
+		else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
+		{
+			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
+				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+			else
+				sendHTTPRESOURCE(&td,a,td.request.URI);
+		}
+		else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
+		{
+			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
+				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+			else
+				sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE);
+		}
+		else
+		{
+			raiseHTTPError(&td,a,e_501);
+			retvalue=0xFFFFFFFE & (~1);/*Set last bit to 0*/
+		}
+	}
 	/*
-	*Here we control all the HTTP commands.
+	*If the connection is not Keep-Alive remove it from the connections list returning 0.
 	*/
-	if(!lstrcmpi(td.request.CMD,"GET"))/*GET REQUEST*/
+	if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
 	{
-		if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
-		else
-			sendHTTPRESOURCE(&td,a,td.request.URI);
-	}
-	else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
-	{
-		if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
-		else
-			sendHTTPRESOURCE(&td,a,td.request.URI);
-	}
-	else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
-	{
-		if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
-		else
-			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE);
+		retvalue|=1;/*Set last bit to 1*/
+		retvalue|=2;
 	}
 	else
 	{
-		raiseHTTPError(&td,a,e_501);
-		if(td.inputData)
-		{
-			ms_CloseFile(td.inputData);
-			td.inputData=0;
-		}
-		return 0;
+		retvalue=0xFFFFFFFE & (~1);/*Set last bit to 0*/
+		retvalue|=2;
 	}
 	/*
 	*If the inputData file was not closed close it.
@@ -845,23 +875,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		ms_CloseFile(td.inputData);
 		td.inputData=0;
 	}
-
-	/*
-	*If the connection is not Keep-Alive remove it from the connections list returning 0.
-	*/
-	if(lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
-	{
-		if(td.inputData)
-		{
-			ms_CloseFile(td.inputData);
-			td.inputData=0;
-		}
-		return 0;
-	}
-	/*
-	*Do not remove the connection from the connection pool if it is Keep-Alive returning 1.
-	*/
-	return 1;
+	return (retvalue&1)?1:0;
 }
 /*
 *Reset all the HTTP_REQUEST_HEADER structure members.

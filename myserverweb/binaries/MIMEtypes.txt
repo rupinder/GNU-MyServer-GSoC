@@ -12,7 +12,7 @@ cgi,text/html,EXECUTE NONE;
 mscgi,text/html,RUNMSCGI NONE;
 php,text/html,RUNCGI c:/programmi/php/php.exe;
 php3,text/html,RUNCGI c:/programmi/php/php.exe;
-pl,text/html,RUNCGI c:/programmi/perl/bin/perl.exe;
+pl,text/html,RUNISAPI c:/programmi/perl/bin/perlis.dll;
 wrl,model/vrml,SEND NONE;
 vrml,model/vrml,SEND NONE;
 bmp,image/bmp,SEND NONE;

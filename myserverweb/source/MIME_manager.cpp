@@ -94,6 +94,8 @@ int MIME_Manager::load(char *filename)
 				record.command=CGI_CMD_RUNMSCGI;
 			if(!lstrcmpi(commandString,"EXECUTE"))
 				record.command=CGI_CMD_EXECUTE;
+			if(!lstrcmpi(commandString,"RUNISAPI"))
+				record.command=CGI_CMD_RUNISAPI;
 			if(!lstrcmpi(commandString,"SENDLINK"))
 				record.command=CGI_CMD_SENDLINK;
 		}
@@ -143,6 +145,8 @@ int MIME_Manager::save(char *filename)
 			lstrcpy(command,"CGI_CMD_EXECUTE");
 		else if(nmr1->command==CGI_CMD_SENDLINK)
 			lstrcpy(command,"SENDLINK");
+		else if(nmr1->command==CGI_CMD_RUNISAPI)
+			lstrcpy(command,"RUNISAPI");
 
 		ms_WriteToFile(f,command,lstrlen(command),&nbw);
 		if(nmr1->cgi_manager[0])

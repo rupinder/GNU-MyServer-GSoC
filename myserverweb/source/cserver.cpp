@@ -23,6 +23,7 @@
 #include <Ws2tcpip.h>
 #include <direct.h>
 #include "..\include\sockets.h"
+#include "..\include\isapi.h"
 
 /*
 *These variables are the unique istance of the class cserver in the application and the flag
@@ -123,6 +124,10 @@ void cserver::start()
 	lstrcpy(msgErrorConnection,"Error connection from");
 	lstrcpy(msgAtTime,"at time");
 
+	/*
+	*By default create a thread for every CPU.
+	*/
+	nThreads=getCPUCount();
 
 #ifdef WIN32
 	/*
@@ -144,6 +149,10 @@ void cserver::start()
 			warningsLogWrite(" libhoard\r\n");
 		}
 	}
+	/*
+	*Under WIN32 include initialize ISAPI too.
+	*/
+	initISAPI();
 #endif	
 
 	/*
@@ -232,11 +241,6 @@ void cserver::start()
 
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
 	
-	/*
-	*By default create a thread for every CPU.
-	*/
-	nThreads=getCPUCount();
-
 	unsigned int ID;
 	for(i=0;i<nThreads;i++)
 	{
@@ -458,6 +462,9 @@ void cserver::terminate()
 	mimeManager.clean();
 	u_long threadsStopped=0;
 	freeMSCGILib();
+#ifdef WIN32
+	cleanupISAPI();
+#endif	
 	/*
 	*Wait before clean the threads that all the threads are stopped.
 	*/

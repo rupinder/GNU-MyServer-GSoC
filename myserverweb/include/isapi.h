@@ -50,10 +50,40 @@ typedef LPVOID HCONN;
 #define HSE_REQ_GET_SSPI_INFO (HSE_REQ_END_RESERVED+2)
 
 
+typedef struct _HSE_VERSION_INFO 
+{
+  DWORD dwExtensionVersion;
+  CHAR lpszExtensionDesc[HSE_MAX_EXT_DLL_NAME_LEN];
+} HSE_VERSION_INFO, *LPHSE_VERSION_INFO;
+
+typedef struct _EXTENSION_CONTROL_BLOCK 
+{
+  DWORD cbSize;
+  DWORD dwVersion;
+  HCONN ConnID;
+  DWORD dwHttpStatusCode;
+  CHAR lpszLogData[HSE_LOG_BUFFER_LEN];
+  LPSTR lpszMethod;
+  LPSTR lpszQueryString;
+  LPSTR lpszPathInfo;
+  LPSTR lpszPathTranslated;
+  DWORD cbTotalBytes;
+  DWORD cbAvailable;
+  LPBYTE lpbData;
+  LPSTR lpszContentType;
+  BOOL (WINAPI * GetServerVariable)(HCONN hConn, LPSTR lpszVariableName, 						                      							  					
+				                            LPVOID lpvBuffer, LPDWORD lpdwSize);
+  BOOL (WINAPI * WriteClient)(HCONN ConnID, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
+  BOOL (WINAPI * ReadClient)(HCONN ConnID, LPVOID lpvBuffer, LPDWORD lpdwSize);
+  BOOL (WINAPI * ServerSupportFunction)(HCONN hConn, DWORD dwHSERRequest, LPVOID lpvBuffer,
+                                        LPDWORD lpdwSize, LPDWORD lpdwDataType);
+} EXTENSION_CONTROL_BLOCK, *LPEXTENSION_CONTROL_BLOCK;
+
 struct ConnTableRecord
 {
   BOOL Allocated;
   httpThreadContext *td;
+  char* envString;
   LPCONNECTION connection;
   HANDLE ISAPIDoneEvent;
 };
@@ -63,6 +93,11 @@ int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL);
 int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
 int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
 ConnTableRecord *HConnRecord(HCONN hConn);
+
+typedef BOOL (WINAPI * PFN_GETEXTENSIONVERSION)(HSE_VERSION_INFO *pVer);
+typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
+
+int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath);
 
 BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType);
 BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
