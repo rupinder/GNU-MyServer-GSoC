@@ -162,7 +162,9 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
-	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, creationFlag, attributeFlag, NULL);
+	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag, 
+                                          FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                                          &sa, creationFlag, attributeFlag, NULL);
 	/*! Return 1 if an error happens.  */
   if(handle==INVALID_HANDLE_VALUE)
   {

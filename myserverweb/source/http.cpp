@@ -3031,7 +3031,7 @@ http::~http()
   if(td.cgiFile)
     delete [] td.cgiFile;
   if(td.scriptPath)
-    delete td.scriptPath;
+    delete [] td.scriptPath;
   if(td.scriptDir)
     delete [] td.scriptDir;
 	if(td.scriptFile)

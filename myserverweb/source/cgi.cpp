@@ -233,7 +233,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
       td->scriptFile = 0;
       td->scriptDir = 0;
       ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+      ((vhost*)(td->connection->host))->warningsLogWrite(
+                                                       "Error allocating memory\r\n");
       ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       /*! If we cannot allocate the memory return a 500 error message. */
       return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
