@@ -20,14 +20,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define COUNTER_OUTPUT_H
 
 #include "../../../cgi-lib/cgi_manager.h"
-
 class Counter_Output
 {
     private:
-    	unsigned char * outBuffer;
+    	unsigned char *outBuffer;
     	unsigned long int number;
     public:
-    	void setNumber(unsigned long int );
+    void setNumber(unsigned long int );
 	void setWrite(cgi_manager *);
 	void run();
 };

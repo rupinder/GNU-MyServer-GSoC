@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../../../cgi-lib/cgi_manager.h"
 #include "counter_output.h"
 #include <limits.h>
-#include <math.h>
 
 #ifdef WIN32
 int EXPORTABLE main (char *cmd,cgi_data* data)
@@ -92,4 +91,4 @@ BOOL APIENTRY DllMain( HANDLE,DWORD ul_reason_for_call,LPVOID)
 	return TRUE; 
 }
 #endif
-	
+

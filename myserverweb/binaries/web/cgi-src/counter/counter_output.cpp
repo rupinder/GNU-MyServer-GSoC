@@ -24,9 +24,8 @@ extern "C" {
 #include <stdlib.h>
 #include <math.h>
 #include "png.h"
-#include "writepng.h"
 }
-
+#include "writepng.h"
 
 cgi_manager * cgi_manager_ptr; // a nasty global 
 
@@ -77,7 +76,7 @@ void Counter_Output::run()
 	// This is going to get ugly!
 	for(i = digets; i >= 1; i--)
 	{
-		num = (number % (unsigned long int)pow((long double)10, (long double)i)) / pow((long double)10, (long double)(i - 1));
+		num = (int)((number % (unsigned long int)pow((long double)10, (long double)i)) / pow((long double)10, (long double)(i - 1)));
 		
 		in_offset  = (numbers_image.width / 10) * numbers_image.bytes_per_pixel * num;
 		
@@ -144,3 +143,4 @@ void Counter_Output::run()
 	delete[] outBuffer;
 	
 }
+

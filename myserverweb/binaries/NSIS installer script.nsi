@@ -1,7 +1,7 @@
 ;NSIS Installation script for myServer
 SetCompressor bzip2
 !include "MUI.nsh"
-!define MUI_VERSION "0.6.2"
+!define MUI_VERSION "0.7"
 !define MUI_PRODUCT "MyServer"
 !define MUI_COMPONENTSPAGE
 !define MUI_LICENSEPAGE_CHECKBOX
@@ -44,8 +44,8 @@ Section "MyServer core" SecCore
   File "libxml2.dll"
   File "libpng12.dll"
   File "zlib1.dll"
+  File "libssl32.dll"
   File "libeay32.dll"
-  File "ssleay32.dll"
   File "MIMEtypes.xml.default"
   File "myserver.xml.default"
   File "virtualhosts.xml.default"

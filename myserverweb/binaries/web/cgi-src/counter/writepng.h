@@ -28,7 +28,8 @@
             published by O'Reilly and Associates.
 
   ---------------------------------------------------------------------------*/
-
+#ifndef WRITEPNG_H
+#define WRITEPNG_H
 #ifndef TRUE
 #  define TRUE 1
 #  define FALSE 0
@@ -97,16 +98,13 @@ typedef struct _mainprog_info {
 /* prototypes for public functions in writepng.c */
 
 void writepng_version_info(void);
-
 int writepng_init(mainprog_info *mainprog_ptr);
-
 int writepng_encode_image(mainprog_info *mainprog_ptr);
-
 int writepng_encode_row(mainprog_info *mainprog_ptr);
-
 int writepng_encode_finish(mainprog_info *mainprog_ptr);
-
 void writepng_cleanup(mainprog_info *mainprog_ptr);
 
 /* This was added */
 png_structp * get_png_ptr(mainprog_info *mainprog_ptr);
+
+#endif

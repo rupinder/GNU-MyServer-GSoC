@@ -58,6 +58,7 @@ int cgi_manager::Write(void* data, int len)
 	}
 	return 0;
 }
+
 /*!
 *Start the execution of the CGI.
 */

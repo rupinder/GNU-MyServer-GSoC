@@ -11,8 +11,8 @@ PrivateResource=
 ResourceIncludes=
 MakeIncludes=
 Compiler=-DBUILDING_DLL=1_@@_
-CppCompiler=
-Linker=--no-export-all-symbols --add-stdcall-alias -lm -lz -lpng_@@_../../../cgi-lib/CGI-LIB.lib_@@_../../../../tmp/utility.o_@@_../../../../tmp/filemanager.o_@@_-llibz_@@_
+CppCompiler=-DBUILDING_DLL=1_@@_
+Linker=--add-stdcall-alias -lpng  -lz -lm  ../../../cgi-lib/CGI-LIB.lib ../../../../tmp/utility.o ../../../../tmp/filemanager.o_@@_
 IsCpp=1
 Icon=
 ExeOutput=..\..\cgi-bin
@@ -27,27 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000000000000000000
-
-[Unit1]
-FileName=writepng.h
-CompileCpp=1
-Folder=counter
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit2]
-FileName=counter_output.cpp
-CompileCpp=1
-Folder=counter
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
+CompilerSettings=000100000000000000
 
 [Unit3]
 FileName=counter_output.h
@@ -79,16 +59,6 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit6]
-FileName=writepng.c
-CompileCpp=0
-Folder=counter
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=$(CC) -c writepng.c -o writepng.o $(CFLAGS)
-
 [VersionInfo]
 Major=0
 Minor=1
@@ -106,4 +76,34 @@ OriginalFilename=
 ProductName=
 ProductVersion=
 AutoIncBuildNr=0
+
+[Unit1]
+FileName=writepng.h
+CompileCpp=1
+Folder=counter
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit2]
+FileName=counter_output.cpp
+CompileCpp=1
+Folder=counter
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit6]
+FileName=writepng.c
+CompileCpp=1
+Folder=counter
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 
