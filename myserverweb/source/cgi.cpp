@@ -258,7 +258,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		*/
 		sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
 		buildHTTPResponseHeader(td->buffer,&td->response);
-		ms_send(s->socket,td->buffer,strlen(td->buffer), 0);
+		ms_send(s->socket,td->buffer,(int)strlen(td->buffer), 0);
 		ms_send(s->socket,(char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
 
 	}

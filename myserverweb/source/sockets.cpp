@@ -46,8 +46,9 @@ int ms_startupSocketLib(u_short ver)
 #ifdef WIN32	
 	WSADATA wsaData;
 	return WSAStartup(ver, &wsaData);
-#endif
+#else
 	return 0;
+#endif
 }
 
 MYSERVER_SOCKET ms_socket(int af,int type,int protocol)

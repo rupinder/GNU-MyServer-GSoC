@@ -155,16 +155,11 @@ void cserver::start()
 	lstrcpy(msgErrorConnection,"Error connection from");
 	lstrcpy(msgAtTime,"at time");
 
-	/*
-	*By default create a thread for every CPU.
-	*/
-	nThreads=ms_getCPUCount();
-
 #ifdef WIN32
 	/*
 	*If the libhoard executable exists load it.
 	*Libhoard is a free library by Emery Berger,
-	*it is distribuite under the GNU Library General Public License.
+	*it is distribuited under the GNU Library General Public License.
 	*You can download it at: http://www.hoard.org/.
 	*For use libhoard in myServer simply put the libhoard.dll executable file in the 
 	*myServer external folder.
@@ -596,8 +591,10 @@ char *cserver::getServerAdmin()
 void cserver::initialize(int OSVer)
 {
 	/*
-	*Store the default values for these variables.
+	*Store the default values.
 	*/
+	u_long nThreadsA=1;
+	u_long nThreadsB=0;
 	socketRcvTimeout = 10;
 	useLogonOption = true;
 	guestLoginHandle=0;
@@ -654,12 +651,23 @@ void cserver::initialize(int OSVer)
 		lstrcpy(guestLogin,data);
 	}
 
-	data=configurationFileManager.getValue("GUEST_password");
+	data=configurationFileManager.getValue("NTHREADS_A");
+	if(data)
+	{
+		nThreadsA=atoi(data);
+	}
+	data=configurationFileManager.getValue("NTHREADS_B");
+	if(data)
+	{
+		nThreadsB=atoi(data);
+	}
+	nThreads=nThreadsA*ms_getCPUCount()+nThreadsB;
+
+	data=configurationFileManager.getValue("GUEST_PASSWORD");
 	if(data)
 	{
 		lstrcpy(guestPassword,data);
 	}
-
 	/*
 	*Determine the number of default filenames written in the configuration file.
 	*/

@@ -115,8 +115,9 @@ int loadMSCGILib()
 #ifdef WIN32
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
 	return (mscgiModule)?1:0;
-#endif
+#else
 	return 0;
+#endif
 }
 /*
 *Free the memory allocated by the MSCGI library.
