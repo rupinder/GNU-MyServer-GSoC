@@ -81,7 +81,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
   if(td->outputDataPath)
     delete [] td->outputDataPath;
   td->outputDataPath = new char[outputDataPathLen];
-  if(td->outputDataPath)
+  if(td->outputDataPath==0)
     return sendHTTPhardError500(td, s);
   
 	getdefaultwd(td->outputDataPath, outputDataPathLen);
@@ -182,6 +182,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
   if(filename==0)
   {
     delete [] td->outputDataPath;
+    td->outputDataPath = 0;
     return sendHTTPhardError500(td, s);
   }
 	sprintf(filename, "%s/*", folder);
@@ -191,6 +192,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
   if(filename==0)
   {
     delete [] td->outputDataPath;
+    td->outputDataPath=0;
     return sendHTTPhardError500(td, s);
   }
 	sprintf(filename, "%s/", folder);
@@ -209,6 +211,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	intptr_t ff;
 	ff=(intptr_t)_findfirst(filename, &fd);
   delete [] filename;
+  filename = 0;
 #ifdef WIN32
 	if(ff==-1)
 #endif
@@ -419,6 +422,7 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
 		return 0;
 	}
   delete []filename;
+  filename = 0;
 	char *http_trace_value=parser.getAttr("HTTP", "TRACE");
 	
        /*! If the returned value is equal to ON so the HTTP TRACE is active for this vhost.  */
@@ -682,7 +686,10 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 			return raiseHTTPError(td, s, e_401);
 		}
     if(td->filenamePath)
+    {
       delete [] td->filenamePath;
+      td->filenamePath = 0;
+    }
 		getPath(td, s, &(td->filenamePath), filename, 0);
 	}
 	int permissions=-1;
@@ -707,7 +714,6 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
     {
       delete [] td->filenamePath;
       td->filenamePath = 0;
-      delete [] folder;
       return sendHTTPhardError500(td, s);
     }
 		MYSERVER_FILE::splitPath(td->filenamePath, folder, filename);
@@ -1119,11 +1125,15 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 		translateEscapeString(filename );
 		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
 		{
+      delete [] filename;
+      if(td->filenamePath)
+        delete [] td->filenamePath;     
 			return raiseHTTPError(td, s, e_401);
 		}
     if(td->filenamePath)
       delete [] td->filenamePath;
     td->filenamePath = 0;
+    /*! getPath will alloc the buffer for filenamePath. */
 		getPath(td, s, &(td->filenamePath), filename, systemrequest);
 	}
 	int permissions=-1;/*!By default everything is permitted*/
@@ -1137,6 +1147,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
       if(folder == 0)
       {
         delete [] td->filenamePath;
+        delete [] filename;
         td->filenamePath = 0;
         return sendHTTPhardError500(td, s);
       }
@@ -1150,6 +1161,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
       if(folder == 0)
       {
         delete [] td->filenamePath;
+        delete [] filename;
         td->filenamePath = 0;
         return sendHTTPhardError500(td, s);
       }
@@ -1194,8 +1206,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 		}	
 		/*If there are no permissions, use the Guest permissions*/
 		if(td->request.AUTH[0] && (permissions==0))
-			permissions=getPermissionMask("Guest", "", folder, filename, 
-((vhost*)(s->host))->systemRoot, ((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);	
+			permissions=getPermissionMask("Guest", "", folder, filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);	
 		
     delete [] folder;
 	}
@@ -1233,6 +1244,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
         if(td->pathInfo == 0)
         {
           delete [] dirscan;
+          if(td->filenamePath)
+            delete [] td->filenamePath;
+          delete [] filename;
           return sendHTTPhardError500(td, s);
         }
         strcpy(td->pathInfo, &td->filenamePath[len]);
@@ -1285,23 +1299,30 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 	{
 		if(!(permissions & MYSERVER_PERMISSION_BROWSE))
 		{
-      delete filename;
+      delete []  filename;
 			return sendAuth(td, s);
 		}
 		int i;
 		for(i=0;;i++)
     {
 			char *defaultFileNamePath=getDefaultFilenamePath(i);
-			char *defaultFileName=new char[strlen(td->filenamePath)+
-                                     strlen(defaultFileNamePath)+ 2 ];
-      if(defaultFileName == 0)
-        return sendHTTPhardError500(td, s);
+			char *defaultFileName;
+      
+      if(defaultFileNamePath)
+      {
+        defaultFileName=new char[strlen(td->filenamePath)+
+                               strlen(defaultFileNamePath)+ 2 ];
+        if(defaultFileName == 0)
+          return sendHTTPhardError500(td, s);
+      }
 			if(defaultFileNamePath)
       {
 				sprintf(defaultFileName, "%s/%s", td->filenamePath, defaultFileNamePath);
       }
 			else
 				break;
+
+
 			if(MYSERVER_FILE::fileExists(defaultFileName))
 			{
 				char *nURL;
@@ -1311,6 +1332,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
           if(nURL == 0)
           {
             delete [] defaultFileName;
+            delete [] filename;
             return sendHTTPhardError500(td, s);
           }
 					strcpy(nURL, defaultFileNamePath);
@@ -1326,6 +1348,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
           if(nURL == 0)
           {
             delete [] defaultFileName;
+            delete [] filename;
             return sendHTTPhardError500(td, s);
           }
  					sprintf(nURL, "%s/%s",&URI[last_slash_offset+1], defaultFileNamePath);
@@ -1343,11 +1366,11 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
       delete [] defaultFileName;
     }
     delete [] filename;
-		if(sendHTTPDIRECTORY(td, s, td->filenamePath))
-			return keepalive;
-		return raiseHTTPError(td, s, e_404);
+		return sendHTTPDIRECTORY(td, s, td->filenamePath) & keepalive;
 	}
+
   delete [] filename;
+
 	if(!MYSERVER_FILE::fileExists(td->filenamePath))
 		return raiseHTTPError(td, s, e_404);
 
@@ -1364,9 +1387,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
         delete [] data;
 			return sendAuth(td, s);
 		}
-      if(data)
-        delete [] data;
-		return lcgi.sendCGI(td, s, td->filenamePath, ext, data, mimeCMD);
+		int ret  =  lcgi.sendCGI(td, s, td->filenamePath, ext, data, mimeCMD);
+    if(data)
+      delete [] data;
+    return ret;
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
 #ifdef WIN32
@@ -1376,9 +1400,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
         delete [] data;
 			return sendAuth(td, s);
 		}
+		int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 0);
     if(data)
       delete [] data;
-		return lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 0);
+    return ret;
 #endif
 #ifdef NOT_WIN
     if(data)
@@ -1394,9 +1419,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
         delete [] data;
 			return sendAuth(td, s);
 		}
+  	int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 1);
     if(data)
       delete [] data;
-		return lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 1);
+    return ret;
 #endif
 #ifdef NOT_WIN
     if(data)
@@ -2646,7 +2672,6 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 		u_long i;
 		if(defaultFilename)
 			delete [] defaultFilename;
-		defaultFilename=0;
 		defaultFilename = new char [defaultFilenameSize];
     int cursor = 0;
 		for(i=0;defaultFilename && (i<nDefaultFilename);i++)

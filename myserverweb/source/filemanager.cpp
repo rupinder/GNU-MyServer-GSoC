@@ -635,14 +635,15 @@ void MYSERVER_FILE::splitPathLength(const char *path, int *dir, int *filename)
   int len = strlen(path);
 	i = 0;
 	j = 0;
-	splitpoint =(int)(len - 1);
+	splitpoint =(int)(len-1);
 	while ((splitpoint > 0) && ((path[splitpoint] != '/')&&(path[splitpoint] != '\\')))
 		splitpoint--;
-  if(dir)
-    *dir = splitpoint + 2;
-  if(filename)
-    *filename = len - splitpoint + 2 ;
 
+  if(dir)
+    *dir = splitpoint + 1;
+
+  if(filename)
+    *filename = len - splitpoint + 1 ;
 }
 /*!
  *Splits a file path into a directory and filename.
@@ -670,6 +671,7 @@ void MYSERVER_FILE::splitPath(const char *path, char *dir, char *filename)
 			i++;
 		}
 		dir[i] = 0;
+
 		while (path[i] != 0)
 		{
 			filename[j] = path[i];

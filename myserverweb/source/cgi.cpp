@@ -59,14 +59,14 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 {
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph;
-	char *cmdLine=0;
-	char *filename=0;
+	char *cmdLine = 0;
+	char *filename = 0;
 
-  int scriptDirLen=0;
-  int scriptFileLen= 0;
-  int cgiRootLen= 0;
-  int  cgiFileLen =0  ;
-  int  scriptpathLen = strlen(scriptpath) + 1;
+  int scriptDirLen = 0;
+  int scriptFileLen = 0;
+  int cgiRootLen = 0;
+  int cgiFileLen = 0;
+  int scriptpathLen = strlen(scriptpath) + 1;
 
   if(td->scriptPath)
     delete [] td->scriptPath;
@@ -76,8 +76,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     return 0;
 	lstrcpy(td->scriptPath, scriptpath);
 
-  MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
-  
   if(td->scriptDir)
     delete [] td->scriptDir;
   td->scriptDir = new char[scriptDirLen];
@@ -90,10 +88,10 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
   if(td->scriptFile == 0)
     return 0;
 
-
+  MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
   MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
 
-  if(td->scriptDir)
+  if(td->cgiRoot)
     delete [] td->cgiRoot;
   td->cgiRoot = new char[cgiRootLen];
   if(td->cgiRoot == 0)
@@ -104,7 +102,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
   td->cgiFile = new char[cgiFileLen];
   if(td->cgiFile == 0)
     return 0;
-
 
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
@@ -120,7 +117,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     int filenameLen = 0;
     MYSERVER_FILE::getFilenameLength(scriptpath, &filenameLen);
     
-    filename = new char[filenameLen];
+    filename = new char[filenameLen+1];
     if(filename == 0)
     {
       /*! If we cannot allocate the memory return a 500 error message. */
@@ -139,6 +136,14 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     if(cmdLine == 0)
     {
       delete []filename;
+      delete []  td->scriptPath;
+      delete [] td->scriptFile;
+      delete [] td->scriptDir;
+      delete [] td->cgiFile;
+      td->cgiFile = 0;
+      td->scriptFile = 0;
+      td->scriptDir = 0;
+      td->scriptPath = 0;
       /*! If we cannot allocate the memory return a 500 error message. */
       return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
@@ -159,6 +164,14 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 			((vhost*)td->connection->host)->warningsLogWrite(" executable\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
       delete [] filename;
+      delete [] td->scriptFile;
+      delete [] td->scriptDir;
+      delete [] td->cgiFile;
+      delete []  td->scriptPath;
+      td->scriptPath = 0;
+      td->cgiFile = 0;
+      td->scriptFile = 0;
+      td->scriptDir = 0;
       delete [] cmdLine;
 			return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
@@ -168,6 +181,14 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     if(cmdLine == 0)
     {
       delete []filename;
+      delete [] td->scriptFile;
+      delete [] td->scriptDir;
+      delete [] td->cgiFile;
+      delete []  td->scriptPath;
+      td->scriptPath = 0;
+      td->cgiFile = 0;
+      td->scriptFile = 0;
+      td->scriptDir = 0;
       /*! If we cannot allocate the memory return a 500 error message. */
       return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
@@ -178,6 +199,14 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	{
     delete [] filename;
     delete [] cmdLine;
+    delete [] td->scriptFile;
+    delete [] td->scriptDir;
+    delete [] td->cgiFile;
+    delete [] td->scriptPath;
+    td->scriptPath = 0;
+    td->cgiFile = 0;
+    td->scriptFile = 0;
+    td->scriptDir = 0;
 		/*! If the command was not recognized send an 501 page error.  */
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_501);
 	}
