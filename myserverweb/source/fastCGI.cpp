@@ -71,8 +71,7 @@ int fastcgi::getMaxFcgiServers()
  *Entry-Point to manage a FastCGI request.
  */
 int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
-                         char* scriptpath,char* /*!ext*/,char *cgipath,int execute,
-                         int only_header)
+                         char* scriptpath,char *cgipath,int execute, int only_header)
 {
 	fCGIContext con;
 	con.td=td;
@@ -180,7 +179,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath,
-                         MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS | 
+                         MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_ALWAYS | 
                             MYSERVER_FILE_NO_INHERIT))
   {
     delete [] fullpath;
@@ -196,6 +195,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
   delete [] fullpath;
 	if(server == 0)
   {
+    td->inputData.closeFile();
+		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer<< "Error FastCGI to get process ID\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -213,6 +214,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 
 	if(sendFcgiBody(&con,(char*)&tBody,sizeof(tBody),FCGI_BEGIN_REQUEST,id))
 	{
+    td->inputData.closeFile();
+		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer<< "Error FastCGI to begin the request\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -225,6 +228,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	if(sendFcgiBody(&con,(char*)td->buffer2->GetBuffer(),sizeEnvString,
                   FCGI_PARAMS,id))
 	{
+    td->inputData.closeFile();
+		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send params\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -236,6 +241,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 
 	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
 	{
+    td->inputData.closeFile();
+		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send params\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -254,6 +261,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		generateFcgiHeader( header, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
 		if(con.sock.send((char*)&header,sizeof(header),0)==-1)
     {
+      td->inputData.closeFile();
+      MYSERVER_FILE::deleteFile(td->inputDataPath);
 			return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
     }
 		td->inputData.setFilePointer(0);
@@ -262,6 +271,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 			if(td->inputData.readFromFile((char*)td->buffer->GetBuffer(),
                                     td->buffer->GetRealLength(),&nbr))
       {
+        td->inputData.closeFile();
+        MYSERVER_FILE::deleteFile(td->inputDataPath);
         td->buffer->SetLength(0);
         *td->buffer << "Error FastCGI to read from file\r\n" << '\0';
         ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -275,6 +286,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 			{
 				if(con.sock.send((char*)td->buffer->GetBuffer(),nbr,0) == -1)
         {
+          td->inputData.closeFile();
+          MYSERVER_FILE::deleteFile(td->inputDataPath);
           td->buffer->SetLength(0);
           *td->buffer << "Error FastCGI to send data\r\n" << '\0';
           ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -288,6 +301,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	}
 	if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
 	{
+    td->inputData.closeFile();
+		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send POST data\r\n"<< '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -312,6 +327,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	outDataPath = new char[outDataPathLen];
   if(outDataPath == 0)
   {
+    td->inputData.closeFile();
+		MYSERVER_FILE::deleteFile(td->inputDataPath);
     td->buffer->SetLength(0);
 		*td->buffer << "Error allocating memory\r\n"<< '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -328,6 +345,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                           MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_CREATE_ALWAYS |
                           MYSERVER_FILE_NO_INHERIT))
   {
+    td->inputData.closeFile();
+		MYSERVER_FILE::deleteFile(td->inputDataPath);
     delete [] outDataPath;
     td->buffer->SetLength(0);
 		*td->buffer << "Error opening stdout file\r\n"<< '\0';
@@ -468,6 +487,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	{
 		if(td->response.LOCATION[0])
 		{
+      td->inputData.closeFile();
+      MYSERVER_FILE::deleteFile(td->inputDataPath);
       con.tempOut.closeFile();
       MYSERVER_FILE::deleteFile(outDataPath);
       con.sock.closesocket();
@@ -562,6 +583,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		}while(nbr);
 		break;
 	}
+  td->inputData.closeFile();
+  MYSERVER_FILE::deleteFile(td->inputDataPath);
 	con.tempOut.closeFile();
 	MYSERVER_FILE::deleteFile(outDataPath);
 	con.sock.closesocket();

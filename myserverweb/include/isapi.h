@@ -145,7 +145,7 @@ public:
 	static void initISAPI();
 	static void cleanupISAPI();
 	int sendISAPI(httpThreadContext* td,LPCONNECTION connection, char* scriptpath,
-                char* /*!ext*/,char *cgipath,int execute, int only_header);
+                char *cgipath, int only_header);
 };
 
 #ifdef WIN32	

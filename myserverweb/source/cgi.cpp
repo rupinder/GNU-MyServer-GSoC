@@ -61,7 +61,7 @@ int cgi::cgi_timeout = SEC(15);
  *Run the standard CGI and send the result to the client.
  */
 int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
-                 char* /*!ext*/, char *cgipath, int cmd, int only_header, int buildArg)
+                 char *cgipath, int only_header)
 {
 
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
@@ -157,12 +157,11 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
 
 	/*!
-   *If the cmd is equal to CGI_CMD_EXECUTE then we must execute the
-   *scriptpath file as an executable.
+   *If the cgipath is null we must execute the scriptpath file as an executable.
    *Then to determine if is a nph CGI we must use the scriptpath
    *string.
    */
-	if(cmd==CGI_CMD_EXECUTE)
+	if(cgipath == 0)
 	{
     int cmdLineLen;
     int filenameLen = 0;
@@ -213,7 +212,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		nph=(strnicmp("nph-", td->scriptFile, 4)==0)?1:0;
 #endif
 	}
-	else if(cmd==CGI_CMD_RUNCGI)
+	else
 	{
     int cmdLineLen;
     /*! Check if the CGI executable exists. */
@@ -260,21 +259,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		sprintf(cmdLine, "%s %s", cgipath, td->scriptFile);
 		nph=(strnicmp("nph-", td->cgiFile, 4)==0)?1:0;
 	}
-	else
-	{
-    delete [] filename;
-    delete [] cmdLine;
-    delete [] td->scriptFile;
-    delete [] td->scriptDir;
-    delete [] td->cgiFile;
-    delete [] td->scriptPath;
-    td->scriptPath = 0;
-    td->cgiFile = 0;
-    td->scriptFile = 0;
-    td->scriptDir = 0;
-		/*! If the command was not recognized send an 501 page error.  */
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_501);
-	}
+
 
 	/*!
    *Use a temporary file to store CGI output.
@@ -352,14 +337,15 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	spi.cwd=td->scriptDir;
 
 	/*! Added for unix support. */
-	spi.cmd = cgipath;
+	spi.cmd = cgipath ? cgipath : scriptpath;
   
   /*!
-   *If buildArg is set, send an arguments string to the new process.
+   *If the cgipath is null send the script file name as the argument for the 
+   *new CGI process.
    */
-  if(buildArg)
+  if(cgipath == 0)
     spi.arg = td->scriptFile;
-	else
+  else
     spi.arg = 0;
 
 	spi.stdError = stdOutFile.getHandle();

@@ -1659,7 +1659,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
   data = 0;
 	mimeCMD=getMIME(td, td->response.CONTENT_TYPE, td->filenamePath, ext, &data);
 
-	if( (mimeCMD==CGI_CMD_RUNCGI) || (mimeCMD==CGI_CMD_EXECUTE) )
+	if(mimeCMD==CGI_CMD_RUNCGI)
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
@@ -1667,15 +1667,11 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-    if(mimeCMD==CGI_CMD_RUNCGI)
-      ret = lcgi.sendCGI(td, s, td->filenamePath, ext, data, mimeCMD,only_header);
-    else
-      ret = lcgi.sendCGI(td, s, td->filenamePath, ext, td->filenamePath, 
-                         mimeCMD,only_header, 0);
+    ret = lcgi.sendCGI(td, s, td->filenamePath, data, only_header);
     if(data)
       delete [] data;
     return ret;
-	}else if(mimeCMD == CGI_CMD_RUNISAPI)
+	}else	if(mimeCMD==CGI_CMD_EXECUTE )
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
@@ -1683,7 +1679,20 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 0,only_header);
+    ret = lcgi.sendCGI(td, s, td->filenamePath, 0, only_header);
+    if(data)
+      delete [] data;
+    return ret;
+	}else 
+ if(mimeCMD == CGI_CMD_RUNISAPI)
+	{
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+      if(data)
+        delete [] data;
+			return sendAuth(td, s);
+		}
+		ret = lisapi.sendISAPI(td, s, td->filenamePath, data, only_header);
     if(data)
       delete [] data;
     return ret & keepalive;
@@ -1697,7 +1706,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-  	ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 1,only_header);
+  	ret = lisapi.sendISAPI(td, s, td->filenamePath, 0, only_header);
     if(data)
       delete [] data;
     return ret & keepalive;
@@ -1773,7 +1782,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}	
-		ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 0, only_header);
+		ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, data, 0, only_header);
     if(data)
       delete [] data;
 		return (ret & keepalive);
@@ -1786,7 +1795,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 1, only_header);
+		ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, data, 1, only_header);
     if(data)
       delete [] data;
 		return (ret & keepalive);
@@ -1905,7 +1914,11 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 	*td->buffer2 <<  time ;
 	
 	*td->buffer2 << "] \"" << td->request.CMD;
-	*td->buffer2 <<  " " ;
+
+  if(td->request.URI[0] == '\0')
+  	*td->buffer2 <<  " /";
+  else
+   	*td->buffer2 <<  " ";
 	*td->buffer2 << td->request.URI;
 	
 	if(td->request.URIOPTS[0])

@@ -210,7 +210,7 @@ public:
 	fastcgi();
 	static int initializeFASTCGI();
 	int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
-                  char* scriptpath,char* /*!ext*/,char *cgipath,int execute,
+                  char* scriptpath,char *cgipath,int execute,
                   int onlyHeader);
 	static int cleanFASTCGI();
 };
