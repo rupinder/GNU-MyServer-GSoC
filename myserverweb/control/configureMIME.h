@@ -53,6 +53,7 @@ public:
 	void save(wxCommandEvent& event);
 	void addExt(wxCommandEvent& event);
 	void addMime(wxCommandEvent& event);
+	char mime_configuration_file[MAX_PATH];
 private:
 	DECLARE_EVENT_TABLE()
 };

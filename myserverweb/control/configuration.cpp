@@ -54,12 +54,34 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 		Destroy();
 		return;
 	}
-	
+
+#ifndef WIN32
+/* Under an *nix environment look for .xml files in the following order.
+*1) myserver executable working directory
+*2) ~/.myserver/
+*3) /etc/myserver/
+*4) default files will be copied in myserver executable working	
+*/
+	if(MYSERVER_FILE::fileExists("myserver.xml"))
+	{
+		strcpy(main_configuration_file,"myserver.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("~/.myserver/myserver.xml"))
+	{
+		strcpy(main_configuration_file,"~/.myserver/myserver.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
+	{
+		strcpy(main_configuration_file,"/etc/myserver/myserver.xml");
+	}
+	else
+#endif	
 	/*!
 	*If the myserver.xml files doesn't exist copy it from the default one.
 	*/
 	if(!MYSERVER_FILE::fileExists("myserver.xml"))
 	{
+			strcpy(main_configuration_file,"myserver.xml");
 			MYSERVER_FILE inputF;
 			MYSERVER_FILE outputF;
 			int ret=inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
@@ -82,7 +104,7 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 	}	
 	
 	
-	confparser.open("myserver.xml");
+	confparser.open(main_configuration_file);
 	char version[50];
 	sprintf(version,"MyServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
@@ -148,11 +170,22 @@ void configurationFrame::initNotebook()
 	languageFile = new wxComboBox(pPage[0],-1,_T(confparser.getValue("LANGUAGE")),wxPoint(10,220),wxSize(75,20),0,0,wxCB_DROPDOWN|wxCB_READONLY);
 	_finddata_t fd;
 	intptr_t ff;
+	
 
 #ifdef WIN32
-      ff=_findfirst("languages/*!.xml" ,&fd);
+	strcpy(languages_path,"languages/");
+	ff=_findfirst("languages/*.xml" ,&fd);
 #else
-        ff=_findfirst("languages" ,&fd);
+	/*! If the directory /usr/share/myserver/languages exists use this.*/
+	if(!MYSERVER_FILE::fileExists("languages"))
+	{
+		strcpy(languages_path,"languages/");
+	}
+	else
+	{
+		strcpy(languages_path,"/usr/share/myserver/languages/");
+	}
+	ff=_findfirst(languages_path ,&fd);
  #endif
 	n=0;
 	int c=0;
@@ -166,7 +199,8 @@ void configurationFrame::initNotebook()
 		languageFile->Append(_T(filename));
 		if(!strcmp(confparser.getValue("LANGUAGE"),filename))
 			n=c;
-		else c++;
+		else 
+			c++;
 	}while(!_findnext(ff,&fd));
         languageFile->SetSelection(n);
     wxStaticText *languageFileStat= new wxStaticText(pPage[0], -1, "Set the language used by MyServer",wxPoint(85,222), wxSize(250,20));
@@ -201,7 +235,7 @@ void configurationFrame::configureSave(wxCommandEvent& event)
 	confparser.setValue("BUFFER_SIZE",(char*)(bufferSize->GetValue().ToAscii()));
 	confparser.setValue("LANGUAGE",(char*)(languageFile->GetValue().ToAscii()));
 	confparser.setValue("USE_ERRORS_FILES",(char*)(useErrFiles->GetValue().ToAscii()));
-	confparser.save("myserver.xml");
+	confparser.save(main_configuration_file);
 }
 void configurationFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {

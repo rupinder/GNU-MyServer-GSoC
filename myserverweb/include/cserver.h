@@ -106,6 +106,10 @@ private:
 	void createListenThreads();
 	void reboot();
 	u_int listingThreads;
+	char languages_path[MAX_PATH];
+	char main_configuration_file[MAX_PATH];
+	char vhost_configuration_file[MAX_PATH];
+	char mime_configuration_file[MAX_PATH];
 public:
 	cserver();
 	~cserver();

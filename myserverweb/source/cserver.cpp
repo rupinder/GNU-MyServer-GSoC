@@ -185,9 +185,9 @@ void cserver::start()
 	}
 	loadSettings();
 
-	myserver_main_conf=MYSERVER_FILE::getLastModTime("myserver.xml");
-	myserver_hosts_conf=MYSERVER_FILE::getLastModTime("virtualhosts.xml");
-	myserver_mime_conf=MYSERVER_FILE::getLastModTime("MIMEtypes.xml");
+	myserver_main_conf=MYSERVER_FILE::getLastModTime(main_configuration_file);
+	myserver_hosts_conf=MYSERVER_FILE::getLastModTime(vhost_configuration_file);
+	myserver_mime_conf=MYSERVER_FILE::getLastModTime(mime_configuration_file);
 	
 	/*!
 	*Keep thread alive.
@@ -198,11 +198,12 @@ void cserver::start()
 	{
 		wait(500);
 		configsCheck++;
-		if(configsCheck>10)/*Do not check for modified configuration files every cycle*/
+		/*! Do not check for modified configuration files every cycle. */
+		if(configsCheck>10)
 		{
-			time_t myserver_main_conf_now=MYSERVER_FILE::getLastModTime("myserver.xml");
-			time_t myserver_hosts_conf_now=MYSERVER_FILE::getLastModTime("virtualhosts.xml");
-			time_t myserver_mime_conf_now=MYSERVER_FILE::getLastModTime("MIMEtypes.xml");
+			time_t myserver_main_conf_now=MYSERVER_FILE::getLastModTime(main_configuration_file);
+			time_t myserver_hosts_conf_now=MYSERVER_FILE::getLastModTime(vhost_configuration_file);
+			time_t myserver_mime_conf_now=MYSERVER_FILE::getLastModTime(mime_configuration_file);
 			/*If a configuration file was modified reboot the server*/
 			if((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && (myserver_mime_conf_now!=-1))
 			{
@@ -609,24 +610,56 @@ void cserver::initialize(int /*!os_ver*/)
 	socketRcvTimeout = 10;
 	useLogonOption = 1;
 	connectionTimeout = SEC(25);
-	lstrcpy(languageFile, "languages/english.xml");
+	strcpy(languages_path, "languages/" );
 	mustEndServer=0;
 	verbosity=1;
 	maxConnections=0;
 	serverAdmin[0]='\0';
 	
-	/*!
-	*If the myserver.xml files doesn't exist copy it from the default one.
-	*/
+#ifndef WIN32
+	/*! If the directory /usr/share/myserver/languages exists use this.*/
+	if(!MYSERVER_FILE::fileExists("languages"))
+	{
+		strcpy(languages_path,"languages/");
+	}
+	else
+	{
+		strcpy(languages_path,"/usr/share/myserver/languages/");
+	}
+#endif
+
+#ifndef WIN32
+/* Under an *nix environment look for .xml files in the following order.
+*1) myserver executable working directory
+*2) ~/.myserver/
+*3) /etc/myserver/
+*4) default files will be copied in myserver executable working	
+*/
+	if(MYSERVER_FILE::fileExists("myserver.xml"))
+	{
+		strcpy(main_configuration_file,"myserver.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("~/.myserver/myserver.xml"))
+	{
+		strcpy(main_configuration_file,"~/.myserver/myserver.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("/etc/myserver/myserver.xml"))
+	{
+		strcpy(main_configuration_file,"/etc/myserver/myserver.xml");
+	}
+	else
+#endif
+	/*! If the myserver.xml files doesn't exist copy it from the default one. */
 	if(!MYSERVER_FILE::fileExists("myserver.xml"))
 	{
+			strcpy(main_configuration_file,"myserver.xml");
 			MYSERVER_FILE inputF;
 			MYSERVER_FILE outputF;
 			int ret=inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 			if(ret<1)
 			{
 				preparePrintError();
-				printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
+				printf("%s\n", languageParser.getValue("ERR_LOADED"));
 				endPrintError();
 				return;
 			}
@@ -644,7 +677,7 @@ void cserver::initialize(int /*!os_ver*/)
 			outputF.closeFile();
 	}		
 	
-	configurationFileManager.open("myserver.xml");
+	configurationFileManager.open(main_configuration_file);
 	char *data;
 
 	data=configurationFileManager.getValue("VERBOSITY");
@@ -655,7 +688,11 @@ void cserver::initialize(int /*!os_ver*/)
 	data=configurationFileManager.getValue("LANGUAGE");
 	if(data)
 	{
-		sprintf(languageFile, "languages/%s", data);	
+		sprintf(languageFile, "%s/%s", languages_path, data);	
+	}
+	else
+	{
+		strcpy(languageFile, "languages/english.xml");
 	}
 
 	data=configurationFileManager.getValue("BUFFER_SIZE");
@@ -681,22 +718,18 @@ void cserver::initialize(int /*!os_ver*/)
 	}
 	
 	/*!
-	*The number of the threads used by the server is:
-	*N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive;
+	* The number of the threads used by the server is:
+	* N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive.
 	*/
 	nThreads=nThreadsA*getCPUCount()+nThreadsB;
 
-	/*!
-	*Get the max connections number to allow.
-	*/
+	/*! Get the max connections number to allow. */
 	data=configurationFileManager.getValue("MAX_CONNECTIONS");
 	if(data)
 	{
 		maxConnections=atoi(data);
-	}			
-	/*!
-	*Load the server administrator e-mail.
-	*/	
+	}
+	/*! Load the server administrator e-mail. */
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
 	{
@@ -1091,11 +1124,34 @@ void cserver::loadSettings()
 	}
 
 	u_long i;
+
+#ifndef WIN32
+/* Under an *nix environment look for .xml files in the following order.
+*1) myserver executable working directory
+*2) ~/.myserver/
+*3) /etc/myserver/
+*4) default files will be copied in myserver executable working	
+*/
+	if(MYSERVER_FILE::fileExists("MIMEtypes.xml"))
+	{
+		strcpy(mime_configuration_file,"MIMEtypes.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("~/.myserver/MIMEtypes.xml"))
+	{
+		strcpy(mime_configuration_file,"~/.myserver/MIMEtypes.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("/etc/myserver/MIMEtypes.xml"))
+	{
+		strcpy(mime_configuration_file,"/etc/myserver/MIMEtypes.xml");
+	}
+	else
+#endif
 	/*!
 	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
 	*/
 	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
 	{
+		strcpy(mime_configuration_file,"MIMEtypes.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
 		int ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
@@ -1124,7 +1180,7 @@ void cserver::loadSettings()
 	*Load the MIME types.
 	*/
 	printf("%s\n", languageParser.getValue("MSG_LOADMIME"));
-	if(int nMIMEtypes=mimeManager.loadXML("MIMEtypes.xml"))
+	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
 	{
 		printf("%s: %i\n", languageParser.getValue("MSG_MIMERUN"), nMIMEtypes);
 	}
@@ -1137,11 +1193,34 @@ void cserver::loadSettings()
 	}
 	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), (u_int)getCPUCount());
 
+	
+#ifndef WIN32
+/* Under an *nix environment look for .xml files in the following order.
+*1) myserver executable working directory
+*2) ~/.myserver/
+*3) /etc/myserver/
+*4) default files will be copied in myserver executable working	
+*/
+	if(MYSERVER_FILE::fileExists("virtualhosts.xml"))
+	{
+		strcpy(vhost_configuration_file,"virtualhosts.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("~/.myserver/virtualhosts.xml"))
+	{
+		strcpy(vhost_configuration_file,"~/.myserver/virtualhosts.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("/etc/myserver/virtualhosts.xml"))
+	{
+		strcpy(vhost_configuration_file,"/etc/myserver/virtualhosts.xml");
+	}
+	else
+#endif
 	/*!
 	*If the virtualhosts.xml file doesn't exist copy it from the default one.
 	*/
 	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
 	{
+		strcpy(vhost_configuration_file,"virtualhosts.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
 		int ret = inputF.openFile("virtualhosts.xml.default",  MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS );
@@ -1169,7 +1248,7 @@ void cserver::loadSettings()
 	/*!
 	*Load the virtual hosts configuration from the xml file
 	*/
-	vhostList.loadXMLConfigurationFile("virtualhosts.xml", this->getMaxLogFileSize());
+	vhostList.loadXMLConfigurationFile(vhost_configuration_file, this->getMaxLogFileSize());
 
 	http::loadProtocol(&languageParser, "myserver.xml");
 	https::loadProtocol(&languageParser, "myserver.xml");

@@ -67,6 +67,8 @@ class configurationFrame : public wxFrame
 	cXMLParser confparser;
 	wxPanel *pPage[N_PAGES];
 	wxNotebook *m_notebook;
+	char main_configuration_file[MAX_PATH];
+	char languages_path[MAX_PATH];
 public:
 	void configureMIME(wxCommandEvent& event);
 	void configureVHOSTS(wxCommandEvent& event);

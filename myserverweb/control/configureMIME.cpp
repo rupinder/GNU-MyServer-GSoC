@@ -79,35 +79,56 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	actiontodoLB->Insert("HANDLE AS A FASTCGI(SPECIFY A PATH)",CGI_CMD_RUNFASTCGI);
 	actiontodoLB->Insert("HANDLE AS A SELF FASTCGI SERVER",CGI_CMD_EXECUTEFASTCGI);
 	
-
+#ifndef WIN32
+/* Under an *nix environment look for .xml files in the following order.
+*1) myserver executable working directory
+*2) ~/.myserver/
+*3) /etc/myserver/
+*4) default files will be copied in myserver executable working	
+*/
+	if(MYSERVER_FILE::fileExists("MIMEtypes.xml"))
+	{
+		strcpy(mime_configuration_file,"MIMEtypes.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("~/.myserver/MIMEtypes.xml"))
+	{
+		strcpy(mime_configuration_file,"~/.myserver/MIMEtypes.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("/etc/myserver/MIMEtypes.xml"))
+	{
+		strcpy(mime_configuration_file,"/etc/myserver/MIMEtypes.xml");
+	}
+	else
+#endif
 	/*!
 	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
 	*/
 	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
 	{
-			MYSERVER_FILE inputF;
-			MYSERVER_FILE outputF;
-			int ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-			if(ret<1)
-			{
-				return;
-			}
-			outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-			char buffer[512];
-			u_long nbr, nbw;
-			for(;;)
-			{
-				inputF.readFromFile(buffer, 512, &nbr );
-				if(nbr==0)
-					break;
-				outputF.writeToFile(buffer, nbr, &nbw);
-			}
-			inputF.closeFile();
-			outputF.closeFile();
+		strcpy(mime_configuration_file, "MIMEtypes.xml");
+		MYSERVER_FILE inputF;
+		MYSERVER_FILE outputF;
+		int ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		if(ret<1)
+		{
+			return;
+		}
+		outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		char buffer[512];
+		u_long nbr, nbw;
+		for(;;)
+		{
+			inputF.readFromFile(buffer, 512, &nbr );
+			if(nbr==0)
+				break;
+			outputF.writeToFile(buffer, nbr, &nbw);
+		}
+		inputF.closeFile();
+		outputF.closeFile();
 	}
 	
 	
-	if(mm.loadXML("MIMEtypes.xml"))
+	if(mm.loadXML(mime_configuration_file))
 	{
 		u_long nelements=mm.getNumMIMELoaded();
 		for(u_long i=0;i<nelements;i++)

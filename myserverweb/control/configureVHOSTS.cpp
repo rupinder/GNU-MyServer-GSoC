@@ -84,11 +84,33 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 	}
 	setcwdBuffer();
 
+#ifndef WIN32
+/* Under an *nix environment look for .xml files in the following order.
+*1) myserver executable working directory
+*2) ~/.myserver/
+*3) /etc/myserver/
+*4) default files will be copied in myserver executable working	
+*/
+	if(MYSERVER_FILE::fileExists("virtualhosts.xml"))
+	{
+		strcpy(vhost_configuration_file,"virtualhosts.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("~/.myserver/virtualhosts.xml"))
+	{
+		strcpy(vhost_configuration_file,"~/.myserver/virtualhosts.xml");
+	}
+	else if(MYSERVER_FILE::fileExists("/etc/myserver/virtualhosts.xml"))
+	{
+		strcpy(vhost_configuration_file,"/etc/myserver/virtualhosts.xml");
+	}
+	else
+#endif	
 	/*!
 	*If the virtualhosts.xml files doesn't exist copy it from the default one.
 	*/
 	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
 	{
+			strcpy(vhost_configuration_file, "virtualhosts.xml");
 			MYSERVER_FILE inputF;
 			MYSERVER_FILE outputF;
 			int ret=inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
@@ -111,7 +133,7 @@ configurationFrameVHOSTS::configurationFrameVHOSTS(wxWindow *parent,const wxStri
 	}	
 	
 	
-	hostmanager.loadXMLConfigurationFile("virtualhosts.xml");
+	hostmanager.loadXMLConfigurationFile(vhost_configuration_file);
 	wxPanel *panel = new wxPanel(this, -1);
 
 	vhostsLB=new wxListBox(panel,Configuration_VHOSTLIST,wxPoint(0,10), wxSize(100,100),0, NULL,wxLB_HSCROLL);
@@ -187,7 +209,7 @@ void configurationFrameVHOSTS::ok(wxCommandEvent& event)
 
 void configurationFrameVHOSTS::save(wxCommandEvent& event)
 {
-	hostmanager.saveXMLConfigurationFile("virtualhosts.xml");
+	hostmanager.saveXMLConfigurationFile(vhost_configuration_file);
 
 }
 void configurationFrameVHOSTS::addHost(wxCommandEvent& event)

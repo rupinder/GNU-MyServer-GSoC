@@ -81,6 +81,7 @@ public:
 	void hostAccMod(wxCommandEvent& event);
 	void protocolMod(wxCommandEvent& event);
 	void hostWarningsMod(wxCommandEvent& event);
+	char vhost_configuration_file[MAX_PATH];
 private:
 	DECLARE_EVENT_TABLE()
 };
