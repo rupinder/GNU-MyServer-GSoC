@@ -2209,13 +2209,13 @@ Fl_Double_Window* MainDlg::make_window() {
     o->callback((Fl_Callback*)cb_ConfDlg, (void*)(this));
     { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 550, 25);
       { Fl_Menu_Item* o = &menu_[6];
-        o->deactivate();
+        DEACTIVATE;
       }
       { Fl_Menu_Item* o = &menu_[10];
-        o->deactivate();
+        DEACTIVATE;
       }
       { Fl_Menu_Item* o = &menu_[14];
-        o->deactivate();
+        DEACTIVATE;
       }
       o->menu(menu_);
     }

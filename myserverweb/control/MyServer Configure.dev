@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DWIN32_@@_
 CppCompiler=
-Linker=-lfltk -lole32  -luuid -lcomctl32 -lm -lz -lxml2 -liconv -llibintl -llibssl  -lcrypto   -llibz -lwininet -lwsock32  _@@_
+Linker=-lfltk -lole32  -luuid -lcomctl32 -lm -lz -lxml2 -liconv -lintl -lssl  -lcrypto -lwininet -lwsock32  _@@_
 IsCpp=1
 Icon=MyServer Configure.ico
 ExeOutput=..\binaries
@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000000000000000000
+CompilerSettings=0000000000000000000000
 
 [Unit1]
 FileName=vhost.h
