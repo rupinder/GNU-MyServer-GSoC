@@ -171,7 +171,7 @@ public:
 	char *getAddresses();
 	void *envString;
 	VhostManager *vhostList;
-	MIME_Manager mimeManager;
+	MimeManager mimeManager;
 	char  *getPath();
 	u_long getNumThreads();
 	char  *getDefaultFilenamePath(u_long ID=0);

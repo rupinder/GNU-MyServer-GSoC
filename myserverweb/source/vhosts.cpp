@@ -93,7 +93,7 @@ int Vhost::isMIME()
 /*!
  *Get the MIME manager for the virtual host.
  */
-MIME_Manager* Vhost::getMIME()
+MimeManager* Vhost::getMIME()
 {
   return &mime_manager;
 }

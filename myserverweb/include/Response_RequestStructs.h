@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *Structure to describe an HTTP response
 */
-struct HTTP_RESPONSE_HEADER
+struct HttpResponseHeader
 {
 	int httpStatus;
 	char VER[HTTP_RESPONSE_VER_DIM+1];	
@@ -98,7 +98,7 @@ struct HTTP_RESPONSE_HEADER
 /*!
 *Structure to describe an HTTP request.
 */
-struct HTTP_REQUEST_HEADER
+struct HttpRequestHeader
 {
 	char CMD[HTTP_REQUEST_CMD_DIM+1];		
 	char VER[HTTP_REQUEST_VER_DIM+1];		

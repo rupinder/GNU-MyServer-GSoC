@@ -49,13 +49,13 @@ extern "C" {
 #endif
 
 /*!
- *Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure.
+ *Builds an HTTP header string starting from an HttpResponseHeader structure.
  */
-void HttpHeaders::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
+void HttpHeaders::buildHTTPResponseHeader(char *str,HttpResponseHeader* response)
 {
 	/*!
    *Here is builded the HEADER of a HTTP response.
-   *Passing a HTTP_RESPONSE_HEADER struct this builds an header string.
+   *Passing a HttpResponseHeader struct this builds an header string.
    *Every directive ends with a \r\n sequence.
    */
 	if(response->httpStatus!=200)
@@ -203,9 +203,9 @@ void HttpHeaders::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respon
 	strcat(str,"\r\n\0\0\0\0\0");
 }
 /*!
- *Set the defaults value for a HTTP_RESPONSE_HEADER structure.
+ *Set the defaults value for a HttpResponseHeader structure.
  */
-void HttpHeaders::buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
+void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 {
 	resetHTTPResponse(response);
 	/*!
@@ -228,7 +228,7 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 /*!
  *Reset all the HTTP_REQUEST_HEADER structure members.
  */
-void HttpHeaders::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
+void HttpHeaders::resetHTTPRequest(HttpRequestHeader *request)
 {
 	request->TRANSFER_ENCODING[0]='\0';	
 	request->CONTENT_ENCODING[0]='\0';	
@@ -274,9 +274,9 @@ void HttpHeaders::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 }
 
 /*!
- *Reset all the HTTP_RESPONSE_HEADER structure members.
+ *Reset all the HttpResponseHeader structure members.
  */
-void HttpHeaders::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
+void HttpHeaders::resetHTTPResponse(HttpResponseHeader *response)
 {
 	response->httpStatus=200;
 	response->VER[0]='\0';	
@@ -372,12 +372,12 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
  *If no input is setted the input is the main buffer of the 
  *HttpThreadContext structure.
  */
-int HttpHeaders::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
+int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request, 
                                                HttpThreadContext* td, char* input)
 {
 	/*!
    *In this function there is the HTTP protocol parse.
-   *The request is mapped into a HTTP_REQUEST_HEADER structure
+   *The request is mapped into a HttpRequestHeader structure
    *And at the end of this every command is treated
    *differently. We use this mode for parse the HTTP
    *cause especially in the CGI is requested a continous
@@ -911,12 +911,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
  *HttpThreadContext structure.
  *Return 0 on invalid input or internal errors.
  */
-int HttpHeaders::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
+int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response, 
                                                 HttpThreadContext *td,char *input)
 {
 	/*!
    *In this function there is the HTTP protocol parse.
-   *The request is mapped into a HTTP_REQUEST_HEADER structure
+   *The request is mapped into a HttpRequestHeader structure
    *And at the end of this every command is treated
    *differently. We use this mode for parse the HTTP
    *cause especially in the CGI is requested a continous

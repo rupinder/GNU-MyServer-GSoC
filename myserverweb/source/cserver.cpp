@@ -717,7 +717,7 @@ int cserver::terminate()
 #endif
 	Http::unloadProtocol(&languageParser);
 	Https::unloadProtocol(&languageParser);
-  control_protocol::unloadProtocol(&languageParser);
+  ControlProtocol::unloadProtocol(&languageParser);
 	protocols.unloadProtocols(&languageParser);
 
 	/*!
@@ -1676,7 +1676,7 @@ int cserver::loadSettings()
 
 	Http::loadProtocol(&languageParser, "myserver.xml");
 	Https::loadProtocol(&languageParser, "myserver.xml");
-  control_protocol::loadProtocol(&languageParser, "myserver.xml");
+  ControlProtocol::loadProtocol(&languageParser, "myserver.xml");
 #ifdef NOT_WIN
 	if(MYSERVER_FILE::fileExists("external/protocols"))
 	{

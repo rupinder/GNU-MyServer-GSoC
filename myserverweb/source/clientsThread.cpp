@@ -339,7 +339,7 @@ int ClientsThread::controlConnections()
 			case PROTOCOL_CONTROL:
         if(control_protocol_parser == 0)
         {
-          control_protocol_parser = new control_protocol();
+          control_protocol_parser = new ControlProtocol();
           if(control_protocol_parser == 0)
             return 0;
         }

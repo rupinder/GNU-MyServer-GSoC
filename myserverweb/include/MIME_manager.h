@@ -72,7 +72,7 @@ enum CGI_COMMANDS
 };
 
 
-class MIME_Manager
+class MimeManager
 {
 public:
 	struct mime_record
@@ -90,10 +90,10 @@ private:
 	char *filename;
 public:
 	char *getFilename();
-	MIME_Manager();
-  ~MIME_Manager();
-	void addRecord(MIME_Manager::mime_record);
-	MIME_Manager::mime_record *getRecord(char ext[10]);
+	MimeManager();
+  ~MimeManager();
+	void addRecord(MimeManager::mime_record);
+	MimeManager::mime_record *getRecord(char ext[10]);
 	void removeAllRecords();
 	void removeRecord(char*);
 	u_long getNumMIMELoaded();

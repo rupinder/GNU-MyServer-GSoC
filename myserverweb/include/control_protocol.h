@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/control_header.h"
 
 
-class control_protocol : public Protocol
+class ControlProtocol : public Protocol
 {
   static char adminLogin[64];
   static char adminPassword[64];
@@ -38,7 +38,7 @@ class control_protocol : public Protocol
   bool Reboot;
 
   /*! Use control_header to parse the request. */
-  control_header header;
+  ControlHeader header;
   int checkAuth();
   int SHOWCONNECTIONS(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
   int SHOWDYNAMICPROTOCOLS(ConnectionPtr,MYSERVER_FILE* out, char *b1,int bs1);
@@ -57,8 +57,8 @@ public:
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);
 	virtual char* registerName(char*,int len);
-	control_protocol();
-	virtual ~control_protocol();
+	ControlProtocol();
+	virtual ~ControlProtocol();
 };
 
 #endif

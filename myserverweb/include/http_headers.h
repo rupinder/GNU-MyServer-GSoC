@@ -68,8 +68,8 @@ struct HttpThreadContext
 	u_long id;
 	u_long nBytesToRead;
 	u_long nHeaderChars;
-	HTTP_RESPONSE_HEADER  response;
-	HTTP_REQUEST_HEADER  request;
+	HttpResponseHeader response;
+	HttpRequestHeader  request;
 	char *filenamePath;
 	char *pathInfo;
 	char *pathTranslated;
@@ -91,15 +91,15 @@ struct HttpThreadContext
 class HttpHeaders
 {
 public:
-	static int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
+	static int buildHTTPRequestHeaderStruct(HttpRequestHeader *request, 
                                           HttpThreadContext *td,char *input=0);
-	static int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
+	static int buildHTTPResponseHeaderStruct(HttpResponseHeader *response, 
                                            HttpThreadContext *td,char *input=0);
 	static int validHTTPRequest(char*,HttpThreadContext*,u_long*,u_long*);
 	static int validHTTPResponse(char*,HttpThreadContext*,u_long*,u_long*);
-	static void resetHTTPRequest(HTTP_REQUEST_HEADER *request);
-	static void resetHTTPResponse(HTTP_RESPONSE_HEADER *response);
-	static void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
-	static void buildHTTPResponseHeader(char *,HTTP_RESPONSE_HEADER*);
+	static void resetHTTPRequest(HttpRequestHeader *request);
+	static void resetHTTPResponse(HttpResponseHeader *response);
+	static void buildDefaultHTTPResponseHeader(HttpResponseHeader*);
+	static void buildHTTPResponseHeader(char *,HttpResponseHeader*);
 };
 #endif

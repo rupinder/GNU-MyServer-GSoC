@@ -16,12 +16,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef CONTROL_HEADER_H
-#define CONTROL_HEADER_H
+#ifndef CONTROLHEADER_H
+#define CONTROLHEADER_H
 #include "../stdafx.h"
 #include "../include/protocol.h"
 
-class control_header
+class ControlHeader
 {
   char connection[32];
   char command[32];
@@ -39,8 +39,8 @@ public:
   char *getAuthLogin();
   char *getAuthPassword();
   char *getCommand();
-  control_header();
-  virtual ~control_header();
+  ControlHeader();
+  virtual ~ControlHeader();
   int parse_header(char *buffer, int bufferlen, int*);
 };
 

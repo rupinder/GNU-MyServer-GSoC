@@ -48,7 +48,7 @@ extern "C"
 /*!
  *Return a string containing options specified by the client.
  */
-char* control_header::getOptions()
+char* ControlHeader::getOptions()
 {
   return cmdOptions;
 }
@@ -56,7 +56,7 @@ char* control_header::getOptions()
 /*!
  *Return a string containing the auth login name in the MD5 format.
  */
-char* control_header::getAuthLogin()
+char* ControlHeader::getAuthLogin()
 {
   return authLogin;
 }
@@ -64,7 +64,7 @@ char* control_header::getAuthLogin()
 /*!
  *Return a string containing the auth login password in the MD5 format.
  */
-char* control_header::getAuthPassword()
+char* ControlHeader::getAuthPassword()
 {
   return authPassword;
 }
@@ -72,7 +72,7 @@ char* control_header::getAuthPassword()
 /*!
  *Return a string containing the command specified in the request.
  */
-char* control_header::getCommand()
+char* ControlHeader::getCommand()
 {
   return command;
 }
@@ -81,7 +81,7 @@ char* control_header::getCommand()
  *Return a string containing the connection type.
  *Connection can be Closed or Keep-Alive.
  */
-char* control_header::getConnection()
+char* ControlHeader::getConnection()
 {
   return connection;
 }
@@ -89,7 +89,7 @@ char* control_header::getConnection()
 /*!
  *Return the version of protocol used.
  */
-char *control_header::getVersion()
+char *ControlHeader::getVersion()
 {
   return version;
 }
@@ -97,7 +97,7 @@ char *control_header::getVersion()
 /*!
  *Return the data length specified in the client header.
  */
-int control_header::getLength()
+int ControlHeader::getLength()
 {
   return length;
 }
@@ -106,7 +106,7 @@ int control_header::getLength()
 /*!
  *Costructor for the class.
  */
-control_header::control_header()
+ControlHeader::ControlHeader()
 {
   reset();
 }
@@ -114,7 +114,7 @@ control_header::control_header()
 /*!
  *Reset everything.
  */
-void control_header::reset()
+void ControlHeader::reset()
 {
   /*! Reset everything. */
   command[0]='\0';
@@ -126,9 +126,9 @@ void control_header::reset()
 }
 
 /*!
- *Destructor for the control_header class.
+ *Destructor for the ControlHeader class.
  */
-control_header::~control_header()
+ControlHeader::~ControlHeader()
 {
 
 }
@@ -147,7 +147,7 @@ control_header::~control_header()
  *_\r\n        -> Header ends with a \r\n.
  *_Data...
  */
-int control_header::parse_header(char *buffer, int bufferlen, int *len)
+int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
 {
   /*! Do a reset before the parsing. */
   reset();

@@ -50,7 +50,7 @@ class Vhost
 	MYSERVER_LOG_MANAGER warningsLogFile;
 	MYSERVER_LOG_MANAGER accessesLogFile;
 
-  MIME_Manager mime_manager;
+  MimeManager mime_manager;
 
 public:
 	struct sHostList
@@ -145,7 +145,7 @@ public:
 	void setMaxLogSize(int);
 	int getMaxLogSize();
   int isMIME();
-  MIME_Manager* getMIME();
+  MimeManager* getMIME();
 
 	MYSERVER_LOG_MANAGER* getWarningsLog();
 	MYSERVER_LOG_MANAGER* getAccessesLog();

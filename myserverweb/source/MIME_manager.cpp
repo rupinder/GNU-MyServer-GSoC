@@ -31,13 +31,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *3)simple script to describe the action to do for handle the files of this type.
  *The file is ended by a '#' character.
  */
-int MIME_Manager::load(char *filename)
+int MimeManager::load(char *filename)
 {
   int filenamelen = strlen(filename) + 1;
   filename = new char[filenamelen];
   if(filename == 0)
     return -1;
-	strncpy(MIME_Manager::filename,filename,MAX_PATH);
+	strncpy(MimeManager::filename,filename,MAX_PATH);
 	numMimeTypesLoaded=0;
 	char *buffer;
 	MYSERVER_FILE f;
@@ -51,10 +51,10 @@ int MIME_Manager::load(char *filename)
 	u_long nbw;
 	f.readFromFile(buffer,fs,&nbw);
 	f.closeFile();
-	MIME_Manager::mime_record record;
+	MimeManager::mime_record record;
 	for(u_long nc=0;;)
 	{
-		memset(&record, 0, sizeof(MIME_Manager::mime_record));
+		memset(&record, 0, sizeof(MimeManager::mime_record));
 		/*!
      *Do not consider the \r \n and space characters.
      */
@@ -148,7 +148,7 @@ int MIME_Manager::load(char *filename)
 /*!
  *Get the name of the file opened by the class.
  */
-char *MIME_Manager::getFilename()
+char *MimeManager::getFilename()
 {
 	return filename;
 }
@@ -156,14 +156,14 @@ char *MIME_Manager::getFilename()
 /*!
  *Load the MIME types from a XML file.
  */
-int MIME_Manager::loadXML(char *filename)
+int MimeManager::loadXML(char *filename)
 {
 	cXMLParser parser;
   int filenamelen=strlen(filename)+1;
-  MIME_Manager::filename = new char[filenamelen];
-  if(MIME_Manager::filename==0)
+  MimeManager::filename = new char[filenamelen];
+  if(MimeManager::filename==0)
     return -1;
-	strcpy(MIME_Manager::filename,filename);
+	strcpy(MimeManager::filename,filename);
 	if(parser.open(filename))
 	{
 		return -1;
@@ -248,7 +248,7 @@ int MIME_Manager::loadXML(char *filename)
 /*!
  *Save the MIME types to a XML file.
  */
-int MIME_Manager::saveXML(char *filename)
+int MimeManager::saveXML(char *filename)
 {
 	MYSERVER_FILE::deleteFile(filename);
 	MYSERVER_FILE f;
@@ -303,12 +303,12 @@ int MIME_Manager::saveXML(char *filename)
 /*!
  *Save the MIME types to a file.
  */
-int MIME_Manager::save(char *filename)
+int MimeManager::save(char *filename)
 {
 	MYSERVER_FILE::deleteFile(filename);
 	MYSERVER_FILE f;
 	f.openFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	MIME_Manager::mime_record *nmr1;
+	MimeManager::mime_record *nmr1;
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
@@ -357,9 +357,9 @@ int MIME_Manager::save(char *filename)
  *respectly with the MIME type description and if there are the path to the 
  *CGI manager.
  */
-int MIME_Manager::getMIME(char* ext,char *dest,char **dest2)
+int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
-	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next )
+	for(MimeManager::mime_record *mr=data;mr;mr=mr->next )
 	{
 		if(!lstrcmpi(ext,mr->extension))
 		{
@@ -390,10 +390,10 @@ int MIME_Manager::getMIME(char* ext,char *dest,char **dest2)
 /*!
 *Pass only the position of the record in the list.
 */
-int MIME_Manager::getMIME(int id,char* ext,char *dest,char **dest2)
+int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 {
 	int i=0;
-	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next )
+	for(MimeManager::mime_record *mr=data;mr;mr=mr->next )
 	{
 		if(i==id)
 		{
@@ -427,7 +427,7 @@ int MIME_Manager::getMIME(int id,char* ext,char *dest,char **dest2)
 /*!
  *Destroy the object.
  */
-MIME_Manager::~MIME_Manager()
+MimeManager::~MimeManager()
 {
   clean();
 }
@@ -435,7 +435,7 @@ MIME_Manager::~MIME_Manager()
 /*!
  *Clean the memory allocated by the structure.
  */
-void MIME_Manager::clean()
+void MimeManager::clean()
 {
   loaded = 0;
   if(filename)
@@ -447,7 +447,7 @@ void MIME_Manager::clean()
 /*!
  *Constructor of the class.
  */
-MIME_Manager::MIME_Manager()
+MimeManager::MimeManager()
 {
 	data = 0;
 	numMimeTypesLoaded = 0;
@@ -458,14 +458,14 @@ MIME_Manager::MIME_Manager()
 /*!
  *Add a new record.
  */
-void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
+void MimeManager::addRecord(MimeManager::mime_record mr)
 {
 	/*!
    *If the MIME type already exists remove it.
    */
 	if(getRecord(mr.extension))
 		removeRecord(mr.extension);
-	MIME_Manager::mime_record *nmr =new MIME_Manager::mime_record;
+	MimeManager::mime_record *nmr =new MimeManager::mime_record;
 	if(!nmr)	
 		return;
 	memcpy(nmr,&mr,sizeof(mime_record));
@@ -477,10 +477,10 @@ void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 /*!
  *Remove a record by the extension of the MIME type.
  */
-void MIME_Manager::removeRecord(char *ext)
+void MimeManager::removeRecord(char *ext)
 {
-	MIME_Manager::mime_record *nmr1 = data;
-	MIME_Manager::mime_record *nmr2 = 0;
+	MimeManager::mime_record *nmr1 = data;
+	MimeManager::mime_record *nmr2 = 0;
 	if(!nmr1)
 		return;
 	do
@@ -510,12 +510,12 @@ void MIME_Manager::removeRecord(char *ext)
 /*!
  *Remove all records from the linked list.
  */
-void MIME_Manager::removeAllRecords()
+void MimeManager::removeAllRecords()
 {
 	if(data==0)
 		return;
-	MIME_Manager::mime_record *nmr1 = data;
-	MIME_Manager::mime_record *nmr2 = 0;
+	MimeManager::mime_record *nmr1 = data;
+	MimeManager::mime_record *nmr2 = 0;
 
 	for(;;)
 	{
@@ -540,9 +540,9 @@ void MIME_Manager::removeAllRecords()
  *Get a pointer to an existing record passing its extension.
  *Don't modify the member next of the returned structure.
  */
-MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
+MimeManager::mime_record *MimeManager::getRecord(char ext[10])
 {
-	MIME_Manager::mime_record *nmr1;
+	MimeManager::mime_record *nmr1;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
 		if(!lstrcmpi(nmr1->extension,ext))
@@ -556,7 +556,7 @@ MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
 /*!
  *Returns the number of MIME types loaded.
  */
-u_long MIME_Manager::getNumMIMELoaded()
+u_long MimeManager::getNumMIMELoaded()
 {
 	return numMimeTypesLoaded;
 }
@@ -564,7 +564,7 @@ u_long MIME_Manager::getNumMIMELoaded()
 /*!
  *Check if the MIME manager is loaded.
  */
-int MIME_Manager::isLoaded()
+int MimeManager::isLoaded()
 {
   return loaded;
 }

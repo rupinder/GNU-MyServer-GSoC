@@ -51,15 +51,15 @@ extern const char *versionOfSoftware;
 #endif
 
 
-char control_protocol::adminLogin[64]="";
-char control_protocol::adminPassword[64]="";
-int  control_protocol::controlEnabled = 0;
+char ControlProtocol::adminLogin[64]="";
+char ControlProtocol::adminPassword[64]="";
+int  ControlProtocol::controlEnabled = 0;
 
 /*!
  *Returns the name of the protocol. If an out buffer is defined 
  *fullfill it with the name too.
  */
-char* control_protocol::registerName(char* out,int len)
+char* ControlProtocol::registerName(char* out,int len)
 {
 	if(out)
 	{
@@ -71,7 +71,7 @@ char* control_protocol::registerName(char* out,int len)
 /*!
  *Class constructor.
  */
-control_protocol::control_protocol() 
+ControlProtocol::ControlProtocol() 
 {
   Ifile=0;
   Ofile=0;
@@ -82,7 +82,7 @@ control_protocol::control_protocol()
 /*!
  *Destructor for the class.
  */
-control_protocol::~control_protocol()
+ControlProtocol::~ControlProtocol()
 {
 
 }
@@ -90,7 +90,7 @@ control_protocol::~control_protocol()
 /*!
  *Load the control protocol.
  */
-int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
+int ControlProtocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
   char tmpName[64];
   char tmpPassword[64];
@@ -178,7 +178,7 @@ int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*
  *Check if the client is allowed to connect to.
  *Return 1 if the client is allowed.
  */
-int control_protocol::checkAuth()
+int ControlProtocol::checkAuth()
 {
   char authLoginHeaderMD5[64];
   char authPasswordHeaderMD5[64];
@@ -209,7 +209,7 @@ int control_protocol::checkAuth()
 /*!
  *Control the connection.
  */
-int control_protocol::controlConnection(ConnectionPtr a, char *b1, char *b2, 
+int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2, 
                                         int bs1, int bs2, u_long nbtr, u_long id)
 {
   int ret;
@@ -217,7 +217,7 @@ int control_protocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   int dataWritten = 0;
   char *IfilePath=0;
   char *OfilePath=0;
-  control_protocol::id = id;
+  ControlProtocol::id = id;
   u_long nbw;
   int specified_length;
   char *version;
@@ -668,7 +668,7 @@ int control_protocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 /*!
  *Add the entry to the error log file.
  */
-int control_protocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
+int ControlProtocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
 {
 	char time[33];
   /*!
@@ -689,7 +689,7 @@ int control_protocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
 /*!
  *Add the entry to the log file.
  */
-int control_protocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
+int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
 {
 	char time[33];
 	getRFC822GMTTime(time, 32);
@@ -706,7 +706,7 @@ int control_protocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1
  *Send the response with status=errID and the data contained in the outFile.
  *Return nonzero on errors.
  */
-int control_protocol::sendResponse(char *buffer, int buffersize, 
+int ControlProtocol::sendResponse(char *buffer, int buffersize, 
                                    ConnectionPtr conn, int errID, 
                                    MYSERVER_FILE* outFile)
 {
@@ -783,7 +783,7 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
 /*!
  *Show the currect active connections.
  */
-int  control_protocol::SHOWCONNECTIONS(ConnectionPtr a,MYSERVER_FILE* out, char *b1, 
+int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,MYSERVER_FILE* out, char *b1, 
                                        int bs1)
 {
   int ret =  0;
@@ -812,7 +812,7 @@ int  control_protocol::SHOWCONNECTIONS(ConnectionPtr a,MYSERVER_FILE* out, char 
 /*!
  *Kill a connection by its ID.
  */
-int  control_protocol::KILLCONNECTION(ConnectionPtr a, u_long ID, MYSERVER_FILE* out, 
+int  ControlProtocol::KILLCONNECTION(ConnectionPtr a, u_long ID, MYSERVER_FILE* out, 
                                       char *b1, int bs1)
 {
   int ret = 0;
@@ -833,7 +833,7 @@ int  control_protocol::KILLCONNECTION(ConnectionPtr a, u_long ID, MYSERVER_FILE*
 /*!
  *List all the dynamic protocols used by the server.
  */
-int control_protocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, MYSERVER_FILE* out, 
+int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, MYSERVER_FILE* out, 
                                            char *b1,int bs1)
 {
   int i = 0;
@@ -861,7 +861,7 @@ int control_protocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, MYSERVER_FILE* out,
 /*!
  *Return the requested file to the client.
  */
-int control_protocol::GETFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
+int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
                               MYSERVER_FILE* out, char *b1,int bs1 )
 {
   char *filename = 0;
@@ -934,7 +934,7 @@ int control_protocol::GETFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in,
 /*!
  *Save the file on the local FS.
  */
-int control_protocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
+int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in, 
                               MYSERVER_FILE* out, char *b1,int bs1 )
 {
   char *filename = 0;
@@ -1034,7 +1034,7 @@ int control_protocol::PUTFILE(ConnectionPtr a, char* fn, MYSERVER_FILE* in,
 /*!
  *Show all the language files that the server can use.
  */
-int control_protocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out, 
+int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out, 
                                         char *b1,int bs1)
 {
   char *path = lserver->getLanguagesPath();
@@ -1107,7 +1107,7 @@ int control_protocol::SHOWLANGUAGEFILES(ConnectionPtr a, MYSERVER_FILE* out,
 /*!
  *Return the current MyServer version.
  */
-int control_protocol::GETVERSION(ConnectionPtr a, MYSERVER_FILE* out, char *b1,int bs1)
+int ControlProtocol::GETVERSION(ConnectionPtr a, MYSERVER_FILE* out, char *b1,int bs1)
 {
   u_long nbw;
   sprintf(b1, "MyServer %s", versionOfSoftware);

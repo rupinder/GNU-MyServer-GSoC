@@ -52,7 +52,7 @@ private:
 	int isStopped();
 	Http *http_parser;
 	Https *https_parser;
-  control_protocol  *control_protocol_parser;
+  ControlProtocol  *control_protocol_parser;
 	CMemBuf buffer;
 	CMemBuf buffer2;
 	int controlConnections();
