@@ -20,17 +20,6 @@
 #include "../include/filemanager.h"
 #include "../include/utility.h"
 #include "../include/cserver.h"
-
-#ifndef WIN32
-extern "C" {
-#include <string.h>
-}
-
-#define lstrcmpi strcmp
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
-#endif
 #include "../include/connectionstruct.h"/*Used for protocols IDs*/
 #include "../include/stringutils.h"
 
