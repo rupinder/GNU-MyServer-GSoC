@@ -938,7 +938,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
     	connections=nc;
 	nConnections++;
 	lserver->connections_mutex_unlock();
-	/*
 	If defined maxConnections and the number of active connections is bigger than it
 	*say to the protocol that will parse the connection to remove it from the active
 	*connections list.
@@ -955,11 +954,13 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 int cserver::deleteConnection(LPCONNECTION s,int id)
 {
 	if(!s)
+	{
 		return 0;
+	}
 	if(s->check_value!=CONNECTION::check_value_const)
+	{
 		return 0;
-	if(s->parsing)
-		return 0;
+	}
 	MYSERVER_SOCKET socket=s->socket;
 	/*!
 	*Get the access to the  connections list.
