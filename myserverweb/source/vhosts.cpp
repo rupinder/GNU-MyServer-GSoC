@@ -863,7 +863,7 @@ int vhost::initializeSSL()
 #endif
 	
 /*
-*Generate a RSA key
+*Generate a RSA key.
 */
 void vhost::generateRsaKey()
 {
@@ -876,13 +876,17 @@ void vhost::generateRsaKey()
 
 	RSA_free(rsa);
 }
-    
-  
-
+/*
+*Get the SSL context.
+*/
+SSL_CTX* vhost::getSSLContext()
+{
+	return sslContext.context;
+}
 
 }
 /*
-*Clean the memory used by SSL
+*Clean the memory used by SSL.
 */
 int vhost::freeSSL()
 {

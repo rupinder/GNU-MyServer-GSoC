@@ -117,6 +117,37 @@ int MYSERVER_SOCKET::listen(int max)
 	return ::listen((int)socketHandle,max);
 #endif
 }
+int MYSERVER_SOCKET::sslAccept()
+{
+	if(sslContext==0)
+		return -1;
+	sslSocket = 1;
+	sslConnection=SSL_new(sslContext);
+	int ssl_accept;
+	SSL_set_accept_state(this->serverSocket);
+	SSL_set_fd(sslConnection,socketHandle);
+	do
+	{
+		ssl_accept = SSL_accept(sslConnection);
+	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,ssl_accept) ==SSL_ERROR_WANT_READ);
+	if(ssl_accept != 1 )
+	{
+		freeSSL();
+		shutdown(2);
+		closesocket();
+		return -1;
+	}
+	clientCert = SSL_get_peer_certificate(sslConnection);
+	if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
+	{
+		freeSSL();
+		shutdown(2);
+		closesocket();
+		return -1;
+	}
+	return 1;
+
+}
 SSL* MYSERVER_SOCKET::getSSLConnection()
 {
 	return sslConnection;

@@ -61,6 +61,7 @@ private:
 	SSL *sslConnection;
 	SSL_CTX *sslContext;
 	X509 * clientCert;
+	MYSERVER_SOCKET *serverSocket;/*Pointer to the socket used to do the listen*/
 public:
 	void setSSL(int,SSL* connection = 0);
 	int getSSL();
@@ -76,6 +77,7 @@ public:
 	int socket(int,int,int,int=0);
 	int bind(MYSERVER_SOCKADDR*,int);
 	int listen(int);
+	int sslAccept();
 	MYSERVER_SOCKET();
 	MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE);
 	MYSERVER_SOCKET accept(MYSERVER_SOCKADDR*,int*,int sslHandShake=0);

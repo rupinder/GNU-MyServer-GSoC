@@ -438,6 +438,7 @@ void * listenServer(void* params)
 		*this function sends connections between the various threads.
 		*/
 		asock=serverSocket.accept((struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
+		asock.serverSocket=&serverSocket;
 		if(asock.getHandle()==0)
 			continue;
 		if(asock.getHandle()==INVALID_SOCKET)
@@ -774,9 +775,18 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	strcpy(nc->localIpAddr,localIpAddr);
 	nc->next =connections;
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
-	/*
-	*TODO: SSL handshake
-	*/
+	if(((vhost*)nc->host)->protocol == PROTOCOL_HTTPS)
+	{
+		SSL_CTX* ctx=((vhost*)nc->host)->getSSLContext();
+		nc->socket.setSSLContext(ctx);
+		int ret=nc->socket.sslAccept();
+		if(ret<0)
+		{
+			free(nc);
+			return 0;
+		}
+	}
+
 	nc->login[0]='\0';
 	nc->nTries=0;
 	nc->password[0]='\0';
