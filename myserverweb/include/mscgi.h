@@ -27,6 +27,8 @@ struct httpThreadContext;
 struct cgi_data
 {
 	char *envString;
+	httpThreadContext* td;
+	int errorPage;
 };
 /*
 *Functions to Load and Free the MSCGI library.
@@ -37,7 +39,6 @@ int freeMSCGILib();
 *Use this to send a MSCGI file through the HTTP protocol.
 */
 int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
-typedef int (*CGIMAIN)(char*); 
-typedef int (*CGIINIT)(httpThreadContext*,LPCONNECTION,cgi_data*); 
+typedef int (*CGIMAIN)(char*,cgi_data*); 
 #endif
 

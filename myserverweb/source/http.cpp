@@ -481,10 +481,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
-        if(!systemrequest)
-                return raiseHTTPError(td,s,e_500);
-   	else
-                return hardHTTPError500(td,s);
+	return sendHTTPhardError500(td,s);
 	
 }
 
@@ -779,7 +776,15 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	*Every directive ends with a \r\n sequence.
     */
 	if(response->httpStatus!=200)
+	{
+		if(response->ERROR_TYPE[0]=='\0')
+		{
+			int errID=getErrorIDfromHTTPStatusCode(response->httpStatus);
+			if(errID!=-1)
+				strcpy(response->ERROR_TYPE,HTTP_ERROR_MSGS[errID]);
+		}
 		sprintf(str,"HTTP/%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus,response->ERROR_TYPE,response->ERROR_TYPE);
+	}
 	else
 		sprintf(str,"HTTP/%s 200 OK\r\n",response->VER);
 
@@ -920,7 +925,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 /*
 *Send a hard wired 500 error when we have a system error
 */
-int hardHTTPError500(httpThreadContext* td,LPCONNECTION a)
+int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
        const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
 <font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\

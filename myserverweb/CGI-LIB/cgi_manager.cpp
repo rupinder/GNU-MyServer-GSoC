@@ -21,40 +21,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 #include "../include/mscgi.h"
 #pragma comment(lib,"wsock32.lib")
-static char* buffer;
-static char* buffer2;
-static struct HTTP_RESPONSE_HEADER *res;
-static struct HTTP_REQUEST_HEADER *req;
-static struct httpThreadContext* td;
-static struct cgi_data* cgidata;
-/*
-*Initialize the globals variables.
-*/
-int initialize(httpThreadContext* td,LPCONNECTION s,cgi_data* data)
-{
-	buffer=td->buffer;
-	buffer2=td->buffer2;
-	::td=td;
-	cgidata=data;
-	td->buffer2[0]='\0';
-	res=(HTTP_RESPONSE_HEADER*)&(td->response);
-	req=(HTTP_REQUEST_HEADER*)&(td->request);
-	return 1;
-}
+
 /*
 *Write to the stdout.
 */
 int cgi_manager::Write(char* str)
 {
-	strcat(buffer2,str);
+	strcat(td->buffer2,str);
 	return 1;
 }
 /*
 *Start the execution of the CGI.
 */
-int cgi_manager::Start()
+int cgi_manager::Start(cgi_data* data)
 {
-
+	cgidata=data;
+	td=data->td;
+	td->buffer2[0]='\0';
 	return 1;
 }
 /*
@@ -64,10 +47,19 @@ int cgi_manager::Clean()
 {
 	return 1;
 }
-
-cgi_manager::cgi_manager(void)
+int cgi_manager::setPageError(int ID)
 {
-	Start();
+	td->response.httpStatus=ID;
+	return 1;
+}
+int cgi_manager::raiseError(int ID)
+{
+	cgidata->errorPage=ID;
+	return 1;
+}
+cgi_manager::cgi_manager(cgi_data* data)
+{
+	Start(data);
 }
 cgi_manager::~cgi_manager(void)
 {
@@ -78,11 +70,11 @@ cgi_manager::~cgi_manager(void)
 */
 char* cgi_manager::GetParam(char* param)
 {
-	if(req->URIOPTS[0]=='\0')
+	if(td->request.URIOPTS[0]=='\0')
 		return NULL;
 	static char lb[150];
 	lb[0]='\0';
-	char *c=&req->URIOPTS[0];
+	char *c=&(td->request.URIOPTS)[0];
 	for(;;)
 	{
 		while(strncmp(c,param,lstrlen(param)))c++;
@@ -101,17 +93,16 @@ char* cgi_manager::GetParam(char* param)
 	}
 	return &lb[0];
 }
-
 /*
 *Returns the value of a param passed through a POST request.
 */
 char* cgi_manager::PostParam(char* param)
 {
-	if(req->URIOPTSPTR==NULL)
+	if(td->request.URIOPTSPTR==NULL)
 		return NULL;
 	static char lb[150];
 	lb[0]='\0';
-	char *c=req->URIOPTSPTR;
+	char *c=td->request.URIOPTSPTR;
 	for(;;)
 	{
 		while(strncmp(c,param,lstrlen(param)))c++;
@@ -147,7 +138,7 @@ char *cgi_manager::operator >>(char* str)
 	*If is a POST request return a param from the POST values
 	*else return a GET param.
 	*/
-	if(req->URIOPTS)
+	if(td->request.URIOPTS)
 		return PostParam(str);
 	else
 		return GetParam(str);

@@ -1,10 +1,9 @@
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib") 
-#include <stdio.h> 
 #include "..\..\..\cgi-lib\cgi_manager.h" 
-int EXPORTABLE main (char* cmd) 
+
+int EXPORTABLE main (char *cmd,cgi_data* data)
 {     
-	cgi_manager cm;     
-	cm.Start();     
+	cgi_manager cm(data);     
 	if(strlen(cmd)==0)     
 	{  	
 		cm.Write("<title>myServer</title><body bgcolor=\"#000000\" text=\"#00C800\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"></p><p align=\"center\"><input type=\"text\" name=\"T1\" size=\"20\"><p align=\"center\">+</p></p><p align=\"center\"> <input type=\"text\" name=\"T2\" size=\"20\"></p><p align=\"center\"><input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\"></p><SCRIPT LANGUAGE=\"JavaScript\">function send(){var url=\"math_sum.mscgi?a=\" + T1.value + \"&b=\" + T2.value;window.location.assign(url);}</SCRIPT>");

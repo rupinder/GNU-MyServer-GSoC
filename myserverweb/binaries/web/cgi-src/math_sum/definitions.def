@@ -1,4 +1,3 @@
 LIBRARY math_sum
 EXPORTS 
-	initialize
 	main

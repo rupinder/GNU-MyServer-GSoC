@@ -49,11 +49,12 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 #ifdef WIN32
 	static HMODULE hinstLib; 
     static CGIMAIN ProcMain;
-	static CGIINIT ProcInit;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
 	data.envString+=atoi(td->request.CONTENTS_DIM);
 	
+	data.td = td;
+	data.errorPage=0;
 	strcpy(td->scriptPath,exec);
 	splitPath(exec,td->scriptDir,td->scriptFile);
 	splitPath(exec,td->cgiRoot,td->cgiFile);
@@ -62,12 +63,10 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
     hinstLib = LoadLibrary(exec); 
 	if (hinstLib) 
     { 
-		ProcInit = (CGIINIT) GetProcAddress(hinstLib, "initialize");
 		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
-		if(ProcInit && ProcMain)
+		if(ProcMain)
 		{
-			(ProcInit)(td,s,&data);
-			(ProcMain)(cmdLine);
+			(ProcMain)(cmdLine,&data);
 		}
         FreeLibrary(hinstLib); 
     } 
@@ -89,6 +88,12 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 		{
 			return raiseHTTPError(td,s,e_404);
 		}
+	}
+	if(data.errorPage)
+	{
+		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
+		if(errID!=-1)
+			return raiseHTTPError(td,s,errID);
 	}
 	/*
 	*Compute the response lenght.

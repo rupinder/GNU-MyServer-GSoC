@@ -20,21 +20,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 #include "../include/response_requestStructs.h"
 
-/*
-*Do not use this method in a CGI script.
-*It is used for server internal operations.
-*/
-int EXPORTABLE initialize(httpThreadContext*,LPCONNECTION,cgi_data*);
 class EXPORTABLE cgi_manager
 {
 private:
-
+	httpThreadContext* td;
+	cgi_data* cgidata;
 public:
-	cgi_manager(void);
+	int setPageError(int);
+	int raiseError(int);
+	cgi_manager(cgi_data* data);
 	~cgi_manager(void);
 	operator <<(char*);
 	char* operator >>(char*);
-	int Start();
+	int Start(cgi_data* data);
 	int Clean();
 	void getEnvVariable(char*,char*,unsigned int*);
 	char* GetParam(char*);

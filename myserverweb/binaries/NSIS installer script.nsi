@@ -91,6 +91,9 @@ SectionEnd
 Section "MSCGI lib" SecMSCGI
   SetOutPath $INSTDIR\cgi-lib
   File "cgi-lib\cgi-lib.dll"
+  File "cgi-lib\cgi_manager.h"
+  File "cgi-lib\CGI-LIB.exp"
+  File "cgi-lib\license.txt"
 SectionEnd
 
 
