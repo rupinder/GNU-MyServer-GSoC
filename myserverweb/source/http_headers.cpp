@@ -425,7 +425,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			return 0;
 		
 		/*! Copy the HTTP command.  */
-		myserver_strlcpy(command, token, min(96, tokenOff) );
+		myserver_strlcpy(command, token, min(96, tokenOff+1) );
 	
 		token+=tokenOff;
 		command[tokenOff]='\0';

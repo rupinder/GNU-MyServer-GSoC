@@ -56,7 +56,7 @@ int cmdShow;
 /*!
 *Change this to reflect the version of the software.
 */
-const char *versionOfSoftware="0.7.1";
+const char *versionOfSoftware="0.7.2";
 cserver server;
 int argn;
 char **argv;
