@@ -176,8 +176,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		yetoutputted=1;
 	}
 	/*
-	*Standard CGI can include an extra HTTP header so do not 
-	*terminate with \r\n the default myServer header.
+	*Standard CGI can include an extra HTTP header.
 	*/
 	u_long headerSize=0;
 
@@ -260,7 +259,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		/*
 		*Always specify the size of the HTTP contents.
 		*/
-		sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
+		sprintf(td->response.CONTENTS_DIM,"%u",stdOutFile.ms_getFileSize()-headerSize);
 		buildHTTPResponseHeader(td->buffer,&td->response);
 		s->socket.ms_send(td->buffer,(int)strlen(td->buffer), 0);
 		s->socket.ms_send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
@@ -483,8 +482,8 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 
 #endif
 
-	lstrcat(cgiEnvString,"\r\0\0");
-	int max=lstrlen(cgiEnvString);
+	lstrcat(cgiEnvString,"\r\0\0\0\0\0");
+	int max=strlen(cgiEnvString);
 	for(int i=0;i<max;i++)
 		if(cgiEnvString[i]=='\r')
 			cgiEnvString[i]='\0';

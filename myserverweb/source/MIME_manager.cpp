@@ -107,6 +107,9 @@ int MIME_Manager::load(char *filename)
 				record.command=CGI_CMD_SENDLINK;
 			if(!lstrcmpi(commandString,"RUNWINCGI"))
 				record.command=CGI_CMD_WINCGI;
+			if(!lstrcmpi(commandString,"RUNFASTCGI"))
+				record.command=CGI_CMD_FASTCGI;
+			
 		}
 		nc++;
 		while(buffer[nc]!=';')
@@ -167,7 +170,8 @@ int MIME_Manager::save(char *filename)
 			strcpy(command,"RUNISAPI ");
 		else if(nmr1->command==CGI_CMD_WINCGI)
 			strcpy(command,"RUNWINCGI ");
-		
+		else if(nmr1->command==CGI_CMD_FASTCGI)
+			strcpy(command,"RUNFASTCGI ");		
 
 		f.ms_WriteToFile(command,lstrlen(command),&nbw);
 		if(nmr1->cgi_manager[0])

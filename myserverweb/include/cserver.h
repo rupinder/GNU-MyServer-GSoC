@@ -77,6 +77,7 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
+	char ipAddresses[200];
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
@@ -101,6 +102,7 @@ private:
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 public:
+	char *getAddresses();
 	void *envString;
 	int mscgiLoaded;
 	vhostmanager vhostList;

@@ -176,6 +176,82 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 #endif	
 
 }
+int execConcurrentProcess(START_PROC_INFO* spi)
+{
+#ifdef WIN32
+    /*
+    *Set the standard output values for the CGI process.
+    */
+    STARTUPINFO si;
+	
+    ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+    si.hStdInput = (HANDLE)spi->stdIn;
+    si.hStdOutput =(HANDLE)spi->stdOut;
+    si.hStdError= (HANDLE)spi->stdError;
+    si.dwFlags=STARTF_USESHOWWINDOW;
+	if(si.hStdInput||si.hStdOutput||si.hStdError)
+		si.dwFlags|=STARTF_USESTDHANDLES;
+    si.wShowWindow = SW_HIDE;
+    PROCESS_INFORMATION pi;
+    ZeroMemory( &pi, sizeof(pi) );
+    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,spi->envString,spi->cwd,&si, &pi);
+	return (int)pi.hProcess;
+#endif
+#ifdef __linux__
+	int pid = fork();
+	if(pid < 0) // a bad thing happend
+		return 0;
+	else if(pid == 0) // child
+	{	
+		// Set env vars
+		int i = 0;
+		int index = 0;
+		char * envp[100];
+	
+		while(*((char *)(spi->envString) + i) != '\0')
+		{
+			envp[index] = ((char *)(spi->envString) + i);
+			index++;
+			
+			while(*((char *)(spi->envString) + i) != '\0')
+				i++;
+			i++;
+		}
+		envp[index] = NULL;
+		// change to working dir
+		chdir((const char*)(spi->cwd));
+		// map stdio to files
+		close(0); // close stdin
+		dup2((int)spi->stdIn, 0);
+		close((int)spi->stdIn);
+		close(1); // close stdout
+		dup2((int)spi->stdOut, 1);
+		close((int)spi->stdOut);
+		//close(2); // close stderr
+		//dup2((int)spi->stdError, 2);
+		// Run the script
+		execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		// never should be here
+		exit(1);
+	} // end else if(pid == 0)
+	return pid;
+
+#endif	
+
+}
+int terminateProcess(int id)
+{
+#ifdef WIN32
+	return CloseHandle((HANDLE)id);
+#endif
+#ifdef __linux__
+	/*
+	*id is the pid
+	*/
+#endif	
+
+}
 
 
 /*

@@ -66,6 +66,8 @@ int ms_getOSVersion();
 u_long ms_getCPUCount();
 void ms_wait(u_long);
 u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
+int execConcurrentProcess(START_PROC_INFO* spi);
+int terminateProcess(int);
 void ms_getComputerName(char* name,u_long maxlen);
 int ms_setcwdBuffer();
 char *ms_getdefaultwd(char* dwd,int maxlen);

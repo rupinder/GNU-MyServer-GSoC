@@ -75,6 +75,7 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	actiontodoLB->Insert("HANDLE AS AN EXECUTABLE",CGI_CMD_EXECUTE);
 	actiontodoLB->Insert("HANDLE AS A LINK",CGI_CMD_SENDLINK);
 	actiontodoLB->Insert("HANDLE AS A WINCGI",CGI_CMD_WINCGI);
+	actiontodoLB->Insert("HANDLE AS A FASTCGI",CGI_CMD_FASTCGI);
 				
 
 	if(mm.load("MIMEtypes.txt"))

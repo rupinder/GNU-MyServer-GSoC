@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/stringutils.h"
+#include "../include/fastCGI.h"
 extern "C" {
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -154,6 +155,7 @@ void cserver::start()
 	*/
 	initISAPI();
 #endif	
+	initializeFASTCGI();
 
 	/*
 	*Load the strings buffers with the right values.
@@ -222,6 +224,7 @@ void cserver::start()
 	*/
 	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::ms_gethostbyname(serverName);
 	in_addr ia;
+	ipAddresses[0]='\0';
 	for(i=0;localhe->h_addr_list[i];i++)
 	{
 #ifdef WIN32
@@ -231,6 +234,7 @@ void cserver::start()
 		ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
 		printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i,inet_ntoa(ia));
+		sprintf(&ipAddresses[strlen(ipAddresses)],"%s%s",strlen(ipAddresses)?",":"",inet_ntoa(ia));
 	}
 	
 
@@ -577,6 +581,8 @@ void cserver::terminate()
 	FreeEnvironmentStrings((LPTSTR)envString);
 	cleanupISAPI();
 #endif	
+	cleanFASTCGI();
+
 	freeMSCGILib();
 	/*
 	*Wait before clean the threads that all the threads are stopped.
@@ -894,4 +900,12 @@ char *cserver::getBrowseDirCSS()
 u_long cserver::getNumThreads()
 {
 	return nThreads;
+}
+/*
+*Returns a comma-separated machine IPs list.
+*For example: 192.168.0.1,61.62.63.64,65.66.67.68.69
+*/
+char *cserver::getAddresses()
+{
+	return ipAddresses;
 }

@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
 #include "../include/winCGI.h"
+#include "../include/fastCGI.h"
 #include "../include/utility.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
@@ -458,6 +459,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	{
 	
 		return sendWINCGI(td,s,td->filenamePath);
+	}
+	else if(mimeCMD==CGI_CMD_FASTCGI)
+	{
+	
+		return sendFASTCGI(td,s,td->filenamePath,ext,data);
 	}
 	else if(mimeCMD==CGI_CMD_SENDLINK)
 	{
