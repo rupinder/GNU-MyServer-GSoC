@@ -50,6 +50,7 @@ extern "C" {
 ClientsTHREAD::ClientsTHREAD()
 {
 	err=0;
+	initialized=0;
 }
 ClientsTHREAD::~ClientsTHREAD()
 {
@@ -77,6 +78,8 @@ void * startClientsTHREAD(void* pParam)
 	u_long id=*((u_long*)pParam) - ClientsTHREAD::ID_OFFSET;
 
 	ClientsTHREAD *ct=&lserver->threads[id];
+	if(ct->initialized)
+		return 0;
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
@@ -274,9 +277,9 @@ void ClientsTHREAD::clean()
 	if(buffer2)
 		free(buffer2);
 	buffer=buffer2=0;
-	initialized=0;
 	delete http_parser;
 	delete https_parser;
+	initialized=0;
 }
 
 

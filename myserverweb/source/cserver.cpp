@@ -66,6 +66,7 @@ int mustEndServer;
 cserver::cserver()
 {
 	threads=0;
+	listingThreads=0;
 }
 
 cserver::~cserver()
@@ -79,6 +80,7 @@ void cserver::start()
 	nConnections=0;
 	connections=0;
 	connectionToParse=0;
+	listingThreads=0;
 	/*!
 	*Reset flag
 	*/
@@ -144,15 +146,6 @@ void cserver::start()
 #endif
 	printf("%s\n",languageParser.getValue("MSG_SERVER_CONF"));
 
-	/*!
-	*The guestLoginHandle value is filled by the call to cserver::initialize.
-	*/
-	if(useLogonOption==0)
-	{
-        	preparePrintError();		
-		printf("%s\n",languageParser.getValue("AL_NO_SECURITY"));
-        	endPrintError();
-	}
 
 	/*!
 	*Startup the socket library.
@@ -205,8 +198,8 @@ void cserver::start()
 	*/
 	while(!mustEndServer)
 	{
+		wait(1000000);
 #ifdef WIN32
-		Sleep(1);
 		DWORD cNumRead,i; 
 		INPUT_RECORD irInBuf[128]; 
 		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
@@ -230,10 +223,6 @@ void cserver::start()
 		}
 		
 #endif
-#ifdef NOT_WIN
-		sleep(1);
-#endif
-
 	}
 	this->terminate();
 }
@@ -270,9 +259,9 @@ int cserver::createServerAndListener(u_long port)
 	int optvalReuseAddr=1;
 	if(serverSocket.setsockopt(SOL_SOCKET,SO_REUSEADDR,(const char *)&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
 	{
-        preparePrintError();
+        	preparePrintError();
 		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
-        endPrintError();
+	        endPrintError();
 		return 0;
 	}
 #endif
@@ -285,7 +274,7 @@ int cserver::createServerAndListener(u_long port)
 	{
 		preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_BIND"));
-        endPrintError();
+	        endPrintError();
 		return 0;
 	}
 	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
@@ -386,8 +375,8 @@ void * listenServer(void* params)
 	MYSERVER_SOCKADDRIN asock_in;
 	int asock_inLen=sizeof(asock_in);
 	MYSERVER_SOCKET asock;
-
-	while((!mustEndServer) && (!lserver->stopListening))
+	lserver->increaseListeningThreadCount();
+	while(!mustEndServer)
 	{
 		/*!
 		*Accept connections.
@@ -395,7 +384,10 @@ void * listenServer(void* params)
 		*this function sends connections between the various threads.
 		*/
 		if(serverSocket.dataOnRead()==0)
+		{
+			wait(100);
 			continue;
+		}
 		asock=serverSocket.accept((struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
 		asock.setServerSocket(&serverSocket);
 		if(asock.getHandle()==0)
@@ -409,6 +401,7 @@ void * listenServer(void* params)
 	*/
 	serverSocket.shutdown( 2);
 	serverSocket.closesocket();
+	lserver->decreaseListeningThreadCount();
 	/*!
 	*Automatically free the current thread
 	*/	
@@ -465,6 +458,11 @@ void cserver::terminate()
 		if(verbosity>1)
 			printf("%s\n",languageParser.getValue("MSG_TSTOPPED"));
 	}
+	while(lserver->getListeningThreadCount())
+	{
+		wait(1000000);
+	}
+
 	if(verbosity>1)
 	{
 		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
@@ -538,7 +536,7 @@ void cserver::stopThreads()
 		*/
 		if(++threadsStopTime > 500 )
 			break;
-		wait(10);
+		wait(100);
 	}
 
 }
@@ -1042,6 +1040,17 @@ int cserver::connections_mutex_unlock()
 }
 void cserver::loadSettings()
 {
+
+	/*!
+	*The guestLoginHandle value is filled by the call to cserver::initialize.
+	*/
+	if(useLogonOption==0)
+	{
+        	preparePrintError();		
+		printf("%s\n",languageParser.getValue("AL_NO_SECURITY"));
+        	endPrintError();
+	}
+
 	u_long i;
 	/*!
 	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
@@ -1134,6 +1143,7 @@ void cserver::loadSettings()
 	if(threads)
 		free(threads);
 	threads=(ClientsTHREAD*)malloc(sizeof(ClientsTHREAD)*nThreads);
+	memset(threads,0,sizeof(ClientsTHREAD)*nThreads);
 	if(threads==NULL)
 	{
 		preparePrintError();
@@ -1167,12 +1177,38 @@ void cserver::reboot()
 	printf("%c\n\nRebooting.......\n\n",0x7);/*0x7 is the beep*/
 	if(mustEndServer)
 		return;
-	lserver->stopListening=1;
-	wait(100);
+	mustEndServer=1;
 	terminate();
-	lserver->stopListening=0;
-	wait(10);
+	mustEndServer=0;
+	wait(1000000);
 	initialize(0);
 	loadSettings();
 
+}
+
+/*!
+*Get the number of active listening threads.
+*/
+int cserver::getListeningThreadCount()
+{
+	return listingThreads;
+}
+/*!
+*Increase of one the number of active listening threads.
+*/
+void cserver::increaseListeningThreadCount()
+{
+	connections_mutex_lock();
+	listingThreads++;
+	connections_mutex_unlock();
+}
+
+/*!
+*Decrease of one the number of active listening threads.
+*/
+void cserver::decreaseListeningThreadCount()
+{
+	connections_mutex_lock();
+	listingThreads--;
+	connections_mutex_unlock();
 }

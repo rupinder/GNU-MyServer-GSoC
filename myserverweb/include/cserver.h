@@ -103,8 +103,8 @@ private:
 	LPCONNECTION connections;
 	void createListenThreads();
 	void reboot();
+	u_int listingThreads;
 public:
-	int stopListening;/*Stop listening threads. Pay attention they are stopped by mustEndServer*/
 	cserver();
 	~cserver();
 	dynamic_protocol* getDynProtocol(char *protocolName);
@@ -114,6 +114,9 @@ public:
 	LPCONNECTION getConnectionToParse(int);
 	LPCONNECTION findConnection(MYSERVER_SOCKET);
 	u_long getTimeout();
+	int getListeningThreadCount();
+	void increaseListeningThreadCount();
+	void decreaseListeningThreadCount();
 	char *getAddresses();
 	void *envString;
 	vhostmanager vhostList;
