@@ -366,7 +366,7 @@ int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
  */
 int Socket::recv(char* buffer, int len, int flags, u_long timeout)
 {
-	int time=get_ticks();
+	u_long time=get_ticks();
 	while(get_ticks()-time<timeout)
 	{
     /*! Check if there is data to read before do any read. */

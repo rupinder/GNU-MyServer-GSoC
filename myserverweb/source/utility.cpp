@@ -279,8 +279,8 @@ u_long get_ticks()
 	return GetTickCount();
 #else
 	int ret = gettimeofday(&tval, 0);
-        if(ret == -1)
-          return 0;
+  if(ret == -1)
+    return 0;
 	u_long time=(tval.tv_sec * 1000) + (tval.tv_usec / 1000);
 	return time;
 #endif
