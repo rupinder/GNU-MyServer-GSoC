@@ -25,6 +25,7 @@
 #include "../include/sockets.h"
 #include "../include/utility.h"
 #include "../include/isapi.h"
+#include "../include/stringutils.h"
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
@@ -657,7 +658,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	/*
 	*If the connection is not Keep-Alive remove it from the connections list returning 0.
 	*/
-	if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
+	char Buffer[strlen(td.request.CONNECTION)];  // Fix to be universal:
+	strcpy(Buffer, td.request.CONNECTION);       // Mozilla uses keep-alive
+	strupr(Buffer);                              // IE uses Keep-Alive
+	if(!lstrcmpi(Buffer,"KEEP-ALIVE"))           // so make eveything uppercase insted
 	{
 		retvalue|=1;/*Set first bit to 1*/
 		retvalue|=2;/*Set second bit to 1*/
@@ -674,7 +678,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		ms_CloseFile(td.inputData);
 		td.inputData=0;
-	}
+	}	
 	return (retvalue&1)?1:0;
 }
 /*
