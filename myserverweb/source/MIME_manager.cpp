@@ -17,16 +17,19 @@
 *Boston, MA  02111-1307, USA.
 */
 #include "..\include\mime_manager.h"
+#include "..\include\filemanager.h"
 HRESULT MIME_Manager::load(char *filename)
 {
 	numMimeTypesLoaded=0;
 	char buffer[MAX_MIME_TYPES*2*32];
 	ZeroMemory(&(data[0][0][0]),sizeof(buffer));
 	ZeroMemory(buffer,sizeof(buffer));
-	FILE *f=fopen(filename,"rt");
-	if(!f)
+	MYSERVER_FILE_HANDLE f=openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	if(f==0)
 		return 1;
-	fread(buffer,sizeof(buffer),1,f);
+	DWORD nbw;
+	readFromFile(f,buffer,sizeof(buffer),&nbw);
+	closeFile(f);
 	DWORD nc=0;
 	for(DWORD i=0;i<MAX_MIME_TYPES;i++)
 	{
@@ -60,7 +63,6 @@ HRESULT MIME_Manager::load(char *filename)
 		numMimeTypesLoaded++;
 		nc++;
 	}
-	fclose(f);
 	return 0;
 
 }
@@ -86,24 +88,12 @@ BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 	}
 	return FALSE;
 }
-VOID MIME_Manager::dumpToHTML(char *file)
-{
-	FILE *f=fopen(file,"w+t");
-	fprintf(f,"<TABLE BORDER=1>\n<TR>\n<TD>Extension</TD>\n<TD>MIME type</TD>\n</TR>\n");
-	for(DWORD i=0;i<numMimeTypesLoaded;i++)
-	{
-		fprintf(f,"<TR>\n<TD>\n%s</TD>\n<TD>\n%s</TD>\n",data[i][0],data[i][1]);
-	}	
-	fprintf(f,"</TABLE>\n</BODY>\n");
-	fclose(f);
-
-}
 VOID MIME_Manager::dumpToFILE(char *file)
 {
-	FILE *f=fopen(file,"w+t");
-	fwrite(data,sizeof(data),1,f);
-	fclose(f);
-
+	MYSERVER_FILE_HANDLE f=openFile(file,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	DWORD nbw;
+	writeToFile(f,&data[0][0][0],sizeof(data),&nbw);
+	closeFile(f);
 }
 
 VOID MIME_Manager::clean()

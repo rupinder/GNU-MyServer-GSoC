@@ -43,7 +43,6 @@ public:
 	HRESULT load(char *filename);
 	BOOL getMIME(char* a,char * b,char* c=NULL);
 	VOID clean();
-	VOID dumpToHTML(char*);
 	VOID dumpToFILE(char*);
 };
 

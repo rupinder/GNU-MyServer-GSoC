@@ -131,9 +131,8 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 }
 BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByte,int lastByte)
 {
-	static FILE* h;
-	h=0;
-	h=fopen(filenamePath,"rb");
+	MYSERVER_FILE_HANDLE h;
+	h=openFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(h==0)
 	{	
 		if(GetLastError()==ERROR_ACCESS_DENIED)
@@ -158,8 +157,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	*If h!=0
 	*/
 
-	static DWORD filesize;
-	getFileSize(&filesize,h);
+	DWORD filesize=getFileSize(h);
 	if(lastByte != -1)
 	{
 		lastByte=min((DWORD)lastByte,filesize);
@@ -167,7 +165,8 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	}
 	if(firstByte)
 		filesize-=firstByte;
-	if(fseek(h, firstByte, SEEK_SET))
+
+	if(setFilePointer(h,firstByte))
 	{
 		raiseHTTPError(s,e_500);
 		return 1;
@@ -186,36 +185,23 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	if(OnlyHeader)
 		return 1;
 
-	static DWORD bytesToSend;
-	static DWORD bytesSent;
-	bytesToSend=filesize;
 	if(lserver->getVerbosity()>2)
 		fprintf(lserver->logFile,"%s %s\n",msgSending,filenamePath);
 	for(;;)
 	{
-		fread(buffer,buffersize,1,h);
-		bytesSent=send(s->socket,buffer,min(bytesToSend,buffersize), 0);
-		if(bytesSent==SOCKET_ERROR)
-		{
+		DWORD nbr;
+		readFromFile(h,buffer,buffersize,&nbr);
+		if(nbr==0)
 			break;
-		}
-		bytesToSend-=bytesSent;
-		if(bytesToSend==0)
+		if(send(s->socket,buffer,nbr, 0) == SOCKET_ERROR)
 			break;
 	}
-	fclose(h);
+	closeFile(h);
 	return 1;
 
 }
 BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
 {
-	char *c=filename;
-	while(*c)
-	{
-		if(*c=='\\')
-			*c='/';
-		c++;
-	}
 	buffer[0]='\0';
 	buildDefaultHttpResponseHeader(&response);
 
@@ -230,10 +216,19 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 			return 1;
 	}
 	getPath(filenamePath,filename,systemrequest);
+	char *c=filenamePath;
+	while(*c)
+	{
+		if(*c=='\\')
+			*c='/';
+		c++;
+	}
+	if((*(c-1))=='/')(*(c-1))='\0';
+
 	if(lstrlen(ext)==0)
 	{
 		static char fileName[MAX_PATH];
-		sprintf(fileName,"%s/%s",filenamePath,lserver->getDefaultFilenamePath());
+		sprintf(fileName,"%s%s",filenamePath,lserver->getDefaultFilenamePath());
 		if(sendHTTPFILE(s,fileName,OnlyHeader,firstByte,lastByte))
 			return 1;
 
@@ -835,7 +830,9 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	execHiddenProcess(&spi);
 	
 	DWORD nBytesRead;
+	setFilePointer(tmpBufferFile,0);
 	readFromFile(tmpBufferFile,buffer2,buffersize2,&nBytesRead);
+	buffer2[max(buffersize2,nBytesRead)]='\0';
 
 	/*
 	*Standards CGI can include an extra HTTP header

@@ -23,6 +23,8 @@ DWORD logFileWrite(char*);
 void setLogFile(FILE*);
 void getFileExt(char*,char*);
 void getFileSize(DWORD*,FILE*);
+DWORD getFileSize(MYSERVER_FILE_HANDLE);
+BOOL setFilePointer(MYSERVER_FILE_HANDLE,DWORD);
 int getPathRecursionLevel(char*);
 
 #define MYSERVER_FILE_OPEN_READ (1<<0)
@@ -33,6 +35,7 @@ int getPathRecursionLevel(char*);
 #define MYSERVER_FILE_OPEN_IFEXISTS (1<<5)
 
 INT	readFromFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
+INT	writeToFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
 MYSERVER_FILE_HANDLE createTemporaryFile(char*);
 MYSERVER_FILE_HANDLE openFile(char*,DWORD);
 INT closeFile(MYSERVER_FILE_HANDLE);

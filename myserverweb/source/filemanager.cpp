@@ -67,14 +67,21 @@ int getPathRecursionLevel(char* path)
 	return rec;
 }
 /*
+*Write data to a file
+*/
+INT	writeToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbw)
+{
+#ifdef WIN32
+	return WriteFile((HANDLE)f,buffer,buffersize,nbw,NULL);
+#endif
+}
+/*
 *Read data from a file to a buffer
 */
 INT	readFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbr)
 {
 #ifdef WIN32
-	SetFilePointer((HANDLE)f,0,0,SEEK_SET);
 	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
-	buffer[max(buffersize,*nbr)]='\0';
 	/*
 	*Return 1 if we don't have problem with the buffersize
 	*/
@@ -87,6 +94,7 @@ INT	readFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbr
 */
 MYSERVER_FILE_HANDLE openFile(char* filename,DWORD opt)
 {
+	MYSERVER_FILE_HANDLE ret;
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};  
     sa.nLength = sizeof(sa);
@@ -111,8 +119,11 @@ MYSERVER_FILE_HANDLE openFile(char* filename,DWORD opt)
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
-	return CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
+	ret=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
+	if(ret==INVALID_HANDLE_VALUE)
+		ret=0;
 #endif
+	return ret;
 }
 /*
 *Create a temporary file
@@ -129,7 +140,7 @@ MYSERVER_FILE_HANDLE createTemporaryFile(char* filename)
 INT closeFile(MYSERVER_FILE_HANDLE fh)
 {
 #ifdef WIN32
-	CloseHandle(fh);
+	CloseHandle((HANDLE)fh);
 #endif
 	return 0;
 }
@@ -142,4 +153,22 @@ INT deleteFile(char *filename)
 	DeleteFile(filename);
 #endif
 	return 0;
+}
+
+DWORD getFileSize(MYSERVER_FILE_HANDLE f)
+{
+	DWORD size;
+#ifdef WIN32
+	size=GetFileSize((HANDLE)f,NULL);
+#endif
+	return size;
+}
+/*
+*Returns One if failed
+*/
+BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
+{
+#ifdef WIN32
+	return (SetFilePointer((HANDLE)h,initialByte,0,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
+#endif
 }
