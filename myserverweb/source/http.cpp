@@ -945,8 +945,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				}
 				while(content_len!=total_nbr);
 
-				
-
 				fs=td.inputData.getFileSize();
 				if(content_len!=fs)
 				{
@@ -1817,8 +1815,6 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 				td->connection->password[i]=*lbuffer2++;
 				td->connection->password[i+1]='\0';
 			}
-			if(i && (td->connection->password[i-1]==8))
-				td->connection->password[i-1]='\0';
 			free(keep_lbuffer2);
 		}else
 		/*Host*/
