@@ -7,4 +7,4 @@ SUBDIRS = cgi-bin $(CGI_SRC) downloads
 
 myserverdatadir = $(root_prefix)/var/web
 
-dist_myserverdata_DATA = goto.png logo.png default.html link.html
+dist_myserverdata_DATA = goto.gif logo.gif default.html link.html
