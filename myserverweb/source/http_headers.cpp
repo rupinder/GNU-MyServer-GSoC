@@ -472,6 +472,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					containOpts=1;
 					break;
 				}
+        else if(token[i]==' ')
+				{
+					break;
+				}
 				request->URI[i]=token[i];
 			}
 			request->URI[i]='\0';
@@ -484,13 +488,34 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					request->URIOPTS[j+1]='\0';
 				}
 			}
-			myserver_strlcpy(request->VER,&token[max+1],HTTP_REQUEST_VER_DIM-1);
-			if(request->URI[strlen(request->URI)-1]=='/')
+  
+      /*! Do not allow more than 5 spaces character between the URI token and the HTTP version. */
+      for(j=0; j<5; j++)
+      {
+        if(token[i]==' ')
+          i++;
+        else 
+          break;
+      }
+      if(j == 5)
+      {
+        return 0;
+      }
+
+      for(j=0; j<HTTP_REQUEST_VER_DIM; j++)
+      {
+        if((token[i]=='\r') || (token[i]=='\n'))
+          break;
+        request->VER[j]=token[i++];
+      }
+      request->VER[j]='\0';
+		
+			
+      if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else
 				request->uriEndsWithSlash=0;
 			StrTrim(request->URI," /");
-			StrTrim(request->VER," /\r\n");
 			StrTrim(request->URIOPTS," /");
 			max=strlen(request->URI);
 			if(max>max_URI)
