@@ -225,7 +225,11 @@ int mscgi::loadMSCGILib()
 	}
 	else
 	{
+#ifdef PREFIX
+    sprintf(mscgi_path, "%s/lib/myserver/cgi-lib.so", PREFIX );
+#else
 		strcpy(mscgi_path, "/usr/lib/myserver/cgi-lib.so");
+#endif
 	}
 	mscgiModule=dlopen(mscgi_path, RTLD_NOW | RTLD_GLOBAL);
 #endif

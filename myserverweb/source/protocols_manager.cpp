@@ -231,7 +231,7 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
 	
 }
 /*!
-*Load all the protocols present in the folder.
+*Load all the protocols present in the directory.
 */
 void protocols_manager::loadProtocols(char* folder,cXMLParser* parser,char* confFile,cserver* lserver)
 {

@@ -628,14 +628,19 @@ int cserver::initialize(int /*!os_ver*/)
 	serverAdmin[0]='\0';
 	
 #ifndef WIN32
-	/*! If the directory /usr/share/myserver/languages exists use this.*/
+	/*! Do not use the files in the directory /usr/share/myserver/languages if 
+   *exists a local directory.*/
 	if(MYSERVER_FILE::fileExists("languages"))
 	{
 		strcpy(languages_path,"languages/");
 	}
 	else
 	{
+#ifdef PREFIX
+    sprintf(languages_path,"%s/share/myserver/languages/", PREFIX ) ;
+#else
 		strcpy(languages_path,"/usr/share/myserver/languages/");
+#endif
 	}
 #endif
 
@@ -1271,7 +1276,27 @@ void cserver::loadSettings()
 
 	http::loadProtocol(&languageParser, "myserver.xml");
 	https::loadProtocol(&languageParser, "myserver.xml");
-	protocols.loadProtocols("external/protocols", &languageParser, "myserver.xml", this);
+#ifdef NOT_WIN
+	if(MYSERVER_FILE::fileExists("external"))
+	{
+		protocols.loadProtocols("external", &languageParser, "myserver.xml", this);
+	}
+  else
+  {
+#ifdef PREFIX
+    char path[MAX_PATH];
+    sprintf(path,"%s/lib/myserver/external/protocols",PREFIX);
+    protocols.loadProtocols(path, &languageParser, "myserver.xml", this);
+#else
+    protocols.loadProtocols("/usr/lib/myserver/external/protocols", &languageParser, "myserver.xml", this);
+#endif
+  }
+ 
+
+#endif 
+#if WIN32
+    protocols.loadProtocols("external/protocols", &languageParser, "myserver.xml", this);
+#endif
 
 	myserver_thread_ID ID;
 	if(threads)

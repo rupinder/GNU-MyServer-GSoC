@@ -178,14 +178,17 @@ void configurationFrame::initNotebook()
 	strcpy(languages_path,"languages/");
 	ff=_findfirst("languages/*.xml" ,&fd);
 #else
-	/*! If the directory /usr/share/myserver/languages exists use this.*/
 	if(MYSERVER_FILE::fileExists("languages"))
 	{
 		strcpy(languages_path,"languages/");
 	}
 	else
 	{
+#ifdef PREFIX
+		sprintf(languages_path,"%s/share/myserver/languages/",PREFIX);
+#else
 		strcpy(languages_path,"/usr/share/myserver/languages/");
+#endif
 	}
 	ff=_findfirst(languages_path ,&fd);
  #endif

@@ -426,8 +426,8 @@ int MYSERVER_FILE::fileExists(char* filename)
 	int ret = stat(filename, &F_Stats);
 	if(ret < 0)
 		return 0;
-	/*! Return 1 if it is a regular file.  */
-	return (S_ISREG(F_Stats.st_mode))? 1 : 0;
+	/*! Return 1 if it is a regular file or a directory.  */
+	return (S_ISREG(F_Stats.st_mode) | S_ISDIR(F_Stats.st_mode))? 1 : 0;
 #endif
 }
 
