@@ -273,7 +273,7 @@ int http_file::send(httpThreadContext* td, LPCONNECTION s, char *filenamePath,
 				  if(ret)
 					{
 						h.closeFile();
-            sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
+            strcpy(td->response.CONTENT_LENGTH,"0");
 						return 0;
 					}
           dataSent+=nbw;

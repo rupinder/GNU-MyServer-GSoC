@@ -94,20 +94,23 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
 	int nDirectories=0;
 	int i;
 	long ff;
-	char fileSize[20];
 	char fileTime[32];
 	char* bufferloop;
   char* browseDirCSSpath;
-  if(td->outputDataPath)
-    delete [] td->outputDataPath;
-  td->outputDataPath = new char[outputDataPathLen];
-  if(td->outputDataPath==0)
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
-  
-	getdefaultwd(td->outputDataPath, outputDataPathLen);
 	MYSERVER_FILE_HANDLE outputDataHandle = td->outputData.getHandle();
+  /*!
+   *Create a new file if the old is not valid.
+   */
 	if( outputDataHandle == 0 )
 	{
+
+    if(td->outputDataPath)
+      delete [] td->outputDataPath;
+    td->outputDataPath = new char[outputDataPathLen];
+    if(td->outputDataPath==0)
+      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+    
+    getdefaultwd(td->outputDataPath, outputDataPathLen);
 		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
             "/stdOutFile_%u", (u_int) td->id);
 		ret = td->outputData.openFile(td->outputDataPath, 
@@ -212,7 +215,7 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
   {
     delete [] td->outputDataPath;
     td->outputDataPath = 0;
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+    return  ((http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 	sprintf(filename, "%s/*", directory);
 #endif
@@ -296,6 +299,7 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
 		}
 		else
 		{
+      char fileSize[20];
 			sprintf(fileSize, "%u bytes", (u_int) fd.size);
 			*td->buffer2 << fileSize;
 		}
@@ -360,10 +364,10 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
 			/* Remove the connection.  */
 			return 0;
 		}	
-
+    
     if(only_header)
       return 1;
-
+    
     do
 		{
 			ret = td->outputData.readFromFile((char*)td->buffer->GetBuffer(), 

@@ -500,6 +500,7 @@ int fastcgi::send(httpThreadContext* td,LPCONNECTION connection,
           (u_int)(con.tempOut.getFileSize()-headerSize));
 	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,
                                               (char*)td->buffer->GetBuffer());
+
 	for(;;)
 	{
 		if(td->response.LOCATION[0])
@@ -543,7 +544,7 @@ int fastcgi::send(httpThreadContext* td,LPCONNECTION connection,
 				break;
 			}
 		}
-		else/*! If appendOutputs . */
+		else/*! If appendOutputs. */
 		{
       if(only_header)
       {
@@ -598,7 +599,8 @@ int fastcgi::send(httpThreadContext* td,LPCONNECTION connection,
         }
 			}
 		}while(nbr);
-		break;
+	
+    break;
 	}
   td->inputData.closeFile();
   MYSERVER_FILE::deleteFile(td->inputDataPath);

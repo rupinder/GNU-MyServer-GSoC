@@ -311,8 +311,11 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
 	sprintf(td->response.CONTENT_LENGTH,"%u",
           OutFileHandle.getFileSize()-headerSize);
 	u_long nbw=0;
-	if(!td->appendOutputs)/*Send the header*/
+	if(!td->appendOutputs)
 	{
+    /*!
+     *Send the header if it is not appending.
+     */
 		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
                                           &td->response);
 		s->socket.send((const char*)td->buffer->GetBuffer(),
@@ -324,10 +327,15 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
       MYSERVER_FILE::deleteFile(dataFilePath);
       return 1;
     }
+    /*!
+     *Send other data in the buffer.
+     */
 		s->socket.send((char*)(buffer+headerSize),nBytesRead-headerSize, 0);
 	}
 	else
   {
+		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+                                          &td->response);
     if(only_header)
     {
       return 1;
@@ -342,10 +350,29 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
     OutFileHandle.readFromFile(buffer,td->buffer2->GetLength(),&nBytesRead);
 		if(nBytesRead)
 		{
+      int ret;
 			if(td->appendOutputs)
-				td->outputData.writeToFile(buffer,nBytesRead,&nbw);
-			else
-				s->socket.send((char*)buffer,nBytesRead, 0);
+      {
+				ret = td->outputData.writeToFile(buffer,nBytesRead,&nbw);
+        if(ret)
+        {
+          OutFileHandle.closeFile();
+          MYSERVER_FILE::deleteFile(outFilePath);
+          MYSERVER_FILE::deleteFile(dataFilePath);
+          return 0;
+        }
+      }			
+      else
+      {
+				ret = s->socket.send((char*)buffer,nBytesRead, 0);
+        if(ret == -1)
+        {
+          OutFileHandle.closeFile();
+          MYSERVER_FILE::deleteFile(outFilePath);
+          MYSERVER_FILE::deleteFile(dataFilePath);
+          return 0;
+        }
+      }
 		}
 		else
 			break;

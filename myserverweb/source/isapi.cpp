@@ -249,15 +249,19 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				}
 			}
 		}
-		if(headerSize && (!ConnInfo->td->appendOutputs))
+    /*!
+     *Handle the HTTP header if exists.
+     */
+		if(headerSize)
 		{
 			int len = ConnInfo->headerSize-headerSize;
+      http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,
+                                  ConnInfo->td,(char*)ConnInfo->td->buffer->GetBuffer());
 			if(!ConnInfo->td->appendOutputs)
 			{
 				if(keepalive)
 					strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
-				http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,
-                              ConnInfo->td,(char*)ConnInfo->td->buffer->GetBuffer());
+
 				if(keepalive)
 					strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
 				else
@@ -270,14 +274,17 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
                      (int)strlen((char*)ConnInfo->td->buffer2->GetBuffer()), 0)==-1)
 					return 0;
 			}
+      /*! Save the headerSent status. */
 			ConnInfo->headerSent=1;
       
+      /*! If only the header was requested return. */
       if(ConnInfo->headerSent && ConnInfo->only_header)
         return 0;
 
 			/*!Send the first chunk. */
 			if(len)
 			{
+        /*! With keep-alive connections use chunks.*/
 				if(keepalive && (!ConnInfo->td->appendOutputs))
 				{
 					sprintf(chunk_size,"%x\r\n",len);
@@ -298,6 +305,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 					if((nbw == (u_long)-1) || (!nbw))
 						return 0;
 				}
+
+        /*! Send the chunk tailer.*/
 				if(keepalive && (!ConnInfo->td->appendOutputs))
 				{
 					nbw = ConnInfo->connection->socket.send("\r\n",2, 0);
@@ -322,8 +331,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		}
 		nbw = ConnInfo->connection->socket.send((char*)Buffer,*lpdwBytes, 0);
 		if(keepalive)
-		{
-			nbw = ConnInfo->connection->socket.send("\r\n",2, 0);
+    {
+      nbw = ConnInfo->connection->socket.send("\r\n",2, 0);
 			if((nbw == (u_long)-1) || (!nbw))
 				return 0;
 		}
@@ -357,7 +366,7 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSi
 		((vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(ConnInfo->td->id);
 		return 0;
 	}
-	ConnInfo->td->inputData.readFromFile((char*)lpvBuffer,*lpdwSize,&NumRead);
+	ConnInfo->td->inputData.readFromFile((char*)lpvBuffer, *lpdwSize, &NumRead);
 	if (NumRead == -1) 
 	{
 		*lpdwSize = 0;
@@ -371,8 +380,8 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSi
 }
 
 /*!
-*Get server environment variable.
-*/
+ *Get server environment variable.
+ */
 BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, 
                                           LPVOID lpvBuffer, LPDWORD lpdwSize) 
 {
@@ -604,9 +613,9 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 int isapi::send(httpThreadContext* td,LPCONNECTION connection, 
                 char* scriptpath,char *cgipath, int execute,int only_header)
 {
-  /*!
-   *ISAPI works only on the windows architecture.
-   */
+/*!
+ *ISAPI works only on the windows architecture.
+ */
 #ifdef NOT_WIN
 		return ((http*)td->lhttp)->raiseHTTPError(td, connection, e_501);
 #endif
