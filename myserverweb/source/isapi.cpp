@@ -375,6 +375,8 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 
 
 		}
+		else
+			nbw=*lpdwBytes;
 	}
 	else/*Continue to send data chunks*/
 	{
