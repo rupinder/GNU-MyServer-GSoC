@@ -43,6 +43,12 @@ extern "C" {
 #endif
 
 #endif
+
+/* a cheap trick to fix osx */
+#ifndef socklen_t
+#define socklen_t int
+#endif
+
 /*!
  *Source code to wrap the socket library to MyServer project.
  */
