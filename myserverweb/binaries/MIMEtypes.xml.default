@@ -927,7 +927,7 @@
 
 <MIMETYPE>
 <EXT>txt</EXT>
-<MIME>text/html</MIME>
+<MIME>text/plain</MIME>
 <CMD>SEND</CMD>
 <MANAGER>NONE</MANAGER>
 </MIMETYPE>
