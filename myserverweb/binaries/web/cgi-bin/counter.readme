@@ -1,7 +1,5 @@
 MyServer MSCGI counter example.
 
-Main author: Russ Bohnhoff (MyServer Team)
-
 Description:
 This is a simple counter that creates a image of numbers representing the 
 number of calls to the counter.mscgi program.
