@@ -731,7 +731,7 @@ CMemBuf& CMemBuf::operator<< (const  CMemBuf &src)
 	AddBuffer(src.m_buffer, src.m_nSize); 
 	return *this;
 }
-CMemBuf& CMemBuf::operator<< (const string src)
+CMemBuf& CMemBuf::operator<< (const string &src)
 {
 	AddBuffer((const void*) src.c_str(), src.length());
 	return *this;
