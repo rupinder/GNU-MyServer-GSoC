@@ -25,9 +25,9 @@ class Counter_Output
 {
     private:
     	unsigned char * outBuffer;
-    	int number;
+    	unsigned long int number;
     public:
-    	void setNumber(int );
+    	void setNumber(unsigned long int );
 	void setWrite(cgi_manager *);
 	void run();
 };

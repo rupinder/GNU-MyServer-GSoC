@@ -19,9 +19,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
 #include "../../../cgi-lib/cgi_manager.h"
 #include "counter_output.h"
-#include <stdlib.h> // for atoi
-#include <stdio.h> // for snprintf
-#include <string.h> // for strlen
+#include <limits.h>
+#include <math.h>
+
+// 10 digets is the bigest I can get on my system
+#define MAXDIGETS 10
 
 #ifdef WIN32
 int EXPORTABLE main (char *cmd,cgi_data* data)
@@ -40,26 +42,27 @@ extern "C" int main (char *cmd,cgi_data* data)
 	counter.setWrite(&cm); //set the png writer function
 	
 	// Lets count!
-	int count;
+	unsigned long int count;
 	u_long nbw;
-	char Buffer[20];
 	
 	if(msfile.fileExists("count.dat"))
 	{
 		// read the last number
 		msfile.openFile("count.dat", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
-		msfile.readFromFile(Buffer, 20, &nbw);
+		msfile.readFromFile((char *)&count, sizeof(count), &nbw);
 		msfile.closeFile();
-		Buffer[nbw] = '\0';
-		
-		count = atoi(Buffer);
 		
 		count++; // add the hit
 		
+		if(count > ULONG_MAX - 5)
+			count = 1;
+		
+		if(count > pow((long double)10, (long double)MAXDIGETS))
+			count = 1;
+			
 		//now save it
-		snprintf(Buffer, 20, "%d  ", count);
 		msfile.openFile("count.dat", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-		msfile.writeToFile(Buffer, strlen(Buffer), &nbw);
+		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		msfile.closeFile();
 	}
 	else
@@ -68,9 +71,8 @@ extern "C" int main (char *cmd,cgi_data* data)
 		count = 1;
 		
 		//now save it
-		snprintf(Buffer, 20, "%d  ", count);
 		msfile.openFile("count.dat", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_CREATE_ALWAYS);
-		msfile.writeToFile(Buffer, strlen(Buffer), &nbw);
+		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		msfile.closeFile();
 	}
 	

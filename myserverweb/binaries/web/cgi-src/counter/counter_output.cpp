@@ -44,7 +44,7 @@ void user_flush_data(png_structp png_ptr)
 
 }
 
-void Counter_Output::setNumber(int num)
+void Counter_Output::setNumber(unsigned long int num)
 {
 	number = num;
 }
@@ -56,12 +56,12 @@ void Counter_Output::setWrite(cgi_manager * ptr)
 
 void Counter_Output::run()
 {
-	int i;
-	int digets;
+	unsigned int i;
+	unsigned int digets;
 	
 	// how many numbers
 	i = 0;
-	while(number >= pow((double)10, (double)i))
+	while(number >= pow((long double)10, (long double)i))
 	{
 		i++;
 	}
@@ -71,17 +71,17 @@ void Counter_Output::run()
 	// alocate the counter image
 	outBuffer = new unsigned char [(numbers_image.width / 10) * digets * numbers_image.bytes_per_pixel * numbers_image.height + 1];
 	
-	int num;
-	int out_offset = 0;
-	int in_offset = 0;
-	int x, y;
-	int in_x, out_x, in_y_offset, out_y_offset;
-	long int in_index, out_index;
+	unsigned int num;
+	unsigned long int out_offset = 0;
+	unsigned long int in_offset = 0;
+	unsigned int x, y;
+	unsigned long int in_x, out_x, in_y_offset, out_y_offset;
+	unsigned long int in_index, out_index;
 	
 	// This is going to get ugly!
 	for(i = digets; i >= 1; i--)
 	{
-		num = (number % (int)pow((double)10, (double)i)) / pow((double)10, (double)(i - 1));
+		num = (number % (unsigned long int)pow((long double)10, (long double)i)) / pow((long double)10, (long double)(i - 1));
 		
 		in_offset  = (numbers_image.width / 10) * numbers_image.bytes_per_pixel * num;
 		
