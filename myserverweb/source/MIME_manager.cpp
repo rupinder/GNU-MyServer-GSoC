@@ -167,7 +167,7 @@ int MimeManager::loadXML(char *filename)
 	xmlNodePtr node;
   xmlDocPtr doc;
 	int nm;
-  int filenamelen;
+  int filenamelen=strlen(filename)+1;
   MimeManager::filename = new char[filenamelen];
   if(MimeManager::filename==0)
     return -1;
