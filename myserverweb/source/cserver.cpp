@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/security.h"
 #include "../include/stringutils.h"
 #include "../include/sockets.h"
+#include "../include/myserver_regex.h"
+
 extern "C" {
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -76,6 +78,7 @@ cserver::~cserver()
 
 void cserver::start()
 {
+	myserver_regex mr;
 	u_long i;
 	u_long configsCheck=0;
 	time_t myserver_main_conf;
