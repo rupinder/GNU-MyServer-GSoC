@@ -45,8 +45,6 @@ public:
 
 	char documentRoot[MAX_PATH];/*Path to the document root*/
 	char systemRoot[MAX_PATH];/*Path to the system root*/
-	char documentRootOriginal[MAX_PATH];/*Path to the document root(as it is in the configuration file)*/
-	char systemRootOriginal[MAX_PATH];/*Path to the system root(as it is in the configuration file)*/
 	char accessesLogFileName[MAX_PATH];/*Path to the accesses log file*/
 	char warningsLogFileName[MAX_PATH];/*Path to the warnings log file*/
 	char name[64];/*Description or name of the virtual host*/

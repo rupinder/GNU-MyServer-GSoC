@@ -267,13 +267,13 @@ void configurationFrameVHOSTS::hostDocMod(wxCommandEvent& event)
 {
 	wxString str = hostDoc->GetValue();
 	if(currentVHost)
-		sprintf(currentVHost->documentRootOriginal,"|%s",(char*)str.ToAscii());
+		sprintf(currentVHost->documentRoot,"%s",(char*)str.ToAscii());
 }
 void configurationFrameVHOSTS::hostSysMod(wxCommandEvent& event)
 {
 	wxString str = hostSys->GetValue();
 	if(currentVHost)
-		sprintf(currentVHost->systemRootOriginal,"|%s",(char*)str.ToAscii());
+		sprintf(currentVHost->systemRoot,"%s",(char*)str.ToAscii());
 }
 void configurationFrameVHOSTS::hostAccMod(wxCommandEvent& event)
 {

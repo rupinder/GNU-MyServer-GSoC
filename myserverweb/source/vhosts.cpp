@@ -470,11 +470,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			buffer2[strlen(buffer2)]=buffer[cc];
 			cc++;
 		}	
-		strcpy(vh->documentRootOriginal,buffer2);
-		if(buffer2[0]!='|')
-			sprintf(vh->documentRoot,"%s/%s",path,buffer2);
-		else
-			strcpy(vh->documentRoot,&buffer2[1]);
+		strcpy(vh->documentRoot,buffer2);
 		cc++;
 		/*Get the system folder used by the virtual host*/
 		buffer2[0]='\0';
@@ -484,11 +480,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			buffer2[strlen(buffer2)]=buffer[cc];
 			cc++;
 		}	
-		strcpy(vh->systemRootOriginal,buffer2);
-		if(buffer2[0]!='|')
-			sprintf(vh->systemRoot,"%s/%s",path,buffer2);
-		else
-			strcpy(vh->systemRoot,&buffer2[1]);
+		strcpy(vh->systemRoot,buffer2);
 		cc++;
 		/*Get the accesses log file used by the virtual host*/
 		buffer2[0]='\0';
@@ -586,11 +578,11 @@ void vhostmanager::saveConfigurationFile(char *filename)
 			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
 
-		fh.writeToFile(vh->documentRootOriginal,(u_long)strlen(vh->documentRootOriginal),&nbw);
+		fh.writeToFile(vh->documentRoot,(u_long)strlen(vh->documentRoot),&nbw);
 		strcpy(buffer,";");
 		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
-		fh.writeToFile(vh->systemRootOriginal,(u_long)strlen(vh->systemRootOriginal),&nbw);
+		fh.writeToFile(vh->systemRoot,(u_long)strlen(vh->systemRoot),&nbw);
 		strcpy(buffer,";");
 		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
@@ -708,19 +700,11 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
 			{
-				strcpy(vh->documentRootOriginal,(char*)lcur->children->content);
-				if(vh->documentRootOriginal[0]!='|')
-					sprintf(vh->documentRoot,"%s/%s",path,vh->documentRootOriginal);
-				else
-					strcpy(vh->documentRoot,&(vh->documentRootOriginal)[1]);				
+				strcpy(vh->documentRoot,(char*)lcur->children->content);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
 			{
-				strcpy(vh->systemRootOriginal,(char*)lcur->children->content);
-				if(vh->systemRootOriginal[0]!='|')
-					sprintf(vh->systemRoot,"%s/%s",path,vh->systemRootOriginal);
-				else
-					strcpy(vh->systemRoot,&(vh->documentRootOriginal[1]));
+				strcpy(vh->systemRoot,(char*)lcur->children->content);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 			{
@@ -790,11 +774,11 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
 
 		out.writeToFile("<DOCROOT>",9,&nbw);
-		out.writeToFile(list->host->documentRootOriginal,strlen(list->host->documentRootOriginal),&nbw);
+		out.writeToFile(list->host->documentRoot,strlen(list->host->documentRoot),&nbw);
 		out.writeToFile("</DOCROOT>\r\n",12,&nbw);
 
 		out.writeToFile("<SYSFOLDER>",11,&nbw);
-		out.writeToFile(list->host->systemRootOriginal,strlen(list->host->systemRootOriginal),&nbw);
+		out.writeToFile(list->host->systemRoot,strlen(list->host->systemRoot),&nbw);
 		out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
 
 		out.writeToFile("<ACCESSESLOG>",13,&nbw);
