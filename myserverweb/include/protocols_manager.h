@@ -55,12 +55,14 @@ public:
 	int getOptions();
 };
 
+/*! Structure used to create a linked list. */
 struct DynamicProtocolListElement
 {
 	DynamicProtocol data;
 	DynamicProtocolListElement* next;
 	
 };
+
 class ProtocolsManager
 {
 private:

@@ -45,6 +45,7 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
                                    Server* lserver)
 {
   errorParser = languageParser;
+	loadProtocolPROC Proc;
 #ifdef WIN32
 	hinstLib = LoadLibrary(filename);
 #endif
@@ -62,7 +63,6 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
     delete [] log_str;
 		return 0;
 	}
-	loadProtocolPROC Proc;
 #ifdef WIN32
 		Proc = (loadProtocolPROC) GetProcAddress((HMODULE)hinstLib, "loadProtocol"); 
 #endif
@@ -82,10 +82,10 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
  */
 int DynamicProtocol::unloadProtocol(XmlParser* languageParser)
 {
+	unloadProtocolPROC Proc=0;
   if(filename)
     delete [] filename;
   filename = 0;
-	unloadProtocolPROC Proc=0;
 #ifdef WIN32
 	if(hinstLib)
 		Proc = (unloadProtocolPROC) GetProcAddress((HMODULE)hinstLib, "unloadProtocol"); 
