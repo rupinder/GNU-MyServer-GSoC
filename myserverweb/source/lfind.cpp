@@ -1,6 +1,6 @@
 // A quick and durty (incompleat) _finddata_t implimintation
 //
-#include "lfind.h"
+#include "../include/lfind.h"
 
 extern "C" {
 #include <stdlib.h>

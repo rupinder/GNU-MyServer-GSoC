@@ -35,7 +35,7 @@ extern "C" {
 }
 
 #ifndef WIN32
-#include "lfind.h"
+#include "../include/lfind.h"
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
