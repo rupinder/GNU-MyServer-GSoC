@@ -112,10 +112,9 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
     */
 	char currentpath[MAX_PATH];
 	char outputDataPath[MAX_PATH];
-	getdefaultwd(outputDataPath,MAX_PATH);
+	getdefaultwd(currentpath,MAX_PATH);
 	sprintf(outputDataPath,"%s/stdOutFileCGI_%u",currentpath,(unsigned int)td->id);
-
-		
+	
 	/*!
 	*Standard CGI uses STDOUT to output the result and the STDIN 
 	*to get other params like in a POST request.
