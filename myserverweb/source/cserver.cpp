@@ -504,10 +504,10 @@ void cserver::createListenThreads()
    *Create the listens threads.
    *Every port uses a thread.
    */
-	for(vhostmanager::sVhostList *list=vhostList->getvHostList();list;list=list->next )
+	for(VhostManager::sVhostList *list=vhostList->getvHostList();list;list=list->next )
 	{
 		int needThread=1;
-		vhostmanager::sVhostList *list2=vhostList->getvHostList();
+		VhostManager::sVhostList *list2=vhostList->getvHostList();
 		for(;;)
 		{
 			list2=list2->next;
@@ -715,8 +715,8 @@ int cserver::terminate()
    */
 	FreeEnvironmentStrings((LPTSTR)envString);
 #endif
-	http::unloadProtocol(&languageParser);
-	https::unloadProtocol(&languageParser);
+	Http::unloadProtocol(&languageParser);
+	Https::unloadProtocol(&languageParser);
   control_protocol::unloadProtocol(&languageParser);
 	protocols.unloadProtocols(&languageParser);
 
@@ -1219,14 +1219,14 @@ ConnectionPtr cserver::addConnectionToList(MYSERVER_SOCKET s,
 		return 0;
 	}
 
-	if(((vhost*)new_connection->host)->protocol > 1000	)
+	if(((Vhost*)new_connection->host)->protocol > 1000	)
 	{
 		doSSLhandshake=1;
 	}
-	else if(((vhost*)new_connection->host)->protocol==PROTOCOL_UNKNOWN)
+	else if(((Vhost*)new_connection->host)->protocol==PROTOCOL_UNKNOWN)
 	{	
 		DynamicProtocol* dp;
-    dp=lserver->getDynProtocol(((vhost*)(new_connection->host))->protocol_name);	
+    dp=lserver->getDynProtocol(((Vhost*)(new_connection->host))->protocol_name);	
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;	
 	}
@@ -1236,7 +1236,7 @@ ConnectionPtr cserver::addConnectionToList(MYSERVER_SOCKET s,
 	{
 		int ret =0;
 #ifndef DO_NOT_USE_SSL
-		SSL_CTX* ctx=((vhost*)new_connection->host)->getSSLContext();
+		SSL_CTX* ctx=((Vhost*)new_connection->host)->getSSLContext();
 		new_connection->socket.setSSLContext(ctx);
 		ret=new_connection->socket.sslAccept();
 		
@@ -1665,7 +1665,7 @@ int cserver::loadSettings()
       return -1;
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 	}
-  vhostList = new vhostmanager();
+  vhostList = new VhostManager();
   if(vhostList == 0)
   {
     return -1;
@@ -1674,8 +1674,8 @@ int cserver::loadSettings()
 	vhostList->loadXMLConfigurationFile(vhost_configuration_file, 
                                       this->getMaxLogFileSize());
 
-	http::loadProtocol(&languageParser, "myserver.xml");
-	https::loadProtocol(&languageParser, "myserver.xml");
+	Http::loadProtocol(&languageParser, "myserver.xml");
+	Https::loadProtocol(&languageParser, "myserver.xml");
   control_protocol::loadProtocol(&languageParser, "myserver.xml");
 #ifdef NOT_WIN
 	if(MYSERVER_FILE::fileExists("external/protocols"))

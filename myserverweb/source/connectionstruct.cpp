@@ -66,7 +66,7 @@ Connection::~Connection()
 /*!
  *Create the buffer.
  */
-protocol_buffer::protocol_buffer()
+ProtocolBuffer::ProtocolBuffer()
 {
 
 }
@@ -74,7 +74,7 @@ protocol_buffer::protocol_buffer()
 /*!
  *Destroy the object.
  */
-protocol_buffer::~protocol_buffer()
+ProtocolBuffer::~ProtocolBuffer()
 {
 
 }

@@ -43,11 +43,11 @@ typedef u_long CONNECTION_PROTOCOL;
 /*!
  *Base class to handle a buffer in the connection.
  */
-class	protocol_buffer
+class	ProtocolBuffer
 {
 public:
-  protocol_buffer();
-	virtual ~protocol_buffer();
+  ProtocolBuffer();
+	virtual ~ProtocolBuffer();
 };
 
 
@@ -153,7 +153,7 @@ public:
 	char connectionBuffer[MYSERVER_KB(8)];
 	
 	/*! Buffer for the connecion struct. Used by protocols.  */
-	protocol_buffer *protocolBuffer;
+	ProtocolBuffer *protocolBuffer;
 
   Connection();
   virtual ~Connection();

@@ -57,7 +57,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
    *On the platforms where is not available the MSCGI support send a 
    *non implemented error.
    */
-	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
+	return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_501);
 #endif
 #endif
 
@@ -126,7 +126,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
     outDataPath=new char[ outDataPathLen ];
     if(outDataPath == 0)
     {
-      return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+      return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
     }
 		getdefaultwd(outDataPath, outDataPathLen );	
 		sprintf(&(outDataPath)[wdLen-1],"/stdOutFileMSCGI_%u",(u_int)td->id);
@@ -134,7 +134,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
                             MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_WRITE))
     {
       delete [] outDataPath;
-      return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+      return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
     
     }
 	}
@@ -187,7 +187,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
     if(outDataPath)
       delete [] outDataPath;
     /*! Internal server error. */
-    return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	if(data.errorPage)
 	{
@@ -198,7 +198,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 			MYSERVER_FILE::deleteFile(outDataPath);
       if(outDataPath)
         delete [] outDataPath;
-			return ((http*)td->lhttp)->raiseHTTPError(td,s,errID);
+			return ((Http*)td->lhttp)->raiseHTTPError(td,s,errID);
     }
 	}
 	/*!
@@ -226,7 +226,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 			}
 
       /*! Internal server error. */
-      return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+      return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
     if(only_header)
     {
@@ -248,7 +248,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
           if(outDataPath)
             delete [] outDataPath;	
           /*! Internal server error. */
-          return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+          return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 				}	
 			}
 		}while(nbr && nbs);

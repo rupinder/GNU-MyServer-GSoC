@@ -305,7 +305,7 @@ int ClientsThread::controlConnections()
 
 		c->thread=this;
 
-		switch(((vhost*)(c->host))->protocol)
+		switch(((Vhost*)(c->host))->protocol)
 		{
 			/*!
        *controlHTTPConnection returns 0 if the connection must be removed from
@@ -314,7 +314,7 @@ int ClientsThread::controlConnections()
 			case PROTOCOL_HTTP:
         if(http_parser == 0)
         {
-          http_parser = new http();
+          http_parser = new Http();
           if(http_parser==0)
             return 0;
         }
@@ -328,7 +328,7 @@ int ClientsThread::controlConnections()
 			case PROTOCOL_HTTPS:
         if(https_parser == 0)
         {
-          https_parser = new https();
+          https_parser = new Https();
           if(https_parser==0)
             return 0;
         }
@@ -349,7 +349,7 @@ int ClientsThread::controlConnections()
                                                            nBytesToRead, id);
 				break;
 			default:
-        dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
+        dp=lserver->getDynProtocol(((Vhost*)(c->host))->protocol_name);
 				if(dp==0)
 				{
 					retcode=0;

@@ -65,7 +65,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
       mapInfo->lpszPath = 0;
-			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
+			((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                            &mapInfo->lpszPath,(char*)lpvBuffer,0);
 			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
@@ -81,7 +81,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                  (int)(strlen(ConnInfo->td->request.URI)-
 				 (ConnInfo->td->pathInfo?strlen(ConnInfo->td->pathInfo):0) +1));
 
-			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
+			((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                             (char**)&buffer,URI,0);
       if(buffer==0)
       {
@@ -160,7 +160,7 @@ ConnTableRecord *Isapi::HConnRecord(HCONN hConn)
  */
 int Isapi::Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL) 
 {
-	return ((http*)td->lhttp)->sendHTTPRedirect(td,a,URL);
+	return ((Http*)td->lhttp)->sendHTTPRedirect(td,a,URL);
 }
 
 /*!
@@ -168,7 +168,7 @@ int Isapi::Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL)
  */
 int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
-	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,0);
+	return ((Http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,0);
 }
 
 /*!
@@ -176,7 +176,7 @@ int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
  */
 int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
-	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,1);
+	return ((Http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,1);
 }
 
 /*!
@@ -196,11 +196,11 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	Isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
-		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
+		((Vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
                                                                 ConnInfo->td->id);
-		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
+		((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
                                         "isapi::WriteClientExport: invalid hConn\r\n");
-		((vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(
+		((Vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(
                                                                 ConnInfo->td->id);
 		return 0;
 	}
@@ -345,9 +345,9 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSi
 	ConnInfo = Isapi::HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
-		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("isapi::ReadClientExport: invalid hConn\r\n");
-		((vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(ConnInfo->td->id);
+		((Vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
+		((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("isapi::ReadClientExport: invalid hConn\r\n");
+		((Vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(ConnInfo->td->id);
 		return 0;
 	}
 	ConnInfo->td->inputData.readFromFile((char*)lpvBuffer, *lpdwSize, &NumRead);
@@ -603,7 +603,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
  *ISAPI works only on the windows architecture.
  */
 #ifdef NOT_WIN
-  return ((http*)td->lhttp)->raiseHTTPError(td, connection, e_501);
+  return ((Http*)td->lhttp)->raiseHTTPError(td, connection, e_501);
 #endif
 
 #ifdef WIN32
@@ -645,11 +645,11 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 
 	if (connIndex == max_Connections) 
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite(
                                                     "Error ISAPI max connections\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	if(execute)
   	AppHnd = LoadLibrary(scriptpath);
@@ -666,67 +666,67 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, 1, 0, NULL);
 	if (AppHnd == NULL) 
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite(
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(
                                          "Failure to load ISAPI application module: ");
-		((vhost*)(td->connection->host))->warningsLogWrite(execute ? scriptpath : scriptpath);
-		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-        return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningsLogWrite(execute ? scriptpath : scriptpath);
+		((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
   
 	GetExtensionVersion = (PFN_GETEXTENSIONVERSION) 
     GetProcAddress(AppHnd, "GetExtensionVersion");
 	if (GetExtensionVersion == NULL) 
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite(
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(
            "Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		if(!FreeLibrary(AppHnd))
 		{
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)(td->connection->host))->warningsLogWrite(
+			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			((Vhost*)(td->connection->host))->warningsLogWrite(
                                             "Failure to FreeLibrary in ISAPI module: ");
-			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
-			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
-			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+			((Vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+			((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
-    ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite(
+    ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(
                                      "ISAPI GetExtensionVersion() returned FALSE\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		if(!FreeLibrary(AppHnd))
 		{
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)(td->connection->host))->warningsLogWrite(
+			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			((Vhost*)(td->connection->host))->warningsLogWrite(
                                             "Failure to FreeLibrary in ISAPI module: ");
-			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
-			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
-			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+			((Vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+			((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite(
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(
                                        "ISAPI version not supported\r\n");
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		if(!FreeLibrary((HMODULE)AppHnd))
 		{
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)(td->connection->host))->warningsLogWrite(
+			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			((Vhost*)(td->connection->host))->warningsLogWrite(
                                     "Failure to FreeLibrary in ISAPI module: ");
-			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
-			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
-			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+			((Vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+			((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	/*!
    *Store the environment string in the buffer2.
@@ -748,7 +748,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
   {
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 	lstrcpy(td->scriptPath, scriptpath);
 
@@ -759,10 +759,10 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   td->scriptDir = new char[scriptDirLen];
   if(td->scriptDir == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
   if(td->scriptFile)
@@ -770,10 +770,10 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   td->scriptFile = new char[scriptFileLen];
   if(td->scriptFile == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
   }
   
   MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
@@ -783,10 +783,10 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   td->cgiRoot = new char[cgiRootLen];
   if(td->cgiRoot == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
   }
   
   if(td->cgiFile)
@@ -794,10 +794,10 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   td->cgiFile = new char[cgiFileLen];
   if(td->cgiFile == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
   }
   
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
@@ -834,14 +834,14 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
                                                             "HttpExtensionProc");
 	if (HttpExtensionProc == NULL) 
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite(
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(
                              "Failure to get pointer to HttpExtensionProc() in ISAPI \
                               application module\r\n");
 
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		FreeLibrary((HMODULE)AppHnd);
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
@@ -865,12 +865,12 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	}
 	if(!FreeLibrary((HMODULE)AppHnd))
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite(
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(
                                       "Failure to FreeLibrary in ISAPI module");
-		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
-		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+		((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 	}
 
 	connTable[connIndex].Allocated = 0;
@@ -879,11 +879,11 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   /*!
    *On other archs returns a non implemented error. 
    */
-	((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-	((vhost*)td->connection->host)->warningsLogWrite(
+	((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+	((Vhost*)td->connection->host)->warningsLogWrite(
                                    "Error ISAPI is not implemented\r\n");
-	((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);	
-	return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+	((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);	
+	return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 #endif	
 }
 

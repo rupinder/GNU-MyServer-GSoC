@@ -39,7 +39,7 @@ static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
 /*!
  *vhost costructor
  */
-vhost::vhost()
+Vhost::Vhost()
 {
 	sslContext.certificateFile=0;
 	sslContext.method = 0;
@@ -56,7 +56,7 @@ vhost::vhost()
 /*!
  *Destroy the vhost. 
  */
-vhost::~vhost()
+Vhost::~Vhost()
 {
 	clearHostList();
 	clearIPList();
@@ -85,7 +85,7 @@ vhost::~vhost()
 /*!
  *Check if a MIME type file is defined for the virtual host.
  */
-int vhost::isMIME()
+int Vhost::isMIME()
 {
   return mime_manager.isLoaded();
 }
@@ -93,7 +93,7 @@ int vhost::isMIME()
 /*!
  *Get the MIME manager for the virtual host.
  */
-MIME_Manager* vhost::getMIME()
+MIME_Manager* Vhost::getMIME()
 {
   return &mime_manager;
 }
@@ -101,7 +101,7 @@ MIME_Manager* vhost::getMIME()
 /*!
  *Clear the list of the hosts
  */
-void vhost::clearHostList()
+void Vhost::clearHostList()
 {
 	sHostList* shl=hostList;
 	sHostList* prevshl=0;
@@ -121,7 +121,7 @@ void vhost::clearHostList()
 /*!
  *Clear the list of IPs
  */
-void vhost::clearIPList()
+void Vhost::clearIPList()
 {
 	sIpList* sil = ipList;
 	sIpList* prevsil = 0;
@@ -143,7 +143,7 @@ void vhost::clearIPList()
 /*!
  *Add an IP address to the list
  */
-void vhost::addIP(char *ip, int isRegex)
+void Vhost::addIP(char *ip, int isRegex)
 {
 	sIpList* il=new sIpList();
   if(il==0)
@@ -165,10 +165,10 @@ void vhost::addIP(char *ip, int isRegex)
 /*!
  *Remove the IP address to the list.
  */
-void vhost::removeIP(char *ip)
+void Vhost::removeIP(char *ip)
 {
-	vhost::sIpList *iterator = ipList;
-	vhost::sIpList *iteratorBack = 0;
+	Vhost::sIpList *iterator = ipList;
+	Vhost::sIpList *iteratorBack = 0;
 	if(iterator==0)
 		return;
 	while(iterator)
@@ -202,10 +202,10 @@ void vhost::removeIP(char *ip)
 /*!
  *Remove the host address to the list.
  */
-void vhost::removeHost(char *host)
+void Vhost::removeHost(char *host)
 {
-	vhost::sHostList *iterator = hostList;
-	vhost::sHostList *iteratorBack = 0;
+	Vhost::sHostList *iterator = hostList;
+	Vhost::sHostList *iteratorBack = 0;
 	if(iterator == 0)
 		return;
 	while(iterator)
@@ -237,7 +237,7 @@ void vhost::removeHost(char *host)
 /*!
  *Check if an host is allowed to the connection
  */
-int vhost::isHostAllowed(char* host)
+int Vhost::isHostAllowed(char* host)
 {
 	if(hostList == 0)/*If no hosts are specified, every host is allowed to connect to*/
 		return 1;
@@ -262,7 +262,7 @@ int vhost::isHostAllowed(char* host)
 /*!
  *Check if all the host are allowed to the connection.
  */
-int vhost::areAllHostAllowed()
+int Vhost::areAllHostAllowed()
 {
 	if(hostList==0)
 		return 1;
@@ -272,7 +272,7 @@ int vhost::areAllHostAllowed()
 /*!
  *Check if all the IPs are allowed to the connection.
  */
-int vhost::areAllIPAllowed()
+int Vhost::areAllIPAllowed()
 {
 	if(ipList == 0)
 		return 1;
@@ -283,7 +283,7 @@ int vhost::areAllIPAllowed()
  *Check if the network is allowed to the connection(control the network 
  *by the local IP)
  */
-int vhost::isIPAllowed(char* ip)
+int Vhost::isIPAllowed(char* ip)
 {
   /*! If no IPs are specified, every IP is allowed to connect to. */
 	if(ipList == 0)
@@ -309,7 +309,7 @@ int vhost::isIPAllowed(char* ip)
 /*!
  *Add an host to the allowed host list
  */
-void vhost::addHost(char *host, int isRegex)
+void Vhost::addHost(char *host, int isRegex)
 {
 	sHostList* hl=new sHostList();
   if(hl==0)
@@ -331,7 +331,7 @@ void vhost::addHost(char *host, int isRegex)
 /*!
  *Here threads get the permission to use the access log file.
  */
-u_long vhost::accesseslogRequestAccess(int id)
+u_long Vhost::accesseslogRequestAccess(int id)
 {
 	accessesLogFile.requestAccess();
   return 0;
@@ -340,7 +340,7 @@ u_long vhost::accesseslogRequestAccess(int id)
 /*!
  *Here threads get the permission to use the warnings log file.
  */
-u_long vhost::warningslogRequestAccess(int id)
+u_long Vhost::warningslogRequestAccess(int id)
 {
 	warningsLogFile.requestAccess();
   return 0;
@@ -349,7 +349,7 @@ u_long vhost::warningslogRequestAccess(int id)
 /*!
  *Here threads release the permission to use the access log file.
  */
-u_long vhost::accesseslogTerminateAccess(int id)
+u_long Vhost::accesseslogTerminateAccess(int id)
 {
 	accessesLogFile.terminateAccess();
   return 0;
@@ -358,7 +358,7 @@ u_long vhost::accesseslogTerminateAccess(int id)
 /*!
  *Here threads release the permission to use the warnings log file.
  */
-u_long vhost::warningslogTerminateAccess(int id)
+u_long Vhost::warningslogTerminateAccess(int id)
 {
 	warningsLogFile.terminateAccess();
   return 0;
@@ -367,7 +367,7 @@ u_long vhost::warningslogTerminateAccess(int id)
 /*!
 *Write to the accesses log file
 */
-int vhost::accessesLogWrite(char* str)
+int Vhost::accessesLogWrite(char* str)
 {
 	return accessesLogFile.write(str);
 }
@@ -375,7 +375,7 @@ int vhost::accessesLogWrite(char* str)
 /*!
  *Return a pointer to the file used by the accesses log.
  */
-MYSERVER_FILE* vhost::getAccessesLogFile()
+MYSERVER_FILE* Vhost::getAccessesLogFile()
 {
 	return accessesLogFile.getFile();
 }
@@ -383,7 +383,7 @@ MYSERVER_FILE* vhost::getAccessesLogFile()
 /*!
  *Get the log object for the warnings.
  */
-MYSERVER_LOG_MANAGER* vhost::getWarningsLog()
+MYSERVER_LOG_MANAGER* Vhost::getWarningsLog()
 {
   return &warningsLogFile;
 }
@@ -391,7 +391,7 @@ MYSERVER_LOG_MANAGER* vhost::getWarningsLog()
 /*!
  *Get the log object for the accesses.
  */
-MYSERVER_LOG_MANAGER* vhost::getAccessesLog()
+MYSERVER_LOG_MANAGER* Vhost::getAccessesLog()
 {
   return &accessesLogFile;
 }
@@ -399,14 +399,14 @@ MYSERVER_LOG_MANAGER* vhost::getAccessesLog()
 /*!
  *Write to the warnings log file.
  */
-int vhost::warningsLogWrite(char* str)
+int Vhost::warningsLogWrite(char* str)
 {
 	return warningsLogFile.write(str);
 }
 /*!
  *Return a pointer to the file used by the warnings log.
  */
-MYSERVER_FILE* vhost::getWarningsLogFile()
+MYSERVER_FILE* Vhost::getWarningsLogFile()
 {
 	return warningsLogFile.getFile();
 }
@@ -414,7 +414,7 @@ MYSERVER_FILE* vhost::getWarningsLogFile()
 /*!
  *Set the max size of the log files.
  */
-void vhost::setMaxLogSize(int newSize)
+void Vhost::setMaxLogSize(int newSize)
 {
   warningsLogFile.setMaxSize(newSize);
   accessesLogFile.setMaxSize(newSize);  
@@ -423,7 +423,7 @@ void vhost::setMaxLogSize(int newSize)
 /*!
  *Get the max size of the log files.
  */
-int vhost::getMaxLogSize()
+int Vhost::getMaxLogSize()
 {
   /*!
    *warningsLogFile max log size is equal to the  
@@ -435,7 +435,7 @@ int vhost::getMaxLogSize()
 /*!
  *vhostmanager costructor.
  */
-void vhostmanager::addvHost(vhost* vHost)
+void VhostManager::addvHost(Vhost* vHost)
 {
 	if(vhostList==0)
 	{
@@ -465,7 +465,7 @@ void vhostmanager::addvHost(vhost* vHost)
 /*!
  *Get the vhost for the connection(if any)
  */
-vhost* vhostmanager::getvHost(char* host,char* ip,u_short port)
+Vhost* VhostManager::getvHost(char* host,char* ip,u_short port)
 {
 	sVhostList* vhl;
 	for(vhl=vhostList;vhl;vhl=vhl->next )
@@ -483,9 +483,9 @@ vhost* vhostmanager::getvHost(char* host,char* ip,u_short port)
 	return 0;
 }
 /*!
- *vhostmanager costructor
+ *VhostManager costructor
  */
-vhostmanager::vhostmanager()
+VhostManager::VhostManager()
 {
 	vhostList=0;
   
@@ -494,7 +494,7 @@ vhostmanager::vhostmanager()
 /*!
  *Clean the virtual hosts.
  */
-void vhostmanager::clean()
+void VhostManager::clean()
 {
 	sVhostList* shl=vhostList;
 	sVhostList* prevshl=0;
@@ -518,14 +518,14 @@ void vhostmanager::clean()
 /*!
  *vhostmanager destructor.
  */
-vhostmanager::~vhostmanager()
+VhostManager::~VhostManager()
 {
 	clean();
 }
 /*!
  *Load the virtual hosts from a configuration file.
  */
-int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
+int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 {
 	/*!
    *FILE STRUCTURE:
@@ -549,10 +549,11 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 	char buffer2[256];
 	u_long nbr;/*!Number of bytes read from the file*/
 	MYSERVER_FILE fh;
+	Vhost *vh;
+	char c;
 	int ret=fh.openFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(ret)/*!If the file cannot be opened simply do nothing*/
 		return -1;
-	char c;
 
 	for(;;)
 	{
@@ -585,7 +586,7 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		}
 		if(buffer[0]=='\0')/*!If the buffer is only a point, we reached the file end*/
 			break;		
-		vhost *vh=new vhost();
+		vh=new Vhost();
     if(vh==0)
     {
       fh.closeFile();
@@ -728,7 +729,7 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 /*!
  *Save the virtual hosts to a configuration file.
  */
-void vhostmanager::saveConfigurationFile(char *filename)
+void VhostManager::saveConfigurationFile(char *filename)
 {
 	char buffer[1024];
 	if(vhostList==0)
@@ -739,8 +740,8 @@ void vhostmanager::saveConfigurationFile(char *filename)
 	fh.openFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	for(;vhl;vhl=vhl->next )
 	{
-		vhost*vh=vhl->host;
-		vhost::sHostList* hl=vh->hostList;
+		Vhost* vh=vhl->host;
+		Vhost::sHostList* hl=vh->hostList;
 		if(hl)
 		{
 			while(hl)
@@ -759,7 +760,7 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		}
 		strcpy(buffer,";");
 		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		vhost::sIpList* il=vh->ipList;
+		Vhost::sIpList* il=vh->ipList;
 		if(il)
 		{
 			while(il)
@@ -834,7 +835,7 @@ void vhostmanager::saveConfigurationFile(char *filename)
 /*!
  *Returns the entire virtual hosts list.
  */
-vhostmanager::sVhostList* vhostmanager::getvHostList()
+VhostManager::sVhostList* VhostManager::getvHostList()
 {
 	return this->vhostList;
 }
@@ -842,7 +843,7 @@ vhostmanager::sVhostList* vhostmanager::getvHostList()
  *Switch the position between two virtual hosts
  *Zero based index.
  */
-int vhostmanager::switchVhosts(int n1,int n2)
+int VhostManager::switchVhosts(int n1,int n2)
 {
 	sVhostList *vh1;
 	int i;
@@ -864,11 +865,11 @@ int vhostmanager::switchVhosts(int n1,int n2)
 /*!
  *Switch two virtual hosts.
  */
-int vhostmanager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
+int VhostManager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
 {
 	if((vh1==0)|(vh2==0))
 		return 0;
-	vhost* vh3=vh1->host;
+	Vhost* vh3=vh1->host;
 	vh1->host = vh2->host;
 	vh2->host = vh3;
 	return 1;
@@ -876,7 +877,7 @@ int vhostmanager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
 /*!
  *Returns the number of hosts in the list
  */
-int vhostmanager::getHostsNumber()
+int VhostManager::getHostsNumber()
 {
 	int i;
 	sVhostList *vh = vhostList;
@@ -888,7 +889,7 @@ int vhostmanager::getHostsNumber()
  *Load the virtual hosts from a XML configuration file
  *Returns non-null on errors.
  */
-int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
+int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 {
 	cXMLParser parser;
 	xmlDocPtr doc;
@@ -904,11 +905,11 @@ int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 	for(;node;node=node->next )
 	{
 		xmlNodePtr lcur;
-		vhost *vh;
+		Vhost *vh;
 		if(xmlStrcmp(node->name, (const xmlChar *)"VHOST"))
 			continue;
 		lcur=node->children;
-		vh=new vhost();
+		vh=new Vhost();
     if(vh==0)
     {
       parser.close();
@@ -1135,7 +1136,7 @@ int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 /*!
  *Save the virtual hosts to a XML configuration file.
  */
-void vhostmanager::saveXMLConfigurationFile(char *filename)
+void VhostManager::saveXMLConfigurationFile(char *filename)
 {
 	MYSERVER_FILE out;
 	u_long nbw;
@@ -1151,7 +1152,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 		out.writeToFile(list->host->name,(u_long)strlen(list->host->name),&nbw);
 		out.writeToFile("</NAME>\r\n",9,&nbw);
 
-		vhost::sIpList *ipList = list->host->ipList;
+		Vhost::sIpList *ipList = list->host->ipList;
 		while(ipList)
 		{
 			out.writeToFile("<IP>",4,&nbw);
@@ -1159,7 +1160,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 			out.writeToFile("</IP>\r\n",7,&nbw);
 			ipList=ipList->next;
 		}
-		vhost::sHostList *hostList = list->host->hostList;
+		Vhost::sHostList *hostList = list->host->hostList;
 		while(hostList)
 		{
 			out.writeToFile("<HOST>",6,&nbw);
@@ -1248,7 +1249,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 /*!
  *Initialize SSL on the virtual host.
  */
-int vhost::initializeSSL()
+int Vhost::initializeSSL()
 {
   sslContext.context = 0;
   sslContext.method = 0;
@@ -1296,7 +1297,7 @@ int vhost::initializeSSL()
 /*!
  *Generate a RSA key and pass it to the SSL context.
  */
-void vhost::generateRsaKey()
+void Vhost::generateRsaKey()
 {
 #ifndef DO_NOT_USE_SSL
   RSA *rsa;
@@ -1315,7 +1316,7 @@ void vhost::generateRsaKey()
 /*!
  *Get the SSL context.
  */
-SSL_CTX* vhost::getSSLContext()
+SSL_CTX* Vhost::getSSLContext()
 {
 	return sslContext.context;
 }
@@ -1324,7 +1325,7 @@ SSL_CTX* vhost::getSSLContext()
 /*!
  *Clean the memory used by the SSL context.
  */
-int vhost::freeSSL()
+int Vhost::freeSSL()
 {
 #ifndef DO_NOT_USE_SSL
   int ret=0;
@@ -1351,7 +1352,7 @@ int vhost::freeSSL()
  *Get a virtual host by its position in the list.
  *Zero based list.
  */
-vhost* vhostmanager::getVHostByNumber(int n)
+Vhost* VhostManager::getVHostByNumber(int n)
 {
 	sVhostList *hl=vhostList;
 	for(int i=0;(i<n)&& hl;i++)
@@ -1365,7 +1366,7 @@ vhost* vhostmanager::getVHostByNumber(int n)
  *Remove a virtual host by its position in the list
  *First position is zero.
  */
-int vhostmanager::removeVHost(int n)
+int VhostManager::removeVHost(int n)
 {
 	sVhostList *hl=vhostList;
 	sVhostList *bl=0;

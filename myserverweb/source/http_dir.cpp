@@ -107,7 +107,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
       delete [] td->outputDataPath;
     td->outputDataPath = new char[outputDataPathLen];
     if(td->outputDataPath==0)
-      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
     
     getdefaultwd(td->outputDataPath, outputDataPathLen);
 		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
@@ -118,7 +118,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		if(ret)
 		{
 			/*! Return an internal server error.  */
-			return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
 	}
 
@@ -153,9 +153,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	if(ret)
 	{
 		td->outputData.closeFile();
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);/*Return an internal server error*/
 	}
-  browseDirCSSpath = ((http*)td->lhttp)->getBrowseDirCSSFile();
+  browseDirCSSpath = ((Http*)td->lhttp)->getBrowseDirCSSFile();
 
 	/*! 
    *If it is defined a CSS file for the graphic layout of 
@@ -181,7 +181,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 				{
 					td->outputData.closeFile();
 					/* Return an internal server error.  */
-					return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
 				ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(),
                                           (u_long)nbr, &nbw);
@@ -189,7 +189,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 				{
 					td->outputData.closeFile();
 					/* Return an internal server error.  */
-					return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
 
 				td->buffer2->SetLength(0);
@@ -200,7 +200,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 				{
 					td->outputData.closeFile();
 					/* Return an internal server error.  */
-					return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
 			}
 			cssHandle.closeFile();
@@ -214,7 +214,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
   {
     delete [] td->outputDataPath;
     td->outputDataPath = 0;
-    return  ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+    return  ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 	sprintf(filename, "%s/*", directory);
 #endif
@@ -224,7 +224,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
   {
     delete [] td->outputDataPath;
     td->outputDataPath=0;
-    return  ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+    return  ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 	sprintf(filename, "%s/", directory);
 #endif
@@ -238,14 +238,14 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	{
 		td->outputData.closeFile();
 		/*! Return an internal server error.  */
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
 	ret=fd.findfirst(filename);
   delete [] filename;
   filename = 0;
 	if(ret==-1)
 	{
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_404);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_404);
 	}
 	/*! 
    *With the current code we build the HTML TABLE to indicize the
@@ -260,7 +260,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	{
 		td->outputData.closeFile();
 		/* Return an internal server error.  */
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
 
 	do
@@ -305,7 +305,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 			fd.findclose();
 			td->outputData.closeFile();
 			/* Return an internal server error.  */
-			return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
 	}while(!fd.findnext());
 	td->buffer2->SetLength(0);
@@ -330,7 +330,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		fd.findclose();
 		td->outputData.closeFile();
 		/* Return an internal server error.  */
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}	
 	fd.findclose();
   *td->buffer2 << end_str;

@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Data used only by an HTTP user.
  */
-class http_user_data : public protocol_buffer
+class HttpUserData : public ProtocolBuffer
 {
 public:
 	/*! Realm string used by Digest authorization scheme.  */
@@ -54,12 +54,12 @@ public:
 	int digest;
 	/*! Nonzero if the digest was already checked.  */
 	int digest_checked;
-  http_user_data();
-  ~http_user_data();
+  HttpUserData();
+  ~HttpUserData();
 	void reset();
 };
 
-class http : public Protocol
+class Http : public Protocol
 {
 private:
   static  myserver_mutex sec_cache_mutex;
@@ -109,8 +109,8 @@ public:
 	int logHTTPaccess(HttpThreadContext* td,ConnectionPtr a);
 	int sendHTTPRedirect(HttpThreadContext* td,ConnectionPtr a,char *newURL);
 	int sendHTTPNonModified(HttpThreadContext* td,ConnectionPtr a);
-	http();
-	virtual ~http();
+	Http();
+	virtual ~Http();
 	void computeDigest(HttpThreadContext* td, char*, char*);
 	u_long checkDigest(HttpThreadContext* td, ConnectionPtr s);
   char* getBrowseDirCSSFile();
@@ -123,6 +123,5 @@ public:
 	static int unloadProtocol(cXMLParser*);
   int getCGItimeout();
 };
-
 
 #endif

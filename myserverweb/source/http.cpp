@@ -61,42 +61,42 @@ extern "C"
 #endif
 
 /*! Store if the MSCGI library was loaded.  */
-int http::mscgiLoaded=0;
+int Http::mscgiLoaded=0;
 
 /*! Path to the .css file used by directory browsing.  */
-char *http::browseDirCSSpath=0;
+char *Http::browseDirCSSpath=0;
 
 /*! Threshold value to send data in gzip.  */
-u_long http::gzip_threshold=0;
+u_long Http::gzip_threshold=0;
 
 /*!Use files for HTTP errors?  */
-int http::useMessagesFiles=0;
+int Http::useMessagesFiles=0;
 
 /*! Array with default filenames.  */
-char *http::defaultFilename=0;
+char *Http::defaultFilename=0;
 
 /*! Number of the elements in the array.  */
-u_long http::nDefaultFilename=0;
+u_long Http::nDefaultFilename=0;
 
 /*! Is the HTTP protocol loaded?  */
-int http::initialized=0;
+int Http::initialized=0;
 
 /*! If not specified differently use a timeout of 15 seconds.  */
-int http::cgi_timeout=MYSERVER_SEC(15);
+int Http::cgi_timeout=MYSERVER_SEC(15);
 
 /*! Max number of FastCGI servers allowed to run. */
-int http::fastcgi_servers;
+int Http::fastcgi_servers;
 
 /*! Cache for security files. */
-SecurityCache http::sec_cache;
+SecurityCache Http::sec_cache;
 
 /*! Access the security cache safely. */
-myserver_mutex http::sec_cache_mutex;
+myserver_mutex Http::sec_cache_mutex;
 
 /*!
  *Build a response for an OPTIONS request.
  */
-int http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
+int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
                               char* /*filename*/, int /*yetmapped*/)
 {
 	int ret;
@@ -131,7 +131,7 @@ int http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 /*!
  *Handle the HTTP TRACE command.
  */
-int http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
+int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
                             char* /*filename*/, int /*yetmapped*/)
 {
 	int ret;
@@ -170,19 +170,19 @@ int http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 /*!
  *Check if the host allows the HTTP TRACE command
  */
-int http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
+int Http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
 {
 	int ret;
 	/*! Check if the host allows HTTP trace.  */
 	char *filename;
   char *http_trace_value;
 	cXMLParser parser;
-  filename = new char[strlen(((vhost*)(s->host))->documentRoot) + 10];
+  filename = new char[strlen(((Vhost*)(s->host))->documentRoot) + 10];
   if(filename==0)
   {
     return sendHTTPhardError500(td, s);
   }
-	sprintf(filename, "%s/security", ((vhost*)(s->host))->documentRoot);
+	sprintf(filename, "%s/security", ((Vhost*)(s->host))->documentRoot);
 	if(parser.open(filename))
 	{
 		return 0;
@@ -207,7 +207,7 @@ int http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
 /*!
  *Get the timeout for the cgi.
  */
-int http::getCGItimeout()
+int Http::getCGItimeout()
 {
   return cgi_timeout;
 }
@@ -215,7 +215,7 @@ int http::getCGItimeout()
 /*!
  *Main function to handle the HTTP PUT command.
  */
-int http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
+int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
                           char *filename, int, int, int yetmapped)
 {
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
@@ -294,7 +294,7 @@ int http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   }
 	if(s->protocolBuffer==0)
 	{
-		s->protocolBuffer=new http_user_data;
+		s->protocolBuffer=new HttpUserData;
 		if(!s->protocolBuffer)
     {
       delete [] directory;
@@ -302,14 +302,14 @@ int http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       td->filenamePath = 0;
 			return sendHTTPhardError500(td, s);
     }
-		((http_user_data*)(s->protocolBuffer))->reset();
+		((HttpUserData*)(s->protocolBuffer))->reset();
 	}
 	if(td->request.AUTH[0])
   {
     sec_cache_mutex.myserver_mutex_lock();
 		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
-                                            filename, ((vhost*)(s->host))->systemRoot, 
-                                  ((http_user_data*)s->protocolBuffer)->needed_password
+                                            filename, ((Vhost*)(s->host))->systemRoot, 
+                                  ((HttpUserData*)s->protocolBuffer)->needed_password
                                   , auth_type, 16, &permissions2);
     sec_cache_mutex.myserver_mutex_unlock();  
   }
@@ -317,8 +317,8 @@ int http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   {
     sec_cache_mutex.myserver_mutex_lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                                  ((vhost*)(s->host))->systemRoot, 
-                                  ((http_user_data*)s->protocolBuffer)->needed_password
+                                  ((Vhost*)(s->host))->systemRoot, 
+                                  ((HttpUserData*)s->protocolBuffer)->needed_password
                                   , auth_type, 16);
     sec_cache_mutex.myserver_mutex_unlock();
   }
@@ -328,13 +328,13 @@ int http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	{
 		if(!lstrcmpi(td->request.AUTH, "Digest"))
 		{
-			if(!((http_user_data*)s->protocolBuffer)->digest_checked)
-				((http_user_data*)s->protocolBuffer)->digest = checkDigest(td, s);
-			((http_user_data*)s->protocolBuffer)->digest_checked=1;
-			if(((http_user_data*)s->protocolBuffer)->digest==1)
+			if(!((HttpUserData*)s->protocolBuffer)->digest_checked)
+				((HttpUserData*)s->protocolBuffer)->digest = checkDigest(td, s);
+			((HttpUserData*)s->protocolBuffer)->digest_checked=1;
+			if(((HttpUserData*)s->protocolBuffer)->digest==1)
 			{
 				strcpy(s->getPassword(), 
-               ((http_user_data*)s->protocolBuffer)->needed_password);
+               ((HttpUserData*)s->protocolBuffer)->needed_password);
 
 				permissions=permissions2;
 			}
@@ -350,8 +350,8 @@ int http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   {
     sec_cache_mutex.myserver_mutex_lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                                            ((vhost*)(s->host))->systemRoot, 
-                         ((http_user_data*)s->protocolBuffer)->needed_password, 
+                                            ((Vhost*)(s->host))->systemRoot, 
+                         ((HttpUserData*)s->protocolBuffer)->needed_password, 
                                             auth_type, 16);		
     sec_cache_mutex.myserver_mutex_unlock();
   }
@@ -470,7 +470,7 @@ int http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 /*!
  *Delete the resource identified by filename.
  */
-int http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
+int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
                              char *filename, int yetmapped)
 {
   int permissions=-1;
@@ -543,7 +543,7 @@ int http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 
 	if(s->protocolBuffer==0)
 	{
-		s->protocolBuffer=new http_user_data;
+		s->protocolBuffer=new HttpUserData;
 		if(!s->protocolBuffer)
     {
       delete [] directory;
@@ -551,15 +551,15 @@ int http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       td->filenamePath = 0;
 			return 0;
     }
-		((http_user_data*)(s->protocolBuffer))->reset();
+		((HttpUserData*)(s->protocolBuffer))->reset();
 	}
 
 	if(td->request.AUTH[0])
   {
     sec_cache_mutex.myserver_mutex_lock();
 		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
-                                            filename,((vhost*)(s->host))->systemRoot, 
-                               ((http_user_data*)s->protocolBuffer)->needed_password,
+                                            filename,((Vhost*)(s->host))->systemRoot, 
+                               ((HttpUserData*)s->protocolBuffer)->needed_password,
                                             auth_type, 16, &permissions2);
     sec_cache_mutex.myserver_mutex_unlock();
   }
@@ -567,8 +567,8 @@ int http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   {
     sec_cache_mutex.myserver_mutex_lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                               ((vhost*)(s->host))->systemRoot, 
-                               ((http_user_data*)s->protocolBuffer)->needed_password,
+                               ((Vhost*)(s->host))->systemRoot, 
+                               ((HttpUserData*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
     sec_cache_mutex.myserver_mutex_unlock();
 	}	
@@ -577,13 +577,13 @@ int http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	{
 		if(!lstrcmpi(td->request.AUTH, "Digest"))
 		{
-			if(!((http_user_data*)s->protocolBuffer)->digest_checked)
-				((http_user_data*)s->protocolBuffer)->digest = checkDigest(td, s);
-			((http_user_data*)s->protocolBuffer)->digest_checked=1;
-			if(((http_user_data*)s->protocolBuffer)->digest==1)
+			if(!((HttpUserData*)s->protocolBuffer)->digest_checked)
+				((HttpUserData*)s->protocolBuffer)->digest = checkDigest(td, s);
+			((HttpUserData*)s->protocolBuffer)->digest_checked=1;
+			if(((HttpUserData*)s->protocolBuffer)->digest==1)
 			{
 				strcpy(s->getPassword(), 
-               ((http_user_data*)s->protocolBuffer)->needed_password);
+               ((HttpUserData*)s->protocolBuffer)->needed_password);
 
 				permissions=permissions2;
 			}
@@ -600,8 +600,8 @@ int http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   {
     sec_cache_mutex.myserver_mutex_lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
-                                  ((vhost*)(s->host))->systemRoot, 
-                                ((http_user_data*)s->protocolBuffer)->needed_password,
+                                  ((Vhost*)(s->host))->systemRoot, 
+                                ((HttpUserData*)s->protocolBuffer)->needed_password,
                                  auth_type, 16);	
     sec_cache_mutex.myserver_mutex_unlock();
   }
@@ -634,7 +634,7 @@ int http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 /*!
  *Check the Digest authorization
  */
-u_long http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
+u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 {
 	char A1[48];
 	char A2[48];
@@ -644,23 +644,23 @@ u_long http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	u_long digest_count;
   MYSERVER_MD5Context md5;
 	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
-       ((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
+       ((HttpUserData*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
 		return 0;
   /*! If is not equal return 0. */
-	if(lstrcmp(td->request.digest_realm, ((http_user_data*)s->protocolBuffer)->realm))
+	if(lstrcmp(td->request.digest_realm, ((HttpUserData*)s->protocolBuffer)->realm))
 		return 0;
 	
 	digest_count = hexToInt(td->request.digest_nc);
 	
-	if(digest_count != ((http_user_data*)s->protocolBuffer)->nc+1)
+	if(digest_count != ((HttpUserData*)s->protocolBuffer)->nc+1)
 		return 0;
 	else
-		((http_user_data*)s->protocolBuffer)->nc++;
+		((HttpUserData*)s->protocolBuffer)->nc++;
    
 	MYSERVER_MD5Init(&md5);
 	td->buffer2->SetLength(0);
 	*td->buffer2 << td->request.digest_username << ":" << td->request.digest_realm 
-               << ":" << ((http_user_data*)s->protocolBuffer)->needed_password;
+               << ":" << ((HttpUserData*)s->protocolBuffer)->needed_password;
 
 	MYSERVER_MD5Update(&md5, (const unsigned char*)td->buffer2->GetBuffer(), 
                      (u_int)td->buffer2->GetLength());
@@ -679,7 +679,7 @@ u_long http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	
 	MYSERVER_MD5Init(&md5);
 	td->buffer2->SetLength(0);
-	*td->buffer2 << A1 << ":"  << ((http_user_data*)s->protocolBuffer)->nonce << ":" 
+	*td->buffer2 << A1 << ":"  << ((HttpUserData*)s->protocolBuffer)->nonce << ":" 
                << td->request.digest_nc << ":"  << td->request.digest_cnonce << ":" 
                << td->request.digest_qop  << ":" << A2;
 	MYSERVER_MD5Update(&md5, (const unsigned char*)td->buffer2->GetBuffer(), 
@@ -693,7 +693,7 @@ u_long http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 /*!
  *Create the buffer.
  */
-http_user_data::http_user_data()
+HttpUserData::HttpUserData()
 {
   reset();
 }
@@ -701,7 +701,7 @@ http_user_data::http_user_data()
 /*!
  *Destroy the buffer.
  */
-http_user_data::~http_user_data()
+HttpUserData::~HttpUserData()
 {
 
 }
@@ -709,7 +709,7 @@ http_user_data::~http_user_data()
 /*!
  *Reset the structure.
  */
-void http_user_data::reset()
+void HttpUserData::reset()
 {
 	realm[0]='\0';
 	opaque[0]='\0';
@@ -725,7 +725,7 @@ void http_user_data::reset()
 /*!
  *Main function to send a resource to a client.
  */
-int http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI, 
+int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI, 
                            int systemrequest, int only_header, int yetmapped)
 {
 	/*!
@@ -830,13 +830,13 @@ int http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 
 		if(s->protocolBuffer==0)
 		{
-			s->protocolBuffer=new http_user_data;
+			s->protocolBuffer=new HttpUserData;
 			if(!s->protocolBuffer)
       {
         delete []  filename;
 				return sendHTTPhardError500(td, s);
       }
-			((http_user_data*)s->protocolBuffer)->reset();
+			((HttpUserData*)s->protocolBuffer)->reset();
 		}
 		permissions2=0;
 		if(td->request.AUTH[0])
@@ -844,8 +844,8 @@ int http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
       sec_cache_mutex.myserver_mutex_lock();
 			permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), 
                                               directory, filename,
-                                              ((vhost*)(s->host))->systemRoot,
-                                 ((http_user_data*)s->protocolBuffer)->needed_password,
+                                              ((Vhost*)(s->host))->systemRoot,
+                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
                                     auth_type, 16, &permissions2);
       sec_cache_mutex.myserver_mutex_unlock();
     }
@@ -853,8 +853,8 @@ int http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
     {
       sec_cache_mutex.myserver_mutex_lock();
 			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
-                                  ((vhost*)(s->host))->systemRoot,
-                                 ((http_user_data*)s->protocolBuffer)->needed_password,
+                                  ((Vhost*)(s->host))->systemRoot,
+                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
                                   auth_type, 16);
       sec_cache_mutex.myserver_mutex_unlock();
 		}	
@@ -863,13 +863,13 @@ int http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		{
 			if(!lstrcmpi(td->request.AUTH, "Digest"))
 			{
-				if(!((http_user_data*)s->protocolBuffer)->digest_checked)
-					((http_user_data*)s->protocolBuffer)->digest = checkDigest(td, s);
-				((http_user_data*)s->protocolBuffer)->digest_checked=1;
-				if(((http_user_data*)s->protocolBuffer)->digest==1)
+				if(!((HttpUserData*)s->protocolBuffer)->digest_checked)
+					((HttpUserData*)s->protocolBuffer)->digest = checkDigest(td, s);
+				((HttpUserData*)s->protocolBuffer)->digest_checked=1;
+				if(((HttpUserData*)s->protocolBuffer)->digest==1)
 				{
 					strcpy(s->getPassword(), 
-                 ((http_user_data*)s->protocolBuffer)->needed_password);
+                 ((HttpUserData*)s->protocolBuffer)->needed_password);
 
 					permissions=permissions2;
 				}
@@ -885,8 +885,8 @@ int http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
     {
       sec_cache_mutex.myserver_mutex_lock();
 			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
-                                ((vhost*)(s->host))->systemRoot,
-                                ((http_user_data*)s->protocolBuffer)->needed_password,
+                                ((Vhost*)(s->host))->systemRoot,
+                                ((HttpUserData*)s->protocolBuffer)->needed_password,
                                    auth_type, 16);
       sec_cache_mutex.myserver_mutex_unlock();
 		}
@@ -1320,7 +1320,7 @@ int http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 /*!
  *Log the access using the Common Log Format or the Combined one
  */
-int http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
+int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
 {
 	char tmpStrInt[12];
 	char time[HTTP_RESPONSE_DATE_DIM + 1];
@@ -1364,7 +1364,7 @@ int http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
 		*td->buffer2  << td->response.CONTENT_LENGTH;
 	else
 		*td->buffer2 << "0";
-  if(strstr((((vhost*)(a->host)))->accessLogOpt, "type=combined"))
+  if(strstr((((Vhost*)(a->host)))->accessLogOpt, "type=combined"))
   {
     *td->buffer2 << " "  << td->request.REFERER << " "  
                  << td->request.USER_AGENT;            
@@ -1373,9 +1373,9 @@ int http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
   /*!
    *Request the access to the log file then write then append the message
    */
-	((vhost*)(a->host))->accesseslogRequestAccess(td->id);
-	((vhost*)(a->host))->accessesLogWrite((char*)td->buffer2->GetBuffer());
-	((vhost*)(a->host))->accesseslogTerminateAccess(td->id);
+	((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
+	((Vhost*)(a->host))->accessesLogWrite((char*)td->buffer2->GetBuffer());
+	((Vhost*)(a->host))->accesseslogTerminateAccess(td->id);
 	td->buffer2->SetLength(0);
 
 	return 0;
@@ -1385,7 +1385,7 @@ int http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
  *This is the HTTP protocol main procedure to parse a request 
  *over the HTTP.
  */
-int http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/, 
+int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/, 
                             int bs1, int bs2, u_long nbtr, u_long id)
 {
 	int retvalue=-1;
@@ -1468,7 +1468,7 @@ int http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	}
 		
 	if(a->protocolBuffer)
-		((http_user_data*)a->protocolBuffer)->digest_checked=0;	
+		((HttpUserData*)a->protocolBuffer)->digest_checked=0;	
 	
 	/*!
 	 *If the header is an invalid request send the correct error 
@@ -2032,7 +2032,7 @@ int http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 /*!
  *Compute the Digest to out using a buffer.
  */
-void http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
+void Http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
 {
 	if(!out)
 		return;
@@ -2048,7 +2048,7 @@ void http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
  *Sends an error page to the client.
  *Nonzero to keep the connection.
  */
-int http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
+int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 {
   char time[HTTP_RESPONSE_DATE_DIM];
   char* errorFile;
@@ -2077,15 +2077,15 @@ int http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
       char md5_str[256];
 			if(a->protocolBuffer==0)
 			{
-				a->protocolBuffer = new http_user_data;
+				a->protocolBuffer = new HttpUserData;
 				if(!a->protocolBuffer)
 				{
 					sendHTTPhardError500(td, a);
 					return 0;
 				}
-				((http_user_data*)(a->protocolBuffer))->reset();
+				((HttpUserData*)(a->protocolBuffer))->reset();
 			}
-			strncpy(((http_user_data*)a->protocolBuffer)->realm, td->request.HOST, 48);
+			strncpy(((HttpUserData*)a->protocolBuffer)->realm, td->request.HOST, 48);
 
 			/*! Just a random string. */
 			strncpy(&(md5_str[2]), td->request.URI, 256-2);
@@ -2095,26 +2095,26 @@ int http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 			MYSERVER_MD5Init(&md5);
 			MYSERVER_MD5Update(&md5, (const unsigned char*)md5_str , 
                          (u_long)strlen(md5_str));
-			MYSERVER_MD5End(&md5, ((http_user_data*)a->protocolBuffer)->opaque);
+			MYSERVER_MD5End(&md5, ((HttpUserData*)a->protocolBuffer)->opaque);
 			
-			if(a->protocolBuffer && (!(((http_user_data*)a->protocolBuffer)->digest)) || 
-         (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
+			if(a->protocolBuffer && (!(((HttpUserData*)a->protocolBuffer)->digest)) || 
+         (((HttpUserData*)a->protocolBuffer)->nonce[0]=='\0'))
 			{
-				computeDigest(td, ((http_user_data*)a->protocolBuffer)->nonce, md5_str);
-				((http_user_data*)a->protocolBuffer)->nc=0;
+				computeDigest(td, ((HttpUserData*)a->protocolBuffer)->nonce, md5_str);
+				((HttpUserData*)a->protocolBuffer)->nc=0;
 			}
 			*td->buffer2 << "WWW-Authenticate: Digest ";
 			*td->buffer2 << " qop=\"auth\", algorithm =\"MD5\", realm =\"";
-      *td->buffer2 << ((http_user_data*)a->protocolBuffer)->realm ;
+      *td->buffer2 << ((HttpUserData*)a->protocolBuffer)->realm ;
 			*td->buffer2 << "\",  opaque =\"" 
-                   << ((http_user_data*)a->protocolBuffer)->opaque;
+                   << ((HttpUserData*)a->protocolBuffer)->opaque;
 
-			*td->buffer2<< "\",  nonce =\""<< ((http_user_data*)a->protocolBuffer)->nonce;
+			*td->buffer2<< "\",  nonce =\""<< ((HttpUserData*)a->protocolBuffer)->nonce;
 			*td->buffer2 <<"\" ";
-			if(((http_user_data*)a->protocolBuffer)->cnonce[0])
+			if(((HttpUserData*)a->protocolBuffer)->cnonce[0])
 			{
 				*td->buffer2 << ", cnonce =\"";
-				*td->buffer2 <<((http_user_data*)a->protocolBuffer)->cnonce;
+				*td->buffer2 <<((HttpUserData*)a->protocolBuffer)->cnonce;
 				*td->buffer2 <<"\" ";
 			}
 			*td->buffer2 << "\r\n";
@@ -2143,9 +2143,9 @@ int http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     int ret;
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
     sec_cache_mutex.myserver_mutex_lock();
-		ret = sec_cache.getErrorFileName(((vhost*)a->host)->documentRoot, 
+		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot, 
                                      getHTTPStatusCodeFromErrorID(ID),
-                                     ((vhost*)(a->host))->systemRoot, &defFile);
+                                     ((Vhost*)(a->host))->systemRoot, &defFile);
     sec_cache_mutex.myserver_mutex_unlock();
     if(ret == -1)
     {
@@ -2170,7 +2170,7 @@ int http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 				}
 			}
 			if(!isPortSpecified)
-				sprintf(&nURL[strlen(nURL)], ":%u", ((vhost*)a->host)->port);
+				sprintf(&nURL[strlen(nURL)], ":%u", ((Vhost*)a->host)->port);
 			if(nURL[strlen(nURL)-1]!='/')
 				strcat(nURL, "/");
 			strcat(nURL, defFile);
@@ -2179,12 +2179,12 @@ int http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 	}
 	getRFC822GMTTime(td->response.DATEEXP, HTTP_RESPONSE_DATEEXP_DIM);
 	strncpy(td->response.ERROR_TYPE, HTTP_ERROR_MSGS[ID], HTTP_RESPONSE_ERROR_TYPE_DIM);
-	u_long lenErrorFile=(u_long)strlen(((vhost*)(a->host))->systemRoot)+
+	u_long lenErrorFile=(u_long)strlen(((Vhost*)(a->host))->systemRoot)+
                               (u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
 	errorFile=new char[lenErrorFile];
 	if(errorFile)
   {
-    sprintf(errorFile, "%s/%s", ((vhost*)(a->host))->systemRoot, 
+    sprintf(errorFile, "%s/%s", ((Vhost*)(a->host))->systemRoot, 
             HTTP_ERROR_HTMLS[ID]);
     if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
 		{
@@ -2206,7 +2206,7 @@ int http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 /*!
  *Send a hard wired 500 error when we have a system error
  */
-int http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
+int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 {
 	char tmpStr[12];
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -2245,14 +2245,14 @@ int http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
  *Returns the MIME type passing its extension.
  *Returns 1 if the file is registered.
  */
-int http::getMIME(HttpThreadContext* td, char *MIME, char *filename, 
+int Http::getMIME(HttpThreadContext* td, char *MIME, char *filename, 
                   char *ext, char **dest2)
 {
 	MYSERVER_FILE::getFileExt(ext, filename);
 	
-  if(((vhost*)(td->connection->host))->isMIME() )
+  if(((Vhost*)(td->connection->host))->isMIME() )
   {
-    return ((vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
+    return ((Vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
   }
 	return lserver->mimeManager.getMIME(ext, MIME, dest2);
 }
@@ -2260,7 +2260,7 @@ int http::getMIME(HttpThreadContext* td, char *MIME, char *filename,
 /*!
  *Map an URL to the machine file system.
  */
-int http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePath, 
+int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePath, 
                    const char *filename, int systemrequest)
 {
 	/*!
@@ -2271,12 +2271,12 @@ int http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
     int filenamePathLen;
     if(*filenamePath)
       delete [] (*filenamePath);
-    filenamePathLen = strlen(((vhost*)(td->connection->host))->systemRoot) + 
+    filenamePathLen = strlen(((Vhost*)(td->connection->host))->systemRoot) + 
                           strlen(filename) + 2;
     *filenamePath = new char[filenamePathLen];
     if(*filenamePath == 0)
       return 0;
-		sprintf(*filenamePath, "%s/%s", ((vhost*)(td->connection->host))->systemRoot, 
+		sprintf(*filenamePath, "%s/%s", ((Vhost*)(td->connection->host))->systemRoot, 
             filename);
 	}
 	/*!
@@ -2290,12 +2290,12 @@ int http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
       u_long len;
       if(*filenamePath)
         delete [] (*filenamePath);
-      filenamePathLen = strlen(((vhost*)(td->connection->host))->documentRoot) + 
+      filenamePathLen = strlen(((Vhost*)(td->connection->host))->documentRoot) + 
                             strlen(filename) + 3;
       *filenamePath = new char[filenamePathLen];
       if(*filenamePath == 0)
         return 0;
-			strcpy(*filenamePath, ((vhost*)(td->connection->host))->documentRoot);
+			strcpy(*filenamePath, ((Vhost*)(td->connection->host))->documentRoot);
       len=(u_long)(strlen(*filenamePath)+1);
 			(*filenamePath)[len-1]='/';
 			strcpy(&(*filenamePath)[len], filename);
@@ -2305,11 +2305,11 @@ int http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
       int filenamePathLen;
       if(*filenamePath)
         delete [] (*filenamePath);
-      filenamePathLen = strlen(((vhost*)(td->connection->host))->documentRoot)+1;
+      filenamePathLen = strlen(((Vhost*)(td->connection->host))->documentRoot)+1;
       *filenamePath = new char[filenamePathLen];
       if(filenamePath == 0)
         return 0;
-			strcpy(*filenamePath, ((vhost*)(td->connection->host))->documentRoot);
+			strcpy(*filenamePath, ((Vhost*)(td->connection->host))->documentRoot);
 		}
 
 	}
@@ -2319,14 +2319,14 @@ int http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
 /*!
  *Get the CSS file used in a direcotry browsing.
  */
-char* http::getBrowseDirCSSFile()
+char* Http::getBrowseDirCSSFile()
 {
   return browseDirCSSpath;
 }
 /*!
  *Get the GZIP threshold.
  */
-u_long http::get_gzip_threshold()
+u_long Http::get_gzip_threshold()
 {
   return gzip_threshold;
 }
@@ -2334,7 +2334,7 @@ u_long http::get_gzip_threshold()
 /*!
  *Send a redirect message to the client.
  */
-int http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
+int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
 {
 	int keepalive=0;
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -2365,7 +2365,7 @@ int http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
 /*!
  *Send a non-modified message to the client.
  */
-int http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
+int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 {
 	int keepalive=0;
 	char time[HTTP_RESPONSE_DATE_DIM];
@@ -2396,7 +2396,7 @@ int http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 /*!
  *Send a 401 error.
  */
-int http::sendAuth(HttpThreadContext* td, ConnectionPtr s)
+int Http::sendAuth(HttpThreadContext* td, ConnectionPtr s)
 {
 	if(s->getnTries() > 2)
 	{
@@ -2412,7 +2412,7 @@ int http::sendAuth(HttpThreadContext* td, ConnectionPtr s)
 /*!
  *Load the HTTP protocol.
  */
-int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
+int Http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
   char *main_configuration_file;
   char *data;
@@ -2561,7 +2561,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 /*!
  *Unload the HTTP protocol.
  */
-int http::unloadProtocol(cXMLParser* /*languageParser*/)
+int Http::unloadProtocol(cXMLParser* /*languageParser*/)
 {
 	 if(!initialized)
 		 return 0;
@@ -2603,7 +2603,7 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
 /*!
  *Returns the default filename.
  */
-char *http::getDefaultFilenamePath(u_long ID)
+char *Http::getDefaultFilenamePath(u_long ID)
 {
   u_long pos = 0;
   char *cursor = defaultFilename;
@@ -2627,7 +2627,7 @@ char *http::getDefaultFilenamePath(u_long ID)
  *Returns the name of the protocol. If an out buffer is defined fullfill 
  *it with the name too.
  */
-char* http::registerName(char* out, int len)
+char* Http::registerName(char* out, int len)
 {
 	if(out)
 	{
@@ -2639,7 +2639,7 @@ char* http::registerName(char* out, int len)
 /*!
  *Constructor for the class http.
  */
-http::http()
+Http::Http()
 {
 	strcpy(protocolPrefix, "http://");
 	PROTOCOL_OPTIONS=0;
@@ -2658,7 +2658,7 @@ http::http()
 /*!
  *Destructor for the class http.
  */
-http::~http()
+Http::~Http()
 {
   clean();
 }
@@ -2666,7 +2666,7 @@ http::~http()
 /*!
  *Clean the used memory.
  */
-void http::clean()
+void Http::clean()
 {
   if(td.filenamePath)
     delete [] td.filenamePath;

@@ -45,7 +45,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #define LOG_FILES_OPTS_LEN	256
 
-class vhost
+class Vhost
 {
 	MYSERVER_LOG_MANAGER warningsLogFile;
 	MYSERVER_LOG_MANAGER accessesLogFile;
@@ -131,7 +131,7 @@ public:
 	/*! Description or name of the virtual host. */
 	char name[64];
 	
-	vhost();
+	Vhost();
 	void addIP(char *, int);
 	void addHost(char *, int);
 	void removeIP(char *);
@@ -155,7 +155,7 @@ public:
 	u_long accesseslogTerminateAccess(int id);
 	u_long warningslogTerminateAccess(int id);
 
-	~vhost();
+	~Vhost();
 
 	int accessesLogWrite(char*);
 	MYSERVER_FILE* getAccessesLogFile();
@@ -165,12 +165,12 @@ public:
 };
 
 
-class vhostmanager
+class VhostManager
 {
 public:
 	struct sVhostList
 	{
-		vhost* host;
+		Vhost* host;
 		sVhostList* next;
 	};
 private:
@@ -178,21 +178,21 @@ private:
 	/*! List of virtual hosts. */
 	sVhostList *vhostList;
 public:
-	vhostmanager();
-	~vhostmanager();
+	VhostManager();
+	~VhostManager();
 	int getHostsNumber();
-	vhost* getVHostByNumber(int n);
+	Vhost* getVHostByNumber(int n);
 	void clean();
 	int removeVHost(int n);
 	int switchVhosts(int n1,int n2);
 	int switchVhosts(sVhostList*,sVhostList*);
-	vhostmanager::sVhostList*  getvHostList();
+	VhostManager::sVhostList*  getvHostList();
 	
 	/*! Get a pointer to a vhost.  */
-	vhost*  getvHost(char*,char*,u_short);
+	Vhost*  getvHost(char*,char*,u_short);
 	
 	/*! Add an element to the vhost list.  */
-	void addvHost(vhost*);
+	void addvHost(Vhost*);
 	
 	/*! Load the virtual hosts list from a configuration file.  */
 	int loadConfigurationFile(char *,int maxlogSize=0);

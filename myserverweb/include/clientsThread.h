@@ -50,8 +50,8 @@ private:
 	u_long buffersize2;
 	int isRunning();
 	int isStopped();
-	http *http_parser;
-	https *https_parser;
+	Http *http_parser;
+	Https *https_parser;
   control_protocol  *control_protocol_parser;
 	CMemBuf buffer;
 	CMemBuf buffer2;

@@ -680,9 +680,9 @@ int control_protocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
   sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getipAddr(), time, 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin());
-	((vhost*)(con->host))->warningslogRequestAccess(id);
-	((vhost*)(con->host))->warningsLogWrite(b1);
-	((vhost*)(con->host))->warningslogTerminateAccess(id);
+	((Vhost*)(con->host))->warningslogRequestAccess(id);
+	((Vhost*)(con->host))->warningsLogWrite(b1);
+	((Vhost*)(con->host))->warningslogTerminateAccess(id);
   return 0;
 }
 
@@ -696,9 +696,9 @@ int control_protocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1
   sprintf(b1,"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getipAddr(), time, 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin() , retCode);
-	((vhost*)(con->host))->accesseslogRequestAccess(id);
-	((vhost*)(con->host))->accessesLogWrite(b1);
-	((vhost*)(con->host))->accesseslogTerminateAccess(id);
+	((Vhost*)(con->host))->accesseslogRequestAccess(id);
+	((Vhost*)(con->host))->accessesLogWrite(b1);
+	((Vhost*)(con->host))->accesseslogTerminateAccess(id);
   return 0;
 }
 

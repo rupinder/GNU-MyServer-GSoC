@@ -45,9 +45,10 @@ extern "C"
 
 
 /*!
-*Returns the name of the protocol. If an out buffer is defined fullfill it with the name too.
-*/
-char* https::registerName(char* out,int len)
+ *Returns the name of the protocol. If an out buffer is defined 
+ *fullfill it with the name too.
+ */
+char* Https::registerName(char* out,int len)
 {
 	if(out)
 	{
@@ -56,18 +57,18 @@ char* https::registerName(char* out,int len)
 	return "HTTPS";
 }
 /*!
-*https class constructor.
-*/
-https::https() 
+ *Https class constructor.
+ */
+Https::Https() 
 {
-	strcpy(protocolPrefix,"https://");
+	strcpy(protocolPrefix, "https://");
 	PROTOCOL_OPTIONS=PROTOCOL_USES_SSL;
 }
 
 /*!
-*Destructor for the class https
-*/
-https::~https()
+ *Destructor for the class Https.
+ */
+Https::~Https()
 {
 
 }

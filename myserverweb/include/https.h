@@ -21,12 +21,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/http.h"
 
-class https : public http
+class Https : public Http
 {
 public:
 	virtual char* registerName(char*,int len);
-	https();
-	virtual ~https();
+	Https();
+	virtual ~Https();
 };
 
 #endif

@@ -102,7 +102,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
   {
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
   }
 	lstrcpy(td->scriptPath, scriptpath);
 
@@ -115,7 +115,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   td->scriptDir = new char[scriptDirLen+1];
   if(td->scriptDir == 0)
   {
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
   }
 
   if(td->scriptFile)
@@ -123,7 +123,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   td->scriptFile = new char[scriptFileLen+1];
   if(td->scriptFile == 0)
   {
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
   }
 
   if(td->cgiRoot)
@@ -131,7 +131,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   td->cgiRoot = new char[cgiRootLen+1];
   if(td->cgiRoot == 0)
   {
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection); 
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
   }
 
   if(td->cgiFile)
@@ -139,7 +139,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   td->cgiFile = new char[cgiFileLen+1];
   if(td->cgiFile == 0)
   {
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, connection); 
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
   }
 	td->cgiRoot[0] = td->cgiFile[0] = '\0';
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
@@ -156,7 +156,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       fullpath = new char[fullpathLen];
       if(fullpath == 0)
       {
-        return ((http*)td->lhttp)->sendHTTPhardError500(td, connection); 
+        return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
       }
 			sprintf(fullpath,"%s \"%s\"", cgipath, td->filenamePath);
     }
@@ -166,7 +166,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       fullpath = new char[fullpathLen];
       if(fullpath == 0)
       {
-        return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+        return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
       }
 			sprintf(fullpath,"%s",td->filenamePath);	
     }
@@ -177,7 +177,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     fullpath = new char[fullpathLen];
     if(fullpath == 0)
     {
-      return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+      return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
     }
 		sprintf(fullpath,"%s",cgipath);
 	}
@@ -189,10 +189,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     delete [] fullpath;
 		td->buffer->SetLength(0);
 		*td->buffer<< "Error FastCGI to build env string\r\n" << '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath,
@@ -202,10 +202,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     delete [] fullpath;
 		td->buffer->SetLength(0);
 		*td->buffer<< "Error opening stdin file\r\n" << '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
   server = FcgiConnect(&con,fullpath);
@@ -216,10 +216,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer<< "Error FastCGI to get process ID\r\n" << '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
 	id=td->id+1;
@@ -235,11 +235,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer<< "Error FastCGI to begin the request\r\n" << '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,(char*)td->buffer2->GetBuffer(),sizeEnvString,
@@ -249,11 +249,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send params\r\n" << '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
@@ -262,25 +262,25 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send params\r\n" << '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}	
 	if(atoi(td->request.CONTENT_LENGTH))
 	{
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send POST data\r\n"<< '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		generateFcgiHeader( header, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
 		if(con.sock.send((char*)&header,sizeof(header),0)==-1)
     {
       td->inputData.closeFile();
       MYSERVER_FILE::deleteFile(td->inputDataPath);
-			return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+			return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
     }
 		td->inputData.setFilePointer(0);
 		do
@@ -292,11 +292,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         MYSERVER_FILE::deleteFile(td->inputDataPath);
         td->buffer->SetLength(0);
         *td->buffer << "Error FastCGI to read from file\r\n" << '\0';
-        ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-        ((vhost*)td->connection->host)->warningsLogWrite(
+        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite(
                                                     (char*)td->buffer->GetBuffer());
-        ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-        return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
       }      
       
 			if(nbr)
@@ -307,11 +307,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
           MYSERVER_FILE::deleteFile(td->inputDataPath);
           td->buffer->SetLength(0);
           *td->buffer << "Error FastCGI to send data\r\n" << '\0';
-          ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-          ((vhost*)td->connection->host)->warningsLogWrite(
+          ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+          ((Vhost*)td->connection->host)->warningsLogWrite(
                                                   (char*)td->buffer->GetBuffer());
-          ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-					return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+          ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+					return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
         }
 			}
 		}while(nbr==td->buffer->GetRealLength());
@@ -322,13 +322,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		MYSERVER_FILE::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send POST data\r\n"<< '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->
                             warningsLogWrite((char*)td->buffer->GetBuffer());
 
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}	
 
 	/*! Now read the output. This flag is used by the external loop. */
@@ -348,12 +348,12 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		MYSERVER_FILE::deleteFile(td->inputDataPath);
     td->buffer->SetLength(0);
 		*td->buffer << "Error allocating memory\r\n"<< '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->
                             warningsLogWrite((char*)td->buffer->GetBuffer());
 
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 	getdefaultwd(outDataPath, outDataPathLen);
 	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFCGI_%u",(u_int)td->id);
@@ -367,12 +367,12 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     delete [] outDataPath;
     td->buffer->SetLength(0);
 		*td->buffer << "Error opening stdout file\r\n"<< '\0';
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->
                             warningsLogWrite((char*)td->buffer->GetBuffer());
 
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
 	do	
@@ -389,10 +389,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       {
         td->buffer->SetLength(0);
         *td->buffer << "Error FastCGI reading data\r\n"<< '\0';
-        ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-        ((vhost*)td->connection->host)->warningsLogWrite(
+        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite(
                                              (char*)td->buffer->GetBuffer());
-        ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
         con.sock.shutdown(2);
         con.sock.closesocket();
@@ -403,9 +403,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		{
 			td->buffer->SetLength(0);
 			*td->buffer << "Error FastCGI timeout\r\n"<< '\0';
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
 			con.sock.shutdown(2);
 			con.sock.closesocket();
@@ -430,7 +430,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			{
 				case FCGI_STDERR:
 					con.sock.closesocket();
-					((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+					((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 					exit = 1;
           ret = 0;
 					break;
@@ -510,7 +510,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       con.tempOut.closeFile();
       MYSERVER_FILE::deleteFile(outDataPath);
       con.sock.closesocket();
-			return ((http*)td->lhttp)->sendHTTPRedirect(td, connection, 
+			return ((Http*)td->lhttp)->sendHTTPRedirect(td, connection, 
                                                   td->response.LOCATION);
 		}
 		/*! Send the header. */

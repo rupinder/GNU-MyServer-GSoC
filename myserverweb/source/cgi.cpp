@@ -93,11 +93,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite(
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite(
                                                 "Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 	lstrcpy(td->scriptPath, scriptpath);
 
@@ -109,10 +109,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   td->scriptDir = new char[scriptDirLen+1];
   if(td->scriptDir == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 
   if(td->scriptFile)
@@ -121,10 +121,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 
   if(td->scriptFile == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 
 
@@ -134,10 +134,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 
   if(td->cgiRoot == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 
   if(td->cgiFile)
@@ -146,10 +146,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 
   if(td->cgiFile == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
@@ -163,12 +163,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     filename = new char[filenameLen+1];
     if(filename == 0)
     {
-      ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((vhost*)(td->connection->host))->warningsLogWrite
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)(td->connection->host))->warningsLogWrite
                                         ("Error allocating memory\r\n");
-      ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       /*! If we cannot allocate the memory return a 500 error message. */
-      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
     
 		MYSERVER_FILE::getFilename(scriptpath, filename);
@@ -193,12 +193,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       td->scriptFile = 0;
       td->scriptDir = 0;
       td->scriptPath = 0;
-      ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((vhost*)(td->connection->host))->warningsLogWrite
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)(td->connection->host))->warningsLogWrite
                                           ("Error allocating memory\r\n");
-      ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       /*! If we cannot allocate the memory return a 500 error message. */
-      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
     if(cgipath)
       sprintf(cmdLine, "cmd /c %s %s %s",cgipath, td->scriptFile, 
@@ -226,18 +226,18 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
      /*! Check if the CGI executable exists. */
 		if((!cgipath) || (!MYSERVER_FILE::fileExists(cgipath)))
 		{
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       if(cgipath)
       {
-        ((vhost*)td->connection->host)->warningsLogWrite("Cannot find ");
-        ((vhost*)td->connection->host)->warningsLogWrite(cgipath);
-        ((vhost*)td->connection->host)->warningsLogWrite(" executable\r\n");
+        ((Vhost*)td->connection->host)->warningsLogWrite("Cannot find ");
+        ((Vhost*)td->connection->host)->warningsLogWrite(cgipath);
+        ((Vhost*)td->connection->host)->warningsLogWrite(" executable\r\n");
 			}
       else
       {
-        ((vhost*)td->connection->host)->warningsLogWrite("Executable file not specified\r\n");
+        ((Vhost*)td->connection->host)->warningsLogWrite("Executable file not specified\r\n");
       }
-      ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
       delete [] filename;
       delete [] td->scriptFile;
       delete [] td->scriptDir;
@@ -249,7 +249,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       td->scriptDir = 0;
       if(cmdLine)
         delete [] cmdLine;
-			return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
     /*! Alloc the cmdLine memory. */
     cmdLineLen = strlen(td->scriptFile) + strlen(cgipath) + 2;
@@ -265,12 +265,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       td->cgiFile = 0;
       td->scriptFile = 0;
       td->scriptDir = 0;
-      ((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((vhost*)(td->connection->host))->warningsLogWrite(
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)(td->connection->host))->warningsLogWrite(
                                                        "Error allocating memory\r\n");
-      ((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       /*! If we cannot allocate the memory return a 500 error message. */
-      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
     sprintf(cmdLine, "%s %s", cgipath, td->scriptFile);
     nph=(strnicmp("nph-", td->cgiFile, 4)==0)?1:0;
@@ -293,12 +293,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
    */
   if(outputDataPath == 0)
   {
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     delete [] filename;
     delete [] cmdLine;
-    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
   
 	getdefaultwd(outputDataPath, 0);
@@ -311,14 +311,14 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
    */
 	if(stdOutFile.createTemporaryFile(outputDataPath))
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite
                                         ("Cannot create CGI stdout file\r\n" );
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     delete [] outputDataPath;
     delete [] cmdLine;
     delete [] filename;
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
   delete []outputDataPath;
   
@@ -328,13 +328,13 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	if(stdInFile.openFile(td->inputDataPath, MYSERVER_FILE_OPEN_READ|
                         MYSERVER_FILE_OPEN_ALWAYS))
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
     delete [] cmdLine;
     delete [] filename;
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   
 	/*!
@@ -366,11 +366,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     if(cmdLine)
       delete [] cmdLine;
     delete [] filename;
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite
                                        ("Error in the CGI execution\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
 
   /*! Reset the buffer2 length counter. */
@@ -387,11 +387,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     if(cmdLine)
       delete [] cmdLine;
     delete [] filename;
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite
                                ("Error setting file pointer\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   
   if(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
@@ -402,21 +402,21 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     if(cmdLine)
       delete [] cmdLine;
     delete [] filename;
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)(td->connection->host))->warningsLogWrite
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)(td->connection->host))->warningsLogWrite
                                ("Error reading from CGI std out file\r\n");
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
 		
 	((char*)td->buffer2->GetBuffer())[nBytesRead]='\0';
 		
 	if(nBytesRead==0)
 	{
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite("Error CGI zero bytes read\r\n" );
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite("Error CGI zero bytes read\r\n" );
+		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		yetoutputted=1;
 	}
 	/*! Standard CGI can include an extra HTTP header.  */
@@ -460,7 +460,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
           if(cmdLine)
             delete [] cmdLine;
           delete [] filename;
-          return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+          return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
         }
         
         /*! Copy the redirection destination in the nURL buffer. */
@@ -470,7 +470,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
         }
         nURL[j]='\0';
 
-				((http*)td->lhttp)->sendHTTPRedirect(td, s, nURL);
+				((Http*)td->lhttp)->sendHTTPRedirect(td, s, nURL);
 			
         delete [] nURL;
         /*! Store the new flag. */
@@ -781,7 +781,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		memCgi << td->connection->getLogin();
 	}
 	
-	if(((vhost*)(td->connection->host))->protocol==PROTOCOL_HTTPS)
+	if(((Vhost*)(td->connection->host))->protocol==PROTOCOL_HTTPS)
 		memCgi << end_str << "SSL=ON";
 	else
 		memCgi << end_str << "SSL=OFF";
@@ -852,7 +852,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << strTmp;
 
 	memCgi << end_str << "DOCUMENT_ROOT=";
-	memCgi << ((vhost*)(td->connection->host))->documentRoot;
+	memCgi << ((Vhost*)(td->connection->host))->documentRoot;
 
 	memCgi << end_str << "DOCUMENT_URI=/";
 	memCgi << td->request.URI;

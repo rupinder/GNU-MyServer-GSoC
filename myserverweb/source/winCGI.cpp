@@ -93,7 +93,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
 
 	if(!MYSERVER_FILE::fileExists(filename))
-		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_404);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_404);
 
 	MYSERVER_FILE::splitPath(filename,pathname,execname);
 	
@@ -112,10 +112,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
                      MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	if ( ret ) 
 	{
-		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI ini\r\n");
-		((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI ini\r\n");
+		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	td->buffer2->SetLength(0);
 	buffer=(char*)td->buffer2->GetBuffer();
@@ -232,14 +232,14 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 		ret = OutFileHandle.openFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
 		if (ret)
 		{
-			((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-			((vhost*)td->connection->host)->warningsLogWrite(
+			((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+			((Vhost*)td->connection->host)->warningsLogWrite(
                                       "Error creating WinCGI output file\r\n");
-			((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+			((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
 			MYSERVER_FILE::deleteFile(outFilePath);
 			MYSERVER_FILE::deleteFile(dataFilePath);
-			return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+			return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
 	}
 	OutFileHandle.closeFile();
@@ -254,37 +254,37 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 
 	if (execHiddenProcess(&spi, timeout))
 	{
-		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(
+		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite(
                             "Error executing WinCGI process\r\n");
-		((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 
 	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|
                              MYSERVER_FILE_OPEN_READ);
 	if (ret)
 	{
-		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(
+		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite(
                                        "Error opening WinCGI output file\r\n");
-		((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
-		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	u_long nBytesRead=0;
 	OutFileHandle.readFromFile(buffer,td->buffer2->GetRealLength(),&nBytesRead);
 	if(nBytesRead==0)
 	{
-		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(
+		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+		((Vhost*)td->connection->host)->warningsLogWrite(
                     "Error zero bytes read from the WinCGI output file\r\n");
-		((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		OutFileHandle.closeFile();
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	u_long headerSize=0;
 
@@ -389,9 +389,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
   /*! WinCGI is available only under windows. */
 	td->buffer->SetLength(0);
 	*td->buffer << "Error WinCGI is not implemented\r\n" << '\0';
-	((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-	((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
-	((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
-	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
+	((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+	((Vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+	((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+	return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_501);
 #endif
 }
