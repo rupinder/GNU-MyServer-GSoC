@@ -791,7 +791,7 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 	unsigned long pLong = 1L;
 	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(server->host);
 	struct sockaddr_in sockAddr;
-	int sockLe
+	int sockLen;
   if(hp == 0)
     return -1;
 
