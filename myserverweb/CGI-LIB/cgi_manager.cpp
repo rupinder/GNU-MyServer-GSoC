@@ -165,8 +165,9 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 	{
 		if(((localEnv[i+variableNameLen])== '=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
 		{
+			u_long j=0;
 			u_long min=min(strlen(&localEnv[i+variableNameLen+1]),(u_long)(*lpvBuffer)-1); 
-			for(u_long j=0;j<min;j++)
+			for(j=0;j<min;j++)
 				lpvBuffer[j]=localEnv[i+variableNameLen+1+j];
 			lpvBuffer[j]='\0';
 			break;

@@ -1328,11 +1328,14 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	else
 	{
-		/*
-		*Record the error in the log file.
-		*/
-		sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
-		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		if(lserver->getVerbosity()>1)
+		{
+			/*
+			*Record the error in the log file.
+			*/
+			sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
+			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		}
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);

@@ -78,6 +78,8 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 
 	if (connIndex == max_Connections) 
 	{
+		sprintf(td->buffer,"Error ISAPI max connections\r\n");
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		return raiseHTTPError(td,connection,e_500);
 	}
 	AppHnd = LoadLibrary(fullpath);

@@ -58,6 +58,8 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	int ret=DataFileHandle.openFile(dataFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	if ((!ret) || (ret==-1)) 
 	{
+		strcpy(td->buffer,"Error creating WinCGI file\r\n");
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		return raiseHTTPError(td,s,e_500);
 	}
 
@@ -127,7 +129,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		DataFileHandle.writeToFile(td->buffer2,18,&nbr);	
 	}
 
-	strcpy(td->buffer2,"Server Software=myServer\r\n");
+	strcpy(td->buffer2,"Server Software=MyServer\r\n");
 	DataFileHandle.writeToFile(td->buffer2,26,&nbr);
 
 	sprintf(td->buffer2,"Remote Address=%s\r\n",td->connection->ipAddr);
@@ -170,6 +172,8 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		ret = OutFileHandle.openFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
 		if ((!ret) || (ret==-1)) 
 		{
+			sprintf(td->buffer,"Error creating WinCGI output file\r\n");
+			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 			DataFileHandle.closeFile();
 			MYSERVER_FILE::deleteFile(outFilePath);
 			MYSERVER_FILE::deleteFile(dataFilePath);
@@ -188,6 +192,8 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	
 	if (execHiddenProcess(&spi,WINCGI_TIMEOUT))
 	{
+		sprintf(td->buffer,"Error executing WinCGI process\r\n");
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
 		return raiseHTTPError(td,s,e_500);
@@ -196,12 +202,16 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
 	if ((!ret) || (ret==-1)) 
 	{
+		sprintf(td->buffer,"Error opening WinCGI output file\r\n");
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		return raiseHTTPError(td,s,e_500);
 	}
 	u_long nBytesRead=0;
 	OutFileHandle.readFromFile(td->buffer2,KB(5),&nBytesRead);
 	if(nBytesRead==0)
 	{
+		sprintf(td->buffer,"Error zero bytes read from the WinCGI output file\r\n");
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		OutFileHandle.closeFile();
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
@@ -244,6 +254,8 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	return !strcmpi(td->request.CONNECTION,"Keep-Alive");
 #endif
 #ifdef __linux__
+	sprintf(td->buffer,"Error WinCGI is not implemented\r\n");
+	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	return raiseHTTPError(td,s,e_501);/*WinCGI is not available under linux*/
 #endif
 }

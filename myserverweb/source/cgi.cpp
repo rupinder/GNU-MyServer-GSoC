@@ -150,6 +150,8 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	int yetoutputted=0;
 	if(nBytesRead==0)
 	{
+		sprintf(td->buffer,"Error CGI zero bytes read\r\n");
+		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
 	}
@@ -170,27 +172,30 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 			headerSize=i+4;
 			break;
 		}
+		/*
+		*If it is present Location: xxx in the header send a redirect to xxx
+		*/
 		else if(!strncmp(&td->buffer2[i],"Location",8))
+		{
+			char nURL[MAX_PATH];
+			nURL[0]='\0';
+			u_long j;
+			j=0;
+
+			int start=(int)strlen(nURL);
+			while(td->buffer2[i+j+10]!='\r')
 			{
-				char nURL[MAX_PATH];
-				nURL[0]='\0';
-				u_long j;
-				j=0;
 
-				int start=(int)strlen(nURL);
-				while(td->buffer2[i+j+10]!='\r')
-				{
-
-					nURL[j+start]=td->buffer2[i+j+10];
-					nURL[j+start+1]='\0';
-					j++;
-				}
-				if(!yetoutputted)
-				{
-					sendHTTPRedirect(td,s,nURL);
-				}
-				yetoutputted=1;
+				nURL[j+start]=td->buffer2[i+j+10];
+				nURL[j+start+1]='\0';
+				j++;
 			}
+			if(!yetoutputted)
+			{
+				sendHTTPRedirect(td,s,nURL);
+			}
+			yetoutputted=1;
+		}
 	}
 	if(!yetoutputted)
 	{
