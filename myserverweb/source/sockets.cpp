@@ -197,14 +197,15 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa,
 
 #ifdef WIN32
 	SocketHandle h=(SocketHandle)::accept(socketHandle,sa,
-                                                            sockaddrlen);
+                                        sockaddrlen);
 	s.setHandle(h);
 #endif
 
 #ifdef NOT_WIN
 	Connect_Size = (socklen_t) *sockaddrlen;
 	
-  accept_handle = ::accept((int)socketHandle, sa, (socklen_t*)&Connect_Size);
+  accept_handle = ::accept((int)socketHandle, sa, 
+                           (socklen_t*)&Connect_Size);
 	s.setHandle(accept_handle);
 #endif
 
@@ -334,6 +335,7 @@ int Socket::send(const char* buffer, int len, int flags)
   {
     for(;;)
     {
+      /*! When we can send data again? */
       u_long time = get_ticks() + (1000*1024/throttlingRate) ;
       /*! If a throttling rate is specified, send chunks of 1024 bytes. */
       ret = rawSend( buffer+(len-toSend), min(toSend, 1024), flags); 
