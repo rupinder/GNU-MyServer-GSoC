@@ -130,12 +130,12 @@ private:
   static u_long timeout;
 #ifdef WIN32	
 	static int initialized;
-	static ConnTableRecord *HConnRecord(HCONN hConn);
 	static ConnTableRecord *connTable;
 	static  u_long max_Connections;
 #endif	
 public:	
 #ifdef WIN32
+	static ConnTableRecord *HConnRecord(HCONN hConn);
 	int Redirect(httpThreadContext* td,LPCONNECTION a,char *URL);
 	int SendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
 	int SendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
