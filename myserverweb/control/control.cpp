@@ -27,9 +27,16 @@ SERVICE_STATUS          MyServiceStatus;
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
 SERVICE_STATUS queryStatus();
 #endif
-#include "..\source\cXMLParser.cpp"
-#include "..\source\Filemanager.cpp"
-#include "..\source\MIME_manager.cpp"
+#include "../source/cXMLParser.cpp"
+#include "../source/filemanager.cpp"
+#include "../source/MIME_manager.cpp"
+#ifndef WIN32
+extern "C" {
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+}
+#endif
 /*
 *This is the version of the Control Center and can be different from the myServer version.
 */
@@ -69,6 +76,7 @@ enum
 */
 mainFrame *lmainFrame;
 
+#ifndef __WXGTK__
 BEGIN_EVENT_TABLE(taskBarIcon, wxTaskBarIcon)
     EVT_MENU(PU_RESTORE, taskBarIcon::OnMenuRestore)
     EVT_MENU(PU_EXIT,    taskBarIcon::OnMenuExit)
@@ -83,6 +91,7 @@ BEGIN_EVENT_TABLE(taskBarIcon, wxTaskBarIcon)
 	EVT_MENU(ControlCenter_About, mainFrame::OnAbout)
     EVT_MENU(ControlCenter_RemoveService, mainFrame::removeService)
 END_EVENT_TABLE()
+#endif
 
 BEGIN_EVENT_TABLE(mainFrame, wxFrame)
     EVT_MENU(ControlCenter_Quit,  mainFrame::OnQuit)
@@ -122,7 +131,9 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     SetIcon(icon);
 	char version[50];
 	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
+#ifndef __WXGTK__
     m_taskBarIcon.SetIcon(icon, version);
+#endif
 #if wxUSE_MENUS
     menuFile = new wxMenu;
     helpMenu = new wxMenu;
@@ -179,7 +190,7 @@ void mainFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 void mainFrame::removeService(wxCommandEvent& WXUNUSED(event))
 {
     SetStatusText(_T("Removing the service"));
-
+#ifdef WIN32
 	SC_HANDLE service,manager;
     manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
@@ -196,7 +207,7 @@ void mainFrame::removeService(wxCommandEvent& WXUNUSED(event))
 			CloseServiceHandle (manager);
 		}
 	}
-
+#endif
 	lmainFrame->SetStatusText(_T("Service removed"));
 }
 /*
@@ -231,11 +242,18 @@ void mainFrame::runConsole(wxCommandEvent& event)
 	CreateProcess(NULL,"myserver.exe CONSOLE",NULL,NULL,FALSE,0,0,0,&si,&pi);
 	DWORD id;
 	consoleModeWatchDog=CreateThread(0,0,consoleWatchDogThread,this,0,&id);
+#else
+	int pid = fork();
+	if(pid == 0)
+	{
+		execlp("xterm", "xterm", "-e", "./myserver", NULL);
+		exit(0);
+	}
 #endif
 	status=MYSERVER_CONSOLE_ON;
 	lmainFrame->SetStatusText(_T("MyServer started in console mode"));
 }
-#ifdef WIN32
+
 /*
 *Run myServer like an OS service.
 */
@@ -269,7 +287,7 @@ void mainFrame::runService(wxCommandEvent& event)
 void mainFrame::registerService(wxCommandEvent& event)
 {
 	lmainFrame->SetStatusText(_T("Installing the myServer service"));
-
+#ifdef WIN32
 	SC_HANDLE service,manager;
 	char path [MAX_PATH];
 	GetCurrentDirectory(MAX_PATH,path);
@@ -287,7 +305,7 @@ void mainFrame::registerService(wxCommandEvent& event)
 
 		CloseServiceHandle (manager);
 	}
-
+#endif
 	lmainFrame->SetStatusText(_T("MyServer service installed"));
 }
 void mainFrame::configureMIME(wxCommandEvent& event)
@@ -322,7 +340,7 @@ void mainFrame::stopService(wxCommandEvent& event)
 	lmainFrame->SetStatusText(_T("MyServer service stopped"));
 
 }
-
+#ifdef WIN32
 /*
 *Retrieve the service status.
 */
@@ -360,7 +378,7 @@ void mainFrame::stopConsole(wxCommandEvent& event)
 
 
 
-
+#ifndef __WXGTK__
 /*
 *Functions to handle the taskbar icon
 */
@@ -398,3 +416,4 @@ void taskBarIcon::OnMenuRestore(wxCommandEvent&)
 void taskBarIcon::OnMenuExit(wxCommandEvent&)
 {
 }
+#endif

@@ -16,7 +16,9 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef CONTROL_H
+#define CONTROL_H
+
 #include "stdafx.h"
 #include "resource.h" 
 #include <wx/wx.h> 
@@ -24,10 +26,12 @@
 #include "configuration.h"
 #ifdef WIN32
 #include <windows.h>
+#endif   
 #define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
-#include "..\include\MIME_Manager.h"
-#include "..\include\cXMLParser.h"
-#endif          
+#include "../include/MIME_manager.h"
+#include "../include/cXMLParser.h"
+
+#ifdef WIN32       
 #pragma comment(lib,"odbc32.lib")
 #pragma comment(lib,"odbccp32.lib")
 #pragma comment(lib,"comctl32.lib")
@@ -35,9 +39,13 @@
 #pragma comment(lib,"wxmsw.lib")
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"ws2_32.lib")
+#endif
 
+using namespace std;
 
-class taskBarIcon: public wxTaskBarIcon
+// Taskbar Icon not implemented in GTK
+#ifndef __WXGTK__
+class taskBarIcon : public wxTaskBarIcon
 {
 public:
     taskBarIcon() {};
@@ -53,6 +61,8 @@ public:
 
 DECLARE_EVENT_TABLE()
 };
+#endif
+
 class mainFrame : public wxFrame
 {
 public:
@@ -65,7 +75,9 @@ public:
 #endif
 	mainFrame(const wxString& title, const wxPoint& pos, const wxSize& size,
 		long style = wxDEFAULT_FRAME_STYLE);
+#ifndef __WXGTK__
     taskBarIcon   m_taskBarIcon;
+#endif
 	void *myServerControlApp;
 	void OnQuit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
@@ -89,3 +101,5 @@ class myServerControl : public wxApp
 public:
 	virtual bool OnInit();
 };
+
+#endif

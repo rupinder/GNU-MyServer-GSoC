@@ -16,17 +16,19 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#pragma once
+#ifndef CONFIGUREMIME_H
+#define CONFIGUREMIME_H
 #include "stdafx.h"
 #include "resource.h" 
 #include <wx/wx.h> 
 #include <wx/taskbar.h>
 #ifdef WIN32
 #include <windows.h>
+#endif
 #define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
-#include "..\include\MIME_Manager.h"
-#include "..\include\cXMLParser.h"
-#endif          
+#include "../include/MIME_manager.h"
+#include "../include/cXMLParser.h"
+          
 extern const char VERSION_OF_SOFTWARE[];
 #define MIMEWNDSIZEX	420
 #define MIMEWNDSIZEY	260
@@ -55,3 +57,5 @@ public:
 private:
 	DECLARE_EVENT_TABLE()
 };
+
+#endif

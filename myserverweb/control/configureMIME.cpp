@@ -156,7 +156,11 @@ void configurationFrameMIME::addExt(wxCommandEvent& event)
 	char EXT[10];
 	sprintf(EXT,"%s",(const char*)(ext.ToAscii()));
 	MIME_Manager::mime_record record;
+#ifdef WIN32
 	ZeroMemory(&record,sizeof(record));
+#else
+	memset(&record, 0, sizeof(record));
+#endif
 	strcpy(record.extension,EXT);
 	mm.addRecord(record);
 	if(extensionsLB->FindString(_T(ext))==wxNOT_FOUND)
