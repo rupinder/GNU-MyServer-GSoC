@@ -176,7 +176,10 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 	}
 	else if(opt & MYSERVER_FILE_OPEN_ALWAYS)
 	{
-		ret = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
+		if(stat(filename, &F_Stats) < 0)
+			ret = (MYSERVER_FILE_HANDLE)open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+		else
+			ret = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
 	}
 	
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)

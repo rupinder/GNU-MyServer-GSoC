@@ -81,7 +81,6 @@ MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET s,MYSERVER_SOCKADDR* sa,int* sockaddrl
 #ifdef __linux__
 	unsigned int Connect_Size = *sockaddrlen;
 	int as = accept((int)s,sa,&Connect_Size);
-	printf("Socket Open: %d\n", as);
 	return (MYSERVER_SOCKET)as;
 #endif
 }
@@ -91,7 +90,6 @@ int ms_closesocket(MYSERVER_SOCKET s)
 #ifdef WIN32
 	return closesocket(s);
 #else
-	printf("Socket Close: %d\n", (int)s);
 	return close((int)s);
 #endif
 }
@@ -164,6 +162,8 @@ int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
 		return err;
 #else
 	err=recv((int)s,buffer,len,flags);
+	if(err == 0)
+		err = -1;
 	return err;
 #endif
 }
