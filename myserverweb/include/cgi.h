@@ -26,17 +26,6 @@
 *Structure used by the HTTP protocol to describe a thread
 */
 struct httpThreadContext;
-/*
-*Additional informations used by the buildCGIEnvironmentString function
-*/
-struct CGI_ENV_STRING_DATA
-{
-	char *pathinfo;
-	char *pathtranslated;
-	char *scriptpath;
-    char *cgiroot;
-	char *scriptfile;
-	char *scriptname;
-};
+
 BOOL sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
-void buildCGIEnvironmentString(httpThreadContext*,char*,CGI_ENV_STRING_DATA*);
+void buildCGIEnvironmentString(httpThreadContext*,char*);

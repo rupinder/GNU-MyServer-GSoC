@@ -43,14 +43,10 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	BOOL nph;
 	char cmdLine[MAX_PATH*3+1];
 	char filename[MAX_PATH];
+	lstrcpy(td->scriptPath,scriptpath);
+	splitPath(scriptpath,td->scriptDir,td->scriptFile);
 
-	char scriptfile[MAX_PATH];
-	char scriptdir[MAX_PATH];
-	splitPath(scriptpath,scriptdir,scriptfile);
-
-	char cgidir[MAX_PATH];
-	char cgifile[MAX_PATH];
-	splitPath(cgipath,cgidir,cgifile);
+	splitPath(cgipath,td->cgiRoot,td->cgiFile);
 
 	/*
 	*If the cmd is equal to CGI_CMD_EXECUTE then we must execute the
@@ -66,14 +62,14 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 		*Under the windows platform to run a file like an executable
 		*use the sintact "cmd /c filename".
 		*/
-		sprintf(cmdLine,"cmd /c %s",scriptfile);
-		nph=(strnicmp("nph-",scriptfile, 4)==0)?1:0;
+		sprintf(cmdLine,"cmd /c %s",td->scriptFile);
+		nph=(strnicmp("nph-",td->scriptFile, 4)==0)?1:0;
 #endif
 	}
 	else if(cmd==CGI_CMD_RUNCGI)
 	{
-		sprintf(cmdLine,"%s %s",cgipath,scriptfile);
-		nph=(strnicmp("nph-",cgifile, 4)==0)?1:0;
+		sprintf(cmdLine,"%s %s",cgipath,td->scriptFile);
+		nph=(strnicmp("nph-",td->cgiFile, 4)==0)?1:0;
 	}
 	else
 	{
@@ -105,8 +101,8 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
 	MYSERVER_FILE_HANDLE stdInFile = ms_CreateTemporaryFile(stdInFilePath);
-	
-	DWORD nbw;
+
+	DWORD nbw;/*Number of bytes written to the stdin file*/
 	
 	if(td->request.URIOPTSPTR)
 		ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
@@ -116,18 +112,29 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	char *endFileStr="\r\n\r\n";
 	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 	setFilePointer(stdInFile,0);
+
+	/*
+	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
+	*PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
+	*/
+	if(td->pathInfo[0])
+	{
+        td->pathTranslated[0]='\0';
+		/*
+		*Start from the second character because the first is a '/' character.
+		*/
+		getPath(td->pathTranslated,&((td->pathInfo)[1]),FALSE);
+	}
+	else
+	{
+        td->pathTranslated[0]='\0';
+	}
 	/*
 	*Build the environment string used by the CGI started
 	*by the execHiddenProcess(...) function.
 	*Use the td->buffer2 to build the environment string.
 	*/
-	CGI_ENV_STRING_DATA cgiEnvStringData;
-	cgiEnvStringData.pathinfo = 0;
-	cgiEnvStringData.pathtranslated = 0;
-	cgiEnvStringData.cgiroot = cgidir;
-	cgiEnvStringData.scriptpath = scriptpath;
-	cgiEnvStringData.scriptfile = scriptfile;
-	buildCGIEnvironmentString(td,td->buffer2,&cgiEnvStringData);
+	buildCGIEnvironmentString(td,td->buffer2);
 
 
 	/*
@@ -135,7 +142,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
-	spi.cwd=scriptdir;
+	spi.cwd=td->scriptDir;
 	spi.stdError = (MYSERVER_FILE_HANDLE)stdOutFile;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
@@ -206,9 +213,9 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	return 1;
 }
 /*
-*Build the string that contain the CGI environment.
+*Write the string that contain the CGI environment to cgiEnvString.
 */
-void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,CGI_ENV_STRING_DATA *data)
+void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 {
 	cgiEnvString[0]='\0';
 	/*
@@ -259,8 +266,14 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,CGI_ENV_
 	lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
 	lstrcat(cgiEnvString,td->connection->ipAddr);
 
+	lstrcat(cgiEnvString,"\rHTTP_COOKIE=");
+	lstrcat(cgiEnvString,td->request.COOKIE);
+
+	lstrcat(cgiEnvString,"\rHTTP_REFERER=");
+	lstrcat(cgiEnvString,td->request.REFERER);
+
 	lstrcat(cgiEnvString,"\rCGI_ROOT=");
-	lstrcat(cgiEnvString,data->cgiroot);
+	lstrcat(cgiEnvString,td->cgiRoot);
 	
 	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
 	lstrcat(cgiEnvString,td->connection->ipAddr);
@@ -269,29 +282,37 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,CGI_ENV_
 	lstrcat(cgiEnvString,td->request.AUTH);
 
 	lstrcat(cgiEnvString,"\rCONTENT_ENCODING=");
-	lstrcat(cgiEnvString,td->request.ACCEPTENC);		
-	
-	if(data->pathinfo)
+	lstrcat(cgiEnvString,td->request.ACCEPTENC);	
+
+	if(lstrlen(td->pathInfo))
 	{
 		lstrcat(cgiEnvString,"\rPATH_INFO=");
-		lstrcat(cgiEnvString,data->pathinfo);
+		lstrcat(cgiEnvString,td->pathInfo);
 	}
-
-	if(data->pathtranslated)
+	if(lstrlen(td->pathTranslated))
 	{
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
-		lstrcat(cgiEnvString,data->pathtranslated);
+		lstrcat(cgiEnvString,td->pathTranslated);
 	}
-	if(data->scriptfile)
-	{
-		lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
-		lstrcat(cgiEnvString,data->scriptfile);
-	}
-	if(data->scriptpath)
-	{
-		lstrcat(cgiEnvString,"\rSCRIPT_PATH=");
-		lstrcat(cgiEnvString,data->scriptpath);
-	}
+
+	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
+	lstrcat(cgiEnvString,td->scriptFile);
+
+	lstrcat(cgiEnvString,"\rSCRIPT_PATH=");
+	lstrcat(cgiEnvString,td->scriptPath);
+
+	lstrcat(cgiEnvString,"\rDOCUMENT_ROOT=");
+	lstrcat(cgiEnvString,lserver->getPath());
+
+	lstrcat(cgiEnvString,"\rDOCUMENT_URI=");
+	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
+
+	lstrcat(cgiEnvString,"\rSCRIPT_FILENAME=");
+	lstrcat(cgiEnvString,td->filenamePath);
+
+	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
+	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
+
 /*
 
 	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");

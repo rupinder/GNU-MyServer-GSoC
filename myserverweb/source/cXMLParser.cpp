@@ -52,7 +52,7 @@ char *cXMLParser::getValue(char* vName)
  		if(buffer[i]=='<')
 		{
 			/*
-			*If there is a comment go to end of this
+			*If there is a comment go to end of this.
 			*/
 			if(buffer[i+1]=='!')
 			if(buffer[i+2]=='-')
@@ -64,7 +64,7 @@ char *cXMLParser::getValue(char* vName)
 				continue;
 			}
 			/*
-			*If we arrive here this is not a comment
+			*If we arrive here this is not a comment.
 			*/
 			found=TRUE;
 			for(j=0;j<len;j++)

@@ -50,7 +50,8 @@ struct HTTP_REQUEST_HEADER
 	char ACCEPTLAN[64];	
 	char ACCEPTCHARSET[64];
 	char CONNECTION[32];
-	char USER_AGENT[192];
+	char USER_AGENT[128];
+	char COOKIE[300];
 	char CONTENTS_TYPE[12];
 	char CONTENTS_DIM[8];
 	char DATE[30];		
@@ -65,6 +66,7 @@ struct HTTP_REQUEST_HEADER
 	char OTHER[256];
 	char RANGETYPE[12];		
 	char RANGEBYTEBEGIN[10];
-	char RANGEBYTEEND[10];	
+	char RANGEBYTEEND[10];
+	int uriEndsWithSlash;
 }; 
 #endif

@@ -41,7 +41,6 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		if(td->request.URI[i]=='/')
 			nDirectories++;
 	}
-
 	for(startChar=0,i=0;td->request.URI[i];i++)
 	{
 		if(td->request.URI[i]=='/')
@@ -51,7 +50,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			{
 				/*
 				*At the end of the loop set startChar to te real value.
-				*startChar indicates the initial position in td->requet.URI 
+				*startChar indicates the initial position in td->request.URI 
 				*of the file path.
 				*/
 				startChar=i+1;
@@ -119,8 +118,11 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		if(fd.name[0]=='.')
 			continue;
 		lstrcat(td->buffer2,"<TR><TD><A HREF=\"");
-		lstrcat(td->buffer2,&td->request.URI[startChar]);
-		lstrcat(td->buffer2,"/");
+		if(!td->request.uriEndsWithSlash)
+		{
+			lstrcat(td->buffer2,&td->request.URI[startChar]);
+			lstrcat(td->buffer2,"/");
+		}
 		lstrcat(td->buffer2,fd.name);
 		lstrcat(td->buffer2,"\">");
 		lstrcat(td->buffer2,fd.name);
@@ -270,7 +272,57 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 
 	static char ext[MAX_PATH];
 	static char data[MAX_PATH];
+	/*
+	*td->filenamePath is the file system mapped path while filename is the URI requested.
+	*systemrequest is true if the file is in the system folder.
+	*/
 	getPath(td->filenamePath,filename,systemrequest);
+	
+
+	/*
+	*Get the PATH_INFO value.
+	*Use dirscan as a buffer for put temporary directory scan.
+	*When an '/' character is present check if the path up to '/' character
+	*is a file. If it is a file send the rest of the URI as PATH_INFO.
+	*/
+	char dirscan[MAX_PATH];
+	dirscan[0]='\0';
+	td->pathInfo[0]='\0';
+	td->pathTranslated[0]='\0';
+	for(int i=0;;i++)
+	{
+		/*
+		*http://127.0.0.1/uri/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
+		*When a request has this form send the file filetosend.php with the
+		*environment string PATH_INFO setted to PATH_INFO_VALUE and the QUERY_INFO one
+		*setted to QUERY_INFO_VALUE.
+		*/
+		int len=lstrlen(dirscan);
+		if((td->filenamePath)[i]==0)/*If we are at the end of the string break the loop*/
+			break;
+        else if((td->filenamePath)[i]!='/')/*If there is a character different from '/'*/
+		{
+			dirscan[len]=(td->filenamePath)[i];
+			dirscan[len+1]='\0';
+		}
+		else/*There is the '/' character check if dirscan is a file*/
+		{
+			if(!ms_IsFolder(dirscan))
+			{
+				/*
+				*Yes it is a file.
+				*/
+				lstrcpy(td->pathInfo,&((td->filenamePath)[i]));
+				lstrcpy(td->filenamePath,dirscan);
+				break;
+			}
+			/*
+			*If it is not a file put a the end of dirscan the '/' character for the next scansion.
+			*/
+			dirscan[len]=(td->filenamePath)[i];
+			dirscan[len+1]='\0';
+		}
+	}
 
 	/*
 	*If the client try to access files that aren't in the web folder send a 401 error.
@@ -302,7 +354,7 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 	/*
 	*getMIME return TRUE if the ext is registered by a CGI.
 	*/
-	int mimeCMD=getMIME(td->response.MIME,filename,ext,data);
+	int mimeCMD=getMIME(td->response.MIME,td->filenamePath,ext,data);
 
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
@@ -394,7 +446,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	/*
 	*Reset the request structure.
 	*/
-	ZeroMemory(&td.request,sizeof(td.request));
+	resetHTTPRequest(&td.request);
 
 	static int nLineControlled;
 	nLineControlled=0;
@@ -454,6 +506,10 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		token = strtok( NULL, seps );
 		lstrcpy(td.request.VER,token);
 		StrTrim(td.request.VER,"HTTP /");
+		if(td.request.URI[lstrlen(td.request.URI)-1]=='/')
+			td.request.uriEndsWithSlash=TRUE;
+		else
+			td.request.uriEndsWithSlash=FALSE;
 		StrTrim(td.request.URI," /");
 		StrTrim(td.request.URIOPTS," /");
 		if(lstrlen(td.request.URI)>max_URI)
@@ -560,6 +616,14 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		lineControlled=TRUE;
 		lstrcpy(td.request.CONNECTION,token);
 		StrTrim(td.request.CONNECTION," ");
+	}
+	/*Cookie*/
+	if(!lstrcmpi(command,"Cookie"))
+	{
+		token = strtok( NULL, "\n\r" );
+		lineControlled=TRUE;
+		lstrcpy(td.request.COOKIE,token);
+		StrTrim(td.request.COOKIE," ");
 	}
 	/*Connection*/
 	if(!lstrcmpi(command,"Content-Length"))
@@ -701,6 +765,40 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	return 1;
 }
 /*
+*Reset an HTTP_REQUEST_HEADER structure.
+*/
+VOID resetHTTPRequest(HTTP_REQUEST_HEADER *request)
+{
+	request->CMD[0]='\0';		
+	request->VER[0]='\0';		
+	request->ACCEPT[0]='\0';
+	request->AUTH[0]='\0';
+	request->ACCEPTENC[0]='\0';	
+	request->ACCEPTLAN[0]='\0';	
+	request->ACCEPTCHARSET[0]='\0';
+	request->CONNECTION[0]='\0';
+	request->USER_AGENT[0]='\0';
+	request->COOKIE[0]='\0';
+	request->CONTENTS_TYPE[0]='\0';
+	request->CONTENTS_DIM[0]='\0';
+	request->DATE[0]='\0';		
+	request->DATEEXP[0]='\0';	
+	request->MODIFIED_SINCE[0]='\0';
+	request->LAST_MODIFIED[0]='\0';	
+	request->URI[0]='\0';			
+	request->URIOPTS[0]='\0';		
+	request->URIOPTSPTR=NULL;		
+	request->REFERER[0]='\0';	
+	request->HOST[0]='\0';			
+	request->OTHER[0]='\0';
+	request->RANGETYPE[0]='\0';		
+	request->RANGEBYTEBEGIN[0]='\0';
+	request->RANGEBYTEEND[0]='\0';
+	request->uriEndsWithSlash=FALSE;
+}
+
+
+/*
 *Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure.
 */
 void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
@@ -812,7 +910,7 @@ BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 /*
 *Map an URL to the machine file system.
 */
-void getPath(char *filenamePath,char *filename,BOOL systemrequest)
+void getPath(char *filenamePath,const char *filename,BOOL systemrequest)
 {
 	if(systemrequest)
 	{
