@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/md5.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
+#include "../include/securestr.h"
 
 #undef min
 #define min( a, b )( ( a < b ) ? a : b  )
@@ -284,7 +285,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		strncpy(directory, td->filenamePath, directory_size);
+		myserver_strlcpy(directory, td->filenamePath, directory_size);
   }
 	else
   {
@@ -548,7 +549,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       td->filenamePath = 0;
       return sendHTTPhardError500(td, s);
     }
-		strncpy(directory, td->filenamePath, directory_len);
+		myserver_strlcpy(directory, td->filenamePath, directory_len);
   }
 	else
   {
@@ -613,8 +614,8 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 			((HttpUserData*)s->protocolBuffer)->digest_checked=1;
 			if(((HttpUserData*)s->protocolBuffer)->digest==1)
 			{
-				strncpy(s->getPassword(), 
-               ((HttpUserData*)s->protocolBuffer)->needed_password, 32);
+				myserver_strlcpy(s->getPassword(), 
+                         ((HttpUserData*)s->protocolBuffer)->needed_password, 32);
 
 				permissions=permissions2;
 			}
@@ -2169,10 +2170,11 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 				}
 				((HttpUserData*)(a->protocolBuffer))->reset();
 			}
-			strncpy(((HttpUserData*)a->protocolBuffer)->realm, td->request.HOST, 48);
+			myserver_strlcpy(((HttpUserData*)a->protocolBuffer)->realm, 
+                       td->request.HOST, 48);
 
 			/*! Just a random string. */
-			strncpy(&(md5_str[2]), td->request.URI, 256-2);
+			myserver_strlcpy(&(md5_str[2]), td->request.URI, 256-2);
 			md5_str[0]=(char)td->id;
 			md5_str[1]=(char)clock();
 			Md5 md5;
@@ -2273,7 +2275,8 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 		}
 	}
 	getRFC822GMTTime(td->response.DATEEXP, HTTP_RESPONSE_DATEEXP_DIM);
-	strncpy(td->response.ERROR_TYPE, HTTP_ERROR_MSGS[ID], HTTP_RESPONSE_ERROR_TYPE_DIM);
+	myserver_strlcpy(td->response.ERROR_TYPE, HTTP_ERROR_MSGS[ID], 
+                   HTTP_RESPONSE_ERROR_TYPE_DIM);
 	lenErrorFile=(u_long)strlen(((Vhost*)(a->host))->systemRoot)+
                               (u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
 	errorFile=new char[lenErrorFile];
@@ -2723,7 +2726,7 @@ char* Http::registerName(char* out, int len)
 {
 	if(out)
 	{
-		strncpy(out, "HTTP", len);
+		myserver_strlcpy(out, "HTTP", len);
 	}
 	return "HTTP";
 }
