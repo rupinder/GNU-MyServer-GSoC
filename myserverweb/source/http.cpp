@@ -677,13 +677,12 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 	}
 	if(MYSERVER_FILE::fileExists(td->filenamePath))
 	{
-		/*!
-		*If the file exists update it.
-		*/
+		/*! If the file exists update it.  */
 		MYSERVER_FILE file;
 		if(!file.openFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_WRITE))
 		{
-			return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
+			/*! Return an internal server error.  */
+                        return raiseHTTPError(td,s,e_500);
 		}
 		file.setFilePointer(firstByte);
 		for(;;)
