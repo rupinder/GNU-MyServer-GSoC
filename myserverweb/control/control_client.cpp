@@ -364,6 +364,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
 
    int ret1, ret2;
    int len, pos;
+   int bites;
    Buffer.SetLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
@@ -379,7 +380,8 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
    pos = 0;
    while(pos < len)
      {
-	ret2 = socket.send((const char *)&data[pos], 1024, 0);
+	bites = (len - pos < 1024 ? len - pos : 1024);
+	ret2 = socket.send((const char *)&data[pos], bites, 0);
 	if(ret2 == -1)
 	  break;
 	pos += ret2;
