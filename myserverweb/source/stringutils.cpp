@@ -311,7 +311,7 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
  *	        StrTrim(str,trim);
  *result:	  str="ow World"
  *'w', 'W' and the last 'l' aren't removed because they aren't 
- *attacked to the head or tail of the string
+ *attached to the head or tail of the string
  */
 
 void StrTrim(char* str, char* trimchars)
@@ -320,17 +320,16 @@ void StrTrim(char* str, char* trimchars)
 	char *trimptr=trimchars;
 	
 	/*!
-   *Here we trim the characters of the head of the string.
-   *Just cycle through the trimchars and compare,
-   *if we find one char in the str, reset it and increment 
-   *the str to check the next char, also set the trimchars to the beggining.
-   *The first time it fails to finds a char in the str, it just leaves.
-   */
+	*Here we trim the characters of the head of the string.
+	*Just cycle through the trimchars and compare,
+	*if we find one char in the str, increment the str to check the next char,
+	*also set the trimchars to the beggining.
+	*The first time it fails to finds a char in the str, it just leaves.
+	*/
 	while(*trimptr && *strptr)
 	{
 		if(*strptr==*trimptr)
 		{
-			*strptr=0;
 			strptr++;
 			trimptr=trimchars;
 			continue;
@@ -341,56 +340,60 @@ void StrTrim(char* str, char* trimchars)
 	trimptr=trimchars;
 	
 	/*!
-   *Here we push the string back to occupy the potencial empty 
-   *spaces created at the begining of the string.
-   *But if no 'holes' were created (if(str!=strptr)) we avoid this 
-   *time consuming task.
-   */
-	if(str!=strptr)
+	*Here we push the string back to occupy the potencial
+	*empty spaces created at the begining of the string.
+	*If the string was completly trimmed (if(!(*strptr))),
+	*just return an empty string. 
+	*But if no 'holes' were created (!if(str!=strptr)) we move
+	*the pointer to the tail of the string to check there now.
+	*/
+	if(str!=strptr)			//Holes were created
 	{
+		if(!(*strptr))
+		{
+			*str=0;
+			return;
+		}
 		while(*strptr)
 		{
 			*str=*strptr;
 			str++;
 			strptr++;
 		}
+	}else					//No holes were created
+	{
+		while(*str)
+			str++;
 	}
 	
 	/*!
-   *Now str-1 is exactly at the end of the string, we'll start trim from 
-   *there then. Unless, str is null, wich means that the str was intirely 
-   *trimed already(we have an empty string), so triming the rest would be 
-   *pointless and 'str--;' would actually access invalid memory.
-   */
-	if(str)
+	*Now str-1 is exactly at the end of the string, we'll start trim from
+	*there then.
+	*/
+	str--;
+	/*!
+	*Here we trim the characters of the tail of the string.
+	*Just cycle through the trimchars and compare,
+	*if we find one char in the str, reset it and decrement the str to
+	*check the previous char, also set the trimchars to the beggining.
+	*The first time it fails to finds a char in the str, it just leaves.
+	*Note: Here i only check *trimptr in the while and not *str,
+	*that's because i know there is at least one character in there that
+	*isn't on trimchars, the character that stoped the first trim up there,
+	*so that character will allways be reach before NULL.
+	*/
+	while(*trimptr)
 	{
-		*str=0;		/*! Null terminating the string, since it's now shorter. */
-		str--;
-		/*!
-     *Here we trim the characters of the tail of the string.
-     *Just cycle through the trimchars and compare,
-     *if we find one char in the str, reset it and decrement the str 
-     *to check the previous char, also set the trimchars to the beggining.
-     *The first time it fails to finds a char in the str, it just leaves.
-     *Note: Here i only check *trimptr in the while and not *str,
-     *that's because i know there is at least one character in there that 
-     isn't on trimchars, the character that stoped the first trim up there, 
-     *so that character will allways be reach before NULL.
-     */
-		while(*trimptr)
+		if(*str==*trimptr)
 		{
-			if(*str==*trimptr)
-			{
-				*str=0;
-				str++;
-				trimptr=trimchars;
-				continue;
-			}
-			trimptr++;
+			str--;
+			trimptr=trimchars;
+			continue;
 		}
-	}	
+		trimptr++;
+	}
+	*(str+1)=0;				//Now to finish up
 }
-
 
 /*!
  *Set the buffer passed to the next line.
