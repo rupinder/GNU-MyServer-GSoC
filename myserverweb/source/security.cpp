@@ -200,9 +200,9 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions|=MYSERVER_PERMISSION_DELETE;
 				}
-				if(!strcmpi((const char*)attr->name,"NAME"))
+				if(!lstrcmpi((const char*)attr->name,"NAME"))
 				{
-					if(!strcmpi((const char*)attr->children->content,user))
+					if(!lstrcmpi((const char*)attr->children->content,user))
 						rightUser=1;
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
@@ -252,9 +252,9 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 								tempUserPermissions|=MYSERVER_PERMISSION_DELETE;
 						}
-						if(!strcmpi((const char*)attr->name,"NAME"))
+						if(!lstrcmpi((const char*)attr->name,"NAME"))
 						{
-							if(!strcmpi((const char*)attr->children->content,user))
+							if(!lstrcmpi((const char*)attr->children->content,user))
 								rightUser=1;
 						}
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
@@ -298,7 +298,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
 				{
-					if(!strcmpi((const char*)attr->children->content,filename))
+					if(!lstrcmpi((const char*)attr->children->content,filename))
 					{					
 						filePermissionsFound=1;
 						if(userPermissionsFound==2)
