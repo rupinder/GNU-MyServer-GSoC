@@ -372,13 +372,13 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
                                             &td->response);
 			if(td->connection->socket.send( (char*)td->buffer2->GetBuffer(),
                                       (int)strlen((char*)td->buffer2->GetBuffer()),
-                                      0) == 0 )
+                                      0) == SOCKET_ERROR )
 			{
 				exit = 1;
 				break;
 			}
 			if(td->connection->socket.send((char*)(((char*)td->buffer->GetBuffer())
-                                             +headerSize), nbr - headerSize, 0)==0)
+                                     +headerSize), nbr - headerSize, 0)==SOCKET_ERROR)
 			{
 				exit = 1;
 				break;
@@ -411,7 +411,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 			
 			if(!td->appendOutputs)
 			{
-				if(td->connection->socket.send((char*)td->buffer->GetBuffer(),nbr, 0)==0)
+				if(td->connection->socket.send((char*)td->buffer->GetBuffer(),nbr, 0)
+                                      ==SOCKET_ERROR)
         {
           exit=1;
 					break;

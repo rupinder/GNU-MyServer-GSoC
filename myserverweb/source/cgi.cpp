@@ -476,15 +476,17 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
 
 			if(s->socket.send((char*)td->buffer->GetBuffer(),
-                        (int)(td->buffer->GetLength()), 0))
+                        (int)(td->buffer->GetLength()), 0)==SOCKET_ERROR)
       {
+        delete [] cmdLine;
         /*! Remove the connection on sockets error. */
         return 0;
       }
 
 			if(s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize), 
-                        nBytesRead-headerSize, 0))
+                        nBytesRead-headerSize, 0)==SOCKET_ERROR)
       {
+        delete [] cmdLine;
         /*! Remove the connection on sockets error. */
         return 0;       
       }
