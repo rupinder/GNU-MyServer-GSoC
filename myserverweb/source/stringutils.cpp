@@ -334,9 +334,9 @@ void StrTrim(char* str, const char* trimchars)
 *Set the buffer passed to the next line.
 *A new line is the first character after \n.
 */
-void gotoNextLine(char* cmd)
+void gotoNextLine(char** cmd)
 {
-	while(*cmd++!='\n')if(*cmd=='\0')break;
+	while(*(*cmd++)!='\n')if(**cmd=='\0')break;
 
 }
 
