@@ -218,7 +218,7 @@ void configurationFrameVHOSTS::addHost(wxCommandEvent& event)
 {
 	wxString host=wxGetTextFromUser("Insert the name of the host","Add a new host","",this);
 	if(currentVHost)
-		currentVHost->addHost((char*)(host.ToAscii()));
+		currentVHost->addHost((char*)(host.ToAscii()), 0);
 	hostsLB->Append(host);
 }
 void configurationFrameVHOSTS::addIP(wxCommandEvent& event)

@@ -54,6 +54,7 @@ public:
 	struct sHostList
 	{
 		char hostName[MAX_COMPUTERNAME_LENGTH+1];
+    myserver_regex hostRegex;
 		sHostList *next;
 	};
 	/*! List of hosts allowed by the vhost.  */
@@ -128,7 +129,7 @@ public:
 	
 	vhost();
 	void addIP(char *, int);
-	void addHost(char *);
+	void addHost(char *, int);
 	void removeIP(char *);
 	void removeHost(char *);
 	int areAllHostAllowed();

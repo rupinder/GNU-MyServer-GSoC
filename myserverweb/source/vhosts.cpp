@@ -75,6 +75,7 @@ void vhost::clearHostList()
 	sHostList* prevshl=0;
 	while(shl)
 	{
+    prevshl->hostRegex.free();
 		if(prevshl)
 			delete prevshl;
 		prevshl=shl;
@@ -148,12 +149,14 @@ void vhost::removeIP(char *ip)
 			if(iteratorBack)
 			{
 				iteratorBack->next = iterator->next;
+         iterator->ipRegex.free();
 				delete iterator;
 				return;
 			}
 			else
 			{
 				ipList = iterator->next;
+         iterator->ipRegex.free();
 				delete iterator;
 				return;
 			}
@@ -182,12 +185,14 @@ void vhost::removeHost(char *host)
 			if(iteratorBack)
 			{
 				iteratorBack->next =iterator->next;
+         iterator->hostRegex.free();
 				delete iterator;
 				return;
 			}
 			else
 			{
 				hostList=iterator->next;
+         iterator->hostRegex.free();
 				delete iterator;
 				return;
 			}
@@ -206,6 +211,14 @@ int vhost::isHostAllowed(char* host)
 	sHostList *lhl = hostList;
 	while(lhl)
 	{
+    if(lhl->hostRegex.isCompiled())
+    {
+      regmatch_t pm;
+      if (!lhl->hostRegex.exec(host ,1, &pm, REG_NOTBOL))
+      {
+        return 1;
+      }
+    }
 		if(!strcmp(host,lhl->hostName))
 			return 1;
 		lhl = lhl->next;
@@ -258,12 +271,14 @@ int vhost::isIPAllowed(char* ip)
 /*!
 *Add an host to the allowed host list
 */
-void vhost::addHost(char *host)
+void vhost::addHost(char *host, int isRegex)
 {
 	sHostList* hl=new sHostList();
-        if(hl==0)
-            return;
+  if(hl==0)
+    return;
 	strcpy(hl->hostName,host);
+  if(isRegex)
+    hl->hostRegex.compile(host, REG_EXTENDED);
 	if(hostList)
 	{
 		hl->next =hostList;
@@ -515,7 +530,7 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 				cc++;
 			}
 			if(buffer2[0]&&buffer2[0]!='0')/*!If the host list is equal to 0 don't add anything to the list*/
-				vh->addHost(buffer2);
+				vh->addHost(buffer2, 0);
 			if(buffer[cc]==';')
 				break;
 			cc++;
@@ -788,14 +803,28 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			continue;
 		xmlNodePtr lcur=node->children;
 		vhost *vh=new vhost();
-                if(vh==0)
+     if(vh==0)
 			return;        
 		memset(vh,0,sizeof(vh));
 		while(lcur)
 		{
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
 			{
-				vh->addHost((char*)lcur->children->content);
+        int useRegex = 0;
+        xmlAttr *attrs = lcur->properties;
+        while(attrs)
+        {
+            if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
+            {
+              if(attrs->children && attrs->children->content && 
+                 (!xmlStrcmp(attrs->children->content, (const xmlChar *)"YES")))
+              {
+                useRegex = 1;
+              }
+            }
+            attrs=attrs->next;
+        }
+			  vh->addHost((char*)lcur->children->content, useRegex);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
 			{
