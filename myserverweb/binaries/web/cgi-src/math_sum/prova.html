@@ -1,0 +1,11 @@
+<p><input type="text" name="T1" size="20"></p>
+</p> <input type="text" name="T2" size="20"></p>
+<p><input type="button" value="Calcola!" onclick="javascript:send()" name="B3"></p>
+<SCRIPT LANGUAGE="JavaScript">
+function send()
+{
+
+	var url="math_sum.cgi?" + T1.value + "+" + T2.value;
+	window.location.assign(url);
+}	
+</SCRIPT>

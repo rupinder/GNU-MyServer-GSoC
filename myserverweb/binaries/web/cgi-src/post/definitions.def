@@ -1,0 +1,4 @@
+LIBRARY post
+EXPORTS 
+	initialize
+	main

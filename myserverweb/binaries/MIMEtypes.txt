@@ -1,0 +1,8 @@
+html,text/html,NONE;
+htm,text/html,NONE;
+gif,image/gif,NONE;
+jpg,image/jpeg,NONE;
+jpeg,image/jpeg,NONE;
+xml,text/xml,NONE;
+txt,text/html,NONE;
+mp3,sound/mp3,NONE;

@@ -1,0 +1,46 @@
+#pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
+#include <stdio.h>
+#include <windows.h>
+#include "..\..\..\cgi-lib\cgi_manager.h"
+int EXPORTABLE main (char* cmd)
+{
+    cgi_manager cm;
+    cm.Start();
+    if(lstrlen(cmd)==0)
+    {
+
+	cm.Write("<p><input type=\"text\" name=\"T1\" size=\"20\"></p></p> <input type=\"text\" name=\"T2\" size=\"20\"></p><p><input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\"></p><SCRIPT LANGUAGE=\"JavaScript\">function send(){var url=\"math_sum.mscgi?a=\" + T1.value + \"&b=\" + T2.value;window.location.assign(url);}</SCRIPT>");
+
+    }
+    else
+    {
+	int i=0;
+	char a[16];
+	char b[16];
+	char c[16];
+	a[0]=b[0]=c[0]=0;
+	lstrcpy(a,cm.GetParam("a"));
+	lstrcpy(b,cm.GetParam("b"));
+    	cm.Write(a);
+    	cm.Write(" + ");
+    	cm.Write(b);
+    	cm.Write(" = ");
+	sprintf(c,"%i",atoi(a)+atoi(b));
+    	cm.Write(c);
+    }
+    cm.Clean();
+    return 0;
+}
+
+BOOL APIENTRY DllMain( HANDLE,DWORD ul_reason_for_call,LPVOID)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+    return TRUE;
+}
