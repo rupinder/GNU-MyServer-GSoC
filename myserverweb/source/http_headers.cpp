@@ -56,10 +56,10 @@ extern "C" {
 void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* response)
 {
 	/*!
-	*Here is builded the HEADER of a HTTP response.
-	*Passing a HttpResponseHeader struct this builds an header string.
-	*Every directive ends with a \r\n sequence.
-	*/
+   *Here is builded the HEADER of a HTTP response.
+   *Passing a HttpResponseHeader struct this builds an header string.
+   *Every directive ends with a \r\n sequence.
+   */
 	if(response->httpStatus!=200)
 	{
 		if(response->ERROR_TYPE.length() == 0)
@@ -69,8 +69,9 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 				response->ERROR_TYPE.assign(HTTP_ERROR_MSGS[errID], 
                                     HTTP_RESPONSE_ERROR_TYPE_DIM);
 		}
-		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER.c_str(),response->httpStatus, 
-            response->ERROR_TYPE.c_str() ,response->ERROR_TYPE.c_str() );
+		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER.c_str(),
+            response->httpStatus, response->ERROR_TYPE.c_str(), 
+            response->ERROR_TYPE.c_str() );
 	}
 	else
 		sprintf(str,"%s 200 OK\r\n",response->VER.c_str());
@@ -78,48 +79,48 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	if(response->SERVER_NAME.length())
 	{
 		strcat(str,"Server: ");
-		strcat(str,response->SERVER_NAME.c_str());
+		strcat(str, response->SERVER_NAME.c_str());
 		strcat(str,"\r\n");
 	}
 	if(response->CACHE_CONTROL.length())
 	{
 		strcat(str,"Cache-Control: ");
-		strcat(str,response->CACHE_CONTROL.c_str());
+		strcat(str, response->CACHE_CONTROL.c_str());
 		strcat(str,"\r\n");
 	}
 	if(response->LAST_MODIFIED.length())
 	{
 		strcat(str,"Last-Modified: ");
-		strcat(str,response->LAST_MODIFIED.c_str());
+		strcat(str, response->LAST_MODIFIED.c_str());
 		strcat(str,"\r\n");
 	}
 	if(response->CONNECTION.length())
 	{
 		strcat(str,"Connection: ");
-		strcat(str,response->CONNECTION.c_str());
-		strcat(str,"\r\n");
+		strcat(str, response->CONNECTION.c_str());
+		strcat(str, "\r\n");
 	}
 	else
 	{
-		strcat(str,"Connection: Close\r\n");
+		strcat(str, "Connection: Close\r\n");
 	}
 	if(response->TRANSFER_ENCODING.length())
 	{
-		strcat(str,"Transfer-Encoding: ");
-		strcat(str,response->TRANSFER_ENCODING.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "Transfer-Encoding: ");
+		strcat(str, response->TRANSFER_ENCODING.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->CONTENT_ENCODING.length())
 	{
-		strcat(str,"Content-Encoding: ");
-		strcat(str,response->CONTENT_ENCODING.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "Content-Encoding: ");
+		strcat(str, response->CONTENT_ENCODING.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->CONTENT_RANGE.length())
 	{
-		strcat(str,"Content-Range: ");
-		strcat(str,response->CONTENT_RANGE.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "Content-Range: ");
+		strcat(str, response->CONTENT_RANGE.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->CONTENT_LENGTH.length())
 	{
@@ -129,9 +130,9 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		*/
 		if(response->TRANSFER_ENCODING.find("chunked",0) == string::npos )
 		{
-			strcat(str,"Content-Length: ");
-			strcat(str,response->CONTENT_LENGTH.c_str());
-			strcat(str,"\r\n");
+			strcat(str, "Content-Length: ");
+			strcat(str, response->CONTENT_LENGTH.c_str());
+			strcat(str, "\r\n");
 		}
 	}
 	if(response->COOKIE.length())
@@ -143,70 +144,70 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
       int len = getCharInString(token, "\n", max);
       if(len == -1)
         break;
-			strcat(str,"Set-Cookie: ");
+			strcat(str, "Set-Cookie: ");
 			strncat(str,token, len);
-			strcat(str,"\r\n");		
+			strcat(str, "\r\n");		
 			token=strtok(NULL,"\n");
 		}while(token);
 	}
 	if(response->P3P.length())
 	{
-		strcat(str,"P3P: ");
-		strcat(str,response->P3P.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "P3P: ");
+		strcat(str, response->P3P.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->MIMEVER.length())
 	{
-		strcat(str,"MIME-Version: ");
-		strcat(str,response->MIMEVER.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "MIME-Version: ");
+		strcat(str, response->MIMEVER.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->CONTENT_TYPE.length())
 	{
-		strcat(str,"Content-Type: ");
-		strcat(str,response->CONTENT_TYPE.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "Content-Type: ");
+		strcat(str, response->CONTENT_TYPE.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->DATE.length())
 	{
-		strcat(str,"Date: ");
-		strcat(str,response->DATE.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "Date: ");
+		strcat(str, response->DATE.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->DATEEXP.length())
 	{
-		strcat(str,"Expires: ");
-		strcat(str,response->DATEEXP.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "Expires: ");
+		strcat(str, response->DATEEXP.c_str());
+		strcat(str, "\r\n");
 	}
 	if(response->AUTH.length())
 	{
-		strcat(str,"WWW-Authenticate: ");
-		strcat(str,response->AUTH.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "WWW-Authenticate: ");
+		strcat(str, response->AUTH.c_str());
+		strcat(str, "\r\n");
 	}
 	
 	if(response->LOCATION.length())
 	{
-		strcat(str,"Location: ");
-		strcat(str,response->LOCATION.c_str());
-		strcat(str,"\r\n");
+		strcat(str, "Location: ");
+		strcat(str, response->LOCATION.c_str());
+		strcat(str, "\r\n");
 	}
 
 	if(response->OTHER.length())
 	{
-		strcat(str,response->OTHER.c_str());
+		strcat(str, response->OTHER.c_str());
 	}
 
 	/*!
 	*MyServer supports the bytes range.
 	*/
-	strcat(str,"Accept-Ranges: bytes\r\n");
+	strcat(str, "Accept-Ranges: bytes\r\n");
   
 	/*!
 	*The HTTP header ends with a \r\n sequence.
 	*/
-	strcat(str,"\r\n\0\0\0\0\0");
+	strcat(str, "\r\n\0\0\0\0\0");
 }
 /*!
  *Set the defaults value for a HttpResponseHeader structure.
@@ -533,8 +534,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(!lstrcmpi(command,"User-Agent"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_USER_AGENT_DIM);
-						
-			if(tokenOff==-1)return 0;
+      if(tokenOff==-1)return 0;
 			lineControlled=1;
 			request->USER_AGENT.assign(token,tokenOff+1);
 		}else

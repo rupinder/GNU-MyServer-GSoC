@@ -48,7 +48,7 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
 	int ret=0;
 	ret = hinstLib.loadLibrary(filename);
 
-	if(!ret)
+	if(ret)
 	{
     char *log_str = new char[strlen(languageParser->getValue("ERR_LOADED")) +
                              strlen(filename) +2 ];
@@ -62,10 +62,14 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
   Proc = (loadProtocolPROC) hinstLib.getProc( "loadProtocol"); 
 	
 	if(Proc)
-		ret = (Proc((void*)languageParser,confFile,(void*)lserver));
-	if(ret)
-		ret = registerName(protocolName,16)[0] != '\0' ? 1 : 0 ;
-	return ret;
+  {
+    ret = registerName(protocolName,16)[0] != '\0' ? 1 : 0 ;
+ 		if(ret)
+      ret = (Proc((void*)languageParser,confFile,(void*)lserver));
+	}
+  else
+    ret = 0;
+  return ret;
 }
 
 /*!

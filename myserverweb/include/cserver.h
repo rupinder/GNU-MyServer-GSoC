@@ -185,7 +185,7 @@ public:
 	void stop();
 	void finalCleanup();
 	int terminate();
-  int logWriteln(char*);
+  int logWriteln(const char*);
   int logPreparePrintError();
   int logEndPrintError();  
   int logLockAccess();

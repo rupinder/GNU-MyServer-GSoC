@@ -113,7 +113,7 @@ u_long LogManager::setMaxSize(u_long nMax)
  *Write the string to the log plus termination character[s].
  *Returns 0 on success.
  */
-int LogManager::writeln(char *str)
+int LogManager::writeln(const char *str)
 {
   int ret = write(str);
 #ifdef WIN32
@@ -130,7 +130,7 @@ int LogManager::writeln(char *str)
  *Write the string to the log.
  *Returns 0 on success.
  */
-int LogManager::write(char *str, int len)
+int LogManager::write(const char *str, int len)
 {
   int ret;
   if(type == TYPE_CONSOLE)

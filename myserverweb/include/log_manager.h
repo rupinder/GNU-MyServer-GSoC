@@ -50,8 +50,8 @@ public:
   int endPrintError();
   void setType( int );
   int getType();
-  int write( char *str, int len = 0 );
-  int writeln(char *);
+  int write( const char *str, int len = 0 );
+  int writeln(const char *);
   int getLogSize();
 };
 #endif

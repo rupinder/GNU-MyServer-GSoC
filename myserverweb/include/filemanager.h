@@ -47,7 +47,7 @@ public:
 	FileHandle getHandle();
 	int setHandle(FileHandle);
 	int readFromFile(char* ,u_long ,u_long* );
-	int writeToFile(char* ,u_long ,u_long* );
+	int writeToFile(const char* ,u_long ,u_long* );
 	int createTemporaryFile(char* );
 	int openFile(char*, u_long );
 	u_long getFileSize();
