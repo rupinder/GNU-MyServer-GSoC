@@ -373,10 +373,11 @@ int hexToInt(const char *str)
 
 
 #ifdef __linux__
-void strupr(char * string)
+char* strupr(char * string)
 {
     unsigned int len = strlen(string);
     for(unsigned int i = 0; i < len; i++)
        string[i] = toupper(string[i]);
+    return string;
 }
 #endif
