@@ -70,8 +70,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 	u_long gzip_dataused=0;
 	u_long dataSent=0;
 
-	ret  = h.openFile(filenamePath, File::OPEN_IFEXISTS | 
-                   File::OPEN_READ);
+	ret  = h.openFile(filenamePath, FILE_OPEN_IFEXISTS | 
+                   FILE_OPEN_READ);
 	if(ret)
 	{	
 		return 0;

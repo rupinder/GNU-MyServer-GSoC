@@ -196,8 +196,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath,
-                         File::OPEN_READ | File::OPEN_ALWAYS | 
-                            File::NO_INHERIT))
+                         FILE_OPEN_READ | FILE_OPEN_ALWAYS | 
+                            FILE_NO_INHERIT))
   {
     delete [] fullpath;
 		td->buffer->SetLength(0);
@@ -358,9 +358,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	getdefaultwd(outDataPath, outDataPathLen);
 	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFcgi%u",(u_int)td->id);
 	
-	if(con.tempOut.openFile(outDataPath,File::OPEN_WRITE | 
-                          File::OPEN_READ | File::CREATE_ALWAYS |
-                          File::NO_INHERIT))
+	if(con.tempOut.openFile(outDataPath,FILE_OPEN_WRITE | 
+                          FILE_OPEN_READ | FILE_CREATE_ALWAYS |
+                          FILE_NO_INHERIT))
   {
     td->inputData.closeFile();
 		File::deleteFile(td->inputDataPath);

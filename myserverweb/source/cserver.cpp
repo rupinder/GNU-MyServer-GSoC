@@ -967,7 +967,7 @@ int Server::initialize(int /*!os_ver*/)
 		File inputF;
 		File outputF;
 		ret = inputF.openFile("myserver.xml.default", 
-                              File::OPEN_READ|File::OPEN_IFEXISTS);
+                              FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -975,8 +975,8 @@ int Server::initialize(int /*!os_ver*/)
 			logEndPrintError();
 			return -1;
 		}
-		ret = outputF.openFile("myserver.xml", File::OPEN_WRITE | 
-                     File::OPEN_ALWAYS);
+		ret = outputF.openFile("myserver.xml", FILE_OPEN_WRITE | 
+                     FILE_OPEN_ALWAYS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1527,8 +1527,8 @@ int Server::loadSettings()
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 		File inputF;
 		File outputF;
-    ret=inputF.openFile("MIMEtypes.xml.default", File::OPEN_READ|
-                        File::OPEN_IFEXISTS);
+    ret=inputF.openFile("MIMEtypes.xml.default", FILE_OPEN_READ|
+                        FILE_OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1536,8 +1536,8 @@ int Server::loadSettings()
 			logEndPrintError();	
 			return -1;
 		}
-		ret = outputF.openFile("MIMEtypes.xml", File::OPEN_WRITE|
-                           File::OPEN_ALWAYS);
+		ret = outputF.openFile("MIMEtypes.xml", FILE_OPEN_WRITE|
+                           FILE_OPEN_ALWAYS);
     if(ret)
       return -1;
 
@@ -1631,8 +1631,8 @@ int Server::loadSettings()
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 		File inputF;
 		File outputF;
-		ret = inputF.openFile("virtualhosts.xml.default", File::OPEN_READ | 
-                              File::OPEN_IFEXISTS );
+		ret = inputF.openFile("virtualhosts.xml.default", FILE_OPEN_READ | 
+                              FILE_OPEN_IFEXISTS );
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1641,7 +1641,7 @@ int Server::loadSettings()
 			return -1;
 		}
 		ret = outputF.openFile("virtualhosts.xml", 
-                           File::OPEN_WRITE|File::OPEN_ALWAYS);
+                           FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
     if(ret)
       return -1;
     for(;;)

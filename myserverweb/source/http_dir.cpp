@@ -113,8 +113,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
             "/stdOutFile_%u", (u_int) td->id);
 		ret = td->outputData.openFile(td->outputDataPath, 
-                     File::CREATE_ALWAYS |File::OPEN_READ |
-                                  File::OPEN_WRITE);
+                     FILE_CREATE_ALWAYS |FILE_OPEN_READ |
+                                  FILE_OPEN_WRITE);
 		if(ret)
 		{
 			/*! Return an internal server error.  */
@@ -164,8 +164,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	if(browseDirCSSpath != 0)
 	{
 		File cssHandle;
-		ret=cssHandle.openFile(browseDirCSSpath, File::OPEN_IFEXISTS | 
-                           File::OPEN_READ);
+		ret=cssHandle.openFile(browseDirCSSpath, FILE_OPEN_IFEXISTS | 
+                           FILE_OPEN_READ);
 		if(ret == 0)
 		{
 			u_long nbr;

@@ -41,7 +41,7 @@ int MimeManager::load(char *filename)
 	numMimeTypesLoaded=0;
 	char *buffer;
 	File f;
-	int ret=f.openFile(filename,File::OPEN_READ|File::OPEN_IFEXISTS);
+	int ret=f.openFile(filename,FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 	if(ret)
 		return 0;
 	u_long fs=f.getFileSize();
@@ -253,7 +253,7 @@ int MimeManager::saveXML(char *filename)
 	File::deleteFile(filename);
 	File f;
 	u_long nbw;
-	f.openFile(filename,File::OPEN_WRITE|File::OPEN_ALWAYS);
+	f.openFile(filename,FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
 	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
 	mime_record *rc=data;
@@ -307,7 +307,7 @@ int MimeManager::save(char *filename)
 {
 	File::deleteFile(filename);
 	File f;
-	f.openFile(filename,File::OPEN_WRITE|File::OPEN_ALWAYS);
+	f.openFile(filename,FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	MimeManager::mime_record *nmr1;
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )

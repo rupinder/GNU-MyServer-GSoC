@@ -47,7 +47,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	if(File::fileExists("count.dat"))
 	{
 		// read the last number
-		if(msfile.openFile("count.dat", File::OPEN_READ|File::OPEN_IFEXISTS) == 0)
+		if(msfile.openFile("count.dat", FILE_OPEN_READ|FILE_OPEN_IFEXISTS) == 0)
 		{
 			msfile.readFromFile((char *)&count, sizeof(count), &nbw);
 			msfile.closeFile();
@@ -61,7 +61,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 			count = 1;
 			
 		//now save it
-		if(msfile.openFile("count.dat", File::OPEN_WRITE|File::OPEN_ALWAYS)==0)
+		if(msfile.openFile("count.dat", FILE_OPEN_WRITE|FILE_OPEN_ALWAYS)==0)
 		{
 		  msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		  msfile.closeFile();
@@ -73,7 +73,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 		count = 1;
 		
 		//now save it
-		msfile.openFile("count.dat", File::OPEN_WRITE|File::CREATE_ALWAYS);
+		msfile.openFile("count.dat", FILE_OPEN_WRITE|FILE_CREATE_ALWAYS);
 		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		msfile.closeFile();
 	}
