@@ -106,6 +106,7 @@ void * startClientsTHREAD(void* pParam)
 void ClientsTHREAD::controlConnections()
 {
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
+	c->parsing=1;
 	if(!c)
 		return;
 	if(c->check_value!=CONNECTION::check_value_const)
@@ -117,6 +118,7 @@ void ClientsTHREAD::controlConnections()
 		if(err==-1)
 		{
 			lserver->deleteConnection(c,this->id);
+			c->parsing=0;
 			return;
 		}
 		if((c->dataRead+err)<KB(8))
@@ -126,6 +128,7 @@ void ClientsTHREAD::controlConnections()
 		else
 		{
 			lserver->deleteConnection(c,this->id);
+			c->parsing=0;
 			return;
 		}
 		memcpy(buffer,c->connectionBuffer,c->dataRead);
@@ -161,6 +164,7 @@ void ClientsTHREAD::controlConnections()
 		if(retcode==0)
 		{
 			lserver->deleteConnection(c,this->id);
+			c->parsing=0;
 			return;
 		}
 		else if(retcode==1)
@@ -190,10 +194,11 @@ void ClientsTHREAD::controlConnections()
 		if((clock()- c->timeout) > lserver->connectionTimeout)
 		{
 			lserver->deleteConnection(c,this->id);
+			c->parsing=0;
 			return;
 		}
 	}
-
+	c->parsing=0;
 }
 /*
 *Stop the thread

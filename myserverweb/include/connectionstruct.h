@@ -38,6 +38,7 @@ struct CONNECTION
 public:
 	const static int check_value_const=0x20;
 	int check_value;
+	int parsing;
 	char login[20];	
 	char password[32];
 	char nTries;	

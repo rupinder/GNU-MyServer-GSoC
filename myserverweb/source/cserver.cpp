@@ -840,12 +840,13 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 {
 	if(!s)
 		return 0;
+	while(s->parsing);/*Do not remove the connection while it is parsed*/
 	requestAccess(&connectionWriteAccess,id);
 	int ret=0,err;
 	/*
 	*First of all close the socket communication.
 	*/
-	s->socket.shutdown(SD_BOTH );
+	s->socket.shutdown(SD_BOTH);
 	char buffer[256];
 	int buffersize=256;
 	do
