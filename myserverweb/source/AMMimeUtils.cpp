@@ -31,8 +31,18 @@ extern "C" {
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
 char* strustr(char *source, char *s)
 {
-	char *csource = strdup(source);
-	char *cs = strdup(s);
+
+	char *csource=new char[strlen(source)+1];
+  if(csource == 0)
+    return 0;
+	char *cs = new char[strlen(s)+1];
+  if(cs==0)
+  {
+    delete [] csource;
+    return 0;
+  }
+  strcpy(csource, source);
+  strcpy(cs, s);
 	strupr(csource);
 	strupr(cs);
 	char *result = strstr(csource, cs);
@@ -42,8 +52,8 @@ char* strustr(char *source, char *s)
 		result = source;
 		result += pos;
 	}
-	free(csource);
-	free(cs);
+	delete [] csource;
+	delete [] cs;
 	return result;
 }
 /*!
@@ -184,7 +194,7 @@ char* MimeDecodeMailHeaderField(char *s)
 	if (strupos(s1, "=?") > 0)
 	{
 		int startendpos =(int)strupos(s1, "=?");
-		start = (char*)malloc((startendpos + 1) * sizeof(char));
+		start = new char[startendpos + 1];
 		strncpy(start, s, startendpos);
 		start[startendpos] = '\0';
 		s1 += startendpos;
@@ -209,7 +219,7 @@ char* MimeDecodeMailHeaderField(char *s)
 			s1[plainpos] = '\0';
 			if (strlen(mid) > 0)
 			{
-				rest = (char*)malloc(strlen(mid) + sizeof(char));
+				rest = new char[strlen(mid) + 1];
 				strcpy(rest, mid);
 			}
 		}
@@ -241,14 +251,14 @@ char* MimeDecodeMailHeaderField(char *s)
 		s[0] = '\0';
 		if (start != NULL)
 		{
-			myserver_strlcat(s, start,sizeof(s));
+			strcat(s, start);
 		}
-		myserver_strlcat(s, decodedText,sizeof(s));
-  		if (rest != NULL)
+		strcat(s, decodedText);
+  	if (rest != NULL)
 		{
-			myserver_strlcat(s, rest,sizeof(s));
+			strcat(s, rest);
 		}
-		free(decodedText);
+		delete [] decodedText;
 	}
 	return s;
 }

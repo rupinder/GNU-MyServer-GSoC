@@ -748,6 +748,8 @@ int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
  */
 int MYSERVER_FILE::completePath(char **fileName,int *size, int dontRealloc)
 {
+  if((fileName == 0) ||( *fileName==0))
+    return -1;
 #ifdef WIN32
   char *buffer;
   int bufferLen = strlen(*fileName) + 1;
@@ -807,7 +809,6 @@ int MYSERVER_FILE::completePath(char **fileName,int *size, int dontRealloc)
     }
     *size = bufferNewLen;
   }
-
  
   sprintf(*fileName, "%s/%s", getdefaultwd(0, 0), buffer );
   delete [] buffer;

@@ -291,11 +291,12 @@ void ClientsTHREAD::clean()
     wait(100);
   }
 	threadIsRunning=0;
-	buffer.Free();
-	buffer2.Free();
-	
 	delete http_parser;
 	delete https_parser;
+
+	buffer.Free();
+	buffer2.Free();
+
 	initialized=0;
 }
 

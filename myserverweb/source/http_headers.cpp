@@ -535,7 +535,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					td->connection->password[i]=*lbuffer2++;
 					td->connection->password[i+1]='\0';
 				}
-				free(keep_lbuffer2);
+				delete [] keep_lbuffer2;
 				tokenOff = getCharInString(token,"\r\n",HTTP_REQUEST_AUTH_DIM);
 			}
 			else if(!lstrcmpi(request->AUTH,"Digest"))
@@ -544,7 +544,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 				while(*token==' ')
 					token++;
 				tokenOff = getCharInString(token,"\r\n",0);
-				char *digestBuff=(char*)malloc(tokenOff);
+				char *digestBuff=new char[tokenOff];
 				if(!digestBuff)
 					return 0;
 				memcpy(digestBuff,token,tokenOff);
@@ -623,7 +623,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					/*! Update digestToken. */
 					digestToken = strtok( NULL, "=" );
 				}while(digestToken);
-				free(digestBuff);
+				delete  [] digestBuff;
 			}
 		}else
 		/*!Host*/
@@ -865,7 +865,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	char *newInput;
 	if(validResponse)
 	{
-		newInput=(char *)malloc(maxTotchars + 1);
+		newInput=new char[maxTotchars + 1];
 		if(!newInput)
 			return 0;
 		/*! FIXME: Don't alloc new memory but simply use a no-destructive parsing.  */
@@ -1059,7 +1059,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	*END REQUEST STRUCTURE BUILD.
 	*/
 	td->nBytesToRead=maxTotchars;
-	free(input);
+	delete [] input;
 	return validResponse;
 }
 

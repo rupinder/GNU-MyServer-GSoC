@@ -679,7 +679,10 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 	}
 	else
 	{
-		/*! If the client try to access files that aren't in the web folder send a 401 error.  */
+		/*! 
+     *If the client try to access files that aren't in the web folder 
+     *send a 401 error.  
+     */
 		translateEscapeString(filename);
 		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
 		{
@@ -720,7 +723,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
   }
 	if(s->protocolBuffer==0)
 	{
-		s->protocolBuffer=malloc(sizeof(http_user_data));
+		s->protocolBuffer=(char*)new http_user_data;
 		if(!s->protocolBuffer)
     {
       delete [] folder;
@@ -937,7 +940,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 
 	if(s->protocolBuffer==0)
 	{
-		s->protocolBuffer=malloc(sizeof(http_user_data));
+		s->protocolBuffer=(char*)new http_user_data;
 		if(!s->protocolBuffer)
     {
       delete [] folder;
@@ -1170,7 +1173,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 
 		if(s->protocolBuffer==0)
 		{
-			s->protocolBuffer=malloc(sizeof(http_user_data));
+			s->protocolBuffer=(char*)new http_user_data;
 			if(!s->protocolBuffer)
       {
         delete []  filename;
@@ -1300,6 +1303,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 		if(!(permissions & MYSERVER_PERMISSION_BROWSE))
 		{
       delete []  filename;
+      delete []  td->filenamePath;
 			return sendAuth(td, s);
 		}
 		int i;
@@ -1360,6 +1364,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 				else
 					ret = 0;
         delete [] nURL;
+        delete [] defaultFileName;
         delete [] filename;
         return ret;
 			}
@@ -1596,11 +1601,13 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 	return keepalive;
 }
 /*!
-*Log the access using the Common Log Format or the Combined one
-*/
+ *Log the access using the Common Log Format or the Combined one
+ */
 int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 {
 	char* tmpStrInt = new char[12];
+  if(tmpStrInt == 0)
+    return -1;
 	td->buffer2->SetLength(0);
 	*td->buffer2 << a->ipAddr;
 	*td->buffer2<< " ";
@@ -1640,14 +1647,15 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
             	*td->buffer2 << " "  << td->request.REFERER << " "  << td->request.USER_AGENT;            
         }
 	*td->buffer2 << "\r\n" <<end_str;
-        /*
-	*Request the access to the log file then write then append the message
-	*/
+  /*!
+   *Request the access to the log file then write then append the message
+   */
 	((vhost*)(a->host))->accesseslogRequestAccess(td->id);
 	((vhost*)(a->host))->accessesLogWrite((char*)td->buffer2->GetBuffer());
 	((vhost*)(a->host))->accesseslogTerminateAccess(td->id);
 	td->buffer2->SetLength(0);
-	return 1;
+  delete [] tmpStrInt;
+	return 0;
 }
 
 /*!
@@ -2269,7 +2277,7 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 		{
 			if(a->protocolBuffer==0)
 			{
-				a->protocolBuffer=malloc(sizeof(http_user_data));
+				a->protocolBuffer=(char*)new http_user_data;
 				if(!a->protocolBuffer)
 				{
 					sendHTTPhardError500(td, a);
@@ -2793,5 +2801,24 @@ http::http()
 */
 http::~http()
 {
-
+  if(td.filenamePath)
+    delete [] td.filenamePath;
+  if(td.pathInfo)
+    delete [] td.pathInfo;
+  if(td.pathTranslated)
+    delete [] td.pathTranslated;
+  if(td.cgiRoot)
+    delete [] td.cgiRoot;
+  if(td.cgiFile)
+    delete [] td.cgiFile;
+  if(td.scriptPath)
+    delete td.scriptPath;
+  if(td.scriptDir)
+    delete [] td.scriptDir;
+	if(td.scriptFile)
+    delete [] td.scriptFile;
+  if(td.inputDataPath)
+    delete [] td.inputDataPath;
+  if(td.outputDataPath)
+    delete [] td.outputDataPath;
 }

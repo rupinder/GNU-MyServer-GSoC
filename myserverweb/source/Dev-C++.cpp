@@ -4,5 +4,6 @@
 
 void * _alloca(size_t size)
 {
-    return malloc(size);
+  return malloc(size);
 }
+

@@ -45,7 +45,7 @@ int MIME_Manager::load(char *filename)
 	if(ret<1)
 		return 0;
 	u_long fs=f.getFileSize();
-	buffer=(char*)malloc(fs+1);	
+	buffer=new char[fs+1];
 	if(!buffer)
 		return 0;
 	u_long nbw;
@@ -141,7 +141,7 @@ int MIME_Manager::load(char *filename)
 		addRecord(record);
 		nc++;
 	}
-	free(buffer);
+	delete [] buffer;
 	return numMimeTypesLoaded;
 
 }
@@ -456,7 +456,7 @@ void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 	*/
 	if(getRecord(mr.extension))
 		removeRecord(mr.extension);
-	MIME_Manager::mime_record *nmr =(MIME_Manager::mime_record*)malloc(sizeof(mime_record));
+	MIME_Manager::mime_record *nmr =new MIME_Manager::mime_record;
 	if(!nmr)	
 		return;
 	memcpy(nmr,&mr,sizeof(mime_record));
@@ -489,7 +489,7 @@ void MIME_Manager::removeRecord(char *ext)
 			}
       if(nmr1->cgi_manager)
         delete nmr1->cgi_manager;
-      free(nmr1);
+      delete nmr1;
 			numMimeTypesLoaded--;
 			break;
 		}
@@ -515,7 +515,7 @@ void MIME_Manager::removeAllRecords()
 			nmr1=nmr1->next;
       if(nmr2->cgi_manager)
         delete []  nmr2->cgi_manager;
-      free(nmr2);
+      delete nmr2;
 		}
 		else
 		{

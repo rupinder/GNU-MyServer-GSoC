@@ -790,7 +790,7 @@ void isapi::initISAPI()
 	if(connTable)
 		free(connTable);
 		
-	connTable=(ConnTableRecord *)malloc(sizeof(ConnTableRecord)*max_Connections);
+	connTable = new ConnTableRecord[max_Connections];
 	ZeroMemory(connTable,sizeof(ConnTableRecord)*max_Connections);
 	InitializeCriticalSection(&GetTableEntryCritSec);	
 	initialized=1;
@@ -805,7 +805,7 @@ void isapi::cleanupISAPI()
 	delete isapi_mutex;
 	DeleteCriticalSection(&GetTableEntryCritSec);
 	if(connTable)
-		free(connTable);
+		delete [] connTable;
 	connTable=0;
 	initialized=0;
 #endif

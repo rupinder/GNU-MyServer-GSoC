@@ -108,7 +108,7 @@ void cserver::start()
 	/*!
 	*Print the MyServer signature.
 	*/
-	char *software_signature=(char*)malloc(200);
+	char *software_signature=new char[200];
 	if(software_signature)
 	{
 		sprintf(software_signature, "************MyServer %s************", versionOfSoftware);
@@ -121,7 +121,7 @@ void cserver::start()
 		while(i--)
 			printf("*");
 		printf("\n");
-		free(software_signature);
+		delete [] software_signature;
 	}
 	/*!
 	*Set the current working directory.
@@ -562,7 +562,7 @@ void cserver::terminate()
    */
 	delete c_mutex;
 	if(threads)
-		free(threads);
+		delete [] threads;
 	threads=0;
 	nThreads=0;
 	if(verbosity>1)
@@ -919,7 +919,7 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, char *localIpAddr, int port, int localPort, int /*id*/)
 {
 	u_long conection_size=sizeof(CONNECTION);
-	LPCONNECTION new_connection=(CONNECTION*)malloc(conection_size);
+	LPCONNECTION new_connection=new CONNECTION;
 	if(!new_connection)
 	{
 		return NULL;
@@ -944,7 +944,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
   /*! No vhost for the connection so bail. */
 	if(new_connection->host == 0) 
 	{
-		free(new_connection);
+		delete [] new_connection;
 		return 0;
 	}
 	int doSSLhandshake=0;
@@ -972,13 +972,13 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 		if(ret<0)
 		{
 			/*! Free the connection on errors. */
-			free(new_connection);
+			delete  new_connection;
 			return 0;
 		}
 	}
 	if(new_connection->host==0)
 	{
-		free(new_connection);
+		delete new_connection;
 		return 0;
 	}
 	/*! Update the list. */
@@ -1042,8 +1042,8 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	nConnections--;
 
 	if(s->protocolBuffer)
-		free(s->protocolBuffer);
-	free(s);
+		delete [] s->protocolBuffer;
+	delete s;
 
 	/*! Close the socket communication. */
 	socket.shutdown(SD_BOTH);
@@ -1373,8 +1373,8 @@ void cserver::loadSettings()
 
 	myserver_thread_ID ID;
 	if(threads)
-		free(threads);
-	threads=(ClientsTHREAD*)malloc(sizeof(ClientsTHREAD)*nThreads);
+		delete [] threads;
+	threads=new ClientsTHREAD[nThreads];
 	memset(threads, 0, sizeof(ClientsTHREAD)*nThreads);
 	if(threads==NULL)
 	{

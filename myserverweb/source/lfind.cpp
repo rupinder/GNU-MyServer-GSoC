@@ -38,9 +38,10 @@ int _finddata_t::findfirst(const char filename[])
 {
    struct dirent * dirInfo;
    struct stat F_Stats;
-   char TempName[PATH_MAX];
-      
-   strncpy(DirName, filename, PATH_MAX);
+   char *TempName= new char[strlen(filename)+1];
+   if(TempName == 0)
+     return -1;
+   strcpy(DirName, filename);
    
    if(DirName[strlen(DirName) - 1] == '/')
      DirName[strlen(DirName) - 1] = '\0';
@@ -59,7 +60,7 @@ int _finddata_t::findfirst(const char filename[])
      attrib = FILE_ATTRIBUTE_DIRECTORY;
    time_write = F_Stats.st_mtime;
    size = F_Stats.st_size;
-   
+   delete [] TempName;
    return 0;
 }
 
@@ -67,14 +68,16 @@ int _finddata_t::findnext()
 {
    struct dirent * dirInfo;
    struct stat F_Stats;
-   char TempName[PATH_MAX];
+   char *TempName;
       
    dirInfo = readdir(dh);
    
    if(dirInfo == NULL)
      return -1;
-     
-   snprintf(TempName, PATH_MAX, "%s/%s", DirName, dirInfo->d_name);
+   TempName = new char[strlen(DirName) + strlen(dirInfo->d_name) + 2];
+   if(TempName == 0)
+     return -1;
+   sprintf(TempName, "%s/%s", DirName, dirInfo->d_name);
    
    name = dirInfo->d_name;
 
@@ -85,7 +88,7 @@ int _finddata_t::findnext()
      attrib = 0;
    time_write = F_Stats.st_mtime;
    size = F_Stats.st_size;
-   
+   delete [] TempName;
    return 0;
 
 }
