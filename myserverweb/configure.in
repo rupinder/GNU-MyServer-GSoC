@@ -182,6 +182,7 @@ AC_CONFIG_FILES(Makefile \
   binaries/system/Makefile \
   binaries/system/errors/Makefile \
   binaries/system/icons/Makefile \
+  binaries/system/icons/codes/Makefile \
   control/Makefile \
   contrib/Makefile \
   contrib/rx/Makefile \
