@@ -40,7 +40,10 @@ unsigned int __stdcall listenServer(void* pParam);
 void* listenServer(void* pParam);
 #endif
 
-
+/*
+*Defined in myserver.cpp
+*/
+extern int rebootMyServerConsole;
 
 struct listenThreadArgv
 {

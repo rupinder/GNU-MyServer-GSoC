@@ -45,7 +45,7 @@ void console_service (int, char **);
 
 #ifdef WIN32
 void __stdcall myServerCtrlHandler(u_long fdwControl);
-void __stdcall myServerMain (u_long argc, LPTSTR *argv); 
+void __stdcall myServerMain (u_long argv, LPTSTR *argv); 
 void runService();
 #endif
 
@@ -57,7 +57,20 @@ int cmdShow;
 */
 const char *versionOfSoftware="0.6.1";
 cserver server;
-
+int argn;
+char **argv;
+/*
+*Flag to determine if reboot the console at the end of its execution.
+*/
+int rebootMyServerConsole;
+/*
+*Reboot the console application.
+*/
+int reboot_console()
+{
+	server.stop();	
+	console_service(argn,argv);
+}
 
 #ifndef WIN32
 void Sig_Quit(int signal)
@@ -70,8 +83,11 @@ void Sig_Quit(int signal)
 /*!
 *Main function for MyServer
 */
-int main (int argn, char **argc)
+int main (int argn, char **argv)
 {
+	::argn=argn;
+	::argv=argv;
+	rebootMyServerConsole=0;
 #ifndef WIN32
 	struct sigaction sig1, sig2;
 	sig1.sa_handler=SIG_IGN;
@@ -84,8 +100,8 @@ int main (int argn, char **argc)
 	*By default use the console mode.
 	*/
 	if(argn==1)
-		argc[1]="CONSOLE";
-	lstrcpy(path,argc[0]);
+		argv[1]="CONSOLE";
+	lstrcpy(path,argv[0]);
 	u_long len=(u_long)strlen(path);
 	while((path[len]!='\\')&&(path[len]!='/'))
 		len--;
@@ -95,18 +111,20 @@ int main (int argn, char **argc)
 	
 	cmdShow=0;
 
-	if(!lstrcmpi(argc[1],"VERSION"))
+	if(!lstrcmpi(argv[1],"VERSION"))
 	{
 		printf("MyServer %s\r\n",versionOfSoftware);
 		return 0;
 	}
 
-	if(!lstrcmpi(argc[1],"CONSOLE"))
+	if(!lstrcmpi(argv[1],"CONSOLE"))
 	{
-		console_service(argn,argc);
+		console_service(argn,argv);
+		if(rebootMyServerConsole)
+			reboot_console();
 	}
 #ifdef WIN32
-	if(!lstrcmpi(argc[1],"SERVICE"))
+	if(!lstrcmpi(argv[1],"SERVICE"))
 	{
 		runService();
 	}
