@@ -2442,6 +2442,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		td.outputData.closeFile();
 		MYSERVER_FILE::deleteFile(td.outputDataPath);
 	}
+  ret &= (!strcmpi(td.request.CONNECTION,"keep-alive"));
 	return ret? ((retvalue!=0) ?retvalue:1 ) :0;
 }
 
