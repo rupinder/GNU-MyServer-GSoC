@@ -1,7 +1,7 @@
 # Makefile for myserver control
 
 bin_PROGRAMS = control
-control_SOURCES = configuration.cpp configureMIME.cpp control.cpp ../source/lfind.cpp configureVHOSTS.cpp
+control_SOURCES = configuration.cpp configureMIME.cpp control.cpp ../source/lfind.cpp ../source/threads.cpp configureVHOSTS.cpp
 
 INCLUDES = $(all_includes)
 
