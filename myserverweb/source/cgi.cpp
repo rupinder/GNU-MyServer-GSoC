@@ -866,7 +866,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	{
   		memCgi << end_str << "REMOTE_IDENT=";
       memCgi << td->identity;
-	}
+ }
 #ifdef WIN32
 	if(processEnv)
 	{
@@ -878,8 +878,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		{ 
 			if(((char*)lpszVariable)[0]  != '=' )
 			{
-				memCgi << (char*)lpszVariable;
-				memCgi << end_str;
+				memCgi << (char*)lpszVariable << end_str;
 			}
 			while (*lpszVariable)*lpszVariable++;
 		} 

@@ -1567,13 +1567,11 @@ int cserver::loadSettings()
 	logWriteln(languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
 	{
-    char tmp[6];
     char *str = new char[strlen(languageParser.getValue("MSG_MIMERUN")) + 
-                                strlen(tmp) + 3 ];
-    sprintf(tmp, "%i", nMIMEtypes);  
+                                + 12 ];
     if(str == 0)
       return -1;
-    sprintf(str, "%s: %s", languageParser.getValue("MSG_MIMERUN"), tmp);
+    sprintf(str, "%s: %i", languageParser.getValue("MSG_MIMERUN"), nMIMEtypes);
     logWriteln(str);
     delete [] str;
 	}
