@@ -1497,11 +1497,14 @@ void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int s
 	{	
 		if(filename[0])
 		{
-			sprintf(filenamePath,"%s/%s",((vhost*)(td->connection->host))->documentRoot,filename);
+			strncpy(filenamePath,((vhost*)(td->connection->host))->documentRoot,MAX_PATH);
+			int len=strlen(filenamePath)+1;
+			filenamePath[len-1]='/';
+			strncpy(&filenamePath[len],filename,MAX_PATH-len);
 			filenamePath[MAX_PATH-1]='\0';
 		}
 		else
-			strcpy(filenamePath,((vhost*)(td->connection->host))->documentRoot);
+			strncpy(filenamePath,((vhost*)(td->connection->host))->documentRoot,MAX_PATH);
 
 	}
 }
