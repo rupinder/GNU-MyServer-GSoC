@@ -1,3 +1,4 @@
+
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
 #include "../../../cgi-lib/cgi_manager.h" 
 
@@ -14,26 +15,41 @@ extern "C" int main (char *cmd,cgi_data* data)
 	}     
 	else     
 	{ 	
-		int i=0;
-		char a[16];
-		char b[16];
-		char c[16];
+		u_int a = 0;
+		u_int b = 0;
 		char *tmp;
-		a[0]=b[0]=c[0]='0';
-		a[1]=b[1]=c[1]='\0';		
-		tmp=cm.GetParam("a");
-		if(tmp)
-		 strncpy(a,tmp,16);
-		tmp=cm.GetParam("b");
-		if(tmp)
-		 strncpy(b,tmp,16);
 		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.gif\">\r\n<p align=\"center\">\r\n\r\n");
-		cm.Write(a);
+		tmp = cm.GetParam("a");
+		if (tmp)
+		{
+			if (strlen(tmp) > 10) // a 32-bit number has a maximun of 10 digits
+				tmp[10] = '\0';
+			a = atoi(tmp);
+			cm.Write(tmp);
+		}
+		else
+			cm.Write("0");
 		cm.Write(" + ");
-		cm.Write(b);
+		tmp = cm.GetParam("b");
+		if (tmp)
+		{
+			if (strlen(tmp) > 10) // a 32-bit number has a maximun of 10 digits
+				tmp[10] = '\0';
+			b = atoi(tmp);
+			cm.Write(tmp);
+		}
+		else
+			cm.Write("0");
 		cm.Write(" = ");
-		sprintf(c,"%i",atoi(a)+atoi(b));
-		cm.Write(c);
+		char res[11]; // a 32-bit number has a maximun of 10 digits
+#ifdef	itoa
+		itoa(res, a+b, 10);
+#elif snprintf 
+		snprintf(res,10,"%i", a+b);
+#else
+		sprintf(res,"%i", a+b);
+#endif
+		cm.Write(res);
 
 		unsigned int dim=120;
 		char lb[120];
