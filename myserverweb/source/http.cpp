@@ -357,6 +357,9 @@ int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int syst
 	}
 	if(MYSERVER_FILE::fileExists(td->filenamePath))
 	{
+		/*
+		*If the file exists update it.
+		*/
 		MYSERVER_FILE file;
 		file.openFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_WRITE);
 		file.setFilePointer(firstByte);
@@ -380,6 +383,9 @@ int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int syst
 	}
 	else
 	{
+		/*
+		*If the file doesn't exist create it.
+		*/
 		MYSERVER_FILE file;
 		file.openFile(td->filenamePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		for(;;)
