@@ -18,6 +18,7 @@
 			CharacterSet="0">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/D&quot;_VC&quot;"
 				Optimization="0"
 				GlobalOptimizations="FALSE"
 				AdditionalIncludeDirectories=""
