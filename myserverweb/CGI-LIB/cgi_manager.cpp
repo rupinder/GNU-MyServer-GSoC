@@ -168,7 +168,10 @@ char* cgi_manager::PostParam(char* param)
 		}
 		else
 		{
-			strncat(buffer,c,LOCAL_BUFFER_DIM+lstrlen(buffer));
+			if(lstrlen(buffer)+1 < LOCAL_BUFFER_DIM + 50)
+			{
+				strcat(buffer,c);
+			}
 		}
 	}while(--toRead);
 
