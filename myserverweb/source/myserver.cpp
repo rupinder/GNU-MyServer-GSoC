@@ -148,6 +148,7 @@ int main (int argn, char **argv)
 	rebootMyServerConsole=0;
 #ifdef NOT_WIN
 	struct sigaction sig1, sig2;
+  sig1.sa_flags = sig2.sa_flags = SA_RESETHAND;
 	sig1.sa_handler=SIG_IGN;
 	sig2.sa_handler=Sig_Quit;
 	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
