@@ -107,7 +107,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	td->buffer2[0]='\0';
 	_finddata_t fd;
-	sprintf(td->buffer2,"<HTML>\r\n<HEAD>\r\n<TITLE>%s</TITLE>\r\n</HEAD>\r\n",td->request.URI);
+	sprintf(td->buffer2,"<html>\r\n<head>\r\n<title>%s</title>\r\n</head>\r\n",td->request.URI);
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	/*!
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
@@ -121,10 +121,10 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		{
 			u_long nbr;
 			cssHandle.readFromFile(td->buffer,td->buffersize,&nbr);
-			strcpy(td->buffer2,"<STYLE>\r\n<!--\r\n");
+			strcpy(td->buffer2,"<style>\r\n<!--\r\n");
 			outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 			outFile.writeToFile(td->buffer,(u_long)nbr,&nbw);
-			strcpy(td->buffer2,"-->\r\n</STYLE>\r\n");
+			strcpy(td->buffer2,"-->\r\n</style>\r\n");
 			outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 			cssHandle.closeFile();
 
@@ -137,11 +137,11 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 #ifdef NOT_WIN
 	sprintf(filename,"%s/",folder);
 #endif
-	strcpy(td->buffer2,"\r\n<BODY><H1>\r\n");
+	strcpy(td->buffer2,"\r\n<body>\r\n<h1>");
 	strcat(td->buffer2,"Contents of folder");
 	strcat(td->buffer2," ");
 	strcat(td->buffer2,&td->request.URI[startchar]);
-	strcat(td->buffer2,"</H1>\r\n<P>\r\n<HR>\r\n");
+	strcat(td->buffer2,"</h1>\r\n<p>\r\n<hr />\r\n");
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	intptr_t ff;
 	ff=(intptr_t)_findfirst(filename,&fd);
@@ -169,7 +169,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	/*!
 	*With the current code we build the HTML TABLE to indicize the files in the folder.
 	*/
-	sprintf(td->buffer2,"<TABLE width=\"100%%\">\r\n<TR>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n</TR>\r\n","File","Last modify","Size");
+	sprintf(td->buffer2,"<table width=\"100%%\">\r\n<tr>\r\n<td><b>%s</b></td>\r\n<td><b>%s</b></td>\r\n<td><b>%s</b></td>\r\n</tr>\r\n","File","Last modify","Size");
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	static char fileSize[10];
 	static char fileTime[20];
@@ -182,7 +182,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		*/
 		if(!strcmp(fd.name,"security"))
 			continue;
-		strcpy(td->buffer2,"<TR>\r\n<TD><A HREF=\"");
+		strcpy(td->buffer2,"<tr>\r\n<td><a href=\"");
 		if(!td->request.uriEndsWithSlash)
 		{
 			strcat(td->buffer2,&td->request.URI[startchar]);
@@ -191,14 +191,15 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		strcat(td->buffer2,fd.name);
 		strcat(td->buffer2,"\">");
 		strcat(td->buffer2,fd.name);
-		strcat(td->buffer2,"</TD>\r\n<TD>");
+		strcat(td->buffer2,"</td>\r\n<td>");
 			
 		tm *st=gmtime(&fd.time_write);
-
+		
+		
 		sprintf(fileTime,"%u\\%u\\%u-%u:%u:%u System time",st->tm_wday,st->tm_mon,st->tm_year,st->tm_hour,st->tm_min,st->tm_sec);
 		strcat(td->buffer2,fileTime);
 
-		strcat(td->buffer2,"</TD>\r\n<TD>");
+		strcat(td->buffer2,"</td>\r\n<td>");
 		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			strcat(td->buffer2,"[dir]");
@@ -208,14 +209,14 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			sprintf(fileSize,"%i bytes",fd.size);
 			strcat(td->buffer2,fileSize);
 		}
-		strcat(td->buffer2,"</TD>\r\n</TR>\r\n");
+		strcat(td->buffer2,"</td>\r\n</tr>\r\n");
 		outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	}while(!_findnext(ff,&fd));
-	strcpy(td->buffer2,"</TABLE>\r\n<HR>\r\n<ADDRESS>\r\n");
+	strcpy(td->buffer2,"</table>\r\n<hr />\r\n<address>");
 	strcat(td->buffer2,"Running on");
 	strcat(td->buffer2," MyServer ");
 	strcat(td->buffer2,versionOfSoftware);
-	strcat(td->buffer2,"</ADDRESS>\r\n</BODY>\r\n</HTML>\r\n");
+	strcat(td->buffer2,"</address>\r\n</body>\r\n</html>\r\n");
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	_findclose(ff);
 	/*!
