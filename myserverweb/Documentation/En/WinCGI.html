@@ -16,17 +16,18 @@ environment.<br>
 To enable WinCGI in MyServer, you need to configure the correct <a
  href="mimetypes.html" class="code">MIME Type</a> corresponding to your
 WinCGI
-script files, and make them run as WinCGI (<font class="code">EXECUTEWINCGI</font>)<br>
+application files, and make them run as WinCGI (<font class="code">EXECUTEWINCGI</font>)<br>
 <br>
 After configuring your MIME Typer properly, all you need to do to run
-your WinCGI script, is to use the script as
+your WinCGI application, is to use the script as
 the 'action' of your web form, like in this example:<br>
 <p class="code">&lt;FORM METHOD=POST
 ACTION=www.myfiles.com/cgi-bin/mywincgi.exe&gt;</p>
 With this, MyServer will decode and send the data of your form to the
-WinCGI script.<br>
+WinCGI application.<br>
 <br>
-Like in CGI, you can place all your scripts in a <span class="code">cgi-bin</span>
+Like in CGI, you can place all your applications in a <span
+ class="code">cgi-bin</span>
 directory in the <span class="code">web</span> directory in MyServer
 as seen below:<br>
 <br>
@@ -40,7 +41,7 @@ beneath the selected web folder.</small><br>
 <br>
 <br>
 <br>
-However, WinCGI scripts can be placed anywhere as long as their
+However, WinCGI applications can be placed anywhere as long as their
 location
 is indicated in the HTML code.<br>
 <br>
