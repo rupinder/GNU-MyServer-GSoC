@@ -44,11 +44,6 @@ extern "C" {
 
 #endif
 
-/* a cheap trick to fix osx */
-#ifndef socklen_t
-#define socklen_t int
-#endif
-
 /*!
  *Source code to wrap the socket library to MyServer project.
  */
@@ -163,12 +158,13 @@ int MYSERVER_SOCKET::listen(int max)
 /*!
  *Accept a new connection.
  */
-MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,
-                                        int /*!sslHandShake*/)
+MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,
+                                int* sockaddrlen, int /*!sslHandShake*/)
 {
+
 #ifdef NOT_WIN
 	socklen_t Connect_Size;
-	int as;
+	int accept_handle;
 #endif
 
 	MYSERVER_SOCKET s;
@@ -177,15 +173,18 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,
 	s.sslContext=0;
 	s.sslSocket=0;
 #endif
+
 #ifdef WIN32
 	MYSERVER_SOCKET_HANDLE h=(MYSERVER_SOCKET_HANDLE)::accept(socketHandle,sa,
                                                             sockaddrlen);
 	s.setHandle(h);
 #endif
+
 #ifdef NOT_WIN
-	Connect_Size = *sockaddrlen;
-	as = ::accept((int)socketHandle,sa,&Connect_Size);
-	s.setHandle(as);
+	Connect_Size = (socklen_t) *sockaddrlen;
+	
+  accept_handle = ::accept((int)socketHandle, sa, (socklen_t*)&Connect_Size);
+	s.setHandle(accept_handle);
 #endif
 
 	return s;
@@ -257,7 +256,8 @@ int MYSERVER_SOCKET::shutdown(int how)
 /*!
  *Set socket options.
  */
-int	MYSERVER_SOCKET::setsockopt(int level,int optname,const char *optval,int optlen)
+int	MYSERVER_SOCKET::setsockopt(int level,int optname, 
+                                const char *optval,int optlen)
 {
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
 }
@@ -276,7 +276,7 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 		{
 			err=SSL_write(sslConnection,buffer,len);
 		}while((err<=0) &&(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE 
-                       || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
+                  || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
     if(err<=0)
       return -1;
     else
@@ -315,7 +315,7 @@ int MYSERVER_SOCKET::ioctlsocket(long cmd,unsigned long* argp)
 /*!
  *Connect the socket.
  */
-int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
+int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa, int na)
 {
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
@@ -364,7 +364,7 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 /*!
  *Receive data from the socket.
  */
-int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,u_long timeout)
+int MYSERVER_SOCKET::recv(char* buffer, int len, int flags, u_long timeout)
 {
 	int time=get_ticks();
 	while(get_ticks()-time<timeout)
@@ -580,6 +580,36 @@ u_long MYSERVER_SOCKET::bytesToRead()
 }
 
 /*!
+ *Pass a nonzero value to set the socket to be nonblocking.
+ */
+int MYSERVER_SOCKET::setNonBlocking(int non_blocking)
+{
+  int ret = -1;
+#ifdef FIONBIO
+  u_long nonblock = non_blocking ? 1 : 0;
+  ret = ioctlsocket( FIONBIO, &nonblock);
+
+#else
+
+#ifdef NOT_WIN
+  int flags;
+  flags = fcntl(c, F_GETFL, 0);
+  if (flags < 0) 
+    return -1;
+  
+  if(non_blocking)
+    flags |= O_NONBLOCK;
+  else
+    flags &= ~O_NONBLOCK;
+ 
+  ret = fcntl((int)socketHandle, F_SETFL, flags);
+#endif
+
+#endif
+  return ret;
+}
+
+/*!
  *Returns the hostname.
  */
 int MYSERVER_SOCKET::gethostname(char *name,int namelen)
@@ -596,9 +626,9 @@ int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 	return ::getsockname(socketHandle,ad,namelen);
 #endif
 #ifdef NOT_WIN
-	socklen_t len = *namelen;
-	int ret = ::getsockname((int)socketHandle,ad,&len);
-	*namelen = len;
+	socklen_t len =(socklen_t) *namelen;
+	int ret = ::getsockname((int)socketHandle, ad, &len);
+	*namelen = (int)len;
 	return ret;
 #endif
 }

@@ -790,7 +790,6 @@ sfCGIservers* fastcgi::isFcgiServerRunning(char* path)
  */
 int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 {
-	unsigned long pLong = 1L;
 	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(server->host);
 	struct sockaddr_in sockAddr;
 	int sockLen;
@@ -814,7 +813,7 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 		con->sock.closesocket();
 		return -1;
 	}
-	con->sock.ioctlsocket(FIONBIO, &pLong);
+	con->sock.setNonBlocking(1);
 	con->server = server;
 	return 1;
 }

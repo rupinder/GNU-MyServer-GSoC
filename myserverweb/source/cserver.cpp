@@ -557,10 +557,9 @@ void * listenServer(void* params)
 	listenThreadArgv *argv=(listenThreadArgv*)params;
 	MYSERVER_SOCKET *serverSocket=argv->serverSocket;
 	MYSERVER_SOCKADDRIN asock_in;
-	int asock_inLen=sizeof(asock_in);
+	int asock_inLen = sizeof(asock_in);
 	MYSERVER_SOCKET asock;
 
-  u_long nonblock ;
   int ret;
 #ifdef NOT_WIN
 	// Block SigTerm, SigInt, and SigPipe in threads
@@ -573,8 +572,7 @@ void * listenServer(void* params)
 #endif
 	delete argv;
 
-  nonblock = 1;
-  ret = serverSocket->ioctlsocket( FIONBIO, &nonblock);
+  ret = serverSocket->setNonBlocking(1);
 
 	lserver->increaseListeningThreadCount();
 	while(!mustEndServer)
@@ -590,7 +588,7 @@ void * listenServer(void* params)
 			continue;
 		}
 		asock = serverSocket->accept((struct sockaddr*)&asock_in, 
-                                 (LPINT)&asock_inLen);
+                                 &asock_inLen);
 		if(asock.getHandle()==0)
 			continue;
 		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
