@@ -28,11 +28,6 @@ extern "C"
 #define PATH_MAX 255
 #endif
 
-void * _alloca(size_t size)
-{
-	return malloc(size);
-}
-
 myserver_finddata_t::myserver_finddata_t()
 {
 #ifdef NOT_WIN
@@ -55,8 +50,8 @@ myserver_finddata_t::~myserver_finddata_t()
 int myserver_finddata_t::findfirst(const char filename[])
 {
 #ifdef WIN32
-  ff = _findfirst(filename, &fd )  ? -1 : 0;
-  if(ff==0)
+  ff = _findfirst(filename, &fd );
+  if(ff!=-1)
   {
     name = fd.name;
     attrib = fd.attrib;
@@ -109,7 +104,7 @@ int myserver_finddata_t::findnext()
 {
 #ifdef WIN32
   int ret = _findnext(ff, &fd)? -1 : 0 ;
-  if(ret==0)
+  if(ret!=-1)
   {
     name = fd.name;
     attrib = fd.attrib;
@@ -160,5 +155,4 @@ int myserver_finddata_t::findclose()
    return 0;
 #endif
 }
-
 

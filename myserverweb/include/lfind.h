@@ -31,7 +31,9 @@ extern "C"
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
+#ifdef NOT_WIN
 #include <dirent.h>
+#endif
 #include <limits.h>
 }
 
@@ -39,7 +41,10 @@ extern "C"
 #define EACCES 1
 #endif
 #define MAX_NAME NAME_MAX
+
+#ifndef FILE_ATTRIBUTE_DIRECTORY
 #define FILE_ATTRIBUTE_DIRECTORY 1
+#endif
 
 #ifndef intptr_t
 #define intptr_t int
@@ -62,8 +67,10 @@ class myserver_finddata_t
 	_finddata_t fd;
    intptr_t  ff;
 #endif
+#ifdef NOT_WIN
    char *DirName;
    DIR *dh;
+#endif
 };
 
 #endif

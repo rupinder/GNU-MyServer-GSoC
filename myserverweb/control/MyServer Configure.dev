@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=29
+UnitCount=31
 Type=0
 Ver=1
 ObjFiles=
@@ -329,6 +329,26 @@ BuildCmd=
 
 [Unit29]
 FileName=progress.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit30]
+FileName=..\source\lfind.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=..\include\lfind.h
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
