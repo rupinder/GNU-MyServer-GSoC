@@ -42,7 +42,7 @@ extern "C" {
 #define Sleep usleep
 #endif
 /*
-*This is the version of the Control Center and can be different from the myServer version.
+*This is the version of the Control Center and can be different from the MyServer version.
 */
 const char VERSION_OF_SOFTWARE[]="0.4.3";
 
@@ -357,12 +357,12 @@ void mainFrame::registerService(wxCommandEvent& event)
 }
 void mainFrame::configureMIME(wxCommandEvent& event)
 {
-	configurationFrameMIME *configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX, MIMEWNDSIZEY));
+	configurationFrameMIME *configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZE_X, MIMEWNDSIZE_Y));
 	configureMIMEWnd->Show(TRUE);
 }
 void mainFrame::configureVHOSTS(wxCommandEvent& event)
 {
-	configurationFrameVHOSTS *configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure myServer virtual hosts"),wxPoint(70, 70), wxSize(VHOSTSWNDSIZEX, VHOSTSWNDSIZEY));
+	configurationFrameVHOSTS *configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure myServer virtual hosts"),wxPoint(70, 70), wxSize(VHOSTSWNDSIZE_X, VHOSTSWNDSIZE_Y));
 	configureVHOSTSWnd->Show(TRUE);
 }
 /*

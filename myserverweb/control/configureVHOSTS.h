@@ -32,8 +32,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
           
 extern const char VERSION_OF_SOFTWARE[];
-#define VHOSTSWNDSIZEX	640
-#define VHOSTSWNDSIZEY	260
+#define VHOSTSWNDSIZE_X	640
+#define VHOSTSWNDSIZE_Y	260
 
 class configurationFrameVHOSTS : public wxFrame
 {

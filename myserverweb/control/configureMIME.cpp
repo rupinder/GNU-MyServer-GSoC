@@ -54,9 +54,9 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	sprintf(version,"MyServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
 
-	actiontodoLB=new wxListBox(panel,-1,wxPoint(0,110), wxSize(210,MIMEWNDSIZEY-140),0,NULL,wxLB_HSCROLL);
-	cgiManagerTB=new wxTextCtrl(panel,-1,"",wxPoint(210,110), wxSize(MIMEWNDSIZEX-220,20));
-	mimeTypesLB=new wxListBox(panel,-1,wxPoint(160,10), wxSize(MIMEWNDSIZEX-170,100),0, NULL,wxLB_HSCROLL);
+	actiontodoLB=new wxListBox(panel,-1,wxPoint(0,110), wxSize(210,MIMEWNDSIZE_Y-140),0,NULL,wxLB_HSCROLL);
+	cgiManagerTB=new wxTextCtrl(panel,-1,"",wxPoint(210,110), wxSize(MIMEWNDSIZE_X-220,20));
+	mimeTypesLB=new wxListBox(panel,-1,wxPoint(160,10), wxSize(MIMEWNDSIZE_X-170,100),0, NULL,wxLB_HSCROLL);
 	extensionsLB=new wxListBox(panel,Configuration_EXTtypeListEvt,wxPoint(0,10), wxSize(160,100),0, NULL,wxLB_HSCROLL);
 
 	btnOK= new wxButton(panel,Configuration_Ok,"OK",wxPoint(220,200),wxSize(50,25));

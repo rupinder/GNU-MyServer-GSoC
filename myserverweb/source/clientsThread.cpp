@@ -229,6 +229,8 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 {
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
+	if(!nc)
+		return NULL;
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
 	nc->port=(u_short)port;
@@ -244,14 +246,11 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	nc->password[0]='\0';
 	if(nc->host==0)
 	{
-		s.shutdown(2);
-		s.closesocket();
 		free(nc);
 		return 0;
 	}
     connections=nc;
 	nConnections++;
-
 
 	char msg[500];
 #ifdef WIN32

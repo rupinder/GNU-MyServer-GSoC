@@ -154,12 +154,12 @@ void configurationFrame::initNotebook()
 }
 void configurationFrame::configureMIME(wxCommandEvent& event)
 {
-	configureMIMEWnd=new configurationFrameMIME(this,_T("Configure MyServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX, MIMEWNDSIZEY));
+	configureMIMEWnd=new configurationFrameMIME(this,_T("Configure MyServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZE_X, MIMEWNDSIZE_Y));
 	configureMIMEWnd->Show(TRUE);
 }
 void configurationFrame::configureVHOSTS(wxCommandEvent& event)
 {
-	configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure Virtual hosts"),wxPoint(70, 70), wxSize(VHOSTSWNDSIZEX, VHOSTSWNDSIZEY));
+	configureVHOSTSWnd=new configurationFrameVHOSTS(this,_T("Configure Virtual hosts"),wxPoint(70, 70), wxSize(VHOSTSWNDSIZE_X, VHOSTSWNDSIZE_Y));
 	configureVHOSTSWnd->Show(TRUE);
 }
 void configurationFrame::configureSave(wxCommandEvent& event)

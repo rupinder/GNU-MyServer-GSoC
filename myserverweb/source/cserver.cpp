@@ -776,7 +776,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	if(s.getHandle()==0)
 		return false;
 	static int ret;
-	ret=true;
+	ret=1;
 	
 	char ip[32];
 	char myIp[32];
@@ -794,16 +794,17 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	strncpy(myIp, inet_ntoa(localsock_in.sin_addr), 32); // NOTE: inet_ntop supports IPv6
 
 
-	int port=ntohs((*asock_in).sin_port);
-	int myport=ntohs(localsock_in.sin_port);
-
+	int port=ntohs((*asock_in).sin_port);/*Port used by the client*/
+	int myport=ntohs(localsock_in.sin_port);/*Port connected on the server*/
 
 	static u_long local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
 	if(!ct->addConnection(s,asock_in,&ip[0],&myIp[0],port,myport))
 	{
-		ret=false;
-		s.closesocket();
+		/*If we report error to add the connection to the thread*/
+		ret=0;
+		s.shutdown(2);/*Shutdown the socket both on receive that on send*/
+		s.closesocket();/*Then close it*/
 	}
 
 	if(++local_nThreads>=nThreads)

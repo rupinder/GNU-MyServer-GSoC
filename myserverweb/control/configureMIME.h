@@ -29,8 +29,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
           
 extern const char VERSION_OF_SOFTWARE[];
-#define MIMEWNDSIZEX	420
-#define MIMEWNDSIZEY	260
+#define MIMEWNDSIZE_X	420
+#define MIMEWNDSIZE_Y	260
 
 class configurationFrameMIME : public wxFrame
 {

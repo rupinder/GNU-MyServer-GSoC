@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/fastCGI.h"
 #define MAX_FCGI_SERVERS	25
 /*
-*Thi strucure is used to keep trace of a running fCGI server.
+*This structure is used to keep trace of a running fCGI server.
 */
 static struct sfCGIservers
 {
@@ -500,5 +500,5 @@ int runFcgiServer(fCGIContext *con,char* path)
 		}
 		
 	}
-	return fCGIserversN++;/*If we arrive here increase the number of running servers and return the number of server running*/
+	return fCGIserversN++;/*If we arrive here increase the number of running servers and return the number of running servers*/
 }
