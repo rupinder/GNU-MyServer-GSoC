@@ -45,6 +45,8 @@ enum
 	Configuration_protocolMod
 };
 #define DO_NOT_USE_SSL
+
+#include "../source/lfind.cpp"
 #include "../source/vhosts.cpp"
 #include "../source/utility.cpp"
 #include "../source/threads.cpp"
