@@ -67,7 +67,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 
 	data.stdOut.openFile(outFile,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 #ifdef WIN32
-        hinstLib = LoadLibrary(exec);
+	hinstLib = LoadLibrary(exec);
 #else
 	hinstLib = dlopen(exec, RTLD_LAZY);
 #endif
@@ -129,8 +129,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	/*!
 	*Compute the response length.
 	*/
-
 	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.getFileSize());
+	
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 	u_long nbr,nbs;

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define PROTOCOL_HTTP		0
 #define PROTOCOL_HTTPS		1001
 #define PROTOCOL_FTP		2
+#define PROTOCOL_UNKNOWN	3
 
 #define CONNECTION_REMOVE_OVERLOAD 1
 

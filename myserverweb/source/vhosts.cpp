@@ -520,10 +520,16 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		}
 		if(!strcmp(buffer2,"HTTP"))
 			vh->protocol=PROTOCOL_HTTP;
-		if(!strcmp(buffer2,"HTTPS"))
+		else if(!strcmp(buffer2,"HTTPS"))
 			vh->protocol=PROTOCOL_HTTPS;
-		if(!strcmp(buffer2,"FTP"))
+		else if(!strcmp(buffer2,"FTP"))
 			vh->protocol=PROTOCOL_FTP;
+		else
+		{
+			vh->protocol=PROTOCOL_UNKNOWN;
+		}
+		strncpy(vh->protocol_name,buffer2,16);
+		
 		cc++;
 		/*!Get the document root used by the virtual host*/
 		buffer2[0]='\0';
@@ -636,15 +642,19 @@ void vhostmanager::saveConfigurationFile(char *filename)
 			strcpy(buffer,"HTTP;");
 			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
-		if(vh->protocol==PROTOCOL_HTTPS)
+		else if(vh->protocol==PROTOCOL_HTTPS)
 		{
 			strcpy(buffer,"HTTPS;");
 			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
-		if(vh->protocol==PROTOCOL_FTP)
+		else if(vh->protocol==PROTOCOL_FTP)
 		{
 			strcpy(buffer,"FTP;");
 			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+		}
+		else
+		{
+			fh.writeToFile(vh->protocol_name,(u_long)strlen(vh->protocol_name),&nbw);			
 		}
 
 		fh.writeToFile(vh->documentRoot,(u_long)strlen(vh->documentRoot),&nbw);
@@ -779,10 +789,16 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			{
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTP"))
 					vh->protocol=PROTOCOL_HTTP;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTPS"))
+				else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTPS"))
 					vh->protocol=PROTOCOL_HTTPS;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"FTP"))
+				else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"FTP"))
 					vh->protocol=PROTOCOL_FTP;
+				else
+				{
+						vh->protocol=PROTOCOL_UNKNOWN;
+				}
+				strncpy(vh->protocol_name,(char*)lcur->children->content,16);
+				
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
 			{
@@ -885,6 +901,9 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 				break;
 			case PROTOCOL_FTP:
 				out.writeToFile("FTP",3,&nbw);
+				break;
+			default:			
+				out.writeToFile(list->host->protocol_name,3,&nbw);
 				break;
 		}
 		out.writeToFile("</PROTOCOL>\r\n",13,&nbw);

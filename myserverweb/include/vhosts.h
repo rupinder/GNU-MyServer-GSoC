@@ -52,8 +52,13 @@ public:
 	}*hostList;/*!List of hosts allowed by the vhost*/
 	struct vhsslcontext
 	{
+#ifndef DO_NOT_USE_SSL
 		SSL_CTX* context;
 		SSL_METHOD* method;
+#else
+		void* context;
+		void* method;		
+#endif
 		char certificateFile[MAX_PATH];
 		char privateKeyFile[MAX_PATH];
 		char password[32];
@@ -67,7 +72,8 @@ public:
 
 	u_short port;/*!Port to listen on*/
 
-	CONNECTION_PROTOCOL protocol;/*!Protocol used by the virtual host*/
+	CONNECTION_PROTOCOL protocol;/*!Protocol used by the virtual host. Used for built-in protocols*/
+	char protocol_name[16];
 	
 	int initializeSSL();
 	int freeSSL();
