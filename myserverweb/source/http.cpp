@@ -256,7 +256,8 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
      *send a 401 error.  
      */
 		translateEscapeString(filename);
-		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
+		if((filename[0] != '\0') && 
+       (MYSERVER_FILE::getPathRecursionLevel(filename)<1))
 		{
 			return raiseHTTPError(td, s, e_401);
 		}
@@ -467,8 +468,8 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 }
 
 /*!
-*Delete the resource identified by filename.
-*/
+ *Delete the resource identified by filename.
+ */
 int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
                              char *filename, int yetmapped)
 {
@@ -1473,7 +1474,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		retvalue = raiseHTTPError(&td, a, e_400);
 		logHTTPaccess(&td, a);
 		return retvalue;
-	}/*!If the URI is too long*/
+	}
+  /*! if the URI is too long. */ 
 	else if(validRequest==414)
 	{
 		retvalue = raiseHTTPError(&td, a, e_414);

@@ -338,10 +338,13 @@ int http_headers::validHTTPResponse(char *res,httpThreadContext* td,
 		}
 		/*!
      *We set a maximal theorical number of characters in a line.
-     *If a line contains more than 4110 characters we consider the header invalid.
+     *If a line contains more than 4160 characters we consider the header invalid.
      */
-		if(nLinechars>4110)
+		if(nLinechars>4160)
+    {
+      isValidCommand = 0;
 			break;
+    }
 	}
 
 	/*!
@@ -382,7 +385,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
    */
 	u_long i=0,j=0;
 	int max=0;
-	u_long nLines,maxTotchars;
+	u_long nLines, maxTotchars;
 	int noinputspecified=0;
 	int validRequest;
 	const int max_URI = HTTP_REQUEST_URI_DIM + 200 ;
