@@ -54,5 +54,5 @@ void logout(int logon,LOGGEDUSERID *hImpersonation);
 
 void logonGuest();
 int getErrorFileName(char *root,int error,char* out);
-int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder=0);
+int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder=0,char *password2=0);
 #endif

@@ -166,9 +166,11 @@ int getErrorFileName(char *root,int error,char* out)
 	parser.close();
 	return found;
 }
-int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder)
+int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder,char *password2)
 {
 	char permissionsFile[MAX_PATH];
+	char tempPassword[32];
+	tempPassword[0]='\0';
 	folder[MAX_PATH-10]='\0';
 	sprintf(permissionsFile,"%s/security",folder);
 	/*
@@ -253,9 +255,13 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 				{
+					strcpy(tempPassword,(char*)attr->children->content);
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)password))
 						rightPassword=1;
 				}
+				if(rightUser && password2 && (filePermissions==0)&& (userPermissions==0))
+					strcpy(password2,tempPassword);
+
 				attr=attr->next;
 			}
 			if(rightUser && rightPassword)
@@ -305,9 +311,13 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 						}
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 						{
+							strcpy(tempPassword,(char*)attr->children->content);
 							if(!lstrcmp((const char*)attr->children->content,password))
 								rightPassword=1;
 						}
+						if(rightUser && password2)
+							strcpy(password2,tempPassword);
+
 						attr=attr->next;
 					}
 					if(rightUser && rightPassword)
