@@ -47,6 +47,11 @@ BEGIN
         MENUITEM "Stop",                        ID_FILE_STOP
         MENUITEM "&Quit",                       IDM_EXIT
     END
+    POPUP "Console"
+    BEGIN
+        MENUITEM "Run",                         ID_CONSOLE_RUN
+        MENUITEM "Stop",                        ID_CONSOLE_STOP
+    END
 END
 
 

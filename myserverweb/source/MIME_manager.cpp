@@ -30,13 +30,13 @@ html,text/html,SEND NONE;
 *3)simple script to describe the action to do for handle the files of this type.
 *The file is ended by a '#' character.
 */
-HRESULT MIME_Manager::load(char *filename)
+int MIME_Manager::load(char *filename)
 {
 	numMimeTypesLoaded=0;
 	char *buffer;
 	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	if(f==0)
-		return 1;
+		return 0;
 	DWORD fs=getFileSize(f);
 	buffer=(char*)malloc(fs+1);
 	DWORD nbw;
@@ -108,12 +108,12 @@ HRESULT MIME_Manager::load(char *filename)
 		nc++;
 	}
 	free(buffer);
-	return 0;
+	return numMimeTypesLoaded;
 
 }
 
 /*
-*This function returns true if the passed ext is registered by a CGI.
+*This function returns the type of action to do for handle this file type.
 *Passing a file extension ext this function fills the strings dest and dest2
 *respectly with the MIME type description and if there are the path to the CGI manager.
 */
@@ -124,9 +124,8 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 		if(!lstrcmpi(ext,mr->extension))
 		{
 			lstrcpy(dest,mr->mime_type);
-			if(mr->cgi_manager[0])
+			if(dest2 && mr->cgi_manager[0])
 			{
-				if(dest2)
 					lstrcpy(dest2,mr->cgi_manager);
 			}
 			return mr->command;

@@ -159,7 +159,7 @@ void cserver::start(INT hInst)
 	*/
 	getComputerName(serverName,(DWORD)sizeof(serverName));
 
-	printf("%s:%s\n",languageParser.getValue("MSG_GETNAME"),serverName);
+	printf("%s: %s\n",languageParser.getValue("MSG_GETNAME"),serverName);
 
 #ifdef WIN32
 	/*
@@ -183,8 +183,6 @@ void cserver::start(INT hInst)
 		freeaddrinfo(ai);
 	}
 #endif
-
-
 #ifdef WIN32
 	/*
 	*On the win32 platform load the MSCCGI library.
@@ -196,8 +194,8 @@ void cserver::start(INT hInst)
 	*Load the MIME types.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
-	if(!mimeManager.load("MIMEtypes.txt"))
-		printf("%s\n",languageParser.getValue("MSG_MIMERUN"));
+	if(int nMIMEtypes=mimeManager.load("MIMEtypes.txt"))
+		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
 	else
 		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
 
@@ -504,9 +502,7 @@ void cserver::initialize(INT OSVer)
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
 	{
-
 		connectionTimeout=SEC((DWORD)atol(data));
-
 	}
 
 	data=configurationFileManager.getValue("GUEST_LOGIN");
@@ -603,6 +599,9 @@ void cserver::initialize(INT OSVer)
 */
 VOID cserver::controlSizeLogFile()
 {
+	/*
+	*Controls the warnings file.
+	*/
 	if(!warningsLogFile)
 	{
 		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);

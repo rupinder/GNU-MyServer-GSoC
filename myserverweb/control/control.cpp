@@ -158,6 +158,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static int wmId, wmEvent;
 	static int nb;
 	static POINT p;
+	static STARTUPINFO si;
+	static PROCESS_INFORMATION pi;
+
 	switch (message) 
 	{
 	case WM_COMMAND:
@@ -176,6 +179,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
+			break;
+		case ID_CONSOLE_RUN:
+			CreateProcess(NULL,"myserver.exe CONSOLE",NULL,NULL,FALSE,0,0,0,&si,&pi);
+			break;
+		case ID_CONSOLE_STOP:
+			if(pi.hProcess)
+				TerminateProcess(pi.hProcess,0);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

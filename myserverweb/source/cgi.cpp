@@ -26,71 +26,6 @@
 #include "..\include\utility.h"
 #include <direct.h>
 
-/*
-*Sends the myServer CGI; differently form standard CGI this don't need a new process to run
-*so it is faster.
-*/
-BOOL sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
-{
-	/*
-	*This is the code for manage a .mscgi file.
-	*This files differently from standard CGI don't need a new process to run
-	*but are allocated in the caller process virtual space.
-	*Usually these files are faster than standard CGI.
-	*Actually myServerCGI(.mscgi) is only at an alpha status.
-	*/
-#ifdef WIN32
-	static HMODULE hinstLib; 
-    static CGIMAIN ProcMain;
-	static CGIINIT ProcInit;
- 
-    hinstLib = LoadLibrary(exec); 
-	td->buffer2[0]='\0';
-	if (hinstLib) 
-    { 
-		ProcInit = (CGIINIT) GetProcAddress(hinstLib, "initialize");
-		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
-		if(ProcInit && ProcMain)
-		{
-			(ProcInit)((LPVOID)td->buffer,(LPVOID)td->buffer2,(LPVOID)&(td->response),(LPVOID)&(td->request));
-			(ProcMain)(cmdLine);
-		}
-        FreeLibrary(hinstLib); 
-    } 
-	else
-	{
-		if(GetLastError()==ERROR_ACCESS_DENIED)
-		{
-			if(s->nTries > 2)
-			{
-				return raiseHTTPError(td,s,e_403);
-			}
-			else
-			{
-				s->nTries++;
-				return raiseHTTPError(td,s,e_401AUTH);
-			}
-		}
-		else
-		{
-			return raiseHTTPError(td,s,e_404);
-		}
-	}
-	static int len;
-	len=lstrlen(td->buffer2);
-	sprintf(td->response.CONTENTS_DIM,"%u",len);
-	buildHTTPResponseHeader(td->buffer,&td->response);
-	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
-	ms_send(s->socket,td->buffer2,len, 0);
-	return 1;
-#elif
-	/*
-	*On the platforms that is not available the support for the MSCGI send a 
-	*non implemented error.
-	*/
-	return raiseHTTPError(td,s,e_501);
-#endif
-}
 
 /*
 *Sends the standard CGI to a client.
@@ -103,7 +38,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*/
 	if(lserver->mustUseLogonOption())
 		revertToSelf();
-	char cmdLine[MAX_PATH*2];
+	char cmdLine[MAX_PATH*2+1];
 	char filename[MAX_PATH];
 
 	/*
@@ -164,13 +99,15 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	MYSERVER_FILE_HANDLE stdInFile = ms_CreateTemporaryFile(stdInFilePath);
 	
 	DWORD nbw;
+	
 	if(td->request.URIOPTSPTR)
-	{
 		ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
-		char *endFileStr="\r\n\r\n\0";
-		ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
-	}
+	else
+		ms_WriteToFile(stdInFile,td->request.URIOPTS,lstrlen(td->request.URIOPTS),&nbw);
 
+	char *endFileStr="\r\n\r\n\0";
+	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
+	setFilePointer(stdInFile,0);
 	/*
 	*With this code we execute the CGI process.
 	*Use the td->buffer2 to build the environment string.
@@ -191,8 +128,6 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	/*
 	*Read the CGI output.
 	*/
-	ms_CloseFile(stdOutFile);
-	stdOutFile=ms_OpenFile(stdOutFilePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	DWORD nBytesRead=0;
 	if(!setFilePointer(stdOutFile,0))
 		ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);

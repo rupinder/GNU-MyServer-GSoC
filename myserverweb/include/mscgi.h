@@ -21,10 +21,6 @@
 #include "..\stdafx.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\mime_manager.h"
-#include "..\include\mscgi.h"
-/*
-*Structure used by the HTTP protocol to describe a thread
-*/
+#include "..\include\cgi.h"
 struct httpThreadContext;
-BOOL sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
-void buildCGIEnvironmentString(httpThreadContext*,char*);
+BOOL sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);

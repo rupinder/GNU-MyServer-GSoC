@@ -19,7 +19,6 @@
 #include "StdAfx.h"
 #include "cgi_manager.h"
 #include "../include/Response_RequestStructs.h"
-#include "../include/stringutils.h"
 #pragma comment(lib,"wsock32.lib")
 static char* buffer;
 static char* buffer2;
@@ -74,27 +73,26 @@ cgi_manager::~cgi_manager(void)
 */
 char* cgi_manager::GetParam(char* param)
 {
-	if(req->URIOPTS==NULL)
+	if(req->URIOPTS[0]=='\0')
 		return NULL;
 	buffer[0]='\0';
-	char *tmp=strdup(req->URIOPTS);
-	char *token=strtok(tmp,"=");
-	while( token != NULL )
+	char *c=&req->URIOPTS[0];
+	for(;;)
 	{
-		if(!lstrcmpi(token,param))
+		while(strncmp(c,param,lstrlen(param)))c++;
+		c+=lstrlen(param);
+		if(*c=='=')
 		{
-			token=strtok( NULL, "&" );
-			if(token)
-				lstrcpy(buffer,token);
+			c++;
 			break;
 		}
-		else
-		{
-			token=strtok( NULL, "&" );
-		}
-		token = strtok( NULL, "=" );
 	}
-	delete[] tmp;
+	while((*c) && (*c!='&'))
+	{
+		buffer[lstrlen(buffer)+1]='\0';
+		buffer[lstrlen(buffer)]=*c;
+		c++;
+	}
 	return buffer;
 }
 
@@ -106,25 +104,25 @@ char* cgi_manager::PostParam(char* param)
 	if(req->URIOPTSPTR==NULL)
 		return NULL;
 	buffer[0]='\0';
-	char *tmp=strdup(req->URIOPTSPTR);
-	char *token=strtok(tmp,"=");
-	while( token != NULL )
+	char *c=req->URIOPTSPTR;
+	for(;;)
 	{
-		if(!lstrcmpi(token,param))
+		while(strncmp(c,param,lstrlen(param)))c++;
+		c+=lstrlen(param);
+		if(*c=='=')
 		{
-			token=strtok( NULL, "&" );
-			if(token)
-				lstrcpy(buffer,token);
+			c++;
 			break;
 		}
-		else
-		{
-			token=strtok( NULL, "&" );
-		}
-		token = strtok( NULL, "=" );
 	}
-	delete[] tmp;
+	while((*c) && (*c!='&'))
+	{
+		buffer[lstrlen(buffer)+1]='\0';
+		buffer[lstrlen(buffer)]=*c;
+		c++;
+	}
 	return buffer;
+
 }
 /*
 *Write to stdout.

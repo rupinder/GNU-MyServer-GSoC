@@ -189,12 +189,16 @@ BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
 #endif
 }
 /*
-*Returns a non-null value if the handle is a folder.
+*Returns a non-null value if the path is a folder.
 */
 INT	ms_IsFolder(char *filename)
 {
 #ifdef WIN32
-	return(GetFileAttributes(filename)&FILE_ATTRIBUTE_DIRECTORY)?1:0;
+	DWORD fa=GetFileAttributes(filename);
+	if(fa!=INVALID_FILE_ATTRIBUTES)
+		return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
+	else
+		return 0;
 #endif
 }
 
