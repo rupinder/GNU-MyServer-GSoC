@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type"
  content="text/html; charset=ISO-8859-1">
-  <link rel="stylesheet" type="text/css" href="./myserver.css">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
   <title>Performance</title>
 </head>
 <body>
@@ -59,7 +59,7 @@ The default value 0 means you will accept infinite connections. Any
 other value will limit how many users will be accessing your server.<br>
 <br>
 <span style="font-weight: bold;"><font class="code"><br>
-Max FastCGI Servers: (not available yet)<br>
+Max FastCGI Servers: <br>
 <br>
 </font></span>MyServer lets you configure the maximum number of FastCGI
 servers allowed to run, by changing the value in the line below, in
@@ -69,16 +69,15 @@ myserver.xml:<br>
 <br>
 <br>
 <span style="font-weight: bold;"><font class="code">Setting CGI
-Timeout: </font></span><span style="font-weight: bold;"><font
- class="code">(not available yet)</font></span><br>
+Timeout: </font></span><span style="font-weight: bold;"></span><br>
 <span style="font-weight: bold;"><font class="code"><br>
 </font></span>You can set the default timeout for your CGI scripts in
 MyServer by changing the value of the variable CGI_TIMEOUT in your
 myserver.xml file.<br>
 Just change the line below to fit your need:<br>
-&nbsp;&nbsp;&nbsp; &lt;CGI_TIMEOUT&gt;600&lt;/CGI_TIMEOUT&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;<br>
 The configuration above would mean you are setting the CGI Timeout to
-10 minutes (unit is "seconds")<br>
+15 seconds (unit is "seconds")<br>
 </div>
 </div>
 <br>
