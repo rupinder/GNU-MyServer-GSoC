@@ -95,7 +95,16 @@ int myserver_mutex::myserver_mutex_destroy()
 int myserver_mutex::myserver_mutex_lock(u_long id)
 {
 #ifdef HAVE_PTHREAD
+
+#ifdef PTHREAD_ALTERNATE_LOCK	
+	while(pthread_mutex_trylock(&mutex))
+	{
+		wait(1);
+	}
+#else
 	pthread_mutex_lock(&mutex);
+#endif	
+		
 #else	
 	WaitForSingleObject(mutex,INFINITE);
 #endif
