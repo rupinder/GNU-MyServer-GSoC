@@ -50,5 +50,6 @@ public:
   int endPrintError();
   void setType( int );
   int write( char *str, int len = 0 );
+  int getLogSize();
 };
 #endif

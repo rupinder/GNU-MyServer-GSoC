@@ -202,3 +202,21 @@ int MYSERVER_LOG_MANAGER::getMaxSize()
 {
   return max_size;
 }
+
+/*!
+ *Return the actual size for the log file.
+ */
+int MYSERVER_LOG_MANAGER::getLogSize()
+{
+  switch(type)
+  {
+    case TYPE_FILE:
+      return file.getFileSize();
+
+    case TYPE_CONSOLE:
+      return 0;
+  }
+
+  return 0;
+
+}
