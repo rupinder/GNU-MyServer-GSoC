@@ -54,6 +54,14 @@ typedef char* (*registerNamePROC)(char*,int);
 
 static void GetDynamicProtocols(const char *, Vector &);
 
+///
+/// Main function.
+/// Intilize all supporting libraries and windows.
+/// Gets the list of dynamic protocols and language files.
+/// Loads the first avaible configuration.
+/// Displays the main dialog.
+/// Waits for FLTK to quit and dose clean up.
+///
 int main(int argc, char * argv[])
 {
    char languages_path[MAX_PATH];
@@ -135,13 +143,13 @@ int main(int argc, char * argv[])
 	MYSERVER_FILE inputF;
 	MYSERVER_FILE outputF;
 	if(!MYSERVER_FILE::fileExists("myserver.xml.default"))
-	  {
+	  {  // no configuration files found
 	     fl_alert("Default configuration files not found.  Loading empty values.");
 	     confFound = false;
 	     conf_location = 0;
 	  }
 	else
-	  {
+	  {  // Copy the default files
 	     char buffer[512];
 	     u_long nbr, nbw;
 	     fl_alert("Configuration files not found.  Loading default files.");
@@ -196,11 +204,11 @@ int main(int argc, char * argv[])
    // Initilize APIs
    XmlParser::startXML();
    // LanguageXMLinit handeled internaly
-   //
+
    // Load the language file for configure
    // Handeled internaly
-   //
-   //
+
+
    // Initilize the Dialogs
    MainDlg Configure;
    Configure.make_window();
@@ -285,8 +293,10 @@ int main(int argc, char * argv[])
    return ret;
 }
 
-// get the local dynamic protocols
-// parts taken from protocols_manager.cpp 
+///
+/// Get the local dynamic protocols.
+/// Parts taken from protocols_manager.cpp
+/// 
 static void GetDynamicProtocols(const char * folder, Vector & list)
 {
    list.clear();

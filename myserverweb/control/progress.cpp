@@ -21,8 +21,14 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Progress.H>
 #include <stdio.h>
-/* Status callback function */
 
+///
+/// Status callback function.
+/// This updates the progress dialog in the interface.
+/// object is the pointer to the Fl_Progress FLTK class.
+/// len is the end value of the progress.
+/// pos is the current value of progress.
+///
 void ProgressCallback(void * Object, unsigned int len, unsigned int pos)
 {
    Fl_Progress * o = (Fl_Progress *)Object;  

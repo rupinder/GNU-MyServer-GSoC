@@ -24,6 +24,9 @@ extern "C"
 #include <string.h>
 }
 
+// Debug flag.  Set this to print (to stdout) xml tags that were not found.
+// This will generate the expected xml data that was not found that can
+// be copied to the english file.
 //#define DEBUG
 
 // pre vector.cpp, but it works
@@ -33,6 +36,9 @@ struct TextNode
    TextNode * next;
 };
 
+//
+// Some internal functions
+//
 static void LanguageXMLload();
 static inline const char * textmangler(const char *);
 static void AddText(char *);
@@ -40,11 +46,17 @@ static void ClearList();
 static void LanguageXMLinit();
 static int LanguageXMLfile(const char *);
 
+//
+// State vars and file handels
+//
 static TextNode * TextList = NULL;
 static bool loaded = false;
 static bool loadok = true;
 static XmlParser xmlFile;
 
+//
+// Const strings used for dialogs and messages
+// 
 const char * LanguageXMLLast_Change;
 const char * LanguageXMLNot_Found;
 const char * LanguageXMLReload_Prev;
@@ -67,7 +79,9 @@ const char * LanguageXMLLogin_Failed;
 const char * LanguageXMLCannot_Connect;
 const char * LanguageXMLServer_Closed;
 
-// Add the ptr to the list for latter deletetion
+///
+/// Add the ptr to the list for latter deletetion.
+///
 void AddText(char * val)
 {
    TextNode * current = new TextNode;
@@ -76,7 +90,9 @@ void AddText(char * val)
    TextList = current;
 }
 
-// Delete all alcotatied memory
+///
+/// Delete all alcotatied memory.
+///
 void ClearList()
 {
    TextNode * current;
@@ -89,7 +105,9 @@ void ClearList()
      }
 }
 
-// Initilize pointers and logic values
+///
+/// Initilize pointers and logic values.
+///
 void LanguageXMLinit()
 {
    LanguageXMLLast_Change = strdup("Last change not saved.  Continue anyways?");
@@ -117,7 +135,10 @@ void LanguageXMLinit()
    loadok = true;
 }
 
-// The cleanup function
+///
+/// The cleanup function.
+/// This function should be called before exiting the program.
+///
 void LanguageXMLend()
 {
    free((char *)LanguageXMLLast_Change);
@@ -144,6 +165,10 @@ void LanguageXMLend()
    ClearList();
 }
 
+///
+/// Internal function to automaticaly free memory when seting to a
+/// new value.
+///
 static int SetValueXML(char ** dest, const char * tag)
 {
    char * val;
@@ -156,7 +181,9 @@ static int SetValueXML(char ** dest, const char * tag)
    return 0;
 }
 
-// load the xml file and set const pointers
+///
+/// Load the xml file and set const pointers.
+///
 int LanguageXMLfile(const char * filename)
 {
    if(xmlFile.open((char *)filename))
@@ -189,7 +216,10 @@ int LanguageXMLfile(const char * filename)
    return 0;
 }
 
-// close the xml file
+///
+/// Close the xml file.
+/// This is called before LanguageEnd at the end of the program.
+///
 void LanguageXMLclose()
 {
    if(loaded)
@@ -199,7 +229,12 @@ void LanguageXMLclose()
      }
 }
 
-// The *hack* to load the correct xml file
+///
+/// The *hack* to load the correct xml file.
+/// This looks for the myserver.xml file and grabs the name of the
+/// lanugage file.  Then it tries to load that file in the default
+/// locations.
+///
 void LanguageXMLload()
 {
    char languages_path[MAX_PATH];
@@ -283,7 +318,12 @@ void LanguageXMLload()
 
 }
 
-// The do all function for translation
+///
+/// The do all function for translation.
+/// This automaticaly loads the correct language file on the first call.
+/// The tag is the english string that is mangled to an xml tag that is
+/// used to return the translated vr using the XmlParser class.
+///
 extern "C" char * gettext(const char * tag)
 {
    char * val;
@@ -322,7 +362,14 @@ extern "C" char * gettext(const char * tag)
    return text;
 }
 
-// Convert text into a xml tag
+///
+/// Convert text into a xml tag.
+/// This mangles the english text to make an xml tag.
+/// Bufferin is the english string and returns a pointer to an internal
+/// string of the xml tag.
+/// This uses the frist 20 chars of bufferin with letters to upper case
+/// and nonletters to underscore (_).
+///
 inline const char * textmangler(const char * Bufferin)
 {
    char Buffer[255];

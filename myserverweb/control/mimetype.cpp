@@ -32,18 +32,28 @@ using namespace std;
 
 const char * NONE = "NONE";
 
+///
+/// Constructor.
+///
 MIMEtypeXML::~MIMEtypeXML()
 {
    Mime.clear();
    ClearExt();
 }
 
+///
+/// Clear all memory.
+///
 void MIMEtypeXML::clear()
 {
    Mime.clear();
    ClearExt();
 }
 
+///
+/// Load the MIME types configuration file.
+/// Returns -1 on error.
+///
 int MIMEtypeXML::load(const char * filename)
 {
    XmlParser parser;
@@ -54,6 +64,10 @@ int MIMEtypeXML::load(const char * filename)
    return ret;
 }
 
+///
+/// Load the MIME types configuration from memory.
+/// returns -1 on error.
+///
 int MIMEtypeXML::loadMemBuf(CMemBuf & buffer)
 {
    XmlParser parser;
@@ -64,8 +78,12 @@ int MIMEtypeXML::loadMemBuf(CMemBuf & buffer)
    return ret;
 }
 
-// Copied and modified from MIME_manager.cpp
-// TODO: Change to use libxml2 or XmlParser more "proper"
+///
+/// Load the values from xml data.
+/// Copied and modified from MIME_manager.cpp
+/// Only returns 0.
+//  TODO: Change to use libxml2 or XmlParser more "proper"
+// 
 int MIMEtypeXML::load_core(XmlParser & parser)
 {
    int extNumber = 0;
@@ -146,6 +164,10 @@ int MIMEtypeXML::load_core(XmlParser & parser)
    return 0;
 }
 
+///
+/// Save the MIME types configuration to file.
+/// Returns negative on error.
+///
 int MIMEtypeXML::save(const char * filename)
 {
    XmlParser xmlFile;
@@ -155,6 +177,10 @@ int MIMEtypeXML::save(const char * filename)
    return ret;
 }
 
+///
+/// Save the MIME types configuration to a memory buffer.
+/// Returns negative on error.
+///
 int MIMEtypeXML::saveMemBuf(CMemBuf & buffer)
 {
    XmlParser xmlFile;
@@ -164,8 +190,12 @@ int MIMEtypeXML::saveMemBuf(CMemBuf & buffer)
    return ret;
 }
    
-// Copied and modified from MIME_manager.cpp
-// Old text way remove to make use of CMemBuf
+///
+/// Save the MIME types configuration to xml data.
+/// Returns negative on error.
+//  Copied and modified from MIME_manager.cpp
+//  Old text way remove to make use of CMemBuf
+// 
 int MIMEtypeXML::save_core(XmlParser & xmlFile)
 {
    if(Ext.isempty())
@@ -225,6 +255,10 @@ int MIMEtypeXML::save_core(XmlParser & xmlFile)
    return 0;
 }
 
+///
+/// Populate the list box in the interface with the ext names.
+/// Takes a pointer to the Fl_Browser FLTK class.
+///
 void MIMEtypeXML::populateExt(Fl_Browser * o)
 {
    o->clear();
@@ -232,6 +266,10 @@ void MIMEtypeXML::populateExt(Fl_Browser * o)
      o->add(Ext.at(i)->Text);
 }
 
+///
+/// Populate the slection box in the interface with the MIME types.
+/// Takes a pointer to the Fl_Choice FLTK class.
+///
 void MIMEtypeXML::populateMime(Fl_Choice * o)
 {
    o->clear();
@@ -252,6 +290,12 @@ void MIMEtypeXML::populateMime(Fl_Choice * o)
      }
 }
 
+///
+/// Adds an ext name to the ext list.
+/// If the ext given in name is already in the list, just return the
+/// location in the list.  Otherwise add the ext name and return the
+/// location in the list.
+///
 int MIMEtypeXML::addExt(const char * name)
 {
    VectorNode * ret;
@@ -268,6 +312,12 @@ int MIMEtypeXML::addExt(const char * name)
    return ret->Number;
 }
 
+///
+/// Adds a MIME type to the MIME list.
+/// If the MIME given in name is already in the list, just return the
+/// location in the list.  Otherwise add the ext name and return the
+/// location in the list.
+///
 int MIMEtypeXML::addMime(const char * name)
 {
    int i;
@@ -280,22 +330,41 @@ int MIMEtypeXML::addMime(const char * name)
    return ret->Number;
 }
 
+///
+/// Removes an ext from the list.
+/// Takes the location number in the list.
+///
 void MIMEtypeXML::removeExt(int extNumber)
 {
    DeleteMimeNode(((MimeNode *)(Ext.at(extNumber)->Data)));
    Ext.remove(extNumber);
 }
 
+///
+/// Sets an ext to a MIME type.
+/// extNumber is the location number of the ext.
+/// mimeNumber is the location number of the MIME type.
+///
 void MIMEtypeXML::setType(int extNumber, int mimeNumber)
 {
    ((MimeNode *)(Ext.at(extNumber)->Data))->Type = Mime.at(mimeNumber);
 }
 
+///
+/// Sets the command type of the ext.
+/// extNumber is the location number of the ext.
+/// cmdNumber is the enum of the command.  See mimetype.h
+///
 void MIMEtypeXML::setCmd(int extNumber, int cmdNumber)
 {
    ((MimeNode *)(Ext.at(extNumber)->Data))->Cmd = cmdNumber;
 }
 
+///
+/// Sets the cgi manager for the ext.
+/// extNumber is the location number of the ext.
+/// name is the compleate path and exe name of the manager.
+///
 void MIMEtypeXML::setManager(int extNumber, const char * name)
 {
    char * chrptr = ((MimeNode *)(Ext.at(extNumber)->Data))->Manager;
@@ -307,6 +376,11 @@ void MIMEtypeXML::setManager(int extNumber, const char * name)
      ((MimeNode *)(Ext.at(extNumber)->Data))->Manager = (char *)NONE;
 }
 
+///
+/// Gets the MIME type of the ext.
+/// Takes the location number of the ext and returns the MIME 
+/// location number.
+///
 int MIMEtypeXML::getType(int extNumber)
 {
    VectorNode * ret = ((MimeNode *)(Ext.at(extNumber)->Data))->Type;
@@ -315,16 +389,29 @@ int MIMEtypeXML::getType(int extNumber)
    return ret->Number;
 }
 
+///
+/// Gets the cgi command type of the ext.
+/// Takes the location number of the ext and returns the command type
+/// number. (see mimetype.h)
+///
 int MIMEtypeXML::getCmd(int extNumber)
 {
    return ((MimeNode *)(Ext.at(extNumber)->Data))->Cmd;
 }
 
+///
+/// Gets the cgi manager of the ext.
+/// Takes the location number of the ext and returns a pointer to an internal
+/// string of the manager with compleat path.
+///
 const char * MIMEtypeXML::getManager(int extNumber)
 {
    return ((MimeNode *)(Ext.at(extNumber)->Data))->Manager;
 }
 
+///
+/// Clear the ext list.
+///
 void MIMEtypeXML::ClearExt()
 {
    int i;
@@ -335,6 +422,10 @@ void MIMEtypeXML::ClearExt()
    Ext.clear();
 }
 
+///
+/// Remove a MIME type.
+/// Take a pointer to the MIME type node.
+///
 void MIMEtypeXML::DeleteMimeNode(MimeNode * Node)
 {
    if(Node->Manager != NULL && Node->Manager != NONE)

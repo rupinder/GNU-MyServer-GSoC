@@ -24,6 +24,9 @@
 
 #include "../include/vector.h"
 
+///
+/// CGI command type numbers.
+///
 enum
 {
    CMD_SEND = 0,
@@ -38,15 +41,25 @@ enum
    CMD_EXECUTEFASTCGI
 };
 
+///
+/// A pointer used to spesify "NONE"
+///
 extern const char * NONE;
 
+///
+/// MIME type node.
+/// This is used to store the MIME type data for each ext.
+///
 struct MimeNode
 {
-   VectorNode * Type;
-   int Cmd;
-   char * Manager;
+   VectorNode * Type;  /// Pointer to the MIME type.
+   int Cmd;            /// The cgi command number.
+   char * Manager;     /// The cgi manager string.
 };
 
+///
+/// Loads and saves the MIME type configuration and manipulate the data.
+/// 
 class MIMEtypeXML
 {
  public:
