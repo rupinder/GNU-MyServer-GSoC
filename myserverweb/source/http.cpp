@@ -552,7 +552,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*/
 		char stdInFilePath[MAX_PATH];
 		ms_getdefaultwd(stdInFilePath,MAX_PATH);
-		sprintf(&stdInFilePath[lstrlen(stdInFilePath)],"/stdInFile__%u",td.id);
+		sprintf(&stdInFilePath[lstrlen(stdInFilePath)],"/stdInFile_%u",td.id);
 		td.inputData=ms_CreateTemporaryFile(stdInFilePath);
 		u_long nbw;
 		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
@@ -755,6 +755,7 @@ void resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 	response->ERROR_TYPE[0]='\0';
 	response->LOCATION[0]='\0';
 	response->DATE[0]='\0';		
+	response->AUTH[0]='\0';
 	response->DATEEXP[0]='\0';	
 	response->OTHER[0]='\0';	
 }
@@ -771,7 +772,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	*Every directive ends with a \r\n sequence.
     */
 	if(response->httpStatus!=200)
-		sprintf(str,"HTTP/%s %s\r\nStatus: %s\r\n",response->VER,response->ERROR_TYPE,response->ERROR_TYPE);
+		sprintf(str,"HTTP/%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus,response->ERROR_TYPE,response->ERROR_TYPE);
 	else
 		sprintf(str,"HTTP/%s 200 OK\r\n",response->VER);
 
@@ -805,12 +806,6 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		lstrcat(str,response->P3P);
 		lstrcat(str,"\r\n");
 	}
-	if(response->SERVER_NAME[0])
-	{
-		lstrcat(str,"Server:");
-		lstrcat(str,response->SERVER_NAME);
-		lstrcat(str,"\r\n");
-	}
 	if(response->MIMEVER[0])
 	{
 		lstrcat(str,"MIME-Version:");
@@ -835,6 +830,13 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		lstrcat(str,response->DATEEXP);
 		lstrcat(str,"\r\n");
 	}
+	if(response->AUTH[0])
+	{
+		lstrcat(str,"WWW-Authenticate:");
+		lstrcat(str,response->AUTH);
+		lstrcat(str,"\r\n");
+	}
+	
 	if(response->LOCATION[0])
 	{
 		lstrcat(str,"Location:");
@@ -844,7 +846,6 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	if(response->OTHER[0])
 	{
 		lstrcat(str,response->OTHER);
-		lstrcat(str,"\r\n");
 	}
 
 	/*
@@ -1427,7 +1428,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 			token = strtok( NULL, " ,\t\n\r" );
 			td->response.httpStatus=atoi(token);
 			
-			token = strtok( NULL, seps );
+			token = strtok( NULL, "\r\n" );
 			strcpy(td->response.ERROR_TYPE,token);
 
 		}else
@@ -1526,6 +1527,8 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 		if(!lineControlled)
 		{
 			token = strtok( NULL, "\n" );
+			strcat(td->response.OTHER,token);
+			strcat(td->response.OTHER,"\r\n");
 		}
 		token = strtok( NULL, cmdseps );
 	}while((u_long)(token-td->buffer)<maxTotchars);

@@ -36,7 +36,7 @@ struct HTTP_RESPONSE_HEADER
 	char LOCATION[MAX_PATH];
 	char DATE[30];		
 	char DATEEXP[30];	
-
+	char AUTH[48];
 	char OTHER[256];	
 
 };
@@ -49,7 +49,7 @@ struct HTTP_REQUEST_HEADER
 	char CMD[16];		
 	char VER[10];		
 	char ACCEPT[128];
-	char AUTH[32];
+	char AUTH[48];
 	char ACCEPTENC[64];	
 	char ACCEPTLAN[64];	
 	char ACCEPTCHARSET[64];

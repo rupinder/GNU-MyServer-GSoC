@@ -167,7 +167,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*/
 	u_long nBytesRead=0;
 	if(!ms_setFilePointer(stdOutFile,0))
-		ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);
+		ms_ReadFromFile(stdOutFile,td->buffer2,KB(200),&nBytesRead);
 	else
 		td->buffer2[0]='\0';
 	int yetoutputted=0;
@@ -265,7 +265,14 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		buildHTTPResponseHeader(td->buffer,&td->response);
 		ms_send(s->socket,td->buffer,(int)strlen(td->buffer), 0);
 		ms_send(s->socket,(char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
-
+		while(	ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead))
+		{
+			if(nBytesRead)
+				ms_send(s->socket,(char*)td->buffer2,nBytesRead, 0);
+			else
+				break;
+		}
+		
 	}
 	
 	/*

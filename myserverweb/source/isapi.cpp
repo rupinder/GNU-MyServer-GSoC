@@ -380,7 +380,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 	{
 		char stdOutFilePath[MAX_PATH];
 		ms_getdefaultwd(stdOutFilePath,MAX_PATH);
-		sprintf(&stdOutFilePath[lstrlen(stdOutFilePath)],"/stdOutFile__%u",ConnInfo->td->id);
+		sprintf(&stdOutFilePath[lstrlen(stdOutFilePath)],"/stdOutFile_%u",ConnInfo->td->id);
 		ConnInfo->td->outputData=ms_CreateTemporaryFile(stdOutFilePath);
 	}
 	DWORD nbw;
