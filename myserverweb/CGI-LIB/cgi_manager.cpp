@@ -40,6 +40,19 @@ int cgi_manager::Write(char* str)
 	return 0;
 }
 /*!
+*Write binary to the stdout.
+*/
+int cgi_manager::Write(void* data, int len)
+{
+	if(data)
+	{
+		u_long nbw;
+		cgidata->stdOut.writeToFile((char*)data,(u_long)len,&nbw);
+		return 1;
+	}
+	return 0;
+}
+/*!
 *Start the execution of the CGI.
 */
 int cgi_manager::Start(cgi_data* data)
