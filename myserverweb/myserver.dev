@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=86
+UnitCount=88
 Type=1
 Ver=1
 ObjFiles=
@@ -951,7 +951,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit87]
-FileName=include\lfind.h
+FileName=source\dynamiclib.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit88]
+FileName=include\dynamiclib.h
 CompileCpp=1
 Folder=myserver
 Compile=1
