@@ -369,9 +369,9 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		else
 			MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
 		if(td->connection->login[0])
-			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename);
+			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
 		else/*The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",td->filenamePath,filename);
+			permissions=getPermissionMask("Guest","",td->filenamePath,filename,((vhost*)(td->connection->host))->systemRoot);
 	}
 	/*
 	*Get the PATH_INFO value.

@@ -120,20 +120,31 @@ void logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
 */
 void logonGuest()
 {
-#ifdef WIN32
-//	if(useLogonOption)
-//		LogonUser("Guest",NULL,"guest",LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)&guestLoginHandle);
-#endif
+
+
 }
-int getPermissionMask(char* user, char* password,char* folder,char* filename)
+int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder)
 {
 	char permissionsFile[MAX_PATH];
 	sprintf(permissionsFile,"%s/security",folder);
 	/*
 	*If the file doesn't exist allow everyone to do everything
 	*/
-	if((!useLogonOption) || (!MYSERVER_FILE::fileExists(permissionsFile)))
+	if(!useLogonOption)
 		return (-1);
+	if(!MYSERVER_FILE::fileExists(permissionsFile))
+	{
+		/*
+		*If the security file doesn't exist try with a default one.
+		*/
+		if(sysfolder!=0)
+			return getPermissionMask(user,password,sysfolder,filename,0);
+		else
+		/*
+		*If the default one doesn't exist too send full permissions for everyone
+		*/
+			return (-1);
+	}
 	cXMLParser parser;
 	parser.open(permissionsFile);
 	xmlDocPtr doc=parser.getDoc();
