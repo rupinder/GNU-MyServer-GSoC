@@ -25,7 +25,7 @@ control.o : control.cpp
 	$(CPP) $(CPP-FLAGS) -c control.cpp
 
 lfind.o : ../source/lfind.cpp
-	$(CPP) -c ../source/lfind.cpp -o ./lfind.o
+	$(CPP) $(CPP-FLAGS) -c ../source/lfind.cpp -o ./lfind.o
 
 clean :
 	rm -f *.o ../binaries/control

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "configuration.h"
 
 #ifndef WIN32
-#include "../source/lfind.cpp"
+#include "../include/lfind.h"
 #endif
 static int yetVisible=0;
 enum
