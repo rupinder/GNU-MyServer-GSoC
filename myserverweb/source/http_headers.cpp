@@ -397,7 +397,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	int validRequest;
 	const int max_URI = HTTP_REQUEST_URI_DIM + 200 ;
 	const char seps[]   = "\n\r";
-	const char cmdseps[]   = ": ,\t\n\r";
+	const char cmdSeps[]   = ": ,\t\n\r";
 
 	char *token=0;
 	char command[96];
@@ -428,7 +428,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	{
 		input=token=(char*)td->buffer->GetBuffer();
 	}
-	tokenOff = getCharInString(token, cmdseps, HTTP_REQUEST_CMD_DIM);
+	tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
 	do
 	{
 		if(tokenOff== -1 )
@@ -956,7 +956,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 	char *newInput;
 	u_long nLines,maxTotchars;
 	u_long validResponse;
-	const char cmdseps[]   = ": ,\t\n\r\0";
+	const char cmdSeps[]   = ": ,\t\n\r\0";
 
 	int containStatusLine=0;
 	char *token=0;
@@ -1167,7 +1167,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         strncat(response->OTHER, "\n", 1);     
 			}
 		}
-		token = strtok( NULL, cmdseps );
+		token = strtok( NULL, cmdSeps );
 	}while((u_long)(token-input)<maxTotchars);
 	/*!
    *END REQUEST STRUCTURE BUILD.
