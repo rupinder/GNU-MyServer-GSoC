@@ -212,7 +212,7 @@ int http_dir::send(httpThreadContext* td, LPCONNECTION s, char* directory,
   {
     delete [] td->outputDataPath;
     td->outputDataPath = 0;
-    return sendHTTPhardError500(td, s);
+    return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 	sprintf(filename, "%s/*", directory);
 #endif

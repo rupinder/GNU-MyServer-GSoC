@@ -891,7 +891,7 @@ int isapi::load()
 {
 #ifdef WIN32
 	if(initialized)
-		return;
+		return 0;
 	isapi_mutex = new myserver_mutex;
 	max_Connections=lserver->getNumThreads();
 	

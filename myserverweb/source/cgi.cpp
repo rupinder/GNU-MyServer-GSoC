@@ -66,6 +66,7 @@ int cgi::send(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
+  int cmdLineLen;
 	char *cmdLine = 0;
 	char *filename = 0;
 	int yetoutputted=0;
@@ -157,7 +158,6 @@ int cgi::send(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 
 	if(execute)
   {
-    
     int filenameLen = 0;
     MYSERVER_FILE::getFilenameLength(scriptpath, &filenameLen);
     
@@ -224,7 +224,6 @@ int cgi::send(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	}
 	else
 	{
-    int cmdLineLen;
      /*! Check if the CGI executable exists. */
 		if((!cgipath) || (!MYSERVER_FILE::fileExists(cgipath)))
 		{
