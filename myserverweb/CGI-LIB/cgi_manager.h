@@ -15,6 +15,9 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+#ifndef CGI_MANAGER_H
+#define CGI_MANAGER_H
+
 #ifdef WIN32
 #define EXPORTABLE _declspec(dllexport)
 #endif
@@ -57,3 +60,5 @@ public:
 	int Write(char*);
 	int Write(void*, int);
 };
+
+#endif
