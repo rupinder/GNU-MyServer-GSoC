@@ -374,13 +374,13 @@ char *MYSERVER_FILE::getFilename()
 }
 /*!
  *Read data from a file to a buffer.
- *Return 1 if we don't reach the ond of the file.
- *Return 0 if the end of the file is reached.
+ *Return 1 or errors.
+ *Return 0 on success.
  */
 int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
-	int ret = ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
+	int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
 	return (!ret);
 #endif
 #ifdef NOT_WIN
@@ -486,9 +486,9 @@ int MYSERVER_FILE::setFilePointer(u_long initialByte)
 #endif
 }
 /*!
- *Returns a non-null value if the path is a folder.
+ *Returns a non-null value if the path is a directory.
  */
-int MYSERVER_FILE::isFolder(char *filename)
+int MYSERVER_FILE::isDirectory(char *filename)
 {
 #ifdef WIN32
 	u_long fa=GetFileAttributes(filename);

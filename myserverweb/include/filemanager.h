@@ -68,7 +68,7 @@ public:
 	int closeFile();
 	int getShortFileName(char*,int);
 	static int completePath(char**, int *size, int dontRealloc=0);
-	static int isFolder(char*);
+	static int isDirectory(char*);
 	static int getShortFileName(char*,char*,int);
 	static int fileExists(char * );
 	static int deleteFile(char * );

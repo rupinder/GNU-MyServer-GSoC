@@ -806,7 +806,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	}
 	int permissions=-1;
 	char *folder=0;
-	if(MYSERVER_FILE::isFolder(td->filenamePath))
+	if(MYSERVER_FILE::isDirectory(td->filenamePath))
   {
     folder = new char[strlen(td->filenamePath) + 1];
     if(folder == 0)
@@ -1042,7 +1042,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	}
 	int permissions=-1;
 	char *folder;
-	if(MYSERVER_FILE::isFolder(td->filenamePath))
+	if(MYSERVER_FILE::isDirectory(td->filenamePath))
   {
     int folder_len = strlen(td->filenamePath)+1;
     folder = new char[folder_len];
@@ -1315,7 +1315,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	{
 		char *folder;
 		char auth_type[16];
-		if(MYSERVER_FILE::isFolder(td->filenamePath))
+		if(MYSERVER_FILE::isDirectory(td->filenamePath))
     {
       folder = new char[strlen(td->filenamePath) + 1];
       if(folder == 0)
@@ -1426,7 +1426,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
      */
 		if(i && (td->filenamePath[i]=='/'))
 		{
-			if(!MYSERVER_FILE::isFolder(dirscan))
+			if(!MYSERVER_FILE::isDirectory(dirscan))
 			{
 				/*!
          *If the token is a file.
@@ -1492,7 +1492,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    *	2)We send the folder content.
    *	3)We send an error.
    */
-	if(MYSERVER_FILE::isFolder((char *)(td->filenamePath)))
+	if(MYSERVER_FILE::isDirectory((char *)(td->filenamePath)))
 	{
 		if(!(permissions & MYSERVER_PERMISSION_BROWSE))
 		{

@@ -352,7 +352,18 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	spi.envString=(char*)td->buffer2->GetBuffer();
 
   /*! Execute the CGI process. */
-	execHiddenProcess(&spi);
+	if(execHiddenProcess(&spi))
+  {
+    stdInFile.closeFile();
+		stdOutFile.closeFile();
+    delete [] cmdLine;
+    delete [] filename;
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)(td->connection->host))->warningsLogWrite
+                               ("Error in the CGI execution\r\n");
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+  }   
 
   /*! Reset the buffer2 length counter. */
 	td->buffer2->SetLength(0);
@@ -374,8 +385,19 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   
-  stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
-                          td->buffer2->GetRealLength()-1, &nBytesRead);
+  if(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
+                             td->buffer2->GetRealLength()-1, &nBytesRead))
+  {
+    stdInFile.closeFile();
+		stdOutFile.closeFile();
+    delete [] cmdLine;
+    delete [] filename;
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)(td->connection->host))->warningsLogWrite
+                               ("Error reading from CGI std out file\r\n");
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+  }
 		
 	((char*)td->buffer2->GetBuffer())[nBytesRead]='\0';
 		

@@ -50,7 +50,7 @@ struct START_PROC_INFO
 };
 #endif
 
-u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
-u_long execConcurrentProcess(START_PROC_INFO* spi);
+int execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
+int execConcurrentProcess(START_PROC_INFO* spi);
 int terminateProcess(u_long);
 #endif
