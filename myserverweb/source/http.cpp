@@ -61,18 +61,32 @@ extern "C"
 #define intptr_t int
 #endif
 
-int http::mscgiLoaded=0;/*! Store if the MSCGI library was loaded.  */
-char *http::browseDirCSSpath=0;/*! Path to the .css file used by directory browsing.  */
-u_long http::gzip_threshold=0;/*! Threshold value to send data in gzip.  */
-int http::useMessagesFiles=0;/*!Use files for HTTP errors?  */
-char *http::defaultFilename=0;	/*! Array with default filenames.  */
-u_long http::nDefaultFilename=0;/*! Number of the elements in the array.  */
-int http::initialized=0;/*! Is the HTTP protocol loaded?  */
+/*! Store if the MSCGI library was loaded.  */
+int http::mscgiLoaded=0;
+
+/*! Path to the .css file used by directory browsing.  */
+char *http::browseDirCSSpath=0;
+
+
+/*! Threshold value to send data in gzip.  */
+u_long http::gzip_threshold=0;
+
+/*!Use files for HTTP errors?  */
+int http::useMessagesFiles=0;
+
+/*! Array with default filenames.  */
+char *http::defaultFilename=0;
+
+/*! Number of the elements in the array.  */
+u_long http::nDefaultFilename=0;
+
+/*! Is the HTTP protocol loaded?  */
+int http::initialized=0;
 
 
 /*!
-*Browse a folder printing its contents in an HTML file.
-*/
+ *Browse a folder printing its contents in an HTML file.
+ */
 int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 {
 	/*! Send the folder content.  */
@@ -118,10 +132,10 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 			if(startchar==nDirectories)
 			{
 				/*!
-				*At the end of the loop set startchar to te real value.
-				*startchar indicates the initial position in td->request.URI 
-				*of the file path.
-				*/
+         *At the end of the loop set startchar to te real value.
+         *startchar indicates the initial position in td->request.URI 
+         *of the file path.
+         */
 				startchar=i+1;
 				break;
 			}
@@ -240,7 +254,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
    *files in the folder.  
    */
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "<table width=\"100%%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n<td><b>Last Modify</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
+	*td->buffer2 << "<table width=\"100%%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n  \
+                 <td><b>Last Modify</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
 	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
                                     (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
@@ -392,7 +407,8 @@ int http::optionsHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char* /*fil
 /*!
 *Handle the HTTP TRACE command.
 */
-int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char* /*filename*/, int /*yetmapped*/)
+int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
+                            char* /*filename*/, int /*yetmapped*/)
 {
 	int ret;
 	char tmpStr[12];
@@ -406,7 +422,8 @@ int http::traceHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char* /*filen
 	*td->buffer2 << "Date: " << time ;
 	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
 	*td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
-	*td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
+	*td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) 
+               << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
 	
 	/*! Send our HTTP header.  */
 	ret = s->socket.send((char*)td->buffer2->GetBuffer(), 
@@ -806,9 +823,15 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 	int permissions2=0;
 	char auth_type[16];	
 	if(td->request.AUTH[0])
-		permissions=getPermissionMask(s->login, s->password, folder, filename, ((vhost*)(s->host))->systemRoot, ((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16, &permissions2);
+		permissions=getPermissionMask(s->login, s->password, folder, filename, 
+                                  ((vhost*)(s->host))->systemRoot, 
+                                  ((http_user_data*)s->protocolBuffer)->needed_password
+                                  , auth_type, 16, &permissions2);
 	else/*!The default user is Guest with a null password*/
-		permissions=getPermissionMask("Guest", "", folder, filename, ((vhost*)(s->host))->systemRoot, ((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);
+		permissions=getPermissionMask("Guest", "", folder, filename, 
+                                  ((vhost*)(s->host))->systemRoot, 
+                                  ((http_user_data*)s->protocolBuffer)->needed_password
+                                  , auth_type, 16);
 
 	/*! Check if we have to use digest for the current directory.  */
 	if(!lstrcmpi(auth_type, "Digest"))
@@ -1159,8 +1182,8 @@ u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
 }
 
 /*!
-*Reset an http_user_data structure.
-*/
+ *Reset an http_user_data structure.
+ */
 void http::resetHTTPUserData(http_user_data* ud)
 {
 	ud->realm[0]='\0';
@@ -1356,8 +1379,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 			if(!MYSERVER_FILE::isFolder(dirscan))
 			{
 				/*!
-				*If the token is a file.
-				*/
+         *If the token is a file.
+         */
         if(td->pathInfo)
           delete [] td->pathInfo;
         td->pathInfo = new char[strlen(&td->filenamePath[len])+1];
@@ -1391,9 +1414,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	}
 	delete []  dirscan;
 	/*!
-	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
-	*PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
-	*/
+   *If there is a PATH_INFO value the get the PATH_TRANSLATED too.
+   *PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
+   */
 	if(td->pathInfo)
 	{
    	if(td->pathTranslated)
@@ -1413,7 +1436,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 	MYSERVER_FILE::completePath(&(td->filenamePath), &filenamePathLen);
 
 	/*!
-   *If there are not any extension then we do one of this in order:
+   *  If there are not any extension then we do one of this in order:
    *	1)We send the default files in the folder in order.
    *	2)We send the folder content.
    *	3)We send an error.
@@ -2259,7 +2282,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 			/*!
        *Find the virtual host to check both host name and IP value.
        */
-			a->host=lserver->vhostList->getvHost(td.request.HOST, a->localIpAddr, a->localPort);
+			a->host=lserver->vhostList->getvHost(td.request.HOST, a->localIpAddr, 
+                                           a->localPort);
 			if(a->host==0)
 			{
 				raiseHTTPError(&td, a, e_400);
