@@ -45,6 +45,7 @@ extern "C" {
 */
 int cXMLParser::open(char* filename)
 {
+	cur=0;
 	if(doc==0)
 		doc = xmlParseFile(filename);
 	else
@@ -76,6 +77,8 @@ xmlDocPtr cXMLParser::getDoc()
 */
 char *cXMLParser::getValue(char* vName)
 {
+	if(!cur)
+		return 0;
 	xmlNodePtr lcur=cur->xmlChildrenNode;
 	buffer[0]='\0';
 	while(lcur)
@@ -118,6 +121,7 @@ int cXMLParser::close()
 {
 	xmlFreeDoc(doc);
 	doc=0;
+	cur=0;
 	return 0;
 }
 /*!

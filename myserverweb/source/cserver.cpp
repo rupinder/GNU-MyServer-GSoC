@@ -286,7 +286,6 @@ int cserver::createServerAndListener(u_long port)
 
 	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port);
 
-
 	printf("%s\n",languageParser.getValue("MSG_LISTENTR"));
 	/*!
 	*Create the listen thread.
