@@ -81,6 +81,54 @@ The configuration above would mean you are setting the CGI Timeout to
 </div>
 </div>
 <br>
+<div style="text-align: left;"><span style="font-weight: bold;"><font
+ class="code"><br>
+Setting CGI
+Timeout: <br>
+<br>
+</font></span>You can set the data throttling rate for connections in
+MyServer (by default, it's disabled) by adding a line like the
+following, in you myserver.xml file:<br>
+&nbsp;&nbsp;&nbsp; &lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;
+<br>
+(Unit is bytes/second)<br>
+If that same line is available in virtualhosts.xml, it will enable and
+configure data throttling for the corresponding virtual host.<br>
+<br>
+<br>
+Also, you can configure the data throttling for individual directories,
+using these configurations in your secutiy file:<br>
+&nbsp;&nbsp;&nbsp; &lt;USER NAME="Guest" PASS="" READ="TRUE"
+WRITE="TRUE" BROWSE="TRUE"<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; EXECUTE="TRUE"
+THROTTLING_RATE="1024"/&gt;
+<br>
+With that, you'd enabling the trottlling of 1024&nbsp; bytes/second
+for the user Guest.<br>
+If you add a line like the following, you will be enabling throttling
+for a file named "bigfile":<br>
+&nbsp;&nbsp;&nbsp; &lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE"
+EXECUTE="FALSE"<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; THROTTLING_RATE="1024" /&gt;
+<br>
+You can also mix the two possibilities and set this configuration for a
+specified user on a single file:<br>
+&nbsp;&nbsp;&nbsp; &lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE"
+EXECUTE="FALSE"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;USER NAME="Guest" PASS="" READ="TRUE"
+WRITE="TRUE" BROWSE="TRUE"<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; EXECUTE="TRUE"
+THROTTLING_RATE="1024"/&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/ITEM&gt;
+<br>
+<br>
+This is the order of checking for dta throlling configuration:<br>
+1) User &amp; file(USER attribute inside ITEM).<br>
+2) File(ITEM attribute).<br>
+3) User(USER attribute).<br>
+4) Virtual host(virtualhosts.xml file).<br>
+5) Server configuration(myserver.xml file).<br>
+</div>
 </div>
 </body>
 </html>
