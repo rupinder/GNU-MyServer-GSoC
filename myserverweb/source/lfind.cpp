@@ -45,7 +45,8 @@ myserver_finddata_t::~myserver_finddata_t()
 }
 
 /*!
- *Return zero on success.
+ *Find the first file using its name.
+ *Return -1 or errors.
  */
 int myserver_finddata_t::findfirst(const char filename[])
 {
@@ -100,6 +101,9 @@ int myserver_finddata_t::findfirst(const char filename[])
 #endif
 }
 
+/*!
+ *Find the next file in the directory.
+ */
 int myserver_finddata_t::findnext()
 {
 #ifdef WIN32
@@ -141,6 +145,9 @@ int myserver_finddata_t::findnext()
 #endif
 }
 
+/*!
+ *Free the used resources.
+ */
 int myserver_finddata_t::findclose()
 {
 #ifdef WIN32
