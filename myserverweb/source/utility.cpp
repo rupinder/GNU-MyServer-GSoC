@@ -68,7 +68,7 @@ void gotoNextLine(char* cmd)
 }
 
 /*
-*Get the file extension
+*Get the file extension of a path
 */
 void getFileExt(char* ext,char*filename)
 {

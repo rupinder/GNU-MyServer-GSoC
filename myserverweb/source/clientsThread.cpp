@@ -142,7 +142,7 @@ void ClientsTHREAD::clean()
 *Add a new connection.
 *Connections are defined using a CONNECTION struct.
 */
-LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
+LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr)
 {
 	requestAccess(&connectionWriteAccess,this->id);
 	const int maxRcvBuffer=KB(5);
@@ -154,6 +154,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;
 	nc->protocol=protID;
+	lstrcpy(nc->ipAddr,ipAddr);
 	nc->Next=connections;
 	connections=nc;
 	nConnections++;

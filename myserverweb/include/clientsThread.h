@@ -40,7 +40,7 @@ private:
 	DWORD nConnections;
 	DWORD buffersize;
 	DWORD buffersize2;
-	LPCONNECTION addConnection(SOCKET,CONNECTION_PROTOCOL=PROTOCOL_HTTP);
+	LPCONNECTION addConnection(SOCKET,CONNECTION_PROTOCOL,char*);
 	LPCONNECTION findConnection(SOCKET);
 	char *buffer;
 	char *buffer2;

@@ -161,7 +161,9 @@ INT ms_DeleteFile(char *filename)
 #endif
 	return 0;
 }
-
+/*
+*Returns the file size in bytes
+*/
 DWORD getFileSize(MYSERVER_FILE_HANDLE f)
 {
 	DWORD size;
@@ -171,7 +173,7 @@ DWORD getFileSize(MYSERVER_FILE_HANDLE f)
 	return size;
 }
 /*
-*Returns One if failed
+*Returns a non-null value if failed
 */
 BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
 {

@@ -55,6 +55,8 @@ private:
 	char systemPath[MAX_PATH];
 	char path[MAX_PATH];
 	char defaultFilename[MAX_PATH];
+	char warningsFileLogName[MAX_PATH];
+	char accessesFileLogName[MAX_PATH];
 	WORD port_HTTP;
 	DWORD nThreads;
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];

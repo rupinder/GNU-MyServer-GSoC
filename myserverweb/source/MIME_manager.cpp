@@ -116,7 +116,9 @@ VOID MIME_Manager::dumpToFILE(char *file)
 	ms_WriteToFile(f,&data[0][0][0],sizeof(data),&nbw);
 	ms_CloseFile(f);
 }
-
+/*
+*Clean the memory allocated by the structure
+*/
 VOID MIME_Manager::clean()
 {
 

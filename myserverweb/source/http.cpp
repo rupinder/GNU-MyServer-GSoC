@@ -715,6 +715,25 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	/*
 	*END REQUEST STRUCTURE BUILD
 	*/
+
+	/*
+	*Record the request in the log file
+	*/
+	accessesLogWrite(a->ipAddr);
+	accessesLogWrite(":");
+	accessesLogWrite(request.CMD);
+	accessesLogWrite(" ");
+	accessesLogWrite(request.URI);
+	if(request.URIOPTS[0])
+	{
+		accessesLogWrite("?");
+		accessesLogWrite(request.URIOPTS);
+	}
+	accessesLogWrite("\r\n");
+	/*
+	*End of record
+	*/
+
 	if(!lstrcmpi(request.CMD,"GET"))
 	{
 		if(lstrlen(request.HOST)==0)

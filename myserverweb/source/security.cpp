@@ -38,7 +38,9 @@ char Thread guestPassword[32];
 #ifndef LOGON32_PROVIDER_DEFAULT
 #define LOGON32_PROVIDER_DEFAULT
 #endif
-
+/*
+*Do the logon of an user
+*/
 BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
 	BOOL logon=FALSE;
@@ -47,12 +49,19 @@ BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 #endif
 	return logon;
 }
+/*
+*Change the owner of current thread
+*/
 VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
 	ImpersonateLoggedOnUser((HANDLE)*hImpersonation);
 #endif	
 }
+
+/*
+*This function terminates the impersonation of a client application
+*/
 VOID revertToSelf()
 {
 #ifdef WIN32
@@ -60,13 +69,18 @@ VOID revertToSelf()
 #endif
 }
 
+/*
+*Close the handle of a logged user
+*/
 VOID cleanLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
 	CloseHandle((HANDLE)*hImpersonation);
 #endif
 }
-
+/*
+*Change the owner of the thread with the connection login and password informations
+*/
 VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
 {
 	*hImpersonation=0;
@@ -88,7 +102,9 @@ VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
 		*logonStatus=FALSE;
 	}
 }
-
+/*
+*Logout the hImpersonation handle
+*/
 VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
@@ -101,7 +117,9 @@ VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
 		}
 	}
 }
-
+/*
+*Do the logon of the guest client
+*/
 VOID logonGuest()
 {
 #ifdef WIN32
