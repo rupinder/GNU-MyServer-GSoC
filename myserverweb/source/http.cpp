@@ -2402,11 +2402,12 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
       if(*filenamePath)
         delete [] (*filenamePath);
       /*! 
-       *URI starting with a double / will use the system directory as
+       *URI starting with a /sys/ will use the system directory as
        *the root path. Be sure to don't allow access to the system root
        *but only to subdirectories.
        */
-      if(filename[0] == '/' && filename[1] == '/')
+      if(filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
+         && filename[3] == 's' && filename[4] == '/')
       {
         root=((Vhost*)(td->connection->host))->systemRoot;
         /*! 
@@ -2417,6 +2418,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
         {
           return e_401;
         }
+        filename = filename + 5;
       }
       else
       {
