@@ -243,7 +243,7 @@ int ClientsThread::controlConnections()
    *Get the access to the connections list.
    */
 	lserver->connections_mutex_lock();
-	c=lserver->getConnectionToParse(this->id);
+	c=lserver->getConnection(this->id);
 	/*!
    *Check if c exists.
    *Check if c is a valid connection structure.

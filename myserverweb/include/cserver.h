@@ -160,7 +160,7 @@ public:
 	int connections_mutex_lock();
 	int connections_mutex_unlock();
   ConnectionPtr getConnections();
-	ConnectionPtr getConnectionToParse(int);
+	ConnectionPtr getConnection(int);
 	ConnectionPtr findConnectionBySocket(Socket);
 	ConnectionPtr findConnectionByID(u_long ID);
 	u_long getTimeout();

@@ -1326,7 +1326,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
  *Using this without the right permissions can cause wrong data 
  *returned to the client.
  */
-ConnectionPtr Server::getConnectionToParse(int /*id*/)
+ConnectionPtr Server::getConnection(int /*id*/)
 {
 	/*! Do nothing if there are not connections. */
 	if(connections==0)
