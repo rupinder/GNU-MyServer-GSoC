@@ -75,25 +75,25 @@ enum CGI_COMMANDS
 class MimeManager
 {
 public:
-	struct mime_record
+	struct MimeRecord
 	{
 		char extension[10];
 		char mime_type[60];
 		int command;
 		char *cgi_manager;
-		mime_record* next;
+		MimeRecord* next;
 	};
 private:
   int loaded;
-	mime_record *data;
+	MimeRecord *data;
 	u_long numMimeTypesLoaded;
 	char *filename;
 public:
 	char *getFilename();
 	MimeManager();
   ~MimeManager();
-	void addRecord(MimeManager::mime_record);
-	MimeManager::mime_record *getRecord(char ext[10]);
+	void addRecord(MimeManager::MimeRecord);
+	MimeManager::MimeRecord *getRecord(char ext[10]);
 	void removeAllRecords();
 	void removeRecord(char*);
 	u_long getNumMIMELoaded();

@@ -51,10 +51,10 @@ int MimeManager::load(char *filename)
 	u_long nbw;
 	f.readFromFile(buffer,fs,&nbw);
 	f.closeFile();
-	MimeManager::mime_record record;
+	MimeManager::MimeRecord record;
 	for(u_long nc=0;;)
 	{
-		memset(&record, 0, sizeof(MimeManager::mime_record));
+		memset(&record, 0, sizeof(MimeManager::MimeRecord));
 		/*!
      *Do not consider the \r \n and space characters.
      */
@@ -176,7 +176,7 @@ int MimeManager::loadXML(char *filename)
 		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
 			continue;
 		xmlNodePtr lcur=node->children;
-		mime_record rc;
+		MimeRecord rc;
 		rc.command=rc.extension[0]=rc.mime_type[0]='\0';
     rc.cgi_manager = 0;
 		while(lcur)
@@ -256,7 +256,7 @@ int MimeManager::saveXML(char *filename)
 	f.openFile(filename,FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
 	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
-	mime_record *rc=data;
+	MimeRecord *rc=data;
 	while(rc)
 	{
 		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
@@ -308,7 +308,7 @@ int MimeManager::save(char *filename)
 	File::deleteFile(filename);
 	File f;
 	f.openFile(filename,FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
-	MimeManager::mime_record *nmr1;
+	MimeManager::MimeRecord *nmr1;
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
@@ -359,7 +359,7 @@ int MimeManager::save(char *filename)
  */
 int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
-	for(MimeManager::mime_record *mr=data;mr;mr=mr->next )
+	for(MimeManager::MimeRecord *mr=data;mr;mr=mr->next )
 	{
 		if(!lstrcmpi(ext,mr->extension))
 		{
@@ -393,7 +393,7 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 {
 	int i=0;
-	for(MimeManager::mime_record *mr=data;mr;mr=mr->next )
+	for(MimeManager::MimeRecord *mr=data;mr;mr=mr->next )
 	{
 		if(i==id)
 		{
@@ -458,17 +458,17 @@ MimeManager::MimeManager()
 /*!
  *Add a new record.
  */
-void MimeManager::addRecord(MimeManager::mime_record mr)
+void MimeManager::addRecord(MimeManager::MimeRecord mr)
 {
 	/*!
    *If the MIME type already exists remove it.
    */
 	if(getRecord(mr.extension))
 		removeRecord(mr.extension);
-	MimeManager::mime_record *nmr =new MimeManager::mime_record;
+	MimeManager::MimeRecord *nmr =new MimeManager::MimeRecord;
 	if(!nmr)	
 		return;
-	memcpy(nmr,&mr,sizeof(mime_record));
+	memcpy(nmr,&mr,sizeof(MimeRecord));
 	nmr->next =data;
 	data=nmr;
 	numMimeTypesLoaded++;
@@ -479,8 +479,8 @@ void MimeManager::addRecord(MimeManager::mime_record mr)
  */
 void MimeManager::removeRecord(char *ext)
 {
-	MimeManager::mime_record *nmr1 = data;
-	MimeManager::mime_record *nmr2 = 0;
+	MimeManager::MimeRecord *nmr1 = data;
+	MimeManager::MimeRecord *nmr2 = 0;
 	if(!nmr1)
 		return;
 	do
@@ -514,8 +514,8 @@ void MimeManager::removeAllRecords()
 {
 	if(data==0)
 		return;
-	MimeManager::mime_record *nmr1 = data;
-	MimeManager::mime_record *nmr2 = 0;
+	MimeManager::MimeRecord *nmr1 = data;
+	MimeManager::MimeRecord *nmr2 = 0;
 
 	for(;;)
 	{
@@ -540,9 +540,9 @@ void MimeManager::removeAllRecords()
  *Get a pointer to an existing record passing its extension.
  *Don't modify the member next of the returned structure.
  */
-MimeManager::mime_record *MimeManager::getRecord(char ext[10])
+MimeManager::MimeRecord *MimeManager::getRecord(char ext[10])
 {
-	MimeManager::mime_record *nmr1;
+	MimeManager::MimeRecord *nmr1;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
 		if(!lstrcmpi(nmr1->extension,ext))
