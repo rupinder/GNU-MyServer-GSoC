@@ -1843,6 +1843,15 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			strncpy(request->CONTENT_ENCODING,token,HTTP_REQUEST_CONTENT_ENCODING_DIM);
 			StrTrim(request->CONTENT_ENCODING," ");
 		}else
+		/*Content-Type*/
+		if(!lstrcmpi(command,"Content-Type"))
+		{
+			token = strtok( NULL, seps );
+			if(!token)return 0;
+			lineControlled=1;
+			strncpy(request->CONTENT_TYPE,token,HTTP_REQUEST_CONTENT_TYPE_DIM);
+			StrTrim(request->CONTENT_TYPE," ");
+		}else
 		/*If-Modified-Since*/
 		if(!lstrcmpi(command,"If-Modified-Since"))
 		{
