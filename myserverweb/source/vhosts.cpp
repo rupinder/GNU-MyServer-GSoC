@@ -974,29 +974,43 @@ int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
 			{
-        int documentRootlen = strlen((char*)lcur->children->content)+1;
-        vh->documentRoot = new char[documentRootlen];
-        if(vh->documentRoot == 0)
+        if(lcur->children && lcur->children->content)
         {
-          parser.close();
-          delete vh;
-          clean();
-          return -1;
+          int documentRootlen = strlen((char*)lcur->children->content)+1;
+          vh->documentRoot = new char[documentRootlen];
+          if(vh->documentRoot == 0)
+          {
+            parser.close();
+            delete vh;
+            clean();
+            return -1;
+          }
+          strcpy(vh->documentRoot,(char*)lcur->children->content);
         }
-				strcpy(vh->documentRoot,(char*)lcur->children->content);
+        else
+        {
+          vh->documentRoot = 0;
+        }
 			}
       if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
 			{
-        int systemRootlen = strlen((char*)lcur->children->content)+1;
-        vh->systemRoot = new char[systemRootlen];
-        if(vh->systemRoot == 0)
+        if(lcur->children && lcur->children->content)
         {
-          parser.close();
-          delete vh;
-          clean();
-          return -1;
+          int systemRootlen = strlen((char*)lcur->children->content)+1;
+          vh->systemRoot = new char[systemRootlen];
+          if(vh->systemRoot == 0)
+          {
+            parser.close();
+            delete vh;
+            clean();
+            return -1;
+          }
+          strcpy(vh->systemRoot,(char*)lcur->children->content);
         }
-				strcpy(vh->systemRoot,(char*)lcur->children->content);
+        else
+        {
+          vh->systemRoot=0;
+        }
       }
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 			{

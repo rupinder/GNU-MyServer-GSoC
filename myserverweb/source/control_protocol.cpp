@@ -104,7 +104,7 @@ int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*
 	configurationFileManager.open(main_configuration_file);
 
 	data=configurationFileManager.getValue("CONTROL_ENABLED");
-	if(!strcmpi(data, "YES"))
+	if(data && (!strcmpi(data, "YES")))
 	{
     controlEnabled = 1;
 	}	
