@@ -1135,7 +1135,7 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
 	u_long i=0;
 	u_long buffersize=td->buffer->GetRealLength();
 	u_long nLinechars=0;
-	u_long isValidCommand=0;
+	u_long isValidCommand=-1;
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
@@ -1162,14 +1162,20 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
 			}
 			nLinechars=0;
 			nLines++;
-			/*! If the lines number is greater than 25 we consider the header invalid.  */
+			/*! 
+       *If the lines number is greater than 25 we consider 
+       *the header invalid.  
+       */
 			if(nLines>25)
 			{
 				return 0;
 			}
 		}
-		else if(req[i]==0)
-			return (0);
+		else if(req[i]=='\0')
+    {
+      isValidCommand = -1;
+      break;
+    }
 		else
 		{
 			nLinechars++;
