@@ -37,8 +37,9 @@ unsigned int myserver_strlcat(char *destination, const char *source, size_t size
     
     dstlen=dstptr-destination;
     
-    if(!(tocopy=size-dstlen))
-    	return(dstlen+strlen(source));
+	tocopy=size-dstlen;
+    if(!tocopy)
+    	return((int)(dstlen+strlen(source)));
     
     while(*srcptr)
     {
@@ -52,7 +53,7 @@ unsigned int myserver_strlcat(char *destination, const char *source, size_t size
     
     *dstptr=0;
     
-    return(dstlen+(srcptr-source));
+    return((int)(dstlen+(srcptr-source)));
 }
 
    
@@ -81,7 +82,7 @@ unsigned int myserver_strlcpy(char *destination, const char *source, unsigned in
         while(*srcptr++);
     }
     
-    return(srcptr-source-1);
+    return((int)(srcptr-source-1));
 }
 
 

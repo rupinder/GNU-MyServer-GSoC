@@ -55,7 +55,7 @@ extern "C" {
 void wait(u_long time)
 {
 #ifdef WIN32
-	Sleep(time);
+	Sleep(time/1000);
 #endif
 #ifdef NOT_WIN
 	usleep(time);
@@ -105,7 +105,7 @@ int myserver_mutex::myserver_mutex_destroy()
 /*!
 *Lock the mutex
 */
-int myserver_mutex::myserver_mutex_lock(u_long id)
+int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
 

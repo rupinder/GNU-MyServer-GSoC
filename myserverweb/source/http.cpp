@@ -195,8 +195,6 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		strcat(td->buffer2,fd.name);
 		strcat(td->buffer2,"</td>\r\n<td>");
 			
-		tm *st=gmtime(&fd.time_write);
-		
 		getRFC822GMTTime((time_t)fd.time_write,fileTime,32);
 						
 		strcat(td->buffer2,fileTime);
@@ -729,6 +727,7 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 
 	if(!lstrcmp(response,td->request.digest_response))
 		return 1;
+	return 0;
 }
 
 /*!
@@ -1629,7 +1628,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 			char md5_str[256];/*Just a random string*/
 			strncpy(&(md5_str[2]),td->request.URI,256);
 			md5_str[0]=td->id;
-			md5_str[1]=clock();
+			md5_str[1]=(char)clock();
 			MYSERVER_MD5Context md5;
 			MYSERVER_MD5Init(&md5);
 			MYSERVER_MD5Update(&md5,(const unsigned char*)md5_str ,strlen(md5_str));
