@@ -505,12 +505,12 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 		return 0;
 	valLen=(DWORD)strlen(ValStr);
 
-	if(td->pathInfo[0] && (valLen+30<maxLen))
+	if(td->pathInfo && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathInfo);
 	else if(valLen+30<maxLen) 
 		return 0;
 	
-	if(td->pathTranslated[0] && (valLen+30<maxLen))
+	if(td->pathTranslated && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathTranslated);
 	else if(valLen+30<maxLen) 
 		return 0;
@@ -525,7 +525,7 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->filenamePath[0] && (valLen+30<maxLen))
+	if(td->filenamePath && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_FILENAME:%s\n",td->filenamePath[0]);
 	else if(valLen+30<maxLen) 
 		return 0;

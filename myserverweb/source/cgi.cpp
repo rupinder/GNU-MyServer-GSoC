@@ -190,7 +190,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
     }
 
 		sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, 
-            td->pathInfo[0]?&td->pathInfo[1]:td->pathInfo);
+            td->pathInfo?&td->pathInfo[1]:td->pathInfo);
 
 		nph=(strnicmp("nph-", td->scriptFile, 4)==0)?1:0;
 #endif

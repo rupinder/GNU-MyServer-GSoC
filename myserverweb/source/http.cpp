@@ -1370,7 +1370,11 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    *is a file. If it is a file send the rest of the URI as PATH_INFO.
    */
 	char *dirscan=0;
+  if(td->pathInfo)
+    delete [] td->pathInfo;
 	td->pathInfo=0;
+  if(td->pathTranslated)
+    delete [] td->pathTranslated;
 	td->pathTranslated=0;
 	int filenamePathLen=(int)strlen(td->filenamePath)+1;
   dirscan=new char[filenamePathLen];
