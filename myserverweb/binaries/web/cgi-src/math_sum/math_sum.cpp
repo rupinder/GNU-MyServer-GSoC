@@ -1,7 +1,11 @@
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
-#include "..\..\..\cgi-lib\cgi_manager.h" 
+#include "../../../cgi-lib/cgi_manager.h" 
 
+#ifdef WIN32
 int EXPORTABLE main (char *cmd,cgi_data* data)
+#else
+extern "C" int main (char *cmd,cgi_data* data)
+#endif
 {     
 	cgi_manager cm(data);     
 	if(strlen(cmd)==0)     

@@ -69,7 +69,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 #ifdef WIN32
         hinstLib = LoadLibrary(exec);
 #else
-	hinstLib = dlopen(exec, RTLD_NOW);
+	hinstLib = dlopen(exec, RTLD_LAZY);
 #endif
 	if (hinstLib) 
     { 
@@ -153,7 +153,7 @@ int loadMSCGILib()
 #ifdef WIN32
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
 #else
-	mscgiModule=dlopen("cgi-lib/cgi-lib.so", RTLD_NOW);
+	mscgiModule=dlopen("cgi-lib/cgi-lib.so", RTLD_NOW | RTLD_GLOBAL);
 #endif
 	return (mscgiModule)?1:0;
 }
