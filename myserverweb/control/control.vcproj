@@ -25,7 +25,7 @@
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -37,13 +37,14 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				OutputFile="$(OutDir)/control.exe"
-				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames="libcd.lib;libc.lib"
+				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="FALSE"
 				ProgramDatabaseFile="$(OutDir)/control.pdb"
 				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -69,9 +70,6 @@
 				RelativePath="configuration.cpp">
 			</File>
 			<File
-				RelativePath="configuration.h">
-			</File>
-			<File
 				RelativePath="configureMIME.cpp">
 			</File>
 			<File
@@ -92,6 +90,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="Resource.h">
+			</File>
+			<File
+				RelativePath="configuration.h">
 			</File>
 			<File
 				RelativePath="configureMIME.h">

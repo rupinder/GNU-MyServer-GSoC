@@ -17,6 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
+#include "stdafx.h"
 #include "resource.h" 
 #include <wx/wx.h> 
 #include <wx/taskbar.h>
@@ -76,6 +77,7 @@ public:
 	void removeService(wxCommandEvent& event);
 	void iconize(wxCommandEvent& event);
 	void configureWnd(wxCommandEvent& event);
+	void configureMIME(wxCommandEvent& event);
 	void runService(wxCommandEvent& event);
 	void registerService(wxCommandEvent& event);
 	void stopService(wxCommandEvent& event);

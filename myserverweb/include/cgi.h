@@ -24,7 +24,7 @@
 #include "..\include\security.h"
 extern const char *versionOfSoftware;
 /*
-*Structure used by the HTTP protocol to describe a thread
+*Structure used by the HTTP protocol to describe a thread.
 */
 struct httpThreadContext;
 

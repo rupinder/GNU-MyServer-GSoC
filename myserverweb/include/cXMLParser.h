@@ -22,6 +22,9 @@
 #include "..\include\fileManager.h"
 #ifndef cXMLParser_IN
 #define cXMLParser_IN
+/*
+*This class is used to open a .xml file and read informations from it.
+*/
 class cXMLParser
 {
 	u_long buffersize;

@@ -78,7 +78,7 @@ void ClientsTHREAD::controlConnections()
 	for(c; c && connections ;c=next)
 	{
 		next=c->Next;
-		nBytesToRead=bytesToRead(c->socket);
+		nBytesToRead=bytesToRead(c->socket);/*Number of bytes waiting to be read*/
 		if(nBytesToRead)
 		{
 			logon(c,&logonStatus,&hImpersonation);

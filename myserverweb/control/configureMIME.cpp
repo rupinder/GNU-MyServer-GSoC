@@ -19,6 +19,7 @@
 #include "control.h"
 #include "configuration.h"
 #include "configureMIME.h"
+static int yetVisible=0;
 enum
 {
     Configuration_Quit = 1,
@@ -29,6 +30,8 @@ enum
 
 BEGIN_EVENT_TABLE(configurationFrameMIME, wxFrame)
 EVT_BUTTON(Configuration_Ok,  configurationFrameMIME::ok)
+EVT_WINDOW_DESTROY(configurationFrameMIME::OnQuit)
+EVT_CLOSE(configurationFrameMIME::OnQuit)
 EVT_BUTTON(Configuration_Cancel,  configurationFrameMIME::cancel)  
 END_EVENT_TABLE()
 
@@ -37,6 +40,11 @@ END_EVENT_TABLE()
 
 configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size, long style): wxFrame(parent, -1, title, pos, size, style)
 {
+	if(yetVisible)
+	{
+		Destroy();
+		return;
+	}
 	char version[50];
 	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
@@ -58,14 +66,17 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	mm.clean();
 	wxButton* btnOK= new wxButton(panel,Configuration_Ok,"OK",wxPoint(160,160),wxSize(50,25));
 	wxButton* btnCNL= new wxButton(panel,Configuration_Cancel,"Cancel",wxPoint(210,160),wxSize(50,25));
+	yetVisible=1;
 }
 void configurationFrameMIME::cancel(wxCommandEvent& WXUNUSED(event))
 {
+	yetVisible=0;
 	Destroy();
 }
 void configurationFrameMIME::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
-	Show(FALSE);	
+	Show(FALSE);
+	yetVisible=0;
 }
 void configurationFrameMIME::ok(wxCommandEvent& WXUNUSED(event))
 {
@@ -73,4 +84,5 @@ void configurationFrameMIME::ok(wxCommandEvent& WXUNUSED(event))
 	*Save the configuration....
 	*/
 	Destroy();
+	yetVisible=0;
 }

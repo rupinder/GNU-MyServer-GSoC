@@ -218,6 +218,9 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*/
 	if(lserver->mustUseLogonOption())
 		impersonateLogonUser(&td->hImpersonation);
+	/*
+	*By default don't close the connection.
+	*/
 	return 1;
 }
 /*

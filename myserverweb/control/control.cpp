@@ -53,6 +53,7 @@ enum
 	ControlCenter_StopConsole,
 	ControlCenter_RemoveService,
 	ControlCenter_Configure,
+	ControlCenter_ConfigureMIME,
 	PU_RESTORE,
 	PU_EXIT,
     ControlCenter_About = wxID_ABOUT
@@ -78,6 +79,7 @@ BEGIN_EVENT_TABLE(taskBarIcon, wxTaskBarIcon)
     EVT_MENU(ControlCenter_StopService,  mainFrame::stopService)
     EVT_MENU(ControlCenter_StopConsole,  mainFrame::stopConsole)
 	EVT_MENU(ControlCenter_Configure,mainFrame::configureWnd)
+	EVT_MENU(ControlCenter_ConfigureMIME,mainFrame::configureMIME)
 	EVT_MENU(ControlCenter_About, mainFrame::OnAbout)
     EVT_MENU(ControlCenter_RemoveService, mainFrame::removeService)
 END_EVENT_TABLE()
@@ -89,6 +91,7 @@ BEGIN_EVENT_TABLE(mainFrame, wxFrame)
     EVT_MENU(ControlCenter_RegisterService,  mainFrame::registerService)
     EVT_MENU(ControlCenter_StopService,  mainFrame::stopService)
     EVT_MENU(ControlCenter_StopConsole,  mainFrame::stopConsole)
+	EVT_MENU(ControlCenter_ConfigureMIME,mainFrame::configureMIME)
     EVT_MENU(ControlCenter_About, mainFrame::OnAbout)
 	EVT_MENU(ControlCenter_Configure,mainFrame::configureWnd)
     EVT_MENU(ControlCenter_RemoveService, mainFrame::removeService)
@@ -139,6 +142,8 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	serviceMenu->Append(ControlCenter_RemoveService, _T("Remove service\t"), _T("Remove the OS service\t"));
 	
 	configureMenu->Append(ControlCenter_Configure,_T("Configure myServer"),_T("Configure myServer"));
+	configureMenu->Append(ControlCenter_ConfigureMIME,_T("Configure MIME types"),_T("Configure myServer MIME types"));
+
     wxMenuBar *menuBar = new wxMenuBar();
     menuBar->Append(menuFile, _T("&File"));
 	menuBar->Append(serviceMenu, _T("&Install/Remove service"));
@@ -154,7 +159,7 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 }
 void mainFrame::configureWnd(wxCommandEvent& WXUNUSED(event))
 {
-	configurationWnd=new configurationFrame(this,_T("Configure myServer"),wxPoint(60, 60), wxSize(160, 120));
+	configurationWnd=new configurationFrame(this,_T("Configure myServer"),wxPoint(60, 60), wxSize(640, 480));
 	configurationWnd->Show(TRUE);
 }
 
@@ -201,7 +206,7 @@ void mainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxString msg;
     msg.Printf( _T("myServer Control Center %s\n"),VERSION_OF_SOFTWARE);
-    wxMessageBox(msg, _T("About Minimal"), wxOK | wxICON_INFORMATION, this);
+    wxMessageBox(msg, _T("About"), wxOK | wxICON_INFORMATION, this);
 }
 #ifdef WIN32
 /*
@@ -283,6 +288,11 @@ void mainFrame::registerService(wxCommandEvent& event)
 	}
 
 	lmainFrame->SetStatusText(_T("MyServer service installed"));
+}
+void mainFrame::configureMIME(wxCommandEvent& event)
+{
+	configurationFrameMIME *configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(320, 240));
+	configureMIMEWnd->Show(TRUE);
 }
 /*
 *Stop the application if run in service mode

@@ -266,7 +266,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	td->buffer[0]='\0';
 	buildDefaultHTTPResponseHeader(&td->response);
 
-	static char ext[MAX_PATH];
+	static char ext[10];
 	static char data[MAX_PATH];
 	/*
 	*td->filenamePath is the file system mapped path while filename is the URI requested.
@@ -566,7 +566,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				ms_CloseFile(td.inputData);
 				td.inputData=0;
 			}
-			retvalue=0xFFFFFFFE & (~1);/*Set last bit to 0*/
+			retvalue=0xFFFFFFFE & (~1);/*Set first bit to 0*/
 			return 0;
 		}
 
@@ -598,7 +598,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		else
 		{
 			raiseHTTPError(&td,a,e_501);
-			retvalue=0xFFFFFFFE & (~1);/*Set last bit to 0*/
+			retvalue=0xFFFFFFFE & (~1);/*Set first bit to 0*/
 		}
 	}
 	/*
@@ -606,13 +606,13 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*/
 	if(!lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
 	{
-		retvalue|=1;/*Set last bit to 1*/
-		retvalue|=2;
+		retvalue|=1;/*Set first bit to 1*/
+		retvalue|=2;/*Set second bit to 1*/
 	}
 	else
 	{
-		retvalue=0xFFFFFFFE & (~1);/*Set last bit to 0*/
-		retvalue|=2;
+		retvalue=0xFFFFFFFE & (~1);/*Set first bit to 0*/
+		retvalue|=2;/*Set second bit to 1*/
 	}
 	/*
 	*If the inputData file was not closed close it.

@@ -18,16 +18,21 @@
 */
 #include "control.h"
 #include "configuration.h"
+static int yetVisible=0;
 enum
 {
     Configuration_Quit = 1,
-	Configuration_MIME
+	Configuration_MIME,
+	Configuration_Exit
 };
 
 
 BEGIN_EVENT_TABLE(configurationFrame, wxFrame)
 EVT_BUTTON(Configuration_MIME,  configurationFrame::configureMIME)
 EVT_MENU(Configuration_MIME,configurationFrame::configureMIME)
+EVT_MENU(Configuration_Exit,configurationFrame::OnQuit)
+EVT_WINDOW_DESTROY(configurationFrame::OnQuit)
+EVT_CLOSE(configurationFrame::OnQuit)
 END_EVENT_TABLE()
 
 
@@ -35,16 +40,23 @@ END_EVENT_TABLE()
 
 configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size, long style): wxFrame(parent, -1, title, pos, size, style)
 {
+	if(yetVisible)
+	{
+		Destroy();
+		return;
+	}
 	char version[50];
 	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
 /*	wxPanel *panel = new wxPanel(this, -1);
 	wxButton* btn= new wxButton(panel,Configuration_MIME,"Configure MIME",wxPoint(10,10));*/
 	wxMenu* mainMenu = new wxMenu;
     mainMenu->Append(Configuration_MIME, _T("&Configure MIME"), _T("Configure MIME types"));
+    mainMenu->Append(Configuration_Exit, _T("&Exit"), _T("Exit from the current configuration window"));
 
 	wxMenuBar *menuBar = new wxMenuBar();
     menuBar->Append(mainMenu, _T("&myServer configuration"));
     SetMenuBar(menuBar);
+	yetVisible=1;
 }
 void configurationFrame::configureMIME(wxCommandEvent& event)
 {
@@ -54,4 +66,5 @@ void configurationFrame::configureMIME(wxCommandEvent& event)
 void configurationFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
 	Show(FALSE);
+	yetVisible=0;
 }
