@@ -190,3 +190,25 @@ int cXMLParser::save(char *filename,int *nbytes)
 
   return err;
 }
+/*!
+ *Start a new XML tree for a new file
+ *Returns nothing
+ *root is the root element entry
+ */
+void cXMLParser::newfile(const char * root)
+{
+   if(doc != 0)
+     close();
+   doc = xmlNewDoc((const xmlChar*)"1.0");
+   cur = xmlNewDocNode(doc, NULL, (const xmlChar*)root, NULL);
+   xmlDocSetRootElement(doc, cur);
+}
+/*!
+ *Adds a new child entry
+ *Returns nothing
+ *name is the child name and value is its value
+ */
+void cXMLParser::addChild(const char * name, const char * value)
+{
+   xmlNewTextChild(cur, NULL, (const xmlChar*)name, (const xmlChar*)value);
+}

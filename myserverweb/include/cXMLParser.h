@@ -46,5 +46,8 @@ public:
 	int setValue(char* field,char *value);
 	int close();
 	int save(char *filename,int *nbytes=0);
+        void newfile(const char * root);
+        void addChild(const char * name, const char * value);
+        
 };
 #endif
