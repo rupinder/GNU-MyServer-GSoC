@@ -132,6 +132,12 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	*/
 	if(!useLogonOption)
 		return (-1);
+
+	int filenamelen=strlen(filename)-1;
+	while(filename[filenamelen]=='.')
+	{
+		filename[filenamelen--]='\0';
+	}
 	if(!MYSERVER_FILE::fileExists(permissionsFile))
 	{
 		/*
@@ -194,7 +200,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions|=MYSERVER_PERMISSION_DELETE;
 				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"NAME"))
+				if(!strcmpi((const char*)attr->name,"NAME"))
 				{
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)user))
 						rightUser=1;
@@ -246,7 +252,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 								tempUserPermissions|=MYSERVER_PERMISSION_DELETE;
 						}
-						if(!xmlStrcmp(attr->name, (const xmlChar *)"NAME"))
+						if(!strcmpi((const char*)attr->name,"NAME"))
 						{
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)user))
 								rightUser=1;
@@ -260,7 +266,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 					}
 					if(rightUser && rightPassword)
 					{
-						userPermissionsFound=1;
+						userPermissionsFound=2;
 						userPermissions=tempUserPermissions;
 					}
 				}
@@ -293,7 +299,11 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
 				{
 					if(!strcmpi((const char*)attr->children->content,filename))
+					{					
 						filePermissionsFound=1;
+						if(userPermissionsFound==2)
+							userPermissionsFound=1;
+					}
 				}
 				attr=attr->next;
 			}
@@ -306,13 +316,13 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 
 	parser.close();
 
-	if(userPermissionsFound)
+	if(userPermissionsFound==1)
 		return userPermissions;
 
-	if(filePermissionsFound)
+	if(filePermissionsFound==1)
 		return filePermissions;
 
-	if(genericPermissionsFound)
+	if(genericPermissionsFound==1)
 		return genericPermissions;
 	return 0;
 }

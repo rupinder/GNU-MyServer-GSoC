@@ -163,6 +163,9 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	{	
 		if(fd.name[0]=='.')
 			continue;
+		/*
+		*Do not show the security file
+		*/
 		if(!strcmp(fd.name,"security"))
 			continue;
 		strcpy(td->buffer2,"<TR>\r\n<TD><A HREF=\"");
@@ -571,17 +574,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 	}
 	MYSERVER_FILE::completePath(td->filenamePath);
 
-	int filenamelen=strlen(td->filenamePath)-1;
-	while(td->filenamePath[filenamelen]=='.')
-	{
-		td->filenamePath[filenamelen--]='\0';
-	}
-	/*
-	*If the security file is requested send the HTTP 404 error
-	*/
-	if(!strcmp(&td->filenamePath[strlen(td->filenamePath)-8],"security"))
-		return raiseHTTPError(td,s,e_404);
-
 	/*
 	*If there are not any extension then we do one of this in order:
 	1)We send the default files in the folder in order.
@@ -783,6 +775,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 		else
 			return raiseHTTPError(td,s,e_404);
 	}
+	if(!(permissions & MYSERVER_PERMISSION_READ))
+	{
+		return sendAuth(td,s);
+	}
+
 	time_t lastMT=MYSERVER_FILE::getLastModTime(td->filenamePath);
 	if(lastMT==-1)
 		return raiseHTTPError(td,s,e_500);
@@ -792,10 +789,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 		time_t timeMS=getTime(td->request.IF_MODIFIED_SINCE);
 		if(timeMS==lastMT)
 			return sendHTTPNonModified(td,s);
-	}
-	if(!(permissions & MYSERVER_PERMISSION_READ))
-	{
-		return sendAuth(td,s);
 	}
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
