@@ -89,10 +89,10 @@ static char localTimeString[31];
 */
 char *getHTTPFormattedTime(void)
 {
-	__int64 ltime;
-	_time64( &ltime );
-	tm*  gmtime = _gmtime64( &ltime );
-	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[gmtime->tm_wday],gmtime->tm_mday,monthsName[gmtime->tm_mon],gmtime->tm_year,gmtime->tm_hour,gmtime->tm_min,gmtime->tm_sec);
+	time_t ltime;
+	time( &ltime );
+	tm*  GMtime = gmtime( &ltime );
+	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
 	return localTimeString;
 }
 /*

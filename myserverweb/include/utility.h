@@ -26,17 +26,19 @@
 #define KB(x) (x*1024)
 #define MB(x) (KB(x)*1024)
 #define SEC(x) (x*1000)
-#undef getTime
 #define my_intabs(x)((x<0)?(-x):(x))
-#define getTime() clock()
 #define OS_WINDOWS_9X		1	
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
 #define OS_WINDOWS_XP		4
+#define min(a,b)		((a<b)?a:b)
+#define max(a,b)		((a>b)?a:b)
 
 /*
 *Structure used for start a new process
 */
+#ifndef START_PROC_INFO_IN
+#define START_PROC_INFO_IN
 struct START_PROC_INFO
 {
 	MYSERVER_FILE_HANDLE stdError;
@@ -44,6 +46,7 @@ struct START_PROC_INFO
 	MYSERVER_FILE_HANDLE stdIn;
 	char *cmdLine;
 };
+#endif
 
 INT getOSVersion();
 DWORD getCPUCount();

@@ -22,6 +22,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
+void *_alloca(size_t size);
 /*
 *Unique instance of this class
 */
@@ -450,7 +451,8 @@ char* CQPUtils::Decode(char *input)
 	{
 		if (*s == '=') 
 		{
-			for (int i = 0; i < 3; i++)
+			int i;
+			for (i = 0; i < 3; i++)
 			{
 				if (s[i] == '\0')
 				{

@@ -34,6 +34,8 @@ MIME_Manager::data is formated from this fields
 2)	MIME type
 3)	CGI manager
 */
+#ifndef MIME_Manager_IN
+#define MIME_Manager_IN
 class MIME_Manager
 {
 	DWORD numMimeTypesLoaded;
@@ -45,4 +47,4 @@ public:
 	VOID clean();
 	VOID dumpToFILE(char*);
 };
-
+#endif 

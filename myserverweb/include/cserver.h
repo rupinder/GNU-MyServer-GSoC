@@ -39,6 +39,8 @@
 #include "..\include\MIME_manager.h"
 
 unsigned int __stdcall listenServerHTTP(void* pParam);
+#ifndef cserver_IN
+#define cserver_IN
 class cserver
 {
 	friend  unsigned int __stdcall listenServerHTTP(void* pParam);
@@ -88,4 +90,6 @@ public:
 	void terminate();
 	int hInst;
 
-}; LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 
+}; 
+#endif
+LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 

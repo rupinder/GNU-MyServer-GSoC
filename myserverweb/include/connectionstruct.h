@@ -25,7 +25,8 @@
 #define PROTOCOL_FTP		1
 
 typedef DWORD CONNECTION_PROTOCOL;
-
+#ifndef CONNECTION_IN
+#define CONNECTION_IN
 struct CONNECTION
 {
 public:
@@ -37,3 +38,4 @@ public:
 	DWORD timeout;	
 	CONNECTION* Next;
 };
+#endif

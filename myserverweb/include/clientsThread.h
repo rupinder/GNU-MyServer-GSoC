@@ -24,7 +24,8 @@
 #include "..\include\HTTPmsg.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\ConnectionStruct.h"
-
+#ifndef ClientsTHREAD_IN
+#define ClientsTHREAD_IN
 class  ClientsTHREAD
 {
 	friend class cserver;
@@ -55,5 +56,6 @@ public:
 	void stop();
 	void clean();	
 };
+#endif
 unsigned int __stdcall startClientsTHREAD(void* pParam); 
 

@@ -23,6 +23,7 @@
 #include "..\include\AMMimeUtils.h"
 #include "..\include\filemanager.h"
 #include "..\include\sockets.h"
+#include "..\include\utility.h"
 #include <direct.h>
 
 /*
@@ -60,8 +61,7 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 	lstrcat(buffer2," ");
 	lstrcat(buffer2,&folder[startChar]);
 	lstrcat(buffer2,"\\<P>\n<HR>");
-	
-	intptr_t ff;
+	__int64 ff;
 	ff=_findfirst(filename,&fd);
 
 	if(ff==-1)

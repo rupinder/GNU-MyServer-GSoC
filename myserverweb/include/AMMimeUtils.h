@@ -19,6 +19,8 @@
 
 #pragma once
 char* MimeDecodeMailHeaderField(char *s);
+#ifndef CBase64Utils_IN
+#define CBase64Utils_IN
 class CBase64Utils
 {
 private:
@@ -42,4 +44,4 @@ public:
 	CQPUtils();
 	~CQPUtils();
 }; 
-
+#endif

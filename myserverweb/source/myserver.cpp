@@ -66,7 +66,8 @@ int main (int argn, char **argc)
 	hInst=0;
 	cmdShow=0;
 	char* cmdLine=argc[1];
-	for(int i=0;i<lstrlen(cmdLine);i++)
+	int i;
+	for(i=0;i<lstrlen(cmdLine);i++)
 	{
 		if(!lstrcmpi(&cmdLine[i],"CONSOLE"))
 		{

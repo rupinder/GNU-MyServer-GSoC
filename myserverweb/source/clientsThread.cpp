@@ -92,12 +92,12 @@ void ClientsTHREAD::controlConnections()
 						continue;
 				}
 			}
-			c->timeout=getTime();
+			c->timeout=clock();
 			logout(logonStatus,&hImpersonation);
 		}
 		else
 		{
-			if((getTime()- c->timeout) > lserver->connectionTimeout)
+			if((clock()- c->timeout) > lserver->connectionTimeout)
 				if(deleteConnection(c))
 					continue;
 		}

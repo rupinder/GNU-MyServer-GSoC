@@ -20,6 +20,8 @@
 
 #include "..\StdAfx.h"
 #include "..\include\fileManager.h"
+#ifndef cXMLParser_IN
+#define cXMLParser_IN
 class cXMLParser
 {
 	DWORD buffersize;
@@ -31,3 +33,4 @@ public:
 	char *getValue(char*);
 	void close();
 };
+#endif

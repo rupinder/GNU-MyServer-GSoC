@@ -322,7 +322,8 @@ void cserver::terminate()
 	/*
 	*Stop server
 	*/
-	for(DWORD i=0;i<nThreads;i++)
+	DWORD i;
+	for(i=0;i<nThreads;i++)
 	{
 		if(verbosity>1)
 			printf("%s\n",languageParser.getValue("MSG_STOPT"));
@@ -373,7 +374,8 @@ void cserver::initialize(INT OSVer)
 	lstrcat(path,"/web");
 	_getcwd(systemPath,MAX_PATH);
 	lstrcat(systemPath,"/system");
-	for(int i=0;i<lstrlen(path);i++)
+	int i;
+	for(i=0;i<lstrlen(path);i++)
 		if(path[i]='\\')
 			path[i]='/';
 	for(i=0;i<lstrlen(systemPath);i++)
