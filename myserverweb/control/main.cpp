@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
    int conf_location = 0;
    cXMLParser xmlFile;
    _finddata_t fd;
-   intptr_t ff;
+   long ff;
    bool langFound = true;
    bool confFound = true;
    int ret;
@@ -146,11 +146,11 @@ int main(int argc, char * argv[])
 	  }
 	else
 	  {
+	     char buffer[512];
+	     u_long nbr, nbw;
 	     fl_alert("Configuration files not found.  Loading default files.");
 	     inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	     outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	     char buffer[512];
-	     u_long nbr, nbw;
 	     for(;;)
 	       {
 		  inputF.readFromFile(buffer, 512, &nbr );
@@ -163,10 +163,10 @@ int main(int argc, char * argv[])
 
 	     if(MYSERVER_FILE::fileExists("MIMEtypes.xml.default"))
 	       {
-		  inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-		  outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 		  char buffer[512];
 		  u_long nbr, nbw;
+		  inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		  outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 		  for(;;)
 		    {
 		       inputF.readFromFile(buffer, 512, &nbr );
@@ -180,10 +180,10 @@ int main(int argc, char * argv[])
 
 	     if(MYSERVER_FILE::fileExists("virtualhosts.xml.default"))
 	       {
-		  inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-		  outputF.openFile("virtualhosts.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 		  char buffer[512];
 		  u_long nbr, nbw;
+		  inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		  outputF.openFile("virtualhosts.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 		  for(;;)
 		    {
 		       inputF.readFromFile(buffer, 512, &nbr );
@@ -315,8 +315,8 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
    strncpy(filename,folder, filenamelen);
 #endif
    _finddata_t fd;
-   intptr_t ff;
-   ff=(intptr_t)_findfirst(filename,&fd);
+   long ff;
+   ff=_findfirst(filename,&fd);
 #ifdef WIN32
    if(ff==-1)
 #endif
