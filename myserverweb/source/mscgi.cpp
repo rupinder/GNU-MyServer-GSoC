@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
+#include <sstream>
 
 /*!
  *Sends the MyServer CGI; differently from standard CGI this don't 
@@ -41,7 +42,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
    *Usually these files are faster than standard CGI.
    *Actually myServerCGI(.mscgi) is only at an alpha status.
    */
-  char tmpSize[11];
+  ostringstream tmpStream;
 #ifndef WIN32
 #ifdef DO_NOT_USE_MSCGI
 	/*!
@@ -193,8 +194,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 	/*!
    *Compute the response length.
    */
-	sprintf(tmpSize,"%u",(u_int)data.stdOut.getFileSize());
-  td->response.CONTENT_LENGTH.assign(tmpSize);
+  tmpStream << (u_int)data.stdOut.getFileSize();
+
+  td->response.CONTENT_LENGTH.assign(tmpStream.str());
 	/*!
    *Send all the data to the client if the append is not used.
    */

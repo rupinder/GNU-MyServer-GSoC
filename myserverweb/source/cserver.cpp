@@ -396,14 +396,17 @@ void Server::finalCleanup()
   freecwdBuffer();
 }
 /*!
- *This function is used to create a socket server and a thread listener for a protocol.
+ *This function is used to create a socket server and a thread listener 
+ *for a protocol.
  */
 int Server::createServerAndListener(u_long port)
 {
+  
 	int optvalReuseAddr=1;
-  char port_buff[6];
-  char *listen_port_msg;
+  ostringstream port_buff;
+  string listen_port_msg;
 	ThreadID threadId=0;
+  listenThreadArgv* argv;
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
 	/*!
    *Create the server socket.
@@ -468,22 +471,20 @@ int Server::createServerAndListener(u_long port)
 		return 0; 
 	}
 
-  sprintf(port_buff, "%u", (u_int)port);
-  listen_port_msg = new char[strlen(languageParser.getValue("MSG_LISTEN"))+
-                                   strlen(port_buff) + 3];
-  if(listen_port_msg == 0)
-    return 0;
-  sprintf(listen_port_msg, "%s: %s", languageParser.getValue("MSG_LISTEN"), port_buff);
-  logWriteln(listen_port_msg);
+  port_buff << (u_int)port;
 
-  delete [] listen_port_msg;
+  listen_port_msg.assign(languageParser.getValue("MSG_LISTEN"));
+  listen_port_msg.append(": ");
+  listen_port_msg.append(port_buff.str());
 
+  logWriteln(listen_port_msg.c_str());
+ 
 	logWriteln(languageParser.getValue("MSG_LISTENTR"));
 
 	/*!
    *Create the listen thread.
    */
-	listenThreadArgv* argv=new listenThreadArgv;
+	argv=new listenThreadArgv;
 	argv->port=port;
 	argv->serverSocket=serverSocket;
 
@@ -500,7 +501,7 @@ void Server::createListenThreads()
    *Create the listens threads.
    *Every port uses a thread.
    */
-	for(VhostManager::sVhostList *list=vhostList->getVHostList(); list; list=list->next )
+	for(VhostManager::sVhostList *list=vhostList->getVHostList(); list; list=list->next)
 	{
 		int needThread=1;
 		VhostManager::sVhostList *list2=vhostList->getVHostList();
@@ -526,15 +527,12 @@ void Server::createListenThreads()
 		{
 			if(createServerAndListener(list->host->port)==0)
 			{
-        char *err = new char[strlen(languageParser.getValue("ERR_ERROR")) +
-                             strlen( ": Listen threads") +1 ];
-        if(err == 0)
-          return;
+        string err;
 				logPreparePrintError();
-        sprintf(err,"%s: Listen threads",  languageParser.getValue("ERR_ERROR") );
-        logWriteln( err );     
+        err.assign(languageParser.getValue("ERR_ERROR"));
+        err.append(": Listen threads");
+        logWriteln( err.c_str() );     
 				logEndPrintError();
-        delete [] err;
 				return;
 			}
 		}
@@ -1103,14 +1101,12 @@ int Server::initialize(int /*!os_ver*/)
 	
 	if(languageParser.open(languageFile))
   {
-    char *err = new char[strlen(languageFile) + strlen( "Error loading ") +1 ];
-    if(err == 0)
-      return -1;
+    string err;
     logPreparePrintError();
-    sprintf(err,"Error loading %s", languageFile );
-    logWriteln( err );     
+    err.assign("Error loading: ");
+    err.append(languageFile );
+    logWriteln( err.c_str() );     
     logEndPrintError();
-    delete [] err;
     return -1;
   }
 	logWriteln(languageParser.getValue("MSG_LANGUAGE"));

@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cserver.h"
 #include "../include/lfind.h"
 
+#include <string>
+
 #ifdef NOT_WIN
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
@@ -50,13 +52,11 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
 
 	if(ret)
 	{
-    char *log_str = new char[strlen(languageParser->getValue("ERR_LOADED")) +
-                             strlen(filename) +2 ];
-    if(log_str == 0)
-      return 0;
-    sprintf(log_str,"%s %s", languageParser->getValue("ERR_LOADED"), filename);
-    lserver->logWriteln(log_str);  
-    delete [] log_str;
+    string log_str;
+    log_str.assign(languageParser->getValue("ERR_LOADED"));
+    log_str.append(" ");
+    log_str.append(filename);
+    lserver->logWriteln(log_str.c_str());  
 		return 0;
 	}
   Proc = (loadProtocolPROC) hinstLib.getProc( "loadProtocol"); 
@@ -182,19 +182,18 @@ int DynamicProtocol::setFilename(char *nf)
 int ProtocolsManager::addProtocol(char *file, XmlParser* parser,
                                    char* confFile, Server* lserver)
 {
+  string log_buf;
 	DynamicProtocolListElement* ne = new DynamicProtocolListElement();
 	ne->data.setFilename(file);
 	ne->data.loadProtocol(parser, confFile, lserver);
 	ne->next=list;
 	list=ne;
-  char *log_buf = new char[strlen(parser->getValue("MSG_LOADED")) + strlen(file) 
-                           + strlen( ne->data.getProtocolName()) + 7 ];
-  if(log_buf == 0)
-    return 1;
-  sprintf(log_buf, "%s %s --> %s", parser->getValue("MSG_LOADED"), file, 
-          ne->data.getProtocolName() );
-  lserver->logWriteln( log_buf );
-  delete [] log_buf;
+  log_buf.assign(parser->getValue("MSG_LOADED"));
+  log_buf.append(" ");
+  log_buf.append(file);
+  log_buf.append(" --> ");
+  log_buf.append( ne->data.getProtocolName());
+  lserver->logWriteln( log_buf.c_str() );
 	return 1;
 }
 
