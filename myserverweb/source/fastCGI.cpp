@@ -28,6 +28,7 @@ static struct sfCGIservers
 		unsigned int value;
 	}DESCRIPTOR;
 	MYSERVER_SOCKET socket;
+	MYSERVER_SOCKET dupsock;
 	int pid; /*process ID*/
 	u_short port;/*IP port*/
 }fCGIservers[MAX_FCGI_SERVERS];
@@ -53,7 +54,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	if(pID<0)
 		return raiseHTTPError(td,connection,e_500);
 
-	int id=td->id;
+	int id=td->id+1;
 	FCGI_BeginRequestBody tBody;
 	tBody.roleB1 = ( FCGI_RESPONDER >> 8 ) & 0xff;
 	tBody.roleB0 = ( FCGI_RESPONDER ) & 0xff;
@@ -154,7 +155,7 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 	
 	if(con->sock.ms_send((char*)&tHeader,sizeof(tHeader),0)==-1)
 		return -1;
-	if(con->sock.ms_send(buffer,len,0)==-1)
+	if(len && (con->sock.ms_send(buffer,len,0)==-1))
 		return -1;
 	return 0;
 }
@@ -163,52 +164,41 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 */
 int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 {
-	int j=0;
 	char *ptr=ep;
 	char *sptr=sp;
 	char varName[100];
-	char varValue[300];
-	char varBuffer[400];
-	for(;ptr-ep<800;)
+	char varValue[2500];
+	int i;
+	for(;;)
 	{
-		if(*(sptr+1)=='\0')
+		if(*(++sptr)=='\0')
 			break;
-		unsigned char varBufferLen=0,varNameLen=0,varValueLen=0;
+		unsigned char varNameLen=0,varValueLen=0;
 		varName[0]='\0';
-		varBuffer[0]='\0';
 		varValue[0]='\0';
-		while(*sptr != '\0')
+		while(*sptr != '=')
 		{
-			varBuffer[varBufferLen++]=*sptr;
-			varBuffer[varBufferLen]='\0';
-			sptr++;
+			varName[varNameLen++]=*sptr++;
+			varName[varNameLen]='\0';
 		}
 		sptr++;
-		j=0;
-		while((varBuffer[j] != '=') && (j<300))
+		while(*sptr != '\0')
 		{
-			varName[varNameLen++]=varBuffer[j];
-			varName[varNameLen]='\0';
-			j++;
-		}
-		j++;
-		while(varBuffer[j] != '\0')
-		{
-			varValue[varValueLen++]=varBuffer[j];
+			varValue[varValueLen++]=*sptr++;
 			varValue[varValueLen]='\0';
-			j++;
 		}
-		memcpy(ptr,(void*)&varNameLen,sizeof(varNameLen));
-		ptr+=sizeof(varNameLen);
-		memcpy(ptr,&varValueLen,sizeof(varValueLen));
-		ptr+=sizeof(varValueLen);
-		memcpy(ptr,varName,varNameLen);
-		ptr+=varNameLen;
-		memcpy(ptr,varValue,varValueLen);
-		ptr+=varValueLen;
+		varNameLen=strlen(varName);
+		varValueLen=strlen(varValue);
+		*ptr++=varNameLen+varValueLen;
+		*ptr++=varValueLen;
+		for(i=0;i<varNameLen;i++)
+			*ptr++=varName[i];
+		for(i=0;i<varValueLen;i++)
+			*ptr++=varValue[i];
+
 
 	}
-	memcpy(ptr,"\0",1);
+	
 	return (int)(ptr-ep);
 }
 void generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId, int iContentLength )
@@ -234,6 +224,9 @@ int cleanFASTCGI()
 	for(int i=0;i<fCGIserversN;i++)
 	{
 		fCGIservers[i].socket.ms_closesocket();
+#ifdef WIN32
+		fCGIservers[fCGIserversN].dupsock.ms_closesocket();
+#endif
 		terminateProcess(fCGIservers[i].pid);
 	}
 	return 1;
@@ -285,8 +278,7 @@ int runFcgiServer(fCGIContext *con,char* path)
 		return pID;
 	if(fCGIserversN==MAX_FCGI_SERVERS-2)
 		return -1;
-	static int port=3333-1;
-	port++;
+	static u_short port=3333;
 	{
 		/*SERVER SOCKET CREATION*/
 		memset(&fCGIservers[fCGIserversN],0,sizeof(fCGIservers[fCGIserversN]));
@@ -297,15 +289,26 @@ int runFcgiServer(fCGIContext *con,char* path)
 		sock_inserverSocket.sin_family=AF_INET;
 		sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 		fCGIservers[fCGIserversN].port=port+fCGIserversN;
-		sock_inserverSocket.sin_port=htons((u_short)port);
+		sock_inserverSocket.sin_port=htons(fCGIservers[fCGIserversN].port);
 		if(fCGIservers[fCGIserversN].socket.ms_bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket)))
 		{
 			fCGIservers[fCGIserversN].socket.ms_closesocket();
 			return -2;
 		}
-		if(fCGIservers[fCGIserversN].socket.ms_listen(2))
+		if(fCGIservers[fCGIserversN].socket.ms_listen(SOMAXCONN))
+		{
+			fCGIservers[fCGIserversN].socket.ms_closesocket();
 			return -2;
-		fCGIservers[fCGIserversN].DESCRIPTOR.sock=fCGIservers[fCGIserversN].socket.ms_getHandle();
+		}
+#ifdef WIN32
+		HANDLE sourceHandle=(HANDLE)fCGIservers[fCGIserversN].socket.ms_getHandle();
+		HANDLE destHandle;
+		DuplicateHandle(GetCurrentProcess(),sourceHandle,GetCurrentProcess(),&destHandle,0,TRUE,DUPLICATE_SAME_ACCESS);
+		fCGIservers[fCGIserversN].dupsock.ms_setHandle((MYSERVER_SOCKET_HANDLE)destHandle);
+		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=(unsigned long)destHandle;
+#else
+		fCGIservers[fCGIserversN].DESCRIPTOR.sock=fCGIservers[fCGIserversN].dupsock.ms_getHandle();
+#endif
 	}
 	START_PROC_INFO spi;
 	memset(&spi,0,sizeof(spi));
@@ -314,14 +317,12 @@ int runFcgiServer(fCGIContext *con,char* path)
 	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 	spi.arg=con->td->buffer2;
 	spi.cmdLine=cmd;
-#ifdef WIN32
-	SetHandleInformation(spi.stdIn, HANDLE_FLAG_INHERIT,TRUE);
-#endif
+
 	sprintf(spi.cmd,"%s%s",con->td->cgiRoot,con->td->cgiFile);
+	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 	spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
 	fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
     
-	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 	
 	if(fCGIservers[fCGIserversN].pid)
 		fCGIserversN;
