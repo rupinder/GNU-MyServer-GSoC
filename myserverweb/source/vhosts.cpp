@@ -511,6 +511,19 @@ void vhostmanager::loadConfigurationFile(char* filename)
 		strcpy(vh->warningsLogFileName,buffer2);
 		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
 		warnings->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+
+		if(accesses->getFileSize()>lserver->getMaxLogFileSize())
+		{
+			accesses->closeFile();
+			MYSERVER_FILE::deleteFile(accesses->getFilename());
+			accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		}
+		if(warnings->getFileSize()>lserver->getMaxLogFileSize())
+		{
+			warnings->closeFile();
+			MYSERVER_FILE::deleteFile(warnings->getFilename());
+			warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		}
 		cc++;
 		addvHost(vh);
 	}
@@ -727,6 +740,18 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 		accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
 		warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		if(accesses->getFileSize()>lserver->getMaxLogFileSize())
+		{
+			accesses->closeFile();
+			MYSERVER_FILE::deleteFile(accesses->getFilename());
+			accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		}
+		if(warnings->getFileSize()>lserver->getMaxLogFileSize())
+		{
+			warnings->closeFile();
+			MYSERVER_FILE::deleteFile(warnings->getFilename());
+			warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		}
 		addvHost(vh);
 	}
 	parser.close();
