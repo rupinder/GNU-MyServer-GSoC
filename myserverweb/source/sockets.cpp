@@ -79,11 +79,10 @@ MYSERVER_HOSTENT *ms_gethostbyaddr(char* addr,int len,int type)
 	return he;
 #endif
 }
-MYSERVER_HOSTENT *ms_gethostbyname(char *name)
+MYSERVER_HOSTENT *ms_gethostbyname(const char *hostname)
 {
 #ifdef WIN32	
-	HOSTENT *he=gethostbyname(name);
-	return he;
+	return (MYSERVER_HOSTENT *)gethostbyname(hostname);
 #endif
 }
 

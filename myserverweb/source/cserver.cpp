@@ -208,13 +208,15 @@ void cserver::start()
 	/*
 	*Determine all the IP addresses of the local machine.
 	*/
-	MYSERVER_HOSTENT *localhe=gethostbyname(serverName);
+	MYSERVER_HOSTENT *localhe=ms_gethostbyname(serverName);
 	in_addr ia;
 	for(i=0;localhe->h_addr_list[i];i++)
 	{
 		ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 		printf("%s #%u: %s\n",languageParser.getValue("MSG_ADDRESS"),i,inet_ntoa(ia));
 	}
+	
+
 	/*
 	*Load the MSCGI library.
 	*/
@@ -231,7 +233,7 @@ void cserver::start()
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
 	
 	/*
-	*Create a thread for every CPU.
+	*By default create a thread for every CPU.
 	*/
 	nThreads=getCPUCount();
 
@@ -481,7 +483,13 @@ void cserver::terminate()
 	ms_CloseFile(warningsLogFile);
 	ms_CloseFile(accessesLogFile);
 }
-
+/*
+*Get the server administrator e-mail address.
+*/
+char *cserver::getServerAdmin()
+{
+	return serverAdmin;
+}
 /*
 *Here is loaded the configuration of the server.
 *The configuration file is a pseudo-XML file.
@@ -502,6 +510,7 @@ void cserver::initialize(int OSVer)
 	verbosity=1;
 	buffersize=1024*1024;
 	buffersize2=1024*1024;
+	serverAdmin[0]='\0';
 	/*
 	*Store the default path for web and system folder.
 	*/
@@ -578,7 +587,11 @@ void cserver::initialize(int OSVer)
 	{
 		lstrcpy(defaultFilename,data);
 	}
-
+	data=configurationFileManager.getValue("SERVER_ADMIN");
+	if(data)
+	{
+		lstrcpy(serverAdmin,data);
+	}
 
 	data=configurationFileManager.getValue("WEB_DIRECTORY");
 	if(data)
@@ -703,7 +716,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 	int port=ntohs((*asock_in).sin_port);
 
 	char msg[500];
-	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getHTTPFormattedTime());
+	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getRFC822GMTTime());
 	accessesLogWrite(msg);
 
 	static u_long local_nThreads=0;
@@ -715,7 +728,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 		if(verbosity>0)
 		{
 			char buffer[500];
-			sprintf(buffer,"%s:%i.%i.%i.%i ->%s %s:%s\r\n",msgErrorConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getHTTPFormattedTime());
+			sprintf(buffer,"%s:%i.%i.%i.%i ->%s %s:%s\r\n",msgErrorConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getRFC822GMTTime());
 			warningsLogWrite(buffer);
 		}
 	}

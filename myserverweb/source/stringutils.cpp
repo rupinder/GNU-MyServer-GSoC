@@ -31,14 +31,43 @@ static char localTimeString[31];
 /*
 *This function format current time to the RFC 822 format.
 */
-char *getHTTPFormattedTime(void)
+char *getRFC822GMTTime(void)
 {
 	time_t ltime;
 	time( &ltime );
+	return getRFC822GMTTime(ltime);
+}
+/*
+*This function formats a time to the RFC 822 format.
+*/
+char *getRFC822GMTTime(const time_t ltime)
+{
 	tm*  GMtime = gmtime( &ltime );
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
 	return localTimeString;
 }
+
+/*
+*This function format current time to the RFC 822 format.
+*/
+char *getRFC822LocalTime(void)
+{
+	time_t ltime;
+	time( &ltime );
+	return getRFC822LocalTime(ltime);
+}
+/*
+*This function formats a time to the RFC 822 format.
+*/
+char *getRFC822LocalTime(const time_t ltime)
+{
+	tm*  GMtime = localtime( &ltime );
+	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
+	return localTimeString;
+}
+
+
+
 /*
 *Splits a file path into a directory and filename.
 *Path is an input value while dir and filename are the output values.
@@ -73,14 +102,6 @@ void splitPath(const char *path, char *dir, char *filename)
 		}
 		filename[j] = 0;
 	}
-}
-/*
-*This function formats a time gmtime to the HTTP time format.
-*/
-char *getHTTPFormattedTime(const tm* gmtime)
-{
-	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[gmtime->tm_wday],gmtime->tm_mday,monthsName[gmtime->tm_mon],gmtime->tm_year,gmtime->tm_hour,gmtime->tm_min,gmtime->tm_sec);
-	return localTimeString;
 }
 
 /*

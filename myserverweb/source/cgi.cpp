@@ -26,7 +26,7 @@
 #include <direct.h>
 
 /*
-*Sends the standard CGI to a client.
+*Run the standard CGI and send the result to the client.
 */
 int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *cgipath,int cmd)
 {
@@ -299,7 +299,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	}
 	if(td->connection->ipAddr[0])
 	{
-		lstrcat(cgiEnvString,"\rREMOTE_HOST=");
+		lstrcat(cgiEnvString,"\rHTTP_HOST=");
 		lstrcat(cgiEnvString,td->connection->ipAddr);
 	}
 	if(td->connection->ipAddr[0])
@@ -355,12 +355,12 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 		lstrcat(cgiEnvString,td->pathTranslated);
 	}
 	else
+	{
 	/*
 	*Several packages have chosen to interpret PATH_TRANSLATED as the physical translated path 
 	*of the request. To accomodate these applications, PATH_TRANSLATED is mapped to this 
 	*interpretation if no PATH_INFO is provided. 	
 	*/
-	{
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
 		getPath(td->pathTranslated,td->request.URI,FALSE);
 		lstrcat(cgiEnvString,td->pathTranslated);	
@@ -369,14 +369,29 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rSCRIPT_FILENAME=");
 	lstrcat(cgiEnvString,td->filenamePath);
 
+	lstrcat(cgiEnvString,"\rDOCUMENT_NAME=");
+	lstrcat(cgiEnvString,td->filenamePath);
+
+	/*
+	*For the DOCUMENT_URI and SCRIPT_NAME Just copy the requested URI without any pathInfo.
+	*/
 	lstrcat(cgiEnvString,"\rSCRIPT_NAME=/");
 	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
+
+	lstrcat(cgiEnvString,"\rDOCUMENT_URI=/");
+	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
+
+	lstrcat(cgiEnvString,"\rDATE_GMT=");
+	lstrcat(cgiEnvString,getRFC822GMTTime());
+
+	lstrcat(cgiEnvString,"\rDATE_LOCAL=");
+	lstrcat(cgiEnvString,getRFC822LocalTime());
 
 	lstrcat(cgiEnvString,"\rDOCUMENT_ROOT=");
 	lstrcat(cgiEnvString,lserver->getPath());
 
-	lstrcat(cgiEnvString,"\rDOCUMENT_URI=");
-	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
+	lstrcat(cgiEnvString,"\rSERVER_ADMIN=");
+	lstrcat(cgiEnvString,lserver->getServerAdmin());
 
 	if(td->identity[0])
 	{

@@ -18,8 +18,10 @@
 */
 #pragma once
 #include "..\stdafx.h"
-char *getHTTPFormattedTime(void);
-char *getHTTPFormattedTime(const tm*);
+char *getRFC822GMTTime(void);
+char *getRFC822GMTTime(const time_t);
+char *getRFC822LocalTime(void);
+char *getRFC822LocalTime(const time_t);
 VOID StrTrim(char* str,const char* trimChars);
 void getFileExt(char* ext,const char* filename);
 void gotoNextLine(char* cmd);

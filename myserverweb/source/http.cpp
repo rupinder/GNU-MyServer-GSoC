@@ -962,8 +962,8 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	lstrcpy(response->MIME,"text/html");
 	lstrcpy(response->VER,"1.1");
 	response->isError=FALSE;
-	lstrcpy(response->DATE,getHTTPFormattedTime());
-	lstrcpy(response->DATEEXP,getHTTPFormattedTime());
+	lstrcpy(response->DATE,getRFC822GMTTime());
+	lstrcpy(response->DATEEXP,getRFC822GMTTime());
 	sprintf(response->SERVER_NAME,"MyServer %s",versionOfSoftware);
 }
 /*
@@ -973,7 +973,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	if(ID==e_401AUTH)
 	{
-		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getHTTPFormattedTime());
+		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime());
 		ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
 		return 1;
 	}

@@ -52,10 +52,12 @@ class MIME_Manager
 public:
 	MIME_Manager();
 	VOID addRecord(MIME_Manager::mime_record);
+	MIME_Manager::mime_record *getRecord(char extension[10]);
 	VOID removeAllRecords();
 	VOID removeRecord(char*);
 	u_long getNumMIMELoaded();
 	int load(char *filename);
+	int save(char *filename);
 	int getMIME(char* ext,char *dest,char *dest2);
 	VOID clean();
 };

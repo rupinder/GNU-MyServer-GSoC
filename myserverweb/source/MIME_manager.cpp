@@ -118,7 +118,44 @@ int MIME_Manager::load(char *filename)
 	return numMimeTypesLoaded;
 
 }
+/*
+*Save the MIME types to a file.
+*/
+int MIME_Manager::save(char *filename)
+{
+	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	MIME_Manager::mime_record *nmr1;
+	u_long nbw;
+	for(nmr1 = data;nmr1;nmr1 = nmr1->next)
+	{
+		ms_WriteToFile(f,nmr1->extension,lstrlen(nmr1->extension),&nbw);
+		ms_WriteToFile(f,",",lstrlen(","),&nbw);
+		ms_WriteToFile(f,nmr1->mime_type,lstrlen(nmr1->mime_type),&nbw);
+		ms_WriteToFile(f,",",lstrlen(","),&nbw);
+		char command[16];
+		if(nmr1->command==CGI_CMD_SEND)
+			lstrcpy(command,"SEND");
+		else if(nmr1->command==CGI_CMD_RUNCGI)
+			lstrcpy(command,"RUNCGI");
+		else if(nmr1->command==CGI_CMD_RUNMSCGI)
+			lstrcpy(command,"CGI_CMD_RUNMSCGI");
+		else if(nmr1->command==CGI_CMD_EXECUTE)
+			lstrcpy(command,"CGI_CMD_EXECUTE");
+		else if(nmr1->command==CGI_CMD_SENDLINK)
+			lstrcpy(command,"SENDLINK");
 
+		ms_WriteToFile(f,command,lstrlen(command),&nbw);
+		if(nmr1->cgi_manager[0])
+			ms_WriteToFile(f,nmr1->cgi_manager,lstrlen(nmr1->cgi_manager),&nbw);
+		else
+			ms_WriteToFile(f,"NONE",lstrlen("NONE"),&nbw);
+		ms_WriteToFile(f,";\r\n",lstrlen(";\r\n"),&nbw);
+	}
+	ms_WriteToFile(f,"#",lstrlen("#"),&nbw);
+	ms_CloseFile(f);
+
+	return 1;
+}
 /*
 *This function returns the type of action to do for handle this file type.
 *Passing a file extension ext this function fills the strings dest and dest2
@@ -161,10 +198,15 @@ MIME_Manager::MIME_Manager()
 }
 
 /*
-*Add a record.
+*Add a new record.
 */
 void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 {
+	/*
+	*If the MIME type already exists remove it.
+	*/
+	if(getRecord(mr.extension))
+		removeRecord(mr.extension);
 	MIME_Manager::mime_record *nmr =(MIME_Manager::mime_record*)malloc(sizeof(mime_record));
 	memcpy(nmr,&mr,sizeof(mime_record));
 	nmr->next=data;
@@ -224,6 +266,22 @@ void MIME_Manager::removeAllRecords()
 	}
 	data=0;
 	numMimeTypesLoaded=0;
+}
+/*
+*Get a pointer to an existing record passing its extension.
+*Don't modify the next member of the structure returned.
+*/
+MIME_Manager::mime_record *MIME_Manager::getRecord(char ext[10])
+{
+	MIME_Manager::mime_record *nmr1;
+	for(nmr1 = data;nmr1;nmr1 = nmr1->next)
+	{
+		if(!lstrcmpi(nmr1->extension,ext))
+		{
+			return nmr1;
+		}
+	}
+	return NULL;
 }
 
 /*

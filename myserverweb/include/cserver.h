@@ -68,6 +68,7 @@ private:
 	char defaultFilename[MAX_PATH];
 	char warningsFileLogName[MAX_PATH];
 	char accessesFileLogName[MAX_PATH];
+	char serverAdmin[32];
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
 	u_long nThreads;
 	u_long verbosity;
@@ -94,6 +95,7 @@ public:
 	char *getBrowseDirCSS();
 	char  *getServerName();
 	u_long  getVerbosity();
+	char *getServerAdmin();
 	int  mustUseMessagesFiles();
 	int  mustUseLogonOption();
 	void  setVerbosity(u_long);

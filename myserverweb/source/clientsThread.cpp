@@ -73,9 +73,11 @@ void ClientsTHREAD::controlConnections()
 {
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
+	LPCONNECTION next=0;
 	int logonStatus;
-	for(c; c && connections ;c=c->Next)
+	for(c; c && connections ;c=next)
 	{
+		next=c->Next;
 		nBytesToRead=bytesToRead(c->socket);
 		if(nBytesToRead)
 		{
@@ -214,12 +216,15 @@ void ClientsTHREAD::clearAllConnections()
 
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
-	for(;connections && c;c=c->Next)
+	LPCONNECTION next=0;
+	for(int i=0;i<nConnections;i++)
 	{
+		next=c->Next;
 		deleteConnection(c);
+		c=next;
 	}
-	connections=NULL;
 	nConnections=0;
+	connections=NULL;
 	terminateAccess(&connectionWriteAccess,this->id);
 }
 
