@@ -16,40 +16,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef THREADS_H
+#define THREADS_H
 
 #include "../stdafx.h"
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
-#include "../include/processes.h"
-#include "../include/threads.h"
+
+
+
+void wait(u_long);
+
 /*!
-*Macros to do simple transformations.
+*These functions are a simple trasposition of the mutex mechanism.
 */
-#define KB(x) (x*1024)
-#define MB(x) (KB(x)*1024)
-#define SEC(x) (x*1000)
-#define my_intabs(x)((x<0)?(-x):(x))
-#define OS_WINDOWS_9X		1	
-#define OS_WINDOWS_2000		2
-#define OS_WINDOWS_NT3		3
-#define OS_WINDOWS_XP		4
-#define OS_LINUX	      100  // Add room for future windows
-#undef min
-#undef max
-#define min(a,b)		((a<b)?a:b)
-#define max(a,b)		((a>b)?a:b)
-
-
-void preparePrintError();
-void endPrintError();
-
-int getOSVersion();
-u_long getCPUCount();
-int setcwdBuffer();
-char *getdefaultwd(char* dwd,int maxlen);
-int setcwd(char * cwd);
-
+int requestAccess(u_long*,u_long);
+int terminateAccess(u_long*,u_long);
 
 #endif

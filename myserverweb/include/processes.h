@@ -16,40 +16,36 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef PROCESSES_H
+#define PROCESSES_H
 
 #include "../stdafx.h"
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
-#include "../include/processes.h"
-#include "../include/threads.h"
+
+
+
 /*!
-*Macros to do simple transformations.
+*Structure used for start a new process.
 */
-#define KB(x) (x*1024)
-#define MB(x) (KB(x)*1024)
-#define SEC(x) (x*1000)
-#define my_intabs(x)((x<0)?(-x):(x))
-#define OS_WINDOWS_9X		1	
-#define OS_WINDOWS_2000		2
-#define OS_WINDOWS_NT3		3
-#define OS_WINDOWS_XP		4
-#define OS_LINUX	      100  // Add room for future windows
-#undef min
-#undef max
-#define min(a,b)		((a<b)?a:b)
-#define max(a,b)		((a>b)?a:b)
+#ifndef START_PROC_INFO_IN
+#define START_PROC_INFO_IN
+struct START_PROC_INFO
+{
+	MYSERVER_FILE_HANDLE stdError;
+	MYSERVER_FILE_HANDLE stdOut;
+	MYSERVER_FILE_HANDLE stdIn;
+	char *cmdLine;
+	char *cwd;
+	// added for unix support
+	char *cmd;
+	char *arg;
+	
+	void *envString;
+};
+#endif
 
-
-void preparePrintError();
-void endPrintError();
-
-int getOSVersion();
-u_long getCPUCount();
-int setcwdBuffer();
-char *getdefaultwd(char* dwd,int maxlen);
-int setcwd(char * cwd);
-
-
+u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
+u_long execConcurrentProcess(START_PROC_INFO* spi);
+int terminateProcess(u_long);
 #endif

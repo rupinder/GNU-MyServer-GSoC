@@ -182,6 +182,12 @@
 				RelativePath="source\isapi.cpp">
 			</File>
 			<File
+				RelativePath="source\processes.cpp">
+			</File>			
+			<File
+				RelativePath="source\threads.cpp">
+			</File>			
+			<File
 				RelativePath="source\md5.cpp">
 			</File>
 			<File
@@ -284,6 +290,12 @@
 			<File
 				RelativePath="include\security.h">
 			</File>
+			<File
+				RelativePath="include\processes.h">
+			</File>			
+			<File
+				RelativePath="include\threads.h">
+			</File>			
 			<File
 				RelativePath="include\sockets.h">
 			</File>
