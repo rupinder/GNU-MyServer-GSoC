@@ -79,7 +79,8 @@ private:
 	char systemPath[MAX_PATH];
 	char path[MAX_PATH];
 	char browseDirCSSpath[MAX_PATH];
-	char defaultFilename[MAX_PATH];
+	char *defaultFilename;
+	int nDefaultFilename;
 	char warningsFileLogName[MAX_PATH];
 	char accessesFileLogName[MAX_PATH];
 	char serverAdmin[32];
@@ -106,7 +107,7 @@ public:
 	char  *getSystemPath();
 	char  *getPath();
 	u_long getNumThreads();
-	char  *getDefaultFilenamePath(u_long=0);
+	char  *getDefaultFilenamePath(u_long ID=0);
 	char *getBrowseDirCSS();
 	char  *getServerName();
 	u_long  getVerbosity();

@@ -362,7 +362,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	{
         td->pathTranslated[0]='\0';
 		/*
-		*Start from the second character because the first is a slash character.
+		*Start from the second character cause the first is a slash character.
 		*/
 		getPath((td->pathTranslated),&((td->pathInfo)[1]),false);
 	}
@@ -380,23 +380,40 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 
 	/*
 	*If there are not any extension then we do one of this in order:
-	1)We send the default file in the folder.
+	1)We send the default files in the folder in order.
 	2)We send the folder content.
 	3)We send an error.
 	*/
 	if(ms_IsFolder((char *)(td->filenamePath)))
 	{
-		static char defaultFileName[MAX_PATH];
-		sprintf(defaultFileName,"%s/%s",td->filenamePath,lserver->getDefaultFilenamePath());
-
-		if(sendHTTPFILE(td,s,defaultFileName,OnlyHeader,firstByte,lastByte))
-			return 1;
+		int i;
+		for(i=0;;i++)
+		{
+			static char defaultFileName[MAX_PATH];
+			char *defaultFileNamePath=lserver->getDefaultFilenamePath(i);
+			if(defaultFileNamePath)
+				sprintf(defaultFileName,"%s/%s",td->filenamePath,defaultFileNamePath);
+			else
+				break;
+			if(ms_FileExists(defaultFileName))
+			{
+				/*
+				*Change the URI to reflect the default file name.
+				*/
+				strcat(td->request.URI,"/");
+				strcat(td->request.URI,defaultFileNamePath);
+				strcpy(td->filenamePath,defaultFileName);
+				if(sendHTTPRESOURCE(td,s,defaultFileName,0,0,0,-1,1))
+					return 1;
+			}
+		}
 
 		if(sendHTTPDIRECTORY(td,s,td->filenamePath))
 			return 1;	
 
 		return raiseHTTPError(td,s,e_404);
 	}
+
 	/*
 	*getMIME return true if the ext is registered by a CGI.
 	*/
@@ -1046,7 +1063,7 @@ int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input)
 	*The request is mapped into a HTTP_REQUEST_HEADER structure
 	*And at the end of this every command is treated
 	*differently. We use this mode for parse the HTTP
-	*because especially in the CGI is requested a continous
+	*cause especially in the CGI is requested a continous
 	*HTTP header access.
 	*Before mapping the header in the structure 
 	*control if this is a regular request.
@@ -1326,7 +1343,7 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 	*The request is mapped into a HTTP_REQUEST_HEADER structure
 	*And at the end of this every command is treated
 	*differently. We use this mode for parse the HTTP
-	*because especially in the CGI is requested a continous
+	*cause especially in the CGI is requested a continous
 	*HTTP header access.
 	*Before mapping the header in the structure 
 	*control if this is a regular request.

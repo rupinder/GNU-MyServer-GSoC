@@ -569,6 +569,8 @@ void cserver::terminate()
 		if(threadsStopped==nThreads)
 			break;
 	}
+	delete[] defaultFilename;
+
 	for(i=0;i<nThreads;i++)
 		threads[i].clean();
 	if(verbosity>1)
@@ -602,7 +604,6 @@ void cserver::initialize(int OSVer)
 	lstrcpy(guestLogin,"myServerUnknown");
 	lstrcpy(languageFile,"languages/english.xml");
 	lstrcpy(guestPassword,"myServerUnknown");
-	lstrcpy(defaultFilename,"default.html");
 	browseDirCSSpath[0]='\0';
 	mustEndServer=false;
 	port_HTTP=80;
@@ -681,11 +682,41 @@ void cserver::initialize(int OSVer)
 		lstrcpy(guestPassword,data);
 	}
 
-	data=configurationFileManager.getValue("DEFAULT_FILENAME");
-	if(data)
+	/*
+	*Determine the number of default filenames written in the configuration file.
+	*/
+	nDefaultFilename=0;
+	while(true)
 	{
-		lstrcpy(defaultFilename,data);
+		char xmlMember[21];
+		sprintf(xmlMember,"DEFAULT_FILENAME%i",nDefaultFilename);
+		if(configurationFileManager.getValue(xmlMember)==NULL)
+			break;
+		nDefaultFilename++;
+
 	}
+	/*
+	*Copy the right values in the buffer.
+	*/
+	if(nDefaultFilename==0)
+	{
+		defaultFilename =(char*)new char[MAX_PATH];
+		strcpy(defaultFilename,"default.html");
+	}
+	else
+	{
+		int i;
+		defaultFilename =(char*)new char[MAX_PATH*nDefaultFilename];
+		for(i=0;i<nDefaultFilename;i++)
+		{
+			char xmlMember[21];
+			sprintf(xmlMember,"DEFAULT_FILENAME%i",i);
+			data=configurationFileManager.getValue(xmlMember);
+			if(data)
+				strcpy(&defaultFilename[i*MAX_PATH],data);
+		}
+	}
+
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
 	{
@@ -876,9 +907,12 @@ char *cserver::getPath()
 /*
 *Returns the default filename.
 */
-char *cserver::getDefaultFilenamePath(u_long)
+char *cserver::getDefaultFilenamePath(u_long ID)
 {
-	return defaultFilename;
+	if(ID<nDefaultFilename)
+		return defaultFilename+ID*MAX_PATH;
+	else
+		return 0;
 }
 /*
 *Returns the name of the server(the name of the current PC).

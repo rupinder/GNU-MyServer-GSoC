@@ -191,15 +191,52 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		else if(!strncmp(&td->buffer2[i],"Location",8))
 			{
 				char nURL[MAX_PATH];
-				int j=0;
+				nURL[0]='\0';
+				int j;
+				if(!td->request.uriEndsWithSlash)
+				{
+					int slashcount=0,slashcountnow=0;
+					for(j=0;j<strlen(td->request.URI);j++)
+						if(td->request.URI[j]=='/')
+							slashcount++;
+
+					for(j=0;j<strlen(td->request.URI);j++)
+					{
+						if(td->request.URI[j]=='/')
+						{
+							slashcountnow++;
+							if(slashcountnow==slashcount-1)
+							{
+								j++;
+								int start=0;
+								while(td->request.URI[j]!='/')
+								{
+									nURL[start]=td->request.URI[j]; 
+									nURL[start+1]='\0'; 
+									j++;
+									start++;
+									
+								}
+								nURL[start]='/'; 
+								nURL[start+1]='\0'; 
+							}
+						}
+					}
+				}
+				j=0;
+
+				int start=strlen(nURL);
 				while(td->buffer2[i+j+10]!='\r')
 				{
-					nURL[j]=td->buffer2[i+j+10];
-					nURL[j+1]='\0';
+
+					nURL[j+start]=td->buffer2[i+j+10];
+					nURL[j+start+1]='\0';
 					j++;
 				}
 				if(!yetoutputted)
+				{
 					sendHTTPRedirect(td,s,nURL);
+				}
 				yetoutputted=1;
 			}
 	}
