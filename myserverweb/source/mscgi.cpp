@@ -52,7 +52,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 #ifndef DO_NOT_USE_MSCGI
 
 	static HMODULE hinstLib; 
-    static CGIMAIN ProcMain;
+    	static CGIMAIN ProcMain;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
 	data.envString+=atoi(td->request.CONTENT_LENGTH);
@@ -137,12 +137,23 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.getFileSize());
 	
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
-	s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
+	if(s->socket.send(td->buffer,(int)strlen(td->buffer), 0)==SOCKET_ERROR)
+	{
+		data.stdOut.closeFile();
+		MYSERVER_FILE::deleteFile(outFile);
+		return 0;	
+	}
 	u_long nbr,nbs;
 	do
 	{
 		data.stdOut.readFromFile(td->buffer,td->buffersize,&nbr);
 		nbs=s->socket.send(td->buffer,nbr,0);
+		if(nbs==SOCKET_ERROR)
+		{
+			data.stdOut.closeFile();
+			MYSERVER_FILE::deleteFile(outFile);
+			return 0;
+		}		
 	}while(nbr && nbs);
 	data.stdOut.closeFile();
 	MYSERVER_FILE::deleteFile(outFile);
