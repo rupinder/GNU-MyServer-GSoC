@@ -17,6 +17,9 @@
 *Boston, MA  02111-1307, USA.
 */
 
+/*
+*This is the source code of a GUI application that need for the controls of myServer execution
+*/
 #include "stdafx.h"
 #include "control.h"
 #define MAX_LOADSTRING 100

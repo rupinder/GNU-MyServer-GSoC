@@ -37,7 +37,6 @@ void setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 {
 	warningsLogFile=nlg;
 }
-
 DWORD accessesLogWrite(char* str)
 {
 	DWORD nbw;
@@ -48,6 +47,7 @@ void setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
 {
 	accessesLogFile=nlg;
 }
+
 
 /*
 *Return the recursion of the path

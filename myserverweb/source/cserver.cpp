@@ -257,9 +257,10 @@ void cserver::start(INT hInst)
 
 	this->terminate();
 }
-
+/*
+*This is the thread that listens for a new connection on the HTTP port
+*/
 unsigned int __stdcall listenServerHTTP(void*)
-
 {
 	INT asock_inLenHTTP=sizeof(lserver->asock_inHTTP);
 	while(!mustEndServer)
@@ -286,7 +287,9 @@ unsigned int __stdcall listenServerHTTP(void*)
 	return 0;
 
 }
-
+/*
+*Returns the numbers of active connections on all the threads
+*/
 DWORD cserver::getNumConnections()
 {
 	/*
@@ -301,12 +304,17 @@ DWORD cserver::getNumConnections()
 }
 
 
-
+/*
+*Get the verbosity value
+*/
 DWORD cserver::getVerbosity()
 {
 	return verbosity;
 }
 
+/*
+*Set the verbosity value
+*/
 void  cserver::setVerbosity(DWORD nv)
 {
 	verbosity=nv;
@@ -359,12 +367,13 @@ void cserver::terminate()
 	ms_CloseFile(warningsLogFile);
 	ms_CloseFile(accessesLogFile);
 }
+
+/*
+*Here is loaded the configuration of the server.
+*The configuration file is a pseudo-XML file.
+*/
 void cserver::initialize(INT OSVer)
 {
-	/*
-	*Here is loaded the configuration of the server.
-	*The configuration file is a pseudo-XML file.
-	*/
 	socketRcvTimeout = 10;
 	useLogonOption = TRUE;
 	guestLoginHandle=0;
@@ -512,14 +521,11 @@ void cserver::initialize(INT OSVer)
 
 }
 
-
+/*
+*Control the size of the log file.
+*/
 VOID cserver::controlSizeLogFile()
 {
-	/*
-	*Control the size of the log file.
-	*If this is bigger than maxLogFileSize
-	*delete it.
-	*/
 	if(!warningsLogFile)
 	{
 		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
@@ -552,7 +558,9 @@ VOID cserver::controlSizeLogFile()
 	setAccessesLogFile(accessesLogFile);
 
 }
-
+/*
+*This function dispatch a new connection to a thread
+*/
 BOOL cserver::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
 {
 	if(s==0)
