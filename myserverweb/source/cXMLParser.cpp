@@ -82,17 +82,11 @@ int XmlParser::open(char* filename)
 	cur=0;
 	if(!File::fileExists(filename))
 		return -1;
-	if(doc==0)
-  {
-		doc = xmlParseFile(filename);
-  }
-	else
-  {
+	if(doc!=0)
 		close();
-		doc = xmlParseFile(filename);
-  }
-	if(!doc)
-		return -1;
+  doc = xmlParseFile(filename);
+  if(doc == 0)
+    return -1;
 	cur = xmlDocGetRootElement(doc);
 	if(!cur)
 	{

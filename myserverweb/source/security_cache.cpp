@@ -38,24 +38,31 @@ SecurityCache::SecurityCache()
 int SecurityCache::getErrorFileName(char *directory, int error, 
                                      char* sysdirectory, char** out)
 {
-
- int permissionsFileLen = strlen(directory)+10;
+  int permissionsFileLen = strlen(directory)+10;
   char* permissionsFile = new char[permissionsFileLen];
+  XmlParser *parser;
   if(permissionsFile == 0)
     return 0;
   sprintf(permissionsFile,"%s/security",directory);
 
-  XmlParser *parser =(XmlParser*)dictionary.getData(permissionsFile);
+  parser =(XmlParser*)dictionary.getData(permissionsFile);
   /*!
    *If the parser is still present use it.
    */
   if(parser)
   {
+    u_long fileModTime;
     /*! If the file was modified reload it. */
-    if(parser->getLastModTime() != File::getLastModTime(permissionsFile))
+    fileModTime=File::getLastModTime(permissionsFile);
+    if((fileModTime != (u_long)-1)  && (parser->getLastModTime() != fileModTime))
     {
       parser->close();
-      parser->open(permissionsFile);
+      if(parser->open(permissionsFile) == -1)
+      {
+        dictionary.removeNode(permissionsFile);
+        delete [] permissionsFile;
+        return 0;
+      }
     }
     delete [] permissionsFile;
     return ::getErrorFileName(directory, error, out, parser);
@@ -167,26 +174,36 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
 {
   int permissionsFileLen = strlen(directory)+10;
   char* permissionsFile = new char[permissionsFileLen];
+  XmlParser *parser;
+  u_long filenamelen;
   if(permissionsFile == 0)
     return 0;
   sprintf(permissionsFile,"%s/security",directory);
 
-  u_long filenamelen=(u_long)(strlen(filename));
+  filenamelen=(u_long)(strlen(filename));
   while(filenamelen && filename[filenamelen]=='.')
   {
     filename[filenamelen--]='\0';
   }
-  XmlParser *parser =(XmlParser*)dictionary.getData(permissionsFile);
+  parser =(XmlParser*)dictionary.getData(permissionsFile);
   /*!
    *If the parser is still present use it.
    */
   if(parser)
   {
+    u_long fileModTime;
     /*! If the file was modified reload it. */
-    if(parser->getLastModTime() != File::getLastModTime(permissionsFile))
+    fileModTime=File::getLastModTime(permissionsFile);
+    if((fileModTime != (u_long)-1)  && (parser->getLastModTime() != fileModTime))
     {
       parser->close();
-      parser->open(permissionsFile);
+      if(parser->open(permissionsFile) == -1)
+      {
+        dictionary.removeNode(permissionsFile);
+        delete [] permissionsFile;
+        return 0;
+      }
+
     }
     delete [] permissionsFile;
     return ::getPermissionMask(user, password, directory, filename, sysdirectory, 
