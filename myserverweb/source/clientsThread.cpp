@@ -70,13 +70,10 @@ void * startClientsTHREAD(void* pParam)
 	ct->buffer=new char[ct->buffersize];
 	ct->buffer2=new char[ct->buffersize2];
 	ct->initialized=true;
-#ifdef WIN32
-	ZeroMemory(ct->buffer,ct->buffersize);
-	ZeroMemory(ct->buffer2,ct->buffersize2);
-#else
+
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
-#endif
+
 	ms_terminateAccess(&ct->connectionWriteAccess,ct->id);
 	/*
 	*This function when is alive only call the controlConnections(...) function
@@ -136,7 +133,7 @@ void ClientsTHREAD::controlConnections()
 				*the active connections list.
 				*/
 				case PROTOCOL_HTTP:
-					if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation,id))
+					if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,													  nBytesToRead,&hImpersonation,id))
 						deleteConnection(c);
 					break;
 			}

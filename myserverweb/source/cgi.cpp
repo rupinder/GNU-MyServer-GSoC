@@ -118,11 +118,14 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
 	MYSERVER_FILE_HANDLE stdInFile;
 	
-	if(td->inputData==0)/*If no exists the stdin file create one and copy in all the necessary informations*/
+	if(td->inputData==0)
+/*If no exists the stdin file create one and copy in all the necessary informations*/
 	{
 		u_long nbw;/*Number of bytes written to the stdin file if any*/
 		sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,td->id);
 		stdInFile = ms_CreateTemporaryFile(stdInFilePath);
+
+
 		if(td->request.URIOPTSPTR)
 			ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
 		else
@@ -136,7 +139,6 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	{
 		stdInFile = td->inputData;
 	}
-
 	/*
 	*Build the environment string used by the CGI started
 	*by the execHiddenProcess(...) function.
@@ -215,7 +217,6 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 									nURL[start+1]='\0'; 
 									j++;
 									start++;
-									
 								}
 								nURL[start]='/'; 
 								nURL[start+1]='\0'; 

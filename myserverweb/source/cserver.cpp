@@ -305,6 +305,10 @@ void cserver::start()
 
 	vhostList.loadConfigurationFile("virtualhosts.txt");
 	
+	/*
+	*Create the listens threads.
+	*Every port uses a thread.
+	*/
 	for(vhostmanager::sVhostList *list=vhostList.getvHostList();list;list=list->next)
 	{
 		int needThread=1;

@@ -550,6 +550,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		td.inputData=ms_CreateTemporaryFile(stdInFilePath);
 		u_long nbw;
 		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
+
 		/*
 		*If there are others bytes to read from the socket.
 		*/
@@ -1051,7 +1052,7 @@ u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsp
 */
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
-	sprintf(td->buffer2,"HTTP/1.1 301 Moved\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime(),newURL);
+	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime(),newURL);
 	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
 	return 1;
 }
@@ -1431,6 +1432,13 @@ int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input)
 			lineControlled=true;
 			lstrcpy(td->response.LOCATION,token);
 			StrTrim(td->response.LOCATION," ");
+		}else
+		/*Status*/
+		if(!lstrcmpi(command,"Status"))
+		{
+			token = strtok( NULL, "\r\n" );
+			lineControlled=true;
+			td->response.httpStatus=atoi(token);
 		}else
 		/*Date*/
 		if(!lstrcmpi(command,"Date"))

@@ -157,7 +157,6 @@ void vhost::ms_setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 /*
 *vhostmanager
 */
-
 void vhostmanager::addvHost(vhost* vHost)
 {
 	if(vhostList==0)
