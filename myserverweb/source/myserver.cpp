@@ -37,6 +37,8 @@ extern "C" {
 #endif
 }
 
+cserver server;
+
 
 /*! External libraries to be included in the project. */
 #ifdef WIN32
@@ -144,9 +146,6 @@ static struct argp myserver_argp = {options, parse_opt, args_doc, doc};
 
 #endif
 
-
-cserver server;
-
 /*!
  *Main function for MyServer
  */
@@ -194,7 +193,7 @@ int main (int argn, char **argv)
 	runas=input.runas;
   if(input.logFileName)
   {
-    if(server-.setLogFile(input.logFileName))
+    if(server.setLogFile(input.logFileName))
     {
       printf("Error loading log file\n");
       return 1;
