@@ -54,10 +54,10 @@ extern "C" {
 void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* response)
 {
 	/*!
-   *Here is builded the HEADER of a HTTP response.
-   *Passing a HttpResponseHeader struct this builds an header string.
-   *Every directive ends with a \r\n sequence.
-   */
+	*Here is builded the HEADER of a HTTP response.
+	*Passing a HttpResponseHeader struct this builds an header string.
+	*Every directive ends with a \r\n sequence.
+	*/
 	if(response->httpStatus!=200)
 	{
 		if(response->ERROR_TYPE[0]=='\0')
@@ -122,9 +122,9 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	if(response->CONTENT_LENGTH[0])
 	{
 		/*!
-     *Do not specify the Content-Length field if it is used
-     *the chunked Transfer-Encoding.
-     */
+		*Do not specify the Content-Length field if it is used
+		*the chunked Transfer-Encoding.
+		*/
 		if(!strstr(response->TRANSFER_ENCODING,"chunked"))
 		{
 			strcat(str,"Content-Length: ");
@@ -193,13 +193,13 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	}
 
 	/*!
-   *MyServer supports the bytes range.
-   */
+	*MyServer supports the bytes range.
+	*/
 	strcat(str,"Accept-Ranges: bytes\r\n");
   
 	/*!
-   *The HTTP header ends with a \r\n sequence.
-   */
+	*The HTTP header ends with a \r\n sequence.
+	*/
 	strcat(str,"\r\n\0\0\0\0\0");
 }
 /*!
@@ -209,13 +209,13 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 {
 	resetHTTPResponse(response);
 	/*!
-   *By default use:
-   *1) the MIME type of the page equal to text/html.
-   *2) the version of the HTTP protocol to 1.1.
-   *3) the date of the page and the expire date to the current time.
-   *4) set the name of the server.
-   *5) set the page that it is not an error page.
-   */
+	*By default use:
+	*1) the MIME type of the page equal to text/html.
+	*2) the version of the HTTP protocol to 1.1.
+	*3) the date of the page and the expire date to the current time.
+	*4) set the name of the server.
+	*5) set the page that it is not an error page.
+	*/
 	strcpy(response->CONTENT_TYPE,"text/html");
 	strcpy(response->VER,"HTTP/1.1");
 	getRFC822GMTTime(response->DATE,HTTP_RESPONSE_DATE_DIM);
@@ -310,24 +310,21 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
                                     u_long* nLinesptr, u_long* ncharsptr)
 {
 	u_long i;
-	u_long buffersize=td->buffersize;
 	u_long nLinechars=0;
-	nLinechars=0;
 	u_long nLines=0;
-	u_long maxTotchars=0;
+
 	if(res==0)
 		return 0;
 	/*!
-	 *Count the number of lines in the header.
-	 */
-	for(i=nLines=0;;i++)
+	*Count the number of lines in the header.
+	*/
+	for(i=0;;i++)
 	{
 		if(res[i]=='\n')
 		{
 			if((res[i+2]=='\n') || (res[i+1]=='\0') || (res[i+1]=='\n'))
 			{
-				maxTotchars=i+3;
-				if(maxTotchars>buffersize)
+				if((i+3)>td->buffersize)
 					return 0;
 				break;
 			}
@@ -344,12 +341,12 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
 	    	nLinechars++;
 		}
 	}
-
+	
 	/*!
 	*Set the output variables.
 	*/
 	*nLinesptr=nLines;
-	*ncharsptr=maxTotchars;
+	*ncharsptr=i+3;
 	
 	/*!
 	*Return if is a valid request header.
@@ -367,23 +364,23 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
                                                HttpThreadContext* td, char* input)
 {
 	/*!
-   *In this function there is the HTTP protocol parse.
-   *The request is mapped into a HttpRequestHeader structure
-   *And at the end of this every command is treated
-   *differently. We use this mode for parse the HTTP
-   *cause especially in the CGI is requested a continous
-   *HTTP header access.
-   *Before mapping the header in the structure 
-   *control if this is a regular request.
-   *The HTTP header ends with a \r\n\r\n sequence.
-   */
+	*In this function there is the HTTP protocol parse.
+	*The request is mapped into a HttpRequestHeader structure
+	*And at the end of this every command is treated
+	*differently. We use this mode for parse the HTTP
+	*cause especially in the CGI is requested a continous
+	*HTTP header access.
+	*Before mapping the header in the structure 
+	*control if this is a regular request.
+	*The HTTP header ends with a \r\n\r\n sequence.
+	*/
   
 	/*!
-   *Control if the HTTP header is a valid header.
-   */
+	*Control if the HTTP header is a valid header.
+	*/
 	u_long i=0,j=0;
 	int max=0;
-  u_long nLines, maxTotchars;
+	u_long nLines, maxTotchars;
 	int validRequest;
 	const int maxUri = HTTP_REQUEST_URI_DIM + 200 ;
 	const char seps[]   = "\n\r";
@@ -398,31 +395,30 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	/*! TokenOff is the length of the token starting from the location token.  */
 	int tokenOff;
 
-  /*! If input was not specified use the buffer. */
+	/*! If input was not specified use the buffer. */
 	if(input==0)
 	{
 		token=input=td->buffer->GetBuffer();
 	}
-  else
+	else
 		token=input;
 
 	validRequest=validHTTPRequest(input, td, &nLines, &maxTotchars);
 	/*! Invalid header.  */
 	if(validRequest==0)
-  {
-    /* Keep trace of first line for logging. */
-    tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
-    if(tokenOff > 0)
-      strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
-    else
-      strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
-    request->URI[HTTP_REQUEST_URI_DIM] = '\0';
-
+  	{
+		/* Keep trace of first line for logging. */
+		tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
+		if(tokenOff > 0)
+			strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+		else
+			strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
+		request->URI[HTTP_REQUEST_URI_DIM] = '\0';
 		return 0;
-  }
+	}
 	/*! Incomplete header.  */
 	else if(validRequest==-1)
-		return -1;
+			return -1;
 
   /*! Get the first token, this is the HTTP command.*/
 	tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
@@ -1249,17 +1245,12 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
                                    u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i=0;
-	u_long buffersize=td->buffer->GetRealLength();
 	u_long nLinechars=0;
-	int isValidCommand=-1;
 	nLinechars=0;
 	u_long nLines=0;
-	u_long maxTotchars=0;
-	nLines=0;
+	
 	if(req==0)
-	{
 		return 0;
-	}
 	
 	for(;(i<MYSERVER_KB(8));i++)
 	{
@@ -1267,50 +1258,34 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 		{
 			if(req[i+2]=='\n')
 			{
-				maxTotchars=i+3;
-				if(maxTotchars>buffersize)
-				{
-					isValidCommand=0;
-					break;				
-				}
-				isValidCommand=1;
+				if((i+3) > td->buffer->GetRealLength())
+					return 0;
 				break;
 			}
+			/*! 
+			*If the lines number is greater than 25 we consider 
+			*the header invalid.
+			*/
+			if(nLines>=25)
+				return 0;
 			nLinechars=0;
 			nLines++;
-			/*! 
-       *If the lines number is greater than 25 we consider 
-       *the header invalid.  
-       */
-			if(nLines>25)
-			{
-				return 0;
-			}
 		}
 		else if(req[i]=='\0')
-    {
-      isValidCommand = -1;
-      break;
-    }
-		else
-		{
-			nLinechars++;
-		}
+      			return (-1);
 		/*!
-     *We set a maximal theorical number of characters in a line to 1024.
-     *If a line contains more than N characters we consider the header invalid.
-     */
-		if(nLinechars>2048)
-		{
-			isValidCommand=0;
-			break;
-		}
+		*We set a maximal theorical number of characters in a line to 2048.
+		*If a line contains more than N characters we consider the header invalid.
+		*/
+		if(nLinechars>=2048)
+			return 0;
+		nLinechars++;
 	}
 
 	/*! Set the output variables.  */
 	*nLinesptr=nLines;
-	*ncharsptr=maxTotchars;
+	*ncharsptr=i+3;
 	
 	/*! Return if is a valid request header.  */
-	return isValidCommand;
+	return 1;
 }
