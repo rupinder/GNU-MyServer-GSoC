@@ -545,7 +545,7 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
    *between "/ *" and "* /" without the space.
    *In 5) and 6) for use absolute path use the character | before the full path.
    */
-	char buffer[KB(10)];/*!Exists a line greater than 10 KB?!?*/
+	char buffer[MYSERVER_KB(10)];/*!Exists a line greater than 10 KB?!?*/
 	char buffer2[256];
 	u_long nbr;/*!Number of bytes read from the file*/
 	MYSERVER_FILE fh;

@@ -180,7 +180,7 @@ void * startClientsTHREAD(void* pParam)
        *Long inactive non static thread... Maybe we don't need it.
        */
       if(!ct->isStatic())
-        if(get_ticks() - ct->getTimeout() > SEC(15) )
+        if(get_ticks() - ct->getTimeout() > MYSERVER_SEC(15) )
           ct->setToDestroy(1);
         
     }
@@ -277,7 +277,7 @@ int ClientsTHREAD::controlConnections()
 		c->setForceParsing(0);
 		if(nBytesToRead)
 			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->getDataRead()],
-                         KB(8) - c->getDataRead(), 0);
+                         MYSERVER_KB(8) - c->getDataRead(), 0);
 
     /*! Refresh with the right value. */
     nBytesToRead = c->getDataRead() + err;
@@ -289,7 +289,7 @@ int ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_unlock();
 			return 0;
 		}
- 		if((c->getDataRead() + err)<KB(8))
+ 		if((c->getDataRead() + err)< MYSERVER_KB(8))
 		{
 			((char*)buffer.GetBuffer())[c->getDataRead() + err]='\0';
 		}

@@ -28,9 +28,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *Macros to do simple transformations.
 */
-#define KB(x) (x*1024)
-#define MB(x) (KB(x)*1024)
-#define SEC(x) (x*1000)
+#define MYSERVER_KB(x) (x*1024)
+#define MYSERVER_MB(x) (KB(x)*1024)
+#define MYSERVER_SEC(x) (x*1000)
 #define my_intabs(x)((x<0)?(-x):(x))
 #define OS_WINDOWS_9X		1
 #define OS_WINDOWS_2000		2

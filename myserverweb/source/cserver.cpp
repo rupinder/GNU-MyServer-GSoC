@@ -835,7 +835,7 @@ int cserver::initialize(int /*!os_ver*/)
   nMaxThreads = 50;
   currentThreadID = ClientsTHREAD::ID_OFFSET;
 	socketRcvTimeout = 10;
-	connectionTimeout = SEC(25);
+	connectionTimeout = MYSERVER_SEC(25);
 	mustEndServer=0;
 	verbosity=1;
 	maxConnections=0;
@@ -1048,7 +1048,7 @@ int cserver::initialize(int /*!os_ver*/)
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
 	{
-		connectionTimeout=SEC((u_long)atol(data));
+		connectionTimeout=MYSERVER_SEC((u_long)atol(data));
 	}
 
 	data=configurationFileManager.getValue("NTHREADS_STATIC");

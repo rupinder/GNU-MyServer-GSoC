@@ -150,7 +150,7 @@ public:
   void setForceParsing(int);	
 	
 	/*! This buffer must be used only by the ClientsTHREAD class.  */
-	char connectionBuffer[KB(8)];
+	char connectionBuffer[MYSERVER_KB(8)];
 	
 	/*! Buffer for the connecion struct. Used by protocols.  */
 	protocol_buffer *protocolBuffer;

@@ -1155,7 +1155,7 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
 		return 0;
 	}
 	
-	for(;(i<KB(8));i++)
+	for(;(i<MYSERVER_KB(8));i++)
 	{
 		if(req[i]=='\n')
 		{

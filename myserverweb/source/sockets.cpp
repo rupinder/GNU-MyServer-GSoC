@@ -574,7 +574,13 @@ u_long MYSERVER_SOCKET::bytesToRead()
   else
 #endif
   {
+#ifdef FIONREAD
     ioctlsocket(FIONREAD,&nBytesToRead);
+#else 
+#ifdef I_NREAD
+    ::ioctlsocket( I_NREAD, &nBytesToRead ) ;
+#endif
+#endif
   }
 	return nBytesToRead;
 }
@@ -593,7 +599,7 @@ int MYSERVER_SOCKET::setNonBlocking(int non_blocking)
 
 #ifdef NOT_WIN
   int flags;
-  flags = fcntl(c, F_GETFL, 0);
+  flags = fcntl((int)socketHandle, F_GETFL, 0);
   if (flags < 0) 
     return -1;
   

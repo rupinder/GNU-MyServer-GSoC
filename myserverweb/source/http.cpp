@@ -82,7 +82,7 @@ u_long http::nDefaultFilename=0;
 int http::initialized=0;
 
 /*! If not specified differently use a timeout of 15 seconds.  */
-int http::cgi_timeout=SEC(15);
+int http::cgi_timeout=MYSERVER_SEC(15);
 
 /*! Max number of FastCGI servers allowed to run. */
 int http::fastcgi_servers;
@@ -1604,7 +1604,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 				{
 					ret=0;
 					fs=td.inputData.getFileSize();
-					while(get_ticks()-timeout<SEC(5))
+					while(get_ticks()-timeout<MYSERVER_SEC(5))
 					{
 						if(content_len==total_nbr)
 						{
@@ -1647,7 +1647,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 							break;
 						}
 					}
-					if(get_ticks()-timeout>=SEC(5))
+					if(get_ticks()-timeout>=MYSERVER_SEC(5))
 						break;
 				}
 				while(content_len!=total_nbr);
@@ -1674,7 +1674,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 				do
 				{
 					ret=0;
-					while(get_ticks()-timeout<SEC(3))
+					while(get_ticks()-timeout<MYSERVER_SEC(3))
 					{
 						if(td.connection->socket.bytesToRead())
 						{
@@ -1693,7 +1693,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 							break;
 						}
 					}
-					if(get_ticks()-timeout>=SEC(3))
+					if(get_ticks()-timeout>=MYSERVER_SEC(3))
 						break;
           /*! Wait a bit. */
           wait(2);
@@ -1924,8 +1924,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 				/*!
          *connectionBuffer is 8 KB, so don't copy more bytes.
          */
-				a->setDataRead(min(KB(8), (int)strlen((char*)td.buffer->GetBuffer()) -
-                                                        td.nHeaderChars ) );
+				a->setDataRead(min(MYSERVER_KB(8), (int)strlen((char*)td.buffer->GetBuffer()) -
+                           td.nHeaderChars ) );
 				if(a->getDataRead() )
 				{
 					memcpy(a->connectionBuffer, ((char*)td.buffer->GetBuffer() +
@@ -2444,7 +2444,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
    *Store defaults value.  
    *By default use GZIP with files bigger than a MB.  
    */
-  cgi_timeout = SEC(15);
+  cgi_timeout = MYSERVER_SEC(15);
   fastcgi_servers = 25;
 	gzip_threshold=1<<20;
 	useMessagesFiles=1;
@@ -2465,7 +2465,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	data=configurationFileManager.getValue("CGI_TIMEOUT");
 	if(data)
 	{
-		cgi_timeout=SEC(atoi(data));
+		cgi_timeout=MYSERVER_SEC(atoi(data));
 	}	
 	data=configurationFileManager.getValue("FASTCGI_MAX_SERVERS");
 	if(data)

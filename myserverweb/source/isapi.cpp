@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Initialize the timeout value to 15 seconds.
  */
-u_long isapi::timeout=SEC(15);
+u_long isapi::timeout=MYSERVER_SEC(15);
 
 /*!
  *Set a new timeout value used with the isapi modules.

@@ -369,7 +369,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
           break;
         timeout = get_ticks();
       }
-      else if(get_ticks() - timeout > SEC(5))
+      else if(get_ticks() - timeout > MYSERVER_SEC(5))
       {
         strcpy(b2,"Bad content length specified");
         addToErrorLog(a,b2, strlen(b2));

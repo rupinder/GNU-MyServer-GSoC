@@ -37,7 +37,7 @@ extern "C"
 /*!
  *Initialize the timeout value to 15 seconds.
  */
-u_long wincgi::timeout=SEC(15);
+u_long wincgi::timeout=MYSERVER_SEC(15);
 
 /*!
  *Set a new timeout value to use for new processes.

@@ -55,7 +55,7 @@ extern "C" {
 /*!
  *By default use a timeout of 15 seconds on new processes.
  */
-int cgi::cgi_timeout = SEC(15);
+int cgi::cgi_timeout = MYSERVER_SEC(15);
 
 /*!
  *Run the standard CGI and send the result to the client.

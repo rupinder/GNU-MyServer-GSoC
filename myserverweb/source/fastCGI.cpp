@@ -38,7 +38,7 @@ int fastcgi::initialized=0;
 int fastcgi::max_fcgi_servers=25;
 
 /*! Use a default timeout of 15 seconds. */
-int fastcgi::timeout=SEC(15);
+int fastcgi::timeout=MYSERVER_SEC(15);
 
 /*! Mutex used to access fastCGI servers. */
 myserver_mutex fastcgi::servers_mutex;
