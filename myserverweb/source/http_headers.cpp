@@ -253,8 +253,8 @@ void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->OTHER[0]='\0';
 	request->PRAGMA[0]='\0';
 	request->RANGETYPE[0]='\0';
-	request->RANGEBYTEBEGIN[0]='\0';
-	request->RANGEBYTEEND[0]='\0';
+	request->RANGEBYTEBEGIN=0;
+	request->RANGEBYTEEND=0;
 	request->uriEndsWithSlash=0;
 	request->digest_realm[0]='\0';
 	request->digest_opaque[0]='\0';
@@ -795,10 +795,12 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		/*!Range*/
 		if(!lstrcmpi(command,"Range"))
 		{
+      char RANGEBYTEBEGIN[13];
+      char RANGEBYTEEND[13];
 			int i=0;
 			request->RANGETYPE[0]='\0';
-			request->RANGEBYTEBEGIN[0]='\0';
-			request->RANGEBYTEEND[0]='\0';
+			RANGEBYTEBEGIN[0]='\0';
+			RANGEBYTEEND[0]='\0';
 			lineControlled=1;
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
 			if(tokenOff==-1)
@@ -812,26 +814,37 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 			i=0;
 			do
 			{
-				request->RANGEBYTEBEGIN[i++]=*token;
-				request->RANGEBYTEBEGIN[i]='\0';
+				RANGEBYTEBEGIN[i++]=*token;
+				RANGEBYTEBEGIN[i]='\0';
 			}
-			while((*token++ != '-')&&(i<HTTP_REQUEST_RANGEBYTEBEGIN_DIM));
+			while((*token++ != '-')&&(i<12));
 			i=0;
 			do
 			{
-				request->RANGEBYTEEND[i++]=*token;
-				request->RANGEBYTEEND[i]='\0';
+				RANGEBYTEEND[i++]=*token;
+				RANGEBYTEEND[i]='\0';
 			}
-			while((*token++)&&(i<HTTP_REQUEST_RANGEBYTEEND_DIM));
+			while((*token++)&&(i<12));
 			StrTrim(request->RANGETYPE,"= ");
-			StrTrim(request->RANGEBYTEBEGIN,"- ");
-			StrTrim(request->RANGEBYTEEND,"- ");
+			StrTrim(RANGEBYTEBEGIN,"- ");
+			StrTrim(RANGEBYTEEND,"- ");
 			
-			if(request->RANGEBYTEBEGIN[0]==0)
-				myserver_strlcpy(request->RANGEBYTEBEGIN,"0",HTTP_REQUEST_RANGEBYTEBEGIN_DIM);
-			if(request->RANGEBYTEEND[0]==0)
-				myserver_strlcpy(request->RANGEBYTEEND,"-1",HTTP_REQUEST_RANGEBYTEEND_DIM);
-
+			if(RANGEBYTEBEGIN[0]==0)
+      {
+				request->RANGEBYTEBEGIN=0;
+      }			
+      else
+      {
+        request->RANGEBYTEBEGIN=(u_long)atol(RANGEBYTEBEGIN); 
+      }
+      if(RANGEBYTEEND[0]==0)
+      {
+        request->RANGEBYTEEND=0;
+      }
+      else
+      {
+        request->RANGEBYTEEND=(u_long)atol(RANGEBYTEEND);
+      }
 		}else
 		/*!Referer*/
 		if(!lstrcmpi(command,"Referer"))

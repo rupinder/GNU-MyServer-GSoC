@@ -523,8 +523,7 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
  *Send a file to the client using the HTTP protocol.
  */
 int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, 
-                       char *filenamePath, int only_header, 
-                       int firstByte, int lastByte)
+                       char *filenamePath, int only_header)
 {
 	/*!
    *With this routine we send a file through the HTTP protocol.
@@ -537,6 +536,8 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 	int use_gzip=0;
 	MYSERVER_FILE h;
 	u_long bytes_to_send;
+  u_long firstByte = td->request.RANGEBYTEBEGIN; 
+  u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
   char chunksize[12];
 
@@ -559,17 +560,9 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
    *Read how many bytes are waiting to be send.  
    */
 	bytes_to_send=h.getFileSize();
-	if(lastByte == -1)
+	if(lastByte == 0)
 	{
-		lastByte=bytes_to_send;
-		
-    /*! 
-     *Use GZIP compression to send files bigger than GZIP threshold.  
-     */
-		if(bytes_to_send > gzip_threshold)
-		{
-			use_gzip=1;
-		}
+		lastByte = bytes_to_send;
 	}
 	else
 	{
@@ -577,8 +570,16 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
      *If the client use ranges set the right value 
      *for the last byte number.  
      */
-		lastByte=min((u_long)lastByte, bytes_to_send);
+		lastByte = min((u_long)lastByte, bytes_to_send);
 	}
+
+  /*! 
+   *Use GZIP compression to send files bigger than GZIP threshold.  
+   */
+  if(lastByte - firstByte > gzip_threshold)
+	{
+    use_gzip=1;
+  }
 	keepalive = !lstrcmpi(td->request.CONNECTION, "Keep-Alive");
 
 #ifndef DO_NOT_USE_GZIP
@@ -614,7 +615,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 	td->buffer->SetLength(0);
 	
 	/*! If a Range was requested send 206 and not 200 for success.  */
-	if((lastByte == -1)|(firstByte))
+	if((lastByte == 0)|(firstByte))
 		td->response.httpStatus = 206;
 	
 	if(keepalive)
@@ -787,9 +788,9 @@ int http::getCGItimeout()
  *Main function to handle the HTTP PUT command.
  */
 int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
-                          char *filename, int /*!systemrequest*/, 
-                          int, int firstByte, int /*!lastByte*/, int yetmapped)
+                          char *filename, int, int, int yetmapped)
 {
+  u_long firstByte = td->request.RANGEBYTEBEGIN; 
   int permissions=-1;
   char *directory=0;
 	int httpStatus=td->response.httpStatus;
@@ -1295,8 +1296,7 @@ void http_user_data::reset()
  *Main function to send a resource to a client.
  */
 int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, 
-                           int systemrequest, int only_header, int firstByte, 
-                           int lastByte, int yetmapped)
+                           int systemrequest, int only_header, int yetmapped)
 {
 	/*!
    *With this code we manage a request of a file or a directory or anything 
@@ -1851,8 +1851,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		translateEscapeString(pathInfo);
 		strcat(linkpath, pathInfo);
 		if(nbr)
-			ret = sendHTTPRESOURCE(td, s, linkpath, systemrequest, only_header, 
-                              firstByte, lastByte, 1);
+			ret = sendHTTPRESOURCE(td, s, linkpath, systemrequest, only_header, 1);
 		else
 			ret = raiseHTTPError(td, s, e_404);
     delete [] linkpath;
@@ -1884,7 +1883,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 			return sendHTTPNonModified(td, s);
     }
 	}
-  ret = sendHTTPFILE(td, s, td->filenamePath, only_header, firstByte, lastByte);
+  ret = sendHTTPFILE(td, s, td->filenamePath, only_header);
 	return (keepalive & ret);
 }
 /*!
@@ -2506,9 +2505,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		if(!lstrcmpi(td.request.CMD, "GET"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, 
-                               atoi(td.request.RANGEBYTEBEGIN),
-                               atoi(td.request.RANGEBYTEEND));
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0);
 			else
 				ret = sendHTTPRESOURCE(&td, a, td.request.URI);
 		}
@@ -2516,9 +2513,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		else if(!lstrcmpi(td.request.CMD, "POST"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, 
-                               atoi(td.request.RANGEBYTEBEGIN),
-                               atoi(td.request.RANGEBYTEEND));
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0);
 			else
 				ret = sendHTTPRESOURCE(&td, a, td.request.URI);
 		}
@@ -2527,9 +2522,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		{
       td.only_header = 1;
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1, 
-                               atoi(td.request.RANGEBYTEBEGIN),
-                               atoi(td.request.RANGEBYTEEND));
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 			else
 				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 		}
@@ -2542,9 +2535,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		else if(!lstrcmpi(td.request.CMD, "PUT"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1, 
-                              atoi(td.request.RANGEBYTEBEGIN),
-                              atoi(td.request.RANGEBYTEEND));
+				ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 			else
         ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 		}

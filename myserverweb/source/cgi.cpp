@@ -716,6 +716,27 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << td->request.COOKIE;
 	}
 
+	char RANGETYPE[HTTP_REQUEST_RANGETYPE_DIM+1];	
+
+
+	if(td->request.RANGEBYTEBEGIN || td->request.RANGEBYTEEND)
+	{
+    char rangeBuffer[13];
+		memCgi << end_str << "HTTP_RANGE=" << RANGETYPE << "=" ;
+    if(td->request.RANGEBYTEBEGIN)
+    {
+      sprintf(rangeBuffer,"%i", (int)td->request.RANGEBYTEBEGIN);
+      memCgi << rangeBuffer;
+    }
+    memCgi << "-";
+    if(td->request.RANGEBYTEEND)
+    {
+      sprintf(rangeBuffer,"%i", (int)td->request.RANGEBYTEEND  );
+      memCgi << rangeBuffer;
+    }   
+
+	}
+
 	if(td->request.REFERER[0])
 	{
 		memCgi << end_str << "HTTP_REFERER=";

@@ -85,11 +85,9 @@ public:
 	int PROTOCOL_OPTIONS;
 	char *getDefaultFilenamePath(u_long ID);
 	int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
-                       int systemrequest=0,int OnlyHeader=0,int firstByte=0,
-                       int lastByte=-1,int yetmapped=0);
+                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
 	int putHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
-                      int systemrequest=0,int OnlyHeader=0,int firstByte=0,
-                      int lastByte=-1,int yetmapped=0);
+                      int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
 	int allowHTTPTRACE(httpThreadContext*,LPCONNECTION s);
 	int optionsHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
                           int yetmapped=0);
@@ -98,7 +96,7 @@ public:
 	int deleteHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,
                          int yetmapped=0);
 	int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,
-                   int OnlyHeader=0,int firstByte=0,int lastByte=-1);
+                   int OnlyHeader=0);
 	int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* directory, 
                         int only_header);
 	int raiseHTTPError(httpThreadContext*, LPCONNECTION a, int ID);
