@@ -404,6 +404,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 
 	/*! TokenOff is the length of the token starting from the location token.  */
 	int tokenOff;
+
+  /*! If input was not specified use the buffer. */
 	if(input==0)
 	{
 		token=input=td->buffer->GetBuffer();
@@ -431,7 +433,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 
   /*! Get the first token, this is the HTTP command.*/
 	tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
-
   
   if(tokenOff == -1)
   {
@@ -449,7 +450,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(tokenOff== -1 )
 			return 0;
 		
-		/*! Copy the HTTP command.  */
+		/*! Copy the HTTP field(this is the command if we are on the first line).  */
 		myserver_strlcpy(command, token, min(96, tokenOff+1) );
 	
 		token+=tokenOff;
@@ -536,7 +537,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}
 			}
   
-      /*! Do not allow more than 10 spaces character between the URI token and the HTTP version. */
+      /*! 
+       *Seek the cursor at the end of the spaces.Do not allow more than 10 spaces character 
+       *between the URI token and the HTTP version. 
+       */
       for(j=0; j<10; j++)
       {
         if(token[i]==' ')
