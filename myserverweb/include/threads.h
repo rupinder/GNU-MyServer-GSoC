@@ -41,6 +41,7 @@ public:
 	~myserver_mutex();
 	int myserver_mutex_init();
 	int myserver_mutex_destroy();
+	
 	/*! These functions are a simple trasposition of the mutex mechanism.  */
 	int myserver_mutex_lock(u_long id=0);
 	int myserver_mutex_unlock(u_long id=0);
@@ -62,6 +63,6 @@ public:
 #ifdef HAVE_PTHREAD
 	static int  create(myserver_thread_ID*  thread, void * (*start_routine)(void *), void * arg);
 #endif
-	static void   terminate();  
+	static void terminate();  
 };
 #endif

@@ -30,11 +30,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define START_PROC_INFO_IN
 struct START_PROC_INFO
 {
-	MYSERVER_FILE_HANDLE stdError;
+	/*! STDIN file for new process.  */
+	MYSERVER_FILE_HANDLE stdIn;	
+	
+	/*! STDOUT file for new process.  */
 	MYSERVER_FILE_HANDLE stdOut;
-	MYSERVER_FILE_HANDLE stdIn;
+	
+	/*! STDERR file for new process.  */
+	MYSERVER_FILE_HANDLE stdError;
+	
 	char *cmdLine;
 	char *cwd;
+	
 	/*! added for unix support.  */
 	char *cmd;
 	char *arg;

@@ -57,6 +57,7 @@ public:
 	};
 	/*! List of hosts allowed by the vhost.  */
 	sHostList *hostList;
+	
 	struct vhsslcontext
 	{
 #ifndef DO_NOT_USE_SSL
@@ -70,6 +71,7 @@ public:
 		char privateKeyFile[MAX_PATH];
 		char password[32];
 	};
+	
 	/*! SSL context.  */
 	vhsslcontext sslContext;
 
@@ -106,16 +108,22 @@ public:
 #endif
 	char accessLogOpt[LOG_FILES_OPTS_LEN];
 	char warningLogOpt[LOG_FILES_OPTS_LEN];
+	
 	/*! Path to the document root.  */
 	char documentRoot[MAX_PATH];
+	
 	/*! Path to the system root.  */
 	char systemRoot[MAX_PATH];
+	
 	/*! Path to the accesses log file.  */
 	char accessesLogFileName[MAX_PATH];
+	
 	/*! Path to the warnings log file.  */
 	char warningsLogFileName[MAX_PATH];
+	
 	/*! Description or name of the virtual host.  */
 	char name[64];
+	
 	vhost();
 	void addIP(char *);
 	void addHost(char *);
@@ -159,6 +167,7 @@ public:
 		sVhostList* next;
 	};
 private:
+	
 	/*! List of virtual hosts. */
 	sVhostList *vhostList;
 public:
@@ -171,6 +180,7 @@ public:
 	int switchVhosts(int n1,int n2);
 	int switchVhosts(sVhostList*,sVhostList*);
 	vhostmanager::sVhostList*  getvHostList();
+	
 	/*! Get a pointer to a vhost.  */
 	vhost*  getvHost(char*,char*,u_short);
 	
