@@ -78,8 +78,35 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	actiontodoLB->Insert("HANDLE AS A WINCGI",CGI_CMD_EXECUTEWINCGI);
 	actiontodoLB->Insert("HANDLE AS A FASTCGI(SPECIFY A PATH)",CGI_CMD_RUNFASTCGI);
 	actiontodoLB->Insert("HANDLE AS A SELF FASTCGI SERVER",CGI_CMD_EXECUTEFASTCGI);
-				
+	
 
+	/*!
+	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
+	*/
+	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
+	{
+			MYSERVER_FILE inputF;
+			MYSERVER_FILE outputF;
+			int ret=inputF.openFile("MIMEtypes.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+			if(ret<1)
+			{
+				return;
+			}
+			outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+			char buffer[512];
+			u_long nbr, nbw;
+			for(;;)
+			{
+				inputF.readFromFile(buffer, 512, &nbr );
+				if(nbr==0)
+					break;
+				outputF.writeToFile(buffer, nbr, &nbw);
+			}
+			inputF.closeFile();
+			outputF.closeFile();
+	}
+	
+	
 	if(mm.loadXML("MIMEtypes.xml"))
 	{
 		u_long nelements=mm.getNumMIMELoaded();

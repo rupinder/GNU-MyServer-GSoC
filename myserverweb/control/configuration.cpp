@@ -54,6 +54,34 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 		Destroy();
 		return;
 	}
+	
+	/*!
+	*If the myserver.xml files doesn't exist copy it from the default one.
+	*/
+	if(!MYSERVER_FILE::fileExists("myserver.xml"))
+	{
+			MYSERVER_FILE inputF;
+			MYSERVER_FILE outputF;
+			int ret=inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+			if(ret<1)
+			{
+				return;
+			}
+			outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+			char buffer[512];
+			u_long nbr, nbw;
+			for(;;)
+			{
+				inputF.readFromFile(buffer, 512, &nbr );
+				if(nbr==0)
+					break;
+				outputF.writeToFile(buffer, nbr, &nbw);
+			}
+			inputF.closeFile();
+			outputF.closeFile();
+	}	
+	
+	
 	confparser.open("myserver.xml");
 	char version[50];
 	sprintf(version,"MyServer Control Center %s\n",VERSION_OF_SOFTWARE);
