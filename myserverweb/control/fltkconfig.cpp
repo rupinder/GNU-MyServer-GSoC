@@ -3198,7 +3198,7 @@ return 0;
 }
 
 int MainDlg::save_myserver_core() {
-char Buffer[256];
+  char Buffer[256];
 int i;
 
 if(!xmlFile.getDoc()) {  // the file dose not exist so make one
@@ -3475,7 +3475,7 @@ fl_alert(temp);
 
 void MainDlg::fl_wait(int len) {
   int time = (int)get_ticks();
-while((int) (get_ticks() - time) < (int)len) {
+while((int)(get_ticks() - time) < len) {
   Fl::wait(0);
 }
 }

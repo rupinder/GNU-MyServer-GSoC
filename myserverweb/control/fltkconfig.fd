@@ -1516,7 +1516,6 @@ return 0;} {}
   Function {save_config()} {return_type int
   } {
     code {char * filename;
-int i;
 \#ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
 char FileBuffer[FBSIZE];
@@ -1691,8 +1690,7 @@ return 0;} {}
   }
   Function {save_myserver_core()} {return_type int
   } {
-    code {char * chrptr;
-char Buffer[256];
+    code {char Buffer[256];
 int i;
 
 if(!xmlFile.getDoc()) {  // the file dose not exist so make one
@@ -1937,11 +1935,11 @@ for(;;) {
         break;
       } // if
       // A cheap trick
-      time = get_ticks() - (int)ConnectionsDlgRate->value() * 2000;
+      time = (int)get_ticks() - (int)ConnectionsDlgRate->value() * 2000;
     } // if
   } // else if
 
-  if(get_ticks() - time > (int)ConnectionsDlgRate->value() * 1000) {
+  if((int)(get_ticks() - time) > (int)ConnectionsDlgRate->value() * 1000) {
     time = get_ticks();
     ConnectionsDlgList->clear();
     ret = Server.getConnections(list);
@@ -1970,8 +1968,8 @@ fl_alert(temp);} {}
   }
   Function {fl_wait(int len)} {private return_type void
   } {
-    code {int time = get_ticks();
-while(get_ticks() - time < len) {
+    code {int time = (int)get_ticks();
+while((int)(get_ticks() - time) < len) {
   Fl::wait(0);
 }} {}
   }
