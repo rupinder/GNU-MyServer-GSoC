@@ -303,71 +303,16 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 }
 
 /*!
- *Trim the string str by the characters trimchars.
+ *This funtions takes two strings, first the str we're going to work on,
+ *and second a list of characters that the funtion is going to remove 
+ *from the head and tail of the first string.
+ *Ex:       char str[16]="Hellow World!!!";
+ *          char trim[7]="e!HlwW";
+ *	        StrTrim(str,trim);
+ *result:	  str="ow World"
+ *'w', 'W' and the last 'l' aren't removed because they aren't 
+ *attacked to the head or tail of the string
  */
-/*void StrTrim(char* str, const char* trimchars)
-{
-	u_short lenTrimchars=(u_short)strlen(trimchars);
-	u_short lenStr=(u_short)strlen(str);
-	u_long continueLoop;
-	u_long j;*/
-	/*!
-   *Number of characters to remove from the initial position of the string.
-   */
-	/*u_short ncharToRemove=0;
-	if(lenStr==0)
-		return;
-	if(lenTrimchars==0)
-		return;
-	for(j=0;j<=lenStr;j++)
-	{
-		continueLoop=0;
-		for(int i=0;i<lenTrimchars;i++)
-		{
-			if(str[j]==trimchars[i])
-			{
-				ncharToRemove++;
-				continueLoop=1;
-				break;
-			}
-		}
-		if(!continueLoop)
-			break;
-	}
-	if(ncharToRemove)
-	{
-		u_long strLen=(u_long)strlen(str)+1;
-		for( j=0  ;  j  < strLen ; j++ )
-			str[j] = str[j+ncharToRemove];
-	}
-	for( j=(u_long)(strlen(str)-1) ; j ; j-- )
-	{
-		continueLoop=0;
-		for(int i=0;i<lenTrimchars;i++)
-		{
-			if(str[j]==trimchars[i])
-			{
-				str[j]='\0';
-				continueLoop=1;
-				break;
-			}
-		}
-		if(!continueLoop)
-			break;
-	}
-}
-*/
-
-
-/*!
-This funtions takes two strings, first the str we're going to work on,
-and second a list of characters that the funtion is going to remove from the head and tail of the first string.
-Ex:		char str[16]="Hellow World!!!";
-		char trim[7]="e!HlwW";
-		StrTrim(str,trim);
-result:	str="ow World"
-'w', 'W' and the last 'l' aren't removed because they aren't attacked to the head or tail of the string
-*/
 
 void StrTrim(char* str, char* trimchars)
 {
@@ -375,12 +320,12 @@ void StrTrim(char* str, char* trimchars)
 	char *trimptr=trimchars;
 	
 	/*!
-	Here we trim the characters of the head of the string.
-	Just cycle through the trimchars and compare,
-	if we find one char in the str, reset it and increment the str to check the next char,
-	also set the trimchars to the beggining.
-	The first time it fails to finds a char in the str, it just leaves.
-	*/
+   *Here we trim the characters of the head of the string.
+   *Just cycle through the trimchars and compare,
+   *if we find one char in the str, reset it and increment 
+   *the str to check the next char, also set the trimchars to the beggining.
+   *The first time it fails to finds a char in the str, it just leaves.
+   */
 	while(*trimptr && *strptr)
 	{
 		if(*strptr==*trimptr)
@@ -396,9 +341,11 @@ void StrTrim(char* str, char* trimchars)
 	trimptr=trimchars;
 	
 	/*!
-	Here we push the string back to occupy the potencial empty spaces created at the begining of the string.
-	But if no 'holes' were created (if(str!=strptr)) we avoid this time consuming task.
-	*/
+   *Here we push the string back to occupy the potencial empty 
+   *spaces created at the begining of the string.
+   *But if no 'holes' were created (if(str!=strptr)) we avoid this 
+   *time consuming task.
+   */
 	if(str!=strptr)
 	{
 		while(*strptr)
@@ -410,24 +357,26 @@ void StrTrim(char* str, char* trimchars)
 	}
 	
 	/*!
-	Now str-1 is exactly at the end of the string, we'll start trim from there then.
-	Unless, str is null, wich means that the str was intirely trimed already(we have an empty string),
-	so triming the rest would be pointless and 'str--;' would actually access invalid memory.
-	*/
+   *Now str-1 is exactly at the end of the string, we'll start trim from 
+   *there then. Unless, str is null, wich means that the str was intirely 
+   *trimed already(we have an empty string), so triming the rest would be 
+   *pointless and 'str--;' would actually access invalid memory.
+   */
 	if(str)
 	{
-		*str=0;		//Null terminating the string, since it's now shorter.
+		*str=0;		/*! Null terminating the string, since it's now shorter. */
 		str--;
 		/*!
-		Here we trim the characters of the tail of the string.
-		Just cycle through the trimchars and compare,
-		if we find one char in the str, reset it and decrement the str to check the previous char,
-		also set the trimchars to the beggining.
-		The first time it fails to finds a char in the str, it just leaves.
-		Note: Here i only check *trimptr in the while and not *str,
-		that's because i know there is at least one character in there that isn't on trimchars,
-		the character that stoped the first trim up there, so that character will allways be reach before NULL.
-		*/
+     *Here we trim the characters of the tail of the string.
+     *Just cycle through the trimchars and compare,
+     *if we find one char in the str, reset it and decrement the str 
+     *to check the previous char, also set the trimchars to the beggining.
+     *The first time it fails to finds a char in the str, it just leaves.
+     *Note: Here i only check *trimptr in the while and not *str,
+     *that's because i know there is at least one character in there that 
+     isn't on trimchars, the character that stoped the first trim up there, 
+     *so that character will allways be reach before NULL.
+     */
 		while(*trimptr)
 		{
 			if(*str==*trimptr)
