@@ -23,6 +23,13 @@
 </MIMETYPE>
 
 <MIMETYPE>
+<EXT>php</EXT>
+<MIME>text/html</MIME>
+<CMD>RUNFASTCGI</CMD>
+<MANAGER>c:/programmi/php/php.exe</MANAGER>
+</MIMETYPE>
+
+<MIMETYPE>
 <EXT>isapi</EXT>
 <MIME>text/html</MIME>
 <CMD>EXECUTEISAPI</CMD>
