@@ -784,6 +784,7 @@ sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
       servers_mutex.unlock();
 			return cur;  
     }
+    cur = cur->next;
   }
 
   servers_mutex.unlock();
@@ -853,7 +854,9 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 {
   /*! Flag to identify a local server(running on localhost) from a remote one. */
 	int localServer;
-  
+  sfCGIservers* new_server;
+	static u_short port=3333;
+ 
   /*! Path that init with @ are not local path. */
 	localServer=path[0]!='@';
 
@@ -867,9 +870,8 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 		return 0;
 
   servers_mutex.lock();
-	static u_short port=3333;
 
-  sfCGIservers* new_server = new sfCGIservers();
+  new_server = new sfCGIservers();
   if(new_server == 0)
   {
     servers_mutex.unlock();
@@ -941,6 +943,9 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 		}/*! End local server initialization. */
 		else
 		{
+      /*! Do not copy the @ character. */
+			int i=1;
+
       /*! Fill the structure with a remote server. */
       new_server->path = new char[ strlen(path) + 1 ];
       if(fCGIservers[fCGIserversN].path == 0)
@@ -950,9 +955,6 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
         return 0;
       }
 			strcpy(fCGIservers[fCGIserversN].path, path);
-
-      /*! Do not copy the @ character. */
-			int i=1;
 
 			memset(new_server->host, 0, 128);
 
