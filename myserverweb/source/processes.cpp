@@ -50,7 +50,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	int ret=0;
 #ifdef NOT_WIN
 	int pid;
-  int count;
+  u_long count;
 #endif
 
 #ifdef WIN32

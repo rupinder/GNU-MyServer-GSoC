@@ -1200,7 +1200,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
 {
   static u_long connection_ID = 0;
 	int doSSLhandshake=0;
-	u_long conection_size=sizeof(CONNECTION);
 	LPCONNECTION new_connection=new CONNECTION;
 	if(!new_connection)
 	{
@@ -1283,7 +1282,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	/*!
    *Get the access to the  connections list.
    */
-	int ret=0, err=0;
+	int ret=0;
 
 	/*!
    *Remove the connection from the active connections list. 
@@ -1759,6 +1758,7 @@ int cserver::loadSettings()
    *Server initialization is now completed.
    */
   serverReady = 1;
+  return 0;
 }
 
 /*!

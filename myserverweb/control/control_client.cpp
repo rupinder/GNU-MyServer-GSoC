@@ -453,7 +453,7 @@ int ControlClient::getResponse()
 #ifdef DEBUG
    write(1, "Find header:", strlen("Find header:"));
 #endif
-   while(Buffer.Find("\r\n\r\n", 4, 0) == -1) // a little costly, may change
+   while(Buffer.Find("\r\n\r\n", 4, 0) == (u_int)-1) // a little costly, may change
      {
 	ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 
@@ -511,7 +511,7 @@ int ControlClient::getResponse()
 	write(1, "Get data:", strlen("Get data:"));
 #endif
 	DataPos = hLen;
-	while(Buffer.GetLength() < (hLen + returnLEN))
+	while(Buffer.GetLength() < (u_int)(hLen + returnLEN))
 	  {
 	     ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 

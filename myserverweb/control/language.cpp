@@ -153,6 +153,7 @@ static int SetValueXML(char ** dest, const char * tag)
 	free(*dest);
 	*dest = strdup(val);
      }
+   return 0;
 }
 
 // load the xml file and set const pointers

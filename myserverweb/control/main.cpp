@@ -59,9 +59,7 @@ static void GetDynamicProtocols(const char *, Vector &);
 int main(int argc, char * argv[])
 {
    char languages_path[MAX_PATH];
-   char languege_file[MAX_PATH];
    char main_configuration_file[MAX_PATH];
-   char * chrptr;
    int conf_location = 0;
    cXMLParser xmlFile;
    _finddata_t fd;

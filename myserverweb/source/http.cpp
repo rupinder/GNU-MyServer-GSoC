@@ -703,7 +703,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 			if(gzip_dataused)
 			{
 				ret=s->socket.send((char*)td->buffer->GetBuffer(), gzip_dataused, 0);
-				if(ret == (u_long)SOCKET_ERROR)
+				if(ret == SOCKET_ERROR)
 					break;
 				dataSent+=ret;
 			}
@@ -3133,7 +3133,7 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
  */
 char *http::getDefaultFilenamePath(u_long ID)
 {
-  int pos = 0;
+  u_long pos = 0;
   char *cursor = defaultFilename;
 	if(ID<nDefaultFilename)
   {

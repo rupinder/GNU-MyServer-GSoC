@@ -33,9 +33,10 @@ hash_dictionary::hash_dictionary()
  */
 unsigned int hash_dictionary::hash(char * name)
 {
-   unsigned int ret,i,x;
-   ret = x = i = 0;
+   unsigned int ret,x;
+   int i;
    int str_len = strlen(name);
+   ret = x = i = 0;  
    for(i = 0; i < str_len; name++, i++)
    {
       ret = (ret << 4) + (*name);
@@ -175,7 +176,7 @@ void *hash_dictionary::getData(int order)
   if(order == 0)
     return 0;
   sNode *cur = node;
-  unsigned int i;
+  int i;
   for(i = 1; (i < order) && ( cur ); i++)
   {
     cur = cur->next;
@@ -197,10 +198,10 @@ int hash_dictionary::isEmpty()
 int hash_dictionary::insertAt(char* name, void* data, int pos)
 {
   if(name == 0)
-    return 0;
+    return -1;
   sNode *new_node = new sNode();
   if(new_node == 0)
-    return 0;
+    return -1;
   new_node->hash = hash(name);
   new_node->data = data;
   int i;
@@ -211,7 +212,7 @@ int hash_dictionary::insertAt(char* name, void* data, int pos)
     if(cur == 0)
     {
       delete new_node;
-      return 0;
+      return -1;
     }
     prev = cur;
     cur = cur->next;
@@ -235,14 +236,14 @@ int hash_dictionary::insertAt(char* name, void* data, int pos)
 int hash_dictionary::insert(char* name,void* data)
 {
   if(name == 0)
-    return 0;
+    return -1;
   sNode *new_node = new sNode();
   if(new_node == 0)
-    return 0;
+    return -1;
   new_node->hash = hash(name);
   new_node->data = data;
   new_node->next = node;
-
+  return  0;
 }
 
 
@@ -275,4 +276,5 @@ void* hash_dictionary::removeNodeAt(int order)
   nodes_count--;
   return data;
 }
+
 

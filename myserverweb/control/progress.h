@@ -24,18 +24,5 @@
 
 /* Status callback function */
 
-static void ProgressCallback(void * Object, unsigned int len, unsigned int pos)
-{
-   Fl_Progress * o = (Fl_Progress *)Object;  
-   static char buffer[5];
-   int stat = (int)((float)pos / (float)len * 100.0);
-   snprintf(buffer, 5, "%d%%", stat);
-   o->value(stat);
-   o->label(buffer);
-   // make sure fltk updates the display
-   Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);
-//   Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);
-//   Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);Fl::wait(0);
-}
-
+void ProgressCallback(void * Object, unsigned int len, unsigned int pos);
 #endif

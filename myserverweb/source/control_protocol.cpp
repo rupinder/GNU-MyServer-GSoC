@@ -96,7 +96,6 @@ int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*
   char tmpPassword[64];
   tmpName[0]='\0';
   tmpPassword[0]='\0';
-  int OfilePathLen;
 
   /*! Is the value in the config file still in MD5? */
   int adminNameMD5ized = 0;
@@ -172,7 +171,7 @@ int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*
 
   
 	configurationFileManager.close();
-
+  return 0;
 }
 
 /*!
@@ -326,10 +325,10 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   }
 
   /*! Check if there are other bytes waiting to be read. */
-  if(specified_length && (specified_length != nbtr - realHeaderLength))
+  if(specified_length && (specified_length != (int)(nbtr - realHeaderLength) ))
   {
     /*! Check if we can read all the specified data. */
-    while(specified_length != nbtr - realHeaderLength)
+    while(specified_length != (int)(nbtr - realHeaderLength))
     {
       if(a->socket.bytesToRead())
       {
@@ -733,7 +732,7 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
   }
 
   /*! Build and send the Length line. */
-  sprintf(buffer, "/LEN %u\r\n", dataLength);
+  sprintf(buffer, "/LEN %u\r\n", (u_int)dataLength);
   err = conn->socket.send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
@@ -754,7 +753,7 @@ int control_protocol::sendResponse(char *buffer, int buffersize,
   /*! Flush the content of the file if any. */
   if(dataLength)
   {
-    u_long dataToSend = dataLength;
+    int dataToSend = dataLength;
     u_long nbr;
     for( ; ; )
     {
@@ -794,9 +793,10 @@ int  control_protocol::SHOWCONNECTIONS(LPCONNECTION a,MYSERVER_FILE* out, char *
   con = lserver->getConnections();
   while(con)
   {
-    sprintf(b1, "%i - %s - %u - %s - %u - %s - %s\r\n", 
-            con->getID(),  con->getipAddr(), con->getPort(), con->getlocalIpAddr(),  
-            con->getLocalPort(), con->getLogin(), con->getPassword());
+    sprintf(b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
+            (int)con->getID(),  con->getipAddr(), (int)con->getPort(), 
+            con->getlocalIpAddr(),  (int)con->getLocalPort(), 
+            con->getLogin(), con->getPassword());
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     if(ret)
     {
@@ -816,7 +816,6 @@ int  control_protocol::KILLCONNECTION(LPCONNECTION a, u_long ID, MYSERVER_FILE* 
                                       char *b1, int bs1)
 {
   int ret = 0;
-  u_long nbw;
   LPCONNECTION con;
   if(ID == 0)
     return -1;

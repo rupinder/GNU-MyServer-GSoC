@@ -163,7 +163,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
    */
 	if(cgipath == 0)
 	{
-    int cmdLineLen;
     int filenameLen = 0;
     MYSERVER_FILE::getFilenameLength(scriptpath, &filenameLen);
     

@@ -32,7 +32,7 @@ private:
    *loaded is used to store if the file object is initialized correctly.
    */
   int loaded;
-  int max_size;
+  u_long max_size;
 	myserver_mutex mutex;
 public:
   const static int TYPE_CONSOLE;
@@ -40,8 +40,8 @@ public:
   MYSERVER_FILE *getFile();
   MYSERVER_LOG_MANAGER();
   ~MYSERVER_LOG_MANAGER();
-  int setMaxSize( int );
-  int getMaxSize();
+  u_long setMaxSize( u_long );
+  u_long getMaxSize();
   int requestAccess();
   int terminateAccess();
   int load( char *filename );

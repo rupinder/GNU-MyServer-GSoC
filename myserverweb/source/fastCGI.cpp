@@ -84,6 +84,19 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
   int cgiFileLen = 0;
   int scriptpathLen = strlen(scriptpath) + 1;
 
+	int exit;
+  int ret;
+	
+	clock_t time1;
+	
+	char *outDataPath;
+  int outDataPathLen;
+
+  int sizeEnvString;
+  sfCGIservers* server;
+  int id;
+	char *fullpath;
+
   if(td->scriptPath)
     delete [] td->scriptPath;
   td->scriptPath = new char[scriptpathLen];
@@ -135,7 +148,6 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 
   td->buffer->SetLength(0);
 	td->buffer2->GetAt(0)='\0';
-	char *fullpath;
 	if(execute)
 	{
 		if(cgipath)
@@ -163,8 +175,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	{
 		sprintf(fullpath,"%s",cgipath);
 	}
-  int sizeEnvString;
-	cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
+  cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),
                                               (char*)td->buffer2->GetBuffer());
   if(sizeEnvString == -1)
@@ -191,7 +202,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
-  sfCGIservers* server = FcgiConnect(&con,fullpath);
+  server = FcgiConnect(&con,fullpath);
   delete [] fullpath;
 	if(server == 0)
   {
@@ -205,7 +216,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
-	int id=td->id+1;
+	id=td->id+1;
 	FCGI_BeginRequestBody tBody;
 	tBody.roleB1 = ( FCGI_RESPONDER >> 8 ) & 0xff;
 	tBody.roleB0 = ( FCGI_RESPONDER ) & 0xff;
@@ -315,15 +326,15 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	}	
 
 	/*! Now read the output. This flag is used by the external loop. */
-	int exit=0;
+	exit=0;
 
   /*! Return 1 if keep the connection. */
-  int ret = 1;
+  ret = 1;
 	
-	clock_t time1 = get_ticks();
+	time1 = get_ticks();
 	
-	char *outDataPath=0;
-  int outDataPathLen = getdefaultwdlen() + 24;
+	outDataPath=0;
+  outDataPathLen = getdefaultwdlen() + 24;
 	outDataPath = new char[outDataPathLen];
   if(outDataPath == 0)
   {
@@ -368,7 +379,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		if(con.sock.bytesToRead())
     {
 			nbr=con.sock.recv((char*)&header,sizeof(FCGI_Header),0);
-      if(nbr == -1)
+      if(nbr == (u_long)-1)
       {
         td->buffer->SetLength(0);
         *td->buffer << "Error FastCGI reading data\r\n"<< '\0';

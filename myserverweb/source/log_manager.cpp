@@ -101,9 +101,9 @@ void MYSERVER_LOG_MANAGER::setType(int nType)
  *Returns the old limit.
  *Using a size of zero means that this limit is not used.
  */
-int MYSERVER_LOG_MANAGER::setMaxSize(int nMax)
+u_long MYSERVER_LOG_MANAGER::setMaxSize(u_long nMax)
 {
-  int oldMax = max_size;
+  u_long oldMax = max_size;
   max_size = nMax;
   return oldMax;
 }
@@ -231,7 +231,7 @@ int MYSERVER_LOG_MANAGER::terminateAccess()
 /*!
  *Return the max size for the log.
  */
-int MYSERVER_LOG_MANAGER::getMaxSize()
+u_long MYSERVER_LOG_MANAGER::getMaxSize()
 {
   return max_size;
 }

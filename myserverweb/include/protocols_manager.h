@@ -46,7 +46,7 @@ public:
 	char *getProtocolName();
 	int setFilename(char *filename);
 	dynamic_protocol();
-	~dynamic_protocol();
+	virtual ~dynamic_protocol();
 	char* registerName(char*,int len);
 	virtual int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,
                                 int bs2,u_long nbtr,u_long id);

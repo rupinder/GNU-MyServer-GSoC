@@ -105,10 +105,11 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 /*!
  *Constructor for the class.
  */
-MYSERVER_FILE::MYSERVER_FILE(char *filename, int opt) 
-  : filename(0), handle(0)
+MYSERVER_FILE::MYSERVER_FILE(char *nfilename, int opt) 
+  : handle(0)
 {
-  openFile(filename, opt);
+  filename = 0;
+  openFile(nfilename, opt);
 }
 
 /*!
@@ -479,7 +480,7 @@ u_long MYSERVER_FILE::getFileSize()
  */
 int MYSERVER_FILE::setFilePointer(u_long initialByte)
 {
-	int ret;
+	u_long ret;
 #ifdef WIN32
 	ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN);
   /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */

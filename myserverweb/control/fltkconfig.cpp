@@ -3024,7 +3024,6 @@ return 0;
 
 int MainDlg::save_config() {
   char * filename;
-int i;
 #ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
 char FileBuffer[FBSIZE];
@@ -3199,7 +3198,6 @@ return 0;
 }
 
 int MainDlg::save_myserver_core() {
-  char * chrptr;
 char Buffer[256];
 int i;
 
@@ -3443,11 +3441,11 @@ for(;;) {
         break;
       } // if
       // A cheap trick
-      time = get_ticks() - (int)ConnectionsDlgRate->value() * 2000;
+      time = (int)get_ticks() - (int)ConnectionsDlgRate->value() * 2000;
     } // if
   } // else if
 
-  if(get_ticks() - time > (int)ConnectionsDlgRate->value() * 1000) {
+  if((int)(get_ticks() - time) > (int)ConnectionsDlgRate->value() * 1000) {
     time = get_ticks();
     ConnectionsDlgList->clear();
     ret = Server.getConnections(list);
@@ -3476,8 +3474,8 @@ fl_alert(temp);
 }
 
 void MainDlg::fl_wait(int len) {
-  int time = get_ticks();
-while(get_ticks() - time < len) {
+  int time = (int)get_ticks();
+while((int) (get_ticks() - time) < (int)len) {
   Fl::wait(0);
 }
 }
