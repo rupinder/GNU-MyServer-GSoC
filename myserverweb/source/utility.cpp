@@ -42,7 +42,7 @@ extern "C" {
 *Various utility functions.
 */
 extern int mustEndServer; 
-static char currentPath[MAX_PATH];
+static char *currentPath = 0;
 
 /*!
 *Returns the version of the operating system.
@@ -105,9 +105,9 @@ u_long getCPUCount()
 #endif
 #ifdef NOT_WIN
 	ret=(u_long)sysconf(_SC_NPROCESSORS_CONF); 
-        /*! Use only a processor if some error happens.  */
-        if(ret==(u_long)-1)
-          ret = 1;
+  /*! Use only a processor if some error happens.  */
+  if(ret==(u_long)-1)
+    ret = 1;
 #endif
 	return ret;
 }
@@ -120,6 +120,10 @@ u_long getCPUCount()
 int setcwdBuffer()
 {
 #ifdef WIN32
+  /*! Under windows there is MAX_PATH, we will use it. */
+  currentPath = new char [MAX_PATH];
+  if(currentPath == 0)
+    return (-1);
 	char* ret =(char*) _getcwd(currentPath,MAX_PATH);
 	if(ret == 0)
 		return -1;
@@ -129,17 +133,43 @@ int setcwdBuffer()
 			currentPath[i]='/';
 	if(currentPath[strlen(currentPath)]=='/')
 		currentPath[strlen(currentPath)]='\0';
+  return 0;
 #endif
+
 #ifdef NOT_WIN
-	char *ret=getcwd(currentPath,MAX_PATH);
-	if(!ret)
-		return -1;
-	ret=0;
+  int size = 16;
+  char *ret = 0;
+  currentPath = new char[size];
+  do
+  {
+    /*! Allocation problem is up. */
+    if(currentPath == 0)
+    {
+      return (-1);
+    }
+    ret=getcwd(currentPath, size);
+    /*! Realloc the buffer if it cannot contain the current directory. */
+    if(ret==0)
+    {
+      size++;
+      delete [] currentPath;
+      currentPath = new char[size];
+    }
+  }while(ret==0);
 	if(currentPath[strlen(currentPath)]=='/') 
 		currentPath[strlen(currentPath)]='\0';
+  return 0;
 #endif
-	return (-1);
 }
+
+/*!
+ *Free the cwd buffer.
+ */
+int freecwdBuffer()
+{
+  delete [] currentPath;
+}
+
 /*!
  *Get the defauklt working directory length.
  */

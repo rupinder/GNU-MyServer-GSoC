@@ -53,6 +53,6 @@ int setcwdBuffer();
 int getdefaultwdlen();
 char *getdefaultwd(char* dwd,int maxlen);
 int setcwd(char * cwd);
-
+int freecwdBuffer();
 
 #endif

@@ -269,6 +269,7 @@ void cserver::start()
 void cserver::finalCleanup()
 {
 	cXMLParser::cleanXML();
+  freecwdBuffer();
 }
 /*!
 *This function is used to create a socket server and a thread listener for a protocol.
