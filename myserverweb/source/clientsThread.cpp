@@ -101,9 +101,9 @@ void * startClientsTHREAD(void* pParam)
 	
 	wait(3000);
 	/*!
-	*This function when is alive only call the controlConnections(...) function
-	*of the ClientsTHREAD class instance used for control the thread.
-	*/
+   *This function when is alive only call the controlConnections(...) function
+   *of the ClientsTHREAD class instance used for control the thread.
+   */
 	while(ct->threadIsRunning) 
 	{
     ct->parsing = 1;
@@ -118,34 +118,35 @@ void * startClientsTHREAD(void* pParam)
 }
 
 /*!
-*This is the main loop of the thread.
-*Here are controlled all the connections that belongs to the ClientsTHREAD class instance.
-*Every connection is controlled by its protocol.
-*/
+ *This is the main loop of the thread.
+ *Here are controlled all the connections that belongs to the 
+ *ClientsTHREAD class instance.
+ *Every connection is controlled by its protocol.
+ */
 void ClientsTHREAD::controlConnections()
 {
 	/*!
-	*Get the access to the connections list.
-	*/
+   *Get the access to the connections list.
+   */
 	lserver->connections_mutex_lock();
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
 	/*!
-	*Check if c exists.
-	*Check if c is a valid connection structure.
-	*Do not parse a connection that is going to be parsed by another thread.
-	*/
+   *Check if c exists.
+   *Check if c is a valid connection structure.
+   *Do not parse a connection that is going to be parsed by another thread.
+   */
 	if((!c) || (c->check_value!=CONNECTION::check_value_const) || c->parsing)
 	{
 		lserver->connections_mutex_unlock();
 		return;
 	}
 	/*!
-	*Set the connection parsing flag to true.
-	*/
+   *Set the connection parsing flag to true.
+   */
 	c->parsing=1;
 	/*!
-	*Unlock connections list access after setting parsing flag.
-	*/
+   *Unlock connections list access after setting parsing flag.
+   */
 	lserver->connections_mutex_unlock();
 	nBytesToRead=c->socket.bytesToRead();/*!Number of bytes waiting to be read*/
 	if(nBytesToRead || c->forceParsing)
@@ -173,22 +174,22 @@ void ClientsTHREAD::controlConnections()
 		}
 		buffer.SetBuffer(c->connectionBuffer, c->dataRead);
 		/*!
-		*Control the protocol used by the connection.
-		*/
+     *Control the protocol used by the connection.
+     */
 		int retcode=0;
 		c->thread=this;
 		switch(((vhost*)(c->host))->protocol)
 		{
 			/*!
-			*controlHTTPConnection returns 0 if the connection must be removed from
-			*the active connections list.
-			*/
+       *controlHTTPConnection returns 0 if the connection must be removed from
+       *the active connections list.
+       */
 			case PROTOCOL_HTTP:
 				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
 				break;
 			/*!
-			*Parse an HTTPS connection request.
-			*/
+       *Parse an HTTPS connection request.
+       */
 			case PROTOCOL_HTTPS:
 				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
 				break;
@@ -205,12 +206,12 @@ void ClientsTHREAD::controlConnections()
 				break;
 		}
 		/*!
-		*The protocols parser functions return:
-		*0 to delete the connection from the active connections list
-		*1 to keep the connection active and clear the connectionBuffer
-		*2 if the header is incomplete and to save it in a temporary buffer
-		*3 if the header is incomplete without save it in a temporary buffer
-		*/
+     *The protocols parser functions return:
+     *0 to delete the connection from the active connections list
+     *1 to keep the connection active and clear the connectionBuffer
+     *2 if the header is incomplete and to save it in a temporary buffer
+     *3 if the header is incomplete without save it in a temporary buffer
+     */
 		if(retcode==0)/*Delete the connection*/
 		{
 			lserver->connections_mutex_lock();

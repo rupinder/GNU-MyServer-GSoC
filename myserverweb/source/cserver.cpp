@@ -1085,7 +1085,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	do
 	{
 		err=socket.recv(buffer, buffersize, 0);
-	}while(err!=-1);
+	}while((err!=-1) && err);
 	socket.closesocket();
 
 	return ret;

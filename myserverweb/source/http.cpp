@@ -1774,7 +1774,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 	}
 	
 	int validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
-	if(validRequest==(u_long)-1)/*!If the header is incomplete returns 2*/
+	if(validRequest==-1)/*!If the header is incomplete returns 2*/
 	{
 		if(!strcmp(td.request.VER, "HTTP/1.1"))/*Be sure that the client can handle the 100 status code*/
 		{
@@ -1876,16 +1876,18 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 			u_long nbw;
 			u_long total_nbr=min(td.nBytesToRead, 
                            td.buffer->GetRealLength()-1)-td.nHeaderChars;
-			
-			if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
-			{
-				delete [] td.inputDataPath;
-				td.inputDataPath=0;
-				delete [] td.outputDataPath;
-				td.outputDataPath = 0;
-				td.inputData.closeFile();
-				return 0;
-			}
+			if(total_nbr)
+      {
+        if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
+          {
+            delete [] td.inputDataPath;
+            td.inputDataPath=0;
+            delete [] td.outputDataPath;
+            td.outputDataPath = 0;
+            td.inputData.closeFile();
+            return 0;
+          }
+      }
 			content_len=atoi(td.request.CONTENT_LENGTH);
       
 			/*!

@@ -441,8 +441,9 @@ int MYSERVER_SOCKET::getSSL()
 	return sslSocket;
 }
 /*!
-*Receive data from the socket.
-*/
+ *Receive data from the socket.
+ *Returns -1 on errors.
+ */
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
 	int err=0;
@@ -452,11 +453,12 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 		do
 		{	
 			err=SSL_read(sslConnection,buffer,len);
-		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
+		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_X509_LOOKUP 
+           || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
 		if(SSL_get_error(sslConnection,err)!=SSL_ERROR_ZERO_RETURN)
-			return err;
-		else 
 			return -1;
+		else 
+			return err;
 	}
 #endif
 
@@ -473,6 +475,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 		err = -1;
 	return err;
 #endif
+
 }
 /*!
 *Returns the number of bytes waiting to be read.
