@@ -123,6 +123,7 @@ private:
 	myserver_mutex *connections_mutex;
 	LPCONNECTION connectionToParse;
 	u_long nStaticThreads;
+  u_long nMaxThreads;
   u_long nThreads;
 
   myserver_mutex *threads_mutex;

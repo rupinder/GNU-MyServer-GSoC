@@ -720,8 +720,8 @@ int cserver::initialize(int /*!os_ver*/)
 	/*!
    *Store the default values.
    */
-	u_long nThreadsA=1;
-	u_long nThreadsB=0;
+  nStaticThreads = 20;
+  nMaxThreads = 50;
   currentThreadID = ClientsTHREAD::ID_OFFSET;
 	socketRcvTimeout = 10;
 	connectionTimeout = SEC(25);
@@ -917,22 +917,17 @@ int cserver::initialize(int /*!os_ver*/)
 		connectionTimeout=SEC((u_long)atol(data));
 	}
 
-	data=configurationFileManager.getValue("NTHREADS_A");
+	data=configurationFileManager.getValue("NTHREADS_STATIC");
 	if(data)
 	{
-		nThreadsA=atoi(data);
+		nStaticThreads = atoi(data);
 	}
-	data = configurationFileManager.getValue("NTHREADS_B");
+	data = configurationFileManager.getValue("NTHREADS_MAX");
 	if(data)
 	{
-		nThreadsB=atoi(data);
+		nMaxThreads = atoi(data);
 	}
-	
-	/*!
-	*The number of the threads used by the server is:
-	*N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive.
-	*/
-	nStaticThreads = nThreadsA*getCPUCount() + nThreadsB;
+
 
 	/*! Get the max connections number to allow. */
 	data = configurationFileManager.getValue("MAX_CONNECTIONS");
