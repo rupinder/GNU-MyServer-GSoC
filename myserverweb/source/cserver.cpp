@@ -401,12 +401,12 @@ void * listenServer(void* params)
 	do
 	{
 		err=serverSocket.recv(buffer,256,0);
-	}while(err!=-1);	
+	}while(err!=-1);
 	serverSocket.closesocket();
 	lserver->decreaseListeningThreadCount();
 	
 	/*!
-	*Automatically free the current thread
+	*Automatically free the current thread.
 	*/	
 	myserver_thread::terminate();
 	return 0;
