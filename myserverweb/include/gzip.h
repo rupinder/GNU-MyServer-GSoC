@@ -20,8 +20,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define GZIP_H
 #include "../stdafx.h"
 
-#ifndef DO_NOT_USE_GZIP	/*If is defined DO_NOT_USE_GZIP don't use the zlib library */
-#include "zlib.h"		/*Include the ZLIB library header file*/
+/*! If is defined DO_NOT_USE_GZIP don't use the zlib library. */
+#ifndef DO_NOT_USE_GZIP	
+/*! Include the ZLIB library header file. */
+#include "zlib.h"		
 #endif
 
 #ifdef DO_NOT_USE_GZIP	

@@ -37,6 +37,10 @@ extern "C"
 #include <limits.h>
 }
 
+#include <string>
+
+using namespace std;
+
 #ifndef EACCES
 #define EACCES 1
 #endif
@@ -58,6 +62,7 @@ class FindData
    time_t time_write;
    off_t size;
    int findfirst(const char filename[]);
+   int findfirst(string &filename){return findfirst(filename.c_str());};
    int findnext();
    int findclose();
    FindData();
@@ -68,7 +73,7 @@ class FindData
    intptr_t  ff;
 #endif
 #ifdef NOT_WIN
-   char *DirName;
+   string DirName;
    DIR *dh;
 #endif
 };

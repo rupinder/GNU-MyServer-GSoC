@@ -32,7 +32,7 @@ FindData::FindData()
   ff = 0;
 #endif
 #ifdef NOT_WIN
-  DirName = 0;
+  DirName.empty();
   dh = 0;
 #endif
 }
@@ -43,9 +43,7 @@ FindData::FindData()
 FindData::~FindData()
 {
 #ifdef NOT_WIN
-  if(DirName)
-    delete [] DirName;
-  DirName = 0;
+  DirName.empty();
 #endif
 }
 
@@ -69,39 +67,31 @@ int FindData::findfirst(const char filename[])
 #ifdef NOT_WIN
    struct dirent * dirInfo;
    struct stat F_Stats;
-   char *TempName=0;
+   string TempName;
 
-   if(DirName)
-     delete [] DirName;
-   DirName= new char[strlen(filename)+1];
-   if(DirName == 0)
-     return -1;
 
-   strcpy(DirName, filename);
+   DirName.assign(filename);
    
-   if(DirName[strlen(DirName) - 1] == '/')
-     DirName[strlen(DirName) - 1] = '\0';
+   if(DirName[DirName.length() - 1] == '/')
+     DirName[DirName.length() - 1] = '\0';
      
-   dh = opendir(DirName);
+   dh = opendir(DirName.c_str());
    if(dh == NULL)
      return -1;
    
    dirInfo = readdir(dh);
 
-   TempName = new char[strlen(DirName) + strlen(dirInfo->d_name) + 2];
-   if(TempName == 0)
-     return -1;
-
-   sprintf(TempName, "%s/%s", DirName, dirInfo->d_name);
+   TempName.assign(DirName);
+   TempName.append("/");
+   TempName.append(dirInfo->d_name);
    
    name = dirInfo->d_name;
 
-   stat(TempName, &F_Stats);
+   stat(TempName.c_str(), &F_Stats);
    if(S_ISDIR(F_Stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
    time_write = F_Stats.st_mtime;
    size = F_Stats.st_size;
-   delete [] TempName;
    return 0;
 #endif
 }
@@ -127,27 +117,25 @@ int FindData::findnext()
 #ifdef NOT_WIN
    struct dirent * dirInfo;
    struct stat F_Stats;
-   char *TempName;
+   string TempName;
       
    dirInfo = readdir(dh);
    
    if(dirInfo == NULL)
      return -1;
-   TempName = new char[strlen(DirName) + strlen(dirInfo->d_name) + 2];
-   if(TempName == 0)
-     return -1;
-   sprintf(TempName, "%s/%s", DirName, dirInfo->d_name);
+   TempName.assign(DirName);
+   TempName.append("/");
+   TempName.append(dirInfo->d_name);
    
    name = dirInfo->d_name;
 
-   stat(TempName, &F_Stats);
+   stat(TempName.c_str(), &F_Stats);
    if(S_ISDIR(F_Stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
    else
      attrib = 0;
    time_write = F_Stats.st_mtime;
    size = F_Stats.st_size;
-   delete [] TempName;
    return 0;
 #endif
 }
@@ -168,10 +156,7 @@ int FindData::findclose()
 #ifdef NOT_WIN
   if(dh)
     closedir(dh);
-   if(DirName)
-     delete [] DirName;
-   DirName = 0;
+   DirName.empty();
    return 0;
 #endif
 }
-
