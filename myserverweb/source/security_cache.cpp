@@ -179,8 +179,8 @@ int SecurityCache::getMaxNodes()
  */
 int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
                                       char* filename,char *sysdirectory,
-                                      char *password2,char* auth_type,
-                                      int len_auth,int *permission2)
+                                     char *password2, int *permission2, 
+                                     SecurityToken* st)
 {
   int permissionsFileLen = strlen(directory)+10;
   char* permissionsFile = new char[permissionsFileLen];
@@ -217,7 +217,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
     }
     delete [] permissionsFile;
     return sm.getPermissionMask(user, password, directory, filename, 
-                             password2, auth_type, len_auth, permission2, parser);
+                             password2, permission2, st, parser);
   }
   else
   {
@@ -240,7 +240,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
         delete parser;
         delete [] permissionsFile;
         return getPermissionMask(user, password, sysdirectory, filename, 0, password2,
-                                 auth_type,len_auth,permission2);
+                                 permission2, st);
       }
       else
       {
@@ -269,7 +269,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
     }
     delete [] permissionsFile;
     return sm.getPermissionMask(user, password, directory, filename, 
-                             password2, auth_type, len_auth, permission2, parser);  
+                             password2, permission2, st, parser);  
   }
 
   return 0;

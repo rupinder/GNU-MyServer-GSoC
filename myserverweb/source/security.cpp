@@ -33,6 +33,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 #endif
 
+/*!
+ *Create the object.
+ */
+SecurityToken::SecurityToken()
+{
+  reset();
+}
+
+/*!
+ *Reset everything.
+ */
+void SecurityToken::reset()
+{
+  auth_type=0;
+  len_auth=0;
+}
 
 /*!
  *Get the error file for a site. 
@@ -158,9 +174,8 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
  *[password2].
  */
 int SecurityManager::getPermissionMask(char* user, char* password, char* directory,
-                                       char* filename, char *password2, 
-                                       char* auth_type, int len_auth, 
-                                       int *permission2, XmlParser* parser)
+                                       char* filename, char *password2, int *permission2, 
+                                       SecurityToken *st, XmlParser* parser)
 {
 
 	char *permissionsFile;
@@ -193,8 +208,8 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
   xmlDocPtr doc;
 
 	tempPassword[0]='\0';
-	if(auth_type)
-		auth_type[0]='\0';
+	if(st && st->auth_type)
+		st->auth_type[0]='\0';
 
   /*! 
    *If there is not specified the parser to use, create a new parser
@@ -263,8 +278,8 @@ int SecurityManager::getPermissionMask(char* user, char* password, char* directo
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"TYPE"))
 				{
-					if(auth_type)
-						strncpy(auth_type,(const char*)attr->children->content, len_auth);
+					if(st && st->auth_type)
+						strncpy(st->auth_type,(const char*)attr->children->content, st->len_auth);
 				}
 				attr=attr->next;
 			}

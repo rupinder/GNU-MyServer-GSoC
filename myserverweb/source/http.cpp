@@ -228,6 +228,10 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   int directoryLen=0;
   int permissions2=0;
   char auth_type[16];	
+  SecurityToken st;
+
+  st.auth_type = auth_type;
+  st.len_auth = 16;
 	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
@@ -312,7 +316,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
                                             filename, ((Vhost*)(s->host))->systemRoot, 
                                       ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                            auth_type, 16, &permissions2);
+                                            &permissions2, &st);
     sec_cache_mutex.unlock();  
   }
 	else/*!The default user is Guest with a null password*/
@@ -320,8 +324,8 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     sec_cache_mutex.lock();
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                   ((Vhost*)(s->host))->systemRoot, 
-                                  ((HttpUserData*)s->protocolBuffer)->needed_password
-                                  , auth_type, 16);
+                                  ((HttpUserData*)s->protocolBuffer)->needed_password,
+                                            0, &st);
     sec_cache_mutex.unlock();
   }
 
@@ -354,7 +358,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                             ((Vhost*)(s->host))->systemRoot, 
                          ((HttpUserData*)s->protocolBuffer)->needed_password, 
-                                            auth_type, 16);		
+                                            0, &st);		
     sec_cache_mutex.unlock();
   }
   delete [] directory;
@@ -480,11 +484,15 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	int httpStatus=td->response.httpStatus;
 	int permissions2=0;
 	char auth_type[16];
+  SecurityToken st;
 	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION, "Keep-Alive");
 	}
+  st.auth_type = auth_type;
+  st.len_auth = 16;
+
 	td->response.httpStatus=httpStatus;
 	/*!
    *td->filenamePath is the file system mapped path while filename 
@@ -562,7 +570,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		permissions=sec_cache.getPermissionMask(s->getLogin(), s->getPassword(), directory,
                                             filename,((Vhost*)(s->host))->systemRoot, 
                                ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                            auth_type, 16, &permissions2);
+                                            &permissions2, &st);
     sec_cache_mutex.unlock();
   }
 	else/*!The default user is Guest with a null password*/
@@ -571,7 +579,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                ((Vhost*)(s->host))->systemRoot, 
                                ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                  auth_type, 16);
+                                  0, &st);
     sec_cache_mutex.unlock();
 	}	
   /*! Check if we have to use digest for the current directory. */
@@ -604,7 +612,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		permissions=sec_cache.getPermissionMask("Guest", "", directory, filename, 
                                   ((Vhost*)(s->host))->systemRoot, 
                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                 auth_type, 16);	
+                                 0, &st);	
     sec_cache_mutex.unlock();
   }
 	if(!(permissions & MYSERVER_PERMISSION_DELETE))
@@ -744,6 +752,11 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	int mimeCMD;
 	time_t lastMT;
   int ret;
+  char auth_type[16];
+  SecurityToken st;
+
+  st.auth_type = auth_type;
+  st.len_auth = 16;
   if(URI == 0)
     return sendHTTPhardError500(td, s);
   filename=new char[strlen(URI)+1];
@@ -801,7 +814,6 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	if(!systemrequest)
 	{
 		char* directory;
-		char auth_type[16];
 		if(File::isDirectory(td->filenamePath))
     {
       directory = new char[strlen(td->filenamePath) + 1];
@@ -847,7 +859,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
                                               directory, filename,
                                               ((Vhost*)(s->host))->systemRoot,
                                  ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                    auth_type, 16, &permissions2);
+                                     &permissions2, &st);
       sec_cache_mutex.unlock();
     }
 		else/*!The default user is Guest with a null password*/
@@ -856,7 +868,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
                                   ((Vhost*)(s->host))->systemRoot,
                                  ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                  auth_type, 16);
+                                  0, &st);
       sec_cache_mutex.unlock();
 		}	
     /*! Check if we have to use digest for the current directory. */
@@ -888,7 +900,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 			permissions=sec_cache.getPermissionMask("Guest", "", directory, filename,
                                 ((Vhost*)(s->host))->systemRoot,
                                 ((HttpUserData*)s->protocolBuffer)->needed_password,
-                                   auth_type, 16);
+                                              0, &st);
       sec_cache_mutex.unlock();
 		}
     delete [] directory;

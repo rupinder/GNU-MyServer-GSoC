@@ -55,6 +55,13 @@ const u_long MYSERVER_PERMISSION_DELETE	  = (1<<3);
 /*! Current user can browse the directory content. */
 const u_long MYSERVER_PERMISSION_BROWSE	  = (1<<4);
 
+struct SecurityToken
+{
+  char* auth_type;
+  int len_auth;
+  SecurityToken();
+  void reset();
+};
 
 class SecurityManager
 {
@@ -63,8 +70,7 @@ public:
   ~SecurityManager();
   int getErrorFileName(char *sysDir,int error, char** out,XmlParser* parser=0);
   int getPermissionMask(char* user, char* password,char* directory,
-                        char* filename, char *password2=0,
-                        char* auth_type=0,int len_auth=0,int *permission2=0, 
-                        XmlParser* parser=0);
+                        char* filename, char *password2=0, int *permission2=0, 
+                        SecurityToken* st=0, XmlParser* parser=0);
 };
 #endif
