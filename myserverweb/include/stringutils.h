@@ -31,4 +31,10 @@ int hexVal(char c);
 void translateEscapeString(char *TargetStr);
 void splitPath(const char* path, char* dir, char*filename);
 void getFilename(const char* path, char* filename);
+
+#ifdef __linux__
+void strupr(char * string)
 #endif
+
+#endif
+

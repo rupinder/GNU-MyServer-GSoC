@@ -19,6 +19,7 @@
 
 #include "../stdafx.h"
 #include "../include/AMMimeUtils.h"
+#include "../include/stringutils.h"
 
 extern "C" {
 #include <malloc.h>
@@ -30,14 +31,6 @@ extern "C" {
 #endif
 }
 
-#ifdef __linux__
-void strupr(char * string)
-{
-    unsigned int len = strlen(string);
-    for(unsigned int i = 0; i < len; i++)
-       string[i] = toupper(string[i]);
-}
-#endif
 
 void *_alloca(size_t size);
 /*

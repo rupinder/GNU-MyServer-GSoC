@@ -20,8 +20,6 @@
 #define ISAPI_H
 
 #ifdef WIN32
-#include <windows.h>
-
 #include "../stdafx.h"
 #include "../include/http.h"
 #include "../include/utility.h"

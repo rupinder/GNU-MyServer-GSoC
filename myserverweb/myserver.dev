@@ -15,8 +15,8 @@ CppCompiler=
 Linker=-lwininet -lwsock32
 IsCpp=1
 Icon=
-ExeOutput=..\binaries
-ObjectOutput=..\tmp
+ExeOutput=binaries
+ObjectOutput=tmp
 OverrideOutput=0
 OverrideOutputName=myserver.exe
 HostApplication=
@@ -30,7 +30,7 @@ Order=
 Resources=
 
 [Unit14]
-FileName=myserver.cpp
+FileName=source\myserver.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -42,7 +42,7 @@ Open=0
 Top=0
 
 [Unit15]
-FileName=security.cpp
+FileName=source\security.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -54,7 +54,7 @@ Open=0
 Top=0
 
 [Unit16]
-FileName=sockets.cpp
+FileName=source\sockets.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -66,7 +66,7 @@ Open=0
 Top=0
 
 [Unit17]
-FileName=..\include\security.h
+FileName=include\security.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -78,7 +78,7 @@ Open=0
 Top=0
 
 [Unit18]
-FileName=..\include\sockets.h
+FileName=include\sockets.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -90,7 +90,7 @@ Open=0
 Top=0
 
 [Unit19]
-FileName=..\include\stringutils.h
+FileName=include\stringutils.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -102,7 +102,7 @@ Open=0
 Top=0
 
 [Unit20]
-FileName=..\include\utility.h
+FileName=include\utility.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -114,7 +114,7 @@ Open=0
 Top=0
 
 [Unit21]
-FileName=..\include\AMMimeUtils.h
+FileName=include\AMMimeUtils.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -126,7 +126,7 @@ Open=0
 Top=0
 
 [Unit22]
-FileName=..\include\cgi.h
+FileName=include\cgi.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -138,7 +138,7 @@ Open=0
 Top=0
 
 [Unit23]
-FileName=..\include\clientsThread.h
+FileName=include\clientsThread.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -150,7 +150,7 @@ Open=0
 Top=0
 
 [Unit24]
-FileName=..\include\connectionstruct.h
+FileName=include\connectionstruct.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -162,7 +162,7 @@ Open=0
 Top=0
 
 [Unit25]
-FileName=..\include\cserver.h
+FileName=include\cserver.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -174,7 +174,7 @@ Open=0
 Top=0
 
 [Unit27]
-FileName=..\include\filemanager.h
+FileName=include\filemanager.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -203,7 +203,7 @@ ProductName=
 ProductVersion=
 
 [Unit28]
-FileName=..\include\ftpcommand.h
+FileName=include\ftpcommand.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -215,7 +215,7 @@ Open=0
 Top=0
 
 [Unit29]
-FileName=..\include\http.h
+FileName=include\http.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -227,7 +227,7 @@ Open=0
 Top=0
 
 [Unit30]
-FileName=..\include\HTTPmsg.h
+FileName=include\HTTPmsg.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -239,7 +239,7 @@ Open=0
 Top=0
 
 [Unit31]
-FileName=..\include\isapi.h
+FileName=include\isapi.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -251,7 +251,7 @@ Open=0
 Top=0
 
 [Unit1]
-FileName=stringutils.cpp
+FileName=source\stringutils.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -263,7 +263,7 @@ Open=0
 Top=0
 
 [Unit2]
-FileName=utility.cpp
+FileName=source\utility.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -275,7 +275,7 @@ Open=0
 Top=0
 
 [Unit5]
-FileName=clientsThread.cpp
+FileName=source\clientsThread.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -287,7 +287,7 @@ Open=0
 Top=0
 
 [Unit6]
-FileName=cserver.cpp
+FileName=source\cserver.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -299,7 +299,7 @@ Open=0
 Top=0
 
 [Unit7]
-FileName=cXMLParser.cpp
+FileName=source\cXMLParser.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -311,7 +311,7 @@ Open=0
 Top=0
 
 [Unit8]
-FileName=filemanager.cpp
+FileName=source\filemanager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -323,7 +323,7 @@ Open=0
 Top=0
 
 [Unit9]
-FileName=http.cpp
+FileName=source\http.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -335,7 +335,7 @@ Open=0
 Top=0
 
 [Unit10]
-FileName=httpmsg.cpp
+FileName=source\httpmsg.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -347,7 +347,7 @@ Open=0
 Top=0
 
 [Unit11]
-FileName=isapi.cpp
+FileName=source\isapi.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -359,7 +359,7 @@ Open=0
 Top=0
 
 [Unit12]
-FileName=MIME_manager.cpp
+FileName=source\MIME_manager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -371,7 +371,7 @@ Open=0
 Top=0
 
 [Unit13]
-FileName=mscgi.cpp
+FileName=source\mscgi.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -383,7 +383,7 @@ Open=0
 Top=0
 
 [Unit26]
-FileName=..\include\cXMLParser.h
+FileName=include\cXMLParser.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -395,7 +395,7 @@ Open=0
 Top=0
 
 [Unit32]
-FileName=..\include\MIME_manager.h
+FileName=include\MIME_manager.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -407,7 +407,7 @@ Open=0
 Top=0
 
 [Unit33]
-FileName=..\include\mscgi.h
+FileName=include\mscgi.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -419,7 +419,7 @@ Open=0
 Top=0
 
 [Unit34]
-FileName=..\include\Response_RequestStructs.h
+FileName=include\Response_RequestStructs.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -431,7 +431,7 @@ Open=0
 Top=0
 
 [Unit35]
-FileName=..\stdafx.cpp
+FileName=stdafx.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -443,9 +443,9 @@ Open=0
 Top=0
 
 [Unit36]
-FileName=..\stdafx.h
+FileName=stdafx.h
 CompileCpp=1
-Folder=myserver
+Folder=
 Compile=1
 Link=1
 Priority=1000
@@ -455,7 +455,7 @@ Open=0
 Top=0
 
 [Unit37]
-FileName=Dev-C++.cpp
+FileName=source\Dev-C++.cpp
 CompileCpp=1
 Folder=
 Compile=1
@@ -467,7 +467,7 @@ Open=0
 Top=0
 
 [Unit38]
-FileName=..\stdafx.h
+FileName=stdafx.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -477,7 +477,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=AMMimeUtils.cpp
+FileName=source\AMMimeUtils.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -489,7 +489,7 @@ Open=0
 Top=0
 
 [Unit4]
-FileName=cgi.cpp
+FileName=source\cgi.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

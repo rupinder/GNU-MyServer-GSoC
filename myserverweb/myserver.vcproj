@@ -148,6 +148,9 @@
 				RelativePath="source\cXMLParser.cpp">
 			</File>
 			<File
+				RelativePath="source\cgi.cpp">
+			</File>
+			<File
 				RelativePath="source\clientsThread.cpp">
 			</File>
 			<File
@@ -163,6 +166,12 @@
 				RelativePath="source\httpmsg.cpp">
 			</File>
 			<File
+				RelativePath="source\isapi.cpp">
+			</File>
+			<File
+				RelativePath="source\mscgi.cpp">
+			</File>
+			<File
 				RelativePath="source\myserver.cpp">
 			</File>
 			<File
@@ -173,6 +182,9 @@
 			</File>
 			<File
 				RelativePath="stdafx.cpp">
+			</File>
+			<File
+				RelativePath="source\stringutils.cpp">
 			</File>
 			<File
 				RelativePath="source\utility.cpp">
@@ -209,6 +221,9 @@
 				RelativePath="include\cXMLParser.h">
 			</File>
 			<File
+				RelativePath="include\cgi.h">
+			</File>
+			<File
 				RelativePath="include\clientsThread.h">
 			</File>
 			<File
@@ -221,7 +236,19 @@
 				RelativePath="include\filemanager.h">
 			</File>
 			<File
+				RelativePath="include\ftpcommand.h">
+			</File>
+			<File
 				RelativePath="include\http.h">
+			</File>
+			<File
+				RelativePath="include\isapi.h">
+			</File>
+			<File
+				RelativePath="include\lfind.h">
+			</File>
+			<File
+				RelativePath="include\mscgi.h">
 			</File>
 			<File
 				RelativePath="include\security.h">
@@ -231,6 +258,9 @@
 			</File>
 			<File
 				RelativePath="stdafx.h">
+			</File>
+			<File
+				RelativePath="include\stringutils.h">
 			</File>
 			<File
 				RelativePath="include\utility.h">

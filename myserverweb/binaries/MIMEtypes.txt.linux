@@ -36,7 +36,6 @@ sv4cpio,application/x-sv4cpio,SEND NONE;
 sit,application/x-stuffit,SEND NONE;
 swf,application/x-shockwave-flash,SEND NONE;
 shar,application/x-shar,SEND NONE;
-sh,application/x-sh,SEND NONE;
 cpt,application/mac-compactpro,SEND NONE;
 hqx,application/mac-binhex40,SEND NONE;
 cdf,application/x-netcdf,SEND NONE;

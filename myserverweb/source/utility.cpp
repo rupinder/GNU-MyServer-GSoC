@@ -130,7 +130,6 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	return exitCode;
 #else
 	int pid = fork();
-	
 	if(pid < 0) // a bad thing happend
 		return 0;
 	else if(pid == 0) // child
@@ -139,7 +138,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		int i = 0;
 		int index = 0;
 		char * envp[100];
-		
+	
 		while(*((char *)(spi->envString) + i) != '\0')
 		{
 			envp[index] = ((char *)(spi->envString) + i);
@@ -150,30 +149,23 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 			i++;
 		}
 		envp[index] = NULL;
-			
 		// change to working dir
 		chdir((const char*)(spi->cwd));
-			
 		// map stdio to files
-	
 		close(0); // close stdin
 		dup2((int)spi->stdIn, 0);
 		close(1); // close stdout
 		dup2((int)spi->stdOut, 1);
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
-
 		// Run the script
 		execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
-		
 		// never should be here
 		exit(1);
 	} // end else if(pid == 0)
-	
 	// Parent
 	// Wait till child dies
 	waitpid(pid, NULL, 0);
-	
 	return 0;
 #endif	
 }

@@ -287,3 +287,12 @@ void getFilename(const char *path, char *filename)
 		filename[j] = 0;
 	}
 }
+
+#ifdef __linux__
+void strupr(char * string)
+{
+    unsigned int len = strlen(string);
+    for(unsigned int i = 0; i < len; i++)
+       string[i] = toupper(string[i]);
+}
+#endif
