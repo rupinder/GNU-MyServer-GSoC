@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 #include "../include/cserver.h"
 #include "../include/security.h"
+#include "../include/cgi.h"
 #include "../include/AMMimeUtils.h"
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
@@ -49,16 +50,23 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	static HMODULE hinstLib; 
     static CGIMAIN ProcMain;
 	static CGIINIT ProcInit;
- 
+	cgi_data data;
+	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
+	data.envString+=atoi(td->request.CONTENTS_DIM);
+	
+	strcpy(td->scriptPath,exec);
+	splitPath(exec,td->scriptDir,td->scriptFile);
+	splitPath(exec,td->cgiRoot,td->cgiFile);
+	buildCGIEnvironmentString(td,data.envString);
+
     hinstLib = LoadLibrary(exec); 
-	td->buffer2[0]='\0';
 	if (hinstLib) 
     { 
 		ProcInit = (CGIINIT) GetProcAddress(hinstLib, "initialize");
 		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
 		if(ProcInit && ProcMain)
 		{
-			(ProcInit)(td,s);
+			(ProcInit)(td,s,&data);
 			(ProcMain)(cmdLine);
 		}
         FreeLibrary(hinstLib); 

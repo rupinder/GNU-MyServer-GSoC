@@ -25,14 +25,18 @@ static char* buffer;
 static char* buffer2;
 static struct HTTP_RESPONSE_HEADER *res;
 static struct HTTP_REQUEST_HEADER *req;
-
+static struct httpThreadContext* td;
+static struct cgi_data* cgidata;
 /*
 *Initialize the globals variables.
 */
-int initialize(httpThreadContext* td,LPCONNECTION s)
+int initialize(httpThreadContext* td,LPCONNECTION s,cgi_data* data)
 {
 	buffer=td->buffer;
 	buffer2=td->buffer2;
+	::td=td;
+	cgidata=data;
+	td->buffer2[0]='\0';
 	res=(HTTP_RESPONSE_HEADER*)&(td->response);
 	req=(HTTP_REQUEST_HEADER*)&(td->request);
 	return 1;
@@ -42,7 +46,7 @@ int initialize(httpThreadContext* td,LPCONNECTION s)
 */
 int cgi_manager::Write(char* str)
 {
-	lstrcat(buffer2,str);
+	strcat(buffer2,str);
 	return 1;
 }
 /*
@@ -76,7 +80,8 @@ char* cgi_manager::GetParam(char* param)
 {
 	if(req->URIOPTS[0]=='\0')
 		return NULL;
-	buffer[0]='\0';
+	static char lb[150];
+	lb[0]='\0';
 	char *c=&req->URIOPTS[0];
 	for(;;)
 	{
@@ -90,11 +95,11 @@ char* cgi_manager::GetParam(char* param)
 	}
 	while((*c) && (*c!='&'))
 	{
-		buffer[lstrlen(buffer)+1]='\0';
-		buffer[lstrlen(buffer)]=*c;
+		lb[lstrlen(lb)+1]='\0';
+		lb[lstrlen(lb)]=*c;
 		c++;
 	}
-	return buffer;
+	return &lb[0];
 }
 
 /*
@@ -104,7 +109,8 @@ char* cgi_manager::PostParam(char* param)
 {
 	if(req->URIOPTSPTR==NULL)
 		return NULL;
-	buffer[0]='\0';
+	static char lb[150];
+	lb[0]='\0';
 	char *c=req->URIOPTSPTR;
 	for(;;)
 	{
@@ -118,11 +124,11 @@ char* cgi_manager::PostParam(char* param)
 	}
 	while((*c) && (*c!='&'))
 	{
-		buffer[lstrlen(buffer)+1]='\0';
-		buffer[lstrlen(buffer)]=*c;
+		lb[lstrlen(lb)+1]='\0';
+		lb[lstrlen(lb)]=*c;
 		c++;
 	}
-	return buffer;
+	return &lb[0];
 
 }
 /*
@@ -146,4 +152,32 @@ char *cgi_manager::operator >>(char* str)
 	else
 		return GetParam(str);
 } 
-
+/*
+*Get the name of an environment variable.
+*/
+void cgi_manager::getEnvVariable(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)
+{
+	((char*)lpvBuffer)[0]='\0';
+	char *localEnv=cgidata->envString;
+	size_t variableNameLen=strlen(lpszVariableName);
+	for(u_long i=0;;i+=(u_long)strlen(&localEnv[i])+1)
+	{
+		if(((localEnv[i+variableNameLen])== '=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
+		{
+			strncpy((char*)lpvBuffer,&localEnv[i+variableNameLen+1],*lpdwSize);
+			break;
+		}
+		else if((localEnv[i]=='\0') && (localEnv[i+1]=='\0'))
+		{
+			break;
+		}
+	}
+	*lpdwSize=lstrlen((char*)lpvBuffer);
+}
+/*
+*Get the input data file.
+*/
+MYSERVER_FILE_HANDLE cgi_manager::getInputDataFile()
+{
+	return td->inputData;
+}

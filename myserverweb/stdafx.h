@@ -72,9 +72,6 @@ extern BOOL mustEndServer;
 
 extern BOOL mustEndServer;
 #define Thread   __declspec( thread )
-typedef int (*CGIMAIN)(char*); 
-typedef int (*CGIINIT)(struct httpThreadContext*, struct CONNECTION*);
-//typedef int (*CGIINIT)(void*,void*,void*,void*); 
 typedef CONNECTION*  volatile LPCONNECTION;
 typedef  void* LOGGEDUSERID;
 

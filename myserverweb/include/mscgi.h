@@ -24,6 +24,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/MIME_manager.h"
 #include "../include/cgi.h"
 struct httpThreadContext;
+struct cgi_data
+{
+	char *envString;
+};
 /*
 *Functions to Load and Free the MSCGI library.
 */
@@ -34,6 +38,6 @@ int freeMSCGILib();
 */
 int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
 typedef int (*CGIMAIN)(char*); 
-typedef int (*CGIINIT)(httpThreadContext*,LPCONNECTION); 
+typedef int (*CGIINIT)(httpThreadContext*,LPCONNECTION,cgi_data*); 
 #endif
 

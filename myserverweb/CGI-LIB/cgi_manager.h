@@ -18,11 +18,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma once
 #define EXPORTABLE _declspec(dllexport)
 #include "../include/http.h"
+#include "../include/response_requestStructs.h"
+
 /*
 *Do not use this method in a CGI script.
 *It is used for server internal operations.
 */
-int EXPORTABLE initialize(httpThreadContext*,LPCONNECTION);
+int EXPORTABLE initialize(httpThreadContext*,LPCONNECTION,cgi_data*);
 class EXPORTABLE cgi_manager
 {
 private:
@@ -34,8 +36,10 @@ public:
 	char* operator >>(char*);
 	int Start();
 	int Clean();
+	void getEnvVariable(char*,char*,unsigned int*);
 	char* GetParam(char*);
 	char* PostParam(char*);
 	int Write(char*);
+	MYSERVER_FILE_HANDLE getInputDataFile();
 }; 
 

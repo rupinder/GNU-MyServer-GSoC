@@ -302,32 +302,17 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	*/
 	lstrcpy(cgiEnvString,"SERVER_SOFTWARE=myServer");
 	lstrcat(cgiEnvString,versionOfSoftware);
+
 #ifdef WIN32
-	lstrcat(cgiEnvString," (Win32)\r");
-
-	LPTSTR lpszVariable; 
-	LPVOID lpvEnv; 
-	 
-	lpvEnv = lserver->envString; 
-
-	for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
-	{ 
-		if(((char*)lpszVariable)[0] !='=')
-		{
-			strcat(cgiEnvString,(char*)lpszVariable);
-			strcat(cgiEnvString,"\r");
-		}
-		while (*lpszVariable)*lpszVariable++;
-	} 
-
+	lstrcat(cgiEnvString," (WIN32)");
 #endif
 #ifdef __linux__
-	lstrcat(cgiEnvString," (Linux)\r");
+	lstrcat(cgiEnvString," (Linux)");
 	// Must use REDIRECT_STATUS for php and others
 	lstrcat(cgiEnvString,"REDIRECT_STATUS=TRUE\r");
 #endif
 
-	lstrcat(cgiEnvString,"SERVER_NAME=");
+	lstrcat(cgiEnvString,"\rSERVER_NAME=");
 	lstrcat(cgiEnvString,lserver->getServerName());
 
 	lstrcat(cgiEnvString,"\rSERVER_SIGNATURE=");
@@ -477,6 +462,26 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 		lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
 		lstrcat(cgiEnvString,td->identity);
 	}
+
+#ifdef WIN32
+	lstrcat(cgiEnvString," (Win32)\r");
+
+	LPTSTR lpszVariable; 
+	LPVOID lpvEnv; 
+	 
+	lpvEnv = lserver->envString; 
+
+	for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
+	{ 
+		if(((char*)lpszVariable)[0] !='=')
+		{
+			strcat(cgiEnvString,(char*)lpszVariable);
+			strcat(cgiEnvString,"\r");
+		}
+		while (*lpszVariable)*lpszVariable++;
+	} 
+
+#endif
 
 	lstrcat(cgiEnvString,"\r\0\0");
 	int max=lstrlen(cgiEnvString);
