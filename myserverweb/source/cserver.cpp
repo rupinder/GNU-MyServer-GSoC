@@ -220,7 +220,6 @@ void cserver::start()
 		/* Print all the interfaces IPs. */
 		for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
 		{
-      char ip_buffer[7];
       char *inet_res;
 #ifdef WIN32
 			ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
@@ -229,14 +228,13 @@ void cserver::start()
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
       inet_res=inet_ntoa(ia);
-      sprintf(ip_buffer, "#%u:",  (u_int)(i+1));
-
+   
       buffer = new char[strlen(languageParser.getValue("MSG_ADDRESS")) 
-                        + strlen (ip_buffer) + strlen(inet_res) + 3];
+                         + strlen(inet_res) + 10];
       if(buffer == 0)
         return;
-      sprintf(buffer,"%s %s %s",  languageParser.getValue("MSG_ADDRESS"), 
-              ip_buffer, inet_res);
+      sprintf(buffer,"%s #%u: %s",  languageParser.getValue("MSG_ADDRESS"), 
+             (u_int)(i+1) , inet_res);
 
       logWriteln(buffer);
       delete [] buffer;
