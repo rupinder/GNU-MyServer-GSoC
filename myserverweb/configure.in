@@ -10,6 +10,7 @@ AC_MINIX
 AC_HEADER_STDC
 AC_PROG_CXX
 AC_PROG_CXXCPP
+AC_PROG_RANLIB
 
 dnl Options
 AM_OPTIONS_WXCONFIG
@@ -24,6 +25,15 @@ if test x$PTHREAD_LIB = x; then
 fi
 AC_DEFINE(HAVE_PTHREAD, 1, [POSIX threads required for MyServer in a non-windows envorment])
 
+dnl See if we need -lxnet for arpa
+AC_CHECK_LIB(xnet, accept, have_xnet=yes)
+if test x$have_xnet = xyes; then
+   XNET_LIB="-lxnet"
+else
+   XNET_LIB=""
+fi
+AC_SUBST(XNET_LIB)
+
 dnl Look for dl
 AC_CHECK_LIB(dl, dlopen, have_dl=yes)
 if test x$have_dl != xyes; then
@@ -31,7 +41,10 @@ if test x$have_dl != xyes; then
 *** dlLIB not found
 *** MSCGI suport will not function
 ])
+   AC_DEFINE(DO_NOT_USE_MSCGI, 1, [MSCGI suport in MyServer, define to 1 to disable])
    DL_LIB=""
+   MAKE_MSCGI = no
+   AC_SUBST(MAKE_MSCGI)
 else
    DL_LIB="-ldl"
 fi
@@ -91,6 +104,8 @@ if test x$have_png != xyes; then
 *** Cannot find libPNG
 *** counter MSCGI example will not be built
 ])
+    MAKE_COUNTER = no
+    AC_SUBST(MAKE_COUNTER)
 fi
 
 dnl Look for wxwindows
@@ -100,8 +115,10 @@ if test x$have_wxwindows != xyes; then
 *** Cannot find wxWindows
 *** control program will not be built
 ])
+    MAKE_CONTROL = no
+    AC_SUBST(MAKE_CONTROL)
 fi
 
 dnl AC_CONFIG_SUBDIRS()
-AC_CONFIG_FILES(Makefile source/Makefile)
+AC_CONFIG_FILES(Makefile source/Makefile control/Makefile CGI-LIB/Makefile binaries/web/cgi-src/math_sum/Makefile binaries/web/cgi-src/post/Makefile binaries/web/cgi-src/counter/Makefile)
 AC_OUTPUT

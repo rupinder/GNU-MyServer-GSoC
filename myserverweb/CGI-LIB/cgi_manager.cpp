@@ -21,6 +21,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 #include "../include/mscgi.h"
 
+#undef min
+#undef max
+#define min(a,b)		((a<b)?a:b)
+#define max(a,b)		((a>b)?a:b)
+
 #ifdef WIN32
 #pragma comment(lib,"wsock32.lib")
 #endif
@@ -201,8 +206,8 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 		if(((localEnv[i+variableNameLen])== '=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
 		{
 			u_long j=0;
-			u_long min=min(strlen(&localEnv[i+variableNameLen+1]),(u_long)(*lpvBuffer)-1); 
-			for(j=0;j<min;j++)
+			u_long min_v=min(strlen(&localEnv[i+variableNameLen+1]),(u_long)(*lpvBuffer)-1); 
+			for(j=0;j<min_v;j++)
 				lpvBuffer[j]=localEnv[i+variableNameLen+1+j];
 			lpvBuffer[j]='\0';
 			break;

@@ -78,7 +78,11 @@ public:
 	int initializeSSL();
 	int freeSSL();
 	void generateRsaKey();
+#ifndef DO_NOT_USE_SSL
 	SSL_CTX* getSSLContext();
+#else
+	void* getSSLContext();
+#endif
 	char documentRoot[MAX_PATH];/*!Path to the document root*/
 	char systemRoot[MAX_PATH];/*!Path to the system root*/
 	char accessesLogFileName[MAX_PATH];/*!Path to the accesses log file*/
