@@ -26,6 +26,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 
+
+#define USE_NEW
+
+
 #define DONT_MATCH_LENGTH // Comment this line to always make the buffer
 			  // have the exact length of his data
 			  // (involves reallocations => unrecommended)

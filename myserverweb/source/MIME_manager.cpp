@@ -514,7 +514,7 @@ void MIME_Manager::removeAllRecords()
 		{
 			nmr1=nmr1->next;
       if(nmr2->cgi_manager)
-        delete nmr2->cgi_manager;
+        delete []  nmr2->cgi_manager;
       free(nmr2);
 		}
 		else

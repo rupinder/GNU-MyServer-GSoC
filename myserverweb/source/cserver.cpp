@@ -246,9 +246,11 @@ void cserver::start()
 					case KEY_EVENT:
 						if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
 							continue;
-						if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
+						if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||
+               irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
 						{
-							if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|(irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
+							if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|
+                 (irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
 							{
 								printf ("%s\n", languageParser.getValue("MSG_SERVICESTOP"));
 								this->stop();
@@ -264,21 +266,21 @@ void cserver::start()
 	finalCleanup();
 }
 /*!
-*Do the final cleanup. Called only once.
-*/
+ *Do the final cleanup. Called only once.
+ */
 void cserver::finalCleanup()
 {
 	cXMLParser::cleanXML();
   freecwdBuffer();
 }
 /*!
-*This function is used to create a socket server and a thread listener for a protocol.
-*/
+ *This function is used to create a socket server and a thread listener for a protocol.
+ */
 int cserver::createServerAndListener(u_long port)
 {
 	/*!
-	*Create the server socket.
-	*/
+   *Create the server socket.
+   */
 	printf("%s\n", languageParser.getValue("MSG_SSOCKCREATE"));
 	MYSERVER_SOCKET serverSocket;
 	serverSocket.socket(AF_INET, SOCK_STREAM, 0);
@@ -297,9 +299,10 @@ int cserver::createServerAndListener(u_long port)
 
 #ifdef NOT_WIN
 	/*!
-	*Under the unix environment the application needs some time before create a new socket
-	*for the same address. To avoid this behavior we use the current code.
-	*/
+   *Under the unix environment the application needs some time before
+   * create a new socket
+   *for the same address. To avoid this behavior we use the current code.
+   */
 	int optvalReuseAddr=1;
 	if(serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr, sizeof(optvalReuseAddr))<0)
   {
@@ -310,8 +313,8 @@ int cserver::createServerAndListener(u_long port)
 	}
 #endif
 	/*!
-	*Bind the port.
-	*/
+   *Bind the port.
+   */
 	printf("%s\n", languageParser.getValue("MSG_BIND_PORT"));
 
 	if(serverSocket.bind((sockaddr*)&sock_inserverSocket, sizeof(sock_inserverSocket))!=0)
@@ -324,8 +327,8 @@ int cserver::createServerAndListener(u_long port)
 	printf("%s\n", languageParser.getValue("MSG_PORT_BINDED"));
 
 	/*!
-	*Set connections listen queque to max allowable.
-	*/
+   *Set connections listen queque to max allowable.
+   */
 	printf("%s\n", languageParser.getValue("MSG_SLISTEN"));
 	if (serverSocket.listen(SOMAXCONN))
 	{ 
@@ -339,8 +342,8 @@ int cserver::createServerAndListener(u_long port)
 
 	printf("%s\n", languageParser.getValue("MSG_LISTENTR"));
 	/*!
-	*Create the listen thread.
-	*/
+   *Create the listen thread.
+   */
 	listenThreadArgv* argv=new listenThreadArgv;
 	argv->port=port;
 	argv->serverSocket=serverSocket;
@@ -353,14 +356,14 @@ int cserver::createServerAndListener(u_long port)
 }
 
 /*!
-*Create a listen thread for every port used by MyServer
-*/
+ *Create a listen thread for every port used by MyServer.
+ */
 void cserver::createListenThreads()
 {
 	/*!
-	*Create the listens threads.
-	*Every port uses a thread.
-	*/
+   *Create the listens threads.
+   *Every port uses a thread.
+   */
 	for(vhostmanager::sVhostList *list=vhostList->getvHostList();list;list=list->next )
 	{
 		int needThread=1;
@@ -393,8 +396,9 @@ void cserver::createListenThreads()
 }
 
 /*!
-*This is the thread that listens for a new connection on the port specified by the protocol.
-*/
+ *This is the thread that listens for a new connection on the 
+ *port specified by the protocol.
+ */
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* params)
 #endif
@@ -422,10 +426,10 @@ void * listenServer(void* params)
 	while(!mustEndServer)
 	{
 		/*!
-		*Accept connections.
-		*Every new connection is sended to cserver::addConnection function;
-		*this function sends connections between the various threads.
-		*/
+     *Accept connections.
+     *Every new connection is sended to cserver::addConnection function;
+     *this function sends connections between the various threads.
+     */
 #ifdef WIN32
 		if(serverSocket.dataOnRead()==0)
 		{
@@ -445,8 +449,9 @@ void * listenServer(void* params)
 	}
 	
 	/*!
-	*When the flag mustEndServer is 1 end current thread and clean the socket used for listening.
-	*/
+   *When the flag mustEndServer is 1 end current thread and clean
+   *the socket used for listening.
+   */
 	serverSocket.shutdown( SD_BOTH);
 	char buffer[256];
 	int err;
@@ -458,16 +463,16 @@ void * listenServer(void* params)
 	lserver->decreaseListeningThreadCount();
 	
 	/*!
-	*Automatically free the current thread.
-	*/	
+   *Automatically free the current thread.
+   */	
 	myserver_thread::terminate();
 	return 0;
 
 }
 
 /*!
-*Returns the numbers of active connections the list.
-*/
+ *Returns the numbers of active connections the list.
+ */
 u_long cserver::getNumConnections()
 {
 	return nConnections;
@@ -527,15 +532,16 @@ void cserver::terminate()
 	stopThreads();
 	
 	/*!
-	*If there are open connections close them.
-	*/
+   *If there are open connections close them.
+   */
 	if(connections)
 	{
 		clearAllConnections();
 	}
   delete [] path;
   delete [] languages_path;
-	delete   vhostList;
+  delete [] languageFile;
+	delete vhostList;
   path = 0;
   languages_path = 0;
   vhostList = 0;
@@ -543,8 +549,8 @@ void cserver::terminate()
 	mimeManager.clean();
 #ifdef WIN32
 	/*!
-	*Under WIN32 cleanup environment strings.
-	*/
+   *Under WIN32 cleanup environment strings.
+   */
 	FreeEnvironmentStrings((LPTSTR)envString);
 #endif
 	http::unloadProtocol(&languageParser);
@@ -552,8 +558,8 @@ void cserver::terminate()
 	protocols.unloadProtocols(&languageParser);
 
 	/*!
-	*Destroy the connections mutex.
-	*/
+   *Destroy the connections mutex.
+   */
 	delete c_mutex;
 	if(threads)
 		free(threads);
@@ -566,18 +572,18 @@ void cserver::terminate()
 }
 
 /*!
-*Stop all the threads.
-*/
+ *Stop all the threads.
+ */
 void cserver::stopThreads()
 {
 	/*!
-	*Clean here the memory allocated.
-	*/
+   *Clean here the memory allocated.
+   */
 	u_long threadsStopped=0;
 
 	/*!
-	*Wait before clean the threads that all the threads are stopped.
-	*/
+   *Wait before clean the threads that all the threads are stopped.
+   */
 	u_long i;
 	for(i=0;i<nThreads;i++)
 		threads[i].clean();
@@ -589,13 +595,14 @@ void cserver::stopThreads()
 			if(threads[i].isStopped())
 				threadsStopped++;
 		/*!
-		*If all the threads are stopped break the loop.
-		*/
+     *If all the threads are stopped break the loop.
+     */
 		if(threadsStopped==nThreads)
 			break;
+
 		/*!
-		*Do not wait a lot to kill the thread.
-		*/
+     *Do not wait a lot to kill the thread.
+     */
 		if(++threadsStopTime > 500 )
 			break;
 		wait(200);
@@ -603,29 +610,30 @@ void cserver::stopThreads()
 
 }
 /*!
-*Get the server administrator e-mail address.
-*To change this use the main configuration file.
-*/
+ *Get the server administrator e-mail address.
+ *To change this use the main configuration file.
+ */
 char *cserver::getServerAdmin()
 {
 	return serverAdmin;
 }
+
 /*!
-*Here is loaded the configuration of the server.
-*The configuration file is a XML file.
-*/
+ *Here is loaded the configuration of the server.
+ *The configuration file is a XML file.
+ */
 int cserver::initialize(int /*!os_ver*/)
 {
 #ifdef WIN32
 	envString=GetEnvironmentStrings();
 #endif
 	/*!
-	*Create the mutex for the connections.
-	*/
+   *Create the mutex for the connections.
+   */
 	c_mutex = new myserver_mutex();
 	/*!
-	*Store the default values.
-	*/
+   *Store the default values.
+   */
 	u_long nThreadsA=1;
 	u_long nThreadsB=0;
 	socketRcvTimeout = 10;
@@ -720,7 +728,8 @@ int cserver::initialize(int /*!os_ver*/)
 		strcpy(main_configuration_file,"myserver.xml");
 		MYSERVER_FILE inputF;
 		MYSERVER_FILE outputF;
-		int ret=inputF.openFile("myserver.xml.default", MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+		int ret=inputF.openFile("myserver.xml.default", 
+                            MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 		if(ret<1)
 		{
 			preparePrintError();
@@ -1202,11 +1211,11 @@ void cserver::loadSettings()
 
 #ifndef WIN32
 /* Under an *nix environment look for .xml files in the following order.
-*1) myserver executable working directory
-*2) ~/.myserver/
-*3) /etc/myserver/
-*4) default files will be copied in myserver executable working	
-*/
+ *1) myserver executable working directory
+ *2) ~/.myserver/
+ *3) /etc/myserver/
+ *4) default files will be copied in myserver executable working	
+ */
 	if(MYSERVER_FILE::fileExists("MIMEtypes.xml"))
 	{
 		strcpy(mime_configuration_file,"MIMEtypes.xml");

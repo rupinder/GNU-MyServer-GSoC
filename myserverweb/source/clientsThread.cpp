@@ -106,7 +106,9 @@ void * startClientsTHREAD(void* pParam)
 	*/
 	while(ct->threadIsRunning) 
 	{
+    ct->parsing = 1;
 		ct->controlConnections();
+    ct->parsing = 0;
 		wait(1);
 	}
 	ct->threadIsStopped=1;
@@ -224,10 +226,12 @@ void ClientsTHREAD::controlConnections()
 		else if(retcode==2)/*Incomplete request to buffer*/
 		{
 			/*!
-			*If the header is incomplete save the current received
-			*data in the connection buffer
-			*/
-			memcpy(c->connectionBuffer, (char*)buffer.GetBuffer(), c->dataRead+err);/*!Save the header in the connection buffer*/
+       *If the header is incomplete save the current received
+       *data in the connection buffer.
+       *Save the header in the connection buffer.
+       */
+			memcpy(c->connectionBuffer, (char*)buffer.GetBuffer(), c->dataRead+err);
+
 			c->dataRead += err;
 		}
 		/*! Incomplete request bufferized by the protocol.  */
@@ -242,10 +246,11 @@ void ClientsTHREAD::controlConnections()
 		/*! Reset nTries after 5 seconds.  */
 		if(get_ticks() - c->timeout > 5000)
 			c->nTries = 0;
+
 		/*!
-		*If the connection is inactive for a time greater that the value
-		*configured remove the connection from the connections pool
-		*/
+     *If the connection is inactive for a time greater that the value
+     *configured remove the connection from the connections pool
+     */
 		if((get_ticks()- c->timeout) > lserver->connectionTimeout)
 		{
 			lserver->connections_mutex_lock();
@@ -254,32 +259,37 @@ void ClientsTHREAD::controlConnections()
 			return;
 		}
 	}
-	/*! Reset the parsing flag.  */
+	/*! Reset the parsing flag on the connection.  */
 	c->parsing=0;
 }
 
 /*!
-*Stop the thread
-*/
+ *Stop the thread.
+ */
 void ClientsTHREAD::stop()
 {
 	/*!
-	*Set the run flag to False
-	*When the current thread find the threadIsRunning
-	*flag setted to 0 automatically destroy the
-	*thread.
-	*/
+   *Set the run flag to False.
+   *When the current thread find the threadIsRunning
+   *flag setted to 0 automatically destroy the
+   *thread.
+   */
 	threadIsRunning = 0;
 }
 
 /*!
-*Clean the memory used by the thread.
-*/
+ *Clean the memory used by the thread.
+ */
 void ClientsTHREAD::clean()
 {
 	/*! If the thread was not initialized return from the clean function.  */
 	if(initialized == 0)
 		return;
+  /*! If the thread is parsing wait. */
+  while(parsing)
+  {
+    wait(100);
+  }
 	threadIsRunning=0;
 	buffer.Free();
 	buffer2.Free();
@@ -291,31 +301,31 @@ void ClientsTHREAD::clean()
 
 
 /*!
-*Returns a non-null value if the thread is active.
-*/
+ *Returns a non-null value if the thread is active.
+ */
 int ClientsTHREAD::isRunning()
 {
 	return threadIsRunning;
 }
 
 /*!
-*Returns 1 if the thread is stopped.
-*/
+ *Returns 1 if the thread is stopped.
+ */
 int ClientsTHREAD::isStopped()
 {
 	return threadIsStopped;
 }
 
 /*!
-*Get a pointer to the buffer.
-*/
+ *Get a pointer to the buffer.
+ */
 CMemBuf* ClientsTHREAD::GetBuffer()
 {
 	return &buffer;
 }
 /*!
-*Get a pointer to the buffer2.
-*/
+ *Get a pointer to the buffer2.
+ */
 CMemBuf *ClientsTHREAD::GetBuffer2()
 {
 	return &buffer2;

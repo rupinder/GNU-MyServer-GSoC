@@ -2289,13 +2289,15 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 			MYSERVER_MD5Update(&md5, (const unsigned char*)md5_str , (u_long)strlen(md5_str));
 			MYSERVER_MD5End(&md5, ((http_user_data*)a->protocolBuffer)->opaque);
 			
-			if(a->protocolBuffer && (!(((http_user_data*)a->protocolBuffer)->digest)) || (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
+			if(a->protocolBuffer && (!(((http_user_data*)a->protocolBuffer)->digest)) || 
+         (((http_user_data*)a->protocolBuffer)->nonce[0]=='\0'))
 			{
 				computeDigest(td, ((http_user_data*)a->protocolBuffer)->nonce, md5_str);
 				((http_user_data*)a->protocolBuffer)->nc=0;
 			}
 			*td->buffer2 << "WWW-Authenticate: Digest ";
-			*td->buffer2 << " qop=\"auth\", algorithm =\"MD5\", realm =\"" << ((http_user_data*)a->protocolBuffer)->realm ;
+			*td->buffer2 << " qop=\"auth\", algorithm =\"MD5\", realm =\"";
+      *td->buffer2 << ((http_user_data*)a->protocolBuffer)->realm ;
 			*td->buffer2 << "\",  opaque =\"" << ((http_user_data*)a->protocolBuffer)->opaque;
 			*td->buffer2<< "\",  nonce =\""<< ((http_user_data*)a->protocolBuffer)->nonce;
 			*td->buffer2 <<"\" ";
@@ -2310,8 +2312,8 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 		else
 		{
 			/*!
-			*Just send a non implemented error page.
-			*/
+       *Just send a non implemented error page.
+       */
 			return raiseHTTPError(td, a, 501);
 		}				
 		*td->buffer2 << "Date: ";
@@ -2319,7 +2321,8 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 		getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 		*td->buffer2  << time;
 		*td->buffer2 << "\r\n\r\n";
-		if(a->socket.send((char*)td->buffer2->GetBuffer(), td->buffer2->GetLength(), 0)==-1)
+		if(a->socket.send((char*)td->buffer2->GetBuffer(), 
+                      td->buffer2->GetLength(), 0)==-1)
 		{
 			return 0;
 		}
@@ -2328,13 +2331,19 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 	else
 	{
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-		char defFile[MAX_PATH*2];
-		if(getErrorFileName(((vhost*)a->host)->documentRoot, getHTTPStatusCodeFromErrorID(ID), defFile))
-		{
+		char *defFile=0;
+		int ret = getErrorFileName(((vhost*)a->host)->documentRoot, 
+                               getHTTPStatusCodeFromErrorID(ID), &defFile);
+    if(ret == -1)
+    {
+      return sendHTTPhardError500(td, a);
+    }
+    else if(ret)
+    {
 			/*!
-			*Change the URI to reflect the default file name.
-			*/
-			char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
+       *Change the URI to reflect the default file name.
+       */
+			char nURL[HTTP_REQUEST_URI_DIM+6];
 			strcpy(nURL, protocolPrefix);
 			strcat(nURL, td->request.HOST);
 			int isPortSpecified=0;
@@ -2356,30 +2365,32 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 	}
 	getRFC822GMTTime(td->response.DATEEXP, HTTP_RESPONSE_DATEEXP_DIM);
 	strncpy(td->response.ERROR_TYPE, HTTP_ERROR_MSGS[ID], HTTP_RESPONSE_ERROR_TYPE_DIM);
-	u_long lenErrorFile=(u_long)strlen(((vhost*)(a->host))->systemRoot)+(u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
-	char *errorFile=(char*)malloc(lenErrorFile);
+	u_long lenErrorFile=(u_long)strlen(((vhost*)(a->host))->systemRoot)+
+                              (u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
+	char *errorFile=new char[lenErrorFile];
 	if(errorFile)
 	{
 		sprintf(errorFile, "%s/%s", ((vhost*)(a->host))->systemRoot, HTTP_ERROR_HTMLS[ID]);
 		if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
 		{
-			free(errorFile);
+			delete [] errorFile;
 			return sendHTTPRESOURCE(td, a, HTTP_ERROR_HTMLS[ID], 1);
 		}
-		free(errorFile);
+		delete [] errorFile;
 	}
 	/*! Send the error over the HTTP. */
 	sprintf(td->response.CONTENT_LENGTH, "%i", 0);
 
 	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &td->response);
-	if(a->socket.send((char*)td->buffer->GetBuffer(), (u_long)strlen((char*)td->buffer->GetBuffer()), 0)==-1)
+	if(a->socket.send((char*)td->buffer->GetBuffer(), 
+                    (u_long)strlen((char*)td->buffer->GetBuffer()), 0)==-1)
 		return 0;
 	return keepalive;
 }
 
 /*!
-*Send a hard wired 500 error when we have a system error
-*/
+ *Send a hard wired 500 error when we have a system error
+ */
 int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
 {
 	char tmpStr[12];
@@ -2713,7 +2724,7 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
 	mscgi::freeMSCGILib();
 	if(defaultFilename)
 	{
-		free(defaultFilename);
+		delete [] defaultFilename;
 		defaultFilename=0;
 	}
   if(browseDirCSSpath)

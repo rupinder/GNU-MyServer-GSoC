@@ -34,13 +34,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 /*!
-*Global values for useLogonOption flag and the guest handle.
-*/
+ *Global values for useLogonOption flag and the guest handle.
+ */
 int  useLogonOption;
 
 /*!
-*Do the logon of an user.
-*/
+ *Do the logon of an user.
+ */
 int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
 	int logon=0;
@@ -50,8 +50,8 @@ int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 	return logon;
 }
 /*!
-*Change the owner of current thread.
-*/
+ *Change the owner of current thread.
+ */
 void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
@@ -60,8 +60,8 @@ void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 }
 
 /*!
-*This function terminates the impersonation of a client application.
-*/
+ *This function terminates the impersonation of a client application.
+ */
 void revertToSelf()
 {
 #ifdef WIN32
@@ -70,8 +70,8 @@ void revertToSelf()
 }
 
 /*!
-*Close the handle of a logged user.
-*/
+ *Close the handle of a logged user.
+ */
 void cleanLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
@@ -79,8 +79,8 @@ void cleanLogonUser(LOGGEDUSERID* hImpersonation)
 #endif
 }
 /*!
-*Change the owner of the thread with the connection login and password informations.
-*/
+ *Change the owner of the thread with the connection login and password informations.
+ */
 void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 {
 	*hImpersonation=0;
@@ -103,8 +103,8 @@ void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 	}
 }
 /*!
-*Logout the hImpersonation handle.
-*/
+ *Logout the hImpersonation handle.
+ */
 void logout(int /*!logon*/,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
@@ -119,11 +119,16 @@ void logout(int /*!logon*/,LOGGEDUSERID *hImpersonation)
 }
 
 /*!
- *Get the error file for a site. Return 0 to use the default one.
+ *Get the error file for a site. 
+ *Return 0 to use the default one.
+ *Return -1 on errors.
+ *Return other valus on success, please note to free
+ *out after its use.
  */
-int getErrorFileName(char *root,int error,char* out)
+int getErrorFileName(char *root,int error,char** out)
 {
 	char *permissionsFile;
+  *out = 0;
   int permissionsFileLen = strlen(root) + 10;
   permissionsFile = new char[permissionsFileLen];
   if(permissionsFile==0)
@@ -149,7 +154,15 @@ int getErrorFileName(char *root,int error,char* out)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
 				{
-					strcpy(out,(const char*)attr->children->content);
+          if(*out)
+            delete [] (*out);
+          *out = new char[strlen((const char*)attr->children->content)+1];
+          if(*out == 0)
+          {
+            parser.close();
+            return -1;
+          }
+					strcpy(*out,(const char*)attr->children->content);
 				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
 				{
@@ -167,7 +180,9 @@ int getErrorFileName(char *root,int error,char* out)
 	parser.close();
 	return found;
 }
-int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder,char *password2,char* auth_type,int len_auth,int *permission2)
+int getPermissionMask(char* user, char* password,char* folder,
+                      char* filename,char *sysfolder,char *password2,
+                      char* auth_type,int len_auth,int *permission2)
 {
 	/*!
    *If the file doesn't exist allow everyone to do everything.
@@ -194,14 +209,14 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	if(!MYSERVER_FILE::fileExists(permissionsFile))
 	{
 		/*!
-		*If the security file doesn't exist try with a default one.
-		*/
+     *If the security file doesn't exist try with a default one.
+     */
 		if(sysfolder!=0)
 			ret = getPermissionMask(user,password,sysfolder,filename,0);
 		else
 		/*!
-		*If the default one doesn't exist too send full permissions for everyone
-		*/
+     *If the default one doesn't exist too send full permissions for everyone
+     */
 			ret = (-1);
     delete [] permissionsFile;
     return ret;

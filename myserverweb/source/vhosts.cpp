@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/threads.h"
 
 /*!
-*SSL password callback function.
-*/
+ *SSL password callback function.
+ */
 static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
 {
 	if((size_t)num<strlen((char*)userdata)+1)
@@ -63,16 +63,22 @@ vhost::~vhost()
 	clearHostList();
 	clearIPList();
 	freeSSL();
+
 	if(accessesLogFile->getHandle())
 		accessesLogFile->closeFile();
+
 	if(warningsLogFile->getHandle())
 		warningsLogFile->closeFile();
- 	memset(this, 0, sizeof(vhost));
 
-  delete [] documentRoot;
-	delete [] systemRoot;
-  delete [] accessesLogFileName;
-  delete [] warningsLogFileName;
+  if(documentRoot)
+    delete [] documentRoot;
+  if(systemRoot)
+    delete [] systemRoot;
+  if(accessesLogFileName)
+    delete [] accessesLogFileName;
+  if(warningsLogFileName)
+    delete [] warningsLogFileName;
+
   delete warningsLogFile;
   delete accessesLogFile;
   
@@ -83,7 +89,7 @@ vhost::~vhost()
   
 	accessesLogFileAccess.myserver_mutex_destroy();
 	warningsLogFileAccess.myserver_mutex_destroy();
-	
+
 }
 
 /*!
@@ -457,13 +463,17 @@ void vhostmanager::clean()
 	{
  		if(prevshl)
 		{
+      delete prevshl->host;
 			delete prevshl;
 		}
 		prevshl=shl;
 		shl=shl->next;
 	}
 	if(prevshl)
+  {
+    delete prevshl->host;
 		delete prevshl;
+  }
 	memset(this,0,sizeof(vhostmanager));
 }
 /*!
@@ -1132,6 +1142,8 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 */
 int vhost::initializeSSL()
 {
+  sslContext.context = 0;
+  sslContext.method = 0;
 #ifndef DO_NOT_USE_SSL
     if(this->protocol!=PROTOCOL_HTTPS)
         return -2;
