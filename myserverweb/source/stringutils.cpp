@@ -310,6 +310,7 @@ void StrTrim(char* str, const char* trimchars)
 	u_short lenTrimchars=(u_short)strlen(trimchars);
 	u_short lenStr=(u_short)strlen(str);
 	u_long continueLoop;
+	u_long j;
 	/*!
    *Number of characters to remove from the initial position of the string.
    */
@@ -318,7 +319,6 @@ void StrTrim(char* str, const char* trimchars)
 		return;
 	if(lenTrimchars==0)
 		return;
-	u_long j;
 	for(j=0;j<=lenStr;j++)
 	{
 		continueLoop=0;
