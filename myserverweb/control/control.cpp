@@ -36,6 +36,7 @@ extern "C" {
 #include <sys/types.h>
 #include <unistd.h>
 }
+#define Sleep usleep
 #endif
 /*
 *This is the version of the Control Center and can be different from the myServer version.
@@ -308,7 +309,7 @@ void mainFrame::registerService(wxCommandEvent& event)
 #endif
 	lmainFrame->SetStatusText(_T("MyServer service installed"));
 	Sleep(1500);/*Sleep 1.5 seconds only for show boot the installation and run messages*/
-	runService((wxCommandEvent)0);
+	runService(event);
 }
 void mainFrame::configureMIME(wxCommandEvent& event)
 {
