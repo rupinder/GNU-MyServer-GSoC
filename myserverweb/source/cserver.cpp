@@ -849,7 +849,11 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 	char ip[32];
 	char myIp[32];
 	MYSERVER_SOCKADDRIN  localsock_in;
+#ifdef WIN32
 	ZeroMemory(&localsock_in,sizeof(localsock_in));
+#else
+	memset(&localsock_in, 0, sizeof(localsock_in));
+#endif
 	int dim=sizeof(localsock_in);
 	ms_getsockname(s,(MYSERVER_SOCKADDR*)&localsock_in,&dim);
 

@@ -180,5 +180,12 @@ int ms_gethostname(char *name,int namelen)
 }
 int ms_getsockname(MYSERVER_SOCKET s,MYSERVER_SOCKADDR *ad,int *namelen)
 {
+#ifdef WIN32
 	return getsockname(s,ad,namelen);
+#else
+	unsigned int len = *namelen;
+	int ret = getsockname((int)s,ad,&len);
+	*namelen = len;
+	return ret;
+#endif
 }
