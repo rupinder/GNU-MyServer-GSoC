@@ -57,6 +57,7 @@ int cXMLParser::cleanXML()
 }
 /*!
 *With the open function we open a file and store it in memory.
+*Return nonzero on errors.
 */
 int cXMLParser::open(char* filename)
 {

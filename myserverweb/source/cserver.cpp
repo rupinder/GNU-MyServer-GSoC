@@ -131,10 +131,13 @@ void cserver::start()
 	*Setup the server configuration.
 	*/
     printf("Initializing server configuration...\n");
-
+  int err = 0;
 	int os_ver=getOSVersion();
 
-	initialize(os_ver);
+	err = initialize(os_ver);
+  if(err)
+    return;
+
 	/*! Initialize the SSL library.  */
 #ifndef DO_NOT_USE_SSL
 	SSL_library_init();
@@ -144,7 +147,7 @@ void cserver::start()
 
 	/*! *Startup the socket library.  */
 	printf("%s\n", languageParser.getValue("MSG_ISOCK"));
-	int err= startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
+	err= startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
 	if (err != 0) 
 	{ 
 
@@ -753,7 +756,11 @@ int cserver::initialize(int /*!os_ver*/)
 	
 	configurationFileManager.close();
 	
-	languageParser.open(languageFile);
+	if(languageParser.open(languageFile))
+  {
+      printf("Error loading %s\n", languageFile);
+      return 1;
+  }
 	printf("%s\n", languageParser.getValue("MSG_LANGUAGE"));
 	return 0;
 	
@@ -1118,11 +1125,10 @@ void cserver::loadSettings()
 	*/
 	if(useLogonOption==0)
 	{
-        	preparePrintError();
+   	preparePrintError();
 		printf("%s\n", languageParser.getValue("AL_NO_SECURITY"));
-        	endPrintError();
+   	endPrintError();
 	}
-
 	u_long i;
 
 #ifndef WIN32
@@ -1263,7 +1269,7 @@ void cserver::loadSettings()
 	{
 		preparePrintError();
 		printf("%s: Threads creation\n", languageParser.getValue("ERR_ERROR"));
-        	endPrintError();	
+   	endPrintError();	
 	}
 	for(i=0;i<nThreads;i++)
 	{
