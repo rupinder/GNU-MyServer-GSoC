@@ -32,7 +32,6 @@
 #include <time.h>
 #include <io.h>
 
-#include "resource.h"
 
 typedef unsigned long DWORD;
 typedef int BOOL;
