@@ -67,7 +67,6 @@ struct listenThreadArgv
 	int SSLsocket;
 };
 
-
 class Server
 {
   friend class ClientsThread;

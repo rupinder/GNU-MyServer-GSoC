@@ -196,8 +196,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath,
-                         File_OPEN_READ | File_OPEN_ALWAYS | 
-                            File_NO_INHERIT))
+                         File::OPEN_READ | File::OPEN_ALWAYS | 
+                            File::NO_INHERIT))
   {
     delete [] fullpath;
 		td->buffer->SetLength(0);
@@ -358,9 +358,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	getdefaultwd(outDataPath, outDataPathLen);
 	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFCGI_%u",(u_int)td->id);
 	
-	if(con.tempOut.openFile(outDataPath,File_OPEN_WRITE | 
-                          File_OPEN_READ | File_CREATE_ALWAYS |
-                          File_NO_INHERIT))
+	if(con.tempOut.openFile(outDataPath,File::OPEN_WRITE | 
+                          File::OPEN_READ | File::CREATE_ALWAYS |
+                          File::NO_INHERIT))
   {
     td->inputData.closeFile();
 		File::deleteFile(td->inputDataPath);
@@ -878,7 +878,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			strcpy(new_server->host, "localhost");
 			new_server->port=port++;
 			new_server->socket.socket(AF_INET,SOCK_STREAM,0);
-			if(new_server->socket.getHandle() == (Socket_HANDLE)INVALID_SOCKET)
+			if(new_server->socket.getHandle() == (SocketHandle)INVALID_SOCKET)
       {
         servers_mutex.myserver_mutex_unlock();
         delete new_server;

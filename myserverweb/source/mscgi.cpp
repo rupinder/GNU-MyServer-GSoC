@@ -130,8 +130,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
     }
 		getdefaultwd(outDataPath, outDataPathLen );	
 		sprintf(&(outDataPath)[wdLen-1],"/stdOutFileMSCGI_%u",(u_int)td->id);
-		if(data.stdOut.openFile(outDataPath, File_CREATE_ALWAYS | 
-                            File_OPEN_READ | File_OPEN_WRITE))
+		if(data.stdOut.openFile(outDataPath, File::CREATE_ALWAYS | 
+                            File::OPEN_READ | File::OPEN_WRITE))
     {
       delete [] outDataPath;
       return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);

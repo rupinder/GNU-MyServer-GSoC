@@ -137,7 +137,7 @@ int File::openFile(char* nfilename,u_long opt)
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};
 	sa.nLength = sizeof(sa);
-	if(opt & File_NO_INHERIT)
+	if(opt & File::NO_INHERIT)
 		sa.bInheritHandle = FALSE;
 	else
 		sa.bInheritHandle = TRUE;
@@ -146,24 +146,24 @@ int File::openFile(char* nfilename,u_long opt)
 	u_long openFlag=0;
 	u_long attributeFlag=0;
 
-	if(opt & File_OPEN_ALWAYS)
+	if(opt & File::OPEN_ALWAYS)
 		creationFlag|=OPEN_ALWAYS;
-	if(opt & File_OPEN_IFEXISTS)
+	if(opt & File::OPEN_IFEXISTS)
 		creationFlag|=OPEN_EXISTING;
-	if(opt & File_CREATE_ALWAYS)
+	if(opt & File::CREATE_ALWAYS)
 		creationFlag|=CREATE_ALWAYS;
 
-	if(opt & File_OPEN_READ)
+	if(opt & File::OPEN_READ)
 		openFlag|=GENERIC_READ;
-	if(opt & File_OPEN_WRITE)
+	if(opt & File::OPEN_WRITE)
 		openFlag|=GENERIC_WRITE;
 
-	if(opt & File_OPEN_TEMPORARY)
+	if(opt & File::OPEN_TEMPORARY)
 	{
 		openFlag|=FILE_ATTRIBUTE_TEMPORARY; 
 		attributeFlag|=FILE_FLAG_DELETE_ON_CLOSE;
 	}
-	if(opt & File_OPEN_HIDDEN)
+	if(opt & File::OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
 	if(attributeFlag == 0)
@@ -183,7 +183,7 @@ int File::openFile(char* nfilename,u_long opt)
   }
 	else/*! Open the file. */
 	{
-		if(opt & File_OPEN_APPEND)
+		if(opt & File::OPEN_APPEND)
 			ret=setFilePointer(getFileSize());
 		else
 			ret=setFilePointer(0);
@@ -204,14 +204,14 @@ int File::openFile(char* nfilename,u_long opt)
 	struct stat F_Stats;
 	int F_Flags;
   char Buffer[strlen(filename)+1];
-	if(opt && File_OPEN_READ && File_OPEN_WRITE)
+	if(opt && File::OPEN_READ && File::OPEN_WRITE)
 		F_Flags = O_RDWR;
-	else if(opt & File_OPEN_READ)
+	else if(opt & File::OPEN_READ)
 		F_Flags = O_RDONLY;
-	else if(opt & File_OPEN_WRITE)
+	else if(opt & File::OPEN_WRITE)
 		F_Flags = O_WRONLY;
 		
-	if(opt & File_OPEN_HIDDEN)
+	if(opt & File::OPEN_HIDDEN)
 	{
 		int index;
 		Buffer[0] = '\0';
@@ -229,7 +229,7 @@ int File::openFile(char* nfilename,u_long opt)
 	else
 		strcpy(Buffer, filename);
 		
-	if(opt & File_OPEN_IFEXISTS)
+	if(opt & File::OPEN_IFEXISTS)
 	{
 		ret = stat(filename, &F_Stats);
 		if(ret  < 0)
@@ -249,7 +249,7 @@ int File::openFile(char* nfilename,u_long opt)
     }
 		handle= (FileHandle)ret;
 	}
-	else if(opt & File_OPEN_APPEND)
+	else if(opt & File::OPEN_APPEND)
 	{
 		ret = stat(filename, &F_Stats);
 		if(ret < 0)
@@ -266,7 +266,7 @@ int File::openFile(char* nfilename,u_long opt)
 		else
 			handle=(FileHandle)ret;
 	}
-	else if(opt & File_CREATE_ALWAYS)
+	else if(opt & File::CREATE_ALWAYS)
 	{
 		stat(filename, &F_Stats);
 		if(ret)
@@ -283,7 +283,7 @@ int File::openFile(char* nfilename,u_long opt)
 		else
 			handle=(FileHandle)ret;
 	}
-	else if(opt & File_OPEN_ALWAYS)
+	else if(opt & File::OPEN_ALWAYS)
 	{
 		ret = stat(filename, &F_Stats);
 		if(ret < 0)
@@ -301,7 +301,7 @@ int File::openFile(char* nfilename,u_long opt)
 			 handle=(FileHandle)ret;
 	}
 	
-	if(opt & File_OPEN_TEMPORARY)
+	if(opt & File::OPEN_TEMPORARY)
 		unlink(Buffer); // Remove File on close
 	
 	if((long)handle < 0)
@@ -400,8 +400,8 @@ int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
  */
 int File::createTemporaryFile(char* filename)
 { 
-	return openFile(filename,File_OPEN_READ|File_OPEN_WRITE
-                  |File_CREATE_ALWAYS|File_OPEN_TEMPORARY);
+	return openFile(filename,File::OPEN_READ|File::OPEN_WRITE
+                  |File::CREATE_ALWAYS|File::OPEN_TEMPORARY);
 
 }
 /*!

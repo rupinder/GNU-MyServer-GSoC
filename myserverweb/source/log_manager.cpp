@@ -63,8 +63,8 @@ int LogManager::load(char *filename)
   if(loaded)
     close();
 
-  opt = File_OPEN_APPEND | File_OPEN_ALWAYS |
-            File_OPEN_WRITE | File_NO_INHERIT;
+  opt = File::OPEN_APPEND | File::OPEN_ALWAYS |
+            File::OPEN_WRITE | File::NO_INHERIT;
 
   ret = file.openFile(filename, opt);
 

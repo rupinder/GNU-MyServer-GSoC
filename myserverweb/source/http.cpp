@@ -367,8 +367,8 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	{
 		/*! If the file exists update it.  */
 		File file;
-		if(file.openFile(td->filenamePath, File_OPEN_IFEXISTS | 
-                     File_OPEN_WRITE))
+		if(file.openFile(td->filenamePath, File::OPEN_IFEXISTS | 
+                     File::OPEN_WRITE))
 		{
       delete [] td->filenamePath;
       td->filenamePath = 0;
@@ -425,7 +425,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 		*/
 		File file;
 		if(file.openFile(td->filenamePath, 
-                      File_CREATE_ALWAYS|File_OPEN_WRITE))
+                      File::CREATE_ALWAYS|File::OPEN_WRITE))
     {
       delete [] td->filenamePath;
       td->filenamePath = 0;
@@ -1246,7 +1246,7 @@ int Http::sendHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		}
 		File h;
 		if(h.openFile(td->filenamePath, 
-                   File_OPEN_IFEXISTS|File_OPEN_READ))
+                   File::OPEN_IFEXISTS|File::OPEN_READ))
     {
       if(data)
         delete [] data;
@@ -1548,8 +1548,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *Create the file that contains the data posted.
        *This data is the stdin file in the CGI.
        */
-			if(td.inputData.openFile(td.inputDataPath,File_CREATE_ALWAYS | 
-                             File_OPEN_READ|File_OPEN_WRITE))
+			if(td.inputData.openFile(td.inputDataPath,File::CREATE_ALWAYS | 
+                             File::OPEN_READ|File::OPEN_WRITE))
 				return 0;
 			nbw=0;
       total_nbr=min(td.nBytesToRead, 
@@ -1739,8 +1739,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			return 0;
     }
 		sprintf(newfilename, "%s_encoded", td.inputData.getFilename());
-		if(newStdIn.openFile(td.inputDataPath, File_CREATE_ALWAYS | 
-                         File_OPEN_READ|File_OPEN_WRITE))
+		if(newStdIn.openFile(td.inputDataPath, File::CREATE_ALWAYS | 
+                         File::OPEN_READ|File::OPEN_WRITE))
 		{
 			td.inputData.closeFile();
 			td.inputData.deleteFile(td.inputDataPath);

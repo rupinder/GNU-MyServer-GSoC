@@ -62,14 +62,14 @@ int startupSocketLib(u_short ver)
 /*!
  *Returns the socket handle
  */
-Socket_HANDLE Socket::getHandle()
+SocketHandle Socket::getHandle()
 {
 	return socketHandle;
 }
 /*!
  *Set the handle for the socket
  */
-int Socket::setHandle(Socket_HANDLE h)
+int Socket::setHandle(SocketHandle h)
 {
 	socketHandle=h;
 	return 1;
@@ -96,7 +96,7 @@ int Socket::operator=(Socket s)
 int Socket::socket(int af,int type,int protocol,int useSSL)
 {
 	sslSocket=useSSL;
-	socketHandle=(Socket_HANDLE)::socket(af,type,protocol);
+	socketHandle=(SocketHandle)::socket(af,type,protocol);
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
@@ -108,7 +108,7 @@ int Socket::socket(int af,int type,int protocol,int useSSL)
 /*!
  *Set the socket handle.
  */
-Socket::Socket(Socket_HANDLE handle)
+Socket::Socket(SocketHandle handle)
 {
 	setHandle(handle);
 }
@@ -175,7 +175,7 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa,
 #endif
 
 #ifdef WIN32
-	Socket_HANDLE h=(Socket_HANDLE)::accept(socketHandle,sa,
+	SocketHandle h=(SocketHandle)::accept(socketHandle,sa,
                                                             sockaddrlen);
 	s.setHandle(h);
 #endif

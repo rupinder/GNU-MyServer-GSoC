@@ -551,7 +551,7 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 	File fh;
 	Vhost *vh;
 	char c;
-	int ret=fh.openFile(filename,File_OPEN_IFEXISTS|File_OPEN_READ);
+	int ret=fh.openFile(filename,File::OPEN_IFEXISTS|File::OPEN_READ);
 	if(ret)/*!If the file cannot be opened simply do nothing*/
 		return -1;
 
@@ -737,7 +737,7 @@ void VhostManager::saveConfigurationFile(char *filename)
 	sVhostList*vhl=vhostList;
 	u_long nbw;
 	File fh;
-	fh.openFile(filename,File_CREATE_ALWAYS|File_OPEN_WRITE);
+	fh.openFile(filename,File::CREATE_ALWAYS|File::OPEN_WRITE);
 	for(;vhl;vhl=vhl->next )
 	{
 		Vhost* vh=vhl->host;
@@ -1140,7 +1140,7 @@ void VhostManager::saveXMLConfigurationFile(char *filename)
 {
 	File out;
 	u_long nbw;
-	out.openFile(filename,File_CREATE_ALWAYS|File_OPEN_WRITE);
+	out.openFile(filename,File::CREATE_ALWAYS|File::OPEN_WRITE);
 	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
 	sVhostList *list=this->getvHostList();
 	while(list)

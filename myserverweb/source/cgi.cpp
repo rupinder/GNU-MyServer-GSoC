@@ -325,8 +325,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	td->inputData.closeFile();
   
   /*! Open the stdin file for the new CGI process. */
-	if(stdInFile.openFile(td->inputDataPath, File_OPEN_READ|
-                        File_OPEN_ALWAYS))
+	if(stdInFile.openFile(td->inputDataPath, File::OPEN_READ|
+                        File::OPEN_ALWAYS))
 	{
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");

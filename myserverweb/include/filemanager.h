@@ -28,16 +28,6 @@ typedef void* FileHandle;
 typedef long  FileHandle;
 #endif
 
-#define File_OPEN_READ (1<<0)
-#define File_OPEN_WRITE (1<<1)
-#define File_OPEN_TEMPORARY (1<<2)
-#define File_OPEN_HIDDEN (1<<3)
-#define File_OPEN_ALWAYS (1<<4)
-#define File_OPEN_IFEXISTS (1<<5)
-#define File_OPEN_APPEND (1<<6)
-#define File_CREATE_ALWAYS (1<<7)
-#define File_NO_INHERIT (1<<8)
-
 class File
 {
 private:
@@ -46,7 +36,15 @@ private:
 public:
 	File();
   File(char *,int);
-
+  static const u_long OPEN_READ = (1<<0);
+  static const u_long OPEN_WRITE = (1<<1);
+  static const u_long OPEN_TEMPORARY = (1<<2);
+  static const u_long OPEN_HIDDEN = (1<<3);
+  static const u_long OPEN_ALWAYS = (1<<4);
+  static const u_long OPEN_IFEXISTS = (1<<5);
+  static const u_long OPEN_APPEND = (1<<6);
+  static const u_long CREATE_ALWAYS = (1<<7);
+  static const u_long NO_INHERIT = (1<<8);
 	FileHandle getHandle();
 	int setHandle(FileHandle);
 	int readFromFile(char* ,u_long ,u_long* );

@@ -416,7 +416,7 @@ int Server::createServerAndListener(u_long port)
     return 0;
 	serverSocket->socket(AF_INET, SOCK_STREAM, 0);
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
-	if(serverSocket->getHandle()==(Socket_HANDLE)INVALID_SOCKET)
+	if(serverSocket->getHandle()==(SocketHandle)INVALID_SOCKET)
 	{
 		logPreparePrintError();
 		logWriteln(languageParser.getValue("ERR_OPENP"));
@@ -592,7 +592,7 @@ void * listenServer(void* params)
                                  &asock_inLen);
 		if(asock.getHandle()==0)
 			continue;
-		if(asock.getHandle()==(Socket_HANDLE)INVALID_SOCKET)
+		if(asock.getHandle()==(SocketHandle)INVALID_SOCKET)
 			continue;
 		asock.setServerSocket(serverSocket);
 		lserver->addConnection(asock, &asock_in);
@@ -967,7 +967,7 @@ int Server::initialize(int /*!os_ver*/)
 		File inputF;
 		File outputF;
 		ret = inputF.openFile("myserver.xml.default", 
-                              File_OPEN_READ|File_OPEN_IFEXISTS);
+                              File::OPEN_READ|File::OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -975,8 +975,8 @@ int Server::initialize(int /*!os_ver*/)
 			logEndPrintError();
 			return -1;
 		}
-		ret = outputF.openFile("myserver.xml", File_OPEN_WRITE | 
-                     File_OPEN_ALWAYS);
+		ret = outputF.openFile("myserver.xml", File::OPEN_WRITE | 
+                     File::OPEN_ALWAYS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1527,8 +1527,8 @@ int Server::loadSettings()
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 		File inputF;
 		File outputF;
-    ret=inputF.openFile("MIMEtypes.xml.default", File_OPEN_READ|
-                        File_OPEN_IFEXISTS);
+    ret=inputF.openFile("MIMEtypes.xml.default", File::OPEN_READ|
+                        File::OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1536,8 +1536,8 @@ int Server::loadSettings()
 			logEndPrintError();	
 			return -1;
 		}
-		ret = outputF.openFile("MIMEtypes.xml", File_OPEN_WRITE|
-                           File_OPEN_ALWAYS);
+		ret = outputF.openFile("MIMEtypes.xml", File::OPEN_WRITE|
+                           File::OPEN_ALWAYS);
     if(ret)
       return -1;
 
@@ -1631,8 +1631,8 @@ int Server::loadSettings()
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
 		File inputF;
 		File outputF;
-		ret = inputF.openFile("virtualhosts.xml.default", File_OPEN_READ | 
-                              File_OPEN_IFEXISTS );
+		ret = inputF.openFile("virtualhosts.xml.default", File::OPEN_READ | 
+                              File::OPEN_IFEXISTS );
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1641,7 +1641,7 @@ int Server::loadSettings()
 			return -1;
 		}
 		ret = outputF.openFile("virtualhosts.xml", 
-                           File_OPEN_WRITE|File_OPEN_ALWAYS);
+                           File::OPEN_WRITE|File::OPEN_ALWAYS);
     if(ret)
       return -1;
     for(;;)

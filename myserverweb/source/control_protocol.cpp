@@ -893,7 +893,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
     return CONTROL_FILE_NOT_FOUND;
   }
 
-  ret = localfile.openFile(fn, File_OPEN_READ|File_OPEN_IFEXISTS);
+  ret = localfile.openFile(fn, File::OPEN_READ|File::OPEN_IFEXISTS);
 
   /*! An internal server error happens. */
   if(ret)
@@ -982,7 +982,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
     return CONTROL_INTERNAL;
   }
 
-  ret = localfile.openFile(fn, File_OPEN_WRITE | File_OPEN_ALWAYS);
+  ret = localfile.openFile(fn, File::OPEN_WRITE | File::OPEN_ALWAYS);
 
   /*! An internal server error happens. */
   if(ret)

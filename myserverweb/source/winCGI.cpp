@@ -109,7 +109,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
    *The WinCGI protocol uses a .ini file to send data to the new process.
    */
 	ret=DataFileHandle.openFile(dataFilePath,
-                     File_CREATE_ALWAYS|File_OPEN_WRITE);
+                     File::CREATE_ALWAYS|File::OPEN_WRITE);
 	if ( ret ) 
 	{
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
@@ -229,7 +229,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
    */
 	if(!File::fileExists(outFilePath))
 	{
-		ret = OutFileHandle.openFile(outFilePath,File_CREATE_ALWAYS);
+		ret = OutFileHandle.openFile(outFilePath,File::CREATE_ALWAYS);
 		if (ret)
 		{
 			((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
@@ -263,8 +263,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 
-	ret=OutFileHandle.openFile(outFilePath,File_OPEN_ALWAYS|
-                             File_OPEN_READ);
+	ret=OutFileHandle.openFile(outFilePath,File::OPEN_ALWAYS|
+                             File::OPEN_READ);
 	if (ret)
 	{
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);

@@ -57,7 +57,7 @@ extern "C" {
 #endif
 
 #define MAX_IP_STRING_LEN	32
-typedef unsigned int Socket_HANDLE;
+typedef unsigned int SocketHandle;
 typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
 typedef struct sockaddr MYSERVER_SOCKADDR;
 typedef struct hostent MYSERVER_HOSTENT;
@@ -65,7 +65,7 @@ int startupSocketLib(u_short);
 class Socket
 {
 private:
-	Socket_HANDLE socketHandle;
+	SocketHandle socketHandle;
 	int sslSocket;
 #ifndef DO_NOT_USE_SSL
   /*! This is defined if all SSL members are used only by this socket. */
@@ -91,25 +91,25 @@ public:
 	int sslAccept();
 #endif
 	int getSSL();
-	Socket_HANDLE getHandle();
-	int setHandle(Socket_HANDLE);
-	static MYSERVER_HOSTENT *gethostbyaddr(char* addr,int len,int type);
+	SocketHandle getHandle();
+	int setHandle(SocketHandle);
+	static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
-	static int gethostname(char*,int);
-	int socket(int,int,int,int=0);
-	int bind(MYSERVER_SOCKADDR*,int);
+	static int gethostname(char*, int);
+	int socket(int, int, int, int=0);
+	int bind(MYSERVER_SOCKADDR*, int);
 	int listen(int);
 	Socket();
-	Socket(Socket_HANDLE);
-	Socket accept(MYSERVER_SOCKADDR*,int*,int sslHandShake=0);
+	Socket(SocketHandle);
+	Socket accept(MYSERVER_SOCKADDR*, int*, int sslHandShake=0);
 	int closesocket();
-	int setsockopt(int,int,const char*,int);
+	int setsockopt(int,int, const char*,int);
 	int shutdown(int how);
-	int ioctlsocket(long,unsigned long*);
-	int send(const char*,int,int);
-	int connect(MYSERVER_SOCKADDR*,int);
-	int recv(char*,int,int);
-	int recv(char*,int,int,u_long);
+	int ioctlsocket(long, unsigned long*);
+	int send(const char*, int, int);
+	int connect(MYSERVER_SOCKADDR*, int);
+	int recv(char*, int, int);
+	int recv(char*, int, int, u_long);
 	u_long bytesToRead();
 	int operator==(Socket);
 	int operator=(Socket);
