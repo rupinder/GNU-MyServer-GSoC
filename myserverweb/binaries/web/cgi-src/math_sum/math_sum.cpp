@@ -23,10 +23,10 @@ extern "C" int main (char *cmd,cgi_data* data)
 		a[1]=b[1]=c[1]='\0';		
 		tmp=cm.GetParam("a");
 		if(tmp)
-		 strcpy(a,tmp);
+		 strncpy(a,tmp,16);
 		tmp=cm.GetParam("b");
 		if(tmp)
-		 strcpy(b,tmp);
+		 strncpy(b,tmp,16);
 		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.gif\">\r\n<p align=\"center\">\r\n\r\n");
 		cm.Write(a);
 		cm.Write(" + ");

@@ -115,7 +115,7 @@ char* cgi_manager::GetParam(char* param)
 	char *c=&(td->request.URIOPTS)[0];
 	for(;;)
 	{
-		while((*c) && strncmp(c,param,min(strlen(param),strlen(c))))c++;
+		while((*c) && strncmp(c,param,min( strlen(param),strlen(c) )))c++;
 		if(*c=='\0')
 		{
 			return &localbuffer[0];
