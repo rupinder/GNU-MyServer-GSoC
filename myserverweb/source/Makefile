@@ -4,14 +4,14 @@ OBJS = AMMimeUtils.o MIME_manager.o cXMLParser.o cgi.o clientsThread.o cserver.o
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
-CPP-LIBS = -g -pthread
-CPP-FLAGS = -g 
+CPP-LIBS = -pthread
+CPP-FLAGS = 
 #-O2 -pipe
 
 all : myserver
 
 myserver : $(OBJS)
-	$(LD) $(CPP-LIBS) $(OBJS) -o myserver
+	$(LD) $(CPP-LIBS) $(OBJS) -o ../binaries/myserver
 
 AMMimeUtils.o : AMMimeUtils.cpp
 	$(CPP) $(CPP-FLAGS) -c AMMimeUtils.cpp
@@ -65,6 +65,6 @@ utility.o : utility.cpp
 	$(CPP) $(CPP-FLAGS) -c utility.cpp
 
 clean :
-	rm -f *.o myserver
+	rm -f *.o ../binaries/myserver
 
 #install : all
