@@ -21,8 +21,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "MemBuf.h"
-#include "md5.h"
+#include "..\include\MemBuf.h"
+#include "..\include\md5.h"
 
 #ifndef DONT_MATCH_LENGTH
 #include <math.h> // for the log10 function
@@ -300,10 +300,10 @@ CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 	CMemBuf mem_MD5;
 	mem_MD5.m_bCanDelete = false;
 	mem_MD5.SetLength(16);
-	MD5Context ctx;
-	MD5Init(&ctx);
-	MD5Update(&ctx, (unsigned char*) pAdr, nSize);
-	MD5Final((unsigned char*) mem_MD5.GetBuffer(), &ctx);
+	MYSERVER_MD5Context ctx;
+	MYSERVER_MD5Init(&ctx);
+	MYSERVER_MD5Update(&ctx, (unsigned char*) pAdr, nSize);
+	MYSERVER_MD5Final((unsigned char*) mem_MD5.GetBuffer(), &ctx);
 	mem_MD5.m_nSize = 16;
 	return mem_MD5;
 }
