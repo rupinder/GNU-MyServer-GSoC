@@ -707,8 +707,9 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 		else
 		{
 			/*! Read from the file the bytes to send. */
-			if(h.readFromFile((char*)td->buffer->GetBuffer(), 
-                        min(bytes_to_send,td->buffer->GetRealLength()), &nbr))
+      ret = h.readFromFile((char*)td->buffer->GetBuffer(), 
+                        min(bytes_to_send,td->buffer->GetRealLength()), &nbr);
+			if(ret)
 			{
 				h.closeFile();
 				return 0;

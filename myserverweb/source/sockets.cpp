@@ -276,7 +276,11 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 	}
 #endif
 #ifdef WIN32
-	return	::send(socketHandle,buffer,len,flags);
+	int ret;
+	do
+  {
+    ret=::send(socketHandle,buffer,len,flags);
+  }while((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
 #endif
 #ifdef NOT_WIN
 	return	::send((int)socketHandle,buffer,len,flags);
@@ -529,7 +533,10 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 #endif
 
 #ifdef WIN32
-	err=::recv(socketHandle,buffer,len,flags);
+	do
+  {
+  	err=::recv(socketHandle,buffer,len,flags);
+  }while((err == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
 	if(err==SOCKET_ERROR)
 		return -1;
 	else 
