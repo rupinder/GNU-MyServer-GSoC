@@ -323,7 +323,22 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			dirscan[len+1]='\0';
 		}
 	}
-
+	/*
+	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
+	*PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
+	*/
+	if(td->pathInfo[0])
+	{
+        td->pathTranslated[0]='\0';
+		/*
+		*Start from the second character because the first is a slash character.
+		*/
+		getPath(td->pathTranslated,&((td->pathInfo)[1]),FALSE);
+	}
+	else
+	{
+        td->pathTranslated[0]='\0';
+	}
 	/*
 	*If the client try to access files that aren't in the web folder send a 401 error.
 	*/
@@ -1084,4 +1099,14 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 	*Return if is a valid request header.
 	*/
 	return((isValidCommand)?1:0);
+}
+
+/*
+*Send a redirect message to the client.
+*/
+int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
+{
+	sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nLocation\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),newURL,getRFC822GMTTime());
+	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
+	return 1;
 }

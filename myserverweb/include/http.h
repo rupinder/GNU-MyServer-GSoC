@@ -63,4 +63,5 @@ int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
 void getPath(char *filenamePath,const char *filename,int systemrequest);
 int getMIME(char *MIME,char *filename,char *dest,char *dest2);
 u_long validHTTPRequest(httpThreadContext*,u_long*,u_long*);
-VOID resetHTTPRequest(HTTP_REQUEST_HEADER *request);
+void resetHTTPRequest(HTTP_REQUEST_HEADER *request);
+int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);

@@ -798,6 +798,13 @@ int cserver::mustUseLogonOption()
 *Returns the file name of the css used to browse a directory.
 */
 char *cserver::getBrowseDirCSS()
-{
+{ 
 	return browseDirCSSpath;
+}
+/*
+*Gets the number of threads.
+*/
+u_long cserver::getNumThreads()
+{
+	return nThreads;
 }

@@ -124,22 +124,6 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	}
 
 	/*
-	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
-	*PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
-	*/
-	if(td->pathInfo[0])
-	{
-        td->pathTranslated[0]='\0';
-		/*
-		*Start from the second character because the first is a slash character.
-		*/
-		getPath(td->pathTranslated,&((td->pathInfo)[1]),FALSE);
-	}
-	else
-	{
-        td->pathTranslated[0]='\0';
-	}
-	/*
 	*Build the environment string used by the CGI started
 	*by the execHiddenProcess(...) function.
 	*Use the td->buffer2 to build the environment string.

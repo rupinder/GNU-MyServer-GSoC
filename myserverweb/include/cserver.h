@@ -91,6 +91,7 @@ public:
 	MYSERVER_FILE_HANDLE accessesLogFile;
 	char  *getSystemPath();
 	char  *getPath();
+	u_long getNumThreads();
 	char  *getDefaultFilenamePath(u_long=0);
 	char *getBrowseDirCSS();
 	char  *getServerName();

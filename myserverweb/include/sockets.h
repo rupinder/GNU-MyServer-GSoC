@@ -20,7 +20,10 @@
 #include "..\stdafx.h"
 
 #ifdef WIN32
+#ifndef SOCKETLIBINCLUDED
 #include <winsock2.h>
+#define SOCKETLIBINCLUDED
+#endif
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
