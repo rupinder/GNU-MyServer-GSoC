@@ -44,6 +44,7 @@ extern "C" {
 
 ClientsTHREAD::ClientsTHREAD()
 {
+	nConnections=0;
 	err=0;
 }
 ClientsTHREAD::~ClientsTHREAD()
@@ -109,7 +110,6 @@ void ClientsTHREAD::controlConnections()
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
-	int logonStatus;
 	for(c; c && connections ;c=next)
 	{
 		next=c->Next;
@@ -157,8 +157,7 @@ void ClientsTHREAD::controlConnections()
 		else
 		{
 			if((clock()- c->timeout) > lserver->connectionTimeout)
-				if(deleteConnection(c))
-					continue;
+				deleteConnection(c);
 		}
 	}
 	terminateAccess(&connectionWriteAccess,this->id);
@@ -201,20 +200,22 @@ void ClientsTHREAD::clean()
 LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort)
 {
 	requestAccess(&connectionWriteAccess,this->id);
-	LPCONNECTION nc=new CONNECTION;
+	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
 	memset(nc, 0, sizeof(CONNECTION));
 	nc->socket=s;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
 	nc->dataRead = 0;
 	nc->localPort=(u_short)localPort;
-	lstrcpy(nc->ipAddr,ipAddr);
-	lstrcpy(nc->localIpAddr,localIpAddr);
+	strcpy(nc->ipAddr,ipAddr);
+	strcpy(nc->localIpAddr,localIpAddr);
 	nc->Next=connections;
-	nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+    nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	if(nc->host==0)
 	{
-		delete nc;
+		s.shutdown(2);
+		s.closesocket();
+		free(nc);
 		return 0;
 	}
     connections=nc;
@@ -287,7 +288,9 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 				prev->Next=i->Next;
 			else
 				connections=i->Next;
-			delete i;
+			i->socket.shutdown(2);
+			i->socket.closesocket();
+			free(i);
 			ret=true;
 			break;
 		}
