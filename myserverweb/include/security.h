@@ -26,19 +26,19 @@ extern char Thread guestPassword[32];
 
 
 /*
-*Change the ownner of the caller thread
+*Change the ownner of the caller thread.
 */
 BOOL logonCurrentThread(char*,char*,LOGGEDUSERID*);
 /*
-*Change the ownner of the caller thread to the runner of the process
+*Change the ownner of the caller thread to the runner of the process.
 */
 VOID revertToSelf();
 /*
-*Impersonate the logon user
+*Impersonate the logon user.
 */
 VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation);
 /*
-*Close the handle
+*Close the handle.
 */
 VOID cleanLogonUser(LOGGEDUSERID* hImpersonation);
 

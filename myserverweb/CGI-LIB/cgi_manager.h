@@ -19,8 +19,8 @@
 #pragma once
 #define EXPORTABLE _declspec(dllexport)
 /*
-*Don't use this method in a CGI script
-*Used for server internal operations
+*Do not use this method in a CGI script.
+*It is used for server internal operations.
 */
 int EXPORTABLE initialize(void*,void*,void*,void*);
 class EXPORTABLE cgi_manager

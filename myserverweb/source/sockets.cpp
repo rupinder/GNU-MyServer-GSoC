@@ -23,7 +23,7 @@
 #include <string.h>
 
 /*
-*Source code to wrap the socket library to myServer project
+*Source code to wrap the socket library to myServer project.
 */
 
 int ms_startupSocketLib(WORD ver)
@@ -69,17 +69,17 @@ int ms_closesocket(MYSERVER_SOCKET s)
 #endif
 }
 
-int	ms_setsockopt(MYSERVER_SOCKET s,int level,int optname,const char *optval,int optlen)
-{
-#ifdef WIN32
-	return setsockopt(s,level, optname,optval,optlen);
-#endif
-}
-
 int ms_shutdown(MYSERVER_SOCKET s,int how)
 {
 #ifdef WIN32
 	return shutdown(s,how);
+#endif
+}
+
+int	ms_setsockopt(MYSERVER_SOCKET s,int level,int optname,const char *optval,int optlen)
+{
+#ifdef WIN32
+	return setsockopt(s,level, optname,optval,optlen);
 #endif
 }
 
@@ -97,22 +97,23 @@ int ms_ioctlsocket(MYSERVER_SOCKET s,long cmd,unsigned long* argp)
 #endif
 }
 
-int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
-{
-#ifdef WIN32
-	return recv(s,buffer,len,flags);
-#endif
-}
 int ms_connect(MYSERVER_SOCKET s,sockaddr* sa,int na)
 {
 #ifdef WIN32
 	return connect((SOCKET)s,sa,na);
 #endif
 }
+
+int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
+{
+#ifdef WIN32
+	return recv(s,buffer,len,flags);
+#endif
+}
+
 DWORD bytesToRead(MYSERVER_SOCKET c)
 {
 	DWORD nBytesToRead;
 	ms_ioctlsocket(c,FIONREAD,&nBytesToRead);
 	return nBytesToRead;
 }
-

@@ -178,11 +178,11 @@ char* MimeDecodeMailHeaderField(char *s)
 	while (*s1 == ' ') s1++;
 	if (strupos(s1, "=?") > 0)
 	{
-		int startend = strupos(s1, "=?");
-		start = (char*)_alloca((startend + 1) * sizeof(char));
-		strncpy(start, s, startend);
-		start[startend] = '\0';
-		s1 += startend;
+		int startendpos = strupos(s1, "=?");
+		start = (char*)_alloca((startendpos + 1) * sizeof(char));
+		strncpy(start, s, startendpos);
+		start[startendpos] = '\0';
+		s1 += startendpos;
 	}
 	if (strupos(s1, "=?") == 0)
 	{

@@ -21,7 +21,7 @@
 #include "..\stdafx.h"
 #include "..\include\FileManager.h"
 /*
-*Macros to do simple transformations
+*Macros to do simple transformations.
 */
 #define KB(x) (x*1024)
 #define MB(x) (KB(x)*1024)
@@ -37,7 +37,7 @@
 #define max(a,b)		((a>b)?a:b)
 
 /*
-*Structure used for start a new process
+*Structure used for start a new process.
 */
 #ifndef START_PROC_INFO_IN
 #define START_PROC_INFO_IN
@@ -62,7 +62,7 @@ int ms_setcwd();
 char *ms_getcwd(char*,int);
 
 /*
-*These functions are a simple trasposition of the mutex mechanism
+*These functions are a simple trasposition of the mutex mechanism.
 */
 INT requestAccess(DWORD*,DWORD);
 INT terminateAccess(DWORD*,DWORD);

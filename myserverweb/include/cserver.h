@@ -64,7 +64,7 @@ private:
 	DWORD getNumConnections();
 	void initialize(INT);
 	BOOL addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*,CONNECTION_PROTOCOL);
-	LPCONNECTION findConnection(MYSERVER_SOCKET s);
+	LPCONNECTION findConnection(MYSERVER_SOCKET);
 	DWORD connectionTimeout;
 	DWORD socketRcvTimeout;
 	DWORD maxLogFileSize;

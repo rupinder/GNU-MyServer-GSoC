@@ -68,7 +68,7 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 		{
 			/*
 			*If client have tried to post a login
-			*and a password more times send error 
+			*and a password more times send error 401.
 			*/
 			if(s->nTries > 2)
 			{
@@ -86,7 +86,7 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 		}
 	}
 	/*
-	*With the current code we build the HTML TABLE that describe the files in the folder
+	*With the current code we build the HTML TABLE that describe the files in the folder.
 	*/
 	sprintf(buffer2+lstrlen(buffer2),"<TABLE><TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>",msgFile,msgLModify,msgSize);
 	static char fileSize[10];
@@ -142,7 +142,7 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByte,int lastByte)
 {
 	/*
-	*With this code we send a file through the HTTP protocol
+	*With this code we send a file through the HTTP protocol.
 	*/
 	MYSERVER_FILE_HANDLE h;
 	h=ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
@@ -167,7 +167,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 		}
 	}
 	/*
-	*If h!=0
+	*If h!=0.
 	*/
 
 	DWORD filesize=getFileSize(h);
@@ -192,7 +192,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	ms_send(s->socket,buffer,lstrlen(buffer), 0);
 
 	/*
-	*If is requested only the header; HEAD request
+	*If is requested only the header; HEAD request.
 	*/
 	if(OnlyHeader)
 		return 1;
@@ -218,7 +218,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 }
 
 /*
-*Main function to send a resource to a client
+*Main function to send a resource to a client.
 */
 BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
 {
@@ -233,7 +233,7 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 	static char data[MAX_PATH];
 	getPath(filenamePath,filename,systemrequest);
 	/*
-	*getMIME return TRUE if the ext is registered by a CGI
+	*getMIME return TRUE if the ext is registered by a CGI.
 	*/
 
 	if(getMIME(response.MIME,filename,ext,data))
@@ -246,9 +246,9 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 
 	/*
 	*If there are not any extension then we do one of this in order:
-	1)We send the default file in the folder
-	2)We send the folder content
-	3)We send an error
+	1)We send the default file in the folder.
+	2)We send the folder content.
+	3)We send an error.
 	*/
 	if(ms_IsFolder(filenamePath))
 	{
@@ -266,7 +266,7 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 	
 
 	/*
-	*myServer CGI format
+	*myServer CGI format.
 	*/
 	if(!lstrcmpi(ext,"mscgi"))
 	{
@@ -286,7 +286,7 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 }
 /*
 *Sends the myServer CGI; differently form standard CGI this don't need a new process to run
-*so it is faster
+*so it is faster.
 */
 BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 {
@@ -346,7 +346,7 @@ BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 }
 
 /*
-*This is the HTTP protocol parser
+*This is the HTTP protocol parser.
 */
 BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp)
 {
@@ -369,7 +369,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	*/
 	
 	/*
-	*Begin control of the HTTP header
+	*Begin control of the HTTP header.
 	*/
 	static DWORD i,j,max;
 	static DWORD nLineChars;
@@ -416,7 +416,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	}
 
 	/*
-	*End control of the HTTP header
+	*End control of the HTTP header.
 	*/
 
 	const int max_URI=MAX_PATH+200;
@@ -450,7 +450,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	if(nLineControlled==1)
 	{
 		/*
-		Version of the protocol in the HTTP_REQUEST_HEADER
+		*Version of the protocol in the HTTP_REQUEST_HEADER
 		*struct is leaved as a number.
 		*For example HTTP/1.1 in the struct is 1.1
 		*/
@@ -593,9 +593,8 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		lineControlled=TRUE;		
 		ZeroMemory(buffer2,300);
 		/*
-		*Basic authorization is
-		*login:password in base64
-		*Assume that it is Basic anyway
+		*Basic authorization in base64 is login:password.
+		*Assume that it is Basic anyway.
 		*/
 		int len=lstrlen(token);
 		char *base64=base64Utils.Decode(&token[lstrlen("Basic: ")],&len);
@@ -714,7 +713,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	*/
 
 	/*
-	*Record the request in the log file
+	*Record the request in the log file.
 	*/
 	accessesLogWrite(a->ipAddr);
 	accessesLogWrite(":");
@@ -732,7 +731,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	*/
 	
 	/*
-	*Here we control all the HTTP commands
+	*Here we control all the HTTP commands.
 	*/
 	if(!lstrcmpi(request.CMD,"GET"))
 	{
@@ -789,7 +788,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	return 1;
 }
 /*
-*Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure
+*Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure.
 */
 void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 {
@@ -797,7 +796,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 	*Here is builded the HEADER of a HTTP response.
 	*Passing a HTTP_RESPONSE_HEADER struct this builds
 	*a header string
-	*Every directive ends with a \r\n sequence
+	*Every directive ends with a \r\n sequence.
     */
 	if(response->isError)
 		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM,response->ERROR_TYPE);
@@ -822,24 +821,24 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 	}
 	lstrcat(str,"Accept-Ranges: bytes\r\n");
 	/*
-	*The HTTP header ends with a \r\n sequence
+	*The HTTP header ends with a \r\n sequence.
 	*/
 	lstrcat(str,"\r\n");
 
 }
 /*
-*Set the defaults value for a HTTP_RESPONSE_HEADER structure
+*Set the defaults value for a HTTP_RESPONSE_HEADER structure.
 */
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 {
 	ZeroMemory(response,sizeof(HTTP_RESPONSE_HEADER));
 	/*
 	*By default use:
-	*1) the MIME type of the page equal to text/html
-	*2) the version of the HTTP protocol to 1.1
-	*3) the date of the page and the expiration date to the current time
-	*4) then set the name of the server
-	*5) set the page that it is not an error page
+	*1) the MIME type of the page equal to text/html.
+	*2) the version of the HTTP protocol to 1.1.
+	*3) the date of the page and the expiration date to the current time.
+	*4) then set the name of the server.
+	*5) set the page that it is not an error page.
 	*/
 	lstrcpy(response->MIME,"text/html");
 	lstrcpy(response->VER,"1.1");
@@ -849,7 +848,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 	sprintf(response->SERVER_NAME,"MyServer %s",versionOfSoftware);
 }
 /*
-*Sends an error page to the client described by the connection
+*Sends an error page to the client described by the connection.
 */
 BOOL raiseHTTPError(LPCONNECTION a,int ID)
 {
@@ -867,7 +866,7 @@ BOOL raiseHTTPError(LPCONNECTION a,int ID)
 	}
 	buildDefaultHTTPResponseHeader(&response);
 	/*
-	*Set the isError member to TRUE to build an error page
+	*Set the isError member to TRUE to build an error page.
 	*/
 	response.isError=TRUE;
 	lstrcpy(response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
@@ -879,7 +878,7 @@ BOOL raiseHTTPError(LPCONNECTION a,int ID)
 }
 
 /*
-*Sends the standard CGI to a client
+*Sends the standard CGI to a client.
 */
 BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 {
@@ -1007,7 +1006,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	return 1;
 }
 /*
-*Returns the MIME type passing its extension
+*Returns the MIME type passing its extension.
 */
 BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 {
@@ -1018,7 +1017,7 @@ BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 	return lserver->mimeManager.getMIME(dest,MIME,dest2);
 }
 /*
-*Map an URL to the machine file system
+*Map an URL to the machine file system.
 */
 void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 {
@@ -1032,7 +1031,7 @@ void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 	}
 }
 /*
-*Build the string that contain the CGI environment
+*Build the string that contain the CGI environment.
 */
 void buildCGIEnvironmentString(char *cgiEnvString)
 {

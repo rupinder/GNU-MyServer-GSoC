@@ -25,7 +25,7 @@ static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 /*
-*Functions to manage the logs file.
+*Functions to manage the log files.
 */
 DWORD warningsLogWrite(char* str)
 {

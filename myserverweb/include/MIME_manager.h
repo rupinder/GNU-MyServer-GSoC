@@ -36,13 +36,14 @@ class MIME_Manager
 		char mime_type[16];
 		char cgi_manager[MAX_PATH];
 		mime_record* next;
-	}*data;
+	};
+	mime_record *data;
 	DWORD numMimeTypesLoaded;
 public:
 	MIME_Manager();
 	VOID addRecord(MIME_Manager::mime_record);
-	VOID removeRecord(char*);
 	VOID removeAllRecords();
+	VOID removeRecord(char*);
 	DWORD getNumMIMELoaded();
 	HRESULT load(char *filename);
 	BOOL getMIME(char* a,char * b,char* c=NULL);

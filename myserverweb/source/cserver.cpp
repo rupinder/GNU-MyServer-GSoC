@@ -142,7 +142,7 @@ void cserver::start(INT hInst)
 	printf("%s\n",languageParser.getValue("MSG_SOCKSTART"));
 
 	/*
-	*Get the machine name
+	*Get the name of the local machine.
 	*/
 	getComputerName(serverName,(DWORD)sizeof(serverName));
 

@@ -37,7 +37,7 @@ void cXMLParser::open(char* filename)
 }
 
 /*
-*Only get the the text T in <VALUENAME>T</VALUENAME>.
+*Only get the the text "T" in <VALUENAME>T</VALUENAME>.
 */
 char *cXMLParser::getValue(char* vName)
 {

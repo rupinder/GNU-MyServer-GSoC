@@ -29,8 +29,8 @@ class cXMLParser
 	char data[MAX_PATH];
 	MYSERVER_FILE_HANDLE file;
 public:
-	void open(char*);
-	char *getValue(char*);
+	void open(char* filename);
+	char *getValue(char* field);
 	void close();
 };
 #endif

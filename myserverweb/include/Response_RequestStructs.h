@@ -17,8 +17,8 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
-#ifndef HTTP_RESPONSE_HEADER_IN
-#define HTTP_RESPONSE_HEADER_IN
+#ifndef HTTP_RESPONSE_REQUEST_HEADER_IN
+#define HTTP_RESPONSE_REQUEST_HEADER_IN
 /*
 *Structure to describe an HTTP response
 */
@@ -35,12 +35,9 @@ struct HTTP_RESPONSE_HEADER
 	char OTHER[256];	
 
 };
-#endif
 
-#ifndef HTTP_REQUEST_HEADER_IN
-#define HTTP_REQUEST_HEADER_IN
 /*
-*Structure to describe an HTTP request
+*Structure to describe an HTTP request.
 */
 struct HTTP_REQUEST_HEADER
 {
@@ -67,6 +64,5 @@ struct HTTP_REQUEST_HEADER
 	char RANGETYPE[12];		
 	char RANGEBYTEBEGIN[10];
 	char RANGEBYTEEND[10];	
-
 }; 
 #endif

@@ -26,7 +26,7 @@ static struct HTTP_RESPONSE_HEADER *res;
 static struct HTTP_REQUEST_HEADER *req;
 
 /*
-*Initialize the globals variables
+*Initialize the globals variables.
 */
 int initialize(void* p1,void* p2,void* p3,void* p4)
 {
@@ -37,7 +37,7 @@ int initialize(void* p1,void* p2,void* p3,void* p4)
 	return 1;
 }
 /*
-*Write to the stdout
+*Write to the stdout.
 */
 int cgi_manager::Write(char* str)
 {
@@ -45,14 +45,14 @@ int cgi_manager::Write(char* str)
 	return 1;
 }
 /*
-*Start the execution of the CGI
+*Start the execution of the CGI.
 */
 int cgi_manager::Start()
 {
 	return 1;
 }
 /*
-*Clean the memory allocated by the CGI
+*Clean the memory allocated by the CGI.
 */
 int cgi_manager::Clean()
 {
@@ -68,7 +68,7 @@ cgi_manager::~cgi_manager(void)
 	Clean();
 }
 /*
-*Returns the value of a param passed through the URL
+*Returns the value of a param passed through the URL.
 */
 char* cgi_manager::GetParam(char* param)
 {
@@ -95,7 +95,7 @@ char* cgi_manager::GetParam(char* param)
 }
 
 /*
-*Returns the value of a param passed through a POST request
+*Returns the value of a param passed through a POST request.
 */
 char* cgi_manager::PostParam(char* param)
 {
@@ -123,20 +123,20 @@ char* cgi_manager::PostParam(char* param)
 	return buffer;
 }
 /*
-*Write to stdout
+*Write to stdout.
 */
 cgi_manager::operator <<(char* str)
 {
 	return Write(str);
 }
 /*
-*Read from the stdin
+*Read from the stdin.
 */
 char *cgi_manager::operator >>(char* str)
 {
 	/*
 	*If is a POST request return a param from the POST values
-	*else return a GET param
+	*else return a GET param.
 	*/
 	if(req->URIOPTS)
 		return PostParam(str);

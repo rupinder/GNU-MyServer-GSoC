@@ -40,9 +40,9 @@ int getPathRecursionLevel(char*);
 
 INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
 INT	ms_WriteToFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
-INT	ms_IsFolder(char*);
 MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char*);
 MYSERVER_FILE_HANDLE ms_OpenFile(char*,DWORD);
+INT	ms_IsFolder(char*);
 INT ms_CloseFile(MYSERVER_FILE_HANDLE);
-INT ms_DeleteFile(char*);
 INT ms_FileExists(char*);
+INT ms_DeleteFile(char*);

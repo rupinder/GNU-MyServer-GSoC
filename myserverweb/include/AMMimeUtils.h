@@ -29,8 +29,8 @@ public:
 	int GetLastError() {return ErrorCode;};
 	CBase64Utils();
 	~CBase64Utils();
-	char* Decode(char *input, int *bufsize);
-	char* Encode(char *input, int bufsize);
+	char* Decode(char *in, int *bufsize);
+	char* Encode(char *in, int bufsize);
 };
 class CQPUtils
 {
@@ -39,8 +39,8 @@ private:
 	int ErrorCode;
 public:
 	int GetLastError() {return ErrorCode;};
-	char* Decode(char *input);
-	char* Encode(char *input);
+	char* Encode(char*in);
+	char* Decode(char*in);
 	CQPUtils();
 	~CQPUtils();
 }; 

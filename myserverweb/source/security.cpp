@@ -24,7 +24,7 @@
 
 
 /*
-*Global values for useLogonOption flag and the guest handle
+*Global values for useLogonOption flag and the guest handle.
 */
 BOOL Thread useLogonOption;
 LOGGEDUSERID Thread guestLoginHandle;
@@ -32,7 +32,7 @@ char Thread guestLogin[20];
 char Thread guestPassword[32];
 
 /*
-*Do the logon of an user
+*Do the logon of an user.
 */
 BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
@@ -50,7 +50,7 @@ BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 	return logon;
 }
 /*
-*Change the owner of current thread
+*Change the owner of current thread.
 */
 VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 {
@@ -60,7 +60,7 @@ VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 }
 
 /*
-*This function terminates the impersonation of a client application
+*This function terminates the impersonation of a client application.
 */
 VOID revertToSelf()
 {
@@ -70,7 +70,7 @@ VOID revertToSelf()
 }
 
 /*
-*Close the handle of a logged user
+*Close the handle of a logged user.
 */
 VOID cleanLogonUser(LOGGEDUSERID* hImpersonation)
 {
@@ -79,7 +79,7 @@ VOID cleanLogonUser(LOGGEDUSERID* hImpersonation)
 #endif
 }
 /*
-*Change the owner of the thread with the connection login and password informations
+*Change the owner of the thread with the connection login and password informations.
 */
 VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
 {
@@ -103,7 +103,7 @@ VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
 	}
 }
 /*
-*Logout the hImpersonation handle
+*Logout the hImpersonation handle.
 */
 VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
 {
@@ -118,7 +118,7 @@ VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
 	}
 }
 /*
-*Do the logon of the guest client
+*Do the logon of the guest client.
 */
 VOID logonGuest()
 {

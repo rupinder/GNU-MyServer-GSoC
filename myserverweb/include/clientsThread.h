@@ -41,11 +41,11 @@ private:
 	DWORD buffersize;
 	DWORD buffersize2;
 	LPCONNECTION addConnection(SOCKET,CONNECTION_PROTOCOL,char*);
-	LPCONNECTION findConnection(SOCKET);
+	LPCONNECTION findConnection(SOCKET s);
 	char *buffer;
 	char *buffer2;
 	void clearAllConnections();
-	BOOL deleteConnection(LPCONNECTION);
+	BOOL deleteConnection(LPCONNECTION id);
 	void controlConnections();
 	DWORD connectionWriteAccess;
 	LPCONNECTION connections;

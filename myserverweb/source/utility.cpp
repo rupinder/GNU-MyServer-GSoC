@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 /*
-*Various utility functions
+*Various utility functions.
 */
 extern BOOL mustEndServer; 
 static char currentPath[MAX_PATH];
@@ -33,7 +33,7 @@ INT getOSVersion()
 {
 	int ret=0;
 	/*
-	*This is the code for the win32 platform
+	*This is the code for the win32 platform.
 	*/
 #ifdef WIN32
 	OSVERSIONINFO osvi;
@@ -64,7 +64,7 @@ INT getOSVersion()
 	return ret;
 }	
 /*
-*Set the buffer cmd to the next line
+*Set the buffer cmd to the next line.
 */
 void gotoNextLine(char* cmd)
 {
@@ -73,7 +73,7 @@ void gotoNextLine(char* cmd)
 }
 
 /*
-*Get the file extension of a path
+*Get the file extension of a path.
 */
 void getFileExt(char* ext,char*filename)
 {
@@ -90,7 +90,7 @@ static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dic"};
 static char localTimeString[31];
 /*
-*This function format current time to the HTTP time format
+*This function format current time to the HTTP time format.
 */
 char *getHTTPFormattedTime(void)
 {
@@ -102,7 +102,7 @@ char *getHTTPFormattedTime(void)
 }
 
 /*
-*This function formats a time gmtime to the HTTP time format
+*This function formats a time gmtime to the HTTP time format.
 */
 char *getHTTPFormattedTime(tm*  gmtime)
 {
@@ -117,7 +117,7 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 	WORD lenTrimChars=lstrlen(trimChars);
 	WORD lenStr=lstrlen(str);
 	/*
-	*Number of characters to remove from the start of the string
+	*Number of characters to remove from the start of the string.
 	*/
 	WORD ncharToRemove=0;
 	BOOL doBreak=FALSE;
@@ -167,7 +167,7 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 	}
 }
 /*
-*Returns the number of processors that are on the local machine
+*Returns the number of processors that are on the local machine.
 */
 DWORD getCPUCount()
 {
@@ -180,13 +180,13 @@ DWORD getCPUCount()
 	return ret;
 }
 /*
-*Execute an hidden process and wait until it ends itself
+*Execute an hidden process and wait until it ends itself.
 */
 DWORD execHiddenProcess(START_PROC_INFO *spi,LPVOID env)
 {
 #ifdef WIN32
     /*
-    *Set the standard output values for the CGI process
+    *Set the standard output values for the CGI process.
     */
     STARTUPINFO si;
 	
@@ -201,7 +201,7 @@ DWORD execHiddenProcess(START_PROC_INFO *spi,LPVOID env)
     ZeroMemory( &pi, sizeof(pi) );
     CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,CREATE_NEW_CONSOLE,env,NULL,&si, &pi);
 	/*
-	*Wait until it's ending by itself
+	*Wait until it's ending by itself.
 	*/
 	WaitForSingleObject(pi.hProcess,0xFFFFFFFF);
 	CloseHandle( pi.hProcess );
@@ -210,14 +210,14 @@ DWORD execHiddenProcess(START_PROC_INFO *spi,LPVOID env)
 #endif
 }
 /*
-*Get the local machine name
+*Get the local machine name.
 */
 VOID getComputerName(char *dest,DWORD maxLen)
 {
 #ifdef WIN32
 	/*
 	*If we report error using the GetComputerName function 
-	*then we use the default name "localhost"
+	*then we use the default name "localhost".
 	*/
 	if(GetComputerNameA(dest,&maxLen)==0)
 	{
@@ -233,13 +233,13 @@ VOID getComputerName(char *dest,DWORD maxLen)
 INT requestAccess(DWORD* ac,DWORD id)
 {
 	/*
-	*If the access ID is equal to the thread ID we don't do nothing
+	*If the access ID is equal to the thread ID we don't do nothing.
 	*/
 	if(*ac==id)
 		return 0;
 	/*
 	*if the access doesn't belong to any thread then set that it belongs to the caller thread
-	*and check if we have the access now
+	*and check if we have the access now.
 	*/
 	if(*ac==0)
 	{
@@ -248,7 +248,7 @@ INT requestAccess(DWORD* ac,DWORD id)
 		return 0;
 	}
 	/*
-	*Wait until another thread ends the access then set our access
+	*Wait until another thread ends the access then set our access.
 	*/
 	while(*ac!=id);
 	*ac=id;
@@ -258,7 +258,7 @@ INT requestAccess(DWORD* ac,DWORD id)
 INT terminateAccess(DWORD* ac,DWORD id)
 {
 	/*
-	*Only set to Zero the owner of the access
+	*Only set to Zero the owner of the access.
 	*/
 	*ac=0;
 	return 0;

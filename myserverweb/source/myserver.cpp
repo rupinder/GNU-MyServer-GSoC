@@ -22,7 +22,7 @@
 #include <direct.h>
 
 /*
-*external libraries to be included in the project
+*External libraries to be included in the project.
 */
 #ifdef WIN32
 #pragma comment(lib,"ws2_32.lib")
@@ -55,7 +55,7 @@ cserver server;
 int main (int argn, char **argc)
 { 
 	/*
-	*By default use the console mode
+	*By default use the console mode.
 	*/
 	if(argn==1)
 		argc[1]="CONSOLE";
@@ -94,7 +94,7 @@ int main (int argn, char **argc)
 } 
 
 /*
-*Use this before the file is opened by the class cserver
+*Use this before the file is opened by the class cserver.
 */
 VOID appendToLog(char* str)
 {
@@ -119,13 +119,13 @@ void console_service (int, char **)
 
 
 /*
-*These functions are available only on the windows platform
+*These functions are available only on the windows platform.
 */
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus; 
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle; 
 /*
-*Entry-point for the NT service
+*Entry-point for the NT service.
 */
 VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 {
@@ -160,7 +160,7 @@ VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 
 
 /*
-*Manage the NT service
+*Manage the NT service.
 */
 VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
 {
@@ -192,7 +192,7 @@ VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
 	SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 }
 /*
-*Terminate the application on the pression of CTRL+C or CTRL+BREAK
+*Terminate the application on the pression of CTRL+C or CTRL+BREAK.
 */
 BOOL __stdcall control_handler (DWORD control_type)
 {
@@ -209,7 +209,7 @@ BOOL __stdcall control_handler (DWORD control_type)
 }
 
 /*
-*Run myServer like a NT service
+*Run myServer like a NT service.
 */
 void runService()
 {

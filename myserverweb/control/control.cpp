@@ -18,7 +18,7 @@
 */
 
 /*
-*This is the source code of a GUI application that need for the controls of myServer execution
+*This is the source code of a GUI application that need for the controls of myServer execution.
 */
 #include "stdafx.h"
 #include "control.h"
@@ -48,10 +48,7 @@ HWND hWnd;
 void start();
 void pause();
 void stop();
-int WINAPI WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPTSTR    lpCmdLine,
-                     int       nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPTSTR lpCmdLine,int nCmdShow)
 {
 
 	if(!lstrcmpi(lpCmdLine,"UNREGISTER"))
@@ -116,7 +113,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	}
 	return (int) msg.wParam;
 }
-
 
 
 ATOM MyRegisterClass(HINSTANCE hInstance)
@@ -444,4 +440,3 @@ VOID register_GuestUser()
 {
 
 } 
-

@@ -19,7 +19,7 @@
 
 #include "..\stdafx.h"
 /*
-*This array is used to describe the HTTP errors.
+*This array is used to describe the errors for the HTTP protocol.
 */
 char HTTP_ERROR_MSGS[13][64]=
 {

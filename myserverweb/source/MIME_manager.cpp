@@ -72,7 +72,7 @@ HRESULT MIME_Manager::load(char *filename)
 				record.cgi_manager[lstrlen(record.cgi_manager)]=buffer[nc];
 			nc++;
 			/*
-			*If the CGI manager path is NONE then set the cgi_manager element in 
+			*If the CGI manager path is "NONE" then set the cgi_manager element in 
 			*the record structure to a NULL string
 			*/
 			if(!lstrcmpi(record.cgi_manager,"NONE"))

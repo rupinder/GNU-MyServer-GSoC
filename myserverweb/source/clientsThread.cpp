@@ -58,7 +58,7 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 /*
 *This is the main loop of the thread
 *Here are controlled all the connections that belongs to the ClientsTHREAD class instance.
-*Every connection is controlled by its protoco
+*Every connection is controlled by its protocol
 */
 void ClientsTHREAD::controlConnections()
 {

@@ -19,7 +19,7 @@
 #pragma once
 #include "..\include\sockets.h"
 /*
-*Here are listed all the protocol supported by the server
+*Here are listed all the protocol supported by the server.
 */
 #define PROTOCOL_HTTP		0
 #define PROTOCOL_FTP		1
@@ -28,7 +28,7 @@ typedef DWORD CONNECTION_PROTOCOL;
 #ifndef CONNECTION_IN
 #define CONNECTION_IN
 /*
-*This structure describe a connection
+*This structure is used to describe a connection.
 */
 struct CONNECTION
 {

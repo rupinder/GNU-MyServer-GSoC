@@ -18,7 +18,7 @@
 */
 #pragma once
 /*
-*Error 401AUTH don't use any web personalized page
+*Error 401AUTH don't use any web personalized page.
 */
 #define e_400			0
 #define e_401			1
