@@ -1363,7 +1363,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 		}
 	}
 	
-	u_long validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
+	int validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
 	if(validRequest==(u_long)-1)/*!If the header is incomplete returns 2*/
 	{
 		if(!strcmp(td.request.VER, "HTTP/1.1"))/*Be sure that the client can handle the 100 status code*/

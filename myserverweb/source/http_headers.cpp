@@ -336,7 +336,7 @@ int http_headers::validHTTPResponse(char *req,httpThreadContext* td,u_long* nLin
 		}
 		/*!
 		*We set a maximal theorical number of characters in a line.
-		*If a line contains more than 4110 lines we consider the header invalid.
+		*If a line contains more than 4110 characters we consider the header invalid.
 		*/
 		if(nLinechars>4110)
 			break;
