@@ -792,8 +792,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			return sendAuth(td,s);
 		}
-		if(lcgi.sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
-			return 1;
+		return lcgi.sendCGI(td,s,td->filenamePath,ext,data,mimeCMD);
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
 #ifdef WIN32

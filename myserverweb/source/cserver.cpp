@@ -882,7 +882,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	nc->localPort=(u_short)localPort;
 	strncpy(nc->ipAddr,ipAddr,MAX_IP_STRING_LEN);
 	strncpy(nc->localIpAddr,localIpAddr,MAX_IP_STRING_LEN);
-	nc->next = connections;
 	nc->host = (void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	if(nc->host == 0) /* No vhost for the connection so bail */
 	{
@@ -933,7 +932,8 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	*Update the list.
 	*/
 	connections_mutex_lock();
-    	connections=nc;
+	nc->next = connections;
+    connections=nc;
 	nConnections++;
 	connections_mutex_unlock();
 	/*
@@ -953,6 +953,8 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 int cserver::deleteConnection(LPCONNECTION s,int id)
 {
 	if(!s)
+		return 0;
+	if(s->check_value!=CONNECTION::check_value_const)
 		return 0;
 	MYSERVER_SOCKET socket=s->socket;
 	/*!

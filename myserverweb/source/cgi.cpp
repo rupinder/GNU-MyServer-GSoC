@@ -160,6 +160,10 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		stdOutFile.readFromFile(td->buffer2,KB(5),&nBytesRead);
 	else
 		td->buffer2[0]='\0';
+		
+	td->buffer2[nBytesRead]='\0';
+	
+		
 	int yetoutputted=0;
 	if(nBytesRead==0)
 	{
@@ -235,10 +239,14 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 		s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 		s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+		
+		
 		while(stdOutFile.readFromFile(td->buffer2,td->buffersize2,&nBytesRead))
 		{
 			if(nBytesRead)
+			{
 				s->socket.send((char*)td->buffer2,nBytesRead, 0);
+			}
 			else
 				break;
 		}
