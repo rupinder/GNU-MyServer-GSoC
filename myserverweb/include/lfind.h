@@ -24,30 +24,21 @@ extern "C"
 {
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <dirent.h>
+#include <limits.h>
+#include <stdint.h>
 }
+
+using namespace std;
 
 #ifndef EACCES
 #define EACCES 1
 #endif
-#define MAX_NAME 256
+#define MAX_NAME NAME_MAX
 #define FILE_ATTRIBUTE_DIRECTORY 1
-
-#include <list>
-
-#define intptr_t class _finddata_t *
-
-using namespace std;
-
-struct File_Data 
-{
-   char name[MAX_NAME];
-   int attrib;
-   time_t time_write;
-   off_t size;
-};
 
 class _finddata_t 
 { 
@@ -60,13 +51,13 @@ class _finddata_t
    int findnext();
    int findclose();
  private:
-   list<File_Data> File_List;
-   list<File_Data>::iterator Curren_File;
+   char DirName[PATH_MAX];
+   DIR * dh;
 };
 
 intptr_t _findfirst(const char filename[], _finddata_t * fdat );
 int _findnext(intptr_t crap, _finddata_t * fdat );
-int _findclose(_finddata_t * fdat);
+int _findclose(intptr_t fdat);
 
 #endif
 

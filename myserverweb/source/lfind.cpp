@@ -18,10 +18,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef WIN32
 #include "../include/lfind.h"
 
-extern "C" {
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+extern "C"
+{
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 }
 
 void * _alloca(size_t size)
@@ -31,126 +32,77 @@ void * _alloca(size_t size)
 
 int _finddata_t::findfirst(const char filename[])
 {
-   int OUT[2];
-   if (pipe(OUT) == -1)
-     return -1;
-
-   int pid = fork();
-
-   if(pid < 0) // a bad thing happend
-     {
-	close(OUT[0]);
-	close(OUT[1]);
-
-	return -1;
-     }
-   else if(pid == 0) // child
-     {
-	close(0); // close stdin
-	close(OUT[0]); // close read
-	close(1); // close stdout
-	dup2(OUT[1], 1);
-	close(OUT[1]);
-
-	execlp("ls", "ls", filename, NULL);
-
-	exit(1);
-     }
-   // Parent
-   close(OUT[1]); // close the write of OUT
-
-   struct File_Data Temp;
-
-   int index = 0;
-   char Buffer[MAX_NAME];
-   char Temp_Name[MAX_NAME+MAX_NAME];
+   struct dirent * dirInfo;
    struct stat F_Stats;
-
-   File_List.clear();
+   char TempName[PATH_MAX];
+      
+   strncpy(DirName, filename, PATH_MAX);
    
-   while(read(OUT[0], &Buffer[index], 1) !=0)
-     {
-	if(Buffer[index] == '\n' && index != MAX_NAME-1 && index != 0)
-	  {
-	     Buffer[index] = '\0';
-
-	     strcpy(Temp.name, Buffer);
-	     
-	     snprintf(Temp_Name, MAX_NAME+MAX_NAME, "%s%s", filename, Buffer);
-	     
-	     stat(Temp_Name, &F_Stats);
-
-	     if(S_ISDIR(F_Stats.st_mode))
-	       Temp.attrib = FILE_ATTRIBUTE_DIRECTORY;
-	     else
-	       Temp.attrib = 0;
-	     
-	     Temp.time_write = F_Stats.st_mtime;
-	     
-	     Temp.size = F_Stats.st_size;
-	     
-	     File_List.push_back(Temp);
-
-	     index = 0;
-	  }
-	else
-	  index++;
-     }
-
-   close(OUT[0]);
+   if(DirName[strlen(DirName) - 1] == '/')
+     DirName[strlen(DirName) - 1] = '\0';
+     
+   dh = opendir(DirName);
+   if(dh == NULL)
+     return -1;
    
-   waitpid(pid, NULL, 0);
-
-   Curren_File = File_List.begin();  // get the fist entry
+   dirInfo = readdir(dh);
+   snprintf(TempName, PATH_MAX, "%s/%s", DirName, dirInfo->d_name);
    
-   name = Curren_File->name;
+   name = dirInfo->d_name;
 
-   attrib = Curren_File->attrib;
+   stat(TempName, &F_Stats);
+   if(S_ISDIR(F_Stats.st_mode))
+     attrib = FILE_ATTRIBUTE_DIRECTORY;
+   time_write = F_Stats.st_mtime;
+   size = F_Stats.st_size;
    
-   size = Curren_File->size;
-   
-   time_write = Curren_File->time_write;
-
    return 0;
 }
 
 int _finddata_t::findnext()
 {
-   Curren_File++;
+   struct dirent * dirInfo;
+   struct stat F_Stats;
+   char TempName[PATH_MAX];
+      
+   dirInfo = readdir(dh);
    
-   if(Curren_File == File_List.end())
+   if(dirInfo == NULL)
      return -1;
+     
+   snprintf(TempName, PATH_MAX, "%s/%s", DirName, dirInfo->d_name);
+   
+   name = dirInfo->d_name;
 
-   name = Curren_File->name;
-   attrib = Curren_File->attrib;
-   size = Curren_File->size;
-   time_write = Curren_File->time_write;
+   stat(TempName, &F_Stats);
+   if(S_ISDIR(F_Stats.st_mode))
+     attrib = FILE_ATTRIBUTE_DIRECTORY;
+   time_write = F_Stats.st_mtime;
+   size = F_Stats.st_size;
+   
    return 0;
 
 }
 
 int _finddata_t::findclose()
 {
-   File_List.clear();
+   closedir(dh);
    return 0;
 }
 
 intptr_t _findfirst(const char filename[], _finddata_t * fdat )
 {
-
-   return (fdat->findfirst(filename) == 0)? fdat : (intptr_t)-1;
+   return (fdat->findfirst(filename) == 0)? (intptr_t)fdat : (intptr_t)-1;
 }
 
 int _findnext(intptr_t crap, _finddata_t * fdat )
 {
-
    return fdat->findnext();
 }
 
-int _findclose(_finddata_t * fdat)
-{
-
-   return fdat->findclose();
+int _findclose(intptr_t fdat) // a nasty little hack
+{                             // but hey, intptr_t is a void * anyways
+   return ((_finddata_t *)fdat)->findclose();
 }
 
 

@@ -106,7 +106,7 @@ fi
 AC_SUBST(ZLIB_LIB)
 
 dnl Look for libPNG
-AM_PATH_LIBPNG(1.2.0, have_png=yes)
+AM_PATH_LIBPNG(1.2.5, have_png=yes)
 if test x$have_png != xyes; then
     AC_MSG_WARN([
 *** Cannot find libPNG

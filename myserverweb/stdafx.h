@@ -39,6 +39,9 @@ extern "C" {
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#ifdef NOT_WIN
+#include <limits.h>
+#endif
 }
 
 #ifdef WIN32
@@ -46,6 +49,10 @@ extern "C" {
 #include <tchar.h>
 #include <process.h>
 #include <io.h>
+#endif
+
+#ifdef PATH_MAX
+#define MAX_PATH PATH_MAX
 #endif
 
 #ifndef MAX_PATH
