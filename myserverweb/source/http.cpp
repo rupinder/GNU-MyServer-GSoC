@@ -1408,8 +1408,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	td.lhttp=this;
 	td.appendOutputs=0;
   td.only_header = 0;
-	td.inputData.setHandle((File_HANDLE)0);
-	td.outputData.setHandle((File_HANDLE)0);
+	td.inputData.setHandle((FileHandle)0);
+	td.outputData.setHandle((FileHandle)0);
 	if(td.outputDataPath)
     delete [] td.outputDataPath;
 	if(td.filenamePath)

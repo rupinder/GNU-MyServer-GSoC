@@ -168,7 +168,7 @@ int File::openFile(char* nfilename,u_long opt)
 
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
-	handle=(File_HANDLE)CreateFile(filename, openFlag, 
+	handle=(FileHandle)CreateFile(filename, openFlag, 
                                           FILE_SHARE_READ | FILE_SHARE_WRITE, 
                                           &sa, creationFlag, attributeFlag, NULL);
 	/*! Return 1 if an error happens.  */
@@ -247,7 +247,7 @@ int File::openFile(char* nfilename,u_long opt)
       filename = 0;
 			return 1;
     }
-		handle= (File_HANDLE)ret;
+		handle= (FileHandle)ret;
 	}
 	else if(opt & File_OPEN_APPEND)
 	{
@@ -264,7 +264,7 @@ int File::openFile(char* nfilename,u_long opt)
 			return 1;
     }
 		else
-			handle=(File_HANDLE)ret;
+			handle=(FileHandle)ret;
 	}
 	else if(opt & File_CREATE_ALWAYS)
 	{
@@ -281,7 +281,7 @@ int File::openFile(char* nfilename,u_long opt)
 			return 1;
     }
 		else
-			handle=(File_HANDLE)ret;
+			handle=(FileHandle)ret;
 	}
 	else if(opt & File_OPEN_ALWAYS)
 	{
@@ -298,7 +298,7 @@ int File::openFile(char* nfilename,u_long opt)
 			return 1;
     }
 		else
-			 handle=(File_HANDLE)ret;
+			 handle=(FileHandle)ret;
 	}
 	
 	if(opt & File_OPEN_TEMPORARY)
@@ -306,7 +306,7 @@ int File::openFile(char* nfilename,u_long opt)
 	
 	if((long)handle < 0)
   {
-		handle = (File_HANDLE)0;
+		handle = (FileHandle)0;
     if(filename)
       delete [] filename;
     filename = 0;
@@ -318,7 +318,7 @@ int File::openFile(char* nfilename,u_long opt)
 /*!
  *Returns the file handle.
  */
-File_HANDLE File::getHandle()
+FileHandle File::getHandle()
 {
 	return handle;
 }
@@ -326,7 +326,7 @@ File_HANDLE File::getHandle()
  *Set the file handle.
  *Return a non null-value on errors.
  */
-int File::setHandle(File_HANDLE hl)
+int File::setHandle(FileHandle hl)
 {
 	handle=hl;
 	return 0;

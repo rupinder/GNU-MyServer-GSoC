@@ -64,7 +64,7 @@ class ControlClient
    int sendRequest(const char *, const char *);
    int sendRequest(const char *, const char *, CMemBuf &);
    int getResponse();
-   MYSERVER_SOCKET socket;
+   Socket socket;
    bool Connected;
    CMemBuf Buffer;
    int DataPos;

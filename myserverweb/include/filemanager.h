@@ -22,10 +22,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 
 #ifdef WIN32
-typedef void* File_HANDLE;
+typedef void* FileHandle;
 #endif
 #ifdef NOT_WIN
-typedef long  File_HANDLE;
+typedef long  FileHandle;
 #endif
 
 #define File_OPEN_READ (1<<0)
@@ -41,14 +41,14 @@ typedef long  File_HANDLE;
 class File
 {
 private:
-	File_HANDLE handle;
+	FileHandle handle;
 	char *filename;
 public:
 	File();
   File(char *,int);
 
-	File_HANDLE getHandle();
-	int setHandle(File_HANDLE);
+	FileHandle getHandle();
+	int setHandle(FileHandle);
 	int readFromFile(char* ,u_long ,u_long* );
 	int writeToFile(char* ,u_long ,u_long* );
 	int createTemporaryFile(char* );

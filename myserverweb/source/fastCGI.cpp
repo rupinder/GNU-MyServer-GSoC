@@ -790,7 +790,7 @@ sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
  */
 int FastCgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 {
-	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(server->host);
+	MYSERVER_HOSTENT *hp=Socket::gethostbyname(server->host);
 	struct sockaddr_in sockAddr;
 	int sockLen;
   if(hp == 0)
@@ -878,7 +878,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			strcpy(new_server->host, "localhost");
 			new_server->port=port++;
 			new_server->socket.socket(AF_INET,SOCK_STREAM,0);
-			if(new_server->socket.getHandle() == (MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
+			if(new_server->socket.getHandle() == (Socket_HANDLE)INVALID_SOCKET)
       {
         servers_mutex.myserver_mutex_unlock();
         delete new_server;

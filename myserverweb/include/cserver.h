@@ -63,7 +63,7 @@ extern int rebootMyServerConsole;
 struct listenThreadArgv
 {
 	u_long port;
-	MYSERVER_SOCKET *serverSocket;
+	Socket *serverSocket;
 	int SSLsocket;
 };
 
@@ -95,7 +95,7 @@ private:
 	XmlParser languageParser;
   int autoRebootEnabled;
   int toReboot;
-  MYSERVER_LOG_MANAGER *logManager;
+  LogManager *logManager;
   int serverReady;
 	u_long verbosity;
 	u_long buffersize;
@@ -107,7 +107,7 @@ private:
 	char *path;
 	char serverAdmin[32];
 	int initialize(int);
-	ConnectionPtr addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,
+	ConnectionPtr addConnectionToList(Socket s,MYSERVER_SOCKADDRIN *asock_in,
                                    char *ipAddr,char *localIpAddr,int port,
                                    int localPort,int);
   u_long nConnections;
@@ -157,12 +157,12 @@ public:
 	Server();
 	~Server();
 	DynamicProtocol* getDynProtocol(char *protocolName);
-	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
+	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
 	int connections_mutex_lock();
 	int connections_mutex_unlock();
   ConnectionPtr getConnections();
 	ConnectionPtr getConnectionToParse(int);
-	ConnectionPtr findConnectionBySocket(MYSERVER_SOCKET);
+	ConnectionPtr findConnectionBySocket(Socket);
 	ConnectionPtr findConnectionByID(u_long ID);
 	u_long getTimeout();
 	int getListeningThreadCount();

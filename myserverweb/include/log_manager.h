@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/threads.h"
 
-class MYSERVER_LOG_MANAGER
+class LogManager
 {
 private:
   File file;
@@ -38,8 +38,8 @@ public:
   const static int TYPE_CONSOLE;
   const static int TYPE_FILE;
   File *getFile();
-  MYSERVER_LOG_MANAGER();
-  ~MYSERVER_LOG_MANAGER();
+  LogManager();
+  ~LogManager();
   u_long setMaxSize( u_long );
   u_long getMaxSize();
   int requestAccess();

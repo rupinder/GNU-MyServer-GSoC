@@ -21,13 +21,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/log_manager.h"
 #include "../include/utility.h"
 
-const int MYSERVER_LOG_MANAGER::TYPE_CONSOLE = 1;
-const int MYSERVER_LOG_MANAGER::TYPE_FILE = 2;
+const int LogManager::TYPE_CONSOLE = 1;
+const int LogManager::TYPE_FILE = 2;
 
 /*!
  *Initialize the object.
  */
-MYSERVER_LOG_MANAGER::MYSERVER_LOG_MANAGER()
+LogManager::LogManager()
 {
   loaded = 0;
   /*!
@@ -41,7 +41,7 @@ MYSERVER_LOG_MANAGER::MYSERVER_LOG_MANAGER()
 /*!
  *Destroy the object.
  */
-MYSERVER_LOG_MANAGER::~MYSERVER_LOG_MANAGER()
+LogManager::~LogManager()
 {
   /*!
    *Try to close the file.
@@ -54,7 +54,7 @@ MYSERVER_LOG_MANAGER::~MYSERVER_LOG_MANAGER()
  *Load and use the file to save logs.
  *Return zero on sucess.
  */
-int MYSERVER_LOG_MANAGER::load(char *filename)
+int LogManager::load(char *filename)
 {
   int opt, ret;
   /*!
@@ -81,7 +81,7 @@ int MYSERVER_LOG_MANAGER::load(char *filename)
 /*!
  *Close the file.
  */
-int MYSERVER_LOG_MANAGER::close()
+int LogManager::close()
 {
   if(loaded)
     file.closeFile();
@@ -91,7 +91,7 @@ int MYSERVER_LOG_MANAGER::close()
 /*!
  *Set the type for the log.
  */
-void MYSERVER_LOG_MANAGER::setType(int nType)
+void LogManager::setType(int nType)
 {
   type = nType;
 }
@@ -101,7 +101,7 @@ void MYSERVER_LOG_MANAGER::setType(int nType)
  *Returns the old limit.
  *Using a size of zero means that this limit is not used.
  */
-u_long MYSERVER_LOG_MANAGER::setMaxSize(u_long nMax)
+u_long LogManager::setMaxSize(u_long nMax)
 {
   u_long oldMax = max_size;
   max_size = nMax;
@@ -113,7 +113,7 @@ u_long MYSERVER_LOG_MANAGER::setMaxSize(u_long nMax)
  *Write the string to the log plus termination character[s].
  *Returns 0 on success.
  */
-int MYSERVER_LOG_MANAGER::writeln(char *str)
+int LogManager::writeln(char *str)
 {
   int ret = write(str);
 #ifdef WIN32
@@ -130,7 +130,7 @@ int MYSERVER_LOG_MANAGER::writeln(char *str)
  *Write the string to the log.
  *Returns 0 on success.
  */
-int MYSERVER_LOG_MANAGER::write(char *str, int len)
+int LogManager::write(char *str, int len)
 {
   int ret;
   if(type == TYPE_CONSOLE)
@@ -171,7 +171,7 @@ int MYSERVER_LOG_MANAGER::write(char *str, int len)
 /*!
  *Get the type of log.
  */
-int MYSERVER_LOG_MANAGER::getType()
+int LogManager::getType()
 {
   return type;
 }
@@ -179,7 +179,7 @@ int MYSERVER_LOG_MANAGER::getType()
 /*!
  *Switch in the error output mode.
  */
-int MYSERVER_LOG_MANAGER::preparePrintError()
+int LogManager::preparePrintError()
 {
 
   if(type == TYPE_CONSOLE)
@@ -193,7 +193,7 @@ int MYSERVER_LOG_MANAGER::preparePrintError()
 /*!
  *Exit from printing errors.
  */
-int MYSERVER_LOG_MANAGER::endPrintError()
+int LogManager::endPrintError()
 {
   if(type == TYPE_CONSOLE)
   {
@@ -205,7 +205,7 @@ int MYSERVER_LOG_MANAGER::endPrintError()
 /*!
  *Get a pointer to the file object.
  */
-File *MYSERVER_LOG_MANAGER::getFile()
+File *LogManager::getFile()
 {
   return &file;
 }
@@ -213,7 +213,7 @@ File *MYSERVER_LOG_MANAGER::getFile()
 /*!
  *Request access for the thread.
  */
-int MYSERVER_LOG_MANAGER::requestAccess()
+int LogManager::requestAccess()
 {
   mutex.myserver_mutex_lock();
   return 0;
@@ -222,7 +222,7 @@ int MYSERVER_LOG_MANAGER::requestAccess()
 /*!
  *Terminate the access for the thread.
  */
-int MYSERVER_LOG_MANAGER::terminateAccess()
+int LogManager::terminateAccess()
 {
   mutex.myserver_mutex_unlock();
   return 0;
@@ -231,7 +231,7 @@ int MYSERVER_LOG_MANAGER::terminateAccess()
 /*!
  *Return the max size for the log.
  */
-u_long MYSERVER_LOG_MANAGER::getMaxSize()
+u_long LogManager::getMaxSize()
 {
   return max_size;
 }
@@ -239,7 +239,7 @@ u_long MYSERVER_LOG_MANAGER::getMaxSize()
 /*!
  *Return the actual size for the log file.
  */
-int MYSERVER_LOG_MANAGER::getLogSize()
+int LogManager::getLogSize()
 {
   switch(type)
   {

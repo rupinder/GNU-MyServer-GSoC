@@ -47,8 +47,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class Vhost
 {
-	MYSERVER_LOG_MANAGER warningsLogFile;
-	MYSERVER_LOG_MANAGER accessesLogFile;
+	LogManager warningsLogFile;
+	LogManager accessesLogFile;
 
   MimeManager mime_manager;
 
@@ -147,8 +147,8 @@ public:
   int isMIME();
   MimeManager* getMIME();
 
-	MYSERVER_LOG_MANAGER* getWarningsLog();
-	MYSERVER_LOG_MANAGER* getAccessesLog();
+	LogManager* getWarningsLog();
+	LogManager* getAccessesLog();
 
 	u_long accesseslogRequestAccess(int id);
 	u_long warningslogRequestAccess(int id);

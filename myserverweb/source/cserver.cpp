@@ -70,7 +70,7 @@ int mustEndServer;
 
 Server::Server()
 {
-  logManager = new MYSERVER_LOG_MANAGER();
+  logManager = new LogManager();
 	threads = 0;
   toReboot = 0;
   autoRebootEnabled = 1;
@@ -112,7 +112,7 @@ void Server::start()
    */
 	lserver=this;
 
-  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
+  if(logManager->getType() == LogManager::TYPE_CONSOLE )
   {
 #ifdef WIN32
 	/*!
@@ -134,7 +134,7 @@ void Server::start()
   /*!
    *Print the MyServer signature only if the log writes to the console.
    */
-  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
+  if(logManager->getType() == LogManager::TYPE_CONSOLE )
   {
     char *software_signature=new char[200];
     if(software_signature)
@@ -195,7 +195,7 @@ void Server::start()
 	/*!
    *Get the name of the local machine.
    */
-	MYSERVER_SOCKET::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
+	Socket::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
   buffer = new char[strlen(languageParser.getValue("MSG_GETNAME")) + 
                     strlen(serverName) + 3];
   if(buffer == 0)
@@ -207,7 +207,7 @@ void Server::start()
 	/*!
    *Find the IP addresses of the local machine.
    */
-	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::gethostbyname(serverName);
+	MYSERVER_HOSTENT *localhe=Socket::gethostbyname(serverName);
 	in_addr ia;
 	ipAddresses[0]='\0';
   buffer =  new char[ strlen(serverName) + 7];
@@ -411,12 +411,12 @@ int Server::createServerAndListener(u_long port)
    *Create the server socket.
    */
   logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
-	MYSERVER_SOCKET *serverSocket = new MYSERVER_SOCKET();
+	Socket *serverSocket = new Socket();
   if(!serverSocket)
     return 0;
 	serverSocket->socket(AF_INET, SOCK_STREAM, 0);
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
-	if(serverSocket->getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
+	if(serverSocket->getHandle()==(Socket_HANDLE)INVALID_SOCKET)
 	{
 		logPreparePrintError();
 		logWriteln(languageParser.getValue("ERR_OPENP"));
@@ -556,10 +556,10 @@ void * listenServer(void* params)
 	char buffer[256];
 	int err;
 	listenThreadArgv *argv=(listenThreadArgv*)params;
-	MYSERVER_SOCKET *serverSocket=argv->serverSocket;
+	Socket *serverSocket=argv->serverSocket;
 	MYSERVER_SOCKADDRIN asock_in;
 	int asock_inLen = sizeof(asock_in);
-	MYSERVER_SOCKET asock;
+	Socket asock;
 
   int ret;
 #ifdef NOT_WIN
@@ -592,7 +592,7 @@ void * listenServer(void* params)
                                  &asock_inLen);
 		if(asock.getHandle()==0)
 			continue;
-		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
+		if(asock.getHandle()==(Socket_HANDLE)INVALID_SOCKET)
 			continue;
 		asock.setServerSocket(serverSocket);
 		lserver->addConnection(asock, &asock_in);
@@ -1124,7 +1124,7 @@ u_long Server::getTimeout()
 /*!
  *This function add a new connection to the list.
  */
-int Server::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
+int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 {
 
 	int ret=1;
@@ -1193,7 +1193,7 @@ int Server::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
  *Add a new connection.
  *A connection is defined using a CONNECTION struct.
  */
-ConnectionPtr Server::addConnectionToList(MYSERVER_SOCKET s, 
+ConnectionPtr Server::addConnectionToList(Socket s, 
                         MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, 
                         char *localIpAddr, int port, int localPort, int /*id*/)
 {
@@ -1377,7 +1377,7 @@ void Server::clearAllConnections()
 /*!
  *Find a connection passing its socket.
  */
-ConnectionPtr Server::findConnectionBySocket(MYSERVER_SOCKET a)
+ConnectionPtr Server::findConnectionBySocket(Socket a)
 {
 	ConnectionPtr c;
 	connections_mutex_lock();
@@ -1748,7 +1748,7 @@ int Server::loadSettings()
   /*
    *Print this message only if the log outputs to the console screen.
    */
-  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+  if(logManager->getType() == LogManager::TYPE_CONSOLE)
     logWriteln(languageParser.getValue("MSG_BREAK"));
 
   /*!
@@ -1786,7 +1786,7 @@ int Server::reboot()
   toReboot = 0;
 
   /*! Do a beep if outputting to console. */
-  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+  if(logManager->getType() == LogManager::TYPE_CONSOLE)
   {
     char beep[]={(char)0x7, '\0'};
     logManager->write(beep);
@@ -2067,7 +2067,7 @@ int Server::logWriteln(char* str)
   /*!
    *If the log receiver is not the console output a timestamp.
    */
-  if(logManager->getType() != MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+  if(logManager->getType() != LogManager::TYPE_CONSOLE)
   {
     char time[38];
     int len;
@@ -2111,7 +2111,7 @@ int Server::setLogFile(char* fileName)
 {
   if(fileName == 0)
   {
-    logManager->setType(MYSERVER_LOG_MANAGER::TYPE_CONSOLE);
+    logManager->setType(LogManager::TYPE_CONSOLE);
     return 0;
   }
   return logManager->load(fileName);

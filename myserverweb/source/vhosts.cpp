@@ -383,7 +383,7 @@ File* Vhost::getAccessesLogFile()
 /*!
  *Get the log object for the warnings.
  */
-MYSERVER_LOG_MANAGER* Vhost::getWarningsLog()
+LogManager* Vhost::getWarningsLog()
 {
   return &warningsLogFile;
 }
@@ -391,7 +391,7 @@ MYSERVER_LOG_MANAGER* Vhost::getWarningsLog()
 /*!
  *Get the log object for the accesses.
  */
-MYSERVER_LOG_MANAGER* Vhost::getAccessesLog()
+LogManager* Vhost::getAccessesLog()
 {
   return &accessesLogFile;
 }
@@ -702,7 +702,7 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 			cc++;
 		}	
 		strcpy(vh->accessesLogFileName,buffer2);
-		MYSERVER_LOG_MANAGER *accesses=vh->getAccessesLog();
+		LogManager *accesses=vh->getAccessesLog();
     
 		accesses->load(buffer2);
 
@@ -716,7 +716,7 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 			cc++;
 		}	
 		strcpy(vh->warningsLogFileName,buffer2);
-		MYSERVER_LOG_MANAGER * warnings=vh->getWarningsLog();
+		LogManager * warnings=vh->getWarningsLog();
 		warnings->load(buffer2);
 		vh->setMaxLogSize(maxlogSize);
 		cc++;
@@ -894,8 +894,8 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 	XmlParser parser;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-  MYSERVER_LOG_MANAGER *warningLogFile ;
-  MYSERVER_LOG_MANAGER *accessLogFile;
+  LogManager *warningLogFile ;
+  LogManager *accessLogFile;
 	if(parser.open(filename))
 	{
 		return -1;

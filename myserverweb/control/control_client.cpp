@@ -65,7 +65,7 @@ int ControlClient::Login(const char * address, const int port,
    if(Connected)
      Logout();
 
-   MYSERVER_HOSTENT *hp = MYSERVER_SOCKET::gethostbyname(address);
+   MYSERVER_HOSTENT *hp = Socket::gethostbyname(address);
    if(hp == NULL)
      return -2;
 

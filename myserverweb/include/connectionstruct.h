@@ -132,7 +132,7 @@ public:
   void setTimeout(u_long);
 
 	/*! Connection socket.  */
-	MYSERVER_SOCKET socket;
+	Socket socket;
 	
 	/*! Next CONNECTION in linked list.  */
 	Connection* next;

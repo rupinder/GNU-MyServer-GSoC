@@ -166,7 +166,7 @@ struct sfCGIservers
 		SOCKET sock;
 		unsigned int value;
 	}DESCRIPTOR;
-	MYSERVER_SOCKET socket;
+	Socket socket;
 	char host[128];
 	/*! Process ID.  */ 
 	int pid; 
@@ -179,7 +179,7 @@ struct fCGIContext
 {
 	HttpThreadContext* td;
   sfCGIservers* server;
-	MYSERVER_SOCKET sock;
+	Socket sock;
 	File tempOut;
 };
 
@@ -197,7 +197,7 @@ private:
 
 	int FcgiConnectSocket(fCGIContext*,sfCGIservers*);
 	void generateFcgiHeader( FCGI_Header&, int ,int, int );
-	MYSERVER_SOCKET getFcgiConnection();
+	Socket getFcgiConnection();
 	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
 	int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
 	sfCGIservers* isFcgiServerRunning(char*);

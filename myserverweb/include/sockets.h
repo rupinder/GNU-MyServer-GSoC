@@ -57,15 +57,15 @@ extern "C" {
 #endif
 
 #define MAX_IP_STRING_LEN	32
-typedef unsigned int MYSERVER_SOCKET_HANDLE;
+typedef unsigned int Socket_HANDLE;
 typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
 typedef struct sockaddr MYSERVER_SOCKADDR;
 typedef struct hostent MYSERVER_HOSTENT;
 int startupSocketLib(u_short);
-class MYSERVER_SOCKET
+class Socket
 {
 private:
-	MYSERVER_SOCKET_HANDLE socketHandle;
+	Socket_HANDLE socketHandle;
 	int sslSocket;
 #ifndef DO_NOT_USE_SSL
   /*! This is defined if all SSL members are used only by this socket. */
@@ -78,10 +78,10 @@ private:
   SSL_METHOD* sslMethod;
 #endif
 	/*! Pointer to the socket that has accepted this connection.  */
-	MYSERVER_SOCKET *serverSocket;
+	Socket *serverSocket;
 public:
-	void setServerSocket(MYSERVER_SOCKET*);
-	MYSERVER_SOCKET* getServerSocket();
+	void setServerSocket(Socket*);
+	Socket* getServerSocket();
 #ifndef DO_NOT_USE_SSL
 	int freeSSL();
 	int setSSLContext(SSL_CTX*);
@@ -91,17 +91,17 @@ public:
 	int sslAccept();
 #endif
 	int getSSL();
-	MYSERVER_SOCKET_HANDLE getHandle();
-	int setHandle(MYSERVER_SOCKET_HANDLE);
+	Socket_HANDLE getHandle();
+	int setHandle(Socket_HANDLE);
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr,int len,int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
 	static int gethostname(char*,int);
 	int socket(int,int,int,int=0);
 	int bind(MYSERVER_SOCKADDR*,int);
 	int listen(int);
-	MYSERVER_SOCKET();
-	MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE);
-	MYSERVER_SOCKET accept(MYSERVER_SOCKADDR*,int*,int sslHandShake=0);
+	Socket();
+	Socket(Socket_HANDLE);
+	Socket accept(MYSERVER_SOCKADDR*,int*,int sslHandShake=0);
 	int closesocket();
 	int setsockopt(int,int,const char*,int);
 	int shutdown(int how);
@@ -111,8 +111,8 @@ public:
 	int recv(char*,int,int);
 	int recv(char*,int,int,u_long);
 	u_long bytesToRead();
-	int operator==(MYSERVER_SOCKET);
-	int operator=(MYSERVER_SOCKET);
+	int operator==(Socket);
+	int operator=(Socket);
 	int getsockname(MYSERVER_SOCKADDR*,int*);
   int setNonBlocking(int);
 	int dataOnRead(int sec = 0, int usec = 500);
