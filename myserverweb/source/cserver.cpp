@@ -245,6 +245,7 @@ void cserver::start()
         preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
         endPrintError();
+		return;
 	}
 
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),ms_getCPUCount());
@@ -254,6 +255,13 @@ void cserver::start()
 #else
 	pthread_t ID;
 #endif
+	threads=new ClientsTHREAD[nThreads];
+	if(threads==NULL)
+	{
+		preparePrintError();
+		printf("%s: Threads creation\n",languageParser.getValue("ERR_ERROR"));
+        endPrintError();	
+	}
 	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
@@ -295,7 +303,15 @@ void cserver::start()
 				needThread=0;
 		}
 		if(needThread)
-			createServerAndListener(list->host->port);
+		{
+			if(createServerAndListener(list->host->port)==0)
+			{
+				preparePrintError();
+				printf("%s: Listen threads\n",languageParser.getValue("ERR_ERROR"));
+				endPrintError();
+				return;
+			}
+		}
 	}
 
 	printf("%s\n",languageParser.getValue("MSG_READY"));
@@ -322,7 +338,7 @@ void cserver::start()
 /*
 *This function is used to create a socket server and a thread listener for a protocol.
 */
-void cserver::createServerAndListener(u_long port)
+int cserver::createServerAndListener(u_long port)
 {
 	/*
 	*Create the server socket.
@@ -335,7 +351,7 @@ void cserver::createServerAndListener(u_long port)
         preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_OPENP"));
         endPrintError();		
-		return;
+		return 0;
 
 	}
 	printf("%s\n",languageParser.getValue("MSG_SSOCKRUN"));
@@ -354,7 +370,7 @@ void cserver::createServerAndListener(u_long port)
         preparePrintError();
 		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
         endPrintError();
-		return;
+		return 0;
 	}
 
 #endif
@@ -369,7 +385,7 @@ void cserver::createServerAndListener(u_long port)
 		preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_BIND"));
         endPrintError();
-		return;
+		return 0;
 	}
 	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
 
@@ -382,7 +398,7 @@ void cserver::createServerAndListener(u_long port)
         preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
         endPrintError();	
-		return; 
+		return 0; 
 	}
 
 	printf("%s: %u\n",languageParser.getValue("MSG_LISTEN"),port);
@@ -397,12 +413,14 @@ void cserver::createServerAndListener(u_long port)
 	argv->port=port;
 	argv->serverSocket=serverSocket;
 #ifdef WIN32
-	_beginthreadex(NULL,0,&::listenServer,argv,0,0);
+	unsigned int ID;
+	_beginthreadex(NULL,0,&::listenServer,argv,0,&ID);
 #endif
 #ifdef __linux__
 	pthread_t ID;
 	pthread_create(&ID, NULL, &::listenServer, (void *)(argv));
 #endif
+	return (ID)?1:0;
 }
 /*
 *This is the thread that listens for a new connection on the port specified by the protocol.
@@ -531,6 +549,10 @@ void cserver::terminate()
 	/*
 	*Wait before clean the threads that all the threads are stopped.
 	*/
+
+	for(i=0;i<nThreads;i++)
+		threads[i].clean();
+
 	for(;;)
 	{
 		threadsStopped=0;
@@ -545,8 +567,7 @@ void cserver::terminate()
 	}
 	delete[] defaultFilename;
 
-	for(i=0;i<nThreads;i++)
-		threads[i].clean();
+	delete[] threads;
 	if(verbosity>1)
 	{
 		printf("myServer is stopped\n\n");

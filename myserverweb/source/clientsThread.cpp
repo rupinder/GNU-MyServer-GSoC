@@ -238,6 +238,8 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 */
 int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 {
+	if(!s)
+		return 0;
 	ms_requestAccess(&connectionWriteAccess,this->id);
 	int ret=false;
 	/*
@@ -284,7 +286,7 @@ void ClientsTHREAD::clearAllConnections()
 	ms_requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
-	for(u_long i=0;i<nConnections;i++)
+	for(u_long i=0;c && i<nConnections;i++)
 	{
 		next=c->Next;
 		deleteConnection(c);

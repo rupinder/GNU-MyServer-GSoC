@@ -83,7 +83,7 @@ private:
 	char *defaultFilename;
 	u_long nDefaultFilename;
 	char serverAdmin[32];
-	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
+	ClientsTHREAD *threads;
 	u_long nThreads;
 	u_long verbosity;
 	int useMessagesFiles;
@@ -96,7 +96,7 @@ private:
 	u_long connectionTimeout;
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
-	void createServerAndListener(u_long);
+	int createServerAndListener(u_long);
 public:
 	int mscgiLoaded;
 	vhostmanager vhostList;
