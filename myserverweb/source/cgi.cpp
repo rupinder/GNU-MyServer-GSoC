@@ -562,7 +562,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	memCgi << " (WIN32)";
 #else
 #ifdef HOST_STR
-	memCgi << HOST_STR;
+	memCgi << " " << HOST_STR;
 #else
 	memCgi << " (Unknown)";
 #endif
