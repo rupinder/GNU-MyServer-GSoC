@@ -73,7 +73,6 @@ WARN_LOGFILE           =
 INPUT                  = source \
                          include \
                          CGI-LIB \
-                         contrib/rx \
                          control
 FILE_PATTERNS          = 
 RECURSIVE              = NO
