@@ -615,7 +615,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 	td->buffer->SetLength(0);
 	
 	/*! If a Range was requested send 206 and not 200 for success.  */
-	if((lastByte == 0)|(firstByte))
+	if(lastByte | firstByte )
 		td->response.httpStatus = 206;
 	
 	if(keepalive)
@@ -641,7 +641,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
                       (u_long)td->buffer->GetLength(), 0)== SOCKET_ERROR)
 		{
 			h.closeFile();
-			return 0;
+ 			return 0;
 		}
 	}
 
@@ -671,9 +671,10 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 			if(h.readFromFile((char*)td->buffer2->GetBuffer(), datatoread, &nbr))
 			{
 				h.closeFile();
+        sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
 				return 0;
 			}
-
+      
 			if(nbr)
 			{
 				if(gzipheaderadded==0)
@@ -714,7 +715,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 				if(ret == SOCKET_ERROR)
 					break;
 			}
-
+      
 		}
 		else
 		{
@@ -724,8 +725,10 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 			if(ret)
 			{
 				h.closeFile();
+        sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
 				return 0;
 			}
+      bytes_to_send-=nbr;
 			/*! If there are bytes to send, send them. */
 			if(nbr)
 			{
@@ -735,21 +738,25 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 					if(ret==SOCKET_ERROR)
 					{
 						h.closeFile();
+            sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
 						return 0;
 					}
+          dataSent+=ret;
 				}
 				else
 				{
+          u_long nbw;
 					ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(), 
-                                           nbr, 0);
+                                           nbr, &nbw);
 				  if(ret)
 					{
 						h.closeFile();
+            sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
 						return 0;
 					}
+          dataSent+=nbw;
 					
 				}
-				dataSent+=ret;
 			}
     }
 		/*! 
@@ -764,14 +771,15 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 				if(ret==SOCKET_ERROR)
 				{
 					h.closeFile();
+          sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
 					return 0;
 				}
 			}
 			break;
 		}
 	}/*End for loop. */
-
 	h.closeFile();
+  sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
 	return 1;
 
 }

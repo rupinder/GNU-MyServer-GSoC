@@ -416,9 +416,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		token=input;
 	else
 	{
-		td->buffer2->SetLength(0);
-		*td->buffer2 << input;
-		input=token=(char*)td->buffer2->GetBuffer();
+		input=token=(char*)td->buffer->GetBuffer();
 	}
 	tokenOff = getCharInString(token, cmdseps, HTTP_REQUEST_CMD_DIM);
 	do
@@ -436,6 +434,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		while(*token ==' ')
 			token++;
 		nLineControlled++;
+    lineControlled = 0;
 		if(nLineControlled==1)
 		{
 			int containOpts=0;
@@ -544,7 +543,6 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 					password[i]=*lbuffer2++;
 					password[i+1]='\0';
 				}
-				tokenOff = getCharInString(token,"\r\n",HTTP_REQUEST_AUTH_DIM);
 			}
 			else if(!lstrcmpi(request->AUTH,"Digest"))
 			{
@@ -797,34 +795,37 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		{
       char RANGEBYTEBEGIN[13];
       char RANGEBYTEEND[13];
+      char *localToken = token;
 			int i=0;
 			request->RANGETYPE[0]='\0';
 			RANGEBYTEBEGIN[0]='\0';
 			RANGEBYTEEND[0]='\0';
 			lineControlled=1;
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_RANGETYPE_DIM+30);
 			if(tokenOff==-1)
         return 0;
 			do
 			{
-				request->RANGETYPE[i++]=*token;
+				request->RANGETYPE[i++]=*localToken;
 				request->RANGETYPE[i]='\0';
 			}
-			while((*token++ != '=')&&(i<HTTP_REQUEST_RANGETYPE_DIM));
+			while((*(++localToken) != '=')&&(i<HTTP_REQUEST_RANGETYPE_DIM));
 			i=0;
+      localToken++;
 			do
 			{
-				RANGEBYTEBEGIN[i++]=*token;
+				RANGEBYTEBEGIN[i++]=*localToken;
 				RANGEBYTEBEGIN[i]='\0';
 			}
-			while((*token++ != '-')&&(i<12));
+			while((*(++localToken) != '-')&&(i<12) && (*localToken != '\r'));
 			i=0;
+      localToken++;
 			do
 			{
-				RANGEBYTEEND[i++]=*token;
+				RANGEBYTEEND[i++]=*localToken;
 				RANGEBYTEEND[i]='\0';
 			}
-			while((*token++)&&(i<12));
+			while((*(++localToken) != '\r' )&&(i<12));
 			StrTrim(request->RANGETYPE,"= ");
 			StrTrim(RANGEBYTEBEGIN,"- ");
 			StrTrim(RANGEBYTEEND,"- ");
@@ -837,7 +838,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
       {
         request->RANGEBYTEBEGIN=(u_long)atol(RANGEBYTEBEGIN); 
       }
-      if(RANGEBYTEEND[0]==0)
+      if(RANGEBYTEEND[0]=='\r')
       {
         request->RANGEBYTEEND=0;
       }
@@ -866,13 +867,15 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 			request->PRAGMA[tokenOff]='\0';
 			StrTrim(request->PRAGMA," ");
 		}
-		tokenOff = getCharInString(token,seps,maxTotchars);
-		if(tokenOff==-1)return 0;
-		token+=tokenOff;
-		while( (*token=='\r')  || (*token=='\n'))
-			token++;
+    if(!lineControlled)
+    {
+      tokenOff = getCharInString(token,seps,maxTotchars);
+      if(tokenOff==-1)
+        return 0;
+		}
+    token+= tokenOff + 2;
 		tokenOff = getCharInString(token,":",maxTotchars);
-	}while((u_long)(token-input)<maxTotchars);
+	}while(((u_long)(token-input)<maxTotchars) && token[0]!='\r');
 	/*!
    *END REQUEST STRUCTURE BUILD.
    */
