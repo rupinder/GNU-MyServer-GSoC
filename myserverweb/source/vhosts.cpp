@@ -349,6 +349,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			buffer2[strlen(buffer2)]=buffer[cc];
 			cc++;
 		}	
+		strcpy(vh->documentRootOriginal,buffer2);
 		if(buffer2[0]!='|')
 			sprintf(vh->documentRoot,"%s/%s",lserver->getPath(),buffer2);
 		else
@@ -362,6 +363,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			buffer2[strlen(buffer2)]=buffer[cc];
 			cc++;
 		}	
+		strcpy(vh->systemRootOriginal,buffer2);
 		if(buffer2[0]!='|')
 			sprintf(vh->systemRoot,"%s/%s",lserver->getPath(),buffer2);
 		else
@@ -375,6 +377,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			buffer2[strlen(buffer2)]=buffer[cc];
 			cc++;
 		}	
+		strcpy(vh->accessesLogFileName,buffer2);
 		MYSERVER_FILE_HANDLE accesses=ms_OpenFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		vh->ms_setAccessesLogFile(accesses);
 		cc++;
@@ -386,6 +389,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			buffer2[strlen(buffer2)]=buffer[cc];
 			cc++;
 		}	
+		strcpy(vh->warningsLogFileName,buffer2);
 		MYSERVER_FILE_HANDLE warnings=ms_OpenFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		vh->ms_setWarningsLogFile(warnings);
 		cc++;
@@ -393,7 +397,94 @@ void vhostmanager::loadConfigurationFile(char* filename)
 	}
 	ms_CloseFile(fh);
 }
+void vhostmanager::saveConfigurationFile(char *filename)
+{
+	char buffer[1024];
+	if(vhostList==0)
+		return;
+	sVhostList*vhl=vhostList;
+	u_long nbw;
+	MYSERVER_FILE_HANDLE fh=ms_OpenFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+	for(;vhl;vhl=vhl->next)
+	{
+		vhost*vh=vhl->host;
+		vhost::sHostList* hl=vh->hostList;
+		if(hl)
+		{
+			while(hl)
+			{ 
+				ms_WriteToFile(fh,hl->hostName,strlen(hl->hostName),&nbw);
+				strcpy(buffer,",");
+				ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+				if(hl->next)
+					hl=hl->next;
+			}
+		}
+		else
+		{
+			strcpy(buffer,"0");
+			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		}
+		strcpy(buffer,";");
+		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		vhost::sIpList* il=vh->ipList;
+		if(il)
+		{
+			while(il)
+			{ 
+				ms_WriteToFile(fh,il->hostIp,strlen(il->hostIp),&nbw);
+				if(il->next)
+				{
+					strcpy(buffer,",");
+					ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+				}
+
+				il=il->next;
+			}
+		}
+		else
+		{
+			strcpy(buffer,"0");
+			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		}
+		sprintf(buffer,";%u;",vh->port);
+		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+
+		if(vh->protocol==PROTOCOL_HTTP)
+		{
+			strcpy(buffer,"HTTP;");
+			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		}
+		if(vh->protocol==PROTOCOL_FTP)
+		{
+			strcpy(buffer,"FTP;");
+			ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+		}
+
+		ms_WriteToFile(fh,vh->documentRootOriginal,strlen(vh->documentRootOriginal),&nbw);
+		strcpy(buffer,";");
+		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+
+		ms_WriteToFile(fh,vh->systemRootOriginal,strlen(vh->systemRootOriginal),&nbw);
+		strcpy(buffer,";");
+		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+
+		ms_WriteToFile(fh,vh->accessesLogFileName,strlen(vh->accessesLogFileName),&nbw);
+		strcpy(buffer,";");
+		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+
+		ms_WriteToFile(fh,vh->warningsLogFileName,strlen(vh->warningsLogFileName),&nbw);
+		if(vhl->next)
+			strcpy(buffer,";#\r\n");
+		else
+			strcpy(buffer,";##\r\n\0");
+		ms_WriteToFile(fh,buffer,strlen(buffer),&nbw);
+	}
+	ms_CloseFile(fh);
+}
+
 vhostmanager::sVhostList* vhostmanager::getvHostList()
 {
 	return this->vhostList;
 }
+

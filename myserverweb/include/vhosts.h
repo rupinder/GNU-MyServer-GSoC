@@ -45,6 +45,10 @@ public:
 
 	char documentRoot[MAX_PATH];/*Path to the document root*/
 	char systemRoot[MAX_PATH];/*Path to the system root*/
+	char documentRootOriginal[MAX_PATH];/*Path to the document root(as it is in the configuration file)*/
+	char systemRootOriginal[MAX_PATH];/*Path to the system root(as it is in the configuration file)*/
+	char accessesLogFileName[MAX_PATH];/*Path to the accesses log file*/
+	char warningsLogFileName[MAX_PATH];/*Path to the warnings log file*/
 	vhost();
 	void addIP(char *);
 	void addHost(char *);
@@ -83,6 +87,7 @@ public:
 	vhost*  getvHost(char*,char*,u_short);/*Get a pointer to a vhost*/
 	void addvHost(vhost*);/*Add an element to the vhost list*/
 	void loadConfigurationFile(char *);/*Load the virtual hosts list from a configuration file*/
+	void saveConfigurationFile(char *);/*Save the virtual hosts list to a configuration file*/
 };
 
 #endif
