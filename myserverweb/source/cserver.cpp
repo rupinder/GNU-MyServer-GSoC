@@ -868,7 +868,10 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	u_long cs=sizeof(CONNECTION);
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
+	{
+		connections_mutex_unlock();
 		return NULL;
+	}
 	nc->check_value = CONNECTION::check_value_const;
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
@@ -886,6 +889,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	if(nc->host == 0) /* No vhost for the connection so bail */
 	{
 		free(nc);
+		connections_mutex_unlock();
 		return 0;
 	}
 	int doSSLhandshake=0;
@@ -914,6 +918,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 			*Free the connection on errors.
 			*/
 			free(nc);
+			connections_mutex_unlock();
 			return 0;
 		}
 	}
@@ -926,9 +931,10 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	if(nc->host==0)
 	{
 		free(nc);
+		connections_mutex_unlock();
 		return 0;
 	}
-    connections=nc;
+    	connections=nc;
 	nConnections++;
 	
 	/*
@@ -1062,7 +1068,10 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 	for(c=connections;c;c=c->next )
 	{
 		if(c->socket==a)
+		{
+			connections_mutex_unlock();
 			return c;
+		}
 	}
 	connections_mutex_unlock();
 
