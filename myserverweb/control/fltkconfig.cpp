@@ -2208,6 +2208,15 @@ Fl_Double_Window* MainDlg::make_window() {
     w = o;
     o->callback((Fl_Callback*)cb_ConfDlg, (void*)(this));
     { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 550, 25);
+      { Fl_Menu_Item* o = &menu_[6];
+        o->deactivate();
+      }
+      { Fl_Menu_Item* o = &menu_[10];
+        o->deactivate();
+      }
+      { Fl_Menu_Item* o = &menu_[14];
+        o->deactivate();
+      }
       o->menu(menu_);
     }
     { Fl_Tabs* o = new Fl_Tabs(0, 25, 550, 335);

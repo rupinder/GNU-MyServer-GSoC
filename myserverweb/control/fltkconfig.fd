@@ -105,6 +105,9 @@ if(i != -1) {
               label {as Service}
               callback {RunAsService();}
               xywh {0 0 100 20}
+              code0 {\#ifndef WIN32}
+              code1 {o->deactivate();}
+              code2 {\#endif}
             }
           }
           submenu {} {
@@ -120,6 +123,9 @@ if(i != -1) {
               label Service
               callback {StopService();}
               xywh {0 0 100 20}
+              code0 {\#ifndef WIN32}
+              code1 {o->deactivate();}
+              code2 {\#endif}
             }
           }
           menuitem {} {
@@ -138,6 +144,9 @@ else {
         submenu {} {
           label {Ser&vice} open
           xywh {0 0 100 20}
+          code0 {\#ifndef WIN32}
+          code1 {o->deactivate();}
+          code2 {\#endif}
         } {
           menuitem {} {
             label {Install Service}
