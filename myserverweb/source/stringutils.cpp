@@ -285,7 +285,7 @@ void StrTrim(char* str,const char* trimchars)
 {
 	u_short lenTrimchars=(u_short)strlen(trimchars);
 	u_short lenStr=(u_short)strlen(str);
-
+	u_long continueLoop;
 	/*!
 	*Number of characters to remove from the initial position of the string.
 	*/
@@ -297,15 +297,17 @@ void StrTrim(char* str,const char* trimchars)
 	u_long j;
 	for(j=0;j<=lenStr;j++)
 	{
+		continueLoop=0;
 		for(int i=0;i<lenTrimchars;i++)
 		{
 			if(str[j]==trimchars[i])
 			{
 				ncharToRemove++;
+				continueLoop=1;
 				break;
 			}
 		}
-		if(ncharToRemove!=j + 1)
+		if(!continueLoop)
 			break;
 	}
 	if(ncharToRemove)
@@ -316,15 +318,17 @@ void StrTrim(char* str,const char* trimchars)
 	}
 	for( j=(u_long)(strlen(str)-1) ; j ; j-- )
 	{
+		continueLoop=0;
 		for(int i=0;i<lenTrimchars;i++)
 		{
 			if(str[j]==trimchars[i])
 			{
 				str[j]='\0';
+				continueLoop=1;
 				break;
 			}
 		}
-		if(str[j]!='\0')
+		if(!continueLoop)
 			break;
 	}
 }

@@ -1440,7 +1440,6 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 					retvalue = raiseHTTPError(&td,a,e_500);
 					logHTTPaccess(&td,a);
 					return retvalue;
-
 				}
 			}
 			else if(content_len==0)/*!If CONTENT-LENGTH is not specified read all the data*/
