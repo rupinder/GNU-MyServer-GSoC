@@ -34,18 +34,19 @@ html,text/html,NONE;
 HRESULT MIME_Manager::load(char *filename)
 {
 	numMimeTypesLoaded=0;
-	char buffer[MAX_MIME_TYPES*2*32];
-	ZeroMemory(&(data[0][0][0]),sizeof(buffer));
-	ZeroMemory(buffer,sizeof(buffer));
+	char *buffer;
 	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	if(f==0)
 		return 1;
+	DWORD fs=getFileSize(f);
+	buffer=(char*)malloc(fs+1);
 	DWORD nbw;
-	ms_ReadFromFile(f,buffer,sizeof(buffer),&nbw);
+	ms_ReadFromFile(f,buffer,fs,&nbw);
 	ms_CloseFile(f);
-	DWORD nc=0;
-	for(DWORD i=0;i<MAX_MIME_TYPES;i++)
+	MIME_Manager::mime_record record;
+	for(DWORD nc=0;;)
 	{
+		ZeroMemory(&record,sizeof(MIME_Manager::mime_record));
 		while(buffer[nc]==' ')
 			nc++;
 		if(buffer[nc]=='#')
@@ -53,32 +54,39 @@ HRESULT MIME_Manager::load(char *filename)
 		while(buffer[nc]!=',')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
-				data[i][0][lstrlen(data[i][0])]=buffer[nc];
+				record.extension[lstrlen(record.extension)]=buffer[nc];
+				
 			nc++;
 		}
 		nc++;
 		while(buffer[nc]!=',')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
-				data[i][1][lstrlen(data[i][1])]=buffer[nc];
+				record.mime_type[lstrlen(record.mime_type)]=buffer[nc];
 			nc++;
 		}
 		nc++;
 		while(buffer[nc]!=';')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
-				data[i][2][lstrlen(data[i][2])]=buffer[nc];
+				record.cgi_manager[lstrlen(record.cgi_manager)]=buffer[nc];
 			nc++;
-			if(!lstrcmpi(data[i][2],"NONE"))
-				data[i][2][0]='\0';
+			/*
+			*If the CGI manager path is NONE then set the cgi_manager element in 
+			*the record structure to a NULL string
+			*/
+			if(!lstrcmpi(record.cgi_manager,"NONE"))
+				record.cgi_manager[0]='\0';
 			
 		}
-		numMimeTypesLoaded++;
+		addRecord(record);
 		nc++;
 	}
+	free(buffer);
 	return 0;
 
 }
+
 /*
 *This function returns true if the passed ext is registered by a CGI.
 *Passing a file extension ext this function fills the strings dest and dest2
@@ -86,16 +94,15 @@ HRESULT MIME_Manager::load(char *filename)
 */
 BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 {
-	DWORD i;
-	for(i=0;i<numMimeTypesLoaded;i++)
+	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next)
 	{
-		if(!lstrcmpi(ext,data[i][0]	))
+		if(!lstrcmpi(ext,mr->extension))
 		{
-			lstrcpy(dest,data[i][1]);
-			if(data[i][2][0])
+			lstrcpy(dest,mr->mime_type);
+			if(mr->cgi_manager[0])
 			{
 				if(dest2)
-					lstrcpy(dest2,data[i][2]);
+					lstrcpy(dest2,mr->cgi_manager);
 				return TRUE;
 			}
 			else
@@ -103,26 +110,93 @@ BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 				return FALSE;
 			}
 		}
+
 	}
 	return FALSE;
 }
-/*
-*Dump the content of the data buffer to a file
-*/
-VOID MIME_Manager::dumpToFILE(char *file)
-{
-	MYSERVER_FILE_HANDLE f=ms_OpenFile(file,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	DWORD nbw;
-	ms_WriteToFile(f,&data[0][0][0],sizeof(data),&nbw);
-	ms_CloseFile(f);
-}
+
 /*
 *Clean the memory allocated by the structure
 */
 VOID MIME_Manager::clean()
 {
-
+	removeAllRecords();
 }
+
+/*
+*Constructor of the class
+*/
+MIME_Manager::MIME_Manager()
+{
+	ZeroMemory(this,sizeof(MIME_Manager));
+}
+
+/*
+*Add a record
+*/
+VOID MIME_Manager::addRecord(MIME_Manager::mime_record mr)
+{
+	MIME_Manager::mime_record *nmr =(MIME_Manager::mime_record*)malloc(sizeof(mime_record));
+	memcpy(nmr,&mr,sizeof(mime_record));
+	nmr->next=data;
+	data=nmr;
+	numMimeTypesLoaded++;
+}
+
+/*
+*Remove a record passing the extension of the MIME type
+*/
+VOID MIME_Manager::removeRecord(char *ext)
+{
+	MIME_Manager::mime_record *nmr1 = data;
+	MIME_Manager::mime_record *nmr2 = 0;
+	do
+	{
+		if(!lstrcmpi(nmr1->extension,ext))
+		{
+			if(nmr2)
+			{
+				nmr2->next = nmr1->next;
+				free(nmr1);
+			}
+			else
+			{
+				data=nmr1->next;
+				free(nmr1);
+			}
+			numMimeTypesLoaded--;
+		}
+		nmr2=nmr1;
+		nmr1=nmr1->next;
+	}while(nmr1);
+}
+/*
+*Remove all records from the linked list
+*/
+VOID MIME_Manager::removeAllRecords()
+{
+	if(data==0)
+		return;
+	MIME_Manager::mime_record *nmr1 = data;
+	MIME_Manager::mime_record *nmr2 = NULL;
+
+	for(;;)
+	{
+		nmr2=nmr1;
+		if(nmr2)
+		{
+			free(nmr2);
+			nmr1=nmr1->next;
+		}
+		else
+		{
+			break;
+		}
+	}
+	data=0;
+	numMimeTypesLoaded=0;
+}
+
 /*
 *Returns the number of MIME types loaded
 */

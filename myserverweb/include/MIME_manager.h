@@ -24,27 +24,28 @@
 #include <tchar.h>
 #include <io.h>
 
-#ifndef MAX_MIME_TYPES
-#define MAX_MIME_TYPES 250
-#endif
 
-/*
-MIME_Manager::data is formated from this fields
-1)	extension
-2)	MIME type
-3)	CGI manager
-*/
+
 #ifndef MIME_Manager_IN
 #define MIME_Manager_IN
 class MIME_Manager
 {
+	struct mime_record
+	{
+		char extension[10];
+		char mime_type[16];
+		char cgi_manager[MAX_PATH];
+		mime_record* next;
+	}*data;
 	DWORD numMimeTypesLoaded;
-	char data[MAX_MIME_TYPES][3][MAX_PATH];
 public:
+	MIME_Manager();
+	VOID addRecord(MIME_Manager::mime_record);
+	VOID removeRecord(char*);
+	VOID removeAllRecords();
 	DWORD getNumMIMELoaded();
 	HRESULT load(char *filename);
 	BOOL getMIME(char* a,char * b,char* c=NULL);
 	VOID clean();
-	VOID dumpToFILE(char*);
 };
 #endif 

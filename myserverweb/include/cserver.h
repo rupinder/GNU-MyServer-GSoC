@@ -29,14 +29,6 @@
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\ConnectionStruct.h"
 #include "..\include\sockets.h"
-
-
-
-/*
-*Set MAX_MIME_TYPES to define the maximum
-*number of MIME TYPES records to alloc
-#define MAX_MIME_TYPES
-*/
 #include "..\include\MIME_manager.h"
 
 unsigned int __stdcall listenServer(void* pParam);
