@@ -641,6 +641,8 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			return raiseHTTPError(td,s,e_404);
 	}
 	time_t lastMT=MYSERVER_FILE::getLastModTime(td->filenamePath);
+	if(lastMT<0)
+		return raiseHTTPError(td,s,e_500);
 	getRFC822LocalTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	if(td->request.IF_MODIFIED_SINCE[0])
 	{

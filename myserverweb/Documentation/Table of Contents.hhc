@@ -36,7 +36,7 @@
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Starting myServer on Linux">
-		<param name="Local" value="En\runmyserver.html">
+		<param name="Local" value="En\linuxrun.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Starting myServer on Windows 9x">
