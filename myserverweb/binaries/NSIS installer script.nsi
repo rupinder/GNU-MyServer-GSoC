@@ -90,9 +90,9 @@ SectionEnd
 Section "MyServer control center" SecControl
   DetailPrint "Control Center Application"
   SetOutPath $INSTDIR
-  File "MyServer Configure.exe"
+  File "control.exe"
   File "myserver.ico"
-  CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Control Center.lnk" "$INSTDIR\MyServer Configure.exe"
+  CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Control Center.lnk" "$INSTDIR\control.exe"
 SectionEnd
 
 Section "MSCGI lib" SecMSCGI
@@ -118,7 +118,7 @@ SectionEnd
 
 Section "Install the service" SecService
 	SetOutPath "$INSTDIR"
-	ExecWait "$INSTDIR\MyServer Configure.exe REGISTER"
+	ExecWait "$INSTDIR\myserver.exe REGISTER"
 SectionEnd
 
 !insertmacro MUI_FUNCTIONS_DESCRIPTION_BEGIN
@@ -148,7 +148,7 @@ FunctionEnd
 ; MyServer Uninstaller
 
 Section "Uninstall"
-  ExecWait "$INSTDIR\MyServer Configure.exe UNREGISTER" ;Remove the service if installed
+  ExecWait "$INSTDIR\myserver.exe UNREGISTER" ;Remove the service if installed
   Delete "$INSTDIR\cgi-lib\*.*"
   Delete "$INSTDIR\languages\*.*"
   Delete "$INSTDIR\logs\*.*"
