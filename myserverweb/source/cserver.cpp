@@ -462,6 +462,7 @@ void * listenServer(void* params)
 			continue;
 		if(asock==INVALID_SOCKET)
 			continue;
+		
 		lserver->addConnection(asock,&asock_in,protID);
 	}
 	/*
@@ -845,7 +846,6 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 	static int ret;
 	ret=true;
 	char ip[32];
-
 	strncpy(ip, inet_ntoa(asock_in->sin_addr), 32); // NOTE: inet_ntop supports IPv6
 	int port=ntohs((*asock_in).sin_port);
 

@@ -174,13 +174,16 @@ void vhostmanager::loadConfigurationFile(char* /*filename*/)
 	*JUST AN IDEA OF WHAT THE FILE WOULD BE
 	*
 	FILE STRUCTURE:
-	hosts;IPs;port;documentRoot;accessesLog;warningLog.
+	hosts;IPs;port;protocol;documentRoot;systemFolder;accessesLog;warningLog.
 	1)hosts is a list of valid hosts name that the virtual host can accept, every value is separated
 	by a comma. If host is 0 every host name is valid.
 	2)IPs is a list of valid IP that the virtual host can accept, every value is separated
 	by a comma. If IPs is 0 every IP name is valid.
-	3)documentRoot is the path to the web folder.
-	4-5)accessesLog;warningLog are strings saying where put the accesses and the warningLog file for
+	3)port in the port used to listen.
+	4)protocol is the protocol used(HTTP,FTP...). By default is HTTP.
+	5)documentRoot is the path to the web folder.
+	6)systemFolder is the path to the system folder.
+	7-8)accessesLog;warningLog are strings saying where put the accesses and the warningLog file for
 		this virtual host.
 	QUESTIONS:
 	1)How determine the IP that an incoming socket is connected to.
