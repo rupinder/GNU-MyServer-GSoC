@@ -58,6 +58,12 @@ string trim(const string& s , const string& t = " ");
 string trimLeft ( const string& s , const string& t = " " );
 string trimRight ( const string& s , const string& t = " " );
 
+int stringcmpi(string& a, string& b);
+int stringcmp(string& a, string& b);
+
+int stringcmpi(const string& a, const char* b);
+int stringcmp(const string& a, const char* b);
+
 #ifdef NOT_WIN
 extern "C" {
 char* strupr(char * string);

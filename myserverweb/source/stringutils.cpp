@@ -617,6 +617,54 @@ int getEndLine(const char* str, int max)
 	return -1;
 }
 
+/*!
+ *Compares two strings and returns a value indicating their relationship. 
+ *This function ignores case.
+ *Returns = 0 if [A] is identical to [B].
+ *Returns < 0 if [A] is less than [B].
+ *Returns > 0 if [A] is greater than [B].
+ */
+int stringcmpi(const string& a, const string& b)
+{
+  return strcmpi(a.c_str(), b.c_str());
+}
+
+/*!
+ *Compares two strings and returns a value indicating their relationship. 
+ *This function ignores case.
+ *Returns = 0 if [A] is identical to [B].
+ *Returns < 0 if [A] is less than [B].
+ *Returns > 0 if [A] is greater than [B].
+ */
+int stringcmpi(const string& a, const char* b)
+{
+  return strcmpi(a.c_str(), b);
+}
+
+/*!
+ *Compares two strings and returns a value indicating their relationship. 
+ *This function values the strings case too.
+ *Returns = 0 if [A] is identical to [B].
+ *Returns < 0 if [A] is less than [B].
+ *Returns > 0 if [A] is greater than [B].
+ */
+int stringcmp(const string& a, const string& b)
+{
+  return strcmp(a.c_str(), b.c_str());
+}
+
+/*!
+ *Compares two strings and returns a value indicating their relationship. 
+ *This function values the strings case too.
+ *Returns = 0 if [A] is identical to [B].
+ *Returns < 0 if [A] is less than [B].
+ *Returns > 0 if [A] is greater than [B].
+ */
+int stringcmp(const string& a, const char* b)
+{
+  return strcmp(a.c_str(), b);
+}
+
 #ifdef NOT_WIN 
 char* strupr(char * s)
 {

@@ -231,7 +231,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   st.auth_type = auth_type;
   st.len_auth = 16;
 	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
-	if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
+	if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		td->response.CONNECTION.assign("Keep-Alive");
 		keepalive=1;
@@ -497,7 +497,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	char auth_type[16];
   SecurityToken st;
 	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
-	if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
+	if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		td->response.CONNECTION.assign( "Keep-Alive");
 	}
@@ -793,7 +793,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	td->buffer->SetLength(0);
 	
 	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);	
-  if(!lstrcmpi(td->request.CONNECTION.c_str(),("Keep-Alive")))
+  if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
   {
     td->response.CONNECTION.assign("Keep-Alive");
   }
@@ -1632,7 +1632,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not 
        *always needed.
        */
-			if(!lstrcmpi(td.request.CONNECTION.c_str(),"Keep-Alive"))
+			if(!stringcmpi(td.request.CONNECTION, "Keep-Alive"))
 			{
 				if((td.request.CONTENT_ENCODING.length()=='\0') 
               && (td.request.CONTENT_LENGTH.length() == 0))
@@ -1975,7 +1975,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			}
 		}
 		
-		if(!lstrcmpi(td.request.CONNECTION.c_str(),"Keep-Alive")) 
+		if(!stringcmpi(td.request.CONNECTION, "Keep-Alive")) 
 		{
 			/*!
 			 *Support for HTTP pipelining.
@@ -2091,7 +2091,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		td.outputData.closeFile();
 		File::deleteFile(td.outputDataPath);
 	}
-  ret &= !lstrcmpi(td.request.CONNECTION.c_str(),"Keep-Alive");
+  ret &= !stringcmpi(td.request.CONNECTION, "Keep-Alive");
 	return ret? ((retvalue!=0) ?retvalue:1 ) :0;
 }
 
@@ -2121,7 +2121,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
   Md5 md5;
   td->lastError = ID;
 	HttpHeaders::buildDefaultHTTPResponseHeader(&(td->response));
-	if(!lstrcmpi(td->request.CONNECTION.c_str(),("Keep-Alive")))
+	if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		td->response.CONNECTION.assign("Keep-Alive");
 	}
@@ -2438,7 +2438,7 @@ int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, const char *n
 	*td->buffer2  << newURL ;
 	*td->buffer2  << "\r\nContent-length: 0\r\n";
 
-	if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
+	if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		*td->buffer2 << "Connection: Keep-Alive\r\n";	
 	}
@@ -2467,7 +2467,7 @@ int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 	*td->buffer2 << versionOfSoftware  ;
 	*td->buffer2 <<  "\r\n";
 
-	if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
+	if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		*td->buffer2 << "Connection: Keep-Alive\r\n";	
 	}	
