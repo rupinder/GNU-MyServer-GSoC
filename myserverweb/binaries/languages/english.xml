@@ -34,6 +34,7 @@
 <MSG_STOPT>Terminating threads...</MSG_STOPT>
 <MSG_TSTOPPED>Threads terminated</MSG_TSTOPPED>
 <MSG_MEMCLEAN>Cleaning memory...</MSG_MEMCLEAN>
+<ERR_LOADVHOSTS>Error loading virtual hosts</ERR_LOADVHOSTS>
 <MSG_SERVICESTOP>Service is stopping...</MSG_SERVICESTOP>
 
 <!--THESE MEMBERS MAX 32 CHARACTERS-->

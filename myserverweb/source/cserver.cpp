@@ -244,7 +244,9 @@ void cserver::start()
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML("MIMEtypes.xml"))
+	{
 		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
+	}
 	else
 	{
         preparePrintError();
@@ -286,8 +288,9 @@ void cserver::start()
 	*have a listen thread.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
-
-	/*vhostList.loadConfigurationFile("virtualhosts.txt");*/
+	/*
+	*Load the virtual hosts configuration from the xml file
+	*/
 	vhostList.loadXMLConfigurationFile("virtualhosts.xml");
 
 
@@ -648,7 +651,6 @@ void cserver::initialize(int OSVer)
 	{
 		sprintf(languageFile,"languages/%s",data);	
 	}
-
 
 	data=configurationFileManager.getValue("BUFFER_SIZE");
 	if(data)

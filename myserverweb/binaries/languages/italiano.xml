@@ -35,6 +35,7 @@
 <MSG_SERVICESTOP>Arresto del servizio in corso...</MSG_SERVICESTOP>
 <MSG_LOADED>Caricata</MSG_LOADED>
 <ERR_LOADED>Errore nel caricare</ERR_LOADED>
+<ERR_LOADVHOSTS>Errore nel caricare i virtual hosts</ERR_LOADVHOSTS>
 
 <!--THESE MEMBERS MAX 32 CHARACTERS-->
 <MSG_SENDING>Invio</MSG_SENDING>
