@@ -93,7 +93,8 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 		return 1;
 	}
 #ifdef WIN32
-	return WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
+	int ret = WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
+	return (!ret);
 #endif
 #ifdef NOT_WIN
 	*nbw = write((int)handle, buffer, buffersize);
@@ -166,6 +167,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
   if(handle==INVALID_HANDLE_VALUE)
   {
     delete [] filename;
+	filename = 0;
 		return 1;
   }
 	else/*! Open the file. */
@@ -219,12 +221,14 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		if(ret  < 0)
 		{
       delete [] filename;
+	  filename = 0;
 			return 1;
 		}
 		ret = open(Buffer,F_Flags);
 		if(ret == -1)
     {
       delete [] filename;
+	  filename = 0;
 			return 1;
     }
 		handle= (MYSERVER_FILE_HANDLE)ret;
@@ -239,6 +243,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		if(ret == -1)
     {
       delete [] filename;
+	  filename = 0;
 			return 1;
     }
 		else
@@ -254,6 +259,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		if(ret == -1)
     {
       delete [] filename;
+	  filename = 0;
 			return 1;
     }
 		else
@@ -269,6 +275,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		if(ret == -1)
     {
       delete [] filename;
+	  filename = 0;
 			return 1;
     }
 		else
@@ -282,6 +289,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
   {
 		handle = (MYSERVER_FILE_HANDLE)0;
     delete [] filename;
+	filename = 0;
   }
 #endif
 	
@@ -310,6 +318,7 @@ int MYSERVER_FILE::operator =(MYSERVER_FILE f)
 {
   if(filename)
     delete [] filename;
+  filename = 0;
 
   if(f.filename)
   {
@@ -335,6 +344,7 @@ int MYSERVER_FILE::setFilename(char* nfilename)
 {
   if(filename)
     delete [] filename;
+  filename = 0;
   int filename_len = strlen(nfilename)+1;
   filename = new char[filename_len];
   if(filename == 0)
@@ -392,6 +402,7 @@ int MYSERVER_FILE::closeFile()
 	}
   if(filename)
     delete [] filename;
+	filename = 0;
 	handle=0;
 	return ret;
 }

@@ -1879,13 +1879,17 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 			
 			if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
 			{
+				delete [] td.inputDataPath;
+				td.inputDataPath=0;
+				delete [] td.outputDataPath;
+				td.outputDataPath = 0;
 				td.inputData.closeFile();
 				return 0;
 			}
 			content_len=atoi(td.request.CONTENT_LENGTH);
       
 			/*!
-       *If the connection is Keep-Alive be sure that the client specify a the
+       *If the connection is Keep-Alive be sure that the client specify the
        *HTTP CONTENT-LENGTH field.
        *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not always needed.
        */
