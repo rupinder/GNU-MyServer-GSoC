@@ -43,7 +43,7 @@ extern int mustEndServer;
  *Return the recursion of the path.
  *Return -1 on errors.
  */
-int File::getPathRecursionLevel(char* path)
+int File::getPathRecursionLevel(const char* path)
 {
 	char *lpath;
   int lpath_len = strlen(path) + 1;
@@ -77,7 +77,6 @@ int File::getPathRecursionLevel(char* path)
  */
 File::File()
 {
-	filename=0;
 	handle=0;
 }
 /*!
@@ -110,7 +109,6 @@ int File::writeToFile(const char* buffer, u_long buffersize,u_long* nbw)
 File::File(char *nfilename, int opt) 
   : handle(0)
 {
-  filename = 0;
   openFile(nfilename, opt);
 }
 
@@ -121,19 +119,12 @@ File::File(char *nfilename, int opt)
  *opt is a bit-field containing the options on how open it.
  *openFile returns 0 if the call was successfull, any other value on errors.
  */
-int File::openFile(char* nfilename,u_long opt)
+int File::openFile(const char* nfilename,u_long opt)
 {
 	long ret=0;
   int filename_len;
-  if(filename)
-  {
-    delete [] filename;
-  }
-  filename_len = strlen(nfilename) + 1;
-  filename = new char[filename_len];
-  if(filename == 0)
-    return -1;
-	strcpy(filename, nfilename);
+
+	filename.assign(nfilename);
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};
 	sa.nLength = sizeof(sa);
@@ -168,17 +159,13 @@ int File::openFile(char* nfilename,u_long opt)
 
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
-	handle=(FileHandle)CreateFile(filename, openFlag, 
+	handle=(FileHandle)CreateFile(filename.c_str(), openFlag, 
                                           FILE_SHARE_READ | FILE_SHARE_WRITE, 
                                           &sa, creationFlag, attributeFlag, NULL);
 	/*! Return 1 if an error happens.  */
   if(handle==INVALID_HANDLE_VALUE)
   {
-    if(filename)
-    {
-      delete [] filename;
-    }
-    filename = 0;
+    filename.clear();
 		return 1;
   }
 	else/*! Open the file. */
@@ -190,11 +177,7 @@ int File::openFile(char* nfilename,u_long opt)
   		if(ret)
       {
         closeFile();
-        if(filename)
-        {
-          delete [] filename;
-        }
-        filename = 0;
+        filename.clear();
         return 1;
       }
 	}
@@ -203,7 +186,7 @@ int File::openFile(char* nfilename,u_long opt)
 #ifdef NOT_WIN
 	struct stat F_Stats;
 	int F_Flags;
-  char Buffer[strlen(filename)+1];
+  char Buffer[filename.length()+1];
 	if(opt && FILE_OPEN_READ && FILE_OPEN_WRITE)
 		F_Flags = O_RDWR;
 	else if(opt & FILE_OPEN_READ)
@@ -215,52 +198,46 @@ int File::openFile(char* nfilename,u_long opt)
 	{
 		int index;
 		Buffer[0] = '\0';
-		for(index = strlen(filename); index >= 0; index--)
+		for(index = filename.length(); index >= 0; index--)
 			if(filename[index] == '/')
 			{
 				index++;
 				break;
 			}
 		if(index > 0)
-			strncat(Buffer, filename, index);
+			strncat(Buffer, filename.c_str(), index);
 		strcat(Buffer, ".");
-		strcat(Buffer, filename + index);
+		strcat(Buffer, filename.c_str() + index);
 	}
 	else
-		strcpy(Buffer, filename);
+		strcpy(Buffer, filename.c_str());
 		
 	if(opt & FILE_OPEN_IFEXISTS)
 	{
-		ret = stat(filename, &F_Stats);
+		ret = stat(filename.c_str(), &F_Stats);
 		if(ret  < 0)
 		{
-      if(filename)
-        delete [] filename;
-      filename = 0;
+      filename.clear();
 			return 1;
 		}
 		ret = open(Buffer,F_Flags);
 		if(ret == -1)
     {
-      if(filename)
-        delete [] filename;
-      filename = 0;
+      filename.clear();
 			return 1;
     }
 		handle= (FileHandle)ret;
 	}
 	else if(opt & FILE_OPEN_APPEND)
 	{
-		ret = stat(filename, &F_Stats);
+		ret = stat(filename.c_str(), &F_Stats);
 		if(ret < 0)
 			ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
 			ret = open(Buffer,O_APPEND | F_Flags);
 		if(ret == -1)
      {
-      if(filename)
-        delete [] filename;
-      filename = 0;
+      filename.c_str();
 			return 1;
     }
 		else
@@ -268,16 +245,14 @@ int File::openFile(char* nfilename,u_long opt)
 	}
 	else if(opt & FILE_CREATE_ALWAYS)
 	{
-		stat(filename, &F_Stats);
+		stat(filename.c_str(), &F_Stats);
 		if(ret)
-			remove(filename);
+			remove(filename.c_str());
 
 		ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		if(ret == -1)
     {
-      if(filename)
-        delete [] filename;
-	  filename = 0;
+      filename.c_str();
 			return 1;
     }
 		else
@@ -285,16 +260,14 @@ int File::openFile(char* nfilename,u_long opt)
 	}
 	else if(opt & FILE_OPEN_ALWAYS)
 	{
-		ret = stat(filename, &F_Stats);
+		ret = stat(filename.c_str(), &F_Stats);
 		if(ret < 0)
 			ret =open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
 			ret = open(Buffer,F_Flags);
 		if(ret == -1)
     {
-      if(filename)
-        delete [] filename;
-      filename = 0;
+      filename.clear();
 			return 1;
     }
 		else
@@ -307,9 +280,7 @@ int File::openFile(char* nfilename,u_long opt)
 	if((long)handle < 0)
   {
 		handle = (FileHandle)0;
-    if(filename)
-      delete [] filename;
-    filename = 0;
+    filename.c_str();
   }
 #endif
 	
@@ -332,25 +303,18 @@ int File::setHandle(FileHandle hl)
 	return 0;
 }
 /*!
- *define the operator =
+ *define the operator =.
  */
 int File::operator =(File f)
 {
-  if(filename)
-    delete [] filename;
-  filename = 0;
   setHandle(f.getHandle());
-  if(f.filename)
+  if(f.filename.length())
   {
-    int filename_len = strlen(f.filename)+1;
-    filename = new char[filename_len];
-    if(filename == 0)
-      return -1;
-    strcpy(filename,f.filename);
+    filename.assign(f.filename);
   }
   else
   {
-    filename = 0;
+    filename.clear();
     handle = 0;
   }
 	return 0;
@@ -361,22 +325,15 @@ int File::operator =(File f)
  */
 int File::setFilename(char* nfilename)
 {
-  if(filename)
-    delete [] filename;
-  filename = 0;
-  int filename_len = strlen(nfilename)+1;
-  filename = new char[filename_len];
-  if(filename == 0)
-    return -1;
-	strcpy(filename,nfilename);
+	filename.assign(nfilename);
   return 0;
 }
 /*!
  *Returns the file path.
  */
-char *File::getFilename()
+const char *File::getFilename()
 {
-	return filename;
+	return filename.c_str();
 }
 /*!
  *Read data from a file to a buffer.
@@ -428,17 +385,30 @@ int File::closeFile()
       }
 #endif
 	}
-  if(filename)
-    delete [] filename;
-	filename = 0;
+	filename.clear();
 	handle=0;
 	return ret;
 }
+
+/*!
+ *Rename the file [BEFORE] to [AFTER]. Returns 0 on success.
+ */
+int File::renameFile(const char* before, const char* after)
+{
+#ifdef WIN32
+  return MoveFile(before, after) ? 0 : 1;
+#endif
+
+#ifdef NOTWIN
+  return rename(before, after);
+#endif
+}
+
 /*!
  *Delete an existing file passing the path.
  *Return a non-null value on errors.
  */
-int File::deleteFile(char *filename)
+int File::deleteFile(const char *filename)
 {
 	int ret;
 #ifdef WIN32
@@ -517,7 +487,7 @@ int File::isDirectory(char *filename)
 /*!
  *Returns a non-null value if the given path is a valid file.
  */
-int File::fileExists(char* filename)
+int File::fileExists(const char* filename)
 {
 #ifdef WIN32
 	OFSTRUCT of;
@@ -539,7 +509,7 @@ int File::fileExists(char* filename)
  *Returns the time of the last modify to the file.
  *Returns -1 on errors.
  */
-time_t File::getLastModTime(char *filename)
+time_t File::getLastModTime(const char *filename)
 {
 	int res;
 #ifdef WIN32
@@ -567,16 +537,16 @@ time_t File::getLastModTime()
  *Returns the time of the file creation.
  *Returns -1 on errors.
  */
-time_t File::getCreationTime(char *filename)
+time_t File::getCreationTime(const char *filename)
 {
 	int res;
 #ifdef WIN32
 	struct _stat sf;
-	res=_stat(filename,&sf);
+	res=_stat(filename, &sf);
 #endif
 #ifdef NOT_WIN
 	struct stat sf;
-	res=stat(filename,&sf);
+	res=stat(filename, &sf);
 #endif
 	if(res==0)
 		return sf.st_ctime;
@@ -594,16 +564,16 @@ time_t File::getCreationTime()
  *Returns the time of the last access to the file.
  *Returns -1 on errors.
  */
-time_t File::getLastAccTime(char *filename)
+time_t File::getLastAccTime(const char *filename)
 {
 	int res;
 #ifdef WIN32
 	struct _stat sf;
-	res=_stat(filename,&sf);
+	res=_stat(filename, &sf);
 #endif
 #ifdef NOT_WIN
 	struct stat sf;
-	res=stat(filename,&sf);
+	res=stat(filename, &sf);
 #endif
 	if(res==0)
 		return sf.st_atime;
@@ -674,15 +644,16 @@ void File::splitPathLength(const char *path, int *dir, int *filename)
 	int splitpoint, i, j, len;
 	if(path == 0)
 	{
-		*dir=0;
-		*filename=0;
+		*dir = 0;
+		*filename = 0;
 		return;
 	}
   len = strlen(path);
 	i = 0;
 	j = 0;
 	splitpoint =(int)(len-1);
-	while ((splitpoint > 0) && ((path[splitpoint] != '/')&&(path[splitpoint] != '\\')))
+	while ((splitpoint > 0) && ((path[splitpoint] != '/') 
+                              && (path[splitpoint] != '\\')))
 		splitpoint--;
 
   if(dir)
@@ -691,6 +662,7 @@ void File::splitPathLength(const char *path, int *dir, int *filename)
   if(filename)
     *filename = len - splitpoint + 2;
 }
+
 /*!
  *Splits a file path into a directory and filename.
  *Path is an input value while dir and filename are the output values.
@@ -703,8 +675,10 @@ void File::splitPath(const char *path, char *dir, char *filename)
 	if(path==0)
 		return;
 	splitpoint =(int)( strlen(path) - 1);
-	while ((splitpoint > 0) && ((path[splitpoint] != '/')&&(path[splitpoint] != '\\')))
+	while ((splitpoint > 0) && ((path[splitpoint] != '/') 
+                              &&(path[splitpoint] != '\\')))
 		splitpoint--;
+
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
 		dir[0] = 0;
@@ -759,18 +733,18 @@ void File::getFileExt(char* ext,const char* filename)
 int File::getShortFileName(char *out,int buffersize)
 {
 #ifdef WIN32
-  if(filename)
-    return GetShortPathName(filename,out,buffersize);
+  if(filename.length())
+    return GetShortPathName(filename.c_str(),out,buffersize);
   else
     return 0;
 #endif
 #ifdef NOT_WIN
   int ret = 0;
-  int filename_len = strlen(filename) + 1 ;
+  int filename_len = filename.length() + 1 ;
   if(filename_len < buffersize)
   {
     ret = 0;
-    strncpy(out,filename,buffersize);
+    strncpy(out,filename.c_str(), buffersize);
   }
   else
   {
