@@ -12,63 +12,63 @@
 <UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Introduction">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\Introduction.html">
+		<param name="Local" value="En\Introduction.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="License">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\license.html">
+		<param name="Local" value="En\license.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Web Server">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\webserver.html">
+		<param name="Local" value="En\webserver.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Help Us">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\helpus.html">
+		<param name="Local" value="En\helpus.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="CVS">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\cvs.html">
+		<param name="Local" value="En\cvs.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="PHP">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\php.html">
+		<param name="Local" value="En\php.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Starting myServer on Linux">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\runmyserver.html">
+		<param name="Local" value="En\runmyserver.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Starting myServer on Windows 9x">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\runWindows9x.html">
+		<param name="Local" value="En\runWindows9x.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Starting myServer on Windows NT/2000/XP">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\services.html">
+		<param name="Local" value="En\services.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Publishing a Web Site">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\PublishWebSite.html">
+		<param name="Local" value="En\PublishWebSite.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Configuring MIME types">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\mimetypes.html">
+		<param name="Local" value="En\mimetypes.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Changing the default language">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\changelanguage.html">
+		<param name="Local" value="En\changelanguage.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Browse Folder">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\browsefolder.html">
+		<param name="Local" value="En\browsefolder.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Error Pages">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\errorsfiles.html">
+		<param name="Local" value="En\errorsfiles.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="FAQ">
-		<param name="Local" value="Myserver CVS\myserverweb\Documentation\En\faq.html">
+		<param name="Local" value="En\faq.html">
 		</OBJECT>
 </UL>
 </BODY></HTML>
