@@ -106,7 +106,8 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	*td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
 	*td->buffer2 << "Date: " << time ;
 	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
-	*td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
+  if(td->request.CONNECTION[0])
+    *td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
 	*td->buffer2 <<"\r\nContent-length: 0\r\nAccept-Ranges: bytes\r\n";
 	*td->buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
 
@@ -145,7 +146,8 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	*td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
 	*td->buffer2 << "Date: " << time ;
 	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
-	*td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
+  if(td->request.CONNECTION[0])
+    *td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
 	*td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) 
                << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
 	
