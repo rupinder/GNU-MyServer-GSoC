@@ -1442,18 +1442,20 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	}
 	validRequest=HttpHeaders::buildHTTPRequestHeaderStruct(&td.request, &td);
   
-  
   /*! If the header is incomplete returns 2. */
 	if(validRequest==-1)/*!If the header is incomplete returns 2*/
 	{
     /*! Be sure that the client can handle the 100 status code. */
     if(strcmp(td.request.VER, "HTTP/1.0"))
     {
-			char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
-			if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
-				return 0;/*Remove the connection from the list*/
+      char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
+      wait(2);
+			if( a->socket.bytesToRead() == 0) 
+        {
+          if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
+            return 0;/*Remove the connection from the list*/
+        }
     }
-		logHTTPaccess(&td, a);
 		return 2;
 	}
 	

@@ -392,7 +392,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
    */
 	u_long i=0,j=0;
 	int max=0;
-	u_long nLines, maxTotchars;
+  u_long nLines, maxTotchars;
 	int noinputspecified=0;
 	int validRequest;
 	const int max_URI = HTTP_REQUEST_URI_DIM + 200 ;
