@@ -153,7 +153,7 @@ void ClientsTHREAD::controlConnections()
 		*The protocols parser functions return:
 		*0 to delete the connection from the active connections list
 		*1 to keep the connection active and clear the connectionBuffer
-		*2 if the header is incomplete
+		*2 if the header is incomplete and to save it in a temporary buffer
 		*/
 		if(retcode==0)
 		{

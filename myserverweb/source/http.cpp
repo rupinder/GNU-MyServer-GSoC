@@ -1794,7 +1794,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 				for(j=0;(i<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
 				{
 					request->URIOPTS[j]=token[++i];
-					request->URIOPTS[j+1]='/0';
+					request->URIOPTS[j+1]='\0';
 				}
 			}
 			strncpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM);
