@@ -135,7 +135,6 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	spi.stdIn = stdInFile.getHandle();
 	spi.stdOut = stdOutFile.getHandle();
 	spi.envString=td->buffer2;
-	//spi.envString='\0';///////
 	execHiddenProcess(&spi);
 	td->buffer2[0]='\0';
 	/*
