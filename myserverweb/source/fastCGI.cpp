@@ -23,13 +23,13 @@ static struct sfCGIservers
 	char path[MAX_PATH];/*exec path*/
 	union 
 	{
-	    HANDLE fileHandle;
+	    /*HANDLE*/unsigned long fileHandle;
 		SOCKET sock;
 		unsigned int value;
 	}DESCRIPTOR;
 	MYSERVER_SOCKET socket;
 	int pid; /*process ID*/
-	int port;/*IP port*/
+	u_short port;/*IP port*/
 }fCGIservers[MAX_FCGI_SERVERS];
 static int fCGIserversN;
 /*
@@ -218,6 +218,7 @@ void generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId, int iCo
 	tHeader.contentLengthB1 = (iContentLength >> 8 ) & 0xff;
 	tHeader.contentLengthB0 = (iContentLength ) & 0xff;
 	tHeader.paddingLength = 0;
+	tHeader.reserved = 0;
 };
 
 int initializeFASTCGI()
@@ -239,7 +240,7 @@ int isFcgiServerRunning(char* path)
 {
 	for(int i=0;i<fCGIserversN;i++)
 	{
-		if(_stricmp(path,fCGIservers[i].path))
+		if(!_stricmp(path,fCGIservers[i].path))
 			return i;
 	}
 	return -1;
@@ -248,7 +249,7 @@ int FcgiConnect(fCGIContext* con,char* path)
 {
 	int pID;
 	unsigned long pLong = 1L;
-	if((pID=runFcgiServer(con,path)-1)>=0)
+	if((pID=runFcgiServer(con,path))>=0)
 	{
 		MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::ms_gethostbyname("localhost");
 
@@ -277,8 +278,8 @@ int FcgiConnect(fCGIContext* con,char* path)
 }
 int runFcgiServer(fCGIContext *con,char* path)
 {
-	int pID;
-	if(pID=isFcgiServerRunning(path)>=0)
+	int pID=isFcgiServerRunning(path);
+	if(pID>=0)
 		return pID;
 	if(fCGIserversN==MAX_FCGI_SERVERS-2)
 		return -1;
@@ -286,20 +287,22 @@ int runFcgiServer(fCGIContext *con,char* path)
 	port++;
 	{
 		/*SERVER SOCKET CREATION*/
+		memset(&fCGIservers[fCGIserversN],0,sizeof(fCGIservers[fCGIserversN]));
 		fCGIservers[fCGIserversN].socket.ms_socket(AF_INET,SOCK_STREAM,0);
+		if(fCGIservers[fCGIserversN].socket.ms_getHandle()==INVALID_SOCKET)
+			return -2;
 		MYSERVER_SOCKADDRIN sock_inserverSocket;
 		sock_inserverSocket.sin_family=AF_INET;
 		sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 		fCGIservers[fCGIserversN].port=port+fCGIserversN;
 		sock_inserverSocket.sin_port=htons((u_short)port);
-		if(fCGIservers[fCGIserversN].socket.ms_bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
+		if(fCGIservers[fCGIserversN].socket.ms_bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket)))
 		{
 			fCGIservers[fCGIserversN].socket.ms_closesocket();
 			return -2;
 		}
-		if(fCGIservers[fCGIserversN].socket.ms_listen(SOMAXCONN)==-1)
+		if(fCGIservers[fCGIserversN].socket.ms_listen(2))
 			return -2;
-
 		fCGIservers[fCGIserversN].DESCRIPTOR.sock=fCGIservers[fCGIserversN].socket.ms_getHandle();
 	}
 	START_PROC_INFO spi;
@@ -307,22 +310,21 @@ int runFcgiServer(fCGIContext *con,char* path)
 	char cmd[MAX_PATH];
 	spi.cmd=cmd;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
-	spi.cwd=con->td->cgiRoot;
 	spi.arg=con->td->buffer2;
 	spi.cmdLine=cmd;
 #ifdef WIN32
-	SetHandleInformation(fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle, HANDLE_FLAG_INHERIT,TRUE);
+	SetHandleInformation(spi.stdIn, HANDLE_FLAG_INHERIT,TRUE);
 #endif
-	sprintf(spi.cmd,"%s/%s",con->td->cgiRoot,con->td->cgiFile);
+	sprintf(spi.cmd,"%s%s",con->td->cgiRoot,con->td->cgiFile);
 	spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
 	fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
     
 	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 	
 	if(fCGIservers[fCGIserversN].pid)
-		fCGIserversN++;
+		fCGIserversN;
 	else
 		return -3;
 
-	return fCGIserversN;
+	return fCGIserversN++;
 }

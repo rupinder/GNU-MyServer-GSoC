@@ -1,3 +1,6 @@
+pl,text/html,RUNISAPI c:/programmi/perl/bin/perlis.dll;
+php3,text/html,RUNCGI c:/programmi/php/php.exe;
+php,text/html,RUNFASTCGI c:/programmi/php/phpfcgi.exe;
 wincgi,text/html,RUNWINCGI NONE;
 ai,application/postscript,SEND NONE;
 msxu,video/vnd.mpegurl,SEND NONE;
@@ -125,9 +128,6 @@ css,text/css,SEND NONE;
 bmp,image/bmp,SEND NONE;
 vrml,model/vrml,SEND NONE;
 wrl,model/vrml,SEND NONE;
-pl,text/html,RUNISAPI c:/programmi/perl/bin/perlis.dll;
-php3,text/html,RUNCGI c:/programmi/php/php.exe;
-php,text/html,RUNFASTCGI c:/programmi/php/phpfcgi.exe;
 mscgi,text/html,RUNMSCGI NONE;
 cgi,text/html,EXECUTE NONE;
 asc,text/html,SEND NONE;
