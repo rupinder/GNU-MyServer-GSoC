@@ -303,6 +303,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	*/
 	if(h.setFilePointer(firstByte))
 	{
+		h.closeFile();
 		return raiseHTTPError(td,s,e_500);
 	}
 
@@ -332,7 +333,10 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	*If is requested only the header exit from the function; used by the HEAD request.
 	*/
 	if(OnlyHeader)
+	{
+		h.closeFile();
 		return 1;
+	}
 	/*!
 	*Is the GZIP header still added to the buffer?
 	*/
