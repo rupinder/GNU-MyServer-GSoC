@@ -215,13 +215,7 @@ BOOL ClientsTHREAD::sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	char cmdLine[MAX_PATH*2];
 	
 	sprintf(cmdLine,"%s \"%s%s\"",exec,lserver->path,filename);
-	char *c=&cmdLine[0];
-	while(*c)
-	{
-		if(*c=='\\')
-			*c='/';
-		c++;
-	}
+
     SECURITY_ATTRIBUTES sa = {0};  
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
@@ -311,6 +305,13 @@ BOOL ClientsTHREAD::sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 }
 BOOL ClientsTHREAD::sendRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
 {
+	char *c=filename;
+	while(*c)
+	{
+		if(*c=='\\')
+			*c='/';
+		c++;
+	}
 	buffer[0]='\0';
 	buildDefaultHttpResponseHeader(&response);
 
@@ -660,11 +661,6 @@ BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
 			else
 			{
 				max=lstrlen(request.URI);
-				for(i=0;i<max;i++)
-				{
-					if(request.URI[i]=='/')
-						request.URI[i]='\\';
-				}
 			}
 			request.URIOPTSPTR=0;
 		}
@@ -714,11 +710,6 @@ BOOL ClientsTHREAD::controlHTTPConnection(LPCONNECTION a)
 			else
 			{
 				max=lstrlen(request.URI);
-				for(i=0;i<max;i++)
-				{
-					if(request.URI[i]=='/')
-						request.URI[i]='\\';
-				}
 			}
 		}
 		/*HEAD*/
@@ -1009,12 +1000,7 @@ void ClientsTHREAD::clearAllConnections()
 	ReleaseMutex(connectionMutex);
 }
 
-
-
-
-
 void ClientsTHREAD::buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
-
 {
 	/*
 	*Here is builded the HEADER of a HTTP response.
