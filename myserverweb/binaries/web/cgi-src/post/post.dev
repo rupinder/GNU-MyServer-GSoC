@@ -1,6 +1,6 @@
 [Project]
 FileName=post.dev
-Name=Post
+Name=post
 UnitCount=1
 Type=3
 Ver=1
@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DBUILDING_DLL=1_@@_
 CppCompiler=
-Linker=--no-export-all-symbols_@@_../../../cgi-lib/CGI-LIB.lib --def ../../../cgi-lib/CGI-LIB.def_@@_
+Linker=--no-export-all-symbols --add-stdcall-alias _@@_../../../cgi-lib/CGI-LIB.lib_@@_
 IsCpp=1
 Icon=
 ExeOutput=..\..\cgi-bin
@@ -21,7 +21,7 @@ OverrideOutput=1
 OverrideOutputName=post.mscgi
 HostApplication=
 Folders=
-CommandLine=
+CommandLine=move *.a ../binaries/cgi-lib
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
