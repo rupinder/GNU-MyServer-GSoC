@@ -411,7 +411,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	if(validRequest==0)
   {
     /* Keep trace of first line for logging. */
-    tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+    tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
     if(tokenOff > 0)
       strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
     else
@@ -430,7 +430,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
   if(tokenOff == -1)
   {
     /* Keep trace of first line for logging. */
-    tokenOff = getCharInString(token, "\r\n", HTTP_REQUEST_URI_DIM);
+    tokenOff = getEndLine(token, HTTP_REQUEST_URI_DIM);
     if(tokenOff > 0)
       strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
     else
@@ -467,14 +467,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			/*! Copy the method type. */
 			strncpy(request->CMD, command, tokenOff);
 			request->CMD[tokenOff] = '\0';
-			tokenOff = getCharInString(token, "\t\n\r", 
-                                 HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
+			tokenOff = getEndLine(token, HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
 			len_token = tokenOff;
 			if(tokenOff==-1)
         {
           request->VER[0] = '\0';
           request->CMD[0]='\0';
-          tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+          tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
           if(tokenOff > 0)
             strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
           else
@@ -485,7 +484,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         {
           request->VER[0] = '\0';
           request->CMD[0]='\0';
-          tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+          tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
           if(tokenOff > 0)
             strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
           else
@@ -512,7 +511,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       {
         request->VER[0] = '\0';
         request->CMD[0]='\0';
-        tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+        tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
         if(tokenOff > 0)
           strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
@@ -545,7 +544,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       {
         request->VER[0] = '\0';
         request->CMD[0]='\0';
-        tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+        tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
         if(tokenOff > 0)
           strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
@@ -566,7 +565,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
           request->VER[0] = '\0';
           request->CMD[0]='\0';   
           /* Keep trace for logging. */
-          tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+          tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
           if(tokenOff > 0)
             strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
           else
@@ -585,7 +584,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!User-Agent*/
 		if(!lstrcmpi(command,"User-Agent"))
 		{
-			tokenOff = getCharInString(token,"\n\r",HTTP_REQUEST_USER_AGENT_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_USER_AGENT_DIM);
 						
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
@@ -639,7 +638,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					password[i]=*lbuffer2++;
 					password[i+1]='\0';
 				}
-        tokenOff = getCharInString(token,"\r\n", 100);
+        tokenOff = getEndLine(token, 100);
 			}
 			else if(!lstrcmpi(request->AUTH,"Digest"))
 			{
@@ -648,7 +647,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				token+=tokenOff;
 				while(*token==' ')
 					token++;
-				tokenOff = getCharInString(token,"\r\n",0);
+				tokenOff = getEndLine(token, 1024);
 				digestBuff=new char[tokenOff];
 				if(!digestBuff)
 					return 0;
@@ -735,7 +734,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(!lstrcmpi(command,"Host"))
 		{
       int cur = 0;
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_HOST_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_HOST_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -758,7 +757,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Content-Encoding*/
 		if(!lstrcmpi(command,"Content-Encoding"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_ENCODING_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_ENCODING_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->CONTENT_ENCODING,token,tokenOff+1);
@@ -768,7 +767,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Transfer-Encoding*/
 		if(!lstrcmpi(command,"Transfer-Encoding"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_TRANSFER_ENCODING_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_TRANSFER_ENCODING_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->TRANSFER_ENCODING,token,tokenOff+1);
@@ -778,7 +777,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_TYPE_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_TYPE_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -789,7 +788,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!If-Modified-Since*/
 		if(!lstrcmpi(command,"If-Modified-Since"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -804,7 +803,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			int oldlen = (int)strlen(request->ACCEPT);
 			if(max < 0)
 				return 0;
-			tokenOff = getCharInString(token,seps,max);
+			tokenOff = getEndLine(token, max);
 			if(tokenOff == -1)
         return 0;
 			lineControlled=1;
@@ -815,7 +814,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Accept-Language*/
 		if(!lstrcmpi(command,"Accept-Language"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTLAN_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTLAN_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -826,7 +825,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Accept-Charset*/
 		if(!lstrcmpi(command,"Accept-Charset"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTCHARSET_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTCHARSET_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -837,7 +836,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Accept-Encoding*/
 		if(!lstrcmpi(command,"Accept-Encoding"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTENC_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTENC_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -848,7 +847,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Connection*/
 		if(!lstrcmpi(command,"Connection"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONNECTION_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_CONNECTION_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -859,7 +858,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Cookie*/
 		if(!lstrcmpi(command,"Cookie"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_COOKIE_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_COOKIE_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -869,7 +868,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!From*/
 		if(!lstrcmpi(command,"From"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_FROM_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_FROM_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -880,7 +879,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_LENGTH_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -890,7 +889,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_CACHE_CONTROL_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
@@ -908,7 +907,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			RANGEBYTEBEGIN[0]='\0';
 			RANGEBYTEEND[0]='\0';
 			lineControlled=1;
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_RANGETYPE_DIM+30);
+			tokenOff = getEndLine(token, HTTP_REQUEST_RANGETYPE_DIM+30);
 			if(tokenOff==-1)
         return 0;
 			do
@@ -959,7 +958,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Referer*/
 		if(!lstrcmpi(command,"Referer"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_REFERER_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_REFERER_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->REFERER,token,tokenOff+1);
@@ -969,7 +968,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Pragma*/
 		if(!lstrcmpi(command,"Pragma"))
 		{
-			tokenOff = getCharInString(token,seps,HTTP_REQUEST_PRAGMA_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_PRAGMA_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->PRAGMA,token,tokenOff+1);
@@ -978,7 +977,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		}
     if(!lineControlled)
     {
-      tokenOff = getCharInString(token,seps,maxTotchars);
+      tokenOff = getEndLine(token, maxTotchars);
       if(tokenOff==-1)
         return 0;
 		}

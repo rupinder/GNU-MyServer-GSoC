@@ -471,6 +471,9 @@ int getCharInString(char* str, const char* characters, int max)
 	return -1;
 }
 
+/*!
+ *Get the offset from string start of the first \r or \n.
+ */
 int getEndLine(char* str, int max)
 {
 	int i;

@@ -31,7 +31,7 @@ void gotoNextLine(char** cmd);
 int hexVal(char c);
 void translateEscapeString(char *TargetStr);
 int hexToInt(const char *str);
-
+int getEndLine(char* str, int max);
 
 #ifdef NOT_WIN
 extern "C" {
