@@ -76,7 +76,6 @@ void cserver::start()
 	*Set the current working directory.
 	*/
 	ms_setcwdBuffer();
-
 	mustEndServer=false;
 	memset(this, 0, sizeof(cserver));
 
@@ -129,11 +128,6 @@ void cserver::start()
 	*/
     printf("Initializing server configuration...\n");
 
-	/*
-	*Print the current working directory.
-	*/
-    printf("myServer @ %s\n",ms_getdefaultwd(path,MAX_PATH));
-	
 	int OSVer=ms_getOSVersion();
 
 	initialize(OSVer);
@@ -273,6 +267,7 @@ void cserver::start()
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
 
+	ms_getdefaultwd(path,MAX_PATH);
 	/*
 	*Then we create here all the listens threads. Check that all the port used for listening
 	*have a listen thread.

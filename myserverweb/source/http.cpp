@@ -304,7 +304,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	if(yetmapped)
 		lstrcpy((td->filenamePath),filename);
 	else
-		getPath(td,(td->filenamePath),filename,systemrequest);
+	{
+		translateEscapeString(filename );
+		getPath(td,td->filenamePath,filename,systemrequest);
+	}
 
 	/*
 	*Get the PATH_INFO value.
@@ -313,50 +316,40 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*is a file. If it is a file send the rest of the URI as PATH_INFO.
 	*/
 	char dirscan[MAX_PATH];
-	//dirscan[0]='\0';
-	memset(dirscan, 0, MAX_PATH);
+	dirscan[0]='\0';
 	td->pathInfo[0]='\0';
 	td->pathTranslated[0]='\0';
-	for(int i=0;;i++)
+	int filenamePathLen=strlen(td->filenamePath);
+	for(int i=0,len=0;i<filenamePathLen;i++)
 	{
 		/*
 		*http://127.0.0.1/uri/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
 		*When a request has this form send the file filetosend.php with the
-		*environment string PATH_INFO setted to PATH_INFO_VALUE and QUERY_INFO
+		*environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
 		*to QUERY_INFO_VALUE.
 		*/
-		int len=lstrlen(dirscan);
-		if((td->filenamePath)[i]==0)/*If we are at the end of the string break the loop*/
-			break;
-        else if((td->filenamePath)[i]!='/' || i==0)/*If there is a character different from '/'*/
-		{
-			dirscan[len]=(td->filenamePath)[i];
-			dirscan[len+1]='\0';
-		}
-		else/*There is the '/' character check if dirscan is a file*/
+		if((td->filenamePath)[i]=='/')/*There is the '/' character check if dirscan is a file*/
 		{
 			if(!ms_IsFolder(dirscan))
 			{
 				/*
-				*Yes it is a file.
+				*If the token is a file.
 				*/
-				lstrcpy(td->pathInfo,&((td->filenamePath)[i]));
-				lstrcpy(td->filenamePath,dirscan);
+				strcpy(td->filenamePath,dirscan);
+				td->pathInfo[0]='/';
+				strcpy(&td->pathInfo[1],&(td->filenamePath[i+1]));
 				break;
 			}
-			/*
-			*If it is not a file put a the end of dirscan the '/' character for the next scansion.
-			*/
-			dirscan[len]=(td->filenamePath)[i];
-			dirscan[len+1]='\0';
 		}
+		dirscan[len++]=(td->filenamePath)[i];
+		dirscan[len]='\0';
 	}
 	
 	/*
 	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
 	*PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
 	*/
-	if(td->pathInfo[0])
+	if((td->pathInfo[0])&&(td->pathInfo[0]!='/'))
 	{
         td->pathTranslated[0]='\0';
 		/*
@@ -413,7 +406,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 
 	/*
-	*getMIME return true if the ext is registered by a CGI.
+	*getMIME returns true if the ext is registered by a CGI.
 	*/
 	int mimeCMD=getMIME(td->response.CONTENTS_TYPE,td->filenamePath,ext,data);
 
@@ -550,10 +543,9 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*Create the file that contains the data posted.
 		*This data is the stdin file in the CGI.
 		*/
-		char stdInFilePath[MAX_PATH];
-		ms_getdefaultwd(stdInFilePath,MAX_PATH);
-		sprintf(&stdInFilePath[lstrlen(stdInFilePath)],"/stdInFile_%u",td.id);
-		td.inputData=ms_CreateTemporaryFile(stdInFilePath);
+		ms_getdefaultwd(td.inputDataPath,MAX_PATH);
+		sprintf(&td.inputDataPath[lstrlen(td.inputDataPath)],"/stdInFile_%u",td.id);
+		td.inputData=ms_CreateTemporaryFile(td.inputDataPath);
 		u_long nbw;
 		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
 
@@ -934,8 +926,12 @@ void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int s
 	*Else the file is in the web folder.
 	*/
 	else
-	{
-		sprintf(filenamePath,"%s/%s",((vhost*)(td->connection->host))->documentRoot,filename);
+	{	
+		if(filename[0])
+			sprintf(filenamePath,"%s/%s",((vhost*)(td->connection->host))->documentRoot,filename);
+		else
+			sprintf(filenamePath,"%s",((vhost*)(td->connection->host))->documentRoot);
+
 	}
 }
 
@@ -1384,7 +1380,6 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 	u_long nLines,maxTotchars;
 	u_long validRequest=validHTTPResponse(td,&nLines,&maxTotchars);
 
-	const char seps[]   = " ,\t\n\r";
 	const char cmdseps[]   = ": ,\t\n\r";
 
 	static char *token=0;

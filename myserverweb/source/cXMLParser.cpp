@@ -43,7 +43,7 @@ void cXMLParser::open(char* filename)
 	else
 		nbr=0;
 	if(nbr==0)
-		buffer[0]='/0';
+		buffer[0]='\0';
 }
 /*
 *Constructor of the cXMLParser class.
@@ -64,8 +64,8 @@ char *cXMLParser::getValue(char* vName)
 		return 0;
 	int found;
 	char *ret=NULL;
-	unsigned int i,j;
-	unsigned int len=strlen(vName);
+	u_long i,j;
+	u_long len=(u_long)strlen(vName);
 	for(i=0;i<buffersize;i++)
 	{
  		if(buffer[i]=='<')

@@ -99,30 +99,28 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 
     /*
     *Use a temporary file to store CGI output.
-    *Every thread has it own tmp file name(stdOutFilePath),
+    *Every thread has it own tmp file name(td->outputDataPath),
     *so use this name for the file that is going to be
     *created because more threads can access more CGI at the same time.
     */
 	char currentpath[MAX_PATH];
-	char stdOutFilePath[MAX_PATH];
-	char stdInFilePath[MAX_PATH];
 	ms_getdefaultwd(currentpath,MAX_PATH);
-	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,td->id);
+	sprintf(td->outputDataPath,"%s/stdOutFile_%u",currentpath,td->id);
 
 		
 	/*
 	*Standard CGI uses standard output to output the result and the standard 
 	*input to get other params like in a POST request.
 	*/
-	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
+	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(td->outputDataPath);
 	MYSERVER_FILE_HANDLE stdInFile;
 	
 	if(td->inputData==0)
 /*If no exists the stdin file create one and copy in all the necessary informations*/
 	{
 		u_long nbw;/*Number of bytes written to the stdin file if any*/
-		sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,td->id);
-		stdInFile = ms_CreateTemporaryFile(stdInFilePath);
+		sprintf(td->inputDataPath,"%s/stdInFile_%u",currentpath,td->id);
+		stdInFile = ms_CreateTemporaryFile(td->inputDataPath);
 
 
 		if(td->request.URIOPTSPTR)
@@ -198,7 +196,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 			{
 				char nURL[MAX_PATH];
 				nURL[0]='\0';
-				int j;
+				u_long j;
 				if(!td->request.uriEndsWithSlash)
 				{
 					int slashcount=0,slashcountnow=0;
@@ -230,7 +228,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 				}
 				j=0;
 
-				int start=strlen(nURL);
+				int start=(int)strlen(nURL);
 				while(td->buffer2[i+j+10]!='\r')
 				{
 

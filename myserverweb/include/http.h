@@ -48,6 +48,8 @@ struct httpThreadContext
 	char scriptDir[MAX_PATH];
 	char scriptFile[MAX_PATH];
 	char identity[32];
+	char inputDataPath[MAX_PATH];
+	char outputDataPath[MAX_PATH];
 	MYSERVER_FILE_HANDLE inputData;
 	MYSERVER_FILE_HANDLE outputData;
 	LOGGEDUSERID hImpersonation;

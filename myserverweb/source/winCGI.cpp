@@ -35,9 +35,9 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 #ifdef WIN32
 	u_long nbr;
 	char cmdLine[MAX_PATH + 120];
-	char conFilePath[MAX_PATH], dataFilePath[MAX_PATH], outFilePath[MAX_PATH];
+	char  dataFilePath[MAX_PATH], outFilePath[MAX_PATH];
 
-	MYSERVER_FILE_HANDLE ConFileHandle, DataFileHandle, OutFileHandle;
+	MYSERVER_FILE_HANDLE DataFileHandle, OutFileHandle;
 
 	if(!ms_FileExists(filename))
 		return raiseHTTPError(td,s,e_404);
@@ -50,45 +50,17 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	ms_getdefaultwd(dataFilePath,MAX_PATH);
 	GetShortPathName(dataFilePath,dataFilePath,MAX_PATH);
 	sprintf(&dataFilePath[lstrlen(dataFilePath)],"/data_%u.ini",td->id);
-
-	ms_getdefaultwd(conFilePath,MAX_PATH);
-	GetShortPathName(conFilePath,conFilePath,MAX_PATH);
-	sprintf(&conFilePath[lstrlen(conFilePath)],"/con_%u",td->id);
+	
 
 	ms_getdefaultwd(outFilePath,MAX_PATH);
 	GetShortPathName(outFilePath,outFilePath,MAX_PATH);
 	sprintf(&outFilePath[lstrlen(outFilePath)],"/out_%u",td->id);
-
-	ConFileHandle = ms_OpenFile(conFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
-
-	if ((!ConFileHandle)|((int)ConFileHandle == -1))
-	{
-		return raiseHTTPError(td,s,e_500);
-	}
-	if(td->request.URIOPTSPTR)
-	{
-		ms_WriteToFile(ConFileHandle,td->request.URIOPTSPTR,strlen(td->request.URIOPTSPTR),&nbr);
-	}
-	else if(td->inputData)
-	{
-		ms_setFilePointer(td->inputData,0);
-		while(ms_ReadFromFile(td->inputData,td->buffer2,td->buffersize2,&nbr))
-		{
-			ms_WriteToFile(ConFileHandle,td->buffer2,nbr,&nbr);		
-		}
-	}
-	/*
-	*Close the content file.
-	*/
-	ms_CloseFile(ConFileHandle);
-
+	ms_setFilePointer(td->inputData,0);
 
 	DataFileHandle = ms_OpenFile(dataFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	if ((!DataFileHandle) || ((int)DataFileHandle==-1)) 
 	{
 		return raiseHTTPError(td,s,e_500);
-		ms_CloseFile(ConFileHandle);
-		ms_DeleteFile(conFilePath);
 	}
 
 
@@ -99,7 +71,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	ms_WriteToFile(DataFileHandle,td->buffer2,26,&nbr);
 
 	sprintf(td->buffer2,"Server Admin=%s\r\n",lserver->getServerAdmin());
-	ms_WriteToFile(DataFileHandle,td->buffer2,strlen(td->buffer2),&nbr);
+	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	if(strcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
@@ -143,7 +115,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 	}
 
-	sprintf(td->buffer2,"Content File=%s\r\n",conFilePath);
+	sprintf(td->buffer2,"Content File=%s\r\n",td->inputDataPath);
 	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	if(td->request.CONTENTS_DIM[0])
@@ -175,7 +147,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	sprintf(td->buffer2,"Output File=%s\r\n",outFilePath);
 	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
-	sprintf(td->buffer2,"Content File=%s\r\n",conFilePath);
+	sprintf(td->buffer2,"Content File=%s\r\n",td->inputDataPath);
 	ms_WriteToFile(DataFileHandle,td->buffer2,(u_long)strlen(td->buffer2),&nbr);
 
 	time_t ltime=100;
@@ -196,10 +168,9 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	OutFileHandle = ms_OpenFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
 	if ((!OutFileHandle) || ((int)OutFileHandle==-1)) 
 	{
-		return raiseHTTPError(td,s,e_501);
 		ms_DeleteFile(outFilePath);
-		ms_DeleteFile(conFilePath);
 		ms_DeleteFile(dataFilePath);
+		return raiseHTTPError(td,s,e_501);
 	}
 	ms_CloseFile(OutFileHandle);
 	strcpy(cmdLine,"cmd /c \"");
@@ -213,10 +184,9 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	
 	if (execHiddenProcess(&spi,WINCGI_TIMEOUT))
 	{
-		return raiseHTTPError(td,s,e_501);
 		ms_DeleteFile(outFilePath);
-		ms_DeleteFile(conFilePath);
 		ms_DeleteFile(dataFilePath);
+		return raiseHTTPError(td,s,e_501);
 	}
 
 	OutFileHandle = ms_OpenFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
@@ -226,7 +196,6 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		ms_CloseFile(OutFileHandle);
 		ms_DeleteFile(outFilePath);
-		ms_DeleteFile(conFilePath);
 		ms_DeleteFile(dataFilePath);
 		return raiseHTTPError(td,s,e_500);
 	}
@@ -263,7 +232,6 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	
 	ms_CloseFile(OutFileHandle);
 	ms_DeleteFile(outFilePath);
-	ms_DeleteFile(conFilePath);
 	ms_DeleteFile(dataFilePath);
 	return !strcmpi(td->request.CONNECTION,"Keep-Alive");
 #else

@@ -129,6 +129,7 @@ int freeMSCGILib()
 	*Return 1 if FreeLibrary returns successfully.
 	*/
 	return((mscgiModule)?(FreeLibrary(mscgiModule)?1:0):0);
-#endif
+#else
 	return 0;
+#endif
 }

@@ -81,7 +81,7 @@ private:
 	char path[MAX_PATH];
 	char browseDirCSSpath[MAX_PATH];
 	char *defaultFilename;
-	int nDefaultFilename;
+	u_long nDefaultFilename;
 	char serverAdmin[32];
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
 	u_long nThreads;

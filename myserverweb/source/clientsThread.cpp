@@ -195,11 +195,11 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	nc->socket=s;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
-	nc->localPort=localPort;
+	nc->localPort=(u_short)localPort;
 	lstrcpy(nc->ipAddr,ipAddr);
 	lstrcpy(nc->localIpAddr,localIpAddr);
 	nc->Next=connections;
-	nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,localPort);
+	nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	if(nc->host==0)
 	{
 		delete nc;
