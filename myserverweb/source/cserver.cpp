@@ -672,19 +672,21 @@ int cserver::terminate()
     thread = thread->next;
   }
 
-  if(verbosity>1)
-    logWriteln(languageParser.getValue("MSG_TSTOPPED"));
-
 	while(lserver->getListeningThreadCount())
 	{
 		wait(1000);
 	}
 
+	stopThreads();
+
+  if(verbosity>1)
+    logWriteln(languageParser.getValue("MSG_TSTOPPED"));
+
+
 	if(verbosity>1)
 	{
     logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
 	}
-	stopThreads();
 	
 	/*!
    *If there are open connections close them.
