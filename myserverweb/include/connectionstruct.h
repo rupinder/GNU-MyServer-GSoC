@@ -36,23 +36,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 typedef u_long CONNECTION_PROTOCOL;
 
-/*!
- *This structure is used to describe a connection.
- */
-struct CONNECTION
+class CONNECTION
 {
 public:
 	/*! Pointer to the thread struct that is using the CONNECTION. */
 	void *thread;
-	
-	/*! Const value for the CONNECTION structure to check integrity. */
-	const static int check_value_const=0x20;
-	
+
 	/*! The server is parsing this connection. */
 	int parsing;
-	
-	/*! Check if this is equal to check_value_const to ha a valid structure. */
-	int check_value;
 	
 	/*! Login name. */
 	char login[20];
@@ -90,10 +81,12 @@ public:
 	/*! Data size read in the buffersize2.  */
 	int dataRead;
 	
-	/*!If nonzero the server is saying to the protocol to remove the connection.
+	/*
+   *!If nonzero the server is saying to the protocol to remove the connection.
    *Protocols can not consider this but is a good idea do it to avoid server
    *overloads. 
-   *Reasons to remove the connection are defined at the begin of this file.  */
+   *Reasons to remove the connection are defined at the begin of this file.  
+   */
 	int toRemove;
 	
 	/*! Force the connection to be parsed.  */
@@ -104,6 +97,9 @@ public:
 	
 	/*! Buffer for the connecion struct. Used by protocols.  */
 	char *protocolBuffer;
+
+  CONNECTION();
+  virtual ~CONNECTION();
 };
 typedef CONNECTION* volatile LPCONNECTION;
 

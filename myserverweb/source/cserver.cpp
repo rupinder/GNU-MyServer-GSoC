@@ -219,11 +219,11 @@ void cserver::start()
 		if(configsCheck>10)
 		{
 			time_t myserver_main_conf_now=
-                              MYSERVER_FILE::getLastModTime(main_configuration_file);
+                       MYSERVER_FILE::getLastModTime(main_configuration_file);
 			time_t myserver_hosts_conf_now=
-                              MYSERVER_FILE::getLastModTime(vhost_configuration_file);
+                       MYSERVER_FILE::getLastModTime(vhost_configuration_file);
 			time_t myserver_mime_conf_now=
-                              MYSERVER_FILE::getLastModTime(mime_configuration_file);
+                       MYSERVER_FILE::getLastModTime(mime_configuration_file);
 			/*If a configuration file was modified reboot the server*/
 			if((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
          (myserver_mime_conf_now!=-1))
@@ -997,29 +997,18 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,
 	{
 		return NULL;
 	}
-	new_connection->check_value = CONNECTION::check_value_const;
-	new_connection->connectionBuffer[0]='\0';
-	new_connection->socket=s;
-	new_connection->toRemove=0;
-	new_connection->forceParsing=0;
-	new_connection->parsing=0;
 	new_connection->port=(u_short)port;
 	new_connection->timeout=get_ticks();
-	new_connection->dataRead = 0;
 	new_connection->localPort=(u_short)localPort;
 	strncpy(new_connection->ipAddr, ipAddr, MAX_IP_STRING_LEN);
 	strncpy(new_connection->localIpAddr, localIpAddr, MAX_IP_STRING_LEN);
 	new_connection->host = (void*)lserver->vhostList->getvHost(0, localIpAddr, 
                                                              (u_short)localPort);
-	new_connection->login[0]='\0';
-	new_connection->nTries=0;
-	new_connection->password[0]='\0';
-	new_connection->protocolBuffer=0;
 
   /*! No vhost for the connection so bail. */
 	if(new_connection->host == 0) 
 	{
-		delete [] new_connection;
+		delete new_connection;
 		return 0;
 	}
 	int doSSLhandshake=0;
@@ -1083,11 +1072,6 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	{
 		return 0;
 	}
-	if(s->check_value != CONNECTION::check_value_const)
-	{
-		return 0;
-	}
-	MYSERVER_SOCKET socket=s->socket;
 	/*!
    *Get the access to the  connections list.
    */
@@ -1120,19 +1104,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 
 	nConnections--;
 
-	if(s->protocolBuffer)
-		delete s->protocolBuffer;
 	delete s;
-
-	/*! Close the socket communication. */
-	socket.shutdown(SD_BOTH);
-	char buffer[256];
-	int buffersize=256;
-	do
-	{
-		err=socket.recv(buffer, buffersize, 0);
-	}while((err!=-1) && err);
-	socket.closesocket();
 
 	return ret;
 }
@@ -1155,10 +1127,6 @@ LPCONNECTION cserver::getConnectionToParse(int /*id*/)
 	}
 	if(connectionToParse)
 	{
-		/*! Be sure that connectionToParse is a valid connection struct. */
-		if(connectionToParse->check_value!=CONNECTION::check_value_const)
-			connectionToParse=connections;
-		else
 			connectionToParse=connectionToParse->next;
 	}
 	else
