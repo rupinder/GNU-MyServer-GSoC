@@ -3,8 +3,7 @@
 # based on glib.m4
 
 dnl AM_PATH_LIBPNG([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
-
-AC_DEFUN(AM_PATH_LIBPNG,
+AC_DEFUN([AM_PATH_LIBPNG],
 [
 AC_ARG_WITH(libpng-prefix,[  --with-libpng-prefix=PFX   Prefix where libPNG is installed (optional)],
             libpng_config_prefix="$withval", glib_config_prefix="")

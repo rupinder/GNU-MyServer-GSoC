@@ -4,7 +4,7 @@
 
 dnl AM_PATH_FLTK([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
 
-AC_DEFUN(AM_PATH_FLTK,
+AC_DEFUN([AM_PATH_FLTK],
 [
 AC_ARG_WITH(fltk-prefix,[  --with-fltk-prefix=PFX   Prefix where FLTK is installed (optional)],
             fltk_config_prefix="$withval", fltk_config_prefix="")
