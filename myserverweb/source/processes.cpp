@@ -70,8 +70,8 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 	si.wShowWindow = SW_HIDE;
 	PROCESS_INFORMATION pi;
 	ZeroMemory( &pi, sizeof(pi) );
-	ret = CreateProcess(NULL, spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
-                      spi->envString, spi->cwd.c_str(), &si, &pi);
+	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
+                      spi->envString, (char*)spi->cwd.c_str(), &si, &pi);
 	if(!ret)
 		return (-1);
 	/*!
@@ -229,8 +229,8 @@ int execConcurrentProcess(StartProcInfo* spi)
 	si.wShowWindow = SW_HIDE;
 	ZeroMemory( &pi, sizeof(pi) );
 
-	ret=CreateProcess(NULL, spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
-                    spi->envString, spi->cwd.c_str(), &si, &pi);
+	ret=CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
+                    spi->envString, (char*)spi->cwd.c_str(), &si, &pi);
 	if(!ret)
 		return (-1);	
 	return (*((int*)&pi.hProcess));
