@@ -113,7 +113,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	intptr_t ff;
 	char fileSize[20];
 	char fileTime[32];
-
+	char *bufferloop;
   if(td->outputDataPath)
     delete [] td->outputDataPath;
   td->outputDataPath = new char[outputDataPathLen];
@@ -329,14 +329,14 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
               
   if(td->request.HOST[0])
   {    
-    char port_buf[6];
+    char port_buff[6];
     *td->buffer2 << " on ";
     *td->buffer2 << td->request.HOST ;
     *td->buffer2 << " Port ";
 
     u_short port = td->connection->getLocalPort();
-    sprintf(port_buf,"%u", port);
-    *td->buffer2 << port_buf;
+    sprintf(port_buff,"%u", port);
+    *td->buffer2 << port_buff;
   }
 	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
 	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
@@ -351,10 +351,10 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	_findclose(ff);
   *td->buffer2 << end_str;
 	/*! Changes the \ character in the / character.  */
-	char *buffer2Loop=(char*)td->buffer2->GetBuffer();
-	while(*buffer2Loop++)
-		if(*buffer2Loop=='\\')
-			*buffer2Loop='/';
+	bufferloop=(char*)td->buffer2->GetBuffer();
+	while(*bufferloop++)
+		if(*bufferloop=='\\')
+			*bufferloop='/';
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 		strcpy(td->response.CONNECTION, "Keep-Alive");
 	sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)td->outputData.getFileSize());
@@ -363,7 +363,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	if(!td->appendOutputs)
   {
 		u_long nbr=0;
-      int nbs=0;
+    int nbs=0;
 		td->outputData.setFilePointer(0);
 		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
                                           &(td->response));
@@ -382,7 +382,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 		{
 			ret = td->outputData.readFromFile((char*)td->buffer->GetBuffer(), 
                                         td->buffer->GetRealLength(), &nbr);
-			if( ret )
+			if(ret)
 			{
 				td->outputData.closeFile();
 				/* Return an internal server error.  */
@@ -509,6 +509,7 @@ int http::allowHTTPTRACE(httpThreadContext* td, LPCONNECTION s)
   /*! 
    *If the returned value is equal to ON so the 
    *HTTP TRACE is active for this vhost.  
+   *By default don't allow the trace.
    */
 	if(http_trace_value &&  !lstrcmpi(http_trace_value, "ON"))
 		ret = 1;
