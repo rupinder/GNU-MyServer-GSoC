@@ -170,6 +170,9 @@
 				RelativePath="source\isapi.cpp">
 			</File>
 			<File
+				RelativePath="source\md5.cpp">
+			</File>
+			<File
 				RelativePath="source\mscgi.cpp">
 			</File>
 			<File
@@ -253,6 +256,9 @@
 			</File>
 			<File
 				RelativePath="include\isapi.h">
+			</File>
+			<File
+				RelativePath="include\md5.h">
 			</File>
 			<File
 				RelativePath="include\mscgi.h">
