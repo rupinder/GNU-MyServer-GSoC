@@ -356,7 +356,7 @@ int setcwdBuffer()
 	return retval;
 }
 /*!
-*Get the default working directory(Where is the program myserver.exe).
+*Get the default working directory(Where is the main executable).
 */
 char *getdefaultwd(char *path,int len)
 {
@@ -367,7 +367,7 @@ char *getdefaultwd(char *path,int len)
 #ifdef __linux__
 		strncpy(path,currentPath,len);
 #endif
-	return path;
+	return currentPath;
 }
 
 

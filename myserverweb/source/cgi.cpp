@@ -253,7 +253,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	*For no problems with the function strcat we use the character \r for the \0 character
 	*and at the end we change every \r in \0.
 	*/
-	strcat(cgiEnvString,"SERVER_SOFTWARE=MyServer");
+	strcat(cgiEnvString,"SERVER_SOFTWARE=MyServer ");
 	strcat(cgiEnvString,versionOfSoftware);
 
 #ifdef WIN32

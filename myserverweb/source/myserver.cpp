@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/cserver.h"
 #include "../include/stringutils.h"
+#include "../include/security.h"
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
@@ -92,27 +93,26 @@ int main (int argn, char **argc)
 	setcwd(path);
 	
 	cmdShow=0;
-	char* cmdLine=argc[1];
 	u_long i;
 
-	for(i=0;i<(u_long)strlen(cmdLine);i++)
+
+	if(!lstrcmpi(argc[1],"VERSION"))
 	{
-		if(!lstrcmpi(&cmdLine[i],"VERSION"))
-		{
-			printf("MyServer %s\r\n",versionOfSoftware);
-			return 0;
-		}
-		if(!lstrcmpi(&cmdLine[i],"CONSOLE"))
-		{
-			console_service(argn,argc);
-		}
-#ifdef WIN32
-		if(!lstrcmpi(&cmdLine[i],"SERVICE"))
-		{
-			runService();
-		}
-#endif
+		printf("MyServer %s\r\n",versionOfSoftware);
+		return 0;
 	}
+
+	if(!lstrcmpi(argc[1],"CONSOLE"))
+	{
+		console_service(argn,argc);
+	}
+#ifdef WIN32
+	if(!lstrcmpi(argc[1],"SERVICE"))
+	{
+		runService();
+	}
+#endif
+
 
 	return 0;
 } 

@@ -829,7 +829,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 */
 int logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 {
-	strcpy(td->buffer,a->ipAddr);
+	strncpy(td->buffer,a->ipAddr,td->buffersize);
 	strcat(td->buffer," ");
 	
 	if(td->identity[0])
@@ -900,8 +900,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	td.identity[0]='\0';
 	td.connection=a;
 	td.id=id;
-	td.inputData.setHandle(0);
-	td.outputData.setHandle(0);
+	td.inputData.setHandle((MYSERVER_FILE_HANDLE)0);
+	td.outputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	td.outputDataPath[0]='\0';
 	td.inputDataPath[0]='\0';
 	/*!
@@ -1314,7 +1314,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		{
 			int errID=getErrorIDfromHTTPStatusCode(response->httpStatus);
 			if(errID!=-1)
-				strcpy(response->ERROR_TYPE,HTTP_ERROR_MSGS[errID]);
+				strncpy(response->ERROR_TYPE,HTTP_ERROR_MSGS[errID],HTTP_RESPONSE_ERROR_TYPE_DIM);
 		}
 		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER,response->httpStatus,response->ERROR_TYPE,response->ERROR_TYPE);
 	}

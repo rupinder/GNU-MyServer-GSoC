@@ -63,10 +63,7 @@ void cserver::start()
 	nConnections=0;
 	connections=0;
 	connectionToParse=0;
-	/*!
-	*Set the current working directory.
-	*/
-	setcwdBuffer();
+
 	mustEndServer=0;
 	memset(this, 0, sizeof(cserver));
 
@@ -100,7 +97,6 @@ void cserver::start()
 	sync();
 	system("clear");
 #endif
-	
 	/*!
 	*Print the MyServer logo.
 	*/
@@ -116,6 +112,12 @@ void cserver::start()
 	printf("\n");
 	free(software_signature);
 
+	/*!
+	*Set the current working directory.
+	*/
+	setcwdBuffer();
+	
+	
 	/*!
 	*Setup the server configuration.
 	*/

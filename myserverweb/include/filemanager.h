@@ -20,8 +20,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define FILEMANAGER_H
 
 #include "../stdafx.h"
-typedef void *MYSERVER_FILE_HANDLE;
 
+#ifdef WIN32
+typedef void *MYSERVER_FILE_HANDLE;
+#endif
+#ifdef __linux__
+typedef FILE*  MYSERVER_FILE_HANDLE;
+#endif
 
 #define MYSERVER_FILE_OPEN_READ (1<<0)
 #define MYSERVER_FILE_OPEN_WRITE (1<<1)

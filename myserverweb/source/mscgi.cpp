@@ -57,7 +57,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	
 	data.td = td;
 	data.errorPage=0;
-	strcpy(td->scriptPath,exec);
+	strncpy(td->scriptPath,exec,MAX_PATH);
 	MYSERVER_FILE::splitPath(exec,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(exec,td->cgiRoot,td->cgiFile);
 	buildCGIEnvironmentString(td,data.envString);
@@ -73,6 +73,10 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 #endif
 	if (hinstLib) 
     { 
+		/*
+		*Set the working directory to the MSCGI file one.
+		*/
+		setcwd(td->scriptDir);
 #ifdef WIN32
 		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
 #else
@@ -83,10 +87,14 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 			(ProcMain)(cmdLine,&data);
 		}
 #ifdef WIN32
-        FreeLibrary(hinstLib); 
+		FreeLibrary(hinstLib); 
 #else
-	dlclose(hinstLib);
+		dlclose(hinstLib);
 #endif
+		/*
+		*Restore the working directory.
+		*/
+		setcwd(getdefaultwd(0,0));		
     } 
 	else
 	{

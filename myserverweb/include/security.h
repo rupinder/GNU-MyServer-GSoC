@@ -21,7 +21,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/connectionstruct.h"
-
+#ifndef DO_NOT_USE_SSL
+#include<openssl/ssl.h>
+#include<openssl/crypto.h>
+#include<openssl/lhash.h>
+#include<openssl/err.h>
+#include<openssl/bn.h>
+#include<openssl/pem.h>
+#include<openssl/x509.h>
+#include<openssl/rand.h>
+#include<openssl/pem.h>
+#include<openssl/err.h>
+#include<openssl/rsa.h>
+#endif
 extern int useLogonOption;
 /*!
 *Various allowable permissions
@@ -54,4 +66,5 @@ void logout(int logon,LOGGEDUSERID *hImpersonation);
 
 int getErrorFileName(char *root,int error,char* out);
 int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder=0,char *password2=0);
+
 #endif

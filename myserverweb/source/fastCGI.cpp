@@ -57,7 +57,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	con.td=td;
 	u_long nbr=0;
 	FCGI_Header tHeader;
-	strcpy(td->scriptPath,scriptpath);
+	strncpy(td->scriptPath,scriptpath,MAX_PATH);
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	td->buffer[0]='\0';
@@ -500,7 +500,7 @@ int runFcgiServer(fCGIContext*,char* path)
 			spi.cmdLine=path;
 			spi.arg = NULL; /*! no argument so clear it */
 
-			strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
+			strncpy(fCGIservers[fCGIserversN].path,spi.cmd,MAX_PATH);
 			spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
 
 			fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
@@ -513,7 +513,7 @@ int runFcgiServer(fCGIContext*,char* path)
 		}/*!End local server initialization*/
 		else
 		{/*!Fill the structure with a remote server*/
-			strcpy(fCGIservers[fCGIserversN].path,path);
+			strncpy(fCGIservers[fCGIserversN].path,path,MAX_PATH);
 			int i=1;/*!Do not consider the @ character*/
 			memset(fCGIservers[fCGIserversN].host,0,128);
 			/*!
