@@ -141,15 +141,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			*If client have tried to post a login
 			*and a password more times send error 401.
 			*/
-			if(s->nTries > 2)
-			{
-				return raiseHTTPError(td,s,e_401);
-			}
-			else
-			{	
-				s->nTries++;
-				return raiseHTTPError(td,s,e_401AUTH);
-			}
+			return sendAuth(td,s);
 		}
 		else
 		{
@@ -166,6 +158,8 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	do
 	{	
 		if(fd.name[0]=='.')
+			continue;
+		if(!strcmp(fd.name,"security"))
 			continue;
 		strcpy(td->buffer2,"<TR><TD><A HREF=\"");
 		if(!td->request.uriEndsWithSlash)
@@ -238,15 +232,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	}
 	else if(ret==-1)
 	{
-		if(s->nTries > 2)
-		{
-			return raiseHTTPError(td,s,e_401);
-		}
-		else
-		{
-			s->nTries++;
-			return raiseHTTPError(td,s,e_401AUTH);
-		}
+		return sendAuth(td,s);
 	}
 	/*
 	*If the file is a valid handle.
@@ -369,6 +355,25 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		getPath(td,td->filenamePath,filename,systemrequest);
 	}
 	/*
+	*If the security file is requested send the HTTP 404 error
+	*/
+	if(!strcmp(&filename[strlen(filename)-8],"security"))
+		return raiseHTTPError(td,s,e_404);
+
+	int permissions=-1;
+	if(!systemrequest)
+	{
+		char folder[MAX_PATH];
+		if(MYSERVER_FILE::isFolder(td->filenamePath))
+			strcpy(folder,td->filenamePath);
+		else
+			MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
+		if(td->connection->login[0])
+			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename);
+		else/*The default user is Guest with a null password*/
+			permissions=getPermissionMask("Guest","",td->filenamePath,filename);
+	}
+	/*
 	*Get the PATH_INFO value.
 	*Use dirscan as a buffer for put temporary directory scan.
 	*When an '/' character is present check if the path up to '/' character
@@ -429,6 +434,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	*/
 	if(MYSERVER_FILE::isFolder((char *)(td->filenamePath)))
 	{
+		if(!(permissions & MYSERVER_PERMISSION_BROWSE))
+		{
+			return sendAuth(td,s);
+		}
 		int i;
 		for(i=0;;i++)
 		{
@@ -483,11 +492,19 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+			return sendAuth(td,s);
+		}
 		if(sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
 			return 1;
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
 #ifdef WIN32
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+			return sendAuth(td,s);
+		}
 		return sendISAPI(td,s,td->filenamePath,ext,data);
 #endif
 #ifdef __linux__
@@ -496,6 +513,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}else if(mimeCMD==CGI_CMD_EXECUTEISAPI)
 	{
 #ifdef WIN32
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+			return sendAuth(td,s);
+		}
 		char cgipath[MAX_PATH*2];
 		if(data[0])
 			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
@@ -510,6 +531,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 	else if(mimeCMD==CGI_CMD_RUNMSCGI)
 	{
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+			return sendAuth(td,s);
+		}
 		char *target;
 		if(td->request.URIOPTSPTR)
 			target=td->request.URIOPTSPTR;
@@ -524,6 +549,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		return raiseHTTPError(td,s,e_500);
 	}else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)
 	{
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+			return sendAuth(td,s);
+		}
 		char cgipath[MAX_PATH*2];
 		if(data[0])
 			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
@@ -546,7 +575,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 	else if(mimeCMD==CGI_CMD_RUNFASTCGI)
 	{
-	
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+			return sendAuth(td,s);
+		}	
 		int ret = sendFASTCGI(td,s,td->filenamePath,ext,data);
 		if(td->outputData.getHandle())
 		{
@@ -562,6 +594,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 	else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
 	{
+		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+		{
+			return sendAuth(td,s);
+		}
 		char cgipath[MAX_PATH*2];
 		if(data[0])
 			sprintf(cgipath,"%s \"%s\"",data,td->filenamePath);
@@ -583,6 +619,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}
 	else if(mimeCMD==CGI_CMD_SENDLINK)
 	{
+		if(!(permissions & MYSERVER_PERMISSION_READ))
+		{
+			return sendAuth(td,s);
+		}
 		MYSERVER_FILE h;
 		h.openFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 		u_long nbr;
@@ -608,7 +648,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		if(timeMS==lastMT)
 			return sendHTTPNonModified(td,s);
 	}
-
+	if(!(permissions & MYSERVER_PERMISSION_READ))
+	{
+		return sendAuth(td,s);
+	}
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
 	return sendHTTPhardError500(td,s);
@@ -821,8 +864,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 				return 0;
 			}
 		}
-
-		
+	
 		/*
 		*Here we control all the HTTP commands.
 		*/
@@ -835,6 +877,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		}
 		else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
 		{
+			int retVal;
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
 				sendHTTPRESOURCE(&td,a,td.request.URI,false,false,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
@@ -842,6 +885,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		}
 		else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
 		{
+			int retVal;
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
 				sendHTTPRESOURCE(&td,a,td.request.URI,false,true,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
@@ -1668,7 +1712,21 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 	td->nHeaderChars=maxTotchars;
 	return validRequest;
 }
-
+/*
+*Send a 401 error
+*/
+int sendAuth(httpThreadContext* td,LPCONNECTION s)
+{
+	if(s->nTries > 2)
+	{
+		return raiseHTTPError(td,s,e_401);
+	}
+	else
+	{	
+		s->nTries++;
+		return raiseHTTPError(td,s,e_401AUTH);
+	}
+}
 
 /*
 *Build the HTTP RESPONSE HEADER string.

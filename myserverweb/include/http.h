@@ -65,6 +65,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
 int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
 int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a);
+int sendAuth(httpThreadContext* td,LPCONNECTION a);
 void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest);
 int getMIME(char *MIME,char *filename,char *dest,char *dest2);
 u_long validHTTPRequest(char*,httpThreadContext*,u_long*,u_long*);

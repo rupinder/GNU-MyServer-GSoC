@@ -629,7 +629,7 @@ void cserver::initialize(int OSVer)
 	u_long nThreadsA=1;
 	u_long nThreadsB=0;
 	socketRcvTimeout = 10;
-	useLogonOption = true;
+	useLogonOption = 1;
 	connectionTimeout = SEC(25);
 	lstrcpy(languageFile,"languages/english.xml");
 	browseDirCSSpath[0]='\0';
@@ -731,18 +731,18 @@ void cserver::initialize(int OSVer)
 	if(data)
 	{
 		if(!lstrcmpi(data,"YES"))
-			useMessagesFiles=true;
+			useMessagesFiles=1;
 		else
-			useMessagesFiles=false;
+			useMessagesFiles=0;
 	}
 
 	data=configurationFileManager.getValue("USE_LOGON_OPTIONS");
 	if(data)
 	{
 		if(!lstrcmpi(data,"YES"))
-			useLogonOption=true;
+			useLogonOption=1;
 		else
-			useLogonOption=false;
+			useLogonOption=0;
 	}
 
 	data=configurationFileManager.getValue("MAX_LOG_FILE_SIZE");

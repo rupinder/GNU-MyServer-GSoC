@@ -23,7 +23,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 
 extern int useLogonOption;
-
+#define MYSERVER_PERMISSION_READ	(1)
+#define MYSERVER_PERMISSION_WRITE	(2)
+#define MYSERVER_PERMISSION_EXECUTE	(4)
+#define MYSERVER_PERMISSION_DELETE	(8)
+#define MYSERVER_PERMISSION_BROWSE	(16)
 
 /*
 *Change the ownner of the caller thread.
@@ -46,4 +50,6 @@ void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
 void logout(int logon,LOGGEDUSERID *hImpersonation);
 
 void logonGuest();
+
+int getPermissionMask(char* user, char* password,char* folder,char* filename);
 #endif

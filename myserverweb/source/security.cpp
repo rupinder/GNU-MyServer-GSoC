@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/security.h"
 #include "../include/utility.h"
 #include "../include/HTTPmsg.h"
+#include "../include/cXMLParser.h"
 #include "../include/connectionstruct.h"
 
 
@@ -123,4 +124,184 @@ void logonGuest()
 //	if(useLogonOption)
 //		LogonUser("Guest",NULL,"guest",LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)&guestLoginHandle);
 #endif
+}
+int getPermissionMask(char* user, char* password,char* folder,char* filename)
+{
+	char permissionsFile[MAX_PATH];
+	sprintf(permissionsFile,"%s/security",folder);
+	/*
+	*If the file doesn't exist allow everyone to do everything
+	*/
+	if((!useLogonOption) || (!MYSERVER_FILE::fileExists(permissionsFile)))
+		return (-1);
+	cXMLParser parser;
+	parser.open(permissionsFile);
+	xmlDocPtr doc=parser.getDoc();
+	xmlNode *node=doc->children->children;
+
+	int filePermissions=0;
+	int filePermissionsFound=0;
+
+	int genericPermissions=0;
+	int genericPermissionsFound=0;
+
+	int userPermissions=0;
+	int userPermissionsFound=0;
+
+	while(node)
+	{
+		if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
+		{
+			xmlAttr *attr =  node->properties;
+			int tempGenericPermissions=0;
+			int rightUser=0;
+			int rightPassword=0;
+			while(attr)
+			{
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempGenericPermissions|=MYSERVER_PERMISSION_READ;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempGenericPermissions|=MYSERVER_PERMISSION_WRITE;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"BROWSE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempGenericPermissions|=MYSERVER_PERMISSION_BROWSE;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempGenericPermissions|=MYSERVER_PERMISSION_EXECUTE;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempGenericPermissions|=MYSERVER_PERMISSION_DELETE;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"NAME"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)user))
+						rightUser=1;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)password))
+						rightPassword=1;
+				}
+				attr=attr->next;
+			}
+			if(rightUser && rightPassword)
+			{
+				genericPermissionsFound=1;
+				genericPermissions=tempGenericPermissions;
+			}
+
+		}
+		if(!xmlStrcmp(node->name, (const xmlChar *)"ITEM"))
+		{
+			xmlNode *node2=node->children;
+			while(node2)
+			{
+				if(!xmlStrcmp(node2->name, (const xmlChar *)"USER"))
+				{
+					xmlAttr *attr =  node2->properties;
+					int tempUserPermissions=0;
+					int rightUser=0;
+					int rightPassword=0;
+					while(attr)
+					{
+						if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
+						{
+							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+								tempUserPermissions|=MYSERVER_PERMISSION_READ;
+						}
+						if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
+						{
+							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+								tempUserPermissions|=MYSERVER_PERMISSION_WRITE;
+						}
+						if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
+						{
+							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+								tempUserPermissions|=MYSERVER_PERMISSION_EXECUTE;
+						}
+						if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
+						{
+							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+								tempUserPermissions|=MYSERVER_PERMISSION_DELETE;
+						}
+						if(!xmlStrcmp(attr->name, (const xmlChar *)"NAME"))
+						{
+							if(!xmlStrcmp(attr->children->content, (const xmlChar *)user))
+								rightUser=1;
+						}
+						if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
+						{
+							if(!xmlStrcmp(attr->children->content, (const xmlChar *)password))
+								rightPassword=1;
+						}
+						attr=attr->next;
+					}
+					if(rightUser && rightPassword)
+					{
+						userPermissionsFound=1;
+						userPermissions=tempUserPermissions;
+					}
+				}
+				node2=node2->next;
+			}
+			xmlAttr *attr =  node->properties;
+			int tempFilePermissions=0;
+			while(attr)
+			{
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempFilePermissions|=MYSERVER_PERMISSION_READ;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempFilePermissions|=MYSERVER_PERMISSION_WRITE;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempFilePermissions|=MYSERVER_PERMISSION_EXECUTE;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+						tempFilePermissions|=MYSERVER_PERMISSION_DELETE;
+				}
+				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
+				{
+					if(!xmlStrcmp(attr->children->content, (const xmlChar *)filename))
+						filePermissionsFound=1;
+				}
+				attr=attr->next;
+			}
+			if(filePermissionsFound)
+				filePermissions=tempFilePermissions;
+		
+		}
+		node=node->next;
+	}
+
+	parser.close();
+
+	if(userPermissionsFound)
+		return userPermissions;
+
+	if(filePermissionsFound)
+		return filePermissions;
+
+	if(genericPermissionsFound)
+		return genericPermissions;
+	return 0;
 }

@@ -175,6 +175,8 @@ void ClientsTHREAD::controlConnections()
 		}
 		else
 		{
+			if(clock()-c->timeout>5000)
+				c->nTries=0;
 			/*
 			*If the connection is inactive for a time greater that the value
 			*configured remove the connection from the connections pool
