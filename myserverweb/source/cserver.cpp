@@ -438,7 +438,7 @@ void * listenServer(void* params)
 		*this function sends connections between the various threads.
 		*/
 		asock=serverSocket.accept((struct sockaddr*)&asock_in,(LPINT)&asock_inLen);
-		asock.serverSocket=&serverSocket;
+		asock.setServerSocket(&serverSocket);
 		if(asock.getHandle()==0)
 			continue;
 		if(asock.getHandle()==INVALID_SOCKET)

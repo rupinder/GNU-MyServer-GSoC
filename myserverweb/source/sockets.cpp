@@ -123,9 +123,11 @@ int MYSERVER_SOCKET::sslAccept()
 	if(sslContext==0)
 		return -1;
 	sslSocket = 1;
+	if(sslConnection)
+		freeSSL();
 	sslConnection=SSL_new(sslContext);
 	int ssl_accept;
-	SSL_set_accept_state(this->serverSocket);
+	SSL_set_accept_state(sslConnection);
 	SSL_set_fd(sslConnection,socketHandle);
 	do
 	{

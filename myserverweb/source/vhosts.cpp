@@ -883,15 +883,18 @@ SSL_CTX* vhost::getSSLContext()
 {
 	return sslContext.context;
 }
-
-}
 /*
 *Clean the memory used by SSL.
 */
 int vhost::freeSSL()
 {
 	if(sslContext.context)
+	{
 		SSL_CTX_free(sslContext.context);
+		return 1;
+	}
+	else 
+		return 0;
 }
 /*
 *Get a virtual host by its position in the list
