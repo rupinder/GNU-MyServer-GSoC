@@ -45,10 +45,13 @@ extern "C" {
 }
 
 #ifdef WIN32
+extern "C"
+{
 #include <winsock2.h>
 #include <tchar.h>
 #include <process.h>
 #include <io.h>
+}
 #endif
 
 #ifdef PATH_MAX

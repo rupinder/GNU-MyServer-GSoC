@@ -146,8 +146,10 @@ EXPORT void   regfree (regex_t *preg);
 
 #else
 
+#ifdef __cplusplus
 extern "C"
 {
+#endif
 
 #ifdef __STDC__
 int regncomp (regex_t * preg,
@@ -177,7 +179,9 @@ void regfree ();
 
 #endif /* STDC */
 
+#ifdef __cplusplus
 }
+#endif
 #endif
 
 #else
