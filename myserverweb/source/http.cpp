@@ -2478,9 +2478,14 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 
   cgi::setTimeout(cgi_timeout);
   fastcgi::setTimeout(cgi_timeout);
+  wincgi::setTimeout(cgi_timeout);
+  isapi::setTimeout(cgi_timeout);
   fastcgi::setMaxFcgiServers(fastcgi_servers);
 
-	/*! Determine the number of default filenames written in the configuration file.  */
+	/*! 
+   *Determine the number of default filenames written in 
+   *the configuration file.  
+   */
 	nDefaultFilename=0;
 
 	for(;;)
@@ -2609,7 +2614,7 @@ char* http::registerName(char* out, int len)
 }
 
 /*!
- *Constructor for the class http
+ *Constructor for the class http.
  */
 http::http()
 {
@@ -2628,7 +2633,7 @@ http::http()
 }
 
 /*!
- *Destructor for the class http
+ *Destructor for the class http.
  */
 http::~http()
 {

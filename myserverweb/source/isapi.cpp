@@ -24,14 +24,35 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/cgi.h"
 
+/*!
+ *Initialize the timeout value to 15 seconds.
+ */
+u_long isapi::timeout=SEC(15);
+
+/*!
+ *Set a new timeout value used with the isapi modules.
+ */
+void isapi::setTimeout(u_long ntimeout)
+{
+  timeout = ntimeout;
+}
+
+/*!
+ *Return the timeout value used with the isapi modules.
+ */
+u_long isapi::getTimeout()
+{
+  return timeout;
+}
+
 #ifdef WIN32
 
 u_long isapi::max_Connections=0;
 static CRITICAL_SECTION GetTableEntryCritSec;
 int isapi::initialized=0;
 myserver_mutex *isapi::isapi_mutex=0;
-#define ISAPI_TIMEOUT (10000)
 ConnTableRecord *isapi::connTable=0;
+
 
 BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                                               LPVOID lpvBuffer, LPDWORD lpdwSize, 
@@ -834,7 +855,7 @@ int isapi::send(httpThreadContext* td,LPCONNECTION connection,
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
 	if (Ret == HSE_STATUS_PENDING) 
 	{
-		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, ISAPI_TIMEOUT);
+		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, timeout);
 	}
 	connTable[connIndex].connection->socket.send("\r\n\r\n",4, 0);
 

@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/utility.h"
 #include "../include/winCGI.h"
-#define WINCGI_TIMEOUT	(10000)
 extern "C" 
 {
 #ifdef WIN32
@@ -35,6 +34,46 @@ extern "C"
 #include <string.h>
 }
 
+/*!
+ *Initialize the timeout value to 15 seconds.
+ */
+u_long wincgi::timeout=SEC(15);
+
+/*!
+ *Set a new timeout value to use for new processes.
+ */
+void wincgi::setTimeout(u_long ntimeout)
+{
+  timeout = ntimeout;
+}
+
+/*!
+ *Constructor for the wincgi class.
+ */
+wincgi::wincgi()
+{
+
+}
+
+/*!
+ *Destructor for the wincgi class.
+ */
+wincgi::~wincgi()
+{
+
+}
+
+/*!
+ *Get the timeout value for the new process. 
+ */
+u_long wincgi::getTimeout()
+{
+  return timeout;
+}
+
+/*!
+ *Send the WinCGI data.
+ */
 int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename, 
                  int /*execute*/, int only_header)
 {
@@ -67,10 +106,10 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
 	td->inputData.setFilePointer(0);
 
 	/*!
-   *The WinCGI protocol uses a .ini file for the communication between the processes.
+   *The WinCGI protocol uses a .ini file to send data to the new process.
    */
 	ret=DataFileHandle.openFile(dataFilePath,
-                             MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+                     MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	if ( ret ) 
 	{
 		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
@@ -195,7 +234,7 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
 		{
 			((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite(
-                                        "Error creating WinCGI output file\r\n");
+                                      "Error creating WinCGI output file\r\n");
 			((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
 			MYSERVER_FILE::deleteFile(outFilePath);
@@ -213,7 +252,7 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
 	spi.cwd = pathname;
 	spi.cmdLine = cmdLine;
 
-	if (execHiddenProcess(&spi,WINCGI_TIMEOUT))
+	if (execHiddenProcess(&spi, timeout))
 	{
 		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(
@@ -269,7 +308,8 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
 	/*!
    *Always specify the size of the HTTP contents.
    */
-	sprintf(td->response.CONTENT_LENGTH,"%u",OutFileHandle.getFileSize()-headerSize);
+	sprintf(td->response.CONTENT_LENGTH,"%u",
+          OutFileHandle.getFileSize()-headerSize);
 	u_long nbw=0;
 	if(!td->appendOutputs)/*Send the header*/
 	{
@@ -292,7 +332,8 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
     {
       return 1;
     }
-		td->outputData.writeToFile((char*)(buffer+headerSize),nBytesRead-headerSize,&nbw);
+		td->outputData.writeToFile((char*)(buffer+headerSize),
+                               nBytesRead-headerSize,&nbw);
   }
 
   /*! Flush the rest of the file. */
@@ -316,6 +357,7 @@ int wincgi::send(httpThreadContext* td,LPCONNECTION s,char* filename,
 	MYSERVER_FILE::deleteFile(dataFilePath);
 	return 1;
 #endif
+
 #ifdef NOT_WIN
   /*! WinCGI is available only under windows. */
 	td->buffer->SetLength(0);

@@ -29,7 +29,13 @@ extern const char *versionOfSoftware;
 
 class wincgi : public http_data_handler
 {
+private:
+  static u_long timeout;
 public:
+  wincgi();
+  ~wincgi();
+  static void setTimeout(u_long);
+  static u_long getTimeout();
 	int send(httpThreadContext*,LPCONNECTION s,char* filename, 
            int execute, int only_header=0);
 };

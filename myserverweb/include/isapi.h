@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef isapi_H
-#define isapi_H
+#ifndef ISAPI_H
+#define ISAPI_H
 #include "../stdafx.h"
 #include "../include/http_headers.h"
 #include "../include/utility.h"
@@ -127,24 +127,29 @@ typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 class isapi  : public http_data_handler
 {
 private:
-	static int initialized;
-public:	
+  static u_long timeout;
 #ifdef WIN32	
-	int Redirect(httpThreadContext* td,LPCONNECTION a,char *URL);
-	int SendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
-	int SendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
+	static int initialized;
 	static ConnTableRecord *HConnRecord(HCONN hConn);
 	static ConnTableRecord *connTable;
 	static  u_long max_Connections;
+#endif	
+public:	
+#ifdef WIN32
+	int Redirect(httpThreadContext* td,LPCONNECTION a,char *URL);
+	int SendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
+	int SendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
 	static BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,
                                   LPDWORD maxLen);
-	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,
-                                 LPDWORD maxLen);
+	static BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
+                                 LPVOID output, LPDWORD maxLen);
 #endif	
 	isapi();
 	static myserver_mutex *isapi_mutex;
 	static int load();
 	static int unload();
+	static void setTimeout(u_long);
+  static u_long getTimeout();
 	int send(httpThreadContext* td,LPCONNECTION connection, char* scriptpath,
            char *cgipath, int execute, int only_header);
 };
