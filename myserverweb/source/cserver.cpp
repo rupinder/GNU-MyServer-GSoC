@@ -210,9 +210,9 @@ void cserver::start()
 	}
 	loadSettings();
 
-	myserver_main_conf=MYSERVER_FILE::getLastModTime(main_configuration_file);
-	myserver_hosts_conf=MYSERVER_FILE::getLastModTime(vhost_configuration_file);
-	myserver_mime_conf=MYSERVER_FILE::getLastModTime(mime_configuration_file);
+	myserver_main_conf = MYSERVER_FILE::getLastModTime(main_configuration_file);
+	myserver_hosts_conf = MYSERVER_FILE::getLastModTime(vhost_configuration_file);
+	myserver_mime_conf = MYSERVER_FILE::getLastModTime(mime_configuration_file);
 	
 	/*!
    *Keep thread alive.
@@ -956,8 +956,8 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 	int ret=1;
 	/*!
    *ip is the string containing the address of the remote host 
-   *connecting to the server local_ip is the address of the network 
-   *adapter connected to.
+   *connecting to the server.
+   * local_ip is the local addrress used by the connection.
    */
 	char ip[MAX_IP_STRING_LEN];
 	char local_ip[MAX_IP_STRING_LEN];

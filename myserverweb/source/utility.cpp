@@ -123,6 +123,8 @@ u_long getCPUCount()
   err = sysctl(mib, 2, &nproc, &len, NULL, 0);
   if(err == 0)
     ret = nproc;
+  else
+    ret = 1;
 #endif
 
 	return ret;
@@ -239,7 +241,11 @@ int preparePrintError()
 	if(ret)
 		return 0;
 #endif
-	return -1;
+#ifdef NOT_WIN
+  printf("\033[31;1m");
+  return 0;
+#endif
+
 }
 
 /*!
@@ -254,7 +260,10 @@ int endPrintError()
 	if(ret)
 		return 0;
 #endif
-	return -1;
+#ifdef NOT_WIN
+  printf("\033[0m");
+  return 0;
+#endif
 }
 #ifndef WIN32
 static struct timeval tval;

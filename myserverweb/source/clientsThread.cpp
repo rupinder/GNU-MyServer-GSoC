@@ -169,7 +169,7 @@ void ClientsTHREAD::controlConnections()
    */
 	lserver->connections_mutex_unlock();
 
-  /*!Number of bytes waiting to be read. */
+  /*! Number of bytes waiting to be read. */
   nBytesToRead=c->socket.bytesToRead();
 
 	if(nBytesToRead || c->getForceParsing())
@@ -189,7 +189,7 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_unlock();
 			return;
 		}
-		if((c->getDataRead() + err)<KB(8))
+ 		if((c->getDataRead() + err)<KB(8))
 		{
 			((char*)buffer.GetBuffer())[c->getDataRead() + err]='\0';
 		}
@@ -200,6 +200,7 @@ void ClientsTHREAD::controlConnections()
 			lserver->connections_mutex_unlock();
 			return;
 		}
+
 		buffer.SetBuffer(c->connectionBuffer, c->getDataRead());
 
 		/*!
