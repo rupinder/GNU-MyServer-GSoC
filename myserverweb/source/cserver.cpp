@@ -818,16 +818,19 @@ int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 
 	strncpy(ip,  inet_ntoa(asock_in->sin_addr),  MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
 	strncpy(local_ip,  inet_ntoa(localsock_in.sin_addr),  MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
-
-	int port=ntohs((*asock_in).sin_port);/*!Port used by the client*/
-	int myport=ntohs(localsock_in.sin_port);/*!Port connected to*/
+  /*! Port used by the client. */
+	int port=ntohs((*asock_in).sin_port);
+  /*! Port connected to. */
+	int myport=ntohs(localsock_in.sin_port);
 
 	if(!addConnectionToList(s, asock_in, &ip[0], &local_ip[0], port, myport, 1))
 	{
-		/*!If we report error to add the connection to the thread*/
+		/*! If we report error to add the connection to the thread. */
 		ret=0;
-		s.shutdown(2);/*!Shutdown the socket both on receive that on send*/
-		s.closesocket();/*!Then close it*/
+    /*! Shutdown the socket both on receive that on send. */
+		s.shutdown(2);
+    /*! Then close it. */
+		s.closesocket();
 	}
 	return ret;
 }
@@ -861,7 +864,8 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 	new_connection->nTries=0;
 	new_connection->password[0]='\0';
 	new_connection->protocolBuffer=0;
-	if(new_connection->host == 0) /* No vhost for the connection so bail */
+  /*! No vhost for the connection so bail. */
+	if(new_connection->host == 0) 
 	{
 		free(new_connection);
 		return 0;
@@ -878,9 +882,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 			doSSLhandshake=1;	
 	}
 	
-	/*!
-	*Do the SSL handshake if required.
-	*/
+	/*!Do the SSL handshake if required. */
 	if(doSSLhandshake)
 	{
 		int ret =0;
@@ -892,9 +894,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 #endif		
 		if(ret<0)
 		{
-			/*
-			*Free the connection on errors.
-			*/
+			/*! Free the connection on errors. */
 			free(new_connection);
 			return 0;
 		}
@@ -904,9 +904,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN
 		free(new_connection);
 		return 0;
 	}
-	/*!
-	*Update the list.
-	*/
+	/*! Update the list. */
 	lserver->connections_mutex_lock();
 	new_connection->next = connections;
    	connections=new_connection;
@@ -941,9 +939,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	*Get the access to the  connections list.
 	*/
 	int ret=0,  err;
-	/*!
-	*Remove the connection from the active connections list.
-	*/
+	/*! Remove the connection from the active connections list. */
 	LPCONNECTION prev=0;
 	for(LPCONNECTION i=connections;i;i=i->next )
 	{
@@ -972,9 +968,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 		free(s->protocolBuffer);
 	free(s);
 
-	/*!
-	*Close the socket communication.
-	*/
+	/*! Close the socket communication. */
 	socket.shutdown(SD_BOTH);
 	char buffer[256];
 	int buffersize=256;
@@ -993,21 +987,17 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 */
 LPCONNECTION cserver::getConnectionToParse(int /*id*/)
 {
-	/*
-	*Do nothing if there are not connections.
-	*/
+	/*! Do nothing if there are not connections. */
 	if(connections==0)
 		return 0;
-	/*!
-	*Stop the thread if the server is pausing.
-	*/
+	/*! Stop the thread if the server is pausing.*/
 	while(pausing)
 	{
 		wait(5);
 	}
 	if(connectionToParse)
 	{
-		/*!Be sure that connectionToParse is a valid connection struct*/
+		/*! Be sure that connectionToParse is a valid connection struct. */
 		if(connectionToParse->check_value!=CONNECTION::check_value_const)
 			connectionToParse=connections;
 		else
@@ -1039,9 +1029,7 @@ void cserver::clearAllConnections()
 		c=next;
 	}
 	connections_mutex_unlock();
-	/*!
-	*Reset everything
-	*/
+	/*! Reset everything.	*/
 	nConnections=0;
 	connections=0;
 	connectionToParse=0;
@@ -1135,9 +1123,7 @@ int cserver::connections_mutex_unlock()
 void cserver::loadSettings()
 {
 
-	/*!
-	*The guestLoginHandle value is filled by the call to cserver::initialize.
-	*/
+	/*! The guestLoginHandle value is filled by the call to cserver::initialize. */
 	if(useLogonOption==0)
 	{
    	preparePrintError();
@@ -1167,9 +1153,7 @@ void cserver::loadSettings()
 	}
 	else
 #endif
-	/*!
-	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
-	*/
+	/*! If the MIMEtypes.xml files doesn't exist copy it from the default one. */
 	if(!MYSERVER_FILE::fileExists("MIMEtypes.xml"))
 	{
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
@@ -1198,9 +1182,7 @@ void cserver::loadSettings()
 	}
 	else
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
-	/*!
-	*Load the MIME types.
-	*/
+	/*! Load the MIME types. */
 	printf("%s\n", languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
 	{
@@ -1237,9 +1219,7 @@ void cserver::loadSettings()
 	}
 	else
 #endif
-	/*!
-	*If the virtualhosts.xml file doesn't exist copy it from the default one.
-	*/
+	/*! If the virtualhosts.xml file doesn't exist copy it from the default one. */
 	if(!MYSERVER_FILE::fileExists("virtualhosts.xml"))
 	{
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
@@ -1269,9 +1249,7 @@ void cserver::loadSettings()
 	}	
 	else
 		strcpy(vhost_configuration_file,"virtualhosts.xml");
-	/*!
-	*Load the virtual hosts configuration from the xml file
-	*/
+	/*! Load the virtual hosts configuration from the xml file. */
 	vhostList.loadXMLConfigurationFile(vhost_configuration_file, this->getMaxLogFileSize());
 
 	http::loadProtocol(&languageParser, "myserver.xml");
