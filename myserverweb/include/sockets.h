@@ -46,6 +46,7 @@ extern "C" {
 }
 #define SOCKET int
 #define INVALID_SOCKET -1
+#define SD_BOTH SHUT_RDWR
 #endif
 #define MAX_IP_STRING_LEN	32
 typedef unsigned int MYSERVER_SOCKET_HANDLE;

@@ -39,6 +39,8 @@ extern "C" {
 #include <string.h>
 }
 
+#define lstrcmp strcmp
+#define strcmpi strcasecmp
 #define lstrcmpi strcasecmp
 #define _stricmp strcasecmp
 #define lstrcpy strcpy
