@@ -313,13 +313,9 @@ int MYSERVER_SOCKET::sslAccept()
 		return -1;
 	}
 	SSL_set_read_ahead(sslConnection,1);
-	if((clientCert = SSL_get_peer_certificate(sslConnection))==0)
-	{
-		freeSSL();
-		shutdown(2);
-		closesocket();
-		return -1;
-	}
+
+	clientCert = SSL_get_peer_certificate(sslConnection);
+
 	if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
 	{
 		freeSSL();
