@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 #include "../include/md5.h"
 #include "../include/cserver.h"
+#include "../include/protocols_manager.h"
 #include "../include/control_errors.h"
 extern "C" 
 {
@@ -684,6 +685,28 @@ int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out,
   return ret;
 }
 
+/*!
+ *List all the dynamic protocols used by the server.
+ */
+int control_protocol::SHOWDYNAMICPROTOCOLS(MYSERVER_FILE* out, char *b1,int bs1)
+{
+  int i = 0;
+  dynamic_protocol* dp;
+  u_long nbw;
+  int ret;
+  for( ;;)
+  {
+    dp = lserver->getProtocolsManager()->getDynProtocolByOrder(i);
+    if(dp == 0)
+      break;
+    sprintf(b1,"%s\r\n", dp->getProtocolName() );
+    ret = out->writeToFile(b1, strlen(b1), &nbw);
+    if(ret)
+      return CONTROL_INTERNAL;
+    i++;
+  }
+  return 0;
+}
 
 /*!
  *Return the requested file to the client.

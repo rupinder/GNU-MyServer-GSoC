@@ -132,6 +132,7 @@ private:
 	char *vhost_configuration_file;
 	char *mime_configuration_file;
 public:
+  protocols_manager *getProtocolsManager();
   void disableAutoReboot();
   void enableAutoReboot();
   void rebootOnNextLoop();

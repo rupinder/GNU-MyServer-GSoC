@@ -470,13 +470,11 @@ void * listenServer(void* params)
      *Every new connection is sended to cserver::addConnection function;
      *this function sends connections between the various threads.
      */
-#ifndef HURD
 		if(serverSocket->dataOnRead()==0)
 		{
 			wait(10);
 			continue;
 		}
-#endif
 		asock = serverSocket->accept((struct sockaddr*)&asock_in, 
                                  (LPINT)&asock_inLen);
 		if(asock.getHandle()==0)
@@ -1658,4 +1656,12 @@ void cserver::disableAutoReboot()
 void cserver::enableAutoReboot()
 {
   autoRebootEnabled = 1;
+}
+
+/*!
+ *Return the protocol_manager object.
+ */
+protocols_manager *cserver::getProtocolsManager()
+{
+  return &protocols;
 }
