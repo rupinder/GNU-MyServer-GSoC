@@ -897,16 +897,22 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 */
 void cserver::clearAllConnections()
 {
+	/*
+	*Keep access to the connections list
+	*/
+	requestAccess(&connectionWriteAccess,1);
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
-	for(u_long i=0;c && i<nConnections;i++)
+	while(c)
 	{
 		next=c->next;
 		deleteConnection(c,1);
 		c=next;
 	}
 	nConnections=0;
-	connections=NULL;
+	connections=0;
+	connectionToParse=0;
+	terminateAccess(&connectionWriteAccess,1);
 }
 
 
@@ -915,12 +921,14 @@ void cserver::clearAllConnections()
 */
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET a)
 {
+	requestAccess(&connectionWriteAccess,1);
 	LPCONNECTION c;
 	for(c=connections;c;c=c->next )
 	{
 		if(c->socket==a)
 			return c;
 	}
+	terminateAccess(&connectionWriteAccess,1);
 	return NULL;
 }
 

@@ -297,7 +297,7 @@ int requestAccess(u_long* ac,u_long id)
 	/*
 	*If the access ID is equal to the thread ID we don't do nothing.
 	*/
-	if(*ac==id+1)
+	if(*ac==id)
 		return 0;
 	/*
 	*if the access doesn't belong to any thread then set that it belongs to the caller thread
@@ -307,7 +307,7 @@ int requestAccess(u_long* ac,u_long id)
 	{
 		if(*ac==0)
 		{
-			*ac=id+1;
+			*ac=id;
 			requestAccess(ac,id);
 			return 0;
 		}
@@ -315,10 +315,10 @@ int requestAccess(u_long* ac,u_long id)
 	/*
 	*Wait until another thread ends the access, then set our access.
 	*/
-	while(*ac!=id+1);
+	while(*ac!=id);
 
 
-	*ac=id+1;
+	*ac=id;
 	requestAccess(ac,id);
 	return 0;
 }
