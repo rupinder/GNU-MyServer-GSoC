@@ -114,7 +114,7 @@ public:
 	void computeDigest(HttpThreadContext* td, char*, char*);
 	u_long checkDigest(HttpThreadContext* td, ConnectionPtr s);
   char* getBrowseDirCSSFile();
-	u_long get_gzip_threshold();
+	u_long getGzipThreshold();
 	/*! The function is used to the request and build a response.  */
 	virtual char* registerName(char*,int len);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 

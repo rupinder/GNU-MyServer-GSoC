@@ -2326,7 +2326,7 @@ char* Http::getBrowseDirCSSFile()
 /*!
  *Get the GZIP threshold.
  */
-u_long Http::get_gzip_threshold()
+u_long Http::getGzipThreshold()
 {
   return gzip_threshold;
 }
