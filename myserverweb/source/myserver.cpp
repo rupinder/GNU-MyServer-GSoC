@@ -64,19 +64,6 @@ const char *versionOfSoftware="0.8";
 cserver server;
 int argn;
 char **argv;
-/*
- *Flag to determine if reboot the console at the end of its execution.
- */
-int rebootMyServerConsole;
-/*
- *Reboot the console application.
- */
-int reboot_console()
-{
-	server.stop();	
-	console_service(argn,argv);
-	return 0;
-}
 
 #ifdef NOT_WIN
 void Sig_Quit(int signal)
@@ -85,6 +72,15 @@ void Sig_Quit(int signal)
 	sync();
 	server.stop();
 }
+
+void Sig_Hup(int signal)
+{
+  /*!
+   *On the SIGHUP signal reboot the server.
+   */
+	lserver->rebootOnNextLoop();
+}
+
 #endif
 
 
@@ -94,6 +90,7 @@ struct argp_input
 {
   /*! Print the version for MyServer? */
   int version;
+  char* logFileName;
   /*! Define how run the server. */
   int runas;
 };
@@ -105,8 +102,9 @@ static char args_doc[] = "";
 static struct argp_option options[] = 
 {
   /*LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION*/
-	{"version",'v',"VERSION", 0 ,"Print the version for the application"},
-	{"run",'r',"RUN",OPTION_ARG_OPTIONAL,"Specify how run the server(by default console mode)"},
+	{"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
+	{"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server(by default console mode)"},
+	{"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
 	{0}
 };
 
@@ -119,9 +117,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
        in->version = 1;
        break;
      case 'r':
-       /*! At the moment only CONSOLE mode is available. */
        if(!strcmpi(arg, "CONSOLE"))
          in->runas = MYSERVER_RUNAS_CONSOLE;
+       if(!strcmpi(arg, "SERVICE"))
+         in->runas = MYSERVER_RUNAS_SERVICE;
+       break;
+     case 'l':
+       in->logFileName = arg;
        break;
      case ARGP_KEY_ARG:
      case ARGP_KEY_END:
@@ -145,15 +147,16 @@ int main (int argn, char **argv)
   int runas=MYSERVER_RUNAS_CONSOLE;
 	::argn=argn;
 	::argv=argv;
-	rebootMyServerConsole=0;
 #ifdef NOT_WIN
-	struct sigaction sig1, sig2;
-  sig1.sa_flags = sig2.sa_flags = SA_RESETHAND;
-	sig1.sa_handler=SIG_IGN;
-	sig2.sa_handler=Sig_Quit;
+	struct sigaction sig1, sig2, sig3;
+  sig1.sa_flags = sig2.sa_flags = sig3.sa_flags = SA_RESETHAND;
+	sig1.sa_handler = SIG_IGN;
+	sig2.sa_handler = Sig_Quit;
+  sig3.sa_handler = Sig_Hup;
 	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
 	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
 	sigaction(SIGTERM,&sig2,NULL); // catch the kill command
+	sigaction(SIGHUP,&sig3,NULL); // catch the HUP command
 #endif
   int path_len = strlen(argv[0]) +1 ;
   path = new char[path_len];
@@ -175,10 +178,19 @@ int main (int argn, char **argv)
 	struct argp_input input;
 	/*! Reset the struct. */
 	input.version = 0;
+  input.logFileName = 0;
 	input.runas = MYSERVER_RUNAS_CONSOLE;
 	/*! Call the parser. */
 	argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
 	runas=input.runas;
+  if(input.logFileName)
+  {
+    if(server.setLogFile(input.logFileName))
+    {
+      printf("Error loading log file\n");
+      return 1;
+    }
+  }
 	/*! If the version flag is up, show the version and exit. */
 	if(input.version)
 	{
@@ -213,17 +225,66 @@ int main (int argn, char **argv)
 		}
 	}
 #endif
+
+  /*!
+   *Start here the MyServer execution.
+   */
   switch(runas)
   {
 	case MYSERVER_RUNAS_CONSOLE:
-		console_service(argn,argv);
-		if(rebootMyServerConsole)
-      reboot_console();
+		console_service(argn, argv);
 		break;
 	case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
 		runService();
+#else
+    /*!
+     *Run the daemon.
+     *Process ID for the forked process.
+     */
+    pid_t pid;
+        
+    /*!
+     *Fork the process.
+     */
+    pid = fork();
+
+    /*!
+     *An error happened, return with errors.
+     */
+    if (pid < 0) 
+    {
+      return 1;
+    }
+    /*!
+     *A good process id, return with success. 
+     */
+    if (pid > 0) 
+    {
+      return 0;
+    }
+
+    /*!
+     *Create a SID for the new process.
+     */
+    pid_t sid;
+
+    sid = setsid();
+
+    /*!
+     *Error in setting a new sid, return the error.
+     */
+    if (sid < 0) 
+    {
+      return 1;
+    }   
+    
+    /*!
+     *Finally run the server from the forked process.
+     */
+		console_service(argn, argv);
 #endif
+
 		break;
   }
 
@@ -274,6 +335,11 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
                                            | SERVICE_ACCEPT_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+
+    /*!
+     *Set the log file to use when in service mode.
+     */
+    server.setLogFile("logs\\myserver.log");
 
 		server.start();
 	
@@ -350,8 +416,6 @@ void runService()
 #endif
 }
 
-
-
 /*!
  *Register the service
  */
@@ -396,8 +460,8 @@ void removeService()
 		{
 			ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);
 			while (QueryServiceStatus (service, &MyServiceStatus))
-			if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
-				break;
+        if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
+          break;
 			DeleteService(service);
 			CloseServiceHandle (service);
 			CloseServiceHandle (manager);

@@ -73,6 +73,7 @@ int MYSERVER_LOG_MANAGER::load(char *filename)
   }
   setType(TYPE_FILE);
   loaded = 1;
+  return 0;
     
 }
 
@@ -146,8 +147,9 @@ int MYSERVER_LOG_MANAGER::write(char *str, int len)
 
     /*!
      *We reached the max file size.
+     *Don't use this limitation if max_size is equal to zero.
      */
-    if(file.getFileSize() > max_size)
+    if(max_size && (file.getFileSize() > max_size))
     {
       return 1;
     }

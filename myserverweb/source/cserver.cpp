@@ -1715,7 +1715,12 @@ int cserver::loadSettings()
 	createListenThreads();
 
 	logWriteln(languageParser.getValue("MSG_READY"));
-	logWriteln(languageParser.getValue("MSG_BREAK"));
+
+  /*
+   *Print this message only if the log outputs to the console screen.
+   */
+  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+    logWriteln(languageParser.getValue("MSG_BREAK"));
 
   /*!
    *Server initialization is now completed.
@@ -2050,3 +2055,17 @@ int cserver::logEndPrintError()
   logManager.endPrintError();
   return 0;
 }
+
+/*!
+ *Use a specified file as log.
+ */
+int cserver::setLogFile(char* fileName)
+{
+  if(fileName == 0)
+  {
+    logManager.setType(MYSERVER_LOG_MANAGER::TYPE_CONSOLE);
+    return 0;
+  }
+  return logManager.load(fileName);
+}
+

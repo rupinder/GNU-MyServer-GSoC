@@ -190,6 +190,7 @@ public:
   int logWriteln(char*);
   int logPreparePrintError();
   int logEndPrintError();  
+  int setLogFile(char*);
 }; 
 extern class cserver *lserver;
 #ifdef WIN32
