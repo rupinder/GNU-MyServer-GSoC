@@ -31,9 +31,6 @@ using namespace std;
 
 cgi_manager * cgi_manager_ptr; // a nasty global 
 
-// prototype for writepng.c
-//extern "C" static void writepng_error_handler(png_structp png_ptr, png_const_charp msg);
-
 // pnguser functions
 void user_write_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {

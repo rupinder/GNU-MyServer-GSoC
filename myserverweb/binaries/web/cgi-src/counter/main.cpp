@@ -22,9 +22,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <limits.h>
 #include <math.h>
 
-// 10 digets is the bigest I can get on my system
-#define MAXDIGETS 10
-
 #ifdef WIN32
 int EXPORTABLE main (char *cmd,cgi_data* data)
 #else
@@ -55,9 +52,6 @@ extern "C" int main (char *cmd,cgi_data* data)
 		count++; // add the hit
 		
 		if(count > ULONG_MAX - 5)
-			count = 1;
-		
-		if(count > pow((long double)10, (long double)MAXDIGETS))
 			count = 1;
 			
 		//now save it
