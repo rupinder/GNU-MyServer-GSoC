@@ -1,5 +1,5 @@
 /*
-*myServer
+*MyServer
 *Copyright (C) 2002 The MyServer team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1274,7 +1274,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	}
 
 	/*
-	*myServer supports the bytes range.
+	*MyServer supports the bytes range.
 	*/
 	strcat(str,"Accept-Ranges: bytes\r\n");
 	/*

@@ -17,7 +17,6 @@ XPStyle on
 
 
 InstallDir "$PROGRAMFILES\${MUI_PRODUCT}"
-;--------------------------------
 !insertmacro MUI_LANGUAGE "English"
 
   
@@ -60,9 +59,9 @@ Section "MyServer core" SecCore
     CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Run Console.lnk" "$INSTDIR\myserver.exe"
     CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Remove MyServer.lnk" "$INSTDIR\remove.exe"
     CreateDirectory "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Configuration files"
-    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Configuration files\Virtual hosts.lnk" "$INSTDIR\virtualhosts.txt"
+    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Configuration files\Virtual hosts.lnk" "$INSTDIR\virtualhosts.xml"
     CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Configuration files\MyServer configuration.lnk" "$INSTDIR\myserver.xml"
-    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Configuration files\MIME types.lnk" "$INSTDIR\MIMEtypes.txt"
+    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\Configuration files\MIME types.lnk" "$INSTDIR\MIMEtypes.xml"
   !insertmacro MUI_STARTMENU_WRITE_END
 
   
@@ -142,7 +141,7 @@ FunctionEnd
 
 
 
-; Uninstaller
+; MyServer Uninstaller
 
 Section "Uninstall"
   ExecWait "$INSTDIR\control.exe UNREGISTER" ;Remove the service if installed

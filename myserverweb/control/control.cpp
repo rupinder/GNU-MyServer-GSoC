@@ -1,5 +1,5 @@
 /*
-*myServer
+*MyServer
 *Copyright (C) 2002 The MyServer team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ const char VERSION_OF_SOFTWARE[]="0.4.3";
 *To compile this program you need the library wxwindows distributed under the GNU LGPL(http://www.gnu.org/copyleft/lgpl.html) license terms.
 *You can download wxwindows from http://www.wxwindows.org/.
 *You need to compile it before any use. MyServer Control Center uses the Release Version of this library.
-*myServer Control Center starts to use the wxwindows library from its 0.3 version, before it uses
+*MyServer Control Center starts to use the wxwindows library from its 0.3 version, before it uses
 *Windows API to create and manage a window.
 */
 

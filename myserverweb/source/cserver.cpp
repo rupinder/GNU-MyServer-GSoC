@@ -1,5 +1,5 @@
 /*
-*myServer
+*MyServer
 *Copyright (C) 2002 The MyServer team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -113,7 +113,7 @@ void cserver::start()
 	*Print the myServer logo.
 	*/
 	char *software_signature=(char*)malloc(200);
-	sprintf(software_signature,"************myServer %s************",versionOfSoftware);
+	sprintf(software_signature,"************MyServer %s************",versionOfSoftware);
 	i=strlen(software_signature);
 	while(i--)
 		printf("*");

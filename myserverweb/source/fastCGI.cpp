@@ -1,5 +1,5 @@
 /*
-*myServer
+*MyServer
 *Copyright (C) 2002 The MyServer team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -419,7 +419,8 @@ int runFcgiServer(fCGIContext *con,char* path)
 		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].socket.getHandle();
 	}
 	START_PROC_INFO spi;
-	memset(&spi,0,sizeof(spi));
+	spi.cwd=0;
+	spi.envString=0; 
 	spi.cmd=path;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 	spi.cmdLine=path;
