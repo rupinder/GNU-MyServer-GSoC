@@ -199,7 +199,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
     else
     {
       spi.cmd.assign(scriptpath);
-      spi.arg.assign(td->pathInfo?&td->pathInfo[1]:td->pathInfo);
+      spi.arg.assign(td->pathInfo?&td->pathInfo[1]:"");
     }
 
 	}
