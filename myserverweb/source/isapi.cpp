@@ -86,6 +86,8 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
+	connTable[connIndex].headerSent=0;
+	connTable[connIndex].headerSize=0;
 	connTable[connIndex].Allocated = TRUE;
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (AppHnd == NULL) 
@@ -184,91 +186,9 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	{
 		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, ISAPI_TIMEOUT);
 	}
-	/*
-	*Flush the output to the client.
-	*/
-	u_long len=0;
-	if(connTable[connIndex].td->outputData.getHandle())
-	{
-		connTable[connIndex].td->outputData.setFilePointer(0);
-		connTable[connIndex].td->outputData.readFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
-	}
+	connTable[connIndex].connection->socket.send("0\r\n\r\n",5, 0);
+	connTable[connIndex].td->outputData.closeFile();
 
-	u_long headerSize=0;
-	for(u_long i=0;i<len;i++)
-	{
-		if(connTable[connIndex].td->buffer[i]=='\n')
-		{
-			if(connTable[connIndex].td->buffer[i+1]=='\n')
-			{
-				/*
-				*The HTTP header ends with a \n\n sequence so 
-				*determinate where it ends and set the header size
-				*to i + 2.
-				*/
-				headerSize=i+2;
-				break;
-			}
-		}
-		if(connTable[connIndex].td->buffer[i]=='\r')
-		{
-			if(connTable[connIndex].td->buffer[i+1]=='\n')
-			{
-				if(connTable[connIndex].td->buffer[i+2]=='\r')
-				{
-					if(connTable[connIndex].td->buffer[i+3]=='\n')
-					{
-						/*
-						*The HTTP header ends with a \r\n\r\n sequence so 
-						*determinate where it ends and set the header size
-						*to i + 4.
-						*/
-						connTable[connIndex].td->buffer[i+2]='\0';
-						headerSize=i+4;
-						break;
-					}
-				}
-			}
-		}
-
-	}
-
-	if(ExtCtrlBlk.dwHttpStatusCode==200)/*HTTP status code is 200*/
-	{
-		char chunk_size[15];
-		strcpy(td->response.TRANSFER_ENCODING,"chunked");
-		buildHTTPResponseHeaderStruct(&td->response,td,connTable[connIndex].td->buffer);
-		sprintf(connTable[connIndex].td->response.CONTENT_LENGTH,"%u",connTable[connIndex].td->outputData.getFileSize()-headerSize);
-		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
-		connTable[connIndex].connection->socket.send(connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
-
-		/*Send the first chunk*/
-		sprintf(chunk_size,"%x\r\n",len-headerSize);
-		connTable[connIndex].connection->socket.send(chunk_size,strlen(chunk_size), 0);
-
-		connTable[connIndex].connection->socket.send((char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
-
-		/*Continue to send chunks*/
-		for(;;)
-		{
-			connTable[connIndex].td->outputData.readFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
-			if(len==0)
-				break;
-			sprintf(chunk_size,"\r\n%x\r\n",len);
-			connTable[connIndex].connection->socket.send(chunk_size,strlen(chunk_size), 0);
-			connTable[connIndex].connection->socket.send((char*)(connTable[connIndex].td->buffer),len, 0);
-		}
-		/*To terminate the chunks transfer send a zero len chunk*/
-		connTable[connIndex].connection->socket.send("\r\n0\r\n\r\n",7, 0);
-		connTable[connIndex].td->outputData.closeFile();
-	}
-	else	
-	{
-		/*
-		*Return the correct HTTP error
-		*/
-		raiseHTTPError(td,connection,getErrorIDfromHTTPStatusCode(ExtCtrlBlk.dwHttpStatusCode));
-	}
 	int retvalue=0;
 
 	switch(Ret) 
@@ -400,7 +320,6 @@ int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
 BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*dwReserved*/)
 {
 	ConnTableRecord *ConnInfo;
-
 	if(*lpdwBytes==0)
 		return TRUE;
 	ConnInfo = HConnRecord(hConn);
@@ -409,18 +328,65 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	if(ConnInfo->td->outputData.getHandle()==0)
+	char chunk_size[15];
+	int nbw=0;
+	if(!ConnInfo->headerSent)
 	{
-		char stdOutFilePath[MAX_PATH];
-		getdefaultwd(stdOutFilePath,MAX_PATH);
-		sprintf(&stdOutFilePath[strlen(stdOutFilePath)],"/stdOutFile_%u",ConnInfo->td->id);
-		ConnInfo->td->outputData.createTemporaryFile(stdOutFilePath);
+		strncat(ConnInfo->td->buffer,((char*)Buffer),*lpdwBytes);
+		ConnInfo->headerSize+=*lpdwBytes;
+		int headerSize=0;
+		for(int i=0;i<(strlen(ConnInfo->td->buffer));i++)
+		{
+			if((ConnInfo->td->buffer[i]=='\r'))
+				if(ConnInfo->td->buffer[i+1]=='\n')
+					if(ConnInfo->td->buffer[i+2]=='\r')
+						if(ConnInfo->td->buffer[i+3]=='\n')
+						{
+							headerSize=i+4;
+							ConnInfo->td->buffer[i+2]='\0';
+							break;
+						}
+			if((ConnInfo->td->buffer[i]=='\n'))
+				if(ConnInfo->td->buffer[i+1]=='\n')
+				{
+					headerSize=i+2;
+					ConnInfo->td->buffer[i+1]='\0';
+					break;
+				}
+		}
+		if(headerSize)
+		{
+			int len=ConnInfo->headerSize-headerSize;
+			strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
+			buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
+			buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
+
+			ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0);
+			ConnInfo->headerSent=1;
+
+			/*Send the first chunk*/
+			if(len)
+			{
+				sprintf(chunk_size,"%x\r\n",len);
+				ConnInfo->connection->socket.send(chunk_size,strlen(chunk_size), 0);
+				nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
+				ConnInfo->connection->socket.send("\r\n",2, 0);
+			}
+
+
+		}
 	}
-	DWORD nbw;
-	ConnInfo->td->outputData.writeToFile((char*)Buffer,*lpdwBytes,&nbw);
+	else/*Continue to send data chunks*/
+	{
+		sprintf(chunk_size,"%x\r\n",*lpdwBytes);
+		ConnInfo->connection->socket.send(chunk_size,strlen(chunk_size), 0);
+		nbw=ConnInfo->connection->socket.send((char*)Buffer,*lpdwBytes, 0);
+		ConnInfo->connection->socket.send("\r\n",2, 0);
+	}
 
 	*lpdwBytes = nbw;
-	if (nbw) 
+
+	if (nbw!=-1) 
 	{
 		return TRUE;
 	}

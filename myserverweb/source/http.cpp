@@ -2175,10 +2175,12 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 			strncpy(response->VER,command,HTTP_RESPONSE_VER_DIM);
 		
 			token = strtok( NULL, " ,\t\n\r" );
-			response->httpStatus=atoi(token);
+			if(token)
+				response->httpStatus=atoi(token);
 			
 			token = strtok( NULL, "\r\n\0" );
-			strncpy(response->ERROR_TYPE,token,HTTP_RESPONSE_ERROR_TYPE_DIM);
+			if(token)
+				strncpy(response->ERROR_TYPE,token,HTTP_RESPONSE_ERROR_TYPE_DIM);
 
 		}else
 		/*Server*/

@@ -107,11 +107,13 @@ typedef struct _EXTENSION_CONTROL_BLOCK
 
 struct ConnTableRecord
 {
-  BOOL Allocated;
-  httpThreadContext *td;
-  char* envString;
-  LPCONNECTION connection;
-  HANDLE ISAPIDoneEvent;
+	BOOL Allocated;
+	int headerSent;
+	int headerSize;
+	httpThreadContext *td;
+	char* envString;
+	LPCONNECTION connection;
+	HANDLE ISAPIDoneEvent;
 };
 void initISAPI();
 void cleanupISAPI();
