@@ -605,7 +605,7 @@ void cserver::terminate()
 
 	for(i=0;i<nThreads;i++)
 		threads[i].clean();
-
+	u_long threadsStopTime=0;
 	for(;;)
 	{
 		threadsStopped=0;
@@ -617,6 +617,12 @@ void cserver::terminate()
 		*/
 		if(threadsStopped==nThreads)
 			break;
+		/*!
+		*Do not wait more than 5 seconds for killing threads.
+		*/
+		if(++threadsStopTime > 500 )
+			break;
+		wait(10);
 	}
 	/*!
 	*If there are open connections close them.
@@ -630,7 +636,7 @@ void cserver::terminate()
 	mimeManager.clean();
 #ifdef WIN32
 	/*!
-	*Under WIN32 cleanup ISAPI.
+	*Under WIN32 cleanup environment strings.
 	*/
 	FreeEnvironmentStrings((LPTSTR)envString);
 #endif	
