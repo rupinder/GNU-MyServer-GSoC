@@ -64,6 +64,7 @@ private:
 public:
 	void setSSL(int,SSL* connection = 0);
 	int getSSL();
+	SSL* getSSLConnection();
 	int initializeSSL(SSL* connection = 0);
 	int freeSSL();
 	int initializeSSLContext();
@@ -78,7 +79,7 @@ public:
 	int listen(int);
 	MYSERVER_SOCKET();
 	MYSERVER_SOCKET(MYSERVER_SOCKET_HANDLE);
-	MYSERVER_SOCKET accept(MYSERVER_SOCKADDR*,int*);
+	MYSERVER_SOCKET accept(MYSERVER_SOCKADDR*,int*,int sslHandShake=0);
 	int closesocket();
 	int setsockopt(int,int,const char*,int);
 	int shutdown(int how);
