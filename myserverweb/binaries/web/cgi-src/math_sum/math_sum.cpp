@@ -76,9 +76,8 @@ extern "C" int main (char *cmd, MsCgiData* data)
 		cm.write("(");
 		cm.getenv("HTTP_HOST",lb,&dim);
 		cm.write(lb);
-		cm.write(")\r\n");
 		
-		cm.write("</div>\r\n</body>\r\n</html>");
+		cm.write(")\r\n</div>\r\n</body>\r\n</html>");
 	}
      cm.clean();
      return 0; 
