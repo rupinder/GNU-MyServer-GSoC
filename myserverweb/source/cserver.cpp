@@ -48,7 +48,7 @@ void cserver::start()
 {
 	u_long i;
 	/*
-	*Set the current working directory
+	*Set the current working directory.
 	*/
 	ms_setcwdBuffer();
 

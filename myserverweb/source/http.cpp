@@ -30,8 +30,7 @@
 int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
 	/*
-	*Send the content of a folder if there is not any default
-	*file to send.
+	*Send the folder content.
 	*/
 	static char filename[MAX_PATH];
 	int startchar=0;

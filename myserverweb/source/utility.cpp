@@ -70,7 +70,7 @@ INT getOSVersion()
 }	
 
 /*
-*Returns the number of processors that are on the local machine.
+*Returns the number of processors available on the local machine.
 */
 u_long getCPUCount()
 {
