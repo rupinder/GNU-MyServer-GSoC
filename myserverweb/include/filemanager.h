@@ -20,8 +20,11 @@
 
 #include "..\stdafx.h"
 typedef void *MYSERVER_FILE_HANDLE;
-DWORD logFileWrite(char*);
-void setLogFile(MYSERVER_FILE_HANDLE);
+DWORD accessesLogWrite(char*);
+void setAccessesLogFile(MYSERVER_FILE_HANDLE);
+
+DWORD warningsLogWrite(char*);
+void setWarningsLogFile(MYSERVER_FILE_HANDLE);
 void getFileExt(char*,char*);
 DWORD getFileSize(MYSERVER_FILE_HANDLE);
 BOOL setFilePointer(MYSERVER_FILE_HANDLE,DWORD);

@@ -24,6 +24,8 @@
 #include <direct.h>
 #include "..\include\sockets.h"
 
+#define WARNINGS_FILE_NAME "myServer.err"
+#define ACCESSES_FILE_NAME "myServer.log"
 /*
 *These variables are the unique istance of the class cserver in the application and the flag
 *mustEndServer. When mustEndServer is true all the threads are stopped and the application stop
@@ -51,8 +53,13 @@ void cserver::start(INT hInst)
 	*Save the unique instance of this class
 	*/
 	lserver=this;
-	logFile=ms_OpenFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	setLogFile(logFile);
+	
+	warningsLogFile=ms_OpenFile(WARNINGS_FILE_NAME,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	setWarningsLogFile(warningsLogFile);
+	
+	accessesLogFile=ms_OpenFile(ACCESSES_FILE_NAME,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	setAccessesLogFile(accessesLogFile);
+	
 	controlSizeLogFile();
 
 	/*
@@ -349,7 +356,8 @@ void cserver::terminate()
 	}
 	ms_closesocket(serverSocketHTTP);
 
-	ms_CloseFile(logFile);
+	ms_CloseFile(warningsLogFile);
+	ms_CloseFile(accessesLogFile);
 }
 void cserver::initialize(INT OSVer)
 {
@@ -504,19 +512,37 @@ VOID cserver::controlSizeLogFile()
 	*If this is bigger than maxLogFileSize
 	*delete it.
 	*/
-	if(!logFile)
+	if(!warningsLogFile)
 	{
-		logFile=ms_OpenFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		warningsLogFile=ms_OpenFile(WARNINGS_FILE_NAME,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
 	DWORD fs=0;
-	fs=getFileSize(logFile);
+	fs=getFileSize(warningsLogFile);
 	if(fs>maxLogFileSize)
 	{
-		ms_CloseFile(logFile);
-		ms_DeleteFile("myServer.log");
-		logFile=ms_OpenFile("myServer.log",MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		ms_CloseFile(warningsLogFile);
+		ms_DeleteFile(WARNINGS_FILE_NAME);
+		warningsLogFile=ms_OpenFile(WARNINGS_FILE_NAME,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
-	setLogFile(logFile);
+	setWarningsLogFile(warningsLogFile);
+
+
+	/*
+	*Controls the accesses file too
+	*/
+	if(!accessesLogFile)
+	{
+		accessesLogFile=ms_OpenFile(ACCESSES_FILE_NAME,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	}
+	fs=getFileSize(accessesLogFile);
+	if(fs>maxLogFileSize)
+	{
+		ms_CloseFile(accessesLogFile);
+		ms_DeleteFile(ACCESSES_FILE_NAME);
+		accessesLogFile=ms_OpenFile(ACCESSES_FILE_NAME,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	}
+	setAccessesLogFile(accessesLogFile);
+
 }
 
 BOOL cserver::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
@@ -529,7 +555,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
 	{
 		char msg[500];
 		sprintf(msg,"%s:%u.%u.%u.%u -> %s:%i %s:%s\r\n",msgNewConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
-		logFileWrite(msg);
+		accessesLogWrite(msg);
 	}
 
 	static DWORD local_nThreads=0;
@@ -542,7 +568,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
 		{
 			char buffer[500];
 			sprintf(buffer,"%s:%i.%i.%i.%i -> %s:%i %s:%s\r\n",msgErrorConnection,lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b1, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b2, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b3, lserver->asock_inHTTP.sin_addr.S_un.S_un_b.s_b4,serverName,lserver->port_HTTP,msgAtTime,getHTTPFormattedTime());
-			logFileWrite(buffer);
+			warningsLogWrite(buffer);
 		}
 	}
 

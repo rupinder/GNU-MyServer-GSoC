@@ -95,10 +95,10 @@ char *getHTTPFormattedTime(void)
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
 	return localTimeString;
 }
-/*
-*This function format a time gmtime to the HTTP time format
-*/
 
+/*
+*This function formats a time gmtime to the HTTP time format
+*/
 char *getHTTPFormattedTime(tm*  gmtime)
 {
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[gmtime->tm_wday],gmtime->tm_mday,monthsName[gmtime->tm_mon],gmtime->tm_year,gmtime->tm_hour,gmtime->tm_min,gmtime->tm_sec);
@@ -175,7 +175,7 @@ DWORD getCPUCount()
 	return ret;
 }
 /*
-*Excute an hidden process and wait until it end itself
+*Execute an hidden process and wait until it ends itself
 */
 DWORD execHiddenProcess(START_PROC_INFO *spi)
 {

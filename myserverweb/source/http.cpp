@@ -39,7 +39,6 @@ HTTP_REQUEST_HEADER  Thread request;
 char Thread filenamePath[MAX_PATH];
 LOGGEDUSERID Thread hImpersonation;
 
-
 BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 {
 	/*
@@ -201,7 +200,7 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	{
 		char msg[500];
 		sprintf(msg,"%s %s\n",msgSending,filenamePath);
-		logFileWrite(msg);
+		warningsLogWrite(msg);
 	}
 	for(;;)
 	{
@@ -216,6 +215,10 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	return 1;
 
 }
+
+/*
+*Main function to send a resource to a client
+*/
 BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
 {
 	/*
@@ -284,6 +287,10 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 	raiseHTTPError(s,e_404);
 	return 1;
 }
+/*
+*Sends the myServer CGI; differently form standard CGI this don't need a new process to run
+*so it is faster
+*/
 BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 {
 	/*
@@ -341,6 +348,10 @@ BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 #endif
 	return 0;
 }
+
+/*
+*This is the HTTP protocol parser
+*/
 BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp)
 {
 	buffer=b1;
@@ -392,13 +403,13 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 			break;
 	}
 	if(nLines<(DWORD)(nLineChars/100))
+		isValidCommand=FALSE;
 
-	isValidCommand=FALSE;
 	if(lserver->getVerbosity()>4)
 	{
 		buffer[nBytesToRead]='\n';
 		buffer[nBytesToRead+1]='\0';
-		logFileWrite(buffer);
+		warningsLogWrite(buffer);
 	}
 	if(isValidCommand==FALSE)
 	{
@@ -751,6 +762,9 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	}
 	return 1;
 }
+/*
+*Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure
+*/
 void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 {
 	/*
@@ -783,6 +797,9 @@ void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 	lstrcat(str,"\n");
 
 }
+/*
+*Set the defaults value for a HTTP_RESPONSE_HEADER structure
+*/
 void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER* response)
 {
 	ZeroMemory(response,sizeof(HTTP_RESPONSE_HEADER));
@@ -817,7 +834,9 @@ void raiseHTTPError(LPCONNECTION a,int ID)
 	ms_send(a->socket,buffer,lstrlen(buffer), 0);
 }
 
-
+/*
+*Sends the standard CGI to a client
+*/
 BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 {
 	/*

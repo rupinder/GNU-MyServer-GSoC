@@ -22,6 +22,7 @@
 
 /*
 *This code is used to parse a pseudo-xml file.
+*With the open function we open a file and store it in memory.
 */
 void cXMLParser::open(char* filename)
 {
@@ -93,7 +94,9 @@ char *cXMLParser::getValue(char* vName)
 	}
 	return ret;
 }
-
+/*
+*Deallocate the memory used by the class
+*/
 void cXMLParser::close()
 {
 	if(file)

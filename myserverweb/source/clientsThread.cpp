@@ -31,6 +31,9 @@ ClientsTHREAD::~ClientsTHREAD()
 {
 	clean();
 }
+/*
+*This function starts a new thread controlled by a ClientsTHREAD class instance.
+*/
 unsigned int __stdcall startClientsTHREAD(void* pParam)
 {
 	DWORD id=*((DWORD*)pParam);
@@ -115,11 +118,12 @@ void ClientsTHREAD::stop()
 	*/
 	threadIsRunning=FALSE;
 }
+
+/*
+*Clean the memory used by the thread
+*/
 void ClientsTHREAD::clean()
 {
-	/*
-	*Clean the memory used by the thread
-	*/
 	if(initialized==FALSE)
 		return;
 	requestAccess(&connectionWriteAccess,this->id);
@@ -133,12 +137,13 @@ void ClientsTHREAD::clean()
 	terminateAccess(&connectionWriteAccess,this->id);
 
 }
+
+/*
+*Add a new connection.
+*Connections are defined using a CONNECTION struct.
+*/
 LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID)
 {
-	/*
-	*Add a new connection.
-	*Connections are defined using a CONNECTION struct.
-	*/
 	requestAccess(&connectionWriteAccess,this->id);
 	const int maxRcvBuffer=KB(5);
 	const BOOL keepAlive=TRUE;
@@ -156,11 +161,12 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 
 	return nc;
 }
+
+/*
+*Delete a connection
+*/
 BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 {
-	/*
-	*Delete a connection
-	*/
 	requestAccess(&connectionWriteAccess,this->id);
 	BOOL ret=FALSE;
 	ms_shutdown(s->socket,SD_BOTH );
@@ -188,11 +194,13 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	terminateAccess(&connectionWriteAccess,this->id);
 	return ret;
 }
+
+/*
+*Delete all the connections
+*/
 void ClientsTHREAD::clearAllConnections()
 {
-	/*
-	*Delete all the connections
-	*/
+
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	for(;c;c=c->Next)
@@ -205,12 +213,11 @@ void ClientsTHREAD::clearAllConnections()
 }
 
 
-
+/*
+*Find a connection passing the socket that control it
+*/
 LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 {
-	/*
-	*Find a connection passing the socket that control it
-	*/
 	LPCONNECTION c;
 	for(c=connections;c;c=c->Next)
 	{

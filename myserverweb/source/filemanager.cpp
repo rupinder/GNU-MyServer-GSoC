@@ -21,20 +21,32 @@
 #include "..\include\utility.h"
 #include <string.h>
 extern BOOL mustEndServer; 
-static MYSERVER_FILE_HANDLE logFile=0;
+static MYSERVER_FILE_HANDLE warningsLogFile=0;
+static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 /*
-*Functions to manage a log file
+*Functions to manage the logs file
 */
-DWORD logFileWrite(char* str)
+DWORD warningsLogWrite(char* str)
 {
 	DWORD nbw;
-	ms_WriteToFile(logFile,str,lstrlen(str),&nbw);
+	ms_WriteToFile(warningsLogFile,str,lstrlen(str),&nbw);
 	return nbw;
 }
-void setLogFile(MYSERVER_FILE_HANDLE nlg)
+void setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 {
-	logFile=nlg;
+	warningsLogFile=nlg;
+}
+
+DWORD accessesLogWrite(char* str)
+{
+	DWORD nbw;
+	ms_WriteToFile(accessesLogFile,str,lstrlen(str),&nbw);
+	return nbw;
+}
+void setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
+{
+	accessesLogFile=nlg;
 }
 
 /*
