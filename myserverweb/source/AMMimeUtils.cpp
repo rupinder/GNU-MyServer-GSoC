@@ -243,12 +243,12 @@ char* MimeDecodeMailHeaderField(char *s)
 		s[0] = '\0';
 		if (start != NULL)
 		{
-			strcat(s, start);
+			strncat(s, start, strlen(s+1));
 		}
-		strcat(s, decodedText);
-		if (rest != NULL)
+		strncat(s, decodedText,strlen(s+1));
+  		if (rest != NULL)
 		{
-			strcat(s, rest);
+			strncat(s, rest, strlen(s+1));
 		}
 		free(decodedText);
 	}
