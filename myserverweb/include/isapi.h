@@ -115,25 +115,32 @@ struct ConnTableRecord
 	LPCONNECTION connection;
 	HANDLE ISAPIDoneEvent;
 };
-void initISAPI();
-void cleanupISAPI();
-int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL);
-int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
-int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
-ConnTableRecord *HConnRecord(HCONN hConn);
-
 typedef BOOL (WINAPI * PFN_GETEXTENSIONVERSION)(HSE_VERSION_INFO *pVer);
 typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
-/*!
-*Use this to execute an ISAPI file on the server.
-*/
-int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
 
-BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType);
-BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
-BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
-BOOL WINAPI GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
-BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
-BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+class isapi
+{
+	ConnTableRecord *HConnRecord(HCONN hConn);
+	static ConnTableRecord *connTable;
+	
+	static void initISAPI();
+	static void cleanupISAPI();
+	int ISAPIRedirect(httpThreadContext* td,LPCONNECTION a,char *URL);
+	int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL);
+	int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL);
+	/*!
+	*Use this to execute an ISAPI file on the server.
+	*/
+
+	BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType);
+	BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
+	BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved);
+	BOOL WINAPI GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
+	BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+	BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD maxLen);
+public:	
+	static int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);	
+};
+
 #endif
 #endif

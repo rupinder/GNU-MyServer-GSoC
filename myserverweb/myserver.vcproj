@@ -158,6 +158,9 @@
 				RelativePath="source\fastCGI.cpp">
 			</File>
 			<File
+				RelativePath="source\http_header.cpp">
+			</File>			
+			<File
 				RelativePath="source\filemanager.cpp">
 			</File>
 			<File
@@ -236,6 +239,9 @@
 			<File
 				RelativePath="include\cgi.h">
 			</File>
+			<File
+				RelativePath="include\http_header.h">
+			</File>			
 			<File
 				RelativePath="include\clientsThread.h">
 			</File>

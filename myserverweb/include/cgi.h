@@ -26,8 +26,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http.h"
 extern const char *versionOfSoftware;
 
-
-int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
-void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
-
+class cgi
+{
+public:
+	static int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
+	static void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
+};
 #endif

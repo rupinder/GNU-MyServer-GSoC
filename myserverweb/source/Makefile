@@ -1,6 +1,6 @@
 # Makefile for myserver
 
-OBJS = AMMimeUtils.o gzip.o MIME_manager.o winCGI.o cXMLParser.o cgi.o clientsThread.o cserver.o filemanager.o http.o httpmsg.o isapi.o lfind.o mscgi.o myserver.o security.o sockets.o stringutils.o utility.o vhosts.o fastCGI.o md5.o
+OBJS = AMMimeUtils.o http_headers.o gzip.o MIME_manager.o winCGI.o cXMLParser.o cgi.o clientsThread.o cserver.o filemanager.o http.o httpmsg.o isapi.o lfind.o mscgi.o myserver.o security.o sockets.o stringutils.o utility.o vhosts.o fastCGI.o md5.o
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
@@ -18,6 +18,9 @@ myserver : $(OBJS)
 
 AMMimeUtils.o : AMMimeUtils.cpp
 	$(CPP) $(CPP-FLAGS) -c AMMimeUtils.cpp
+
+http_headers.o : http_headers.cpp
+	$(CPP) $(CPP-FLAGS) -c http_headers.cpp
 	
 gzip.o : gzip.cpp
 	$(CPP) $(CPP-FLAGS) -c gzip.cpp	

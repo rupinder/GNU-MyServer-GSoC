@@ -16,6 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include "../stdafx.h"
+#include "../include/cgi.h"
 #include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/AMMimeUtils.h"
@@ -41,7 +43,7 @@ extern "C" {
 /*!
 *Run the standard CGI and send the result to the client.
 */
-int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/,char *cgipath,int cmd)
+int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/,char *cgipath,int cmd)
 {
 	/*!
 	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
@@ -76,7 +78,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 	{
 		if(!MYSERVER_FILE::fileExists(cgipath))
 		{
-			return raiseHTTPError(td,s,e_500);
+			return http::raiseHTTPError(td,s,e_500);
 		}
 		sprintf(cmdLine,"%s %s",cgipath,td->scriptFile);
 		nph=(strnicmp("nph-",td->cgiFile, 4)==0)?1:0;
@@ -86,7 +88,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 		/*!
 		*If the command was not recognized send an 501 page error.
 		*/
-		return raiseHTTPError(td,s,e_501);
+		return http::raiseHTTPError(td,s,e_501);
 	}
 
 
@@ -154,7 +156,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		raiseHTTPError(td,s,e_500);
+		http::raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
 	}
 	/*!
@@ -194,7 +196,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 			}
 			if(!yetoutputted)
 			{
-				sendHTTPRedirect(td,s,nURL);
+				http::sendHTTPRedirect(td,s,nURL);
 			}
 			yetoutputted=1;
 		}
@@ -209,15 +211,15 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 			/*!
 			*Resetting the structure we send only the information gived by the CGI.
 			*/
-			resetHTTPResponse(&(td->response));
+			http_headers::resetHTTPResponse(&(td->response));
 		}
 		if(headerSize)
-			buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
+			http_headers::buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
 		/*!
 		*Always specify the size of the HTTP contents.
 		*/
 		sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
-		buildHTTPResponseHeader(td->buffer,&td->response);
+		http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 		s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 		s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
 		while(stdOutFile.readFromFile(td->buffer2,td->buffersize2,&nBytesRead))
@@ -246,7 +248,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 *Write the string that contain the CGI environment to cgiEnvString.
 *This function is used by other server side protocols too.
 */
-void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int /*processEnv*/)
+void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int /*processEnv*/)
 {
 	/*!
 	*The Environment string is a null-terminated block of null-terminated strings.

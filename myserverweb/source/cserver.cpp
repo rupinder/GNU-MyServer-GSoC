@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/fastCGI.h"
 #include "../include/sockets.h"
 #include "../include/isapi.h"
+#include "../include/mscgi.h"
 extern "C" {
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -137,12 +138,12 @@ void cserver::start()
 	/*!
 	*Under WIN32 initialize ISAPI.
 	*/
-	initISAPI();
+	isapi::initISAPI();
 #endif	
 	/*!
 	*Initialize FastCGI
 	*/
-	initializeFASTCGI();
+	fastcgi::initializeFASTCGI();
 	
 	/*!
 	*Initialize the SSL library
@@ -211,7 +212,7 @@ void cserver::start()
 	/*!
 	*Load the MSCGI library.
 	*/
-	mscgiLoaded=loadMSCGILib();
+	mscgiLoaded=mscgi::loadMSCGILib();
 	if(mscgiLoaded)
 		printf("%s\n",languageParser.getValue("MSG_LOADMSCGI"));
 	else
@@ -643,16 +644,16 @@ void cserver::terminate()
 	*Under WIN32 cleanup ISAPI.
 	*/
 	FreeEnvironmentStrings((LPTSTR)envString);
-	cleanupISAPI();
+	isapi::cleanupISAPI();
 #endif	
 	/*!
 	*Clean FastCGI
 	*/
-	cleanFASTCGI();
+	fastcgi::cleanFASTCGI();
 	/*!
 	*Clean MSCGI.
 	*/
-	freeMSCGILib();
+	mscgi::freeMSCGILib();
 	delete[] defaultFilename;
 
 	delete[] threads;

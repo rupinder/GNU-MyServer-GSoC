@@ -149,6 +149,7 @@ void ClientsTHREAD::controlConnections()
 		*Control the protocol used by the connection.
 		*/
 		int retcode=0;
+		static http http_parser;
 		switch(((vhost*)(c->host))->protocol)
 		{
 			/*!
@@ -156,13 +157,13 @@ void ClientsTHREAD::controlConnections()
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
-				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=http_parser.controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			/*!
 			*Use the same parser for the HTTPS protocol too.
 			*/
 			case PROTOCOL_HTTPS:
-				retcode=controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=http_parser.controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			default:
 				retcode=0;

@@ -157,16 +157,19 @@ struct fCGIContext
 	int fcgiPID;
 	MYSERVER_SOCKET sock;
 };
-
-int initializeFASTCGI();
-int FcgiConnectSocket(fCGIContext*,int);
-int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
-void generateFcgiHeader( FCGI_Header&, int ,int, int );
-MYSERVER_SOCKET getFcgiConnection();
-int buildFASTCGIEnvironmentString(httpThreadContext*,char*,char*);
-int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
-int cleanFASTCGI();
-int isFcgiServerRunning(char*);
-int runFcgiServer(fCGIContext*,char*);
-int FcgiConnect(fCGIContext*,char*);
+class fastcgi
+{
+	static int FcgiConnectSocket(fCGIContext*,int);
+	static void generateFcgiHeader( FCGI_Header&, int ,int, int );
+	static MYSERVER_SOCKET getFcgiConnection();
+	static int buildFASTCGIEnvironmentString(httpThreadContext*,char*,char*);
+	static int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
+	static int isFcgiServerRunning(char*);
+	static int runFcgiServer(fCGIContext*,char*);
+	static int FcgiConnect(fCGIContext*,char*);
+public:
+	static int initializeFASTCGI();
+	static int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute);
+	static int cleanFASTCGI();
+};
 #endif

@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/MIME_manager.h"
 #include "../include/cgi.h"
 #include "../include/filemanager.h"
+#include "../include/http_headers.h"
 struct httpThreadContext;
 struct cgi_data
 {
@@ -33,15 +34,19 @@ struct cgi_data
 	MYSERVER_FILE stdOut;
 
 };
-/*!
-*Functions to Load and Free the MSCGI library.
-*/
-int loadMSCGILib();
-int freeMSCGILib();
-/*!
-*Use this to send a MSCGI file through the HTTP protocol.
-*/
-int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
 typedef int (*CGIMAIN)(char*,cgi_data*); 
+class mscgi
+{
+public:
+	/*!
+	*Functions to Load and Free the MSCGI library.
+	*/
+	static int loadMSCGILib();
+	static int freeMSCGILib();
+	/*!
+	*Use this to send a MSCGI file through the HTTP protocol.
+	*/
+	static int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
+	typedef int (*CGIMAIN)(char*,cgi_data*); 
+};
 #endif
-

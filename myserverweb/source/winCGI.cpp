@@ -21,16 +21,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/AMMimeUtils.h"
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
+#include "../include/http_headers.h"
 #include "../include/utility.h"
+#include "../include/wincgi.h"
 #define WINCGI_TIMEOUT	(10000)
-extern "C" {
+extern "C" 
+{
 #ifdef WIN32
 #include <direct.h>
 #endif
 #include <string.h>
 }
 
-int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
+int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 {
 #ifdef WIN32
 	u_long nbr;
@@ -40,7 +43,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	MYSERVER_FILE DataFileHandle, OutFileHandle;
 
 	if(!MYSERVER_FILE::fileExists(filename))
-		return raiseHTTPError(td,s,e_404);
+		return http::raiseHTTPError(td,s,e_404);
 
 	char execname[MAX_PATH];
 	char pathname[MAX_PATH];
@@ -60,7 +63,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		strcpy(td->buffer,"Error creating WinCGI file\r\n");
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-		return raiseHTTPError(td,s,e_500);
+		return http::raiseHTTPError(td,s,e_500);
 	}
 
 
@@ -177,7 +180,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 			DataFileHandle.closeFile();
 			MYSERVER_FILE::deleteFile(outFilePath);
 			MYSERVER_FILE::deleteFile(dataFilePath);
-			return raiseHTTPError(td,s,e_500);
+			return http::raiseHTTPError(td,s,e_500);
 		}
 	}
 	OutFileHandle.closeFile();
@@ -196,7 +199,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return raiseHTTPError(td,s,e_500);
+		return http::raiseHTTPError(td,s,e_500);
 	}
 
 	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
@@ -204,7 +207,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	{
 		sprintf(td->buffer,"Error opening WinCGI output file\r\n");
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-		return raiseHTTPError(td,s,e_500);
+		return http::raiseHTTPError(td,s,e_500);
 	}
 	u_long nBytesRead=0;
 	OutFileHandle.readFromFile(td->buffer2,KB(5),&nBytesRead);
@@ -215,7 +218,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		OutFileHandle.closeFile();
 		MYSERVER_FILE::deleteFile(outFilePath);
 		MYSERVER_FILE::deleteFile(dataFilePath);
-		return raiseHTTPError(td,s,e_500);
+		return http::raiseHTTPError(td,s,e_500);
 	}
 	u_long headerSize=0;
 
@@ -256,8 +259,6 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 #ifdef __linux__
 	sprintf(td->buffer,"Error WinCGI is not implemented\r\n");
 	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-	return raiseHTTPError(td,s,e_501);/*!WinCGI is not available under linux*/
+	return http::raiseHTTPError(td,s,e_501);/*!WinCGI is not available under linux*/
 #endif
 }
-
-

@@ -22,9 +22,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/Response_RequestStructs.h"
 #include "../include/MIME_manager.h"
 #include "../include/security.h"
-extern const char *versionOfSoftware;
 #include "../include/http.h"
-
-int sendWINCGI(httpThreadContext*,LPCONNECTION s,char* filename);
-
+extern const char *versionOfSoftware;
+class wincgi
+{
+public:
+	static int sendWINCGI(httpThreadContext*,LPCONNECTION s,char* filename);
+};
 #endif

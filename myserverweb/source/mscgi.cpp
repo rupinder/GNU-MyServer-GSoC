@@ -39,7 +39,7 @@ extern "C" {
 *Sends the MyServer CGI; differently from standard CGI this don't need a new process to run
 *so it is faster.
 */
-int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
+int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 {
 	/*!
 	*This is the code for manage a .mscgi file.
@@ -50,7 +50,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	*/
 
 	static HMODULE hinstLib; 
-        static CGIMAIN ProcMain;
+    static CGIMAIN ProcMain;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
 	data.envString+=atoi(td->request.CONTENT_LENGTH);
@@ -60,7 +60,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	strncpy(td->scriptPath,exec,MAX_PATH);
 	MYSERVER_FILE::splitPath(exec,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(exec,td->cgiRoot,td->cgiFile);
-	buildCGIEnvironmentString(td,data.envString);
+	cgi::buildCGIEnvironmentString(td,data.envString);
 	char outFile[MAX_PATH];
 	getdefaultwd(outFile,MAX_PATH);
 	sprintf(&outFile[strlen(outFile)],"/stdOutFile_%u",td->id);
@@ -103,18 +103,18 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 		{
 			if(s->nTries > 2)
 			{
-				return raiseHTTPError(td,s,e_403);
+				return http::raiseHTTPError(td,s,e_403);
 			}
 			else
 			{
 				s->nTries++;
-				return raiseHTTPError(td,s,e_401AUTH);
+				return http::raiseHTTPError(td,s,e_401AUTH);
 			}
 		}
 		else
 		{
 #endif
-			return raiseHTTPError(td,s,e_404);
+			return http::raiseHTTPError(td,s,e_404);
 #ifdef WIN32
 		}
 #endif
@@ -123,7 +123,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	{
 		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
 		if(errID!=-1)
-			return raiseHTTPError(td,s,errID);
+			return http::raiseHTTPError(td,s,errID);
 	}
 	data.stdOut.setFilePointer(0);
 	/*!
@@ -131,7 +131,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	*/
 
 	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.getFileSize());
-	buildHTTPResponseHeader(td->buffer,&td->response);
+	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 	u_long nbr,nbs;
 	do
@@ -146,7 +146,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	*On the platforms that is not available the support for the MSCGI send a 
 	*non implemented error.
 	*/
-	return raiseHTTPError(td,s,e_501);
+	return http::raiseHTTPError(td,s,e_501);
 }
 /*!
 *Store the MSCGI library module handle.
@@ -156,7 +156,7 @@ static HMODULE mscgiModule=0;
 /*!
 *Map the library in the address space of the application.
 */
-int loadMSCGILib()
+int mscgi::loadMSCGILib()
 {
 #ifdef WIN32
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
@@ -168,7 +168,7 @@ int loadMSCGILib()
 /*!
 *Free the memory allocated by the MSCGI library.
 */
-int freeMSCGILib()
+int mscgi::freeMSCGILib()
 {
 #ifdef WIN32
 	/*!

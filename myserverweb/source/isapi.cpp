@@ -21,13 +21,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/isapi.h"
 
 static  u_long max_Connections;
-static ConnTableRecord *connTable;
 static CRITICAL_SECTION GetTableEntryCritSec;
 #define ISAPI_TIMEOUT (10000)
 /*!
 *Initialize the ISAPI engine under WIN32.
 */
-void initISAPI()
+void isapi::initISAPI()
 {
 	max_Connections=lserver->getNumThreads();
 	connTable=(ConnTableRecord *)malloc(sizeof(ConnTableRecord)*max_Connections);
@@ -37,7 +36,7 @@ void initISAPI()
 /*!
 *Cleanup the memory used by ISAPI
 */
-void cleanupISAPI()
+void isapi::cleanupISAPI()
 {
 	DeleteCriticalSection(&GetTableEntryCritSec);
 	if(connTable)
@@ -46,7 +45,7 @@ void cleanupISAPI()
 /*!
 *Main procedure to call an ISAPI module.
 */
-int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
+int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
 {
 	DWORD Ret;
 	EXTENSION_CONTROL_BLOCK ExtCtrlBlk;
@@ -82,7 +81,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return raiseHTTPError(td,connection,e_500);
+		return http::raiseHTTPError(td,connection,e_500);
 	}
 	AppHnd = LoadLibrary(fullpath);
 
@@ -107,7 +106,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
-		return raiseHTTPError(td,connection,e_500);
+		return http::raiseHTTPError(td,connection,e_500);
 	}
 
 	GetExtensionVersion = (PFN_GETEXTENSIONVERSION) GetProcAddress(AppHnd, "GetExtensionVersion");
@@ -122,7 +121,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
-		return raiseHTTPError(td,connection,e_500);
+		return http::raiseHTTPError(td,connection,e_500);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
@@ -135,7 +134,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
-		return raiseHTTPError(td,connection,e_500);
+		return http::raiseHTTPError(td,connection,e_500);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
@@ -148,7 +147,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
-		return raiseHTTPError(td,connection,e_500);
+		return http::raiseHTTPError(td,connection,e_500);
 	}
 	/*!
 	*Store the environment string in the buffer2.
@@ -190,7 +189,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	{
 		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
 		FreeLibrary(AppHnd);
-		return raiseHTTPError(td,connection,e_500);
+		return http::raiseHTTPError(td,connection,e_500);
 	}
 
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
@@ -229,7 +228,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 }
 
 
-BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType) 
+BOOL WINAPI isapi::ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType) 
 {
 	ConnTableRecord *ConnInfo;
 
@@ -289,7 +288,7 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 /*!
 *Add a connection to the table.
 */
-ConnTableRecord *HConnRecord(HCONN hConn) 
+ConnTableRecord *isapi::HConnRecord(HCONN hConn) 
 {
 	u_long connIndex;
 
@@ -324,14 +323,14 @@ int ISAPISendURI(httpThreadContext* td,LPCONNECTION a,char *URL)
 /*!
 *Send the ISAPI header.
 */
-int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
+int isapi::ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
 {
 	return sendHTTPRESOURCE(td,a,URL,FALSE,TRUE);
 }
 /*!
 *Write directly to the output.
 */
-BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*!dwReserved*/)
+BOOL WINAPI isapi::WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*!dwReserved*/)
 {
 	ConnTableRecord *ConnInfo;
 	if(*lpdwBytes==0)
@@ -414,7 +413,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 /*!
 *Read directly from the client.
 */
-BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) 
+BOOL WINAPI isapi::ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) 
 {
 	ConnTableRecord *ConnInfo;
 	u_long NumRead;
@@ -444,7 +443,7 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 /*!
 *Get server environment variable.
 */
-BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID lpvBuffer, LPDWORD lpdwSize) 
+BOOL WINAPI isapi::GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID lpvBuffer, LPDWORD lpdwSize) 
 {
 	ConnTableRecord *ConnInfo;
 	BOOL ret =TRUE;
@@ -505,7 +504,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 /*!
 *Build the string that contains all the HTTP headers.
 */
-BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID output,LPDWORD dwMaxLen)
+BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
 	DWORD maxLen=*dwMaxLen;
@@ -581,7 +580,7 @@ BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION /*!a*/,LPVOID output
 /*!
 *Build the string that contains all the headers.
 */
-BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD dwMaxLen)
+BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
 	DWORD maxLen=*dwMaxLen;

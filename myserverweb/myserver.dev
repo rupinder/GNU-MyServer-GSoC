@@ -215,6 +215,26 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit31]
+FileName=include\http_headers.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=source\http_headers.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit1]
 FileName=source\sockets.cpp
 CompileCpp=1
