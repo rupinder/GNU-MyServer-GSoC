@@ -1,6 +1,6 @@
 # Makefile for myserver
 
-OBJS = AMMimeUtils.o MIME_manager.o winCGI.o cXMLParser.o cgi.o clientsThread.o cserver.o filemanager.o http.o httpmsg.o isapi.o lfind.o mscgi.o myserver.o security.o sockets.o stringutils.o utility.o vhosts.o
+OBJS = AMMimeUtils.o MIME_manager.o winCGI.o cXMLParser.o cgi.o clientsThread.o cserver.o filemanager.o http.o httpmsg.o isapi.o lfind.o mscgi.o myserver.o security.o sockets.o stringutils.o utility.o vhosts.o fastCGI.o
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
@@ -70,6 +70,10 @@ utility.o : utility.cpp
 
 vhosts.o : vhosts.cpp
 	$(CPP) $(CPP-FLAGS) -c vhosts.cpp
+
+fastCGI.o : fastCGI.cpp
+	$(CPP) $(CPP-FLAGS) -c fastCGI.cpp
+
 clean :
 	rm -f *.o ../binaries/myserver
 

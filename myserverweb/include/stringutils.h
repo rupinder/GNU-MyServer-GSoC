@@ -39,6 +39,7 @@ extern "C" {
 }
 
 #define lstrcmpi strcasecmp
+#define _stricmp strcasecmp
 #define lstrcpy strcpy
 #define lstrcat strcat
 #define lstrlen strlen

@@ -307,9 +307,9 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 #endif
 #ifdef __linux__
 	lstrcat(cgiEnvString," (Linux)");
-	// Must use REDIRECT_STATUS for php and others
-	lstrcat(cgiEnvString,"REDIRECT_STATUS=TRUE\r");
 #endif
+	// Must use REDIRECT_STATUS for php and others
+	lstrcat(cgiEnvString,"\rREDIRECT_STATUS=TRUE");
 
 	lstrcat(cgiEnvString,"\rSERVER_NAME=");
 	lstrcat(cgiEnvString,lserver->getServerName());

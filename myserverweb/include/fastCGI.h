@@ -19,7 +19,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef FASTCGI_H
 #define FASTCGI_H
 
-#ifdef WIN32
 #include "../stdafx.h"
 #include "../include/http.h"
 #include "../include/utility.h"
@@ -27,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/HTTPmsg.h"
 #include "../include/connectionstruct.h"
+#include "../include/stringutils.h"
 
 
 /*
@@ -168,5 +168,4 @@ int cleanFASTCGI();
 int isFcgiServerRunning(char*);
 int runFcgiServer(fCGIContext*,char*);
 int FcgiConnect(fCGIContext*,char*);
-#endif
 #endif

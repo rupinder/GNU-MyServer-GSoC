@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/security.h"
 #include "../include/stringutils.h"
 #include "../include/fastCGI.h"
+#include "../include/sockets.h"
+#include "../include/isapi.h"
 extern "C" {
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -33,13 +35,9 @@ extern "C" {
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#ifdef __linux__
 #include <pthread.h>
 #endif
-#endif
 }
-#include "../include/sockets.h"
-#include "../include/isapi.h"
 
 #ifndef WIN32
 #define LPINT int *
@@ -399,7 +397,7 @@ int cserver::createServerAndListener(u_long port)
 	*for the same address. To avoid this behavior we use the current code.
 	*/
 	int optvalReuseAddr=1;
-	if(ms_setsockopt(serverSocket,SOL_SOCKET,SO_REUSEADDR,(const char *)&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
+	if(serverSocket.ms_setsockopt(SOL_SOCKET,SO_REUSEADDR,(const char *)&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
 	{
         preparePrintError();
 		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));

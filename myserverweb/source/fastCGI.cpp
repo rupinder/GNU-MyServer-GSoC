@@ -223,12 +223,7 @@ int isFcgiServerRunning(char* path)
 {
 	for(int i=0;i<fCGIserversN;i++)
 	{
-#ifdef WIN32
 		if(_stricmp(path,fCGIservers[i].path))
-#endif
-#ifdef __linux__
-		if(stricmp(path,fCGIservers[i].path))
-#endif
 			return i;
 	}
 	return 0;
@@ -250,7 +245,9 @@ int FcgiConnect(fCGIContext* con,char* path)
 	    sockAddr.sin_port = htons(fCGIservers[pID].port);
 		con->sock.ms_socket(AF_INET, SOCK_STREAM, 0);
 		con->sock.ms_connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen);
+#ifdef WIN32    // FIONBIO is win32 dependent
 		con->sock.ms_ioctlsocket(FIONBIO, &pLong);
+#endif
 		con->fcgiPID=pID;
 	}
 	return pID;

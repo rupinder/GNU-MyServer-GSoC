@@ -165,7 +165,7 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 	{
 		if(stat(filename, &F_Stats) < 0)
 		{
-			return (MYSERVER_FILE_HANDLE)0;
+			return 0;
 		}
 		else
 			handle = (MYSERVER_FILE_HANDLE)open(Buffer,F_Flags);
