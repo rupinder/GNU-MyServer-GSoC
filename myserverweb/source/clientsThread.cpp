@@ -94,8 +94,8 @@ void * startClientsTHREAD(void* pParam)
 	
 	ct->initialized=1;
 
-	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetLength());
-	memset((char*)ct->buffer2.GetBuffer(), 0,ct->buffer2.GetLength());
+	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetRealLength());
+	memset((char*)ct->buffer2.GetBuffer(), 0,ct->buffer2.GetRealLength());
 	
 	wait(5000);
 	/*!
@@ -166,7 +166,7 @@ void ClientsTHREAD::controlConnections()
 			lserver->deleteConnection(c,this->id);
 			return;
 		}
-		memcpy(((char*)buffer.GetBuffer()),c->connectionBuffer,c->dataRead);
+		buffer.SetBuffer(c->connectionBuffer, c->dataRead);
 		/*!
 		*Control the protocol used by the connection.
 		*/

@@ -149,7 +149,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	sprintf(filename,"%s/",folder);
 #endif
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of folder";
+	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of folder ";
 	*td->buffer2 <<  &td->request.URI[startchar] ;
 	*td->buffer2 << "</h1>\r\n<p>\r\n<hr />\r\n";
 	td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),(u_long)td->buffer2->GetLength(),&nbw);
@@ -788,7 +788,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 	*/
 	char filename[MAX_PATH];
 	strncpy(filename,URI,MAX_PATH);
-	td->buffer[0]='\0';
+	td->buffer->SetLength(0);
 	
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);	
 	if(systemrequest)
@@ -1194,7 +1194,7 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 	}
 	*td->buffer2 << td->request.VER ;
 	*td->buffer2 << "\" " ;
-	*td->buffer2 << td->response.httpStatus ;
+	*td->buffer2 <<  CMemBuf::IntToStr(td->response.httpStatus);
 	*td->buffer2 << " ";
 	
 	if(td->response.CONTENT_LENGTH[0] && (strlen(td->response.CONTENT_LENGTH)<HTTP_RESPONSE_CONTENT_LENGTH_DIM))
@@ -1596,7 +1596,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			*/
 			if(content_len==0)
 			{
-				a->dataRead=min(KB(8),(u_int)strlen(&((char*)td.buffer->GetBuffer())[td.nHeaderChars]));
+				a->dataRead=min(KB(8),(u_int)td.buffer->GetLength() - td.nHeaderChars );
 				if(a->dataRead)
 				{
 					memcpy(a->connectionBuffer,&((char*)td.buffer->GetBuffer())[td.nHeaderChars],a->dataRead+1);
@@ -1835,7 +1835,7 @@ int http::sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
 	*td->buffer2 << versionOfSoftware;
 	*td->buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
-	*td->buffer2  <<  strlen(hardHTML);
+	*td->buffer2  <<   CMemBuf::IntToStr(strlen(hardHTML));
 	*td->buffer2   << "\r\n";
 	*td->buffer2 <<"Date: ";
 	char time[HTTP_RESPONSE_DATE_DIM];

@@ -681,7 +681,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	return retvalue;
 #else
 	td->buffer->SetLength(0);
-	*td->buffer << "Error ISAPI is not implemented\r\n";
+	*td->buffer << "Error ISAPI is not implemented\r\n" << '\0';
 	((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 	return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);/*!ISAPI is available only on windows*/
 #endif	

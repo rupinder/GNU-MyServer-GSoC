@@ -164,7 +164,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	if(nBytesRead==0)
 	{
 		td->buffer->SetLength(0);
-		*td->buffer << "Error CGI zero bytes read\r\n";
+		*td->buffer << "Error CGI zero bytes read\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);

@@ -81,7 +81,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	if(sendFcgiBody(&con,(char*)&tBody,sizeof(tBody),FCGI_BEGIN_REQUEST,id))
 	{
 		td->buffer->SetLength(0);
-		*td->buffer<< "Error FastCGI to begin the request\r\n";
+		*td->buffer<< "Error FastCGI to begin the request\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -92,7 +92,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	if(sendFcgiBody(&con,(char*)td->buffer2->GetBuffer(),sizeEnvString,FCGI_PARAMS,id))
 	{
 		td->buffer->SetLength(0);
-		*td->buffer << "Error FastCGI to send params\r\n";
+		*td->buffer << "Error FastCGI to send params\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -103,7 +103,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
 	{
 		td->buffer->SetLength(0);
-		*td->buffer << "Error FastCGI to send params\r\n";
+		*td->buffer << "Error FastCGI to send params\r\n" << '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -113,7 +113,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	if(atoi(td->request.CONTENT_LENGTH))
 	{
 		td->buffer->SetLength(0);
-		*td->buffer << "Error FastCGI to send POST data\r\n";
+		*td->buffer << "Error FastCGI to send POST data\r\n"<< '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -134,7 +134,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
 	{
 		td->buffer->SetLength(0);
-		*td->buffer << "Error FastCGI to send POST data\r\n";
+		*td->buffer << "Error FastCGI to send POST data\r\n"<< '\0';
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -165,7 +165,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		else
 		{
 			td->buffer->SetLength(0);
-			*td->buffer << "Error FastCGI timeout\r\n";
+			*td->buffer << "Error FastCGI timeout\r\n"<< '\0';
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
