@@ -1092,9 +1092,9 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 
 		if(list->host->sslContext.password[0])
 		{
-			out.writeToFile("<SSL_PASSWORD>",15,&nbw);
+			out.writeToFile("<SSL_PASSWORD>",14,&nbw);
 			out.writeToFile(list->host->sslContext.password,(u_long)strlen(list->host->sslContext.password),&nbw);
-			out.writeToFile("</SSL_PASSWORD>\r\n",18,&nbw);
+			out.writeToFile("</SSL_PASSWORD>\r\n",17,&nbw);
 		}
 
 		out.writeToFile("<PROTOCOL>",10,&nbw);
