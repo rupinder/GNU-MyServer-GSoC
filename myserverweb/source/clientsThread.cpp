@@ -120,7 +120,7 @@ void ClientsTHREAD::controlConnections()
 	*Check if c is a valid connection structure.
 	*Do not parse a connection that is going to be parsed by another thread.
 	*/
-	if((!c) && (c->check_value!=CONNECTION::check_value_const) && (c->parsing==1))
+	if((!c) || (c->check_value!=CONNECTION::check_value_const) || (c->parsing==1))
 	{
 		lserver->connections_mutex_unlock();
 		return;
