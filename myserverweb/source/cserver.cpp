@@ -845,18 +845,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	requestAccess(&connectionWriteAccess,id);
 	int ret=0,err;
 	/*
-	*First of all close the socket communication.
-	*/
-	s->socket.shutdown(SD_BOTH);
-	char buffer[256];
-	int buffersize=256;
-	do
-	{
-		err=s->socket.recv(buffer,buffersize,0);
-	}while(err!=-1);
-	s->socket.closesocket();
-	/*
-	*Then remove the connection from the active connections list.
+	*Remove the connection from the active connections list.
 	*/
 	LPCONNECTION prev=0;
 	for(LPCONNECTION i=connections;i;i=i->next )
@@ -871,7 +860,6 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 				prev->next =i->next;
 			else
 				connections=i->next;
-			free(i);
 			ret=1;
 			break;
 		}
@@ -882,6 +870,18 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	}
 	terminateAccess(&connectionWriteAccess,id);
 	nConnections--;
+	/*
+	*Close the socket communication.
+	*/
+	s->socket.shutdown(SD_BOTH);
+	char buffer[256];
+	int buffersize=256;
+	do
+	{
+		err=s->socket.recv(buffer,buffersize,0);
+	}while(err!=-1);
+	s->socket.closesocket();
+	free(s);
 	return ret;
 }
 /*

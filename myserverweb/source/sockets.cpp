@@ -287,6 +287,8 @@ int MYSERVER_SOCKET::sslAccept()
 	if(sslConnection)
 		freeSSL();
 	sslConnection=SSL_new(sslContext);
+	if(sslConnection==0)
+		return -1;
 	int ssl_accept;
 	SSL_set_accept_state(sslConnection);
 	SSL_set_fd(sslConnection,socketHandle);
