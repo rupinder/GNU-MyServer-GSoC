@@ -1951,8 +1951,8 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			strncpy(request->ACCEPTLAN,token,HTTP_REQUEST_ACCEPTLAN_DIM);
 			StrTrim(request->ACCEPTLAN," ");
 		}else
-		/*Accept-charset*/
-		if(!lstrcmpi(command,"Accept-charset"))
+		/*Accept-Charset*/
+		if(!lstrcmpi(command,"Accept-Charset"))
 		{
 			token = strtok( NULL, "\n\r" );
 			if(!token)return 0;
