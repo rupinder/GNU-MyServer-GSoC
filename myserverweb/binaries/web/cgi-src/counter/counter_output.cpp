@@ -1,4 +1,4 @@
- /*
+/*
 *MyServer
 *Copyright (C) 2002 The MyServer Team
 This program is free software; you can redistribute it and/or modify
@@ -26,9 +26,8 @@ extern "C" {
 #include "png.h"
 #include "writepng.h"
 }
-#ifndef WIN32
-using namespace std;
-#endif
+
+
 cgi_manager * cgi_manager_ptr; // a nasty global 
 
 // pnguser functions
@@ -112,11 +111,11 @@ void Counter_Output::run()
 	png_enc.image_data = (uch*)outBuffer;
 	
 	// setup the row pointers for png
-	unsigned char * row_pointers=new unsigned char[numbers_image.height];
+	unsigned char ** row_pointers= new unsigned char*[numbers_image.height];
 	
 	for(i = 0; i < numbers_image.height; i++)
 	{
-		row_pointers[i] = (unsigned char)(&outBuffer[i * (png_enc.width * numbers_image.bytes_per_pixel)]);
+		row_pointers[i] = &outBuffer[i * (png_enc.width * numbers_image.bytes_per_pixel)];
 	}
 	
 	png_enc.row_pointers = (uch**)row_pointers;
@@ -140,6 +139,7 @@ void Counter_Output::run()
 	writepng_encode_image(&png_enc);
 	writepng_encode_finish(&png_enc);
 	writepng_cleanup(&png_enc);
+	
 	delete[] row_pointers;
 	delete[] outBuffer;
 	
