@@ -25,25 +25,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 static  u_long max_Connections;
 static CRITICAL_SECTION GetTableEntryCritSec;
 #define ISAPI_TIMEOUT (10000)
-/*!
-*Initialize the ISAPI engine under WIN32.
-*/
-void isapi::initISAPI()
-{
-	max_Connections=lserver->getNumThreads();
-	connTable=(ConnTableRecord *)malloc(sizeof(ConnTableRecord)*max_Connections);
-	ZeroMemory(connTable,sizeof(ConnTableRecord)*max_Connections);
-	InitializeCriticalSection(&GetTableEntryCritSec);	
-}
-/*!
-*Cleanup the memory used by ISAPI
-*/
-void isapi::cleanupISAPI()
-{
-	DeleteCriticalSection(&GetTableEntryCritSec);
-	if(connTable)
-		free(connTable);
-}
 
 BOOL WINAPI isapi::ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType) 
 {
@@ -659,4 +640,27 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);/*!WinCGI is available only on windows*/
 #endif	
+}
+/*!
+*Initialize the ISAPI engine under WIN32.
+*/
+void isapi::initISAPI()
+{
+#ifdef WIN32
+	max_Connections=lserver->getNumThreads();
+	connTable=(ConnTableRecord *)malloc(sizeof(ConnTableRecord)*max_Connections);
+	ZeroMemory(connTable,sizeof(ConnTableRecord)*max_Connections);
+	InitializeCriticalSection(&GetTableEntryCritSec);	
+#endif
+}
+/*!
+*Cleanup the memory used by ISAPI
+*/
+void isapi::cleanupISAPI()
+{
+#ifdef WIN32
+	DeleteCriticalSection(&GetTableEntryCritSec);
+	if(connTable)
+		free(connTable);
+#endif
 }

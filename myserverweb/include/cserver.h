@@ -24,8 +24,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
 #include "../include/cXMLParser.h"
 #include "../include/utility.h"
-#include "../include/HTTPmsg.h"
-#include "../include/Response_RequestStructs.h"
 #include "../include/connectionstruct.h"
 #include "../include/sockets.h"
 #include "../include/MIME_manager.h"
@@ -110,7 +108,6 @@ public:
 	u_long getTimeout();
 	char *getAddresses();
 	void *envString;
-	int mscgiLoaded;
 	vhostmanager vhostList;
 	MIME_Manager mimeManager;
 	char  *getPath();

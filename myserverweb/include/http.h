@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/fastcgi.h"
 #include "../include/mscgi.h"
 #include "../include/isapi.h"
-
+#include "../include/cXMLParser.h"
 class http
 {
 private:
@@ -51,8 +51,11 @@ public:
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
 
 	/*!
-	*The main function is controlHTTPConnection(...), that parses the request builds a response.
+	*The function is used to the request and build a response.
 	*/
 	int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
+	static int loadProtocol(cXMLParser*);
+	static int unloadProtocol(cXMLParser*);
+
 };
 #endif

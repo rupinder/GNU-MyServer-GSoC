@@ -20,10 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/stringutils.h"
-#include "../include/fastCGI.h"
 #include "../include/sockets.h"
-#include "../include/isapi.h"
-#include "../include/mscgi.h"
 extern "C" {
 #ifdef WIN32
 #include <Ws2tcpip.h>
@@ -134,16 +131,7 @@ void cserver::start()
 	languageParser.open(languageFile);
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
-#ifdef WIN32
-	/*!
-	*Under WIN32 initialize ISAPI.
-	*/
-	isapi::initISAPI();
-#endif	
-	/*!
-	*Initialize FastCGI
-	*/
-	fastcgi::initializeFASTCGI();
+	http::loadProtocol(&languageParser);
 	
 	/*!
 	*Initialize the SSL library
@@ -208,19 +196,6 @@ void cserver::start()
 		}
 	}
 	
-
-	/*!
-	*Load the MSCGI library.
-	*/
-	mscgiLoaded=mscgi::loadMSCGILib();
-	if(mscgiLoaded)
-		printf("%s\n",languageParser.getValue("MSG_LOADMSCGI"));
-	else
-	{
-		preparePrintError();
-		printf("%s\n",languageParser.getValue("ERR_LOADMSCGI"));
-		endPrintError();
-	}
 
 	/*!
 	*If the MIMEtypes.xml files doesn't exist copy it from the default one.
@@ -644,22 +619,14 @@ void cserver::terminate()
 	*Under WIN32 cleanup ISAPI.
 	*/
 	FreeEnvironmentStrings((LPTSTR)envString);
-	isapi::cleanupISAPI();
 #endif	
-	/*!
-	*Clean FastCGI
-	*/
-	fastcgi::cleanFASTCGI();
-	/*!
-	*Clean MSCGI.
-	*/
-	mscgi::freeMSCGILib();
+	http::unloadProtocol(&languageParser);
 	delete[] defaultFilename;
 
 	delete[] threads;
 	if(verbosity>1)
 	{
-		printf("MyServer is stopped\n\n");
+		printf("MyServer is stopped.\n\n");
 	}
 }
 /*!

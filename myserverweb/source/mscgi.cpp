@@ -154,7 +154,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 static HMODULE mscgiModule=0;
 
 /*!
-*Map the library in the address space of the application.
+*Map the library in the application address space.
 */
 int mscgi::loadMSCGILib()
 {

@@ -55,6 +55,11 @@ extern "C"
 #define intptr_t int
 #endif
 /*!
+*Store if the MSCGI library was loaded.
+*/
+static int mscgiLoaded=0;
+
+/*!
 *Browse a folder over the HTTP.
 */
 int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
@@ -803,7 +808,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			target=td->request.URIOPTSPTR;
 		else
 			target=(char*)&td->request.URIOPTS;
-		if(lserver->mscgiLoaded)
+		if(mscgiLoaded)
 		{
 			if(lmscgi.sendMSCGI(td,s,td->filenamePath,target))
 				return 1;
@@ -1533,4 +1538,50 @@ int http::sendAuth(httpThreadContext* td,LPCONNECTION s)
 		s->nTries++;
 		return raiseHTTPError(td,s,e_401AUTH);
 	}
+}
+/*!
+*Load the HTTP protocol.
+*/
+int http::loadProtocol(cXMLParser* languageParser)
+{
+	/*!
+	*Under WIN32 initialize ISAPI.
+	*/
+	isapi::initISAPI();
+	/*!
+	*Initialize FastCGI
+	*/
+	fastcgi::initializeFASTCGI();	
+
+	/*!
+	*Load the MSCGI library.
+	*/
+	mscgiLoaded=mscgi::loadMSCGILib();
+	if(mscgiLoaded)
+		printf("%s\n",languageParser->getValue("MSG_LOADMSCGI"));
+	else
+	{
+		preparePrintError();
+		printf("%s\n",languageParser->getValue("ERR_LOADMSCGI"));
+		endPrintError();
+	}	
+}
+/*!
+*Unload the HTTP protocol.
+*/
+int http::unloadProtocol(cXMLParser* languageParser)
+{
+	/*!
+	*Clean ISAPI.
+	*/
+	isapi::cleanupISAPI();
+	/*!
+	*Clean FastCGI.
+	*/
+	fastcgi::cleanFASTCGI();
+	/*!
+	*Clean MSCGI.
+	*/
+	mscgi::freeMSCGILib();
+	
 }
