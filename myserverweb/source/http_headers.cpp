@@ -311,58 +311,50 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
 {
 	u_long i;
 	u_long buffersize=td->buffersize;
-	u_long nLinechars;
-	int isValidCommand=0;
+	u_long nLinechars=0;
 	nLinechars=0;
 	u_long nLines=0;
 	u_long maxTotchars=0;
 	if(res==0)
 		return 0;
 	/*!
-   *Count the number of lines in the header.
-   */
+	 *Count the number of lines in the header.
+	 */
 	for(i=nLines=0;;i++)
 	{
 		if(res[i]=='\n')
 		{
-			if((res[i+2]=='\n')|(res[i+1]=='\0')|(res[i+1]=='\n'))
+			if((res[i+2]=='\n') || (res[i+1]=='\0') || (res[i+1]=='\n'))
 			{
 				maxTotchars=i+3;
 				if(maxTotchars>buffersize)
-				{
-					isValidCommand=0;
-					break;
-				}
-				isValidCommand=1;
+					return 0;
 				break;
 			}
 			nLines++;
 		}
 		else
 		{
-			nLinechars++;
+			/*!
+			*We set a maximal theorical number of characters in a line.
+			*If a line contains more than 4160 characters we consider the header invalid.
+			*/
+			if(nLinechars>=4160)
+	    		return 0;
+	    	nLinechars++;
 		}
-		/*!
-     *We set a maximal theorical number of characters in a line.
-     *If a line contains more than 4160 characters we consider the header invalid.
-     */
-		if(nLinechars>4160)
-    {
-      isValidCommand = 0;
-			break;
-    }
 	}
 
 	/*!
-   *Set the output variables.
-   */
+	*Set the output variables.
+	*/
 	*nLinesptr=nLines;
 	*ncharsptr=maxTotchars;
 	
 	/*!
-   *Return if is a valid request header.
-   */
-	return((isValidCommand)?1:0);
+	*Return if is a valid request header.
+	*/
+	return 1;
 }
 
 
