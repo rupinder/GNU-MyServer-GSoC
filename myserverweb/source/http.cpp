@@ -285,14 +285,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	if(OnlyHeader)
 		return 1;
 
-	if(lserver->getVerbosity()>2)
-	{
-		char msg[500];
-		sprintf(msg,"%s %s\n","Sending",filenamePath);
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(msg);
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-	}
+
 	for(;;)
 	{
 		u_long nbr;
@@ -930,18 +923,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*/
 	if(validRequest==0)
 	{
-		sprintf(td.buffer,"Bad request from: %s\r\n",td.connection->ipAddr);
-		((vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
-		((vhost*)td.connection->host)->warningsLogWrite(td.buffer);
-		((vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
 		return raiseHTTPError(&td,a,e_400);
 	}/*If the URI is too long*/
 	else if(validRequest==414)
 	{
-		sprintf(td.buffer,"URI too long from: %s\r\n",td.connection->ipAddr);
-		((vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
-		((vhost*)td.connection->host)->warningsLogWrite(td.buffer);
-		((vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
 		return raiseHTTPError(&td,a,e_414);
 	}
 	
@@ -1512,16 +1497,6 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 			strcat(nURL,defFile);
 			return sendHTTPRedirect(td,a,nURL);
 		}
-		if(lserver->getVerbosity()>1)
-		{
-			/*
-			*Record the error in the log file.
-			*/
-			sprintf(td->buffer,"%s error to: %s\r\n",HTTP_ERROR_MSGS[ID],td->connection->ipAddr);
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		}
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
@@ -1547,9 +1522,6 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
 	sprintf(td->buffer,"%s from: %s\r\n",HTTP_ERROR_MSGS[e_500],td->connection->ipAddr);
-	((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-	((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 	const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
 		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
 		Internal Server error</font></p>\r\n";
@@ -1744,16 +1716,6 @@ u_long validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_lon
 */
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
-	if(lserver->getVerbosity()>1)
-	{
-		/*
-		*Record the error in the log file.
-		*/
-		sprintf(td->buffer,"%s redirected to %s\r\n",td->connection->ipAddr,newURL);
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-	}
 	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
@@ -1767,16 +1729,6 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 */
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
-	if(lserver->getVerbosity()>1)
-	{
-		/*
-		*Record the error in the log file.
-		*/
-		sprintf(td->buffer,"Not modified to %s\r\n",td->connection->ipAddr);
-		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-	}
 	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",versionOfSoftware);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
@@ -1858,7 +1810,8 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*/
 			strncpy(request->CMD,command,HTTP_REQUEST_CMD_DIM);
 			token = strtok( NULL, "\t\n\r" );
-			if(!token)return 0;
+			if(token==0)
+				return 0;
 			u_long len_token=(u_long)strlen(token);
 			max=len_token;
 			while((token[max]!=' ')&(len_token-max<HTTP_REQUEST_VER_DIM))
@@ -2134,30 +2087,10 @@ int sendAuth(httpThreadContext* td,LPCONNECTION s)
 {
 	if(s->nTries > 2)
 	{
-		if(lserver->getVerbosity()>1)
-		{
-			/*
-			*Record the error in the log file.
-			*/
-			sprintf(td->buffer,"Request %s authorization\r\n",td->connection->ipAddr);
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		}
 		return raiseHTTPError(td,s,e_401);
 	}
 	else
 	{	
-		if(lserver->getVerbosity()>1)
-		{
-			/*
-			*Record the error in the log file.
-			*/
-			sprintf(td->buffer,"%s unauthorized\r\n",td->connection->ipAddr);
-			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-			((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
-			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		}
 		s->nTries++;
 		return raiseHTTPError(td,s,e_401AUTH);
 	}

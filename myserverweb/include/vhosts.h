@@ -43,6 +43,7 @@ class vhost
 {
 	MYSERVER_FILE warningsLogFile;
 	MYSERVER_FILE accessesLogFile;
+	u_long maxLogSize;
 public:
 	struct sHostList
 	{
@@ -88,7 +89,8 @@ public:
 	void clearHostList();
 	int isHostAllowed(char*);
 	int isIPAllowed(char*);
-
+	void setMaxLogSize(u_long);
+	u_long getMaxLogSize();
 	u_long accessesLogFileAccess;
 	u_long warningsLogFileAccess;
 
