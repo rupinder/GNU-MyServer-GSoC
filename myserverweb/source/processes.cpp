@@ -164,7 +164,21 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	} // end else if(pid == 0)
 	// Parent
 	// Wait till child dies
-	ret = waitpid(pid, NULL, 0);
+  int count = 0;
+  for( ; count < timeout ; count++)
+  {
+    ret = waitpid(pid, NULL, WNOHANG);
+    if(ret == -1)
+    {
+      return (u_long)(-1);
+    }
+    else if(ret != 0)
+    {
+      break;
+    }
+    wait(1);
+  }
+
 	if(ret == -1)
 		return (u_long)(-1);
 	return 0;
