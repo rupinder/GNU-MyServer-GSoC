@@ -2373,7 +2373,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
    */
 	if(systemrequest)
 	{
-    int filenamePathLen;
+    int filenamePathLen=0;
     if(*filenamePath)
       delete [] (*filenamePath);
     if(!((Vhost*)(td->connection->host))->systemRoot 

@@ -1032,7 +1032,13 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			{
         if(lcur->children && lcur->children->content)
         {
-          int documentRootlen = strlen((char*)lcur->children->content)+1;
+          int documentRootlen = 0;
+          char lastChar = (char)lcur->children->content[
+                                        strlen((char*)lcur->children->content)-1];
+
+          documentRootlen = strlen((char*)lcur->children->content)+1;
+          if(lastChar != '\\' && lastChar != '/')
+            documentRootlen++;       
           vh->documentRoot = new char[documentRootlen];
           if(vh->documentRoot == 0)
           {
@@ -1042,6 +1048,11 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
             return -1;
           }
           strcpy(vh->documentRoot,(char*)lcur->children->content);
+          if(lastChar != '\\' && lastChar != '/')
+          {
+            vh->documentRoot[documentRootlen-2]='/';
+            vh->documentRoot[documentRootlen-1]='\0';
+          }
         }
         else
         {
@@ -1052,7 +1063,12 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			{
         if(lcur->children && lcur->children->content)
         {
-          int systemRootlen = strlen((char*)lcur->children->content)+1;
+          int systemRootlen = 0;
+          char lastChar = (char)lcur->children->content[
+                                        strlen((char*)lcur->children->content)-1];
+          systemRootlen = strlen((char*)lcur->children->content)+1;
+          if(lastChar != '\\' && lastChar != '/')
+            systemRootlen++;
           vh->systemRoot = new char[systemRootlen];
           if(vh->systemRoot == 0)
           {
@@ -1062,6 +1078,11 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
             return -1;
           }
           strcpy(vh->systemRoot,(char*)lcur->children->content);
+          if(lastChar != '\\' && lastChar != '/')
+          {
+            vh->systemRoot[systemRootlen-2]='/';
+            vh->systemRoot[systemRootlen-1]='\0';
+          }
         }
         else
         {
