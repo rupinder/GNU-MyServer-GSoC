@@ -36,6 +36,12 @@ private:
 	isapi lisapi;
 	cgi lcgi;
 	fastcgi lfastcgi;
+	static int mscgiLoaded;/*Store if the MSCGI library was loaded.*/
+	static char browseDirCSSpath[MAX_PATH];
+	static u_long gzip_threshold;
+	static int useMessagesFiles;	
+	static char *defaultFilename;	
+	static u_long nDefaultFilename;	
 public:
 	char *getDefaultFilenamePath(u_long ID);
 	int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
@@ -60,4 +66,12 @@ public:
 	static int unloadProtocol(cXMLParser*);
 
 };
+
+int http::mscgiLoaded=0;/*Store if the MSCGI library was loaded.*/
+char http::browseDirCSSpath[MAX_PATH]="";
+u_long http::gzip_threshold=0;
+int http::useMessagesFiles=0;	
+char *http::defaultFilename=0;	
+u_long http::nDefaultFilename=0;
+
 #endif

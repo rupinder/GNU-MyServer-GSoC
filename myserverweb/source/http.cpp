@@ -55,12 +55,6 @@ extern "C"
 #define intptr_t int
 #endif
 
-static int mscgiLoaded=0;/*Store if the MSCGI library was loaded.*/
-static char browseDirCSSpath[MAX_PATH];
-static u_long gzip_threshold;
-static int useMessagesFiles;	
-static char *defaultFilename;	
-static u_long nDefaultFilename;
 /*!
 *Browse a folder printing its contents over the HTTP.
 */
