@@ -45,32 +45,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define MYSERVER_PERMISSION_DELETE	(8)
 #define MYSERVER_PERMISSION_BROWSE	(16)
 
-#ifndef LOGGEDUSERID
-typedef  void* LOGGEDUSERID;
-#endif
 
-/*!
- *Change the ownner of the caller thread.
- */
-int logonCurrentThread(char*,char*,LOGGEDUSERID*);
-
-/*!
- *Change the ownner of the caller thread to the runner of the process.
- */
-void revertToSelf();
-
-/*!
- *Impersonate the logon user.
- */
-void impersonateLogonUser(LOGGEDUSERID* hImpersonation);
-
-/*!
- *Close the handle.
- */
-void cleanLogonUser(LOGGEDUSERID* hImpersonation);
-
-void logon(ConnectionPtr c,int *logonStatus,LOGGEDUSERID *hImpersonation);
-void logout(int logon,LOGGEDUSERID *hImpersonation);
 
 int getErrorFileName(char *root,int error,char** out,XmlParser* parser=0);
 int getPermissionMask(char* user, char* password,char* directory,
