@@ -19,11 +19,11 @@ myserver : $(OBJS)
 AMMimeUtils.o : AMMimeUtils.cpp
 	$(CPP) $(CPP-FLAGS) -c AMMimeUtils.cpp
 
-http_headers.o : http_headers.cpp
-	$(CPP) $(CPP-FLAGS) -c http_headers.cpp
-	
 gzip.o : gzip.cpp
 	$(CPP) $(CPP-FLAGS) -c gzip.cpp	
+
+http_headers.o : http_headers.cpp
+	$(CPP) $(CPP-FLAGS) -c http_headers.cpp
 
 md5.o : md5.cpp
 	$(CPP) $(CPP-FLAGS) -c md5.cpp
@@ -90,5 +90,6 @@ clean :
 
 release :
 	rm -f *.o
+
 
 #install : all
