@@ -51,6 +51,8 @@ void console_service (int, char **);
 #ifdef WIN32
 void __stdcall myServerCtrlHandler(u_long fdwControl);
 void __stdcall myServerMain (u_long , LPTSTR *argv); 
+#else
+int  write_pidfile(char*);
 #endif
 void runService();
 void registerService();
@@ -93,6 +95,7 @@ struct argp_input
   char* logFileName;
   /*! Define how run the server. */
   int runas;
+  char* pidFileName;
 };
 
 static char doc[] = "MyServer ";
@@ -105,7 +108,8 @@ static struct argp_option options[] =
 	{"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
 	{"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server(by default console mode)"},
 	{"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
-	{0}
+	{0},
+	{"pidfile", 'p', "pidfile", OPTION_HIDDEN, "Specify the file where write the PID"},	{0}
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -125,6 +129,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
      case 'l':
        in->logFileName = arg;
        break;
+     case 'p':
+       in->pidFileName = arg;
+       break;
      case ARGP_KEY_ARG:
      case ARGP_KEY_END:
        break;
@@ -137,6 +144,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 static struct argp myserver_argp = {options, parse_opt, args_doc, doc};
 
 #endif
+
 
 
 /*!
@@ -180,6 +188,7 @@ int main (int argn, char **argv)
 	input.version = 0;
   input.logFileName = 0;
 	input.runas = MYSERVER_RUNAS_CONSOLE;
+  input.pidFileName = 0;
 	/*! Call the parser. */
 	argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
 	runas=input.runas;
@@ -263,6 +272,13 @@ int main (int argn, char **argv)
     {
       return 0;
     }
+    /*!
+     *Store the PID.
+     */
+    if(input.pidFileName)
+      write_pidfile(input.pidFileName);
+    else
+      write_pidfile("/var/run/myserver.pid");
 
     /*!
      *Create a SID for the new process.
@@ -290,6 +306,28 @@ int main (int argn, char **argv)
 
 	return 0;
 } 
+
+#ifndef WIN32
+
+/*!
+ *Write the current PID to the file.
+ */
+int  write_pidfile(char* filename)
+{
+ 	int pidfile;
+	pid_t pid = getpid(); 
+  pidfile = open(filename, O_RDWR | O_CREAT);
+
+  if(pidfile == -1)
+		return -1;
+  char buff[12];
+  sprintf(buff,"%i\n", pid);
+  int ret = write(pidfile, buff, strlen(buff));
+  if(ret == -1)
+    return -1;
+  return close(pidfile);
+}
+#endif
 
 /*!
  *Start MyServer in console mode
