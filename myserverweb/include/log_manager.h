@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/threads.h"
 
+#include <string>
+using namespace std;
+
 class LogManager
 {
 private:
@@ -44,7 +47,10 @@ public:
   u_long getMaxSize();
   int requestAccess();
   int terminateAccess();
+
   int load( char *filename );
+  int load(const string& filename){return load(filename.c_str());}
+
   int close();
   int preparePrintError();
   int endPrintError();
@@ -52,6 +58,10 @@ public:
   int getType();
   int write( const char *str, int len = 0 );
   int writeln(const char *);
+
+  int write( const string& str, int len = 0 ){return write(str.c_str(), len);}
+  int writeln(const string& str){return writeln(str.c_str());}
+
   int getLogSize();
 };
 #endif
