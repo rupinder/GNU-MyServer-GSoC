@@ -240,6 +240,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		*td->buffer2 << "</td>\r\n</tr>\r\n";
 		if(!td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),(u_long)td->buffer2->GetLength(),&nbw))
 		{
+			_findclose(ff);
 			td->outputData.closeFile();
 			return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
 		}
@@ -250,6 +251,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
 	if(!td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),(u_long)td->buffer2->GetLength(),&nbw))
 	{
+		_findclose(ff);
 		td->outputData.closeFile();
 		return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
 	}	

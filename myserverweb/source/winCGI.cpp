@@ -100,7 +100,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	*td->buffer2 << "Request Protocol=HTTP/" << td->request.VER << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
 
-	td->buffer2 << "Executable Path=" << execname << "\r\n";
+	*td->buffer2 << "Executable Path=" << execname << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
 
 	if(td->request.URIOPTS[0])
