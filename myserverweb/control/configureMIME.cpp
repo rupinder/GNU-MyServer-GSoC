@@ -75,7 +75,7 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	actiontodoLB->Insert("RUN AS A MSCGI",CGI_CMD_RUNMSCGI);
 	actiontodoLB->Insert("HANDLE AS AN EXECUTABLE",CGI_CMD_EXECUTE);
 	actiontodoLB->Insert("HANDLE AS A LINK",CGI_CMD_SENDLINK);
-	actiontodoLB->Insert("HANDLE AS A WINCGI",CGI_CMD_WINCGI);
+	actiontodoLB->Insert("HANDLE AS A WINCGI",CGI_CMD_EXECUTEWINCGI);
 	actiontodoLB->Insert("HANDLE AS A FASTCGI(SPECIFY A PATH)",CGI_CMD_RUNFASTCGI);
 	actiontodoLB->Insert("HANDLE AS A SELF FASTCGI SERVER",CGI_CMD_EXECUTEFASTCGI);
 				

@@ -108,8 +108,8 @@ int MIME_Manager::load(char *filename)
 				record.command=CGI_CMD_EXECUTEISAPI;
 			if(!lstrcmpi(commandString,"SENDLINK"))
 				record.command=CGI_CMD_SENDLINK;
-			if(!lstrcmpi(commandString,"RUNWINCGI"))
-				record.command=CGI_CMD_WINCGI;
+			if(!lstrcmpi(commandString,"EXECUTEWINCGI"))
+				record.command=CGI_CMD_EXECUTEWINCGI;
 			if(!lstrcmpi(commandString,"RUNFASTCGI"))
 				record.command=CGI_CMD_RUNFASTCGI;
 			if(!lstrcmpi(commandString,"EXECUTEFASTCGI"))
@@ -144,13 +144,17 @@ char *MIME_Manager::getFilename()
 {
 	return filename;
 }
+
 /*
 *Load the MIME types from a XML file.
 */
 int MIME_Manager::loadXML(char *filename)
 {
 	cXMLParser parser;
-	parser.open(filename);
+	if(int r=parser.open(filename))
+	{
+		return -1;
+	}
 	xmlDocPtr doc = parser.getDoc();
 	xmlNodePtr node=doc->children->children;
 	int nm=0;
@@ -190,8 +194,8 @@ int MIME_Manager::loadXML(char *filename)
 					rc.command=CGI_CMD_EXECUTEISAPI;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
 					rc.command=CGI_CMD_SENDLINK;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNWINCGI"))
-					rc.command=CGI_CMD_WINCGI;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEWINCGI"))
+					rc.command=CGI_CMD_EXECUTEWINCGI;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
 					rc.command=CGI_CMD_RUNFASTCGI;
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
@@ -244,8 +248,8 @@ int MIME_Manager::saveXML(char *filename)
 			strcpy(command,"RUNISAPI");
 		else if(rc->command==CGI_CMD_EXECUTEISAPI)
 			strcpy(command,"EXECUTEISAPI");
-		else if(rc->command==CGI_CMD_WINCGI)
-			strcpy(command,"RUNWINCGI");
+		else if(rc->command==CGI_CMD_EXECUTEWINCGI)
+			strcpy(command,"EXECUTEWINCGI");
 		else if(rc->command==CGI_CMD_RUNFASTCGI)
 			strcpy(command,"RUNFASTCGI");	
 		else if(rc->command==CGI_CMD_EXECUTEFASTCGI)
@@ -296,8 +300,8 @@ int MIME_Manager::save(char *filename)
 			strcpy(command,"RUNISAPI ");
 		else if(nmr1->command==CGI_CMD_EXECUTEISAPI)
 			strcpy(command,"EXECUTEISAPI ");
-		else if(nmr1->command==CGI_CMD_WINCGI)
-			strcpy(command,"RUNWINCGI ");
+		else if(nmr1->command==CGI_CMD_EXECUTEWINCGI)
+			strcpy(command,"EXECUTEWINCGI ");
 		else if(nmr1->command==CGI_CMD_RUNFASTCGI)
 			strcpy(command,"RUNFASTCGI ");	
 		else if(nmr1->command==CGI_CMD_EXECUTEFASTCGI)

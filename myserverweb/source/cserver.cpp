@@ -243,7 +243,7 @@ void cserver::start()
 	*Load the MIME types.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
-	if(int nMIMEtypes=mimeManager.load("MIMEtypes.txt"))
+	if(int nMIMEtypes=mimeManager.loadXML("MIMEtypes.xml"))
 		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
 	else
 	{

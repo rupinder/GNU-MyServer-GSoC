@@ -268,7 +268,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 					char oldc;
 					do
 					{
-						oldc =c;
+						oldc = c;
 						fh.readFromFile(&c,1,&nbr);
 					}while(c!='/' && oldc!='*');
 					buffer[0]='\0';

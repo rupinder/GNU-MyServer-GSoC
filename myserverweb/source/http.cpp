@@ -530,7 +530,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			return raiseHTTPError(td,s,e_404);
 		}
 		return raiseHTTPError(td,s,e_500);
-	}else if(mimeCMD==CGI_CMD_WINCGI)
+	}else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)
 	{
 	
 		int ret=sendWINCGI(td,s,td->filenamePath);
