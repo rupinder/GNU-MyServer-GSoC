@@ -1461,7 +1461,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     if(strcmp(td.request.VER, "HTTP/1.0"))
     {
       char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
-      wait(5);
+      wait(2);
 			if( a->socket.bytesToRead() == 0) 
         {
           if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
