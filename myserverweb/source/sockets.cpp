@@ -39,8 +39,8 @@ extern "C" {
 #pragma comment(lib,"ws2_32.lib")
 
 #ifndef DO_NOT_USE_SSL
-#pragma comment(lib,"ssleay32.lib")/*!Import the OpenSSL library*/
-#pragma comment(lib,"libeay32.lib")/*!Import the OpenSSL library*/
+ #pragma comment(lib,"libssl.lib")/*!Import the OpenSSL library*/ 
+ #pragma comment(lib,"libcrypto.lib")/*!Import the OpenSSL library*/
 #endif
 
 #endif
@@ -245,7 +245,7 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 	{
 		int err;
 		do
-		{	
+		{
 			err=SSL_write(sslConnection,buffer,len);
 		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
 		return err;
