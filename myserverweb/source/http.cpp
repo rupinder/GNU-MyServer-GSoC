@@ -168,7 +168,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 			u_long nbr;
 			ret = cssHandle.readFromFile((char*)td->buffer->GetBuffer(), 
                                    td->buffer->GetRealLength(), &nbr);
-			if(ret)
+			if(ret == 0)
 			{
 				td->buffer2->SetLength(0);
 				*td->buffer2 << "<style>\r\n<!--\r\n" ;
@@ -226,7 +226,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 	sprintf(filename, "%s/", folder);
 #endif
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of folder ";
+	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of directory ";
 	*td->buffer2 <<  &td->request.URI[startchar] ;
 	*td->buffer2 << "</h1>\r\n<p>\r\n<hr />\r\n";
 	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
@@ -255,8 +255,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
    *files in the folder.  
    */
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "<table width=\"100%%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n  \
-                 <td><b>Last Modify</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
+	*td->buffer2 << "<table width=\"100\%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n  \
+                 <td><b>Last Modified</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
 	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
                                     (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
@@ -293,7 +293,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 		
 		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			*td->buffer2 << "[dir]";
+			*td->buffer2 << "[directory]";
 		}
 		else
 		{
@@ -312,8 +312,18 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s,
 		}
 	}while(!_findnext(ff, &fd));
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "</table>\r\n<hr />\r\n<address>Running on MyServer " ;
+	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " ;
 	*td->buffer2 << versionOfSoftware ;
+  if(td->request.HOST[0])
+  {
+    *td->buffer2 << " on ";
+    *td->buffer2 << td->request.HOST ;
+    *td->buffer2 << " Port ";
+    char port_buf[6];
+    u_short port = td->connection->getLocalPort();
+    sprintf(port_buf,"%u", port);
+    *td->buffer2 << port_buf;
+  }
 	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
 	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
                                    (u_long)td->buffer2->GetLength(), &nbw);
