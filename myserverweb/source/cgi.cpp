@@ -100,9 +100,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	}
 	else
 	{
-		/*!
-		*If the command was not recognized send an 501 page error.
-		*/
+		/*! If the command was not recognized send an 501 page error.  */
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_501);
 	}
 

@@ -452,7 +452,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			while((token[max]!=' ') && (len_token-max<HTTP_REQUEST_VER_DIM))
 				max--;
 			int containOpts=0;
-			for(i=0;(i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
+			for(i=0;((int)i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
 			{
 				if(token[i]=='?')
 				{
@@ -465,7 +465,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 
 			if(containOpts)
 			{
-				for(j=0;(i<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
+				for(j=0;((int)i<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
 				{
 					request->URIOPTS[j]=token[++i];
 					request->URIOPTS[j+1]='\0';
@@ -834,6 +834,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 /*!
 *Build the HTTP RESPONSE HEADER string.
 *If no input is setted the input is the main buffer of the httpThreadContext structure.
+*Return 0 on invalid input or internal errors.
 */
 int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadContext *td,char *input)
 {
@@ -852,17 +853,29 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 
 	if(input==0)
 	{
-		input=(char*)td->buffer->GetBuffer();
+		input=(char*)td->buffer2->GetBuffer();
 		noinputspecified=1;
 	}
-	/*!
-	*Control if the HTTP header is a valid header.
-	*/
+	/*! Control if the HTTP header is a valid header.  */
 	if(input[0]==0)
 		return 0;
 	u_long nLines,maxTotchars;
-	u_long validRequest=validHTTPResponse(input,td,&nLines,&maxTotchars);
-
+	u_long validResponse=validHTTPResponse(input, td, &nLines, &maxTotchars);
+	
+	char *newInput;
+	if(validResponse)
+	{
+		newInput=(char *)malloc(maxTotchars + 1);
+		if(!newInput)
+			return 0;
+		/*! FIXME: Don't alloc new memory but simply use a no-destructive parsing.  */
+		memcpy(newInput, input, maxTotchars);
+		newInput[maxTotchars]='\0';
+		input = newInput;
+	}
+	else
+		return 0;
+	
 	const char cmdseps[]   = ": ,\t\n\r\0";
 
 	int containStatusLine=0;
@@ -872,18 +885,10 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	static int nLineControlled;
 	nLineControlled=0;
 	static int lineControlled;
-	if(noinputspecified)
-	{
-		td->buffer2->SetLength(0);
-		*td->buffer2 << input;
-		*td->buffer2 << maxTotchars;
-		input=token=(char*)td->buffer2->GetBuffer();
-	}
-	else
-	{
-		token=input;
-	}
-	/*Check if is specified the first line containing the HTTP status*/
+	
+	token=input;
+	
+	/*! Check if is specified the first line containing the HTTP status.  */
 	if((input[0]=='H')&&(input[1]=='T')&&(input[2]=='T')&&(input[3]=='P')&&(input[4]==' '))
 	{
 		containStatusLine=1;
@@ -904,7 +909,6 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		*Copy the HTTP command.
 		*/
 		myserver_strlcpy(command,token,96);
-		
 		
 		nLineControlled++;
 		if((nLineControlled==1)&& containStatusLine)
@@ -1057,7 +1061,8 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	*END REQUEST STRUCTURE BUILD.
 	*/
 	td->nBytesToRead=maxTotchars;
-	return validRequest;
+	free(input);
+	return validResponse;
 }
 
 /*!
