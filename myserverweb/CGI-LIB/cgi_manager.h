@@ -27,7 +27,7 @@ private:
 	cgi_data* cgidata;
 public:
 	int  setPageError(int);
-	int  raiseError(int);
+	int raiseError(int);
 	cgi_manager(cgi_data* data);
 	~cgi_manager(void);
 	int  operator <<(char*);
