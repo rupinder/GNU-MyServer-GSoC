@@ -11,15 +11,14 @@ extern "C" int main (char *cmd,cgi_data* data)
 	cgi_manager cm(data);     
 	if(strlen(cmd)==0)     
 	{  	
-		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.gif\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"text\" ID=\"T1\" size=\"20\">\r\n<p align=\"center\">\r\n+</p>\r\n</p>\r\n<p align=\"center\">\r\n <input type=\"text\" ID=\"T2\" size=\"20\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\">\r\n</p>\r\n<SCRIPT LANGUAGE=\"JavaScript\">\r\nfunction send()\r\n{\r\nvar url=\"math_sum.mscgi?a=\" + document.getElementById(\"T1\").value + \"&b=\" + document.getElementById(\"T2\").value;\r\nwindow.location.assign(url);\r\n}\r\n</SCRIPT>\r\n");
+		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.png\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"text\" ID=\"T1\" size=\"20\">\r\n<p align=\"center\">\r\n+</p>\r\n</p>\r\n<p align=\"center\">\r\n <input type=\"text\" ID=\"T2\" size=\"20\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\">\r\n</p>\r\n<SCRIPT LANGUAGE=\"JavaScript\">\r\nfunction send()\r\n{\r\nvar url=\"math_sum.mscgi?a=\" + document.getElementById(\"T1\").value + \"&b=\" + document.getElementById(\"T2\").value;\r\nwindow.location.assign(url);\r\n}\r\n</SCRIPT>\r\n");
 	}     
 	else     
 	{ 	
 		int a = 0;
 		int b = 0;
 		char *tmp;
-		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.gif\">\r\n<p align=\"center\">\r\n\r\n");
-		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
+		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.png\">\r\n<p align=\"center\">\r\n\r\n");		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
 		tmp = cm.GetParam("a");
 		if (tmp && tmp[0] != '\0')
 		{

@@ -76,7 +76,7 @@
 <SER_VICE249>Ser&amp;vizio</SER_VICE249>
 <SERVER121>Server</SERVER121>
 <SERVICE211>Servizio</SERVICE211>
-<STOP167>Stoppa</STOP167>
+<STOP167>Ferma</STOP167>
 <STYLESHEET_104>Stylesheet:</STYLESHEET_104>
 <SYSTEM135>Sistema</SYSTEM135>
 <SYSTEM_FOLDER_96>Directory di sistema:</SYSTEM_FOLDER_96>
@@ -99,4 +99,5 @@ Questo programma viene distribuito sotto i termini della licenza GPL</ABOUT_TEXT
 <ENTER_NAME>Inserisci un nuovo nome:</ENTER_NAME>
 <ENTER_HOST>Inserisci un nuovo host:</ENTER_HOST>
 <ENTER_IP>Inserisci un nuovo IP:</ENTER_IP>
+<MAXIMUM_NUMBER_OF_TH202>Numero massimo di threads:</MAXIMUM_NUMBER_OF_TH202>
 </MYSERVER_LANGUAGE_FILE>

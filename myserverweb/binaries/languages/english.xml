@@ -29,7 +29,7 @@
 <MSG_THREADR>Thread created</MSG_THREADR>
 <MSG_LISTENT>Creating listening thread...</MSG_LISTENT>
 <MSG_LISTENTR>Listening thread is created</MSG_LISTENTR>
-<MSG_READY>myServer is now ready to accept connections</MSG_READY>
+<MSG_READY>MyServer is now ready to accept connections</MSG_READY>
 <MSG_BREAK>Press Ctrl+C to break execution</MSG_BREAK>
 <MSG_STOPT>Terminating threads...</MSG_STOPT>
 <MSG_TSTOPPED>Threads terminated</MSG_TSTOPPED>
