@@ -20,6 +20,9 @@
 #include "..\include\cXMLParser.h"
 #include "..\include\Utility.h"
 
+/*
+*This code is used to parse a pseudo-xml file.
+*/
 void cXMLParser::open(char* filename)
 {
 	file=openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);

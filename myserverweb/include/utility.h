@@ -33,10 +33,10 @@
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
 #define OS_WINDOWS_XP		4
+
 /*
 *Structure used for start a new process
 */
-
 struct START_PROC_INFO
 {
 	MYSERVER_FILE_HANDLE stdError;
@@ -46,12 +46,12 @@ struct START_PROC_INFO
 };
 
 INT getOSVersion();
+DWORD getCPUCount();
 void gotoNextLine(char*);
 char gotoNextLine(FILE*);
 char *getHTTPFormattedTime(void);
 char *getHTTPFormattedTime(tm*);
 VOID StrTrim(LPSTR,LPSTR);
-DWORD getCPUCount();
 DWORD execHiddenProcess(START_PROC_INFO*);
 VOID getComputerName(char*,DWORD);
 

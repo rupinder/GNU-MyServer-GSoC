@@ -23,9 +23,13 @@
 #include <Ws2tcpip.h>
 #include <direct.h>
 
+/*
+*These variables are the unique istance of the class cserver in the application and the flag
+*mustEndServer. When mustEndServer is true all the threads are stopped and the application stop
+*its execution.
+*/
 cserver *lserver=0;
 BOOL mustEndServer;
-int err;
 void cserver::start(INT hInst)
 {
 	mustEndServer=FALSE;
@@ -106,6 +110,7 @@ void cserver::start(INT hInst)
 
 	WSADATA wsaData;
 	printf("%s\n",languageParser.getValue("MSG_ISOCK"));
+	int err;
 	if ((err = WSAStartup(/*MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1), &wsaData)) != 0) 
 	{ 
 		printf("%s\n",languageParser.getValue("ERR_ISOCK"));
@@ -572,10 +577,17 @@ char *cserver::getDefaultFilenamePath(DWORD)
 {
 	return defaultFilename;
 }
+/*
+*Returns the name of the server(the name of the current PC)
+*/
 char *cserver::getServerName()
 {
 	return serverName;
 }
+/*
+*Returns true if we use personalized errors page
+*false if we don't use personalized errors page
+*/
 BOOL cserver::mustUseMessagesFiles()
 {
 	return useMessagesFiles;

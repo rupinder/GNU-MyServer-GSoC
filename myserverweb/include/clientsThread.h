@@ -25,9 +25,6 @@
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\ConnectionStruct.h"
 
-
-extern int err;
-
 class  ClientsTHREAD
 {
 	friend class cserver;

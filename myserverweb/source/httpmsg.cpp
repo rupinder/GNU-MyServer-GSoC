@@ -18,6 +18,9 @@
 */
 
 #include "..\stdafx.h"
+/*
+*This array describe the HTTP errors
+*/
 char HTTP_ERROR_MSGS[13][64]=
 {
 	"Bad request",					//400
@@ -34,6 +37,9 @@ char HTTP_ERROR_MSGS[13][64]=
 	"Not implemented",				//501
 	"Bad gateway"					//502
 };
+/*
+*This file describe the HTTP files for personalized errors page
+*/
 char HTTP_ERROR_HTMLS[13][64]=
 {
 	"400.html",					//400
@@ -50,6 +56,9 @@ char HTTP_ERROR_HTMLS[13][64]=
 	"501.html",					//501
 	"502.html"					//502
 };
+/*
+*These messages are loaded by the application on the startup
+*/
 char msgSending[33];
 char msgNewConnection[33];
 char msgErrorConnection[33];

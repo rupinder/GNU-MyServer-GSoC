@@ -20,6 +20,9 @@
 #include "..\stdafx.h"
 #include "..\include\utility.h"
 #include <string.h>
+/*
+*Various utility functions
+*/
 extern BOOL mustEndServer; 
 INT getOSVersion()
 {

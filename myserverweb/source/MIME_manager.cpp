@@ -19,6 +19,18 @@
 
 #include "..\include\mime_manager.h"
 #include "..\include\filemanager.h"
+
+/*
+*Source code to manage the MIME types in myServer.
+*MIME types are recorded in a static buffer "data", that is a strings array.
+*Every MIME type is described by three strings:
+html,text/html,NONE;
+*1)its extension(for example HTML)
+*2)its MIME description(for example text/html)
+*3)if the file type is used by a CGI this is the path to the CGI manager(for example c:/php/php.exe),
+*	if the file isn't registered by a CGI then this is "NONE".
+*The file is ended by a '#' character
+*/
 HRESULT MIME_Manager::load(char *filename)
 {
 	numMimeTypesLoaded=0;
@@ -67,6 +79,11 @@ HRESULT MIME_Manager::load(char *filename)
 	return 0;
 
 }
+/*
+*This function returns true if the passed ext is registered by a CGI.
+*Passing a file extension ext this function fills the strings dest and dest2
+*respectly with the MIME type description and if there are the path to the CGI manager.
+*/
 BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 {
 	DWORD i;
@@ -89,6 +106,9 @@ BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 	}
 	return FALSE;
 }
+/*
+*Dump the content of the data buffer to a file
+*/
 VOID MIME_Manager::dumpToFILE(char *file)
 {
 	MYSERVER_FILE_HANDLE f=openFile(file,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
@@ -101,6 +121,9 @@ VOID MIME_Manager::clean()
 {
 
 }
+/*
+*Returns the number of MIME types loaded
+*/
 DWORD MIME_Manager::getNumMIMELoaded()
 {
 	return numMimeTypesLoaded;

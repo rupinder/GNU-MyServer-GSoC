@@ -36,9 +36,6 @@
 */
 #include "..\include\MIME_manager.h"
 
-
-
-
 unsigned int __stdcall listenServerHTTP(void* pParam);
 class cserver
 {

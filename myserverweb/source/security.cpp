@@ -26,10 +26,10 @@
 /*
 *Global values for useLogonOption flag and the guest handle
 */
-BOOL useLogonOption;
-LOGGEDUSERID guestLoginHandle;
-char guestLogin[20];
-char guestPassword[32];
+BOOL Thread useLogonOption;
+LOGGEDUSERID Thread guestLoginHandle;
+char Thread guestLogin[20];
+char Thread guestPassword[32];
 
 BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {

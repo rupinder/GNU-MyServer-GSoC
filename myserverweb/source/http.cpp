@@ -855,7 +855,8 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	MYSERVER_FILE_HANDLE stdInFile = createTemporaryFile(stdInFilePath);
 	
 	DWORD nbw;
-	writeToFile(stdInFile,request.URIOPTSPTR,atoi(request.CONTENTS_DIM),&nbw);
+	if(request.URIOPTSPTR)
+		writeToFile(stdInFile,request.URIOPTSPTR,atoi(request.CONTENTS_DIM),&nbw);
 	char *endFileStr="\r\n\r\n\0";
 	writeToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 	setFilePointer(stdInFile,0);
