@@ -43,6 +43,7 @@ Section "MyServer core" SecCore
   File "myserver.exe"
   File "libxml2.dll"
   File "libiconv-2.dll"
+  File "iconv.dll"
   File "libcharset-1.dll"
   File "libpng13.dll"
   File "zlib1.dll"
