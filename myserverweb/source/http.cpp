@@ -34,8 +34,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
 
-#undef min
-#define min( a, b )( ( a < b ) ? a : b  )
+#include <string>
+#include <sstream>
 
 extern "C" 
 {
@@ -1528,7 +1528,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			if( a->socket.bytesToRead() == 0) 
         {
           if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
-            return 0;/*Remove the connection from the list*/
+            return 0;/*! Remove the connection from the list. */
         }
     }
 		return 2;
@@ -1565,6 +1565,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		logHTTPaccess(&td, a);
 		return retvalue;
 	}
+
 	/*! Do not use Keep-Alive over HTTP version older than 1.1. */
 	if(td.request.VER.compare("HTTP/1.1") )
 	{
@@ -1613,15 +1614,15 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			td.request.CONTENT_TYPE.assign("application/x-www-form-urlencoded");
 
 		/*!
-		 *Read POST data
+		 *Read POST data.
 		 */
 		{
       u_long nbw=0;
 			u_long total_nbr=0;
 			u_long timeout;
       td.request.URIOPTSPTR=&(td.buffer->GetBuffer())[td.nHeaderChars];
-			td.buffer->GetBuffer()[min(td.nBytesToRead, 
-                                 td.buffer->GetRealLength()-1)]='\0';
+			td.buffer->GetBuffer()[td.nBytesToRead<td.buffer->GetRealLength()-1 
+                             ? td.nBytesToRead : td.buffer->GetRealLength()-1]='\0';
 			/*!
        *Create the file that contains the data posted.
        *This data is the stdin file in the CGI.
@@ -1630,8 +1631,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                              FILE_OPEN_READ|FILE_OPEN_WRITE))
 				return 0;
 			nbw=0;
-      total_nbr=min(td.nBytesToRead, 
-                           td.buffer->GetRealLength()-1)-td.nHeaderChars;
+      total_nbr=(td.nBytesToRead<td.buffer->GetRealLength()-1 
+                    ? td.nBytesToRead : td.buffer->GetRealLength()-1 ) -td.nHeaderChars;
 			if(total_nbr)
       {
         if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
@@ -1709,8 +1710,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 						}
 						if((content_len>fs) && (td.connection->socket.bytesToRead()))
 						{				
-							u_long tr=min(content_len-total_nbr, 
-                            td.buffer2->GetRealLength());
+							u_long tr=content_len-total_nbr < td.buffer2->GetRealLength() 
+                ?content_len-total_nbr :  td.buffer2->GetRealLength()  ;
 
 							ret=td.connection->socket.recv(td.buffer2->GetBuffer(), tr, 0);
 							if(ret==-1)
@@ -1754,7 +1755,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			/*! If CONTENT-LENGTH is not specified read all the data. */
 			else if(content_len==0)
 			{
-				char buff[11];
+				ostringstream buff;
 				int ret;
         do
 				{
@@ -1783,9 +1784,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           wait(2);
 				}
 				while(content_len!=total_nbr);
-				sprintf(buff, "%u", (u_int)td.inputData.getFileSize());
-        td.response.CONTENT_LENGTH.assign(buff);
-
+				buff << td.inputData.getFileSize();
+        /*! Store a new value for CONTENT_LENGTH. */
+        td.response.CONTENT_LENGTH.assign(buff.str());
 			}
 			td.inputData.setFilePointer(0);
 		}/* End read POST data */
@@ -1807,20 +1808,14 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		char c;
     u_long nbr;
 		u_long bufferlen;
-    char *newfilename = new char[strlen(td.inputDataPath)+10];
-    if(newfilename == 0)
-    {
-      td.inputData.closeFile();
-			td.inputData.deleteFile(td.inputDataPath);
-			return 0;
-    }
-		sprintf(newfilename, "%s_encoded", td.inputData.getFilename());
+    ostringstream newfilename;
+
+		newfilename <<  td.inputData.getFilename() <<  "_encoded";
 		if(newStdIn.openFile(td.inputDataPath, FILE_CREATE_ALWAYS | 
                          FILE_OPEN_READ|FILE_OPEN_WRITE))
 		{
 			td.inputData.closeFile();
 			td.inputData.deleteFile(td.inputDataPath);
-      delete [] newfilename;
 			return 0;
 		}
 		for(;;)
@@ -1834,8 +1829,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
 					newStdIn.closeFile();
-					newStdIn.deleteFile(newfilename);
-          delete [] newfilename;
+					newStdIn.deleteFile(newfilename.str().c_str());
 					return 0;
 				}
 				if(nbr!=1)
@@ -1858,8 +1852,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				td.inputData.closeFile();
 				td.inputData.deleteFile(td.inputDataPath);
 				newStdIn.closeFile();
-        newStdIn.deleteFile(newfilename);
-        delete [] newfilename;
+        newStdIn.deleteFile(newfilename.str().c_str());
 				return 0;
 			}
 			dataToRead=(u_long)hexToInt(buffer);
@@ -1871,14 +1864,14 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			while(dataRead<dataToRead)
 			{
 				u_long nbw;
-				if(td.inputData.readFromFile(td.buffer->GetBuffer(), min(dataToRead-dataRead, 
-                                          td.buffer->GetRealLength()-1), &nbr))
+				if(td.inputData.readFromFile(td.buffer->GetBuffer(), 
+                           dataToRead-dataRead < td.buffer->GetRealLength()-1 
+                           ? dataToRead-dataRead: td.buffer->GetRealLength()-1 , &nbr))
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
 					newStdIn.closeFile();
-          newStdIn.deleteFile(newfilename);
-          delete [] newfilename;
+          newStdIn.deleteFile(newfilename.str().c_str());
 					return 0;
 				}
 				if(nbr==0)
@@ -1889,8 +1882,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
 					newStdIn.closeFile();
-          newStdIn.deleteFile(newfilename);
-          delete [] newfilename;
+          newStdIn.deleteFile(newfilename.str().c_str());
 					return 0;
 				}
 				if(nbw!=nbr)
@@ -1904,8 +1896,16 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		td.inputData.closeFile();
 		td.inputData.deleteFile(td.inputDataPath);
     delete[] td.inputDataPath;
-    td.inputDataPath = newfilename;
-		td.inputData=newStdIn;
+    td.inputDataPath = new char[newfilename.str().length()+1];
+    if( td.inputDataPath == 0)
+    {
+      td.inputData.closeFile();
+      td.inputData.deleteFile(td.inputDataPath);
+      newStdIn.closeFile();
+      newStdIn.deleteFile(newfilename.str().c_str());
+    }
+    strcpy(td.inputDataPath, newfilename.str().c_str());
+ 		td.inputData=newStdIn;
     td.inputData.setFilePointer(0);
 	}else	
 	/*!
@@ -2006,8 +2006,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				/*!
          *connectionBuffer is 8 KB, so don't copy more bytes.
          */
-				a->setDataRead(min(MYSERVER_KB(8), (int)strlen(td.buffer->GetBuffer()) -
-                           td.nHeaderChars ) );
+				a->setDataRead(MYSERVER_KB(8) < (int)strlen(td.buffer->GetBuffer()) -
+                       td.nHeaderChars ? MYSERVER_KB(8) : 
+                       (int)strlen(td.buffer->GetBuffer()) - td.nHeaderChars );
 				if(a->getDataRead() )
 				{
 					memcpy(a->connectionBuffer, (td.buffer->GetBuffer() +
