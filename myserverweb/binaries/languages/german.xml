@@ -25,6 +25,7 @@
 <MSG_ADDRESS>IP Adresse</MSG_ADDRESS>
 <ERR_LOADMIME>MIME types konnten nicht geladen werden</ERR_LOADMIME>
 <ERR_ERROR>Allgemeiner Fehler</ERR_ERROR>
+<ERR_LOADVHOSTS>Fehler beim Laden der virtuellen Hosts</ERR_LOADVHOSTS>
 <MSG_NUM_CPU>Nummer des Prozessors:</MSG_NUM_CPU>
 <MSG_CREATET>Erstelle Thread</MSG_CREATET>
 <MSG_THREADR>Thread erstellt</MSG_THREADR>
