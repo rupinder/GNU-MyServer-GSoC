@@ -77,8 +77,9 @@ int ControlClient::Login(const char * address, const int port,
    sockAddr.sin_family = AF_INET;
    memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
    sockAddr.sin_port = htons(port);
+   
    /*! Try to create the socket. */
-   if(socket.socket(AF_INET, SOCK_STREAM, 0) == -1)
+   if(socket.socket(AF_INET, SOCK_STREAM, 0, 1) == -1)
      return -2;
    /*! If the socket was created try to connect. */
    if(socket.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)

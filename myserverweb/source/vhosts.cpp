@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/threads.h"
 
+
 /*!
  *SSL password callback function.
  */
@@ -1218,7 +1219,9 @@ int vhost::initializeSSL()
   sslContext.context = 0;
   sslContext.method = 0;
 #ifndef DO_NOT_USE_SSL
-    if(this->protocol!=PROTOCOL_HTTPS)
+
+	dynamic_protocol* dp = lserver->getDynProtocol(protocol_name);
+    if(this->protocol<1000 && !(dp && ( dp->getOptions() &  PROTOCOL_USES_SSL ))  )
         return -2;
     sslContext.method = SSLv23_method();
     sslContext.context = SSL_CTX_new(sslContext.method);

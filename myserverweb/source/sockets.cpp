@@ -308,12 +308,12 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
-    sslMethod = SSLv23_client_method();
+    sslMethod = SSLv23_method();
     /*! Create the local context. */
     sslContext = SSL_CTX_new(sslMethod);
+    char buffer[512];
     if(sslContext == 0)
       return -1;
-
 
     /*! Do the TCP connection. */
     if(::connect((int)socketHandle,sa,na))
@@ -330,7 +330,7 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
       return -1;
     }
     SSL_set_fd(sslConnection, (int)socketHandle);
-    if(SSL_connect(sslConnection) == 1)
+    if(SSL_connect(sslConnection) < 0)
     {
       SSL_CTX_free(sslContext);
       closesocket();
@@ -359,7 +359,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,u_long timeout)
 	while(get_ticks()-time<timeout)
 	{
     /*! Check if there is data to read before do any read. */
-		if(dataOnRead())
+		if(bytesToRead())
 			return recv(buffer,len,flags);
 	}
 	return -1;
@@ -380,6 +380,7 @@ int MYSERVER_SOCKET::freeSSL()
   if(localSSL && sslContext)
   {
     SSL_CTX_free(sslContext);
+    sslContext = 0;
   }
 	return 1;
 }
@@ -442,7 +443,10 @@ int MYSERVER_SOCKET::sslAccept()
 		freeSSL();
 	sslConnection=SSL_new(sslContext);
 	if(sslConnection==0)
+  {
 		freeSSL();
+    return   -1;
+  }
 	int ssl_accept;
 	SSL_set_accept_state(sslConnection);
 	if(SSL_set_fd(sslConnection,socketHandle)==0)
@@ -507,11 +511,11 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 {
 	int err=0;
 #ifndef DO_NOT_USE_SSL
-	if(sslSocket)
+	if(sslSocket && sslConnection)
 	{
     do
     {	
-      err=SSL_read(sslConnection,buffer,len);
+        err=SSL_read(sslConnection,buffer,len);
     }while((err <= 0) && 
            (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_X509_LOOKUP)
            || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ)

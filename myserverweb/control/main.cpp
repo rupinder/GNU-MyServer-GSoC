@@ -57,6 +57,12 @@ int main(int argc, char * argv[])
    bool confFound = true;
    int ret;
 
+   /*! Initialize the SSL library. */
+#ifndef DO_NOT_USE_SSL
+	SSL_library_init();
+	SSL_load_error_strings();
+#endif
+
    // Find the language files:
 #ifdef WIN32
    strncpy(languages_path, "languages/", MAX_PATH);
