@@ -357,8 +357,8 @@ char *MYSERVER_FILE::getFilename()
 int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
-	ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
-	return (*nbr<=buffersize)? 1 : 0 ;
+	int ret = ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
+	return (!ret);
 #endif
 #ifdef NOT_WIN
 	int ret  = read((int)handle, buffer, buffersize);

@@ -184,6 +184,7 @@ int setcwdBuffer()
 int freecwdBuffer()
 {
   delete [] currentPath;
+  return 0;	
 }
 
 /*!

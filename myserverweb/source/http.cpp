@@ -701,7 +701,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 		}
 	}//End FOR
 	h.closeFile();
-	return keepalive;
+	return 1;
 
 }
 
