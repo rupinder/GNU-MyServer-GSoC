@@ -17,6 +17,44 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
-
 #include "resource.h" 
+#include <wx/wx.h> 
+#ifdef WIN32
+#include <windows.h>
+#endif          
+#pragma comment(lib,"odbc32.lib")
+#pragma comment(lib,"odbccp32.lib")
+#pragma comment(lib,"comctl32.lib")
+#pragma comment(lib,"rpcrt4.lib")
+#pragma comment(lib,"wsock32.lib")
+#pragma comment(lib,"zlib.lib")
+#pragma comment(lib,"regex.lib")
+#pragma comment(lib,"png.lib")
+#pragma comment(lib,"jpeg.lib")
+#pragma comment(lib,"tiff.lib")
+#pragma comment(lib,"wxmsw.lib")
 
+
+class myServerControl : public wxApp
+{
+public:
+	virtual bool OnInit();
+};
+class mainFrame : public wxFrame
+{
+public:
+	mainFrame(const wxString& title, const wxPoint& pos, const wxSize& size,
+		long style = wxDEFAULT_FRAME_STYLE);
+
+	void OnQuit(wxCommandEvent& event);
+	void OnAbout(wxCommandEvent& event);
+	void runConsole(wxCommandEvent& event);
+	void removeService(wxCommandEvent& event);
+	void runService(wxCommandEvent& event);
+	void registerService(wxCommandEvent& event);
+	void stopService(wxCommandEvent& event);
+	void stopConsole(wxCommandEvent& event);
+
+private:
+	DECLARE_EVENT_TABLE()
+};

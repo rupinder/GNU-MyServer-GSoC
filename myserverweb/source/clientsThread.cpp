@@ -74,7 +74,7 @@ void ClientsTHREAD::controlConnections()
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	int logonStatus;
-	for(c; c ;c=c->Next)
+	for(c; c && connections ;c=c->Next)
 	{
 		nBytesToRead=bytesToRead(c->socket);
 		if(nBytesToRead)
