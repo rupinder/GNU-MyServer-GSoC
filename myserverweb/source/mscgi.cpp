@@ -79,6 +79,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,
   int cgiRootLen = 0;
   int cgiFileLen = 0;
   int scriptpathLen = strlen(exec) + 1;
+	char *outDataPath=0;
 
   if(td->scriptPath)
     delete [] td->scriptPath;
@@ -119,8 +120,6 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,
 	MYSERVER_FILE::splitPath(exec, td->cgiRoot, td->cgiFile);
 
 	cgi::buildCGIEnvironmentString(td,data.envString);
-	
-	char *outDataPath=0;
 	
 	if(!td->appendOutputs)
 	{	

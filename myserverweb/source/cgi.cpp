@@ -63,17 +63,28 @@ int cgi::cgi_timeout = SEC(15);
 int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
                  char* /*!ext*/, char *cgipath, int cmd, int only_header, int buildArg)
 {
+
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
 	char *cmdLine = 0;
 	char *filename = 0;
-
+	int yetoutputted=0;
   int scriptDirLen = 0;
   int scriptFileLen = 0;
   int cgiRootLen = 0;
   int cgiFileLen = 0;
   int scriptpathLen = strlen(scriptpath) + 1;
 
+	char outputDataFile[32];
+	char *outputDataPath;
+  int outputDataPathLen ;
+
+	/*!
+   *Standard CGI uses STDOUT to output the result and the STDIN 
+   *to get other params like in a POST request.
+   */
+	MYSERVER_FILE stdOutFile;
+	MYSERVER_FILE stdInFile;
 
   if(td->scriptPath)
     delete [] td->scriptPath;
@@ -152,6 +163,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
    */
 	if(cmd==CGI_CMD_EXECUTE)
 	{
+    int cmdLineLen;
     int filenameLen = 0;
     MYSERVER_FILE::getFilenameLength(scriptpath, &filenameLen);
     
@@ -172,7 +184,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
      *Under the windows platform to run a file like an executable
      *use the sintact "cmd /c filename".
      */
-    int cmdLineLen = strlen(td->scriptFile) + td->pathInfo[0] ? 
+    cmdLineLen = strlen(td->scriptFile) + td->pathInfo[0] ? 
                         strlen(&td->pathInfo[1]) : strlen (td->pathInfo) +1;
     cmdLine = new char[cmdLineLen];
     if(cmdLine == 0)
@@ -202,7 +214,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	}
 	else if(cmd==CGI_CMD_RUNCGI)
 	{
-
+    int cmdLineLen;
     /*! Check if the CGI executable exists. */
 		if(!MYSERVER_FILE::fileExists(cgipath))
 		{
@@ -224,7 +236,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 			return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
     /*! Alloc the cmdLine memory. */
-    int cmdLineLen = strlen(td->scriptFile) + strlen(cgipath) +2 ;
+    cmdLineLen = strlen(td->scriptFile) + strlen(cgipath) +2 ;
     cmdLine = new char[cmdLineLen];
     if(cmdLine == 0)
     {
@@ -269,9 +281,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
    *so use this name for the file that is going to be
    *created because more threads can access more CGI at the same time.
    */
-	char outputDataFile[32];
-	char *outputDataPath;
-  int outputDataPathLen = getdefaultwdlen() + 32;
+  outputDataPathLen = getdefaultwdlen() + 32;
   outputDataPath = new char[outputDataPathLen];
  
   /*!
@@ -291,12 +301,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
   sprintf(outputDataFile,"/stdOutFileCGI_%u",  (unsigned int)td->id );
 
   lstrcat(outputDataPath, outputDataFile );
-	
-	/*!
-   *Standard CGI uses STDOUT to output the result and the STDIN 
-   *to get other params like in a POST request.
-   */
-	MYSERVER_FILE stdOutFile;
 
   /*!
    *Open the stdout file for the new CGI process. 
@@ -313,7 +317,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
   delete []outputDataPath;
-	MYSERVER_FILE stdInFile;
+
 	td->inputData.closeFile();
 
   /*! Open the stdin file for the new CGI process. */
@@ -413,7 +417,6 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		
 	((char*)td->buffer2->GetBuffer())[nBytesRead]='\0';
 		
-	int yetoutputted=0;
 	if(nBytesRead==0)
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -639,6 +642,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
    */
 	CMemBuf memCgi;
 	char strTmp[32];
+
 	memCgi.SetExternalBuffer(cgi_env_string, td->buffer2->GetRealLength());
 	memCgi << "SERVER_SOFTWARE=MyServer " << versionOfSoftware;
 
@@ -788,15 +792,15 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	if(td->request.ACCEPTLAN[0])
 	{
 		memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
-	  	memCgi << td->request.ACCEPTLAN;
+    memCgi << td->request.ACCEPTLAN;
 	}
 
 	if(td->pathInfo)
 	{
 		memCgi << end_str << "PATH_INFO=";
-	  	memCgi << td->pathInfo;
+    memCgi << td->pathInfo;
 	  	
-	  	memCgi << end_str << "PATH_TRANSLATED=";
+    memCgi << end_str << "PATH_TRANSLATED=";
 		memCgi << td->pathTranslated;
 	}
 	else
@@ -842,10 +846,10 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 #ifdef WIN32
 	if(processEnv)
 	{
-		memCgi << end_str;
-  		LPTSTR lpszVariable; 
+    LPTSTR lpszVariable; 
 		LPVOID lpvEnv; 
 		lpvEnv = lserver->envString; 
+		memCgi << end_str;
 		for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
 		{ 
 			if(((char*)lpszVariable)[0]  != '=' )
