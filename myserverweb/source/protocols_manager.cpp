@@ -49,7 +49,10 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cse
 	hinstLib = dlopen(filename, RTLD_LAZY);
 #endif
 	if(hinstLib==0)
+	{
+		printf("%s %s\n",parser->getValue("ERR_LOADED"),filename);		
 		return 0;
+	}
 	loadProtocolPROC Proc;
 #ifdef WIN32
 		Proc = (loadProtocolPROC) GetProcAddress(hinstLib, "loadProtocol"); 
