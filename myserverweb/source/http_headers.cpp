@@ -471,7 +471,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					request->URIOPTS[j+1]='\0';
 				}
 			}
-			myserver_strlcpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM);
+			myserver_strlcpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM + 1);
 			if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else
@@ -528,7 +528,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					td->connection->login[i]=*lbuffer2++;
 					td->connection->login[i+1]='\0';
 				}
-				myserver_strlcpy(td->identity,td->connection->login,32);
+				myserver_strlcpy(td->identity,td->connection->login,32+1);
                 		lbuffer2++;
 				for(i=0;(*lbuffer2)&&(i<31);i++)
 				{
