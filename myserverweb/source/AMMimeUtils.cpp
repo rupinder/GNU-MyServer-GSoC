@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/AMMimeUtils.h"
 #include "../include/stringutils.h"
-#include "../source/securestr.cpp"
+#include "../include/securestr.h"
 extern "C" {
 #include <malloc.h>
 #include <stdlib.h>
