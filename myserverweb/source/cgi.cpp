@@ -35,7 +35,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*This because anonymous users cannot go through our files.
 	*/
 	if(lserver->mustUseLogonOption())
-		revertToSelf();
+		ms_revertToSelf();
 	/*
 	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
 	*/
@@ -217,7 +217,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*Restore security on the current thread.
 	*/
 	if(lserver->mustUseLogonOption())
-		impersonateLogonUser(&td->hImpersonation);
+		ms_impersonateLogonUser(&td->hImpersonation);
 	/*
 	*By default don't close the connection.
 	*/

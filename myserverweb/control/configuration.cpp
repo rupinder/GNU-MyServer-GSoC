@@ -60,7 +60,7 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 }
 void configurationFrame::configureMIME(wxCommandEvent& event)
 {
-	configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(320, 240));
+	configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX, MIMEWNDSIZEY));
 	configureMIMEWnd->Show(TRUE);
 }
 void configurationFrame::OnQuit(wxCommandEvent& WXUNUSED(event))

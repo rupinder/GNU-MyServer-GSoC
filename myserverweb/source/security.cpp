@@ -32,11 +32,11 @@ char guestLogin[20];
 char guestPassword[32];
 
 /*
-*Do the logon of an user.
+*Do the ms_logon of an user.
 */
-int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
+int ms_logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
-	int logon=FALSE;
+	int ms_logon=FALSE;
 #ifdef WIN32
 	#ifndef LOGON32_LOGON_NETWORK
 	#define LOGON32_LOGON_NETWORK 3
@@ -45,14 +45,14 @@ int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 	#ifndef LOGON32_PROVIDER_DEFAULT
 	#define LOGON32_PROVIDER_DEFAULT
 	#endif
-	logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)(handle));
+	ms_logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)(handle));
 #endif
-	return logon;
+	return ms_logon;
 }
 /*
 *Change the owner of current thread.
 */
-void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
+void ms_impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
 	ImpersonateLoggedOnUser((HANDLE)*hImpersonation);
@@ -62,7 +62,7 @@ void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 /*
 *This function terminates the impersonation of a client application.
 */
-void revertToSelf()
+void ms_revertToSelf()
 {
 #ifdef WIN32
 	RevertToSelf();
@@ -72,7 +72,7 @@ void revertToSelf()
 /*
 *Close the handle of a logged user.
 */
-void cleanLogonUser(LOGGEDUSERID* hImpersonation)
+void ms_cleanLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
 	CloseHandle((HANDLE)*hImpersonation);
@@ -81,21 +81,21 @@ void cleanLogonUser(LOGGEDUSERID* hImpersonation)
 /*
 *Change the owner of the thread with the connection login and password informations.
 */
-void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
+void ms_logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 {
 	*hImpersonation=0;
 	if(useLogonOption)
 	{
 		if(c->login[0])
 		{
-			*logonStatus=logonCurrentThread(c->login,c->password,hImpersonation);
+			*logonStatus=ms_logonCurrentThread(c->login,c->password,hImpersonation);
 		}
 		else
 		{
 			*logonStatus=FALSE;
 			*hImpersonation=guestLoginHandle;
 		}
-		impersonateLogonUser(hImpersonation);
+		ms_impersonateLogonUser(hImpersonation);
 	}
 	else
 	{
@@ -105,22 +105,22 @@ void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 /*
 *Logout the hImpersonation handle.
 */
-void logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
+void ms_logout(int /*ms_logon*/,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
 	{
-		revertToSelf();
+		ms_revertToSelf();
 		if(*hImpersonation)
 		{
-			cleanLogonUser(hImpersonation);
+			ms_cleanLogonUser(hImpersonation);
 			hImpersonation=0;
 		}
 	}
 }
 /*
-*Do the logon of the guest client.
+*Do the ms_logon of the guest client.
 */
-void logonGuest()
+void ms_logonGuest()
 {
 #ifdef WIN32
 	if(useLogonOption)

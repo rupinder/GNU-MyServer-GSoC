@@ -99,7 +99,7 @@ void cserver::start()
 	*/
     printf("Initializing server configuration...\n");
 
-	int OSVer=getOSVersion();
+	int OSVer=ms_getOSVersion();
 
 	initialize(OSVer);
 	
@@ -107,7 +107,7 @@ void cserver::start()
 	ms_setWarningsLogFile(warningsLogFile);
 	
 	accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	setAccessesLogFile(accessesLogFile);
+	ms_setAccessesLogFile(accessesLogFile);
 	
 	controlSizeLogFile();
 
@@ -127,7 +127,7 @@ void cserver::start()
 	/*
 	*By default create a thread for every CPU.
 	*/
-	nThreads=getCPUCount();
+	nThreads=ms_getCPUCount();
 
 #ifdef WIN32
 	/*
@@ -211,7 +211,7 @@ void cserver::start()
 	/*
 	*Get the name of the local machine.
 	*/
-	getComputerName(serverName,(u_long)sizeof(serverName));
+	ms_getComputerName(serverName,(u_long)sizeof(serverName));
 	printf("%s: %s\n",languageParser.getValue("MSG_GETNAME"),serverName);
 
 	/*
@@ -239,7 +239,7 @@ void cserver::start()
 	else
 		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
 
-	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
+	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),ms_getCPUCount());
 	
 	unsigned int ID;
 	for(i=0;i<nThreads;i++)
@@ -436,7 +436,7 @@ void cserver::terminate()
 	*If the guestLoginHandle is allocated close it.
 	*/
 	if(useLogonOption)
-		cleanLogonUser(&guestLoginHandle);
+		ms_cleanLogonUser(&guestLoginHandle);
 
 	/*
 	*Stop the server execution.
@@ -665,9 +665,9 @@ void cserver::initialize(int OSVer)
 	*/
 	useLogonOption=useLogonOption && (OSVer!=OS_WINDOWS_9X);
 	/*
-	*Do the logon of the guest user.
+	*Do the ms_logon of the guest user.
 	*/
-	logonGuest();
+	ms_logonGuest();
 
 }
 
@@ -708,7 +708,7 @@ void cserver::controlSizeLogFile()
 		ms_DeleteFile(accessesFileLogName);
 		accessesLogFile=ms_OpenFile(accessesFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
-	setAccessesLogFile(accessesLogFile);
+	ms_setAccessesLogFile(accessesLogFile);
 
 }
 /*
@@ -726,7 +726,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 
 	char msg[500];
 	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getRFC822GMTTime());
-	accessesLogWrite(msg);
+	ms_accessesLogWrite(msg);
 
 	static u_long local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
@@ -797,7 +797,7 @@ int cserver::mustUseMessagesFiles()
 	return useMessagesFiles;
 }
 /*
-*Returns if we use the logon.
+*Returns if we use the ms_logon.
 */
 int cserver::mustUseLogonOption()
 {

@@ -134,7 +134,7 @@ int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
 #endif
 }
 
-u_long bytesToRead(MYSERVER_SOCKET c)
+u_long ms_bytesToRead(MYSERVER_SOCKET c)
 {
 #ifdef WIN32
 	u_long nBytesToRead;

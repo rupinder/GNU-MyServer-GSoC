@@ -31,21 +31,21 @@ extern char  guestPassword[32];
 /*
 *Change the ownner of the caller thread.
 */
-int logonCurrentThread(char*,char*,LOGGEDUSERID*);
+int ms_logonCurrentThread(char*,char*,LOGGEDUSERID*);
 /*
 *Change the ownner of the caller thread to the runner of the process.
 */
-VOID revertToSelf();
+VOID ms_revertToSelf();
 /*
-*Impersonate the logon user.
+*Impersonate the ms_logon user.
 */
-VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation);
+VOID ms_impersonateLogonUser(LOGGEDUSERID* hImpersonation);
 /*
 *Close the handle.
 */
-VOID cleanLogonUser(LOGGEDUSERID* hImpersonation);
+VOID ms_cleanLogonUser(LOGGEDUSERID* hImpersonation);
 
-VOID logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
-VOID logout(int logon,LOGGEDUSERID *hImpersonation);
+VOID ms_logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
+VOID ms_logout(int ms_logon,LOGGEDUSERID *hImpersonation);
 
-VOID logonGuest();
+VOID ms_logonGuest();

@@ -28,7 +28,8 @@
 #include "..\include\cXMLParser.h"
 #endif          
 extern const char VERSION_OF_SOFTWARE[];
-
+#define MIMEWNDSIZEX	420
+#define MIMEWNDSIZEY	260
 
 class configurationFrameMIME : public wxFrame
 {
@@ -37,7 +38,8 @@ public:
 	wxButton* btnOK;
 	wxButton* btnCNL;
 	wxButton* btnSAVE;
-	wxButton* btnADD;
+	wxButton* btnADDEXT;
+	wxButton* btnADDMIME;
 	wxListBox *actiontodoLB;
 	wxTextCtrl *cgiManagerTB;
 	wxListBox *mimeTypesLB;
@@ -48,7 +50,8 @@ public:
 	void cancel(wxCommandEvent& event);
 	void ok(wxCommandEvent& event);
 	void save(wxCommandEvent& event);
-	void add(wxCommandEvent& event);
+	void addExt(wxCommandEvent& event);
+	void addMime(wxCommandEvent& event);
 private:
 	DECLARE_EVENT_TABLE()
 };

@@ -25,7 +25,8 @@ enum
     Configuration_Quit = 1,
 	Configuration_Ok,
 	Configuration_Save,
-	Configuration_Add,
+	Configuration_AddExt,
+	Configuration_AddMime,
 	Configuration_EXTtypeListEvt,
 	Configuration_Cancel
 };
@@ -35,10 +36,12 @@ BEGIN_EVENT_TABLE(configurationFrameMIME, wxFrame)
 EVT_BUTTON(Configuration_Ok,  configurationFrameMIME::ok)
 EVT_WINDOW_DESTROY(configurationFrameMIME::OnQuit)
 EVT_LISTBOX_DCLICK(Configuration_EXTtypeListEvt,configurationFrameMIME::EXTtypeListEvt)
+EVT_LISTBOX(Configuration_EXTtypeListEvt,configurationFrameMIME::EXTtypeListEvt)
 EVT_CLOSE(configurationFrameMIME::OnQuit)
 EVT_BUTTON(Configuration_Cancel,  configurationFrameMIME::cancel)  
 EVT_BUTTON(Configuration_Save,  configurationFrameMIME::save)  
-EVT_BUTTON(Configuration_Add,  configurationFrameMIME::add)
+EVT_BUTTON(Configuration_AddExt,  configurationFrameMIME::addExt)
+EVT_BUTTON(Configuration_AddMime,  configurationFrameMIME::addMime)
 END_EVENT_TABLE()
 
 configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size, long style): wxFrame(parent, -1, title, pos, size, style)
@@ -52,22 +55,23 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
 
-	actiontodoLB=new wxListBox(panel,-1,wxPoint(0,100), wxSize(120,100),0,NULL,wxLB_HSCROLL);
-	mimeTypesLB=new wxListBox(panel,-1,wxPoint(120,0), wxSize(190,100),0, NULL,wxLB_HSCROLL);
-	cgiManagerTB=new wxTextCtrl(panel,-1,"",wxPoint(120,100), wxSize(190,20));
-	extensionsLB=new wxListBox(panel,Configuration_EXTtypeListEvt,wxPoint(0,0), wxSize(120,100),0, NULL,wxLB_HSCROLL);
+	actiontodoLB=new wxListBox(panel,-1,wxPoint(0,110), wxSize(210,MIMEWNDSIZEY-140),0,NULL,wxLB_HSCROLL);
+	cgiManagerTB=new wxTextCtrl(panel,-1,"",wxPoint(210,110), wxSize(MIMEWNDSIZEX-220,20));
+	mimeTypesLB=new wxListBox(panel,-1,wxPoint(160,10), wxSize(MIMEWNDSIZEX-170,100),0, NULL,wxLB_HSCROLL);
+	extensionsLB=new wxListBox(panel,Configuration_EXTtypeListEvt,wxPoint(0,10), wxSize(160,100),0, NULL,wxLB_HSCROLL);
 
-	btnOK= new wxButton(panel,Configuration_Ok,"OK",wxPoint(160,160),wxSize(50,25));
-	btnSAVE= new wxButton(panel,Configuration_Save,"Save",wxPoint(210,135),wxSize(50,25));
-	btnCNL= new wxButton(panel,Configuration_Cancel,"Cancel",wxPoint(210,160),wxSize(50,25));
-	btnADD= new wxButton(panel,Configuration_Add,"Add",wxPoint(260,135),wxSize(50,25));
+	btnOK= new wxButton(panel,Configuration_Ok,"OK",wxPoint(220,200),wxSize(50,25));
+	btnCNL= new wxButton(panel,Configuration_Cancel,"Cancel",wxPoint(270,200),wxSize(50,25));
+	btnSAVE= new wxButton(panel,Configuration_Save,"Save",wxPoint(220,135),wxSize(50,25));
+	btnADDEXT= new wxButton(panel,Configuration_AddExt,"Add a new extension",wxPoint(270,135),wxSize(130,25));
+	btnADDMIME= new wxButton(panel,Configuration_AddExt,"Add a new MIME type",wxPoint(270,160),wxSize(130,25));
 
-	actiontodoLB->Insert("SEND",CGI_CMD_SEND);
-	actiontodoLB->Insert("RUNCGI",CGI_CMD_RUNCGI);
-	actiontodoLB->Insert("RUNISAPI",CGI_CMD_RUNISAPI);
-	actiontodoLB->Insert("RUNMSCGI",CGI_CMD_RUNMSCGI);
-	actiontodoLB->Insert("EXECUTE",CGI_CMD_EXECUTE);
-	actiontodoLB->Insert("SENDLINK",CGI_CMD_SENDLINK);
+	actiontodoLB->Insert("SEND THE FILE AS IT IS",CGI_CMD_SEND);
+	actiontodoLB->Insert("RUN THE CGI(SPECIFY A PATH)",CGI_CMD_RUNCGI);
+	actiontodoLB->Insert("RUN THE ISAPI(SPECIFY A PATH)",CGI_CMD_RUNISAPI);
+	actiontodoLB->Insert("RUN AS A MSCGI",CGI_CMD_RUNMSCGI);
+	actiontodoLB->Insert("HANDLE AS AN EXECUTABLE",CGI_CMD_EXECUTE);
+	actiontodoLB->Insert("HANDLE AS A LINK",CGI_CMD_SENDLINK);
 
 	if(mm.load("MIMEtypes.txt"))
 	{
@@ -126,6 +130,9 @@ void configurationFrameMIME::EXTtypeListEvt(wxCommandEvent& event)
 }
 void configurationFrameMIME::save(wxCommandEvent& event)
 {
+	/*
+	*Save the record.
+	*/
 	wxString str=extensionsLB->GetString(extensionsLB->GetSelection());
 	char EXT[10];
 	sprintf(EXT,"%s",(const char*)(str.ToAscii()));
@@ -140,9 +147,9 @@ void configurationFrameMIME::save(wxCommandEvent& event)
 	record->command=actiontodoLB->GetSelection();
 
 }
-void configurationFrameMIME::add(wxCommandEvent& event)
+void configurationFrameMIME::addExt(wxCommandEvent& event)
 {
-	wxString ext=wxGetTextFromUser("Insert the extension to register for this MIME type(If the extension is already registered it will be removed)","Register a new MIME type","",this);
+	wxString ext=wxGetTextFromUser("Insert the extension to register(If the extension is already registered all the informations will be removed)","Register a new extension","",this);
 	char EXT[10];
 	sprintf(EXT,"%s",(const char*)(ext.ToAscii()));
 	MIME_Manager::mime_record record;
@@ -151,4 +158,12 @@ void configurationFrameMIME::add(wxCommandEvent& event)
 	mm.addRecord(record);
 	if(extensionsLB->FindString(_T(ext))==wxNOT_FOUND)
 		extensionsLB->Insert(_T(ext),0);
+}
+void configurationFrameMIME::addMime(wxCommandEvent& event)
+{
+	wxString ext=wxGetTextFromUser("Insert the MIME type to register","Register a new MIME type","",this);
+	char MIME[60];
+	sprintf(MIME,"%s",(const char*)(ext.ToAscii()));
+	if(mimeTypesLB->FindString(_T(MIME))==wxNOT_FOUND)
+		mimeTypesLB->Insert(_T(MIME),0);
 }

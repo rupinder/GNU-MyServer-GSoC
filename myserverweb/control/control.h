@@ -32,13 +32,9 @@
 #pragma comment(lib,"odbccp32.lib")
 #pragma comment(lib,"comctl32.lib")
 #pragma comment(lib,"rpcrt4.lib")
-#pragma comment(lib,"wsock32.lib")
-#pragma comment(lib,"zlib.lib")
-#pragma comment(lib,"regex.lib")
-#pragma comment(lib,"png.lib")
-#pragma comment(lib,"jpeg.lib")
-#pragma comment(lib,"tiff.lib")
 #pragma comment(lib,"wxmsw.lib")
+#pragma comment(lib,"wsock32.lib")
+#pragma comment(lib,"ws2_32.lib")
 
 
 class taskBarIcon: public wxTaskBarIcon

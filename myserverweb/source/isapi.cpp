@@ -398,7 +398,17 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 			ret=FALSE;
 		}
 			
-	}/*TODO: ALL_RAW*/
+	}else if(!strcmp(lpszVariableName, "ALL_RAW")) 
+	{
+		if(buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
+			ret=TRUE;
+		else
+		{
+            SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			ret=FALSE;
+		}
+			
+	}
 	else
 	{
 		/*
@@ -431,83 +441,144 @@ BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDW
 	DWORD valLen=0;
 	DWORD maxLen=*dwMaxLen;
 	char *ValStr=(char*)output;
+
 	if(td->request.ACCEPT[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_ACCEPT:%s\n",td->request.ACCEPT);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT:%s\n",td->request.ACCEPT);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.ACCEPTLAN[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_ACCEPT_LANGUAGE:%s\n",td->request.ACCEPTLAN);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",td->request.ACCEPTLAN);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.ACCEPTENC[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_ACCEPT_ENCODING:%s\n",td->request.ACCEPTENC);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",td->request.ACCEPTENC);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.CONNECTION[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_CONNECTION:%s\n",td->request.CONNECTION);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_CONNECTION:%s\n",td->request.CONNECTION);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.COOKIE[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_COOKIE:%s\n",td->request.COOKIE);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_COOKIE:%s\n",td->request.COOKIE);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.HOST[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_HOST:%s\n",td->request.HOST);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_HOST:%s\n",td->request.HOST);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.DATE[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_DATE:%s\n",td->request.DATE);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_DATE:%s\n",td->request.DATE);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.MODIFIED_SINCE[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_IF_MODIFIED_SINCE:%s\n",td->request.MODIFIED_SINCE);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",td->request.MODIFIED_SINCE);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.REFERER[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_REFERER:%s\n",td->request.REFERER);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_REFERER:%s\n",td->request.REFERER);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.PRAGMA[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_PRAGMA:%s\n",td->request.PRAGMA);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_PRAGMA:%s\n",td->request.PRAGMA);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.USER_AGENT[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_USER_AGENT:%s\n",td->request.USER_AGENT);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_USER_AGENT:%s\n",td->request.USER_AGENT);
+	else if(valLen+30<maxLen)
 		return 0;
+
 	if(td->request.VER[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_MIME_VERSION:%s\n",td->request.VER);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_MIME_VERSION:%s\n",td->request.VER);
+	else if(valLen+30<maxLen) 
 		return 0;
+
 	if(td->request.FROM[0] && (valLen+30<maxLen))
-	{
-		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_FROM:%s\n",td->request.FROM);
-	}
-	else 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_FROM:%s\n",td->request.FROM);
+	else if(valLen+30<maxLen) 
 		return 0;
 	return 1;
+}
+
+/*
+*Build the string that contains all the headers.
+*/
+BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD dwMaxLen)
+{
+	DWORD valLen=0;
+	DWORD maxLen=*dwMaxLen;
+	char *ValStr=(char*)output;
+	if(buildAllHttpHeaders(td,a,output,dwMaxLen)==0)
+		return 0;
+	valLen=strlen(ValStr);
+
+	if(td->pathInfo[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathInfo);
+	else if(valLen+30<maxLen) 
+		return 0;
+	
+	if(td->pathTranslated[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathTranslated);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(td->request.URIOPTS[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"QUERY_STRING:%s\n",td->request.URIOPTS[0]);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(td->request.CMD[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"REQUEST_METHOD:%s\n",td->request.CMD[0]);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(td->filenamePath[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"SCRIPT_FILENAME:%s\n",td->filenamePath[0]);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"SERVER_PORT:%u\n",lserver->port_HTTP);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"SERVER_SIGNATURE:<address>%s</address>\n",versionOfSoftware);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(td->connection->ipAddr[0] && valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"REMOTE_ADDR:\n",td->connection->ipAddr);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(td->connection->port && valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"REMOTE_PORT:%u\n",td->connection->port);
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"SERVER_ADMIN:%s\n",lserver->getServerAdmin());
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if(valLen+MAX_PATH<maxLen)
+	{
+		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
+		lstrcpyn(&ValStr[valLen],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
+		valLen+=lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1;
+		valLen+=sprintf(&ValStr[valLen],"\n");
+	}
+	else if(valLen+30<maxLen) 
+		return 0;
+
 }

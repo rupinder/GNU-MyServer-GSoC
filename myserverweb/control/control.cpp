@@ -291,7 +291,7 @@ void mainFrame::registerService(wxCommandEvent& event)
 }
 void mainFrame::configureMIME(wxCommandEvent& event)
 {
-	configurationFrameMIME *configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(320, 240));
+	configurationFrameMIME *configureMIMEWnd=new configurationFrameMIME(this,_T("Configure myServer MIME types"),wxPoint(70, 70), wxSize(MIMEWNDSIZEX, MIMEWNDSIZEY));
 	configureMIMEWnd->Show(TRUE);
 }
 /*

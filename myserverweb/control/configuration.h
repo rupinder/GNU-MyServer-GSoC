@@ -26,8 +26,8 @@
 #define SOCKETLIBINCLUDED/*Prevent include socket headers file*/
 #include "..\include\MIME_Manager.h"
 #include "..\include\cXMLParser.h"
-#include "configureMIME.h"
 #endif          
+#include "configureMIME.h"
 extern const char VERSION_OF_SOFTWARE[];
 
 

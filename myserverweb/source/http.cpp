@@ -504,7 +504,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		/*
 		*If there are others bytes to read from the socket.
 		*/
-		if(bytesToRead(td.connection->socket))
+		if(ms_bytesToRead(td.connection->socket))
 		{
 			int err;
 			do
@@ -537,17 +537,17 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		/*
 		*Record the request in the log file.
 		*/
-		accessesLogWrite(a->ipAddr);
-		accessesLogWrite(":");
-		accessesLogWrite(td.request.CMD);
-		accessesLogWrite(" ");
-		accessesLogWrite(td.request.URI);
+		ms_accessesLogWrite(a->ipAddr);
+		ms_accessesLogWrite(":");
+		ms_accessesLogWrite(td.request.CMD);
+		ms_accessesLogWrite(" ");
+		ms_accessesLogWrite(td.request.URI);
 		if(td.request.URIOPTS[0])
 		{
-			accessesLogWrite("?");
-			accessesLogWrite(td.request.URIOPTS);
+			ms_accessesLogWrite("?");
+			ms_accessesLogWrite(td.request.URIOPTS);
 		}
-		accessesLogWrite("\r\n");
+		ms_accessesLogWrite("\r\n");
 		/*
 		*End record the request in the structure.
 		*/

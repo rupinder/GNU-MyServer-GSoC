@@ -43,7 +43,7 @@ void ms_setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 /*
 *Write the message to the accesses file.
 */
-u_long accessesLogWrite(char* str)
+u_long ms_accessesLogWrite(char* str)
 {
 	u_long nbw;
 	ms_WriteToFile(accessesLogFile,str,lstrlen(str),&nbw);
@@ -52,7 +52,7 @@ u_long accessesLogWrite(char* str)
 /*
 *Set the accesses file handle.
 */
-void setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
+void ms_setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
 {
 	accessesLogFile=nlg;
 }

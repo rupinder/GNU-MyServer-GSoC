@@ -34,7 +34,7 @@ static char currentPath[MAX_PATH];
 /*
 *Returns the version of the operating system.
 */
-INT getOSVersion()
+INT ms_getOSVersion()
 {
 	int ret=0;
 	/*
@@ -72,7 +72,7 @@ INT getOSVersion()
 /*
 *Returns the number of processors available on the local machine.
 */
-u_long getCPUCount()
+u_long ms_getCPUCount()
 {
 	u_long ret=1;
 #ifdef WIN32
@@ -83,7 +83,7 @@ u_long getCPUCount()
 	return ret;
 }
 /*
-*Execute an hidden process and wait until it ends itself or its execution
+*Execute an hidden process and ms_wait until it ends itself or its execution
 *time is greater than the timeout value.
 *Returns the process exit code.
 */
@@ -120,7 +120,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 /*
 *This function is similar to the Windows API WaitForSingleObject(..)
 */
-INT requestAccess(u_long* ac,u_long id)
+INT ms_requestAccess(u_long* ac,u_long id)
 {
 	/*
 	*If the access ID is equal to the thread ID we don't do nothing.
@@ -134,7 +134,7 @@ INT requestAccess(u_long* ac,u_long id)
 	if(*ac==0)
 	{
 		*ac=id;
-		requestAccess(ac,id);
+		ms_requestAccess(ac,id);
 		return 0;
 	}
 	/*
@@ -142,10 +142,10 @@ INT requestAccess(u_long* ac,u_long id)
 	*/
 	while(*ac!=id);
 	*ac=id;
-	requestAccess(ac,id);
+	ms_requestAccess(ac,id);
 	return 0;
 }
-INT terminateAccess(u_long* ac,u_long/* id*/)
+INT ms_terminateAccess(u_long* ac,u_long/* id*/)
 {
 	/*
 	*Only set to Zero the owner of the access.
@@ -182,7 +182,7 @@ char *ms_getdefaultwd(char *path,int len)
 /*
 *Get the local machine name.
 */
-void getComputerName(char *dest,u_long maxLen)
+void ms_getComputerName(char *dest,u_long maxLen)
 {
 #ifdef WIN32
 	ms_gethostname(dest,maxLen);
@@ -201,7 +201,7 @@ int ms_setcwd(char *dir)
 /*
 *Sleep the caller thread.
 */
-void wait(u_long time)
+void ms_wait(u_long time)
 {
 #ifdef WIN32
 		Sleep(time);
