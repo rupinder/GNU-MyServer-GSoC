@@ -483,7 +483,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*Bits 1-30	->	Don't used.
 	*/
 	int retvalue=0;
-
 	httpThreadContext td;
 	td.buffer=b1;
 	td.buffer2=b2;
@@ -496,7 +495,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	td.id=id;
 	td.inputData =(MYSERVER_FILE_HANDLE)0;
 	td.outputData =(MYSERVER_FILE_HANDLE)0;
-
 
 	/*
 	*Reset the request structure.
@@ -520,11 +518,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*/
 	if(validRequest==0)
 	{
-		raiseHTTPError(&td,a,e_400);
-		/*
-		*Returning Zero we remove the connection from the connections list.
-		*/
-		return 0;
+		return raiseHTTPError(&td,a,e_400);
 	}/*If the URI is too long*/
 	else if(validRequest==414)
 	{
@@ -952,7 +946,7 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 	/*
 	*Count the number of lines in the header.
 	*/
-	for(nLines=i=0;;i++)
+	for(nLines=i=0;i<KB(2) && req[i];i++)
 	{
 		if(req[i]=='\n')
 		{
@@ -976,7 +970,10 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 		*If a line contains more than 1024 lines we consider the header invalid.
 		*/
 		if(nLinechars>1024)
+		{
+			isValidCommand=false;
 			break;
+		}
 	}
 
 	/*
@@ -1094,6 +1091,8 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 	u_long i=0,j=0,max=0;
 	u_long nLines,maxTotchars;
 	u_long validRequest=validHTTPRequest(td,&nLines,&maxTotchars);
+	if(!validRequest)
+		return 0;
 
 	const int max_URI=MAX_PATH+200;
 	const char seps[]   = " ,\t\n\r";

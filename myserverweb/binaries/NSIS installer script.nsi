@@ -80,7 +80,6 @@ Section "Web examples" SecWebEx
 SectionEnd
 
 
-
 Section "MyServer control center" SecControl
   DetailPrint "Control Center Application"
   SetOutPath $INSTDIR
@@ -95,17 +94,25 @@ Section "MSCGI lib" SecMSCGI
 SectionEnd
 
 
+Section "Documentation" SecDocumentation
+  SetOutPath "$INSTDIR"
+  File "myserver.chm"
+  CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_VARIABLE}\MyServer documentation.lnk" "$INSTDIR\myserver.chm"
+SectionEnd
+
 Section "Install other languages" SecLanguages
   SetOutPath $INSTDIR\languages
   File "languages\*.*"
 SectionEnd
 
 Section "Install the service" SecService
+	SetOutPath "$INSTDIR"
 	ExecWait "$INSTDIR\control.exe REGISTER"
 SectionEnd
 
 !insertmacro MUI_FUNCTIONS_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Install the MyServer core application(this element is required)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install the myServer documentation"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecControl} "Install the Control Center application(the installation of this element is highly recommended)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMSCGI} "Copy the MyServer MSCGI library(premature status yet)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecLanguages} "Copy all the languages files(by default only the english language is copied)"
@@ -134,6 +141,7 @@ FunctionEnd
 ; Uninstaller
 
 Section "Uninstall"
+  ExecWait "$INSTDIR\control.exe UNREGISTER" ;Remove the service if installed
   Delete "$INSTDIR\cgi-lib\*.*"
   Delete "$INSTDIR\web\*.*"
   Delete "$INSTDIR\web\cgi-bin\*.*"
@@ -165,5 +173,4 @@ Section "Uninstall"
   RMDir "$SMPROGRAMS\${TEMP}"
   DeleteRegKey /ifempty "${MUI_STARTMENUPAGE_REGISTRY_ROOT}" "Software\${MUI_PRODUCT}"
 
-  ExecWait "$INSTDIR\control.exe UNREGISTER" ;Remove the service if installed
 SectionEnd

@@ -122,7 +122,10 @@ void ClientsTHREAD::controlConnections()
 				if(deleteConnection(c))
 					continue;
 			}
-
+			if(err<KB(2))
+			{
+				buffer[err]='\0';
+			}
 			/*
 			*Control the protocol used by the connection.
 			*/
