@@ -25,6 +25,7 @@
 #include "..\include\HTTPmsg.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\ConnectionStruct.h"
+#include "..\include\security.h"
 
 class  ClientsTHREAD
 {
@@ -32,27 +33,27 @@ class  ClientsTHREAD
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
 	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 private:
-	BOOL initialized;
+	int initialized;
 	LOGGEDUSERID hImpersonation;
-	DWORD id;
+	u_long id;
 	int err;
-	BOOL threadIsRunning;
-	BOOL threadIsStopped;
-    DWORD nConnections;
-	DWORD buffersize;
-	DWORD buffersize2;
+	int threadIsRunning;
+	int threadIsStopped;
+    u_long nConnections;
+	u_long buffersize;
+	u_long buffersize2;
 	LPCONNECTION addConnection(MYSERVER_SOCKET,CONNECTION_PROTOCOL,char*,int);
 	LPCONNECTION findConnection(MYSERVER_SOCKET s);
-	BOOL isRunning();
-	BOOL isStopped();
+	int isRunning();
+	int isStopped();
 	char *buffer;
 	char *buffer2;
 	void clearAllConnections();
-	BOOL deleteConnection(LPCONNECTION id);
+	int deleteConnection(LPCONNECTION id);
 	void controlConnections();
-	DWORD connectionWriteAccess;
+	u_long connectionWriteAccess;
 	LPCONNECTION connections;
-	DWORD nBytesToRead;
+	u_long nBytesToRead;
 public:
 	ClientsTHREAD();
 	~ClientsTHREAD();

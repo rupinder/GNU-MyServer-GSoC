@@ -34,9 +34,9 @@ void console_service (int, char **);
 
 #ifdef WIN32
 
-BOOL __stdcall control_handler(DWORD control_type);
-VOID __stdcall myServerCtrlHandler(DWORD fdwControl);
-VOID __stdcall myServerMain (DWORD argc, LPTSTR *argv); 
+int __stdcall control_handler(u_long control_type);
+VOID __stdcall myServerCtrlHandler(u_long fdwControl);
+VOID __stdcall myServerMain (u_long argc, LPTSTR *argv); 
 void runService();
 
 #endif
@@ -114,7 +114,7 @@ SERVICE_STATUS_HANDLE   MyServiceStatusHandle;
 /*
 *Entry-point for the NT service.
 */
-VOID  __stdcall myServerMain (DWORD, LPTSTR*)
+VOID  __stdcall myServerMain (u_long, LPTSTR*)
 {
 	MyServiceStatus.dwServiceType = SERVICE_WIN32;
 	MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
@@ -149,7 +149,7 @@ VOID  __stdcall myServerMain (DWORD, LPTSTR*)
 /*
 *Manage the NT service.
 */
-VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
+VOID __stdcall myServerCtrlHandler(u_long fdwControl)
 {
 	switch ( fdwControl )
 	{
@@ -181,7 +181,7 @@ VOID __stdcall myServerCtrlHandler(DWORD fdwControl)
 /*
 *Terminate the application on the pression of CTRL+C or CTRL+BREAK.
 */
-BOOL __stdcall control_handler (DWORD control_type)
+int __stdcall control_handler (u_long control_type)
 {
 	switch (control_type)
 	{

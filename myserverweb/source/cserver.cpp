@@ -30,7 +30,7 @@
 *its execution.
 */
 cserver *lserver=0;
-BOOL mustEndServer;
+int mustEndServer;
 /*
 *These messages are loaded by the application on the startup.
 */
@@ -179,7 +179,7 @@ void cserver::start(int hInst)
 	/*
 	*Get the name of the local machine.
 	*/
-	getComputerName(serverName,(DWORD)sizeof(serverName));
+	getComputerName(serverName,(u_long)sizeof(serverName));
 
 	printf("%s: %s\n",languageParser.getValue("MSG_GETNAME"),serverName);
 
@@ -226,7 +226,7 @@ void cserver::start(int hInst)
 	nThreads=getCPUCount();
 
 	unsigned int ID;
-	for(DWORD i=0;i<nThreads;i++)
+	for(u_long i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
 		threads[i].id=i;
@@ -265,7 +265,7 @@ void cserver::start(int hInst)
 /*
 *This function is used to create a socket server and a thread listener for a protocol.
 */
-VOID cserver::createServerAndListener(DWORD port,DWORD protID)
+VOID cserver::createServerAndListener(u_long port,u_long protID)
 {
 	/*
 	*Create the server socket.
@@ -340,7 +340,7 @@ VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 unsigned int __stdcall listenServer(void* params)
 {
 	listenThreadArgv *argv=(listenThreadArgv*)params;
-	DWORD protID=argv->protID;
+	u_long protID=argv->protID;
 	MYSERVER_SOCKET serverSocket=argv->serverSocket;
 	delete argv;
 
@@ -375,13 +375,13 @@ unsigned int __stdcall listenServer(void* params)
 /*
 *Returns the numbers of active connections on all the threads.
 */
-DWORD cserver::getNumConnections()
+u_long cserver::getNumConnections()
 {
 	/*
 	*Get the number of connections in all the threads.
 	*/
-	DWORD nConnections=0;
-	for(DWORD i=0;i<nThreads;i++)
+	u_long nConnections=0;
+	for(u_long i=0;i<nThreads;i++)
 	{
 		nConnections+=threads[i].nConnections;
 	}
@@ -395,7 +395,7 @@ DWORD cserver::getNumConnections()
 /*
 *Get the verbosity value.
 */
-DWORD cserver::getVerbosity()
+u_long cserver::getVerbosity()
 {
 	return verbosity;
 }
@@ -403,7 +403,7 @@ DWORD cserver::getVerbosity()
 /*
 *Set the verbosity value.
 */
-void  cserver::setVerbosity(DWORD nv)
+void  cserver::setVerbosity(u_long nv)
 {
 	verbosity=nv;
 }
@@ -426,7 +426,7 @@ void cserver::terminate()
 	/*
 	*Stop server.
 	*/
-	DWORD i;
+	u_long i;
 	for(i=0;i<nThreads;i++)
 	{
 		if(verbosity>1)
@@ -444,7 +444,7 @@ void cserver::terminate()
 	*/
 	languageParser.close();
 	mimeManager.clean();
-	DWORD threadsStopped=0;
+	u_long threadsStopped=0;
 	freeMSCGILib();
 	/*
 	*Wait before clean the threads that all the threads are stopped.
@@ -523,7 +523,7 @@ void cserver::initialize(int OSVer)
 	data=configurationFileManager.getValue("VERBOSITY");
 	if(data)
 	{
-		verbosity=(DWORD)atoi(data);
+		verbosity=(u_long)atoi(data);
 	}
 
 	data=configurationFileManager.getValue("LANGUAGE");
@@ -536,13 +536,13 @@ void cserver::initialize(int OSVer)
 	data=configurationFileManager.getValue("BUFFER_SIZE");
 	if(data)
 	{
-		buffersize=buffersize2=(DWORD)atol(data);
+		buffersize=buffersize2=(u_long)atol(data);
 	}
 
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
 	{
-		connectionTimeout=SEC((DWORD)atol(data));
+		connectionTimeout=SEC((u_long)atol(data));
 	}
 
 	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
@@ -609,7 +609,7 @@ void cserver::initialize(int OSVer)
 	data=configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
 	if(data)
 	{
-		maxLogFileSize=(DWORD)atol(data);
+		maxLogFileSize=(u_long)atol(data);
 		controlSizeLogFile();
 	}
 	
@@ -628,7 +628,7 @@ void cserver::initialize(int OSVer)
 	/*
 	*Actually is supported only the WinNT access
 	*security options.
-	*The useLogonOption variable is used like a boolean,
+	*The useLogonOption variable is used like a intean,
 	*in the future this can be used like an ID of the
 	*security access engine used.
 	*Logon options cannot be used onto Win9X family.
@@ -653,7 +653,7 @@ VOID cserver::controlSizeLogFile()
 	{
 		warningsLogFile=ms_OpenFile(warningsFileLogName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	}
-	DWORD fs=0;
+	u_long fs=0;
 	fs=getFileSize(warningsLogFile);
 	if(fs>maxLogFileSize)
 	{
@@ -684,11 +684,11 @@ VOID cserver::controlSizeLogFile()
 /*
 *This function dispatch a new connection to a thread.
 */
-BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNECTION_PROTOCOL protID)
+int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNECTION_PROTOCOL protID)
 {
 	if(s==0)
 		return FALSE;
-	static BOOL ret;
+	static int ret;
 	ret=TRUE;
 	char ip[32];
 	sprintf(ip,"%u.%u.%u.%u",(*asock_in).sin_addr.S_un.S_un_b.s_b1,(*asock_in).sin_addr.S_un.S_un_b.s_b2,(*asock_in).sin_addr.S_un.S_un_b.s_b3,(*asock_in).sin_addr.S_un.S_un_b.s_b4);
@@ -698,7 +698,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONN
 	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getHTTPFormattedTime());
 	accessesLogWrite(msg);
 
-	static DWORD local_nThreads=0;
+	static u_long local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
 	if(!ct->addConnection(s,protID,&ip[0],port))
 	{
@@ -722,7 +722,7 @@ BOOL cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONN
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 {
 	LPCONNECTION c=NULL;
-	for(DWORD i=0;i<nThreads;i++)
+	for(u_long i=0;i<nThreads;i++)
 	{
 		c=threads[i].findConnection(s);
 		if((i==nThreads-1) && (c!=NULL))
@@ -747,7 +747,7 @@ char *cserver::getPath()
 /*
 *Returns the default filename.
 */
-char *cserver::getDefaultFilenamePath(DWORD)
+char *cserver::getDefaultFilenamePath(u_long)
 {
 	return defaultFilename;
 }
@@ -762,14 +762,14 @@ char *cserver::getServerName()
 *Returns true if we use personalized errors page
 *false if we don't use personalized errors page.
 */
-BOOL cserver::mustUseMessagesFiles()
+int cserver::mustUseMessagesFiles()
 {
 	return useMessagesFiles;
 }
 /*
 *Returns if we use the logon.
 */
-BOOL cserver::mustUseLogonOption()
+int cserver::mustUseLogonOption()
 {
 	return useLogonOption;
 }

@@ -42,4 +42,4 @@ int ms_ioctlsocket(MYSERVER_SOCKET,long,unsigned long*);
 int ms_send(MYSERVER_SOCKET,const char*,int,int);
 int ms_connect(MYSERVER_SOCKET,sockaddr*,int);
 int ms_recv(MYSERVER_SOCKET,char*,int,int);
-DWORD bytesToRead(MYSERVER_SOCKET);
+u_long bytesToRead(MYSERVER_SOCKET);

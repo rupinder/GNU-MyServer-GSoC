@@ -94,7 +94,7 @@ VOID StrTrim(char* str,const char* trimChars)
 	*Number of characters to remove from the initial position of the string.
 	*/
 	WORD ncharToRemove=0;
-	BOOL doBreak=FALSE;
+	int doBreak=FALSE;
 	if(lenStr==0)
 		return;
 	if(lenTrimChars==0)

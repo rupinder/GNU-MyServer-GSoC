@@ -462,7 +462,7 @@ char* CQPUtils::Decode(char *input)
 			}
 			char mid[3];
 			s++;
-			bool ok = true;
+			int ok = true;
 			for (i = 0; i < 2; i++)
 			{
 				if (hexmap[s[i]] == SKIP)
@@ -502,7 +502,7 @@ char* CQPUtils::Decode(char *input)
 
 
 
-char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize, bool SingleChar)
+char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize, int SingleChar)
 {
 	int AddVal;
 	if (SingleChar) AddVal = 3;

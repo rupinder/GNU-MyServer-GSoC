@@ -37,13 +37,13 @@ int MIME_Manager::load(char *filename)
 	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	if(f==0)
 		return 0;
-	DWORD fs=getFileSize(f);
+	u_long fs=getFileSize(f);
 	buffer=(char*)malloc(fs+1);
-	DWORD nbw;
+	u_long nbw;
 	ms_ReadFromFile(f,buffer,fs,&nbw);
 	ms_CloseFile(f);
 	MIME_Manager::mime_record record;
-	for(DWORD nc=0;;)
+	for(u_long nc=0;;)
 	{
 		ZeroMemory(&record,sizeof(MIME_Manager::mime_record));
 		/*
@@ -224,7 +224,7 @@ VOID MIME_Manager::removeAllRecords()
 /*
 *Returns the number of MIME types loaded.
 */
-DWORD MIME_Manager::getNumMIMELoaded()
+u_long MIME_Manager::getNumMIMELoaded()
 {
 	return numMimeTypesLoaded;
 }

@@ -35,7 +35,7 @@ ClientsTHREAD::~ClientsTHREAD()
 */
 unsigned int __stdcall startClientsTHREAD(void* pParam)
 {
-	DWORD id=*((DWORD*)pParam);
+	u_long id=*((u_long*)pParam);
 	ClientsTHREAD *ct=&lserver->threads[id];
 	ct->threadIsRunning=TRUE;
 	ct->connections=0;
@@ -73,7 +73,7 @@ void ClientsTHREAD::controlConnections()
 {
 	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
-	BOOL logonStatus;
+	int logonStatus;
 	for(c; c ;c=c->Next)
 	{
 		if(nBytesToRead=bytesToRead(c->socket))
@@ -166,10 +166,10 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 /*
 *Delete a connection.
 */
-BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
+int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 {
 	requestAccess(&connectionWriteAccess,this->id);
-	BOOL ret=FALSE;
+	int ret=FALSE;
 	/*
 	*First of all close the socket communication.
 	*/
@@ -237,7 +237,7 @@ LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 /*
 *Returns TRUE if the thread is active.
 */
-BOOL ClientsTHREAD::isRunning()
+int ClientsTHREAD::isRunning()
 {
 	return threadIsRunning;
 }
@@ -245,7 +245,7 @@ BOOL ClientsTHREAD::isRunning()
 /*
 *Returns TRUE if the thread is stopped.
 */
-BOOL ClientsTHREAD::isStopped()
+int ClientsTHREAD::isStopped()
 {
 	return threadIsStopped;
 }

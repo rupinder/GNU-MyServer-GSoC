@@ -20,13 +20,13 @@
 
 #include "..\stdafx.h"
 typedef void *MYSERVER_FILE_HANDLE;
-DWORD accessesLogWrite(char*);
+u_long accessesLogWrite(char*);
 void setAccessesLogFile(MYSERVER_FILE_HANDLE);
 
-DWORD warningsLogWrite(char*);
+u_long warningsLogWrite(char*);
 void setWarningsLogFile(MYSERVER_FILE_HANDLE);
-DWORD getFileSize(MYSERVER_FILE_HANDLE);
-BOOL setFilePointer(MYSERVER_FILE_HANDLE,DWORD);
+u_long getFileSize(MYSERVER_FILE_HANDLE);
+int setFilePointer(MYSERVER_FILE_HANDLE,u_long);
 int getPathRecursionLevel(char*);
 
 #define MYSERVER_FILE_OPEN_READ (1<<0)
@@ -38,10 +38,10 @@ int getPathRecursionLevel(char*);
 #define MYSERVER_FILE_OPEN_APPEND (1<<6)
 #define MYSERVER_FILE_CREATE_ALWAYS (1<<7)
 
-INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
-INT	ms_WriteToFile(MYSERVER_FILE_HANDLE,char*,DWORD,DWORD*);
+INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE,char*,u_long,u_long*);
+INT	ms_WriteToFile(MYSERVER_FILE_HANDLE,char*,u_long,u_long*);
 MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char*);
-MYSERVER_FILE_HANDLE ms_OpenFile(char*,DWORD);
+MYSERVER_FILE_HANDLE ms_OpenFile(char*,u_long);
 INT	ms_IsFolder(char*);
 INT ms_CloseFile(MYSERVER_FILE_HANDLE);
 INT ms_FileExists(char*);

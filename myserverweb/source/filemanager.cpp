@@ -20,16 +20,16 @@
 #include "..\stdafx.h"
 #include "..\include\utility.h"
 #include "..\include\stringutils.h"
-extern BOOL mustEndServer; 
+extern int mustEndServer; 
 static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 /*
 *Functions to manage the log files.
 */
-DWORD warningsLogWrite(char* str)
+u_long warningsLogWrite(char* str)
 {
-	DWORD nbw;
+	u_long nbw;
 	ms_WriteToFile(warningsLogFile,str,lstrlen(str),&nbw);
 	return nbw;
 }
@@ -37,9 +37,9 @@ void setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 {
 	warningsLogFile=nlg;
 }
-DWORD accessesLogWrite(char* str)
+u_long accessesLogWrite(char* str)
 {
-	DWORD nbw;
+	u_long nbw;
 	ms_WriteToFile(accessesLogFile,str,lstrlen(str),&nbw);
 	return nbw;
 }
@@ -72,7 +72,7 @@ int getPathRecursionLevel(char* path)
 /*
 *Write data to a file.
 */
-INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbw)
+INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbw)
 {
 #ifdef WIN32
 	return WriteFile((HANDLE)f,buffer,buffersize,nbw,NULL);
@@ -81,7 +81,7 @@ INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* n
 /*
 *Read data from a file to a buffer.
 */
-INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbr)
+INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
@@ -97,7 +97,7 @@ INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* 
 *Open(or create if not exists) a file.
 *If the function have success the return value is different from 0 and -1.
 */
-MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
+MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 {
 	MYSERVER_FILE_HANDLE ret=0;
 #ifdef WIN32
@@ -105,9 +105,9 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = NULL;
-	DWORD creationFlag=0;
-	DWORD openFlag=0;
-	DWORD attributeFlag=0;
+	u_long creationFlag=0;
+	u_long openFlag=0;
+	u_long attributeFlag=0;
 
 	if(opt & MYSERVER_FILE_OPEN_ALWAYS)
 		creationFlag|=OPEN_ALWAYS;
@@ -182,9 +182,9 @@ INT ms_DeleteFile(char *filename)
 /*
 *Returns the file size in bytes.
 */
-DWORD getFileSize(MYSERVER_FILE_HANDLE f)
+u_long getFileSize(MYSERVER_FILE_HANDLE f)
 {
-	DWORD size;
+	u_long size;
 #ifdef WIN32
 	size=GetFileSize((HANDLE)f,NULL);
 #endif
@@ -194,7 +194,7 @@ DWORD getFileSize(MYSERVER_FILE_HANDLE f)
 *Change the position of the pointer to the file.
 *Returns a non-null value if failed.
 */
-BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
+int setFilePointer(MYSERVER_FILE_HANDLE h,u_long initialByte)
 {
 #ifdef WIN32
 	return (SetFilePointer((HANDLE)h,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
@@ -206,7 +206,7 @@ BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
 INT	ms_IsFolder(char *filename)
 {
 #ifdef WIN32
-	DWORD fa=GetFileAttributes(filename);
+	u_long fa=GetFileAttributes(filename);
 	if(fa!=INVALID_FILE_ATTRIBUTES)
 		return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
 	else

@@ -24,7 +24,7 @@
 #define cXMLParser_IN
 class cXMLParser
 {
-	DWORD buffersize;
+	u_long buffersize;
 	char *buffer;
 	char data[MAX_PATH];
 	MYSERVER_FILE_HANDLE file;

@@ -27,7 +27,7 @@
 /*
 *Various utility functions.
 */
-extern BOOL mustEndServer; 
+extern int mustEndServer; 
 static char currentPath[MAX_PATH];
 
 /*
@@ -71,9 +71,9 @@ INT getOSVersion()
 /*
 *Returns the number of processors that are on the local machine.
 */
-DWORD getCPUCount()
+u_long getCPUCount()
 {
-	DWORD ret=1;
+	u_long ret=1;
 #ifdef WIN32
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
@@ -87,7 +87,7 @@ DWORD getCPUCount()
 *Returns 1 if the process ended itself or returns 0 if the process was
 *closed by the server
 */
-DWORD execHiddenProcess(START_PROC_INFO *spi,DWORD timeout)
+u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 {
 #ifdef WIN32
     /*
@@ -108,7 +108,7 @@ DWORD execHiddenProcess(START_PROC_INFO *spi,DWORD timeout)
 	/*
 	*Wait until it's ending by itself.
 	*/
-	DWORD ret=WaitForSingleObject(pi.hProcess,timeout);
+	u_long ret=WaitForSingleObject(pi.hProcess,timeout);
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
 	return (ret==WAIT_TIMEOUT)?0:1;
@@ -118,7 +118,7 @@ DWORD execHiddenProcess(START_PROC_INFO *spi,DWORD timeout)
 /*
 *Get the local machine name.
 */
-VOID getComputerName(char *dest,DWORD maxLen)
+VOID getComputerName(char *dest,u_long maxLen)
 {
 #ifdef WIN32
 	/*
@@ -136,7 +136,7 @@ VOID getComputerName(char *dest,DWORD maxLen)
 /*
 *This function is similar to the Windows API WaitForSingleObject(..)
 */
-INT requestAccess(DWORD* ac,DWORD id)
+INT requestAccess(u_long* ac,u_long id)
 {
 	/*
 	*If the access ID is equal to the thread ID we don't do nothing.
@@ -161,7 +161,7 @@ INT requestAccess(DWORD* ac,DWORD id)
 	requestAccess(ac,id);
 	return 0;
 }
-INT terminateAccess(DWORD* ac,DWORD/* id*/)
+INT terminateAccess(u_long* ac,u_long/* id*/)
 {
 	/*
 	*Only set to Zero the owner of the access.
@@ -179,7 +179,7 @@ int ms_setcwdBuffer()
 	_getcwd(currentPath,MAX_PATH);
 	retval=1;
 #endif
-	for(DWORD i=0;i<(DWORD)lstrlen(currentPath);i++)
+	for(u_long i=0;i<(u_long)lstrlen(currentPath);i++)
 		if(currentPath[i]=='\\')
 			currentPath[i]='/';
 	if(currentPath[lstrlen(currentPath)]=='/')

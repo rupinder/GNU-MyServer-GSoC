@@ -21,10 +21,12 @@
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\mime_manager.h"
 #include "..\include\mscgi.h"
+#include "..\include\security.h"
+extern const char *versionOfSoftware;
 /*
 *Structure used by the HTTP protocol to describe a thread
 */
 struct httpThreadContext;
 
-BOOL sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
+int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
 void buildCGIEnvironmentString(httpThreadContext*,char*);

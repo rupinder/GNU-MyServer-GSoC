@@ -25,7 +25,7 @@
 #include "..\include\sockets.h"
 #include "..\include\utility.h"
 #include <direct.h>
-BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
+int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
 	/*
 	*Send the content of a folder if there is not any default
@@ -66,7 +66,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	MYSERVER_FILE_HANDLE cssHandle=ms_OpenFile(lserver->getBrowseDirCSS(),MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(cssHandle)
 	{
-		DWORD nbr;
+		u_long nbr;
 		ms_ReadFromFile(cssHandle,td->buffer,td->buffersize,&nbr);
 		lstrcat(td->buffer2,"<STYLE><!--");
 		lstrcat(td->buffer2,td->buffer);
@@ -163,7 +163,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	return 1;
 
 }
-BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByte,int lastByte)
+int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int OnlyHeader,int firstByte,int lastByte)
 {
 	/*
 	*With this routine we send a file through the HTTP protocol.
@@ -190,14 +190,14 @@ BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL O
 	/*
 	*If the file is a valid handle.
 	*/
-	DWORD bytesToSend=getFileSize(h);
+	u_long bytesToSend=getFileSize(h);
 	if(lastByte == -1)
 	{
 		lastByte=bytesToSend;
 	}
 	else/*If the client use ranges set the right value for the last byte number*/
 	{
-		lastByte=min((DWORD)lastByte,bytesToSend);
+		lastByte=min((u_long)lastByte,bytesToSend);
 	}
 	/*
 	*bytesToSend is the interval between the first and the last byte.
@@ -232,7 +232,7 @@ BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL O
 	}
 	for(;;)
 	{
-		DWORD nbr;
+		u_long nbr;
 		/*
 		*Read from the file the bytes to sent.
 		*/
@@ -256,7 +256,7 @@ BOOL sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,BOOL O
 /*
 *Main function to send a resource to a client.
 */
-BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL systemrequest,BOOL OnlyHeader,int firstByte,int lastByte)
+int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int systemrequest,int OnlyHeader,int firstByte,int lastByte)
 {
 	/*
 	*With this code we manage a request of a file or a folder or anything that we must send
@@ -379,7 +379,7 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 /*
 *This is the HTTP protocol parser.
 */
-BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp,DWORD id)
+int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,LOGGEDUSERID *imp,u_long id)
 {
 	httpThreadContext td;
 	td.buffer=b1;
@@ -407,9 +407,9 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	/*
 	*Control if the HTTP header is a valid header.
 	*/
-	DWORD i=0,j=0,max=0;
-	DWORD nLines,maxTotChars;
-	DWORD validRequest=validHTTPRequest(&td,&nLines,&maxTotChars);
+	u_long i=0,j=0,max=0;
+	u_long nLines,maxTotChars;
+	u_long validRequest=validHTTPRequest(&td,&nLines,&maxTotChars);
 
 
 	/*
@@ -446,7 +446,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 
 	static int nLineControlled;
 	nLineControlled=0;
-	static BOOL lineControlled;
+	static int lineControlled;
 	token=td.buffer;
 
 	token = strtok( token, cmdseps );
@@ -477,7 +477,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	
 		token = strtok( NULL, " ,\t\n\r" );
 		max=lstrlen(token);
-		BOOL containOpts=FALSE;
+		int containOpts=FALSE;
 		for(i=0;i<max;i++)
 		{
 			if(token[i]=='?')
@@ -673,7 +673,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		token = strtok( NULL, "\n" );
 	}
 	token = strtok( NULL, cmdseps );
-	if((token-td.buffer)<maxTotChars)
+	if((u_long)(token-td.buffer)<maxTotChars)
 		goto controlAnotherLine; 
 	/*
 	*END REQUEST STRUCTURE BUILD
@@ -695,7 +695,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		ms_getdefaultwd(stdInFilePath,MAX_PATH);
 		sprintf(&stdInFilePath[lstrlen(stdInFilePath)],"/stdInFile__%u",td.id);
 		td.inputData=ms_CreateTemporaryFile(stdInFilePath);
-		DWORD nbw;
+		u_long nbw;
 		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-maxTotChars,&nbw);
 		/*
 		*If there are others bytes to read from the socket.
@@ -945,7 +945,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 /*
 *Sends an error page to the client described by the connection.
 */
-BOOL raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
+int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	if(ID==e_401AUTH)
 	{
@@ -974,7 +974,7 @@ BOOL raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 /*
 *Returns the MIME type passing its extension.
 */
-BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
+int getMIME(char *MIME,char *filename,char *dest,char *dest2)
 {
 	getFileExt(dest,filename);
 	/*
@@ -985,7 +985,7 @@ BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 /*
 *Map an URL to the machine file system.
 */
-void getPath(char *filenamePath,const char *filename,BOOL systemrequest)
+void getPath(char *filenamePath,const char *filename,int systemrequest)
 {
 	/*
 	*If it is a system request, search the file in the system folder.
@@ -1009,16 +1009,16 @@ void getPath(char *filenamePath,const char *filename,BOOL systemrequest)
 *nLinesptr is a value of the lines number in the HEADER.
 *nCharsptr is a value of the characters number in the HEADER.
 */
-DWORD validHTTPRequest(httpThreadContext* td,DWORD* nLinesptr,DWORD* nCharsptr)
+u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* nCharsptr)
 {
-	DWORD i;
+	u_long i;
 	char *req=td->buffer;
-	DWORD buffersize=td->buffersize;
-	DWORD nLineChars;
-	BOOL isValidCommand=FALSE;
+	u_long buffersize=td->buffersize;
+	u_long nLineChars;
+	int isValidCommand=FALSE;
 	nLineChars=0;
-	DWORD nLines=0;
-	DWORD maxTotChars=0;
+	u_long nLines=0;
+	u_long maxTotChars=0;
 	if(req==0)
 		return 0;
 	/*

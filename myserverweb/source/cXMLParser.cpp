@@ -29,7 +29,7 @@ void cXMLParser::open(char* filename)
 	file=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	buffersize=getFileSize(file);
 	buffer=(char*)malloc(buffersize);
-	DWORD nbr;
+	u_long nbr;
 	if(buffer)
 		ms_ReadFromFile(file,buffer,buffersize,&nbr);
 	if(nbr==0)
@@ -52,7 +52,7 @@ char *cXMLParser::getValue(char* vName)
 {
 	if(buffer==0)
 		return 0;
-	BOOL found;
+	int found;
 	char *ret=NULL;
 	unsigned int i,j;
 	int len=lstrlen(vName);

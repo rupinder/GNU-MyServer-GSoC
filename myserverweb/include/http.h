@@ -21,6 +21,10 @@
 #include "..\stdafx.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\cgi.h"
+#include "..\include\connectionstruct.h"
+#include "..\include\security.h"
+extern const char *versionOfSoftware;
+extern class CBase64Utils base64Utils;
 /*
 *Structure used by the HTTP protocol to describe a thread.
 */
@@ -28,10 +32,10 @@ struct httpThreadContext
 {
 	char *buffer;
 	char *buffer2;	
-	DWORD buffersize;
-	DWORD buffersize2;
-	DWORD id;
-	DWORD nBytesToRead;
+	u_long buffersize;
+	u_long buffersize2;
+	u_long id;
+	u_long nBytesToRead;
 	HTTP_RESPONSE_HEADER  response;
 	HTTP_REQUEST_HEADER  request;
 	char filenamePath[MAX_PATH];
@@ -49,14 +53,14 @@ struct httpThreadContext
 /*
 *The main function is controlHTTPConnection(...), that parse the request builds a response.
 */
-BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp,DWORD id);
-BOOL sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-BOOL sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
-BOOL sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
+int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,LOGGEDUSERID *imp,u_long id);
+int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=FALSE,int OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+int sendHTTPFILE(httpThreadContext*,LPCONNECTION s,char *filenamePath,int OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
+int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder);
 void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
 void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
-BOOL raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
-void getPath(char *filenamePath,const char *filename,BOOL systemrequest);
-BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2);
-DWORD validHTTPRequest(httpThreadContext*,DWORD*,DWORD*);
+int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
+void getPath(char *filenamePath,const char *filename,int systemrequest);
+int getMIME(char *MIME,char *filename,char *dest,char *dest2);
+u_long validHTTPRequest(httpThreadContext*,u_long*,u_long*);
 VOID resetHTTPRequest(HTTP_REQUEST_HEADER *request);

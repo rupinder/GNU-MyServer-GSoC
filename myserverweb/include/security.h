@@ -19,7 +19,10 @@
 #pragma once
 
 #include "..\stdafx.h"
-extern BOOL useLogonOption;
+#include "..\include\connectionstruct.h"
+
+extern int useLogonOption;
+typedef  void* LOGGEDUSERID;
 extern LOGGEDUSERID guestLoginHandle;
 extern char guestLogin[20];
 extern char  guestPassword[32];
@@ -28,7 +31,7 @@ extern char  guestPassword[32];
 /*
 *Change the ownner of the caller thread.
 */
-BOOL logonCurrentThread(char*,char*,LOGGEDUSERID*);
+int logonCurrentThread(char*,char*,LOGGEDUSERID*);
 /*
 *Change the ownner of the caller thread to the runner of the process.
 */
@@ -42,7 +45,7 @@ VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation);
 */
 VOID cleanLogonUser(LOGGEDUSERID* hImpersonation);
 
-VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation);
-VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation);
+VOID logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
+VOID logout(int logon,LOGGEDUSERID *hImpersonation);
 
 VOID logonGuest();

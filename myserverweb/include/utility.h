@@ -54,10 +54,10 @@ struct START_PROC_INFO
 #endif
 
 INT getOSVersion();
-DWORD getCPUCount();
+u_long getCPUCount();
 void gotoNextLine(char*);
-DWORD execHiddenProcess(START_PROC_INFO* spi,DWORD timeout=0xFFFFFFFF);
-VOID getComputerName(char* name,DWORD maxlen);
+u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
+VOID getComputerName(char* name,u_long maxlen);
 int ms_setcwdBuffer();
 char *ms_getdefaultwd(char* dwd,int maxlen);
 int ms_setcwd(char * cwd);
@@ -65,5 +65,5 @@ int ms_setcwd(char * cwd);
 /*
 *These functions are a simple trasposition of the mutex mechanism.
 */
-INT requestAccess(DWORD*,DWORD);
-INT terminateAccess(DWORD*,DWORD);
+INT requestAccess(u_long*,u_long);
+INT terminateAccess(u_long*,u_long);

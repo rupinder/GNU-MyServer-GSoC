@@ -47,13 +47,13 @@ class MIME_Manager
 		mime_record* next;
 	};
 	mime_record *data;
-	DWORD numMimeTypesLoaded;
+	u_long numMimeTypesLoaded;
 public:
 	MIME_Manager();
 	VOID addRecord(MIME_Manager::mime_record);
 	VOID removeAllRecords();
 	VOID removeRecord(char*);
-	DWORD getNumMIMELoaded();
+	u_long getNumMIMELoaded();
 	int load(char *filename);
 	int getMIME(char* ext,char *dest,char *dest2);
 	VOID clean();

@@ -26,7 +26,7 @@
 /*
 *Global values for useLogonOption flag and the guest handle.
 */
-BOOL  useLogonOption;
+int  useLogonOption;
 LOGGEDUSERID guestLoginHandle;
 char guestLogin[20];
 char guestPassword[32];
@@ -34,9 +34,9 @@ char guestPassword[32];
 /*
 *Do the logon of an user.
 */
-BOOL logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
+int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
-	BOOL logon=FALSE;
+	int logon=FALSE;
 #ifdef WIN32
 	#ifndef LOGON32_LOGON_NETWORK
 	#define LOGON32_LOGON_NETWORK 3
@@ -81,7 +81,7 @@ VOID cleanLogonUser(LOGGEDUSERID* hImpersonation)
 /*
 *Change the owner of the thread with the connection login and password informations.
 */
-VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
+VOID logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 {
 	*hImpersonation=0;
 	if(useLogonOption)
@@ -105,7 +105,7 @@ VOID logon(LPCONNECTION c,BOOL *logonStatus,LOGGEDUSERID *hImpersonation)
 /*
 *Logout the hImpersonation handle.
 */
-VOID logout(BOOL logon,LOGGEDUSERID *hImpersonation)
+VOID logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
 	{

@@ -24,7 +24,7 @@
 #define PROTOCOL_HTTP		0
 #define PROTOCOL_FTP		1
 
-typedef DWORD CONNECTION_PROTOCOL;
+typedef u_long CONNECTION_PROTOCOL;
 #ifndef CONNECTION_IN
 #define CONNECTION_IN
 /*
@@ -38,10 +38,10 @@ public:
 	char password[32];
 	char nTries;	
 	char ipAddr[32];
-	int port;
+	u_short port;
 	MYSERVER_SOCKET socket;	
-	DWORD timeout;	
+	u_long timeout;	
 	CONNECTION* Next;
 };
-
+typedef CONNECTION*  volatile LPCONNECTION;
 #endif

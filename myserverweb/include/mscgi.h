@@ -20,9 +20,13 @@
 
 #include "..\stdafx.h"
 #include "..\include\Response_RequestStructs.h"
+#include "..\include\connectionstruct.h"
 #include "..\include\mime_manager.h"
 #include "..\include\cgi.h"
 struct httpThreadContext;
-BOOL loadMSCGILib();
-BOOL freeMSCGILib();
-BOOL sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
+int loadMSCGILib();
+int freeMSCGILib();
+int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,char* cmdLine=0);
+typedef int (*CGIMAIN)(char*); 
+typedef int (*CGIINIT)(void*,void*,void*,void*); 
+

@@ -28,7 +28,7 @@
 /*
 *Sends the standard CGI to a client.
 */
-BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *cgipath,int cmd)
+int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *cgipath,int cmd)
 {
 	/*
 	*Change the owner of the thread to the creator of the process.
@@ -39,7 +39,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	/*
 	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
 	*/
-	BOOL nph;
+	int nph;
 	char cmdLine[MAX_PATH*3+1];
 	char filename[MAX_PATH];
 	lstrcpy(td->scriptPath,scriptpath);
@@ -107,7 +107,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	}
 	else/*If no exists the stdin file create one and copy in all the necessary informations*/
 	{
-		DWORD nbw;/*Number of bytes written to the stdin file if any*/
+		u_long nbw;/*Number of bytes written to the stdin file if any*/
 		stdInFile = td->inputData;
 		if(td->request.URIOPTSPTR)
 			ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
@@ -159,7 +159,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	/*
 	*Read the CGI output.
 	*/
-	DWORD nBytesRead=0;
+	u_long nBytesRead=0;
 	if(!setFilePointer(stdOutFile,0))
 		ms_ReadFromFile(stdOutFile,td->buffer2,td->buffersize2,&nBytesRead);
 	else
@@ -169,8 +169,8 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	*Standard CGI can include an extra HTTP header so do not 
 	*terminate with \r\n the default myServer header.
 	*/
-	DWORD headerSize=0;
-	for(DWORD i=0;i<nBytesRead;i++)
+	u_long headerSize=0;
+	for(u_long i=0;i<nBytesRead;i++)
 	{
 		if(td->buffer2[i]=='\r')
 			if(td->buffer2[i+1]=='\n')

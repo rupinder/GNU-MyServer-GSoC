@@ -30,7 +30,7 @@
 *Sends the myServer CGI; differently form standard CGI this don't need a new process to run
 *so it is faster.
 */
-BOOL sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
+int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 {
 	/*
 	*This is the code for manage a .mscgi file.
@@ -104,7 +104,7 @@ static HMODULE mscgiModule=0;
 /*
 *Map the library in the address space of the application.
 */
-BOOL loadMSCGILib()
+int loadMSCGILib()
 {
 #ifdef WIN32
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
@@ -114,7 +114,7 @@ BOOL loadMSCGILib()
 /*
 *Free the memory allocated by the MSCGI library.
 */
-BOOL freeMSCGILib()
+int freeMSCGILib()
 {
 #ifdef WIN32
 	/*
