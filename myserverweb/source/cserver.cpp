@@ -728,12 +728,9 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	char ip[MAX_IP_STRING_LEN];
 	char myIp[MAX_IP_STRING_LEN];
 	MYSERVER_SOCKADDRIN  localsock_in;
-#ifdef WIN32
-	ZeroMemory(&localsock_in,sizeof(localsock_in));
-#endif
-#ifdef __linux__
+
 	memset(&localsock_in, 0, sizeof(localsock_in));
-#endif
+
 	int dim=sizeof(localsock_in);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in,&dim);
 
@@ -775,6 +772,9 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	strcpy(nc->localIpAddr,localIpAddr);
 	nc->next =connections;
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	/*
+	*If the protocol is HTTPS do the SSL handshake
+	*/
 	if(((vhost*)nc->host)->protocol == PROTOCOL_HTTPS)
 	{
 		SSL_CTX* ctx=((vhost*)nc->host)->getSSLContext();
