@@ -33,7 +33,7 @@ public:
   static void setTimeout(int);
   static int getTimeout();
 	int sendCGI(httpThreadContext*,LPCONNECTION s,char* scriptpath,char* exec,
-              int only_header=0);
+              int execute, int only_header=0);
 	static void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
 };
 #endif

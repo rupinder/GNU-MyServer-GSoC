@@ -71,7 +71,7 @@ int fastcgi::getMaxFcgiServers()
  *Entry-Point to manage a FastCGI request.
  */
 int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
-                         char* scriptpath,char *cgipath,int execute, int only_header)
+             char* scriptpath,char *cgipath,int execute, int only_header)
 {
 	fCGIContext con;
 	con.td=td;
@@ -173,6 +173,12 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	}
 	else
 	{
+    int fullpathLen = strlen(cgipath) + 1;
+    fullpath = new char[fullpathLen];
+    if(fullpath == 0)
+    {
+      return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+    }
 		sprintf(fullpath,"%s",cgipath);
 	}
   cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());

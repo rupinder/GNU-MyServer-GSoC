@@ -41,7 +41,7 @@ extern "C" {
  *need a new process to run so it is faster.
  */
 int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,
-                     char* cmdLine, int only_header)
+                     char* cmdLine, int /*execute*/, int only_header)
 {
 	/*!
    *This is the code for manage a .mscgi file.

@@ -1667,7 +1667,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-    ret = lcgi.sendCGI(td, s, td->filenamePath, data, only_header);
+    ret = lcgi.sendCGI(td, s, td->filenamePath, data, 0,  only_header);
     if(data)
       delete [] data;
     return ret;
@@ -1679,7 +1679,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-    ret = lcgi.sendCGI(td, s, td->filenamePath, 0, only_header);
+    ret = lcgi.sendCGI(td, s, td->filenamePath, data, 1, only_header);
     if(data)
       delete [] data;
     return ret;
@@ -1692,7 +1692,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		ret = lisapi.sendISAPI(td, s, td->filenamePath, data, only_header);
+		ret = lisapi.sendISAPI(td, s, td->filenamePath, data, 0, only_header);
     if(data)
       delete [] data;
     return ret & keepalive;
@@ -1706,7 +1706,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-  	ret = lisapi.sendISAPI(td, s, td->filenamePath, 0, only_header);
+  	ret = lisapi.sendISAPI(td, s, td->filenamePath, data, 1, only_header);
     if(data)
       delete [] data;
     return ret & keepalive;
@@ -1729,7 +1729,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		{
       if(data)
         delete [] data;
-			return lmscgi.sendMSCGI(td, s, td->filenamePath, target,only_header)&keepalive;
+			return lmscgi.sendMSCGI(td, s, td->filenamePath, 
+                              target, 1, only_header)&keepalive;
 		}
     if(data)
       delete [] data;
@@ -1768,7 +1769,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
     }
     if(data)
       delete [] data;
-    ret=lwincgi.sendWINCGI(td, s, cgipath, only_header);
+    ret=lwincgi.sendWINCGI(td, s, cgipath, 1, only_header);
 		if(cgipath)
 	      delete [] cgipath;
 		return (ret&keepalive);

@@ -581,7 +581,7 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
  *Main procedure to call an ISAPI module.
  */
 int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection, 
-                     char* scriptpath,char *cgipath, int only_header)
+                     char* scriptpath,char *cgipath, int execute,int only_header)
 {
   /*!
    *ISAPI works only on the windows architecture.
@@ -600,7 +600,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
 	PFN_HTTPEXTENSIONPROC HttpExtensionProc;
 
 	char fullpath[MAX_PATH*2];/*! Under windows there is MAX_PATH so use it. */
-	if(cgipath==0)
+	if(!execute)
 	{
 		if(cgipath[0])
 			sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath);

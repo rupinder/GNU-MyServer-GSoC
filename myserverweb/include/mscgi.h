@@ -47,7 +47,7 @@ public:
 	*Use this to send a MSCGI file through the HTTP protocol.
 	*/
 	int sendMSCGI(httpThreadContext*,LPCONNECTION s,char* exec,
-                char* cmdLine=0, int only_header=0);
+                char* cmdLine=0, int execute=0, int only_header=0);
 	typedef int (*CGIMAIN)(char*,cgi_data*); 
 };
 #endif

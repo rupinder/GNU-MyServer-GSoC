@@ -61,7 +61,7 @@ int cgi::cgi_timeout = SEC(15);
  *Run the standard CGI and send the result to the client.
  */
 int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
-                 char *cgipath, int only_header)
+                 char *cgipath, int execute, int only_header)
 {
 
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
@@ -152,17 +152,12 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
     return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
   }
 
-
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
 
-	/*!
-   *If the cgipath is null we must execute the scriptpath file as an executable.
-   *Then to determine if is a nph CGI we must use the scriptpath
-   *string.
-   */
-	if(cgipath == 0)
+	if(!execute)
 	{
+
     int filenameLen = 0;
     MYSERVER_FILE::getFilenameLength(scriptpath, &filenameLen);
     
@@ -185,6 +180,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
      */
     cmdLineLen = strlen(td->scriptFile) + td->pathInfo[0] ? 
                         strlen(&td->pathInfo[1]) : strlen (td->pathInfo) +1;
+    if(cgipath)
+      cmdLineLen += strlen(cgipath) + 1;
     cmdLine = new char[cmdLineLen];
     if(cmdLine == 0)
     {
@@ -204,9 +201,12 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
       /*! If we cannot allocate the memory return a 500 error message. */
       return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
-
-		sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, 
-            td->pathInfo?&td->pathInfo[1]:td->pathInfo);
+    if(cgipath)
+      sprintf(cmdLine, "cmd /c %s %s %s",cgipath, td->scriptFile, 
+              td->pathInfo?&td->pathInfo[1]:td->pathInfo);
+    else
+      sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, 
+              td->pathInfo?&td->pathInfo[1]:td->pathInfo);
 
 		nph=(strnicmp("nph-", td->scriptFile, 4)==0)?1:0;
 #endif
@@ -215,11 +215,11 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 	{
     int cmdLineLen;
     /*! Check if the CGI executable exists. */
-		if(!MYSERVER_FILE::fileExists(cgipath))
+		if(cgipath && (!MYSERVER_FILE::fileExists(cgipath)))
 		{
 			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite("Cannot find ");
-			((vhost*)td->connection->host)->warningsLogWrite(cgipath);
+      ((vhost*)td->connection->host)->warningsLogWrite(cgipath);
 			((vhost*)td->connection->host)->warningsLogWrite(" executable\r\n");
 			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
       delete [] filename;
@@ -235,7 +235,10 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 			return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
     /*! Alloc the cmdLine memory. */
-    cmdLineLen = strlen(td->scriptFile) + strlen(cgipath) +2 ;
+    cmdLineLen = strlen(td->scriptFile) + 1 ;
+    if(cgipath)
+      cmdLineLen+=strlen(cgipath) +1;
+
     cmdLine = new char[cmdLineLen];
     if(cmdLine == 0)
     {
@@ -255,8 +258,16 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
       /*! If we cannot allocate the memory return a 500 error message. */
       return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
-		sprintf(cmdLine, "%s %s", cgipath, td->scriptFile);
-		nph=(strnicmp("nph-", td->cgiFile, 4)==0)?1:0;
+    if(cgipath)
+    {
+      sprintf(cmdLine, "%s %s", cgipath, td->scriptFile);
+      nph=(strnicmp("nph-", td->cgiFile, 4)==0)?1:0;
+    }
+    else
+    {
+      sprintf(cmdLine, "%s", td->scriptFile);
+      nph=(strnicmp("nph-", td->scriptFile, 4)==0)?1:0;
+    }
 	}
 
 

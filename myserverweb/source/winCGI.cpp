@@ -36,21 +36,26 @@ extern "C"
 }
 
 int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename, 
-                       int only_header)
+                       int /*execute*/, int only_header)
 {
 #ifdef WIN32
 	u_long nbr;
 	char cmdLine[MAX_PATH + 120];/*! Use MAX_PATH under windows. */
 	char  dataFilePath[MAX_PATH];/*! Use MAX_PATH under windows. */
   char outFilePath[MAX_PATH];  /*! Use MAX_PATH under windows. */
-
+  char *buffer;
 	MYSERVER_FILE DataFileHandle, OutFileHandle;
+	time_t ltime=100;
+	int gmhour;
+	int bias;
+
+  int ret;
+	char execname[MAX_PATH];/*! Use MAX_PATH under windows. */
+	char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
 
 	if(!MYSERVER_FILE::fileExists(filename))
 		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_404);
 
-	char execname[MAX_PATH];/*! Use MAX_PATH under windows. */
-	char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
 	MYSERVER_FILE::splitPath(filename,pathname,execname);
 	
 	getdefaultwd(dataFilePath,MAX_PATH);
@@ -64,7 +69,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename,
 	/*!
    *The WinCGI protocol uses a .ini file for the communication between the processes.
    */
-	int ret=DataFileHandle.openFile(dataFilePath,
+	ret=DataFileHandle.openFile(dataFilePath,
                              MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	if ( ret ) 
 	{
@@ -74,7 +79,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename,
 		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	td->buffer2->SetLength(0);
-	char *buffer=(char*)td->buffer2->GetBuffer();
+	buffer=(char*)td->buffer2->GetBuffer();
 
 	strcpy(buffer,"[CGI]\r\n");
 	DataFileHandle.writeToFile(buffer,7,&nbr);
@@ -168,9 +173,9 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename,
 	/*!
    *Compute the local offset from the GMT time
    */
-	time_t ltime=100;
-	int gmhour=gmtime( &ltime)->tm_hour;
-	int bias=localtime(&ltime)->tm_hour-gmhour;
+	ltime=100;
+	gmhour=gmtime( &ltime)->tm_hour;
+	bias=localtime(&ltime)->tm_hour-gmhour;
 
 	sprintf(buffer,"GMT Offset=%i\r\n",bias);
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
