@@ -270,7 +270,9 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	}
 
 	td->buffer[0]='\0';
-
+	/*If a Range was requested send 206 and not 200 for success*/
+	if((lastByte == -1)|(firstByte))
+		td->response.httpStatus = 206;
 	sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
 	time_t lastmodTime=h.getLastModTime();
 	getRFC822LocalTime(lastmodTime,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
