@@ -45,8 +45,8 @@ extern "C"
 extern "C" {
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <sys/ioctl.h>
+#include <netinet/in.h>  
 #include <netdb.h>
 #include <stdio.h>
 #include <unistd.h>

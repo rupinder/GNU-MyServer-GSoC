@@ -28,7 +28,6 @@ extern "C" {
 #include <stdio.h>
 #ifndef WIN32
 #include <errno.h>
-#include <getopt.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <signal.h>

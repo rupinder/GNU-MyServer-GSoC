@@ -204,7 +204,7 @@ void cserver::start()
   delete [] buffer;
 
 	/*!
-   *Determine all the IP addresses of the local machine.
+   *Find the IP addresses of the local machine.
    */
 	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::gethostbyname(serverName);
 	in_addr ia;

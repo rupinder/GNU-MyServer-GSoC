@@ -27,7 +27,6 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
 #endif
@@ -161,6 +160,10 @@ int MYSERVER_SOCKET::listen(int max)
 MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,
                                         int /*!sslHandShake*/)
 {
+#ifdef NOT_WIN
+	socklen_t Connect_Size;
+	int as;
+#endif
 
 	MYSERVER_SOCKET s;
 #ifndef DO_NOT_USE_SSL
@@ -174,8 +177,8 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,
 	s.setHandle(h);
 #endif
 #ifdef NOT_WIN
-	socklen_t Connect_Size = *sockaddrlen;
-	int as = ::accept((int)socketHandle,sa,&Connect_Size);
+	Connect_Size = *sockaddrlen;
+	as = ::accept((int)socketHandle,sa,&Connect_Size);
 	s.setHandle(as);
 #endif
 

@@ -31,7 +31,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
 #include<openssl/rsa.h>
-#include<openssl/engine.h>
 #include<openssl/crypto.h>
 #include<openssl/lhash.h>
 #include<openssl/err.h>

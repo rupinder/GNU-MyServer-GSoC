@@ -790,12 +790,12 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 {
 	unsigned long pLong = 1L;
 	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(server->host);
-
+	struct sockaddr_in sockAddr;
+	int sockLe
   if(hp == 0)
     return -1;
 
-	struct sockaddr_in sockAddr;
-	int sockLen = sizeof(sockAddr);
+  sockLen = sizeof(sockAddr);
   memset(&sockAddr, 0, sizeof(sockAddr));
   sockAddr.sin_family = AF_INET;
 	memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
