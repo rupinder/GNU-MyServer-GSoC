@@ -956,33 +956,38 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 				*Change the URI to reflect the default file name.
 				*/
 				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
-				strcpy(nURL,protocolPrefix);
 				if(!strcmp(td->request.VER,"HTTP/1.1"))
-					strcat(nURL,td->request.HOST);
-				else
-					strcat(nURL,s->localIpAddr);
-				int isPortSpecified=0;
-				for(int i=0;td->request.HOST[i];i++)
 				{
-					if(td->request.HOST[i]==':')
+					strcpy(nURL,protocolPrefix);
+					strcat(nURL,td->request.HOST);
+					int isPortSpecified=0;
+					for(int i=0;td->request.HOST[i];i++)
 					{
-						isPortSpecified	= 1;
-						break;
+						if(td->request.HOST[i]==':')
+						{
+							isPortSpecified	= 1;
+							break;
+						}
+					}
+					if(!isPortSpecified)
+						sprintf(&nURL[strlen(nURL)],":%u",((vhost*)s->host)->port);
+					if(nURL[strlen(nURL)-1]!='/')
+						strcat(nURL,"/");
+					strcat(nURL,td->request.URI);
+					if(nURL[strlen(nURL)-1]!='/')
+						strcat(nURL,"/");
+					strcat(nURL,defaultFileNamePath);
+					if(td->request.URIOPTS[0])
+					{
+						strcat(nURL,"?");
+						strcat(nURL,td->request.URIOPTS);
 					}
 				}
-				if(!isPortSpecified)
-					sprintf(&nURL[strlen(nURL)],":%u",((vhost*)s->host)->port);
-				if(nURL[strlen(nURL)-1]!='/')
-					strcat(nURL,"/");
-				strcat(nURL,td->request.URI);
-				if(nURL[strlen(nURL)-1]!='/')
-					strcat(nURL,"/");
-				strcat(nURL,defaultFileNamePath);
-				if(td->request.URIOPTS[0])
+				else
 				{
-					strcat(nURL,"?");
-					strcat(nURL,td->request.URIOPTS);
+					strcpy(nURL,defaultFileNamePath);/*HTTP/1.0 header can be without HOST specified*/
 				}
+					
 
 				if(sendHTTPRedirect(td,s,nURL))
 					return keepalive;
@@ -1154,10 +1159,12 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		if(!strcmp(td->request.IF_MODIFIED_SINCE,td->response.LAST_MODIFIED))
 			return sendHTTPNonModified(td,s);
 	}
-	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
-		return keepalive;
-	return sendHTTPhardError500(td,s);
+	sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte);
+	return keepalive;
 	
+	/***************************************************************************************************************************************/
+	return sendHTTPhardError500(td,s);/*Why we reach this??????????????????!??????????!???!????!??*/
+	/***************************************************************************************************************************************/
 }
 /*!
 *Log the access using the Common Log Format or the Combined one
@@ -1165,8 +1172,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 {
 	td->buffer2->SetLength(0);
-	*td->buffer2<<a->ipAddr;
-	*td->buffer2<<td->buffersize2;
+	*td->buffer2 << a->ipAddr;
 	*td->buffer2<< " ";
 	
 	if(td->identity[0])
@@ -1191,26 +1197,19 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 	
 	if(td->request.URIOPTS[0])
 	{
-		*td->buffer2 << "?" ;
-		*td->buffer2 << td->request.URIOPTS;
+		*td->buffer2 << "?" << td->request.URIOPTS;
 	}
-	*td->buffer2 << td->request.VER ;
-	*td->buffer2 << "\" " ;
-	*td->buffer2 <<  CMemBuf::IntToStr(td->response.httpStatus);
-	*td->buffer2 << " ";
+	*td->buffer2 << td->request.VER  << "\" " <<  CMemBuf::IntToStr(td->response.httpStatus)  << " ";
 	
-	if(td->response.CONTENT_LENGTH[0] && (strlen(td->response.CONTENT_LENGTH)<HTTP_RESPONSE_CONTENT_LENGTH_DIM))
+	if(td->response.CONTENT_LENGTH[0])
 		*td->buffer2  << td->response.CONTENT_LENGTH;
 	else
 		*td->buffer2 << "0";
         if(strstr((((vhost*)(a->host)))->accessLogOpt,"type=combined"))
         {
-            	*td->buffer2 << " ";
-	    	*td->buffer2  << td->request.REFERER;
-		*td->buffer2 << " " ;
-		*td->buffer2 << td->request.USER_AGENT;            
+            	*td->buffer2 << " "  << td->request.REFERER << " "  << td->request.USER_AGENT;            
         }
-	*td->buffer2 << "\r\n";
+	*td->buffer2 << "\r\n" <<end_str;
         /*
 	*Request the access to the log file then write then append the message
 	*/
@@ -2035,7 +2034,6 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 		if(!strlen(configurationFileManager.getValue(xmlMember)))
 			break;
 		nDefaultFilename++;
-
 	}
 	if(defaultFilename)
 		free(defaultFilename);
