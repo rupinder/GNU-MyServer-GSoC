@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=88
+UnitCount=89
 Type=1
 Ver=1
 ObjFiles=
@@ -964,6 +964,16 @@ BuildCmd=
 FileName=include\dynamiclib.h
 CompileCpp=1
 Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit89]
+FileName=source\Response_RequestStructs.cpp
+CompileCpp=1
+Folder=myserver/hash_dictionary.h
 Compile=1
 Link=1
 Priority=1000

@@ -1061,7 +1061,7 @@ int Server::initialize(int /*!os_ver*/)
 	data=configurationFileManager.getValue("BUFFER_SIZE");
 	if(data)
 	{
-		buffersize=buffersize2=max((u_long)atol(data), 81920);
+		buffersize=buffersize2= (atol(data) > 81920) ?  atol(data) :  81920 ;
 	}
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
