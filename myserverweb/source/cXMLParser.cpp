@@ -88,6 +88,7 @@ cXMLParser::cXMLParser()
 {
 	doc=0;
 	cur=0;
+        prev_cur=0;
 }
 /*!
 *Return the xml Document.
@@ -174,6 +175,7 @@ int cXMLParser::close()
 	xmlFreeDoc(doc);
 	doc=0;
 	cur=0;
+        prev_cur=0;
 	return 0;
 }
 /*!
@@ -211,4 +213,29 @@ void cXMLParser::newfile(const char * root)
 void cXMLParser::addChild(const char * name, const char * value)
 {
    xmlNewTextChild(cur, NULL, (const xmlChar*)name, (const xmlChar*)value);
+}
+/*!
+ *Starts a new sub group (only one level for now)
+ *Returns nothing
+ *name is the name of the sub group
+ */
+void cXMLParser::addGroup(const char * name)
+{
+   if(prev_cur == 0)
+     {
+	prev_cur = cur;
+	cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
+     }
+}
+/*!
+ *Ends the sub group if any (only one level for now)
+ *Returns nothing
+ */
+void cXMLParser::endGroup()
+{
+   if(prev_cur != 0)
+     {
+	cur = prev_cur;
+	prev_cur = 0;
+     }
 }

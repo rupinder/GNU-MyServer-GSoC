@@ -35,6 +35,7 @@ class cXMLParser
 	xmlDocPtr doc;
 	char buffer[250];
 	xmlNodePtr cur;
+        xmlNodePtr prev_cur;
 public:
 	static int startXML();
 	static int cleanXML();
@@ -48,6 +49,7 @@ public:
 	int save(char *filename,int *nbytes=0);
         void newfile(const char * root);
         void addChild(const char * name, const char * value);
-        
+        void addGroup(const char * name);
+        void endGroup();
 };
 #endif
