@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <math.h> // for the log10 function
 #endif
 
-
 // Used by the CRC algorithm
 
 u_int  CMemBuf::crc32Table[256] =
@@ -730,6 +729,11 @@ CMemBuf& CMemBuf::operator<< (unsigned char c)
 CMemBuf& CMemBuf::operator<< (const  CMemBuf &src) 
 {
 	AddBuffer(src.m_buffer, src.m_nSize); 
+	return *this;
+}
+CMemBuf& CMemBuf::operator<< (const string src)
+{
+	AddBuffer((const void*) src.c_str(), src.length());
 	return *this;
 }
 CMemBuf& CMemBuf::operator=(const CMemBuf& src)

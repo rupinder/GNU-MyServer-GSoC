@@ -25,7 +25,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 #include "../stdafx.h"
+#include <iostream>
 
+using namespace std;
 
 #define USE_NEW
 
@@ -99,6 +101,7 @@ public:
 	CMemBuf& operator<< (char c) ;
 	CMemBuf& operator<< (unsigned char c) ;
 	CMemBuf& operator<< (const CMemBuf &src) ;
+	CMemBuf& operator<< (const string src) ;
 public:
 	CMemBuf& operator=(const CMemBuf& src) ;
 	CMemBuf& operator=(const char* src);
