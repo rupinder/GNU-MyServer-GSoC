@@ -21,10 +21,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http_headers.h"
 #include "../include/http_dir.h"
 
-
-#undef min
-#define min( a, b )( ( a < b ) ? a : b  )
-
 extern "C" 
 {
 #ifdef WIN32
@@ -44,6 +40,10 @@ extern "C"
 #define SOCKET_ERROR -1
 #endif
 
+#include <string>
+#include <sstream>
+
+using namespace std;
 
 /*!
  *Constructor for the class.
@@ -213,9 +213,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 #ifdef WIN32
   filename.append("/*");
 #endif
-#ifdef NOT_WIN
-  filename.append("*");
-#endif
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of directory ";
 	*td->buffer2 <<  &td->request.URI[startchar] ;
@@ -279,9 +276,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		}
 		else
 		{
-      char fileSize[20];
-			sprintf(fileSize, "%u bytes", (u_int) fd.size);
-			*td->buffer2 << fileSize;
+      ostringstream fileSize;
+      fileSize << (u_int) fd.size << " bytes";
+			*td->buffer2 << fileSize.str();
 		}
 		*td->buffer2 << "</td>\r\n</tr>\r\n";
 		ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
@@ -299,14 +296,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
               
   if(td->request.HOST[0])
   {    
-    char port_buff[6];
+    ostringstream portBuff;
     *td->buffer2 << " on ";
     *td->buffer2 << td->request.HOST.c_str() ;
     *td->buffer2 << " Port ";
-
-    u_short port = td->connection->getLocalPort();
-    sprintf(port_buff,"%u", port);
-    *td->buffer2 << port_buff;
+    portBuff << td->connection->getLocalPort();
+    *td->buffer2 << portBuff.str();
   }
 	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
 	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(),
@@ -328,9 +323,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
 		td->response.CONNECTION.assign( "Keep-Alive");
   {
-    char tmp[11];
-    sprintf(tmp, "%u", (u_int)td->outputData.getFileSize());
-    td->response.CONTENT_LENGTH.assign(tmp);
+    ostringstream tmp;
+    tmp << td->outputData.getFileSize();
+    td->response.CONTENT_LENGTH.assign(tmp.str());
   }
 	/*! If we haven't to append the output build the HTTP header and send the data.  */
 	if(!td->appendOutputs)
