@@ -618,3 +618,24 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+
+[Unit54]
+FileName=include\protocols_manager.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+
+[Unit55]
+FileName=source\protocols_manager.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=

@@ -214,6 +214,8 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	}
 	if(!yetoutputted)
 	{
+		if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+			strcpy(td->response.CONNECTION,"Keep-Alive");
 		/*!
 		*Don't send any other HTTP header if the CGI executable has the nph-.... form name.
 		*/
@@ -251,9 +253,9 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	MYSERVER_FILE::deleteFile(td->inputDataPath);
 
 	/*!
-	*By default don't close the connection.
+	*Don't close the socket for Keep-Alive connections.
 	*/
-	return 1;
+	return (!lstrcmpi(td->response.CONNECTION,"Keep-Alive"));
 }
 /*!
 *Write the string that contain the CGI environment to cgiEnvString.

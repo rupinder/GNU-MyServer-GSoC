@@ -155,6 +155,9 @@
 				RelativePath="source\cserver.cpp">
 			</File>
 			<File
+				RelativePath="source\protocols_manager.cpp">
+			</File>			
+			<File
 				RelativePath="source\fastCGI.cpp">
 			</File>
 			<File
@@ -275,6 +278,9 @@
 			<File
 				RelativePath="include\protocol.h">
 			</File>
+			<File
+				RelativePath="include\protocols_manager.h">
+			</File>			
 			<File
 				RelativePath="include\security.h">
 			</File>

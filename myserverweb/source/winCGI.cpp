@@ -237,6 +237,8 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 			break;
 		}
 	}
+	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+		strcpy(td->response.CONNECTION,"Keep-Alive");	
 	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
 	/*!
 	*Always specify the size of the HTTP contents.

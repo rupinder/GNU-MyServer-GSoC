@@ -174,6 +174,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			int len=ConnInfo->headerSize-headerSize;
 			strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
 			http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
+			if(!lstrcmpi(&ConnInfo->td->request.CONNECTION,"Keep-Alive"))
+				strcpy(&ConnInfo->td->response.CONNECTION,"Keep-Alive");			
 			http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
 
 			ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0);

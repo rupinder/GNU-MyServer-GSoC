@@ -258,6 +258,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 			((http*)td->lhttp)->sendHTTPRedirect(td,connection,nURL);
 			break;
 		}
+		if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+			strcpy(td->response.CONNECTION,"Keep-Alive");		
 		http_headers::buildHTTPResponseHeader(td->buffer2,&td->response);
 		if(td->connection->socket.send(td->buffer2,(int)strlen(td->buffer2), 0)==0)
 		{
