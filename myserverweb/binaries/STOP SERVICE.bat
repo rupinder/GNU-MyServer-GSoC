@@ -1,2 +1,2 @@
-control.exe STOP
+control.exe STOPSERVICE
 exit

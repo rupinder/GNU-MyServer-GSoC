@@ -325,10 +325,32 @@ void cserver::start()
 	while(!mustEndServer)
 	{
 #ifdef WIN32
-		/*
-		*Control if we must end the application every second.
-		*/
-		Sleep(SEC(1));
+		Sleep(1);
+
+		DWORD cNumRead,i; 
+		INPUT_RECORD irInBuf[128]; 
+		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
+		for (i = 0; i < cNumRead; i++) 
+		{
+			switch(irInBuf[i].EventType) 
+			{ 
+				case KEY_EVENT:
+					if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
+						continue;
+					if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
+					{
+						if((irInBuf[i].Event.KeyEvent.dwControlKeyState & LEFT_CTRL_PRESSED)|(irInBuf[i].Event.KeyEvent.dwControlKeyState & RIGHT_CTRL_PRESSED))
+						{
+							printf ("%s\n",languageParser.getValue("MSG_SERVICESTOP"));
+							this->stop();
+						}
+					}
+
+					break; 
+				default: 
+					break; 
+			} 
+		}
 #else
 		sleep(1);
 #endif

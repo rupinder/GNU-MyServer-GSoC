@@ -1017,7 +1017,7 @@ u_long validHTTPResponse(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsp
 	{
 		if(req[i]=='\n')
 		{
-			if((req[i+2]=='\n')|(req[i+1]=='\0'))
+			if((req[i+2]=='\n')|(req[i+1]=='\0')|(req[i+1]=='\n'))
 			{
 				maxTotchars=i+3;
 				if(maxTotchars>buffersize)
@@ -1392,6 +1392,8 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 	token = strtok( token, cmdseps );
 	do
 	{
+		if(!token)
+			break;
 		/*
 		*Reset the flag lineControlled.
 		*/
@@ -1518,7 +1520,8 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		if(!lineControlled)
 		{
 			token = strtok( NULL, "\n" );
-			strcat(response->OTHER,token);
+			if(token)
+				strcat(response->OTHER,token);
 			strcat(response->OTHER,"\r\n");
 		}
 		token = strtok( NULL, cmdseps );

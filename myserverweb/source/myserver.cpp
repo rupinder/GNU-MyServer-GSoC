@@ -42,7 +42,6 @@ extern "C" {
 void console_service (int, char **);
 
 #ifdef WIN32
-int __stdcall control_handler(u_long control_type);
 void __stdcall myServerCtrlHandler(u_long fdwControl);
 void __stdcall myServerMain (u_long argc, LPTSTR *argv); 
 void runService();
@@ -99,7 +98,7 @@ int main (int argn, char **argc)
 	{
 		if(!lstrcmpi(&cmdLine[i],"CONSOLE"))
 		{
-			console_service(0,0);
+			console_service(argn,argc);
 		}
 #ifdef WIN32
 		if(!lstrcmpi(&cmdLine[i],"SERVICE"))
@@ -118,7 +117,8 @@ void console_service (int, char **)
     printf ("starting in console mode\n");
 
 #ifdef WIN32
-	SetConsoleCtrlHandler (control_handler, TRUE);
+	SetConsoleCtrlHandler (NULL, TRUE);
+	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_PROCESSED_INPUT);
 #endif
 
 	printf("started in console mode\n");
@@ -199,22 +199,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 	}
 	SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 }
-/*
-*Terminate the application on the pression of CTRL+C or CTRL+BREAK.
-*/
-int __stdcall control_handler (u_long control_type)
-{
-	switch (control_type)
-	{
-		case CTRL_BREAK_EVENT:
-		case CTRL_C_EVENT:
-			printf ("%s\n",lserver->languageParser.getValue("MSG_SERVICESTOP"));
-			server.stop();
-			return (TRUE);
 
-	}
-	return (FALSE);
-}
 
 /*
 *Run myServer like a NT service.

@@ -178,13 +178,19 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 			Destroy();
 			return;
 		}
-		if(!memcmp(&cmdLine[i]," CONSOLE",8))
+		if(!memcmp(&cmdLine[i]," STARTCONSOLE",8))
 		{
 			runConsole((wxCommandEvent)0);
 			Destroy();
 			return;
 		}
-		if(!memcmp(&cmdLine[i]," SERVICE",8))
+		if(!memcmp(&cmdLine[i]," STOPSERVICE",8))
+		{
+			stopService((wxCommandEvent)0);
+			Destroy();
+			return;
+		}
+		if(!memcmp(&cmdLine[i]," STARTSERVICE",8))
 		{
 			runService((wxCommandEvent)0);
 			Destroy();

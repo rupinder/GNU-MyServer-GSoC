@@ -1,2 +1,2 @@
-control.exe START
+control.exe STARTSERVICE
 exit

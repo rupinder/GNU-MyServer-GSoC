@@ -1,2 +1,2 @@
-myserver.exe CONSOLE
+myserver.exe STARTCONSOLE
 exit

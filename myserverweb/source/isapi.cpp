@@ -407,9 +407,7 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		preparePrintError();
-		printf("ReadClientExport: invalid hConn\r\n");
-		endPrintError();
+		((vhost*)(ConnInfo->td->connection->host))->ms_warningsLogWrite("ReadClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
 	ms_ReadFromFile(ConnInfo->td->inputData ,(char*)lpvBuffer,*lpdwSize,&NumRead);
@@ -441,6 +439,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 		endPrintError();
 		return FALSE;
 	}
+
 	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
 	{
 		if(buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
