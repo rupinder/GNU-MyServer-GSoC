@@ -169,6 +169,15 @@ int CMemBuf::SetBuffer(const void* pAdr, u_int size)
 	return 1;
 }
 
+void CMemBuf::SetExternalBuffer(const void* pAdr, u_int size)
+{
+	ASSERT(pAdr != NULL);
+	Free();
+	m_bCanDelete = false;
+	m_buffer = (char*) pAdr;
+	m_nRealSize = m_nSize = size;
+}
+
 void* CMemBuf::GetBufferSetLength(u_int newSize)
 {
 	SetLength(newSize);

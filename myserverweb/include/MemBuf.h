@@ -56,6 +56,7 @@ public:
 	~CMemBuf() {if (m_buffer != NULL && m_bCanDelete) delete [] m_buffer;};
 public:
 	int SetBuffer(const void* pAdr, u_int size);
+	void SetExternalBuffer(const void* pAdr, u_int size);
 	void SetLength(u_int newSize);
 
 	void AddBuffer(const void* pAdr, u_int size);
