@@ -68,6 +68,7 @@ struct HTTP_REQUEST_HEADER
 	char URIOPTS[1024];		
 	char *URIOPTSPTR;		
 	char REFERER[MAX_PATH];	
+	char FROM[MAX_PATH];
 	char HOST[128];			
 	char OTHER[256];
 	char RANGETYPE[12];		

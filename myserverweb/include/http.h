@@ -35,6 +35,7 @@ struct httpThreadContext
 	u_long buffersize2;
 	u_long id;
 	u_long nBytesToRead;
+	u_long nHeaderChars;
 	HTTP_RESPONSE_HEADER  response;
 	HTTP_REQUEST_HEADER  request;
 	char filenamePath[MAX_PATH];

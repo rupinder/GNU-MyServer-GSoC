@@ -188,21 +188,22 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	}
 	if(!yetoutputted)
 	{
+		/*
+		*Don't send any other HTTP header if the CGI executable has the nph-.... form name.
+		*/
+		if(nph)
+		{
+			resetHTTPResponse(&(td->response));
+		}
+		buildHTTPResponseHeaderStruct(td,td->buffer2);
+		/*
+		*Always specify the size of the HTTP contents.
+		*/
 		sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
 		buildHTTPResponseHeader(td->buffer,&td->response);
-		/*
-		*If there is an extra header, send lstrlen(td->buffer)-2 because the
-		*last two characters are \r\n that terminating the HTTP header.
-		*Don't send any header if the CGI executable has the nph-.... form name.
-		*/
-		if(!nph)
-		{
-			if(headerSize)
-				ms_send(s->socket,td->buffer,lstrlen(td->buffer)-2, 0);
-			else
-				ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
-		}
-		ms_send(s->socket,td->buffer2,nBytesRead, 0);
+		ms_send(s->socket,td->buffer,strlen(td->buffer), 0);
+		ms_send(s->socket,(char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+
 	}
 	
 	/*

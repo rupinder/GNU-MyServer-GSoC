@@ -185,7 +185,7 @@ char *ms_getdefaultwd(char *path,int len)
 void getComputerName(char *dest,u_long maxLen)
 {
 #ifdef WIN32
-	gethostname(dest,maxLen);
+	ms_gethostname(dest,maxLen);
 #endif
 }
 
@@ -199,7 +199,7 @@ int ms_setcwd(char *dir)
 #endif
 }
 /*
-*Sleep a thread.
+*Sleep the caller thread.
 */
 void wait(u_long time)
 {

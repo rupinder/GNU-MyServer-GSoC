@@ -142,3 +142,9 @@ u_long bytesToRead(MYSERVER_SOCKET c)
 	return nBytesToRead;
 #endif
 }
+int ms_gethostname(char *name,int namelen)
+{
+#ifdef WIN32
+	return gethostname(name,namelen);
+#endif
+}

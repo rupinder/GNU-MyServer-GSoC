@@ -203,6 +203,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		case HSE_STATUS_SUCCESS_AND_KEEP_CONN:
 			retvalue=1;
 			break;
+		case 0:
 		case HSE_STATUS_SUCCESS:
 		case HSE_STATUS_ERROR:
 		default:
@@ -234,17 +235,21 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 	switch (dwHSERRequest) 
 	{
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
-		case HSE_REQ_MAP_URL_TO_PATH:
-			char URL[MAX_PATH];
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
+			getPath(mapInfo->lpszPath,(char*)lpvBuffer,FALSE);
+			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
+			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
+			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT|HSE_URL_FLAGS_EXECUTE;
+			break;
+		case HSE_REQ_MAP_URL_TO_PATH:
+			char URL[MAX_PATH];
 			if(((char*)lpvBuffer)[0])
 				lstrcpy(URL,(char*)lpvBuffer);
 			else
 				lstrcpyn(URL,ConnInfo->td->request.URI,lstrlen(ConnInfo->td->request.URI)-lstrlen(ConnInfo->td->pathInfo)+1 );
 			getPath((char*)lpvBuffer,URL,FALSE);
 			*lpdwSize=lstrlen((char*)lpvBuffer);
-			lstrcpy(mapInfo->lpszPath,(char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
 			return ISAPIRedirect(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
@@ -258,8 +263,6 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 		case HSE_REQ_DONE_WITH_SESSION:
 			ConnInfo->td->response.httpStatus=*(DWORD*)lpvBuffer;
 			SetEvent(ConnInfo->ISAPIDoneEvent);
-			break;
-		case HSE_REQ_ASYNC_READ_CLIENT:
 			break;
 		case HSE_REQ_IS_KEEP_CONN:
 			if(!lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive"))
@@ -378,31 +381,133 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID lpvBuffer, LPDWORD lpdwSize) 
 {
 	ConnTableRecord *ConnInfo;
-
+	BOOL ret =TRUE;
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
 		warningsLogWrite("GetServerVariableExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	/*
-	*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
-	*/
-	((char*)lpvBuffer)[0]='\0';
-	char *localEnv=ConnInfo->envString;
-	int variableNameLen=(int)strlen(lpszVariableName);
-	for(u_long i=0;;i+=(u_long)strlen(&localEnv[i])+1)
+	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
 	{
-		if(((localEnv[i+variableNameLen])=='=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
+		if(buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
+			ret=TRUE;
+		else
 		{
-			strncpy((char*)lpvBuffer,&localEnv[i+variableNameLen+1],*lpdwSize);
-			break;
+            SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			ret=FALSE;
 		}
-		else if((localEnv[i]=='\0') && (localEnv[i+1]=='\0'))
+			
+	}
+	else
+	{
+		/*
+		*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
+		*/
+		((char*)lpvBuffer)[0]='\0';
+		char *localEnv=ConnInfo->envString;
+		int variableNameLen=(int)strlen(lpszVariableName);
+		for(u_long i=0;;i+=(u_long)strlen(&localEnv[i])+1)
 		{
-			break;
+			if(((localEnv[i+variableNameLen])=='=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
+			{
+				strncpy((char*)lpvBuffer,&localEnv[i+variableNameLen+1],*lpdwSize);
+				break;
+			}
+			else if((localEnv[i]=='\0') && (localEnv[i+1]=='\0'))
+			{
+				break;
+			}
 		}
 	}
 	*lpdwSize=lstrlen((char*)lpvBuffer);
-	return TRUE;
+	return ret;
+}
+/*
+*Build the string that contains all the HTTP headers.
+*/
+BOOL buildAllHttpHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWORD dwMaxLen)
+{
+	DWORD valLen=0;
+	DWORD maxLen=*dwMaxLen;
+	char *ValStr=(char*)output;
+	if(td->request.ACCEPT[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_ACCEPT:%s\n",td->request.ACCEPT);
+	}
+	else 
+		return 0;
+	if(td->request.ACCEPTLAN[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_ACCEPT_LANGUAGE:%s\n",td->request.ACCEPTLAN);
+	}
+	else 
+		return 0;
+	if(td->request.ACCEPTENC[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_ACCEPT_ENCODING:%s\n",td->request.ACCEPTENC);
+	}
+	else 
+		return 0;
+	if(td->request.CONNECTION[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_CONNECTION:%s\n",td->request.CONNECTION);
+	}
+	else 
+		return 0;
+	if(td->request.COOKIE[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_COOKIE:%s\n",td->request.COOKIE);
+	}
+	else 
+		return 0;
+	if(td->request.HOST[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_HOST:%s\n",td->request.HOST);
+	}
+	else 
+		return 0;
+	if(td->request.DATE[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_DATE:%s\n",td->request.DATE);
+	}
+	else 
+		return 0;
+	if(td->request.MODIFIED_SINCE[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_IF_MODIFIED_SINCE:%s\n",td->request.MODIFIED_SINCE);
+	}
+	else 
+		return 0;
+	if(td->request.REFERER[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_REFERER:%s\n",td->request.REFERER);
+	}
+	else 
+		return 0;
+	if(td->request.PRAGMA[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_PRAGMA:%s\n",td->request.PRAGMA);
+	}
+	else 
+		return 0;
+	if(td->request.USER_AGENT[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_USER_AGENT:%s\n",td->request.USER_AGENT);
+	}
+	else 
+		return 0;
+	if(td->request.VER[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_MIME_VERSION:%s\n",td->request.VER);
+	}
+	else 
+		return 0;
+	if(td->request.FROM[0] && (valLen+30<maxLen))
+	{
+		valLen+=sprintf(&ValStr[strlen(ValStr)],"HTTP_FROM:%s\n",td->request.FROM);
+	}
+	else 
+		return 0;
+	return 1;
 }
