@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=73
+UnitCount=75
 Type=1
 Ver=1
 ObjFiles=
@@ -25,7 +25,7 @@ CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000000000000
+CompilerSettings=0000000000000001000000
 UseCustomMakefile=0
 CustomMakefile=
 
@@ -821,7 +821,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit74]
-FileName=include\log_manager.h
+FileName=source\log_manager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -831,7 +831,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit75]
-FileName=source\log_manager.cpp
+FileName=include\log_manager.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -839,3 +839,4 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+

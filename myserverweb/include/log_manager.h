@@ -27,11 +27,11 @@ class MYSERVER_LOG_MANAGER
 {
 private:
   MYSERVER_FILE file;
+  int type;
   /*!
    *loaded is used to store if the file object is initialized correctly.
    */
   int loaded;
-  int type;
   int max_size;
 	myserver_mutex mutex;
 public:

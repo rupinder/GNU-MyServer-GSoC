@@ -69,6 +69,7 @@ int mustEndServer;
 
 cserver::cserver()
 {
+  logManager = new MYSERVER_LOG_MANAGER();
 	threads = 0;
   toReboot = 0;
   autoRebootEnabled = 1;
@@ -85,7 +86,7 @@ cserver::cserver()
  */
 cserver::~cserver()
 {
-
+ delete logManager;
 }
 
 /*!
@@ -104,7 +105,7 @@ void cserver::start()
    */
 	lserver=this;
 
-  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
+  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
   {
 #ifdef WIN32
 	/*!
@@ -126,7 +127,7 @@ void cserver::start()
   /*!
    *Print the MyServer signature only if the log writes to the console.
    */
-  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
+  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
   {
 
     char *software_signature=new char[200];
@@ -137,14 +138,14 @@ void cserver::start()
 	
       i=(u_long)strlen(software_signature);
       while(i--)
-        logManager.write("*");
-      logManager.writeln("");
-      logManager.write(software_signature);
-      logManager.write("\n");    
+        logManager->write("*");
+      logManager->writeln("");
+      logManager->write(software_signature);
+      logManager->write("\n");    
       i=(u_long)strlen(software_signature);
       while(i--)
-        logManager.write("*");
-      logManager.writeln("");
+        logManager->write("*");
+      logManager->writeln("");
       delete [] software_signature;
     }
   }
@@ -188,7 +189,7 @@ void cserver::start()
 	/*!
    *Get the name of the local machine.
    */
-	MYSERVER_SOCKET::gethostname(serverName, (u_long)sizeof(serverName));
+	MYSERVER_SOCKET::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
   buffer = new char[strlen(languageParser.getValue("MSG_GETNAME")) + 
                     strlen(serverName) + 3];
   if(buffer == 0)
@@ -1719,7 +1720,7 @@ int cserver::loadSettings()
   /*
    *Print this message only if the log outputs to the console screen.
    */
-  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
     logWriteln(languageParser.getValue("MSG_BREAK"));
 
   /*!
@@ -1733,7 +1734,7 @@ int cserver::loadSettings()
  */
 int cserver::logLockAccess()
 {
-  return logManager.requestAccess();
+  return logManager->requestAccess();
 }
 
 /*!
@@ -1741,7 +1742,7 @@ int cserver::logLockAccess()
  */
 int cserver::logUnlockAccess()
 {
-  return logManager.terminateAccess();
+  return logManager->terminateAccess();
 }
 
 /*!
@@ -1756,10 +1757,10 @@ int cserver::reboot()
   toReboot = 0;
 
   /*! Do a beep if outputting to console. */
-  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+  if(logManager->getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
   {
     char beep[]={(char)0x7, '\0'};
-    logManager.write(beep);
+    logManager->write(beep);
   }
   
   logWriteln("Rebooting...");
@@ -2036,7 +2037,7 @@ int cserver::logWriteln(char* str)
   /*!
    *If the log receiver is not the console output a timestamp.
    */
-  if(logManager.getType() != MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+  if(logManager->getType() != MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
   {
     char time[38];
     time[0]='[';
@@ -2048,10 +2049,10 @@ int cserver::logWriteln(char* str)
     time[len+3]='-';
     time[len+4]=' ';
     time[len+5]='\0';
-    if(logManager.write(time))
+    if(logManager->write(time))
       return 1;
   }
-  return logManager.writeln(str);
+  return logManager->writeln(str);
 }
 
 /*!
@@ -2059,7 +2060,7 @@ int cserver::logWriteln(char* str)
  */
 int cserver::logPreparePrintError()
 {
-  logManager.preparePrintError();
+  logManager->preparePrintError();
   return 0;
 }
 
@@ -2068,7 +2069,7 @@ int cserver::logPreparePrintError()
  */
 int cserver::logEndPrintError()
 {
-  logManager.endPrintError();
+  logManager->endPrintError();
   return 0;
 }
 
@@ -2079,9 +2080,9 @@ int cserver::setLogFile(char* fileName)
 {
   if(fileName == 0)
   {
-    logManager.setType(MYSERVER_LOG_MANAGER::TYPE_CONSOLE);
+    logManager->setType(MYSERVER_LOG_MANAGER::TYPE_CONSOLE);
     return 0;
   }
-  return logManager.load(fileName);
+  return logManager->load(fileName);
 }
 

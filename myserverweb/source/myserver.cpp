@@ -57,20 +57,20 @@ int  write_pidfile(char*);
 void runService();
 void registerService();
 void removeService();
+void RunAsService();
 static char *path;
 
 /*!
  *Change this to reflect the version of the software.
  */
 const char *versionOfSoftware="0.8";
-cserver server;
 int argn;
 char **argv;
 
 #ifdef NOT_WIN
 void Sig_Quit(int signal)
 {
-	lserver->logWriteln("Exiting...");
+	server.logWriteln("Exiting...");
 	sync();
 	server.stop();
 }
@@ -80,7 +80,7 @@ void Sig_Hup(int signal)
   /*!
    *On the SIGHUP signal reboot the server.
    */
-	lserver->rebootOnNextLoop();
+	server.rebootOnNextLoop();
 }
 
 #endif
@@ -145,6 +145,7 @@ static struct argp myserver_argp = {options, parse_opt, args_doc, doc};
 #endif
 
 
+cserver server;
 
 /*!
  *Main function for MyServer
@@ -193,7 +194,7 @@ int main (int argn, char **argv)
 	runas=input.runas;
   if(input.logFileName)
   {
-    if(server.setLogFile(input.logFileName))
+    if(server-.setLogFile(input.logFileName))
     {
       printf("Error loading log file\n");
       return 1;
@@ -221,6 +222,12 @@ int main (int argn, char **argv)
 		{
       registerService();
 			runas = MYSERVER_RUNAS_SERVICE;
+      return 0;
+		}
+		if(!lstrcmpi(argv[1],"RUNSERVICE"))
+		{
+      RunAsService();
+      return 0;
 		}
 		if(!lstrcmpi(argv[1],"UNREGISTER"))
 		{
@@ -229,11 +236,14 @@ int main (int argn, char **argv)
 		}
 		if(!lstrcmpi(argv[1],"SERVICE"))
 		{
+      /*!
+       *Set the log file to use when in service mode.
+       */
 			runas = MYSERVER_RUNAS_SERVICE;
 		}
 	}
 #endif
-
+//      server->setLogFile("logs\\myserver.log");
   /*!
    *Start here the MyServer execution.
    */
@@ -373,11 +383,6 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-    /*!
-     *Set the log file to use when in service mode.
-     */
-    server.setLogFile("logs\\myserver.log");
-
 		server.start();
 	
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
@@ -428,7 +433,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
  */
 void runService()
 {
-	lserver->logWriteln("Running service...");
+	server.logWriteln("Running service...");
 #ifdef WIN32
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
@@ -439,15 +444,15 @@ void runService()
 	{
 		if(GetLastError()==ERROR_INVALID_DATA)
 		{
-			lserver->logWriteln("Invalid data");
+			server.logWriteln("Invalid data");
 		}
 		else if(GetLastError()==ERROR_SERVICE_ALREADY_RUNNING)
 		{
-			lserver->logWriteln("Already running");
+			server.logWriteln("Already running");
 		}
 		else
 		{
-			lserver->logWriteln("Error running service");
+			server.logWriteln("Error running service");
 		}
 	}
 #endif
@@ -507,3 +512,27 @@ void removeService()
 #endif
 }
 
+/*!
+ *Start the service.  
+ */
+void RunAsService()
+{
+#ifdef WIN32
+   SC_HANDLE service,manager;
+
+   manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+   if (manager)
+     {
+	service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
+	if (service)
+	  {
+	     StartService(service,0,NULL);
+	     while (QueryServiceStatus (service, &MyServiceStatus))
+	       if (MyServiceStatus.dwCurrentState != SERVICE_START_PENDING)
+		 break;
+	     CloseServiceHandle (service);
+	     CloseServiceHandle (manager);
+	  }
+     }
+#endif
+}

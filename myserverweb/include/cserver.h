@@ -98,7 +98,7 @@ private:
 	cXMLParser languageParser;
   int autoRebootEnabled;
   int toReboot;
-  MYSERVER_LOG_MANAGER logManager;
+  MYSERVER_LOG_MANAGER *logManager;
   int serverReady;
 	u_long verbosity;
 	u_long buffersize;
