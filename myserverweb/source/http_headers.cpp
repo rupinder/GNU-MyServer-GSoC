@@ -639,12 +639,25 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 		/*!Host*/
 		if(!lstrcmpi(command,"Host"))
 		{
+      int cur = 0;
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_HOST_DIM);
 			if(tokenOff==-1)
         return 0;
 			lineControlled=1;
 			myserver_strlcpy(request->HOST,token,tokenOff+1);
 			request->HOST[tokenOff]='\0';
+      /*!
+       *Do not save the port if specified.
+       */
+      while(request->HOST[cur])
+      {
+        if(request->HOST[cur]==':')
+        {
+          request->HOST[cur]='\0';
+          break;
+        }
+        cur++;
+      }
 			StrTrim(request->HOST," ");
 		}else
 		/*!Content-Encoding*/
