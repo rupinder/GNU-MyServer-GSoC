@@ -83,7 +83,6 @@ int MYSERVER_SOCKET::socket(int af,int type,int protocol,int useSSL)
 	socketHandle=::socket(af,type,protocol);
 	if(sslSocket)
 	{
-		initializeSSLContext();
 		initializeSSL();
 	}
 	return	(int)socketHandle;
@@ -138,34 +137,6 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 	int as = ::accept((int)socketHandle,sa,&Connect_Size);
 	s.setHandle(as);
 #endif
-	if(sslHandShake)
-	{
-		s.setSSL(1);
-		SSL *ssl=s.getSSLConnection();
-		int ssl_accept;
-		SSL_set_accept_state(ssl);
-		SSL_set_fd(ssl,s.getHandle());
-		do
-		{
-			ssl_accept = SSL_accept(ssl);
-		}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP || SSL_get_error(sslConnection,ssl_accept) ==SSL_ERROR_WANT_READ);
-		if(ssl_accept != 1 )
-		{
-			s.freeSSL();
-			s.shutdown(2);
-			s.closesocket();
-			s.setHandle(0);
-		}
-		clientCert = SSL_get_peer_certificate(sslConnection);
-		if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
-		{
-			s.freeSSL();
-			s.shutdown(2);
-			s.closesocket();
-			s.setHandle(0);
-		}
-
-	}
 
 	return s;
 }
@@ -179,7 +150,6 @@ int MYSERVER_SOCKET::closesocket()
 	return ::close((int)socketHandle);
 #endif
 	freeSSL();
-	freeSSLContext();
 }
 MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 {
@@ -274,30 +244,22 @@ int MYSERVER_SOCKET::freeSSL()
 	}
 	return 1;
 }
-int MYSERVER_SOCKET::initializeSSLContext()
+int MYSERVER_SOCKET::setSSLContext(SSL_CTX* context)
 {
-	freeSSLContext();
-	sslContext=SSL_CTX_new(SSLv23_server_method());
-	return 1;
-}
-int MYSERVER_SOCKET::freeSSLContext()
-{
-	if(sslContext)
-	{
-		SSL_CTX_free(sslContext);
-		sslContext=0;
-	}
+	sslContext=context;
 	return 1;
 }
 int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 {
 	freeSSL();
-	if(sslContext==0)
-		initializeSSLContext();
 	if(connection)
 		sslConnection = connection;
 	else
+	{
+		if(sslContext==0)
+			return 0;
 		sslConnection =(SSL *)SSL_new(sslContext);
+	}
 	return 1;
 }
 void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)

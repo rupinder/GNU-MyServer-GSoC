@@ -22,6 +22,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/filemanager.h"
 #include "../include/connectionstruct.h"/*Used for protocols IDs*/
+
+#include<openssl/ssl.h>
+#include<openssl/crypto.h>
+#include<openssl/lhash.h>
+#include<openssl/err.h>
+#include<openssl/bn.h>
+#include<openssl/pem.h>
+#include<openssl/x509.h>
+#include<openssl/rand.h>
+
 class vhost
 {
 	MYSERVER_FILE warningsLogFile;
@@ -32,6 +42,14 @@ public:
 		char hostName[MAX_COMPUTERNAME_LENGTH+1];
 		sHostList *next;
 	}*hostList;/*List of hosts allowed by the vhost*/
+	struct vhsslcontext
+	{
+		SSL_CTX* context;
+		SSL_METHOD* method;
+		char certificateFile[MAX_PATH];
+		char privateKeyFile[MAX_PATH];
+		char password[32];
+	}sslContext;
 
 	struct sIpList
 	{
@@ -42,6 +60,10 @@ public:
 	u_short port;/*Port to listen on*/
 
 	CONNECTION_PROTOCOL protocol;/*Protocol used by the virtual host*/
+	
+	int initializeSSL();
+	int freeSSL();
+	void generateRsaKey();
 
 	char documentRoot[MAX_PATH];/*Path to the document root*/
 	char systemRoot[MAX_PATH];/*Path to the system root*/

@@ -137,6 +137,9 @@ void cserver::start()
 	initISAPI();
 #endif	
 	initializeFASTCGI();
+	
+	SSL_library_init();
+	SSL_load_error_strings();
 
 	printf("%s\n",languageParser.getValue("MSG_SERVER_CONF"));
 
@@ -697,18 +700,6 @@ void cserver::initialize(int OSVer)
 	configurationFileManager.close();
 
 }
-char* cserver::getServerKey()
-{
-	return m_server_key;
-}
-char* cserver::getServerCertificate()
-{
-	return m_server_certificate;
-}
-char* cserver::getCipher()
-{
-	return m_str_cipher;
-}
 /*
 *Get the max size of the logs file
 */
@@ -783,6 +774,9 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	strcpy(nc->localIpAddr,localIpAddr);
 	nc->next =connections;
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	/*
+	*TODO: SSL handshake
+	*/
 	nc->login[0]='\0';
 	nc->nTries=0;
 	nc->password[0]='\0';

@@ -67,8 +67,7 @@ public:
 	SSL* getSSLConnection();
 	int initializeSSL(SSL* connection = 0);
 	int freeSSL();
-	int initializeSSLContext();
-	int freeSSLContext();
+	int setSSLContext(SSL_CTX*);
 	MYSERVER_SOCKET_HANDLE getHandle();
 	int setHandle(MYSERVER_SOCKET_HANDLE);
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr,int len,int type);

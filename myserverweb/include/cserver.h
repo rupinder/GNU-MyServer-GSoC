@@ -70,9 +70,6 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
-	char m_server_key[MAX_PATH];
-	char m_server_certificate[MAX_PATH];
-	char m_str_cipher[MAX_PATH];
 	char ipAddresses[200];/*Buffer that contains all the IP values of the local machine*/
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
@@ -102,9 +99,6 @@ private:
 	int createServerAndListener(u_long);
 	LPCONNECTION connectionToParse;
 public:
-	char* getServerKey();
-	char* getServerCertificate();
-	char* getCipher();
 	u_long connectionWriteAccess;
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	LPCONNECTION getConnectionToParse(int);

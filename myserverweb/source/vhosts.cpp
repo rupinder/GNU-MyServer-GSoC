@@ -848,6 +848,48 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 	out.closeFile();
 }
 /*
+*Initialize SSL on the virtual host
+*/
+int vhost::initializeSSL()
+{
+	sslContext.method = SSLv23_method();
+	sslContext.context = SSL_CTX_new(sslContext.method);
+	if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,sslContext.certificateFile)))
+		return -1;
+	if(!(SSL_CTX_use_PrivateKey_file(sslContext.context,sslContext.privateKeyFile,SSL_FILETYPE_PEM)))
+		return -1;
+#if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
+		SSL_CTX_set_verify_depth(ctx,1);
+#endif
+	
+/*
+*Generate a RSA key
+*/
+void vhost::generateRsaKey()
+{
+	RSA *rsa;
+
+	rsa=RSA_generate_key(512,RSA_F4,NULL,NULL);
+
+	if (!SSL_CTX_set_tmp_rsa(sslContext.context,rsa))
+		return;
+
+	RSA_free(rsa);
+}
+    
+  
+
+
+}
+/*
+*Clean the memory used by SSL
+*/
+int vhost::freeSSL()
+{
+	if(sslContext.context)
+		SSL_CTX_free(sslContext.context);
+}
+/*
 *Get a virtual host by its position in the list
 *Zero based list.
 */
