@@ -36,5 +36,7 @@
 <MSG_LOADED>Caricata</MSG_LOADED>
 <ERR_LOADED>Errore nel caricare</ERR_LOADED>
 <ERR_LOADVHOSTS>Errore nel caricare i virtual hosts</ERR_LOADVHOSTS>
+<MSG_LOADMSCGI>Tipi MSCGI-LIB caricati con successo</MSG_LOADMSCGI>
+<ERR_LOADMSCGI>I tipi MSCGI-LIB non sono stati caricati correttamente</ERR_LOADMSCGI>
 
 </MYSERVER_LANGUAGE_FILE>

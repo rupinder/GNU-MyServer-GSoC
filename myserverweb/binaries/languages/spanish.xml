@@ -40,5 +40,7 @@ por otra aplicación</ERR_BIND>
 <MSG_TSTOPPED>Hilos terminados</MSG_TSTOPPED>
 <MSG_MEMCLEAN>Limpiando memoria...</MSG_MEMCLEAN>
 <MSG_SERVICESTOP>Deteniendo servicio...</MSG_SERVICESTOP>
+<MSG_LOADMSCGI>Tipos MSCGI-LIB cargados correctamente</MSG_LOADMSCGI>
+<ERR_LOADMSCGI>Tipos MSCGI-LIB no se pudieron cargar</ERR_LOADMSCGI>
 
 </MYSERVER_LANGUAGE_FILE>

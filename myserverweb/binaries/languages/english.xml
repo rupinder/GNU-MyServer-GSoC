@@ -36,5 +36,7 @@
 <MSG_MEMCLEAN>Cleaning memory...</MSG_MEMCLEAN>
 <ERR_LOADVHOSTS>Error loading virtual hosts</ERR_LOADVHOSTS>
 <MSG_SERVICESTOP>Service is stopping...</MSG_SERVICESTOP>
+<MSG_LOADMSCGI>MSCGI-LIB loaded successfully</MSG_LOADMSCGI>
+<ERR_LOADMSCGI>MSCGI-LIB cannot be loaded</ERR_LOADMSCGI>
 
 </MYSERVER_LANGUAGE_FILE>

@@ -198,6 +198,14 @@ void cserver::start()
 	*Load the MSCGI library.
 	*/
 	mscgiLoaded=loadMSCGILib();
+	if(mscgiLoaded)
+		printf("%s\n",languageParser.getValue("MSG_LOADMSCGI"));
+	else
+	{
+		preparePrintError();
+		printf("%s\n",languageParser.getValue("ERR_LOADMSCGI"));
+		endPrintError();
+	}
 	/*!
 	*Load the MIME types.
 	*/

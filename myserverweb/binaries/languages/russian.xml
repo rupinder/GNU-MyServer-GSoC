@@ -36,6 +36,8 @@
 <MSG_TSTOPPED>Подпроцессы оборваны</MSG_TSTOPPED>
 <MSG_MEMCLEAN>Очистка памяти</MSG_MEMCLEAN>
 <MSG_SERVICESTOP>Сервис остановлен...</MSG_SERVICESTOP>
+<MSG_LOADMSCGI>MSCGI-LIB типы благополучно загружены</MSG_LOADMSCGI>
+<ERR_LOADMSCGI>MSCGI-LIB типы не могут быть загружены</ERR_LOADMSCGI>
 
 <!--THESE MEMBERS MAX 32 CHARACTERS-->
 <MSG_SENDING>Посылаю</MSG_SENDING>
