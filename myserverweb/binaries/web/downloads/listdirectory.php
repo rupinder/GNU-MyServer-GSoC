@@ -9,7 +9,7 @@ print ('<?xml version="1.0" encoding="UTF-8" ?>');
 print ("\n".'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'."\n".'"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'."\n");
 print ('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<title>MyServer PHP Directory Listing Example</title>
+<title>MyServer - PHP Directory Listing Example</title>
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <style type="text/css">
 body {font-family: verdana, arial, helvetica, tahoma, sans-serif;}
@@ -23,7 +23,7 @@ table{border: 1px solid #666699;}
 </head>
 <body style="color: #666699;">
 <div class="center">
-<big>MyServer PHP Directory Listing Example</big>
+<big>MyServer - PHP Directory Listing Example</big>
 <br /><br />
 <a href="http://www.myserverproject.net"><img src="/icons/logo.png" alt="" style="border: 0px;" /></a>
 <br /><br />
@@ -79,8 +79,8 @@ preg_replace('@<address>.*?</address>@si','',$myserver);
 print ($myserver.'</small>
 </div>'."\n");
 
-	print ('<br />'.getenv("SERVER_SOFTWARE").' on '.getenv("SERVER_NAME").' Port '.getenv("SERVER_PORT")."\n");
-	print ('<br />Connected via <span class="italic">'.getenv("SERVER_PROTOCOL").'</span>');
+print ('<br />'.getenv("SERVER_SOFTWARE").' on '.getenv("SERVER_NAME").' Port '.getenv("SERVER_PORT")."\n");
+print ('<br />Connected via <span class="italic">'.getenv("SERVER_PROTOCOL").'</span>');
 print ('
 </div>
 </body>
