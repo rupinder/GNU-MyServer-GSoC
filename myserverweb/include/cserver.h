@@ -138,6 +138,8 @@ private:
 	char *vhost_configuration_file;
 	char *mime_configuration_file;
 public:
+  int addThread();
+  int removeThread(u_long ID);
   int isServerReady();
   protocols_manager *getProtocolsManager();
   void disableAutoReboot();
@@ -180,8 +182,6 @@ public:
 	void stop();
 	void finalCleanup();
 	int terminate();
-  int addThread();
-  int removeThread(u_long ID);
 }; 
 extern class cserver *lserver;
 #ifdef WIN32

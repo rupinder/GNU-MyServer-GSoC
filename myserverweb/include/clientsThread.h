@@ -36,21 +36,20 @@ class  ClientsTHREAD
 #ifdef HAVE_PTHREAD
 	friend  void* startClientsTHREAD(void* pParam);
 #endif
-
 private:
 	int initialized;
 	u_long id;
 	int err;
   int parsing;
-	int threadIsRunning;
 	int threadIsStopped;
+	int threadIsRunning;
 	u_long buffersize;
 	u_long buffersize2;
+	int isRunning();
+	int isStopped();
 	http *http_parser;
 	https *https_parser;
   control_protocol  *control_protocol_parser;
-	int isRunning();
-	int isStopped();
 	CMemBuf buffer;
 	CMemBuf buffer2;
 	void controlConnections();
