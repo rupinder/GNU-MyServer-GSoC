@@ -69,14 +69,15 @@ int mustEndServer;
 
 cserver::cserver()
 {
-	threads=0;
+	threads = 0;
   toReboot = 0;
   autoRebootEnabled = 1;
-	listeningThreads=0;
-  languages_path=0;
-	main_configuration_file=0;
-  vhost_configuration_file=0;
-	mime_configuration_file=0;
+	listeningThreads = 0;
+  languages_path = 0;
+	main_configuration_file = 0;
+  vhost_configuration_file = 0;
+	mime_configuration_file = 0;
+  serverReady = 0;
 }
 
 /*!
@@ -234,7 +235,8 @@ void cserver::start()
           MYSERVER_FILE::getLastModTime(vhost_configuration_file);
         time_t myserver_mime_conf_now=
           MYSERVER_FILE::getLastModTime(mime_configuration_file);
-        /*If a configuration file was modified reboot the server*/
+
+        /*! If a configuration file was modified reboot the server. */
         if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
             (myserver_mime_conf_now!=-1)) || toReboot)
         {
@@ -301,7 +303,6 @@ void cserver::start()
 	this->terminate();
 	finalCleanup();
 }
-
 /*!
  *Do the final cleanup. Called only once.
  */
@@ -555,15 +556,20 @@ int cserver::terminate()
 	/*!
    *Stop the server execution.
    */
-	u_long i;
-	for(i=0;i<nThreads;i++)
-	{
-		if(verbosity>1)
-			printf("%s\n", languageParser.getValue("MSG_STOPT"));
-		threads[i].stop();
-		if(verbosity>1)
-			printf("%s\n", languageParser.getValue("MSG_TSTOPPED"));
-	}
+  ClientsTHREAD* thread = threads ;
+
+  if(verbosity>1)
+    printf("%s\n", languageParser.getValue("MSG_STOPT"));
+
+  while(thread)
+  {
+    thread->stop();
+    thread = thread->next;
+  }
+
+  if(verbosity>1)
+    printf("%s\n", languageParser.getValue("MSG_TSTOPPED"));
+
 	while(lserver->getListeningThreadCount())
 	{
 		wait(1000);
@@ -590,9 +596,9 @@ int cserver::terminate()
   delete [] vhost_configuration_file;
 	delete [] mime_configuration_file;
 	
-  main_configuration_file=0;
-  vhost_configuration_file=0;
-  mime_configuration_file=0;
+  main_configuration_file = 0;
+  vhost_configuration_file = 0;
+  mime_configuration_file = 0;
   path = 0;
   languages_path = 0;
   vhostList = 0;
@@ -612,12 +618,23 @@ int cserver::terminate()
 	/*!
    *Destroy the connections mutex.
    */
-	delete c_mutex;
-	if(threads)
-		delete [] threads;
-	threads=0;
-	nThreads=0;
-	if(verbosity>1)
+	delete connections_mutex;
+
+  /*!
+   *Terminate all the threads.
+   */
+  thread = threads;
+  while(thread)
+  {
+    ClientsTHREAD* next = thread->next;
+    delete thread;
+    thread = next;
+  }
+	threads = 0;
+  delete threads_mutex;
+
+	nStaticThreads = 0;
+	if(verbosity > 1)
 	{
 		printf("MyServer is stopped.\n\n");
 	}
@@ -637,20 +654,29 @@ void cserver::stopThreads()
 	/*!
    *Wait before clean the threads that all the threads are stopped.
    */
-	u_long i;
-	for(i=0;i<nThreads;i++)
-		threads[i].clean();
+  ClientsTHREAD* thread = threads;
+  while(thread)
+  {
+    thread->clean();
+    thread = thread->next;
+  }
+
 	u_long threadsStopTime=0;
 	for(;;)
 	{
 		threadsStopped=0;
-		for(i=0;i<nThreads;i++)
-			if(threads[i].isStopped())
+
+    thread = threads;
+    while(thread)
+    {
+      if( thread->isStopped() )
 				threadsStopped++;
+      thread = thread->next;
+    }
 		/*!
      *If all the threads are stopped break the loop.
      */
-		if(threadsStopped==nThreads)
+		if(threadsStopped==nStaticThreads)
 			break;
 
 		/*!
@@ -684,12 +710,19 @@ int cserver::initialize(int /*!os_ver*/)
 	/*!
    *Create the mutex for the connections.
    */
-	c_mutex = new myserver_mutex();
+	connections_mutex = new myserver_mutex();
+
+  /*!
+   *Create the mutex for the threads.
+   */
+  threads_mutex = new myserver_mutex();
+
 	/*!
    *Store the default values.
    */
 	u_long nThreadsA=1;
 	u_long nThreadsB=0;
+  currentThreadID = ClientsTHREAD::ID_OFFSET;
 	socketRcvTimeout = 10;
 	connectionTimeout = SEC(25);
 	mustEndServer=0;
@@ -889,7 +922,7 @@ int cserver::initialize(int /*!os_ver*/)
 	{
 		nThreadsA=atoi(data);
 	}
-	data=configurationFileManager.getValue("NTHREADS_B");
+	data = configurationFileManager.getValue("NTHREADS_B");
 	if(data)
 	{
 		nThreadsB=atoi(data);
@@ -899,10 +932,10 @@ int cserver::initialize(int /*!os_ver*/)
 	*The number of the threads used by the server is:
 	*N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive.
 	*/
-	nThreads=nThreadsA*getCPUCount()+nThreadsB;
+	nStaticThreads = nThreadsA*getCPUCount() + nThreadsB;
 
 	/*! Get the max connections number to allow. */
-	data=configurationFileManager.getValue("MAX_CONNECTIONS");
+	data = configurationFileManager.getValue("MAX_CONNECTIONS");
 	if(data)
 	{
 		maxConnections=atoi(data);
@@ -951,7 +984,7 @@ u_long cserver::getTimeout()
  */
 int cserver::addConnection(MYSERVER_SOCKET s, MYSERVER_SOCKADDRIN *asock_in)
 {
-	if(s.getHandle()==0)
+	if( s.getHandle() == 0 )
 		return 0;
 	int ret=1;
 	/*!
@@ -1264,7 +1297,7 @@ dynamic_protocol* cserver::getDynProtocol(char *protocolName)
  */
 int cserver::connections_mutex_lock()
 {
-	c_mutex->myserver_mutex_lock();
+	connections_mutex->myserver_mutex_lock();
 	return 1;
 }
 
@@ -1273,7 +1306,7 @@ int cserver::connections_mutex_lock()
  */
 int cserver::connections_mutex_unlock()
 {
-	c_mutex->myserver_mutex_unlock();
+	connections_mutex->myserver_mutex_unlock();
 	return 1;
 }
 /*!
@@ -1504,36 +1537,15 @@ int cserver::loadSettings()
                             "myserver.xml", this);
 #endif
 
-	myserver_thread_ID ID;
-	if(threads)
-		delete [] threads;
-	threads=new ClientsTHREAD[nThreads];
-  if(threads == 0)
-    return -1;
-	memset(threads, 0, sizeof(ClientsTHREAD)*nThreads);
-	if(threads==0)
+  printf("%s...\n", languageParser.getValue("MSG_CREATET"));
+	for(i=0; i<nStaticThreads; i++)
 	{
-		preparePrintError();
-		printf("%s: Threads creation\n", languageParser.getValue("ERR_ERROR"));
-   	endPrintError();	
-    return -1;
-	}
-	for(i=0;i<nThreads;i++)
-	{
-    int ret;
-		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"), (u_int)i);
-		threads[i].id=(u_long)(i+ClientsTHREAD::ID_OFFSET);
-		ret = myserver_thread::create(&ID,   &::startClientsTHREAD, 
-                                  (void *)&(threads[i].id));
+    ret = addThread();
     if(ret)
-    {
-  		preparePrintError();
-      printf("%s: Threads creation\n", languageParser.getValue("ERR_ERROR"));
-      endPrintError();	  
       return -1;
-    }
-		printf("%s\n", languageParser.getValue("MSG_THREADR"));
 	}
+  printf("%s\n", languageParser.getValue("MSG_THREADR"));
+
   int pathlen = getdefaultwdlen();
   path = new char[pathlen];
   /*! Return 1 if we had an allocation problem.  */
@@ -1550,6 +1562,11 @@ int cserver::loadSettings()
 
 	printf("%s\n", languageParser.getValue("MSG_READY"));
 	printf("%s\n", languageParser.getValue("MSG_BREAK"));
+
+  /*!
+   *Server initialization is now completed.
+   */
+  serverReady = 1;
 }
 
 /*!
@@ -1559,6 +1576,7 @@ int cserver::loadSettings()
 int cserver::reboot()
 {
   int ret = 0;
+  serverReady = 0;
   /*! Reset the toReboot flag. */
   toReboot = 0;
   /*! Print the Reboot message and do a beep(0x7). */
@@ -1579,6 +1597,14 @@ int cserver::reboot()
 
   return ret;
 
+}
+
+/*!
+ *Returns if the server is ready.
+ */
+int cserver::isServerReady()
+{
+  return serverReady;
 }
 
 /*!
@@ -1697,4 +1723,97 @@ char *cserver::getLanguageFile()
 int cserver::isAutorebootEnabled()
 {
   return autoRebootEnabled;
+}
+
+
+/*!
+ *Create a new thread.
+ */
+int cserver::addThread()
+{
+  int ret;
+	myserver_thread_ID ID;
+
+  ClientsTHREAD* newThread = new ClientsTHREAD();
+
+  if(newThread == 0)
+    return -1;
+  
+  newThread->id=(u_long)(++currentThreadID);
+
+  ret = myserver_thread::create(&ID, &::startClientsTHREAD, 
+                                (void *)newThread);
+  if(ret)
+  {
+    preparePrintError();
+    printf("%s: Threads creation\n", languageParser.getValue("ERR_ERROR"));
+    endPrintError();	  
+    delete newThread;
+    return -1;
+  }
+
+  /*!
+   *If everything was done correctly add the new thread to the linked list.
+   */
+
+	threads_mutex->myserver_mutex_lock();
+
+  if(threads == 0)
+  {
+    threads = newThread;
+    threads->next = 0;
+  }
+  else
+  {
+    newThread->next = threads;
+    threads = newThread;
+  }
+  nThreads++;
+
+	threads_mutex->myserver_mutex_unlock();
+
+  return 0;
+}
+
+/*!
+ *Remove a thread.
+ *Return zero if a thread was removed.
+ */
+int cserver::removeThread(u_long ID)
+{
+  /*!
+   *If there are no threads return an error.
+   */
+  if(threads == 0)
+    return -1;
+  int ret_code = 1;
+  threads_mutex->myserver_mutex_lock();
+  ClientsTHREAD *thread = threads;
+  ClientsTHREAD *prev = 0;
+  while(thread)
+  {
+    if(thread->id == ID)
+    {
+      if(prev)
+        prev->next = thread->next;
+      else
+        threads = thread->next;
+      thread->stop();
+      while(!ct->threadIsStopped())
+      {
+        wait(100);
+      }
+      delete thread;
+      ret_code = 0;
+      break;
+    }
+
+    prev = thread;
+    thread = thread->next;
+  }
+  nThreads++;
+
+	threads_mutex->myserver_mutex_unlock();
+  return ret_code;
+
 }

@@ -52,6 +52,7 @@ ClientsTHREAD::ClientsTHREAD()
 {
 	err=0;
 	initialized=0;
+  next = 0;
 }
 ClientsTHREAD::~ClientsTHREAD()
 {
@@ -80,9 +81,7 @@ void * startClientsTHREAD(void* pParam)
 	sigaddset(&sigmask, SIGTERM);
 	sigprocmask(SIG_SETMASK, &sigmask, NULL);
 #endif
-	u_long id=*((u_long*)pParam) - ClientsTHREAD::ID_OFFSET;
-
-	ClientsTHREAD *ct=&lserver->threads[id];
+	ClientsTHREAD *ct=(ClientsTHREAD*)pParam;
 
   /*! Return an error if the thread is initialized. */
 	if(ct->initialized)
@@ -96,18 +95,11 @@ void * startClientsTHREAD(void* pParam)
 	ct->buffer.m_nSizeLimit = ct->buffersize;
 	ct->buffer2.SetLength(ct->buffersize2);
 	ct->buffer2.m_nSizeLimit = ct->buffersize2;
-	
-	ct->http_parser = new http();
-  if(ct->http_parser==0)
-    return (ClientsTHREAD_TYPE)-1;
 
-  ct->https_parser = new https();
-	if(ct->https_parser==0)
-    return (ClientsTHREAD_TYPE)-1;
-
-	ct->control_protocol_parser = new control_protocol();
-  if(ct->control_protocol_parser == 0)
-    return (ClientsTHREAD_TYPE)-1;
+  /*! Built-in protocols will be initialized at the first use. */
+  ct->http_parser = 0;
+  ct->https_parser = 0;
+  ct->control_protocol_parser = 0;
 
 	ct->initialized=1;
 
@@ -115,8 +107,11 @@ void * startClientsTHREAD(void* pParam)
 	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetRealLength());
 	memset((char*)ct->buffer2.GetBuffer(), 0, ct->buffer2.GetRealLength());
 
-	/*! Wait before go in the running loop. */
-	wait(3000);
+	/*! Wait that the server is ready before go in the running loop. */
+  while(!lserver->isServerReady())
+  {
+    wait(500);
+  }
 
 	/*!
    *This function when is alive only call the controlConnections(...) function
@@ -129,7 +124,7 @@ void * startClientsTHREAD(void* pParam)
     ct->parsing = 0;
 		wait(1);
 	}
-	ct->threadIsStopped=1;
+	ct->threadIsStopped = 1;
 	
 	myserver_thread::terminate();
 	return 0;
@@ -208,6 +203,7 @@ void ClientsTHREAD::controlConnections()
 		int retcode=0;
 		c->thread=this;
     dynamic_protocol* dp=0;
+
 		switch(((vhost*)(c->host))->protocol)
 		{
 			/*!
@@ -215,6 +211,12 @@ void ClientsTHREAD::controlConnections()
        *the active connections list.
        */
 			case PROTOCOL_HTTP:
+        if(http_parser == 0)
+        {
+          http_parser = new http();
+          if(http_parser==0)
+            return;
+        }
 				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
                      (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
                      buffer2.GetRealLength(), nBytesToRead, id);
@@ -223,12 +225,24 @@ void ClientsTHREAD::controlConnections()
        *Parse an HTTPS connection request.
        */
 			case PROTOCOL_HTTPS:
+        if(https_parser == 0)
+        {
+          https_parser = new https();
+          if(https_parser==0)
+            return;
+        }
 				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
                      (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
                      buffer2.GetRealLength(), nBytesToRead, id);
 				break;
 			case PROTOCOL_CONTROL:
-				retcode=control_protocol_parser->controlConnection(c, 
+        if(control_protocol_parser)
+        {
+          control_protocol_parser = new control_protocol();
+          if(control_protocol_parser == 0)
+            return;
+        }
+        retcode=control_protocol_parser->controlConnection(c, 
                      (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), 
                      buffer.GetRealLength(), buffer2.GetRealLength(), 
                                                            nBytesToRead, id);
@@ -334,9 +348,12 @@ void ClientsTHREAD::clean()
     wait(100);
   }
 	threadIsRunning=0;
-	delete http_parser;
-	delete https_parser;
-  delete control_protocol_parser;
+  if(http_parser)
+    delete http_parser;
+  if(https_parser)
+    delete https_parser;
+  if(control_protocol_parser)
+    delete control_protocol_parser;
 
 	buffer.Free();
 	buffer2.Free();

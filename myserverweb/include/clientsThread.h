@@ -29,15 +29,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 class  ClientsTHREAD
 {
 	friend class cserver;
+
 #ifdef WIN32
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
 #endif
 #ifdef HAVE_PTHREAD
 	friend  void* startClientsTHREAD(void* pParam);
 #endif
-#ifdef WIN32
-	friend LRESULT CALLBACK MainWndProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
-#endif
+
 private:
 	int initialized;
 	u_long id;
@@ -57,6 +56,7 @@ private:
 	void controlConnections();
 	u_long nBytesToRead;
 public:
+  ClientsTHREAD *next;
 	CMemBuf *GetBuffer();
 	CMemBuf *GetBuffer2();
 	const static u_long ID_OFFSET = 200;

@@ -88,6 +88,7 @@ class cserver
 	friend int control_handler (u_long control_type);
 #endif
 private:
+  int currentThreadID;
 	void stopThreads();
 	/*! Used when rebooting to load new configuration files.  */
 	int pausing;
@@ -96,7 +97,7 @@ private:
 	cXMLParser languageParser;
   int autoRebootEnabled;
   int toReboot;
-	u_long nThreads;
+  int serverReady;
 	u_long verbosity;
 	u_long buffersize;
 	u_long buffersize2;
@@ -119,9 +120,14 @@ private:
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 	int loadSettings();
-	myserver_mutex *c_mutex;
+	myserver_mutex *connections_mutex;
 	LPCONNECTION connectionToParse;
-	ClientsTHREAD *threads;
+	u_long nStaticThreads;
+  u_long nThreads;
+
+  myserver_mutex *threads_mutex;
+  ClientsTHREAD *threads;
+
 	LPCONNECTION connections;
 	void createListenThreads();
 	int reboot();
@@ -132,6 +138,7 @@ private:
 	char *vhost_configuration_file;
 	char *mime_configuration_file;
 public:
+  int isServerReady();
   protocols_manager *getProtocolsManager();
   void disableAutoReboot();
   void enableAutoReboot();
@@ -173,6 +180,8 @@ public:
 	void stop();
 	void finalCleanup();
 	int terminate();
+  int addThread();
+  int removeThread(u_long ID);
 }; 
 extern class cserver *lserver;
 #ifdef WIN32
