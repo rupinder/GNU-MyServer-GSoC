@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=39
+UnitCount=41
 Type=1
 Ver=1
 ObjFiles=
@@ -431,6 +431,22 @@ ProjectView=1
 
 [Unit39]
 FileName=include\vhosts.h
+Folder=myserver
+Compile=1
+CompileCpp=1
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit40]
+FileName=source\winCGI.cpp
+Folder=myserver
+Compile=1
+CompileCpp=1
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit41]
+FileName=include\winCGI.h
 Folder=myserver
 Compile=1
 CompileCpp=1

@@ -23,6 +23,7 @@
 #include "../include/AMMimeUtils.h"
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
+#include "../include/wincgi.h"
 #include "../include/utility.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
@@ -445,6 +446,10 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		if(sendMSCGI(td,s,td->filenamePath,target))
 			return 1;
 		return raiseHTTPError(td,s,e_404);
+	}else if(mimeCMD==CGI_CMD_WINCGI)
+	{
+	
+		return sendWINCGI(td,s,td->filenamePath);
 	}
 	else if(mimeCMD==CGI_CMD_SENDLINK)
 	{

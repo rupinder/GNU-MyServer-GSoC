@@ -204,6 +204,9 @@
 			<File
 				RelativePath="source\vhosts.cpp">
 			</File>
+			<File
+				RelativePath="source\winCGI.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -267,6 +270,9 @@
 			</File>
 			<File
 				RelativePath="include\vhosts.h">
+			</File>
+			<File
+				RelativePath="include\winCGI.h">
 			</File>
 		</Filter>
 		<Filter

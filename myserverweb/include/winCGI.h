@@ -16,18 +16,15 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02111-1307, USA.
 */
-#ifndef CGI_H
-#define CGI_H
+#ifndef WINCGI_H
+#define WINCGI_H
 
 #include "../include/Response_RequestStructs.h"
 #include "../include/MIME_manager.h"
-#include "../include/mscgi.h"
 #include "../include/security.h"
-#include "../include/http.h"
 extern const char *versionOfSoftware;
+#include "../include/http.h"
 
-
-int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,int cmd=CGI_CMD_RUNCGI);
-void buildCGIEnvironmentString(httpThreadContext*,char*);
+int sendWINCGI(httpThreadContext*,LPCONNECTION s,char* filename);
 
 #endif

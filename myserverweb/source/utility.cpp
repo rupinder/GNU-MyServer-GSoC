@@ -114,7 +114,9 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
     si.hStdInput = (HANDLE)spi->stdIn;
     si.hStdOutput =(HANDLE)spi->stdOut;
     si.hStdError= (HANDLE)spi->stdError;
-    si.dwFlags=STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    si.dwFlags=STARTF_USESHOWWINDOW;
+	if(si.hStdInput||si.hStdOutput||si.hStdError)
+		si.dwFlags|=STARTF_USESTDHANDLES;
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi;
     ZeroMemory( &pi, sizeof(pi) );

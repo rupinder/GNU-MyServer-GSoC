@@ -23,7 +23,7 @@
 static  u_long max_Connections;
 static ConnTableRecord *connTable;
 static CRITICAL_SECTION GetTableEntryCritSec;
-#define ISAPI_TIMEOUT (INFINITE)
+#define ISAPI_TIMEOUT (10000)
 /*
 *Initialize the ISAPI engine under WIN32.
 */
@@ -157,11 +157,6 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
-
-//	FreeLibrary(AppHnd);
-
-//	raiseHTTPError(td,connection,e_501);
-//	return 1;
 
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
 	if (Ret == HSE_STATUS_PENDING) 

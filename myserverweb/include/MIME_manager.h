@@ -46,7 +46,8 @@ enum CGI_COMMANDS
 	CGI_CMD_RUNISAPI,	/*Run the ISAPI module*/
 	CGI_CMD_RUNMSCGI,	/*Run the the file as a MSCGI script*/
 	CGI_CMD_EXECUTE,	/*Handle the file as an executable*/
-	CGI_CMD_SENDLINK	/*Send the file included  in the file*/
+	CGI_CMD_SENDLINK,	/*Send the file included  in the file*/
+	CGI_CMD_WINCGI		/*Send the file as a WinCGI*/
 };
 class MIME_Manager
 {
