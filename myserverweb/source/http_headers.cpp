@@ -541,7 +541,6 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 					td->connection->password[i]=*lbuffer2++;
 					td->connection->password[i+1]='\0';
 				}
-				delete [] keep_lbuffer2;
 				tokenOff = getCharInString(token,"\r\n",HTTP_REQUEST_AUTH_DIM);
 			}
 			else if(!lstrcmpi(request->AUTH,"Digest"))

@@ -71,7 +71,7 @@ control_protocol::control_protocol()
 {
   Ifile=0;
   Ofile=0;
-	PROTOCOL_OPTIONS =  PROTOCOL_USES_SSL;
+	PROTOCOL_OPTIONS = PROTOCOL_USES_SSL;
 }
 
 /*!
@@ -308,8 +308,6 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     sendResponse(b2, bs2, a, CONTROL_BAD_VERSION, 0);
     return 0;
   }
-
-
      
   int authorized = checkAuth();
 
@@ -430,7 +428,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     LPCONNECTION con = lserver->getConnections();
     while(con)
     {
-      sprintf(b1, "%s\r\n", con->ipAddr);
+      sprintf(b1, "%s - %s - %s\r\n", con->ipAddr, con->login, con->password);
       Ofile->writeToFile(b1, strlen(b1), &nbw);   
       con = con->next;
     }

@@ -761,6 +761,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
   {
     if(td->filenamePath)
       delete [] td->filenamePath;
+    td->filenamePath = 0;
     td->filenamePath = new char[strlen(filename)+1];
     if(td->filenamePath == 0)
       return sendHTTPhardError500(td, s);
@@ -1015,6 +1016,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 		}
     if(td->filenamePath)
       delete [] td->filenamePath;
+    td->filenamePath = 0;
 		getPath(td, s, &(td->filenamePath), filename, 0);
 	}
 	int permissions=-1;
@@ -1258,7 +1260,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		{
       delete [] filename;
       if(td->filenamePath)
-        delete [] td->filenamePath;     
+        delete [] td->filenamePath;   
+      td->filenamePath = 0;
 			return raiseHTTPError(td, s, e_401);
 		}
     if(td->filenamePath)
@@ -1391,6 +1394,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
           delete [] dirscan;
           if(td->filenamePath)
             delete [] td->filenamePath;
+          td->filenamePath = 0;
           delete [] filename;
           return sendHTTPhardError500(td, s);
         }
@@ -1449,6 +1453,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		{
       delete []  filename;
       delete []  td->filenamePath;
+      td->filenamePath = 0;
 			return sendAuth(td, s);
 		}
 		int i;
@@ -1807,7 +1812,7 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, 
                             int bs1, int bs2, u_long nbtr, u_long id)
 {
-	int retvalue=-1;
+	int retvalue=-1, ret = 0;
 	td.buffer=((ClientsTHREAD*)a->thread)->GetBuffer();
 	td.buffer2=((ClientsTHREAD*)a->thread)->GetBuffer2();
 	td.buffersize=bs1;
@@ -1823,10 +1828,13 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 	td.outputData.setHandle((MYSERVER_FILE_HANDLE)0);
 	if(td.outputDataPath)
     delete [] td.outputDataPath;
+	if(td.filenamePath)
+    delete [] td.filenamePath;
   if(td.inputDataPath)
     delete [] td.inputDataPath;
 	td.outputDataPath=0;
 	td.inputDataPath=0;
+  td.filenamePath=0;
 	/*!
 	 *Reset the request structure.
 	 */
@@ -1894,7 +1902,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		return retvalue;
 	}
 	/*! Do not use Keep-Alive over HTTP version older than 1.1. */
-	if(!strcmp(td.request.VER, "HTTP/1.1"))
+	if( strcmp(td.request.VER, "HTTP/1.1") )
 	{
 		if(td.request.CONNECTION[0])
 			strcpy(td.request.CONNECTION, "close");
@@ -2347,52 +2355,56 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		if(!lstrcmpi(td.request.CMD, "GET"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, atoi(td.request.RANGEBYTEBEGIN),
-                         atoi(td.request.RANGEBYTEEND));
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, 
+                               atoi(td.request.RANGEBYTEBEGIN),
+                               atoi(td.request.RANGEBYTEEND));
 			else
-				sendHTTPRESOURCE(&td, a, td.request.URI);
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI);
 		}
 		/*! POST REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "POST"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, atoi(td.request.RANGEBYTEBEGIN),
-                         atoi(td.request.RANGEBYTEEND));
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, 
+                               atoi(td.request.RANGEBYTEBEGIN),
+                               atoi(td.request.RANGEBYTEEND));
 			else
-				sendHTTPRESOURCE(&td, a, td.request.URI);
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI);
 		}
 		/*! HEAD REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "HEAD"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1, atoi(td.request.RANGEBYTEBEGIN),
-                         atoi(td.request.RANGEBYTEEND));
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1, 
+                               atoi(td.request.RANGEBYTEBEGIN),
+                               atoi(td.request.RANGEBYTEEND));
 			else
-				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
+				ret = sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 		}
 		/*! DELETE REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "DELETE"))
 		{
-			deleteHTTPRESOURCE(&td, a, td.request.URI, 0);
+			ret = deleteHTTPRESOURCE(&td, a, td.request.URI, 0);
 		}
 		/*! PUT REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "PUT"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				putHTTPRESOURCE(&td, a, td.request.URI, 0, 1, atoi(td.request.RANGEBYTEBEGIN),
-                        atoi(td.request.RANGEBYTEEND));
+				ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1, 
+                              atoi(td.request.RANGEBYTEBEGIN),
+                              atoi(td.request.RANGEBYTEEND));
 			else
-				putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
+        ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 		}
 		/*! OPTIONS REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "OPTIONS"))
 		{
-			optionsHTTPRESOURCE(&td, a, td.request.URI, 0);
+			ret = optionsHTTPRESOURCE(&td, a, td.request.URI, 0);
 		}
 		/*! TRACE REQUEST. */
 		else if(!lstrcmpi(td.request.CMD, "TRACE"))
 		{
-			traceHTTPRESOURCE(&td, a, td.request.URI, 0);
+			ret = traceHTTPRESOURCE(&td, a, td.request.URI, 0);
 		}
 		/*! Return Method not implemented(501). */
 		else
@@ -2419,7 +2431,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		td.outputData.closeFile();
 		MYSERVER_FILE::deleteFile(td.outputDataPath);
 	}
-	return retvalue;
+	return ret? ((retvalue!=0) ?retvalue:1 ) :0;
 }
 
 /*!
