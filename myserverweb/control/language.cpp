@@ -152,17 +152,6 @@ static int SetValueXML(char ** dest, const char * tag)
      {
 	free(*dest);
 	*dest = strdup(val);
-
-	int outlen = strlen(val);
-	int inlen = outlen;
-	int i;
-	// convert UTF-8 to something readable
-	i = UTF8Toisolat1((unsigned char*)(*dest), &outlen, (unsigned char*)val, &inlen);
-
-	if(i >= 0)
-	  (*dest)[outlen] = '\0';
-	else
-	  strcpy(*dest, val);
      }
 }
 
@@ -327,22 +316,6 @@ extern "C" char * gettext(const char * tag)
 
    // allocate new memory and add to list
    text = strdup(val);
-   int outlen = strlen(val);
-   int inlen = outlen;
-   int i;
-   // convert UTF-8 to something readable
-   i = UTF8Toisolat1((unsigned char*)text, &outlen, (unsigned char*)val, &inlen);
-
-   if(i >= 0)
-     text[outlen] = '\0';
-   else
-     strcpy(text, val);
-
-#ifdef DEBUG
-   printf("UTF8 to Isolat1: \"%s\"->\"%s\"\n", val, text);
-   printf("outlen = %d, inlen = %d\n", outlen, inlen);
-#endif
-
    AddText(text);
 
    return text;
