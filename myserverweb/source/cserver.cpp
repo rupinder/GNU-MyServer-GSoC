@@ -1468,9 +1468,10 @@ int cserver::loadSettings()
 	https::loadProtocol(&languageParser, "myserver.xml");
   control_protocol::loadProtocol(&languageParser, "myserver.xml");
 #ifdef NOT_WIN
-	if(MYSERVER_FILE::fileExists("external"))
+	if(MYSERVER_FILE::fileExists("external/protocols"))
 	{
-		protocols.loadProtocols("external", &languageParser, "myserver.xml", this);
+		protocols.loadProtocols("external/protocols", 
+                            &languageParser, "myserver.xml", this);
 	}
   else
   {

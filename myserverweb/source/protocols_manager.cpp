@@ -77,6 +77,7 @@ int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
 {
   if(filename)
     delete [] filename;
+  filename = 0;
 	unloadProtocolPROC Proc=0;
 #ifdef WIN32
 	if(hinstLib)
@@ -190,10 +191,13 @@ int dynamic_protocol::setFilename(char *nf)
 {
   if(filename)
     delete [] filename;
-  int filenamelen = strlen(nf);
+  filename = 0;
+  int filenamelen = strlen(nf) + 1;
   filename = new char[filenamelen];
-	strcpy(filename, nf);
-	return 1;
+  if(filename == 0)
+    return 1;
+	strncpy(filename, nf, filenamelen);
+	return 0;
 }
 
 /*!
@@ -283,10 +287,10 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
 int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,
                                      char* confFile,cserver* lserver)
 {
-	char *filename;
-  int filenamelen;
+  int filenamelen = 0;
+	char *filename = 0;
 #ifdef WIN32
-  filenamelen=strlen(folder)+5;
+  filenamelen=strlen(folder)+6;
   filename=new char[filenamelen];
   if(filename == 0)
     return -1;
@@ -297,7 +301,7 @@ int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,
   filename=new char[filenamelen];
   if(filename == 0)
     return -1;
-	sprintf(filename,"%s/",folder);
+	strncpy(filename,folder, filenamelen);
 #endif	
 	
 	_finddata_t fd;
@@ -311,8 +315,11 @@ int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,
 #endif
   {
     delete [] filename;
+    filename = 0;
 		return -1;	
   }
+  char *completeFileName = 0;
+  int completeFileNameLen = 0;
 	do
 	{	
 		if(fd.name[0]=='.')
@@ -327,13 +334,20 @@ int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,
 		if(!strstr(fd.name,".so"))
 #endif		
 			continue;
-		
-		sprintf(filename,"%s/%s",folder,fd.name);
-		
-		addProtocol(filename,parser,confFile,lserver);
-		
+    completeFileNameLen = strlen(folder) + strlen(fd.name) + 2;
+		completeFileName = new char[completeFileNameLen];
+    if(completeFileName == 0)
+    {
+      delete [] filename;
+      filename = 0;
+      return -1;
+    }
+		sprintf(completeFileName,"%s/%s",folder,fd.name);
+		addProtocol(completeFileName,parser,confFile,lserver);
+		delete [] completeFileName;
 	}while(!_findnext(ff,&fd));
 	_findclose(ff);		
   delete [] filename;
+  filename = 0;
   return 0;
 }
