@@ -42,6 +42,7 @@ extern int sscanf(const char *buffer, const char *format,...);
 #endif /* STDC */
 
 
+#ifdef WIN32
 
 #ifndef isprint
 #define 	_Z   0x00 /* nothing but 0 */
@@ -76,6 +77,9 @@ extern int sscanf(const char *buffer, const char *format,...);
  */
 extern unsigned char __ctype[];
 extern char __ctmp;
+
+#endif
+
 #endif
 
 

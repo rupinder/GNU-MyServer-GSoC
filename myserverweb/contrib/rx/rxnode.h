@@ -65,17 +65,18 @@ struct rexp_node
 {
   int refs;
   enum rexp_node_type type;
+    struct s_pair
+      {
+	struct rexp_node *left;
+	struct rexp_node *right;
+      };  
   struct
   {
     int cset_size;
     rx_Bitset cset;
     int intval;
     int intval2;
-    struct
-      {
-	struct rexp_node *left;
-	struct rexp_node *right;
-      } pair;
+    struct s_pair  pair;
     struct rx_string cstr;
   } params;
   int id;

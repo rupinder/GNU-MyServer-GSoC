@@ -84,7 +84,7 @@ rx_bzero (mem, size)
     }
 }
 
-
+#ifdef WIN32
 
 unsigned char __ctype[] = {0x00,			/* EOF */
 _C,_C,_C,_C,_C,_C,_C,_C,			/* 0-7 */
@@ -113,3 +113,4 @@ _L,_L,_L,_P,_P,_P,_P,_C,			/* 120-127 */
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};		/* 240-255 */
 char __ctmp;
 
+#endif

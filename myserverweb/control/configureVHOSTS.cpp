@@ -51,6 +51,7 @@ enum
 #include "../source/utility.cpp"
 #include "../source/threads.cpp"
 #include "../source/processes.cpp"
+#include "../source/myserver_regex.cpp"
 
 BEGIN_EVENT_TABLE(configurationFrameVHOSTS, wxFrame)
 EVT_BUTTON(Configuration_Ok,  configurationFrameVHOSTS::ok)
@@ -224,7 +225,7 @@ void configurationFrameVHOSTS::addIP(wxCommandEvent& event)
 {
 	wxString ip=wxGetTextFromUser("Insert the IP address","Add a new IP address","",this);
 	if(currentVHost)
-		currentVHost->addIP((char*)(ip.ToAscii()));
+		currentVHost->addIP( (char*)(ip.ToAscii()) , 0);
 	ipLB->Append(ip);
 }
 void configurationFrameVHOSTS::removeHost(wxCommandEvent& event)

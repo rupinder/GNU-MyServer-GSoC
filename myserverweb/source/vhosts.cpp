@@ -19,12 +19,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/vhosts.h"
 #include "../include/filemanager.h"
 #include "../include/cserver.h"
-#include "../include/cXMLParser.h"
-#include "../include/connectionstruct.h"/*!Used for protocols IDs*/
+#include "../include/connectionstruct.h"/*!Used for protocols IDs. *\
 #include "../include/stringutils.h"
 #include "../include/threads.h"
 
-static int password_cb(char *buf,int num,int rwflag,void *userdata);
+/*!
+*SSL password callback function.
+*/
+static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
+{
+	if((size_t)num<strlen((char*)userdata)+1)
+		return(0);
+
+	strcpy(buf,(char*)userdata);
+	return((int)strlen(buf));
+}
 
 /*!
 *vhost costructor
@@ -52,7 +61,7 @@ vhost::~vhost()
 		accessesLogFile.closeFile();
 	if(warningsLogFile.getHandle())
 		warningsLogFile.closeFile();
-	memset(this,0,sizeof(vhost));
+ 	memset(this,0,sizeof(vhost));
 	accessesLogFileAccess.myserver_mutex_destroy();
 	warningsLogFileAccess.myserver_mutex_destroy();
 	
@@ -86,7 +95,10 @@ void vhost::clearIPList()
 	while(sil)
 	{
 		if(prevsil)
+    {
+      prevsil->ipRegex.free();
 			delete prevsil;
+    }
 		prevsil = sil;
 		sil = sil->next;
 	}
@@ -98,12 +110,15 @@ void vhost::clearIPList()
 /*!
 *Add an IP address to the list
 */
-void vhost::addIP(char *ip)
+void vhost::addIP(char *ip, int isRegex)
 {
 	sIpList* il=new sIpList();
-        if(il==0)
-            return;
+  if(il==0)
+    return;
 	strcpy(il->hostIp,ip);
+  /*! If is a regular expression, the ip string is a pattern. */
+  if(isRegex)
+    il->ipRegex.compile(ip, REG_EXTENDED);
 	if(ipList)
 	{
 		il->next = ipList;
@@ -220,12 +235,21 @@ int vhost::areAllIPAllowed()
 */
 int vhost::isIPAllowed(char* ip)
 {
-	if(ipList == 0)/*If no IPs are specified, every IP is allowed to connect to*/
+  /*! If no IPs are specified, every IP is allowed to connect to. */
+	if(ipList == 0)
 		return 1;
 	sIpList *lipl=ipList;
 	while(lipl)
 	{
-		if(!strcmp(ip,lipl->hostIp))
+    if(lipl->ipRegex.isCompiled())
+    {
+      regmatch_t pm;
+      if (!lipl->ipRegex.exec(ip ,1, &pm, REG_NOTBOL))
+      {
+        return 1;
+      }
+    }
+		else if(!strcmp(ip,lipl->hostIp))
 			return 1;
 		lipl=lipl->next;
 	}
@@ -385,7 +409,7 @@ vhostmanager::vhostmanager()
 	vhostList=0;
 }
 /*!
-*Clean the virtual hosts
+*Clean the virtual hosts.
 */
 void vhostmanager::clean()
 {
@@ -477,10 +501,11 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		vhost *vh=new vhost();
                 if(vh==0)
                     return;
-		/*!Parse the line*/
-
+		/*!Parse the line. */
 		int cc=0;
-		for(;;)/*!Get the hosts list*/
+
+    /*!Get the hosts list. */
+		for(;;)
 		{
 			buffer2[0]='\0';
 			while((buffer[cc]!=',')&&(buffer[cc]!=';'))
@@ -507,7 +532,7 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 				cc++;
 			}
 			if(buffer2[0]&&buffer2[0]!='0')/*!If the ip list is equal to 0 don't add anything to the list*/
-				vh->addIP(buffer2);
+				vh->addIP(buffer2, 0);
 			if(buffer[cc]==';')
 				break;
 			cc++;
@@ -793,7 +818,21 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
 			{
-				vh->addIP((char*)lcur->children->content);
+        int useRegex = 0;
+        xmlAttr *attrs =  lcur->properties;
+        while(attrs)
+        {
+            if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
+            {
+              if(attrs->children && attrs->children->content && 
+                 (!xmlStrcmp(attrs->children->content, (const xmlChar *)"YES")))
+              {
+                useRegex = 1;
+              }
+            }
+            attrs=attrs->next;
+        }
+	  	 vh->addIP((char*)lcur->children->content, useRegex);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
 			{
@@ -1092,15 +1131,4 @@ int vhostmanager::removeVHost(int n)
 		hl=hl->next;
 	}
 	return 0;
-}
-/*!
-*SSL password callback function.
-*/
-static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
-{
-	if((size_t)num<strlen((char*)userdata)+1)
-		return(0);
-
-	strcpy(buf,(char*)userdata);
-	return((int)strlen(buf));
 }

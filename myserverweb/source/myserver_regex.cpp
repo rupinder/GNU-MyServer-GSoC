@@ -76,3 +76,10 @@ myserver_regex::myserver_regex(char *pattern, int flags)
 {
   compile(pattern, flags);
 }
+/*!
+ *Return a nonzero value if the regex was compiled.
+ */
+int myserver_regex::isCompiled()
+{
+  return compiled;
+}

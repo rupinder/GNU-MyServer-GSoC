@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 extern "C" 
 {
 #endif
+
 #include <stdio.h>
 #include "../contrib/rx/rxposix.h"
 
@@ -43,6 +44,7 @@ public:
   myserver_regex();
   myserver_regex(char *pattern, int flags);
   ~myserver_regex();
+  int isCompiled();
   int compile(char *pattern, int flags);
   int exec(char *string, size_t nmatch, regmatch_t matchptr [], int eflags);
   void free();

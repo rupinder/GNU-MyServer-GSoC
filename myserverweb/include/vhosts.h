@@ -20,9 +20,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define VHOST_IN
 
 #include "../stdafx.h"
+#include "../include/cXMLParser.h"
 #include "../include/filemanager.h"
 #include "../include/utility.h"
 #include "../include/connectionstruct.h"/*!Used for protocols IDs*/
+#include "../include/myserver_regex.h"
 
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
@@ -76,8 +78,9 @@ public:
 
 	struct sIpList
 	{
-		char hostIp[32];
-		sIpList *next; 
+    char hostIp[32];
+    myserver_regex ipRegex;
+    sIpList *next; 
 	};
 	
 	/*! List of IPs allowed by the vhost.  */
@@ -124,7 +127,7 @@ public:
 	char name[64];
 	
 	vhost();
-	void addIP(char *);
+	void addIP(char *, int);
 	void addHost(char *);
 	void removeIP(char *);
 	void removeHost(char *);
