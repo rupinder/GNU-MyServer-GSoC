@@ -145,9 +145,13 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		}
 	}
 	td->buffer2->SetLength(0);
-	*td->buffer2<<"<html>\r\n<head>\r\n<title>" ;
+	*td->buffer2<<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n\\
+<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\\
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n\\
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\
+\r\n<head>\r\n<title>" ;
 	*td->buffer2<< td->request.URI.c_str() ;
-	*td->buffer2<< "</title>\r\n</head>\r\n" ; 
+	*td->buffer2<< "</title>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n</head>\r\n"; 
 	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                     (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
@@ -175,7 +179,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 			if(ret == 0)
 			{
 				td->buffer2->SetLength(0);
-				*td->buffer2 << "<style>\r\n<!--\r\n" ;
+				*td->buffer2 << "<style type=\"text/css\">\r\n<!--\r\n" ;
 				ret=td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                        (u_long)td->buffer2->GetLength(), &nbw);
 				if(ret)
@@ -214,9 +218,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
   filename.append("/*");
 #endif
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of directory ";
+	*td->buffer2 << "<body>\r\n<h1>Contents of directory ";
 	*td->buffer2 <<  &td->request.URI[startchar] ;
-	*td->buffer2 << "</h1>\r\n<p>\r\n<hr />\r\n";
+	*td->buffer2 << "</h1>\r\n<hr />\r\n";
 	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                    (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
@@ -235,8 +239,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
    *files in the directory.
    */
 	td->buffer2->SetLength(0);
-	*td->buffer2 << "<table width=\"100\%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n  \
-                 <td><b>Last Modified</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
+	*td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n<td><b>Last Modified</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
 	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                     (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
@@ -263,7 +266,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 		*td->buffer2 << fd.name ;
 		*td->buffer2 << "\">" ;
 		*td->buffer2 << fd.name;
-		*td->buffer2 << "</td>\r\n<td>";
+		*td->buffer2 << "</a></td>\r\n<td>";
 	
 		getRFC822GMTTime((time_t)fd.time_write, fileTime, 32);
 
