@@ -444,6 +444,7 @@ void cserver::initialize(INT OSVer)
 		port_HTTP=(WORD)atoi(data);
 	}
 
+
 	data=configurationFileManager.getValue("VERBOSITY");
 	if(data)
 	{

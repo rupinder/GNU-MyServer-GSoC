@@ -25,11 +25,11 @@
 BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest=FALSE,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
 BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader=FALSE,int firstByte=0,int lastByte=-1);
 BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder);
-void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
-void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER*);
+void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER*);
+void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);
 BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWORD nbtr,LOGGEDUSERID *imp);
 BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine=0);
 BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char* exec);
-void raiseHTTPError(LPCONNECTION a,int ID);
+BOOL raiseHTTPError(LPCONNECTION a,int ID);
 BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2);
 void getPath(char *filenamePath,char *filename,BOOL systemrequest);

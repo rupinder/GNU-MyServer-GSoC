@@ -17,7 +17,7 @@
 *Boston, MA  02111-1307, USA.
 */
 
-#include "..\include\http.h"
+#include "..\include\HTTP.h"
 #include "..\include\cserver.h"
 #include "..\include\security.h"
 #include "..\include\AMMimeUtils.h"
@@ -29,10 +29,10 @@
 /*
 *These variables are thread safe.
 */
-char Thread *buffer;
-char Thread  *buffer2;
-int  Thread buffersize;
-int  Thread buffersize2;
+char static Thread *buffer;
+char static Thread  *buffer2;
+int  static Thread buffersize;
+int  static Thread buffersize2;
 DWORD  Thread nBytesToRead;
 HTTP_RESPONSE_HEADER  Thread response;
 HTTP_REQUEST_HEADER  Thread request;
@@ -50,8 +50,7 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 	
 	if(getPathRecursionLevel(folder)<1)
 	{
-		raiseHTTPError(s,e_401);
-		return 1;
+		return raiseHTTPError(s,e_401);
 	}
 	ZeroMemory(buffer2,200);
 	_finddata_t fd;
@@ -73,19 +72,18 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 			*/
 			if(s->nTries > 2)
 			{
-				raiseHTTPError(s,e_401);
+				return raiseHTTPError(s,e_401);
 			}
 			else
 			{
 				s->nTries++;
-				raiseHTTPError(s,e_401AUTH);
+				return raiseHTTPError(s,e_401AUTH);
 			}
 		}
 		else
 		{
-			raiseHTTPError(s,e_404);
+			return raiseHTTPError(s,e_404);
 		}
-		return 1;
 	}
 	/*
 	*With the current code we build the HTML TABLE that describe the files in the folder
@@ -97,11 +95,12 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 	{	
 		if(fd.name[0]=='.')
 			continue;
-		lstrcat(buffer2,"<TR><TD><A HREF=");
+		request;
+		lstrcat(buffer2,"<TR><TD><A HREF=\"");
 		lstrcat(buffer2,&folder[startChar]);
-		lstrcat(buffer2,"\\");
+		lstrcat(buffer2,"/");
 		lstrcat(buffer2,fd.name);
-		lstrcat(buffer2,">");
+		lstrcat(buffer2,"\">");
 		lstrcat(buffer2,fd.name);
 		lstrcat(buffer2,"</TD><TD>");
 			
@@ -126,11 +125,14 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 	lstrcat(buffer2,msgRunOn);
 	lstrcat(buffer2," myServer ");
 	lstrcat(buffer2,versionOfSoftware);
-
 	_findclose(ff);
-	buildDefaultHttpResponseHeader(&response);	
+	char *buffer2Loop=buffer2;
+	while(*buffer2Loop++)
+		if(*buffer2Loop=='\\')
+			*buffer2Loop='/';
+	buildDefaultHTTPResponseHeader(&response);	
 	sprintf(response.CONTENTS_DIM,"%u",lstrlen(buffer2));
-	buildHttpResponseHeader(buffer,&response);
+	buildHTTPResponseHeader(buffer,&response);
 	ms_send(s->socket,buffer,lstrlen(buffer), 0);
 	ms_send(s->socket,buffer2,lstrlen(buffer2), 0);
 
@@ -144,20 +146,20 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 	*/
 	MYSERVER_FILE_HANDLE h;
 	h=ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+
 	if(h==0)
 	{	
 		if(GetLastError()==ERROR_ACCESS_DENIED)
 		{
 			if(s->nTries > 2)
 			{
-				raiseHTTPError(s,e_401);
+				return raiseHTTPError(s,e_401);
 			}
 			else
 			{
 				s->nTries++;
-				raiseHTTPError(s,e_401AUTH);
+				return raiseHTTPError(s,e_401AUTH);
 			}
-			return 1;
 		}
 		else
 		{
@@ -179,15 +181,14 @@ BOOL sendHTTPFILE(LPCONNECTION s,char *filenamePath,BOOL OnlyHeader,int firstByt
 
 	if(setFilePointer(h,firstByte))
 	{
-		raiseHTTPError(s,e_500);
-		return 1;
+		return	raiseHTTPError(s,e_500);
 	}
 
 
 	ZeroMemory(buffer,300);
 
 	sprintf(response.CONTENTS_DIM,"%u",filesize);
-	buildHttpResponseHeader(buffer,&response);
+	buildHTTPResponseHeader(buffer,&response);
 	ms_send(s->socket,buffer,lstrlen(buffer), 0);
 
 	/*
@@ -226,19 +227,23 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 	*over the HTTP
 	*/
 	buffer[0]='\0';
-	buildDefaultHttpResponseHeader(&response);
+	buildDefaultHTTPResponseHeader(&response);
 
 	static char ext[MAX_PATH];
 	static char data[MAX_PATH];
+	getPath(filenamePath,filename,systemrequest);
 	/*
 	*getMIME return TRUE if the ext is registered by a CGI
 	*/
+
 	if(getMIME(response.MIME,filename,ext,data))
 	{
-		if(sendCGI(s,filename,ext,data))
-			return 1;
+		if(ms_FileExists(filenamePath))
+			if(sendCGI(s,filenamePath,ext,data))
+				return 1;
+		return raiseHTTPError(s,e_404);
 	}
-	getPath(filenamePath,filename,systemrequest);
+
 	char *c=filenamePath;
 	while(*c)
 	{
@@ -253,19 +258,21 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 	2)We send the folder content
 	3)We send an error
 	*/
-	if(lstrlen(ext)==0)
+	if(ms_IsFolder(filenamePath))
 	{
-		static char fileName[MAX_PATH];
-		sprintf(fileName,"%s%s",filenamePath,lserver->getDefaultFilenamePath());
-		if(sendHTTPFILE(s,fileName,OnlyHeader,firstByte,lastByte))
+		static char defaultFileName[MAX_PATH];
+		sprintf(defaultFileName,"%s%s",filenamePath,lserver->getDefaultFilenamePath());
+
+		if(sendHTTPFILE(s,defaultFileName,OnlyHeader,firstByte,lastByte))
 			return 1;
 
 		if(sendHTTPDIRECTORY(s,filenamePath))
 			return 1;	
 
-		raiseHTTPError(s,e_404);
-		return 1;
+		return raiseHTTPError(s,e_404);
 	}
+	
+
 	/*
 	*myServer CGI format
 	*/
@@ -278,14 +285,19 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 			target=(char*)&request.URIOPTS;
 		if(sendMSCGI(s,filenamePath,target))
 			return 1;
-		raiseHTTPError(s,e_404);
-		return 1;
+		return raiseHTTPError(s,e_404);
 	}
-
-	if(sendHTTPFILE(s,filenamePath,OnlyHeader,firstByte,lastByte))
-		return 1;
-	raiseHTTPError(s,e_404);
-	return 1;
+	if(ms_IsFolder(filenamePath))
+	{
+		if(sendHTTPDIRECTORY(s,filenamePath))
+			return 1;	
+	}
+	else
+	{
+		if(sendHTTPFILE(s,filenamePath,OnlyHeader,firstByte,lastByte))
+			return 1;
+	}
+	return raiseHTTPError(s,e_404);
 }
 /*
 *Sends the myServer CGI; differently form standard CGI this don't need a new process to run
@@ -324,24 +336,23 @@ BOOL sendMSCGI(LPCONNECTION s,char* exec,char* cmdLine)
 		{
 			if(s->nTries > 2)
 			{
-				raiseHTTPError(s,e_403);
+				return raiseHTTPError(s,e_403);
 			}
 			else
 			{
 				s->nTries++;
-				raiseHTTPError(s,e_401AUTH);
+				return raiseHTTPError(s,e_401AUTH);
 			}
 		}
 		else
 		{
-			raiseHTTPError(s,e_404);
+			return raiseHTTPError(s,e_404);
 		}
-		return 1;
 	}
 	static int len;
 	len=lstrlen(buffer2);
 	sprintf(response.CONTENTS_DIM,"%u",len);
-	buildHttpResponseHeader(buffer,&response);
+	buildHTTPResponseHeader(buffer,&response);
 	ms_send(s->socket,buffer,lstrlen(buffer), 0);
 	ms_send(s->socket,buffer2,len, 0);
 	return 1;
@@ -413,7 +424,9 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	if(isValidCommand==FALSE)
 	{
 		raiseHTTPError(a,e_400);
-		
+		/*
+		*Returning Zero we remove the connection from the connections list
+		*/
 		return 0;
 	}
 
@@ -790,7 +803,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 /*
 *Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure
 */
-void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
+void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 {
 	/*
 	*Here is builded the HEADER of a HTTP response.
@@ -829,7 +842,7 @@ void buildHttpResponseHeader(char *str,HTTP_RESPONSE_HEADER *response)
 /*
 *Set the defaults value for a HTTP_RESPONSE_HEADER structure
 */
-void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER* response)
+void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 {
 	ZeroMemory(response,sizeof(HTTP_RESPONSE_HEADER));
 	/*
@@ -845,33 +858,34 @@ void buildDefaultHttpResponseHeader(HTTP_RESPONSE_HEADER* response)
 	response->isError=FALSE;
 	lstrcpy(response->DATE,getHTTPFormattedTime());
 	lstrcpy(response->DATEEXP,getHTTPFormattedTime());
-	lstrcpy(response->SERVER_NAME,"MyServer");
+	sprintf(response->SERVER_NAME,"MyServer %s",versionOfSoftware);
 }
 /*
 *Sends an error page to the client described by the connection
 */
-void raiseHTTPError(LPCONNECTION a,int ID)
+BOOL raiseHTTPError(LPCONNECTION a,int ID)
 {
 	static HTTP_RESPONSE_HEADER response;
 	if(ID==e_401AUTH)
 	{
 		sprintf(buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getHTTPFormattedTime());
 		ms_send(a->socket,buffer2,lstrlen(buffer2),0);
-		return;
+		return 1;
 	}
 	if(lserver->mustUseMessagesFiles())
 	{
-		sendHTTPRESOURCE(a,HTTP_ERROR_HTMLS[ID],TRUE);
-		return;
+		 return sendHTTPRESOURCE(a,HTTP_ERROR_HTMLS[ID],TRUE);
+		
 	}
-	buildDefaultHttpResponseHeader(&response);
+	buildDefaultHTTPResponseHeader(&response);
 
 	response.isError=TRUE;
 	lstrcpy(response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	sprintf(response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
-	buildHttpResponseHeader(buffer,&response);
+	buildHTTPResponseHeader(buffer,&response);
 	lstrcat(buffer,HTTP_ERROR_MSGS[ID]);
 	ms_send(a->socket,buffer,lstrlen(buffer), 0);
+	return 1;
 }
 
 /*
@@ -887,7 +901,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 		revertToSelf();
 	char cmdLine[MAX_PATH*2];
 	
-	sprintf(cmdLine,"%s \"%s%s\"",exec,lserver->getPath(),filename);
+	sprintf(cmdLine,"%s \"%s\"",exec,filename);
 
     /*
     *Use a temporary file to store CGI output.
@@ -943,26 +957,32 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	*Standard CGI can include an extra HTTP header
 	*so don't terminate with \r\n the default myServer header.
 	*/	
-	DWORD headerSize;
-	for(headerSize=0;headerSize<nBytesRead;headerSize++)
+	DWORD headerSize=0;
+	for(DWORD i=0;i<nBytesRead;i++)
 	{
-		if(buffer2[headerSize]=='\r')
-			if(buffer2[headerSize+1]=='\n')
-				if(buffer2[headerSize+2]=='\r')
-					if(buffer2[headerSize+3]=='\n')			
+		if(buffer2[i]=='\r')
+			if(buffer2[i+1]=='\n')
+				if(buffer2[i+2]=='\r')
+					if(buffer2[i+3]=='\n')
+					{
+						headerSize=i+4;
 						break;
+					}
 	}
-	headerSize+=4;
 	int len=nBytesRead-headerSize;
 
 	sprintf(response.CONTENTS_DIM,"%u",len);
-	buildHttpResponseHeader(buffer,&response);
+	buildHTTPResponseHeader(buffer,&response);
 
 	/*
-	*Send lstrlen(buffer)-2 because last two characters
-	*are \r\n that terminating the HTTP header
+	*If there is an extra header, send lstrlen(buffer)-2 because the
+	*last two characters are \r\n that terminating the HTTP header
 	*/
-	ms_send(s->socket,buffer,lstrlen(buffer)-2, 0);
+	if(headerSize)
+		ms_send(s->socket,buffer,lstrlen(buffer)-2, 0);
+	else
+		ms_send(s->socket,buffer,lstrlen(buffer), 0);
+
 	/*
 	*In buffer2 there are the CGI HTTP header and the 
 	*contents of the page requested through the CGI
@@ -989,7 +1009,7 @@ BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 {
 	getFileExt(dest,filename);
 	/*
-	*Return true if file is registered by a CGI
+	*Returns true if file is registered by a CGI
 	*/
 	return lserver->mimeManager.getMIME(dest,MIME,dest2);
 }

@@ -181,3 +181,29 @@ BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
 	return (SetFilePointer((HANDLE)h,initialByte,0,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
 #endif
 }
+/*
+*Returns a non-null value if the handle is a folder
+*/
+INT	ms_IsFolder(char *filename)
+{
+#ifdef WIN32
+	return(GetFileAttributes(filename)&FILE_ATTRIBUTE_DIRECTORY)?1:0;
+#endif
+}
+
+/*
+*Returns a non-null value if the given path is a valid file
+*/
+INT ms_FileExists(char* filename)
+{
+#ifdef WIN32
+	MYSERVER_FILE_HANDLE fh=ms_OpenFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	if(fh)
+	{
+		ms_CloseFile(fh);
+		return 1;
+	}
+	else
+		return 0;
+#endif
+}

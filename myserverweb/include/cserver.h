@@ -21,9 +21,9 @@
 #define cserver_IN
 
 #include "..\stdafx.h"
+#include "..\include\ClientsTHREAD.h"
 #include "..\include\utility.h"
 #include "..\include\cXMLParser.h"
-#include "..\include\ClientsTHREAD.h"
 #include "..\include\utility.h"
 #include "..\include\HTTPmsg.h"
 #include "..\include\Response_RequestStructs.h"
@@ -64,8 +64,8 @@ private:
 	char warningsFileLogName[MAX_PATH];
 	char accessesFileLogName[MAX_PATH];
 	WORD port_HTTP;
-	DWORD nThreads;
 	ClientsTHREAD threads[MAXIMUM_PROCESSORS];
+	DWORD nThreads;
 	DWORD verbosity;
 	BOOL useMessagesFiles;
 	DWORD buffersize;

@@ -103,3 +103,9 @@ int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
 	return recv(s,buffer,len,flags);
 #endif
 }
+int ms_connect(MYSERVER_SOCKET s,sockaddr* sa,int na)
+{
+#ifdef WIN32
+	return connect((SOCKET)s,sa,na);
+#endif
+}

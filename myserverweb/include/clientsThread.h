@@ -17,15 +17,15 @@
 *Boston, MA  02111-1307, USA.
 */
 #pragma once
-
+#ifndef ClientsTHREAD_IN
+#define ClientsTHREAD_IN
 #include "..\stdafx.h"
-#include "..\include\http.h"
+#include "..\include\HTTP.h"
 #include "..\include\utility.h"
 #include "..\include\HTTPmsg.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\ConnectionStruct.h"
-#ifndef ClientsTHREAD_IN
-#define ClientsTHREAD_IN
+
 class  ClientsTHREAD
 {
 	friend class cserver;
@@ -56,6 +56,5 @@ public:
 	void stop();
 	void clean();	
 };
-#endif
 unsigned int __stdcall startClientsTHREAD(void* pParam); 
-
+#endif
