@@ -1096,13 +1096,14 @@ int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
             strncat(vh->warningLogOpt,",",Optslen);
 						Optslen-=1;
 					}
+
 					attr=attr->next;
 				}
       }
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME_FILE"))
 			{
 				if(lcur->children)
-          vh->getMIME()->loadXML((char*)lcur->children);
+          vh->getMIME()->loadXML((char*)lcur->children->content);
 			}
       
       lcur=lcur->next;
