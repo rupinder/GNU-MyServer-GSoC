@@ -25,6 +25,7 @@ ControlClient::ControlClient()
    Buffer.Free();
    UserName[0] = '\0';
    memset(UserPass, 0, 64);
+   memset(LastCode, 0, 4);
 }
 
 ControlClient::~ControlClient()
@@ -349,13 +350,22 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
    Buffer.Free();
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
-   Buffer << "/LEN " << data.GetLength() << "\r\n";
+   Buffer << "/LEN " << CMemBuf::IntToStr(data.GetLength()) << "\r\n";
    Buffer << "/AUTH " << UserName << ":" << UserPass << "\r\n";
    Buffer << "\r\n";
    ret1 = socket.send((const char *)Buffer.GetBuffer(), Buffer.GetLength(), 0);
+#ifdef DEBUG
+   write(1, (const char *)Buffer.GetBuffer(), Buffer.GetLength());
+#endif
    // TODO: change to send smaller chunks (for progress indication)
    ret2 = socket.send((const char *)data.GetBuffer(), data.GetLength(), 0);
    Buffer.Free();
+#ifdef DEBUG
+   if(ret1 == -1)
+     write(1, "ret1 is -1\n", strlen("ret1 is -1\n"));
+   if(ret2 == -1)
+     write(1, "ret2 is -1\n", strlen("ret2 is -1\n"));
+#endif
    return (ret1 == -1 || ret2 == -1 ? -1 : 0);
 }
 
@@ -387,7 +397,10 @@ int ControlClient::getResponse()
 	ret = socket.recv(cBuffer, 1024, 0);
 
 	if(ret == -1)
-	  return -1;
+	  {
+	     HeaderGetReturn(); // get the code if any
+	     return -1;
+	  }
 
 	Buffer.AddBuffer((const void *)cBuffer, ret);
 #ifdef DEBUG
@@ -408,7 +421,12 @@ int ControlClient::getResponse()
 	else if(ret == CONTROL_AUTH)
 	  return 3;
 	else
-	  return -1;
+	  {
+#ifdef DEBUG
+	     write(1, "HeaderGetReturn is -1\n", strlen("HeaderGetReturn is -1\n"));
+#endif
+	     return -1;
+	  }
      }
 
    returnLEN = HeaderGetLEN();
@@ -446,6 +464,7 @@ int ControlClient::HeaderGetReturn()
    int pos = Buffer.Find('/');
    int end = pos;
    int len = Buffer.GetLength();
+   int ret;
    
    if(pos == -1)
      return -1;
@@ -461,7 +480,11 @@ int ControlClient::HeaderGetReturn()
    memcpy(temp, &Buffer.GetAt(pos), end - pos);
    temp[end - pos] = '\0';
    
-   return atoi(&temp[1]);
+   ret = atoi(&temp[1]);
+   
+   strncpy(LastCode, &temp[1], 4);
+   
+   return ret;
 }
 
 int ControlClient::HeaderGetLEN()

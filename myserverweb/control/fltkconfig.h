@@ -42,6 +42,7 @@
 #include "language.h"
 #include "mimetype.h"
 #include "vhost.h"
+#include "control_client.h"
 
 class MainDlg {
 public:
@@ -71,6 +72,29 @@ private:
   static void cb_Install(Fl_Menu_*, void*);
   inline void cb_Remove_i(Fl_Menu_*, void*);
   static void cb_Remove(Fl_Menu_*, void*);
+  inline void cb_Login_i(Fl_Menu_*, void*);
+  static void cb_Login(Fl_Menu_*, void*);
+public:
+  static Fl_Menu_Item *MenuLogout;
+private:
+  inline void cb_MenuLogout_i(Fl_Menu_*, void*);
+  static void cb_MenuLogout(Fl_Menu_*, void*);
+public:
+  static Fl_Menu_Item *MenuGetConfig;
+private:
+  inline void cb_MenuGetConfig_i(Fl_Menu_*, void*);
+  static void cb_MenuGetConfig(Fl_Menu_*, void*);
+public:
+  static Fl_Menu_Item *MenuSendConfig;
+private:
+  inline void cb_MenuSendConfig_i(Fl_Menu_*, void*);
+  static void cb_MenuSendConfig(Fl_Menu_*, void*);
+public:
+  static Fl_Menu_Item *MenuConnections;
+  static Fl_Menu_Item *MenuReboot;
+private:
+  inline void cb_MenuReboot_i(Fl_Menu_*, void*);
+  static void cb_MenuReboot(Fl_Menu_*, void*);
   inline void cb_About_i(Fl_Menu_*, void*);
   static void cb_About(Fl_Menu_*, void*);
 public:
@@ -258,7 +282,15 @@ private:
   static void cb_Server_Admin(Fl_Input*, void*);
 public:
   Fl_Input *Control_Admin;
+private:
+  inline void cb_Control_Admin_i(Fl_Input*, void*);
+  static void cb_Control_Admin(Fl_Input*, void*);
+public:
   Fl_Input *Control_Password;
+private:
+  inline void cb_Control_Password_i(Fl_Input*, void*);
+  static void cb_Control_Password(Fl_Input*, void*);
+public:
   Fl_Check_Button *Control_Enabled;
 private:
   inline void cb_Control_Enabled_i(Fl_Check_Button*, void*);
@@ -290,16 +322,32 @@ private:
   inline void cb_OK_i(Fl_Return_Button*, void*);
   static void cb_OK(Fl_Return_Button*, void*);
 public:
+  Fl_Double_Window* make_login();
+  Fl_Double_Window *LoginDlg;
+  Fl_Input *LoginDlgAddress;
+  Fl_Value_Input *LoginDlgPort;
+  Fl_Input *LoginDlgName;
+  Fl_Input *LoginDlgPass;
+  Fl_Return_Button *LoginDlgOK;
+  Fl_Button *LoginDlgCancel;
   int ask_type();
   int load_config();
+  int load_config_remote();
+  int load_myserver_core();
   int save_config();
+  int save_config_remote();
+  int save_myserver_core();
   int ConfType;
 private:
   const char * getValueXML(const char * name);
   void setValueXML(const char * name, const char * value);
+  void ServerLogout();
+  void ServerLogin();
+  void fl_alertcat(const char * c1, const char * c2);
   bool Changed;
   MIMEtypeXML MimeConf;
   vHostXML vHostConf;
   cXMLParser xmlFile;
+  ControlClient Server;
 };
 #endif

@@ -143,6 +143,79 @@ void MainDlg::cb_Remove(Fl_Menu_* o, void* v) {
   ((MainDlg*)(o->parent()->user_data()))->cb_Remove_i(o,v);
 }
 
+inline void MainDlg::cb_Login_i(Fl_Menu_*, void*) {
+  ServerLogin();
+}
+void MainDlg::cb_Login(Fl_Menu_* o, void* v) {
+  ((MainDlg*)(o->parent()->user_data()))->cb_Login_i(o,v);
+}
+
+inline void MainDlg::cb_MenuLogout_i(Fl_Menu_*, void*) {
+  ServerLogout();
+}
+void MainDlg::cb_MenuLogout(Fl_Menu_* o, void* v) {
+  ((MainDlg*)(o->parent()->user_data()))->cb_MenuLogout_i(o,v);
+}
+
+inline void MainDlg::cb_MenuGetConfig_i(Fl_Menu_*, void*) {
+  int ret;
+if(Changed) {
+  if(fl_ask(LanguageXMLLast_Change)) {
+    ret = load_config_remote();
+    if(ret == -1) {
+      fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
+      ServerLogout();
+    }
+    else if(ret) {
+      fl_alert(LanguageXMLNot_Found);
+    }
+  }
+}
+else {
+  ret = load_config_remote();
+  if(ret == -1) {
+    fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
+    ServerLogout();
+  }
+  else if(ret) {
+    fl_alert(LanguageXMLNot_Found);
+  }
+};
+}
+void MainDlg::cb_MenuGetConfig(Fl_Menu_* o, void* v) {
+  ((MainDlg*)(o->parent()->user_data()))->cb_MenuGetConfig_i(o,v);
+}
+
+inline void MainDlg::cb_MenuSendConfig_i(Fl_Menu_*, void*) {
+  int ret;
+ret = save_config_remote();
+if(ret == -1) {
+  fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
+  ServerLogout();
+}
+else if(ret) {
+  fl_alert("Could not save.");
+};
+}
+void MainDlg::cb_MenuSendConfig(Fl_Menu_* o, void* v) {
+  ((MainDlg*)(o->parent()->user_data()))->cb_MenuSendConfig_i(o,v);
+}
+
+inline void MainDlg::cb_MenuReboot_i(Fl_Menu_*, void*) {
+  int ret;
+ret = fl_ask("This will kill all connections.  Are you sure?");
+if(ret) {
+  ret = Server.sendReboot();
+  if(ret) {
+    fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
+    ServerLogout();
+  }
+};
+}
+void MainDlg::cb_MenuReboot(Fl_Menu_* o, void* v) {
+  ((MainDlg*)(o->parent()->user_data()))->cb_MenuReboot_i(o,v);
+}
+
 inline void MainDlg::cb_About_i(Fl_Menu_*, void*) {
   AboutDlg->show();
 }
@@ -169,11 +242,24 @@ Fl_Menu_Item MainDlg::menu_[] = {
  {gettext("Install Service"), 0,  (Fl_Callback*)MainDlg::cb_Install, 0, 0, 0, 0, 14, 56},
  {gettext("Remove Service"), 0,  (Fl_Callback*)MainDlg::cb_Remove, 0, 0, 0, 0, 14, 56},
  {0},
+ {gettext("Re&mote"), 0,  0, 0, 64, 0, 0, 14, 56},
+ {gettext("Login..."), 0,  (Fl_Callback*)MainDlg::cb_Login, 0, 0, 0, 0, 14, 56},
+ {gettext("Logout"), 0,  (Fl_Callback*)MainDlg::cb_MenuLogout, 0, 129, 0, 0, 14, 56},
+ {gettext("Get Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuGetConfig, 0, 1, 0, 0, 14, 56},
+ {gettext("Send Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuSendConfig, 0, 129, 0, 0, 14, 56},
+ {gettext("Connections..."), 0,  0, 0, 1, 0, 0, 14, 56},
+ {gettext("Reboot..."), 0,  (Fl_Callback*)MainDlg::cb_MenuReboot, 0, 1, 0, 0, 14, 56},
+ {0},
  {gettext("&Help"), 0,  0, 0, 64, 0, 0, 14, 56},
  {gettext("&About"), 0,  (Fl_Callback*)MainDlg::cb_About, 0, 0, 0, 0, 14, 56},
  {0},
  {0}
 };
+Fl_Menu_Item* MainDlg::MenuLogout = MainDlg::menu_ + 20;
+Fl_Menu_Item* MainDlg::MenuGetConfig = MainDlg::menu_ + 21;
+Fl_Menu_Item* MainDlg::MenuSendConfig = MainDlg::menu_ + 22;
+Fl_Menu_Item* MainDlg::MenuConnections = MainDlg::menu_ + 23;
+Fl_Menu_Item* MainDlg::MenuReboot = MainDlg::menu_ + 24;
 
 inline void MainDlg::cb_Buffer_Size_i(Fl_Value_Input*, void*) {
   Changed = true;
@@ -802,8 +888,23 @@ void MainDlg::cb_Server_Admin(Fl_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Server_Admin_i(o,v);
 }
 
+inline void MainDlg::cb_Control_Admin_i(Fl_Input*, void*) {
+  Changed = true;
+}
+void MainDlg::cb_Control_Admin(Fl_Input* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Control_Admin_i(o,v);
+}
+
+inline void MainDlg::cb_Control_Password_i(Fl_Input*, void*) {
+  Changed = true;
+}
+void MainDlg::cb_Control_Password(Fl_Input* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Control_Password_i(o,v);
+}
+
 inline void MainDlg::cb_Control_Enabled_i(Fl_Check_Button*, void*) {
-  if(Control_Enabled->value() == 1) {
+  Changed = true;
+if(Control_Enabled->value() == 1) {
   Control_Admin->activate();
   Control_Password->activate();
 }
@@ -2041,8 +2142,8 @@ Fl_Double_Window* MainDlg::make_window() {
     { Fl_Tabs* o = new Fl_Tabs(0, 25, 550, 335);
       { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("System"));
         { Fl_Value_Input* o = Buffer_Size = new Fl_Value_Input(285, 60, 115, 25, gettext("Memory buffer (in bytes):"));
-          o->maximum(-1);
-          o->step(10);
+          o->maximum(5.24288e+06);
+          o->step(1);
           o->callback((Fl_Callback*)cb_Buffer_Size);
         }
         { Fl_Choice* o = Verbosity = new Fl_Choice(285, 90, 115, 25, gettext("Verbosity level:"));
@@ -2052,17 +2153,18 @@ Fl_Double_Window* MainDlg::make_window() {
           o->menu(menu_Verbosity);
         }
         { Fl_Value_Input* o = Max_Log_File_Size = new Fl_Value_Input(285, 120, 115, 25, gettext("Max log file size (in bytes):"));
-          o->step(10);
+          o->maximum(5.24288e+07);
+          o->step(1);
           o->callback((Fl_Callback*)cb_Max_Log_File_Size);
         }
         { Fl_Value_Input* o = Nthreads_A = new Fl_Value_Input(285, 150, 115, 25, gettext("Threads per CPU:"));
-          o->maximum(-1);
-          o->step(10);
+          o->maximum(1000);
+          o->step(1);
           o->callback((Fl_Callback*)cb_Nthreads_A);
         }
         { Fl_Value_Input* o = Nthreads_B = new Fl_Value_Input(285, 180, 115, 30, gettext("Always active threads:"));
-          o->maximum(-1);
-          o->step(10);
+          o->maximum(1000);
+          o->step(1);
           o->callback((Fl_Callback*)cb_Nthreads_B);
         }
         { Fl_Choice* o = Language = new Fl_Choice(285, 215, 115, 25, gettext("Language:"));
@@ -2075,18 +2177,18 @@ Fl_Double_Window* MainDlg::make_window() {
       { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("Server"));
         o->hide();
         { Fl_Value_Input* o = Connection_Timeout = new Fl_Value_Input(285, 60, 115, 25, gettext("Connection time-out (in sec):"));
-          o->maximum(-1);
-          o->step(10);
+          o->maximum(3600);
+          o->step(1);
           o->callback((Fl_Callback*)cb_Connection_Timeout);
         }
         { Fl_Value_Input* o = Max_Connections = new Fl_Value_Input(285, 90, 115, 25, gettext("Max connections:"));
-          o->maximum(-1);
-          o->step(10);
+          o->maximum(5.24288e+06);
+          o->step(1);
           o->callback((Fl_Callback*)cb_Max_Connections);
         }
         { Fl_Value_Input* o = Gzip_Threshold = new Fl_Value_Input(285, 120, 115, 25, gettext("Gzip comrpession threshold (in bytes):"));
-          o->maximum(-1);
-          o->step(10);
+          o->maximum(5.24288e+06);
+          o->step(1);
           o->callback((Fl_Callback*)cb_Gzip_Threshold);
         }
         { Fl_Input* o = Browsefolder_Css = new Fl_Input(285, 150, 115, 25, gettext("Stylesheet:"));
@@ -2207,8 +2309,8 @@ Fl_Double_Window* MainDlg::make_window() {
                 o->callback((Fl_Callback*)cb_Remove5);
               }
               { Fl_Value_Input* o = Port = new Fl_Value_Input(435, 165, 65, 25, gettext("Port:"));
-                o->maximum(-1);
-                o->step(10);
+                o->maximum(10240);
+                o->step(1);
                 o->callback((Fl_Callback*)cb_Port);
               }
               o->end();
@@ -2290,16 +2392,21 @@ Fl_Double_Window* MainDlg::make_window() {
           o->when(FL_WHEN_CHANGED);
         }
         { Fl_Input* o = Control_Admin = new Fl_Input(285, 90, 190, 25, gettext("Administrator user name:"));
+          o->callback((Fl_Callback*)cb_Control_Admin);
+          o->when(FL_WHEN_CHANGED);
           o->deactivate();
         }
         { Fl_Input* o = Control_Password = new Fl_Input(285, 120, 190, 25, gettext("Administrator password:"));
           o->type(5);
+          o->callback((Fl_Callback*)cb_Control_Password);
+          o->when(FL_WHEN_CHANGED);
           o->deactivate();
         }
         { Fl_Check_Button* o = Control_Enabled = new Fl_Check_Button(285, 150, 25, 25, gettext("Enable control protocol:"));
           o->down_box(FL_DOWN_BOX);
           o->callback((Fl_Callback*)cb_Control_Enabled);
           o->align(FL_ALIGN_LEFT);
+          o->when(FL_WHEN_CHANGED);
         }
         o->end();
       }
@@ -2374,6 +2481,28 @@ AboutText->buffer(atext);
   return w;
 }
 
+Fl_Double_Window* MainDlg::make_login() {
+  Fl_Double_Window* w;
+  { Fl_Double_Window* o = LoginDlg = new Fl_Double_Window(607, 124, gettext("Remote Login"));
+    w = o;
+    o->user_data((void*)(this));
+    LoginDlgAddress = new Fl_Input(90, 20, 275, 25, gettext("Address:"));
+    { Fl_Value_Input* o = LoginDlgPort = new Fl_Value_Input(420, 20, 70, 25, gettext("Port:"));
+      o->maximum(10240);
+      o->step(1);
+    }
+    LoginDlgName = new Fl_Input(185, 50, 180, 25, gettext("Login name:"));
+    { Fl_Input* o = LoginDlgPass = new Fl_Input(185, 80, 180, 25, gettext("Login password:"));
+      o->type(5);
+    }
+    LoginDlgOK = new Fl_Return_Button(510, 20, 75, 25, gettext("OK"));
+    LoginDlgCancel = new Fl_Button(510, 55, 75, 25, gettext("Cancel"));
+    o->set_modal();
+    o->end();
+  }
+  return w;
+}
+
 int MainDlg::ask_type() {
   #ifdef WIN32
 return 1;
@@ -2402,8 +2531,6 @@ return ret;
 
 int MainDlg::load_config() {
   char * filename;
-char * chrptr;
-char Buffer[50];
 int i;
 #ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
@@ -2430,88 +2557,12 @@ switch(ConfType) {
     break;
 }
 
+xmlFile.close();
+
 if(xmlFile.open(filename) != 0)
   return -1;
 
-// <LANGUAGE>
-Language->value(0);
-for(i = 0; i < Language->size(); i++) {
-  if(strcmpi(getValueXML("LANGUAGE"), Language->text(i)) == 0) {
-    Language->value(i);
-    break;
-  }
-}
-
-// <VERBOSITY>
-Verbosity->value(atoi(getValueXML("VERBOSITY")));
-
-// <NTHREADS_A>
-Nthreads_A->value(atoi(getValueXML("NTHREADS_A")));
-
-// <NTHREADS_B>
-Nthreads_B->value(atoi(getValueXML("NTHREADS_B")));
-
-// <BUFFER_SIZE>
-Buffer_Size->value(atoi(getValueXML("BUFFER_SIZE")));
-
-// <DEFAULT_FILENAMEx>
-Default_Filename->clear();
-i = 0;
-snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
-chrptr = xmlFile.getValue(Buffer);
-while(chrptr != 0) {
-  Default_Filename->add(chrptr);
-  i++;
-  snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
-  chrptr = xmlFile.getValue(Buffer);
-}
-
-// <CONNECTION_TIMEOUT>
-Connection_Timeout->value(atoi(getValueXML("CONNECTION_TIMEOUT")));
-
-// <USE_ERRORS_FILES>
-chrptr = xmlFile.getValue("USE_ERRORS_FILES");
-if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E')
-  Use_Errors_Files->set();
-else
-  Use_Errors_Files->clear();
-
-// <MAX_CONNECTIONS>
-Max_Connections->value(atoi(getValueXML("MAX_CONNECTIONS")));
-
-// <MAX_LOG_FILE_SIZE>
-Max_Log_File_Size->value(atoi(getValueXML("MAX_LOG_FILE_SIZE")));
-
-// <BROWSEFOLDER_CSS>
-Browsefolder_Css->value(getValueXML("BROWSEFOLDER_CSS"));
-
-// <SERVER_ADMIN>
-Server_Admin->value(getValueXML("SERVER_ADMIN"));
-
-// <GZIP_THRESHOLD>
-Gzip_Threshold->value(atoi(getValueXML("GZIP_THRESHOLD")));
-
-// <CONTROL_ENABLED>
-chrptr = xmlFile.getValue("CONTROL_ENABLED");
-if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
-  Control_Enabled->set();
-  Control_Admin->activate();
-  Control_Password->activate();
-  // <CONTROL_ADMIN>
-  Control_Admin->value(getValueXML("CONTROL_ADMIN"));
-  // <CONTROL_PASSWORD>
-  Control_Password->value("");
-}
-else {
-  Control_Enabled->clear();
-  Control_Admin->deactivate();
-  Control_Password->deactivate();
-  Control_Admin->value("");
-  Control_Password->value("");
-}
-
-// End of myserver.xml file
-xmlFile.close();
+load_myserver_core();
 
 // Loading of MIMEtypes.xml file
 switch(ConfType) {
@@ -2598,10 +2649,167 @@ Changed = false;
 return 0;
 }
 
+int MainDlg::load_config_remote() {
+  int i;
+int ret;
+CMemBuf Buffer;
+
+// Load remote myserver.xml
+ret = Server.getMyserverConf(Buffer);
+if(ret)
+  return -1;
+
+xmlFile.close();
+ret = xmlFile.openMemBuf(Buffer);
+if(ret)
+  return -2;
+
+load_myserver_core();
+
+// Load remote MIMEtypes.xml
+ret = Server.getMIMEtypesConf(Buffer);
+if(ret)
+  return -1;
+
+ret = MimeConf.loadMemBuf(Buffer);
+if(ret)
+  return -2;
+
+// Populate the interface
+MimeConf.populateExt(Ext);
+MimeConf.populateMime(Mime);
+
+// Load remote virtualhosts.xml
+ret = Server.getVhostsConf(Buffer);
+if(ret)
+  return -1;
+
+ret = vHostConf.loadMemBuf(Buffer);
+if(ret)
+  return -2;
+
+// Populate the interface
+vHostConf.populateName(Name);
+Name->value(0);
+vHostConf.populateHost(0, Host);
+vHostConf.populateIp(0, Ip);
+Port->value(vHostConf.getPort(0));
+Protocol->value(vHostConf.getProtocol(0));
+Ssl_Privatekey->value(vHostConf.getSsl_Privatekey(0));
+Ssl_Certificate->value(vHostConf.getSsl_Certificate(0));
+Ssl_Password->value(vHostConf.getSsl_Password(0));
+Docroot->value(vHostConf.getDocroot(0));
+Sysfolder->value(vHostConf.getSysfolder(0));
+Accesseslog->value(vHostConf.getAccesseslog(0));
+Warninglog->value(vHostConf.getWarninglog(0));
+i = Protocol->value();
+if(i != 1 && i != 3) {
+  Ssl_Privatekey->deactivate();
+  Ssl_Certificate->deactivate();
+  Ssl_Password->deactivate();
+  SslButton1->deactivate();
+  SslButton2->deactivate();
+}
+else {
+  Ssl_Privatekey->activate();
+  Ssl_Certificate->activate();
+  Ssl_Password->activate();
+  SslButton1->activate();
+  SslButton2->activate();
+}
+
+// End of function
+Changed = false;
+return 0;
+}
+
+int MainDlg::load_myserver_core() {
+  char * chrptr;
+char Buffer[50];
+int i;
+// <LANGUAGE>
+Language->value(0);
+for(i = 0; i < Language->size(); i++) {
+  if(strcmpi(getValueXML("LANGUAGE"), Language->text(i)) == 0) {
+    Language->value(i);
+    break;
+  }
+}
+
+// <VERBOSITY>
+Verbosity->value(atoi(getValueXML("VERBOSITY")));
+
+// <NTHREADS_A>
+Nthreads_A->value(atoi(getValueXML("NTHREADS_A")));
+
+// <NTHREADS_B>
+Nthreads_B->value(atoi(getValueXML("NTHREADS_B")));
+
+// <BUFFER_SIZE>
+Buffer_Size->value(atoi(getValueXML("BUFFER_SIZE")));
+
+// <DEFAULT_FILENAMEx>
+Default_Filename->clear();
+i = 0;
+snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
+chrptr = xmlFile.getValue(Buffer);
+while(chrptr != 0) {
+  Default_Filename->add(chrptr);
+  i++;
+  snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
+  chrptr = xmlFile.getValue(Buffer);
+}
+
+// <CONNECTION_TIMEOUT>
+Connection_Timeout->value(atoi(getValueXML("CONNECTION_TIMEOUT")));
+
+// <USE_ERRORS_FILES>
+chrptr = xmlFile.getValue("USE_ERRORS_FILES");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E')
+  Use_Errors_Files->set();
+else
+  Use_Errors_Files->clear();
+
+// <MAX_CONNECTIONS>
+Max_Connections->value(atoi(getValueXML("MAX_CONNECTIONS")));
+
+// <MAX_LOG_FILE_SIZE>
+Max_Log_File_Size->value(atoi(getValueXML("MAX_LOG_FILE_SIZE")));
+
+// <BROWSEFOLDER_CSS>
+Browsefolder_Css->value(getValueXML("BROWSEFOLDER_CSS"));
+
+// <SERVER_ADMIN>
+Server_Admin->value(getValueXML("SERVER_ADMIN"));
+
+// <GZIP_THRESHOLD>
+Gzip_Threshold->value(atoi(getValueXML("GZIP_THRESHOLD")));
+
+// <CONTROL_ENABLED>
+chrptr = xmlFile.getValue("CONTROL_ENABLED");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Control_Enabled->set();
+  Control_Admin->activate();
+  Control_Password->activate();
+  // <CONTROL_ADMIN>
+  Control_Admin->value(getValueXML("CONTROL_ADMIN"));
+  // <CONTROL_PASSWORD>
+  Control_Password->value("");
+}
+else {
+  Control_Enabled->clear();
+  Control_Admin->deactivate();
+  Control_Password->deactivate();
+  Control_Admin->value("");
+  Control_Password->value("");
+}
+
+// End of myserver.xml file
+return 0;
+}
+
 int MainDlg::save_config() {
   char * filename;
-char * chrptr;
-char Buffer[256];
 int i;
 #ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
@@ -2628,9 +2836,108 @@ switch(ConfType) {
     break;
 }
 
-i = xmlFile.open(filename);
+xmlFile.close();
 
-if(i != 0) {  // the file dose not exist so make one
+if(xmlFile.open(filename) != 0)
+  return -1;
+
+save_myserver_core();
+
+xmlFile.save(filename);
+
+// Saveing of MIMEtypes.xml file
+switch(ConfType) {
+  case 1 :
+    filename = "MIMEtypes.xml";
+    break;
+#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/MIMEtypes.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/MIMEtypes.xml";
+    break;
+#endif
+  default :
+    return -1;
+    break;
+}
+
+// Save the file
+if(MimeConf.save(filename))
+  return -1;
+
+// Saveing of virtualhosts.xml file
+switch(ConfType) {
+  case 1 :
+    filename = "virtualhosts.xml";
+    break;
+#ifndef WIN32
+  case 2 :
+    snprintf(FileBuffer, FBSIZE, "%s/.myserver/virtualhosts.xml", getenv("HOME"));
+    filename = FileBuffer;
+    break;
+  case 3 :
+    filename = "/etc/myserver/virtualhosts.xml";
+    break;
+#endif
+  default :
+    return -1;
+    break;
+}
+
+// Save the file
+if(vHostConf.save(filename))
+  return -1;
+
+// End of function
+Changed = false;
+return 0;
+}
+
+int MainDlg::save_config_remote() {
+  int ret;
+CMemBuf Buffer;
+
+// Send myserver.xml
+save_myserver_core();
+
+xmlFile.saveMemBuf(Buffer);
+
+ret = Server.sendMyserverConf(Buffer);
+if(ret)
+  return -1;
+
+// Send MIMEtypes.xml
+ret = MimeConf.saveMemBuf(Buffer);
+if(ret)
+  return -2;
+
+ret = Server.sendMIMEtypesConf(Buffer);
+if(ret)
+  return -1;
+
+// Send virtualhosts.xml
+ret = vHostConf.saveMemBuf(Buffer);
+if(ret)
+  return -2;
+
+ret = Server.sendVhostsConf(Buffer);
+if(ret)
+  return -1;
+
+// End of function
+Changed = false;
+return 0;
+}
+
+int MainDlg::save_myserver_core() {
+  char * chrptr;
+char Buffer[256];
+int i;
+
+if(!xmlFile.getDoc()) {  // the file dose not exist so make one
    xmlFile.newfile("MYSERVER");
 }
 
@@ -2718,57 +3025,6 @@ else {
 }
 
 // End of myserver.xml file
-xmlFile.save(filename);
-xmlFile.close();
-
-// Saveing of MIMEtypes.xml file
-switch(ConfType) {
-  case 1 :
-    filename = "MIMEtypes.xml";
-    break;
-#ifndef WIN32
-  case 2 :
-    snprintf(FileBuffer, FBSIZE, "%s/.myserver/MIMEtypes.xml", getenv("HOME"));
-    filename = FileBuffer;
-    break;
-  case 3 :
-    filename = "/etc/myserver/MIMEtypes.xml";
-    break;
-#endif
-  default :
-    return -1;
-    break;
-}
-
-// Save the file
-if(MimeConf.save(filename))
-  return -1;
-
-// Saveing of virtualhosts.xml file
-switch(ConfType) {
-  case 1 :
-    filename = "virtualhosts.xml";
-    break;
-#ifndef WIN32
-  case 2 :
-    snprintf(FileBuffer, FBSIZE, "%s/.myserver/virtualhosts.xml", getenv("HOME"));
-    filename = FileBuffer;
-    break;
-  case 3 :
-    filename = "/etc/myserver/virtualhosts.xml";
-    break;
-#endif
-  default :
-    return -1;
-    break;
-}
-
-// Save the file
-if(vHostConf.save(filename))
-  return -1;
-
-// End of function
-Changed = false;
 return 0;
 }
 
@@ -2787,4 +3043,56 @@ if(chrptr == 0)
   xmlFile.addChild(name, value);
 else
   xmlFile.setValue((char *)name, (char *)value);
+}
+
+void MainDlg::ServerLogout() {
+  Server.Logout();
+MenuLogout->deactivate();
+MenuGetConfig->deactivate();
+MenuSendConfig->deactivate();
+MenuConnections->deactivate();
+MenuReboot->deactivate();
+}
+
+void MainDlg::ServerLogin() {
+  LoginDlg->show();
+int ret;
+for(;;) {
+  Fl_Widget *o = Fl::readqueue();
+  if(!o) Fl::wait();
+  else if(o == LoginDlgOK) {ret = 0; break;}
+  else if(o == LoginDlgCancel) {ret = -1; break;}
+  else if(o == LoginDlg) {ret = -1; break;}
+}
+LoginDlg->hide();
+
+if(ret) {
+  LoginDlgPass->value("");
+  return;
+}
+
+ret = Server.Login(LoginDlgAddress->value(),
+                   (int)LoginDlgPort->value(),
+                   LoginDlgName->value(),
+                   LoginDlgPass->value());
+
+LoginDlgPass->value("");
+
+if(ret) {
+  fl_alertcat("Login failed.  Code: ", Server.LastCode);
+  return;
+}
+
+MenuLogout->activate();
+MenuGetConfig->activate();
+MenuSendConfig->activate();
+MenuConnections->activate();
+MenuReboot->activate();
+}
+
+void MainDlg::fl_alertcat(const char * c1, const char * c2) {
+  char temp[strlen(c1) + strlen(c2)];
+strcpy(temp, c1);
+strcat(temp, c2);
+fl_alert(temp);
 }

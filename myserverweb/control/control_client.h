@@ -49,6 +49,8 @@ class ControlClient
    
    int getConnections(Vector &);
    int sendKillConnection(VectorNode *);
+
+   char LastCode[4];
  protected:
    int sendRequest(const char *, const char *);
    int sendRequest(const char *, const char *, CMemBuf &);

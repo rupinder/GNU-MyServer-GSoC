@@ -111,76 +111,35 @@ void LanguageXMLend()
    ClearList();
 }
 
+static int SetValueXML(char ** dest, const char * tag)
+{
+   char * val;
+   val = xmlFile.getValue((char *)tag); 
+   if(val != NULL)
+     {
+	free(*dest);
+	*dest = strdup(val);
+     }
+}
+
 // load the xml file and set const pointers
 int LanguageXMLfile(const char * filename)
 {
-   char * val;
-
    if(xmlFile.open((char *)filename))
      return -1;
 
    loaded = true;
 
-   val = xmlFile.getValue("LAST_CHANGE");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLLast_Change);
-	(char *)LanguageXMLLast_Change = strdup(val);
-     }
-   val = xmlFile.getValue("NOT_FOUND");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLNot_Found);
-	(char *)LanguageXMLNot_Found = strdup(val);
-     }
-   val = xmlFile.getValue("RELOAD_PREV");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLReload_Prev);
-	(char *)LanguageXMLReload_Prev = strdup(val);
-     }
-   val = xmlFile.getValue("ENTER_DEFAULT");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLEnter_Default);
-	(char *)LanguageXMLEnter_Default = strdup(val);
-     }
-   val = xmlFile.getValue("ABOUT_TEXT");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLAbout_Text);
-	(char *)LanguageXMLAbout_Text = strdup(val);
-     }
-   val = xmlFile.getValue("ENTER_EXTENSION");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLEnter_Extension);
-	(char *)LanguageXMLEnter_Extension = strdup(val);
-     }
-   val = xmlFile.getValue("ENTER_MIME");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLEnter_MIME);
-	(char *)LanguageXMLEnter_MIME = strdup(val);
-     }
-   val = xmlFile.getValue("ENTER_NAME");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLEnter_Name);
-	(char *)LanguageXMLEnter_Name = strdup(val);
-     }
-   val = xmlFile.getValue("ENTER_HOST");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLEnter_Host);
-	(char *)LanguageXMLEnter_Host = strdup(val);
-     }
-   val = xmlFile.getValue("ENTER_IP");
-   if(val != NULL)
-     {
-	free((char *)LanguageXMLEnter_Ip);
-	(char *)LanguageXMLEnter_Ip = strdup(val);
-     }
+   SetValueXML((char **)&LanguageXMLLast_Change, "LAST_CHANGE");
+   SetValueXML((char **)&LanguageXMLNot_Found, "NOT_FOUND");
+   SetValueXML((char **)&LanguageXMLReload_Prev, "RELOAD_PREV");
+   SetValueXML((char **)&LanguageXMLEnter_Default, "ENTER_DEFAULT");
+   SetValueXML((char **)&LanguageXMLAbout_Text, "ABOUT_TEXT");
+   SetValueXML((char **)&LanguageXMLEnter_Extension, "ENTER_EXTENSION");
+   SetValueXML((char **)&LanguageXMLEnter_MIME, "ENTER_MIME");
+   SetValueXML((char **)&LanguageXMLEnter_Name, "ENTER_NAME");
+   SetValueXML((char **)&LanguageXMLEnter_Host, "ENTER_HOST");
+   SetValueXML((char **)&LanguageXMLEnter_Ip, "ENTER_IP");
 
    return 0;
 }

@@ -191,6 +191,7 @@ int main(int argc, char * argv[])
    Configure.make_window();
    Configure.make_about();
    Configure.make_type();
+   Configure.make_login();
 
    // Show the main window
    Configure.ConfDlg->show(argc, argv);

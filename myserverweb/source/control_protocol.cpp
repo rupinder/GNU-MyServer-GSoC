@@ -91,8 +91,8 @@ control_protocol::~control_protocol()
  */
 int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
-  char tmpName[32];
-  char tmpPassword[32];
+  char tmpName[64];
+  char tmpPassword[64];
   tmpName[0]='\0';
   tmpPassword[0]='\0';
 
@@ -120,26 +120,26 @@ int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*
 	data=configurationFileManager.getValue("CONTROL_ADMIN");
 	if(data)
 	{
-    strncpy(tmpName, data, 32);
+    strncpy(tmpName, data, 64);
 	}	
 
 	data=configurationFileManager.getValue("CONTROL_PASSWORD");
 	if(data)
 	{
-    strncpy(tmpPassword, data, 32);
+    strncpy(tmpPassword, data, 64);
 	}	
 
 	data=configurationFileManager.getAttr("CONTROL_ADMIN", "MD5");
 	if(data)
 	{
-    if(strcmpi(data, "YES"))
+    if(strcmpi(data, "YES") == 0)
       adminNameMD5ized = 1;
 	}	
 
 	data=configurationFileManager.getAttr("CONTROL_PASSWORD", "MD5");
 	if(data)
 	{
-    if(strcmpi(data, "YES"))
+    if(strcmpi(data, "YES") == 0)
       adminPasswordMD5ized = 1;
 	}	
   MYSERVER_MD5Context md5;
