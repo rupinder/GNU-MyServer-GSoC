@@ -107,7 +107,7 @@ public: // Static conversion functions (hex, CRC...)
 	static CMemBuf Hash_CRC(const void* pAdr, u_int nSize);
 	static CMemBuf Hex(const void* pAdr, u_int nSize);
 	static CMemBuf u_intToStr(u_int i) {return CMemBuf::XIntToStr(i, false);};
-	static CMemBuf IntToStr(int i) {return CMemBuf::XIntToStr((u_int) (int) (-i), i < 0);};
+	static CMemBuf IntToStr(int i) {if (i < 0) return CMemBuf::XIntToStr((u_int) (int) (-i), true); else return CMemBuf::XIntToStr((u_int) i, false);
 
 	static CMemBuf Hex(CMemBuf& membuf) {return Hex(membuf.m_buffer, membuf.m_nSize);};
 	static CMemBuf Hash_MD5(CMemBuf& membuf) {return Hash_MD5(membuf.m_buffer, membuf.m_nSize);};
