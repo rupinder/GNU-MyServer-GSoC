@@ -74,7 +74,7 @@ void * startClientsTHREAD(void* pParam)
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
 
-	ms_terminateAccess(&ct->connectionWriteAccess,ct->id);
+	terminateAccess(&ct->connectionWriteAccess,ct->id);
 	/*
 	*This function when is alive only call the controlConnections(...) function
 	*of the ClientsTHREAD class instance used for control the thread.
@@ -106,18 +106,18 @@ void * startClientsTHREAD(void* pParam)
 */
 void ClientsTHREAD::controlConnections()
 {
-	ms_requestAccess(&connectionWriteAccess,this->id);
+	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
 	int logonStatus;
 	for(c; c && connections ;c=next)
 	{
 		next=c->Next;
-		nBytesToRead=c->socket.ms_bytesToRead();/*Number of bytes waiting to be read*/
+		nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
 		if(nBytesToRead)
 		{
-			ms_logon(c,&logonStatus,&hImpersonation);
-			err=c->socket.ms_recv(&buffer[c->dataRead],KB(5), 0);
+			logon(c,&logonStatus,&hImpersonation);
+			err=c->socket.recv(&buffer[c->dataRead],KB(5), 0);
 			if(err==-1)
 			{
 				deleteConnection(c);
@@ -154,7 +154,7 @@ void ClientsTHREAD::controlConnections()
 					break;
 			}
 			c->timeout=clock();
-			ms_logout(logonStatus,&hImpersonation);
+			logout(logonStatus,&hImpersonation);
 		}
 		else
 		{
@@ -163,7 +163,7 @@ void ClientsTHREAD::controlConnections()
 					continue;
 		}
 	}
-	ms_terminateAccess(&connectionWriteAccess,this->id);
+	terminateAccess(&connectionWriteAccess,this->id);
 }
 void ClientsTHREAD::stop()
 {
@@ -183,7 +183,7 @@ void ClientsTHREAD::clean()
 {
 	if(initialized==false)
 		return;
-	ms_requestAccess(&connectionWriteAccess,this->id);
+	requestAccess(&connectionWriteAccess,this->id);
 	if(connections)
 	{
 		clearAllConnections();
@@ -192,7 +192,7 @@ void ClientsTHREAD::clean()
 	delete[] buffer2;
 	buffer=buffer2=0;
 	initialized=false;
-	ms_terminateAccess(&connectionWriteAccess,this->id);
+	terminateAccess(&connectionWriteAccess,this->id);
 
 }
 
@@ -202,7 +202,7 @@ void ClientsTHREAD::clean()
 */
 LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort)
 {
-	ms_requestAccess(&connectionWriteAccess,this->id);
+	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION nc=new CONNECTION;
 	memset(nc, 0, sizeof(CONNECTION));
 	nc->socket=s;
@@ -236,7 +236,7 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	strcat(msg,"\r\n");
 
 #endif
-	((vhost*)(nc->host))->ms_accessesLogWrite(msg);
+	((vhost*)(nc->host))->accessesLogWrite(msg);
 
 	if(nc==0)
 	{
@@ -252,10 +252,10 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 			strcat(msg,"\r\n");
 #endif
-			((vhost*)(nc->host))->ms_warningsLogWrite(msg);
+			((vhost*)(nc->host))->warningsLogWrite(msg);
 		}
 	}
-	ms_terminateAccess(&connectionWriteAccess,this->id);
+	terminateAccess(&connectionWriteAccess,this->id);
 	return nc;
 }
 
@@ -266,17 +266,17 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 {
 	if(!s)
 		return 0;
-	ms_requestAccess(&connectionWriteAccess,this->id);
+	requestAccess(&connectionWriteAccess,this->id);
 	int ret=false;
 	/*
 	*First of all close the socket communication.
 	*/
-	s->socket.ms_shutdown(SD_BOTH );
+	s->socket.shutdown(SD_BOTH );
 	do
 	{
-		err=s->socket.ms_recv(buffer,buffersize,0);
+		err=s->socket.recv(buffer,buffersize,0);
 	}while(err!=-1);
-	while(s->socket.ms_closesocket());
+	while(s->socket.closesocket());
 	/*
 	*Then remove the connection from the active connections list.
 	*/
@@ -299,7 +299,7 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 		}
 	}
 	nConnections--;
-	ms_terminateAccess(&connectionWriteAccess,this->id);
+	terminateAccess(&connectionWriteAccess,this->id);
 	return ret;
 }
 
@@ -309,7 +309,7 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 void ClientsTHREAD::clearAllConnections()
 {
 
-	ms_requestAccess(&connectionWriteAccess,this->id);
+	requestAccess(&connectionWriteAccess,this->id);
 	LPCONNECTION c=connections;
 	LPCONNECTION next=0;
 	for(u_long i=0;c && i<nConnections;i++)
@@ -320,7 +320,7 @@ void ClientsTHREAD::clearAllConnections()
 	}
 	nConnections=0;
 	connections=NULL;
-	ms_terminateAccess(&connectionWriteAccess,this->id);
+	terminateAccess(&connectionWriteAccess,this->id);
 }
 
 

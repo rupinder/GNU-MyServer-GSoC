@@ -38,7 +38,7 @@ extern "C" {
 /*
 *Return the recursion of the path.
 */
-int MYSERVER_FILE::ms_getPathRecursionLevel(char* path)
+int MYSERVER_FILE::getPathRecursionLevel(char* path)
 {
 	static char lpath[MAX_PATH];
 	lstrcpy(lpath,path);
@@ -66,7 +66,7 @@ MYSERVER_FILE::MYSERVER_FILE()
 /*
 *Write data to a file.
 */
-int MYSERVER_FILE::ms_WriteToFile(char* buffer,u_long buffersize,u_long* nbw)
+int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 {
 #ifdef WIN32
 	return WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
@@ -80,7 +80,7 @@ int MYSERVER_FILE::ms_WriteToFile(char* buffer,u_long buffersize,u_long* nbw)
 *Open(or create if not exists) a file.
 *If the function have success the return value is different from 0 and -1.
 */
-int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
+int MYSERVER_FILE::openFile(char* filename,u_long opt)
 {
 	strcpy(MYSERVER_FILE::filename,filename);
 #ifdef WIN32
@@ -128,9 +128,9 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 	else/*If no error exist in open the file*/
 	{
 		if(opt & MYSERVER_FILE_OPEN_APPEND)
-			ms_setFilePointer(ms_getFileSize());
+			setFilePointer(getFileSize());
 		else
-			ms_setFilePointer(0);
+			setFilePointer(0);
 	}
 
 #endif
@@ -209,14 +209,14 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 /*
 *Returns the file handle.
 */
-MYSERVER_FILE_HANDLE MYSERVER_FILE::ms_GetHandle()
+MYSERVER_FILE_HANDLE MYSERVER_FILE::getHandle()
 {
 	return handle;
 }
 /*
 *Set the file handle.
 */
-int MYSERVER_FILE::ms_SetHandle(MYSERVER_FILE_HANDLE hl)
+int MYSERVER_FILE::setHandle(MYSERVER_FILE_HANDLE hl)
 {
 	handle=hl;
 	return 1;
@@ -226,21 +226,21 @@ int MYSERVER_FILE::ms_SetHandle(MYSERVER_FILE_HANDLE hl)
 */
 int MYSERVER_FILE::operator =(MYSERVER_FILE f)
 {
-	ms_SetHandle(f.ms_GetHandle());
+	setHandle(f.getHandle());
 	strcpy(filename,f.filename);
 	return 1;
 }
 /*
 *Returns the file path.
 */
-char *MYSERVER_FILE::ms_GetFilename()
+char *MYSERVER_FILE::getFilename()
 {
 	return filename;
 }
 /*
 *Read data from a file to a buffer.
 */
-int	MYSERVER_FILE::ms_ReadFromFile(char* buffer,u_long buffersize,u_long* nbr)
+int	MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
@@ -259,14 +259,14 @@ int	MYSERVER_FILE::ms_ReadFromFile(char* buffer,u_long buffersize,u_long* nbr)
 /*
 *Create a temporary file.
 */
-int MYSERVER_FILE::ms_CreateTemporaryFile(char* filename)
+int MYSERVER_FILE::createTemporaryFile(char* filename)
 { 
-	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY);
+	return openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY);
 }
 /*
 *Close an open file handle.
 */
-int MYSERVER_FILE::ms_CloseFile()
+int MYSERVER_FILE::closeFile()
 {
 	int ret=0;
 	if(handle)
@@ -286,7 +286,7 @@ int MYSERVER_FILE::ms_CloseFile()
 /*
 *Delete an existing file passing the path.
 */
-int MYSERVER_FILE::ms_DeleteFile(char *filename)
+int MYSERVER_FILE::deleteFile(char *filename)
 {
 #ifdef WIN32
 	DeleteFile(filename);
@@ -299,7 +299,7 @@ int MYSERVER_FILE::ms_DeleteFile(char *filename)
 /*
 *Returns the file size in bytes.
 */
-u_long MYSERVER_FILE::ms_getFileSize()
+u_long MYSERVER_FILE::getFileSize()
 {
 	u_long size;
 #ifdef WIN32
@@ -317,7 +317,7 @@ u_long MYSERVER_FILE::ms_getFileSize()
 *Change the position of the pointer to the file.
 *Returns a non-null value if failed.
 */
-int MYSERVER_FILE::ms_setFilePointer(u_long initialByte)
+int MYSERVER_FILE::setFilePointer(u_long initialByte)
 {
 #ifdef WIN32
 	return (SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN)==INVALID_SET_FILE_POINTER)?1:0;
@@ -329,7 +329,7 @@ int MYSERVER_FILE::ms_setFilePointer(u_long initialByte)
 /*
 *Returns a non-null value if the path is a folder.
 */
-int MYSERVER_FILE::ms_IsFolder(char *filename)
+int MYSERVER_FILE::isFolder(char *filename)
 {
 #ifdef WIN32
 	u_long fa=GetFileAttributes(filename);
@@ -339,7 +339,7 @@ int MYSERVER_FILE::ms_IsFolder(char *filename)
 		return 0;
 #endif
 #ifdef __linux__
-	//sprintf("in ms_IsFolder filename = %s\n", filename);
+	//sprintf("in isFolder filename = %s\n", filename);
 	struct stat F_Stats;
 	if(stat(filename, &F_Stats) < 0)
 		return 0;
@@ -352,7 +352,7 @@ int MYSERVER_FILE::ms_IsFolder(char *filename)
 /*
 *Returns a non-null value if the given path is a valid file.
 */
-int MYSERVER_FILE::ms_FileExists(char* filename)
+int MYSERVER_FILE::fileExists(char* filename)
 {
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0}; 
@@ -379,7 +379,7 @@ int MYSERVER_FILE::ms_FileExists(char* filename)
 /*
 *Returns the time of the last modify to the file.
 */
-time_t MYSERVER_FILE::ms_GetLastModTime(char *filename)
+time_t MYSERVER_FILE::getLastModTime(char *filename)
 {
 #ifdef WIN32
 	struct _stat sf;
@@ -391,15 +391,15 @@ time_t MYSERVER_FILE::ms_GetLastModTime(char *filename)
 #endif
 	return sf.st_mtime;
 }
-time_t MYSERVER_FILE::ms_GetLastModTime()
+time_t MYSERVER_FILE::getLastModTime()
 {
-	return ms_GetLastModTime(filename);
+	return getLastModTime(filename);
 }
 
 /*
 *Returns the time of the file creation.
 */
-time_t MYSERVER_FILE::ms_GetCreationTime(char *filename)
+time_t MYSERVER_FILE::getCreationTime(char *filename)
 {
 #ifdef WIN32
 	struct _stat sf;
@@ -411,14 +411,14 @@ time_t MYSERVER_FILE::ms_GetCreationTime(char *filename)
 #endif
 	return sf.st_ctime;
 }
-time_t MYSERVER_FILE::ms_GetCreationTime()
+time_t MYSERVER_FILE::getCreationTime()
 {
-	return ms_GetCreationTime(filename);
+	return getCreationTime(filename);
 }
 /*
 *Returns the time of the last access to the file.
 */
-time_t MYSERVER_FILE::ms_GetLastAccTime(char *filename)
+time_t MYSERVER_FILE::getLastAccTime(char *filename)
 {
 #ifdef WIN32
 	struct _stat sf;
@@ -430,9 +430,9 @@ time_t MYSERVER_FILE::ms_GetLastAccTime(char *filename)
 #endif
 	return sf.st_atime;
 }
-time_t MYSERVER_FILE::ms_GetLastAccTime()
+time_t MYSERVER_FILE::getLastAccTime()
 {
-	return ms_GetLastAccTime(filename);
+	return getLastAccTime(filename);
 }
 
 

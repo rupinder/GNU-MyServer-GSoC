@@ -37,10 +37,10 @@ vhost::~vhost()
 {
 	clearHostList();
 	clearIPList();
-	if(accessesLogFile.ms_GetHandle())
-		accessesLogFile.ms_CloseFile();
-	if(warningsLogFile.ms_GetHandle())
-		warningsLogFile.ms_CloseFile();
+	if(accessesLogFile.getHandle())
+		accessesLogFile.closeFile();
+	if(warningsLogFile.getHandle())
+		warningsLogFile.closeFile();
 	memset(this,0,sizeof(vhost));
 }
 void vhost::clearHostList()
@@ -130,24 +130,24 @@ void vhost::addHost(char *host)
 	hostList=hl;
 }
 
-u_long vhost::ms_accessesLogWrite(char* str)
+u_long vhost::accessesLogWrite(char* str)
 {
 	u_long nbw;
-	accessesLogFile.ms_WriteToFile(str,lstrlen(str),&nbw);
+	accessesLogFile.writeToFile(str,strlen(str),&nbw);
 	return nbw;
 }
-MYSERVER_FILE* vhost::ms_getAccessesLogFile()
+MYSERVER_FILE* vhost::getAccessesLogFile()
 {
 	return &accessesLogFile;
 }
 
-u_long vhost::ms_warningsLogWrite(char* str)
+u_long vhost::warningsLogWrite(char* str)
 {
 	u_long nbw;
-	warningsLogFile.ms_WriteToFile(str,lstrlen(str),&nbw);
+	warningsLogFile.writeToFile(str,strlen(str),&nbw);
 	return nbw;
 }
-MYSERVER_FILE* vhost::ms_getWarningsLogFile()
+MYSERVER_FILE* vhost::getWarningsLogFile()
 {
 	return &warningsLogFile;
 }
@@ -246,7 +246,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 	char buffer2[256];
 	u_long nbr;/*Number of bytes read from the file*/
 	MYSERVER_FILE fh;
-	int ret=fh.ms_OpenFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+	int ret=fh.openFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if((ret==0)||(ret==-1))/*If the file cannot be opened simply do nothing*/
 		return;
 	char c;
@@ -255,7 +255,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 		buffer[0]='\0';
 		for(;;)/*Save a line in the buffer. A line ends with a diesis.*/
 		{
-			fh.ms_ReadFromFile(&c,1,&nbr);
+			fh.readFromFile(&c,1,&nbr);
 			if(c!='#')
 			{
 				if( (c!='\n')&&(c!='\r'))
@@ -269,7 +269,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 					do
 					{
 						oldc =c;
-						fh.ms_ReadFromFile(&c,1,&nbr);
+						fh.readFromFile(&c,1,&nbr);
 					}while(c!='/' && oldc!='*');
 					buffer[0]='\0';
 					continue;
@@ -377,8 +377,8 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			cc++;
 		}	
 		strcpy(vh->accessesLogFileName,buffer2);
-		MYSERVER_FILE *accesses=vh->ms_getAccessesLogFile();
-		accesses->ms_OpenFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
+		accesses->openFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		cc++;
 		/*Get the warnings log file used by the virtual host*/
 		buffer2[0]='\0';
@@ -389,12 +389,12 @@ void vhostmanager::loadConfigurationFile(char* filename)
 			cc++;
 		}	
 		strcpy(vh->warningsLogFileName,buffer2);
-		MYSERVER_FILE * warnings=vh->ms_getWarningsLogFile();
-		warnings->ms_OpenFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
+		warnings->openFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		cc++;
 		addvHost(vh);
 	}
-	fh.ms_CloseFile();
+	fh.closeFile();
 }
 void vhostmanager::saveConfigurationFile(char *filename)
 {
@@ -404,7 +404,7 @@ void vhostmanager::saveConfigurationFile(char *filename)
 	sVhostList*vhl=vhostList;
 	u_long nbw;
 	MYSERVER_FILE fh;
-	fh.ms_OpenFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+	fh.openFile(filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	for(;vhl;vhl=vhl->next)
 	{
 		vhost*vh=vhl->host;
@@ -413,9 +413,9 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		{
 			while(hl)
 			{ 
-				fh.ms_WriteToFile(hl->hostName,(u_long)strlen(hl->hostName),&nbw);
+				fh.writeToFile(hl->hostName,(u_long)strlen(hl->hostName),&nbw);
 				strcpy(buffer,",");
-				fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+				fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 				if(hl->next)
 					hl=hl->next;
 			}
@@ -423,20 +423,20 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		else
 		{
 			strcpy(buffer,"0");
-			fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
 		strcpy(buffer,";");
-		fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		vhost::sIpList* il=vh->ipList;
 		if(il)
 		{
 			while(il)
 			{ 
-				fh.ms_WriteToFile(il->hostIp,(u_long)strlen(il->hostIp),&nbw);
+				fh.writeToFile(il->hostIp,(u_long)strlen(il->hostIp),&nbw);
 				if(il->next)
 				{
 					strcpy(buffer,",");
-					fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+					fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 				}
 
 				il=il->next;
@@ -445,42 +445,42 @@ void vhostmanager::saveConfigurationFile(char *filename)
 		else
 		{
 			strcpy(buffer,"0");
-			fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
 		sprintf(buffer,";%u;",vh->port);
-		fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
 		if(vh->protocol==PROTOCOL_HTTP)
 		{
 			strcpy(buffer,"HTTP;");
-			fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
 		if(vh->protocol==PROTOCOL_FTP)
 		{
 			strcpy(buffer,"FTP;");
-			fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 		}
 
-		fh.ms_WriteToFile(vh->documentRootOriginal,(u_long)strlen(vh->documentRootOriginal),&nbw);
+		fh.writeToFile(vh->documentRootOriginal,(u_long)strlen(vh->documentRootOriginal),&nbw);
 		strcpy(buffer,";");
-		fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
-		fh.ms_WriteToFile(vh->systemRootOriginal,(u_long)strlen(vh->systemRootOriginal),&nbw);
+		fh.writeToFile(vh->systemRootOriginal,(u_long)strlen(vh->systemRootOriginal),&nbw);
 		strcpy(buffer,";");
-		fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
-		fh.ms_WriteToFile(vh->accessesLogFileName,(u_long)strlen(vh->accessesLogFileName),&nbw);
+		fh.writeToFile(vh->accessesLogFileName,(u_long)strlen(vh->accessesLogFileName),&nbw);
 		strcpy(buffer,";");
-		fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
-		fh.ms_WriteToFile(vh->warningsLogFileName,(u_long)strlen(vh->warningsLogFileName),&nbw);
+		fh.writeToFile(vh->warningsLogFileName,(u_long)strlen(vh->warningsLogFileName),&nbw);
 		if(vhl->next)
 			strcpy(buffer,";#\r\n");
 		else
 			strcpy(buffer,";##\r\n\0");
-		fh.ms_WriteToFile(buffer,(u_long)strlen(buffer),&nbw);
+		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 	}
-	fh.ms_CloseFile();
+	fh.closeFile();
 }
 
 vhostmanager::sVhostList* vhostmanager::getvHostList()

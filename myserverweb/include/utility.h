@@ -62,21 +62,21 @@ struct START_PROC_INFO
 void preparePrintError();
 void endPrintError();
 
-int ms_getOSVersion();
-u_long ms_getCPUCount();
-void ms_wait(u_long);
+int getOSVersion();
+u_long getCPUCount();
+void wait(u_long);
 u_long execHiddenProcess(START_PROC_INFO* spi,u_long timeout=0xFFFFFFFF);
 u_long execConcurrentProcess(START_PROC_INFO* spi);
 int terminateProcess(u_long);
-void ms_getComputerName(char* name,u_long maxlen);
-int ms_setcwdBuffer();
-char *ms_getdefaultwd(char* dwd,int maxlen);
-int ms_setcwd(char * cwd);
+void getComputerName(char* name,u_long maxlen);
+int setcwdBuffer();
+char *getdefaultwd(char* dwd,int maxlen);
+int setcwd(char * cwd);
 
 /*
 *These functions are a simple trasposition of the mutex mechanism.
 */
-int ms_requestAccess(u_long*,u_long);
-int ms_terminateAccess(u_long*,u_long);
+int requestAccess(u_long*,u_long);
+int terminateAccess(u_long*,u_long);
 
 #endif

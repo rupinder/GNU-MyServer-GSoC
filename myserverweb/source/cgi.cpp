@@ -32,7 +32,7 @@ extern "C" {
 
 #ifndef WIN32
 #define lstrcpy strcpy
-#define strlen strlen
+#define lstrlen strlen
 #define lstrcpyn strncpy
 #define strcat strcat
 #define strnicmp strncmp
@@ -48,7 +48,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*This because anonymous users cannot go through our files.
 	*/
 	if(lserver->mustUseLogonOption())
-		ms_revertToSelf();
+		revertToSelf();
 	/*
 	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
 	*/
@@ -80,7 +80,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	}
 	else if(cmd==CGI_CMD_RUNCGI)
 	{
-		if(!MYSERVER_FILE::ms_FileExists(cgipath))
+		if(!MYSERVER_FILE::fileExists(cgipath))
 		{
 			return raiseHTTPError(td,s,e_500);
 		}
@@ -104,7 +104,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
     *created because more threads can access more CGI at the same time.
     */
 	char currentpath[MAX_PATH];
-	ms_getdefaultwd(currentpath,MAX_PATH);
+	getdefaultwd(currentpath,MAX_PATH);
 	sprintf(td->outputDataPath,"%s/stdOutFile_%u",currentpath,td->id);
 
 		
@@ -113,10 +113,10 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*to get other params like in a POST request.
 	*/
 	MYSERVER_FILE stdOutFile;
-	stdOutFile.ms_CreateTemporaryFile(td->outputDataPath);
+	stdOutFile.createTemporaryFile(td->outputDataPath);
 	MYSERVER_FILE stdInFile;
-	td->inputData.ms_CloseFile();	
-	stdInFile.ms_OpenFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
+	td->inputData.closeFile();	
+	stdInFile.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
 
 	/*
 	*Build the environment string used by the CGI started
@@ -137,9 +137,9 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	spi.cmd = cgipath;
 	spi.arg = td->scriptFile;
 	
-	spi.stdError = stdOutFile.ms_GetHandle();
-	spi.stdIn = stdInFile.ms_GetHandle();
-	spi.stdOut = stdOutFile.ms_GetHandle();
+	spi.stdError = stdOutFile.getHandle();
+	spi.stdIn = stdInFile.getHandle();
+	spi.stdOut = stdOutFile.getHandle();
 	spi.envString=td->buffer2;
 	execHiddenProcess(&spi);
 	td->buffer2[0]='\0';
@@ -147,8 +147,8 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	*Read the CGI output.
 	*/
 	u_long nBytesRead=0;
-	if(!stdOutFile.ms_setFilePointer(0))
-		stdOutFile.ms_ReadFromFile(td->buffer2,KB(5),&nBytesRead);
+	if(!stdOutFile.setFilePointer(0))
+		stdOutFile.readFromFile(td->buffer2,KB(5),&nBytesRead);
 	else
 		td->buffer2[0]='\0';
 	int yetoutputted=0;
@@ -213,14 +213,14 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		/*
 		*Always specify the size of the HTTP contents.
 		*/
-		sprintf(td->response.CONTENT_LENGTH,"%u",stdOutFile.ms_getFileSize()-headerSize);
+		sprintf(td->response.CONTENT_LENGTH,"%u",stdOutFile.getFileSize()-headerSize);
 		buildHTTPResponseHeader(td->buffer,&td->response);
-		s->socket.ms_send(td->buffer,(int)strlen(td->buffer), 0);
-		s->socket.ms_send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
-		while(stdOutFile.ms_ReadFromFile(td->buffer2,td->buffersize2,&nBytesRead))
+		s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
+		s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+		while(stdOutFile.readFromFile(td->buffer2,td->buffersize2,&nBytesRead))
 		{
 			if(nBytesRead)
-				s->socket.ms_send((char*)td->buffer2,nBytesRead, 0);
+				s->socket.send((char*)td->buffer2,nBytesRead, 0);
 			else
 				break;
 		}
@@ -230,14 +230,14 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	/*
 	*Close and delete the stdin and stdout files used by the CGI.
 	*/
-	stdOutFile.ms_CloseFile();
-	stdInFile.ms_CloseFile();
-	MYSERVER_FILE::ms_DeleteFile(td->inputDataPath);
+	stdOutFile.closeFile();
+	stdInFile.closeFile();
+	MYSERVER_FILE::deleteFile(td->inputDataPath);
 	/*
 	*Restore security on the current thread.
 	*/
 	if(lserver->mustUseLogonOption())
-		ms_impersonateLogonUser(&td->hImpersonation);
+		impersonateLogonUser(&td->hImpersonation);
 	/*
 	*By default don't close the connection.
 	*/

@@ -46,7 +46,7 @@ static char currentPath[MAX_PATH];
 /*
 *Returns the version of the operating system.
 */
-int ms_getOSVersion()
+int getOSVersion()
 {
 	int ret=0;
 	/*
@@ -87,7 +87,7 @@ int ms_getOSVersion()
 /*
 *Returns the number of processors available on the local machine.
 */
-u_long ms_getCPUCount()
+u_long getCPUCount()
 {
 	u_long ret=1;
 #ifdef WIN32
@@ -98,7 +98,7 @@ u_long ms_getCPUCount()
 	return ret;
 }
 /*
-*Execute an hidden process and ms_wait until it ends itself or its execution
+*Execute an hidden process and wait until it ends itself or its execution
 *time is greater than the timeout value.
 *Returns the process exit code.
 */
@@ -287,7 +287,7 @@ int terminateProcess(u_long id)
 /*
 *This function is similar to the Windows API WaitForSingleObject(..)
 */
-int ms_requestAccess(u_long* ac,u_long id)
+int requestAccess(u_long* ac,u_long id)
 {
 	/*
 	*If the access ID is equal to the thread ID we don't do nothing.
@@ -301,7 +301,7 @@ int ms_requestAccess(u_long* ac,u_long id)
 	if(*ac==0)
 	{
 		*ac=id;
-		ms_requestAccess(ac,id);
+		requestAccess(ac,id);
 		return 0;
 	}
 	/*
@@ -309,10 +309,10 @@ int ms_requestAccess(u_long* ac,u_long id)
 	*/
 	while(*ac!=id);
 	*ac=id;
-	ms_requestAccess(ac,id);
+	requestAccess(ac,id);
 	return 0;
 }
-int ms_terminateAccess(u_long* ac,u_long/* id*/)
+int terminateAccess(u_long* ac,u_long/* id*/)
 {
 	/*
 	*Only set to Zero the owner of the access.
@@ -323,17 +323,17 @@ int ms_terminateAccess(u_long* ac,u_long/* id*/)
 /*
 *Save the current working directory.
 */
-int ms_setcwdBuffer()
+int setcwdBuffer()
 {
 	int retval=0;
 #ifdef WIN32	
 	_getcwd(currentPath,MAX_PATH);
 	retval=1;
-	for(u_long i=0;i<(u_long)lstrlen(currentPath);i++)
+	for(u_long i=0;i<(u_long)strlen(currentPath);i++)
 		if(currentPath[i]=='\\')
 			currentPath[i]='/';
-	if(currentPath[lstrlen(currentPath)]=='/')
-		currentPath[lstrlen(currentPath)]='\0';
+	if(currentPath[strlen(currentPath)]=='/')
+		currentPath[strlen(currentPath)]='\0';
 #endif
 #ifdef __linux__
 	getcwd(currentPath,MAX_PATH);
@@ -346,7 +346,7 @@ int ms_setcwdBuffer()
 /*
 *Get the default working directory(Where is the program myserver.exe).
 */
-char *ms_getdefaultwd(char *path,int len)
+char *getdefaultwd(char *path,int len)
 {
 	if(path)
 #ifdef WIN32
@@ -360,15 +360,15 @@ char *ms_getdefaultwd(char *path,int len)
 /*
 *Get the local machine name.
 */
-void ms_getComputerName(char *dest,u_long maxLen)
+void getComputerName(char *dest,u_long maxLen)
 {
-	MYSERVER_SOCKET::ms_gethostname(dest,maxLen);
+	MYSERVER_SOCKET::gethostname(dest,maxLen);
 }
 
 /*
 *Set the current working directory. Returns Zero if successful.
 */
-int ms_setcwd(char *dir)
+int setcwd(char *dir)
 {
 #ifdef WIN32	
 	return _chdir(dir);
@@ -380,7 +380,7 @@ int ms_setcwd(char *dir)
 /*
 *Sleep the caller thread.
 */
-void ms_wait(u_long time)
+void wait(u_long time)
 {
 #ifdef WIN32
 		Sleep(time);

@@ -45,31 +45,31 @@ typedef unsigned int MYSERVER_SOCKET_HANDLE;
 typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
 typedef struct sockaddr MYSERVER_SOCKADDR;
 typedef struct hostent MYSERVER_HOSTENT;
-int ms_startupSocketLib(u_short);
+int startupSocketLib(u_short);
 class MYSERVER_SOCKET
 {
 private:
 	MYSERVER_SOCKET_HANDLE socketHandle;
 public:
-	MYSERVER_SOCKET_HANDLE ms_getHandle();
-	int ms_setHandle(MYSERVER_SOCKET_HANDLE);
-	static MYSERVER_HOSTENT *ms_gethostbyaddr(char* addr,int len,int type);
-	static MYSERVER_HOSTENT *ms_gethostbyname(const char*);
-	static int ms_gethostname(char*,int);
-	int ms_socket(int,int,int);
-	int ms_bind(MYSERVER_SOCKADDR*,int);
-	int ms_listen(int);
-	MYSERVER_SOCKET ms_accept(MYSERVER_SOCKADDR*,int*);
-	int ms_closesocket();
-	int ms_setsockopt(int,int,const char*,int);
-	int ms_shutdown(int how);
-	int ms_ioctlsocket(long,unsigned long*);
-	int ms_send(const char*,int,int);
-	int ms_connect(MYSERVER_SOCKADDR*,int);
-	int ms_recv(char*,int,int);
-	u_long ms_bytesToRead();
+	MYSERVER_SOCKET_HANDLE getHandle();
+	int setHandle(MYSERVER_SOCKET_HANDLE);
+	static MYSERVER_HOSTENT *gethostbyaddr(char* addr,int len,int type);
+	static MYSERVER_HOSTENT *gethostbyname(const char*);
+	static int gethostname(char*,int);
+	int socket(int,int,int);
+	int bind(MYSERVER_SOCKADDR*,int);
+	int listen(int);
+	MYSERVER_SOCKET accept(MYSERVER_SOCKADDR*,int*);
+	int closesocket();
+	int setsockopt(int,int,const char*,int);
+	int shutdown(int how);
+	int ioctlsocket(long,unsigned long*);
+	int send(const char*,int,int);
+	int connect(MYSERVER_SOCKADDR*,int);
+	int recv(char*,int,int);
+	u_long bytesToRead();
 	int operator==(MYSERVER_SOCKET);
 	int operator=(MYSERVER_SOCKET);
-	int ms_getsockname(MYSERVER_SOCKADDR*,int*);
+	int getsockname(MYSERVER_SOCKADDR*,int*);
 };
 #endif

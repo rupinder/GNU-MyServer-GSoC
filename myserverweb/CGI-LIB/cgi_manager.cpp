@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 int cgi_manager::Write(char* str)
 {
 	u_long nbw;
-	cgidata->stdOut.ms_WriteToFile(str,strlen(str),&nbw);
+	cgidata->stdOut.writeToFile(str,strlen(str),&nbw);
 	return 1;
 }
 /*
@@ -79,8 +79,8 @@ char* cgi_manager::GetParam(char* param)
 	char *c=&(td->request.URIOPTS)[0];
 	for(;;)
 	{
-		while(strncmp(c,param,lstrlen(param)))c++;
-		c+=lstrlen(param);
+		while(strncmp(c,param,strlen(param)))c++;
+		c+=strlen(param);
 		if(*c=='=')
 		{
 			c++;
@@ -89,8 +89,8 @@ char* cgi_manager::GetParam(char* param)
 	}
 	while((*c) && (*c!='&'))
 	{
-		lb[lstrlen(lb)+1]='\0';
-		lb[lstrlen(lb)]=*c;
+		lb[strlen(lb)+1]='\0';
+		lb[strlen(lb)]=*c;
 		c++;
 	}
 	return &lb[0];
@@ -100,27 +100,33 @@ char* cgi_manager::GetParam(char* param)
 */
 char* cgi_manager::PostParam(char* param)
 {
-	if(td->request.URIOPTSPTR==NULL)
-		return NULL;
 	static char lb[150];
+	char buffer[200];
+	u_long nbr=0;
+	char c[2];
+	c[1]='\0';
+	buffer[0]='\0';
 	lb[0]='\0';
-	char *c=td->request.URIOPTSPTR;
-	for(;;)
+	
+	u_long toRead=td->inputData.getFileSize();
+	do
 	{
-		while(strncmp(c,param,lstrlen(param)))c++;
-		c+=lstrlen(param);
-		if(*c=='=')
+		cgidata->td->inputData.readFromFile(&c[0],1,&nbr);
+		if((c[0]=='&') |(toRead==1))
 		{
-			c++;
-			break;
+			if(!strncmp(param,buffer,strlen(param)))
+			{
+				strcpy(lb,&buffer[strlen(param)]);
+				break;
+			}
+			buffer[0]='\0';
 		}
-	}
-	while((*c) && (*c!='&'))
-	{
-		lb[lstrlen(lb)+1]='\0';
-		lb[lstrlen(lb)]=*c;
-		c++;
-	}
+		else
+		{
+			strcat(buffer,c);
+		}
+	}while(--toRead);
+
 	return &lb[0];
 
 }
@@ -165,6 +171,6 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 			break;
 		}
 	}
-	*lpdwSize=lstrlen((char*)lpvBuffer);
+	*lpdwSize=strlen((char*)lpvBuffer);
 }
 

@@ -60,9 +60,10 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	MYSERVER_FILE::splitPath(exec,td->cgiRoot,td->cgiFile);
 	buildCGIEnvironmentString(td,data.envString);
 	char outFile[MAX_PATH];
-	ms_getdefaultwd(outFile,MAX_PATH);
-	sprintf(&outFile[lstrlen(outFile)],"/stdInFile_%u",td->id);
-	data.stdOut.ms_OpenFile(outFile,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
+	getdefaultwd(outFile,MAX_PATH);
+	sprintf(&outFile[strlen(outFile)],"/stdOutFile_%u",td->id);
+
+	data.stdOut.openFile(outFile,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
     hinstLib = LoadLibrary(exec); 
 	if (hinstLib) 
     { 
@@ -98,22 +99,22 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 		if(errID!=-1)
 			return raiseHTTPError(td,s,errID);
 	}
-	data.stdOut.ms_setFilePointer(0);
+	data.stdOut.setFilePointer(0);
 	/*
 	*Compute the response length.
 	*/
 
-	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.ms_getFileSize());
+	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.getFileSize());
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
+	s->socket.send(td->buffer,strlen(td->buffer), 0);
 	u_long nbr,nbs;
 	do
 	{
-		data.stdOut.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
-		nbs=s->socket.ms_send(td->buffer,nbr,0);
+		data.stdOut.readFromFile(td->buffer,td->buffersize,&nbr);
+		nbs=s->socket.send(td->buffer,nbr,0);
 	}while(nbr && nbs);
-	data.stdOut.ms_CloseFile();
-	MYSERVER_FILE::ms_DeleteFile(outFile);
+	data.stdOut.closeFile();
+	MYSERVER_FILE::deleteFile(outFile);
 	return 1;
 #else
 	/*

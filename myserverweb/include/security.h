@@ -32,22 +32,22 @@ extern char  guestPassword[32];
 /*
 *Change the ownner of the caller thread.
 */
-int ms_logonCurrentThread(char*,char*,LOGGEDUSERID*);
+int logonCurrentThread(char*,char*,LOGGEDUSERID*);
 /*
 *Change the ownner of the caller thread to the runner of the process.
 */
-void ms_revertToSelf();
+void revertToSelf();
 /*
-*Impersonate the ms_logon user.
+*Impersonate the logon user.
 */
-void ms_impersonateLogonUser(LOGGEDUSERID* hImpersonation);
+void impersonateLogonUser(LOGGEDUSERID* hImpersonation);
 /*
 *Close the handle.
 */
-void ms_cleanLogonUser(LOGGEDUSERID* hImpersonation);
+void cleanLogonUser(LOGGEDUSERID* hImpersonation);
 
-void ms_logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
-void ms_logout(int ms_logon,LOGGEDUSERID *hImpersonation);
+void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation);
+void logout(int logon,LOGGEDUSERID *hImpersonation);
 
-void ms_logonGuest();
+void logonGuest();
 #endif

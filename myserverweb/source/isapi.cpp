@@ -73,14 +73,14 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (AppHnd == NULL) 
 	{
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to load ISAPI application module: ");
-		((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite("Failure to load ISAPI application module: ");
+		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to FreeLibrary in ISAPI module");
-			((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
 		return raiseHTTPError(td,connection,e_501);
 	}
@@ -88,34 +88,34 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	GetExtensionVersion = (PFN_GETEXTENSIONVERSION) GetProcAddress(AppHnd, "GetExtensionVersion");
 	if (GetExtensionVersion == NULL) 
 	{
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to FreeLibrary in ISAPI module");
-			((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
 		return raiseHTTPError(td,connection,e_501);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("ISAPI GetExtensionVersion() returned FALSE\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite("ISAPI GetExtensionVersion() returned FALSE\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to FreeLibrary in ISAPI module");
-			((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
 		return raiseHTTPError(td,connection,e_501);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("ISAPI version not supported\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite("ISAPI version not supported\r\n");
 		if(!FreeLibrary(AppHnd))
 		{
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to FreeLibrary in ISAPI module");
-			((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
-			((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
+			((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+			((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+			((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		}
 		return raiseHTTPError(td,connection,e_501);
 	}
@@ -154,7 +154,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)GetProcAddress(AppHnd, "HttpExtensionProc");
 	if (HttpExtensionProc == NULL) 
 	{
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
 		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
@@ -168,10 +168,10 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	*Flush the output to the client.
 	*/
 	u_long len=0;
-	if(connTable[connIndex].td->outputData.ms_GetHandle())
+	if(connTable[connIndex].td->outputData.getHandle())
 	{
-		connTable[connIndex].td->outputData.ms_setFilePointer(0);
-		connTable[connIndex].td->outputData.ms_ReadFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
+		connTable[connIndex].td->outputData.setFilePointer(0);
+		connTable[connIndex].td->outputData.readFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
 	}
 
 	u_long headerSize=0;
@@ -216,19 +216,19 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	if(ExtCtrlBlk.dwHttpStatusCode==200)/*HTTP status code is 200*/
 	{
 		buildHTTPResponseHeaderStruct(&td->response,td,connTable[connIndex].td->buffer);
-		sprintf(connTable[connIndex].td->response.CONTENT_LENGTH,"%u",connTable[connIndex].td->outputData.ms_getFileSize()-headerSize);
+		sprintf(connTable[connIndex].td->response.CONTENT_LENGTH,"%u",connTable[connIndex].td->outputData.getFileSize()-headerSize);
 		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
-		connTable[connIndex].connection->socket.ms_send(connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
-		connTable[connIndex].connection->socket.ms_send((char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
+		connTable[connIndex].connection->socket.send(connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
+		connTable[connIndex].connection->socket.send((char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
 
 		for(;;)
 		{
-			connTable[connIndex].td->outputData.ms_ReadFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
+			connTable[connIndex].td->outputData.readFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
 			if(len==0)
 				break;
-			connTable[connIndex].connection->socket.ms_send((char*)(connTable[connIndex].td->buffer),len, 0);
+			connTable[connIndex].connection->socket.send((char*)(connTable[connIndex].td->buffer),len, 0);
 		}
-		connTable[connIndex].td->outputData.ms_CloseFile();
+		connTable[connIndex].td->outputData.closeFile();
 	}
 	else	
 	{
@@ -250,9 +250,9 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	}
 	if(!FreeLibrary(AppHnd))
 	{
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("Failure to FreeLibrary in ISAPI module");
-		((vhost*)(td->connection->host))->ms_warningsLogWrite(cgipath);
-		((vhost*)(td->connection->host))->ms_warningsLogWrite("\r\n");
+		((vhost*)(td->connection->host))->warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 	}
 
 	connTable[connIndex].Allocated = FALSE;
@@ -373,18 +373,18 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		((vhost*)(ConnInfo->td->connection->host))->ms_warningsLogWrite("WriteClientExport: invalid hConn\r\n");
+		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	if(ConnInfo->td->outputData.ms_GetHandle()==0)
+	if(ConnInfo->td->outputData.getHandle()==0)
 	{
 		char stdOutFilePath[MAX_PATH];
-		ms_getdefaultwd(stdOutFilePath,MAX_PATH);
-		sprintf(&stdOutFilePath[lstrlen(stdOutFilePath)],"/stdOutFile_%u",ConnInfo->td->id);
-		ConnInfo->td->outputData.ms_CreateTemporaryFile(stdOutFilePath);
+		getdefaultwd(stdOutFilePath,MAX_PATH);
+		sprintf(&stdOutFilePath[strlen(stdOutFilePath)],"/stdOutFile_%u",ConnInfo->td->id);
+		ConnInfo->td->outputData.createTemporaryFile(stdOutFilePath);
 	}
 	DWORD nbw;
-	ConnInfo->td->outputData.ms_WriteToFile((char*)Buffer,*lpdwBytes,&nbw);
+	ConnInfo->td->outputData.writeToFile((char*)Buffer,*lpdwBytes,&nbw);
 
 	*lpdwBytes = nbw;
 	if (nbw) 
@@ -407,10 +407,10 @@ BOOL WINAPI ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize )
 	ConnInfo = HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
-		((vhost*)(ConnInfo->td->connection->host))->ms_warningsLogWrite("ReadClientExport: invalid hConn\r\n");
+		((vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("ReadClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	ConnInfo->td->inputData.ms_ReadFromFile((char*)lpvBuffer,*lpdwSize,&NumRead);
+	ConnInfo->td->inputData.readFromFile((char*)lpvBuffer,*lpdwSize,&NumRead);
 	if (NumRead == -1) 
 	{
 		*lpdwSize = 0;
@@ -482,7 +482,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 			}
 		}
 	}
-	*lpdwSize=lstrlen((char*)lpvBuffer);
+	*lpdwSize=strlen((char*)lpvBuffer);
 	return ret;
 }
 /*
@@ -626,8 +626,8 @@ BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWO
 	if(valLen+MAX_PATH<maxLen)
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
-		lstrcpyn(&ValStr[valLen],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
-		valLen+=lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1;
+		lstrcpyn(&ValStr[valLen],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
+		valLen+=strlen(td->request.URI)-strlen(td->pathInfo)+1;
 		valLen+=sprintf(&ValStr[valLen],"\n");
 	}
 	else if(valLen+30<maxLen) 

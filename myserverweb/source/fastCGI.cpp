@@ -56,8 +56,8 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	buildCGIEnvironmentString(td,td->buffer);
 
 	int sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer,td->buffer2);
-	td->inputData.ms_CloseFile();
-	td->inputData.ms_OpenFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_NO_INHERIT);
+	td->inputData.closeFile();
+	td->inputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_NO_INHERIT);
 
 	int pID = FcgiConnect(&con,cgipath);
 	if(pID<0)
@@ -72,36 +72,36 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 
 	if(sendFcgiBody(&con,(char*)&tBody,sizeof(tBody),FCGI_BEGIN_REQUEST,id))
 	{
-		con.sock.ms_closesocket();
+		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,td->buffer2,sizeEnvString,FCGI_PARAMS,id))
 	{
-		con.sock.ms_closesocket();
+		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,0,0,FCGI_PARAMS,id))
 	{
-		con.sock.ms_closesocket();
+		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}	
     if(atoi(td->request.CONTENT_LENGTH))
 	{
 		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
-		con.sock.ms_send((char*)&tHeader,sizeof(tHeader),0);
-		td->inputData.ms_setFilePointer(0);
+		con.sock.send((char*)&tHeader,sizeof(tHeader),0);
+		td->inputData.setFilePointer(0);
 		do
 		{
-			td->inputData.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
+			td->inputData.readFromFile(td->buffer,td->buffersize,&nbr);
 			if(nbr)
-				con.sock.ms_send(td->buffer,nbr,0);
+				con.sock.send(td->buffer,nbr,0);
 		}while(nbr==td->buffersize);
 	}
 	if(sendFcgiBody(&con,0,0,FCGI_STDIN,id))
 	{
-		con.sock.ms_closesocket();
+		con.sock.closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}	
 
@@ -111,25 +111,25 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	clock_t time1 = clock();
 	do	
 	{
-		while(!con.sock.ms_bytesToRead())
+		while(!con.sock.bytesToRead())
 		{
 			if(clock()-time1>timeout)
 				break;
 		}
-		if(con.sock.ms_bytesToRead())
-			nbr=con.sock.ms_recv((char*)&tHeader,sizeof(FCGI_Header),0);
+		if(con.sock.bytesToRead())
+			nbr=con.sock.recv((char*)&tHeader,sizeof(FCGI_Header),0);
 		else
 		{
 			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
-			con.sock.ms_shutdown(2);
-			con.sock.ms_closesocket();
+			con.sock.shutdown(2);
+			con.sock.closesocket();
  			return raiseHTTPError(td,connection,e_500);
 		}
 		if(nbr<sizeof(FCGI_Header))
 		{
 			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
-			con.sock.ms_shutdown(2);
-			con.sock.ms_closesocket();
+			con.sock.shutdown(2);
+			con.sock.closesocket();
 			return raiseHTTPError(td,connection,e_500);
 		}
 		int dim=(tHeader.contentLengthB1<<8) + tHeader.contentLengthB0;
@@ -144,12 +144,12 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			switch(tHeader.type)
 			{
 				case FCGI_STDERR:
-					con.sock.ms_closesocket();
+					con.sock.closesocket();
 					raiseHTTPError(td,connection,e_501);
 					exit = 1;
 					break;
 				case FCGI_STDOUT:
-					nbr=con.sock.ms_recv(td->buffer,min(dim,td->buffersize),0);
+					nbr=con.sock.recv(td->buffer,min(dim,td->buffersize),0);
 		
 					for(u_long i=0;i<nbr;i++)
 					{
@@ -182,12 +182,12 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 						break;
 					}
 					buildHTTPResponseHeader(td->buffer2,&td->response);
-					if(td->connection->socket.ms_send(td->buffer2,strlen(td->buffer2), 0)==0)
+					if(td->connection->socket.send(td->buffer2,strlen(td->buffer2), 0)==0)
 					{
 						exit = 1;
 						break;
 					}
-					dataSent=td->connection->socket.ms_send((char*)(td->buffer+headerSize),nbr-headerSize, 0)+headerSize;
+					dataSent=td->connection->socket.send((char*)(td->buffer+headerSize),nbr-headerSize, 0)+headerSize;
 					if(dataSent==headerSize)
 					{
 						exit = 1;
@@ -195,14 +195,14 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 					}
 					while(dataSent<dim)
 					{
-						if( con.sock.ms_bytesToRead() )
-							nbr=con.sock.ms_recv(td->buffer,min(dim-dataSent,td->buffersize),0);
+						if( con.sock.bytesToRead() )
+							nbr=con.sock.recv(td->buffer,min(dim-dataSent,td->buffersize),0);
 						else
 						{
 							exit = 1;
 							break;
 						}
-						td->connection->socket.ms_send(td->buffer2,nbr, 0);
+						td->connection->socket.send(td->buffer2,nbr, 0);
 						dataSent+=nbr;
 					}
 					break;
@@ -216,9 +216,9 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			}
 		}
 	}while((!exit) && nbr);
-	td->inputData.ms_CloseFile();
-	MYSERVER_FILE::ms_DeleteFile(td->inputDataPath);
-	con.sock.ms_closesocket();
+	td->inputData.closeFile();
+	MYSERVER_FILE::deleteFile(td->inputDataPath);
+	con.sock.closesocket();
 	return 1;
 }
 
@@ -227,9 +227,9 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 	FCGI_Header tHeader;
 	generateFcgiHeader( tHeader, type, id, len );
 	
-	if(con->sock.ms_send((char*)&tHeader,sizeof(tHeader),0)==-1)
+	if(con->sock.send((char*)&tHeader,sizeof(tHeader),0)==-1)
 		return -1;
-	if(con->sock.ms_send(buffer,len,0)==-1)
+	if(con->sock.send(buffer,len,0)==-1)
 		return -1;
 	return 0;
 }
@@ -321,7 +321,7 @@ int cleanFASTCGI()
 {
 	for(int i=0;i<fCGIserversN;i++)
 	{
-		fCGIservers[i].socket.ms_closesocket();
+		fCGIservers[i].socket.closesocket();
 		terminateProcess(fCGIservers[i].pid);
 	}
 	return 1;
@@ -341,7 +341,7 @@ int FcgiConnect(fCGIContext* con,char* path)
 	unsigned long pLong = 1L;
 	if((pID=runFcgiServer(con,path))>=0)
 	{
-		MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::ms_gethostbyname("localhost");
+		MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname("localhost");
 
 		struct sockaddr_in sockAddr;
 		int sockLen = sizeof(sockAddr);
@@ -350,16 +350,16 @@ int FcgiConnect(fCGIContext* con,char* path)
 	    memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
 	    sockAddr.sin_port = htons(fCGIservers[pID].port);
 		
-		if(con->sock.ms_socket(AF_INET, SOCK_STREAM, 0) == -1)
+		if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)
 		{
 			return -1;
 		}
-		if(con->sock.ms_connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
+		if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
 		{
-			con->sock.ms_closesocket();
+			con->sock.closesocket();
 			return -1;
 		}
-		con->sock.ms_ioctlsocket(FIONBIO, &pLong);
+		con->sock.ioctlsocket(FIONBIO, &pLong);
 		con->fcgiPID=pID;
 	}
 	return pID;
@@ -375,25 +375,25 @@ int runFcgiServer(fCGIContext *con,char* path)
 	{
 		/*SERVER SOCKET CREATION*/
 		memset(&fCGIservers[fCGIserversN],0,sizeof(fCGIservers[fCGIserversN]));
-		fCGIservers[fCGIserversN].socket.ms_socket(AF_INET,SOCK_STREAM,0);
-		if(fCGIservers[fCGIserversN].socket.ms_getHandle()==INVALID_SOCKET)
+		fCGIservers[fCGIserversN].socket.socket(AF_INET,SOCK_STREAM,0);
+		if(fCGIservers[fCGIserversN].socket.getHandle()==INVALID_SOCKET)
 			return -2;
 		MYSERVER_SOCKADDRIN sock_inserverSocket;
 		sock_inserverSocket.sin_family=AF_INET;
 		sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 		fCGIservers[fCGIserversN].port=port+fCGIserversN;
 		sock_inserverSocket.sin_port=htons(fCGIservers[fCGIserversN].port);
-		if(fCGIservers[fCGIserversN].socket.ms_bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket)))
+		if(fCGIservers[fCGIserversN].socket.bind((sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket)))
 		{
-			fCGIservers[fCGIserversN].socket.ms_closesocket();
+			fCGIservers[fCGIserversN].socket.closesocket();
 			return -2;
 		}
-		if(fCGIservers[fCGIserversN].socket.ms_listen(SOMAXCONN))
+		if(fCGIservers[fCGIserversN].socket.listen(SOMAXCONN))
 		{
-			fCGIservers[fCGIserversN].socket.ms_closesocket();
+			fCGIservers[fCGIserversN].socket.closesocket();
 			return -2;
 		}
-		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].socket.ms_getHandle();
+		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].socket.getHandle();
 	}
 	START_PROC_INFO spi;
 	memset(&spi,0,sizeof(spi));

@@ -61,11 +61,11 @@ public:
 	*Functions to manage the logs file.
 	*Derived directly from the filemanager utilities.
 	*/
-	u_long ms_accessesLogWrite(char*);
-	MYSERVER_FILE* ms_getAccessesLogFile();
+	u_long accessesLogWrite(char*);
+	MYSERVER_FILE* getAccessesLogFile();
 
-	u_long ms_warningsLogWrite(char*);
-	MYSERVER_FILE* ms_getWarningsLogFile();
+	u_long warningsLogWrite(char*);
+	MYSERVER_FILE* getWarningsLogFile();
 };
 
 

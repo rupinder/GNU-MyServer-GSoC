@@ -41,14 +41,14 @@ int MIME_Manager::load(char *filename)
 	numMimeTypesLoaded=0;
 	char *buffer;
 	MYSERVER_FILE f;
-	int ret=f.ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+	int ret=f.openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 	if(ret<1)
 		return 0;
-	u_long fs=f.ms_getFileSize();
+	u_long fs=f.getFileSize();
 	buffer=(char*)malloc(fs+1);
 	u_long nbw;
-	f.ms_ReadFromFile(buffer,fs,&nbw);
-	f.ms_CloseFile();
+	f.readFromFile(buffer,fs,&nbw);
+	f.closeFile();
 	MIME_Manager::mime_record record;
 	for(u_long nc=0;;)
 	{
@@ -67,7 +67,7 @@ int MIME_Manager::load(char *filename)
 		{
 			if(isalpha(buffer[nc])||isdigit(buffer[nc]))
 				if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
-					record.extension[lstrlen(record.extension)]=buffer[nc];
+					record.extension[strlen(record.extension)]=buffer[nc];
 			nc++;
 		}
 		nc++;
@@ -87,7 +87,7 @@ int MIME_Manager::load(char *filename)
 		while(buffer[nc]!=' ')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
-				commandString[lstrlen(commandString)]=buffer[nc];
+				commandString[strlen(commandString)]=buffer[nc];
 			nc++;
 			/*
 			*Parse all the possible actions.
@@ -116,7 +116,7 @@ int MIME_Manager::load(char *filename)
 		while(buffer[nc]!=';')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
-				record.cgi_manager[lstrlen(record.cgi_manager)]=buffer[nc];
+				record.cgi_manager[strlen(record.cgi_manager)]=buffer[nc];
 			nc++;
 			/*
 			*If the CGI manager path is "NONE" then set the cgi_manager element in 
@@ -207,20 +207,20 @@ int MIME_Manager::loadXML(char *filename)
 */
 int MIME_Manager::saveXML(char *filename)
 {
-	MYSERVER_FILE::ms_DeleteFile(filename);
+	MYSERVER_FILE::deleteFile(filename);
 	MYSERVER_FILE f;
 	u_long nbw;
-	f.ms_OpenFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-	f.ms_WriteToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
-	f.ms_WriteToFile("<MIMETYPES>\r\n",13,&nbw);
+	f.openFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
+	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
 	mime_record *rc=data;
 	while(rc)
 	{
-		f.ms_WriteToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
-		f.ms_WriteToFile(rc->extension,strlen(rc->extension),&nbw);
-		f.ms_WriteToFile("</EXT>\r\n<MIME>",14,&nbw);
-		f.ms_WriteToFile(rc->mime_type,strlen(rc->mime_type),&nbw);
-		f.ms_WriteToFile("</MIME>\r\n<CMD>",14,&nbw);
+		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
+		f.writeToFile(rc->extension,strlen(rc->extension),&nbw);
+		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
+		f.writeToFile(rc->mime_type,strlen(rc->mime_type),&nbw);
+		f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
 		char command[16];
 		if(rc->command==CGI_CMD_SEND)
 			strcpy(command,"SEND");
@@ -238,18 +238,18 @@ int MIME_Manager::saveXML(char *filename)
 			strcpy(command,"RUNWINCGI");
 		else if(rc->command==CGI_CMD_FASTCGI)
 			strcpy(command,"RUNFASTCGI");		
-		f.ms_WriteToFile(command,lstrlen(command),&nbw);
+		f.writeToFile(command,strlen(command),&nbw);
 
-		f.ms_WriteToFile("</CMD>\r\n<MANAGER>",17,&nbw);
+		f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
 		if(rc->cgi_manager[0])
-			f.ms_WriteToFile(rc->cgi_manager,strlen(rc->cgi_manager),&nbw);
+			f.writeToFile(rc->cgi_manager,strlen(rc->cgi_manager),&nbw);
 		else
-			f.ms_WriteToFile("NONE",4,&nbw);
-		f.ms_WriteToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);
+			f.writeToFile("NONE",4,&nbw);
+		f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);
 		rc=rc->next;	
 	}
-	f.ms_WriteToFile("\r\n</MIMETYPES>",14,&nbw);
-	f.ms_CloseFile();
+	f.writeToFile("\r\n</MIMETYPES>",14,&nbw);
+	f.closeFile();
 	return 1;
 }
 
@@ -258,17 +258,17 @@ int MIME_Manager::saveXML(char *filename)
 */
 int MIME_Manager::save(char *filename)
 {
-	MYSERVER_FILE::ms_DeleteFile(filename);
+	MYSERVER_FILE::deleteFile(filename);
 	MYSERVER_FILE f;
-	f.ms_OpenFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	f.openFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 	MIME_Manager::mime_record *nmr1;
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next)
 	{
-		f.ms_WriteToFile(nmr1->extension,lstrlen(nmr1->extension),&nbw);
-		f.ms_WriteToFile(",",lstrlen(","),&nbw);
-		f.ms_WriteToFile(nmr1->mime_type,lstrlen(nmr1->mime_type),&nbw);
-		f.ms_WriteToFile(",",lstrlen(","),&nbw);
+		f.writeToFile(nmr1->extension,strlen(nmr1->extension),&nbw);
+		f.writeToFile(",",strlen(","),&nbw);
+		f.writeToFile(nmr1->mime_type,strlen(nmr1->mime_type),&nbw);
+		f.writeToFile(",",strlen(","),&nbw);
 		char command[16];
 		if(nmr1->command==CGI_CMD_SEND)
 			strcpy(command,"SEND ");
@@ -287,16 +287,16 @@ int MIME_Manager::save(char *filename)
 		else if(nmr1->command==CGI_CMD_FASTCGI)
 			strcpy(command,"RUNFASTCGI ");		
 
-		f.ms_WriteToFile(command,lstrlen(command),&nbw);
+		f.writeToFile(command,strlen(command),&nbw);
 		if(nmr1->cgi_manager[0])
-			f.ms_WriteToFile(nmr1->cgi_manager,lstrlen(nmr1->cgi_manager),&nbw);
+			f.writeToFile(nmr1->cgi_manager,strlen(nmr1->cgi_manager),&nbw);
 		else
-			f.ms_WriteToFile("NONE",lstrlen("NONE"),&nbw);
-		f.ms_WriteToFile(";\r\n",lstrlen(";\r\n"),&nbw);
+			f.writeToFile("NONE",strlen("NONE"),&nbw);
+		f.writeToFile(";\r\n",strlen(";\r\n"),&nbw);
 	}
-	f.ms_setFilePointer(f.ms_getFileSize()-2);
-	f.ms_WriteToFile("#\0",2,&nbw);
-	f.ms_CloseFile();
+	f.setFilePointer(f.getFileSize()-2);
+	f.writeToFile("#\0",2,&nbw);
+	f.closeFile();
 
 	return 1;
 }
