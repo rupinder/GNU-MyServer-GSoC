@@ -891,7 +891,7 @@ int VhostManager::getHostsNumber()
  */
 int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 {
-	cXMLParser parser;
+	XmlParser parser;
 	xmlDocPtr doc;
 	xmlNodePtr node;
   MYSERVER_LOG_MANAGER *warningLogFile ;

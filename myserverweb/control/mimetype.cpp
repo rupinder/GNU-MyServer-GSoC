@@ -46,7 +46,7 @@ void MIMEtypeXML::clear()
 
 int MIMEtypeXML::load(const char * filename)
 {
-   cXMLParser parser;
+   XmlParser parser;
    if(parser.open((char *)filename)) // but I promis I wont modify
      return -1;
    int ret = load_core(parser);
@@ -56,7 +56,7 @@ int MIMEtypeXML::load(const char * filename)
 
 int MIMEtypeXML::loadMemBuf(CMemBuf & buffer)
 {
-   cXMLParser parser;
+   XmlParser parser;
    if(parser.openMemBuf(buffer))
      return -1;
    int ret = load_core(parser);
@@ -65,8 +65,8 @@ int MIMEtypeXML::loadMemBuf(CMemBuf & buffer)
 }
 
 // Copied and modified from MIME_manager.cpp
-// TODO: Change to use libxml2 or cXMLParser more "proper"
-int MIMEtypeXML::load_core(cXMLParser & parser)
+// TODO: Change to use libxml2 or XmlParser more "proper"
+int MIMEtypeXML::load_core(XmlParser & parser)
 {
    int extNumber = 0;
 
@@ -148,7 +148,7 @@ int MIMEtypeXML::load_core(cXMLParser & parser)
 
 int MIMEtypeXML::save(const char * filename)
 {
-   cXMLParser xmlFile;
+   XmlParser xmlFile;
    int ret = save_core(xmlFile);
    xmlFile.save((char *)filename); // But, but, but I promis
    xmlFile.close();
@@ -157,7 +157,7 @@ int MIMEtypeXML::save(const char * filename)
 
 int MIMEtypeXML::saveMemBuf(CMemBuf & buffer)
 {
-   cXMLParser xmlFile;
+   XmlParser xmlFile;
    int ret = save_core(xmlFile);
    xmlFile.saveMemBuf(buffer);
    xmlFile.close();
@@ -166,7 +166,7 @@ int MIMEtypeXML::saveMemBuf(CMemBuf & buffer)
    
 // Copied and modified from MIME_manager.cpp
 // Old text way remove to make use of CMemBuf
-int MIMEtypeXML::save_core(cXMLParser & xmlFile)
+int MIMEtypeXML::save_core(XmlParser & xmlFile)
 {
    if(Ext.isempty())
      return -1;

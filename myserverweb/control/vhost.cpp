@@ -45,7 +45,7 @@ void vHostXML::clear()
 
 int vHostXML::load(const char * filename)
 {
-   cXMLParser parser;
+   XmlParser parser;
    if(parser.open((char *)filename))  // But I promis not to change filename
      return -1;
    
@@ -56,7 +56,7 @@ int vHostXML::load(const char * filename)
 
 int vHostXML::loadMemBuf(CMemBuf & buffer)
 {
-   cXMLParser parser;
+   XmlParser parser;
    if(parser.openMemBuf(buffer))
      return -1;
    
@@ -67,7 +67,7 @@ int vHostXML::loadMemBuf(CMemBuf & buffer)
 
 // from vhosts.cpp with modification
 // TODO: Change to use libxml2 or cXMLParser more "proper"
-int vHostXML::load_core(cXMLParser & parser)
+int vHostXML::load_core(XmlParser & parser)
 {
    int NameNo = 0;
 
@@ -192,7 +192,7 @@ int vHostXML::load_core(cXMLParser & parser)
 
 int vHostXML::save(const char * filename)
 {
-   cXMLParser xmlFile;
+   XmlParser xmlFile;
    int ret = save_core(xmlFile);
    xmlFile.save((char *)filename);
    xmlFile.close();
@@ -201,7 +201,7 @@ int vHostXML::save(const char * filename)
 
 int vHostXML::saveMemBuf(CMemBuf & buffer)
 {
-   cXMLParser xmlFile;
+   XmlParser xmlFile;
    int ret = save_core(xmlFile);
    xmlFile.saveMemBuf(buffer);
    xmlFile.close();
@@ -210,7 +210,7 @@ int vHostXML::saveMemBuf(CMemBuf & buffer)
 
 // from vhosts.cpp with modification
 // Old text way removed to make use of CMemBuf
-int vHostXML::save_core(cXMLParser & xmlFile)
+int vHostXML::save_core(XmlParser & xmlFile)
 {
    if(vHosts.isempty())
      return -1;

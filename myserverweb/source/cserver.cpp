@@ -159,7 +159,7 @@ void cserver::start()
    */
 	setcwdBuffer();
 	
-	cXMLParser::startXML();
+	XmlParser::startXML();
 	/*!
    *Setup the server configuration.
    */
@@ -395,7 +395,7 @@ int cserver::purgeThreads()
  */
 void cserver::finalCleanup()
 {
-	cXMLParser::cleanXML();
+	XmlParser::cleanXML();
   freecwdBuffer();
 }
 /*!

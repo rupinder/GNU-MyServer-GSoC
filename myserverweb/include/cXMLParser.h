@@ -31,7 +31,7 @@ extern "C"
 /*!
  *This class is used to open a .xml file and read informations from it.
  */
-class cXMLParser
+class XmlParser
 {
 	xmlDocPtr doc;
 	char buffer[250];
@@ -41,8 +41,8 @@ class cXMLParser
 public:
 	static int startXML();
 	static int cleanXML();
-	cXMLParser();
-	~cXMLParser();
+	XmlParser();
+	~XmlParser();
 	xmlDocPtr getDoc();
 	int open(char* filename);
 	int openMemBuf(CMemBuf &);

@@ -371,7 +371,7 @@ private:
   bool Changed;
   MIMEtypeXML MimeConf;
   vHostXML vHostConf;
-  cXMLParser xmlFile;
+  XmlParser xmlFile;
   ControlClient Server;
 };
 #endif

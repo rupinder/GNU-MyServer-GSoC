@@ -91,8 +91,8 @@ private:
 	/*! Used when rebooting to load new configuration files.  */
 	int pausing;
 	ProtocolsManager protocols;
-	cXMLParser configurationFileManager;
-	cXMLParser languageParser;
+	XmlParser configurationFileManager;
+	XmlParser languageParser;
   int autoRebootEnabled;
   int toReboot;
   MYSERVER_LOG_MANAGER *logManager;

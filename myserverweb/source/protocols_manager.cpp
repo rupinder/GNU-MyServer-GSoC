@@ -41,7 +41,7 @@ typedef char* (*registerNamePROC)(char*,int);
 /*!
 *Load the protocol. Called once at runtime.
 */
-int DynamicProtocol::loadProtocol(cXMLParser* languageParser,char* confFile,
+int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
                                    cserver* lserver)
 {
   errorParser = languageParser;
@@ -80,7 +80,7 @@ int DynamicProtocol::loadProtocol(cXMLParser* languageParser,char* confFile,
 /*!
 *Unload the protocol. Called once.
 */
-int DynamicProtocol::unloadProtocol(cXMLParser* languageParser)
+int DynamicProtocol::unloadProtocol(XmlParser* languageParser)
 {
   if(filename)
     delete [] filename;
@@ -210,8 +210,8 @@ int DynamicProtocol::setFilename(char *nf)
 /*!
  *Add a new protocol to the list by its module name.
  */
-int ProtocolsManager::addProtocol(char *file,cXMLParser* parser,
-                                   char* confFile,cserver* lserver)
+int ProtocolsManager::addProtocol(char *file, XmlParser* parser,
+                                   char* confFile, cserver* lserver)
 {
 	dynamic_protocol_list_element* ne = new dynamic_protocol_list_element();
 	ne->data.setFilename(file);
@@ -233,7 +233,7 @@ int ProtocolsManager::addProtocol(char *file,cXMLParser* parser,
 /*!
  *Unload evey loaded protocol.
  */
-int ProtocolsManager::unloadProtocols(cXMLParser *parser)
+int ProtocolsManager::unloadProtocols(XmlParser *parser)
 {
 	dynamic_protocol_list_element* ce=list;
 	dynamic_protocol_list_element* ne=0;
@@ -297,7 +297,7 @@ DynamicProtocol* ProtocolsManager::getDynProtocol(char *protocolName)
  *Load all the protocols present in the directory.
  *Returns Nonzero on errors.
  */
-int ProtocolsManager::loadProtocols(char* directory, cXMLParser* parser,
+int ProtocolsManager::loadProtocols(char* directory, XmlParser* parser,
                                      char* confFile, cserver* lserver)
 {
 	myserver_finddata_t fd;

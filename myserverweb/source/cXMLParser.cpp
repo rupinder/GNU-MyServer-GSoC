@@ -58,7 +58,7 @@ static int MemBufCloseCallback(void * context)
 /*!
  *Initialize the libxml2 library
  */
-int cXMLParser::startXML()
+int XmlParser::startXML()
 {
 	xmlInitParser();
 	return 1;
@@ -67,7 +67,7 @@ int cXMLParser::startXML()
 /*!
  *Cleanup the libxml2 library.
  */
-int cXMLParser::cleanXML()
+int XmlParser::cleanXML()
 {
 	xmlCleanupParser();
 	return 1;
@@ -77,7 +77,7 @@ int cXMLParser::cleanXML()
  *With the open function we open a file and store it in memory.
  *Return nonzero on errors.
  */
-int cXMLParser::open(char* filename)
+int XmlParser::open(char* filename)
 {
 	cur=0;
 	if(!MYSERVER_FILE::fileExists(filename))
@@ -105,7 +105,7 @@ int cXMLParser::open(char* filename)
  *Read the xml data from a char array
  *Return nonzero on errors.
  */
-int cXMLParser::openMemBuf(CMemBuf & memory)
+int XmlParser::openMemBuf(CMemBuf & memory)
 {
 	cur=0;
 	if(memory.GetLength() == 0)
@@ -126,9 +126,9 @@ int cXMLParser::openMemBuf(CMemBuf & memory)
 	return 0;
 }
 /*!
- *Constructor of the cXMLParser class.
+ *Constructor of the XmlParser class.
  */
-cXMLParser::cXMLParser()
+XmlParser::XmlParser()
 {
   doc = 0;
 	cur = 0;
@@ -136,23 +136,23 @@ cXMLParser::cXMLParser()
 	last_node = 0;
 }
 /*!
- *Destroy the cXMLParser object.
+ *Destroy the XmlParser object.
  */
-cXMLParser::~cXMLParser()
+XmlParser::~XmlParser()
 {
 	close();
 }
 /*!
  *Return the xml Document.
  */
-xmlDocPtr cXMLParser::getDoc()
+xmlDocPtr XmlParser::getDoc()
 {
 	return doc;
 }
 /*!
  *Only get the value of the vName root children element.
  */
-char *cXMLParser::getValue(char* vName)
+char *XmlParser::getValue(char* vName)
 {
 	if(!cur)
 		return 0;
@@ -186,7 +186,7 @@ char *cXMLParser::getValue(char* vName)
  *Set the value of the vName root children element.
  *Returns nonzero on errors.
 */
-int cXMLParser::setValue(char* vName,char *value)
+int XmlParser::setValue(char* vName,char *value)
 {
 	xmlNodePtr lcur=cur->xmlChildrenNode;
 	buffer[0]='\0';
@@ -206,7 +206,7 @@ int cXMLParser::setValue(char* vName,char *value)
 /*!
  *Get the attribute attr for the node field
  */
-char *cXMLParser::getAttr(char* field,char *attr)
+char *XmlParser::getAttr(char* field,char *attr)
 {
 	xmlNodePtr lcur=cur->xmlChildrenNode;
 	buffer[0]='\0';
@@ -231,7 +231,7 @@ char *cXMLParser::getAttr(char* field,char *attr)
 /*!
  *Free the memory used by the class.
  */
-int cXMLParser::close()
+int XmlParser::close()
 {
   if(doc)
     xmlFreeDoc(doc);
@@ -247,7 +247,7 @@ int cXMLParser::close()
  *If no errors nbytes[optional] will cointain the number 
  *of bytes written.
  */
-int cXMLParser::save(char *filename,int *nbytes)
+int XmlParser::save(char *filename,int *nbytes)
 {
   int err = xmlSaveFile(filename,doc);
   if(nbytes)
@@ -261,7 +261,7 @@ int cXMLParser::save(char *filename,int *nbytes)
  *If no errors nbytes[optional] will cointain the number 
  *of bytes written.
  */
-int cXMLParser::saveMemBuf(CMemBuf & memory,int *nbytes)
+int XmlParser::saveMemBuf(CMemBuf & memory,int *nbytes)
 {
   /* initilize the callback struct */
   xmlOutputBufferPtr callback;
@@ -285,7 +285,7 @@ int cXMLParser::saveMemBuf(CMemBuf & memory,int *nbytes)
  *Returns nothing.
  *root is the root element entry.
  */
-void cXMLParser::newfile(const char * root)
+void XmlParser::newfile(const char * root)
 {
    if(doc != 0)
      close();
@@ -298,7 +298,7 @@ void cXMLParser::newfile(const char * root)
  *Returns nothing.
  *name is the child name and value is its value.
  */
-void cXMLParser::addChild(const char * name, const char * value)
+void XmlParser::addChild(const char * name, const char * value)
 {
    last_node = xmlNewTextChild(cur, NULL, (const xmlChar*)name, (const xmlChar*)value);
 }
@@ -308,7 +308,7 @@ void cXMLParser::addChild(const char * name, const char * value)
  *Returns nothing.
  *name is the name of the sub group.
  */
-void cXMLParser::addGroup(const char * name)
+void XmlParser::addGroup(const char * name)
 {
   if(prev_cur == 0)
   {
@@ -321,7 +321,7 @@ void cXMLParser::addGroup(const char * name)
  *Ends the sub group if any (only one level for now).
  *Returns nothing.
  */
-void cXMLParser::endGroup()
+void XmlParser::endGroup()
 {
   if(prev_cur != 0)
   {
@@ -334,7 +334,7 @@ void cXMLParser::endGroup()
  *Returns nothing.
  *Uses last node entry, name is the name and value is the value
  */
-void cXMLParser::setAttr(const char * name, const char * value)
+void XmlParser::setAttr(const char * name, const char * value)
 {
 	if(last_node == 0)
 		return;

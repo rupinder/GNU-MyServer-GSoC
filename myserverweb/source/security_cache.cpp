@@ -45,7 +45,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
     return 0;
   sprintf(permissionsFile,"%s/security",directory);
 
-  cXMLParser *parser =(cXMLParser*)dictionary.getData(permissionsFile);
+  XmlParser *parser =(XmlParser*)dictionary.getData(permissionsFile);
   /*!
    *If the parser is still present use it.
    */
@@ -59,7 +59,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
     /*! 
      *Create the parser and append at the dictionary.
      */
-    parser = new cXMLParser();
+    parser = new XmlParser();
     if(parser == 0)
     {  
       delete [] permissionsFile;
@@ -91,7 +91,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
     }
     if(dictionary.nodesNumber() >= limit)
     {
-      cXMLParser* toremove =(cXMLParser*) dictionary.removeNodeAt(1);
+      XmlParser* toremove =(XmlParser*) dictionary.removeNodeAt(1);
       if(toremove)
         delete toremove;
     }
@@ -126,7 +126,7 @@ void SecurityCache::free()
   int i;
   for(i=1; i <= dictionary.nodesNumber(); i++ )
   {
-    cXMLParser *el =(cXMLParser*) dictionary.getData(i);
+    XmlParser *el =(XmlParser*) dictionary.getData(i);
     if(el)
       delete el;
   }
@@ -168,7 +168,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
   {
     filename[filenamelen--]='\0';
   }
-  cXMLParser *parser =(cXMLParser*)dictionary.getData(permissionsFile);
+  XmlParser *parser =(XmlParser*)dictionary.getData(permissionsFile);
   /*!
    *If the parser is still present use it.
    */
@@ -183,7 +183,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
     /*! 
      *Create the parser and append at the dictionary.
      */
-    parser = new cXMLParser();
+    parser = new XmlParser();
     if(parser == 0)
     {  
       delete [] permissionsFile;
@@ -216,7 +216,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
     }
     if(dictionary.nodesNumber() >= limit)
     {
-      cXMLParser* toremove =(cXMLParser*) dictionary.removeNodeAt(1);
+      XmlParser* toremove =(XmlParser*) dictionary.removeNodeAt(1);
       if(toremove)
         delete toremove;
     }

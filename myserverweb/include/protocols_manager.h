@@ -38,7 +38,7 @@ extern "C" {
 class DynamicProtocol : public Protocol
 {
 private:
-  cXMLParser *errorParser;
+  XmlParser *errorParser;
 	char *filename;
 	HMODULE hinstLib;
 	char protocolName[16];
@@ -50,8 +50,8 @@ public:
 	char* registerName(char*,int len);
 	virtual int controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
                                 int bs2,u_long nbtr,u_long id);
-	int loadProtocol(cXMLParser*, char*, cserver*);
-	int unloadProtocol(cXMLParser*);	
+	int loadProtocol(XmlParser*, char*, cserver*);
+	int unloadProtocol(XmlParser*);	
 	int getOptions();
 };
 
@@ -69,8 +69,8 @@ public:
 	ProtocolsManager();
   DynamicProtocol* getDynProtocolByOrder(int order);
 	DynamicProtocol* getDynProtocol(char *protocolName);
-	int	addProtocol(char*,cXMLParser*,char*,cserver* lserver);
-	int unloadProtocols(cXMLParser*);
-	int loadProtocols(char* directory, cXMLParser*, char*, cserver* lserver);
+	int	addProtocol(char*, XmlParser*, char*, cserver* lserver);
+	int unloadProtocols(XmlParser*);
+	int loadProtocols(char* directory, XmlParser*, char*, cserver* lserver);
 };
 #endif

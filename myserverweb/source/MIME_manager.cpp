@@ -158,7 +158,7 @@ char *MimeManager::getFilename()
  */
 int MimeManager::loadXML(char *filename)
 {
-	cXMLParser parser;
+	XmlParser parser;
   int filenamelen=strlen(filename)+1;
   MimeManager::filename = new char[filenamelen];
   if(MimeManager::filename==0)

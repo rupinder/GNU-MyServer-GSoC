@@ -119,8 +119,8 @@ public:
 	virtual char* registerName(char*,int len);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);
-	static int loadProtocol(cXMLParser*,char*);
-	static int unloadProtocol(cXMLParser*);
+	static int loadProtocol(XmlParser*,char*);
+	static int unloadProtocol(XmlParser*);
   int getCGItimeout();
 };
 

@@ -90,7 +90,7 @@ ControlProtocol::~ControlProtocol()
 /*!
  *Load the control protocol.
  */
-int ControlProtocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
+int ControlProtocol::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
 {
   char tmpName[64];
   char tmpPassword[64];
@@ -105,7 +105,7 @@ int ControlProtocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*/
 
   char *data = 0;
   char *main_configuration_file = lserver->getMainConfFile();
-	cXMLParser configurationFileManager;
+	XmlParser configurationFileManager;
 	configurationFileManager.open(main_configuration_file);
 
 	data=configurationFileManager.getValue("CONTROL_ENABLED");

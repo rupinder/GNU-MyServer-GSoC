@@ -43,7 +43,7 @@ static int LanguageXMLfile(const char *);
 static TextNode * TextList = NULL;
 static bool loaded = false;
 static bool loadok = true;
-static cXMLParser xmlFile;
+static XmlParser xmlFile;
 
 const char * LanguageXMLLast_Change;
 const char * LanguageXMLNot_Found;
@@ -206,7 +206,7 @@ void LanguageXMLload()
    char languege_file[MAX_PATH];
    char main_configuration_file[MAX_PATH];
    char * chrptr;
-   cXMLParser xmlFile;
+   XmlParser xmlFile;
    bool langFound = true;
    bool confFound = true;
    int ret;

@@ -176,7 +176,7 @@ int Http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
 	/*! Check if the host allows HTTP trace.  */
 	char *filename;
   char *http_trace_value;
-	cXMLParser parser;
+	XmlParser parser;
   filename = new char[strlen(((Vhost*)(s->host))->documentRoot) + 10];
   if(filename==0)
   {
@@ -2412,7 +2412,7 @@ int Http::sendAuth(HttpThreadContext* td, ConnectionPtr s)
 /*!
  *Load the HTTP protocol.
  */
-int Http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
+int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
 {
   char *main_configuration_file;
   char *data;
@@ -2461,7 +2461,7 @@ int Http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
     delete [] browseDirCSSpath;
   }
 	browseDirCSSpath = 0;
-	cXMLParser configurationFileManager;
+	XmlParser configurationFileManager;
 	configurationFileManager.open(main_configuration_file);
 	
 	/*! Determine the min file size that will use GZIP compression.  */
@@ -2561,7 +2561,7 @@ int Http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 /*!
  *Unload the HTTP protocol.
  */
-int Http::unloadProtocol(cXMLParser* /*languageParser*/)
+int Http::unloadProtocol(XmlParser* /*languageParser*/)
 {
 	 if(!initialized)
 		 return 0;

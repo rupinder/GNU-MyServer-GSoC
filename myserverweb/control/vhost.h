@@ -58,10 +58,10 @@ class vHostXML
    void clear();
    int load(const char *);
    int loadMemBuf(CMemBuf &);
-   int load_core(cXMLParser &);
+   int load_core(XmlParser &);
    int save(const char *);
    int saveMemBuf(CMemBuf &);
-   int save_core(cXMLParser &);
+   int save_core(XmlParser &);
    void populateName(Fl_Choice *);
    void populateHost(int, Fl_Browser *);
    void populateIp(int, Fl_Browser *);

@@ -59,7 +59,7 @@ int main(int argc, char * argv[])
    char languages_path[MAX_PATH];
    char main_configuration_file[MAX_PATH];
    int conf_location = 0;
-   cXMLParser xmlFile;
+   XmlParser xmlFile;
    myserver_finddata_t fd;
    int fd_ret;
    bool langFound = true;
@@ -194,7 +194,7 @@ int main(int argc, char * argv[])
      }
 
    // Initilize APIs
-   cXMLParser::startXML();
+   XmlParser::startXML();
    // LanguageXMLinit handeled internaly
    //
    // Load the language file for configure
@@ -279,7 +279,7 @@ int main(int argc, char * argv[])
 
    // Cleanup
    LanguageXMLend();
-   cXMLParser::cleanXML();
+   XmlParser::cleanXML();
 
    // Exit
    return ret;

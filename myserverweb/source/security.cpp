@@ -41,12 +41,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *Return other valus on success, please note to free
  *out after its use.
  */
-int getErrorFileName(char *root,int error,char** out, cXMLParser* parser)
+int getErrorFileName(char *root,int error,char** out, XmlParser* parser)
 {
 	char *permissionsFile;
   *out = 0;
   int permissionsFileLen;
-	cXMLParser local_parser;  
+	XmlParser local_parser;  
   xmlDocPtr doc;
 	int found=0;
 	xmlNode *node;
@@ -127,13 +127,13 @@ int getErrorFileName(char *root,int error,char** out, cXMLParser* parser)
 int getPermissionMask(char* user, char* password,char* directory,
                       char* filename,char *sysdirectory, char *password2,
                       char* auth_type,int len_auth,int *permission2, 
-                      cXMLParser* parser)
+                      XmlParser* parser)
 {
 	char *permissionsFile;
 	char tempPassword[32];
   int ret =0;
   int permissionsFileLen;
-	cXMLParser local_parser;
+	XmlParser local_parser;
   xmlDocPtr doc;
 	int filePermissions=0;
 	int filePermissionsFound=0;

@@ -1983,6 +1983,6 @@ return temp;} {}
   decl {bool Changed;} {}
   decl {MIMEtypeXML MimeConf;} {}
   decl {vHostXML vHostConf;} {}
-  decl {cXMLParser xmlFile;} {}
+  decl {XmlParser xmlFile;} {}
   decl {ControlClient Server;} {}
 } 
