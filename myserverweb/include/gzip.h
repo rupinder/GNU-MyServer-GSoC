@@ -20,7 +20,33 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define GZIP_H
 #include "../stdafx.h"
 
-u_long gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT);
-u_long gzip_bound(u_long size);
+#ifndef DO_NOT_USE_GZIP	/*If is defined DO_NOT_USE_GZIP don't use the zlib library */
+#include "zlib.h"		/*Include the ZLIB library header file*/
+#endif
 
+#ifdef DO_NOT_USE_GZIP	
+#define z_stream (void*)
+#endif
+
+#define GZIP_HEADER_LENGTH		10
+#define GZIP_FOOTER_LENGTH		8
+extern char GZIP_HEADER[];
+class gzip
+{
+public:
+	struct gzip_data
+	{
+		z_stream stream;
+		u_long crc;
+		u_long data_size;
+		u_long initialized;
+	};
+	u_long gzip_updateCRC(char* buffer,int size,gzip_data* data);
+	u_long gzip_getFOOTER(char *str,int size,gzip_data* data);
+	u_long gzip_initialize(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
+	u_long gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
+	u_long gzip_free(char* in,u_long sizeIN,char *out,u_long sizeOUT,gzip_data* data);
+private:
+	gzip_data data;
+};
 #endif

@@ -261,6 +261,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	{
 		lastByte=min((u_long)lastByte,bytesToSend);
 	}
+
 	/*
 	*Be sure that client accept GZIP compressed data.
 	*/
@@ -286,14 +287,15 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 		td->response.httpStatus = 206;
 	
 	sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
-	
-	if(useGZIP)
-	{
-		strcpy(td->response.CONTENT_ENCODING,"gzip");
-		strcpy(td->response.TRANSFER_ENCODING,"chunked");
-	}
+
 	time_t lastmodTime=h.getLastModTime();
 	getRFC822LocalTime(lastmodTime,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
+
+	if(useGZIP)
+	{
+		strcpy(td->response.TRANSFER_ENCODING,"chunked");
+		strcpy(td->response.CONTENT_ENCODING,"gzip");
+	}
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
 
@@ -302,51 +304,92 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	*/
 	if(OnlyHeader)
 		return 1;
-
-
+	/*!
+	*Is the GZIP header still added to the buffer?
+	*/
+	u_long gzipheaderadded=0;
+	/*!
+	*gzip compression manager
+	*/
+	gzip gzip;
+	/*
+	*Number of bytes created by the zip compressor by loop.
+	*/
+	u_long gzip_dataused=0;
+	if(useGZIP)
+		gzip.gzip_initialize(td->buffer2,td->buffersize2,&td->buffer[GZIP_HEADER_LENGTH],td->buffersize,0);
 	for(;;)
 	{
 		u_long nbr;
-		u_long bytestoread;
-		
+
 		if(useGZIP)
 		{
-			bytestoread=min(bytesToSend,td->buffersize2/2);
+			gzip_dataused=0;
+			u_long datatoread=min(bytesToSend,td->buffersize2/2);
 			/*!
 			*Read from the file the bytes to send.
 			*/
-			h.readFromFile(td->buffer2,bytestoread,&nbr);
+			h.readFromFile(td->buffer2,datatoread,&nbr);
+
 			if(nbr)
-				nbr=gzip_compress(td->buffer2,nbr,td->buffer,td->buffersize);
+			{
+				td->buffer2[datatoread]='\n';
+				nbr++;
+			}
+			if(nbr)
+			{
+				if(gzipheaderadded==0)
+				{
+					memcpy(td->buffer,GZIP_HEADER,GZIP_HEADER_LENGTH);
+					gzip_dataused+=GZIP_HEADER_LENGTH;
+					gzipheaderadded=1;
+				}
+				nbr=gzip.gzip_compress(td->buffer2,nbr,&td->buffer[gzip_dataused],td->buffersize-gzip_dataused,0);
+				gzip_dataused+=nbr;
+			}
+			else
+			{
+				gzip_dataused=gzip.gzip_free(td->buffer2,nbr,td->buffer,td->buffersize,0);
+			}
+
+
 		}
 		else
 		{
-			bytestoread=min(bytesToSend,td->buffersize);
 			/*!
 			*Read from the file the bytes to send.
 			*/
-			h.readFromFile(td->buffer,bytestoread,&nbr);
+			h.readFromFile(td->buffer,min(bytesToSend,td->buffersize),&nbr);
 		}
 		if(useGZIP)
 		{
 			char chunksize[12];
-			sprintf(chunksize,"%x\r\n",nbr);
-			if(s->socket.send(chunksize,strlen(chunksize), 0) == SOCKET_ERROR)
+			sprintf(chunksize,"%x\r\n",gzip_dataused);
+			if(s->socket.send(chunksize,(int)strlen(chunksize), 0) == SOCKET_ERROR)
 				break;
-		}
-		/*!
-		*If there are bytes to send, send them.
-		*/
-		if(nbr)
-			if(s->socket.send(td->buffer,nbr, 0) == SOCKET_ERROR)
-				break;
-		if(useGZIP)
+
+			if(gzip_dataused)
+				if(s->socket.send(td->buffer,gzip_dataused, 0) == SOCKET_ERROR)
+					break;		
+
 			s->socket.send("\r\n",2, 0);
+		}
+		else
+		{
+			/*!
+			*If there are bytes to send, send them.
+			*/
+			if(nbr)
+				if(s->socket.send(td->buffer,nbr, 0) == SOCKET_ERROR)
+					break;		
+		}
 		/*!
 		*When the bytes number read from the file is zero, stop to send the file.
 		*/
-		if(nbr==0)
+		if((nbr==0) || (gzip_dataused==GZIP_FOOTER_LENGTH))
+		{
 			break;
+		}
 	}
 
 	h.closeFile();
@@ -1416,16 +1459,16 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		strcat(str,response->CONNECTION);
 		strcat(str,"\r\n");
 	}
-	if(response->CONTENT_ENCODING[0])
-	{
-		strcat(str,"Content-Encoding: ");
-		strcat(str,response->CONTENT_ENCODING);
-		strcat(str,"\r\n");
-	}
 	if(response->TRANSFER_ENCODING[0])
 	{
 		strcat(str,"Transfer-Encoding: ");
 		strcat(str,response->TRANSFER_ENCODING);
+		strcat(str,"\r\n");
+	}
+	if(response->CONTENT_ENCODING[0])
+	{
+		strcat(str,"Content-Encoding: ");
+		strcat(str,response->CONTENT_ENCODING);
 		strcat(str,"\r\n");
 	}
 	if(response->COOKIE[0])
