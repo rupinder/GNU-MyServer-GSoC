@@ -17,11 +17,13 @@
  */
 
 
-
+
 #include "rxall.h"
 #include "rxstr.h"
 
-
+#ifdef _VC
+#define strncasecmp(a,b,c) _strnicmp(a,b,c)
+#endif
 
 #ifdef __STDC__
 enum rx_answers
@@ -81,13 +83,13 @@ rx_str_contextfn (closure, node, start, end, regs)
 	else
 	  {
 	    if (strc->rules.case_indep)
-	      cmp = strncasecmp (strc->str + start,
-				 strc->str + regs[regn].rm_so,
-				 end - start);
+	      cmp = strncasecmp ((const char*)(strc->str + start),
+				 (const char*)(strc->str + regs[regn].rm_so),
+				 (const unsigned)(end - start));
 	    else
-	      cmp = strncmp (strc->str + start,
-			     strc->str + regs[regn].rm_so,
-			     end - start);
+	      cmp = strncmp ((const char*)(strc->str + start),
+			     (const char*)(strc->str + regs[regn].rm_so),
+			     (const unsigned)(end - start));
 
 	    return (!cmp
 		    ? rx_yes

@@ -236,7 +236,7 @@ rx_regmatch (pmatch, preg, rules, start, end, string)
 				&& (!local_rules.newline_anchor
 				    || (string[end] != '\n'))));
       solutions = rx_basic_make_solutions (pmatch, preg->pattern, preg->subexps,
-					   start, end, &local_rules, string);
+					   start, end, &local_rules, (const unsigned char*)string);
       if (!solutions)
 	return REG_ESPACE;
       
@@ -323,7 +323,7 @@ rx_regexec (pmatch, preg, rules, start, end, string)
 		  rx_free_unfa (unfa);
 		  return REG_ESPACE;
 		}
-	      amt = rx_advance_to_final (&machine, string + x, end - start - x);
+	      amt = rx_advance_to_final (&machine, (const unsigned char*)(string + x), end - start - x);
 	      if (!machine.final_tag && (amt < (end - start - x)))
 		goto nomatch;
 	    }

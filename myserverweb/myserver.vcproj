@@ -22,6 +22,7 @@
 			WholeProgramOptimization="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/D &quot;_VC&quot;"
 				Optimization="4"
 				GlobalOptimizations="FALSE"
 				InlineFunctionExpansion="0"
@@ -45,6 +46,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="contrib\rx\Debug\rx.lib"
 				OutputFile="$(OutDir)/myserver.exe"
 				LinkIncremental="0"
 				GenerateDebugInformation="TRUE"
@@ -193,6 +195,9 @@
 				RelativePath="source\myserver.cpp">
 			</File>
 			<File
+				RelativePath="source\myserver_regex.cpp">
+			</File>
+			<File
 				RelativePath="source\processes.cpp">
 			</File>
 			<File
@@ -291,6 +296,9 @@
 			</File>
 			<File
 				RelativePath="include\mscgi.h">
+			</File>
+			<File
+				RelativePath="include\myserver_regex.h">
 			</File>
 			<File
 				RelativePath="include\processes.h">

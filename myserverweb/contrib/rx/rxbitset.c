@@ -23,6 +23,7 @@
 
 
 #include "rxall.h"
+#include "rx.h"
 #include "rxbitset.h"
 
 

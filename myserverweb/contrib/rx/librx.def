@@ -1,0 +1,10 @@
+LIBRARY librx
+EXPORTS 
+	regncomp
+	regcomp
+	regerror
+	rx_regmatch
+	rx_regexec
+	regnexec
+	regexec
+	regfree

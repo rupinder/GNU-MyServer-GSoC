@@ -498,21 +498,21 @@ hash_cons_se_prog (rx, memo, car, cdr)
 #endif
 {
   long hash = (long)car ^ (long)cdr;
-  struct rx_se_list template;
+  struct rx_se_list templ;
 
-  template.car = car;
-  template.cdr = cdr;
+  templ.car = car;
+  templ.cdr = cdr;
   {
     struct rx_hash_item * it = rx_hash_store (memo, hash,
-					      (void *)&template,
+					      (void *)&templ,
 					      &se_list_hash_rules);
     if (!it)
       return 0;
-    if (it->data == (void *)&template)
+    if (it->data == (void *)&templ)
       {
 	struct rx_se_list * consed;
 	consed = (struct rx_se_list *) malloc (sizeof (*consed));
-	*consed = template;
+	*consed = templ;
 	it->data = (void *)consed;
       }
     return (struct rx_se_list *)it->data;
@@ -603,23 +603,23 @@ nfa_set_cons (rx, memo, state, set)
      struct rx_nfa_state_set * set;
 #endif
 {
-  struct rx_nfa_state_set template;
+  struct rx_nfa_state_set templ;
   struct rx_hash_item * node;
-  template.car = state;
-  template.cdr = set;
+  templ.car = state;
+  templ.cdr = set;
   node = rx_hash_store (memo,
 			(((long)state) >> 8) ^ (long)set,
-			&template, &nfa_set_hash_rules);
+			&templ, &nfa_set_hash_rules);
   if (!node)
     return 0;
-  if (node->data == &template)
+  if (node->data == &templ)
     {
       struct rx_nfa_state_set * l;
       l = (struct rx_nfa_state_set *) malloc (sizeof (*l));
       node->data = (void *) l;
       if (!l)
 	return 0;
-      *l = template;
+      *l = templ;
     }
   return (struct rx_nfa_state_set *)node->data;
 }

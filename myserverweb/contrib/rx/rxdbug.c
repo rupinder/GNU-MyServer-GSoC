@@ -20,9 +20,11 @@
 
 #include <stdio.h>
 #include "rxall.h"
+#include "rx.h"
 #include "rxgnucomp.h"
 #include "rxnfa.h"
-
+
+
 
 #ifdef HAVE_POSITIONAL_ARRAY_INITS
 #define AT(X) [X] =
@@ -48,9 +50,7 @@ char *node_type_names[] =
 };
 
 void
-print_cset (cset_size, cs)
-     int cset_size;
-     rx_Bitset cs;
+print_cset (int cset_size, rx_Bitset cs)
 {
   int x;
   if (!cs)
@@ -91,18 +91,14 @@ print_string(struct rx_string *s, char bracket)
 }    
 
 void
-spaces (n)
-     int n;
+spaces (int n)
 {
   while (n--)
     putchar (' ');
 }
 
 void
-print_rexp (cset_size, indent, rexp)
-     int cset_size;
-     int indent;
-     struct rexp_node * rexp;
+print_rexp (int cset_size, int indent, struct rexp_node * rexp)
 {
   spaces (indent);
   if (!rexp)
@@ -134,9 +130,7 @@ print_rexp (cset_size, indent, rexp)
 
 
 void
-unparse_print_rexp (cset_size, rexp)
-     int cset_size;
-     struct rexp_node * rexp;
+unparse_print_rexp (int cset_size, struct rexp_node * rexp)
 {
   if (!rexp)
     return;
@@ -217,9 +211,7 @@ unparse_print_rexp (cset_size, rexp)
 
 
 void
-print_nfa_state (rx, state)
-     struct rx * rx;
-     struct rx_nfa_state * state;
+print_nfa_state (struct rx *rx, struct rx_nfa_state * state)
 {
   struct rx_nfa_edge * e;
   printf ("state %d, is_final %d, is_start %d\n",
@@ -242,8 +234,7 @@ print_nfa_state (rx, state)
 }
 
 void
-print_nfa (rx)
-     struct rx * rx;
+print_nfa (struct rx *rx)
 {
   struct rx_nfa_state * state;
   for (state = rx->nfa_states; state; state = state->next)

@@ -1,18 +1,18 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=63
+UnitCount=65
 Type=1
 Ver=1
 ObjFiles=
 Includes=
-Libs=
+Libs=contrib/rx
 PrivateResource=
 ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lwininet -lwsock32 -lz -llibz -llibxml2 -llibssl  -lcrypto_@@_
+Linker=-lwininet -lwsock32 -lz -llibz -llibxml2 -llibssl  -lcrypto_@@_-lrx_@@_
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -710,6 +710,26 @@ BuildCmd=
 
 [Unit63]
 FileName=include\MemBuf.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit64]
+FileName=source\myserver_regex.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit65]
+FileName=include\myserver_regex.h
 CompileCpp=1
 Folder=myserver
 Compile=1

@@ -1,0 +1,3 @@
+LIBRARY counter
+EXPORTS 
+	main

@@ -11,12 +11,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "math_sum", "binaries\web\cg
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "counter", "binaries\web\cgi-src\counter\counter.vcproj", "{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rx", "contrib\rx\rx.vcproj", "{000E9680-075E-4044-9D0D-88469530E383}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
 		ConfigName.1 = Release
 	EndGlobalSection
 	GlobalSection(ProjectDependencies) = postSolution
+		{18317468-CF8E-4E0F-AAAD-413B53C00277}.0 = {000E9680-075E-4044-9D0D-88469530E383}
 		{9E491532-42AB-405A-9E9C-99195F4DA361}.0 = {18317468-CF8E-4E0F-AAAD-413B53C00277}
 		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.0 = {AA2FC8CC-2355-4403-96F9-CD6AC93D44BA}
 		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.0 = {AA2FC8CC-2355-4403-96F9-CD6AC93D44BA}
@@ -47,6 +50,10 @@ Global
 		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Debug.Build.0 = Debug|Win32
 		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.ActiveCfg = Release|Win32
 		{2C1AF0ED-C2E6-4C76-B2A3-3A3DC3FDEBC7}.Release.Build.0 = Release|Win32
+		{000E9680-075E-4044-9D0D-88469530E383}.Debug.ActiveCfg = Debug|Win32
+		{000E9680-075E-4044-9D0D-88469530E383}.Debug.Build.0 = Debug|Win32
+		{000E9680-075E-4044-9D0D-88469530E383}.Release.ActiveCfg = Release|Win32
+		{000E9680-075E-4044-9D0D-88469530E383}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

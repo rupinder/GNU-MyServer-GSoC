@@ -45,7 +45,7 @@ rx_init_string(thisone, first)
   if(!tmp)
     return -1;
 
-  thisone->contents    = tmp;
+  thisone->contents    =(unsigned char*) tmp;
   thisone->contents[0] = first;
   thisone->reallen     = INITSIZE;
   thisone->len         = 1;
@@ -88,7 +88,7 @@ rx_adjoin_string (str, c)
       if(!temp)
 	return -1;
 
-      str->contents = temp;
+      str->contents = (unsigned char*) temp;
       str->reallen += EXPANDSIZE;
     }
 
@@ -120,7 +120,7 @@ rx_copy_string (to, from)
   rx_free_string (to);
   to->len      = from->len;
   to->reallen  = from->reallen;
-  to->contents = tmp;
+  to->contents = (unsigned char*) tmp;
 
   memcpy (to->contents, from->contents, from->reallen);
 
@@ -164,7 +164,7 @@ rx_string_hash (seed, str)
   char * string;
   int len;
 
-  string = str->contents;
+  string = (char*) str->contents;
   len = str->len;
   result = seed;
 
@@ -195,7 +195,7 @@ rexp_node (type)
   rx_bzero ((char *)n, sizeof (*n));
   if (n)
     {
-      n->type = type;
+      n->type = (enum rexp_node_type) type;
       n->id = -1;
       n->refs = 1;
     }

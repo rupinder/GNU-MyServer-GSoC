@@ -431,8 +431,11 @@ extern struct rx_superset * rx_superstate_eclosure_union (struct rx * rx, struct
 extern struct rx_superstate * rx_superstate (struct rx *rx,
 					     struct rx_superset *set);
 extern struct rx_inx * rx_handle_cache_miss (struct rx *rx, struct rx_superstate *super, unsigned char chr, void *data) ;
+extern void rx_refresh_this_superstate (struct rx_cache * cache,struct rx_superstate * superstate);
 
 #else /* STDC */
+extern void rx_refresh_this_superstate (struct rx_cache *cache, struct rx_superstate *superstate);
+
 extern char * rx_cache_malloc ();
 extern void rx_cache_free ();
 extern void rx_release_superset ();

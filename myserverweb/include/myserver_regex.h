@@ -20,11 +20,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define MYSERVER_REGEX_IN
 
 #include "../stdafx.h"
+#ifndef _VC
 extern "C" 
 {
+#endif
 #include <stdio.h>
 #include "../contrib/rx/rxposix.h"
+
+#ifndef _VC
 }
+#endif
 
 /*!
 *This class is used to manage regular expressions in MyServer.

@@ -24,7 +24,6 @@
 
 #include "rxhash.h"
 
-
 
 
 extern const char rx_version_string[];
@@ -41,6 +40,8 @@ extern void rx_free_rx ();
 extern void rx_bzero ();
 
 #endif /* STDC */
+
+
 
 
 

@@ -1,5 +1,3 @@
-
-
 /*	Copyright (C) 1995, 1996 Tom Lord
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -18,12 +16,12 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-
+
 
 #include "rxall.h"
 #include "rxsuper.h"
 
-
+
 /* The functions in the next several pages define the lazy-NFA-conversion used
  * by matchers.  The input to this construction is an NFA such as 
  * is built by compactify_nfa (rx.c).  The output is the superNFA.
@@ -565,38 +563,38 @@ superset_allocator (rules, val)
 #endif
 {
   struct rx_cache * cache;
-  struct rx_superset * template;
+  struct rx_superset * templ;
   struct rx_superset * newset;
 
   cache = ((struct rx_cache *)
 	   ((char *)rules
 	    - (unsigned long)(&((struct rx_cache *)0)->superset_hash_rules)));
-  template = (struct rx_superset *)val;
+  templ = (struct rx_superset *)val;
   newset = ((struct rx_superset *)
-	    rx_cache_malloc (cache, sizeof (*template)));
+	    rx_cache_malloc (cache, sizeof (*templ)));
   if (!newset)
     return 0;
   {
     int cdrfinal;
     int cdredges;
 
-    cdrfinal = (template->cdr
-		? template->cdr->is_final
+    cdrfinal = (templ->cdr
+		? templ->cdr->is_final
 		: 0);
-    cdredges = (template->cdr
-		? template->cdr->has_cset_edges
+    cdredges = (templ->cdr
+		? templ->cdr->has_cset_edges
 		: 0);
     
-    newset->is_final = (rx_abs (template->car->is_final) > rx_abs(cdrfinal)
-			? template->car->is_final
-			: template->cdr->is_final);
-    newset->has_cset_edges = (template->car->has_cset_edges || cdredges);
+    newset->is_final = (rx_abs (templ->car->is_final) > rx_abs(cdrfinal)
+			? templ->car->is_final
+			: templ->cdr->is_final);
+    newset->has_cset_edges = (templ->car->has_cset_edges || cdredges);
   }
   newset->refs = 0;
-  newset->id = template->id;
-  newset->car = template->car;
-  newset->cdr = template->cdr;
-  rx_protect_superset (rx, template->cdr);
+  newset->id = templ->id;
+  newset->car = templ->car;
+  newset->cdr = templ->cdr;
+  rx_protect_superset (rx, templ->cdr);
   newset->superstate = 0;
   newset->starts_for = 0;
   newset->hash_item.data = (void *)newset;
@@ -718,17 +716,17 @@ rx_superset_cons (rx, car, cdr)
       return cache->empty_superset;
     }
   {
-    struct rx_superset template;
+    struct rx_superset templ;
     struct rx_hash_item * hit;
-    template.car = car;
-    template.cdr = cdr;
-    template.id = rx->rx_id;
-    rx_protect_superset (rx, template.cdr);
+    templ.car = car;
+    templ.cdr = cdr;
+    templ.id = rx->rx_id;
+    rx_protect_superset (rx, templ.cdr);
     hit = rx_hash_store (&cache->superset_table,
 			 (unsigned long)car ^ car->id ^ (unsigned long)cdr,
-			 (void *)&template,
+			 (void *)&templ,
 			 &cache->superset_hash_rules);
-    rx_protect_superset (rx, template.cdr);
+    rx_protect_superset (rx, templ.cdr);
     return (hit
 	    ?  (struct rx_superset *)hit->data
 	    : 0);
@@ -1324,7 +1322,7 @@ rx_handle_cache_miss (rx, super, chr, data)
 #endif
 {
   int offset = chr / RX_subset_bits;
-  struct rx_distinct_future *df = data;
+  struct rx_distinct_future *df = (struct rx_distinct_future*) data;
 
   if (!df)			/* must be the shared_cache_miss_frame */
     {

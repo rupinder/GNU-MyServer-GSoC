@@ -19,10 +19,10 @@
 
 #include <sys/types.h>
 #include "rxall.h"
+#include "rx.h"
 #include "rxgnucomp.h"
 #include "inst-rxposix.h"
 
-
 /* {A Syntax Table} 
  */
 
