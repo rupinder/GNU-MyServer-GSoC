@@ -1,0 +1,36 @@
+#Create a linux copy to be easily distribute
+if [  $# = 0 ]; then
+  echo "Usage: $0 folder_to_create"
+  exit
+fi
+
+mkdir $1
+cp myserver $1
+cp *.default $1
+cp readme.txt $1
+
+mkdir $1/web
+cp web/*.* $1/web
+
+mkdir $1/system
+cp system/*.* $1/system
+
+mkdir $1/languages
+cp languages/*.xml $1/languages
+
+mkdir $1/web/cgi-bin
+cp web/cgi-bin/*.* $1/web/cgi-bin
+
+mkdir $1/web/downloads
+cp web/downloads/*.* $1/web/downloads
+
+mkdir $1/cgi-lib
+cp cgi-lib/cgi-lib.so $1/cgi-lib
+cp cgi-lib/cgi_manager.h $1/cgi-lib
+cp cgi-lib/license.txt $1/cgi-lib
+
+mkdir $1/web/documentation
+cp ../Documentation/En/*.* $1/web/documentation/
+
+mkdir $1/web/documentation/images
+cp ../Documentation/En/images/*.* $1/web/documentation/images/

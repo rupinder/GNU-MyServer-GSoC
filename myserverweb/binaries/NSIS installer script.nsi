@@ -105,9 +105,9 @@ SectionEnd
 
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
-  File "web\documentation\*.*"
+  File "..\Documentation\En\*.*"
   SetOutPath "$INSTDIR\web\documentation\images"
-  File "web\documentation\images\*.*"
+  File "..\Documentation\En\images\*.*"
 SectionEnd
 
 Section "Install other languages" SecLanguages
