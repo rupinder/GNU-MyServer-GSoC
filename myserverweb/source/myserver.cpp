@@ -250,7 +250,6 @@ int main (int argn, char **argv)
 		}
 	}
 #endif
-//      server->setLogFile("logs\\myserver.log");
   /*!
    *Start here the MyServer execution.
    */
@@ -287,11 +286,14 @@ int main (int argn, char **argv)
     /*!
      *Store the PID.
      */
+#ifdef ARGP
     if(input.pidFileName)
       write_pidfile(input.pidFileName);
     else
       write_pidfile("/var/run/myserver.pid");
-
+#else
+    write_pidfile("/var/run/myserver.pid");
+#endif
     /*!
      *Create a SID for the new process.
      */
