@@ -708,7 +708,9 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s,
 /*!
  *Main function to handle the HTTP PUT command.
  */
-int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename, int /*!systemrequest*/, int, int firstByte, int /*!lastByte*/, int yetmapped)
+int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, 
+                          char *filename, int /*!systemrequest*/, 
+                          int, int firstByte, int /*!lastByte*/, int yetmapped)
 {
 	int httpStatus=td->response.httpStatus;
 	http_headers::buildDefaultHTTPResponseHeader(&td->response);

@@ -275,9 +275,11 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	}
 	else
 		td->outputData.writeToFile((char*)(buffer+headerSize),nBytesRead-headerSize,&nbw);
-		
-	while(OutFileHandle.readFromFile(buffer,td->buffer2->GetLength(),&nBytesRead))
+
+  /*! Flush the rest of the file. */
+  do
 	{
+    OutFileHandle.readFromFile(buffer,td->buffer2->GetLength(),&nBytesRead);
 		if(nBytesRead)
 		{
 			if(td->appendOutputs)
@@ -287,7 +289,8 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		}
 		else
 			break;
-	}
+
+	}while(nBytesRead);
 	
 	OutFileHandle.closeFile();
 	MYSERVER_FILE::deleteFile(outFilePath);

@@ -63,7 +63,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
       delete [] mapInfo->lpszPath;
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT 
-        | HSE_URL_FLAGS_EXECUTE;
+                                            | HSE_URL_FLAGS_EXECUTE;
 			break;
 		case HSE_REQ_MAP_URL_TO_PATH:
 			if(((char*)lpvBuffer)[0])
@@ -195,7 +195,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	char chunk_size[15];
 	u_long nbw=0;
 
-  /*If the HTTP header was sent do not send it again*/
+  /*If the HTTP header was sent do not send it again. */
 	if(!ConnInfo->headerSent)
 	{
 		strncat(buffer,(char*)Buffer,*lpdwBytes);
@@ -245,7 +245,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			}
 			ConnInfo->headerSent=1;
 
-			/*!Send the first chunk*/
+			/*!Send the first chunk. */
 			if(len)
 			{
 				if(keepalive && (!ConnInfo->td->appendOutputs))
@@ -529,7 +529,8 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 		return 0;
 
 	if(valLen+30<maxLen)
-		valLen+=sprintf(&ValStr[valLen],"SERVER_SIGNATURE:<address>%s</address>\n",versionOfSoftware);
+		valLen+=sprintf(&ValStr[valLen],"SERVER_SIGNATURE:<address>%s</address>\n",
+                    versionOfSoftware);
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -551,7 +552,8 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,
 	if(valLen+MAX_PATH<maxLen)
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
-		lstrcpyn(&ValStr[valLen],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
+		lstrcpyn(&ValStr[valLen],td->request.URI,(int)(strlen(td->request.URI)-
+                                                   strlen(td->pathInfo)+1));
 		valLen+=(DWORD)strlen(td->request.URI)-strlen(td->pathInfo)+1;
 		valLen+=(DWORD)sprintf(&ValStr[valLen],"\n");
 	}
@@ -706,7 +708,9 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
   
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
-    return 0;
+  {
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+  }
 	lstrcpy(td->scriptPath, scriptpath);
 
   MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
@@ -715,13 +719,23 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
     delete [] td->scriptDir;
   td->scriptDir = new char[scriptDirLen];
   if(td->scriptDir == 0)
-    return 0;
+  {
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+  }
 
   if(td->scriptFile)
     delete [] td->scriptFile;
   td->scriptFile = new char[scriptFileLen];
   if(td->scriptFile == 0)
-    return 0;
+  {
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
+  }
 
 
   MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
@@ -730,13 +744,23 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,
     delete [] td->cgiRoot;
   td->cgiRoot = new char[cgiRootLen];
   if(td->cgiRoot == 0)
-    return 0;
+  {
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
+  }
 
   if(td->cgiFile)
     delete [] td->cgiFile;
   td->cgiFile = new char[cgiFileLen];
   if(td->cgiFile == 0)
-    return 0;
+  {
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
+  }
 
 
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
