@@ -31,7 +31,6 @@ extern "C" {
 #endif
 
 #ifdef NOT_WIN
-#include <argp.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
