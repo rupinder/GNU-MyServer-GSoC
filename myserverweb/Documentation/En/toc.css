@@ -1,0 +1,9 @@
+body         { text-align: left; color: #00C800; background-color: #000000; font-family:Verdana }
+a:link       { color: #0000ff }
+a:visited    { color: #00ff00 }
+a:active     { color: #3366ff }
+textarea     {  background-color: #000000; }
+html         {  background-color: #000000; }
+table        {  background-color: #000000;  }
+hr           {  background-color: #000000; }
+form	     {border-style: solid; border-width: 1; padding-left: 4; padding-right: 4; padding-top: 1; padding-bottom: 1}

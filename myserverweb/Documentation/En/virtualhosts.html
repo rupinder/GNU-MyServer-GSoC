@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+   
+  <meta http-equiv="Content-Language" content="en-gb">
+   <base target="_self">   
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title></title>
+   
+</head>
+      <body>
+ 
+<h1 align="center">VIRTUAL HOSTS</h1>
+ In theory, virtual hosts allow users to lodge an infinite number of sites 
+on a  single machine. For example http://mypc.net is different from  http://sub.mypc.net. 
+To define virtual hosts in myServer open the file virtualhosts.txt in a text 
+editor (such as notepad in Windows or Emacs in Linux). In  this file every 
+line describes a different virtual host. Every line must end&nbsp; with a
+"diesis ("#) character and the final one with two ddiesis ("##).   
+<p align="left">An host description line has the form: <font
+ color="#ffff00">a;b;c;d;e;f;g;h</font>; </p>
+   
+<div align="left"><font color="#ffff00">a</font> is a list of the hosts allowed 
+to connect to the virtual hosts. <br>
+ <font color="#ffff00">b</font> is a list of the local machine IP allowed 
+to use the virtual hosts. <br>
+ <font color="#ffff00">c </font>is the port used for accepting connections.<br>
+ <font color="#ffff00">d </font>is the protocol used by the hosts. <br>
+ <font color="#ffff00">e </font>is the web folder.<br>
+ <font color="#ffff00">f</font> is the system folder.<br>
+ <font color="#ffff00">g</font> is the accesses log file used by the virtual 
+   host. <br>
+ <font color="#ffff00">h</font> is the errors log file used by the virtual 
+host.   </div>
+   
+<p>&nbsp;</p>
+   
+<p>If you want to allow every host to use the same virtual host simply put 
+0 in  <font color="#ffff00">a</font>, the same thing can be done for the IP
+list (<font color="#ffff00">b</font>). MyServer does an orderly search  for
+the virtual hosts, starting from the first record. &nbsp;It is searching for
+a full matching virtual host to make the&nbsp; connection.  The current line
+allow every connection to see the contents of the folder web.  It listens 
+on the default HTTP port, saves the accesses log file in logs/myServer.log 
+ and the errors log in logs/myServer.err. The folder that contains the system 
+files is system. </p>
+     
+<p><font color="#ffff00">  0;0;80;HTTP;web;system;logs/myServer.log;logs/myServer.err## 
+</font></p>
+   
+<p>The directories are relative to  the MyServer main folder, if you would 
+rather use a full path folder,  put the character "|" before the folder name. 
+For example the same line with web  folder in c:\web and system in c:\system 
+looks like: </p>
+   
+<p><font color="#ffff00"> 0;0;80;HTTP;|c:\web;|c:\system;logs/myServer.log;logs/myServer.err## 
+</font></p>
+   
+<p><font size="+1"><br>
+ </font></p>
+ 
+<p><font size="+1">Configuring for an Intranet</font><br>
+ </p>
+ 
+<p>If your machine is connected to internet and to a local intranet, and you
+ would like to have two different sites for every zone, you would write the
+host  configuration file in a similar way. The following two lines tell MyServer
+that all of  the incoming connections to the internet IP 192.168.0.1 use
+the first host and all the  incoming connection to the local IP 56.76.46.74 
+use the second host. </p>
+   
+<p><font color="#ffff00">  0;192.168.0.1;80;HTTP;intranetweb;intranetsystem;logs/myServerIntranet.log;logs/myServerIntranet.err# 
+ 0;56.76.46.74;80;HTTP;internetweb;internetsystem;logs/myServerInternet.log;logs/myServerInternet.err##<br>
+ </font></p>
+ 
+<p><font color="#ffff00"> </font></p>
+<big><br>
+Configuring for multiple virtual host names</big><br>
+   
+<p>If you would like to use a list of valid  hosts names for a single virtual 
+host you could divide the hosts names with a  single comma(","). The same 
+mechanism is used for the IPs list. For example: </p>
+   
+<p><font color="#ffff00">  sub.mypc.net,mypc.net;0;80;HTTP;web;system;logs/myServer.log;logs/myServer.err##
+ </font></p>
+   
+<p>Allow to access the virtual host from both the sub.mypc.net connection
+and the mypc.net connection. IPs are not considered in this example.</p>
+ <br>
+ 
+</body>
+</html>

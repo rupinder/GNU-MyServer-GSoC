@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+       
+  <meta http-equiv="Content-Language" content="en-gb">
+    <base target="_self">      
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title></title>
+</head>
+  <body>
+   
+<h1 align="center">How to use PHP under MyServer</h1>
+ <br>
+ <br>
+ PHP (Personal Home Page) is the most used server-side scripting language
+in the  world. A server-side language is used to create web pages with dynamic 
+content.  You can use PHP with MyServer as either a standard CGI  executable
+ or as a FastCGI server. While using PHP like a CGI executable, MyServer
+ will create a new process for every page requested. &nbsp;While using PHP 
+in the  FastCGI mode, MyServer does not require a new process for every request
+ and, therefore, the server performs better. Please refer to the official 
+FastCGI site  for more information about FastCGI.<br>
+  <br>
+  In order to use PHP, you must first download the installer from: <font
+ color="#3366ff"><a href="http://www.php.net">www.php.net</a></font>.    
+<p><b><font size="+1">Configuring for CGI</font></b><br>
+  </p>
+   
+<p>To use PHP under MyServer you need to associate a file extension type
+with  the PHP parser. &nbsp;To do this you must first modify the <font
+ color="#ffff00">MIMEtypes.txt</font> file and add (or  modify) the line:
+ </p>
+     
+<p><font color="#ffff00">php,text/html,RUNCGI c:/php/php.exe; </font></p>
+     
+<p>This allows the requested .php files to be passed to the PHP parser and
+ the output sent to the client. Be sure to modify c:/php/php.exe file to
+reflect  the  path to your php parser. <br>
+  </p>
+   
+<p><b><font size="+1">Configuring for FastCGI</font></b><br>
+  </p>
+   
+<p>If you want to use PHP in the FastCGI mode you need to  download the phpfcgi.exe
+ parser from&nbsp;<a href="www.caraveo.com/fastcgi">www.caraveo.com/fastcgi</a>
+ and put it in  the same folder of your PHP (normally c:\php\). &nbsp;You 
+must then modify the <font color="#ffff00">Mimetypes.txt</font> file to reflect 
+the following line: </p>
+     
+<p><font color="#ffff00">php,text/html,RUNFASTCGI c:/php/phpfcgi.exe; </font></p>
+     
+<p>&nbsp;With the last versions of PHP  you will also need to modify the <font
+ color="#ffff00">php.ini</font> file to set the cgi.force_redirect option 
+to null. Find the line in the php configuration file:</p>
+     
+<p><font color="#ffff00">&nbsp;;cgi.force_redirect = 0</font></p>
+     
+<p>and remove the first semicolon. <br>
+ The line will then read:<br>
+ </p>
+ 
+<p><font color="#ffff00">&nbsp;cgi.force_redirect = 0</font></p>
+ 
+<p><br>
+ </p>
+ More information and samples of code can be found at The PHP web site (
+<a href="http://www.php.net">www.php.net</a> ).<br>
+   <br>
+</body>
+</html>
