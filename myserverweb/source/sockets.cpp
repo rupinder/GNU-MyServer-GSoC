@@ -67,7 +67,7 @@ int ms_bind(MYSERVER_SOCKET s,sockaddr* sa,int namelen)
 int ms_listen(MYSERVER_SOCKET s,int max)
 {
 #ifdef WIN32
-	return listen(s,max)
+	return listen(s,max);
 #else
 	return listen((int)s,max);
 #endif

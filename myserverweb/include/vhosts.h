@@ -20,8 +20,11 @@
 #define VHOST_IN
 
 #include "../stdafx.h"
+#include "../include/filemanager.h"
 class vhost
 {
+	MYSERVER_FILE_HANDLE warningsLogFile;
+	MYSERVER_FILE_HANDLE accessesLogFile;
 public:
 	struct sHostList
 	{
@@ -39,7 +42,20 @@ public:
 
 	char documentRoot[MAX_PATH];/*Path to the document root*/
 	vhost();
+	void addIP(char *);
+	void addHost(char *);
+	void clearIPList();
+	void clearHostList();
 	~vhost();
+	/*
+	*Functions to manage the logs file.
+	*Derived directly from the filemanager utilities.
+	*/
+	u_long ms_accessesLogWrite(char*);
+	void ms_setAccessesLogFile(MYSERVER_FILE_HANDLE);
+
+	u_long ms_warningsLogWrite(char*);
+	void ms_setWarningsLogFile(MYSERVER_FILE_HANDLE);
 };
 
 
@@ -56,6 +72,7 @@ public:
 	~vhostmanager();
 	void getvHost(vhost* ,char*,char*,u_short);/*Get a pointer to a vhost*/
 	void addvHost(vhost*);/*Add an element to the vhost list*/
+	void loadConfigurationFile(char *);/*Load the virtual hosts list from a configuration file*/
 };
 
 #endif
