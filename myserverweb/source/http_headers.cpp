@@ -51,7 +51,7 @@ extern "C" {
 /*!
  *Builds an HTTP header string starting from an HttpResponseHeader structure.
  */
-void HttpHeaders::buildHTTPResponseHeader(char *str,HttpResponseHeader* response)
+void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* response)
 {
 	/*!
    *Here is builded the HEADER of a HTTP response.
@@ -218,7 +218,6 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
    */
 	strcpy(response->CONTENT_TYPE,"text/html");
 	strcpy(response->VER,"HTTP/1.1");
-	response->httpStatus=200;
 	getRFC822GMTTime(response->DATE,HTTP_RESPONSE_DATE_DIM);
 	strncpy(response->DATEEXP,response->DATE,HTTP_RESPONSE_DATEEXP_DIM);
 	sprintf(response->SERVER_NAME,"MyServer %s",versionOfSoftware);
@@ -278,7 +277,6 @@ void HttpHeaders::resetHTTPRequest(HttpRequestHeader *request)
  */
 void HttpHeaders::resetHTTPResponse(HttpResponseHeader *response)
 {
-	response->httpStatus=200;
 	response->VER[0]='\0';	
 	response->SERVER_NAME[0]='\0';
 	response->CONTENT_TYPE[0]='\0';
@@ -393,9 +391,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	u_long i=0,j=0;
 	int max=0;
   u_long nLines, maxTotchars;
-	int noinputspecified=0;
 	int validRequest;
-	const int max_URI = HTTP_REQUEST_URI_DIM + 200 ;
+	const int maxUri = HTTP_REQUEST_URI_DIM + 200 ;
 	const char seps[]   = "\n\r";
 	const char cmdSeps[]   = ": ,\t\n\r";
 
@@ -409,27 +406,45 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	int tokenOff;
 	if(input==0)
 	{
-		noinputspecified=1;
-		input=td->buffer->GetBuffer();
+		token=input=td->buffer->GetBuffer();
 	}
-	validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
+  else
+		token=input;
+
+	validRequest=validHTTPRequest(input, td, &nLines, &maxTotchars);
 	/*! Invalid header.  */
 	if(validRequest==0)
+  {
+    /* Keep trace of first line for logging. */
+    tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+    if(tokenOff > 0)
+      strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+    else
+      strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
+    request->URI[HTTP_REQUEST_URI_DIM] = '\0';
+
 		return 0;
+  }
 	/*! Incomplete header.  */
 	else if(validRequest==-1)
 		return -1;
 
-  token=0;
-
-	if(!noinputspecified)
-		token=input;
-	else
-	{
-		input=token=td->buffer->GetBuffer();
-	}
+  /*! Get the first token, this is the HTTP command.*/
 	tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
-	do
+
+  
+  if(tokenOff == -1)
+  {
+    /* Keep trace of first line for logging. */
+    tokenOff = getCharInString(token, "\r\n", HTTP_REQUEST_URI_DIM);
+    if(tokenOff > 0)
+      strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+    else
+      strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
+    request->URI[HTTP_REQUEST_URI_DIM] = '\0';
+  }
+	
+  do
 	{
 		if(tokenOff== -1 )
 			return 0;
@@ -445,6 +460,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			token++;
 		nLineControlled++;
     lineControlled = 0;
+
 		if(nLineControlled==1)
 		{
 			int containOpts=0;
@@ -454,14 +470,34 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
        *GET /index.html HTTP/1.1
        */
 			lineControlled=1;
-			/*! Copy the method type.  */
+			/*! Copy the method type. */
 			strncpy(request->CMD, command, tokenOff);
 			request->CMD[tokenOff] = '\0';
 			tokenOff = getCharInString(token, "\t\n\r", 
                                  HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
 			len_token = tokenOff;
 			if(tokenOff==-1)
-				return 0;
+        {
+          request->VER[0] = '\0';
+          request->CMD[0]='\0';
+          tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+          if(tokenOff > 0)
+            strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+          else
+            strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
+          return 0;
+        }
+      if(tokenOff > maxUri)
+        {
+          request->VER[0] = '\0';
+          request->CMD[0]='\0';
+          tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+          if(tokenOff > 0)
+            strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+          else
+            strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
+          return 0;
+        }
 			max=(int)tokenOff;
 			while((token[max]!=' ') && (len_token-max<HTTP_REQUEST_VER_DIM))
 				max--;
@@ -478,6 +514,17 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}
 				request->URI[i]=token[i];
 			}
+      if(i == 0)
+      {
+        request->VER[0] = '\0';
+        request->CMD[0]='\0';
+        tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+        if(tokenOff > 0)
+          strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+        else
+          strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
+        return 0;
+      }  
 			request->URI[i]='\0';
 
 			if(containOpts)
@@ -489,8 +536,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}
 			}
   
-      /*! Do not allow more than 5 spaces character between the URI token and the HTTP version. */
-      for(j=0; j<5; j++)
+      /*! Do not allow more than 10 spaces character between the URI token and the HTTP version. */
+      for(j=0; j<10; j++)
       {
         if(token[i]==' ')
           i++;
@@ -499,6 +546,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       }
       if(j == 5)
       {
+        request->VER[0] = '\0';
+        request->CMD[0]='\0';
+        tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+        if(tokenOff > 0)
+          strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+        else
+          strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
         return 0;
       }
 
@@ -507,21 +561,29 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         if((token[i]=='\r') || (token[i]=='\n'))
           break;
         request->VER[j]=token[i++];
-      }
+      }     
       request->VER[j]='\0';
-		
+
+      if((!j) || (j == HTTP_REQUEST_VER_DIM ))
+        {
+          request->VER[0] = '\0';
+          request->CMD[0]='\0';   
+          /* Keep trace for logging. */
+          tokenOff = getCharInString(input, "\r\n", HTTP_REQUEST_URI_DIM);
+          if(tokenOff > 0)
+            strncpy(request->URI, input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+          else
+            strncpy(request->URI, input, HTTP_REQUEST_URI_DIM );
+          return 0;
+        }
 			
       if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else
 				request->uriEndsWithSlash=0;
+
 			StrTrim(request->URI," /");
 			StrTrim(request->URIOPTS," /");
-			max=strlen(request->URI);
-			if(max>max_URI)
-			{
-				return 414;
-			}
 		}else
 		/*!User-Agent*/
 		if(!lstrcmpi(command,"User-Agent"))
@@ -968,7 +1030,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 	if(input==0)
 	{
 		input=td->buffer2->GetBuffer();
-		noinputspecified=1;
 	}
 	/*! Control if the HTTP header is a valid header.  */
 	if(input[0]==0)
@@ -1058,7 +1119,9 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->httpStatus=atoi(token);
+      /*! If the response status is different from 200 don't modify it. */
+      if(response->httpStatus == 200)
+        response->httpStatus=atoi(token);
 		}else
 		/*!Content-Encoding*/
 		if(!lstrcmpi(command,"Content-Encoding"))

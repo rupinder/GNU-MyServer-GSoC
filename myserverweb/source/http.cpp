@@ -1341,21 +1341,33 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 <<  time ;
 	
-	*td->buffer2 << "] \"" << td->request.CMD;
+  if(td->request.CMD[0])
+    {
+      *td->buffer2 << "] \"" << td->request.CMD << "";
+      if( td->request.URI[0])
+        *td->buffer2 << " ";
+    }
+  else
+    *td->buffer2 << "] \"";  
 
   if(td->request.URI[0] == '\0')
-  	*td->buffer2 <<  " /";
+    *td->buffer2 <<  "/";
   else
-   	*td->buffer2 <<  " ";
-	*td->buffer2 << td->request.URI;
-	
-	if(td->request.URIOPTS[0])
-	{
-		*td->buffer2 << "?" << td->request.URIOPTS;
-	}
-  sprintf(tmpStrInt, "%u ",td->response.httpStatus);
+  {
+    *td->buffer2 << td->request.URI;
+  }
 
-	*td->buffer2 << " " << td->request.VER  << "\" " << tmpStrInt  << " ";
+  if(td->request.URIOPTS[0])
+    {
+      *td->buffer2 << "?" << td->request.URIOPTS;
+    }
+  sprintf(tmpStrInt, "%u ",td->response.httpStatus);
+  
+  if(td->request.VER[0])
+    *td->buffer2 << " " << td->request.VER  ;
+
+
+  *td->buffer2<< "\" " << tmpStrInt  << " ";
 	
 	if(td->response.CONTENT_LENGTH[0])
 		*td->buffer2  << td->response.CONTENT_LENGTH;
@@ -1368,7 +1380,7 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
   }
 	*td->buffer2 << "\r\n" <<end_str;
   /*!
-   *Request the access to the log file then write then append the message
+   *Request the access to the log file then write then append the message.
    */
 	((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
 	((Vhost*)(a->host))->accessesLogWrite(td->buffer2->GetBuffer());
@@ -1421,6 +1433,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	 */
 	HttpHeaders::resetHTTPRequest(&td.request);
 	
+  /*! Reset the HTTP status once per request. */
+	td.response.httpStatus=200;
+
 	/*!
 	 *If the connection must be removed, remove it.
 	 */
@@ -2047,6 +2062,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 {
   char time[HTTP_RESPONSE_DATE_DIM];
   char* errorFile;
+  u_long lenErrorFile;
   td->lastError = ID;
 	HttpHeaders::buildDefaultHTTPResponseHeader(&(td->response));
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
@@ -2143,6 +2159,10 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     sec_cache_mutex.unlock();
     if(ret == -1)
     {
+      if(defFile)
+      {
+        delete [] defFile;
+      }
       sendHTTPhardError500(td, a);
       return 0;
     }
@@ -2167,13 +2187,17 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 				sprintf(&nURL[strlen(nURL)], ":%u", ((Vhost*)a->host)->port);
 			if(nURL[strlen(nURL)-1]!='/')
 				strcat(nURL, "/");
-			strcat(nURL, defFile);
+      if(defFile)
+      {
+        strcat(nURL, defFile);
+        delete [] defFile;
+      }
 			return sendHTTPRedirect(td, a, nURL);
 		}
 	}
 	getRFC822GMTTime(td->response.DATEEXP, HTTP_RESPONSE_DATEEXP_DIM);
 	strncpy(td->response.ERROR_TYPE, HTTP_ERROR_MSGS[ID], HTTP_RESPONSE_ERROR_TYPE_DIM);
-	u_long lenErrorFile=(u_long)strlen(((Vhost*)(a->host))->systemRoot)+
+	lenErrorFile=(u_long)strlen(((Vhost*)(a->host))->systemRoot)+
                               (u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
 	errorFile=new char[lenErrorFile];
 	if(errorFile)
