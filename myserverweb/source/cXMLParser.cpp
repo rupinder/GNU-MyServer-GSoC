@@ -118,6 +118,9 @@ int cXMLParser::close()
 	xmlFreeDoc(doc);
 	return 0;
 }
+/*
+*Save the XML tree to a file
+*/
 int cXMLParser::save(char *filename)
 {
 	return xmlSaveFile(filename,doc);

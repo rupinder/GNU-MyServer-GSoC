@@ -123,6 +123,8 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 
 	/*
 	*With this code we execute the CGI process.
+	*Fill the START_PROC_INFO struct with the correct values and use it
+	*to run the process
 	*/
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
@@ -253,7 +255,9 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 #ifdef __linux__
 	strcat(cgiEnvString," (Linux)");
 #endif
-	// Must use REDIRECT_STATUS for php and others
+	/*
+	*Must use REDIRECT_STATUS for php and others
+	*/
 	strcat(cgiEnvString,"\rREDIRECT_STATUS=TRUE");
 
 	strcat(cgiEnvString,"\rSERVER_NAME=");
@@ -397,10 +401,10 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 
 	strcat(cgiEnvString,"\rSCRIPT_FILENAME=");
 	strcat(cgiEnvString,td->filenamePath);
-
 	
-	//For the DOCUMENT_URI and SCRIPT_NAME Just copy the requested URI without any pathInfo.
-	
+	/*
+	*For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.
+	*/
 	strcat(cgiEnvString,"\rSCRIPT_NAME=/");
 	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
 

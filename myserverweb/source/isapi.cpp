@@ -34,6 +34,9 @@ void initISAPI()
 	ZeroMemory(connTable,sizeof(ConnTableRecord)*max_Connections);
 	InitializeCriticalSection(&GetTableEntryCritSec);	
 }
+/*
+*Cleanup the memory used by ISAPI
+*/
 void cleanupISAPI()
 {
 	DeleteCriticalSection(&GetTableEntryCritSec);
@@ -318,9 +321,6 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 	}
 	return TRUE;
 }
-
-
-
 
 /*
 *Add a connection to the table.

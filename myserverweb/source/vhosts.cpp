@@ -110,6 +110,9 @@ void vhost::removeIP(char *ip)
 		return;
 	while(iterator)
 	{
+		/*
+		*If this is the virtual host with the right IP
+		*/
 		if(!strcmp(iterator->hostIp,ip))
 		{
 			if(iteratorBack)
@@ -141,6 +144,9 @@ void vhost::removeHost(char *host)
 		return;
 	while(iterator)
 	{
+		/*
+		*If this is the virtual host with the right host name
+		*/
 		if(!strcmp(iterator->hostName,host))
 		{
 			if(iteratorBack)

@@ -192,6 +192,9 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 #endif	
 
 }
+/*
+*Start a process runned simultaneously with the MyServer process.
+*/
 u_long execConcurrentProcess(START_PROC_INFO* spi)
 {
 #ifdef WIN32
@@ -268,6 +271,9 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 #endif	
 
 }
+/*
+*Terminate a process.
+*/
 int terminateProcess(u_long id)
 {
 #ifdef WIN32
@@ -311,6 +317,9 @@ int requestAccess(u_long* ac,u_long id)
 	requestAccess(ac,id);
 	return 0;
 }
+/*
+*Reset the owner of the access.
+*/
 int terminateAccess(u_long* ac,u_long/* id*/)
 {
 	/*

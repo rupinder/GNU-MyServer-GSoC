@@ -265,7 +265,9 @@ CBase64Utils::~CBase64Utils()
 {
 
 }
-
+/*
+*Decode a string using the Base64 codification
+*/
 char* CBase64Utils::Encode(char *input, int bufsize)
 {
 	int alsize = ((bufsize * 4) / 3);
@@ -372,7 +374,9 @@ char* CBase64Utils::Encode(char *input, int bufsize)
 	}
 	return finalresult;
 }
-
+/*
+*Decode a string from a Base64 codification
+*/
 char* CBase64Utils::Decode(char *input, int *bufsize)
 {
 	int std = 0, count = 1, resultlen = 0;

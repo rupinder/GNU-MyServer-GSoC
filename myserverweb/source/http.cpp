@@ -616,7 +616,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 }
 
 /*
-*This is the HTTP protocol main procedure.
+*This is the HTTP protocol main procedure to parse a request made over the HTTP.
 */
 int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id)
 {

@@ -50,12 +50,11 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	GetShortPathName(dataFilePath,dataFilePath,MAX_PATH);
 	sprintf(&dataFilePath[strlen(dataFilePath)],"/data_%u.ini",td->id);
 	
-
-	getdefaultwd(outFilePath,MAX_PATH);
-	GetShortPathName(outFilePath,outFilePath,MAX_PATH);
-	sprintf(&outFilePath[strlen(outFilePath)],"/out_%u",td->id);
+	strcpy(outFilePath,td->outputDataPath);
 	td->inputData.setFilePointer(0);
-
+	/*
+	*The WinCGI protocol uses a .ini file for the communication between the processes.
+	*/
 	int ret=DataFileHandle.openFile(dataFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 	if ((!ret) || (ret==-1)) 
 	{
@@ -148,7 +147,9 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 
 	sprintf(td->buffer2,"Content File=%s\r\n",td->inputData.getFilename());
 	DataFileHandle.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbr);
-
+	/*
+	*Compute the local offset from the GMT time
+	*/
 	time_t ltime=100;
 	int gmhour=gmtime( &ltime)->tm_hour;
 	int bias=localtime(&ltime)->tm_hour-gmhour;
@@ -164,12 +165,16 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	/*
 	*Create the out file.
 	*/
-	ret = OutFileHandle.openFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
-	if ((!ret) || (ret==-1)) 
+	if(!MYSERVER_FILE::fileExists(outFilePath))
 	{
-		MYSERVER_FILE::deleteFile(outFilePath);
-		MYSERVER_FILE::deleteFile(dataFilePath);
-		return raiseHTTPError(td,s,e_500);
+		ret = OutFileHandle.openFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
+		if ((!ret) || (ret==-1)) 
+		{
+			DataFileHandle.closeFile();
+			MYSERVER_FILE::deleteFile(outFilePath);
+			MYSERVER_FILE::deleteFile(dataFilePath);
+			return raiseHTTPError(td,s,e_500);
+		}
 	}
 	OutFileHandle.closeFile();
 	strcpy(cmdLine,"cmd /c \"");
