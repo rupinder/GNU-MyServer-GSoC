@@ -11,13 +11,13 @@ AC_ARG_WITH(fltk-prefix,[  --with-fltk-prefix=PFX   Prefix where FLTK is install
 AC_ARG_WITH(fltk-exec-prefix,[  --with-fltk-exec-prefix=PFX Exec prefix where FLTK is installed (optional)], fltk_config_exec_prefix="$withval", fltk_config_exec_prefix="")
 
   if test x$fltk_config_exec_prefix != x ; then
-     fltk_config_args="$fltk_config_args --exec-prefix=$fltk_config_exec_prefix"
+     fltk_config_args="$fltk_config_args"
      if test x${FLTK_CONFIG+set} != xset ; then
         FLTK_CONFIG=$fltk_config_exec_prefix/bin/fltk-config
      fi
   fi
   if test x$fltk_config_prefix != x ; then
-     fltk_config_args="$fltk_config_args --prefix=$fltk_config_prefix"
+     fltk_config_args="$fltk_config_args"
      if test x${FLTK_CONFIG+set} != xset ; then
         FLTK_CONFIG=$fltk_config_prefix/bin/fltk-config
      fi
