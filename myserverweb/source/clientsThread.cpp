@@ -329,7 +329,7 @@ int ClientsTHREAD::controlConnections()
                      buffer2.GetRealLength(), nBytesToRead, id);
 				break;
 			case PROTOCOL_CONTROL:
-        if(control_protocol_parser)
+        if(control_protocol_parser == 0)
         {
           control_protocol_parser = new control_protocol();
           if(control_protocol_parser == 0)
