@@ -114,18 +114,19 @@ u_long Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
 }
 
 /*!
-*Close the gzip compression
-*/
+ *Close the gzip compression.
+ */
 u_long Gzip::free(char* ,u_long ,char *,u_long)
 {
+int ret=0;
 #ifndef DO_NOT_USE_GZIP
+	
 	if(data.initialized==0)
 		return 0;
 	data.initialized=0;
-	int ret;
 	ret = deflateEnd(&(data.stream));
 #endif
-	return 0;
+	return ret;
 }
 /*!
 *Flush all the data
@@ -150,9 +151,10 @@ u_long Gzip::flush(char *out,u_long sizeOUT)
 	return 0;
 #endif
 }
+
 /*!
-*Update the existent CRC
-*/
+ *Update the existent CRC.
+ */
 u_long Gzip::updateCRC(char* buffer,int size)
 {
 #ifndef DO_NOT_USE_GZIP		
@@ -162,9 +164,10 @@ u_long Gzip::updateCRC(char* buffer,int size)
 	return 0;
 #endif
 }
+
 /*!
-*Get the GZIP footer.
-*/
+ *Get the GZIP footer.
+ */
 u_long Gzip::getFOOTER(char *str,int /*size*/)
 {
 #ifndef DO_NOT_USE_GZIP		
@@ -183,9 +186,10 @@ u_long Gzip::getFOOTER(char *str,int /*size*/)
 	return 0;
 #endif
 }
+
 /*!
-*Copy the GZIP header in the buffer.
-*/
+ *Copy the GZIP header in the buffer.
+ */
 u_long Gzip::getHEADER(char *buffer,u_long buffersize)
 {
 	if(buffersize<GZIP_HEADER_LENGTH)
