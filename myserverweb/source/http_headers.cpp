@@ -845,6 +845,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
       else
       {
         request->RANGEBYTEEND=(u_long)atol(RANGEBYTEEND);
+        if(request->RANGEBYTEEND < request->RANGEBYTEBEGIN)
+          return 0;
       }
 		}else
 		/*!Referer*/
@@ -1167,7 +1169,7 @@ int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
 			}
 		}
 		else if(req[i]==0)
-			return ((u_long)-1);
+			return (0);
 		else
 		{
 			nLinechars++;
