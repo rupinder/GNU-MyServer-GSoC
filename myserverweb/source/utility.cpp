@@ -167,8 +167,11 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	// Wait till child dies
 	waitpid(pid, NULL, 0);
 	return 0;
+
 #endif	
+
 }
+
 
 /*
 *This function is similar to the Windows API WaitForSingleObject(..)

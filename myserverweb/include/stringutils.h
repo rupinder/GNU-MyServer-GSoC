@@ -33,7 +33,7 @@ void splitPath(const char* path, char* dir, char*filename);
 void getFilename(const char* path, char* filename);
 
 #ifdef __linux__
-void strupr(char * string)
+void strupr(char * string);
 #endif
 
 #endif

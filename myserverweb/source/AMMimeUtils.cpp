@@ -20,23 +20,18 @@
 #include "../stdafx.h"
 #include "../include/AMMimeUtils.h"
 #include "../include/stringutils.h"
-
 extern "C" {
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 #ifdef __linux__
-#include <ctype.h>
 #include <stdio.h>
+#include <ctype.h>
 #endif
 }
 
 
 void *_alloca(size_t size);
-/*
-*Unique instance of this class
-*/
-CBase64Utils base64Utils;
 
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
 char* strustr(char *source, char *s)
@@ -56,6 +51,11 @@ char* strustr(char *source, char *s)
 	free(cs);
 	return result;
 }
+/*
+*Unique instance of this class
+*/
+CBase64Utils base64Utils;
+
 const char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 #define SKIP '\202'
 #define NOSKIP 'A'

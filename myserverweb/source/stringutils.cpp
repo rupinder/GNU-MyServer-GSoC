@@ -19,10 +19,15 @@
 
 #include "../stdafx.h"
 #include "../include/stringutils.h"
+
 extern "C" {
-#include <string.h>
+#include <malloc.h>
 #include <stdlib.h>
+#include <string.h>
+#ifdef __linux__
+#include <ctype.h>
 #include <stdio.h>
+#endif
 }
 
 #ifdef WIN32
@@ -295,4 +300,5 @@ void strupr(char * string)
     for(unsigned int i = 0; i < len; i++)
        string[i] = toupper(string[i]);
 }
+
 #endif
