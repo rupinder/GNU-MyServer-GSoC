@@ -1062,13 +1062,13 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		if(!token)
 			break;
 		/*!
-		*Reset the flag lineControlled.
-		*/
+     *Reset the flag lineControlled.
+     */
 		lineControlled=0;
 
 		/*!
-		*Copy the HTTP command.
-		*/
+     *Copy the HTTP command.
+     */
 		myserver_strlcpy(command, token, 96);
 		
 		nLineControlled++;
