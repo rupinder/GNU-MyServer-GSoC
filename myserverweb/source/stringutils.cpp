@@ -54,7 +54,36 @@ char *getRFC822GMTTime(const time_t ltime,char* out,int /*!len*/)
 {
 	tm*  GMtime = gmtime( &ltime );
 	GMtime->tm_year+=1900;
-	sprintf(out,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
+	char *asct=asctime(GMtime);
+	out[0]=asct[0];
+	out[1]=asct[1];
+	out[2]=asct[2];
+	out[3]=',';
+	out[4]=' ';
+	out[5]=asct[8];
+	out[6]=asct[9];
+	out[7]=' ';
+	out[8]=asct[4];
+	out[9]=asct[5];
+	out[10]=asct[6];
+	out[11]=' ';
+	sprintf(&out[12],"%i",GMtime->tm_year);
+	out[16]=' ';
+	out[17]=asct[11];
+	out[18]=asct[12];
+	out[19]=':';
+	out[20]=asct[14];
+	out[21]=asct[15];
+	out[22]=':';
+	out[23]=asct[17];
+	out[24]=asct[18];
+	out[25]=' ';
+	out[26]='G';
+	out[27]='M';
+	out[28]='T';
+	out[29]='\0';
+	out[30]='\0';
+	out[31]='\0';
 	return out;
 }
 /*!
@@ -217,7 +246,36 @@ char *getRFC822LocalTime(const time_t ltime,char* out,int /*!len*/)
 {
 	tm*  GMtime = localtime( &ltime );
 	GMtime->tm_year+=1900;
-	sprintf(out,"%s, %i %s %i %i:%i:%i",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
+	char *asct=asctime(GMtime);
+	out[0]=asct[0];
+	out[1]=asct[1];
+	out[2]=asct[2];
+	out[3]=',';
+	out[4]=' ';
+	out[5]=asct[8];
+	out[6]=asct[9];
+	out[7]=' ';
+	out[8]=asct[4];
+	out[9]=asct[5];
+	out[10]=asct[6];
+	out[11]=' ';
+	sprintf(&out[12],"%i",GMtime->tm_year);
+	out[16]=' ';
+	out[17]=asct[11];
+	out[18]=asct[12];
+	out[19]=':';
+	out[20]=asct[14];
+	out[21]=asct[15];
+	out[22]=':';
+	out[23]=asct[17];
+	out[24]=asct[18];
+	out[25]=' ';
+	out[26]='\0';
+	out[27]='\0';
+	out[28]='\0';
+	out[29]='\0';
+	out[30]='\0';
+	out[31]='\0';
 	return out;
 }
 

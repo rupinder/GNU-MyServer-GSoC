@@ -47,7 +47,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,L
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
-			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,mapInfo->lpszPath,(char*)lpvBuffer,FALSE);
+			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,mapInfo->lpszPath,(char*)lpvBuffer,FALSE);
 			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT|HSE_URL_FLAGS_EXECUTE;
@@ -58,7 +58,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,L
 				strcpy(URI,(char*)lpvBuffer);
 			else
 				lstrcpyn(URI,ConnInfo->td->request.URI,(int)(strlen(ConnInfo->td->request.URI)-strlen(ConnInfo->td->pathInfo)+1));
-			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,(char*)lpvBuffer,URI,FALSE);
+			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,(char*)lpvBuffer,URI,FALSE);
 			MYSERVER_FILE::completePath((char*)lpvBuffer);
 			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 			break;

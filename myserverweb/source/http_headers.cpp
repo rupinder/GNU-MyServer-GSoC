@@ -109,6 +109,11 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 		strcat(str,response->CONNECTION);
 		strcat(str,"\r\n");
 	}
+	else
+	{
+		strcat(str,"Connection: Close\r\n");
+	}
+
 	if(response->TRANSFER_ENCODING[0])
 	{
 		strcat(str,"Transfer-Encoding: ");

@@ -55,7 +55,7 @@ public:
 	int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
 	int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a);
 	int sendAuth(httpThreadContext* td,LPCONNECTION a);
-	void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest);
+	void getPath(httpThreadContext* td,LPCONNECTION s,char *filenamePath,const char *filename,int systemrequest);
 	int getMIME(char *MIME,char *filename,char *dest,char *dest2);
 	int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
 	int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);

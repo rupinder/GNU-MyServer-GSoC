@@ -93,7 +93,7 @@ void cserver::start()
 	{
 		mustEndServer=1;
 		lserver->terminate();
-		wait(5000);/*!Wait for a while*/
+		wait(10000);/*!Wait for a while*/
 		mustEndServer=0;
 	}
 	/*!
@@ -987,6 +987,11 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	}
 
 	nConnections--;
+
+	if(s->protocolBuffer)
+		free(s->protocolBuffer);
+	free(s);
+
 	connections_mutex_unlock();
 
 	/*!
@@ -1000,9 +1005,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		err=socket.recv(buffer,buffersize,0);
 	}while(err!=-1);
 	socket.closesocket();
-	if(s->protocolBuffer)
-		free(s->protocolBuffer);
-	free(s);
+
 	return ret;
 }
 /*!

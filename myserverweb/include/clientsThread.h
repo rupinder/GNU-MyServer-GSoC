@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/utility.h"
 #include "../include/connectionstruct.h"
 #include "../include/security.h"
+#include "../include/http.h"
+#include "../include/https.h"
 
 class  ClientsTHREAD
 {
@@ -44,6 +46,8 @@ private:
 	int threadIsStopped;
 	u_long buffersize;
 	u_long buffersize2;
+	http* http_parser;
+	https* https_parser;
 	int isRunning();
 	int isStopped();
 	char *buffer;

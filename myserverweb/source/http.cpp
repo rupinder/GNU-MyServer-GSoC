@@ -313,16 +313,20 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	
 	sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
 
-	time_t lastmodTime=h.getLastModTime();
-	getRFC822LocalTime(lastmodTime,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
-
 	if(useGZIP)
 	{
 		strcpy(td->response.TRANSFER_ENCODING,"chunked");
 		strcpy(td->response.CONTENT_ENCODING,"gzip");
 	}
 	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
-	s->socket.send(td->buffer,(u_long)strlen(td->buffer), 0);
+	/*!
+	*Send the HTTP header
+	*/
+	if(s->socket.send(td->buffer,(u_long)strlen(td->buffer), 0)== SOCKET_ERROR)
+	{
+		h.closeFile();
+		return 0;
+	}
 
 	/*!
 	*If is requested only the header exit from the function; used by the HEAD request.
@@ -448,7 +452,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 		{
 			return raiseHTTPError(td,s,e_401);
 		}
-		getPath(td,td->filenamePath,filename,0);
+		getPath(td,s,td->filenamePath,filename,0);
 	}
 	int permissions=-1;
 	char folder[MAX_PATH];
@@ -553,7 +557,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 		{
 			return raiseHTTPError(td,s,e_401);
 		}
-		getPath(td,td->filenamePath,filename,0);
+		getPath(td,s,td->filenamePath,filename,0);
 	}
 	int permissions=-1;
 	char folder[MAX_PATH];
@@ -630,7 +634,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		{
 			return raiseHTTPError(td,s,e_401);
 		}
-		getPath(td,td->filenamePath,filename,systemrequest);
+		getPath(td,s,td->filenamePath,filename,systemrequest);
 	}
 	int permissions=-1;/*!By default everything is permitted*/
 	if(!systemrequest)
@@ -698,7 +702,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		/*!
 		*Start from the second character because the first is a slash character.
 		*/
-		getPath(td,(td->pathTranslated),&((td->pathInfo)[1]),0);
+		getPath(td,s,(td->pathTranslated),&((td->pathInfo)[1]),0);
 		MYSERVER_FILE::completePath(td->pathTranslated);
 	}
 	else
@@ -924,11 +928,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 	time_t lastMT=MYSERVER_FILE::getLastModTime(td->filenamePath);
 	if(lastMT==-1)
 		return raiseHTTPError(td,s,e_500);
-	getRFC822LocalTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
+	getRFC822GMTTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	if(td->request.IF_MODIFIED_SINCE[0])
 	{
-		time_t timeMS=getTime(td->request.IF_MODIFIED_SINCE);
-		if(timeMS==lastMT)
+		if(!strcmp(td->request.IF_MODIFIED_SINCE,td->response.LAST_MODIFIED))
 			return sendHTTPNonModified(td,s);
 	}
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
@@ -1487,7 +1490,7 @@ int http::getMIME(char *MIME,char *filename,char *dest,char *dest2)
 *Map an URL to the machine file system.
 *The output buffer must be capable of receive MAX_PATH characters.
 */
-void http::getPath(httpThreadContext* td,char *filenamePath,const char *filename,int systemrequest)
+void http::getPath(httpThreadContext* td,LPCONNECTION s,char *filenamePath,const char *filename,int systemrequest)
 {
 	/*!
 	*If it is a system request, search the file in the system folder.
@@ -1543,7 +1546,7 @@ int http::sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 int http::sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 {
 	td->response.httpStatus=304;
-	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",versionOfSoftware);
+	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer %s\r\n",versionOfSoftware);
 	int ret=0;
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{

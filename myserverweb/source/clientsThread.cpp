@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/clientsThread.h"
 #include "../include/cserver.h"
 #include "../include/security.h"
-#include "../include/http.h"
-#include "../include/https.h"
 #include "../include/Response_RequestStructs.h"
 #include "../include/sockets.h"
 #include "../include/stringutils.h"
@@ -83,6 +81,9 @@ void * startClientsTHREAD(void* pParam)
 	ct->buffer=(char*)malloc(ct->buffersize);
 	ct->buffer2=(char*)malloc(ct->buffersize2);
 	ct->initialized=1;
+
+	ct->http_parser=new http;
+	ct->https_parser=new https;
 
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
@@ -160,8 +161,6 @@ void ClientsTHREAD::controlConnections()
 		*Control the protocol used by the connection.
 		*/
 		int retcode=0;
-		static http http_parser;
-		static https https_parser;
 		switch(((vhost*)(c->host))->protocol)
 		{
 			/*!
@@ -169,13 +168,13 @@ void ClientsTHREAD::controlConnections()
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
-				retcode=http_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=http_parser->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			/*!
 			*Parse an HTTPS connection request.
 			*/
 			case PROTOCOL_HTTPS:
-				retcode=https_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=https_parser->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			default:
 				dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
@@ -272,6 +271,8 @@ void ClientsTHREAD::clean()
 		free(buffer2);
 	buffer=buffer2=0;
 	initialized=0;
+	delete http_parser;
+	delete https_parser;
 }
 
 
