@@ -736,7 +736,6 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	strncpy(ip, inet_ntoa(asock_in->sin_addr), MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
 	strncpy(myIp, inet_ntoa(localsock_in.sin_addr), MAX_IP_STRING_LEN); // NOTE: inet_ntop supports IPv6
 
-
 	int port=ntohs((*asock_in).sin_port);/*Port used by the client*/
 	int myport=ntohs(localsock_in.sin_port);/*Port connected to*/
 
@@ -761,7 +760,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
 		return NULL;
-	nc->check_value = 0x20;
+	nc->check_value = CONNECTION::check_value_const;
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
 	nc->port=(u_short)port;
@@ -771,7 +770,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	strcpy(nc->ipAddr,ipAddr);
 	strcpy(nc->localIpAddr,localIpAddr);
 	nc->next =connections;
-	terminateAccess(&connectionWriteAccess,id);
     nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	nc->login[0]='\0';
 	nc->nTries=0;
@@ -789,13 +787,11 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	sprintf(msg, "%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
 	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 	strcat(msg,"\r\n");
-
 #endif
 #ifdef __linux__
 	snprintf(msg, 500,"%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
 	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
 	strcat(msg,"\r\n");
-
 #endif
 	((vhost*)(nc->host))->accessesLogWrite(msg);
 
@@ -816,6 +812,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 			((vhost*)(nc->host))->warningsLogWrite(msg);
 		}
 	}
+	terminateAccess(&connectionWriteAccess,id);
 	return nc;
 }
 
@@ -878,7 +875,7 @@ LPCONNECTION cserver::getConnectionToParse(int id)
 	if(connectionToParse)
 	{
 		/*Be sure that connectionToParse is a valid connection struct*/
-		if(connectionToParse->check_value!=0x20)
+		if(connectionToParse->check_value!=CONNECTION::check_value_const)
 			connectionToParse=connections;
 		else
 			connectionToParse=connectionToParse->next;

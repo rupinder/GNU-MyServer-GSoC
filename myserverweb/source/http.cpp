@@ -1147,7 +1147,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	}
 	else
 	{
-		retvalue=0xFFFFFFFE & (~1);/*Set first bit to 0*/
+		retvalue=(~1);/*Set first bit to 0*/
 		retvalue|=2;/*Set second bit to 1*/
 	}
 	/*
