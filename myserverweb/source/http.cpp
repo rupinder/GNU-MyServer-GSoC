@@ -65,6 +65,7 @@ int http::useMessagesFiles=0;
 char *http::defaultFilename=0;	
 u_long http::nDefaultFilename=0;
 int http::initialized=0;
+
 /*!
 *Browse a folder printing its contents over the HTTP.
 */
@@ -246,8 +247,9 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	return 1;
 
 }
+
 /*!
-*Send a file to the client using the HTTP.
+*Send a file to the client using the HTTP protocol.
 */
 int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int OnlyHeader,int firstByte,int lastByte)
 {
@@ -445,11 +447,11 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			break;
 		}
 	}
-//	sprintf(td->response.CONTENT_LENGTH,"%i",dataSent);
 	h.closeFile();
 	return keepalive;
 
 }
+
 /*!
 *Main function to handle the HTTP PUT command.
 */
@@ -587,8 +589,9 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 	}
 	
 }
+
 /*!
-*Delete the resource identified by filename
+*Delete the resource identified by filename.
 */
 int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int yetmapped)
 {
@@ -681,6 +684,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename
 		return raiseHTTPError(td,s,e_204);/*!No content*/
 	}
 }
+
 /*!
 *Check the Digest authorization
 */
@@ -726,6 +730,7 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 	if(!lstrcmp(response,td->request.digest_response))
 		return 1;
 }
+
 /*!
 *Reset an http_user_data structure.
 */
@@ -739,6 +744,7 @@ void http::resetHTTPUserData(http_user_data* ud)
 	ud->nc=0;
 	ud->digest=0;
 }
+
 /*!
 *Main function to send a resource to a client.
 */
@@ -1706,6 +1712,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 
 	return keepalive;
 }
+
 /*!
 *Send a hard wired 500 error when we have a system error
 */
@@ -1792,6 +1799,7 @@ int http::sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 
 	return keepalive;
 }
+
 /*!
 *Send a non-modified message to the client.
 */
@@ -1828,6 +1836,7 @@ int http::sendAuth(httpThreadContext* td,LPCONNECTION s)
 		return raiseHTTPError(td,s,e_401AUTH);
 	}
 }
+
 /*!
 *Load the HTTP protocol.
 */
@@ -1931,6 +1940,7 @@ int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 	initialized=1;
 	return 1;	
 }
+
 /*!
 *Unload the HTTP protocol.
 */
@@ -1981,6 +1991,7 @@ char* http::registerName(char* out,int len)
 	}
 	return "HTTP";
 }
+
 /*!
 *Constructor for the class http
 */
@@ -1989,6 +2000,7 @@ http::http()
 	strcpy(protocolPrefix,"http://");
 	PROTOCOL_OPTIONS=0;
 }
+
 /*!
 *Destructor for the class http
 */
