@@ -7,7 +7,7 @@ int EXPORTABLE main (char* cmd)
 	cm.Start();     
 	if(lstrlen(cmd)==0)     
 	{  	
-		cm.Write("<p><input type=\"text\" name=\"T1\" size=\"20\"></p></p> <input type=\"text\" name=\"T2\" size=\"20\"></p><p><input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\"></p><SCRIPT LANGUAGE=\"JavaScript\">function send(){var url=\"math_sum.mscgi?a=\" + T1.value + \"&b=\" + T2.value;window.location.assign(url);}</SCRIPT>");      
+		cm.Write("<title>myServer</title><body bgcolor=\"#000000\" text=\"#00C800\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"></p><p align=\"center\"><input type=\"text\" name=\"T1\" size=\"20\"><p align=\"center\">+</p></p><p align=\"center\"> <input type=\"text\" name=\"T2\" size=\"20\"></p><p align=\"center\"><input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\"></p><SCRIPT LANGUAGE=\"JavaScript\">function send(){var url=\"math_sum.mscgi?a=\" + T1.value + \"&b=\" + T2.value;window.location.assign(url);}</SCRIPT>");
 	}     
 	else     
 	{ 	
@@ -18,12 +18,14 @@ int EXPORTABLE main (char* cmd)
 	 	a[0]=b[0]=c[0]=0;
  		lstrcpy(a,cm.GetParam("a"));
 	 	lstrcpy(b,cm.GetParam("b"));
+		cm.Write("<title>myServer</title><body bgcolor=\"#000000\" text=\"#00C800\"><p align=\"center\"><img border=\"0\" src=\"logo.gif\"><p align=\"center\">");
      		cm.Write(a);
 	     	cm.Write(" + ");
      		cm.Write(b);
 	     	cm.Write(" = ");
  		sprintf(c,"%i",atoi(a)+atoi(b));
 	     	cm.Write(c);
+		cm.Write("</p>");
      }
      cm.Clean();
      return 0; 
