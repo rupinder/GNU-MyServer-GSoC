@@ -122,7 +122,29 @@ void cserver::start()
 	lstrcpy(msgNewConnection,"Connection from");
 	lstrcpy(msgErrorConnection,"Error connection from");
 	lstrcpy(msgAtTime,"at time");
-	
+
+
+#ifdef WIN32
+	/*
+	*If the libhoard executable exists load it.
+	*Libhoard is a free library by Emery Berger,
+	*it is distribuite under the GNU Library General Public License.
+	*You can download it at: http://www.hoard.org/.
+	*For use libhoard in myServer simply put the libhoard.dll file in the 
+	*myServer external folder.
+	*/
+	if(ms_FileExists("external/libhoard.dll"))
+	{
+		char libhoardpath[MAX_PATH];
+		ms_getdefaultwd(libhoardpath,MAX_PATH);
+		lstrcat(libhoardpath,"/external/libhoard.dll");
+		if(!LoadLibraryA(libhoardpath))
+		{
+			warningsLogWrite(languageParser.getValue("ERR_LOADED"));
+			warningsLogWrite(" libhoard\r\n");
+		}
+	}
+#endif	
 
 	/*
 	*Load the strings buffers with the right values.

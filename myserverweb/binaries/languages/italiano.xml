@@ -32,6 +32,8 @@
 <MSG_TSTOPPED>Threads chiusi con successo</MSG_TSTOPPED>
 <MSG_MEMCLEAN>Disallocazione memoria in corso...</MSG_MEMCLEAN>
 <MSG_SERVICESTOP>Arresto del servizio in corso...</MSG_SERVICESTOP>
+<MSG_LOADED>Caricata</MSG_LOADED>
+<ERR_LOADED>Errore nel caricare</ERR_LOADED>
 
 <!--THESE MEMBERS MAX 32 CHARACTERS-->
 <MSG_SENDING>Invio</MSG_SENDING>

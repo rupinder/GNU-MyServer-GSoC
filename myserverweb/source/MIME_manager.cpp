@@ -214,8 +214,8 @@ void MIME_Manager::removeAllRecords()
 		nmr2=nmr1;
 		if(nmr2)
 		{
-			free(nmr2);
 			nmr1=nmr1->next;
+			free(nmr2);
 		}
 		else
 		{

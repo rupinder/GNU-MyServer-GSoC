@@ -17,6 +17,8 @@
 <MSG_LISTEN>Listen on port</MSG_LISTEN>
 <MSG_LOADMIME>Loading MIME types...</MSG_LOADMIME>
 <MSG_GETNAME>Computer name is</MSG_GETNAME>
+<MSG_LOADED>Loaded</MSG_LOADED>
+<ERR_LOADED>Error Loading</ERR_LOADED>
 <MSG_MIMERUN>MIME types loaded successfully</MSG_MIMERUN>
 <MSG_ADDRESS>IP Address</MSG_ADDRESS>
 <ERR_LOADMIME>MIME types cannot be loaded</ERR_LOADMIME>
