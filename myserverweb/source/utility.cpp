@@ -179,8 +179,6 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 			execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
 		else
 			execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
-		// never should be here
-		dprintf(2,"Error: %s could not be exicuted.", (const char*)(spi->cmd));
 		exit(1);
 	} // end else if(pid == 0)
 	// Parent
@@ -260,8 +258,6 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 			execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
 		else	
 			execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
-		// never should be here
-		dprintf(2,"Error: %s could not be exicuted.", (const char*)(spi->cmd));
 		exit(1);
 	} // end else if(pid == 0)
 	return (u_long)pid;

@@ -35,6 +35,7 @@ extern "C" {
 #endif
 #ifdef __linux__
 #include <string.h>
+#include <errno.h>
 #endif
 }
 
