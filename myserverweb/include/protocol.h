@@ -30,7 +30,7 @@ private:
 
 public:
 	virtual int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
-	static int loadProtocol(cXMLParser*);
+	static int loadProtocol(cXMLParser*,char*);
 	static int unloadProtocol(cXMLParser*);
 
 };

@@ -34,15 +34,15 @@ extern "C" {
 }
 
 #ifdef WIN32
+
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"ws2_32.lib")
-#endif
 
-#ifdef WIN32
 #ifndef DO_NOT_USE_SSL
 #pragma comment(lib,"libeay32.lib")/*!Import the OpenSSL library*/
 #pragma comment(lib,"ssleay32.lib")/*!Import the OpenSSL library*/
 #endif
+
 #endif
 /*!
 *Source code to wrap the socket library to MyServer project.
@@ -307,6 +307,7 @@ int MYSERVER_SOCKET::freeSSL()
 	}
 	return 1;
 }
+
 /*!
 *Set the SSL context.
 */
@@ -342,6 +343,7 @@ void MYSERVER_SOCKET::setSSL(int nSSL,SSL* connection)
 		initializeSSL(connection);
 	sslSocket=nSSL;
 }
+
 /*!
 *SSL handshake procedure.
 */
@@ -392,14 +394,15 @@ int MYSERVER_SOCKET::sslAccept()
 
 }
 /*!
-*Returns the SSL connection
+*Returns the SSL connection.
 */
 SSL* MYSERVER_SOCKET::getSSLConnection()
 {
 	return sslConnection;
 }
 
-#endif
+#endif /*Endif for routines used only with the SSL library*/
+
 
 /*!
 *Returns if the connection is using SSL.

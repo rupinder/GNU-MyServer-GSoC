@@ -137,7 +137,7 @@ void cserver::start()
 	languageParser.open(languageFile);
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
-	http::loadProtocol(&languageParser);
+	http::loadProtocol(&languageParser,"myserver.xml");
 	
 	/*!
 	*Initialize the SSL library
@@ -627,7 +627,6 @@ void cserver::terminate()
 	FreeEnvironmentStrings((LPTSTR)envString);
 #endif	
 	http::unloadProtocol(&languageParser);
-	delete[] defaultFilename;
 
 	delete[] threads;
 	if(verbosity>1)
@@ -658,14 +657,10 @@ void cserver::initialize(int /*!OSVer*/)
 	useLogonOption = 1;
 	connectionTimeout = SEC(25);
 	lstrcpy(languageFile,"languages/english.xml");
-	browseDirCSSpath[0]='\0';
 	mustEndServer=0;
 	verbosity=1;
 	maxConnections=0;
-	gzip_threshold=1<<20;
 	serverAdmin[0]='\0';
-
-	useMessagesFiles=1;
 	
 	/*!
 	*If the myserver.xml files doesn't exist copy it from the default one.
@@ -723,11 +718,6 @@ void cserver::initialize(int /*!OSVer*/)
 		connectionTimeout=SEC((u_long)atol(data));
 	}
 
-	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
-	if(data)
-	{
-		lstrcpy(browseDirCSSpath,data);
-	}
 	data=configurationFileManager.getValue("NTHREADS_A");
 	if(data)
 	{
@@ -744,14 +734,7 @@ void cserver::initialize(int /*!OSVer*/)
 	*/
 	nThreads=nThreadsA*getCPUCount()+nThreadsB;
 
-	/*!
-	*Determine the min file size that will use GZIP compression.
-	*/
-	data=configurationFileManager.getValue("GZIP_THRESHOLD");
-	if(data)
-	{
-		gzip_threshold=atoi(data);
-	}		
+
 	/*!
 	*Get the max connections number to allow.
 	*/
@@ -761,55 +744,10 @@ void cserver::initialize(int /*!OSVer*/)
 		maxConnections=atoi(data);
 	}			
 	
-	/*!
-	*Determine the number of default filenames written in the configuration file.
-	*/
-	nDefaultFilename=0;
-	for(;;)
-	{
-		char xmlMember[21];
-		sprintf(xmlMember,"DEFAULT_FILENAME%i",nDefaultFilename);
-		if(!strlen(configurationFileManager.getValue(xmlMember)))
-			break;
-		nDefaultFilename++;
-
-	}
-	/*!
-	*Copy the right values in the buffer.
-	*/
-	if(nDefaultFilename==0)
-	{
-		defaultFilename =(char*)new char[MAX_PATH];
-		strcpy(defaultFilename,"default.html");
-	}
-	else
-	{
-		u_long i;
-		defaultFilename =new char[MAX_PATH*nDefaultFilename];
-		for(i=0;i<nDefaultFilename;i++)
-		{
-			char xmlMember[21];
-			sprintf(xmlMember,"DEFAULT_FILENAME%i",i);
-			data=configurationFileManager.getValue(xmlMember);
-			if(data)
-				strcpy(&defaultFilename[i*MAX_PATH],data);
-		}
-	}
-
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
 	{
 		lstrcpy(serverAdmin,data);
-	}
-
-
-	data=configurationFileManager.getValue("USE_ERRORS_FILES");
-	if(data)
-	{
-		if(!lstrcmpi(data,"YES"))
-			useMessagesFiles=1;
-		else
-			useMessagesFiles=0;
 	}
 
 	data=configurationFileManager.getValue("USE_LOGON_OPTIONS");
@@ -954,13 +892,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	terminateAccess(&connectionWriteAccess,id);
 	return nc;
 }
-/*!
-*Get the GZIP threshold value.
-*/
-u_long  cserver::getGZIPthreshold()
-{
-	return gzip_threshold;
-}
 
 /*!
 *Delete a connection from the list.
@@ -1087,16 +1018,6 @@ char *cserver::getPath()
 	return path;
 }
 /*!
-*Returns the default filename.
-*/
-char *cserver::getDefaultFilenamePath(u_long ID)
-{
-	if(ID<nDefaultFilename)
-		return defaultFilename+ID*MAX_PATH;
-	else
-		return 0;
-}
-/*!
 *Returns the name of the server(the name of the current PC).
 */
 char *cserver::getServerName()
@@ -1104,26 +1025,11 @@ char *cserver::getServerName()
 	return serverName;
 }
 /*!
-*Returns 1 if we use personalized errors page
-*0 if we don't use personalized errors page.
-*/
-int cserver::mustUseMessagesFiles()
-{
-	return useMessagesFiles;
-}
-/*!
 *Returns if we use the logon.
 */
-int cserver::mustUseLogonOption()
+int cserver::mustUseLogonOption() 
 {
 	return useLogonOption;
-}
-/*!
-*Returns the file name of the css used to browse a directory.
-*/
-char *cserver::getBrowseDirCSS()
-{ 
-	return browseDirCSSpath;
 }
 /*!
 *Gets the number of threads.

@@ -54,13 +54,15 @@ extern "C"
 #ifndef intptr_t
 #define intptr_t int
 #endif
-/*!
-*Store if the MSCGI library was loaded.
-*/
-static int mscgiLoaded=0;
 
+static int mscgiLoaded=0;/*Store if the MSCGI library was loaded.*/
+static char browseDirCSSpath[MAX_PATH];
+static u_long gzip_threshold;
+static int useMessagesFiles;	
+static char *defaultFilename;	
+static u_long nDefaultFilename;
 /*!
-*Browse a folder over the HTTP.
+*Browse a folder printing its contents over the HTTP.
 */
 int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
@@ -107,11 +109,11 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	/*!
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
 	*/
-	if(lserver->getBrowseDirCSS()[0])
+	if(browseDirCSSpath[0])
 	{
 		MYSERVER_FILE cssHandle;
 		int ret;
-		ret=cssHandle.openFile(lserver->getBrowseDirCSS(),MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+		ret=cssHandle.openFile(browseDirCSSpath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 		if(ret>0)
 		{
 			u_long nbr;
@@ -236,6 +238,9 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	return 1;
 
 }
+/*!
+*Send a file to the client using the HTTP.
+*/
 int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int OnlyHeader,int firstByte,int lastByte)
 {
 	/*!
@@ -262,7 +267,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	{
 		lastByte=bytesToSend;
 		
-		if(bytesToSend > lserver->getGZIPthreshold())/*Use GZIP compression to send files bigger than GZIP threshold*/
+		if(bytesToSend > gzip_threshold)/*Use GZIP compression to send files bigger than GZIP threshold*/
 			useGZIP=1;
 	}
 	else/*!If the client use ranges set the right value for the last byte number*/
@@ -705,7 +710,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		for(i=0;;i++)
 		{
 			static char defaultFileName[MAX_PATH];
-			char *defaultFileNamePath=lserver->getDefaultFilenamePath(i);
+			char *defaultFileNamePath=getDefaultFilenamePath(i);
 			if(defaultFileNamePath)
 				sprintf(defaultFileName,"%s/%s",td->filenamePath,defaultFileNamePath);
 			else
@@ -1414,7 +1419,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	strncpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID],HTTP_RESPONSE_ERROR_TYPE_DIM);
 	char errorFile[MAX_PATH];
 	sprintf(errorFile,"%s/%s",((vhost*)(td->connection->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
-	if(lserver->mustUseMessagesFiles() && MYSERVER_FILE::fileExists(errorFile))
+	if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
 	{
 		return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
 	}
@@ -1542,10 +1547,10 @@ int http::sendAuth(httpThreadContext* td,LPCONNECTION s)
 /*!
 *Load the HTTP protocol.
 */
-int http::loadProtocol(cXMLParser* languageParser)
+int http::loadProtocol(cXMLParser* languageParser,char* confFile)
 {
 	/*!
-	*Under WIN32 initialize ISAPI.
+	*Initialize ISAPI.
 	*/
 	isapi::initISAPI();
 	/*!
@@ -1564,7 +1569,73 @@ int http::loadProtocol(cXMLParser* languageParser)
 		preparePrintError();
 		printf("%s\n",languageParser->getValue("ERR_LOADMSCGI"));
 		endPrintError();
+	}
+	/*!
+	*Store defaults value.
+	*/
+	gzip_threshold=1<<20;
+	useMessagesFiles=1;
+	browseDirCSSpath[0]='\0';
+	cXMLParser configurationFileManager;
+	configurationFileManager.open("myserver.xml");
+	char *data;	
+	/*!
+	*Determine the min file size that will use GZIP compression.
+	*/
+	data=configurationFileManager.getValue("GZIP_THRESHOLD");
+	if(data)
+	{
+		gzip_threshold=atoi(data);
+	}		
+	data=configurationFileManager.getValue("USE_ERRORS_FILES");
+	if(data)
+	{
+		if(!lstrcmpi(data,"YES"))
+			useMessagesFiles=1;
+		else
+			useMessagesFiles=0;
 	}	
+	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
+	if(data)
+	{
+		lstrcpy(browseDirCSSpath,data);
+	}
+	/*!
+	*Determine the number of default filenames written in the configuration file.
+	*/
+	nDefaultFilename=0;
+	for(;;)
+	{
+		char xmlMember[21];
+		sprintf(xmlMember,"DEFAULT_FILENAME%i",nDefaultFilename);
+		if(!strlen(configurationFileManager.getValue(xmlMember)))
+			break;
+		nDefaultFilename++;
+
+	}
+	/*!
+	*Copy the right values in the buffer.
+	*/
+	if(nDefaultFilename==0)
+	{
+		defaultFilename =(char*)new char[MAX_PATH];
+		strcpy(defaultFilename,"default.html");
+	}
+	else
+	{
+		u_long i;
+		defaultFilename =new char[MAX_PATH*nDefaultFilename];
+		for(i=0;i<nDefaultFilename;i++)
+		{
+			char xmlMember[21];
+			sprintf(xmlMember,"DEFAULT_FILENAME%i",i);
+			data=configurationFileManager.getValue(xmlMember);
+			if(data)
+				strcpy(&defaultFilename[i*MAX_PATH],data);
+		}
+	}	
+	configurationFileManager.close();
+	
 }
 /*!
 *Unload the HTTP protocol.
@@ -1583,5 +1654,17 @@ int http::unloadProtocol(cXMLParser* languageParser)
 	*Clean MSCGI.
 	*/
 	mscgi::freeMSCGILib();
-	
+
+	delete[] defaultFilename;
+}
+
+/*!
+*Returns the default filename.
+*/
+char *http::getDefaultFilenamePath(u_long ID)
+{
+	if(ID<nDefaultFilename)
+		return defaultFilename+ID*MAX_PATH;
+	else
+		return 0;
 }

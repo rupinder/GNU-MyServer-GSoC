@@ -35,8 +35,9 @@ private:
 	wincgi lwincgi;
 	isapi lisapi;
 	cgi lcgi;
-	fastcgi lfastcgi;	
+	fastcgi lfastcgi;
 public:
+	char *getDefaultFilenamePath(u_long ID);
 	int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
 	int putHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
 	int deleteHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int yetmapped=0);
@@ -55,7 +56,7 @@ public:
 	*The function is used to the request and build a response.
 	*/
 	int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
-	static int loadProtocol(cXMLParser*);
+	static int loadProtocol(cXMLParser*,char*);
 	static int unloadProtocol(cXMLParser*);
 
 };
