@@ -18,7 +18,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/cserver.h"
-#include "../include/http.h"
+
+#include "../include/http.h"	/*Include the HTTP protocol*/
+#include "../include/https.h" /*Include the HTTPS protocol*/
+
 #include "../include/security.h"
 #include "../include/stringutils.h"
 #include "../include/sockets.h"
@@ -140,6 +143,7 @@ void cserver::start()
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
 
 	http::loadProtocol(&languageParser,"myserver.xml");
+	https::loadProtocol(&languageParser,"myserver.xml");
 	
 	/*!
 	*Initialize the SSL library
@@ -629,6 +633,7 @@ void cserver::terminate()
 	FreeEnvironmentStrings((LPTSTR)envString);
 #endif	
 	http::unloadProtocol(&languageParser);
+	https::unloadProtocol(&languageParser);
 
 	delete[] threads;
 	if(verbosity>1)
@@ -827,7 +832,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 *Add a new connection.
 *A connection is defined using a CONNECTION struct.
 */
-LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*!asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
+LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
 {
 	requestAccess(&connectionWriteAccess,id);
 	u_long cs=sizeof(CONNECTION);
@@ -845,17 +850,27 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	nc->localPort=(u_short)localPort;
 	strncpy(nc->ipAddr,ipAddr,MAX_IP_STRING_LEN);
 	strncpy(nc->localIpAddr,localIpAddr,MAX_IP_STRING_LEN);
-	nc->next =connections;
-	nc->host=(void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
+	nc->next = connections;
+	nc->host = (void*)lserver->vhostList.getvHost(0,localIpAddr,(u_short)localPort);
 	if(nc->host == 0) /* No vhost for the connection so bail */
 	{
 		free(nc);
 		return 0;
 	}
+	int doSSLhandshake=0;
+	if(((vhost*)nc->host)->protocol > 1000	)
+	{
+		doSSLhandshake=1;
+	}
+	else if(((vhost*)nc->host)->protocol==PROTOCOL_UNKNOWN)
+	{		
+		/*Do nothing ATM*/
+	}
+	
 	/*!
-	*If the protocol uses SSL do the SSL handshake
+	*Do the SSL handshake if required.
 	*/
-	if(((vhost*)nc->host)->protocol > 1000)
+	if(doSSLhandshake)
 	{
 #ifndef DO_NOT_USE_SSL		
 		SSL_CTX* ctx=((vhost*)nc->host)->getSSLContext();
@@ -875,6 +890,8 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	nc->login[0]='\0';
 	nc->nTries=0;
 	nc->password[0]='\0';
+	nc->protocolBuffer=0;
+
 	if(nc->host==0)
 	{
 		free(nc);
@@ -941,6 +958,8 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 		err=s->socket.recv(buffer,buffersize,0);
 	}while(err!=-1);
 	s->socket.closesocket();
+	if(s->protocolBuffer)
+		free(s->protocolBuffer);
 	free(s);
 	return ret;
 }

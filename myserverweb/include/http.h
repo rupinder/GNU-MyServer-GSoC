@@ -42,7 +42,10 @@ private:
 	static int useMessagesFiles;	
 	static char *defaultFilename;	
 	static u_long nDefaultFilename;	
+protected:
+	char protocolPrefix[12];	
 public:
+	int PROTOCOL_OPTIONS;
 	char *getDefaultFilenamePath(u_long ID);
 	int sendHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
 	int putHTTPRESOURCE(httpThreadContext*,LPCONNECTION s,char *filename,int systemrequest=0,int OnlyHeader=0,int firstByte=0,int lastByte=-1,int yetmapped=0);
@@ -57,10 +60,11 @@ public:
 	int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
 	int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
-
+	http();
 	/*!
 	*The function is used to the request and build a response.
 	*/
+	virtual char* registerName(char*,int len);
 	int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
 	static int loadProtocol(cXMLParser*,char*);
 	static int unloadProtocol(cXMLParser*);

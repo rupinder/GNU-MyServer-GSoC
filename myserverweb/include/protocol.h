@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/cXMLParser.h"
 #include "../include/connectionstruct.h"
+/*Various options that can be use for the protocol*/
+#define PROTOCOL_USES_SSL 1
 /*!
 *This is the base class to derive from other protocols implementations for the server.
 */
@@ -29,6 +31,9 @@ class protocol
 private:
 
 public:
+	int PROTOCOL_OPTIONS;
+	protocol();
+	char* registerName(char*,int len);
 	virtual int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
 	static int loadProtocol(cXMLParser*,char*);
 	static int unloadProtocol(cXMLParser*);

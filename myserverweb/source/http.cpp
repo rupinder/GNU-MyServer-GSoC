@@ -722,10 +722,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 				*Change the URI to reflect the default file name.
 				*/
 				char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
-				if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
-					strcpy(nURL,"http://");
-				if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTPS)
-					strcpy(nURL,"https://");
+				strcpy(nURL,protocolPrefix);
 				strcat(nURL,td->request.HOST);
 				int isPortSpecified=0;
 				for(int i=0;td->request.HOST[i];i++)
@@ -1394,10 +1391,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 			*Change the URI to reflect the default file name.
 			*/
 			char nURL[MAX_PATH+HTTP_REQUEST_URI_DIM+12];
-			if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTP)
-				strcpy(nURL,"http://");
-			if(((vhost*)td->connection->host)->protocol==PROTOCOL_HTTPS)
-				strcpy(nURL,"https://");
+			strcpy(nURL,protocolPrefix);
 			strcat(nURL,td->request.HOST);
 			int isPortSpecified=0;
 			for(int i=0;td->request.HOST[i];i++)
@@ -1668,4 +1662,24 @@ char *http::getDefaultFilenamePath(u_long ID)
 		return defaultFilename+ID*MAX_PATH;
 	else
 		return 0;
+}
+
+/*!
+*Returns the name of the protocol. If an out buffer is defined fullfill it with the name too.
+*/
+char* http::registerName(char* out,int len)
+{
+	if(out)
+	{
+		strncpy(out,"HTTP",len);
+	}
+	return "HTTP";
+}
+/*!
+*Constructor for the class http
+*/
+http::http()
+{
+	strcpy(protocolPrefix,"http://");
+	PROTOCOL_OPTIONS=0;
 }

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cserver.h"
 #include "../include/security.h"
 #include "../include/http.h"
+#include "../include/https.h"
 #include "../include/Response_RequestStructs.h"
 #include "../include/sockets.h"
 #include "../include/stringutils.h"
@@ -152,6 +153,7 @@ void ClientsTHREAD::controlConnections()
 		*/
 		int retcode=0;
 		static http http_parser;
+		static https https_parser;
 		switch(((vhost*)(c->host))->protocol)
 		{
 			/*!
@@ -162,10 +164,10 @@ void ClientsTHREAD::controlConnections()
 				retcode=http_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			/*!
-			*Use the same parser for the HTTPS protocol too.
+			*Parse an HTTPS connection request.
 			*/
 			case PROTOCOL_HTTPS:
-				retcode=http_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=https_parser.controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
 				break;
 			default:
 				retcode=0;

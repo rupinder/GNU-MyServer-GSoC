@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 #include "../include/protocol.h"
+#include "../include/cXMLParser.h"
 
 
 /*!
@@ -46,4 +47,18 @@ int protocol::controlConnection(LPCONNECTION /*a*/,char */*b1*/,char */*b2*/,int
 	*2 if the header is incomplete and to save it in a temporary buffer
 	*/
 	return 0;
+}
+/*!
+*Returns the name of the protocol. If an out buffer is defined fullfill it with the name too.
+*/
+char* protocol::registerName(char* out,int len)
+{
+	return 0;
+}
+/*!
+*Constructor for the class protocol.
+*/
+protocol::protocol()
+{
+	PROTOCOL_OPTIONS=0;
 }

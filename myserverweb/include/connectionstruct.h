@@ -25,10 +25,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *Here are listed all the protocol supported by the server.
 *The protocols > 1000 use SSL.
 */
-#define PROTOCOL_HTTP		0
+#define PROTOCOL_UNKNOWN	0
+#define PROTOCOL_HTTP		1
 #define PROTOCOL_HTTPS		1001
 #define PROTOCOL_FTP		2
-#define PROTOCOL_UNKNOWN	3
 
 #define CONNECTION_REMOVE_OVERLOAD 1
 
@@ -60,6 +60,7 @@ public:
 	*/
 
 	char connectionBuffer[KB(8)];/*!This buffer must be used only by the ClientsTHREAD class*/
+	void *protocolBuffer;/*!Buffer for the connecion struct. Used by protocols.*/
 };
 typedef CONNECTION*  volatile LPCONNECTION;
 #endif
