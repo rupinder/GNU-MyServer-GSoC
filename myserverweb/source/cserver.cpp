@@ -289,6 +289,20 @@ VOID cserver::createServerAndListener(DWORD port,DWORD protID)
 	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 	sock_inserverSocket.sin_port=htons(port);
 
+#ifndef WIN32
+	/*
+	*Under the unix environment the application needs some time before create a new socket
+	*for the same address. To avoid this behavior we use the current code.
+	*/
+	int optvalReuseAddr=1;
+	if(ms_setsockopt(serverSocket,SOL_SOCKET,SO_REUSEADDR,&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
+	{
+		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
+		return;
+	}
+
+#endif
+
 	/*
 	*Bind the  port.
 	*/

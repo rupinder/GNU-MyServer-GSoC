@@ -20,6 +20,7 @@
 <MSG_MIMERUN>MIME types loaded successfully</MSG_MIMERUN>
 <MSG_ADDRESS>Address</MSG_ADDRESS>
 <ERR_LOADMIME>MIME types cannot be loaded</ERR_LOADMIME>
+<ERR_ERROR>Generic error</ERR_ERROR>
 <MSG_NUM_CPU>Number of processors:</MSG_NUM_CPU>
 <MSG_CREATET>Creating thread</MSG_CREATET>
 <MSG_THREADR>Thread created</MSG_THREADR>

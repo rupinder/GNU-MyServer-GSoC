@@ -25,7 +25,6 @@
 *External libraries to be included in the project.
 */
 #ifdef WIN32
-#pragma comment(lib,"ws2_32.lib")
 #pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"winmm.lib")
 #endif

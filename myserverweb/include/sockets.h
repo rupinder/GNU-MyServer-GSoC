@@ -18,6 +18,16 @@
 */
 #pragma once
 #include "..\stdafx.h"
+
+#ifdef WIN32
+#include <winsock2.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <uninstd.h>
+#endif
+
 typedef unsigned int MYSERVER_SOCKET;
 typedef sockaddr_in MYSERVER_SOCKADDRIN;
 int ms_startupSocketLib(WORD);

@@ -20,6 +20,7 @@
 <MSG_MIMERUN>Tipi Mime caricati con successo</MSG_MIMERUN>
 <MSG_ADDRESS>Indirizzo IP</MSG_ADDRESS>
 <ERR_LOADMIME>I tipi MIME non sono stati caricati correttamente</ERR_LOADMIME>
+<ERR_ERROR>Errore generico</ERR_ERROR>
 <MSG_NUM_CPU>Numero di processori:</MSG_NUM_CPU>
 <MSG_CREATET>Creazione del thread</MSG_CREATET>
 <MSG_THREADR>Thread creato</MSG_THREADR>

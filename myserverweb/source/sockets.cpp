@@ -22,6 +22,10 @@
 #include "..\include\sockets.h"
 #include <string.h>
 
+#ifdef WIN32
+#pragma comment(lib,"ws2_32.lib")
+#endif
+
 /*
 *Source code to wrap the socket library to myServer project.
 */
