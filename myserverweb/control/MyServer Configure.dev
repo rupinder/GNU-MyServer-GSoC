@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=28
+UnitCount=29
 Type=0
 Ver=1
 ObjFiles=
@@ -319,6 +319,16 @@ BuildCmd=
 
 [Unit28]
 FileName=control_client.h
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit29]
+FileName=progress.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
