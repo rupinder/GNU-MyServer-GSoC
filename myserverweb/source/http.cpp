@@ -745,7 +745,7 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	*Every directive ends with a \r\n sequence.
     */
 	if(response->isError)
-		sprintf(str,"HTTP/%s %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->ERROR_TYPE);
+		sprintf(str,"HTTP/%s %s\r\nStatus: %s\r\n",response->VER,response->ERROR_TYPE,response->ERROR_TYPE);
 	else
 		sprintf(str,"HTTP/%s 200 OK\r\n",response->VER);
 
