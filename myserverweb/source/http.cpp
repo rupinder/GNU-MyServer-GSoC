@@ -55,6 +55,13 @@ extern "C"
 #define intptr_t int
 #endif
 
+int http::mscgiLoaded=0;/*Store if the MSCGI library was loaded.*/
+char http::browseDirCSSpath[MAX_PATH]="";
+u_long http::gzip_threshold=0;
+int http::useMessagesFiles=0;	
+char *http::defaultFilename=0;	
+u_long http::nDefaultFilename=0;
+
 /*!
 *Browse a folder printing its contents over the HTTP.
 */

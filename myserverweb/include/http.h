@@ -64,14 +64,7 @@ public:
 	int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
 	static int loadProtocol(cXMLParser*,char*);
 	static int unloadProtocol(cXMLParser*);
-
 };
 
-int http::mscgiLoaded=0;/*Store if the MSCGI library was loaded.*/
-char http::browseDirCSSpath[MAX_PATH]="";
-u_long http::gzip_threshold=0;
-int http::useMessagesFiles=0;	
-char *http::defaultFilename=0;	
-u_long http::nDefaultFilename=0;
 
 #endif
