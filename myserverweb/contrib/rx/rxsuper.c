@@ -50,7 +50,7 @@ void * rx_id_instruction_table[rx_num_instructions] =
 
 
 /* The partially instantiated superstate graph has a transition 
- * table at every node.  There is one entry for every character.
+ * table at every rxnode.  There is one entry for every character.
  * This fills in the transition for a set.
  */
 #ifdef __STDC__

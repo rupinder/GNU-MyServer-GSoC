@@ -33,7 +33,7 @@
 /* {Low Level Data Structure Code}
  */
 
-/* Constructs a new nfa node. */
+/* Constructs a new nfa rxnode. */
 #ifdef __STDC__
 struct rx_nfa_state *
 rx_nfa_state (struct rx *rx)
@@ -66,7 +66,7 @@ rx_free_nfa_state (n)
 }
 
 
-/* This adds an edge between two nodes, but doesn't initialize the 
+/* This adds an edge between two rxnodes, but doesn't initialize the 
  * edge label.
  */
 
@@ -216,21 +216,21 @@ rx_free_nfa_graph (rx)
 #ifdef __STDC__
 int
 rx_build_nfa (struct rx *rx,
-	      struct rexp_node *rexp,
+	      struct rexp_rxnode *rexp,
 	      struct rx_nfa_state **start,
 	      struct rx_nfa_state **end)
 #else
 int
 rx_build_nfa (rx, rexp, start, end)
      struct rx *rx;
-     struct rexp_node *rexp;
+     struct rexp_rxnode *rexp;
      struct rx_nfa_state **start;
      struct rx_nfa_state **end;
 #endif
 {
   struct rx_nfa_edge *edge;
   
-  /* Start & end nodes may have been allocated by the caller. */
+  /* Start & end rxnodes may have been allocated by the caller. */
   *start = *start ? *start : rx_nfa_state (rx);
 
   if (!*start)
@@ -285,7 +285,7 @@ rx_build_nfa (rx, rexp, start, end)
           }
         else
           {
-            struct rexp_node copied;
+            struct rexp_rxnode copied;
             struct rx_nfa_state * shared;
             
             copied = *rexp;
@@ -301,7 +301,7 @@ rx_build_nfa (rx, rexp, start, end)
       }
       
     case r_opt:
-      return (rx_build_nfa (rx, rexp->params.pair.left, start, end)
+      return (rx_build_nfa (rx, rexp->params.rxpair.left, start, end)
               && rx_nfa_edge (rx, ne_epsilon, *start, *end));
 
     case r_plus:
@@ -311,9 +311,9 @@ rx_build_nfa (rx, rexp, start, end)
         struct rx_nfa_state * shared;
         
         shared = 0;
-        if (!rx_build_nfa (rx, rexp->params.pair.left, start, &shared))
+        if (!rx_build_nfa (rx, rexp->params.rxpair.left, start, &shared))
           return 0;
-        return (rx_build_nfa (rx, rexp->params.pair.left,
+        return (rx_build_nfa (rx, rexp->params.rxpair.left,
                               &star_start, &star_end)
                 && star_start
                 && star_end
@@ -328,7 +328,7 @@ rx_build_nfa (rx, rexp, start, end)
       {
         struct rx_nfa_state * star_start = 0;
         struct rx_nfa_state * star_end = 0;
-        return (rx_build_nfa (rx, rexp->params.pair.left,
+        return (rx_build_nfa (rx, rexp->params.rxpair.left,
                               &star_start, &star_end)
                 && star_start
                 && star_end
@@ -356,14 +356,14 @@ rx_build_nfa (rx, rexp, start, end)
       }
       
     case r_parens:
-      return rx_build_nfa (rx, rexp->params.pair.left, start, end);
+      return rx_build_nfa (rx, rexp->params.rxpair.left, start, end);
       
     case r_concat:
       {
         struct rx_nfa_state *shared = 0;
         return
-          (rx_build_nfa (rx, rexp->params.pair.left, start, &shared)
-           && rx_build_nfa (rx, rexp->params.pair.right, &shared, end));
+          (rx_build_nfa (rx, rexp->params.rxpair.left, start, &shared)
+           && rx_build_nfa (rx, rexp->params.rxpair.right, &shared, end));
       }
       
     case r_alternate:
@@ -372,8 +372,8 @@ rx_build_nfa (rx, rexp, start, end)
         struct rx_nfa_state *le = 0;
         struct rx_nfa_state *rs = 0;
         struct rx_nfa_state *re = 0;
-        return (rx_build_nfa (rx, rexp->params.pair.left, &ls, &le)
-                && rx_build_nfa (rx, rexp->params.pair.right, &rs, &re)
+        return (rx_build_nfa (rx, rexp->params.rxpair.left, &ls, &le)
+                && rx_build_nfa (rx, rexp->params.rxpair.right, &rs, &re)
                 && rx_nfa_edge (rx, ne_epsilon, *start, ls)
                 && rx_nfa_edge (rx, ne_epsilon, *start, rs)
                 && rx_nfa_edge (rx, ne_epsilon, le, *end)
@@ -602,24 +602,24 @@ nfa_set_cons (rx, memo, state, set)
 #endif
 {
   struct rx_nfa_state_set templ;
-  struct rx_hash_item * node;
+  struct rx_hash_item * rxnode;
   templ.car = state;
   templ.cdr = set;
-  node = rx_hash_store (memo,
+  rxnode = rx_hash_store (memo,
 			(((long)state) >> 8) ^ (long)set,
 			&templ, &nfa_set_hash_rules);
-  if (!node)
+  if (!rxnode)
     return 0;
-  if (node->data == &templ)
+  if (rxnode->data == &templ)
     {
       struct rx_nfa_state_set * l;
       l = (struct rx_nfa_state_set *) malloc (sizeof (*l));
-      node->data = (void *) l;
+      rxnode->data = (void *) l;
       if (!l)
 	return 0;
       *l = templ;
     }
-  return (struct rx_nfa_state_set *)node->data;
+  return (struct rx_nfa_state_set *)rxnode->data;
 }
 
 
@@ -661,48 +661,48 @@ struct eclose_frame
 };
 
 
-/* This is called while computing closures for "outnode".
- * The current node in the traversal is "node".
+/* This is called while computing closures for "outrxnode".
+ * The current rxnode in the traversal is "rxnode".
  * "frame" contains a list of a all side effects between 
- * "outnode" and "node" from most to least recent.
+ * "outrxnode" and "rxnode" from most to least recent.
  *
- * Explores forward from "node", adding new possible
- * futures to outnode.
+ * Explores forward from "rxnode", adding new possible
+ * futures to outrxnode.
  *
  * Returns 0 on allocation failure.
  */
 
 #ifdef __STDC__
 static int 
-eclose_node (struct rx *rx, struct rx_nfa_state *outnode,
-	     struct rx_nfa_state *node, struct eclose_frame *frame)
+eclose_rxnode (struct rx *rx, struct rx_nfa_state *outrxnode,
+	     struct rx_nfa_state *rxnode, struct eclose_frame *frame)
 #else
 static int 
-eclose_node (rx, outnode, node, frame)
+eclose_rxnode (rx, outrxnode, rxnode, frame)
      struct rx *rx;
-     struct rx_nfa_state *outnode;
-     struct rx_nfa_state *node;
+     struct rx_nfa_state *outrxnode;
+     struct rx_nfa_state *rxnode;
      struct eclose_frame *frame;
 #endif
 {
-  struct rx_nfa_edge *e = node->edges;
+  struct rx_nfa_edge *e = rxnode->edges;
 
-  /* For each node, we follow all epsilon paths to build the closure.
-   * The closure omits nodes that have only epsilon edges.
+  /* For each rxnode, we follow all epsilon paths to build the closure.
+   * The closure omits rxnodes that have only epsilon edges.
    * The closure is split into partial closures -- all the states in
    * a partial closure are reached by crossing the same list of
    * of side effects (though not necessarily the same path).
    */
-  if (node->mark)
+  if (rxnode->mark)
     return 1;
-  node->mark = 1;
+  rxnode->mark = 1;
 
-  /* If "node" has more than just epsilon and 
+  /* If "rxnode" has more than just epsilon and 
    * and side-effect transitions (id >= 0), or is final,
    * then it has to be added to the possible futures
-   * of "outnode".
+   * of "outrxnode".
    */
-  if (node->id >= 0 || node->is_final)
+  if (rxnode->id >= 0 || rxnode->is_final)
     {
       struct rx_possible_future **ec;
       struct rx_se_list * prog_in_order;
@@ -712,7 +712,7 @@ eclose_node (rx, outnode, node, frame)
 							  &rx->se_list_memo,
 							  frame->prog_backwards));
 
-      ec = &outnode->futures;
+      ec = &outrxnode->futures;
 
       while (*ec)
 	{
@@ -731,23 +731,23 @@ eclose_node (rx, outnode, node, frame)
 	  pf->next = *ec;
 	  *ec = pf;
 	}
-      if (node->id >= 0)
+      if (rxnode->id >= 0)
 	{
 	  (*ec)->destset = nfa_set_enjoin (rx, &rx->set_list_memo,
-					   node, (*ec)->destset);
+					   rxnode, (*ec)->destset);
 	  if (!(*ec)->destset)
 	    return 0;
 	}
     }
 
-  /* Recurse on outgoing epsilon and side effect nodes.
+  /* Recurse on outgoing epsilon and side effect rxnodes.
    */
   while (e)
     {
       switch (e->type)
 	{
 	case ne_epsilon:
-	  if (!eclose_node (rx, outnode, e->dest, frame))
+	  if (!eclose_rxnode (rx, outrxnode, e->dest, frame))
 	    return 0;
 	  break;
 	case ne_side_effect:
@@ -757,7 +757,7 @@ eclose_node (rx, outnode, node, frame)
 						      frame->prog_backwards);
 	    if (!frame->prog_backwards)
 	      return 0;
-	    if (!eclose_node (rx, outnode, e->dest, frame))
+	    if (!eclose_rxnode (rx, outrxnode, e->dest, frame))
 	      return 0;
 	    {
 	      struct rx_se_list * dying = frame->prog_backwards;
@@ -771,7 +771,7 @@ eclose_node (rx, outnode, node, frame)
 	}
       e = e->next;
     }
-  node->mark = 0;
+  rxnode->mark = 0;
   return 1;
 }
 
@@ -792,7 +792,7 @@ rx_state_possible_futures (rx, n)
     {
       struct eclose_frame frame;
       frame.prog_backwards = 0;
-      if (!eclose_node (rx, n, n, &frame))
+      if (!eclose_rxnode (rx, n, n, &frame))
 	return 0;
       else
 	{
@@ -811,27 +811,27 @@ rx_state_possible_futures (rx, n)
 
 #ifdef __STDC__
 static void 
-se_memo_freer (struct rx_hash_item * node)
+se_memo_freer (struct rx_hash_item * rxnode)
 #else
 static void 
-se_memo_freer (node)
-     struct rx_hash_item * node;
+se_memo_freer (rxnode)
+     struct rx_hash_item * rxnode;
 #endif
 {
-  free ((char *)node->data);
+  free ((char *)rxnode->data);
 }
 
 
 #ifdef __STDC__
 static void 
-nfa_set_freer (struct rx_hash_item * node)
+nfa_set_freer (struct rx_hash_item * rxnode)
 #else
 static void 
-nfa_set_freer (node)
-     struct rx_hash_item * node;
+nfa_set_freer (rxnode)
+     struct rx_hash_item * rxnode;
 #endif
 {
-  free ((char *)node->data);
+  free ((char *)rxnode->data);
 }
 
 #ifdef __STDC__

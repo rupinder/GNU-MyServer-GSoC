@@ -146,14 +146,15 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	}
 	td->buffer2->SetLength(0);
 	*td->buffer2<<"<html>\r\n<head>\r\n<title>" ;
-	*td->buffer2<< td->request.URI ;
+	*td->buffer2<< td->request.URI.c_str() ;
 	*td->buffer2<< "</title>\r\n</head>\r\n" ; 
 	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                     (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
+    /*! Return an internal server error. */
 		td->outputData.closeFile();
-		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
   browseDirCSSpath = ((Http*)td->lhttp)->getBrowseDirCSSFile();
 
@@ -315,7 +316,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
   {    
     char port_buff[6];
     *td->buffer2 << " on ";
-    *td->buffer2 << td->request.HOST ;
+    *td->buffer2 << td->request.HOST.c_str() ;
     *td->buffer2 << " Port ";
 
     u_short port = td->connection->getLocalPort();
@@ -339,10 +340,13 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory,
 	while(*bufferloop++)
 		if(*bufferloop=='\\')
 			*bufferloop='/';
-	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
-		strcpy(td->response.CONNECTION, "Keep-Alive");
-	sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)td->outputData.getFileSize());
-
+	if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
+		td->response.CONNECTION.assign( "Keep-Alive");
+  {
+    char tmp[11];
+    sprintf(tmp, "%u", (u_int)td->outputData.getFileSize());
+    td->response.CONTENT_LENGTH.assign(tmp);
+  }
 	/*! If we haven't to append the output build the HTTP header and send the data.  */
 	if(!td->appendOutputs)
   {

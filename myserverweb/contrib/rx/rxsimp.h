@@ -27,10 +27,10 @@
 
 
 #ifdef __STDC__
-extern int rx_simple_rexp (struct rexp_node ** answer,
+extern int rx_simple_rexp (struct rexp_rxnode ** answer,
 			   int cset_size,
-			   struct rexp_node *node,
-			   struct rexp_node ** subexps);
+			   struct rexp_rxnode *rxnode,
+			   struct rexp_rxnode ** subexps);
 
 #else /* STDC */
 extern int rx_simple_rexp ();

@@ -24,8 +24,8 @@
 
 struct rx_posix_regex
 {
-  struct rexp_node * pattern;
-  struct rexp_node ** subexps;
+  struct rexp_rxnode * pattern;
+  struct rexp_rxnode ** subexps;
   size_t re_nsub;
   unsigned char * translate;
   unsigned int newline_anchor:1;/* If true, an anchor at a newline matches.*/

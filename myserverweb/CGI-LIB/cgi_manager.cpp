@@ -251,5 +251,5 @@ MsCgiData* CgiManager::getCgiData()
  */
 void CgiManager::setContentType(char * Type)
 {
-	strncpy(td->response.CONTENT_TYPE, Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
+	td->response.CONTENT_TYPE.assign(Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
 }

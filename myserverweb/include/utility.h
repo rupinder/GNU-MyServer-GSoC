@@ -37,11 +37,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define OS_WINDOWS_NT3		3
 #define OS_WINDOWS_XP		4
 #define OS_LINUX	      100  // Add room for future windows
-#undef min
-#undef max
-#define min(a,b)		((a<b)?a:b)
-#define max(a,b)		((a>b)?a:b)
-
 
 int preparePrintError();
 int endPrintError();

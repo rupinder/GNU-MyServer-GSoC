@@ -97,7 +97,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   sfCGIservers* server;
   int id;
 	char *fullpath;
-
+  char *buffer;
+  char tmpSize[11];
   if(td->scriptPath)
     delete [] td->scriptPath;
   td->scriptPath = new char[scriptpathLen];
@@ -268,14 +269,15 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		con.sock.closesocket();
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}	
-	if(atoi(td->request.CONTENT_LENGTH))
+	if(atoi(td->request.CONTENT_LENGTH.c_str()))
 	{
 		td->buffer->SetLength(0);
 		*td->buffer << "Error FastCGI to send POST data\r\n"<< '\0';
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->GetBuffer());
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		generateFcgiHeader( header, FcgiSTDIN, id, atoi(td->request.CONTENT_LENGTH));
+		generateFcgiHeader( header, FcgiSTDIN, id, 
+                        atoi(td->request.CONTENT_LENGTH.c_str()));
 		if(con.sock.send((char*)&header,sizeof(header),0)==-1)
     {
       td->inputData.closeFile();
@@ -430,15 +432,15 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			{
 				case FcgiSTDERR:
 					con.sock.closesocket();
-					((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+					((Http*)td->lhttp)->raiseHTTPError(td, connection, e_501);
 					exit = 1;
           ret = 0;
 					break;
 				case FcgiSTDOUT:
-					nbr=con.sock.recv(td->buffer->GetBuffer(),
-                            min(dim,td->buffer->GetRealLength()),0);
+					nbr=con.sock.recv(td->buffer->GetBuffer(), (dim < td->buffer->GetRealLength())
+                            ? dim: td->buffer->GetRealLength(), 0);
 					u_long nbw;
-					con.tempOut.writeToFile(td->buffer->GetBuffer(),nbr,&nbw);
+					con.tempOut.writeToFile(td->buffer->GetBuffer(), nbr, &nbw);
 					data_sent=nbw;
 					if(data_sent==0)
 					{
@@ -450,8 +452,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 					{
 						if( con.sock.bytesToRead() )
             {
-							nbr=con.sock.recv(td->buffer->GetBuffer(), 
-                                min(dim-data_sent,td->buffer->GetRealLength()),0);
+							nbr=con.sock.recv(td->buffer->GetBuffer(), (dim<data_sent) ?dim :data_sent, 
+                                td->buffer->GetRealLength(), 0);
             }
 						else
 						{
@@ -481,7 +483,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	u_long headerSize=0;
 	con.tempOut.setFilePointer(0);
 	td->buffer->GetAt(0)='\0';
-	char *buffer=td->buffer->GetBuffer();
+	buffer=td->buffer->GetBuffer();
 	con.tempOut.readFromFile(buffer,td->buffer->GetRealLength(),&nbr);
 
 	/*!
@@ -496,8 +498,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			break;
 		}
 	}
-	sprintf(td->response.CONTENT_LENGTH, "%u", 
-          (u_int)(con.tempOut.getFileSize()-headerSize));
+	sprintf(tmpSize, "%u", (u_int)(con.tempOut.getFileSize()-headerSize));
+  td->response.CONTENT_LENGTH.assign(tmpSize);
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response,td,
                                              td->buffer->GetBuffer());
 
@@ -511,13 +513,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       File::deleteFile(outDataPath);
       con.sock.closesocket();
 			return ((Http*)td->lhttp)->sendHTTPRedirect(td, connection, 
-                                                  td->response.LOCATION);
+                                              (char*)td->response.LOCATION.c_str());
 		}
 		/*! Send the header. */
 		if(!td->appendOutputs)
 		{
-			if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
-				strcpy(td->response.CONNECTION,"Keep-Alive");		
+			if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
+				td->response.CONNECTION.assign("Keep-Alive");		
 			HttpHeaders::buildHTTPResponseHeader(td->buffer2->GetBuffer(),
                                             &td->response);
 			if(td->connection->socket.send( td->buffer2->GetBuffer(),

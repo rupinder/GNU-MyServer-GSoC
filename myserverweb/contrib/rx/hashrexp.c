@@ -24,27 +24,27 @@
 
 #ifdef __STDC__
 static int
-rexp_node_equal (void * va, void * vb)
+rexp_rxnode_equal (void * va, void * vb)
 #else
 static int
-rexp_node_equal (va, vb)
+rexp_rxnode_equal (va, vb)
      void * va;
      void * vb;
 #endif
 {
-  struct rexp_node * a;
-  struct rexp_node * b;
+  struct rexp_rxnode * a;
+  struct rexp_rxnode * b;
 
-  a = (struct rexp_node *)va;
-  b = (struct rexp_node *)vb;
+  a = (struct rexp_rxnode *)va;
+  b = (struct rexp_rxnode *)vb;
 
   return (   (va == vb)
 	  || (   (a->type == b->type)
 	      && (a->params.intval == b->params.intval)
 	      && (a->params.intval2 == b->params.intval2)
 	      && rx_bitset_is_equal (a->params.cset_size, a->params.cset, b->params.cset)
-	      && rexp_node_equal (a->params.pair.left, b->params.pair.left)
-	      && rexp_node_equal (a->params.pair.right, b->params.pair.right)));
+	      && rexp_rxnode_equal (a->params.rxpair.left, b->params.rxpair.left)
+	      && rexp_rxnode_equal (a->params.rxpair.right, b->params.rxpair.right)));
 }
 
 

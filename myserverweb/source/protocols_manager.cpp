@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/protocols_manager.h"
 #include "../include/cXMLParser.h"
 #include "../include/cserver.h"
-
-
 #include "../include/lfind.h"
 
 #ifdef NOT_WIN

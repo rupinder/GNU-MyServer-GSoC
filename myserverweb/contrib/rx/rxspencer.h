@@ -40,7 +40,7 @@ typedef enum rx_answers (*rx_vmfn)
 
 typedef enum rx_answers (*rx_contextfn)
      P((void * closure,
-	struct rexp_node * node,
+	struct rexp_rxnode * rxnode,
 	int start, int end,
 	struct rx_registers * regs));
 
@@ -50,8 +50,8 @@ struct rx_solutions
   int step;
 
   int cset_size;
-  struct rexp_node * exp;
-  struct rexp_node ** subexps;
+  struct rexp_rxnode * exp;
+  struct rexp_rxnode ** subexps;
   struct rx_registers * regs;
 
   int start;
@@ -83,9 +83,9 @@ extern struct rx_solutions rx_no_solutions;
 
 
 #ifdef __STDC__
-extern struct rx_solutions * rx_make_solutions (struct rx_registers * regs, struct rx_unfaniverse * verse, struct rexp_node * expression, struct rexp_node ** subexps, int cset_size, int start, int end, rx_vmfn vmfn, rx_contextfn contextfn, void * closure);
+extern struct rx_solutions * rx_make_solutions (struct rx_registers * regs, struct rx_unfaniverse * verse, struct rexp_rxnode * expression, struct rexp_rxnode ** subexps, int cset_size, int start, int end, rx_vmfn vmfn, rx_contextfn contextfn, void * closure);
 extern void rx_free_solutions (struct rx_solutions * solns);
-extern int rx_best_end_guess (struct rx_solutions * solns, struct rexp_node *  exp, int bound);
+extern int rx_best_end_guess (struct rx_solutions * solns, struct rexp_rxnode *  exp, int bound);
 extern enum rx_answers rx_next_solution (struct rx_solutions * solns);
 
 #else /* STDC */

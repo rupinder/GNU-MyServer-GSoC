@@ -55,12 +55,12 @@ rx_str_vmfn (closure, burstp, lenp, offsetp, start, end, need)
 
 #ifdef __STDC__
 enum rx_answers
-rx_str_contextfn (void * closure, struct rexp_node * node, int start, int end, struct rx_registers * regs)
+rx_str_contextfn (void * closure, struct rexp_rxnode * rxnode, int start, int end, struct rx_registers * regs)
 #else
 enum rx_answers
-rx_str_contextfn (closure, node, start, end, regs)
+rx_str_contextfn (closure, rxnode, start, end, regs)
      void * closure;
-     struct rexp_node * node;
+     struct rexp_rxnode * rxnode;
      int start;
      int end;
      struct rx_registers * regs;
@@ -69,14 +69,14 @@ rx_str_contextfn (closure, node, start, end, regs)
   struct rx_str_closure * strc;
 
   strc = (struct rx_str_closure *)closure;
-  switch (node->params.intval)
+  switch (rxnode->params.intval)
     {
     case '1': case '2': case '3': case '4': case '5':
     case '6': case '7': case '8': case '9':
       {
 	int cmp;
 	int regn;
-	regn = node->params.intval - '0';
+	regn = rxnode->params.intval - '0';
 	if (   (regs[regn].rm_so == -1)
 	    || ((end - start) != (regs[regn].rm_eo - regs[regn].rm_so)))
 	  return rx_no;

@@ -181,21 +181,21 @@ rx_string_hash (seed, str)
 
 
 #ifdef __STDC__
-struct rexp_node *
-rexp_node (int type)
+struct rexp_rxnode *
+rexp_rxnode (int type)
 #else
-struct rexp_node *
-rexp_node (type)
+struct rexp_rxnode *
+rexp_rxnode (type)
      int type;
 #endif
 {
-  struct rexp_node *n;
+  struct rexp_rxnode *n;
 
-  n = (struct rexp_node *) malloc (sizeof (*n));
+  n = (struct rexp_rxnode *) malloc (sizeof (*n));
   rx_bzero ((char *)n, sizeof (*n));
   if (n)
     {
-      n->type = (enum rexp_node_type) type;
+      n->type = (enum rexp_rxnode_type) type;
       n->id = -1;
       n->refs = 1;
     }
@@ -203,23 +203,23 @@ rexp_node (type)
 }
 
 
-/* free_rexp_node assumes that the bitset passed to rx_mk_r_cset
+/* free_rexp_rxnode assumes that the bitset passed to rx_mk_r_cset
  * can be freed using rx_free_cset.
  */
 
 #ifdef __STDC__
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_cset (int type, int size, rx_Bitset b)
 #else
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_cset (type, size, b)
      int type;
      int size;
      rx_Bitset b;
 #endif
 {
-  struct rexp_node * n;
-  n = rexp_node (type);
+  struct rexp_rxnode * n;
+  n = rexp_rxnode (type);
   if (n)
     {
       n->params.cset = b;
@@ -230,17 +230,17 @@ rx_mk_r_cset (type, size, b)
 
 
 #ifdef __STDC__
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_int (int type, int intval)
 #else
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_int (type, intval)
      int type;
      int intval;
 #endif
 {
-  struct rexp_node * n;
-  n = rexp_node (type);
+  struct rexp_rxnode * n;
+  n = rexp_rxnode (type);
   if (n)
     n->params.intval = intval;
   return n;
@@ -248,17 +248,17 @@ rx_mk_r_int (type, intval)
 
 
 #ifdef __STDC__
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_str (int type, char c)
 #else
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_str (type, c)
      int type;
      char c;
 #endif
 {
-  struct rexp_node *n;
-  n = rexp_node (type);
+  struct rexp_rxnode *n;
+  n = rexp_rxnode (type);
   if (n)
     rx_init_string (&(n->params.cstr), c);
   return n;
@@ -266,34 +266,34 @@ rx_mk_r_str (type, c)
 
 
 #ifdef __STDC__
-struct rexp_node *
-rx_mk_r_binop (int type, struct rexp_node * a, struct rexp_node * b)
+struct rexp_rxnode *
+rx_mk_r_binop (int type, struct rexp_rxnode * a, struct rexp_rxnode * b)
 #else
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_binop (type, a, b)
      int type;
-     struct rexp_node * a;
-     struct rexp_node * b;
+     struct rexp_rxnode * a;
+     struct rexp_rxnode * b;
 #endif
 {
-  struct rexp_node * n = rexp_node (type);
+  struct rexp_rxnode * n = rexp_rxnode (type);
   if (n)
     {
-      n->params.pair.left = a;
-      n->params.pair.right = b;
+      n->params.rxpair.left = a;
+      n->params.rxpair.right = b;
     }
   return n;
 }
 
 
 #ifdef __STDC__
-struct rexp_node *
-rx_mk_r_monop (int type, struct rexp_node * a)
+struct rexp_rxnode *
+rx_mk_r_monop (int type, struct rexp_rxnode * a)
 #else
-struct rexp_node *
+struct rexp_rxnode *
 rx_mk_r_monop (type, a)
      int type;
-     struct rexp_node * a;
+     struct rexp_rxnode * a;
 #endif
 {
   return rx_mk_r_binop (type, a, 0);
@@ -302,63 +302,63 @@ rx_mk_r_monop (type, a)
 
 #ifdef __STDC__
 void
-rx_free_rexp (struct rexp_node * node)
+rx_free_rexp (struct rexp_rxnode * rxnode)
 #else
 void
-rx_free_rexp (node)
-     struct rexp_node * node;
+rx_free_rexp (rxnode)
+     struct rexp_rxnode * rxnode;
 #endif
 {
-  if (node && !--node->refs)
+  if (rxnode && !--rxnode->refs)
     {
-      if (node->params.cset)
-	rx_free_cset (node->params.cset);
-      if (node->params.cstr.reallen)
-	rx_free_string (&(node->params.cstr));
-      rx_free_rexp (node->params.pair.left);
-      rx_free_rexp (node->params.pair.right);
-      rx_free_rexp (node->simplified);
-      free ((char *)node);
+      if (rxnode->params.cset)
+	rx_free_cset (rxnode->params.cset);
+      if (rxnode->params.cstr.reallen)
+	rx_free_string (&(rxnode->params.cstr));
+      rx_free_rexp (rxnode->params.rxpair.left);
+      rx_free_rexp (rxnode->params.rxpair.right);
+      rx_free_rexp (rxnode->simplified);
+      free ((char *)rxnode);
     }
 }
 
 #ifdef __STDC__
 void
-rx_save_rexp (struct rexp_node * node)
+rx_save_rexp (struct rexp_rxnode * rxnode)
 #else
 void
-rx_save_rexp (node)
-     struct rexp_node * node;
+rx_save_rexp (rxnode)
+     struct rexp_rxnode * rxnode;
 #endif
 {
-  if (node)
-    ++node->refs;
+  if (rxnode)
+    ++rxnode->refs;
 }
 
 
 #ifdef __STDC__
-struct rexp_node * 
-rx_copy_rexp (int cset_size, struct rexp_node *node)
+struct rexp_rxnode * 
+rx_copy_rexp (int cset_size, struct rexp_rxnode *rxnode)
 #else
-struct rexp_node * 
-rx_copy_rexp (cset_size, node)
+struct rexp_rxnode * 
+rx_copy_rexp (cset_size, rxnode)
      int cset_size;
-     struct rexp_node *node;
+     struct rexp_rxnode *rxnode;
 #endif
 {
-  if (!node)
+  if (!rxnode)
     return 0;
   else
     {
-      struct rexp_node *n;
-      n = rexp_node (node->type);
+      struct rexp_rxnode *n;
+      n = rexp_rxnode (rxnode->type);
       if (!n)
 	return 0;
 
-      if (node->params.cset)
+      if (rxnode->params.cset)
 	{
 	  n->params.cset = rx_copy_cset (cset_size,
-					 node->params.cset);
+					 rxnode->params.cset);
 	  if (!n->params.cset)
 	    {
 	      rx_free_rexp (n);
@@ -366,26 +366,26 @@ rx_copy_rexp (cset_size, node)
 	    }
 	}
 
-      if (node->params.cstr.reallen)
-	if (rx_copy_string (&(n->params.cstr), &(node->params.cstr)))
+      if (rxnode->params.cstr.reallen)
+	if (rx_copy_string (&(n->params.cstr), &(rxnode->params.cstr)))
 	  {
 	    rx_free_rexp(n);
 	    return 0;
 	  }
 
-      n->params.intval = node->params.intval;
-      n->params.intval2 = node->params.intval2;
-      n->params.pair.left = rx_copy_rexp (cset_size, node->params.pair.left);
-      n->params.pair.right = rx_copy_rexp (cset_size, node->params.pair.right);
-      if (   (node->params.pair.left && !n->params.pair.left)
-	  || (node->params.pair.right && !n->params.pair.right))
+      n->params.intval = rxnode->params.intval;
+      n->params.intval2 = rxnode->params.intval2;
+      n->params.rxpair.left = rx_copy_rexp (cset_size, rxnode->params.rxpair.left);
+      n->params.rxpair.right = rx_copy_rexp (cset_size, rxnode->params.rxpair.right);
+      if (   (rxnode->params.rxpair.left && !n->params.rxpair.left)
+	  || (rxnode->params.rxpair.right && !n->params.rxpair.right))
 	{
 	  rx_free_rexp  (n);
 	  return 0;
 	}
-      n->id = node->id;
-      n->len = node->len;
-      n->observed = node->observed;
+      n->id = rxnode->id;
+      n->len = rxnode->len;
+      n->observed = rxnode->observed;
       return n;
     }
 }
@@ -393,28 +393,28 @@ rx_copy_rexp (cset_size, node)
 
 
 #ifdef __STDC__
-struct rexp_node * 
-rx_shallow_copy_rexp (int cset_size, struct rexp_node *node)
+struct rexp_rxnode * 
+rx_shallow_copy_rexp (int cset_size, struct rexp_rxnode *rxnode)
 #else
-struct rexp_node * 
-rx_shallow_copy_rexp (cset_size, node)
+struct rexp_rxnode * 
+rx_shallow_copy_rexp (cset_size, rxnode)
      int cset_size;
-     struct rexp_node *node;
+     struct rexp_rxnode *rxnode;
 #endif
 {
-  if (!node)
+  if (!rxnode)
     return 0;
   else
     {
-      struct rexp_node *n;
-      n = rexp_node (node->type);
+      struct rexp_rxnode *n;
+      n = rexp_rxnode (rxnode->type);
       if (!n)
 	return 0;
 
-      if (node->params.cset)
+      if (rxnode->params.cset)
 	{
 	  n->params.cset = rx_copy_cset (cset_size,
-					 node->params.cset);
+					 rxnode->params.cset);
 	  if (!n->params.cset)
 	    {
 	      rx_free_rexp (n);
@@ -422,22 +422,22 @@ rx_shallow_copy_rexp (cset_size, node)
 	    }
 	}
 
-      if (node->params.cstr.reallen)
-	if (rx_copy_string (&(n->params.cstr), &(node->params.cstr)))
+      if (rxnode->params.cstr.reallen)
+	if (rx_copy_string (&(n->params.cstr), &(rxnode->params.cstr)))
 	  {
 	    rx_free_rexp(n);
 	    return 0;
 	  }
 
-      n->params.intval = node->params.intval;
-      n->params.intval2 = node->params.intval2;
-      n->params.pair.left = node->params.pair.left;
-      rx_save_rexp (node->params.pair.left);
-      n->params.pair.right = node->params.pair.right;
-      rx_save_rexp (node->params.pair.right);
-      n->id = node->id;
-      n->len = node->len;
-      n->observed = node->observed;
+      n->params.intval = rxnode->params.intval;
+      n->params.intval2 = rxnode->params.intval2;
+      n->params.rxpair.left = rxnode->params.rxpair.left;
+      rx_save_rexp (rxnode->params.rxpair.left);
+      n->params.rxpair.right = rxnode->params.rxpair.right;
+      rx_save_rexp (rxnode->params.rxpair.right);
+      n->id = rxnode->id;
+      n->len = rxnode->len;
+      n->observed = rxnode->observed;
       return n;
     }
 }
@@ -447,12 +447,12 @@ rx_shallow_copy_rexp (cset_size, node)
 
 #ifdef __STDC__
 int
-rx_rexp_equal (struct rexp_node * a, struct rexp_node * b)
+rx_rexp_equal (struct rexp_rxnode * a, struct rexp_rxnode * b)
 #else
 int
 rx_rexp_equal (a, b)
-     struct rexp_node * a;
-     struct rexp_node * b;
+     struct rexp_rxnode * a;
+     struct rexp_rxnode * b;
 #endif
 {
   int ret;
@@ -485,22 +485,22 @@ rx_rexp_equal (a, b)
 
     case r_concat:
     case r_alternate:
-      ret = (   rx_rexp_equal (a->params.pair.left, b->params.pair.left)
-	     && rx_rexp_equal (a->params.pair.right, b->params.pair.right));
+      ret = (   rx_rexp_equal (a->params.rxpair.left, b->params.rxpair.left)
+	     && rx_rexp_equal (a->params.rxpair.right, b->params.rxpair.right));
       break;
     case r_opt:
     case r_star:
     case r_plus:
-      ret = rx_rexp_equal (a->params.pair.left, b->params.pair.left);
+      ret = rx_rexp_equal (a->params.rxpair.left, b->params.rxpair.left);
       break;
     case r_interval:
       ret = (   (a->params.intval == b->params.intval)
 	     && (a->params.intval2 == b->params.intval2)
-	     && rx_rexp_equal (a->params.pair.left, b->params.pair.left));
+	     && rx_rexp_equal (a->params.rxpair.left, b->params.rxpair.left));
       break;
     case r_parens:
       ret = (   (a->params.intval == b->params.intval)
-	     && rx_rexp_equal (a->params.pair.left, b->params.pair.left));
+	     && rx_rexp_equal (a->params.rxpair.left, b->params.rxpair.left));
       break;
 
     case r_context:
@@ -518,28 +518,28 @@ rx_rexp_equal (a, b)
 
 #ifdef __STDC__
 unsigned long
-rx_rexp_hash (struct rexp_node * node, unsigned long seed)
+rx_rexp_hash (struct rexp_rxnode * rxnode, unsigned long seed)
 #else
      unsigned long
-     rx_rexp_hash (node, seed)
-     struct rexp_node * node;
+     rx_rexp_hash (rxnode, seed)
+     struct rexp_rxnode * rxnode;
      unsigned long seed;
 #endif
 {
-  if (!node)
+  if (!rxnode)
     return seed;
 
-  seed = rx_rexp_hash (node->params.pair.left, seed);
-  seed = rx_rexp_hash (node->params.pair.right, seed);
-  seed = rx_bitset_hash (node->params.cset_size, node->params.cset);
-  seed = rx_string_hash (seed, &(node->params.cstr));
-  seed += (seed << 3) + node->params.intval;
-  seed += (seed << 3) + node->params.intval2;
-  seed += (seed << 3) + node->type;
-  seed += (seed << 3) + node->id;
+  seed = rx_rexp_hash (rxnode->params.rxpair.left, seed);
+  seed = rx_rexp_hash (rxnode->params.rxpair.right, seed);
+  seed = rx_bitset_hash (rxnode->params.cset_size, rxnode->params.cset);
+  seed = rx_string_hash (seed, &(rxnode->params.cstr));
+  seed += (seed << 3) + rxnode->params.intval;
+  seed += (seed << 3) + rxnode->params.intval2;
+  seed += (seed << 3) + rxnode->type;
+  seed += (seed << 3) + rxnode->id;
 #if 0
-  seed += (seed << 3) + node->len;
-  seed += (seed << 3) + node->observed;
+  seed += (seed << 3) + rxnode->len;
+  seed += (seed << 3) + rxnode->observed;
 #endif
   return seed;
 }

@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include <iostream>
-
+#include <string>
 using namespace std;
 
 #define USE_NEW
@@ -46,7 +46,7 @@ using namespace std;
 
 #define end_str '\0'
 
-#include <string.h>
+
 
 class CMemBuf
 {

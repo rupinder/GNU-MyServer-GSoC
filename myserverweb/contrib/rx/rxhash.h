@@ -93,14 +93,14 @@ extern struct rx_hash_item * rx_hash_store (struct rx_hash * table,
 extern void rx_hash_free (struct rx_hash_item * it, struct rx_hash_rules * rules);
 extern void rx_free_hash_table (struct rx_hash * tab, rx_hash_freefn freefn,
 					struct rx_hash_rules * rules);
-extern int rx_count_hash_nodes (struct rx_hash * st);
+extern int rx_count_hash_rxnodes (struct rx_hash * st);
 
 #else /* STDC */
 extern struct rx_hash_item * rx_hash_find ();
 extern struct rx_hash_item * rx_hash_store ();
 extern void rx_hash_free ();
 extern void rx_free_hash_table ();
-extern int rx_count_hash_nodes ();
+extern int rx_count_hash_rxnodes ();
 
 #endif /* STDC */
 

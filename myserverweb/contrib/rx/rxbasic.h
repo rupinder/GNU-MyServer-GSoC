@@ -40,7 +40,7 @@
 
 #ifdef __STDC__
 extern struct rx_unfaniverse * rx_basic_unfaniverse (void);
-extern struct rx_solutions * rx_basic_make_solutions (struct rx_registers * regs, struct rexp_node * expression, struct rexp_node ** subexps, int start, int end, struct rx_context_rules * rules, const unsigned char * str);
+extern struct rx_solutions * rx_basic_make_solutions (struct rx_registers * regs, struct rexp_rxnode * expression, struct rexp_rxnode ** subexps, int start, int end, struct rx_context_rules * rules, const unsigned char * str);
 extern void rx_basic_free_solutions (struct rx_solutions * solns);
 
 #else /* STDC */

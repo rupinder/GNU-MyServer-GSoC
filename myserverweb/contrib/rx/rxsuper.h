@@ -68,8 +68,8 @@
  * The destinations of those transitions each have a set of possible
  * futures.  A possible future is a list of side effects and a set of
  * destination NFA states.  Two sets of possible futures can be
- * `merged' by combining all pairs of possible futures that have the
- * same side effects.  A pair is combined by creating a new future
+ * `merged' by combining all rxpairs of possible futures that have the
+ * same side effects.  A rxpair is combined by creating a new future
  * with the same side effect but the union of the two destination sets.
  * In this way, all the possible futures suggested by a superstate
  * and a character can be merged into a set of possible futures where

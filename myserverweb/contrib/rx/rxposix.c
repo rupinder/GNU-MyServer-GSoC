@@ -288,7 +288,7 @@ rx_regexec (pmatch, preg, rules, start, end, string)
   int x;
   int stat;
   int anchored;
-  struct rexp_node * simplified;
+  struct rexp_rxnode * simplified;
   struct rx_unfa * unfa;
   struct rx_classical_system machine;
 

@@ -203,7 +203,7 @@ extern struct rx_nfa_edge * rx_nfa_edge (struct rx *rx,
 					 struct rx_nfa_state *start,
 					 struct rx_nfa_state *dest);
 extern int rx_build_nfa (struct rx *rx,
-			 struct rexp_node *rexp,
+			 struct rexp_rxnode *rexp,
 			 struct rx_nfa_state **start,
 			 struct rx_nfa_state **end);
 extern struct rx_possible_future * rx_state_possible_futures (struct rx * rx, struct rx_nfa_state * n);

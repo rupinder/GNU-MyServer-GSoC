@@ -33,7 +33,7 @@
 #endif
 
 
-char *node_type_names[] =
+char *rxnode_type_names[] =
 {
   AT(r_cset) "r_cset",
   AT(r_concat) "r_concat",
@@ -98,7 +98,7 @@ spaces (int n)
 }
 
 void
-print_rexp (int cset_size, int indent, struct rexp_node * rexp)
+print_rexp (int cset_size, int indent, struct rexp_rxnode * rexp)
 {
   spaces (indent);
   if (!rexp)
@@ -106,7 +106,7 @@ print_rexp (int cset_size, int indent, struct rexp_node * rexp)
   else
     {
       printf ("Node %d type %d (%s), iv=%d(%c), iv2=%d, len=%d obs=%d cs=",
-	      rexp->id, rexp->type, node_type_names[rexp->type],
+	      rexp->id, rexp->type, rxnode_type_names[rexp->type],
 	      rexp->params.intval,
 	      (isprint (rexp->params.intval)
 	       ? rexp->params.intval
@@ -118,10 +118,10 @@ print_rexp (int cset_size, int indent, struct rexp_node * rexp)
       printf (" s=");
       print_string (&(rexp->params.cstr), 1);
       putchar ('\n');
-      if (rexp->params.pair.left || rexp->params.pair.right)
+      if (rexp->params.rxpair.left || rexp->params.rxpair.right)
 	{
-	  print_rexp (cset_size, indent + 2, rexp->params.pair.left);
-	  print_rexp (cset_size, indent + 2, rexp->params.pair.right);
+	  print_rexp (cset_size, indent + 2, rexp->params.rxpair.left);
+	  print_rexp (cset_size, indent + 2, rexp->params.rxpair.right);
 	}
     }
 }
@@ -130,7 +130,7 @@ print_rexp (int cset_size, int indent, struct rexp_node * rexp)
 
 
 void
-unparse_print_rexp (int cset_size, struct rexp_node * rexp)
+unparse_print_rexp (int cset_size, struct rexp_rxnode * rexp)
 {
   if (!rexp)
     return;
@@ -163,7 +163,7 @@ unparse_print_rexp (int cset_size, struct rexp_node * rexp)
 
       case r_parens:
 	putchar ('(');
-	unparse_print_rexp (cset_size, rexp->params.pair.left);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
 	putchar (')');
 	break;
 
@@ -177,33 +177,33 @@ unparse_print_rexp (int cset_size, struct rexp_node * rexp)
 	break;
 
       case r_concat:
-	unparse_print_rexp (cset_size, rexp->params.pair.left);
-	unparse_print_rexp (cset_size, rexp->params.pair.right);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.right);
 	break;
 
       case r_alternate:
-	unparse_print_rexp (cset_size, rexp->params.pair.left);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
 	putchar ('|');
-	unparse_print_rexp (cset_size, rexp->params.pair.right);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.right);
 	break;
 
       case r_opt:
-	unparse_print_rexp (cset_size, rexp->params.pair.left);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
 	putchar ('?');
 	break;
 
       case r_star:
-	unparse_print_rexp (cset_size, rexp->params.pair.left);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
 	putchar ('*');
 	break;
 
       case r_plus:
-	unparse_print_rexp (cset_size, rexp->params.pair.left);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
 	putchar ('+');
 	break;
 
       case r_interval:
-	unparse_print_rexp (cset_size, rexp->params.pair.left);
+	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
 	printf ("{%d,%d}", rexp->params.intval, rexp->params.intval2);
 	break;
       }

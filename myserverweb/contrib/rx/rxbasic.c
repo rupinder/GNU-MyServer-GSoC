@@ -58,13 +58,13 @@ static char * silly_hack = 0;
 
 #ifdef __STDC__
 struct rx_solutions *
-rx_basic_make_solutions (struct rx_registers * regs, struct rexp_node * expression, struct rexp_node ** subexps, int start, int end, struct rx_context_rules * rules, const unsigned char * str)
+rx_basic_make_solutions (struct rx_registers * regs, struct rexp_rxnode * expression, struct rexp_rxnode ** subexps, int start, int end, struct rx_context_rules * rules, const unsigned char * str)
 #else
 struct rx_solutions *
 rx_basic_make_solutions (regs, expression, subexps, start, end, rules, str)
      struct rx_registers * regs;
-     struct rexp_node * expression;
-     struct rexp_node ** subexps;
+     struct rexp_rxnode * expression;
+     struct rexp_rxnode ** subexps;
      int start;
      int end;
      struct rx_context_rules * rules;

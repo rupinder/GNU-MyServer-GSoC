@@ -20,6 +20,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define STRINGUTILS_H
 
 #include "../stdafx.h"
+#include <string>
+
+using namespace std;
+
 char *getRFC822GMTTime(char* out,int len);
 char *getRFC822GMTTime(const time_t,char* out,int len);
 char *getRFC822LocalTime(char* out,int len);
@@ -32,6 +36,9 @@ int hexVal(char c);
 void translateEscapeString(char *TargetStr);
 int hexToInt(const char *str);
 int getEndLine(char* str, int max);
+string trim(const string & s , const string & t = " ");
+string trimLeft ( const string & s , const string & t = " " );
+string trimRight ( const string & s , const string & t = " " );
 
 #ifdef NOT_WIN
 extern "C" {
@@ -42,6 +49,7 @@ char* strupr(char * string);
 #endif
 
 #ifndef lstrcmp
+
 #define lstrcmp strcmp
 #endif
 #ifndef strcmpi

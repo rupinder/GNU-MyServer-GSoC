@@ -375,10 +375,10 @@ rx_free_hash_table (tab, freefn, rules)
 
 #ifdef __STDC__
 int 
-rx_count_hash_nodes (struct rx_hash * st)
+rx_count_hash_rxnodes (struct rx_hash * st)
 #else
 int 
-rx_count_hash_nodes (st)
+rx_count_hash_rxnodes (st)
      struct rx_hash * st;
 #endif
 {
@@ -386,7 +386,7 @@ rx_count_hash_nodes (st)
   int count = 0;
   for (x = 0; x < BKTS; ++x)
     count += ((RX_bitset_member (&st->nested_p, x))
-	      ? rx_count_hash_nodes ((struct rx_hash *)st->children[x])
+	      ? rx_count_hash_rxnodes ((struct rx_hash *)st->children[x])
 	      : listlen ((struct rx_hash_item *)(st->children[x])));
   
   return count;

@@ -31,15 +31,15 @@ struct rx_solutions rx_no_solutions;
 
 #ifdef __STDC__
 struct rx_solutions *
-rx_make_solutions (struct rx_registers * regs, struct rx_unfaniverse * verse, struct rexp_node * expression, struct rexp_node ** subexps, int cset_size, int start, int end, rx_vmfn vmfn, rx_contextfn contextfn, void * closure)
+rx_make_solutions (struct rx_registers * regs, struct rx_unfaniverse * verse, struct rexp_rxnode * expression, struct rexp_rxnode ** subexps, int cset_size, int start, int end, rx_vmfn vmfn, rx_contextfn contextfn, void * closure)
 #else
 struct rx_solutions *
 rx_make_solutions (regs, verse, expression, subexps, cset_size, 
 		   start, end, vmfn, contextfn, closure)
      struct rx_registers * regs;
      struct rx_unfaniverse * verse;
-     struct rexp_node * expression;
-     struct rexp_node ** subexps;
+     struct rexp_rxnode * expression;
+     struct rexp_rxnode ** subexps;
      int cset_size;
      int start;
      int end;
@@ -91,7 +91,7 @@ rx_make_solutions (regs, verse, expression, subexps, cset_size,
     }
   else
     {
-      struct rexp_node * simplified;
+      struct rexp_rxnode * simplified;
       int status;
       status = rx_simple_rexp (&simplified, cset_size, solns->exp, subexps);
       if (status)
@@ -113,9 +113,9 @@ rx_make_solutions (regs, verse, expression, subexps, cset_size,
 		     || (expression->type == r_star)
 		     || (expression->type == r_interval)))
     {
-      struct rexp_node * subexp;
+      struct rexp_rxnode * subexp;
 
-      subexp = solns->exp->params.pair.left;
+      subexp = solns->exp->params.rxpair.left;
 
       if (!subexp || !subexp->observed)
 	{
@@ -123,7 +123,7 @@ rx_make_solutions (regs, verse, expression, subexps, cset_size,
 	}
       else
 	{
-	  struct rexp_node * simplified;
+	  struct rexp_rxnode * simplified;
 	  int status;
 	  status = rx_simple_rexp (&simplified, solns->cset_size, subexp, solns->subexps);
 	  if (status)
@@ -340,12 +340,12 @@ rx_solution_fit_str_p (solns)
 #if 0
 #ifdef __STDC__
 int
-rx_best_end_guess (struct rx_solutions * solns, struct rexp_node *  exp, int bound)
+rx_best_end_guess (struct rx_solutions * solns, struct rexp_rxnode *  exp, int bound)
 #else
 int
 rx_best_end_guess (solns, exp, bound)
      struct rx_solutions * solns;
-     struct rexp_node *  exp;
+     struct rexp_rxnode *  exp;
      int bound;
 #endif
 {
@@ -518,7 +518,7 @@ rx_next_solution (solns)
 	  fit_p = rx_solution_fit_p (solns);
 	  /* Set final_tag here because this rough fit test
 	   * may be all the matching that gets done.
-	   * For example, consider a paren node containing
+	   * For example, consider a paren rxnode containing
 	   * a true regular expression ending with a cut
 	   * operator.
 	   */
@@ -559,8 +559,8 @@ rx_next_solution (solns)
 			solns->saved_rm_eo = solns->regs[solns->exp->params.intval].rm_eo;
 		      }
 
-		    if (   !solns->exp->params.pair.left
-			|| !solns->exp->params.pair.left->observed)
+		    if (   !solns->exp->params.rxpair.left
+			|| !solns->exp->params.rxpair.left->observed)
 		      {
 			if (solns->exp->params.intval)
 			  {
@@ -575,7 +575,7 @@ rx_next_solution (solns)
 		      {
 			solns->left = rx_make_solutions (solns->regs,
 							 solns->verse,
-							 solns->exp->params.pair.left,
+							 solns->exp->params.rxpair.left,
 							 solns->subexps,
 							 solns->cset_size,
 							 solns->start,
@@ -634,7 +634,7 @@ rx_next_solution (solns)
 		  case 1:
 		    solns->left = rx_make_solutions (solns->regs,
 						     solns->verse,
-						     solns->exp->params.pair.left,
+						     solns->exp->params.rxpair.left,
 						     solns->subexps,
 						     solns->cset_size,
 						     solns->start,
@@ -678,7 +678,7 @@ rx_next_solution (solns)
 		  case 1:
 		    solns->left = rx_make_solutions (solns->regs,
 						     solns->verse,
-						     solns->exp->params.pair.left,
+						     solns->exp->params.rxpair.left,
 						     solns->subexps,
 						     solns->cset_size,
 						     solns->start,
@@ -713,7 +713,7 @@ rx_next_solution (solns)
 		  case 3:
 		    solns->right = rx_make_solutions (solns->regs,
 						      solns->verse,
-						      solns->exp->params.pair.right,
+						      solns->exp->params.rxpair.right,
 						      solns->subexps,
 						      solns->cset_size,
 						      solns->start,
@@ -757,14 +757,14 @@ rx_next_solution (solns)
 #if 0
 		    solns->split_guess = ((solns->end - solns->start) > RX_MANY_CASES
 					  ? rx_best_end_guess (solns,
-							       solns->exp->params.pair.left, solns->end)
+							       solns->exp->params.rxpair.left, solns->end)
 					  : solns->end);
 #endif
 
 		  concat_split_guess_loop:
 		    solns->left = rx_make_solutions (solns->regs,
 						     solns->verse,
-						     solns->exp->params.pair.left,
+						     solns->exp->params.rxpair.left,
 						     solns->subexps,
 						     solns->cset_size,
 						     solns->start,
@@ -792,7 +792,7 @@ rx_next_solution (solns)
 #if 0
 			solns->split_guess = ((solns->split_guess - solns->start) > RX_MANY_CASES
 					      ? rx_best_end_guess (solns,
-								   solns->exp->params.pair.left,
+								   solns->exp->params.rxpair.left,
 								   solns->split_guess - 1)
 					      : solns->split_guess - 1);
 #endif
@@ -813,7 +813,7 @@ rx_next_solution (solns)
 		  case 3:
 		    solns->right = rx_make_solutions (solns->regs,
 						      solns->verse,
-						      solns->exp->params.pair.right,
+						      solns->exp->params.rxpair.right,
 						      solns->subexps,
 						      solns->cset_size,
 						      solns->split_guess,
@@ -872,14 +872,14 @@ rx_next_solution (solns)
 #if 0
 		    solns->split_guess = ((solns->end - solns->start) > RX_MANY_CASES
 					  ? rx_best_end_guess (solns,
-							       solns->exp->params.pair.left, solns->end)
+							       solns->exp->params.rxpair.left, solns->end)
 					  : solns->end);
 #endif
 
 		  star_split_guess_loop:
 		    solns->left = rx_make_solutions (solns->regs,
 						     solns->verse,
-						     solns->exp->params.pair.left,
+						     solns->exp->params.rxpair.left,
 						     solns->subexps,
 						     solns->cset_size,
 						     solns->start,
@@ -907,7 +907,7 @@ rx_next_solution (solns)
 #if 0
 			solns->split_guess = ((solns->split_guess - solns->start) > RX_MANY_CASES
 					      ? rx_best_end_guess (solns,
-								   solns->exp->params.pair.left,
+								   solns->exp->params.rxpair.left,
 								   solns->split_guess - 1)
 					      : solns->split_guess - 1);
 #endif
@@ -1035,7 +1035,7 @@ rx_next_solution (solns)
 #if 0
 		    solns->split_guess = ((solns->end - solns->start) > RX_MANY_CASES
 					  ? rx_best_end_guess (solns,
-							       solns->exp->params.pair.left, solns->end)
+							       solns->exp->params.rxpair.left, solns->end)
 					  : solns->end);
 #endif
 
@@ -1066,7 +1066,7 @@ rx_next_solution (solns)
 		     */
 		    solns->left = rx_make_solutions (solns->regs,
 						     solns->verse,
-						     solns->exp->params.pair.left,
+						     solns->exp->params.rxpair.left,
 						     solns->subexps,
 						     solns->cset_size,
 						     solns->start,
@@ -1094,7 +1094,7 @@ rx_next_solution (solns)
 #if 0
 			solns->split_guess = ((solns->split_guess - solns->start) > RX_MANY_CASES
 					      ? rx_best_end_guess (solns,
-								   solns->exp->params.pair.left,
+								   solns->exp->params.rxpair.left,
 								   solns->split_guess - 1)
 					      : solns->split_guess - 1);
 #endif
@@ -1118,7 +1118,7 @@ rx_next_solution (solns)
 		       * interval and try to match that against the rest.
 		       *
 		       * To avoid thwarting unfa caching, instead of building a new
-		       * rexp node with different interval extents, we keep interval_x
+		       * rexp rxnode with different interval extents, we keep interval_x
 		       * in each solns structure to keep track of the number of 
 		       * iterations matched so far.
 		       */

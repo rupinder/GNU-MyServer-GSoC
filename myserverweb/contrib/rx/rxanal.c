@@ -24,104 +24,104 @@
 
 #ifdef __STDC__
 int
-rx_posix_analyze_rexp (struct rexp_node *** subexps,
+rx_posix_analyze_rexp (struct rexp_rxnode *** subexps,
 		       size_t * re_nsub,
-		       struct rexp_node * node,
+		       struct rexp_rxnode * rxnode,
 		       int id)
 #else
 int
-rx_posix_analyze_rexp (subexps, re_nsub, node, id)
-     struct rexp_node *** subexps;
+rx_posix_analyze_rexp (subexps, re_nsub, rxnode, id)
+     struct rexp_rxnode *** subexps;
      size_t * re_nsub;
-     struct rexp_node * node;
+     struct rexp_rxnode * rxnode;
      int id;
 #endif
 {
-  if (node)
+  if (rxnode)
     {
       size_t this_subexp;
-      if (node->type == r_parens)
+      if (rxnode->type == r_parens)
 	{
-	  if (node->params.intval >= 0)
+	  if (rxnode->params.intval >= 0)
 	    {
 	      this_subexp = *re_nsub;
 	      ++*re_nsub;
 	      if (!*subexps)
-		*subexps = (struct rexp_node **)malloc (sizeof (struct rexp_node *) * *re_nsub);
+		*subexps = (struct rexp_rxnode **)malloc (sizeof (struct rexp_rxnode *) * *re_nsub);
 	      else
-		*subexps = (struct rexp_node **)realloc (*subexps,
-							 sizeof (struct rexp_node *) * *re_nsub);
+		*subexps = (struct rexp_rxnode **)realloc (*subexps,
+							 sizeof (struct rexp_rxnode *) * *re_nsub);
 	    }
 	}
-      if (node->params.pair.left)
-	id = rx_posix_analyze_rexp (subexps, re_nsub, node->params.pair.left, id);
-      if (node->params.pair.right)
-	id = rx_posix_analyze_rexp (subexps, re_nsub, node->params.pair.right, id);
-      switch (node->type)
+      if (rxnode->params.rxpair.left)
+	id = rx_posix_analyze_rexp (subexps, re_nsub, rxnode->params.rxpair.left, id);
+      if (rxnode->params.rxpair.right)
+	id = rx_posix_analyze_rexp (subexps, re_nsub, rxnode->params.rxpair.right, id);
+      switch (rxnode->type)
 	{
 	case r_cset:
-	  node->len = 1;
-	  node->observed = 0;
+	  rxnode->len = 1;
+	  rxnode->observed = 0;
 	  break;
  	case r_string:
- 	  node->len = node->params.cstr.len;
- 	  node->observed = 0;
+ 	  rxnode->len = rxnode->params.cstr.len;
+ 	  rxnode->observed = 0;
  	  break;
 	case r_cut:
-	  node->len = 0;
-	  node->observed = 0;
+	  rxnode->len = 0;
+	  rxnode->observed = 0;
 	  break;
 	case r_concat:
 	case r_alternate:
 	  {
 	    int lob, rob;
 	    int llen, rlen;
-	    lob = (!node->params.pair.left ? 0 : node->params.pair.left->observed);
-	    rob = (!node->params.pair.right ? 0 : node->params.pair.right->observed);
-	    llen = (!node->params.pair.left ? 0 : node->params.pair.left->len);
-	    rlen = (!node->params.pair.right ? 0 : node->params.pair.right->len);
-	    node->len = ((llen >= 0) && (rlen >= 0)
-			 ? ((node->type == r_concat)
+	    lob = (!rxnode->params.rxpair.left ? 0 : rxnode->params.rxpair.left->observed);
+	    rob = (!rxnode->params.rxpair.right ? 0 : rxnode->params.rxpair.right->observed);
+	    llen = (!rxnode->params.rxpair.left ? 0 : rxnode->params.rxpair.left->len);
+	    rlen = (!rxnode->params.rxpair.right ? 0 : rxnode->params.rxpair.right->len);
+	    rxnode->len = ((llen >= 0) && (rlen >= 0)
+			 ? ((rxnode->type == r_concat)
 			    ? llen + rlen
 			    : ((llen == rlen) ? llen : -1))
 			 : -1);
-	    node->observed = lob || rob;
+	    rxnode->observed = lob || rob;
 	    break;
 	  }
 	case r_opt:
 	case r_star:
 	case r_plus:
-	  node->len = -1;
-	  node->observed = (node->params.pair.left
-			    ? node->params.pair.left->observed
+	  rxnode->len = -1;
+	  rxnode->observed = (rxnode->params.rxpair.left
+			    ? rxnode->params.rxpair.left->observed
 			    : 0);
 	  break;
 
 	case  r_interval:
-	  node->len = -1;
-	  node->observed = 1;
+	  rxnode->len = -1;
+	  rxnode->observed = 1;
 	  break;
 
 	case r_parens:
-	  if (node->params.intval >= 0)
+	  if (rxnode->params.intval >= 0)
 	    {
-	      node->observed = 1;
-	      (*subexps)[this_subexp] = node;
+	      rxnode->observed = 1;
+	      (*subexps)[this_subexp] = rxnode;
 	    }
 	  else
-	    node->observed = (node->params.pair.left
-			      ? node->params.pair.left->observed
+	    rxnode->observed = (rxnode->params.rxpair.left
+			      ? rxnode->params.rxpair.left->observed
 			      : 0);
-	  node->len = (node->params.pair.left
-		       ? node->params.pair.left->len
+	  rxnode->len = (rxnode->params.rxpair.left
+		       ? rxnode->params.rxpair.left->len
 		       : 0);
 	  break;
 	case r_context:
-	  switch (node->params.intval)
+	  switch (rxnode->params.intval)
 	    {
 	    default:
-	      node->observed = 1;
-	      node->len = -1;
+	      rxnode->observed = 1;
+	      rxnode->len = -1;
 	      break;
 	    case '^':
 	    case '$':
@@ -132,14 +132,14 @@ rx_posix_analyze_rexp (subexps, re_nsub, node, id)
 	    case 'B':
 	    case '`':
 	    case '\'':
-	      node->observed = 1;
-	      node->len = 0;
+	      rxnode->observed = 1;
+	      rxnode->len = 0;
 	      break;
 	    }
 	  break;
 	}
-      if (node->observed)
-	node->id = id++;
+      if (rxnode->observed)
+	rxnode->id = id++;
       return id;
     }
   return id;
@@ -148,13 +148,13 @@ rx_posix_analyze_rexp (subexps, re_nsub, node, id)
 /* Returns 0 unless the pattern can match the empty string. */
 #ifdef __STDC__
 int
-rx_fill_in_fastmap (int cset_size, unsigned char * map, struct rexp_node * exp)
+rx_fill_in_fastmap (int cset_size, unsigned char * map, struct rexp_rxnode * exp)
 #else
 int
 rx_fill_in_fastmap (cset_size, map, exp)
      int cset_size;
      unsigned char * map;
-     struct rexp_node * exp;
+     struct rexp_rxnode * exp;
 #endif
 {
   if (!exp)
@@ -196,7 +196,7 @@ rx_fill_in_fastmap (cset_size, map, exp)
       
 
     case r_concat:
-      return rx_fill_in_fastmap (cset_size, map, exp->params.pair.left);
+      return rx_fill_in_fastmap (cset_size, map, exp->params.rxpair.left);
 
       /* Why not the right branch?  If the left branch
        * can't be empty it doesn't matter.  If it can, then
@@ -206,12 +206,12 @@ rx_fill_in_fastmap (cset_size, map, exp)
 
 
     case r_alternate:
-      return (  rx_fill_in_fastmap (cset_size, map, exp->params.pair.left)
-	      | rx_fill_in_fastmap (cset_size, map, exp->params.pair.right));
+      return (  rx_fill_in_fastmap (cset_size, map, exp->params.rxpair.left)
+	      | rx_fill_in_fastmap (cset_size, map, exp->params.rxpair.right));
 
     case r_parens:
     case r_plus:
-      return rx_fill_in_fastmap (cset_size, map, exp->params.pair.left);
+      return rx_fill_in_fastmap (cset_size, map, exp->params.rxpair.left);
 
     case r_opt:
     case r_star:
@@ -224,7 +224,7 @@ rx_fill_in_fastmap (cset_size, map, exp)
       if (exp->params.intval == 0)
 	goto can_match_empty;
       else
-	return rx_fill_in_fastmap (cset_size, map, exp->params.pair.left);
+	return rx_fill_in_fastmap (cset_size, map, exp->params.rxpair.left);
       
     case r_context:
       goto can_match_empty;
@@ -238,11 +238,11 @@ rx_fill_in_fastmap (cset_size, map, exp)
 
 #ifdef __STDC__
 int
-rx_is_anchored_p (struct rexp_node * exp)
+rx_is_anchored_p (struct rexp_rxnode * exp)
 #else
 int
 rx_is_anchored_p (exp)
-     struct rexp_node * exp;
+     struct rexp_rxnode * exp;
 #endif
 {
   if (!exp)
@@ -260,18 +260,18 @@ rx_is_anchored_p (exp)
     case r_parens:
     case r_plus:
     case r_concat:
-      return rx_is_anchored_p (exp->params.pair.left);
+      return rx_is_anchored_p (exp->params.rxpair.left);
 
     case r_alternate:
-      return (   rx_is_anchored_p (exp->params.pair.left)
-	      && rx_is_anchored_p (exp->params.pair.right));
+      return (   rx_is_anchored_p (exp->params.rxpair.left)
+	      && rx_is_anchored_p (exp->params.rxpair.right));
 
 
     case r_interval:
       if (exp->params.intval == 0)
 	return 0;
       else
-	return rx_is_anchored_p (exp->params.pair.left);
+	return rx_is_anchored_p (exp->params.rxpair.left);
       
     case r_context:
       return (exp->params.intval == '^');

@@ -303,6 +303,33 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 }
 
 /*!
+ *Trim a string from the right side.
+ */
+string trimRight ( const string & s, const string & t  )
+{
+       string str = s;
+       return str.erase ( str.find_last_not_of ( t ) + 1 ) ;
+}
+
+
+/*!
+ *Trim a string from the left side.
+ */
+string trimLeft ( const string & s , const string & t )
+{
+       std::string str = s;
+       return str.erase ( 0 , s.find_first_not_of ( t ) ) ;
+}
+
+/*!
+ *Trim a string.
+ */
+string trim(const string & s , const string & t)
+{
+  return trimLeft(trimRight(s, t));
+}
+
+/*!
  *This funtions takes two strings, first the str we're going to work on,
  *and second a list of characters that the funtion is going to remove 
  *from the head and tail of the first string.
@@ -535,11 +562,11 @@ int getEndLine(char* str, int max)
 }
 
 #ifdef NOT_WIN 
-char* strupr(char * string)
+char* strupr(char * s)
 {
-    unsigned int len = strlen(string);
+    unsigned int len = strlen(s);
     for(register unsigned int i = 0; i < len; i++)
-       string[i] = toupper(string[i]);
-    return string;
+       s[i] = toupper(s[i]);
+    return s;
 }
 #endif

@@ -36,7 +36,7 @@ unfa_equal (va, vb)
      void * vb;
 #endif
 {
-  return rx_rexp_equal ((struct rexp_node *)va, (struct rexp_node *)vb);
+  return rx_rexp_equal ((struct rexp_rxnode *)va, (struct rexp_rxnode *)vb);
 }
 
 
@@ -45,12 +45,12 @@ struct rx_hash_rules unfa_rules = { unfa_equal, 0, 0, 0, 0 };
 
 #ifdef __STDC__
 static struct rx_cached_rexp *
-canonical_unfa (struct rx_hash * table, struct rexp_node * rexp, int cset_size)
+canonical_unfa (struct rx_hash * table, struct rexp_rxnode * rexp, int cset_size)
 #else
 static struct rx_cached_rexp *
 canonical_unfa (table, rexp, cset_size)
      struct rx_hash * table;
-     struct rexp_node * rexp;
+     struct rexp_rxnode * rexp;
      int cset_size;
 #endif
 {
@@ -80,12 +80,12 @@ canonical_unfa (table, rexp, cset_size)
 
 #ifdef __STDC__
 static struct rx *
-rx_unfa_rx (struct rx_cached_rexp * cr, struct rexp_node * exp, int cset_size)
+rx_unfa_rx (struct rx_cached_rexp * cr, struct rexp_rxnode * exp, int cset_size)
 #else
 static struct rx *
 rx_unfa_rx (cr, exp, cset_size)
      struct rx_cached_rexp * cr;
-     struct rexp_node * exp;
+     struct rexp_rxnode * exp;
      int cset_size;
 #endif
 {
@@ -159,12 +159,12 @@ rx_free_unfaniverse (it)
 
 #ifdef __STDC__
 struct rx_unfa *
-rx_unfa (struct rx_unfaniverse * unfaniverse, struct rexp_node * exp, int cset_size)
+rx_unfa (struct rx_unfaniverse * unfaniverse, struct rexp_rxnode * exp, int cset_size)
 #else
 struct rx_unfa *
 rx_unfa (unfaniverse, exp, cset_size)
      struct rx_unfaniverse * unfaniverse;
-     struct rexp_node * exp;
+     struct rexp_rxnode * exp;
      int cset_size;
 #endif
 {
@@ -241,7 +241,7 @@ rx_free_unfa (unfa)
 	  it->next->prev = it->prev;
 	  if (it->unfa.exp)
 	    it->unfa.exp->cr = 0;
-	  rx_free_rexp ((struct rexp_node *)it->hash_item->data);
+	  rx_free_rexp ((struct rexp_rxnode *)it->hash_item->data);
 	  rx_hash_free (it->hash_item, &unfa_rules);
 	  rx_free_rx (it->unfa.nfa);
 	  rx_free_rexp (it->unfa.exp);

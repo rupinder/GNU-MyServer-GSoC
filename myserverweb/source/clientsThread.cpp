@@ -321,7 +321,7 @@ int ClientsThread::controlConnections()
 				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
                      (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
                      buffer2.GetRealLength(), nBytesToRead, id);
-				break;
+ 				break;
 			/*!
        *Parse an HTTPS connection request.
        */

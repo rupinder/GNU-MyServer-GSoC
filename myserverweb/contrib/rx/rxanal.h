@@ -48,12 +48,12 @@ struct rx_classical_system
 
 
 #ifdef __STDC__
-extern int rx_posix_analyze_rexp (struct rexp_node *** subexps,
+extern int rx_posix_analyze_rexp (struct rexp_rxnode *** subexps,
 				  size_t * re_nsub,
-				  struct rexp_node * node,
+				  struct rexp_rxnode * rxnode,
 				  int id);
-extern int rx_fill_in_fastmap (int cset_size, unsigned char * map, struct rexp_node * exp);
-extern int rx_is_anchored_p (struct rexp_node * exp);
+extern int rx_fill_in_fastmap (int cset_size, unsigned char * map, struct rexp_rxnode * exp);
+extern int rx_is_anchored_p (struct rexp_rxnode * exp);
 extern enum rx_answers rx_start_superstate (struct rx_classical_system * frame);
 extern enum rx_answers rx_fit_p (struct rx_classical_system * frame, unsigned const char * burst, int len);
 extern enum rx_answers rx_advance (struct rx_classical_system * frame, unsigned const char * burst, int len);

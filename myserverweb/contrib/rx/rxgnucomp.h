@@ -194,7 +194,7 @@ enum RE_SYNTAX_BITS
 
 
 #ifdef __STDC__
-extern int rx_parse (struct rexp_node ** rexp_p,
+extern int rx_parse (struct rexp_rxnode ** rexp_p,
 			       const char *pattern,
 			       int size,
 			       unsigned long syntax,

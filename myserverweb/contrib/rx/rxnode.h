@@ -29,7 +29,7 @@
 #include "rxcset.h"
 
 
-enum rexp_node_type
+enum rexp_rxnode_type
 {
   r_cset = 0,			/* Match from a character set. `a' or `[a-z]'*/
   r_concat = 1,			/* Concat two subexpressions.   `ab' */
@@ -40,14 +40,14 @@ enum rexp_node_type
   r_string = 6,			/* Shorthand for a concatenation of characters */
   r_cut = 7,			/* Generates a tagged, final nfa state. */
 
-  /* see RX_regular_node_type */
+  /* see RX_regular_rxnode_type */
 
   r_interval = 8,		/* Counted subexpression.  `a{4, 1000}' */
   r_parens = 9,			/* Parenthesized subexpression */
   r_context = 10		/* Context-sensative operator such as "^" */
 };
 
-#define RX_regular_node_type(T)  ((T) <= r_interval)
+#define RX_regular_rxnode_type(T)  ((T) <= r_interval)
 
 
 
@@ -58,10 +58,10 @@ struct rx_string
   unsigned char *contents;
 };
 
-struct rexp_node
+struct rexp_rxnode
 {
   int refs;
-  enum rexp_node_type type;
+  enum rexp_rxnode_type type;
   
   struct
   {
@@ -69,48 +69,48 @@ struct rexp_node
     rx_Bitset cset;
     long intval;
     long intval2;
-    struct s_pair
+    struct s_rxpair
     {
-      struct rexp_node *left;
-      struct rexp_node *right;
-    }  pair;
+      struct rexp_rxnode *left;
+      struct rexp_rxnode *right;
+    }  rxpair;
     struct rx_string cstr;
   } params;
   int id;
   int len;
   int observed;
-  struct rexp_node * simplified;
+  struct rexp_rxnode * simplified;
   struct rx_cached_rexp * cr;
 };
 
 
 #ifdef __STDC__
 extern int rx_adjoin_string (struct rx_string *str, char c);
-extern struct rexp_node * rexp_node (int type);
-extern struct rexp_node * rx_mk_r_cset (int type, int size, rx_Bitset b);
-extern struct rexp_node * rx_mk_r_int (int type, int intval);
-extern struct rexp_node * rx_mk_r_str (int type, char c);
-extern struct rexp_node * rx_mk_r_binop (int type, struct rexp_node * a, struct rexp_node * b);
-extern struct rexp_node * rx_mk_r_monop (int type, struct rexp_node * a);
-extern void rx_free_rexp (struct rexp_node * node);
-extern void rx_save_rexp (struct rexp_node * node);
-extern struct rexp_node * rx_copy_rexp (int cset_size, struct rexp_node *node);
-extern struct rexp_node * rx_shallow_copy_rexp (int cset_size, struct rexp_node *node);
-extern int rx_rexp_equal (struct rexp_node * a, struct rexp_node * b);
-extern unsigned long rx_rexp_hash (struct rexp_node * node, unsigned long seed);
+extern struct rexp_rxnode * rexp_rxnode (int type);
+extern struct rexp_rxnode * rx_mk_r_cset (int type, int size, rx_Bitset b);
+extern struct rexp_rxnode * rx_mk_r_int (int type, int intval);
+extern struct rexp_rxnode * rx_mk_r_str (int type, char c);
+extern struct rexp_rxnode * rx_mk_r_binop (int type, struct rexp_rxnode * a, struct rexp_rxnode * b);
+extern struct rexp_rxnode * rx_mk_r_monop (int type, struct rexp_rxnode * a);
+extern void rx_free_rexp (struct rexp_rxnode * rxnode);
+extern void rx_save_rexp (struct rexp_rxnode * rxnode);
+extern struct rexp_rxnode * rx_copy_rexp (int cset_size, struct rexp_rxnode *rxnode);
+extern struct rexp_rxnode * rx_shallow_copy_rexp (int cset_size, struct rexp_rxnode *rxnode);
+extern int rx_rexp_equal (struct rexp_rxnode * a, struct rexp_rxnode * b);
+extern unsigned long rx_rexp_hash (struct rexp_rxnode * rxnode, unsigned long seed);
 
 #else /* STDC */
 extern int rx_adjoin_string ();
-extern struct rexp_node * rexp_node ();
-extern struct rexp_node * rx_mk_r_cset ();
-extern struct rexp_node * rx_mk_r_int ();
-extern struct rexp_node * rx_mk_r_str ();
-extern struct rexp_node * rx_mk_r_binop ();
-extern struct rexp_node * rx_mk_r_monop ();
+extern struct rexp_rxnode * rexp_rxnode ();
+extern struct rexp_rxnode * rx_mk_r_cset ();
+extern struct rexp_rxnode * rx_mk_r_int ();
+extern struct rexp_rxnode * rx_mk_r_str ();
+extern struct rexp_rxnode * rx_mk_r_binop ();
+extern struct rexp_rxnode * rx_mk_r_monop ();
 extern void rx_free_rexp ();
 extern void rx_save_rexp ();
-extern struct rexp_node * rx_copy_rexp ();
-extern struct rexp_node * rx_shallow_copy_rexp ();
+extern struct rexp_rxnode * rx_copy_rexp ();
+extern struct rexp_rxnode * rx_shallow_copy_rexp ();
 extern int rx_rexp_equal ();
 extern unsigned long rx_rexp_hash ();
 

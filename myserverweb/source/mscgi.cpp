@@ -41,7 +41,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
    *Usually these files are faster than standard CGI.
    *Actually myServerCGI(.mscgi) is only at an alpha status.
    */
-
+  char tmpSize[11];
 #ifndef WIN32
 #ifdef DO_NOT_USE_MSCGI
 	/*!
@@ -193,8 +193,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 	/*!
    *Compute the response length.
    */
-	sprintf(td->response.CONTENT_LENGTH,"%u",(u_int)data.stdOut.getFileSize());
-
+	sprintf(tmpSize,"%u",(u_int)data.stdOut.getFileSize());
+  td->response.CONTENT_LENGTH.assign(tmpSize);
 	/*!
    *Send all the data to the client if the append is not used.
    */

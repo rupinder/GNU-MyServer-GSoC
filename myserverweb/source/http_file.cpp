@@ -101,14 +101,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 	{
     use_gzip=1;
   }
-	keepalive = !lstrcmpi(td->request.CONNECTION, "Keep-Alive");
+	keepalive = !lstrcmpi(td->request.CONNECTION.c_str(),"Keep-Alive");
 
 #ifndef DO_NOT_USE_GZIP
 	/*! 
    *Be sure that the client accept GZIP compressed data.  
    */
 	if(use_gzip)
-		use_gzip &= (strstr(td->request.ACCEPTENC, "gzip")!=0);
+		use_gzip &= (td->request.ACCEPTENC.find("gzip")!=0);
 #else
 	/*! 
    *If compiled without GZIP support force the server to don't use it.  
@@ -138,24 +138,30 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 	/*! If a Range was requested send 206 and not 200 for success.  */
 	if( td->request.RANGEBYTEBEGIN ||  td->request.RANGEBYTEEND )
   {	
+    char buffer[40];
     td->response.httpStatus = 206;
-    sprintf(td->response.CONTENT_RANGE, "bytes %u-%u/%u", (u_long)firstByte, 
+    sprintf(buffer, "bytes %u-%u/%u", (u_long)firstByte, 
            (u_long) lastByte, (u_long)filesize);
+    td->response.CONTENT_RANGE.assign(buffer);
     use_gzip = 0;
 	}
 
   /*! Specify the content length with keep-alive connections. */
 	if(keepalive)
-		sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)bytes_to_send);
-	else
-		strcpy(td->response.CONNECTION, "close");
+  {
+    char tmp[11];
+		sprintf(tmp, "%u", (u_int)bytes_to_send);
+    td->response.CONTENT_LENGTH.assign(tmp);
+  }	
+  else
+		td->response.CONNECTION.assign("close");
 	
 	if(use_gzip)
 	{
 		/*! Do not use chunked transfer with old HTTP/1.0 clients.  */
 		if(keepalive)
-			strcpy(td->response.TRANSFER_ENCODING, "chunked");
-		strcpy(td->response.CONTENT_ENCODING, "gzip");
+			td->response.TRANSFER_ENCODING.assign("chunked");
+		td->response.CONTENT_ENCODING.assign("gzip");
 	}
 
 	HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
@@ -193,12 +199,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		if(use_gzip)
 		{
 			gzip_dataused=0;
-			u_long datatoread=min(bytes_to_send, td->buffer2->GetRealLength()/2);
+			u_long datatoread=(bytes_to_send < td->buffer2->GetRealLength()/2) 
+        ? bytes_to_send : td->buffer2->GetRealLength()/2 ;
 			/*! Read from the file the bytes to send.  */
 			if(h.readFromFile(td->buffer2->GetBuffer(), datatoread, &nbr))
 			{
+        char tmp[11];
 				h.closeFile();
-        sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
+        sprintf(tmp,"%i",(int)dataSent);
+        td->response.CONTENT_LENGTH.assign(tmp);
 				return 0;
 			}
       
@@ -251,8 +260,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
                         min(bytes_to_send,td->buffer->GetRealLength()), &nbr);
 			if(ret)
 			{
+        char tmp[11];
 				h.closeFile();
-        sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
+        sprintf(tmp,"%i",(int)dataSent);
+        td->response.CONTENT_LENGTH.assign(tmp);
 				return 0;
 			}
       bytes_to_send-=nbr;
@@ -264,8 +275,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 					ret=(u_long)s->socket.send(td->buffer->GetBuffer(), nbr, 0);
 					if(ret==SOCKET_ERROR)
 					{
+            char tmp[11];
 						h.closeFile();
-            sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
+            sprintf(tmp,"%i",(int)dataSent);
+            td->response.CONTENT_LENGTH.assign(tmp);
 						return 0;
 					}
           dataSent+=ret;
@@ -278,7 +291,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 				  if(ret)
 					{
 						h.closeFile();
-            strcpy(td->response.CONTENT_LENGTH,"0");
+            td->response.CONTENT_LENGTH.assign("0");
 						return 0;
 					}
           dataSent+=nbw;
@@ -297,8 +310,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 				ret=s->socket.send("0\r\n\r\n", 5, 0);
 				if(ret==SOCKET_ERROR)
 				{
+          char tmp[11];
 					h.closeFile();
-          sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
+          sprintf(tmp,"%i",(int)dataSent);
+          td->response.CONTENT_LENGTH.assign(tmp);
 					return 0;
 				}
 			}
@@ -306,7 +321,11 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		}
 	}/*End for loop. */
 	h.closeFile();
-  sprintf(td->response.CONTENT_LENGTH,"%i",(int)dataSent);
+  {
+    char tmp[11];
+    sprintf(tmp,"%i",(int)dataSent);
+    td->response.CONTENT_LENGTH.assign(tmp);
+  }
 	return 1;
 }
 

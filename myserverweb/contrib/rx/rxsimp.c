@@ -28,42 +28,42 @@
 
 #ifdef __STDC__
 int
-rx_simple_rexp (struct rexp_node ** answer,
+rx_simple_rexp (struct rexp_rxnode ** answer,
 		int cset_size,
-		struct rexp_node *node,
-		struct rexp_node ** subexps)
+		struct rexp_rxnode *rxnode,
+		struct rexp_rxnode ** subexps)
 #else
 int
-rx_simple_rexp (answer, cset_size, node, subexps)
-     struct rexp_node ** answer;
+rx_simple_rexp (answer, cset_size, rxnode, subexps)
+     struct rexp_rxnode ** answer;
      int cset_size;
-     struct rexp_node *node;
-     struct rexp_node ** subexps;
+     struct rexp_rxnode *rxnode;
+     struct rexp_rxnode ** subexps;
 #endif
 {
   int stat;
 
-  if (!node)
+  if (!rxnode)
     {
       *answer = 0;
       return 0;
     }
 
-  if (!node->observed)
+  if (!rxnode->observed)
     {
-      rx_save_rexp (node);
-      *answer = node;
+      rx_save_rexp (rxnode);
+      *answer = rxnode;
       return 0;
     }
 
-  if (node->simplified)
+  if (rxnode->simplified)
     {
-      rx_save_rexp (node->simplified);
-      *answer = node->simplified;
+      rx_save_rexp (rxnode->simplified);
+      *answer = rxnode->simplified;
       return 0;
     }
 
-  switch (node->type)
+  switch (rxnode->type)
     {
     default:
     case r_cset:
@@ -73,14 +73,14 @@ rx_simple_rexp (answer, cset_size, node, subexps)
 
     case r_parens:
       stat = rx_simple_rexp (answer, cset_size,
-			     node->params.pair.left,
+			     rxnode->params.rxpair.left,
 			     subexps);
       break;
 
     case r_context:
-      if (isdigit (node->params.intval))
+      if (isdigit (rxnode->params.intval))
 	 stat = rx_simple_rexp (answer, cset_size,
-				subexps [node->params.intval - '0'],
+				subexps [rxnode->params.intval - '0'],
 				subexps);
       else
 	{
@@ -96,31 +96,31 @@ rx_simple_rexp (answer, cset_size, node, subexps)
     case r_plus:
     case r_interval:
       {
-	struct rexp_node *n;
-	n = rexp_node (node->type);
+	struct rexp_rxnode *n;
+	n = rexp_rxnode (rxnode->type);
 	if (!n)
 	  return -1;
 
-	if (node->params.cset)
+	if (rxnode->params.cset)
 	  {
 	    n->params.cset = rx_copy_cset (cset_size,
-					   node->params.cset);
+					   rxnode->params.cset);
 	    if (!n->params.cset)
 	      {
 		rx_free_rexp (n);
 		return -1;
 	      }
 	  }
-	n->params.intval = node->params.intval;
-	n->params.intval2 = node->params.intval2;
+	n->params.intval = rxnode->params.intval;
+	n->params.intval2 = rxnode->params.intval2;
 	{
 	  int s;
     
-	  s = rx_simple_rexp (&n->params.pair.left, cset_size,
-			      node->params.pair.left, subexps);
+	  s = rx_simple_rexp (&n->params.rxpair.left, cset_size,
+			      rxnode->params.rxpair.left, subexps);
 	  if (!s)
-	    s = rx_simple_rexp (&n->params.pair.right, cset_size,
-				node->params.pair.right, subexps);
+	    s = rx_simple_rexp (&n->params.rxpair.right, cset_size,
+				rxnode->params.rxpair.right, subexps);
 	  if (!s)
 	    {
 	      *answer = n;
@@ -138,8 +138,8 @@ rx_simple_rexp (answer, cset_size, node, subexps)
 
   if (!stat)
     {
-      node->simplified = *answer;
-      rx_save_rexp (node->simplified);
+      rxnode->simplified = *answer;
+      rx_save_rexp (rxnode->simplified);
     }
   return stat;
 }  

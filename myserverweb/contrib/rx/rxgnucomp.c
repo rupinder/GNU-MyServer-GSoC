@@ -140,9 +140,9 @@ typedef int pattern_offset_t;
 
 typedef struct
 {
-  struct rexp_node ** top_expression;
-  struct rexp_node ** last_expression;
-  struct rexp_node ** last_non_regular_expression;
+  struct rexp_rxnode ** top_expression;
+  struct rexp_rxnode ** last_expression;
+  struct rexp_rxnode ** last_non_regular_expression;
   pattern_offset_t inner_group_offset;
   regnum_t regnum;
 } compile_stack_elt_t;
@@ -428,16 +428,16 @@ compile_range (n_members, cset_size, cs, p_ptr, pend, translate, syntax, inv_tr,
 
 #ifdef __STDC__
 static int
-pointless_if_repeated (struct rexp_node * node)
+pointless_if_repeated (struct rexp_rxnode * rxnode)
 #else
 static int
-pointless_if_repeated (node)
-     struct rexp_node * node;
+pointless_if_repeated (rxnode)
+     struct rexp_rxnode * rxnode;
 #endif
 {
-  if (!node)
+  if (!rxnode)
     return 1;
-  switch (node->type)
+  switch (rxnode->type)
     {
     case r_cset:
     case r_string:
@@ -445,15 +445,15 @@ pointless_if_repeated (node)
       return 0;
     case r_concat:
     case r_alternate:
-      return (pointless_if_repeated (node->params.pair.left)
-	      && pointless_if_repeated (node->params.pair.right));
+      return (pointless_if_repeated (rxnode->params.rxpair.left)
+	      && pointless_if_repeated (rxnode->params.rxpair.right));
     case r_opt:
     case r_star:
     case r_interval:
     case r_parens:
-      return pointless_if_repeated (node->params.pair.left);
+      return pointless_if_repeated (rxnode->params.rxpair.left);
     case r_context:
-      switch (node->params.intval)
+      switch (rxnode->params.intval)
 	{
 	case '=':
 	case '<':
@@ -475,18 +475,18 @@ pointless_if_repeated (node)
 
 #ifdef __STDC__
 static int
-factor_string (struct rexp_node *** lastp, int cset_size)
+factor_string (struct rexp_rxnode *** lastp, int cset_size)
 #else
 static int
 factor_string (lastp, cset_size)
-     struct rexp_node *** lastp;
+     struct rexp_rxnode *** lastp;
      int cset_size;
 #endif
 {
-  struct rexp_node ** expp;
-  struct rexp_node * exp;
+  struct rexp_rxnode ** expp;
+  struct rexp_rxnode * exp;
   rx_Bitset cs;
-  struct rexp_node * cset_node;
+  struct rexp_rxnode * cset_rxnode;
 
   expp = *lastp;
   exp = *expp;			/* presumed r_string */
@@ -495,8 +495,8 @@ factor_string (lastp, cset_size)
   if (!cs)
     return -1;
   RX_bitset_enjoin (cs, exp->params.cstr.contents[exp->params.cstr.len - 1]);
-  cset_node = rx_mk_r_cset (r_cset, cset_size, cs);
-  if (!cset_node)
+  cset_rxnode = rx_mk_r_cset (r_cset, cset_size, cs);
+  if (!cset_rxnode)
     {
       rx_free_cset (cs);
       return -1;
@@ -504,22 +504,22 @@ factor_string (lastp, cset_size)
   if (exp->params.cstr.len == 1)
     {
       rx_free_rexp (exp);
-      *expp = cset_node;
+      *expp = cset_rxnode;
       /* lastp remains the same */
       return 0;
     }
   else
     {
-      struct rexp_node * concat_node;
+      struct rexp_rxnode * concat_rxnode;
       exp->params.cstr.len--;
-      concat_node = rx_mk_r_binop (r_concat, exp, cset_node);
-      if (!concat_node)
+      concat_rxnode = rx_mk_r_binop (r_concat, exp, cset_rxnode);
+      if (!concat_rxnode)
 	{
-	  rx_free_rexp (cset_node);
+	  rx_free_rexp (cset_rxnode);
 	  return -1;
 	}
-      *expp = concat_node;
-      *lastp = &concat_node->params.pair.right;
+      *expp = concat_rxnode;
+      *lastp = &concat_rxnode->params.rxpair.right;
       return 0;
     }
 }
@@ -530,7 +530,7 @@ factor_string (lastp, cset_size)
 
 #ifdef __STDC__
 int
-rx_parse (struct rexp_node ** rexp_p,
+rx_parse (struct rexp_rxnode ** rexp_p,
 	  const char *pattern,
 	  int size,
 	  unsigned long syntax,
@@ -539,7 +539,7 @@ rx_parse (struct rexp_node ** rexp_p,
 #else
 int
 rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
-     struct rexp_node ** rexp_p;
+     struct rexp_rxnode ** rexp_p;
      const char *pattern;
      int size;
      unsigned long syntax;
@@ -571,15 +571,15 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
   const char *pend;
   
   /* When parsing is done, this will hold the expression tree. */
-  struct rexp_node * rexp;
+  struct rexp_rxnode * rexp;
 
   /* This and top_expression are saved on the compile stack. */
-  struct rexp_node ** top_expression;
-  struct rexp_node ** last_non_regular_expression;
-  struct rexp_node ** last_expression;
+  struct rexp_rxnode ** top_expression;
+  struct rexp_rxnode ** last_non_regular_expression;
+  struct rexp_rxnode ** last_expression;
   
-  /* Parameter to `goto append_node' */
-  struct rexp_node * append;
+  /* Parameter to `goto append_rxnode' */
+  struct rexp_rxnode * append;
 
   /* Counts open-groups as they are encountered.  This is the index of the
    * innermost group being compiled.
@@ -655,12 +655,12 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
                    /* Otherwise, depends on what's come before.  */
                 || at_begline_loc_p (pattern, p, syntax))
 	      {
-		struct rexp_node * n
+		struct rexp_rxnode * n
 		  = rx_mk_r_int (r_context, '^');
 		if (!n)
 		  goto space_error;
 		append = n;
-		goto append_node;
+		goto append_rxnode;
 	      }
             else
               goto normal_char;
@@ -677,12 +677,12 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
                    /* Otherwise, depends on what's next.  */
                 || at_endline_loc_p (p, pend, syntax))
 	      {
-		struct rexp_node * n
+		struct rexp_rxnode * n
 		  = rx_mk_r_int (r_context, '$');
 		if (!n)
 		  goto space_error;
 		append = n;
-		goto append_node;
+		goto append_rxnode;
 	      }
              else
                goto normal_char;
@@ -765,8 +765,8 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 	     */
 
 	    {
-	      struct rexp_node * inner_exp;
-	      struct rexp_node * star;
+	      struct rexp_rxnode * inner_exp;
+	      struct rexp_rxnode * star;
 
 	      if (*last_expression && ((*last_expression)->type == r_string))
 		if (factor_string (&last_expression, cset_size))
@@ -787,7 +787,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 	case '.':
 	  {
 	    rx_Bitset cs;
-	    struct rexp_node * n;
+	    struct rexp_rxnode * n;
 	    cs = rx_cset (cset_size);
 	    if (!cs)
 	      goto space_error;
@@ -804,7 +804,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 	      RX_bitset_remove (cs, 0);
 
 	    append = n;
-	    goto append_node;
+	    goto append_rxnode;
 	    break;
 	  }
 
@@ -818,7 +818,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
           {
             int had_char_class;
 	    rx_Bitset cs;
-	    struct rexp_node * node;
+	    struct rexp_rxnode * rxnode;
 	    int is_inverted;
 
             had_char_class = 0;
@@ -826,17 +826,17 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 	    cs = rx_cset (cset_size);
 	    if (!cs)
 	      goto space_error;
-	    node = rx_mk_r_cset (r_cset, cset_size ,cs);
-	    if (!node)
+	    rxnode = rx_mk_r_cset (r_cset, cset_size ,cs);
+	    if (!rxnode)
 	      {
 		rx_free_cset (cs);
 		goto space_error;
 	      }
 	    
 	    /* This branch of the switch is normally exited with
-	     *`goto append_node'
+	     *`goto append_rxnode'
 	     */
-	    append = node;
+	    append = rxnode;
 	    
             if (is_inverted)
 	      p++;
@@ -971,10 +971,10 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 			    PATFETCH (c);
 			    PATFETCH (c);
 			    {
-			      struct rexp_node * cut;
+			      struct rexp_rxnode * cut;
 			      cut = rx_mk_r_int (r_cut, val);
 			      append = cut;
-			      goto append_node;
+			      goto append_rxnode;
 			    }
 			  }
 			else if (!strncmp (str, "(", 1))
@@ -1102,7 +1102,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 		if (syntax & RE_HAT_LISTS_NOT_NEWLINE)
 		  RX_bitset_remove (cs, '\n');
 	      }
-	    goto append_node;
+	    goto append_rxnode;
           }
           break;
 
@@ -1181,12 +1181,12 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 
 	      if (*last_non_regular_expression)
 		{
-		  struct rexp_node * concat;
+		  struct rexp_rxnode * concat;
 		  concat = rx_mk_r_binop (r_concat, *last_non_regular_expression, 0);
 		  if (!concat)
 		    goto space_error;
 		  *last_non_regular_expression = concat;
-		  last_non_regular_expression = &concat->params.pair.right;
+		  last_non_regular_expression = &concat->params.rxpair.right;
 		  last_expression = last_non_regular_expression;
 		}
 
@@ -1231,8 +1231,8 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
                  * as in `(ab)c(de)' -- the second group is #2.
 		 */
                 regnum_t this_group_regnum;
-		struct rexp_node ** inner;
-		struct rexp_node * parens;
+		struct rexp_rxnode ** inner;
+		struct rexp_rxnode * parens;
 
 		inner = top_expression;
                 compile_stack.avail--;
@@ -1263,14 +1263,14 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
                 goto normal_char;
 
 	      {
-		struct rexp_node * alt;
+		struct rexp_rxnode * alt;
 
 		alt = rx_mk_r_binop (r_alternate, *top_expression, 0);
 		if (!alt)
 		  goto space_error;
 		*top_expression = alt;
-		last_expression = &alt->params.pair.right;
-		last_non_regular_expression = &alt->params.pair.right;
+		last_expression = &alt->params.rxpair.right;
+		last_non_regular_expression = &alt->params.rxpair.right;
 	      }
               break;
 
@@ -1365,7 +1365,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
                   }
 
 		{
-		  struct rexp_node * interval;
+		  struct rexp_rxnode * interval;
 
 		  if (*last_expression && ((*last_expression)->type == r_string))
 		    if (factor_string (&last_expression, cset_size))
@@ -1410,7 +1410,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 	    case 'S':
 	      {
 		rx_Bitset cs;
-		struct rexp_node * set;
+		struct rexp_rxnode * set;
 
 		cs = rx_cset (&cset_size);
 		if (!cs)
@@ -1443,7 +1443,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 		    }
 		}
 		append = set;
-		goto append_node;
+		goto append_rxnode;
 	      }
               break;
 #endif /* emacs */
@@ -1453,7 +1453,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
             case 'W':
 	      {
 		rx_Bitset cs;
-		struct rexp_node * n;
+		struct rexp_rxnode * n;
 
 		cs = rx_cset (cset_size);
 		n = (cs ? rx_mk_r_cset (r_cset, cset_size, cs) : 0);
@@ -1472,7 +1472,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 		      RX_bitset_toggle (cs, x);
 		}
 		append = n;
-		goto append_node;
+		goto append_rxnode;
 	      }
               break;
 
@@ -1508,12 +1508,12 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 
 	    add_side_effect:
 	      {
-		struct rexp_node * se;
+		struct rexp_rxnode * se;
 		se = rx_mk_r_int (r_context, side);
 		if (!se)
 		  goto space_error;
 		append = se;
-		goto append_node;
+		goto append_rxnode;
 	      }
 	      break;
 
@@ -1559,7 +1559,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 	normal_char:
 	    {
 	      rx_Bitset cs;
-	      struct rexp_node * match;
+	      struct rexp_rxnode * match;
 	      rx_Bitset it;
 
 	      it = inverse_translation (n_members,
@@ -1578,7 +1578,7 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 		    }
 		  rx_bitset_union (CHAR_SET_SIZE, cs, it);
 		  append = match;
-		  goto append_node;
+		  goto append_rxnode;
 		}
 	      else
 		{
@@ -1593,28 +1593,28 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 		      append = rx_mk_r_str (r_string, c);
 		      if(!append)
 			goto space_error;
-		      goto append_node;
+		      goto append_rxnode;
 		    }
 		}
 	      break;
 
-	    append_node:
+	    append_rxnode:
 	      /* This genericly appends the rexp APPEND to *LAST_EXPRESSION
 	       * and then parses the next character normally.
 	       */
-	      if (RX_regular_node_type (append->type))
+	      if (RX_regular_rxnode_type (append->type))
 		{
 		  if (!*last_expression)
 		    *last_expression = append;
 		  else
 		    {
-		      struct rexp_node * concat;
+		      struct rexp_rxnode * concat;
 		      concat = rx_mk_r_binop (r_concat,
 					      *last_expression, append);
 		      if (!concat)
 			goto space_error;
 		      *last_expression = concat;
-		      last_expression = &concat->params.pair.right;
+		      last_expression = &concat->params.rxpair.right;
 		    }
 		}
 	      else
@@ -1626,13 +1626,13 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
 		    }
 		  else
 		    {
-		      struct rexp_node * concat;
+		      struct rexp_rxnode * concat;
 		      concat = rx_mk_r_binop (r_concat,
 					      *last_non_regular_expression, append);
 		      if (!concat)
 			goto space_error;
 		      *last_non_regular_expression = concat;
-		      last_non_regular_expression = &concat->params.pair.right;
+		      last_non_regular_expression = &concat->params.rxpair.right;
 		      last_expression = last_non_regular_expression;
 		    }
 		}

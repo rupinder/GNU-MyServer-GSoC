@@ -41,7 +41,7 @@ struct rx_str_closure
 
 #ifdef __STDC__
 extern enum rx_answers rx_str_vmfn (void * closure, unsigned const char ** burstp, int * lenp, int * offsetp, int start, int end, int need);
-extern enum rx_answers rx_str_contextfn (void * closure, struct rexp_node * node, int start, int end, struct rx_registers * regs);
+extern enum rx_answers rx_str_contextfn (void * closure, struct rexp_rxnode * rxnode, int start, int end, struct rx_registers * regs);
 
 #else /* STDC */
 extern enum rx_answers rx_str_vmfn ();

@@ -36,7 +36,7 @@ struct rx_unfaniverse
 struct rx_unfa
 {
   int refs;
-  struct rexp_node * exp;
+  struct rexp_rxnode * exp;
   struct rx * nfa;
   int cset_size;
   struct rx_unfaniverse * verse;
@@ -55,7 +55,7 @@ struct rx_cached_rexp
 #ifdef __STDC__
 extern struct rx_unfaniverse * rx_make_unfaniverse (int delay);
 extern void rx_free_unfaniverse (struct rx_unfaniverse * it);
-extern struct rx_unfa * rx_unfa (struct rx_unfaniverse * unfaniverse, struct rexp_node * exp, int cset_size);
+extern struct rx_unfa * rx_unfa (struct rx_unfaniverse * unfaniverse, struct rexp_rxnode * exp, int cset_size);
 extern void rx_free_unfa (struct rx_unfa * unfa);
 extern void rx_save_unfa (struct rx_unfa * unfa);
 
