@@ -36,7 +36,7 @@ extern "C" {
 #define u_short unsigned short
 
 static char daysName[7][4]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
-static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dic"};
+static char monthsName[12][4]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 
 /*
 *This function format current time to the RFC 822 format.
