@@ -414,7 +414,7 @@ void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 }
 
 /*
-*Remove a record passing the extension of the MIME type.
+*Remove a record by the extension of the MIME type.
 */
 void MIME_Manager::removeRecord(char *ext)
 {

@@ -25,7 +25,7 @@ CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000001000000000000
+CompilerSettings=000001000000100000
 
 [VersionInfo]
 Major=0
@@ -63,7 +63,7 @@ Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c configuration.cpp -o tmp/configuration.o $(CXXFLAGS)
 
 [Unit3]
 FileName=configuration.h

@@ -610,7 +610,7 @@ char *cserver::getServerAdmin()
 }
 /*
 *Here is loaded the configuration of the server.
-*The configuration file is a pseudo-XML file.
+*The configuration file is a XML file.
 */
 void cserver::initialize(int OSVer)
 {
@@ -673,6 +673,10 @@ void cserver::initialize(int OSVer)
 	{
 		nThreadsB=atoi(data);
 	}
+	/*
+	*The number of the threads used by the server is:
+	*N_THREADS=nThreadsForCPU*CPU_COUNT+nThreadsAlwaysActive;
+	*/
 	nThreads=nThreadsA*getCPUCount()+nThreadsB;
 
 	/*
@@ -795,7 +799,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 	return ret;
 }
 /*
-*Find a connection passing its socket.
+*Find a connection by its socket.
 */
 LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 {
@@ -809,7 +813,7 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 	return NULL;
 }
 /*
-*Returns the full path of the web folder.
+*Returns the full path of the binaries folder.
 */
 char *cserver::getPath()
 {
@@ -862,7 +866,7 @@ u_long cserver::getNumThreads()
 	return nThreads;
 }
 /*
-*Returns a comma-separated machine IPs list.
+*Returns a comma-separated local machine IPs list.
 *For example: 192.168.0.1,61.62.63.64,65.66.67.68.69
 */
 char *cserver::getAddresses()
