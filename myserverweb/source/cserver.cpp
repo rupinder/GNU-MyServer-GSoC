@@ -140,25 +140,22 @@ void Server::start()
    */
   if(logManager->getType() == LogManager::TYPE_CONSOLE )
   {
-    string *software_signature=new string();
-    if(software_signature)
-    {
-      software_signature->assign("************MyServer ");
-      software_signature->append(versionOfSoftware);
-      software_signature->append("************");
-	
-      i=software_signature->length();
-      while(i--)
-        logManager->write("*");
-      logManager->writeln("");
-      logManager->write(software_signature->c_str());
-      logManager->write("\n");    
-      i=software_signature->length();
-      while(i--)
-        logManager->write("*");
-      logManager->writeln("");
-      delete software_signature;
-    }
+    string software_signature;
+    software_signature.assign("************MyServer ");
+    software_signature.append(versionOfSoftware);
+    software_signature.append("************");
+    
+    i=software_signature.length();
+    while(i--)
+      logManager->write("*");
+    logManager->writeln("");
+    logManager->write(software_signature.c_str());
+    logManager->write("\n");    
+    i=software_signature.length();
+    while(i--)
+      logManager->write("*");
+    logManager->writeln("");
+   
   }
 	/*!
    *Set the current working directory.
