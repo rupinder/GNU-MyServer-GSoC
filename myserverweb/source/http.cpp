@@ -23,7 +23,7 @@
 #include "../include/AMMimeUtils.h"
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
-#include "../include/wincgi.h"
+#include "../include/winCGI.h"
 #include "../include/utility.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
@@ -290,7 +290,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	/*
 	*With this code we manage a request of a file or a folder or anything that we must send
 	*over the HTTP.
-	*/
+	*/	
 	td->buffer[0]='\0';
 	buildDefaultHTTPResponseHeader(&td->response);
 

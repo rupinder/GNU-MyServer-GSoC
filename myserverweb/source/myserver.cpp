@@ -82,7 +82,7 @@ int main (int argn, char **argc)
 		argc[1]="CONSOLE";
 	lstrcpy(path,argc[0]);
 	int len=lstrlen(path);
-	while((path[len]!='\\')&(path[len]!='/'))
+	while((path[len]!='\\')&&(path[len]!='/'))
 		len--;
 	path[len]='\0';
 #ifdef WIN32
@@ -90,7 +90,6 @@ int main (int argn, char **argc)
 #else
 	chdir(path);
 #endif
-
 	
 	cmdShow=0;
 	char* cmdLine=argc[1];
