@@ -564,8 +564,7 @@ int cserver::terminate()
 		if(verbosity>1)
 			printf("%s\n", languageParser.getValue("MSG_TSTOPPED"));
 	}
-	i=0;
-	while(lserver->getListeningThreadCount() && (i++<10))
+	while(lserver->getListeningThreadCount())
 	{
 		wait(1000);
 	}

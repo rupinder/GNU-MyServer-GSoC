@@ -283,22 +283,24 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
       delete Ifile;
       return 0;
     }
-
-    ret = Ifile->writeToFile(b1 + realHeaderLength, nbtr - realHeaderLength, 
-                             &nbw);
-    dataWritten += nbw;
-    if(ret)
+    if(nbtr - realHeaderLength)
     {
-      sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
-      Ifile->closeFile();
-      if(IfilePath)
+      ret = Ifile->writeToFile(b1 + realHeaderLength, nbtr - realHeaderLength, 
+                               &nbw);
+      dataWritten += nbw;
+      if(ret)
       {
-        MYSERVER_FILE::deleteFile(IfilePath);
-        delete [] IfilePath;
+        sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
+        Ifile->closeFile();
+        if(IfilePath)
+        {
+          MYSERVER_FILE::deleteFile(IfilePath);
+          delete [] IfilePath;
+        }
+        delete Ifile;
+        Ifile=0;
+        return 0;
       }
-      delete Ifile;
-      Ifile=0;
-      return 0;
     }
   }
 
@@ -310,7 +312,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     {
       if(a->socket.bytesToRead())
       {
-        ret = a->socket.recv(b2, bs2, 0, 0);
+        ret = a->socket.recv(b2, bs2, 0);
         if(ret == -1)
         {
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
@@ -784,7 +786,7 @@ int control_protocol::GETFILE(char* fn, MYSERVER_FILE* in,
 }
 
 /*!
- *Return the requested file to the client.
+ *Save the file on the local FS.
  */
 int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in, 
                               MYSERVER_FILE* out, char *b1,int bs1 )
