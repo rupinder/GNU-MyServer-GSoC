@@ -32,8 +32,10 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/ioctl.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <unistd.h>
 }
 #define SOCKET int
 #define INVALID_SOCKET -1

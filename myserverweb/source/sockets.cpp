@@ -168,7 +168,11 @@ int MYSERVER_SOCKET::ms_ioctlsocket(long cmd,unsigned long* argp)
 	return ioctlsocket(socketHandle,cmd,argp);
 #endif
 #ifdef __linux__
-	return ioctl((int)socketHandle,cmd,argp);
+	int int_argp = 0;
+	int ret = ioctl((int)socketHandle,cmd,&int_argp);
+	*argp = int_argp;
+	return ret;
+
 #endif
 }
 

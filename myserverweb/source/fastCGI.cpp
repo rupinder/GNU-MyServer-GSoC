@@ -106,7 +106,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 
 	/*Now read the output*/
 	int exit=0;
-	const clock_t timeout=5000;
+	const clock_t timeout= CLOCKS_PER_SEC * 20; // 20 seconds
 	clock_t time1 = clock();
 	do	
 	{
@@ -388,9 +388,7 @@ int FcgiConnect(fCGIContext* con,char* path)
 			con->sock.ms_closesocket();
 			return -1;
 		}
-#ifdef WIN32    // FIONBIO is win32 dependent
 		con->sock.ms_ioctlsocket(FIONBIO, &pLong);
-#endif
 		con->fcgiPID=pID;
 	}
 	return pID;
@@ -445,6 +443,9 @@ int runFcgiServer(fCGIContext *con,char* path)
 	sprintf(spi.cmd,"%s%s",con->td->cgiRoot,con->td->cgiFile);
 	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 	spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
+	
+	printf("spi.cmd=%s\nspi.arg=%s\n", spi.cmd, spi.arg);
+	
 	fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
     
 	
