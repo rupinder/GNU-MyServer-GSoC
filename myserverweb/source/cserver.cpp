@@ -99,49 +99,55 @@ void cserver::start()
 	time_t myserver_hosts_conf;
 	time_t myserver_mime_conf;
 
-	/*! Set everything to 0.  */
-	memset(this, 0, sizeof(cserver));
-
-	/*!
+  /*!
    *Save the unique instance of this class.
    */
 	lserver=this;
-	
+
+  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
+  {
 #ifdef WIN32
 	/*!
    *Under the windows platform use the cls operating-system 
    *command to clear the screen.
    */
-	_flushall();
-	system("cls");
+    _flushall();
+    system("cls");
 #endif
 #ifdef NOT_WIN
 	/*!
    *Under an UNIX environment, clearing the screen 
    *can be done in a similar method
    */
-	sync();
-	system("clear");
+    sync();
+    system("clear");
 #endif
-	/*!
-	*Print the MyServer signature.
-	*/
-	char *software_signature=new char[200];
-	if(software_signature)
-	{
-		sprintf(software_signature, "************MyServer %s************", 
-            versionOfSoftware);
+  }
+  /*!
+   *Print the MyServer signature only if the log writes to the console.
+   */
+  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE )
+  {
+
+    char *software_signature=new char[200];
+    if(software_signature)
+    {
+      sprintf(software_signature, "************MyServer %s************", 
+              versionOfSoftware);
 	
-		i=(u_long)strlen(software_signature);
-		while(i--)
-			printf("*");
-		printf("\n%s\n", software_signature);
-		i=(u_long)strlen(software_signature);
-		while(i--)
-			printf("*");
-		printf("\n");
-		delete [] software_signature;
-	}
+      i=(u_long)strlen(software_signature);
+      while(i--)
+        logManager.write("*");
+      logManager.write("\n");
+      logManager.write(software_signature);
+      logManager.write("\n");    
+      i=(u_long)strlen(software_signature);
+      while(i--)
+        logManager.write("*");
+      logManager.write("\n");
+      delete [] software_signature;
+    }
+  }
 	/*!
    *Set the current working directory.
    */
@@ -151,7 +157,7 @@ void cserver::start()
 	/*!
    *Setup the server configuration.
    */
-  printf("Initializing server configuration...\n");
+  logManager.write("Initializing server configuration...\n");
   int err = 0;
 	int os_ver=getOSVersion();
 
@@ -164,26 +170,28 @@ void cserver::start()
 	SSL_library_init();
 	SSL_load_error_strings();
 #endif
-	printf("%s\n", languageParser.getValue("MSG_SERVER_CONF"));
+  logManager.writeln( languageParser.getValue("MSG_SERVER_CONF") );
 
 	/*! *Startup the socket library.  */
-	printf("%s\n", languageParser.getValue("MSG_ISOCK"));
+  logManager.writeln( languageParser.getValue("MSG_ISOCK") );
 	err= startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
 	if (err != 0) 
 	{ 
 
-    preparePrintError();
-		printf("%s\n", languageParser.getValue("ERR_ISOCK"));
-		endPrintError();
+    logManager.preparePrintError();
+    logManager.writeln( languageParser.getValue("MSG_SERVER_CONF") );
+		logManager.endPrintError();
 		return; 
 	} 
-	printf("%s\n", languageParser.getValue("MSG_SOCKSTART"));
+	logManager.writeln( languageParser.getValue("MSG_SOCKSTART") );
 
 	/*!
    *Get the name of the local machine.
    */
 	MYSERVER_SOCKET::gethostname(serverName, (u_long)sizeof(serverName));
-	printf("%s: %s\n", languageParser.getValue("MSG_GETNAME"), serverName);
+  logManager.write(languageParser.getValue("MSG_GETNAME") );
+  logManager.write(": " );
+  logManager.writeln(serverName); 
 
 	/*!
    *Determine all the IP addresses of the local machine.
@@ -191,7 +199,9 @@ void cserver::start()
 	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::gethostbyname(serverName);
 	in_addr ia;
 	ipAddresses[0]='\0';
-	printf("Host: %s\r\n", serverName);
+  logManager.write("Host: " ); 
+  logManager.writeln(serverName );
+
 	if(localhe)
 	{
 		/* Print all the interfaces IPs. */
@@ -203,8 +213,13 @@ void cserver::start()
 #ifdef NOT_WIN
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
-			printf("%s #%u: %s\n", languageParser.getValue("MSG_ADDRESS"), 
-             (u_int)(i+1), inet_ntoa(ia));
+      char ip_buffer[7];
+      sprintf(ip_buffer, "#%u:",  (u_int)(i+1));
+
+      logManager.write( languageParser.getValue("MSG_ADDRESS") );
+      logManager.write( ip_buffer );
+      logManager.writeln(inet_ntoa(ia));
+
 			sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", 
               strlen(ipAddresses)?", ":"", inet_ntoa(ia));
 		}
@@ -293,7 +308,7 @@ void cserver::start()
                  (irInBuf[i].Event.KeyEvent.dwControlKeyState & 
                   RIGHT_CTRL_PRESSED))
 							{
-								printf ("%s\n", languageParser.getValue("MSG_SERVICESTOP"));
+                logManager.writeln(languageParser.getValue("MSG_SERVICESTOP"));
 								this->stop();
 							}
 						}
@@ -374,7 +389,7 @@ int cserver::createServerAndListener(u_long port)
 	/*!
    *Create the server socket.
    */
-	printf("%s\n", languageParser.getValue("MSG_SSOCKCREATE"));
+  logManager.writeln(languageParser.getValue("MSG_SSOCKCREATE"));
 	MYSERVER_SOCKET *serverSocket = new MYSERVER_SOCKET();
   if(!serverSocket)
     return 0;
@@ -382,12 +397,12 @@ int cserver::createServerAndListener(u_long port)
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
 	if(serverSocket->getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 	{
-		preparePrintError();
-		printf("%s\n", languageParser.getValue("ERR_OPENP"));
-		endPrintError();
+		logManager.preparePrintError();
+		logManager.writeln(languageParser.getValue("ERR_OPENP"));
+		logManager.endPrintError();
 		return 0;
 	}
-	printf("%s\n", languageParser.getValue("MSG_SSOCKRUN"));
+	logManager.writeln(languageParser.getValue("MSG_SSOCKRUN"));
 	sock_inserverSocket.sin_family=AF_INET;
 	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 	sock_inserverSocket.sin_port=htons((u_short)port);
@@ -403,42 +418,46 @@ int cserver::createServerAndListener(u_long port)
                               (const char *)&optvalReuseAddr, 
                               sizeof(optvalReuseAddr))<0)
   {
-    preparePrintError();
-		printf("%s setsockopt\n", languageParser.getValue("ERR_ERROR"));
-    endPrintError();
+    logManager.preparePrintError();
+		logManager.writeln(languageParser.getValue("ERR_ERROR"));
+    logManager.endPrintError();
 		return 0;
 	}
 #endif
 	/*!
    *Bind the port.
    */
-	printf("%s\n", languageParser.getValue("MSG_BIND_PORT"));
+	logManager.writeln(languageParser.getValue("MSG_BIND_PORT"));
 
 	if(serverSocket->bind((sockaddr*)&sock_inserverSocket, 
                         sizeof(sock_inserverSocket))!=0)
 	{
-		preparePrintError();
-		printf("%s\n", languageParser.getValue("ERR_BIND"));
-    endPrintError();
+		logManager.preparePrintError();
+		logManager.writeln(languageParser.getValue("ERR_BIND"));
+    logManager.endPrintError();
 		return 0;
 	}
-	printf("%s\n", languageParser.getValue("MSG_PORT_BINDED"));
+	logManager.writeln(languageParser.getValue("MSG_PORT_BINDED"));
 
 	/*!
    *Set connections listen queque to max allowable.
    */
-	printf("%s\n", languageParser.getValue("MSG_SLISTEN"));
+	logManager.writeln( languageParser.getValue("MSG_SLISTEN"));
 	if (serverSocket->listen(SOMAXCONN))
 	{ 
-    preparePrintError();
-		printf("%s\n", languageParser.getValue("ERR_LISTEN"));
-    endPrintError();	
+    logManager.preparePrintError();
+		logManager.writeln(languageParser.getValue("ERR_LISTEN"));
+    logManager.endPrintError();	
 		return 0; 
 	}
 
-	printf("%s: %u\n", languageParser.getValue("MSG_LISTEN"), (u_int)port);
+  char port_buff[6];
+  sprintf(port_buff, "%u", (u_int)port);
+  logManager.write( languageParser.getValue("MSG_LISTEN") );
+  logManager.write(": ");
+  logManager.writeln(port_buff);
 
-	printf("%s\n", languageParser.getValue("MSG_LISTENTR"));
+	logManager.writeln(languageParser.getValue("MSG_LISTENTR"));
 
 	/*!
    *Create the listen thread.
@@ -482,9 +501,10 @@ void cserver::createListenThreads()
 		{
 			if(createServerAndListener(list->host->port)==0)
 			{
-				preparePrintError();
-				printf("%s: Listen threads\n", languageParser.getValue("ERR_ERROR"));
-				endPrintError();
+				logManager.preparePrintError();
+        logManager.write( languageParser.getValue("ERR_ERROR") );
+        logManager.writeln( ": Listen threads" );     
+				logManager.endPrintError();
 				return;
 			}
 		}
@@ -614,7 +634,7 @@ int cserver::terminate()
   ClientsTHREAD* thread = threads ;
 
   if(verbosity>1)
-    printf("%s\n", languageParser.getValue("MSG_STOPT"));
+    logManager.writeln(languageParser.getValue("MSG_STOPT"));
 
   while(thread)
   {
@@ -623,7 +643,7 @@ int cserver::terminate()
   }
 
   if(verbosity>1)
-    printf("%s\n", languageParser.getValue("MSG_TSTOPPED"));
+    logManager.writeln(languageParser.getValue("MSG_TSTOPPED"));
 
 	while(lserver->getListeningThreadCount())
 	{
@@ -632,7 +652,7 @@ int cserver::terminate()
 
 	if(verbosity>1)
 	{
-		printf("%s\n", languageParser.getValue("MSG_MEMCLEAN"));
+    logManager.writeln(languageParser.getValue("MSG_MEMCLEAN"));
 	}
 	stopThreads();
 	
@@ -691,7 +711,7 @@ int cserver::terminate()
 	nStaticThreads = 0;
 	if(verbosity > 1)
 	{
-		printf("MyServer is stopped.\n\n");
+		logManager.writeln("MyServer is stopped");
 	}
   return 0;
 }
@@ -796,9 +816,10 @@ int cserver::initialize(int /*!os_ver*/)
     languages_path = new char[languages_pathLen];
     if(languages_path == 0)
     {
-      preparePrintError();
-			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
-			endPrintError();
+      logManager.preparePrintError();
+      logManager.write( languageParser.getValue("ERR_ERROR")) ;
+      logManager.writeln(": Alloc memory");
+			logManager.endPrintError();
       return -1;
     }
 		strcpy(languages_path,"languages/");
@@ -810,9 +831,10 @@ int cserver::initialize(int /*!os_ver*/)
     languages_path = new char[languages_pathLen];
     if(languages_path == 0)
     {
-      preparePrintError();
-			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
-			endPrintError();
+      logManager.preparePrintError();
+      logManager.write( languageParser.getValue("ERR_ERROR")) ;
+      logManager.writeln(": Alloc memory");
+			logManager.endPrintError();
       return -1;
     }
     sprintf(languages_path,"%s/share/myserver/languages/", PREFIX ) ;
@@ -822,9 +844,10 @@ int cserver::initialize(int /*!os_ver*/)
     languages_path = new char[languages_pathLen];
     if(languages_path == 0)
     {
-      preparePrintError();
-			printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
-			endPrintError();
+      logManager.preparePrintError();
+      logManager.write( languageParser.getValue("ERR_ERROR")) ;
+      logManager.writeln(": Alloc memory");
+			logManager.endPrintError();
       return -1;
     }
 		strcpy(languages_path,"/usr/share/myserver/languages/");
@@ -837,9 +860,10 @@ int cserver::initialize(int /*!os_ver*/)
   languages_path = new char[languages_pathLen];
   if(languages_path == 0)
   {
-    preparePrintError();
-    printf("%s: Alloc memory\n", languageParser.getValue("ERR_ERROR"));
-    endPrintError();
+    logManager.preparePrintError();
+    logManager.write( languageParser.getValue("ERR_ERROR")) ;
+    logManager.writeln(": Alloc memory");
+    logManager.endPrintError();
     return -1;
   }
   strcpy(languages_path, "languages/" );
@@ -888,18 +912,18 @@ int cserver::initialize(int /*!os_ver*/)
                               MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
 		if(ret)
 		{
-			preparePrintError();
-			printf("%s\n", "Error loading configuration file\n");
-			endPrintError();
+			logManager.preparePrintError();
+			logManager.writeln("Error loading configuration file\n");
+			logManager.endPrintError();
 			return -1;
 		}
 		ret = outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE | 
                      MYSERVER_FILE_OPEN_ALWAYS);
 		if(ret)
 		{
-			preparePrintError();
-			printf("%s\n", "Error loading configuration file\n");
-			endPrintError();
+			logManager.preparePrintError();
+			logManager.writeln("Error loading configuration file\n");
+			logManager.endPrintError();
 			return -1;
 		}
 		char buffer[512];
@@ -940,9 +964,9 @@ int cserver::initialize(int /*!os_ver*/)
     languageFile = new char[languageFileLen];
     if(languageFile == 0)
     {
-      preparePrintError();
-			printf("%s\n", languageParser.getValue("ERR_LOADED"));
-			endPrintError();
+			logManager.preparePrintError();
+			logManager.writeln(languageParser.getValue("ERR_LOADED"));
+			logManager.endPrintError();
 			return -1;    
     }
 		sprintf(languageFile, "%s/%s", languages_path, data);	
@@ -953,9 +977,9 @@ int cserver::initialize(int /*!os_ver*/)
     languageFile = new char[languageFileLen];
     if(languageFile == 0)
     {
-      preparePrintError();
-			printf("%s\n", languageParser.getValue("ERR_LOADED"));
-			endPrintError();
+			logManager.preparePrintError();
+			logManager.writeln(languageParser.getValue("ERR_LOADED"));
+			logManager.endPrintError();
 			return -1;    
     }
 		strcpy(languageFile, "languages/english.xml");
@@ -983,7 +1007,6 @@ int cserver::initialize(int /*!os_ver*/)
 		nMaxThreads = atoi(data);
 	}
 
-
 	/*! Get the max connections number to allow. */
 	data = configurationFileManager.getValue("MAX_CONNECTIONS");
 	if(data)
@@ -1007,10 +1030,13 @@ int cserver::initialize(int /*!os_ver*/)
 	
 	if(languageParser.open(languageFile))
   {
-      printf("Error loading %s\n", languageFile);
+			logManager.preparePrintError();
+      logManager.writeln("Error loading ");
+			logManager.writeln(languageFile);
+			logManager.endPrintError();
       return -1;
   }
-	printf("%s\n", languageParser.getValue("MSG_LANGUAGE"));
+	logManager.writeln(languageParser.getValue("MSG_LANGUAGE"));
 	return 0;
 	
 }
@@ -1422,9 +1448,9 @@ int cserver::loadSettings()
                         MYSERVER_FILE_OPEN_IFEXISTS);
 		if(ret)
 		{
-			preparePrintError();
-			printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
-			endPrintError();	
+			logManager.preparePrintError();
+      logManager.writeln(languageParser.getValue("ERR_LOADMIME"));
+			logManager.endPrintError();	
 			return -1;
 		}
 		ret = outputF.openFile("MIMEtypes.xml", MYSERVER_FILE_OPEN_WRITE|
@@ -1456,22 +1482,27 @@ int cserver::loadSettings()
 		strcpy(mime_configuration_file,"MIMEtypes.xml");
 	}
 	/*! Load the MIME types. */
-	printf("%s\n", languageParser.getValue("MSG_LOADMIME"));
+	logManager.writeln(languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
 	{
-		printf("%s: %i\n",
-           languageParser.getValue("MSG_MIMERUN"), nMIMEtypes);
+    char tmp[6];
+    sprintf(tmp, "%i", nMIMEtypes);  
+    logManager.write(languageParser.getValue("MSG_MIMERUN"));
+    logManager.write(": ");
+    logManager.writeln(tmp);
 	}
 	else
 	{
-    preparePrintError();
-		printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
-    endPrintError();
+    logManager.preparePrintError();
+		logManager.writeln(languageParser.getValue("ERR_LOADMIME"));
+    logManager.endPrintError();
 		return -1;
 	}
-	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), 
-         (u_int)getCPUCount());
-
+  char nCPU[6];
+  sprintf(nCPU, "%u", (u_int)getCPUCount() );  
+  logManager.write(languageParser.getValue("MSG_NUM_CPU") );
+  logManager.write(" ");
+  logManager.writeln(nCPU);
 	
 #ifndef WIN32
   /* Under an *nix environment look for .xml files in the following order.
@@ -1516,9 +1547,9 @@ int cserver::loadSettings()
                               MYSERVER_FILE_OPEN_IFEXISTS );
 		if(ret)
 		{
-			preparePrintError();
-			printf("%s\n", languageParser.getValue("ERR_LOADMIME"));
-			endPrintError();	
+			logManager.preparePrintError();
+			logManager.writeln(languageParser.getValue("ERR_LOADMIME"));
+			logManager.endPrintError();	
 			return -1;
 		}
 		ret = outputF.openFile("virtualhosts.xml", 
@@ -1576,10 +1607,10 @@ int cserver::loadSettings()
     
     if(path == 0)
     {
-			preparePrintError();
-			printf("%s: Allocating path memory\n", 
-             languageParser.getValue("ERR_ERROR"));
-			endPrintError(); 
+			logManager.preparePrintError();
+      logManager.write(languageParser.getValue("ERR_ERROR"));
+      logManager.writeln(": Allocating path memory");
+      logManager.endPrintError(); 
       return -1;
     }
 
@@ -1593,18 +1624,20 @@ int cserver::loadSettings()
 
 #endif 
 #if WIN32
-    protocols.loadProtocols("external/protocols", &languageParser, 
-                            "myserver.xml", this);
+  protocols.loadProtocols("external/protocols", &languageParser, 
+                          "myserver.xml", this);
 #endif
 
-  printf("%s...\n", languageParser.getValue("MSG_CREATET"));
+  logManager.write( languageParser.getValue("MSG_CREATET"));
+  logManager.writeln("...");
+
 	for(i=0; i<nStaticThreads; i++)
 	{
     ret = addThread(1);
     if(ret)
       return -1;
 	}
-  printf("%s\n", languageParser.getValue("MSG_THREADR"));
+  logManager.writeln(languageParser.getValue("MSG_THREADR"));
 
   int pathlen = getdefaultwdlen();
   path = new char[pathlen];
@@ -1616,12 +1649,12 @@ int cserver::loadSettings()
    *Then we create here all the listens threads. 
    *Check that all the port used for listening have a listen thread.
    */
-	printf("%s\n", languageParser.getValue("MSG_LISTENT"));
+	logManager.writeln(languageParser.getValue("MSG_LISTENT"));
 	
 	createListenThreads();
 
-	printf("%s\n", languageParser.getValue("MSG_READY"));
-	printf("%s\n", languageParser.getValue("MSG_BREAK"));
+	logManager.writeln(languageParser.getValue("MSG_READY"));
+	logManager.writeln(languageParser.getValue("MSG_BREAK"));
 
   /*!
    *Server initialization is now completed.
@@ -1639,8 +1672,15 @@ int cserver::reboot()
   serverReady = 0;
   /*! Reset the toReboot flag. */
   toReboot = 0;
-  /*! Print the Reboot message and do a beep(0x7). */
-	printf("%c\n\nRebooting.......\n\n", 0x7);
+
+  /*! Do a beep if outputting to console. */
+  if(logManager.getType() == MYSERVER_LOG_MANAGER::TYPE_CONSOLE)
+  {
+    char beep[]={(char)0x7, '\0'};
+    logManager.write(beep);
+  }
+  
+  logManager.writeln("Rebooting...");
 	if(mustEndServer)
 		return 0;
 	mustEndServer=1;
@@ -1807,9 +1847,10 @@ int cserver::addThread(int staticThread)
                                 (void *)newThread);
   if(ret)
   {
-    preparePrintError();
-    printf("%s: Threads creation\n", languageParser.getValue("ERR_ERROR"));
-    endPrintError();	  
+    logManager.preparePrintError();
+    logManager.write( languageParser.getValue("ERR_ERROR") );
+    logManager.writeln(": Threads creation");
+    logManager.endPrintError();	  
     delete newThread;
     return -1;
   }
@@ -1896,4 +1937,38 @@ int cserver::countAvailableThreads()
   }
 	threads_mutex->myserver_mutex_unlock();
   return count;
+}
+
+/*!
+ *Write a string to the log file.
+ */
+int cserver::logWrite(char* str)
+{
+  return logManager.write(str);
+}
+
+/*!
+ *Write a string to the log file and terminate the line.
+ */
+int cserver::logWriteln(char* str)
+{
+  return logManager.writeln(str);
+}
+
+/*!
+ *Prepare the log to print an error.
+ */
+int cserver::logPreparePrintError()
+{
+  logManager.preparePrintError();
+  return 0;
+}
+
+/*!
+ *Exit from the error printing mode.
+ */
+int cserver::logEndPrintError()
+{
+  logManager.endPrintError();
+  return 0;
 }

@@ -81,7 +81,7 @@ int reboot_console()
 #ifdef NOT_WIN
 void Sig_Quit(int signal)
 {
-	printf("Exiting...\n");
+	lserver->logWriteln("Exiting...");
 	sync();
 	server.stop();
 }
@@ -105,7 +105,7 @@ static char args_doc[] = "";
 static struct argp_option options[] = 
 {
   /*LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION*/
-	{"version",'v',"VERSION",OPTION_ARG_OPTIONAL,"Print the version for the application"},
+	{"version",'v',"VERSION", 0 ,"Print the version for the application"},
 	{"run",'r',"RUN",OPTION_ARG_OPTIONAL,"Specify how run the server(by default console mode)"},
 	{0}
 };
@@ -122,7 +122,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
        /*! At the moment only CONSOLE mode is available. */
        if(!strcmpi(arg, "CONSOLE"))
          in->runas = MYSERVER_RUNAS_CONSOLE;
-         break;
+       break;
      case ARGP_KEY_ARG:
      case ARGP_KEY_END:
        break;
@@ -235,14 +235,10 @@ int main (int argn, char **argv)
  */
 void console_service (int, char **)
 {
-    printf ("starting in console mode\n");
-
 #ifdef WIN32
 	SetConsoleCtrlHandler (NULL, TRUE);
-	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),ENABLE_PROCESSED_INPUT);
+	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT );
 #endif
-
-	printf("started in console mode\n");
 	server.start();
 }
 
@@ -329,8 +325,8 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
  */
 void runService()
 {
+	lserver->logWriteln("Running service...");
 #ifdef WIN32
-	printf("Running service...\n");
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
 		{ "MyServer", myServerMain },
@@ -340,15 +336,15 @@ void runService()
 	{
 		if(GetLastError()==ERROR_INVALID_DATA)
 		{
-			printf("Invalid data\n");
+			lserver->logWriteln("Invalid data");
 		}
 		else if(GetLastError()==ERROR_SERVICE_ALREADY_RUNNING)
 		{
-			printf("Already running\n");
+			lserver->logWriteln("Already running");
 		}
 		else
 		{
-			printf("Error running service\n");
+			lserver->logWriteln("Error running service");
 		}
 	}
 #endif

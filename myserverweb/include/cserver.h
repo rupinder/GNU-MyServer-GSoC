@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/vhosts.h"
 #include "../include/protocols_manager.h"
 #include "../include/connectionstruct.h"
+#include "../include/log_manager.h"
 
 /*!
  *Definition for new threads entry-point.
@@ -97,6 +98,7 @@ private:
 	cXMLParser languageParser;
   int autoRebootEnabled;
   int toReboot;
+  MYSERVER_LOG_MANAGER logManager;
   int serverReady;
 	u_long verbosity;
 	u_long buffersize;
@@ -185,6 +187,10 @@ public:
 	void stop();
 	void finalCleanup();
 	int terminate();
+  int logWrite(char*);
+  int logWriteln(char*);
+  int logPreparePrintError();
+  int logEndPrintError();  
 }; 
 extern class cserver *lserver;
 #ifdef WIN32

@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../include/protocols_manager.h"
 #include "../include/cXMLParser.h"
+#include "../include/cserver.h"
 
 #ifdef NOT_WIN
 #include "../include/lfind.h"
@@ -52,7 +53,9 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,
 #endif
 	if(hinstLib==0)
 	{
-		printf("%s %s\n",languageParser->getValue("ERR_LOADED"),filename);		
+    lserver->logWrite(languageParser->getValue("ERR_LOADED"));
+    lserver->logWrite(" ");
+    lserver->logWriteln(filename);  
 		return 0;
 	}
 	loadProtocolPROC Proc;
@@ -211,8 +214,11 @@ int protocols_manager::addProtocol(char *file,cXMLParser* parser,
 	ne->data.loadProtocol(parser,confFile,lserver);
 	ne->next=list;
 	list=ne;
-	printf("%s %s --> %s\n",parser->getValue("MSG_LOADED"),file,
-         ne->data.getProtocolName());
+  lserver->logWrite(parser->getValue("MSG_LOADED"));
+  lserver->logWrite(" ");
+  lserver->logWrite(file);
+  lserver->logWrite(" --> ");
+  lserver->logWriteln( ne->data.getProtocolName() );
 	return 1;
 }
 

@@ -2885,12 +2885,14 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	mscgiLoaded=mscgi::loadMSCGILib();
 	
 	if(mscgiLoaded)
-		printf("%s\n", languageParser->getValue("MSG_LOADMSCGI"));
+  {
+		lserver->logWriteln( languageParser->getValue("MSG_LOADMSCGI") );
+  }
 	else
 	{
-		preparePrintError();
-		printf("%s\n", languageParser->getValue("ERR_LOADMSCGI"));
-		endPrintError();
+		lserver->logPreparePrintError();
+		lserver->logWriteln( languageParser->getValue("ERR_LOADMSCGI") );
+		lserver->logEndPrintError();
 	}
 	/*! 
    *Store defaults value.  

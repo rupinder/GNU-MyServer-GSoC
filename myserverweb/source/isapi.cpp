@@ -44,9 +44,9 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
-		preparePrintError();
-		printf("isapi::ServerSupportFunctionExport: invalid hConn\r\n");
-		endPrintError();
+		lserver->logPreparePrintError();
+		lserver->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
+		lserver->logEndPrintError();
 		return 0;
 	}
 	char *buffer=0;	
@@ -350,7 +350,8 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSi
 /*!
 *Get server environment variable.
 */
-BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID lpvBuffer, LPDWORD lpdwSize) 
+BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, 
+                                          LPVOID lpvBuffer, LPDWORD lpdwSize) 
 {
 	ConnTableRecord *ConnInfo;
 	BOOL ret =1;
@@ -359,9 +360,9 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
-		preparePrintError();
-		printf("isapi::GetServerVariableExport: invalid hConn\r\n");
-		endPrintError();
+		lserver->preparePrintError();
+		lserver->logWriteln("isapi::GetServerVariableExport: invalid hConn");
+		lserver->endPrintError();
 		return 0;
 	}
 
@@ -382,7 +383,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 			ret=1;
 		else
 		{
-            		SetLastError(ERROR_INSUFFICIENT_BUFFER);
+      SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			ret=0;
 		}
 			

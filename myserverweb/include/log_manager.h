@@ -49,7 +49,9 @@ public:
   int preparePrintError();
   int endPrintError();
   void setType( int );
+  int getType();
   int write( char *str, int len = 0 );
+  int writeln(char *);
   int getLogSize();
 };
 #endif

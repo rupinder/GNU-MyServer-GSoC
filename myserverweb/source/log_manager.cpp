@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 const int MYSERVER_LOG_MANAGER::TYPE_CONSOLE = 1;
 const int MYSERVER_LOG_MANAGER::TYPE_FILE = 2;
+
 /*!
  *Initialize the object.
  */
@@ -105,6 +106,24 @@ int MYSERVER_LOG_MANAGER::setMaxSize(int nMax)
   return oldMax;
 }
 
+
+/*!
+ *Write the string to the log plus termination character[s].
+ *Returns 0 on success.
+ */
+int MYSERVER_LOG_MANAGER::writeln(char *str)
+{
+  int ret = write(str);
+#ifdef WIN32
+  if(ret == 0)
+    ret = write("\r\n");
+#else
+  if(ret == 0)
+    ret = write("\n");
+#endif
+  return ret;
+}
+
 /*!
  *Write the string to the log.
  *Returns 0 on success.
@@ -124,6 +143,7 @@ int MYSERVER_LOG_MANAGER::write(char *str, int len)
     {
        return 1;
     }
+
     /*!
      *We reached the max file size.
      */
@@ -133,6 +153,7 @@ int MYSERVER_LOG_MANAGER::write(char *str, int len)
     }
 
     u_long nbw;
+
     /*!
      *If the len specified is equal to zero write the string as
      *a null character terminated one.
@@ -141,6 +162,14 @@ int MYSERVER_LOG_MANAGER::write(char *str, int len)
     return ret;
   }
   return 0;
+}
+
+/*!
+ *Get the type of log.
+ */
+int MYSERVER_LOG_MANAGER::getType()
+{
+  return type;
 }
 
 /*!
