@@ -1674,6 +1674,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 {
 	char tmpStrInt[12];
+	char time[HTTP_RESPONSE_DATE_DIM + 1];
 
 	td->buffer2->SetLength(0);
 	*td->buffer2 << a->ipAddr;
@@ -1691,7 +1692,6 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 
 	*td->buffer2 << " [";
 	
-	char time[HTTP_RESPONSE_DATE_DIM];
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 <<  time ;
 	
@@ -1703,7 +1703,9 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 	{
 		*td->buffer2 << "?" << td->request.URIOPTS;
 	}
-	*td->buffer2 << td->request.VER  << "\" " <<  CMemBuf::IntToStr(td->response.httpStatus, tmpStrInt, 12)  << " ";
+  sprintf(tmpStrInt, "%u",td->response.httpStatus);
+
+	*td->buffer2 << td->request.VER  << "\" " << tmpStrInt  << " ";
 	
 	if(td->response.CONTENT_LENGTH[0])
 		*td->buffer2  << td->response.CONTENT_LENGTH;
@@ -1726,8 +1728,9 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 }
 
 /*!
-*This is the HTTP protocol main procedure to parse a request made over the HTTP.
-*/
+ *This is the HTTP protocol main procedure to parse a request 
+ *over the HTTP.
+ */
 int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, 
                             int bs1, int bs2, u_long nbtr, u_long id)
 {

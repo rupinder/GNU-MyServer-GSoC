@@ -25,6 +25,11 @@ extern "C" {
 #ifdef WIN32
 #include <direct.h>
 #endif
+
+#ifdef ARGP
+#include <argp.h>
+#endif
+
 #ifdef NOT_WIN
 #include <argp.h>
 #include <string.h>
@@ -165,7 +170,7 @@ int main (int argn, char **argv)
   /*! We can free path memory now. */
   delete [] path;
 	
-#ifdef NOT_WIN
+#ifdef ARGP
 	struct argp_input input;
 	/*! Reset the struct. */
 	input.version = 0;
@@ -179,9 +184,7 @@ int main (int argn, char **argv)
 		printf("MyServer %s\r\n",versionOfSoftware);
 		return 0;   
 	}
-#endif
-
-#ifdef WIN32
+#else
 	if(argn > 1)
 	{	
 		if(!lstrcmpi(argv[1],"VERSION"))
@@ -253,13 +256,15 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 	MyServiceStatus.dwCheckPoint = 0;
 	MyServiceStatus.dwWaitHint = 0;
 
-	MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer", myServerCtrlHandler );
+	MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer", 
+                                                      myServerCtrlHandler );
 	if ( MyServiceStatusHandle )
 	{
 		MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
+		MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP 
+                                           | SERVICE_ACCEPT_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
@@ -268,7 +273,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
+		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP 
+                                            | SERVICE_ACCEPT_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 	}

@@ -42,18 +42,20 @@ fi
 AC_SUBST(XNET_LIB)
 
 dnl Look for dl
-AC_CHECK_LIB(dl, dlopen, have_dl=yes)
+AC_CHECK_LIB(dl ,dlopen, have_dl=yes)
+AC_CHECK_LIB(c,dlopen, have_dl=yes)
+
 if test x$have_dl != xyes; then
    AC_MSG_WARN([
 *** dlLIB not found
 *** MSCGI support will not function
 ])
-   AC_DEFINE(DO_NOT_USE_MSCGI, 1, [MSCGI suport in MyServer, define to 1 to disable])
+   AC_DEFINE(DO_NOT_USE_MSCGI, 1, [MSCGI support in MyServer, define to 1 to disable])
    DL_LIB=""
    MAKE_MSCGI=no
 else
    MAKE_MSCGI=yes
-   AC_DEFINE(HAVE_DL, 1, [LibDL suport, define to 1 to enable])
+   AC_DEFINE(HAVE_DL, 1, [LibDL support, define to 1 to enable])
    DL_LIB="-ldl"
 fi
 AC_SUBST(DL_LIB)
