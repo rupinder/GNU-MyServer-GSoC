@@ -71,7 +71,7 @@ control_protocol::control_protocol()
 {
   Ifile=0;
   Ofile=0;
-	PROTOCOL_OPTIONS = PROTOCOL_USES_SSL;
+	PROTOCOL_OPTIONS = 0;
 }
 
 /*!
