@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 void wait(u_long);
+
 class myserver_mutex
 {
 private:
@@ -40,12 +41,11 @@ public:
 	~myserver_mutex();
 	int myserver_mutex_init();
 	int myserver_mutex_destroy();
-	/*!
-	*These functions are a simple trasposition of the mutex mechanism.
-	*/
+	/*! These functions are a simple trasposition of the mutex mechanism.  */
 	int myserver_mutex_lock(u_long id=0);
 	int myserver_mutex_unlock(u_long id=0);
 };
+
 #ifdef WIN32
 	typedef unsigned int myserver_thread_ID;
 #endif

@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "cXMLParser.h"
 #include "connectionstruct.h"
-/*Various options that can be use for the protocol*/
+/*! Various options that can be use for the protocol.  */
 #define PROTOCOL_USES_SSL 1
 /*!
 *This is the base class to derive from other protocols implementations for the server.

@@ -95,10 +95,10 @@ struct HTTP_RESPONSE_HEADER
 #define HTTP_REQUEST_RANGETYPE_DIM 12		
 #define HTTP_REQUEST_RANGEBYTEBEGIN_DIM 10
 #define HTTP_REQUEST_RANGEBYTEEND_DIM 10
+
 /*!
 *Structure to describe an HTTP request.
 */
-
 struct HTTP_REQUEST_HEADER
 {
 	char CMD[HTTP_REQUEST_CMD_DIM+1];		
@@ -134,7 +134,7 @@ struct HTTP_REQUEST_HEADER
 	char RANGEBYTEEND[HTTP_REQUEST_RANGEBYTEEND_DIM+1];
 	int uriEndsWithSlash;
 	
-	/*Digest authorization scheme stuff*/
+	/*! Digest authorization scheme stuff.  */
 	char digest_realm[48];
 	char digest_opaque[48];
 	char digest_nonce[48];

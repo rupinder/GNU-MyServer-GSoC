@@ -32,20 +32,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 struct http_user_data
 {
-	char realm[48];/*! Realm string used by Digest authorization scheme.  */
-	char opaque[48];/*! Opaque string used by Digest authorization scheme.  */
-	char nonce[48];/*! Nonce string used by Digest authorization scheme.  */
-	char cnonce[48];/*! Cnonce string used by Digest authorization scheme.  */
-	char needed_password[16];/*! Password string used by Digest authorization scheme.  */
-	u_long nc;/*! Nonce count used by Digest authorization scheme.  */
-	int digest;/*! Nonzero if the user was authenticated trough the Digest scheme.  */
-	int digest_checked;/*! Nonzero if the digest was already checked.  */
+	/*! Realm string used by Digest authorization scheme.  */
+	char realm[48];
+	/*! Opaque string used by Digest authorization scheme.  */
+	char opaque[48];
+	/*! Nonce string used by Digest authorization scheme.  */
+	char nonce[48];
+	/*! Cnonce string used by Digest authorization scheme.  */
+	char cnonce[48];
+	/*! Password string used by Digest authorization scheme.  */
+	char needed_password[16];
+	/*! Nonce count used by Digest authorization scheme.  */
+	u_long nc;
+	/*! Nonzero if the user was authenticated trough the Digest scheme.  */
+	int digest;
+	/*! Nonzero if the digest was already checked.  */
+	int digest_checked;
 };
 class http : public protocol
 {
 private:
 	static int initialized;
-	static int mscgiLoaded;/*Store if the MSCGI library was loaded.*/
+	/*! Store if the MSCGI library was loaded.  */
+	static int mscgiLoaded;
 	static char browseDirCSSpath[MAX_PATH];
 	static u_long gzip_threshold;
 	static int useMessagesFiles;	
@@ -83,9 +92,8 @@ public:
 	~http();
 	void computeDigest(httpThreadContext* td,char*,char*);
 	u_long checkDigest(httpThreadContext* td,LPCONNECTION s);
-	/*!
-	*The function is used to the request and build a response.
-	*/
+	
+	/*! The function is used to the request and build a response.  */
 	virtual char* registerName(char*,int len);
 	int controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_long nbtr,u_long id);
 	static int loadProtocol(cXMLParser*,char*);

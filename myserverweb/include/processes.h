@@ -35,7 +35,7 @@ struct START_PROC_INFO
 	MYSERVER_FILE_HANDLE stdIn;
 	char *cmdLine;
 	char *cwd;
-	// added for unix support
+	/*! added for unix support.  */
 	char *cmd;
 	char *arg;
 	
