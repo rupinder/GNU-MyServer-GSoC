@@ -1125,9 +1125,12 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
    *getMIME returns the type of command registered by the extension.
    */
   data = 0;
-	mimeCMD=getMIME(td, (char*)td->response.CONTENT_TYPE.c_str(), 
-                  td->filenamePath, ext, &data);
-
+  {
+    char contentType[HTTP_RESPONSE_CONTENT_TYPE_DIM +1];
+    contentType[0]='\0';
+    mimeCMD=getMIME(td, contentType, td->filenamePath, ext, &data);
+    td->response.CONTENT_TYPE.assign(contentType);
+  }
 	if(mimeCMD==CGI_CMD_RUNCGI)
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))

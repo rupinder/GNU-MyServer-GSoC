@@ -74,7 +74,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
             response->ERROR_TYPE.c_str() );
 	}
 	else
-		sprintf(str,"%s 200 OK\r\n",response->VER.c_str());
+    sprintf(str,"%s 200 OK\r\n",response->VER.c_str());
 	
 	if(response->SERVER_NAME.length())
 	{
@@ -231,7 +231,7 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
   response->DATE.assign(date);
 	response->DATEEXP.assign(date,HTTP_RESPONSE_DATEEXP_DIM);
   stream << "MyServer " << versionOfSoftware;
-	response->SERVER_NAME = stream.str();
+	response->SERVER_NAME.assign(stream.str());
 }
 
 
