@@ -2027,7 +2027,8 @@ int cserver::logWriteln(char* str)
     time[len+3]='-';
     time[len+4]=' ';
     time[len+5]='\0';
-    logManager.write(time);
+    if(logManager.write(time))
+      return 1;
   }
   return logManager.writeln(str);
 }
