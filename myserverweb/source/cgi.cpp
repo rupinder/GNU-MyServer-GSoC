@@ -68,7 +68,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		*Under the windows platform to run a file like an executable
 		*use the sintact "cmd /c filename".
 		*/
-		sprintf(cmdLine,"cmd /c %s",td->scriptFile);
+		sprintf(cmdLine,"cmd /c %s %s",td->scriptFile,td->pathInfo);
 		nph=(strnicmp("nph-",td->scriptFile, 4)==0)?1:0;
 #endif
 	}
