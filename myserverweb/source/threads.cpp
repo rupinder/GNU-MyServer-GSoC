@@ -78,7 +78,9 @@ int myserver_mutex::myserver_mutex_init()
 		initialized=0;
 	}
 #ifdef HAVE_PTHREAD
-	pthread_mutex_init(&mutex, NULL);
+	pthread_mutexattr_t   mta;
+	pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
+	pthread_mutex_init(&mutex, &mta);
 #else
 	mutex=CreateMutex(0,0,0);
 #endif
@@ -105,15 +107,15 @@ int myserver_mutex::myserver_mutex_destroy()
 int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
-#ifdef PTHREAD_ALTERNATE_LOCK	
+#ifdef PTHREAD_ALTERNATE_LOCK
+	pthread_mutex_lock(&mutex);
+#else
 	while(pthread_mutex_trylock(&mutex))
 	{
 		wait(1);
 	}
-#else
-	pthread_mutex_lock(&mutex);
-#endif	
-		
+#endif
+
 #else	
 	WaitForSingleObject(mutex,INFINITE);
 #endif
@@ -126,8 +128,11 @@ int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
 int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 {
 #ifdef HAVE_PTHREAD
-	pthread_mutex_unlock(&mutex);
-#else		
+	int err;
+	err = pthread_mutex_unlock(&mutex);
+	if (err)
+		printf("UNLOCK -- status = %i\nerr = %i\n",mutex.__m_lock.__status,err);	
+#else	
 	ReleaseMutex(mutex);
 #endif
 	return 1;
