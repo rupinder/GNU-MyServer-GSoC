@@ -1087,22 +1087,10 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 
 			if(File::fileExists(defaultFileName))
 			{
-				char *nURL;
+				ostringstream  nURL;
 				if(td->request.uriEndsWithSlash)
         {
-          nURL = new char[strlen(defaultFileNamePath)+1];
-          if(nURL == 0)
-          {
-            delete [] defaultFileName;
-            delete [] filename;
-            if(td->pathTranslated)
-            {
-              delete [] td->pathTranslated;
-              td->pathTranslated = 0;
-            }
-            return sendHTTPhardError500(td, s);
-          }
-					strcpy(nURL, defaultFileNamePath);
+          nURL << defaultFileNamePath;
         }
 				else
         {
@@ -1110,23 +1098,14 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 					while(last_slash_offset && URI[last_slash_offset]!='/')
 						--last_slash_offset;
           
-          nURL = new char[strlen(defaultFileNamePath)+
-                          strlen(&URI[last_slash_offset+1])+2];
-          if(nURL == 0)
-          {
-            delete [] defaultFileName;
-            delete [] filename;
-            return sendHTTPhardError500(td, s);
-          }
- 					sprintf(nURL, "%s/%s",&URI[last_slash_offset  ? last_slash_offset+1 : 0], 
-                  defaultFileNamePath);
+          nURL  <<  &URI[last_slash_offset  ? last_slash_offset+1 : 0] 
+                << "/" << defaultFileNamePath;
 				}
  				/*! Send a redirect to the new location.  */
-				if(sendHTTPRedirect(td, s, nURL))
+				if(sendHTTPRedirect(td, s, nURL.str().c_str()))
 					ret = 1;
 				else
 					ret = 0;
-        delete [] nURL;
         delete [] defaultFileName;
         delete [] filename;
         return ret;
@@ -2256,10 +2235,9 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 			/*!
        *Change the URI to reflect the default file name.
        */
-			char nURL[HTTP_REQUEST_URI_DIM+6];
+			ostringstream nURL;
 			int isPortSpecified=0;
-			strcpy(nURL, protocolPrefix);
-			strcat(nURL, td->request.HOST.c_str());
+			nURL << protocolPrefix << td->request.HOST.c_str() ;
 			for(int i=0;td->request.HOST[i];i++)
 			{
 				if(td->request.HOST[i]==':')
@@ -2269,15 +2247,15 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 				}
 			}
 			if(!isPortSpecified)
-				sprintf(&nURL[strlen(nURL)], ":%u", ((Vhost*)a->host)->port);
-			if(nURL[strlen(nURL)-1]!='/')
-				strcat(nURL, "/");
+				nURL << ":" << ((Vhost*)a->host)->port;
+			if(nURL.str()[nURL.str().length()-1]!='/')
+				nURL << "/";
       if(defFile)
       {
-        strcat(nURL, defFile);
+        nURL << defFile;
         delete [] defFile;
       }
-			return sendHTTPRedirect(td, a, nURL);
+			return sendHTTPRedirect(td, a, nURL.str().c_str());
 		}
 	}
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATEEXP_DIM);
@@ -2441,7 +2419,7 @@ u_long Http::getGzipThreshold()
 /*!
  *Send a redirect message to the client.
  */
-int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, char *newURL)
+int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, const char *newURL)
 {
 	char time[HTTP_RESPONSE_DATE_DIM];
 	td->response.httpStatus=302;

@@ -107,7 +107,7 @@ public:
 	int getMIME(HttpThreadContext* td, char *MIME, char *filename, 
               char *dest, char **dest2);
 	int logHTTPaccess(HttpThreadContext* td,ConnectionPtr a);
-	int sendHTTPRedirect(HttpThreadContext* td,ConnectionPtr a,char *newURL);
+	int sendHTTPRedirect(HttpThreadContext* td,ConnectionPtr a, const char *newURL);
 	int sendHTTPNonModified(HttpThreadContext* td,ConnectionPtr a);
 	Http();
 	virtual ~Http();

@@ -82,6 +82,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
   int outputDataPathLen ;
 	StartProcInfo spi;
 	u_long nBytesRead;
+	u_long headerSize;
 	/*!
    *Standard CGI uses STDOUT to output the result and the STDIN 
    *to get other params like in a POST request.
@@ -368,7 +369,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 		yetoutputted=1;
 	}
 	/*! Standard CGI can include an extra HTTP header.  */
-	u_long headerSize=0;
+	headerSize=0;
 
 	for(u_long i=0; i<nBytesRead; i++)
 	{
@@ -390,35 +391,15 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
       /*! If no other data was send, send the redirect. */
 			if(!yetoutputted)
 			{
-        char *nURL;
-        u_long j = 0;
+        string nURL;
         u_long len = 0;
 
         while( (td->buffer2->GetBuffer())[i + len + 9] != '\r' )
         {
             len++;
         }
-        nURL = new char[len +1];
-        
-        /*! If we cannot allocate memory return a 500 HTTP error page. */
-        if(nURL == 0)
-        {
-          stdInFile.closeFile();
-          stdOutFile.closeFile();
-          delete [] filename;
-          return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
-        }
-        
-        /*! Copy the redirection destination in the nURL buffer. */
-        for(j=0;j<len;j++)
-        {
-          nURL[j] = (td->buffer2->GetBuffer())[i + j + 9];
-        }
-        nURL[j]='\0';
-
-				((Http*)td->lhttp)->sendHTTPRedirect(td, s, nURL);
-			
-        delete [] nURL;
+        nURL.assign(&(td->buffer2->GetBuffer()[i + 9]), len);
+				((Http*)td->lhttp)->sendHTTPRedirect(td, s, nURL.c_str());
         /*! Store the new flag. */
         yetoutputted=1;
 

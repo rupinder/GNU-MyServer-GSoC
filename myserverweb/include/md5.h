@@ -35,6 +35,7 @@
  * needed on buffers full of bytes, and then call MD5Final, which
  * will fill a supplied 16-byte array with the digest.
  */
+#include "../stdafx.h"
 
 #ifndef MD5_H
 #define MD5_H
@@ -54,4 +55,5 @@ public:
   char* end(char *buf);
 };
 
-#endif /*! !MD5_H */
+#endif
+
