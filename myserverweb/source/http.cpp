@@ -279,7 +279,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 				td->outputData.closeFile();
 				return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
 			}
-			nbs=s->socket.send((char*)td->buffer->GetBuffer(),nbr,0);
+			if(nbr)
+				nbs=s->socket.send((char*)td->buffer->GetBuffer(),nbr,0);
 			if(nbs==-1)
 			{
 				return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
@@ -493,7 +494,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 				}
 				else
 				{
-				    	if(!td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&err))
+				    if(!td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&err))
 					{
 						h.closeFile();
 						return 0;
@@ -508,9 +509,9 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		/*!
 		*When the bytes number read from the file is zero, stop to send the file.
 		*/
-		if((nbr==0) || (gzip_dataused==GZIP_FOOTER_LENGTH))
+		if(nbr==0)
 		{
-			if(keepalive)
+			if(keepalive && useGZIP )
 			{
 				err=s->socket.send("0\r\n\r\n",5, 0);
 				if(err==-1)
@@ -806,10 +807,8 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 	   
    	MYSERVER_MD5Context md5;
 	MYSERVER_MD5Init(&md5);
-	td->buffer->SetLength(0);
-	*td->buffer2 << td->request.digest_username ;
-	*td->buffer2 << td->request.digest_realm ;
-	*td->buffer2 << ((http_user_data*)s->protocolBuffer)->needed_password;
+	td->buffer2->SetLength(0);
+	*td->buffer2 << td->request.digest_username << ":" << td->request.digest_realm << ":" << ((http_user_data*)s->protocolBuffer)->needed_password;
 	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2->GetBuffer(),(u_int)td->buffer2->GetLength());
 	MYSERVER_MD5End(&md5,A1);
 	
@@ -818,19 +817,14 @@ u_long http::checkDigest(httpThreadContext* td,LPCONNECTION s)
 	char *uri=td->request.URIOPTS;
 	if(td->request.digest_uri[0])
 		uri=td->request.digest_uri;
-	td->buffer->SetLength(0);
-	*td->buffer2 << method ;
-	*td->buffer2 << uri;
+	td->buffer2->SetLength(0);
+	*td->buffer2 << method << ":" << uri;
 	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2->GetBuffer(),(u_int)td->buffer2->GetLength());
 	MYSERVER_MD5End(&md5,A2);
 	
 	MYSERVER_MD5Init(&md5);
-	*td->buffer2 << A1 ;
-	*td->buffer2 << ((http_user_data*)s->protocolBuffer)->nonce ;
-	*td->buffer2 << td->request.digest_nc ;
-	*td->buffer2 << td->request.digest_cnonce ;
-	*td->buffer2 << td->request.digest_qop ;
-	*td->buffer2 << A2;
+	td->buffer2->SetLength(0);
+	*td->buffer2 << A1 << ":"  << ((http_user_data*)s->protocolBuffer)->nonce << ":" << td->request.digest_nc << ":"  << td->request.digest_cnonce << ":" << td->request.digest_qop  << ":" << A2;
 	MYSERVER_MD5Update(&md5,(const unsigned char*)td->buffer2->GetBuffer(),(u_int)td->buffer2->GetLength());
 	MYSERVER_MD5End(&md5,response);	
 
@@ -848,6 +842,7 @@ void http::resetHTTPUserData(http_user_data* ud)
 	ud->opaque[0]='\0';
 	ud->nonce[0]='\0';
 	ud->cnonce[0]='\0';
+	ud->digest_checked=0;
 	ud->needed_password[0]='\0';
 	ud->nc=0;
 	ud->digest=0;
@@ -1669,7 +1664,7 @@ int http::controlConnection(LPCONNECTION a,char */*b1*/,char */*b2*/,int bs1,int
 			if(content_len==0)
 			{
 				/*connectionBuffer is 8 KB, so don't copy more bytes.*/
-				a->dataRead=min(KB(8),(u_int)td.buffer->GetLength() - td.nHeaderChars );
+				a->dataRead=min(KB(8),strlen((char*)td.buffer->GetBuffer()) - td.nHeaderChars );
 				if(a->dataRead)
 				{
 					memcpy(a->connectionBuffer,((char*)td.buffer->GetBuffer() + td.nHeaderChars),a->dataRead);
@@ -1799,10 +1794,10 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 				resetHTTPUserData((http_user_data*)(a->protocolBuffer));
 			}
 
-			strncpy(((http_user_data*)a->protocolBuffer)->realm,td->request.HOST,64);
+			strncpy(((http_user_data*)a->protocolBuffer)->realm,td->request.HOST,48);
 			
 			char md5_str[256];/*Just a random string*/
-			strncpy(&(md5_str[2]),td->request.URI,256);
+			strncpy(&(md5_str[2]),td->request.URI,256-2);
 			md5_str[0]=(char)td->id;
 			md5_str[1]=(char)clock();
 			MYSERVER_MD5Context md5;

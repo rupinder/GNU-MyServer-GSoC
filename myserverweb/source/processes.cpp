@@ -91,6 +91,10 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 			{
 				envp[index] = ((char *)(spi->envString) + i);
 				index++;
+				if(index + 1 == 100  )
+				{
+					break;
+				}
 				
 				while(*((char *)(spi->envString) + i) != '\0')
 					i++;

@@ -252,6 +252,8 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 	}
 #endif
 #ifdef WIN32
+	char* b=(char*)buffer;
+	b[len]='\0';
 	return	::send(socketHandle,buffer,len,flags);
 #endif
 #ifdef NOT_WIN

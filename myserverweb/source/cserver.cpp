@@ -226,7 +226,10 @@ void cserver::start()
 		GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),&eventsCount);
 		while(eventsCount--)
 		{
-			ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
+			if(!mustEndServer)
+				ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE),irInBuf,128,&cNumRead);
+			else
+				break;
 			for (i = 0; i < cNumRead; i++) 
 			{
 				switch(irInBuf[i].EventType) 

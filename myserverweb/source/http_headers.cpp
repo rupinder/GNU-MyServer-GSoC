@@ -518,9 +518,6 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			}
 			else if(!lstrcmpi(token,"Digest"))
 			{
-				LPCONNECTION a = td->connection;
-				if(a->protocolBuffer==0)
-					return 0;
 				while(token = strtok( NULL, "=" ))
 				{
 					StrTrim(token," ");
