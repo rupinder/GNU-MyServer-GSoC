@@ -33,16 +33,19 @@
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Text_Display.H>
+#include <FL/Fl_Progress.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/fl_ask.H>
 #include "../include/cXMLParser.h"
 #include "../include/stringutils.h"
 #include "../include/md5.h"
+#include "../include/utility.h"
 #include "service.h"
 #include "language.h"
 #include "mimetype.h"
 #include "vhost.h"
 #include "control_client.h"
+#include "progress.h"
 
 class MainDlg {
 public:
@@ -330,6 +333,10 @@ public:
   Fl_Input *LoginDlgPass;
   Fl_Return_Button *LoginDlgOK;
   Fl_Button *LoginDlgCancel;
+  Fl_Double_Window* make_status();
+  Fl_Double_Window *StatusDlg;
+  Fl_Group *StatusDlgGroup;
+  Fl_Progress *StatusDlgProgress;
   int ask_type();
   int load_config();
   int load_config_remote();
@@ -344,6 +351,7 @@ private:
   void ServerLogout();
   void ServerLogin();
   void fl_alertcat(const char * c1, const char * c2);
+  void fl_wait(int len);
   bool Changed;
   MIMEtypeXML MimeConf;
   vHostXML vHostConf;

@@ -161,7 +161,18 @@ inline void MainDlg::cb_MenuGetConfig_i(Fl_Menu_*, void*) {
   int ret;
 if(Changed) {
   if(fl_ask(LanguageXMLLast_Change)) {
+    // Say something...
+    StatusDlgProgress->value(0);
+    StatusDlgProgress->label("0%");
+    StatusDlgGroup->label("Downloading config files:");
+    StatusDlg->show();
+    fl_wait(200);  // let fltk do its thing
+
     ret = load_config_remote();
+
+    fl_wait(500);  // oooo aaa effect
+    StatusDlg->hide();
+
     if(ret == -1) {
       fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
       ServerLogout();
@@ -172,7 +183,18 @@ if(Changed) {
   }
 }
 else {
+  // Say something...
+  StatusDlgProgress->value(0);
+  StatusDlgProgress->label("0%");
+  StatusDlgGroup->label("Downloading config files:");
+  StatusDlg->show();
+  fl_wait(200);  // let fltk do its thing
+
   ret = load_config_remote();
+
+  fl_wait(500);  // oooo aaa effect
+  StatusDlg->hide();
+
   if(ret == -1) {
     fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
     ServerLogout();
@@ -188,7 +210,18 @@ void MainDlg::cb_MenuGetConfig(Fl_Menu_* o, void* v) {
 
 inline void MainDlg::cb_MenuSendConfig_i(Fl_Menu_*, void*) {
   int ret;
+// Say something...
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label("Sending config files:");
+StatusDlg->show();
+fl_wait(200);  // let fltk do its thing
+
 ret = save_config_remote();
+
+StatusDlg->hide();
+fl_wait(500);  // oooo aaa effect
+
 if(ret == -1) {
   fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
   ServerLogout();
@@ -205,6 +238,7 @@ inline void MainDlg::cb_MenuReboot_i(Fl_Menu_*, void*) {
   int ret;
 ret = fl_ask("This will kill all connections.  Are you sure?");
 if(ret) {
+  fl_wait(50);
   ret = Server.sendReboot();
   if(ret) {
     fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
@@ -2503,6 +2537,29 @@ Fl_Double_Window* MainDlg::make_login() {
   return w;
 }
 
+Fl_Double_Window* MainDlg::make_status() {
+  Fl_Double_Window* w;
+  { Fl_Double_Window* o = StatusDlg = new Fl_Double_Window(279, 100, gettext("Status"));
+    w = o;
+    o->user_data((void*)(this));
+    { Fl_Group* o = StatusDlgGroup = new Fl_Group(10, 15, 260, 65);
+      o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
+      { Fl_Progress* o = StatusDlgProgress = new Fl_Progress(25, 50, 230, 25);
+        o->selection_color((Fl_Color)229);
+      }
+      o->end();
+    }
+    o->set_modal();
+    o->end();
+  }
+  StatusDlgProgress->maximum(100);
+StatusDlgProgress->minimum(0);
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+Server.setCallback(ProgressCallback, (void *)StatusDlgProgress);
+  return w;
+}
+
 int MainDlg::ask_type() {
   #ifdef WIN32
 return 1;
@@ -3071,6 +3128,13 @@ if(ret) {
   return;
 }
 
+// Say something...
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label("Connecting to server:");
+StatusDlg->show();
+fl_wait(200);  // let fltk do its thing
+
 ret = Server.Login(LoginDlgAddress->value(),
                    (int)LoginDlgPort->value(),
                    LoginDlgName->value(),
@@ -3079,6 +3143,7 @@ ret = Server.Login(LoginDlgAddress->value(),
 LoginDlgPass->value("");
 
 if(ret) {
+  StatusDlg->hide();
   fl_alertcat("Login failed.  Code: ", Server.LastCode);
   return;
 }
@@ -3088,6 +3153,12 @@ MenuGetConfig->activate();
 MenuSendConfig->activate();
 MenuConnections->activate();
 MenuReboot->activate();
+
+// Show we are done...
+StatusDlgProgress->value(100);
+StatusDlgProgress->label("100%");
+fl_wait(500);  // oooo aaa effect
+StatusDlg->hide();
 }
 
 void MainDlg::fl_alertcat(const char * c1, const char * c2) {
@@ -3095,4 +3166,11 @@ void MainDlg::fl_alertcat(const char * c1, const char * c2) {
 strcpy(temp, c1);
 strcat(temp, c2);
 fl_alert(temp);
+}
+
+void MainDlg::fl_wait(int len) {
+  int time = get_ticks();
+while(get_ticks() - time < len) {
+  Fl::wait(0);
+}
 }

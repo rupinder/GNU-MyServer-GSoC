@@ -167,7 +167,18 @@ else {
             callback {int ret;
 if(Changed) {
   if(fl_ask(LanguageXMLLast_Change)) {
+    // Say something...
+    StatusDlgProgress->value(0);
+    StatusDlgProgress->label("0%");
+    StatusDlgGroup->label("Downloading config files:");
+    StatusDlg->show();
+    fl_wait(200);  // let fltk do its thing
+
     ret = load_config_remote();
+
+    fl_wait(500);  // oooo aaa effect
+    StatusDlg->hide();
+
     if(ret == -1) {
       fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
       ServerLogout();
@@ -178,7 +189,18 @@ if(Changed) {
   }
 }
 else {
+  // Say something...
+  StatusDlgProgress->value(0);
+  StatusDlgProgress->label("0%");
+  StatusDlgGroup->label("Downloading config files:");
+  StatusDlg->show();
+  fl_wait(200);  // let fltk do its thing
+
   ret = load_config_remote();
+
+  fl_wait(500);  // oooo aaa effect
+  StatusDlg->hide();
+
   if(ret == -1) {
     fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
     ServerLogout();
@@ -186,13 +208,24 @@ else {
   else if(ret) {
     fl_alert(LanguageXMLNot_Found);
   }
-}}
+}} selected
             xywh {0 0 100 20} deactivate
           }
           menuitem MenuSendConfig {
             label {Send Config}
             callback {int ret;
+// Say something...
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label("Sending config files:");
+StatusDlg->show();
+fl_wait(200);  // let fltk do its thing
+
 ret = save_config_remote();
+
+StatusDlg->hide();
+fl_wait(500);  // oooo aaa effect
+
 if(ret == -1) {
   fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
   ServerLogout();
@@ -211,6 +244,7 @@ else if(ret) {
             callback {int ret;
 ret = fl_ask("This will kill all connections.  Are you sure?");
 if(ret) {
+  fl_wait(50);
   ret = Server.sendReboot();
   if(ret) {
     fl_alertcat("The server has disconnected.  Code: ", Server.LastCode);
@@ -1020,6 +1054,26 @@ AboutText->buffer(atext);} {}
       }
     }
   }
+  Function {make_status()} {open
+  } {
+    Fl_Window StatusDlg {
+      label Status open
+      xywh {372 471 279 100} type Double hide modal
+    } {
+      Fl_Group StatusDlgGroup {open
+        xywh {10 15 260 65} align 17
+      } {
+        Fl_Progress StatusDlgProgress {
+          xywh {25 50 230 25} selection_color 229
+        }
+      }
+    }
+    code {StatusDlgProgress->maximum(100);
+StatusDlgProgress->minimum(0);
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+Server.setCallback(ProgressCallback, (void *)StatusDlgProgress);} {}
+  }
   Function {ask_type()} {open return_type int
   } {
     code {\#ifdef WIN32
@@ -1411,8 +1465,7 @@ if(vHostConf.save(filename))
 
 // End of function
 Changed = false;
-return 0;} {selected
-    }
+return 0;} {}
   }
   Function {save_config_remote()} {open return_type int
   } {
@@ -1592,6 +1645,13 @@ if(ret) {
   return;
 }
 
+// Say something...
+StatusDlgProgress->value(0);
+StatusDlgProgress->label("0%");
+StatusDlgGroup->label("Connecting to server:");
+StatusDlg->show();
+fl_wait(200);  // let fltk do its thing
+
 ret = Server.Login(LoginDlgAddress->value(),
                    (int)LoginDlgPort->value(),
                    LoginDlgName->value(),
@@ -1600,6 +1660,7 @@ ret = Server.Login(LoginDlgAddress->value(),
 LoginDlgPass->value("");
 
 if(ret) {
+  StatusDlg->hide();
   fl_alertcat("Login failed.  Code: ", Server.LastCode);
   return;
 }
@@ -1608,7 +1669,13 @@ MenuLogout->activate();
 MenuGetConfig->activate();
 MenuSendConfig->activate();
 MenuConnections->activate();
-MenuReboot->activate();} {}
+MenuReboot->activate();
+
+// Show we are done...
+StatusDlgProgress->value(100);
+StatusDlgProgress->label("100%");
+fl_wait(500);  // oooo aaa effect
+StatusDlg->hide();} {}
   }
   Function {fl_alertcat(const char * c1, const char * c2)} {open private return_type void
   } {
@@ -1616,6 +1683,13 @@ MenuReboot->activate();} {}
 strcpy(temp, c1);
 strcat(temp, c2);
 fl_alert(temp);} {}
+  }
+  Function {fl_wait(int len)} {open private return_type void
+  } {
+    code {int time = get_ticks();
+while(get_ticks() - time < len) {
+  Fl::wait(0);
+}} {}
   }
   decl {bool Changed;} {}
   decl {MIMEtypeXML MimeConf;} {}
