@@ -1741,9 +1741,9 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*/
 			strncpy(request->CMD,command,HTTP_REQUEST_CMD_DIM);
 		
-			token = strtok( NULL, " ,\t\n\r" );
+			token = strtok( NULL, "\t\n\r" );
 			if(!token)return 0;
-			max=(u_long)strlen(token);
+			max=(u_long)strlen(token)-8;
 			int containOpts=0;
 			for(i=0;(i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
 			{
@@ -1763,15 +1763,12 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 					request->URIOPTS[j]=token[++i];
 				}
 			}
-			token = strtok( NULL, seps );
-			if(!token)return 0;
-			strncpy(request->VER,token,HTTP_REQUEST_VER_DIM);
+			strncpy(request->VER,&token[strlen(token)-3],HTTP_REQUEST_VER_DIM);
 			/*
 			*Version of the protocol in the HTTP_REQUEST_HEADER
 			*struct is leaved as a number.
 			*For example HTTP/1.1 in the struct is 1.1
 			*/
-			StrTrim(request->VER,"HTTP /");
 			if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else

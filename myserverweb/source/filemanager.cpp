@@ -553,6 +553,26 @@ void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
 	else
 		ext[0] = 0;
 }
+int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
+{
+#ifdef WIN32
+	GetShortPathName(filename,out,buffersize);
+#endif
+#ifdef __linux__
+	strncpy(out,filename,buffersize);
+#endif
+	return 0;
+}
+int MYSERVER_FILE::getShortFileName(char *in,char *out,int buffersize)
+{
+#ifdef WIN32
+	GetShortPathName(in,out,buffersize);
+#endif
+#ifdef __linux__
+	strncpy(out,in,buffersize);
+#endif
+	return 0;
+}
 /*
 *Complete the path of the file.
 */

@@ -61,6 +61,8 @@ public:
 	int operator =(MYSERVER_FILE);
 	static int isFolder(char*);
 	int closeFile();
+	int getShortFileName(char*,int);
+	static int getShortFileName(char*,char*,int);
 	static int fileExists(char * );
 	static int deleteFile(char * );
 	static void getFileExt(char* ext,const char* filename);

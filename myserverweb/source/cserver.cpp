@@ -458,7 +458,7 @@ void * listenServer(void* params)
 
 }
 /*
-*Returns the numbers of active connections on all the threads.
+*Returns the numbers of active connections the list.
 */
 u_long cserver::getNumConnections()
 {
