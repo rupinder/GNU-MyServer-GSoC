@@ -174,10 +174,10 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				}
 			}
 		}
-		if(headerSize && (!td->appendOutputs))
+		if(headerSize && (!ConnInfo->td->appendOutputs))
 		{
 			int len=ConnInfo->headerSize-headerSize;
-			if(!td->appendOutputs)
+			if(!ConnInfo->td->appendOutputs)
 			{
 				if(keepalive)
 					strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
@@ -196,19 +196,19 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			/*!Send the first chunk*/
 			if(len)
 			{
-				if(keepalive && (!td->appendOutputs))
+				if(keepalive && (!ConnInfo->td->appendOutputs))
 				{
 					sprintf(chunk_size,"%x\r\n",len);
 					if(ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0)==-1)
 						return 0;
 				}
-				if(td->appendOutputs)
-					td->outputData.writeToFile((char*)(ConnInfo->td->buffer+headerSize),len,&nbw);
+				if(ConnInfo->td->appendOutputs)
+					ConnInfo->td->outputData.writeToFile((char*)(ConnInfo->td->buffer+headerSize),len,&nbw);
 				else
 					nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
 				if(nbw==-1)
 					return 0;
-				if(keepalive && (!td->appendOutputs))
+				if(keepalive && (!ConnInfo->td->appendOutputs))
 				{
 					if(ConnInfo->connection->socket.send("\r\n",2, 0)==-1)
 						return 0;
