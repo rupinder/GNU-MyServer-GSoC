@@ -62,7 +62,7 @@ int http_file::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath,
   char chunksize[12];
 
  	/*! gzip compression object.  */
-	gzip gzip;
+	Gzip gzip;
 	/*! Is the GZIP header still added to the buffer?  */
 	u_long gzipheaderadded=0;
 	
@@ -182,10 +182,10 @@ int http_file::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		return 1;
 	}
 	if(use_gzip)
-		gzip.gzip_initialize((char*)td->buffer2->GetBuffer(), 
-                         td->buffer2->GetRealLength(), 
-                         (char*)td->buffer->GetBuffer(), 
-                         td->buffer->GetRealLength());
+		gzip.initialize((char*)td->buffer2->GetBuffer(), 
+                    td->buffer2->GetRealLength(), 
+                    (char*)td->buffer->GetBuffer(), 
+                    td->buffer->GetRealLength());
 	for(;;)
 	{
 		u_long nbr;
@@ -206,21 +206,21 @@ int http_file::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath,
 			{
 				if(gzipheaderadded==0)
 				{
-					gzip_dataused+=gzip.gzip_getHEADER((char*)td->buffer->GetBuffer(), 
-                                             td->buffer->GetLength());
+					gzip_dataused+=gzip.getHEADER((char*)td->buffer->GetBuffer(), 
+                                        td->buffer->GetLength());
 					gzipheaderadded=1;
 				}
-				gzip_dataused+=gzip.gzip_compress((char*)td->buffer2->GetBuffer(), 
+				gzip_dataused+=gzip.compress((char*)td->buffer2->GetBuffer(), 
                        nbr, &(((char*)td->buffer->GetBuffer())[gzip_dataused]),
                               td->buffer->GetRealLength()-gzip_dataused);
 			}
 			else
 			{
-				gzip_dataused=gzip.gzip_flush((char*)td->buffer->GetBuffer(), 
+				gzip_dataused=gzip.flush((char*)td->buffer->GetBuffer(), 
                                       td->buffer->GetLength());
-				gzip.gzip_free((char*)td->buffer2->GetBuffer(), nbr, 
-                       (char*)td->buffer->GetBuffer(), 
-                       td->buffer->GetRealLength());
+				gzip.free((char*)td->buffer2->GetBuffer(), nbr, 
+                  (char*)td->buffer->GetBuffer(), 
+                  td->buffer->GetRealLength());
 			}
 			if(keepalive)
 			{
