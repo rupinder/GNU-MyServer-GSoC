@@ -214,7 +214,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 
 	if(ExtCtrlBlk.dwHttpStatusCode==200)/*HTTP status code is 200*/
 	{
-		buildHTTPResponseHeaderStruct(td,connTable[connIndex].td->buffer);
+		buildHTTPResponseHeaderStruct(&td->response,td,connTable[connIndex].td->buffer);
 		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",ms_getFileSize(connTable[connIndex].td->outputData)-headerSize);
 		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
 		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);

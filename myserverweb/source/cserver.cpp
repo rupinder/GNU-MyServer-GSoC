@@ -612,7 +612,6 @@ void cserver::initialize(int OSVer)
 	{
 		buffersize=buffersize2=(u_long)atol(data);
 	}
-
 	data=configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
 	{
@@ -672,7 +671,7 @@ void cserver::initialize(int OSVer)
 	else
 	{
 		int i;
-		defaultFilename =(char*)new char[MAX_PATH*nDefaultFilename];
+		defaultFilename =new char[MAX_PATH*nDefaultFilename];
 		for(i=0;i<nDefaultFilename;i++)
 		{
 			char xmlMember[21];

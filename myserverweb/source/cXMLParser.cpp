@@ -43,7 +43,7 @@ void cXMLParser::open(char* filename)
 	else
 		nbr=0;
 	if(nbr==0)
-		buffer[0]='#';
+		buffer[0]='/0';
 }
 /*
 *Constructor of the cXMLParser class.
@@ -65,7 +65,7 @@ char *cXMLParser::getValue(char* vName)
 	int found;
 	char *ret=NULL;
 	unsigned int i,j;
-	unsigned int len=lstrlen(vName);
+	unsigned int len=strlen(vName);
 	for(i=0;i<buffersize;i++)
 	{
  		if(buffer[i]=='<')
@@ -125,4 +125,3 @@ void cXMLParser::close()
 	if(buffer)
 		free(buffer);
 }
-

@@ -257,7 +257,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 			*/
 			resetHTTPResponse(&(td->response));
 		}
-		buildHTTPResponseHeaderStruct(td,td->buffer2);
+		buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
 		/*
 		*Always specify the size of the HTTP contents.
 		*/

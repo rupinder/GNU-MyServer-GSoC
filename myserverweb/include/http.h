@@ -71,6 +71,7 @@ void resetHTTPRequest(HTTP_REQUEST_HEADER *request);
 void resetHTTPResponse(HTTP_RESPONSE_HEADER *response);
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
 int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
-int buildHTTPRequestHeaderStruct(httpThreadContext* td,char *input=0);
-int buildHTTPResponseHeaderStruct(httpThreadContext* td,char *input=0);
+int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext *td,char *input=0);
+int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadContext *td,char *input=0);
+
 #endif

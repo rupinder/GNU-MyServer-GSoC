@@ -245,7 +245,7 @@ int sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 			break;
 		}
 	}
-	buildHTTPResponseHeaderStruct(td,td->buffer2);
+	buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
 	/*
 	*Always specify the size of the HTTP contents.
 	*/
