@@ -285,8 +285,8 @@ int MYSERVER_SOCKET::connect(MYSERVER_SOCKADDR* sa,int na)
 */
 int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,int timeout)
 {
-	int time=clock();
-	while(clock()-time<timeout)
+	int time=get_ticks();
+	while(get_ticks()-time<timeout)
 	{
 		if(bytesToRead())
 			return recv(buffer,len,flags);

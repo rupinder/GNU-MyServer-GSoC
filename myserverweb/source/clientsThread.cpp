@@ -218,20 +218,20 @@ void ClientsTHREAD::controlConnections()
 		{
 			c->forceParsing=1;
 		}		
-		c->timeout=clock();
+		c->timeout=get_ticks();
 	}
 	else
 	{
 		/*!
 		*Reset nTries after 5 seconds.
 		*/
-		if(clock()-c->timeout>5000)
+		if(get_ticks()-c->timeout>5000)
 			c->nTries=0;
 		/*!
 		*If the connection is inactive for a time greater that the value
 		*configured remove the connection from the connections pool
 		*/
-		if((clock()- c->timeout) > lserver->connectionTimeout)
+		if((get_ticks()- c->timeout) > lserver->connectionTimeout)
 		{
 			lserver->deleteConnection(c,this->id);
 			return;

@@ -30,6 +30,7 @@ extern "C" {
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #endif
 }
 
@@ -174,4 +175,20 @@ void endPrintError()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 #endif
 
+}
+#ifndef WIN32
+static struct timeval tval;
+#endif
+/*!
+*Returns the ticks. Used for check time variations.
+*/
+u_long get_ticks()
+{
+#ifdef WIN32
+	return GetTickCount();
+#else
+	gettimeofday(&tval, 0);
+	u_long time=(tval.tv_sec * 1000) + (tval.tv_usec / 1000);
+	return time;
+#endif
 }

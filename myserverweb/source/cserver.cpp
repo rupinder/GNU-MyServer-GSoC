@@ -877,7 +877,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	nc->forceParsing=0;
 	nc->parsing=0;
 	nc->port=(u_short)port;
-	nc->timeout=clock();
+	nc->timeout=get_ticks();
 	nc->dataRead = 0;
 	nc->localPort=(u_short)localPort;
 	strncpy(nc->ipAddr,ipAddr,MAX_IP_STRING_LEN);

@@ -135,14 +135,14 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	/*!Now read the output*/
 	int exit=0;
 	const clock_t timeout= CLOCKS_PER_SEC * 20; // 20 seconds
-	clock_t time1 = clock();
+	clock_t time1 = get_ticks();
 	td->outputData.closeFile();	
 	td->outputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_NO_INHERIT);
 	do	
 	{
 		while(con.sock.bytesToRead()<sizeof(FCGI_Header))
 		{
-			if(clock()-time1>timeout)
+			if(get_ticks()-time1>timeout)
 				break;
 		}
 		if(con.sock.bytesToRead())

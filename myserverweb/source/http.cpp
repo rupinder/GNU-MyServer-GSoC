@@ -1108,7 +1108,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			/*!
 			*If there are others bytes to read from the socket.
 			*/
-			u_long timeout=clock();
+			u_long timeout=get_ticks();
 			if((content_len)&&(content_len!=nbw))
 			{
 				int err;
@@ -1117,7 +1117,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 				{
 					err=0;
 					fs=td.inputData.getFileSize();
-					while(clock()-timeout<SEC(5))
+					while(get_ticks()-timeout<SEC(5))
 					{
 						if(content_len==total_nbr)
 						{
@@ -1139,11 +1139,11 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 							err=td.connection->socket.recv(td.buffer2,tr, 0);
 							td.inputData.writeToFile(td.buffer2,min((u_long)err, (content_len-fs)),&nbw);	
 							total_nbr+=nbw;
-							timeout=clock();
+							timeout=get_ticks();
 							break;
 						}
 					}
-					if(clock()-timeout>=SEC(5))
+					if(get_ticks()-timeout>=SEC(5))
 						break;
 				}
 				while(content_len!=total_nbr);
@@ -1168,18 +1168,18 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 				do
 				{
 					err=0;
-					while(clock()-timeout<SEC(3))
+					while(get_ticks()-timeout<SEC(3))
 					{
 						if(td.connection->socket.bytesToRead())
 						{				
 							err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
 							td.inputData.writeToFile(td.buffer2,err,&nbw);	
 							total_nbr+=nbw;
-							timeout=clock();
+							timeout=get_ticks();
 							break;
 						}
 					}
-					if(clock()-timeout>=SEC(3))
+					if(get_ticks()-timeout>=SEC(3))
 						break;
 				}
 				while(content_len!=total_nbr);
