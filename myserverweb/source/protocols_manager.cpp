@@ -64,7 +64,7 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cse
 	if(Proc)
 		ret = (Proc((void*)languageParser,confFile,(void*)lserver));
 	if(ret)
-		ret = registerName(protocolName,16)[0]!='\0' ?1:0;
+		ret = registerName(protocolName,16)[0] != '\0' ? 1 : 0 ;
 	return ret;
 }
 
@@ -166,7 +166,7 @@ dynamic_protocol::dynamic_protocol()
 */
 int dynamic_protocol::setFilename(char *nf)
 {
-	strncpy(filename,nf,MAX_PATH);
+	strncpy(filename, nf, MAX_PATH);
 	return 1;
 }
 
