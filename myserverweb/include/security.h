@@ -35,9 +35,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include<openssl/err.h>
 #include<openssl/rsa.h>
 #endif
+
 /*!
-*Various allowable permissions
-*/
+ *Various allowable permissions
+ */
 #define MYSERVER_PERMISSION_READ	(1)
 #define MYSERVER_PERMISSION_WRITE	(2)
 #define MYSERVER_PERMISSION_EXECUTE	(4)
@@ -49,20 +50,23 @@ typedef  void* LOGGEDUSERID;
 #endif
 
 /*!
-*Change the ownner of the caller thread.
-*/
+ *Change the ownner of the caller thread.
+ */
 int logonCurrentThread(char*,char*,LOGGEDUSERID*);
+
 /*!
-*Change the ownner of the caller thread to the runner of the process.
-*/
+ *Change the ownner of the caller thread to the runner of the process.
+ */
 void revertToSelf();
+
 /*!
-*Impersonate the logon user.
-*/
+ *Impersonate the logon user.
+ */
 void impersonateLogonUser(LOGGEDUSERID* hImpersonation);
+
 /*!
-*Close the handle.
-*/
+ *Close the handle.
+ */
 void cleanLogonUser(LOGGEDUSERID* hImpersonation);
 
 void logon(ConnectionPtr c,int *logonStatus,LOGGEDUSERID *hImpersonation);
