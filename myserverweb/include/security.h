@@ -57,15 +57,29 @@ const u_long MYSERVER_PERMISSION_BROWSE	  = (1<<4);
 
 struct SecurityToken
 {
+  /*! User to check for. */
   char* user;
+  /*! Password provided by the user. */
   char* password;
+  /*! Directory that the user is in. */
   char* directory;
+  /*! System directory for the host. */
   char* sysdirectory;
+  /*! File that the user tried to access. */
   char* filename;
+  /*! 
+   *Password that the user should provide to have access. 
+   *This is used in authorization schemes like the HTTP digest,
+   *where the password is not sent in clear on the network.
+   */
   char *password2;
+  /*! Permission mask that the user will have if providing a [password2]. */
   int *permission2;
+  /*! Authorization scheme to use. */
   char* auth_type;
+  /*! Length for the [auth_type] allocated string. */
   int len_auth;
+
   SecurityToken();
   void reset();
 };

@@ -43,7 +43,7 @@ SecurityToken::SecurityToken()
 }
 
 /*!
- *Reset everything.
+ *Reset every structure member.
  */
 void SecurityToken::reset()
 {
@@ -70,7 +70,7 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
 	xmlNode *node;
 	char *permissionsFile;
   int permissionsFileLen;
-	XmlParser local_parser;  
+	XmlParser localParser;  
   xmlDocPtr doc;
 	int found=0;
   *out = 0;
@@ -86,10 +86,10 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
       delete [] permissionsFile;
       return 0;
     }
-    if(local_parser.open(permissionsFile)== -1 )
+    if(localParser.open(permissionsFile)== -1 )
       return -1;
     delete [] permissionsFile;
-    doc=local_parser.getDoc();
+    doc=localParser.getDoc();
   }
   else
   {
@@ -123,7 +123,7 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
             {
               if(parser == 0)
               {
-                local_parser.close();
+                localParser.close();
               }
               return -1;
             }
@@ -148,7 +148,7 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
             {
               if(parser == 0)
               {
-                local_parser.close();
+                localParser.close();
               }
               return -1;
             }
@@ -163,7 +163,7 @@ int SecurityManager::getErrorFileName(char* sysDir,int error,
 		node=node->next;
 	}
   if(parser== 0)
-    local_parser.close();
+    localParser.close();
   
   /*! Return 1 if both it was found and well configured. */
   if(found && (*out))
@@ -209,7 +209,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   xmlAttr *attr;
 	xmlNode *node;
 
-	XmlParser local_parser;
+	XmlParser localParser;
   xmlDocPtr doc;
 
 	tempPassword[0]='\0';
@@ -248,13 +248,13 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     }
     else
     {
-      if(local_parser.open(permissionsFile)==-1)
+      if(localParser.open(permissionsFile)==-1)
       {
         delete [] permissionsFile;
         return 0;
       }
       delete [] permissionsFile;
-      doc=local_parser.getDoc();
+      doc=localParser.getDoc();
     }
   }
   else
@@ -274,7 +274,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     node=doc->children->children;
   else if(parser == 0)
   {
-    local_parser.close();
+    localParser.close();
     return 0;
   }
 
@@ -483,7 +483,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
   if(parser == 0)
   {
-    local_parser.close();
+    localParser.close();
   }
 
   if(st->permission2)

@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 SecurityCache::SecurityCache()
 {
   /*!
-   *By default store 25 nodes.
+   *By default do not store more than 25 nodes.
    */
   limit = 25;
 
@@ -93,7 +93,8 @@ int SecurityCache::getErrorFileName(char *directory, int error,
     if(!File::fileExists(permissionsFile))
     {
       /*!
-       *If the security file doesn't exist try with a default one.
+       *If the security file doesn't exist try with a default one(the one in the system
+       *directory).
        */
       if(sysdirectory!=0)
       {
@@ -159,11 +160,18 @@ void SecurityCache::free()
 }
 
 /*!
- *Set a limit on the nodes to keep in memory.
+ *Set a new limit on the nodes to keep in memory.
  */
-void SecurityCache::setMaxNodes(int new_limit)
+void SecurityCache::setMaxNodes(int newLimit)
 {
-  limit = new_limit;
+  /*! Remove all the additional nodes from the dictionary. */
+  while(newLimit < dictionary.nodesNumber())
+  {
+    XmlParser* toremove =(XmlParser*) dictionary.removeNodeAt(1);
+    if(toremove)
+      delete toremove;    
+  }
+  limit = newLimit;
 }
 
 /*!
@@ -175,7 +183,9 @@ int SecurityCache::getMaxNodes()
 }
 
 /*!
- *Get the permission mask for the specified file and user.
+ *Get the permission mask for the specified file and user. If the security file to use
+ *is not loaded it will be loaded and added to the cache dictionary for faster future 
+ *accesses.
  */
 int SecurityCache::getPermissionMask(SecurityToken* st)
 {
