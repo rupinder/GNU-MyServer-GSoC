@@ -1339,16 +1339,15 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
 	*td->buffer2 << " [";
 	
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-	*td->buffer2 <<  time ;
+	*td->buffer2 <<  time  << "] \"";
 	
   if(td->request.CMD[0])
     {
-      *td->buffer2 << "] \"" << td->request.CMD << "";
-      if( td->request.URI[0])
-        *td->buffer2 << " ";
+      *td->buffer2 << td->request.CMD << "";
     }
-  else
-    *td->buffer2 << "] \"";  
+
+  if(td->request.CMD[0] || td->request.URI[0])
+      *td->buffer2 << " ";
 
   if(td->request.URI[0] == '\0')
     *td->buffer2 <<  "/";
