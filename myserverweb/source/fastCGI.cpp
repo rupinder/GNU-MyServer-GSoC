@@ -92,14 +92,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	
 	clock_t time1;
 	
-	char *outDataPath;
+	char *outDataPath=0;
   int outDataPathLen;
 
   int sizeEnvString;
-  sfCGIservers* server;
+  sfCGIservers* server=0;
   int id;
-	char *fullpath;
-  char *buffer;
+	char *fullpath=0;
+  char *buffer=0;
   char tmpSize[11];
   if(td->scriptPath)
     delete [] td->scriptPath;
