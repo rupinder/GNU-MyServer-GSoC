@@ -117,6 +117,14 @@ Section "MyServer core" SecCore
 
   File "web\*.*"
 
+  SetOutPath $INSTDIR\web\icons
+
+  File "web\icons\*.*"
+
+  SetOutPath $INSTDIR\web\icons\codes
+
+  File "web\icons\codes\*.*"
+
   SetOutPath $INSTDIR\system
 
   File "system\*.*"
