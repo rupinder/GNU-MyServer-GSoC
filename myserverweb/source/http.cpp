@@ -1564,7 +1564,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
             delete [] filename;
             return sendHTTPhardError500(td, s);
           }
- 					sprintf(nURL, "%s/%s",&URI[last_slash_offset+1], 
+ 					sprintf(nURL, "%s/%s",&URI[last_slash_offset  ? last_slash_offset+1 : 0], 
                   defaultFileNamePath);
 				}
         int ret =0;

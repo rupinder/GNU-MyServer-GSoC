@@ -81,11 +81,12 @@ int ControlClient::Login(const char * address, const int port,
    /*! Try to create the socket. */
    if(socket.socket(AF_INET, SOCK_STREAM, 0, 1) == -1)
      return -2;
+
    /*! If the socket was created try to connect. */
    if(socket.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
      {
-	socket.closesocket();
-	return -2;
+       socket.closesocket();
+       return -2;
      }
 
    Connected = true;
