@@ -59,7 +59,23 @@ CONNECTION::~CONNECTION()
 	socket.closesocket();
 
   if(protocolBuffer)
-    delete [] protocolBuffer;
+    delete  protocolBuffer;
+
+}
+
+/*!
+ *Create the buffer.
+ */
+protocol_buffer::protocol_buffer()
+{
+
+}
+
+/*!
+ *Destroy the object.
+ */
+protocol_buffer::~protocol_buffer()
+{
 
 }
 

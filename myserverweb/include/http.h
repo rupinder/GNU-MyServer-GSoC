@@ -30,8 +30,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *Data used only by an HTTP user.
 */
-struct http_user_data
+class http_user_data : public protocol_buffer
 {
+public:
 	/*! Realm string used by Digest authorization scheme.  */
 	char realm[48];
 	/*! Opaque string used by Digest authorization scheme.  */
@@ -48,7 +49,9 @@ struct http_user_data
 	int digest;
 	/*! Nonzero if the digest was already checked.  */
 	int digest_checked;
-
+  http_user_data();
+  ~http_user_data();
+	void reset();
 };
 class http : public protocol
 {
@@ -99,7 +102,6 @@ public:
 	int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
 	int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);
-	void resetHTTPUserData(http_user_data*);
 	http();
 	virtual ~http();
 	void computeDigest(httpThreadContext* td, char*, char*);

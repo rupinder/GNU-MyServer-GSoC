@@ -40,6 +40,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 typedef u_long CONNECTION_PROTOCOL;
 
+
+class	protocol_buffer
+{
+public:
+  protocol_buffer();
+	virtual ~protocol_buffer();
+};
+
+
+
 class CONNECTION
 {
   /*! IDentifier for the CONNECTION. */
@@ -141,7 +151,7 @@ public:
 	char connectionBuffer[KB(8)];
 	
 	/*! Buffer for the connecion struct. Used by protocols.  */
-	char *protocolBuffer;
+	protocol_buffer *protocolBuffer;
 
   CONNECTION();
   virtual ~CONNECTION();

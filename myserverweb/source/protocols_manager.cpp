@@ -40,7 +40,8 @@ typedef char* (*registerNamePROC)(char*,int);
 /*!
 *Load the protocol. Called once at runtime.
 */
-int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cserver* lserver)
+int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,
+                                   cserver* lserver)
 {
   errorParser = languageParser;
 #ifdef WIN32

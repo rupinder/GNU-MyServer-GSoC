@@ -822,7 +822,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
   }
 	if(s->protocolBuffer==0)
 	{
-		s->protocolBuffer=(char*)new http_user_data;
+		s->protocolBuffer=new http_user_data;
 		if(!s->protocolBuffer)
     {
       delete [] folder;
@@ -830,7 +830,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
       td->filenamePath = 0;
 			return sendHTTPhardError500(td, s);
     }
-		resetHTTPUserData((http_user_data*)(s->protocolBuffer));
+		((http_user_data*)(s->protocolBuffer))->reset();
 	}
 	int permissions2=0;
 	char auth_type[16];	
@@ -1060,7 +1060,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
 
 	if(s->protocolBuffer==0)
 	{
-		s->protocolBuffer=(char*)new http_user_data;
+		s->protocolBuffer=new http_user_data;
 		if(!s->protocolBuffer)
     {
       delete [] folder;
@@ -1068,7 +1068,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s,
       td->filenamePath = 0;
 			return 0;
     }
-		resetHTTPUserData((http_user_data*)(s->protocolBuffer));
+		((http_user_data*)(s->protocolBuffer))->reset();
 	}
 	int permissions2=0;
 	char auth_type[16];
@@ -1197,21 +1197,37 @@ u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
 		return 1;
 	return 0;
 }
+/*!
+ *Create the buffer.
+ */
+http_user_data::http_user_data()
+{
+  reset();
+}
 
 /*!
- *Reset an http_user_data structure.
+ *Destroy the buffer.
  */
-void http::resetHTTPUserData(http_user_data* ud)
+http_user_data::~http_user_data()
 {
-	ud->realm[0]='\0';
-	ud->opaque[0]='\0';
-	ud->nonce[0]='\0';
-	ud->cnonce[0]='\0';
-	ud->digest_checked=0;
-	ud->needed_password[0]='\0';
-	ud->nc=0;
-	ud->digest=0;
+
 }
+
+/*!
+ *Reset the structure.
+ */
+void http_user_data::reset()
+{
+	realm[0]='\0';
+	opaque[0]='\0';
+	nonce[0]='\0';
+	cnonce[0]='\0';
+	digest_checked=0;
+	needed_password[0]='\0';
+	nc=0;
+	digest=0;
+}
+
 
 /*!
  *Main function to send a resource to a client.
@@ -1318,13 +1334,13 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 
 		if(s->protocolBuffer==0)
 		{
-			s->protocolBuffer=(char*)new http_user_data;
+			s->protocolBuffer=new http_user_data;
 			if(!s->protocolBuffer)
       {
         delete []  filename;
 				return sendHTTPhardError500(td, s);
       }
-			resetHTTPUserData((http_user_data*)(s->protocolBuffer));
+			((http_user_data*)s->protocolBuffer)->reset();
 		}
 		int permissions2=0;
 		if(td->request.AUTH[0])
@@ -2513,13 +2529,13 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 		{
 			if(a->protocolBuffer==0)
 			{
-				a->protocolBuffer=(char*)new http_user_data;
+				a->protocolBuffer = new http_user_data;
 				if(!a->protocolBuffer)
 				{
 					sendHTTPhardError500(td, a);
 					return 0;
 				}
-				resetHTTPUserData((http_user_data*)(a->protocolBuffer));
+				((http_user_data*)(a->protocolBuffer))->reset();
 			}
 			strncpy(((http_user_data*)a->protocolBuffer)->realm, td->request.HOST, 48);
 
