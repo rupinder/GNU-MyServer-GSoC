@@ -29,15 +29,15 @@ static struct sfCGIservers
 	}DESCRIPTOR;
 	MYSERVER_SOCKET socket;
 	MYSERVER_SOCKET dupsock;
-	int pid; /*process ID*/
+	int pid; /*process ID*/ 
 	u_short port;/*IP port*/
 }fCGIservers[MAX_FCGI_SERVERS];
 struct fourchar
 {	
 	union
 	{
-		unsigned char c[4];
 		unsigned int i;
+		unsigned char c[4];
 	};
 };
 static int fCGIserversN;

@@ -312,7 +312,7 @@ int ms_setcwdBuffer()
 #ifdef __linux__
 	getcwd(currentPath,MAX_PATH);
 	retval=1;
-	if(currentPath[strlen(currentPath)]=='/')
+	if(currentPath[strlen(currentPath)]=='/') 
 		currentPath[strlen(currentPath)]='\0';
 #endif
 	return retval;
@@ -381,4 +381,5 @@ void endPrintError()
 #ifdef WIN32
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 #endif
+
 }
