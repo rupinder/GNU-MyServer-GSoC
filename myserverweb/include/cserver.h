@@ -195,8 +195,5 @@ public:
 	u_long getBuffersize2();
 }; 
 extern class cserver *lserver;
-#ifdef WIN32
-LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 
-#endif
 
 #endif
