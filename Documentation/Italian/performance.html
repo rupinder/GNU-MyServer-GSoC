@@ -6,6 +6,7 @@
   <link rel="stylesheet" type="text/css" href="myserver.css">
   <title>Prestazioni del server</title>
 </head>
+
 <body>
 <h1 class="title">PRESTAZIONI DEL SERVER<br>
 </h1>
@@ -17,17 +18,19 @@ Qui di seguito sono listate alcune opzioni attinenti alle prestazioni del server
 </font> <br>
 </span>Nel file myserver.xml file si pu&ograve; configurare il numero di threads che 
 MyServer user&agrave;. Nelle linee sottostanti, si possono configurare i 2 parametri 
-A and B, per l'equazione N=A+CB, dove N &egrave; il numero dei threads da usare, e C il numero 
-di CPUs presenti sulla macchina:<br>
-&nbsp;&nbsp;&nbsp; &lt;NTHREADS_A&gt;10&lt;/NTHREADS_A&gt;<br>
-&nbsp;&nbsp;&nbsp; &lt;NTHREADS_B&gt;10&lt;/NTHREADS_B&gt;<br>
+per la gestione dei threads:<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_MAX&gt;20&lt;/NTHREADS_MAX&gt;<br>
+<br>
+La prima variabile(NTHREADS_STATIC) indica il numero di threads sempre attivi, 
+mentre la seconda(NTHREADS_MAX) indica il numero massimo di threads che myserver pu&ograve; creare.
 <br>
 <br>
 <br>
-<span style="font-weight: bold;"><font class="code">Buffer Size:<br>
+<span style="font-weight: bold;"><font class="code">Dimensione del buffer:<br>
 </font> <br>
-</span>Si pu&ograve; configurare la dimensione dei memory buffers usati da MyServer , settando la lineas 
-sottostante in the myserver.xml file:<br>
+</span>Si pu&ograve; configurare la dimensione dei buffers di memoria usati da MyServer , settando la linea 
+sottostante nel file myserver.xml:<br>
 &nbsp;&nbsp;&nbsp; &lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br>
 Cambia il valore 102400(in bytes). Ricorda che MyServer usa 2 buffers per thread quindi alla fine lo spazio occupato dai threads sar&agrave; 
 BUFFER_SIZE * 2 * N_THREADS.<br>
@@ -44,10 +47,28 @@ al timeout abbatte la connessione con il client. Impostando il valore uguale a 0
 <span style="font-weight: bold;"><br>
 <font class="code"> Massimo numero di connessioni:<br>
 </font> <br>
-</span>Tu puoi settare il numero massimo di connessioni da accettare modificando la seguente linea in myserver.xml:<br>
+</span>Si pu&ograve; settare il numero massimo di connessioni da accettare modificando la seguente linea in myserver.xml:<br>
 &nbsp;&nbsp;&nbsp; &lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br>
-Il valore di default &egrave; 0 ed indica che si accettano infinite connessioni. Ogni altro valore limita il numero massimo 
-di connessioni che MyServer accetter&agrave;.<br>
+Il valore di default 0 indica che si accettano infinite connessioni. Ogni altro valore limita il 
+numero massimo di connessioni che MyServer accetter&agrave;.
+<br>
+<br>
+<span style="font-weight: bold;"><font class="code"><br>
+Numero massimo di servers FastCGI:<br>
+<br>
+</font></span>Per modificare il numero massimo di servers FastCGI eseguibili da myserver &egrave; necessario
+modificare la seguente riga nel file myserver.xml:<br>
+&nbsp;&nbsp;&nbsp;
+&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br>
+<br>
+<br>
+<span style="font-weight: bold;"><font class="code">Setting CGI
+Timeout: </font></span><br>
+<span style="font-weight: bold;"><font class="code"><br>
+</font></span>Per modificare il valore di timeout degli scripts CGI bisogna modificare la seguente riga nel 
+file myserver.xml:<br>
+&nbsp;&nbsp;&nbsp; &lt;CGI_TIMEOUT&gt;20&lt;/CGI_TIMEOUT&gt;<br>
+In questo modo stiamo specificando un timeout di 20 secondi. (L'unit&agrave; di misura &egrave; il "secondo")
 <br>
 <br>
 <br>
