@@ -33,7 +33,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/md5.h"
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
-#define min(a,b)((a<b)?a:b)
+
+#define min( a, b )( ( a < b ) ? a : b  )
 
 extern "C" 
 {
@@ -72,9 +73,7 @@ int http::initialized=0;/*! Is the HTTP protocol loaded?  */
 */
 int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
-	/*!
-	*Send the folder content.
-	*/
+	/*! Send the folder content.  */
 	u_long nbw;
 	int err;
 	getdefaultwd(td->outputDataPath,MAX_PATH);
@@ -126,9 +125,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		td->outputData.closeFile();
 		return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
 	}
-	/*!
-	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
-	*/
+	/*! If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.  */
 	if(browseDirCSSpath[0])
 	{
 		MYSERVER_FILE cssHandle;
@@ -197,16 +194,15 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	{
 		return raiseHTTPError(td, s, e_404);
 	}
-	/*!
-	*With the current code we build the HTML TABLE to indicize the files in the folder.
-	*/
+	/*! With the current code we build the HTML TABLE to indicize the files in the folder.  */
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "<table width=\"100%%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n<td><b>Last Modify</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
 	ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
 		td->outputData.closeFile();
-		return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
+		/* Return an internal server error.  */
+		return raiseHTTPError(td,s,e_500);
 	}
 	char fileSize[20];
 	char fileTime[32];
@@ -403,14 +399,15 @@ int http::allowHTTPTRACE(httpThreadContext* /*td*/,LPCONNECTION s)
 /*!
 *Send a file to the client using the HTTP protocol.
 */
-int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int OnlyHeader,int firstByte,int lastByte)
+int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int only_header,int firstByte,int lastByte)
 {
 	/*!
 	*With this routine we send a file through the HTTP protocol.
 	*Open the file and save its handle.
 	*/
 	int ret;
-	int useGZIP=0;/*Will we use GZIP compression to send data?*/
+	/*Will we use GZIP compression to send data?*/
+	int use_gzip=0;
 	MYSERVER_FILE h;
 	ret = h.openFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(ret == 0)
@@ -419,34 +416,34 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	}
 
 	/*! *If the file is a valid handle.  */
-	u_long bytesToSend=h.getFileSize();
+	u_long bytes_to_send=h.getFileSize();
 	if(lastByte == -1)
 	{
-		lastByte=bytesToSend;
+		lastByte=bytes_to_send;
 		
-		if(bytesToSend > gzip_threshold)/*! Use GZIP compression to send files bigger than GZIP threshold.  */
+		if(bytes_to_send > gzip_threshold)/*! Use GZIP compression to send files bigger than GZIP threshold.  */
 		{
-			useGZIP=1;
+			use_gzip=1;
 		}
 	}
 	else/*! If the client use ranges set the right value for the last byte number.  */
 	{
-		lastByte=min((u_long)lastByte,bytesToSend);
+		lastByte=min((u_long)lastByte,bytes_to_send);
 	}
 	int keepalive = !lstrcmpi(td->request.CONNECTION,"Keep-Alive");
 
 #ifndef DO_NOT_USE_GZIP
 	/*! Be sure that the client accept GZIP compressed data.  */
-	if(useGZIP)
-		useGZIP &= (strstr(td->request.ACCEPTENC,"gzip")!=0);
+	if(use_gzip)
+		use_gzip &= (strstr(td->request.ACCEPTENC,"gzip")!=0);
 #else
 	/*! If compiled without GZIP support force the server to don't use it.  */
-	useGZIP=0;
+	use_gzip=0;
 #endif	
 	if(td->appendOutputs)
-		useGZIP=0;
-	/*! bytesToSend is the interval between the first and the last byte.  */
-	bytesToSend=lastByte-firstByte;
+		use_gzip=0;
+	/*! bytes_to_send is the interval between the first and the last byte.  */
+	bytes_to_send=lastByte-firstByte;
 
 	/*! If failed to set the file pointer returns an internal server error.  */
 	ret = h.setFilePointer(firstByte);
@@ -463,11 +460,11 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		td->response.httpStatus = 206;
 	
 	if(keepalive)
-		sprintf(td->response.CONTENT_LENGTH,"%u",bytesToSend);
+		sprintf(td->response.CONTENT_LENGTH,"%u",bytes_to_send);
 	else
 		strcpy(td->response.CONNECTION,"Close");
 	
-	if(useGZIP)
+	if(use_gzip)
 	{
 		/*! Do not use chunked transfer with old HTTP/1.0 clients.  */
 		if(keepalive)
@@ -486,7 +483,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		}
 	}
 	/*! If is requested only the header exit from the function; used by the HEAD request.  */
-	if(OnlyHeader)
+	if(only_header)
 	{
 		h.closeFile();
 		return 1;
@@ -500,16 +497,16 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	u_long gzip_dataused=0;
 	u_long dataSent=0;
 	u_long err;
-	if(useGZIP)
+	if(use_gzip)
 		gzip.gzip_initialize((char*)td->buffer2->GetBuffer(),td->buffer2->GetRealLength(),(char*)td->buffer->GetBuffer(),td->buffer->GetRealLength());
 	for(;;)
 	{
 		u_long nbr;
 
-		if(useGZIP)
+		if(use_gzip)
 		{
 			gzip_dataused=0;
-			u_long datatoread=min(bytesToSend,td->buffer2->GetRealLength()/2);
+			u_long datatoread=min(bytes_to_send,td->buffer2->GetRealLength()/2);
 			/*! Read from the file the bytes to send.  */
 			if(!h.readFromFile((char*)td->buffer2->GetBuffer(),datatoread,&nbr))
 			{
@@ -535,14 +532,14 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		else
 		{
 			/*! Read from the file the bytes to send. */
-			if(!h.readFromFile((char*)td->buffer->GetBuffer(),min(bytesToSend,td->buffer->GetRealLength()),&nbr))
+			if(!h.readFromFile((char*)td->buffer->GetBuffer(),min(bytes_to_send,td->buffer->GetRealLength()),&nbr))
 			{
 				h.closeFile();
 				return 0;
 			}
 		}
 		
-		if(useGZIP)
+		if(use_gzip)
 		{
 			char chunksize[12];
 			if(keepalive)
@@ -597,7 +594,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		/*! When the bytes number read from the file is zero, stop to send the file.  */
 		if(nbr==0)
 		{
-			if(keepalive && useGZIP )
+			if(keepalive && use_gzip )
 			{
 				err=s->socket.send("0\r\n\r\n",5, 0);
 				if(err==-1)
@@ -935,7 +932,7 @@ void http::resetHTTPUserData(http_user_data* ud)
 /*!
 *Main function to send a resource to a client.
 */
-int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemrequest,int OnlyHeader,int firstByte,int lastByte,int yetmapped)
+int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemrequest,int only_header,int firstByte,int lastByte,int yetmapped)
 {
 	/*!
 	*With this code we manage a request of a file or a folder or anything that we must send
@@ -1072,16 +1069,14 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 	*/
 	if(td->pathInfo[0])
 	{
-        td->pathTranslated[0]='\0';
-		/*!
-		*Start from the second character because the first is a slash character.
-		*/
+        	td->pathTranslated[0]='\0';
+		/*! Start from the second character because the first is a slash character.  */
 		getPath(td,s,(td->pathTranslated),&((td->pathInfo)[1]),0);
 		MYSERVER_FILE::completePath(td->pathTranslated);
 	}
 	else
 	{
-        td->pathTranslated[0]='\0';
+        	td->pathTranslated[0]='\0';
 	}
 	MYSERVER_FILE::completePath(td->filenamePath);
 
@@ -1236,7 +1231,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		strcat(linkpath,pathInfo);
 
 		if(nbr)
-			return sendHTTPRESOURCE(td,s,linkpath,systemrequest,OnlyHeader,firstByte,lastByte,1);
+			return sendHTTPRESOURCE(td,s,linkpath,systemrequest,only_header,firstByte,lastByte,1);
 		else
 			return raiseHTTPError(td,s,e_404);
 	}
@@ -1254,7 +1249,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 		if(!strcmp(td->request.IF_MODIFIED_SINCE,td->response.LAST_MODIFIED))
 			return sendHTTPNonModified(td,s);
 	}
-	keepalive &= sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte);
+	keepalive &= sendHTTPFILE(td,s,td->filenamePath,only_header,firstByte,lastByte);
 	return keepalive;
 }
 /*!
