@@ -618,7 +618,7 @@ void cserver::initialize(int /*!os_ver*/)
 	
 #ifndef WIN32
 	/*! If the directory /usr/share/myserver/languages exists use this.*/
-	if(!MYSERVER_FILE::fileExists("languages"))
+	if(MYSERVER_FILE::fileExists("languages"))
 	{
 		strcpy(languages_path,"languages/");
 	}
