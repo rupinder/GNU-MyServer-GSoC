@@ -38,6 +38,8 @@ class control_protocol : public protocol
   int checkAuth();
   int SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1,int bs1);
   int KILLCONNECTION(u_long ID, MYSERVER_FILE* out, char *b1,int bs1);
+  int GETFILE(char*, MYSERVER_FILE* in, MYSERVER_FILE* out, char *b1,int bs1 );
+  int PUTFILE(char*, MYSERVER_FILE* in, MYSERVER_FILE* out, char *b1,int bs1 );
 public:
   int sendResponse(char*, int, LPCONNECTION, int, MYSERVER_FILE* = 0);
   static int loadProtocol(cXMLParser* languageParser, char* /*confFile*/);

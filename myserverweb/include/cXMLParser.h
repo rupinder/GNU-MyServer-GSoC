@@ -28,14 +28,14 @@ extern "C"
 #include <libxml/tree.h> 
 }
 /*!
-*This class is used to open a .xml file and read informations from it.
-*/
+ *This class is used to open a .xml file and read informations from it.
+ */
 class cXMLParser
 {
 	xmlDocPtr doc;
 	char buffer[250];
 	xmlNodePtr cur;
-        xmlNodePtr prev_cur;
+  xmlNodePtr prev_cur;
 public:
 	static int startXML();
 	static int cleanXML();
@@ -52,4 +52,5 @@ public:
   void addGroup(const char * name);
   void endGroup();
 };
+
 #endif

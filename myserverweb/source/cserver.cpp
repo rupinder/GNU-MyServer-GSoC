@@ -71,6 +71,7 @@ cserver::cserver()
 {
 	threads=0;
   toReboot = 0;
+  autoRebootEnabled = 1;
 	listeningThreads=0;
   languages_path=0;
 	main_configuration_file=0;
@@ -215,38 +216,40 @@ void cserver::start()
 	while(!mustEndServer)
 	{
 		wait(500);
-		configsCheck++;
+    if(autoRebootEnabled)
+    {
+      configsCheck++;
 		/*! Do not check for modified configuration files every cycle. */
-		if(configsCheck>10)
-		{
-			time_t myserver_main_conf_now=
-                       MYSERVER_FILE::getLastModTime(main_configuration_file);
-			time_t myserver_hosts_conf_now=
-                       MYSERVER_FILE::getLastModTime(vhost_configuration_file);
-			time_t myserver_mime_conf_now=
-                       MYSERVER_FILE::getLastModTime(mime_configuration_file);
-			/*If a configuration file was modified reboot the server*/
-			if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
-         (myserver_mime_conf_now!=-1)) || toReboot)
-			{
-				if( (myserver_main_conf_now != myserver_main_conf)  || 
-            (myserver_hosts_conf_now != myserver_hosts_conf)  || 
-            (myserver_mime_conf_now != myserver_mime_conf)          )
-				{
-					reboot();
-					/*! Store new mtime values. */
-					myserver_main_conf = myserver_main_conf_now;
-					myserver_hosts_conf=myserver_hosts_conf_now;
-					myserver_mime_conf=myserver_mime_conf_now;
-				}
-				configsCheck=0;
-			}
-			else
+      if(configsCheck>10)
       {
-        /*! If there are problems in loading mtimes check again after a bit. */
-				configsCheck=7;
-      }
-			
+        time_t myserver_main_conf_now=
+          MYSERVER_FILE::getLastModTime(main_configuration_file);
+        time_t myserver_hosts_conf_now=
+          MYSERVER_FILE::getLastModTime(vhost_configuration_file);
+        time_t myserver_mime_conf_now=
+          MYSERVER_FILE::getLastModTime(mime_configuration_file);
+        /*If a configuration file was modified reboot the server*/
+        if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
+            (myserver_mime_conf_now!=-1)) || toReboot)
+        {
+          if( (myserver_main_conf_now != myserver_main_conf)  || 
+              (myserver_hosts_conf_now != myserver_hosts_conf)  || 
+              (myserver_mime_conf_now != myserver_mime_conf)          )
+          {
+            reboot();
+            /*! Store new mtime values. */
+            myserver_main_conf = myserver_main_conf_now;
+            myserver_hosts_conf=myserver_hosts_conf_now;
+            myserver_mime_conf=myserver_mime_conf_now;
+          }
+          configsCheck=0;
+        }
+        else
+        {
+          /*! If there are problems in loading mtimes check again after a bit. */
+          configsCheck=7;
+        }
+			}
 		}
 #ifdef WIN32
 		DWORD eventsCount, cNumRead, i; 
@@ -1635,4 +1638,20 @@ char *cserver::getMIMEConfFile()
 LPCONNECTION cserver::getConnections()
 {
   return connections;
+}
+
+/*!
+ *Disable the autoreboot.
+ */
+void cserver::disableAutoReboot()
+{
+  autoRebootEnabled = 0;
+}
+
+/*!
+ *Enable the autoreboot
+ */
+void cserver::enableAutoReboot()
+{
+  autoRebootEnabled = 1;
 }

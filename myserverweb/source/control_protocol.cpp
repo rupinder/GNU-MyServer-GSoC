@@ -359,6 +359,11 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
       }
     }
   }
+  if(Ifile)
+  {
+    Ifile->setFilePointer(0);
+  }
+
   if(strcmpi(version, "CONTROL/1.0"))
   {
     if(Ifile)
@@ -426,7 +431,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
 
   /*! 
    *Create an out file. This can be used by commands that
-   *need it.
+   *needs it.
    */
   Ofile = new MYSERVER_FILE();
   if(Ofile == 0)
@@ -484,7 +489,6 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     Ofile=0;
     return 0;
   }
-
   if(!strcmp(command, "SHOWCONNECTIONS"))
   {
     knownCommand = 1;
@@ -504,6 +508,16 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     knownCommand = 1;
     lserver->rebootOnNextLoop();
     ret = 0;
+  }
+  else if(!strcmp(command, "GETFILE"))
+  {
+    knownCommand = 1;
+    ret = GETFILE(header.getOptions(), Ifile, Ofile, b1, bs1);
+  }
+  else if(!strcmp(command, "PUTFILE"))
+  {
+    knownCommand = 1;
+    ret = PUTFILE(header.getOptions(), Ifile, Ofile, b1, bs1);
   }
 
   if(knownCommand)
@@ -669,3 +683,139 @@ int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out,
   lserver->connections_mutex_unlock();
   return ret;
 }
+
+
+/*!
+ *Return the requested file to the client.
+ */
+int control_protocol::GETFILE(char* fn, MYSERVER_FILE* in, 
+                              MYSERVER_FILE* out, char *b1,int bs1 )
+{
+  char *filename = 0;
+  MYSERVER_FILE localfile;
+  int ret = 0;
+  if(!lstrcmpi(fn, "myserver.xml"))
+  {
+    filename = lserver->getMainConfFile();
+  }
+  else if(!lstrcmpi(fn, "MIMEtypes.xml"))
+  {
+    filename = lserver->getMIMEConfFile();
+  }
+  else if(!lstrcmpi(fn, "virtualhosts.xml"))
+  {
+    filename = lserver->getVhostConfFile();
+  }  
+  /*! If we cannot find the file send the right error ID. */
+  if(!filename)
+    return CONTROL_FILE_NOT_FOUND;
+
+  ret = localfile.openFile(fn, MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+
+  /*! An internal server error happens. */
+  if(ret)
+    return CONTROL_INTERNAL;
+  /*! # of bytes read. */
+  u_long nbr = 0;
+
+  /*! # of bytes written. */
+  u_long nbw = 0;
+  for( ; ;)
+  {
+    ret = localfile.readFromFile(b1, bs1, &nbr);
+    if(ret)
+      return CONTROL_INTERNAL;
+
+    /*! Break the loop when we can't read no more data.*/
+    if(!nbr)
+      break;
+    
+    ret = Ofile->writeToFile(b1, nbr, &nbw);
+
+    if(ret)
+      return CONTROL_INTERNAL;
+
+  }
+
+  localfile.closeFile();
+  return 0;
+}
+
+/*!
+ *Return the requested file to the client.
+ */
+int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in, 
+                              MYSERVER_FILE* out, char *b1,int bs1 )
+{
+  char *filename = 0;
+  MYSERVER_FILE localfile;
+  int ret = 0;
+  lserver->disableAutoReboot();
+  if(!lstrcmpi(fn, "myserver.xml"))
+  {
+    filename = lserver->getMainConfFile();
+  }
+  else if(!lstrcmpi(fn, "MIMEtypes.xml"))
+  {
+    filename = lserver->getMIMEConfFile();
+  }
+  else if(!lstrcmpi(fn, "virtualhosts.xml"))
+  {
+    filename = lserver->getVhostConfFile();
+  }  
+  /*! If we cannot find the file send the right error ID. */
+  if(!filename)
+  {
+    lserver->enableAutoReboot();
+    return CONTROL_FILE_NOT_FOUND;
+  }
+
+  ret = MYSERVER_FILE::deleteFile(fn);
+
+  /*! An internal server error happens. */
+  if(ret)
+  {
+    lserver->enableAutoReboot();
+    return CONTROL_INTERNAL;
+  }
+
+  ret = localfile.openFile(fn, MYSERVER_FILE_OPEN_WRITE | MYSERVER_FILE_OPEN_ALWAYS);
+
+  /*! An internal server error happens. */
+  if(ret)
+  {
+    lserver->enableAutoReboot();
+    return CONTROL_INTERNAL;
+  }
+
+  /*! # of bytes read. */
+  u_long nbr = 0;
+
+  /*! # of bytes written. */
+  u_long nbw = 0;
+  for( ; ;)
+  {
+    ret = Ifile->readFromFile(b1, bs1, &nbr);
+    if(ret)
+    {
+      lserver->enableAutoReboot();
+      return CONTROL_INTERNAL;
+    }
+
+    /*! Break the loop when we can't read no more data.*/
+    if(!nbr)
+      break;
+    
+    ret = localfile.writeToFile(b1, nbr, &nbw);
+
+    if(ret)
+    {
+      lserver->enableAutoReboot();
+      return CONTROL_INTERNAL;
+    }
+  }
+  localfile.closeFile();
+  lserver->enableAutoReboot();
+  return 0;
+}
+

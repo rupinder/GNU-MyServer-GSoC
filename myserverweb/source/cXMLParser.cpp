@@ -31,18 +31,22 @@ extern "C" {
 
 #ifdef WIN32
 /*!
-*Libxml2.lib is the dynamic version of the libxml2 while libxml2_a.lib is static.
-*With static version use the linker options: /NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCMTD.
-*/
+ *Libxml2.lib is the dynamic version of the libxml2 while libxml2_a.lib is static.
+ *With static version use the linker options: /NODEFAULTLIB:LIBCMT
+ * /NODEFAULTLIB:LIBCMTD.
+ */
 
-//#pragma comment (lib,"libxml2_a.lib")
+#ifdef LIXML_STATICALLY_LINKED
+#pragma comment (lib,"libxml2_a.lib")
+#else
 #pragma comment (lib,"libxml2.lib")
+#endif
 
 #endif
 
 /*!
-*Initialize the libxml2 library
-*/
+ *Initialize the libxml2 library
+ */
 int cXMLParser::startXML()
 {
 	xmlInitParser();
@@ -50,8 +54,8 @@ int cXMLParser::startXML()
 }
 
 /*!
-*Cleanup the libxml2 library.
-*/
+ *Cleanup the libxml2 library.
+ */
 int cXMLParser::cleanXML()
 {
 	xmlCleanupParser();
@@ -59,9 +63,9 @@ int cXMLParser::cleanXML()
 }
 
 /*!
-*With the open function we open a file and store it in memory.
-*Return nonzero on errors.
-*/
+ *With the open function we open a file and store it in memory.
+ *Return nonzero on errors.
+ */
 int cXMLParser::open(char* filename)
 {
 	cur=0;
@@ -82,17 +86,17 @@ int cXMLParser::open(char* filename)
 	return 0;
 }
 /*!
-*Constructor of the cXMLParser class.
-*/
+ *Constructor of the cXMLParser class.
+ */
 cXMLParser::cXMLParser()
 {
 	doc=0;
 	cur=0;
-        prev_cur=0;
+  prev_cur=0;
 }
 /*!
-*Return the xml Document.
-*/
+ *Return the xml Document.
+ */
 xmlDocPtr cXMLParser::getDoc()
 {
 	return doc;
@@ -124,8 +128,8 @@ char *cXMLParser::getValue(char* vName)
 	return ret;
 }
 /*!
-*Set the value of the vName root children element.
-*Returns nonzero on errors.
+ *Set the value of the vName root children element.
+ *Returns nonzero on errors.
 */
 int cXMLParser::setValue(char* vName,char *value)
 {
@@ -144,8 +148,8 @@ int cXMLParser::setValue(char* vName,char *value)
 	return 1;
 }
 /*!
-*Get the attribute attr for the node field
-*/
+ *Get the attribute attr for the node field
+ */
 char *cXMLParser::getAttr(char* field,char *attr)
 {
 	xmlNodePtr lcur=cur->xmlChildrenNode;
@@ -168,22 +172,22 @@ char *cXMLParser::getAttr(char* field,char *attr)
 	return 0;
 }
 /*!
-*Free the memory used by the class.
-*/
+ *Free the memory used by the class.
+ */
 int cXMLParser::close()
 {
 	xmlFreeDoc(doc);
 	doc=0;
 	cur=0;
-        prev_cur=0;
+  prev_cur=0;
 	return 0;
 }
 /*!
-*Save the XML tree to a file
-*Return nonzero on errors
-*If no errors nbytes[optional] will cointain the number 
-*of bytes written.
-*/
+ *Save the XML tree to a file
+ *Returns nonzero on errors
+ *If no errors nbytes[optional] will cointain the number 
+ *of bytes written.
+ */
 int cXMLParser::save(char *filename,int *nbytes)
 {
   int err = xmlSaveFile(filename,doc);
@@ -193,9 +197,9 @@ int cXMLParser::save(char *filename,int *nbytes)
   return err;
 }
 /*!
- *Start a new XML tree for a new file
- *Returns nothing
- *root is the root element entry
+ *Start a new XML tree for a new file.
+ *Returns nothing.
+ *root is the root element entry.
  */
 void cXMLParser::newfile(const char * root)
 {
@@ -206,36 +210,37 @@ void cXMLParser::newfile(const char * root)
    xmlDocSetRootElement(doc, cur);
 }
 /*!
- *Adds a new child entry
- *Returns nothing
- *name is the child name and value is its value
+ *Adds a new child entry.
+ *Returns nothing.
+ *name is the child name and value is its value.
  */
 void cXMLParser::addChild(const char * name, const char * value)
 {
    xmlNewTextChild(cur, NULL, (const xmlChar*)name, (const xmlChar*)value);
 }
+
 /*!
- *Starts a new sub group (only one level for now)
- *Returns nothing
- *name is the name of the sub group
+ *Starts a new sub group (only one level for now).
+ *Returns nothing.
+ *name is the name of the sub group.
  */
 void cXMLParser::addGroup(const char * name)
 {
-   if(prev_cur == 0)
-     {
-	prev_cur = cur;
-	cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
-     }
+  if(prev_cur == 0)
+  {
+    prev_cur = cur;
+    cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
+  }
 }
 /*!
- *Ends the sub group if any (only one level for now)
- *Returns nothing
+ *Ends the sub group if any (only one level for now).
+ *Returns nothing.
  */
 void cXMLParser::endGroup()
 {
-   if(prev_cur != 0)
-     {
-	cur = prev_cur;
-	prev_cur = 0;
-     }
+  if(prev_cur != 0)
+  {
+    cur = prev_cur;
+    prev_cur = 0;
+  }
 }

@@ -49,4 +49,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
   /*! The client uses a version of this protocol that we cannot understand. */
 #define CONTROL_BAD_VERSION      207
+
+  /*! The requested file doesn't exist on the local FS. */
+#define CONTROL_FILE_NOT_FOUND      208
+
 #endif

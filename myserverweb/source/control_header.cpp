@@ -205,13 +205,13 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
         return CONTROL_MALFORMED;
 
       myserver_strlcpy(version, offset, min(versionLen + 1, 12) );
-      offset += versionLen;
+      offset += versionLen + 1;
 
       int optionsLen = getCharInString(offset, "\r", 32);
       if(optionsLen == -1)
         cmdOptions[0]='\0';
       else
-        myserver_strlcpy(cmdOptions, offset, min(optionsLen + 1, 12) );
+        myserver_strlcpy(cmdOptions, offset, min(optionsLen + 1, 64) );
       /*! Put the offset at the end of \r\n. */
       offset += ((optionsLen!= -1)?optionsLen:0) + 2 ;
     }

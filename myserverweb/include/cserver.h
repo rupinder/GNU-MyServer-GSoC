@@ -94,6 +94,7 @@ private:
 	protocols_manager protocols;
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
+  int autoRebootEnabled;
   int toReboot;
 	u_long nThreads;
 	u_long verbosity;
@@ -131,6 +132,8 @@ private:
 	char *vhost_configuration_file;
 	char *mime_configuration_file;
 public:
+  void disableAutoReboot();
+  void enableAutoReboot();
   void rebootOnNextLoop();
   char *getMainConfFile();
   char *getVhostConfFile();
