@@ -96,7 +96,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     {
       delete []filename;
       /*! If we cannot allocate the memory return a 500 error message. */
-      return ((http*)td->lhttp)->sendHTTPHardError500(td, s);
+      return ((http*)td->lhttp)->sendHTTPhardError500(td, s);
     }
 
 		sprintf(cmdLine, "cmd /c %s %s", td->scriptFile, td->pathInfo[0]?&td->pathInfo[1]:td->pathInfo);
