@@ -110,7 +110,7 @@ cgi_manager::~cgi_manager(void)
 char* cgi_manager::GetParam(char* param)
 {
 	if(td->request.URIOPTS[0]=='\0')
-		return NULL;
+		return 0;
 	localbuffer[0]='\0';
 	char *c=&(td->request.URIOPTS)[0];
 	for(;;)
@@ -128,7 +128,7 @@ char* cgi_manager::GetParam(char* param)
 		}
 	}
 	u_long len=0;
-	while((c[len]) && (c[len]!='&') && (len < /*!LOCAL_BUFFER_DIM-1*/2 ))
+	while((c[len]) && (c[len]!='&') && (len < LOCAL_BUFFER_DIM-1 ))
 	{
 		localbuffer[len]=c[len];
 		localbuffer[len+1]='\0';
@@ -149,6 +149,9 @@ char* cgi_manager::PostParam(char* param)
 	localbuffer[0]='\0';
 	
 	u_long toRead=td->inputData.getFileSize();
+	
+	if(!toRead)
+		return 0;
 	do
 	{
 		cgidata->td->inputData.readFromFile(&c[0],1,&nbr);
