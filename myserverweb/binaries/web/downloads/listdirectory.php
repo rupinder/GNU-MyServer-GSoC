@@ -42,7 +42,7 @@ Contents of <span class="bold">downloads</span><br />
 <td>exec</td>
 <td><a href="http://www.php.net/fileatime">fileatime()</a></td>
 <td><a href="http://www.php.net/filemtime">filemtime()</a></td>
-<td><a href="http://www.php.net/filectime">fliectime()</a></td>
+<td><a href="http://www.php.net/filectime">filectime()</a></td>
 </tr>');
 
 $directory="./";
