@@ -201,6 +201,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
                                     DWORD /*!dwReserved*/)
 {
 	ConnTableRecord *ConnInfo;
+	char chunk_size[15];
+	u_long nbw=0;
 	if(*lpdwBytes==0)
 		return 1;
 	isapi::isapi_mutex->myserver_mutex_lock();
@@ -219,15 +221,12 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	}
 	int keepalive =(lstrcmpi(ConnInfo->td->request.CONNECTION, "Keep-Alive")==0)?1:0 ;
 
-	char chunk_size[15];
-	u_long nbw=0;
-
   /*If the HTTP header was sent do not send it again. */
 	if(!ConnInfo->headerSent)
 	{
+	  int headerSize=0;
 		strncat(buffer,(char*)Buffer,*lpdwBytes);
 		ConnInfo->headerSize+=*lpdwBytes;
-		int headerSize=0;
 		for(u_long i=0;i<(u_long)strlen(buffer);i++)
 		{
 			if(buffer[i]=='\r')
@@ -428,9 +427,11 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
      *Find in ConnInfo->envString the value lpszVariableName 
      *and copy next string in lpvBuffer.
      */
+		char *localEnv;
+		int variableNameLen;
 		((char*)lpvBuffer)[0]='\0';
-		char *localEnv=ConnInfo->envString;
-		int variableNameLen=(int)strlen(lpszVariableName);
+	  localEnv=ConnInfo->envString;
+		variableNameLen=(int)strlen(lpszVariableName);
 		for(u_long i=0;;i+=(u_long)strlen(&localEnv[i])+1)
 		{
 			if(((localEnv[i+variableNameLen])=='=')&&
@@ -665,7 +666,10 @@ int isapi::send(httpThreadContext* td,LPCONNECTION connection,
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
-	AppHnd = LoadLibrary(cgipath);
+	if(execute)
+  	AppHnd = LoadLibrary(scriptpath);
+	else
+	  AppHnd = LoadLibrary(cgipath);
 
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
@@ -680,7 +684,7 @@ int isapi::send(httpThreadContext* td,LPCONNECTION connection,
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)(td->connection->host))->warningsLogWrite(
                                          "Failure to load ISAPI application module: ");
-		((vhost*)(td->connection->host))->warningsLogWrite(cgipath);
+		((vhost*)(td->connection->host))->warningsLogWrite(execute ? scriptpath : scriptpath);
 		((vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
@@ -930,7 +934,7 @@ int isapi::load()
 }
 
 /*!
- *Cleanup the memory used by ISAPI
+ *Cleanup the memory used by ISAPI.
  */
 int isapi::unload()
 {
