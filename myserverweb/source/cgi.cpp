@@ -485,6 +485,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 		{
 			/*! Resetting the structure we send only the information gived by the CGI. */
 			http_headers::resetHTTPResponse(&(td->response));
+      strcpy(td->response.VER, td->request.VER);
 		}
 
 		u_long nbw=0;

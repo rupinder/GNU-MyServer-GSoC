@@ -923,13 +923,9 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
 		nLineControlled++;
 		if((nLineControlled==1)&& containStatusLine)
 		{
-			/*!
-       *The first line has the form:
-       *GET /index.html HTTP/1.1
-       */
 			lineControlled=1;
 			/*! Copy the HTTP version.  */
-			myserver_strlcpy(response->VER,command,HTTP_RESPONSE_VER_DIM);
+			myserver_strlcpy(response->VER, command, HTTP_RESPONSE_VER_DIM);
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			if(token)
@@ -1064,7 +1060,9 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
 			{
 				strncat(response->OTHER,command,
                 HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
-				strncat(response->OTHER,token,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
+				strncat(response->OTHER, token, 
+                HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER)-1);
+        strncat(response->OTHER, "\n", 1);     
 			}
 		}
 		token = strtok( NULL, cmdseps );
