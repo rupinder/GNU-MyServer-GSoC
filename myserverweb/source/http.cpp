@@ -210,7 +210,6 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	int ret;
 	MYSERVER_FILE h;
 	ret=h.ms_OpenFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-
 	if(ret==0)
 	{	
 		return 0;
@@ -255,6 +254,8 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	td->buffer[0]='\0';
 
 	sprintf(td->response.CONTENTS_DIM,"%u",bytesToSend);
+	time_t lastmodTime=h.ms_GetLastModTime();
+	getRFC822LocalTime(lastmodTime,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	buildHTTPResponseHeader(td->buffer,&td->response);
 	s->socket.ms_send(td->buffer,lstrlen(td->buffer), 0);
 
@@ -485,11 +486,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			return raiseHTTPError(td,s,e_404);
 	}
 	time_t lastMT=MYSERVER_FILE::ms_GetLastModTime(td->filenamePath);
-	getRFC822GMTTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
+	getRFC822LocalTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	if(td->request.IF_MODIFIED_SINCE[0])
 	{
 		time_t timeMS=getTime(td->request.IF_MODIFIED_SINCE);
-		if(timeMS<lastMT)
+		if(timeMS==lastMT)
 			return sendHTTPNonModified(td,s);
 	}
 

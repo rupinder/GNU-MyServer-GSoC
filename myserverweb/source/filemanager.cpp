@@ -381,7 +381,6 @@ time_t MYSERVER_FILE::ms_GetLastModTime(char *filename)
 	struct stat sf;
 	stat(filename,&sf);
 #endif
-	time(&sf.st_mtime);
 	return sf.st_mtime;
 }
 time_t MYSERVER_FILE::ms_GetLastModTime()

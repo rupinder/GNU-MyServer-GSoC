@@ -31,13 +31,13 @@ extern "C" {
 
 #ifdef WIN32
 /*
-*By default use the static version of libxml2.
+*Libxml2.lib is the dynamic version of the libxml2 while libxml2_a.lib is static.
+*With static version use the linker options: /NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCMTD.
 */
-#pragma comment (lib,"libxml2_a.lib")
-/*
-*Use this to use the dynamic version.
+
+//#pragma comment (lib,"libxml2_a.lib")
 #pragma comment (lib,"libxml2.lib")
-*/
+
 #endif
 
 /*

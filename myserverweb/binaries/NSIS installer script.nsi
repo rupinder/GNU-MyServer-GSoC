@@ -42,6 +42,7 @@ Section "MyServer core" SecCore
   SetOutPath $INSTDIR
   WriteUninstaller "remove.exe"
   File "myserver.exe"
+  File "libxml2.dll"
   File "MIMEtypes.txt"
   File "myserver.xml"
   File "readme.txt"
