@@ -122,7 +122,6 @@ void * startClientsTHREAD(void* pParam)
 */
 void ClientsTHREAD::controlConnections()
 {
-	static int i=0;
 	/*!
 	*Get the access to the connections list.
 	*/

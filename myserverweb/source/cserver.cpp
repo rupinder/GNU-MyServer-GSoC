@@ -179,7 +179,7 @@ void cserver::start()
 #ifdef NOT_WIN
 			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
-			printf("%s #%u: %s\n", languageParser.getValue("MSG_ADDRESS"), i+1, inet_ntoa(ia));
+			printf("%s #%u: %s\n", languageParser.getValue("MSG_ADDRESS"), (u_long)(i+1), inet_ntoa(ia));
 			sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", strlen(ipAddresses)?", ":"", inet_ntoa(ia));
 		}
 	}
@@ -274,13 +274,12 @@ int cserver::createServerAndListener(u_long port)
 	MYSERVER_SOCKET serverSocket;
 	serverSocket.socket(AF_INET, SOCK_STREAM, 0);
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
-	if(serverSocket.getHandle()==INVALID_SOCKET)
+	if(serverSocket.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 	{
 		preparePrintError();
 		printf("%s\n", languageParser.getValue("ERR_OPENP"));
-		endPrintError();		
+		endPrintError();
 		return 0;
-
 	}
 	printf("%s\n", languageParser.getValue("MSG_SSOCKRUN"));
 	sock_inserverSocket.sin_family=AF_INET;
@@ -327,7 +326,7 @@ int cserver::createServerAndListener(u_long port)
 		return 0; 
 	}
 
-	printf("%s: %u\n", languageParser.getValue("MSG_LISTEN"), port);
+	printf("%s: %u\n", languageParser.getValue("MSG_LISTEN"), (u_long)port);
 
 	printf("%s\n", languageParser.getValue("MSG_LISTENTR"));
 	/*!
@@ -427,7 +426,7 @@ void * listenServer(void* params)
 		asock.setServerSocket(&serverSocket);
 		if(asock.getHandle()==0)
 			continue;
-		if(asock.getHandle()==INVALID_SOCKET)
+		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 			continue;
 		lserver->addConnection(asock, &asock_in);
 	}
@@ -1140,7 +1139,7 @@ void cserver::loadSettings()
         	endPrintError();
 		return;
 	}
-	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), getCPUCount());
+	printf("%s %u\n", languageParser.getValue("MSG_NUM_CPU"), (u_long)getCPUCount());
 
 	/*!
 	*If the virtualhosts.xml file doesn't exist copy it from the default one.
@@ -1194,7 +1193,7 @@ void cserver::loadSettings()
 	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n", languageParser.getValue("MSG_CREATET"), i);
-		threads[i].id=(i+ClientsTHREAD::ID_OFFSET);
+		threads[i].id=(u_long)(i+ClientsTHREAD::ID_OFFSET);
 		myserver_thread::create(&ID,   &::startClientsTHREAD,  (void *)&(threads[i].id));
 		printf("%s\n", languageParser.getValue("MSG_THREADR"));
 	}

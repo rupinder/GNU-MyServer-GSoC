@@ -119,9 +119,8 @@ u_long getCPUCount()
 */
 int setcwdBuffer()
 {
-	int ret=(-1);
 #ifdef WIN32	
-	ret =(int) _getcwd(currentPath,MAX_PATH);
+	int ret =(int) _getcwd(currentPath,MAX_PATH);
 	if(!ret)
 		return -1;
 	ret=0;
@@ -132,14 +131,14 @@ int setcwdBuffer()
 		currentPath[strlen(currentPath)]='\0';
 #endif
 #ifdef NOT_WIN
-	ret=getcwd(currentPath,MAX_PATH);
+	char *ret=getcwd(currentPath,MAX_PATH);
 	if(!ret)
 		return -1;
 	ret=0;
 	if(currentPath[strlen(currentPath)]=='/') 
 		currentPath[strlen(currentPath)]='\0';
 #endif
-	return ret;
+	return (-1);
 }
 /*!
 *Get the default working directory(Where is the main executable).

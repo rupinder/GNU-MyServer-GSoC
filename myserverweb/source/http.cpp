@@ -239,7 +239,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		}
 		else
 		{
-			sprintf(fileSize, "%i bytes", fd.size);
+			sprintf(fileSize, "%u bytes", fd.size);
 			*td->buffer2 << fileSize;
 		}
 		*td->buffer2 << "</td>\r\n</tr>\r\n";
@@ -272,7 +272,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 			*buffer2Loop='/';
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 		strcpy(td->response.CONNECTION, "Keep-Alive");
-	sprintf(td->response.CONTENT_LENGTH, "%u", td->outputData.getFileSize());
+	sprintf(td->response.CONTENT_LENGTH, "%u", (u_long)td->outputData.getFileSize());
 	
 	if(!td->appendOutputs)/*If we haven't to append the output build the HTTP header and send the data*/
 	{
@@ -280,7 +280,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		td->outputData.setFilePointer(0);
 		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &(td->response));
 		nbs=s->socket.send((char*)td->buffer->GetBuffer(), (u_long)strlen((char*)td->buffer->GetBuffer()), 0);
-		if(nbs==-1)
+		if(nbs == (u_long)-1)
 		{
 			return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
 		}	
@@ -295,7 +295,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 			nbs = 0;
 			if(nbr)
 				nbs=s->socket.send((char*)td->buffer->GetBuffer(), nbr, 0);
-			if(nbs==-1)
+			if(nbs==(u_long)-1)
 			{
 				return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
 			}
@@ -461,7 +461,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 		td->response.httpStatus = 206;
 	
 	if(keepalive)
-		sprintf(td->response.CONTENT_LENGTH, "%u", bytes_to_send);
+		sprintf(td->response.CONTENT_LENGTH, "%u", (u_long)bytes_to_send);
 	else
 		strcpy(td->response.CONNECTION, "Close");
 	
@@ -544,22 +544,22 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 			char chunksize[12];
 			if(keepalive)
 			{
-				sprintf(chunksize, "%x\r\n", gzip_dataused);
+				sprintf(chunksize, "%x\r\n", (u_long)gzip_dataused);
 				ret=s->socket.send(chunksize, (int)strlen(chunksize), 0);
-				if(ret == SOCKET_ERROR)
+				if(ret == (u_long)SOCKET_ERROR)
 					break;
 			}
 			if(gzip_dataused)
 			{
 				ret=s->socket.send((char*)td->buffer->GetBuffer(), gzip_dataused, 0);
-				if(ret == SOCKET_ERROR)
+				if(ret == (u_long)SOCKET_ERROR)
 					break;
 				dataSent+=ret;
 			}
 			if(keepalive)
 			{
 				ret=s->socket.send("\r\n", 2, 0);
-				if(ret == SOCKET_ERROR)
+				if(ret == (u_long)SOCKET_ERROR)
 					break;
 			}
 		}
@@ -587,7 +587,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 					}
 					
 				}
-				if(ret == SOCKET_ERROR)
+				if(ret == (u_long)SOCKET_ERROR)
 					break;
 				dataSent+=ret;
 			}
@@ -598,7 +598,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 			if(keepalive && use_gzip )
 			{
 				ret=s->socket.send("0\r\n\r\n", 5, 0);
-				if(ret==-1)
+				if(ret==(u_long)SOCKET_ERROR)
 				{
 					h.closeFile();
 					return 0;
@@ -1357,7 +1357,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 	}
 	
 	u_long validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
-	if(validRequest==-1)/*!If the header is incomplete returns 2*/
+	if(validRequest==(u_long)-1)/*!If the header is incomplete returns 2*/
 	{
 		if(!strcmp(td.request.VER, "HTTP/1.1"))/*Be sure that the client can handle the 100 status code*/
 		{
@@ -1566,7 +1566,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 						break;
 				}
 				while(content_len!=total_nbr);
-				sprintf(td.response.CONTENT_LENGTH, "%u", td.inputData.getFileSize());
+				sprintf(td.response.CONTENT_LENGTH, "%u", (u_long)td.inputData.getFileSize());
 
 			}
 			td.inputData.setFilePointer(0);
@@ -1846,14 +1846,14 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 }
 
 /*!
-*Compute the Digest to out using a buffer->
+*Compute the Digest to out using a buffer.
 */
 void http::computeDigest(httpThreadContext* td, char* out , char* buffer)
 {
 	if(!out)
 		return;
 	MYSERVER_MD5Context md5;
-	sprintf(buffer, "%i-%i-%s", clock(), td->id, td->connection->ipAddr);
+	sprintf(buffer, "%i-%u-%s", (int)clock(), td->id, td->connection->ipAddr);
 	MYSERVER_MD5Init(&md5);
 	MYSERVER_MD5Update(&md5, (const unsigned char*)buffer , (u_long)strlen(buffer));
 	MYSERVER_MD5End(&md5, out);
@@ -2214,7 +2214,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	for(;;)
 	{
 		char xmlMember[21];
-		sprintf(xmlMember, "DEFAULT_FILENAME%i", nDefaultFilename);
+		sprintf(xmlMember, "DEFAULT_FILENAME%u", nDefaultFilename);
 		if(!strlen(configurationFileManager.getValue(xmlMember)))
 			break;
 		nDefaultFilename++;
@@ -2241,7 +2241,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 		for(i=0;defaultFilename && (i<nDefaultFilename);i++)
 		{
 			char xmlMember[21];
-			sprintf(xmlMember, "DEFAULT_FILENAME%i", i);
+			sprintf(xmlMember, "DEFAULT_FILENAME%u", i);
 			data=configurationFileManager.getValue(xmlMember);
 			if(data)
 				strcpy(&defaultFilename[i*MAX_PATH], data);

@@ -299,7 +299,7 @@ void http_headers::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 *nLinesptr is a value of the lines number in the HEADER.
 *ncharsptr is a value of the characters number in the HEADER.
 */
-u_long http_headers::validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
+int http_headers::validHTTPResponse(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i;
 	u_long buffersize=td->buffersize;
@@ -376,7 +376,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	/*!
 	*Control if the HTTP header is a valid header.
 	*/
-	u_long i=0,j=0,max=0;
+	u_long i=0,j=0;
+	int max=0;
 	u_long nLines,maxTotchars;
 	int noinputspecified=0;
 	if(input==0)
@@ -384,7 +385,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		noinputspecified=1;
 		input=(char*)td->buffer->GetBuffer();
 	}
-	u_long validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
+	int validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
 	if(validRequest==0)/*!Invalid header*/
 		return 0;
 	else if(validRequest==-1)/*!Incomplete header*/
@@ -444,11 +445,11 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			strncpy(request->CMD,command,tokenOff);
 			request->CMD[tokenOff]='\0';
 			tokenOff = getCharInString(token,"\t\n\r",HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
+			u_long len_token =tokenOff;
 			if(tokenOff==-1)
 				return 0;
-			u_long len_token=tokenOff;
-			max=len_token;
-			while((token[max]!=' ')&(len_token-max<HTTP_REQUEST_VER_DIM))
+			max=(int)tokenOff;
+			while((token[max]!=' ') && (len_token-max<HTTP_REQUEST_VER_DIM))
 				max--;
 			int containOpts=0;
 			for(i=0;(i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
@@ -477,7 +478,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 				request->uriEndsWithSlash=0;
 			StrTrim(request->URI," /");
 			StrTrim(request->URIOPTS," /");
-			max=(u_long)strlen(request->URI);
+			max=strlen(request->URI);
 			if(max>max_URI)
 			{
 				return 414;
@@ -660,12 +661,12 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		/*!Accept*/
 		if(!lstrcmpi(command,"Accept"))
 		{
-			int max=HTTP_REQUEST_ACCEPT_DIM-(int)strlen(request->ACCEPT);
-			int oldlen=(int)strlen(request->ACCEPT);
-			if(max<0)
+			int max = HTTP_REQUEST_ACCEPT_DIM-(int)strlen(request->ACCEPT);
+			int oldlen = (int)strlen(request->ACCEPT);
+			if(max < 0)
 				return 0;
 			tokenOff = getCharInString(token,seps,max);
-			if(tokenOff==-1)return 0;
+			if(tokenOff == -1)return 0;
 			lineControlled=1;
 			strncat(request->ACCEPT,token,tokenOff+1);
 			request->ACCEPT[oldlen+tokenOff]='\0';
@@ -1059,7 +1060,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 *nLinesptr is a value of the lines number in the HEADER.
 *ncharsptr is a value of the characters number in the HEADER.
 */
-u_long http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
+int http_headers::validHTTPRequest(char *req,httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i=0;
 	u_long buffersize=td->buffer->GetRealLength();

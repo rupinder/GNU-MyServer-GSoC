@@ -192,7 +192,7 @@ void CMemBuf::Replace(char what, char by)
 {
 	const char* pEnd = m_buffer + m_nSize;
 	char *buf_c = m_buffer;
-	for (buf_c; buf_c < pEnd; buf_c++)
+	for ( ; buf_c < pEnd; buf_c++)
 	{
 		if (*buf_c == what)
 			*buf_c = by;
@@ -452,7 +452,7 @@ CMemBuf CMemBuf::HexToData(const void* pAdr, u_int nSize)
 	memFinal.SetLength(nSize >> 1);
 	const char* pTmp = (const char*) pAdr;
 	const char* pEnd = pTmp + nSize;
-	for (pTmp; pTmp < pEnd; pTmp += 2)
+	for ( ; pTmp < pEnd; pTmp += 2)
 		memFinal << (unsigned char) ((HexCharToNumber(*pTmp) << 4) + HexCharToNumber(*(pTmp + 1)));
 	return memFinal;
 }
