@@ -401,9 +401,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		return 0;
 	}
 
-	/*!
-	*If the file is a valid handle.
-	*/
+	/*! *If the file is a valid handle.  */
 	u_long bytesToSend=h.getFileSize();
 	if(lastByte == -1)
 	{
@@ -414,33 +412,25 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			useGZIP=1;
 		}
 	}
-	else/*!If the client use ranges set the right value for the last byte number*/
+	else/*! If the client use ranges set the right value for the last byte number.  */
 	{
 		lastByte=min((u_long)lastByte,bytesToSend);
 	}
 	int keepalive = !lstrcmpi(td->request.CONNECTION,"Keep-Alive");
-	/*
-	*Be sure that client accept GZIP compressed data.
-	*/
-#ifndef DO_NOT_USE_GZIP		
+	/*! Be sure that client accept GZIP compressed data.  */
+#ifndef DO_NOT_USE_GZIP
 	if(useGZIP)
 		useGZIP &= (strstr(td->request.ACCEPTENC,"gzip")!=0);
 #else
-	/*
-	*If compiled without GZIP support force the server to don't use it.
-	*/
+	/*! If compiled without GZIP support force the server to don't use it.  */
 	useGZIP=0;
 #endif	
 	if(td->appendOutputs)
 		useGZIP=0;
-	/*!
-	*bytesToSend is the interval between the first and the last byte.
-	*/
+	/*! bytesToSend is the interval between the first and the last byte.  */
 	bytesToSend=lastByte-firstByte;
 
-	/*!
-	*If failed to set the file pointer returns an internal server error.
-	*/
+	/*! If failed to set the file pointer returns an internal server error.  */
 	if(h.setFilePointer(firstByte))
 	{
 		h.closeFile();
@@ -449,7 +439,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 
 	td->buffer->SetLength(0);
 	
-	/*!If a Range was requested send 206 and not 200 for success*/
+	/*! If a Range was requested send 206 and not 200 for success.  */
 	if((lastByte == -1)|(firstByte))
 		td->response.httpStatus = 206;
 	if(keepalive)
@@ -459,7 +449,8 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	
 	if(useGZIP)
 	{
-		if(keepalive)/*Do not use chunked transfer with old HTTP/1.0 clients*/
+		/*! Do not use chunked transfer with old HTTP/1.0 clients.  */
+		if(keepalive)
 			strcpy(td->response.TRANSFER_ENCODING,"chunked");
 		strcpy(td->response.CONTENT_ENCODING,"gzip");
 	}
@@ -467,34 +458,25 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	td->buffer->SetLength((u_long)strlen((char*)td->buffer->GetBuffer()));
 	if(!td->appendOutputs)
 	{
-		/*!
-		*Send the HTTP header
-		*/
+		/*! Send the HTTP header.  */
 		if(s->socket.send((char*)td->buffer->GetBuffer(),(u_long)td->buffer->GetLength(), 0)== SOCKET_ERROR)
 		{
 			h.closeFile();
 			return 0;
 		}
 	}
-	/*!
-	*If is requested only the header exit from the function; used by the HEAD request.
-	*/
+	/*! If is requested only the header exit from the function; used by the HEAD request.  */
 	if(OnlyHeader)
 	{
 		h.closeFile();
 		return 1;
 	}
-	/*!
-	*Is the GZIP header still added to the buffer?
-	*/
+	/*! Is the GZIP header still added to the buffer?  */
 	u_long gzipheaderadded=0;
-	/*!
-	*gzip compression manager
-	*/
+	
+ 	/*! gzip compression manager.  */
 	gzip gzip;
-	/*
-	*Number of bytes created by the zip compressor by loop.
-	*/
+	/*! Number of bytes created by the zip compressor by loop.  */
 	u_long gzip_dataused=0;
 	u_long dataSent=0;
 	u_long err;
@@ -508,9 +490,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		{
 			gzip_dataused=0;
 			u_long datatoread=min(bytesToSend,td->buffer2->GetRealLength()/2);
-			/*!
-			*Read from the file the bytes to send.
-			*/
+			/*! Read from the file the bytes to send.  */
 			if(!h.readFromFile((char*)td->buffer2->GetBuffer(),datatoread,&nbr))
 			{
 				h.closeFile();
@@ -534,9 +514,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		}
 		else
 		{
-			/*!
-			*Read from the file the bytes to send.
-			*/
+			/*! Read from the file the bytes to send. */
 			if(!h.readFromFile((char*)td->buffer->GetBuffer(),min(bytesToSend,td->buffer->GetRealLength()),&nbr))
 			{
 				h.closeFile();
@@ -570,9 +548,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		}
 		else/*Do not use GZIP*/
 		{
-			/*!
-			*If there are bytes to send, send them.
-			*/
+			/*! If there are bytes to send, send them. */
 			if(nbr)
 			{
 				if(!td->appendOutputs)
@@ -598,9 +574,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 				dataSent+=err;
 			}
 		}
-		/*!
-		*When the bytes number read from the file is zero, stop to send the file.
-		*/
+		/*! When the bytes number read from the file is zero, stop to send the file.  */
 		if(nbr==0)
 		{
 			if(keepalive && useGZIP )
@@ -645,9 +619,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 	}
 	else
 	{
-		/*!
-		*If the client try to access files that aren't in the web folder send a 401 error.
-		*/
+		/*! If the client try to access files that aren't in the web folder send a 401 error.  */
 		translateEscapeString(filename);
 		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
 		{
@@ -675,7 +647,8 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 	else/*!The default user is Guest with a null password*/
 		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);
 
-	if(!lstrcmpi(auth_type,"Digest"))/*Check if we have to use digest for the current folder*/
+	/*! Check if we have to use digest for the current folder.  */
+	if(!lstrcmpi(auth_type,"Digest"))
 	{
 		if(!lstrcmpi(td->request.AUTH,"Digest"))
 		{
@@ -690,11 +663,11 @@ int http::putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,in
 		}
 		td->auth_scheme=HTTP_AUTH_SCHEME_DIGEST;
 	}
-	else/*By default use the Basic authentication scheme*/
+	else/*! By default use the Basic authentication scheme. */
 	{
 		td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
 	}	
-	/*If there are no permissions, use the Guest permissions*/
+	/*! If there are no permissions, use the Guest permissions.  */
 	if(td->request.AUTH[0] && (permissions==0))
 		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password,auth_type,16);		
 
