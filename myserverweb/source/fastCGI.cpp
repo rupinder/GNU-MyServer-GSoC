@@ -37,6 +37,9 @@ int fastcgi::initialized=0;
 /*! By default allows 25 servers. */
 int fastcgi::max_fcgi_servers=25;
 
+/*! Use a default timeout of 15 seconds. */
+int fastcgi::timeout=SEC(15);
+
 /*! Mutex used to access fastCGI servers. */
 myserver_mutex fastcgi::servers_mutex;
 struct fourchar
@@ -176,9 +179,18 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 	td->inputData.closeFile();
-	td->inputData.openFile(td->inputDataPath,
+	if(td->inputData.openFile(td->inputDataPath,
                          MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS | 
-                         MYSERVER_FILE_NO_INHERIT);
+                            MYSERVER_FILE_NO_INHERIT))
+  {
+    delete [] fullpath;
+		td->buffer->SetLength(0);
+		*td->buffer<< "Error opening stdin file\r\n" << '\0';
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+  }
 
   sfCGIservers* server = FcgiConnect(&con,fullpath);
   delete [] fullpath;
@@ -293,8 +305,6 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
   /*! Return 1 if keep the connection. */
   int ret = 1;
 	
-	/*! Timeout is 20 seconds.  */
-	const clock_t timeout= CLOCKS_PER_SEC * 20;
 	clock_t time1 = get_ticks();
 	
 	char *outDataPath=0;
@@ -314,9 +324,21 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	getdefaultwd(outDataPath, outDataPathLen);
 	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFCGI_%u",(u_int)td->id);
 	
-	con.tempOut.openFile(outDataPath,MYSERVER_FILE_OPEN_WRITE | 
-                       MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|
-                       MYSERVER_FILE_NO_INHERIT);
+	if(con.tempOut.openFile(outDataPath,MYSERVER_FILE_OPEN_WRITE | 
+                          MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_CREATE_ALWAYS |
+                          MYSERVER_FILE_NO_INHERIT))
+  {
+    delete [] outDataPath;
+    td->buffer->SetLength(0);
+		*td->buffer << "Error opening stdout file\r\n"<< '\0';
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)td->connection->host)->
+                            warningsLogWrite((char*)td->buffer->GetBuffer());
+
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+  }
+
 	do	
 	{
 		while(con.sock.bytesToRead()<sizeof(FCGI_Header))
@@ -914,4 +936,20 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
    *Return the new server.
    */
   return new_server;
+}
+
+/*!
+ *Return the timeout value.
+ */
+int fastcgi::getTimeout()
+{
+  return timeout;
+}
+
+/*!
+ *Set a new timeout.
+ */
+void fastcgi::setTimeout(int ntimeout)
+{
+  timeout = ntimeout;
 }

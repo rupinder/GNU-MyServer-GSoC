@@ -2965,6 +2965,7 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 	}
 
   cgi::setTimeout(cgi_timeout);
+  fastcgi::setTimeout(cgi_timeout);
   fastcgi::setMaxFcgiServers(fastcgi_servers);
 
 	/*! Determine the number of default filenames written in the configuration file.  */

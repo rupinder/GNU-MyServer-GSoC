@@ -184,6 +184,7 @@ struct fCGIContext
 class fastcgi
 {
 private:
+	static int timeout;
   static  int max_fcgi_servers;
 	static int initialized;
   static myserver_mutex servers_mutex;
@@ -202,6 +203,8 @@ private:
 	sfCGIservers* FcgiConnect(fCGIContext*,char*);
 
 public:
+  static int getTimeout();
+  static void setTimeout(int);
   static void setMaxFcgiServers(int);
   static int getMaxFcgiServers();
 	fastcgi();
