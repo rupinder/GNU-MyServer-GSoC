@@ -37,7 +37,7 @@ html,text/html,SEND NONE;
 */
 int MIME_Manager::load(char *filename)
 {
-	strcpy(this->filename,filename);
+	strcpy(MIME_Manager::filename,filename);
 	numMimeTypesLoaded=0;
 	char *buffer;
 	MYSERVER_FILE f;
@@ -151,6 +151,7 @@ char *MIME_Manager::getFilename()
 int MIME_Manager::loadXML(char *filename)
 {
 	cXMLParser parser;
+	strcpy(MIME_Manager::filename,filename);
 	if(int r=parser.open(filename))
 	{
 		return -1;

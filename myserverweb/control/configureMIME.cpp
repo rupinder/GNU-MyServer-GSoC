@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-#include "control.h"
+#include "control.h" 
 #include "configuration.h"
 #include "configureMIME.h"
 static int yetVisible=0;
@@ -143,8 +143,8 @@ void configurationFrameMIME::save(wxCommandEvent& event)
 	wxString str=extensionsLB->GetString(extensionsLB->GetSelection());
 	char EXT[10];
 	sprintf(EXT,"%s",(const char*)(str.ToAscii()));
-
 	MIME_Manager::mime_record *record=mm.getRecord(EXT);
+
 	str=mimeTypesLB->GetString(mimeTypesLB->GetSelection());
 	sprintf(record->mime_type,"%s",(const char*)(str.ToAscii()));
 
@@ -166,9 +166,11 @@ void configurationFrameMIME::addExt(wxCommandEvent& event)
 	memset(&record, 0, sizeof(record));
 #endif
 	strcpy(record.extension,EXT);
-	mm.addRecord(record);
 	if(extensionsLB->FindString(_T(ext))==wxNOT_FOUND)
+	{
 		extensionsLB->Insert(_T(ext),0);
+		mm.addRecord(record);
+	}
 }
 void configurationFrameMIME::addMime(wxCommandEvent& event)
 {
