@@ -148,12 +148,20 @@ void ClientsTHREAD::controlConnections()
    *Unlock connections list access after setting parsing flag.
    */
 	lserver->connections_mutex_unlock();
-	nBytesToRead=c->socket.bytesToRead();/*!Number of bytes waiting to be read*/
+
+  /*!Number of bytes waiting to be read. */
+  nBytesToRead=c->socket.bytesToRead();
+
 	if(nBytesToRead || c->forceParsing)
 	{
 		c->forceParsing=0;
 		if(nBytesToRead)
-			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->dataRead], KB(8) - c->dataRead, 0);
+			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->dataRead], 
+                         KB(8) - c->dataRead, 0);
+
+    /*! Refresh with the right value. */
+    nBytesToRead = c->dataRead + err;
+
 		if(err==-1)
 		{
 			lserver->connections_mutex_lock();
@@ -178,6 +186,7 @@ void ClientsTHREAD::controlConnections()
      */
 		int retcode=0;
 		c->thread=this;
+    dynamic_protocol* dp=0;
 		switch(((vhost*)(c->host))->protocol)
 		{
 			/*!
@@ -185,23 +194,29 @@ void ClientsTHREAD::controlConnections()
        *the active connections list.
        */
 			case PROTOCOL_HTTP:
-				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead+c->dataRead, id);
+				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
+                     (char*)buffer2.GetBuffer(), buffer.GetLength(), 
+                     buffer2.GetLength(), nBytesToRead, id);
 				break;
 			/*!
        *Parse an HTTPS connection request.
        */
 			case PROTOCOL_HTTPS:
-				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead+c->dataRead, id);
+				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
+                     (char*)buffer2.GetBuffer(), buffer.GetLength(), 
+                     buffer2.GetLength(), nBytesToRead, id);
 				break;
 			default:
-				dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
+        dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
 				if(dp==0)
 				{
 					retcode=0;
 				}
 				else
 				{
-					retcode=dp->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
+					retcode=dp->controlConnection(c, (char*)buffer.GetBuffer(), 
+                  (char*)buffer2.GetBuffer(), buffer.GetLength(), 
+                  buffer2.GetLength(), nBytesToRead, id);
 				}
 				break;
 		}

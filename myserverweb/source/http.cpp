@@ -1766,18 +1766,22 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 	{
 		switch(td.connection->toRemove)
 		{
+      /*! Remove the connection from the list. */
 			case CONNECTION_REMOVE_OVERLOAD:
 				retvalue = raiseHTTPError(&td, a, e_503);
 				logHTTPaccess(&td, a);
-				return 0;/*Remove the connection from the list*/
+				return 0;
 		}
 	}
-	
-	int validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
+	int validRequest;
+	validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
+  
+  
+  /*! If the header is incomplete returns 2. */
 	if(validRequest==-1)/*!If the header is incomplete returns 2*/
 	{
     /*! Be sure that the client can handle the 100 status code. */
-    if(!strcmp(td.request.VER, "HTTP/1.1"))
+    if(strcmp(td.request.VER, "HTTP/1.0"))
     {
 			char* msg="HTTP/1.1 100 Continue\r\n\r\n";
 			if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
@@ -1787,12 +1791,14 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		return 2;
 	}
 	
-	
-	if((!strcmp(td.request.VER, "HTTP/1.1")) && (!strcmp(td.request.VER, "HTTP/1.0")))/*Be sure that we can handle the HTTP version*/
+	/*! Be sure that we can handle the HTTP version. */
+	if((!strcmp(td.request.VER, "HTTP/1.1")) && 
+     (!strcmp(td.request.VER, "HTTP/1.0")))
 	{	
 		retvalue = raiseHTTPError(&td, a, e_505);
-		logHTTPaccess(&td, a);	
-		return 0;/*Remove the connection from the list*/
+		logHTTPaccess(&td, a);
+    /*! Remove the connection from the list. */
+		return 0;
 	}
 		
 	if(a->protocolBuffer)
@@ -1814,7 +1820,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		logHTTPaccess(&td, a);
 		return retvalue;
 	}
-	/*Do not use Keep-Alive over HTTP version older than 1.1*/
+	/*! Do not use Keep-Alive over HTTP version older than 1.1. */
 	if(!strcmp(td.request.VER, "HTTP/1.1"))
 	{
 		if(td.request.CONNECTION[0])
@@ -1853,9 +1859,11 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
     return sendHTTPhardError500(&td, a);
   }
   getdefaultwd(td.inputDataPath, cwdLen+1);
-	sprintf(&td.inputDataPath[(u_long)strlen(td.inputDataPath)], "/stdInFile_%u", (u_int)td.id);
+	sprintf(&td.inputDataPath[(u_long)strlen(td.inputDataPath)], 
+          "/stdInFile_%u", (u_int)td.id);
 	getdefaultwd(td.outputDataPath, cwdLen+1);
-	sprintf(&td.outputDataPath[(u_long)strlen(td.outputDataPath)], "/stdOutFile_%u", (u_int)td.id);
+	sprintf(&td.outputDataPath[(u_long)strlen(td.outputDataPath)], 
+          "/stdOutFile_%u", (u_int)td.id);
 	if((!lstrcmpi(td.request.CMD, "POST"))||(!lstrcmpi(td.request.CMD, "PUT")))
 	{
 		if(td.request.CONTENT_TYPE[0]=='\0')
@@ -1866,39 +1874,42 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		 */
 		{
 			td.request.URIOPTSPTR=&((char*)td.buffer->GetBuffer())[td.nHeaderChars];
-			((char*)td.buffer->GetBuffer())[min(td.nBytesToRead, td.buffer->GetRealLength()-1)]='\0';
+			((char*)td.buffer->GetBuffer())[min(td.nBytesToRead, 
+                                          td.buffer->GetRealLength()-1)]='\0';
 			/*!
        *Create the file that contains the data posted.
        *This data is the stdin file in the CGI.
        */
 			if(td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS | 
-                               MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
+                             MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
 				return 0;
-			u_long nbw;
+			u_long nbw=0;
 			u_long total_nbr=min(td.nBytesToRead, 
                            td.buffer->GetRealLength()-1)-td.nHeaderChars;
 			if(total_nbr)
       {
         if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
-          {
-            delete [] td.inputDataPath;
-            td.inputDataPath=0;
-            delete [] td.outputDataPath;
-            td.outputDataPath = 0;
-            td.inputData.closeFile();
-            return 0;
-          }
+        {
+          delete [] td.inputDataPath;
+          td.inputDataPath=0;
+          delete [] td.outputDataPath;
+          td.outputDataPath = 0;
+          td.inputData.closeFile();
+          return 0;
+        }
       }
 			content_len=atoi(td.request.CONTENT_LENGTH);
       
 			/*!
        *If the connection is Keep-Alive be sure that the client specify the
        *HTTP CONTENT-LENGTH field.
-       *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not always needed.
+       *If a CONTENT-ENCODING is specified the CONTENT-LENGTH 
+       *is not always needed.
        */
 			if(!lstrcmpi(td.request.CONNECTION, "Keep-Alive"))
 			{
-				if((td.request.CONTENT_ENCODING[0]=='\0') && (td.request.CONTENT_LENGTH[0]=='\0'))
+				if((td.request.CONTENT_ENCODING[0]=='\0') 
+              && (td.request.CONTENT_LENGTH[0]=='\0'))
 				{
 					/*!
            *If the inputData file was not closed close it.
@@ -1950,10 +1961,13 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 							}
 							break;
 						}
-						if((content_len>fs)&&(td.connection->socket.bytesToRead()))
+						if((content_len>fs) && (td.connection->socket.bytesToRead()))
 						{				
-							u_long tr=min(content_len-total_nbr, td.buffer2->GetRealLength());
-							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), tr, 0);
+							u_long tr=min(content_len-total_nbr, 
+                            td.buffer2->GetRealLength());
+
+							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), 
+                                             tr, 0);
 							if(ret==-1)
 							{
 								td.inputData.closeFile();
@@ -2006,7 +2020,9 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 						{
 							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), 
                                              td.buffer2->GetRealLength(), 0);
-							if(td.inputData.writeToFile((char*)td.buffer2->GetBuffer(), ret, &nbw))
+
+							if(td.inputData.writeToFile((char*)td.buffer2->GetBuffer(), 
+                                          ret, &nbw))
 							{
 								td.inputData.deleteFile(td.inputDataPath);
 								td.inputData.closeFile();
@@ -2021,7 +2037,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 						break;
 				}
 				while(content_len!=total_nbr);
-				sprintf(td.response.CONTENT_LENGTH, "%u", (u_int)td.inputData.getFileSize());
+				sprintf(td.response.CONTENT_LENGTH, "%u", 
+                (u_int)td.inputData.getFileSize());
 
 			}
 			td.inputData.setFilePointer(0);
