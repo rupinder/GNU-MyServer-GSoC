@@ -439,17 +439,14 @@ int runFcgiServer(fCGIContext *con,char* path)
 	spi.cmd=cmd;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 	spi.cmdLine=cmd;
+	spi.arg = NULL; // no argument so clear it
 
 	sprintf(spi.cmd,"%s%s",con->td->cgiRoot,con->td->cgiFile);
 	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);
 	spi.stdOut = spi.stdError =(MYSERVER_FILE_HANDLE) -1;
-
-#ifdef FASTCGIDBG
-	printf("spi.cmd=%s\nspi.arg=%s\n", spi.cmd, spi.arg);
-#endif	
+	
 	fCGIservers[fCGIserversN].pid=execConcurrentProcess(&spi);
     
-	
 	if(!fCGIservers[fCGIserversN].pid)
 		return -3;
 

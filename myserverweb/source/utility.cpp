@@ -143,19 +143,28 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		int index = 0;
 		char * envp[100];
 	
-		while(*((char *)(spi->envString) + i) != '\0')
+		if(spi->envString != NULL)
 		{
-			envp[index] = ((char *)(spi->envString) + i);
-			index++;
-			
 			while(*((char *)(spi->envString) + i) != '\0')
+			{
+				envp[index] = ((char *)(spi->envString) + i);
+				index++;
+				
+				while(*((char *)(spi->envString) + i) != '\0')
+					i++;
 				i++;
-			i++;
+			}
+			envp[index] = NULL;
 		}
-		envp[index] = NULL;
+		else
+			envp[0] = NULL;
+		
 		// change to working dir
 		if(spi->cwd)
 			chdir((const char*)(spi->cwd));
+		// If stdOut is -1, pipe to /dev/null
+		if((int)spi->stdOut == -1)
+			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null",O_WRONLY);
 		// map stdio to files
 		close(0); // close stdin
 		dup2((int)spi->stdIn, 0);
@@ -166,8 +175,12 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-		execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		if(spi->arg != NULL)
+			execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		else
+			execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
 		// never should be here
+		dprintf(2,"Error: %s could not be exicuted.", (const char*)(spi->cmd));
 		exit(1);
 	} // end else if(pid == 0)
 	// Parent
@@ -210,20 +223,29 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 		int i = 0;
 		int index = 0;
 		char * envp[100];
-	
-		while(*((char *)(spi->envString) + i) != '\0')
+		
+		if(spi->envString != NULL)
 		{
-			envp[index] = ((char *)(spi->envString) + i);
-			index++;
-			
 			while(*((char *)(spi->envString) + i) != '\0')
+			{
+				envp[index] = ((char *)(spi->envString) + i);
+				index++;
+				
+				while(*((char *)(spi->envString) + i) != '\0')
+					i++;
 				i++;
-			i++;
+			}
+			envp[index] = NULL;
 		}
-		envp[index] = NULL;
+		else
+			envp[0] = NULL;
+		
 		// change to working dir
 		if(spi->cwd)
 			chdir((const char*)(spi->cwd));
+		// If stdOut is -1, pipe to /dev/null
+		if((int)spi->stdOut == -1)
+			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null",O_WRONLY);
 		// map stdio to files
 		close(0); // close stdin
 		dup2((int)spi->stdIn, 0);
@@ -234,8 +256,12 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-		execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		if(spi->arg != NULL)
+			execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+		else	
+			execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
 		// never should be here
+		dprintf(2,"Error: %s could not be exicuted.", (const char*)(spi->cmd));
 		exit(1);
 	} // end else if(pid == 0)
 	return (u_long)pid;
