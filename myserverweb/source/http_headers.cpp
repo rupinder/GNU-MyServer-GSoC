@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/utility.h"
 #include "../include/stringutils.h"
+#include "../include/securestr.h"
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
@@ -324,7 +325,7 @@ u_long http_headers::validHTTPResponse(char *req,httpThreadContext* td,u_long* n
 				if(maxTotchars>buffersize)
 				{
 					isValidCommand=0;
-					break;				
+					break;
 				}
 				isValidCommand=1;
 				break;
@@ -468,7 +469,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					request->URIOPTS[j+1]='\0';
 				}
 			}
-			strncpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM);
+			myserver_strlcpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM);
 			if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else
@@ -488,7 +489,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 						
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->USER_AGENT,token,tokenOff);
+			myserver_strlcpy(request->USER_AGENT,token,tokenOff);
 			request->USER_AGENT[tokenOff]='\0';
 			StrTrim(request->USER_AGENT," ");
 		}else
@@ -503,7 +504,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		
 			lineControlled=1;
 	
-			strncpy(request->AUTH,token,tokenOff);
+			myserver_strlcpy(request->AUTH,token,tokenOff);
 			request->AUTH[tokenOff]='\0';
 			if(!lstrcmpi(request->AUTH,"Basic"))
 			{
@@ -517,7 +518,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					td->connection->login[i]=*lbuffer2++;
 					td->connection->login[i+1]='\0';
 				}
-				strncpy(td->identity,td->connection->login,32);
+				myserver_strlcpy(td->identity,td->connection->login,32);
                 		lbuffer2++;
 				for(i=0;(*lbuffer2)&&(i<31);i++)
 				{
@@ -548,62 +549,62 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					{
 						digestToken = strtok( NULL, "," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_nonce,digestToken,48);
+						myserver_strlcpy(td->request.digest_nonce,digestToken,48);
 					}
 					else if(!lstrcmpi(digestToken,"opaque"))
 					{
 						digestToken = strtok( NULL, "," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_opaque,digestToken,48);
+						myserver_strlcpy(td->request.digest_opaque,digestToken,48);
 					}
 					else if(!lstrcmpi(digestToken,"uri"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_uri,digestToken,1024);
+						myserver_strlcpy(td->request.digest_uri,digestToken,1024);
 					}
 					else if(!lstrcmpi(digestToken,"method"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_method,digestToken,16);
+						myserver_strlcpy(td->request.digest_method,digestToken,16);
 					}	
 					else if(!lstrcmpi(digestToken,"qop"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_qop,digestToken,16);
+						myserver_strlcpy(td->request.digest_qop,digestToken,16);
 					}					
 					else if(!lstrcmpi(digestToken,"realm"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_realm,digestToken,48);
+						myserver_strlcpy(td->request.digest_realm,digestToken,48);
 					}
 					else if(!lstrcmpi(digestToken,"cnonce"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken," \"");
-						strncpy(td->request.digest_cnonce,digestToken,48);
+						myserver_strlcpy(td->request.digest_cnonce,digestToken,48);
 					}
 					else if(!lstrcmpi(digestToken,"username"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_username,digestToken,48);
-						strncpy(td->connection->login,digestToken,48);
+						myserver_strlcpy(td->request.digest_username,digestToken,48);
+						myserver_strlcpy(td->connection->login,digestToken,48);
 					}
 					else if(!lstrcmpi(digestToken,"response"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_response,digestToken,48);
+						myserver_strlcpy(td->request.digest_response,digestToken,48);
 					}
 					else if(!lstrcmpi(digestToken,"nc"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
 						StrTrim(digestToken,"\" ");
-						strncpy(td->request.digest_nc,digestToken,10);
+						myserver_strlcpy(td->request.digest_nc,digestToken,10);
 					}
 					else 
 					{
@@ -619,7 +620,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_HOST_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->HOST,token,tokenOff);
+			myserver_strlcpy(request->HOST,token,tokenOff);
 			request->HOST[tokenOff]='\0';
 			StrTrim(request->HOST," ");
 		}else
@@ -629,7 +630,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_ENCODING_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONTENT_ENCODING,token,tokenOff);
+			myserver_strlcpy(request->CONTENT_ENCODING,token,tokenOff);
 			request->CONTENT_ENCODING[tokenOff]='\0';
 			StrTrim(request->CONTENT_ENCODING," ");
 		}else
@@ -639,7 +640,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_TYPE_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONTENT_TYPE,token,tokenOff);
+			myserver_strlcpy(request->CONTENT_TYPE,token,tokenOff);
 			request->CONTENT_TYPE[tokenOff]='\0';
 			StrTrim(request->CONTENT_TYPE," ");
 		}else
@@ -649,7 +650,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->IF_MODIFIED_SINCE,token,tokenOff);
+			myserver_strlcpy(request->IF_MODIFIED_SINCE,token,tokenOff);
 			request->IF_MODIFIED_SINCE[tokenOff]='\0';
 			StrTrim(request->IF_MODIFIED_SINCE," ");
 		}else
@@ -673,7 +674,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTLAN_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->ACCEPTLAN,token,tokenOff);
+			myserver_strlcpy(request->ACCEPTLAN,token,tokenOff);
 			request->ACCEPTLAN[tokenOff]='\0';
 			StrTrim(request->ACCEPTLAN," ");
 		}else
@@ -683,7 +684,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTCHARSET_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->ACCEPTCHARSET,token,tokenOff);
+			myserver_strlcpy(request->ACCEPTCHARSET,token,tokenOff);
 			request->ACCEPTCHARSET[tokenOff]='\0';
 			StrTrim(request->ACCEPTCHARSET," ");
 		}else
@@ -693,7 +694,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTENC_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->ACCEPTENC,token,tokenOff);
+			myserver_strlcpy(request->ACCEPTENC,token,tokenOff);
 			request->ACCEPTENC[tokenOff]='\0';
 			StrTrim(request->ACCEPTENC," ");
 		}else
@@ -703,7 +704,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONNECTION_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONNECTION,token,tokenOff);
+			myserver_strlcpy(request->CONNECTION,token,tokenOff);
 			request->CONNECTION[tokenOff]='\0';
 			StrTrim(request->CONNECTION," ");
 		}else
@@ -713,7 +714,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_COOKIE_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->COOKIE,token,tokenOff);
+			myserver_strlcpy(request->COOKIE,token,tokenOff);
 			request->COOKIE[tokenOff]='\0';
 		}else
 		/*!From*/
@@ -722,7 +723,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_FROM_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->FROM,token,tokenOff);
+			myserver_strlcpy(request->FROM,token,tokenOff);
 			request->FROM[tokenOff]='\0';
 			StrTrim(request->FROM," ");
 		}else
@@ -732,7 +733,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_LENGTH_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONTENT_LENGTH,token,tokenOff);
+			myserver_strlcpy(request->CONTENT_LENGTH,token,tokenOff);
 			request->CONTENT_LENGTH[tokenOff]='\0';
 		}else
 		/*!Cache-Control*/
@@ -741,7 +742,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CACHE_CONTROL,token,tokenOff);
+			myserver_strlcpy(request->CACHE_CONTROL,token,tokenOff);
 			request->CACHE_CONTROL[tokenOff]='\0';
 		}else
 		/*!Range*/
@@ -779,9 +780,9 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			StrTrim(request->RANGEBYTEEND,"- ");
 			
 			if(request->RANGEBYTEBEGIN[0]==0)
-				strncpy(request->RANGEBYTEBEGIN,"0",HTTP_REQUEST_RANGEBYTEBEGIN_DIM);
+				myserver_strlcpy(request->RANGEBYTEBEGIN,"0",HTTP_REQUEST_RANGEBYTEBEGIN_DIM);
 			if(request->RANGEBYTEEND[0]==0)
-				strncpy(request->RANGEBYTEEND,"-1",HTTP_REQUEST_RANGEBYTEEND_DIM);
+				myserver_strlcpy(request->RANGEBYTEEND,"-1",HTTP_REQUEST_RANGEBYTEEND_DIM);
 
 		}else
 		/*!Referer*/
@@ -790,7 +791,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_REFERER_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->REFERER,token,tokenOff);
+			myserver_strlcpy(request->REFERER,token,tokenOff);
 			request->REFERER[tokenOff]='\0';
 			StrTrim(request->REFERER," ");
 		}else
@@ -800,7 +801,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			tokenOff = getCharInString(token,seps,HTTP_REQUEST_PRAGMA_DIM);
 			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->PRAGMA,token,tokenOff);
+			myserver_strlcpy(request->PRAGMA,token,tokenOff);
 			request->PRAGMA[tokenOff]='\0';
 			StrTrim(request->PRAGMA," ");
 		}
@@ -890,7 +891,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		/*!
 		*Copy the HTTP command.
 		*/
-		strncpy(command,token,96);
+		myserver_strlcpy(command,token,96);
 		
 		
 		nLineControlled++;
@@ -904,7 +905,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 			/*!
 			*Copy the HTTP version.
 			*/
-			strncpy(response->VER,command,HTTP_RESPONSE_VER_DIM);
+			myserver_strlcpy(response->VER,command,HTTP_RESPONSE_VER_DIM);
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			if(token)
@@ -912,7 +913,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 			
 			token = strtok( NULL, "\r\n\0" );
 			if(token)
-				strncpy(response->ERROR_TYPE,token,HTTP_RESPONSE_ERROR_TYPE_DIM);
+				myserver_strlcpy(response->ERROR_TYPE,token,HTTP_RESPONSE_ERROR_TYPE_DIM);
 
 		}else
 		/*!Server*/
@@ -920,7 +921,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->SERVER_NAME,token,HTTP_RESPONSE_SERVER_NAME_DIM);
+			myserver_strlcpy(response->SERVER_NAME,token,HTTP_RESPONSE_SERVER_NAME_DIM);
 			StrTrim(response->SERVER_NAME," ");
 		}else
 		/*!Location*/
@@ -928,7 +929,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->LOCATION,token,HTTP_RESPONSE_LOCATION_DIM);
+			myserver_strlcpy(response->LOCATION,token,HTTP_RESPONSE_LOCATION_DIM);
 			StrTrim(response->LOCATION," ");
 		}else
 		/*!Last-Modified*/
@@ -936,7 +937,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->LAST_MODIFIED,token,HTTP_RESPONSE_LAST_MODIFIED_DIM);
+			myserver_strlcpy(response->LAST_MODIFIED,token,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 			StrTrim(response->LAST_MODIFIED," ");
 		}else
 		/*!Status*/
@@ -951,7 +952,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->CONTENT_ENCODING,token,HTTP_RESPONSE_CONTENT_ENCODING_DIM);
+			myserver_strlcpy(response->CONTENT_ENCODING,token,HTTP_RESPONSE_CONTENT_ENCODING_DIM);
 			StrTrim(response->CONTENT_ENCODING," ");
 		}else
 		/*!Cache-Control*/
@@ -959,14 +960,14 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->CACHE_CONTROL,token,HTTP_RESPONSE_CACHE_CONTROL_DIM);
+			myserver_strlcpy(response->CACHE_CONTROL,token,HTTP_RESPONSE_CACHE_CONTROL_DIM);
 		}else
 		/*!Date*/
 		if(!lstrcmpi(command,"Date"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->DATE,token,HTTP_RESPONSE_DATE_DIM);
+			myserver_strlcpy(response->DATE,token,HTTP_RESPONSE_DATE_DIM);
 			StrTrim(response->DATE," ");
 		}else
 		/*!Content-Type*/
@@ -974,7 +975,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->CONTENT_TYPE,token,HTTP_RESPONSE_CONTENT_TYPE_DIM);
+			myserver_strlcpy(response->CONTENT_TYPE,token,HTTP_RESPONSE_CONTENT_TYPE_DIM);
 			StrTrim(response->CONTENT_TYPE," ");
 		}else
 		/*!MIME-Version*/
@@ -982,7 +983,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->MIMEVER,token,HTTP_RESPONSE_MIMEVER_DIM);
+			myserver_strlcpy(response->MIMEVER,token,HTTP_RESPONSE_MIMEVER_DIM);
 			StrTrim(response->MIMEVER," ");
 		}else
 		/*!Set-Cookie*/
@@ -998,7 +999,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->CONTENT_LENGTH,token,HTTP_RESPONSE_CONTENT_LENGTH_DIM);
+			myserver_strlcpy(response->CONTENT_LENGTH,token,HTTP_RESPONSE_CONTENT_LENGTH_DIM);
 			StrTrim(response->CONTENT_LENGTH," ");
 		}else
 		/*!P3P*/
@@ -1006,7 +1007,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->P3P,token,HTTP_RESPONSE_P3P_DIM);
+			myserver_strlcpy(response->P3P,token,HTTP_RESPONSE_P3P_DIM);
 			StrTrim(response->P3P," ");
 		}else
 		/*!Connection*/
@@ -1014,7 +1015,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->CONNECTION,token,HTTP_RESPONSE_CONNECTION_DIM);
+			myserver_strlcpy(response->CONNECTION,token,HTTP_RESPONSE_CONNECTION_DIM);
 			StrTrim(response->CONNECTION," ");
 		}else
 		/*!Expires*/
@@ -1022,7 +1023,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			strncpy(response->DATEEXP,token,HTTP_RESPONSE_DATEEXP_DIM);
+			myserver_strlcpy(response->DATEEXP,token,HTTP_RESPONSE_DATEEXP_DIM);
 			StrTrim(response->DATEEXP," ");
 		}
 		/*!

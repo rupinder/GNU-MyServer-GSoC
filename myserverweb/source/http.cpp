@@ -1179,11 +1179,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			target=td->request.URIOPTSPTR;
 		else
 			target=(char*)&td->request.URIOPTS;
-		if(mscgiLoaded)
+		if(mscgiLoaded)/*Check ig the MSCGI library is loaded*/
 		{
-			if(lmscgi.sendMSCGI(td,s,td->filenamePath,target))
-				return 1;
-			return raiseHTTPError(td,s,e_500);
+			return lmscgi.sendMSCGI(td,s,td->filenamePath,target);
 		}
 		return raiseHTTPError(td,s,e_500);
 	}else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)

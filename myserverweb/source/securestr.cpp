@@ -28,61 +28,61 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unsigned int myserver_strlcat(char *destination, const char *source, size_t size)
 {
-    char *dstptr=destination;
-    size_t dstlen,tocopy=size;
-    const char *srcptr=source;
+	char *dstptr=destination;
+	size_t dstlen,tocopy=size;
+	const char *srcptr=source;
+	
+	while(tocopy-- && *dstptr)
+	dstptr++;
     
-    while(tocopy-- && *dstptr)
-    	dstptr++;
-    
-    dstlen=dstptr-destination;
-    
+	dstlen=dstptr-destination;
+	
 	tocopy=size-dstlen;
-    if(!tocopy)
-    	return((int)(dstlen+strlen(source)));
+	if(!tocopy)
+		return((int)(dstlen+strlen(source)));
     
-    while(*srcptr)
-    {
-        if(tocopy!=1)
-        {
-            *dstptr++=*srcptr;
-            tocopy--;
-        }
-        srcptr++;
-    }
-    
-    *dstptr=0;
-    
-    return((int)(dstlen+(srcptr-source)));
+	while(*srcptr)
+	{
+		if(tocopy!=1)
+		{
+			*dstptr++=*srcptr;
+			tocopy--;
+		}
+		srcptr++;
+	}
+	
+	*dstptr=0;
+	
+	return((int)(dstlen+(srcptr-source)));
 }
 
    
 unsigned int myserver_strlcpy(char *destination, const char *source, unsigned int size)
 {
-    char *dstptr=destination;
-    size_t tocopy=size;
-    const char *srcptr=source;
-    
-    if(tocopy && --tocopy)
-    {
-        do
-        {
-            if(!(*dstptr++=*srcptr++))
-            break;
-        }
-        
-        while(--tocopy);
-    }
-    
-    if(!tocopy)
-    {
-        if(size)
-        *dstptr=0;
-        
-        while(*srcptr++);
-    }
-    
-    return((int)(srcptr-source-1));
+	char *dstptr=destination;
+	size_t tocopy=size;
+	const char *srcptr=source;
+	
+	if(tocopy && --tocopy)
+	{
+	do
+	{
+		if(!(*dstptr++=*srcptr++))
+			break;
+	}
+	
+	while(--tocopy);
+	}
+	
+	if(!tocopy)
+	{
+		if(size)
+			*dstptr=0;
+		
+		while(*srcptr++);
+	}
+	
+	return((int)(srcptr-source-1));
 }
 
 
