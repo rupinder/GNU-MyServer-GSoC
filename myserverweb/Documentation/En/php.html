@@ -1,70 +1,176 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <html>
 <head>
-       
-  <meta http-equiv="Content-Language" content="en-gb">
-    <base target="_self">      
-  <link rel="stylesheet" type="text/css" href="myserver.css">
-  <title></title>
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=windows-1252">
+  <link rel="stylesheet" type="text/css" href="myserver1.css">
+  <title>PHP</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.0.3  (Win32)">
+  <meta name="AUTHOR" content="Kristen Grubb">
+  <meta name="CREATED" content="20030804;21131939">
+  <meta name="CHANGEDBY" content="Kristen Grubb">
+  <meta name="CHANGED" content="20030804;21511707">
+  <style>
+	<!--
+		TD P { color: #000000 }
+		P { color: #000000 }
+		H2 { color: #000000 }
+		H4 { color: #000000 }
+		A:link { color: #0000ff }
+	-->
+	</style>
 </head>
-  <body>
-   
-<h1 align="center">How to use PHP under MyServer</h1>
- <br>
- <br>
- PHP (Personal Home Page) is the most used server-side scripting language
-in the  world. A server-side language is used to create web pages with dynamic 
-content.  You can use PHP with MyServer as either a standard CGI  executable
- or as a FastCGI server. While using PHP like a CGI executable, MyServer
- will create a new process for every page requested. &nbsp;While using PHP 
-in the  FastCGI mode, MyServer does not require a new process for every request
- and, therefore, the server performs better. Please refer to the official 
-FastCGI site  for more information about FastCGI.<br>
-  <br>
-  In order to use PHP, you must first download the installer from: <font
- color="#3366ff"><a href="http://www.php.net">www.php.net</a></font>.    
-<p><b><font size="+1">Configuring for CGI</font></b><br>
-  </p>
-   
-<p>To use PHP under MyServer you need to associate a file extension type
-with  the PHP parser. &nbsp;To do this you must first modify the <font
- color="#ffff00">MIMEtypes.txt</font> file and add (or  modify) the line:
- </p>
-     
-<p><font color="#ffff00">php,text/html,RUNCGI c:/php/php.exe; </font></p>
-     
-<p>This allows the requested .php files to be passed to the PHP parser and
- the output sent to the client. Be sure to modify c:/php/php.exe file to
-reflect  the  path to your php parser. <br>
-  </p>
-   
-<p><b><font size="+1">Configuring for FastCGI</font></b><br>
-  </p>
-   
-<p>If you want to use PHP in the FastCGI mode you need to  download the phpfcgi.exe
- parser from&nbsp;<a href="www.caraveo.com/fastcgi">www.caraveo.com/fastcgi</a>
- and put it in  the same folder of your PHP (normally c:\php\). &nbsp;You 
-must then modify the <font color="#ffff00">Mimetypes.txt</font> file to reflect 
-the following line: </p>
-     
-<p><font color="#ffff00">php,text/html,RUNFASTCGI c:/php/phpfcgi.exe; </font></p>
-     
-<p>&nbsp;With the last versions of PHP  you will also need to modify the <font
- color="#ffff00">php.ini</font> file to set the cgi.force_redirect option 
-to null. Find the line in the php configuration file:</p>
-     
-<p><font color="#ffff00">&nbsp;;cgi.force_redirect = 0</font></p>
-     
-<p>and remove the first semicolon. <br>
- The line will then read:<br>
- </p>
- 
-<p><font color="#ffff00">&nbsp;cgi.force_redirect = 0</font></p>
- 
+<body alink="#666666" vlink="#000099" link="#006600"
+ style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"
+ lang="en-US">
+<table bordercolor="#000002" cellpadding="4" cellspacing="0"
+ frame="void" style="page-break-before: always;" border="5">
+</table>
+<table bordercolor="#008000" cellpadding="4" cellspacing="0"
+ frame="void"
+ style="page-break-before: always; width: 993px; height: 776px;"
+ border="4">
+  <thead> <tr valign="top">
+    <td>
+    <div style="text-align: center; color: rgb(0, 102, 0);"><font
+ size="+2"><span style="font-weight: bold;"><br>
+    <img src="images/logo.gif" title="" alt="Logo"
+ style="width: 150px; height: 54px;"><br>
+    <br>
+Table of Contents</span></font> </div>
+    <ol>
+      <li><a href="Background.html">Basic Background Information</a></li>
+      <ol>
+        <li><a href="webserver.html">Web Server</a> </li>
+        <li><a href="license.html">License</a></li>
+        <li><a href="helpus.html">Help Us</a></li>
+        <li><a href="cvsversion.html">CVS</a><br>
+        </li>
+      </ol>
+      <li>Protocols
+        <ol>
+          <li>HTTP </li>
+          <li>ISAPI </li>
+          <li>CGI </li>
+        </ol>
+      </li>
+      <li>Scripting Languages
+        <ol>
+          <li>HTML </li>
+          <li><font size="+1"><span style="font-weight: bold;">PHP</span></font>
+          </li>
+          <li><a href="Perl.html">Perl</a> </li>
+        </ol>
+      </li>
+      <li>Set Up Guides
+        <ol>
+          <li><a href="RunLinux.html">Linux</a> </li>
+          <li><a href="RunWindows.html">Windows 9x</a></li>
+          <li><a href="WindowsNT.html">Windows NT</a><br>
+          </li>
+        </ol>
+      </li>
+      <li>Configuring
+        <ol>
+          <li><a href="VirtualHosts.html">Creating Virtual Hosts</a> </li>
+          <li><a href="PublishSite.html">Publishing a Web Site</a> </li>
+          <li>Viewing Your Web Site</li>
+          <li><a href="Errors.html">Error Handling</a><br>
+          </li>
+        </ol>
+      </li>
+      <li>Maintenance Tasks
+        <ol>
+          <li>Working with Virtual Hosts </li>
+          <li>Resolving Conflicts </li>
+          <li>Logging and Monitoring Activity </li>
+        </ol>
+      </li>
+      <li>File Handling
+        <ol>
+          <li><a href="MIME.html">MIME</a> </li>
+          <li>Content Management </li>
+          <li>File Uploading </li>
+        </ol>
+      </li>
+      <li>URL Handling </li>
+      <li>Controlling Access </li>
+      <li>Troubleshooting </li>
+    </ol>
+    </td>
+    <td>
+    <p align="right" style="color: rgb(0, 102, 0);"><font size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="perl.html">Next&gt;&gt;</a></b></font></p>
+    <br>
+    <h1 align="center" style="color: rgb(0, 102, 0);">How to use PHP
+under MyServer</h1>
+    <br>
+    <br>
+PHP (Hypertext Preprocessor) is the most used server-side scripting
+language
+in the world. A server-side language is used to create web pages with
+dynamic content. You can use PHP with MyServer as either a standard CGI
+executable or as a FastCGI server. While using PHP like a CGI
+executable, MyServer will create a new process for every page
+requested. &nbsp;While using PHP in the FastCGI mode, MyServer does not
+require a new process for every request and, therefore, the server
+performs better. Please refer to the official FastCGI site for more
+information about FastCGI.<br>
+    <br>
+In order to use PHP, you must first download the installer from: <font
+ color="#3366ff"><a href="http://www.php.net" ;target="_blank">www.php.net</a></font>.
+    <p><font color="#ffff00"> </font></p>
+    <p>&nbsp;With the last versions of PHP you will also need to modify
+the<span style="color: rgb(0, 102, 0);"> </span><font color="#ffff00"
+ style="color: rgb(0, 102, 0);">php.ini</font><span
+ style="color: rgb(0, 102, 0);"> </span>file to set the
+cgi.force_redirect option to null. Find the line in the php
+configuration file:</p>
+    <p
+ style="text-align: center; font-family: courier new,courier,monospace;"><font
+ color="#ffff00">&nbsp;<span style="color: rgb(0, 102, 0);">;cgi.force_redirect
+= 0</span></font></p>
+    <p>and remove the first semicolon. <br>
+The line will then read:<br>
+    </p>
+    <p
+ style="text-align: center; font-family: courier new,courier,monospace;"><font
+ color="#ffff00">&nbsp;<span style="color: rgb(0, 102, 0);">cgi.force_redirect
+= 0</span></font></p>
+    <p><br>
+    </p>
+More information and samples of code can be found at The PHP web site (
+    <a href="http://www.php.net" ;="" target="_blank">www.php.net</a> ).<br>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <br>
+    <div style="text-align: right; color: rgb(0, 102, 0);"><font
+ size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="Perl.html">Next&gt;&gt;</a></b></font></div>
+    </td>
+  </tr>
+  </thead>
+</table>
 <p><br>
- </p>
- More information and samples of code can be found at The PHP web site (
-<a href="http://www.php.net">www.php.net</a> ).<br>
-   <br>
+<br>
+</p>
 </body>
 </html>
