@@ -18,7 +18,6 @@
 */
 #pragma once
 
-#include "..\stdafx.h"
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\mime_manager.h"
 #include "..\include\mscgi.h"

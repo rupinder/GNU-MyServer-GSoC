@@ -19,10 +19,10 @@
 #pragma once
 
 #include "..\stdafx.h"
-extern BOOL Thread useLogonOption;
-extern LOGGEDUSERID Thread guestLoginHandle;
-extern char Thread guestLogin[20];
-extern char Thread guestPassword[32];
+extern BOOL useLogonOption;
+extern LOGGEDUSERID guestLoginHandle;
+extern char guestLogin[20];
+extern char  guestPassword[32];
 
 
 /*

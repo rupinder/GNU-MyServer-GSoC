@@ -20,7 +20,6 @@
 #ifndef cserver_IN
 #define cserver_IN
 
-#include "..\stdafx.h"
 #include "..\include\ClientsTHREAD.h"
 #include "..\include\utility.h"
 #include "..\include\cXMLParser.h"
