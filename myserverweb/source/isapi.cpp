@@ -360,9 +360,9 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 	isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
-		lserver->preparePrintError();
+    lserver->logPreparePrintError();
 		lserver->logWriteln("isapi::GetServerVariableExport: invalid hConn");
-		lserver->endPrintError();
+		lserver->logEndPrintError();
 		return 0;
 	}
 
