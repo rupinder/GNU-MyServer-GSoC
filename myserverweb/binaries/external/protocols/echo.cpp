@@ -79,6 +79,10 @@ extern "C" int controlConnection(void * a,char* b1,char* b2,int bs1,int bs2,u_lo
 	*2 if the header is incomplete and to save it in a temporary buffer
 	*3 if the header is incomplete without save it in a temporary buffer
 	*/
+	
+//	if(connection->toRemove)
+//		return 0;
+	
 	return 0;
 
 }
