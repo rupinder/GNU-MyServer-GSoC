@@ -83,3 +83,5 @@ unsigned int myserver_strlcpy(char *destination, const char *source, unsigned in
     
     return(srcptr-source-1);
 }
+
+
