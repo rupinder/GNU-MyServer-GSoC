@@ -334,16 +334,15 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		*environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
 		*to QUERY_INFO_VALUE.
 		*/
-		if((td->filenamePath)[i]=='/')/*There is the '/' character check if dirscan is a file*/
+		if(i&& (td->filenamePath[i]=='/'))/*There is the '/' character check if dirscan is a file*/
 		{
 			if(!ms_IsFolder(dirscan))
 			{
 				/*
 				*If the token is a file.
 				*/
+				strcpy(td->pathInfo,&td->filenamePath[len]);
 				strcpy(td->filenamePath,dirscan);
-				td->pathInfo[0]='/';
-				strcpy(&td->pathInfo[1],&(td->filenamePath[i+1]));
 				break;
 			}
 		}
@@ -467,7 +466,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
-
+	
 	return raiseHTTPError(td,s,e_404);
 }
 
@@ -884,19 +883,14 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 		ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
 		return 1;
 	}
+	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
+	lstrcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	if(lserver->mustUseMessagesFiles())
 	{
 		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],true);
-		
 	}
-	buildDefaultHTTPResponseHeader(&(td->response));
-
-
-	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-	lstrcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	sprintf(td->response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	lstrcat(td->buffer,HTTP_ERROR_MSGS[ID]);
 	ms_send(a->socket,td->buffer,lstrlen(td->buffer), 0);
 	return 1;
 }
