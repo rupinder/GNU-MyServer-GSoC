@@ -52,6 +52,8 @@ void console_service (int, char **);
 void __stdcall myServerCtrlHandler(u_long fdwControl);
 void __stdcall myServerMain (u_long , LPTSTR *argv); 
 void runService();
+void registerService();
+void removeService();
 #endif
 
 static char *path;
@@ -195,6 +197,16 @@ int main (int argn, char **argv)
 		{
 			runas = MYSERVER_RUNAS_CONSOLE;
 		}
+		if(!lstrcmpi(argv[1],"REGISTER"))
+		{
+      registerService();
+			runas = MYSERVER_RUNAS_SERVICE;
+		}
+		if(!lstrcmpi(argv[1],"UNREGISTER"))
+		{
+      removeService();
+			runas = MYSERVER_RUNAS_SERVICE;
+		}
 		if(!lstrcmpi(argv[1],"SERVICE"))
 		{
 			runas = MYSERVER_RUNAS_SERVICE;
@@ -206,7 +218,7 @@ int main (int argn, char **argv)
 	case MYSERVER_RUNAS_CONSOLE:
 		console_service(argn,argv);
 		if(rebootMyServerConsole)
-		reboot_console();
+      reboot_console();
 		break;
 	case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
@@ -342,4 +354,56 @@ void runService()
 
 
 
+#ifdef WIN32
+/*!
+ *Register the WIN32 service
+ */
+void registerService()
+{
+
+	SC_HANDLE service,manager;
+	char path [MAX_PATH];
+	GetCurrentDirectory(MAX_PATH,path);
+	lstrcat(path,"\\");
+	lstrcat(path,"myServer.exe SERVICE");
+	
+	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+	if (manager)
+	{
+		service = CreateService(manager,"MyServer","MyServer",
+                            SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,
+                            SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,
+                            0, 0, 0, 0, 0);
+		if (service)
+		{
+			CloseServiceHandle (service);
+		}
+
+		CloseServiceHandle (manager);
+	}
+
+}
+
+/*!
+*Unregister the OS service.
+*/
+void removeService()
+{
+	SC_HANDLE service,manager;
+  manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+	if (manager)
+	{
+		service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
+		if (service)
+		{
+			ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);
+			while (QueryServiceStatus (service, &MyServiceStatus))
+			if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
+				break;
+			DeleteService(service);
+			CloseServiceHandle (service);
+			CloseServiceHandle (manager);
+		}
+	}
+}
 #endif
