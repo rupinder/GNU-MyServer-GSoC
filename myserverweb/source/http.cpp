@@ -1396,8 +1396,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
   u_long dataToRead=0;
   /*! Dimension of the POST data. */
 	u_long content_len=0;
-	td.buffer=((ClientsTHREAD*)a->thread)->GetBuffer();
-	td.buffer2=((ClientsTHREAD*)a->thread)->GetBuffer2();
+	td.buffer=((ClientsThread*)a->thread)->GetBuffer();
+	td.buffer2=((ClientsThread*)a->thread)->GetBuffer2();
 	td.buffersize=bs1;
 	td.buffersize2=bs2;
 	td.nBytesToRead=nbtr;

@@ -26,15 +26,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/MemBuf.h"
 #include "../include/https.h"
 #include "../include/control_protocol.h"
-class  ClientsTHREAD
+class  ClientsThread
 {
 	friend class cserver;
 
 #ifdef WIN32
-	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
+	friend  unsigned int __stdcall startClientsThread(void* pParam);
 #endif
 #ifdef HAVE_PTHREAD
-	friend  void* startClientsTHREAD(void* pParam);
+	friend  void* startClientsThread(void* pParam);
 #endif
 private:
   int toDestroy;
@@ -58,12 +58,12 @@ private:
 	int controlConnections();
 	u_long nBytesToRead;
 public:
-  ClientsTHREAD *next;
+  ClientsThread *next;
 	CMemBuf *GetBuffer();
 	CMemBuf *GetBuffer2();
 	const static u_long ID_OFFSET = 200;
-	ClientsTHREAD();
-	~ClientsTHREAD();
+	ClientsThread();
+	~ClientsThread();
 	void stop();
 	void clean();	
   int getTimeout();
@@ -75,10 +75,10 @@ public:
   void setStatic(int);
 };
 #ifdef WIN32
-unsigned int __stdcall startClientsTHREAD(void* pParam); 
+unsigned int __stdcall startClientsThread(void* pParam); 
 #endif
 #ifdef HAVE_PTHREAD
-void* startClientsTHREAD(void* pParam);
+void* startClientsThread(void* pParam);
 #endif
 
 #endif

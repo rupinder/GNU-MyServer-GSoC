@@ -52,7 +52,7 @@ extern "C" {
 /*!
  *Construct the object.
  */
-ClientsTHREAD::ClientsTHREAD()
+ClientsThread::ClientsThread()
 {
 	err=0;
 	initialized=0;
@@ -63,9 +63,9 @@ ClientsTHREAD::ClientsTHREAD()
 }
 
 /*!
- *Destroy the ClientsTHREAD object.
+ *Destroy the ClientsThread object.
  */
-ClientsTHREAD::~ClientsTHREAD()
+ClientsThread::~ClientsThread()
 {
 	clean();
 }
@@ -73,7 +73,7 @@ ClientsTHREAD::~ClientsTHREAD()
 /*!
  *Get the timeout value.
  */
-int ClientsTHREAD::getTimeout()
+int ClientsThread::getTimeout()
 {
   return timeout;
 }
@@ -81,22 +81,22 @@ int ClientsTHREAD::getTimeout()
 /*!
  *Set the timeout value for the thread.
  */
-void ClientsTHREAD::setTimeout(int new_timeout)
+void ClientsThread::setTimeout(int new_timeout)
 {
   timeout=new_timeout;
 }
 
 /*!
-*This function starts a new thread controlled by a ClientsTHREAD class instance.
+*This function starts a new thread controlled by a ClientsThread class instance.
 */
 #ifdef WIN32
-#define ClientsTHREAD_TYPE int
-unsigned int __stdcall startClientsTHREAD(void* pParam)
+#define ClientsThread_TYPE int
+unsigned int __stdcall startClientsThread(void* pParam)
 #endif
 
 #ifdef HAVE_PTHREAD
-#define ClientsTHREAD_TYPE void*
-void * startClientsTHREAD(void* pParam)
+#define ClientsThread_TYPE void*
+void * startClientsThread(void* pParam)
 #endif
 
 {
@@ -109,7 +109,7 @@ void * startClientsTHREAD(void* pParam)
 	sigaddset(&sigmask, SIGTERM);
 	sigprocmask(SIG_SETMASK, &sigmask, NULL);
 #endif
-	ClientsTHREAD *ct=(ClientsTHREAD*)pParam;
+	ClientsThread *ct=(ClientsThread*)pParam;
 
   /*! Return an error if the thread is initialized. */
 	if(ct->initialized)
@@ -122,8 +122,8 @@ void * startClientsTHREAD(void* pParam)
 
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
-	ct->buffersize=lserver->buffersize;
-	ct->buffersize2=lserver->buffersize2;
+	ct->buffersize=lserver->getBuffersize();
+	ct->buffersize2=lserver->getBuffersize2();
 	
 	ct->buffer.SetLength(ct->buffersize);
 	ct->buffer.m_nSizeLimit = ct->buffersize;
@@ -149,7 +149,7 @@ void * startClientsTHREAD(void* pParam)
 
 	/*!
    *This function when is alive only call the controlConnections(...) function
-   *of the ClientsTHREAD class instance used for control the thread.
+   *of the ClientsThread class instance used for control the thread.
    */
 	while(ct->threadIsRunning) 
 	{
@@ -194,7 +194,7 @@ void * startClientsTHREAD(void* pParam)
 /*!
  *Returns if the thread can be destroyed.
  */
-int ClientsTHREAD::isToDestroy()
+int ClientsThread::isToDestroy()
 {
   return toDestroy;
 }
@@ -202,7 +202,7 @@ int ClientsTHREAD::isToDestroy()
 /*!
  *Check if the thread is a static one.
  */
-int ClientsTHREAD::isStatic()
+int ClientsThread::isStatic()
 {
   return staticThread;
 }
@@ -210,7 +210,7 @@ int ClientsTHREAD::isStatic()
 /*!
  *Set the thread to be static.
  */
-void ClientsTHREAD::setStatic(int value)
+void ClientsThread::setStatic(int value)
 {
   staticThread = value;
 }
@@ -218,7 +218,7 @@ void ClientsTHREAD::setStatic(int value)
 /*!
  *Set if the thread can be destroyed.
  */
-void ClientsTHREAD::setToDestroy(int value)
+void ClientsThread::setToDestroy(int value)
 {
   toDestroy = value;
 }
@@ -226,12 +226,12 @@ void ClientsTHREAD::setToDestroy(int value)
 /*!
  *This is the main loop of the thread.
  *Here are controlled all the connections that belongs to the 
- *ClientsTHREAD class instance.
+ *ClientsThread class instance.
  *Every connection is controlled by its protocol.
  *Return 1 if no connections to serve are available.
  *Return 0 in all other cases.
  */
-int ClientsTHREAD::controlConnections()
+int ClientsThread::controlConnections()
 {
   /*!
    *Control the protocol used by the connection.
@@ -409,7 +409,7 @@ int ClientsTHREAD::controlConnections()
      *If the connection is inactive for a time greater that the value
      *configured remove the connection from the connections pool
      */
-		if((get_ticks()- c->getTimeout()) > lserver->connectionTimeout)
+		if((get_ticks()- c->getTimeout()) > lserver->getTimeout() )
 		{
 			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
@@ -425,7 +425,7 @@ int ClientsTHREAD::controlConnections()
 /*!
  *Stop the thread.
  */
-void ClientsTHREAD::stop()
+void ClientsThread::stop()
 {
 	/*!
    *Set the run flag to False.
@@ -439,7 +439,7 @@ void ClientsTHREAD::stop()
 /*!
  *Clean the memory used by the thread.
  */
-void ClientsTHREAD::clean()
+void ClientsThread::clean()
 {
 	/*! If the thread was not initialized return from the clean function.  */
 	if(initialized == 0)
@@ -467,7 +467,7 @@ void ClientsTHREAD::clean()
 /*!
  *Returns a non-null value if the thread is active.
  */
-int ClientsTHREAD::isRunning()
+int ClientsThread::isRunning()
 {
 	return threadIsRunning;
 }
@@ -475,7 +475,7 @@ int ClientsTHREAD::isRunning()
 /*!
  *Returns 1 if the thread is stopped.
  */
-int ClientsTHREAD::isStopped()
+int ClientsThread::isStopped()
 {
 	return threadIsStopped;
 }
@@ -483,14 +483,14 @@ int ClientsTHREAD::isStopped()
 /*!
  *Get a pointer to the buffer.
  */
-CMemBuf* ClientsTHREAD::GetBuffer()
+CMemBuf* ClientsThread::GetBuffer()
 {
 	return &buffer;
 }
 /*!
  *Get a pointer to the buffer2.
  */
-CMemBuf *ClientsTHREAD::GetBuffer2()
+CMemBuf *ClientsThread::GetBuffer2()
 {
 	return &buffer2;
 }
@@ -498,7 +498,7 @@ CMemBuf *ClientsTHREAD::GetBuffer2()
 /*!
  *Check if the thread is working.
  */
-int ClientsTHREAD::isParsing()
+int ClientsThread::isParsing()
 {
   return parsing;
 }

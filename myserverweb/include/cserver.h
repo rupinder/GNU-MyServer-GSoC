@@ -70,6 +70,7 @@ struct listenThreadArgv
 
 class cserver
 {
+  friend class ClientsThread;
 #ifdef WIN32
 	friend  unsigned int __stdcall listenServer(void* pParam);
 	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
@@ -77,10 +78,6 @@ class cserver
 #ifdef HAVE_PTHREAD
 	friend  void* listenServer(void* pParam);
 	friend  void* startClientsTHREAD(void* pParam);
-#endif
-	friend class ClientsTHREAD;
-#ifdef WIN32
-	friend LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM);
 #endif
 #ifdef WIN32
 	friend int __stdcall control_handler (u_long control_type);
@@ -130,7 +127,7 @@ private:
   u_long nThreads;
 
   myserver_mutex *threads_mutex;
-  ClientsTHREAD *threads;
+  ClientsThread *threads;
 
   int purgeThreads();
 	LPCONNECTION connections;
@@ -194,6 +191,8 @@ public:
   int logLockAccess();
   int logUnlockAccess(); 
   int setLogFile(char*);
+	u_long getBuffersize();
+	u_long getBuffersize2();
 }; 
 extern class cserver *lserver;
 #ifdef WIN32

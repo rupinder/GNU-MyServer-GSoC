@@ -351,8 +351,8 @@ int cserver::purgeThreads()
     return 0;
 
   threads_mutex->myserver_mutex_lock();
-  ClientsTHREAD *thread = threads;
-  ClientsTHREAD *prev = 0;
+  ClientsThread *thread = threads;
+  ClientsThread *prev = 0;
   int prev_threads_count = nThreads;
   while(thread)
   {
@@ -377,7 +377,7 @@ int cserver::purgeThreads()
         wait(100);
       }
       nThreads--;
-      ClientsTHREAD *toremove = thread;
+      ClientsThread *toremove = thread;
       thread = thread->next;
       delete toremove;
       continue;
@@ -659,7 +659,7 @@ int cserver::terminate()
 	/*!
    *Stop the server execution.
    */
-  ClientsTHREAD* thread = threads ;
+  ClientsThread* thread = threads ;
 
   if(verbosity>1)
     logWriteln(languageParser.getValue("MSG_STOPT"));
@@ -731,7 +731,7 @@ int cserver::terminate()
   thread = threads;
   while(thread)
   {
-    ClientsTHREAD* next = thread->next;
+    ClientsThread* next = thread->next;
     delete thread;
     thread = next;
   }
@@ -759,7 +759,7 @@ void cserver::stopThreads()
 	/*!
    *Wait before clean the threads that all the threads are stopped.
    */
-  ClientsTHREAD* thread = threads;
+  ClientsThread* thread = threads;
   while(thread)
   {
     thread->clean();
@@ -833,7 +833,7 @@ int cserver::initialize(int /*!os_ver*/)
    */
   nStaticThreads = 20;
   nMaxThreads = 50;
-  currentThreadID = ClientsTHREAD::ID_OFFSET;
+  currentThreadID = ClientsThread::ID_OFFSET;
 	socketRcvTimeout = 10;
 	connectionTimeout = MYSERVER_SEC(25);
 	mustEndServer=0;
@@ -1945,7 +1945,7 @@ int cserver::addThread(int staticThread)
   int ret;
 	myserver_thread_ID ID;
 
-  ClientsTHREAD* newThread = new ClientsTHREAD();
+  ClientsThread* newThread = new ClientsThread();
 
   newThread->setStatic(staticThread);
 
@@ -1954,7 +1954,7 @@ int cserver::addThread(int staticThread)
   
   newThread->id=(u_long)(++currentThreadID);
 
-  ret = myserver_thread::create(&ID, &::startClientsTHREAD, 
+  ret = myserver_thread::create(&ID, &::startClientsThread, 
                                 (void *)newThread);
   if(ret)
   {
@@ -2005,8 +2005,8 @@ int cserver::removeThread(u_long ID)
 {
   int ret_code = 1;
   threads_mutex->myserver_mutex_lock();
-  ClientsTHREAD *thread = threads;
-  ClientsTHREAD *prev = 0;
+  ClientsThread *thread = threads;
+  ClientsThread *prev = 0;
   /*!
    *If there are no threads return an error.
    */
@@ -2047,7 +2047,7 @@ int cserver::countAvailableThreads()
 {
   int count = 0;
 	threads_mutex->myserver_mutex_lock();
-  ClientsTHREAD* thread = threads;
+  ClientsThread* thread = threads;
   while(thread)
   {
     if(!thread->isParsing())
@@ -2116,3 +2116,18 @@ int cserver::setLogFile(char* fileName)
   return logManager->load(fileName);
 }
 
+/*!
+ *Get the size for the first buffer.
+ */
+u_long cserver::getBuffersize()
+{
+  return buffersize;
+}
+
+/*!
+ *Get the size for the second buffer.
+ */
+u_long cserver::getBuffersize2()
+{
+  return buffersize2;
+}
