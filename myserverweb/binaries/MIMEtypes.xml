@@ -19,14 +19,14 @@
 <EXT>php3</EXT>
 <MIME>text/html</MIME>
 <CMD>RUNCGI</CMD>
-<MANAGER>c:/programmi/php/php.exe</MANAGER>
+<MANAGER>/usr/bin/php</MANAGER>
 </MIMETYPE>
 
 <MIMETYPE>
 <EXT>php</EXT>
 <MIME>text/html</MIME>
-<CMD>RUNFASTCGI</CMD>
-<MANAGER>c:/programmi/php/php.exe</MANAGER>
+<CMD>RUNCGI</CMD>
+<MANAGER>/usr/bin/php</MANAGER>
 </MIMETYPE>
 
 <MIMETYPE>

@@ -102,7 +102,7 @@ void cserver::start()
 #endif
 	
 	/*!
-	*Print the myServer logo.
+	*Print the MyServer logo.
 	*/
 	char *software_signature=(char*)malloc(200);
 	sprintf(software_signature,"************MyServer %s************",versionOfSoftware);
@@ -181,7 +181,7 @@ void cserver::start()
 	MYSERVER_HOSTENT *localhe=MYSERVER_SOCKET::gethostbyname(serverName);
 	in_addr ia;
 	ipAddresses[0]='\0';
-	for(i=0;localhe->h_addr_list[i];i++)
+	for(i=0;localhe && (localhe->h_addr_list[i]);i++)
 	{
 #ifdef WIN32
 		ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
@@ -703,14 +703,15 @@ void cserver::initialize(int /*!OSVer*/)
 
 }
 /*!
-*Get the max size of the logs file
+*This function returns the max size of the logs file as defined in the 
+*configuration file.
 */
 int cserver::getMaxLogFileSize()
 {
 	return maxLogFileSize;
 }
 /*!
-*Returns the connection timeout
+*Returns the connection timeout.
 */
 u_long cserver::getTimeout()
 {
