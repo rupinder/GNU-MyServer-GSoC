@@ -26,7 +26,8 @@ class control_header
   char connection[32];
   char command[32];
   char cmdOptions[64];
-  char auth[64];
+  char authLogin[64];
+  char authPassword[64];
   char version[12];
   int length;
 public:
@@ -35,7 +36,8 @@ public:
   char *getVersion();
   char *getConnection();
   int getLength();
-  char *getAuthName();
+  char *getAuthLogin();
+  char *getAuthPassword();
   char *getCommand();
   control_header();
   virtual ~control_header();

@@ -25,7 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class control_protocol : public protocol
 {
-  static char adminAuth[64];
+  static char adminLogin[64];
+  static char adminPassword[64];
   static int controlEnabled;
   /*! Input file. */
   MYSERVER_FILE *Ifile;

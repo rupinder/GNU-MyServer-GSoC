@@ -54,11 +54,19 @@ char* control_header::getOptions()
 }
 
 /*!
- *Return a string containing an auth string in MD5(name:password).
+ *Return a string containing the auth login name in the MD5 format.
  */
-char* control_header::getAuthName()
+char* control_header::getAuthLogin()
 {
-  return auth;
+  return authLogin;
+}
+
+/*!
+ *Return a string containing the auth login password in the MD5 format.
+ */
+char* control_header::getAuthPassword()
+{
+  return authPassword;
 }
 
 /*!
@@ -111,7 +119,8 @@ void control_header::reset()
   /*! Reset everything. */
   command[0]='\0';
   cmdOptions[0]='\0';
-  auth[0]='\0';
+  authLogin[0]='\0';
+  authPassword[0]='\0';
   version[0]='\0';
   length=0;
 }
@@ -227,10 +236,15 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
       if(!strncmp(field, "/AUTH ", 6))
       {
         offset += 6;
-        int len = getCharInString(offset, "\r", 64);
+        int len = getCharInString(offset, "\:", 64);
         if(len == -1)
           return CONTROL_MALFORMED;
-        myserver_strlcpy(auth, offset, min(len + 1, 64));
+        myserver_strlcpy(authLogin, offset, min(len + 1, 64));
+        offset+=len + 1;
+        len = getCharInString(offset, "\r", 64);
+        if(len == -1)
+          return CONTROL_MALFORMED;
+        myserver_strlcpy(authPassword, offset, min(len + 1, 64));
         offset += len + 2;
       }
       else if(!strncmp(field, "/CONNECTION ", 12))
