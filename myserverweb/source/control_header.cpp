@@ -127,6 +127,7 @@ control_header::~control_header()
 /*!
  *Parse the header in buffer. Put the effective length of the header in len.
  *Return a control_error. See control_errors.h to have a list of all errors.
+ *Return -1 on an incomplete header.
  *The header has this form:
  *_/CMD VERSION more_options\r\n
  *_/AUTH md5(name:password)\r\n
@@ -141,6 +142,9 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
 {
   /*! Do a reset before the parsing. */
   reset();
+
+  /*! Do we find a \r\n\r\n sequence? */
+  int end_reached = 0;
 
   /*! No buffer was specified. */
   if(buffer == 0)
@@ -207,6 +211,7 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
       /*! We reach the end of the request. */
       if(field[0]=='\r' && field[1]=='\n')
       {
+        end_reached = 1;
         offset += 2 ;
         break;
       }
@@ -266,5 +271,8 @@ int control_header::parse_header(char *buffer, int bufferlen, int *len)
   if(len)
     *len = (int)(offset - buffer);
 
-  return CONTROL_OK;
+  if(end_reached)
+    return CONTROL_OK;
+  else
+    return -1;
 }

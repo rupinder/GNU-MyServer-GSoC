@@ -178,6 +178,11 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
    */
   if(ret != CONTROL_OK)
   {
+    /*! parse_header returns -1 on an incomplete header. */
+    if(ret == -1)
+    {
+      return 2;
+    }
     sendResponse(b2, bs2, a, ret,0);
     return 0;
   }
