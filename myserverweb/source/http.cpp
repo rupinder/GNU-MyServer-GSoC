@@ -59,13 +59,13 @@ extern "C"
 #define intptr_t int
 #endif
 
-int http::mscgiLoaded=0;/*Store if the MSCGI library was loaded.*/
-char http::browseDirCSSpath[MAX_PATH]="";
-u_long http::gzip_threshold=0;
-int http::useMessagesFiles=0;	
-char *http::defaultFilename=0;	
-u_long http::nDefaultFilename=0;
-int http::initialized=0;
+int http::mscgiLoaded=0;/*! Store if the MSCGI library was loaded.  */
+char http::browseDirCSSpath[MAX_PATH]="";/*! Path to the .css file used by direcotry browsing.  */
+u_long http::gzip_threshold=0;/*! Threshold value to send data in gzip.  */
+int http::useMessagesFiles=0;/*!Use files for HTTP errors?  */
+char *http::defaultFilename=0;	/*! Array with default filenames.  */
+u_long http::nDefaultFilename=0;/*! Number of the elements in the array.  */
+int http::initialized=0;/*! Is the HTTP protocol loaded?  */
 
 /*!
 *Browse a folder printing its contents in an HTML file.
@@ -221,9 +221,9 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		*td->buffer2 << "\">" ;
 		*td->buffer2 << fd.name;
 		*td->buffer2 << "</td>\r\n<td>";
-			
+	
 		getRFC822GMTTime((time_t)fd.time_write,fileTime,32);
-						
+
 		*td->buffer2 << fileTime ;
 		*td->buffer2 << "</td>\r\n<td>";
 		
@@ -373,8 +373,9 @@ int http::allowHTTPTRACE(httpThreadContext* /*td*/,LPCONNECTION s)
 	{
 		return 0;
 	}
-	char *val=parser.getAttr("HTTP","TRACE");
-	if(val &&  !lstrcmpi(val,"ON"))
+	char *http_trace_value=parser.getAttr("HTTP","TRACE");
+       /*! If the returned value is equal to ON so the HTTP TRACE is active for this vhost.  */
+	if(http_trace_value &&  !lstrcmpi(http_trace_value,"ON"))
 		ret = 1;
 	else
 		ret = 0;

@@ -45,7 +45,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	fCGIContext con;
 	con.td=td;
 	u_long nbr=0;
-	FCGI_Header tHeader;
+	FCGI_Header header;
 	strncpy(td->scriptPath,scriptpath,MAX_PATH);
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
@@ -68,8 +68,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	td->inputData.closeFile();
 	td->inputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_NO_INHERIT);
 
-	int pID = FcgiConnect(&con,fullpath);
-	if(pID<0)
+	int p_id = FcgiConnect(&con,fullpath);
+	if(p_id<0)
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 
 	int id=td->id+1;
@@ -118,8 +118,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
-		if(con.sock.send((char*)&tHeader,sizeof(tHeader),0)==-1)
+		generateFcgiHeader( header, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
+		if(con.sock.send((char*)&header,sizeof(header),0)==-1)
 			return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
 		td->inputData.setFilePointer(0);
 		do
@@ -162,7 +162,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 				break;
 		}
 		if(con.sock.bytesToRead())
-			nbr=con.sock.recv((char*)&tHeader,sizeof(FCGI_Header),0);
+			nbr=con.sock.recv((char*)&header,sizeof(FCGI_Header),0);
 		else
 		{
 			td->buffer->SetLength(0);
@@ -180,15 +180,15 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		*To retrieve the value of content length push left contentLengthB1
 		*of eight byte then do a or with contentLengthB0.
 		*/
-		u_long dim=(tHeader.contentLengthB1<<8) | tHeader.contentLengthB0;
-		u_long dataSent=0;
+		u_long dim=(header.contentLengthB1<<8) | header.contentLengthB0;
+		u_long data_sent=0;
 		if(dim==0)
 		{
 			exit = 1;
 		}
 		else
 		{
-			switch(tHeader.type)
+			switch(header.type)
 			{
 				case FCGI_STDERR:
 					con.sock.closesocket();
@@ -199,23 +199,23 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 					nbr=con.sock.recv((char*)td->buffer->GetBuffer(),min(dim,td->buffer->GetRealLength()),0);
 					u_long nbw;
 					td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&nbw);
-					dataSent=nbw;
-					if(dataSent==0)
+					data_sent=nbw;
+					if(data_sent==0)
 					{
 						exit = 1;
 						break;
 					}
-					while(dataSent<dim)
+					while(data_sent<dim)
 					{
 						if( con.sock.bytesToRead() )
-							nbr=con.sock.recv((char*)td->buffer->GetBuffer(),min(dim-dataSent,td->buffer->GetRealLength()),0);
+							nbr=con.sock.recv((char*)td->buffer->GetBuffer(),min(dim-data_sent,td->buffer->GetRealLength()),0);
 						else
 						{
 							exit = 1;
 							break;
 						}
 						con.tempOut.writeToFile((char*)(td->buffer->GetBuffer()),nbr,&nbw);
-						dataSent+=nbw;
+						data_sent+=nbw;
 					}
 					break;
 				case FCGI_END_REQUEST:
@@ -248,18 +248,18 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	{
 		if(td->response.LOCATION[0])
 		{
-			char nURL[MAX_PATH];
-			nURL[0]='\0';
+			char new_url[MAX_PATH];
+			new_url[0]='\0';
 			u_long j;
 			j=0;
-			u_long start=(u_long)strlen(nURL);
+			u_long start=(u_long)strlen(new_url);
 			while(td->response.LOCATION[j])
 			{
-				nURL[j+start]=td->response.LOCATION[j];
-				nURL[j+start+1]='\0';
+				new_url[j+start]=td->response.LOCATION[j];
+				new_url[j+start+1]='\0';
 				j++;
 			}
-			((http*)td->lhttp)->sendHTTPRedirect(td,connection,nURL);
+			((http*)td->lhttp)->sendHTTPRedirect(td,connection,new_url);
 			break;
 		}
 		
@@ -277,7 +277,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 			{
 				exit = 1;
 				break;
-			}			
+			}
 		}
 		else
 		{
@@ -314,10 +314,10 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 */
 int fastcgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 {
-	FCGI_Header tHeader;
-	generateFcgiHeader( tHeader, type, id, len );
+	FCGI_Header header;
+	generateFcgiHeader( header, type, id, len );
 	
-	if(con->sock.send((char*)&tHeader,sizeof(tHeader),0)==-1)
+	if(con->sock.send((char*)&header,sizeof(header),0)==-1)
 		return -1;
 	if(con->sock.send((char*)buffer,len,0)==-1)
 		return -1;
@@ -389,16 +389,16 @@ int fastcgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 /*!
 *Fill the FCGI_Header structure
 */
-void fastcgi::generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId, int iContentLength )
+void fastcgi::generateFcgiHeader( FCGI_Header &header, int iType,int iRequestId, int iContentLength )
 {
-	tHeader.version = FCGI_VERSION_1;
-	tHeader.type = (u_char)iType;
-	tHeader.requestIdB1 = (u_char)((iRequestId >> 8 ) & 0xff);
-	tHeader.requestIdB0 = (u_char)((iRequestId ) & 0xff);
-	tHeader.contentLengthB1 = (u_char)((iContentLength >> 8 ) & 0xff);
-	tHeader.contentLengthB0 = (u_char)((iContentLength ) & 0xff);
-	tHeader.paddingLength = 0;
-	tHeader.reserved = 0;
+	header.version = FCGI_VERSION_1;
+	header.type = (u_char)iType;
+	header.requestIdB1 = (u_char)((iRequestId >> 8 ) & 0xff);
+	header.requestIdB0 = (u_char)((iRequestId ) & 0xff);
+	header.contentLengthB1 = (u_char)((iContentLength >> 8 ) & 0xff);
+	header.contentLengthB0 = (u_char)((iContentLength ) & 0xff);
+	header.paddingLength = 0;
+	header.reserved = 0;
 };
 /*!
 *Constructor for the FASTCGI class

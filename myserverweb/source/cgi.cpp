@@ -56,9 +56,7 @@ extern "C" {
 */
 int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/,char *cgipath,int cmd)
 {
-	/*!
-	*Use this variable to determine if the CGI executable is nph(Non Parsed Header).
-	*/
+	/*! Use this variable to determine if the CGI executable is nph(Non Parsed Header).  */
 	int nph;
 	char cmdLine[MAX_PATH*3+1];
 	char filename[MAX_PATH];
@@ -169,9 +167,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	execHiddenProcess(&spi);
 	td->buffer2->SetLength(0);
 
-	/*!
-	*Read the CGI output.
-	*/
+	/*! Read the CGI output.  */
 	u_long nBytesRead=0;
 	if(!stdOutFile.setFilePointer(0))
 		stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(),td->buffer2->GetRealLength(),&nBytesRead);
@@ -187,9 +183,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
 	}
-	/*!
-	*Standard CGI can include an extra HTTP header.
-	*/
+	/*! Standard CGI can include an extra HTTP header.  */
 	u_long headerSize=0;
 
 	for(u_long i=0;i<nBytesRead;i++)
@@ -205,9 +199,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			headerSize=i+4;
 			break;
 		}
-		/*!
-		*If it is present Location: xxx in the header send a redirect to xxx
-		*/
+		/*! If it is present Location: xxx in the header send a redirect to xxx.  */
 		else if(!strncmp(&((char*)td->buffer2->GetBuffer())[i],"Location",8))
 		{
 			char nURL[MAX_PATH];
@@ -234,25 +226,20 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	{
 		if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 			strcpy(td->response.CONNECTION,"Keep-Alive");
-		/*!
-		*Don't send any other HTTP header if the CGI executable has the nph-.... form name.
-		*/
+		/*! Don't send any other HTTP header if the CGI executable has the nph-.... form name.  */
 		if(nph)
 		{
-			/*!
-			*Resetting the structure we send only the information gived by the CGI.
-			*/
+			/*! Resetting the structure we send only the information gived by the CGI. */
 			http_headers::resetHTTPResponse(&(td->response));
 		}
 		u_long nbw=0;
 
-		if(!td->appendOutputs)/*Send the header*/
+		/*! Send the header.  */
+		if(!td->appendOutputs)
 		{
 			if(headerSize)
 				http_headers::buildHTTPResponseHeaderStruct(&td->response,td,(char*)td->buffer2->GetBuffer());
-			/*!
-			*Always specify the size of the HTTP contents.
-			*/
+   			/*! Always specify the size of the HTTP contents.  */
 			sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
 			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
 			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
@@ -278,223 +265,217 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		
 	}
 	
-	/*!
-	*Close and delete the stdin and stdout files used by the CGI.
-	*/
+	/*! Close and delete the stdin and stdout files used by the CGI.  */
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
 	MYSERVER_FILE::deleteFile(td->inputDataPath);
 
-	/*!
-	*Don't close the socket for Keep-Alive connections.
-	*/
+	/*! Don't close the socket for Keep-Alive connections.  */
 	return (!lstrcmpi(td->response.CONNECTION,"Keep-Alive"));
 }
 /*!
 *Write the string that contain the CGI environment to cgiEnvString.
 *This function is used by other server side protocols too.
 */
-void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int processEnv)
+void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgi_env_string,int processEnv)
 {
 	/*!
 	*The Environment string is a null-terminated block of null-terminated strings.
 	*For no problems with the function strcat we use the character \r for the \0 character
 	*and at the end we change every \r in \0.
 	*/
-	strncat(cgiEnvString,"SERVER_SOFTWARE=MyServer ",strlen(cgiEnvString)+26);
-	strncat(cgiEnvString,versionOfSoftware,strlen(cgiEnvString)+strlen(versionOfSoftware)+1);
+	strncat(cgi_env_string,"SERVER_SOFTWARE=MyServer ",strlen(cgi_env_string)+26);
+	strncat(cgi_env_string,versionOfSoftware,strlen(cgi_env_string)+strlen(versionOfSoftware)+1);
 
 #ifdef WIN32
-	strncat(cgiEnvString," (WIN32)",strlen(cgiEnvString)+9);
+	strncat(cgi_env_string," (WIN32)",strlen(cgi_env_string)+9);
 #else
 #ifdef HOST_STR
-	strncat(cgiEnvString, HOST_STR,strlen(cgiEnvString)+strlen(HOST_STR)+1);
+	strncat(cgi_env_string, HOST_STR,strlen(cgi_env_string)+strlen(HOST_STR)+1);
 #else
-	strncat(cgiEnvString, " (Unknown)",strlen(cgiEnvString)+11);
+	strncat(cgi_env_string, " (Unknown)",strlen(cgi_env_string)+11);
 #endif
 #endif
-	/*!
-	*Must use REDIRECT_STATUS for php and others
-	*/
-	strncat(cgiEnvString,"\rREDIRECT_STATUS=TRUE",strlen(cgiEnvString)+22);
+	/*! *Must use REDIRECT_STATUS for php and others.  */
+	strncat(cgi_env_string,"\rREDIRECT_STATUS=TRUE",strlen(cgi_env_string)+22);
 	
-	strncat(cgiEnvString,"\rSERVER_NAME=",strlen(cgiEnvString)+14);
- 	strncat(cgiEnvString,lserver->getServerName(),strlen(cgiEnvString)+strlen(lserver->getServerName())+1);
+	strncat(cgi_env_string,"\rSERVER_NAME=",strlen(cgi_env_string)+14);
+ 	strncat(cgi_env_string,lserver->getServerName(),strlen(cgi_env_string)+strlen(lserver->getServerName())+1);
 
-	strncat(cgiEnvString,"\rSERVER_SIGNATURE=",strlen(cgiEnvString)+19);
-	strncat(cgiEnvString,"<address>MyServer ",strlen(cgiEnvString)+19);
-	strncat(cgiEnvString,versionOfSoftware,strlen(cgiEnvString)+strlen(versionOfSoftware)+1);
-	strncat(cgiEnvString,"</address>",strlen(cgiEnvString)+11);
+	strncat(cgi_env_string,"\rSERVER_SIGNATURE=",strlen(cgi_env_string)+19);
+	strncat(cgi_env_string,"<address>MyServer ",strlen(cgi_env_string)+19);
+	strncat(cgi_env_string,versionOfSoftware,strlen(cgi_env_string)+strlen(versionOfSoftware)+1);
+	strncat(cgi_env_string,"</address>",strlen(cgi_env_string)+11);
 
-	strncat(cgiEnvString,"\rSERVER_PROTOCOL=",strlen(cgiEnvString)+18);
-	strncat(cgiEnvString,td->request.VER,strlen(cgiEnvString)+strlen(td->request.VER)+1);	
+	strncat(cgi_env_string,"\rSERVER_PROTOCOL=",strlen(cgi_env_string)+18);
+	strncat(cgi_env_string,td->request.VER,strlen(cgi_env_string)+strlen(td->request.VER)+1);	
 	
-	strncat(cgiEnvString,"\rSERVER_PORT=",strlen(cgiEnvString)+14);
-	sprintf(&cgiEnvString[strlen(cgiEnvString)],"%u",td->connection->localPort);
+	strncat(cgi_env_string,"\rSERVER_PORT=",strlen(cgi_env_string)+14);
+	sprintf(&cgi_env_string[strlen(cgi_env_string)],"%u",td->connection->localPort);
 
-	strncat(cgiEnvString,"\rSERVER_ADMIN=",strlen(cgiEnvString)+15);
-	strncat(cgiEnvString,lserver->getServerAdmin(),strlen(cgiEnvString)+strlen(lserver->getServerAdmin())+1);
+	strncat(cgi_env_string,"\rSERVER_ADMIN=",strlen(cgi_env_string)+15);
+	strncat(cgi_env_string,lserver->getServerAdmin(),strlen(cgi_env_string)+strlen(lserver->getServerAdmin())+1);
 
-	strncat(cgiEnvString,"\rREQUEST_METHOD=",strlen(cgiEnvString)+17);
-	strncat(cgiEnvString,td->request.CMD,strlen(cgiEnvString)+strlen(td->request.CMD)+1);
+	strncat(cgi_env_string,"\rREQUEST_METHOD=",strlen(cgi_env_string)+17);
+	strncat(cgi_env_string,td->request.CMD,strlen(cgi_env_string)+strlen(td->request.CMD)+1);
 
-	strncat(cgiEnvString,"\rREQUEST_URI=/",strlen(cgiEnvString)+15);
+	strncat(cgi_env_string,"\rREQUEST_URI=/",strlen(cgi_env_string)+15);
 	
- 	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
+ 	lstrcpyn(&cgi_env_string[strlen(cgi_env_string)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
 
-	strncat(cgiEnvString,"\rQUERY_STRING=",strlen(cgiEnvString)+15);
-	strncat(cgiEnvString,td->request.URIOPTS,strlen(cgiEnvString)+strlen(td->request.URIOPTS)+1);
+	strncat(cgi_env_string,"\rQUERY_STRING=",strlen(cgi_env_string)+15);
+	strncat(cgi_env_string,td->request.URIOPTS,strlen(cgi_env_string)+strlen(td->request.URIOPTS)+1);
 
-	strncat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1",strlen(cgiEnvString)+27);
+	strncat(cgi_env_string,"\rGATEWAY_INTERFACE=CGI/1.1",strlen(cgi_env_string)+27);
 
 	if(td->request.CONTENT_TYPE[0])
 	{
-		strncat(cgiEnvString,"\rCONTENT_TYPE=",strlen(cgiEnvString)+15);
-		strncat(cgiEnvString,td->request.CONTENT_TYPE,strlen(cgiEnvString)+strlen(td->request.CONTENT_TYPE)+1);
+		strncat(cgi_env_string,"\rCONTENT_TYPE=",strlen(cgi_env_string)+15);
+		strncat(cgi_env_string,td->request.CONTENT_TYPE,strlen(cgi_env_string)+strlen(td->request.CONTENT_TYPE)+1);
 	}
 
 	if(td->request.CONTENT_LENGTH[0])
 	{
-		strncat(cgiEnvString,"\rCONTENT_LENGTH=",strlen(cgiEnvString)+17);
-		strncat(cgiEnvString,td->request.CONTENT_LENGTH,strlen(cgiEnvString)+strlen(td->request.CONTENT_LENGTH)+1);
+		strncat(cgi_env_string,"\rCONTENT_LENGTH=",strlen(cgi_env_string)+17);
+		strncat(cgi_env_string,td->request.CONTENT_LENGTH,strlen(cgi_env_string)+strlen(td->request.CONTENT_LENGTH)+1);
 	}
 	else
 	{
 		u_long fs=0;
 		if(td->inputData.getHandle())
 			fs=td->inputData.getFileSize();
-		sprintf(&cgiEnvString[strlen(cgiEnvString)],"\rCONTENT_LENGTH=%u",fs);
+		sprintf(&cgi_env_string[strlen(cgi_env_string)],"\rCONTENT_LENGTH=%u",fs);
 	}
 
 	if(td->request.COOKIE[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_COOKIE=",strlen(cgiEnvString)+14);
-		strncat(cgiEnvString,td->request.COOKIE,strlen(cgiEnvString)+strlen(td->request.COOKIE)+1);
+		strncat(cgi_env_string,"\rHTTP_COOKIE=",strlen(cgi_env_string)+14);
+		strncat(cgi_env_string,td->request.COOKIE,strlen(cgi_env_string)+strlen(td->request.COOKIE)+1);
 	}
 
 	if(td->request.REFERER[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_REFERER=",strlen(cgiEnvString)+15);
-		strncat(cgiEnvString,td->request.REFERER,strlen(cgiEnvString)+strlen(td->request.REFERER)+1);
+		strncat(cgi_env_string,"\rHTTP_REFERER=",strlen(cgi_env_string)+15);
+		strncat(cgi_env_string,td->request.REFERER,strlen(cgi_env_string)+strlen(td->request.REFERER)+1);
 	}
 	if(td->request.CACHE_CONTROL[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_CACHE_CONTROL=",strlen(cgiEnvString)+21);
-		strncat(cgiEnvString,td->request.CACHE_CONTROL,strlen(cgiEnvString)+strlen(td->request.CACHE_CONTROL)+1);
+		strncat(cgi_env_string,"\rHTTP_CACHE_CONTROL=",strlen(cgi_env_string)+21);
+		strncat(cgi_env_string,td->request.CACHE_CONTROL,strlen(cgi_env_string)+strlen(td->request.CACHE_CONTROL)+1);
 	}
 	if(td->request.ACCEPT[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_ACCEPT=",strlen(cgiEnvString)+14);
-		strncat(cgiEnvString,td->request.ACCEPT,strlen(cgiEnvString)+strlen(td->request.ACCEPT)+1);
+		strncat(cgi_env_string,"\rHTTP_ACCEPT=",strlen(cgi_env_string)+14);
+		strncat(cgi_env_string,td->request.ACCEPT,strlen(cgi_env_string)+strlen(td->request.ACCEPT)+1);
 	}
 
 	if(td->cgiRoot[0])
 	{
-		strncat(cgiEnvString,"\rCGI_ROOT=",strlen(cgiEnvString)+11);
-		strncat(cgiEnvString,td->cgiRoot,strlen(cgiEnvString)+strlen(td->cgiRoot)+1);
+		strncat(cgi_env_string,"\rCGI_ROOT=",strlen(cgi_env_string)+11);
+		strncat(cgi_env_string,td->cgiRoot,strlen(cgi_env_string)+strlen(td->cgiRoot)+1);
 	}
 	if(td->request.HOST[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_HOST=",strlen(cgiEnvString)+12);
-		strncat(cgiEnvString,td->request.HOST,strlen(cgiEnvString)+strlen(td->request.HOST)+1);
+		strncat(cgi_env_string,"\rHTTP_HOST=",strlen(cgi_env_string)+12);
+		strncat(cgi_env_string,td->request.HOST,strlen(cgi_env_string)+strlen(td->request.HOST)+1);
 	}
 	if(td->connection->ipAddr[0])
 	{
-		strncat(cgiEnvString,"\rREMOTE_ADDR=",strlen(cgiEnvString)+14);
-		strncat(cgiEnvString,td->connection->ipAddr,strlen(cgiEnvString)+strlen(td->connection->ipAddr)+1);
+		strncat(cgi_env_string,"\rREMOTE_ADDR=",strlen(cgi_env_string)+14);
+		strncat(cgi_env_string,td->connection->ipAddr,strlen(cgi_env_string)+strlen(td->connection->ipAddr)+1);
 	}
 	if(td->connection->port)
 	{
-	 	strncat(cgiEnvString,"\rREMOTE_PORT=",strlen(cgiEnvString)+14);
-		sprintf(&cgiEnvString[strlen(cgiEnvString)],"%u",td->connection->port);
+	 	strncat(cgi_env_string,"\rREMOTE_PORT=",strlen(cgi_env_string)+14);
+		sprintf(&cgi_env_string[strlen(cgi_env_string)],"%u",td->connection->port);
 	}
 
 	if(td->connection->login[0])
 	{
-	  	strncat(cgiEnvString,"\rREMOTE_USER=",strlen(cgiEnvString)+14);
-		strncat(cgiEnvString,td->connection->login,strlen(cgiEnvString)+strlen(td->connection->login)+1);
+	  	strncat(cgi_env_string,"\rREMOTE_USER=",strlen(cgi_env_string)+14);
+		strncat(cgi_env_string,td->connection->login,strlen(cgi_env_string)+strlen(td->connection->login)+1);
 	}
 	
 	if(((vhost*)(td->connection->host))->protocol==PROTOCOL_HTTPS)
-		strncat(cgiEnvString,"\rSSL=ON",strlen(cgiEnvString)+8);
+		strncat(cgi_env_string,"\rSSL=ON",strlen(cgi_env_string)+8);
 	else
-		strncat(cgiEnvString,"\rSSL=OFF",strlen(cgiEnvString+9));
+		strncat(cgi_env_string,"\rSSL=OFF",strlen(cgi_env_string+9));
 
 	if(td->request.CONNECTION[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_CONNECTION=",strlen(cgiEnvString)+18);
-		strncat(cgiEnvString,td->request.CONNECTION,strlen(cgiEnvString)+strlen(td->request.CONNECTION)+1);
+		strncat(cgi_env_string,"\rHTTP_CONNECTION=",strlen(cgi_env_string)+18);
+		strncat(cgi_env_string,td->request.CONNECTION,strlen(cgi_env_string)+strlen(td->request.CONNECTION)+1);
 	}
 	if(td->request.AUTH[0])
 	{
-		strncat(cgiEnvString,"\rAUTH_TYPE=",strlen(cgiEnvString)+12);
-		strncat(cgiEnvString,td->request.AUTH,strlen(cgiEnvString)+strlen(td->request.AUTH)+1);
+		strncat(cgi_env_string,"\rAUTH_TYPE=",strlen(cgi_env_string)+12);
+		strncat(cgi_env_string,td->request.AUTH,strlen(cgi_env_string)+strlen(td->request.AUTH)+1);
 	}
 	if(td->request.USER_AGENT[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_USER_AGENT=",strlen(cgiEnvString)+18);
-		strncat(cgiEnvString,td->request.USER_AGENT,strlen(cgiEnvString)+strlen(td->request.USER_AGENT)+1);
+		strncat(cgi_env_string,"\rHTTP_USER_AGENT=",strlen(cgi_env_string)+18);
+		strncat(cgi_env_string,td->request.USER_AGENT,strlen(cgi_env_string)+strlen(td->request.USER_AGENT)+1);
 	}
 	if(td->request.ACCEPTENC[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_ACCEPT_ENCODING=",strlen(cgiEnvString)+23);
-		strncat(cgiEnvString,td->request.ACCEPTENC,strlen(cgiEnvString)+strlen(td->request.ACCEPTENC)+1);
+		strncat(cgi_env_string,"\rHTTP_ACCEPT_ENCODING=",strlen(cgi_env_string)+23);
+		strncat(cgi_env_string,td->request.ACCEPTENC,strlen(cgi_env_string)+strlen(td->request.ACCEPTENC)+1);
 	}
 	if(td->request.ACCEPTLAN[0])
 	{
-		strncat(cgiEnvString,"\rHTTP_ACCEPT_LANGUAGE=",strlen(cgiEnvString)+23);
-	  	strncat(cgiEnvString,td->request.ACCEPTLAN,strlen(cgiEnvString)+strlen(td->request.ACCEPTLAN)+1);
+		strncat(cgi_env_string,"\rHTTP_ACCEPT_LANGUAGE=",strlen(cgi_env_string)+23);
+	  	strncat(cgi_env_string,td->request.ACCEPTLAN,strlen(cgi_env_string)+strlen(td->request.ACCEPTLAN)+1);
 	}
 	if(td->pathInfo[0])
 	{
-		strncat(cgiEnvString,"\rPATH_INFO=",strlen(cgiEnvString)+12);
-	  	strncat(cgiEnvString,td->pathInfo,strlen(cgiEnvString)+strlen(td->pathInfo)+1);
+		strncat(cgi_env_string,"\rPATH_INFO=",strlen(cgi_env_string)+12);
+	  	strncat(cgi_env_string,td->pathInfo,strlen(cgi_env_string)+strlen(td->pathInfo)+1);
 	  	
-	  	strncat(cgiEnvString,"\rPATH_TRANSLATED=",strlen(cgiEnvString)+18);
-		strncat(cgiEnvString,td->pathTranslated,strlen(cgiEnvString)+strlen(td->pathTranslated)+1);
+	  	strncat(cgi_env_string,"\rPATH_TRANSLATED=",strlen(cgi_env_string)+18);
+		strncat(cgi_env_string,td->pathTranslated,strlen(cgi_env_string)+strlen(td->pathTranslated)+1);
 	}
 	else
 	{
-  		strncat(cgiEnvString,"\rPATH_TRANSLATED=",strlen(cgiEnvString)+18);
-		strncat(cgiEnvString,td->filenamePath,strlen(cgiEnvString)+strlen(td->filenamePath)+1);
+  		strncat(cgi_env_string,"\rPATH_TRANSLATED=",strlen(cgi_env_string)+18);
+		strncat(cgi_env_string,td->filenamePath,strlen(cgi_env_string)+strlen(td->filenamePath)+1);
 	}
 
- 	strncat(cgiEnvString,"\rSCRIPT_FILENAME=",strlen(cgiEnvString)+18);
-	strncat(cgiEnvString,td->filenamePath,strlen(cgiEnvString)+strlen(td->filenamePath)+1);
+ 	strncat(cgi_env_string,"\rSCRIPT_FILENAME=",strlen(cgi_env_string)+18);
+	strncat(cgi_env_string,td->filenamePath,strlen(cgi_env_string)+strlen(td->filenamePath)+1);
 	
 	/*!
 	*For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.
 	*/
-	strncat(cgiEnvString,"\rSCRIPT_NAME=/",strlen(cgiEnvString)+15);
-	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
+	strncat(cgi_env_string,"\rSCRIPT_NAME=/",strlen(cgi_env_string)+15);
+	lstrcpyn(&cgi_env_string[strlen(cgi_env_string)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
 
-	strncat(cgiEnvString,"\rSCRIPT_URL=/",strlen(cgiEnvString)+14);
-	lstrcpy(&cgiEnvString[strlen(cgiEnvString)],td->request.URI);
+	strncat(cgi_env_string,"\rSCRIPT_URL=/",strlen(cgi_env_string)+14);
+	lstrcpy(&cgi_env_string[strlen(cgi_env_string)],td->request.URI);
 
-	strncat(cgiEnvString,"\rDATE_GMT=",strlen(cgiEnvString)+11);
-	getRFC822GMTTime(&cgiEnvString[strlen(cgiEnvString)],HTTP_RESPONSE_DATE_DIM);
+	strncat(cgi_env_string,"\rDATE_GMT=",strlen(cgi_env_string)+11);
+	getRFC822GMTTime(&cgi_env_string[strlen(cgi_env_string)],HTTP_RESPONSE_DATE_DIM);
 
- 	strncat(cgiEnvString,"\rDATE_LOCAL=",strlen(cgiEnvString)+13);
-	getRFC822LocalTime(&cgiEnvString[strlen(cgiEnvString)],HTTP_RESPONSE_DATE_DIM);
+ 	strncat(cgi_env_string,"\rDATE_LOCAL=",strlen(cgi_env_string)+13);
+	getRFC822LocalTime(&cgi_env_string[strlen(cgi_env_string)],HTTP_RESPONSE_DATE_DIM);
 
-	strncat(cgiEnvString,"\rDOCUMENT_ROOT=",strlen(cgiEnvString)+16);
-	strncat(cgiEnvString,((vhost*)(td->connection->host))->documentRoot,strlen(cgiEnvString+1));
+	strncat(cgi_env_string,"\rDOCUMENT_ROOT=",strlen(cgi_env_string)+16);
+	strncat(cgi_env_string,((vhost*)(td->connection->host))->documentRoot,strlen(cgi_env_string+1));
 
-	strncat(cgiEnvString,"\rDOCUMENT_URI=/",strlen(cgiEnvString)+15);
-	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
+	strncat(cgi_env_string,"\rDOCUMENT_URI=/",strlen(cgi_env_string)+15);
+	lstrcpyn(&cgi_env_string[strlen(cgi_env_string)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
 	
-	strncat(cgiEnvString,"\rDOCUMENT_NAME=",strlen(cgiEnvString)+16);
-	strncat(cgiEnvString,td->filenamePath,strlen(cgiEnvString)+strlen(td->filenamePath)+1);
+	strncat(cgi_env_string,"\rDOCUMENT_NAME=",strlen(cgi_env_string)+16);
+	strncat(cgi_env_string,td->filenamePath,strlen(cgi_env_string)+strlen(td->filenamePath)+1);
 
 	if(td->identity[0])
 	{
-  		strncat(cgiEnvString,"\rREMOTE_IDENT=",strlen(cgiEnvString)+15);
-    	strncat(cgiEnvString,td->identity,strlen(cgiEnvString)+strlen(td->identity)+1);
+  		strncat(cgi_env_string,"\rREMOTE_IDENT=",strlen(cgi_env_string)+15);
+    	strncat(cgi_env_string,td->identity,strlen(cgi_env_string)+strlen(td->identity)+1);
 	}
 #ifdef WIN32
 	if(processEnv)
 	{
-		strncat(cgiEnvString,"\r",strlen(cgiEnvString)+2);
+		strncat(cgi_env_string,"\r",strlen(cgi_env_string)+2);
   		LPTSTR lpszVariable; 
 		LPVOID lpvEnv; 
 		lpvEnv = lserver->envString; 
@@ -502,17 +483,17 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int
 		{ 
 			if(((char*)lpszVariable)[0] !='=')
 			{
-				strncat(cgiEnvString,(char*)lpszVariable,strlen(cgiEnvString)+strlen(lpszVariable)+1);
-				strncat(cgiEnvString,"\r",strlen(cgiEnvString)+2);
+				strncat(cgi_env_string,(char*)lpszVariable,strlen(cgi_env_string)+strlen(lpszVariable)+1);
+				strncat(cgi_env_string,"\r",strlen(cgi_env_string)+2);
 			}
 			while (*lpszVariable)*lpszVariable++;
 		} 
 	}
 #endif
 
-	strncat(cgiEnvString,"\r\0\0\0\0\0",strlen(cgiEnvString)+7);
- 	size_t max=strlen(cgiEnvString);
+	strncat(cgi_env_string,"\r\0\0\0\0\0",strlen(cgi_env_string)+7);
+ 	size_t max=strlen(cgi_env_string);
 	for(size_t i=0;i<max;i++)
-		if(cgiEnvString[i]=='\r')
-			cgiEnvString[i]='\0';
+		if(cgi_env_string[i]=='\r')
+			cgi_env_string[i]='\0';
 }
