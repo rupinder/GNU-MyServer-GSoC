@@ -265,6 +265,7 @@ void HttpHeaders::resetHTTPRequest(HttpRequestHeader *request)
 	request->digest_opaque[0]='\0';
 	request->digest_nonce[0]='\0';
 	request->digest_cnonce[0]='\0';
+	request->digest_uri[0]='\0';
 	request->digest_method[0]='\0';
 	request->digest_username[0]='\0';
 	request->digest_response[0]='\0';
