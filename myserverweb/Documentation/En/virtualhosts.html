@@ -41,7 +41,7 @@ like:<br>
   found<br>
   <font class="code">&lt;SYSFOLDER&gt;</font> is the system folder<br>
 </p>
-<font class="code">&lt;ACCESSLOG&gt;</font> is the access log used by the virtual 
+<p><font class="code">&lt;ACCESSLOG&gt;</font> is the access log used by the virtual 
   host<br>
   This flag may appear in the format below:<br>
   <font class="code">&lt;ACCESSESLOG type=&quot;combined&quot;&gt;</font>logs/myServerHTTP.log<font class="code">&lt;/ACCESSESLOG&gt;</font> 
@@ -52,5 +52,17 @@ like:<br>
   the virtual host.<br>
   <br>
 </p>
+<hr>
+<p align="center">MyServer gives you the option to enable the HTTP TRACE command 
+  for each virtual host. All you need to do is edit the security.xml file of the 
+  root of your virtual host (not a subdirectory in it! if the file doesn't exist, 
+  you may create a new one, in the format described in the <a href="Security.html">Security</a> 
+  section of this documentation), and add the parameter</p>
+<p align="center" class="code">&lt;HTTP TRACE=&quot;ON&quot; /&gt;</p>
+<p align="center">Once you do that, you enable HTTP TRACE command. By default, 
+  it's disabled (so, simply delete the line, if you want to disable it)</p>
+<p align="center">HTTP OPTIONS command is fully supported, always enabled, requiring 
+  no configuration change in any file.</p>
+<p>&nbsp; </p>
 </body>
 </html>
