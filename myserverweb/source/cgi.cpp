@@ -25,7 +25,6 @@
 #include "..\include\utility.h"
 #include <direct.h>
 
-
 /*
 *Sends the standard CGI to a client.
 */

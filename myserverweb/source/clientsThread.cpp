@@ -22,7 +22,6 @@
 #include "..\include\cserver.h"
 #include "..\include\security.h"
 #include "..\include\sockets.h"
-
 ClientsTHREAD::ClientsTHREAD()
 {
 	err=0;

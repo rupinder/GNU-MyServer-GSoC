@@ -25,7 +25,6 @@
 #include "..\include\sockets.h"
 #include "..\include\utility.h"
 #include <direct.h>
-
 BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 {
 	/*

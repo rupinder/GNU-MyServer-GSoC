@@ -43,4 +43,5 @@ public:
 	DWORD timeout;	
 	CONNECTION* Next;
 };
+
 #endif
