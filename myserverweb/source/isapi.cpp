@@ -235,19 +235,31 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 
 	if(ExtCtrlBlk.dwHttpStatusCode==200)/*HTTP status code is 200*/
 	{
+		char chunk_size[15];
+		strcpy(td->response.TRANSFER_ENCODING,"chunked");
 		buildHTTPResponseHeaderStruct(&td->response,td,connTable[connIndex].td->buffer);
 		sprintf(connTable[connIndex].td->response.CONTENT_LENGTH,"%u",connTable[connIndex].td->outputData.getFileSize()-headerSize);
 		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
 		connTable[connIndex].connection->socket.send(connTable[connIndex].td->buffer2,(int)strlen(connTable[connIndex].td->buffer2), 0);
+
+		/*Send the first chunk*/
+		sprintf(chunk_size,"%x\r\n",len-headerSize);
+		connTable[connIndex].connection->socket.send(chunk_size,strlen(chunk_size), 0);
+
 		connTable[connIndex].connection->socket.send((char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
 
+		/*Continue to send chunks*/
 		for(;;)
 		{
 			connTable[connIndex].td->outputData.readFromFile(connTable[connIndex].td->buffer,connTable[connIndex].td->buffersize,&len);
 			if(len==0)
 				break;
+			sprintf(chunk_size,"\r\n%x\r\n",len);
+			connTable[connIndex].connection->socket.send(chunk_size,strlen(chunk_size), 0);
 			connTable[connIndex].connection->socket.send((char*)(connTable[connIndex].td->buffer),len, 0);
 		}
+		/*To terminate the chunks transfer send a zero len chunk*/
+		connTable[connIndex].connection->socket.send("\r\n0\r\n\r\n",7, 0);
 		connTable[connIndex].td->outputData.closeFile();
 	}
 	else	

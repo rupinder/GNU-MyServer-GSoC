@@ -1018,7 +1018,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		td.request.URIOPTSPTR=0;
 	}
-	if(!strcmpi(td.request.CONTENT_ENCODING,"chunked"))
+	if(!strcmpi(td.request.TRANSFER_ENCODING,"chunked"))
 	{
 		MYSERVER_FILE newStdIn;
 		sprintf(td.inputDataPath,"%s_encoded",td.inputData.getFilename());
@@ -1200,6 +1200,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 */
 void resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 {
+	request->TRANSFER_ENCODING[0]='\0';	
 	request->CONTENT_ENCODING[0]='\0';	
 	request->CMD[0]='\0';		
 	request->VER[0]='\0';		
@@ -1248,6 +1249,7 @@ void resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 	response->CONTENT_LENGTH[0]='\0';
 	response->ERROR_TYPE[0]='\0';
 	response->CONTENT_ENCODING[0]='\0';
+	response->TRANSFER_ENCODING[0]='\0';
 	response->LOCATION[0]='\0';
 	response->DATE[0]='\0';		
 	response->AUTH[0]='\0';
@@ -1283,9 +1285,16 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 
 	if(response->CONTENT_LENGTH[0])
 	{
-		strcat(str,"Content-Length:");
-		strcat(str,response->CONTENT_LENGTH);
-		strcat(str,"\r\n");
+		/*
+		*Do not specify the Content-Length field if it is used
+		*the chunked Transfer-Encoding.
+		*/
+		if(strcmpi(response->TRANSFER_ENCODING,"chunked"))
+		{
+			strcat(str,"Content-Length:");
+			strcat(str,response->CONTENT_LENGTH);
+			strcat(str,"\r\n");
+		}
 	}
 	if(response->SERVER_NAME[0])
 	{
@@ -1315,6 +1324,12 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	{
 		strcat(str,"Content-Encoding:");
 		strcat(str,response->CONTENT_ENCODING);
+		strcat(str,"\r\n");
+	}
+	if(response->TRANSFER_ENCODING[0])
+	{
+		strcat(str,"Transfer-Encoding:");
+		strcat(str,response->TRANSFER_ENCODING);
 		strcat(str,"\r\n");
 	}
 	if(response->COOKIE[0])
