@@ -424,7 +424,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			return 0;
 		
 		/*! Copy the HTTP command.  */
-		strncpy(command,token,tokenOff);
+		strncpy(command, token, min(96, tokenOff) );
 		token+=tokenOff;
 		command[tokenOff]='\0';
 		if(*token==':')
