@@ -109,3 +109,10 @@ int ms_connect(MYSERVER_SOCKET s,sockaddr* sa,int na)
 	return connect((SOCKET)s,sa,na);
 #endif
 }
+DWORD bytesToRead(MYSERVER_SOCKET c)
+{
+	DWORD nBytesToRead;
+	ms_ioctlsocket(c,FIONREAD,&nBytesToRead);
+	return nBytesToRead;
+}
+

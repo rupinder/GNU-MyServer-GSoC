@@ -43,14 +43,15 @@ void runService();
 #endif
 
 VOID appendToLog(char* str);
-cserver server;
 static char path[MAX_PATH];
 INT hInst;
 int cmdShow;
 /*
-*Change this for every new version of this software
+*Change this for every new version of this software.
 */
-char *versionOfSoftware="0.2";
+const char *versionOfSoftware="0.2";
+cserver server;
+
 int main (int argn, char **argc)
 { 
 	/*

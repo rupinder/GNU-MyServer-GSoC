@@ -244,14 +244,6 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 		return raiseHTTPError(s,e_404);
 	}
 
-	char *c=filenamePath;
-	while(*c)
-	{
-		if(*c=='\\')
-			*c='/';
-		c++;
-	}
-	if((*(c-1))=='/')(*(c-1))='\0';
 	/*
 	*If there are not any extension then we do one of this in order:
 	1)We send the default file in the folder
@@ -287,16 +279,9 @@ BOOL sendHTTPRESOURCE(LPCONNECTION s,char *filename,BOOL systemrequest,BOOL Only
 			return 1;
 		return raiseHTTPError(s,e_404);
 	}
-	if(ms_IsFolder(filenamePath))
-	{
-		if(sendHTTPDIRECTORY(s,filenamePath))
-			return 1;	
-	}
-	else
-	{
-		if(sendHTTPFILE(s,filenamePath,OnlyHeader,firstByte,lastByte))
-			return 1;
-	}
+	if(sendHTTPFILE(s,filenamePath,OnlyHeader,firstByte,lastByte))
+		return 1;
+
 	return raiseHTTPError(s,e_404);
 }
 /*
@@ -545,7 +530,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 			request.URIOPTS[0]='\0';
 
 			/*
-			*URIOPTSPTR points to the first character in the buffer that are data send by the
+			*URIOPTSPTR points to the first byte in the buffer that are the data send by the
             *client.
 			*/
 			request.URIOPTSPTR=&buffer[maxTotChars];
@@ -881,7 +866,9 @@ BOOL raiseHTTPError(LPCONNECTION a,int ID)
 		
 	}
 	buildDefaultHTTPResponseHeader(&response);
-
+	/*
+	*Set the isError member to TRUE to build an error page
+	*/
 	response.isError=TRUE;
 	lstrcpy(response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
 	sprintf(response.CONTENTS_DIM,"%i",lstrlen(HTTP_ERROR_MSGS[ID]));
@@ -924,7 +911,7 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 		
 	/*
 	*Standard CGI uses standard output to output the result and the standard 
-	*input to get other params like in a POST request
+	*input to get other params like in a POST request.
 	*/
 
 	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
@@ -936,10 +923,11 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	char *endFileStr="\r\n\r\n\0";
 	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
 	setFilePointer(stdInFile,0);
+	setFilePointer(stdOutFile,0);
 
 	/*
-	*With this code we execute the CGI process
-	*Use the buffer2 to build the environment string
+	*With this code we execute the CGI process.
+	*Use the buffer2 to build the environment string.
 	*/
 	START_PROC_INFO spi;
 	spi.cmdLine = cmdLine;
@@ -947,22 +935,16 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 	spi.stdIn = (MYSERVER_FILE_HANDLE)stdInFile;
 	spi.stdOut = (MYSERVER_FILE_HANDLE)stdOutFile;
 
-/*	
-*	This reports some errors yet
-*	buildCGIEnvironmentString(buffer2);
-*/	
-	buffer2[0]='\0';
+	buildCGIEnvironmentString(buffer2);
 	execHiddenProcess(&spi,(VOID*)buffer2);
 
 	
 	/*
-	*Read the CGI output
+	*Read the CGI output.
 	*/
-	buffer2[0]='\0';
 	DWORD nBytesRead;
 	setFilePointer(stdOutFile,0);
 	ms_ReadFromFile(stdOutFile,buffer2,buffersize2,&nBytesRead);
-	buffer2[max(buffersize2,nBytesRead)]='\0';
 
 	/*
 	*Standard CGI can include an extra HTTP header
@@ -976,18 +958,21 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 				if(buffer2[i+2]=='\r')
 					if(buffer2[i+3]=='\n')
 					{
+						/*
+						*The http header ends with a \r\n\r\n sequence so 
+						*determinate where it ends and set the header size
+						*to i + 4.
+						*/
 						headerSize=i+4;
 						break;
 					}
 	}
-	int len=nBytesRead-headerSize;
-
-	sprintf(response.CONTENTS_DIM,"%u",len);
+	sprintf(response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
 	buildHTTPResponseHeader(buffer,&response);
 
 	/*
 	*If there is an extra header, send lstrlen(buffer)-2 because the
-	*last two characters are \r\n that terminating the HTTP header
+	*last two characters are \r\n that terminating the HTTP header.
 	*/
 	if(headerSize)
 		ms_send(s->socket,buffer,lstrlen(buffer)-2, 0);
@@ -996,20 +981,25 @@ BOOL sendCGI(LPCONNECTION s,char* filename,char* ext,char *exec)
 
 	/*
 	*In buffer2 there are the CGI HTTP header and the 
-	*contents of the page requested through the CGI
+	*contents of the page requested through the CGI.
+	*If the client do an HEAD request send only the HTTP header.
 	*/
 	if(!lstrcmpi(request.CMD,"HEAD"))
 		ms_send(s->socket,buffer2,headerSize, 0);
 	else
 		ms_send(s->socket,buffer2,nBytesRead, 0);
 
+	
+	/*
+	*Close and delete the files used by the CGI as stdin and stdout.
+	*/
 	ms_CloseFile(stdOutFile);
 	ms_DeleteFile(stdOutFilePath);
 	ms_CloseFile(stdInFile);
 	ms_DeleteFile(stdInFilePath);
 
 	/*
-	*Restore security on the current thread
+	*Restore security on the current thread.
 	*/
 	if(lserver->mustUseLogonOption())
 		impersonateLogonUser(&hImpersonation);
@@ -1023,7 +1013,7 @@ BOOL getMIME(char *MIME,char *filename,char *dest,char *dest2)
 {
 	getFileExt(dest,filename);
 	/*
-	*Returns true if file is registered by a CGI
+	*Returns true if file is registered by a CGI.
 	*/
 	return lserver->mimeManager.getMIME(dest,MIME,dest2);
 }
@@ -1046,68 +1036,75 @@ void getPath(char *filenamePath,char *filename,BOOL systemrequest)
 */
 void buildCGIEnvironmentString(char *cgiEnvString)
 {
-	cgiEnvString[0]='\"';
-	cgiEnvString[1]='\0';
-
+	cgiEnvString[0]='\0';
+	/*
+	*The Environment string is a null-terminated block of null-terminated strings.
+	*Cause we use the function lstrcat we use the character \r for the \0 character
+	*and at the end we change every \r in \0.
+	*/
 	lstrcat(cgiEnvString,"SERVER_SOFTWARE=myServer");
 	lstrcat(cgiEnvString,versionOfSoftware);
 
-	lstrcat(cgiEnvString," SERVER_NAME=");
+	lstrcat(cgiEnvString,"\rSERVER_NAME=");
 	lstrcat(cgiEnvString,lserver->getServerName());
 
-	lstrcat(cgiEnvString," QUERY_STRING=");
+	lstrcat(cgiEnvString,"\rQUERY_STRING=");
 	lstrcat(cgiEnvString,request.URIOPTS);
 
-	lstrcat(cgiEnvString," GATEWAY_INTERFACE=CGI/1.1");
+	lstrcat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1");
 	
-	lstrcat(cgiEnvString," SERVER_PROTOCOL=HTTP/1.1");
+	lstrcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/1.1");
 	
-	lstrcat(cgiEnvString," SERVER_PORT=");
+	lstrcat(cgiEnvString,"\rSERVER_PORT=");
 	char port[10];
 	sprintf(port,"%u",lserver->port_HTTP);
 	lstrcat(cgiEnvString,port);
     
-	lstrcat(cgiEnvString," REQUEST_METHOD=");
+	lstrcat(cgiEnvString,"\rREQUEST_METHOD=");
 	lstrcat(cgiEnvString,request.CMD);
 
-	lstrcat(cgiEnvString," HTTP_USER_AGENT=");
+	lstrcat(cgiEnvString,"\rHTTP_USER_AGENT=");
 	lstrcat(cgiEnvString,request.USER_AGENT);
 
 
-	lstrcat(cgiEnvString," HTTP_ACCEPT=");
+	lstrcat(cgiEnvString,"\rHTTP_ACCEPT=");
 	lstrcat(cgiEnvString,request.ACCEPT);
 	
-	lstrcat(cgiEnvString," CONTENT_TYPE=");
+	lstrcat(cgiEnvString,"\rCONTENT_TYPE=");
 	lstrcat(cgiEnvString,request.CONTENTS_TYPE);
 	
-	lstrcat(cgiEnvString," CONTENT_LENGTH=");
+	lstrcat(cgiEnvString,"\rCONTENT_LENGTH=");
 	lstrcat(cgiEnvString,request.CONTENTS_DIM);
 
 /*
-	lstrcat(cgiEnvString," PATH_INFO=");
+	lstrcat(cgiEnvString,"\rPATH_INFO=");
 	lstrcat(cgiEnvString,request.URI);
 
-	lstrcat(cgiEnvString," REMOTE_HOST=");
+	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
 	lstrcat(cgiEnvString,request.HOST);
 
-	lstrcat(cgiEnvString," PATH_TRANSLATED=");
+	lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
 	lstrcat(cgiEnvString,request.URI);
 
-	lstrcat(cgiEnvString," SCRIPT_NAME=");
+	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
 	lstrcat(cgiEnvString,request.URI);
 
-	lstrcat(cgiEnvString," REMOTE_ADDR=");
+	lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
 	lstrcat(cgiEnvString,request.HOST);
 
-	lstrcat(cgiEnvString," AUTH_TYPE=");
+	lstrcat(cgiEnvString,"\rAUTH_TYPE=");
 	lstrcat(cgiEnvString,request.HOST);
 
-	lstrcat(cgiEnvString," REMOTE_USER=");
+	lstrcat(cgiEnvString,"\rREMOTE_USER=");
 	lstrcat(cgiEnvString,request.HOST);
 
-	lstrcat(cgiEnvString," REMOTE_IDENT=");
+	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");
 	lstrcat(cgiEnvString,request.HOST);
 */
+	int max=lstrlen(cgiEnvString);
+	for(int i=0;i<max;i++)
+		if(cgiEnvString[i]=='\r')
+			cgiEnvString[i]='\0';
 
 	lstrcat(cgiEnvString,"\0\0");
 }

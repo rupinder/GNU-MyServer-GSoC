@@ -37,7 +37,7 @@ void cXMLParser::open(char* filename)
 }
 
 /*
-*Only get the the text T in <VALUENAME>T</VALUENAME>
+*Only get the the text T in <VALUENAME>T</VALUENAME>.
 */
 char *cXMLParser::getValue(char* vName)
 {
@@ -97,7 +97,7 @@ char *cXMLParser::getValue(char* vName)
 }
 
 /*
-*Deallocate the memory used by the class
+*Deallocate the memory used by the class.
 */
 void cXMLParser::close()
 {

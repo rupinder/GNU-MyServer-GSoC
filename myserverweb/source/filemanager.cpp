@@ -25,7 +25,7 @@ static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 /*
-*Functions to manage the logs file
+*Functions to manage the logs file.
 */
 DWORD warningsLogWrite(char* str)
 {
@@ -50,7 +50,7 @@ void setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
 
 
 /*
-*Return the recursion of the path
+*Return the recursion of the path.
 */
 int getPathRecursionLevel(char* path)
 {
@@ -70,7 +70,7 @@ int getPathRecursionLevel(char* path)
 	return rec;
 }
 /*
-*Write data to a file
+*Write data to a file.
 */
 INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbw)
 {
@@ -79,21 +79,21 @@ INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* n
 #endif
 }
 /*
-*Read data from a file to a buffer
+*Read data from a file to a buffer.
 */
 INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,DWORD buffersize,DWORD* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
 	/*
-	*Return 1 if we don't have problem with the buffersize
+	*Return 1 if we don't have problems with the buffersize.
 	*/
-	return (*nbr<buffersize)? 1 : 0 ;
+	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
 }
 
 /*
-*Open(or create if not exists) a file
+*Open(or create if not exists) a file.
 */
 MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 {
@@ -133,7 +133,7 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 	return ret;
 }
 /*
-*Create a temporary file
+*Create a temporary file.
 */
 MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char* filename)
 {
@@ -142,7 +142,7 @@ MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char* filename)
 #endif
 }
 /*
-*Close an open file handle
+*Close an open file handle.
 */
 INT ms_CloseFile(MYSERVER_FILE_HANDLE fh)
 {
@@ -152,7 +152,7 @@ INT ms_CloseFile(MYSERVER_FILE_HANDLE fh)
 	return 0;
 }
 /*
-*Delete an existing file passing its path
+*Delete an existing file passing its path.
 */
 INT ms_DeleteFile(char *filename)
 {
@@ -162,7 +162,7 @@ INT ms_DeleteFile(char *filename)
 	return 0;
 }
 /*
-*Returns the file size in bytes
+*Returns the file size in bytes.
 */
 DWORD getFileSize(MYSERVER_FILE_HANDLE f)
 {
@@ -173,7 +173,8 @@ DWORD getFileSize(MYSERVER_FILE_HANDLE f)
 	return size;
 }
 /*
-*Returns a non-null value if failed
+*Change the position of the pointer to the file.
+*Returns a non-null value if failed.
 */
 BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
 {
@@ -182,7 +183,7 @@ BOOL setFilePointer(MYSERVER_FILE_HANDLE h,DWORD initialByte)
 #endif
 }
 /*
-*Returns a non-null value if the handle is a folder
+*Returns a non-null value if the handle is a folder.
 */
 INT	ms_IsFolder(char *filename)
 {
@@ -192,7 +193,7 @@ INT	ms_IsFolder(char *filename)
 }
 
 /*
-*Returns a non-null value if the given path is a valid file
+*Returns a non-null value if the given path is a valid file.
 */
 INT ms_FileExists(char* filename)
 {

@@ -19,6 +19,9 @@
 #pragma once
 #ifndef HTTP_RESPONSE_HEADER_IN
 #define HTTP_RESPONSE_HEADER_IN
+/*
+*Structure to describe an HTTP response
+*/
 struct HTTP_RESPONSE_HEADER
 {
 	char VER[10];	
@@ -36,6 +39,9 @@ struct HTTP_RESPONSE_HEADER
 
 #ifndef HTTP_REQUEST_HEADER_IN
 #define HTTP_REQUEST_HEADER_IN
+/*
+*Structure to describe an HTTP request
+*/
 struct HTTP_REQUEST_HEADER
 {
 	char CMD[16];		

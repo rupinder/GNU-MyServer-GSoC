@@ -67,8 +67,7 @@ void ClientsTHREAD::controlConnections()
 	BOOL logonStatus;
 	for(c; c ;c=c->Next)
 	{
-		ms_ioctlsocket(c->socket,FIONREAD,&nBytesToRead);
-		if(nBytesToRead)
+		if(bytesToRead(c->socket))
 		{
 			logon(c,&logonStatus,&hImpersonation);
 			err=ms_recv(c->socket,buffer,buffersize, 0);
@@ -147,9 +146,6 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	requestAccess(&connectionWriteAccess,this->id);
 	const int maxRcvBuffer=KB(5);
 	const BOOL keepAlive=TRUE;
-	ms_setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char*)&maxRcvBuffer,sizeof(maxRcvBuffer));
-	ms_setsockopt( s,SOL_SOCKET, SO_SNDTIMEO,(char *)&lserver->socketRcvTimeout,sizeof(lserver->socketRcvTimeout));
-	ms_setsockopt( s,SOL_SOCKET, SO_KEEPALIVE,(char *)&keepAlive,sizeof(keepAlive));
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;

@@ -21,7 +21,7 @@
 #include "..\stdafx.h"
 #include "..\include\FileManager.h"
 /*
-*Macros to do simple transformation
+*Macros to do simple transformations
 */
 #define KB(x) (x*1024)
 #define MB(x) (KB(x)*1024)

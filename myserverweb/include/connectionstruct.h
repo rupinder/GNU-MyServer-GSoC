@@ -27,6 +27,9 @@
 typedef DWORD CONNECTION_PROTOCOL;
 #ifndef CONNECTION_IN
 #define CONNECTION_IN
+/*
+*This structure describe a connection
+*/
 struct CONNECTION
 {
 public:
