@@ -848,16 +848,16 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
                                                 httpThreadContext *td,char *input)
 {
 	/*!
-	*In this function there is the HTTP protocol parse.
-	*The request is mapped into a HTTP_REQUEST_HEADER structure
-	*And at the end of this every command is treated
-	*differently. We use this mode for parse the HTTP
-	*cause especially in the CGI is requested a continous
-	*HTTP header access.
-	*Before mapping the header in the structure 
-	*control if this is a regular request.
-	*The HTTP header ends with a \r\n\r\n sequence.
-	*/
+   *In this function there is the HTTP protocol parse.
+   *The request is mapped into a HTTP_REQUEST_HEADER structure
+   *And at the end of this every command is treated
+   *differently. We use this mode for parse the HTTP
+   *cause especially in the CGI is requested a continous
+   *HTTP header access.
+   *Before mapping the header in the structure 
+   *control if this is a regular request.
+   *The HTTP header ends with a \r\n\r\n sequence.
+   */
 	int noinputspecified=0;
 
 	if(input==0)

@@ -1532,7 +1532,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 				break;
       }
 
-
 			if(MYSERVER_FILE::fileExists(defaultFileName))
 			{
 				char *nURL;
@@ -1596,7 +1595,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    */
   char *data = 0;
 	int mimeCMD=getMIME(td->response.CONTENT_TYPE, td->filenamePath, ext, &data);
-	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
+
+	if( (mimeCMD==CGI_CMD_RUNCGI) || (mimeCMD==CGI_CMD_EXECUTE) )
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
@@ -1613,7 +1613,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
     if(data)
       delete [] data;
     return ret;
-	}else if(mimeCMD==CGI_CMD_RUNISAPI)
+	}else if(mimeCMD == CGI_CMD_RUNISAPI)
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
@@ -1639,7 +1639,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       delete [] data;
     return ret & keepalive;
 	}
-	else if(mimeCMD==CGI_CMD_RUNMSCGI)
+	else if( mimeCMD == CGI_CMD_RUNMSCGI )
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
@@ -1663,7 +1663,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       delete [] data;
 		return raiseHTTPError(td, s, e_500);
 	}
-  else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)
+  else if( mimeCMD == CGI_CMD_EXECUTEWINCGI )
 	{
     if(data)
       delete [] data;
@@ -1698,7 +1698,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		return (ret&keepalive);
 
 	}
-	else if(mimeCMD==CGI_CMD_RUNFASTCGI)
+	else if( mimeCMD == CGI_CMD_RUNFASTCGI )
 	{
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
@@ -1709,7 +1709,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		int ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 0, only_header);
     if(data)
       delete [] data;
-		return (ret&keepalive);
+		return (ret & keepalive);
 	}
 	else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
 	{
@@ -1722,9 +1722,9 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
 		int ret = lfastcgi.sendFASTCGI(td, s, td->filenamePath, ext, data, 1, only_header);
     if(data)
       delete [] data;
-		return (ret&keepalive);
+		return (ret & keepalive);
 	}
-	else if(mimeCMD==CGI_CMD_SENDLINK)
+	else if( mimeCMD == CGI_CMD_SENDLINK )
 	{
 		if(!(permissions & MYSERVER_PERMISSION_READ))
 		{
@@ -2810,8 +2810,8 @@ int http::sendHTTPRedirect(httpThreadContext* td, LPCONNECTION a, char *newURL)
 }
 
 /*!
-*Send a non-modified message to the client.
-*/
+ *Send a non-modified message to the client.
+ */
 int http::sendHTTPNonModified(httpThreadContext* td, LPCONNECTION a)
 {
 	td->response.httpStatus=304;
@@ -2840,8 +2840,8 @@ int http::sendHTTPNonModified(httpThreadContext* td, LPCONNECTION a)
 }
 
 /*!
-*Send a 401 error.
-*/
+ *Send a 401 error.
+ */
 int http::sendAuth(httpThreadContext* td, LPCONNECTION s)
 {
 	if(s->getnTries() > 2)
