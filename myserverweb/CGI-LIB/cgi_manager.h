@@ -15,7 +15,13 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+#ifdef WIN32
 #define EXPORTABLE _declspec(dllexport)
+#endif
+
+/*
+*Do not link the library using with the SSL support.
+*/
 #define DO_NOT_USE_SSL
 
 #include "../include/http.h"
@@ -41,5 +47,4 @@ public:
 	char*  GetParam(char*);
 	char*  PostParam(char*);
 	int Write(char*);
-}; 
-
+};

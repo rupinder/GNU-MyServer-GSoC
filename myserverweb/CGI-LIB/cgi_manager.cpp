@@ -20,7 +20,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/Response_RequestStructs.h"
 #include "../include/http.h"
 #include "../include/mscgi.h"
+
+#ifdef WIN32
 #pragma comment(lib,"wsock32.lib")
+#endif
 
 #include "../source/filemanager.cpp"
 /*!
@@ -53,20 +56,32 @@ int cgi_manager::Clean()
 {
 	return 1;
 }
+/*!
+*Set the HTTP error identifier.
+*/
 int cgi_manager::setPageError(int ID)
 {
 	td->response.httpStatus=ID;
 	return 1;
 }
+/*!
+*Raise an HTTP error
+*/
 int cgi_manager::raiseError(int ID)
 {
 	cgidata->errorPage=ID;
 	return 1;
 }
+/*!
+*Constructor of the class
+*/
 cgi_manager::cgi_manager(cgi_data* data)
 {
 	Start(data);
 }
+/*!
+*Destructor of the class
+*/
 cgi_manager::~cgi_manager(void)
 {
 	Clean();
@@ -186,4 +201,3 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 	}
 	*lpdwSize=(u_int)strlen((char*)lpvBuffer);
 }
-

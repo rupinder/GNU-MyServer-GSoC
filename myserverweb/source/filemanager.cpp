@@ -448,6 +448,9 @@ time_t MYSERVER_FILE::getCreationTime(char *filename)
 	else
 		return (-1);
 }
+/*!
+*This function returns the creation time of the file.
+*/
 time_t MYSERVER_FILE::getCreationTime()
 {
 	return getCreationTime(filename);
@@ -471,6 +474,9 @@ time_t MYSERVER_FILE::getLastAccTime(char *filename)
 	else
 		return (-1);
 }
+/*!
+*Returns the time of the last access to the file.
+*/
 time_t MYSERVER_FILE::getLastAccTime()
 {
 	return getLastAccTime(filename);
@@ -556,6 +562,9 @@ void MYSERVER_FILE::getFileExt(char* ext,const char* filename)
 	else
 		ext[0] = 0;
 }
+/*!
+*Get the file path in the short form
+*/
 int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 {
 #ifdef WIN32
@@ -566,13 +575,16 @@ int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 #endif
 	return 0;
 }
-int MYSERVER_FILE::getShortFileName(char *in,char *out,int buffersize)
+/*!
+*Get the file path in the short form of the specified file
+*/
+int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
 {
 #ifdef WIN32
-	GetShortPathName(in,out,buffersize);
+	GetShortPathName(filePath,out,buffersize);
 #endif
 #ifdef __linux__
-	strncpy(out,in,buffersize);
+	strncpy(out,filePath,buffersize);
 #endif
 	return 0;
 }
