@@ -415,13 +415,14 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	/* TokenOff is the length of the token starting from the location token.  */
 	int tokenOff;
 	tokenOff = getCharInString(token,cmdseps,HTTP_REQUEST_CMD_DIM);
-	if(tokenOff== -1 )
-		return 0;
 	do
 	{
 		/*! Reset the flag lineControlled.  */
 		lineControlled=0;
 
+		if(tokenOff== -1 )
+			return 0;
+		
 		/*! Copy the HTTP command.  */
 		strncpy(command,token,tokenOff);
 		token+=tokenOff;

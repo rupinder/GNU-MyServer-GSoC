@@ -423,7 +423,7 @@ void * listenServer(void* params)
 			continue;
 		if(asock.getHandle()==(MYSERVER_SOCKET_HANDLE)INVALID_SOCKET)
 			continue;
-		asock.setServerSocket(&serverSocket);		
+		asock.setServerSocket(&serverSocket);
 		lserver->addConnection(asock, &asock_in);
 	}
 	
