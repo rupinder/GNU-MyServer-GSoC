@@ -528,13 +528,15 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   }
   else if(!strcmp(command, "DISABLEREBOOT"))
   {
+    lserver->disableAutoReboot();
     knownCommand = 1;
-    ret = DISABLEREBOOT();
+
   }
   else if(!strcmp(command, "ENABLEREBOOT"))
   {
+    lserver->enableAutoReboot();
     knownCommand = 1;
-    ret = ENABLEREBOOT();
+
   }
   else if(!strcmp(command, "SHOWLANGUAGEFILES"))
   {
@@ -804,6 +806,7 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
 {
   char *filename = 0;
   MYSERVER_FILE localfile;
+  int isAutoRebootToEnable = lserver->isAutorebootEnabled();
   int ret = 0;
   lserver->disableAutoReboot();
   if(!lstrcmpi(fn, "myserver.xml"))
@@ -822,7 +825,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   if(!filename)
   {
     Reboot = true;
-    lserver->enableAutoReboot();
+    if(isAutoRebootToEnable)
+      lserver->enableAutoReboot();
     return CONTROL_FILE_NOT_FOUND;
   }
 
@@ -832,7 +836,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   if(ret)
   {
     Reboot = true;
-    lserver->enableAutoReboot();
+    if(isAutoRebootToEnable)
+      lserver->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
 
@@ -842,7 +847,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
   if(ret)
   {
     Reboot = true;
-    lserver->enableAutoReboot();
+    if(isAutoRebootToEnable)
+      lserver->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
 
@@ -857,7 +863,8 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
     if(ret)
     {
       Reboot = true;
-      lserver->enableAutoReboot();
+      if(isAutoRebootToEnable)
+        lserver->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
 
@@ -870,13 +877,16 @@ int control_protocol::PUTFILE(char* fn, MYSERVER_FILE* in,
     if(ret)
     {
       Reboot = true;
-      lserver->enableAutoReboot();
+      if(isAutoRebootToEnable)
+        lserver->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
   }
   localfile.closeFile();
-  if(Reboot)
+  
+  if(isAutoRebootToEnable)
     lserver->enableAutoReboot();
+
   return 0;
 }
 
@@ -950,21 +960,3 @@ int control_protocol::GETVERSION(MYSERVER_FILE* out, char *b1,int bs1)
   return Ofile->writeToFile(b1, strlen(b1), &nbw);
 }
 
-/*!
- *Disable the auto-reboot on the server.
- */
-int control_protocol::DISABLEREBOOT()
-{
-  lserver->disableAutoReboot();
-  Reboot = false;
-  return 0;
-}
-/*
- *Enable the auto-reboot on the server.
- */
-int control_protocol::ENABLEREBOOT()
-{
-  lserver->enableAutoReboot();
-  Reboot = true;
-  return 0;
-}

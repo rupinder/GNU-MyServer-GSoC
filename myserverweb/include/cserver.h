@@ -135,6 +135,7 @@ public:
   protocols_manager *getProtocolsManager();
   void disableAutoReboot();
   void enableAutoReboot();
+  int isAutorebootEnabled();
   void rebootOnNextLoop();
   char *getMainConfFile();
   char *getVhostConfFile();

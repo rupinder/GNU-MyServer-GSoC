@@ -1688,3 +1688,11 @@ char *cserver::getLanguageFile()
 {
   return languageFile;
 }
+
+/*!
+ *Return nonzero if the autoreboot is enabled.
+ */
+int cserver::isAutorebootEnabled()
+{
+  return autoRebootEnabled;
+}
