@@ -96,6 +96,7 @@ MYSERVER_SOCKET::MYSERVER_SOCKET()
 	sslSocket=0;
 	sslConnection=0;
 	sslContext=0;
+	serverSocket=0;
 	setHandle(0);
 }
 int MYSERVER_SOCKET::bind(MYSERVER_SOCKADDR* sa,int namelen)
@@ -355,4 +356,12 @@ int MYSERVER_SOCKET::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 	*namelen = len;
 	return ret;
 #endif
+}
+void MYSERVER_SOCKET::setServerSocket(MYSERVER_SOCKET* sock)
+{
+	serverSocket=sock;
+}
+MYSERVER_SOCKET* MYSERVER_SOCKET::getServerSocket()
+{
+	return serverSocket;
 }

@@ -63,6 +63,8 @@ private:
 	X509 * clientCert;
 	MYSERVER_SOCKET *serverSocket;/*Pointer to the socket used to do the listen*/
 public:
+	void setServerSocket(MYSERVER_SOCKET*);
+	MYSERVER_SOCKET* getServerSocket();
 	void setSSL(int,SSL* connection = 0);
 	int getSSL();
 	SSL* getSSLConnection();

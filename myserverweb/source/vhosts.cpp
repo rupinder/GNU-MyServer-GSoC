@@ -861,7 +861,7 @@ int vhost::initializeSSL()
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
 		SSL_CTX_set_verify_depth(ctx,1);
 #endif
-	
+}	
 /*
 *Generate a RSA key.
 */
