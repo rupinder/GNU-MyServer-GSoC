@@ -40,13 +40,7 @@ InstallDir "$PROGRAMFILES\${MUI_PRODUCT}"
 
 
 
-  
-
-
-
 InstallDirRegKey HKCU "Software\${MUI_PRODUCT}" ""
-
-
 
 
 
@@ -59,13 +53,6 @@ InstallDirRegKey HKCU "Software\${MUI_PRODUCT}" ""
 
 
 !define TEMP $R0
-
-
-
-
-
-
-
 
 
 LicenseData "license.txt"
@@ -126,8 +113,13 @@ Section "MyServer core" SecCore
   File "web\icons\codes\*.*"
 
   SetOutPath $INSTDIR\system
-
+  File "security"
   File "system\*.*"
+
+  SetOutPath $INSTDIR\system\errors
+
+  File "system\errors\*.*
+ 
 
   SetOutPath $INSTDIR\languages
 
