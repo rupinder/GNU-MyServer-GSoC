@@ -50,6 +50,7 @@ int cgi_manager::Write(char* str)
 */
 int cgi_manager::Start()
 {
+
 	return 1;
 }
 /*
@@ -73,6 +74,8 @@ cgi_manager::~cgi_manager(void)
 */
 char* cgi_manager::GetParam(char* param)
 {
+	if(req->URIOPTS==NULL)
+		return NULL;
 	buffer[0]='\0';
 	char *tmp=strdup(req->URIOPTS);
 	char *token=strtok(tmp,"=");

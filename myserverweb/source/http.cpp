@@ -236,17 +236,6 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 	getPath(td->filenamePath,filename,systemrequest);
 
 	/*
-	*getMIME return TRUE if the ext is registered by a CGI.
-	*/
-	if(getMIME(td->response.MIME,filename,ext,data))
-	{
-		if(ms_FileExists(td->filenamePath))
-			if(sendCGI(td,s,td->filenamePath,ext,data))
-				return 1;
-		return raiseHTTPError(td,s,e_404);
-	}
-
-	/*
 	*If there are not any extension then we do one of this in order:
 	1)We send the default file in the folder.
 	2)We send the folder content.
@@ -265,12 +254,19 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 
 		return raiseHTTPError(td,s,e_404);
 	}
-	
-
 	/*
-	*myServer CGI format.
+	*getMIME return TRUE if the ext is registered by a CGI.
 	*/
-	if(!lstrcmpi(ext,"mscgi"))
+	int mimeCMD=getMIME(td->response.MIME,filename,ext,data);
+
+	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
+	{
+		if(ms_FileExists(td->filenamePath))
+			if(sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
+				return 1;
+		return raiseHTTPError(td,s,e_404);
+	}
+	if(mimeCMD==CGI_CMD_RUNMSCGI)
 	{
 		char *target;
 		if(td->request.URIOPTSPTR)
@@ -281,6 +277,7 @@ BOOL sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,BOOL s
 			return 1;
 		return raiseHTTPError(td,s,e_404);
 	}
+
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
 

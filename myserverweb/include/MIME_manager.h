@@ -24,16 +24,25 @@
 #include <tchar.h>
 #include <io.h>
 
-
-
 #ifndef MIME_Manager_IN
 #define MIME_Manager_IN
+/*
+*This enum describes all the way that a file is treated by the server.
+*/
+enum CGI_COMMANDS
+{
+	CGI_CMD_SEND,		/*Sends the file as it is; for example an HTML page*/
+	CGI_CMD_RUNCGI,		/*Run the cgi_manager program*/
+	CGI_CMD_RUNMSCGI,	/*Run the the file as a MSCGI script*/
+	CGI_CMD_EXECUTE		/*Handle the file as an executable*/
+};
 class MIME_Manager
 {
 	struct mime_record
 	{
 		char extension[10];
 		char mime_type[16];
+		int command;
 		char cgi_manager[MAX_PATH];
 		mime_record* next;
 	};
@@ -46,7 +55,7 @@ public:
 	VOID removeRecord(char*);
 	DWORD getNumMIMELoaded();
 	HRESULT load(char *filename);
-	BOOL getMIME(char* a,char * b,char* c=NULL);
+	int getMIME(char* a,char * b,char* c=NULL);
 	VOID clean();
 };
 #endif 

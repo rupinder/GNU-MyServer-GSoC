@@ -1,4 +1,4 @@
-LIBRARY print_hello
+LIBRARY math_sum
 EXPORTS 
 	initialize
 	main

@@ -184,6 +184,14 @@ void cserver::start(INT hInst)
 	}
 #endif
 
+
+#ifdef WIN32
+	/*
+	*On the win32 platform load the MSCCGI library.
+	*/
+	LoadLibrary("CGI-LIB\\CGI-LIB.dll");
+#endif
+
 	/*
 	*Load the MIME types.
 	*/

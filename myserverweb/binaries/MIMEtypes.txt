@@ -1,12 +1,13 @@
-html,text/html,NONE;
-htm,text/html,NONE;
-gif,image/gif,NONE;
-jpg,image/jpeg,NONE;
-jpeg,image/jpeg,NONE;
-xml,text/xml,NONE;
-txt,text/html,NONE;
-mp3,sound/mp3,NONE;
-cgi,text/html,RUN;
-php,text/html,c:/programmi/php/php.exe;
-php3,text/html,c:/programmi/php/php.exe;
-pl,text/html,c:/programmi/perl/bin/perl.exe;#
+html,text/html,SEND NONE;
+htm,text/html,SEND NONE;
+gif,image/gif,SEND NONE;
+jpg,image/jpeg,SEND NONE;
+jpeg,image/jpeg,SEND NONE;
+xml,text/xml,SEND NONE;
+txt,text/html,SEND NONE;
+mp3,sound/mp3,SEND NONE;
+cgi,text/html,EXECUTE NONE;
+mscgi,text/html,RUNMSCGI NONE;
+php,text/html,RUNCGI c:/programmi/php/php.exe;
+php3,text/html,RUNCGI c:/programmi/php/php.exe;
+pl,text/html,RUNCGI c:/programmi/perl/bin/perl.exe;#

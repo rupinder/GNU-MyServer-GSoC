@@ -24,12 +24,11 @@
 *Source code to manage the MIME types in myServer.
 *MIME types are recorded in a static buffer "data", that is a strings array.
 *Every MIME type is described by three strings:
-html,text/html,NONE;
+html,text/html,SEND NONE;
 *1)its extension(for example HTML)
 *2)its MIME description(for example text/html)
-*3)if the file type is used by a CGI this is the path to the CGI manager(for example c:/php/php.exe),
-*	if the file isn't registered by a CGI then this is "NONE".
-*The file is ended by a '#' character
+*3)simple script to describe the action to do for handle the files of this type.
+*The file is ended by a '#' character.
 */
 HRESULT MIME_Manager::load(char *filename)
 {
@@ -70,6 +69,28 @@ HRESULT MIME_Manager::load(char *filename)
 			nc++;
 		}
 		nc++;
+		char commandString[16];
+		ZeroMemory(commandString,sizeof(commandString));
+		while(buffer[nc]!=' ')
+		{
+			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
+				commandString[lstrlen(commandString)]=buffer[nc];
+			nc++;
+			/*
+			*Parse all the possible actions.
+			*By default send the file as it is.
+			*/
+			record.command=CGI_CMD_SEND;
+			if(!lstrcmpi(commandString,"SEND"))
+				record.command=CGI_CMD_SEND;
+			if(!lstrcmpi(commandString,"RUNCGI"))
+				record.command=CGI_CMD_RUNCGI;
+			if(!lstrcmpi(commandString,"RUNMSCGI"))
+				record.command=CGI_CMD_RUNMSCGI;
+			if(!lstrcmpi(commandString,"EXECUTE"))
+				record.command=CGI_CMD_EXECUTE;
+		}
+		nc++;
 		while(buffer[nc]!=';')
 		{
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
@@ -96,7 +117,7 @@ HRESULT MIME_Manager::load(char *filename)
 *Passing a file extension ext this function fills the strings dest and dest2
 *respectly with the MIME type description and if there are the path to the CGI manager.
 */
-BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
+int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 {
 	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next)
 	{
@@ -107,16 +128,11 @@ BOOL MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 			{
 				if(dest2)
 					lstrcpy(dest2,mr->cgi_manager);
-				return TRUE;
 			}
-			else
-			{
-				return FALSE;
-			}
+			return mr->command;
 		}
-
 	}
-	return FALSE;
+	return CGI_CMD_SEND;
 }
 
 /*

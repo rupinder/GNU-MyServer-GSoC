@@ -52,7 +52,7 @@ BOOL sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 		ProcMain = (CGIMAIN) GetProcAddress(hinstLib, "main"); 
 		if(ProcInit && ProcMain)
 		{
-			(ProcInit)((LPVOID)&td->buffer[0],(LPVOID)&td->buffer2[0],(LPVOID)&td->response,(LPVOID)&td->request);
+			(ProcInit)((LPVOID)td->buffer,(LPVOID)td->buffer2,(LPVOID)&(td->response),(LPVOID)&(td->request));
 			(ProcMain)(cmdLine);
 		}
         FreeLibrary(hinstLib); 
@@ -83,13 +83,19 @@ BOOL sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
 	ms_send(s->socket,td->buffer2,len, 0);
 	return 1;
+#elif
+	/*
+	*On the platforms that is not available the support for the MSCGI send a 
+	*non implemented error.
+	*/
+	return raiseHTTPError(td,s,e_501);
 #endif
 }
 
 /*
 *Sends the standard CGI to a client.
 */
-BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *execpath)
+BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,char *execpath,int cmd)
 {
 	/*
 	*Change the owner of the thread to the creator of the process.
@@ -101,24 +107,35 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	char filename[MAX_PATH];
 
 	/*
-	*If the execpath is equal to "RUN" then we must  execute the
-	*scriptpath file as a CGI application.
+	*If the cmd is equal to CGI_CMD_EXECUTE then we must execute the
+	*scriptpath file as an executable.
 	*Then to determine if is a nph CGI we must use the scriptpath
 	*string.
 	*/
-	if(!lstrcmpi(execpath,"RUN"))
+	if(cmd==CGI_CMD_EXECUTE)
 	{
 		getFilename(scriptpath,filename);
 #ifdef WIN32
+		/*
+		*Under the windows platform to run a file like an executable
+		*use the sintact "cmd /c filename".
+		*/
 		lstrcpy(execpath,"cmd /c");
 #endif
 	}
-	else
+	else if(cmd==CGI_CMD_RUNCGI)
 	{
 		getFilename(execpath,filename);
 	}
+	else
+	{
+		/*
+		*If the command was not recognized send an 501 page error.
+		*/
+		return raiseHTTPError(td,s,e_501);
+	}
 	/*
-	*Determine if the CGI executable is nph
+	*Determine if the CGI executable is nph.
 	*/
 	BOOL nph=(strnicmp("nph-",filename, 4)==0)?1:0;
 
