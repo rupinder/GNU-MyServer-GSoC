@@ -136,12 +136,12 @@ private:
 public:	
 #ifdef WIN32
 	static ConnTableRecord *HConnRecord(HCONN hConn);
-	int Redirect(httpThreadContext* td,ConnectionPtr a,char *URL);
-	int SendURI(httpThreadContext* td,ConnectionPtr a,char *URL);
-	int SendHeader(httpThreadContext* td,ConnectionPtr a,char *URL);
-	static BOOL buildAllHttpHeaders(httpThreadContext* td,ConnectionPtr a,LPVOID output,
+	int Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL);
+	int SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL);
+	int SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL);
+	static BOOL buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr a,LPVOID output,
                                   LPDWORD maxLen);
-	static BOOL buildAllRawHeaders(httpThreadContext* td,ConnectionPtr a,
+	static BOOL buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
                                  LPVOID output, LPDWORD maxLen);
 #endif	
 	Isapi();
@@ -150,7 +150,7 @@ public:
 	static int unload();
 	static void setTimeout(u_long);
   static u_long getTimeout();
-	int send(httpThreadContext* td,ConnectionPtr connection, char* scriptpath,
+	int send(HttpThreadContext* td,ConnectionPtr connection, char* scriptpath,
            char *cgipath, int execute, int only_header);
 };
 

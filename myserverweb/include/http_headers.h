@@ -55,7 +55,7 @@ extern class CBase64Utils base64Utils;
 /*!
  *Structure used by the HTTP protocol parser to describe a thread.
  */
-struct httpThreadContext
+struct HttpThreadContext
 {
 	int appendOutputs;/*! Used by SSI. */
   int lastError;/*! Used by SSI and set by raiseHTTPError. */
@@ -92,11 +92,11 @@ class HttpHeaders
 {
 public:
 	static int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
-                                          httpThreadContext *td,char *input=0);
+                                          HttpThreadContext *td,char *input=0);
 	static int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
-                                           httpThreadContext *td,char *input=0);
-	static int validHTTPRequest(char*,httpThreadContext*,u_long*,u_long*);
-	static int validHTTPResponse(char*,httpThreadContext*,u_long*,u_long*);
+                                           HttpThreadContext *td,char *input=0);
+	static int validHTTPRequest(char*,HttpThreadContext*,u_long*,u_long*);
+	static int validHTTPResponse(char*,HttpThreadContext*,u_long*,u_long*);
 	static void resetHTTPRequest(HTTP_REQUEST_HEADER *request);
 	static void resetHTTPResponse(HTTP_RESPONSE_HEADER *response);
 	static void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER*);

@@ -60,7 +60,7 @@ int Cgi::cgi_timeout = MYSERVER_SEC(15);
 /*!
  *Run the standard CGI and send the result to the client.
  */
-int Cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath, 
+int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath, 
               char *cgipath, int execute, int only_header)
 {
  	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
@@ -634,7 +634,7 @@ int Cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath,
  *Write the string that contain the CGI environment to cgiEnvString.
  *This function is used by other server side protocols too.
  */
-void Cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string, 
+void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string, 
                                     int processEnv)
 {
 	/*!

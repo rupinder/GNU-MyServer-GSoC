@@ -307,7 +307,7 @@ void HttpHeaders::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
  *nLinesptr is a value of the lines number in the HEADER.
  *ncharsptr is a value of the characters number in the HEADER.
  */
-int HttpHeaders::validHTTPResponse(char *res,httpThreadContext* td, 
+int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td, 
                                     u_long* nLinesptr, u_long* ncharsptr)
 {
 	u_long i;
@@ -370,10 +370,10 @@ int HttpHeaders::validHTTPResponse(char *res,httpThreadContext* td,
 /*!
  *Build the HTTP REQUEST HEADER string.
  *If no input is setted the input is the main buffer of the 
- *httpThreadContext structure.
+ *HttpThreadContext structure.
  */
 int HttpHeaders::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
-                                               httpThreadContext* td, char* input)
+                                               HttpThreadContext* td, char* input)
 {
 	/*!
    *In this function there is the HTTP protocol parse.
@@ -908,11 +908,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
 /*!
  *Build the HTTP RESPONSE HEADER string.
  *If no input is setted the input is the main buffer of the 
- *httpThreadContext structure.
+ *HttpThreadContext structure.
  *Return 0 on invalid input or internal errors.
  */
 int HttpHeaders::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
-                                                httpThreadContext *td,char *input)
+                                                HttpThreadContext *td,char *input)
 {
 	/*!
    *In this function there is the HTTP protocol parse.
@@ -1158,7 +1158,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
  *nLinesptr is a value of the lines number in the HEADER.
  *ncharsptr is a value of the characters number in the HEADER.
  */
-int HttpHeaders::validHTTPRequest(char *req,httpThreadContext* td,
+int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
                                    u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i=0;

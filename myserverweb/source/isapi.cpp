@@ -158,7 +158,7 @@ ConnTableRecord *Isapi::HConnRecord(HCONN hConn)
 /*!
  *Send an HTTP redirect.
  */
-int Isapi::Redirect(httpThreadContext* td,ConnectionPtr a,char *URL) 
+int Isapi::Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL) 
 {
 	return ((http*)td->lhttp)->sendHTTPRedirect(td,a,URL);
 }
@@ -166,7 +166,7 @@ int Isapi::Redirect(httpThreadContext* td,ConnectionPtr a,char *URL)
 /*!
  *Send an HTTP URI.
  */
-int Isapi::SendURI(httpThreadContext* td,ConnectionPtr a,char *URL)
+int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
 	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,0);
 }
@@ -174,7 +174,7 @@ int Isapi::SendURI(httpThreadContext* td,ConnectionPtr a,char *URL)
 /*!
  *Send the ISAPI header.
  */
-int Isapi::SendHeader(httpThreadContext* td,ConnectionPtr a,char *URL)
+int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
 	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,1);
 }
@@ -437,7 +437,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 /*!
  *Build the string that contains all the HTTP headers.
  */
-BOOL Isapi::buildAllHttpHeaders(httpThreadContext* td,ConnectionPtr /*!a*/,
+BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
                                 LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
@@ -517,7 +517,7 @@ BOOL Isapi::buildAllHttpHeaders(httpThreadContext* td,ConnectionPtr /*!a*/,
 /*!
  *Build the string that contains all the headers.
  */
-BOOL Isapi::buildAllRawHeaders(httpThreadContext* td,ConnectionPtr a,
+BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
                                LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
@@ -596,7 +596,7 @@ BOOL Isapi::buildAllRawHeaders(httpThreadContext* td,ConnectionPtr a,
 /*!
  *Main procedure to call an ISAPI module.
  */
-int Isapi::send(httpThreadContext* td,ConnectionPtr connection, 
+int Isapi::send(HttpThreadContext* td,ConnectionPtr connection, 
                 char* scriptpath,char *cgipath, int execute,int only_header)
 {
 /*!

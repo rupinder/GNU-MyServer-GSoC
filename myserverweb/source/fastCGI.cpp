@@ -70,7 +70,7 @@ int FastCgi::getMaxFcgiServers()
 /*!
  *Entry-Point to manage a FastCGI request.
  */
-int FastCgi::send(httpThreadContext* td, ConnectionPtr connection,
+int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute, int only_header)
 {
 	fCGIContext con;
@@ -629,7 +629,7 @@ int FastCgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 /*!
  *Trasform from a standard environment string to the FastCGI environment string.
  */
-int FastCgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
+int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*,char* sp,char* ep)
 {
 	char *ptr=ep;
 	char *sptr=sp;

@@ -43,7 +43,7 @@ class CgiManager
 #endif
 {
 private:
-	httpThreadContext* td;
+	HttpThreadContext* td;
 	MsCgiData* cgidata;
 	char localbuffer[LOCAL_BUFFER_DIM];
 public:

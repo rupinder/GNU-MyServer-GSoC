@@ -177,7 +177,7 @@ struct sfCGIservers
 
 struct fCGIContext
 {
-	httpThreadContext* td;
+	HttpThreadContext* td;
   sfCGIservers* server;
 	MYSERVER_SOCKET sock;
 	MYSERVER_FILE tempOut;
@@ -198,7 +198,7 @@ private:
 	int FcgiConnectSocket(fCGIContext*,sfCGIservers*);
 	void generateFcgiHeader( FCGI_Header&, int ,int, int );
 	MYSERVER_SOCKET getFcgiConnection();
-	int buildFASTCGIEnvironmentString(httpThreadContext*,char*,char*);
+	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
 	int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
 	sfCGIservers* isFcgiServerRunning(char*);
   sfCGIservers* runFcgiServer(fCGIContext*,char*);
@@ -211,7 +211,7 @@ public:
   static int getMaxFcgiServers();
 	FastCgi();
 	static int load();
-	int send(httpThreadContext* td, ConnectionPtr connection,
+	int send(HttpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute,
                   int onlyHeader);
 	static int unload();

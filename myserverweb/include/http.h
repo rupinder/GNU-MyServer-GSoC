@@ -81,38 +81,38 @@ private:
 	FastCgi lfastcgi;
   HttpFile lhttp_file;
   HttpDir lhttp_dir;
-	struct httpThreadContext td;
+	struct HttpThreadContext td;
   void clean();
 protected:
 	char protocolPrefix[12];
 public:
 	int PROTOCOL_OPTIONS;
 	char *getDefaultFilenamePath(u_long ID);
-	int sendHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
+	int sendHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int putHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
+	int putHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int allowHTTPTRACE(httpThreadContext*,ConnectionPtr s);
-	int optionsHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
+	int allowHTTPTRACE(HttpThreadContext*,ConnectionPtr s);
+	int optionsHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
                           int yetmapped=0);
-	int traceHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
+	int traceHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
                         int yetmapped=0);
-	int deleteHTTPRESOURCE(httpThreadContext*,ConnectionPtr s,char *filename,
+	int deleteHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
                          int yetmapped=0);
-	int raiseHTTPError(httpThreadContext*, ConnectionPtr a, int ID);
-	int sendHTTPhardError500(httpThreadContext* td, ConnectionPtr a);
-	int sendAuth(httpThreadContext* td, ConnectionPtr a);
-	int getPath(httpThreadContext* td, ConnectionPtr s, char **filenamePath,
+	int raiseHTTPError(HttpThreadContext*, ConnectionPtr a, int ID);
+	int sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a);
+	int sendAuth(HttpThreadContext* td, ConnectionPtr a);
+	int getPath(HttpThreadContext* td, ConnectionPtr s, char **filenamePath,
                const char *filename,int systemrequest);
-	int getMIME(httpThreadContext* td, char *MIME, char *filename, 
+	int getMIME(HttpThreadContext* td, char *MIME, char *filename, 
               char *dest, char **dest2);
-	int logHTTPaccess(httpThreadContext* td,ConnectionPtr a);
-	int sendHTTPRedirect(httpThreadContext* td,ConnectionPtr a,char *newURL);
-	int sendHTTPNonModified(httpThreadContext* td,ConnectionPtr a);
+	int logHTTPaccess(HttpThreadContext* td,ConnectionPtr a);
+	int sendHTTPRedirect(HttpThreadContext* td,ConnectionPtr a,char *newURL);
+	int sendHTTPNonModified(HttpThreadContext* td,ConnectionPtr a);
 	http();
 	virtual ~http();
-	void computeDigest(httpThreadContext* td, char*, char*);
-	u_long checkDigest(httpThreadContext* td, ConnectionPtr s);
+	void computeDigest(HttpThreadContext* td, char*, char*);
+	u_long checkDigest(HttpThreadContext* td, ConnectionPtr s);
   char* getBrowseDirCSSFile();
 	u_long get_gzip_threshold();
 	/*! The function is used to the request and build a response.  */

@@ -30,7 +30,7 @@ private:
 public:
   static int load();
   static int unload();
-	int send(httpThreadContext*, ConnectionPtr s,char *filenamePath,
+	int send(HttpThreadContext*, ConnectionPtr s,char *filenamePath,
                    char* cgi, int OnlyHeader=0);
   HttpFile();
   virtual ~HttpFile();
