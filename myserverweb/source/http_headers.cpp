@@ -736,6 +736,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}while(digestToken);
 				delete  [] digestBuff;
 			}
+			tokenOff = getCharInString(token,"\r\n", 100);
 		}else
 		/*!Host*/
 		if(!lstrcmpi(command,"Host"))
