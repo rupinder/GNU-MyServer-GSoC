@@ -265,36 +265,29 @@ void cserver::start()
 	}
 	else
 	{
-        preparePrintError();
+        	preparePrintError();
 		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
-        endPrintError();
+        	endPrintError();
 		return;
 	}
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),getCPUCount());
 
-#ifdef WIN32
-	unsigned int ID;
-#endif
-#ifdef HAVE_PTHREAD
-	pthread_t ID;
-#endif
+	myserver_thread_ID ID;
+	
 	threads=new ClientsTHREAD[nThreads];
 	if(threads==NULL)
 	{
 		preparePrintError();
 		printf("%s: Threads creation\n",languageParser.getValue("ERR_ERROR"));
-        endPrintError();	
+        	endPrintError();	
 	}
 	for(i=0;i<nThreads;i++)
 	{
 		printf("%s %u...\n",languageParser.getValue("MSG_CREATET"),i);
 		threads[i].id=(i+ClientsTHREAD::ID_OFFSET);
-#ifdef WIN32
-		_beginthreadex(NULL,0,&::startClientsTHREAD,&threads[i].id,0,&ID);
-#endif
-#ifdef HAVE_PTHREAD
-		pthread_create(&ID, NULL, &::startClientsTHREAD, (void *)&(threads[i].id));
-#endif
+
+		myserver_thread::create(&ID,  &::startClientsTHREAD, (void *)&(threads[i].id));
+		
 		printf("%s\n",languageParser.getValue("MSG_THREADR"));
 	}
 
@@ -312,7 +305,7 @@ void cserver::start()
 	{
 			MYSERVER_FILE inputF;
 			MYSERVER_FILE outputF;
-			int ret=inputF.openFile("virtualhosts.xml.default",MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
+			int ret = inputF.openFile("virtualhosts.xml.default", MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS );
 			if(ret<1)
 			{
 				preparePrintError();
@@ -489,14 +482,10 @@ int cserver::createServerAndListener(u_long port)
 	listenThreadArgv* argv=new listenThreadArgv;
 	argv->port=port;
 	argv->serverSocket=serverSocket;
-#ifdef WIN32
-	unsigned int ID;
-	_beginthreadex(NULL,0,&::listenServer,argv,0,&ID);
-#endif
-#ifdef HAVE_PTHREAD
-	pthread_t ID;
-	pthread_create(&ID, NULL, &::listenServer, (void *)(argv));
-#endif
+	myserver_thread_ID ID;
+	
+	myserver_thread::create(&ID, &::listenServer, (void *)(argv));
+	
 	return (ID)?1:0;
 }
 /*!
@@ -548,12 +537,7 @@ void * listenServer(void* params)
 	/*!
 	*Automatically free the current thread
 	*/	
-#ifdef WIN32
-	_endthread();
-#endif
-#ifdef HAVE_PTHREAD
-	pthread_exit(0);
-#endif
+	myserver_thread::terminate();
 
 	return 0;
 

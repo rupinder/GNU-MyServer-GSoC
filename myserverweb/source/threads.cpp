@@ -122,3 +122,30 @@ int myserver_mutex::myserver_mutex_unlock(u_long/*! id*/)
 #endif
 	return 1;
 }
+/*!
+*Create a new thread.
+*/
+int myserver_thread::create(myserver_thread_ID*  ID, void * (*start_routine)(void *), void * arg)
+{
+#ifdef WIN32
+	unsigned int ID;
+	_beginthreadex(NULL,0,start_routine,arg,0,(unsigned int*)ID);
+#endif
+#ifdef HAVE_PTHREAD
+	pthread_create((pthread_t*)ID, NULL, start_routine, (void *)(arg));
+#endif
+	return 1;
+}
+
+/*!
+*Terminate the caller thread.
+*/
+void myserver_thread::terminate()
+{
+#ifdef WIN32
+	_endthread();
+#endif
+#ifdef HAVE_PTHREAD
+	pthread_exit(0);
+#endif
+}

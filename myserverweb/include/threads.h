@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 
 #ifdef HAVE_PTHREAD
-	typedef pthread_mutex_t  myserver_mutex_handle;
+	typedef pthread_mutex_t myserver_mutex_handle;
 #else
 	typedef HANDLE myserver_mutex_handle;
 #endif
@@ -35,12 +35,25 @@ class myserver_mutex
 private:
 	myserver_mutex_handle mutex;
 public:
-	int	myserver_mutex_init();
+	int myserver_mutex_init();
 	int myserver_mutex_destroy();
 	/*!
 	*These functions are a simple trasposition of the mutex mechanism.
 	*/
 	int myserver_mutex_lock(u_long id=0);
 	int myserver_mutex_unlock(u_long id=0);
+};
+#ifdef WIN32
+	typedef unsigned int myserver_thread_ID;
+#endif
+#ifdef HAVE_PTHREAD
+	typedef pthread_t myserver_thread_ID;
+#endif
+
+class myserver_thread
+{
+public:
+	static int  create(myserver_thread_ID*  thread, void * (*start_routine)(void *), void * arg);
+	static void   terminate();  
 };
 #endif

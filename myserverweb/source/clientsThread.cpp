@@ -102,12 +102,9 @@ void * startClientsTHREAD(void* pParam)
 		wait(1);
 	}
 	ct->threadIsStopped=1;
-#ifdef WIN32
-	_endthread();
-#endif
-#ifdef HAVE_PTHREAD
-	pthread_exit(0);
-#endif
+	
+	myserver_thread::terminate();
+	
 	return 0;
 }
 
