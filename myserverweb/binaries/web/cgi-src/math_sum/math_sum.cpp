@@ -5,12 +5,12 @@
 #include "../../../cgi-lib/cgi_manager.h"
 
 #ifdef WIN32
-int EXPORTABLE main (char *cmd,cgi_data* data)
+int EXPORTABLE main (char *cmd, MsCgiData* data)
 #else
-extern "C" int main (char *cmd,cgi_data* data)
+extern "C" int main (char *cmd, MsCgiData* data)
 #endif
 {     
-	cgi_manager cm(data);     
+	CgiManager cm(data);     
 	if(strlen(cmd)==0)     
 	{  	
 		cm.Write("<title>MyServer</title>\r\n<body bgcolor=\"#FFFFFF\" text=\"#666699\">\r\n<p align=\"center\">\r\n<img border=\"0\" src=\"logo.png\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"text\" ID=\"T1\" size=\"20\">\r\n<p align=\"center\">\r\n+</p>\r\n</p>\r\n<p align=\"center\">\r\n <input type=\"text\" ID=\"T2\" size=\"20\">\r\n</p>\r\n<p align=\"center\">\r\n<input type=\"button\" value=\"Compute!\" onclick=\"javascript:send()\" name=\"B3\">\r\n</p>\r\n<SCRIPT LANGUAGE=\"JavaScript\">\r\nfunction send()\r\n{\r\nvar url=\"math_sum.mscgi?a=\" + document.getElementById(\"T1\").value + \"&b=\" + document.getElementById(\"T2\").value;\r\nwindow.location.assign(url);\r\n}\r\n</SCRIPT>\r\n");

@@ -27,7 +27,7 @@ class Counter_Output
     	unsigned long int number;
     public:
     void setNumber(unsigned long int );
-	void setWrite(cgi_manager *);
+	void setWrite(CgiManager *);
 	void run();
 };
 

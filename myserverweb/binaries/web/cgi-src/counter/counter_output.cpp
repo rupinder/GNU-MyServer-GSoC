@@ -34,7 +34,7 @@ extern "C" {
 
 #endif
 
-cgi_manager * cgi_manager_ptr; // a nasty global 
+CgiManager * cgi_manager_ptr; // a nasty global 
 
 // pnguser functions
 void user_write_data(png_structp png_ptr, png_bytep data, png_size_t length)
@@ -51,7 +51,7 @@ void Counter_Output::setNumber(unsigned long int num)
 	number = num;
 }
 
-void Counter_Output::setWrite(cgi_manager * ptr)
+void Counter_Output::setWrite(CgiManager * ptr)
 {
 	cgi_manager_ptr = ptr;
 }

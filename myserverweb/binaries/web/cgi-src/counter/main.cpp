@@ -24,12 +24,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <limits.h>
 
 #ifdef WIN32
-int EXPORTABLE main (char *cmd,cgi_data* data)
+int EXPORTABLE main (char *cmd, MsCgiData* data)
 #else
-extern "C" int main (char *cmd,cgi_data* data)
+extern "C" int main (char *cmd, MsCgiData* data)
 #endif
 { 
-	cgi_manager cm(data);
+	CgiManager cm(data);
 	
 	Counter_Output counter;
 	

@@ -5,12 +5,12 @@
 #include "../../../cgi-lib/cgi_manager.h"
 
 #ifdef WIN32
-int EXPORTABLE main (char *cmd,cgi_data* data)
+int EXPORTABLE main (char *cmd,MsCgiData* data)
 #else
-extern "C" int main (char *cmd,cgi_data* data)
+extern "C" int main (char *cmd,MsCgiData* data)
 #endif
 {
-	cgi_manager cm(data);
+	CgiManager cm(data);
 	if(strlen(cmd)==0)	
 	{	
 		cm.Write("<title>MyServer</title><body bgcolor=\"#FFFFFF\" text=\"#666699\"><p align=\"center\"><img border=\"0\" src=\"logo.png\"></p><form method=\"POST\"><p align=\"center\">  <input type=\"text\" name=\"T1\" size=\"20\" value=\"POST\">	  <input type=\"submit\" value=\"Send\" name=\"B1\">	  <input type=\"reset\" value=\"Reset\" name=\"B2\"></p>	  </p>	</form><p align=\"center\">&nbsp;</p>	<p>&nbsp;</p>");
