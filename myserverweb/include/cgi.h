@@ -30,7 +30,7 @@ class cgi
 {
 public:
 	int sendCGI(httpThreadContext*,LPCONNECTION s,char* filename,char* ext,char* exec,
-              int cmd=CGI_CMD_RUNCGI, int only_header=0);
+              int cmd=CGI_CMD_RUNCGI, int only_header=0,int buildArg = 1);
 	static void buildCGIEnvironmentString(httpThreadContext*,char*,int=1);
 };
 #endif

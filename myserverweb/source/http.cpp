@@ -1599,7 +1599,12 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
         delete [] data;
 			return sendAuth(td, s);
 		}
-		int ret  =  lcgi.sendCGI(td, s, td->filenamePath, ext, data, mimeCMD,only_header);
+		int ret = 0;
+    if(mimeCMD==CGI_CMD_RUNCGI)
+      ret = lcgi.sendCGI(td, s, td->filenamePath, ext, data, mimeCMD,only_header);
+    else
+      ret = lcgi.sendCGI(td, s, td->filenamePath, ext, td->filenamePath, 
+                         mimeCMD,only_header, 0);
     if(data)
       delete [] data;
     return ret;

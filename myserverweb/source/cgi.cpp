@@ -56,7 +56,7 @@ extern "C" {
  *Run the standard CGI and send the result to the client.
  */
 int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, 
-                  char* /*!ext*/, char *cgipath, int cmd, int only_header)
+                 char* /*!ext*/, char *cgipath, int cmd, int only_header, int buildArg)
 {
 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph;
@@ -344,15 +344,19 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 
 	/*! Added for unix support. */
 	spi.cmd = cgipath;
-	spi.arg = td->scriptFile;
-	
+  
+  if(buildArg)
+    spi.arg = td->scriptFile;
+	else
+    spi.arg = 0;
+
 	spi.stdError = stdOutFile.getHandle();
 	spi.stdIn = stdInFile.getHandle();
 	spi.stdOut = stdOutFile.getHandle();
 	spi.envString=(char*)td->buffer2->GetBuffer();
 
   /*! Execute the CGI process. */
-	if(execHiddenProcess(&spi))
+	if(execHiddenProcess(&spi, SEC(15) ))
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();

@@ -47,7 +47,7 @@ extern int mustEndServer;
  */
 int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 {
-	int ret;
+	int ret=0;
 #ifdef WIN32
     /*!
     *Set the standard output values for the CGI process.
@@ -173,7 +173,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
       ret = -1;
       break;
     }
-    ret = waitpid(pid, NULL, WNOHANG);
+    ret = waitpid(pid, NULL, 0/*WNOHANG*/);
     if(ret == -1)
     {
       return (-1);
