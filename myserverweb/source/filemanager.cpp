@@ -392,15 +392,19 @@ int MYSERVER_FILE::fileExists(char* filename)
 */
 time_t MYSERVER_FILE::getLastModTime(char *filename)
 {
+	int res;
 #ifdef WIN32
 	struct _stat sf;
-	_stat(filename,&sf);
+	res=_stat(filename,&sf);
 #endif
 #ifdef __linux__
 	struct stat sf;
-	stat(filename,&sf);
+	res=stat(filename,&sf);
 #endif
-	return sf.st_mtime;
+	if(res==0)
+		return sf.st_mtime;
+	else
+		return (-1);
 }
 time_t MYSERVER_FILE::getLastModTime()
 {
@@ -412,15 +416,19 @@ time_t MYSERVER_FILE::getLastModTime()
 */
 time_t MYSERVER_FILE::getCreationTime(char *filename)
 {
+	int res;
 #ifdef WIN32
 	struct _stat sf;
-	_stat(filename,&sf);
+	res=_stat(filename,&sf);
 #endif
 #ifdef __linux__
 	struct stat sf;
-	stat(filename,&sf);
+	res=stat(filename,&sf);
 #endif
-	return sf.st_ctime;
+	if(res==0)
+		return sf.st_ctime;
+	else
+		return (-1);
 }
 time_t MYSERVER_FILE::getCreationTime()
 {
@@ -431,15 +439,19 @@ time_t MYSERVER_FILE::getCreationTime()
 */
 time_t MYSERVER_FILE::getLastAccTime(char *filename)
 {
+	int res;
 #ifdef WIN32
 	struct _stat sf;
-	_stat(filename,&sf);
+	res=_stat(filename,&sf);
 #endif
 #ifdef __linux__
 	struct stat sf;
-	stat(filename,&sf);
+	res=stat(filename,&sf);
 #endif
-	return sf.st_atime;
+	if(res==0)
+		return sf.st_atime;
+	else
+		return (-1);
 }
 time_t MYSERVER_FILE::getLastAccTime()
 {

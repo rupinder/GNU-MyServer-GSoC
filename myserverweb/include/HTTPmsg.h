@@ -19,18 +19,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifndef HTTPMSG_H
 #define HTTPMSG_H
-/*
-*Error over 1000 are warnings.
-*/
-#define e_200			1001
-#define e_201			1002
-#define e_202			1003
-#define e_301			1004
-#define e_302			1005
-#define e_304			1006
+
+#define e_200			13
+#define e_201			14
+#define e_202			15
+#define e_203			16
+#define e_204			17
+#define e_300			18
+#define e_301			19
+#define e_302			20
+#define e_303			21
+#define e_304			22
 #define e_400			0
 #define e_401			1
-#define e_401AUTH		1004
+#define e_401AUTH		1001
 #define e_403			2
 #define e_404			3
 #define e_405			4
@@ -43,8 +45,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define e_501			11
 #define e_502			12
 
-extern char HTTP_ERROR_MSGS[13][64];
-extern char HTTP_ERROR_HTMLS[13][64];
+extern char HTTP_ERROR_MSGS[24][64];
+extern char HTTP_ERROR_HTMLS[24][64];
 int getErrorIDfromHTTPStatusCode(int statusCode);
 int getHTTPStatusCodeFromErrorID(int statusCode);
 #endif

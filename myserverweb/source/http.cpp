@@ -301,7 +301,60 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	return 1;
 
 }
-
+/*
+*Delete the resource identified by filename
+*/
+int deleteHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int yetmapped)
+{
+	int httpStatus=td->response.httpStatus;
+	buildDefaultHTTPResponseHeader(&td->response);
+	td->response.httpStatus=httpStatus;
+	/*
+	*td->filenamePath is the file system mapped path while filename is the URI requested.
+	*systemrequest is true if the file is in the system folder.
+	*If filename is already mapped on the file system don't map it again.
+	*/
+	if(yetmapped)
+	{
+		strcpy(td->filenamePath,filename);
+	}
+	else
+	{
+		/*
+		*If the client try to access files that aren't in the web folder send a 401 error.
+		*/
+		translateEscapeString(filename );
+		if((filename[0] != '\0')&&(MYSERVER_FILE::getPathRecursionLevel(filename)<1))
+		{
+			return raiseHTTPError(td,s,e_401);
+		}
+		getPath(td,td->filenamePath,filename,0);
+	}
+	int permissions=-1;
+	char folder[MAX_PATH];
+	if(MYSERVER_FILE::isFolder(td->filenamePath))
+		strcpy(folder,td->filenamePath);
+	else
+		MYSERVER_FILE::splitPath(td->filenamePath,folder,filename);
+	
+	if(td->connection->login[0])
+		permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
+	else/*The default user is Guest with a null password*/
+		permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
+	if(!(permissions & MYSERVER_PERMISSION_DELETE))
+	{
+		return sendAuth(td,s);
+	}
+	if(MYSERVER_FILE::fileExists(td->filenamePath))
+	{
+		MYSERVER_FILE::deleteFile(td->filenamePath);
+		return raiseHTTPError(td,s,e_202);/*Successful deleted*/
+	}
+	else
+	{
+		return raiseHTTPError(td,s,e_204);/*No content*/
+	}
+}
 /*
 *Main function to send a resource to a client.
 */
@@ -371,7 +424,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		if(td->connection->login[0])
 			permissions=getPermissionMask(td->connection->login,td->connection->password,folder,filename,((vhost*)(td->connection->host))->systemRoot);
 		else/*The default user is Guest with a null password*/
-			permissions=getPermissionMask("Guest","",td->filenamePath,filename,((vhost*)(td->connection->host))->systemRoot);
+			permissions=getPermissionMask("Guest","",folder,filename,((vhost*)(td->connection->host))->systemRoot);
 	}
 	/*
 	*Get the PATH_INFO value.
@@ -641,7 +694,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			return raiseHTTPError(td,s,e_404);
 	}
 	time_t lastMT=MYSERVER_FILE::getLastModTime(td->filenamePath);
-	if(lastMT<0)
+	if(lastMT==-1)
 		return raiseHTTPError(td,s,e_500);
 	getRFC822LocalTime(lastMT,td->response.LAST_MODIFIED,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 	if(td->request.IF_MODIFIED_SINCE[0])
@@ -873,25 +926,27 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		if(!lstrcmpi(td.request.CMD,"GET"))/*GET REQUEST*/
 		{
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-				sendHTTPRESOURCE(&td,a,td.request.URI,false,false,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td,a,td.request.URI,0,0,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
 		}
 		else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
 		{
-			int retVal;
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-				sendHTTPRESOURCE(&td,a,td.request.URI,false,false,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td,a,td.request.URI,0,0,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);
 		}
 		else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
 		{
-			int retVal;
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-				sendHTTPRESOURCE(&td,a,td.request.URI,false,true,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td,a,td.request.URI,0,1,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
-				sendHTTPRESOURCE(&td,a,td.request.URI,false,true);
+				sendHTTPRESOURCE(&td,a,td.request.URI,0,1);
+		}
+		else if(!lstrcmpi(td.request.CMD,"DELETE"))/*HEAD REQUEST*/
+		{
+			deleteHTTPRESOURCE(&td,a,td.request.URI,0);
 		}
 		else
 		{
@@ -1156,9 +1211,11 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
 	strcpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID]);
-	if(lserver->mustUseMessagesFiles())
+	char errorFile[MAX_PATH];
+	sprintf(errorFile,"%s/%s",((vhost*)(td->connection->host))->systemRoot,HTTP_ERROR_HTMLS[ID]);
+	if(lserver->mustUseMessagesFiles() && MYSERVER_FILE::fileExists(errorFile))
 	{
-		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],true);
+		 return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
 	}
 	sprintf(td->response.CONTENT_LENGTH,"%i",strlen(HTTP_ERROR_MSGS[ID]));
 

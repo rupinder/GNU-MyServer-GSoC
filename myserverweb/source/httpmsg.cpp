@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*
 *This array is used to describe the errors for the HTTP protocol.
 */
-char HTTP_ERROR_MSGS[13][64]=
+char HTTP_ERROR_MSGS[24][64]=
 {
 	"Bad request",						/*400*/
 	"Unauthorized",						/*401*/
@@ -36,12 +36,22 @@ char HTTP_ERROR_MSGS[13][64]=
 	"Request URI too long",				/*414*/
 	"Internal Server error",			/*500*/
 	"Not implemented",					/*501*/
-	"Bad gateway"						/*502*/
+	"Bad gateway",						/*502*/
+	"OK",								/*200*/
+	"Created",							/*201*/			
+	"Accepted",							/*202*/			
+	"Non-Authoritative Information",	/*203*/			
+	"No Content",						/*204*/			
+	"Multiple Choices",					/*300*/	
+	"Moved Permanently",				/*301*/		
+	"Moved Temporarily",				/*302*/		
+	"See Other",						/*303*/			
+	"Not Modified"						/*304*/
 };
 /*
 *This array is used to describe the HTTP files for personalized errors page.
 */
-char HTTP_ERROR_HTMLS[13][64]=
+char HTTP_ERROR_HTMLS[24][64]=
 {
 	"400.html",						/*400*/
 	"401.html",						/*401*/
@@ -56,6 +66,16 @@ char HTTP_ERROR_HTMLS[13][64]=
 	"500.html",						/*500*/
 	"501.html",						/*501*/
 	"502.html"						/*502*/
+	"200.html",						/*200*/
+	"201.html",						/*201*/			
+	"202.html",						/*202*/			
+	"203.html",						/*203*/			
+	"204.html",						/*204*/			
+	"300.html",						/*300*/	
+	"301.html",						/*301*/		
+	"302.html",						/*302*/		
+	"303.html",						/*303*/			
+	"304.html"						/*304*/
 };
 /*
 *Return an error ID starting from an HTTP status code.
@@ -72,6 +92,27 @@ int getErrorIDfromHTTPStatusCode(int statusCode)
 			break;
 		case 202:
 			return e_202;
+			break;
+		case 203:
+			return e_203;
+			break;
+		case 204:
+			return e_204;
+			break;
+		case 300:
+			return e_300;
+			break;
+		case 301:
+			return e_301;
+			break;
+		case 302:
+			return e_302;
+			break;
+		case 303:
+			return e_303;
+			break;
+		case 304:
+			return e_304;
 			break;
 		case 400:
 			return e_400;
@@ -130,6 +171,27 @@ int getHTTPStatusCodeFromErrorID(int statusCode)
 			break;
 		case e_202:
 			return 202;
+			break;
+		case e_203:
+			return 203;
+			break;
+		case e_204:
+			return 204;
+			break;
+		case e_300:
+			return 300;
+			break;
+		case e_301:
+			return 301;
+			break;
+		case e_302:
+			return 302;
+			break;
+		case e_303:
+			return 303;
+			break;
+		case e_304:
+			return 304;
 			break;
 		case e_400:
 			return 400;
