@@ -26,15 +26,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
-extern "C" {
-#ifdef WIN32
-#include <direct.h>
-#endif
-#ifdef HAVE_DL
-#include <dlfcn.h>
-#define HMODULE void *
-#endif
-}
 
 /*!
  *Sends the MyServer CGI; differently from standard CGI this don't 
@@ -62,9 +53,10 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 #endif
 
 #ifndef DO_NOT_USE_MSCGI 
-	HMODULE hinstLib=0; 
+	DynamicLibrary hinstLib; 
   CGIMAIN ProcMain=0;
 	u_long nbr=0;
+  int ret = 0;
   int nbs=0;
 	MsCgiData data;
   int scriptDirLen = 0;
@@ -143,35 +135,24 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 		data.stdOut.setHandle(td->outputData.getHandle());
 	}
 
-#ifdef WIN32
-	hinstLib = LoadLibrary(exec);
-#endif
-#ifdef HAVE_DL
-	hinstLib = dlopen(exec, RTLD_LAZY);
-#endif
-	if (hinstLib) 
+	ret = hinstLib.loadLibrary(exec);
+
+	if (!ret) 
 	{ 
 		/*!
      *Set the working directory to the MSCGI file one.
      */
 		setcwd(td->scriptDir);
 		td->buffer2->GetAt(0)='\0';
-#ifdef WIN32
-		ProcMain = (CGIMAIN) GetProcAddress((HMODULE)hinstLib, "main"); 
-#endif
-#ifdef HAVE_DL
-		ProcMain = (CGIMAIN) dlsym(hinstLib, "main");
-#endif
+
+		ProcMain = (CGIMAIN) hinstLib.getProc( "main"); 
+
 		if(ProcMain)
 		{
 			(ProcMain)(cmdLine,&data);
 		}
-#ifdef WIN32
-		FreeLibrary((HMODULE)hinstLib); 
-#endif
-#ifdef HAVE_DL
-		dlclose(hinstLib);
-#endif
+		hinstLib.close();
+
 		/*
 		*Restore the working directory.
 		*/
@@ -268,16 +249,18 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 /*!
  *Store the MSCGI library module handle.
  */
-static HMODULE mscgiModule=0;
+static DynamicLibrary mscgiModule;
 
 /*!
  *Map the library in the application address space.
  */
 int MsCgi::load()
 {
+  int ret=1;
 #ifdef WIN32
-	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
+  ret =	mscgiModule.loadLibrary("CGI-LIB\\CGI-LIB.dll", 1);
 #endif
+
 #ifdef HAVE_DL
 	char *mscgi_path=0;
 	
@@ -301,11 +284,11 @@ int MsCgi::load()
 	}
   if(mscgi_path)
   {
-    mscgiModule=dlopen(mscgi_path, RTLD_NOW | RTLD_GLOBAL);
+    ret = mscgiModule.loadLibrary(mscgi_path, 1);
     delete [] mscgi_path;
   }
 #endif
-	return (mscgiModule)?1:0;
+	return ret;
 }
 
 /*!
@@ -313,16 +296,8 @@ int MsCgi::load()
 */
 int MsCgi::unload()
 {
-#ifdef WIN32
 	/*!
-	*Return 1 if FreeLibrary returns successfully.
-	*/
-	return((mscgiModule)?(FreeLibrary((HMODULE)mscgiModule)?1:0):0);
-#else
-#ifdef HAVE_DL
-	return((mscgiModule)?(dlclose(mscgiModule)?1:0):0);
-#else
-	return 1;
-#endif
-#endif
+   *Return 1 if the library was closed correctly returns successfully.
+   */
+	return mscgiModule.close();
 }

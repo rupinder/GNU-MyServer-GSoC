@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/http_headers.h"
 #include "../include/http_data_handler.h"
+#include "../include/dynamiclib.h"
 struct HttpThreadContext;
 
 struct MsCgiData

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 #include "../include/lfind.h"
+
 #ifdef NOT_WIN
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
@@ -46,13 +47,10 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
 {
   errorParser = languageParser;
 	loadProtocolPROC Proc;
-#ifdef WIN32
-	hinstLib = LoadLibrary(filename);
-#endif
-#ifdef HAVE_DL
-	hinstLib = dlopen(filename, RTLD_LAZY);
-#endif
-	if(hinstLib==0)
+	int ret=0;
+	ret = hinstLib.loadLibrary(filename);
+
+	if(!ret)
 	{
     char *log_str = new char[strlen(languageParser->getValue("ERR_LOADED")) +
                              strlen(filename) +2 ];
@@ -63,13 +61,8 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
     delete [] log_str;
 		return 0;
 	}
-#ifdef WIN32
-		Proc = (loadProtocolPROC) GetProcAddress((HMODULE)hinstLib, "loadProtocol"); 
-#endif
-#ifdef HAVE_DL
-		Proc = (loadProtocolPROC) dlsym(hinstLib, "loadProtocol");
-#endif	
-	int ret=0;
+  Proc = (loadProtocolPROC) hinstLib.getProc( "loadProtocol"); 
+	
 	if(Proc)
 		ret = (Proc((void*)languageParser,confFile,(void*)lserver));
 	if(ret)
@@ -86,29 +79,14 @@ int DynamicProtocol::unloadProtocol(XmlParser* languageParser)
   if(filename)
     delete [] filename;
   filename = 0;
-#ifdef WIN32
-	if(hinstLib)
-		Proc = (unloadProtocolPROC) GetProcAddress((HMODULE)hinstLib, "unloadProtocol"); 
-#endif
-#ifdef HAVE_DL
-	if(hinstLib)
-		Proc = (unloadProtocolPROC) dlsym(hinstLib, "unloadProtocol");
-#endif	
+  Proc = (unloadProtocolPROC) hinstLib.getProc("unloadProtocol"); 
+	
 	if(Proc)
 		Proc((void*)languageParser);
 	/*!
    *Free the loaded module too.
    */
-	if(hinstLib)
-	{
-#ifdef WIN32
-		FreeLibrary((HMODULE)hinstLib); 
-#endif
-#ifdef HAVE_DL
-		dlclose(hinstLib);
-#endif	
-	}
-	hinstLib=0;
+	hinstLib.close();
 	return 1;
 }
 /*!
@@ -131,19 +109,14 @@ int DynamicProtocol::getOptions()
 /*!
  *Control the connection.
  */
-int DynamicProtocol::controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
-                                        int bs2,u_long nbtr,u_long id)
+int DynamicProtocol::controlConnection(ConnectionPtr a,char *b1,char *b2,
+                                       int bs1, int bs2,u_long nbtr,u_long id)
 {
-	controlConnectionPROC Proc;
-#ifdef WIN32
-	Proc = (controlConnectionPROC) GetProcAddress((HMODULE)hinstLib, 
-                                                "controlConnection"); 
-#endif
-#ifdef HAVE_DL
-	Proc = (controlConnectionPROC) dlsym(hinstLib, "controlConnection");
-#endif	
-	if(Proc)
-		return Proc((void*)a, b1, b2, bs1, bs2, nbtr, id);
+	controlConnectionPROC proc;
+	proc = (controlConnectionPROC)hinstLib.getProc("controlConnection"); 
+
+	if(proc)
+		return proc((void*)a, b1, b2, bs1, bs2, nbtr, id);
 	else
 		return 0;
 }
@@ -153,15 +126,10 @@ int DynamicProtocol::controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1
  */
 char* DynamicProtocol::registerName(char* out,int len)
 {
-	registerNamePROC Proc;
-#ifdef WIN32
-	Proc = (registerNamePROC) GetProcAddress((HMODULE)hinstLib, "registerName"); 
-#endif
-#ifdef HAVE_DL
-	Proc = (registerNamePROC) dlsym(hinstLib, "registerName");
-#endif	
-	if(Proc)
-		return Proc(out,len);
+	registerNamePROC proc;
+	proc =(registerNamePROC) hinstLib.getProc( "registerName"); 
+	if(proc)
+		return proc(out,len);
 	else
 	{
 		return 0;
@@ -172,7 +140,6 @@ char* DynamicProtocol::registerName(char* out,int len)
  */
 DynamicProtocol::DynamicProtocol()
 {
-	hinstLib=0;
 	PROTOCOL_OPTIONS=0;
   filename = 0;
   errorParser=0;
@@ -185,7 +152,6 @@ DynamicProtocol::~DynamicProtocol()
 {
   unloadProtocol(errorParser);
   errorParser=0;
-	hinstLib=0;
 	PROTOCOL_OPTIONS=0;
   filename = 0;
 }

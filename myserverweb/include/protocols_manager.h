@@ -22,17 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 #include "../include/protocol.h"
 #include "../include/connectionstruct.h"
-
-extern "C" {
-#ifdef WIN32
-#include <direct.h>
-#elif HAVE_DL
-#include <dlfcn.h>
-#define HMODULE void *
-#else
-#define HMODULE void *
-#endif
-}
+#include "../include/dynamiclib.h"
 
 
 class DynamicProtocol : public Protocol
@@ -40,7 +30,7 @@ class DynamicProtocol : public Protocol
 private:
   XmlParser *errorParser;
 	char *filename;
-	HMODULE hinstLib;
+	DynamicLibrary hinstLib;
 	char protocolName[16];
 public:
 	char *getProtocolName();

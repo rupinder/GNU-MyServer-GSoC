@@ -2527,7 +2527,7 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
 	FastCgi::load();	
 
 	/*! Load the MSCGI library.  */
-	mscgiLoaded=MsCgi::load();
+	mscgiLoaded = MsCgi::load() ? 0 : 1;
 
   HttpFile::load();
 	
