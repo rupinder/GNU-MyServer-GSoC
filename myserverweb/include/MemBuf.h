@@ -31,8 +31,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 
 #define DONT_MATCH_LENGTH // Comment this line to always make the buffer
-						  // have the exact length of his data
-						  // (involves reallocations => unrecommended)
+			  // have the exact length of his data
+			  // (involves reallocations => unrecommended)
 #ifdef USE_NEW
 #define mem_alloc(size) (new char[size])
 #define mem_free(pAdr) (delete [] pAdr)
@@ -55,6 +55,7 @@ public:
 	CMemBuf(CMemBuf& srcBuf, int bCopy);
 	~CMemBuf();
 public:
+	void SetExternalBuffer(const void* pAdr, u_int size);
 	int SetBuffer(const void* pAdr, u_int size);
 	void SetLength(u_int newSize);
 

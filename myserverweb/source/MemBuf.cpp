@@ -98,7 +98,7 @@ u_int  CMemBuf::crc32Table[256] =
 	0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 };
 
-
+/*! Default constructor */
 CMemBuf::CMemBuf()
 {
 	m_buffer = NULL;
@@ -109,6 +109,11 @@ CMemBuf::CMemBuf()
 	m_bCanDelete = 1;
 }
 
+/*!
+Copy constructor
+pAdr : pointer to the buffer to copy
+size : size of pAdr
+*/
 CMemBuf::CMemBuf(const void* pAdr, u_int size)
 {
 	m_buffer = NULL;
@@ -120,6 +125,7 @@ CMemBuf::CMemBuf(const void* pAdr, u_int size)
 	m_bCanDelete = 1;
 }
 
+/*! Direct copy constructor (should only be used by the operators to avoid reallocations) */
 CMemBuf::CMemBuf(const CMemBuf& srcBuf)
 {
 	m_buffer = srcBuf.m_buffer;
@@ -130,6 +136,7 @@ CMemBuf::CMemBuf(const CMemBuf& srcBuf)
 	m_bCanDelete = 1;
 }
 
+/*! Copy constructor */
 CMemBuf::CMemBuf(CMemBuf &srcBuf, int)
 {
 	m_buffer = NULL;
@@ -141,6 +148,7 @@ CMemBuf::CMemBuf(CMemBuf &srcBuf, int)
 	m_bCanDelete = 1;
 }
 
+/*! Find a specific character in the internal buffer from a specific location */
 u_int CMemBuf::Find(char c, u_int start)
 {
 #ifdef ASSERT
@@ -153,6 +161,7 @@ u_int CMemBuf::Find(char c, u_int start)
 	return (pFound == NULL) ? (u_int) -1 : ((char*) pFound - m_buffer);
 }
 
+/*! Find a specific buffer in the internal buffer from a specific location */
 u_int CMemBuf::Find(const void* pAdr, u_int size, u_int start)
 {
 	if (start >= m_nSize)
@@ -177,6 +186,11 @@ u_int CMemBuf::Find(const void* pAdr, u_int size, u_int start)
 	return (u_int)-1;
 }
 
+/*!
+Add a buffer at the end of the internal buffer.
+If the internal buffer isn't large enough, a reallocation is done until m_nSizeLimit is reached
+If m_nSizeLimit is equal to 0, reallocation are always done.
+*/
 void CMemBuf::AddBuffer(const void* pAdr, u_int size)
 {
 	if (size == 0)
@@ -246,12 +260,34 @@ int CMemBuf::SetBuffer(const void* pAdr, u_int size)
 	return 1;
 }
 
+/*!
+Set an external buffer as the internal buffer.
+No memory copy are done.
+This can be useful to use variables from the stack.
+Ex.:
+unsigned char stackBuffer[10];
+CMemBuf buffer;
+buffer.SetExternalBuffer(stackBuffer, 10); // here, you'll use the memory from stackBuffer
+*/
+void CMemBuf::SetExternalBuffer(const void* pAdr, u_int size)
+{
+	Free();
+	m_bCanDelete = false;
+	m_buffer = (char*) pAdr;
+	m_nRealSize = m_nSize = size;
+}
+
+/*! Return the internal buffer by setting previously a specific length */
 void* CMemBuf::GetBufferSetLength(u_int newSize)
 {
 	SetLength(newSize);
 	return m_buffer;
 }
 
+/*!
+Copy a part of the internal buffer in "result".
+Here, "result" is completly removed and replaced by this part.
+*/
 int CMemBuf::GetPart(u_int nStart, u_int nEnd, CMemBuf& result)
 {
 	if (nEnd > m_nSize)
@@ -271,6 +307,10 @@ int CMemBuf::GetPart(u_int nStart, u_int nEnd, CMemBuf& result)
 	return 1;
 }
 
+/*!
+Copy a part of the internal buffer in "result".
+Here, "result" is completly removed and replaced by this part.
+*/
 int CMemBuf::GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result)
 {
 	if (nEnd > m_nRealSize)
@@ -295,6 +335,11 @@ int CMemBuf::GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result)
 	return 1;
 }
 
+/*!
+Set the length of the internal buffer.
+If the length is smallest than the existing one, no reallocation is done.
+if it's biggest, a reallocation is done until m_nSizeLimit is reached.
+*/
 void CMemBuf::SetLength(u_int newSize)
 {
 #ifndef DONT_MATCH_LENGTH
@@ -353,6 +398,7 @@ void CMemBuf::SetLength(u_int newSize)
 
 // Hex <-> Data conversion functions
 
+/*! Return a CMemBuf with the hex representation of pAdr */
 CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 {
 	CMemBuf hexFinal;
@@ -370,6 +416,7 @@ CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 	return hexFinal;
 }
 
+/*! Return the decimal number of an hexadecimal character */
 unsigned char CMemBuf::HexCharToNumber(unsigned char c)
 {
 	if (c >= '0' && c <= '9')
@@ -381,6 +428,7 @@ unsigned char CMemBuf::HexCharToNumber(unsigned char c)
 	return 0;
 }
 
+/*! Return a CMemBuf with the decoded hexadicmal string pointed at pAdr */
 CMemBuf CMemBuf::HexToData(const void* pAdr, u_int nSize)
 {
 	if ((nSize & 1) == 1) // nSize impair
@@ -395,8 +443,7 @@ CMemBuf CMemBuf::HexToData(const void* pAdr, u_int nSize)
 	return memFinal;
 }
 
-// MD5 hashing function
-
+/*! MD5 hashing function */
 CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 {
 	CMemBuf mem_MD5;
@@ -410,8 +457,7 @@ CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 	return mem_MD5;
 }
 
-// CRC hashing function
-
+/*! CRC hashing function */
 CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 {
 	CMemBuf membuf;
@@ -431,6 +477,7 @@ CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 
 // Int <-> Str conversion functions
 
+/* Return a CMemBuf with the string representation of "i" */
 CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 {
 	CMemBuf strFinal;
@@ -474,6 +521,7 @@ CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 	return strFinal;
 }
 
+/* Convert a string into an unsigned number */
 u_int CMemBuf::StrToUint(const char* pAdr)
 {
 	int nSize = strlen(pAdr);
@@ -489,6 +537,7 @@ u_int CMemBuf::StrToUint(const char* pAdr)
 	return nRes;
 }
 
+/* Convert a string into a signed number */
 int CMemBuf::StrToInt(const char* pAdr)
 {
 	if (*pAdr == '-')
@@ -496,7 +545,7 @@ int CMemBuf::StrToInt(const char* pAdr)
 	return (int) StrToUint(pAdr);
 }
 
-
+/*! Destructor */
 CMemBuf::~CMemBuf() 
 {
 	if (m_buffer != NULL && m_bCanDelete) 
@@ -508,6 +557,7 @@ void CMemBuf::AddBuffer(CMemBuf *nmb)
 	AddBuffer(nmb->m_buffer, nmb->m_nSize);
 }
 
+/*! Free used memory */
 int CMemBuf::Free() 
 {
 	if(m_buffer != NULL && m_bCanDelete) 
@@ -516,6 +566,7 @@ int CMemBuf::Free()
 	m_nSize = m_nRealSize = 0; 
 	return 1;
 };
+
 u_int CMemBuf::Find(CMemBuf *smb, u_int start) 
 {
 	return Find(smb->m_buffer, smb->m_nSize, start);
@@ -533,7 +584,7 @@ char& CMemBuf::operator[](u_int nIndex)
 	return GetAt(nIndex);
 };
 
-u_int CMemBuf::GetLength() 
+u_int CMemBuf::GetLength()
 {
 	return m_nSize;
 }
@@ -619,7 +670,7 @@ CMemBuf& CMemBuf::operator<< (const  CMemBuf &src)
 	AddBuffer(src.m_buffer, src.m_nSize); 
 	return *this;
 }
-CMemBuf& CMemBuf::operator=(CMemBuf& src) 
+CMemBuf& CMemBuf::operator=(const CMemBuf& src)
 {
 	SetBuffer(src.m_buffer, src.m_nRealSize); 
 	return *this;
@@ -654,14 +705,6 @@ CMemBuf CMemBuf::Hash_CRC(CMemBuf& membuf)
 {
 	return Hash_CRC(membuf.m_buffer, membuf.m_nSize);
 }
-
-void CMemBuf::SetExternalBuffer(const void* pAdr, u_int size)
-{
-	Free();
-	m_bCanDelete = false;
-	m_buffer = (char*) pAdr;
-	m_nRealSize = m_nSize = size;
-} 
 
 void CMemBuf::AllocBuffer(u_int size)
 {
