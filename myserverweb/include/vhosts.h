@@ -40,6 +40,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	#define SSL_METHOD int;
 #endif
 static int password_cb(char *buf,int num,int rwflag,void *userdata);
+
+#define LOG_FILES_OPTS_LEN	256
+
 class vhost
 {
 	MYSERVER_FILE warningsLogFile;
@@ -84,7 +87,8 @@ public:
 #else
 	void* getSSLContext();
 #endif
-       char accessLogOpt[200];
+	char accessLogOpt[LOG_FILES_OPTS_LEN];
+	char warningLogOpt[LOG_FILES_OPTS_LEN];
 	char documentRoot[MAX_PATH];/*!Path to the document root*/
 	char systemRoot[MAX_PATH];/*!Path to the system root*/
 	char accessesLogFileName[MAX_PATH];/*!Path to the accesses log file*/

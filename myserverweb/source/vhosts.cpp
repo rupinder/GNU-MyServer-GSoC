@@ -823,23 +823,50 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
                     }
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 			{
-                            vh->accessLogOpt[0]='\0';                
-                            strcpy(vh->accessesLogFileName,(char*)lcur->children->content);
-                            xmlAttr *attr =  lcur->properties;
-                            while(attr)
-                            {
-                                strcat(vh->accessLogOpt,(char*)attr->name);
-                                strcat(vh->accessLogOpt,"=");
-                                strcat(vh->accessLogOpt,(char*)attr->children->content);
-                                if(attr->next)
-                                    strcat(vh->accessLogOpt,",");
-                                attr=attr->next;
-                            }
-        		}
-          
+				vh->accessLogOpt[0]='\0';                
+				strcpy(vh->accessesLogFileName,(char*)lcur->children->content);
+				xmlAttr *attr =  lcur->properties;
+				u_long Optslen=LOG_FILES_OPTS_LEN;
+				while(attr)
+				{
+					strncat(vh->accessLogOpt,(char*)attr->name,Optslen);
+					Optslen-=strlen((char*)attr->name);
+					strncat(vh->accessLogOpt,"=",Optslen);
+					Optslen-=1;
+					strncat(vh->accessLogOpt,(char*)attr->children->content,Optslen);
+					Optslen-=strlen((char*)attr->children->content);
+					if(attr->next)
+					{
+						strncat(vh->accessLogOpt,",",Optslen);
+						Optslen-=1;
+					}
+					attr=attr->next;
+				}
+			}
+			
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
 			{
 				strcpy(vh->warningsLogFileName,(char*)lcur->children->content);
+				vh->accessLogOpt[0]='\0';                
+				xmlAttr *attr =  lcur->properties;
+				u_long Optslen=LOG_FILES_OPTS_LEN;
+				while(attr)
+				{
+					strncat(vh->warningLogOpt,(char*)attr->name,Optslen);
+					Optslen-=strlen((char*)attr->name);
+					strncat(vh->warningLogOpt,"=",Optslen);
+					Optslen-=1;
+					strncat(vh->warningLogOpt,(char*)attr->children->content,Optslen);
+					Optslen-=strlen((char*)attr->children->content);
+					if(attr->next)
+					{
+						strncat(vh->warningLogOpt,",",Optslen);
+						Optslen-=1;
+					}
+					attr=attr->next;
+				}
+
+								
 			}
 			
 			lcur=lcur->next;
