@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define DONT_MATCH_LENGTH // Comment this line to always make the buffer
 						  // have the exact length of his data
 						  // (involves reallocations => unrecommended)
+
 #ifdef USE_NEW
 #define mem_alloc(size) (new char[size])
 #define mem_free(pAdr) (delete [] pAdr)
@@ -51,34 +52,35 @@ class CMemBuf
 public:
 	CMemBuf();
 	CMemBuf(const void* pAdr, u_int size);
-	CMemBuf(CMemBuf& srcBuf);
-	CMemBuf(CMemBuf& srcBuf, int bCopy);
+	CMemBuf(const CMemBuf &srcBuf);
+	CMemBuf(CMemBuf& srcBuf, bool bCopy);
 	~CMemBuf() {if (m_buffer != NULL && m_bCanDelete) delete [] m_buffer;};
 public:
-	int SetBuffer(const void* pAdr, u_int size);
+	bool SetBuffer(const void* pAdr, u_int size);
 	void SetExternalBuffer(const void* pAdr, u_int size);
+
 	void SetLength(u_int newSize);
 
 	void AddBuffer(const void* pAdr, u_int size);
 	void AddBuffer(CMemBuf *nmb) {AddBuffer(nmb->m_buffer, nmb->m_nSize);};
 
-	int Free() {if (m_buffer != NULL && m_bCanDelete) mem_free(m_buffer); m_buffer = NULL; m_nSize = m_nRealSize = 0; return true;};
+	bool Free() {if (m_buffer != NULL && m_bCanDelete) mem_free(m_buffer); m_buffer = NULL; m_nSize = m_nRealSize = 0; return true;};
 public:
 	u_int Find(char c, u_int start = 0);
 	u_int Find(CMemBuf *smb, u_int start = 0) {return Find(smb->m_buffer, smb->m_nSize, start);};
 	u_int Find(const void* pAdr, u_int size, u_int start = 0);
 public:
-	char& GetAt(u_int nIndex) {ASSERT(m_buffer != NULL); ASSERT(nIndex <= m_nSize); return *(m_buffer + nIndex);};
+	char& GetAt(u_int nIndex) {return *(m_buffer + nIndex);};
 	char& operator[](u_int nIndex) {return GetAt(nIndex);};
 
-	int GetPart(u_int nStart, u_int nEnd, CMemBuf& result);
-	int GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result);
+	bool GetPart(u_int nStart, u_int nEnd, CMemBuf& result);
+	bool GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result);
 
 	void* GetBufferSetLength(u_int newSize);
 
 	u_int GetLength() {return m_nSize;};
 
-	int IsValid() {return ((m_nSize != 0) || (m_buffer != NULL));};
+	bool IsValid() {return ((m_nSize != 0) || (m_buffer != NULL));};
 
 	const void* GetBuffer() {return (const void*) m_buffer;};
 	operator const void*() {return (const void*) m_buffer;};
@@ -95,7 +97,7 @@ public:
 	CMemBuf& operator<< (long i) {AddBuffer(&i, 4); return *this;};
 	CMemBuf& operator<< (unsigned long i) {AddBuffer(&i, 4); return *this;};
 	CMemBuf& operator<< (char c) {AddBuffer(&c, 1); return *this;};
-	CMemBuf& operator<< (CMemBuf &src) {AddBuffer(src.m_buffer, src.m_nSize); return *this;};
+	CMemBuf& operator<< (const CMemBuf &src) {AddBuffer(src.m_buffer, src.m_nSize); return *this;};
 public:
 	CMemBuf& operator=(CMemBuf& src) {SetBuffer(src.m_buffer, src.m_nRealSize); return *this;};
 	CMemBuf& operator=(const char* src) {SetBuffer((const void*) src, strlen(src) + 1); return* this;};
@@ -108,18 +110,18 @@ public: // Static conversion functions (hex, CRC...)
 	static CMemBuf Hash_CRC(const void* pAdr, u_int nSize);
 	static CMemBuf Hex(const void* pAdr, u_int nSize);
 	static CMemBuf u_intToStr(u_int i) {return CMemBuf::XIntToStr(i, false);};
-	static CMemBuf IntToStr(int i) {if (i < 0) return CMemBuf::XIntToStr((u_int) (int) (-i), true); else return CMemBuf::XIntToStr((u_int) i, false);
+	static CMemBuf IntToStr(int i) {if (i < 0) return CMemBuf::XIntToStr((u_int) (int) (-i), true); else return CMemBuf::XIntToStr((u_int) i, false);};
 
 	static CMemBuf Hex(CMemBuf& membuf) {return Hex(membuf.m_buffer, membuf.m_nSize);};
 	static CMemBuf Hash_MD5(CMemBuf& membuf) {return Hash_MD5(membuf.m_buffer, membuf.m_nSize);};
 	static CMemBuf Hash_CRC(CMemBuf& membuf) {return Hash_CRC(membuf.m_buffer, membuf.m_nSize);};
 protected:
-	static CMemBuf XIntToStr(u_int i, int bNegative);
+	static CMemBuf XIntToStr(u_int i, bool bNegative);
 	void AllocBuffer(u_int size) {Free(); m_buffer = mem_alloc(size); m_nRealSize = size;};
 	char* m_buffer; // Using of char* instead of void* because the C++ Compilator doesn't know the size of a void* !!!!!
 	u_int m_nSize;
 	u_int m_nRealSize;
-	int m_bCanDelete;
+	bool m_bCanDelete;
 };
 
 #endif
