@@ -481,8 +481,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
+        if(!systemrequest)
+                return raiseHTTPError(td,s,e_500);
+   	else
+                return hardHTTPError500(td,s);
 	
-	return raiseHTTPError(td,s,e_500);
 }
 
 /*
@@ -914,7 +917,24 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	ms_send(a->socket,td->buffer,lstrlen(td->buffer), 0);
 	return 1;
 }
-
+/*
+*Send a hard wired 500 error when we have a system error
+*/
+int hardHTTPError500(httpThreadContext* td,LPCONNECTION a)
+{
+       const char hardHTML[] = "<!-- Hard Coded 500 Responce --><body bgcolor=\"#000000\"><p align=\"center\">\
+<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
+Internal Server error</font></p>\r\n";
+   
+       sprintf(td->buffer2,"HTTP/1.1 500 System Error\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: %d\r\n",lserver->getServerName(),lstrlen(hardHTML));
+       strcat(td->buffer2,"Date: ");
+       getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
+       strcat(td->buffer2,"\r\n\r\n");
+       ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
+  
+       ms_send(a->socket,hardHTML,lstrlen(hardHTML), 0);
+       return 1;
+}
 /*
 *Returns the MIME type passing its extension.
 */
