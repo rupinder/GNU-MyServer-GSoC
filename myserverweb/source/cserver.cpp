@@ -1049,7 +1049,7 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	nConnections--;
 
 	if(s->protocolBuffer)
-		delete [] s->protocolBuffer;
+		delete s->protocolBuffer;
 	delete s;
 
 	/*! Close the socket communication. */

@@ -69,6 +69,7 @@ char *http::defaultFilename=0;	/*! Array with default filenames.  */
 u_long http::nDefaultFilename=0;/*! Number of the elements in the array.  */
 int http::initialized=0;/*! Is the HTTP protocol loaded?  */
 
+
 /*!
 *Browse a folder printing its contents in an HTML file.
 */
@@ -1074,7 +1075,8 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filena
 */
 u_long http::checkDigest(httpThreadContext* td, LPCONNECTION s)
 {
-	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque, ((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
+	if(td->request.digest_opaque[0]&& lstrcmp(td->request.digest_opaque,
+ ((http_user_data*)s->protocolBuffer)->opaque))/*If is not equal return 0*/
 		return 0;
   /*! If is not equal return 0. */
 	if(lstrcmp(td->request.digest_realm, ((http_user_data*)s->protocolBuffer)->realm))
