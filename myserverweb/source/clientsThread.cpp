@@ -63,14 +63,14 @@ void * startClientsTHREAD(void* pParam)
 {
 	u_long id=*((u_long*)pParam);
 	ClientsTHREAD *ct=&lserver->threads[id];
-	ct->threadIsRunning=true;
+	ct->threadIsRunning=1;
 	ct->connections=0;
-	ct->threadIsStopped=false;
+	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
 	ct->buffer=new char[ct->buffersize];
 	ct->buffer2=new char[ct->buffersize2];
-	ct->initialized=true;
+	ct->initialized=1;
 
 	memset(ct->buffer, 0, ct->buffersize);
 	memset(ct->buffer2, 0, ct->buffersize2);
@@ -91,7 +91,7 @@ void * startClientsTHREAD(void* pParam)
 		usleep(1);
 #endif
 	}
-	ct->threadIsStopped=true;
+	ct->threadIsStopped=1;
 #ifdef WIN32
 	_endthread();
 #endif
@@ -195,10 +195,10 @@ void ClientsTHREAD::stop()
 	/*
 	*Set the run flag to False
 	*When the current thread find the threadIsRunning
-	*flag setted to false automatically destroy the
+	*flag setted to 0 automatically destroy the
 	*thread.
 	*/
-	threadIsRunning=false;
+	threadIsRunning=0;
 }
 
 /*
@@ -206,7 +206,7 @@ void ClientsTHREAD::stop()
 */
 void ClientsTHREAD::clean()
 {
-	if(initialized==false)/*If the thread was not initialized return from the clean function*/
+	if(initialized==0)/*If the thread was not initialized return from the clean function*/
 		return;
 	requestAccess(&connectionWriteAccess,this->id);
 	if(connections)
@@ -216,7 +216,7 @@ void ClientsTHREAD::clean()
 	delete[] buffer;
 	delete[] buffer2;
 	buffer=buffer2=0;
-	initialized=false;
+	initialized=0;
 	terminateAccess(&connectionWriteAccess,this->id);
 
 }
@@ -296,7 +296,7 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 	if(!s)
 		return 0;
 	requestAccess(&connectionWriteAccess,this->id);
-	int ret=false;
+	int ret=0;
 	/*
 	*First of all close the socket communication.
 	*/
@@ -321,7 +321,7 @@ int ClientsTHREAD::deleteConnection(LPCONNECTION s)
 			i->socket.shutdown(2);
 			i->socket.closesocket();
 			free(i);
-			ret=true;
+			ret=1;
 			break;
 		}
 		else
@@ -356,7 +356,7 @@ void ClientsTHREAD::clearAllConnections()
 
 
 /*
-*Find a connection passing the socket that control it.
+*Find a connection passing its socket.
 */
 LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 {
@@ -378,7 +378,7 @@ int ClientsTHREAD::isRunning()
 }
 
 /*
-*Returns true if the thread is stopped.
+*Returns 1 if the thread is stopped.
 */
 int ClientsTHREAD::isStopped()
 {

@@ -473,12 +473,12 @@ char* CQPUtils::Decode(char *input)
 			}
 			char mid[3];
 			s++;
-			int ok = true;
+			int ok = 1;
 			for (i = 0; i < 2; i++)
 			{
 				if (hexmap[s[i]] == SKIP)
 				{
-					ok = false;
+					ok = 0;
 					if (s[i] == '\r' && s[i + 1] == '\n')
 					{
 						s += 2;
@@ -544,14 +544,14 @@ char* CQPUtils::Encode(char *input)
 		{
 			if (LineLen >= MaxLineLength - 4)
 			{
-				finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, false);
+				finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, 0);
 				*(fresult++) = '=';
 				*(fresult++) = '\r';
 				*(fresult++) = '\n';
 				UsedSize += 3;
 				LineLen = 0;
 			}
-			finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, false);
+			finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, 0);
 			char mids[3];
 #ifdef WIN32
 			itoa(mid, mids, 16);
@@ -570,7 +570,7 @@ char* CQPUtils::Encode(char *input)
 		{
 			if (LineLen >= MaxLineLength - 4)
 			{
-				finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, false);
+				finalresult = ExpandBuffer(finalresult, UsedSize, &BufSize, 0);
 				*(fresult++) = '=';
 				*(fresult++) = '\r';
 				*(fresult++) = '\n';

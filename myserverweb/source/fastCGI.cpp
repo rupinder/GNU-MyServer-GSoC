@@ -151,8 +151,8 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		*To retrieve the value of content length push left contentLengthB1
 		*of eight byte then do a or with contentLengthB0.
 		*/
-		int dim=(tHeader.contentLengthB1<<8) | tHeader.contentLengthB0;
-		int dataSent=0;
+		u_long dim=(tHeader.contentLengthB1<<8) | tHeader.contentLengthB0;
+		u_long dataSent=0;
 		if(dim==0)
 		{
 			exit = 1;
@@ -199,7 +199,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			}
 		}
 	}while((!exit) && nbr);
-	int headerSize=0;
+	u_long headerSize=0;
 	td->outputData.setFilePointer(0);
 	td->buffer[0]='\0';
 	td->outputData.readFromFile(td->buffer,KB(5),&nbr);
@@ -221,7 +221,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			nURL[0]='\0';
 			u_long j;
 			j=0;
-			int start=(int)strlen(nURL);
+			u_long start=(u_long)strlen(nURL);
 			while(td->response.LOCATION[j])
 			{
 				nURL[j+start]=td->response.LOCATION[j];
@@ -232,7 +232,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			break;
 		}
 		buildHTTPResponseHeader(td->buffer2,&td->response);
-		if(td->connection->socket.send(td->buffer2,strlen(td->buffer2), 0)==0)
+		if(td->connection->socket.send(td->buffer2,(int)strlen(td->buffer2), 0)==0)
 		{
 			exit = 1;
 			break;
@@ -274,13 +274,12 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 /*
 *Trasform from a standard environment string to the FastCGI environment string.
 */
-int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
+int buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 {
 	char *ptr=ep;
 	char *sptr=sp;
 	char varName[100];
 	char varValue[2500];
-	int i;
 	for(;;)
 	{
 		fourchar varNameLen;
@@ -325,6 +324,7 @@ int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 		{
 			*ptr++=varValueLen.c[0];
 		}
+		u_long i;
 		for(i=0;i<varNameLen.i;i++)
 			*ptr++=varName[i];
 		for(i=0;i<varValueLen.i;i++)
@@ -340,11 +340,11 @@ int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 void generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId, int iContentLength )
 {
 	tHeader.version = FCGI_VERSION_1;
-	tHeader.type = iType;
-	tHeader.requestIdB1 = (iRequestId >> 8 ) & 0xff;
-	tHeader.requestIdB0 = (iRequestId ) & 0xff;
-	tHeader.contentLengthB1 = (iContentLength >> 8 ) & 0xff;
-	tHeader.contentLengthB0 = (iContentLength ) & 0xff;
+	tHeader.type = (u_char)iType;
+	tHeader.requestIdB1 = (u_char)((iRequestId >> 8 ) & 0xff);
+	tHeader.requestIdB0 = (u_char)((iRequestId ) & 0xff);
+	tHeader.contentLengthB1 = (u_char)((iContentLength >> 8 ) & 0xff);
+	tHeader.contentLengthB0 = (u_char)((iContentLength ) & 0xff);
 	tHeader.paddingLength = 0;
 	tHeader.reserved = 0;
 };
@@ -433,7 +433,7 @@ int FcgiConnect(fCGIContext* con,char* path)
 	}
 	return pID;
 }
-int runFcgiServer(fCGIContext *con,char* path)
+int runFcgiServer(fCGIContext*,char* path)
 {
 	int localServer;/*Flag to identify a local server(running on localhost) from a remore one*/
 	localServer=path[0]!='@';/*Path that init with @ are not local path*/
@@ -496,7 +496,7 @@ int runFcgiServer(fCGIContext *con,char* path)
 			*/
 			while(path[i]!=':')
 				fCGIservers[fCGIserversN].host[i-1]=path[i++];
-			fCGIservers[fCGIserversN].port=atoi(&path[++i]);
+			fCGIservers[fCGIserversN].port=(u_short)atoi(&path[++i]);
 		}
 		
 	}

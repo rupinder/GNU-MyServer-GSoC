@@ -366,10 +366,8 @@ int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
 		{
 			if(ext)
 				strcpy(ext,mr->extension);
-
 			if(dest)
 				strcpy(dest,mr->mime_type);
-
 			if(dest2)
 			{
 				if(mr->cgi_manager[0])

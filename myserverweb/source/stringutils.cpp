@@ -233,7 +233,7 @@ void StrTrim(char* str,const char* trimchars)
 	*Number of characters to remove from the initial position of the string.
 	*/
 	u_short ncharToRemove=0;
-	int doBreak=false;
+	int doBreak=0;
 	if(lenStr==0)
 		return;
 	if(lenTrimchars==0)
@@ -254,7 +254,7 @@ void StrTrim(char* str,const char* trimchars)
 			{
 				if((i==lenTrimchars-1)||(str[j]=='\0'))
 				{
-					doBreak=true;
+					doBreak=1;
 					break;
 				}
 			}
@@ -262,7 +262,7 @@ void StrTrim(char* str,const char* trimchars)
 	}
 	if(ncharToRemove)
 		strcpy(str,&str[ncharToRemove]);
-	doBreak=false;
+	doBreak=0;
 	for(j=strlen(str)-1;j;j-- )
 	{
 		if(doBreak)
@@ -278,7 +278,7 @@ void StrTrim(char* str,const char* trimchars)
 			{
 				if(i==lenTrimchars-1)
 				{
-					doBreak=true;
+					doBreak=1;
 					break;
 				}
 			}

@@ -34,7 +34,7 @@ int  useLogonOption;
 */
 int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
-	int logon=false;
+	int logon=0;
 #ifdef WIN32
 	#ifndef LOGON32_LOGON_NETWORK
 	#define LOGON32_LOGON_NETWORK 3
@@ -90,14 +90,14 @@ void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 		}
 		else
 		{
-			*logonStatus=false;
+			*logonStatus=0;
 			*hImpersonation=0;
 		}
 		impersonateLogonUser(hImpersonation);
 	}
 	else
 	{
-		*logonStatus=false;
+		*logonStatus=0;
 	}
 }
 /*

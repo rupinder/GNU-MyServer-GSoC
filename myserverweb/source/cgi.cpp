@@ -451,8 +451,8 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 #endif
 
 	strcat(cgiEnvString,"\r\0\0\0\0\0");
-	int max=strlen(cgiEnvString);
-	for(int i=0;i<max;i++)
+	size_t max=strlen(cgiEnvString);
+	for(size_t i=0;i<max;i++)
 		if(cgiEnvString[i]=='\r')
 			cgiEnvString[i]='\0';
 }

@@ -498,7 +498,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 		}	
 		strcpy(vh->accessesLogFileName,buffer2);
 		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
-		accesses->openFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		accesses->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		cc++;
 		/*Get the warnings log file used by the virtual host*/
 		buffer2[0]='\0';
@@ -510,7 +510,7 @@ void vhostmanager::loadConfigurationFile(char* filename)
 		}	
 		strcpy(vh->warningsLogFileName,buffer2);
 		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
-		warnings->openFile(buffer2,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		warnings->openFile(buffer2,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		cc++;
 		addvHost(vh);
 	}
@@ -723,6 +723,10 @@ void vhostmanager::loadXMLConfigurationFile(char *filename)
 			
 			lcur=lcur->next;
 		}
+		MYSERVER_FILE *accesses=vh->getAccessesLogFile();
+		accesses->openFile(vh->accessesLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
+		MYSERVER_FILE * warnings=vh->getWarningsLogFile();
+		warnings->openFile(vh->warningsLogFileName,MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
 		addvHost(vh);
 	}
 	parser.close();

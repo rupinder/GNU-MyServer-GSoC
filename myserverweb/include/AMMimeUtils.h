@@ -37,7 +37,7 @@ public:
 class CQPUtils
 {
 private:
-	char* ExpandBuffer(char *buffer, int UsedSize, int *BufSize, int SingleChar = true);
+	char* ExpandBuffer(char *buffer, int UsedSize, int *BufSize, int SingleChar = 1);
 	int ErrorCode;
 public:
 	int GetLastError() {return ErrorCode;};

@@ -49,7 +49,7 @@ extern "C" {
 
 /*
 *These variables are the unique istance of the class cserver in the application and the flag
-*mustEndServer. When mustEndServer is true all the threads are stopped and the application stop
+*mustEndServer. When mustEndServer is 1 all the threads are stopped and the application stop
 *its execution.
 */
 cserver *lserver=0;
@@ -492,7 +492,7 @@ void * listenServer(void* params)
 		lserver->addConnection(asock,&asock_in);
 	}
 	/*
-	*When the flag mustEndServer is true end current thread and clean the socket used for listening.
+	*When the flag mustEndServer is 1 end current thread and clean the socket used for listening.
 	*/
 
 	serverSocket.shutdown( 2);
@@ -637,7 +637,7 @@ void cserver::initialize(int OSVer)
 	verbosity=1;
 	serverAdmin[0]='\0';
 
-	useMessagesFiles=true;
+	useMessagesFiles=1;
 	configurationFileManager.open("myserver.xml");
 	char *data;
 
@@ -774,7 +774,7 @@ u_long cserver::getTimeout()
 int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 {
 	if(s.getHandle()==0)
-		return false;
+		return 0;
 	static int ret;
 	ret=1;
 	
@@ -820,7 +820,7 @@ LPCONNECTION cserver::findConnection(MYSERVER_SOCKET s)
 	for(u_long i=0;i<nThreads;i++)
 	{
 		c=threads[i].findConnection(s);
-		if((i==nThreads-1) && (c!=NULL))
+		if(c!=NULL)
 			return c;
 	}
 	return NULL;
@@ -850,8 +850,8 @@ char *cserver::getServerName()
 	return serverName;
 }
 /*
-*Returns true if we use personalized errors page
-*false if we don't use personalized errors page.
+*Returns 1 if we use personalized errors page
+*0 if we don't use personalized errors page.
 */
 int cserver::mustUseMessagesFiles()
 {
