@@ -95,12 +95,13 @@ public:
                    int OnlyHeader=0,int firstByte=0,int lastByte=-1);
 	int sendHTTPDIRECTORY(httpThreadContext*,LPCONNECTION s,char* folder, 
                         int only_header);
-	int raiseHTTPError(httpThreadContext*,LPCONNECTION a,int ID);
-	int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a);
-	int sendAuth(httpThreadContext* td,LPCONNECTION a);
-	int getPath(httpThreadContext* td,LPCONNECTION s,char **filenamePath,
+	int raiseHTTPError(httpThreadContext*, LPCONNECTION a, int ID);
+	int sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a);
+	int sendAuth(httpThreadContext* td, LPCONNECTION a);
+	int getPath(httpThreadContext* td, LPCONNECTION s, char **filenamePath,
                const char *filename,int systemrequest);
-	int getMIME(char *MIME, char *filename, char *dest, char **dest2);
+	int getMIME(httpThreadContext* td, char *MIME, char *filename, 
+              char *dest, char **dest2);
 	int logHTTPaccess(httpThreadContext* td,LPCONNECTION a);
 	int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
 	int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);

@@ -77,7 +77,24 @@ vhost::~vhost()
 	systemRoot=0;
   accessesLogFileName=0;
   warningsLogFileName=0;
-  
+
+  mime_manager.clean();
+}
+
+/*!
+ *Check if a MIME type file is defined for the virtual host.
+ */
+int vhost::isMIME()
+{
+  return mime_manager.isLoaded();
+}
+
+/*!
+ *Get the MIME manager for the virtual host.
+ */
+MIME_Manager* vhost::getMIME()
+{
+  return &mime_manager;
 }
 
 /*!
@@ -1082,11 +1099,14 @@ int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 					attr=attr->next;
 				}
       }
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME_FILE"))
+			{
+				if(lcur->children)
+          vh->getMIME()->loadXML((char*)lcur->children);
+			}
       
       lcur=lcur->next;
     }
-    int fileOpts = MYSERVER_FILE_OPEN_APPEND|MYSERVER_FILE_OPEN_ALWAYS|
-                     MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_NO_INHERIT;
 
     MYSERVER_LOG_MANAGER *accessLogFile=vh->getAccessesLog();
     accessLogFile->load(vh->accessesLogFileName);

@@ -56,13 +56,13 @@ int MIME_Manager::load(char *filename)
 	{
 		memset(&record, 0, sizeof(MIME_Manager::mime_record));
 		/*!
-		*Do not consider the \r \n and space characters.
-		*/
+     *Do not consider the \r \n and space characters.
+     */
 		while((buffer[nc]==' ') || (buffer[nc]=='\r') ||(buffer[nc]=='\n'))
 			nc++;
 		/*!
-		*If is reached the # character or the end of the string end the loop.
-		*/
+     *If is reached the # character or the end of the string end the loop.
+     */
 		if(buffer[nc]=='\0'||buffer[nc]=='#'||nc==nbw)
 			break;
 		while(buffer[nc]!=',')
@@ -81,8 +81,8 @@ int MIME_Manager::load(char *filename)
 		}
 		nc++;
 		/*!
-		*Save the action to do with this type of files.
-		*/
+     *Save the action to do with this type of files.
+     */
 		char commandString[16];
 		memset(commandString, 0, sizeof(commandString));
 
@@ -92,9 +92,9 @@ int MIME_Manager::load(char *filename)
 				commandString[strlen(commandString)]=buffer[nc];
 			nc++;
 			/*!
-			*Parse all the possible actions.
-			*By default send the file as it is.
-			*/
+       *Parse all the possible actions.
+       *By default send the file as it is.
+       */
 			record.command=CGI_CMD_SEND;
 			if(!lstrcmpi(commandString, "SEND"))
 				record.command=CGI_CMD_SEND;
@@ -131,9 +131,9 @@ int MIME_Manager::load(char *filename)
 				record.cgi_manager[strlen(record.cgi_manager)]=buffer[nc];
 			nc++;
 			/*!
-			*If the CGI manager path is "NONE" then set the cgi_manager element in 
-			*the record structure to a NULL string
-			*/
+       *If the CGI manager path is "NONE" then set the cgi_manager element in 
+       *the record structure to a NULL string
+       */
 			if(!lstrcmpi(record.cgi_manager,"NONE"))
 				record.cgi_manager = 0;
 			
@@ -352,10 +352,11 @@ int MIME_Manager::save(char *filename)
 	return 1;
 }
 /*!
-*This function returns the type of action to do for handle this file type.
-*Passing a file extension ext this function fills the strings dest and dest2
-*respectly with the MIME type description and if there are the path to the CGI manager.
-*/
+ *This function returns the type of action to do for handle this file type.
+ *Passing a file extension ext this function fills the strings dest and dest2
+ *respectly with the MIME type description and if there are the path to the 
+ *CGI manager.
+ */
 int MIME_Manager::getMIME(char* ext,char *dest,char **dest2)
 {
 	for(MIME_Manager::mime_record *mr=data;mr;mr=mr->next )

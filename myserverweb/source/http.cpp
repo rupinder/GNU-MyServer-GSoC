@@ -1603,7 +1603,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
    *getMIME returns the type of command registered by the extension.
    */
   char *data = 0;
-	int mimeCMD=getMIME(td->response.CONTENT_TYPE, td->filenamePath, ext, &data);
+	int mimeCMD=getMIME(td, td->response.CONTENT_TYPE, td->filenamePath, ext, &data);
 
 	if( (mimeCMD==CGI_CMD_RUNCGI) || (mimeCMD==CGI_CMD_EXECUTE) )
 	{
@@ -2723,12 +2723,17 @@ int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
 
 /*!
  *Returns the MIME type passing its extension.
+ *Returns 1 if the file is registered.
  */
-int http::getMIME(char *MIME, char *filename, char *ext, char **dest2)
+int http::getMIME(httpThreadContext* td, char *MIME, char *filename, 
+                  char *ext, char **dest2)
 {
 	MYSERVER_FILE::getFileExt(ext, filename);
 	
-	/*! Returns 1 if file is registered by a CGI. */
+  if(((vhost*)(td->connection->host))->isMIME() )
+  {
+    return ((vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
+  }
 	return lserver->mimeManager.getMIME(ext, MIME, dest2);
 }
 

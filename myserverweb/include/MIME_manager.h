@@ -70,6 +70,8 @@ enum CGI_COMMANDS
 	/*! Send the file as a FastCGI.  */
 	CGI_CMD_EXECUTEFASTCGI	
 };
+
+
 class MIME_Manager
 {
 public:

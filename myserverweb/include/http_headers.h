@@ -90,8 +90,10 @@ struct httpThreadContext
 class http_headers
 {
 public:
-	static int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext *td,char *input=0);
-	static int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadContext *td,char *input=0);
+	static int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
+                                          httpThreadContext *td,char *input=0);
+	static int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
+                                           httpThreadContext *td,char *input=0);
 	static int validHTTPRequest(char*,httpThreadContext*,u_long*,u_long*);
 	static int validHTTPResponse(char*,httpThreadContext*,u_long*,u_long*);
 	static void resetHTTPRequest(HTTP_REQUEST_HEADER *request);

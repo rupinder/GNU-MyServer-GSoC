@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"/*!Used for protocols IDs*/
 #include "../include/myserver_regex.h"
 #include "../include/log_manager.h"
+#include "../include/MIME_manager.h"
 
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
@@ -49,6 +50,9 @@ class vhost
 {
 	MYSERVER_LOG_MANAGER warningsLogFile;
 	MYSERVER_LOG_MANAGER accessesLogFile;
+
+  MIME_Manager mime_manager;
+
 public:
 	struct sHostList
 	{
@@ -56,6 +60,7 @@ public:
     myserver_regex hostRegex;
 		sHostList *next;
 	};
+
 	/*! List of hosts allowed by the vhost. */
 	sHostList *hostList;
 	
@@ -140,7 +145,8 @@ public:
 	int isIPAllowed(char*);
 	void setMaxLogSize(int);
 	int getMaxLogSize();
-
+  int isMIME();
+  MIME_Manager* getMIME();
 
 	MYSERVER_LOG_MANAGER* getWarningsLog();
 	MYSERVER_LOG_MANAGER* getAccessesLog();
