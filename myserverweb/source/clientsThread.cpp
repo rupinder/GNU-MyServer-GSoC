@@ -48,6 +48,10 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 	ZeroMemory(ct->buffer,ct->buffersize);
 	ZeroMemory(ct->buffer2,ct->buffersize2);
 	terminateAccess(&ct->connectionWriteAccess,ct->id);
+	/*
+	*This function when is alive only call the controlConnections(...) function
+	*of the ClientsTHREAD class instance used for control the thread.
+	*/
 	while(ct->threadIsRunning) 
 	{
 		ct->controlConnections();
@@ -56,9 +60,9 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 	return 0;
 }
 /*
-*This is the main loop of the thread
+*This is the main loop of the thread.
 *Here are controlled all the connections that belongs to the ClientsTHREAD class instance.
-*Every connection is controlled by its protocol
+*Every connection is controlled by its protocol.
 */
 void ClientsTHREAD::controlConnections()
 {
@@ -119,7 +123,7 @@ void ClientsTHREAD::stop()
 }
 
 /*
-*Clean the memory used by the thread
+*Clean the memory used by the thread.
 */
 void ClientsTHREAD::clean()
 {
@@ -144,7 +148,6 @@ void ClientsTHREAD::clean()
 LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL protID,char *ipAddr)
 {
 	requestAccess(&connectionWriteAccess,this->id);
-	const int maxRcvBuffer=KB(5);
 	const BOOL keepAlive=TRUE;
 	LPCONNECTION nc=(CONNECTION*)malloc(sizeof(CONNECTION));
 	ZeroMemory(nc,sizeof(CONNECTION));
@@ -155,23 +158,28 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	connections=nc;
 	nConnections++;
 	terminateAccess(&connectionWriteAccess,this->id);
-
 	return nc;
 }
 
 /*
-*Delete a connection
+*Delete a connection.
 */
 BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 {
 	requestAccess(&connectionWriteAccess,this->id);
 	BOOL ret=FALSE;
+	/*
+	*First of all close the socket communication.
+	*/
 	ms_shutdown(s->socket,SD_BOTH );
 	do
 	{
 		err=ms_recv(s->socket,buffer,buffersize,0);
 	}while(err && (err!=SOCKET_ERROR));
-	ms_closesocket(s->socket); 
+	ms_closesocket(s->socket);
+	/*
+	*Then remove the connection from the active connections list.
+	*/
 	LPCONNECTION prev=0;
 	for(LPCONNECTION i=connections;i;i=i->Next)
 	{
@@ -193,7 +201,7 @@ BOOL ClientsTHREAD::deleteConnection(LPCONNECTION s)
 }
 
 /*
-*Delete all the connections
+*Delete all the connections.
 */
 void ClientsTHREAD::clearAllConnections()
 {
@@ -211,7 +219,7 @@ void ClientsTHREAD::clearAllConnections()
 
 
 /*
-*Find a connection passing the socket that control it
+*Find a connection passing the socket that control it.
 */
 LPCONNECTION ClientsTHREAD::findConnection(MYSERVER_SOCKET a)
 {

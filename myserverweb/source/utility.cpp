@@ -64,7 +64,8 @@ INT getOSVersion()
 	return ret;
 }	
 /*
-*Set the buffer cmd to the next line.
+*Set the buffer passed to the next line.
+*A new line is the first character after \n.
 */
 void gotoNextLine(char* cmd)
 {
@@ -73,7 +74,7 @@ void gotoNextLine(char* cmd)
 }
 
 /*
-*Get the file extension of a path.
+*Get the file extension passing its path.
 */
 void getFileExt(char* ext,char*filename)
 {
@@ -117,7 +118,7 @@ VOID StrTrim(LPSTR str,LPSTR trimChars)
 	WORD lenTrimChars=lstrlen(trimChars);
 	WORD lenStr=lstrlen(str);
 	/*
-	*Number of characters to remove from the start of the string.
+	*Number of characters to remove from the initial position of the string.
 	*/
 	WORD ncharToRemove=0;
 	BOOL doBreak=FALSE;
