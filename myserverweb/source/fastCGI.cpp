@@ -48,7 +48,7 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 {
 	fCGIContext con;
 	con.td=td;
-	u_long nbr;
+	u_long nbr=0;
 	FCGI_Header tHeader;
 	strcpy(td->scriptPath,scriptpath);
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
@@ -83,17 +83,15 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	}
     if(atoi(td->request.CONTENTS_DIM))
 	{
-		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENTS_DIM) );
-		fCGIservers[con.fcgiPID].socket.ms_send((char*)&tHeader,sizeof(tHeader),0);
+		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENTS_DIM));
+		con.sock.ms_send((char*)&tHeader,sizeof(tHeader),0);
 		td->inputData.ms_setFilePointer(0);
-
-		for(;;)
+		do
 		{
 			td->inputData.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
-			if(!nbr)
-				break;
-			fCGIservers[con.fcgiPID].socket.ms_send(td->buffer,nbr,0);
-		}
+			if(nbr)
+				con.sock.ms_send(td->buffer,nbr,0);
+		}while(nbr);
 	}
 	else
 	{
@@ -106,26 +104,30 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	
 	/*Now read the output*/
 	int exit=0;
-	int timeout=1000;
+	const clock_t timeout=5000;
+	clock_t time1 = clock();
 	do	
 	{
-		while(timeout && (!con.sock.ms_bytesToRead()))
+		while(!con.sock.ms_bytesToRead())
 		{
-			ms_wait(1);
-			timeout--;
+			if(clock()-time1>timeout)
+				break;
 		}
 		if(con.sock.ms_bytesToRead())
 			nbr=con.sock.ms_recv((char*)&tHeader,sizeof(FCGI_Header),0);
 		else
 		{
+			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
+			con.sock.ms_shutdown(2);
 			con.sock.ms_closesocket();
-			return raiseHTTPError(td,connection,e_500);
+ 			return raiseHTTPError(td,connection,e_500);
 		}
 		if(nbr<sizeof(FCGI_Header))
 		{
 			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
+			con.sock.ms_shutdown(2);
 			con.sock.ms_closesocket();
-			raiseHTTPError(td,connection,e_500);
+			return raiseHTTPError(td,connection,e_500);
 		}
 		int dim=(tHeader.contentLengthB1<<8) + tHeader.contentLengthB0;
 		int headerSize=0;

@@ -459,12 +459,35 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	}else if(mimeCMD==CGI_CMD_WINCGI)
 	{
 	
-		return sendWINCGI(td,s,td->filenamePath);
+		int ret=sendWINCGI(td,s,td->filenamePath);
+		if(td->outputData.ms_GetHandle())
+		{
+			td->outputData.ms_CloseFile();
+			MYSERVER_FILE::ms_DeleteFile(td->outputDataPath);
+		}
+		if(td->inputData.ms_GetHandle())
+		{
+			td->inputData.ms_CloseFile();
+			MYSERVER_FILE::ms_DeleteFile(td->inputDataPath);
+		}
+		return ret;
+
 	}
 	else if(mimeCMD==CGI_CMD_FASTCGI)
 	{
 	
-		return sendFASTCGI(td,s,td->filenamePath,ext,data);
+		int ret = sendFASTCGI(td,s,td->filenamePath,ext,data);
+		if(td->outputData.ms_GetHandle())
+		{
+			td->outputData.ms_CloseFile();
+			MYSERVER_FILE::ms_DeleteFile(td->outputDataPath);
+		}
+		if(td->inputData.ms_GetHandle())
+		{
+			td->inputData.ms_CloseFile();
+			MYSERVER_FILE::ms_DeleteFile(td->inputDataPath);
+		}
+		return ret;
 	}
 	else if(mimeCMD==CGI_CMD_SENDLINK)
 	{
@@ -523,7 +546,10 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	td.identity[0]='\0';
 	td.connection=a;
 	td.id=id;
-
+	td.inputData.ms_SetHandle(0);
+	td.outputData.ms_SetHandle(0);
+	td.outputDataPath[0]='\0';
+	td.inputDataPath[0]='\0';
 	/*
 	*Reset the request structure.
 	*/

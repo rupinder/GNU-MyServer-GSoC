@@ -113,7 +113,7 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
-	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
+	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,&sa,creationFlag,attributeFlag, NULL);
 	if(handle==INVALID_HANDLE_VALUE)/*If exists an error*/
 	{
 		if(GetLastError()==ERROR_ACCESS_DENIED)/*returns -1 if the file is not accessible*/
@@ -266,14 +266,14 @@ int MYSERVER_FILE::ms_CloseFile()
 {
 #ifdef WIN32
 	FlushFileBuffers((HANDLE)handle);
-	CloseHandle((HANDLE)handle);
+	int ret=CloseHandle((HANDLE)handle);
 #endif
 #ifdef __linux__
 	fsync((int)handle);
-	close((int)handle);
+	int ret=close((int)handle);
 #endif
 	handle=0;
-	return 0;
+	return ret;
 }
 /*
 *Delete an existing file passing the path.
