@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/utility.h"
 #include "../include/winCGI.h"
+#include "../include/stringutils.h"
 extern "C" 
 {
 #ifdef WIN32
@@ -33,6 +34,9 @@ extern "C"
 #endif
 #include <string.h>
 }
+
+#include <sstream>
+using namespace std;
 
 /*!
  *Initialize the timeout value to 15 seconds.
@@ -92,6 +96,11 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	char execname[MAX_PATH];/*! Use MAX_PATH under windows. */
 	char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
 
+	u_long nBytesRead=0;
+	u_long headerSize=0;
+	u_long nbw=0;
+  ostringstream stream;
+
 	if(!File::fileExists(filename))
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_404);
 
@@ -129,7 +138,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	*td->buffer2 << "Server Admin=" << lserver->getServerAdmin() << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
 
-	if(lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+	if(stringcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
 		strcpy(buffer,"Request Keep-Alive=No\r\n");
 		DataFileHandle.writeToFile(buffer,23,&nbr);
@@ -154,23 +163,23 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 
 	if(td->request.URIOPTS[0])
 	{
-		sprintf(buffer,"Query String=%s\r\n",td->request.URIOPTS);
+		sprintf(buffer,"Query String=%s\r\n",td->request.URIOPTS.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 	if(td->request.REFERER[0])
 	{
-		sprintf(buffer,"Referer=%s\r\n",td->request.REFERER);
+		sprintf(buffer,"Referer=%s\r\n",td->request.REFERER.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 	if(td->request.CONTENT_TYPE[0])
 	{
-		sprintf(buffer,"Content Type=%s\r\n",td->request.CONTENT_TYPE);
+		sprintf(buffer,"Content Type=%s\r\n",td->request.CONTENT_TYPE.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 
 	if(td->request.USER_AGENT[0])
 	{
-		sprintf(buffer,"User Agent=%s\r\n",td->request.USER_AGENT);
+		sprintf(buffer,"User Agent=%s\r\n",td->request.USER_AGENT.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 
@@ -179,7 +188,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 
 	if(td->request.CONTENT_LENGTH[0])
 	{
-		sprintf(buffer,"Content Length=%s\r\n",td->request.CONTENT_LENGTH);
+		sprintf(buffer,"Content Length=%s\r\n",td->request.CONTENT_LENGTH.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 	else
@@ -197,7 +206,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 	sprintf(buffer,"Server Port=%u\r\n",td->connection->getLocalPort());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
-	sprintf(buffer,"Server Name=%s\r\n",td->request.HOST);
+	sprintf(buffer,"Server Name=%s\r\n",td->request.HOST.c_str());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
 	strcpy(buffer,"[System]\r\n");
@@ -270,7 +279,6 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
-	u_long nBytesRead=0;
 	OutFileHandle.readFromFile(buffer,td->buffer2->GetRealLength(),&nBytesRead);
 	if(nBytesRead==0)
 	{
@@ -283,7 +291,6 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 		File::deleteFile(dataFilePath);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
-	u_long headerSize=0;
 
 	for(u_long i=0;i<nBytesRead;i++)
 	{
@@ -299,15 +306,14 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename,
 			break;
 		}
 	}
-	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
-		strcpy(td->response.CONNECTION,"Keep-Alive");
+	if(!stringcmpi(td->request.CONNECTION,"Keep-Alive"))
+		td->response.CONNECTION.assign("Keep-Alive");
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response,td,buffer);
 	/*!
    *Always specify the size of the HTTP contents.
    */
-	sprintf(td->response.CONTENT_LENGTH,"%u",
-          OutFileHandle.getFileSize()-headerSize);
-	u_long nbw=0;
+  stream << OutFileHandle.getFileSize()-headerSize;
+	td->response.CONTENT_LENGTH.assign(stream.str());
 	if(!td->appendOutputs)
 	{
     /*!
