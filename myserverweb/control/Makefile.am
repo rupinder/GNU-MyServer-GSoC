@@ -14,3 +14,10 @@ all : makecontrol control
 
 makecontrol :
 	if test x$(MAKE_CONTROL) = xno; then exit; fi
+
+install : makecontrol control
+	$(INSTALL) -D 'control' '$(bindir)/myserver-control'
+
+uninstall :
+	rm -f '$(bindir)/myserver-control'
+

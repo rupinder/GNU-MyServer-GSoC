@@ -130,6 +130,8 @@ fi
 dnl AC_CONFIG_SUBDIRS()
 AC_CONFIG_FILES(Makefile \
 		binaries/Makefile \
+		binaries/certificates/Makefile \
+		binaries/external/Makefile \
                 binaries/languages/Makefile \
 		binaries/web/Makefile \
                 binaries/web/downloads/Makefile \

@@ -424,10 +424,8 @@ installdirs:
 	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
-install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
-uninstall: uninstall-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
@@ -514,6 +512,12 @@ all : makecontrol control
 
 makecontrol :
 	if test x$(MAKE_CONTROL) = xno; then exit; fi
+
+install : makecontrol control
+	$(INSTALL) -D 'control' '$(bindir)/myserver-control'
+
+uninstall :
+	rm -f '$(bindir)/myserver-control'
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
