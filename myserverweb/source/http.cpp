@@ -95,7 +95,6 @@ BOOL sendHTTPDIRECTORY(LPCONNECTION s,char* folder)
 	{	
 		if(fd.name[0]=='.')
 			continue;
-		request;
 		lstrcat(buffer2,"<TR><TD><A HREF=\"");
 		lstrcat(buffer2,&folder[startChar]);
 		lstrcat(buffer2,"/");

@@ -273,6 +273,8 @@ int ms_setcwd()
 	for(DWORD i=0;i<lstrlen(currentPath);i++)
 		if(currentPath[i]=='\\')
 			currentPath[i]='/';
+	if(currentPath[lstrlen(currentPath)]=='/')
+		currentPath[lstrlen(currentPath)]='\0';
 	return retval;
 }
 char *ms_getcwd(char *path,int len)
