@@ -53,6 +53,7 @@ int http_file::send(httpThreadContext* td, LPCONNECTION s, char *filenamePath,
    *Will we use GZIP compression to send data?
    */
 	int use_gzip=0;
+  u_long filesize=0;
 	MYSERVER_FILE h;
 	u_long bytes_to_send;
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
@@ -78,8 +79,9 @@ int http_file::send(httpThreadContext* td, LPCONNECTION s, char *filenamePath,
 	/*! 
    *Read how many bytes are waiting to be send.  
    */
-	bytes_to_send=h.getFileSize();
-	if(lastByte == 0)
+	filesize=h.getFileSize();
+	bytes_to_send=filesize;
+  if(lastByte == 0)
 	{
 		lastByte = bytes_to_send;
 	}
@@ -134,12 +136,15 @@ int http_file::send(httpThreadContext* td, LPCONNECTION s, char *filenamePath,
 	td->buffer->SetLength(0);
 	
 	/*! If a Range was requested send 206 and not 200 for success.  */
-	if(lastByte | firstByte )
+	if( td->request.RANGEBYTEBEGIN ||  td->request.RANGEBYTEEND )
   {	
     td->response.httpStatus = 206;
+    sprintf(td->response.CONTENT_RANGE, "bytes %u-%u/%u", (u_long)firstByte, 
+           (u_long) lastByte, (u_long)filesize);
     use_gzip = 0;
 	}
 
+  /*! Specify the content length with keep-alive connections. */
 	if(keepalive)
 		sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)bytes_to_send);
 	else

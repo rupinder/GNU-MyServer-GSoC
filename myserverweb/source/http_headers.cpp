@@ -113,6 +113,12 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 		strcat(str,response->CONTENT_ENCODING);
 		strcat(str,"\r\n");
 	}
+	if(response->CONTENT_RANGE[0])
+	{
+		strcat(str,"Content-Range: ");
+		strcat(str,response->CONTENT_RANGE);
+		strcat(str,"\r\n");
+	}
 	if(response->CONTENT_LENGTH[0])
 	{
 		/*!
@@ -291,6 +297,7 @@ void http_headers::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 	response->OTHER[0]='\0';
 	response->LAST_MODIFIED[0]='\0';
 	response->CACHE_CONTROL[0]='\0';
+	response->CONTENT_RANGE[0]='\0';
 }
 
 
@@ -1083,6 +1090,15 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
 			myserver_strlcpy(response->CONTENT_LENGTH,token, 
                        HTTP_RESPONSE_CONTENT_LENGTH_DIM);
 			StrTrim(response->CONTENT_LENGTH," ");
+		}else
+		/*!Content-Range*/
+		if(!lstrcmpi(command,"Content-Range"))
+		{
+			token = strtok( NULL, "\r\n\0" );
+			lineControlled=1;
+			myserver_strlcpy(response->CONTENT_RANGE,token, 
+                       HTTP_RESPONSE_CONTENT_RANGE_DIM);
+			StrTrim(response->CONTENT_RANGE," ");
 		}else
 		/*!P3P*/
 		if(!lstrcmpi(command,"P3P"))
