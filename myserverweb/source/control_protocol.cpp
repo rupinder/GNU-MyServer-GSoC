@@ -83,8 +83,8 @@ control_protocol::~control_protocol()
 }
 
 /*!
-*Load the HTTP protocol.
-*/
+ *Load the control protocol.
+ */
 int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
   adminName[0]='\0';
@@ -216,7 +216,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
       return 0;
     }
 
-    ret = Ifile->writeToFile(b1 + realHeaderLength, nbtr - realHeaderLength, &nbw);
+    ret = Ifile->writeToFile(b1 + realHeaderLength, nbtr - realHeaderLength, 
+                             &nbw);
     dataWritten += nbw;
     if(ret)
     {
@@ -508,8 +509,9 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
  *Send the response with status=errID and the data contained in the outFile.
  *Return nonzero on errors.
  */
-int control_protocol::sendResponse(char *buffer, int buffersize, LPCONNECTION conn, 
-                                   int errID, MYSERVER_FILE* outFile)
+int control_protocol::sendResponse(char *buffer, int buffersize, 
+                                   LPCONNECTION conn, int errID, 
+                                   MYSERVER_FILE* outFile)
 {
   u_long dataLength=0;
   int err;
@@ -577,7 +579,8 @@ int  control_protocol::SHOWCONNECTIONS(MYSERVER_FILE* out, char *b1, int bs1)
 /*!
  *Kill a connection by its ID.
  */
-int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out, char *b1, int bs1)
+int  control_protocol::KILLCONNECTION(u_long ID, MYSERVER_FILE* out, 
+                                      char *b1, int bs1)
 {
   int ret = 0;
   u_long nbw;
