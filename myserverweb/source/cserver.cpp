@@ -88,7 +88,8 @@ Server::Server()
  */
 Server::~Server()
 {
- delete logManager;
+  if(logManager)
+    delete logManager;
 }
 
 /*!
@@ -103,6 +104,7 @@ void Server::start()
 	time_t myserver_mime_conf;
   char* buffer;
   int err = 0;
+	MYSERVER_HOSTENT *localhe=0;
 	int os_ver=getOSVersion();
 #ifdef WIN32
 		DWORD eventsCount, cNumRead; 
@@ -208,7 +210,7 @@ void Server::start()
 	/*!
    *Find the IP addresses of the local machine.
    */
-	MYSERVER_HOSTENT *localhe=Socket::gethostbyname(serverName);
+	localhe=Socket::gethostbyname(serverName);
 	in_addr ia;
 	ipAddresses[0]='\0';
   buffer =  new char[ strlen(serverName) + 7];
@@ -276,9 +278,9 @@ void Server::start()
         if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
             (myserver_mime_conf_now!=-1)) || toReboot)
         {
-          if( ((myserver_main_conf_now != myserver_main_conf)  || 
-              (myserver_hosts_conf_now != myserver_hosts_conf)  || 
-              (myserver_mime_conf_now != myserver_mime_conf))   || toReboot  )
+          if( ((myserver_main_conf_now  != myserver_main_conf)  || 
+               (myserver_hosts_conf_now != myserver_hosts_conf) || 
+               (myserver_mime_conf_now  != myserver_mime_conf)) || toReboot  )
           {
             reboot();
             /*! Store new mtime values. */
@@ -296,6 +298,7 @@ void Server::start()
 			}
 		}//end  if(autoRebootEnabled)
     
+    /*! Check threads. */
     purgeThreads();
 
 #ifdef WIN32
@@ -412,7 +415,8 @@ int Server::createServerAndListener(u_long port)
 	int optvalReuseAddr=1;
   char port_buff[6];
   char *listen_port_msg;
-	ThreadID threadId;
+	ThreadID threadId=0;
+	MYSERVER_SOCKADDRIN sock_inserverSocket;
 	/*!
    *Create the server socket.
    */
@@ -421,7 +425,6 @@ int Server::createServerAndListener(u_long port)
   if(!serverSocket)
     return 0;
 	serverSocket->socket(AF_INET, SOCK_STREAM, 0);
-	MYSERVER_SOCKADDRIN sock_inserverSocket;
 	if(serverSocket->getHandle()==(SocketHandle)INVALID_SOCKET)
 	{
 		logPreparePrintError();
@@ -570,8 +573,8 @@ void * listenServer(void* params)
 	MYSERVER_SOCKADDRIN asock_in;
 	int asock_inLen = sizeof(asock_in);
 	Socket asock;
-
   int ret;
+
 #ifdef NOT_WIN
 	// Block SigTerm, SigInt, and SigPipe in threads
 	sigset_t sigmask;
@@ -768,6 +771,7 @@ void Server::stopThreads()
    */
 	u_long threadsStopped=0;
 	u_long threadsStopTime=0;
+
 	/*!
    *Wait before clean the threads that all the threads are stopped.
    */

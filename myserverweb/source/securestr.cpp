@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Secure string concatenate routine.
  */
-unsigned int myserver_strlcat(char *destination, const char *source, size_t size)
+unsigned int myserver_strlcat(char *destination, const char *source, unsigned int size)
 {
 	char *dstptr=destination;
 	size_t dstlen,tocopy=size;

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 #include "../include/stringutils.h"
 #include "../include/threads.h"
-
+#include "../include/securestr.h"
 
 /*!
  *SSL password callback function.
@@ -32,7 +32,7 @@ static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
 	if((size_t)num<strlen((char*)userdata)+1)
 		return(0);
 
-	strcpy(buf,(char*)userdata);
+	myserver_strlcpy(buf,(char*)userdata, 32);
 	return((int)strlen(buf));
 }
 
@@ -162,7 +162,7 @@ void Vhost::addIP(char *ip, int isRegex)
 	sIpList* il=new sIpList();
   if(il==0)
     return;
-	strcpy(il->hostIp,ip);
+	myserver_strlcpy(il->hostIp, ip, 32);
   /*! If is a regular expression, the ip string is a pattern. */
   if(isRegex)
     il->ipRegex.compile(ip, REG_EXTENDED);
@@ -328,7 +328,7 @@ void Vhost::addHost(char *host, int isRegex)
 	sHostList* hl=new sHostList();
   if(hl==0)
     return;
-	strcpy(hl->hostName,host);
+	myserver_strlcpy(hl->hostName, host, MAX_COMPUTERNAME_LENGTH);
   if(isRegex)
     hl->hostRegex.compile(host, REG_EXTENDED);
 	if(hostList)
@@ -953,7 +953,7 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
 			{
-				strcpy(vh->name,((char*)lcur->children->content));
+				myserver_strlcpy(vh->name, ((char*)lcur->children->content), 64);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
 			{
@@ -976,7 +976,8 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
 			{
 				if(lcur->children)
-					strcpy(vh->sslContext.password,((char*)lcur->children->content));
+					myserver_strlcpy(vh->sslContext.password, 
+                           ((char*)lcur->children->content), 32);
 				else
 					vh->sslContext.password[0]='\0';
 			}
@@ -1016,7 +1017,7 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 				{
 						vh->protocol=PROTOCOL_UNKNOWN;
 				}
-				strncpy(vh->protocol_name,(char*)lcur->children->content,16);
+				myserver_strlcpy(vh->protocol_name, (char*)lcur->children->content, 16);
 				
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
@@ -1081,12 +1082,12 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 					Optslen-=(u_long)strlen((char*)attr->name);
 					strncat(vh->accessLogOpt,"=",Optslen);
 					Optslen-=1;
-					strncat(vh->accessLogOpt,(char*)attr->children->content,Optslen);
+					myserver_strlcat(vh->accessLogOpt, (char*)attr->children->content, Optslen);
 					Optslen-=(u_long)strlen((char*)attr->children->content);
 					if(attr->next)
 					{
-						strncat(vh->accessLogOpt,",",Optslen);
 						Optslen-=1;
+						myserver_strlcat(vh->accessLogOpt, ",", Optslen);
 					}
 					attr=attr->next;
 				}
@@ -1113,13 +1114,13 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 					Optslen-=(u_long)strlen((char*)attr->name);
 					strncat(vh->warningLogOpt,"=",Optslen);
 					Optslen-=1;
-					strncat(vh->warningLogOpt,(char*)attr->children->content,Optslen);
+					myserver_strlcat(vh->warningLogOpt,(char*)attr->children->content,Optslen);
 					Optslen-=(u_long)strlen((char*)attr->children->content);
 					if(attr->next)
           {
-            strncat(vh->warningLogOpt,",",Optslen);
-						Optslen-=1;
-					}
+            Optslen-=1;          
+            myserver_strlcat(vh->warningLogOpt,",",Optslen);
+          }
 
 					attr=attr->next;
 				}
