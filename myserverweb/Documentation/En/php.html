@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type"
  content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="myserver.css">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
   <title>PHP</title>
 </head>
 <body>
@@ -19,7 +19,9 @@ executable or as a FastCGI server. While using PHP like a CGI
 executable, MyServer will create a new process for every page
 requested. &nbsp;While using PHP in the FastCGI mode, MyServer does not
 require a new process for every request and, therefore, the server
-performs better. Please refer to the official FastCGI site for more
+performs better. Please refer to the official <a
+ href="http://www.fastcgi.com/" target="_blank">FastCGI </a>site for
+more
 information about FastCGI.<br>
 <br>
 In order to use PHP, you must first download the installer from: <font
@@ -42,9 +44,38 @@ The line will then read:<br>
  style="text-align: center; font-family: courier new,courier,monospace;"><font
  color="#ffff00">&nbsp;<span style="color: rgb(0, 102, 0);">cgi.force_redirect
 = 0</span></font></p>
-<p><br>
+<p><span style="font-weight: bold;">Remote FastCGI Servers<br>
+</span></p>
+<p>MyServer has the capability of using a remote FastCGI server.&nbsp;
+The following MIME type uses a remote connection:<br>
 </p>
-More information and samples of code can be found at The PHP web site (
-<a href="http://www.php.net" ;="" target="_blank">www.php.net</a> ).
+<p class="MsoNormal" style="margin-left: 200px;"><font size="2"
+ face="Arial"><span style="font-size: 10pt; font-family: Arial;">&lt;MIMETYPE&gt;</span></font></p>
+<div style="margin-left: 200px;"></div>
+<p class="MsoNormal" style="margin-left: 200px;"><font size="2"
+ face="Arial"><span style="font-size: 10pt; font-family: Arial;">&lt;EXT&gt;php&lt;/EXT&gt;</span></font></p>
+<div style="margin-left: 200px;"></div>
+<p class="MsoNormal" style="margin-left: 200px;"><font size="2"
+ face="Arial"><span style="font-size: 10pt; font-family: Arial;">&lt;MIME&gt;text/html&lt;/MIME&gt;</span></font></p>
+<div style="margin-left: 200px;"></div>
+<p class="MsoNormal" style="margin-left: 200px;"><font size="2"
+ face="Arial"><span style="font-size: 10pt; font-family: Arial;">&lt;CMD&gt;RUNFASTCGI&lt;/CMD&gt;</span></font></p>
+<div style="margin-left: 200px;"></div>
+<p class="MsoNormal" style="margin-left: 200px;"><font size="2"
+ face="Arial"><span style="font-size: 10pt; font-family: Arial;">&lt;MANAGER&gt;@host:port&lt;/MANAGER&gt;</span></font></p>
+<div style="margin-left: 200px;"></div>
+<p class="MsoNormal" style="margin-left: 200px;"><font size="2"
+ face="Arial"><span style="font-size: 10pt; font-family: Arial;">&lt;/MIMETYPE&gt;</span></font></p>
+<p><br>
+The definition for a remote manager must begin with @.<br>
+</p>
+<p>If you are configuring the MIME types through the Control center
+application, you can add a remote server by adding a line in the form<br>
+</p>
+<p style="margin-left: 200px;"><span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">@host:port</span><br>
+</p>
+<p>in the FastCGI path field.<br>
+</p>
 </body>
 </html>
