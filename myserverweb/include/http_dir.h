@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http_headers.h"
 #include "../include/http_data_handler.h"
 
-class http_dir : public http_data_handler
+class HttpDir : public HttpDataHandler
 {
 private:
 
@@ -32,8 +32,8 @@ public:
   static int unload();
 	int send(httpThreadContext*, ConnectionPtr s, char* directory, 
                         char* cgi, int only_header=0);
-  http_dir();
-  virtual ~http_dir();
+  HttpDir();
+  virtual ~HttpDir();
 };
 
 

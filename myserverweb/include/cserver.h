@@ -90,7 +90,7 @@ private:
 	void stopThreads();
 	/*! Used when rebooting to load new configuration files.  */
 	int pausing;
-	protocols_manager protocols;
+	ProtocolsManager protocols;
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
   int autoRebootEnabled;
@@ -144,7 +144,7 @@ public:
   int addThread(int staticThread = 0);
   int removeThread(u_long ID);
   int isServerReady();
-  protocols_manager *getProtocolsManager();
+  ProtocolsManager *getProtocolsManager();
   void disableAutoReboot();
   void enableAutoReboot();
   int isAutorebootEnabled();
@@ -156,7 +156,7 @@ public:
   char *getLanguageFile();
 	cserver();
 	~cserver();
-	dynamic_protocol* getDynProtocol(char *protocolName);
+	DynamicProtocol* getDynProtocol(char *protocolName);
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
 	int connections_mutex_lock();
 	int connections_mutex_unlock();

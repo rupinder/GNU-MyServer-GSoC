@@ -32,9 +32,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 /*!
-*Write to the stdout.
-*/
-int cgi_manager::Write(char* str)
+ *Write to the stdout.
+ */
+int CgiManager::Write(char* str)
 {
 	if(str)
 	{
@@ -45,9 +45,9 @@ int cgi_manager::Write(char* str)
 	return 0;
 }
 /*!
-*Write binary to the stdout.
-*/
-int cgi_manager::Write(void* data, int len)
+ *Write binary to the stdout.
+ */
+int CgiManager::Write(void* data, int len)
 {
 	if(data)
 	{
@@ -59,55 +59,55 @@ int cgi_manager::Write(void* data, int len)
 }
 
 /*!
-*Start the execution of the CGI.
-*/
-int cgi_manager::Start(cgi_data* data)
+ *Start the execution of the CGI.
+ */
+int CgiManager::Start(MsCgiData* data)
 {
 	cgidata=data;
 	td=data->td;
 	return 1;
 }
 /*!
-*Clean the memory allocated by the CGI.
-*/
-int cgi_manager::Clean()
+ *Clean the memory allocated by the CGI.
+ */
+int CgiManager::Clean()
 {
 	return 1;
 }
 /*!
-*Set the HTTP error identifier.
-*/
-int cgi_manager::setPageError(int ID)
+ *Set the HTTP error identifier.
+ */
+int CgiManager::setPageError(int ID)
 {
 	td->response.httpStatus=ID;
 	return 1;
 }
 /*!
-*Raise an HTTP error
-*/
-int cgi_manager::raiseError(int ID)
+ *Raise an HTTP error
+ */
+int CgiManager::raiseError(int ID)
 {
 	cgidata->errorPage=ID;
 	return 1;
 }
 /*!
-*Constructor of the class
-*/
-cgi_manager::cgi_manager(cgi_data* data)
+ *Constructor of the class
+ */
+CgiManager::CgiManager(MsCgiData* data)
 {
 	Start(data);
 }
 /*!
-*Destructor of the class
-*/
-cgi_manager::~cgi_manager(void)
+ *Destructor of the class
+ */
+CgiManager::~CgiManager(void)
 {
 	Clean();
 }
 /*!
-*Returns the value of a param passed through the URL.
-*/
-char* cgi_manager::GetParam(char* param)
+ *Returns the value of a param passed through the URL.
+ */
+char* CgiManager::GetParam(char* param)
 {
 	if(td->request.URIOPTS[0]=='\0')
 		return 0;
@@ -137,9 +137,9 @@ char* cgi_manager::GetParam(char* param)
 	return localbuffer;
 }
 /*!
-*Returns the value of a param passed through a POST request.
-*/
-char* cgi_manager::PostParam(char* param)
+ *Returns the value of a param passed through a POST request.
+ */
+char* CgiManager::PostParam(char* param)
 {
 	char buffer[LOCAL_BUFFER_DIM+50];
 	u_long nbr=0;
@@ -179,30 +179,30 @@ char* cgi_manager::PostParam(char* param)
 
 }
 /*!
-*Write to stdout.
-*/
-int cgi_manager::operator <<(char* str)
+ *Write to stdout.
+ */
+int CgiManager::operator <<(char* str)
 {
 	return Write(str);
 }
 /*!
-*Read from the stdin.
-*/
-char *cgi_manager::operator >>(char* str)
+ *Read from the stdin.
+ */
+char *CgiManager::operator >>(char* str)
 {
 	/*!
-	*If it is a POST request return a param from the POST values
-	*else return a GET param.
-	*/
+   *If it is a POST request return a param from the POST values
+   *else return a GET param.
+   */
 	if(td->request.URIOPTSPTR)
 		return PostParam(str);
 	else
 		return GetParam(str);
 } 
 /*!
-*Get the value of an environment variable.
-*/
-void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)
+ *Get the value of an environment variable.
+ */
+void CgiManager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)
 {
 	((char*)lpvBuffer)[0]='\0';
 	char *localEnv=cgidata->envString;
@@ -226,16 +226,17 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 	*lpdwSize=(u_int)strlen((char*)lpvBuffer);
 }
 /*!
-*Returns the CGI data structure. This structure is shared with the MyServer core so use it carefully!
-*/
-cgi_data* cgi_manager::getCgiData()
+ *Returns the CGI data structure. 
+ *This structure is shared with the MyServer core so use it carefully!
+ */
+MsCgiData* CgiManager::getCgiData()
 {
 	return cgidata;
 }
 /*!
-*Specify the MIME type for the data.
-*/
-void cgi_manager::setContentType(char * Type)
+ *Specify the MIME type for the data.
+ */
+void CgiManager::setContentType(char * Type)
 {
 	strncpy(td->response.CONTENT_TYPE, Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
 }

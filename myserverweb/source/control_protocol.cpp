@@ -837,7 +837,7 @@ int control_protocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, MYSERVER_FILE* out,
                                            char *b1,int bs1)
 {
   int i = 0;
-  dynamic_protocol* dp;
+  DynamicProtocol* dp;
   u_long nbw;
   int ret;
   for( ;;)

@@ -88,7 +88,7 @@ int http::cgi_timeout=MYSERVER_SEC(15);
 int http::fastcgi_servers;
 
 /*! Cache for security files. */
-security_cache http::sec_cache;
+SecurityCache http::sec_cache;
 
 /*! Access the security cache safely. */
 myserver_mutex http::sec_cache_mutex;
@@ -226,7 +226,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s,
   int directoryLen=0;
   int permissions2=0;
   char auth_type[16];	
-	http_headers::buildDefaultHTTPResponseHeader(&td->response);
+	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION, "Keep-Alive");
@@ -478,7 +478,7 @@ int http::deleteHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s,
 	int httpStatus=td->response.httpStatus;
 	int permissions2=0;
 	char auth_type[16];
-	http_headers::buildDefaultHTTPResponseHeader(&td->response);
+	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION, "Keep-Alive");
@@ -751,7 +751,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, ConnectionPtr s, char *URI,
 	strcpy(filename, URI);
 	td->buffer->SetLength(0);
 	
-	http_headers::buildDefaultHTTPResponseHeader(&td->response);	
+	HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);	
 	keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
@@ -1422,7 +1422,7 @@ int http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	/*!
 	 *Reset the request structure.
 	 */
-	http_headers::resetHTTPRequest(&td.request);
+	HttpHeaders::resetHTTPRequest(&td.request);
 	
 	/*!
 	 *If the connection must be removed, remove it.
@@ -1440,7 +1440,7 @@ int http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         return 0;
 		}
 	}
-	validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
+	validRequest=HttpHeaders::buildHTTPRequestHeaderStruct(&td.request, &td);
   
   
   /*! If the header is incomplete returns 2. */
@@ -2053,7 +2053,7 @@ int http::raiseHTTPError(httpThreadContext* td, ConnectionPtr a, int ID)
   char time[HTTP_RESPONSE_DATE_DIM];
   char* errorFile;
   td->lastError = ID;
-	http_headers::buildDefaultHTTPResponseHeader(&(td->response));
+	HttpHeaders::buildDefaultHTTPResponseHeader(&(td->response));
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION, "Keep-Alive");
@@ -2196,7 +2196,7 @@ int http::raiseHTTPError(httpThreadContext* td, ConnectionPtr a, int ID)
 	/*! Send the error over the HTTP. */
 	sprintf(td->response.CONTENT_LENGTH, "%i", 0);
 
-	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &td->response);
+	HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &td->response);
 	if(a->socket.send((char*)td->buffer->GetBuffer(), 
                     (u_long)strlen((char*)td->buffer->GetBuffer()), 0)==-1)
 		return 0;
@@ -2426,17 +2426,17 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
   sec_cache_mutex.myserver_mutex_init();
 		
 	/*! Initialize ISAPI.  */
-	isapi::load();
+	Isapi::load();
 	
 	/*! Initialize FastCGI.  */
-	fastcgi::load();	
+	FastCgi::load();	
 
 	/*! Load the MSCGI library.  */
-	mscgiLoaded=mscgi::load();
+	mscgiLoaded=MsCgi::load();
 
-  http_file::load();
+  HttpFile::load();
 	
-  http_dir::load();
+  HttpDir::load();
 
 	if(mscgiLoaded)
   {
@@ -2499,11 +2499,11 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
     }
 	}
 
-  cgi::setTimeout(cgi_timeout);
-  fastcgi::setTimeout(cgi_timeout);
-  wincgi::setTimeout(cgi_timeout);
-  isapi::setTimeout(cgi_timeout);
-  fastcgi::setMaxFcgiServers(fastcgi_servers);
+  Cgi::setTimeout(cgi_timeout);
+  FastCgi::setTimeout(cgi_timeout);
+  WinCgi::setTimeout(cgi_timeout);
+  Isapi::setTimeout(cgi_timeout);
+  FastCgi::setMaxFcgiServers(fastcgi_servers);
 
 	/*! 
    *Determine the number of default filenames written in 
@@ -2568,19 +2568,19 @@ int http::unloadProtocol(cXMLParser* /*languageParser*/)
 	/*!
    *Clean ISAPI.
    */
-	isapi::unload();
+	Isapi::unload();
 	/*!
    *Clean FastCGI.
    */
-	fastcgi::unload();
+	FastCgi::unload();
 	/*!
    *Clean MSCGI.
    */
-	mscgi::unload();
+	MsCgi::unload();
  
-  http_file::unload();
+  HttpFile::unload();
 	
-  http_dir::unload();
+  HttpDir::unload();
   
   sec_cache.free();
 

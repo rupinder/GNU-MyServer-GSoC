@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Base class to handle HTTP data.
  */
-class http_data_handler
+class HttpDataHandler
 {
 private:
 
@@ -34,8 +34,8 @@ public:
   static int unload();
 	virtual int send(httpThreadContext*, ConnectionPtr s,char *filenamePath,
                    char* cgi, int OnlyHeader=0);
-  http_data_handler();
-  virtual ~http_data_handler();
+  HttpDataHandler();
+  virtual ~HttpDataHandler();
 };
 
 

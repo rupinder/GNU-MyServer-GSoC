@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Load the protocol. Called once at runtime.
  */
-int protocol::loadProtocol(cXMLParser* /*languageParser*/,char* /*confFile*/)
+int Protocol::loadProtocol(cXMLParser* /*languageParser*/,char* /*confFile*/)
 {
 	return 1;
 }
@@ -32,7 +32,7 @@ int protocol::loadProtocol(cXMLParser* /*languageParser*/,char* /*confFile*/)
 /*!
  *Unload the protocol. Called once.
  */
-int protocol::unloadProtocol(cXMLParser* /*languageParser*/)
+int Protocol::unloadProtocol(cXMLParser* /*languageParser*/)
 {
 	return 1;
 }
@@ -40,7 +40,7 @@ int protocol::unloadProtocol(cXMLParser* /*languageParser*/)
 /*!
  *Control the connection.
  */
-int protocol::controlConnection(ConnectionPtr /*a*/,char* /*b1*/,
+int Protocol::controlConnection(ConnectionPtr /*a*/,char* /*b1*/,
                                 char* /*b2*/,int /*bs1*/,int /*bs2*/,
                                 u_long /*nbtr*/,u_long /*id*/)
 {
@@ -58,7 +58,7 @@ int protocol::controlConnection(ConnectionPtr /*a*/,char* /*b1*/,
  *Returns the name of the protocol. If an out buffer is 
  *defined fullfill it with the name too.
  */
-char* protocol::registerName(char* /*out*/,int /*len*/)
+char* Protocol::registerName(char* /*out*/,int /*len*/)
 {
 	return 0;
 }
@@ -66,7 +66,7 @@ char* protocol::registerName(char* /*out*/,int /*len*/)
 /*!
  *Constructor for the class protocol.
  */
-protocol::protocol()
+Protocol::Protocol()
 {
 	PROTOCOL_OPTIONS=0;
 }

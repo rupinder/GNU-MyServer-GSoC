@@ -18,14 +18,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef SECURITY_CACHE_H
 #define SECURITY_CACHE_H
 #include "../include/hash_dictionary.h"
-class security_cache
+
+class SecurityCache
 {
 private:
-  hash_dictionary dictionary;
+  HashDictionary dictionary;
   int limit;
 public:
-  security_cache();
-  ~security_cache();
+  SecurityCache();
+  ~SecurityCache();
   void free();
   void setMaxNodes(int);
   int getMaxNodes();

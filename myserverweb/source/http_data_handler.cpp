@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Send a file to the client using the HTTP protocol.
  */
-int http_data_handler::send(httpThreadContext*/* td*/, ConnectionPtr /*s*/, 
-                            char* /*filenamePath*/, char* /*exec*/,
-                            int /*only_header*/)
+int HttpDataHandler::send(httpThreadContext*/* td*/, ConnectionPtr /*s*/, 
+                          char* /*filenamePath*/, char* /*exec*/,
+                          int /*only_header*/)
 {
   return 0;
 }
@@ -32,7 +32,7 @@ int http_data_handler::send(httpThreadContext*/* td*/, ConnectionPtr /*s*/,
 /*!
  *Constructor for the class.
  */
-http_data_handler::http_data_handler()
+HttpDataHandler::HttpDataHandler()
 {
 
 }
@@ -40,7 +40,7 @@ http_data_handler::http_data_handler()
 /*!
  *Destroy the object.
  */
-http_data_handler::~http_data_handler()
+HttpDataHandler::~HttpDataHandler()
 {
 
 }
@@ -48,7 +48,7 @@ http_data_handler::~http_data_handler()
 /*!
  *Load the static elements.
  */
-int http_data_handler::load()
+int HttpDataHandler::load()
 {
   return 0;
 }
@@ -56,7 +56,7 @@ int http_data_handler::load()
 /*!
  *Unload the static elements.
  */
-int http_data_handler::unload()
+int HttpDataHandler::unload()
 {
   return 0;
 }

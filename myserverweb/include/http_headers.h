@@ -88,7 +88,7 @@ struct httpThreadContext
 };
 
 
-class http_headers
+class HttpHeaders
 {
 public:
 	static int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 

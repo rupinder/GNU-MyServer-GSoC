@@ -59,11 +59,11 @@ public:
 	void reset();
 };
 
-class http : public protocol
+class http : public Protocol
 {
 private:
   static  myserver_mutex sec_cache_mutex;
-  static security_cache sec_cache;
+  static SecurityCache sec_cache;
 	static int initialized;
 	/*! Store if the MSCGI library was loaded.  */
 	static int mscgiLoaded;
@@ -74,13 +74,13 @@ private:
 	static u_long nDefaultFilename;	
   static int cgi_timeout;
   static int fastcgi_servers;
-	mscgi lmscgi;
-	wincgi lwincgi;
-	isapi lisapi;
-	cgi lcgi;
-	fastcgi lfastcgi;
-  http_file lhttp_file;
-  http_dir lhttp_dir;
+	MsCgi lmscgi;
+	WinCgi lwincgi;
+	Isapi lisapi;
+	Cgi lcgi;
+	FastCgi lfastcgi;
+  HttpFile lhttp_file;
+  HttpDir lhttp_dir;
 	struct httpThreadContext td;
   void clean();
 protected:

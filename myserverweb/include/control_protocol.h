@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/control_header.h"
 
 
-class control_protocol : public protocol
+class control_protocol : public Protocol
 {
   static char adminLogin[64];
   static char adminPassword[64];

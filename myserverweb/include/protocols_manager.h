@@ -35,7 +35,7 @@ extern "C" {
 }
 
 
-class dynamic_protocol : public protocol
+class DynamicProtocol : public Protocol
 {
 private:
   cXMLParser *errorParser;
@@ -45,8 +45,8 @@ private:
 public:
 	char *getProtocolName();
 	int setFilename(char *filename);
-	dynamic_protocol();
-	virtual ~dynamic_protocol();
+	DynamicProtocol();
+	virtual ~DynamicProtocol();
 	char* registerName(char*,int len);
 	virtual int controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
                                 int bs2,u_long nbtr,u_long id);
@@ -57,18 +57,18 @@ public:
 
 struct dynamic_protocol_list_element
 {
-	dynamic_protocol data;
+	DynamicProtocol data;
 	dynamic_protocol_list_element* next;
 	
 };
-class protocols_manager
+class ProtocolsManager
 {
 private:
 	dynamic_protocol_list_element* list;
 public:
-	protocols_manager();
-  dynamic_protocol* getDynProtocolByOrder(int order);
-	dynamic_protocol* getDynProtocol(char *protocolName);
+	ProtocolsManager();
+  DynamicProtocol* getDynProtocolByOrder(int order);
+	DynamicProtocol* getDynProtocol(char *protocolName);
 	int	addProtocol(char*,cXMLParser*,char*,cserver* lserver);
 	int unloadProtocols(cXMLParser*);
 	int loadProtocols(char* directory, cXMLParser*, char*, cserver* lserver);

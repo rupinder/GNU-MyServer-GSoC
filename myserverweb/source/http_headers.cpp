@@ -51,7 +51,7 @@ extern "C" {
 /*!
  *Builds an HTTP header string starting from an HTTP_RESPONSE_HEADER structure.
  */
-void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
+void HttpHeaders::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 {
 	/*!
    *Here is builded the HEADER of a HTTP response.
@@ -205,7 +205,7 @@ void http_headers::buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* respo
 /*!
  *Set the defaults value for a HTTP_RESPONSE_HEADER structure.
  */
-void http_headers::buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
+void HttpHeaders::buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 {
 	resetHTTPResponse(response);
 	/*!
@@ -228,7 +228,7 @@ void http_headers::buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response
 /*!
  *Reset all the HTTP_REQUEST_HEADER structure members.
  */
-void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
+void HttpHeaders::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 {
 	request->TRANSFER_ENCODING[0]='\0';	
 	request->CONTENT_ENCODING[0]='\0';	
@@ -276,7 +276,7 @@ void http_headers::resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 /*!
  *Reset all the HTTP_RESPONSE_HEADER structure members.
  */
-void http_headers::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
+void HttpHeaders::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 {
 	response->httpStatus=200;
 	response->VER[0]='\0';	
@@ -307,7 +307,7 @@ void http_headers::resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
  *nLinesptr is a value of the lines number in the HEADER.
  *ncharsptr is a value of the characters number in the HEADER.
  */
-int http_headers::validHTTPResponse(char *res,httpThreadContext* td, 
+int HttpHeaders::validHTTPResponse(char *res,httpThreadContext* td, 
                                     u_long* nLinesptr, u_long* ncharsptr)
 {
 	u_long i;
@@ -372,7 +372,7 @@ int http_headers::validHTTPResponse(char *res,httpThreadContext* td,
  *If no input is setted the input is the main buffer of the 
  *httpThreadContext structure.
  */
-int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
+int HttpHeaders::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request, 
                                                httpThreadContext* td, char* input)
 {
 	/*!
@@ -911,7 +911,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,
  *httpThreadContext structure.
  *Return 0 on invalid input or internal errors.
  */
-int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
+int HttpHeaders::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response, 
                                                 httpThreadContext *td,char *input)
 {
 	/*!
@@ -1158,7 +1158,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,
  *nLinesptr is a value of the lines number in the HEADER.
  *ncharsptr is a value of the characters number in the HEADER.
  */
-int http_headers::validHTTPRequest(char *req,httpThreadContext* td,
+int HttpHeaders::validHTTPRequest(char *req,httpThreadContext* td,
                                    u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i=0;

@@ -183,7 +183,7 @@ struct fCGIContext
 	MYSERVER_FILE tempOut;
 };
 
-class fastcgi  : public http_data_handler
+class FastCgi  : public HttpDataHandler
 {
 private:
 	static int timeout;
@@ -209,7 +209,7 @@ public:
   static void setTimeout(int);
   static void setMaxFcgiServers(int);
   static int getMaxFcgiServers();
-	fastcgi();
+	FastCgi();
 	static int load();
 	int send(httpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute,

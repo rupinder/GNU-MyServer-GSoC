@@ -48,7 +48,7 @@ extern "C"
 /*!
  *Constructor for the class.
  */
-http_dir::http_dir()
+HttpDir::HttpDir()
 {
 
 }
@@ -56,7 +56,7 @@ http_dir::http_dir()
 /*!
  *Destroy the object.
  */
-http_dir::~http_dir()
+HttpDir::~HttpDir()
 {
 
 }
@@ -64,7 +64,7 @@ http_dir::~http_dir()
 /*!
  *Load the static elements.
  */
-int http_dir::load()
+int HttpDir::load()
 {
   return 0;
 }
@@ -72,7 +72,7 @@ int http_dir::load()
 /*!
  *Unload the static elements.
  */
-int http_dir::unload()
+int HttpDir::unload()
 {
   return 0;
 }
@@ -82,8 +82,8 @@ int http_dir::unload()
 /*!
  *Browse a directory printing its contents in an HTML file.
  */
-int http_dir::send(httpThreadContext* td, ConnectionPtr s, char* directory, 
-               char* /*cgi*/, int only_header)
+int HttpDir::send(httpThreadContext* td, ConnectionPtr s, char* directory, 
+                  char* /*cgi*/, int only_header)
 {
 	u_long nbw;
 	int ret;
@@ -349,7 +349,7 @@ int http_dir::send(httpThreadContext* td, ConnectionPtr s, char* directory,
 		u_long nbr=0;
     int nbs=0;
 		td->outputData.setFilePointer(0);
-		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+		HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
                                           &(td->response));
 		nbs=s->socket.send((char*)td->buffer->GetBuffer(), 
                        (u_long)strlen((char*)td->buffer->GetBuffer()), 0);
@@ -385,7 +385,7 @@ int http_dir::send(httpThreadContext* td, ConnectionPtr s, char* directory,
 	}
   else
   {
-    http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+    HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
                                           &(td->response));
   }
 	return 1;

@@ -124,7 +124,7 @@ typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 
 #endif
 
-class isapi  : public http_data_handler
+class Isapi  : public HttpDataHandler
 {
 private:
   static u_long timeout;
@@ -144,7 +144,7 @@ public:
 	static BOOL buildAllRawHeaders(httpThreadContext* td,ConnectionPtr a,
                                  LPVOID output, LPDWORD maxLen);
 #endif	
-	isapi();
+	Isapi();
 	static myserver_mutex *isapi_mutex;
 	static int load();
 	static int unload();

@@ -27,13 +27,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 extern const char *versionOfSoftware;
 
-class wincgi : public http_data_handler
+class WinCgi : public HttpDataHandler
 {
 private:
   static u_long timeout;
 public:
-  wincgi();
-  ~wincgi();
+  WinCgi();
+  ~WinCgi();
   static void setTimeout(u_long);
   static u_long getTimeout();
 	int send(httpThreadContext*, ConnectionPtr s,char* filename, 

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Create the object.
  */
-hash_dictionary::hash_dictionary()
+HashDictionary::HashDictionary()
 {
   node = 0;
   nodes_count = 0;
@@ -31,7 +31,7 @@ hash_dictionary::hash_dictionary()
 /*!
  *Internal hashing function. This function uses the ELF hash algorithm.
  */
-unsigned int hash_dictionary::hash(char * name)
+unsigned int HashDictionary::hash(char * name)
 {
    unsigned int ret,x;
    int i;
@@ -53,7 +53,7 @@ unsigned int hash_dictionary::hash(char * name)
 /*!
  *Destroy the object.
  */
-hash_dictionary::~hash_dictionary()
+HashDictionary::~HashDictionary()
 {
   free();
 }
@@ -61,7 +61,7 @@ hash_dictionary::~hash_dictionary()
 /*!
  *Get the data of the node by name.
  */
-void *hash_dictionary::getData(char* name)
+void *HashDictionary::getData(char* name)
 {
   unsigned int name_hash = hash(name);
   sNode* cur = node;
@@ -79,7 +79,7 @@ void *hash_dictionary::getData(char* name)
 /*!
  *Add a node at the end of the list.
  */
-int hash_dictionary::append(char* name, void* data)
+int HashDictionary::append(char* name, void* data)
 {
   if(name == 0)
     return 0;
@@ -116,7 +116,7 @@ int hash_dictionary::append(char* name, void* data)
  *Remove a node by name. The function returns the data for the removed node. If
  *there is not any node then zero is returned.
  */
-void* hash_dictionary::removeNode(char* name)
+void* HashDictionary::removeNode(char* name)
 {
   unsigned int node_hash = hash(name);
   sNode *cur = node;
@@ -147,7 +147,7 @@ void* hash_dictionary::removeNode(char* name)
 /*!
  *Return the number of nodes currently in the dictionary.
  */
-int hash_dictionary::nodesNumber()
+int HashDictionary::nodesNumber()
 {
   return nodes_count;
 }
@@ -155,7 +155,7 @@ int hash_dictionary::nodesNumber()
 /*!
  *Free the dictionary.
  */
-void hash_dictionary::free()
+void HashDictionary::free()
 {
   sNode *cur = node;
   while(cur)
@@ -171,7 +171,7 @@ void hash_dictionary::free()
 /*!
  *Get the data for the node using the order position. First node has index 1.
  */
-void *hash_dictionary::getData(int order)
+void *HashDictionary::getData(int order)
 {
   if(order == 0)
     return 0;
@@ -187,7 +187,7 @@ void *hash_dictionary::getData(int order)
 /*!
  *Check if the dictionary is empty.
  */
-int hash_dictionary::isEmpty()
+int HashDictionary::isEmpty()
 {
   return nodes_count ? 0 : 1;
 }
@@ -195,7 +195,7 @@ int hash_dictionary::isEmpty()
 /*!
  *Insert a node at the specified position.
  */
-int hash_dictionary::insertAt(char* name, void* data, int pos)
+int HashDictionary::insertAt(char* name, void* data, int pos)
 {
   if(name == 0)
     return -1;
@@ -233,7 +233,7 @@ int hash_dictionary::insertAt(char* name, void* data, int pos)
 /*!
  *Insert a new node at the beginning of the list.
  */
-int hash_dictionary::insert(char* name,void* data)
+int HashDictionary::insert(char* name,void* data)
 {
   if(name == 0)
     return -1;
@@ -250,7 +250,7 @@ int hash_dictionary::insert(char* name,void* data)
 /*!
  *Remove a node by its position.
  */
-void* hash_dictionary::removeNodeAt(int order)
+void* HashDictionary::removeNodeAt(int order)
 {
   sNode *cur = node;
   sNode *prev = 0;

@@ -40,7 +40,7 @@ extern "C" {
  *Sends the MyServer CGI; differently from standard CGI this don't 
  *need a new process to run so it is faster.
  */
-int mscgi::send(httpThreadContext* td, ConnectionPtr s,char* exec,
+int MsCgi::send(httpThreadContext* td, ConnectionPtr s,char* exec,
                 char* cmdLine, int /*execute*/, int only_header)
 {
 	/*!
@@ -66,7 +66,7 @@ int mscgi::send(httpThreadContext* td, ConnectionPtr s,char* exec,
   CGIMAIN ProcMain=0;
 	u_long nbr=0;
   int nbs=0;
-	cgi_data data;
+	MsCgiData data;
   int scriptDirLen = 0;
   int scriptFileLen = 0;
   int cgiRootLen = 0;
@@ -117,7 +117,7 @@ int mscgi::send(httpThreadContext* td, ConnectionPtr s,char* exec,
 	MYSERVER_FILE::splitPath(exec, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(exec, td->cgiRoot, td->cgiFile);
 
-	cgi::buildCGIEnvironmentString(td,data.envString);
+	Cgi::buildCGIEnvironmentString(td,data.envString);
 	
 	if(!td->appendOutputs)
 	{	
@@ -214,7 +214,7 @@ int mscgi::send(httpThreadContext* td, ConnectionPtr s,char* exec,
 		char *buffer = (char*)td->buffer2->GetBuffer();
 		u_long bufferSize= td->buffer2->GetRealLength();
 		data.stdOut.setFilePointer(0);
-		http_headers::buildHTTPResponseHeader(buffer,&(td->response));
+		HttpHeaders::buildHTTPResponseHeader(buffer,&(td->response));
 		if(s->socket.send(buffer,(int)strlen(buffer), 0)==SOCKET_ERROR)
 		{
 			if(!td->appendOutputs)
@@ -273,7 +273,7 @@ static HMODULE mscgiModule=0;
 /*!
  *Map the library in the application address space.
  */
-int mscgi::load()
+int MsCgi::load()
 {
 #ifdef WIN32
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
@@ -311,7 +311,7 @@ int mscgi::load()
 /*!
 *Free the memory allocated by the MSCGI library.
 */
-int mscgi::unload()
+int MsCgi::unload()
 {
 #ifdef WIN32
 	/*!

@@ -1225,7 +1225,7 @@ ConnectionPtr cserver::addConnectionToList(MYSERVER_SOCKET s,
 	}
 	else if(((vhost*)new_connection->host)->protocol==PROTOCOL_UNKNOWN)
 	{	
-		dynamic_protocol* dp;
+		DynamicProtocol* dp;
     dp=lserver->getDynProtocol(((vhost*)(new_connection->host))->protocol_name);	
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;	
@@ -1451,7 +1451,7 @@ char *cserver::getAddresses()
  *While built-in protocols have an object per thread, for dynamic
  *protocols there is only one object shared among the threads.
  */
-dynamic_protocol* cserver::getDynProtocol(char *protocolName)
+DynamicProtocol* cserver::getDynProtocol(char *protocolName)
 {
 	return protocols.getDynProtocol(protocolName);
 }
@@ -1907,7 +1907,7 @@ void cserver::enableAutoReboot()
 /*!
  *Return the protocol_manager object.
  */
-protocols_manager *cserver::getProtocolsManager()
+ProtocolsManager *cserver::getProtocolsManager()
 {
   return &protocols;
 }

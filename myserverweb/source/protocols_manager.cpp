@@ -41,7 +41,7 @@ typedef char* (*registerNamePROC)(char*,int);
 /*!
 *Load the protocol. Called once at runtime.
 */
-int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,
+int DynamicProtocol::loadProtocol(cXMLParser* languageParser,char* confFile,
                                    cserver* lserver)
 {
   errorParser = languageParser;
@@ -80,7 +80,7 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,
 /*!
 *Unload the protocol. Called once.
 */
-int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
+int DynamicProtocol::unloadProtocol(cXMLParser* languageParser)
 {
   if(filename)
     delete [] filename;
@@ -114,7 +114,7 @@ int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
 /*!
 *Return the protocol name.
 */
-char *dynamic_protocol::getProtocolName()
+char *DynamicProtocol::getProtocolName()
 {
 	return protocolName;	
 }
@@ -122,7 +122,7 @@ char *dynamic_protocol::getProtocolName()
 /*!
  *Get the options for the protocol.
  */
-int dynamic_protocol::getOptions()
+int DynamicProtocol::getOptions()
 {
 	return  PROTOCOL_OPTIONS;
 }
@@ -131,7 +131,7 @@ int dynamic_protocol::getOptions()
 /*!
  *Control the connection.
  */
-int dynamic_protocol::controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
+int DynamicProtocol::controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
                                         int bs2,u_long nbtr,u_long id)
 {
 	controlConnectionPROC Proc;
@@ -151,7 +151,7 @@ int dynamic_protocol::controlConnection(ConnectionPtr a,char *b1,char *b2,int bs
  *Returns the name of the protocol. If an out buffer is defined 
  *fullfill it with the name too.
  */
-char* dynamic_protocol::registerName(char* out,int len)
+char* DynamicProtocol::registerName(char* out,int len)
 {
 	registerNamePROC Proc;
 #ifdef WIN32
@@ -170,7 +170,7 @@ char* dynamic_protocol::registerName(char* out,int len)
 /*!
  *Constructor for the class protocol.
  */
-dynamic_protocol::dynamic_protocol()
+DynamicProtocol::DynamicProtocol()
 {
 	hinstLib=0;
 	PROTOCOL_OPTIONS=0;
@@ -181,7 +181,7 @@ dynamic_protocol::dynamic_protocol()
 /*!
  *Destroy the protocol object.
  */
-dynamic_protocol::~dynamic_protocol()
+DynamicProtocol::~DynamicProtocol()
 {
   unloadProtocol(errorParser);
   errorParser=0;
@@ -194,7 +194,7 @@ dynamic_protocol::~dynamic_protocol()
  *Set the right file name
  *Returns nonzero on errors.
  */
-int dynamic_protocol::setFilename(char *nf)
+int DynamicProtocol::setFilename(char *nf)
 {
   if(filename)
     delete [] filename;
@@ -210,7 +210,7 @@ int dynamic_protocol::setFilename(char *nf)
 /*!
  *Add a new protocol to the list by its module name.
  */
-int protocols_manager::addProtocol(char *file,cXMLParser* parser,
+int ProtocolsManager::addProtocol(char *file,cXMLParser* parser,
                                    char* confFile,cserver* lserver)
 {
 	dynamic_protocol_list_element* ne = new dynamic_protocol_list_element();
@@ -233,7 +233,7 @@ int protocols_manager::addProtocol(char *file,cXMLParser* parser,
 /*!
  *Unload evey loaded protocol.
  */
-int protocols_manager::unloadProtocols(cXMLParser *parser)
+int ProtocolsManager::unloadProtocols(cXMLParser *parser)
 {
 	dynamic_protocol_list_element* ce=list;
 	dynamic_protocol_list_element* ne=0;
@@ -255,7 +255,7 @@ int protocols_manager::unloadProtocols(cXMLParser *parser)
 /*!
  *Class constructor.
  */
-protocols_manager::protocols_manager()
+ProtocolsManager::ProtocolsManager()
 {
 	list=0;
 }
@@ -263,7 +263,7 @@ protocols_manager::protocols_manager()
 /*!
  *Get a dynamic protocol using its index in the list.
  */
-dynamic_protocol* protocols_manager::getDynProtocolByOrder(int order)
+DynamicProtocol* ProtocolsManager::getDynProtocolByOrder(int order)
 {
   int i = 0;
 	dynamic_protocol_list_element* ne=list;
@@ -280,7 +280,7 @@ dynamic_protocol* protocols_manager::getDynProtocolByOrder(int order)
 /*!
  *Get the dynamic protocol by its name.
  */
-dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
+DynamicProtocol* ProtocolsManager::getDynProtocol(char *protocolName)
 {
 	dynamic_protocol_list_element* ne=list;
 	while(ne)
@@ -297,7 +297,7 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
  *Load all the protocols present in the directory.
  *Returns Nonzero on errors.
  */
-int protocols_manager::loadProtocols(char* directory, cXMLParser* parser,
+int ProtocolsManager::loadProtocols(char* directory, cXMLParser* parser,
                                      char* confFile, cserver* lserver)
 {
 	myserver_finddata_t fd;

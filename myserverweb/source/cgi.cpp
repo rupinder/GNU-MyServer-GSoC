@@ -55,12 +55,12 @@ extern "C" {
 /*!
  *By default use a timeout of 15 seconds on new processes.
  */
-int cgi::cgi_timeout = MYSERVER_SEC(15);
+int Cgi::cgi_timeout = MYSERVER_SEC(15);
 
 /*!
  *Run the standard CGI and send the result to the client.
  */
-int cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath, 
+int Cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath, 
               char *cgipath, int execute, int only_header)
 {
  	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
@@ -492,7 +492,7 @@ int cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath,
 		if(nph)
 		{
 			/*! Resetting the structure we send only the information gived by the CGI. */
-			http_headers::resetHTTPResponse(&(td->response));
+			HttpHeaders::resetHTTPResponse(&(td->response));
       strcpy(td->response.VER, td->request.VER);
 		}
 
@@ -501,13 +501,13 @@ int cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath,
 		{
       /*! Send the header.  */
 			if(headerSize)
-				http_headers::buildHTTPResponseHeaderStruct(&td->response, td, 
+				HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
                                                     (char*)td->buffer2->GetBuffer());
       /*! Always specify the size of the HTTP contents.  */
 			sprintf(td->response.CONTENT_LENGTH, "%u", 
               (u_int) (stdOutFile.getFileSize()-headerSize));
 
-			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+			HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
                                             &td->response);
 
 			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
@@ -634,7 +634,7 @@ int cgi::send(httpThreadContext* td, ConnectionPtr s, char* scriptpath,
  *Write the string that contain the CGI environment to cgiEnvString.
  *This function is used by other server side protocols too.
  */
-void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string, 
+void Cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string, 
                                     int processEnv)
 {
 	/*!
@@ -644,6 +644,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
    */
 	CMemBuf memCgi;
 	char strTmp[32];
+	char RANGETYPE[HTTP_REQUEST_RANGETYPE_DIM+1];	
 
 	memCgi.SetExternalBuffer(cgi_env_string, td->buffer2->GetRealLength());
 	memCgi << "SERVER_SOFTWARE=MyServer " << versionOfSoftware;
@@ -713,9 +714,6 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << end_str << "HTTP_COOKIE=";
 		memCgi << td->request.COOKIE;
 	}
-
-	char RANGETYPE[HTTP_REQUEST_RANGETYPE_DIM+1];	
-
 
 	if(td->request.RANGEBYTEBEGIN || td->request.RANGEBYTEEND)
 	{
@@ -827,7 +825,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << td->pathTranslated;
 	}
 	else
-	{
+  {
     memCgi << end_str << "PATH_TRANSLATED=";
 		memCgi << td->filenamePath;
 	}
@@ -836,7 +834,8 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	memCgi << td->filenamePath;
 	
 	/*!
-   * For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.
+   *For the DOCUMENT_URI and SCRIPT_NAME copy the 
+   *requested URI without the pathInfo.
    */
 	memCgi << end_str << "SCRIPT_NAME=/";
 	memCgi << td->request.URI;
@@ -890,7 +889,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 /*!
  *Set the CGI timeout for the new processes.
  */
-void cgi::setTimeout(int nt)
+void Cgi::setTimeout(int nt)
 {
    cgi_timeout = nt;
 }
@@ -898,7 +897,7 @@ void cgi::setTimeout(int nt)
 /*!
  *Get the timeout value for CGI processes.
  */
-int cgi::getTimeout()
+int Cgi::getTimeout()
 {
   return cgi_timeout;
 }

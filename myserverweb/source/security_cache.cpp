@@ -21,9 +21,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 
 /*!
- *Constructor for the security_cache object.
+ *Constructor for the SecurityCache object.
  */
-security_cache::security_cache()
+SecurityCache::SecurityCache()
 {
   /*!
    *By default store 25 nodes.
@@ -35,7 +35,7 @@ security_cache::security_cache()
 /*!
  *Get the error file name from the security file.
  */
-int security_cache::getErrorFileName(char *directory, int error, 
+int SecurityCache::getErrorFileName(char *directory, int error, 
                                      char* sysdirectory, char** out)
 {
 
@@ -113,15 +113,15 @@ int security_cache::getErrorFileName(char *directory, int error,
 /*!
  *Destroy the security cache object.
  */
-security_cache::~security_cache()
+SecurityCache::~SecurityCache()
 {
   free();
 }
 
 /*!
- *Free the memory used by the security_cache object.
+ *Free the memory used by the SecurityCache object.
  */
-void security_cache::free()
+void SecurityCache::free()
 {
   int i;
   for(i=1; i <= dictionary.nodesNumber(); i++ )
@@ -136,7 +136,7 @@ void security_cache::free()
 /*!
  *Set a limit on the nodes to keep in memory.
  */
-void security_cache::setMaxNodes(int new_limit)
+void SecurityCache::setMaxNodes(int new_limit)
 {
   limit = new_limit;
 }
@@ -144,7 +144,7 @@ void security_cache::setMaxNodes(int new_limit)
 /*!
  *Get the actual limit of open nodes.
  */
-int security_cache::getMaxNodes()
+int SecurityCache::getMaxNodes()
 {
   return limit;
 }
@@ -152,7 +152,7 @@ int security_cache::getMaxNodes()
 /*!
  *Get the permission mask for the specified file and user.
  */
-int security_cache::getPermissionMask(char* user, char* password,char* directory,
+int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
                                       char* filename,char *sysdirectory,
                                       char *password2,char* auth_type,
                                       int len_auth,int *permission2)

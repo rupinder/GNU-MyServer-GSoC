@@ -39,23 +39,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef WIN32
 class EXPORTABLE cgi_manager
 #else
-class cgi_manager
+class CgiManager
 #endif
 {
 private:
 	httpThreadContext* td;
-	cgi_data* cgidata;
+	MsCgiData* cgidata;
 	char localbuffer[LOCAL_BUFFER_DIM];
 public:
-	cgi_data* getCgiData();
+	MsCgiData* getCgiData();
 	void setContentType(char *);
 	int  setPageError(int);
 	int raiseError(int);
-	cgi_manager(cgi_data* data);
-	~cgi_manager(void);
+	CgiManager(MsCgiData* data);
+	~CgiManager(void);
 	int  operator <<(char*);
 	char*  operator >>(char*);
-	int   Start(cgi_data* data);
+	int   Start(MsCgiData* data);
 	int Clean();
 	void   getenv(char*,char*,unsigned int*);
 	char*  GetParam(char*);

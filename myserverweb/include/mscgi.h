@@ -25,8 +25,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cgi.h"
 #include "../include/filemanager.h"
 #include "../include/http_headers.h"
+#include "../include/http_data_handler.h"
 struct httpThreadContext;
-struct cgi_data
+
+struct MsCgiData
 {
 	char *envString;
 	httpThreadContext* td;
@@ -34,8 +36,9 @@ struct cgi_data
 	MYSERVER_FILE stdOut;
 
 };
-typedef int (*CGIMAIN)(char*,cgi_data*); 
-class mscgi
+typedef int (*CGIMAIN)(char*, MsCgiData*); 
+
+class MsCgi : public HttpDataHandler
 {
 public:
 	/*!
@@ -48,6 +51,6 @@ public:
 	*/
 	int send(httpThreadContext*, ConnectionPtr s, char* exec,
                 char* cmdLine=0, int execute=0, int only_header=0);
-	typedef int (*CGIMAIN)(char*,cgi_data*); 
+	typedef int (*CGIMAIN)(char*, MsCgiData*); 
 };
 #endif

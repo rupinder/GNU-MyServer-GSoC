@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
-class hash_dictionary
+class HashDictionary
 {
 private:
   struct sNode
@@ -31,8 +31,8 @@ private:
   int nodes_count;
   unsigned int hash(char *);
 public:
-  hash_dictionary();
-  ~hash_dictionary();
+  HashDictionary();
+  ~HashDictionary();
   void *getData(char*);
   void *getData(int);
   int append(char*, void*);

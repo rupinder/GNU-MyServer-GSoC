@@ -37,12 +37,12 @@ extern "C"
 /*!
  *Initialize the timeout value to 15 seconds.
  */
-u_long wincgi::timeout=MYSERVER_SEC(15);
+u_long WinCgi::timeout=MYSERVER_SEC(15);
 
 /*!
  *Set a new timeout value to use for new processes.
  */
-void wincgi::setTimeout(u_long ntimeout)
+void WinCgi::setTimeout(u_long ntimeout)
 {
   timeout = ntimeout;
 }
@@ -50,7 +50,7 @@ void wincgi::setTimeout(u_long ntimeout)
 /*!
  *Constructor for the wincgi class.
  */
-wincgi::wincgi()
+WinCgi::WinCgi()
 {
 
 }
@@ -58,7 +58,7 @@ wincgi::wincgi()
 /*!
  *Destructor for the wincgi class.
  */
-wincgi::~wincgi()
+WinCgi::~WinCgi()
 {
 
 }
@@ -66,7 +66,7 @@ wincgi::~wincgi()
 /*!
  *Get the timeout value for the new process. 
  */
-u_long wincgi::getTimeout()
+u_long WinCgi::getTimeout()
 {
   return timeout;
 }
@@ -74,7 +74,7 @@ u_long wincgi::getTimeout()
 /*!
  *Send the WinCGI data.
  */
-int wincgi::send(httpThreadContext* td,ConnectionPtr s,char* filename, 
+int WinCgi::send(httpThreadContext* td,ConnectionPtr s,char* filename, 
                  int /*execute*/, int only_header)
 {
 #ifdef WIN32
@@ -304,7 +304,7 @@ int wincgi::send(httpThreadContext* td,ConnectionPtr s,char* filename,
 	}
 	if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 		strcpy(td->response.CONNECTION,"Keep-Alive");
-	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,buffer);
+	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response,td,buffer);
 	/*!
    *Always specify the size of the HTTP contents.
    */
@@ -316,7 +316,7 @@ int wincgi::send(httpThreadContext* td,ConnectionPtr s,char* filename,
     /*!
      *Send the header if it is not appending.
      */
-		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+		HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
                                           &td->response);
 		s->socket.send((const char*)td->buffer->GetBuffer(),
                    (int)strlen((const char*)td->buffer->GetBuffer()), 0);
@@ -334,7 +334,7 @@ int wincgi::send(httpThreadContext* td,ConnectionPtr s,char* filename,
 	}
 	else
   {
-		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+		HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
                                           &td->response);
     if(only_header)
     {

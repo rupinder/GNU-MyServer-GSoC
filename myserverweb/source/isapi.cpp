@@ -27,31 +27,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Initialize the timeout value to 15 seconds.
  */
-u_long isapi::timeout=MYSERVER_SEC(15);
+u_long Isapi::timeout=MYSERVER_SEC(15);
 
-/*!
- *Set a new timeout value used with the isapi modules.
- */
-void isapi::setTimeout(u_long ntimeout)
-{
-  timeout = ntimeout;
-}
-
-/*!
- *Return the timeout value used with the isapi modules.
- */
-u_long isapi::getTimeout()
-{
-  return timeout;
-}
 
 #ifdef WIN32
 
-u_long isapi::max_Connections=0;
+u_long Isapi::max_Connections=0;
 static CRITICAL_SECTION GetTableEntryCritSec;
-int isapi::initialized=0;
-myserver_mutex *isapi::isapi_mutex=0;
-ConnTableRecord *isapi::connTable=0;
+int Isapi::initialized=0;
+myserver_mutex *Isapi::isapi_mutex=0;
+ConnTableRecord *Isapi::connTable=0;
 
 
 BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
@@ -60,9 +45,9 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 {
 	ConnTableRecord *ConnInfo;
 	
-	isapi::isapi_mutex->myserver_mutex_lock();
+	Isapi::isapi_mutex->myserver_mutex_lock();
 	ConnInfo = isapi::HConnRecord(hConn);
-	isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
     lserver->logLockAccess();
@@ -122,15 +107,15 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
       *lpdwSize=(DWORD)strlen((char*)lpvBuffer);
       break;
   case HSE_REQ_SEND_URL_REDIRECT_RESP:
-    return ((isapi*)ConnInfo->lisapi)->Redirect(ConnInfo->td,
+    return ((Isapi*)ConnInfo->lisapi)->Redirect(ConnInfo->td,
                               ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_SEND_URL:
-    return ((isapi*)ConnInfo->lisapi)->SendURI(ConnInfo->td,
+    return ((Isapi*)ConnInfo->lisapi)->SendURI(ConnInfo->td,
                                            ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_SEND_RESPONSE_HEADER:
-    return ((isapi*)ConnInfo->lisapi)->SendHeader(ConnInfo->td,
+    return ((Isapi*)ConnInfo->lisapi)->SendHeader(ConnInfo->td,
                                            ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_DONE_WITH_SESSION:
@@ -152,7 +137,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 /*!
  *Add a connection to the table.
  */
-ConnTableRecord *isapi::HConnRecord(HCONN hConn) 
+ConnTableRecord *Isapi::HConnRecord(HCONN hConn) 
 {
 	u_long connIndex;
 
@@ -173,7 +158,7 @@ ConnTableRecord *isapi::HConnRecord(HCONN hConn)
 /*!
  *Send an HTTP redirect.
  */
-int isapi::Redirect(httpThreadContext* td,ConnectionPtr a,char *URL) 
+int Isapi::Redirect(httpThreadContext* td,ConnectionPtr a,char *URL) 
 {
 	return ((http*)td->lhttp)->sendHTTPRedirect(td,a,URL);
 }
@@ -181,7 +166,7 @@ int isapi::Redirect(httpThreadContext* td,ConnectionPtr a,char *URL)
 /*!
  *Send an HTTP URI.
  */
-int isapi::SendURI(httpThreadContext* td,ConnectionPtr a,char *URL)
+int Isapi::SendURI(httpThreadContext* td,ConnectionPtr a,char *URL)
 {
 	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,0);
 }
@@ -189,7 +174,7 @@ int isapi::SendURI(httpThreadContext* td,ConnectionPtr a,char *URL)
 /*!
  *Send the ISAPI header.
  */
-int isapi::SendHeader(httpThreadContext* td,ConnectionPtr a,char *URL)
+int Isapi::SendHeader(httpThreadContext* td,ConnectionPtr a,char *URL)
 {
 	return ((http*)td->lhttp)->sendHTTPRESOURCE(td,a,URL,0,1);
 }
@@ -205,10 +190,10 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	u_long nbw=0;
 	if(*lpdwBytes==0)
 		return 1;
-	isapi::isapi_mutex->myserver_mutex_lock();
-	ConnInfo = isapi::HConnRecord(hConn);
+	Isapi::isapi_mutex->myserver_mutex_lock();
+	ConnInfo = Isapi::HConnRecord(hConn);
 	char* buffer=(char*)ConnInfo->td->buffer->GetBuffer();
-	isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
 		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
@@ -254,7 +239,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		if(headerSize)
 		{
 			int len = ConnInfo->headerSize-headerSize;
-      http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,
+      HttpHeaders::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,
                                   ConnInfo->td,(char*)ConnInfo->td->buffer->GetBuffer());
 			if(!ConnInfo->td->appendOutputs)
 			{
@@ -265,7 +250,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 					strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
 				else
 					strcpy(ConnInfo->td->response.CONNECTION,"Close");
-				http_headers::buildHTTPResponseHeader(
+				HttpHeaders::buildHTTPResponseHeader(
                  (char*)ConnInfo->td->buffer2->GetBuffer(),&(ConnInfo->td->response));
 	
 				if(ConnInfo->connection->socket.send(
@@ -357,7 +342,7 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSi
 	ConnTableRecord *ConnInfo;
 	u_long NumRead;
 
-	ConnInfo = isapi::HConnRecord(hConn);
+	ConnInfo = Isapi::HConnRecord(hConn);
 	if (ConnInfo == NULL) 
 	{
 		((vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
@@ -386,9 +371,9 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 {
 	ConnTableRecord *ConnInfo;
 	BOOL ret =1;
-	isapi::isapi_mutex->myserver_mutex_lock();
-	ConnInfo = isapi::HConnRecord(hConn);
-	isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->myserver_mutex_lock();
+	ConnInfo = Isapi::HConnRecord(hConn);
+	Isapi::isapi_mutex->myserver_mutex_unlock();
 	if (ConnInfo == NULL) 
 	{
     lserver->logLockAccess();
@@ -401,7 +386,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 
 	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
 	{
-		if(isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection, 
+		if(Isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection, 
                                   lpvBuffer, lpdwSize))
 			ret=1;
 		else
@@ -412,7 +397,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 			
 	}else if(!strcmp(lpszVariableName, "ALL_RAW")) 
 	{
-		if(isapi::buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
+		if(Isapi::buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
 			ret=1;
 		else
 		{
@@ -452,7 +437,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 /*!
  *Build the string that contains all the HTTP headers.
  */
-BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,ConnectionPtr /*!a*/,
+BOOL Isapi::buildAllHttpHeaders(httpThreadContext* td,ConnectionPtr /*!a*/,
                                 LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
@@ -532,7 +517,7 @@ BOOL isapi::buildAllHttpHeaders(httpThreadContext* td,ConnectionPtr /*!a*/,
 /*!
  *Build the string that contains all the headers.
  */
-BOOL isapi::buildAllRawHeaders(httpThreadContext* td,ConnectionPtr a,
+BOOL Isapi::buildAllRawHeaders(httpThreadContext* td,ConnectionPtr a,
                                LPVOID output,LPDWORD dwMaxLen)
 {
 	DWORD valLen=0;
@@ -611,7 +596,7 @@ BOOL isapi::buildAllRawHeaders(httpThreadContext* td,ConnectionPtr a,
 /*!
  *Main procedure to call an ISAPI module.
  */
-int isapi::send(httpThreadContext* td,ConnectionPtr connection, 
+int Isapi::send(httpThreadContext* td,ConnectionPtr connection, 
                 char* scriptpath,char *cgipath, int execute,int only_header)
 {
 /*!
@@ -650,12 +635,12 @@ int isapi::send(httpThreadContext* td,ConnectionPtr connection,
 	}
 	EnterCriticalSection(&GetTableEntryCritSec);
 	connIndex = 0;
-	isapi::isapi_mutex->myserver_mutex_lock();
+	Isapi::isapi_mutex->myserver_mutex_lock();
 	while ((connTable[connIndex].Allocated != 0) && (connIndex < max_Connections)) 
 	{
 		connIndex++;
 	}
-	isapi::isapi_mutex->myserver_mutex_unlock();
+	Isapi::isapi_mutex->myserver_mutex_unlock();
 	LeaveCriticalSection(&GetTableEntryCritSec);
 
 	if (connIndex == max_Connections) 
@@ -819,7 +804,7 @@ int isapi::send(httpThreadContext* td,ConnectionPtr connection,
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
   
 	connTable[connIndex].envString[0]='\0';
-	cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);
+	Cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);
   
 	ZeroMemory(&ExtCtrlBlk, sizeof(ExtCtrlBlk));
 	ExtCtrlBlk.cbSize = sizeof(ExtCtrlBlk);
@@ -905,7 +890,7 @@ int isapi::send(httpThreadContext* td,ConnectionPtr connection,
 /*!
 *Constructor for the ISAPI class.
 */
-isapi::isapi()
+Isapi::Isapi()
 {
 
 }
@@ -913,7 +898,7 @@ isapi::isapi()
 /*!
 *Initialize the ISAPI engine under WIN32.
 */
-int isapi::load()
+int Isapi::load()
 {
 #ifdef WIN32
   u_long n_threads = lserver->getNumThreads();
@@ -936,7 +921,7 @@ int isapi::load()
 /*!
  *Cleanup the memory used by ISAPI.
  */
-int isapi::unload()
+int Isapi::unload()
 {
 #ifdef WIN32
 	delete isapi_mutex;
@@ -947,4 +932,22 @@ int isapi::unload()
 	initialized=0;
 #endif
   return 0;
+}
+
+
+
+/*!
+ *Set a new timeout value used with the isapi modules.
+ */
+void Isapi::setTimeout(u_long ntimeout)
+{
+  timeout = ntimeout;
+}
+
+/*!
+ *Return the timeout value used with the isapi modules.
+ */
+u_long Isapi::getTimeout()
+{
+  return timeout;
 }

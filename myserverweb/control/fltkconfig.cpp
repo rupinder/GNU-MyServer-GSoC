@@ -2501,8 +2501,8 @@ Fl_Double_Window* MainDlg::make_window() {
     o->end();
   }
   // Set FLTK function's text
-(char *)fl_ok = gettext("OK");
-(char *)fl_cancel = gettext("Cancel");
+  fl_ok = gettext("OK");
+  fl_cancel = gettext("Cancel");
   return w;
 }
 

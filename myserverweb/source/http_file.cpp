@@ -41,8 +41,8 @@ extern "C"
 /*!
  *Send a file to the client using the HTTP protocol.
  */
-int http_file::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath, 
-                    char* /*exec*/,int only_header)
+int HttpFile::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath, 
+                   char* /*exec*/,int only_header)
 {
 	/*!
    *With this routine we send a file through the HTTP protocol.
@@ -158,7 +158,7 @@ int http_file::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath,
 		strcpy(td->response.CONTENT_ENCODING, "gzip");
 	}
 
-	http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
+	HttpHeaders::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), 
                                         &td->response);
 	td->buffer->SetLength((u_long)strlen((char*)td->buffer->GetBuffer()));
 	if(!td->appendOutputs)
@@ -313,7 +313,7 @@ int http_file::send(httpThreadContext* td, ConnectionPtr s, char *filenamePath,
 /*!
  *Constructor for the class.
  */
-http_file::http_file()
+HttpFile::HttpFile()
 {
 
 }
@@ -321,7 +321,7 @@ http_file::http_file()
 /*!
  *Destroy the object.
  */
-http_file::~http_file()
+HttpFile::~HttpFile()
 {
 
 }
@@ -329,7 +329,7 @@ http_file::~http_file()
 /*!
  *Load the static elements.
  */
-int http_file::load()
+int HttpFile::load()
 {
   return 0;
 }
@@ -337,7 +337,7 @@ int http_file::load()
 /*!
  *Unload the static elements.
  */
-int http_file::unload()
+int HttpFile::unload()
 {
   return 0;
 }

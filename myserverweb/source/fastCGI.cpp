@@ -25,23 +25,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cgi.h"
 #include "../include/http.h"
 #include "../include/HTTPmsg.h"
-
-struct sfCGIservers *fastcgi::fCGIservers = 0;
+struct sfCGIservers *FastCgi::fCGIservers = 0;
 
 /*! Number of thread currently loaded. */
-int fastcgi::fCGIserversN=0;
+int FastCgi::fCGIserversN=0;
 
 /*! Is the fastcgi initialized? */
-int fastcgi::initialized=0;
+int FastCgi::initialized=0;
 
 /*! By default allows 25 servers. */
-int fastcgi::max_fcgi_servers=25;
+int FastCgi::max_fcgi_servers=25;
 
 /*! Use a default timeout of 15 seconds. */
-int fastcgi::timeout=MYSERVER_SEC(15);
+int FastCgi::timeout=MYSERVER_SEC(15);
 
 /*! Mutex used to access fastCGI servers. */
-myserver_mutex fastcgi::servers_mutex;
+myserver_mutex FastCgi::servers_mutex;
+
 struct fourchar
 {	
 	union
@@ -54,7 +54,7 @@ struct fourchar
 /*!
  *Set a new value for the max number of servers that can be executed.
  */
-void fastcgi::setMaxFcgiServers(int max)
+void FastCgi::setMaxFcgiServers(int max)
 {
   max_fcgi_servers = max;
 }
@@ -62,7 +62,7 @@ void fastcgi::setMaxFcgiServers(int max)
 /*!
  *Get the max number of servers that can be executed.
  */
-int fastcgi::getMaxFcgiServers()
+int FastCgi::getMaxFcgiServers()
 {
   return max_fcgi_servers;
 }
@@ -70,7 +70,7 @@ int fastcgi::getMaxFcgiServers()
 /*!
  *Entry-Point to manage a FastCGI request.
  */
-int fastcgi::send(httpThreadContext* td, ConnectionPtr connection,
+int FastCgi::send(httpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute, int only_header)
 {
 	fCGIContext con;
@@ -181,7 +181,7 @@ int fastcgi::send(httpThreadContext* td, ConnectionPtr connection,
     }
 		sprintf(fullpath,"%s",cgipath);
 	}
-  cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
+  Cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),
                                               (char*)td->buffer2->GetBuffer());
   if(sizeEnvString == -1)
@@ -498,8 +498,8 @@ int fastcgi::send(httpThreadContext* td, ConnectionPtr connection,
 	}
 	sprintf(td->response.CONTENT_LENGTH, "%u", 
           (u_int)(con.tempOut.getFileSize()-headerSize));
-	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,
-                                              (char*)td->buffer->GetBuffer());
+	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response,td,
+                                             (char*)td->buffer->GetBuffer());
 
 	for(;;)
 	{
@@ -518,7 +518,7 @@ int fastcgi::send(httpThreadContext* td, ConnectionPtr connection,
 		{
 			if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 				strcpy(td->response.CONNECTION,"Keep-Alive");		
-			http_headers::buildHTTPResponseHeader((char*)td->buffer2->GetBuffer(),
+			HttpHeaders::buildHTTPResponseHeader((char*)td->buffer2->GetBuffer(),
                                             &td->response);
 			if(td->connection->socket.send( (char*)td->buffer2->GetBuffer(),
                                       (int)strlen((char*)td->buffer2->GetBuffer()),
@@ -614,7 +614,7 @@ int fastcgi::send(httpThreadContext* td, ConnectionPtr connection,
  *Send the buffer content over the FastCGI connection
  *Return non-zero on errors.
  */
-int fastcgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
+int FastCgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 {
 	FCGI_Header header;
 	generateFcgiHeader( header, type, id, len );
@@ -629,7 +629,7 @@ int fastcgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 /*!
  *Trasform from a standard environment string to the FastCGI environment string.
  */
-int fastcgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
+int FastCgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 {
 	char *ptr=ep;
 	char *sptr=sp;
@@ -699,7 +699,7 @@ int fastcgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 /*!
  *Fill the FCGI_Header structure
  */
-void fastcgi::generateFcgiHeader( FCGI_Header &header, int iType,
+void FastCgi::generateFcgiHeader( FCGI_Header &header, int iType,
                                   int iRequestId, int iContentLength )
 {
 	header.version = FCGI_VERSION_1;
@@ -715,7 +715,7 @@ void fastcgi::generateFcgiHeader( FCGI_Header &header, int iType,
 /*!
  *Constructor for the FASTCGI class
  */
-fastcgi::fastcgi()
+FastCgi::FastCgi()
 {
 	initialized=0;
 }
@@ -723,7 +723,7 @@ fastcgi::fastcgi()
 /*!
  *Initialize the FastCGI protocol implementation
  */
-int fastcgi::load()
+int FastCgi::load()
 {
 	if(initialized)
 		return 1;
@@ -738,7 +738,7 @@ int fastcgi::load()
 /*!
  *Clean the memory and the processes occuped by the FastCGI servers
  */
-int fastcgi::unload()
+int FastCgi::unload()
 {
   sfCGIservers* list = fCGIservers;
   servers_mutex.myserver_mutex_lock();
@@ -767,7 +767,7 @@ int fastcgi::unload()
  *Return the the running server speicified by path.
  *If the server is not running returns 0.
  */
-sfCGIservers* fastcgi::isFcgiServerRunning(char* path)
+sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
 {
   servers_mutex.myserver_mutex_lock();
 
@@ -788,7 +788,7 @@ sfCGIservers* fastcgi::isFcgiServerRunning(char* path)
 /*!
  *Get a client socket in the fCGI context structure
  */
-int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
+int FastCgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 {
 	MYSERVER_HOSTENT *hp=MYSERVER_SOCKET::gethostbyname(server->host);
 	struct sockaddr_in sockAddr;
@@ -821,7 +821,7 @@ int fastcgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 /*!
  *Get a connection to the FastCGI server.
  */
-sfCGIservers* fastcgi::FcgiConnect(fCGIContext* con,char* path)
+sfCGIservers* FastCgi::FcgiConnect(fCGIContext* con,char* path)
 {
 
 	sfCGIservers* server = runFcgiServer(con, path);
@@ -844,7 +844,7 @@ sfCGIservers* fastcgi::FcgiConnect(fCGIContext* con,char* path)
  *Run the FastCGI server.
  *If the path starts with a @ character, the path is handled as a remote server.
  */
-sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
+sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 {
   /*! Flag to identify a local server(running on localhost) from a remote one. */
 	int localServer;
@@ -982,7 +982,7 @@ sfCGIservers* fastcgi::runFcgiServer(fCGIContext*,char* path)
 /*!
  *Return the timeout value.
  */
-int fastcgi::getTimeout()
+int FastCgi::getTimeout()
 {
   return timeout;
 }
@@ -990,7 +990,7 @@ int fastcgi::getTimeout()
 /*!
  *Set a new timeout.
  */
-void fastcgi::setTimeout(int ntimeout)
+void FastCgi::setTimeout(int ntimeout)
 {
   timeout = ntimeout;
 }

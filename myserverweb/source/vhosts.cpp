@@ -1254,7 +1254,7 @@ int vhost::initializeSSL()
   sslContext.method = 0;
 #ifndef DO_NOT_USE_SSL
 
-	dynamic_protocol* dp = lserver->getDynProtocol(protocol_name);
+	DynamicProtocol* dp = lserver->getDynProtocol(protocol_name);
   if(this->protocol<1000 && !(dp && ( dp->getOptions() &  PROTOCOL_USES_SSL ))  )
     return -2;
   sslContext.method = SSLv23_method();

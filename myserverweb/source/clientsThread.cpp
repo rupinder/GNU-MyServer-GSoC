@@ -238,7 +238,7 @@ int ClientsThread::controlConnections()
    */
   int retcode=0;
   ConnectionPtr c;
-  dynamic_protocol* dp=0;
+  DynamicProtocol* dp=0;
 	/*!
    *Get the access to the connections list.
    */

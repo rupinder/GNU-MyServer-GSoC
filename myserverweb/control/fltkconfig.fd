@@ -994,8 +994,8 @@ else {
       }
     }
     code {// Set FLTK function's text
-(char *)fl_ok = gettext("OK");
-(char *)fl_cancel = gettext("Cancel");} {}
+  fl_ok = gettext("OK");
+  fl_cancel = gettext("Cancel");} {}
   }
   Function {make_type()} {} {
     Fl_Window ConfTypeDlg {
