@@ -26,6 +26,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/securestr.h"
 #include <string.h>
 
+/*!
+ *Secure string concatenate routine.
+ */
 unsigned int myserver_strlcat(char *destination, const char *source, size_t size)
 {
 	char *dstptr=destination;
@@ -56,7 +59,9 @@ unsigned int myserver_strlcat(char *destination, const char *source, size_t size
 	return((int)(dstlen+(srcptr-source)));
 }
 
-   
+/*!
+ *Secure string copy routine.
+ */   
 unsigned int myserver_strlcpy(char *destination, const char *source, unsigned int size)
 {
 	char *dstptr=destination;
@@ -84,5 +89,3 @@ unsigned int myserver_strlcpy(char *destination, const char *source, unsigned in
 	
 	return((int)(srcptr-source-1));
 }
-
-

@@ -165,6 +165,16 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
 	cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),
                                               (char*)td->buffer2->GetBuffer());
+  if(sizeEnvString == -1)
+  {
+    delete [] fullpath;
+		td->buffer->SetLength(0);
+		*td->buffer<< "Error FastCGI to build env string\r\n" << '\0';
+		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
+		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+  }
 	td->inputData.closeFile();
 	td->inputData.openFile(td->inputDataPath,
                          MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS | 
@@ -553,17 +563,23 @@ int fastcgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 		varNameLen.i=varValueLen.i=0;
 		varName[0]='\0';
 		varValue[0]='\0';
-		while(*sptr != '=')
+    int max = 100;
+		while((--max) && *sptr != '=')
 		{
 			varName[varNameLen.i++]=*sptr++;
 			varName[varNameLen.i]='\0';
 		}
+    if(max == 0)
+      return -1;
 		sptr++;
-		while(*sptr != '\0')
+    max = 2500;
+		while((--max) && *sptr != '\0')
 		{
 			varValue[varValueLen.i++]=*sptr++;
 			varValue[varValueLen.i]='\0';
 		}
+    if(max == 0)
+      return -1;
 		if(varNameLen.i > 127)
 		{
 			unsigned char fb=varValueLen.c[3]|0x80;
@@ -590,9 +606,9 @@ int fastcgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 			*ptr++=varValueLen.c[0];
 		}
 		u_long i;
-		for(i=0;i<varNameLen.i;i++)
+		for(i=0;i<varNameLen.i; i++)
 			*ptr++=varName[i];
-		for(i=0;i<varValueLen.i;i++)
+		for(i=0;i<varValueLen.i; i++)
 			*ptr++=varValue[i];
 		if(*(++sptr)=='\0')
 			break;

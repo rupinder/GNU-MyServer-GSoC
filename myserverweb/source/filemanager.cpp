@@ -186,6 +186,11 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
   		if(ret)
       {
         closeFile();
+        if(filename)
+        {
+          delete [] filename;
+        }
+        filename = 0;
         return 1;
       }
 	}
@@ -229,7 +234,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		{
       if(filename)
         delete [] filename;
-	  filename = 0;
+      filename = 0;
 			return 1;
 		}
 		ret = open(Buffer,F_Flags);
@@ -237,7 +242,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
     {
       if(filename)
         delete [] filename;
-	  filename = 0;
+      filename = 0;
 			return 1;
     }
 		handle= (MYSERVER_FILE_HANDLE)ret;
@@ -253,7 +258,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
      {
       if(filename)
         delete [] filename;
-	  filename = 0;
+      filename = 0;
 			return 1;
     }
 		else
@@ -287,7 +292,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
     {
       if(filename)
         delete [] filename;
-	  filename = 0;
+      filename = 0;
 			return 1;
     }
 		else
@@ -302,7 +307,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		handle = (MYSERVER_FILE_HANDLE)0;
     if(filename)
       delete [] filename;
-	filename = 0;
+    filename = 0;
   }
 #endif
 	
