@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef HAVE_PTHREAD
 	typedef pthread_mutex_t  myserver_mutex;
 #else
-	typedef (void*) myserver_mutex;
+	typedef HANDLE myserver_mutex;
 #endif
 
 

@@ -42,39 +42,14 @@ extern "C" {
 
 
 /*!
-*This function is similar to the Windows API WaitForSingleObject(..)
+*Lock the mutex
 */
 int myserver_mutex_lock(myserver_mutex* ac,u_long id)
 {
 #ifdef HAVE_PTHREAD
 	pthread_mutex_lock(ac);
 #else	
-	/*!
-	*If the access ID is equal to the thread ID we don't do nothing.
-	*/
-	if(*ac==id)
-		return 0;
-	/*!
-	*if the access doesn't belong to any thread then set that it belongs to the caller thread
-	*and check if we have the access now.
-	*/
-	do
-	{
-		if(*ac==0)
-		{
-			*ac=id;
-			myserver_mutex_lock(ac,id);
-			return 0;
-		}
-	}
-	/*!
-	*Wait until another thread ends the access, then set our access.
-	*/
-	while(*ac);
-
-
-	*ac=id;
-	myserver_mutex_lock(ac,id);
+	WaitForSingleObject(*ac,INFINITE);
 #endif
 	return 0;
 }
@@ -86,10 +61,7 @@ int myserver_mutex_unlock(myserver_mutex* ac,u_long/*! id*/)
 #ifdef HAVE_PTHREAD
 	pthread_mutex_unlock(ac);
 #else		
-	/*!
-	*Only set to Zero the owner of the access.
-	*/
-	*ac=0;
+	ReleaseMutex(*ac);
 #endif
 	return 0;
 }
@@ -115,7 +87,7 @@ int	myserver_mutex_init(myserver_mutex* mutex)
 #ifdef HAVE_PTHREAD
 	pthread_mutex_init(mutex, NULL);
 #else
-	*mutex=0;
+	*mutex=CreateMutex(0,0,0);
 #endif
 	
 	return 1;
@@ -127,6 +99,8 @@ int myserver_mutex_destroy(myserver_mutex *mutex)
 {
 #ifdef HAVE_PTHREAD
 	pthread_mutex_destroy(mutex);	
+#else
+	CloseHandle(*mutex);
 #endif
 	return 1;
 }
