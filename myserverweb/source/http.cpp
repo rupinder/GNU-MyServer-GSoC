@@ -1837,7 +1837,7 @@ int http::logHTTPaccess(httpThreadContext* td, LPCONNECTION a)
 	}
   sprintf(tmpStrInt, "%u ",td->response.httpStatus);
 
-	*td->buffer2 << td->request.VER  << "\" " << tmpStrInt  << " ";
+	*td->buffer2 << " " << td->request.VER  << "\" " << tmpStrInt  << " ";
 	
 	if(td->response.CONTENT_LENGTH[0])
 		*td->buffer2  << td->response.CONTENT_LENGTH;

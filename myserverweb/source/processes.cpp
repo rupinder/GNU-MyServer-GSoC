@@ -65,7 +65,8 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	si.wShowWindow = SW_HIDE;
 	PROCESS_INFORMATION pi;
 	ZeroMemory( &pi, sizeof(pi) );
-	ret = CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+	ret = CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,
+                      spi->envString,spi->cwd,&si, &pi);
 	if(!ret)
 		return (u_long)(-1);
 	/*!
@@ -122,7 +123,7 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		}
 		// If stdOut is -1, pipe to /dev/null
 		if((int)spi->stdOut == -1)
-			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null",O_WRONLY);
+			spi->stdOut = (MYSERVER_FILE_HANDLE)open("/dev/null", O_WRONLY);
 		// map stdio to files
 		ret=close(0); // close stdin
 		if(ret == -1)
@@ -147,13 +148,15 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		// Run the script
 		if(spi->arg != NULL)
 		{
-			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), (const char*)(spi->arg), NULL, envp);
+			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), 
+                 (const char*)(spi->arg), NULL, envp);
 			if(ret == -1)
 				return (u_long)(-1);
 		}
 		else
 		{
-			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), NULL, envp);
+			ret=execle((const char*)(spi->cmd), (const char*)(spi->cmd), 
+                 NULL, envp);
 			if(ret == -1)
 				return (u_long)(-1);	
 		}
