@@ -99,6 +99,8 @@ void vhost::clearIPList()
 void vhost::addIP(char *ip)
 {
 	sIpList* il=new sIpList();
+        if(il==0)
+            return;
 	strcpy(il->hostIp,ip);
 	if(ipList)
 	{
@@ -233,6 +235,8 @@ int vhost::isIPAllowed(char* ip)
 void vhost::addHost(char *host)
 {
 	sHostList* hl=new sHostList();
+        if(hl==0)
+            return;
 	strcpy(hl->hostName,host);
 	if(hostList)
 	{
@@ -346,7 +350,8 @@ void vhostmanager::addvHost(vhost* vHost)
 				break;
 		}
 		hostl->next =new sVhostList();	
-
+                if(hostl->next==0)
+                    return;
 		hostl->next ->next =0;/*!Make sure that next is null*/
 		hostl->next ->host=vHost;
 	}
@@ -468,6 +473,8 @@ void vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 		if(buffer[0]=='\0')/*!If the buffer is only a point, we reached the file end*/
 			break;		
 		vhost *vh=new vhost();
+                if(vh==0)
+                    return;
 		/*!Parse the line*/
 
 		int cc=0;
@@ -754,6 +761,8 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			continue;
 		xmlNodePtr lcur=node->children;
 		vhost *vh=new vhost();
+                if(vh==0)
+                    return;        
 		memset(vh,0,sizeof(vh));
 
 		while(lcur)
@@ -811,11 +820,23 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
 			{
 				strcpy(vh->systemRoot,(char*)lcur->children->content);
-			}
+                    }
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 			{
-				strcpy(vh->accessesLogFileName,(char*)lcur->children->content);
-			}
+                            vh->accessLogOpt[0]='\0';                
+                            strcpy(vh->accessesLogFileName,(char*)lcur->children->content);
+                            xmlAttr *attr =  lcur->properties;
+                            while(attr)
+                            {
+                                strcat(vh->accessLogOpt,(char*)attr->name);
+                                strcat(vh->accessLogOpt,"=");
+                                strcat(vh->accessLogOpt,(char*)attr->children->content);
+                                if(attr->next)
+                                    strcat(vh->accessLogOpt,",");
+                                attr=attr->next;
+                            }
+        		}
+          
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
 			{
 				strcpy(vh->warningsLogFileName,(char*)lcur->children->content);
@@ -940,16 +961,18 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 int vhost::initializeSSL()
 {
 #ifndef DO_NOT_USE_SSL
-	if(this->protocol!=PROTOCOL_HTTPS)
-		return -2;
-	sslContext.method = SSLv23_method();
-	sslContext.context = SSL_CTX_new(sslContext.method);
-	if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,sslContext.certificateFile)))
-		return -1;
-	SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, sslContext.password);
-	SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
-	if(!(SSL_CTX_use_PrivateKey_file(sslContext.context,sslContext.privateKeyFile,SSL_FILETYPE_PEM)))
-		return -1;
+    if(this->protocol!=PROTOCOL_HTTPS)
+        return -2;
+    sslContext.method = SSLv23_method();
+    sslContext.context = SSL_CTX_new(sslContext.method);
+    if(sslContext.context==0)
+        return -1;
+    if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,sslContext.certificateFile)))
+	return -1;
+    SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, sslContext.password);
+    SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
+    if(!(SSL_CTX_use_PrivateKey_file(sslContext.context,sslContext.privateKeyFile,SSL_FILETYPE_PEM)))
+        return -1;
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
 		SSL_CTX_set_verify_depth(ctx,1);
 #endif
@@ -964,14 +987,14 @@ int vhost::initializeSSL()
 void vhost::generateRsaKey()
 {
 #ifndef DO_NOT_USE_SSL
-	RSA *rsa;
+    RSA *rsa;
 
-	rsa=RSA_generate_key(512,RSA_F4,NULL,NULL);
+    rsa=RSA_generate_key(512,RSA_F4,NULL,NULL);
 
-	if (!SSL_CTX_set_tmp_rsa(sslContext.context,rsa))
-		return;
+    if (!SSL_CTX_set_tmp_rsa(sslContext.context,rsa))
+        return;
 
-	RSA_free(rsa);
+    RSA_free(rsa);
 #endif
 }
 

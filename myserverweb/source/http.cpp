@@ -1183,8 +1183,16 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 		strcat(td->buffer2,td->response.CONTENT_LENGTH);
 	else
 		strcat(td->buffer2,"0");
+        if(strstr((((vhost*)(a->host)))->accessLogOpt,"type=combined"))
+        {
+            strcat(td->buffer2," ");
+            strcat(td->buffer2,td->request.REFERER);
+            strcat(td->buffer2," ");
+            strcat(td->buffer2,td->request.USER_AGENT);            
+        }
 	strcat(td->buffer2,"\r\n");
-	/*
+
+        /*
 	*Request the access to the log file then write then append the message
 	*/
 	((vhost*)(a->host))->accesseslogRequestAccess(td->id);

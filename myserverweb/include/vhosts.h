@@ -84,6 +84,7 @@ public:
 #else
 	void* getSSLContext();
 #endif
+       char accessLogOpt[200];
 	char documentRoot[MAX_PATH];/*!Path to the document root*/
 	char systemRoot[MAX_PATH];/*!Path to the system root*/
 	char accessesLogFileName[MAX_PATH];/*!Path to the accesses log file*/
