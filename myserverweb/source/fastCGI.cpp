@@ -141,8 +141,13 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	int exit=0;
 	const clock_t timeout= CLOCKS_PER_SEC * 20; // 20 seconds
 	clock_t time1 = get_ticks();
-	td->outputData.closeFile();	
-	td->outputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_NO_INHERIT);
+	
+	char outDataPath[MAX_PATH];
+	
+	getdefaultwd(outDataPath,MAX_PATH);
+	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFile_%u",td->id);
+	
+	con.tempOut.openFile(outDataPath,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_NO_INHERIT);
 	do	
 	{
 		while(con.sock.bytesToRead()<sizeof(FCGI_Header))
@@ -202,7 +207,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 							exit = 1;
 							break;
 						}
-						td->outputData.writeToFile((char*)(td->buffer),nbr,&nbw);
+						con.tempOut.writeToFile((char*)(td->buffer),nbr,&nbw);
 						dataSent+=nbw;
 					}
 					break;
@@ -217,9 +222,9 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		}
 	}while((!exit) && nbr);
 	u_long headerSize=0;
-	td->outputData.setFilePointer(0);
+	con.tempOut.setFilePointer(0);
 	td->buffer[0]='\0';
-	td->outputData.readFromFile(td->buffer,KB(5),&nbr);
+	con.tempOut.readFromFile(td->buffer,td->buffersize,&nbr);
 	for(u_long i=0;i<nbr;i++)
 	{
 		if((td->buffer[i]=='\r')&&(td->buffer[i+1]=='\n')&&(td->buffer[i+2]=='\r')&&(td->buffer[i+3]=='\n'))
@@ -228,7 +233,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 			break;
 		}
 	}
-	sprintf(td->response.CONTENT_LENGTH,"%u",td->outputData.getFileSize()-headerSize);
+	sprintf(td->response.CONTENT_LENGTH,"%u",con.tempOut.getFileSize()-headerSize);
 	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,td->buffer);
 	for(;;)
 	{
@@ -248,31 +253,50 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 			((http*)td->lhttp)->sendHTTPRedirect(td,connection,nURL);
 			break;
 		}
-		if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
-			strcpy(td->response.CONNECTION,"Keep-Alive");		
-		http_headers::buildHTTPResponseHeader(td->buffer2,&td->response);
-		if(td->connection->socket.send(td->buffer2,(int)strlen(td->buffer2), 0)==0)
+		
+		if(!td->appendOutputs)/*Send the header*/
 		{
-			exit = 1;
-			break;
+			if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
+				strcpy(td->response.CONNECTION,"Keep-Alive");		
+			http_headers::buildHTTPResponseHeader(td->buffer2,&td->response);
+			if(td->connection->socket.send(td->buffer2,(int)strlen(td->buffer2), 0)==0)
+			{
+				exit = 1;
+				break;
+			}
+			if(td->connection->socket.send((char*)(td->buffer+headerSize),nbr-headerSize, 0)==0)
+			{
+				exit = 1;
+				break;
+			}			
 		}
-		if(td->connection->socket.send((char*)(td->buffer+headerSize),nbr-headerSize, 0)==0)
+		else
 		{
-			exit = 1;
-			break;
+			u_long nbw=0;
+			td->outputData.writeToFile((char*)(td->buffer+headerSize),nbr-headerSize,&nbw);
 		}
+
 		do
 		{
-			td->outputData.readFromFile(td->buffer,td->buffersize,&nbr);
-			if(td->connection->socket.send((char*)td->buffer,nbr, 0)==0)
+			con.tempOut.readFromFile(td->buffer,td->buffersize,&nbr);
+			
+			if(!td->appendOutputs)/*Send the header*/
 			{
-				break;
+				if(td->connection->socket.send((char*)td->buffer,nbr, 0)==0)
+				{
+					break;
+				}
+			}
+			else
+			{
+				u_long nbw=0;
+				td->outputData.writeToFile(td->buffer,nbr,&nbw);
 			}
 		}while(nbr);
 		break;
 	}
-	td->outputData.closeFile();
-	MYSERVER_FILE::deleteFile(td->inputDataPath);
+	con.tempOut.closeFile();
+	MYSERVER_FILE::deleteFile(outDataPath);
 	con.sock.closesocket();
 	return 1;
 }

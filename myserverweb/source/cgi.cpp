@@ -111,8 +111,9 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
     *created because more threads can access more CGI at the same time.
     */
 	char currentpath[MAX_PATH];
-	getdefaultwd(currentpath,MAX_PATH);
-	sprintf(td->outputDataPath,"%s/stdOutFile_%u",currentpath,(unsigned int)td->id);
+	char outputDataPath[MAX_PATH];
+	getdefaultwd(outputDataPath,MAX_PATH);
+	sprintf(outputDataPath,"%s/stdOutFileCGI_%u",currentpath,(unsigned int)td->id);
 
 		
 	/*!
@@ -120,7 +121,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	*to get other params like in a POST request.
 	*/
 	MYSERVER_FILE stdOutFile;
-	stdOutFile.createTemporaryFile(td->outputDataPath);
+	stdOutFile.createTemporaryFile(outputDataPath);
 	MYSERVER_FILE stdInFile;
 	td->inputData.closeFile();	
 	stdInFile.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
@@ -157,7 +158,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	*/
 	u_long nBytesRead=0;
 	if(!stdOutFile.setFilePointer(0))
-		stdOutFile.readFromFile(td->buffer2,KB(5),&nBytesRead);
+		stdOutFile.readFromFile(td->buffer2,td->buffersize2,&nBytesRead);
 	else
 		td->buffer2[0]='\0';
 		
@@ -230,22 +231,33 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			*/
 			http_headers::resetHTTPResponse(&(td->response));
 		}
-		if(headerSize)
-			http_headers::buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
-		/*!
-		*Always specify the size of the HTTP contents.
-		*/
-		sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
-		http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
-		s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
-		s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
-		
-		
+		u_long nbw=0;
+
+		if(!td->appendOutputs)/*Send the header*/
+		{
+			if(headerSize)
+				http_headers::buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
+			/*!
+			*Always specify the size of the HTTP contents.
+			*/
+			sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
+			http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
+			
+			s->socket.send(td->buffer,(int)strlen(td->buffer), 0);		
+			s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+		}
+		else
+			td->outputData.writeToFile((char*)(td->buffer2+headerSize),nBytesRead-headerSize,&nbw);
+				
 		while(stdOutFile.readFromFile(td->buffer2,td->buffersize2,&nBytesRead))
 		{
 			if(nBytesRead)
 			{
-				s->socket.send((char*)td->buffer2,nBytesRead, 0);
+				
+				if(!td->appendOutputs)/*Send the header*/
+					s->socket.send((char*)td->buffer2,nBytesRead, 0);
+				else
+					td->outputData.writeToFile((char*)td->buffer2,nBytesRead,&nbw);
 			}
 			else
 				break;

@@ -56,6 +56,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	sprintf(&dataFilePath[strlen(dataFilePath)],"/data_%u.ini",td->id);
 	
 	strcpy(outFilePath,td->outputDataPath);
+	strcat(outFilePath,"WC");
 	td->inputData.setFilePointer(0);
 	/*!
 	*The WinCGI protocol uses a .ini file for the communication between the processes.
@@ -220,7 +221,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	u_long nBytesRead=0;
-	OutFileHandle.readFromFile(td->buffer2,KB(5),&nBytesRead);
+	OutFileHandle.readFromFile(td->buffer2,td->buffersize2,&nBytesRead);
 	if(nBytesRead==0)
 	{
 		sprintf(td->buffer,"Error zero bytes read from the WinCGI output file\r\n");
@@ -254,13 +255,25 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	*Always specify the size of the HTTP contents.
 	*/
 	sprintf(td->response.CONTENT_LENGTH,"%u",OutFileHandle.getFileSize()-headerSize);
-	http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
-	s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
-	s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+	u_long nbw=0;
+	if(!td->appendOutputs)/*Send the header*/
+	{
+		http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
+		s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
+		s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+	}
+	else
+		td->outputData.writeToFile((char*)(td->buffer2+headerSize),nBytesRead-headerSize,&nbw);
+		
 	while(OutFileHandle.readFromFile(td->buffer2,td->buffersize2,&nBytesRead))
 	{
 		if(nBytesRead)
-			s->socket.send((char*)td->buffer2,nBytesRead, 0);
+		{
+			if(td->appendOutputs)
+				td->outputData.writeToFile(td->buffer2,nBytesRead,&nbw);
+			else
+				s->socket.send((char*)td->buffer2,nBytesRead, 0);
+		}
 		else
 			break;
 	}

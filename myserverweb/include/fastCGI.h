@@ -160,6 +160,7 @@ struct fCGIContext
 	httpThreadContext* td;
 	int fcgiPID;
 	MYSERVER_SOCKET sock;
+	MYSERVER_FILE tempOut;
 };
 struct sfCGIservers
 {

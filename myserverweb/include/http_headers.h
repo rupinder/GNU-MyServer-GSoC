@@ -54,6 +54,7 @@ extern class CBase64Utils base64Utils;
 */
 struct httpThreadContext
 {
+	int appendOutputs;/*Used by SSI*/
 	LPCONNECTION connection;
 	char *buffer;
 	char *buffer2;

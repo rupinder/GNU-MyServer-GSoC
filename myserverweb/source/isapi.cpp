@@ -145,9 +145,10 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		return FALSE;
 	}
 	int keepalive = (lstrcmpi(ConnInfo->td->request.CONNECTION,"Keep-Alive")==0) ? 1 : 0 ;
+
 	char chunk_size[15];
-	int nbw=0;
-	if(!ConnInfo->headerSent)
+	u_long nbw=0;
+	if(!ConnInfo->headerSent)/*If the HTTP header was sent do not send it again*/
 	{
 		strncat(ConnInfo->td->buffer,((char*)Buffer),*lpdwBytes);
 		ConnInfo->headerSize+=*lpdwBytes;
@@ -164,42 +165,50 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 							break;
 						}
 			if((ConnInfo->td->buffer[i]=='\n'))
+			{
 				if(ConnInfo->td->buffer[i+1]=='\n')
 				{
 					headerSize=i+2;
 					ConnInfo->td->buffer[i+1]='\0';
 					break;
 				}
+			}
 		}
-		if(headerSize)
+		if(headerSize && (!td->appendOutputs))
 		{
 			int len=ConnInfo->headerSize-headerSize;
-			if(keepalive)
-				strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
-			http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
-			if(keepalive)
-				strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
-			else
-				strcpy(ConnInfo->td->response.CONNECTION,"Close");
-			http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
-
-			if(ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0)==-1)
-				return 0;
+			if(!td->appendOutputs)
+			{
+				if(keepalive)
+					strcpy(ConnInfo->td->response.TRANSFER_ENCODING,"chunked");
+				http_headers::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,ConnInfo->td,ConnInfo->td->buffer);
+				if(keepalive)
+					strcpy(ConnInfo->td->response.CONNECTION,"Keep-Alive");
+				else
+					strcpy(ConnInfo->td->response.CONNECTION,"Close");
+				http_headers::buildHTTPResponseHeader(ConnInfo->td->buffer2,&(ConnInfo->td->response));
+	
+				if(ConnInfo->connection->socket.send(ConnInfo->td->buffer2,(int)strlen(ConnInfo->td->buffer2), 0)==-1)
+					return 0;
+			}
 			ConnInfo->headerSent=1;
 
 			/*!Send the first chunk*/
 			if(len)
 			{
-				if(keepalive)
+				if(keepalive && (!td->appendOutputs))
 				{
 					sprintf(chunk_size,"%x\r\n",len);
 					if(ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0)==-1)
 						return 0;
 				}
-				nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
+				if(td->appendOutputs)
+					td->outputData.writeToFile((char*)(ConnInfo->td->buffer+headerSize),len,&nbw);
+				else
+					nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
 				if(nbw==-1)
 					return 0;
-				if(keepalive)
+				if(keepalive && (!td->appendOutputs))
 				{
 					if(ConnInfo->connection->socket.send("\r\n",2, 0)==-1)
 						return 0;
