@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer Team
+*Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -817,6 +817,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 
 	const char cmdseps[]   = ": ,\t\n\r\0";
 
+	int containStatusLine=0;
 	static char *token=0;
 	static char command[96];
 
@@ -834,8 +835,14 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	{
 		token=input;
 	}
-
-	token = strtok( token, cmdseps );
+	/*Check if is specified the first line containing the HTTP status*/
+	if((input[0]=='H')&&(input[1]=='T')&&(input[2]=='T')&&(input[3]=='P')&&(input[4]==' '))
+	{
+		containStatusLine=1;
+		token = strtok( token, " " );
+	}
+	else
+		token = strtok( token, " ,\t\n\r" );
 	do
 	{
 		if(!token)
@@ -852,7 +859,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		
 		
 		nLineControlled++;
-		if((nLineControlled==1)&&(token[0]=='H')&&(token[1]=='T')&&(token[2]=='T')&&(token[3]=='P'))
+		if((nLineControlled==1)&& containStatusLine)
 		{
 			/*!
 			*The first line has the form:
@@ -987,13 +994,12 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 		*If the line is not controlled arrive with the token
 		*at the end of the line.
 		*/
-		if((!lineControlled)&&((nLineControlled!=1)))
+		if( (!lineControlled)&&  ((!containStatusLine) || (nLineControlled!=1)) )
 		{
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
 				strncat(response->OTHER,command,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
-				strncat(response->OTHER,": ",HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 				strncat(response->OTHER,token,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 			}
 		}

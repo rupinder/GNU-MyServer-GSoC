@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer Team
+*Copyright (C) 2002,2003,2004 The MyServer Team
 *
 *   strlcpy and strlcat by codingmaster
 *

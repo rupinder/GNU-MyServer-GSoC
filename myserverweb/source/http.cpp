@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer Team
+*Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -1071,16 +1071,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			sprintf(cgipath,"%s",td->filenamePath);
 	
 		int ret=lwincgi.sendWINCGI(td,s,cgipath);
-		if(td->outputData.getHandle())
-		{
-			td->outputData.closeFile();
-			MYSERVER_FILE::deleteFile(td->outputDataPath);
-		}
-		if(td->inputData.getHandle())
-		{
-			td->inputData.closeFile();
-			MYSERVER_FILE::deleteFile(td->inputDataPath);
-		}
 		return (ret&keepalive);
 
 	}
@@ -1091,16 +1081,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			return sendAuth(td,s);
 		}	
 		int ret = lfastcgi.sendFASTCGI(td,s,td->filenamePath,ext,data,0);
-		if(td->outputData.getHandle())
-		{
-			td->outputData.closeFile();
-			MYSERVER_FILE::deleteFile(td->outputDataPath);
-		}
-		if(td->inputData.getHandle())
-		{
-			td->inputData.closeFile();
-			MYSERVER_FILE::deleteFile(td->inputDataPath);
-		}
 		return (ret&keepalive);
 	}
 	else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
@@ -1110,16 +1090,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 			return sendAuth(td,s);
 		}
 		int ret = lfastcgi.sendFASTCGI(td,s,td->filenamePath,ext,data,1);
-		if(td->outputData.getHandle())
-		{
-			td->outputData.closeFile();
-			MYSERVER_FILE::deleteFile(td->outputDataPath);
-		}
-		if(td->inputData.getHandle())
-		{
-			td->inputData.closeFile();
-			MYSERVER_FILE::deleteFile(td->inputDataPath);
-		}
 		return (ret&keepalive);
 	}
 	else if(mimeCMD==CGI_CMD_SENDLINK)
@@ -1444,14 +1414,15 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			td.inputData.setFilePointer(0);
 			td.buffer2->SetLength(0);
 
-		}
+		}/* End read POST data */
 	}
-	else
+	else/*Methods with no POST data...*/
 	{
 		td.request.URIOPTSPTR=0;
 	}
 	/*
-	*Manage chunked transfers
+	*Manage chunked transfers.
+	*Data loaded before don't take care of the TRANSFER ENCODING. Here we clean data, making it usable.
 	*/
 	if(!lstrcmpi(td.request.TRANSFER_ENCODING,"chunked"))
 	{
@@ -1569,6 +1540,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 			a->host=lserver->vhostList.getvHost(td.request.HOST,a->localIpAddr,a->localPort);
 			if(a->host==0)
 			{
+				raiseHTTPError(&td,a,e_400);
 				/*!
 				*If the inputData file was not closed close it.
 				*/
@@ -1585,6 +1557,7 @@ int http::controlConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_l
 					td.outputData.closeFile();
 					MYSERVER_FILE::deleteFile(td.outputDataPath);
 				}	
+				logHTTPaccess(&td,a);
 				return 0;
 			}
 		}

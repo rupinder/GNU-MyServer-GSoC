@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer Team
+*Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -107,8 +107,6 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
 	}
 
-
-
 	/*!
 	*Use a temporary file to store CGI output.
 	*Every thread has it own tmp file name(td->outputDataPath),
@@ -127,7 +125,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	MYSERVER_FILE stdOutFile;
 	stdOutFile.createTemporaryFile(outputDataPath);
 	MYSERVER_FILE stdInFile;
-	td->inputData.closeFile();	
+	td->inputData.closeFile();
 	stdInFile.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS);
 
 	/*!
@@ -135,6 +133,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	*by the execHiddenProcess(...) function.
 	*Use the td->buffer2 to build the environment string.
 	*/
+	((char*)td->buffer2->GetBuffer())[0]='\0';
 	buildCGIEnvironmentString(td,(char*)td->buffer2->GetBuffer());
 
 	/*!
@@ -155,6 +154,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	spi.envString=(char*)td->buffer2->GetBuffer();
 	execHiddenProcess(&spi);
 	td->buffer2->SetLength(0);
+
 	/*!
 	*Read the CGI output.
 	*/
@@ -241,7 +241,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			*/
 			sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
 			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
-			
+			td->buffer->SetLength(strlen((char*)td->buffer->GetBuffer()));
 			s->socket.send((char*)td->buffer->GetBuffer(),(int)(td->buffer->GetLength()), 0);
 			s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize),nBytesRead-headerSize, 0);
 		}
