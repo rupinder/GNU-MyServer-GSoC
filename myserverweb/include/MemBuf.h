@@ -94,6 +94,7 @@ public:
 	CMemBuf& operator<< (long i) ;
 	CMemBuf& operator<< (unsigned long i);
 	CMemBuf& operator<< (char c) ;
+	CMemBuf& operator<< (unsigned char c) ;
 	CMemBuf& operator<< (const CMemBuf &src) ;
 public:
 	CMemBuf& operator=(CMemBuf& src) ;
@@ -106,7 +107,7 @@ public: // Static conversion functions (hex, CRC...)
 	static CMemBuf Hash_MD5(const void* pAdr, u_int nSize);
 	static CMemBuf Hash_CRC(const void* pAdr, u_int nSize);
 	static CMemBuf Hex(const void* pAdr, u_int nSize);
-	static CMemBuf u_intToStr(u_int i);
+	static CMemBuf UIntToStr(u_int i);
 	static CMemBuf IntToStr(int i);
 
 	static CMemBuf Hex(CMemBuf& membuf) ;

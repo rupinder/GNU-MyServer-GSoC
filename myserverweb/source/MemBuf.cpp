@@ -232,7 +232,7 @@ int CMemBuf::SetBuffer(const void* pAdr, u_int size)
 	}
 	else
 	{
-		if (size > m_nSizeLimit)
+		if (m_nSizeLimit != 0 && size > m_nSizeLimit)
 			size = m_nSizeLimit;
 		AllocBuffer(size);
 		memcpy(m_buffer, pAdr, size);
@@ -351,10 +351,12 @@ void CMemBuf::SetLength(u_int newSize)
 
 // Static conversion functions
 
+// Hex <-> Data conversion functions
+
 CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 {
 	CMemBuf hexFinal;
-	hexFinal.m_bCanDelete = 0;
+	hexFinal.m_bCanDelete = false;
 	const u_int nFinalSize = nSize * 2;
 	hexFinal.SetLength(nFinalSize + 1);
 	const char* hex_chars = "0123456789abcdef";
@@ -368,6 +370,33 @@ CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 	return hexFinal;
 }
 
+unsigned char CMemBuf::HexCharToNumber(unsigned char c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'a' && c <= 'f')
+		return c - 87; // 'a' + 10
+	if (c >= 'A' && c <= 'F')
+		return c - 55; // 'A' + 10
+	return 0;
+}
+
+CMemBuf CMemBuf::HexToData(const void* pAdr, u_int nSize)
+{
+	if ((nSize & 1) == 1) // nSize impair
+		return CMemBuf("", 1);
+	CMemBuf memFinal;
+	memFinal.m_bCanDelete = false;
+	memFinal.SetLength(nSize >> 1);
+	const char* pTmp = (const char*) pAdr;
+	const char* pEnd = pTmp + nSize;
+	for (pTmp; pTmp < pEnd; pTmp += 2)
+		memFinal << (unsigned char) ((HexCharToNumber(*pTmp) << 4) + HexCharToNumber(*(pTmp + 1)));
+	return memFinal;
+}
+
+// MD5 hashing function
+
 CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 {
 	CMemBuf mem_MD5;
@@ -380,7 +409,9 @@ CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 	mem_MD5.m_nSize = 16;
 	return mem_MD5;
 }
-		 
+
+// CRC hashing function
+
 CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 {
 	CMemBuf membuf;
@@ -397,6 +428,8 @@ CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 	membuf.m_nSize = 4;
 	return membuf;
 }
+
+// Int <-> Str conversion functions
 
 CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 {
@@ -441,7 +474,27 @@ CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 	return strFinal;
 }
 
+u_int CMemBuf::StrToUint(const char* pAdr)
+{
+	int nSize = strlen(pAdr);
+	if (nSize > 10) // a (signed/unsigned) 32-bit number as a maximun of 10 digit
+		nSize = 10;
+	u_int nRes = 0;
+	u_int pow10[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
+	while (nSize-- > 0)
+	{
+		nRes += (u_int) ((*pAdr - '0')) * pow10[nSize];
+		pAdr++;
+	}
+	return nRes;
+}
 
+int CMemBuf::StrToInt(const char* pAdr)
+{
+	if (*pAdr == '-')
+		return (int) (-(int) (StrToUint(++pAdr)));
+	return (int) StrToUint(pAdr);
+}
 
 
 CMemBuf::~CMemBuf() 
@@ -556,6 +609,11 @@ CMemBuf& CMemBuf::operator<< (char c)
 	AddBuffer(&c, 1); 
 	return *this;
 }
+CMemBuf& CMemBuf::operator<< (unsigned char c) 
+{
+	AddBuffer(&c, 1); 
+	return *this;
+}
 CMemBuf& CMemBuf::operator<< (const  CMemBuf &src) 
 {
 	AddBuffer(src.m_buffer, src.m_nSize); 
@@ -572,7 +630,7 @@ CMemBuf& CMemBuf::operator=(const char* src)
 	return* this;
 }
 	
-CMemBuf CMemBuf::u_intToStr(u_int i) 
+CMemBuf CMemBuf::UIntToStr(u_int i) 
 {
 	return XIntToStr(i, 0);
 }
