@@ -72,6 +72,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 
   if(td->scriptPath)
     delete [] td->scriptPath;
+  td->scriptPath = 0;
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
   {

@@ -80,9 +80,9 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,
   int cgiFileLen = 0;
   int scriptpathLen = strlen(exec) + 1;
 
-
   if(td->scriptPath)
     delete [] td->scriptPath;
+  td->scriptPath = 0;
   td->scriptPath = new char[scriptpathLen];
   if(td->scriptPath == 0)
     return 0;

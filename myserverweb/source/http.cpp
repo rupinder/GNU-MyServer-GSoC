@@ -1463,6 +1463,11 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
       delete []  filename;
       delete []  td->filenamePath;
       td->filenamePath = 0;
+      if(td->pathTranslated)
+      {
+        delete [] td->pathTranslated;
+        td->pathTranslated = 0;
+      }
 			return sendAuth(td, s);
 		}
 		int i;
@@ -1497,6 +1502,11 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI,
           {
             delete [] defaultFileName;
             delete [] filename;
+            if(td->pathTranslated)
+            {
+              delete [] td->pathTranslated;
+              td->pathTranslated = 0;
+            }
             return sendHTTPhardError500(td, s);
           }
 					strcpy(nURL, defaultFileNamePath);
