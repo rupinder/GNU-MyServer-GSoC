@@ -25,6 +25,10 @@ extern "C"
 #include <string.h>
 }
 
+#ifndef PATH_MAX
+#define PATH_MAX 255
+#endif
+
 void * _alloca(size_t size)
 {
 	return malloc(size);

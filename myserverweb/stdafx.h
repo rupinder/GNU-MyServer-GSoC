@@ -56,15 +56,15 @@ extern "C" {
 #endif
 
 #ifndef MAX_PATH
-#define MAX_PATH 256
+#define MAX_PATH 255
 #endif
 
 #ifndef MAX_COMPUTERNAME_LENGTH
-#define MAX_COMPUTERNAME_LENGTH 256
+#define MAX_COMPUTERNAME_LENGTH 255
 #endif
 
 #ifndef MAXIMUM_PROCESSORS
-#define MAXIMUM_PROCESSORS 256
+#define MAXIMUM_PROCESSORS 255
 #endif
 
 #define USE_NEW

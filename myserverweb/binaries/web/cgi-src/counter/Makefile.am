@@ -1,16 +1,19 @@
 # Makefile for counter
-lib_LIBRARIES = counter.mscgi
-counter_mscgi_SOURCES = main.cpp counter_output.cpp writepng.c
+lib_LIBRARIES = libcounter.a
+libcounter_a_SOURCES = main.cpp counter_output.cpp writepng.c
 
-counter_mscgi_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) $(LIBPNG_CFLAGS)
-counter_mscgi_LIBADD = $(LIBPNG_LIBS)
+libcounter_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) $(LIBPNG_CFLAGS)
+libcounter_a_LIBADD = $(LIBPNG_LIBS)
 
 all : makemscgi makecounter counter.mscgi
 	cp counter.mscgi ../../cgi-bin/
 
-counter.mscgi : $(counter_mscgi_OBJECTS) $(counter_mscgi_DEPENDENCIES)
+libcounter.a :
+
+
+counter.mscgi : $(libcounter_a_OBJECTS) $(libcounter_a_DEPENDENCIES)
 	-rm -f counter.mscgi
-	$(CXX) $(counter_mscgi_OBJECTS) $(counter_mscgi_LIBADD) -o counter.mscgi -shared
+	$(CXX) $(libcounter_a_OBJECTS) $(libcounter_a_LIBADD) -o counter.mscgi -shared
 
 makemscgi :
 	if test x$(MAKE_MSCGI) = xno; then exit; fi
@@ -20,3 +23,7 @@ makecounter :
 
 install :
 	exit; ### install is disabled in myserver
+
+clean :
+	rm -f counter.mscgi
+	rm -f *.o
