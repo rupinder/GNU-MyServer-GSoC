@@ -441,10 +441,10 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
 			if(!yetoutputted)
 			{
         char *nURL;
-        u_long i = 0;
+        u_long j = 0;
         u_long len = 0;
 
-        while( ((char*)td->buffer2->GetBuffer())[len + 9] != '\r' )
+        while( ((char*)td->buffer2->GetBuffer())[i + len + 9] != '\r' )
         {
             len++;
         }
@@ -461,9 +461,9 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath,
         }
         
         /*! Copy the redirection destination in the nURL buffer. */
-        for(i=0;i<len;i++)
+        for(j=0;j<len;j++)
         {
-          nURL[i] = ((char*)td->buffer2->GetBuffer())[i + 9];
+          nURL[j] = ((char*)td->buffer2->GetBuffer())[i + j + 9];
         }
 
 				((http*)td->lhttp)->sendHTTPRedirect(td, s, nURL);

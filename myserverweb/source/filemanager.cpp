@@ -395,8 +395,8 @@ int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 int MYSERVER_FILE::createTemporaryFile(char* filename)
 { 
 	return openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE
-                  |MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_HIDDEN
-                  |MYSERVER_FILE_OPEN_TEMPORARY);
+                  |MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_TEMPORARY);
+
 }
 /*!
  *Close an open file handle.
