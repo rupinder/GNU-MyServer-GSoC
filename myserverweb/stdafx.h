@@ -18,12 +18,6 @@
 */
 #pragma once
 
-#ifdef WIN32
-#	undef getTime
-#	undef max
-#	undef min
-#endif
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -40,25 +34,19 @@
 
 #include "resource.h"
 
+typedef unsigned long DWORD;
+typedef int BOOL;
 
-#include "include\utility.h"
-#include "include\HTTPmsg.h"
+typedef void* HANDLE;
 extern class cserver *lserver;
-
-#include "include\Response_RequestStructs.h"
-#include "include\ConnectionStruct.h"
-
-
-/*
-*Set MAX_MIME_TYPES to define the maximum
-*number of MIME TYPES records to alloc
-*/
-#include "include\MIME_manager.h"
-#include "include\AMMimeUtils.h"
-extern CBase64Utils base64Utils;
+extern class CBase64Utils base64Utils;
+struct CONNECTION;
+extern char *versionOfSoftware;
+extern BOOL mustEndServer;
 
 extern BOOL mustEndServer;
 #define Thread   __declspec( thread )
 typedef int (*CGIMAIN)(char*); 
 typedef int (*CGIINIT)(void*,void*,void*,void*); 
 typedef CONNECTION*  volatile LPCONNECTION;
+typedef  void* LOGGEDUSERID;

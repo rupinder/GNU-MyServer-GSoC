@@ -154,6 +154,9 @@
 				RelativePath="source\cserver.cpp">
 			</File>
 			<File
+				RelativePath="source\filemanager.cpp">
+			</File>
+			<File
 				RelativePath="source\http.cpp">
 			</File>
 			<File
@@ -164,6 +167,9 @@
 			</File>
 			<File
 				RelativePath="source\security.cpp">
+			</File>
+			<File
+				RelativePath="source\sockets.cpp">
 			</File>
 			<File
 				RelativePath="stdafx.cpp">
@@ -215,13 +221,16 @@
 				RelativePath="include\cserver.h">
 			</File>
 			<File
+				RelativePath="include\filemanager.h">
+			</File>
+			<File
 				RelativePath="include\http.h">
 			</File>
 			<File
-				RelativePath="resource.h">
+				RelativePath="include\security.h">
 			</File>
 			<File
-				RelativePath="include\security.h">
+				RelativePath="include\sockets.h">
 			</File>
 			<File
 				RelativePath="stdafx.h">
@@ -233,15 +242,6 @@
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-			<File
-				RelativePath="icon1.ico">
-			</File>
-			<File
-				RelativePath="logo.bmp">
-			</File>
-			<File
-				RelativePath="myserver.rc">
-			</File>
 		</Filter>
 		<File
 			RelativePath="external\libhoard\libhoard.lib">
