@@ -88,6 +88,18 @@
 <AS_CONSOLE202>as Console</AS_CONSOLE202>
 <AS_SERVICE200>as Service</AS_SERVICE200>
 <CONTROL35>CONTROL</CONTROL35>
+<RE_MOTE148>Re&amp;mote</RE_MOTE148>
+<LOGIN___133>Login...</LOGIN___133>
+<LOGOUT124>Logout</LOGOUT124>
+<GET_CONFIG153>Get Config</GET_CONFIG153>
+<SEND_CONFIG4>Send Config...</SEND_CONFIG4>
+<CONNECTIONS___18>Connections...</CONNECTIONS___18>
+<REBOOT___247>Reboot...</REBOOT___247>
+<REMOTE_LOGIN137>Remote Login</REMOTE_LOGIN137>
+<ADDRESS_3>Address:</ADDRESS_3>
+<LOGIN_NAME_247>Login name:</LOGIN_NAME_247>
+<LOGIN_PASSWORD_203>Login password:</LOGIN_PASSWORD_203>
+<STATUS134>Status</STATUS134>
 <ADMINISTRATOR_USER_N68>Administrator user name:</ADMINISTRATOR_USER_N68>
 <ADMINISTRATOR_PASSWO55>Administrator password:</ADMINISTRATOR_PASSWO55>
 <ENABLE_CONTROL_PROTO61>Enable control protocol:</ENABLE_CONTROL_PROTO61>
@@ -104,4 +116,13 @@ This program is licensed under the GPL</ABOUT_TEXT>
 <ENTER_NAME>Enter a new name:</ENTER_NAME>
 <ENTER_HOST>Enter a new host name:</ENTER_HOST>
 <ENTER_IP>Enter a new IP:</ENTER_IP>
+<DOWNLAD_CONFIG>Downloading config files:</DOWNLAD_CONFIG>
+<DOWNLAD_FAILED>Download failed.  Code: </DOWNLAD_FAILED>
+<KILL_ALL>This will kill all connections.  Are you sure?</KILL_ALL>
+<SEND_CONFIG>Sending config files:</SEND_CONFIG>
+<UPLOAD_FAILED>Upload failed.  Code: </UPLOAD_FAILED>
+<NOT_SAVE>Could not save.</NOT_SAVE>
+<REBOOT_FAILED>Reboot failed.</REBOOT_FAILED>
+<CONNECT_SERVER>Connecting to server:</CONNECT_SERVER>
+<LOGIN_FAILED>Login failed.  Code: </LOGIN_FAILED>
 </MYSERVER_LANGUAGE_FILE>

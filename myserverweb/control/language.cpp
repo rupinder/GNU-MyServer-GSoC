@@ -55,6 +55,15 @@ const char * LanguageXMLEnter_MIME;
 const char * LanguageXMLEnter_Name;
 const char * LanguageXMLEnter_Host;
 const char * LanguageXMLEnter_Ip;
+const char * LanguageXMLDownload_Config;
+const char * LanguageXMLDownload_Failed;
+const char * LanguageXMLKill_All;
+const char * LanguageXMLSend_Config;
+const char * LanguageXMLUpload_Failed;
+const char * LanguageXMLNot_Save;
+const char * LanguageXMLReboot_Failed;
+const char * LanguageXMLConnect_Server;
+const char * LanguageXMLLogin_Failed;
 
 // Add the ptr to the list for latter deletetion
 void AddText(char * val)
@@ -91,6 +100,15 @@ void LanguageXMLinit()
    (char *)LanguageXMLEnter_Name = strdup("Enter a new name:");
    (char *)LanguageXMLEnter_Host = strdup("Enter a new host name:");
    (char *)LanguageXMLEnter_Ip = strdup("Enter a new IP:");
+   (char *)LanguageXMLDownload_Config = strdup("Downloading config files:");
+   (char *)LanguageXMLDownload_Failed = strdup("Download failed.  Code: ");
+   (char *)LanguageXMLKill_All = strdup("This will kill all connections.  Are you sure?");
+   (char *)LanguageXMLSend_Config = strdup("Sending config files:");
+   (char *)LanguageXMLUpload_Failed = strdup("Upload failed.  Code: ");
+   (char *)LanguageXMLNot_Save = strdup("Could not save.");
+   (char *)LanguageXMLReboot_Failed = strdup("Reboot failed.");
+   (char *)LanguageXMLConnect_Server = strdup("Connecting to server:");
+   (char *)LanguageXMLLogin_Failed = strdup("Login failed.  Code: ");
    loaded = false;
    loadok = true;
 }
@@ -108,6 +126,15 @@ void LanguageXMLend()
    free((char *)LanguageXMLEnter_Name);
    free((char *)LanguageXMLEnter_Host);
    free((char *)LanguageXMLEnter_Ip);
+   free((char *)LanguageXMLDownload_Config);
+   free((char *)LanguageXMLDownload_Failed);
+   free((char *)LanguageXMLKill_All);
+   free((char *)LanguageXMLSend_Config);
+   free((char *)LanguageXMLUpload_Failed);
+   free((char *)LanguageXMLNot_Save);
+   free((char *)LanguageXMLReboot_Failed);
+   free((char *)LanguageXMLConnect_Server);
+   free((char *)LanguageXMLLogin_Failed);
    ClearList();
 }
 
@@ -140,7 +167,16 @@ int LanguageXMLfile(const char * filename)
    SetValueXML((char **)&LanguageXMLEnter_Name, "ENTER_NAME");
    SetValueXML((char **)&LanguageXMLEnter_Host, "ENTER_HOST");
    SetValueXML((char **)&LanguageXMLEnter_Ip, "ENTER_IP");
-
+   SetValueXML((char **)&LanguageXMLDownload_Config, "DOWNLAD_CONFIG");
+   SetValueXML((char **)&LanguageXMLDownload_Failed, "DOWNLAD_FAILED");
+   SetValueXML((char **)&LanguageXMLKill_All, "KILL_ALL");
+   SetValueXML((char **)&LanguageXMLSend_Config, "SEND_CONFIG");
+   SetValueXML((char **)&LanguageXMLUpload_Failed, "UPLOAD_FAILED");
+   SetValueXML((char **)&LanguageXMLNot_Save, "NOT_SAVE");
+   SetValueXML((char **)&LanguageXMLReboot_Failed, "REBOOT_FAILED");
+   SetValueXML((char **)&LanguageXMLConnect_Server, "CONNECT_SERVER");
+   SetValueXML((char **)&LanguageXMLLogin_Failed, "LOGIN_FAILED");
+   
    return 0;
 }
 
@@ -262,6 +298,7 @@ extern "C" char * gettext(const char * tag)
      {
 #ifdef DEBUG
 	printf("XML TAG <%s> Not Found!\n",textmangler(tag));
+	printf("<%s>%s</%s>\n",textmangler(tag),tag,textmangler(tag));
 #endif
 	return (char *)tag;
      }

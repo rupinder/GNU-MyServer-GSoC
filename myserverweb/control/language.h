@@ -35,6 +35,15 @@ extern const char * LanguageXMLEnter_MIME;
 extern const char * LanguageXMLEnter_Name;
 extern const char * LanguageXMLEnter_Host;
 extern const char * LanguageXMLEnter_Ip;
+extern const char * LanguageXMLDownload_Config;
+extern const char * LanguageXMLDownload_Failed;
+extern const char * LanguageXMLKill_All;
+extern const char * LanguageXMLSend_Config;
+extern const char * LanguageXMLUpload_Failed;
+extern const char * LanguageXMLNot_Save;
+extern const char * LanguageXMLReboot_Failed;
+extern const char * LanguageXMLConnect_Server;
+extern const char * LanguageXMLLogin_Failed;
 
 extern "C" char * gettext(const char *);
 

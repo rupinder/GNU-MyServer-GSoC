@@ -164,7 +164,7 @@ if(Changed) {
     // Say something...
     StatusDlgProgress->value(0);
     StatusDlgProgress->label("0%");
-    StatusDlgGroup->label("Downloading config files:");
+    StatusDlgGroup->label(LanguageXMLDownload_Config);
     StatusDlg->show();
     fl_wait(200);  // let fltk do its thing
 
@@ -181,7 +181,7 @@ if(Changed) {
     StatusDlg->hide();
 
     if(ret == -1) {
-      fl_alertcat("Download failed.  Code: ", Server.LastCode);
+      fl_alertcat(LanguageXMLDownload_Failed, Server.LastCode);
       ServerLogout();
     }
     else if(ret) {
@@ -193,7 +193,7 @@ else {
   // Say something...
   StatusDlgProgress->value(0);
   StatusDlgProgress->label("0%");
-  StatusDlgGroup->label("Downloading config files:");
+  StatusDlgGroup->label(LanguageXMLDownload_Config);
   StatusDlg->show();
   fl_wait(200);  // let fltk do its thing
 
@@ -210,7 +210,7 @@ else {
   StatusDlg->hide();
 
   if(ret == -1) {
-    fl_alertcat("Download failed.  Code: ", Server.LastCode);
+    fl_alertcat(LanguageXMLDownload_Failed, Server.LastCode);
     ServerLogout();
   }
   else if(ret) {
@@ -224,12 +224,12 @@ void MainDlg::cb_MenuGetConfig(Fl_Menu_* o, void* v) {
 
 inline void MainDlg::cb_MenuSendConfig_i(Fl_Menu_*, void*) {
   int ret;
-ret = fl_ask("This will kill all connections.  Are you sure?");
+ret = fl_ask(LanguageXMLKill_All);
 if(ret) {
   // Say something...
   StatusDlgProgress->value(0);
   StatusDlgProgress->label("0%");
-  StatusDlgGroup->label("Sending config files:");
+  StatusDlgGroup->label(LanguageXMLSend_Config);
   StatusDlg->show();
   fl_wait(200);  // let fltk do its thing
 
@@ -246,10 +246,10 @@ if(ret) {
   StatusDlg->hide();
 
   if(ret == -1) {
-    fl_alertcat("Upload failed.  Code: ", Server.LastCode);
+    fl_alertcat(LanguageXMLUpload_Failed, Server.LastCode);
   }
   else if(ret) {
-    fl_alert("Could not save.");
+    fl_alert(LanguageXMLNot_Save);
   }
 }
 ServerLogout();
@@ -260,7 +260,7 @@ void MainDlg::cb_MenuSendConfig(Fl_Menu_* o, void* v) {
 
 inline void MainDlg::cb_MenuReboot_i(Fl_Menu_*, void*) {
   int ret;
-ret = fl_ask("This will kill all connections.  Are you sure?");
+ret = fl_ask(LanguageXMLKill_All);
 if(ret) {
   ret = Server.sendReboot();
   
@@ -272,7 +272,7 @@ if(ret) {
   }
 
   if(ret) {
-    fl_alert("Reboot failed.");
+    fl_alert(LanguageXMLReboot_Failed);
   }
 
   ServerLogout();
@@ -3170,7 +3170,7 @@ if(stat) {
   // Say something...
   StatusDlgProgress->value(0);
   StatusDlgProgress->label("0%");
-  StatusDlgGroup->label("Connecting to server:");
+  StatusDlgGroup->label(LanguageXMLConnect_Server);
   StatusDlg->show();
   fl_wait(200);  // let fltk do its thing
 }
@@ -3184,7 +3184,7 @@ LoginDlgPass->value("");
 
 if(ret) {
   StatusDlg->hide();
-  fl_alertcat("Login failed.  Code: ", Server.LastCode);
+  fl_alertcat(LanguageXMLLogin_Failed, Server.LastCode);
   return -1;
 }
 
