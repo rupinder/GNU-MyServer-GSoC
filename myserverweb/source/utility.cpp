@@ -39,21 +39,21 @@ extern "C" {
 #endif
 
 /*!
-*Various utility functions.
-*/
+ *Various utility functions.
+ */
 extern int mustEndServer; 
 static char *currentPath = 0;
 
 /*!
-*Returns the version of the operating system.
-*Return 0 on fails.
-*/
+ *Returns the version of the operating system.
+ *Return 0 on fails.
+ */
 int getOSVersion()
 {
 	int ret=0;
 	/*!
-	*This is the code for the win32 platform.
-	*/
+   *This is the code for the win32 platform.
+   */
 #ifdef WIN32
 	OSVERSIONINFO osvi;
 	osvi.dwOSVersionInfoSize=sizeof(osvi);
@@ -92,8 +92,8 @@ int getOSVersion()
 }	
 
 /*!
-*Returns the number of processors available on the local machine.
-*/
+ *Returns the number of processors available on the local machine.
+ */
 u_long getCPUCount()
 {
 	/*! By default use 1 processor.  */
@@ -129,10 +129,10 @@ u_long getCPUCount()
 }
 
 /*!
-*Save the current working directory.
-*Return -1 on fails.
-*Return 0 on success.
-*/
+ *Save the current working directory.
+ *Return -1 on fails.
+ *Return 0 on success.
+ */
 int setcwdBuffer()
 {
 #ifdef WIN32
@@ -196,8 +196,8 @@ int getdefaultwdlen()
 }
 
 /*!
-*Get the default working directory(Where is the main executable).
-*/
+ *Get the default working directory(Where is the main executable).
+ */
 char *getdefaultwd(char *path,int len)
 {
 
@@ -215,8 +215,8 @@ char *getdefaultwd(char *path,int len)
 
 
 /*!
-*Set the current working directory. Returns Zero if successful.
-*/
+ *Set the current working directory. Returns Zero if successful.
+ */
 int setcwd(char *dir)
 {
 #ifdef WIN32	
@@ -228,13 +228,14 @@ int setcwd(char *dir)
 }
 
 /*!
-*Set the text color to red on black.
-*Return 0 on success.
-*/
+ *Set the text color to red on black.
+ *Return 0 on success.
+ */
 int preparePrintError()
 {
 #ifdef WIN32
-	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_INTENSITY);
+	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                                    FOREGROUND_RED|FOREGROUND_INTENSITY);
 	if(ret)
 		return 0;
 #endif
@@ -242,13 +243,14 @@ int preparePrintError()
 }
 
 /*!
-*Set the text color to white on black.
-*Return 0 on success.
-*/
+ *Set the text color to white on black.
+ *Return 0 on success.
+ */
 int endPrintError()
 {
 #ifdef WIN32
-	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                                    FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 	if(ret)
 		return 0;
 #endif
@@ -259,9 +261,9 @@ static struct timeval tval;
 #endif
 
 /*!
-*Return the ticks count. Used for check time variations.
-*Return 0 on errors.
-*/
+ *Return the ticks count. Used for check time variations.
+ *Return 0 on errors.
+ */
 u_long get_ticks()
 {
 #ifdef WIN32

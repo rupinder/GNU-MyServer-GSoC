@@ -40,7 +40,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 typedef u_long CONNECTION_PROTOCOL;
 
-
+/*!
+ *Base class to handle a buffer in the connection.
+ */
 class	protocol_buffer
 {
 public:
