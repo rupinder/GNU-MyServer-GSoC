@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define MB(x) (KB(x)*1024)
 #define SEC(x) (x*1000)
 #define my_intabs(x)((x<0)?(-x):(x))
-#define OS_WINDOWS_9X		1	
+#define OS_WINDOWS_9X		1
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
 #define OS_WINDOWS_XP		4

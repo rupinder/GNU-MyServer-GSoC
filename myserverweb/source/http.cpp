@@ -85,7 +85,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		ret = !td->outputData.openFile(td->outputDataPath, MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 		if(ret)
 		{
-			return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+			/*! Return an internal server error.  */
+			return raiseHTTPError(td, s, e_500);
 		}
 	}
 
@@ -143,13 +144,15 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 				if(ret)
 				{
 					td->outputData.closeFile();
-					return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+					/* Return an internal server error.  */
+					return raiseHTTPError(td, s, e_500);
 				}
 				ret = !td->outputData.writeToFile((char*)td->buffer->GetBuffer(), (u_long)nbr, &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
-					return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+					/* Return an internal server error.  */
+					return raiseHTTPError(td, s, e_500);
 				}
 
 				td->buffer2->SetLength(0);
@@ -158,7 +161,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 				if(ret)
 				{
 					td->outputData.closeFile();
-					return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+					/* Return an internal server error.  */
+					return raiseHTTPError(td, s, e_500);
 				}
 			}
 			cssHandle.closeFile();
@@ -211,9 +215,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	{	
 		if(fd.name[0]=='.')
 			continue;
-		/*!
-		*Do not show the security file
-		*/
+		/*! Do not show the security file.  */
 		if(!strcmp(fd.name, "security"))
 			continue;
 		td->buffer2->SetLength(0);
@@ -248,7 +250,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		{
 			_findclose(ff);
 			td->outputData.closeFile();
-			return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+			/* Return an internal server error.  */
+			return raiseHTTPError(td, s, e_500);
 		}
 	}while(!_findnext(ff, &fd));
 	td->buffer2->SetLength(0);
@@ -260,12 +263,11 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	{
 		_findclose(ff);
 		td->outputData.closeFile();
-		return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+		/* Return an internal server error.  */
+		return raiseHTTPError(td, s, e_500);
 	}	
 	_findclose(ff);
-	/*!
-	*Changes the \ character in the / character 
-	*/
+	/*! Changes the \ character in the / character.  */
 	char *buffer2Loop=(char*)td->buffer2->GetBuffer();
 	while(*buffer2Loop++)
 		if(*buffer2Loop=='\\')
@@ -274,7 +276,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		strcpy(td->response.CONNECTION, "Keep-Alive");
 	sprintf(td->response.CONTENT_LENGTH, "%u", (u_long)td->outputData.getFileSize());
 	
-	if(!td->appendOutputs)/*If we haven't to append the output build the HTTP header and send the data*/
+	/* If we haven't to append the output build the HTTP header and send the data.  */
+	if(!td->appendOutputs)
 	{
 		u_long nbr=0, nbs=0;
 		td->outputData.setFilePointer(0);
@@ -282,7 +285,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 		nbs=s->socket.send((char*)td->buffer->GetBuffer(), (u_long)strlen((char*)td->buffer->GetBuffer()), 0);
 		if(nbs == (u_long)-1)
 		{
-			return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+			/* Return an internal server error.  */
+			return raiseHTTPError(td, s, e_500);
 		}	
 		do
 		{
@@ -290,14 +294,16 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 			if( ret )
 			{
 				td->outputData.closeFile();
-				return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+				/* Return an internal server error.  */
+				return raiseHTTPError(td, s, e_500);
 			}
 			nbs = 0;
 			if(nbr)
 				nbs=s->socket.send((char*)td->buffer->GetBuffer(), nbr, 0);
 			if(nbs==(u_long)-1)
 			{
-				return raiseHTTPError(td, s, e_500);/*Return an internal server error*/
+				/* Return an internal server error.  */
+				return raiseHTTPError(td, s, e_500);
 			}
 		}while(nbr && nbs);
 	}
@@ -388,6 +394,7 @@ int http::allowHTTPTRACE(httpThreadContext* /*td*/, LPCONNECTION s)
 		return 0;
 	}
 	char *http_trace_value=parser.getAttr("HTTP", "TRACE");
+	
        /*! If the returned value is equal to ON so the HTTP TRACE is active for this vhost.  */
 	if(http_trace_value &&  !lstrcmpi(http_trace_value, "ON"))
 		ret = 1;
@@ -2156,18 +2163,12 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 {
 	if(initialized)
 		return 0;
-	/*!
-	*Initialize ISAPI.
-	*/
+	/*! Initialize ISAPI.  */
 	isapi::initISAPI();
-	/*!
-	*Initialize FastCGI
-	*/
+	/*! Initialize FastCGI.  */
 	fastcgi::initializeFASTCGI();	
 
-	/*!
-	*Load the MSCGI library.
-	*/
+	/*! Load the MSCGI library.  */
 	mscgiLoaded=mscgi::loadMSCGILib();
 	if(mscgiLoaded)
 		printf("%s\n", languageParser->getValue("MSG_LOADMSCGI"));
@@ -2177,23 +2178,23 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 		printf("%s\n", languageParser->getValue("ERR_LOADMSCGI"));
 		endPrintError();
 	}
-	/*!
-	*Store defaults value.
+	/*! 
+	*Store defaults value.  
+	*By default use GZIP with files bigger than a MB.  
 	*/
-	gzip_threshold=1<<20;/*By default use GZIP with files bigger than a MB*/
+	gzip_threshold=1<<20;
 	useMessagesFiles=1;
 	browseDirCSSpath[0]='\0';
 	cXMLParser configurationFileManager;
 	configurationFileManager.open("myserver.xml");
-	char *data;	
-	/*!
-	*Determine the min file size that will use GZIP compression.
-	*/
+	char *data;
+	
+	/*! Determine the min file size that will use GZIP compression.  */
 	data=configurationFileManager.getValue("GZIP_THRESHOLD");
 	if(data)
 	{
 		gzip_threshold=atoi(data);
-	}		
+	}	
 	data=configurationFileManager.getValue("USE_ERRORS_FILES");
 	if(data)
 	{
@@ -2201,19 +2202,17 @@ int http::loadProtocol(cXMLParser* languageParser, char* /*confFile*/)
 			useMessagesFiles=1;
 		else
 			useMessagesFiles=0;
-	}	
+	}
 	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
 	if(data)
 	{
 		strcpy(browseDirCSSpath, data);
 	}
-	/*!
-	*Determine the number of default filenames written in the configuration file.
-	*/
+	/*! Determine the number of default filenames written in the configuration file.  */
 	nDefaultFilename=0;
 	for(;;)
 	{
-		char xmlMember[21];
+		char xmlMember[32];
 		sprintf(xmlMember, "DEFAULT_FILENAME%u", nDefaultFilename);
 		if(!strlen(configurationFileManager.getValue(xmlMember)))
 			break;

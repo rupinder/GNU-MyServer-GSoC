@@ -173,8 +173,10 @@ struct sfCGIservers
 	}DESCRIPTOR;
 	MYSERVER_SOCKET socket;
 	char host[128];
-	int pid; /*!process ID*/ 
-	u_short port;/*!IP port*/
+	/*! Process ID.  */ 
+	int pid; 
+	/*! IP port.  */
+	u_short port;
 };
 
 
@@ -183,7 +185,8 @@ class fastcgi
 private:
 	static int initialized;
 	static struct sfCGIservers fCGIservers[MAX_FCGI_SERVERS];
-	static int fCGIserversN;/*!Number of thread currently loaded*/
+	/*! Number of thread currently loaded.  */
+	static int fCGIserversN;
 	int FcgiConnectSocket(fCGIContext*,int);
 	void generateFcgiHeader( FCGI_Header&, int ,int, int );
 	MYSERVER_SOCKET getFcgiConnection();

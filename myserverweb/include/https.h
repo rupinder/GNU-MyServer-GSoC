@@ -26,6 +26,7 @@ class https : public http
 public:
 	virtual char* registerName(char*,int len);
 	https();
+	virtual ~https();
 };
 
 #endif

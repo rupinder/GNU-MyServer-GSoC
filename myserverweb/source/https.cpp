@@ -63,3 +63,11 @@ https::https()
 	strcpy(protocolPrefix,"https://");
 	PROTOCOL_OPTIONS=PROTOCOL_USES_SSL;
 }
+
+/*!
+*Destructor for the class https
+*/
+https::~https()
+{
+
+}

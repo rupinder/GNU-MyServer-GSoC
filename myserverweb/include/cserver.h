@@ -72,7 +72,8 @@ class cserver
 #endif
 private:
 	void stopThreads();
-	int pausing;/*Used when rebooting to load new configuration files*/
+	/*! Used when rebooting to load new configuration files.  */
+	int pausing;
 	protocols_manager protocols;
 	cXMLParser configurationFileManager;
 	cXMLParser languageParser;
@@ -81,7 +82,8 @@ private:
 	u_long buffersize;
 	u_long buffersize2;
 	u_long getNumConnections();
-	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];/*!Buffer that contains all the local machine IP values*/
+	/*! Buffer that contains all the local machine IP values.  */
+	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
 	char languageFile[MAX_PATH];
 	char path[MAX_PATH];
