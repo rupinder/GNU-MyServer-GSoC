@@ -187,7 +187,7 @@ void cserver::start(int hInst)
 	/*
 	*Determine all the IP addresses of the local machine.
 	*/
-	MYSERVER_HOSTENT *localhe=gethostbyname("localhost");
+	MYSERVER_HOSTENT *localhe=gethostbyname(serverName);
 	in_addr ia;
 	for(i=0;localhe->h_addr_list[i];i++)
 	{
