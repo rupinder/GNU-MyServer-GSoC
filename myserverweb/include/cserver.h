@@ -97,7 +97,12 @@ private:
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 	LPCONNECTION connectionToParse;
+#ifdef HAVE_PTHREAD
+	pthread_mutex_t c_mutex;
+#endif
 public:
+	cserver();
+	~cserver();
 	dynamic_protocol* getDynProtocol(char *protocolName);
 	u_long connectionWriteAccess;
 	int addConnection(MYSERVER_SOCKET,MYSERVER_SOCKADDRIN*);
