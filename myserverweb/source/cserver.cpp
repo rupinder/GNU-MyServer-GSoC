@@ -320,7 +320,10 @@ void cserver::start()
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LISTENT"));
 
-
+//	vhost* MainHost=new vhost();
+//	strcpy(MainHost->documentRoot,getPath());
+//	MainHost->port=port_HTTP;
+//	vhostList.addvHost(MainHost);
 	createServerAndListener(port_HTTP,PROTOCOL_HTTP);
 
 	printf("%s\n",languageParser.getValue("MSG_READY"));

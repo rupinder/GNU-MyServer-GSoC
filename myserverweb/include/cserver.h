@@ -19,6 +19,7 @@
 #ifndef CSERVER_IN
 #define CSERVER_IN
 
+#include "../stdafx.h"
 #include "../include/clientsThread.h"
 #include "../include/utility.h"
 #include "../include/cXMLParser.h"
@@ -28,9 +29,10 @@
 #include "../include/connectionstruct.h"
 #include "../include/sockets.h"
 #include "../include/MIME_manager.h"
+#include "../include/vhosts.h"
 #include "../include/connectionstruct.h"
-extern const char *versionOfSoftware;
-extern class cserver *lserver;
+
+
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* pParam);
 #else
@@ -53,6 +55,7 @@ struct listenThreadArgv
 	u_long port;
 	MYSERVER_SOCKET serverSocket;
 };
+
 class cserver
 {
 #ifdef WIN32
@@ -99,6 +102,7 @@ private:
 	u_long maxLogFileSize;
 	void controlSizeLogFile();
 	void createServerAndListener(u_long,u_long);
+	vhostmanager vhostList;
 public:
 	u_short port_HTTP;
 	MIME_Manager mimeManager;
@@ -119,7 +123,7 @@ public:
 	void stop();
 	void terminate();
 }; 
-
+extern class cserver *lserver;
 #ifdef WIN32
 LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 
 #endif
