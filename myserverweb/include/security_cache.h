@@ -18,10 +18,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef SECURITY_CACHE_H
 #define SECURITY_CACHE_H
 #include "../include/hash_dictionary.h"
+#include "../include/security.h"
 
 class SecurityCache
 {
 private:
+  /*! Object used to handle security on the server. */
+  SecurityManager sm;
+  /*! Store a list of opened files using a hash dictionary. */
   HashDictionary dictionary;
   int limit;
 public:

@@ -65,7 +65,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
       }
     }
     delete [] permissionsFile;
-    return ::getErrorFileName(directory, error, out, parser);
+    return sm.getErrorFileName(directory, error, out, parser);
 
   }
   else
@@ -117,7 +117,7 @@ int SecurityCache::getErrorFileName(char *directory, int error,
       return 0;
     }
     delete [] permissionsFile;
-    return ::getErrorFileName(directory, error, out, parser);  
+    return sm.getErrorFileName(directory, error, out, parser);  
   }
 
   return 0;
@@ -206,7 +206,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
 
     }
     delete [] permissionsFile;
-    return ::getPermissionMask(user, password, directory, filename, sysdirectory, 
+    return sm.getPermissionMask(user, password, directory, filename, sysdirectory, 
                              password2, auth_type, len_auth, permission2, parser);
   }
   else
@@ -258,7 +258,7 @@ int SecurityCache::getPermissionMask(char* user, char* password,char* directory,
       return 0;
     }
     delete [] permissionsFile;
-    return ::getPermissionMask(user, password, directory, filename, sysdirectory, 
+    return sm.getPermissionMask(user, password, directory, filename, sysdirectory, 
                              password2, auth_type, len_auth, permission2, parser);  
   }
 

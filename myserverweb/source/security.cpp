@@ -41,7 +41,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *Return other valus on success, please note to free
  *out after its use.
  */
-int getErrorFileName(char *root,int error,char** out, XmlParser* parser)
+int SecurityManager::getErrorFileName(char *root, int error, 
+                                      char** out, XmlParser* parser)
 {
 	char *permissionsFile;
   *out = 0;
@@ -124,10 +125,10 @@ int getErrorFileName(char *root,int error,char** out, XmlParser* parser)
  *be parsed. If a [parser] is specified, it will be used instead of opening 
  *the security file.
  */
-int getPermissionMask(char* user, char* password,char* directory,
-                      char* filename,char *sysdirectory, char *password2,
-                      char* auth_type,int len_auth,int *permission2, 
-                      XmlParser* parser)
+int SecurityManager::getPermissionMask(char* user, char* password, char* directory,
+                                       char* filename, char *sysdirectory, 
+                                       char *password2, char* auth_type, int len_auth, 
+                                       int *permission2, XmlParser* parser)
 {
 	char *permissionsFile;
 	char tempPassword[32];
@@ -149,6 +150,7 @@ int getPermissionMask(char* user, char* password,char* directory,
 	int genericPermissions2Found=0;
   xmlAttr *attr;
 	xmlNode *node;
+
 	tempPassword[0]='\0';
 	if(auth_type)
 		auth_type[0]='\0';
@@ -426,4 +428,20 @@ int getPermissionMask(char* user, char* password,char* directory,
 		return genericPermissions;
 		
 	return 0;
+}
+
+/*!
+ *Create the object.
+ */
+SecurityManager::SecurityManager()
+{
+
+}
+
+/*!
+ *Destroy the SecurityManager object.
+ */
+SecurityManager::~SecurityManager()
+{
+
 }

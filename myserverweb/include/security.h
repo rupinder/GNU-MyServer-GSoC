@@ -37,20 +37,34 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 
 /*!
- *Various allowable permissions
+ *Various permissions flags.
  */
-#define MYSERVER_PERMISSION_READ	(1)
-#define MYSERVER_PERMISSION_WRITE	(2)
-#define MYSERVER_PERMISSION_EXECUTE	(4)
-#define MYSERVER_PERMISSION_DELETE	(8)
-#define MYSERVER_PERMISSION_BROWSE	(16)
+
+/*! Current user can read the file. */
+const u_long MYSERVER_PERMISSION_READ     =	(1<<0);
+
+/*! Current user can write to the file. */
+const u_long MYSERVER_PERMISSION_WRITE	  = (1<<1);
+
+/*! Current user can execute the file. */
+const u_long MYSERVER_PERMISSION_EXECUTE  = (1<<2);
+
+/*! Current user can remove the file. */
+const u_long MYSERVER_PERMISSION_DELETE	  = (1<<3);
+
+/*! Current user can browse the directory content. */
+const u_long MYSERVER_PERMISSION_BROWSE	  = (1<<4);
 
 
-
-int getErrorFileName(char *root,int error,char** out,XmlParser* parser=0);
-int getPermissionMask(char* user, char* password,char* directory,
-                      char* filename,char *sysdirectory=0,char *password2=0,
-                      char* auth_type=0,int len_auth=0,int *permission2=0, 
-                      XmlParser* parser=0);
-
+class SecurityManager
+{
+public:
+  SecurityManager();
+  ~SecurityManager();
+  int getErrorFileName(char *root,int error,char** out,XmlParser* parser=0);
+  int getPermissionMask(char* user, char* password,char* directory,
+                        char* filename,char *sysdirectory=0,char *password2=0,
+                        char* auth_type=0,int len_auth=0,int *permission2=0, 
+                        XmlParser* parser=0);
+};
 #endif
