@@ -65,7 +65,6 @@ void * startClientsTHREAD(void* pParam)
 	ClientsTHREAD *ct=&lserver->threads[id];
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
-	ct->working=0;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
 	ct->buffer=new char[ct->buffersize];
@@ -81,9 +80,7 @@ void * startClientsTHREAD(void* pParam)
 	*/
 	while(ct->threadIsRunning) 
 	{
-		ct->working=1;
 		ct->controlConnections();
-		ct->working=0;
 		wait(1);
 	}
 	ct->threadIsStopped=1;
@@ -210,7 +207,6 @@ void ClientsTHREAD::stop()
 */
 void ClientsTHREAD::clean()
 {
-	while(working);
 	if(initialized==0)/*If the thread was not initialized return from the clean function*/
 		return;
 	if(buffer)

@@ -507,10 +507,6 @@ void cserver::terminate()
 		if(verbosity>1)
 			printf("%s\n",languageParser.getValue("MSG_TSTOPPED"));
 	}
-	if(connections)
-	{
-		clearAllConnections();
-	}
 	if(verbosity>1)
 	{
 		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
@@ -547,6 +543,10 @@ void cserver::terminate()
 		*/
 		if(threadsStopped==nThreads)
 			break;
+	}
+	if(connections)
+	{
+		clearAllConnections();
 	}
 	delete[] defaultFilename;
 
