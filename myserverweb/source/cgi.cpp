@@ -61,7 +61,51 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	int nph;
 	char *cmdLine=0;
 	char *filename=0;
+
+  int scriptDirLen=0;
+  int scriptFileLen= 0;
+  int cgiRootLen= 0;
+  int  cgiFileLen =0  ;
+  int  scriptpathLen = strlen(scriptpath) + 1;
+
+  if(td->scriptPath)
+    delete [] td->scriptPath;
+  
+  td->scriptPath = new char[scriptpathLen];
+  if(td->scriptPath == 0)
+    return 0;
 	lstrcpy(td->scriptPath, scriptpath);
+
+  MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
+  
+  if(td->scriptDir)
+    delete [] td->scriptDir;
+  td->scriptDir = new char[scriptDirLen];
+  if(td->scriptDir == 0)
+    return 0;
+
+  if(td->scriptFile)
+    delete [] td->scriptFile;
+  td->scriptFile = new char[scriptFileLen];
+  if(td->scriptFile == 0)
+    return 0;
+
+
+  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+
+  if(td->scriptDir)
+    delete [] td->cgiRoot;
+  td->cgiRoot = new char[cgiRootLen];
+  if(td->cgiRoot == 0)
+    return 0;
+
+  if(td->cgiFile)
+    delete [] td->cgiFile;
+  td->cgiFile = new char[cgiFileLen];
+  if(td->cgiFile == 0)
+    return 0;
+
+
 	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
 
@@ -469,7 +513,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << td->request.ACCEPT;
 	}
 
-	if(td->cgiRoot[0])
+	if(td->cgiRoot)
 	{
 		memCgi << end_str << "CGI_ROOT=";
 		memCgi << td->cgiRoot;
@@ -526,7 +570,7 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 		memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
 	  	memCgi << td->request.ACCEPTLAN;
 	}
-	if(td->pathInfo[0])
+	if(td->pathInfo)
 	{
 		memCgi << end_str << "PATH_INFO=";
 	  	memCgi << td->pathInfo;

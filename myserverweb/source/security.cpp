@@ -119,18 +119,24 @@ void logout(int /*!logon*/,LOGGEDUSERID *hImpersonation)
 }
 
 /*!
-*Get the error file for a site. Return 0 to use the default one.
-*/
+ *Get the error file for a site. Return 0 to use the default one.
+ */
 int getErrorFileName(char *root,int error,char* out)
 {
-	char permissionsFile[MAX_PATH];
+	char *permissionsFile;
+  int permissionsFileLen = strlen(root) + 10;
+  permissionsFile = new char[permissionsFileLen];
+  if(permissionsFile==0)
+    return 0;
 	sprintf(permissionsFile,"%s/security",root);
 	if(!MYSERVER_FILE::fileExists(permissionsFile))
 	{
+    delete [] permissionsFile;
 		return 0;
 	}
 	cXMLParser parser;
 	parser.open(permissionsFile);
+  delete [] permissionsFile;
 	xmlDocPtr doc=parser.getDoc();
 	xmlNode *node=doc->children->children;
 	int found=0;
@@ -163,21 +169,25 @@ int getErrorFileName(char *root,int error,char* out)
 }
 int getPermissionMask(char* user, char* password,char* folder,char* filename,char *sysfolder,char *password2,char* auth_type,int len_auth,int *permission2)
 {
-	char permissionsFile[MAX_PATH];
-	char tempPassword[32];
-	tempPassword[0]='\0';
-	folder[MAX_PATH-10]='\0';
-	if(auth_type)
-		auth_type[0]='\0';
-	sprintf(permissionsFile,"%s/security",folder);
 	/*!
-	*If the file doesn't exist allow everyone to do everything
-	*/
+   *If the file doesn't exist allow everyone to do everything.
+   */
 	if(!useLogonOption)
 		return (-1);
+	char *permissionsFile;
+	char tempPassword[32];
+  int ret =0;
+	tempPassword[0]='\0';
+	if(auth_type)
+		auth_type[0]='\0';
+  int permissionsFileLen = strlen(folder)+10;
+  permissionsFile = new char[permissionsFileLen];
+  if(permissionsFile == 0)
+    return 0;
+	sprintf(permissionsFile,"%s/security",folder);
 
-	u_long filenamelen=(u_long)(strlen(filename)-1);
-	while(filename[filenamelen]=='.')
+	u_long filenamelen=(u_long)(strlen(filename));
+	while(filenamelen && filename[filenamelen]=='.')
 	{
 		filename[filenamelen--]='\0';
 	}
@@ -187,16 +197,22 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 		*If the security file doesn't exist try with a default one.
 		*/
 		if(sysfolder!=0)
-			return getPermissionMask(user,password,sysfolder,filename,0);
+			ret = getPermissionMask(user,password,sysfolder,filename,0);
 		else
 		/*!
 		*If the default one doesn't exist too send full permissions for everyone
 		*/
-			return (-1);
+			ret = (-1);
+    delete [] permissionsFile;
+    return ret;
 	}
 	cXMLParser parser;
 	if(parser.open(permissionsFile)==-1)
+  {
+    delete [] permissionsFile;
 		return (0);
+  }
+  delete [] permissionsFile;
 	xmlDocPtr doc=parser.getDoc();
 	if(!doc)
 		return (-1);

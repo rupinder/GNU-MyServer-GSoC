@@ -78,16 +78,17 @@ public:
 		char extension[10];
 		char mime_type[60];
 		int command;
-		char cgi_manager[MAX_PATH];
+		char *cgi_manager;
 		mime_record* next;
 	};
 private:
 	mime_record *data;
 	u_long numMimeTypesLoaded;
-	char filename[MAX_PATH];
+	char *filename;
 public:
 	char *getFilename();
 	MIME_Manager();
+  ~MIME_Manager();
 	void addRecord(MIME_Manager::mime_record);
 	MIME_Manager::mime_record *getRecord(char ext[10]);
 	void removeAllRecords();
@@ -97,8 +98,8 @@ public:
 	int loadXML(char *filename);
 	int saveXML(char *filename);
 	int save(char *filename);
-	int getMIME(char* ext,char *dest,char *dest2);
-	int getMIME(int id,char* ext,char *dest,char *dest2);
+	int getMIME(char* ext,char *dest,char **dest2);
+	int getMIME(int id,char* ext,char *dest,char **dest2);
 	void clean();
 };
 #endif 

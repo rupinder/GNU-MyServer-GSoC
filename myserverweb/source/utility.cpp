@@ -171,11 +171,11 @@ int freecwdBuffer()
 }
 
 /*!
- *Get the defauklt working directory length.
+ *Get the default working directory length.
  */
 int getdefaultwdlen()
 {
-  return strlen(currentPath);
+  return strlen(currentPath)+1;
 }
 
 /*!

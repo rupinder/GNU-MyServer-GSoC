@@ -32,7 +32,9 @@ myserver_mutex *isapi::isapi_mutex=0;
 #define ISAPI_TIMEOUT (10000)
 ConnTableRecord *isapi::connTable=0;
 
-BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID lpvBuffer, LPDWORD lpdwSize, LPDWORD lpdwDataType) 
+BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
+                                              LPVOID lpvBuffer, LPDWORD lpdwSize, 
+                                              LPDWORD lpdwDataType) 
 {
 	ConnTableRecord *ConnInfo;
 	
@@ -51,19 +53,28 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,L
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
-			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,mapInfo->lpszPath,(char*)lpvBuffer,0);
+      mapInfo->lpszPath = 0;
+			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
+                                           &mapInfo->lpszPath,(char*)lpvBuffer,0);
 			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
+      delete [] mapInfo->lpszPath;
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT|HSE_URL_FLAGS_EXECUTE;
 			break;
 		case HSE_REQ_MAP_URL_TO_PATH:
-			char URI[MAX_PATH];
+			char URI[MAX_PATH];/*! Under windows use MAX_PATH. */
 			if(((char*)lpvBuffer)[0])
 				strcpy(URI,(char*)lpvBuffer);
 			else
 				lstrcpyn(URI,ConnInfo->td->request.URI,(int)(strlen(ConnInfo->td->request.URI)-strlen(ConnInfo->td->pathInfo)+1));
 			((http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,(char*)lpvBuffer,URI,0);
-			MYSERVER_FILE::completePath((char*)lpvBuffer);
+
+			if(MYSERVER_FILE::completePath((char*)lpvBuffer,(int*)lpdwSize,  1))
+      {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        ret=0;
+        return 0;
+      }
 			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
@@ -313,11 +324,12 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, L
 
 	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
 	{
-		if(isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
+		if(isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection, 
+                                  lpvBuffer, lpdwSize))
 			ret=1;
 		else
 		{
-            		SetLastError(ERROR_INSUFFICIENT_BUFFER);
+      SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			ret=0;
 		}
 			
@@ -522,7 +534,7 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	PFN_GETEXTENSIONVERSION GetExtensionVersion;
 	PFN_HTTPEXTENSIONPROC HttpExtensionProc;
 
-	char fullpath[MAX_PATH*2];
+	char fullpath[MAX_PATH*2];/*! Under windows there is MAX_PATH. */
 	if(execute)
 	{
 		if(cgipath[0])
@@ -632,9 +644,55 @@ int isapi::sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptp
 	/*!
 	*Build the environment string.
 	*/
-	lstrcpy(td->scriptPath,scriptpath);
-	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
-	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
+  int scriptDirLen=0;
+  int scriptFileLen= 0;
+  int cgiRootLen= 0;
+  int  cgiFileLen =0  ;
+  int  scriptpathLen = strlen(scriptpath) + 1;
+
+  if(td->scriptPath)
+    delete [] td->scriptPath;
+  
+  td->scriptPath = new char[scriptpathLen];
+  if(td->scriptPath == 0)
+    return 0;
+	lstrcpy(td->scriptPath, scriptpath);
+
+  MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
+  
+  if(td->scriptDir)
+    delete [] td->scriptDir;
+  td->scriptDir = new char[scriptDirLen];
+  if(td->scriptDir == 0)
+    return 0;
+
+  if(td->scriptFile)
+    delete [] td->scriptFile;
+  td->scriptFile = new char[scriptFileLen];
+  if(td->scriptFile == 0)
+    return 0;
+
+
+  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+
+  if(td->scriptDir)
+    delete [] td->cgiRoot;
+  td->cgiRoot = new char[cgiRootLen];
+  if(td->cgiRoot == 0)
+    return 0;
+
+  if(td->cgiFile)
+    delete [] td->cgiFile;
+  td->cgiFile = new char[cgiFileLen];
+  if(td->cgiFile == 0)
+    return 0;
+
+
+	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
+	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
+
+
+
 	connTable[connIndex].envString[0]='\0';
 	cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);
 

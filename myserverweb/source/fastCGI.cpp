@@ -37,28 +37,87 @@ struct fourchar
 		unsigned char c[4];
 	};
 };
+
 /*!
-*Entry-Point to manage a FastCGI request.
-*/
+ *Entry-Point to manage a FastCGI request.
+ */
 int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
 {
 	fCGIContext con;
 	con.td=td;
 	u_long nbr=0;
 	FCGI_Header header;
-	strncpy(td->scriptPath,scriptpath,MAX_PATH);
-	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
-	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
-	td->buffer->SetLength(0);
+
+  int scriptDirLen=0;
+  int scriptFileLen= 0;
+  int cgiRootLen= 0;
+  int  cgiFileLen =0  ;
+  int  scriptpathLen = strlen(scriptpath) + 1;
+
+  if(td->scriptPath)
+    delete [] td->scriptPath;
+  
+  td->scriptPath = new char[scriptpathLen];
+  if(td->scriptPath == 0)
+    return 0;
+	lstrcpy(td->scriptPath, scriptpath);
+
+  MYSERVER_FILE::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
+  
+  if(td->scriptDir)
+    delete [] td->scriptDir;
+  td->scriptDir = new char[scriptDirLen];
+  if(td->scriptDir == 0)
+    return 0;
+
+  if(td->scriptFile)
+    delete [] td->scriptFile;
+  td->scriptFile = new char[scriptFileLen];
+  if(td->scriptFile == 0)
+    return 0;
+
+  MYSERVER_FILE::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
+
+  if(td->scriptDir)
+    delete [] td->cgiRoot;
+  td->cgiRoot = new char[cgiRootLen];
+  if(td->cgiRoot == 0)
+    return 0;
+
+  if(td->cgiFile)
+    delete [] td->cgiFile;
+  td->cgiFile = new char[cgiFileLen];
+  if(td->cgiFile == 0)
+    return 0;
+
+	MYSERVER_FILE::splitPath(scriptpath, td->scriptDir, td->scriptFile);
+	MYSERVER_FILE::splitPath(cgipath, td->cgiRoot, td->cgiFile);
+
+  td->buffer->SetLength(0);
 	td->buffer2->GetAt(0)='\0';
 	cgi::buildCGIEnvironmentString(td,(char*)td->buffer->GetBuffer());
-	char fullpath[MAX_PATH*2];
+	char *fullpath;
 	if(execute)
 	{
 		if(cgipath[0])
-			sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath);
+    {
+      int fullpathLen = strlen(cgipath) + strlen(td->filenamePath) + 4;
+      fullpath = new char[fullpathLen];
+      if(fullpath == 0)
+        return 0;
+			sprintf(fullpath,"%s \"%s\"", cgipath, td->filenamePath);
+    }
 		else
+    {
+      int fullpathLen = strlen(td->filenamePath) + 1;
+      fullpath = new char[fullpathLen];
+      if(fullpath == 0)
+      {
+        ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
+        return 0;
+      }
 			sprintf(fullpath,"%s",td->filenamePath);	
+    }
 	}
 	else
 	{
@@ -69,6 +128,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	td->inputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_NO_INHERIT);
 
 	int p_id = FcgiConnect(&con,fullpath);
+  delete [] fullpath;
 	if(p_id<0)
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 
@@ -150,7 +210,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	const clock_t timeout= CLOCKS_PER_SEC * 20;
 	clock_t time1 = get_ticks();
 	
-	char outDataPath[MAX_PATH];
+	char *outDataPath;
+  int outDataPathLen = getdefaultwdlen() + 20;
 	
 	getdefaultwd(outDataPath,MAX_PATH);
 	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFile_%u",(u_int)td->id);

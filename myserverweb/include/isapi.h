@@ -73,7 +73,7 @@ typedef struct _HSE_VERSION_INFO
 
 typedef struct _HSE_URL_MAPEX_INFO  
 {
-	CHAR   lpszPath[MAX_PATH]; 
+	CHAR   *lpszPath; 
 	DWORD  dwFlags;
 	DWORD  cchMatchingPath; 
 	DWORD  cchMatchingURL;  

@@ -122,11 +122,11 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	int ret=0;
   if(filename)
     delete [] filename;
-  int filename_len = strlen(nfilename);
+  int filename_len = strlen(nfilename) + 1;
   filename = new char[filename_len];
   if(filename == 0)
     return -1;
-	strcpy(filename,nfilename);
+	strcpy(filename, nfilename);
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};
 	sa.nLength = sizeof(sa);
@@ -313,7 +313,7 @@ int MYSERVER_FILE::operator =(MYSERVER_FILE f)
 
   if(f.filename)
   {
-    int filename_len = strlen(f.filename);
+    int filename_len = strlen(f.filename)+1;
     filename = new char[filename_len];
     if(filename == 0)
       return -1;
@@ -335,7 +335,7 @@ int MYSERVER_FILE::setFilename(char* nfilename)
 {
   if(filename)
     delete [] filename;
-  int filename_len = strlen(nfilename);
+  int filename_len = strlen(nfilename)+1;
   filename = new char[filename_len];
   if(filename == 0)
     return -1;
@@ -639,9 +639,9 @@ void MYSERVER_FILE::splitPathLength(const char *path, int *dir, int *filename)
 	while ((splitpoint > 0) && ((path[splitpoint] != '/')&&(path[splitpoint] != '\\')))
 		splitpoint--;
   if(dir)
-    *dir = splitpoint;
+    *dir = splitpoint + 2;
   if(filename)
-    *filename = len - splitpoint ;
+    *filename = len - splitpoint + 2 ;
 
 }
 /*!
@@ -708,7 +708,7 @@ int MYSERVER_FILE::getShortFileName(char *out,int buffersize)
 #endif
 #ifdef NOT_WIN
   int ret = 0;
-  int filename_len = strlen(filename) ;
+  int filename_len = strlen(filename) + 1 ;
   if(filename_len < buffersize)
   {
     ret = 0;
@@ -740,22 +740,75 @@ int MYSERVER_FILE::getShortFileName(char *filePath,char *out,int buffersize)
 }
 
 /*!
-*Complete the path of the file.
-*/
-void MYSERVER_FILE::completePath(char *fileName)
+ *Complete the path of the file.
+ *Return non-zero on errors.
+ *If dontRealloc is selected don't realloc memory.
+ */
+int MYSERVER_FILE::completePath(char **fileName,int *size, int dontRealloc)
 {
 #ifdef WIN32
-	GetFullPathName(fileName,MAX_PATH,fileName,0);
-	return;
+  char *buffer;
+  int bufferLen = strlen(*fileName) + 1;
+  buffer = new char[*fileName];
+  if(buffer == 0)
+  {
+    return -1;
+  }
+  strcpy(buffer, *fileName);
+  int bufferNewLen = GetFullPathName(buffer, 0, *fileName, 0) + 1;
+  if(dontRealloc)
+  {
+    if(*size < bufferNewLen )
+      return -1;
+  }
+  else
+  {
+    delete [] (*fileName);
+    *fileName = new char[bufferNewLen];
+    if(*fileName == 0)
+    {
+      *size = 0;
+      delete [] buffer;
+      return -1;
+    }
+    *size = bufferNewLen;
+  }
+  GetFullPathName(buffer, bufferNewLen, *fileName, 0);
+  delete [] buffer;
+  return 0;
+
 #endif
 #ifdef NOT_WIN
-	if(fileName[0]=='/')
-		return;
-	char buffer[MAX_PATH];
-	strcpy(buffer,fileName);
-	getdefaultwd(fileName,MAX_PATH);
-	strcat(fileName,"/");
-	strcat(fileName,buffer);
-	return;
+	if((*fileName)[0]=='/')
+		return 0;
+	char *buffer;
+  int bufferLen = strlen(*fileName) + 1;
+  buffer = new char[bufferLen];
+  if(buffer == 0)
+    return 0;
+	strcpy(buffer, *fileName);
+  int bufferNewLen =  getdefaultwdlen() +  bufferLen + 1 ;
+  if(dontRealloc)
+  {
+    if(*size < bufferNewLen )
+      return -1;
+  }
+  else
+  {
+    delete [] (*fileName);
+    *fileName = new char[bufferNewLen];
+    if(*fileName == 0)
+    {
+      *size = 0;
+      delete [] buffer;
+      return -1;
+    }
+    *size = bufferNewLen;
+  }
+
+ 
+  sprintf(*fileName, "%s/%s", getdefaultwd(0, 0), buffer );
+  delete [] buffer;
+	return 0;
 #endif
 }

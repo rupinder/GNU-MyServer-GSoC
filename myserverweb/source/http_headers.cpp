@@ -394,7 +394,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	else if(validRequest==-1)
 		return -1;
 
-	const int max_URI=MAX_PATH+200;
+	const int max_URI = HTTP_REQUEST_URI_DIM + 200 ;
 	const char seps[]   = "\n\r";
 	const char cmdseps[]   = ": ,\t\n\r";
 

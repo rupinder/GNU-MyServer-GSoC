@@ -149,7 +149,7 @@ int main (int argn, char **argv)
 	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
 	sigaction(SIGTERM,&sig2,NULL); // catch the kill command
 #endif
-  int path_len = strlen(argv[0]);
+  int path_len = strlen(argv[0]) +1 ;
   path = new char[path_len];
   if(path == 0)
     return 1;

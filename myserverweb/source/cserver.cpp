@@ -535,7 +535,7 @@ void cserver::terminate()
 	}
   delete [] path;
   delete [] languages_path;
-	delete []  vhostList;
+	delete   vhostList;
   path = 0;
   languages_path = 0;
   vhostList = 0;

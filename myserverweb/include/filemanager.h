@@ -62,13 +62,13 @@ public:
 	time_t getLastModTime();
 	time_t getCreationTime();
 	time_t getLastAccTime();
-	static void completePath(char*);
 	char *getFilename();
 	int setFilename(char*);
 	int operator =(MYSERVER_FILE);
-	static int isFolder(char*);
 	int closeFile();
 	int getShortFileName(char*,int);
+	static int completePath(char**, int *size, int dontRealloc=0);
+	static int isFolder(char*);
 	static int getShortFileName(char*,char*,int);
 	static int fileExists(char * );
 	static int deleteFile(char * );

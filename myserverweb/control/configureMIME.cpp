@@ -137,8 +137,14 @@ configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& 
 		{
 			char ext[10];/*!File extension*/
 			char dest[60];/*!MIME type*/
-			char dest2[MAX_PATH];/*!CGI manager if any*/
-			int cmd=mm.getMIME(i,ext,dest,dest2);/*!Action to do with this file type*/
+			char *dest2 = 0;/*!CGI manager if any*/
+      
+      /*!Get the action take do with this file type. */
+			int cmd=mm.getMIME(i,ext,dest,&dest2);
+      
+      if(dest2)
+        delete [] dest2;
+
 			if(mimeTypesLB->FindString(_T(dest))==wxNOT_FOUND)
 				mimeTypesLB->Insert(_T(dest),0);
 			extensionsLB->Insert(_T(ext),0);
@@ -174,16 +180,18 @@ void configurationFrameMIME::EXTtypeListEvt(wxCommandEvent& event)
 	wxString str=extensionsLB->GetString(event.GetSelection());
 	char EXT[10];
 	sprintf(EXT,"%s",(const char*)(str.ToAscii()));
-	char CGIMANAGER[MAX_PATH];
+	char *CGIMANAGER = 0;
 	char MIME[60];
-	int cmd=mm.getMIME(EXT,MIME,CGIMANAGER);
-	mimeTypesLB->SetSelection(mimeTypesLB->GetSelection(),FALSE);
-	mimeTypesLB->SetSelection(mimeTypesLB->FindString(MIME),TRUE);
+	int cmd=mm.getMIME(EXT, MIME, &CGIMANAGER);
+	mimeTypesLB->SetSelection(mimeTypesLB->GetSelection(), FALSE);
+	mimeTypesLB->SetSelection(mimeTypesLB->FindString(MIME), TRUE);
 
 	
-	actiontodoLB->SetSelection(actiontodoLB->GetSelection(),FALSE);
+	actiontodoLB->SetSelection(actiontodoLB->GetSelection(), FALSE);
 	actiontodoLB->SetSelection(cmd,TRUE);
 	cgiManagerTB->SetValue((wxString)CGIMANAGER);
+  if(CGIMANAGER)
+    delete [] CGIMANAGER;
 }
 void configurationFrameMIME::save(wxCommandEvent& event)
 {

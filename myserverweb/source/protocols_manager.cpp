@@ -42,6 +42,7 @@ typedef char* (*registerNamePROC)(char*,int);
 */
 int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cserver* lserver)
 {
+  errorParser = languageParser;
 #ifdef WIN32
 	hinstLib = LoadLibrary(filename);
 #endif
@@ -73,6 +74,8 @@ int dynamic_protocol::loadProtocol(cXMLParser* languageParser,char* confFile,cse
 */
 int dynamic_protocol::unloadProtocol(cXMLParser* languageParser)
 {
+  if(filename)
+    delete [] filename;
 	unloadProtocolPROC Proc=0;
 #ifdef WIN32
 	if(hinstLib)
@@ -159,14 +162,33 @@ dynamic_protocol::dynamic_protocol()
 {
 	hinstLib=0;
 	PROTOCOL_OPTIONS=0;
+  filename = 0;
+  errorParser=0;
 }
 
 /*!
-*Set the right file name
+*Destroy the protocol object.
 */
+dynamic_protocol::~dynamic_protocol()
+{
+  unloadProtocol(errorParser);
+  errorParser=0;
+	hinstLib=0;
+	PROTOCOL_OPTIONS=0;
+  filename = 0;
+}
+
+/*!
+ *Set the right file name
+ *Returns nonzero on errors.
+ */
 int dynamic_protocol::setFilename(char *nf)
 {
-	strncpy(filename, nf, MAX_PATH);
+  if(filename)
+    delete [] filename;
+  int filenamelen = strlen(nf);
+  filename = new char[filenamelen];
+	strcpy(filename, nf);
 	return 1;
 }
 
@@ -208,15 +230,15 @@ int protocols_manager::unloadProtocols(cXMLParser *parser)
 }
 
 /*!
-*Class constructor
-*/
+ *Class constructor.
+ */
 protocols_manager::protocols_manager()
 {
 	list=0;
 }
 /*!
-*Get the dynamic protocol by its name.
-*/
+ *Get the dynamic protocol by its name.
+ */
 dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
 {
 	dynamic_protocol_list_element* ne=list;
@@ -231,15 +253,25 @@ dynamic_protocol* protocols_manager::getDynProtocol(char *protocolName)
 	
 }
 /*!
-*Load all the protocols present in the directory.
-*/
-void protocols_manager::loadProtocols(char* folder,cXMLParser* parser,char* confFile,cserver* lserver)
+ *Load all the protocols present in the directory.
+ *Returns Nonzero on errors.
+ */
+int protocols_manager::loadProtocols(char* folder,cXMLParser* parser,char* confFile,cserver* lserver)
 {
-	char filename[MAX_PATH];
+	char *filename;
+  int filenamelen;
 #ifdef WIN32
+  filenamelen=strlen(folder)+5;
+  filename=new char[filenamelen];
+  if(filename == 0)
+    return -1;
 	sprintf(filename,"%s/*.*",folder);
 #endif	
 #ifdef NOT_WIN
+  filenamelen=strlen(folder)+2;
+  filename=new char[filenamelen];
+  if(filename == 0)
+    return -1;
 	sprintf(filename,"%s/",folder);
 #endif	
 	
@@ -252,14 +284,17 @@ void protocols_manager::loadProtocols(char* folder,cXMLParser* parser,char* conf
 #ifdef NOT_WIN
 	if((int)ff==-1)
 #endif
-		return;	
+  {
+    delete [] filename;
+		return -1;	
+  }
 	do
 	{	
 		if(fd.name[0]=='.')
 			continue;
 		/*
-		*Do not consider file other than dynamic libraries
-		*/
+     *Do not consider file other than dynamic libraries.
+     */
 #ifdef WIN32
 		if(!strstr(fd.name,".dll"))
 #endif
@@ -274,5 +309,6 @@ void protocols_manager::loadProtocols(char* folder,cXMLParser* parser,char* conf
 		
 	}while(!_findnext(ff,&fd));
 	_findclose(ff);		
-
+  delete [] filename;
+  return 0;
 }

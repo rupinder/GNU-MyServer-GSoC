@@ -544,10 +544,10 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
     }
 		/*!Parse the line. */
 		int cc=0;
-    vh->documentRoot = new char[MAX_PATH];
-    vh->systemRoot  = new char[MAX_PATH];
-    vh->accessesLogFileName  = new char[MAX_PATH];
-    vh->warningsLogFileName = new char[MAX_PATH];
+    vh->documentRoot = new char[MAX_PATH];/*Don't support long files. */
+    vh->systemRoot  = new char[MAX_PATH];/*Don't support long files. */
+    vh->accessesLogFileName  = new char[MAX_PATH];/*Don't support long files. */
+    vh->warningsLogFileName = new char[MAX_PATH];/*Don't support long files. */
 
     /*!Get the hosts list. */
 		for(;;)
