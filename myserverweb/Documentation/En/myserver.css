@@ -2,6 +2,8 @@ body         { text-align: left; color:#000000; background-color:#FFFFFF; font-f
 a:link       {  color: #0000FF; }
 a:visited    {  color: #008000; }
 a:active     {  color: #800080;}
+.code		 {	color: #006600;}
+.title		 {	color: #006600;}
 textarea     {   color: #000000;}
 html         {   color: #000000;}
 table        {   color: #000000;}

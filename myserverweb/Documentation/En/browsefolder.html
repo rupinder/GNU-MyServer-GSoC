@@ -7,7 +7,7 @@
   <title>BrowseFolder</title>
 </head>
 <body>
-<h1 align="center" style="color: rgb(0, 102, 0);">BROWSE FOLDER</h1>
+<h1 align="center" class="title">BROWSE FOLDER</h1>
 When a client requests a folder from the server and the server cannot
 find a default file to send, it indexes the folder and sends a list of
 the files to the client.&nbsp; This allows the client to browse the
@@ -18,30 +18,18 @@ folder and access any file within it.<br>
 </div>
 <small><br>
 <br>
-</small>&nbsp;If you want to define a cascading style sheet for the
+</small>If you want to define a cascading style sheet for the
 folder index page, you can modify the file<span
- style="color: rgb(0, 102, 0);"> </span><font color="#ffff00"><span
- style="color: rgb(0, 102, 0);">myserver.xml.</span><br>
+ class="code"> myserver.xml.</span><br>
 <br>
-</font>&nbsp;Locate the line:
-<font color="#ffff00"
- style="color: rgb(0, 102, 0); font-family: courier new,courier,monospace;">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</font><span
- style="color: rgb(0, 102, 0);">
-</span><br>
-and replace <font color="#ffff00"
- style="color: rgb(0, 102, 0); font-family: courier new,courier,monospace;">system/folderstyle.css</font><span
- style="color: rgb(0, 102, 0);"> </span>with
+</font>Locate the line:
+<br>and replace <font  class="code">system/folderstyle.css</font> with
 the name of your .css file.
-<p>The file <font color="#ffff00" style="color: rgb(0, 102, 0);"><span
- style="font-family: courier new,courier,monospace;">system/folderstyle.cs</span>s</font>
-has
-the default form:
-</p>
+<p>The file <font class="code">system/folderstyle.css</font>
+has the default form:</p>
 <p
- style="color: rgb(0, 102, 0); font-family: courier new,courier,monospace;">body
-{ font-family: Arial; color: #000000;
-background-color:
-#FFFFFF }</p>
+  class="code">body
+{ font-family: Arial; color: #000000;background-color:#FFFFFF }</p>
 <br>
 <br>
 </body>
