@@ -896,8 +896,12 @@ int vhost::initializeSSL()
 	sslContext.context = SSL_CTX_new(sslContext.method);
 	if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,sslContext.certificateFile)))
 		return -1;
+	SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, sslContext.password);
+	SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
 	if(!(SSL_CTX_use_PrivateKey_file(sslContext.context,sslContext.privateKeyFile,SSL_FILETYPE_PEM)))
 		return -1;
+
+
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
 		SSL_CTX_set_verify_depth(ctx,1);
 #endif
@@ -977,4 +981,12 @@ int vhostmanager::removeVHost(int n)
 		hl=hl->next;
 	}
 	return 0;
+}
+static int password_cb(char *buf,int num,int rwflag,void *userdata)
+{
+	if(num<strlen((char*)userdata)+1)
+		return(0);
+
+	strcpy(buf,(char*)userdata);
+	return(strlen(buf));
 }

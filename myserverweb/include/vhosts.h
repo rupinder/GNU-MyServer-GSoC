@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include<openssl/pem.h>
 #include<openssl/x509.h>
 #include<openssl/rand.h>
-
+static int password_cb(char *buf,int num,int rwflag,void *userdata);
 class vhost
 {
 	MYSERVER_FILE warningsLogFile;
