@@ -514,7 +514,6 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 		}
 		getPath(td,td->filenamePath,filename,systemrequest);
 	}
-
 	int permissions=-1;/*By default everything is permitted*/
 	if(!systemrequest)
 	{
@@ -559,8 +558,11 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int systemre
 				break;
 			}
 		}
-		dirscan[len++]=(td->filenamePath)[i];
-		dirscan[len]='\0';
+		if(len<MAX_PATH)
+		{
+			dirscan[len++]=(td->filenamePath)[i];
+			dirscan[len]='\0';
+		}
 	}
 	
 	/*
@@ -1494,9 +1496,12 @@ void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int s
 	else
 	{	
 		if(filename[0])
+		{
 			sprintf(filenamePath,"%s/%s",((vhost*)(td->connection->host))->documentRoot,filename);
+			filenamePath[MAX_PATH-1]='\0';
+		}
 		else
-			sprintf(filenamePath,"%s",((vhost*)(td->connection->host))->documentRoot);
+			strcpy(filenamePath,((vhost*)(td->connection->host))->documentRoot);
 
 	}
 }
