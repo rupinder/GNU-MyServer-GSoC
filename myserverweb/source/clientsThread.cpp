@@ -154,8 +154,8 @@ LPCONNECTION ClientsTHREAD::addConnection(MYSERVER_SOCKET s,CONNECTION_PROTOCOL 
 	ZeroMemory(nc,sizeof(CONNECTION));
 	nc->socket=s;
 	nc->port=(u_short)port;
-	nc->protocol=protID;
 	nc->timeout=clock();
+	nc->protocol=protID;
 	lstrcpy(nc->ipAddr,ipAddr);
 	nc->Next=connections;
 	connections=nc;

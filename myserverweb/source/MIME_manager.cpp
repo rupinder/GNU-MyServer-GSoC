@@ -147,7 +147,7 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 /*
 *Clean the memory allocated by the structure.
 */
-VOID MIME_Manager::clean()
+void MIME_Manager::clean()
 {
 	removeAllRecords();
 }
@@ -163,7 +163,7 @@ MIME_Manager::MIME_Manager()
 /*
 *Add a record.
 */
-VOID MIME_Manager::addRecord(MIME_Manager::mime_record mr)
+void MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 {
 	MIME_Manager::mime_record *nmr =(MIME_Manager::mime_record*)malloc(sizeof(mime_record));
 	memcpy(nmr,&mr,sizeof(mime_record));
@@ -175,7 +175,7 @@ VOID MIME_Manager::addRecord(MIME_Manager::mime_record mr)
 /*
 *Remove a record passing the extension of the MIME type.
 */
-VOID MIME_Manager::removeRecord(char *ext)
+void MIME_Manager::removeRecord(char *ext)
 {
 	MIME_Manager::mime_record *nmr1 = data;
 	MIME_Manager::mime_record *nmr2 = 0;
@@ -202,7 +202,7 @@ VOID MIME_Manager::removeRecord(char *ext)
 /*
 *Remove all records from the linked list.
 */
-VOID MIME_Manager::removeAllRecords()
+void MIME_Manager::removeAllRecords()
 {
 	if(data==0)
 		return;

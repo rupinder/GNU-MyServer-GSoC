@@ -233,13 +233,17 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	*/
 	lstrcpy(cgiEnvString,"SERVER_SOFTWARE=myServer");
 	lstrcat(cgiEnvString,versionOfSoftware);
+#ifdef WIN32
+	lstrcat(cgiEnvString," (Win32)");
+#endif
 
 	lstrcat(cgiEnvString,"\rSERVER_NAME=");
 	lstrcat(cgiEnvString,lserver->getServerName());
 
 	lstrcat(cgiEnvString,"\rSERVER_SIGNATURE=");
-	lstrcat(cgiEnvString,"myServer");
+	lstrcat(cgiEnvString,"<address>myServer ");
 	lstrcat(cgiEnvString,versionOfSoftware);
+	lstrcat(cgiEnvString,"</address>");
 
 	lstrcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/");
 	lstrcat(cgiEnvString,td->request.VER);		

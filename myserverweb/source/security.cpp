@@ -52,7 +52,7 @@ int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 /*
 *Change the owner of current thread.
 */
-VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation)
+void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
 	ImpersonateLoggedOnUser((HANDLE)*hImpersonation);
@@ -62,7 +62,7 @@ VOID impersonateLogonUser(LOGGEDUSERID* hImpersonation)
 /*
 *This function terminates the impersonation of a client application.
 */
-VOID revertToSelf()
+void revertToSelf()
 {
 #ifdef WIN32
 	RevertToSelf();
@@ -72,7 +72,7 @@ VOID revertToSelf()
 /*
 *Close the handle of a logged user.
 */
-VOID cleanLogonUser(LOGGEDUSERID* hImpersonation)
+void cleanLogonUser(LOGGEDUSERID* hImpersonation)
 {
 #ifdef WIN32
 	CloseHandle((HANDLE)*hImpersonation);
@@ -81,7 +81,7 @@ VOID cleanLogonUser(LOGGEDUSERID* hImpersonation)
 /*
 *Change the owner of the thread with the connection login and password informations.
 */
-VOID logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
+void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 {
 	*hImpersonation=0;
 	if(useLogonOption)
@@ -105,7 +105,7 @@ VOID logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
 /*
 *Logout the hImpersonation handle.
 */
-VOID logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
+void logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
 {
 	if(useLogonOption)
 	{
@@ -120,7 +120,7 @@ VOID logout(int /*logon*/,LOGGEDUSERID *hImpersonation)
 /*
 *Do the logon of the guest client.
 */
-VOID logonGuest()
+void logonGuest()
 {
 #ifdef WIN32
 	if(useLogonOption)

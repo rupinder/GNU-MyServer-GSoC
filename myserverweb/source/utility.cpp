@@ -117,17 +117,6 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 }
 
 /*
-*Get the local machine name.
-*/
-VOID getComputerName(char *dest,u_long maxLen)
-{
-#ifdef WIN32
-	gethostname(dest,maxLen);
-#endif
-}
-
-
-/*
 *This function is similar to the Windows API WaitForSingleObject(..)
 */
 INT requestAccess(u_long* ac,u_long id)
@@ -188,6 +177,15 @@ char *ms_getdefaultwd(char *path,int len)
 	if(path)
 		lstrcpyn(path,currentPath,len);
 	return path;
+}
+/*
+*Get the local machine name.
+*/
+void getComputerName(char *dest,u_long maxLen)
+{
+#ifdef WIN32
+	gethostname(dest,maxLen);
+#endif
 }
 
 /*

@@ -81,10 +81,10 @@ private:
 	u_long connectionTimeout;
 	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
-	VOID controlSizeLogFile();
-	VOID createServerAndListener(u_long,u_long);
+	void controlSizeLogFile();
+	void createServerAndListener(u_long,u_long);
 public:
-	WORD port_HTTP;
+	u_short port_HTTP;
 	MIME_Manager mimeManager;
 	MYSERVER_FILE_HANDLE warningsLogFile;
 	MYSERVER_FILE_HANDLE accessesLogFile;
@@ -97,11 +97,9 @@ public:
 	int  mustUseMessagesFiles();
 	int  mustUseLogonOption();
 	void  setVerbosity(u_long);
-	void start(int);
+	void start();
 	void stop();
 	void terminate();
-	int hInst;
-
 }; 
 
 LRESULT CALLBACK MainWndProc(HWND,UINT,WPARAM,LPARAM); 

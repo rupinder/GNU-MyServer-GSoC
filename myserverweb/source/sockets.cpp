@@ -23,13 +23,14 @@
 #include <string.h>
 
 #ifdef WIN32
+#pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"ws2_32.lib")
 #endif
 
 /*
 *Source code to wrap the socket library to myServer project.
 */
-int ms_startupSocketLib(WORD ver)
+int ms_startupSocketLib(u_short ver)
 {
 #ifdef WIN32	
 	WSADATA wsaData;

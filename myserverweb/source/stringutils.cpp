@@ -86,34 +86,34 @@ char *getHTTPFormattedTime(const tm* gmtime)
 /*
 *Trim a string.
 */
-VOID StrTrim(char* str,const char* trimChars)
+void StrTrim(char* str,const char* trimchars)
 {
-	WORD lenTrimChars=(WORD)lstrlen(trimChars);
-	WORD lenStr=(WORD)lstrlen(str);
+	u_short lenTrimchars=(u_short)lstrlen(trimchars);
+	u_short lenStr=(u_short)lstrlen(str);
 	/*
 	*Number of characters to remove from the initial position of the string.
 	*/
-	WORD ncharToRemove=0;
+	u_short ncharToRemove=0;
 	int doBreak=FALSE;
 	if(lenStr==0)
 		return;
-	if(lenTrimChars==0)
+	if(lenTrimchars==0)
 		return;
 	int j;
 	for(j=0;j<=lenStr;j++)
 	{
 		if(doBreak)
 			break;
-		for(int i=0;i<lenTrimChars;i++)
+		for(int i=0;i<lenTrimchars;i++)
 		{
-			if(str[j]==trimChars[i])
+			if(str[j]==trimchars[i])
 			{
 				ncharToRemove++;
 				break;
 			}
 			else
 			{
-				if((i==lenTrimChars-1)||(str[j]=='\0'))
+				if((i==lenTrimchars-1)||(str[j]=='\0'))
 				{
 					doBreak=TRUE;
 					break;
@@ -128,16 +128,16 @@ VOID StrTrim(char* str,const char* trimChars)
 	{
 		if(doBreak)
 			break;
-		for(int i=0;i<lenTrimChars;i++)
+		for(int i=0;i<lenTrimchars;i++)
 		{
-			if(str[j]==trimChars[i])
+			if(str[j]==trimchars[i])
 			{
 				str[j]='\0';
 				break;
 			}
 			else
 			{
-				if(i==lenTrimChars-1)
+				if(i==lenTrimchars-1)
 				{
 					doBreak=TRUE;
 					break;

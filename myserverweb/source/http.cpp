@@ -32,7 +32,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	*file to send.
 	*/
 	static char filename[MAX_PATH];
-	int startChar=0;
+	int startchar=0;
 	int nDirectories=0;
 	int i;
 	for(i=0;td->request.URI[i];i++)
@@ -40,19 +40,19 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		if(td->request.URI[i]=='/')
 			nDirectories++;
 	}
-	for(startChar=0,i=0;td->request.URI[i];i++)
+	for(startchar=0,i=0;td->request.URI[i];i++)
 	{
 		if(td->request.URI[i]=='/')
 		{
-			startChar++;
-			if(startChar==nDirectories)
+			startchar++;
+			if(startchar==nDirectories)
 			{
 				/*
-				*At the end of the loop set startChar to te real value.
-				*startChar indicates the initial position in td->request.URI 
+				*At the end of the loop set startchar to te real value.
+				*startchar indicates the initial position in td->request.URI 
 				*of the file path.
 				*/
-				startChar=i+1;
+				startchar=i+1;
 				break;
 			}
 		}
@@ -78,7 +78,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	lstrcat(td->buffer2,"<BODY>");
 	lstrcat(td->buffer2,msgFolderContents);
 	lstrcat(td->buffer2," ");
-	lstrcat(td->buffer2,&td->request.URI[startChar]);
+	lstrcat(td->buffer2,&td->request.URI[startchar]);
 	lstrcat(td->buffer2,"\\<P>\n<HR>");
 	intptr_t ff;
 	ff=_findfirst(filename,&fd);
@@ -119,7 +119,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		lstrcat(td->buffer2,"<TR><TD><A HREF=\"");
 		if(!td->request.uriEndsWithSlash)
 		{
-			lstrcat(td->buffer2,&td->request.URI[startChar]);
+			lstrcat(td->buffer2,&td->request.URI[startchar]);
 			lstrcat(td->buffer2,"/");
 		}
 		lstrcat(td->buffer2,fd.name);
@@ -376,7 +376,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	if(mimeCMD==CGI_CMD_SENDLINK)
 	{
 		MYSERVER_FILE_HANDLE h=ms_OpenFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-		DWORD nbr;
+		u_long nbr;
 		char linkpath[MAX_PATH];
 		char pathInfo[MAX_PATH];
 		ms_ReadFromFile(h,linkpath,MAX_PATH,&nbr);
@@ -431,8 +431,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*Control if the HTTP header is a valid header.
 	*/
 	u_long i=0,j=0,max=0;
-	u_long nLines,maxTotChars;
-	u_long validRequest=validHTTPRequest(&td,&nLines,&maxTotChars);
+	u_long nLines,maxTotchars;
+	u_long validRequest=validHTTPRequest(&td,&nLines,&maxTotchars);
 
 
 	/*
@@ -598,8 +598,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			lstrcpy(td.request.ACCEPTLAN,token);
 			StrTrim(td.request.ACCEPTLAN," ");
 		}
-		/*Accept-Charset*/
-		if(!lstrcmpi(command,"Accept-Charset"))
+		/*Accept-charset*/
+		if(!lstrcmpi(command,"Accept-charset"))
 		{
 			token = strtok( NULL, "\n\r" );
 			lineControlled=TRUE;
@@ -697,7 +697,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			token = strtok( NULL, "\n" );
 		}
 		token = strtok( NULL, cmdseps );
-	}while((u_long)(token-td.buffer)<maxTotChars);
+	}while((u_long)(token-td.buffer)<maxTotchars);
 	/*
 	*END REQUEST STRUCTURE BUILD
 	*/
@@ -708,7 +708,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*/
 	if(!lstrcmpi(td.request.CMD,"POST"))
 	{
-		td.request.URIOPTSPTR=&td.buffer[maxTotChars];
+		td.request.URIOPTSPTR=&td.buffer[maxTotchars];
 		td.buffer[min(td.nBytesToRead,td.buffersize)]='\0';
 		/*
 		*Create the file that contains the data posted.
@@ -719,7 +719,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		sprintf(&stdInFilePath[lstrlen(stdInFilePath)],"/stdInFile__%u",td.id);
 		td.inputData=ms_CreateTemporaryFile(stdInFilePath);
 		u_long nbw;
-		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-maxTotChars,&nbw);
+		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-maxTotchars,&nbw);
 		/*
 		*If there are others bytes to read from the socket.
 		*/
@@ -850,7 +850,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 /*
 *Reset all the HTTP_REQUEST_HEADER structure members.
 */
-VOID resetHTTPRequest(HTTP_REQUEST_HEADER *request)
+void resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 {
 	request->CMD[0]='\0';		
 	request->VER[0]='\0';		
@@ -1030,18 +1030,18 @@ void getPath(char *filenamePath,const char *filename,int systemrequest)
 *Controls if the req string is a valid HTTP request header.
 *Returns 0 if req is an invalid header, a non-zero value if is a valid header.
 *nLinesptr is a value of the lines number in the HEADER.
-*nCharsptr is a value of the characters number in the HEADER.
+*ncharsptr is a value of the characters number in the HEADER.
 */
-u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* nCharsptr)
+u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i;
 	char *req=td->buffer;
 	u_long buffersize=td->buffersize;
-	u_long nLineChars;
+	u_long nLinechars;
 	int isValidCommand=FALSE;
-	nLineChars=0;
+	nLinechars=0;
 	u_long nLines=0;
-	u_long maxTotChars=0;
+	u_long maxTotchars=0;
 	if(req==0)
 		return 0;
 	/*
@@ -1053,8 +1053,8 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* nCharspt
 		{
 			if(req[i+2]=='\n')
 			{
-				maxTotChars=i+3;
-				if(maxTotChars>buffersize)
+				maxTotchars=i+3;
+				if(maxTotchars>buffersize)
 				{
 					isValidCommand=FALSE;
 					break;				
@@ -1065,12 +1065,12 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* nCharspt
 			nLines++;
 		}
 		else
-			nLineChars++;
+			nLinechars++;
 		/*
 		*We set a maximum theorical number of characters in a line to 1024.
 		*If a line contains more than 1024 lines we consider the header invalid.
 		*/
-		if(nLineChars>1024)
+		if(nLinechars>1024)
 			break;
 	}
 
@@ -1078,7 +1078,7 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* nCharspt
 	*Set the output variables.
 	*/
 	*nLinesptr=nLines;
-	*nCharsptr=maxTotChars;
+	*ncharsptr=maxTotchars;
 	/*
 	*Return if is a valid request header.
 	*/

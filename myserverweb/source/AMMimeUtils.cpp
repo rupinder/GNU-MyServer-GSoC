@@ -502,10 +502,10 @@ char* CQPUtils::Decode(char *input)
 
 
 
-char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize, int SingleChar)
+char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize, int Singlechar)
 {
 	int AddVal;
-	if (SingleChar) AddVal = 3;
+	if (Singlechar) AddVal = 3;
 	else AddVal = 5;
 	if (UsedSize >= *BufSize - AddVal)
 	{

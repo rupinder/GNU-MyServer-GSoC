@@ -44,7 +44,7 @@ char msgFile[33];
 char msgLModify[33];
 char msgSize[33];
 
-void cserver::start(int hInst)
+void cserver::start()
 {
 	u_long i;
 	/*
@@ -53,7 +53,6 @@ void cserver::start(int hInst)
 	ms_setcwdBuffer();
 
 	mustEndServer=FALSE;
-	cserver::hInst=hInst;
 	ZeroMemory(this,sizeof(cserver));
 
 
@@ -254,7 +253,7 @@ void cserver::start(int hInst)
 /*
 *This function is used to create a socket server and a thread listener for a protocol.
 */
-VOID cserver::createServerAndListener(u_long port,u_long protID)
+void cserver::createServerAndListener(u_long port,u_long protID)
 {
 	/*
 	*Create the server socket.
@@ -500,12 +499,12 @@ void cserver::initialize(int OSVer)
 
 	useMessagesFiles=TRUE;
 	configurationFileManager.open("myserver.xml");
-	CHAR *data;
+	char *data;
 
 	data=configurationFileManager.getValue("HTTP_PORT");
 	if(data)
 	{
-		port_HTTP=(WORD)atoi(data);
+		port_HTTP=(u_short)atoi(data);
 	}
 
 
@@ -546,7 +545,7 @@ void cserver::initialize(int OSVer)
 		lstrcpy(guestLogin,data);
 	}
 
-	data=configurationFileManager.getValue("GUEST_PASSWORD");
+	data=configurationFileManager.getValue("GUEST_password");
 	if(data)
 	{
 		lstrcpy(guestPassword,data);
@@ -631,7 +630,7 @@ void cserver::initialize(int OSVer)
 /*
 *Control the size of the log file.
 */
-VOID cserver::controlSizeLogFile()
+void cserver::controlSizeLogFile()
 {
 	/*
 	*Controls the warnings file.
@@ -679,7 +678,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,CONNE
 	ret=TRUE;
 	char ip[32];
 	sprintf(ip,"%u.%u.%u.%u",(*asock_in).sin_addr.S_un.S_un_b.s_b1,(*asock_in).sin_addr.S_un.S_un_b.s_b2,(*asock_in).sin_addr.S_un.S_un_b.s_b3,(*asock_in).sin_addr.S_un.S_un_b.s_b4);
-	int port=(*asock_in).sin_port;
+	int port=ntohs((*asock_in).sin_port);
 
 	char msg[500];
 	sprintf(msg,"%s:%u.%u.%u.%u ->%s %s:%s\r\n",msgNewConnection,(*asock_in).sin_addr.S_un.S_un_b.s_b1, (*asock_in).sin_addr.S_un.S_un_b.s_b2, (*asock_in).sin_addr.S_un.S_un_b.s_b3, (*asock_in).sin_addr.S_un.S_un_b.s_b4,serverName,msgAtTime,getHTTPFormattedTime());

@@ -25,7 +25,6 @@
 *External libraries to be included in the project.
 */
 #ifdef WIN32
-#pragma comment(lib,"wsock32.lib")
 #pragma comment(lib,"winmm.lib")
 #endif
 
@@ -34,10 +33,9 @@ void console_service (int, char **);
 
 #ifdef WIN32
 int __stdcall control_handler(u_long control_type);
-VOID __stdcall myServerCtrlHandler(u_long fdwControl);
-VOID __stdcall myServerMain (u_long argc, LPTSTR *argv); 
+void __stdcall myServerCtrlHandler(u_long fdwControl);
+void __stdcall myServerMain (u_long argc, LPTSTR *argv); 
 void runService();
-int hInst;
 #endif
 
 static char path[MAX_PATH];
@@ -46,7 +44,7 @@ int cmdShow;
 /*
 *Change this for every new version of this software.
 */
-const char *versionOfSoftware="0.3";
+const char *versionOfSoftware="0.3.1";
 cserver server;
 
 int main (int argn, char **argc)
@@ -63,7 +61,6 @@ int main (int argn, char **argc)
 	path[len]='\0';
 	_chdir(path);
 	
-	hInst=0;
 	cmdShow=0;
 	char* cmdLine=argc[1];
 	int i;
@@ -95,7 +92,7 @@ void console_service (int, char **)
 #endif
 
 	printf("started in console mode\n");
-	server.start((int)hInst);
+	server.start();
 }
 
 
@@ -108,7 +105,7 @@ SERVICE_STATUS_HANDLE   MyServiceStatusHandle;
 /*
 *Entry-point for the NT service.
 */
-VOID  __stdcall myServerMain (u_long, LPTSTR*)
+void  __stdcall myServerMain (u_long, LPTSTR*)
 {
 	MyServiceStatus.dwServiceType = SERVICE_WIN32;
 	MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
@@ -128,7 +125,7 @@ VOID  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		server.start((int)hInst);
+		server.start();
 	
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
@@ -143,7 +140,7 @@ VOID  __stdcall myServerMain (u_long, LPTSTR*)
 /*
 *Manage the NT service.
 */
-VOID __stdcall myServerCtrlHandler(u_long fdwControl)
+void __stdcall myServerCtrlHandler(u_long fdwControl)
 {
 	switch ( fdwControl )
 	{

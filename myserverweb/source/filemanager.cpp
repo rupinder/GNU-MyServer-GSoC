@@ -88,21 +88,6 @@ INT	ms_WriteToFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long*
 #endif
 }
 /*
-*Read data from a file to a buffer.
-*/
-INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbr)
-{
-#ifdef WIN32
-	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
-	/*
-	*Return 1 if we don't reach the ond of the file.
-	*Return 0 if the end of the file is reached.
-	*/
-	return (*nbr<=buffersize)? 1 : 0 ;
-#endif
-}
-
-/*
 *Open(or create if not exists) a file.
 *If the function have success the return value is different from 0 and -1.
 */
@@ -157,6 +142,20 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 
 #endif
 	return ret;
+}
+/*
+*Read data from a file to a buffer.
+*/
+INT	ms_ReadFromFile(MYSERVER_FILE_HANDLE f,char* buffer,u_long buffersize,u_long* nbr)
+{
+#ifdef WIN32
+	ReadFile((HANDLE)f,buffer,buffersize,nbr,NULL);
+	/*
+	*Return 1 if we don't reach the ond of the file.
+	*Return 0 if the end of the file is reached.
+	*/
+	return (*nbr<=buffersize)? 1 : 0 ;
+#endif
 }
 /*
 *Create a temporary file.
