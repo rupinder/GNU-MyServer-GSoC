@@ -911,8 +911,8 @@ isapi::isapi()
 */
 int isapi::load()
 {
-    u_long n_threads = lserver->getNumThreads();
 #ifdef WIN32
+  u_long n_threads = lserver->getNumThreads();
 	if(initialized)
 		return 0;
 	isapi_mutex = new myserver_mutex;
