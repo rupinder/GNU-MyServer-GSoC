@@ -285,7 +285,6 @@ int terminateProcess(u_long id)
 	*/
 	return kill((pid_t)id, SIGTERM);
 #endif	
-
 }
 
 

@@ -52,9 +52,9 @@ static char path[MAX_PATH];
 
 int cmdShow;
 /*
-*Change this for every new version of this software.
+*Change this to reflect the version of the software.
 */
-const char *versionOfSoftware="0.5";
+const char *versionOfSoftware="0.6";
 cserver server;
 
 
