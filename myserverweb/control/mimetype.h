@@ -53,7 +53,11 @@ class MIMEtypeXML
    ~MIMEtypeXML();
    void clear();
    int load(const char *);
+   int loadMemBuf(CMemBuf &);
+   int load_core(cXMLParser &);
    int save(const char *);
+   int saveMemBuf(CMemBuf &);
+   int save_core(cXMLParser &);
    void populateExt(Fl_Browser *);
    void populateMime(Fl_Choice *);
    int addExt(const char *);

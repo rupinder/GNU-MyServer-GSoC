@@ -29,7 +29,6 @@ extern "C"
 using namespace std;
 
 //#define DEBUG
-#define USE_NEW_XML
 
 const char * NONE = "NONE";
 
@@ -45,14 +44,31 @@ void MIMEtypeXML::clear()
    ClearExt();
 }
 
-// Copied and modified from MIME_manager.cpp
-// TODO: Change to use libxml2 or cXMLParser more "proper"
 int MIMEtypeXML::load(const char * filename)
 {
-   int extNumber = 0;
    cXMLParser parser;
    if(parser.open((char *)filename)) // but I promis I wont modify
      return -1;
+   int ret = load_core(parser);
+   parser.close();
+   return ret;
+}
+
+int MIMEtypeXML::loadMemBuf(CMemBuf & buffer)
+{
+   cXMLParser parser;
+   if(parser.openMemBuf(buffer))
+     return -1;
+   int ret = load_core(parser);
+   parser.close();
+   return ret;
+}
+
+// Copied and modified from MIME_manager.cpp
+// TODO: Change to use libxml2 or cXMLParser more "proper"
+int MIMEtypeXML::load_core(cXMLParser & parser)
+{
+   int extNumber = 0;
 
    clear();
 
@@ -125,22 +141,37 @@ int MIMEtypeXML::load(const char * filename)
 	// while(lcur)
      }
    // for(;node;node=node->next )
-   parser.close();
    Mime.sort();
    
    return 0;
 }
 
-// Copied and modified from MIME_manager.cpp
-// Now uses cXMLParser when USE_NEW_XML is defined
 int MIMEtypeXML::save(const char * filename)
+{
+   cXMLParser xmlFile;
+   int ret = save_core(xmlFile);
+   xmlFile.save((char *)filename); // But, but, but I promis
+   xmlFile.close();
+   return ret;
+}
+
+int MIMEtypeXML::saveMemBuf(CMemBuf & buffer)
+{
+   cXMLParser xmlFile;
+   int ret = save_core(xmlFile);
+   xmlFile.saveMemBuf(buffer);
+   xmlFile.close();
+   return ret;
+}
+   
+// Copied and modified from MIME_manager.cpp
+// Old text way remove to make use of CMemBuf
+int MIMEtypeXML::save_core(cXMLParser & xmlFile)
 {
    if(Ext.isempty())
      return -1;
 
-#ifdef USE_NEW_XML
    // New cXMLParser way...
-   cXMLParser xmlFile;
    int i;
    
    xmlFile.newfile("MIMETYPES");
@@ -190,70 +221,6 @@ int MIMEtypeXML::save(const char * filename)
 	xmlFile.addChild("MANAGER", getManager(i));
 	xmlFile.endGroup();
      }
-
-   xmlFile.save((char *)filename); // But, but, but I promis
-   xmlFile.close();
-#else
-   // Old text way...
-   MYSERVER_FILE::deleteFile((char *)filename); // But, but, but I promis
-   MYSERVER_FILE f;
-   int i;
-   u_long nbw;
-   f.openFile((char *)filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
-   f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
-   f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
-   for(i = 0; i < Ext.size(); i++)
-     {
-	f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
-	f.writeToFile(Ext.at(i)->Text,(u_long)strlen(Ext.at(i)->Text),&nbw);
-	f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
-	f.writeToFile(Mime.at(getType(i))->Text,(u_long)strlen(Mime.at(getType(i))->Text),&nbw);
-	f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
-	char command[16];
-	switch(getCmd(i))
-	  {
-	   case CMD_SEND:
-	     strcpy(command,"SEND");
-	     break;
-	   case CMD_RUNCGI:
-	     strcpy(command,"RUNCGI");
-	     break;
-	   case CMD_RUNMSCGI:
-	     strcpy(command,"RUNMSCGI");
-	     break;
-	   case CMD_EXECUTE:
-	     strcpy(command,"EXECUTE");
-	     break;
-	   case CMD_SENDLINK:
-	     strcpy(command,"SENDLINK");
-	     break;
-	   case CMD_RUNISAPI:
-	     strcpy(command,"RUNISAPI");
-	     break;
-	   case CMD_EXECUTEISAPI:
-	     strcpy(command,"EXECUTEISAPI");
-	     break;
-	   case CMD_EXECUTEWINCGI:
-	     strcpy(command,"EXECUTEWINCGI");
-	     break;
-	   case CMD_RUNFASTCGI:
-	     strcpy(command,"RUNFASTCGI");
-	     break;
-	   case CMD_EXECUTEFASTCGI:
-	     strcpy(command,"EXECUTEFASTCGI");
-	     break;
-	   default:
-	     break;
-	  }
-	f.writeToFile(command,(u_long)strlen(command),&nbw);
-	f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
-	f.writeToFile((char *)getManager(i),(u_long)strlen(getManager(i)),&nbw);
-	f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);
-     }
-
-   f.writeToFile("\r\n</MIMETYPES>",14,&nbw);
-   f.closeFile();
-#endif
    
    return 0;
 }

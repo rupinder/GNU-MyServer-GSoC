@@ -28,8 +28,6 @@ extern "C"
 
 using namespace std;
 
-#define USE_NEW_XML
-
 const char * EMPTY = "";
 
 vHostXML::~vHostXML()
@@ -44,14 +42,33 @@ void vHostXML::clear()
    vHosts.clear();
 }
 
-// from vhosts.cpp with modification
-// TODO: Change to use libxml2 or cXMLParser more "proper"
 int vHostXML::load(const char * filename)
 {
-   int NameNo = 0;
    cXMLParser parser;
    if(parser.open((char *)filename))  // But I promis not to change filename
      return -1;
+   
+   int ret = load_core(parser);
+   parser.close();
+   return ret;
+}
+
+int vHostXML::loadMemBuf(CMemBuf & buffer)
+{
+   cXMLParser parser;
+   if(parser.openMemBuf(buffer))
+     return -1;
+   
+   int ret = load_core(parser);
+   parser.close();
+   return ret;
+}
+
+// from vhosts.cpp with modification
+// TODO: Change to use libxml2 or cXMLParser more "proper"
+int vHostXML::load_core(cXMLParser & parser)
+{
+   int NameNo = 0;
 
    clear();
    
@@ -165,20 +182,35 @@ int vHostXML::load(const char * filename)
 	     lcur=lcur->next;
 	  }
      }
-   parser.close();
    return 0;
 }
 
-// from vhosts.cpp with modification
-// Now uses cXMLParser when USE_NEW_XML is defined
 int vHostXML::save(const char * filename)
+{
+   cXMLParser xmlFile;
+   int ret = save_core(xmlFile);
+   xmlFile.save((char *)filename);
+   xmlFile.close();
+   return ret;
+}
+
+int vHostXML::saveMemBuf(CMemBuf & buffer)
+{
+   cXMLParser xmlFile;
+   int ret = save_core(xmlFile);
+   xmlFile.saveMemBuf(buffer);
+   xmlFile.close();
+   return ret;
+}
+
+// from vhosts.cpp with modification
+// Old text way removed to make use of CMemBuf
+int vHostXML::save_core(cXMLParser & xmlFile)
 {
    if(vHosts.isempty())
      return -1;
 
-#ifdef USE_NEW_XML
    // New xml way...
-   cXMLParser xmlFile;
    int i, i2;
    
    xmlFile.newfile("VHOSTS");
@@ -247,106 +279,6 @@ int vHostXML::save(const char * filename)
 
 	xmlFile.endGroup();
      }
-   xmlFile.save((char *)filename);
-   xmlFile.close();
-#else
-   // Old text way...
-   MYSERVER_FILE out;
-   u_long nbw;
-   int i, i2;
-   out.openFile((char *)filename,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE); // trust me
-   out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
-   for(i = 0; i < vHosts.size(); i++)
-     {
-	out.writeToFile("<VHOST>\r\n",9,&nbw);
-
-	out.writeToFile("<NAME>",6,&nbw);
-	out.writeToFile(vHosts.at(i)->Text,(u_long)strlen(vHosts.at(i)->Text),&nbw);
-	out.writeToFile("</NAME>\r\n",9,&nbw);
-
-	for(i2 = 0; i2 < ((vHostNode *)(vHosts.at(i)->Data))->Ip.size(); i2++)
-	  {
-	     out.writeToFile("<IP>",4,&nbw);
-	     out.writeToFile(((vHostNode *)(vHosts.at(i)->Data))->Ip.at(i2)->Text,(u_long)strlen(((vHostNode *)(vHosts.at(i)->Data))->Ip.at(i2)->Text),&nbw);
-	     out.writeToFile("</IP>\r\n",7,&nbw);
-	  }
-
-	for(i2 = 0; i2 < ((vHostNode *)(vHosts.at(i)->Data))->Host.size(); i2++)
-	  {
-	     out.writeToFile("<HOST>",6,&nbw);
-	     out.writeToFile(((vHostNode *)(vHosts.at(i)->Data))->Host.at(i2)->Text,(u_long)strlen(((vHostNode *)(vHosts.at(i)->Data))->Host.at(i2)->Text),&nbw);
-	     out.writeToFile("</HOST>\r\n",9,&nbw);
-	  }
-
-	out.writeToFile("<PORT>",6,&nbw);
-	char port[6];
-	snprintf(port,6,"%i",getPort(i));
-	out.writeToFile(port,(u_long)strlen(port),&nbw);
-	out.writeToFile("</PORT>\r\n",9,&nbw);
-
-	if(getSsl_Privatekey(i) != EMPTY)
-	  {
-	     out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
-	     out.writeToFile((char *)getSsl_Privatekey(i),(u_long)strlen(getSsl_Privatekey(i)),&nbw);
-	     out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
-	  }
-
-	if(getSsl_Certificate(i) != EMPTY)
-	  {
-	     out.writeToFile("<SSL_CERTIFICATE>",17,&nbw);
-	     out.writeToFile((char *)getSsl_Certificate(i),(u_long)strlen(getSsl_Certificate(i)),&nbw);
-	     out.writeToFile("</SSL_CERTIFICATE>\r\n",20,&nbw);
-	  }
-
-	if(getSsl_Password(i) != EMPTY)
-	  {
-	     out.writeToFile("<SSL_PASSWORD>",14,&nbw);
-	     out.writeToFile((char *)getSsl_Password(i),(u_long)strlen(getSsl_Password(i)),&nbw);
-	     out.writeToFile("</SSL_PASSWORD>\r\n",17,&nbw);
-	  }
-
-	out.writeToFile("<PROTOCOL>",10,&nbw);
-	switch(getProtocol(i))
-	  {
-	   case PROTOCOL_HTTP:
-	     out.writeToFile("HTTP",4,&nbw);
-	     break;
-	   case PROTOCOL_HTTPS:
-	     out.writeToFile("HTTPS",5,&nbw);
-	     break;
-	   case PROTOCOL_FTP:
-	     out.writeToFile("FTP",3,&nbw);
-	     break;
-	   case PROTOCOL_CONTROL:
-	     out.writeToFile("CONTROL",7,&nbw);
-	     break;
-	   default:
-	     // do something here?
-	     break;
-	  }
-	out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
-
-	out.writeToFile("<DOCROOT>",9,&nbw);
-	out.writeToFile((char *)getDocroot(i),(u_long)strlen(getDocroot(i)),&nbw);
-	out.writeToFile("</DOCROOT>\r\n",12,&nbw);
-
-	out.writeToFile("<SYSFOLDER>",11,&nbw);
-	out.writeToFile((char *)getSysfolder(i),(u_long)strlen(getSysfolder(i)),&nbw);
-	out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
-
-	out.writeToFile("<ACCESSESLOG>",13,&nbw);
-	out.writeToFile((char *)getAccesseslog(i),(u_long)strlen(getAccesseslog(i)),&nbw);
-	out.writeToFile("</ACCESSESLOG>\r\n",16,&nbw);
-
-	out.writeToFile("<WARNINGLOG>",12,&nbw);
-	out.writeToFile((char *)getWarninglog(i),(u_long)strlen(getWarninglog(i)),&nbw);
-	out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
-
-	out.writeToFile("</VHOST>\r\n",10,&nbw);
-     }
-   out.writeToFile("</VHOSTS>\r\n",11,&nbw);
-   out.closeFile();
-#endif
    return 0;
 }
 
