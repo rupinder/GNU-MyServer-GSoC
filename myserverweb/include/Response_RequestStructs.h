@@ -43,7 +43,7 @@ struct HTTP_RESPONSE_HEADER
 struct HTTP_REQUEST_HEADER
 {
 	char CMD[16];		
-	char VER[10];		
+	char VER[6];		
 	char ACCEPT[128];
 	char AUTH[32];
 	char ACCEPTENC[64];	
@@ -58,7 +58,8 @@ struct HTTP_REQUEST_HEADER
 	char DATEEXP[30];	
 	char MODIFIED_SINCE[30];
 	char LAST_MODIFIED[30];	
-	char URI[1024];			
+	char URI[1024];
+	char PRAGMA[200];
 	char URIOPTS[1024];		
 	char *URIOPTSPTR;		
 	char REFERER[MAX_PATH];	

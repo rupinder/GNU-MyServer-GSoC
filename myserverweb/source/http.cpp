@@ -60,7 +60,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	ZeroMemory(td->buffer2,200);
 	_finddata_t fd;
-	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD>",&td->request.URI[startChar]);
+	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",&td->request.URI[startChar]);
 	/*
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
 	*/
@@ -136,7 +136,7 @@ BOOL sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		lstrcat(td->buffer2,"</TD><TD>");
 		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			lstrcat(td->buffer2,"<dir>");
+			lstrcat(td->buffer2,"[dir]");
 		}
 		else
 		{
@@ -395,6 +395,7 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	td.hImpersonation=*imp;
 	td.connection=a;
 	td.id=id;
+	td.inputData =(MYSERVER_FILE_HANDLE)0;
 	/*
 	*In this function there is the HTTP protocol parse.
 	*The request is mapped into a HTTP_REQUEST_HEADER structure
@@ -472,9 +473,6 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		/*
 		*The first line has the form:
 		*GET /index.html HTTP/1.1
-		*Version of the protocol in the HTTP_REQUEST_HEADER
-		*struct is leaved as a number.
-		*For example HTTP/1.1 in the struct is 1.1
 		*/
 		lineControlled=TRUE;
 		/*
@@ -505,6 +503,11 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		}
 		token = strtok( NULL, seps );
 		lstrcpy(td.request.VER,token);
+		/*
+		*Version of the protocol in the HTTP_REQUEST_HEADER
+		*struct is leaved as a number.
+		*For example HTTP/1.1 in the struct is 1.1
+		*/
 		StrTrim(td.request.VER,"HTTP /");
 		if(td.request.URI[lstrlen(td.request.URI)-1]=='/')
 			td.request.uriEndsWithSlash=TRUE;
@@ -512,27 +515,11 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 			td.request.uriEndsWithSlash=FALSE;
 		StrTrim(td.request.URI," /");
 		StrTrim(td.request.URIOPTS," /");
-		if(lstrlen(td.request.URI)>max_URI)
+		if(max=lstrlen(td.request.URI)>max_URI)
 		{
 			raiseHTTPError(&td,a,e_414);
 			
 			return 0;
-		}
-		else
-		{
-			max=lstrlen(td.request.URI);
-		}
-		/*
-		*For the methods that accept data after the HTTP header set the correct pointers.
-		*/
-		if(!lstrcmpi(command,"POST"))
-		{
-			td.request.URIOPTSPTR=&td.buffer[maxTotChars];
-			td.buffer[max(td.nBytesToRead,td.buffersize)]='\0';
-		}
-		else
-		{
-			td.request.URIOPTSPTR=0;
 		}
 	}
 	/*User-Agent*/
@@ -659,9 +646,9 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		StrTrim(td.request.RANGEBYTEBEGIN,"- ");
 		StrTrim(td.request.RANGEBYTEEND,"- ");
 		
-		if(lstrlen(td.request.RANGEBYTEBEGIN)==0)
+		if(td.request.RANGEBYTEBEGIN[0]==0)
 			lstrcpy(td.request.RANGEBYTEBEGIN,"0");
-		if(lstrlen(td.request.RANGEBYTEEND)==0)
+		if(td.request.RANGEBYTEEND[0]==0)
 			lstrcpy(td.request.RANGEBYTEEND,"-1");
 
 	}
@@ -673,6 +660,15 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 		lstrcpy(td.request.REFERER,token);
 		StrTrim(td.request.REFERER," ");
 	}
+	/*Pragma*/
+	if(!lstrcmpi(command,"Pragma"))
+	{
+		token = strtok( NULL, seps );
+		lineControlled=TRUE;
+		lstrcpy(td.request.PRAGMA,token);
+		StrTrim(td.request.PRAGMA," ");
+	}
+	
 	/*
 	*If the line is not controlled arrive with the token
 	*at the end of the line.
@@ -689,6 +685,56 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	*/
 
 	/*
+	*For methods that accept data after the HTTP header set the correct pointer and create a file
+	*containing the informations after the header.
+	*/
+	if(!lstrcmpi(command,"POST"))
+	{
+		td.request.URIOPTSPTR=&td.buffer[maxTotChars];
+		td.buffer[min(td.nBytesToRead,td.buffersize)]='\0';
+		/*
+		*Create the file that contains the data posted.
+		*This data is the stdin file in the CGI.
+		*/
+		char stdInFilePath[MAX_PATH];
+		ms_getdefaultwd(stdInFilePath,MAX_PATH);
+		sprintf(&stdInFilePath[lstrlen(stdInFilePath)],"/stdInFile__%u",td.id);
+		td.inputData=ms_CreateTemporaryFile(stdInFilePath);
+		DWORD nbw;
+		ms_WriteToFile(td.inputData,td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-maxTotChars,&nbw);
+		/*
+		*If there are others bytes to read from the socket.
+		*/
+		if(bytesToRead(td.connection->socket))
+		{
+			int err;
+			do
+			{
+				err=ms_recv(td.connection->socket,td.buffer2,td.buffersize2, 0);
+				if(err==-1)
+				{
+					/*
+					If we get an error remove the file and the connection.
+					*/
+					ms_CloseFile(td.inputData);
+					td.inputData=0;
+					ms_DeleteFile(stdInFilePath);
+					return 0;
+				}
+				ms_WriteToFile(td.inputData,td.buffer2,err,&nbw);
+			}
+			while(err);
+		}
+		setFilePointer(td.inputData,0);
+		td.buffer2[0]='\0';
+	}
+	else
+	{
+		td.request.URIOPTSPTR=0;
+	}
+
+
+	/*
 	*Record the request in the log file.
 	*/
 	accessesLogWrite(a->ipAddr);
@@ -703,64 +749,78 @@ BOOL controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,DWOR
 	}
 	accessesLogWrite("\r\n");
 	/*
-	*End record the request in the structure
+	*End record the request in the structure.
 	*/
-	
+
+	/*
+	*How is expressly said in the rfc2616 a client that sends an 
+	*HTTP/1.1 request MUST sends a Host header.
+	*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
+    *request does not include a Host request-header.
+	*/
+	if(td.request.HOST[0]==0)
+	{
+		raiseHTTPError(&td,a,e_400);
+		if(td.inputData)
+		{
+			ms_CloseFile(td.inputData);
+			td.inputData=0;
+		}
+		return 0;
+	}
+
 	
 	/*
 	*Here we control all the HTTP commands.
 	*/
-	if(!lstrcmpi(td.request.CMD,"GET"))
+	if(!lstrcmpi(td.request.CMD,"GET"))/*GET REQUEST*/
 	{
-		/*
-		*How is expressly said in the rfc2616 a client that sends an 
-		*HTTP/1.1 request MUST send a Host header.
-		*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
-        *request does not include a Host request-header.
-		*/
-		if(lstrlen(td.request.HOST)==0)
-		{
-			raiseHTTPError(&td,a,e_400);
-			return 0;
-		}
-
 		if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
 			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 		else
 			sendHTTPRESOURCE(&td,a,td.request.URI);
 	}
-	else if(!lstrcmpi(td.request.CMD,"POST"))
+	else if(!lstrcmpi(td.request.CMD,"POST"))/*POST REQUEST*/
 	{
-		if(lstrlen(td.request.HOST)==0)
-		{
-			raiseHTTPError(&td,a,e_400);
-			return 0;
-		}
 		if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
 			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,FALSE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 		else
 			sendHTTPRESOURCE(&td,a,td.request.URI);
 	}
-	else if(!lstrcmpi(td.request.CMD,"HEAD"))
+	else if(!lstrcmpi(td.request.CMD,"HEAD"))/*HEAD REQUEST*/
 	{
-		if(lstrlen(td.request.HOST)==0)
-		{
-			raiseHTTPError(&td,a,e_400);
-			
-			return 0;
-		}
-		sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE);
+		if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
+			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
+		else
+			sendHTTPRESOURCE(&td,a,td.request.URI,FALSE,TRUE);
 	}
 	else
 	{
 		raiseHTTPError(&td,a,e_501);
-		
+		if(td.inputData)
+		{
+			ms_CloseFile(td.inputData);
+			td.inputData=0;
+		}
 		return 0;
 	}
+
+	/*
+	*If the connection is not Keep-Alive remove it from the connections list.
+	*/
 	if(lstrcmpi(td.request.CONNECTION,"Keep-Alive"))
 	{
-		
+		if(td.inputData)
+		{
+			ms_CloseFile(td.inputData);
+			td.inputData=0;
+		}
 		return 0;
+	}
+	if(td.inputData)
+	{
+		ms_CloseFile(td.inputData);
+		td.inputData=0;
 	}
 	return 1;
 }
@@ -791,6 +851,7 @@ VOID resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 	request->REFERER[0]='\0';	
 	request->HOST[0]='\0';			
 	request->OTHER[0]='\0';
+	request->PRAGMA[0]='\0';
 	request->RANGETYPE[0]='\0';		
 	request->RANGEBYTEBEGIN[0]='\0';
 	request->RANGEBYTEEND[0]='\0';
@@ -812,32 +873,32 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 		sprintf(str,"HTTP/%s %s\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\nStatus: \r\n",response->VER,response->ERROR_TYPE,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM,response->ERROR_TYPE);
 	else
 		sprintf(str,"HTTP/%s 200 OK\r\nServer:%s\r\nContent-Type:%s\r\nContent-Length: %s\r\n",response->VER,response->SERVER_NAME,response->MIME,response->CONTENTS_DIM);
-	if(lstrlen(response->DATE)>2)
+	if(response->DATE[0])
 	{
 		lstrcat(str,"Date:");
 		lstrcat(str,response->DATE);
 		lstrcat(str,"\r\n");
 	}
-	if(lstrlen(response->DATEEXP)>2)
+	if(response->DATEEXP[0])
 	{
 		lstrcat(str,"Expires:");
 		lstrcat(str,response->DATEEXP);
 		lstrcat(str,"\r\n");
 	}
-	if(lstrlen(response->LOCATION)>2)
+	if(response->LOCATION[0])
 	{
 		lstrcat(str,"Location:");
 		lstrcat(str,response->LOCATION);
 		lstrcat(str,"\r\n");
 	}
-	if(lstrlen(response->OTHER)>2)
+	if(response->OTHER[0])
 	{
 		lstrcat(str,response->OTHER);
 		lstrcat(str,"\r\n");
 	}
 
 	/*
-	*myServer supports the bytes range
+	*myServer supports the bytes range.
 	*/
 	lstrcat(str,"Accept-Ranges: bytes\r\n");
 	/*
@@ -972,12 +1033,12 @@ DWORD validHTTPRequest(httpThreadContext* td,DWORD* nLinesptr,DWORD* nCharsptr)
 	}
 
 	/*
-	*Set the output variables
+	*Set the output variables.
 	*/
 	*nLinesptr=nLines;
 	*nCharsptr=maxTotChars;
 	/*
-	*Return if is a valid request header
+	*Return if is a valid request header.
 	*/
 	return((isValidCommand)?1:0);
 }

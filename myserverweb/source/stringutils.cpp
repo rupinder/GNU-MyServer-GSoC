@@ -50,7 +50,7 @@ void splitPath(const char *path, char *dir, char *filename)
 	j = 0;
 	splitpoint = strlen(path) - 1;
 	while ((splitpoint > 0) && (path[splitpoint] != '/'))
-	splitpoint--;
+		splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
 		dir[0] = 0;
@@ -121,7 +121,8 @@ VOID StrTrim(char* str,const char* trimChars)
 			}
 		}
 	}
-	lstrcpy(str,&str[ncharToRemove]);
+	if(ncharToRemove)
+		lstrcpy(str,&str[ncharToRemove]);
 	doBreak=FALSE;
 	for(j=lstrlen(str)-1;j;j-- )
 	{

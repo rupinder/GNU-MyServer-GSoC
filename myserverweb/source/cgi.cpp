@@ -87,31 +87,39 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
     *so use this name for the file that is going to be
     *created because more threads can access more CGI at the same time.
     */
-
 	char currentpath[MAX_PATH];
 	char stdOutFilePath[MAX_PATH];
 	char stdInFilePath[MAX_PATH];
 	ms_getdefaultwd(currentpath,MAX_PATH);
 	sprintf(stdOutFilePath,"%s/stdOutFile_%u",currentpath,td->id);
-	sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,td->id);
+
 		
 	/*
 	*Standard CGI uses standard output to output the result and the standard 
 	*input to get other params like in a POST request.
 	*/
 	MYSERVER_FILE_HANDLE stdOutFile = ms_CreateTemporaryFile(stdOutFilePath);
-	MYSERVER_FILE_HANDLE stdInFile = ms_CreateTemporaryFile(stdInFilePath);
-
-	DWORD nbw;/*Number of bytes written to the stdin file*/
+	MYSERVER_FILE_HANDLE stdInFile;
 	
-	if(td->request.URIOPTSPTR)
-		ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
-	else
-		ms_WriteToFile(stdInFile,td->request.URIOPTS,lstrlen(td->request.URIOPTS),&nbw);
+	if(td->inputData==0)
+	{
+		sprintf(stdInFilePath,"%s/stdInFile_%u",currentpath,td->id);
+		stdInFile = ms_CreateTemporaryFile(stdInFilePath);
+	}
+	else/*If no exists the stdin file create one and copy in all the necessary informations*/
+	{
+		DWORD nbw;/*Number of bytes written to the stdin file if any*/
+		stdInFile = td->inputData;
+		if(td->request.URIOPTSPTR)
+			ms_WriteToFile(stdInFile,td->request.URIOPTSPTR,atoi(td->request.CONTENTS_DIM),&nbw);
+		else
+			ms_WriteToFile(stdInFile,td->request.URIOPTS,lstrlen(td->request.URIOPTS),&nbw);
 
-	char *endFileStr="\r\n\r\n";
-	ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
-	setFilePointer(stdInFile,0);
+		char *endFileStr="\r\n\r\n";
+		ms_WriteToFile(stdInFile,endFileStr,lstrlen(endFileStr),&nbw);
+		setFilePointer(stdInFile,0);
+
+	}
 
 	/*
 	*If there is a PATH_INFO value the get the PATH_TRANSLATED too.
@@ -121,7 +129,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	{
         td->pathTranslated[0]='\0';
 		/*
-		*Start from the second character because the first is a '/' character.
+		*Start from the second character because the first is a slash character.
 		*/
 		getPath(td->pathTranslated,&((td->pathInfo)[1]),FALSE);
 	}
@@ -204,6 +212,7 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 	ms_DeleteFile(stdOutFilePath);
 	ms_CloseFile(stdInFile);
 	ms_DeleteFile(stdInFilePath);
+	td->inputData=(MYSERVER_FILE_HANDLE)0;
 
 	/*
 	*Restore security on the current thread.
@@ -217,60 +226,66 @@ BOOL sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/
 */
 void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 {
-	cgiEnvString[0]='\0';
 	/*
 	*The Environment string is a null-terminated block of null-terminated strings.
-	*Cause we use the function lstrcat we use the character \r for the \0 character
+	*For no errors with the function lstrcat we use the character \r for the \0 character
 	*and at the end we change every \r in \0.
 	*/
-	lstrcat(cgiEnvString,"SERVER_SOFTWARE=myServer");
-
-	lstrcat(cgiEnvString,"\rSERVER_VERSION=");
+	lstrcpy(cgiEnvString,"SERVER_SOFTWARE=myServer");
 	lstrcat(cgiEnvString,versionOfSoftware);
 
 	lstrcat(cgiEnvString,"\rSERVER_NAME=");
 	lstrcat(cgiEnvString,lserver->getServerName());
 
-	lstrcat(cgiEnvString,"\rQUERY_STRING=");
-	lstrcat(cgiEnvString,td->request.URIOPTS);
-
-	lstrcat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1");
-	
 	lstrcat(cgiEnvString,"\rSERVER_PROTOCOL=HTTP/");
 	lstrcat(cgiEnvString,td->request.VER);		
 
 	lstrcat(cgiEnvString,"\rSERVER_PORT=");
 	sprintf(&cgiEnvString[lstrlen(cgiEnvString)],"%u",lserver->port_HTTP);
-    
+
+	lstrcat(cgiEnvString,"\rQUERY_STRING=");
+	lstrcat(cgiEnvString,td->request.URIOPTS);
+
+	lstrcat(cgiEnvString,"\rGATEWAY_INTERFACE=CGI/1.1");
+	    
 	lstrcat(cgiEnvString,"\rREQUEST_METHOD=");
 	lstrcat(cgiEnvString,td->request.CMD);
 
-	lstrcat(cgiEnvString,"\rHTTP_USER_AGENT=");
-	lstrcat(cgiEnvString,td->request.USER_AGENT);
-
-	lstrcat(cgiEnvString,"\rHTTP_REFERER=");
-	lstrcat(cgiEnvString,td->request.URI);
-
-	lstrcat(cgiEnvString,"\rHTTP_ACCEPT=");
-	lstrcat(cgiEnvString,td->request.ACCEPT);
-	
 	lstrcat(cgiEnvString,"\rCONTENT_TYPE=");
 	lstrcat(cgiEnvString,td->request.CONTENTS_TYPE[0]?td->request.CONTENTS_TYPE:"0");
 	
 	lstrcat(cgiEnvString,"\rCONTENT_LENGTH=");
 	lstrcat(cgiEnvString,td->request.CONTENTS_DIM[0]?td->request.CONTENTS_DIM:"0");
 
-	lstrcat(cgiEnvString,"\rREMOTE_USER=");
-	lstrcat(cgiEnvString,td->connection->login[0]?td->connection->login:"-");
+	if(td->connection->login[0])
+	{
+		lstrcat(cgiEnvString,"\rREMOTE_USER=");
+		lstrcat(cgiEnvString,td->connection->login);
+	}
 
 	lstrcat(cgiEnvString,"\rREMOTE_ADDR=");
 	lstrcat(cgiEnvString,td->connection->ipAddr);
 
-	lstrcat(cgiEnvString,"\rHTTP_COOKIE=");
-	lstrcat(cgiEnvString,td->request.COOKIE);
+	if(td->request.COOKIE[0])
+	{
+		lstrcat(cgiEnvString,"\rHTTP_COOKIE=");
+		lstrcat(cgiEnvString,td->request.COOKIE);
+	}
 
-	lstrcat(cgiEnvString,"\rHTTP_REFERER=");
-	lstrcat(cgiEnvString,td->request.REFERER);
+	if(td->request.REFERER[0])
+	{
+		lstrcat(cgiEnvString,"\rHTTP_REFERER=");
+		lstrcat(cgiEnvString,td->request.REFERER);
+	}
+
+	lstrcat(cgiEnvString,"\rREQUEST_URI=");
+	lstrcat(cgiEnvString,td->scriptFile);
+
+	if(td->request.ACCEPT[0])
+	{
+		lstrcat(cgiEnvString,"\rHTTP_ACCEPT=");
+		lstrcat(cgiEnvString,td->request.ACCEPT);
+	}
 
 	lstrcat(cgiEnvString,"\rCGI_ROOT=");
 	lstrcat(cgiEnvString,td->cgiRoot);
@@ -278,26 +293,43 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcat(cgiEnvString,"\rREMOTE_HOST=");
 	lstrcat(cgiEnvString,td->connection->ipAddr);
 
+	if(td->request.CONNECTION[0])
+	{
+		lstrcat(cgiEnvString,"\rHTTP_CONNECTION=");
+		lstrcat(cgiEnvString,td->request.CONNECTION);
+	}
 	lstrcat(cgiEnvString,"\rAUTH_TYPE=");
 	lstrcat(cgiEnvString,td->request.AUTH);
 
-	lstrcat(cgiEnvString,"\rCONTENT_ENCODING=");
-	lstrcat(cgiEnvString,td->request.ACCEPTENC);	
+	if(td->request.USER_AGENT[0])
+	{
+		lstrcat(cgiEnvString,"\rHTTP_USER_AGENT=");
+		lstrcat(cgiEnvString,td->request.USER_AGENT);
+	}
+	if(td->request.ACCEPTENC[0])
+	{
+		lstrcat(cgiEnvString,"\rCONTENT_ENCODING=");
+		lstrcat(cgiEnvString,td->request.ACCEPTENC);	
+	}
 
-	if(lstrlen(td->pathInfo))
+	if(td->pathInfo[0])
 	{
 		lstrcat(cgiEnvString,"\rPATH_INFO=");
 		lstrcat(cgiEnvString,td->pathInfo);
 	}
-	if(lstrlen(td->pathTranslated))
+	if(td->pathTranslated[0])
 	{
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
 		lstrcat(cgiEnvString,td->pathTranslated);
 	}
-
+/*
+	lstrcat(cgiEnvString,"\rSCRIPT_FILENAME=");
+	lstrcat(cgiEnvString,td->filenamePath);
+*/
 	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
 	lstrcat(cgiEnvString,td->scriptFile);
 
+/*
 	lstrcat(cgiEnvString,"\rSCRIPT_PATH=");
 	lstrcat(cgiEnvString,td->scriptPath);
 
@@ -306,13 +338,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 
 	lstrcat(cgiEnvString,"\rDOCUMENT_URI=");
 	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
-
-	lstrcat(cgiEnvString,"\rSCRIPT_FILENAME=");
-	lstrcat(cgiEnvString,td->filenamePath);
-
-	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
-	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
-
+*/	
 /*
 
 	lstrcat(cgiEnvString,"\rREMOTE_IDENT=");

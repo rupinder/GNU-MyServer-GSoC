@@ -22,7 +22,7 @@
 #include "..\include\Response_RequestStructs.h"
 #include "..\include\cgi.h"
 /*
-*Structure used by the HTTP protocol to describe a thread
+*Structure used by the HTTP protocol to describe a thread.
 */
 struct httpThreadContext
 {
@@ -31,7 +31,7 @@ struct httpThreadContext
 	DWORD buffersize;
 	DWORD buffersize2;
 	DWORD id;
-	DWORD  nBytesToRead;
+	DWORD nBytesToRead;
 	HTTP_RESPONSE_HEADER  response;
 	HTTP_REQUEST_HEADER  request;
 	char filenamePath[MAX_PATH];
@@ -42,7 +42,7 @@ struct httpThreadContext
 	char scriptPath[MAX_PATH];
 	char scriptDir[MAX_PATH];
 	char scriptFile[MAX_PATH];
-	char scriptfile;
+	MYSERVER_FILE_HANDLE inputData;
 	LOGGEDUSERID hImpersonation;
 	LPCONNECTION connection;
 };

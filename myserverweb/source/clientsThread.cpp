@@ -73,10 +73,10 @@ void ClientsTHREAD::controlConnections()
 	BOOL logonStatus;
 	for(c; c ;c=c->Next)
 	{
-		if(bytesToRead(c->socket))
+		if(nBytesToRead=bytesToRead(c->socket))
 		{
 			logon(c,&logonStatus,&hImpersonation);
-			err=ms_recv(c->socket,buffer,buffersize, 0);
+			err=ms_recv(c->socket,buffer,KB(2), 0);
 			if(err==-1)
 			{
 				if(deleteConnection(c))
@@ -84,13 +84,13 @@ void ClientsTHREAD::controlConnections()
 			}
 
 			/*
-			*Control the protocol used by the connection
+			*Control the protocol used by the connection.
 			*/
 			switch(c->protocol)
 			{
 				/*
 				*controlHTTPConnection returns 0 if the connection must be removed from
-				*the active connections list
+				*the active connections list.
 				*/
 				case PROTOCOL_HTTP:
 					if(!controlHTTPConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,&hImpersonation,id))
