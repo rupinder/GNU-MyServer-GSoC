@@ -67,6 +67,10 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	}
 	else if(cmd==CGI_CMD_RUNCGI)
 	{
+		if(!ms_FileExists(cgipath))
+		{
+			return raiseHTTPError(td,s,e_500);
+		}
 		sprintf(cmdLine,"%s %s",cgipath,td->scriptFile);
 		nph=(strnicmp("nph-",td->cgiFile, 4)==0)?1:0;
 	}
@@ -289,7 +293,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 		lstrcat(cgiEnvString,"\rCGI_ROOT=");
 		lstrcat(cgiEnvString,td->cgiRoot);
 	}
-	if(td->connection->ipAddr)
+	if(td->connection->ipAddr[0])
 	{
 		lstrcat(cgiEnvString,"\rREMOTE_HOST=");
 		lstrcat(cgiEnvString,td->connection->ipAddr);

@@ -27,14 +27,15 @@
 #ifndef MIME_Manager_IN
 #define MIME_Manager_IN
 /*
-*This enum describes all the way that a file is treated by the server.
+*This enum describes all the way that a file is handled by the server.
 */
 enum CGI_COMMANDS
 {
 	CGI_CMD_SEND,		/*Sends the file as it is; for example an HTML page*/
 	CGI_CMD_RUNCGI,		/*Run the cgi_manager program*/
 	CGI_CMD_RUNMSCGI,	/*Run the the file as a MSCGI script*/
-	CGI_CMD_EXECUTE		/*Handle the file as an executable*/
+	CGI_CMD_EXECUTE,	/*Handle the file as an executable*/
+	CGI_CMD_SENDLINK	/*Send the file included  in the file*/
 };
 class MIME_Manager
 {

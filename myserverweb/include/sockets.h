@@ -19,7 +19,6 @@
 #pragma once
 #include "..\stdafx.h"
 
-#ifndef NO_INCLUDE_SOCKETLIB
 #ifdef WIN32
 #include <winsock2.h>
 #else
@@ -27,7 +26,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <uninstd.h>
-#endif
 #endif
 
 typedef unsigned int MYSERVER_SOCKET;

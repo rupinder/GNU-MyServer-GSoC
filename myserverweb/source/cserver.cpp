@@ -475,7 +475,7 @@ void cserver::initialize(int OSVer)
 	lstrcpy(languageFile,"languages/english.xml");
 	lstrcpy(guestPassword,"myServerUnknown");
 	lstrcpy(defaultFilename,"default.html");
-	lstrcpy(browseDirCSSpath,"system/foldersyle.css");
+	browseDirCSSpath[0]='\0';
 	mustEndServer=FALSE;
 	port_HTTP=80;
 	verbosity=1;
@@ -540,13 +540,11 @@ void cserver::initialize(int OSVer)
 		lstrcpy(browseDirCSSpath,data);
 	}
 
-
 	data=configurationFileManager.getValue("GUEST_LOGIN");
 	if(data)
 	{
 		lstrcpy(guestLogin,data);
 	}
-
 
 	data=configurationFileManager.getValue("GUEST_PASSWORD");
 	if(data)

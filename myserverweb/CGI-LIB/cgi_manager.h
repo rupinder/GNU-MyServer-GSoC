@@ -18,7 +18,6 @@
 */
 #pragma once
 #define EXPORTABLE _declspec(dllexport)
-#define NO_INCLUDE_SOCKETLIB
 #include "../include/http.h"
 /*
 *Do not use this method in a CGI script.

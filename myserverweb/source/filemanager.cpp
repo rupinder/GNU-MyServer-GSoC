@@ -25,7 +25,7 @@ static MYSERVER_FILE_HANDLE warningsLogFile=0;
 static MYSERVER_FILE_HANDLE accessesLogFile=0;
 
 /*
-*Functions to manage the log files.
+*Write to the log file.
 */
 u_long warningsLogWrite(char* str)
 {
@@ -33,16 +33,25 @@ u_long warningsLogWrite(char* str)
 	ms_WriteToFile(warningsLogFile,str,lstrlen(str),&nbw);
 	return nbw;
 }
+/*
+*Set the log file handle.
+*/
 void setWarningsLogFile(MYSERVER_FILE_HANDLE nlg)
 {
 	warningsLogFile=nlg;
 }
+/*
+*Write to the accesses file.
+*/
 u_long accessesLogWrite(char* str)
 {
 	u_long nbw;
 	ms_WriteToFile(accessesLogFile,str,lstrlen(str),&nbw);
 	return nbw;
 }
+/*
+*Set the accesses file handle.
+*/
 void setAccessesLogFile(MYSERVER_FILE_HANDLE nlg)
 {
 	accessesLogFile=nlg;

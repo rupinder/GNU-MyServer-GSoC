@@ -59,13 +59,13 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	ZeroMemory(td->buffer2,200);
 	_finddata_t fd;
-	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",&td->request.URI[startChar]);
+	sprintf(td->buffer2,"<HTML><HEAD><TITLE>%s</TITLE></HEAD><BASE>",td->filenamePath);
 	/*
 	*If it is defined a CSS file for the graphic layout of the browse folder insert it in the page.
 	*/
-	MYSERVER_FILE_HANDLE cssHandle=ms_OpenFile(lserver->getBrowseDirCSS(),MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-	if(cssHandle)
+	if(lserver->getBrowseDirCSS()[0])
 	{
+		MYSERVER_FILE_HANDLE cssHandle=ms_OpenFile(lserver->getBrowseDirCSS(),MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 		u_long nbr;
 		ms_ReadFromFile(cssHandle,td->buffer,td->buffersize,&nbr);
 		lstrcat(td->buffer2,"<STYLE><!--");
@@ -256,7 +256,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 /*
 *Main function to send a resource to a client.
 */
-int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int systemrequest,int OnlyHeader,int firstByte,int lastByte)
+int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int systemrequest,int OnlyHeader,int firstByte,int lastByte,int yetmapped)
 {
 	/*
 	*With this code we manage a request of a file or a folder or anything that we must send
@@ -270,8 +270,12 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	/*
 	*td->filenamePath is the file system mapped path while filename is the URI requested.
 	*systemrequest is true if the file is in the system folder.
+	*If filename is already mapped on the file system don't map it again.
 	*/
-	getPath(td->filenamePath,filename,systemrequest);
+	if(yetmapped)
+		lstrcpy(td->filenamePath,filename);
+	else
+		getPath(td->filenamePath,filename,systemrequest);
 	
 
 	/*
@@ -289,8 +293,8 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		/*
 		*http://127.0.0.1/uri/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
 		*When a request has this form send the file filetosend.php with the
-		*environment string PATH_INFO setted to PATH_INFO_VALUE and the QUERY_INFO one
-		*setted to QUERY_INFO_VALUE.
+		*environment string PATH_INFO setted to PATH_INFO_VALUE and QUERY_INFO
+		*to QUERY_INFO_VALUE.
 		*/
 		int len=lstrlen(dirscan);
 		if((td->filenamePath)[i]==0)/*If we are at the end of the string break the loop*/
@@ -369,6 +373,24 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 			return 1;
 		return raiseHTTPError(td,s,e_404);
 	}
+	if(mimeCMD==CGI_CMD_SENDLINK)
+	{
+		MYSERVER_FILE_HANDLE h=ms_OpenFile(td->filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
+		DWORD nbr;
+		char linkpath[MAX_PATH];
+		char pathInfo[MAX_PATH];
+		ms_ReadFromFile(h,linkpath,MAX_PATH,&nbr);
+		ms_CloseFile(h);
+		linkpath[nbr]='\0';
+		lstrcpy(pathInfo,td->pathInfo);
+		translateEscapeString(pathInfo);
+		lstrcat(linkpath,pathInfo);
+
+		if(nbr)
+			return sendHTTPRESOURCE(td,s,linkpath,systemrequest,OnlyHeader,firstByte,lastByte,1);
+		else
+			return raiseHTTPError(td,s,e_404);
+	}
 
 	if(sendHTTPFILE(td,s,td->filenamePath,OnlyHeader,firstByte,lastByte))
 		return 1;
@@ -388,6 +410,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	td.buffersize2=bs2;
 	td.nBytesToRead=nbtr;
 	td.hImpersonation=*imp;
+	td.identity[0]='\0';
 	td.connection=a;
 	td.id=id;
 	td.inputData =(MYSERVER_FILE_HANDLE)0;
@@ -458,7 +481,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		lineControlled=FALSE;
 
 		/*
-		*Copy in the command string the header field name.
+		*Copy the HTTP command.
 		*/
 		lstrcpy(command,token);
 		

@@ -94,6 +94,8 @@ int MIME_Manager::load(char *filename)
 				record.command=CGI_CMD_RUNMSCGI;
 			if(!lstrcmpi(commandString,"EXECUTE"))
 				record.command=CGI_CMD_EXECUTE;
+			if(!lstrcmpi(commandString,"SENDLINK"))
+				record.command=CGI_CMD_SENDLINK;
 		}
 		nc++;
 		while(buffer[nc]!=';')
@@ -136,6 +138,9 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 			return mr->command;
 		}
 	}
+	/*
+	*If the ext is not registered send the file as it is.
+	*/
 	return CGI_CMD_SEND;
 }
 
