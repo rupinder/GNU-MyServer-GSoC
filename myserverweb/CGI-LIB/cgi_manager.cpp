@@ -201,3 +201,8 @@ void cgi_manager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lp
 	}
 	*lpdwSize=(u_int)strlen((char*)lpvBuffer);
 }
+
+void cgi_manager::SetContent_Type(char * Type)
+{
+	strncpy(td->response.CONTENT_TYPE, Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
+}

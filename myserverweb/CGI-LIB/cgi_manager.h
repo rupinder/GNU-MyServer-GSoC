@@ -41,6 +41,7 @@ private:
 	cgi_data* cgidata;
 	char localbuffer[LOCAL_BUFFER_DIM];
 public:
+	void SetContent_Type(char *);
 	int  setPageError(int);
 	int raiseError(int);
 	cgi_manager(cgi_data* data);
