@@ -455,8 +455,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					break;
 				}
 			}
-      request->URI.assign(token, i);
-      if(i == 0)
+
+      /*! 
+       *If a URI was specified store it. If it wasn't specified 
+       *return an invalid header value.
+       */
+      if(i)
+        request->URI.assign(token, i);
+      else
       {
         request->VER.clear();
         request->CMD.clear();
@@ -468,13 +474,20 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         return 0;
       }  
 
+      /*! If the URI contains some query data determine how long it is. */
 			if(containOpts)
 			{
+        j = getEndLine(&token[i], HTTP_REQUEST_URI_DIM);
 				for(j=0;((int)(i+j+1)<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
 				{
 					++j;
 				}
 			}
+
+      /*! 
+       *Save the query data and seek the cursor at the end of it. Start copying
+       *from the second byte(do not store the  ? character).
+       */
       request->URIOPTS.assign(&token[i+1], j);
       i+=j+1;
 
@@ -489,7 +502,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         else 
           break;
       }
-      if(j == 5)
+      /*! 
+       *If there are more than 10 black spaces store the entire line for logging
+       *then return an invalid header value.
+       */
+      if(j == 10)
       {
         request->VER.clear();
         request->CMD.clear();
@@ -501,36 +518,48 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         return 0;
       }
 
+      /*! Count how long the version token is. */
       j=i;
       while((i-j < HTTP_REQUEST_VER_DIM) && (token[i]!='\r') 
             && (token[i]!='\n'))
         i++;
 
+      /*! Save the HTTP version. */
       if(i-j)
         request->VER.assign(&token[j], i-j);
 
-
+      /*! 
+       *If the version is not specified or it is too long store some information 
+       *for logging then return an invalid header value. 
+       */
       if((!j) || ( (i-j) == HTTP_REQUEST_VER_DIM ))
-        {
-          request->VER.clear();
-          request->CMD.clear();   
-          /*! Keep trace for logging. */
-          tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
-          if(tokenOff > 0)
-            request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
-          else
-            request->URI.assign(input, HTTP_REQUEST_URI_DIM );
-          return 0;
-        }
+      {
+        request->VER.clear();
+        request->CMD.clear();   
+        tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
+        if(tokenOff > 0)
+          request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+        else
+          request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+        return 0;
+      }
 			
+      /*! Store if the requested URI terminates with a slash character. */
       if(request->URI[(request->URI.length())-1]=='/')
       {
 				request->uriEndsWithSlash=1;
  			}
       else
+      {
 				request->uriEndsWithSlash=0;
+      }
+      /*! 
+       *Do not maintain any slash character if the URI has them at 
+       *the begin or at the end.
+       */
       request->URI=trim(request->URI, " /");
-			request->URIOPTS=trim(request->URIOPTS, " /");
+			request->URIOPTS=trim(request->URIOPTS, " ");
+
 		}else
 		/*!User-Agent*/
 		if(!lstrcmpi(command,"User-Agent"))
