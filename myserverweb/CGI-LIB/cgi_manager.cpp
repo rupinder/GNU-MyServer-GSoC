@@ -65,7 +65,7 @@ int cgi_manager::Start(cgi_data* data)
 {
 	cgidata=data;
 	td=data->td;
-	td->buffer2[0]='\0';
+	td->buffer2->GetAt(0)='\0';
 	return 1;
 }
 /*!

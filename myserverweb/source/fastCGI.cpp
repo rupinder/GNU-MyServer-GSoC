@@ -229,7 +229,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	}while((!exit) && nbr);
 	u_long headerSize=0;
 	con.tempOut.setFilePointer(0);
-	td->buffer[0]='\0';
+	td->buffer->GetAt(0)='\0';
 	char *buffer=(char*)td->buffer->GetBuffer();
 	con.tempOut.readFromFile(buffer,td->buffer->GetRealLength(),&nbr);
 	
