@@ -27,6 +27,7 @@ extern "C" {
 #include <stdio.h>
 #ifndef WIN32
 #include <unistd.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #endif
@@ -249,6 +250,7 @@ int terminateProcess(u_long id)
 	/*
 	*id is the process id
 	*/
+	return kill((pid_t)id, SIGTERM);
 #endif	
 
 }
