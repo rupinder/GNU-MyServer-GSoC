@@ -297,7 +297,7 @@ void mainFrame::registerService(wxCommandEvent& event)
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)
 	{
-		service = CreateService(manager,"myServer","myServer",SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,SERVICE_DEMAND_START, SERVICE_ERROR_IGNORE, path,0, 0, 0, 0, 0);
+		service = CreateService(manager,"myServer","myServer",SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,0, 0, 0, 0, 0);
 		if (service)
 		{
 			CloseServiceHandle (service);
@@ -307,6 +307,8 @@ void mainFrame::registerService(wxCommandEvent& event)
 	}
 #endif
 	lmainFrame->SetStatusText(_T("MyServer service installed"));
+	Sleep(1500);/*Sleep 1.5 seconds only for show boot the installation and run messages*/
+	runService((wxCommandEvent)0);
 }
 void mainFrame::configureMIME(wxCommandEvent& event)
 {
