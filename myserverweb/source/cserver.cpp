@@ -864,12 +864,10 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 */
 LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
 {
-	connections_mutex_lock();
 	u_long cs=sizeof(CONNECTION);
 	LPCONNECTION nc=(CONNECTION*)malloc(cs);
 	if(!nc)
 	{
-		connections_mutex_unlock();
 		return NULL;
 	}
 	nc->check_value = CONNECTION::check_value_const;
@@ -889,7 +887,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	if(nc->host == 0) /* No vhost for the connection so bail */
 	{
 		free(nc);
-		connections_mutex_unlock();
 		return 0;
 	}
 	int doSSLhandshake=0;
@@ -918,7 +915,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 			*Free the connection on errors.
 			*/
 			free(nc);
-			connections_mutex_unlock();
 			return 0;
 		}
 	}
@@ -931,12 +927,15 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	if(nc->host==0)
 	{
 		free(nc);
-		connections_mutex_unlock();
 		return 0;
 	}
+	/*!
+	*Update the list.
+	*/
+	connections_mutex_lock();
     	connections=nc;
 	nConnections++;
-	
+	connections_mutex_unlock();
 	/*
 	If defined maxConnections and the number of active connections is bigger than it
 	*say to the protocol that will parse the connection to remove it from the active
@@ -944,7 +943,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	*/
 	if(maxConnections && (nConnections>maxConnections))
 		nc->toRemove=CONNECTION_REMOVE_OVERLOAD;
-	connections_mutex_unlock();
+
 	return nc;
 }
 

@@ -116,30 +116,20 @@ void ClientsTHREAD::controlConnections()
 	lserver->connections_mutex_lock();
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
 	/*!
-	*Check if c exists
+	*Check if c exists.
+	*Check if c is a valid connection structure.
+	*Do not parse a connection that is going to be parsed by another thread.
 	*/
-	if(!c)
+	if((!c) && (c->check_value!=CONNECTION::check_value_const) && (c->parsing==1))
 	{
 		lserver->connections_mutex_unlock();
 		return;
 	}
 	/*!
-	*Do not parse a connection that is going to be parsed by another thread
+	*Set the connection parsing flag to true.
 	*/
-	if(c->parsing==1)
-	{
-		lserver->connections_mutex_unlock();
-		return;
-	}
-	/*!
-	*Check if c is a valid connection structure
-	*/
-	if(c->check_value!=CONNECTION::check_value_const)
-	{
-		lserver->connections_mutex_unlock();
-		return;
-	}
 	c->parsing=1;
+	
 	/*!
 	*Unlock connections list access after setting parsing flag.
 	*/
