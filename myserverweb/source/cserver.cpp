@@ -1799,7 +1799,7 @@ int cserver::removeThread(u_long ID)
       else
         threads = thread->next;
       thread->stop();
-      while(!ct->threadIsStopped())
+      while(!thread->threadIsStopped)
       {
         wait(100);
       }
