@@ -59,6 +59,8 @@ Section "MyServer core" SecCore
   File "system\errors\*.*
   SetOutPath $INSTDIR\system\icons
   File "system\icons\*.*
+  SetOutPath $INSTDIR\system\icons\codes
+  File "system\icons\codes\*.*
   SetOutPath $INSTDIR\languages
   File "languages\English.xml"
   SetOutPath $INSTDIR\languages\control
