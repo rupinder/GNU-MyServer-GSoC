@@ -4,8 +4,10 @@
   <meta http-equiv="CONTENT-TYPE"
  content="text/html; charset=windows-1252">
   <link rel="stylesheet" type="text/css" href="myserver.css">
-  <title>Publish Web Site</title>
+  <title>HTML</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.0.3  (Win32)">
   <meta name="AUTHOR" content="Kristen Grubb">
+  <meta name="CREATED" content="20030804;21131939">
   <meta name="CHANGEDBY" content="Kristen Grubb">
   <meta name="CHANGED" content="20030804;21511707">
   <style>
@@ -25,8 +27,9 @@
  frame="void" style="page-break-before: always;" border="5">
 </table>
 <table bordercolor="#008000" cellpadding="4" cellspacing="0"
- frame="void" border="4"
- style="width: 993px; height: 776px; page-break-before: always;">
+ frame="void"
+ style="page-break-before: always; height: 776px; width: 100%;"
+ border="4">
   <thead> <tr valign="top">
     <td style="width: 20%;">
     <div style="text-align: center; color: rgb(0, 102, 0);"><font
@@ -53,7 +56,7 @@ Table of Contents</span></font> </div>
       </li>
       <li>Scripting Languages
         <ol>
-          <li><a href="Htmlfiles.html">HTML</a> </li>
+          <li><big><span style="font-weight: bold;">HTML</span> </big></li>
           <li><a href="php.html">PHP</a> </li>
           <li><a href="perl.html">Perl</a> </li>
         </ol>
@@ -61,21 +64,17 @@ Table of Contents</span></font> </div>
       <li>Set Up Guides
         <ol>
           <li><a href="Linuxrun.html">Linux</a> </li>
-          <li><a href="runWindow9x.html">Windows 9x</a></li>
-          <li><a href="services.html"><font style="font-weight: bold;"><span
- style="font-weight: normal;">Windows NT</span></font></a><font
- size="+1"><br>
+          <li><a href="runWindows9x.html">Windows 9X</a></li>
+          <li><a href="services.html"><span style="font-weight: normal;">Windows
+NT</span></a><font size="+1"><br>
             </font></li>
         </ol>
       </li>
       <li>Configuring
         <ol>
           <li><a href="virtualhosts.html">Creating Virtual Hosts</a> </li>
-          <li style="font-weight: bold;"><font size="+1">Publishing
-a Web Site</font> </li>
-          <li><a href="ViewingSite.html">Viewing Your Web Site</a></li>
-          <li><a href="errorfiles.html">Error Handling</a><br>
-          </li>
+          <li><a href="PublishSite.html">Publishing a Web Site</a> </li>
+          <li><a href="ViewingSite.html">Viewing Your Web Site</a> </li>
         </ol>
       </li>
       <li>Maintenance Tasks
@@ -93,69 +92,63 @@ a Web Site</font> </li>
         </ol>
       </li>
       <li>URL Handling </li>
-      <li><a href="Security.html">Controlling Access</a> </li>
+      <li><a href="Security.html">Controlling
+Access</a> </li>
       <li>Troubleshooting </li>
     </ol>
     </td>
     <td>
-    <p align="right" style="color: rgb(0, 102, 0);"><font size="4"><b><a
- href="virtualhosts.com">&lt;&lt;Previous</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Next&gt;&gt;</b></font></p>
+    <p align="right" style="color: rgb(0, 102, 0);"><font size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="php.html">Next&gt;&gt;</a></b></font></p>
     <br>
-    <h1 align="center"><span style="color: rgb(0, 102, 0);">PUBLISHING
-A WEB SITE</span><br>
-    </h1>
-    <div style="margin-left: 40px;">By default myServer is installed
-with a single host accessible from all the IPs of the local machine.
-The files included in the dowloaded version of the server are for
-demonstration purposes only. &nbsp;In order to share your files with
-others you should replace the files in the web
-folder with the your own files. &nbsp;<br>
+    <h1 align="center"><span style="color: rgb(0, 102, 0);">HTML FILES<br>
+    </span></h1>
+    <br>
+HTML is used to write static web pages, and is used in conjunction with
+other languages to create dynamic pages.&nbsp; Anyone can create HTML
+(Hypertext Markup Language) files that can be viewed through MyServer.<br>
+    <br>
+    <br>
+The easiest way to create HTML files is to use a word processor such as
+    <a href="www.openoffice.org" ;="" target="_blank">Open Office </a>
+or <a href="www.microsoft.com" ;="" target="_blank">Microsoft Word</a>
+and
+save the file with the <span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">.html</span>
+extension.&nbsp; You can also create HTML files by writing the code in
+a text editor such as notepad or emacs.<br>
+    <br>
+    <br>
+The default place to save HTML files is in the<span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">
+web</span> folder.&nbsp; <br>
+    <br>
+    <div style="text-align: center;"><br>
+    <br>
+    <br>
+    <img src="images/myfiles.gif" title="" alt="Web folder"
+ style="width: 468px; height: 260px;"><br>
+    <font size="-1">The default "web" folder is selected.</font><br>
+    <div style="text-align: left;"><br>
+    <br>
+    <br>
+    <br>
+    <br>
+You can define another folder by configuring the <a
+ href="virtualhosts.html">virtual hosts</a>.&nbsp; <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     </div>
-    <p style="text-align: left;"> <br>
-    </p>
-    <div style="margin-left: 240px;"><font size="+1">&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp; <br>
-&nbsp;</font>&nbsp; 1. Delete the files that are currently in the web
-folder<br>
-&nbsp;&nbsp; 2.&nbsp; Add your own&nbsp; files. <br>
-&nbsp;<br>
     </div>
-    <p style="text-align: left; margin-left: 80px;"> Be sure to include
-a file named <span style="color: rgb(0, 102, 0);">"default.html"</span>
-as this is the first file people will see when they access the server.<br>
-    </p>
-    <p style="text-align: left;"><br>
-    </p>
-    <p style="text-align: left;"><br>
-    </p>
-    <div style="text-align: center;"><img src="images/myfiles.gif"
- style="width: 468px; height: 260px;" alt="Default web folder" title="">
-    </div>
-    <p style="text-align: center;"><font size="-1">The highlighted
-"web" folder is where you would make your changes</font><br>
-    </p>
-    <br>
-    <br>
-    <br>
-    <br>
-    <div style="margin-left: 80px;">If you would like to change the
-default folder settings or IP settings you must configure the <a
- href="virtualhosts.html">virtual
-hosts</a><font size="+1">.</font><br>
-    </div>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
     <div style="text-align: right; color: rgb(0, 102, 0);"><font
- size="4"><b><a href="virtualhosts.html">&lt;&lt;Previous</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Next&gt;&gt;</b></font></div>
+ size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="php.html">Next&gt;&gt;</a></b></font></div>
     </td>
   </tr>
   </thead>

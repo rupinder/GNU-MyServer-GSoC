@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=windows-1252">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Controlling Access</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.0.3  (Win32)">
+  <meta name="AUTHOR" content="Kristen Grubb">
+  <meta name="CREATED" content="20030804;21131939">
+  <meta name="CHANGEDBY" content="Kristen Grubb">
+  <meta name="CHANGED" content="20030804;21511707">
+  <style>
+	<!--
+		TD P { color: #000000 }
+		P { color: #000000 }
+		H2 { color: #000000 }
+		H4 { color: #000000 }
+		A:link { color: #0000ff }
+	-->
+	</style>
+</head>
+<body alink="#666666" vlink="#000099" link="#006600"
+ style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"
+ lang="en-US">
+<table bordercolor="#000002" cellpadding="4" cellspacing="0"
+ frame="void" style="page-break-before: always;" border="5">
+</table>
+<table bordercolor="#008000" cellpadding="4" cellspacing="0"
+ frame="void"
+ style="page-break-before: always; height: 776px; width: 100%;"
+ border="4">
+  <thead> <tr valign="top">
+    <td style="width: 20%;">
+    <div style="text-align: center; color: rgb(0, 102, 0);"><font
+ size="+2"><span style="font-weight: bold;"><br>
+    <img src="images/logo.gif" title="" alt="Logo"
+ style="width: 150px; height: 54px;"><br>
+    <br>
+Table of Contents</span></font> </div>
+    <ol>
+      <li><a href="Background.html">Basic Background Information</a></li>
+      <ol>
+        <li><a href="webserver.html">Web Server</a> </li>
+        <li><a href="license.html">License</a></li>
+        <li><a href="helpus.html">Help Us</a></li>
+        <li><a href="cvsversion.html">CVS</a><br>
+        </li>
+      </ol>
+      <li>Protocols
+        <ol>
+          <li>HTTP </li>
+          <li>ISAPI </li>
+          <li>CGI </li>
+        </ol>
+      </li>
+      <li>Scripting Languages
+        <ol>
+          <li><a href="Htmlfiles.html">HTML</a> </li>
+          <li><a href="php.html">PHP</a> </li>
+          <li><a href="perl.html">Perl</a> </li>
+        </ol>
+      </li>
+      <li>Set Up Guides
+        <ol>
+          <li><a href="Linuxrun.html">Linux</a> </li>
+          <li><a href="runWindows9x.html">Windows 9X</a></li>
+          <li><a href="services.html"><span style="font-weight: normal;">Windows
+NT</span></a><font size="+1"><br>
+            </font></li>
+        </ol>
+      </li>
+      <li>Configuring
+        <ol>
+          <li><a href="virtualhosts.html">Creating Virtual Hosts</a> </li>
+          <li><a href="PublishSite.html">Publishing a Web Site</a> </li>
+          <li><a href="ViewingSite.html">Viewing Your Web Site</a></li>
+          <li><a href="errorfiles.html">Error Handling</a><br>
+          </li>
+        </ol>
+      </li>
+      <li>Maintenance Tasks
+        <ol>
+          <li>Working with Virtual Hosts </li>
+          <li>Resolving Conflicts </li>
+          <li>Logging and Monitoring Activity </li>
+        </ol>
+      </li>
+      <li>File Handling
+        <ol>
+          <li><a href="mimetypes.html">MIME</a> </li>
+          <li>Content Management </li>
+          <li>File Uploading </li>
+        </ol>
+      </li>
+      <li>URL Handling </li>
+      <li><font size="+1"><span style="font-weight: bold;">Controlling
+Access</span></font> </li>
+      <li>Troubleshooting </li>
+    </ol>
+    </td>
+    <td>
+    <p align="right" style="color: rgb(0, 102, 0);"><font size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Next&gt;&gt;</b></font></p>
+    <br>
+    <h1 align="center"><span style="color: rgb(0, 102, 0);">CONTROLLING
+ACCESS<br>
+    </span></h1>
+In order to controll the access to a file, you must add the <span
+ style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">security.xml</span>
+in the folder you would like to protect.&nbsp; <br>
+    <br>
+The syntax of the file is:<br>
+    <br>
+    <font size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"><o:p></o:p></span></font>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><span
+ class="GramE"><font size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;?xml</span></font></span><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"> version="1.0"?&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;SECURITY&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"><o:p>&nbsp;</o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;USER
+NAME="God" PASS="<span class="SpellE">godpassword</span>"
+READ="TRUE" WRITE="TRUE" BROWSE="TRUE"
+EXECUTE="TRUE" /&gt;<br>
+&lt;!--This is the setting for the user--&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;USER
+NAME="Guest" PASS="" READ="TRUE"<span style="">&nbsp;&nbsp; </span>BROWSE="TRUE"/&gt;<span
+ style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <br>
+&nbsp;</span>&lt;!--The guest user--&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;USER
+NAME=</span></font><st1:place><st1:placename><font size="2" face="Arial"><span
+ lang="EN-GB" style="font-size: 10pt; font-family: Arial;">"Tim"</span></font></st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"> </span></font><st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">PASS</span></font></st1:placename></st1:place><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">="Tom"
+READ="TRUE" " EXECUTE="TRUE<span class="GramE">"<span style="">&nbsp; </span>BROWSE</span>="TRUE"/&gt;<span
+ style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+    </span>&lt;!--Another user--&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"><o:p>&nbsp;</o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;ITEM
+FILE="file1" READ="TRUE" WRITE="FALSE"
+EXECUTE="FALSE"&gt;<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </span><br>
+&lt;!--Define
+a file and its permissions--&gt;<span style="">&nbsp; </span><o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;USER
+NAME=</span></font><st1:place><st1:placename><font size="2" face="Arial"><span
+ lang="EN-GB" style="font-size: 10pt; font-family: Arial;">"Jim"</span></font></st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"> </span></font><st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">PASS</span></font></st1:placename></st1:place><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">="Morrison"
+READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" /&gt;<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </span><br>
+&lt;!--Define
+the user permissions for the file--&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;USER
+NAME=</span></font><st1:place><st1:placename><font size="2" face="Arial"><span
+ lang="EN-GB" style="font-size: 10pt; font-family: Arial;">"Bob"</span></font></st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"> </span></font><st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">PASS</span></font></st1:placename></st1:place><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">="Marley"
+READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <br>
+    </span>&lt;!--Another
+user permissions for the file--&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;/ITEM&gt;<span
+ style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <br>
+&nbsp; </span>&lt;!—End
+of the file block--&gt;<o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"><o:p></o:p></span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
+ face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">&lt;/SECURITY&gt;<br>
+    </span></font></p>
+    <p class="MsoNormal" style="color: rgb(0, 0, 0);">The engine first
+checks to see if the user has permissions in the file block:<br>
+    </p>
+    <font size="2" face="Arial" style="color: rgb(0, 102, 0);"><span
+ lang="EN-GB" style="font-size: 10pt; font-family: Arial;">&lt;USER
+NAME=</span></font><st1:place style="color: rgb(0, 102, 0);"><st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">"Bob"</span></font></st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;"> </span></font><st1:placename><font
+ size="2" face="Arial"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">PASS</span></font></st1:placename></st1:place><font
+ size="2" face="Arial" style="color: rgb(0, 102, 0);"><span lang="EN-GB"
+ style="font-size: 10pt; font-family: Arial;">="Marley"
+READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;<span style="">&nbsp;&nbsp;
+    </span></span></font><br>
+    <br>
+If there are no permissions defined, the engine&nbsp; tries to use the
+permissions that are defined for the file:<br>
+    <br>
+    <font size="2" face="Arial" style="color: rgb(0, 102, 0);"><span
+ lang="EN-GB" style="font-size: 10pt; font-family: Arial;">&lt;ITEM
+FILE="file1" READ="TRUE" WRITE="FALSE"
+EXECUTE="FALSE"&gt;</span></font><br>
+    <br>
+If the engine cannot find any file permissions, it then uses the
+general settings for the user:<br>
+    <br style="color: rgb(0, 102, 0);">
+    <font size="2" face="Arial" style="color: rgb(0, 102, 0);"><span
+ lang="EN-GB" style="font-size: 10pt; font-family: Arial;">&lt;USER
+NAME="Guest" PASS="" READ="TRUE"<span style="">&nbsp;&nbsp; </span>BROWSE="TRUE"/&gt;<span
+ style="">&nbsp;&nbsp; </span></span></font><br
+ style="color: rgb(0, 102, 0);">
+    <br>
+If the user is not defined, the engine will send an error to the user.<br>
+    <br>
+If the security file is not present, a default security file will be
+used by the engine.&nbsp; The default security file is found in the
+system folder.&nbsp; <br>
+    <br>
+    <br>
+    <br>
+    <div style="text-align: right; color: rgb(0, 102, 0);"><font
+ size="4"><b>&lt;&lt;Previous&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Next&gt;&gt;</b></font></div>
+    </td>
+  </tr>
+  </thead>
+</table>
+<p><br>
+<br>
+</p>
+</body>
+</html>
