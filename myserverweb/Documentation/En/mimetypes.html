@@ -7,13 +7,12 @@
   <title>MIME Types</title>
 </head>
 <body>
-<h1 align="center" style="color: rgb(0, 102, 0);">MIME TYPES</h1>
+<h1 class="title">MIME TYPES</h1>
 <p>You can modify the MIME types used by MyServer by modifing the
-file
-"MIMEtypes.xml" with a text application such as notepad in Windows or
+file "MIMEtypes.xml" with a text application such as notepad in Windows or
 Emacs in Linux. The following is an example of the .xml file:<br>
 </p>
-<p style="margin-left: 200px;"><font color="#006600">&lt;MIMETYPES&gt;<br>
+<p class="code">&lt;MIMETYPES&gt;<br>
 -<br>
 &nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
 -<br>
@@ -22,20 +21,20 @@ Emacs in Linux. The following is an example of the .xml file:<br>
 &lt;MIME&gt;text/html&lt;/MIME&gt;<br>
 &lt;CMD&gt;SEND&lt;/CMD&gt;<br>
 &lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br>
-&lt;/MIMETYPE&gt;</font><br>
+&lt;/MIMETYPE&gt;
 </p>
 <p><br>
 Each line describe a different MIME type. </p>
-<span style="color: rgb(0, 102, 0);">&lt;EXT&gt;</span> is the type
+<font class="code">&lt;EXT&gt;</font> is the type
 of file<br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;MIME&gt;</span> is the
+<font class="code">&lt;MIME&gt;</font> is the
 Mime type.<br>
-<br style="color: rgb(0, 102, 0);">
-<span style="color: rgb(0, 102, 0);">&lt;CMD&gt;</span> is the way
+<br>
+<font class="code">&lt;CMD&gt;</font> is the way
 to send the file to the client.<br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;MANAGER&gt;</span>
+<font class="code">&lt;MANAGER&gt;</font>
 describes the &lt;CMD&gt; command.<br>
 <br>
 <p>The following values for sending the file to the client are
@@ -43,42 +42,39 @@ valid in the &lt;MANAGER&gt; section:<br>
 </p>
 <div align="left">
 <ol>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">SEND</font>
+  <li><font class="code">SEND</font>
 - Send the file statically as
 is. &nbsp;This command is used for files extensions such as .html and
 .jpg that don't need any external intervention from the web server.</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNCGI</font>
+  <li><font class="code">RUNCGI</font>
 - Run the CGI script
 indicated in the path. &nbsp;It is used for file extensions such as
 .php and .pl that need to be processed before sending any data to the
 client.</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNFASTCGI</font><span
+  <li><font class="code">RUNFASTCGI</font><span
  style="color: rgb(0, 102, 0);"> </span>- Run the Fastcgi script.
 &nbsp;This type will need a fastcgi parser downloaded (see the PHP
 page).
 &nbsp;It is also used for file extensions such as .php and .pl</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTEFASTCGI</font>
+  <li><font class="code">EXECUTEFASTCGI</font>
 - This also runs the
 Fastcgi script, but unlike the RUNFASTCGI above, it does not need a
 server to run the script, instead it acts as a self server.</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNMSCGI</font><span
- style="color: rgb(0, 102, 0);"> </span>- Run the MSCGI script.
+  <li><font class="code">RUNMSCGI</font>- Run the MSCGI script.
 &nbsp;This library is only available for myServer. &nbsp;It is used to
 build fast and efficient CGIs.</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTE </font><span
- style="color: rgb(0, 102, 0);"><span style="color: rgb(0, 0, 0);">-</span>
-    </span>Treat the file as an
+  <li><font class="code">EXECUTE </font>-Treat the file as an
 executable and send the output to the client.&nbsp;</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">SENDLINK</font>
+  <li><font class="code">SENDLINK</font>
 - Send the file that is
 contained in a link.</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTEWINCGI</font>
+  <li><font class="code">EXECUTEWINCGI</font>
 - Send the file as a
 WinCGI</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">RUNISAPI</font>
+  <li><font class="code">RUNISAPI</font>
 - Run the ISAPI script.
 &nbsp;</li>
-  <li><font color="#ffff00" style="color: rgb(0, 102, 0);">EXECUTEISAPI</font>
+  <li><font class="code">EXECUTEISAPI</font>
 - Runs the ISAPI script
 but does not need a server to run. Instead, it acts as a self server.</li>
 </ol>

@@ -1,13 +1,17 @@
-body         { text-align: left; color:#000000; background-color:#FFFFFF; font-family:sans-serif; font-size:  12pt}
+body         { text-align: center; color:#000000; background-color:#FFFFFF; font-family:sans-serif; font-size:  12pt}
 a:link       {  color: #0000FF; }
 a:visited    {  color: #008000; }
 a:active     {  color: #800080;}
-.code		 {	color: #006600;}
-.title		 {	color: #006600;}
-textarea     {   color: #000000;}
-html         {   color: #000000;}
-table        {   color: #000000;}
-hr           {   color: #000000;}
+.code		 {	text-align:center;color: #006600;}
+.warning	 {	text-align:center;color: #CC0000;}
+h1			 {   text-align:center;color: #006600;}
+h2			 {   text-align:center;color: #006600;}
+h3			 {   text-align:center;color: #006600;}
+.title		 {	 text-align:center; color: #006600;}
+textarea     {   text-align:center;color: #000000;}
+html         {   text-align:center;color: #000000;}
+table        {   text-align:center;color: #000000;}
+hr           {   text-align:center;color: #000000;}
 form	     {border-style: solid; border-width: 1px; padding-left: 4px; padding-right: 4px; padding-top: 1px; padding-bottom: 1px}
 DIV	     { color:  #000000;  font-family: veranda;  font-size: 12pt; }
 .heading     { color:  #0000FF;   font-size: 14pt; font-weight: bold; }

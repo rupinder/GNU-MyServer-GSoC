@@ -7,125 +7,69 @@
   <title>Controlling Access</title>
 </head>
 <body>
-<h1 align="center"><span style="color: rgb(0, 102, 0);">CONTROLLING
-ACCESS<br>
-</span></h1>
-In order to controll the access to a file, you must add the <span
- style="font-family: courier new,courier,monospace; color: rgb(0, 102, 0);">security.xml</span>
-in the folder you would like to protect.&nbsp; <br>
+<h1 class="title">CONTROLLING ACCESS<br></h1>
+In order to controll the access to a file, you must add the <font class="code">security.xml</font> 
+in the folder you would like to protect.<br>
 <br>
 The syntax of the file is:<br>
-<p><font color="#006600"><span class="GramE"><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;">&lt;?xml</span></font></span></font><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600"> version="1.0"?&gt;</font><o:p></o:p></span></font></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">&lt;SECURITY&gt;</font><o:p></o:p></span></font></p>
-<p class="MsoNormal" style="color: #006600;"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><o:p>&nbsp;</o:p><font color="#006600">&lt;USER
-NAME="God" PASS="<span class="SpellE">godpassword</span>"
-READ="TRUE" WRITE="TRUE" BROWSE="TRUE"
-EXECUTE="TRUE" /&gt;<br>
-&lt;!--This is the setting for the user--&gt;</font><o:p></o:p></span></font></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">&lt;USER
-NAME="Guest" PASS="" READ="TRUE"<span style="">&nbsp;&nbsp; </span>BROWSE="TRUE"/&gt;<span
- style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
-&nbsp;</span>&lt;!--The guest user--&gt;</font><o:p></o:p></span></font></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);"><font color="#006600"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;">&lt;USER
-NAME=</span></font><st1:place><st1:placename><font size="2" face="Arial"><span
- lang="EN-GB" style="font-size: 10pt; font-family: Arial;">"Tim"</span></font></st1:placename><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"> </span></font><st1:placename><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;">PASS</span></font></st1:placename></st1:place></font><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">="Tom"
-READ="TRUE" " EXECUTE="TRUE<span class="GramE">"<span style="">&nbsp; </span>BROWSE</span>="TRUE"/&gt;<span
- style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
-</span>&lt;!--Another user--&gt;</font><o:p></o:p></span></font></p>
-<p class="MsoNormal" style="color: #006600;"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">&lt;ITEM
-FILE="file1" READ="TRUE" WRITE="FALSE"
-EXECUTE="FALSE"&gt;<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><br>
-&lt;!--Define
-a file and its permissions--&gt;<span style="">&nbsp; </span></font></span></font></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);"><font color="#006600"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;">&lt;USER
-NAME=</span></font><st1:place><st1:placename><font size="2" face="Arial"><span
- lang="EN-GB" style="font-size: 10pt; font-family: Arial;">"Jim"</span></font></st1:placename><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"> </span></font><st1:placename><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;">PASS</span></font></st1:placename></st1:place></font><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">="Morrison"
-READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" /&gt;<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><br>
-&lt;!--Define
-the user permissions for the file--&gt;</font><o:p></o:p></span></font></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);"><font color="#006600"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;">&lt;USER
-NAME=</span></font><st1:place><st1:placename>"Bob"</st1:placename><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"> </span></font><st1:placename>PASS</st1:placename></st1:place></font><font
- size="2" face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">="Marley"
-READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;<span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p class="code">
+&lt;?xml version="1.0"?&gt;
 <br>
-</span>&lt;!--Another
-user permissions for the file--&gt;</font><o:p></o:p></span></font></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">&lt;/ITEM&gt;<span
- style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;SECURITY&gt;
 <br>
-</span>&lt;!&#8212;End
-of the file block--&gt;</font></span></font></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);"><font size="2"
- face="Arial"><span lang="EN-GB"
- style="font-size: 10pt; font-family: Arial;"><font color="#006600">&lt;/SECURITY&gt;</font><br>
-</span></p>
-<p class="MsoNormal" style="color: rgb(0, 0, 0);">The engine first
-checks to see if the user has permissions in the file block:<br>
+&lt;USER NAME="God" PASS="godpassword" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" EXECUTE="TRUE" /&gt;
+<br>
+&lt;!--This is the setting for the user--&gt;
+<br>
+&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;
+<br>
+&lt;!--The guest user--&gt;
+<br>
+&lt;USER NAME="Tim" PASS="Tom" READ="TRUE" EXECUTE="TRUE" BROWSE="TRUE"/&gt;
+<br>
+&lt;!--Another user--&gt;
+<br>
+&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;
+<br>
+&lt;!--Define a file and its permissions--&gt;
+<br>
+&lt;USER NAME="Jim" PASS="Morrison" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" /&gt;&nbsp
+<br>&lt;!--Define the user permissions for the file--&gt;
+<br>
+&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;
+<br>
+&lt;!--Another user permissions for the file--&gt;
+<br>
+&lt;/ITEM&gt;
+<br>
+&lt;!&#8212;End of the file block--&gt;
+<br>
+&lt;/SECURITY&gt;
 </p>
-<font size="2" face="Arial" style="color: rgb(0, 102, 0);">&lt;USER
-NAME="Bob" PASS="Marley"
-READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;&nbsp;&nbsp;
-><br>
+<p>
+The engine first checks to see if the user has permissions in the file block:<br>
+</p>
+<font class="code">&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;</font><br>
 <br>
-</font>If there are no permissions defined, the engine&nbsp; tries to use the
-permissions that are defined for the file:<font size="2" face="Arial" style="color: rgb(0, 102, 0);"><br>
+
+If there are no permissions defined, the engine tries to use the
+permissions that are defined for the file:
 <br>
-<font size="2" face="Arial" style="color: rgb(0, 102, 0);"><span
- lang="EN-GB" style="font-size: 10pt; font-family: Arial;">&lt;ITEM
-FILE="file1" READ="TRUE" WRITE="FALSE"
-EXECUTE="FALSE"&gt;</span></font><br>
+<p class="code">&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;
+</p>
 <br>
-</font>If the engine cannot find any file permissions, it then uses the
-general settings for the user:<font size="2" face="Arial" style="color: rgb(0, 102, 0);"><br>
-<br style="color: rgb(0, 102, 0);">
-<font size="2" face="Arial" style="color: rgb(0, 102, 0);"><span
- lang="EN-GB" style="font-size: 10pt; font-family: Arial;">&lt;USER
-NAME="Guest" PASS="" READ="TRUE"<span style="">&nbsp;&nbsp; </span>BROWSE="TRUE"/&gt;<span
- style="">&nbsp;&nbsp; </span></span></font><br
- style="color: rgb(0, 102, 0);">
+If the engine cannot find any file permissions, it then uses the
+general settings for the user:
+<p class="code"><br>
 <br>
-</font>If the user is not defined, the engine will send an error to the user.<br>
+&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;
+</p>
 <br>
+If the user is not defined, the engine will send an error to the user.
+<p>
 If the security file is not present, a default security file will be
-used by the engine.&nbsp; The default security file is found in the
-system folder.&nbsp; <br>
+used by the engine. The default security file is found in the
+system folder.</p>
 </font>
 </body>
 </html>

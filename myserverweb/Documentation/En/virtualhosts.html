@@ -7,7 +7,7 @@
   <title>Virtual Hosts</title>
 </head>
 <body>
-<h1 align="center" style="color: rgb(0, 102, 0);">VIRTUAL HOSTS</h1>
+<h1 class="title">VIRTUAL HOSTS</h1>
 In theory, virtual hosts allow users to lodge an infinite number of
 sites on a single machine. For example http://mypc.net is different
 from http://sub.mypc.net. To define virtual hosts in myServer open the
@@ -16,8 +16,7 @@ Windows or
 Emacs in Linux).&nbsp; A sample virtual hosts configuration file looks
 like:<br>
 <br>
-<div style="margin-left: 120px;">-<br>
-&nbsp;&nbsp;&nbsp; &lt;VHOSTS&gt;<br>
+<p class="code">&lt;VHOSTS&gt;<br>
 -<br>
 &nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br>
 &lt;NAME&gt;Every connection&lt;/NAME&gt;<br>
@@ -29,28 +28,28 @@ like:<br>
 &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br>
 &lt;/VHOST&gt;<br>
 &lt;/VHOSTS&gt;<br>
-</div>
+</p>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;NAME&gt;</span>&nbsp;
+<font class="code">&lt;NAME&gt;</font>&nbsp;
 gives the server administrator an idea of what the virtual host is such
 as internal Ethernet, external ethernet or every connection.&nbsp; <br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;PORT&gt;</span> is the
+<font class="code">&lt;PORT&gt;</font> is the
 port used for accepting connections<br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;PROTOCOL&gt;</span>&nbsp;
+<font class="code">&lt;PROTOCOL&gt;</font>&nbsp;
 is the protocol to be used by the host<br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;DOCROOT&gt;</span> is the
+<font class="code">&lt;DOCROOT&gt;</font> is the
 folder where the files are found<br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;SYSFOLDER&gt;</span> is
+<font class="code">&lt;SYSFOLDER&gt;</font> is
 the system folder<br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;ACCESSLOG&gt;</span> is
+<font class="code">&lt;ACCESSLOG&gt;</font> is
 the access log used by the virtual host<br>
 <br>
-<span style="color: rgb(0, 102, 0);">&lt;WARNINGLOG&gt;</span> is
+<font class="code">&lt;WARNINGLOG&gt;</font> is
 the errors log file used by the virtual host.<br>
 <br>
 </body>

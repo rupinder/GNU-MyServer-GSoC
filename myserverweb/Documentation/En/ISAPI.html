@@ -7,28 +7,23 @@
   <title>ISAPI</title>
 </head>
 <body>
-<h1 align="center"><span style="color: rgb(0, 102, 0);">ISAPI<br>
-</span></h1>
+<h1 class="title">ISAPI</h1>
 ISAPI (Internet Server Application Program Interface) is a protocol
 used by Windows based computers to run an application directly from the
 Web page instead of having the server process the application as a <a
  href="CGI.html">CGI </a>script.&nbsp; In order to use ISAPI, you must
-create a DLL (dynamic link library) that is run as part of the <a
- href="HTTP.html">HTTP</a>
+create a DLL (dynamic link library) that is run as part of the <a href="HTTP.html">HTTP</a>
 application. <br>
 <br>
 The DLL is loaded in to the calling computer's memory when the web page
 is opened and remains there until the user closes the web page.&nbsp;
 ISAPI is a faster way to process applications as it does not require
 any additional action by the Web Server. <br>
-<br style="color: rgb(204, 0, 0);">
-<span style="color: rgb(204, 0, 0);">Warning</span>:&nbsp; If an ISAPI
-application crashes it may cause the calling application to fail also.<br>
+<br>
+<font class="warning">Warning</font>: If an ISAPI application crashes it may cause the calling application to fail also.<br>
 <br>
 <br>
-For more information, you can read Microsoft's <a
- href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI
-Overview</a>.<br>
+For more information, you can read Microsoft's <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI Overview</a>.<br>
 <br>
 <br>
 <br>
