@@ -17,8 +17,8 @@ post.mscgi : $(libpost_a_OBJECTS) $(libpost_a_DEPENDENCIES)
 makemscgi :
 	if test x$(MAKE_MSCGI) = xno; then exit; fi
 
-install :
-	exit; ### install is disabled in myserver
+install : makemscgi post.mscgi
+	$(INSTALL) -D 'post.mscgi' '$(root_prefix)/var/web/cgi-bin/post.mscgi'
 
 clean :
 	rm -f post.mscgi

@@ -18,8 +18,9 @@ cgi-lib.so : $(libcgi_lib_a_OBJECTS) $(libcgi_lib_a_DEPENDENCIES)
 makemscgi :
 	if test x$(MAKE_MSCGI) = xno; then exit; fi
 
-install :
-	exit; ### install is disabled in myserver
+install : makemscgi cgi-lib.so
+	$(INSTALL) -D 'cgi-lib.so' '$(prefix)/lib/myserver/cgi-lib.so'
+	
 
 clean :
 	rm -f cgi-lib.so

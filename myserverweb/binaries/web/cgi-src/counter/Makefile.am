@@ -1,4 +1,7 @@
 # Makefile for counter
+
+EXTRA_DIST = README
+
 lib_LIBRARIES = libcounter.a
 libcounter_a_SOURCES = main.cpp counter_output.cpp writepng.c
 
@@ -21,8 +24,8 @@ makemscgi :
 makecounter :
 	if test x$(MAKE_COUNTER) = xno; then exit; fi
 
-install :
-	exit; ### install is disabled in myserver
+install : makemscgi makecounter counter.mscgi
+	$(INSTALL) -D 'counter.mscgi' '$(root_prefix)/var/web/cgi-bin/counter.mscgi'
 
 clean :
 	rm -f counter.mscgi

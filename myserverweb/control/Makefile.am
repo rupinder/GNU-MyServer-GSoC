@@ -6,14 +6,11 @@ control_SOURCES = configuration.cpp configureMIME.cpp control.cpp  configureVHOS
 INCLUDES = $(all_includes)
 
 control_LDFLAGS = $(all_libraries)
-control_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) $(WX_CFLAGS)
+control_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) $(WX_CFLAGS) -DPREFIX=\"$(prefix)\"
 control_LDADD = $(PTHREAD_LIB) $(XML_LIBS) $(WX_LIBS)
 
 all : makecontrol control
 	cp control ../binaries
-
-install :
-	exit; ### install is disabled in myserver
 
 makecontrol :
 	if test x$(MAKE_CONTROL) = xno; then exit; fi

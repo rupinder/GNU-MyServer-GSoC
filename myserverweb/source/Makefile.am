@@ -6,11 +6,9 @@ myserver_SOURCES = threads.cpp processes.cpp protocol.cpp protocols_manager.cpp 
 INCLUDES = $(all_includes)
 
 myserver_LDFLAGS = $(all_libraries)
-myserver_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DHOST_STR=\"$(build)\"
+myserver_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
 myserver_LDADD = $(PTHREAD_LIB) $(XNET_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) $(XML_LIBS)
 
 all : myserver
 	cp myserver ../binaries
 
-install :
-	exit; ### install is disabled in myserver

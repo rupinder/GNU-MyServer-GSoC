@@ -128,5 +128,19 @@ if test x$have_wxwindows != xyes; then
 fi
 
 dnl AC_CONFIG_SUBDIRS()
-AC_CONFIG_FILES(Makefile source/Makefile control/Makefile CGI-LIB/Makefile binaries/web/cgi-src/math_sum/Makefile binaries/web/cgi-src/post/Makefile binaries/web/cgi-src/counter/Makefile)
+AC_CONFIG_FILES(Makefile \
+		binaries/Makefile \
+                binaries/languages/Makefile \
+		binaries/web/Makefile \
+                binaries/web/downloads/Makefile \
+                binaries/web/cgi-bin/Makefile \
+		binaries/web/cgi-src/Makefile \
+		binaries/web/cgi-src/post/Makefile \
+		binaries/web/cgi-src/counter/Makefile \
+		binaries/web/cgi-src/math_sum/Makefile \
+		binaries/logs/Makefile \
+		binaries/system/Makefile \
+		control/Makefile \
+		source/Makefile \
+		CGI-LIB/Makefile)
 AC_OUTPUT

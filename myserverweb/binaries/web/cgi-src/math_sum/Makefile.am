@@ -17,8 +17,8 @@ math_sum.mscgi : $(libmath_sum_a_OBJECTS) $(libmath_sum_a_DEPENDENCIES)
 makemscgi :
 	if test x$(MAKE_MSCGI) = xno; then exit; fi
 
-install :
-	exit; ### install is disabled in myserver
+install : makemscgi math_sum.mscgi
+	$(INSTALL) -D 'math_sum.mscgi' '$(root_prefix)/var/web/cgi-bin/math_sum.mscgi'
 
 clean :
 	rm -f math_sum.mscgi
