@@ -130,7 +130,30 @@ int cXMLParser::setValue(char* vName,char *value)
 	}
 	return 0;
 }
-
+/*!
+*Get the attribute attr for the node field
+*/
+char *cXMLParser::getAttr(char* field,char *attr)
+{
+	xmlNodePtr lcur=cur->xmlChildrenNode;
+	buffer[0]='\0';
+	while(lcur)
+	{
+		if(!xmlStrcmp(lcur->name, (const xmlChar *)field))
+		{
+			xmlAttr *attrs =  lcur->properties;
+			while(attrs)
+			{
+				if(!xmlStrcmp(attrs->name, (const xmlChar *)attr))
+					return (char*)attrs->children->content;
+				
+				attrs=attrs->next;
+			}
+		}
+		lcur=lcur->next;
+	}
+	return 0;
+}
 /*!
 *Free the memory used by the class.
 */

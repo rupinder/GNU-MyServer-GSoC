@@ -369,7 +369,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	*cause especially in the CGI is requested a continous
 	*HTTP header access.
 	*Before mapping the header in the structure 
-	*control if this is a regular request->
+	*control if this is a regular request.
 	*The HTTP header ends with a \r\n\r\n sequence.
 	*/
 
@@ -391,7 +391,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		return -1;
 
 	const int max_URI=MAX_PATH+200;
-	const char seps[]   = "\t\n\r";
+	const char seps[]   = "\n\r";
 	const char cmdseps[]   = ": ,\t\n\r";
 
 	static char *token=0;
@@ -409,9 +409,9 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		*td->buffer2 << input;
 		input=token=(char*)td->buffer2->GetBuffer();
 	}
-	while((token[i]=='\n')||(token[i]=='\r'))token++;
-	token = strtok( token, cmdseps );
-	if(!token)return 0;
+	int tokenOff = getCharInString(token,cmdseps,HTTP_REQUEST_CMD_DIM);
+	if(tokenOff== -1 )
+		return 0;
 	do
 	{
 		/*!
@@ -422,8 +422,11 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		/*!
 		*Copy the HTTP command.
 		*/
-		strncpy(command,token,96);
-		
+		strncpy(command,token,tokenOff);
+		token+=tokenOff;
+		command[tokenOff]='\0';
+		if(*token==':')
+			token++;
 		nLineControlled++;
 		if(nLineControlled==1)
 		{
@@ -435,11 +438,12 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			/*!
 			*Copy the method type.
 			*/
-			strncpy(request->CMD,command,HTTP_REQUEST_CMD_DIM);
-			token = strtok( NULL, "\t\n\r" );
-			if(token==0)
+			strncpy(request->CMD,command,tokenOff);
+			request->CMD[tokenOff]='\0';
+			tokenOff = getCharInString(token,"\t\n\r",HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
+			if(tokenOff==-1)
 				return 0;
-			u_long len_token=(u_long)strlen(token);
+			u_long len_token=tokenOff;
 			max=len_token;
 			while((token[max]!=' ')&(len_token-max<HTTP_REQUEST_VER_DIM))
 				max--;
@@ -464,7 +468,6 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 				}
 			}
 			strncpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM);
-
 			if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else
@@ -480,20 +483,25 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		/*!User-Agent*/
 		if(!lstrcmpi(command,"User-Agent"))
 		{
-			token = strtok( NULL, "\r\n" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,"\n\r",HTTP_REQUEST_USER_AGENT_DIM);
+						
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->USER_AGENT,token,HTTP_REQUEST_USER_AGENT_DIM);
+			strncpy(request->USER_AGENT,token,tokenOff);
+			request->USER_AGENT[tokenOff]='\0';
 			StrTrim(request->USER_AGENT," ");
 		}else
 		/*!Authorization*/
 		if(!lstrcmpi(command,"Authorization"))
 		{
-			token = strtok( NULL, " " );
-			if(!token)return 0;
+			tokenOff = getCharInString(token," ",HTTP_REQUEST_AUTH_DIM);
+						
+			if(tokenOff==-1)return 0;
+		
 			lineControlled=1;
-			
-			strcpy(request->AUTH,token);
+	
+			strncpy(request->AUTH,token,tokenOff);
+			request->AUTH[tokenOff]='\0';
 			if(!lstrcmpi(token,"Basic"))
 			{
 				u_long i;
@@ -507,201 +515,227 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					td->connection->login[i+1]='\0';
 				}
 				strncpy(td->identity,td->connection->login,32);
-				lbuffer2++;
+                		lbuffer2++;
 				for(i=0;(*lbuffer2)&&(i<31);i++)
 				{
 					td->connection->password[i]=*lbuffer2++;
 					td->connection->password[i+1]='\0';
 				}
 				free(keep_lbuffer2);
-				token = strtok( NULL, "\r\n");
+				tokenOff = getCharInString(token,"\r\n",HTTP_REQUEST_AUTH_DIM);
 			}
 			else if(!lstrcmpi(token,"Digest"))
 			{
-				while(token = strtok( NULL, "=" ))
+				tokenOff = getCharInString(token,"\r\n",0);
+				char *digestBuff=(char*)malloc(tokenOff);
+				memcpy(digestBuff,token,tokenOff);
+				if(!digestBuff)
+					return 0;
+				char *digestToken = strtok( digestBuff, "=" );
+				if(!digestToken)
+					return 0;
+				do
 				{
 					StrTrim(token," ");
-					if(!lstrcmpi(token,"nonce"))
+					if(!lstrcmpi(digestToken,"nonce"))
 					{
-						token = strtok( NULL, "," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_nonce,token,48);
+						digestToken = strtok( NULL, "," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_nonce,digestToken,48);
 					}
-					else if(!lstrcmpi(token,"opaque"))
+					else if(!lstrcmpi(digestToken,"opaque"))
 					{
-						token = strtok( NULL, "," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_opaque,token,48);
+						digestToken = strtok( NULL, "," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_opaque,digestToken,48);
 					}
-					else if(!lstrcmpi(token,"uri"))
+					else if(!lstrcmpi(digestToken,"uri"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_uri,token,1024);
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_uri,digestToken,1024);
 					}
 					else if(!lstrcmpi(token,"method"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_method,token,16);
-					}										
-					else if(!lstrcmpi(token,"qop"))
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_method,digestToken,16);
+					}	
+					else if(!lstrcmpi(digestToken,"qop"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_qop,token,16);
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_qop,digestToken,16);
 					}					
-					else if(!lstrcmpi(token,"realm"))
+					else if(!lstrcmpi(digestToken,"realm"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_realm,token,48);
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_realm,digestToken,48);
 					}
-					else if(!lstrcmpi(token,"cnonce"))
+					else if(!lstrcmpi(digestToken,"cnonce"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token," \"");
-						strncpy(td->request.digest_cnonce,token,48);
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken," \"");
+						strncpy(td->request.digest_cnonce,digestToken,48);
 					}
-					else if(!lstrcmpi(token,"username"))
+					else if(!lstrcmpi(digestToken,"username"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_username,token,16);
-						strncpy(td->connection->login,token,48);						
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_username,digestToken,16);
+						strncpy(td->connection->login,token,48);
 					}
 					else if(!lstrcmpi(token,"response"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_response,token,48);
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_response,digestToken,48);
 					}
-					else if(!lstrcmpi(token,"nc"))
+					else if(!lstrcmpi(digestToken,"nc"))
 					{
-						token = strtok( NULL, "\r\n," );
-						StrTrim(token,"\" ");
-						strncpy(td->request.digest_nc,token,10);
+						digestToken = strtok( NULL, "\r\n," );
+						StrTrim(digestToken,"\" ");
+						strncpy(td->request.digest_nc,digestToken,10);
 					}
 					else 
 					{
-						token = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, "\r\n," );
 					}
-				}
+				}while(digestToken = strtok( NULL, "=" ));
+				free(digestBuff);
 			}
 		}else
 		/*!Host*/
 		if(!lstrcmpi(command,"Host"))
 		{
-			token = strtok( NULL, seps );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_HOST_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->HOST,token,HTTP_REQUEST_HOST_DIM);
+			strncpy(request->HOST,token,tokenOff);
+			request->HOST[tokenOff]='\0';
 			StrTrim(request->HOST," ");
 		}else
 		/*!Content-Encoding*/
 		if(!lstrcmpi(command,"Content-Encoding"))
 		{
-			token = strtok( NULL, seps );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_ENCODING_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONTENT_ENCODING,token,HTTP_REQUEST_CONTENT_ENCODING_DIM);
+			strncpy(request->CONTENT_ENCODING,token,tokenOff);
+			request->CONTENT_ENCODING[tokenOff]='\0';
 			StrTrim(request->CONTENT_ENCODING," ");
 		}else
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
 		{
-			token = strtok( NULL, seps );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_TYPE_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONTENT_TYPE,token,HTTP_REQUEST_CONTENT_TYPE_DIM);
+			strncpy(request->CONTENT_TYPE,token,tokenOff);
+			request->CONTENT_TYPE[tokenOff]='\0';
 			StrTrim(request->CONTENT_TYPE," ");
 		}else
 		/*!If-Modified-Since*/
 		if(!lstrcmpi(command,"If-Modified-Since"))
 		{
-			token = strtok( NULL, seps );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->IF_MODIFIED_SINCE,token,HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
+			strncpy(request->IF_MODIFIED_SINCE,token,tokenOff);
+			request->IF_MODIFIED_SINCE[tokenOff]='\0';
 			StrTrim(request->IF_MODIFIED_SINCE," ");
 		}else
 		/*!Accept*/
 		if(!lstrcmpi(command,"Accept"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			int max=HTTP_REQUEST_ACCEPT_DIM-strlen(request->ACCEPT);
+			int oldlen=strlen(request->ACCEPT);
+			if(max<0)
+				return 0;
+			tokenOff = getCharInString(token,seps,max);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncat(request->ACCEPT,token,HTTP_REQUEST_ACCEPT_DIM-strlen(request->ACCEPT));
+			strncat(request->ACCEPT,token,tokenOff);
+			request->ACCEPT[oldlen+tokenOff]='\0';
 			StrTrim(request->ACCEPT," ");
 		}else
 		/*!Accept-Language*/
 		if(!lstrcmpi(command,"Accept-Language"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTLAN_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->ACCEPTLAN,token,HTTP_REQUEST_ACCEPTLAN_DIM);
+			strncpy(request->ACCEPTLAN,token,tokenOff);
+			request->ACCEPTLAN[tokenOff]='\0';
 			StrTrim(request->ACCEPTLAN," ");
 		}else
 		/*!Accept-Charset*/
 		if(!lstrcmpi(command,"Accept-Charset"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTCHARSET_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->ACCEPTCHARSET,token,HTTP_REQUEST_ACCEPTCHARSET_DIM);
+			strncpy(request->ACCEPTCHARSET,token,tokenOff);
+			request->ACCEPTCHARSET[tokenOff]='\0';
 			StrTrim(request->ACCEPTCHARSET," ");
 		}else
 		/*!Accept-Encoding*/
 		if(!lstrcmpi(command,"Accept-Encoding"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_ACCEPTENC_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->ACCEPTENC,token,HTTP_REQUEST_ACCEPTENC_DIM);
+			strncpy(request->ACCEPTENC,token,tokenOff);
+			request->ACCEPTENC[tokenOff]='\0';
 			StrTrim(request->ACCEPTENC," ");
 		}else
 		/*!Connection*/
 		if(!lstrcmpi(command,"Connection"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONNECTION_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONNECTION,token,HTTP_REQUEST_CONNECTION_DIM);
+			strncpy(request->CONNECTION,token,tokenOff);
+			request->CONNECTION[tokenOff]='\0';
 			StrTrim(request->CONNECTION," ");
 		}else
 		/*!Cookie*/
 		if(!lstrcmpi(command,"Cookie"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_COOKIE_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->COOKIE,token,HTTP_REQUEST_COOKIE_DIM);
+			strncpy(request->COOKIE,token,tokenOff);
+			request->COOKIE[tokenOff]='\0';
 		}else
 		/*!From*/
 		if(!lstrcmpi(command,"From"))
 		{
-			token = strtok( NULL, "\r\n" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_FROM_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->FROM,token,HTTP_REQUEST_FROM_DIM);
+			strncpy(request->FROM,token,tokenOff);
+			request->FROM[tokenOff]='\0';
 			StrTrim(request->FROM," ");
 		}else
 		/*!Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CONTENT_LENGTH_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CONTENT_LENGTH,token,HTTP_REQUEST_CONTENT_LENGTH_DIM);
+			strncpy(request->CONTENT_LENGTH,token,tokenOff);
+			request->CONTENT_LENGTH[tokenOff]='\0';
 		}else
 		/*!Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))
 		{
-			token = strtok( NULL, "\n\r" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->CACHE_CONTROL,token,HTTP_REQUEST_CACHE_CONTROL_DIM);
+			strncpy(request->CACHE_CONTROL,token,tokenOff);
+			request->CACHE_CONTROL[tokenOff]='\0';
 		}else
 		/*!Range*/
 		if(!lstrcmpi(command,"Range"))
@@ -710,8 +744,8 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 			request->RANGEBYTEBEGIN[0]='\0';
 			request->RANGEBYTEEND[0]='\0';
 			lineControlled=1;
-			token = strtok( NULL, "\r\n\t" );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_CACHE_CONTROL_DIM);
+			if(tokenOff==-1)return 0;
 			int i=0;
 			do
 			{
@@ -746,32 +780,29 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		/*!Referer*/
 		if(!lstrcmpi(command,"Referer"))
 		{
-			token = strtok( NULL, seps );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_REFERER_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->REFERER,token,HTTP_REQUEST_REFERER_DIM);
+			strncpy(request->REFERER,token,tokenOff);
+			request->REFERER[tokenOff]='\0';
 			StrTrim(request->REFERER," ");
 		}else
 		/*!Pragma*/
 		if(!lstrcmpi(command,"Pragma"))
 		{
-			token = strtok( NULL, seps );
-			if(!token)return 0;
+			tokenOff = getCharInString(token,seps,HTTP_REQUEST_PRAGMA_DIM);
+			if(tokenOff==-1)return 0;
 			lineControlled=1;
-			strncpy(request->PRAGMA,token,HTTP_REQUEST_PRAGMA_DIM);
+			strncpy(request->PRAGMA,token,tokenOff);
+			request->PRAGMA[tokenOff]='\0';
 			StrTrim(request->PRAGMA," ");
 		}
-		
-		/*!
-		*If the line is not controlled arrive with the token
-		*at the end of the line.
-		*/
-		if(!lineControlled)
-		{
-			token = strtok( NULL, "\n" );
-			if(!token)return 0;
-		}
-		token = strtok( NULL, cmdseps );
+		tokenOff = getCharInString(token,seps,maxTotchars);
+		if(tokenOff==-1)return 0;
+		token+=tokenOff;
+		while((*token=='\r')  || (*token=='\n'))
+			token++;
+		tokenOff = getCharInString(token,":",maxTotchars);
 	}while((u_long)(token-input)<maxTotchars);
 	/*!
 	*END REQUEST STRUCTURE BUILD.

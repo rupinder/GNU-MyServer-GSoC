@@ -61,7 +61,7 @@ public:
 		SSL_METHOD* method;
 #else
 		void* context;
-		void* method;		
+		void* method;
 #endif
 		char certificateFile[MAX_PATH];
 		char privateKeyFile[MAX_PATH];

@@ -24,6 +24,7 @@ char *getRFC822GMTTime(char* out,int len);
 char *getRFC822GMTTime(const time_t,char* out,int len);
 char *getRFC822LocalTime(char* out,int len);
 char *getRFC822LocalTime(const time_t,char* out,int len);
+int getCharInString(char*,const char*,int max);
 time_t getTime(char* str);
 void StrTrim(char* str,const char* trimChars);
 void gotoNextLine(char* cmd);

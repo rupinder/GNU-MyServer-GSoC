@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *This array is used to describe the errors for the HTTP protocol.
 */
-char HTTP_ERROR_MSGS[27][64]=
+char HTTP_ERROR_MSGS[29][64]=
 {
 	"Bad request",						/*!400*/
 	"Unauthorized",						/*!401*/
@@ -51,11 +51,13 @@ char HTTP_ERROR_MSGS[27][64]=
 	"See Other",						/*!303*/			
 	"Not Modified",						/*!304*/
 	"Continue"						/*!100*/	
+	"Gateway Timeout"					/*!504*/
+	"HTTP Version Not Supported"		/*!505*/		
 };
 /*!
 *This array is used to describe the HTTP files for personalized errors page.
 */
-char HTTP_ERROR_HTMLS[27][64]=
+char HTTP_ERROR_HTMLS[29][64]=
 {
 	"400.html",						/*!400*/
 	"401.html",						/*!401*/
@@ -82,8 +84,10 @@ char HTTP_ERROR_HTMLS[27][64]=
 	"301.html",						/*!301*/		
 	"302.html",						/*!302*/		
 	"303.html",						/*!303*/			
-	"304.html"							/*!304*/
-	"100.html"							/*!100*/	
+	"304.html"						/*!304*/
+	"100.html"						/*!100*/	
+	"504.html"						/*!504*/
+	"505.html"						/*!505*/		
 };
 /*!
 *Return an error ID starting from an HTTP status code.
@@ -172,7 +176,13 @@ int getErrorIDfromHTTPStatusCode(int statusCode)
 			break;
 		case 100:
 			return e_100;
-			break;		
+			break;
+		case 504:
+			return e_504;
+			break;
+		case 505:
+			return e_505;
+			break;			
 
 	}
 	return -1;
@@ -261,10 +271,16 @@ int getHTTPStatusCodeFromErrorID(int statusCode)
 			break;
 		case e_503:
 			return 503;
-			break;		
+			break;	
 		case e_100:
 			return 100;
-			break;				
+			break;
+		case e_504:
+			return 504;
+			break;	
+		case e_505:
+			return 505;
+			break;
 	}
 	return -1;
 }

@@ -48,9 +48,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define e_501			11
 #define e_502			12
 #define e_503			13
+#define e_504			27
+#define e_505			28
 
-extern char HTTP_ERROR_MSGS[27][64];
-extern char HTTP_ERROR_HTMLS[27][64];
+extern char HTTP_ERROR_MSGS[29][64];
+extern char HTTP_ERROR_HTMLS[29][64];
 int getErrorIDfromHTTPStatusCode(int statusCode);
 int getHTTPStatusCodeFromErrorID(int statusCode);
 #endif

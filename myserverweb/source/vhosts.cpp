@@ -749,7 +749,7 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 	char path[MAX_PATH];
 	getdefaultwd(path,MAX_PATH);
 	cXMLParser parser;
-	if(int r=parser.open(filename))
+	if(parser.open(filename))
 	{
 		return;
 	}
@@ -762,9 +762,8 @@ void vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 		xmlNodePtr lcur=node->children;
 		vhost *vh=new vhost();
                 if(vh==0)
-                    return;        
+			return;        
 		memset(vh,0,sizeof(vh));
-
 		while(lcur)
 		{
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))

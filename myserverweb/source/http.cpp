@@ -199,8 +199,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		td->outputData.closeFile();
 		return raiseHTTPError(td,s,e_500);/*Return an internal server error*/
 	}
-	static char fileSize[10];
-	static char fileTime[32];
+	char fileSize[10];
+	char fileTime[32];
 	do
 	{	
 		if(fd.name[0]=='.')
@@ -289,6 +289,96 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	}
 	return 1;
 
+}
+
+/*!
+*Build a response for an OPTIONS request.
+*/
+int http::optionsHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int yetmapped)
+{
+	char time[HTTP_RESPONSE_DATE_DIM];
+	getRFC822GMTTime(time,HTTP_RESPONSE_DATE_DIM);
+	td->buffer2->SetLength(0);
+	*td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
+	*td->buffer2 << "Date: " << time ;
+	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
+	*td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
+	*td->buffer2 <<"\r\nContent-length: 0\r\nAccept-Ranges: bytes\r\n";
+	*td->buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
+	
+	if(allowHTTPTRACE(td,s))
+		*td->buffer2 << ", TRACE\r\n\r\n";
+	else
+		*td->buffer2 << "\r\n\r\n";
+	
+	/*!
+	*Send the HTTP header
+	*/
+	if(s->socket.send((char*)td->buffer2->GetBuffer(),(u_long)td->buffer2->GetLength(), 0)== SOCKET_ERROR)
+	{
+		return 0;
+	}
+	return 1;
+}
+
+/*!
+*Handle the HTTP TRACE command.
+*/
+int http::traceHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int yetmapped)
+{
+	int content_len=(int)td->nHeaderChars;
+	char time[HTTP_RESPONSE_DATE_DIM];
+	getRFC822GMTTime(time,HTTP_RESPONSE_DATE_DIM);
+	if(!allowHTTPTRACE(td,s))
+		return raiseHTTPError(td,s,e_401);
+	td->buffer2->SetLength(0);
+	*td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
+	*td->buffer2 << "Date: " << time ;
+	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
+	*td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
+	*td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len) << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
+	
+	/*!
+	*Send our HTTP header.
+	*/
+	if(s->socket.send((char*)td->buffer2->GetBuffer(),(u_long)td->buffer2->GetLength(), 0)== SOCKET_ERROR)
+	{
+		return 0;
+	}
+	/*!
+	*Send the client request header as the HTTP body.
+	*/
+	if(s->socket.send((char*)td->buffer->GetBuffer(),content_len, 0)== SOCKET_ERROR)
+	{
+		return 0;
+	}	
+	return 1;
+
+	
+
+}
+
+/*!
+*Check if the host allows the HTTP TRACE command
+*/
+int http::allowHTTPTRACE(httpThreadContext* td,LPCONNECTION s)
+{
+	int ret;
+	/*Check if the host allows HTTP trace.*/
+	char filename[MAX_PATH];
+	sprintf(filename,"%s/security",((vhost*)(s->host))->documentRoot);
+	cXMLParser parser;
+	if(parser.open(filename))
+	{
+		return 0;
+	}
+	char *val=parser.getAttr("HTTP","TRACE");
+	if(val &&  !lstrcmpi(val,"ON"))
+		ret = 1;
+	else
+		ret = 0;
+	parser.close();
+	return ret;
 }
 
 /*!
@@ -1253,7 +1343,6 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 	*Reset the request structure.
 	*/
 	http_headers::resetHTTPRequest(&td.request);
-	
 	/*
 	*If the connection must be removed, remove it.
 	*/
@@ -1263,7 +1352,7 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 		{
 			case CONNECTION_REMOVE_OVERLOAD:
 				retvalue = raiseHTTPError(&td,a,e_503);
-				logHTTPaccess(&td,a);						
+				logHTTPaccess(&td,a);
 				return 0;/*Remove the connection from the list*/
 		}
 	}
@@ -1280,9 +1369,19 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 		logHTTPaccess(&td,a);
 		return 2;
 	}
+	
+	
+	if((!strcmp(td.request.VER,"HTTP/1.1")) && (!strcmp(td.request.VER,"HTTP/1.0")))/*Be sure that we can handle the HTTP version*/
+	{	
+		retvalue = raiseHTTPError(&td,a,e_505);
+		logHTTPaccess(&td,a);	
+		return 0;/*Remove the connection from the list*/
+	}
+		
 	if(a->protocolBuffer)
 		((http_user_data*)a->protocolBuffer)->digest_checked=0;	
 	td.nBytesToRead+=a->dataRead;/*Offset to the buffer after the HTTP header.*/
+	
 	/*!
 	*If the header is an invalid request send the correct error message to the client and return immediately.
 	*/
@@ -1396,13 +1495,13 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 								/*!
 								*Read the unwanted bytes but do not save them.
 								*/
-								err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer->GetRealLength(), 0);
+								err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer2->GetRealLength(), 0);
 							}
 							break;
 						}
 						if((content_len>fs)&&(td.connection->socket.bytesToRead()))
 						{				
-							u_long tr=min(content_len-total_nbr,td.buffer2->GetRealLength()-1);
+							u_long tr=min(content_len-total_nbr,td.buffer2->GetRealLength());
 							err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),tr, 0);
 							if(err==-1)
 							{
@@ -1411,12 +1510,12 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 								return 0;
 							}
 							
-							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),min((u_long)err, (content_len-fs)),&nbw))
+							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),(u_long)err,&nbw))
 							{
 								td.inputData.closeFile();
 								td.inputData.deleteFile(td.inputDataPath);
 								return 0;
-							}							
+							}
 							total_nbr+=nbw;
 							timeout=get_ticks();
 							break;
@@ -1452,7 +1551,7 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 					{
 						if(td.connection->socket.bytesToRead())
 						{
-							err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer2->GetLength(), 0);
+							err=td.connection->socket.recv((char*)td.buffer2->GetBuffer(),td.buffer2->GetRealLength(), 0);
 							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),err,&nbw))
 							{
 								td.inputData.deleteFile(td.inputDataPath);
@@ -1472,8 +1571,6 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 
 			}
 			td.inputData.setFilePointer(0);
-			td.buffer2->SetLength(0);
-
 		}/* End read POST data */
 	}
 	else/*Methods with no POST data...*/
@@ -1714,6 +1811,14 @@ int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int
 			else
 				putHTTPRESOURCE(&td,a,td.request.URI,0,1);
 		}
+		else if(!lstrcmpi(td.request.CMD,"OPTIONS"))/*!OPTIONS REQUEST*/
+		{
+			optionsHTTPRESOURCE(&td,a,td.request.URI,0);
+		}
+		else if(!lstrcmpi(td.request.CMD,"TRACE"))/*!TRACE REQUEST*/
+		{
+			traceHTTPRESOURCE(&td,a,td.request.URI,0);
+		}		
 		else	/*Return Method not implemented(501)*/
 		{
 			raiseHTTPError(&td,a,e_501);
