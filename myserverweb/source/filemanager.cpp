@@ -83,19 +83,19 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 	if(buffersize==0)
 	{
 		*nbw=0;
-		return -1;
+		return 0;
 	}
 #ifdef WIN32
 	return WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
 #endif
 #ifdef NOT_WIN
 	*nbw = write((int)handle, buffer, buffersize);
-	return 0;
+	return (*nbw==buffersize)? 1 : 0 ;
 #endif
 }
 /*!
 *Open(or create if not exists) a file.
-*If the function have success the return value is different from 0 and -1.
+*If the function have success the return value is nonzero.
 *filename is the name of the file to open
 *opt is a bit-field containing the options on how open it
 */
@@ -104,7 +104,7 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 	strcpy(MYSERVER_FILE::filename,filename);
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};
-    sa.nLength = sizeof(sa);
+	sa.nLength = sizeof(sa);
 	if(opt & MYSERVER_FILE_NO_INHERIT)
 		sa.bInheritHandle = FALSE;
 	else
@@ -138,12 +138,7 @@ int MYSERVER_FILE::openFile(char* filename,u_long opt)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
 	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
 	if(handle==INVALID_HANDLE_VALUE)/*!If exists an error*/
-	{
-		if(GetLastError()==ERROR_ACCESS_DENIED)/*!returns -1 if the file is not accessible*/
-			return -1;
-		else
-			return 0;/*!returns 0 for any other error*/
-	}
+		return 0;
 	else/*!If no error exist in open the file*/
 	{
 		if(opt & MYSERVER_FILE_OPEN_APPEND)
@@ -266,7 +261,7 @@ char *MYSERVER_FILE::getFilename()
 /*!
 *Read data from a file to a buffer.
 */
-int	MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
+int MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
 	ReadFile((HANDLE)handle,buffer,buffersize,nbr,NULL);
@@ -278,7 +273,6 @@ int	MYSERVER_FILE::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 #endif
 #ifdef NOT_WIN
 	*nbr = read((int)handle, buffer, buffersize);
-	
 	return (*nbr<=buffersize)? 1 : 0 ;
 #endif
 }
@@ -372,7 +366,6 @@ int MYSERVER_FILE::isFolder(char *filename)
 
 	return (S_ISDIR(F_Stats.st_mode))? 1 : 0;
 #endif
-	
 }
 
 /*!
@@ -471,7 +464,6 @@ time_t MYSERVER_FILE::getLastAccTime()
 {
 	return getLastAccTime(filename);
 }
-
 
 /*!
 *Get the filename from a path.
@@ -595,5 +587,4 @@ void MYSERVER_FILE::completePath(char *fileName)
 	strcat(fileName,"/");
 	strcat(fileName,buffer);
 #endif
-
 }
