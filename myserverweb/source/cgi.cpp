@@ -89,6 +89,11 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	{
 		if(!MYSERVER_FILE::fileExists(cgipath))
 		{
+			((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			((vhost*)td->connection->host)->warningsLogWrite("Cannot find ");
+			((vhost*)td->connection->host)->warningsLogWrite(cgipath);
+			((vhost*)td->connection->host)->warningsLogWrite(" executable\r\n");
+			((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
 			return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
 		sprintf(cmdLine,"%s %s",cgipath,td->scriptFile);
@@ -237,7 +242,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
 			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
 			
-			s->socket.send((char*)td->buffer->GetBuffer(),(int)(td->buffer->GetLength()), 0);		
+			s->socket.send((char*)td->buffer->GetBuffer(),(int)(td->buffer->GetLength()), 0);
 			s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize),nBytesRead-headerSize, 0);
 		}
 		else
