@@ -1,11 +1,7 @@
-// CMemBuf class
-// Memory management class
-//
-// Copyright (C) GUINET Adrien (grainailleur) 2004
-
 /*
 *MyServer
 *Copyright (C) 2002 The MyServer Team
+*              GUINET Adrien (grainailleur) 2004
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -35,7 +31,7 @@ CMemBuf::CMemBuf()
 	m_nRealSize = 0;
 	m_nSizeLimit = 0;
 	m_nBlockLength = 1024;
-	m_bCanDelete = true;
+	m_bCanDelete = 1;
 }
 
 CMemBuf::CMemBuf(const void* pAdr, u_int size)
@@ -46,7 +42,7 @@ CMemBuf::CMemBuf(const void* pAdr, u_int size)
 	m_nSizeLimit = 0;
 	m_nBlockLength = 1024;
 	SetBuffer(pAdr, size);
-	m_bCanDelete = true;
+	m_bCanDelete = 1;
 }
 
 CMemBuf::CMemBuf(CMemBuf& srcBuf)
@@ -56,10 +52,10 @@ CMemBuf::CMemBuf(CMemBuf& srcBuf)
 	m_nRealSize = srcBuf.m_nRealSize;
 	m_nSizeLimit = 0;
 	m_nBlockLength = srcBuf.m_nBlockLength;
-	m_bCanDelete = true;
+	m_bCanDelete = 1;
 }
 
-CMemBuf::CMemBuf(CMemBuf &srcBuf, bool /*bCopy*/)
+CMemBuf::CMemBuf(CMemBuf &srcBuf, int /*bCopy*/)
 {
 	m_buffer = NULL;
 	m_nSize = 0;
@@ -67,7 +63,7 @@ CMemBuf::CMemBuf(CMemBuf &srcBuf, bool /*bCopy*/)
 	m_nBlockLength = 1024;
 	m_nSizeLimit = 0;
 	SetBuffer(srcBuf.m_buffer, srcBuf.m_nSize);
-	m_bCanDelete = true;
+	m_bCanDelete = 1;
 }
 
 u_int CMemBuf::Find(char c, u_int start)
@@ -149,7 +145,7 @@ void CMemBuf::AddBuffer(const void* pAdr, u_int size)
 	return;
 }
 
-bool CMemBuf::SetBuffer(const void* pAdr, u_int size)
+int CMemBuf::SetBuffer(const void* pAdr, u_int size)
 {
 #ifdef DONT_MATCH_LENGTH
 	if (size <= m_nRealSize)
@@ -170,7 +166,7 @@ bool CMemBuf::SetBuffer(const void* pAdr, u_int size)
 	AllocBuffer(size);
 	memcpy(m_buffer, pAdr, size);
 #endif
-	return true;
+	return 1;
 }
 
 void* CMemBuf::GetBufferSetLength(u_int newSize)
@@ -179,7 +175,7 @@ void* CMemBuf::GetBufferSetLength(u_int newSize)
 	return m_buffer;
 }
 
-bool CMemBuf::GetPart(u_int nStart, u_int nEnd, CMemBuf& result)
+int CMemBuf::GetPart(u_int nStart, u_int nEnd, CMemBuf& result)
 {
 	if (nEnd > m_nSize)
 		nEnd = m_nSize;
@@ -191,14 +187,14 @@ bool CMemBuf::GetPart(u_int nStart, u_int nEnd, CMemBuf& result)
 #else
 		result.Free();
 #endif
-		return true;
+		return 1;
 	}
 
 	result.SetBuffer(m_buffer + nStart, nEnd - nStart);
-	return true;
+	return 1;
 }
 
-bool CMemBuf::GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result)
+int CMemBuf::GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result)
 {
 	if (nEnd > m_nRealSize)
 		nEnd = m_nRealSize;
@@ -211,7 +207,7 @@ bool CMemBuf::GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result)
 #else
 		result.Free();
 #endif
-		return true;
+		return 1;
 	}
 
 	const u_int lg = nEnd - nStart;
@@ -219,7 +215,7 @@ bool CMemBuf::GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result)
 	memcpy(buf, m_buffer + nStart,  lg);
 	buf[lg] = '\0';
 
-	return true;
+	return 1;
 }
 
 void CMemBuf::SetLength(u_int newSize)
@@ -281,7 +277,7 @@ void CMemBuf::SetLength(u_int newSize)
 CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 {
 	CMemBuf hexFinal;
-	hexFinal.m_bCanDelete = false;
+	hexFinal.m_bCanDelete = 0;
 	const u_int nFinalSize = nSize * 2;
 	hexFinal.SetLength(nFinalSize + 1);
 	const char* hex_chars = "0123456789abcdef";
@@ -298,7 +294,7 @@ CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 {
 	CMemBuf mem_MD5;
-	mem_MD5.m_bCanDelete = false;
+	mem_MD5.m_bCanDelete = 0;
 	mem_MD5.SetLength(16);
 	MYSERVER_MD5Context ctx;
 	MYSERVER_MD5Init(&ctx);
@@ -384,7 +380,7 @@ u_int crc32Table[256] =
 CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 {
 	CMemBuf membuf;
-	membuf.m_bCanDelete = false;
+	membuf.m_bCanDelete = 0;
 	membuf.SetLength(4);
 	u_int* nCrc32 = (u_int*) membuf.GetBuffer();
 	*nCrc32 = 0xFFFFFFFF;
@@ -398,10 +394,10 @@ CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 	return membuf;
 }
 
-CMemBuf CMemBuf::XIntToStr(u_int i, bool bNegative)
+CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 {
 	CMemBuf strFinal;
-	strFinal.m_bCanDelete = false;
+	strFinal.m_bCanDelete = 0;
 	if (i == 0) // log10(0) won't work !!
 	{
 		strFinal.SetBuffer("0", 2);

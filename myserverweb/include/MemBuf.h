@@ -1,11 +1,7 @@
-// CMemBuf class
-// Memory management class
-//
-// Copyright (C) GUINET Adrien (grainailleur) 2004
-
 /*
 *MyServer
 *Copyright (C) 2002 The MyServer Team
+*              GUINET Adrien (grainailleur) 2004
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -56,16 +52,16 @@ public:
 	CMemBuf();
 	CMemBuf(const void* pAdr, u_int size);
 	CMemBuf(CMemBuf& srcBuf);
-	CMemBuf(CMemBuf& srcBuf, bool bCopy);
+	CMemBuf(CMemBuf& srcBuf, int bCopy);
 	~CMemBuf() {if (m_buffer != NULL && m_bCanDelete) delete [] m_buffer;};
 public:
-	bool SetBuffer(const void* pAdr, u_int size);
+	int SetBuffer(const void* pAdr, u_int size);
 	void SetLength(u_int newSize);
 
 	void AddBuffer(const void* pAdr, u_int size);
 	void AddBuffer(CMemBuf *nmb) {AddBuffer(nmb->m_buffer, nmb->m_nSize);};
 
-	bool Free() {if (m_buffer != NULL && m_bCanDelete) mem_free(m_buffer); m_buffer = NULL; m_nSize = m_nRealSize = 0; return true;};
+	int Free() {if (m_buffer != NULL && m_bCanDelete) mem_free(m_buffer); m_buffer = NULL; m_nSize = m_nRealSize = 0; return true;};
 public:
 	u_int Find(char c, u_int start = 0);
 	u_int Find(CMemBuf *smb, u_int start = 0) {return Find(smb->m_buffer, smb->m_nSize, start);};
@@ -74,14 +70,14 @@ public:
 	char& GetAt(u_int nIndex) {ASSERT(m_buffer != NULL); ASSERT(nIndex <= m_nSize); return *(m_buffer + nIndex);};
 	char& operator[](u_int nIndex) {return GetAt(nIndex);};
 
-	bool GetPart(u_int nStart, u_int nEnd, CMemBuf& result);
-	bool GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result);
+	int GetPart(u_int nStart, u_int nEnd, CMemBuf& result);
+	int GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result);
 
 	void* GetBufferSetLength(u_int newSize);
 
 	u_int GetLength() {return m_nSize;};
 
-	bool IsValid() {return ((m_nSize != 0) || (m_buffer != NULL));};
+	int IsValid() {return ((m_nSize != 0) || (m_buffer != NULL));};
 
 	const void* GetBuffer() {return (const void*) m_buffer;};
 	operator const void*() {return (const void*) m_buffer;};
@@ -117,12 +113,12 @@ public: // Static conversion functions (hex, CRC...)
 	static CMemBuf Hash_MD5(CMemBuf& membuf) {return Hash_MD5(membuf.m_buffer, membuf.m_nSize);};
 	static CMemBuf Hash_CRC(CMemBuf& membuf) {return Hash_CRC(membuf.m_buffer, membuf.m_nSize);};
 protected:
-	static CMemBuf XIntToStr(u_int i, bool bNegative);
+	static CMemBuf XIntToStr(u_int i, int bNegative);
 	void AllocBuffer(u_int size) {Free(); m_buffer = mem_alloc(size); m_nRealSize = size;};
 	char* m_buffer; // Using of char* instead of void* because the C++ Compilator doesn't know the size of a void* !!!!!
 	u_int m_nSize;
 	u_int m_nRealSize;
-	bool m_bCanDelete;
+	int m_bCanDelete;
 };
 
 #endif
