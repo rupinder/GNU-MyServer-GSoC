@@ -66,7 +66,11 @@ int ms_bind(MYSERVER_SOCKET s,sockaddr* sa,int namelen)
 
 int ms_listen(MYSERVER_SOCKET s,int max)
 {
-	return listen(s,max);
+#ifdef WIN32
+	return listen(s,max)
+#else
+	return listen((int)s,max);
+#endif
 }
 
 MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET s,sockaddr* sa,int* sockaddrlen)
@@ -76,7 +80,9 @@ MYSERVER_SOCKET ms_accept(MYSERVER_SOCKET s,sockaddr* sa,int* sockaddrlen)
 #endif
 #ifdef __linux__
 	unsigned int Connect_Size = *sockaddrlen;
-	return (MYSERVER_SOCKET)accept(s,sa,&Connect_Size);
+	int as = accept((int)s,sa,&Connect_Size);
+	printf("Socket Open: %d\n", as);
+	return (MYSERVER_SOCKET)as;
 #endif
 }
 
@@ -85,7 +91,8 @@ int ms_closesocket(MYSERVER_SOCKET s)
 #ifdef WIN32
 	return closesocket(s);
 #else
-	return close(s);
+	printf("Socket Close: %d\n", (int)s);
+	return close((int)s);
 #endif
 }
 MYSERVER_HOSTENT *ms_gethostbyaddr(char* addr,int len,int type)
@@ -107,7 +114,11 @@ MYSERVER_HOSTENT *ms_gethostbyname(const char *hostname)
 
 int ms_shutdown(MYSERVER_SOCKET s,int how)
 {
+#ifdef WIN32
 	return shutdown(s,how);
+#else
+	return shutdown((int)s,how);
+#endif
 }
 
 int	ms_setsockopt(MYSERVER_SOCKET s,int level,int optname,const char *optval,int optlen)
@@ -117,7 +128,11 @@ int	ms_setsockopt(MYSERVER_SOCKET s,int level,int optname,const char *optval,int
 
 int ms_send(MYSERVER_SOCKET s,const char* buffer,int len,int flags)
 {
+#ifdef WIN32
 	return	send(s,buffer,len,flags);
+#else
+	return	send((int)s,buffer,len,flags);
+#endif
 }
 
 int ms_ioctlsocket(MYSERVER_SOCKET s,long cmd,unsigned long* argp)
@@ -125,7 +140,7 @@ int ms_ioctlsocket(MYSERVER_SOCKET s,long cmd,unsigned long* argp)
 #ifdef WIN32
 	return ioctlsocket(s,cmd,argp);
 #else
-	return ioctl(s,cmd,argp);
+	return ioctl((int)s,cmd,argp);
 #endif
 }
 
@@ -141,13 +156,14 @@ int ms_connect(MYSERVER_SOCKET s,sockaddr* sa,int na)
 int ms_recv(MYSERVER_SOCKET s,char* buffer,int len,int flags)
 {
 	int err;
-	err=recv(s,buffer,len,flags);
 #ifdef WIN32
+	err=recv(s,buffer,len,flags);
 	if(err==SOCKET_ERROR)
 		return -1;
 	else 
 		return err;
 #else
+	err=recv((int)s,buffer,len,flags);
 	return err;
 #endif
 }
