@@ -1387,7 +1387,7 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
 	if(ID==e_401AUTH)
 	{
-		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: %s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",lserver->getServerName(),td->request.CONNECTION);
+		sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer%s\r\nContent-type: text/html\r\nConnection:%s\r\nContent-length: 0\r\n",versionOfSoftware,td->request.CONNECTION);
 		strcat(td->buffer2,"Date: ");
 		getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 		strcat(td->buffer2,"\r\n\r\n");
@@ -1448,7 +1448,7 @@ int sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 		<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\"><font size=\"5\" color=\"#00C800\">\
 		Internal Server error</font></p>\r\n";
 
-	sprintf(td->buffer2,"HTTP/1.1 500 System Error\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: %d\r\n",lserver->getServerName(),strlen(hardHTML));
+	sprintf(td->buffer2,"HTTP/1.1 500 System Error\r\nServer: MyServer%s\r\nContent-type: text/html\r\nContent-length: %d\r\n",versionOfSoftware,strlen(hardHTML));
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
@@ -1639,7 +1639,7 @@ int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 		sprintf(td->buffer,"%s redirected to %s\r\n",td->connection->ipAddr,newURL);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	}
-	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",lserver->getServerName(),newURL);
+	sprintf(td->buffer2,"HTTP/1.1 302 Moved\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer%s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n",versionOfSoftware,newURL);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");
@@ -1660,7 +1660,7 @@ int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
 		sprintf(td->buffer,"Not modified to %s\r\n",td->connection->ipAddr);
 		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
 	}
-	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n",lserver->getServerName());
+	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nAccept-Ranges: bytes\r\nServer: MyServer%s\r\nContent-type: text/html\r\nContent-length: 0\r\n",versionOfSoftware);
 	strcat(td->buffer2,"Date: ");
 	getRFC822GMTTime(&td->buffer2[strlen(td->buffer2)],HTTP_RESPONSE_DATE_DIM);
 	strcat(td->buffer2,"\r\n\r\n");

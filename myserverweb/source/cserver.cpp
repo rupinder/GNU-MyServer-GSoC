@@ -848,8 +848,9 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	{
 		if(i->socket == s->socket)
 		{
-			if(connectionToParse->socket==s->socket)
-				connectionToParse=connectionToParse->next ;
+			if(connectionToParse)
+				if(connectionToParse->socket==s->socket)
+					connectionToParse=connectionToParse->next ;
 
 			if(prev)
 				prev->next =i->next ;
