@@ -244,7 +244,7 @@ void cserver::start()
 	*Load the MIME types.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_LOADMIME"));
-	if(int nMIMEtypes=mimeManager.load("MIMEtypes.txt"))
+	if(int nMIMEtypes=mimeManager.load("mimetypes.txt"))
 		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
 	else
 	{
@@ -253,7 +253,6 @@ void cserver::start()
         endPrintError();
 		return;
 	}
-
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),ms_getCPUCount());
 
 #ifdef WIN32

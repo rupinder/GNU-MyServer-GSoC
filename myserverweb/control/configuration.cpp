@@ -21,6 +21,7 @@ static int yetVisible=0;
 enum
 {
     Configuration_Quit = 1,
+	Configuration_LOADDEF,
 	Configuration_MIME,
 	Configuration_Save,
 	Configuration_Exit
@@ -30,6 +31,7 @@ enum
 BEGIN_EVENT_TABLE(configurationFrame, wxFrame)
 EVT_BUTTON(Configuration_MIME,  configurationFrame::configureMIME)
 EVT_BUTTON(Configuration_Save,  configurationFrame::configureSave)
+EVT_BUTTON(Configuration_LOADDEF,  configurationFrame::loadDefault)
 EVT_BUTTON(Configuration_Exit,  configurationFrame::OnQuit)
 EVT_MENU(Configuration_MIME,configurationFrame::configureMIME)
 EVT_WINDOW_DESTROY(configurationFrame::OnQuit)
@@ -52,12 +54,25 @@ configurationFrame::configurationFrame(wxWindow *parent,const wxString& title, c
 	wxPanel *panel = new wxPanel(this, -1);
 	m_notebook = new wxNotebook(panel,-1,wxPoint(10,0),wxSize(610,390));
 	initNotebook();
-
+	btnLOADDEF= new wxButton(panel,Configuration_LOADDEF,"Reset",wxPoint(220,390),wxSize(100,25));
 	btnSAVE= new wxButton(panel,Configuration_MIME,"Configure MIME",wxPoint(320,390),wxSize(100,25));
-	wxButton* btnCfgMime= new wxButton(panel,Configuration_Save,"Save configuration",wxPoint(420,390),wxSize(100,25));
-	wxButton* btnExit= new wxButton(panel,Configuration_Exit,"Exit",wxPoint(520,390),wxSize(100,25));
+	btnCfgMime= new wxButton(panel,Configuration_Save,"Save configuration",wxPoint(420,390),wxSize(100,25));
+	btnExit= new wxButton(panel,Configuration_Exit,"Exit",wxPoint(520,390),wxSize(100,25));
 
 	yetVisible=1;
+}
+void configurationFrame::loadDefault(wxCommandEvent& event)
+{
+	bufferSize->SetValue(confparser.getValue("BUFFER_SIZE"));
+	verbosity->SetValue(confparser.getValue("VERBOSITY"));
+	adminEmail->SetValue(confparser.getValue("SERVER_ADMIN"));
+	timeOut->SetValue(confparser.getValue("CONNECTION_TIMEOUT"));
+	nthreadsA->SetValue(confparser.getValue("NTHREADS_A"));
+	nthreadsB->SetValue(confparser.getValue("NTHREADS_B"));
+	browseFolderCSS->SetValue(confparser.getValue("BROWSEFOLDER_CSS"));
+	languageFile->SetValue(confparser.getValue("LANGUAGE"));
+	useErrFiles->SetValue(confparser.getValue("USE_ERRORS_FILES"));
+
 }
 void configurationFrame::initNotebook()
 {
@@ -66,7 +81,7 @@ void configurationFrame::initNotebook()
 	pPage[1]= new wxPanel(m_notebook, -1);
 	/*-------------------------FIRST PAGE-------------------------------------------*/
 	bufferSize = new wxTextCtrl(pPage[0],-1,confparser.getValue("BUFFER_SIZE"),wxPoint(10,10),wxSize(75,20));
-    wxStaticText *bufferSizeStat= new wxStaticText(pPage[0], -1, "Change the size of the memory buffer(in bytes)",wxPoint(85,12), wxSize(250,20));
+    wxStaticText *bufferSizeStat= new wxStaticText(pPage[0], -1, "Set the size of the memory buffer(in bytes)",wxPoint(85,12), wxSize(250,20));
 
 	verbosity = new wxComboBox(pPage[0],-1,_T(confparser.getValue("VERBOSITY")),wxPoint(10,40),wxSize(75,20),0,0,wxCB_DROPDOWN|wxCB_READONLY);
 	for ( int n = 0; n < 10; n++ )
@@ -74,16 +89,16 @@ void configurationFrame::initNotebook()
         verbosity->Append(_T(verbosityValues[n]));
 	}
 	verbosity->SetSelection(atoi(confparser.getValue("VERBOSITY")));
-    wxStaticText *verbosityStat= new wxStaticText(pPage[0], -1, "Change the verbosity on the logs files",wxPoint(85,42), wxSize(250,20));
+    wxStaticText *verbosityStat= new wxStaticText(pPage[0], -1, "Set the verbosity on the logs files",wxPoint(85,42), wxSize(250,20));
 
 	timeOut = new wxTextCtrl(pPage[0],-1,confparser.getValue("CONNECTION_TIMEOUT"),wxPoint(10,70),wxSize(75,20));
-    wxStaticText *timeOutStat= new wxStaticText(pPage[0], -1, "Change the connection time-out",wxPoint(85,72), wxSize(250,20));
+    wxStaticText *timeOutStat= new wxStaticText(pPage[0], -1, "Set the connection time-out",wxPoint(85,72), wxSize(250,20));
 
 	nthreadsA = new wxTextCtrl(pPage[0],-1,confparser.getValue("NTHREADS_A"),wxPoint(10,100),wxSize(75,20));
-    wxStaticText *nthreadsAStat= new wxStaticText(pPage[0], -1, "Change the number of threads for every CPU",wxPoint(85,102), wxSize(250,20));
+    wxStaticText *nthreadsAStat= new wxStaticText(pPage[0], -1, "Set the number of threads for every CPU",wxPoint(85,102), wxSize(250,20));
 
 	nthreadsB = new wxTextCtrl(pPage[0],-1,confparser.getValue("NTHREADS_B"),wxPoint(10,130),wxSize(75,20));
-    wxStaticText *nthreadsBStat= new wxStaticText(pPage[0], -1, "Change the number of threads always active",wxPoint(85,132), wxSize(250,20));
+    wxStaticText *nthreadsBStat= new wxStaticText(pPage[0], -1, "Set the number of threads always active",wxPoint(85,132), wxSize(250,20));
 	
 	useErrFiles = new wxComboBox(pPage[0],-1,_T(confparser.getValue("USE_ERRORS_FILES")),wxPoint(10,160),wxSize(75,20),0,0,wxCB_DROPDOWN|wxCB_READONLY);
 	useErrFiles->Append(_T("YES"));
@@ -113,11 +128,11 @@ void configurationFrame::initNotebook()
 		else c++;
 	}while(!_findnext(ff,&fd));
 	languageFile->SetSelection(n);
-    wxStaticText *languageFileStat= new wxStaticText(pPage[0], -1, "Change the language used by MyServer",wxPoint(85,222), wxSize(250,20));
+    wxStaticText *languageFileStat= new wxStaticText(pPage[0], -1, "Set the language used by MyServer",wxPoint(85,222), wxSize(250,20));
 
 	/*-------------------------SECOND PAGE-------------------------------------------*/
 	adminEmail = new wxTextCtrl(pPage[1],-1,confparser.getValue("SERVER_ADMIN"),wxPoint(10,10),wxSize(150,20));
-    wxStaticText *adminEmailStat= new wxStaticText(pPage[1], -1, "Change the administrator e-mail",wxPoint(160,12), wxSize(250,20));
+    wxStaticText *adminEmailStat= new wxStaticText(pPage[1], -1, "Set the administrator e-mail",wxPoint(160,12), wxSize(250,20));
 	
 	m_notebook->AddPage(pPage[0],_T("Server configuration"));
 	m_notebook->AddPage(pPage[1],_T("Administrator"));

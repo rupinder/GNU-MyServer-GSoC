@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/MIME_manager.h"
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
+#include "../include/cXMLParser.h"
 
 #ifdef __linux__
 using namespace std;
@@ -139,6 +140,119 @@ char *MIME_Manager::getFilename()
 {
 	return filename;
 }
+/*
+*Load the MIME types from a XML file.
+*/
+int MIME_Manager::loadXML(char *filename)
+{
+	cXMLParser parser;
+	parser.open(filename);
+	xmlDocPtr doc = parser.getDoc();
+	xmlNodePtr node=doc->children->children;
+	int nm=0;
+	for(;node;node=node->next)
+	{
+		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
+			continue;
+		xmlNodePtr lcur=node->children;
+		mime_record rc;
+		rc.command=rc.extension[0]=rc.mime_type[0]='\0';
+		strcpy(rc.cgi_manager,"NONE");
+		while(lcur)
+		{
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
+			{
+				if(lcur->children->content)
+					strcpy(rc.extension,(char*)lcur->children->content);
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
+			{
+				if(lcur->children->content)
+					strcpy(rc.mime_type,(char*)lcur->children->content);
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
+			{
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"SEND"))
+					rc.command=CGI_CMD_SEND;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNCGI"))
+					rc.command=CGI_CMD_RUNCGI;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNMSCGI"))
+					rc.command=CGI_CMD_RUNMSCGI;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTE"))
+					rc.command=CGI_CMD_EXECUTE;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNISAPI"))
+					rc.command=CGI_CMD_RUNISAPI;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
+					rc.command=CGI_CMD_SENDLINK;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNWINCGI"))
+					rc.command=CGI_CMD_WINCGI;
+				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
+					rc.command=CGI_CMD_FASTCGI;
+			}
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
+			{
+				if(lcur->children->content)
+					strcpy(rc.cgi_manager,(char*)lcur->children->content);
+			}
+			lcur=lcur->next;
+		}
+		nm++;
+		addRecord(rc);
+	}
+	parser.close();
+	return nm;
+}
+/*
+*Save the MIME types to a XML file.
+*/
+int MIME_Manager::saveXML(char *filename)
+{
+	MYSERVER_FILE::ms_DeleteFile(filename);
+	MYSERVER_FILE f;
+	u_long nbw;
+	f.ms_OpenFile(filename,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+	f.ms_WriteToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
+	f.ms_WriteToFile("<MIMETYPES>\r\n",13,&nbw);
+	mime_record *rc=data;
+	while(rc)
+	{
+		f.ms_WriteToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
+		f.ms_WriteToFile(rc->extension,strlen(rc->extension),&nbw);
+		f.ms_WriteToFile("</EXT>\r\n<MIME>",14,&nbw);
+		f.ms_WriteToFile(rc->mime_type,strlen(rc->mime_type),&nbw);
+		f.ms_WriteToFile("</MIME>\r\n<CMD>",14,&nbw);
+		char command[16];
+		if(rc->command==CGI_CMD_SEND)
+			strcpy(command,"SEND");
+		else if(rc->command==CGI_CMD_RUNCGI)
+			strcpy(command,"RUNCGI");
+		else if(rc->command==CGI_CMD_RUNMSCGI)
+			strcpy(command,"RUNMSCGI");
+		else if(rc->command==CGI_CMD_EXECUTE)
+			strcpy(command,"EXECUTE");
+		else if(rc->command==CGI_CMD_SENDLINK)
+			strcpy(command,"SENDLINK");
+		else if(rc->command==CGI_CMD_RUNISAPI)
+			strcpy(command,"RUNISAPI");
+		else if(rc->command==CGI_CMD_WINCGI)
+			strcpy(command,"RUNWINCGI");
+		else if(rc->command==CGI_CMD_FASTCGI)
+			strcpy(command,"RUNFASTCGI");		
+		f.ms_WriteToFile(command,lstrlen(command),&nbw);
+
+		f.ms_WriteToFile("</CMD>\r\n<MANAGER>",17,&nbw);
+		if(rc->cgi_manager[0])
+			f.ms_WriteToFile(rc->cgi_manager,strlen(rc->cgi_manager),&nbw);
+		else
+			f.ms_WriteToFile("NONE",4,&nbw);
+		f.ms_WriteToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);
+		rc=rc->next;	
+	}
+	f.ms_WriteToFile("\r\n</MIMETYPES>",14,&nbw);
+	f.ms_CloseFile();
+	return 1;
+}
+
 /*
 *Save the MIME types to a file.
 */
@@ -261,7 +375,9 @@ void MIME_Manager::clean()
 */
 MIME_Manager::MIME_Manager()
 {
-	memset(this, 0, sizeof(MIME_Manager));
+	data=0;
+	numMimeTypesLoaded=0;
+	filename[0]='\0';
 }
 
 /*
@@ -288,6 +404,8 @@ void MIME_Manager::removeRecord(char *ext)
 {
 	MIME_Manager::mime_record *nmr1 = data;
 	MIME_Manager::mime_record *nmr2 = 0;
+	if(!nmr1)
+		return;
 	do
 	{
 		if(!lstrcmpi(nmr1->extension,ext))

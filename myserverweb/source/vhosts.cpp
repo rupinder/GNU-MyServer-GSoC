@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/utility.h"
 #include "../include/cserver.h"
+#include "../include/cXMLParser.h"
 #include "../include/connectionstruct.h"/*Used for protocols IDs*/
 #include "../include/stringutils.h"
 
@@ -219,7 +220,6 @@ vhostmanager::~vhostmanager()
 {
 	clean();
 }
-
 
 void vhostmanager::loadConfigurationFile(char* filename)
 {

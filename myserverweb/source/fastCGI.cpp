@@ -114,11 +114,12 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			nbr=con.sock.ms_recv((char*)&tHeader,sizeof(FCGI_Header),0);
 		else
 		{
-			nbr=0;
+			con.sock.ms_closesocket();
 			return raiseHTTPError(td,connection,e_500);
 		}
 		if(nbr<sizeof(FCGI_Header))
 		{
+			sendFcgiBody(&con,0,0,FCGI_ABORT_REQUEST,id);
 			con.sock.ms_closesocket();
 			raiseHTTPError(td,connection,e_500);
 		}

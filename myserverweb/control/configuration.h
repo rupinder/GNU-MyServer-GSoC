@@ -52,12 +52,16 @@ class configurationFrame : public wxFrame
 
 	configurationFrameMIME* configureMIMEWnd;
 	wxButton* btnSAVE;	
+	wxButton* btnLOADDEF;	
+	wxButton* btnCfgMime;
+	wxButton* btnExit;
 	cXMLParser confparser;
 	wxPanel *pPage[N_PAGES];
 	wxNotebook *m_notebook;
 public:
 	void configureMIME(wxCommandEvent& event);
 	void configureSave(wxCommandEvent& event);
+	void loadDefault(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& event);
 	void initNotebook();
 	configurationFrame(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size,long style=wxDEFAULT_FRAME_STYLE);
