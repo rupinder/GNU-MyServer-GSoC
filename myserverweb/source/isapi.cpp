@@ -117,7 +117,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	ExtCtrlBlk.WriteClient = WriteClientExport;
 	ExtCtrlBlk.ServerSupportFunction = ServerSupportFunctionExport;
 	ExtCtrlBlk.ConnID = (HCONN) (connIndex + 1);
-	ExtCtrlBlk.dwHttpStatusCode = 0;
+	ExtCtrlBlk.dwHttpStatusCode = 200;
 	ExtCtrlBlk.lpszLogData[0] = '\0';
 	ExtCtrlBlk.lpszMethod = td->request.CMD;
 	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS;
@@ -150,6 +150,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	for(u_long i=0;i<len;i++)
 	{
 		if(connTable[connIndex].td->buffer[i]=='\n')
+		{
 			if(connTable[connIndex].td->buffer[i+1]=='\n')
 			{
 				/*
@@ -160,20 +161,89 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 				headerSize=i+2;
 				break;
 			}
+		}
+		if(connTable[connIndex].td->buffer[i]=='\r')
+		{
+			if(connTable[connIndex].td->buffer[i+1]=='\n')
+			{
+				if(connTable[connIndex].td->buffer[i+2]=='\r')
+				{
+					if(connTable[connIndex].td->buffer[i+3]=='\n')
+					{
+						/*
+						*The HTTP header ends with a \r\n\r\n sequence so 
+						*determinate where it ends and set the header size
+						*to i + 4.
+						*/
+						headerSize=i+4;
+						break;
+					}
+				}
+			}
+		}
+
 	}
-	sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",len-headerSize);
-	buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
-	if(headerSize)
-		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2)-2, 0);
-	else
-		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2), 0);
+	if(ExtCtrlBlk.dwHttpStatusCode!=200)
+	{
+		switch(ExtCtrlBlk.dwHttpStatusCode)	
+		{
+			case 400:
+				raiseHTTPError(td,connection,e_400);
+				break;
+			case 401:
+				raiseHTTPError(td,connection,e_401);
+				break;
+			case 403:
+				raiseHTTPError(td,connection,e_403);
+				break;
+			case 404:
+				raiseHTTPError(td,connection,e_404);
+				break;
+			case 405:
+				raiseHTTPError(td,connection,e_405);
+				break;
+			case 406:
+				raiseHTTPError(td,connection,e_406);
+				break;
+			case 407:
+				raiseHTTPError(td,connection,e_407);
+				break;
+			case 412:
+				raiseHTTPError(td,connection,e_412);
+				break;
+			case 413:
+				raiseHTTPError(td,connection,e_413);
+				break;
+			case 414:
+				raiseHTTPError(td,connection,e_414);
+				break;
+			case 500:
+				raiseHTTPError(td,connection,e_500);
+				break;
+			case 501:
+				raiseHTTPError(td,connection,e_501);
+				break;
+			case 502:
+				raiseHTTPError(td,connection,e_502);
+				break;
 
-	char lbuffer[100];
-	ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer,headerSize-2, 0);
-	sprintf(lbuffer,"\r\nContent-Length:%i\r\n\r\n",len-headerSize);
-	ms_send(connTable[connIndex].connection->socket,lbuffer,lstrlen(lbuffer), 0);
-	ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
+		}
+	}
+	else/*HTTP status code is 200*/
+	{
+		sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",len-headerSize);
+		buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
+		if(headerSize)
+			ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2)-2, 0);
+		else
+			ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2), 0);
 
+		char lbuffer[100];
+		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer,headerSize-2, 0);
+		sprintf(lbuffer,"\r\nContent-Length:%i\r\n\r\n",len-headerSize);
+		ms_send(connTable[connIndex].connection->socket,lbuffer,lstrlen(lbuffer), 0);
+		ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
+	}
 	int retvalue=0;
 
 	switch(Ret) 
@@ -215,7 +285,8 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 			char URL[MAX_PATH];
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
-			lstrcpy(URL,(char*)lpvBuffer+1);
+			lstrcpy(URL,(char*)lpvBuffer);
+			lstrcat(URL,"tmp/a.pl");
 			getPath((char*)lpvBuffer,URL,FALSE);
 			*lpdwSize=lstrlen((char*)lpvBuffer);
 			lstrcpy(mapInfo->lpszPath,(char*)lpvBuffer);
