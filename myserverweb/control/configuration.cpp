@@ -84,9 +84,10 @@ void configurationFrame::initNotebook()
     wxStaticText *bufferSizeStat= new wxStaticText(pPage[0], -1, "Set the size of the memory buffer(in bytes)",wxPoint(85,12), wxSize(250,20));
 
 	verbosity = new wxComboBox(pPage[0],-1,_T(confparser.getValue("VERBOSITY")),wxPoint(10,40),wxSize(75,20),0,0,wxCB_DROPDOWN|wxCB_READONLY);
-	for ( int n = 0; n < 10; n++ )
+	int n;
+	for ( n = 0; n < 10; n++ )
 	{
-        verbosity->Append(_T(verbosityValues[n]));
+        verbosity->Append(_T(verbosityValues[index]));
 	}
 	verbosity->SetSelection(atoi(confparser.getValue("VERBOSITY")));
     wxStaticText *verbosityStat= new wxStaticText(pPage[0], -1, "Set the verbosity on the logs files",wxPoint(85,42), wxSize(250,20));
