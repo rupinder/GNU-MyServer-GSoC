@@ -39,6 +39,7 @@ typedef u_long CONNECTION_PROTOCOL;
 struct CONNECTION
 {
 public:
+	void *thread;/*Pointer to the thread struct that is using the CONNECTION*/
 	const static int check_value_const=0x20;/*Const value for the CONNECTION structure to check integrity*/
 	int parsing;/*The server is parsing this connection*/
 	int check_value;/*Check if this is equal to check_value_const to ha a valid structure*/

@@ -566,6 +566,13 @@ int CMemBuf::Free()
 	m_nSize = m_nRealSize = 0; 
 	return 1;
 };
+/*!
+*Get the real allocated size.
+*/
+u_int CMemBuf::GetRealLength()
+{
+	return m_nRealSize;
+}
 
 u_int CMemBuf::Find(CMemBuf *smb, u_int start) 
 {

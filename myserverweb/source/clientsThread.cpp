@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/Response_RequestStructs.h"
 #include "../include/sockets.h"
 #include "../include/stringutils.h"
+#include "../include/MemBuf.h"
 
 #ifdef NOT_WIN
 extern "C" {
@@ -84,16 +85,17 @@ void * startClientsTHREAD(void* pParam)
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->buffersize;
 	ct->buffersize2=lserver->buffersize2;
-	ct->buffer=(char*)malloc(ct->buffersize);
-	ct->buffer2=(char*)malloc(ct->buffersize2);
+	
+	ct->buffer.SetLength(ct->buffersize);
+	ct->buffer2.SetLength(ct->buffersize2);
 	
 	ct->http_parser = new http();
 	ct->https_parser = new https();
 	
 	ct->initialized=1;
 
-	memset(ct->buffer, 0, ct->buffersize);
-	memset(ct->buffer2, 0, ct->buffersize2);
+	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetLength());
+	memset((char*)ct->buffer2.GetBuffer(), 0,ct->buffer2.GetLength());
 	
 	wait(5000);
 	/*!
@@ -149,7 +151,7 @@ void ClientsTHREAD::controlConnections()
 	{
 		c->forceParsing=0;
 		if(nBytesToRead)
-			err=c->socket.recv(&buffer[c->dataRead],KB(8) - c->dataRead, 0);
+			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->dataRead],KB(8) - c->dataRead, 0);
 		if(err==-1)
 		{
 			lserver->deleteConnection(c,this->id);
@@ -157,18 +159,19 @@ void ClientsTHREAD::controlConnections()
 		}
 		if((c->dataRead+err)<KB(8))
 		{
-			buffer[c->dataRead+err]='\0';
+			((char*)buffer.GetBuffer())[c->dataRead+err]='\0';
 		}
 		else
 		{
 			lserver->deleteConnection(c,this->id);
 			return;
 		}
-		memcpy(buffer,c->connectionBuffer,c->dataRead);
+		memcpy(((char*)buffer.GetBuffer()),c->connectionBuffer,c->dataRead);
 		/*!
 		*Control the protocol used by the connection.
 		*/
 		int retcode=0;
+		c->thread=this;
 		switch(((vhost*)(c->host))->protocol)
 		{
 			/*!
@@ -176,13 +179,13 @@ void ClientsTHREAD::controlConnections()
 			*the active connections list.
 			*/
 			case PROTOCOL_HTTP:
-				retcode=http_parser->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=http_parser->controlConnection(c,(char*)buffer.GetBuffer(),(char*)buffer2.GetBuffer(),buffer.GetLength(),buffer2.GetLength(),nBytesToRead,id);
 				break;
 			/*!
 			*Parse an HTTPS connection request.
 			*/
 			case PROTOCOL_HTTPS:
-				retcode=https_parser->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+				retcode=https_parser->controlConnection(c,(char*)buffer.GetBuffer(),(char*)buffer2.GetBuffer(),buffer.GetLength(),buffer2.GetLength(),nBytesToRead,id);
 				break;
 			default:
 				dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);
@@ -192,7 +195,7 @@ void ClientsTHREAD::controlConnections()
 				}
 				else
 				{
-					retcode=dp->controlConnection(c,buffer,buffer2,buffersize,buffersize2,nBytesToRead,id);
+					retcode=dp->controlConnection(c,(char*)buffer.GetBuffer(),(char*)buffer2.GetBuffer(),buffer.GetLength(),buffer2.GetLength(),nBytesToRead,id);
 				}
 				break;
 		}
@@ -219,7 +222,7 @@ void ClientsTHREAD::controlConnections()
 			*If the header is incomplete save the current received
 			*data in the connection buffer
 			*/
-			memcpy(c->connectionBuffer,buffer,c->dataRead+err);/*!Save the header in the connection buffer*/
+			memcpy(c->connectionBuffer,(char*)buffer.GetBuffer(),c->dataRead+err);/*!Save the header in the connection buffer*/
 			c->dataRead+=err;
 		}
 		else if(retcode==3)/*Incomplete request yet in the buffer*/
@@ -273,11 +276,9 @@ void ClientsTHREAD::clean()
 	if(initialized==0)/*!If the thread was not initialized return from the clean function*/
 		return;
 	threadIsRunning=0;
-	if(buffer)
-		free(buffer);
-	if(buffer2)
-		free(buffer2);
-	buffer=buffer2=0;
+	buffer.Free();
+	buffer2.Free();
+	
 	delete http_parser;
 	delete https_parser;
 	initialized=0;
@@ -298,4 +299,19 @@ int ClientsTHREAD::isRunning()
 int ClientsTHREAD::isStopped()
 {
 	return threadIsStopped;
+}
+
+/*!
+*Get a pointer to the buffer.
+*/
+CMemBuf* ClientsTHREAD::GetBuffer()
+{
+	return &buffer;
+}
+/*!
+*Get a pointer to the buffer2.
+*/
+CMemBuf *ClientsTHREAD::GetBuffer2()
+{
+	return &buffer2;
 }

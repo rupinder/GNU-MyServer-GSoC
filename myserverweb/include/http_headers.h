@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/Response_RequestStructs.h"
 #include "../include/stringutils.h"
 #include "../include/filemanager.h"
+#include "../include/MemBuf.h"
+
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
@@ -56,8 +58,8 @@ struct httpThreadContext
 {
 	int appendOutputs;/*Used by SSI*/
 	LPCONNECTION connection;
-	char *buffer;
-	char *buffer2;
+	CMemBuf *buffer;
+	CMemBuf *buffer2;
 	u_long buffersize;
 	u_long buffersize2;
 	u_long id;

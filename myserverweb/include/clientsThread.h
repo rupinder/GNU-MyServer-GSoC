@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 #include "../include/security.h"
 #include "../include/http.h"
+#include "../include/MemBuf.h"
 #include "../include/https.h"
 
 class  ClientsTHREAD
@@ -50,11 +51,13 @@ private:
 	https *https_parser;
 	int isRunning();
 	int isStopped();
-	char *buffer;
-	char *buffer2;
+	CMemBuf buffer;
+	CMemBuf buffer2;
 	void controlConnections();
 	u_long nBytesToRead;
 public:
+	CMemBuf *GetBuffer();
+	CMemBuf *GetBuffer2();
 	const static u_long ID_OFFSET = 200;
 	ClientsTHREAD();
 	~ClientsTHREAD();

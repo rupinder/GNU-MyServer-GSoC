@@ -382,7 +382,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 	if(input==0)
 	{
 		noinputspecified=1;
-		input=td->buffer;
+		input=(char*)td->buffer->GetBuffer();
 	}
 	u_long validRequest=validHTTPRequest(input,td,&nLines,&maxTotchars);
 	if(validRequest==0)/*!Invalid header*/
@@ -405,8 +405,10 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 		token=input;
 	else
 	{
-		strncpy(td->buffer2,input,maxTotchars);
-		input=token=td->buffer2;
+		td->buffer2->SetLength(0);
+		*td->buffer2 << input;
+		*td->buffer2 << maxTotchars;
+		input=token=(char*)td->buffer2->GetBuffer();
 	}
 	while((token[i]=='\n')||(token[i]=='\r'))token++;
 	token = strtok( token, cmdseps );
@@ -803,7 +805,7 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 
 	if(input==0)
 	{
-		input=td->buffer;
+		input=(char*)td->buffer->GetBuffer();
 		noinputspecified=1;
 	}
 	/*!
@@ -824,8 +826,10 @@ int http_headers::buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,h
 	static int lineControlled;
 	if(noinputspecified)
 	{
-		strncpy(td->buffer2,input,maxTotchars);
-		input=token=td->buffer2;
+		td->buffer2->SetLength(0);
+		*td->buffer2 << input;
+		*td->buffer2 << maxTotchars;
+		input=token=(char*)td->buffer2->GetBuffer();
 	}
 	else
 	{

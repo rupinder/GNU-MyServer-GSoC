@@ -284,9 +284,10 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	return !lstrcmpi(td->request.CONNECTION,"Keep-Alive");
 #endif
 #ifdef NOT_WIN
-	sprintf(td->buffer,"Error WinCGI is not implemented\r\n");
+	td->buffer->SetLength(0);
+	*td->buffer << "Error WinCGI is not implemented\r\n";
 	((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-	((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+	((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 	((vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);/*!WinCGI is not available under linux*/
 #endif

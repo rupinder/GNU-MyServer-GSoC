@@ -77,6 +77,7 @@ public:
 	void* GetBufferSetLength(u_int newSize);
 
 	u_int GetLength();
+	u_int GetRealLength();
 
 	int IsValid();
 

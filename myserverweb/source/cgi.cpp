@@ -130,8 +130,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	*by the execHiddenProcess(...) function.
 	*Use the td->buffer2 to build the environment string.
 	*/
-	td->buffer2[0]='\0';
-	buildCGIEnvironmentString(td,td->buffer2);
+	buildCGIEnvironmentString(td,(char*)td->buffer2->GetBuffer());
 
 
 	/*!
@@ -149,27 +148,25 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 	spi.stdError = stdOutFile.getHandle();
 	spi.stdIn = stdInFile.getHandle();
 	spi.stdOut = stdOutFile.getHandle();
-	spi.envString=td->buffer2;
+	spi.envString=(char*)td->buffer2->GetBuffer();
 	execHiddenProcess(&spi);
-	td->buffer2[0]='\0';
+	td->buffer2->SetLength(0);
 	/*!
 	*Read the CGI output.
 	*/
 	u_long nBytesRead=0;
 	if(!stdOutFile.setFilePointer(0))
-		stdOutFile.readFromFile(td->buffer2,td->buffersize2,&nBytesRead);
-	else
-		td->buffer2[0]='\0';
+		stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(),td->buffer2->GetLength(),&nBytesRead);
 		
-	td->buffer2[nBytesRead]='\0';
-	
+	((char*)td->buffer2->GetBuffer())[nBytesRead]='\0';
 		
 	int yetoutputted=0;
 	if(nBytesRead==0)
 	{
-		sprintf(td->buffer,"Error CGI zero bytes read\r\n");
+		td->buffer->SetLength(0);
+		*td->buffer << "Error CGI zero bytes read\r\n";
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite(td->buffer);
+		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		yetoutputted=1;
@@ -181,7 +178,8 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 
 	for(u_long i=0;i<nBytesRead;i++)
 	{
-		if((td->buffer2[i]=='\r')&&(td->buffer2[i+1]=='\n')&&(td->buffer2[i+2]=='\r')&&(td->buffer2[i+3]=='\n'))
+		char *buff=(char*)td->buffer2->GetBuffer();
+		if((buff[i]=='\r')&&(buff[i+1]=='\n')&&(buff[i+2]=='\r')&&(buff[i+3]=='\n'))
 		{
 			/*!
 			*The HTTP header ends with a \r\n\r\n sequence so 
@@ -194,7 +192,7 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		/*!
 		*If it is present Location: xxx in the header send a redirect to xxx
 		*/
-		else if(!strncmp(&td->buffer2[i],"Location",8))
+		else if(!strncmp(&((char*)td->buffer2->GetBuffer())[i],"Location",8))
 		{
 			char nURL[MAX_PATH];
 			nURL[0]='\0';
@@ -202,10 +200,10 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 			j=0;
 
 			int start=(int)strlen(nURL);
-			while(td->buffer2[i+j+10]!='\r')
+			while(((char*)td->buffer2->GetLength())[i+j+10]!='\r')
 			{
 
-				nURL[j+start]=td->buffer2[i+j+10];
+				nURL[j+start]=((char*)td->buffer2->GetLength())[i+j+10];
 				nURL[j+start+1]='\0';
 				j++;
 			}
@@ -235,28 +233,28 @@ int cgi::sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!
 		if(!td->appendOutputs)/*Send the header*/
 		{
 			if(headerSize)
-				http_headers::buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
+				http_headers::buildHTTPResponseHeaderStruct(&td->response,td,(char*)td->buffer2->GetBuffer());
 			/*!
 			*Always specify the size of the HTTP contents.
 			*/
 			sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
-			http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
+			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
 			
-			s->socket.send(td->buffer,(int)strlen(td->buffer), 0);		
-			s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
+			s->socket.send((char*)td->buffer->GetBuffer(),(int)(td->buffer->GetLength()), 0);		
+			s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize),nBytesRead-headerSize, 0);
 		}
 		else
-			td->outputData.writeToFile((char*)(td->buffer2+headerSize),nBytesRead-headerSize,&nbw);
+			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())+headerSize),nBytesRead-headerSize,&nbw);
 				
-		while(stdOutFile.readFromFile(td->buffer2,td->buffersize2,&nBytesRead))
+		while(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(),td->buffer2->GetLength(),&nBytesRead))
 		{
 			if(nBytesRead)
 			{
 				
 				if(!td->appendOutputs)/*Send the header*/
-					s->socket.send((char*)td->buffer2,nBytesRead, 0);
+					s->socket.send((char*)td->buffer2->GetBuffer(),nBytesRead, 0);
 				else
-					td->outputData.writeToFile((char*)td->buffer2,nBytesRead,&nbw);
+					td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),nBytesRead,&nbw);
 			}
 			else
 				break;

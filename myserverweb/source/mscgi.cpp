@@ -54,7 +54,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
     	static CGIMAIN ProcMain;
 	u_long nbr,nbs;
 	cgi_data data;
-	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:td->buffer;
+	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:(char*)td->buffer->GetBuffer();
 	data.envString+=atoi(td->request.CONTENT_LENGTH);
 	
 	data.td = td;
@@ -159,8 +159,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	if(!td->appendOutputs)	
 	{
 		data.stdOut.setFilePointer(0);
-		http_headers::buildHTTPResponseHeader(td->buffer,&td->response);
-		if(s->socket.send(td->buffer,(int)strlen(td->buffer), 0)==SOCKET_ERROR)
+		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&td->response);
+		if(s->socket.send((char*)td->buffer->GetBuffer(),(int)td->buffer->GetLength(), 0)==SOCKET_ERROR)
 		{
 			if(!td->appendOutputs)
 			{
@@ -171,8 +171,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		}
 		do
 		{
-			data.stdOut.readFromFile(td->buffer,td->buffersize,&nbr);
-			nbs=s->socket.send(td->buffer,nbr,0);
+			data.stdOut.readFromFile((char*)td->buffer->GetBuffer(),(int)td->buffer->GetLength(),&nbr);
+			nbs=s->socket.send((char*)td->buffer->GetBuffer(),nbr,0);
 			if(nbs==SOCKET_ERROR)
 			{
 				if(!td->appendOutputs)
