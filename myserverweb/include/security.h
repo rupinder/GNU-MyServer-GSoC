@@ -75,10 +75,14 @@ struct SecurityToken
   char *password2;
   /*! Permission mask that the user will have if providing a [password2]. */
   int *permission2;
+
+
   /*! Authorization scheme to use. */
   char* auth_type;
   /*! Length for the [auth_type] allocated string. */
   int len_auth;
+  /*! Throttling rate to use with specified user. */
+  int throttlingRate;
 
   SecurityToken();
   void reset();

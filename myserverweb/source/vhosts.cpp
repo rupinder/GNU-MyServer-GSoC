@@ -51,6 +51,20 @@ Vhost::Vhost()
 	systemRoot=0;
   accessesLogFileName=0;
   warningsLogFileName=0;
+  /*! 
+   *By default use a non specified value for the throttling rate. -1 means that the
+   *throttling rate was not specified, while 0 means it was specified but there is not
+   *a limit.
+   */
+  throttlingRate = (u_long) -1;
+}
+
+/*!
+ *Return the throttling rate to use with the virtual host.
+ */
+u_long Vhost::getThrottlingRate()
+{
+  return throttlingRate;
 }
 
 /*!
@@ -874,6 +888,7 @@ int VhostManager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
 	vh2->host = vh3;
 	return 1;
 }
+
 /*!
  *Returns the number of hosts in the list
  */
@@ -1109,12 +1124,17 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 					attr=attr->next;
 				}
       }
+
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME_FILE"))
 			{
 				if(lcur->children)
           vh->getMIME()->loadXML((char*)lcur->children->content);
 			}
-      
+
+			if(!xmlStrcmp(lcur->name, (const xmlChar *)"THROTTLING_RATE"))
+			{
+				vh->throttlingRate = (u_long)atoi((char*)lcur->children->content);
+ 			}
       lcur=lcur->next;
     }
 

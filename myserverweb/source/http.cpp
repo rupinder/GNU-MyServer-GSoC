@@ -943,6 +943,10 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		}
     delete [] directory;
 	}
+
+  /*! If a throttling rate was specifed use it. */
+  if(st.throttlingRate != (u_long)-1)
+    s->socket.setThrottling(st.throttlingRate);
 	/*!
    *Get the PATH_INFO value.
    *Use dirscan as a buffer for put temporary directory scan.
@@ -2018,7 +2022,15 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				retvalue=1;
 		}
 		else
+    {
 			retvalue=0;
+    }
+
+    /*! Set the throttling rate for the socket. This setting can be overwritten later. */
+    if(((Vhost*)a->host)->getThrottlingRate() == (u_long) -1)
+       a->socket.setThrottling(lserver->getThrottlingRate());
+    else
+      a->socket.setThrottling(((Vhost*)a->host)->getThrottlingRate());
 
 		/*!
 		 *Here we control all the HTTP commands.

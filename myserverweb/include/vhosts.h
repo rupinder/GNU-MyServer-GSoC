@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 #include "../include/filemanager.h"
 #include "../include/utility.h"
-#include "../include/connectionstruct.h"/*!Used for protocols IDs*/
+#include "../include/connectionstruct.h"/*! Used for protocols IDs. */
 #include "../include/myserver_regex.h"
 #include "../include/log_manager.h"
 #include "../include/MIME_manager.h"
@@ -95,7 +95,10 @@ public:
 
 	/*! Protocol used by the virtual host. Used for built-in protocols. */
 	CONNECTION_PROTOCOL protocol;
-	
+
+  /*! Throttling rate to use with the virtual host. */
+	u_long throttlingRate;
+
 	/*! Protocol used by the vhost. */
 	char protocol_name[16];
 	
@@ -131,6 +134,7 @@ public:
 	/*! Description or name of the virtual host. */
 	char name[64];
 	
+  u_long getThrottlingRate();
 	Vhost();
 	void addIP(char *, int);
 	void addHost(char *, int);

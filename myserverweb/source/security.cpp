@@ -47,14 +47,15 @@ SecurityToken::SecurityToken()
  */
 void SecurityToken::reset()
 {
-  user=0;
-  password=0;
-  directory=0;
-  filename=0;
-  password2=0;
-  permission2=0;
-  auth_type=0;
-  len_auth=0;
+  user           = 0;
+  password       = 0;
+  directory      = 0;
+  filename       = 0;
+  password2      = 0;
+  permission2    = 0;
+  auth_type      = 0;
+  len_auth       = 0;
+  throttlingRate = (u_long)-1;
 }
 
 /*!
@@ -300,6 +301,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 			int tempGenericPermissions=0;
 			int rightUser=0;
 			int rightPassword=0;
+      u_long tempThrottlingRate=(u_long)-1;
       attr =  node->properties;
       while(attr)
 			{
@@ -341,15 +343,21 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
              (!xmlStrcmp(attr->children->content, (const xmlChar *)st->password)) )
 						rightPassword=1;
 				}
+        if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
+				{
+          tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
+				}
         /*! 
          *USER is the weakest permission considered. Be sure that no others are
-         *specified before save the password2.
+         *specified before save objects in the security token object.
          */
-				if(rightUser && st->password2 && (filePermissions==0) && (userPermissions==0))
+				if(rightUser && (filePermissionsFound==0) && (userPermissionsFound==0))
 				{
-					strncpy(st->password2, tempPassword, 32);
-				}
-
+          if(st->password2)
+            strncpy(st->password2, tempPassword, 32);
+          if(tempThrottlingRate != (u_long) -1) 
+            st->throttlingRate = tempThrottlingRate;
+        }
 				attr=attr->next;
 			}
 			if(rightUser)
@@ -374,6 +382,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 					int tempUserPermissions=0;
 					int rightUser=0;
 					int rightPassword=0;
+          u_long tempThrottlingRate = (u_long)-1;
 					attr = node2->properties;
 					while(attr)
 					{
@@ -409,13 +418,20 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
                  (!lstrcmp((const char*)attr->children->content, st->password)))
 								rightPassword=1;
 						}
+            if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
+            {
+              tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
+            }
             /*! 
              *USER inside ITEM is the strongest mask considered. 
              *Do not check for other masks to save it.
              */
-						if(rightUser && st->password2)
+						if(rightUser)
 						{
-							myserver_strlcpy(st->password2, tempPassword, 32);
+              if(st->password2)
+                myserver_strlcpy(st->password2, tempPassword, 32);
+              if(tempThrottlingRate != (u_long) -1) 
+                st->throttlingRate = (u_long)tempThrottlingRate;
 						}
 
 						attr=attr->next;
@@ -431,49 +447,69 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				node2=node2->next;
 			}
 
-      attr = node->properties;
 
-      /*! Generic ITEM permissions. */
-			while(attr)
-			{
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
-				{
-					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempFilePermissions|=MYSERVER_PERMISSION_READ;
-				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
-				{
-					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempFilePermissions|=MYSERVER_PERMISSION_WRITE;
-				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
-				{
-					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempFilePermissions|=MYSERVER_PERMISSION_EXECUTE;
-				}
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
-				{
-					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
-						tempFilePermissions|=MYSERVER_PERMISSION_DELETE;
-				}
+      {
+        u_long tempThrottlingRate = (u_long)-1;
 
-        /*! Check if the file name is correct. */
-				if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
+        attr = node->properties;
+
+        /*! Generic ITEM permissions. */
+        while(attr)
+        {
+          if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
+          {
+            if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+              tempFilePermissions|=MYSERVER_PERMISSION_READ;
+          }
+          if(!xmlStrcmp(attr->name, (const xmlChar *)"WRITE"))
+          {
+            if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+              tempFilePermissions|=MYSERVER_PERMISSION_WRITE;
+          }
+          if(!xmlStrcmp(attr->name, (const xmlChar *)"EXECUTE"))
+          {
+            if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+              tempFilePermissions|=MYSERVER_PERMISSION_EXECUTE;
+          }
+          if(!xmlStrcmp(attr->name, (const xmlChar *)"DELETE"))
+          {
+            if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
+              tempFilePermissions|=MYSERVER_PERMISSION_DELETE;
+          }
+          if(!xmlStrcmp(attr->name, (const xmlChar *)"THROTTLING_RATE"))
+          {
+            tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
+          }
+          /*! Check if the file name is correct. */
+          if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
+          {
+            if(attr->children && attr->children->content &&
+               (!xmlStrcmp(attr->children->content, (const xmlChar *)st->filename)))
+            {					
+              filePermissionsFound=1;
+              filePermissions2Found=1;
+              if(userPermissionsFound==2)
+                userPermissionsFound=1;
+              if(userPermissions2Found==2)
+                userPermissions2Found=1;
+              
+            }
+          }
+          attr=attr->next;
+        }/*! End attributes loop. */
+
+        /*! 
+         *Check that was not specified a file permission mask before overwrite these
+         *items.
+         */
+        if(filePermissionsFound && (userPermissionsFound==0))
 				{
-          if(attr->children && attr->children->content &&
-             (!xmlStrcmp(attr->children->content, (const xmlChar *)st->filename)))
-					{					
-						filePermissionsFound=1;
-						filePermissions2Found=1;
-						if(userPermissionsFound==2)
-							userPermissionsFound=1;
-						if(userPermissions2Found==2)
-							userPermissions2Found=1;
-					
-					}
-				}
-				attr=attr->next;
-			}
+          if(tempThrottlingRate != (u_long) -1)
+            st->throttlingRate = tempThrottlingRate;
+        }
+
+      }/*! End generic ITEM attributes. */
+
 			if(filePermissionsFound)
 				filePermissions=tempFilePermissions;
 		

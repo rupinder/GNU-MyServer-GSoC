@@ -97,6 +97,7 @@ private:
   LogManager *logManager;
   int serverReady;
 	u_long verbosity;
+  u_long throttlingRate;
 	u_long buffersize;
 	u_long buffersize2;
 	u_long getNumConnections();
@@ -192,6 +193,7 @@ public:
   int setLogFile(char*);
 	u_long getBuffersize();
 	u_long getBuffersize2();
+  u_long getThrottlingRate();
 }; 
 extern class Server *lserver;
 

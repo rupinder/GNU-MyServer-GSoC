@@ -80,6 +80,7 @@ Server::Server()
   vhost_configuration_file = 0;
 	mime_configuration_file = 0;
   serverReady = 0;
+  throttlingRate = 0;
 }
 
 /*!
@@ -849,6 +850,7 @@ int Server::initialize(int /*!os_ver*/)
 	connectionTimeout = MYSERVER_SEC(25);
 	mustEndServer=0;
 	verbosity=1;
+  throttlingRate = 0;
 	maxConnections=0;
   maxConnectionsToAccept=0;
 	serverAdmin[0]='\0';
@@ -1085,6 +1087,12 @@ int Server::initialize(int /*!os_ver*/)
 	{
 		maxConnectionsToAccept=atoi(data);
 	}
+	/*! Get the default throttling rate to use on connections. */
+	data = configurationFileManager.getValue("THROTTLING_RATE");
+	if(data)
+	{
+		throttlingRate=(u_long)atoi(data);
+	}
 	/*! Load the server administrator e-mail. */
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
@@ -1116,6 +1124,15 @@ int Server::initialize(int /*!os_ver*/)
 	return 0;
 	
 }
+
+/*!
+ *Get the default throttling rate to use with connections to the server.
+ */
+u_long Server::getThrottlingRate()
+{
+  return throttlingRate;
+}
+
 /*!
  *This function returns the max size of the logs file as defined in the 
  *configuration file.
