@@ -1115,6 +1115,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 */
 void resetHTTPRequest(HTTP_REQUEST_HEADER *request)
 {
+	request->CONTENT_ENCODING[0]='\0';	
 	request->CMD[0]='\0';		
 	request->VER[0]='\0';		
 	request->ACCEPT[0]='\0';
@@ -1161,6 +1162,7 @@ void resetHTTPResponse(HTTP_RESPONSE_HEADER *response)
 	response->COOKIE[0]='\0';
 	response->CONTENT_LENGTH[0]='\0';
 	response->ERROR_TYPE[0]='\0';
+	response->CONTENT_ENCODING[0]='\0';
 	response->LOCATION[0]='\0';
 	response->DATE[0]='\0';		
 	response->AUTH[0]='\0';
@@ -1222,6 +1224,12 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	{
 		strcat(str,"Connection:");
 		strcat(str,response->CONNECTION);
+		strcat(str,"\r\n");
+	}
+	if(response->CONTENT_ENCODING[0])
+	{
+		strcat(str,"Content-Encoding:");
+		strcat(str,response->CONTENT_ENCODING);
 		strcat(str,"\r\n");
 	}
 	if(response->COOKIE[0])
@@ -1768,6 +1776,15 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			strncpy(request->HOST,token,HTTP_REQUEST_HOST_DIM);
 			StrTrim(request->HOST," ");
 		}else
+		/*Content-Encoding*/
+		if(!lstrcmpi(command,"Content-Encoding"))
+		{
+			token = strtok( NULL, seps );
+			if(!token)return 0;
+			lineControlled=1;
+			strncpy(request->CONTENT_ENCODING,token,HTTP_REQUEST_CONTENT_ENCODING_DIM);
+			StrTrim(request->CONTENT_ENCODING," ");
+		}else
 		/*If-Modified-Since*/
 		if(!lstrcmpi(command,"If-Modified-Since"))
 		{
@@ -2071,6 +2088,14 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
 			response->httpStatus=atoi(token);
+		}else
+		/*Content-Encoding*/
+		if(!lstrcmpi(command,"Content-Encoding"))
+		{
+			token = strtok( NULL, "\r\n\0" );
+			lineControlled=1;
+			strncpy(response->CONTENT_ENCODING,token,HTTP_RESPONSE_CONTENT_ENCODING_DIM);
+			StrTrim(response->CONTENT_ENCODING," ");
 		}else
 		/*Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))
