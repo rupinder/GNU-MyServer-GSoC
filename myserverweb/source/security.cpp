@@ -33,90 +33,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #endif
 #endif
 
-/*!
- *Global values for useLogonOption flag and the guest handle.
- */
-int  useLogonOption;
-
-/*!
- *Do the logon of an user.
- */
-int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
-{
-	int logon=0;
-#ifdef WIN32
-	logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)(handle));
-#endif
-	return logon;
-}
-/*!
- *Change the owner of current thread.
- */
-void impersonateLogonUser(LOGGEDUSERID* hImpersonation)
-{
-#ifdef WIN32
-	ImpersonateLoggedOnUser((HANDLE)*hImpersonation);
-#endif	
-}
-
-/*!
- *This function terminates the impersonation of a client application.
- */
-void revertToSelf()
-{
-#ifdef WIN32
-	RevertToSelf();
-#endif
-}
-
-/*!
- *Close the handle of a logged user.
- */
-void cleanLogonUser(LOGGEDUSERID* hImpersonation)
-{
-#ifdef WIN32
-	CloseHandle((HANDLE)*hImpersonation);
-#endif
-}
-/*!
- *Change the owner of the thread with the connection login and password informations.
- */
-void logon(LPCONNECTION c,int *logonStatus,LOGGEDUSERID *hImpersonation)
-{
-	*hImpersonation=0;
-	if(useLogonOption)
-	{
-		if(c->login[0])
-		{
-			*logonStatus=logonCurrentThread(c->login,c->password,hImpersonation);
-		}
-		else
-		{
-			*logonStatus=0;
-			*hImpersonation=0;
-		}
-		impersonateLogonUser(hImpersonation);
-	}
-	else
-	{
-		*logonStatus=0;
-	}
-}
-/*!
- *Logout the hImpersonation handle.
- */
-void logout(int /*!logon*/,LOGGEDUSERID *hImpersonation)
-{
-	if(useLogonOption)
-	{
-		revertToSelf();
-		if(*hImpersonation)
-		{
-			cleanLogonUser(hImpersonation);
-			hImpersonation=0;
-		}
-	}
-}
 
 /*!
  *Get the error file for a site. 
@@ -184,11 +100,6 @@ int getPermissionMask(char* user, char* password,char* folder,
                       char* filename,char *sysfolder,char *password2,
                       char* auth_type,int len_auth,int *permission2)
 {
-	/*!
-   *If the file doesn't exist allow everyone to do everything.
-   */
-	if(!useLogonOption)
-		return (-1);
 	char *permissionsFile;
 	char tempPassword[32];
   int ret =0;

@@ -644,7 +644,6 @@ int cserver::initialize(int /*!os_ver*/)
 	u_long nThreadsA=1;
 	u_long nThreadsB=0;
 	socketRcvTimeout = 10;
-	useLogonOption = 1;
 	connectionTimeout = SEC(25);
 	mustEndServer=0;
 	verbosity=1;
@@ -844,15 +843,6 @@ int cserver::initialize(int /*!os_ver*/)
 	if(data)
 	{
 		lstrcpy(serverAdmin, data);
-	}
-
-	data=configurationFileManager.getValue("USE_LOGON_OPTIONS");
-	if(data)
-	{
-		if(!lstrcmpi(data, "YES"))
-			useLogonOption=1;
-		else
-			useLogonOption=0;
 	}
 
 	data=configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
@@ -1164,13 +1154,6 @@ char *cserver::getServerName()
 	return serverName;
 }
 
-/*!
-*Returns if we use the logon.
-*/
-int cserver::mustUseLogonOption() 
-{
-	return useLogonOption;
-}
 
 /*!
 *Gets the number of threads.
@@ -1217,13 +1200,6 @@ int cserver::connections_mutex_unlock()
 void cserver::loadSettings()
 {
 
-	/*! The guestLoginHandle value is filled by the call to cserver::initialize. */
-	if(useLogonOption==0)
-	{
-   	preparePrintError();
-		printf("%s\n", languageParser.getValue("AL_NO_SECURITY"));
-   	endPrintError();
-	}
 	u_long i;
 
 #ifndef WIN32
