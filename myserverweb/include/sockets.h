@@ -79,6 +79,8 @@ private:
 #endif
 	/*! Pointer to the socket that has accepted this connection.  */
 	Socket *serverSocket;
+
+  /*! Send throttling rate. */
   u_long throttlingRate;
 
   int rawSend(const char* buffer,int len,int flags);
