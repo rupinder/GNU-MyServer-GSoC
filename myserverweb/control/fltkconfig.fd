@@ -33,7 +33,7 @@ class MainDlg {open selected
 else {
   ConfDlg->hide();
 }} open
-      xywh {215 255 550 360} type Double hide
+      xywh {79 286 550 360} type Double hide
     } {
       Fl_Menu_Bar {} {open
         xywh {0 0 550 25}
@@ -292,12 +292,12 @@ if(ret) {
           Fl_Value_Input Buffer_Size {
             label {Memory buffer (in bytes):}
             callback {Changed = true;}
-            xywh {285 60 115 25} maximum 5.24288e+06 step 1
+            xywh {295 60 115 25} maximum 5.24288e+06 step 1
           }
           Fl_Choice Verbosity {
             label {Verbosity level:}
             callback {Changed = true;} open
-            xywh {285 90 115 25} down_box BORDER_BOX when 1
+            xywh {295 90 115 25} down_box BORDER_BOX when 1
           } {
             menuitem {} {
               label None
@@ -319,22 +319,22 @@ if(ret) {
           Fl_Value_Input Max_Log_File_Size {
             label {Max log file size (in bytes):}
             callback {Changed = true;}
-            xywh {285 120 115 25} maximum 5.24288e+07 step 1
+            xywh {295 120 115 25} maximum 5.24288e+07 step 1
           }
           Fl_Value_Input Nthreads_A {
             label {Threads per CPU:}
             callback {Changed = true;}
-            xywh {285 150 115 25} maximum 1000 step 1
+            xywh {295 150 115 25} maximum 1000 step 1
           }
           Fl_Value_Input Nthreads_B {
             label {Always active threads:}
             callback {Changed = true;}
-            xywh {285 180 115 30} maximum 1000 step 1
+            xywh {295 180 115 30} maximum 1000 step 1
           }
           Fl_Choice Language {
             label {Language:}
             callback {Changed = true;} open
-            xywh {285 215 115 25} down_box BORDER_BOX when 1
+            xywh {295 215 115 25} down_box BORDER_BOX when 1
           } {}
         }
         Fl_Group {} {
@@ -344,22 +344,22 @@ if(ret) {
           Fl_Value_Input Connection_Timeout {
             label {Connection time-out (in sec):}
             callback {Changed = true;}
-            xywh {285 60 115 25} maximum 3600 step 1
+            xywh {295 60 115 25} maximum 3600 step 1
           }
           Fl_Value_Input Max_Connections {
             label {Max connections:}
             callback {Changed = true;}
-            xywh {285 90 115 25} maximum 5.24288e+06 step 1
+            xywh {295 90 115 25} maximum 5.24288e+06 step 1
           }
           Fl_Value_Input Gzip_Threshold {
             label {Gzip compression threshold (in bytes):}
             callback {Changed = true;}
-            xywh {285 120 115 25} maximum 5.24288e+06 step 1
+            xywh {295 120 115 25} maximum 5.24288e+06 step 1
           }
           Fl_Input Browsefolder_Css {
             label {Stylesheet:}
             callback {Changed = true;}
-            xywh {285 150 115 25} when 1
+            xywh {295 150 115 25} when 1
           }
           Fl_Button {} {
             label {Browse...}
@@ -368,12 +368,12 @@ if(chrptr != 0) {
   Changed = true;
   Browsefolder_Css->value(chrptr);
 }}
-            xywh {410 150 85 25}
+            xywh {420 150 85 25}
           }
           Fl_Check_Button Use_Errors_Files {
             label {Personalized error pages:}
             callback {Changed = true;}
-            xywh {285 180 25 25} down_box DOWN_BOX align 4 when 1
+            xywh {295 180 25 25} down_box DOWN_BOX align 4 when 1
           }
           Fl_Group {} {
             label {Default file names:} open
@@ -461,7 +461,7 @@ if(val != 0) {
 
   Manager->value(MimeConf.getManager(i));
 }}
-                xywh {30 300 75 25}
+                xywh {30 300 80 25}
               }
               Fl_Button {} {
                 label Remove
@@ -473,7 +473,7 @@ if(val != 0) {
   MimeConf.removeExt(val);
   MimeConf.populateExt(Ext);
 }}
-                xywh {125 300 75 25}
+                xywh {120 300 80 25}
               }
             }
             Fl_Choice Mime {
@@ -630,7 +630,7 @@ else {
   SslButton1->activate();
   SslButton2->activate();
 }} open
-              xywh {75 70 285 25} down_box BORDER_BOX when 1
+              xywh {75 70 275 25} down_box BORDER_BOX when 1
             } {}
             Fl_Button {} {
               label {Add...}
@@ -669,7 +669,7 @@ if(val != 0) {
     SslButton2->activate();
   }
 }}
-              xywh {370 70 75 25}
+              xywh {360 70 80 25}
             }
             Fl_Button {} {
               label Remove
@@ -705,7 +705,7 @@ else {
   SslButton1->activate();
   SslButton2->activate();
 }}
-              xywh {455 70 75 25}
+              xywh {450 70 80 25}
             }
           }
           Fl_Group {} {open
@@ -853,7 +853,7 @@ if(val != 0) {
   vHostConf.populateHost(NameNo, Host);
   Host->value(i + 1);
 }}
-                  xywh {40 305 70 25}
+                  xywh {30 305 80 25}
                 }
                 Fl_Button {} {
                   label Remove
@@ -865,7 +865,7 @@ if(i != 0) {
   vHostConf.removeHost(NameNo, i - 1);
   vHostConf.populateHost(NameNo, Host);
 }}
-                  xywh {120 305 70 25}
+                  xywh {120 305 80 25}
                 }
                 Fl_Button {} {
                   label {Add...}
@@ -879,7 +879,7 @@ if(val != 0) {
   vHostConf.populateIp(NameNo, Ip);
   Ip->value(i + 1);
 }}
-                  xywh {220 305 70 25}
+                  xywh {210 305 80 25}
                 }
                 Fl_Button {} {
                   label Remove
@@ -891,7 +891,7 @@ if(i != 0) {
   vHostConf.removeIp(NameNo, i - 1);
   vHostConf.populateIp(NameNo, Ip);
 }}
-                  xywh {300 305 70 25}
+                  xywh {300 305 80 25}
                 }
                 Fl_Value_Input Port {
                   label {Port:}
@@ -971,17 +971,17 @@ vHostConf.setWarninglog(i, Warninglog->value());}
           Fl_Input Server_Admin {
             label {Administrator e-mail:}
             callback {Changed = true;}
-            xywh {285 60 190 25} when 1
+            xywh {295 60 190 25} when 1
           }
           Fl_Input Control_Admin {
             label {Administrator user name:}
             callback {Changed = true;}
-            xywh {285 90 190 25} when 1 deactivate
+            xywh {295 90 190 25} when 1 deactivate
           }
           Fl_Input Control_Password {
             label {Administrator password:}
             callback {Changed = true;}
-            xywh {285 120 190 25} type Secret when 1 deactivate
+            xywh {295 120 190 25} type Secret when 1 deactivate
           }
           Fl_Check_Button Control_Enabled {
             label {Enable control protocol:}
@@ -994,7 +994,7 @@ else {
   Control_Admin->deactivate();
   Control_Password->deactivate();
 }}
-            xywh {285 150 25 25} down_box DOWN_BOX align 4 when 1
+            xywh {295 150 25 25} down_box DOWN_BOX align 4 when 1
           }
         }
       }

@@ -2221,33 +2221,33 @@ Fl_Double_Window* MainDlg::make_window() {
     }
     { Fl_Tabs* o = new Fl_Tabs(0, 25, 550, 335);
       { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("System"));
-        { Fl_Value_Input* o = Buffer_Size = new Fl_Value_Input(285, 60, 115, 25, gettext("Memory buffer (in bytes):"));
+        { Fl_Value_Input* o = Buffer_Size = new Fl_Value_Input(295, 60, 115, 25, gettext("Memory buffer (in bytes):"));
           o->maximum(5.24288e+06);
           o->step(1);
           o->callback((Fl_Callback*)cb_Buffer_Size);
         }
-        { Fl_Choice* o = Verbosity = new Fl_Choice(285, 90, 115, 25, gettext("Verbosity level:"));
+        { Fl_Choice* o = Verbosity = new Fl_Choice(295, 90, 115, 25, gettext("Verbosity level:"));
           o->down_box(FL_BORDER_BOX);
           o->callback((Fl_Callback*)cb_Verbosity);
           o->when(FL_WHEN_CHANGED);
           o->menu(menu_Verbosity);
         }
-        { Fl_Value_Input* o = Max_Log_File_Size = new Fl_Value_Input(285, 120, 115, 25, gettext("Max log file size (in bytes):"));
+        { Fl_Value_Input* o = Max_Log_File_Size = new Fl_Value_Input(295, 120, 115, 25, gettext("Max log file size (in bytes):"));
           o->maximum(5.24288e+07);
           o->step(1);
           o->callback((Fl_Callback*)cb_Max_Log_File_Size);
         }
-        { Fl_Value_Input* o = Nthreads_A = new Fl_Value_Input(285, 150, 115, 25, gettext("Threads per CPU:"));
+        { Fl_Value_Input* o = Nthreads_A = new Fl_Value_Input(295, 150, 115, 25, gettext("Threads per CPU:"));
           o->maximum(1000);
           o->step(1);
           o->callback((Fl_Callback*)cb_Nthreads_A);
         }
-        { Fl_Value_Input* o = Nthreads_B = new Fl_Value_Input(285, 180, 115, 30, gettext("Always active threads:"));
+        { Fl_Value_Input* o = Nthreads_B = new Fl_Value_Input(295, 180, 115, 30, gettext("Always active threads:"));
           o->maximum(1000);
           o->step(1);
           o->callback((Fl_Callback*)cb_Nthreads_B);
         }
-        { Fl_Choice* o = Language = new Fl_Choice(285, 215, 115, 25, gettext("Language:"));
+        { Fl_Choice* o = Language = new Fl_Choice(295, 215, 115, 25, gettext("Language:"));
           o->down_box(FL_BORDER_BOX);
           o->callback((Fl_Callback*)cb_Language);
           o->when(FL_WHEN_CHANGED);
@@ -2256,29 +2256,29 @@ Fl_Double_Window* MainDlg::make_window() {
       }
       { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("Server"));
         o->hide();
-        { Fl_Value_Input* o = Connection_Timeout = new Fl_Value_Input(285, 60, 115, 25, gettext("Connection time-out (in sec):"));
+        { Fl_Value_Input* o = Connection_Timeout = new Fl_Value_Input(295, 60, 115, 25, gettext("Connection time-out (in sec):"));
           o->maximum(3600);
           o->step(1);
           o->callback((Fl_Callback*)cb_Connection_Timeout);
         }
-        { Fl_Value_Input* o = Max_Connections = new Fl_Value_Input(285, 90, 115, 25, gettext("Max connections:"));
+        { Fl_Value_Input* o = Max_Connections = new Fl_Value_Input(295, 90, 115, 25, gettext("Max connections:"));
           o->maximum(5.24288e+06);
           o->step(1);
           o->callback((Fl_Callback*)cb_Max_Connections);
         }
-        { Fl_Value_Input* o = Gzip_Threshold = new Fl_Value_Input(285, 120, 115, 25, gettext("Gzip compression threshold (in bytes):"));
+        { Fl_Value_Input* o = Gzip_Threshold = new Fl_Value_Input(295, 120, 115, 25, gettext("Gzip compression threshold (in bytes):"));
           o->maximum(5.24288e+06);
           o->step(1);
           o->callback((Fl_Callback*)cb_Gzip_Threshold);
         }
-        { Fl_Input* o = Browsefolder_Css = new Fl_Input(285, 150, 115, 25, gettext("Stylesheet:"));
+        { Fl_Input* o = Browsefolder_Css = new Fl_Input(295, 150, 115, 25, gettext("Stylesheet:"));
           o->callback((Fl_Callback*)cb_Browsefolder_Css);
           o->when(FL_WHEN_CHANGED);
         }
-        { Fl_Button* o = new Fl_Button(410, 150, 85, 25, gettext("Browse..."));
+        { Fl_Button* o = new Fl_Button(420, 150, 85, 25, gettext("Browse..."));
           o->callback((Fl_Callback*)cb_Browse);
         }
-        { Fl_Check_Button* o = Use_Errors_Files = new Fl_Check_Button(285, 180, 25, 25, gettext("Personalized error pages:"));
+        { Fl_Check_Button* o = Use_Errors_Files = new Fl_Check_Button(295, 180, 25, 25, gettext("Personalized error pages:"));
           o->down_box(FL_DOWN_BOX);
           o->callback((Fl_Callback*)cb_Use_Errors_Files);
           o->align(FL_ALIGN_LEFT);
@@ -2312,10 +2312,10 @@ Fl_Double_Window* MainDlg::make_window() {
               o->type(2);
               o->callback((Fl_Callback*)cb_Ext);
             }
-            { Fl_Button* o = new Fl_Button(30, 300, 75, 25, gettext("Add..."));
+            { Fl_Button* o = new Fl_Button(30, 300, 80, 25, gettext("Add..."));
               o->callback((Fl_Callback*)cb_Add1);
             }
-            { Fl_Button* o = new Fl_Button(125, 300, 75, 25, gettext("Remove"));
+            { Fl_Button* o = new Fl_Button(120, 300, 80, 25, gettext("Remove"));
               o->callback((Fl_Callback*)cb_Remove2);
             }
             o->end();
@@ -2351,15 +2351,15 @@ Fl_Double_Window* MainDlg::make_window() {
         o->hide();
         { Fl_Group* o = new Fl_Group(10, 60, 530, 45);
           o->box(FL_ENGRAVED_FRAME);
-          { Fl_Choice* o = Name = new Fl_Choice(75, 70, 285, 25, gettext("Name:"));
+          { Fl_Choice* o = Name = new Fl_Choice(75, 70, 275, 25, gettext("Name:"));
             o->down_box(FL_BORDER_BOX);
             o->callback((Fl_Callback*)cb_Name);
             o->when(FL_WHEN_CHANGED);
           }
-          { Fl_Button* o = new Fl_Button(370, 70, 75, 25, gettext("Add..."));
+          { Fl_Button* o = new Fl_Button(360, 70, 80, 25, gettext("Add..."));
             o->callback((Fl_Callback*)cb_Add3);
           }
-          { Fl_Button* o = new Fl_Button(455, 70, 75, 25, gettext("Remove"));
+          { Fl_Button* o = new Fl_Button(450, 70, 80, 25, gettext("Remove"));
             o->callback((Fl_Callback*)cb_Remove3);
           }
           o->end();
@@ -2410,16 +2410,16 @@ Fl_Double_Window* MainDlg::make_window() {
                 o->type(2);
                 o->align(FL_ALIGN_TOP);
               }
-              { Fl_Button* o = new Fl_Button(40, 305, 70, 25, gettext("Add..."));
+              { Fl_Button* o = new Fl_Button(30, 305, 80, 25, gettext("Add..."));
                 o->callback((Fl_Callback*)cb_Add4);
               }
-              { Fl_Button* o = new Fl_Button(120, 305, 70, 25, gettext("Remove"));
+              { Fl_Button* o = new Fl_Button(120, 305, 80, 25, gettext("Remove"));
                 o->callback((Fl_Callback*)cb_Remove4);
               }
-              { Fl_Button* o = new Fl_Button(220, 305, 70, 25, gettext("Add..."));
+              { Fl_Button* o = new Fl_Button(210, 305, 80, 25, gettext("Add..."));
                 o->callback((Fl_Callback*)cb_Add5);
               }
-              { Fl_Button* o = new Fl_Button(300, 305, 70, 25, gettext("Remove"));
+              { Fl_Button* o = new Fl_Button(300, 305, 80, 25, gettext("Remove"));
                 o->callback((Fl_Callback*)cb_Remove5);
               }
               { Fl_Value_Input* o = Port = new Fl_Value_Input(435, 165, 65, 25, gettext("Port:"));
@@ -2467,22 +2467,22 @@ Fl_Double_Window* MainDlg::make_window() {
       }
       { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("Administrator"));
         o->hide();
-        { Fl_Input* o = Server_Admin = new Fl_Input(285, 60, 190, 25, gettext("Administrator e-mail:"));
+        { Fl_Input* o = Server_Admin = new Fl_Input(295, 60, 190, 25, gettext("Administrator e-mail:"));
           o->callback((Fl_Callback*)cb_Server_Admin);
           o->when(FL_WHEN_CHANGED);
         }
-        { Fl_Input* o = Control_Admin = new Fl_Input(285, 90, 190, 25, gettext("Administrator user name:"));
+        { Fl_Input* o = Control_Admin = new Fl_Input(295, 90, 190, 25, gettext("Administrator user name:"));
           o->callback((Fl_Callback*)cb_Control_Admin);
           o->when(FL_WHEN_CHANGED);
           o->deactivate();
         }
-        { Fl_Input* o = Control_Password = new Fl_Input(285, 120, 190, 25, gettext("Administrator password:"));
+        { Fl_Input* o = Control_Password = new Fl_Input(295, 120, 190, 25, gettext("Administrator password:"));
           o->type(5);
           o->callback((Fl_Callback*)cb_Control_Password);
           o->when(FL_WHEN_CHANGED);
           o->deactivate();
         }
-        { Fl_Check_Button* o = Control_Enabled = new Fl_Check_Button(285, 150, 25, 25, gettext("Enable control protocol:"));
+        { Fl_Check_Button* o = Control_Enabled = new Fl_Check_Button(295, 150, 25, 25, gettext("Enable control protocol:"));
           o->down_box(FL_DOWN_BOX);
           o->callback((Fl_Callback*)cb_Control_Enabled);
           o->align(FL_ALIGN_LEFT);
