@@ -235,9 +235,9 @@ int MIME_Manager::saveXML(char *filename)
 	while(rc)
 	{
 		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
-		f.writeToFile(rc->extension,strlen(rc->extension),&nbw);
+		f.writeToFile(rc->extension,(u_long)strlen(rc->extension),&nbw);
 		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
-		f.writeToFile(rc->mime_type,strlen(rc->mime_type),&nbw);
+		f.writeToFile(rc->mime_type,(u_long)strlen(rc->mime_type),&nbw);
 		f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
 		char command[16];
 		if(rc->command==CGI_CMD_SEND)
@@ -260,11 +260,11 @@ int MIME_Manager::saveXML(char *filename)
 			strcpy(command,"RUNFASTCGI");	
 		else if(rc->command==CGI_CMD_EXECUTEFASTCGI)
 			strcpy(command,"EXECUTEFASTCGI");	
-		f.writeToFile(command,strlen(command),&nbw);
+		f.writeToFile(command,(u_long)strlen(command),&nbw);
 
 		f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
 		if(rc->cgi_manager[0])
-			f.writeToFile(rc->cgi_manager,strlen(rc->cgi_manager),&nbw);
+			f.writeToFile(rc->cgi_manager,(u_long)strlen(rc->cgi_manager),&nbw);
 		else
 			f.writeToFile("NONE",4,&nbw);
 		f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);
@@ -287,10 +287,10 @@ int MIME_Manager::save(char *filename)
 	u_long nbw;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
-		f.writeToFile(nmr1->extension,strlen(nmr1->extension),&nbw);
-		f.writeToFile(",",strlen(","),&nbw);
-		f.writeToFile(nmr1->mime_type,strlen(nmr1->mime_type),&nbw);
-		f.writeToFile(",",strlen(","),&nbw);
+		f.writeToFile(nmr1->extension,(u_long)strlen(nmr1->extension),&nbw);
+		f.writeToFile(",",1,&nbw);
+		f.writeToFile(nmr1->mime_type,(u_long)strlen(nmr1->mime_type),&nbw);
+		f.writeToFile(",",1,&nbw);
 		char command[16];
 		if(nmr1->command==CGI_CMD_SEND)
 			strcpy(command,"SEND ");
@@ -313,12 +313,12 @@ int MIME_Manager::save(char *filename)
 		else if(nmr1->command==CGI_CMD_EXECUTEFASTCGI)
 			strcpy(command,"EXECUTEFASTCGI ");	
 
-		f.writeToFile(command,strlen(command),&nbw);
+		f.writeToFile(command,(u_long)strlen(command),&nbw);
 		if(nmr1->cgi_manager[0])
-			f.writeToFile(nmr1->cgi_manager,strlen(nmr1->cgi_manager),&nbw);
+			f.writeToFile(nmr1->cgi_manager,(u_long)strlen(nmr1->cgi_manager),&nbw);
 		else
-			f.writeToFile("NONE",strlen("NONE"),&nbw);
-		f.writeToFile(";\r\n",strlen(";\r\n"),&nbw);
+			f.writeToFile("NONE",(u_long)strlen("NONE"),&nbw);
+		f.writeToFile(";\r\n",(u_long)strlen(";\r\n"),&nbw);
 	}
 	f.setFilePointer(f.getFileSize()-2);
 	f.writeToFile("#\0",2,&nbw);

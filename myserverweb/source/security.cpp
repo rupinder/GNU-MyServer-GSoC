@@ -179,7 +179,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	if(!useLogonOption)
 		return (-1);
 
-	int filenamelen=strlen(filename)-1;
+	u_long filenamelen=(u_long)(strlen(filename)-1);
 	while(filename[filenamelen]=='.')
 	{
 		filename[filenamelen--]='\0';

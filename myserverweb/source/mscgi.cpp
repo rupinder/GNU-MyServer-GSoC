@@ -106,7 +106,7 @@ int sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 
 	sprintf(td->response.CONTENT_LENGTH,"%u",data.stdOut.getFileSize());
 	buildHTTPResponseHeader(td->buffer,&td->response);
-	s->socket.send(td->buffer,strlen(td->buffer), 0);
+	s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 	u_long nbr,nbs;
 	do
 	{

@@ -50,7 +50,7 @@ char *getRFC822GMTTime(char* out,int len)
 /*
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822GMTTime(const time_t ltime,char* out,int len)
+char *getRFC822GMTTime(const time_t ltime,char* out,int /*len*/)
 {
 	tm*  GMtime = gmtime( &ltime );
 	GMtime->tm_year+=1900;
@@ -213,7 +213,7 @@ char *getRFC822LocalTime(char* out,int len)
 /*
 *This function formats a time to the RFC 822 format.
 */
-char *getRFC822LocalTime(const time_t ltime,char* out,int len)
+char *getRFC822LocalTime(const time_t ltime,char* out,int /*len*/)
 {
 	tm*  GMtime = localtime( &ltime );
 	GMtime->tm_year+=1900;
@@ -238,7 +238,7 @@ void StrTrim(char* str,const char* trimchars)
 		return;
 	if(lenTrimchars==0)
 		return;
-	int j;
+	u_long j;
 	for(j=0;j<=lenStr;j++)
 	{
 		if(doBreak)
@@ -263,7 +263,7 @@ void StrTrim(char* str,const char* trimchars)
 	if(ncharToRemove)
 		strcpy(str,&str[ncharToRemove]);
 	doBreak=0;
-	for(j=strlen(str)-1;j;j-- )
+	for(j=(u_long)(strlen(str)-1);j;j-- )
 	{
 		if(doBreak)
 			break;

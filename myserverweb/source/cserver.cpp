@@ -569,7 +569,7 @@ char *cserver::getServerAdmin()
 *Here is loaded the configuration of the server.
 *The configuration file is a XML file.
 */
-void cserver::initialize(int OSVer)
+void cserver::initialize(int /*OSVer*/)
 {
 	/*
 	*Store the default values.
@@ -755,7 +755,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 *Add a new connection.
 *A connection is defined using a CONNECTION struct.
 */
-LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
+LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN* /*asock_in*/,char *ipAddr,char *localIpAddr,int port,int localPort,int id)
 {
 	requestAccess(&connectionWriteAccess,id);
 	u_long cs=sizeof(CONNECTION);
@@ -799,38 +799,6 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	}
     connections=nc;
 	nConnections++;
-/*
-	char msg[500];
-#ifdef WIN32
-	sprintf(msg, "%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-	strcat(msg,"\r\n");
-#endif
-#ifdef __linux__
-	snprintf(msg, 500,"%s:%s ->%s %s:", "Connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-	getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-	strcat(msg,"\r\n");
-#endif
-	((vhost*)(nc->host))->accessesLogWrite(msg);
-
-	if(nc==0)
-	{
-		if(lserver->getVerbosity()>0)
-		{
-#ifdef WIN32
-			sprintf(msg, "%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-			strcat(msg,"\r\n");
-#endif
-#ifdef __linux__
-			snprintf(msg, 500,"%s:%s ->%s %s:", "Error connection from", inet_ntoa(asock_in->sin_addr), lserver->getServerName(), "at time");
-			getRFC822GMTTime(&msg[strlen(msg)],HTTP_RESPONSE_DATE_DIM);
-			strcat(msg,"\r\n");
-#endif
-			((vhost*)(nc->host))->warningsLogWrite(msg);
-		}
-	}
-*/
 	terminateAccess(&connectionWriteAccess,id);
 	return nc;
 }

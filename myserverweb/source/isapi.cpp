@@ -256,7 +256,7 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 			if(((char*)lpvBuffer)[0])
 				strcpy(URI,(char*)lpvBuffer);
 			else
-				lstrcpyn(URI,ConnInfo->td->request.URI,strlen(ConnInfo->td->request.URI)-strlen(ConnInfo->td->pathInfo)+1);
+				lstrcpyn(URI,ConnInfo->td->request.URI,(int)(strlen(ConnInfo->td->request.URI)-strlen(ConnInfo->td->pathInfo)+1));
 			getPath(ConnInfo->td,(char*)lpvBuffer,URI,FALSE);
 			MYSERVER_FILE::completePath((char*)lpvBuffer);
 			*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
@@ -349,7 +349,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 		strncat(ConnInfo->td->buffer,((char*)Buffer),*lpdwBytes);
 		ConnInfo->headerSize+=*lpdwBytes;
 		int headerSize=0;
-		for(int i=0;i<(strlen(ConnInfo->td->buffer));i++)
+		for(u_long i=0;i<(u_long)(strlen(ConnInfo->td->buffer));i++)
 		{
 			if((ConnInfo->td->buffer[i]=='\r'))
 				if(ConnInfo->td->buffer[i+1]=='\n')
@@ -382,7 +382,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 			if(len)
 			{
 				sprintf(chunk_size,"%x\r\n",len);
-				ConnInfo->connection->socket.send(chunk_size,strlen(chunk_size), 0);
+				ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
 				nbw=ConnInfo->connection->socket.send((char*)(ConnInfo->td->buffer+headerSize),len, 0);
 				ConnInfo->connection->socket.send("\r\n",2, 0);
 			}
@@ -395,7 +395,7 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 	else/*Continue to send data chunks*/
 	{
 		sprintf(chunk_size,"%x\r\n",*lpdwBytes);
-		ConnInfo->connection->socket.send(chunk_size,strlen(chunk_size), 0);
+		ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
 		nbw=ConnInfo->connection->socket.send((char*)Buffer,*lpdwBytes, 0);
 		ConnInfo->connection->socket.send("\r\n",2, 0);
 	}
@@ -499,7 +499,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 			}
 		}
 	}
-	*lpdwSize=strlen((char*)lpvBuffer);
+	*lpdwSize=(DWORD)strlen((char*)lpvBuffer);
 	return ret;
 }
 /*
@@ -643,7 +643,7 @@ BOOL buildAllRawHeaders(httpThreadContext* td,LPCONNECTION a,LPVOID output,LPDWO
 	if(valLen+MAX_PATH<maxLen)
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
-		lstrcpyn(&ValStr[valLen],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
+		lstrcpyn(&ValStr[valLen],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
 		valLen+=(DWORD)strlen(td->request.URI)-strlen(td->pathInfo)+1;
 		valLen+=(DWORD)sprintf(&ValStr[valLen],"\n");
 	}

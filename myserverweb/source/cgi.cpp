@@ -288,7 +288,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	strcat(cgiEnvString,td->request.CMD);
 
 	strcat(cgiEnvString,"\rREQUEST_URI=/");
-	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
+	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
 
 	strcat(cgiEnvString,"\rQUERY_STRING=");
 	strcat(cgiEnvString,td->request.URIOPTS);
@@ -414,7 +414,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	*For the DOCUMENT_URI and SCRIPT_NAME copy the requested URI without the pathInfo.
 	*/
 	strcat(cgiEnvString,"\rSCRIPT_NAME=/");
-	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
+	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
 
 	strcat(cgiEnvString,"\rSCRIPT_URL=/");
 	lstrcpy(&cgiEnvString[strlen(cgiEnvString)],td->request.URI);
@@ -429,7 +429,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	strcat(cgiEnvString,((vhost*)(td->connection->host))->documentRoot);
 
 	strcat(cgiEnvString,"\rDOCUMENT_URI=/");
-	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
+	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,(int)(strlen(td->request.URI)-strlen(td->pathInfo)+1));
 
 	strcat(cgiEnvString,"\rDOCUMENT_NAME=");
 	strcat(cgiEnvString,td->filenamePath);

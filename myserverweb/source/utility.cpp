@@ -208,7 +208,7 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
     si.hStdInput = (HANDLE)spi->stdIn;
     si.hStdOutput =(HANDLE)spi->stdOut;
     si.hStdError= (HANDLE)spi->stdError;
-    si.dwFlags=STARTF_USESHOWWINDOW;
+    si.dwFlags=(u_long)STARTF_USESHOWWINDOW;
 	if(si.hStdInput||si.hStdOutput||si.hStdError)
 		si.dwFlags|=STARTF_USESTDHANDLES;
     si.wShowWindow = SW_HIDE;

@@ -406,14 +406,14 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 			tmp = std;
 			tmp >>= 16;
 			tmp &= 0xFF;
-			*(result++) = (tmp);
+			*(result++) = (char)(tmp);
 			tmp = std;
 			tmp >>= 8;
 			tmp &= 0xFF;
-			*(result++) = (tmp);
+			*(result++) = (char)(tmp);
 			tmp = std;
 			tmp &= 0xFF;
-			*(result++) = (tmp);
+			*(result++) = (char)(tmp);
 			std = 0;
 			resultlen += 3;
 		}
@@ -432,14 +432,14 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 		tmp = std;
 		tmp >>= 16;
 		tmp &= 0xFF;
-		*(result++) = (tmp);
+		*(result++) = (char)(tmp);
 		tmp = std;
 		tmp >>= 8;
 		tmp &= 0xFF;
-		*(result++) = (tmp);
+		*(result++) = (char)(tmp);
 		tmp = std;
 		tmp &= 0xFF;
-		*(result++) = (tmp);
+		*(result++) = (char)(tmp);
 	}
 	*bufsize = resultlen;
 	return finalresult;
@@ -497,7 +497,7 @@ char* CQPUtils::Decode(char *input)
 				int m = hexmap[mid[0]];
 				m <<= 4;
 				m |= hexmap[mid[1]];
-				*(result++) = m;
+				*(result++) = (char)m;
 			}
 		}
 		else
@@ -529,7 +529,7 @@ char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize, int Singl
 
 char* CQPUtils::Encode(char *input)
 {
-	int BufSize = strlen(input) + BufAdd; 
+	int BufSize = (int)(strlen(input) + BufAdd);
 	int UsedSize = 0;
 	int LineLen = 0; 
 	char *finalresult = (char*)calloc(BufSize, sizeof(char));

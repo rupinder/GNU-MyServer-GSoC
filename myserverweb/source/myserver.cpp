@@ -82,7 +82,7 @@ int main (int argn, char **argc)
 	if(argn==1)
 		argc[1]="CONSOLE";
 	lstrcpy(path,argc[0]);
-	int len=strlen(path);
+	u_long len=(u_long)strlen(path);
 	while((path[len]!='\\')&&(path[len]!='/'))
 		len--;
 	path[len]='\0';
@@ -91,9 +91,9 @@ int main (int argn, char **argc)
 	
 	cmdShow=0;
 	char* cmdLine=argc[1];
-	int i;
+	u_long i;
 
-	for(i=0;i<strlen(cmdLine);i++)
+	for(i=0;i<(u_long)strlen(cmdLine);i++)
 	{
 		if(!lstrcmpi(&cmdLine[i],"CONSOLE"))
 		{

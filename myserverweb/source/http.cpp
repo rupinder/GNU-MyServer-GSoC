@@ -128,9 +128,9 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	strcat(td->buffer2," ");
 	strcat(td->buffer2,&td->request.URI[startchar]);
 	strcat(td->buffer2,"</H1>\r\n<P>\r\n<HR>\r\n");
-	outFile.writeToFile(td->buffer2,strlen(td->buffer2),&nbw);
+	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
 	intptr_t ff;
-	ff=_findfirst(filename,&fd);
+	ff=(intptr_t)_findfirst(filename,&fd);
 
 #ifdef WIN32
 	if(ff==-1)
@@ -311,7 +311,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 /*
 *Main function to handle the HTTP PUT command.
 */
-int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int systemrequest,int,int firstByte,int lastByte,int yetmapped)
+int putHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int /*systemrequest*/,int,int firstByte,int /*lastByte*/,int yetmapped)
 {
 	int httpStatus=td->response.httpStatus;
 	buildDefaultHTTPResponseHeader(&td->response);
@@ -1083,7 +1083,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 			for(;;)
 			{
 				td.inputData.readFromFile(&c,1,&nbr);
-				if(nbr=!1)
+				if(nbr!=1)
 					break;
 				if((c!='\r') && (bufferlen<19))
 				{
@@ -1571,7 +1571,7 @@ void getPath(httpThreadContext* td,char *filenamePath,const char *filename,int s
 		if(filename[0])
 		{
 			strncpy(filenamePath,((vhost*)(td->connection->host))->documentRoot,MAX_PATH);
-			int len=strlen(filenamePath)+1;
+			u_long len=(u_long)(strlen(filenamePath)+1);
 			filenamePath[len-1]='/';
 			strncpy(&filenamePath[len],filename,MAX_PATH-len);
 			filenamePath[MAX_PATH-1]='\0';

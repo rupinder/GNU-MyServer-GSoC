@@ -1019,7 +1019,7 @@ int vhostmanager::removeVHost(int n)
 /*
 *SSL password callback function.
 */
-static int password_cb(char *buf,int num,int rwflag,void *userdata)
+static int password_cb(char *buf,int num,int /*rwflag*/,void *userdata)
 {
 	if((size_t)num<strlen((char*)userdata)+1)
 		return(0);

@@ -434,7 +434,7 @@ int FcgiConnectSocket(fCGIContext* con,int pID)
 	}
 	con->sock.ioctlsocket(FIONBIO, &pLong);
 	con->fcgiPID=pID;
-
+	return 1;
 }
 /*
 *Get a connection to the FastCGI server.
