@@ -270,7 +270,7 @@ static struct timeval tval;
 #endif
 
 /*!
- *Return the ticks count. Used for check time variations.
+ *Return the ticks count. Used to check time variations.
  *Return 0 on errors.
  */
 u_long get_ticks()
@@ -281,7 +281,6 @@ u_long get_ticks()
 	int ret = gettimeofday(&tval, 0);
   if(ret == -1)
     return 0;
-	u_long time=(tval.tv_sec * 1000) + (tval.tv_usec / 1000);
-	return time;
+	return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
 #endif
 }

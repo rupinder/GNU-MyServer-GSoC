@@ -274,7 +274,7 @@ int Socket::send(const char* buffer,int len,int flags)
 		int err;
 		do
 		{
-			err=SSL_write(sslConnection,buffer,len);
+			err=SSL_write(sslConnection, buffer, len);
 		}while((err<=0) &&(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE 
                   || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
     if(err<=0)
@@ -287,11 +287,11 @@ int Socket::send(const char* buffer,int len,int flags)
 	int ret;
 	do
   {
-    ret=::send(socketHandle,buffer,len,flags);
+    ret=::send(socketHandle, buffer, len, flags);
   }while((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
 #endif
 #ifdef NOT_WIN
-	return	::send((int)socketHandle,buffer,len,flags);
+	return	::send((int)socketHandle, buffer, len, flags);
 #endif
 }
 
