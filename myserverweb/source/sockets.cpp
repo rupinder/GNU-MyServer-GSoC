@@ -293,6 +293,7 @@ int MYSERVER_SOCKET::sslAccept()
 		closesocket();
 		return -1;
 	}
+	SSL_set_read_ahead(sslConnection,1);
 	clientCert = SSL_get_peer_certificate(sslConnection);
 	if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
 	{
@@ -350,6 +351,13 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 u_long MYSERVER_SOCKET::bytesToRead()
 {
 	u_long nBytesToRead=0;
+#ifndef DO_NOT_USE_SSL
+	if(sslSocket)
+	{
+		nBytesToRead=SSL_pending(sslConnection);
+		return nBytesToRead;
+	}
+#endif
 	ioctlsocket(FIONREAD,&nBytesToRead);
 	return nBytesToRead;
 }

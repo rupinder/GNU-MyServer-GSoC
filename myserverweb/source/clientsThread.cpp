@@ -117,8 +117,8 @@ void ClientsTHREAD::controlConnections()
 		err=c->socket.recv(&buffer[c->dataRead],KB(8)-c->dataRead, 0);
 		if(err==-1)
 		{
-			lserver->deleteConnection(c,this->id);
 			c->parsing=0;
+			lserver->deleteConnection(c,this->id);
 			return;
 		}
 		if((c->dataRead+err)<KB(8))
@@ -127,8 +127,8 @@ void ClientsTHREAD::controlConnections()
 		}
 		else
 		{
-			lserver->deleteConnection(c,this->id);
 			c->parsing=0;
+			lserver->deleteConnection(c,this->id);
 			return;
 		}
 		memcpy(buffer,c->connectionBuffer,c->dataRead);
@@ -163,8 +163,8 @@ void ClientsTHREAD::controlConnections()
 		*/
 		if(retcode==0)
 		{
-			lserver->deleteConnection(c,this->id);
 			c->parsing=0;
+			lserver->deleteConnection(c,this->id);
 			return;
 		}
 		else if(retcode==1)
@@ -193,8 +193,8 @@ void ClientsTHREAD::controlConnections()
 		*/
 		if((clock()- c->timeout) > lserver->connectionTimeout)
 		{
-			lserver->deleteConnection(c,this->id);
 			c->parsing=0;
+			lserver->deleteConnection(c,this->id);
 			return;
 		}
 	}

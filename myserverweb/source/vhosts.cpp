@@ -908,8 +908,6 @@ int vhost::initializeSSL()
 	SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
 	if(!(SSL_CTX_use_PrivateKey_file(sslContext.context,sslContext.privateKeyFile,SSL_FILETYPE_PEM)))
 		return -1;
-
-
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
 		SSL_CTX_set_verify_depth(ctx,1);
 #endif
