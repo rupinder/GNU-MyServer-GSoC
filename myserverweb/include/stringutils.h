@@ -24,6 +24,7 @@ char *getRFC822GMTTime(void);
 char *getRFC822GMTTime(const time_t);
 char *getRFC822LocalTime(void);
 char *getRFC822LocalTime(const time_t);
+time_t getTime(char* str);
 void StrTrim(char* str,const char* trimChars);
 void getFileExt(char* ext,const char* filename);
 void gotoNextLine(char* cmd);
@@ -31,6 +32,7 @@ int hexVal(char c);
 void translateEscapeString(char *TargetStr);
 void splitPath(const char* path, char* dir, char*filename);
 void getFilename(const char* path, char* filename);
+
 
 #ifdef __linux__
 void strupr(char * string);

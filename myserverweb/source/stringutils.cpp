@@ -54,8 +54,152 @@ char *getRFC822GMTTime(void)
 char *getRFC822GMTTime(const time_t ltime)
 {
 	tm*  GMtime = gmtime( &ltime );
+	GMtime->tm_year+=1900;
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i GMT",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
 	return localTimeString;
+}
+/*
+*This function convert from a RFC 822 format to a time_t.
+*/
+time_t getTime(char* str)
+{
+	char lb[30];
+	int c=0;
+	int i;
+	tm t;
+	for(i=0;i<30;i++)
+	{
+		if(str[c]==',')
+		{
+			c++;
+			lb[i]='\0';
+			break;
+		}
+		else
+			lb[i]=str[c++];
+	}
+	if(!strcmp(lb,"Sun"))
+		t.tm_wday = 0;
+	if(!strcmp(lb,"Mon"))
+		t.tm_wday = 1;
+	if(!strcmp(lb,"Tue"))
+		t.tm_wday = 2;
+	if(!strcmp(lb,"Wed"))
+		t.tm_wday = 3;
+	if(!strcmp(lb,"Thu"))
+		t.tm_wday = 4;
+	if(!strcmp(lb,"Fri"))
+		t.tm_wday = 5;
+	if(!strcmp(lb,"Sat"))
+		t.tm_wday = 6;
+
+	c++;
+	for(i=0;i<30;i++)
+	{
+		if(str[c]=' ')
+		{
+			c++;
+			lb[i]='\0';
+			break;
+		}
+		else
+			lb[i]=str[c++];
+	}
+	t.tm_mday=atoi(lb);
+	
+	c++;
+	for(i=0;i<30;i++)
+	{
+		if(str[c]==' ')
+		{
+			c++;
+			lb[i]='\0';
+			break;
+		}
+		else
+			lb[i]=str[c++];
+	}
+	if(!strcmp(lb,"Jan"))
+		t.tm_mon = 0;
+	if(!strcmp(lb,"Feb"))
+		t.tm_mon = 1;
+	if(!strcmp(lb,"Mar"))
+		t.tm_mon = 2;
+	if(!strcmp(lb,"Apr"))
+		t.tm_mon = 3;
+	if(!strcmp(lb,"May"))
+		t.tm_mon = 4;
+	if(!strcmp(lb,"Jun"))
+		t.tm_mon = 5;
+	if(!strcmp(lb,"Jul"))
+		t.tm_mon = 6;	
+	if(!strcmp(lb,"Aug"))
+		t.tm_mon = 7;
+	if(!strcmp(lb,"Sep"))
+		t.tm_mon = 8;
+	if(!strcmp(lb,"Oct"))
+		t.tm_mon = 9;
+	if(!strcmp(lb,"Nov"))
+		t.tm_mon = 10;
+	if(!strcmp(lb,"Dec"))
+		t.tm_mon = 11;
+
+	c++;
+	for(i=0;i<30;i++)
+	{
+		if(str[c]==' ')
+		{
+			c++;
+			lb[i]='\0';
+			break;
+		}
+		else
+			lb[i]=str[c++];
+	}
+	t.tm_year=atoi(lb);
+	
+	c++;
+	for(i=0;i<30;i++)
+	{
+		if(str[c]==':')
+		{
+			c++;
+			lb[i]='\0';
+			break;
+		}
+		else
+			lb[i]=str[c++];
+	}
+	t.tm_hour = atoi(lb);
+
+	c++;
+	for(i=0;i<30;i++)
+	{
+		if(str[c]==':')
+		{
+			c++;
+			lb[i]='\0';
+			break;
+		}
+		else
+			lb[i]=str[c++];
+	}
+	t.tm_min = atoi(lb);
+
+	c++;
+	for(i=0;i<30;i++)
+	{
+		if(str[c]==':')
+		{
+			c++;
+			lb[i]='\0';
+			break;
+		}
+		else
+			lb[i]=str[c++];
+	}
+	t.tm_sec = atoi(lb);
+	return mktime(&t);
 }
 
 /*
@@ -73,6 +217,7 @@ char *getRFC822LocalTime(void)
 char *getRFC822LocalTime(const time_t ltime)
 {
 	tm*  GMtime = localtime( &ltime );
+	GMtime->tm_year+=1900;
 	sprintf(localTimeString,"%s, %i %s %i %i:%i:%i",daysName[GMtime->tm_wday],GMtime->tm_mday,monthsName[GMtime->tm_mon],GMtime->tm_year,GMtime->tm_hour,GMtime->tm_min,GMtime->tm_sec);
 	return localTimeString;
 }

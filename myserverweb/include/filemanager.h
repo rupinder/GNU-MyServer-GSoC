@@ -39,6 +39,10 @@ int ms_ReadFromFile(MYSERVER_FILE_HANDLE ,char * ,u_long ,u_long * );
 int ms_WriteToFile(MYSERVER_FILE_HANDLE ,char * ,u_long ,u_long * );
 MYSERVER_FILE_HANDLE ms_CreateTemporaryFile(char * );
 MYSERVER_FILE_HANDLE ms_OpenFile(char * ,u_long );
+
+time_t ms_GetLastModTime(char *filename);
+time_t ms_GetCreationTime(char *filename);
+time_t ms_GetLastAccTime(char *filename);
 int ms_IsFolder(char [] );
 int ms_CloseFile(MYSERVER_FILE_HANDLE);
 int ms_FileExists(char * );

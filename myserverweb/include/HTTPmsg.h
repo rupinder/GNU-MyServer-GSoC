@@ -19,7 +19,7 @@
 #ifndef HTTPMSG_H
 #define HTTPMSG_H
 /*
-*Error over 1000 are simply warnings.
+*Error over 1000 are warnings.
 */
 #define e_200			1001
 #define e_201			1002

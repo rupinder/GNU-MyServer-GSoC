@@ -36,7 +36,7 @@ html,text/html,SEND NONE;
 */
 int MIME_Manager::load(char *filename)
 {
-	lstrcpy(this->filename,filename);
+	strcpy(this->filename,filename);
 	numMimeTypesLoaded=0;
 	char *buffer;
 	MYSERVER_FILE_HANDLE f=ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
@@ -159,19 +159,19 @@ int MIME_Manager::save(char *filename)
 		ms_WriteToFile(f,",",lstrlen(","),&nbw);
 		char command[16];
 		if(nmr1->command==CGI_CMD_SEND)
-			lstrcpy(command,"SEND ");
+			strcpy(command,"SEND ");
 		else if(nmr1->command==CGI_CMD_RUNCGI)
-			lstrcpy(command,"RUNCGI ");
+			strcpy(command,"RUNCGI ");
 		else if(nmr1->command==CGI_CMD_RUNMSCGI)
-			lstrcpy(command,"RUNMSCGI ");
+			strcpy(command,"RUNMSCGI ");
 		else if(nmr1->command==CGI_CMD_EXECUTE)
-			lstrcpy(command,"EXECUTE ");
+			strcpy(command,"EXECUTE ");
 		else if(nmr1->command==CGI_CMD_SENDLINK)
-			lstrcpy(command,"SENDLINK ");
+			strcpy(command,"SENDLINK ");
 		else if(nmr1->command==CGI_CMD_RUNISAPI)
-			lstrcpy(command,"RUNISAPI ");
+			strcpy(command,"RUNISAPI ");
 		else if(nmr1->command==CGI_CMD_WINCGI)
-			lstrcpy(command,"RUNWINCGI ");
+			strcpy(command,"RUNWINCGI ");
 		
 
 		ms_WriteToFile(f,command,lstrlen(command),&nbw);
@@ -199,12 +199,12 @@ int MIME_Manager::getMIME(char* ext,char *dest,char *dest2)
 		if(!lstrcmpi(ext,mr->extension))
 		{
 			if(dest)
-				lstrcpy(dest,mr->mime_type);
+				strcpy(dest,mr->mime_type);
 
 			if(dest2)
 			{
 				if(mr->cgi_manager[0])
-					lstrcpy(dest2,mr->cgi_manager);
+					strcpy(dest2,mr->cgi_manager);
 				else
 					dest2[0]='\0';
 			}
@@ -227,15 +227,15 @@ int MIME_Manager::getMIME(int id,char* ext,char *dest,char *dest2)
 		if(i==id)
 		{
 			if(ext)
-				lstrcpy(ext,mr->extension);
+				strcpy(ext,mr->extension);
 
 			if(dest)
-				lstrcpy(dest,mr->mime_type);
+				strcpy(dest,mr->mime_type);
 
 			if(dest2)
 			{
 				if(mr->cgi_manager[0])
-					lstrcpy(dest2,mr->cgi_manager);
+					strcpy(dest2,mr->cgi_manager);
 				else
 					dest2[0]='\0';
 			}

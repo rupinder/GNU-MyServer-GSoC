@@ -316,3 +316,49 @@ int ms_FileExists(char* filename)
 	return (S_ISREG(F_Stats.st_mode))? 1 : 0;
 #endif
 }
+
+/*
+*Returns the time of the last modify to the file.
+*/
+time_t ms_GetLastModTime(char *filename)
+{
+#ifdef WIN32
+	struct _stat sf;
+	_stat(filename,&sf);
+#else
+	struct stat sf;
+	stat(filename,&sf);
+#endif
+	time(&sf.st_mtime);
+	return sf.st_mtime;
+}
+
+/*
+*Returns the time of the file creation.
+*/
+time_t ms_GetCreationTime(char *filename)
+{
+#ifdef WIN32
+	struct _stat sf;
+	_stat(filename,&sf);
+#else
+	struct stat sf;
+	stat(filename,&sf);
+#endif
+	return sf.st_ctime;
+}
+
+/*
+*Returns the time of the last access to the file.
+*/
+time_t ms_GetLastAccTime(char *filename)
+{
+#ifdef WIN32
+	struct _stat sf;
+	_stat(filename,&sf);
+#else
+	struct stat sf;
+	stat(filename,&sf);
+#endif
+	return sf.st_atime;
+}

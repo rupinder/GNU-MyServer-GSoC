@@ -344,9 +344,11 @@ void cserver::start()
 							this->stop();
 						}
 					}
-
-					break; 
-				default: 
+					if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode==VK_F1)
+					{
+						if(ms_FileExists("myserver.chm"))
+							system("myserver.chm");
+					}
 					break; 
 			} 
 		}
