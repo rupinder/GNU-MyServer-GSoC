@@ -19,12 +19,17 @@ web.<br>
 </font> <br>
 </span>No arquivo myserver.xml voc&ecirc; pode configurar o
 n&uacute;mero de threads que o MyServer vai usar. Nas linhas abaixo,
-voc&ecirc; configura os dois par&acirc;metros A e B, da
+voc&ecirc; configura os dois par&acirc;metros NTHREADS_STATIC e
+NTHREADS_MAX, onde o primeiro par&acirc;metro &eacute; usado para
+definir o n&uacute;mero de threads que est&atilde;o sempre ativas, e o
+segundo para definir o maior n&uacute;mero de threads que o MyServer
+pode criar.<br>
+da
 equa&ccedil;&atilde;o N=A+CB, onde N &eacute; o n&uacute;mero de
 threads a usar, e C &eacute; o n&uacute;mero de CPUs dispon&iacute;vel
 na sua m&aacute;quina:<br>
-&nbsp;&nbsp;&nbsp; &lt;NTHREADS_A&gt;10&lt;/NTHREADS_A&gt;<br>
-&nbsp;&nbsp;&nbsp; &lt;NTHREADS_B&gt;10&lt;/NTHREADS_B&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;<br>
 Setando o valor apropriado nas vari&aacute;veis acima (default=10),
 voc&ecirc; muda o valor de N.<br>
 <br>
@@ -65,6 +70,31 @@ O valor default 0 significa um n&uacute;mero infinito de
 conex&otilde;es. Qualquer outro valor vai limitar a quantidade de
 usu&aacute;rios acesando seu servidor.<br>
 <br>
+<span style="font-weight: bold;"><font class="code"><br>
+M&aacute;ximo N&uacute;mero de Servidores FastCGI: (ainda n&atilde;o
+dispon&iacute;vel)<br>
+<br>
+</font></span>MyServer lhe permite configurar o n&uacute;mero
+m&aacute;ximo de servidores FastCGI que podem executar, bastando
+alterar o valor na linha abaixo, no arquivo myserver.xml:<br>
+&nbsp;&nbsp;&nbsp;
+&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br>
+<br>
+<br>
+<span style="font-weight: bold;"><font class="code">Setando o Timeout
+de CGI: </font></span><span style="font-weight: bold;"><font
+ class="code">(</font></span><span style="font-weight: bold;"><font
+ class="code">ainda n&atilde;o dispon&iacute;vel</font></span><span
+ style="font-weight: bold;"><font class="code">)</font></span><br>
+<span style="font-weight: bold;"><font class="code"><br>
+</font></span>Voc&ecirc; pode setar o timeout default para seus scripts
+CGI no MyServer mudando o valor da vari&aacute;vel CGI_TIMEOUT no seu
+arquivo myserver.xml:<br>
+Apenas mude a linha abaixo de acordo com suas necessidades:<br>
+&nbsp;&nbsp;&nbsp; &lt;CGI_TIMEOUT&gt;600&lt;/CGI_TIMEOUT&gt;<br>
+A configura&ccedil;&atilde;o acima significaria que voc&ecirc;
+est&aacute; setando o Timeout do CGI para 10 minutos (a unidade de
+tempo &eacute; "segundos")<br>
 <br>
 </div>
 </div>

@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="myserver.css">
+  <title>Controlling Access</title>
+</head>
+<body>
+<h1 class="title">CONTROLE REMOTO </h1>
+O MyServer permite a voc&ecirc; gerenciar as
+configura&ccedil;&otilde;es do servidor remotamente, a partir da
+aplica&ccedil;&atilde;o Control Center, de qualquer lugar no mundo.
+Voc&ecirc; s&oacute; precisa de habilitar o Protocolo de Controle.<br>
+<br>
+Para isso, voc&ecirc; precisa adicionar um host virtual&nbsp; que vai
+usar o Protocolo de Controle. Voc&ecirc; pode fazer isso modificando o
+arquivo&nbsp; virtualhosts.xml, de modo que ele se apre&ccedil;a com
+isso:<br>
+<br>
+<p class="code">&lt;VHOST&gt; <br>
+&lt;NAME&gt;Every control connection&lt;/NAME&gt; <br>
+&lt;PORT&gt;270&lt;/PORT&gt; <br>
+&lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt;
+&nbsp;<br>
+&lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE &gt;
+&nbsp;<br>
+&lt;PROTOCOL&gt;CONTROL&lt;/PROTOCOL&gt; <br>
+&lt;DOCROOT&gt;&lt;/DOCROOT&gt; <br>
+&lt;SYSFOLDER&gt;&lt;/SYSFOLDER&gt; <br>
+&lt;ACCESSESLOG&gt;logs/control.log&lt;/ACCESSESLOG&gt; <br>
+&lt;WARNINGLOG&gt;logs/control.err&lt;/WARNINGLOG&gt; <br>
+&lt;/VHOST&gt;&nbsp; </p>
+<p>A linha <font class="code">&lt;PORT&gt;270&lt;/PORT&gt;</font>
+descreve a porta a ser usada para acessar o Controle Remoto. No exemplo
+acima, voc&ecirc; poderia acessar o Controle Remoto do seu webserver
+pela aplica&ccedil;&atilde;o GUI, conectando ao localhost na porta 270.<br>
+</p>
+<p>Por favor, note que os arquivos certificates/server.key e
+certificates/server.pem precisam ser criados antes de serem usados.
+Pesquise como criar chaves SSL para ter mais informa&ccedil;&otilde;es
+sobre isso.<br>
+</p>
+<p>Voc&ecirc; vai precisar tamb&eacute;m modificar o myserver.xml para
+setar uma senha para administra&ccedil;&atilde;o, adicionando as
+seguintes linhas:<br>
+<br>
+<font class="code">&lt;CONTROL_ENABLED&gt;YES&lt;/CONTROL_ENABLED&gt;&nbsp;
+<br>
+&lt;CONTROL_ADMIN&gt;ADMIN&lt;/CONTROL_ADMIN&gt;&nbsp; <br>
+&lt;CONTROL_PASSWORD&gt;PASSWORD&lt;/CONTROL_PASSWORD&gt;&nbsp; <br>
+</font></p>
+<p>Basta mudar os valorer de ADMIN e PASSWORD para o seu nome de
+usu&aacute;rio administrador e senha, e lembrar-se de usar&nbsp; YES no
+par&acirc;metro CONTROL_ENABLED
+(do contr&aacute;rio, voc&ecirc; n&atilde;o vai conseguir usar o
+Control Center remotamente)<br>
+</p>
+<p>Tamb&eacute;m, defina um nome e uma senha para o administrador que
+n&atilde;o sejam simples como "admin" ou "password".<br>
+</p>
+</body>
+</html>
