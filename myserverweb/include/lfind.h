@@ -45,8 +45,6 @@ class _finddata_t
    list<File_Data>::iterator Curren_File;
 };
 
-static int errno = 0;
-
 intptr_t _findfirst(const char filename[], _finddata_t * fdat );
 int _findnext(intptr_t crap, _finddata_t * fdat );
 int _findclose(_finddata_t * fdat);

@@ -1,6 +1,6 @@
 # Makefile for myserver control
 
-OBJS = configuration.o  configureMIME.o  control.o
+OBJS = configuration.o configureMIME.o control.o lfind.o
 CPP = g++ -W -Wall
 LD = g++
 # Use -lxnet on some unix platforms
@@ -23,6 +23,9 @@ configureMIME.o : configureMIME.cpp
 
 control.o : control.cpp
 	$(CPP) $(CPP-FLAGS) -c control.cpp
+
+lfind.o : ../source/lfind.cpp
+	$(CPP) -c ../source/lfind.cpp -o ./lfind.o
 
 clean :
 	rm -f *.o ../binaries/control
