@@ -135,6 +135,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	spi.stdIn = stdInFile.getHandle();
 	spi.stdOut = stdOutFile.getHandle();
 	spi.envString=td->buffer2;
+	//spi.envString='\0';///////
 	execHiddenProcess(&spi);
 	td->buffer2[0]='\0';
 	/*
@@ -244,7 +245,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 	*For no errors with the function strcat we use the character \r for the \0 character
 	*and at the end we change every \r in \0.
 	*/
-	strcat(cgiEnvString,"SERVER_SOFTWARE=myServer");
+	strcat(cgiEnvString,"SERVER_SOFTWARE=MyServer");
 	strcat(cgiEnvString,versionOfSoftware);
 
 #ifdef WIN32
@@ -293,15 +294,15 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rCONTENT_TYPE=");
 		strcat(cgiEnvString,td->request.CONTENT_TYPE);
 	}
-	else
-	{
-		sprintf(&cgiEnvString[strlen(cgiEnvString)],"\rCONTENT_TYPE=%u",td->inputData.getFileSize());
-	}
-	
+
 	if(td->request.CONTENT_LENGTH[0])
 	{
 		strcat(cgiEnvString,"\rCONTENT_LENGTH=");
 		strcat(cgiEnvString,td->request.CONTENT_LENGTH);
+	}
+	else
+	{
+		sprintf(&cgiEnvString[strlen(cgiEnvString)],"\rCONTENT_LENGTH=%u",td->inputData.getFileSize());
 	}
 
 	if(td->request.COOKIE[0])
@@ -325,6 +326,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rHTTP_ACCEPT=");
 		strcat(cgiEnvString,td->request.ACCEPT);
 	}
+
 	if(td->cgiRoot[0])
 	{
 		strcat(cgiEnvString,"\rCGI_ROOT=");
@@ -385,13 +387,18 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rPATH_TRANSLATED=");
 		strcat(cgiEnvString,td->pathTranslated);
 	}
+	else
+	{
+		strcat(cgiEnvString,"\rPATH_TRANSLATED=");
+		strcat(cgiEnvString,td->filenamePath);
+	}
 
 	strcat(cgiEnvString,"\rSCRIPT_FILENAME=");
 	strcat(cgiEnvString,td->filenamePath);
 
-	/*
-	*For the DOCUMENT_URI and SCRIPT_NAME Just copy the requested URI without any pathInfo.
-	*/
+	
+	//For the DOCUMENT_URI and SCRIPT_NAME Just copy the requested URI without any pathInfo.
+	
 	strcat(cgiEnvString,"\rSCRIPT_NAME=/");
 	lstrcpyn(&cgiEnvString[strlen(cgiEnvString)],td->request.URI,strlen(td->request.URI)-strlen(td->pathInfo)+1);
 
@@ -418,16 +425,13 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 		strcat(cgiEnvString,"\rREMOTE_IDENT=");
 		strcat(cgiEnvString,td->identity);
 	}
-
 #ifdef WIN32
 	if(processEnv)
 	{
 		strcat(cgiEnvString,"\r");
 		LPTSTR lpszVariable; 
 		LPVOID lpvEnv; 
-		 
 		lpvEnv = lserver->envString; 
-
 		for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
 		{ 
 			if(((char*)lpszVariable)[0] !='=')
@@ -438,7 +442,6 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int proc
 			while (*lpszVariable)*lpszVariable++;
 		} 
 	}
-
 #endif
 
 	strcat(cgiEnvString,"\r\0\0\0\0\0");

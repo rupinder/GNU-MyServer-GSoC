@@ -690,7 +690,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 		u_long nbw;
 		u_long total_nbr=0;
-		td.inputData.writeToFile(td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
+		td.inputData.writeToFile(td.request.URIOPTSPTR,total_nbr=min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
+		
 		u_long content_len=atoi(td.request.CONTENT_LENGTH);
 		/*
 		*If there are others bytes to read from the socket.
@@ -709,18 +710,21 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 						if(td.connection->socket.bytesToRead())
 						{				
 							err=td.connection->socket.recv(td.buffer2,min(content_len-total_nbr,td.buffersize2), 0);
+							td.inputData.writeToFile(td.buffer2,err,&nbw);	
+							total_nbr+=nbw;
 							timeout=clock();
 							break;
 						}
 					}
-					total_nbr+=err;
+					
 				}
 				else
 				{
 					if(td.connection->socket.bytesToRead())
 					{
 						err=td.connection->socket.recv(td.buffer2,td.buffersize2, 0);
-						total_nbr+=err;
+						td.inputData.writeToFile(td.buffer2,err,&nbw);	
+						total_nbr+=nbw;
 					}
 
 				}
@@ -751,7 +755,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		{
 			if(td.inputData.getHandle())
 			{
-				if(td.inputData.getFileSize()!=total_nbr)
+				u_long fileSize=td.inputData.getFileSize();
+				if(fileSize!=total_nbr)
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);

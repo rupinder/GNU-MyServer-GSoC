@@ -1001,7 +1001,7 @@
 <EXT>php</EXT>
 <MIME>text/html</MIME>
 <CMD>RUNFASTCGI</CMD>
-<MANAGER>c:/programmi/php/phpfcgi.exe</MANAGER>
+<MANAGER>c:/programmi/php/php.exe</MANAGER>
 </MIMETYPE>
 
 
