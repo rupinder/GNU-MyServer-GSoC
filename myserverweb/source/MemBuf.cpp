@@ -186,6 +186,19 @@ u_int CMemBuf::Find(const void* pAdr, u_int size, u_int start)
 	return (u_int)-1;
 }
 
+/*! Replace a character by another */
+
+void CMemBuf::Replace(char what, char by)
+{
+	const char* pEnd = m_buffer + m_nSize;
+	char *buf_c = m_buffer;
+	for (buf_c; buf_c < pEnd; buf_c++)
+	{
+		if (*buf_c == what)
+			*buf_c = by;
+	}
+}
+
 /*!
 Add a buffer at the end of the internal buffer.
 If the internal buffer isn't large enough, a reallocation is done until m_nSizeLimit is reached
@@ -546,11 +559,11 @@ int CMemBuf::StrToInt(const char* pAdr)
 }
 
 /*! Destructor */
-CMemBuf::~CMemBuf() 
+CMemBuf::~CMemBuf()
 {
-	if (m_buffer != NULL && m_bCanDelete) 
-		delete [] m_buffer;
-	};
+	if (m_buffer != NULL && m_bCanDelete)
+		mem_free(m_buffer);
+};
 	
 void CMemBuf::AddBuffer(CMemBuf *nmb) 
 {

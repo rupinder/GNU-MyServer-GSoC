@@ -20,10 +20,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef MEMBUF_CLASS
 #define MEMBUF_CLASS
 
-#ifndef u_int
-#define u_int unsigned int
-#endif
-
 #ifndef NULL
 #define NULL 0
 #endif
@@ -67,6 +63,7 @@ public:
 	u_int Find(char c, u_int start = 0);
 	u_int Find(CMemBuf *smb, u_int start = 0);
 	u_int Find(const void* pAdr, u_int size, u_int start = 0);
+	void Replace(char what, char by);
 public:
 	char& GetAt(u_int nIndex);
 	char& operator[](u_int nIndex);
