@@ -303,16 +303,31 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	lstrcpy(cgiEnvString,"SERVER_SOFTWARE=myServer");
 	lstrcat(cgiEnvString,versionOfSoftware);
 #ifdef WIN32
-	lstrcat(cgiEnvString," (Win32)");
+	lstrcat(cgiEnvString," (Win32)\r");
+
+	LPTSTR lpszVariable; 
+	LPVOID lpvEnv; 
+	 
+	lpvEnv = lserver->envString; 
+
+	for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
+	{ 
+		if(((char*)lpszVariable)[0] !='=')
+		{
+			strcat(cgiEnvString,(char*)lpszVariable);
+			strcat(cgiEnvString,"\r");
+		}
+		while (*lpszVariable)*lpszVariable++;
+	} 
+
 #endif
 #ifdef __linux__
-	lstrcat(cgiEnvString," (Linux)");
-	
+	lstrcat(cgiEnvString," (Linux)\r");
 	// Must use REDIRECT_STATUS for php and others
 	lstrcat(cgiEnvString,"\rREDIRECT_STATUS=TRUE");
 #endif
 
-	lstrcat(cgiEnvString,"\rSERVER_NAME=");
+	lstrcat(cgiEnvString,"SERVER_NAME=");
 	lstrcat(cgiEnvString,lserver->getServerName());
 
 	lstrcat(cgiEnvString,"\rSERVER_SIGNATURE=");
@@ -429,17 +444,6 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
 		lstrcat(cgiEnvString,td->pathTranslated);
 	}
-	else
-	{
-	/*
-	*Several packages have chosen to interpret PATH_TRANSLATED as the physical translated path 
-	*of the request. To accomodate these applications, PATH_TRANSLATED is mapped to this 
-	*interpretation if no PATH_INFO is provided. 	
-	*/
-		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
-		getPath(td,td->pathTranslated,td->request.URI,false);
-		lstrcat(cgiEnvString,td->pathTranslated);	
-	}
 
 	lstrcat(cgiEnvString,"\rSCRIPT_FILENAME=");
 	lstrcat(cgiEnvString,td->filenamePath);
@@ -463,7 +467,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	getRFC822LocalTime(&cgiEnvString[strlen(cgiEnvString)],HTTP_RESPONSE_DATE_DIM);
 
 	lstrcat(cgiEnvString,"\rDOCUMENT_ROOT=");
-	lstrcat(cgiEnvString,lserver->getPath());
+	lstrcat(cgiEnvString,((vhost*)(td->connection->host))->documentRoot);
 
 	lstrcat(cgiEnvString,"\rSERVER_ADMIN=");
 	lstrcat(cgiEnvString,lserver->getServerAdmin());

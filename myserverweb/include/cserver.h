@@ -101,6 +101,7 @@ private:
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 public:
+	void *envString;
 	int mscgiLoaded;
 	vhostmanager vhostList;
 	MIME_Manager mimeManager;

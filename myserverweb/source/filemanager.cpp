@@ -98,7 +98,7 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,u_long opt)
 
 	if(opt & MYSERVER_FILE_OPEN_TEMPORARY)
 	{
-		openFlag|=FILE_ATTRIBUTE_TEMPORARY;
+		openFlag|=FILE_ATTRIBUTE_TEMPORARY; 
 		attributeFlag|=FILE_FLAG_DELETE_ON_CLOSE;
 	}
 

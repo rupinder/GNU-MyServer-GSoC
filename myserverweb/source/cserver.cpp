@@ -128,7 +128,9 @@ void cserver::start()
 	*Setup the server configuration.
 	*/
     printf("Initializing server configuration...\n");
-
+#ifdef WIN32
+	envString=GetEnvironmentStrings();
+#endif
 	int OSVer=ms_getOSVersion();
 
 	initialize(OSVer);
@@ -571,6 +573,7 @@ void cserver::terminate()
 	mimeManager.clean();
 	u_long threadsStopped=0;
 #ifdef WIN32
+	FreeEnvironmentStrings((LPTSTR)envString);
 	cleanupISAPI();
 #endif	
 	freeMSCGILib();
