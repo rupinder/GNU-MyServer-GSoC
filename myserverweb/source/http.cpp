@@ -357,6 +357,7 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 	*Number of bytes created by the zip compressor by loop.
 	*/
 	u_long gzip_dataused=0;
+	u_long dataSent=0;
 	if(useGZIP)
 		gzip.gzip_initialize(td->buffer2,td->buffersize2,td->buffer,td->buffersize);
 	for(;;)
@@ -402,14 +403,20 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			if(keepalive)
 			{
 				sprintf(chunksize,"%x\r\n",gzip_dataused);
-				if(s->socket.send(chunksize,(int)strlen(chunksize), 0) == SOCKET_ERROR)
+				dataSent+=s->socket.send(chunksize,(int)strlen(chunksize), 0)
+				if(dataSent == SOCKET_ERROR)
 					break;
 			}
 			if(gzip_dataused)
-				if(s->socket.send(td->buffer,gzip_dataused, 0) == SOCKET_ERROR)
+			{
+				dataSent+=s->socket.send(td->buffer,gzip_dataused, 0);
+				if(dataSent == SOCKET_ERROR)
 					break;
+			}
 			if(keepalive)
-				s->socket.send("\r\n",2, 0);
+			{
+				dataSent+=s->socket.send("\r\n",2, 0);
+			}
 		}
 		else
 		{
@@ -418,7 +425,8 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 			*/
 			if(nbr)
 			{
-				if(s->socket.send(td->buffer,nbr, 0) == SOCKET_ERROR)
+				dataSent+=s->socket.send(td->buffer,nbr, 0);
+				if(dataSent == SOCKET_ERROR)
 					break;		
 			}
 		}
@@ -428,11 +436,11 @@ int http::sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,i
 		if((nbr==0) || (gzip_dataused==GZIP_FOOTER_LENGTH))
 		{
 			if(keepalive)
-				s->socket.send("0\r\n\r\n",5, 0);
+				dataSent+=s->socket.send("0\r\n\r\n",5, 0);
 			break;
 		}
 	}
-
+	sprintf(td->response.CONTENT_LENGTH,"%i",dataSent);
 	h.closeFile();
 	return keepalive;
 

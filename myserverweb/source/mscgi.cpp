@@ -50,7 +50,6 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	*Actually myServerCGI(.mscgi) is only at an alpha status.
 	*/
 #ifndef DO_NOT_USE_MSCGI
-
 	static HMODULE hinstLib; 
     	static CGIMAIN ProcMain;
 	cgi_data data;
@@ -75,7 +74,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	hinstLib = dlopen(exec, RTLD_LAZY);
 #endif
 	if (hinstLib) 
-    { 
+	{ 
 		/*
 		*Set the working directory to the MSCGI file one.
 		*/

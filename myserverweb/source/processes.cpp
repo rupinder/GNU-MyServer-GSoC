@@ -50,20 +50,20 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
     /*!
     *Set the standard output values for the CGI process.
     */
-    STARTUPINFO si;
+	STARTUPINFO si;
 	
-    ZeroMemory( &si, sizeof(si) );
-    si.cb = sizeof(si);
-    si.hStdInput = (HANDLE)spi->stdIn;
-    si.hStdOutput =(HANDLE)spi->stdOut;
-    si.hStdError= (HANDLE)spi->stdError;
-    si.dwFlags=STARTF_USESHOWWINDOW;
+	ZeroMemory( &si, sizeof(si) );
+	si.cb = sizeof(si);
+	si.hStdInput = (HANDLE)spi->stdIn;
+	si.hStdOutput =(HANDLE)spi->stdOut;
+	si.hStdError= (HANDLE)spi->stdError;
+	si.dwFlags=STARTF_USESHOWWINDOW;
 	if(si.hStdInput||si.hStdOutput||si.hStdError)
 		si.dwFlags|=STARTF_USESTDHANDLES;
-    si.wShowWindow = SW_HIDE;
-    PROCESS_INFORMATION pi;
-    ZeroMemory( &pi, sizeof(pi) );
-    CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+	si.wShowWindow = SW_HIDE;
+	PROCESS_INFORMATION pi;
+	ZeroMemory( &pi, sizeof(pi) );
+	CreateProcess(NULL, spi->cmdLine,NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
 	/*!
 	*Wait until it's ending by itself.
 	*/
@@ -131,29 +131,30 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 #endif	
 
 }
+
 /*!
 *Start a process runned simultaneously with the MyServer process.
 */
 u_long execConcurrentProcess(START_PROC_INFO* spi)
 {
 #ifdef WIN32
-    /*!
-    *Set the standard output values for the CGI process.
-    */
-    STARTUPINFO si;
-	
-    ZeroMemory( &si, sizeof(si) );
-    si.cb = sizeof(si);
-    si.hStdInput = (HANDLE)spi->stdIn;
-    si.hStdOutput =(HANDLE)spi->stdOut;
-    si.hStdError= (HANDLE)spi->stdError;
-    si.dwFlags=(u_long)STARTF_USESHOWWINDOW;
+	/*!
+	*Set the standard output values for the CGI process.
+	*/
+	STARTUPINFO si;
+		
+	ZeroMemory( &si, sizeof(si) );
+	si.cb = sizeof(si);
+	si.hStdInput = (HANDLE)spi->stdIn;
+	si.hStdOutput =(HANDLE)spi->stdOut;
+	si.hStdError= (HANDLE)spi->stdError;
+	si.dwFlags=(u_long)STARTF_USESHOWWINDOW;
 	if(si.hStdInput||si.hStdOutput||si.hStdError)
 		si.dwFlags|=STARTF_USESTDHANDLES;
-    si.wShowWindow = SW_HIDE;
-    PROCESS_INFORMATION pi;
-    ZeroMemory( &pi, sizeof(pi) );
-    CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
+	si.wShowWindow = SW_HIDE;
+	PROCESS_INFORMATION pi;
+	ZeroMemory( &pi, sizeof(pi) );
+	CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE,0,spi->envString,spi->cwd,&si, &pi);
 	return (*((u_long*)&pi.hProcess));
 #endif
 #ifdef NOT_WIN
@@ -210,6 +211,7 @@ u_long execConcurrentProcess(START_PROC_INFO* spi)
 #endif	
 
 }
+
 /*!
 *Terminate a process.
 */

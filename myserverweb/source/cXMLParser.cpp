@@ -108,7 +108,6 @@ int cXMLParser::setValue(char* vName,char *value)
 		}
 		lcur=lcur->next;
 	}
-	
 	return 0;
 }
 

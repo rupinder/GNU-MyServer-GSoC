@@ -155,7 +155,7 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 {
 
 	MYSERVER_SOCKET s;
-#ifndef DO_NOT_USE_SSL	
+#ifndef DO_NOT_USE_SSL
 	s.sslConnection=0;
 	s.sslContext=0;
 	s.sslSocket=0;
@@ -294,7 +294,7 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags,u_long timeout)
 	int time=get_ticks();
 	while(get_ticks()-time<timeout)
 	{
-		if(bytesToRead())
+		if(dataOnRead())
 			return recv(buffer,len,flags);
 	}
 	return -1;

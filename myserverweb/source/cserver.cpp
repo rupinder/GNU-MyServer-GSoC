@@ -397,9 +397,10 @@ void * listenServer(void* params)
 	*/
 	serverSocket.shutdown( SD_BOTH);
 	char buffer[256];
+	int err;
 	do
 	{
-		err=serverSocket.recv(buffer,buffersize,0);
+		err=serverSocket.recv(buffer,256,0);
 	}while(err!=-1);	
 	serverSocket.closesocket();
 	lserver->decreaseListeningThreadCount();

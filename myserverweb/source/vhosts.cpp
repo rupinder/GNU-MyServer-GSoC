@@ -79,14 +79,14 @@ void vhost::clearHostList()
 */
 void vhost::clearIPList()
 {
-	sIpList* sil=ipList;
-	sIpList* prevsil=0;
+	sIpList* sil = ipList;
+	sIpList* prevsil = 0;
 	while(sil)
 	{
 		if(prevsil)
 			delete prevsil;
-		prevsil=sil;
-		sil=sil->next;
+		prevsil = sil;
+		sil = sil->next;
 	}
 	if(prevsil)
 		delete prevsil;
@@ -102,11 +102,11 @@ void vhost::addIP(char *ip)
 	strcpy(il->hostIp,ip);
 	if(ipList)
 	{
-		il->next =ipList;
+		il->next = ipList;
 	}
 	else
 	{
-		il->next =0;
+		il->next = 0;
 	}
 	ipList=il;
 }
@@ -115,8 +115,8 @@ void vhost::addIP(char *ip)
 */
 void vhost::removeIP(char *ip)
 {
-	vhost::sIpList *iterator=ipList;
-	vhost::sIpList *iteratorBack=0;
+	vhost::sIpList *iterator = ipList;
+	vhost::sIpList *iteratorBack = 0;
 	if(iterator==0)
 		return;
 	while(iterator)
@@ -128,19 +128,19 @@ void vhost::removeIP(char *ip)
 		{
 			if(iteratorBack)
 			{
-				iteratorBack->next =iterator->next;
+				iteratorBack->next = iterator->next;
 				delete iterator;
 				return;
 			}
 			else
 			{
-				ipList=iterator->next;
+				ipList = iterator->next;
 				delete iterator;
 				return;
 			}
 		}
-		iteratorBack=iterator;	
-		iterator=iterator->next;
+		iteratorBack = iterator;	
+		iterator = iterator->next;
 	}
 
 }
@@ -149,9 +149,9 @@ void vhost::removeIP(char *ip)
 */
 void vhost::removeHost(char *host)
 {
-	vhost::sHostList *iterator=hostList;
-	vhost::sHostList *iteratorBack=0;
-	if(iterator==0)
+	vhost::sHostList *iterator = hostList;
+	vhost::sHostList *iteratorBack = 0;
+	if(iterator == 0)
 		return;
 	while(iterator)
 	{
@@ -173,8 +173,8 @@ void vhost::removeHost(char *host)
 				return;
 			}
 		}
-		iteratorBack=iterator;	
-		iterator=iterator->next;
+		iteratorBack = iterator;	
+		iterator = iterator->next;
 	}
 }
 /*!
@@ -182,14 +182,14 @@ void vhost::removeHost(char *host)
 */
 int vhost::isHostAllowed(char* host)
 {
-	if(hostList==0)/*If no hosts are specified, every host is allowed to connect to*/
+	if(hostList == 0)/*If no hosts are specified, every host is allowed to connect to*/
 		return 1;
-	sHostList *lhl=hostList;
+	sHostList *lhl = hostList;
 	while(lhl)
 	{
 		if(!strcmp(host,lhl->hostName))
 			return 1;
-		lhl=lhl->next;
+		lhl = lhl->next;
 	}
 	return 0;
 }
@@ -207,7 +207,7 @@ int vhost::areAllHostAllowed()
 */
 int vhost::areAllIPAllowed()
 {
-	if(ipList==0)
+	if(ipList == 0)
 		return 1;
 	return 0;
 }
@@ -216,7 +216,7 @@ int vhost::areAllIPAllowed()
 */
 int vhost::isIPAllowed(char* ip)
 {
-	if(ipList==0)/*If no IPs are specified, every IP is allowed to connect to*/
+	if(ipList == 0)/*If no IPs are specified, every IP is allowed to connect to*/
 		return 1;
 	sIpList *lipl=ipList;
 	while(lipl)
