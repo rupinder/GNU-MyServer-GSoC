@@ -55,7 +55,7 @@ int MIME_Manager::load(char *filename)
 		/*
 		*If is reached the # character or the end of the string end the loop.
 		*/
-		if(buffer[nc]=='#'||buffer[nc]=='\0')
+		if(buffer[nc]=='\0'||buffer[nc]=='#'||nc==nbw)
 			break;
 		while(buffer[nc]!=',')
 		{

@@ -414,7 +414,7 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 	else
 	{
 		/*
-		*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
+		*Find in ConnInfo->envString the value lpszVariableName and copy the next string in lpvBuffer.
 		*/
 		((char*)lpvBuffer)[0]='\0';
 		char *localEnv=ConnInfo->envString;

@@ -32,6 +32,11 @@
 */
 cserver *lserver=0;
 int mustEndServer;
+
+#ifdef WIN32
+CONSOLE_SCREEN_BUFFER_INFO csbi;
+HANDLE localStdOutConsole;
+#endif
 /*
 *These messages are loaded by the application on the startup.
 */
@@ -47,6 +52,10 @@ char msgSize[33];
 
 void cserver::start()
 {
+#ifdef WIN32
+	localStdOutConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	GetConsoleScreenBufferInfo(localStdOutConsole,&csbi);
+#endif
 	u_long i;
 	/*
 	*Set the current working directory.
@@ -183,15 +192,21 @@ void cserver::start()
 
 
 
-	printf("%s\n\n",languageParser.getValue("MSG_SERVER_CONF"));
+	printf("%s\n",languageParser.getValue("MSG_SERVER_CONF"));
 
 	/*
 	*The guestLoginHandle value is filled by the call to cserver::initialize.
 	*/
 	if(guestLoginHandle==0)
 	{
-		
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
 		printf("%s\n",languageParser.getValue("AL_NO_SECURITY"));
+
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, csbi.wAttributes);
+#endif
 		useLogonOption=FALSE;
 	}
 
@@ -202,7 +217,15 @@ void cserver::start()
 	int err= ms_startupSocketLib(/*MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
 	if (err != 0) 
 	{ 
+
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
 		printf("%s\n",languageParser.getValue("ERR_ISOCK"));
+
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, csbi.wAttributes);
+#endif
 		return; 
 	} 
 	printf("%s\n",languageParser.getValue("MSG_SOCKSTART"));
@@ -237,7 +260,16 @@ void cserver::start()
 	if(int nMIMEtypes=mimeManager.load("MIMEtypes.txt"))
 		printf("%s: %i\n",languageParser.getValue("MSG_MIMERUN"),nMIMEtypes);
 	else
+	{
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
 		printf("%s\n",languageParser.getValue("ERR_LOADMIME"));
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, csbi.wAttributes);
+#endif
+
+	}
 
 	printf("%s %u\n",languageParser.getValue("MSG_NUM_CPU"),ms_getCPUCount());
 	
@@ -290,7 +322,14 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
 	if(serverSocket==INVALID_SOCKET)
 	{
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
 		printf("%s\n",languageParser.getValue("ERR_OPENP"));
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, csbi.wAttributes);
+#endif
+		
 		return;
 
 	}
@@ -307,7 +346,14 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	int optvalReuseAddr=1;
 	if(ms_setsockopt(serverSocket,SOL_SOCKET,SO_REUSEADDR,&optvalReuseAddr,sizeof(optvalReuseAddr))<0)
 	{
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
 		printf("%s setsockopt\n",languageParser.getValue("ERR_ERROR"));
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, csbi.wAttributes);
+#endif
+
 		return;
 	}
 
@@ -320,7 +366,14 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 
 	if(ms_bind(serverSocket,(sockaddr*)&sock_inserverSocket,sizeof(sock_inserverSocket))!=0)
 	{
+		
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
 		printf("%s\n",languageParser.getValue("ERR_BIND"));
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, csbi.wAttributes);
+#endif
 		return;
 	}
 	printf("%s\n",languageParser.getValue("MSG_PORT_BINDED"));
@@ -331,7 +384,14 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 	printf("%s\n",languageParser.getValue("MSG_SLISTEN"));
 	if (ms_listen(serverSocket,SOMAXCONN))
 	{ 
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, FOREGROUND_RED|FOREGROUND_INTENSITY);
+#endif
 		printf("%s\n",languageParser.getValue("ERR_LISTEN"));
+#ifdef WIN32
+		SetConsoleTextAttribute(localStdOutConsole, csbi.wAttributes);
+#endif
+	
 		return; 
 	}
 

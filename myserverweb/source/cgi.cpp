@@ -170,21 +170,20 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 			headerSize=i+4;
 			break;
 		}
-		else
-			if(!strncmp(&td->buffer2[i],"Location",8))
+		else if(!strncmp(&td->buffer2[i],"Location",8))
+		{
+			char nURL[MAX_PATH];
+			int j=0;
+			while(td->buffer2[i+j+10]!='\r')
 			{
-				char nURL[MAX_PATH];
-				int j=0;
-				while(td->buffer2[i+j+10]!='\r')
-				{
-					nURL[j]=td->buffer2[i+j+10];
-					nURL[j+1]='\0';
-					j++;
-				}
-				if(!yetoutputted)
-					sendHTTPRedirect(td,s,nURL);
-				yetoutputted=1;
+				nURL[j]=td->buffer2[i+j+10];
+				nURL[j+1]='\0';
+				j++;
 			}
+			if(!yetoutputted)
+				sendHTTPRedirect(td,s,nURL);
+			yetoutputted=1;
+		}
 	}
 	if(!yetoutputted)
 	{
@@ -193,6 +192,9 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 		*/
 		if(nph)
 		{
+			/*
+			*Resetting the structure we send only the informations gived by the CGI.
+			*/
 			resetHTTPResponse(&(td->response));
 		}
 		buildHTTPResponseHeaderStruct(td,td->buffer2);
