@@ -445,21 +445,53 @@ int hexToInt(const char *str)
  */
 int getCharInString(char* str, const char* characters, int max)
 {
-	int nChars=(int)strlen(characters);
-	int i;
-	register int j;
-	for(i=0;(max ? i<max : 1) && str[i] ; i++ )
+	int i, j;
+	
+	if(max)
 	{
-		for(j=0;j<nChars;j++)
+		for(i=0; (i<max) && (str[i]); i++ )
 		{
-			if(str[i]==characters[j])
+			for(j=0;characters[j];j++)
+			{
+				if(str[i]==characters[j])
+					return i;
+			}
+		}
+	}else
+	{	
+		for(i=1; str[i]; i++ )
+		{
+			for(j=0;characters[j];j++)
+			{
+				if(str[i]==characters[j])
+					return i;
+			}
+		}
+	}
+	return -1;
+}
+
+int getEndLine(char* str, int max)
+{
+	int i;
+	
+	if(max)
+	{
+		for(i=0; (i<max) && (str[i]); i++ )
+		{
+			if((str[i]=='\r') || (str[i]=='\n'))
+				return i;
+		}
+	}else
+	{
+		for(i=1; str[i]; i++ )
+		{
+			if((str[i]=='\r') || (str[i]=='\n'))
 				return i;
 		}
 	}
 	return -1;
-
 }
-
 
 #ifdef NOT_WIN 
 char* strupr(char * string)
