@@ -130,13 +130,13 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
      *Under the windows platform to run a file like an executable
      *use the sintact "cmd /c filename".
      */
-    int cmdLineLen = strlen(td->scriptFile);
-    cmdLineLen +=td->pathInfo[0] ? strlen(&td->pathInfo[1]) : strlen (td->pathInfo) +1;
+    int cmdLineLen = strlen(td->scriptFile) + td->pathInfo[0] ? 
+                        strlen(&td->pathInfo[1]) : strlen (td->pathInfo) +1;
     cmdLine = new char[cmdLineLen];
     if(cmdLine == 0)
     {
-      delete []filename;
-      delete []  td->scriptPath;
+      delete [] filename;
+      delete [] td->scriptPath;
       delete [] td->scriptFile;
       delete [] td->scriptDir;
       delete [] td->cgiFile;
@@ -180,11 +180,11 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
     cmdLine = new char[cmdLineLen];
     if(cmdLine == 0)
     {
-      delete []filename;
+      delete [] filename;
       delete [] td->scriptFile;
       delete [] td->scriptDir;
       delete [] td->cgiFile;
-      delete []  td->scriptPath;
+      delete [] td->scriptPath;
       td->scriptPath = 0;
       td->cgiFile = 0;
       td->scriptFile = 0;
@@ -212,17 +212,19 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	}
 
 	/*!
-	*Use a temporary file to store CGI output.
-	*Every thread has it own tmp file name(td->outputDataPath), 
-	*so use this name for the file that is going to be
-	*created because more threads can access more CGI at the same time.
-	*/
+   *Use a temporary file to store CGI output.
+   *Every thread has it own tmp file name(td->outputDataPath), 
+   *so use this name for the file that is going to be
+   *created because more threads can access more CGI at the same time.
+   */
 	char outputDataFile[32];
 	char *outputDataPath;
   int outputDataPathLen = getdefaultwdlen() + 32;
   outputDataPath = new char[outputDataPathLen];
  
-  /*! Return an HTTP 500 error message on allocation errors. */
+  /*!
+   * Return an HTTP 500 error message on allocation errors. 
+   */
   if(outputDataPath == 0)
   {
     delete [] filename;
@@ -236,16 +238,19 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
   lstrcat(outputDataPath, outputDataFile );
 	
 	/*!
-	*Standard CGI uses STDOUT to output the result and the STDIN 
-	*to get other params like in a POST request.
-	*/
+   *Standard CGI uses STDOUT to output the result and the STDIN 
+   *to get other params like in a POST request.
+   */
 	MYSERVER_FILE stdOutFile;
 
-  /*! Open the stdout file for the new CGI process. */
-	if(!stdOutFile.createTemporaryFile(outputDataPath))
+  /*!
+   * Open the stdout file for the new CGI process. 
+   */
+	if(stdOutFile.createTemporaryFile(outputDataPath))
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite("Cannot create CGI stdout file\r\n" );
+		((vhost*)td->connection->host)->warningsLogWrite
+                                        ("Cannot create CGI stdout file\r\n" );
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     delete [] outputDataPath;
     delete [] cmdLine;
@@ -257,10 +262,11 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	td->inputData.closeFile();
 
   /*! Open the stdin file for the new CGI process. */
-	if(!stdInFile.openFile(td->inputDataPath, MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_ALWAYS))
+	if(stdInFile.openFile(td->inputDataPath, MYSERVER_FILE_OPEN_READ|
+                         MYSERVER_FILE_OPEN_ALWAYS))
 	{
 		((vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n" );
+		((vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
     delete [] cmdLine;
@@ -314,8 +320,8 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 		return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   
-  stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), td->buffer2->GetRealLength()-1, 
-                          &nBytesRead);
+  stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
+                          td->buffer2->GetRealLength()-1, &nBytesRead);
 		
 	((char*)td->buffer2->GetBuffer())[nBytesRead]='\0';
 		
@@ -370,7 +376,7 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
           return ((http*)td->lhttp)->raiseHTTPError(td, s, e_500);
         }
         
-        /*!Copy the redirection destination in the nURL buffer. */
+        /*! Copy the redirection destination in the nURL buffer. */
         for(i=0;i<len;i++)
         {
           nURL[i] = ((char*)td->buffer2->GetBuffer())[i + 9];
@@ -390,7 +396,10 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	{
 		if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 			strcpy(td->response.CONNECTION, "Keep-Alive");
-		/*! Don't send any other HTTP header if the CGI executable has the nph-. form name.  */
+		/*!
+     *Don't send any other HTTP header if the CGI executable
+     * has the nph-. form name.  
+     */
 		if(nph)
 		{
 			/*! Resetting the structure we send only the information gived by the CGI. */
@@ -404,24 +413,33 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 		{
       /*! Send the header.  */
 			if(headerSize)
-				http_headers::buildHTTPResponseHeaderStruct(&td->response, td, (char*)td->buffer2->GetBuffer());
+				http_headers::buildHTTPResponseHeaderStruct(&td->response, td, 
+                                                    (char*)td->buffer2->GetBuffer());
       /*! Always specify the size of the HTTP contents.  */
-			sprintf(td->response.CONTENT_LENGTH, "%u", (u_int) (stdOutFile.getFileSize()-headerSize));
-			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(), &td->response);
+			sprintf(td->response.CONTENT_LENGTH, "%u", 
+              (u_int) (stdOutFile.getFileSize()-headerSize));
+
+			http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),
+                                            &td->response);
+
 			td->buffer->SetLength((u_int)strlen((char*)td->buffer->GetBuffer()));
-			s->socket.send((char*)td->buffer->GetBuffer(), (int)(td->buffer->GetLength()), 0);
-			s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize), nBytesRead-headerSize, 0);
+
+			s->socket.send((char*)td->buffer->GetBuffer(),
+                     (int)(td->buffer->GetLength()), 0);
+
+			s->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize), 
+                     nBytesRead-headerSize, 0);
 		}
 		else
     {
       /*! Do not put the HTTP header if appending. */
-			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())+headerSize), 
+			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())+headerSize),
                                  nBytesRead-headerSize, &nbw);
     }
 
     /*! Flush other data. */
-		while(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), td->buffer2->GetLength(), 
-                                  &nBytesRead))
+		while(stdOutFile.readFromFile((char*)td->buffer2->GetBuffer(), 
+                                  td->buffer2->GetLength(), &nBytesRead))
 		{
 			if(nBytesRead)
 			{
@@ -441,21 +459,21 @@ int cgi::sendCGI(httpThreadContext* td, LPCONNECTION s, char* scriptpath, char* 
 	MYSERVER_FILE::deleteFile(td->inputDataPath);
   delete [] cmdLine;
   delete [] filename;
-	/*! Don't close the connection for Keep-Alive connections.  */
-	return (!lstrcmpi(td->response.CONNECTION, "Keep-Alive"));
+	return 1;  
 }
 
 /*!
 *Write the string that contain the CGI environment to cgiEnvString.
 *This function is used by other server side protocols too.
 */
-void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string, int processEnv)
+void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string, 
+                                    int processEnv)
 {
 	/*!
-	*The Environment string is a null-terminated block of null-terminated strings.
-	*For no problems with the function strcat we use the character \r for the \0 character
-	*and at the end we change every \r in \0.
-	*/
+   *The Environment string is a null-terminated block of null-terminated strings.
+   *For no problems with the function strcat we use the character \r for 
+   *the \0 character and at the end we change every \r in \0.
+   */
 	CMemBuf memCgi;
 	char strTmp[32];
 	memCgi.SetExternalBuffer(cgi_env_string, td->buffer2->GetRealLength());

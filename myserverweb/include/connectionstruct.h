@@ -105,4 +105,5 @@ public:
 	char *protocolBuffer;
 };
 typedef CONNECTION* volatile LPCONNECTION;
+
 #endif

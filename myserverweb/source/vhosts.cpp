@@ -511,7 +511,7 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 	u_long nbr;/*!Number of bytes read from the file*/
 	MYSERVER_FILE fh;
 	int ret=fh.openFile(filename,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-	if((ret==0)||(ret==-1))/*!If the file cannot be opened simply do nothing*/
+	if(ret)/*!If the file cannot be opened simply do nothing*/
 		return -1;
 	char c;
 

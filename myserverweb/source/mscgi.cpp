@@ -43,33 +43,101 @@ extern "C" {
 int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLine)
 {
 	/*!
-	*This is the code for manage a .mscgi file.
-	*This files differently from standard CGI don't need a new process to run
-	*but are allocated in the caller process virtual space.
-	*Usually these files are faster than standard CGI.
-	*Actually myServerCGI(.mscgi) is only at an alpha status.
-	*/
-#ifndef DO_NOT_USE_MSCGI
+   *This is the code for manage a .mscgi file.
+   *This files differently from standard CGI don't need a new process to run
+   *but are allocated in the caller process virtual space.
+   *Usually these files are faster than standard CGI.
+   *Actually myServerCGI(.mscgi) is only at an alpha status.
+   */
+
+#ifndef WIN32
+#ifdef DO_NOT_USE_MSCGI
+	/*!
+   *On the platforms where is not available the MSCGI support send a 
+   *non implemented error.
+   */
+	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
+#endif
+#endif
+
+#ifndef DO_NOT_USE_MSCGI 
 	static HMODULE hinstLib; 
-   	static CGIMAIN ProcMain;
+  static CGIMAIN ProcMain;
 	u_long nbr=0,nbs=0;
 	cgi_data data;
-	data.envString=td->request.URIOPTSPTR?td->request.URIOPTSPTR:(char*)td->buffer->GetBuffer();
+	data.envString=td->request.URIOPTSPTR ?
+                    td->request.URIOPTSPTR : (char*) td->buffer->GetBuffer();
 	
 	data.td = td;
 	data.errorPage=0;
-	strncpy(td->scriptPath,exec,MAX_PATH);
-	MYSERVER_FILE::splitPath(exec,td->scriptDir,td->scriptFile);
-	MYSERVER_FILE::splitPath(exec,td->cgiRoot,td->cgiFile);
+
+
+  int scriptDirLen = 0;
+  int scriptFileLen = 0;
+  int cgiRootLen = 0;
+  int cgiFileLen = 0;
+  int scriptpathLen = strlen(exec) + 1;
+
+
+  if(td->scriptPath)
+    delete [] td->scriptPath;
+  td->scriptPath = new char[scriptpathLen];
+  if(td->scriptPath == 0)
+    return 0;
+	lstrcpy(td->scriptPath, exec);
+
+  MYSERVER_FILE::splitPathLength(exec, &scriptDirLen, &scriptFileLen);
+  MYSERVER_FILE::splitPathLength(exec, &cgiRootLen, &cgiFileLen);
+
+  if(td->scriptDir)
+    delete [] td->scriptDir;
+  td->scriptDir = new char[scriptDirLen+1];
+  if(td->scriptDir == 0)
+    return 0;
+
+  if(td->scriptFile)
+    delete [] td->scriptFile;
+  td->scriptFile = new char[scriptFileLen+1];
+  if(td->scriptFile == 0)
+    return 0;
+
+  if(td->cgiRoot)
+    delete [] td->cgiRoot;
+  td->cgiRoot = new char[cgiRootLen+1];
+  if(td->cgiRoot == 0)
+    return 0;
+
+  if(td->cgiFile)
+    delete [] td->cgiFile;
+  td->cgiFile = new char[cgiFileLen+1];
+  if(td->cgiFile == 0)
+    return 0;
+
+	MYSERVER_FILE::splitPath(exec, td->scriptDir, td->scriptFile);
+	MYSERVER_FILE::splitPath(exec, td->cgiRoot, td->cgiFile);
+
 	cgi::buildCGIEnvironmentString(td,data.envString);
 	
-	char outDataPath[MAX_PATH];
+	char *outDataPath=0;
 	
 	if(!td->appendOutputs)
 	{	
-		getdefaultwd(outDataPath,MAX_PATH);	
-		sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileMSCGI_%u",(u_int)td->id);
-		data.stdOut.openFile(outDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
+    int wdLen =  getdefaultwdlen();
+    int outDataPathLen = wdLen + 24;
+    outDataPath=new char[ outDataPathLen ];
+    if(outDataPath == 0)
+    {
+      return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+    }
+		getdefaultwd(outDataPath, outDataPathLen );	
+		sprintf(&(outDataPath)[wdLen-1],"/stdOutFileMSCGI_%u",(u_int)td->id);
+		if(data.stdOut.openFile(outDataPath, MYSERVER_FILE_CREATE_ALWAYS | 
+                            MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_WRITE))
+    {
+      delete [] outDataPath;
+      return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+    
+    }
 	}
 	else
 	{
@@ -84,9 +152,9 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 #endif
 	if (hinstLib) 
 	{ 
-		/*
-		*Set the working directory to the MSCGI file one.
-		*/
+		/*!
+     *Set the working directory to the MSCGI file one.
+     */
 		setcwd(td->scriptDir);
 		td->buffer2->GetAt(0)='\0';
 #ifdef WIN32
@@ -112,50 +180,36 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	} 
 	else
 	{
-#ifdef WIN32
-		if(GetLastError()==ERROR_ACCESS_DENIED)
-		{
-			if(s->nTries > 2)
-			{
-				data.stdOut.closeFile();
-				MYSERVER_FILE::deleteFile(outDataPath);
-				return ((http*)td->lhttp)->raiseHTTPError(td,s,e_403);
-			}
-			else
-			{
-				s->nTries++;
-				if(!td->appendOutputs)
-				{
-					data.stdOut.closeFile();
-					MYSERVER_FILE::deleteFile(outDataPath);
-				}
-				return ((http*)td->lhttp)->raiseHTTPError(td,s,e_401AUTH);
-			}
-		}
-		else
-		{
-#endif
-			return  ((http*)td->lhttp)->raiseHTTPError(td,s,e_404);
-#ifdef WIN32
-		}
-#endif
+    if(!td->appendOutputs)
+    {	
+      data.stdOut.closeFile();
+      MYSERVER_FILE::deleteFile(outDataPath);
+    }
+    if(outDataPath)
+      delete [] outDataPath;
+    /*! Internal server error. */
+    return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	if(data.errorPage)
 	{
-		if(!td->appendOutputs)
-		{
-			data.stdOut.closeFile();
-			MYSERVER_FILE::deleteFile(outDataPath);
-		}
 		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
 		if(errID!=-1)
+    {
+			data.stdOut.closeFile();
+			MYSERVER_FILE::deleteFile(outDataPath);
+      if(outDataPath)
+        delete [] outDataPath;
 			return ((http*)td->lhttp)->raiseHTTPError(td,s,errID);
+    }
 	}
 	/*!
-	*Compute the response length.
-	*/
+   *Compute the response length.
+   */
 	sprintf(td->response.CONTENT_LENGTH,"%u",(u_int)data.stdOut.getFileSize());
-	/*Send all the data to the client if we haven't to append the output*/
+
+	/*!
+   *Send all the data to the client if the append is not used.
+   */
 	if(!td->appendOutputs)
 	{
 		char *buffer = (char*)td->buffer2->GetBuffer();
@@ -168,8 +222,12 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 			{
 				data.stdOut.closeFile();
 				MYSERVER_FILE::deleteFile(outDataPath);
+        if(outDataPath)
+          delete [] outDataPath;
 			}
-			return 0;
+
+      /*! Internal server error. */
+      return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
 		do
 		{
@@ -183,9 +241,12 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 					{
 						data.stdOut.closeFile();
 						MYSERVER_FILE::deleteFile(outDataPath);
-					}
-					return 0;
-				}		
+          }
+          if(outDataPath)
+            delete [] outDataPath;	
+          /*! Internal server error. */
+          return ((http*)td->lhttp)->raiseHTTPError(td,s,e_500);
+				}	
 			}
 		}while(nbr && nbs);
 		if(!td->appendOutputs)
@@ -194,43 +255,45 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 			MYSERVER_FILE::deleteFile(outDataPath);
 		}
 	}
+  if(outDataPath)
+    delete [] outDataPath;
 	return 1;
-#else
-	/*!
-	*On the platforms where is not available the MSCGI support send a 
-	*non implemented error.
-	*/
-	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);
+
 #endif
 }
+
 /*!
-*Store the MSCGI library module handle.
-*/
+ *Store the MSCGI library module handle.
+ */
 static HMODULE mscgiModule=0;
 
 /*!
-*Map the library in the application address space.
-*/
+ *Map the library in the application address space.
+ */
 int mscgi::loadMSCGILib()
 {
 #ifdef WIN32
 	mscgiModule=LoadLibrary("CGI-LIB\\CGI-LIB.dll");
 #endif
 #ifdef HAVE_DL
-	char mscgi_path[MAX_PATH];
+	char *mscgi_path=0;
 	
 	if(MYSERVER_FILE::fileExists("cgi-lib/cgi-lib.so"))
 	{
+    mscgi_path = new char[19];
 		strcpy(mscgi_path, "cgi-lib/cgi-lib.so");
 	}
 	else
 	{
 #ifdef PREFIX
+    mscgi_path = new char[strlen(PREFIX)+25];
     sprintf(mscgi_path, "%s/lib/myserver/cgi-lib.so", PREFIX );
 #else
+    mscgi_path = new char[29];
 		strcpy(mscgi_path, "/usr/lib/myserver/cgi-lib.so");
 #endif
 	}
+  delete [] mscgi_path;
 	mscgiModule=dlopen(mscgi_path, RTLD_NOW | RTLD_GLOBAL);
 #endif
 	return (mscgiModule)?1:0;

@@ -41,19 +41,19 @@ struct fourchar
 /*!
  *Entry-Point to manage a FastCGI request.
  */
-int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
+int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,
+                         char* scriptpath,char* /*!ext*/,char *cgipath,int execute)
 {
 	fCGIContext con;
 	con.td=td;
 	u_long nbr=0;
 	FCGI_Header header;
-
+  
   int scriptDirLen = 0;
   int scriptFileLen = 0;
   int cgiRootLen = 0;
   int cgiFileLen = 0;
   int scriptpathLen = strlen(scriptpath) + 1;
-
 
   if(td->scriptPath)
     delete [] td->scriptPath;
@@ -113,8 +113,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
       fullpath = new char[fullpathLen];
       if(fullpath == 0)
       {
-        ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
-        return 0;
+        return ((http*)td->lhttp)->sendHTTPhardError500(td, connection);
       }
 			sprintf(fullpath,"%s",td->filenamePath);	
     }
@@ -123,14 +122,19 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	{
 		sprintf(fullpath,"%s",cgipath);
 	}
-	int sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),(char*)td->buffer2->GetBuffer());
+	int sizeEnvString=buildFASTCGIEnvironmentString(td,(char*)td->buffer->GetBuffer(),
+                                                  (char*)td->buffer2->GetBuffer());
 	td->inputData.closeFile();
-	td->inputData.openFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_NO_INHERIT);
+	td->inputData.openFile(td->inputDataPath,
+                         MYSERVER_FILE_OPEN_READ | MYSERVER_FILE_OPEN_IFEXISTS | 
+                         MYSERVER_FILE_NO_INHERIT);
 
 	int p_id = FcgiConnect(&con,fullpath);
   delete [] fullpath;
 	if(p_id<0)
+  {
 		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+  }
 
 	int id=td->id+1;
 	FCGI_BeginRequestBody tBody;
@@ -169,7 +173,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}	
 	if(atoi(td->request.CONTENT_LENGTH))
 	{
@@ -180,15 +184,20 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		generateFcgiHeader( header, FCGI_STDIN, id, atoi(td->request.CONTENT_LENGTH));
 		if(con.sock.send((char*)&header,sizeof(header),0)==-1)
+    {
 			return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+    }
 		td->inputData.setFilePointer(0);
 		do
 		{
-			td->inputData.readFromFile((char*)td->buffer->GetBuffer(),td->buffer->GetRealLength(),&nbr);
+			td->inputData.readFromFile((char*)td->buffer->GetBuffer(),
+                                 td->buffer->GetRealLength(),&nbr);
 			if(nbr)
 			{
-				if(con.sock.send((char*)td->buffer->GetBuffer(),nbr,0)==-1)
-					return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+				if(con.sock.send((char*)td->buffer->GetBuffer(),nbr,0) == -1)
+        {
+					return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+        }
 			}
 		}while(nbr==td->buffer->GetRealLength());
 	}
@@ -200,7 +209,7 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 		((vhost*)td->connection->host)->warningsLogWrite((char*)td->buffer->GetBuffer());
 		((vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		con.sock.closesocket();
-		return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}	
 
 	/*! Now read the output.  */
@@ -210,18 +219,24 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	const clock_t timeout= CLOCKS_PER_SEC * 20;
 	clock_t time1 = get_ticks();
 	
-	char *outDataPath;
-  int outDataPathLen = getdefaultwdlen() + 20;
+	char *outDataPath=0;
+  int outDataPathLen = getdefaultwdlen() + 24;
+	outDataPath = new char[outDataPathLen];
+  if(outDataPath == 0)
+  {
+    return ((http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+  }
+	getdefaultwd(outDataPath, outDataPathLen);
+	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFCGI_%u",(u_int)td->id);
 	
-	getdefaultwd(outDataPath,MAX_PATH);
-	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFile_%u",(u_int)td->id);
-	
-	con.tempOut.openFile(outDataPath,MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_NO_INHERIT);
+	con.tempOut.openFile(outDataPath,MYSERVER_FILE_OPEN_WRITE | 
+                       MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_CREATE_ALWAYS|
+                       MYSERVER_FILE_NO_INHERIT);
 	do	
 	{
 		while(con.sock.bytesToRead()<sizeof(FCGI_Header))
 		{
-			if(  (clock_t)(get_ticks()-time1) > timeout)
+			if((clock_t)(get_ticks()-time1) > timeout)
 				break;
 		}
 		if(con.sock.bytesToRead())
@@ -238,11 +253,12 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 			con.sock.closesocket();
 			break;
 		}
-		/*!contentLengthB1 is the high word of the content length value
-		*while contentLengthB0 is the low one.
-		*To retrieve the value of content length push left contentLengthB1
-		*of eight byte then do a or with contentLengthB0.
-		*/
+		/*!
+     *contentLengthB1 is the high word of the content length value
+     *while contentLengthB0 is the low one.
+     *To retrieve the value of content length push left contentLengthB1
+     *of eight byte then do a or with contentLengthB0.
+     */
 		u_long dim=(header.contentLengthB1<<8) | header.contentLengthB0;
 		u_long data_sent=0;
 		if(dim==0)
@@ -259,7 +275,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 					exit = 1;
 					break;
 				case FCGI_STDOUT:
-					nbr=con.sock.recv((char*)td->buffer->GetBuffer(),min(dim,td->buffer->GetRealLength()),0);
+					nbr=con.sock.recv((char*)td->buffer->GetBuffer(),
+                            min(dim,td->buffer->GetRealLength()),0);
 					u_long nbw;
 					td->outputData.writeToFile((char*)td->buffer->GetBuffer(),nbr,&nbw);
 					data_sent=nbw;
@@ -271,7 +288,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 					while(data_sent<dim)
 					{
 						if( con.sock.bytesToRead() )
-							nbr=con.sock.recv((char*)td->buffer->GetBuffer(),min(dim-data_sent,td->buffer->GetRealLength()),0);
+							nbr=con.sock.recv((char*)td->buffer->GetBuffer(), 
+                                min(dim-data_sent,td->buffer->GetRealLength()),0);
 						else
 						{
 							exit = 1;
@@ -299,65 +317,70 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	
 	for(u_long i=0;i<nbr;i++)
 	{
-		if((buffer[i]=='\r')&&(buffer[i+1]=='\n')&&(buffer[i+2]=='\r')&&(buffer[i+3]=='\n'))
+		if((buffer[i]=='\r')&&(buffer[i+1]=='\n')&&
+       (buffer[i+2]=='\r') &&(buffer[i+3]=='\n'))
 		{
-			headerSize=i+4;
+			headerSize= i + 4 ;
 			break;
 		}
 	}
-	sprintf(td->response.CONTENT_LENGTH, "%u", (u_int)(con.tempOut.getFileSize()-headerSize));
-	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,(char*)td->buffer->GetBuffer());
+	sprintf(td->response.CONTENT_LENGTH, "%u", 
+          (u_int)(con.tempOut.getFileSize()-headerSize));
+	http_headers::buildHTTPResponseHeaderStruct(&td->response,td,
+                                              (char*)td->buffer->GetBuffer());
 	for(;;)
 	{
 		if(td->response.LOCATION[0])
 		{
-			char new_url[MAX_PATH];
-			new_url[0]='\0';
-			u_long j;
-			j=0;
-			u_long start=(u_long)strlen(new_url);
-			while(td->response.LOCATION[j])
-			{
-				new_url[j+start]=td->response.LOCATION[j];
-				new_url[j+start+1]='\0';
-				j++;
-			}
-			((http*)td->lhttp)->sendHTTPRedirect(td,connection,new_url);
-			break;
+      con.tempOut.closeFile();
+      MYSERVER_FILE::deleteFile(outDataPath);
+      con.sock.closesocket();
+			return ((http*)td->lhttp)->sendHTTPRedirect(td, connection, 
+                                                  td->response.LOCATION);
 		}
 		
 		if(!td->appendOutputs)/*Send the header*/
 		{
 			if(!lstrcmpi(td->request.CONNECTION,"Keep-Alive"))
 				strcpy(td->response.CONNECTION,"Keep-Alive");		
-			http_headers::buildHTTPResponseHeader((char*)td->buffer2->GetBuffer(),&td->response);
-			if(td->connection->socket.send((char*)td->buffer2->GetBuffer(),(int)strlen((char*)td->buffer2->GetBuffer()), 0)==0)
+			http_headers::buildHTTPResponseHeader((char*)td->buffer2->GetBuffer(),
+                                            &td->response);
+			if(td->connection->socket.send( (char*)td->buffer2->GetBuffer(),
+                                      (int)strlen((char*)td->buffer2->GetBuffer()),
+                                      0) ==    0 )
 			{
 				exit = 1;
 				break;
 			}
-			if(td->connection->socket.send((char*)(((char*)td->buffer2->GetBuffer())+headerSize),nbr-headerSize, 0)==0)
+			if(td->connection->socket.send((char*)
+                                     (((char*)td->buffer2->GetBuffer())+headerSize), 
+                                     nbr - headerSize, 0)==0)
 			{
 				exit = 1;
 				break;
 			}
 		}
-		else
+		else/*! If appendOutputs. */
 		{
 			u_long nbw=0;
-			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())+headerSize),nbr-headerSize,&nbw);
+      /*!
+       *Send remaining data stored in the buffer. 
+       *This is the HTTP header.
+       */
+			td->outputData.writeToFile((char*)(((char*)td->buffer2->GetBuffer())+headerSize),
+                                 nbr - headerSize, &nbw);
 		}
 
+    /*! Flush the data. */
 		do
 		{
-			con.tempOut.readFromFile((char*)td->buffer->GetBuffer(),td->buffer->GetRealLength(),&nbr);
+			con.tempOut.readFromFile((char*)td->buffer->GetBuffer(), 
+                               td->buffer->GetRealLength(), &nbr);
 			
-			if(!td->appendOutputs)/*Send the header*/
+			if(!td->appendOutputs)
 			{
 				if(td->connection->socket.send((char*)td->buffer->GetBuffer(),nbr, 0)==0)
-				{
 					break;
-				}
 			}
 			else
 			{
@@ -373,8 +396,8 @@ int fastcgi::sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scr
 	return 1;
 }
 /*!
-*Send the buffer content over the FastCGI connection
-*/
+ *Send the buffer content over the FastCGI connection
+ */
 int fastcgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 {
 	FCGI_Header header;
@@ -387,8 +410,8 @@ int fastcgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 	return 0;
 }
 /*!
-*Trasform from a standard environment string to the FastCGI environment string.
-*/
+ *Trasform from a standard environment string to the FastCGI environment string.
+ */
 int fastcgi::buildFASTCGIEnvironmentString(httpThreadContext*,char* sp,char* ep)
 {
 	char *ptr=ep;

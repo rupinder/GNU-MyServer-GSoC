@@ -730,14 +730,22 @@ int cserver::initialize(int /*!os_ver*/)
 		MYSERVER_FILE outputF;
 		int ret=inputF.openFile("myserver.xml.default", 
                             MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-		if(ret<1)
+		if(ret)
 		{
 			preparePrintError();
 			printf("%s\n", languageParser.getValue("ERR_LOADED"));
 			endPrintError();
 			return 1;
 		}
-		outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
+		ret = outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE | 
+                     MYSERVER_FILE_OPEN_ALWAYS);
+		if(ret)
+		{
+			preparePrintError();
+			printf("%s\n", languageParser.getValue("ERR_LOADED"));
+			endPrintError();
+			return 1;
+		}
 		char buffer[512];
 		u_long nbr, nbw;
 		for(;;)
@@ -1007,16 +1015,18 @@ int cserver::deleteConnection(LPCONNECTION s, int /*id*/)
 	{
 		return 0;
 	}
-	if(s->check_value!=CONNECTION::check_value_const)
+	if(s->check_value != CONNECTION::check_value_const)
 	{
 		return 0;
 	}
 	MYSERVER_SOCKET socket=s->socket;
 	/*!
-	*Get the access to the  connections list.
-	*/
+   *Get the access to the  connections list.
+   */
 	int ret=0,  err;
-	/*! Remove the connection from the active connections list. */
+	/*!
+   * Remove the connection from the active connections list. 
+   */
 	LPCONNECTION prev=0;
 	for(LPCONNECTION i=connections;i;i=i->next )
 	{

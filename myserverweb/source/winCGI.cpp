@@ -62,7 +62,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	*The WinCGI protocol uses a .ini file for the communication between the processes.
 	*/
 	int ret=DataFileHandle.openFile(dataFilePath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE);
-	if ((!ret) || (ret==-1)) 
+	if ( ret ) 
 	{
 		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI file\r\n");
@@ -181,7 +181,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	if(!MYSERVER_FILE::fileExists(outFilePath))
 	{
 		ret = OutFileHandle.openFile(outFilePath,MYSERVER_FILE_CREATE_ALWAYS);
-		if (!ret)
+		if (ret)
 		{
 			((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 			((vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI output file\r\n");
@@ -213,7 +213,7 @@ int wincgi::sendWINCGI(httpThreadContext* td,LPCONNECTION s,char* filename)
 	}
 
 	ret=OutFileHandle.openFile(outFilePath,MYSERVER_FILE_OPEN_ALWAYS|MYSERVER_FILE_OPEN_READ);
-	if (!ret)
+	if (ret)
 	{
 		((vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 		((vhost*)td->connection->host)->warningsLogWrite("Error opening WinCGI output file\r\n");

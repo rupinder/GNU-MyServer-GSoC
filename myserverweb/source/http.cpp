@@ -88,8 +88,10 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	MYSERVER_FILE_HANDLE outputDataHandle = td->outputData.getHandle();
 	if( outputDataHandle == 0 )
 	{
-		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], "/stdOutFile_%u", (u_int) td->id);
-		ret = !td->outputData.openFile(td->outputDataPath, MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
+		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
+            "/stdOutFile_%u", (u_int) td->id);
+		ret = td->outputData.openFile(td->outputDataPath, MYSERVER_FILE_CREATE_ALWAYS | 
+                                  MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 		if(ret)
 		{
 			/*! Return an internal server error.  */
@@ -128,7 +130,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	*td->buffer2<<"<html>\r\n<head>\r\n<title>" ;
 	*td->buffer2<< td->request.URI ;
 	*td->buffer2<< "</title>\r\n</head>\r\n" ; 
-	ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                    (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
 		td->outputData.closeFile();
@@ -138,23 +141,27 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	if(browseDirCSSpath != 0)
 	{
 		MYSERVER_FILE cssHandle;
-		ret=cssHandle.openFile(browseDirCSSpath, MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-		if(ret>0)
+		ret=cssHandle.openFile(browseDirCSSpath, MYSERVER_FILE_OPEN_IFEXISTS | 
+                           MYSERVER_FILE_OPEN_READ);
+		if(ret == 0)
 		{
 			u_long nbr;
-			ret = cssHandle.readFromFile((char*)td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbr);
+			ret = cssHandle.readFromFile((char*)td->buffer->GetBuffer(), 
+                                   td->buffer->GetRealLength(), &nbr);
 			if(ret)
 			{
 				td->buffer2->SetLength(0);
 				*td->buffer2 << "<style>\r\n<!--\r\n" ;
-				ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+				ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                          (u_long)td->buffer2->GetLength(), &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
 					/* Return an internal server error.  */
 					return raiseHTTPError(td, s, e_500);
 				}
-				ret = !td->outputData.writeToFile((char*)td->buffer->GetBuffer(), (u_long)nbr, &nbw);
+				ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(),
+                                          (u_long)nbr, &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
@@ -164,7 +171,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 
 				td->buffer2->SetLength(0);
 				*td->buffer2 << "-->\r\n</style>\r\n";
-				ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+				ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
+                                         (u_long)td->buffer2->GetLength(), &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
@@ -201,7 +209,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	*td->buffer2 << "\r\n<body>\r\n<h1> Contents of folder ";
 	*td->buffer2 <<  &td->request.URI[startchar] ;
 	*td->buffer2 << "</h1>\r\n<p>\r\n<hr />\r\n";
-	ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                   (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
 		td->outputData.closeFile();
@@ -221,10 +230,14 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	{
 		return raiseHTTPError(td, s, e_404);
 	}
-	/*! With the current code we build the HTML TABLE to indicize the files in the folder.  */
+	/*! 
+   *With the current code we build the HTML TABLE to indicize the
+   *files in the folder.  
+   */
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "<table width=\"100%%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n<td><b>Last Modify</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
-	ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                    (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
 		td->outputData.closeFile();
@@ -267,7 +280,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 			*td->buffer2 << fileSize;
 		}
 		*td->buffer2 << "</td>\r\n</tr>\r\n";
-		ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+		ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), 
+                                     (u_long)td->buffer2->GetLength(), &nbw);
 		if(ret)
 		{
 			_findclose(ff);
@@ -280,7 +294,8 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td, LPCONNECTION s, char* folder)
 	*td->buffer2 << "</table>\r\n<hr />\r\n<address>Running on MyServer " ;
 	*td->buffer2 << versionOfSoftware ;
 	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
-	ret = !td->outputData.writeToFile((char*)td->buffer2->GetBuffer(), (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile((char*)td->buffer2->GetBuffer(),
+                                   (u_long)td->buffer2->GetLength(), &nbw);
 	if(ret)
 	{
 		_findclose(ff);
@@ -448,7 +463,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 	int use_gzip=0;
 	MYSERVER_FILE h;
 	ret = h.openFile(filenamePath, MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
-	if(ret == 0)
+	if(ret)
 	{	
 		return 0;
 	}
@@ -545,7 +560,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 			gzip_dataused=0;
 			u_long datatoread=min(bytes_to_send, td->buffer2->GetRealLength()/2);
 			/*! Read from the file the bytes to send.  */
-			if(!h.readFromFile((char*)td->buffer2->GetBuffer(), datatoread, &nbr))
+			if(h.readFromFile((char*)td->buffer2->GetBuffer(), datatoread, &nbr))
 			{
 				h.closeFile();
 				return 0;
@@ -569,7 +584,7 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 		else
 		{
 			/*! Read from the file the bytes to send. */
-			if(!h.readFromFile((char*)td->buffer->GetBuffer(), min(bytes_to_send, td->buffer->GetRealLength()), &nbr))
+			if(h.readFromFile((char*)td->buffer->GetBuffer(), min(bytes_to_send, td->buffer->GetRealLength()), &nbr))
 			{
 				h.closeFile();
 				return 0;
@@ -616,8 +631,8 @@ int http::sendHTTPFILE(httpThreadContext* td, LPCONNECTION s, char *filenamePath
 				}
 				else
 				{
-					td->outputData.writeToFile((char*)td->buffer->GetBuffer(), nbr, &ret);
-				    	if(ret)
+					ret = td->outputData.writeToFile((char*)td->buffer->GetBuffer(), nbr, 0);
+				  if(ret)
 					{
 						h.closeFile();
 						return 0;
@@ -778,7 +793,8 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 	{
 		/*! If the file exists update it.  */
 		MYSERVER_FILE file;
-		if(!file.openFile(td->filenamePath, MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_WRITE))
+		if(file.openFile(td->filenamePath, MYSERVER_FILE_OPEN_IFEXISTS | 
+                     MYSERVER_FILE_OPEN_WRITE))
 		{
       delete [] td->filenamePath;
       td->filenamePath = 0;
@@ -789,7 +805,8 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 		for(;;)
 		{
 			u_long nbr=0, nbw=0;
-			if(!td->inputData.readFromFile((char*)td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbr))
+			if(td->inputData.readFromFile((char*)td->buffer->GetBuffer(), 
+                                    td->buffer->GetRealLength(), &nbr))
 			{
 				file.closeFile();
         delete [] td->filenamePath;
@@ -798,7 +815,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 			}
 			if(nbr)
 			{
-				if(!file.writeToFile((char*)td->buffer->GetBuffer(), nbr, &nbw))
+				if(file.writeToFile((char*)td->buffer->GetBuffer(), nbr, &nbw))
 				{
 					file.closeFile();
           delete [] td->filenamePath;
@@ -828,7 +845,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 		*If the file doesn't exist create it.
 		*/
 		MYSERVER_FILE file;
-		if(!file.openFile(td->filenamePath, 
+		if(file.openFile(td->filenamePath, 
                       MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_WRITE))
     {
       delete [] td->filenamePath;
@@ -840,14 +857,15 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 		for(;;)
 		{
 			u_long nbr=0, nbw=0;
-			if(!td->inputData.readFromFile((char*)td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbr))
+			if(td->inputData.readFromFile((char*)td->buffer->GetBuffer(), 
+                                    td->buffer->GetRealLength(), &nbr))
 			{
 				file.closeFile();
 				return raiseHTTPError(td, s, e_500);/*!Internal server error*/
 			}
 			if(nbr)
 			{
-				if(!file.writeToFile((char*)td->buffer->GetBuffer(), nbr, &nbw))
+				if(file.writeToFile((char*)td->buffer->GetBuffer(), nbr, &nbw))
 				{
 					file.closeFile();
 					return raiseHTTPError(td, s, e_500);/*!Internal server error*/
@@ -855,7 +873,7 @@ int http::putHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *filename,
 			}
 			else
 				break;
-			if(nbw!=nbr)
+			if( nbw != nbr )
 			{
 				file.closeFile();
 				return raiseHTTPError(td, s, e_500);/*!Internal server error*/
@@ -1076,9 +1094,11 @@ void http::resetHTTPUserData(http_user_data* ud)
 }
 
 /*!
-*Main function to send a resource to a client.
-*/
-int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int systemrequest, int only_header, int firstByte, int lastByte, int yetmapped)
+ *Main function to send a resource to a client.
+ */
+int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, 
+                           int systemrequest, int only_header, int firstByte, 
+                           int lastByte, int yetmapped)
 {
 	/*!
    *With this code we manage a request of a file or a folder or anything 
@@ -1139,7 +1159,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
     /*! getPath will alloc the buffer for filenamePath. */
 		getPath(td, s, &(td->filenamePath), filename, systemrequest);
 	}
-	int permissions=-1;/*!By default everything is permitted*/
+  /*! By default allows only few actions. */
+	int permissions= MYSERVER_PERMISSION_READ |  MYSERVER_PERMISSION_BROWSE ;
 	if(!systemrequest)
 	{
 		char *folder;
@@ -1183,7 +1204,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 		}
 		int permissions2=0;
 		if(td->request.AUTH[0])
-			permissions=getPermissionMask(s->login, s->password, folder, filename, ((vhost*)(s->host))->systemRoot, ((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16, &permissions2);
+			permissions=getPermissionMask(s->login, s->password, folder, filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16, &permissions2);
 		else/*!The default user is Guest with a null password*/
 			permissions=getPermissionMask("Guest", "", folder, filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);
 			
@@ -1203,22 +1224,22 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 			}
 			td->auth_scheme=HTTP_AUTH_SCHEME_DIGEST;
 		}
-		else/*By default use the Basic authentication scheme*/
+		else/*! By default use the Basic authentication scheme. */
 		{
 			td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
 		}	
-		/*If there are no permissions, use the Guest permissions*/
+		/*!If there are no permissions, use the Guest permissions. */
 		if(td->request.AUTH[0] && (permissions==0))
 			permissions=getPermissionMask("Guest", "", folder, filename,((vhost*)(s->host))->systemRoot,((http_user_data*)s->protocolBuffer)->needed_password, auth_type, 16);	
 		
     delete [] folder;
 	}
 	/*!
-	*Get the PATH_INFO value.
-	*Use dirscan as a buffer for put temporary directory scan.
-	*When an '/' character is present check if the path up to '/' character
-	*is a file. If it is a file send the rest of the URI as PATH_INFO.
-	*/
+   *Get the PATH_INFO value.
+   *Use dirscan as a buffer for put temporary directory scan.
+   *When an '/' character is present check if the path up to '/' character
+   *is a file. If it is a file send the rest of the URI as PATH_INFO.
+   */
 	char *dirscan=0;
 	td->pathInfo=0;
 	td->pathTranslated=0;
@@ -1229,12 +1250,16 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 	for(int i=0, len=0;i<filenamePathLen ;i++)
 	{
 		/*!
-		*http://host/pathtofile/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
-		*When a request has this form send the file filetosend.php with the
-		*environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
-		*to QUERY_INFO_VALUE.
-		*/
-		if(i && (td->filenamePath[i]=='/'))/*!There is the '/' character check if dirscan is a file*/
+     *http://host/pathtofile/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
+     *When a request has this form send the file filetosend.php with the
+     *environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
+     *to QUERY_INFO_VALUE.
+     */
+
+    /*!
+     *There is the '/' character check if dirscan is a file
+     */
+		if(i && (td->filenamePath[i]=='/'))
 		{
 			if(!MYSERVER_FILE::isFolder(dirscan))
 			{
@@ -1398,7 +1423,6 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
     return ret;
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
-#ifdef WIN32
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
       if(data)
@@ -1408,16 +1432,10 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 		int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 0);
     if(data)
       delete [] data;
-    return ret;
-#endif
-#ifdef NOT_WIN
-    if(data)
-      delete [] data;
-		return raiseHTTPError(td, s, e_501);
-#endif
+    return ret & keepalive;
+
 	}else if(mimeCMD==CGI_CMD_EXECUTEISAPI)
 	{
-#ifdef WIN32
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
       if(data)
@@ -1427,13 +1445,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
   	int ret = lisapi.sendISAPI(td, s, td->filenamePath, ext, data, 1);
     if(data)
       delete [] data;
-    return ret;
-#endif
-#ifdef NOT_WIN
-    if(data)
-      delete [] data;
-		return raiseHTTPError(td, s, e_501);
-#endif
+    return ret & keepalive;
 	}
 	else if(mimeCMD==CGI_CMD_RUNMSCGI)
 	{
@@ -1452,15 +1464,17 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 		{
       if(data)
         delete [] data;
-			return lmscgi.sendMSCGI(td, s, td->filenamePath, target);
+			return lmscgi.sendMSCGI(td, s, td->filenamePath, target) & keepalive;
 		}
     if(data)
       delete [] data;
 		return raiseHTTPError(td, s, e_500);
-	}else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)
+	}
+  else if(mimeCMD==CGI_CMD_EXECUTEWINCGI)
 	{
     if(data)
       delete [] data;
+
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
 			return sendAuth(td, s);
@@ -1525,7 +1539,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 			return sendAuth(td, s);
 		}
 		MYSERVER_FILE h;
-		if(!h.openFile(td->filenamePath, 
+		if(h.openFile(td->filenamePath, 
                    MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ))
     {
       if(data)
@@ -1543,7 +1557,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
         delete [] data;   
       return sendHTTPhardError500(td, s);
     }
-		if(!h.readFromFile(linkpath, linkpathSize , &nbr))
+		if(h.readFromFile(linkpath, linkpathSize , &nbr))
 		{
 			h.closeFile();
       if(data)
@@ -1574,7 +1588,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
     delete [] pathInfo;
     if(data)
       delete [] data;
-    return ret;
+    return (ret & keepalive);
 	}
 	if(!(permissions & MYSERVER_PERMISSION_READ))
 	{     
@@ -1597,8 +1611,8 @@ int http::sendHTTPRESOURCE(httpThreadContext* td, LPCONNECTION s, char *URI, int
 			return sendHTTPNonModified(td, s);
     }
 	}
-	keepalive &= sendHTTPFILE(td, s, td->filenamePath, only_header, firstByte, lastByte);
-	return keepalive;
+	return (keepalive & sendHTTPFILE(td, s, td->filenamePath, only_header, 
+                                   firstByte, lastByte));
 }
 /*!
  *Log the access using the Common Log Format or the Combined one
@@ -1799,19 +1813,20 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
        *Create the file that contains the data posted.
        *This data is the stdin file in the CGI.
        */
-			if(!td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
+			if(td.inputData.openFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS | 
+                               MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
 				return 0;
 			u_long nbw;
 			u_long total_nbr=min(td.nBytesToRead, 
                            td.buffer->GetRealLength()-1)-td.nHeaderChars;
 			
-			if(!td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
+			if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
 			{
 				td.inputData.closeFile();
 				return 0;
 			}
-			
 			content_len=atoi(td.request.CONTENT_LENGTH);
+      
 			/*!
        *If the connection is Keep-Alive be sure that the client specify a the
        *HTTP CONTENT-LENGTH field.
@@ -1843,8 +1858,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 				}
 			}
 			/*!
-			*If there are others bytes to read from the socket.
-			*/
+       *If there are others bytes to read from the socket.
+       */
 			u_long timeout=get_ticks();
 			if((content_len)&&(content_len!=nbw))
 			{
@@ -1859,13 +1874,13 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 						if(content_len==total_nbr)
 						{
 							/*!
-							*Consider only CONTENT-LENGTH bytes of data.
-							*/
+               *Consider only CONTENT-LENGTH bytes of data.
+               */
 							while(td.connection->socket.bytesToRead())
 							{
 								/*!
-								*Read the unwanted bytes but do not save them.
-								*/
+                 *Read the unwanted bytes but do not save them.
+                 */
 								ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), 
                                                td.buffer2->GetRealLength(), 0);
 							}
@@ -1882,7 +1897,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 								return 0;
 							}
 							
-							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(), (u_long)ret, &nbw))
+							if(td.inputData.writeToFile((char*)td.buffer2->GetBuffer(),
+                                          (u_long)ret, &nbw))
 							{
 								td.inputData.closeFile();
 								td.inputData.deleteFile(td.inputDataPath);
@@ -1902,8 +1918,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 				if(content_len!=fs)
 				{
 					/*!
-					If we get an error remove the file and the connection.
-					*/
+           *If we get an error remove the file and the connection.
+           */
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
 					td.outputData.closeFile();
@@ -1924,8 +1940,9 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 					{
 						if(td.connection->socket.bytesToRead())
 						{
-							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), td.buffer2->GetRealLength(), 0);
-							if(!td.inputData.writeToFile((char*)td.buffer2->GetBuffer(), ret, &nbw))
+							ret=td.connection->socket.recv((char*)td.buffer2->GetBuffer(), 
+                                             td.buffer2->GetRealLength(), 0);
+							if(td.inputData.writeToFile((char*)td.buffer2->GetBuffer(), ret, &nbw))
 							{
 								td.inputData.deleteFile(td.inputDataPath);
 								td.inputData.closeFile();
@@ -1952,14 +1969,16 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 		td.request.URIOPTSPTR=0;
 	}
 	/*
-	*Manage chunked transfers.
-	*Data loaded before don't take care of the TRANSFER ENCODING. Here we clean data, making it usable.
-	*/
+   *Manage chunked transfers.
+   *Data loaded before don't take care of the TRANSFER ENCODING. 
+   *Here we clean data, making it usable.
+   */
 	if(!lstrcmpi(td.request.TRANSFER_ENCODING, "chunked"))
 	{
 		MYSERVER_FILE newStdIn;
 		sprintf(td.inputDataPath, "%s_encoded", td.inputData.getFilename());
-		if(!newStdIn.openFile(td.inputDataPath, MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
+		if(newStdIn.openFile(td.inputDataPath, MYSERVER_FILE_CREATE_ALWAYS | 
+                         MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE))
 		{
 			td.inputData.closeFile();
 			td.inputData.deleteFile(td.inputDataPath);
@@ -1975,7 +1994,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 			buffer[0]='\0';
 			for(;;)
 			{
-				if(!td.inputData.readFromFile(&c, 1, &nbr))
+				if(td.inputData.readFromFile(&c, 1, &nbr))
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
@@ -1997,7 +2016,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 					break;
 				}
 			}
-			if(!td.inputData.readFromFile(&c, 1, &nbr))/*!Read the \n char too*/
+      /*!Read the \n char too. */
+			if(td.inputData.readFromFile(&c, 1, &nbr))
 			{
 				td.inputData.closeFile();
 				td.inputData.deleteFile(td.inputDataPath);
@@ -2006,6 +2026,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 				return 0;
 			}
 			u_long dataToRead=(u_long)hexToInt(buffer);
+
 			/*! The last chunk length is 0. */
 			if(dataToRead==0)
 				break;
@@ -2013,7 +2034,9 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 			u_long dataRead=0;
 			while(dataRead<dataToRead)
 			{
-				if(!td.inputData.readFromFile((char*)td.buffer->GetBuffer(), min(dataToRead-dataRead, td.buffer->GetRealLength()-1), &nbr))
+				if(td.inputData.readFromFile((char*)td.buffer->GetBuffer(), 
+                                      min(dataToRead-dataRead, 
+                                          td.buffer->GetRealLength()-1), &nbr))
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
@@ -2025,7 +2048,7 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 					break;
 				dataRead+=nbr;
 				u_long nbw;
-				if(!newStdIn.writeToFile((char*)td.buffer->GetBuffer(), nbr, &nbw))
+				if(newStdIn.writeToFile((char*)td.buffer->GetBuffer(), nbr, &nbw))
 				{
 					td.inputData.closeFile();
 					td.inputData.deleteFile(td.inputDataPath);
@@ -2039,29 +2062,30 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 
 		}
 		/*!
-		*Now replace the file with the not-chunked one.
-		*/
+     *Now replace the file with the not-chunked one.
+     */
 		td.inputData.closeFile();
 		td.inputData.deleteFile(td.inputData.getFilename());
 		td.inputData=newStdIn;
 	}else	
-	/*
-	*If is specified another Transfer Encoding not supported by the server send a 501 error.
-	*/
+	/*!
+   *If is specified another Transfer Encoding not supported by the 
+   *server send a 501 error.
+   */
 	if(strlen(td.request.TRANSFER_ENCODING))
 	{
 			raiseHTTPError(&td, a, e_501);
 			/*!
-			*If the inputData file was not closed close it.
-			*/
+       *If the inputData file was not closed close it.
+       */
 			if(td.inputData.getHandle())
 			{
 				td.inputData.closeFile();
 				MYSERVER_FILE::deleteFile(td.inputDataPath);
 			}
 			/*!
-			*If the outputData file was not closed close it.
-			*/
+       *If the outputData file was not closed close it.
+       */
 			if(td.outputData.getHandle())
 			{
 				td.outputData.closeFile();
@@ -2070,29 +2094,29 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 			logHTTPaccess(&td, a);
 			return 0;
 	}
-
-	if(retvalue==-1)/*!If return value is not configured propertly.*/
+  /*!If return value is not configured propertly.*/
+	if(retvalue==-1)
 	{
 		/*!
-		*How is expressly said in the rfc2616 a client that sends an 
-		*HTTP/1.1 request MUST sends a Host header.
-		*Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
-		*request does not include a Host request-header.
-		*/
+     *How is expressly said in the rfc2616 a client that sends an 
+     *HTTP/1.1 request MUST sends a Host header.
+     *Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
+     *request does not include a Host request-header.
+     */
 		if((!strcmp(td.request.VER, "HTTP/1.1")) && td.request.HOST[0]==0)
 		{
 			raiseHTTPError(&td, a, e_400);
 			/*!
-			*If the inputData file was not closed close it.
-			*/
+       *If the inputData file was not closed close it.
+       */
 			if(td.inputData.getHandle())
 			{
 				td.inputData.closeFile();
 				MYSERVER_FILE::deleteFile(td.inputDataPath);
 			}
 			/*!
-			*If the outputData file was not closed close it.
-			*/
+       *If the outputData file was not closed close it.
+       */
 			if(td.outputData.getHandle())
 			{
 				td.outputData.closeFile();
@@ -2104,15 +2128,15 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 		else
 		{
 			/*!
-			*Find the virtual host to check both host name and IP value.
-			*/
+       *Find the virtual host to check both host name and IP value.
+       */
 			a->host=lserver->vhostList->getvHost(td.request.HOST, a->localIpAddr, a->localPort);
 			if(a->host==0)
 			{
 				raiseHTTPError(&td, a, e_400);
 				/*!
-				*If the inputData file was not closed close it.
-				*/
+         *If the inputData file was not closed close it.
+         */
 				if(td.inputData.getHandle())
 				{
 					td.inputData.closeFile();
@@ -2138,11 +2162,15 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 			 */
 			if(content_len==0)
 			{
-				/*connectionBuffer is 8 KB, so don't copy more bytes.*/
-				a->dataRead=min(KB(8), (int)strlen((char*)td.buffer->GetBuffer()) - td.nHeaderChars );
+				/*!
+         *connectionBuffer is 8 KB, so don't copy more bytes.
+         */
+				a->dataRead=min(KB(8), (int)strlen((char*)td.buffer->GetBuffer()) -
+                                                        td.nHeaderChars );
 				if(a->dataRead)
 				{
-					memcpy(a->connectionBuffer, ((char*)td.buffer->GetBuffer() + td.nHeaderChars), a->dataRead);
+					memcpy(a->connectionBuffer, ((char*)td.buffer->GetBuffer() +
+                                       td.nHeaderChars), a->dataRead);
 					retvalue=3;
 				}
 				else
@@ -2162,7 +2190,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 		if(!lstrcmpi(td.request.CMD, "GET"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, atoi(td.request.RANGEBYTEBEGIN), atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, atoi(td.request.RANGEBYTEBEGIN),
+                         atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td, a, td.request.URI);
 		}
@@ -2170,7 +2199,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 		else if(!lstrcmpi(td.request.CMD, "POST"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, atoi(td.request.RANGEBYTEBEGIN), atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 0, atoi(td.request.RANGEBYTEBEGIN),
+                         atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td, a, td.request.URI);
 		}
@@ -2178,7 +2208,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 		else if(!lstrcmpi(td.request.CMD, "HEAD"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1, atoi(td.request.RANGEBYTEBEGIN), atoi(td.request.RANGEBYTEEND));
+				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1, atoi(td.request.RANGEBYTEBEGIN),
+                         atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 		}
@@ -2191,7 +2222,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 		else if(!lstrcmpi(td.request.CMD, "PUT"))
 		{
 			if(!lstrcmpi(td.request.RANGETYPE, "bytes"))
-				putHTTPRESOURCE(&td, a, td.request.URI, 0, 1, atoi(td.request.RANGEBYTEBEGIN), atoi(td.request.RANGEBYTEEND));
+				putHTTPRESOURCE(&td, a, td.request.URI, 0, 1, atoi(td.request.RANGEBYTEBEGIN),
+                        atoi(td.request.RANGEBYTEEND));
 			else
 				putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 		}
@@ -2215,16 +2247,16 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 	}
 
 	/*!
-	*If the inputData file was not closed close it.
-	*/
+   *If the inputData file was not closed close it.
+   */
 	if(td.inputData.getHandle())
 	{
 		td.inputData.closeFile();
 		MYSERVER_FILE::deleteFile(td.inputDataPath);
 	}
 	/*!
-	*If the outputData file was not closed close it.
-	*/
+   *If the outputData file was not closed close it.
+   */
 	if(td.outputData.getHandle())
 	{
 		td.outputData.closeFile();
@@ -2234,8 +2266,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/, int bs1,
 }
 
 /*!
-*Compute the Digest to out using a buffer.
-*/
+ *Compute the Digest to out using a buffer.
+ */
 void http::computeDigest(httpThreadContext* td, char* out , char* buffer)
 {
 	if(!out)
@@ -2248,23 +2280,23 @@ void http::computeDigest(httpThreadContext* td, char* out , char* buffer)
 }
 
 /*!
-*Sends an error page to the client.
-*/
+ *Sends an error page to the client.
+ *Nonzero to keep the connection.
+ */
 int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 {
   td->lastError = ID;
 	http_headers::buildDefaultHTTPResponseHeader(&(td->response));
-	int keepalive=0;
 	if(!lstrcmpi(td->request.CONNECTION, "Keep-Alive"))
 	{
 		strcpy(td->response.CONNECTION, "Keep-Alive");
-		keepalive=1;
 	}
 	if(ID==e_401AUTH)
 	{
 		td->response.httpStatus = 401;
 		td->buffer2->SetLength(0);
-		*td->buffer2 << "HTTP/1.1 401 Unauthorized\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
+		*td->buffer2 << 
+           "HTTP/1.1 401 Unauthorized\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
 		*td->buffer2 << versionOfSoftware ;
 		*td->buffer2 << "\r\nContent-type: text/html\r\nConnection:";
 		*td->buffer2 <<td->request.CONNECTION;
@@ -2285,10 +2317,10 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 				}
 				resetHTTPUserData((http_user_data*)(a->protocolBuffer));
 			}
-
 			strncpy(((http_user_data*)a->protocolBuffer)->realm, td->request.HOST, 48);
-			
-			char md5_str[256];/*Just a random string*/
+
+			/*! Just a random string. */
+			char md5_str[256];
 			strncpy(&(md5_str[2]), td->request.URI, 256-2);
 			md5_str[0]=(char)td->id;
 			md5_str[1]=(char)clock();
@@ -2322,7 +2354,7 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 			/*!
        *Just send a non implemented error page.
        */
-			return raiseHTTPError(td, a, 501);
+      return raiseHTTPError(td, a, 501);
 		}				
 		*td->buffer2 << "Date: ";
 		char time[HTTP_RESPONSE_DATE_DIM];
@@ -2334,17 +2366,18 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 		{
 			return 0;
 		}
-		return keepalive;
+		return 1;
 	}
 	else
 	{
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-		char *defFile=0;
+		char *defFile = 0 ;
 		int ret = getErrorFileName(((vhost*)a->host)->documentRoot, 
                                getHTTPStatusCodeFromErrorID(ID), &defFile);
     if(ret == -1)
     {
-      return sendHTTPhardError500(td, a);
+      sendHTTPhardError500(td, a);
+      return 0;
     }
     else if(ret)
     {
@@ -2377,9 +2410,10 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
                               (u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
 	char *errorFile=new char[lenErrorFile];
 	if(errorFile)
-	{
-		sprintf(errorFile, "%s/%s", ((vhost*)(a->host))->systemRoot, HTTP_ERROR_HTMLS[ID]);
-		if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
+  {
+    sprintf(errorFile, "%s/%s", ((vhost*)(a->host))->systemRoot, 
+            HTTP_ERROR_HTMLS[ID]);
+    if(useMessagesFiles && MYSERVER_FILE::fileExists(errorFile))
 		{
 			delete [] errorFile;
 			return sendHTTPRESOURCE(td, a, HTTP_ERROR_HTMLS[ID], 1);
@@ -2393,7 +2427,7 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 	if(a->socket.send((char*)td->buffer->GetBuffer(), 
                     (u_long)strlen((char*)td->buffer->GetBuffer()), 0)==-1)
 		return 0;
-	return keepalive;
+	return 1;
 }
 
 /*!
@@ -2431,9 +2465,10 @@ int http::sendHTTPhardError500(httpThreadContext* td, LPCONNECTION a)
 	}
 	return 0;
 }
+
 /*!
-*Returns the MIME type passing its extension.
-*/
+ *Returns the MIME type passing its extension.
+ */
 int http::getMIME(char *MIME, char *filename, char *ext, char **dest2)
 {
 	MYSERVER_FILE::getFileExt(ext, filename);
@@ -2463,8 +2498,8 @@ int http::getPath(httpThreadContext* td, LPCONNECTION /*s*/, char **filenamePath
 		sprintf(*filenamePath, "%s/%s", ((vhost*)(td->connection->host))->systemRoot, filename);
 	}
 	/*!
-	*Else the file is in the web folder.
-	*/
+   *Else the file is in the web folder.
+   */
 	else
 	{	
 		if(filename[0])

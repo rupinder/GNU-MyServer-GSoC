@@ -90,14 +90,14 @@ int MYSERVER_FILE::writeToFile(char* buffer,u_long buffersize,u_long* nbw)
 	if(buffersize==0)
 	{
 		*nbw=0;
-		return 0;
+		return 1;
 	}
 #ifdef WIN32
 	return WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
 #endif
 #ifdef NOT_WIN
 	*nbw = write((int)handle, buffer, buffersize);
-	return (*nbw==buffersize)? 1 : 0 ;
+	return (*nbw==buffersize)? 0 : 1 ;
 #endif
 }
 
@@ -162,11 +162,11 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
 	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, creationFlag, attributeFlag, NULL);
-	/*! Return 0 if an error happens.  */
+	/*! Return 1 if an error happens.  */
   if(handle==INVALID_HANDLE_VALUE)
   {
     delete [] filename;
-		return 0;
+		return 1;
   }
 	else/*! Open the file. */
 	{
@@ -177,7 +177,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
   		if(ret)
       {
         closeFile();
-        return 0;
+        return 1;
       }
 	}
 
@@ -219,13 +219,13 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		if(ret  < 0)
 		{
       delete [] filename;
-			return 0;
+			return 1;
 		}
 		ret = open(Buffer,F_Flags);
 		if(ret == -1)
     {
       delete [] filename;
-			return 0;
+			return 1;
     }
 		handle= (MYSERVER_FILE_HANDLE)ret;
 	}
@@ -254,7 +254,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		if(ret == -1)
     {
       delete [] filename;
-			return 0;
+			return 1;
     }
 		else
 			handle=(MYSERVER_FILE_HANDLE)ret;
@@ -269,7 +269,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
 		if(ret == -1)
     {
       delete [] filename;
-			return 0;
+			return 1;
     }
 		else
 			 handle=(MYSERVER_FILE_HANDLE)ret;
@@ -285,7 +285,7 @@ int MYSERVER_FILE::openFile(char* nfilename,u_long opt)
   }
 #endif
 	
-	return (int)handle;
+	return 0;
 }
 /*!
  *Returns the file handle.

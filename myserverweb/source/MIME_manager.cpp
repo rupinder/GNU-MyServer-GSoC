@@ -42,7 +42,7 @@ int MIME_Manager::load(char *filename)
 	char *buffer;
 	MYSERVER_FILE f;
 	int ret=f.openFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS);
-	if(ret<1)
+	if(ret)
 		return 0;
 	u_long fs=f.getFileSize();
 	buffer=new char[fs+1];
