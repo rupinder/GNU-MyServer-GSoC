@@ -45,7 +45,7 @@ extern "C" {
 #endif
 #endif
 /*
-*Source code to wrap the socket library to myServer project.
+*Source code to wrap the socket library to MyServer project.
 */
 int startupSocketLib(u_short ver)
 {
@@ -140,13 +140,15 @@ MYSERVER_SOCKET MYSERVER_SOCKET::accept(MYSERVER_SOCKADDR* sa,int* sockaddrlen,i
 
 int MYSERVER_SOCKET::closesocket()
 {
+#ifndef DO_NOT_USE_SSL
+	freeSSL();
+#endif
 #ifdef WIN32
 	return ::closesocket(socketHandle);
 #endif
 #ifdef __linux__
 	return ::close((int)socketHandle);
 #endif
-	freeSSL();
 }
 MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyaddr(char* addr,int len,int type)
 {
@@ -167,6 +169,12 @@ MYSERVER_HOSTENT *MYSERVER_SOCKET::gethostbyname(const char *hostname)
 
 int MYSERVER_SOCKET::shutdown(int how)
 {
+#ifndef DO_NOT_USE_SSL
+	if(sslSocket)
+	{
+		while(SSL_shutdown(sslConnection)==0);
+	}
+#endif
 #ifdef WIN32
 	return ::shutdown(socketHandle,how);
 #endif

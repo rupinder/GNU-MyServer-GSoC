@@ -514,17 +514,8 @@ void cserver::terminate()
 	/*
 	*Clean here the memory allocated.
 	*/
-	vhostList.clean();
-	languageParser.close();
-	mimeManager.clean();
 	u_long threadsStopped=0;
-#ifdef WIN32
-	FreeEnvironmentStrings((LPTSTR)envString);
-	cleanupISAPI();
-#endif	
-	cleanFASTCGI();
 
-	freeMSCGILib();
 	/*
 	*Wait before clean the threads that all the threads are stopped.
 	*/
@@ -548,6 +539,16 @@ void cserver::terminate()
 	{
 		clearAllConnections();
 	}
+	vhostList.clean();
+	languageParser.close();
+	mimeManager.clean();
+#ifdef WIN32
+	FreeEnvironmentStrings((LPTSTR)envString);
+	cleanupISAPI();
+#endif	
+	cleanFASTCGI();
+
+	freeMSCGILib();
 	delete[] defaultFilename;
 
 	delete[] threads;
@@ -764,6 +765,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN 
 	nc->check_value = CONNECTION::check_value_const;
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
+	nc->parsing=0;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
 	nc->dataRead = 0;

@@ -315,7 +315,7 @@ int requestAccess(u_long* ac,u_long id)
 	/*
 	*Wait until another thread ends the access, then set our access.
 	*/
-	while(*ac!=id);
+	while(*ac);
 
 
 	*ac=id;

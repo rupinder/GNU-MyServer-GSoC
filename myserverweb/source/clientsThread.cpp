@@ -102,8 +102,11 @@ void ClientsTHREAD::controlConnections()
 	LPCONNECTION c=lserver->getConnectionToParse(this->id);
 	if(!c)
 		return;
+	if(c->parsing==1)
+		return;
 	if(c->check_value!=CONNECTION::check_value_const)
 		return;
+	c->parsing=1;
 	nBytesToRead=c->socket.bytesToRead();/*Number of bytes waiting to be read*/
 	if(nBytesToRead)
 	{
@@ -187,6 +190,7 @@ void ClientsTHREAD::controlConnections()
 			return;
 		}
 	}
+	c->parsing=0;
 }
 /*
 *Stop the thread
@@ -209,6 +213,7 @@ void ClientsTHREAD::clean()
 {
 	if(initialized==0)/*If the thread was not initialized return from the clean function*/
 		return;
+	threadIsRunning=0;
 	if(buffer)
 		delete[] buffer;
 	if(buffer2)
