@@ -742,7 +742,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 
 
 	int port=ntohs((*asock_in).sin_port);/*Port used by the client*/
-	int myport=ntohs(localsock_in.sin_port);/*Port connected on the server*/
+	int myport=ntohs(localsock_in.sin_port);/*Port connected to*/
 
 	static u_long local_nThreads=0;
 	ClientsTHREAD *ct=&threads[local_nThreads];
