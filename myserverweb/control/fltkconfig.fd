@@ -33,7 +33,7 @@ class MainDlg {open selected
 else {
   ConfDlg->hide();
 }} open
-      xywh {79 286 550 360} type Double hide
+      xywh {470 30 550 360} type Double hide
     } {
       Fl_Menu_Bar {} {open
         xywh {0 0 550 25}
@@ -315,15 +315,15 @@ if(ret) {
             callback {Changed = true;}
             xywh {295 120 115 25} maximum 5.24288e+07 step 1
           }
-          Fl_Value_Input Nthreads_A {
-            label {Threads per CPU:}
-            callback {Changed = true;}
-            xywh {295 150 115 25} maximum 1000 step 1
-          }
-          Fl_Value_Input Nthreads_B {
+          Fl_Value_Input Nthreads_Static {
             label {Always active threads:}
             callback {Changed = true;}
-            xywh {295 180 115 30} maximum 1000 step 1
+            xywh {295 150 115 30} maximum 1000 step 1
+          }
+          Fl_Value_Input Nthreads_Max {
+            label {Maximum number of threads:}
+            callback {Changed = true;}
+            xywh {295 185 115 25} maximum 1000 step 1
           }
           Fl_Choice Language {
             label {Language:}
@@ -1445,11 +1445,11 @@ for(i = 0; i < Language->size(); i++) {
 // <VERBOSITY>
 Verbosity->value(atoi(getValueXML("VERBOSITY")));
 
-// <NTHREADS_A>
-Nthreads_A->value(atoi(getValueXML("NTHREADS_A")));
+// <NTHREADS_STATIC>
+Nthreads_Static->value(atoi(getValueXML("NTHREADS_STATIC")));
 
-// <NTHREADS_B>
-Nthreads_B->value(atoi(getValueXML("NTHREADS_B")));
+// <NTHREADS_MAX>
+Nthreads_Max->value(atoi(getValueXML("NTHREADS_MAX")));
 
 // <BUFFER_SIZE>
 Buffer_Size->value(atoi(getValueXML("BUFFER_SIZE")));
@@ -1707,15 +1707,15 @@ i = (int)Verbosity->value();
 snprintf(Buffer, 256, "%d", i);
 setValueXML("VERBOSITY", Buffer);
 
-// <NTHREADS_A>
-i = (int)Nthreads_A->value();
+// <NTHREADS_STATIC>
+i = (int)Nthreads_Static->value();
 snprintf(Buffer, 256, "%d", i);
-setValueXML("NTHREADS_A", Buffer);
+setValueXML("NTHREADS_STATIC", Buffer);
 
-// <NTHREADS_B>
-i = (int)Nthreads_B->value();
+// <NTHREADS_MAX>
+i = (int)Nthreads_Max->value();
 snprintf(Buffer, 256, "%d", i);
-setValueXML("NTHREADS_B", Buffer);
+setValueXML("NTHREADS_MAX", Buffer);
 
 // <BUFFER_SIZE>
 i = (int)Buffer_Size->value();

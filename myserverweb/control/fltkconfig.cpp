@@ -345,18 +345,18 @@ void MainDlg::cb_Max_Log_File_Size(Fl_Value_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Max_Log_File_Size_i(o,v);
 }
 
-inline void MainDlg::cb_Nthreads_A_i(Fl_Value_Input*, void*) {
+inline void MainDlg::cb_Nthreads_Static_i(Fl_Value_Input*, void*) {
   Changed = true;
 }
-void MainDlg::cb_Nthreads_A(Fl_Value_Input* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Nthreads_A_i(o,v);
+void MainDlg::cb_Nthreads_Static(Fl_Value_Input* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Nthreads_Static_i(o,v);
 }
 
-inline void MainDlg::cb_Nthreads_B_i(Fl_Value_Input*, void*) {
+inline void MainDlg::cb_Nthreads_Max_i(Fl_Value_Input*, void*) {
   Changed = true;
 }
-void MainDlg::cb_Nthreads_B(Fl_Value_Input* o, void* v) {
-  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Nthreads_B_i(o,v);
+void MainDlg::cb_Nthreads_Max(Fl_Value_Input* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Nthreads_Max_i(o,v);
 }
 
 inline void MainDlg::cb_Language_i(Fl_Choice*, void*) {
@@ -2243,15 +2243,15 @@ Fl_Double_Window* MainDlg::make_window() {
           o->step(1);
           o->callback((Fl_Callback*)cb_Max_Log_File_Size);
         }
-        { Fl_Value_Input* o = Nthreads_A = new Fl_Value_Input(295, 150, 115, 25, gettext("Threads per CPU:"));
+        { Fl_Value_Input* o = Nthreads_Static = new Fl_Value_Input(295, 150, 115, 30, gettext("Always active threads:"));
           o->maximum(1000);
           o->step(1);
-          o->callback((Fl_Callback*)cb_Nthreads_A);
+          o->callback((Fl_Callback*)cb_Nthreads_Static);
         }
-        { Fl_Value_Input* o = Nthreads_B = new Fl_Value_Input(295, 180, 115, 30, gettext("Always active threads:"));
+        { Fl_Value_Input* o = Nthreads_Max = new Fl_Value_Input(295, 185, 115, 25, gettext("Maximum number of threads:"));
           o->maximum(1000);
           o->step(1);
-          o->callback((Fl_Callback*)cb_Nthreads_B);
+          o->callback((Fl_Callback*)cb_Nthreads_Max);
         }
         { Fl_Choice* o = Language = new Fl_Choice(295, 215, 115, 25, gettext("Language:"));
           o->down_box(FL_BORDER_BOX);
@@ -2501,8 +2501,8 @@ Fl_Double_Window* MainDlg::make_window() {
     o->end();
   }
   // Set FLTK function's text
-  fl_ok = gettext("OK");
-  fl_cancel = gettext("Cancel");
+(char *)fl_ok = gettext("OK");
+(char *)fl_cancel = gettext("Cancel");
   return w;
 }
 
@@ -2953,11 +2953,11 @@ for(i = 0; i < Language->size(); i++) {
 // <VERBOSITY>
 Verbosity->value(atoi(getValueXML("VERBOSITY")));
 
-// <NTHREADS_A>
-Nthreads_A->value(atoi(getValueXML("NTHREADS_A")));
+// <NTHREADS_STATIC>
+Nthreads_Static->value(atoi(getValueXML("NTHREADS_STATIC")));
 
-// <NTHREADS_B>
-Nthreads_B->value(atoi(getValueXML("NTHREADS_B")));
+// <NTHREADS_MAX>
+Nthreads_Max->value(atoi(getValueXML("NTHREADS_MAX")));
 
 // <BUFFER_SIZE>
 Buffer_Size->value(atoi(getValueXML("BUFFER_SIZE")));
@@ -3215,15 +3215,15 @@ i = (int)Verbosity->value();
 snprintf(Buffer, 256, "%d", i);
 setValueXML("VERBOSITY", Buffer);
 
-// <NTHREADS_A>
-i = (int)Nthreads_A->value();
+// <NTHREADS_STATIC>
+i = (int)Nthreads_Static->value();
 snprintf(Buffer, 256, "%d", i);
-setValueXML("NTHREADS_A", Buffer);
+setValueXML("NTHREADS_STATIC", Buffer);
 
-// <NTHREADS_B>
-i = (int)Nthreads_B->value();
+// <NTHREADS_MAX>
+i = (int)Nthreads_Max->value();
 snprintf(Buffer, 256, "%d", i);
-setValueXML("NTHREADS_B", Buffer);
+setValueXML("NTHREADS_MAX", Buffer);
 
 // <BUFFER_SIZE>
 i = (int)Buffer_Size->value();

@@ -123,15 +123,15 @@ private:
   inline void cb_Max_Log_File_Size_i(Fl_Value_Input*, void*);
   static void cb_Max_Log_File_Size(Fl_Value_Input*, void*);
 public:
-  Fl_Value_Input *Nthreads_A;
+  Fl_Value_Input *Nthreads_Static;
 private:
-  inline void cb_Nthreads_A_i(Fl_Value_Input*, void*);
-  static void cb_Nthreads_A(Fl_Value_Input*, void*);
+  inline void cb_Nthreads_Static_i(Fl_Value_Input*, void*);
+  static void cb_Nthreads_Static(Fl_Value_Input*, void*);
 public:
-  Fl_Value_Input *Nthreads_B;
+  Fl_Value_Input *Nthreads_Max;
 private:
-  inline void cb_Nthreads_B_i(Fl_Value_Input*, void*);
-  static void cb_Nthreads_B(Fl_Value_Input*, void*);
+  inline void cb_Nthreads_Max_i(Fl_Value_Input*, void*);
+  static void cb_Nthreads_Max(Fl_Value_Input*, void*);
 public:
   Fl_Choice *Language;
 private:
