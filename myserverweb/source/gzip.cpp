@@ -108,7 +108,7 @@ u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT)
 u_long gzip::gzip_free(char* ,u_long ,char *,u_long)
 {
 #ifndef DO_NOT_USE_GZIP
-	if(data.initialized=0)
+	if(data.initialized==0)
 		return 0;
 	data.initialized=0;
 	int ret;

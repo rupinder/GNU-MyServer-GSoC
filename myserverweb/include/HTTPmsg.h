@@ -20,16 +20,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef HTTPMSG_H
 #define HTTPMSG_H
 
-#define e_200			13
-#define e_201			14
-#define e_202			15
-#define e_203			16
-#define e_204			17
-#define e_300			18
-#define e_301			19
-#define e_302			20
-#define e_303			21
-#define e_304			22
+#define e_200			14
+#define e_201			15
+#define e_202			16
+#define e_203			17
+#define e_204			18
+#define e_205			19
+#define e_206			20
+#define e_300			21
+#define e_301			22
+#define e_302			23
+#define e_303			24
+#define e_304			25
 #define e_400			0
 #define e_401			1
 #define e_401AUTH		1001
@@ -44,9 +46,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define e_500			10
 #define e_501			11
 #define e_502			12
+#define e_503			13
 
-extern char HTTP_ERROR_MSGS[24][64];
-extern char HTTP_ERROR_HTMLS[24][64];
+extern char HTTP_ERROR_MSGS[26][64];
+extern char HTTP_ERROR_HTMLS[26][64];
 int getErrorIDfromHTTPStatusCode(int statusCode);
 int getHTTPStatusCodeFromErrorID(int statusCode);
 #endif

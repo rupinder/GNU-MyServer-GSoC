@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *This array is used to describe the errors for the HTTP protocol.
 */
-char HTTP_ERROR_MSGS[24][64]=
+char HTTP_ERROR_MSGS[26][64]=
 {
 	"Bad request",						/*!400*/
 	"Unauthorized",						/*!401*/
@@ -37,11 +37,14 @@ char HTTP_ERROR_MSGS[24][64]=
 	"Internal Server error",			/*!500*/
 	"Not implemented",					/*!501*/
 	"Bad gateway",						/*!502*/
+	"Out of Resources",				/*!503*/
 	"OK",								/*!200*/
 	"Created",							/*!201*/			
 	"Accepted",							/*!202*/			
 	"Non-Authoritative Information",	/*!203*/			
 	"No Content",						/*!204*/			
+	"Reset Contents",						/*!205*/
+	"Partial Content",						/*!206*/
 	"Multiple Choices",					/*!300*/	
 	"Moved Permanently",				/*!301*/		
 	"Moved Temporarily",				/*!302*/		
@@ -51,7 +54,7 @@ char HTTP_ERROR_MSGS[24][64]=
 /*!
 *This array is used to describe the HTTP files for personalized errors page.
 */
-char HTTP_ERROR_HTMLS[24][64]=
+char HTTP_ERROR_HTMLS[26][64]=
 {
 	"400.html",						/*!400*/
 	"401.html",						/*!401*/
@@ -65,17 +68,20 @@ char HTTP_ERROR_HTMLS[24][64]=
 	"414.html",						/*!414*/
 	"500.html",						/*!500*/
 	"501.html",						/*!501*/
-	"502.html"						/*!502*/
+	"502.html"							/*!502*/
+	"503.html"							/*!503*/
 	"200.html",						/*!200*/
 	"201.html",						/*!201*/			
 	"202.html",						/*!202*/			
 	"203.html",						/*!203*/			
 	"204.html",						/*!204*/			
+	"205.html",						/*!205*/			
+	"206.html",						/*!206*/				
 	"300.html",						/*!300*/	
 	"301.html",						/*!301*/		
 	"302.html",						/*!302*/		
 	"303.html",						/*!303*/			
-	"304.html"						/*!304*/
+	"304.html"							/*!304*/
 };
 /*!
 *Return an error ID starting from an HTTP status code.
@@ -98,6 +104,12 @@ int getErrorIDfromHTTPStatusCode(int statusCode)
 			break;
 		case 204:
 			return e_204;
+			break;
+		case 205:
+			return e_205;
+			break;
+		case 206:
+			return e_206;
 			break;
 		case 300:
 			return e_300;
@@ -153,6 +165,10 @@ int getErrorIDfromHTTPStatusCode(int statusCode)
 		case 502:
 			return e_502;
 			break;
+		case 503:
+			return e_503;
+			break;
+
 	}
 	return -1;
 }
@@ -178,6 +194,12 @@ int getHTTPStatusCodeFromErrorID(int statusCode)
 		case e_204:
 			return 204;
 			break;
+		case e_205:
+			return 205;
+			break;
+		case e_206:
+			return 206;
+			break;		
 		case e_300:
 			return 300;
 			break;
@@ -232,6 +254,9 @@ int getHTTPStatusCodeFromErrorID(int statusCode)
 		case e_502:
 			return 502;
 			break;
+		case e_503:
+			return 503;
+			break;		
 	}
 	return -1;
 }

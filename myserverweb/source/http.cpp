@@ -154,7 +154,7 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		}
 	}
 	/*!
-	*With the current code we build the HTML TABLE that describes the files in the folder.
+	*With the current code we build the HTML TABLE to indicize the files in the folder.
 	*/
 	sprintf(td->buffer2,"<TABLE width=\"100%%\">\r\n<TR>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n<TD>%s</TD>\r\n</TR>\r\n","File","Last modify","Size");
 	outFile.writeToFile(td->buffer2,(u_long)strlen(td->buffer2),&nbw);
@@ -235,7 +235,7 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	*Open the file and save its handle.
 	*/
 	int ret;
-	int useGZIP=0;/*Use GZIP compression to send data?*/
+	int useGZIP=0;/*Will we use GZIP compression to send data?*/
 	MYSERVER_FILE h;
 	ret=h.openFile(filenamePath,MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_OPEN_READ);
 	if(ret==0)
@@ -265,8 +265,15 @@ int sendHTTPFILE(httpThreadContext* td,LPCONNECTION s,char *filenamePath,int Onl
 	/*
 	*Be sure that client accept GZIP compressed data.
 	*/
+#ifndef DO_NOT_USE_GZIP		
 	if(useGZIP)
 		useGZIP &= (strstr(td->request.ACCEPTENC,"gzip")!=0);
+#else
+	/*
+	*If compiled without GZIP support force the server to don't use it.
+	*/
+	useGZIP=0;
+#endif	
 	/*!
 	*bytesToSend is the interval between the first and the last byte.
 	*/
@@ -997,7 +1004,20 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	{
 		return 2;
 	}
-	td.nBytesToRead+=a->dataRead;
+	/*
+	*If the connection must be removed, remove it.
+	*/
+	if(td.connection->toRemove)
+	{
+		switch(td.connection->toRemove)
+		{
+			case CONNECTION_REMOVE_OVERLOAD:
+				retvalue = raiseHTTPError(&td,a,e_503);
+				logHTTPaccess(&td,a);						
+				return 0;/*Remove the connection from the list*/
+		}
+	}
+	td.nBytesToRead+=a->dataRead;/*Offset to the buffer after the HTTP header.*/
 	/*!
 	*If the header is an invalid request send the correct error message to the client and return immediately.
 	*/
@@ -1535,7 +1555,6 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 	*The HTTP header ends with a \r\n sequence.
 	*/
 	strcat(str,"\r\n");
-
 }
 /*!
 *Set the defaults value for a HTTP_RESPONSE_HEADER structure.
@@ -1563,6 +1582,7 @@ void buildDefaultHTTPResponseHeader(HTTP_RESPONSE_HEADER* response)
 */
 int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 {
+	buildDefaultHTTPResponseHeader(&(td->response));
 	if(ID==e_401AUTH)
 	{
 		td->response.httpStatus = 401;
@@ -1613,6 +1633,9 @@ int raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	{
 		return sendHTTPRESOURCE(td,a,HTTP_ERROR_HTMLS[ID],1);
 	}
+	/*
+	*Send the error over the HTTP
+	*/
 	sprintf(td->response.CONTENT_LENGTH,"%i",(u_long)strlen(HTTP_ERROR_MSGS[ID]));
 
 	buildHTTPResponseHeader(td->buffer,&td->response);

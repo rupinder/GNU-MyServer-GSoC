@@ -687,6 +687,7 @@ void cserver::initialize(int /*!OSVer*/)
 	browseDirCSSpath[0]='\0';
 	mustEndServer=0;
 	verbosity=1;
+	maxConnections=0;
 	gzip_threshold=1<<20;
 	serverAdmin[0]='\0';
 
@@ -777,6 +778,14 @@ void cserver::initialize(int /*!OSVer*/)
 	{
 		gzip_threshold=atoi(data);
 	}		
+	/*!
+	*Get the max connections number to allow.
+	*/
+	data=configurationFileManager.getValue("MAX_CONNECTIONS");
+	if(data)
+	{
+		maxConnections=atoi(data);
+	}			
 	
 	/*!
 	*Determine the number of default filenames written in the configuration file.
@@ -914,6 +923,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	nc->check_value = CONNECTION::check_value_const;
 	nc->connectionBuffer[0]='\0';
 	nc->socket=s;
+	nc->toRemove=0;
 	nc->parsing=0;
 	nc->port=(u_short)port;
 	nc->timeout=clock();
@@ -929,9 +939,9 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 		return 0;
 	}
 	/*!
-	*If the protocol is HTTPS do the SSL handshake
+	*If the protocol uses SSL do the SSL handshake
 	*/
-	if(((vhost*)nc->host)->protocol == PROTOCOL_HTTPS)
+	if(((vhost*)nc->host)->protocol > 1000)
 	{
 #ifndef DO_NOT_USE_SSL		
 		SSL_CTX* ctx=((vhost*)nc->host)->getSSLContext();
@@ -947,7 +957,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 			return 0;
 		}
 	}
-
+	
 	nc->login[0]='\0';
 	nc->nTries=0;
 	nc->password[0]='\0';
@@ -958,6 +968,15 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	}
     connections=nc;
 	nConnections++;
+	
+	/*
+	If defined maxConnections and the number of active connections is bigger than it
+	*say to the protocol that will parse the connection to remove it from the active
+	*connections list.
+	*/
+	if(maxConnections && (nConnections>maxConnections))
+		nc->toRemove=CONNECTION_REMOVE_OVERLOAD;
+	
 	terminateAccess(&connectionWriteAccess,id);
 	return nc;
 }

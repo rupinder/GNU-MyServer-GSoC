@@ -27,8 +27,12 @@ cannot be found on the server.
 <p ><br>
 </p>
 To define a personalized error page file for a virtual host you can add a line like the following in the primary
-virtual host security file. A primary security file for a virtual host is the security file that is located in the main folder of the 
-virtual host.
+virtual host security file. Defining a different error file, the server will look in the 
+<span class="code">web</span> folder instead of the <span class="code">system</span> one. If no presonalized files are used 
+the server will look for the file <span class="code">x.html</span> in the <span class="code">system</span> 
+folder, where <span class="code">x</span> is the error number(for example:<span class="code">404.html</span>).
+ A primary security file for a virtual host is the security file that is located in the main folder of the 
+virtual host. If this file doesn't exist too the error will be communicated trough HTTP.
 <p  class="code">
 &lt;ERROR FILE="error404.html" ID="404" /&gt;
 </p>

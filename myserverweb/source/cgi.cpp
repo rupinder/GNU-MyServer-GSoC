@@ -99,7 +99,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
     */
 	char currentpath[MAX_PATH];
 	getdefaultwd(currentpath,MAX_PATH);
-	sprintf(td->outputDataPath,"%s/stdOutFile_%u",currentpath,td->id);
+	sprintf(td->outputDataPath,"%s/stdOutFile_%u",currentpath,(unsigned int)td->id);
 
 		
 	/*!
@@ -216,7 +216,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 		/*!
 		*Always specify the size of the HTTP contents.
 		*/
-		sprintf(td->response.CONTENT_LENGTH,"%u",stdOutFile.getFileSize()-headerSize);
+		sprintf(td->response.CONTENT_LENGTH,"%u",(unsigned int)stdOutFile.getFileSize()-headerSize);
 		buildHTTPResponseHeader(td->buffer,&td->response);
 		s->socket.send(td->buffer,(int)strlen(td->buffer), 0);
 		s->socket.send((char*)(td->buffer2+headerSize),nBytesRead-headerSize, 0);
@@ -246,7 +246,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*!ext*/
 *Write the string that contain the CGI environment to cgiEnvString.
 *This function is used by other server side protocols too.
 */
-void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int processEnv)
+void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int /*processEnv*/)
 {
 	/*!
 	*The Environment string is a null-terminated block of null-terminated strings.
