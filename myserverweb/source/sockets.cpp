@@ -244,9 +244,9 @@ int	MYSERVER_SOCKET::setsockopt(int level,int optname,const char *optval,int opt
 }
 
 /*!
-*Send data over the socket.
-*Return -1 on error.
-*/
+ *Send data over the socket.
+ *Return -1 on error.
+ */
 int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 {
 #ifndef DO_NOT_USE_SSL
@@ -256,8 +256,12 @@ int MYSERVER_SOCKET::send(const char* buffer,int len,int flags)
 		do
 		{
 			err=SSL_write(sslConnection,buffer,len);
-		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
-		return err;
+		}while((err<=0) &&(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE 
+                       || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
+    if(err<=0)
+      return -1;
+    else
+      return err;
 	}
 #endif
 #ifdef WIN32
@@ -450,12 +454,15 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
-		do
-		{	
-			err=SSL_read(sslConnection,buffer,len);
-		}while(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_X509_LOOKUP 
-           || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ);
-		if(SSL_get_error(sslConnection,err)!=SSL_ERROR_ZERO_RETURN)
+    do
+    {	
+      err=SSL_read(sslConnection,buffer,len);
+    }while((err <= 0) && 
+           (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_X509_LOOKUP)
+           || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ)
+            || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE));
+
+		if(err<=0)
 			return -1;
 		else 
 			return err;
@@ -482,8 +489,8 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 */
 u_long MYSERVER_SOCKET::bytesToRead()
 {
-	u_long nBytesToRead=0;
-	ioctlsocket(FIONREAD,&nBytesToRead);
+  u_long nBytesToRead=0;
+  ioctlsocket(FIONREAD,&nBytesToRead);
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
@@ -494,7 +501,9 @@ u_long MYSERVER_SOCKET::bytesToRead()
 			return  SSL_pending(sslConnection);
 		}
 	}
+  else
 #endif
+
 	return nBytesToRead;
 }
 /*!

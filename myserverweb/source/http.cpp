@@ -1776,12 +1776,13 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 	int validRequest=http_headers::buildHTTPRequestHeaderStruct(&td.request, &td);
 	if(validRequest==-1)/*!If the header is incomplete returns 2*/
 	{
-		if(!strcmp(td.request.VER, "HTTP/1.1"))/*Be sure that the client can handle the 100 status code*/
-		{
+    /*! Be sure that the client can handle the 100 status code. */
+    if(!strcmp(td.request.VER, "HTTP/1.1"))
+    {
 			char* msg="HTTP/1.1 100 Continue\r\n\r\n";
 			if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
 				return 0;/*Remove the connection from the list*/
-		}
+    }
 		logHTTPaccess(&td, a);
 		return 2;
 	}
@@ -1796,10 +1797,10 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 		
 	if(a->protocolBuffer)
 		((http_user_data*)a->protocolBuffer)->digest_checked=0;	
-	td.nBytesToRead+=a->dataRead;/*Offset to the buffer after the HTTP header.*/
 	
 	/*!
-	 *If the header is an invalid request send the correct error message to the client and return immediately.
+	 *If the header is an invalid request send the correct error 
+   *message to the client and return immediately.
 	 */
 	if(validRequest==0)
 	{
@@ -1908,8 +1909,8 @@ int http::controlConnection(LPCONNECTION a, char* /*b1*/, char* /*b2*/,
 						MYSERVER_FILE::deleteFile(td.inputDataPath);
 					}
 					/*!
-					*If the outputData file was not closed close it.
-					*/
+           *If the outputData file was not closed close it.
+           */
 					if(td.outputData.getHandle())
 					{
 						td.outputData.closeFile();

@@ -63,7 +63,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 #ifndef DO_NOT_USE_MSCGI 
 	static HMODULE hinstLib; 
   static CGIMAIN ProcMain;
-	u_long nbr=0,nbs=0;
+	u_long nbr=0;
+  int nbs=0;
 	cgi_data data;
 	data.envString=td->request.URIOPTSPTR ?
                     td->request.URIOPTSPTR : (char*) td->buffer->GetBuffer();
@@ -234,8 +235,8 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 			data.stdOut.readFromFile(buffer,bufferSize,&nbr);
 			if(nbr)
 			{
-				nbs=(u_long)s->socket.send(buffer,nbr,0);
-				if(nbs==(u_long)SOCKET_ERROR)
+				nbs=s->socket.send(buffer,nbr,0);
+				if(nbs==-1)
 				{
 					if(!td->appendOutputs)
 					{

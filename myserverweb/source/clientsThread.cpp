@@ -185,13 +185,13 @@ void ClientsTHREAD::controlConnections()
        *the active connections list.
        */
 			case PROTOCOL_HTTP:
-				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
+				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead+c->dataRead, id);
 				break;
 			/*!
        *Parse an HTTPS connection request.
        */
 			case PROTOCOL_HTTPS:
-				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead, id);
+				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), buffer.GetLength(), buffer2.GetLength(), nBytesToRead+c->dataRead, id);
 				break;
 			default:
 				dynamic_protocol* dp=lserver->getDynProtocol(((vhost*)(c->host))->protocol_name);

@@ -471,7 +471,7 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 					request->URIOPTS[j+1]='\0';
 				}
 			}
-			myserver_strlcpy(request->VER,&token[max],HTTP_REQUEST_VER_DIM + 1);
+			myserver_strlcpy(request->VER,&token[max+1],HTTP_REQUEST_VER_DIM-1);
 			if(request->URI[strlen(request->URI)-1]=='/')
 				request->uriEndsWithSlash=1;
 			else
