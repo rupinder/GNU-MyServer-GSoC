@@ -86,7 +86,10 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 #ifdef WIN32
 	SECURITY_ATTRIBUTES sa = {0};  
     sa.nLength = sizeof(sa);
-    sa.bInheritHandle = FALSE;
+	if(opt & MYSERVER_FILE_NO_INHERIT)
+		sa.bInheritHandle = FALSE;
+	else
+		sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = NULL;
 	u_long creationFlag=0;
 	u_long openFlag=0;
@@ -109,10 +112,11 @@ int MYSERVER_FILE::ms_OpenFile(char* filename,u_long opt)
 		openFlag|=FILE_ATTRIBUTE_TEMPORARY; 
 		attributeFlag|=FILE_FLAG_DELETE_ON_CLOSE;
 	}
-
 	if(opt & MYSERVER_FILE_OPEN_HIDDEN)
 		openFlag|=FILE_ATTRIBUTE_HIDDEN;
 
+	if(attributeFlag == 0)
+		attributeFlag = FILE_ATTRIBUTE_NORMAL;
 	handle=(MYSERVER_FILE_HANDLE)CreateFile(filename, openFlag,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,&sa,creationFlag,attributeFlag, NULL);
 	if(handle==INVALID_HANDLE_VALUE)/*If exists an error*/
 	{
@@ -257,21 +261,25 @@ int	MYSERVER_FILE::ms_ReadFromFile(char* buffer,u_long buffersize,u_long* nbr)
 */
 int MYSERVER_FILE::ms_CreateTemporaryFile(char* filename)
 { 
-	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY|MYSERVER_FILE_CREATE_ALWAYS);
+	return ms_OpenFile(filename,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_HIDDEN|MYSERVER_FILE_OPEN_TEMPORARY);
 }
 /*
 *Close an open file handle.
 */
 int MYSERVER_FILE::ms_CloseFile()
 {
+	int ret=0;
+	if(handle)
+	{
 #ifdef WIN32
-	FlushFileBuffers((HANDLE)handle);
-	int ret=CloseHandle((HANDLE)handle);
+		FlushFileBuffers((HANDLE)handle);
+		ret=CloseHandle((HANDLE)handle);
 #endif
 #ifdef __linux__
-	fsync((int)handle);
-	int ret=close((int)handle);
+		fsync((int)handle);
+		ret=close((int)handle);
 #endif
+	}
 	handle=0;
 	return ret;
 }

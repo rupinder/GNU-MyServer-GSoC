@@ -28,7 +28,6 @@ static struct sfCGIservers
 		unsigned int value;
 	}DESCRIPTOR;
 	MYSERVER_SOCKET socket;
-	MYSERVER_SOCKET dupsock;
 	int pid; /*process ID*/ 
 	u_short port;/*IP port*/
 }fCGIservers[MAX_FCGI_SERVERS];
@@ -57,6 +56,8 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	buildCGIEnvironmentString(td,td->buffer);
 
 	int sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer,td->buffer2);
+	td->inputData.ms_CloseFile();
+	td->inputData.ms_OpenFile(td->inputDataPath,MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_IFEXISTS|MYSERVER_FILE_NO_INHERIT);
 
 	int pID = FcgiConnect(&con,cgipath);
 	if(pID<0)
@@ -144,7 +145,9 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			{
 				case FCGI_STDERR:
 					con.sock.ms_closesocket();
-					return raiseHTTPError(td,connection,e_501);
+					raiseHTTPError(td,connection,e_501);
+					exit = 1;
+					break;
 				case FCGI_STDOUT:
 					nbr=con.sock.ms_recv(td->buffer,min(dim,td->buffersize),0);
 		
@@ -242,6 +245,8 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			}
 		}
 	}while((!exit) && nbr);
+	td->inputData.ms_CloseFile();
+	MYSERVER_FILE::ms_DeleteFile(td->inputDataPath);
 	con.sock.ms_closesocket();
 	return 1;
 }
@@ -269,9 +274,6 @@ int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 	int i;
 	for(;;)
 	{
-		if(*(++sptr)=='\0')
-			break;
-		
 		fourchar varNameLen;
 		fourchar varValueLen;
 
@@ -321,7 +323,8 @@ int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 			*ptr++=varName[i];
 		for(i=0;i<varValueLen.i;i++)
 			*ptr++=varValue[i];
-
+		if(*(++sptr)=='\0')
+			break;
 	}
 	return (int)(ptr-ep);
 }
@@ -348,9 +351,6 @@ int cleanFASTCGI()
 	for(int i=0;i<fCGIserversN;i++)
 	{
 		fCGIservers[i].socket.ms_closesocket();
-#ifdef WIN32
-		fCGIservers[fCGIserversN].dupsock.ms_closesocket();
-#endif
 		terminateProcess(fCGIservers[i].pid);
 	}
 	return 1;
@@ -423,14 +423,7 @@ int runFcgiServer(fCGIContext *con,char* path)
 			return -2;
 		}
 #ifdef WIN32
-		HANDLE sourceHandle=(HANDLE)fCGIservers[fCGIserversN].socket.ms_getHandle();
-		HANDLE destHandle;
-		DuplicateHandle(GetCurrentProcess(),sourceHandle,GetCurrentProcess(),&destHandle,0,TRUE,DUPLICATE_SAME_ACCESS);
-		fCGIservers[fCGIserversN].dupsock.ms_setHandle((MYSERVER_SOCKET_HANDLE)destHandle);
-		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=(unsigned long)destHandle;
-#else
-		fCGIservers[fCGIserversN].dupsock.ms_setHandle(fCGIservers[fCGIserversN].socket.ms_getHandle());
-		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].dupsock.ms_getHandle();
+		fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle=fCGIservers[fCGIserversN].socket.ms_getHandle();
 #endif
 	}
 	START_PROC_INFO spi;
@@ -439,7 +432,7 @@ int runFcgiServer(fCGIContext *con,char* path)
 	spi.cmd=cmd;
 	spi.stdIn = (MYSERVER_FILE_HANDLE)fCGIservers[fCGIserversN].DESCRIPTOR.fileHandle;
 	spi.cmdLine=cmd;
-	spi.arg = NULL; // no argument so clear it
+	spi.arg = NULL; /* no argument so clear it */
 
 	sprintf(spi.cmd,"%s%s",con->td->cgiRoot,con->td->cgiFile);
 	strcpy(fCGIservers[fCGIserversN].path,spi.cmd);

@@ -587,6 +587,8 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 	*For methods that accept data after the HTTP header set the correct pointer and create a file
 	*containing the informations after the header.
 	*/
+	ms_getdefaultwd(td.inputDataPath,MAX_PATH);
+	sprintf(&td.inputDataPath[lstrlen(td.inputDataPath)],"/stdInFile_%u",td.id);
 	if(!lstrcmpi(td.request.CMD,"POST"))
 	{
 		td.request.URIOPTSPTR=&td.buffer[td.nHeaderChars];
@@ -595,9 +597,7 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		*Create the file that contains the data posted.
 		*This data is the stdin file in the CGI.
 		*/
-		ms_getdefaultwd(td.inputDataPath,MAX_PATH);
-		sprintf(&td.inputDataPath[lstrlen(td.inputDataPath)],"/stdInFile_%u",td.id);
-		td.inputData.ms_CreateTemporaryFile(td.inputDataPath);
+		td.inputData.ms_OpenFile(td.inputDataPath,MYSERVER_FILE_CREATE_ALWAYS|MYSERVER_FILE_OPEN_READ|MYSERVER_FILE_OPEN_WRITE);
 		u_long nbw;
 		td.inputData.ms_WriteToFile(td.request.URIOPTSPTR,min(td.nBytesToRead,td.buffersize)-td.nHeaderChars,&nbw);
 
@@ -1037,7 +1037,7 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 	/*
 	*Count the number of lines in the header.
 	*/
-	for(nLines=i=0;(i<KB(2));i++)
+	for(nLines=i=0;(i<KB(5));i++)
 	{
 		if(req[i]=='\n')
 		{

@@ -117,13 +117,13 @@ void ClientsTHREAD::controlConnections()
 		if(nBytesToRead)
 		{
 			ms_logon(c,&logonStatus,&hImpersonation);
-			err=c->socket.ms_recv(&buffer[c->dataRead],KB(2), 0);
+			err=c->socket.ms_recv(&buffer[c->dataRead],KB(5), 0);
 			if(err==-1)
 			{
-				if(deleteConnection(c))
+				deleteConnection(c);
 					continue;
 			}
-			if((c->dataRead+err)<KB(2))
+			if((c->dataRead+err)<KB(5))
 			{
 				buffer[c->dataRead+err]='\0';
 			}
