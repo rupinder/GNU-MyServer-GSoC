@@ -66,6 +66,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	}
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
+	connTable[connIndex].Allocated = TRUE;
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	AppHnd = LoadLibrary(cgipath);
@@ -129,6 +130,41 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	{
 		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, ISAPI_TIMEOUT);
 	}
+	/*
+	*Flush the output to the client.
+	*/
+	u_long headerSize=0;
+	u_long len=lstrlen(connTable[connIndex].td->buffer);
+	for(u_long i=0;i<len;i++)
+	{
+		if(connTable[connIndex].td->buffer[i]=='\r')
+			if(connTable[connIndex].td->buffer[i+1]=='\n')
+				if(connTable[connIndex].td->buffer[i+2]=='\r')
+					if(connTable[connIndex].td->buffer[i+3]=='\n')
+					{
+						/*
+						*The HTTP header ends with a \r\n\r\n sequence so 
+						*determinate where it ends and set the header size
+						*to i + 4.
+						*/
+						headerSize=i+4;
+						break;
+					}
+	}
+	sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",len-headerSize);
+/*	buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
+	if(headerSize)
+		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2)-2, 0);
+	else
+		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2), 0);*/
+	char lbuffer[100];
+	ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer,headerSize-2, 0);
+	sprintf(lbuffer,"Content-Length:%i\r\n\r\n",len-headerSize);
+	ms_send(connTable[connIndex].connection->socket,lbuffer,lstrlen(lbuffer), 0);
+	char *content=(char*)(connTable[connIndex].td->buffer+headerSize);
+	ms_send(connTable[connIndex].connection->socket,content,len-headerSize, 0);
+
+
 	int retvalue=0;
 	switch(Ret) 
 	{
@@ -158,9 +194,14 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 		warningsLogWrite("ServerSupportFunctionExport: invalid hConn\r\n");
 		return FALSE;
 	}
-
 	switch (dwHSERRequest) 
 	{
+		case HSE_REQ_MAP_URL_TO_PATH:
+			char URL[MAX_PATH];
+			strcpy(URL,(char *)lpvBuffer);
+			getPath((char*)lpvBuffer,URL,FALSE);
+			*lpdwDataType=lstrlen((char*)lpvBuffer);
+			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
 			return ISAPIRedirect(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
 			break;
@@ -230,7 +271,6 @@ int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
 BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved)
 {
 	ConnTableRecord *ConnInfo;
-	int Ret;
 
 	if(*lpdwBytes==0)
 		return TRUE;
@@ -240,9 +280,8 @@ BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWO
 		warningsLogWrite("WriteClientExport: invalid hConn\r\n");
 		return FALSE;
 	}
-	/*strncat(ConnInfo->td->buffer,(char*)Buffer,*lpdwBytes);*/
-	ms_send(ConnInfo->connection->socket,(char*)Buffer,*lpdwBytes,0);
-	if (Ret == -1) 
+	strncat(ConnInfo->td->buffer,(char*)Buffer,*lpdwBytes);
+	if (*lpdwBytes == -1) 
 	{
 		*lpdwBytes = 0;
 		return FALSE;
@@ -297,6 +336,16 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 	*TODO
 	*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
 	*/
+	((char*)lpvBuffer)[0]='\0';
+	char *localEnv=ConnInfo->envString;
+	int variableNameLen=lstrlen(lpszVariableName);
+	for(u_long i=0;;i++)
+	{
+		if(!strncmp(&localEnv[i],lpszVariableName,variableNameLen))
+			strncpy((char*)lpvBuffer,&localEnv[i+variableNameLen+1],*lpdwSize);
+		else if((localEnv[i]=='\0') && (localEnv[i+1]=='\0'))
+			break;
+	}
 	*lpdwSize=lstrlen((char*)lpvBuffer);
 	return TRUE;
 }
