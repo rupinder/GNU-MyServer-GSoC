@@ -29,6 +29,9 @@ extern "C" {
 #endif
 }
 
+// for strlcat, strlcpy
+#include "securestr.cpp"
+
 
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
 char* strustr(char *source, char *s)
@@ -243,12 +246,12 @@ char* MimeDecodeMailHeaderField(char *s)
 		s[0] = '\0';
 		if (start != NULL)
 		{
-			strncat(s, start, strlen(s)+strlen(start)+1);
+			strlcat(s, start,sizeof(s));
 		}
-		strncat(s, decodedText,strlen(s)+strlen(decodedText)+1);
+		strlcat(s, decodedText,sizeof(s));
   		if (rest != NULL)
 		{
-			strncat(s, rest, strlen(s)+strlen(rest)+1);
+			strlcat(s, rest,sizeof(s));
 		}
 		free(decodedText);
 	}

@@ -80,6 +80,6 @@ size_t strlcpy(char *destination, const char *source, size_t size)
         while(*srcptr++);
     }
     
-    return(srcptr-src-1);
+    return(srcptr-source-1);
 }
 
