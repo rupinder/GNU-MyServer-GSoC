@@ -604,13 +604,13 @@ MYSERVER_SOCKET* MYSERVER_SOCKET::getServerSocket()
  *Check for data to be read on the socket
  *Returns 1 if there is data to read, 0 if not.
  */
-int MYSERVER_SOCKET::dataOnRead()
+int MYSERVER_SOCKET::dataOnRead(int sec, int usec)
 {
 	struct timeval tv;
 	fd_set readfds;
 
-	tv.tv_sec = 0;
-	tv.tv_usec = 500;
+	tv.tv_sec = sec;
+	tv.tv_usec = usec;
 
 	FD_ZERO(&readfds);
 #ifdef WIN32

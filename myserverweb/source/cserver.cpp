@@ -476,7 +476,7 @@ void * listenServer(void* params)
      *Every new connection is sended to cserver::addConnection function;
      *this function sends connections between the various threads.
      */
-		if(serverSocket->dataOnRead()==0)
+		if(serverSocket->dataOnRead(5, 0) == 0 )
 		{
 			wait(10);
 			continue;
