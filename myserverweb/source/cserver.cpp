@@ -244,7 +244,7 @@ void cserver::start()
 	/*
 	*Load the virtual hosts configuration from the xml file
 	*/
-	vhostList.loadXMLConfigurationFile("virtualhosts.xml");
+	vhostList.loadXMLConfigurationFile("virtualhosts.xml",this->getMaxLogFileSize());
 
 
 	/*
