@@ -593,7 +593,7 @@ char *cserver::getServerAdmin()
 *Here is loaded the configuration of the server.
 *The configuration file is a XML file.
 */
-void cserver::initialize(int /*!os_ver*/)
+int cserver::initialize(int /*!os_ver*/)
 {
 #ifdef WIN32
 	envString=GetEnvironmentStrings();
@@ -661,7 +661,7 @@ void cserver::initialize(int /*!os_ver*/)
 				preparePrintError();
 				printf("%s\n", languageParser.getValue("ERR_LOADED"));
 				endPrintError();
-				return;
+				return 1;
 			}
 			outputF.openFile("myserver.xml", MYSERVER_FILE_OPEN_WRITE|MYSERVER_FILE_OPEN_ALWAYS);
 			char buffer[512];
@@ -755,7 +755,7 @@ void cserver::initialize(int /*!os_ver*/)
 	
 	languageParser.open(languageFile);
 	printf("%s\n", languageParser.getValue("MSG_LANGUAGE"));
-
+	return 0;
 	
 }
 /*!

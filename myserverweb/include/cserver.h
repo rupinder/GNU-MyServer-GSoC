@@ -88,7 +88,7 @@ private:
 	char languageFile[MAX_PATH];
 	char path[MAX_PATH];
 	char serverAdmin[32];
-	void initialize(int);
+	int initialize(int);
 	LPCONNECTION addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in,char *ipAddr,char *localIpAddr,int port,int localPort,int);
     	u_long nConnections;
 	u_long maxConnections;
