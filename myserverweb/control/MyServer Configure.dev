@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=23
+UnitCount=25
 Type=0
 Ver=1
 ObjFiles=
@@ -269,6 +269,26 @@ BuildCmd=
 
 [Unit23]
 FileName=..\include\md5.h
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit24]
+FileName=..\source\MemBuf.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit25]
+FileName=..\include\MemBuf.h
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1

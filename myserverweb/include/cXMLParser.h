@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../stdafx.h"
 #include "../include/filemanager.h"
+#include "../include/MemBuf.h"
 extern "C" 
 {
 #include <libxml/xmlmemory.h>
@@ -43,11 +44,13 @@ public:
 	cXMLParser();
 	xmlDocPtr getDoc();
 	int open(char* filename);
+	int openMemBuf(CMemBuf &);
 	char *getValue(char* field);
 	char *getAttr(char* field,char *attr);
 	int setValue(char* field,char *value);
 	int close();
 	int save(char *filename,int *nbytes=0);
+	int saveMemBuf(CMemBuf &,int *nbytes=0);
 	void newfile(const char * root);
 	void addChild(const char * name, const char * value);
 	void addGroup(const char * name);

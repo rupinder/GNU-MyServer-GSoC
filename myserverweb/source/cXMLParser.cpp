@@ -44,6 +44,17 @@ extern "C" {
 
 #endif
 
+/* internal call back functions for saveMemBuf */
+static int MemBufWriteCallback(void * context, const char * buffer, int len)
+{
+	((CMemBuf *)context)->AddBuffer((const void *)buffer, len);
+	return len;
+}
+static int MemBufCloseCallback(void * context)
+{
+	return 0;
+}
+
 /*!
  *Initialize the libxml2 library
  */
@@ -73,6 +84,30 @@ int cXMLParser::open(char* filename)
 		return -1;
 	if(doc==0)
 		doc = xmlParseFile(filename);
+	else
+		close();
+	if(!doc)
+		return -1;
+	cur = xmlDocGetRootElement(doc);
+	if(!cur)
+	{
+		close();
+		return -1;
+	}
+	return 0;
+}
+/*!
+ *Read the xml data from a char array
+ *Return nonzero on errors.
+ */
+int cXMLParser::openMemBuf(CMemBuf & memory)
+{
+	cur=0;
+	if(memory.GetLength() == 0)
+		return -1;
+	if(doc==0)
+		doc = xmlParseMemory((const char * )memory.GetBuffer(),
+		                     memory.GetLength());
 	else
 		close();
 	if(!doc)
@@ -199,6 +234,31 @@ int cXMLParser::save(char *filename,int *nbytes)
   if(nbytes)
     *nbytes = err;
 
+  return err;
+}
+/*!
+ *Save the XML tree to memory
+ *Returns nonzero on errors
+ *If no errors nbytes[optional] will cointain the number 
+ *of bytes written.
+ */
+int cXMLParser::saveMemBuf(CMemBuf & memory,int *nbytes)
+{
+  /* initilize the callback struct */
+  xmlOutputBufferPtr callback;
+  callback = xmlOutputBufferCreateIO(MemBufWriteCallback,
+                                     MemBufCloseCallback,
+				     (void *)&memory,
+				     NULL);
+  
+  /* clear out the buffer */
+  memory.Free(); 
+  
+  /* let libxml2 fill the MemBuf class with our interal callbacks */
+  int err = xmlSaveFileTo(callback, doc, NULL);
+  if(nbytes)
+    *nbytes = err;
+  
   return err;
 }
 /*!
