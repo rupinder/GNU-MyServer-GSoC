@@ -326,6 +326,7 @@ int http::optionsHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char* /*filen
 */
 int http::traceHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char* /*filename*/,int /*yetmapped*/)
 {
+	char tmpStr[12];
 	int content_len=(int)td->nHeaderChars;
 	char time[HTTP_RESPONSE_DATE_DIM];
 	getRFC822GMTTime(time,HTTP_RESPONSE_DATE_DIM);
@@ -336,7 +337,7 @@ int http::traceHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char* /*filenam
 	*td->buffer2 << "Date: " << time ;
 	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
 	*td->buffer2 << "\r\nConnection:" << td->request.CONNECTION ;
-	*td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len) << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
+	*td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
 	
 	/*!
 	*Send our HTTP header.
@@ -1268,6 +1269,7 @@ int http::sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *URI,int sy
 */
 int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 {
+	char* tmpStrInt = new char[12];
 	td->buffer2->SetLength(0);
 	*td->buffer2 << a->ipAddr;
 	*td->buffer2<< " ";
@@ -1296,7 +1298,7 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 	{
 		*td->buffer2 << "?" << td->request.URIOPTS;
 	}
-	*td->buffer2 << td->request.VER  << "\" " <<  CMemBuf::IntToStr(td->response.httpStatus)  << " ";
+	*td->buffer2 << td->request.VER  << "\" " <<  CMemBuf::IntToStr(td->response.httpStatus, tmpStrInt, 12)  << " ";
 	
 	if(td->response.CONTENT_LENGTH[0])
 		*td->buffer2  << td->response.CONTENT_LENGTH;
@@ -2002,6 +2004,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 */
 int http::sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 {
+	char tmpStr[12];
 	td->response.httpStatus=500;
 	td->buffer->SetLength(0);
 	*td->buffer <<  HTTP_ERROR_MSGS[e_500] ;
@@ -2016,7 +2019,7 @@ int http::sendHTTPhardError500(httpThreadContext* td,LPCONNECTION a)
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
 	*td->buffer2 << versionOfSoftware;
 	*td->buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
-	*td->buffer2  <<   CMemBuf::IntToStr((int)strlen(hardHTML));
+	*td->buffer2  <<   CMemBuf::IntToStr((int)strlen(hardHTML), tmpStr, 12);
 	*td->buffer2   << "\r\n";
 	*td->buffer2 <<"Date: ";
 	char time[HTTP_RESPONSE_DATE_DIM];

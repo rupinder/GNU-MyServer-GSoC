@@ -287,7 +287,8 @@ void CMemBuf::SetExternalBuffer(const void* pAdr, u_int size)
 	Free();
 	m_bCanDelete = false;
 	m_buffer = (char*) pAdr;
-	m_nRealSize = m_nSize = size;
+	m_nRealSize = size;
+	m_nSize = 0;
 }
 
 /*! Return the internal buffer by setting previously a specific length */
@@ -490,7 +491,7 @@ CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 
 // Int <-> Str conversion functions
 
-/* Return a CMemBuf with the string representation of "i" */
+/*! Return a CMemBuf with the string representation of "i" */
 CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 {
 	CMemBuf strFinal;
@@ -519,6 +520,46 @@ CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 
 	char *pFirst = strFinal.m_buffer;
 	char *pLast = strFinal.m_buffer + strFinal.m_nSize - 1;
+	char temp;
+	do
+	{
+		temp = *pLast;
+		*pLast = *pFirst;
+		*pFirst = temp;
+		pFirst++;
+		pLast--;
+	}
+	while (pFirst < pLast);
+	strFinal << end_str;
+	strFinal.m_nSize--;
+	return strFinal;
+}
+
+/*! Return a CMemBuf with the string representation of "i" using an external buffer. */
+CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative, char* pBufToUse, UINT nBufSize)
+{
+	CMemBuf strFinal;
+	strFinal.m_nSizeLimit = nBufSize;
+	strFinal.SetExternalBuffer(pBufToUse, nBufSize);
+	if (i == 0) // log10(0) won't work !!
+	{
+		strFinal.SetBuffer("0", 2);
+		strFinal.m_nSize = 1;
+		return strFinal;
+	}
+	do
+	{
+		strFinal << (char) ('0' + i % 10);
+		i /= 10;
+	}
+	while (i > 0);
+	if (bNegative)
+		strFinal << '-';
+	// Here, we got the string but in reverse order.
+	// So, we reverse it :)
+
+	char *pFirst = pBufToUse;
+	char *pLast = pBufToUse + strFinal.m_nSize - 1;
 	char temp;
 	do
 	{
@@ -705,12 +746,26 @@ CMemBuf CMemBuf::UIntToStr(u_int i)
 {
 	return XIntToStr(i, 0);
 }
-CMemBuf CMemBuf::IntToStr(int i) 
+
+CMemBuf CMemBuf::UIntToStr(u_int i, char* pBufToUse, u_int nBufSize) 
+{
+	return XIntToStr(i, 0, pBufToUse, nBufSize);
+}
+
+CMemBuf CMemBuf::IntToStr(int i)
 {
 	if (i < 0) 
 		return XIntToStr((u_int)(-i), 1); 
 	else 
 		return XIntToStr((u_int) i, 0);
+}
+
+CMemBuf CMemBuf::IntToStr(int i, char* pBufToUse, u_int nBufSize) 
+{
+	if (i < 0) 
+		return XIntToStr((u_int)(-i), 1, pBufToUse, nBufSize); 
+	else 
+		return XIntToStr((u_int) i, 0, pBufToUse, nBufSize);
 }
 
 CMemBuf CMemBuf::Hex(CMemBuf& membuf)
@@ -728,7 +783,8 @@ CMemBuf CMemBuf::Hash_CRC(CMemBuf& membuf)
 
 void CMemBuf::AllocBuffer(u_int size)
 {
-	Free(); 
+	printf("Buffer allocated\n");
+	Free();
 	m_buffer = mem_alloc(size); 
 	m_nRealSize = size;
 }
