@@ -59,7 +59,7 @@ const char *versionOfSoftware="0.6.1";
 cserver server;
 
 
-#ifdef __linux__
+#ifndef WIN32
 void Sig_Quit(int signal)
 {
 	printf("Exiting...\n");
@@ -77,7 +77,8 @@ int main (int argn, char **argc)
 	sig1.sa_handler=SIG_IGN;
 	sig2.sa_handler=Sig_Quit;
 	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
-	sigaction(SIGTERM,&sig2,NULL); // catch ctrl-c
+	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
+	sigaction(SIGTERM,&sig2,NULL); // catch the kill command
 #endif
 	/*!
 	*By default use the console mode.

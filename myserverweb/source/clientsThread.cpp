@@ -29,6 +29,7 @@ extern "C" {
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <signal.h>
 #include <unistd.h>
 #include <time.h>
 #ifdef __linux__
@@ -60,6 +61,15 @@ unsigned int __stdcall startClientsTHREAD(void* pParam)
 void * startClientsTHREAD(void* pParam)
 #endif
 {
+#ifndef WIN32
+	// Block SigTerm, SigInt, and SigPipe in threads
+	sigset_t sigmask;
+	sigemptyset(&sigmask);
+	sigaddset(&sigmask, SIGPIPE);
+	sigaddset(&sigmask, SIGINT);
+	sigaddset(&sigmask, SIGTERM);
+	sigprocmask(SIG_SETMASK, &sigmask, NULL);
+#endif
 	u_long id=*((u_long*)pParam) - ClientsTHREAD::ID_OFFSET;
 
 	ClientsTHREAD *ct=&lserver->threads[id];

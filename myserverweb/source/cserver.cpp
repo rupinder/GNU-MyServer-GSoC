@@ -31,6 +31,7 @@ extern "C" {
 #ifdef __linux__
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -504,6 +505,15 @@ unsigned int __stdcall listenServer(void* params)
 void * listenServer(void* params)
 #endif
 {
+#ifndef WIN32
+	// Block SigTerm, SigInt, and SigPipe in threads
+	sigset_t sigmask;
+	sigemptyset(&sigmask);
+	sigaddset(&sigmask, SIGPIPE);
+	sigaddset(&sigmask, SIGINT);
+	sigaddset(&sigmask, SIGTERM);
+	sigprocmask(SIG_SETMASK, &sigmask, NULL);
+#endif
 	listenThreadArgv *argv=(listenThreadArgv*)params;
 	MYSERVER_SOCKET serverSocket=argv->serverSocket;
 	delete argv;
