@@ -128,6 +128,8 @@ MYSERVER_FILE_HANDLE ms_OpenFile(char* filename,DWORD opt)
 
 	if(ret && (opt & MYSERVER_FILE_OPEN_APPEND))
 		setFilePointer((MYSERVER_FILE_HANDLE)ret,getFileSize((MYSERVER_FILE_HANDLE)ret));
+	else
+		setFilePointer((MYSERVER_FILE_HANDLE)ret,0);
 
 #endif
 	return ret;
