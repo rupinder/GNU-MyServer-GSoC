@@ -35,14 +35,13 @@ END_EVENT_TABLE()
 
 
 
-configurationFrameMIME::configurationFrameMIME(const wxString& title, const wxPoint& pos, const wxSize& size, long style)
-       : wxFrame(NULL, -1, title, pos, size, style)
+configurationFrameMIME::configurationFrameMIME(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size, long style): wxFrame(parent, -1, title, pos, size, style)
 {
 	char version[50];
 	sprintf(version,"myServer Control Center %s\n",VERSION_OF_SOFTWARE);
 	wxPanel *panel = new wxPanel(this, -1);
-    wxListBox *m_lbox=new wxListBox(panel,3,wxPoint(160,0), wxSize(180,100),0, NULL,wxLB_HSCROLL);
-    wxArrayString items;
+    extensionsLB=new wxListBox(panel,3,wxPoint(0,0), wxSize(120,100),0, NULL,wxLB_HSCROLL);
+    mimeTypesLB=new wxListBox(panel,3,wxPoint(120,0), wxSize(190,100),0, NULL,wxLB_HSCROLL);
 	MIME_Manager mm;
 	mm.load("MIMEtypes.txt");
 	u_long nelements=mm.getNumMIMELoaded();
@@ -52,10 +51,11 @@ configurationFrameMIME::configurationFrameMIME(const wxString& title, const wxPo
 		char dest[60];/*MIME type*/
 		char dest2[MAX_PATH];/*CGI manager if any*/
 		int cmd=mm.getMIME(i,ext,dest,dest2);/*Action to do with this file type*/
-		items.Add(_T(ext),1);
+		if(mimeTypesLB->FindString(_T(dest))==wxNOT_FOUND)
+			mimeTypesLB->Insert(_T(dest),0);
+		extensionsLB->Insert(_T(ext),0);
 	}
 	mm.clean();
-	m_lbox->InsertItems(items,0);
 	wxButton* btnOK= new wxButton(panel,Configuration_Ok,"OK",wxPoint(160,160),wxSize(50,25));
 	wxButton* btnCNL= new wxButton(panel,Configuration_Cancel,"Cancel",wxPoint(210,160),wxSize(50,25));
 }
@@ -65,7 +65,7 @@ void configurationFrameMIME::cancel(wxCommandEvent& WXUNUSED(event))
 }
 void configurationFrameMIME::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
-	Destroy();
+	Show(FALSE);	
 }
 void configurationFrameMIME::ok(wxCommandEvent& WXUNUSED(event))
 {

@@ -139,7 +139,6 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	serviceMenu->Append(ControlCenter_RemoveService, _T("Remove service\t"), _T("Remove the OS service\t"));
 	
 	configureMenu->Append(ControlCenter_Configure,_T("Configure myServer"),_T("Configure myServer"));
-
     wxMenuBar *menuBar = new wxMenuBar();
     menuBar->Append(menuFile, _T("&File"));
 	menuBar->Append(serviceMenu, _T("&Install/Remove service"));
@@ -155,7 +154,7 @@ mainFrame::mainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 }
 void mainFrame::configureWnd(wxCommandEvent& WXUNUSED(event))
 {
-	configurationWnd=new configurationFrame(_T("Configure myServer"),wxPoint(60, 60), wxSize(320, 240));
+	configurationWnd=new configurationFrame(this,_T("Configure myServer"),wxPoint(60, 60), wxSize(160, 120));
 	configurationWnd->Show(TRUE);
 }
 

@@ -32,8 +32,9 @@ extern const char VERSION_OF_SOFTWARE[];
 class configurationFrameMIME : public wxFrame
 {
 public:
-
-	configurationFrameMIME(const wxString& title, const wxPoint& pos, const wxSize& size,long style = wxDEFAULT_FRAME_STYLE);
+	wxListBox *mimeTypesLB;
+	wxListBox *extensionsLB;
+	configurationFrameMIME(wxWindow *parent,const wxString& title, const wxPoint& pos, const wxSize& size,long style = wxDEFAULT_FRAME_STYLE);
 	void OnQuit(wxCommandEvent& event);
 	void cancel(wxCommandEvent& event);
 	void ok(wxCommandEvent& event);
