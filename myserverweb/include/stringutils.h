@@ -46,6 +46,7 @@ char* strupr(char * string);
 #define lstrcpy strcpy
 #define lstrcat strcat
 #define lstrlen strlen
+#define lstrcpyn strncpy
 #endif
 
 #endif
