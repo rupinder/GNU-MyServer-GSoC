@@ -203,7 +203,7 @@ void cserver::start()
 	{
 		wait(1000);
 		configsCheck++;
-		if(configsCheck>50)/*Do not check for modified configuration files every cycle*/
+		if(configsCheck>500)/*Do not check for modified configuration files every cycle*/
 		{
 			time_t myserver_main_conf_now=MYSERVER_FILE::getLastModTime("myserver.xml");
 			time_t myserver_hosts_conf_now=MYSERVER_FILE::getLastModTime("virtualhosts.xml");

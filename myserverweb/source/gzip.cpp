@@ -72,7 +72,11 @@ u_long gzip::gzip_initialize(char* ,u_long ,char *,u_long)
 #ifdef GZIP_CHECK_BOUNDS	
 u_long gzip::gzip_compressBound(int size)
 {
+#ifdef compressBound 
 	return compressBound(size);
+#else
+	return 0;
+#endif	
 }
 #endif
 
@@ -87,7 +91,7 @@ u_long gzip::gzip_compress(char* in,u_long sizeIN,char *out,u_long sizeOUT)
 	int ret;
 
 #ifdef GZIP_CHECK_BOUNDS
-	if(compressBound(sizeIN)>(u_long)sizeOUT)
+	if(gzip_compressBound(sizeIN)>(u_long)sizeOUT)
 		return 0;
 #endif
 	data.stream.data_type=Z_BINARY;

@@ -29,9 +29,11 @@ extern "C" {
 #endif
 #ifdef HAVE_DL
 #include <dlfcn.h>
-#define HMODULE void *
 #endif
 }
+#ifndef  HMODULE
+#define HMODULE void *
+#endif
 
 class dynamic_protocol : public protocol
 {

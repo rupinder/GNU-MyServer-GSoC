@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define mem_alloc(size) (new char[size])
 #define mem_free(pAdr) (delete [] pAdr)
 #else
-#include <malloc.h>
+#include <stdlib.h>
 #define mem_alloc(size) ((char*) malloc(size))
 #define mem_free(pAdr) (free(pAdr))
 #endif
