@@ -152,6 +152,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	else
 		td->buffer2[0]='\0';
 
+	int yetoutputted=0;
 	/*
 	*Standard CGI can include an extra HTTP header so do not 
 	*terminate with \r\n the default myServer header.
@@ -159,37 +160,50 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 	u_long headerSize=0;
 	for(u_long i=0;i<nBytesRead;i++)
 	{
-		if(td->buffer2[i]=='\r')
-			if(td->buffer2[i+1]=='\n')
-				if(td->buffer2[i+2]=='\r')
-					if(td->buffer2[i+3]=='\n')
-					{
-						/*
-						*The HTTP header ends with a \r\n\r\n sequence so 
-						*determinate where it ends and set the header size
-						*to i + 4.
-						*/
-						headerSize=i+4;
-						break;
-					}
-	}
-	sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
-	buildHTTPResponseHeader(td->buffer,&td->response);
-
-	/*
-	*If there is an extra header, send lstrlen(td->buffer)-2 because the
-	*last two characters are \r\n that terminating the HTTP header.
-	*Don't send any header if the CGI executable has the nph-.... form name.
-	*/
-	if(!nph)
-	{
-		if(headerSize)
-			ms_send(s->socket,td->buffer,lstrlen(td->buffer)-2, 0);
+		if((td->buffer2[i]=='\r')&&(td->buffer2[i+1]=='\n')&&(td->buffer2[i+2]=='\r')&&(td->buffer2[i+3]=='\n'))
+		{
+			/*
+			*The HTTP header ends with a \r\n\r\n sequence so 
+			*determinate where it ends and set the header size
+			*to i + 4.
+			*/
+			headerSize=i+4;
+			break;
+		}
 		else
-			ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
+			if(!strncmp(&td->buffer2[i],"Location",8))
+			{
+				char nURL[MAX_PATH];
+				int j=0;
+				while(td->buffer2[i+j+10]!='\r')
+				{
+					nURL[j]=td->buffer2[i+j+10];
+					nURL[j+1]='\0';
+					j++;
+				}
+				if(!yetoutputted)
+					sendHTTPRedirect(td,s,nURL);
+				yetoutputted=1;
+			}
 	}
-	ms_send(s->socket,td->buffer2,nBytesRead, 0);
-
+	if(!yetoutputted)
+	{
+		sprintf(td->response.CONTENTS_DIM,"%u",nBytesRead-headerSize);
+		buildHTTPResponseHeader(td->buffer,&td->response);
+		/*
+		*If there is an extra header, send lstrlen(td->buffer)-2 because the
+		*last two characters are \r\n that terminating the HTTP header.
+		*Don't send any header if the CGI executable has the nph-.... form name.
+		*/
+		if(!nph)
+		{
+			if(headerSize)
+				ms_send(s->socket,td->buffer,lstrlen(td->buffer)-2, 0);
+			else
+				ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
+		}
+		ms_send(s->socket,td->buffer2,nBytesRead, 0);
+	}
 	
 	/*
 	*Close and delete the stdin and stdout files used by the CGI.

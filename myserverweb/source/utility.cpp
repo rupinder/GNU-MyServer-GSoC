@@ -85,8 +85,7 @@ u_long getCPUCount()
 /*
 *Execute an hidden process and wait until it ends itself or its execution
 *time is greater than the timeout value.
-*Returns 1 if the process ended itself or returns 0 if the process was
-*closed by the server
+*Returns the process exit code.
 */
 u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 {
@@ -109,10 +108,12 @@ u_long execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	/*
 	*Wait until it's ending by itself.
 	*/
-	u_long ret=WaitForSingleObject(pi.hProcess,timeout);
+	WaitForSingleObject(pi.hProcess,timeout);
+	u_long exitCode;
+	GetExitCodeProcess(pi.hProcess,&exitCode);
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
-	return (ret==WAIT_TIMEOUT)?0:1;
+	return exitCode;
 #endif
 }
 

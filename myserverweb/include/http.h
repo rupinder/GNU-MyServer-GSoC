@@ -65,3 +65,4 @@ int getMIME(char *MIME,char *filename,char *dest,char *dest2);
 u_long validHTTPRequest(httpThreadContext*,u_long*,u_long*);
 void resetHTTPRequest(HTTP_REQUEST_HEADER *request);
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL);
+int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a);

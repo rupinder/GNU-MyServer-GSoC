@@ -275,7 +275,6 @@ void cserver::start()
 		Sleep(SEC(1));
 #endif
 	}
-	
 	this->terminate();
 }
 /*
@@ -315,7 +314,7 @@ void cserver::createServerAndListener(u_long port,u_long protID)
 #endif
 
 	/*
-	*Bind the  port.
+	*Bind the port.
 	*/
 	printf("%s\n",languageParser.getValue("MSG_BIND_PORT"));
 
@@ -440,7 +439,7 @@ void cserver::terminate()
 		cleanLogonUser(&guestLoginHandle);
 
 	/*
-	*Stop server.
+	*Stop the server execution.
 	*/
 	u_long i;
 	for(i=0;i<nThreads;i++)
@@ -456,15 +455,15 @@ void cserver::terminate()
 		printf("%s\n",languageParser.getValue("MSG_MEMCLEAN"));
 	}
 	/*
-	*Here clean the memory allocated.
+	*Clean here the memory allocated.
 	*/
 	languageParser.close();
 	mimeManager.clean();
 	u_long threadsStopped=0;
-	freeMSCGILib();
 #ifdef WIN32
 	cleanupISAPI();
 #endif	
+	freeMSCGILib();
 	/*
 	*Wait before clean the threads that all the threads are stopped.
 	*/
@@ -503,6 +502,9 @@ char *cserver::getServerAdmin()
 */
 void cserver::initialize(int OSVer)
 {
+	/*
+	*Store the default values for these variables.
+	*/
 	socketRcvTimeout = 10;
 	useLogonOption = TRUE;
 	guestLoginHandle=0;

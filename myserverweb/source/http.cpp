@@ -158,7 +158,6 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 			*buffer2Loop='/';
 	buildDefaultHTTPResponseHeader(&(td->response));
 	sprintf(td->response.CONTENTS_DIM,"%u",lstrlen(td->buffer2));
-	lstrcpy(td->response.LOCATION,td->request.URI);
 	buildHTTPResponseHeader(td->buffer,&(td->response));
 	ms_send(s->socket,td->buffer,lstrlen(td->buffer), 0);
 	ms_send(s->socket,td->buffer2,lstrlen(td->buffer2), 0);
@@ -1120,7 +1119,16 @@ u_long validHTTPRequest(httpThreadContext* td,u_long* nLinesptr,u_long* ncharspt
 */
 int sendHTTPRedirect(httpThreadContext* td,LPCONNECTION a,char *newURL)
 {
-	sprintf(td->buffer2,"HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nLocation\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),newURL,getRFC822GMTTime());
+	sprintf(td->buffer2,"HTTP/1.1 301 Moved\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nLocation: %s\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime(),newURL);
+	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
+	return 1;
+}
+/*
+*Send a non-modified message to the client.
+*/
+int sendHTTPNonModified(httpThreadContext* td,LPCONNECTION a)
+{
+	sprintf(td->buffer2,"HTTP/1.1 304 Not Modified\r\nWWW-Authenticate: Basic\r\nServer: %s\r\nDate: %s\r\nContent-type: text/html\r\nContent-length: 0\r\n\r\n",lserver->getServerName(),getRFC822GMTTime());
 	ms_send(a->socket,td->buffer2,lstrlen(td->buffer2),0);
 	return 1;
 }

@@ -31,7 +31,7 @@
 typedef LPVOID HCONN;
 
 #define HSE_VERSION_MAJOR 5
-#define HSE_VERSION_MINOR 0
+#define HSE_VERSION_MINOR 1
 #define HSE_LOG_BUFFER_LEN 80
 #define HSE_MAX_EXT_DLL_NAME_LEN 256
 
@@ -49,6 +49,7 @@ typedef LPVOID HCONN;
 #define HSE_REQ_MAP_URL_TO_PATH (HSE_REQ_END_RESERVED+1)
 #define HSE_REQ_GET_SSPI_INFO (HSE_REQ_END_RESERVED+2)
 #define HSE_REQ_TRANSMIT_FILE (HSE_REQ_END_RESERVED+6)
+#define HSE_REQ_MAP_URL_TO_PATH_EX (HSE_REQ_END_RESERVED+12)
 
 
 typedef struct _HSE_VERSION_INFO 
@@ -56,6 +57,16 @@ typedef struct _HSE_VERSION_INFO
   DWORD dwExtensionVersion;
   CHAR lpszExtensionDesc[HSE_MAX_EXT_DLL_NAME_LEN];
 } HSE_VERSION_INFO, *LPHSE_VERSION_INFO;
+
+typedef struct _HSE_URL_MAPEX_INFO  
+{
+	CHAR   lpszPath[MAX_PATH]; 
+	DWORD  dwFlags;
+	DWORD  cchMatchingPath; 
+	DWORD  cchMatchingURL;  
+	DWORD  dwReserved1;
+	DWORD  dwReserved2;
+} HSE_URL_MAPEX_INFO, * LPHSE_URL_MAPEX_INFO;
 
 typedef struct _EXTENSION_CONTROL_BLOCK 
 {

@@ -18,10 +18,10 @@
 */
 #include "../include/isapi.h"
 
-static  max_Connections;
+static  u_long max_Connections;
 static ConnTableRecord *connTable;
 static CRITICAL_SECTION GetTableEntryCritSec;
-#define ISAPI_TIMEOUT (3600 * 1000)
+#define ISAPI_TIMEOUT (INFINITE)
 /*
 *Initialize the ISAPI engine.
 */
@@ -44,11 +44,11 @@ void cleanupISAPI()
 */
 int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,char* /*ext*/,char *cgipath)
 {
-	DWORD FileAttr, Ret;
+	DWORD Ret;
 	EXTENSION_CONTROL_BLOCK ExtCtrlBlk;
 	HMODULE AppHnd;
 	HSE_VERSION_INFO Ver;
-	int connIndex;
+	u_long connIndex;
 	PFN_GETEXTENSIONVERSION GetExtensionVersion;
 	PFN_HTTPEXTENSIONPROC HttpExtensionProc;
 
@@ -75,6 +75,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 		warningsLogWrite("Failure to load ISAPI application module: ");
 		warningsLogWrite(cgipath);
 		warningsLogWrite("\r\n");
+		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
 
@@ -82,11 +83,13 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	if (GetExtensionVersion == NULL) 
 	{
 		warningsLogWrite("Failure to get pointer to GetExtensionVersion() in ISAPI application\r\n");
+		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
 		warningsLogWrite("ISAPI GetExtensionVersion() returned FALSE\r\n");
+		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
@@ -98,6 +101,12 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	*Store the environment string in the buffer2.
 	*/
 	connTable[connIndex].envString=td->buffer2;
+	/*
+	*Build the environment string.
+	*/
+	lstrcpy(td->scriptPath,scriptpath);
+	splitPath(scriptpath,td->scriptDir,td->scriptFile);
+	splitPath(cgipath,td->cgiRoot,td->cgiFile);
 	buildCGIEnvironmentString(td,connTable[connIndex].envString);
 
 	memset(&ExtCtrlBlk, 0, sizeof(ExtCtrlBlk));
@@ -108,7 +117,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	ExtCtrlBlk.WriteClient = WriteClientExport;
 	ExtCtrlBlk.ServerSupportFunction = ServerSupportFunctionExport;
 	ExtCtrlBlk.ConnID = (HCONN) (connIndex + 1);
-	ExtCtrlBlk.dwHttpStatusCode = 200;
+	ExtCtrlBlk.dwHttpStatusCode = 0;
 	ExtCtrlBlk.lpszLogData[0] = '\0';
 	ExtCtrlBlk.lpszMethod = td->request.CMD;
 	ExtCtrlBlk.lpszQueryString = td->request.URIOPTS;
@@ -123,6 +132,7 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	if (HttpExtensionProc == NULL) 
 	{
 		warningsLogWrite("Failure to get pointer to HttpExtensionProc() in ISAPI application module\r\n");
+		FreeLibrary(AppHnd);
 		return raiseHTTPError(td,connection,e_501);
 	}
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
@@ -130,42 +140,42 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 	{
 		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, ISAPI_TIMEOUT);
 	}
+
 	/*
 	*Flush the output to the client.
 	*/
+
 	u_long headerSize=0;
 	u_long len=lstrlen(connTable[connIndex].td->buffer);
 	for(u_long i=0;i<len;i++)
 	{
-		if(connTable[connIndex].td->buffer[i]=='\r')
+		if(connTable[connIndex].td->buffer[i]=='\n')
 			if(connTable[connIndex].td->buffer[i+1]=='\n')
-				if(connTable[connIndex].td->buffer[i+2]=='\r')
-					if(connTable[connIndex].td->buffer[i+3]=='\n')
-					{
-						/*
-						*The HTTP header ends with a \r\n\r\n sequence so 
-						*determinate where it ends and set the header size
-						*to i + 4.
-						*/
-						headerSize=i+4;
-						break;
-					}
+			{
+				/*
+				*The HTTP header ends with a \n\n sequence so 
+				*determinate where it ends and set the header size
+				*to i + 2.
+				*/
+				headerSize=i+2;
+				break;
+			}
 	}
 	sprintf(connTable[connIndex].td->response.CONTENTS_DIM,"%u",len-headerSize);
-/*	buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
+	buildHTTPResponseHeader(connTable[connIndex].td->buffer2,&(connTable[connIndex].td->response));
 	if(headerSize)
 		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2)-2, 0);
 	else
-		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2), 0);*/
+		ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer2,lstrlen(connTable[connIndex].td->buffer2), 0);
+
 	char lbuffer[100];
 	ms_send(connTable[connIndex].connection->socket,connTable[connIndex].td->buffer,headerSize-2, 0);
-	sprintf(lbuffer,"Content-Length:%i\r\n\r\n",len-headerSize);
+	sprintf(lbuffer,"\r\nContent-Length:%i\r\n\r\n",len-headerSize);
 	ms_send(connTable[connIndex].connection->socket,lbuffer,lstrlen(lbuffer), 0);
-	char *content=(char*)(connTable[connIndex].td->buffer+headerSize);
-	ms_send(connTable[connIndex].connection->socket,content,len-headerSize, 0);
-
+	ms_send(connTable[connIndex].connection->socket,(char*)(connTable[connIndex].td->buffer+headerSize),len-headerSize, 0);
 
 	int retvalue=0;
+
 	switch(Ret) 
 	{
 		case HSE_STATUS_SUCCESS_AND_KEEP_CONN:
@@ -173,12 +183,16 @@ int sendISAPI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,cha
 			break;
 		case HSE_STATUS_SUCCESS:
 		case HSE_STATUS_ERROR:
-			break;
-			default:
+		default:
 			retvalue=0;
 			break;
 	}
-	FreeLibrary(AppHnd);
+	if(!FreeLibrary(AppHnd))
+	{
+		warningsLogWrite("Failure to FreeLibrary in ISAPI module");
+		warningsLogWrite(cgipath);
+		warningsLogWrite("\r\n");
+	}
 	connTable[connIndex].Allocated = FALSE;
 	return retvalue;
 }
@@ -196,11 +210,15 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 	}
 	switch (dwHSERRequest) 
 	{
+		case HSE_REQ_MAP_URL_TO_PATH_EX:
 		case HSE_REQ_MAP_URL_TO_PATH:
 			char URL[MAX_PATH];
-			strcpy(URL,(char *)lpvBuffer);
+			HSE_URL_MAPEX_INFO  *mapInfo;
+			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
+			lstrcpy(URL,(char*)lpvBuffer+1);
 			getPath((char*)lpvBuffer,URL,FALSE);
-			*lpdwDataType=lstrlen((char*)lpvBuffer);
+			*lpdwSize=lstrlen((char*)lpvBuffer);
+			lstrcpy(mapInfo->lpszPath,(char*)lpvBuffer);
 			break;
 		case HSE_REQ_SEND_URL_REDIRECT_RESP:
 			return ISAPIRedirect(ConnInfo->td,ConnInfo->connection,(char *)lpvBuffer);
@@ -228,9 +246,9 @@ BOOL WINAPI ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,LPVOID 
 */
 ConnTableRecord *HConnRecord(HCONN hConn) 
 {
-	int connIndex;
+	u_long connIndex;
 
-	connIndex = ((int) hConn) - 1;
+	connIndex =((int) hConn) - 1;
 	ConnTableRecord *ConnInfo;
 	if ((connIndex < 0) || (connIndex >= max_Connections)) 
 	{
@@ -268,7 +286,7 @@ int ISAPISendHeader(httpThreadContext* td,LPCONNECTION a,char *URL)
 /*
 *Write directly to the output.
 */
-BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD dwReserved)
+BOOL WINAPI WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, DWORD /*dwReserved*/)
 {
 	ConnTableRecord *ConnInfo;
 
@@ -333,18 +351,22 @@ BOOL WINAPI GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName, LPVOID 
 		return FALSE;
 	}
 	/*
-	*TODO
 	*Find in ConnInfo->envString the value lpszVariableName and copy next string in lpvBuffer.
 	*/
 	((char*)lpvBuffer)[0]='\0';
 	char *localEnv=ConnInfo->envString;
-	int variableNameLen=lstrlen(lpszVariableName);
-	for(u_long i=0;;i++)
+	int variableNameLen=(int)strlen(lpszVariableName);
+	for(u_long i=0;;i+=(u_long)strlen(&localEnv[i])+1)
 	{
-		if(!strncmp(&localEnv[i],lpszVariableName,variableNameLen))
+		if(((localEnv[i+variableNameLen])=='=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
+		{
 			strncpy((char*)lpvBuffer,&localEnv[i+variableNameLen+1],*lpdwSize);
-		else if((localEnv[i]=='\0') && (localEnv[i+1]=='\0'))
 			break;
+		}
+		else if((localEnv[i]=='\0') && (localEnv[i+1]=='\0'))
+		{
+			break;
+		}
 	}
 	*lpdwSize=lstrlen((char*)lpvBuffer);
 	return TRUE;
