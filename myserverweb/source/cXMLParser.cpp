@@ -89,6 +89,26 @@ char *cXMLParser::getValue(char* vName)
 	
 	return buffer;
 }
+/*
+*Set the value of the vName root children element.
+*/
+int cXMLParser::setValue(char* vName,char *value)
+{
+	xmlNodePtr lcur=cur->xmlChildrenNode;
+	buffer[0]='\0';
+	while(lcur)
+	{
+		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
+		{
+			if(lcur->children->content)
+				strcpy((char*)lcur->children->content,value);
+			return 1;
+		}
+		lcur=lcur->next;
+	}
+	
+	return 0;
+}
 
 /*
 *Free the memory used by the class.

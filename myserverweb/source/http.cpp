@@ -96,9 +96,9 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 		{
 			u_long nbr;
 			cssHandle.ms_ReadFromFile(td->buffer,td->buffersize,&nbr);
-			lstrcat(td->buffer2,"<STYLE><!--");
-			lstrcat(td->buffer2,td->buffer);
-			lstrcat(td->buffer2,"--></STYLE>");
+			strcat(td->buffer2,"<STYLE><!--");
+			strcat(td->buffer2,td->buffer);
+			strcat(td->buffer2,"--></STYLE>");
 			cssHandle.ms_CloseFile();
 		}
 	}
@@ -109,11 +109,11 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 #ifdef __linux__
 	sprintf(filename,"%s/",folder);
 #endif
-	lstrcat(td->buffer2,"<BODY>");
-	lstrcat(td->buffer2,msgFolderContents);
-	lstrcat(td->buffer2," ");
-	lstrcat(td->buffer2,&td->request.URI[startchar]);
-	lstrcat(td->buffer2,"\\<P>\n<HR>");
+	strcat(td->buffer2,"<BODY>");
+	strcat(td->buffer2,msgFolderContents);
+	strcat(td->buffer2," ");
+	strcat(td->buffer2,&td->request.URI[startchar]);
+	strcat(td->buffer2,"\\<P>\n<HR>");
 	intptr_t ff;
 	ff=_findfirst(filename,&fd);
 
@@ -155,39 +155,39 @@ int sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	{	
 		if(fd.name[0]=='.')
 			continue;
-		lstrcat(td->buffer2,"<TR><TD><A HREF=\"");
+		strcat(td->buffer2,"<TR><TD><A HREF=\"");
 		if(!td->request.uriEndsWithSlash)
 		{
-			lstrcat(td->buffer2,&td->request.URI[startchar]);
-			lstrcat(td->buffer2,"/");
+			strcat(td->buffer2,&td->request.URI[startchar]);
+			strcat(td->buffer2,"/");
 		}
-		lstrcat(td->buffer2,fd.name);
-		lstrcat(td->buffer2,"\">");
-		lstrcat(td->buffer2,fd.name);
-		lstrcat(td->buffer2,"</TD><TD>");
+		strcat(td->buffer2,fd.name);
+		strcat(td->buffer2,"\">");
+		strcat(td->buffer2,fd.name);
+		strcat(td->buffer2,"</TD><TD>");
 			
 		tm *st=gmtime(&fd.time_write);
 
 		sprintf(fileTime,"%u\\%u\\%u-%u:%u:%u System time",st->tm_wday,st->tm_mon,st->tm_year,st->tm_hour,st->tm_min,st->tm_sec);
-		lstrcat(td->buffer2,fileTime);
+		strcat(td->buffer2,fileTime);
 
-		lstrcat(td->buffer2,"</TD><TD>");
+		strcat(td->buffer2,"</TD><TD>");
 		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			lstrcat(td->buffer2,"[dir]");
+			strcat(td->buffer2,"[dir]");
 		}
 		else
 		{
 			sprintf(fileSize,"%i bytes",fd.size);
-			lstrcat(td->buffer2,fileSize);
+			strcat(td->buffer2,fileSize);
 		}
-		lstrcat(td->buffer2,"</TD></TR>\n");
+		strcat(td->buffer2,"</TD></TR>\n");
 	}while(!_findnext(ff,&fd));
-	lstrcat(td->buffer2,"</TABLE>\n<HR>");
-	lstrcat(td->buffer2,msgRunOn);
-	lstrcat(td->buffer2," myServer ");
-	lstrcat(td->buffer2,versionOfSoftware);
-	lstrcat(td->buffer2,"</BODY></HTML>");
+	strcat(td->buffer2,"</TABLE>\n<HR>");
+	strcat(td->buffer2,msgRunOn);
+	strcat(td->buffer2," myServer ");
+	strcat(td->buffer2,versionOfSoftware);
+	strcat(td->buffer2,"</BODY></HTML>");
 	_findclose(ff);
 	char *buffer2Loop=td->buffer2;
 	while(*buffer2Loop++)
@@ -475,7 +475,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 		h.ms_ReadFromFile(linkpath,MAX_PATH,&nbr);
 		h.ms_CloseFile();
 		linkpath[nbr]='\0';
-		lstrcpy(pathInfo,td->pathInfo);
+		strcpy(pathInfo,td->pathInfo);
 		translateEscapeString(pathInfo);
 		strcat(linkpath,pathInfo);
 
@@ -800,90 +800,90 @@ void buildHTTPResponseHeader(char *str,HTTP_RESPONSE_HEADER* response)
 
 	if(response->CONTENTS_DIM[0])
 	{
-		lstrcat(str,"Content-Length:");
-		lstrcat(str,response->CONTENTS_DIM);
-		lstrcat(str,"\r\n");
+		strcat(str,"Content-Length:");
+		strcat(str,response->CONTENTS_DIM);
+		strcat(str,"\r\n");
 	}
 	if(response->SERVER_NAME[0])
 	{
-		lstrcat(str,"Server:");
-		lstrcat(str,response->SERVER_NAME);
-		lstrcat(str,"\r\n");
+		strcat(str,"Server:");
+		strcat(str,response->SERVER_NAME);
+		strcat(str,"\r\n");
 	}
 	if(response->LAST_MODIFIED[0])
 	{
-		lstrcat(str,"Last-Modified:");
-		lstrcat(str,response->LAST_MODIFIED);
-		lstrcat(str,"\r\n");
+		strcat(str,"Last-Modified:");
+		strcat(str,response->LAST_MODIFIED);
+		strcat(str,"\r\n");
 	}
 	if(response->CONNECTION[0])
 	{
-		lstrcat(str,"Connection:");
-		lstrcat(str,response->CONNECTION);
-		lstrcat(str,"\r\n");
+		strcat(str,"Connection:");
+		strcat(str,response->CONNECTION);
+		strcat(str,"\r\n");
 	}
 	if(response->COOKIE[0])
 	{
-		lstrcat(str,"Set-Cookie:");
-		lstrcat(str,response->COOKIE);
-		lstrcat(str,"\r\n");
+		strcat(str,"Set-Cookie:");
+		strcat(str,response->COOKIE);
+		strcat(str,"\r\n");
 	}
 	if(response->P3P[0])
 	{
-		lstrcat(str,"P3P:");
-		lstrcat(str,response->P3P);
-		lstrcat(str,"\r\n");
+		strcat(str,"P3P:");
+		strcat(str,response->P3P);
+		strcat(str,"\r\n");
 	}
 	if(response->MIMEVER[0])
 	{
-		lstrcat(str,"MIME-Version:");
-		lstrcat(str,response->MIMEVER);
-		lstrcat(str,"\r\n");
+		strcat(str,"MIME-Version:");
+		strcat(str,response->MIMEVER);
+		strcat(str,"\r\n");
 	}
 	if(response->CONTENTS_TYPE[0])
 	{
-		lstrcat(str,"Content-Type:");
-		lstrcat(str,response->CONTENTS_TYPE);
-		lstrcat(str,"\r\n");
+		strcat(str,"Content-Type:");
+		strcat(str,response->CONTENTS_TYPE);
+		strcat(str,"\r\n");
 	}
 	if(response->DATE[0])
 	{
-		lstrcat(str,"Date:");
-		lstrcat(str,response->DATE);
-		lstrcat(str,"\r\n");
+		strcat(str,"Date:");
+		strcat(str,response->DATE);
+		strcat(str,"\r\n");
 	}
 	if(response->DATEEXP[0])
 	{
-		lstrcat(str,"Expires:");
-		lstrcat(str,response->DATEEXP);
-		lstrcat(str,"\r\n");
+		strcat(str,"Expires:");
+		strcat(str,response->DATEEXP);
+		strcat(str,"\r\n");
 	}
 	if(response->AUTH[0])
 	{
-		lstrcat(str,"WWW-Authenticate:");
-		lstrcat(str,response->AUTH);
-		lstrcat(str,"\r\n");
+		strcat(str,"WWW-Authenticate:");
+		strcat(str,response->AUTH);
+		strcat(str,"\r\n");
 	}
 	
 	if(response->LOCATION[0])
 	{
-		lstrcat(str,"Location:");
-		lstrcat(str,response->LOCATION);
-		lstrcat(str,"\r\n");
+		strcat(str,"Location:");
+		strcat(str,response->LOCATION);
+		strcat(str,"\r\n");
 	}
 	if(response->OTHER[0])
 	{
-		lstrcat(str,response->OTHER);
+		strcat(str,response->OTHER);
 	}
 
 	/*
 	*myServer supports the bytes range.
 	*/
-	lstrcat(str,"Accept-Ranges: bytes\r\n");
+	strcat(str,"Accept-Ranges: bytes\r\n");
 	/*
 	*The HTTP header ends with a \r\n sequence.
 	*/
-	lstrcat(str,"\r\n");
+	strcat(str,"\r\n");
 
 }
 /*
@@ -1204,7 +1204,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 		/*
 		*Copy the HTTP command.
 		*/
-		lstrcpy(command,token);
+		strcpy(command,token);
 		
 		
 		nLineControlled++;
@@ -1283,7 +1283,7 @@ int buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,httpThreadContext 
 			*Basic authorization in base64 is login:password.
 			*Assume that it is Basic anyway.
 			*/
-			lstrcpy(request->AUTH,"Basic");
+			strcpy(request->AUTH,"Basic");
 			int len=lstrlen(token);
 			char *base64=base64Utils.Decode(&token[lstrlen("Basic:")],&len);
 			char* lbuffer2=base64;
@@ -1494,7 +1494,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 	u_long nLines,maxTotchars;
 	u_long validRequest=validHTTPResponse(td,&nLines,&maxTotchars);
 
-	const char cmdseps[]   = ": ,\t\n\r";
+	const char cmdseps[]   = ": ,\t\n\r\0";
 
 	static char *token=0;
 	static char command[96];
@@ -1539,14 +1539,14 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 			token = strtok( NULL, " ,\t\n\r" );
 			response->httpStatus=atoi(token);
 			
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			strncpy(response->ERROR_TYPE,token,HTTP_RESPONSE_ERROR_TYPE_DIM);
 
 		}else
 		/*Server*/
 		if(!lstrcmpi(command,"Server"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->SERVER_NAME,token,HTTP_RESPONSE_SERVER_NAME_DIM);
 			StrTrim(response->SERVER_NAME," ");
@@ -1554,7 +1554,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Location*/
 		if(!lstrcmpi(command,"Location"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->LOCATION,token,HTTP_RESPONSE_LOCATION_DIM);
 			StrTrim(response->LOCATION," ");
@@ -1562,7 +1562,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Last-Modified*/
 		if(!lstrcmpi(command,"Last-Modified"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->LAST_MODIFIED,token,HTTP_RESPONSE_LAST_MODIFIED_DIM);
 			StrTrim(response->LAST_MODIFIED," ");
@@ -1570,14 +1570,14 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Status*/
 		if(!lstrcmpi(command,"Status"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			response->httpStatus=atoi(token);
 		}else
 		/*Date*/
 		if(!lstrcmpi(command,"Date"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->DATE,token,HTTP_RESPONSE_DATE_DIM);
 			StrTrim(response->DATE," ");
@@ -1585,7 +1585,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->CONTENTS_TYPE,token,HTTP_RESPONSE_CONTENTS_TYPE_DIM);
 			StrTrim(response->CONTENTS_TYPE," ");
@@ -1593,7 +1593,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*MIME-Version*/
 		if(!lstrcmpi(command,"MIME-Version"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->MIMEVER,token,HTTP_RESPONSE_MIMEVER_DIM);
 			StrTrim(response->MIMEVER," ");
@@ -1601,7 +1601,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Set-Cookie*/
 		if(!lstrcmpi(command,"Set-Cookie"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			/*Concatenate string at the end cause can be more than one cookie line.*/
 			strncat(response->COOKIE,token,HTTP_RESPONSE_COOKIE_DIM-strlen(response->COOKIE));
@@ -1610,7 +1610,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->CONTENTS_DIM,token,HTTP_RESPONSE_CONTENTS_DIM_DIM);
 			StrTrim(response->CONTENTS_DIM," ");
@@ -1618,7 +1618,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*P3P*/
 		if(!lstrcmpi(command,"P3P"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->P3P,token,HTTP_RESPONSE_P3P_DIM);
 			StrTrim(response->P3P," ");
@@ -1626,7 +1626,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Connection*/
 		if(!lstrcmpi(command,"Connection"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->CONNECTION,token,HTTP_RESPONSE_CONNECTION_DIM);
 			StrTrim(response->CONNECTION," ");
@@ -1634,7 +1634,7 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 		/*Expires*/
 		if(!lstrcmpi(command,"Expires"))
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok( NULL, "\r\n\0" );
 			lineControlled=true;
 			strncpy(response->DATEEXP,token,HTTP_RESPONSE_DATEEXP_DIM);
 			StrTrim(response->DATEEXP," ");
@@ -1648,8 +1648,11 @@ int buildHTTPResponseHeaderStruct(HTTP_RESPONSE_HEADER *response,httpThreadConte
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
+				if(response->OTHER[0])
+					strncat(response->OTHER,"\r\n",HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
+				strncat(response->OTHER,command,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
+				strncat(response->OTHER,": ",HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 				strncat(response->OTHER,token,HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
-				strncat(response->OTHER,"\r\n",HTTP_RESPONSE_OTHER_DIM-strlen(response->OTHER));
 			}
 		}
 		token = strtok( NULL, cmdseps );

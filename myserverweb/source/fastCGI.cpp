@@ -32,6 +32,14 @@ static struct sfCGIservers
 	int pid; /*process ID*/
 	u_short port;/*IP port*/
 }fCGIservers[MAX_FCGI_SERVERS];
+struct fourchar
+{	
+	union
+	{
+		unsigned char c[4];
+		unsigned int i;
+	};
+};
 static int fCGIserversN;
 /*
 *Entry-Point to manage a FastCGI request.
@@ -45,9 +53,10 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 	strcpy(td->scriptPath,scriptpath);
 	MYSERVER_FILE::splitPath(scriptpath,td->scriptDir,td->scriptFile);
 	MYSERVER_FILE::splitPath(cgipath,td->cgiRoot,td->cgiFile);
+	td->buffer[0]='\0';
 	strcpy(td->buffer,"FCGI_ROLE=RESPONDER\r");
-	
 	buildCGIEnvironmentString(td,td->buffer);
+
 	int sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer,td->buffer2);
 
 	int pID = FcgiConnect(&con,cgipath);
@@ -72,7 +81,6 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		con.sock.ms_closesocket();
 		return raiseHTTPError(td,connection,e_501);
 	}
-
     if(atoi(td->request.CONTENTS_DIM))
 	{
 		generateFcgiHeader( tHeader, FCGI_STDIN, id, atoi(td->request.CONTENTS_DIM) );
@@ -91,11 +99,17 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 			return raiseHTTPError(td,connection,e_501);
 		}	
 	}
+	
 	/*Now read the output*/
 	int exit=0;
+	int timeout=200;
 	do	
 	{
-		ms_wait(1000);
+		while(timeout && (!con.sock.ms_bytesToRead()))
+		{
+			ms_wait(1);
+			timeout--;
+		}
 		if(con.sock.ms_bytesToRead())
 			nbr=con.sock.ms_recv((char*)&tHeader,sizeof(FCGI_Header),0);
 		else
@@ -110,38 +124,59 @@ int sendFASTCGI(httpThreadContext* td,LPCONNECTION connection,char* scriptpath,c
 		}
 		int dim=(tHeader.contentLengthB1<<8) + tHeader.contentLengthB0;
 		int headerSize=0;
-		switch(tHeader.type)
+		int dataSent=0;
+		if(dim==0)
 		{
-			case FCGI_STDERR:
-				con.sock.ms_closesocket();
-				return raiseHTTPError(td,connection,e_501);
-			case FCGI_STDOUT:
-				nbr=con.sock.ms_recv(td->buffer,td->buffersize,0);
-	
-				for(u_long i=0;i<nbr;i++)
-				{
-					if((td->buffer[i]=='\r')&&(td->buffer[i+1]=='\n')&&(td->buffer[i+2]=='\r')&&(td->buffer[i+3]=='\n'))
+			exit = 1;
+		}
+		else
+		{
+			switch(tHeader.type)
+			{
+				case FCGI_STDERR:
+					con.sock.ms_closesocket();
+					return raiseHTTPError(td,connection,e_501);
+				case FCGI_STDOUT:
+					nbr=con.sock.ms_recv(td->buffer,min(dim,td->buffersize),0);
+		
+					for(u_long i=0;i<nbr;i++)
 					{
-						headerSize=i+4;
+						if((td->buffer[i]=='\r')&&(td->buffer[i+1]=='\n')&&(td->buffer[i+2]=='\r')&&(td->buffer[i+3]=='\n'))
+						{
+							headerSize=i+4;
+							break;
+						}
+					}
+					sprintf(td->response.CONTENTS_DIM,"%u",dim-headerSize);
+					buildHTTPResponseHeaderStruct(&td->response,td,td->buffer);
+					buildHTTPResponseHeader(td->buffer2,&td->response);
+					if(td->connection->socket.ms_send(td->buffer2,strlen(td->buffer2), 0)==0)
+					{
+						exit = 1;
 						break;
 					}
-				}
-				sprintf(td->response.CONTENTS_DIM,"%u",dim-headerSize);
-				buildHTTPResponseHeaderStruct(&td->response,td,td->buffer2);
-				td->connection->socket.ms_send(td->buffer2,(int)strlen(td->buffer2), 0);
-				td->connection->socket.ms_send((char*)(td->buffer2+headerSize),nbr-headerSize, 0);
-				while(nbr=fCGIservers[con.fcgiPID].socket.ms_recv(td->buffer,td->buffersize,0))
-				{
-					td->connection->socket.ms_send((char*)(td->buffer),nbr, 0);
-				}
-				break;
-			case FCGI_END_REQUEST:
-				exit = 1;
-				break;			
-			case FCGI_GET_VALUES_RESULT:
-			case FCGI_UNKNOWN_TYPE:
-			default:
-				break;
+					dataSent=td->connection->socket.ms_send((char*)(td->buffer+headerSize),nbr-headerSize, 0)+headerSize;
+					while(dataSent<dim)
+					{
+						if( con.sock.ms_bytesToRead() )
+							nbr=con.sock.ms_recv(td->buffer,min(dim-dataSent,td->buffersize),0);
+						else
+						{
+							exit = 1;
+							break;
+						}
+						td->connection->socket.ms_send(td->buffer2,nbr, 0);
+						dataSent+=nbr;
+					}
+					break;
+				case FCGI_END_REQUEST:
+					exit = 1;
+					break;			
+				case FCGI_GET_VALUES_RESULT:
+				case FCGI_UNKNOWN_TYPE:
+				default:
+					break;
+			}
 		}
 	}while((!exit) && nbr);
 	con.sock.ms_closesocket();
@@ -155,7 +190,7 @@ int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 	
 	if(con->sock.ms_send((char*)&tHeader,sizeof(tHeader),0)==-1)
 		return -1;
-	if(len && (con->sock.ms_send(buffer,len,0)==-1))
+	if(con->sock.ms_send(buffer,len,0)==-1)
 		return -1;
 	return 0;
 }
@@ -173,32 +208,58 @@ int buildFASTCGIEnvironmentString(httpThreadContext* td,char* sp,char* ep)
 	{
 		if(*(++sptr)=='\0')
 			break;
-		unsigned char varNameLen=0,varValueLen=0;
+		
+		fourchar varNameLen;
+		fourchar varValueLen;
+
+		varNameLen.i=varValueLen.i=0;
 		varName[0]='\0';
 		varValue[0]='\0';
 		while(*sptr != '=')
 		{
-			varName[varNameLen++]=*sptr++;
-			varName[varNameLen]='\0';
+			varName[varNameLen.i++]=*sptr++;
+			varName[varNameLen.i]='\0';
 		}
 		sptr++;
 		while(*sptr != '\0')
 		{
-			varValue[varValueLen++]=*sptr++;
-			varValue[varValueLen]='\0';
+			varValue[varValueLen.i++]=*sptr++;
+			varValue[varValueLen.i]='\0';
 		}
-		varNameLen=strlen(varName);
-		varValueLen=strlen(varValue);
-		*ptr++=varNameLen+varValueLen;
-		*ptr++=varValueLen;
-		for(i=0;i<varNameLen;i++)
+		if(varNameLen.i > 127)
+		{
+			unsigned char fb=varValueLen.c[3]|0x80;
+			*ptr++=fb;
+			*ptr++=varNameLen.c[2];
+			*ptr++=varNameLen.c[1];
+			*ptr++=varNameLen.c[0];
+		}
+		else
+		{
+			*ptr++=varNameLen.c[0];
+		}
+
+		if(varValueLen.i > 127)
+		{
+			unsigned char fb=varValueLen.c[3]|0x80;
+			*ptr++=fb;
+			*ptr++=varValueLen.c[2];
+			*ptr++=varValueLen.c[1];
+			*ptr++=varValueLen.c[0];
+		}
+		else
+		{
+			*ptr++=varValueLen.c[0];
+		}
+
+
+
+		for(i=0;i<varNameLen.i;i++)
 			*ptr++=varName[i];
-		for(i=0;i<varValueLen;i++)
+		for(i=0;i<varValueLen.i;i++)
 			*ptr++=varValue[i];
 
-
 	}
-	
 	return (int)(ptr-ep);
 }
 void generateFcgiHeader( FCGI_Header &tHeader, int iType,int iRequestId, int iContentLength )

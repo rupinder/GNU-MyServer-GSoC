@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=41
+UnitCount=43
 Type=1
 Ver=1
 ObjFiles=
@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lwininet -lwsock32_@@_
+Linker=-lwininet -lwsock32 -llibxml2_a_@@_
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -457,4 +457,24 @@ OverrideBuildCmd=0
 BuildCmd=
 Link=1
 Priority=1000
+
+[Unit42]
+FileName=source\fastCGI.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit43]
+FileName=include\fastCGI.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 

@@ -41,6 +41,7 @@ public:
 	xmlDocPtr getDoc();
 	int open(char* filename);
 	char *getValue(char* field);
+	int setValue(char* field,char *value);
 	int close();
 	int save(char *filename);
 };

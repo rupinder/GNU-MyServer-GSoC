@@ -136,7 +136,7 @@ void cserver::start()
 	
 	languageParser.open(languageFile);
 	printf("%s\n",languageParser.getValue("MSG_LANGUAGE"));
-
+	
 	/*
 	*These are the defaults values of these strings.
 	*/
@@ -651,7 +651,6 @@ void cserver::initialize(int OSVer)
 	{
 		verbosity=(u_long)atoi(data);
 	}
-
 	data=configurationFileManager.getValue("LANGUAGE");
 	if(data)
 	{
