@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=21
+UnitCount=23
 Type=0
 Ver=1
 ObjFiles=
@@ -257,3 +257,22 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit22]
+FileName=..\source\md5.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit23]
+FileName=..\include\md5.h
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
