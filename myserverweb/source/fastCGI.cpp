@@ -85,6 +85,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   int cgiFileLen = 0;
   int scriptpathLen = strlen(scriptpath) + 1;
 
+	u_long headerSize=0;
+
 	int exit;
   int ret;
 	
@@ -379,6 +381,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 	do	
 	{
+		u_long dim;
+		u_long data_sent;
+    u_long nbw;
 		while(con.sock.bytesToRead()<sizeof(FcgiHeader))
 		{
 			if((clock_t)(get_ticks()-time1) > timeout)
@@ -419,8 +424,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
      *To retrieve the value of content length push left contentLengthB1
      *of eight byte then do a or with contentLengthB0.
      */
-		u_long dim=(header.contentLengthB1<<8) | header.contentLengthB0;
-		u_long data_sent=0;
+		dim=(header.contentLengthB1<<8) | header.contentLengthB0;
+		data_sent=0;
 		if(dim==0)
 		{
       exit = 1;
@@ -439,8 +444,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 				case FcgiSTDOUT:
 					nbr=con.sock.recv(td->buffer->GetBuffer(), (dim < td->buffer->GetRealLength())
                             ? dim: td->buffer->GetRealLength(), 0);
-					u_long nbw;
-					con.tempOut.writeToFile(td->buffer->GetBuffer(), nbr, &nbw);
+          con.tempOut.writeToFile(td->buffer->GetBuffer(), nbr, &nbw);
 					data_sent=nbw;
 					if(data_sent==0)
 					{
@@ -480,7 +484,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			}
 		}
 	}while((!exit) && nbr);
-	u_long headerSize=0;
 	con.tempOut.setFilePointer(0);
 	td->buffer->GetAt(0)='\0';
 	buffer=td->buffer->GetBuffer();
