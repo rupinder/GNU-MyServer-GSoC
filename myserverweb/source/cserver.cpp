@@ -63,9 +63,9 @@ extern "C" {
 Server *lserver=0;
 
 /*!
-  When the flag mustEndServer is 1 all the threads are stopped and the application stop
-  *its execution.
-  */
+ *When the flag mustEndServer is 1 all the threads are 
+ *stopped and the application stop its execution.
+ */
 int mustEndServer;
 
 Server::Server()
@@ -342,19 +342,23 @@ void Server::start()
 
 /*!
  *Removed threads that can be destroyed.
+ *The function returns the number of threads that were destroyed.
  */
 int Server::purgeThreads()
 {
   /*!
    *We don't need to do anything.
    */
+  ClientsThread *thread;
+  ClientsThread *prev;
+  int prev_threads_count;
   if(nThreads == nStaticThreads)
     return 0;
 
   threads_mutex->lock();
-  ClientsThread *thread = threads;
-  ClientsThread *prev = 0;
-  int prev_threads_count = nThreads;
+  thread = threads;
+  prev = 0;
+  prev_threads_count = nThreads;
   while(thread)
   {
     if(nThreads == nStaticThreads)
@@ -407,6 +411,7 @@ int Server::createServerAndListener(u_long port)
 	int optvalReuseAddr=1;
   char port_buff[6];
   char *listen_port_msg;
+	ThreadID threadId;
 	/*!
    *Create the server socket.
    */
@@ -490,10 +495,8 @@ int Server::createServerAndListener(u_long port)
 	argv->port=port;
 	argv->serverSocket=serverSocket;
 
-	ThreadID t_id;
-	
-	Thread::create(&t_id, &::listenServer,  (void *)(argv));
-	return (t_id)?1:0;
+	Thread::create(&threadId, &::listenServer,  (void *)(argv));
+	return (threadId) ? 1 : 0 ;
 }
 
 /*!
@@ -505,7 +508,7 @@ void Server::createListenThreads()
    *Create the listens threads.
    *Every port uses a thread.
    */
-	for(VhostManager::sVhostList *list=vhostList->getVHostList();list;list=list->next )
+	for(VhostManager::sVhostList *list=vhostList->getVHostList(); list; list=list->next )
 	{
 		int needThread=1;
 		VhostManager::sVhostList *list2=vhostList->getVHostList();
@@ -516,11 +519,17 @@ void Server::createListenThreads()
 				break;
 			if(list2==list)
 				break;
-			if(list2->host->port==list->host->port)
+      /*! 
+       *If there is still a thread listening on the specified port do not create
+       *the thread here.
+       */
+			if(list2->host->port == list->host->port)
 				needThread=0;
 		}
+    /*! No port was specified. */
 		if(list->host->port==0)
 			continue;
+
 		if(needThread)
 		{
 			if(createServerAndListener(list->host->port)==0)
@@ -676,6 +685,7 @@ int Server::terminate()
 		wait(1000);
 	}
 
+  /*! Stop the active hreads. */
 	stopThreads();
 
   if(verbosity>1)
@@ -727,7 +737,7 @@ int Server::terminate()
 	delete connections_mutex;
 
   /*!
-   *Terminate all the threads.
+   *Free all the threads.
    */
   thread = threads;
   while(thread)
@@ -756,7 +766,7 @@ void Server::stopThreads()
    *Clean here the memory allocated.
    */
 	u_long threadsStopped=0;
-
+	u_long threadsStopTime=0;
 	/*!
    *Wait before clean the threads that all the threads are stopped.
    */
@@ -767,7 +777,7 @@ void Server::stopThreads()
     thread = thread->next;
   }
 
-	u_long threadsStopTime=0;
+	threadsStopTime=0;
 	for(;;)
 	{
 		threadsStopped=0;
@@ -928,7 +938,7 @@ int Server::initialize(int /*!os_ver*/)
 #endif 
 
 #ifndef WIN32
-  /* Under an *nix environment look for .xml files in the following order.
+  /*Under an *nix environment look for .xml files in the following order.
    *1) myserver executable working directory
    *2) ~/.myserver/
    *3) /etc/myserver/
@@ -1137,7 +1147,9 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 	char local_ip[MAX_IP_STRING_LEN];
 	MYSERVER_SOCKADDRIN  localsock_in;
   int dim;
+  /*! Remote port used by the client to open the connection. */
 	int port;
+  /*! Port used by the server to listen. */
 	int myport;
 
 	if( s.getHandle() == 0 )
@@ -1150,8 +1162,8 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
     return 0;
 
   /*!
-   *If there are not availables threads and we can still create other ones,
-   *create a thread.
+   *Create a new thread if there are not available threads and
+   *we did not reach the limit.
    */
   if((nThreads < nMaxThreads) && (countAvailableThreads() == 0))
   {
@@ -1172,7 +1184,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
   /*! Port used by the client. */
 	port=ntohs((*asock_in).sin_port);
 
-  /*! Port connected to. */
+  /*! Port used by the server. */
 	myport=ntohs(localsock_in.sin_port);
 
 	if(!addConnectionToList(s, asock_in, &ip[0], &local_ip[0], port, myport, 1))
@@ -1342,11 +1354,15 @@ ConnectionPtr Server::getConnection(int /*id*/)
 	}
 	else
 	{
+    /*! Link to the first element in the linked list. */
 		connectionToParse=connections;
 	}
+  /*! 
+   *Check that we are not in the end of the linked list, in that
+   *case link to the first node.
+   */
 	if(connectionToParse==0)
 		connectionToParse=connections;
-
 
 	return connectionToParse;
 }
@@ -1409,7 +1425,7 @@ ConnectionPtr Server::findConnectionByID(u_long ID)
 		}
 	}
 	connections_mutex_unlock();
-	return NULL;
+	return 0;
 }
 
 /*!
@@ -1489,7 +1505,7 @@ int Server::loadSettings()
   char buffer[512];
   u_long nbr, nbw;
 #ifndef WIN32
-/* Under an *nix environment look for .xml files in the following order.
+/*Under an *nix environment look for .xml files in the following order.
  *1) myserver executable working directory
  *2) ~/.myserver/
  *3) /etc/myserver/
