@@ -380,7 +380,7 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	for(int i=0,len=0;i<filenamePathLen;i++)
 	{
 		/*
-		*http://127.0.0.1/uri/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
+		*http://host/pathtofile/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
 		*When a request has this form send the file filetosend.php with the
 		*environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
 		*to QUERY_INFO_VALUE.
@@ -480,9 +480,14 @@ int sendHTTPRESOURCE(httpThreadContext* td,LPCONNECTION s,char *filename,int sys
 	if((mimeCMD==CGI_CMD_RUNCGI)||(mimeCMD==CGI_CMD_EXECUTE))
 	{
 		if(MYSERVER_FILE::fileExists(td->filenamePath))
+		{
 			if(sendCGI(td,s,td->filenamePath,ext,data,mimeCMD))
 				return 1;
-		return raiseHTTPError(td,s,e_404);
+		}
+		else
+		{
+			return raiseHTTPError(td,s,e_404);
+		}
 	}else if(mimeCMD==CGI_CMD_RUNISAPI)
 	{
 		if(MYSERVER_FILE::fileExists(td->filenamePath))
@@ -780,7 +785,6 @@ int controlHTTPConnection(LPCONNECTION a,char *b1,char *b2,int bs1,int bs2,u_lon
 		if(!lstrcmpi(td.request.CMD,"GET"))/*GET REQUEST*/
 		{
 			if(!lstrcmpi(td.request.RANGETYPE,"bytes"))
-
 				sendHTTPRESOURCE(&td,a,td.request.URI,false,false,atoi(td.request.RANGEBYTEBEGIN),atoi(td.request.RANGEBYTEEND));
 			else
 				sendHTTPRESOURCE(&td,a,td.request.URI);

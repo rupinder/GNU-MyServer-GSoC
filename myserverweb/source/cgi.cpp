@@ -235,6 +235,7 @@ int sendCGI(httpThreadContext* td,LPCONNECTION s,char* scriptpath,char* /*ext*/,
 }
 /*
 *Write the string that contain the CGI environment to cgiEnvString.
+*This function is used by other server side protocols too.
 */
 void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString,int processEnv)
 {
