@@ -2500,7 +2500,7 @@ if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
   // <CONTROL_ADMIN>
   Control_Admin->value(getValueXML("CONTROL_ADMIN"));
   // <CONTROL_PASSWORD>
-  Control_Password->value(getValueXML("CONTROL_PASSWORD"));
+  Control_Password->value("");
 }
 else {
   Control_Enabled->clear();
@@ -2701,7 +2701,17 @@ if(Control_Enabled->value() == 1) {
   // <CONTROL_ADMIN>
   setValueXML("CONTROL_ADMIN", Control_Admin->value());
   // <CONTROL_PASSWORD>
-  setValueXML("CONTROL_PASSWORD", Control_Password->value());
+  const char * chrptr = Control_Password->value();
+  if(chrptr[0] != '\0') {
+    char tempbuffer[32];
+    MYSERVER_MD5Context md5;
+    MYSERVER_MD5Init(&md5);
+    MYSERVER_MD5Update(&md5,(const unsigned char*)chrptr,
+                       strlen(chrptr));
+    MYSERVER_MD5End(&md5, tempbuffer);
+    setValueXML("CONTROL_PASSWORD", tempbuffer);
+    xmlFile.setAttr("MD5", "YES");
+  }
 }
 else {
   setValueXML("CONTROL_ENABLED", "NO");

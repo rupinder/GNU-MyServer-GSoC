@@ -92,7 +92,8 @@ cXMLParser::cXMLParser()
 {
 	doc=0;
 	cur=0;
-  prev_cur=0;
+	prev_cur=0;
+	last_node=0;
 }
 /*!
  *Return the xml Document.
@@ -115,6 +116,7 @@ char *cXMLParser::getValue(char* vName)
 	{
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
 		{
+			last_node = lcur;
 			if(lcur->children->content)
       {
 				strncpy(buffer,(char*)lcur->children->content,250);
@@ -139,6 +141,7 @@ int cXMLParser::setValue(char* vName,char *value)
 	{
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
 		{
+			last_node = lcur;
 			if(lcur->children->content)
 				strcpy((char*)lcur->children->content,value);
 			return 0;
@@ -158,6 +161,7 @@ char *cXMLParser::getAttr(char* field,char *attr)
 	{
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)field))
 		{
+			last_node = lcur;
 			xmlAttr *attrs =  lcur->properties;
 			while(attrs)
 			{
@@ -179,7 +183,8 @@ int cXMLParser::close()
 	xmlFreeDoc(doc);
 	doc=0;
 	cur=0;
-  prev_cur=0;
+	prev_cur=0;
+	last_node=0;
 	return 0;
 }
 /*!
@@ -216,7 +221,7 @@ void cXMLParser::newfile(const char * root)
  */
 void cXMLParser::addChild(const char * name, const char * value)
 {
-   xmlNewTextChild(cur, NULL, (const xmlChar*)name, (const xmlChar*)value);
+   last_node = xmlNewTextChild(cur, NULL, (const xmlChar*)name, (const xmlChar*)value);
 }
 
 /*!
@@ -230,6 +235,7 @@ void cXMLParser::addGroup(const char * name)
   {
     prev_cur = cur;
     cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
+    last_node = cur;
   }
 }
 /*!
@@ -243,4 +249,15 @@ void cXMLParser::endGroup()
     cur = prev_cur;
     prev_cur = 0;
   }
+}
+/*!
+ *Sets or resets an Atrribute
+ *Returns nothing.
+ *Uses last node entry, name is the name and value is the value
+ */
+void cXMLParser::setAttr(const char * name, const char * value)
+{
+	if(last_node == 0)
+		return;
+	xmlNewProp(last_node, (const xmlChar*)name, (const xmlChar*)value);
 }

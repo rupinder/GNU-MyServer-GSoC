@@ -37,6 +37,7 @@
 #include <FL/fl_ask.H>
 #include "../include/cXMLParser.h"
 #include "../include/stringutils.h"
+#include "../include/md5.h"
 #include "service.h"
 #include "language.h"
 #include "mimetype.h"
