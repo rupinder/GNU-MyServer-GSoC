@@ -836,7 +836,7 @@ int cserver::deleteConnection(LPCONNECTION s,int id)
 	{
 		err=s->socket.recv(buffer,buffersize,0);
 	}while(err!=-1);
-	while(s->socket.closesocket());
+	s->socket.closesocket();
 	/*
 	*Then remove the connection from the active connections list.
 	*/
