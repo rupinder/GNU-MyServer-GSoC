@@ -33,6 +33,84 @@ security_cache::security_cache()
 }
 
 /*!
+ *Get the error file name from the security file.
+ */
+int security_cache::getErrorFileName(char *directory, int error, 
+                                     char* sysdirectory, char** out)
+{
+
+ int permissionsFileLen = strlen(directory)+10;
+  char* permissionsFile = new char[permissionsFileLen];
+  if(permissionsFile == 0)
+    return 0;
+  sprintf(permissionsFile,"%s/security",directory);
+
+  cXMLParser *parser =(cXMLParser*)dictionary.getData(permissionsFile);
+  /*!
+   *If the parser is still present use it.
+   */
+  if(parser)
+  {
+    delete [] permissionsFile;
+    return ::getErrorFileName(directory, error, out, parser);
+  }
+  else
+  {
+    /*! 
+     *Create the parser and append at the dictionary.
+     */
+    parser = new cXMLParser();
+    if(parser == 0)
+    {  
+      delete [] permissionsFile;
+      return 0;
+    }
+    if(!MYSERVER_FILE::fileExists(permissionsFile))
+    {
+      /*!
+       *If the security file doesn't exist try with a default one.
+       */
+      if(sysdirectory!=0)
+      {
+        delete parser;
+        delete [] permissionsFile;
+        return getErrorFileName(directory, error, 0, out);
+      }
+      else
+      {
+        delete parser;
+        delete [] permissionsFile;
+        return 0;
+      }
+    }
+    if(parser->open(permissionsFile) == -1)
+    {
+      delete parser;
+      delete [] permissionsFile;
+      return 0;
+    }
+    if(dictionary.nodesNumber() >= limit)
+    {
+      cXMLParser* toremove =(cXMLParser*) dictionary.removeNodeAt(1);
+      if(toremove)
+        delete toremove;
+    }
+    if(dictionary.append(permissionsFile, (void*)parser) == 0)
+    {
+      delete parser;
+      delete [] permissionsFile;
+      return 0;
+    }
+    delete [] permissionsFile;
+    return ::getErrorFileName(directory, error, out, parser);  
+  }
+
+  return 0;
+
+
+}
+
+/*!
  *Destroy the security cache object.
  */
 security_cache::~security_cache()

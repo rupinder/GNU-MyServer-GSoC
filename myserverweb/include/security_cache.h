@@ -32,6 +32,7 @@ public:
   int getPermissionMask(char* user, char* password,char* directory,
                         char* filename,char *sysdirectory=0,char *password2=0,
                         char* auth_type=0,int len_auth=0,int *permission2=0);
+  int getErrorFileName(char *root,int error, char* sysdirectory, char** out);
 };
 
 

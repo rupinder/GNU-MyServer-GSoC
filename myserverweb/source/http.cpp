@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002, 2003, 2004 The MyServer Team
+*Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -2668,8 +2668,11 @@ int http::raiseHTTPError(httpThreadContext* td, LPCONNECTION a, int ID)
 	{
 		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
 		char *defFile = 0 ;
-		int ret = getErrorFileName(((vhost*)a->host)->documentRoot, 
-                               getHTTPStatusCodeFromErrorID(ID), &defFile);
+    sec_cache_mutex.myserver_mutex_lock();
+		int ret = sec_cache.getErrorFileName(((vhost*)a->host)->documentRoot, 
+                                         getHTTPStatusCodeFromErrorID(ID),
+                                         ((vhost*)(a->host))->systemRoot, &defFile);
+    sec_cache_mutex.myserver_mutex_unlock();
     if(ret == -1)
     {
       sendHTTPhardError500(td, a);
