@@ -277,7 +277,7 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	}
 
 	lstrcat(cgiEnvString,"\rREQUEST_URI=");
-	lstrcat(cgiEnvString,td->scriptFile);
+		lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
 
 	if(td->request.ACCEPT[0])
 	{
@@ -306,8 +306,13 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 	}
 	if(td->request.ACCEPTENC[0])
 	{
-		lstrcat(cgiEnvString,"\rCONTENT_ENCODING=");
+		lstrcat(cgiEnvString,"\rHTTP_ACCEPT_ENCODING=");
 		lstrcat(cgiEnvString,td->request.ACCEPTENC);	
+	}
+	if(td->request.ACCEPTLAN[0])
+	{
+		lstrcat(cgiEnvString,"\rHTTP_ACCEPT_LANGUAGE=");
+		lstrcat(cgiEnvString,td->request.ACCEPTLAN);	
 	}
 
 	if(td->pathInfo[0])
@@ -320,19 +325,17 @@ void buildCGIEnvironmentString(httpThreadContext* td,char *cgiEnvString)
 		lstrcat(cgiEnvString,"\rPATH_TRANSLATED=");
 		lstrcat(cgiEnvString,td->pathTranslated);
 	}
-/*
+
 	lstrcat(cgiEnvString,"\rSCRIPT_FILENAME=");
 	lstrcat(cgiEnvString,td->filenamePath);
-*/
-	lstrcat(cgiEnvString,"\rSCRIPT_NAME=");
-	lstrcat(cgiEnvString,td->scriptFile);
 
-/*
-	lstrcat(cgiEnvString,"\rSCRIPT_PATH=");
-	lstrcat(cgiEnvString,td->scriptPath);
+	lstrcat(cgiEnvString,"\rSCRIPT_NAME=/");
+	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
 
 	lstrcat(cgiEnvString,"\rDOCUMENT_ROOT=");
 	lstrcat(cgiEnvString,lserver->getPath());
+
+/*
 
 	lstrcat(cgiEnvString,"\rDOCUMENT_URI=");
 	lstrcpyn(&cgiEnvString[lstrlen(cgiEnvString)],td->request.URI,lstrlen(td->request.URI)-lstrlen(td->pathInfo)+1);
