@@ -131,13 +131,18 @@ void cserver::start()
 		printf("*");
 	printf("\n");
 	free(software_signature);
-	
-	
+
 	/*
 	*Setup the server configuration.
 	*/
     printf("Initializing server configuration...\n");
 
+	/*
+	*Print the current working directory.
+	*/
+	char path[MAX_PATH];
+    printf("myServer @ %s\n",ms_getdefaultwd(path,MAX_PATH));
+	
 	int OSVer=ms_getOSVersion();
 
 	initialize(OSVer);
