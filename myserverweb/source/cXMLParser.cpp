@@ -39,7 +39,22 @@ extern "C" {
 #pragma comment (lib,"libxml2.lib")
 
 #endif
-
+/*!
+*Initialize the libxml2 library
+*/
+int cXMLParser::startXML()
+{
+	xmlInitParser();
+	return 1;
+}
+/*!
+*Cleanup the libxml2 library.
+*/
+int cXMLParser::cleanXML()
+{
+	xmlCleanupParser();
+	return 1;
+}
 /*!
 *With the open function we open a file and store it in memory.
 */

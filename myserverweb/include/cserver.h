@@ -132,6 +132,7 @@ public:
 	void  setVerbosity(u_long);
 	void start();
 	void stop();
+	void finalCleanup();
 	void terminate();
 }; 
 extern class cserver *lserver;

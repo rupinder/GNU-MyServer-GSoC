@@ -36,6 +36,8 @@ class cXMLParser
 	char buffer[250];
 	xmlNodePtr cur;
 public:
+	static int startXML();
+	static int cleanXML();
 	cXMLParser();
 	xmlDocPtr getDoc();
 	int open(char* filename);

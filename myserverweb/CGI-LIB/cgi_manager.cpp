@@ -194,7 +194,7 @@ char *cgi_manager::operator >>(char* str)
 	*If it is a POST request return a param from the POST values
 	*else return a GET param.
 	*/
-	if(td->request.URIOPTS)
+	if(td->request.URIOPTSPTR)
 		return PostParam(str);
 	else
 		return GetParam(str);
@@ -233,7 +233,7 @@ cgi_data* cgi_manager::getCgiData()
 	return cgidata;
 }
 /*!
-*Specify the type of data sent through HTTP.
+*Specify the MIME type for the data.
 */
 void cgi_manager::setContentType(char * Type)
 {

@@ -23,6 +23,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cXMLParser.h"
 #include "../include/connectionstruct.h"
 
+#ifdef WIN32
+#ifndef LOGON32_LOGON_NETWORK
+#define LOGON32_LOGON_NETWORK 3
+#endif
+
+#ifndef LOGON32_PROVIDER_DEFAULT
+#define LOGON32_PROVIDER_DEFAULT
+#endif
+#endif
 
 /*!
 *Global values for useLogonOption flag and the guest handle.
@@ -36,13 +45,6 @@ int logonCurrentThread(char *name,char* password,LOGGEDUSERID *handle)
 {
 	int logon=0;
 #ifdef WIN32
-	#ifndef LOGON32_LOGON_NETWORK
-	#define LOGON32_LOGON_NETWORK 3
-	#endif
-
-	#ifndef LOGON32_PROVIDER_DEFAULT
-	#define LOGON32_PROVIDER_DEFAULT
-	#endif
 	logon=LogonUser(name,NULL,password, LOGON32_LOGON_NETWORK, LOGON32_PROVIDER_DEFAULT,(PHANDLE)(handle));
 #endif
 	return logon;
@@ -194,7 +196,7 @@ int getPermissionMask(char* user, char* password,char* folder,char* filename,cha
 	}
 	cXMLParser parser;
 	if(parser.open(permissionsFile)==-1)
-		return (-1);
+		return (0);
 	xmlDocPtr doc=parser.getDoc();
 	if(!doc)
 		return (-1);

@@ -39,8 +39,8 @@ extern "C" {
 #pragma comment(lib,"ws2_32.lib")
 
 #ifndef DO_NOT_USE_SSL
-#pragma comment(lib,"libeay32.lib")/*!Import the OpenSSL library*/
-#pragma comment(lib,"ssleay32.lib")/*!Import the OpenSSL library*/
+#pragma comment(lib,"libssl.lib")/*!Import the OpenSSL library*/
+#pragma comment(lib,"libcrypto.lib")/*!Import the OpenSSL library*/
 #endif
 
 #endif
@@ -217,8 +217,7 @@ int MYSERVER_SOCKET::shutdown(int how)
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket && sslConnection)
 	{
-		if(SSL_shutdown(sslConnection)==0)
-			SSL_shutdown(sslConnection);
+		SSL_shutdown(sslConnection);
 	}
 #endif
 #ifdef WIN32
@@ -337,6 +336,7 @@ int MYSERVER_SOCKET::initializeSSL(SSL* connection)
 		if(sslContext==0)
 			return 0;
 		sslConnection =(SSL *)SSL_new(sslContext);
+		SSL_set_read_ahead(sslConnection,1);
 	}
 	return 1;
 }
@@ -459,16 +459,18 @@ int MYSERVER_SOCKET::recv(char* buffer,int len,int flags)
 u_long MYSERVER_SOCKET::bytesToRead()
 {
 	u_long nBytesToRead=0;
+	ioctlsocket(FIONREAD,&nBytesToRead);
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
-		char b;
-		SSL_peek(sslConnection,&b,1);
-		nBytesToRead=SSL_pending(sslConnection);
-		return nBytesToRead;
+		if(nBytesToRead)
+		{
+			char b;
+			SSL_peek(sslConnection,&b,1);
+			return  SSL_pending(sslConnection);
+		}
 	}
 #endif
-	ioctlsocket(FIONREAD,&nBytesToRead);
 	return nBytesToRead;
 }
 /*!

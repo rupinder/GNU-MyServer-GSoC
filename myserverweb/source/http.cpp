@@ -268,7 +268,7 @@ int http::sendHTTPDIRECTORY(httpThreadContext* td,LPCONNECTION s,char* folder)
 	
 	if(!td->appendOutputs)/*If we haven't to append the output build the HTTP header and send the data*/
 	{
-		u_long nbr,nbs;	
+		u_long nbr=0,nbs=0;	
 		td->outputData.setFilePointer(0);
 		http_headers::buildHTTPResponseHeader((char*)td->buffer->GetBuffer(),&(td->response));
 		s->socket.send((char*)td->buffer->GetBuffer(),(u_long)strlen((char*)td->buffer->GetBuffer()), 0);
@@ -1232,7 +1232,7 @@ int http::logHTTPaccess(httpThreadContext* td,LPCONNECTION a)
 /*!
 *This is the HTTP protocol main procedure to parse a request made over the HTTP.
 */
-int http::controlConnection(LPCONNECTION a,char */*b1*/,char */*b2*/,int bs1,int bs2,u_long nbtr,u_long id)
+int http::controlConnection(LPCONNECTION a,char* /*b1*/,char* /*b2*/,int bs1,int bs2,u_long nbtr,u_long id)
 {
 	int retvalue=-1;
 	td.buffer=((ClientsTHREAD*)a->thread)->GetBuffer();
@@ -1664,7 +1664,7 @@ int http::controlConnection(LPCONNECTION a,char */*b1*/,char */*b2*/,int bs1,int
 			if(content_len==0)
 			{
 				/*connectionBuffer is 8 KB, so don't copy more bytes.*/
-				a->dataRead=min(KB(8),strlen((char*)td.buffer->GetBuffer()) - td.nHeaderChars );
+				a->dataRead=min(KB(8),(int)strlen((char*)td.buffer->GetBuffer()) - td.nHeaderChars );
 				if(a->dataRead)
 				{
 					memcpy(a->connectionBuffer,((char*)td.buffer->GetBuffer() + td.nHeaderChars),a->dataRead);
@@ -1872,7 +1872,7 @@ int http::raiseHTTPError(httpThreadContext* td,LPCONNECTION a,int ID)
 	}
 	getRFC822GMTTime(td->response.DATEEXP,HTTP_RESPONSE_DATEEXP_DIM);
 	strncpy(td->response.ERROR_TYPE,HTTP_ERROR_MSGS[ID],HTTP_RESPONSE_ERROR_TYPE_DIM);
-	u_long lenErrorFile=strlen(((vhost*)(a->host))->systemRoot)+(u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
+	u_long lenErrorFile=(u_long)strlen(((vhost*)(a->host))->systemRoot)+(u_long)strlen(HTTP_ERROR_HTMLS[ID])+2;
 	char *errorFile=(char*)malloc(lenErrorFile);
 	if(errorFile)
 	{

@@ -90,7 +90,7 @@ void cserver::start()
 	*Save the unique instance of this class.
 	*/
 	lserver=this;
-
+	
 #ifdef WIN32
 	/*!
 	*Under the windows platform use the cls operating-system command to clear the screen.
@@ -128,10 +128,11 @@ void cserver::start()
 	*/
 	setcwdBuffer();
 	
+	cXMLParser::startXML();
 	/*!
 	*Setup the server configuration.
 	*/
-    	printf("Initializing server configuration...\n");
+    printf("Initializing server configuration...\n");
 
 	int OSVer=getOSVersion();
 
@@ -209,15 +210,21 @@ void cserver::start()
 			time_t myserver_hosts_conf_now=MYSERVER_FILE::getLastModTime("virtualhosts.xml");
 			time_t myserver_mime_conf_now=MYSERVER_FILE::getLastModTime("MIMEtypes.xml");
 			/*If a configuration file was modified reboot the server*/
-			if( (myserver_main_conf_now != myserver_main_conf)  || (myserver_hosts_conf_now != myserver_hosts_conf)  || (myserver_mime_conf_now != myserver_mime_conf)  )
+			if((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && (myserver_mime_conf_now!=-1))
 			{
-				reboot();
+				if( (myserver_main_conf_now != myserver_main_conf)  || (myserver_hosts_conf_now != myserver_hosts_conf)  || (myserver_mime_conf_now != myserver_mime_conf)  )
+				{
+					reboot();
+					/*Store new mtime values*/
+					myserver_main_conf = myserver_main_conf_now;
+					myserver_hosts_conf=myserver_hosts_conf_now;
+					myserver_mime_conf=myserver_mime_conf_now;
+				}
+				configsCheck=0;
 			}
-			/*Store new mtime values*/
-			myserver_main_conf = myserver_main_conf_now;
-			myserver_hosts_conf=myserver_hosts_conf_now;
-			myserver_mime_conf=myserver_mime_conf_now;
-			configsCheck=0;
+			else
+				configsCheck=7;/*If there are problems in loading mtimes check again after a bit*/
+			
 		}
 #ifdef WIN32
 		DWORD eventsCount,cNumRead,i; 
@@ -252,6 +259,14 @@ void cserver::start()
 #endif
 	}
 	this->terminate();
+	finalCleanup();
+}
+/*!
+*Do the final cleanup. Called only once.
+*/
+void cserver::finalCleanup()
+{
+	cXMLParser::cleanXML();
 }
 /*!
 *This function is used to create a socket server and a thread listener for a protocol.
@@ -743,8 +758,7 @@ int cserver::addConnection(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN *asock_in)
 {
 	if(s.getHandle()==0)
 		return 0;
-	static int ret;
-	ret=1;
+	int ret=1;
 	/*!
 	*ip is the string containing the address of the remote host connecting to the server
 	*myip is the address of the local host on the same network.
@@ -851,7 +865,7 @@ LPCONNECTION cserver::addConnectionToList(MYSERVER_SOCKET s,MYSERVER_SOCKADDRIN*
 	*/
 	lserver->connections_mutex_lock();
 	nc->next = connections;
-    	connections=nc;
+   	connections=nc;
 	nConnections++;
 	lserver->connections_mutex_unlock();
 	/*

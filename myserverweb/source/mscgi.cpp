@@ -158,11 +158,11 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	/*Send all the data to the client if we haven't to append the output*/
 	if(!td->appendOutputs)
 	{
-		char *buffer= (char*)td->buffer2->GetBuffer();
+		char *buffer = (char*)td->buffer2->GetBuffer();
 		u_long bufferSize= td->buffer2->GetRealLength();
 		data.stdOut.setFilePointer(0);
 		http_headers::buildHTTPResponseHeader(buffer,&(td->response));
-		if(s->socket.send(buffer,strlen(buffer), 0)==SOCKET_ERROR)
+		if(s->socket.send(buffer,(int)strlen(buffer), 0)==SOCKET_ERROR)
 		{
 			if(!td->appendOutputs)
 			{
@@ -174,16 +174,19 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 		do
 		{
 			data.stdOut.readFromFile(buffer,bufferSize,&nbr);
-			nbs=s->socket.send(buffer,nbr,0);
-			if(nbs==SOCKET_ERROR)
+			if(nbr)
 			{
-				if(!td->appendOutputs)
+				nbs=s->socket.send(buffer,nbr,0);
+				if(nbs==SOCKET_ERROR)
 				{
-					data.stdOut.closeFile();
-					MYSERVER_FILE::deleteFile(outDataPath);
-				}
-				return 0;
-			}		
+					if(!td->appendOutputs)
+					{
+						data.stdOut.closeFile();
+						MYSERVER_FILE::deleteFile(outDataPath);
+					}
+					return 0;
+				}		
+			}
 		}while(nbr && nbs);
 		if(!td->appendOutputs)
 		{
@@ -194,7 +197,7 @@ int mscgi::sendMSCGI(httpThreadContext* td,LPCONNECTION s,char* exec,char* cmdLi
 	return 1;
 #else
 	/*!
-	*On the platforms that is not available the support for the MSCGI send a 
+	*On the platforms where is not available the MSCGI support send a 
 	*non implemented error.
 	*/
 	return ((http*)td->lhttp)->raiseHTTPError(td,s,e_501);

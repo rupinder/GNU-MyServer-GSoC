@@ -133,11 +133,12 @@ int setcwdBuffer()
 */
 char *getdefaultwd(char *path,int len)
 {
-	if(path)
 #ifdef WIN32
+	if(path)
 		lstrcpyn(path,currentPath,len);
 #endif
 #ifdef NOT_WIN
+	if(path)
 		strncpy(path,currentPath,len);
 #endif
 	return currentPath;
