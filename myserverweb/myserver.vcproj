@@ -215,6 +215,12 @@
 				RelativePath="source\utility.cpp">
 			</File>
 			<File
+				RelativePath="source\CMemBuf.cpp">
+			</File>			
+			<File
+				RelativePath="source\securestr.cpp">
+			</File>						
+			<File
 				RelativePath="source\vhosts.cpp">
 			</File>
 			<File
@@ -314,6 +320,12 @@
 			<File
 				RelativePath="include\winCGI.h">
 			</File>
+			<File
+				RelativePath="include\securestr.h">
+			</File>			
+			<File
+				RelativePath="include\CMemBuf.h">
+			</File>			
 		</Filter>
 		<Filter
 			Name="Resource Files"
