@@ -2386,7 +2386,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
     *filenamePath = new char[filenamePathLen];
     if(*filenamePath == 0)
       return 0;
-		sprintf(*filenamePath, "%s/%s", ((Vhost*)(td->connection->host))->systemRoot, 
+		sprintf(*filenamePath, "%s%s", ((Vhost*)(td->connection->host))->systemRoot, 
             filename);
 	}
 	/*!
@@ -2432,8 +2432,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
         return e_500;
 			strcpy(*filenamePath, root);
       len=(u_long)(strlen(*filenamePath)+1);
-			(*filenamePath)[len-1]='/';
-			strcpy(&(*filenamePath)[len], filename);
+			strcpy(&(*filenamePath)[len-1], filename);
 		}
 		else
 		{
