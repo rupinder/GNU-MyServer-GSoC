@@ -42,7 +42,6 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	u_long nbw;
 	
 	File msfile;
-	memset(&msfile, 0, sizeof(msfile));
 
 	if(File::fileExists("count.dat"))
 	{
