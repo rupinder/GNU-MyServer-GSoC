@@ -289,7 +289,8 @@ void cgi::buildCGIEnvironmentString(httpThreadContext* td, char *cgi_env_string,
 	CMemBuf memCgi;
 	char strTmp[32];
 	memCgi.SetExternalBuffer(cgi_env_string, td->buffer2->GetRealLength());
-	memCgi << "SERVER_SOFTWARE=MyServer " << cgi_env_string, versionOfSoftware;
+	memCgi.SetLength(strlen(cgi_env_string)+1);
+	memCgi << "SERVER_SOFTWARE=MyServer " << versionOfSoftware;
 
 #ifdef WIN32
 	memCgi << " (WIN32)";

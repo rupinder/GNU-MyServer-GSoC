@@ -513,6 +513,14 @@ int http_headers::buildHTTPRequestHeaderStruct(HTTP_REQUEST_HEADER *request,http
 				u_long i;
 				char *base64=&token[strlen("Basic ")];
 				int len=(int)strlen(base64);
+				char *tmp = base64 + len - 1;
+				while (len > 0 && (*tmp == '\r' || *tmp == '\n'))
+				{
+					tmp--;
+					len--;
+				}
+				if (len <= 1)
+					return 0;
 				char* lbuffer2=base64Utils.Decode(base64,&len);
 				char* keep_lbuffer2=lbuffer2;
 				for(i=0;(*lbuffer2!=':') && (i<19);i++)
