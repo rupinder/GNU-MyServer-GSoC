@@ -60,18 +60,19 @@ void wait(u_long time)
 }
 
 /*!
-*Constructor for the mutex class.
-*/
+ *Constructor for the mutex class.
+ */
 myserver_mutex::myserver_mutex()
 {
 	initialized=0;
 	myserver_mutex_init();
 }
 /*!
-*Initialize a mutex.
-*/
+ *Initialize a mutex.
+ */
 int myserver_mutex::myserver_mutex_init()
 {
+  int ret;
 	if(initialized)
 	{
 		myserver_mutex_destroy();
@@ -83,9 +84,9 @@ int myserver_mutex::myserver_mutex_init()
 #if 0
   pthread_mutexattr_t   mta = NULL;
 	pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-	int ret = pthread_mutex_init(&mutex, &mta);
+	ret = pthread_mutex_init(&mutex, &mta);
 #else
-	int ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
+	ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
 #endif
 
 
@@ -93,12 +94,12 @@ int myserver_mutex::myserver_mutex_init()
 	mutex=CreateMutex(0,0,0);
 #endif
 	initialized=1;
-	return 0;
+	return ret ? 1 : 0;
 }
 
 /*!
-*Destroy a mutex.
-*/
+ *Destroy a mutex.
+ */
 int myserver_mutex::myserver_mutex_destroy()
 {
 #ifdef HAVE_PTHREAD
@@ -113,8 +114,8 @@ int myserver_mutex::myserver_mutex_destroy()
 }
 
 /*!
-*Lock the mutex
-*/
+ *Lock the mutex.
+ */
 int myserver_mutex::myserver_mutex_lock(u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD

@@ -243,9 +243,9 @@ int vhost::isHostAllowed(char* host)
 	sHostList *lhl = hostList;
 	while(lhl)
 	{
+    regmatch_t pm;
     if(lhl->hostRegex.isCompiled())
     {
-      regmatch_t pm;
       if (!lhl->hostRegex.exec(host ,1, &pm, REG_NOTBOL))
       {
         return 1;
@@ -290,9 +290,9 @@ int vhost::isIPAllowed(char* ip)
 	sIpList *lipl=ipList;
 	while(lipl)
 	{
+    regmatch_t pm;
     if(lipl->ipRegex.isCompiled())
     {
-      regmatch_t pm;
       if (!lipl->ipRegex.exec(ip ,1, &pm, REG_NOTBOL))
       {
         return 1;
@@ -512,7 +512,7 @@ void vhostmanager::clean()
     delete prevshl->host;
 		delete prevshl;
   }
-	memset(this,0,sizeof(vhostmanager));
+  vhostList = 0;
 }
 /*!
  *vhostmanager destructor.
@@ -555,6 +555,7 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
 
 	for(;;)
 	{
+		int cc=0;
 		buffer[0]='\0';
 		for(;;)/*!Save a line in the buffer. A line ends with a diesis.*/
 		{
@@ -591,12 +592,11 @@ int vhostmanager::loadConfigurationFile(char* filename,int maxlogSize)
       return -1;
     }
 		/*!Parse the line. */
-		int cc=0;
     vh->documentRoot = new char[MAX_PATH];/*Don't support long files. */
     vh->systemRoot  = new char[MAX_PATH];/*Don't support long files. */
     vh->accessesLogFileName  = new char[MAX_PATH];/*Don't support long files. */
     vh->warningsLogFileName = new char[MAX_PATH];/*Don't support long files. */
-
+    cc = 0;
     /*!Get the hosts list. */
 		for(;;)
 		{
@@ -843,10 +843,11 @@ vhostmanager::sVhostList* vhostmanager::getvHostList()
  */
 int vhostmanager::switchVhosts(int n1,int n2)
 {
+	sVhostList *vh1;
+	int i;
 	if(max(n1,n2)>=getHostsNumber())
 		return 0;
-	sVhostList *vh1 = vhostList;
-	int i;
+	vh1 = vhostList;
 	for(i=0;i<n1;i++)
 	{
 		vh1=vh1->next;
@@ -876,8 +877,8 @@ int vhostmanager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
  */
 int vhostmanager::getHostsNumber()
 {
-	sVhostList *vh = vhostList;
 	int i;
+	sVhostList *vh = vhostList;
 	for(i=0;vh;i++,vh=vh->next );
 	return i;
 }
@@ -889,18 +890,24 @@ int vhostmanager::getHostsNumber()
 int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 {
 	cXMLParser parser;
+	xmlDocPtr doc;
+	xmlNodePtr node;
+  MYSERVER_LOG_MANAGER *warningLogFile ;
+  MYSERVER_LOG_MANAGER *accessLogFile;
 	if(parser.open(filename))
 	{
 		return -1;
 	}
-	xmlDocPtr doc = parser.getDoc();
-	xmlNodePtr node=doc->children->children;
+	doc = parser.getDoc();
+	node=doc->children->children;
 	for(;node;node=node->next )
 	{
+		xmlNodePtr lcur;
+		vhost *vh;
 		if(xmlStrcmp(node->name, (const xmlChar *)"VHOST"))
 			continue;
-		xmlNodePtr lcur=node->children;
-		vhost *vh=new vhost();
+		lcur=node->children;
+		vh=new vhost();
     if(vh==0)
     {
       parser.close();
@@ -1109,10 +1116,10 @@ int vhostmanager::loadXMLConfigurationFile(char *filename,int maxlogSize)
       lcur=lcur->next;
     }
 
-    MYSERVER_LOG_MANAGER *accessLogFile=vh->getAccessesLog();
+    accessLogFile=vh->getAccessesLog();
     accessLogFile->load(vh->accessesLogFileName);
     
-    MYSERVER_LOG_MANAGER *warningLogFile = vh->getWarningsLog();
+    warningLogFile = vh->getWarningsLog();
     warningLogFile->load(vh->warningsLogFileName);
 
     vh->setMaxLogSize(maxlogSize);
@@ -1136,6 +1143,7 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 	sVhostList *list=this->getvHostList();
 	while(list)
 	{
+		char port[6];
 		out.writeToFile("<VHOST>\r\n",9,&nbw);
 
 		out.writeToFile("<NAME>",6,&nbw);
@@ -1159,7 +1167,6 @@ void vhostmanager::saveXMLConfigurationFile(char *filename)
 			hostList=hostList->next;
 		}
 		out.writeToFile("<PORT>",6,&nbw);
-		char port[6];
 		sprintf(port,"%i",list->host->port);
 		out.writeToFile(port,(u_long)strlen(port),&nbw);
 		out.writeToFile("</PORT>\r\n",9,&nbw);
@@ -1247,37 +1254,37 @@ int vhost::initializeSSL()
 #ifndef DO_NOT_USE_SSL
 
 	dynamic_protocol* dp = lserver->getDynProtocol(protocol_name);
-    if(this->protocol<1000 && !(dp && ( dp->getOptions() &  PROTOCOL_USES_SSL ))  )
-        return -2;
-    sslContext.method = SSLv23_method();
-    sslContext.context = SSL_CTX_new(sslContext.method);
-    if(sslContext.context==0)
-        return -1;
-
-    /*!
-     *The specified file doesn't exist.
-     */
-    if(MYSERVER_FILE::fileExists(sslContext.certificateFile) == 0)
-    {
-      return -1;
-    }
-
-    if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,
-                                            sslContext.certificateFile)))
-      return -1;
-    SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, sslContext.password);
-    SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
-    /*!
-     *The specified file doesn't exist.
-     */
-    if(MYSERVER_FILE::fileExists(sslContext.privateKeyFile) == 0)
-      return -1;
-    if(!(SSL_CTX_use_PrivateKey_file(sslContext.context, sslContext.privateKeyFile, 
-                                     SSL_FILETYPE_PEM)))
-        return -1;
+  if(this->protocol<1000 && !(dp && ( dp->getOptions() &  PROTOCOL_USES_SSL ))  )
+    return -2;
+  sslContext.method = SSLv23_method();
+  sslContext.context = SSL_CTX_new(sslContext.method);
+  if(sslContext.context==0)
+    return -1;
+  
+  /*!
+   *The specified file doesn't exist.
+   */
+  if(MYSERVER_FILE::fileExists(sslContext.certificateFile) == 0)
+  {
+    return -1;
+  }
+  
+  if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,
+                                          sslContext.certificateFile)))
+    return -1;
+  SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, sslContext.password);
+  SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
+  /*!
+   *The specified file doesn't exist.
+   */
+  if(MYSERVER_FILE::fileExists(sslContext.privateKeyFile) == 0)
+    return -1;
+  if(!(SSL_CTX_use_PrivateKey_file(sslContext.context, sslContext.privateKeyFile, 
+                                   SSL_FILETYPE_PEM)))
+    return -1;
 
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
-		SSL_CTX_set_verify_depth(ctx,1);
+  SSL_CTX_set_verify_depth(ctx,1);
 #endif
 	return 1;
 #else
@@ -1291,14 +1298,14 @@ int vhost::initializeSSL()
 void vhost::generateRsaKey()
 {
 #ifndef DO_NOT_USE_SSL
-    RSA *rsa;
+  RSA *rsa;
 
-    rsa = RSA_generate_key(512, RSA_F4, NULL, NULL);
+  rsa = RSA_generate_key(512, RSA_F4, NULL, NULL);
 
-    if (!SSL_CTX_set_tmp_rsa(sslContext.context, rsa))
-        return;
+  if (!SSL_CTX_set_tmp_rsa(sslContext.context, rsa))
+    return;
 
-    RSA_free(rsa);
+  RSA_free(rsa);
 #endif
 }
 
@@ -1321,10 +1328,10 @@ int vhost::freeSSL()
 #ifndef DO_NOT_USE_SSL
   int ret=0;
 	if(sslContext.context)
-	{
-		SSL_CTX_free(sslContext.context);
-		ret=1;
-	}
+  {
+    SSL_CTX_free(sslContext.context);
+    ret=1;
+  }
 	else 
 		ret = 0;
   if(sslContext.certificateFile)

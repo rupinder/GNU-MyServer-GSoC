@@ -96,6 +96,7 @@ int control_protocol::loadProtocol(cXMLParser* languageParser, char* /*confFile*
   char tmpPassword[64];
   tmpName[0]='\0';
   tmpPassword[0]='\0';
+  int OfilePathLen;
 
   /*! Is the value in the config file still in MD5? */
   int adminNameMD5ized = 0;
@@ -218,6 +219,17 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   char *IfilePath=0;
   char *OfilePath=0;
   control_protocol::id = id;
+  u_long nbw;
+  int specified_length;
+  char *version;
+  u_long timeout;
+  int authorized;
+  char *command ;
+  char *opt  ;
+  int OfilePathLen;
+
+  /*! Is the specified command a know one? */
+  int knownCommand;
 	if(a->getToRemove())
 	{
 		switch(a->getToRemove())
@@ -250,12 +262,12 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     sendResponse(b2, bs2, a, ret,0);
     return 0;
   }
-  u_long nbw;
-  int specified_length = header.getLength();
-  char *version = header.getVersion();
-  u_long timeout=get_ticks();
+  specified_length = header.getLength();
+  version = header.getVersion();
+  timeout=get_ticks();
   if(specified_length)
   {
+    int IfilePathLen;
     Ifile = new MYSERVER_FILE();
     if(Ifile == 0)
     {
@@ -264,7 +276,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       return 0;                                   
     }
-    int IfilePathLen = getdefaultwdlen() + 20;
+    IfilePathLen = getdefaultwdlen() + 20;
     IfilePath = new char[IfilePathLen];
     if(IfilePath == 0)
     {
@@ -404,7 +416,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     return 0;
   }
      
-  int authorized = checkAuth();
+  authorized = checkAuth();
 
   /*! 
    *If the client is not authorized remove the connection.
@@ -450,11 +462,10 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     return 0;
   }
 
-  char *command = header.getCommand();
-  char *opt     = header.getOptions();
+  command = header.getCommand();
+  opt     = header.getOptions();
 
-  /*! Is the specified command a know one? */
-  int knownCommand = 0;
+  knownCommand = 0;
 
   /*! 
    *Create an out file. This can be used by commands that
@@ -476,7 +487,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
     Ifile=0;
     return 0;                                   
   }
-  int OfilePathLen = getdefaultwdlen() + 20;
+  OfilePathLen = getdefaultwdlen() + 20;
   OfilePath = new char[OfilePathLen];
   if(OfilePath == 0)
   {
@@ -528,8 +539,8 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
   }
   else if(!strcmp(command, "KILLCONNECTION"))
   {
-    knownCommand = 1;
     char buff[11];
+    knownCommand = 1;
     strncpy(buff, header.getOptions(), 10 );
     buff[10] = '\0';
     u_long ID = header.getOptions() ? atol(buff) : 0;
@@ -581,6 +592,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
 
   if(knownCommand)
   {
+    char *connection;
     Ofile->setFilePointer(0);
     if(ret)
     {
@@ -610,7 +622,7 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
       MYSERVER_FILE::deleteFile(IfilePath);
       delete [] IfilePath;
     }
-    char *connection = header.getConnection();
+    connection = header.getConnection();
     /*! 
      *If the Keep-Alive was specified keep the connection in the
      *active connections list.
@@ -659,12 +671,12 @@ int control_protocol::controlConnection(LPCONNECTION a, char *b1, char *b2, int 
  */
 int control_protocol::addToErrorLog(LPCONNECTION con, char *b1, int bs1)
 {
+	char time[33];
   /*!
    *Check that the verbosity is at least 1.
    */
   if(lserver->getVerbosity() < 1)
     return 0;
-	char time[33];
 	getRFC822GMTTime(time, 32);
   sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getipAddr(), time, 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
@@ -777,8 +789,9 @@ int  control_protocol::SHOWCONNECTIONS(LPCONNECTION a,MYSERVER_FILE* out, char *
 {
   int ret =  0;
   u_long nbw;
+  LPCONNECTION con;
   lserver->connections_mutex_lock();
-  LPCONNECTION con = lserver->getConnections();
+  con = lserver->getConnections();
   while(con)
   {
     sprintf(b1, "%i - %s - %u - %s - %u - %s - %s\r\n", 
@@ -804,9 +817,10 @@ int  control_protocol::KILLCONNECTION(LPCONNECTION a, u_long ID, MYSERVER_FILE* 
 {
   int ret = 0;
   u_long nbw;
+  LPCONNECTION con;
   if(ID == 0)
     return -1;
-  LPCONNECTION con = lserver->findConnectionByID(ID);
+  con = lserver->findConnectionByID(ID);
   lserver->connections_mutex_lock();
   if(con)
   {
@@ -854,6 +868,12 @@ int control_protocol::GETFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in,
   char *filename = 0;
   MYSERVER_FILE localfile;
   int ret = 0;
+  /*! # of bytes read. */
+  u_long nbr = 0;
+
+  /*! # of bytes written. */
+  u_long nbw = 0;
+
   if(!lstrcmpi(fn, "myserver.xml"))
   {
     filename = lserver->getMainConfFile();
@@ -883,11 +903,6 @@ int control_protocol::GETFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in,
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
-  /*! # of bytes read. */
-  u_long nbr = 0;
-
-  /*! # of bytes written. */
-  u_long nbw = 0;
   for( ; ;)
   {
     ret = localfile.readFromFile(b1, bs1, &nbr);
@@ -927,6 +942,10 @@ int control_protocol::PUTFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in,
   MYSERVER_FILE localfile;
   int isAutoRebootToEnable = lserver->isAutorebootEnabled();
   int ret = 0;
+  /*! # of bytes read. */
+  u_long nbr = 0;
+  /*! # of bytes written. */
+  u_long nbw = 0;
   lserver->disableAutoReboot();
   if(!lstrcmpi(fn, "myserver.xml"))
   {
@@ -976,12 +995,6 @@ int control_protocol::PUTFILE(LPCONNECTION a, char* fn, MYSERVER_FILE* in,
       lserver->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
-
-  /*! # of bytes read. */
-  u_long nbr = 0;
-
-  /*! # of bytes written. */
-  u_long nbw = 0;
   for( ; ;)
   {
     ret = Ifile->readFromFile(b1, bs1, &nbr);
@@ -1026,14 +1039,14 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
                                         char *b1,int bs1)
 {
   char *path = lserver->getLanguagesPath();
+  _finddata_t fd;
+  intptr_t ff;
   if(path == 0)
   {
     strcpy(b1,"Error retrieving the language files path");
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
-  _finddata_t fd;
-  intptr_t ff;
   ff=_findfirst(path, &fd);
   if(ff == -1)
   {
@@ -1048,6 +1061,7 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
     int dirLen = 0;
     int filenameLen = 0;
     u_long nbw = 0;
+    int ret = 0;
     /*! Do not show files starting with a dot. */
     if(fd.name[0]=='.')
       continue;
@@ -1070,7 +1084,6 @@ int control_protocol::SHOWLANGUAGEFILES(LPCONNECTION a, MYSERVER_FILE* out,
       return CONTROL_INTERNAL;
     }
     MYSERVER_FILE::splitPath(fd.name,dir,filename);
-    int ret = 0;
     if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
     {
       ret = out->writeToFile(filename, strlen(filename), &nbw);
@@ -1101,4 +1114,3 @@ int control_protocol::GETVERSION(LPCONNECTION a, MYSERVER_FILE* out, char *b1,in
   sprintf(b1, "MyServer %s", versionOfSoftware);
   return Ofile->writeToFile(b1, strlen(b1), &nbw);
 }
-

@@ -48,6 +48,11 @@ extern int mustEndServer;
 int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 {
 	int ret=0;
+#ifdef NOT_WIN
+	int pid;
+  int count;
+#endif
+
 #ifdef WIN32
     /*!
     *Set the standard output values for the CGI process.
@@ -84,7 +89,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	return 0;
 #endif
 #ifdef NOT_WIN
-	int pid = fork();
+	pid = fork();
 	if(pid < 0) // a bad thing happend
 		return 0;
 	else if(pid == 0) // child
@@ -93,7 +98,6 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 		int i = 0;
 		int index = 0;
 		char * envp[100];
-	
 		if(spi->envString != NULL)
 		{
 			while(*((char *)(spi->envString) + i) != '\0')
@@ -164,7 +168,7 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 	} // end else if(pid == 0)
 	// Parent
 	// Wait till child dies
-  int count = 0;
+  count = 0;
   for( ;  ; count++)
   {
     if(count >= timeout)
@@ -201,12 +205,15 @@ int execHiddenProcess(START_PROC_INFO *spi,u_long timeout)
 int execConcurrentProcess(START_PROC_INFO* spi)
 {
 	int ret;
+#ifdef NOT_WIN
+	int pid;
+#endif
 #ifdef WIN32
 	/*!
    *Set the standard output values for the CGI process.
    */
 	STARTUPINFO si;
-		
+  PROCESS_INFORMATION pi;
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 	si.hStdInput = (HANDLE)spi->stdIn;
@@ -216,9 +223,8 @@ int execConcurrentProcess(START_PROC_INFO* spi)
 	if(si.hStdInput||si.hStdOutput||si.hStdError)
 		si.dwFlags|=STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
-	PROCESS_INFORMATION pi;
 	ZeroMemory( &pi, sizeof(pi) );
-	
+
 	ret=CreateProcess(NULL, spi->cmdLine, NULL, NULL, TRUE, 0, 
                     spi->envString, spi->cwd, &si, &pi);
 	if(!ret)
@@ -226,7 +232,7 @@ int execConcurrentProcess(START_PROC_INFO* spi)
 	return (*((int*)&pi.hProcess));
 #endif
 #ifdef NOT_WIN
-	int pid = fork();
+	pid = fork();
 	if(pid < 0) // a bad thing happend
 		return 0;
 	else if(pid == 0) // child

@@ -152,6 +152,15 @@ static struct argp myserver_argp = {options, parse_opt, args_doc, doc};
 int main (int argn, char **argv)
 {
   int runas=MYSERVER_RUNAS_CONSOLE;
+  int path_len;
+#ifdef ARGP
+	struct argp_input input;
+#endif
+#ifdef NOT_WIN
+    pid_t pid;
+    pid_t sid;
+#endif
+
 	::argn=argn;
 	::argv=argv;
 #ifdef NOT_WIN
@@ -165,7 +174,7 @@ int main (int argn, char **argv)
 	sigaction(SIGTERM,&sig2,NULL); // catch the kill command
 	sigaction(SIGHUP,&sig3,NULL); // catch the HUP command
 #endif
-  int path_len = strlen(argv[0]) +1 ;
+  path_len = strlen(argv[0]) +1 ;
   path = new char[path_len];
   if(path == 0)
     return 1;
@@ -182,7 +191,6 @@ int main (int argn, char **argv)
   delete [] path;
 	
 #ifdef ARGP
-	struct argp_input input;
 	/*! Reset the struct. */
 	input.version = 0;
   input.logFileName = 0;
@@ -257,11 +265,7 @@ int main (int argn, char **argv)
 #else
     /*!
      *Run the daemon.
-     *Process ID for the forked process.
-     */
-    pid_t pid;
-        
-    /*!
+     *pid is the process ID for the forked process.
      *Fork the process.
      */
     pid = fork();
@@ -291,8 +295,6 @@ int main (int argn, char **argv)
     /*!
      *Create a SID for the new process.
      */
-    pid_t sid;
-
     sid = setsid();
 
     /*!
@@ -324,13 +326,15 @@ int  write_pidfile(char* filename)
 {
  	int pidfile;
 	pid_t pid = getpid(); 
+  char buff[12];
+  int ret;
   pidfile = open(filename, O_RDWR | O_CREAT);
 
   if(pidfile == -1)
 		return -1;
-  char buff[12];
+
   sprintf(buff,"%i\n", pid);
-  int ret = write(pidfile, buff, strlen(buff));
+  ret = write(pidfile, buff, strlen(buff));
   if(ret == -1)
     return -1;
   return close(pidfile);
@@ -521,17 +525,17 @@ void RunAsService()
 
    manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
    if (manager)
+   {
+     service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
+     if (service)
      {
-	service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
-	if (service)
-	  {
-	     StartService(service,0,NULL);
-	     while (QueryServiceStatus (service, &MyServiceStatus))
-	       if (MyServiceStatus.dwCurrentState != SERVICE_START_PENDING)
-		 break;
-	     CloseServiceHandle (service);
-	     CloseServiceHandle (manager);
-	  }
+       StartService(service,0,NULL);
+       while (QueryServiceStatus (service, &MyServiceStatus))
+         if (MyServiceStatus.dwCurrentState != SERVICE_START_PENDING)
+               break;
+       CloseServiceHandle (service);
+       CloseServiceHandle (manager);
      }
+   }
 #endif
 }

@@ -147,6 +147,7 @@ void * startClientsTHREAD(void* pParam)
    */
 	while(ct->threadIsRunning) 
 	{
+    int ret;
     wait(1);
     /*!
      *If the thread can be destroyed don't use it.
@@ -157,7 +158,7 @@ void * startClientsTHREAD(void* pParam)
     }
       
     ct->parsing = 1;
-		int ret = ct->controlConnections();
+		ret = ct->controlConnections();
     ct->parsing = 0;
 
     /*!
@@ -226,11 +227,17 @@ void ClientsTHREAD::setToDestroy(int value)
  */
 int ClientsTHREAD::controlConnections()
 {
+  /*!
+   *Control the protocol used by the connection.
+   */
+  int retcode=0;
+  LPCONNECTION c;
+  dynamic_protocol* dp=0;
 	/*!
    *Get the access to the connections list.
    */
 	lserver->connections_mutex_lock();
-	LPCONNECTION c=lserver->getConnectionToParse(this->id);
+	c=lserver->getConnectionToParse(this->id);
 	/*!
    *Check if c exists.
    *Check if c is a valid connection structure.
@@ -290,12 +297,7 @@ int ClientsTHREAD::controlConnections()
 
 		buffer.SetBuffer(c->connectionBuffer, c->getDataRead());
 
-		/*!
-     *Control the protocol used by the connection.
-     */
-		int retcode=0;
 		c->thread=this;
-    dynamic_protocol* dp=0;
 
 		switch(((vhost*)(c->host))->protocol)
 		{
