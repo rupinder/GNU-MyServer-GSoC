@@ -91,6 +91,9 @@ SecurityCache Http::sec_cache;
 /*! Access the security cache safely. */
 Mutex Http::sec_cache_mutex;
 
+/*! Initial port for FastCGI servers. */
+int Http::fastcgi_initial_port=3333;
+
 /*!
  *Build a response for an OPTIONS request.
  */
@@ -2549,7 +2552,6 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   char *main_configuration_file;
   char *data;
   int defaultFilenameSize = 1;
-  
   if(initialized)
 		return 0;
 
@@ -2586,6 +2588,7 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
    */
   cgi_timeout = MYSERVER_SEC(15);
   fastcgi_servers = 25;
+  fastcgi_initial_port = 3333;
 	gzip_threshold=1<<20;
 	useMessagesFiles=1;
   if(browseDirCSSpath)
@@ -2612,6 +2615,11 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
 	{
     fastcgi_servers=atoi(data);
 	}	
+	data=configurationFileManager.getValue("FASTCGI_INITIAL_PORT");
+	if(data)
+	{
+    fastcgi_initial_port=atoi(data);
+	}	
 	data=configurationFileManager.getValue("USE_ERRORS_FILES");
 	if(data)
 	{
@@ -2636,7 +2644,7 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   WinCgi::setTimeout(cgi_timeout);
   Isapi::setTimeout(cgi_timeout);
   FastCgi::setMaxFcgiServers(fastcgi_servers);
-
+  FastCgi::setInitialPort(fastcgi_initial_port);
 	/*! 
    *Determine the number of default filenames written in 
    *the configuration file.  

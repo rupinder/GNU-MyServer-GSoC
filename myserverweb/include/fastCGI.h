@@ -46,44 +46,44 @@ typedef struct {
     unsigned char reserved;
 } FcgiHeader;
 
-#define FcgiMAX_LENGTH 0xffff
+#define FCGIMAX_LENGTH 0xffff
 
 /*!
  * Number of bytes in a FcgiHeader.  Future versions of the protocol
  * will not reduce this number.
  */
-#define FcgiHEADER_LEN  8
+#define FCGIHEADER_LEN  8
 
 /*!
  * Value for version component of FcgiHeader
  */
-#define FcgiVERSION_1           1
+#define FCGIVERSION_1           1
 
 /*!
  * Current version of the FastCGI protocol
  */
-#define FcgiVERSION FcgiVERSION_1
+#define FCGIVERSION FCGIVERSION_1
 
 /*!
  * Values for type component of FcgiHeader
  */
-#define FcgiBEGIN_REQUEST       1
-#define FcgiABORT_REQUEST       2
-#define FcgiEND_REQUEST         3
-#define FcgiPARAMS              4
-#define FcgiSTDIN               5
-#define FcgiSTDOUT              6
-#define FcgiSTDERR              7
-#define FcgiDATA                8
-#define FcgiGET_VALUES          9
-#define FcgiGET_VALUES_RESULT  10
-#define FcgiUNKNOWN_TYPE       11
-#define FcgiMAXTYPE (FcgiUNKNOWN_TYPE)
+#define FCGIBEGIN_REQUEST       1
+#define FCGIABORT_REQUEST       2
+#define FCGIEND_REQUEST         3
+#define FCGIPARAMS              4
+#define FCGISTDIN               5
+#define FCGISTDOUT              6
+#define FCGISTDERR              7
+#define FCGIDATA                8
+#define FCGIGET_VALUES          9
+#define FCGIGET_VALUES_RESULT  10
+#define FCGIUNKNOWN_TYPE       11
+#define FCGIMAXTYPE (FcgiUNKNOWN_TYPE)
 
 /*!
  * Value for requestId component of FcgiHeader
  */
-#define FcgiNULL_REQUEST_ID     0
+#define FCGINULL_REQUEST_ID     0
 
 
 typedef struct {
@@ -101,14 +101,14 @@ typedef struct {
 /*!
  * Mask for flags component of FcgiBeginRequestBody
  */
-#define FcgiKEEP_CONN  1
+#define FCGIKEEP_CONN  1
 
 /*!
  * Values for role component of FcgiBeginRequestBody
  */
-#define FcgiRESPONDER  1
-#define FcgiAUTHORIZER 2
-#define FcgiFILTER     3
+#define FCGIRESPONDER  1
+#define FCGIAUTHORIZER 2
+#define FCGIFILTER     3
 
 
 typedef struct {
@@ -128,23 +128,10 @@ typedef struct {
 /*!
  * Values for protocolStatus component of FcgiEndRequestBody
  */
-#define FcgiREQUEST_COMPLETE 0
-#define FcgiCANT_MPX_CONN    1
-#define FcgiOVERLOADED       2
-#define FcgiUNKNOWN_ROLE     3
-
-/*!
-*Max number of FastCGI server allowed to run
-*/
-#define MAX_FcgiSERVERS	25
-
-/*!
- * Variable names for FcgiGET_VALUES / FcgiGET_VALUES_RESULT records
- */
-#define FcgiMAX_CONNS  "FcgiMAX_CONNS"
-#define FcgiMAX_REQS   "FcgiMAX_REQS"
-#define FcgiMPXS_CONNS "FcgiMPXS_CONNS"
-
+#define FCGIREQUEST_COMPLETE 0
+#define FCGICANT_MPX_CONN    1
+#define FCGIOVERLOADED       2
+#define FCGIUNKNOWN_ROLE     3
 
 typedef struct {
     unsigned char type;    
@@ -186,8 +173,9 @@ struct fCGIContext
 class FastCgi  : public HttpDataHandler
 {
 private:
+  static int initialPort;
 	static int timeout;
-  static  int max_fcgi_servers;
+  static int max_fcgi_servers;
 	static int initialized;
   static Mutex servers_mutex;
 	static struct sfCGIservers *fCGIservers;
@@ -205,6 +193,8 @@ private:
 	sfCGIservers* FcgiConnect(fCGIContext*,char*);
 
 public:
+  static void setInitialPort(int);
+  static int getInitialPort(); 
   static int getTimeout();
   static void setTimeout(int);
   static void setMaxFcgiServers(int);

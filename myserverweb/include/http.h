@@ -78,6 +78,7 @@ private:
 	static char *defaultFilename;
 	static u_long nDefaultFilename;	
   static int cgi_timeout;
+  static int fastcgi_initial_port;
   static int fastcgi_servers;
 	MsCgi lmscgi;
 	WinCgi lwincgi;
