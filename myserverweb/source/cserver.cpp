@@ -506,7 +506,8 @@ void Server::createListenThreads()
    *Create the listens threads.
    *Every port uses a thread.
    */
-	for(VhostManager::sVhostList *list=vhostList->getVHostList(); list; list=list->next)
+	for(VhostManager::sVhostList *list=vhostList->getVHostList(); 
+                                               list; list=list->next)
 	{
 		int needThread=1;
 		VhostManager::sVhostList *list2=vhostList->getVHostList();
@@ -518,8 +519,8 @@ void Server::createListenThreads()
 			if(list2==list)
 				break;
       /*! 
-       *If there is still a thread listening on the specified port do not create
-       *the thread here.
+       *If there is still a thread listening on the specified 
+       *port do not create the thread here.
        */
 			if(list2->host->port == list->host->port)
 				needThread=0;
