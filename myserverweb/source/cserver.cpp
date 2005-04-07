@@ -116,6 +116,8 @@ void Server::start()
    */
   lserver=this;
   
+#ifdef CLEAR_BOOT_SCREEN
+
   if(logManager->getType() == LogManager::TYPE_CONSOLE )
   {
 #ifdef WIN32
@@ -133,8 +135,11 @@ void Server::start()
    */
     sync();
     system("clear");
-#endif
+#endif 
   }
+
+#endif /*! CLEAR_BOOT_SCREEN. */
+
   /*!
    *Print the MyServer signature only if the log writes to the console.
    */
