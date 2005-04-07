@@ -45,9 +45,9 @@ typedef char* (*registerNamePROC)(char*,int);
 int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
                                    Server* lserver)
 {
-  errorParser = languageParser;
 	loadProtocolPROC Proc;
 	int ret=0;
+  errorParser = languageParser;
 	ret = hinstLib.loadLibrary(filename);
 
 	if(ret)
