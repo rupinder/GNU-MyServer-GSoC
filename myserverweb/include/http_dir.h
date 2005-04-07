@@ -28,7 +28,7 @@ class HttpDir : public HttpDataHandler
 private:
 
 public:
-  static int load();
+  static int load(XmlParser*);
   static int unload();
 	int send(HttpThreadContext*, ConnectionPtr s, char* directory, 
                         char* cgi, int only_header=0);

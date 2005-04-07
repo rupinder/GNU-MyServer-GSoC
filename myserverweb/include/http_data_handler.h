@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/protocol.h"
 #include "../include/http_headers.h"
+#include "../include/cXMLParser.h"
 
 /*!
  *Base class to handle HTTP data.
@@ -30,7 +31,7 @@ class HttpDataHandler
 private:
 
 public:
-  static int load();
+  static int load(XmlParser* );
   static int unload();
 	virtual int send(HttpThreadContext*, ConnectionPtr s,char *filenamePath,
                    char* cgi, int OnlyHeader=0);

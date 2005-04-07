@@ -45,7 +45,7 @@ public:
 	/*!
 	*Functions to Load and Free the MSCGI library.
 	*/
-	static int load();
+	static int load(XmlParser*);
 	static int unload();
 	/*!
 	*Use this to send a MSCGI file through the HTTP protocol.

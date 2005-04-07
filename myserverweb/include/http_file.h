@@ -28,7 +28,7 @@ class HttpFile  : public HttpDataHandler
 private:
 
 public:
-  static int load();
+  static int load(XmlParser*);
   static int unload();
 	int send(HttpThreadContext*, ConnectionPtr s,char *filenamePath,
                    char* cgi, int OnlyHeader=0);

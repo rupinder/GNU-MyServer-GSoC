@@ -350,7 +350,7 @@ HttpFile::~HttpFile()
 /*!
  *Load the static elements.
  */
-int HttpFile::load()
+int HttpFile::load(XmlParser* /*confFile*/)
 {
   return 0;
 }

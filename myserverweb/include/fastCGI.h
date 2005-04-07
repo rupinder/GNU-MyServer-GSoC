@@ -200,7 +200,7 @@ public:
   static void setMaxFcgiServers(int);
   static int getMaxFcgiServers();
 	FastCgi();
-	static int load();
+	static int load(XmlParser*);
 	int send(HttpThreadContext* td, ConnectionPtr connection,
                   char* scriptpath,char *cgipath,int execute,
                   int onlyHeader);

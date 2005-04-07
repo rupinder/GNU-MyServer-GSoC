@@ -48,7 +48,7 @@ HttpDataHandler::~HttpDataHandler()
 /*!
  *Load the static elements.
  */
-int HttpDataHandler::load()
+int HttpDataHandler::load(XmlParser* /*confFile*/)
 {
   return 0;
 }

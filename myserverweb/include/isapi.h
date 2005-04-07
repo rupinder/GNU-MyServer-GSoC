@@ -146,7 +146,7 @@ public:
 #endif	
 	Isapi();
 	static Mutex *isapi_mutex;
-	static int load();
+	static int load(XmlParser*);
 	static int unload();
 	static void setTimeout(u_long);
   static u_long getTimeout();

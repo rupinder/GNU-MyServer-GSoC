@@ -910,7 +910,7 @@ Isapi::Isapi()
 /*!
 *Initialize the ISAPI engine under WIN32.
 */
-int Isapi::load()
+int Isapi::load(XmlParser*/* confFile*/)
 {
 #ifdef WIN32
   u_long n_threads = lserver->getNumThreads();

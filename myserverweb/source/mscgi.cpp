@@ -264,7 +264,7 @@ static DynamicLibrary mscgiModule;
 /*!
  *Map the library in the application address space.
  */
-int MsCgi::load()
+int MsCgi::load(XmlParser* /*confFile*/)
 {
   int ret=1;
 #ifdef WIN32

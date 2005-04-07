@@ -2552,6 +2552,7 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   char *main_configuration_file;
   char *data;
   int defaultFilenameSize = 1;
+	XmlParser configurationFileManager;
   if(initialized)
 		return 0;
 
@@ -2559,29 +2560,6 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
 
   sec_cache_mutex.init();
 		
-	/*! Initialize ISAPI.  */
-	Isapi::load();
-	
-	/*! Initialize FastCGI.  */
-	FastCgi::load();	
-
-	/*! Load the MSCGI library.  */
-	mscgiLoaded = MsCgi::load() ? 0 : 1;
-
-  HttpFile::load();
-	
-  HttpDir::load();
-
-	if(mscgiLoaded)
-  {
-		lserver->logWriteln( languageParser->getValue("MSG_LOADMSCGI") );
-  }
-	else
-	{
-		lserver->logPreparePrintError();
-		lserver->logWriteln( languageParser->getValue("ERR_LOADMSCGI") );
-		lserver->logEndPrintError();
-	}
 	/*! 
    *Store defaults value.  
    *By default use GZIP with files bigger than a MB.  
@@ -2596,8 +2574,30 @@ int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
     delete [] browseDirCSSpath;
   }
 	browseDirCSSpath = 0;
-	XmlParser configurationFileManager;
+
 	configurationFileManager.open(main_configuration_file);
+
+	/*! Initialize ISAPI.  */
+	Isapi::load(&configurationFileManager);
+	
+	/*! Initialize FastCGI.  */
+	FastCgi::load(&configurationFileManager);	
+
+	/*! Load the MSCGI library.  */
+	mscgiLoaded = MsCgi::load(&configurationFileManager) ? 0 : 1;
+	if(mscgiLoaded)
+  {
+		lserver->logWriteln( languageParser->getValue("MSG_LOADMSCGI") );
+  }
+	else
+	{
+		lserver->logPreparePrintError();
+		lserver->logWriteln( languageParser->getValue("ERR_LOADMSCGI") );
+		lserver->logEndPrintError();
+	}
+  HttpFile::load(&configurationFileManager);
+	
+  HttpDir::load(&configurationFileManager);
 	
 	/*! Determine the min file size that will use GZIP compression.  */
 	data=configurationFileManager.getValue("GZIP_THRESHOLD");
