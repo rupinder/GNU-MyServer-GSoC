@@ -265,7 +265,7 @@ DynamicProtocol* ProtocolsManager::getDynProtocol(char *protocolName)
  *Load all the protocols present in the directory.
  *Returns Nonzero on errors.
  */
-int ProtocolsManager::loadProtocols(char* directory, XmlParser* parser,
+int ProtocolsManager::loadProtocols(const char* directory, XmlParser* parser,
                                      char* confFile, Server* lserver)
 {
 	FindData fd;

@@ -63,6 +63,6 @@ public:
 	DynamicProtocol* getDynProtocol(char *protocolName);
 	int	addProtocol(char*, XmlParser*, char*, Server* lserver);
 	int unloadProtocols(XmlParser*);
-	int loadProtocols(char* directory, XmlParser*, char*, Server* lserver);
+	int loadProtocols(const char* directory, XmlParser*, char*, Server* lserver);
 };
 #endif

@@ -1682,42 +1682,36 @@ int Server::loadSettings()
 	Http::loadProtocol(&languageParser, "myserver.xml");
 	Https::loadProtocol(&languageParser, "myserver.xml");
   ControlProtocol::loadProtocol(&languageParser, "myserver.xml");
+
+  
 #ifdef NOT_WIN
-	if(File::fileExists("external/protocols"))
-	{
-		protocols.loadProtocols("external/protocols", 
-                            &languageParser, "myserver.xml", this);
-	}
+	if(File::fileExists("external"))
+    externalPath.assign("external");
   else
   {
 #ifdef PREFIX
-    pathlen = strlen(PREFIX)+strlen("/lib/myserver/external/protocols")+1;
-    path = new char[pathlen];
-    
-    if(path == 0)
-    {
-      string str;
-			logPreparePrintError();
-      str.assign(languageParser.getValue("ERR_ERROR"));
-      str.append(": Allocating path memory");
-      logWriteln(str.c_str());
-      logEndPrintError(); 
-      return -1;
-    }
-
-    sprintf(path,"%s/lib/myserver/external/protocols",PREFIX);
-    protocols.loadProtocols(path, &languageParser, "myserver.xml", this);
-#else
-    protocols.loadProtocols("/usr/lib/myserver/external/protocols", 
-                            &languageParser, "myserver.xml", this);
+    externalPath.assign(PREFIX);
+    externalPath.append("/lib/myserver/external");
+ #else
+    externalPath.assign("/usr/lib/myserver/external");
 #endif
   }
 
-#endif 
-#if WIN32
-  protocols.loadProtocols("external/protocols", &languageParser, 
-                          "myserver.xml", this);
 #endif
+ 
+#ifdef WIN32
+  externalPath.assign("external/protocols");
+
+#endif
+
+  /*! Load external protocols. */
+  {
+    string protocolsPath;
+    protocolsPath.assign(externalPath);
+    protocolsPath.append("/protocols");
+    protocols.loadProtocols(protocolsPath.c_str(), &languageParser, 
+                            "myserver.xml", this);
+  }
 
   logWriteln( languageParser.getValue("MSG_CREATET"));
 
