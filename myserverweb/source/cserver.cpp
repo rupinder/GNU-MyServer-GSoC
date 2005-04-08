@@ -583,12 +583,21 @@ void * listenServer(void* params)
 	lserver->increaseListeningThreadCount();
 	while(!mustEndServer)
 	{
+    int timeoutValue = 3;
+
+#ifdef __linux__
+    timeoutValue = 1;
+#endif
+#ifdef __HURD__
+    timeoutValue = 5;
+#endif
+
 		/*!
      *Accept connections.
      *Every new connection is sended to Server::addConnection function;
      *this function sends connections between the various threads.
      */
-		if(serverSocket->dataOnRead(5, 0) == 0 )
+		if(serverSocket->dataOnRead(timeoutValue, 0) == 0 )
 		{
 			wait(10);
 			continue;
