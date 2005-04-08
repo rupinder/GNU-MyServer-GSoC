@@ -700,7 +700,6 @@ int Server::terminate()
 	{
 		clearAllConnections();
 	}
-  delete [] path;
   delete [] languages_path;
   delete [] languageFile;
 	delete vhostList;
@@ -711,7 +710,7 @@ int Server::terminate()
   main_configuration_file = 0;
   vhost_configuration_file = 0;
   mime_configuration_file = 0;
-  path = 0;
+  path.assign("");
   languages_path = 0;
   vhostList = 0;
 	languageParser.close();
@@ -805,7 +804,7 @@ void Server::stopThreads()
  *Get the server administrator e-mail address.
  *To change this use the main configuration file.
  */
-char *Server::getServerAdmin()
+const char *Server::getServerAdmin()
 {
 	return serverAdmin;
 }
@@ -1428,15 +1427,15 @@ ConnectionPtr Server::findConnectionByID(u_long ID)
  *Returns the full path of the binaries directory. 
  *The directory where the file myserver(.exe) is.
  */
-char *Server::getPath()
+const char *Server::getPath()
 {
-	return path;
+	return path.c_str();
 }
 
 /*!
  *Returns the name of the server(the name of the current PC).
  */
-char *Server::getServerName()
+const char *Server::getServerName()
 {
 	return serverName;
 }
@@ -1453,7 +1452,7 @@ u_long Server::getNumThreads()
  *Returns a comma-separated local machine IPs list.
  *For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
  */
-char *Server::getAddresses()
+const char *Server::getAddresses()
 {
 	return ipAddresses;
 }
@@ -1491,8 +1490,6 @@ int Server::connections_mutex_unlock()
  */
 int Server::loadSettings()
 {
-  char *path;
-  int pathlen;
 	u_long i;
   int ret;
   ostringstream nCPU;  
@@ -1679,9 +1676,9 @@ int Server::loadSettings()
 	vhostList->loadXMLConfigurationFile(vhost_configuration_file, 
                                       this->getMaxLogFileSize());
 
-	Http::loadProtocol(&languageParser, "myserver.xml");
-	Https::loadProtocol(&languageParser, "myserver.xml");
-  ControlProtocol::loadProtocol(&languageParser, "myserver.xml");
+	Http::loadProtocol(&languageParser);
+	Https::loadProtocol(&languageParser);
+  ControlProtocol::loadProtocol(&languageParser);
 
   
 #ifdef NOT_WIN
@@ -1723,12 +1720,9 @@ int Server::loadSettings()
 	}
   logWriteln(languageParser.getValue("MSG_THREADR"));
 
-  pathlen = getdefaultwdlen();
-  path = new char[pathlen];
   /*! Return 1 if we had an allocation problem.  */
-  if(path == 0)
+	if(getdefaultwd(path))
     return -1;
-	getdefaultwd(path, pathlen);
 	/*!
    *Then we create here all the listens threads. 
    *Check that all the port used for listening have a listen thread.
@@ -1852,7 +1846,7 @@ void Server::decreaseListeningThreadCount()
 /*!
  *Return the path to the mail configuration file.
  */
-char *Server::getMainConfFile()
+const char *Server::getMainConfFile()
 {
   return main_configuration_file;
 }
@@ -1860,7 +1854,7 @@ char *Server::getMainConfFile()
 /*!
  *Return the path to the mail configuration file.
  */
-char *Server::getVhostConfFile()
+const char *Server::getVhostConfFile()
 {
   return vhost_configuration_file;
 }
@@ -1868,7 +1862,7 @@ char *Server::getVhostConfFile()
 /*!
  *Return the path to the mail configuration file.
  */
-char *Server::getMIMEConfFile()
+const char *Server::getMIMEConfFile()
 {
   return mime_configuration_file;
 }
@@ -1910,7 +1904,7 @@ ProtocolsManager *Server::getProtocolsManager()
 /*!
  *Get the path to the directory containing all the language files.
  */
-char *Server::getLanguagesPath()
+const char *Server::getLanguagesPath()
 {
   return languages_path;
 }
@@ -1918,7 +1912,7 @@ char *Server::getLanguagesPath()
 /*!
  *Get the current language file.
  */
-char *Server::getLanguageFile()
+const char *Server::getLanguageFile()
 {
   return languageFile;
 }

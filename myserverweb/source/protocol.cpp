@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  *Load the protocol. Called once at runtime.
  */
-int Protocol::loadProtocol(XmlParser* /*languageParser*/,char* /*confFile*/)
+int Protocol::loadProtocol(XmlParser* /*languageParser*/)
 {
 	return 1;
 }

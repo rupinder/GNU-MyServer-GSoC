@@ -107,7 +107,7 @@ private:
 	/*! Buffer that contains all the local machine IP values.  */
 	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
-	char *path;
+	string path;
   string externalPath;
 	char serverAdmin[32];
 	int initialize(int);
@@ -153,11 +153,11 @@ public:
   void enableAutoReboot();
   int isAutorebootEnabled();
   void rebootOnNextLoop();
-  char *getMainConfFile();
-  char *getVhostConfFile();
-  char *getMIMEConfFile();
-  char *getLanguagesPath();
-  char *getLanguageFile();
+  const char *getMainConfFile();
+  const char *getVhostConfFile();
+  const char *getMIMEConfFile();
+  const char *getLanguagesPath();
+  const char *getLanguageFile();
 	Server();
 	~Server();
 	DynamicProtocol* getDynProtocol(char *protocolName);
@@ -172,16 +172,16 @@ public:
 	int getListeningThreadCount();
 	void increaseListeningThreadCount();
 	void decreaseListeningThreadCount();
-	char *getAddresses();
+	const char *getAddresses();
 	void *envString;
 	VhostManager *vhostList;
 	MimeManager mimeManager;
-	char  *getPath();
+	const char  *getPath();
 	u_long getNumThreads();
-	char  *getDefaultFilenamePath(u_long ID=0);
-	char  *getServerName();
+	const char  *getDefaultFilenamePath(u_long ID=0);
+	const char  *getServerName();
 	u_long  getVerbosity();
-	char *getServerAdmin();
+	const char *getServerAdmin();
 	int getMaxLogFileSize();
 	int  mustUseLogonOption();
 	void  setVerbosity(u_long);

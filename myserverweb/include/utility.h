@@ -25,6 +25,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/processes.h"
 #include "../include/threads.h"
 
+#include <string.h>
+using namespace std;
+
 /*!
 *Macros to do simple transformations.
 */
@@ -32,11 +35,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define MYSERVER_MB(x) (x<<20)       //x*1024*1024
 #define MYSERVER_SEC(x) (x*1000)
 #define my_intabs(x)((x<0)?(-x):(x))
-#define OS_WINDOWS_9X		1
+#define OS_WINDOWS_9X		  1
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
-#define OS_WINDOWS_XP		4
-#define OS_LINUX	      100  // Add room for future windows
+#define OS_WINDOWS_XP		  4
+#define OS_LINUX	        100  // Add room for future windows
 
 int preparePrintError();
 int endPrintError();
@@ -47,6 +50,7 @@ u_long get_ticks();
 int setcwdBuffer();
 int getdefaultwdlen();
 char *getdefaultwd(char* dwd,int maxlen);
+int getdefaultwd(string&);
 int setcwd(char * cwd);
 int freecwdBuffer();
 

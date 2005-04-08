@@ -90,7 +90,7 @@ ControlProtocol::~ControlProtocol()
 /*!
  *Load the control protocol.
  */
-int ControlProtocol::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
+int ControlProtocol::loadProtocol(XmlParser* languageParser)
 {
   char tmpName[64];
   char tmpPassword[64];
@@ -105,7 +105,7 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
   int adminPasswordMD5ized = 0;
 
   char *data = 0;
-  char *main_configuration_file = lserver->getMainConfFile();
+  const char *main_configuration_file = lserver->getMainConfFile();
 	XmlParser configurationFileManager;
 	configurationFileManager.open(main_configuration_file);
 
@@ -862,7 +862,7 @@ int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, File* out,
 int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in, 
                               File* out, char *b1,int bs1 )
 {
-  char *filename = 0;
+  const char *filename = 0;
   File localfile;
   int ret = 0;
   /*! # of bytes read. */
@@ -935,7 +935,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
 int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in, 
                               File* out, char *b1,int bs1 )
 {
-  char *filename = 0;
+  const char *filename = 0;
   File localfile;
   int isAutoRebootToEnable = lserver->isAutorebootEnabled();
   int ret = 0;
@@ -1035,7 +1035,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
 int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out, 
                                         char *b1,int bs1)
 {
-  char *path = lserver->getLanguagesPath();
+  const char *path = lserver->getLanguagesPath();
   FindData fd;
   int ret = 0;
   if(path == 0)

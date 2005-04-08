@@ -2547,9 +2547,9 @@ int Http::sendAuth(HttpThreadContext* td, ConnectionPtr s)
 /*!
  *Load the HTTP protocol.
  */
-int Http::loadProtocol(XmlParser* languageParser, char* /*confFile*/)
+int Http::loadProtocol(XmlParser* languageParser)
 {
-  char *main_configuration_file;
+  const char *main_configuration_file;
   char *data;
   int defaultFilenameSize = 1;
 	XmlParser configurationFileManager;

@@ -53,7 +53,7 @@ class ControlProtocol : public Protocol
   int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1);
 public:
   int sendResponse(char*, int, ConnectionPtr, int, File* = 0);
-  static int loadProtocol(XmlParser* languageParser, char* /*confFile*/);
+  static int loadProtocol(XmlParser* languageParser);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);
 	virtual char* registerName(char*,int len);

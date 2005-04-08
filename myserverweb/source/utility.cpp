@@ -31,6 +31,8 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/time.h>
+#include <error.h>
+#include <errno.h>
 #endif
 }
 
@@ -173,11 +175,24 @@ int setcwdBuffer()
       delete [] currentPath;
       currentPath = new char[size];
     }
-  }while(ret==0);
+  }while( (ret == 0) && (errno == ERANGE) );
 	if(currentPath[strlen(currentPath)]=='/') 
 		currentPath[strlen(currentPath)]='\0';
   return 0;
 #endif
+}
+
+/*!
+ *Get the defult directory using a string as output.
+ *Return 0 on success.
+ */
+int getdefaultwd(string& out)
+{
+  char *wd = getdefaultwd(0, 0);
+  if(wd == 0)
+    return -1;
+  out.assign(wd);
+  return 0;
 }
 
 /*!

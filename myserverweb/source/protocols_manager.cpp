@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define intptr_t int
 #endif
 
-typedef int (*loadProtocolPROC)(void*,char*,void*); 
+typedef int (*loadProtocolPROC)(void*,void*); 
 typedef int (*unloadProtocolPROC)(void* languageParser); 
 typedef int (*controlConnectionPROC)(void* ,char*,char*,int,int,u_long,u_long); 
 typedef char* (*registerNamePROC)(char*,int); 
@@ -42,8 +42,7 @@ typedef char* (*registerNamePROC)(char*,int);
 /*!
  *Load the protocol. Called once at runtime.
  */
-int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
-                                   Server* lserver)
+int DynamicProtocol::loadProtocol(XmlParser* languageParser, Server* lserver)
 {
 	loadProtocolPROC Proc;
 	int ret=0;
@@ -65,7 +64,7 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser,char* confFile,
   {
     ret = registerName(protocolName,16)[0] != '\0' ? 1 : 0 ;
  		if(ret)
-      ret = (Proc((void*)languageParser,confFile,(void*)lserver));
+      ret = (Proc((void*)languageParser, (void*)lserver));
 	}
   else
     ret = 0;
@@ -185,7 +184,7 @@ int ProtocolsManager::addProtocol(char *file, XmlParser* parser,
   string log_buf;
 	DynamicProtocolListElement* ne = new DynamicProtocolListElement();
 	ne->data.setFilename(file);
-	ne->data.loadProtocol(parser, confFile, lserver);
+	ne->data.loadProtocol(parser, lserver);
 	ne->next=list;
 	list=ne;
   log_buf.assign(parser->getValue("MSG_LOADED"));
