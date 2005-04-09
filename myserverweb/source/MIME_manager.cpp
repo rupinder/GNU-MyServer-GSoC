@@ -100,7 +100,7 @@ int MimeManager::load(const char *fn)
 		/*!
      *Save the action to do with this type of files.
      */
-		memset(commandString, 0, sizeof(commandString));
+		memset(commandString, 0, 16);
 
 		while(buffer[nc]!=' ')
 		{
