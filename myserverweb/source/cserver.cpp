@@ -811,7 +811,7 @@ void Server::stopThreads()
  */
 const char *Server::getServerAdmin()
 {
-	return serverAdmin;
+	return serverAdmin.c_str();
 }
 
 /*!
@@ -852,7 +852,7 @@ int Server::initialize(int /*!os_ver*/)
   throttlingRate = 0;
 	maxConnections=0;
   maxConnectionsToAccept=0;
-	serverAdmin[0]='\0';
+	serverAdmin.assign("");
 	autoRebootEnabled = 1;
 #ifndef WIN32
 	/*! 
@@ -1009,7 +1009,7 @@ int Server::initialize(int /*!os_ver*/)
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
 	{
-		lstrcpy(serverAdmin, data);
+		serverAdmin.assign(data);
 	}
 
 	data=configurationFileManager.getValue("MAX_LOG_FILE_SIZE");

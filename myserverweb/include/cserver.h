@@ -109,7 +109,7 @@ private:
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
 	string path;
   string externalPath;
-	char serverAdmin[32];
+	string serverAdmin;
 	int initialize(int);
 	ConnectionPtr addConnectionToList(Socket s,MYSERVER_SOCKADDRIN *asock_in,
                                    char *ipAddr,char *localIpAddr,int port,

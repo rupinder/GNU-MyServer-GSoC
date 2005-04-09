@@ -84,16 +84,16 @@ public:
 		char extension[10];
 		char mime_type[60];
 		int command;
-		char *cgi_manager;
+		string cgi_manager;
 		MimeRecord* next;
 	};
 private:
   int loaded;
 	MimeRecord *data;
 	u_long numMimeTypesLoaded;
-	char *filename;
+	string filename;
 public:
-	char *getFilename();
+	const char *getFilename();
 	MimeManager();
   ~MimeManager();
 	void addRecord(MimeManager::MimeRecord);
