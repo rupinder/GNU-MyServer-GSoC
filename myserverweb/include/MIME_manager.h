@@ -101,10 +101,10 @@ public:
 	void removeAllRecords();
 	void removeRecord(char*);
 	u_long getNumMIMELoaded();
-	int load(char *filename);
-	int loadXML(char *filename);
-	int saveXML(char *filename);
-	int save(char *filename);
+	int load(const char *filename);
+	int loadXML(const char *filename);
+	int saveXML(const char *filename);
+	int save(const char *filename);
 	int getMIME(char* ext,char *dest,char **dest2);
 	int getMIME(int id,char* ext,char *dest,char **dest2);
   int getMIME(string& ext,string& dest,string& dest2);

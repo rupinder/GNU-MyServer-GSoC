@@ -76,10 +76,10 @@ Server::Server()
   toReboot = 0;
   autoRebootEnabled = 1;
   listeningThreads = 0;
-  languages_path = 0;
-  main_configuration_file = 0;
-  vhost_configuration_file = 0;
-  mime_configuration_file = 0;
+  languages_path.assign("");
+  main_configuration_file.assign("");
+  vhost_configuration_file.assign("");
+  mime_configuration_file.assign("");
   serverReady = 0;
   throttlingRate = 0;
 }
@@ -241,10 +241,10 @@ void Server::start()
 		}
 	}
 	loadSettings();
-
-	myserver_main_conf = File::getLastModTime(main_configuration_file);
-	myserver_hosts_conf = File::getLastModTime(vhost_configuration_file);
-	myserver_mime_conf = File::getLastModTime(mime_configuration_file);
+  
+	myserver_main_conf = File::getLastModTime(main_configuration_file.c_str());
+	myserver_hosts_conf = File::getLastModTime(vhost_configuration_file.c_str());
+	myserver_mime_conf = File::getLastModTime(mime_configuration_file.c_str());
 	
 	/*!
    *Keep thread alive.
@@ -261,11 +261,11 @@ void Server::start()
       if(configsCheck>10)
       {
         time_t myserver_main_conf_now=
-          File::getLastModTime(main_configuration_file);
+          File::getLastModTime(main_configuration_file.c_str());
         time_t myserver_hosts_conf_now=
-          File::getLastModTime(vhost_configuration_file);
+          File::getLastModTime(vhost_configuration_file.c_str());
         time_t myserver_mime_conf_now=
-          File::getLastModTime(mime_configuration_file);
+          File::getLastModTime(mime_configuration_file.c_str());
 
         /*! If a configuration file was modified reboot the server. */
         if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
@@ -709,18 +709,14 @@ int Server::terminate()
 	{
 		clearAllConnections();
 	}
-  delete [] languages_path;
-  delete [] languageFile;
+  languages_path.assign("");
+  languageFile.assign("");
 	delete vhostList;
-	delete [] main_configuration_file;
-  delete [] vhost_configuration_file;
-	delete [] mime_configuration_file;
+  main_configuration_file.assign("");
+  vhost_configuration_file.assign("");
+	mime_configuration_file.assign("");
 	
-  main_configuration_file = 0;
-  vhost_configuration_file = 0;
-  mime_configuration_file = 0;
   path.assign("");
-  languages_path = 0;
   vhostList = 0;
 	languageParser.close();
 	mimeManager.clean();
@@ -825,7 +821,6 @@ const char *Server::getServerAdmin()
  */
 int Server::initialize(int /*!os_ver*/)
 {
-  int languages_pathLen;
 	char *data;
   int ret;
   char buffer[512];
@@ -866,65 +861,24 @@ int Server::initialize(int /*!os_ver*/)
    */
 	if(File::fileExists("languages"))
 	{
-    int languages_pathLen = getdefaultwdlen() + strlen ("languages/") + 2 ;
-    languages_path = new char[languages_pathLen];
-    if(languages_path == 0)
-    {
-      ostringstream err;
-      logPreparePrintError();
-      err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
-      logWriteln( err.str().c_str() );     
-      logEndPrintError();
-      return -1;
-    }
-		sprintf(languages_path,"%s/languages/", getdefaultwd(0, 0) );
+		languages_path.assign(getdefaultwd(0, 0) );
+    languages_path.append("/languages/");
+ 
 	}
 	else
 	{
 #ifdef PREFIX
-    languages_pathLen = strlen(PREFIX)+strlen("/share/myserver/languages/") + 1 ;
-    languages_path = new char[languages_pathLen];
-    if(languages_path == 0)
-    {
-      ostringstream err;
-      logPreparePrintError();
-      err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
-      logWriteln( err.str().c_str() );     
-      logEndPrintError();
-      return -1;
-    }
-    sprintf(languages_path,"%s/share/myserver/languages/", PREFIX ) ;
+		languages_path.assign(PREFIX );
+    languages_path.append("/share/myserver/languages/");
 #else
     /*! Default PREFIX is /usr/. */
-    languages_pathLen = strlen("/usr/share/myserver/languages/") + 1 ;
-    languages_path = new char[languages_pathLen];
-    if(languages_path == 0)
-    {
-      ostringstream err;
-      logPreparePrintError();
-      err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
-      logWriteln( err.str().c_str() );     
-      logEndPrintError();
-      return -1;
-    }
-		strcpy(languages_path,"/usr/share/myserver/languages/");
+		languages_path.assign("/usr/share/myserver/languages/");
 #endif
 	}
 #endif
 
 #ifdef WIN32
-  languages_pathLen = strlen("languages/") + 1 ;
-  languages_path = new char[languages_pathLen];
-  if(languages_path == 0)
-  {
-    ostringstream err;
-    logPreparePrintError();
-    err << languageParser.getValue("ERR_ERROR") << ": Alloc Memory";
-    logWriteln( err.str().c_str() );     
-    logEndPrintError();
-    return -1;
-  }
-  strcpy(languages_path, "languages/" );
+  languages_path.assign( "languages/" );
 #endif 
 
 #ifndef WIN32
@@ -937,34 +891,22 @@ int Server::initialize(int /*!os_ver*/)
    */
 	if(File::fileExists("myserver.xml"))
 	{
-    main_configuration_file = new char[13];
-    if(main_configuration_file == 0)
-      return -1;
-		strcpy(main_configuration_file,"myserver.xml");
+		main_configuration_file.assign("myserver.xml");
 	}
 	else if(File::fileExists("~/.myserver/myserver.xml"))
 	{
-    main_configuration_file = new char[25];
-    if(main_configuration_file == 0)
-      return -1;
-		strcpy(main_configuration_file,"~/.myserver/myserver.xml");
+		main_configuration_file.assign("~/.myserver/myserver.xml");
 	}
 	else if(File::fileExists("/etc/myserver/myserver.xml"))
 	{
-    main_configuration_file = new char[27];
-    if(main_configuration_file == 0)
-      return -1;
-		strcpy(main_configuration_file,"/etc/myserver/myserver.xml");
+		main_configuration_file.assign("/etc/myserver/myserver.xml");
 	}
 	else
 #endif
 	/*! If the myserver.xml files doesn't exist copy it from the default one. */
 	if(!File::fileExists("myserver.xml"))
 	{
-    main_configuration_file = new char[13];
-    if(main_configuration_file == 0)
-      return -1;
-		strcpy(main_configuration_file,"myserver.xml");
+    main_configuration_file.assign("myserver.xml");
 		File inputF;
 		File outputF;
 		ret = inputF.openFile("myserver.xml.default", 
@@ -1001,12 +943,9 @@ int Server::initialize(int /*!os_ver*/)
 	}
 	else
   {
-    main_configuration_file = new char[13];
-    if(main_configuration_file == 0)
-      return -1;
-		strcpy(main_configuration_file,"myserver.xml");
+		main_configuration_file.assign("myserver.xml");
   }
-	configurationFileManager.open(main_configuration_file);
+	configurationFileManager.open(main_configuration_file.c_str());
 
 
 	data=configurationFileManager.getValue("VERBOSITY");
@@ -1017,29 +956,13 @@ int Server::initialize(int /*!os_ver*/)
 	data=configurationFileManager.getValue("LANGUAGE");
 	if(data)
 	{
-    int languageFileLen = strlen(languages_path) + strlen(data) + 2 ;
-    languageFile = new char[languageFileLen];
-    if(languageFile == 0)
-    {
-			logPreparePrintError();
-			logWriteln(languageParser.getValue("ERR_LOADED"));
-			logEndPrintError();
-			return -1;    
-    }
-		sprintf(languageFile, "%s/%s", languages_path, data);	
+    languageFile.assign(languages_path);
+    languageFile.append("/");
+    languageFile.append(data);
 	}
 	else
 	{
-    int languageFileLen = strlen("languages/english.xml");
-    languageFile = new char[languageFileLen];
-    if(languageFile == 0)
-    {
-			logPreparePrintError();
-			logWriteln(languageParser.getValue("ERR_LOADED"));
-			logEndPrintError();
-			return -1;    
-    }
-		strcpy(languageFile, "languages/english.xml");
+		languageFile.assign("languages/english.xml");
 	}
 
 	data=configurationFileManager.getValue("BUFFER_SIZE");
@@ -1097,7 +1020,7 @@ int Server::initialize(int /*!os_ver*/)
 	
 	configurationFileManager.close();
 	
-	if(languageParser.open(languageFile))
+	if(languageParser.open(languageFile.c_str()))
   {
     string err;
     logPreparePrintError();
@@ -1515,36 +1438,24 @@ int Server::loadSettings()
  */
 	if(File::fileExists("MIMEtypes.xml"))
 	{
-    mime_configuration_file = new char[14];
-    if(mime_configuration_file == 0)
-      return -1;
-		strcpy(mime_configuration_file,"MIMEtypes.xml");
+    mime_configuration_file.assign("MIMEtypes.xml");
 	}
 	else if(File::fileExists("~/.myserver/MIMEtypes.xml"))
 	{
-    mime_configuration_file = new char[26];
-    if(mime_configuration_file == 0)
-      return -1;
-		strcpy(mime_configuration_file,"~/.myserver/MIMEtypes.xml");
+		mime_configuration_file.assign("~/.myserver/MIMEtypes.xml");
 	}
 	else if(File::fileExists("/etc/myserver/MIMEtypes.xml"))
 	{
-    mime_configuration_file = new char[28];
-    if(mime_configuration_file == 0)
-      return -1;
-		strcpy(mime_configuration_file,"/etc/myserver/MIMEtypes.xml");
+		mime_configuration_file.assign("/etc/myserver/MIMEtypes.xml");
 	}
 	else
 #endif
 	/*! If the MIMEtypes.xml files doesn't exist copy it from the default one. */
 	if(!File::fileExists("MIMEtypes.xml"))
 	{
-    mime_configuration_file = new char[14];
-    if(mime_configuration_file == 0)
-      return -1;
-		strcpy(mime_configuration_file,"MIMEtypes.xml");
 		File inputF;
 		File outputF;
+		mime_configuration_file.assign("MIMEtypes.xml");
     ret=inputF.openFile("MIMEtypes.xml.default", FILE_OPEN_READ|
                         FILE_OPEN_IFEXISTS);
 		if(ret)
@@ -1575,14 +1486,11 @@ int Server::loadSettings()
 	}
 	else
 	{
-    mime_configuration_file = new char[14];
-    if(mime_configuration_file == 0)
-      return -1;
-		strcpy(mime_configuration_file,"MIMEtypes.xml");
+    mime_configuration_file.assign("MIMEtypes.xml");
 	}
 	/*! Load the MIME types. */
 	logWriteln(languageParser.getValue("MSG_LOADMIME"));
-	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file))
+	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file.c_str()))
 	{
     ostringstream stream;
     stream <<  languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
@@ -1611,38 +1519,26 @@ int Server::loadSettings()
    */
 	if(File::fileExists("virtualhosts.xml"))
 	{
-    vhost_configuration_file = new char[17];
-    if(vhost_configuration_file == 0)
-      return -1;
-		strcpy(vhost_configuration_file,"virtualhosts.xml");
+		vhost_configuration_file.assign("virtualhosts.xml");
 	}
 	else if(File::fileExists("~/.myserver/virtualhosts.xml"))
 	{
-    vhost_configuration_file = new char[29];
-    if(vhost_configuration_file == 0)
-      return -1;
-		strcpy(vhost_configuration_file,"~/.myserver/virtualhosts.xml");
+		vhost_configuration_file.assign("~/.myserver/virtualhosts.xml");
 	}
 	else if(File::fileExists("/etc/myserver/virtualhosts.xml"))
 	{
-    vhost_configuration_file = new char[31];
-    if(vhost_configuration_file == 0)
-      return -1;
-		strcpy(vhost_configuration_file,"/etc/myserver/virtualhosts.xml");
+		vhost_configuration_file.assign("/etc/myserver/virtualhosts.xml");
 	}
 	else
 #endif
 	/*! If the virtualhosts.xml file doesn't exist copy it from the default one. */
 	if(!File::fileExists("virtualhosts.xml"))
 	{
-    vhost_configuration_file = new char[17];
-    if(vhost_configuration_file == 0)
-      return -1;
-		strcpy(vhost_configuration_file,"virtualhosts.xml");
-		File inputF;
+    File inputF;
 		File outputF;
-		ret = inputF.openFile("virtualhosts.xml.default", FILE_OPEN_READ | 
-                              FILE_OPEN_IFEXISTS );
+    vhost_configuration_file.assign("virtualhosts.xml");		
+    ret = inputF.openFile("virtualhosts.xml.default", FILE_OPEN_READ | 
+                                             FILE_OPEN_IFEXISTS );
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1671,10 +1567,7 @@ int Server::loadSettings()
 	}	
 	else
 	{
-    vhost_configuration_file = new char[17];
-    if(vhost_configuration_file == 0)
-      return -1;
-		strcpy(vhost_configuration_file,"virtualhosts.xml");
+ 		vhost_configuration_file.assign("virtualhosts.xml");
 	}
   vhostList = new VhostManager();
   if(vhostList == 0)
@@ -1682,7 +1575,7 @@ int Server::loadSettings()
     return -1;
   }
 	/*! Load the virtual hosts configuration from the xml file. */
-	vhostList->loadXMLConfigurationFile(vhost_configuration_file, 
+	vhostList->loadXMLConfigurationFile(vhost_configuration_file.c_str(), 
                                       this->getMaxLogFileSize());
 
 	Http::loadProtocol(&languageParser);
@@ -1857,7 +1750,7 @@ void Server::decreaseListeningThreadCount()
  */
 const char *Server::getMainConfFile()
 {
-  return main_configuration_file;
+  return main_configuration_file.c_str();
 }
 
 /*!
@@ -1865,7 +1758,7 @@ const char *Server::getMainConfFile()
  */
 const char *Server::getVhostConfFile()
 {
-  return vhost_configuration_file;
+  return vhost_configuration_file.c_str();
 }
 
 /*!
@@ -1873,7 +1766,7 @@ const char *Server::getVhostConfFile()
  */
 const char *Server::getMIMEConfFile()
 {
-  return mime_configuration_file;
+  return mime_configuration_file.c_str();
 }
 
 /*!
@@ -1915,7 +1808,7 @@ ProtocolsManager *Server::getProtocolsManager()
  */
 const char *Server::getLanguagesPath()
 {
-  return languages_path;
+  return languages_path.c_str()   ;
 }
 
 /*!
@@ -1923,7 +1816,7 @@ const char *Server::getLanguagesPath()
  */
 const char *Server::getLanguageFile()
 {
-  return languageFile;
+  return languageFile.c_str();
 }
 
 /*!

@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *3)simple script to describe the action to do for handle the files of this type.
  *The file is ended by a '#' character.
  */
-int MimeManager::load(char *fn)
+int MimeManager::load(const char *fn)
 {
   int filenamelen;
 	char *buffer;
@@ -161,7 +161,7 @@ char *MimeManager::getFilename()
 /*!
  *Load the MIME types from a XML file.
  */
-int MimeManager::loadXML(char *filename)
+int MimeManager::loadXML(const char *filename)
 {
 	XmlParser parser;
 	xmlNodePtr node;
@@ -256,7 +256,7 @@ int MimeManager::loadXML(char *filename)
 /*!
  *Save the MIME types to a XML file.
  */
-int MimeManager::saveXML(char *filename)
+int MimeManager::saveXML(const char *filename)
 {
 	File::deleteFile(filename);
 	File f;
@@ -311,7 +311,7 @@ int MimeManager::saveXML(char *filename)
 /*!
  *Save the MIME types to a file.
  */
-int MimeManager::save(char *filename)
+int MimeManager::save(const char *filename)
 {
 	File f;
 	MimeManager::MimeRecord *nmr1;

@@ -266,7 +266,7 @@ int XmlParser::close()
  *If no errors nbytes[optional] will cointain the number 
  *of bytes written.
  */
-int XmlParser::save(char *filename,int *nbytes)
+int XmlParser::save(const char *filename,int *nbytes)
 {
   int err = xmlSaveFile(filename,doc);
   if(nbytes)

@@ -545,7 +545,7 @@ VhostManager::~VhostManager()
 /*!
  *Load the virtual hosts from a configuration file.
  */
-int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
+int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 {
 	/*!
    *FILE STRUCTURE:
@@ -751,7 +751,7 @@ int VhostManager::loadConfigurationFile(char* filename,int maxlogSize)
 /*!
  *Save the virtual hosts to a configuration file.
  */
-void VhostManager::saveConfigurationFile(char *filename)
+void VhostManager::saveConfigurationFile(const char *filename)
 {
 	char buffer[1024];
 	if(vhostList==0)
@@ -912,7 +912,7 @@ int VhostManager::getHostsNumber()
  *Load the virtual hosts from a XML configuration file
  *Returns non-null on errors.
  */
-int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
+int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
 {
 	XmlParser parser;
 	xmlDocPtr doc;
@@ -1186,7 +1186,7 @@ int VhostManager::loadXMLConfigurationFile(char *filename,int maxlogSize)
 /*!
  *Save the virtual hosts to a XML configuration file.
  */
-void VhostManager::saveXMLConfigurationFile(char *filename)
+void VhostManager::saveXMLConfigurationFile(const char *filename)
 {
 	sVhostList *list;
 	File out;

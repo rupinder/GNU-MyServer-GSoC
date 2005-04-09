@@ -210,16 +210,16 @@ public:
 	void addVHost(Vhost*);
 	
 	/*! Load the virtual hosts list from a configuration file.  */
-	int loadConfigurationFile(char *,int maxlogSize=0);
+	int loadConfigurationFile(const char *,int maxlogSize=0);
 	
 	/*! Save the virtual hosts list to a configuration file.  */
-	void saveConfigurationFile(char *);
+	void saveConfigurationFile(const char *);
 	
 	/*! Load the virtual hosts list from a xml configuration file.  */
-	int loadXMLConfigurationFile(char *,int maxlogSize=0);
+	int loadXMLConfigurationFile(const char *,int maxlogSize=0);
 	
 	/*! Save the virtual hosts list to a xml configuration file.  */
-	void saveXMLConfigurationFile(char *);
+	void saveXMLConfigurationFile(const char *);
 };
 
 #endif

@@ -138,11 +138,11 @@ private:
 	void createListenThreads();
 	int reboot();
 	u_int listeningThreads;
-	char *languageFile;
-	char *languages_path;
-	char *main_configuration_file;
-	char *vhost_configuration_file;
-	char *mime_configuration_file;
+	string languageFile;
+	string languages_path;
+	string main_configuration_file;
+	string vhost_configuration_file;
+	string mime_configuration_file;
 public:
   int countAvailableThreads();
   int addThread(int staticThread = 0);
