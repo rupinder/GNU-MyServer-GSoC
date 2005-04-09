@@ -4,7 +4,7 @@ EXTRA_DIST = myserver.ico license.txt MIMEtypes.xml.unix.default myserver.xml.un
 
 configdir = $(root_prefix)/etc/myserver
 
-install :
+install: install-recursive
 	$(install_sh_DATA) MIMEtypes.xml.unix.default $(configdir)/MIMEtypes.xml
 	$(install_sh_DATA) myserver.xml.unix.default $(configdir)/myserver.xml
 	$(install_sh_DATA) virtualhosts.xml.unix.default $(configdir)/virtualhosts.xml
