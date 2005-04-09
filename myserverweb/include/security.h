@@ -58,15 +58,15 @@ const u_long MYSERVER_PERMISSION_BROWSE	  = (1<<4);
 struct SecurityToken
 {
   /*! User to check for. */
-  char* user;
+  const char* user;
   /*! Password provided by the user. */
-  char* password;
+  const char* password;
   /*! Directory that the user is in. */
-  char* directory;
+  const char* directory;
   /*! System directory for the host. */
-  char* sysdirectory;
+  const char* sysdirectory;
   /*! File that the user tried to access. */
-  char* filename;
+  const char* filename;
   /*! 
    *Password that the user should provide to have access. 
    *This is used in authorization schemes like the HTTP digest,
@@ -93,7 +93,7 @@ class SecurityManager
 public:
   SecurityManager();
   ~SecurityManager();
-  int getErrorFileName(char *sysDir,int error, char** out,XmlParser* parser=0);
+  int getErrorFileName(const char *sysDir, int error, char** out,XmlParser* parser=0);
   int getPermissionMask(SecurityToken* st, XmlParser* parser=0);
 };
 #endif

@@ -31,7 +31,7 @@ HashDictionary::HashDictionary()
 /*!
  *Internal hashing function. This function uses the ELF hash algorithm.
  */
-unsigned int HashDictionary::hash(char * name)
+unsigned int HashDictionary::hash(const char * name)
 {
    unsigned int ret,x;
    int i;
@@ -61,7 +61,7 @@ HashDictionary::~HashDictionary()
 /*!
  *Get the data of the node by name.
  */
-void *HashDictionary::getData(char* name)
+void *HashDictionary::getData(const char* name)
 {
   unsigned int nameHash = hash(name);
   sNode* cur = node;
@@ -79,7 +79,7 @@ void *HashDictionary::getData(char* name)
 /*!
  *Add a node at the end of the list.
  */
-int HashDictionary::append(char* name, void* data)
+int HashDictionary::append(const char* name, void* data)
 {
   if(name == 0)
     return 0;
@@ -116,7 +116,7 @@ int HashDictionary::append(char* name, void* data)
  *Remove a node by name. The function returns the data for the removed node. If
  *there is not any node then zero is returned.
  */
-void* HashDictionary::removeNode(char* name)
+void* HashDictionary::removeNode(const char* name)
 {
   unsigned int node_hash = hash(name);
   sNode *cur = node;
@@ -196,7 +196,7 @@ int HashDictionary::isEmpty()
 /*!
  *Insert a node at the specified position.
  */
-int HashDictionary::insertAt(char* name, void* data, int pos)
+int HashDictionary::insertAt(const char* name, void* data, int pos)
 {
   int i;
   sNode *cur;
@@ -236,7 +236,7 @@ int HashDictionary::insertAt(char* name, void* data, int pos)
 /*!
  *Insert a new node at the beginning of the list.
  */
-int HashDictionary::insert(char* name,void* data)
+int HashDictionary::insert(const char* name,void* data)
 {
   if(name == 0)
     return -1;
@@ -280,5 +280,3 @@ void* HashDictionary::removeNodeAt(int order)
   nodes_count--;
   return data;
 }
-
-

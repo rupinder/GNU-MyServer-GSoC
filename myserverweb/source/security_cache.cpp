@@ -20,6 +20,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/security.h"
 #include "../include/filemanager.h"
 
+#include <string>
+
+using namespace std;
+
 /*!
  *Constructor for the SecurityCache object.
  */
@@ -35,11 +39,10 @@ SecurityCache::SecurityCache()
 /*!
  *Get the error file name from the security file.
  */
-int SecurityCache::getErrorFileName(char *directory, int error, 
-                                     char* sysdirectory, char** out)
+int SecurityCache::getErrorFileName(const char *directory, int error, 
+                                    const char* sysdirectory, char** out)
 {
-  int permissionsFileLen ; 
-  char* permissionsFile;
+  string permissionsFile;
   XmlParser *parser;
   if(directory == 0)
   {
@@ -48,14 +51,10 @@ int SecurityCache::getErrorFileName(char *directory, int error,
     directory = sysdirectory;
     sysdirectory = 0;
   }
-  permissionsFileLen = strlen(directory)+10;
-  permissionsFile = new char[permissionsFileLen];
+  permissionsFile.assign(directory);
+  permissionsFile.append("/security");
 
-  if(permissionsFile == 0)
-    return 0;
-  sprintf(permissionsFile,"%s/security",directory);
-
-  parser =(XmlParser*)dictionary.getData(permissionsFile);
+  parser =(XmlParser*)dictionary.getData(permissionsFile.c_str());
   /*!
    *If the parser is still present use it.
    */
@@ -63,18 +62,16 @@ int SecurityCache::getErrorFileName(char *directory, int error,
   {
     u_long fileModTime;
     /*! If the file was modified reload it. */
-    fileModTime=File::getLastModTime(permissionsFile);
+    fileModTime=File::getLastModTime(permissionsFile.c_str());
     if((fileModTime != (u_long)-1)  && (parser->getLastModTime() != fileModTime))
     {
       parser->close();
-      if(parser->open(permissionsFile) == -1)
+      if(parser->open(permissionsFile.c_str()) == -1)
       {
-        dictionary.removeNode(permissionsFile);
-        delete [] permissionsFile;
+        dictionary.removeNode(permissionsFile.c_str());
         return 0;
       }
     }
-    delete [] permissionsFile;
     return sm.getErrorFileName(directory, error, out, parser);
 
   }
@@ -86,11 +83,10 @@ int SecurityCache::getErrorFileName(char *directory, int error,
     parser = new XmlParser();
     if(parser == 0)
     {  
-      delete [] permissionsFile;
       return 0;
     }
    
-    if(!File::fileExists(permissionsFile))
+    if(!File::fileExists(permissionsFile.c_str()))
     {
       /*!
        *If the security file doesn't exist try with a default one(the one in the system
@@ -99,20 +95,17 @@ int SecurityCache::getErrorFileName(char *directory, int error,
       if(sysdirectory!=0)
       {
         delete parser;
-        delete [] permissionsFile;
         return getErrorFileName(sysdirectory, error, 0, out);
       }
       else
       {
         delete parser;
-        delete [] permissionsFile;
         return 0;
       }
     }
-    if(parser->open(permissionsFile) == -1)
+    if(parser->open(permissionsFile.c_str()) == -1)
     {
       delete parser;
-      delete [] permissionsFile;
       return 0;
     }
     if(dictionary.nodesNumber() >= limit)
@@ -121,13 +114,11 @@ int SecurityCache::getErrorFileName(char *directory, int error,
       if(toremove)
         delete toremove;
     }
-    if(dictionary.append(permissionsFile, (void*)parser) == 0)
+    if(dictionary.append(permissionsFile.c_str(), (void*)parser) == 0)
     {
       delete parser;
-      delete [] permissionsFile;
       return 0;
     }
-    delete [] permissionsFile;
     return sm.getErrorFileName(directory, error, out, parser);  
   }
 
@@ -189,27 +180,18 @@ int SecurityCache::getMaxNodes()
  */
 int SecurityCache::getPermissionMask(SecurityToken* st)
 {
-  int permissionsFileLen;
-  char* permissionsFile;
   XmlParser *parser;
-  u_long filenamelen;
+  string permissionsFile;
 
   if(st->directory == 0)
     return 0;
   if(st->filename == 0)
     return 0;
-  permissionsFileLen = strlen(st->directory)+10;
-  permissionsFile = new char[permissionsFileLen];
-  if(permissionsFile == 0)
-    return 0;
-  sprintf(permissionsFile,"%s/security", st->directory);
 
-  filenamelen=(u_long)(strlen(st->filename));
-  while(filenamelen && st->filename[filenamelen]=='.')
-  {
-    st->filename[filenamelen--]='\0';
-  }
-  parser =(XmlParser*)dictionary.getData(permissionsFile);
+  permissionsFile.assign(st->directory); 
+  permissionsFile.append("/security");
+
+  parser =(XmlParser*)dictionary.getData(permissionsFile.c_str());
   /*!
    *If the parser is still present use it.
    */
@@ -217,19 +199,17 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
   {
     u_long fileModTime;
     /*! If the file was modified reload it. */
-    fileModTime=File::getLastModTime(permissionsFile);
+    fileModTime=File::getLastModTime(permissionsFile.c_str());
     if((fileModTime != (u_long)-1)  && (parser->getLastModTime() != fileModTime))
     {
       parser->close();
-      if(parser->open(permissionsFile) == -1)
+      if(parser->open(permissionsFile.c_str()) == -1)
       {
-        dictionary.removeNode(permissionsFile);
-        delete [] permissionsFile;
+        dictionary.removeNode(permissionsFile.c_str());
         return 0;
       }
 
     }
-    delete [] permissionsFile;
     return sm.getPermissionMask(st, parser);
   }
   else
@@ -240,10 +220,9 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
     parser = new XmlParser();
     if(parser == 0)
     {  
-      delete [] permissionsFile;
       return 0;
     }
-    if(!File::fileExists(permissionsFile))
+    if(!File::fileExists(permissionsFile.c_str()))
     {
       /*!
        *If the security file doesn't exist try with a default one.
@@ -251,7 +230,6 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
       if(st->sysdirectory!=0)
       {
         delete parser;
-        delete [] permissionsFile;
         st->directory = st->sysdirectory;
         st->sysdirectory = 0;
         return getPermissionMask(st);
@@ -259,14 +237,12 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
       else
       {
         delete parser;
-        delete [] permissionsFile;
         return 0;
       }
     }
-    if(parser->open(permissionsFile) == -1)
+    if(parser->open(permissionsFile.c_str()) == -1)
     {
       delete parser;
-      delete [] permissionsFile;
       return 0;
     }
     if(dictionary.nodesNumber() >= limit)
@@ -275,13 +251,11 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
       if(toremove)
         delete toremove;
     }
-    if(dictionary.append(permissionsFile, (void*)parser) == 0)
+    if(dictionary.append(permissionsFile.c_str(), (void*)parser) == 0)
     {
       delete parser;
-      delete [] permissionsFile;
       return 0;
     }
-    delete [] permissionsFile;
     return sm.getPermissionMask(st, parser);  
   }
 

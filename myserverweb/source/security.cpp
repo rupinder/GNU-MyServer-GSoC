@@ -70,7 +70,7 @@ void SecurityToken::reset()
  *Return other valus on success, please note to free
  *out after its use.
  */
-int SecurityManager::getErrorFileName(char* sysDir,int error, 
+int SecurityManager::getErrorFileName(const char* sysDir,int error, 
                                       char** out, XmlParser* parser)
 {
 	xmlNode *node;
@@ -226,14 +226,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
    */
   if(parser == 0)
   {
-    u_long filenamelen;
     permissionsFile << st->directory << "/security";
 
-    filenamelen=(u_long)(strlen(st->filename));
-    while(filenamelen && st->filename[filenamelen]=='.')
-    {
-      st->filename[filenamelen--]='\0';
-    }
     /*! If the specified file doesn't exist return 0. */
     if(!File::fileExists(permissionsFile.str().c_str()))
     {

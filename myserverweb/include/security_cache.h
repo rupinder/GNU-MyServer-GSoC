@@ -35,7 +35,8 @@ public:
   void setMaxNodes(int);
   int getMaxNodes();
   int getPermissionMask(SecurityToken* st);
-  int getErrorFileName(char *root,int error, char* sysdirectory, char** out);
+  int getErrorFileName(const char *root, int error, 
+                       const char* sysdirectory, char** out);
 };
 
 

@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/log_manager.h"
 #include "../include/MIME_manager.h"
 
+#include <string>
+
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
 #include<openssl/rsa.h>
@@ -42,6 +44,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	#define SSL_CTX int;
 	#define SSL_METHOD int;
 #endif
+
+using namespace std;
 
 #define LOG_FILES_OPTS_LEN	256
 
@@ -72,8 +76,8 @@ public:
 		void* context;
 		void* method;
 #endif
-		char *certificateFile;
-		char *privateKeyFile;
+		string certificateFile;
+		string privateKeyFile;
 		char password[32];
 	};
 	
@@ -120,16 +124,16 @@ public:
 	char warningLogOpt[LOG_FILES_OPTS_LEN];
 	
 	/*! Path to the document root. */
-	char *documentRoot;
+	string documentRoot;
 	
 	/*! Path to the system root. */
-	char *systemRoot;
+	string systemRoot;
 	
 	/*! Path to the accesses log file. */
-	char *accessesLogFileName;
+	string accessesLogFileName;
 	
 	/*! Path to the warnings log file. */
-	char *warningsLogFileName;
+	string warningsLogFileName;
 	
 	/*! Description or name of the virtual host. */
 	char name[64];

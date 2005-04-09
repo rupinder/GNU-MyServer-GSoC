@@ -34,6 +34,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
 
+#include <string>
+#include <ostream>
+
+using namespace std;
+
 extern "C" 
 {
 #ifdef WIN32
@@ -177,21 +182,15 @@ int Http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
 {
 	int ret;
 	/*! Check if the host allows HTTP trace.  */
-	char *filename;
+	ostringstream filename;
   char *http_trace_value;
 	XmlParser parser;
-  filename = new char[strlen(((Vhost*)(s->host))->documentRoot) + 10];
-  if(filename==0)
-  {
-    return sendHTTPhardError500(td, s);
-  }
-	sprintf(filename, "%s/security", ((Vhost*)(s->host))->documentRoot);
-	if(parser.open(filename))
+	
+  filename << ((Vhost*)(s->host))->documentRoot << "/security" ;
+	if(parser.open(filename.str().c_str()))
 	{
 		return 0;
 	}
-  delete []filename;
-  filename = 0;
 	http_trace_value=parser.getAttr("HTTP", "TRACE");
 	
   /*! 
@@ -319,7 +318,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.user = s->getLogin();
     st.password = s->getPassword();
     st.directory = directory;
-    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
     st.filename = filename;
     st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
     st.permission2 = &permissions2;
@@ -333,7 +332,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.user = "Guest";
     st.password = "";
     st.directory = directory;
-    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
     st.filename = filename;
     st.password2 = 0;
     st.permission2 = 0;
@@ -369,7 +368,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.user = "Guest";
     st.password = "";
     st.directory = directory;
-    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
     st.filename = filename;
     st.password2 = 0;
     st.permission2 = 0;
@@ -589,7 +588,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.user = s->getLogin();
     st.password = s->getPassword();
     st.directory = directory;
-    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
     st.filename = filename;
     st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
     st.permission2 = &permissions2;
@@ -602,7 +601,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.user = "Guest";
     st.password = "";
     st.directory = directory;
-    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
     st.filename = filename;
     st.password2 = 0;
     st.permission2 = 0;
@@ -639,7 +638,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.user = "Guest";
     st.password = "";
     st.directory = directory;
-    st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+    st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
     st.filename = filename;
     st.password2 = 0;
     st.permission2 = 0;
@@ -896,7 +895,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
       st.user = s->getLogin();
       st.password = s->getPassword();
       st.directory = directory;
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
       st.filename = filename;
       st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
       st.permission2 = &permissions2;
@@ -909,7 +908,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
       st.user = "Guest";
       st.password = "";
       st.directory = directory;
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
       st.filename = filename;
       st.password2 = 0;
       st.permission2 = 0;
@@ -945,7 +944,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
       st.user = "Guest";
       st.password = "";
       st.directory = directory;
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot;
+      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
       st.filename = filename;
       st.password2 = 0;
       st.permission2 = 0;
@@ -1099,7 +1098,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 
 			if(File::fileExists(defaultFileName))
 			{
-				ostringstream  nURL;
+				ostringstream nURL;
 				if(td->request.uriEndsWithSlash)
         {
           nURL << defaultFileNamePath;
@@ -2231,9 +2230,9 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
      *The specified error file name must be in the web directory 
      *of the virtual host. 
      */
-		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot, 
-                                     getHTTPStatusCodeFromErrorID(ID),
-                                     ((Vhost*)(a->host))->systemRoot, &defFile);
+		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot.c_str(), 
+                                    getHTTPStatusCodeFromErrorID(ID),
+                                   ((Vhost*)(a->host))->systemRoot.c_str(), &defFile);
     sec_cache_mutex.unlock();
     if(ret == -1)
     {
@@ -2379,18 +2378,18 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
     int filenamePathLen=0;
     if(*filenamePath)
       delete [] (*filenamePath);
-    if(!((Vhost*)(td->connection->host))->systemRoot 
+    if(!((Vhost*)(td->connection->host))->systemRoot.length() 
        || File::getPathRecursionLevel(filename)< 2 )
     {
       return e_401;
     }
-    filenamePathLen = strlen(((Vhost*)(td->connection->host))->systemRoot) + 
+    filenamePathLen = ((Vhost*)(td->connection->host))->systemRoot.length() + 
                           strlen(filename) + 2;
     *filenamePath = new char[filenamePathLen];
     if(*filenamePath == 0)
       return 0;
-		sprintf(*filenamePath, "%s%s", ((Vhost*)(td->connection->host))->systemRoot, 
-            filename);
+		sprintf(*filenamePath, "%s%s", 
+            ((Vhost*)(td->connection->host))->systemRoot.c_str(), filename);
 	}
 	/*!
    *Else the file is in the web directory.
@@ -2401,7 +2400,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
 		{
       int filenamePathLen;
       u_long len;
-      char *root;
+      const char *root;
       if(*filenamePath)
         delete [] (*filenamePath);
       /*! 
@@ -2412,12 +2411,12 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
       if(filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
          && filename[3] == 's' && filename[4] == '/')
       {
-        root=((Vhost*)(td->connection->host))->systemRoot;
+        root=((Vhost*)(td->connection->host))->systemRoot.c_str();
         /*! 
          *Do not allow access to the system directory root but only
          *to subdirectories. 
          */
-        if(!root || File::getPathRecursionLevel(filename)< 2 )
+        if(File::getPathRecursionLevel(filename)< 2 )
         {
           return e_401;
         }
@@ -2425,7 +2424,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
       }
       else
       {
-        root=((Vhost*)(td->connection->host))->documentRoot;
+        root=((Vhost*)(td->connection->host))->documentRoot.c_str();
       }
       if(*filenamePath)
         delete [] (*filenamePath);
@@ -2439,15 +2438,15 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePat
 		}
 		else
 		{
-      int filenamePathLen;
+      int fnPathLen;
       if(*filenamePath)
         delete [] (*filenamePath);
 
-      filenamePathLen = strlen(((Vhost*)(td->connection->host))->documentRoot)+1;
-      *filenamePath = new char[filenamePathLen];
+      fnPathLen = strlen(((Vhost*)(td->connection->host))->documentRoot.c_str())+1;
+      *filenamePath = new char[fnPathLen];
       if(filenamePath == 0)
         return e_500;
-			strcpy(*filenamePath, ((Vhost*)(td->connection->host))->documentRoot);
+			strcpy(*filenamePath, ((Vhost*)(td->connection->host))->documentRoot.c_str());
 		}
 
 	}

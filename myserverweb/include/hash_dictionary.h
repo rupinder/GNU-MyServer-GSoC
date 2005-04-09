@@ -29,16 +29,16 @@ private:
   };
   sNode *node;
   int nodes_count;
-  unsigned int hash(char *);
+  unsigned int hash(const char *);
 public:
   HashDictionary();
   ~HashDictionary();
-  void *getData(char*);
+  void *getData(const char*);
   void *getData(int);
-  int append(char*, void*);
-  int insert(char*, void*);
-  int insertAt(char*,void*,int);
-  void* removeNode(char*);
+  int append(const char*, void*);
+  int insert(const char*, void*);
+  int insertAt(const char*,void*,int);
+  void* removeNode(const char*);
   void* removeNodeAt(int);
   int nodesNumber();
   void free();

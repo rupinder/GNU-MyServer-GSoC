@@ -54,7 +54,7 @@ LogManager::~LogManager()
  *Load and use the file to save logs.
  *Return zero on sucess.
  */
-int LogManager::load(char *filename)
+int LogManager::load(const char *filename)
 {
   int opt, ret;
   /*!

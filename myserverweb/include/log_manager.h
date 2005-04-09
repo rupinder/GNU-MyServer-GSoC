@@ -48,7 +48,7 @@ public:
   int requestAccess();
   int terminateAccess();
 
-  int load( char *filename );
+  int load(const char *filename );
   int load(const string& filename){return load(filename.c_str());}
 
   int close();
