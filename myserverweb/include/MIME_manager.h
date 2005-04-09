@@ -81,8 +81,8 @@ class MimeManager
 public:
 	struct MimeRecord
 	{
-		char extension[10];
-		char mime_type[60];
+		string extension;
+		string mime_type;
 		int command;
 		string cgi_manager;
 		MimeRecord* next;
@@ -97,9 +97,9 @@ public:
 	MimeManager();
   ~MimeManager();
 	void addRecord(MimeManager::MimeRecord);
-	MimeManager::MimeRecord *getRecord(char ext[10]);
+	MimeManager::MimeRecord *getRecord(const string& ext);
 	void removeAllRecords();
-	void removeRecord(char*);
+	void removeRecord(const string& ext);
 	u_long getNumMIMELoaded();
 	int load(const char *filename);
 	int loadXML(const char *filename);

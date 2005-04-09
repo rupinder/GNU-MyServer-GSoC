@@ -42,7 +42,7 @@ int MimeManager::load(const char *fn)
 	int ret;
   char commandString[16];
 	File f;
-  
+	MimeManager::MimeRecord record;  
   if(fn == 0)
     return -1;
 	
@@ -59,10 +59,8 @@ int MimeManager::load(const char *fn)
 	u_long nbw;
 	f.readFromFile(buffer,fs,&nbw);
 	f.closeFile();
-	MimeManager::MimeRecord record;
 	for(u_long nc=0;;)
 	{
-		memset(&record, 0, sizeof(MimeManager::MimeRecord));
 		/*!
      *Do not consider the \r \n and space characters.
      */
@@ -75,16 +73,27 @@ int MimeManager::load(const char *fn)
 			break;
 		while(buffer[nc]!=',')
 		{
+      char db[2];
+      db[1]='\0';
 			if(isalpha(buffer[nc])||isdigit(buffer[nc]))
 				if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
-					record.extension[strlen(record.extension)]=buffer[nc];
+        {
+          db[0]=buffer[nc];
+					record.extension.append((const char*)db);
+        }
 			nc++;
 		}
 		nc++;
 		while(buffer[nc]!=',')
 		{
+      char db[2];
+      db[1]='\0';
+      
 			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
-				record.mime_type[strlen(record.mime_type)]=buffer[nc];
+      {
+        db[0]=buffer[nc];
+				record.mime_type.append((const char*) db);
+      }
 			nc++;
 		}
 		nc++;
@@ -181,23 +190,25 @@ int MimeManager::loadXML(const char *fn)
 	nm=0;
 	for(;node;node=node->next )
 	{
-		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
-			continue;
 		xmlNodePtr lcur=node->children;
 		MimeRecord rc;
-		rc.command=rc.extension[0]=rc.mime_type[0]='\0';
+		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
+			continue;
+		rc.command='\0';
+    rc.extension.assign("");
+    rc.mime_type.assign("");
     rc.cgi_manager.assign("");
 		while(lcur)
 		{
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
 			{
 				if(lcur->children->content)
-					strcpy(rc.extension,(char*)lcur->children->content);
+					rc.extension.assign((char*)lcur->children->content);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
 			{
 				if(lcur->children->content)
-					strcpy(rc.mime_type,(char*)lcur->children->content);
+					rc.mime_type.assign((char*)lcur->children->content);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
 			{
@@ -262,9 +273,9 @@ int MimeManager::saveXML(const char *filename)
 	{
 		char command[16];
 		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
-		f.writeToFile(rc->extension,(u_long)strlen(rc->extension),&nbw);
+		f.writeToFile(rc->extension.c_str(),(u_long)rc->extension.length(),&nbw);
 		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
-		f.writeToFile(rc->mime_type,(u_long)strlen(rc->mime_type),&nbw);
+		f.writeToFile(rc->mime_type.c_str(),(u_long)rc->mime_type.length(),&nbw);
 		f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
 		if(rc->command==CGI_CMD_SEND)
 			strcpy(command,"SEND");
@@ -315,9 +326,11 @@ int MimeManager::save(const char *filename)
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
 		char command[16];
-		f.writeToFile(nmr1->extension,(u_long)strlen(nmr1->extension),&nbw);
+		f.writeToFile(nmr1->extension.c_str(), 
+                  (u_long)nmr1->extension.length(), &nbw);
 		f.writeToFile(",",1,&nbw);
-		f.writeToFile(nmr1->mime_type,(u_long)strlen(nmr1->mime_type),&nbw);
+		f.writeToFile(nmr1->mime_type.c_str(), 
+                  (u_long)nmr1->mime_type.length(), &nbw);
 		f.writeToFile(",",1,&nbw);
 		if(nmr1->command==CGI_CMD_SEND)
 			strcpy(command,"SEND ");
@@ -365,10 +378,10 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
 	for(MimeManager::MimeRecord *mr=data;mr;mr=mr->next )
 	{
-		if(!lstrcmpi(ext,mr->extension))
+		if(!stringcmpi(mr->extension, ext))
 		{
 			if(dest)
-				strcpy(dest,mr->mime_type);
+				strcpy(dest,mr->mime_type.c_str());
 
 			if(dest2)
 			{
@@ -402,9 +415,9 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 {
 	for(MimeManager::MimeRecord *mr=data;mr;mr=mr->next )
 	{
-		if(!lstrcmpi(ext.c_str(),mr->extension))
+		if(!stringcmpi(mr->extension, ext.c_str()))
 		{
-			dest.assign(mr->mime_type);
+			dest.assign(mr->mime_type.c_str());
 
       if(mr->cgi_manager.length())
       {
@@ -434,9 +447,9 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 		if(i==id)
 		{
 			if(ext)
-				strcpy(ext,mr->extension);
+				strcpy(ext,mr->extension.c_str());
 			if(dest)
-				strcpy(dest,mr->mime_type);
+				strcpy(dest,mr->mime_type.c_str());
 			if(dest2)
 			{
 				if(mr->cgi_manager.length())
@@ -528,12 +541,16 @@ void MimeManager::addRecord(MimeManager::MimeRecord mr)
 	/*!
    *If the MIME type already exists remove it.
    */
+	MimeManager::MimeRecord *nmr;
 	if(getRecord(mr.extension))
 		removeRecord(mr.extension);
-	MimeManager::MimeRecord *nmr =new MimeManager::MimeRecord;
+	nmr =new MimeManager::MimeRecord;
 	if(!nmr)	
 		return;
-	memcpy(nmr,&mr,sizeof(MimeRecord));
+  nmr->extension.assign(mr.extension);
+	nmr->mime_type.assign(mr.mime_type);
+	nmr->command=mr.command;
+	nmr->cgi_manager.assign(mr.cgi_manager);
 	nmr->next =data;
 	data=nmr;
 	numMimeTypesLoaded++;
@@ -542,7 +559,7 @@ void MimeManager::addRecord(MimeManager::MimeRecord mr)
 /*!
  *Remove a record by the extension of the MIME type.
  */
-void MimeManager::removeRecord(char *ext)
+void MimeManager::removeRecord(const string& ext)
 {
 	MimeManager::MimeRecord *nmr1 = data;
 	MimeManager::MimeRecord *nmr2 = 0;
@@ -550,7 +567,7 @@ void MimeManager::removeRecord(char *ext)
 		return;
 	do
 	{
-		if(!lstrcmpi(nmr1->extension,ext))
+		if(!stringcmpi(nmr1->extension,ext))
 		{
 			if(nmr2)
 			{
@@ -561,7 +578,6 @@ void MimeManager::removeRecord(char *ext)
 				data=nmr1->next;
 				
 			}
-      nmr1->cgi_manager.assign("");
       delete nmr1;
 			numMimeTypesLoaded--;
 			break;
@@ -603,12 +619,12 @@ void MimeManager::removeAllRecords()
  *Get a pointer to an existing record passing its extension.
  *Don't modify the member next of the returned structure.
  */
-MimeManager::MimeRecord *MimeManager::getRecord(char ext[10])
+MimeManager::MimeRecord *MimeManager::getRecord(const string& ext)
 {
 	MimeManager::MimeRecord *nmr1;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
 	{
-		if(!lstrcmpi(nmr1->extension,ext))
+		if(!stringcmpi(ext, nmr1->extension))
 		{
 			return nmr1;
 		}
