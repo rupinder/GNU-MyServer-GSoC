@@ -291,6 +291,7 @@ int File::openFile(const char* nfilename,u_long opt)
 	
 	return 0;
 }
+
 /*!
  *Returns the file handle.
  */
@@ -298,6 +299,7 @@ FileHandle File::getHandle()
 {
 	return handle;
 }
+
 /*!
  *Set the file handle.
  *Return a non null-value on errors.
@@ -307,6 +309,7 @@ int File::setHandle(FileHandle hl)
 	handle=hl;
 	return 0;
 }
+
 /*!
  *define the operator =.
  */
@@ -324,6 +327,7 @@ int File::operator =(File f)
   }
 	return 0;
 }
+
 /*!
  *Set the name of the file
  *Return Non-zero on errors.
@@ -333,6 +337,7 @@ int File::setFilename(const char* nfilename)
 	filename.assign(nfilename);
   return 0;
 }
+
 /*!
  *Returns the file path.
  */
@@ -340,6 +345,7 @@ const char *File::getFilename()
 {
 	return filename.c_str();
 }
+
 /*!
  *Read data from a file to a buffer.
  *Return 1 or errors.
@@ -367,6 +373,7 @@ int File::createTemporaryFile(char* filename)
                   |FILE_CREATE_ALWAYS|FILE_OPEN_TEMPORARY);
 
 }
+
 /*!
  *Close an open file handle.
  */
@@ -426,6 +433,7 @@ int File::deleteFile(const char *filename)
 #endif
 	return ret;
 }
+
 /*!
  *Returns the file size in bytes.
  *Returns -1 on errors.
@@ -451,6 +459,7 @@ u_long File::getFileSize()
 		return F_Stats.st_size;
 #endif
 }
+
 /*!
  *Change the position of the pointer to the file.
  */
@@ -467,6 +476,7 @@ int File::setFilePointer(u_long initialByte)
 	return (ret!=initialByte)?1:0;
 #endif
 }
+
 /*!
  *Returns a non-null value if the path is a directory.
  */
@@ -530,6 +540,7 @@ time_t File::getLastModTime(const char *filename)
 	else
 		return (-1);
 }
+
 /*!
  *Get the time of the last modifify did to the file.
  */
@@ -558,6 +569,7 @@ time_t File::getCreationTime(const char *filename)
 	else
 		return (-1);
 }
+
 /*!
  *This function returns the creation time of the file.
  */
@@ -565,6 +577,7 @@ time_t File::getCreationTime()
 {
 	return getCreationTime(filename);
 }
+
 /*!
  *Returns the time of the last access to the file.
  *Returns -1 on errors.
@@ -585,6 +598,7 @@ time_t File::getLastAccTime(const char *filename)
 	else
 		return (-1);
 }
+
 /*!
  *Returns the time of the last access to the file.
  */
@@ -813,6 +827,7 @@ int File::getShortFileName(char *out,int buffersize)
   return ret;
 #endif
 }
+
 /*!
  *Get the file path in the short form of the specified file
  *Return -1 on errors.
