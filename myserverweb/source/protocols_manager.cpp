@@ -47,7 +47,7 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser, Server* lserver)
 	loadProtocolPROC Proc;
 	int ret=0;
   errorParser = languageParser;
-	ret = hinstLib.loadLibrary(filename);
+	ret = hinstLib.loadLibrary(filename.c_str());
 
 	if(ret)
 	{
@@ -77,9 +77,7 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser, Server* lserver)
 int DynamicProtocol::unloadProtocol(XmlParser* languageParser)
 {
 	unloadProtocolPROC Proc=0;
-  if(filename)
-    delete [] filename;
-  filename = 0;
+  filename.assign("");
   Proc = (unloadProtocolPROC) hinstLib.getProc("unloadProtocol"); 
 	
 	if(Proc)
@@ -142,7 +140,7 @@ char* DynamicProtocol::registerName(char* out,int len)
 DynamicProtocol::DynamicProtocol()
 {
 	PROTOCOL_OPTIONS=0;
-  filename = 0;
+  filename.assign("");
   errorParser=0;
 }
 
@@ -154,31 +152,25 @@ DynamicProtocol::~DynamicProtocol()
   unloadProtocol(errorParser);
   errorParser=0;
 	PROTOCOL_OPTIONS=0;
-  filename = 0;
+  filename.assign("");
 }
 
 /*!
  *Set the right file name
  *Returns nonzero on errors.
  */
-int DynamicProtocol::setFilename(char *nf)
+int DynamicProtocol::setFilename(const char *nf)
 {
-  int filenamelen;
-  if(filename)
-    delete [] filename;
-  filename = 0;
-  filenamelen = strlen(nf) + 1;
-  filename = new char[filenamelen];
-  if(filename == 0)
+  if(nf == 0)
     return 1;
-	strncpy(filename, nf, filenamelen);
+	filename.assign(nf);
 	return 0;
 }
 
 /*!
  *Add a new protocol to the list by its module name.
  */
-int ProtocolsManager::addProtocol(char *file, XmlParser* parser,
+int ProtocolsManager::addProtocol(const char *file, XmlParser* parser,
                                    char* confFile, Server* lserver)
 {
   string log_buf;

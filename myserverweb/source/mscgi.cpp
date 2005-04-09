@@ -253,30 +253,23 @@ int MsCgi::load(XmlParser* /*confFile*/)
 #endif
 
 #ifdef HAVE_DL
-	char *mscgi_path=0;
+	ostringstream mscgi_path;
 	
 	if(File::fileExists("cgi-lib/cgi-lib.so"))
 	{
-    mscgi_path = new char[19];
-    if(mscgi_path)
-      strcpy(mscgi_path, "cgi-lib/cgi-lib.so");
+    mscgi_path << "cgi-lib/cgi-lib.so";
 	}
 	else
 	{
 #ifdef PREFIX
-    mscgi_path = new char[strlen(PREFIX)+25];
-    if(mscgi_path)
-      sprintf(mscgi_path, "%s/lib/myserver/cgi-lib.so", PREFIX );
+    mscgi_path << PREFIX << "/lib/myserver/cgi-lib.so";
 #else
-    mscgi_path = new char[29];
-    if(mscgi_path)
-      strcpy(mscgi_path, "/usr/lib/myserver/cgi-lib.so");
+    mscgi_path << "/usr/lib/myserver/cgi-lib.so";
 #endif
 	}
-  if(mscgi_path)
+  if(mscgi_path.str().length())
   {
-    ret = mscgiModule.loadLibrary(mscgi_path, 1);
-    delete [] mscgi_path;
+    ret = mscgiModule.loadLibrary(mscgi_path.str().c_str(), 1);
   }
 #endif
 	return ret;

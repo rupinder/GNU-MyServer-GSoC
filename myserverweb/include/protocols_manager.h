@@ -24,17 +24,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/connectionstruct.h"
 #include "../include/dynamiclib.h"
 
+#include <string>
+using namespace std;
 
 class DynamicProtocol : public Protocol
 {
 private:
   XmlParser *errorParser;
-	char *filename;
+	string filename;
 	DynamicLibrary hinstLib;
 	char protocolName[16];
 public:
 	char *getProtocolName();
-	int setFilename(char *filename);
+	int setFilename(const char *filename);
 	DynamicProtocol();
 	virtual ~DynamicProtocol();
 	char* registerName(char*,int len);
@@ -61,7 +63,7 @@ public:
 	ProtocolsManager();
   DynamicProtocol* getDynProtocolByOrder(int order);
 	DynamicProtocol* getDynProtocol(char *protocolName);
-	int	addProtocol(char*, XmlParser*, char*, Server* lserver);
+	int	addProtocol(const char*, XmlParser*, char*, Server* lserver);
 	int unloadProtocols(XmlParser*);
 	int loadProtocols(const char* directory, XmlParser*, char*, Server* lserver);
 };

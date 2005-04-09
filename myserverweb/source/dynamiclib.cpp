@@ -37,7 +37,7 @@ DynamicLibrary::~DynamicLibrary()
 /*!
  *Load the specified dynamic library. It returns 0 on success.
  */
-int DynamicLibrary::loadLibrary(char* filename, int globally)
+int DynamicLibrary::loadLibrary(const char* filename, int globally)
 {
 #ifdef WIN32
 	handle = LoadLibrary(filename);
@@ -55,7 +55,7 @@ int DynamicLibrary::loadLibrary(char* filename, int globally)
  *Get a pointer to the pecified function. Returns 0 on errors or 
  *the function address. 
  */
-void* DynamicLibrary::getProc(char* fnName)
+void* DynamicLibrary::getProc(const char* fnName)
 {
   if(!handle)
     return 0;

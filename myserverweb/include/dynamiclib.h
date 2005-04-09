@@ -37,8 +37,8 @@ private:
 public:
   DynamicLibrary();
   ~DynamicLibrary();
-  int loadLibrary(char* filename, int globally=0);
-  void* getProc(char*);
+  int loadLibrary(const char* filename, int globally=0);
+  void* getProc(const char*);
   int close();
 
 };
