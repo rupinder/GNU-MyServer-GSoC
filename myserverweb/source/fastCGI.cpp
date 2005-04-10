@@ -159,34 +159,34 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	{
 		if(cgipath)
     {
-      int fullpathLen = strlen(cgipath) + strlen(td->filenamePath) + 4;
+      int fullpathLen = strlen(cgipath) + strlen(td->filenamePath) + 6;
       fullpath = new char[fullpathLen];
       if(fullpath == 0)
       {
         return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
       }
-			sprintf(fullpath,"%s \"%s\"", cgipath, td->filenamePath);
+			sprintf(fullpath,"\"%s\" \"%s\"", cgipath, td->filenamePath);
     }
 		else
     {
-      int fullpathLen = strlen(td->filenamePath) + 1;
+      int fullpathLen = strlen(td->filenamePath) + 3;
       fullpath = new char[fullpathLen];
       if(fullpath == 0)
       {
         return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
       }
-			sprintf(fullpath,"%s",td->filenamePath);	
+			sprintf(fullpath,"\"%s\"",td->filenamePath);	
     }
 	}
 	else
 	{
-    int fullpathLen = strlen(cgipath) + 1;
+    int fullpathLen = strlen(cgipath) + 3;
     fullpath = new char[fullpathLen];
     if(fullpath == 0)
     {
       return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
     }
-		sprintf(fullpath,"%s",cgipath);
+		sprintf(fullpath,"\"%s\"",cgipath);
 	}
   Cgi::buildCGIEnvironmentString(td,td->buffer->GetBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer->GetBuffer(),
@@ -921,8 +921,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			spi.stdIn = (FileHandle)new_server->DESCRIPTOR.fileHandle;
 			spi.cmd.assign(path);
 			spi.cmdLine.assign(path);
-
-      new_server->path = new char[spi.cmd.length()+1];
+      new_server->path = new char[strlen(path)+1];
 
       if(new_server->path == 0)
       {

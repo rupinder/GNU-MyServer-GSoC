@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
  * Listening socket file number
  */
-#define FcgiLISTENSOCK_FILENO 0
+#define FCGI_LISTENSOCK_FILENO 0
 
 typedef struct {
     unsigned char version;
