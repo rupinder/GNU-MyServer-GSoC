@@ -511,6 +511,9 @@ void Server::createListenThreads()
 	{
 		int needThread=1;
 		VhostManager::sVhostList *list2=vhostList->getVHostList();
+    /*! No port was specified. */
+		if(list->host->port==0)
+			continue;
 		for(;;)
 		{
 			list2=list2->next;
@@ -525,9 +528,6 @@ void Server::createListenThreads()
 			if(list2->host->port == list->host->port)
 				needThread=0;
 		}
-    /*! No port was specified. */
-		if(list->host->port==0)
-			continue;
 
 		if(needThread)
 		{
@@ -1630,9 +1630,7 @@ int Server::loadSettings()
    *Check that all the port used for listening have a listen thread.
    */
 	logWriteln(languageParser.getValue("MSG_LISTENT"));
-	
 	createListenThreads();
-
 	logWriteln(languageParser.getValue("MSG_READY"));
 
   /*
