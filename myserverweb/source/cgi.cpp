@@ -316,18 +316,20 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, char* scriptpath,
 	spi.envString=td->buffer2->GetBuffer();
   
   /*! Execute the CGI process. */
-	if( execHiddenProcess(&spi, cgi_timeout) )
   {
-    stdInFile.closeFile();
-		stdOutFile.closeFile();
-    delete [] filename;
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite
+    Process cgiProc;
+    if( cgiProc.execHiddenProcess(&spi, cgi_timeout) )
+    {
+      stdInFile.closeFile();
+      stdOutFile.closeFile();
+      delete [] filename;
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)(td->connection->host))->warningsLogWrite
                                        ("Error in the CGI execution\r\n");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+    }
   }
-
   /*! Reset the buffer2 length counter. */
 	td->buffer2->SetLength(0);
 

@@ -45,14 +45,13 @@ extern int mustEndServer;
  *Return -1 on fails.
  *Return 0 on success.
  */
-int execHiddenProcess(StartProcInfo *spi,u_long timeout)
+int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 {
 	int ret=0;
 #ifdef NOT_WIN
-	int pid;
   u_long count;
 #endif
-
+  pid=0;
 #ifdef WIN32
     /*!
     *Set the standard output values for the CGI process.
@@ -76,6 +75,7 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
                       spi->envString, cwd, &si, &pi);
 	if(!ret)
 		return (-1);
+  pid = pi.hProcess;
 	/*!
 	*Wait until the process stops its execution.
 	*/
@@ -207,12 +207,10 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
  *Return -1 on fails.
  *Return the new process identifier on success.
  */
-int execConcurrentProcess(StartProcInfo* spi)
+int Process::execConcurrentProcess(StartProcInfo* spi)
 {
 	int ret;
-#ifdef NOT_WIN
-	int pid;
-#endif
+	pid=0;
 #ifdef WIN32
 	/*!
    *Set the standard output values for the CGI process.
@@ -236,7 +234,8 @@ int execConcurrentProcess(StartProcInfo* spi)
                     spi->envString, cwd, &si, &pi);
 	if(!ret)
 		return (-1);	
-	return (*((int*)&pi.hProcess));
+	pid = (*((int*)&pi.hProcess));
+  return pid;
 #endif
 #ifdef NOT_WIN
 	pid = fork();
@@ -321,18 +320,15 @@ int execConcurrentProcess(StartProcInfo* spi)
  *Return 0 on success.
  *Return nonzero on fails.
  */
-int terminateProcess(u_long id)
+int Process::terminateProcess()
 {
 	int ret;
 #ifdef WIN32
-	ret = TerminateProcess(*((HANDLE*)&id),0);
+	ret = TerminateProcess(*((HANDLE*)&pid),0);
 	return (!ret);
 #endif
 #ifdef NOT_WIN
-	/*!
-   *id is the PID.
-   */
-	ret = kill((pid_t)id, SIGKILL);
+	ret = kill((pid_t)pid, SIGKILL);
 	return ret;
 #endif	
 }

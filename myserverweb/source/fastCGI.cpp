@@ -771,7 +771,7 @@ int FastCgi::unload()
 		if(list->path[0]!='@')
     {
       list->socket.closesocket();
-      terminateProcess(list->pid);
+      list->process.terminateProcess();
     }
     delete [] list->path;
 
@@ -872,6 +872,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 {
   /*! Flag to identify a local server(running on localhost) from a remote one. */
 	int localServer;
+  int ret;
   sfCGIservers* new_server;
 	static u_short portsDelta=0;
  
@@ -948,9 +949,9 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 
 			spi.stdOut = spi.stdError =(FileHandle) -1;
 
-			new_server->pid=execConcurrentProcess(&spi);
+			ret = new_server->process.execConcurrentProcess(&spi);
 
-			if(new_server->pid == -1)
+			if(ret == -1)
 			{
         servers_mutex.unlock();
 				new_server->socket.closesocket();

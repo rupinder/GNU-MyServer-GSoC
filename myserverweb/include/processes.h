@@ -52,7 +52,13 @@ struct StartProcInfo
 };
 #endif
 
-int execHiddenProcess(StartProcInfo* spi,u_long timeout=0xFFFFFFFF);
-int execConcurrentProcess(StartProcInfo* spi);
-int terminateProcess(u_long);
+class Process
+{
+private:
+  int pid;
+public:
+  int execHiddenProcess(StartProcInfo* spi,u_long timeout=0xFFFFFFFF);
+  int execConcurrentProcess(StartProcInfo* spi);
+  int terminateProcess();
+};
 #endif

@@ -155,8 +155,7 @@ struct sfCGIservers
 	}DESCRIPTOR;
 	Socket socket;
 	char host[128];
-	/*! Process ID.  */ 
-	int pid; 
+	Process process; 
 	u_short port;
   sfCGIservers* next;
 };
