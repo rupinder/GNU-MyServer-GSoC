@@ -60,5 +60,7 @@ public:
   int execHiddenProcess(StartProcInfo* spi,u_long timeout=0xFFFFFFFF);
   int execConcurrentProcess(StartProcInfo* spi);
   int terminateProcess();
+  Process();
+  ~Process();
 };
 #endif

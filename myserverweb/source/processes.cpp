@@ -316,6 +316,22 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 }
 
 /*!
+ *Create the object.
+ */
+Process::Process()
+{
+  pid = 0;
+}
+
+/*!
+ *Destroy the object.
+ */
+Process::~Process()
+{
+
+}
+
+/*!
  *Terminate a process.
  *Return 0 on success.
  *Return nonzero on fails.
@@ -323,12 +339,16 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 int Process::terminateProcess()
 {
 	int ret;
+  if(pid == 0)
+    return 0;
 #ifdef WIN32
 	ret = TerminateProcess(*((HANDLE*)&pid),0);
+  pid = 0;
 	return (!ret);
 #endif
 #ifdef NOT_WIN
 	ret = kill((pid_t)pid, SIGKILL);
+  pid = 0;
 	return ret;
 #endif	
 }
