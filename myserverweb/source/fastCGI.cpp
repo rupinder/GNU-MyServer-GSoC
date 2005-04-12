@@ -165,7 +165,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       {
         return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
       }
+#ifdef WIN32
 			sprintf(fullpath,"\"%s\" \"%s\"", cgipath, td->filenamePath);
+#else
+ 			sprintf(fullpath,"%s %s", cgipath, td->filenamePath);     
+#endif
     }
 		else
     {
@@ -175,7 +179,12 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       {
         return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
       }
+#ifdef WIN32
 			sprintf(fullpath,"\"%s\"",td->filenamePath);	
+#else
+      sprintf(fullpath,"%s",td->filenamePath);		   
+#endif
+		
     }
 	}
 	else
@@ -186,7 +195,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     {
       return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
     }
-		sprintf(fullpath,"\"%s\"",cgipath);
+#ifdef WIN32
+    sprintf(fullpath,"\"%s\"",cgipath);
+#else
+   sprintf(fullpath,"%s",cgipath);   
+   		   
+#endif
+	;
 	}
   Cgi::buildCGIEnvironmentString(td,td->buffer->GetBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer->GetBuffer(),

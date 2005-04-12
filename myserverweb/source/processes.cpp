@@ -84,10 +84,10 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		return (u_long)(-1);
 	ret=CloseHandle( pi.hProcess );
 	if(!ret)
-		return (-1);
+		return (u_long)(-1);
 	ret=CloseHandle( pi.hThread );
 	if(!ret)
-		return (-1);	
+		return (u_long)(-1);	
 	return 0;
 #endif
 #ifdef NOT_WIN
@@ -119,13 +119,12 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		}
 		else
 			envp[0] = NULL;
-		
 		// change to working dir
 		if(spi->cwd.length())
 		{
 			ret=chdir((const char*)(spi->cwd.c_str()));
 			if(ret == -1)
-				return (u_long)(-1);
+				exit(1);
 		}
 		// If stdOut is -1, pipe to /dev/null
 		if((long)spi->stdOut == -1)
@@ -133,22 +132,22 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		// map stdio to files
 		ret=close(0); // close stdin
 		if(ret == -1)
-			return (-1);
+			exit (1);
 		ret=dup2(spi->stdIn, 0);
 		if(ret == -1)
-			return (-1);
+			exit (1);
 		ret=close(spi->stdIn);
 		if(ret == -1)
-			return (-1);
+			exit (1);
 		ret=close(1); // close stdout
 		if(ret == -1)
-			return (-1);
+			exit (1);
 		ret=dup2(spi->stdOut, 1);
 		if(ret == -1)
-			return (-1);
+			exit (1);
 		ret=close(spi->stdOut);
 		if(ret == -1)
-			return (u_long)(-1);
+			exit(1);
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
@@ -159,7 +158,7 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
                  (const char*)(spi->arg.c_str()), NULL, envp);
 
 			if(ret == -1)
-				return (-1);
+				exit(1);
 		}
 		else
 		{
@@ -168,7 +167,7 @@ int execHiddenProcess(StartProcInfo *spi,u_long timeout)
                  NULL, envp);
 
 			if(ret == -1)
-				return (-1);	
+				exit(1);	
 		}
 		exit(1);
 	} // end else if(pid == 0)
@@ -265,8 +264,7 @@ int execConcurrentProcess(StartProcInfo* spi)
 		}
 		else
 			envp[0] = NULL;
-		
-		// change to working dir
+			// change to working dir
 		if(spi->cwd.length())
 			chdir((const char*)(spi->cwd.c_str()));
 		// If stdOut is -1, pipe to /dev/null
@@ -275,39 +273,40 @@ int execConcurrentProcess(StartProcInfo* spi)
 		// map stdio to files
 		ret = close(0); // close stdin
 		if(ret == -1)
-			return (-1);
+			exit (1);
 		ret=dup2((long)spi->stdIn, 0);
 		if(ret == -1)
-			return (-1);	
+			exit (1);	
 		ret=close((long)spi->stdIn);
 		if(ret == -1)
-			return (-1);	
+			exit (1);	
 		ret=close(1); // close stdout
 		if(ret == -1)
-			return (-1);
+			exit (1);
 		ret=dup2((long)spi->stdOut, 1);
 		if(ret == -1)
-			return (-1);	
+			exit (1);	
 		ret=close((long)spi->stdOut);
 		if(ret == -1)
-			return (-1);	
+			exit (1);	
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-		if(spi->arg.length())
+    if(spi->arg.length())
 		{
 			ret = execle((const char*)(spi->cmd.c_str()), 
                    (const char*)(spi->cmd.c_str()), 
                    (const char*)(spi->arg.c_str()), NULL, envp);
+      
 			if(ret == -1)
-				return (-1);
+				exit (1);
 		}
 		else	
 		{
 			ret=execle((const char*)(spi->cmd.c_str()), 
                  (const char*)(spi->cmd.c_str()), NULL, envp);
 			if(ret == -1)
-				return (-1);
+				exit (1);
 		}
 		exit(1);
 	} // end else if(pid == 0)
