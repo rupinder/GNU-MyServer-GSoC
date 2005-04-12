@@ -352,3 +352,25 @@ int Process::terminateProcess()
 	return ret;
 #endif	
 }
+
+/*!
+ *Set the user identity for the process. Returns 0 on success.
+ */
+int Process::setuid(u_long uid)
+{
+#ifdef NOT_WIN
+  return ::setuid(uid);
+#endif
+  return -1;
+}
+
+/*!
+ *Set the group identity for the process. Returns 0 on success.
+ */
+int Process::setgid(u_long gid)
+{
+#ifdef NOT_WIN
+  return ::setgid(gid);
+#endif
+  return -1;
+}

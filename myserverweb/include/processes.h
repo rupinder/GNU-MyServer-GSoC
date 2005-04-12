@@ -28,8 +28,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /*!
 *Structure used for start a new process.
 */
-#ifndef StartProcInfo_IN
-#define StartProcInfo_IN
 struct StartProcInfo
 {
 	/*! STDIN file for new process.  */
@@ -50,7 +48,6 @@ struct StartProcInfo
 	
 	void *envString;
 };
-#endif
 
 class Process
 {
@@ -60,6 +57,8 @@ public:
   int execHiddenProcess(StartProcInfo* spi,u_long timeout=0xFFFFFFFF);
   int execConcurrentProcess(StartProcInfo* spi);
   int terminateProcess();
+  static int setuid(u_long);
+  static int setgid(u_long);
   Process();
   ~Process();
 };

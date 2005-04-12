@@ -88,6 +88,8 @@ class Server
 	friend int control_handler (u_long control_type);
 #endif
 private:
+  u_long uid;
+  u_long gid;
   int currentThreadID;
 	void stopThreads();
 	/*! Used when rebooting to load new configuration files.  */
@@ -97,6 +99,7 @@ private:
 	XmlParser languageParser;
   int autoRebootEnabled;
   int toReboot;
+  int rebootEnabled;
   LogManager *logManager;
   int serverReady;
 	u_long verbosity;

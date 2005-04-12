@@ -82,6 +82,9 @@ Server::Server()
   mime_configuration_file.assign("");
   serverReady = 0;
   throttlingRate = 0;
+  uid= 0;
+  gid = 0;
+  rebootEnabled=1;
 }
 
 /*!
@@ -1020,7 +1023,17 @@ int Server::initialize(int /*!os_ver*/)
 	{
 		maxLogFileSize=(u_long)atol(data);
 	}
-	
+  data = configurationFileManager.getValue("PROCESS_USER_ID");
+	if(data)
+	{
+		uid=atoi(data);
+	}
+  data = configurationFileManager.getValue("PROCESS_GROUP_ID");
+	if(data)
+	{
+		gid=atoi(data);
+	}
+
 	configurationFileManager.close();
 	
 	if(languageParser.open(languageFile.c_str()))
@@ -1534,7 +1547,10 @@ int Server::loadSettings()
 	}
 	else
 #endif
-	/*! If the virtualhosts.xml file doesn't exist copy it from the default one. */
+	/*! 
+   *If the virtualhosts.xml file doesn't exist copy it 
+   *from the default one. 
+   */
 	if(!File::fileExists("virtualhosts.xml"))
 	{
     File inputF;
@@ -1634,8 +1650,48 @@ int Server::loadSettings()
    */
 	logWriteln(languageParser.getValue("MSG_LISTENT"));
 	createListenThreads();
-	logWriteln(languageParser.getValue("MSG_READY"));
 
+  /*! 
+   *If the configuration file provides a user identifier, change the 
+   *current user for the process. Disable the reboot when this feature
+   *is used.
+   */
+  if(uid)
+  {
+    ostringstream out;
+    if(Process::setuid(uid))
+    {
+      out << languageParser.getValue("ERR_GENERIC") << ": setuid";
+      logPreparePrintError();
+      logWriteln(out.str().c_str());
+      logWriteln(languageParser.getValue("ERR_GENERIC"));
+      logEndPrintError();	  
+    }
+    out << "uid: " << uid;
+    logWriteln(out.str().c_str());
+    rebootEnabled = 0;
+  }
+  /*!
+   *Do a similar thing for the group identifier.
+   */
+  if(gid)
+  {
+    ostringstream out;
+    if(Process::setgid(gid))
+    {
+      out << languageParser.getValue("ERR_GENERIC") << ": setgid";
+      logPreparePrintError();
+      logWriteln(out.str().c_str());
+      logWriteln(languageParser.getValue("ERR_GENERIC"));
+      logEndPrintError();
+    }	
+    out << "gid: " << gid;
+    logWriteln(out.str().c_str()); 
+    rebootEnabled = 0;
+  }
+
+	logWriteln(languageParser.getValue("MSG_READY"));
+  
   /*
    *Print this message only if the log outputs to the console screen.
    */
@@ -1676,6 +1732,9 @@ int Server::reboot()
   /*! Reset the toReboot flag. */
   toReboot = 0;
 
+  /*! Do nothing if the reboot is disabled. */
+  if(!rebootEnabled)
+    return 0;
   /*! Do a beep if outputting to console. */
   if(logManager->getType() == LogManager::TYPE_CONSOLE)
   {
@@ -1809,7 +1868,7 @@ ProtocolsManager *Server::getProtocolsManager()
  */
 const char *Server::getLanguagesPath()
 {
-  return languages_path.c_str()   ;
+  return languages_path.c_str();
 }
 
 /*!
