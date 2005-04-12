@@ -47,7 +47,7 @@ extern "C" {
 /*!
 *Sleep the caller thread.
 */
-void wait(u_long time)
+void Thread::wait(u_long time)
 {
 #ifdef WIN32
 	Sleep(time);
@@ -123,7 +123,7 @@ int Mutex::lock(u_long /*id*/)
 #else
 	while(pthread_mutex_trylock(&mutex))
 	{
-		wait(1);
+		Thread::wait(1);
 	}
 #endif
 

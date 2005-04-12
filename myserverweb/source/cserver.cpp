@@ -253,7 +253,7 @@ void Server::start()
    */
 	while(!mustEndServer)
 	{
-		wait(500);
+		Thread::wait(500);
     if(autoRebootEnabled)
     {
       configsCheck++;
@@ -376,7 +376,7 @@ int Server::purgeThreads()
       thread->stop();
       while(!thread->threadIsStopped)
       {
-        wait(100);
+        Thread::wait(100);
       }
       nThreads--;
       ClientsThread *toremove = thread;
@@ -599,7 +599,7 @@ void * listenServer(void* params)
      */
 		if(serverSocket->dataOnRead(timeoutValue, 0) == 0 )
 		{
-			wait(10);
+			Thread::wait(10);
 			continue;
 		}
 		asock = serverSocket->accept((struct sockaddr*)&asock_in, 
@@ -687,7 +687,7 @@ int Server::terminate()
 
 	while(lserver->getListeningThreadCount())
 	{
-		wait(1000);
+		Thread::wait(1000);
 	}
 
   /*! Stop the active hreads. */
@@ -801,7 +801,7 @@ void Server::stopThreads()
      */
 		if(++threadsStopTime > 500 )
 			break;
-		wait(200);
+		Thread::wait(200);
 	}
 
 }
@@ -1273,7 +1273,7 @@ ConnectionPtr Server::getConnection(int /*id*/)
 	/*! Stop the thread if the server is pausing.*/
 	while(pausing)
 	{
-		wait(5);
+		Thread::wait(5);
 	}
 	if(connectionToParse)
 	{
@@ -1689,7 +1689,7 @@ int Server::reboot()
     return ret;
 	mustEndServer=0;
   /*! Wait a bit before restart the server. */
-	wait(5000);
+	Thread::wait(5000);
 	ret = initialize(0);
   if(ret)
     return ret;
@@ -1906,7 +1906,7 @@ int Server::removeThread(u_long ID)
       thread->stop();
       while(!thread->threadIsStopped)
       {
-        wait(100);
+        Thread::wait(100);
       }
       nThreads--;
       delete thread;

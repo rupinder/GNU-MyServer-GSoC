@@ -144,7 +144,7 @@ void * startClientsThread(void* pParam)
 	/*! Wait that the server is ready before go in the running loop. */
   while(!lserver->isServerReady())
   {
-    wait(500);
+    Thread::wait(500);
   }
 
 	/*!
@@ -154,7 +154,7 @@ void * startClientsThread(void* pParam)
 	while(ct->threadIsRunning) 
 	{
     int ret;
-    wait(1);
+    Thread::wait(1);
     /*!
      *If the thread can be destroyed don't use it.
      */
@@ -447,7 +447,7 @@ void ClientsThread::clean()
   /*! If the thread is parsing wait. */
   while(parsing)
   {
-    wait(100);
+    Thread::wait(100);
   }
 	threadIsRunning=0;
   if(http_parser)

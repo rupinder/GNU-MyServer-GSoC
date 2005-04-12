@@ -191,7 +191,7 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
     {
       break;
     }
-    wait(1);
+    Thread::wait(1);
   }
 
 	if(ret == -1)

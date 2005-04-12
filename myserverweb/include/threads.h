@@ -29,8 +29,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	typedef HANDLE MutexHandle;
 #endif
 
-void wait(u_long);
-
 class Mutex
 {
 private:
@@ -41,8 +39,6 @@ public:
 	~Mutex();
 	int init();
 	int destroy();
-	
-	/*! These functions are a simple trasposition of the mutex mechanism.  */
 	int lock(u_long id=0);
 	int unlock(u_long id=0);
 };
@@ -57,13 +53,14 @@ public:
 class Thread
 {
 public:
+  static void wait(u_long);
 #ifdef WIN32
-	static int  create(ThreadID*  thread, 
-                     unsigned int (_stdcall *start_routine)(void *), void * arg);
+	static int create(ThreadID*  thread, 
+             unsigned int (_stdcall *start_routine)(void *), void * arg);
 #endif
 #ifdef HAVE_PTHREAD
-	static int  create(ThreadID*  thread, void * (*start_routine)(void *), 
-                     void * arg);
+	static int create(ThreadID*  thread, void * (*start_routine)(void *), 
+                    void * arg);
 #endif
 	static void terminate();  
 };

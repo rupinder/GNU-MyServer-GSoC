@@ -1517,7 +1517,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     if(td.request.VER.compare("HTTP/1.0"))
     {
       char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
-      wait(2);
+      Thread::wait(2);
 			if( a->socket.bytesToRead() == 0) 
         {
           if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
@@ -1774,7 +1774,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					if(get_ticks()-timeout>=MYSERVER_SEC(3))
 						break;
           /*! Wait a bit. */
-          wait(2);
+          Thread::wait(2);
 				}
 				while(content_len!=total_nbr);
 				buff << td.inputData.getFileSize();

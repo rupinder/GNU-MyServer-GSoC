@@ -385,7 +385,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       else
       {
         /*! Wait a bit. */
-        wait(2);
+        Thread::wait(2);
       }
     }
   }

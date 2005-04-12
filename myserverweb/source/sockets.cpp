@@ -349,7 +349,7 @@ int Socket::send(const char* buffer, int len, int flags)
       {
         
         while(get_ticks() <= time)
-          wait(1);
+          Thread::wait(1);
       }    
       else
         break;
