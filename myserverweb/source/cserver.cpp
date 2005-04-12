@@ -285,7 +285,10 @@ void Server::start()
         }
         else
         {
-          /*! If there are problems in loading mtimes check again after a bit. */
+          /*! 
+           *If there are problems in loading mtimes 
+           *check again after a bit. 
+           */
           configsCheck=7;
         }
 			}
