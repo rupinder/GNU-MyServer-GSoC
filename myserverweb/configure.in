@@ -39,7 +39,7 @@ if test x$PTHREAD_LIB = x; then
 *** Threads are required for MyServer
 ])
 fi
-AC_DEFINE(HAVE_PTHREAD, 1, [POSIX threads required for MyServer in a non-windows enviorment])
+AC_DEFINE(HAVE_PTHREAD, 1, [POSIX threads required for MyServer in a non-windows environment])
 
 dnl See if we need -lxnet for arpa
 AC_CHECK_LIB(xnet, accept, have_xnet=yes)
@@ -58,7 +58,7 @@ dnl check for Unix98 socklen_t
      [socklen_t len = 10; return len;],
          [AC_MSG_RESULT(yes)],
          [AC_MSG_RESULT(no)
-          AC_DEFINE(socklen_t, int, need to define this where socklen_T is not present)])
+          AC_DEFINE(socklen_t, int, need to define this where socklen_t is not present)])
 
 dnl Look for dl
 AC_CHECK_LIB(dl ,dlopen, have_dl=yes)
