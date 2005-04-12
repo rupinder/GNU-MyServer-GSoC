@@ -203,7 +203,7 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 }
 
 /*!
- *Start a process runned simultaneously with the MyServer process.
+ *Start a process that runs simultaneously with the MyServer process.
  *Return -1 on fails.
  *Return the new process identifier on success.
  */
