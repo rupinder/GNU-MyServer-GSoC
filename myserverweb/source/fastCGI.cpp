@@ -890,6 +890,8 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
   /*! If the process was yet initialized return it. */
 	if(server)
   {
+    if(!localServer)
+      return server;
     if(server->process.isProcessAlive())
       return server;
     else 
@@ -911,54 +913,55 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
     return 0;
   }
 
-	{
-		/*! Create the server socket. */
-		if(localServer)
-    {
-      if(toReboot)
-        {  
-          int ret;
-        server->socket.closesocket();
-        server->process.terminateProcess();
-        ret=runLocalServer(server, path, server->port);
-        if(ret)
-        {
-          servers_mutex.unlock();
-          return 0;
-        }
-        return server;
-      }
-      else
+
+  /*! Create the server socket. */
+  if(localServer)
+  {
+    if(toReboot)
+    {  
+      int ret;
+      server->socket.closesocket();
+      server->process.terminateProcess();
+      ret=runLocalServer(server, path, server->port);
+      if(ret)
       {
-        int ret=runLocalServer(server, path, initialPort + (portsDelta++));
         servers_mutex.unlock();
-        if(ret)
-        {
-          delete server;
-          servers_mutex.unlock();
-          return 0;
-        }
+        return 0;
       }
-		}
-		else
-		{
-      /*! Do not copy the @ character. */
-			int i=1;
-
-      /*! Fill the structure with a remote server. */
-			fCGIservers[fCGIserversN].path.assign(path);
-
-			memset(server->host, 0, 128);
-
-			/*!
-       *A remote server path has the form @hosttoconnect:porttouse.
-       */
-			while(path[i]!=':')
-				server->host[i-1]=path[i++];
-			server->port=(u_short)atoi(&path[++i]);
-		}
-		
-	}
+      servers_mutex.unlock();
+      return server;
+    }
+    else
+    {
+      int ret=runLocalServer(server, path, initialPort + (portsDelta++));
+      servers_mutex.unlock();
+      if(ret)
+      {
+        delete server;
+        servers_mutex.unlock();
+        return 0;
+      }
+    }
+  }
+  else
+	{
+    /*! Do not copy the @ character. */
+    int i=1;
+    
+    /*! Fill the structure with a remote server. */
+    fCGIservers[fCGIserversN].path.assign(path);
+    
+    memset(server->host, 0, 128);
+    
+    /*!
+     *A remote server path has the form @hosttoconnect:porttouse.
+     */
+    while(path[i]!=':')
+      server->host[i-1]=path[i++];
+    server->port=(u_short)atoi(&path[++i]);
+  }
+  
+  
   server->next = fCGIservers;
   fCGIservers = server;
 
