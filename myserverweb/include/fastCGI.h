@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/threads.h"
 #include "../include/http_data_handler.h"
 
+#include <string>
+using namespace std;
+
 /*!
  * Listening socket file number
  */
@@ -146,7 +149,7 @@ typedef struct {
 struct sfCGIservers
 {
   /*! Server executable path. */
-	char *path;
+	string path;
 	union 
 	{
     unsigned long fileHandle;

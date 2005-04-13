@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/cgi.h"
 #include "../include/http.h"
 #include "../include/HTTPmsg.h"
+#include "../include/stringutils.h"
 struct sfCGIservers *FastCgi::fCGIservers = 0;
 
 /*! Number of thread currently loaded. */
@@ -768,12 +769,12 @@ int FastCgi::unload()
   {
     sfCGIservers* toremove;
     /*! If the server is a remote one do nothing. */
-		if(list->path[0]!='@')
+		if(list->path.length() && list->path[0]!='@')
     {
       list->socket.closesocket();
       list->process.terminateProcess();
     }
-    delete [] list->path;
+    list->path.assign("");
 
     toremove = list;
     list = list->next;
@@ -797,7 +798,7 @@ sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
   sfCGIservers *cur = fCGIservers;
   while(cur)
   {
-    if(cur->path && (!lstrcmpi(path,cur->path)))
+    if(!stringcmpi(cur->path, path))
     {
       servers_mutex.unlock();
 			return cur;  
@@ -937,15 +938,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			spi.stdIn = (FileHandle)new_server->DESCRIPTOR.fileHandle;
 			spi.cmd.assign(path);
 			spi.cmdLine.assign(path);
-      new_server->path = new char[strlen(path)+1];
-
-      if(new_server->path == 0)
-      {
-        servers_mutex.unlock();
-        delete new_server;
-        return 0;
-      }
-			strcpy(new_server->path, path);
+      new_server->path.assign(path);
 
 			spi.stdOut = spi.stdError =(FileHandle) -1;
 
@@ -965,14 +958,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 			int i=1;
 
       /*! Fill the structure with a remote server. */
-      new_server->path = new char[ strlen(path) + 1 ];
-      if(fCGIservers[fCGIserversN].path == 0)
-      {
-        servers_mutex.unlock();
-        delete new_server;
-        return 0;
-      }
-			strcpy(fCGIservers[fCGIserversN].path, path);
+			fCGIservers[fCGIserversN].path.assign(path);
 
 			memset(new_server->host, 0, 128);
 
