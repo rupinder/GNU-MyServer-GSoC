@@ -80,6 +80,7 @@ private:
   static int cgi_timeout;
   static int fastcgi_initial_port;
   static int fastcgi_servers;
+  static int allow_vhost_mime;
 	MsCgi lmscgi;
 	WinCgi lwincgi;
 	Isapi lisapi;

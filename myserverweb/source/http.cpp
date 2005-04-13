@@ -66,6 +66,9 @@ extern "C"
 /*! Store if the MSCGI library was loaded.  */
 int Http::mscgiLoaded=0;
 
+/*! Allow the definition of a MIME file for host. */
+int Http::allow_vhost_mime=1;
+
 /*! Path to the .css file used by directory browsing.  */
 char *Http::browseDirCSSpath=0;
 
@@ -2340,7 +2343,7 @@ int Http::getMIME(HttpThreadContext* td, char *MIME, char *filename,
 {
 	File::getFileExt(ext, filename);
 	
-  if(((Vhost*)(td->connection->host))->isMIME() )
+  if(allow_vhost_mime && ((Vhost*)(td->connection->host))->isMIME() )
   {
     return ((Vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
   }
@@ -2364,11 +2367,11 @@ int Http::getMIME(HttpThreadContext* td, string& MIME, string& filename,
 }
 
 /*!
- *Map an URL to the machine file system. Return e_200 on success. Any other return
- *value is the HTTP error.
+ *Map an URL to the machine file system. Return e_200 on success. 
+ *Any other return value is the HTTP error.
  */
-int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, char **filenamePath, 
-                   const char *filename, int systemrequest)
+int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/, 
+               char **filenamePath, const char *filename, int systemrequest)
 {
 	/*!
    *If it is a system request, search the file in the system directory.
@@ -2604,6 +2607,16 @@ int Http::loadProtocol(XmlParser* languageParser)
 	{
 		gzip_threshold=atoi(data);
 	}	
+	data=configurationFileManager.getValue("ALLOW_VHOST_MIME");
+	if(data)
+	{
+
+    if(!strcmpi(data, "YES"))
+      allow_vhost_mime=1;
+    else
+      allow_vhost_mime=0;      
+	}	
+
 	data=configurationFileManager.getValue("CGI_TIMEOUT");
 	if(data)
 	{
