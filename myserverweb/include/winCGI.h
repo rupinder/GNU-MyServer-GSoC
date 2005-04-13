@@ -36,7 +36,7 @@ public:
   ~WinCgi();
   static void setTimeout(u_long);
   static u_long getTimeout();
-	int send(HttpThreadContext*, ConnectionPtr s,char* filename, 
+	int send(HttpThreadContext*, ConnectionPtr s,const char* filename, 
            int execute, int only_header=0);
 };
 #endif

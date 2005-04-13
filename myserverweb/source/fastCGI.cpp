@@ -81,7 +81,8 @@ int FastCgi::getMaxFcgiServers()
  *Entry-Point to manage a FastCGI request.
  */
 int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
-                  char* scriptpath,char *cgipath,int execute, int only_header)
+                  const char* scriptpath, const char *cgipath, 
+                  int execute, int only_header)
 {
 	fCGIContext con;
 	FcgiBeginRequestBody tBody;

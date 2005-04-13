@@ -1080,28 +1080,20 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		for(i=0;;i++)
     {
 			char *defaultFileNamePath=getDefaultFilenamePath(i);
-			char *defaultFileName;
+			ostringstream defaultFileName;
       
-      if(defaultFileNamePath)
-      {
-        defaultFileName=new char[strlen(td->filenamePath)+
-                               strlen(defaultFileNamePath)+ 2 ];
-        if(defaultFileName == 0)
-          return sendHTTPhardError500(td, s);
-      }
 			if(defaultFileNamePath)
       {
-				sprintf(defaultFileName, "%s/%s", td->filenamePath, 
-                defaultFileNamePath);
+				defaultFileName << td->filenamePath << "/" << defaultFileNamePath;
       }
 			else
       {
 				break;
       }
 
-			if(File::fileExists(defaultFileName))
-			{
-				ostringstream nURL;
+			if(File::fileExists(defaultFileName.str().c_str()))
+			{ 
+        ostringstream nURL;
 				if(td->request.uriEndsWithSlash)
         {
           nURL << defaultFileNamePath;
@@ -1120,11 +1112,9 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 					ret = 1;
 				else
 					ret = 0;
-        delete [] defaultFileName;
         delete [] filename;
         return ret;
 			}
-      delete [] defaultFileName;
     }
     delete [] filename;
 		return lhttp_dir.send(td, s, td->filenamePath, 0, only_header);
@@ -1224,7 +1214,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	}
   else if( mimeCMD == CGI_CMD_EXECUTEWINCGI )
 	{
-		char* cgipath=0;
+		ostringstream cgipath;
 		if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		{
       if(data)
@@ -1233,31 +1223,15 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		}
 		if(data)
     {
-      cgipath = new char[strlen(data)+strlen(td->filenamePath)+4];
-      if(cgipath==0)
-      {
-        if(data)
-          delete [] data;
-        return sendHTTPhardError500(td, s);
-      }
-			sprintf(cgipath, "%s \"%s\"", data, td->filenamePath);
+      cgipath <<  data << " \""<< td->filenamePath <<  "\"";
     }
 		else
     {
-      cgipath = new char[strlen(td->filenamePath)+1];
-      if(cgipath==0)
-      {
-        if(data)
-          delete [] data;
-        return sendHTTPhardError500(td, s);
-      }
-			sprintf(cgipath, "%s", td->filenamePath);
+			cgipath << td->filenamePath;
     }
     if(data)
       delete [] data;
-    ret=lwincgi.send(td, s, cgipath, 1, only_header);
-		if(cgipath)
-	      delete [] cgipath;
+    ret=lwincgi.send(td, s, cgipath.str().c_str(), 1, only_header);
 		return ret;
 
 	}
@@ -1309,6 +1283,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 			return raiseHTTPError(td, s, e_500);/*!Internal server error*/
     }
     linkpathSize = h.getFileSize()+strlen(td->pathInfo) +1;
+    if(linkpathSize > MYSERVER_KB(10))
+      linkpathSize = MYSERVER_KB(10);
     linkpath=new char[linkpathSize];
     if(linkpath==0)
     {
@@ -1316,7 +1292,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
         delete [] data;   
       return sendHTTPhardError500(td, s);
     }
-		if(h.readFromFile(linkpath, linkpathSize , &nbr))
+		if(h.readFromFile(linkpath, linkpathSize, &nbr))
 		{
 			h.closeFile();
       if(data)

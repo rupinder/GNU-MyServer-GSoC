@@ -1,3 +1,4 @@
+
 /*
 *MyServer
 *Copyright (C) 2002,2003,2004 The MyServer Team
@@ -374,7 +375,7 @@ u_long Vhost::warningslogTerminateAccess(int id)
 /*!
 *Write to the accesses log file
 */
-int Vhost::accessesLogWrite(char* str)
+int Vhost::accessesLogWrite(const char* str)
 {
 	return accessesLogFile.write(str);
 }
@@ -406,7 +407,7 @@ LogManager* Vhost::getAccessesLog()
 /*!
  *Write to the warnings log file.
  */
-int Vhost::warningsLogWrite(char* str)
+int Vhost::warningsLogWrite(const char* str)
 {
 	return warningsLogFile.write(str);
 }

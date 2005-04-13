@@ -609,7 +609,8 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
  *Main procedure to call an ISAPI module.
  */
 int Isapi::send(HttpThreadContext* td,ConnectionPtr connection, 
-                char* scriptpath,char *cgipath, int execute,int only_header)
+                const char* scriptpath, const char *cgipath, 
+                int execute,int only_header)
 {
 /*!
  *ISAPI works only on the windows architecture.

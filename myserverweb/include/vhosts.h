@@ -165,10 +165,10 @@ public:
 
 	~Vhost();
 
-	int accessesLogWrite(char*);
+	int accessesLogWrite(const char*);
 	File* getAccessesLogFile();
 
-  int warningsLogWrite(char*);
+  int warningsLogWrite(const char*);
 	File* getWarningsLogFile();
 };
 

@@ -30,8 +30,8 @@ private:
 public:
   static int load(XmlParser*);
   static int unload();
-	int send(HttpThreadContext*, ConnectionPtr s,char *filenamePath,
-                   char* cgi, int OnlyHeader=0);
+	int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
+                   const char* cgi, int OnlyHeader=0);
   HttpFile();
   virtual ~HttpFile();
 };

@@ -203,7 +203,7 @@ public:
 	FastCgi();
 	static int load(XmlParser*);
 	int send(HttpThreadContext* td, ConnectionPtr connection,
-                  char* scriptpath,char *cgipath,int execute,
+                  const char* scriptpath, const char *cgipath,int execute,
                   int onlyHeader);
 	static int unload();
 };

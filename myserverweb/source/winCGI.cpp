@@ -78,7 +78,7 @@ u_long WinCgi::getTimeout()
 /*!
  *Send the WinCGI data.
  */
-int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,char* filename, 
+int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename, 
                  int /*execute*/, int only_header)
 {
 #ifdef WIN32

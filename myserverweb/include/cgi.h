@@ -34,8 +34,8 @@ class Cgi : public HttpDataHandler
 public:
   static void setTimeout(int);
   static int getTimeout();
-	int send(HttpThreadContext*, ConnectionPtr s, char* scriptpath, char* exec,
-           int execute, int only_header=0);
+	int send(HttpThreadContext*, ConnectionPtr s, const char* scriptpath, 
+           const char* exec, int execute, int only_header=0);
 	static void buildCGIEnvironmentString(HttpThreadContext*, char*, int=1);
 };
 #endif

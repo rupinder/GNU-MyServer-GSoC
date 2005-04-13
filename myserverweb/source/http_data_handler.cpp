@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *Send a file to the client using the HTTP protocol.
  */
 int HttpDataHandler::send(HttpThreadContext*/* td*/, ConnectionPtr /*s*/, 
-                          char* /*filenamePath*/, char* /*exec*/,
+                          const char* /*filenamePath*/, const char* /*exec*/,
                           int /*only_header*/)
 {
   return 0;

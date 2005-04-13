@@ -82,8 +82,8 @@ int HttpDir::unload()
 /*!
  *Browse a directory printing its contents in an HTML file.
  */
-int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, char* directory, 
-                  char* /*cgi*/, int only_header)
+int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory, 
+                  const char* /*cgi*/, int only_header)
 {
 	u_long nbw;
   string filename;

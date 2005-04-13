@@ -40,8 +40,8 @@ extern "C"
 /*!
  *Send a file to the client using the HTTP protocol.
  */
-int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, char *filenamePath, 
-                   char* /*exec*/,int only_header)
+int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath, 
+                   const char* /*exec*/,int only_header)
 {
 	/*!
    *With this routine we send a file through the HTTP protocol.

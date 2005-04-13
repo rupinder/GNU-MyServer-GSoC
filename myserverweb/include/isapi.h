@@ -150,8 +150,8 @@ public:
 	static int unload();
 	static void setTimeout(u_long);
   static u_long getTimeout();
-	int send(HttpThreadContext* td,ConnectionPtr connection, char* scriptpath,
-           char *cgipath, int execute, int only_header);
+	int send(HttpThreadContext* td,ConnectionPtr connection, const char* scriptpath,
+           const char *cgipath, int execute, int only_header);
 };
 
 #ifdef WIN32	
