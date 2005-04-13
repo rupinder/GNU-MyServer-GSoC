@@ -192,7 +192,7 @@ private:
 	sfCGIservers* isFcgiServerRunning(char*);
   sfCGIservers* runFcgiServer(fCGIContext*,char*);
 	sfCGIservers* FcgiConnect(fCGIContext*,char*);
-
+  int runLocalServer(sfCGIservers* server, char* path, int port);
 public:
   static void setInitialPort(int);
   static int getInitialPort(); 

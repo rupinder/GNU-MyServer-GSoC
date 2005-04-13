@@ -221,15 +221,11 @@ int Process::isProcessAlive()
 #endif
 
 #ifdef NOT_WIN
-  int status = 0;
+  int status = 101;
   int ret = waitpid(pid, &status, WNOHANG);
-  if(ret == -1)
-    return 0;
-  if(WIFEXITED(status))
-    return 0;
-  if(WIFEXITED(status) && WEXITSTATUS(status))
-    return 0;
-  return 1;
+  if(!ret)
+    return 1;
+  return 0;
 #endif
   return 0;
 }

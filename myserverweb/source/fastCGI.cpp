@@ -871,87 +871,75 @@ sfCGIservers* FastCgi::FcgiConnect(fCGIContext* con,char* path)
  */
 sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
 {
-  /*! Flag to identify a local server(running on localhost) from a remote one. */
+  /*! 
+   *Flag to identify a local server(running on localhost) from a 
+   *remote one. 
+   */
 	int localServer;
   int ret;
-  sfCGIservers* new_server;
+  int toReboot=0;
+  sfCGIservers* server;
 	static u_short portsDelta=0;
  
   /*! Path that init with @ are not local path. */
 	localServer=path[0]!='@';
 
   /*! Get the server position in the array. */
-  sfCGIservers* server	= isFcgiServerRunning(path);
+  server = isFcgiServerRunning(path);
 
-  /*! If the process was yet initialized return its position. */
+  /*! If the process was yet initialized return it. */
 	if(server)
-		return server;
-	if(fCGIserversN==max_fcgi_servers-2)
+  {
+    if(server->process.isProcessAlive())
+      return server;
+    else 
+      toReboot=1;
+  }
+
+  /*! Do not create it if we reach the max allowed. */
+	if(fCGIserversN==max_fcgi_servers-1)
 		return 0;
 
   servers_mutex.lock();
 
-  new_server = new sfCGIservers();
-  if(new_server == 0)
+  /*! Create the new structure if necessary. */
+  if(!toReboot)
+    server = new sfCGIservers();
+  if(server == 0)
   {
     servers_mutex.unlock();
     return 0;
   }
 
 	{
-    StartProcInfo spi;
-    MYSERVER_SOCKADDRIN sock_inserverSocket;
 		/*! Create the server socket. */
 		if(localServer)
-		{/*! Initialize the local server. */
-			strcpy(new_server->host, "localhost");
-			new_server->port=initialPort + (portsDelta++);
-			new_server->socket.socket(AF_INET,SOCK_STREAM,0);
-			if(new_server->socket.getHandle() == (SocketHandle)INVALID_SOCKET)
-      {
-        servers_mutex.unlock();
-        delete new_server;
-				return 0;
+    {
+      if(toReboot)
+        {  
+          int ret;
+        server->socket.closesocket();
+        server->process.terminateProcess();
+        ret=runLocalServer(server, path, server->port);
+        if(ret)
+        {
+          servers_mutex.unlock();
+          return 0;
+        }
+        return server;
       }
-
-			sock_inserverSocket.sin_family=AF_INET;
-
-			/*! The FastCGI server accepts connections only by the localhost. */
-			sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
-			sock_inserverSocket.sin_port=htons(new_server->port);
-			if(new_server->socket.bind((sockaddr*)&sock_inserverSocket, 
-                                               sizeof(sock_inserverSocket)))
-			{
+      else
+      {
+        int ret=runLocalServer(server, path, initialPort + (portsDelta++));
         servers_mutex.unlock();
-				new_server->socket.closesocket();
-        delete new_server;
-				return 0;
-			}
-			if(new_server->socket.listen(SOMAXCONN))
-			{
-        servers_mutex.unlock();
-        new_server->socket.closesocket();
-				return 0;
-			}
-			new_server->DESCRIPTOR.fileHandle = new_server->socket.getHandle();
-			spi.envString=0; 
-			spi.stdIn = (FileHandle)new_server->DESCRIPTOR.fileHandle;
-			spi.cmd.assign(path);
-			spi.cmdLine.assign(path);
-      new_server->path.assign(path);
-
-			spi.stdOut = spi.stdError =(FileHandle) -1;
-
-			ret = new_server->process.execConcurrentProcess(&spi);
-
-			if(ret == -1)
-			{
-        servers_mutex.unlock();
-				new_server->socket.closesocket();
-        delete new_server;
-				return 0;
-			}
-		}/*! End local server initialization. */
+        if(ret)
+        {
+          delete server;
+          servers_mutex.unlock();
+          return 0;
+        }
+      }
+		}
 		else
 		{
       /*! Do not copy the @ character. */
@@ -960,19 +948,19 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
       /*! Fill the structure with a remote server. */
 			fCGIservers[fCGIserversN].path.assign(path);
 
-			memset(new_server->host, 0, 128);
+			memset(server->host, 0, 128);
 
 			/*!
        *A remote server path has the form @hosttoconnect:porttouse.
        */
 			while(path[i]!=':')
-				new_server->host[i-1]=path[i++];
-			new_server->port=(u_short)atoi(&path[++i]);
+				server->host[i-1]=path[i++];
+			server->port=(u_short)atoi(&path[++i]);
 		}
 		
 	}
-  new_server->next = fCGIservers;
-  fCGIservers = new_server;
+  server->next = fCGIservers;
+  fCGIservers = server;
 
   /*!
    *Increase the number of running servers.
@@ -982,9 +970,9 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext*,char* path)
   servers_mutex.unlock();  
 
   /*!
-   *Return the new server.
+   *Return the server.
    */
-  return new_server;
+  return server;
 }
 
 /*!
@@ -1017,4 +1005,55 @@ int FastCgi::getTimeout()
 void FastCgi::setTimeout(int ntimeout)
 {
   timeout = ntimeout;
+}
+
+/*!
+ *Start the server on the specified port. Return zero on success.
+ */
+int FastCgi::runLocalServer(sfCGIservers* server, char* path, int port)
+{
+  int ret;
+  StartProcInfo spi;
+  MYSERVER_SOCKADDRIN sock_inserverSocket;
+  strcpy(server->host, "localhost");
+  server->port=port;
+  server->socket.socket(AF_INET,SOCK_STREAM,0);
+  if(server->socket.getHandle() == (SocketHandle)INVALID_SOCKET)
+  {
+    return 1;
+  }
+  
+  sock_inserverSocket.sin_family=AF_INET;
+  
+  /*! The FastCGI server accepts connections only by the localhost. */
+  sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
+  sock_inserverSocket.sin_port=htons(server->port);
+  if(server->socket.bind((sockaddr*)&sock_inserverSocket, 
+                             sizeof(sock_inserverSocket)))
+  {
+    server->socket.closesocket();
+    return 1;
+  }
+  if(server->socket.listen(SOMAXCONN))
+	{
+    server->socket.closesocket();
+    return 1;
+  }
+  server->DESCRIPTOR.fileHandle = server->socket.getHandle();
+  spi.envString=0; 
+  spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
+  spi.cmd.assign(path);
+  spi.cmdLine.assign(path);
+  server->path.assign(path);
+  
+  spi.stdOut = spi.stdError =(FileHandle) -1;
+  
+  ret = server->process.execConcurrentProcess(&spi);
+  
+  if(ret == -1)
+	{
+    server->socket.closesocket();
+    return 1;
+  }
+  return 0;
 }
