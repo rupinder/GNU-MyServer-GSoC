@@ -203,6 +203,38 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 }
 
 /*!
+ *Return a nonzero value if the process is still alive. A return value of zero
+ *means the process is a zombie.
+ */
+int Process::isProcessAlive()
+{
+  if(pid == 0)
+    return 0;
+#ifdef WIN32
+  u_long ec;
+  int ret = GetExitCodeProcess(*((HANDLE*)&pid), &ec);
+  if(ret == 0)
+    return 0;
+  if(ret == STILL_ACTIVE)
+    return 1;
+  return 0; 
+#endif
+
+#ifdef NOT_WIN
+  int status = 0;
+  int ret = waitpid(pid, &status, WNOHANG);
+  if(ret == -1)
+    return 0;
+  if(WIFEXITED(status))
+    return 0;
+  if(WIFEXITED(status) && WEXITSTATUS(status))
+    return 0;
+  return 1;
+#endif
+  return 0;
+}
+
+/*!
  *Start a process that runs simultaneously with the MyServer process.
  *Return -1 on fails.
  *Return the new process identifier on success.

@@ -57,6 +57,7 @@ public:
   int execHiddenProcess(StartProcInfo* spi,u_long timeout=0xFFFFFFFF);
   int execConcurrentProcess(StartProcInfo* spi);
   int terminateProcess();
+  int isProcessAlive();
   static int setuid(u_long);
   static int setgid(u_long);
   Process();
