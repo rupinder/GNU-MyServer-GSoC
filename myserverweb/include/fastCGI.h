@@ -184,15 +184,15 @@ private:
 	/*! Number of thread currently loaded.  */
 	static int fCGIserversN;
 
-	int FcgiConnectSocket(fCGIContext*,sfCGIservers*);
+	int fcgiConnectSocket(fCGIContext*,sfCGIservers*);
 	void generateFcgiHeader( FcgiHeader&, int ,int, int );
 	Socket getFcgiConnection();
 	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
 	int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
-	sfCGIservers* isFcgiServerRunning(char*);
-  sfCGIservers* runFcgiServer(fCGIContext*,char*);
-	sfCGIservers* FcgiConnect(fCGIContext*,char*);
-  int runLocalServer(sfCGIservers* server, char* path, int port);
+	sfCGIservers* isFcgiServerRunning(const char*);
+  sfCGIservers* runFcgiServer(fCGIContext*, const char*);
+	sfCGIservers* fcgiConnect(fCGIContext*, const char*);
+  int runLocalServer(sfCGIservers* server, const char* path, int port);
 public:
   static void setInitialPort(int);
   static int getInitialPort(); 

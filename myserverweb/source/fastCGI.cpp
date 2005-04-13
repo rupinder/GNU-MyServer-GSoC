@@ -27,6 +27,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/stringutils.h"
 #include "../include/cserver.h"
+
+#include <string>
+#include <sstream>
+using namespace std;
+
 struct sfCGIservers *FastCgi::fCGIservers = 0;
 
 /*! Number of thread currently loaded. */
@@ -103,7 +108,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   int sizeEnvString;
   sfCGIservers* server=0;
   int id;
-	char *fullpath=0;
+	ostringstream fullpath;
   char *buffer=0;
   char tmpSize[11];
   if(td->scriptPath)
@@ -161,47 +166,28 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	{
 		if(cgipath)
     {
-      int fullpathLen = strlen(cgipath) + strlen(td->filenamePath) + 6;
-      fullpath = new char[fullpathLen];
-      if(fullpath == 0)
-      {
-        return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
-      }
 #ifdef WIN32
-			sprintf(fullpath,"\"%s\" \"%s\"", cgipath, td->filenamePath);
+			fullpath << "\"" << cgipath << "\" \"" <<  td->filenamePath << "\"";
 #else
- 			sprintf(fullpath,"%s %s", cgipath, td->filenamePath);     
+ 			fullpath << cgipath << " " << td->filenamePath;     
 #endif
     }
 		else
     {
-      int fullpathLen = strlen(td->filenamePath) + 3;
-      fullpath = new char[fullpathLen];
-      if(fullpath == 0)
-      {
-        return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
-      }
 #ifdef WIN32
-			sprintf(fullpath,"\"%s\"",td->filenamePath);	
+			fullpath << "\"" << td->filenamePath << "\"";	
 #else
-      sprintf(fullpath,"%s",td->filenamePath);		   
+      fullpath << td->filenamePath;		   
 #endif
 		
     }
 	}
 	else
 	{
-    int fullpathLen = strlen(cgipath) + 3;
-    fullpath = new char[fullpathLen];
-    if(fullpath == 0)
-    {
-      return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
-    }
 #ifdef WIN32
-    sprintf(fullpath,"\"%s\"",cgipath);
+    fullpath << "\"" <<  cgipath << "\"";
 #else
-   sprintf(fullpath,"%s",cgipath);   
-   		   
+    fullpath << cgipath;   
 #endif
 	;
 	}
@@ -210,7 +196,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                                               td->buffer2->GetBuffer());
   if(sizeEnvString == -1)
   {
-    delete [] fullpath;
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
@@ -226,7 +211,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                          FILE_OPEN_READ | FILE_OPEN_ALWAYS | 
                             FILE_NO_INHERIT))
   {
-    delete [] fullpath;
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
@@ -238,8 +222,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
-  server = FcgiConnect(&con,fullpath);
-  delete [] fullpath;
+  server = fcgiConnect(&con,fullpath.str().c_str());
 	if(server == 0)
   {
     td->inputData.closeFile();
@@ -822,7 +805,7 @@ int FastCgi::unload()
  *Return the the running server specified by path.
  *If the server is not running returns 0.
  */
-sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
+sfCGIservers* FastCgi::isFcgiServerRunning(const char* path)
 {
   servers_mutex.lock();
 
@@ -844,7 +827,7 @@ sfCGIservers* FastCgi::isFcgiServerRunning(char* path)
 /*!
  *Get a client socket in the fCGI context structure
  */
-int FastCgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
+int FastCgi::fcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 {
 	MYSERVER_HOSTENT *hp=Socket::gethostbyname(server->host);
 	struct sockaddr_in sockAddr;
@@ -877,7 +860,7 @@ int FastCgi::FcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 /*!
  *Get a connection to the FastCGI server.
  */
-sfCGIservers* FastCgi::FcgiConnect(fCGIContext* con,char* path)
+sfCGIservers* FastCgi::fcgiConnect(fCGIContext* con, const char* path)
 {
 
 	sfCGIservers* server = runFcgiServer(con, path);
@@ -889,7 +872,7 @@ sfCGIservers* FastCgi::FcgiConnect(fCGIContext* con,char* path)
 		/*!
      *Connect to the FastCGI server.
      */
-		int ret=FcgiConnectSocket(con, server);
+		int ret=fcgiConnectSocket(con, server);
 		if(ret==-1)
 			return 0;
 	}
@@ -900,7 +883,7 @@ sfCGIservers* FastCgi::FcgiConnect(fCGIContext* con,char* path)
  *Run the FastCGI server.
  *If the path starts with a @ character, the path is handled as a remote server.
  */
-sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, char* path)
+sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
 {
   /*! 
    *Flag to identify a local server(running on localhost) from a 
@@ -1069,7 +1052,7 @@ void FastCgi::setTimeout(int ntimeout)
 /*!
  *Start the server on the specified port. Return zero on success.
  */
-int FastCgi::runLocalServer(sfCGIservers* server, char* path, int port)
+int FastCgi::runLocalServer(sfCGIservers* server, const char* path, int port)
 {
   int ret;
   StartProcInfo spi;
