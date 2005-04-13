@@ -230,7 +230,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer<< "FastCGI: Error to get process ID\r\n" << '\0';
+      *td->buffer<< "FastCGI: Error to connect to process\r\n" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->GetBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
