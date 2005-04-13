@@ -109,7 +109,7 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
                               char* /*filename*/, int /*yetmapped*/)
 {
 	int ret;
-	char time[HTTP_RESPONSE_DATE_DIM];
+	string time;
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	td->buffer2->SetLength(0);
 	*td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
@@ -147,7 +147,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	int ret;
 	char tmpStr[12];
 	int content_len=(int)td->nHeaderChars;
-	char time[HTTP_RESPONSE_DATE_DIM];
+	string time;
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	if(!allowHTTPTRACE(td, s))
 		return raiseHTTPError(td, s, e_401);
@@ -790,7 +790,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 	time_t lastMT;
   int ret;
   char auth_type[16];
-  char tmpTime[HTTP_REQUEST_LAST_MODIFIED_DIM];
+  string tmpTime;
   SecurityToken st;
 
   st.auth_type = auth_type;
