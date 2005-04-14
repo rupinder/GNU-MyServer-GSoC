@@ -120,6 +120,30 @@ void * startClientsThread(void* pParam)
   return (void*)1;
 #endif
 
+  if(lserver->getUid() && Process::setuid(lserver->getUid()))
+  {
+    ostringstream out;
+    out << lserver->getLanguageParser()->getValue("ERR_GENERIC") 
+        << ": setuid " << lserver->getUid();
+    lserver->logPreparePrintError();
+    lserver->logWriteln(out.str().c_str());
+    lserver->logEndPrintError();
+    Thread::terminate();
+    return 0;
+
+  }	
+  if(lserver->getGid() && Process::setgid(lserver->getGid()))
+  {
+    ostringstream out;
+    out << lserver->getLanguageParser()->getValue("ERR_GENERIC")
+        << ": setgid "  << lserver->getGid();
+    lserver->logPreparePrintError();
+    lserver->logWriteln(out.str().c_str());
+    lserver->logEndPrintError();
+    Thread::terminate();
+    return 0;
+  }	
+
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
 	ct->buffersize=lserver->getBuffersize();
