@@ -147,6 +147,8 @@ private:
 	string vhost_configuration_file;
 	string mime_configuration_file;
 public:
+  u_long getUid();
+  u_long getGid();
   int countAvailableThreads();
   int addThread(int staticThread = 0);
   int removeThread(u_long ID);
@@ -161,6 +163,7 @@ public:
   const char *getMIMEConfFile();
   const char *getLanguagesPath();
   const char *getLanguageFile();
+  XmlParser* getLanguageParser();
 	Server();
 	~Server();
 	DynamicProtocol* getDynProtocol(char *protocolName);

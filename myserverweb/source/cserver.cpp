@@ -554,6 +554,30 @@ void Server::createListenThreads()
 }
 
 /*!
+ *Return the user identifier to use for the process.
+ */
+u_long Server::getUid()
+{
+  return uid;
+}
+
+/*!
+ *Return the group identifier to use for the process.
+ */
+u_long Server::getGid()
+{
+  return gid;
+}
+
+/*!
+ *Get a pointer to the language parser.
+ */
+XmlParser* Server::getLanguageParser()
+{
+  return &languageParser;
+}
+
+/*!
  *This is the thread that listens for a new connection on the 
  *port specified by the protocol.
  */
@@ -587,6 +611,29 @@ void * listenServer(void* params)
   ret = serverSocket->setNonBlocking(1);
 
 	lserver->increaseListeningThreadCount();
+
+  if(lserver->getUid() && Process::setuid(lserver->getUid()))
+  {
+    ostringstream out;
+    out << lserver->getLanguageParser()->getValue("ERR_GENERIC") << ": setuid";
+    lserver->logPreparePrintError();
+    lserver->logWriteln(out.str().c_str());
+    lserver->logEndPrintError();
+    Thread::terminate();
+    return 0;
+
+  }	
+  if(lserver->getGid() && Process::setgid(lserver->getGid()))
+  {
+    ostringstream out;
+    out << lserver->getLanguageParser()->getValue("ERR_GENERIC") << ": setgid";
+    lserver->logPreparePrintError();
+    lserver->logWriteln(out.str().c_str());
+    lserver->logEndPrintError();
+    Thread::terminate();
+    return 0;
+  }	
+
 	while(!mustEndServer)
 	{
     int timeoutValue = 3;
@@ -1664,7 +1711,6 @@ int Server::loadSettings()
       out << languageParser.getValue("ERR_GENERIC") << ": setuid";
       logPreparePrintError();
       logWriteln(out.str().c_str());
-      logWriteln(languageParser.getValue("ERR_GENERIC"));
       logEndPrintError();	  
     }
     out << "uid: " << uid;
@@ -1682,7 +1728,6 @@ int Server::loadSettings()
       out << languageParser.getValue("ERR_GENERIC") << ": setgid";
       logPreparePrintError();
       logWriteln(out.str().c_str());
-      logWriteln(languageParser.getValue("ERR_GENERIC"));
       logEndPrintError();
     }	
     out << "gid: " << gid;
