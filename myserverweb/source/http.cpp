@@ -717,8 +717,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
 
   st.auth_type = auth_type;
   st.len_auth = 16;
-  if(URI.length() == 0)
-    return sendHTTPhardError500(td, s);
+
 	filename.assign(URI);
 	td->buffer->SetLength(0);
 	
