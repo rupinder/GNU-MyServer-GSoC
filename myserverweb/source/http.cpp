@@ -2380,12 +2380,13 @@ int Http::loadProtocol(XmlParser* languageParser)
 
 	for(;;)
 	{
-		char xmlMember[32];
-		sprintf(xmlMember, "DEFAULT_FILENAME%u", (u_int)nDefaultFilename);
-		if(!configurationFileManager.getValue(xmlMember))
+		ostringstream xmlMember;
+		xmlMember << "DEFAULT_FILENAME" << nDefaultFilename;
+		if(!configurationFileManager.getValue(xmlMember.str().c_str()))
 			break;
 		nDefaultFilename++;
-    defaultFilenameSize += strlen(configurationFileManager.getValue(xmlMember)) +1 ;
+    defaultFilenameSize += strlen(configurationFileManager.getValue(
+                                                           xmlMember.str().c_str()) )+1 ;
 
 	}
 	if(defaultFilename)
@@ -2409,9 +2410,9 @@ int Http::loadProtocol(XmlParser* languageParser)
 		defaultFilename = new char [defaultFilenameSize];
 		for(i=0;defaultFilename && (i<nDefaultFilename);i++)
 		{
-			char xmlMember[21];
-			sprintf(xmlMember, "DEFAULT_FILENAME%u", (u_int)i);
-			data=configurationFileManager.getValue(xmlMember);
+			ostringstream xmlMember;
+			xmlMember << "DEFAULT_FILENAME"<< (u_int)i;
+			data=configurationFileManager.getValue(xmlMember.str().c_str());
 			if(data)
 				strcpy(&defaultFilename[cursor], data);
       cursor+=strlen(data) + 1;
