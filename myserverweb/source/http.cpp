@@ -2099,7 +2099,7 @@ int Http::getMIME(HttpThreadContext* td, string& MIME, string& filename,
 {
 	File::getFileExt(ext, filename);
 	
-  if(((Vhost*)(td->connection->host))->isMIME() )
+  if(allow_vhost_mime && ((Vhost*)(td->connection->host))->isMIME() )
   {
     return ((Vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
   }
