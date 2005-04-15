@@ -1871,7 +1871,7 @@ void Http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
  */
 int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 {
-  char time[HTTP_RESPONSE_DATE_DIM];
+  string time;
   ostringstream errorFile;
   Md5 md5;
   td->lastError = ID;

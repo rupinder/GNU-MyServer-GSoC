@@ -313,7 +313,7 @@ int ClientsThread::controlConnections()
 			lserver->connections_mutex_unlock();
 			return 0;
 		}
- 		if((c->getDataRead() + err)< MYSERVER_KB(8))
+ 		if((c->getDataRead() + err) <= MYSERVER_KB(8))
 		{
 			((char*)buffer.GetBuffer())[c->getDataRead() + err]='\0';
 		}
