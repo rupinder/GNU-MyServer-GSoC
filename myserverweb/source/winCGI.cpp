@@ -111,7 +111,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	GetShortPathName(dataFilePath,dataFilePath,MAX_PATH);
 	sprintf(&dataFilePath[strlen(dataFilePath)],"/data_%u.ini",td->id);
 	
-	strcpy(outFilePath,td->outputDataPath);
+	strcpy(outFilePath,td->outputDataPath.c_str());
 	strcat(outFilePath,"WC");
 	td->inputData.setFilePointer(0);
 
