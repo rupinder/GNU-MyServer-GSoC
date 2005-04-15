@@ -24,6 +24,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/HTTPmsg.h"
 #include "../include/cgi.h"
 
+#include <string>
+using namespace std;
+
 /*!
  *Initialize the timeout value to 15 seconds.
  */
@@ -43,6 +46,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                                               LPVOID lpvBuffer, LPDWORD lpdwSize, 
                                               LPDWORD lpdwDataType) 
 {
+  string tmp;
 	ConnTableRecord *ConnInfo;
   int ret;
 	char *buffer=0;	
@@ -67,13 +71,22 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			HSE_URL_MAPEX_INFO  *mapInfo;
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
       mapInfo->lpszPath = 0;
+      tmp.assign(mapInfo->lpszPath);
 			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
-                                           &mapInfo->lpszPath,(char*)lpvBuffer,0);
+                                                tmp,(char*)lpvBuffer,0);
       if(ret!=e_200)
         return 1;
 			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
       delete [] mapInfo->lpszPath;
+      mapInfo->lpszPath = new char[tmp.length()+1];
+      if(mapInfo->lpszPath == 0)
+     if(buffer==0)
+      {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return 0;            
+      }
+       strcpy(mapInfo->lpszPath, tmp.c_str());
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT 
                                             | HSE_URL_FLAGS_EXECUTE;
 			break;
@@ -83,20 +96,21 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			else
         lstrcpyn(URI,ConnInfo->td->request.URI.c_str(),
                  (int)ConnInfo->td->request.URI.length()-ConnInfo->td->pathInfo.length +1);
-			
 			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
-                                            (char**)&buffer,URI,0);
-      if(buffer==0)
-      {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return 0;            
-      }
+                                            tmp ,URI,0);
       if(ret!=e_200)
       {
         if(buffer)
           delete [] buffer;
         return 1;
       }
+      buffer=new char[tmp.length()+1];
+      if(buffer==0)
+      {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return 0;            
+      }
+      strcpy(buffer, tmp.c_str());
       if(strlen(buffer) < *lpdwSize)
       {
         strcpy((char*)lpvBuffer, buffer);
@@ -537,8 +551,8 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 		return 0;
 	valLen=(DWORD)strlen(ValStr);
 
-	if(td->pathInfo && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathInfo);
+	if(td->pathInfo.length() && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathInfo.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 	
@@ -766,11 +780,11 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.lpszLogData[0] = '0';
 	ExtCtrlBlk.lpszMethod = (char*)td->request.CMD.c_str();
 	ExtCtrlBlk.lpszQueryString =(char*) td->request.URIOPTS.c_str();
-	ExtCtrlBlk.lpszPathInfo = td->pathInfo.length() ? td->pathInfo.c_str() : (CHAR*)"" ;
+	ExtCtrlBlk.lpszPathInfo = td->pathInfo.length() ? (char*)td->pathInfo.c_str() : (CHAR*)"" ;
 	if(td->pathInfo.length())
-		ExtCtrlBlk.lpszPathTranslated = td->pathTranslated.c_str();
+		ExtCtrlBlk.lpszPathTranslated = (char*)td->pathTranslated.c_str();
 	else
-		ExtCtrlBlk.lpszPathTranslated = td->filenamePath.c_str();
+		ExtCtrlBlk.lpszPathTranslated = (char*)td->filenamePath.c_str();
 	ExtCtrlBlk.cbTotalBytes = td->inputData.getFileSize();
 	ExtCtrlBlk.cbAvailable = 0;
 	ExtCtrlBlk.lpbData = 0;
