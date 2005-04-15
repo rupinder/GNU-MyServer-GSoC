@@ -95,7 +95,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	int i;
 	char fileTime[32];
 	char* bufferloop;
-  char* browseDirCSSpath;
+  const char* browseDirCSSpath;
 	FileHandle outputDataHandle = td->outputData.getHandle();
   /*!
    *Create a new file if the old is not valid.

@@ -191,7 +191,9 @@ int Isapi::Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL)
  */
 int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
-	return ((Http*)td->lhttp)->sendHTTPResource(td,a,URL,0,0);
+  string tmp;
+  tmp.assign(URL);
+	return ((Http*)td->lhttp)->sendHTTPResource(td, a, tmp, 0, 0);
 }
 
 /*!
@@ -199,7 +201,9 @@ int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
  */
 int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
-	return ((Http*)td->lhttp)->sendHTTPResource(td,a,URL,0,1);
+	string tmp;
+  tmp.assign(URL);
+  return ((Http*)td->lhttp)->sendHTTPResource(td, a, tmp, 0, 1);
 }
 
 /*!

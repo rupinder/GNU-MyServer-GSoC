@@ -73,7 +73,7 @@ int Http::allow_vhost_mime=1;
 int Http::allow_mscgi=1;
 
 /*! Path to the .css file used by directory browsing.  */
-char *Http::browseDirCSSpath=0;
+string Http::browseDirCSSpath;
 
 /*! Threshold value to send data in gzip.  */
 u_long Http::gzip_threshold=0;
@@ -2175,9 +2175,9 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/,
 /*!
  *Get the CSS file used in a direcotry browsing.
  */
-char* Http::getBrowseDirCSSFile()
+const char* Http::getBrowseDirCSSFile()
 {
-  return browseDirCSSpath;
+  return browseDirCSSpath.c_str();
 }
 
 /*!
@@ -2288,11 +2288,7 @@ int Http::loadProtocol(XmlParser* languageParser)
   fastcgi_initial_port = 3333;
 	gzip_threshold=1<<20;
 	useMessagesFiles=1;
-  if(browseDirCSSpath)
-  {
-    delete [] browseDirCSSpath;
-  }
-	browseDirCSSpath = 0;
+	browseDirCSSpath.assign("");
 
 	configurationFileManager.open(main_configuration_file);
 
@@ -2369,12 +2365,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
 	if(data)
 	{
-    int browseDirCSSpathlen = strlen(data)+1;
-    browseDirCSSpath = new char[browseDirCSSpathlen];
-    if(browseDirCSSpath)
-    {
-      strcpy(browseDirCSSpath, data);
-    }
+    browseDirCSSpath.append(data);
 	}
 
   Cgi::setTimeout(cgi_timeout);
@@ -2469,11 +2460,9 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 		delete [] defaultFilename;
 		defaultFilename=0;
 	}
-  if(browseDirCSSpath)
-  {
-    delete [] browseDirCSSpath;
-    browseDirCSSpath = 0;
-  }
+
+  browseDirCSSpath.assign("");
+
 	initialized=0;
 	return 1;
 }

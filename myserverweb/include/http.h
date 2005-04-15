@@ -72,7 +72,7 @@ private:
 	static int initialized;
 	/*! Store if the MSCGI library was loaded.  */
 	static int mscgiLoaded;
-	static char *browseDirCSSpath;
+	static string browseDirCSSpath;
 	static u_long gzip_threshold;
 	static int useMessagesFiles;	
 	static char *defaultFilename;
@@ -128,7 +128,7 @@ public:
 	virtual ~Http();
 	void computeDigest(HttpThreadContext* td, char*, char*);
 	u_long checkDigest(HttpThreadContext* td, ConnectionPtr s);
-  char* getBrowseDirCSSFile();
+  const char* getBrowseDirCSSFile();
 	u_long getGzipThreshold();
 	virtual char* registerName(char*,int len);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
