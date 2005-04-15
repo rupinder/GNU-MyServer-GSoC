@@ -82,6 +82,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                  int /*execute*/, int only_header)
 {
 #ifdef WIN32
+  Process proc;
 	u_long nbr;
 	char  dataFilePath[MAX_PATH];/*! Use MAX_PATH under windows. */
   char outFilePath[MAX_PATH];  /*! Use MAX_PATH under windows. */
@@ -258,7 +259,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	spi.cmdLine.append(dataFilePath);
 	spi.cwd.assign(pathname);
 
-	if (execHiddenProcess(&spi, timeout))
+	if (proc.execHiddenProcess(&spi, timeout))
 	{
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite(

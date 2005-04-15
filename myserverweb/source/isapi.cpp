@@ -95,7 +95,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 				strcpy(URI,(char*)lpvBuffer);
 			else
         lstrcpyn(URI,ConnInfo->td->request.URI.c_str(),
-                 (int)ConnInfo->td->request.URI.length()-ConnInfo->td->pathInfo.length +1);
+                 (int)ConnInfo->td->request.URI.length()-ConnInfo->td->pathInfo.length() +1);
 			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                             tmp ,URI,0);
       if(ret!=e_200)
@@ -606,7 +606,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
 		lstrcpyn(&ValStr[valLen],td->request.URI.c_str(),
-             td->request.URI.length()- td->pathInfo.length()+1;
+             td->request.URI.length()- td->pathInfo.length()+1);
 		valLen+=(DWORD)td->request.URI.length()-td->pathInfo.length()+1;
 		valLen+=(DWORD)sprintf(&ValStr[valLen],"\n");
 	}
