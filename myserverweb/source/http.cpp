@@ -2331,7 +2331,6 @@ int Http::loadProtocol(XmlParser* languageParser)
 	data=configurationFileManager.getValue("ALLOW_MSCGI");
 	if(data)
 	{
-
     if(!strcmpi(data, "YES"))
       allow_mscgi=1;
     else

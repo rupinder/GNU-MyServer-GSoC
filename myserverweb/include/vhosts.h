@@ -104,7 +104,7 @@ public:
 	u_long throttlingRate;
 
 	/*! Protocol used by the vhost. */
-	char protocol_name[16];
+	string protocol_name;
 	
 	/*! Initialize SSL things. */
 	int initializeSSL();
@@ -136,7 +136,7 @@ public:
 	string warningsLogFileName;
 	
 	/*! Description or name of the virtual host. */
-	char name[64];
+	string name;
 	
   u_long getThrottlingRate();
 	Vhost();

@@ -166,7 +166,7 @@ public:
   XmlParser* getLanguageParser();
 	Server();
 	~Server();
-	DynamicProtocol* getDynProtocol(char *protocolName);
+	DynamicProtocol* getDynProtocol(const char *protocolName);
 	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
 	int connections_mutex_lock();
 	int connections_mutex_unlock();

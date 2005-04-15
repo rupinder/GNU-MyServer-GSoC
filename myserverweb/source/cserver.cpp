@@ -1231,7 +1231,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	else if(((Vhost*)new_connection->host)->protocol==PROTOCOL_UNKNOWN)
 	{	
 		DynamicProtocol* dp;
-    dp=lserver->getDynProtocol(((Vhost*)(new_connection->host))->protocol_name);	
+    dp=lserver->getDynProtocol(((Vhost*)(new_connection->host))->protocol_name.c_str());	
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;	
 	}
@@ -1459,7 +1459,7 @@ const char *Server::getAddresses()
  *While built-in protocols have an object per thread, for dynamic
  *protocols there is only one object shared among the threads.
  */
-DynamicProtocol* Server::getDynProtocol(char *protocolName)
+DynamicProtocol* Server::getDynProtocol(const char *protocolName)
 {
 	return protocols.getDynProtocol(protocolName);
 }

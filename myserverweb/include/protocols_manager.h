@@ -62,7 +62,9 @@ private:
 public:
 	ProtocolsManager();
   DynamicProtocol* getDynProtocolByOrder(int order);
-	DynamicProtocol* getDynProtocol(char *protocolName);
+	DynamicProtocol* getDynProtocol(const char *protocolName);
+	DynamicProtocol* getDynProtocol(string& protocolName)
+    {return getDynProtocol(protocolName.c_str()); };
 	int	addProtocol(const char*, XmlParser*, char*, Server* lserver);
 	int unloadProtocols(XmlParser*);
 	int loadProtocols(const char* directory, XmlParser*, char*, Server* lserver);

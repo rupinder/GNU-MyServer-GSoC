@@ -682,7 +682,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 		{
 			vh->protocol=PROTOCOL_UNKNOWN;
 		}
-		strncpy(vh->protocol_name,buffer2,16);
+		vh->protocol_name.assign(buffer2);
 		
 		cc++;
 		/*!Get the document root used by the virtual host*/
@@ -817,7 +817,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
 		}
 		else
 		{
-			fh.writeToFile(vh->protocol_name,(u_long)strlen(vh->protocol_name),&nbw);			
+			fh.writeToFile(vh->protocol_name.c_str(),(u_long)vh->protocol_name.length(),&nbw);			
 		}
 
 		fh.writeToFile(vh->documentRoot.c_str(),(u_long)vh->documentRoot.length(),&nbw);
@@ -951,7 +951,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
 			{
-				myserver_strlcpy(vh->name, ((char*)lcur->children->content), 64);
+				vh->name.assign((char*)lcur->children->content);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
 			{
@@ -1005,7 +1005,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
 				{
 						vh->protocol=PROTOCOL_UNKNOWN;
 				}
-				myserver_strlcpy(vh->protocol_name, (char*)lcur->children->content, 16);
+				vh->protocol_name.assign((char*)lcur->children->content);
 				
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
@@ -1140,7 +1140,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 		out.writeToFile("<VHOST>\r\n",9,&nbw);
 
 		out.writeToFile("<NAME>",6,&nbw);
-		out.writeToFile(list->host->name,(u_long)strlen(list->host->name),&nbw);
+		out.writeToFile(list->host->name.c_str(),(u_long)list->host->name.length(),&nbw);
 		out.writeToFile("</NAME>\r\n",9,&nbw);
 
 		Vhost::sIpList *ipList = list->host->ipList;
@@ -1204,7 +1204,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 				out.writeToFile("CONTROL", 7, &nbw);
 				break;
 			default:			
-				out.writeToFile(list->host->protocol_name,3,&nbw);
+				out.writeToFile(list->host->protocol_name.c_str(),3,&nbw);
 				break;
 		}
 		out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
@@ -1242,11 +1242,12 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
  */
 int Vhost::initializeSSL()
 {
+	DynamicProtocol* dp;
   sslContext.context = 0;
   sslContext.method = 0;
 #ifndef DO_NOT_USE_SSL
 
-	DynamicProtocol* dp = lserver->getDynProtocol(protocol_name);
+	dp = lserver->getDynProtocol(protocol_name.c_str());
   if(this->protocol<1000 && !(dp && ( dp->getOptions() &  PROTOCOL_USES_SSL ))  )
     return -2;
   sslContext.method = SSLv23_method();

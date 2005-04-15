@@ -167,7 +167,7 @@ xmlDocPtr XmlParser::getDoc()
 /*!
  *Only get the value of the vName root children element.
  */
-char *XmlParser::getValue(char* vName)
+char *XmlParser::getValue(const char* vName)
 {
 	if(!cur)
 		return 0;

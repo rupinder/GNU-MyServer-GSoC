@@ -239,7 +239,7 @@ DynamicProtocol* ProtocolsManager::getDynProtocolByOrder(int order)
 /*!
  *Get the dynamic protocol by its name.
  */
-DynamicProtocol* ProtocolsManager::getDynProtocol(char *protocolName)
+DynamicProtocol* ProtocolsManager::getDynProtocol(const char *protocolName)
 {
 	DynamicProtocolListElement* ne=list;
 	while(ne)

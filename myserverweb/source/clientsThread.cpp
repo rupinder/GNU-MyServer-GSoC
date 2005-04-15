@@ -373,7 +373,7 @@ int ClientsThread::controlConnections()
                                                            nBytesToRead, id);
 				break;
 			default:
-        dp=lserver->getDynProtocol(((Vhost*)(c->host))->protocol_name);
+        dp=lserver->getDynProtocol(((Vhost*)(c->host))->protocol_name.c_str());
 				if(dp==0)
 				{
 					retcode=0;
