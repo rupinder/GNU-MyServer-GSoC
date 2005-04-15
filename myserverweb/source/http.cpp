@@ -2042,7 +2042,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 {
 	char tmpStr[12];
-	char time[HTTP_RESPONSE_DATE_DIM];
+	string time;
 	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\">"
           "<p align=\"center\">"
      "<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\">"    
@@ -2193,7 +2193,7 @@ u_long Http::getGzipThreshold()
 int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a, 
                            const char *newURL)
 {
-	char time[HTTP_RESPONSE_DATE_DIM];
+	string time;
 	td->response.httpStatus=302;
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
@@ -2222,7 +2222,7 @@ int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a,
  */
 int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 {
-	char time[HTTP_RESPONSE_DATE_DIM];
+	string time;
 	td->response.httpStatus=304;
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"

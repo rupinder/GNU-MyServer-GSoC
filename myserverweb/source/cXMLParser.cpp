@@ -169,10 +169,13 @@ xmlDocPtr XmlParser::getDoc()
  */
 char *XmlParser::getValue(const char* vName)
 {
+  char *ret = 0;
+	xmlNodePtr lcur;
+
 	if(!cur)
 		return 0;
-  char *ret = 0;
-	xmlNodePtr lcur=cur->xmlChildrenNode;
+
+	lcur=cur->xmlChildrenNode;
 	buffer[0]='\0';
 	while(lcur)
 	{
