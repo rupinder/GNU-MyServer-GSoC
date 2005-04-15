@@ -75,7 +75,7 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
                       spi->envString, cwd, &si, &pi);
 	if(!ret)
 		return (-1);
-  pid = pi.hProcess;
+  pid = (u_long)pi.hProcess;
 	/*!
 	*Wait until the process stops its execution.
 	*/
