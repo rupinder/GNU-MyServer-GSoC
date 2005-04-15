@@ -109,7 +109,7 @@ int Http::fastcgi_initial_port=3333;
  *Build a response for an OPTIONS request.
  */
 int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
-                              char* /*filename*/, int /*yetmapped*/)
+                              string& /*filename*/, int /*yetmapped*/)
 {
 	int ret;
 	string time;
@@ -145,7 +145,7 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
  *Handle the HTTP TRACE command.
  */
 int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
-                            char* /*filename*/, int /*yetmapped*/)
+                            string& /*filename*/, int /*yetmapped*/)
 {
 	int ret;
 	char tmpStr[12];
@@ -224,7 +224,7 @@ int Http::getCGItimeout()
  *Main function to handle the HTTP PUT command.
  */
 int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
-                          char *filename, int, int, int yetmapped)
+                          string& filename, int, int, int yetmapped)
 {
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
   int permissions=-1;
@@ -297,7 +297,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.password = s->getPassword();
     st.directory = directory.c_str();
     st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
-    st.filename = filename;
+    st.filename = filename.c_str();
     st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
     st.permission2 = &permissions2;
     sec_cache_mutex.lock();
@@ -311,7 +311,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.password = "";
     st.directory = directory.c_str();
     st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
-    st.filename = filename;
+    st.filename = filename.c_str();
     st.password2 = 0;
     st.permission2 = 0;
 		permissions=sec_cache.getPermissionMask(&st);
@@ -347,7 +347,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.password = "";
     st.directory = directory.c_str();
     st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
-    st.filename = filename;
+    st.filename = filename.c_str();
     st.password2 = 0;
     st.permission2 = 0;
 
@@ -454,7 +454,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
  *Delete the resource identified by filename.
  */
 int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s, 
-                             char *filename, int yetmapped)
+                             string& filename, int yetmapped)
 {
   int permissions=-1;
   string directory;
@@ -523,7 +523,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.password = s->getPassword();
     st.directory = directory.c_str();
     st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
-    st.filename = filename;
+    st.filename = filename.c_str();
     st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
     st.permission2 = &permissions2;
     sec_cache_mutex.lock();
@@ -536,7 +536,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.password = "";
     st.directory = directory.c_str();
     st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
-    st.filename = filename;
+    st.filename = filename.c_str();
     st.password2 = 0;
     st.permission2 = 0;
     sec_cache_mutex.lock();
@@ -573,7 +573,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     st.password = "";
     st.directory = directory.c_str();
     st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
-    st.filename = filename;
+    st.filename = filename.c_str();
     st.password2 = 0;
     st.permission2 = 0;
     sec_cache_mutex.lock();
@@ -694,7 +694,7 @@ void HttpUserData::reset()
 /*!
  *Main function to send a resource to a client.
  */
-int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI, 
+int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI, 
                            int systemrequest, int only_header, int yetmapped)
 {
 	/*!
@@ -717,7 +717,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 
   st.auth_type = auth_type;
   st.len_auth = 16;
-  if(URI == 0)
+  if(URI.length() == 0)
     return sendHTTPhardError500(td, s);
 	filename.assign(URI);
 	td->buffer->SetLength(0);
@@ -950,11 +950,11 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
         }
 				else
         {
-					int last_slash_offset = (int) strlen(URI);
+					int last_slash_offset = URI.length();
 					while(last_slash_offset && URI[last_slash_offset]!='/')
 						--last_slash_offset;
           
-          nURL  <<  &URI[last_slash_offset  ? last_slash_offset+1 : 0] 
+          nURL  <<  &(URI.c_str()[last_slash_offset  ? last_slash_offset+1 : 0]) 
                 << "/" << defaultFileNamePath;
 				}
  				/*! Send a redirect to the new location.  */
@@ -1116,8 +1116,12 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, char *URI,
 		translateEscapeString(pathInfo);
 		strcat(linkpath, pathInfo);
 		if(nbr)
-			ret = sendHTTPResource(td, s, linkpath, systemrequest, only_header, 1);
-		else
+    {
+      string uri;
+      uri.assign(linkpath);
+			ret = sendHTTPResource(td, s, uri, systemrequest, only_header, 1);
+		}
+    else
 			ret = raiseHTTPError(td, s, e_404);
     delete [] linkpath;
     delete [] pathInfo;
@@ -1774,49 +1778,49 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		if(!td.request.CMD.compare("GET"))
 		{
 			if(!td.request.RANGETYPE.compare("bytes"))
-				ret = sendHTTPResource(&td, a, (char*)td.request.URI.c_str(), 0, 0);
+				ret = sendHTTPResource(&td, a, td.request.URI, 0, 0);
 			else
-				ret = sendHTTPResource(&td, a,  (char*)td.request.URI.c_str());
+				ret = sendHTTPResource(&td, a, td.request.URI);
 		}
 		/*! POST REQUEST. */
 		else if(!td.request.CMD.compare("POST"))
 		{
 			if(!td.request.RANGETYPE.compare("bytes"))
-				ret = sendHTTPResource(&td, a,  (char*)td.request.URI.c_str(), 0, 0);
+				ret = sendHTTPResource(&td, a, td.request.URI, 0, 0);
 			else
-				ret = sendHTTPResource(&td, a,  (char*)td.request.URI.c_str());
+				ret = sendHTTPResource(&td, a, td.request.URI);
 		}
 		/*! HEAD REQUEST. */
 		else if(!td.request.CMD.compare("HEAD"))
 		{
       td.only_header = 1;
 			if(!td.request.RANGETYPE.compare("bytes"))
-				ret = sendHTTPResource(&td, a,  (char*)td.request.URI.c_str(), 0, 1);
+				ret = sendHTTPResource(&td, a,  td.request.URI, 0, 1);
 			else
-				ret = sendHTTPResource(&td, a,  (char*)td.request.URI.c_str(), 0, 1);
+				ret = sendHTTPResource(&td, a,  td.request.URI, 0, 1);
 		}
 		/*! DELETE REQUEST. */
 		else if(!td.request.CMD.compare("DELETE"))
 		{
-			ret = deleteHTTPRESOURCE(&td, a,  (char*)td.request.URI.c_str(), 0);
+			ret = deleteHTTPRESOURCE(&td, a,  td.request.URI, 0);
 		}
 		/*! PUT REQUEST. */
 		else if(!td.request.CMD.compare("PUT"))
 		{
 			if(!td.request.RANGETYPE.compare("bytes"))
-				ret = putHTTPRESOURCE(&td, a,  (char*)td.request.URI.c_str(), 0, 1);
+				ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 			else
-        ret = putHTTPRESOURCE(&td, a,  (char*)td.request.URI.c_str(), 0, 1);
+        ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
 		}
 		/*! OPTIONS REQUEST. */
 		else if(!td.request.CMD.compare("OPTIONS"))
 		{
-			ret = optionsHTTPRESOURCE(&td, a,  (char*)td.request.URI.c_str(), 0);
+			ret = optionsHTTPRESOURCE(&td, a, td.request.URI, 0);
 		}
 		/*! TRACE REQUEST. */
 		else if(!td.request.CMD.compare("TRACE"))
 		{
-			ret = traceHTTPRESOURCE(&td, a,  (char*)td.request.URI.c_str(), 0);
+			ret = traceHTTPRESOURCE(&td, a, td.request.URI, 0);
 		}
 		/*! Return Method not implemented(501). */
 		else
@@ -2017,7 +2021,9 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
   errorFile  << ((Vhost*)(a->host))->systemRoot << "/" << HTTP_ERROR_HTMLS[ID];
   if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
 	{
-    return sendHTTPResource(td, a, HTTP_ERROR_HTMLS[ID], 1, td->only_header);
+    string tmp;
+    tmp.assign(HTTP_ERROR_HTMLS[ID]);
+    return sendHTTPResource(td, a, tmp, 1, td->only_header);
   }
 
   

@@ -96,22 +96,27 @@ protected:
 public:
 	int PROTOCOL_OPTIONS;
 	char *getDefaultFilenamePath(u_long ID);
-	int sendHTTPResource(HttpThreadContext*,ConnectionPtr s,char *filename,
+	int sendHTTPResource(HttpThreadContext*,ConnectionPtr s, string& filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int putHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
+	int putHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string &filename,
                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
 	int allowHTTPTRACE(HttpThreadContext*,ConnectionPtr s);
-	int optionsHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
+	int optionsHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string &filename,
                           int yetmapped=0);
-	int traceHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
+	int traceHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string& filename,
                         int yetmapped=0);
-	int deleteHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s,char *filename,
+	int deleteHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string& filename,
                          int yetmapped=0);
 	int raiseHTTPError(HttpThreadContext*, ConnectionPtr a, int ID);
 	int sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a);
 	int sendAuth(HttpThreadContext* td, ConnectionPtr a);
 	int getPath(HttpThreadContext* td, ConnectionPtr s, string& filenamePath,
+               const string& filename,int systemrequest)
+    {return getPath(td, s, filenamePath, filename.c_str(), systemrequest);}
+
+	int getPath(HttpThreadContext* td, ConnectionPtr s, string& filenamePath,
                const char *filename,int systemrequest);
+
 	int getMIME(HttpThreadContext* td, char *MIME, char *filename, 
               char *dest, char **dest2);
 	int getMIME(HttpThreadContext* td, string& MIME, string& filename, 
