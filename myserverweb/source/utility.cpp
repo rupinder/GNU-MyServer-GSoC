@@ -234,7 +234,7 @@ char *getdefaultwd(char *path,int len)
 /*!
  *Set the current working directory. Returns Zero if successful.
  */
-int setcwd(char *dir)
+int setcwd(const char *dir)
 {
 #ifdef WIN32	
 	return _chdir(dir);

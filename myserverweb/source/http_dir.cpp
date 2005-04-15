@@ -102,17 +102,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
    */
 	if( outputDataHandle == 0 )
 	{
-
-    if(td->outputDataPath)
-      delete [] td->outputDataPath;
-    td->outputDataPath = new char[outputDataPathLen];
-    if(td->outputDataPath==0)
-      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
-    
-    getdefaultwd(td->outputDataPath, outputDataPathLen);
-		sprintf(&(td->outputDataPath)[strlen(td->outputDataPath)], 
-            "/stdOutFile_%u", (u_int) td->id);
-		ret = td->outputData.openFile(td->outputDataPath, 
+    ostringstream stream;
+    stream << getdefaultwd(0, 0) <<  "/stdOutFile_" << td->id;
+		td->outputDataPath.assign(stream.str());
+		ret = td->outputData.openFile(td->outputDataPath.c_str(), 
                      FILE_CREATE_ALWAYS |FILE_OPEN_READ |
                                   FILE_OPEN_WRITE);
 		if(ret)

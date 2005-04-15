@@ -1044,18 +1044,21 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
       }
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 			{
+        xmlAttr *attr;
+        u_long Optslen=LOG_FILES_OPTS_LEN;
 				vh->accessLogOpt[0]='\0';                
 				vh->accessesLogFileName.assign((char*)lcur->children->content);
 
-				xmlAttr *attr =  lcur->properties;
-				u_long Optslen=LOG_FILES_OPTS_LEN;
-				while(attr)
+				attr =  lcur->properties;
+        while(attr)
 				{
 					strncat(vh->accessLogOpt,(char*)attr->name,Optslen);
 					Optslen-=(u_long)strlen((char*)attr->name);
 					strncat(vh->accessLogOpt,"=",Optslen);
 					Optslen-=1;
-					myserver_strlcat(vh->accessLogOpt, (char*)attr->children->content, Optslen);
+					myserver_strlcat(vh->accessLogOpt, 
+                           (char*)attr->children->content, Optslen);
+
 					Optslen-=(u_long)strlen((char*)attr->children->content);
 					if(attr->next)
 					{
@@ -1067,11 +1070,13 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
 			}
 			
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
-			{
+      {
+				xmlAttr *attr;
+				u_long Optslen;
 				vh->warningsLogFileName.assign((char*)lcur->children->content);
-				vh->accessLogOpt[0]='\0';                
-				xmlAttr *attr =  lcur->properties;
-				u_long Optslen=LOG_FILES_OPTS_LEN;
+				vh->warningLogOpt[0]='\0';                
+				attr =  lcur->properties;
+				Optslen=LOG_FILES_OPTS_LEN;
 				while(attr)
 				{
 					strncat(vh->warningLogOpt,(char*)attr->name,Optslen);

@@ -89,12 +89,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	con.td=td;
 	u_long nbr=0;
 	FcgiHeader header;
-  
-  int scriptDirLen = 0;
-  int scriptFileLen = 0;
-  int cgiRootLen = 0;
-  int cgiFileLen = 0;
-  int scriptpathLen = strlen(scriptpath) + 1;
 
 	u_long headerSize=0;
 
@@ -103,8 +97,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	
 	clock_t time1;
 	
-	char *outDataPath=0;
-  int outDataPathLen;
+	ostringstream outDataPath;
 
   int sizeEnvString;
   sfCGIservers* server=0;
@@ -112,54 +105,16 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	ostringstream fullpath;
   char *buffer=0;
   char tmpSize[11];
-  if(td->scriptPath)
-    delete [] td->scriptPath;
-  td->scriptPath = new char[scriptpathLen];
-  if(td->scriptPath == 0)
+
+  td->scriptPath.assign(scriptpath);
+
   {
-    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
+    string tmp;
+    tmp.assign(cgipath);
+    File::splitPath(tmp, td->cgiRoot, td->cgiFile);
+    tmp.assign(scriptpath);
+    File::splitPath(tmp, td->scriptDir, td->scriptFile);
   }
-	lstrcpy(td->scriptPath, scriptpath);
-
-  File::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
-  if(cgipath)
-    File::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
-
-  if(td->scriptDir)
-    delete [] td->scriptDir;
-  td->scriptDir = new char[scriptDirLen+1];
-  if(td->scriptDir == 0)
-  {
-    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
-  }
-
-  if(td->scriptFile)
-    delete [] td->scriptFile;
-  td->scriptFile = new char[scriptFileLen+1];
-  if(td->scriptFile == 0)
-  {
-    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
-  }
-
-  if(td->cgiRoot)
-    delete [] td->cgiRoot;
-  td->cgiRoot = new char[cgiRootLen+1];
-  if(td->cgiRoot == 0)
-  {
-    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
-  }
-
-  if(td->cgiFile)
-    delete [] td->cgiFile;
-  td->cgiFile = new char[cgiFileLen+1];
-  if(td->cgiFile == 0)
-  {
-    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection); 
-  }
-	td->cgiRoot[0] = td->cgiFile[0] = '\0';
-	File::splitPath(scriptpath, td->scriptDir, td->scriptFile);
-	File::splitPath(cgipath, td->cgiRoot, td->cgiFile);
-
 
   td->buffer->SetLength(0);
 	td->buffer2->GetAt(0)='\0';
@@ -190,8 +145,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 #else
     fullpath << cgipath;   
 #endif
-	;
 	}
+
   Cgi::buildCGIEnvironmentString(td,td->buffer->GetBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer->GetBuffer(),
                                               td->buffer2->GetBuffer());
@@ -376,33 +331,15 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   ret = 1;
 	
 	time1 = get_ticks();
-	
-	outDataPath=0;
-  outDataPathLen = getdefaultwdlen() + 24;
-	outDataPath = new char[outDataPathLen];
-  if(outDataPath == 0)
-  {
-    td->inputData.closeFile();
-		File::deleteFile(td->inputDataPath);
-    td->buffer->SetLength(0);
-		*td->buffer << "FastCGI: Error allocating memory\r\n"<< '\0';
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->
-                            warningsLogWrite(td->buffer->GetBuffer());
 
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
-  }
-	getdefaultwd(outDataPath, outDataPathLen);
-	sprintf(&(outDataPath)[strlen(outDataPath)],"/stdOutFileFcgi%u",(u_int)td->id);
-	
-	if(con.tempOut.openFile(outDataPath,FILE_OPEN_WRITE | 
+  outDataPath << getdefaultwd(0, 0) << "/stdOutFileFcgi_" << (u_int)td->id ;
+
+	if(con.tempOut.openFile(outDataPath.str().c_str(),FILE_OPEN_WRITE | 
                           FILE_OPEN_READ | FILE_CREATE_ALWAYS |
                           FILE_NO_INHERIT))
   {
     td->inputData.closeFile();
 		File::deleteFile(td->inputDataPath);
-    delete [] outDataPath;
     td->buffer->SetLength(0);
 		*td->buffer << "FastCGI: Error opening stdout file\r\n"<< '\0';
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -547,7 +484,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->inputData.closeFile();
       File::deleteFile(td->inputDataPath);
       con.tempOut.closeFile();
-      File::deleteFile(outDataPath);
+      File::deleteFile(outDataPath.str().c_str());
       con.sock.closesocket();
 			return ((Http*)td->lhttp)->sendHTTPRedirect(td, connection, 
                                               (char*)td->response.LOCATION.c_str());
@@ -642,9 +579,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     break;
 	}
   td->inputData.closeFile();
-  File::deleteFile(td->inputDataPath);
+  File::deleteFile(td->inputDataPath.c_str());
 	con.tempOut.closeFile();
-	File::deleteFile(outDataPath);
+	File::deleteFile(outDataPath.str().c_str());
 	con.sock.closesocket();
 	return ret;
 }
@@ -666,9 +603,11 @@ int FastCgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
 }
 
 /*!
- *Trasform from a standard environment string to the FastCGI environment string.
+ *Trasform from a standard environment string to the FastCGI environment 
+ *string.
  */
-int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*,char* sp,char* ep)
+int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp, 
+                                           char* ep)
 {
 	char *ptr=ep;
 	char *sptr=sp;

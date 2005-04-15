@@ -82,8 +82,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 				strcpy(URI,(char*)lpvBuffer);
 			else
         lstrcpyn(URI,ConnInfo->td->request.URI.c_str(),
-                 (int)ConnInfo->td->request.URI.length()-
-				 (ConnInfo->td->pathInfo?strlen(ConnInfo->td->pathInfo):0) +1);
+                 (int)ConnInfo->td->request.URI.length()-ConnInfo->td->pathInfo.length +1);
 			
 			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
                                             (char**)&buffer,URI,0);
@@ -543,8 +542,8 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	else if(valLen+30<maxLen) 
 		return 0;
 	
-	if(td->pathTranslated && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathTranslated);
+	if(td->pathTranslated.length() && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"PATH_INFO:%s\n",td->pathTranslated.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -558,7 +557,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->filenamePath && (valLen+30<maxLen))
+	if(td->filenamePath.length() && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_FILENAME:%s\n",td->filenamePath[0]);
 	else if(valLen+30<maxLen) 
 		return 0;
@@ -593,9 +592,8 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
 		lstrcpyn(&ValStr[valLen],td->request.URI.c_str(),
-             td->request.URI.length()- (td->pathInfo? strlen(td->pathInfo):0)+1);
-		valLen+=(DWORD)td->request.URI.length()-(td->pathInfo? 
-                                             strlen(td->pathInfo):0)+1;
+             td->request.URI.length()- td->pathInfo.length()+1;
+		valLen+=(DWORD)td->request.URI.length()-td->pathInfo.length()+1;
 		valLen+=(DWORD)sprintf(&ValStr[valLen],"\n");
 	}
 	else if(valLen+30<maxLen) 
@@ -627,20 +625,15 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	u_long connIndex;
 	PFN_GETEXTENSIONVERSION GetExtensionVersion;
 	PFN_HTTPEXTENSIONPROC HttpExtensionProc;
-  int scriptDirLen;
-  int scriptFileLen;
-  int cgiRootLen;
-  int  cgiFileLen ;
-  int  scriptpathLen ;
   
 	int retvalue=0;
 	char fullpath[MAX_PATH*2];/*! Under windows there is MAX_PATH so use it. */
 	if(!execute)
 	{
 		if(cgipath[0])
-			sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath);
+			sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath.c_str());
 		else
-			sprintf(fullpath,"%s",td->filenamePath);
+			sprintf(fullpath,"%s",td->filenamePath.c_str());
 	}
 	else
 	{
@@ -749,73 +742,15 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	/*!
    *Build the environment string.
    */
-  scriptDirLen=0;
-  scriptFileLen= 0;
-  cgiRootLen= 0;
-  cgiFileLen =0  ;
-  scriptpathLen = strlen(scriptpath) + 1;
+	td->scriptPath.assign(scriptpath);
 
-  if(td->scriptPath)
-    delete [] td->scriptPath;
-  
-  td->scriptPath = new char[scriptpathLen];
-  if(td->scriptPath == 0)
   {
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+    string tmp;
+    tmp.assign(cgipath);
+    File::splitPath(tmp, td->cgiRoot, td->cgiFile);
+    tmp.assign(scriptpath);
+    File::splitPath(tmp, td->scriptDir, td->scriptFile);
   }
-	lstrcpy(td->scriptPath, scriptpath);
-
-  File::splitPathLength(scriptpath, &scriptDirLen, &scriptFileLen);
-  
-  if(td->scriptDir)
-    delete [] td->scriptDir;
-  td->scriptDir = new char[scriptDirLen];
-  if(td->scriptDir == 0)
-  {
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
-  }
-
-  if(td->scriptFile)
-    delete [] td->scriptFile;
-  td->scriptFile = new char[scriptFileLen];
-  if(td->scriptFile == 0)
-  {
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
-  }
-  
-  File::splitPathLength(cgipath, &cgiRootLen, &cgiFileLen);
-  
-  if(td->scriptDir)
-    delete [] td->cgiRoot;
-  td->cgiRoot = new char[cgiRootLen];
-  if(td->cgiRoot == 0)
-  {
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
-  }
-  
-  if(td->cgiFile)
-    delete [] td->cgiFile;
-  td->cgiFile = new char[cgiFileLen];
-  if(td->cgiFile == 0)
-  {
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500); 
-  }
-  
-	File::splitPath(scriptpath, td->scriptDir, td->scriptFile);
-	File::splitPath(cgipath, td->cgiRoot, td->cgiFile);
-  
 	connTable[connIndex].envString[0]='\0';
 	Cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);
   
@@ -831,11 +766,11 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.lpszLogData[0] = '0';
 	ExtCtrlBlk.lpszMethod = (char*)td->request.CMD.c_str();
 	ExtCtrlBlk.lpszQueryString =(char*) td->request.URIOPTS.c_str();
-	ExtCtrlBlk.lpszPathInfo = td->pathInfo ? td->pathInfo : (CHAR*)"" ;
-	if(td->pathInfo)
-		ExtCtrlBlk.lpszPathTranslated = td->pathTranslated;
+	ExtCtrlBlk.lpszPathInfo = td->pathInfo.length() ? td->pathInfo.c_str() : (CHAR*)"" ;
+	if(td->pathInfo.length())
+		ExtCtrlBlk.lpszPathTranslated = td->pathTranslated.c_str();
 	else
-		ExtCtrlBlk.lpszPathTranslated = td->filenamePath;
+		ExtCtrlBlk.lpszPathTranslated = td->filenamePath.c_str();
 	ExtCtrlBlk.cbTotalBytes = td->inputData.getFileSize();
 	ExtCtrlBlk.cbAvailable = 0;
 	ExtCtrlBlk.lpbData = 0;

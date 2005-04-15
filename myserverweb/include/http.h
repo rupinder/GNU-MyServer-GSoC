@@ -81,6 +81,7 @@ private:
   static int fastcgi_initial_port;
   static int fastcgi_servers;
   static int allow_vhost_mime;
+  static int allow_mscgi;
 	MsCgi lmscgi;
 	WinCgi lwincgi;
 	Isapi lisapi;
@@ -109,7 +110,7 @@ public:
 	int raiseHTTPError(HttpThreadContext*, ConnectionPtr a, int ID);
 	int sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a);
 	int sendAuth(HttpThreadContext* td, ConnectionPtr a);
-	int getPath(HttpThreadContext* td, ConnectionPtr s, char **filenamePath,
+	int getPath(HttpThreadContext* td, ConnectionPtr s, string& filenamePath,
                const char *filename,int systemrequest);
 	int getMIME(HttpThreadContext* td, char *MIME, char *filename, 
               char *dest, char **dest2);
@@ -124,7 +125,6 @@ public:
 	u_long checkDigest(HttpThreadContext* td, ConnectionPtr s);
   char* getBrowseDirCSSFile();
 	u_long getGzipThreshold();
-	/*! The function is used to the request and build a response.  */
 	virtual char* registerName(char*,int len);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);

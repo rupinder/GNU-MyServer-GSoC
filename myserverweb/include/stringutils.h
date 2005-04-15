@@ -46,6 +46,7 @@ void gotoNextLine(char** cmd);
 int hexVal(char c);
 
 void translateEscapeString(char *TargetStr);
+void translateEscapeString(string& TargetStr);
 
 int hexToInt(const char *str);
 inline time_t hexToInt(const string& str){ return hexToInt(str.c_str()); };

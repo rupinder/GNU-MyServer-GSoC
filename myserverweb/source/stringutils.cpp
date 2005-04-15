@@ -514,6 +514,32 @@ void translateEscapeString(char *str)
 }
 
 /*!
+ *Translates HTTP escape sequences.
+ */
+void translateEscapeString(string& str)
+{
+	int i, j, len;
+	i = 0;
+	j = 0;
+  len = str.length();
+	while (len--)
+	{
+		if ((str[i] == '%') && (str[i+1] != 0) && (str[i+2] != 0))
+		{
+			str[j] =(char) (16 * hexVal(str[i+1]) + hexVal(str[i+2]));
+			i = i + 3;
+		}
+		else
+		{
+			str[j] = str[i];
+			i++;
+		}
+		j++;
+	}
+	str[j] = 0;
+}
+
+/*!
  *This function converts a hexadecimal number to a decimal number.
  */
 int hexVal(char ch)

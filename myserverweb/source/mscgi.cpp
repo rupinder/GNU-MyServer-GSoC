@@ -33,7 +33,7 @@ using namespace std;
  *Sends the MyServer CGI; differently from standard CGI this don't 
  *need a new process to run so it is faster.
  */
-int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
+int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
                 char* cmdLine, int /*execute*/, int only_header)
 {
 	/*!
@@ -62,54 +62,20 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
   int ret = 0;
   int nbs=0;
 	MsCgiData data;
-  int scriptDirLen = 0;
-  int scriptFileLen = 0;
-  int cgiRootLen = 0;
-  int cgiFileLen = 0;
-  int scriptpathLen = strlen(exec) + 1;
-	data.envString=td->request.URIOPTSPTR ?
+ 	data.envString=td->request.URIOPTSPTR ?
                     td->request.URIOPTSPTR : (char*) td->buffer->GetBuffer();
 	
 	data.td = td;
 	data.errorPage=0;
 
-  if(td->scriptPath)
-    delete [] td->scriptPath;
-  td->scriptPath = 0;
-  td->scriptPath = new char[scriptpathLen];
-  if(td->scriptPath == 0)
-    return 0;
-	lstrcpy(td->scriptPath, exec);
+ 	td->scriptPath.assign(exec);
 
-  File::splitPathLength(exec, &scriptDirLen, &scriptFileLen);
-  File::splitPathLength(exec, &cgiRootLen, &cgiFileLen);
-
-  if(td->scriptDir)
-    delete [] td->scriptDir;
-  td->scriptDir = new char[scriptDirLen+1];
-  if(td->scriptDir == 0)
-    return 0;
-
-  if(td->scriptFile)
-    delete [] td->scriptFile;
-  td->scriptFile = new char[scriptFileLen+1];
-  if(td->scriptFile == 0)
-    return 0;
-
-  if(td->cgiRoot)
-    delete [] td->cgiRoot;
-  td->cgiRoot = new char[cgiRootLen+1];
-  if(td->cgiRoot == 0)
-    return 0;
-
-  if(td->cgiFile)
-    delete [] td->cgiFile;
-  td->cgiFile = new char[cgiFileLen+1];
-  if(td->cgiFile == 0)
-    return 0;
-
-	File::splitPath(exec, td->scriptDir, td->scriptFile);
-	File::splitPath(exec, td->cgiRoot, td->cgiFile);
+  {
+    string tmp;
+    tmp.assign(exec);
+    File::splitPath(tmp, td->cgiRoot, td->cgiFile);
+    File::splitPath(exec, td->scriptDir, td->scriptFile);
+  }
 
 	Cgi::buildCGIEnvironmentString(td,data.envString);
 	
@@ -134,7 +100,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,char* exec,
 		/*!
      *Set the working directory to the MSCGI file one.
      */
-		setcwd(td->scriptDir);
+		setcwd(td->scriptDir.c_str());
 		td->buffer2->GetAt(0)='\0';
 
 		ProcMain = (CGIMAIN) hinstLib.getProc( "main"); 

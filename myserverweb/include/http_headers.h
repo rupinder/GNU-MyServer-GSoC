@@ -36,6 +36,9 @@ extern "C" {
 #endif
 }
 
+#include <string>
+using namespace std;
+
 #ifndef WIN32
 #include "../include/lfind.h"
 
@@ -70,16 +73,16 @@ struct HttpThreadContext
 	u_long nHeaderChars;
 	HttpResponseHeader response;
 	HttpRequestHeader  request;
-	char *filenamePath;
-	char *pathInfo;
-	char *pathTranslated;
-	char *cgiRoot;
-	char *cgiFile;
-	char *scriptPath;
-	char *scriptDir;
-	char *scriptFile;
-	char *inputDataPath;
-	char *outputDataPath;
+	string filenamePath;
+	string pathInfo;
+	string pathTranslated;
+	string cgiRoot;
+	string cgiFile;
+	string scriptPath;
+	string scriptDir;
+	string scriptFile;
+	string inputDataPath;
+	string outputDataPath;
 	char identity[32];
 	File inputData;
 	File outputData;
