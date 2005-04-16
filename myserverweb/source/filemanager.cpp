@@ -657,7 +657,7 @@ void File::getFilename(const char *path, char *filename)
 /*!
  *Get the filename from a path.
  */
-void File::getFilename(const string& path, string& filename)
+void File::getFilename(string const &path, string& filename)
 {
   int splitpoint = path.find_last_of("\\/");
   if(splitpoint != string::npos)
@@ -749,7 +749,7 @@ void File::splitPath(const char *path, char *dir, char *filename)
 /*!
  *Split a path in a dir and a filename.
  */
-void File::splitPath(const string& path, string& dir, string& filename)
+void File::splitPath(string const &path, string& dir, string& filename)
 {
   int splitpoint;
   int len = path.length();
@@ -787,7 +787,7 @@ void File::getFileExt(char* ext,const char* filename)
  *Get the file extension passing its path.
  *Save in ext all the bytes afer the last dot(.) in filename.
  */
-void File::getFileExt(string& ext,const string& filename)
+void File::getFileExt(string& ext, string const &filename)
 {
   int pos = filename.find_last_of('.');
   if(pos != string::npos)

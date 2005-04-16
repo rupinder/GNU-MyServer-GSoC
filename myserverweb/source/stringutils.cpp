@@ -361,7 +361,7 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 /*!
  *Trim a string from the right side.
  */
-string trimRight ( const string & s, const string & t  )
+string trimRight(string const &s, string const &t )
 {
   string str = s;
   return str.erase ( str.find_last_not_of ( t ) + 1 ) ;
@@ -371,7 +371,7 @@ string trimRight ( const string & s, const string & t  )
 /*!
  *Trim a string from the left side.
  */
-string trimLeft ( const string & s , const string & t )
+string trimLeft (string  const &s, string const &t )
 {
   std::string str = s;
   return str.erase ( 0 , s.find_first_not_of ( t ) ) ;
@@ -380,7 +380,7 @@ string trimLeft ( const string & s , const string & t )
 /*!
  *Trim a string.
  */
-string trim(const string & s , const string & t)
+string trim(string const &s,  string const &t)
 {
   return trimLeft(trimRight(s, t));
 }
@@ -650,7 +650,7 @@ int getEndLine(const char* str, int max)
  *Returns < 0 if [A] is less than [B].
  *Returns > 0 if [A] is greater than [B].
  */
-int stringcmpi(const string& a, const string& b)
+int stringcmpi(string const &a, string const &b)
 {
   return strcmpi(a.c_str(), b.c_str());
 }
@@ -662,7 +662,7 @@ int stringcmpi(const string& a, const string& b)
  *Returns < 0 if [A] is less than [B].
  *Returns > 0 if [A] is greater than [B].
  */
-int stringcmpi(const string& a, const char* b)
+int stringcmpi(string const &a, const char* b)
 {
   return strcmpi(a.c_str(), b);
 }
@@ -686,7 +686,7 @@ int stringcmp(const string& a, const string& b)
  *Returns < 0 if [A] is less than [B].
  *Returns > 0 if [A] is greater than [B].
  */
-int stringcmp(const string& a, const char* b)
+int stringcmp(string const &a, const char* b)
 {
   return strcmp(a.c_str(), b);
 }

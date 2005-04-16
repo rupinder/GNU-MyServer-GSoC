@@ -619,7 +619,7 @@ void MimeManager::removeAllRecords()
  *Get a pointer to an existing record passing its extension.
  *Don't modify the member next of the returned structure.
  */
-MimeManager::MimeRecord *MimeManager::getRecord(const string& ext)
+MimeManager::MimeRecord *MimeManager::getRecord(string const &ext)
 {
 	MimeManager::MimeRecord *nmr1;
 	for(nmr1 = data;nmr1;nmr1 = nmr1->next )
