@@ -213,10 +213,17 @@ void Connection::setLocalPort(u_short np)
   localPort = np;
 }
 
+/*!
+ *Get the timeout to use with the connection.
+ */
 u_long Connection::getTimeout()
 {
   return timeout;
 }
+
+/*!
+ *Set the timeout to use with the connection.
+ */
 void Connection::setTimeout(u_long nTimeout)
 {
   timeout = nTimeout;
