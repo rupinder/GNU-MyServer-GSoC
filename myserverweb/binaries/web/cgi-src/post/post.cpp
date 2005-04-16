@@ -32,7 +32,7 @@ extern "C" int main (char *cmd,MsCgiData* data)
 <head>\r\n<title>MyServer</title>\r\n\
 <meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n\
 </head>\r\n<body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
-<br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\nPosted argument:");
+<br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\nPosted argument:&nbsp;");
 		char *post=cm.postParam("T1");
 		if(post==0)
 			post=cm.getParam("T1");
