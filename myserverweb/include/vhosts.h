@@ -86,7 +86,7 @@ public:
 
 	struct sIpList
 	{
-    char hostIp[32];
+    string hostIp;
     Regex ipRegex;
     sIpList *next; 
 	};
@@ -140,16 +140,16 @@ public:
 	
   u_long getThrottlingRate();
 	Vhost();
-	void addIP(char *, int);
-	void addHost(char *, int);
-	void removeIP(char *);
-	void removeHost(char *);
+	void addIP(const char *, int);
+	void addHost(const char *, int);
+	void removeIP(const char *);
+	void removeHost(const char *);
 	int areAllHostAllowed();
 	int areAllIPAllowed();
 	void clearIPList();
 	void clearHostList();
-	int isHostAllowed(char*);
-	int isIPAllowed(char*);
+	int isHostAllowed(const char*);
+	int isIPAllowed(const char*);
 	void setMaxLogSize(int);
 	int getMaxLogSize();
   int isMIME();
@@ -179,7 +179,7 @@ public:
   ~VhostSource();
   int load();
   int free();
-  Vhost* getVHost(char*,char*,u_short);
+  Vhost* getVHost(const char*, const char*, u_short);
 	Vhost* getVHostByNumber(int n);
 };
 
@@ -208,7 +208,7 @@ public:
 	VhostManager::sVhostList*  getVHostList();
 	
 	/*! Get a pointer to a vhost.  */
-	Vhost* getVHost(char*,char*,u_short);
+	Vhost* getVHost(const char*,const char*,u_short);
 	
 	/*! Add an element to the vhost list.  */
 	void addVHost(Vhost*);

@@ -125,11 +125,11 @@ public:
 	char getnTries();
 	void incnTries();
 
-  char* getipAddr();
-  void setipAddr(char*);
+  const char* getipAddr();
+  void setipAddr(const char*);
 
-  char* getlocalIpAddr();
-  void setlocalIpAddr(char*);
+  const char* getlocalIpAddr();
+  void setlocalIpAddr(const char*);
 
 	u_long getTimeout();
   void setTimeout(u_long);

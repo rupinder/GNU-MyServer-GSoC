@@ -151,12 +151,12 @@ void Vhost::clearIPList()
 /*!
  *Add an IP address to the list
  */
-void Vhost::addIP(char *ip, int isRegex)
+void Vhost::addIP(const char *ip, int isRegex)
 {
 	sIpList* il=new sIpList();
   if(il==0)
     return;
-	myserver_strlcpy(il->hostIp, ip, 32);
+	il->hostIp.assign(ip);
   /*! If is a regular expression, the ip string is a pattern. */
   if(isRegex)
     il->ipRegex.compile(ip, REG_EXTENDED);
@@ -173,7 +173,7 @@ void Vhost::addIP(char *ip, int isRegex)
 /*!
  *Remove the IP address to the list.
  */
-void Vhost::removeIP(char *ip)
+void Vhost::removeIP(const char *ip)
 {
 	Vhost::sIpList *iterator = ipList;
 	Vhost::sIpList *iteratorBack = 0;
@@ -184,7 +184,7 @@ void Vhost::removeIP(char *ip)
 		/*!
      *If this is the virtual host with the right IP.
      */
-		if(!strcmp(iterator->hostIp,ip))
+		if(!stringcmp(iterator->hostIp,ip))
 		{
 			if(iteratorBack)
 			{
@@ -210,7 +210,7 @@ void Vhost::removeIP(char *ip)
 /*!
  *Remove the host address to the list.
  */
-void Vhost::removeHost(char *host)
+void Vhost::removeHost(const char *host)
 {
 	Vhost::sHostList *iterator = hostList;
 	Vhost::sHostList *iteratorBack = 0;
@@ -245,7 +245,7 @@ void Vhost::removeHost(char *host)
 /*!
  *Check if an host is allowed to the connection
  */
-int Vhost::isHostAllowed(char* host)
+int Vhost::isHostAllowed(const char* host)
 {
 	if(hostList == 0)/*If no hosts are specified, every host is allowed to connect to*/
 		return 1;
@@ -291,7 +291,7 @@ int Vhost::areAllIPAllowed()
  *Check if the network is allowed to the connection(control the network 
  *by the local IP)
  */
-int Vhost::isIPAllowed(char* ip)
+int Vhost::isIPAllowed(const char* ip)
 {
   /*! If no IPs are specified, every IP is allowed to connect to. */
 	if(ipList == 0)
@@ -307,7 +307,7 @@ int Vhost::isIPAllowed(char* ip)
         return 1;
       }
     }
-		else if(!strcmp(ip,lipl->hostIp))
+		else if(!stringcmp(lipl->hostIp, ip))
 			return 1;
 		lipl=lipl->next;
 	}
@@ -317,7 +317,7 @@ int Vhost::isIPAllowed(char* ip)
 /*!
  *Add an host to the allowed host list
  */
-void Vhost::addHost(char *host, int isRegex)
+void Vhost::addHost(const char *host, int isRegex)
 {
 	sHostList* hl=new sHostList();
   if(hl==0)
@@ -474,7 +474,7 @@ void VhostManager::addVHost(Vhost* VHost)
  *Get the vhost for the connection. A return value of 0 means that
  *a valid host was not found. 
  */
-Vhost* VhostManager::getVHost(char* host, char* ip, u_short port)
+Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 {
 	sVhostList* vhl;
   if(extSource)
@@ -777,7 +777,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
 		{
 			while(il)
 			{ 
-				fh.writeToFile(il->hostIp,(u_long)strlen(il->hostIp),&nbw);
+				fh.writeToFile(il->hostIp.c_str(),(u_long)il->hostIp.length(),&nbw);
 				if(il->next )
 				{
 					strcpy(buffer,",");
@@ -1147,7 +1147,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 		while(ipList)
 		{
 			out.writeToFile("<IP>",4,&nbw);
-			out.writeToFile(ipList->hostIp,(u_long)strlen(ipList->hostIp),&nbw);
+			out.writeToFile(ipList->hostIp.c_str(),(u_long)ipList->hostIp.c_str(),&nbw);
 			out.writeToFile("</IP>\r\n",7,&nbw);
 			ipList=ipList->next;
 		}
@@ -1424,7 +1424,7 @@ int VhostSource::free()
 /*!
  *Get a virtual host.
  */
-Vhost* VhostSource::getVHost(char*,char*,u_short)
+Vhost* VhostSource::getVHost(const char*, const char*, u_short)
 {
   return 0;
 }

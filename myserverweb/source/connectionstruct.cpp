@@ -168,7 +168,7 @@ void Connection::incnTries()
 /*!
  *Get the IP address of the client.
  */
-char* Connection::getipAddr()
+const char* Connection::getipAddr()
 {
   return ipAddr;
 }
@@ -176,7 +176,7 @@ char* Connection::getipAddr()
 /*!
  *Set the IP address of the client.
  */
-void Connection::setipAddr(char* na)
+void Connection::setipAddr(const char* na)
 {
   strncpy(ipAddr, na, MAX_IP_STRING_LEN);
 }
@@ -184,7 +184,7 @@ void Connection::setipAddr(char* na)
 /*!
  *Get the IP address of the local interface used to connect to.
  */
-char* Connection::getlocalIpAddr()
+const char* Connection::getlocalIpAddr()
 {
   return localIpAddr;
 }
@@ -192,7 +192,7 @@ char* Connection::getlocalIpAddr()
 /*!
  *Set the IP address of the local interface used to connect to.
  */
-void Connection::setlocalIpAddr(char* na)
+void Connection::setlocalIpAddr(const char* na)
 {
   strncpy(localIpAddr, na, MAX_IP_STRING_LEN);
 }
