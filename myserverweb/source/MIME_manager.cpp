@@ -42,6 +42,7 @@ int MimeManager::load(const char *fn)
 	int ret;
   char commandString[16];
 	File f;
+	u_long nbw, fs;
 	MimeManager::MimeRecord record;  
   if(fn == 0)
     return -1;
@@ -52,11 +53,11 @@ int MimeManager::load(const char *fn)
 	ret=f.openFile(filename.c_str(), FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 	if(ret)
 		return 0;
-	u_long fs=f.getFileSize();
+	fs=f.getFileSize();
 	buffer=new char[fs+1];
 	if(!buffer)
 		return 0;
-	u_long nbw;
+
 	f.readFromFile(buffer,fs,&nbw);
 	f.closeFile();
 	for(u_long nc=0;;)

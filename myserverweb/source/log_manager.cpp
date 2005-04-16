@@ -162,8 +162,8 @@ int LogManager::write(const char *str, int len)
   else if(type == TYPE_FILE)
   {
     /*!
-    *File was not loaded correctly.
-    */
+     *File was not loaded correctly.
+     */
     if(!loaded)
     {
        return 1;

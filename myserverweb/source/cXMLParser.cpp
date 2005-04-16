@@ -187,7 +187,7 @@ char *XmlParser::getValue(const char* vName)
         int outlen = 250;
         int inlen = strlen((const char*)lcur->children->content);
         if(UTF8Toisolat1((unsigned char*)buffer, &outlen, 
-                         (unsigned char*)lcur->children->content, &inlen) >= 0 )
+                         (unsigned char*)lcur->children->content, &inlen)>= 0)
           buffer[outlen]='\0';
         else
           strncpy(buffer,(char*)lcur->children->content,250);
@@ -303,6 +303,7 @@ int XmlParser::saveMemBuf(CMemBuf & memory,int *nbytes)
   
   return err;
 }
+
 /*!
  *Start a new XML tree for a new file.
  *Returns nothing.
@@ -316,6 +317,7 @@ void XmlParser::newfile(const char * root)
    cur = xmlNewDocNode(doc, NULL, (const xmlChar*)root, NULL);
    xmlDocSetRootElement(doc, cur);
 }
+
 /*!
  *Adds a new child entry.
  *Returns nothing.
@@ -323,7 +325,8 @@ void XmlParser::newfile(const char * root)
  */
 void XmlParser::addChild(const char * name, const char * value)
 {
-   last_node = xmlNewTextChild(cur, NULL, (const xmlChar*)name, (const xmlChar*)value);
+   last_node = xmlNewTextChild(cur, NULL, (const xmlChar*)name, 
+                               (const xmlChar*)value);
 }
 
 /*!
@@ -340,6 +343,7 @@ void XmlParser::addGroup(const char * name)
     last_node = cur;
   }
 }
+
 /*!
  *Ends the sub group if any (only one level for now).
  *Returns nothing.
@@ -352,6 +356,7 @@ void XmlParser::endGroup()
     prev_cur = 0;
   }
 }
+
 /*!
  *Sets or resets an Atrribute
  *Returns nothing.

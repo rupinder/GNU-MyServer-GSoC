@@ -87,7 +87,8 @@ void ClientsThread::setTimeout(int new_timeout)
 }
 
 /*!
-*This function starts a new thread controlled by a ClientsThread class instance.
+*This function starts a new thread controlled by a ClientsThread 
+*class instance.
 */
 #ifdef WIN32
 #define ClientsThread_TYPE int
