@@ -1305,19 +1305,11 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		((HttpUserData*)a->protocolBuffer)->digest_checked=0;	
 	
 	/*!
-	 *If the header is an invalid request send the correct error 
-   *message to the client and return immediately.
+	 *If the validRequest cointains an error code send it to the user.
 	 */
-	if(validRequest==0)
+	if(validRequest!=e_200)
 	{
-		retvalue = raiseHTTPError(&td, a, e_400);
-		logHTTPaccess(&td, a);
-		return 0;
-	}
-  /*! if the URI is too long. */ 
-	else if(validRequest==414)
-	{
-		retvalue = raiseHTTPError(&td, a, e_414);
+		retvalue = raiseHTTPError(&td, a, validRequest);
 		logHTTPaccess(&td, a);
 		return 0;
 	}

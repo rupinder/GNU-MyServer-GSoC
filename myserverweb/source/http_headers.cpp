@@ -312,6 +312,9 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
  *Build the HTTP REQUEST HEADER string.
  *If no input is setted the input is the main buffer of the 
  *HttpThreadContext structure.
+ *Returns e_200 if is a valid request.
+ *Returns -1 if the request is incomplete.
+ *Any other returned value is the HTTP error.
  */
 int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request, 
                                                HttpThreadContext* td, char* input)
@@ -360,23 +363,22 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		token=input;
 
 	validRequest=validHTTPRequest(input, td, &nLines, &maxTotchars);
+
+
 	/*! Invalid header.  */
-	if(validRequest==0)
-  	{
+	if(validRequest!=e_200)
+  {
+    /*! Incomplete header.  */
+    if(validRequest==-1)
+			return -1;
 		/* Keep trace of first line for logging. */
 		tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
 		if(tokenOff > 0)
 			request->URI.assign( input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
 		else
       request->URI.assign(input, HTTP_REQUEST_URI_DIM );
-		return 0;
+		return validRequest;
 	}
-	/*! Uri too long.  */
-	else if(validRequest==1)
-			return 414;
-	/*! Incomplete header.  */
-	else if(validRequest==-1)
-			return -1;
 
   /*! Get the first token, this is the HTTP command.*/
 	tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
@@ -394,7 +396,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
   do
 	{
 		if(tokenOff== -1 )
-			return 0;
+			return e_400;
 		
 		/*! Copy the HTTP field(this is the command if we are on the first line). */
 		myserver_strlcpy(command, token, min(96, tokenOff+1) );
@@ -419,7 +421,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			lineControlled=1;
 			/*! Copy the method type. */
 			request->CMD.assign(command, tokenOff);
-			tokenOff = getEndLine(token, HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
+			tokenOff = getEndLine(token, 
+                            HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
 			len_token = tokenOff;
 			if(tokenOff==-1)
         {
@@ -430,7 +433,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
           else
             request->URI.assign(input, HTTP_REQUEST_URI_DIM );
-          return 0;
+          return e_400;
         }
       if(tokenOff > maxUri)
         {
@@ -441,7 +444,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
           else
             request->URI.assign(input, HTTP_REQUEST_URI_DIM );
-          return 0;
+          return e_400;
         }
 			max=(int)tokenOff;
 			while((token[max]!=' ') && (len_token-max<HTTP_REQUEST_VER_DIM))
@@ -474,7 +477,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
           request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
           request->URI.assign(input, HTTP_REQUEST_URI_DIM );
-        return 0;
+        return e_400;
       }  
 
       /*! If the URI contains some query data determine how long it is. */
@@ -506,8 +509,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
           break;
       }
       /*! 
-       *If there are more than 10 black spaces store the entire line for logging
-       *then return an invalid header value.
+       *If there are more than 10 black spaces store the entire line 
+       *for logging then return an invalid header value.
        */
       if(j == 10)
       {
@@ -518,7 +521,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
           request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
           request->URI.assign(input, HTTP_REQUEST_URI_DIM );
-        return 0;
+        return e_400;
       }
 
       /*! Count how long the version token is. */
@@ -532,8 +535,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         request->VER.assign(&token[j], i-j);
 
       /*! 
-       *If the version is not specified or it is too long store some information 
-       *for logging then return an invalid header value. 
+       *If the version is not specified or it is too long store 
+       *some information for logging then return an invalid header value. 
        */
       if((!j) || ( (i-j) == HTTP_REQUEST_VER_DIM ))
       {
@@ -544,7 +547,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
           request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
           request->URI.assign(input, HTTP_REQUEST_URI_DIM );
-        return 0;
+        return e_400;
       }
 			
       /*! Store if the requested URI terminates with a slash character. */
@@ -568,7 +571,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(!lstrcmpi(command,"User-Agent"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_USER_AGENT_DIM);
-      if(tokenOff==-1)return 0;
+      if(tokenOff==-1)return e_400;
 			lineControlled=1;
 			request->USER_AGENT.assign(token,tokenOff+1);
 		}else
@@ -579,7 +582,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				token++;
 			tokenOff = getCharInString(token," ",HTTP_REQUEST_AUTH_DIM);
 						
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)return e_400;
 		
 			lineControlled=1;
 	
@@ -600,7 +603,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					len--;
 				}
 				if (len <= 1)
-					return 0;
+					return e_400;
 				lbuffer2=base64Utils.Decode(base64,&len);
 				keep_lbuffer2=lbuffer2;
         login = td->connection->getLogin();
@@ -629,12 +632,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				tokenOff = getEndLine(token, 1024);
 				digestBuff=new char[tokenOff+1];
 				if(!digestBuff)
-					return 0;
+					return e_400;
 				memcpy(digestBuff,token,tokenOff);
 				digestBuff[tokenOff+1]='\0';
 				digestToken = strtok( digestBuff, "=" );
 				if(!digestToken)
-					return 0;
+					return e_400;
 				do
 				{
 					StrTrim(digestToken," ");
@@ -715,7 +718,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       int cur = 0;
 			tokenOff = getEndLine(token, HTTP_REQUEST_HOST_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->HOST.assign(token,tokenOff);
       /*!
@@ -735,7 +738,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(!lstrcmpi(command,"Content-Encoding"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_ENCODING_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)return e_400;
 			lineControlled=1;
 			request->CONTENT_ENCODING.assign(token,tokenOff);
 		}else
@@ -743,7 +746,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(!lstrcmpi(command,"Transfer-Encoding"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_TRANSFER_ENCODING_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)return e_400;
 			lineControlled=1;
 			request->TRANSFER_ENCODING.assign(token,tokenOff);
 		}else
@@ -752,7 +755,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_TYPE_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->CONTENT_TYPE.assign(token,tokenOff);
 		}else
@@ -761,7 +764,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->IF_MODIFIED_SINCE.assign(token,tokenOff);
 		}else
@@ -771,10 +774,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			int max = HTTP_REQUEST_ACCEPT_DIM-(int)request->ACCEPT.length();
 			int oldlen = request->ACCEPT.length();
 			if(max < 0)
-				return 0;
+				return e_400;
 			tokenOff = getEndLine(token, max);
 			if(tokenOff == -1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->ACCEPT.append(token,tokenOff+1);
 		}else
@@ -783,7 +786,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTLAN_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->ACCEPTLAN.assign(token,tokenOff);
 		}else
@@ -792,7 +795,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTCHARSET_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->ACCEPTCHARSET.assign(token,tokenOff);
 		}else
@@ -801,7 +804,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTENC_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->ACCEPTENC.assign(token,tokenOff);
 		}else
@@ -810,7 +813,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_CONNECTION_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->CONNECTION.assign(token,tokenOff);
 		}else
@@ -819,7 +822,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_COOKIE_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->COOKIE.assign(token,tokenOff);
 		}else
@@ -828,7 +831,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_FROM_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->FROM.assign(token,tokenOff);
 		}else
@@ -837,7 +840,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->CONTENT_LENGTH.assign(token,tokenOff);
 		}else
@@ -846,7 +849,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_CACHE_CONTROL_DIM);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			lineControlled=1;
 			request->CACHE_CONTROL.assign(token,tokenOff);
 		}else
@@ -862,7 +865,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			lineControlled=1;
 			tokenOff = getEndLine(token, HTTP_REQUEST_RANGETYPE_DIM+30);
 			if(tokenOff==-1)
-        return 0;
+        return e_400;
 			do
 			{
         i++;
@@ -916,14 +919,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       {
         request->RANGEBYTEEND=(u_long)atol(RANGEBYTEEND);
         if(request->RANGEBYTEEND < request->RANGEBYTEBEGIN)
-          return 0;
+          return e_400;
       }
 		}else
 		/*!Referer*/
 		if(!lstrcmpi(command,"Referer"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_REFERER_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)return e_400;
 			lineControlled=1;
 			request->REFERER.assign(token,tokenOff);
 		}else
@@ -931,7 +934,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(!lstrcmpi(command,"Pragma"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_PRAGMA_DIM);
-			if(tokenOff==-1)return 0;
+			if(tokenOff==-1)return e_400;
 			lineControlled=1;
 			request->PRAGMA.assign(token,tokenOff);
 		}
@@ -939,7 +942,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
     {
       tokenOff = getEndLine(token, maxTotchars);
       if(tokenOff==-1)
-        return 0;
+        return e_400;
 		}
     token+= tokenOff + 2;
 		tokenOff = getCharInString(token,":",maxTotchars);
@@ -948,7 +951,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
    *END REQUEST STRUCTURE BUILD.
    */
 	td->nHeaderChars=maxTotchars;
-	return validRequest;
+	return e_200;
 }
 
 /*!
@@ -1189,10 +1192,9 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 
 /*!
  *Controls if the req string is a valid HTTP request header.
- *Returns 0 if req is an invalid header, 
- *Returns -1 if the header is incomplete,
- *Returns 1 for 414 error messages.
- *Returns another non-zero value if is a valid header.
+ *Returns e_200 if is a valid request.
+ *Returns -1 if the request is incomplete.
+ *Any other returned value is the HTTP error.
  *nLinesptr is a value of the lines number in the HEADER.
  *ncharsptr is a value of the characters number in the HEADER.
  */
@@ -1205,7 +1207,7 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 	u_long nLines=0;
 	
 	if(req==0)
-		return 0;
+		return e_400;
 	
 	for(;(i<MYSERVER_KB(8));i++)
 	{
@@ -1214,7 +1216,7 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 			if(req[i+2]=='\n')
 			{
 				if((i+3) > td->buffer->GetRealLength())
-					return 0;
+					return e_400;
 				break;
 			}
 			/*! 
@@ -1222,12 +1224,12 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 			*the header invalid.
 			*/
 			if(nLines>=25)
-				return 0;
+				return e_400;
 			nLinechars=0;
 			nLines++;
 		}
 		else if(req[i]=='\0')
-      return (-1);
+      return -1;
 		/*!
 		*We set a maximal theorical number of characters in a line to 2048.
 		*If a line contains more than N characters we consider the header invalid.
@@ -1235,8 +1237,8 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 		if(nLinechars>=2048)
     {
       if(nLines == 0)
-        return 1;
-			return 0;
+        return e_414;
+			return e_400;
     }
 		nLinechars++;
 	}
@@ -1246,5 +1248,5 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 	*ncharsptr=i+3;
 	
 	/*! Return if is a valid request header.  */
-	return 2;
+	return e_200;
 }
