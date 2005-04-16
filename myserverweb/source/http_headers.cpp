@@ -1246,5 +1246,5 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 	*ncharsptr=i+3;
 	
 	/*! Return if is a valid request header.  */
-	return 1;
+	return 2;
 }
