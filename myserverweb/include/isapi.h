@@ -114,6 +114,7 @@ struct ConnTableRecord
 	int headerSent;
 	int headerSize;
 	HttpThreadContext *td;
+  int dataSent;
 	char* envString;
 	ConnectionPtr connection;
 	HANDLE ISAPIDoneEvent;

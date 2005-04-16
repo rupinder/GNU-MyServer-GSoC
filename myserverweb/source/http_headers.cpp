@@ -1039,7 +1039,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			lineControlled=1;
 			/*! Copy the HTTP version. */
-      response->VER.assign(command, HTTP_RESPONSE_VER_DIM);
+      response->VER.assign(command);
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			if(token)
@@ -1047,7 +1047,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			
 			token = strtok( NULL, "\r\n\0" );
 			if(token)
-				response->ERROR_TYPE.assign(token, HTTP_RESPONSE_ERROR_TYPE_DIM);
+				response->ERROR_TYPE.assign(token);
 
 		}else
 		/*!Server*/
@@ -1055,21 +1055,21 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->SERVER_NAME.assign(token, HTTP_RESPONSE_SERVER_NAME_DIM);
+			response->SERVER_NAME.assign(token);
 		}else
 		/*!Location*/
 		if(!lstrcmpi(command,"Location"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->LOCATION.assign(token, HTTP_RESPONSE_LOCATION_DIM);
+			response->LOCATION.assign(token);
 		}else
 		/*!Last-Modified*/
 		if(!lstrcmpi(command,"Last-Modified"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->LAST_MODIFIED.assign(token, HTTP_RESPONSE_LAST_MODIFIED_DIM);
+			response->LAST_MODIFIED.assign(token);
 		}else
 		/*!Status*/
 		if(!lstrcmpi(command,"Status"))
@@ -1085,43 +1085,42 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_ENCODING.assign(token, HTTP_RESPONSE_CONTENT_ENCODING_DIM);
+			response->CONTENT_ENCODING.assign(token);
 		}else
 		/*!Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CACHE_CONTROL.assign(token,HTTP_RESPONSE_CACHE_CONTROL_DIM);
+			response->CACHE_CONTROL.assign(token);
 		}else
 		/*!Date*/
 		if(!lstrcmpi(command,"Date"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->DATE.assign(token, HTTP_RESPONSE_DATE_DIM);
+			response->DATE.assign(token);
 		}else
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_TYPE.assign(token, HTTP_RESPONSE_CONTENT_TYPE_DIM);
+			response->CONTENT_TYPE.assign(token);
 		}else
 		/*!MIME-Version*/
 		if(!lstrcmpi(command,"MIME-Version"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->MIMEVER.assign(token,HTTP_RESPONSE_MIMEVER_DIM);
+			response->MIMEVER.assign(token);
 		}else
 		/*!Set-Cookie*/
 		if(!lstrcmpi(command,"Set-Cookie"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->COOKIE.assign(token,
-              HTTP_RESPONSE_COOKIE_DIM - response->COOKIE.length() );
+			response->COOKIE.assign(token );
 			response->COOKIE.append("\n");/*! Divide multiple cookies. */
 		}else
 		/*!Content-Length*/
@@ -1129,35 +1128,35 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_LENGTH.assign(token, HTTP_RESPONSE_CONTENT_LENGTH_DIM);
+			response->CONTENT_LENGTH.assign(token);
 		}else
 		/*!Content-Range*/
 		if(!lstrcmpi(command,"Content-Range"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_RANGE.assign(token, HTTP_RESPONSE_CONTENT_RANGE_DIM);
+			response->CONTENT_RANGE.assign(token);
 		}else
 		/*!P3P*/
 		if(!lstrcmpi(command,"P3P"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->P3P.assign(token, HTTP_RESPONSE_P3P_DIM);
+			response->P3P.assign(token);
 		}else
 		/*!Connection*/
 		if(!lstrcmpi(command,"Connection"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONNECTION.assign(token, HTTP_RESPONSE_CONNECTION_DIM);
+			response->CONNECTION.assign(token);
 		}else
 		/*!Expires*/
 		if(!lstrcmpi(command,"Expires"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->DATEEXP.assign(token, HTTP_RESPONSE_DATEEXP_DIM);
+			response->DATEEXP.assign(token);
 		}
 		/*!
      *If the line is not controlled arrive with the token

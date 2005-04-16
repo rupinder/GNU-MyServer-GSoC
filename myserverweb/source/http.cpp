@@ -1328,12 +1328,13 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
    *pointer and create a file containing the informations after the header.
 	 */
   {
-    ostringstream stream;
-    stream << getdefaultwd(0, 0) << "/stdInFile_" <<  (u_int)td.id;
-    td.inputDataPath.assign(stream.str());
+    ostringstream streamIn;
+    ostringstream streamOut;
+    streamIn << getdefaultwd(0, 0) << "/stdInFile_" <<  (u_int)td.id;
+    td.inputDataPath.assign(streamIn.str());
 
-    stream << getdefaultwd(0, 0) << "/stdOutFile_" <<  (u_int)td.id;
-    td.outputDataPath.assign(stream.str());
+    streamOut << getdefaultwd(0, 0) << "/stdOutFile_" <<  (u_int)td.id;
+    td.outputDataPath.assign(streamOut.str());
   }
 
 	if((!td.request.CMD.compare("POST"))||(!td.request.CMD.compare("PUT")))
