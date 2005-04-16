@@ -1515,6 +1515,7 @@ int Server::loadSettings()
 	}
 	else
 #endif
+
 	/*! If the MIMEtypes.xml files doesn't exist copy it from the default one. */
 	if(!File::fileExists("MIMEtypes.xml"))
 	{
@@ -1553,6 +1554,7 @@ int Server::loadSettings()
 	{
     mime_configuration_file.assign("MIMEtypes.xml");
 	}
+
 	/*! Load the MIME types. */
 	logWriteln(languageParser.getValue("MSG_LOADMIME"));
 	if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file.c_str()))
@@ -1596,6 +1598,7 @@ int Server::loadSettings()
 	}
 	else
 #endif
+
 	/*! 
    *If the virtualhosts.xml file doesn't exist copy it 
    *from the default one. 

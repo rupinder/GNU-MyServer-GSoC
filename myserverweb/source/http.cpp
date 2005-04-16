@@ -1239,7 +1239,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   u_long dataRead=0;
   u_long dataToRead=0;
   /*! Dimension of the POST data. */
-	u_long content_len=0;
+	int content_len=-1;
 	td.buffer=((ClientsThread*)a->thread)->GetBuffer();
 	td.buffer2=((ClientsThread*)a->thread)->GetBuffer2();
 	td.buffersize=bs1;
@@ -1388,7 +1388,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           return 0;
         }
       }
-			content_len=atoi(td.request.CONTENT_LENGTH.c_str());
+      if(td.request.CONTENT_LENGTH.length())
+        content_len=atoi(td.request.CONTENT_LENGTH.c_str());
       
 			/*!
        *If the connection is Keep-Alive be sure that the client specify the
@@ -1426,7 +1427,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *If there are others bytes to read from the socket.
        */
 			timeout=get_ticks();
-			if((content_len)&&(content_len!=nbw))
+			if((content_len!=-1)&&((content_len!=nbw) || (nbw==0)))
 			{
 				int ret;
 				u_long fs;
