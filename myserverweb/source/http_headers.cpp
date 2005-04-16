@@ -317,23 +317,20 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
  *Any other returned value is the HTTP error.
  */
 int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request, 
-                                               HttpThreadContext* td, char* input)
+                                              HttpThreadContext* td, char* input)
 {
 	/*!
-	*In this function there is the HTTP protocol parse.
-	*The request is mapped into a HttpRequestHeader structure
-	*And at the end of this every command is treated
-	*differently. We use this mode for parse the HTTP
-	*cause especially in the CGI is requested a continous
-	*HTTP header access.
-	*Before mapping the header in the structure 
-	*control if this is a regular request.
-	*The HTTP header ends with a \r\n\r\n sequence.
-	*/
+   *In this function there is the HTTP protocol parse.
+   *The request is mapped into a HttpRequestHeader structure
+   *And at the end of this every command is treated
+   *differently. We use this mode for parse the HTTP
+   *cause especially in the CGI is requested a continous
+   *HTTP header access.
+   *Before mapping the header in the structure 
+   *control if this is a regular request.
+   *The HTTP header ends with a \r\n\r\n sequence.
+   */
   
-	/*!
-	*Control if the HTTP header is a valid header.
-	*/
 	u_long i=0,j=0;
 	int max=0;
 	u_long nLines, maxTotchars;
@@ -362,6 +359,9 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	else
 		token=input;
 
+	/*!
+   *Control if the HTTP header is a valid header.
+   */
 	validRequest=validHTTPRequest(input, td, &nLines, &maxTotchars);
 
 
