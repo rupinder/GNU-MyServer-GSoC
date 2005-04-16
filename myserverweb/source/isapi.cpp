@@ -648,7 +648,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	char fullpath[MAX_PATH*2];/*! Under windows there is MAX_PATH so use it. */
 	if(!execute)
 	{
-		if(cgipath[0])
+    if(cgipath && strlen(cgipath))
 			sprintf(fullpath,"%s \"%s\"",cgipath,td->filenamePath.c_str());
 		else
 			sprintf(fullpath,"%s",td->filenamePath.c_str());

@@ -150,7 +150,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		if((!cgipath) || (!File::fileExists(cgipath)))
 		{
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      if(cgipath)
+      if(cgipath && strlen(cgipath))
       {
         ((Vhost*)td->connection->host)->warningsLogWrite("Cannot find ");
         ((Vhost*)td->connection->host)->warningsLogWrite(cgipath);

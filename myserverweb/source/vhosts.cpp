@@ -31,10 +31,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
 {
 	if((size_t)num<strlen((char*)userdata)+1)
-		return(0);
+		return 0;
 
-	myserver_strlcpy(buf,(char*)userdata, 32);
-	return((int)strlen(buf));
+  ((string*)userdata)->assign(buf);
+
+	return ((string*)userdata)->length();
 }
 
 /*!
@@ -45,7 +46,7 @@ Vhost::Vhost()
 	sslContext.certificateFile.assign("");
 	sslContext.method = 0;
 	sslContext.privateKeyFile.assign("");
-	sslContext.password[0] = '\0';
+	sslContext.password.assign("");
 	ipList=0;
 	hostList=0;
   documentRoot.assign("");
@@ -964,10 +965,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
 			{
 				if(lcur->children)
-					myserver_strlcpy(vh->sslContext.password, 
-                           ((char*)lcur->children->content), 32);
+					vh->sslContext.password.assign((char*)lcur->children->content);
 				else
-					vh->sslContext.password[0]='\0';
+					vh->sslContext.password.assign("");
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
 			{
@@ -1180,11 +1180,11 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 			out.writeToFile("</SSL_CERTIFICATE>\r\n",20,&nbw);
 		}
 
-		if(list->host->sslContext.password[0])
+		if(list->host->sslContext.password.length())
 		{
 			out.writeToFile("<SSL_PASSWORD>",14,&nbw);
-			out.writeToFile(list->host->sslContext.password,
-                      (u_long)strlen(list->host->sslContext.password),&nbw);
+			out.writeToFile(list->host->sslContext.password.c_str(),
+                      list->host->sslContext.password.length(),&nbw);
 			out.writeToFile("</SSL_PASSWORD>\r\n",17,&nbw);
 		}
 
@@ -1266,7 +1266,7 @@ int Vhost::initializeSSL()
   if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,
                                           sslContext.certificateFile.c_str())))
     return -1;
-  SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, sslContext.password);
+  SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, &sslContext.password);
   SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
   /*!
    *The specified file doesn't exist.

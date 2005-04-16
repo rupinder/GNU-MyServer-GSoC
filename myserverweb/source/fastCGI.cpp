@@ -120,7 +120,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	td->buffer2->GetAt(0)='\0';
 	if(execute)
 	{
-		if(cgipath)
+		if(cgipath && strlen(cgipath))
     {
 #ifdef WIN32
 			fullpath << "\"" << cgipath << "\" \"" <<  td->filenamePath << "\"";
