@@ -221,7 +221,7 @@ void Vhost::removeHost(const char *host)
 		/*!
      *If this is the virtual host with the right host name
      */
-		if(!strcmp(iterator->hostName,host))
+		if(!stringcmp(iterator->hostName,host))
 		{
 			if(iteratorBack)
 			{
@@ -260,7 +260,7 @@ int Vhost::isHostAllowed(const char* host)
         return 1;
       }
     }
-		if(!strcmp(host,lhl->hostName))
+		if(!stringcmp(lhl->hostName, host))
 			return 1;
 		lhl = lhl->next;
 	}
@@ -322,7 +322,7 @@ void Vhost::addHost(const char *host, int isRegex)
 	sHostList* hl=new sHostList();
   if(hl==0)
     return;
-	myserver_strlcpy(hl->hostName, host, MAX_COMPUTERNAME_LENGTH);
+	hl->hostName.assign( host );
   if(isRegex)
     hl->hostRegex.compile(host, REG_EXTENDED);
 	if(hostList)
@@ -758,7 +758,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
 		{
 			while(hl)
 			{ 
-				fh.writeToFile(hl->hostName,(u_long)strlen(hl->hostName),&nbw);
+				fh.writeToFile(hl->hostName.c_str(),hl->hostName.length(),&nbw);
 				strcpy(buffer,",");
 				fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 				if(hl->next )
@@ -1155,7 +1155,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 		while(hostList)
 		{
 			out.writeToFile("<HOST>",6,&nbw);
-			out.writeToFile(hostList->hostName,(u_long)strlen(hostList->hostName),&nbw);
+			out.writeToFile(hostList->hostName.c_str(),hostList->hostName.length(),&nbw);
 			out.writeToFile("</HOST>\r\n",9,&nbw);
 			hostList=hostList->next;
 		}

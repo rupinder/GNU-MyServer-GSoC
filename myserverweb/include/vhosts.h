@@ -59,7 +59,7 @@ class Vhost
 public:
 	struct sHostList
 	{
-		char hostName[MAX_COMPUTERNAME_LENGTH+1];
+		string hostName;
     Regex hostRegex;
 		sHostList *next;
 	};
