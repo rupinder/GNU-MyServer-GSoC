@@ -259,7 +259,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	{
     int ret;
 		/*! 
-     *If the client try to access files that aren't in the web directory 
+     *If the client tries to access files that aren't in the web directory 
      *send a 401 error.  
      */
 		translateEscapeString(filename);
@@ -485,7 +485,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	{
     int ret;
 		/*!
-     *If the client try to access files that aren't in the web directory 
+     *If the client tries to access files that aren't in the web directory 
      *send a HTTP 401 error page.
      */
 		translateEscapeString(filename );
@@ -742,7 +742,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
 	{
     int ret;
 		/*!
-     *If the client try to access files that aren't in the 
+     *If the client tries to access files that aren't in the 
      *web directory send a 401 error.
      */
 		translateEscapeString(filename);
@@ -2171,7 +2171,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/,
 }
 
 /*!
- *Get the CSS file used in a direcotry browsing.
+ *Get the CSS file used in a browsed directory.
  */
 const char* Http::getBrowseDirCSSFile()
 {
