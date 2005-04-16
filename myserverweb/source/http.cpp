@@ -1301,17 +1301,6 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		return 2;
 	}
 	
-	/*! Be sure that we can handle the HTTP version. */
-	if((td.request.VER.compare("HTTP/1.1")) && 
-     (td.request.VER.compare("HTTP/1.0")) && 
-     (td.request.VER.compare("HTTP/0.9")))
-	{	
-		retvalue = raiseHTTPError(&td, a, e_505);
-		logHTTPaccess(&td, a);
-    /*! Remove the connection from the list. */
-		return 0;
-	}
-		
 	if(a->protocolBuffer)
 		((HttpUserData*)a->protocolBuffer)->digest_checked=0;	
 	
@@ -1332,7 +1321,16 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		logHTTPaccess(&td, a);
 		return retvalue;
 	}
-
+	/*! Be sure that we can handle the HTTP version. */
+	if((td.request.VER.compare("HTTP/1.1")) && 
+     (td.request.VER.compare("HTTP/1.0")) && 
+     (td.request.VER.compare("HTTP/0.9")))
+	{	
+		retvalue = raiseHTTPError(&td, a, e_505);
+		logHTTPaccess(&td, a);
+    /*! Remove the connection from the list. */
+		return 0;
+	}
 	/*! Do not use Keep-Alive over HTTP version older than 1.1. */
 	if(td.request.VER.compare("HTTP/1.1") )
 	{
