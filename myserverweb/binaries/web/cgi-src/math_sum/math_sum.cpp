@@ -4,6 +4,16 @@
 
 #include "../../../cgi-lib/cgi_manager.h"
 
+int isNumber(char* s)
+{
+  if(!s)
+    return 0;
+  for(int i=0; i<strlen(s);i++)
+    if(!isdigit(s[i]))
+      return 0;
+  return 1;
+    
+}
 #ifdef WIN32
 int EXPORTABLE main (char *cmd, MsCgiData* data)
 #else
@@ -25,9 +35,12 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	}     
 	else     
 	{ 	
+		unsigned int dim=120;
+		char lb[120];
 		int a = 0;
 		int b = 0;
 		char *tmp;
+    int validNumbers=1;
 		int iRes;
 		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
 		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
@@ -37,39 +50,61 @@ extern "C" int main (char *cmd, MsCgiData* data)
 <meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n\
 </head>\
 <body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
-<br /><br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n");		// A signed 32-bit number has a maximun of 10 digits and 1 character for the sign
-		tmp = cm.getParam("a");
-		if (tmp && tmp[0] != '\0')
-		{
-			if (strlen(tmp) > 11) 
-				tmp[11] = '\0';
-			a = atoi(tmp);
-			cm.write(tmp);
-		}
-		else
-			cm.write("0");
-		        cm.write(" + ");
-		tmp = cm.getParam("b");
-		if (tmp && tmp[0] != '\0')
-		{
-			if (strlen(tmp) > 11)
-				tmp[11] = '\0';
-			b = atoi(tmp);
-			cm.write(tmp);
-		}
-		else
-			cm.write("0");
-		cm.write(" = ");
-    iRes = a + b;
-#ifdef	WIN32
-		_i64toa(iRes, res, 10);
-#else
-		sprintf(res,"%i", (int)iRes);
-#endif
-		cm.write(res);
+<br /><br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n");
 
-		unsigned int dim=120;
-		char lb[120];
+    tmp = cm.getParam("a");
+    if(tmp && !isNumber(tmp))
+    {
+      validNumbers=0;
+    }
+    tmp = cm.getParam("b");
+    if(tmp && !isNumber(tmp))
+    {
+      validNumbers=0;
+    }
+
+    if(validNumbers)
+    {
+      tmp = cm.getParam("a");
+      if (tmp && tmp[0] != '\0')
+      {
+        if (strlen(tmp) > 11) 
+          tmp[11] = '\0';
+        a = atoi(tmp);
+        cm.write(tmp);
+      }
+      else
+      {
+        cm.write("0");
+      }
+      cm.write(" + ");
+		
+      tmp = cm.getParam("b");
+
+      if (tmp && tmp[0] != '\0')
+      {
+        if (strlen(tmp) > 11)
+          tmp[11] = '\0';
+        b = atoi(tmp);
+        cm.write(tmp);
+      }
+      else
+        cm.write("0");
+
+      cm.write(" = ");
+      iRes = a + b;
+#ifdef	WIN32
+      _i64toa(iRes, res, 10);
+#else
+      sprintf(res,"%i", (int)iRes);
+#endif
+      cm.write(res);
+    }
+    else
+    {
+      cm.write("Invalid input format");
+    }
+
 		cm.getenv("SERVER_NAME",lb,&dim);
 		cm.write("\r\n<br />\r\nRunning on: ");
 		cm.write(lb);
