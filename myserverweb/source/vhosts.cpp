@@ -818,7 +818,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
 		}
 		else
 		{
-			fh.writeToFile(vh->protocol_name.c_str(),(u_long)vh->protocol_name.length(),&nbw);			
+			fh.writeToFile(vh->protocol_name.c_str(),(u_long)vh->protocol_name.length(),&nbw);
 		}
 
 		fh.writeToFile(vh->documentRoot.c_str(),(u_long)vh->documentRoot.length(),&nbw);
@@ -880,9 +880,10 @@ int VhostManager::switchVhosts(int n1,int n2)
  */
 int VhostManager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
 {
-	if((vh1==0)|(vh2==0))
+  Vhost* vh3;
+	if((vh1==0)||(vh2==0))
 		return 0;
-	Vhost* vh3=vh1->host;
+	vh3=vh1->host;
 	vh1->host = vh2->host;
 	vh2->host = vh3;
 	return 1;
@@ -1111,8 +1112,16 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
     accessLogFile=vh->getAccessesLog();
     accessLogFile->load(vh->accessesLogFileName.c_str());
     
+    if(strstr(vh->accessLogOpt, "cycle=yes"))
+    {
+      accessLogFile->setCycleLog(1);
+    }
     warningLogFile = vh->getWarningsLog();
     warningLogFile->load(vh->warningsLogFileName.c_str());
+    if(strstr(vh->warningLogOpt, "cycle=yes"))
+    {
+      warningLogFile->setCycleLog(1);
+    }
 
     vh->setMaxLogSize(maxlogSize);
     vh->initializeSSL();
