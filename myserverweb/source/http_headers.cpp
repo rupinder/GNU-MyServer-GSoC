@@ -371,6 +371,9 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       request->URI.assign(input, HTTP_REQUEST_URI_DIM );
 		return 0;
 	}
+	/*! Uri too long.  */
+	else if(validRequest==1)
+			return 414;
 	/*! Incomplete header.  */
 	else if(validRequest==-1)
 			return -1;
@@ -1188,6 +1191,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
  *Controls if the req string is a valid HTTP request header.
  *Returns 0 if req is an invalid header, 
  *Returns -1 if the header is incomplete,
+ *Returns 1 for 414 error messages.
  *Returns another non-zero value if is a valid header.
  *nLinesptr is a value of the lines number in the HEADER.
  *ncharsptr is a value of the characters number in the HEADER.
@@ -1223,13 +1227,17 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 			nLines++;
 		}
 		else if(req[i]=='\0')
-      			return (-1);
+      return (-1);
 		/*!
 		*We set a maximal theorical number of characters in a line to 2048.
 		*If a line contains more than N characters we consider the header invalid.
 		*/
 		if(nLinechars>=2048)
+    {
+      if(nLines == 0)
+        return 1;
 			return 0;
+    }
 		nLinechars++;
 	}
 

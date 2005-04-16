@@ -1312,14 +1312,14 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	{
 		retvalue = raiseHTTPError(&td, a, e_400);
 		logHTTPaccess(&td, a);
-		return retvalue;
+		return 0;
 	}
   /*! if the URI is too long. */ 
 	else if(validRequest==414)
 	{
 		retvalue = raiseHTTPError(&td, a, e_414);
 		logHTTPaccess(&td, a);
-		return retvalue;
+		return 0;
 	}
 	/*! Be sure that we can handle the HTTP version. */
 	if((td.request.VER.compare("HTTP/1.1")) && 
