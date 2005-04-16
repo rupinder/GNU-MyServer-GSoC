@@ -97,7 +97,7 @@ public:
 	MimeManager();
   ~MimeManager();
 	void addRecord(MimeManager::MimeRecord);
-	MimeManager::MimeRecord *getRecord(const string& ext);
+	MimeManager::MimeRecord *getRecord(string const &ext);
 	void removeAllRecords();
 	void removeRecord(const string& ext);
 	u_long getNumMIMELoaded();

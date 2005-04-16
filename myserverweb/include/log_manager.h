@@ -37,7 +37,10 @@ private:
   int loaded;
   u_long max_size;
 	Mutex mutex;
+  int cycleLog;
 public:
+  void setCycleLog(int);
+  int getCycleLog();
   const static int TYPE_CONSOLE;
   const static int TYPE_FILE;
   File *getFile();
@@ -49,7 +52,7 @@ public:
   int terminateAccess();
 
   int load(const char *filename );
-  int load(const string& filename){return load(filename.c_str());}
+  int load(string const &filename){return load(filename.c_str());}
 
   int close();
   int preparePrintError();
@@ -59,9 +62,10 @@ public:
   int write( const char *str, int len = 0 );
   int writeln(const char *);
 
-  int write( const string& str, int len = 0 ){return write(str.c_str(), len);}
-  int writeln(const string& str){return writeln(str.c_str());}
+  int write(string const &str, int len = 0 ){return write(str.c_str(), len);}
+  int writeln(string const& str){return writeln(str.c_str());}
 
   int getLogSize();
+  int storeFile();
 };
 #endif

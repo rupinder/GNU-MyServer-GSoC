@@ -21,6 +21,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/log_manager.h"
 #include "../include/utility.h"
 
+#include <string>
+#include <sstream>
+
+using namespace std;
+
 const int LogManager::TYPE_CONSOLE = 1;
 const int LogManager::TYPE_FILE = 2;
 
@@ -36,6 +41,7 @@ LogManager::LogManager()
   type = TYPE_CONSOLE;
   max_size = 0;
 	mutex.init();
+  cycleLog=0;
 }
 
 /*!
@@ -127,6 +133,22 @@ int LogManager::writeln(const char *str)
 }
 
 /*!
+ *Set the log to save results on a new file when the max size is reached.
+ */
+void LogManager::setCycleLog(int l)
+{
+  cycleLog = l;
+}
+
+/*!
+ *Get if the log store log data on a new file when the max size is reached.
+ */
+int LogManager::getCycleLog()
+{
+  return cycleLog;
+}
+
+/*!
  *Write the string to the log.
  *Returns 0 on success.
  */
@@ -153,7 +175,8 @@ int LogManager::write(const char *str, int len)
      */
     if(max_size && (file.getFileSize() > max_size))
     {
-      return 1;
+      if(storeFile())
+        return 1;
     }
 
     u_long nbw;
@@ -165,6 +188,75 @@ int LogManager::write(const char *str, int len)
     ret = file.writeToFile(str, len ? len : (u_long)strlen(str), &nbw);
     return ret;
   }
+  return 0;
+}
+
+/*!
+ *Store the log manager in another file and reload the file.
+ */
+int LogManager::storeFile()
+{
+  string filepath;
+  string filedir;
+  string filename;
+  ostringstream newfilename;
+  string time;
+
+  /*! Do nothing if we haven't to cycle log files. */
+  if(!cycleLog)
+    return 1;
+
+  filepath.assign(getFile()->getFilename());
+  File::completePath(filepath);
+	File::splitPath(filepath, filedir, filename);
+
+  getRFC822LocalTime(time, 32);
+  time = trim(time.substr(5,32));
+  
+  for(int i=0;i< time.length(); i++)
+    if((time[i] == ' ') || (time[i] == ':'))
+      time[i]= '.';
+  newfilename << filedir << "/" << filename << "." << time;
+
+  {
+    File newFile;
+    File *currentFile = getFile();
+    char buffer[512];
+    if(newFile.openFile(newfilename.str().c_str(), 
+                    FILE_OPEN_WRITE | FILE_NO_INHERIT | FILE_CREATE_ALWAYS ))
+      return 1;
+    if(currentFile->setFilePointer(0))
+    {
+      newFile.closeFile();
+      return 1;
+    }
+    
+    for(;;)
+    {
+      u_long nbr;
+      u_long nbw;
+      if(currentFile->readFromFile(buffer, 512, &nbr))
+      {
+        newFile.closeFile();
+        return 1;
+      }    
+      if(nbr == 0)
+        break;
+      
+      if(newFile.writeToFile(buffer, 512, &nbw))
+      {
+        newFile.closeFile();
+        return 1;
+      } 
+    }
+    newFile.closeFile();
+    currentFile->closeFile();
+    File::deleteFile(filepath.c_str());
+    if(currentFile->openFile(filepath.c_str(), FILE_OPEN_APPEND| 
+                         FILE_OPEN_ALWAYS|FILE_OPEN_WRITE|FILE_NO_INHERIT))
+      return 1;
+  }
+
   return 0;
 }
 

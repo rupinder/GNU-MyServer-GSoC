@@ -78,7 +78,7 @@ public:
 #endif
 		string certificateFile;
 		string privateKeyFile;
-		char password[32];
+		string password;
 	};
 	
 	/*! SSL context. */

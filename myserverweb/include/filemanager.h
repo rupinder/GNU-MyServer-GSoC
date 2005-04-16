@@ -56,7 +56,7 @@ public:
 	int createTemporaryFile(char* );
 
 	int openFile(const char*, u_long );
-  int openFile(string& file, u_long opt)
+  int openFile(string const &file, u_long opt)
     {return openFile(file.c_str(), opt);}
 
 	u_long getFileSize();
@@ -67,15 +67,15 @@ public:
     {return getPathRecursionLevel(filename.c_str()); }
 
 	static time_t getLastModTime(const char *filename);
-	static time_t getLastModTime(string& filename)
+	static time_t getLastModTime(string const &filename)
     {return getLastModTime(filename.c_str());}
 
 	static time_t getCreationTime(const char *filename);
-	static time_t getCreationTime(string& filename)
+	static time_t getCreationTime(string const &filename)
     {return getCreationTime(filename.c_str());}
 
 	static time_t getLastAccTime(const char *filename);
-	static time_t getLastAccTime(string& filename)
+	static time_t getLastAccTime(string const &filename)
     {return getLastAccTime(filename.c_str());}
 
 	time_t getLastModTime();
@@ -83,7 +83,7 @@ public:
 	time_t getLastAccTime();
 	const char *getFilename();
 	int setFilename(const char*);
-  int setFilename(const string& name)
+  int setFilename(string const &name)
     {return setFilename(name.c_str());}
 
 	int operator =(File);
@@ -98,27 +98,27 @@ public:
   static int getShortFileName(char*,char*,int);
 
 	static int fileExists(const char * );
-	static int fileExists(string& file)
+	static int fileExists(string const &file)
     {return fileExists(file.c_str());}
 
 	static int deleteFile(const char * );
-	static int deleteFile(string& file)
+	static int deleteFile(string const &file)
     {return deleteFile(file.c_str());}
 
   static int renameFile(const char*, const char*);
-	static int renameFile(string& before, string& after)
+	static int renameFile(string const &before, string const &after)
     {return renameFile(before.c_str(), after.c_str());}
 
 	static void getFileExt(char* ext,const char* filename);
-	static void getFileExt(string& ext,const string& filename);
+	static void getFileExt(string& ext, string const &filename);
 
   static void splitPathLength(const char *path, int *dir, int *filename);
 	static void splitPath(const char* path, char* dir, char*filename);
-	static void splitPath(const string& path, string& dir, string& filename);
+	static void splitPath(string const &path, string& dir, string& filename);
 
   static int getFilenameLength(const char*, int *);
 	static void getFilename(const char* path, char* filename);
-	static void getFilename(const string& path, string& filename);
+	static void getFilename(string const &path, string& filename);
 
 };
 #endif

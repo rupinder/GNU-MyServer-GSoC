@@ -50,25 +50,28 @@ public:
 	~XmlParser();
 	xmlDocPtr getDoc();
 	int open(const char* filename);
-	int open(string& filename){return open(filename.c_str());};
+	int open(string const &filename){return open(filename.c_str());};
 	int openMemBuf(CMemBuf &);
 	char *getValue(const char* field);
-	char *getValue(string& field){return getValue(field.c_str());};
+	char *getValue(string const &field){return getValue(field.c_str());};
 	char *getAttr(char* field,char *attr);
 	int setValue(char* field,char *value);
 	int close();
 	int save(const char *filename,int *nbytes=0);
-	int save(string& filename,int *nbytes=0){return save(filename.c_str(), nbytes);};
+	int save(string const &filename,int *nbytes=0){return save(filename.c_str(), nbytes);};
 	int saveMemBuf(CMemBuf &,int *nbytes=0);
 	void newfile(const char * root);
-	void newfile(string& root){newfile(root.c_str());};
+	void newfile(string const &root){newfile(root.c_str());};
 	void addChild(const char * name, const char * value);
-	void addChild(string& name, string& value){addChild(name.c_str(), value.c_str());};
+	void addChild(string const &name, string& value)
+    {addChild(name.c_str(), value.c_str());};
 	void addGroup(const char * name);
-	void addGroup(string& name){addGroup(name.c_str());};
+	void addGroup(string const &name)
+    {addGroup(name.c_str());};
 	void endGroup();
 	void setAttr(const char * name, const char * value);
-	void setAttr(string& name, string& value){setAttr(name.c_str(), value.c_str());};
+	void setAttr(string const &name, string& value)
+    {setAttr(name.c_str(), value.c_str());};
   time_t getLastModTime();
 };
 

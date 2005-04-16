@@ -196,7 +196,8 @@ public:
 	void finalCleanup();
 	int terminate();
   int logWriteln(const char*);
-  int logWriteln(string& str){return logWriteln(str.c_str());};
+  int logWriteln(string const &str)
+    {return logWriteln(str.c_str());};
   int logPreparePrintError();
   int logEndPrintError();  
   int logLockAccess();

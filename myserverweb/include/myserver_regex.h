@@ -52,9 +52,9 @@ public:
   int exec(const char *string, size_t nmatch, regmatch_t matchptr [], int eflags);
   void free();
 
-  Regex(const string& pattern, int flags){Regex(pattern.c_str(), flags);}
-  int compile(const string& str, int flags){return compile(str.c_str(), flags );}
-  int exec(const string& str, size_t nmatch, regmatch_t matchptr [], int eflags)
+  Regex(string const &pattern, int flags){Regex(pattern.c_str(), flags);}
+  int compile(string const &str, int flags){return compile(str.c_str(), flags );}
+  int exec(string const &str, size_t nmatch, regmatch_t matchptr [], int eflags)
     {return exec(str.c_str(), nmatch, matchptr, eflags);}
 };
 #endif
