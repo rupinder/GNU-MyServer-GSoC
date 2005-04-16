@@ -81,11 +81,8 @@ u_long Http::gzip_threshold=0;
 /*!Use files for HTTP errors?  */
 int Http::useMessagesFiles=0;
 
-/*! Array with default filenames.  */
-char *Http::defaultFilename=0;
-
-/*! Number of the elements in the array.  */
-u_long Http::nDefaultFilename=0;
+/*! Vector with default filenames.  */
+vector<string*> Http::defaultFilename;
 
 /*! Is the HTTP protocol loaded?  */
 int Http::initialized=0;
@@ -328,8 +325,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 			((HttpUserData*)s->protocolBuffer)->digest_checked=1;
 			if(((HttpUserData*)s->protocolBuffer)->digest==1)
 			{
-				strcpy(s->getPassword(), 
-               ((HttpUserData*)s->protocolBuffer)->needed_password);
+				s->setPassword(((HttpUserData*)s->protocolBuffer)->needed_password);
 
 				permissions=permissions2;
 			}
@@ -553,8 +549,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 			((HttpUserData*)s->protocolBuffer)->digest_checked=1;
 			if(((HttpUserData*)s->protocolBuffer)->digest==1)
 			{
-				myserver_strlcpy(s->getPassword(), 
-                         ((HttpUserData*)s->protocolBuffer)->needed_password, 32);
+				s->setPassword(((HttpUserData*)s->protocolBuffer)->needed_password);
 
 				permissions=permissions2;
 			}
@@ -817,9 +812,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
 				((HttpUserData*)s->protocolBuffer)->digest_checked=1;
 				if(((HttpUserData*)s->protocolBuffer)->digest==1)
 				{
-					strcpy(s->getPassword(), 
-                 ((HttpUserData*)s->protocolBuffer)->needed_password);
-
+					s->setPassword(((HttpUserData*)s->protocolBuffer)->needed_password);
 					permissions=permissions2;
 				}
 			}
@@ -928,7 +921,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
 		}
 		for(i=0;;i++)
     {
-			char *defaultFileNamePath=getDefaultFilenamePath(i);
+			const char *defaultFileNamePath=getDefaultFilenamePath(i);
 			ostringstream defaultFileName;
       
 			if(defaultFileNamePath)
@@ -2260,7 +2253,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 {
   const char *main_configuration_file;
   char *data;
-  int defaultFilenameSize = 1;
+  int  nDefaultFilename = 0;
 	XmlParser configurationFileManager;
   if(initialized)
 		return 0;
@@ -2376,39 +2369,39 @@ int Http::loadProtocol(XmlParser* languageParser)
 		if(!configurationFileManager.getValue(xmlMember.str().c_str()))
 			break;
 		nDefaultFilename++;
-    defaultFilenameSize += strlen(configurationFileManager.getValue(
-                                                           xmlMember.str().c_str()) )+1 ;
+
 
 	}
-	if(defaultFilename)
-		delete [] defaultFilename;
-	defaultFilename=0;
+  
+  for(int i=0; i<defaultFilename.size(); i++ )
+  {
+    string *str=defaultFilename[i];
+    delete str;
+  }
+  defaultFilename.clear();
+  
 	/*!
    *Copy the right values in the buffer.
    */
 	if(nDefaultFilename==0)
 	{
-		defaultFilename = new char [13];
-		if(defaultFilename)
-			strcpy(defaultFilename, "default.html");
+    string *str=new string("default.html");
+    defaultFilename.push_back (str);
 	}
 	else
 	{
 		u_long i;
-    int cursor = 0;
-		if(defaultFilename)
-			delete [] defaultFilename;
-		defaultFilename = new char [defaultFilenameSize];
-		for(i=0;defaultFilename && (i<nDefaultFilename);i++)
+		for(i=0; i<nDefaultFilename; i++)
 		{
 			ostringstream xmlMember;
 			xmlMember << "DEFAULT_FILENAME"<< (u_int)i;
 			data=configurationFileManager.getValue(xmlMember.str().c_str());
 			if(data)
-				strcpy(&defaultFilename[cursor], data);
-      cursor+=strlen(data) + 1;
+      {
+        string* str = new string(data);
+        defaultFilename.push_back(str);
+      }
 		}
-    defaultFilename[cursor] = '\0';
 	}	
 
 
@@ -2445,12 +2438,12 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 
   sec_cache_mutex.destroy();
 
-	if(defaultFilename)
-	{
-		delete [] defaultFilename;
-		defaultFilename=0;
-	}
-
+  for(int i=0; i<defaultFilename.size(); i++ )
+  {
+    string *str=defaultFilename[i];
+    delete str;
+  }
+  defaultFilename.clear();
   browseDirCSSpath.assign("");
 
 	initialized=0;
@@ -2460,24 +2453,11 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 /*!
  *Returns the default filename.
  */
-char *Http::getDefaultFilenamePath(u_long ID)
+const char *Http::getDefaultFilenamePath(u_long ID)
 {
-  u_long pos = 0;
-  char *cursor = defaultFilename;
-	if(ID<nDefaultFilename)
-  {
-    while(pos != ID)
-    {
-      while(*cursor != '\0')
-        cursor++;
-      pos++;
-      cursor++;
-    }
-		return cursor;
-  }
-	else
-    /*! Index out of bounds. */
-		return 0;
+  if(defaultFilename.size() <= ID)
+    return 0;
+  return defaultFilename[ID]->c_str();
 }
 
 /*!
@@ -2498,7 +2478,7 @@ char* Http::registerName(char* out, int len)
  */
 Http::Http()
 {
-	strcpy(protocolPrefix, "http://");
+	protocolPrefix.assign("http://");
 	PROTOCOL_OPTIONS=0;
 	td.filenamePath.assign("");
 	td.pathInfo.assign("");

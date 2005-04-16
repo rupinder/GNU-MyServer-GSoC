@@ -61,7 +61,7 @@ char* Https::registerName(char* out,int len)
  */
 Https::Https() 
 {
-	strcpy(protocolPrefix, "https://");
+	protocolPrefix.assign("https://");
 	PROTOCOL_OPTIONS=PROTOCOL_USES_SSL;
 }
 

@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <string>
 #include <sstream>
-
+#include <vector>
 using namespace std;
 
 /*!
@@ -67,7 +67,7 @@ public:
 class Http : public Protocol
 {
 private:
-  static  Mutex sec_cache_mutex;
+  static Mutex sec_cache_mutex;
   static SecurityCache sec_cache;
 	static int initialized;
 	/*! Store if the MSCGI library was loaded.  */
@@ -75,8 +75,7 @@ private:
 	static string browseDirCSSpath;
 	static u_long gzip_threshold;
 	static int useMessagesFiles;	
-	static char *defaultFilename;
-	static u_long nDefaultFilename;	
+	static vector<string*> defaultFilename;
   static int cgi_timeout;
   static int fastcgi_initial_port;
   static int fastcgi_servers;
@@ -92,10 +91,10 @@ private:
 	struct HttpThreadContext td;
   void clean();
 protected:
-	char protocolPrefix[12];
+	string protocolPrefix;
 public:
 	int PROTOCOL_OPTIONS;
-	char *getDefaultFilenamePath(u_long ID);
+	const char *getDefaultFilenamePath(u_long ID);
 	int sendHTTPResource(HttpThreadContext*,ConnectionPtr s, string& filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
 	int putHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string &filename,

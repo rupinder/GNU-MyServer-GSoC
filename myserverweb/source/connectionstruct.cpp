@@ -42,8 +42,8 @@ Connection::Connection()
 {
   thread=0;
   parsing=0;
-  login[0]='\0';
-  password[0]='\0';
+  login.assign("");
+  password.assign("");
   nTries=0;
 	ipAddr[0]='\0';
   localIpAddr[0]='\0';
@@ -130,17 +130,17 @@ void Connection::setPort(u_short np)
 /*!
  *Get the login name used by the connection user.
  */
-char* Connection::getLogin()
+const char* Connection::getLogin()
 {
-  return login;
+  return login.c_str();
 }
 
 /*!
  *Set the login name for the connection user.
  */
-void Connection::setLogin(char* l)
+void Connection::setLogin(const char* l)
 {
-  strncpy(login, l, 20);
+  login.assign(l);
 }
 
 /*!
@@ -272,15 +272,15 @@ void Connection::setForceParsing(int fp)
 /*!
  *Return the password submitted by the user.
  */
-char* Connection::getPassword()
+const char* Connection::getPassword()
 {
-  return password;
+  return password.c_str();
 }
 
 /*!
  *Set the password for the user.
  */
-void Connection::setPassword(char* p)
+void Connection::setPassword(const char* p)
 {
-  strncpy(password, p, 32);
+  password.assign(p);
 }

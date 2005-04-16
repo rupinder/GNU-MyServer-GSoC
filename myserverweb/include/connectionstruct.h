@@ -21,6 +21,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
+#include <string>
+
+using namespace std;
+
 /*!
 *Here are listed all the protocol supported by the server.
 *Protocols with an ID > 1000 use SSL.
@@ -62,10 +66,10 @@ class Connection
 	u_short port;
 
 	/*! Login name. */
-	char login[20];
+	string login;
 	
 	/*! Password used to log in. */
-	char password[32];
+	string password;
 
 	/*! # of tries for an authorized login. */
 	char nTries;
@@ -111,11 +115,11 @@ public:
   u_short getLocalPort();
   void setLocalPort(u_short);
 
-  char* getLogin();
-  void setLogin(char*);
+  const char* getLogin();
+  void setLogin(const char*);
 
-  char* getPassword();
-  void setPassword(char*);
+  const char* getPassword();
+  void setPassword(const char*);
 
 	void setnTries(char);
 	char getnTries();
