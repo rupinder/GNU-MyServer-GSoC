@@ -71,12 +71,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
  	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
 	ostringstream cmdLine;
-	char *filename = 0;
 	int yetoutputted=0;
 
-	char outputDataFile[32];
-	char *outputDataPath;
-  int outputDataPathLen ;
+	ostringstream outputDataPath;
 	StartProcInfo spi;
 	u_long nBytesRead;
 	u_long headerSize;
@@ -97,23 +94,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     tmp.assign(scriptpath);
     File::splitPath(tmp, td->scriptDir, td->scriptFile);
   }
-	if(execute)
+	
+  if(execute)
   {
-    int filenameLen = 0;
-    File::getFilenameLength(scriptpath, &filenameLen);
-    
-    filename = new char[filenameLen+1];
-    if(filename == 0)
-    {
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)(td->connection->host))->warningsLogWrite
-                                        ("Error allocating memory\r\n");
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-      /*! If we cannot allocate the memory return a 500 error message. */
-      return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
-    }
-    
-		File::getFilename(scriptpath, filename);
 #ifdef WIN32
 		/*!
      *Under the windows platform to run a file like an executable
@@ -162,7 +145,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                           "Executable file not specified\r\n");
       }
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
-      delete [] filename;
       td->scriptPath.assign("");
       td->scriptFile.assign("");
       td->scriptDir.assign("");
@@ -184,40 +166,20 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    *so use this name for the file that is going to be
    *created because more threads can access more CGI at the same time.
    */
-  outputDataPathLen = getdefaultwdlen() + 32;
-  outputDataPath = new char[outputDataPathLen];
-  
-  /*!
-   *Return an HTTP 500 error message on allocation errors. 
-   */
-  if(outputDataPath == 0)
-  {
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite("Error allocating memory\r\n");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    delete [] filename;
-    return ((Http*)td->lhttp)->sendHTTPhardError500(td, s);
-  }
-  
-	getdefaultwd(outputDataPath, 0);
-  sprintf(outputDataFile,"/stdOutFileCGI_%u",  (unsigned int)td->id );
-  
-  lstrcat(outputDataPath, outputDataFile );
+
+  outputDataPath << getdefaultwd(0,0) << "/stdOutFileCGI_" <<  (unsigned int)td->id;
   
   /*!
    *Open the stdout file for the new CGI process. 
    */
-	if(stdOutFile.createTemporaryFile(outputDataPath))
+	if(stdOutFile.createTemporaryFile( outputDataPath.str().c_str() ))
 	{
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite
                                         ("Cannot create CGI stdout file\r\n" );
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    delete [] outputDataPath;
-    delete [] filename;
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
-  delete []outputDataPath;
   
 	td->inputData.closeFile();
   
@@ -229,7 +191,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		((Vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
-    delete [] filename;
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   
@@ -261,7 +222,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     {
       stdInFile.closeFile();
       stdOutFile.closeFile();
-      delete [] filename;
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)(td->connection->host))->warningsLogWrite
                                        ("Error in the CGI execution\r\n");
@@ -280,7 +240,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
-    delete [] filename;
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)(td->connection->host))->warningsLogWrite
                                ("Error setting file pointer\r\n");
@@ -293,7 +252,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
-    delete [] filename;
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)(td->connection->host))->warningsLogWrite
                                ("Error reading from CGI std out file\r\n");
@@ -385,7 +343,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			if(s->socket.send(td->buffer->GetBuffer(),
                         (int)(td->buffer->GetLength()), 0)==SOCKET_ERROR)
       {
-        delete [] filename;
         stdInFile.closeFile();
         stdOutFile.closeFile();
         File::deleteFile(td->inputDataPath);
@@ -397,7 +354,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         stdOutFile.closeFile();
         stdInFile.closeFile();
         File::deleteFile(td->inputDataPath);
-        delete [] filename;
         return 1;
       }
 
@@ -405,7 +361,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			if(s->socket.send((td->buffer2->GetBuffer() + headerSize), 
                         nBytesRead-headerSize, 0)==SOCKET_ERROR)
       {
-        delete [] filename;
         stdOutFile.closeFile();
         stdInFile.closeFile();
         File::deleteFile(td->inputDataPath);
@@ -420,7 +375,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         stdOutFile.closeFile();
         stdInFile.closeFile();
         File::deleteFile(td->inputDataPath);
-        delete [] filename;
         return 1;
       }
 
@@ -434,7 +388,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       if(stdOutFile.readFromFile(td->buffer2->GetBuffer(), 
                                  td->buffer2->GetRealLength(), &nBytesRead))
       {
-        delete [] filename;
         stdOutFile.closeFile();
         stdInFile.closeFile();
         File::deleteFile(td->inputDataPath);
@@ -449,7 +402,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
           if(s->socket.send(td->buffer2->GetBuffer(), nBytesRead, 0)
              ==SOCKET_ERROR)
           {
-            delete [] filename;
             stdOutFile.closeFile();
             stdInFile.closeFile();
             File::deleteFile(td->inputDataPath);
@@ -462,7 +414,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
           if(td->outputData.writeToFile(td->buffer2->GetBuffer(), 
                                         nBytesRead, &nbw))
           {
-            delete [] filename;
             stdOutFile.closeFile();
             stdInFile.closeFile();
             File::deleteFile(td->inputDataPath);
@@ -480,7 +431,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
 	File::deleteFile(td->inputDataPath);
-  delete [] filename;
 	return 1;  
 }
 

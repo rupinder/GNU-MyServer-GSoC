@@ -53,7 +53,7 @@ public:
 	int setHandle(FileHandle);
 	int readFromFile(char* ,u_long ,u_long* );
 	int writeToFile(const char* ,u_long ,u_long* );
-	int createTemporaryFile(char* );
+	int createTemporaryFile(const char* );
 
 	int openFile(const char*, u_long );
   int openFile(string const &file, u_long opt)
