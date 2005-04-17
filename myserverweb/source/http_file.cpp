@@ -188,10 +188,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 		return 1;
 	}
 	if(use_gzip)
-		gzip.initialize(td->buffer2->GetBuffer(), 
-                    td->buffer2->GetRealLength(), 
-                    td->buffer->GetBuffer(), 
-                    td->buffer->GetRealLength());
+		gzip.initialize();
 	for(;;)
 	{
 		u_long nbr;
@@ -226,10 +223,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 			else
 			{
 				gzip_dataused=gzip.flush(td->buffer->GetBuffer(), 
-                                      td->buffer->GetLength());
-				gzip.free(td->buffer2->GetBuffer(), nbr, 
-                  td->buffer->GetBuffer(), 
-                  td->buffer->GetRealLength());
+                                      td->buffer->GetRealLength());
+        gzip_dataused+=gzip.getFOOTER(td->buffer->GetBuffer()+gzip_dataused,
+                                   td->buffer->GetRealLength()-gzip_dataused);
+				gzip.free();
 			}
 			if(keepalive)
 			{
@@ -253,7 +250,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 					break;
 			}
       
-		}
+		}//if(use_gzip)
 		else
 		{
 			/*! Read from the file the bytes to send. */

@@ -48,9 +48,9 @@ public:
 #endif
 	u_long updateCRC(char* buffer,int size);
 	u_long getFOOTER(char *str,int size);
-	u_long initialize(char* in,u_long sizeIN,char *out,u_long sizeOUT);
+	u_long initialize();
 	u_long compress(char* in,u_long sizeIN,char *out,u_long sizeOUT);
-	u_long free(char* in,u_long sizeIN,char *out,u_long sizeOUT);
+	u_long free();
 	u_long flush(char *out,u_long sizeOUT);
 	u_long getHEADER(char *buffer,u_long buffersize);
 private:

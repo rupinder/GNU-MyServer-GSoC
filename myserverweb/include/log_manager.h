@@ -38,6 +38,7 @@ private:
   u_long max_size;
 	Mutex mutex;
   int cycleLog;
+  int gzipLog;
 public:
   void setCycleLog(int);
   int getCycleLog();
@@ -52,7 +53,8 @@ public:
   int terminateAccess();
 
   int load(const char *filename );
-  int load(string const &filename){return load(filename.c_str());}
+  int load(string const &filename)
+    {return load(filename.c_str());}
 
   int close();
   int preparePrintError();
@@ -62,8 +64,10 @@ public:
   int write( const char *str, int len = 0 );
   int writeln(const char *);
 
-  int write(string const &str, int len = 0 ){return write(str.c_str(), len);}
-  int writeln(string const& str){return writeln(str.c_str());}
+  int write(string const &str, int len = 0 )
+    {return write(str.c_str(), len);}
+  int writeln(string const& str)
+    {return writeln(str.c_str());}
 
   int getLogSize();
   int storeFile();

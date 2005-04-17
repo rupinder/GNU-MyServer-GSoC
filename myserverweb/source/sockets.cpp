@@ -330,7 +330,10 @@ int Socket::send(const char* buffer, int len, int flags)
 	int ret;
   /*! If no throttling is specified, send only one big data chunk. */
   if(throttlingRate == 0)
+  {
     ret = rawSend(buffer, len, flags);
+    return ret;
+  }
   else
   {
     for(;;)
@@ -338,8 +341,7 @@ int Socket::send(const char* buffer, int len, int flags)
       /*! When we can send data again? */
       u_long time = get_ticks() + (1000*1024/throttlingRate) ;
       /*! If a throttling rate is specified, send chunks of 1024 bytes. */
-      ret = rawSend( buffer+(len-toSend), toSend < 1024 ? toSend : 1024, flags); 
-      
+      ret = rawSend( buffer+(len-toSend), toSend < 1024 ? toSend : 1024, flags);  
       /*! On errors returns directly -1. */
       if(ret < 0)
         return -1;
@@ -354,9 +356,10 @@ int Socket::send(const char* buffer, int len, int flags)
       else
         break;
     }
+    /*! Return the number of sent bytes. */
+    return len-toSend;
   }
-  /*! Return the number of sent bytes. */
-	return len-toSend;
+  return 0;
 }
 
 /*!

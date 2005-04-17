@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/log_manager.h"
 #include "../include/utility.h"
+#include "../include/gzip.h"
 
 #include <string>
 #include <sstream>
@@ -39,6 +40,7 @@ LogManager::LogManager()
    *By default put everything on the console.
    */
   type = TYPE_CONSOLE;
+  gzipLog=1;
   max_size = 0;
 	mutex.init();
   cycleLog=0;
@@ -161,6 +163,8 @@ int LogManager::write(const char *str, int len)
   }
   else if(type == TYPE_FILE)
   {
+    u_long nbw;
+
     /*!
      *File was not loaded correctly.
      */
@@ -178,8 +182,6 @@ int LogManager::write(const char *str, int len)
       if(storeFile())
         return 1;
     }
-
-    u_long nbw;
 
     /*!
      *If the len specified is equal to zero write the string as
@@ -201,7 +203,7 @@ int LogManager::storeFile()
   string filename;
   ostringstream newfilename;
   string time;
-
+  Gzip gzip;
   /*! Do nothing if we haven't to cycle log files. */
   if(!cycleLog)
     return 1;
@@ -218,10 +220,15 @@ int LogManager::storeFile()
       time[i]= '.';
   newfilename << filedir << "/" << filename << "." << time;
 
+  if(gzipLog)
+    newfilename << ".gz";
+
   {
+    char gzipData[16];
     File newFile;
     File *currentFile = getFile();
     char buffer[512];
+    char buffer2[512];
     if(newFile.openFile(newfilename.str().c_str(), 
                     FILE_OPEN_WRITE | FILE_NO_INHERIT | FILE_CREATE_ALWAYS ))
       return 1;
@@ -230,24 +237,61 @@ int LogManager::storeFile()
       newFile.closeFile();
       return 1;
     }
-    
+    if(gzipLog)
+    {     
+      u_long nbw;
+      u_long  len = gzip.getHEADER(gzipData, 16);
+      if(newFile.writeToFile(gzipData, len,  &nbw))
+      {
+        newFile.closeFile();
+        return 1;
+      }  
+      gzip.initialize();
+    }
+
     for(;;)
     {
       u_long nbr;
       u_long nbw;
-      if(currentFile->readFromFile(buffer, 512, &nbr))
+      if(currentFile->readFromFile(buffer,gzipLog ? 256 : 512, &nbr))
       {
         newFile.closeFile();
         return 1;
       }    
       if(nbr == 0)
         break;
-      
-      if(newFile.writeToFile(buffer, 512, &nbw))
+      if(gzipLog)
+      {
+        u_long nbw;
+        u_long size=gzip.compress(buffer,nbr, buffer2, 512);
+        if(newFile.writeToFile(buffer2, size, &nbw))
+        {
+          newFile.closeFile();
+          return 1;
+        } 
+      }
+      else if(newFile.writeToFile(buffer, 512, &nbw))
       {
         newFile.closeFile();
         return 1;
       } 
+    }
+    if(gzipLog)
+    {
+      u_long nbw;
+      u_long len = gzip.flush(buffer2, 512);
+      if(newFile.writeToFile(buffer2, len, &nbw))
+      {
+        newFile.closeFile();
+        return 1;
+      }  
+      len=gzip.getFOOTER(gzipData, 16);
+      if(newFile.writeToFile(gzipData, len, &nbw))
+      {
+        newFile.closeFile();
+        return 1;
+      }   
+      gzip.free();
     }
     newFile.closeFile();
     currentFile->closeFile();

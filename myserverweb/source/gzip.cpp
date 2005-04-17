@@ -50,7 +50,7 @@ char GZIP_HEADER[]={(char)0x1f,(char)0x8b,Z_DEFLATED,0,0,0,0,0,0,0x03};
 /*!
 *Initialize the gzip structure value.
 */
-u_long Gzip::initialize(char* ,u_long ,char *,u_long)
+u_long Gzip::initialize()
 {
 #ifndef DO_NOT_USE_GZIP		
 	long level = Z_DEFAULT_COMPRESSION;
@@ -116,7 +116,7 @@ u_long Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
 /*!
  *Close the gzip compression.
  */
-u_long Gzip::free(char* ,u_long ,char *,u_long)
+u_long Gzip::free()
 {
 int ret=0;
 #ifndef DO_NOT_USE_GZIP
