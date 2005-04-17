@@ -642,7 +642,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	u_long connIndex;
 	PFN_GETEXTENSIONVERSION GetExtensionVersion;
 	PFN_HTTPEXTENSIONPROC HttpExtensionProc;
-  char *loadLib;
+  const char *loadLib;
 	int retvalue=0;
 	char fullpath[MAX_PATH*2];/*! Under windows there is MAX_PATH so use it. */
 	if(!execute)
