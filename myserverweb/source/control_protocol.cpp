@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/lfind.h"
 #include "../include/protocols_manager.h"
 #include "../include/control_errors.h"
+#include "../include/stringutils.h"
 extern "C" 
 {
 #ifdef WIN32
@@ -35,6 +36,10 @@ extern "C"
 #include <errno.h>
 #endif
 }
+#include <string>
+#include <sstream>
+
+using namespace std;
 
 extern const char *versionOfSoftware;
 
@@ -213,8 +218,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   int ret;
   int realHeaderLength;
   int dataWritten = 0;
-  char *IfilePath=0;
-  char *OfilePath=0;
+  ostringstream IfilePath;
+  ostringstream OfilePath;
   ControlProtocol::id = id;
   u_long nbw;
   int specified_length;
@@ -223,7 +228,6 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   int authorized;
   char *command ;
   char *opt  ;
-  int OfilePathLen;
 
   /*! Is the specified command a know one? */
   int knownCommand;
@@ -264,38 +268,25 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   timeout=get_ticks();
   if(specified_length)
   {
-    int IfilePathLen;
     Ifile = new File();
     if(Ifile == 0)
     {
-      strcpy(b2,"Error allocating memory");
+      strcpy(b2,"Control: Error allocating memory");
       addToErrorLog(a,b2, strlen(b2));
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       return 0;                                   
     }
-    IfilePathLen = getdefaultwdlen() + 20;
-    IfilePath = new char[IfilePathLen];
-    if(IfilePath == 0)
-    {
-      strcpy(b2,"Error allocating memory");
-      addToErrorLog(a,b2, strlen(b2));
-      delete Ifile;
-      sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
-      return 0;                                   
-    }
-    getdefaultwd(IfilePath, IfilePathLen);
 
-    sprintf(&(IfilePath)[strlen(IfilePath)], "/ControlInput_%u", (u_int) id);
+    IfilePath << getdefaultwd(0,0) << "/ControlInput_" << (u_int) id;
   
-    ret = Ifile->createTemporaryFile(IfilePath);
+    ret = Ifile->createTemporaryFile(IfilePath.str().c_str());
     if(ret)
     {
-      strcpy(b2,"Error in the temporary file creation");
+      strcpy(b2,"Control: Error in the temporary file creation");
       addToErrorLog(a,b2, strlen(b2));
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       Ifile->closeFile();
-      File::deleteFile(IfilePath);
-      delete [] IfilePath;
+      File::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       return 0;
     }
@@ -306,15 +297,11 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       dataWritten += nbw;
       if(ret)
       {
-        strcpy(b2,"Error writing to temporary file");
+        strcpy(b2,"Control: Error writing to temporary file");
         addToErrorLog(a,b2, strlen(b2));
         sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
         Ifile->closeFile();
-        if(IfilePath)
-        {
-          File::deleteFile(IfilePath);
-          delete [] IfilePath;
-        }
+        File::deleteFile(IfilePath.str().c_str());
         delete Ifile;
         Ifile=0;
         return 0;
@@ -333,15 +320,11 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         ret = a->socket.recv(b2, bs2, 0);
         if(ret == -1)
         {
-          strcpy(b2,"Error in communication");
+          strcpy(b2,"Control: Error in communication");
           addToErrorLog(a,b2, strlen(b2));
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
           Ifile->closeFile();
-          if(IfilePath)
-          {
-            File::deleteFile(IfilePath);
-            delete [] IfilePath;
-          }
+          File::deleteFile(IfilePath.str().c_str());
           delete Ifile;
           Ifile=0;
           return -1;
@@ -350,15 +333,11 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         dataWritten += nbw;
         if(ret)
         {
-          strcpy(b2,"Error trying to write on the temporary file");
+          strcpy(b2,"Control: Error trying to write on the temporary file");
           addToErrorLog(a,b2, strlen(b2));
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
           Ifile->closeFile();
-          if(IfilePath)
-          {
-            File::deleteFile(IfilePath);
-            delete [] IfilePath;
-          }
+          File::deleteFile(IfilePath.str().c_str());
           delete Ifile;
           Ifile=0;
         }
@@ -369,15 +348,11 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       }
       else if(get_ticks() - timeout > MYSERVER_SEC(5))
       {
-        strcpy(b2,"Bad content length specified");
+        strcpy(b2,"Control: Bad content length specified");
         addToErrorLog(a,b2, strlen(b2));
         sendResponse(b2, bs2, a, CONTROL_BAD_LEN, 0);
         Ifile->closeFile();
-        if(IfilePath)
-        {
-          File::deleteFile(IfilePath);
-          delete [] IfilePath;
-        }
+        File::deleteFile(IfilePath.str().c_str());
         delete Ifile;
         Ifile=0;
         return 0;
@@ -396,16 +371,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 
   if(strcmpi(version, "CONTROL/1.0"))
   {
-    strcpy(b2,"Bad version specified");
+    strcpy(b2,"Control: Bad version specified");
     addToErrorLog(a,b2, strlen(b2));
     if(Ifile)
     {
       Ifile->closeFile();
-      if(IfilePath)
-      {
-        File::deleteFile(IfilePath);
-        delete [] IfilePath;
-      }
+      File::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
     }
@@ -420,16 +391,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
    */
   if(authorized ==0)
   {
-    strcpy(b2,"Bad authorization");
+    strcpy(b2,"Control: Bad authorization");
     addToErrorLog(a,b2, strlen(b2));
     if(Ifile)
     {
       Ifile->closeFile();
-      if(IfilePath)
-      {
-        File::deleteFile(IfilePath);
-        delete [] IfilePath;
-      }
+      File::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
     }
@@ -442,16 +409,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
    */
   if(dataWritten != specified_length)
   {
-    strcpy(b2,"Bad content length specified");
+    strcpy(b2,"Control: Bad content length specified");
     addToErrorLog(a,b2, strlen(b2));
     if(Ifile)
     {
       Ifile->closeFile();
-      if(IfilePath)
-      {
-        File::deleteFile(IfilePath);
-        delete [] IfilePath;
-      }
+      File::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
     }
@@ -471,60 +434,31 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   Ofile = new File();
   if(Ofile == 0)
   {
-    strcpy(b2,"Error in allocating memory");
+    strcpy(b2,"Control: Error in allocating memory");
     addToErrorLog(a,b2, strlen(b2));
     sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
     Ifile->closeFile();
-    if(IfilePath)
-    {
-      File::deleteFile(IfilePath);
-      delete [] IfilePath;
-    }
-      delete Ifile;
-    Ifile=0;
-    return 0;                                   
-  }
-  OfilePathLen = getdefaultwdlen() + 20;
-  OfilePath = new char[OfilePathLen];
-  if(OfilePath == 0)
-  {
-    strcpy(b2,"Error in allocating memory");
-    addToErrorLog(a,b2, strlen(b2));
-    delete Ofile;
-    Ifile->closeFile();
-    if(IfilePath)
-    {
-      File::deleteFile(IfilePath);
-      delete [] IfilePath;
-    }
+    File::deleteFile(IfilePath.str().c_str());
     delete Ifile;
     Ifile=0;
-    sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
     return 0;                                   
   }
-  getdefaultwd(OfilePath, OfilePathLen);
 
-  sprintf(&(OfilePath)[strlen(OfilePath)], "/ControlOutput_%u", (u_int) id);
+  OfilePath << getdefaultwd(0, 0) << "/ControlOutput_" << (u_int) id;
   
-  ret = Ofile->createTemporaryFile(OfilePath);
+  ret = Ofile->createTemporaryFile(OfilePath.str().c_str());
   if(ret)
   {
-    strcpy(b2,"Error creating temporary file");
+    strcpy(b2,"Control: Error creating temporary file");
     addToErrorLog(a,b2, strlen(b2));
     sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
     delete Ofile;
     Ifile->closeFile();
     delete Ifile;
-    if(IfilePath)
-    {
-      File::deleteFile(IfilePath);
-      delete [] IfilePath;
-    }
-    if(OfilePath)
-    {
-      File::deleteFile(OfilePath);
-      delete [] OfilePath;
-    }
+
+    File::deleteFile(IfilePath.str().c_str());
+    File::deleteFile(OfilePath.str().c_str());
+
     Ifile=0;
     Ofile=0;
     return 0;
@@ -537,11 +471,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   else if(!strcmp(command, "KILLCONNECTION"))
   {
     char buff[11];
+    u_long id;
     knownCommand = 1;
     strncpy(buff, header.getOptions(), 10 );
     buff[10] = '\0';
-    u_long ID = header.getOptions() ? atol(buff) : 0;
-    ret = KILLCONNECTION(a, ID ,Ofile, b1, bs1);
+    id = header.getOptions() ? atol(buff) : 0;
+    ret = KILLCONNECTION(a, id ,Ofile, b1, bs1);
   }
   else if(!strcmp(command, "REBOOT"))
   {
@@ -609,16 +544,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       delete Ofile;
       Ofile=0;
     }
-    if(OfilePath)
-    {
-      File::deleteFile(OfilePath);
-      delete [] OfilePath;
-    }
-    if(IfilePath)
-    {
-      File::deleteFile(IfilePath);
-      delete [] IfilePath;
-    }
+    File::deleteFile(IfilePath.str().c_str());
+    File::deleteFile(OfilePath.str().c_str());
     connection = header.getConnection();
     /*! 
      *If the Keep-Alive was specified keep the connection in the
@@ -631,7 +558,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   }
   else
   {
-    strcpy(b2,"Command unknown");
+    strcpy(b2,"Control: Command unknown");
     addToErrorLog(a,b2, strlen(b2));
     sendResponse(b2, bs2, a, CONTROL_CMD_NOT_FOUND, 0);
 
@@ -647,18 +574,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       delete Ofile;
       Ofile=0;
     }
-    if(OfilePath)
-    {
-      File::deleteFile(OfilePath);
-      delete [] OfilePath;
-    }
-
-    if(IfilePath)
-    {
-      File::deleteFile(IfilePath);
-      delete [] IfilePath;
-    }
-    
+    File::deleteFile(IfilePath.str().c_str());
+    File::deleteFile(OfilePath.str().c_str());
     return 0;
   }
 }
@@ -689,9 +606,9 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
  */
 int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
 {
-	char time[33];
+	string time;
 	getRFC822GMTTime(time, 32);
-  sprintf(b1,"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getipAddr(), time, 
+  sprintf(b1,"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getipAddr(), time.c_str(), 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin() , retCode);
 	((Vhost*)(con->host))->accesseslogRequestAccess(id);
@@ -713,7 +630,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   err = addToLog(errID,conn,buffer, buffersize);
   if(err)
   {
-    strcpy(buffer,"Error registering the connection to the log");
+    strcpy(buffer,"Control: Error registering the connection to the log");
     addToErrorLog(conn,buffer, strlen(buffer));
     return err;
   }
@@ -724,7 +641,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   err = conn->socket.send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
-    strcpy(buffer,"Error sending data");
+    strcpy(buffer,"Control: Error sending data");
     addToErrorLog(conn,buffer, strlen(buffer));
     return -1;
   }
@@ -734,7 +651,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   err = conn->socket.send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
-    strcpy(buffer,"Error sending data");
+    strcpy(buffer,"Control: Error sending data");
     addToErrorLog(conn,buffer, strlen(buffer));
     return -1;
   }
@@ -743,7 +660,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   err = conn->socket.send("\r\n", 2, 0);
   if(err == -1)
   {
-    strcpy(buffer,"Error sending data");
+    strcpy(buffer,"Control: Error sending data");
     addToErrorLog(conn,buffer, strlen(buffer));
     return -1;
   }
@@ -758,7 +675,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
       err = outFile->readFromFile(buffer, min(dataToSend, buffersize), &nbr);
       if(err)
       {
-        strcpy(buffer,"Error reading from temporary file");
+        strcpy(buffer,"Control: Error reading from temporary file");
         addToErrorLog(conn,buffer, strlen(buffer));
         return -1;
       }
@@ -768,7 +685,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
         break;
       if(err == -1)
       {
-        strcpy(buffer,"Error sending data");
+        strcpy(buffer,"Control: Error sending data");
         addToErrorLog(conn,buffer, strlen(buffer));
         return -1;
       }
@@ -798,7 +715,7 @@ int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,File* out, char *b1,
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     if(ret)
     {
-      strcpy(b1,"Error in writing to file");
+      strcpy(b1,"Control: Error in writing to file");
       addToErrorLog(a,b1, strlen(b1));
     }
     con = con->next;
@@ -847,7 +764,7 @@ int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, File* out,
     ret = out->writeToFile(b1, strlen(b1), &nbw);
     if(ret)
     {
-      strcpy(b1,"Error in writing to file");
+      strcpy(b1,"Control: Error in writing to file");
       addToErrorLog(a,b1, strlen(b1));
       return CONTROL_INTERNAL;
     }
@@ -886,7 +803,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
   /*! If we cannot find the file send the right error ID. */
   if(!filename)
   {
-    strcpy(b1,"Requested file doesn't exist");
+    strcpy(b1,"Control: Requested file doesn't exist");
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_FILE_NOT_FOUND;
   }
@@ -896,7 +813,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
   /*! An internal server error happens. */
   if(ret)
   {
-    strcpy(b1,"Error in opening the file");
+    strcpy(b1,"Control: Error in opening the file");
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
@@ -905,7 +822,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
     ret = localfile.readFromFile(b1, bs1, &nbr);
     if(ret)
     {
-      strcpy(b1,"Error in reading from file");
+      strcpy(b1,"Control: Error in reading from file");
       addToErrorLog(a,b1, strlen(b1));
       return CONTROL_INTERNAL;
     }
@@ -918,7 +835,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
 
     if(ret)
     {
-      strcpy(b1,"Error in writing to file");
+      strcpy(b1,"Control: Error in writing to file");
       addToErrorLog(a,b1, strlen(b1));
       return CONTROL_INTERNAL;
     }
@@ -959,7 +876,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
   /*! If we cannot find the file send the right error ID. */
   if(!filename)
   {
-    strcpy(b1,"Requested file doesn't exist");
+    strcpy(b1,"Control: Requested file doesn't exist");
     addToErrorLog(a, b1, strlen(b1));
     Reboot = true;
     if(isAutoRebootToEnable)
@@ -972,7 +889,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
   /*! An internal server error happens. */
   if(ret)
   {
-    strcpy(b1,"Error deleting the file");
+    strcpy(b1,"Control: Error deleting the file");
     addToErrorLog(a, b1, strlen(b1));
     Reboot = true;
     if(isAutoRebootToEnable)
@@ -985,7 +902,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
   /*! An internal server error happens. */
   if(ret)
   {
-    strcpy(b1,"Error opening the file");
+    strcpy(b1,"Control: Error opening the file");
     addToErrorLog(a, b1, strlen(b1));
     Reboot = true;
     if(isAutoRebootToEnable)
@@ -997,7 +914,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
     ret = Ifile->readFromFile(b1, bs1, &nbr);
     if(ret)
     {
-      strcpy(b1,"Error in reading from file");
+      strcpy(b1,"Control: Error in reading from file");
       addToErrorLog(a, b1, strlen(b1));
       Reboot = true;
       if(isAutoRebootToEnable)
@@ -1013,7 +930,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
 
     if(ret)
     {
-      strcpy(b1,"Error in writing to file");
+      strcpy(b1,"Control: Error in writing to file");
       addToErrorLog(a, b1, strlen(b1));
       Reboot = true;
       if(isAutoRebootToEnable)
@@ -1040,63 +957,45 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
   int ret = 0;
   if(path == 0)
   {
-    strcpy(b1,"Error retrieving the language files path");
+    strcpy(b1,"Control: Error retrieving the language files path");
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
   ret=fd.findfirst(path);
   if(ret == -1)
   {
-    strcpy(b1,"Error in directory lookup");
+    strcpy(b1,"Control: Error in directory lookup");
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
 	do
 	{
-    char *dir;
-    char *filename;
+    string filename;
+    string ext;
     int dirLen = 0;
     int filenameLen = 0;
     u_long nbw = 0;
     /*! Do not show files starting with a dot. */
     if(fd.name[0]=='.')
       continue;
-    File::splitPathLength(fd.name, &dirLen, &filenameLen);
-    dir = new char[dirLen + 1];
-    if(dir == 0)
+ 
+    filename.assign(fd.name);
+    File::getFileExt(ext, filename);
+    if(stringcmpi(ext, "xml") == 0)
     {
-      strcpy(b1,"Error in allocating memory");
-      addToErrorLog(a, b1, strlen(b1));
-      fd.findclose();
-      return CONTROL_INTERNAL;
-    }
-    filename = new char[filenameLen + 1];
-    if(filename == 0)
-    {
-      strcpy(b1,"Error in allocating memory");
-      addToErrorLog(a,b1, strlen(b1));
-      delete [] dir;
-      fd.findclose();
-      return CONTROL_INTERNAL;
-    }
-    File::splitPath(fd.name,dir,filename);
-    if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
-    {
-      ret = out->writeToFile(filename, strlen(filename), &nbw);
+      ret = out->writeToFile(filename.c_str(), filename.length(), &nbw);
       if(ret == 0)
         ret = out->writeToFile("\r\n", 2, &nbw);
     }
 
-    delete [] dir;
-    delete [] filename;
     if(ret)
     {
-      strcpy(b1,"Error in writing to temporary file");
+      strcpy(b1,"Control: Error in writing to temporary file");
       addToErrorLog(a,b1, strlen(b1));
       return CONTROL_INTERNAL;
     }
   }
-	while(!fd.findnext());
+  while(!fd.findnext());
   fd.findclose();
   return 0;
 }
