@@ -316,6 +316,9 @@ void XmlParser::newfile(const char * root)
    doc = xmlNewDoc((const xmlChar*)"1.0");
    cur = xmlNewDocNode(doc, NULL, (const xmlChar*)root, NULL);
    xmlDocSetRootElement(doc, cur);
+   
+   addLineFeed();
+   addLineFeed();
 }
 
 /*!
@@ -325,8 +328,9 @@ void XmlParser::newfile(const char * root)
  */
 void XmlParser::addChild(const char * name, const char * value)
 {
-   last_node = xmlNewTextChild(cur, NULL, (const xmlChar*)name, 
+   last_node = xmlNewTextChild(cur, NULL, (const xmlChar*)name,
                                (const xmlChar*)value);
+   addLineFeed();
 }
 
 /*!
@@ -341,6 +345,8 @@ void XmlParser::addGroup(const char * name)
     prev_cur = cur;
     cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
     last_node = cur;
+     
+    addLineFeed();
   }
 }
 
@@ -354,6 +360,9 @@ void XmlParser::endGroup()
   {
     cur = prev_cur;
     prev_cur = 0;
+     
+    addLineFeed();
+    addLineFeed();
   }
 }
 
@@ -367,4 +376,12 @@ void XmlParser::setAttr(const char * name, const char * value)
 	if(last_node == 0)
 		return;
 	xmlSetProp(last_node, (const xmlChar*)name, (const xmlChar*)value);
+}
+/*!
+ * Adds a line feed to the xml data
+ */
+void XmlParser::addLineFeed()
+{
+   xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\n");
+   xmlAddChild(cur, endline);
 }

@@ -70,9 +70,10 @@ public:
     {addGroup(name.c_str());};
 	void endGroup();
 	void setAttr(const char * name, const char * value);
-	void setAttr(string const &name, string& value)
+	void setAttr(string& name, string& value)
     {setAttr(name.c_str(), value.c_str());};
-  time_t getLastModTime();
+        void addLineFeed();
+   time_t getLastModTime();
 };
 
 #endif
