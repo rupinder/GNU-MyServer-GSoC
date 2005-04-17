@@ -110,32 +110,39 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 {
 	int ret;
 	string time;
-	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-	td->buffer2->SetLength(0);
-	*td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
-	*td->buffer2 << "Date: " << time ;
-	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
-  if(td->request.CONNECTION.length())
-    *td->buffer2 << "\r\nConnection:" << td->request.CONNECTION.c_str() ;
-	*td->buffer2 <<"\r\nContent-length: 0\r\nAccept-Ranges: bytes\r\n";
-	*td->buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
-
-	/*!
-   *Check if the TRACE command is allowed on the virtual host.
-   */
-	if(allowHTTPTRACE(td, s))
-		*td->buffer2 << ", TRACE\r\n\r\n";
-	else
-		*td->buffer2 << "\r\n\r\n";
-	
-	/*! Send the HTTP header.  */
-	ret = s->socket.send(td->buffer2->GetBuffer(), 
-                       (u_long)td->buffer2->GetLength(), 0);
-	if( ret == SOCKET_ERROR )
-	{
-		return 0;
-	}
-	return 1;
+  try
+  {
+    getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
+    td->buffer2->SetLength(0);
+    *td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
+    *td->buffer2 << "Date: " << time ;
+    *td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
+    if(td->request.CONNECTION.length())
+      *td->buffer2 << "\r\nConnection:" << td->request.CONNECTION.c_str() ;
+    *td->buffer2 <<"\r\nContent-length: 0\r\nAccept-Ranges: bytes\r\n";
+    *td->buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
+    
+    /*!
+     *Check if the TRACE command is allowed on the virtual host.
+     */
+    if(allowHTTPTRACE(td, s))
+      *td->buffer2 << ", TRACE\r\n\r\n";
+    else
+      *td->buffer2 << "\r\n\r\n";
+    
+    /*! Send the HTTP header.  */
+    ret = s->socket.send(td->buffer2->GetBuffer(), 
+                         (u_long)td->buffer2->GetLength(), 0);
+    if( ret == SOCKET_ERROR )
+    {
+      return 0;
+    }
+    return 1;
+  }
+  catch(...)
+  {
+    return raiseHTTPError(td, s, e_500); 
+  };
 }
 
 /*!
@@ -148,36 +155,42 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	char tmpStr[12];
 	int content_len=(int)td->nHeaderChars;
 	string time;
-	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-	if(!allowHTTPTRACE(td, s))
-		return raiseHTTPError(td, s, e_401);
-	td->buffer2->SetLength(0);
-	*td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
-	*td->buffer2 << "Date: " << time ;
-	*td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
-  if(td->request.CONNECTION.length())
-    *td->buffer2 << "\r\nConnection:" << td->request.CONNECTION.c_str() ;
-	*td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) 
-               << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
-	
-	/*! Send our HTTP header.  */
-	ret = s->socket.send(td->buffer2->GetBuffer(), 
-                       (u_long)td->buffer2->GetLength(), 0);
-	if( ret == SOCKET_ERROR )
-	{
-		return 0;
-	}
-	
-	/*! Send the client request header as the HTTP body.  */
-	ret = s->socket.send(td->buffer->GetBuffer(), content_len, 0);
-	if(ret == SOCKET_ERROR)
-	{
-		return 0;
-	}
-	return 1;
-
+  try
+  {
+    getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
+    if(!allowHTTPTRACE(td, s))
+      return raiseHTTPError(td, s, e_401);
+    td->buffer2->SetLength(0);
+    *td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
+    *td->buffer2 << "Date: " << time ;
+    *td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
+    if(td->request.CONNECTION.length())
+      *td->buffer2 << "\r\nConnection:" << td->request.CONNECTION.c_str() ;
+    *td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) 
+                 << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
+    
+    /*! Send our HTTP header.  */
+    ret = s->socket.send(td->buffer2->GetBuffer(), 
+                         (u_long)td->buffer2->GetLength(), 0);
+    if( ret == SOCKET_ERROR )
+    {
+      return 0;
+    }
+    
+    /*! Send the client request header as the HTTP body.  */
+    ret = s->socket.send(td->buffer->GetBuffer(), content_len, 0);
+    if(ret == SOCKET_ERROR)
+    {
+      return 0;
+    }
+    return 1;
+  }
+  catch(...)
+  {
+    return raiseHTTPError(td, s, e_500); 
+  };
 }
-
+  
 /*!
  *Check if the host allows the HTTP TRACE command
  */
