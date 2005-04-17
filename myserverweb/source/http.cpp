@@ -313,21 +313,37 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
       st.permission2 = &permissions2;
       sec_cache_mutex.lock();
-      permissions=sec_cache.getPermissionMask(&st);
-      sec_cache_mutex.unlock();  
+      try
+      {
+        permissions=sec_cache.getPermissionMask(&st);
+        sec_cache_mutex.unlock();  
+      }
+      catch(...)
+      {
+        sec_cache_mutex.unlock();
+        throw;
+      };
     }
     else/*! The default user is Guest with a null password. */
     {
       sec_cache_mutex.lock();
-      st.user = "Guest";
-      st.password = "";
-      st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
-      st.filename = filename.c_str();
-      st.password2 = 0;
-      st.permission2 = 0;
-      permissions=sec_cache.getPermissionMask(&st);
-      sec_cache_mutex.unlock();
+      try
+      {
+        st.user = "Guest";
+        st.password = "";
+        st.directory = directory.c_str();
+        st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+        st.filename = filename.c_str();
+        st.password2 = 0;
+        st.permission2 = 0;
+        permissions=sec_cache.getPermissionMask(&st);
+        sec_cache_mutex.unlock();
+      }
+      catch(...)
+      {
+        sec_cache_mutex.unlock();
+        throw;
+      };
     }
 
     /*! Check if we have to use digest for the current directory.  */
@@ -362,8 +378,16 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.permission2 = 0;
       
       sec_cache_mutex.lock();
-      permissions=sec_cache.getPermissionMask(&st);		
-      sec_cache_mutex.unlock();
+      try
+      {
+        permissions=sec_cache.getPermissionMask(&st);		
+        sec_cache_mutex.unlock();
+      }
+      catch(...)
+      {
+        sec_cache_mutex.unlock();
+        throw;
+      };
     }
 
     if(!(permissions & MYSERVER_PERMISSION_WRITE))
@@ -546,8 +570,16 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
       st.permission2 = &permissions2;
       sec_cache_mutex.lock();
-      permissions=sec_cache.getPermissionMask(&st);
-      sec_cache_mutex.unlock();
+      try
+      {
+        permissions=sec_cache.getPermissionMask(&st);
+        sec_cache_mutex.unlock();
+      }
+      catch(...)
+      {
+        sec_cache_mutex.unlock();
+        throw;
+      };
     }
     else/*! The default user is Guest with a null password. */
     {
@@ -559,8 +591,16 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password2 = 0;
       st.permission2 = 0;
       sec_cache_mutex.lock();
-      permissions=sec_cache.getPermissionMask(&st);
-      sec_cache_mutex.unlock();
+      try
+      {
+        permissions=sec_cache.getPermissionMask(&st);
+        sec_cache_mutex.unlock();
+      }
+      catch(...)
+      {
+        sec_cache_mutex.unlock();
+        throw;
+      };
     }	
     /*! Check if we have to use digest for the current directory. */
     if(!lstrcmpi(auth_type, "Digest"))
@@ -594,8 +634,16 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password2 = 0;
       st.permission2 = 0;
       sec_cache_mutex.lock();
-      permissions=sec_cache.getPermissionMask(&st);	
-      sec_cache_mutex.unlock();
+      try
+      {
+        permissions=sec_cache.getPermissionMask(&st);	
+        sec_cache_mutex.unlock();
+      }
+      catch(...)
+      {
+        sec_cache_mutex.unlock();
+        throw;
+      };
     }
     if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	  {
@@ -816,8 +864,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
         st.permission2 = &permissions2;
         sec_cache_mutex.lock();
-        permissions=sec_cache.getPermissionMask(&st);
-        sec_cache_mutex.unlock();
+        try
+        {
+          permissions=sec_cache.getPermissionMask(&st);
+          sec_cache_mutex.unlock();
+        }
+        catch(...)
+        {
+          sec_cache_mutex.unlock();
+          throw;
+        };
       }
       else/*! The default user is Guest with a null password. */
       {
@@ -829,8 +885,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.password2 = 0;
         st.permission2 = 0;
         sec_cache_mutex.lock();
-        permissions=sec_cache.getPermissionMask(&st);
-        sec_cache_mutex.unlock();
+        try
+        {
+          permissions=sec_cache.getPermissionMask(&st);
+          sec_cache_mutex.unlock();
+        }
+        catch(...)
+        {
+          sec_cache_mutex.unlock();
+          throw;
+        };
       }	
       /*! Check if we have to use digest for the current directory. */
       if(!lstrcmpi(auth_type, "Digest"))
@@ -865,8 +929,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.password2 = 0;
         st.permission2 = 0;
         sec_cache_mutex.lock();
-        permissions=sec_cache.getPermissionMask(&st);
-        sec_cache_mutex.unlock();
+        try
+        {
+          permissions=sec_cache.getPermissionMask(&st);
+          sec_cache_mutex.unlock();
+        }
+        catch(...)
+        {
+          sec_cache_mutex.unlock();
+          throw;
+        };
       }
     }
 

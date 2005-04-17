@@ -719,26 +719,44 @@ int FastCgi::unload()
 {
   sfCGIservers* list = fCGIservers;
   servers_mutex.lock();
-  while(list)
+  try
   {
-    sfCGIservers* toremove;
-    /*! If the server is a remote one do nothing. */
-		if(list->path.length() && list->path[0]!='@')
+    while(list)
     {
-      list->socket.closesocket();
-      list->process.terminateProcess();
+      sfCGIservers* toremove;
+      /*! If the server is a remote one do nothing. */
+      if(list->path.length() && list->path[0]!='@')
+      {
+        list->socket.closesocket();
+        list->process.terminateProcess();
+      }
+      list->path.assign("");
+      
+      toremove = list;
+      list = list->next;
+      delete toremove;
     }
-    list->path.assign("");
-
-    toremove = list;
-    list = list->next;
-    delete toremove;
   }
+  catch(bad_alloc& b)
+  {
+    servers_mutex.unlock();
+    return 0;
+  }
+  catch(exception& e)
+  {
+    servers_mutex.unlock();
+    return 0;
+  }
+  catch(...)
+  {
+    servers_mutex.unlock();
+    return 0;
+  };
   servers_mutex.unlock();
   list = 0;
   servers_mutex.destroy();
-	initialized=0;
-	return 1;
+  initialized=0;
+	return 0;
 }
 
 /*!
@@ -749,16 +767,24 @@ sfCGIservers* FastCgi::isFcgiServerRunning(const char* path)
 {
   servers_mutex.lock();
 
-  sfCGIservers *cur = fCGIservers;
-  while(cur)
-  {
-    if(!stringcmpi(cur->path, path))
+  try
+  { 
+    sfCGIservers *cur = fCGIservers;
+    while(cur)
     {
-      servers_mutex.unlock();
-			return cur;  
+      if(!stringcmpi(cur->path, path))
+      {
+        servers_mutex.unlock();
+        return cur;  
+      }
+      cur = cur->next;
     }
-    cur = cur->next;
   }
+  catch(...)
+  {
+    servers_mutex.unlock();
+    throw;
+  };
 
   servers_mutex.unlock();
 	return 0;
@@ -858,99 +884,107 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
 
   servers_mutex.lock();
 
-  /*! Create the new structure if necessary. */
-  if(!toReboot)
-    server = new sfCGIservers();
-  if(server == 0)
+  try
   {
-    if(lserver->getVerbosity() > 2)
+    /*! Create the new structure if necessary. */
+    if(!toReboot)
+      server = new sfCGIservers();
+    if(server == 0)
     {
-      *context->td->buffer<< "FastCGI: Error alloc memory\r\n" << '\0';
-      ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
-      ((Vhost*)context->td->connection->host)->warningsLogWrite(context->td->buffer->GetBuffer());
-      ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
-    }
-    servers_mutex.unlock();
-    return 0;
-  }
-
-
-  /*! Create the server socket. */
-  if(localServer)
-  {
-    if(toReboot)
-    {  
-      int ret;
-      server->socket.closesocket();
-      server->process.terminateProcess();
-      ret=runLocalServer(server, path, server->port);
-      if(ret)
+      if(lserver->getVerbosity() > 2)
       {
-        if(lserver->getVerbosity() > 1)
-        {
-          *context->td->buffer << "FastCGI: Error while rebooting " 
-                               << path << "\r\n" << '\0';
-          ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
-          ((Vhost*)context->td->connection->host)->warningsLogWrite(
-                                                context->td->buffer->GetBuffer());
-          ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
-        }
-        servers_mutex.unlock();
-        return 0;
+        *context->td->buffer<< "FastCGI: Error alloc memory\r\n" << '\0';
+        ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
+        ((Vhost*)context->td->connection->host)->warningsLogWrite(context->td->buffer->GetBuffer());
+        ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
       }
       servers_mutex.unlock();
-      return server;
+      return 0;
+    }
+
+
+
+    /*! Create the server socket. */
+    if(localServer)
+    {
+      if(toReboot)
+      {  
+        int ret;
+        server->socket.closesocket();
+        server->process.terminateProcess();
+        ret=runLocalServer(server, path, server->port);
+        if(ret)
+        {
+          if(lserver->getVerbosity() > 1)
+          {
+            *context->td->buffer << "FastCGI: Error while rebooting " 
+                                 << path << "\r\n" << '\0';
+            ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
+            ((Vhost*)context->td->connection->host)->warningsLogWrite(
+                                                                      context->td->buffer->GetBuffer());
+            ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
+          }
+          servers_mutex.unlock();
+          return 0;
+        }
+        servers_mutex.unlock();
+        return server;
+      }
+      else
+      {
+        int ret=runLocalServer(server, path, initialPort + (portsDelta++));
+        servers_mutex.unlock();
+        if(ret)
+        {
+          if(lserver->getVerbosity() > 1)
+          {
+            *context->td->buffer << "FastCGI: Error running " 
+                                 << path << "\r\n" << '\0';
+            ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
+            ((Vhost*)context->td->connection->host)->warningsLogWrite(
+                                                                      context->td->buffer->GetBuffer());
+            ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
+          }
+          delete server;
+          servers_mutex.unlock();
+          return 0;
+        }
+      }
     }
     else
     {
-      int ret=runLocalServer(server, path, initialPort + (portsDelta++));
-      servers_mutex.unlock();
-      if(ret)
-      {
-        if(lserver->getVerbosity() > 1)
-        {
-          *context->td->buffer << "FastCGI: Error running " 
-                               << path << "\r\n" << '\0';
-          ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
-          ((Vhost*)context->td->connection->host)->warningsLogWrite(
-                                                context->td->buffer->GetBuffer());
-          ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
-        }
-        delete server;
-        servers_mutex.unlock();
-        return 0;
-      }
+      /*! Do not copy the @ character. */
+      int i=1;
+      
+      /*! Fill the structure with a remote server. */
+      fCGIservers[fCGIserversN].path.assign(path);
+        
+      memset(server->host, 0, 128);
+      
+      /*!
+       *A remote server path has the form @hosttoconnect:porttouse.
+       */
+      while(path[i]!=':')
+        server->host[i-1]=path[i++];
+      server->port=(u_short)atoi(&path[++i]);
     }
-  }
-  else
-	{
-    /*! Do not copy the @ character. */
-    int i=1;
-    
-    /*! Fill the structure with a remote server. */
-    fCGIservers[fCGIserversN].path.assign(path);
-    
-    memset(server->host, 0, 128);
-    
+  
+    server->next = fCGIservers;
+    fCGIservers = server;
+
     /*!
-     *A remote server path has the form @hosttoconnect:porttouse.
+     *Increase the number of running servers.
      */
-    while(path[i]!=':')
-      server->host[i-1]=path[i++];
-    server->port=(u_short)atoi(&path[++i]);
+    fCGIserversN++;
+    
+    servers_mutex.unlock();  
+
   }
-  
-  
-  server->next = fCGIservers;
-  fCGIservers = server;
-
-  /*!
-   *Increase the number of running servers.
-   */
-  fCGIserversN++;
-
-  servers_mutex.unlock();  
-
+  catch(...)
+  {
+    servers_mutex.unlock();
+    throw;
+  };
   /*!
    *Return the server.
    */

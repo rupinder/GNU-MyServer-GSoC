@@ -1427,15 +1427,23 @@ void Server::clearAllConnections()
 {
 	ConnectionPtr c;
 	ConnectionPtr next;
-	connections_mutex_lock();	
-	c=connections;
-	next=0;
-	while(c)
-	{
-		next=c->next;
-		deleteConnection(c, 1);
-		c=next;
-	}
+	connections_mutex_lock();
+  try
+  {	
+    c=connections;
+    next=0;
+    while(c)
+    {
+      next=c->next;
+      deleteConnection(c, 1);
+      c=next;
+    }
+  }
+  catch(...)
+  {
+    connections_mutex_unlock();
+    throw;
+  };
 	connections_mutex_unlock();
 	/*! Reset everything.	*/
 	nConnections=0;
