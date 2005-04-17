@@ -585,14 +585,14 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
  */
 int ControlProtocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
 {
-	char time[33];
+	string time;
   /*!
    *Check that the verbosity is at least 1.
    */
   if(lserver->getVerbosity() < 1)
     return 0;
 	getRFC822GMTTime(time, 32);
-  sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getipAddr(), time, 
+  sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getipAddr(), time.c_str(), 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin());
 	((Vhost*)(con->host))->warningslogRequestAccess(id);
