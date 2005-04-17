@@ -907,8 +907,6 @@ int Isapi::unload()
   return 0;
 }
 
-
-
 /*!
  *Set a new timeout value used with the isapi modules.
  */
