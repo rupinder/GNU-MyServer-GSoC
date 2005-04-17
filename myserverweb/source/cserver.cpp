@@ -76,10 +76,17 @@ Server::Server()
   toReboot = 0;
   autoRebootEnabled = 1;
   listeningThreads = 0;
-  languages_path.assign("");
-  main_configuration_file.assign("");
-  vhost_configuration_file.assign("");
-  mime_configuration_file.assign("");
+  try
+  {
+    languages_path.assign("");
+    main_configuration_file.assign("");
+    vhost_configuration_file.assign("");
+    mime_configuration_file.assign("");
+  }
+  catch(...)
+  {
+    throw;
+  };
   serverReady = 0;
   throttlingRate = 0;
   uid= 0;
@@ -148,182 +155,195 @@ void Server::start()
    */
   if(logManager->getType() == LogManager::TYPE_CONSOLE )
   {
-    string software_signature;
-    software_signature.assign("************MyServer ");
-    software_signature.append(versionOfSoftware);
-    software_signature.append("************");
-    
-    i=software_signature.length();
-    while(i--)
-      logManager->write("*");
-    logManager->writeln("");
-    logManager->write(software_signature.c_str());
-    logManager->write("\n");    
-    i=software_signature.length();
-    while(i--)
-      logManager->write("*");
-    logManager->writeln("");
-   
+    try
+    {
+      string software_signature;
+      software_signature.assign("************MyServer ");
+      software_signature.append(versionOfSoftware);
+      software_signature.append("************");
+      
+      i=software_signature.length();
+      while(i--)
+        logManager->write("*");
+      logManager->writeln("");
+      logManager->write(software_signature.c_str());
+      logManager->write("\n");    
+      i=software_signature.length();
+      while(i--)
+        logManager->write("*");
+      logManager->writeln("");
+    }
+    catch(exception& e)
+    {
+      ostringstream err;
+      err << "Error: " << e.what();
+      logManager->writeln("");
+      logManager->write(err.str().c_str());
+      logManager->write("\n");       
+      return;
+    };
   }
-	/*!
-   *Set the current working directory.
-   */
-	setcwdBuffer();
-	
-	XmlParser::startXML();
-	/*!
-   *Setup the server configuration.
-   */
-  logWriteln("Initializing server configuration...");
-  err = 0;
-	os_ver=getOSVersion();
 
-	err = initialize(os_ver);
-  if(err)
-    return;
+  try
+  {
+    /*!
+     *Set the current working directory.
+     */
+    setcwdBuffer();
+    
+    XmlParser::startXML();
+    /*!
+     *Setup the server configuration.
+     */
+    logWriteln("Initializing server configuration...");
+    err = 0;
+    os_ver=getOSVersion();
+    
+    err = initialize(os_ver);
+    if(err)
+      return;
 
-	/*! Initialize the SSL library.  */
+    /*! Initialize the SSL library.  */
 #ifndef DO_NOT_USE_SSL
-	SSL_library_init();
-	SSL_load_error_strings();
+    SSL_library_init();
+    SSL_load_error_strings();
 #endif
-  logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
-
-	/*! *Startup the socket library.  */
-  logWriteln( languageParser.getValue("MSG_ISOCK") );
-	err= startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
-	if (err != 0) 
-	{ 
-
-    logPreparePrintError();
     logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
-		logEndPrintError();
-		return; 
-	} 
-	logWriteln( languageParser.getValue("MSG_SOCKSTART") );
 
-	/*!
-   *Get the name of the local machine.
-   */
-	Socket::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
-  
-  buffer.assign(languageParser.getValue("MSG_GETNAME"));
-  buffer.append(" ");
-  buffer.append(serverName);
-  logWriteln(buffer.c_str()); 
+    /*! *Startup the socket library.  */
+    logWriteln( languageParser.getValue("MSG_ISOCK") );
+    err= startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
+    if (err != 0) 
+    { 
+      logPreparePrintError();
+      logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
+      logEndPrintError();
+      return; 
+    } 
+    logWriteln( languageParser.getValue("MSG_SOCKSTART") );
 
-	/*!
-   *Find the IP addresses of the local machine.
-   */
-	localhe=Socket::gethostbyname(serverName);
-	in_addr ia;
-	ipAddresses[0]='\0';
-  buffer.assign("Host: ");
-  buffer.append(serverName);
-  logWriteln(buffer.c_str() ); 
-	if(localhe)
-	{
-		/*! Print all the interfaces IPs. */
-		for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
-		{
-      ostringstream stream;
+    /*!
+     *Get the name of the local machine.
+     */
+    Socket::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
+    
+    buffer.assign(languageParser.getValue("MSG_GETNAME"));
+    buffer.append(" ");
+    buffer.append(serverName);
+    logWriteln(buffer.c_str()); 
+    
+    /*!
+     *Find the IP addresses of the local machine.
+     */
+    localhe=Socket::gethostbyname(serverName);
+    in_addr ia;
+    ipAddresses[0]='\0';
+    buffer.assign("Host: ");
+    buffer.append(serverName);
+    logWriteln(buffer.c_str() ); 
+    if(localhe)
+    {
+      /*! Print all the interfaces IPs. */
+      for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
+      {
+        ostringstream stream;
 #ifdef WIN32
-			ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+        ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 #endif
 #ifdef NOT_WIN
-			ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
+        ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
 
-      stream <<  languageParser.getValue("MSG_ADDRESS") << " #" 
-             << (u_int)(i+1) << ": " << inet_ntoa(ia);
+        stream <<  languageParser.getValue("MSG_ADDRESS") << " #" 
+               << (u_int)(i+1) << ": " << inet_ntoa(ia);
       
-      logWriteln(stream.str().c_str());
+        logWriteln(stream.str().c_str());
 
-			sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", 
-              strlen(ipAddresses)?", ":"", inet_ntoa(ia));
-		}
-	}
-	loadSettings();
+        sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", 
+                strlen(ipAddresses)?", ":"", inet_ntoa(ia));
+      }
+    }
+    loadSettings();
   
-	myserver_main_conf = File::getLastModTime(main_configuration_file.c_str());
-	myserver_hosts_conf = File::getLastModTime(vhost_configuration_file.c_str());
-	myserver_mime_conf = File::getLastModTime(mime_configuration_file.c_str());
-	
-	/*!
-   *Keep thread alive.
-   *When the mustEndServer flag is set to True exit
-   *from the loop and terminate the server execution.
-   */
-	while(!mustEndServer)
-	{
-		Thread::wait(500);
-    if(autoRebootEnabled)
-    {
-      configsCheck++;
-		/*! Do not check for modified configuration files every cycle. */
-      if(configsCheck>10)
-      {
-        time_t myserver_main_conf_now=
-          File::getLastModTime(main_configuration_file.c_str());
-        time_t myserver_hosts_conf_now=
-          File::getLastModTime(vhost_configuration_file.c_str());
-        time_t myserver_mime_conf_now=
-          File::getLastModTime(mime_configuration_file.c_str());
-
-        /*! If a configuration file was modified reboot the server. */
-        if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
-            (myserver_mime_conf_now!=-1)) || toReboot)
-        {
-          if( ((myserver_main_conf_now  != myserver_main_conf)  || 
-               (myserver_hosts_conf_now != myserver_hosts_conf) || 
-               (myserver_mime_conf_now  != myserver_mime_conf)) || toReboot  )
-          {
-            reboot();
-            /*! Store new mtime values. */
-            myserver_main_conf = myserver_main_conf_now;
-            myserver_hosts_conf=myserver_hosts_conf_now;
-            myserver_mime_conf=myserver_mime_conf_now;
-          }
-          configsCheck=0;
-        }
-        else
-        {
-          /*! 
-           *If there are problems in loading mtimes 
-           *check again after a bit. 
-           */
-          configsCheck=7;
-        }
-			}
-		}//end  if(autoRebootEnabled)
+    myserver_main_conf = File::getLastModTime(main_configuration_file.c_str());
+    myserver_hosts_conf = File::getLastModTime(vhost_configuration_file.c_str());
+    myserver_mime_conf = File::getLastModTime(mime_configuration_file.c_str());
     
-    /*! Check threads. */
-    purgeThreads();
+    /*!
+     *Keep thread alive.
+     *When the mustEndServer flag is set to True exit
+     *from the loop and terminate the server execution.
+     */
+    while(!mustEndServer)
+    {
+      Thread::wait(500);
+      if(autoRebootEnabled)
+      {
+        configsCheck++;
+        /*! Do not check for modified configuration files every cycle. */
+        if(configsCheck>10)
+        {
+          time_t myserver_main_conf_now=
+            File::getLastModTime(main_configuration_file.c_str());
+          time_t myserver_hosts_conf_now=
+            File::getLastModTime(vhost_configuration_file.c_str());
+          time_t myserver_mime_conf_now=
+            File::getLastModTime(mime_configuration_file.c_str());
+
+          /*! If a configuration file was modified reboot the server. */
+          if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
+              (myserver_mime_conf_now!=-1)) || toReboot)
+          {
+            if( ((myserver_main_conf_now  != myserver_main_conf)  || 
+                 (myserver_hosts_conf_now != myserver_hosts_conf) || 
+                 (myserver_mime_conf_now  != myserver_mime_conf)) || toReboot  )
+            {
+              reboot();
+              /*! Store new mtime values. */
+              myserver_main_conf = myserver_main_conf_now;
+              myserver_hosts_conf=myserver_hosts_conf_now;
+              myserver_mime_conf=myserver_mime_conf_now;
+            }
+            configsCheck=0;
+          }
+          else
+          {
+            /*! 
+             *If there are problems in loading mtimes 
+             *check again after a bit. 
+             */
+            configsCheck=7;
+          }
+        }
+      }//end  if(autoRebootEnabled)
+    
+      /*! Check threads. */
+      purgeThreads();
 
 #ifdef WIN32
-		/*!
-     *ReadConsoleInput is a blocking call, so be sure that there are 
-     *events before call it
-     */
-		err = GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &eventsCount);
-		if(!err)
-			eventsCount = 0;
-		while(eventsCount--)
-		{
-			if(!mustEndServer)
-				ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), irInBuf, 128, &cNumRead);
-			else
-				break;
-			for (i = 0; i < cNumRead; i++) 
-			{
-				switch(irInBuf[i].EventType) 
-				{ 
+      /*!
+       *ReadConsoleInput is a blocking call, so be sure that there are 
+       *events before call it
+       */
+      err = GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &eventsCount);
+      if(!err)
+        eventsCount = 0;
+      while(eventsCount--)
+      {
+        if(!mustEndServer)
+          ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), irInBuf, 128, &cNumRead);
+        else
+          break;
+        for (i = 0; i < cNumRead; i++) 
+        {
+          switch(irInBuf[i].EventType) 
+          { 
 					case KEY_EVENT:
 						if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
 							continue;
 						if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||
                irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
-						{
+            {
 							if((irInBuf[i].Event.KeyEvent.dwControlKeyState & 
                   LEFT_CTRL_PRESSED)|
                  (irInBuf[i].Event.KeyEvent.dwControlKeyState & 
@@ -334,11 +354,24 @@ void Server::start()
 							}
 						}
 						break; 
-				} 
-			}
-		}
+          } 
+        }
+      }
 #endif
-	}
+    }
+  }
+  catch( bad_alloc &ba)
+  {
+    ostringstream s;
+    s << "Bad alloc: " << ba.what();
+    logWriteln(s.str().c_str());
+  }
+  catch( exception &e)
+  {
+    ostringstream s;
+    s << "Error: " << e.what();
+    logWriteln(s.str().c_str());
+  };
 	this->terminate();
 	finalCleanup();
 }
@@ -385,9 +418,11 @@ int Server::purgeThreads()
         Thread::wait(100);
       }
       nThreads--;
-      ClientsThread *toremove = thread;
-      thread = thread->next;
-      delete toremove;
+      {
+        ClientsThread *toremove = thread;
+        thread = thread->next;
+        delete toremove;
+      }
       continue;
     }
     prev = thread;
@@ -419,88 +454,104 @@ int Server::createServerAndListener(u_long port)
 	ThreadID threadId=0;
   listenThreadArgv* argv;
 	MYSERVER_SOCKADDRIN sock_inserverSocket;
+	Socket *serverSocket;
 	/*!
    *Create the server socket.
    */
-  logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
-	Socket *serverSocket = new Socket();
-  if(!serverSocket)
-    return 0;
-	serverSocket->socket(AF_INET, SOCK_STREAM, 0);
-	if(serverSocket->getHandle()==(SocketHandle)INVALID_SOCKET)
-	{
-		logPreparePrintError();
-		logWriteln(languageParser.getValue("ERR_OPENP"));
-		logEndPrintError();
-		return 0;
-	}
-	logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-	sock_inserverSocket.sin_family=AF_INET;
-	sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-	sock_inserverSocket.sin_port=htons((u_short)port);
+  try
+  {
+    logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
+    serverSocket = new Socket();
+    if(!serverSocket)
+      return 0;
+    serverSocket->socket(AF_INET, SOCK_STREAM, 0);
+    if(serverSocket->getHandle()==(SocketHandle)INVALID_SOCKET)
+    {
+      logPreparePrintError();
+      logWriteln(languageParser.getValue("ERR_OPENP"));
+      logEndPrintError();
+      return 0;
+    }
+    logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
+    sock_inserverSocket.sin_family=AF_INET;
+    sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
+    sock_inserverSocket.sin_port=htons((u_short)port);
  
 #ifdef NOT_WIN
-	/*!
-   *Under the unix environment the application needs some time before
-   * create a new socket for the same address. 
-   *To avoid this behavior we use the current code.
-   */
-	if(serverSocket->setsockopt(SOL_SOCKET, SO_REUSEADDR, 
-                              (const char *)&optvalReuseAddr, 
-                              sizeof(optvalReuseAddr))<0)
-  {
-    logPreparePrintError();
-		logWriteln(languageParser.getValue("ERR_ERROR"));
-    logEndPrintError();
-		return 0;
-	}
+    /*!
+     *Under the unix environment the application needs some time before
+     * create a new socket for the same address. 
+     *To avoid this behavior we use the current code.
+     */
+    if(serverSocket->setsockopt(SOL_SOCKET, SO_REUSEADDR, 
+                                (const char *)&optvalReuseAddr, 
+                                sizeof(optvalReuseAddr))<0)
+    {
+      logPreparePrintError();
+      logWriteln(languageParser.getValue("ERR_ERROR"));
+      logEndPrintError();
+      return 0;
+    }
 #endif
 	/*!
    *Bind the port.
    */
-	logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-
-	if(serverSocket->bind((sockaddr*)&sock_inserverSocket, 
-                        sizeof(sock_inserverSocket))!=0)
-	{
-		logPreparePrintError();
-		logWriteln(languageParser.getValue("ERR_BIND"));
-    logEndPrintError();
-		return 0;
-	}
-	logWriteln(languageParser.getValue("MSG_PORT_BINDED"));
+    logWriteln(languageParser.getValue("MSG_BIND_PORT"));
+    
+    if(serverSocket->bind((sockaddr*)&sock_inserverSocket, 
+                          sizeof(sock_inserverSocket))!=0)
+    {
+      logPreparePrintError();
+      logWriteln(languageParser.getValue("ERR_BIND"));
+      logEndPrintError();
+      return 0;
+    }
+    logWriteln(languageParser.getValue("MSG_PORT_BINDED"));
   
 	/*!
    *Set connections listen queque to max allowable.
    */
-	logWriteln( languageParser.getValue("MSG_SLISTEN"));
-	if (serverSocket->listen(SOMAXCONN))
-	{ 
-    logPreparePrintError();
-		logWriteln(languageParser.getValue("ERR_LISTEN"));
-    logEndPrintError();	
-		return 0; 
-	}
+    logWriteln( languageParser.getValue("MSG_SLISTEN"));
+    if (serverSocket->listen(SOMAXCONN))
+    { 
+      logPreparePrintError();
+      logWriteln(languageParser.getValue("ERR_LISTEN"));
+      logEndPrintError();	
+      return 0; 
+    }
 
-  port_buff << (u_int)port;
-
-  listen_port_msg.assign(languageParser.getValue("MSG_LISTEN"));
-  listen_port_msg.append(": ");
-  listen_port_msg.append(port_buff.str());
-
-  logWriteln(listen_port_msg.c_str());
- 
-	logWriteln(languageParser.getValue("MSG_LISTENTR"));
-
-	/*!
-   *Create the listen thread.
-   */
-	argv=new listenThreadArgv;
-	argv->port=port;
-	argv->serverSocket=serverSocket;
-
-	Thread::create(&threadId, &::listenServer,  (void *)(argv));
-	return (threadId) ? 1 : 0 ;
+    port_buff << (u_int)port;
+    
+    listen_port_msg.assign(languageParser.getValue("MSG_LISTEN"));
+    listen_port_msg.append(": ");
+    listen_port_msg.append(port_buff.str());
+    
+    logWriteln(listen_port_msg.c_str());
+    
+    logWriteln(languageParser.getValue("MSG_LISTENTR"));
+    
+    /*!
+     *Create the listen thread.
+     */
+    argv=new listenThreadArgv;
+    argv->port=port;
+    argv->serverSocket=serverSocket;
+    
+    Thread::create(&threadId, &::listenServer,  (void *)(argv));
+    return (threadId) ? 1 : 0 ;
+  }
+  catch( bad_alloc &ba)
+  {
+    ostringstream s;
+    s << "Bad allocation :" << ba.what();
+    logWriteln(s.str().c_str());  
+  }
+  catch( exception &e)
+  {
+    ostringstream s;
+    s << "Error :" << e.what();
+    logWriteln(s.str().c_str());  
+  }; 
 }
 
 /*!

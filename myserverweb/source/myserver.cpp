@@ -37,7 +37,7 @@ extern "C" {
 #endif
 }
 
-Server server;
+Server *server;
 
 
 /*! External libraries to be included in the project. */
@@ -72,9 +72,9 @@ char **argv;
 #ifdef NOT_WIN
 void Sig_Quit(int signal)
 {
-	server.logWriteln("Exiting...");
+	server->logWriteln("Exiting...");
 	sync();
-	server.stop();
+	server->stop();
 }
 
 void Sig_Hup(int signal)
@@ -82,7 +82,7 @@ void Sig_Hup(int signal)
   /*!
    *On the SIGHUP signal reboot the server.
    */
-	server.rebootOnNextLoop();
+	server->rebootOnNextLoop();
 }
 
 #endif
@@ -174,6 +174,16 @@ int main (int argn, char **argv)
 	sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
 	sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
 #endif
+
+  try
+  {
+    server = new Server();
+  }
+  catch(...)
+  {
+    /*! Die if we get exceptions here. */
+    return(1);
+  };
   path_len = strlen(argv[0]) +1 ;
   path = new char[path_len];
   if(path == 0)
@@ -201,7 +211,7 @@ int main (int argn, char **argv)
 	runas=input.runas;
   if(input.logFileName)
   {
-    if(server.setLogFile(input.logFileName))
+    if(server->setLogFile(input.logFileName))
     {
       printf("Error loading log file\n");
       return 1;
@@ -352,7 +362,7 @@ void console_service (int, char **)
 	SetConsoleCtrlHandler (NULL, TRUE);
 	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT );
 #endif
-	server.start();
+	server->start();
 }
 
 
@@ -388,7 +398,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		server.start();
+		server->start();
 	
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
@@ -414,7 +424,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 		case SERVICE_CONTROL_STOP:
 			MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 			SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-			server.stop();
+			server->stop();
 			return;
 
 		case SERVICE_CONTROL_PAUSE:
@@ -438,7 +448,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
  */
 void runService()
 {
-	server.logWriteln("Running service...");
+	server->logWriteln("Running service...");
 #ifdef WIN32
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
@@ -449,15 +459,15 @@ void runService()
 	{
 		if(GetLastError()==ERROR_INVALID_DATA)
 		{
-			server.logWriteln("Invalid data");
+			server->logWriteln("Invalid data");
 		}
 		else if(GetLastError()==ERROR_SERVICE_ALREADY_RUNNING)
 		{
-			server.logWriteln("Already running");
+			server->logWriteln("Already running");
 		}
 		else
 		{
-			server.logWriteln("Error running service");
+			server->logWriteln("Error running service");
 		}
 	}
 #endif

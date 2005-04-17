@@ -162,9 +162,11 @@ void * startClientsThread(void* pParam)
 
 	ct->initialized=1;
 
-  /*! Reset thread buffers. */
-	memset((char*)ct->buffer.GetBuffer(), 0, ct->buffer.GetRealLength());
-	memset((char*)ct->buffer2.GetBuffer(), 0, ct->buffer2.GetRealLength());
+  /*! Reset first 1024 bytes for thread buffers. */
+	memset((char*)ct->buffer.GetBuffer(), 0, 
+         1024>ct->buffer.GetRealLength()?1024:ct->buffer.GetRealLength());
+	memset((char*)ct->buffer2.GetBuffer(), 0, 
+         1024>ct->buffer2.GetRealLength()?1024:ct->buffer2.GetRealLength());
 
 	/*! Wait that the server is ready before go in the running loop. */
   while(!lserver->isServerReady())
@@ -179,41 +181,62 @@ void * startClientsThread(void* pParam)
 	while(ct->threadIsRunning) 
 	{
     int ret;
-    Thread::wait(1);
-    /*!
-     *If the thread can be destroyed don't use it.
-     */
-    if((!ct->isStatic()) && ct->isToDestroy() )
+    try
     {
-      continue;
-    }
-      
-    ct->parsing = 1;
-		ret = ct->controlConnections();
-    ct->parsing = 0;
-
-    /*!
-     *The thread served the connection, so update the timeout value.
-     */
-    if(ret != 1)
-    {
-      ct->setTimeout( get_ticks() );
-    }
-    else
-    {
+      Thread::wait(1);
       /*!
-       *Long inactive non static thread... Maybe we don't need it.
+       *If the thread can be destroyed don't use it.
        */
-      if(!ct->isStatic())
-        if(get_ticks() - ct->getTimeout() > MYSERVER_SEC(15) )
-          ct->setToDestroy(1);
+      if((!ct->isStatic()) && ct->isToDestroy() )
+      {
+        continue;
+      }
+      
+      ct->parsing = 1;
+      ret = ct->controlConnections();
+      ct->parsing = 0;
+      
+      /*!
+       *The thread served the connection, so update the timeout value.
+       */
+      if(ret != 1)
+      {
+        ct->setTimeout( get_ticks() );
+      }
+      else
+      {
+        /*!
+         *Long inactive non static thread... Maybe we don't need it.
+         */
+        if(!ct->isStatic())
+          if(get_ticks() - ct->getTimeout() > MYSERVER_SEC(15) )
+            ct->setToDestroy(1);
         
+      }
     }
-	}
-	ct->threadIsStopped = 1;
-	
-	Thread::terminate();
-	return 0;
+    catch( bad_alloc &ba)
+    {
+      ostringstream s;
+      s << "Bad alloc: " << ba.what();
+      
+      lserver->logPreparePrintError();
+      lserver->logWriteln(s.str().c_str());
+      lserver->logEndPrintError();
+    }
+    catch( exception &e)
+    {
+      ostringstream s;
+      s << "Error: " << e.what();
+
+      lserver->logPreparePrintError();
+      lserver->logWriteln(s.str().c_str());
+      lserver->logEndPrintError();
+    };
+  }
+  ct->threadIsStopped = 1;
+  
+  Thread::terminate();
+  return 0;
 }
 
 /*!
