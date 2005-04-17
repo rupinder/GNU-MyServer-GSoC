@@ -1188,7 +1188,7 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
   string time;
 
 	td->buffer2->SetLength(0);
-	*td->buffer2 << a->getipAddr();
+	*td->buffer2 << a->getIpAddr();
 	*td->buffer2<< " ";
 	
 	if(td->identity[0])
@@ -1729,7 +1729,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          *Find the virtual host to check both host name and IP value.
          */
         a->host=lserver->vhostList->getVHost((char*)td.request.HOST.c_str(), 
-                                             a->getlocalIpAddr(), a->getLocalPort());
+                                             a->getLocalIpAddr(), a->getLocalPort());
         if(a->host==0)
         {
           raiseHTTPError(&td, a, e_400);
@@ -1889,7 +1889,7 @@ void Http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
 	if(!out)
 		return;
 	sprintf(buffer, "%i-%u-%s", (int)clock(), (u_int)td->id, 
-          td->connection->getipAddr());
+          td->connection->getIpAddr());
 	md5.init();
 	md5.update((unsigned char const*)buffer , (unsigned int)strlen(buffer));
 	md5.end(out);
@@ -2081,7 +2081,7 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 	td->buffer->SetLength(0);
 	*td->buffer <<  HTTP_ERROR_MSGS[e_500];
 	*td->buffer << " from: " ;
-	*td->buffer << a->getipAddr() ;
+	*td->buffer << a->getIpAddr() ;
 	*td->buffer << "\r\n";	
 	td->buffer2->SetLength(0);
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";

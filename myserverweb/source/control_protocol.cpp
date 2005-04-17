@@ -592,7 +592,7 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
   if(lserver->getVerbosity() < 1)
     return 0;
 	getRFC822GMTTime(time, 32);
-  sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getipAddr(), time.c_str(), 
+  sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getIpAddr(), time.c_str(), 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin());
 	((Vhost*)(con->host))->warningslogRequestAccess(id);
@@ -608,7 +608,7 @@ int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
 {
 	string time;
 	getRFC822GMTTime(time, 32);
-  sprintf(b1,"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getipAddr(), time.c_str(), 
+  sprintf(b1,"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr(), time.c_str(), 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin() , retCode);
 	((Vhost*)(con->host))->accesseslogRequestAccess(id);
@@ -709,8 +709,8 @@ int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,File* out, char *b1,
   while(con)
   {
     sprintf(b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
-            (int)con->getID(),  con->getipAddr(), (int)con->getPort(), 
-            con->getlocalIpAddr(),  (int)con->getLocalPort(), 
+            (int)con->getID(),  con->getIpAddr(), (int)con->getPort(), 
+            con->getLocalIpAddr(),  (int)con->getLocalPort(), 
             con->getLogin(), con->getPassword());
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     if(ret)

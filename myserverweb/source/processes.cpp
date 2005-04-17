@@ -215,7 +215,7 @@ int Process::isProcessAlive()
   int ret = GetExitCodeProcess(*((HANDLE*)&pid), &ec);
   if(ret == 0)
     return 0;
-  if(ret == STILL_ACTIVE)
+  if(ec == STILL_ACTIVE)
     return 1;
   return 0; 
 #endif
@@ -389,7 +389,7 @@ int Process::setuid(u_long uid)
 #ifdef NOT_WIN
   return ::setuid(uid);
 #endif
-  return -1;
+  return 0;
 }
 
 /*!
@@ -400,5 +400,5 @@ int Process::setgid(u_long gid)
 #ifdef NOT_WIN
   return ::setgid(gid);
 #endif
-  return -1;
+  return 0;
 }

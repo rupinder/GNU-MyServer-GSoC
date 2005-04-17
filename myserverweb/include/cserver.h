@@ -99,8 +99,7 @@ private:
 	XmlParser languageParser;
   int autoRebootEnabled;
   int toReboot;
-  int rebootEnabled;
-  LogManager *logManager;
+  LogManager logManager;
   int serverReady;
 	u_long verbosity;
   u_long throttlingRate;
@@ -123,7 +122,6 @@ private:
 	void clearAllConnections();
 	int deleteConnection(ConnectionPtr,int);
 	u_long connectionTimeout;
-	u_long socketRcvTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);
 	int loadSettings();

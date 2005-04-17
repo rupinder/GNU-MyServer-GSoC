@@ -91,6 +91,7 @@ int Mutex::init()
 
 #else
 	mutex=CreateMutex(0,0,0);
+  ret=!mutex;
 #endif
 	initialized=1;
 	return ret ? 1 : 0;

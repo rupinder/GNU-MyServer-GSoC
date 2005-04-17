@@ -483,6 +483,28 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 	else if(valLen+30<maxLen) 
 		return 0;
 
+	if(td->request.CACHE_CONTROL[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_CACHE_CONTROL:%s\n",
+                    td->request.CACHE_CONTROL.c_str());
+	else if(valLen+30<maxLen) 
+		return 0;
+
+	if((td->request.RANGEBYTEBEGIN || td->request.RANGEBYTEEND) && (valLen+30<maxLen))
+	{
+    ostringstream rangeBuffer;
+		rangeBuffer << "HTTP_RANGE:" << td->request.RANGETYPE << "=" ;
+    if(td->request.RANGEBYTEBEGIN)
+    {
+      rangeBuffer << (int)td->request.RANGEBYTEBEGIN;
+    }
+    rangeBuffer << "-";
+    if(td->request.RANGEBYTEEND)
+    {
+      rangeBuffer << td->request.RANGEBYTEEND;
+     }   
+		valLen+=sprintf(&ValStr[valLen],"%s\n",rangeBuffer.str().c_str());
+	}
+  		
 	if(td->request.ACCEPTENC[0] && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",
                     td->request.ACCEPTENC.c_str());
@@ -590,8 +612,8 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->connection->getipAddr()[0] && valLen+30<maxLen)
-		valLen+=sprintf(&ValStr[valLen],"REMOTE_ADDR:\n",td->connection->getipAddr());
+	if(td->connection->getIpAddr()[0] && valLen+30<maxLen)
+		valLen+=sprintf(&ValStr[valLen],"REMOTE_ADDR:\n",td->connection->getIpAddr());
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -672,7 +694,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		((Vhost*)td->connection->host)->warningsLogWrite(
                                             "ISAPI: Error max connections\r\n");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_503);
 	}
 	if(execute)
   	loadLib=scriptpath;
@@ -884,7 +906,19 @@ int Isapi::load(XmlParser*/* confFile*/)
 		free(connTable);
 		
 	connTable = new ConnTableRecord[max_Connections];
-	ZeroMemory(connTable,sizeof(ConnTableRecord)*max_Connections);
+  for(int i=0;i<max_Connections; i++)
+  {
+   	connTable[i].Allocated=0;
+    connTable[i].only_header=0;
+	  connTable[i].headerSent=0;
+	  connTable[i].headerSize=0;
+	  connTable[i].td=0;
+    connTable[i].dataSent=0;
+  	connTable[i].envString=0;
+  	connTable[i].connection=0;
+  	connTable[i].ISAPIDoneEvent=0;
+  	connTable[i].lisapi=0;         
+  }
 	InitializeCriticalSection(&GetTableEntryCritSec);	
 	initialized=1;
 #endif

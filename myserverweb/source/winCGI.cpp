@@ -35,6 +35,7 @@ extern "C"
 #include <string.h>
 }
 
+#include <string>
 #include <sstream>
 using namespace std;
 
@@ -123,7 +124,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	if ( ret ) 
 	{
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite("Error creating WinCGI ini\r\n");
+		((Vhost*)td->connection->host)->warningsLogWrite("WinCGI: Error creating ini\r\n");
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
@@ -201,7 +202,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	strcpy(buffer,"Server Software=MyServer\r\n");
 	DataFileHandle.writeToFile(buffer,26,&nbr);
 
-	sprintf(buffer,"Remote Address=%s\r\n",td->connection->getipAddr());
+	sprintf(buffer,"Remote Address=%s\r\n",td->connection->getIpAddr());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
 	sprintf(buffer,"Server Port=%u\r\n",td->connection->getLocalPort());
@@ -244,7 +245,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		{
 			((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 			((Vhost*)td->connection->host)->warningsLogWrite(
-                                      "Error creating WinCGI output file\r\n");
+                                      "WinCGI: Error creating output file\r\n");
 			((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
 			File::deleteFile(outFilePath);
@@ -261,9 +262,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
 	if (proc.execHiddenProcess(&spi, timeout))
 	{
+    ostringstream msg;
+    msg << "WinCGI: Error executing process " << filename << "\r\n";
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(
-                            "Error executing WinCGI process\r\n");
+		((Vhost*)td->connection->host)->warningsLogWrite(msg.str().c_str());
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
@@ -274,18 +276,21 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                              FILE_OPEN_READ);
 	if (ret)
 	{
+    ostringstream msg;
+    msg << "WinCGI: Error opening output file " << outFilePath << "\r\n";
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(
-                                       "Error opening WinCGI output file\r\n");
+		((Vhost*)td->connection->host)->warningsLogWrite(msg.str().c_str());
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	OutFileHandle.readFromFile(buffer,td->buffer2->GetRealLength(),&nBytesRead);
 	if(nBytesRead==0)
 	{
+    ostringstream msg;
+    msg << "WinCGI: Error zero bytes read from the WinCGI output file " 
+        << outFilePath << "\r\n";
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(
-                    "Error zero bytes read from the WinCGI output file\r\n");
+		((Vhost*)td->connection->host)->warningsLogWrite(msg.str().c_str());
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		OutFileHandle.closeFile();
 		File::deleteFile(outFilePath);
@@ -392,7 +397,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 #ifdef NOT_WIN
   /*! WinCGI is available only under windows. */
 	td->buffer->SetLength(0);
-	*td->buffer << "Error WinCGI is not implemented\r\n" << '\0';
+	*td->buffer << "Error WinCGI is not implemented on the current architecture\r\n" << '\0';
 	((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 	((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->GetBuffer());
 	((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);

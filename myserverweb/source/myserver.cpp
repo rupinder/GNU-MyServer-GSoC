@@ -263,69 +263,76 @@ int main (int argn, char **argv)
   /*!
    *Start here the MyServer execution.
    */
-  switch(runas)
+   
+  try
   {
-	case MYSERVER_RUNAS_CONSOLE:
-		console_service(argn, argv);
-		break;
-	case MYSERVER_RUNAS_SERVICE:
+    switch(runas)
+    {
+	  case MYSERVER_RUNAS_CONSOLE:
+	  	console_service(argn, argv);
+	  	break;
+	  case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
-		runService();
+	  	runService();
 #else
-    /*!
-     *Run the daemon.
-     *pid is the process ID for the forked process.
-     *Fork the process.
-     */
-    pid = fork();
+      /*!
+       *Run the daemon.
+       *pid is the process ID for the forked process.
+       *Fork the process.
+       */
+      pid = fork();
 
-    /*!
-     *An error happened, return with errors.
-     */
-    if (pid < 0) 
-    {
-      return 1;
-    }
-    /*!
-     *A good process id, return with success. 
-     */
-    if (pid > 0) 
-    {
-      return 0;
-    }
-    /*!
-     *Store the PID.
-     */
+      /*!  
+       *An error happened, return with errors.
+       */
+      if (pid < 0) 
+      {
+        return 1;
+      }
+      /*!
+       *A good process id, return with success. 
+       */
+      if (pid > 0) 
+      {
+        return 0;
+      }
+      /*!
+       *Store the PID.
+       */
 #ifdef ARGP
-    if(input.pidFileName)
-      write_pidfile(input.pidFileName);
-    else
-      write_pidfile("/var/run/myserver.pid");
+      if(input.pidFileName)
+        write_pidfile(input.pidFileName);
+      else
+        write_pidfile("/var/run/myserver.pid");
 #else
-    write_pidfile("/var/run/myserver.pid");
+      write_pidfile("/var/run/myserver.pid");
 #endif
-    /*!
-     *Create a SID for the new process.
-     */
-    sid = setsid();
+      /*!
+       *Create a SID for the new process.
+       */
+      sid = setsid();
 
-    /*!
-     *Error in setting a new sid, return the error.
-     */
-    if (sid < 0) 
-    {
-      return 1;
-    }   
+      /*!
+       *Error in setting a new sid, return the error.
+       */
+      if (sid < 0) 
+      {
+        return 1;
+      }   
     
-    /*!
-     *Finally run the server from the forked process.
-     */
-		console_service(argn, argv);
+      /*!
+       *Finally run the server from the forked process.
+       */
+  		console_service(argn, argv);
 #endif
 
-		break;
+	  	break;
+    }
   }
-
+  catch(...)
+  {
+    return 1;
+  };
 	return 0;
 } 
 

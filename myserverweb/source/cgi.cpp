@@ -566,10 +566,10 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		memCgi << td->request.HOST.c_str();
 	}
 
-	if(td->connection->getipAddr()[0])
+	if(td->connection->getIpAddr()[0])
 	{
 		memCgi << end_str << "REMOTE_ADDR=";
-		memCgi << td->connection->getipAddr();
+		memCgi << td->connection->getIpAddr();
 	}
 
 	if(td->connection->getPort())

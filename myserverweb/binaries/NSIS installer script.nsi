@@ -18,6 +18,7 @@ InstallDir "$PROGRAMFILES\MyServer"
 
 InstallDirRegKey HKLM "Software\MyServer" ""
 
+
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "license.txt"
 !insertmacro MUI_PAGE_COMPONENTS
@@ -54,8 +55,6 @@ Section "MyServer core" SecCore
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
   File "web\*.*"
-  SetOutPath $INSTDIR\web\icons
-  File "web\icons\*.*"
   SetOutPath $INSTDIR\system
   File "system\security"
   File "system\*.*"

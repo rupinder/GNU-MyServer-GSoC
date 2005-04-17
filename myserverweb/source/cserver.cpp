@@ -71,11 +71,20 @@ int mustEndServer;
 
 Server::Server()
 {
-  logManager = new LogManager();
   threads = 0;
   toReboot = 0;
   autoRebootEnabled = 1;
   listeningThreads = 0;
+  nThreads=0;
+  pausing=0;
+  connections=0;
+  connectionToParse=0;
+  serverReady = 0;
+  throttlingRate = 0;
+  uid= 0;
+  gid = 0;
+  int serverReady;
+
   try
   {
     languages_path.assign("");
@@ -87,11 +96,7 @@ Server::Server()
   {
     throw;
   };
-  serverReady = 0;
-  throttlingRate = 0;
-  uid= 0;
-  gid = 0;
-  rebootEnabled=1;
+
 }
 
 /*!
@@ -99,8 +104,7 @@ Server::Server()
  */
 Server::~Server()
 {
-  if(logManager)
-    delete logManager;
+
 }
 
 /*!
@@ -128,7 +132,7 @@ void Server::start()
   
 #ifdef CLEAR_BOOT_SCREEN
 
-  if(logManager->getType() == LogManager::TYPE_CONSOLE )
+  if(logManager.getType() == LogManager::TYPE_CONSOLE )
   {
 #ifdef WIN32
     /*!
@@ -153,7 +157,7 @@ void Server::start()
   /*!
    *Print the MyServer signature only if the log writes to the console.
    */
-  if(logManager->getType() == LogManager::TYPE_CONSOLE )
+  if(logManager.getType() == LogManager::TYPE_CONSOLE )
   {
     try
     {
@@ -164,22 +168,22 @@ void Server::start()
       
       i=software_signature.length();
       while(i--)
-        logManager->write("*");
-      logManager->writeln("");
-      logManager->write(software_signature.c_str());
-      logManager->write("\n");    
+        logManager.write("*");
+      logManager.writeln("");
+      logManager.write(software_signature.c_str());
+      logManager.write("\n");    
       i=software_signature.length();
       while(i--)
-        logManager->write("*");
-      logManager->writeln("");
+        logManager.write("*");
+      logManager.writeln("");
     }
     catch(exception& e)
     {
       ostringstream err;
       err << "Error: " << e.what();
-      logManager->writeln("");
-      logManager->write(err.str().c_str());
-      logManager->write("\n");       
+      logManager.writeln("");
+      logManager.write(err.str().c_str());
+      logManager.write("\n");       
       return;
     };
   }
@@ -951,7 +955,6 @@ int Server::initialize(int /*!os_ver*/)
   nStaticThreads = 20;
   nMaxThreads = 50;
   currentThreadID = ClientsThread::ID_OFFSET;
-	socketRcvTimeout = 10;
 	connectionTimeout = MYSERVER_SEC(25);
 	mustEndServer=0;
 	verbosity=1;
@@ -1263,8 +1266,8 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	new_connection->setPort(port);
 	new_connection->setTimeout( get_ticks() );
 	new_connection->setLocalPort((u_short)localPort);
-	new_connection->setipAddr(ipAddr);
-	new_connection->setlocalIpAddr(localIpAddr);
+	new_connection->setIpAddr(ipAddr);
+	new_connection->setLocalIpAddr(localIpAddr);
 	new_connection->host = (void*)lserver->vhostList->getVHost(0, localIpAddr, 
                                                              (u_short)localPort);
 
@@ -1771,7 +1774,7 @@ int Server::loadSettings()
     }
     out << "uid: " << uid;
     logWriteln(out.str().c_str());
-    rebootEnabled = 0;
+    autoRebootEnabled = 0;
   }
   /*!
    *Do a similar thing for the group identifier.
@@ -1788,7 +1791,7 @@ int Server::loadSettings()
     }	
     out << "gid: " << gid;
     logWriteln(out.str().c_str()); 
-    rebootEnabled = 0;
+    autoRebootEnabled = 0;
   }
 
 	logWriteln(languageParser.getValue("MSG_READY"));
@@ -1796,7 +1799,7 @@ int Server::loadSettings()
   /*
    *Print this message only if the log outputs to the console screen.
    */
-  if(logManager->getType() == LogManager::TYPE_CONSOLE)
+  if(logManager.getType() == LogManager::TYPE_CONSOLE)
     logWriteln(languageParser.getValue("MSG_BREAK"));
 
   /*!
@@ -1811,7 +1814,7 @@ int Server::loadSettings()
  */
 int Server::logLockAccess()
 {
-  return logManager->requestAccess();
+  return logManager.requestAccess();
 }
 
 /*!
@@ -1819,7 +1822,7 @@ int Server::logLockAccess()
  */
 int Server::logUnlockAccess()
 {
-  return logManager->terminateAccess();
+  return logManager.terminateAccess();
 }
 
 /*!
@@ -1834,13 +1837,13 @@ int Server::reboot()
   toReboot = 0;
 
   /*! Do nothing if the reboot is disabled. */
-  if(!rebootEnabled)
+  if(!autoRebootEnabled)
     return 0;
   /*! Do a beep if outputting to console. */
-  if(logManager->getType() == LogManager::TYPE_CONSOLE)
+  if(logManager.getType() == LogManager::TYPE_CONSOLE)
   {
     char beep[]={(char)0x7, '\0'};
-    logManager->write(beep);
+    logManager.write(beep);
   }
   
   logWriteln("Rebooting...");
@@ -2113,7 +2116,7 @@ int Server::logWriteln(const char* str)
   /*!
    *If the log receiver is not the console output a timestamp.
    */
-  if(logManager->getType() != LogManager::TYPE_CONSOLE)
+  if(logManager.getType() != LogManager::TYPE_CONSOLE)
   {
     char time[38];
     int len;
@@ -2126,10 +2129,10 @@ int Server::logWriteln(const char* str)
     time[len+3]='-';
     time[len+4]=' ';
     time[len+5]='\0';
-    if(logManager->write(time))
+    if(logManager.write(time))
       return 1;
   }
-  return logManager->writeln((char*)str);
+  return logManager.writeln((char*)str);
 }
 
 /*!
@@ -2137,7 +2140,7 @@ int Server::logWriteln(const char* str)
  */
 int Server::logPreparePrintError()
 {
-  logManager->preparePrintError();
+  logManager.preparePrintError();
   return 0;
 }
 
@@ -2146,7 +2149,7 @@ int Server::logPreparePrintError()
  */
 int Server::logEndPrintError()
 {
-  logManager->endPrintError();
+  logManager.endPrintError();
   return 0;
 }
 
@@ -2157,10 +2160,10 @@ int Server::setLogFile(char* fileName)
 {
   if(fileName == 0)
   {
-    logManager->setType(LogManager::TYPE_CONSOLE);
+    logManager.setType(LogManager::TYPE_CONSOLE);
     return 0;
   }
-  return logManager->load(fileName);
+  return logManager.load(fileName);
 }
 
 /*!
