@@ -72,7 +72,7 @@ int LogManager::load(const char *filename)
     close();
 
   opt = FILE_OPEN_APPEND | FILE_OPEN_ALWAYS |
-            FILE_OPEN_WRITE | FILE_NO_INHERIT;
+            FILE_OPEN_WRITE | FILE_OPEN_READ | FILE_NO_INHERIT;
 
   ret = file.openFile(filename, opt);
 
@@ -317,7 +317,7 @@ int LogManager::storeFile()
     currentFile->closeFile();
     File::deleteFile(filepath.c_str());
     if(currentFile->openFile(filepath.c_str(), FILE_OPEN_APPEND| 
-                         FILE_OPEN_ALWAYS|FILE_OPEN_WRITE|FILE_NO_INHERIT))
+                         FILE_OPEN_ALWAYS|FILE_OPEN_WRITE|FILE_OPEN_READ|FILE_NO_INHERIT))
       return 1;
   }
 
