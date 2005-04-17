@@ -1116,11 +1116,29 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
     {
       accessLogFile->setCycleLog(1);
     }
+    if(strstr(vh->accessLogOpt, "gzip=no"))
+    {
+      accessLogFile->setGzip(0);
+    }
+    else
+    {
+      accessLogFile->setGzip(1);
+    }  
+ 
     warningLogFile = vh->getWarningsLog();
     warningLogFile->load(vh->warningsLogFileName.c_str());
     if(strstr(vh->warningLogOpt, "cycle=yes"))
     {
       warningLogFile->setCycleLog(1);
+    }
+
+    if(strstr(vh->warningLogOpt, "gzip=no"))
+    {
+      warningLogFile->setGzip(0);
+    }
+    else
+    {
+      warningLogFile->setGzip(1);
     }
 
     vh->setMaxLogSize(maxlogSize);

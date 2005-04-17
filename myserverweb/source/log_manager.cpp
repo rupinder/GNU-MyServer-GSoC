@@ -194,6 +194,22 @@ int LogManager::write(const char *str, int len)
 }
 
 /*!
+ *Set if the log will cycle log files using gzip.
+ */
+void LogManager::setGzip(int useGzip)
+{
+  gzipLog=useGzip;
+}
+
+/*!
+ *Returns nonzero if the log is using gzip for cycled logs.
+ */
+int LogManager::getGzip()
+{
+  return gzipLog;
+}
+
+/*!
  *Store the log manager in another file and reload the file.
  */
 int LogManager::storeFile()

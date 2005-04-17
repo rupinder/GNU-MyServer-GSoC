@@ -40,6 +40,8 @@ private:
   int cycleLog;
   int gzipLog;
 public:
+  void setGzip(int);
+  int getGzip();
   void setCycleLog(int);
   int getCycleLog();
   const static int TYPE_CONSOLE;
