@@ -208,6 +208,10 @@ int LogManager::storeFile()
   if(!cycleLog)
     return 1;
 
+#ifdef DO_NOT_USE_GZIP
+  gzipLog = 0;
+#endif
+
   filepath.assign(getFile()->getFilename());
   File::completePath(filepath);
 	File::splitPath(filepath, filedir, filename);
