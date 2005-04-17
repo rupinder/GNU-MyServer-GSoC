@@ -1248,6 +1248,13 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 }
 
 /*!
+ *Return the max number of threads that the server can start.
+ */
+int Server::getMaxThreads()
+{
+  return nMaxThreads;    
+}
+/*!
  *Add a new connection.
  *A connection is defined using a CONNECTION struct.
  */

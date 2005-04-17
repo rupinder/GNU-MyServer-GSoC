@@ -896,7 +896,7 @@ Isapi::Isapi()
 int Isapi::load(XmlParser*/* confFile*/)
 {
 #ifdef WIN32
-  u_long n_threads = lserver->getNumThreads();
+  u_long n_threads = lserver->getMaxThreads()/2;
 	if(initialized)
 		return 0;
 	isapi_mutex = new Mutex;

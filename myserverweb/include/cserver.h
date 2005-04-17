@@ -145,6 +145,7 @@ private:
 	string vhost_configuration_file;
 	string mime_configuration_file;
 public:
+	int getMaxThreads(); 
   u_long getUid();
   u_long getGid();
   int countAvailableThreads();
