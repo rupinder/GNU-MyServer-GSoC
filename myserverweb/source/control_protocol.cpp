@@ -952,6 +952,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
 int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out, 
                                         char *b1,int bs1)
 {
+  string searchPath;
   const char *path = lserver->getLanguagesPath();
   FindData fd;
   int ret = 0;
@@ -961,7 +962,12 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
     addToErrorLog(a,b1, strlen(b1));
     return CONTROL_INTERNAL;
   }
-  ret=fd.findfirst(path);
+  searchPath.assign(path);
+  
+#ifdef WIN32
+  searchPath.append("*.xml");
+#endif
+  ret=fd.findfirst(searchPath.c_str());
   if(ret == -1)
   {
     strcpy(b1,"Control: Error in directory lookup");

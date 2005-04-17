@@ -80,8 +80,14 @@ int main(int argc, char * argv[])
    SSL_load_error_strings();
 #endif
 
+#ifdef WIN32	
+	/*!
+   *Under windows we need to initialize the socket library before use it.
+   */
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD( 1, 1), &wsaData);
+
    // Find the language files:
-#ifdef WIN32
    strncpy(languages_path, "languages/", MAX_PATH);
    fd_ret=fd.findfirst("languages/*.xml");
 #else
