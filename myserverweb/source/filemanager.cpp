@@ -369,6 +369,8 @@ int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
  */
 int File::createTemporaryFile(const char* filename)
 { 
+  if(fileExists(filename))
+    deleteFile(filename);
 	return openFile(filename,FILE_OPEN_READ|FILE_OPEN_WRITE
                   |FILE_CREATE_ALWAYS|FILE_OPEN_TEMPORARY);
 

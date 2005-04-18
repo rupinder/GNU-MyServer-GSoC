@@ -40,6 +40,8 @@ extern "C" {
 #include <direct.h>
 #endif
 
+#include <iostream>
+using namespace std;
 /*!
  *Various utility functions.
  */
@@ -257,7 +259,7 @@ int preparePrintError()
 		return 0;
 #endif
 #ifdef NOT_WIN
-  printf("\033[31;1m");
+  cout << "\033[31;1m";
   return 0;
 #endif
 
@@ -276,7 +278,7 @@ int endPrintError()
 		return 0;
 #endif
 #ifdef NOT_WIN
-  printf("\033[0m");
+  cout << "\033[0m";
   return 0;
 #endif
 }

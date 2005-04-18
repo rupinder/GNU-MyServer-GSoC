@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <string>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -159,7 +160,7 @@ int LogManager::write(const char *str, int len)
   int ret;
   if(type == TYPE_CONSOLE)
   {
-    printf("%s", str);
+    cout << str;
   }
   else if(type == TYPE_FILE)
   {
