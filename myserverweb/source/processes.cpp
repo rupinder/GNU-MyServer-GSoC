@@ -358,8 +358,15 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 		}
 		exit(1);
 	} // end else if(pid == 0)
+ else
+ {
+    /*! Avoid to become a zombie process. */
+   struct sigaction sa;
+   sa.sa_handler = SIG_IGN;
+   sa.sa_flags   = SA_RESTART;
+   sigaction(SIGCHLD,&sa, (struct sigaction *)NULL);
 	return pid;
-
+}
 #endif	
 
 }
