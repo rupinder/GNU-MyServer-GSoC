@@ -1116,7 +1116,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
     {
       accessLogFile->setCycleLog(1);
     }
-    if(strstr(vh->accessLogOpt, "gzip=no"))
+    if(strstr(vh->accessLogOpt, "cycle_gzip=no"))
     {
       accessLogFile->setGzip(0);
     }
@@ -1132,7 +1132,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
       warningLogFile->setCycleLog(1);
     }
 
-    if(strstr(vh->warningLogOpt, "gzip=no"))
+    if(strstr(vh->warningLogOpt, "cycle_gzip=no"))
     {
       warningLogFile->setGzip(0);
     }
