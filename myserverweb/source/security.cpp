@@ -71,14 +71,14 @@ void SecurityToken::reset()
  *out after its use.
  */
 int SecurityManager::getErrorFileName(const char* sysDir,int error, 
-                                      char** out, XmlParser* parser)
+                                      string &out, XmlParser* parser)
 {
 	xmlNode *node;
 	ostringstream permissionsFile;
 	XmlParser localParser;  
   xmlDocPtr doc;
 	int found=0;
-  *out = 0;
+  out.assign("");
   if(parser == 0)
   { 
     permissionsFile << sysDir << "/security" ;
@@ -117,23 +117,12 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
           /*! The error ID is correct. */
           if(found)
           {
-            *out = new char[strlen(fileName)+1];
-            if(*out == 0)
-            {
-              if(parser == 0)
-              {
-                localParser.close();
-              }
-              return -1;
-            }
-            strcpy(*out,(const char*)fileName);
+            out.assign(fileName);
           }
        }
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
 				{
 					int errorId;
-          if(*out)
-            delete [] (*out);
           errorId = atoi((const char*)attr->children->content);
 					if(errorId == error)
 						found=1;
@@ -142,16 +131,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
           /*! The file name was still specified. */
           if(fileName)
           {
-            *out = new char[strlen(fileName)+1];
-            if(*out == 0)
-            {
-              if(parser == 0)
-              {
-                localParser.close();
-              }
-              return -1;
-            }
-            strcpy(*out,(const char*)fileName);
+            out.assign(fileName);
           }
 				}
 				attr=attr->next;
@@ -165,7 +145,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
     localParser.close();
   
   /*! Return 1 if both it was found and well configured. */
-  if(found && (*out))
+  if(found && out.length())
     return 1;
   
   return 0;

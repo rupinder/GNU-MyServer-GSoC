@@ -215,114 +215,125 @@ int LogManager::getGzip()
  */
 int LogManager::storeFile()
 {
-  string filepath;
-  string filedir;
-  string filename;
-  ostringstream newfilename;
-  string time;
-  Gzip gzip;
-  /*! Do nothing if we haven't to cycle log files. */
-  if(!cycleLog)
-    return 1;
+  try
+  {
+    string filepath;
+    string filedir;
+    string filename;
+    ostringstream newfilename;
+    string time;
+    Gzip gzip;
+    /*! Do nothing if we haven't to cycle log files. */
+    if(!cycleLog)
+      return 1;
 
 #ifdef DO_NOT_USE_GZIP
-  gzipLog = 0;
+    gzipLog = 0;
 #endif
 
-  filepath.assign(getFile()->getFilename());
-  File::completePath(filepath);
-	File::splitPath(filepath, filedir, filename);
+    filepath.assign(getFile()->getFilename());
+    File::completePath(filepath);
+    File::splitPath(filepath, filedir, filename);
 
-  getRFC822LocalTime(time, 32);
-  time = trim(time.substr(5,32));
-  
-  for(int i=0;i< time.length(); i++)
-    if((time[i] == ' ') || (time[i] == ':'))
-      time[i]= '.';
-  newfilename << filedir << "/" << filename << "." << time;
-
-  if(gzipLog)
-    newfilename << ".gz";
-
-  {
-    char gzipData[16];
-    File newFile;
-    File *currentFile = getFile();
-    char buffer[512];
-    char buffer2[512];
-    if(newFile.openFile(newfilename.str().c_str(), 
-                    FILE_OPEN_WRITE | FILE_NO_INHERIT | FILE_CREATE_ALWAYS ))
-      return 1;
-    if(currentFile->setFilePointer(0))
-    {
-      newFile.closeFile();
-      return 1;
-    }
+    getRFC822LocalTime(time, 32);
+    time = trim(time.substr(5,32));
+    
+    for(int i=0;i< time.length(); i++)
+      if((time[i] == ' ') || (time[i] == ':'))
+        time[i]= '.';
+    newfilename << filedir << "/" << filename << "." << time;
+    
     if(gzipLog)
-    {     
-      u_long nbw;
-      u_long  len = gzip.getHEADER(gzipData, 16);
-      if(newFile.writeToFile(gzipData, len,  &nbw))
-      {
-        newFile.closeFile();
-        return 1;
-      }  
-      gzip.initialize();
-    }
-
-    for(;;)
+      newfilename << ".gz";
+    
     {
-      u_long nbr;
-      u_long nbw;
-      if(currentFile->readFromFile(buffer,gzipLog ? 256 : 512, &nbr))
+      char gzipData[16];
+      File newFile;
+      File *currentFile = getFile();
+      char buffer[512];
+      char buffer2[512];
+      if(newFile.openFile(newfilename.str().c_str(), 
+                          FILE_OPEN_WRITE | FILE_NO_INHERIT | FILE_CREATE_ALWAYS ))
+        return 1;
+      if(currentFile->setFilePointer(0))
       {
         newFile.closeFile();
         return 1;
-      }    
-      if(nbr == 0)
-        break;
+      }
       if(gzipLog)
-      {
+      {    
         u_long nbw;
-        u_long size=gzip.compress(buffer,nbr, buffer2, 512);
-        if(newFile.writeToFile(buffer2, size, &nbw))
+        u_long  len = gzip.getHEADER(gzipData, 16);
+        if(newFile.writeToFile(gzipData, len,  &nbw))
+        {
+          newFile.closeFile();
+          return 1;
+        }  
+        gzip.initialize();
+      }
+      
+      for(;;)
+      {
+        u_long nbr;
+        u_long nbw;
+        if(currentFile->readFromFile(buffer,gzipLog ? 256 : 512, &nbr))
+        {
+          newFile.closeFile();
+          return 1;
+        }    
+        if(nbr == 0)
+          break;
+        if(gzipLog)
+        {
+          u_long nbw;
+          u_long size=gzip.compress(buffer,nbr, buffer2, 512);
+          if(newFile.writeToFile(buffer2, size, &nbw))
+          {
+            newFile.closeFile();
+            return 1;
+          } 
+        }
+        else if(newFile.writeToFile(buffer, 512, &nbw))
         {
           newFile.closeFile();
           return 1;
         } 
       }
-      else if(newFile.writeToFile(buffer, 512, &nbw))
+      if(gzipLog)
       {
-        newFile.closeFile();
+        u_long nbw;
+        u_long len = gzip.flush(buffer2, 512);
+        if(newFile.writeToFile(buffer2, len, &nbw))
+        {
+          newFile.closeFile();
+          return 1;
+        }  
+        len=gzip.getFOOTER(gzipData, 16);
+        if(newFile.writeToFile(gzipData, len, &nbw))
+        {
+          newFile.closeFile();
+          return 1;
+        }   
+        gzip.free();
+      }
+      newFile.closeFile();
+      currentFile->closeFile();
+      File::deleteFile(filepath.c_str());
+      if(currentFile->openFile(filepath.c_str(), FILE_OPEN_APPEND| 
+                       FILE_OPEN_ALWAYS|FILE_OPEN_WRITE|FILE_OPEN_READ|FILE_NO_INHERIT))
         return 1;
-      } 
     }
-    if(gzipLog)
-    {
-      u_long nbw;
-      u_long len = gzip.flush(buffer2, 512);
-      if(newFile.writeToFile(buffer2, len, &nbw))
-      {
-        newFile.closeFile();
-        return 1;
-      }  
-      len=gzip.getFOOTER(gzipData, 16);
-      if(newFile.writeToFile(gzipData, len, &nbw))
-      {
-        newFile.closeFile();
-        return 1;
-      }   
-      gzip.free();
-    }
-    newFile.closeFile();
-    currentFile->closeFile();
-    File::deleteFile(filepath.c_str());
-    if(currentFile->openFile(filepath.c_str(), FILE_OPEN_APPEND| 
-                         FILE_OPEN_ALWAYS|FILE_OPEN_WRITE|FILE_OPEN_READ|FILE_NO_INHERIT))
-      return 1;
+    
+    return 0;
   }
-
-  return 0;
+  catch(bad_alloc &ba)
+  {
+    throw;
+  }
+  catch(...)
+  {
+    throw;
+  };
 }
 
 /*!

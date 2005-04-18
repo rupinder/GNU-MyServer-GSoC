@@ -1973,169 +1973,174 @@ void Http::computeDigest(HttpThreadContext* td, char* out , char* buffer)
  */
 int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
 {
-  string time;
-  ostringstream errorFile;
-  Md5 md5;
-  td->lastError = ID;
-	HttpHeaders::buildDefaultHTTPResponseHeader(&(td->response));
-	if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
-	{
-		td->response.CONNECTION.assign("Keep-Alive");
-	}
-	if(ID==e_401AUTH)
-	{
-		td->response.httpStatus = 401;
-		td->buffer2->SetLength(0);
-		*td->buffer2 << 
-           "HTTP/1.1 401 Unauthorized\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
-		*td->buffer2 << versionOfSoftware ;
-		*td->buffer2 << "\r\nContent-type: text/html\r\nConnection: ";
-		*td->buffer2 <<td->request.CONNECTION.c_str();
-		*td->buffer2 << "\r\nContent-length: 0\r\n";
-		if(td->auth_scheme==HTTP_AUTH_SCHEME_BASIC)
-		{
-			*td->buffer2<<"WWW-Authenticate: Basic\r\n";
-		}
-		else if(td->auth_scheme==HTTP_AUTH_SCHEME_DIGEST)
-		{
-      char md5_str[256];
-			if(a->protocolBuffer==0)
-			{
-				a->protocolBuffer = new HttpUserData;
-				if(!a->protocolBuffer)
-				{
-					sendHTTPhardError500(td, a);
-					return 0;
-				}
-				((HttpUserData*)(a->protocolBuffer))->reset();
-			}
-			myserver_strlcpy(((HttpUserData*)a->protocolBuffer)->realm, 
-                       td->request.HOST.c_str(), 48);
-
-			/*! Just a random string. */
-			md5_str[0]=(char)td->id;
-			md5_str[1]=(char)((clock() >> 24) & 0xFF);
-			md5_str[2]=(char)((clock() >> 16) & 0xFF);
-			md5_str[3]=(char)((clock() >>  8)   & 0xFF);
-			md5_str[4]=(char) (clock() & 0xFF);
-			strncpy(&(md5_str[5]), td->request.URI.c_str(), 256-5);
-			md5.init();
-			md5.update((unsigned char const*)md5_str,  (unsigned int)strlen(md5_str));
-			md5.end(((HttpUserData*)a->protocolBuffer)->opaque);
-			
-			if(a->protocolBuffer && (!(((HttpUserData*)a->protocolBuffer)->digest)) || 
-         (((HttpUserData*)a->protocolBuffer)->nonce[0]=='\0'))
-			{
-				computeDigest(td, ((HttpUserData*)a->protocolBuffer)->nonce, md5_str);
-				((HttpUserData*)a->protocolBuffer)->nc=0;
-			}
-			*td->buffer2 << "WWW-Authenticate: Digest ";
-			*td->buffer2 << " qop=\"auth\", algorithm =\"MD5\", realm =\"";
-      *td->buffer2 << ((HttpUserData*)a->protocolBuffer)->realm ;
-			*td->buffer2 << "\",  opaque =\"" 
-                   << ((HttpUserData*)a->protocolBuffer)->opaque;
-
-			*td->buffer2<< "\",  nonce =\""<< ((HttpUserData*)a->protocolBuffer)->nonce;
-			*td->buffer2 <<"\" ";
-			if(((HttpUserData*)a->protocolBuffer)->cnonce[0])
-			{
-				*td->buffer2 << ", cnonce =\"";
-				*td->buffer2 <<((HttpUserData*)a->protocolBuffer)->cnonce;
-				*td->buffer2 <<"\" ";
-			}
-			*td->buffer2 << "\r\n";
-		}		
-		else
-		{
-			/*!
-       *Just send a non implemented error page.
-       */
-      return raiseHTTPError(td, a, 501);
-		}				
-		*td->buffer2 << "Date: ";
-		getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-		*td->buffer2  << time;
-		*td->buffer2 << "\r\n\r\n";
-		if(a->socket.send(td->buffer2->GetBuffer(), 
-                      td->buffer2->GetLength(), 0)==-1)
-		{
-			return 0;
-		}
-		return 1;
-	}
-	else
-	{
-		char *defFile = 0 ;
-    int ret;
-		td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-    sec_cache_mutex.lock();
-    /*! 
-     *The specified error file name must be in the web directory 
-     *of the virtual host. 
-     */
-		ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot.c_str(), 
-                                    getHTTPStatusCodeFromErrorID(ID),
-                                   ((Vhost*)(a->host))->systemRoot.c_str(), &defFile);
-    sec_cache_mutex.unlock();
-    if(ret == -1)
+  try
+  {
+    string time;
+    ostringstream errorFile;
+    Md5 md5;
+    td->lastError = ID;
+    HttpHeaders::buildDefaultHTTPResponseHeader(&(td->response));
+    if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
     {
-      if(defFile)
-      {
-        delete [] defFile;
-      }
-      sendHTTPhardError500(td, a);
-      return 0;
+      td->response.CONNECTION.assign("Keep-Alive");
     }
-    else if(ret)
+    if(ID==e_401AUTH)
     {
-			/*!
-       *Change the URI to reflect the default file name.
-       */
-			ostringstream nURL;
-			int isPortSpecified=0;
-			nURL << protocolPrefix << td->request.HOST.c_str() ;
-			for(int i=0;td->request.HOST[i];i++)
-			{
-				if(td->request.HOST[i]==':')
-				{
-					isPortSpecified = 1;
-					break;
-				}
-			}
-			if(!isPortSpecified)
-				nURL << ":" << ((Vhost*)a->host)->port;
-			if(nURL.str()[nURL.str().length()-1]!='/')
-				nURL << "/";
-      if(defFile)
+      td->response.httpStatus = 401;
+      td->buffer2->SetLength(0);
+      *td->buffer2 << 
+           "HTTP/1.1 401 Unauthorized\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
+      *td->buffer2 << versionOfSoftware ;
+      *td->buffer2 << "\r\nContent-type: text/html\r\nConnection: ";
+      *td->buffer2 <<td->request.CONNECTION.c_str();
+      *td->buffer2 << "\r\nContent-length: 0\r\n";
+      if(td->auth_scheme==HTTP_AUTH_SCHEME_BASIC)
       {
-        nURL << defFile;
-        delete [] defFile;
+        *td->buffer2<<"WWW-Authenticate: Basic\r\n";
       }
-			return sendHTTPRedirect(td, a, nURL.str().c_str());
-		}
-	}
-	getRFC822GMTTime(time, HTTP_RESPONSE_DATEEXP_DIM);
-  td->response.DATEEXP.assign(time);
-	td->response.ERROR_TYPE.assign(HTTP_ERROR_MSGS[ID], 
-                   HTTP_RESPONSE_ERROR_TYPE_DIM);
+      else if(td->auth_scheme==HTTP_AUTH_SCHEME_DIGEST)
+      {
+        char md5_str[256];
+        if(a->protocolBuffer==0)
+        {
+          a->protocolBuffer = new HttpUserData;
+          if(!a->protocolBuffer)
+          {
+            sendHTTPhardError500(td, a);
+            return 0;
+          }
+          ((HttpUserData*)(a->protocolBuffer))->reset();
+        }
+        myserver_strlcpy(((HttpUserData*)a->protocolBuffer)->realm, 
+                         td->request.HOST.c_str(), 48);
 
-  errorFile  << ((Vhost*)(a->host))->systemRoot << "/" << HTTP_ERROR_HTMLS[ID];
-  if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
-	{
-    string tmp;
-    tmp.assign(HTTP_ERROR_HTMLS[ID]);
-    return sendHTTPResource(td, a, tmp, 1, td->only_header);
-  }
+        /*! Just a random string. */
+        md5_str[0]=(char)td->id;
+        md5_str[1]=(char)((clock() >> 24) & 0xFF);
+        md5_str[2]=(char)((clock() >> 16) & 0xFF);
+        md5_str[3]=(char)((clock() >>  8)   & 0xFF);
+        md5_str[4]=(char) (clock() & 0xFF);
+        strncpy(&(md5_str[5]), td->request.URI.c_str(), 256-5);
+        md5.init();
+        md5.update((unsigned char const*)md5_str,  (unsigned int)strlen(md5_str));
+        md5.end(((HttpUserData*)a->protocolBuffer)->opaque);
+        
+        if(a->protocolBuffer && (!(((HttpUserData*)a->protocolBuffer)->digest)) || 
+           (((HttpUserData*)a->protocolBuffer)->nonce[0]=='\0'))
+        {
+          computeDigest(td, ((HttpUserData*)a->protocolBuffer)->nonce, md5_str);
+          ((HttpUserData*)a->protocolBuffer)->nc=0;
+        }
+        *td->buffer2 << "WWW-Authenticate: Digest ";
+        *td->buffer2 << " qop=\"auth\", algorithm =\"MD5\", realm =\"";
+        *td->buffer2 << ((HttpUserData*)a->protocolBuffer)->realm ;
+        *td->buffer2 << "\",  opaque =\"" 
+                     << ((HttpUserData*)a->protocolBuffer)->opaque;
+
+        *td->buffer2<< "\",  nonce =\""<< ((HttpUserData*)a->protocolBuffer)->nonce;
+        *td->buffer2 <<"\" ";
+        if(((HttpUserData*)a->protocolBuffer)->cnonce[0])
+        {
+          *td->buffer2 << ", cnonce =\"";
+          *td->buffer2 <<((HttpUserData*)a->protocolBuffer)->cnonce;
+          *td->buffer2 <<"\" ";
+        }
+        *td->buffer2 << "\r\n";
+      }		
+      else
+      {
+        /*!
+         *Just send a non implemented error page.
+         */
+        return raiseHTTPError(td, a, 501);
+      }				
+      *td->buffer2 << "Date: ";
+      getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
+      *td->buffer2  << time;
+      *td->buffer2 << "\r\n\r\n";
+      if(a->socket.send(td->buffer2->GetBuffer(), 
+                        td->buffer2->GetLength(), 0)==-1)
+      {
+        return 0;
+      }
+      return 1;
+    }
+    else
+    {
+      string defFile;
+      int ret;
+      td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
+      sec_cache_mutex.lock();
+      /*! 
+       *The specified error file name must be in the web directory 
+       *of the virtual host. 
+       */
+      ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot.c_str(), 
+                                       getHTTPStatusCodeFromErrorID(ID),
+                                       ((Vhost*)(a->host))->systemRoot.c_str(), defFile);
+      sec_cache_mutex.unlock();
+      if(ret == -1)
+      {
+        sendHTTPhardError500(td, a);
+        return 0;
+      }
+      else if(ret)
+      {
+        /*!
+         *Change the URI to reflect the default file name.
+         */
+        ostringstream nURL;
+        int isPortSpecified=0;
+        nURL << protocolPrefix << td->request.HOST.c_str() ;
+        for(int i=0;td->request.HOST[i];i++)
+        {
+          if(td->request.HOST[i]==':')
+          {
+            isPortSpecified = 1;
+            break;
+          }
+        }
+        if(!isPortSpecified)
+          nURL << ":" << ((Vhost*)a->host)->port;
+        if(nURL.str()[nURL.str().length()-1]!='/')
+          nURL << "/";
+
+        nURL << defFile;
+        
+        return sendHTTPRedirect(td, a, nURL.str().c_str());
+      }
+    }
+    getRFC822GMTTime(time, HTTP_RESPONSE_DATEEXP_DIM);
+    td->response.DATEEXP.assign(time);
+    td->response.ERROR_TYPE.assign(HTTP_ERROR_MSGS[ID], 
+                                   HTTP_RESPONSE_ERROR_TYPE_DIM);
+    
+    errorFile  << ((Vhost*)(a->host))->systemRoot << "/" << HTTP_ERROR_HTMLS[ID];
+    if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
+    {
+        string tmp;
+        tmp.assign(HTTP_ERROR_HTMLS[ID]);
+        return sendHTTPResource(td, a, tmp, 1, td->only_header);
+    }
 
   
-	/*! Send the error over the HTTP. */
-	td->response.CONTENT_LENGTH.assign("0");
+    /*! Send the error over the HTTP. */
+    td->response.CONTENT_LENGTH.assign("0");
 
-	HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), &td->response);
-	if(a->socket.send(td->buffer->GetBuffer(), 
-                    (u_long)strlen(td->buffer->GetBuffer()), 0)==-1)
-		return 0;
-	return 1;
+    HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), &td->response);
+    if(a->socket.send(td->buffer->GetBuffer(), 
+                      (u_long)strlen(td->buffer->GetBuffer()), 0)==-1)
+      return 0;
+    return 1;
+  }
+  catch(bad_alloc &ba)
+  {
+    return 0;
+  }
+  catch(...)
+  {
+    return 0;
+  };
 }
 
 /*!

@@ -20,6 +20,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/hash_dictionary.h"
 #include "../include/security.h"
 
+#include <string>
+
+using namespace std;
+
 class SecurityCache
 {
 private:
@@ -36,7 +40,7 @@ public:
   int getMaxNodes();
   int getPermissionMask(SecurityToken* st);
   int getErrorFileName(const char *root, int error, 
-                       const char* sysdirectory, char** out);
+                       const char* sysdirectory, string& out);
 };
 
 

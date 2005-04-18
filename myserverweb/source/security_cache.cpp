@@ -40,7 +40,7 @@ SecurityCache::SecurityCache()
  *Get the error file name from the security file.
  */
 int SecurityCache::getErrorFileName(const char *directory, int error, 
-                                    const char* sysdirectory, char** out)
+                                    const char* sysdirectory, string& out)
 {
   string permissionsFile;
   XmlParser *parser;

@@ -36,6 +36,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include<openssl/rsa.h>
 #endif
 
+#include <string>
+
+using namespace std;
+
 /*!
  *Various permissions flags.
  */
@@ -93,7 +97,8 @@ class SecurityManager
 public:
   SecurityManager();
   ~SecurityManager();
-  int getErrorFileName(const char *sysDir, int error, char** out,XmlParser* parser=0);
+  int getErrorFileName(const char *sysDir, int error, string& out, 
+                       XmlParser* parser=0);
   int getPermissionMask(SecurityToken* st, XmlParser* parser=0);
 };
 #endif
