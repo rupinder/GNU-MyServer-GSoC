@@ -221,6 +221,8 @@ int Process::isProcessAlive()
 #endif
 
 #ifdef NOT_WIN
+
+#ifdef PROCESS_ALIVE_USEWAITPID
   int status = 0;
   int ret;
   do
@@ -231,6 +233,20 @@ int Process::isProcessAlive()
   if(!ret)
     return 1;
   return 0;
+#else
+  /*! Send the pseudo-signal 0 to check if the process is alive. */
+  int ret;
+  do
+  {
+    ret=kill(pid, 0);
+  }
+  while(!ret && errno==EINTR);
+  if(ret == 0)
+    return 1;
+  return 0;
+#endif
+
+
 #endif
   return 0;
 }
