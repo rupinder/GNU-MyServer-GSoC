@@ -1167,14 +1167,14 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 		out.writeToFile("<VHOST>\r\n",9,&nbw);
 
 		out.writeToFile("<NAME>",6,&nbw);
-		out.writeToFile(list->host->name.c_str(),(u_long)list->host->name.length(),&nbw);
+		out.writeToFile(list->host->name.c_str(), list->host->name.length(), &nbw);
 		out.writeToFile("</NAME>\r\n",9,&nbw);
 
 		Vhost::sIpList *ipList = list->host->ipList;
 		while(ipList)
 		{
 			out.writeToFile("<IP>",4,&nbw);
-			out.writeToFile(ipList->hostIp.c_str(),(u_long)ipList->hostIp.c_str(),&nbw);
+			out.writeToFile(ipList->hostIp.c_str(), ipList->hostIp.length(), &nbw);
 			out.writeToFile("</IP>\r\n",7,&nbw);
 			ipList=ipList->next;
 		}

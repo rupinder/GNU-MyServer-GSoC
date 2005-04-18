@@ -360,7 +360,10 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 	} // end else if(pid == 0)
  else
  {
-    /*! Avoid to become a zombie process. */
+    /*! 
+     *Avoid to become a zombie process. This is needed by the
+     *Process::isProcessAlive routine.
+     */
    struct sigaction sa;
    sa.sa_handler = SIG_IGN;
    sa.sa_flags   = SA_RESTART;
