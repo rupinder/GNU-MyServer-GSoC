@@ -497,7 +497,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			HttpHeaders::buildHTTPResponseHeader(td->buffer2->GetBuffer(),
                                             &td->response);
 			if(td->connection->socket.send( td->buffer2->GetBuffer(),
-                                      (int)strlen(td->buffer2->GetBuffer()),
+                                      static_cast<int>(strlen(td->buffer2->GetBuffer())),
                                       0) == SOCKET_ERROR )
       {
 				exit = 1;
@@ -671,7 +671,7 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp,
 		if(*(++sptr)=='\0')
 			break;
 	}
-	return (int)(ptr-ep);
+	return static_cast<int>(ptr-ep);
 }
 
 /*!

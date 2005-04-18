@@ -341,7 +341,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			td->buffer->SetLength((u_int)strlen(td->buffer->GetBuffer()));
 
 			if(s->socket.send(td->buffer->GetBuffer(),
-                        (int)(td->buffer->GetLength()), 0)==SOCKET_ERROR)
+                        static_cast<int>(td->buffer->GetLength()), 0)==SOCKET_ERROR)
       {
         stdInFile.closeFile();
         stdOutFile.closeFile();
@@ -524,7 +524,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		memCgi << end_str << "HTTP_RANGE=" << td->request.RANGETYPE << "=" ;
     if(td->request.RANGEBYTEBEGIN)
     {
-      rangeBuffer << (int)td->request.RANGEBYTEBEGIN;
+      rangeBuffer << static_cast<int>(td->request.RANGEBYTEBEGIN);
       memCgi << rangeBuffer.str();
     }
     memCgi << "-";

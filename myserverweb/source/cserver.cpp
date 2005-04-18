@@ -1857,7 +1857,7 @@ int Server::reboot()
   /*! Do a beep if outputting to console. */
   if(logManager.getType() == LogManager::TYPE_CONSOLE)
   {
-    char beep[]={(char)0x7, '\0'};
+    char beep[]={static_cast<char>(0x7), '\0'};
     logManager.write(beep);
   }
   

@@ -284,7 +284,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
   }
   /*! Save the effective request length. */
   if(len)
-    *len = (int)(offset - buffer);
+    *len = static_cast<int>(offset - buffer);
 
   if(end_reached)
     return CONTROL_OK;

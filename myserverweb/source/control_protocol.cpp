@@ -310,10 +310,10 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   }
 
   /*! Check if there are other bytes waiting to be read. */
-  if(specified_length && (specified_length != (int)(nbtr - realHeaderLength) ))
+  if(specified_length && (specified_length != static_cast<int>(nbtr - realHeaderLength) ))
   {
     /*! Check if we can read all the specified data. */
-    while(specified_length != (int)(nbtr - realHeaderLength))
+    while(specified_length != static_cast<int>(nbtr - realHeaderLength))
     {
       if(a->socket.bytesToRead())
       {
@@ -709,8 +709,8 @@ int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,File* out, char *b1,
   while(con)
   {
     sprintf(b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
-            (int)con->getID(),  con->getIpAddr(), (int)con->getPort(), 
-            con->getLocalIpAddr(),  (int)con->getLocalPort(), 
+            static_cast<int>(con->getID()),  con->getIpAddr(), static_cast<int>(con->getPort()), 
+            con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
             con->getLogin(), con->getPassword());
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     if(ret)

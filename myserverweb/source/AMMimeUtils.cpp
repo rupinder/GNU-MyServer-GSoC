@@ -48,7 +48,7 @@ char* strustr(char *source, char *s)
 	char *result = strstr(csource, cs);
 	if (result != NULL)
 	{
-		int pos =(int) (result - csource);
+		int pos =static_cast<int>(result - csource);
 		result = source;
 		result += pos;
 	}
@@ -193,7 +193,7 @@ char* MimeDecodeMailHeaderField(char *s)
 	while (*s1 == ' ') s1++;
 	if (strupos(s1, "=?") > 0)
 	{
-		int startendpos =(int)strupos(s1, "=?");
+		int startendpos =static_cast<int>(strupos(s1, "=?"));
 		start = new char[startendpos + 1];
 		strncpy(start, s, startendpos);
 		start[startendpos] = '\0';
@@ -203,16 +203,16 @@ char* MimeDecodeMailHeaderField(char *s)
 	{
     int alloclen;
 		char *decodedText=0;
-		int plainpos =(int)strupos(s1, "Q?=");
+		int plainpos =static_cast<int>(strupos(s1, "Q?="));
 		if (plainpos > 0)
 		{
 			plainpos += 3;
 			char *m = s1 + plainpos;
-			plainpos +=(int)strupos(m, "?=");
+			plainpos +=static_cast<int>(strupos(m, "?="));
 		}
 		else
 		{
-			plainpos =(int)strupos(s1, "?=");
+			plainpos =static_cast<int>(strupos(s1, "?="));
 		}
 		if (plainpos > 1)
 		{
@@ -227,7 +227,7 @@ char* MimeDecodeMailHeaderField(char *s)
 		if (strupos(s1, "?Q?") > 0)
 		{
 			CQPUtils qp;
-			int pos =(int)strupos(s1, "?Q?");
+			int pos =static_cast<int>(strupos(s1, "?Q?"));
 			s1 += pos;
 			if (strlen(s1) < 4) return s;
 			s1 += 3;
@@ -237,16 +237,16 @@ char* MimeDecodeMailHeaderField(char *s)
 		{
       CBase64Utils bu;
       int sLen;
-			int pos =(int)strupos(s1, "?B?");
+			int pos =static_cast<int>(strupos(s1, "?B?"));
 			s1 += pos;
 			if (strlen(s1) < 4) return s; 
 			s1 += 3;
-      sLen =(int)strlen(s1);
+      sLen =static_cast<int>(strlen(s1));
 			decodedText = bu.Decode(s1, &sLen);
 		}
-		alloclen =(int)strlen(decodedText) + 1;
-		if (start != NULL) alloclen +=(int)strlen(start);
-		if (rest != NULL) alloclen +=(int)strlen(rest);
+		alloclen =static_cast<int>(strlen(decodedText)) + 1;
+		if (start != NULL) alloclen +=static_cast<int>(strlen(start));
+		if (rest != NULL) alloclen +=static_cast<int>(strlen(rest));
 		alloclen *= sizeof(char);
 		s = (char*)realloc(s, alloclen);
 		s[0] = '\0';
@@ -394,7 +394,7 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 	char *s = input, *result = finalresult;
 	while (*s != '=' && count <= *bufsize)
 	{
-		while (base64map[(int)((char)*s)] == SKIP)
+		while (base64map[static_cast<int>(static_cast<char>(*s))] == SKIP)
 		{
 			if (*s != '\r' && *s != '\n')
 			{
@@ -416,14 +416,14 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 			tmp = std;
 			tmp >>= 16;
 			tmp &= 0xFF;
-			*(result++) = (char)(tmp);
+			*(result++) = static_cast<char>(tmp);
 			tmp = std;
 			tmp >>= 8;
 			tmp &= 0xFF;
-			*(result++) = (char)(tmp);
+			*(result++) = static_cast<char>(tmp);
 			tmp = std;
 			tmp &= 0xFF;
-			*(result++) = (char)(tmp);
+			*(result++) = static_cast<char>(tmp);
 			std = 0;
 			resultlen += 3;
 		}
@@ -442,14 +442,14 @@ char* CBase64Utils::Decode(char *input, int *bufsize)
 		tmp = std;
 		tmp >>= 16;
 		tmp &= 0xFF;
-		*(result++) = (char)(tmp);
+		*(result++) = static_cast<char>(tmp);
 		tmp = std;
 		tmp >>= 8;
 		tmp &= 0xFF;
-		*(result++) = (char)(tmp);
+		*(result++) = static_cast<char>(tmp);
 		tmp = std;
 		tmp &= 0xFF;
-		*(result++) = (char)(tmp);
+		*(result++) = static_cast<char>(tmp);
 	}
 	*bufsize = resultlen;
 	return finalresult;
@@ -486,7 +486,7 @@ char* CQPUtils::Decode(char *input)
 			s++;
 			for (i = 0; i < 2; i++)
 			{
-				if (hexmap[(int) ((char)s[i]) ] == SKIP)
+				if (hexmap[static_cast<int>(static_cast<char>(s[i])) ] == SKIP)
 				{
 					ok = 0;
 					if (s[i] == '\r' && s[i + 1] == '\n')
@@ -505,10 +505,10 @@ char* CQPUtils::Decode(char *input)
 			{
         int m;
 				s += 2;
-				m = hexmap[(int)((char)mid[0])];
+				m = hexmap[static_cast<int>(static_cast<char>(mid[0]))];
 				m <<= 4;
-				m |= hexmap[(int)((char)mid[1])];
-				*(result++) = (char)m;
+				m |= hexmap[static_cast<int>(static_cast<char>(mid[1]))];
+				*(result++) = static_cast<char>(m);
 			}
 		}
 		else
@@ -541,7 +541,7 @@ char* CQPUtils::ExpandBuffer(char *buffer, int UsedSize, int *BufSize,
 
 char* CQPUtils::Encode(char *input)
 {
-	int BufSize = (int)(strlen(input) + BufAdd);
+	int BufSize = static_cast<int>(strlen(input) + BufAdd);
 	int UsedSize = 0;
 	int LineLen = 0; 
 	char *finalresult = (char*)calloc(BufSize, sizeof(char));

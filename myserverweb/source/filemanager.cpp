@@ -615,7 +615,7 @@ int File::getFilenameLength(const char *path, int *filename)
 	int splitpoint, i, j;
 	i = 0;
 	j = 0;
-	splitpoint =(int)(strlen(path) - 1);
+	splitpoint =static_cast<int>(strlen(path) - 1);
 	while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
   *filename = splitpoint + 1;
@@ -633,7 +633,7 @@ void File::getFilename(const char *path, char *filename)
 	int splitpoint, i, j;
 	i = 0;
 	j = 0;
-	splitpoint =(int)(strlen(path) - 1);
+	splitpoint =static_cast<int>(strlen(path) - 1);
 	while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
@@ -685,7 +685,7 @@ void File::splitPathLength(const char *path, int *dir, int *filename)
   len = strlen(path);
 	i = 0;
 	j = 0;
-	splitpoint =(int)(len-1);
+	splitpoint =static_cast<int>(len-1);
 	while ((splitpoint > 0) && ((path[splitpoint] != '/') 
                               && (path[splitpoint] != '\\')))
 		splitpoint--;
@@ -708,7 +708,7 @@ void File::splitPath(const char *path, char *dir, char *filename)
 	j = 0;
 	if(path==0)
 		return;
-	splitpoint =(int)( strlen(path) - 1);
+	splitpoint =static_cast<int>(strlen(path) - 1);
 	while ((splitpoint > 0) && ((path[splitpoint] != '/') 
                               &&(path[splitpoint] != '\\')))
 		splitpoint--;
@@ -773,7 +773,7 @@ void File::splitPath(string const &path, string& dir, string& filename)
 void File::getFileExt(char* ext,const char* filename)
 {
 	int nDot, nPathLen;
-	nPathLen = (int)(strlen(filename) - 1);
+	nPathLen = static_cast<int>(strlen(filename) - 1);
 	nDot = nPathLen;
 	while ((nDot > 0) && (filename[nDot] != '.'))
 		nDot--;
