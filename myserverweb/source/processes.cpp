@@ -221,8 +221,13 @@ int Process::isProcessAlive()
 #endif
 
 #ifdef NOT_WIN
-  int status = 101;
-  int ret = waitpid(pid, &status, WNOHANG);
+  int status = 0;
+  int ret;
+  do
+  {
+    ret = waitpid(pid, &status, WNOHANG);
+  }
+  while(!ret && errno==EINTR);
   if(!ret)
     return 1;
   return 0;
