@@ -201,51 +201,73 @@ int MimeManager::loadXML(const char *fn)
     rc.cgi_manager.assign("");
 		while(lcur)
 		{
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
+			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
 			{
 				if(lcur->children->content)
 					rc.extension.assign((char*)lcur->children->content);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
+
+			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
 			{
 				if(lcur->children->content)
 					rc.mime_type.assign((char*)lcur->children->content);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
+
+			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
 			{
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"SEND"))
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"SEND"))
 					rc.command=CGI_CMD_SEND;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNCGI"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNCGI"))
 					rc.command=CGI_CMD_RUNCGI;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNMSCGI"))
+			
+        if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNMSCGI"))
 					rc.command=CGI_CMD_RUNMSCGI;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTE"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTE"))
 					rc.command=CGI_CMD_EXECUTE;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNISAPI"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNISAPI"))
 					rc.command=CGI_CMD_RUNISAPI;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEISAPI"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEISAPI"))
 					rc.command=CGI_CMD_EXECUTEISAPI;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
 					rc.command=CGI_CMD_SENDLINK;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEWINCGI"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEWINCGI"))
 					rc.command=CGI_CMD_EXECUTEWINCGI;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
 					rc.command=CGI_CMD_RUNFASTCGI;
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
+
+				if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
 					rc.command=CGI_CMD_EXECUTEFASTCGI;
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
+
+			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
 			{
-				if(lcur->children->content)
-				{
-					if(lstrcmpi((char*)lcur->children->content,"NONE"))
-          {
-  						rc.cgi_manager.assign((char*)lcur->children->content);
-          }
-					else
-						rc.cgi_manager.assign("");
-				}
-			}
+        /*! If the specified manager is not NONE store its path in the record. */
+				if(lcur->children->content && lstrcmpi((char*)lcur->children->content,"NONE"))
+        {
+          rc.cgi_manager.assign((char*)lcur->children->content);
+        }
+        else
+        {
+          rc.cgi_manager.assign("");
+        }
+      }
 			lcur=lcur->next;
 		}
 		nm++;
@@ -258,6 +280,7 @@ int MimeManager::loadXML(const char *fn)
 
 	return nm;
 }
+
 /*!
  *Save the MIME types to a XML file.
  */
@@ -435,7 +458,6 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
    */
 	return CGI_CMD_SEND;
 }
-
 
 /*!
  *Get a MIME type by the position of the record in the list.
