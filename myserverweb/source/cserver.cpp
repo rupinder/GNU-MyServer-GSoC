@@ -181,9 +181,12 @@ void Server::start()
     {
       ostringstream err;
       err << "Error: " << e.what();
-      logManager.writeln("");
       logManager.write(err.str().c_str());
       logManager.write("\n");       
+      return;
+    }
+    catch(...)
+    {
       return;
     };
   }
