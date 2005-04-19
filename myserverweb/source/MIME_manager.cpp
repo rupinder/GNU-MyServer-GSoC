@@ -155,7 +155,11 @@ int MimeManager::load(const char *fn)
 				record.cgi_manager.assign("");
 			
 		}
-		addRecord(record);
+		if(addRecord(record))
+    {
+      clean();
+      return 0;
+    }
 		nc++;
 	}
 	delete [] buffer;
@@ -171,14 +175,14 @@ const char *MimeManager::getFilename()
 }
 
 /*!
- *Load the MIME types from a XML file.
+ *Load the MIME types from a XML file. Returns the number of
+ *MIME types loaded successfully.
  */
 int MimeManager::loadXML(const char *fn)
 {
 	XmlParser parser;
 	xmlNodePtr node;
   xmlDocPtr doc;
-	int nm;
   if(!fn)
     return -1;
 	filename.assign(fn);
@@ -188,7 +192,6 @@ int MimeManager::loadXML(const char *fn)
 	}
 	doc = parser.getDoc();
 	node=doc->children->children;
-	nm=0;
 	for(;node;node=node->next )
 	{
 		xmlNodePtr lcur=node->children;
@@ -270,15 +273,18 @@ int MimeManager::loadXML(const char *fn)
       }
 			lcur=lcur->next;
 		}
-		nm++;
-		addRecord(rc);
+		if(addRecord(rc))
+    {
+      clean();
+      return 0;
+    }
 	}
 	parser.close();
   
   /*! Store the loaded status. */
   loaded = 1;
 
-	return nm;
+	return numMimeTypesLoaded;
 }
 
 /*!
@@ -557,26 +563,37 @@ MimeManager::MimeManager()
 }
 
 /*!
- *Add a new record.
+ *Add a new record. Returns zero on success.
  */
-void MimeManager::addRecord(MimeManager::MimeRecord mr)
+int MimeManager::addRecord(MimeManager::MimeRecord mr)
 {
 	/*!
    *If the MIME type already exists remove it.
    */
-	MimeManager::MimeRecord *nmr;
-	if(getRecord(mr.extension))
-		removeRecord(mr.extension);
-	nmr =new MimeManager::MimeRecord;
-	if(!nmr)	
-		return;
-  nmr->extension.assign(mr.extension);
-	nmr->mime_type.assign(mr.mime_type);
-	nmr->command=mr.command;
-	nmr->cgi_manager.assign(mr.cgi_manager);
-	nmr->next =data;
-	data=nmr;
-	numMimeTypesLoaded++;
+  MimeManager::MimeRecord *nmr=0;
+  try
+  {
+    if(getRecord(mr.extension))
+      removeRecord(mr.extension);
+    nmr =new MimeManager::MimeRecord;
+    if(!nmr)	
+      return 1;
+    nmr->extension.assign(mr.extension);
+    nmr->mime_type.assign(mr.mime_type);
+    nmr->command=mr.command;
+    nmr->cgi_manager.assign(mr.cgi_manager);
+    nmr->next =data;
+    data=nmr;
+    numMimeTypesLoaded++;
+  }
+  catch(...)
+  {
+    if(nmr)
+      delete nmr;
+    return 1;
+  };
+  
+  return 0;
 }
 
 /*!

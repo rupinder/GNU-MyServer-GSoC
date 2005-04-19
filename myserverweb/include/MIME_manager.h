@@ -96,15 +96,28 @@ public:
 	const char *getFilename();
 	MimeManager();
   ~MimeManager();
-	void addRecord(MimeManager::MimeRecord);
+	int addRecord(MimeManager::MimeRecord);
 	MimeManager::MimeRecord *getRecord(string const &ext);
 	void removeAllRecords();
 	void removeRecord(const string& ext);
 	u_long getNumMIMELoaded();
+
 	int load(const char *filename);
+	int load(string& filename)
+    {return load(filename.c_str());}
+
 	int loadXML(const char *filename);
+	int loadXML(string &filename)
+    {return loadXML(filename.c_str());}
+
 	int saveXML(const char *filename);
+	int saveXML(string &filename)
+    {return saveXML(filename.c_str());}
+
 	int save(const char *filename);
+	int save(string &filename)
+    {return save(filename.c_str());}
+
 	int getMIME(char* ext,char *dest,char **dest2);
 	int getMIME(int id,char* ext,char *dest,char **dest2);
   int getMIME(string& ext,string& dest,string& dest2);

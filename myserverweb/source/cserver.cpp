@@ -1371,6 +1371,9 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 	{
 		return 0;
 	}
+
+  connections_mutex_lock();
+
 	for(ConnectionPtr i=connections;i;i=i->next )
 	{
 		if(i->socket == s->socket)
@@ -1396,12 +1399,14 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 
 	delete s;
 
+  connections_mutex_unlock();
+
 	return ret;
 }
 
 /*!
- *Get a connection to parse. Be sure to have the connections access for the 
- *caller thread before use this.
+ *Get a connection to parse. Be sure to have the connections mutex
+ *access for the caller thread before use this.
  *Using this without the right permissions can cause wrong data 
  *returned to the client.
  */

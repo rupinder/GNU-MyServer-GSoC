@@ -194,8 +194,7 @@ void * startClientsThread(void* pParam)
       
       ct->parsing = 1;
       ret = ct->controlConnections();
-      ct->parsing = 0;
-      
+
       /*!
        *The thread served the connection, so update the timeout value.
        */
@@ -232,6 +231,8 @@ void * startClientsThread(void* pParam)
       lserver->logWriteln(s.str().c_str());
       lserver->logEndPrintError();
     };
+    
+    ct->parsing = 0;
   }
   ct->threadIsStopped = 1;
   
@@ -332,9 +333,7 @@ int ClientsThread::controlConnections()
 
 		if(err==-1)
 		{
-			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
-			lserver->connections_mutex_unlock();
 			return 0;
 		}
  		if((c->getDataRead() + err) <= MYSERVER_KB(8))
@@ -343,9 +342,7 @@ int ClientsThread::controlConnections()
 		}
 		else
 		{
-			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
-			lserver->connections_mutex_unlock();
 			return 0;
 		}
 
@@ -417,19 +414,17 @@ int ClientsThread::controlConnections()
      *2 if the header is incomplete and to save it in a temporary buffer.
      *3 if the header is incomplete without save it in a temporary buffer.
      */
-		if(retcode==0)/*Delete the connection*/
+		if(retcode==0)/*! Delete the connection. */
 		{
-			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
-			lserver->connections_mutex_unlock();
 			return 0;
 		}
-		else if(retcode==1)/*Keep the connection*/
+		else if(retcode==1)/*! Keep the connection. */
 		{
 			c->setDataRead(0);
 			c->connectionBuffer[0]='\0';
 		}
-		else if(retcode==2)/*Incomplete request to buffer*/
+		else if(retcode==2)/*! Incomplete request to buffer. */
 		{
 			/*!
        *If the header is incomplete save the current received
@@ -459,9 +454,7 @@ int ClientsThread::controlConnections()
      */
 		if((get_ticks()- c->getTimeout()) > lserver->getTimeout() )
 		{
-			lserver->connections_mutex_lock();
 			lserver->deleteConnection(c, this->id);
-			lserver->connections_mutex_unlock();
 			return 0;
 		}
 	}

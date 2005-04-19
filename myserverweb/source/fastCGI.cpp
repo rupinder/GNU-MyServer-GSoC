@@ -783,7 +783,6 @@ sfCGIservers* FastCgi::isFcgiServerRunning(const char* path)
   catch(...)
   {
     servers_mutex.unlock();
-    throw;
   };
 
   servers_mutex.unlock();
@@ -901,8 +900,6 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
       servers_mutex.unlock();
       return 0;
     }
-
-
 
     /*! Create the server socket. */
     if(localServer)
