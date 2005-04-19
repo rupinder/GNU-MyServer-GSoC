@@ -55,7 +55,6 @@ extern "C" {
 #define WORD unsigned int
 #define BYTE unsigned char
 #define MAKEWORD(a, b) ((WORD) (((BYTE) (a)) | ((WORD) ((BYTE) (b))) << 8)) 
-#define max(a, b) ((a>b)?a:b)
 #endif
 
 /*!
