@@ -1421,7 +1421,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        (td.request.VER.compare("HTTP/1.0")) && 
        (td.request.VER.compare("HTTP/0.9")))
     {	
-      retvalue = raiseHTTPError(&td, a, e_505);
+      raiseHTTPError(&td, a, e_505);
       logHTTPaccess(&td, a);
       /*! Remove the connection from the list. */
       return 0;
@@ -1943,7 +1943,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       File::deleteFile(td.outputDataPath);
     }
     ret &= !stringcmpi(td.request.CONNECTION, "Keep-Alive");
-    return ret? ((retvalue!=0) ?retvalue:1 ) :0;
+    return (ret && retvalue) ? retvalue : 0;
   }
   catch(...)
   {

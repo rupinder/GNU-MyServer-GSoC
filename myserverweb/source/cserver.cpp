@@ -1339,6 +1339,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
     logPreparePrintError();
     logWriteln("Error adding connection to list");
     logEndPrintError();	
+    lserver->connections_mutex_unlock();
   };
 
 	/*!
@@ -1357,9 +1358,6 @@ ConnectionPtr Server::addConnectionToList(Socket s,
  */
 int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 {
-	/*!
-   *Get the access to the  connections list.
-   */
 	int ret=0;
 
 	/*!
@@ -1372,20 +1370,22 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 		return 0;
 	}
 
+	/*!
+   *Get the access to the connections list.
+   */
   connections_mutex_lock();
 
 	for(ConnectionPtr i=connections;i;i=i->next )
 	{
-		if(i->socket == s->socket)
+		if(i == s)
 		{
-			if(connectionToParse)
-				if(connectionToParse->socket==s->socket)
-					connectionToParse=connectionToParse->next;
+      if(connectionToParse == i)
+        connectionToParse=connectionToParse->next;
 
 			if(prev)
-				prev->next =i->next;
+				prev->next = i->next;
 			else
-				connections=i->next;
+				connections = i->next;
 			ret=1;
 			break;
 		}
@@ -1394,13 +1394,11 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 			prev=i;
 		}
 	}
-
 	nConnections--;
-
-	delete s;
 
   connections_mutex_unlock();
 
+	delete s;
 	return ret;
 }
 
@@ -1433,7 +1431,7 @@ ConnectionPtr Server::getConnection(int /*id*/)
    *Check that we are not in the end of the linked list, in that
    *case link to the first node.
    */
-	if(connectionToParse==0)
+	if(!connectionToParse)
 		connectionToParse=connections;
 
 	return connectionToParse;

@@ -635,7 +635,11 @@ u_long Socket::bytesToRead()
 	if(sslSocket)
 	{
 		char b;
-		SSL_peek(sslConnection,&b,1);
+		int ret = SSL_peek(sslConnection,&b,1);
+    if(ret < 0)
+      return 0;
+    if((ret == 0) &&(sslConnection->shutdown))
+      return 0;
 		return  SSL_pending(sslConnection);
 	}
   else
