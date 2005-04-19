@@ -12,15 +12,16 @@
 </h1>
 Qui di seguito sono listate alcune opzioni attinenti alle prestazioni del server.<br>
 <br>
-<div style="margin-left: 40px;">
-<div style="text-align: left;">
-<div align="left"><span style="font-weight: bold;"><font class="code">Configurazione dei threads:<br>
+<span style="font-weight: bold;"><font class="code">Configurazione dei threads:<br>
 </font> <br>
 </span>Nel file myserver.xml file si pu&ograve; configurare il numero di threads che 
 MyServer user&agrave;. Nelle linee sottostanti, si possono configurare i 2 parametri 
-per la gestione dei threads:<br>
+per la gestione dei threads:<br />
+<p class="code">
 &nbsp;&nbsp;&nbsp; &lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br>
 &nbsp;&nbsp;&nbsp; &lt;NTHREADS_MAX&gt;20&lt;/NTHREADS_MAX&gt;<br>
+</p>
+<p>
 <br>
 La prima variabile(NTHREADS_STATIC) indica il numero di threads sempre attivi, 
 mentre la seconda(NTHREADS_MAX) indica il numero massimo di threads che myserver pu&ograve; creare.
@@ -31,7 +32,10 @@ mentre la seconda(NTHREADS_MAX) indica il numero massimo di threads che myserver
 </font> <br>
 </span>Si pu&ograve; configurare la dimensione dei buffers di memoria usati da MyServer , settando la linea 
 sottostante nel file myserver.xml:<br>
-&nbsp;&nbsp;&nbsp; &lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br>
+<p class="code">
+&lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;
+</p>
+<p>
 Cambia il valore 102400(in bytes). Ricorda che MyServer usa 2 buffers per thread quindi alla fine lo spazio occupato dai threads sar&agrave; 
 BUFFER_SIZE * 2 * N_THREADS.<br>
 <br>
@@ -39,8 +43,10 @@ BUFFER_SIZE * 2 * N_THREADS.<br>
 <font class="code"> Timeout della connessione:<br>
 </font> <br>
 </span>In myserver.xml, si pu&ograve; settare il timeout della connessione modificando la linea:<br>
-&nbsp;&nbsp;&nbsp;
-&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br>
+<p class="code">
+&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;
+</p>
+<p>
 L'unit&agrave; di misura &egrave; il secondo. Di default sono impostati 60 secondi per il timeout, quindi se il server non riceve richieste per un periodo superiore 
 al timeout abbatte la connessione con il client. Impostando il valore uguale a 0 non si avranno connessioni persistenti.<br>
 <br>
@@ -59,59 +65,70 @@ Numero massimo di servers FastCGI:<br>
 </font></span>Per modificare il numero massimo di servers FastCGI eseguibili da myserver &egrave; necessario
 modificare la seguente riga nel file myserver.xml:<br>
 &nbsp;&nbsp;&nbsp;
-&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br>
-<br>
+<p class="code">
+&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;
+</p>
+<p>
 <br>
 <span style="font-weight: bold;"><font class="code">Setting CGI
 Timeout: </font></span><br>
 <span style="font-weight: bold;"><font class="code"><br>
 </font></span>Per modificare il valore di timeout degli scripts CGI bisogna modificare la seguente riga nel 
 file myserver.xml:<br>
-&nbsp;&nbsp;&nbsp; &lt;CGI_TIMEOUT&gt;20&lt;/CGI_TIMEOUT&gt;<br>
+<p class="code">
+&lt;CGI_TIMEOUT&gt;20&lt;/CGI_TIMEOUT&gt;<br>
+</p>
 In questo modo stiamo specificando un timeout di 20 secondi. (L'unit&agrave; di misura &egrave; il "secondo")
 <br>
-</div>
 <br>
-<div style="text-align: left;"><span style="font-weight: bold;"><font
+<span style="font-weight: bold;"><font
  class="code"><br>
 Data throttling: <br>
 <br>
 </font></span>SI pu&ograve; specificare un limite per la quantit&agrave; di dati inviati dal server(di default non &grave; configurato alcun limite) aggiungendo una riga come la seguente nel file myserver.xml:<br>
-&nbsp;&nbsp;&nbsp; &lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;
+<p class="code">
+&lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;
+</p>
+<p>
 <br>
 (L'unit&agrave; di misura &grave; il bytes/secondo)<br>
 Una riga simile nel file virtualhost.xml attiver&agrave; il limite solo per le connessioni al virtual host specificato. <br>
 <br>
 <br>
 Inoltre, &egrave; possibile specificare un limite in base ad ogni utente usando il file security della directory:<br>
-&nbsp;&nbsp;&nbsp; &lt;USER NAME="Guest" PASS="" READ="TRUE"
+<p class="code">
+ &lt;USER NAME="Guest" PASS="" READ="TRUE"
 WRITE="TRUE" BROWSE="TRUE"<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; EXECUTE="TRUE"
 THROTTLING_RATE="1024"/&gt;
+</p>
 <br>
 Con la riga precedente si attiva un throttling di 1024&nbsp; bytes/second
 per l'utente Guest.<br>
 Con una riga come la seguente invece, si attiva il throttling sul file "bigfile":<br>
+
+<p class="code">
 &nbsp;&nbsp;&nbsp; &lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE"
 EXECUTE="FALSE" THROTTLING_RATE="1024" /&gt;
+</p>
 
 <br>
 Si possono usare le due opzioni contemporaneamente per avere un limite su un determinato file e 
 per un determinato utente:<br>
-&nbsp;&nbsp;&nbsp;&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;
+<p class="code">
+&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;
 <br>
 &nbsp;&nbsp;&nbsp;&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt; 
 <br>
-&nbsp;&nbsp;&nbsp;&lt;/ITEM&gt;
+&lt;/ITEM&gt;
+</p>
 <br>
-<br>
+
 Le limitazioni sulla banda vengono considerate nel seguente ordine:<br>
 1) Utente &amp; file(attributo di USER dentro un blocco ITEM).<br>
 2) File(attributo di ITEM).<br>
 3) User(attributo di USER).<br>
 4) Virtual host(file virtualhosts.xml).<br>
 5) Server(file myserver.xml).<br>
-</div>
-</div>
 </body>
 </html>
