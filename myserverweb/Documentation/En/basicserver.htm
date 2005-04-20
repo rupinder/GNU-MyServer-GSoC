@@ -49,15 +49,15 @@ disable the custom error pages, by changing the line below:<br />
 <span class="code">&lt;USE_ERRORS_FILES&gt;NO&lt;/USE_ERRORS_FILES&gt;<br />
 </span>you will have TEXT messages instead of HTML pages for the errors.<br />
 <hr />You can change the layout of the
-Folder Browsing page (used when you don't have a default page, as
-described in the <a href="browsefolder.html">Browse Folder
-Index</a> section). The line below, in myserver.xml, points to the CSS
+directory browsing page (used when you don't have a default page, as
+described in the <a href="browsefolder.html">Browse directory
+index</a> section). The line below, in myserver.xml, points to the CSS
 file used to configure the layout of that page:<br />
 <span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span><br />
 <hr /><br />
 CGI Scripts can get the Server Administrator E-mail and show them to
-the user. So, it can be important you define this address properly, by
-setting the value in the line below, in myserver.xml:<br />
+the user(through the <span class="code">SERVER_ADMIN</span> environment variable). So, it can be important you define this address properly, by
+setting the value in the line below, <span class="code">in myserver.xml</span>:<br />
 <span class="code">&lt;SERVER_ADMIN&gt;administrator@localhost&lt;/SERVER_ADMIN&gt;</span>
 </td>
 </tr>

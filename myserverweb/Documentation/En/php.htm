@@ -35,30 +35,9 @@ configuration file:</p>
 <p>and remove the first semicolon. <br />
 The line will then read:<br />
 </p>
-<span class="code">cgi.force_redirect = 0</span><br />
-<big>Remote FastCGI Servers</big><br /><br />
-MyServer has the capability of using a remote FastCGI server.&nbsp;
-The following MIME type uses a remote connection:<br />
-<span class="code">
-&lt;MIMETYPE&gt;<br />
-&lt;EXT&gt;php&lt;/EXT&gt;<br />
-&lt;MIME&gt;text/html&lt;/MIME&gt;<br />
-&lt;CMD&gt;RUNFASTCGI&lt;/CMD&gt;<br />
-<br />
-<span class="code">
-&lt;MANAGER&gt;@host:port&lt;/MANAGER&gt;<br />
-&lt;/MIMETYPE&gt;<br />
-<span class="code">
-<br />
-The definition for a remote manager must begin with @.<br />
-</span>
-If you are configuring the MIME types through the Control center
-application, you can add a remote server by adding a line in the form<br />
-<span class="code">@HOST:PORT
-</span>
-in the FastCGI path field.<br />
-</span>
-</span>
+<span class="code">cgi.force_redirect = 0</span><br /><br />
+
+
 </td>
 </tr>
 </table>

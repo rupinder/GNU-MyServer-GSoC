@@ -16,8 +16,8 @@
 </h1>
 FastCGI is an extension to CGI, not dependent to the language
 used, providing high performance for applications, by not using server
-specific APIs. In FastCGI, you won't have a separate proccess for every
-script request.<br />
+specific APIs. In FastCGI, you won't have a separate process for every
+script request. The communication with the MyServer process happens trough sockets.<br />
 <br />
 You can use FastCGI in MyServer, simply by setting the <a
  href="mimetypes.html" class="code">MIME Type</a> for your script
@@ -44,7 +44,32 @@ beneath the selected web folder.</small><br />
 <br />
 <br />
 However, CGI scripts can be placed anywhere as it is mapped to the web
-server through its extension.<br />
+server through its extension. <br />
+<br />
+<br />
+
+<h2 class="code">Remote FastCGI Servers</h2><br />
+MyServer has the capability of using a remote FastCGI server.
+The following MIME type uses a remote connection:<br />
+
+<span class="code">
+&lt;MIMETYPE&gt;<br />
+&lt;EXT&gt;php&lt;/EXT&gt;<br />
+&lt;MIME&gt;text/html&lt;/MIME&gt;<br />
+&lt;CMD&gt;RUNFASTCGI&lt;/CMD&gt;<br />
+<br />
+&lt;MANAGER&gt;@host:port&lt;/MANAGER&gt;<br />
+&lt;/MIMETYPE&gt;<br />
+</span>
+<br />
+The definition for a remote manager must begin with @.<br />
+
+If you are configuring the MIME types through the Control center
+application, you can add a remote server by adding a line in the form<br />
+<span class="code">@HOST:PORT </span>
+in the FastCGI path field.<br />
+</span>
+</span>
 <br />
 <br />
 Please refer to the official <a href="http://www.fastcgi.com/"

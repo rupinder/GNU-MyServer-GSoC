@@ -15,9 +15,8 @@
 In theory, virtual hosts allow users to lodge an infinite number of
 sites on a single machine. For example http://mypc.net is different
 from http://sub.mypc.net. To define virtual hosts in myServer open the
-file virtualhosts.xml&nbsp; in a text editor (such as notepad in
-Windows or
-Emacs in Linux).&nbsp; A sample virtual hosts configuration file looks
+file virtualhosts.xml in a text editor (such as notepad in
+Windows or GNU Emacs in Linux). A sample virtual hosts configuration file looks
 like:<br />
 <br />
 <p class="code">&lt;VHOSTS&gt;<br />
@@ -36,16 +35,16 @@ like:<br />
   &lt;/VHOSTS&gt;<br />
 </p>
 <p><br />
-  <span class="code">&lt;NAME&gt;</span>&nbsp; gives the server administrator 
+  <span class="code">&lt;NAME&gt;</span> gives the server administrator 
   an idea of what the virtual host is such as internal Ethernet, external ethernet 
   or every connection.&nbsp; <br />
   <br />
   <span class="code">&lt;PORT&gt;</span> is the port used for accepting connections<br />
-  <span class="code">&lt;IP&gt;</span>&nbsp; is optional. It is the IP address 
+  <span class="code">&lt;IP&gt;</span> is optional. It is the IP address 
   your virtual host will be working on. The optional <span class="code">useRegex=&quot;YES&quot;</span> 
   means the address would act as a regular expression, not only a fixed value. 
   This is more useful for networks with dynamic IP addressing.<br />
-  <span class="code">&lt;PROTOCOL&gt;</span>&nbsp; is the protocol to be used 
+  <span class="code">&lt;PROTOCOL&gt;</span> is the protocol to be used 
   by the host<br />
   <span class="code"></span><span class="code">&lt;DOCROOT&gt;</span> is the folder 
   where the files are found<br />

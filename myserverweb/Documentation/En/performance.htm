@@ -17,19 +17,23 @@
 Here you can see a few options you can set to tune the performance of
 your webserver.<br />
 <br />
-<div class="left">
+
 Here you can see a few options you can set to tune the performance of your webserver.<br />
 
 
 <h2 class="title">Threads Tuning:</h2>
 <br />
-In the myserver.xml file you can setup the amount of threads MyServer will use. In the lines below, you configure the two configurable parameters NTHREADS_STATIC and NTHREADS_MAX, the first one is used to define number of threads always alive, the second one is used to define the highest number of threads that myserver can create:<br />
-<p class="code">
+In the myserver.xml file you can setup the amount of threads MyServer will use. In the lines below, you configure the two configurable parameters <span class="code">NTHREADS_STATIC</span> and <span class="code">NTHREADS_MAX</span>, the first one is used to define number of threads always alive, the second one is used to define the highest number of threads that myserver can create:<br />
+
+<br />
+<br />
+
+<span class="code">
 &lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br />
 &lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;
-</p>
+</span>
 
-
+<br />
 <br />
 <h2 class="title">Buffer Size:</h2><br />
 You can set  the size of the Buffers used by MyServer, by setting the line below, in the myserver.xml file:
@@ -38,12 +42,12 @@ You can set  the size of the Buffers used by MyServer, by setting the line below
 &lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br />
 </p>
 <p>
-Just change the default value 102400 to your desired number. Remember that, in fact, your Buffer will be twice the value you set here (in Bytes), multiplied by the number of running threads.
+Just change the default value 102400 to your desired number. Remember that, in fact, your buffer will be twice the value you set here (in Bytes), multiplied by the number of running threads.
 <br />
 <br />
 <h2 class="title">Connection Timeout:</h2><br />
 
-In myserver.xml, you can set the Timeout for client connections to your server, in the line below:
+In <span class="code">myserver.xml</span>, you can set the timeout for client connections to your server, in the line below:
 <br />
 <br />
 <p class="code">
@@ -55,7 +59,7 @@ The time unit is seconds. So, in the line above, if your client doesn't access y
 <br />
 <h2 class="code">Max Connections:</h2><br />
 
-You can change the default maximum number of connections your webserver will accept, by changing the line below in myserver.xml:<br />
+You can change the default maximum number of connections your webserver will accept, by changing the line below in <span class="code">myserver.xml</span>:<br />
 <p class="code">
 &lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
 </p>
@@ -66,7 +70,7 @@ The default value 0 means you will accept infinite connections. Any other value 
 <br />
 <h2 class="code">Max FastCGI Servers:</h2>
 <br />
-MyServer lets you configure the maximum number of FastCGI servers allowed to run, by changing the value in the line below, in myserver.xml:<br />
+MyServer lets you configure the maximum number of FastCGI servers allowed to run, by changing the value in the line below, <span class="code">in myserver.xml</span>:<br />
 <p class="code">
 &lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />
 </p>
@@ -75,7 +79,7 @@ MyServer lets you configure the maximum number of FastCGI servers allowed to run
 <h2 class="title">Setting CGI Timeout:</h2>
 <br />
 
-You can set the default timeout for your CGI scripts in MyServer by changing the value of the variable CGI_TIMEOUT in your myserver.xml file.<br />
+You can set the default timeout for your CGI scripts in MyServer by changing the value of the variable CGI_TIMEOUT in your <span class="code">myserver.xml</span> file.<br />
 Just change the line below to fit your need:<br />
 <p class="code">
 &lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;<br />
@@ -89,13 +93,13 @@ The configuration above would mean you are setting the CGI Timeout to 15 seconds
 <h2 class="title">Setting data throttling:</h2>
 <br />
 
-You can set the data throttling rate for connections in MyServer (by default, it's disabled) by adding a line like the following, in you myserver.xml file:
+You can set the data throttling rate for connections in MyServer (by default, it's disabled) by adding a line like the following:
 <p class="code">
 &lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;<br />
 </p>
 <p>
 (Unit is bytes/second)<br />
-If that same line is available in virtualhosts.xml, it will enable and configure data throttling for the corresponding virtual host.<br />
+If that same line is available in <span class="code">virtualhosts.xml</span>, it will enable and configure data throttling for the corresponding virtual host.<br />
 <br />
 
 Also, you can configure the data throttling for individual directories, using these configurations in your security file:<br />
@@ -124,8 +128,6 @@ This is the order of checking for data throttling configuration:<br />
 5) Server configuration(myserver.xml file).<br />
 <br />
 <br />
-
-</div>
 
 </td>
 </tr>
