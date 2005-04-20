@@ -120,7 +120,7 @@ private:
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;
 	void clearAllConnections();
-	int deleteConnection(ConnectionPtr,int);
+	int deleteConnection(ConnectionPtr,int,int=1);
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_long);

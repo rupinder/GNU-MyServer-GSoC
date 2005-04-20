@@ -1356,7 +1356,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 /*!
  *Delete a connection from the list.
  */
-int Server::deleteConnection(ConnectionPtr s, int /*id*/)
+int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 {
 	int ret=0;
 
@@ -1373,7 +1373,8 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 	/*!
    *Get the access to the connections list.
    */
-  connections_mutex_lock();
+  if(doLock)
+    connections_mutex_lock();
 
 	for(ConnectionPtr i=connections;i;i=i->next )
 	{
@@ -1396,7 +1397,8 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 	}
 	nConnections--;
 
-  connections_mutex_unlock();
+  if(doLock)
+    connections_mutex_unlock();
 
 	delete s;
 	return ret;
@@ -1452,7 +1454,7 @@ void Server::clearAllConnections()
     while(c)
     {
       next=c->next;
-      deleteConnection(c, 1);
+      deleteConnection(c, 1, 0);
       c=next;
     }
   }
