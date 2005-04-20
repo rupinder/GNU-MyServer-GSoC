@@ -1101,7 +1101,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         return sendAuth(td, s);
       }
-      ret = lisapi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0, only_header);
+      ret = lisapi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0, 
+                        only_header);
       return ret;
 
     }
@@ -1111,7 +1112,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         return sendAuth(td, s);
       }
-      ret = lisapi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, only_header);
+      ret = lisapi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, 
+                        only_header);
       return ret;
     }
     else if( mimeCMD == CGI_CMD_RUNMSCGI )
@@ -1157,7 +1159,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         return sendAuth(td, s);
       }	
-      ret = lfastcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0, only_header);
+      ret = lfastcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0, 
+                          only_header);
       return ret;
     }
     else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
@@ -1166,7 +1169,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         return sendAuth(td, s);
       }
-      ret = lfastcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, only_header);
+      ret = lfastcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, 
+                          only_header);
       return ret;
     }
     else if( mimeCMD == CGI_CMD_SENDLINK )
@@ -1259,70 +1263,71 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
 	char tmpStrInt[12];
   string time;
 
-	td->buffer2->SetLength(0);
-	*td->buffer2 << a->getIpAddr();
-	*td->buffer2<< " ";
+  try
+  {
+    td->buffer2->SetLength(0);
+    *td->buffer2 << a->getIpAddr();
+    *td->buffer2<< " ";
 	
-	if(td->identity[0])
-		*td->buffer2 << td->identity;
-	else
-		*td->buffer2 << "- ";
-
-	if(td->identity[0])
-		*td->buffer2 << td->identity;
-	else
-		*td->buffer2 << "-";
-
-	*td->buffer2 << " [";
-	
-	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-	*td->buffer2 <<  time  << "] \"";
-	
-  if(td->request.CMD.length())
-    {
+    if(td->identity[0])
+      *td->buffer2 << td->identity;
+    else
+      *td->buffer2 << "- ";
+    
+    if(td->identity[0])
+      *td->buffer2 << td->identity;
+    else
+      *td->buffer2 << "-";
+    
+    *td->buffer2 << " [";
+    
+    getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
+    *td->buffer2 <<  time  << "] \"";
+    
+    if(td->request.CMD.length())
       *td->buffer2 << td->request.CMD.c_str() << "";
-    }
-
-  if(td->request.CMD.length() || td->request.URI.length())
+  
+    if(td->request.CMD.length() || td->request.URI.length())
       *td->buffer2 << " ";
 
-  if(td->request.URI.length() == '\0')
-    *td->buffer2 <<  "/";
-  else
-  {
-    *td->buffer2 << td->request.URI.c_str();
-  }
-
-  if(td->request.URIOPTS.length())
-    {
-      *td->buffer2 << "?" << td->request.URIOPTS.c_str();
-    }
-  sprintf(tmpStrInt, "%u ",td->response.httpStatus);
+    if(td->request.URI.length() == '\0')
+      *td->buffer2 <<  "/";
+    else
+      *td->buffer2 << td->request.URI.c_str();
   
-  if(td->request.VER.length())
-    *td->buffer2 << " " << td->request.VER.c_str()  ;
 
-
-  *td->buffer2<< "\" " << tmpStrInt  << " ";
+    if(td->request.URIOPTS.length())
+      *td->buffer2 << "?" << td->request.URIOPTS.c_str();
+    
+    sprintf(tmpStrInt, "%u ",td->response.httpStatus);
+  
+    if(td->request.VER.length())
+      *td->buffer2 << " " << td->request.VER.c_str()  ;
+    
+    *td->buffer2<< "\" " << tmpStrInt  << " ";
 	
-	if(td->response.CONTENT_LENGTH.length())
-		*td->buffer2  << td->response.CONTENT_LENGTH.c_str();
-	else
-		*td->buffer2 << "0";
-  if(strstr((((Vhost*)(a->host)))->accessLogOpt, "type=combined"))
-  {
-    *td->buffer2 << " "  << td->request.REFERER.c_str() << " "  
-                 << td->request.USER_AGENT.c_str();            
-  }
-	*td->buffer2 << "\r\n" <<end_str;
-  /*!
-   *Request the access to the log file then write then append the message.
-   */
-	((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
-	((Vhost*)(a->host))->accessesLogWrite(td->buffer2->GetBuffer());
-	((Vhost*)(a->host))->accesseslogTerminateAccess(td->id);
-	td->buffer2->SetLength(0);
+    if(td->response.CONTENT_LENGTH.length())
+      *td->buffer2  << td->response.CONTENT_LENGTH.c_str();
+    else
+      *td->buffer2 << "0";
+    if(strstr((((Vhost*)(a->host)))->accessLogOpt, "type=combined"))
+      *td->buffer2 << " "  << td->request.REFERER.c_str() << " "  
+                   << td->request.USER_AGENT.c_str();
+    
+    *td->buffer2  << "\r\n" << end_str;
 
+    /*!
+     *Request the access to the log file then write then append the message.
+     */
+    ((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
+    ((Vhost*)(a->host))->accessesLogWrite(td->buffer2->GetBuffer());
+    ((Vhost*)(a->host))->accesseslogTerminateAccess(td->id);
+    td->buffer2->SetLength(0);
+  }
+  catch(...)
+  {
+    return 1;
+  };
 	return 0;
 }
 

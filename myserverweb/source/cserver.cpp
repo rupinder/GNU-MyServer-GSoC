@@ -1605,7 +1605,10 @@ int Server::loadSettings()
     }
     else
 #endif
-      /*! If the MIMEtypes.xml files doesn't exist copy it from the default one. */
+      /*! 
+       *If the MIMEtypes.xml files doesn't exist copy it 
+       *from the default one. 
+       */
       if(!File::fileExists("MIMEtypes.xml"))
       {
         File inputF;
@@ -1667,7 +1670,8 @@ int Server::loadSettings()
     logWriteln(strCPU.c_str());
 
 #ifndef WIN32
-    /*!Under an *nix environment look for .xml files in the following order.
+    /*!
+     *Under an *nix environment look for .xml files in the following order.
      *1) myserver executable working directory
      *2) ~/.myserver/
      *3) /etc/myserver/

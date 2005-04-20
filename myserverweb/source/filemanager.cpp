@@ -165,8 +165,8 @@ int File::openFile(const char* nfilename,u_long opt)
 	if(attributeFlag == 0)
 		attributeFlag = FILE_ATTRIBUTE_NORMAL;
 	handle=(FileHandle)CreateFile(filename.c_str(), openFlag, 
-                                          FILE_SHARE_READ | FILE_SHARE_WRITE, 
-                                          &sa, creationFlag, attributeFlag, NULL);
+                                FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                                &sa, creationFlag, attributeFlag, NULL);
 	/*! Return 1 if an error happens.  */
   if(handle==INVALID_HANDLE_VALUE)
   {
@@ -257,7 +257,7 @@ int File::openFile(const char* nfilename,u_long opt)
 		ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		if(ret == -1)
     {
-      filename.c_str();
+      filename.clear();
 			return 1;
     }
 		else
@@ -285,7 +285,7 @@ int File::openFile(const char* nfilename,u_long opt)
 	if((long)handle < 0)
   {
 		handle = (FileHandle)0;
-    filename.c_str();
+    filename.clear();
   }
 #endif
 	
@@ -387,15 +387,17 @@ int File::closeFile()
 #ifdef WIN32
       if(handle)
       {
-        FlushFileBuffers((HANDLE)handle);
-        ret=CloseHandle((HANDLE)handle);
+        ret=!FlushFileBuffers((HANDLE)handle);
+        if(ret==0)
+          ret=CloseHandle((HANDLE)handle);
       }
 #endif
 #ifdef NOT_WIN
       if(handle)
       {
-        fsync((long)handle);
-        ret=close((long)handle);
+        ret=fsync((long)handle);
+        if(ret==0)
+          ret=close((long)handle);
       }
 #endif
 	}
