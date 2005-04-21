@@ -149,7 +149,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 			cookie.append(token, len);
 			cookie.append("\r\n");	
       strcat(str, cookie.c_str());	
-			token+=len;
+			token+=len+1;
 		}
 	}
 	if(response->P3P.length())
@@ -1127,7 +1127,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->COOKIE.assign(token );
+			response->COOKIE.append(token );
 			response->COOKIE.append("\n");/*! Divide multiple cookies. */
 		}else
 		/*!Content-Length*/
