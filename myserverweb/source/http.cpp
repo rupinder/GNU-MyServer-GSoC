@@ -349,7 +349,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file\n");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -399,7 +399,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file\n");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -618,7 +618,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file\n");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -668,7 +668,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file\n");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -973,7 +973,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
     if(permissions==-1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file\n");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
