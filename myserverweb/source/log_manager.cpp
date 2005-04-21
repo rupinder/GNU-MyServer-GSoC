@@ -293,7 +293,7 @@ int LogManager::storeFile()
             return 1;
           } 
         }
-        else if(newFile.writeToFile(buffer, 512, &nbw))
+        else if(newFile.writeToFile(buffer, nbr, &nbw))
         {
           newFile.closeFile();
           return 1;
