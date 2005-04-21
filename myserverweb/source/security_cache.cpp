@@ -47,7 +47,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
   if(directory == 0)
   {
     if(sysdirectory == 0)
-      return 0;
+      return -1;
     directory = sysdirectory;
     sysdirectory = 0;
   }
@@ -69,7 +69,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
       if(parser->open(permissionsFile.c_str()) == -1)
       {
         dictionary.removeNode(permissionsFile.c_str());
-        return 0;
+        return -1;
       }
     }
     return sm.getErrorFileName(directory, error, out, parser);
@@ -83,7 +83,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
     parser = new XmlParser();
     if(parser == 0)
     {  
-      return 0;
+      return -1;
     }
    
     if(!File::fileExists(permissionsFile.c_str()))
@@ -100,13 +100,13 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
       else
       {
         delete parser;
-        return 0;
+        return -1;
       }
     }
     if(parser->open(permissionsFile.c_str()) == -1)
     {
       delete parser;
-      return 0;
+      return -1;
     }
     if(dictionary.nodesNumber() >= limit)
     {
@@ -117,7 +117,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
     if(dictionary.append(permissionsFile.c_str(), (void*)parser) == 0)
     {
       delete parser;
-      return 0;
+      return -1;
     }
     return sm.getErrorFileName(directory, error, out, parser);  
   }
@@ -184,9 +184,9 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
   string permissionsFile;
 
   if(st->directory == 0)
-    return 0;
+    return -1;
   if(st->filename == 0)
-    return 0;
+    return -1;
 
   permissionsFile.assign(st->directory); 
   permissionsFile.append("/security");
@@ -206,7 +206,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
       if(parser->open(permissionsFile.c_str()) == -1)
       {
         dictionary.removeNode(permissionsFile.c_str());
-        return 0;
+        return -1;
       }
 
     }
@@ -220,7 +220,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
     parser = new XmlParser();
     if(parser == 0)
     {  
-      return 0;
+      return -1;
     }
     if(!File::fileExists(permissionsFile.c_str()))
     {
@@ -237,13 +237,13 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
       else
       {
         delete parser;
-        return 0;
+        return -1;
       }
     }
     if(parser->open(permissionsFile.c_str()) == -1)
     {
       delete parser;
-      return 0;
+      return -1;
     }
     if(dictionary.nodesNumber() >= limit)
     {
@@ -254,7 +254,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
     if(dictionary.append(permissionsFile.c_str(), (void*)parser) == 0)
     {
       delete parser;
-      return 0;
+      return -1;
     }
     return sm.getPermissionMask(st, parser);  
   }

@@ -67,8 +67,7 @@ void SecurityToken::reset()
  *Get the error file for a site. 
  *Return 0 to use the default one.
  *Return -1 on errors.
- *Return other valus on success, please note to free
- *out after its use.
+ *Return other valus on success.
  */
 int SecurityManager::getErrorFileName(const char* sysDir,int error, 
                                       string &out, XmlParser* parser)
@@ -156,8 +155,9 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
  *Get the permissions mask for the file[filename]. 
  *The file [directory]/security will be parsed. If a [parser] is specified, 
  *it will be used instead of opening the security file.
- *[permission2] is the permission mask that the [user] will have if providing a 
- *[password2].
+ *[permission2] is the permission mask that the [user] will have 
+ *if providing a [password2].
+ *Returns -1 on errors.
  */
 int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 {
@@ -195,11 +195,11 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 	if(st && st->auth_type)
 		st->auth_type[0]='\0';
   if(st->user == 0)
-    return 0;
+    return -1;
   if(st->directory == 0)
-    return 0;
+    return -1;
   if(st->filename == 0)
-    return 0;
+    return -1;
   /*! 
    *If there is not specified the parser to use, create a new parser
    *object and initialize it. 
@@ -217,7 +217,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     {
       if(localParser.open(permissionsFile.str().c_str()) == -1)
       {
-        return 0;
+        return -1;
       }
       doc=localParser.getDoc();
     }
@@ -229,7 +229,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   }
 
   if(!doc)
-    return 0;
+    return -1;
 
   /*! 
    *If the file is not valid, returns 0.
@@ -240,7 +240,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   else if(parser == 0)
   {
     localParser.close();
-    return 0;
+    return -1;
   }
 
 	while(node)

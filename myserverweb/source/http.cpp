@@ -346,6 +346,13 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       };
     }
 
+    if(permissions == -1)
+    {
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      return raiseHTTPError(td, s, e_500); 
+    }
     /*! Check if we have to use digest for the current directory.  */
     if(!lstrcmpi(auth_type, "Digest"))
     {
@@ -389,7 +396,13 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
         throw;
       };
     }
-
+    if(permissions == -1)
+    {
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      return raiseHTTPError(td, s, e_500); 
+    }
     if(!(permissions & MYSERVER_PERMISSION_WRITE))
     {
       return sendAuth(td, s);
@@ -602,6 +615,13 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
         throw;
       };
     }	
+    if(permissions == -1)
+    {
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      return raiseHTTPError(td, s, e_500); 
+    }
     /*! Check if we have to use digest for the current directory. */
     if(!lstrcmpi(auth_type, "Digest"))
     {
@@ -644,6 +664,13 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
         sec_cache_mutex.unlock();
         throw;
       };
+    }
+    if(permissions == -1)
+    {
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      return raiseHTTPError(td, s, e_500); 
     }
     if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	  {
@@ -896,6 +923,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
           throw;
         };
       }	
+
       /*! Check if we have to use digest for the current directory. */
       if(!lstrcmpi(auth_type, "Digest"))
 		  {
@@ -940,6 +968,14 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
           throw;
         };
       }
+    }
+
+    if(permissions==-1)
+    {
+      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      return raiseHTTPError(td, s, e_500); 
     }
 
     /*! If a throttling rate was specifed use it. */
