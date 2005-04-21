@@ -331,6 +331,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   }
   catch(bad_alloc &ba)
   {
+    h.closeFile();
     ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
     ((Vhost*)(s->host))->warningsLogWrite("HTTP File: Error allocating memory\r\n");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
@@ -338,6 +339,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   }
   catch(...)
   {
+    h.closeFile();
     ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
     ((Vhost*)(s->host))->warningsLogWrite("HTTP File: Internal error\r\n");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);

@@ -137,16 +137,18 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	}
 	if(response->COOKIE.length())
 	{
+    string cookie;
 		const char *token = response->COOKIE.c_str();
     int max = response->COOKIE.length();
 		while(token)
 		{
       int len = getCharInString(token, "\n", max);
-      if(len == -1)
+      if(len == -1 || *token=='\n')
         break;
-			strcat(str, "Set-Cookie: ");
-			strncat(str,token, len);
-			strcat(str, "\r\n");		
+      cookie.assign("Set-Cookie: ");
+			cookie.append(token, len);
+			cookie.append("\r\n");	
+      strcat(str, cookie.c_str());	
 			token+=len;
 		}
 	}
@@ -1024,7 +1026,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		token = strtok( token, " " );
 	}
 	else
-		token = strtok( token, " ,\t\n\r" );
+		token = strtok( token, ": ,\t\n\r" );
 	do
 	{
 		if(!token)
@@ -1172,16 +1174,16 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
-        int len = HTTP_RESPONSE_OTHER_DIM-response->OTHER.length();
+        int len = HTTP_RESPONSE_OTHER_DIM-
+                      (response->OTHER.length()+strlen(command)+strlen(token));
         
         if(len > 0)
         {
-          response->OTHER.append(command,len);
-          len=HTTP_RESPONSE_OTHER_DIM-response->OTHER.length()-1;
-          if(len>0)
-            response->OTHER.append(token, len);
+          response->OTHER.append(command);
+          response->OTHER.append(": ");
+          response->OTHER.append(token);
+          response->OTHER.append("\n");
         }
-        response->OTHER.append("\n", 1);     
 			}
 		}
 		token = strtok( NULL, cmdSeps );
