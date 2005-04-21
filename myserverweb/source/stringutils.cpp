@@ -606,7 +606,7 @@ int getCharInString(const char* str, const char* characters, int max)
 		}
 	}else
 	{	
-		for(i=1; str[i]; i++ )
+		for(i=0; str[i]; i++ )
 		{
 			for(j=0;characters[j];j++)
 			{
