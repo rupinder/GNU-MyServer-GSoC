@@ -12,6 +12,7 @@
 <tr>
 <td class="center">
 <h1 class="title">VIRTUAL HOSTS</h1>
+<br />
 In theory, virtual hosts allow users to lodge an infinite number of
 sites on a single machine. For example http://mypc.net is different
 from http://sub.mypc.net. To define virtual hosts in myServer open the
@@ -28,10 +29,11 @@ like:<br />
   &lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br />
   &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br />
   &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br />
-  &lt;HOST useRegex=&quot;YES&quot;&gt;www.mysite.com&lt;/HOST&gt; <br />
+  &lt;HOST&gt;www.mysite.com&lt;/HOST&gt; <br />
   &lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br />
   &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br />
   &lt;/VHOST&gt;<br />
+    -<br />
   &lt;/VHOSTS&gt;<br />
 </p>
 <p><br />
@@ -52,16 +54,21 @@ like:<br />
   <span class="code">&lt;HOST&gt;</span> is your virtual host's name. The optional 
   <span class="code">useRegex=&quot;YES&quot;</span> means the address would act 
   as a regular expression, not only a fixed value.<br />
-</p>
-<p><span class="code">&lt;ACCESSLOG&gt;</span> is the access log used
+<span class="code">&lt;ACCESSLOG&gt;</span> is the access log used
 by the virtual host<br />
-This flag may appear in the format below:<br />
-<span class="code">&lt;ACCESSESLOG type="combined"&gt;</span>logs/myServerHTTP.log<span
- class="code">&lt;/ACCESSESLOG&gt;</span> <br />
-With this option, the logs will have two extra fields: HTTP Referer and
-HTTP User Agent</p>
-<p><span class="code">&lt;WARNINGLOG&gt;</span> is the errors log file
+<span class="code">&lt;WARNINGLOG&gt;</span> is the errors log file
 used by the virtual host.<br />
+<br />
+<p>
+Log files can have extra options:<br />
+<span class="code">&lt;ACCESSESLOG type="combined"&gt;logs/myServerHTTP.log&lt;/ACCESSESLOG&gt;</span> <br />
+With this option, the logs will have two extra fields: HTTP Referer and
+HTTP User Agent.<br />
+Using <span class="code">cycle="yes"</span> you will enable log cycler on the log file. When a log file 
+with cycling enabled reaches the max size for log files it will write its content to a new file and recreate 
+the original file. By default cycled log files uses the gzip compression to save space, if you don't want to 
+use gzip specify <span class="code">cycle_gzip="no"</span>.
+
 <br />
 </p>
 <hr />
