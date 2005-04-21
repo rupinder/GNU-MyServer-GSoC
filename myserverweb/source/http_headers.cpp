@@ -137,9 +137,9 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	}
 	if(response->COOKIE.length())
 	{
-		char *token = (char*)response->COOKIE.c_str();
+		const char *token = response->COOKIE.c_str();
     int max = response->COOKIE.length();
-		do
+		while(token)
 		{
       int len = getCharInString(token, "\n", max);
       if(len == -1)
@@ -147,8 +147,8 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 			strcat(str, "Set-Cookie: ");
 			strncat(str,token, len);
 			strcat(str, "\r\n");		
-			token=strtok(NULL,"\n");
-		}while(token);
+			token+=len;
+		}
 	}
 	if(response->P3P.length())
 	{
@@ -590,12 +590,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			{
 				u_long i;
 				char *base64=&token[strlen("Basic ")];
-				int len=(int)strlen(base64);
+				int len = getEndLine(base64, 64);
 				char *tmp = base64 + len - 1;
 				char* lbuffer2;
 				char* keep_lbuffer2;
         char login[32];
         char password[32];
+		    if(len==-1)
+					return e_400;		
 				while (len > 0 && (*tmp == '\r' || *tmp == '\n'))
 				{
 					tmp--;
@@ -621,6 +623,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         td->connection->setLogin(login);
         td->connection->setPassword(password);
         tokenOff = getEndLine(token, 100);
+        delete keep_lbuffer2;
 			}
 			else if(!request->AUTH.compare("Digest"))
 			{
@@ -630,6 +633,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				while(*token==' ')
 					token++;
 				tokenOff = getEndLine(token, 1024);
+			  if(tokenOff==-1)
+					return e_400;		
 				digestBuff=new char[tokenOff+1];
 				if(!digestBuff)
 					return e_400;

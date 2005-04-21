@@ -590,7 +590,7 @@ int hexToInt(const char *str)
 /*!
  *Get the offset from string start of a character.
  */
-int getCharInString(char* str, const char* characters, int max)
+int getCharInString(const char* str, const char* characters, int max)
 {
 	int i, j;
 	
@@ -620,6 +620,7 @@ int getCharInString(char* str, const char* characters, int max)
 
 /*!
  *Get the offset from string start of the first \r or \n.
+ *Returns -1 on errors.
  */
 int getEndLine(const char* str, int max)
 {

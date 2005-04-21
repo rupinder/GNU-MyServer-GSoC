@@ -34,7 +34,7 @@ const char *getRFC822GMTTime(const time_t, string& out, int len);
 const char *getRFC822LocalTime(string& out,int len);
 const char *getRFC822LocalTime(const time_t, string &out,int len);
 
-int getCharInString(char*,const char*,int max);
+int getCharInString(const char*,const char*,int max);
 
 time_t getTime(const char* str);
 inline time_t getTime(string const& str){ return getTime(str.c_str()); };
