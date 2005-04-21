@@ -2002,7 +2002,8 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
       *td->buffer2 << "\r\nContent-length: 0\r\n";
       if(td->auth_scheme==HTTP_AUTH_SCHEME_BASIC)
       {
-        *td->buffer2<<"WWW-Authenticate: Basic\r\n";
+        *td->buffer2 <<  "WWW-Authenticate: Basic realm=\"" 
+                                         << td->request.HOST.c_str() <<  "\"\r\n";
       }
       else if(td->auth_scheme==HTTP_AUTH_SCHEME_DIGEST)
       {
@@ -2037,7 +2038,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
           computeDigest(td, ((HttpUserData*)a->protocolBuffer)->nonce, md5_str);
           ((HttpUserData*)a->protocolBuffer)->nc=0;
         }
-        *td->buffer2 << "WWW-Authenticate: Digest ";
+        *td->buffer2 << "WWW-Authenticate: digest ";
         *td->buffer2 << " qop=\"auth\", algorithm =\"MD5\", realm =\"";
         *td->buffer2 << ((HttpUserData*)a->protocolBuffer)->realm ;
         *td->buffer2 << "\",  opaque =\"" 
