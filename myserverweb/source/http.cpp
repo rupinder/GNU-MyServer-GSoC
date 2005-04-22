@@ -1308,8 +1308,10 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
     if(td->identity[0])
       *td->buffer2 << td->identity;
     else
-      *td->buffer2 << "- ";
-    
+      *td->buffer2 << "-";
+
+    *td->buffer2<< " ";  
+
     if(td->identity[0])
       *td->buffer2 << td->identity;
     else
@@ -1317,7 +1319,7 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
     
     *td->buffer2 << " [";
     
-    getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
+    getLocalLogFormatDate(time, HTTP_RESPONSE_DATE_DIM);
     *td->buffer2 <<  time  << "] \"";
     
     if(td->request.CMD.length())

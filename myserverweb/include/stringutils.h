@@ -24,10 +24,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using namespace std;
 
-char *getRFC822GMTTime(char* out,int len);
-char *getRFC822GMTTime(const time_t,char* out,int len);
-char *getRFC822LocalTime(char* out,int len);
-char *getRFC822LocalTime(const time_t,char* out,int len);
+const char *getRFC822GMTTime(char* out,int len);
+const char *getRFC822GMTTime(const time_t,char* out,int len);
+const char *getRFC822LocalTime(char* out,int len);
+const char *getRFC822LocalTime(const time_t,char* out,int len);
 
 const char *getRFC822GMTTime(string& out,int len);
 const char *getRFC822GMTTime(const time_t, string& out, int len);
@@ -35,6 +35,16 @@ const char *getRFC822LocalTime(string& out,int len);
 const char *getRFC822LocalTime(const time_t, string &out,int len);
 
 int getCharInString(const char*,const char*,int max);
+
+const char* getLocalLogFormatDate(const time_t t, char* out, int len);
+const char* getGMTLogFormatDate(const time_t t, char* out, int len);
+const char* getLocalLogFormatDate(char* out, int len);
+const char* getGMTLogFormatDate(char* out, int len);
+
+const char* getLocalLogFormatDate(const time_t t, string& out, int len);
+const char* getGMTLogFormatDate(const time_t t, string& out, int len);
+const char* getLocalLogFormatDate(string& out, int len);
+const char* getGMTLogFormatDate(string& out, int len);
 
 time_t getTime(const char* str);
 inline time_t getTime(string const& str){ return getTime(str.c_str()); };

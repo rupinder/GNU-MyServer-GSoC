@@ -91,7 +91,7 @@ const char *getRFC822LocalTime(const time_t t, string &out,int len)
 /*!
  *This function format current time to the RFC 822 format.
  */
-char *getRFC822GMTTime(char* out, int len)
+const char *getRFC822GMTTime(char* out, int len)
 {
 	time_t ltime;
 	time( &ltime );
@@ -100,7 +100,7 @@ char *getRFC822GMTTime(char* out, int len)
 /*!
  *This function formats a time to the RFC 822 format.
  */
-char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
+const char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 {
   char *asct;
 	tm* GMtime = gmtime( &ltime );
@@ -311,7 +311,7 @@ time_t getTime(const char* str)
 /*!
  *This function format current time to the RFC 822 format.
  */
-char *getRFC822LocalTime(char* out, int len)
+const char *getRFC822LocalTime(char* out, int len)
 {
 	time_t ltime;
 	time( &ltime );
@@ -320,7 +320,7 @@ char *getRFC822LocalTime(char* out, int len)
 /*!
  *This function formats a time to the RFC 822 format.
  */
-char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
+const char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
 	char *asct;
 	tm*  GMtime = localtime( &ltime );
@@ -357,6 +357,155 @@ char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 	out[31]='\0';
 	return out;
 }
+
+/*!
+ *Get the local time string.
+ */
+const char* getLocalLogFormatDate(char* out, int len)
+{
+  time_t ltime;
+	time( &ltime );
+	return getLocalLogFormatDate(ltime, out, len);
+}
+
+/*!
+ *Get the GMT time string.
+ */
+const char* getGMTLogFormatDate(char* out, int len)
+{	
+  time_t ltime;
+	time( &ltime );
+	return getGMTLogFormatDate(ltime, out, len);
+}
+
+
+/*!
+ *Get the local time string.
+ */
+const char* getLocalLogFormatDate(const time_t t, string& out, int len)
+{
+  char buff[32];
+  getLocalLogFormatDate(t, buff, len);
+  out.assign(buff);
+  return out.c_str();
+}
+
+/*!
+ *Get the GMT time string.
+ */
+const char* getGMTLogFormatDate(const time_t t, string& out, int len)
+{
+  char buff[32];
+  getGMTLogFormatDate(t, buff, len);
+  out.assign(buff);
+  return out.c_str();
+}
+/*!
+ *Get the local time string.
+ */
+const char* getLocalLogFormatDate(string& out, int len)
+{
+  char buff[32];
+  getLocalLogFormatDate(buff, len);
+  out.assign(buff);
+  return out.c_str();
+}
+
+/*!
+ *Get the GMT time string.
+ */
+const char* getGMTLogFormatDate(string& out, int len)
+{
+  char buff[32];
+  getGMTLogFormatDate(buff, len);
+  out.assign(buff);
+  return out.c_str();
+}
+
+/*!
+ *Get a string in the format "day/month/year:hour:minute:second offset" for the local zone.
+ */
+const char* getLocalLogFormatDate(const time_t t, char* out, int len)
+{
+  extern long timezone; 
+	time_t ltime;
+	time( &ltime );
+	char *asct;
+	tm*  GMtime = localtime( &ltime );
+  if(len < 25)
+    return 0;
+  GMtime->tm_year+=1900;
+	asct=asctime(GMtime);
+ 	out[0]=asct[8];
+	out[1]=asct[9];
+	out[2]='/';
+	out[3]=asct[4];
+	out[4]=asct[5];
+	out[5]=asct[6];
+	out[6]='/';
+	sprintf(&out[7], "%i", GMtime->tm_year);
+	out[11]=':';
+	out[12]=asct[11];
+	out[13]=asct[12];
+	out[14]=':';
+	out[15]=asct[14];
+	out[16]=asct[15];
+	out[17]=':';
+	out[18]=asct[17];
+	out[19]=asct[18];
+	out[20]=' ';
+  if(timezone > 0)
+    out[21]='-';
+  else
+    out[21]='+';
+	sprintf(&out[22], "%.2i%.2i", -timezone/(60*60), -timezone%(60*60)/60);
+  out[26]='\0';
+  return out;
+}
+
+
+/*!
+ *Get a string in the format "day/month/year:hour:minute:second offset" for the GMT zone.
+ */
+const char* getGMTLogFormatDate(const time_t t, char* out, int len)
+{
+  extern long timezone; 
+	time_t ltime;
+	time( &ltime );
+	char *asct;
+	tm*  GMtime = localtime( &ltime );
+  if(len < 25)
+    return 0;
+  GMtime->tm_year+=1900;
+	asct=asctime(GMtime);
+ 	out[0]=asct[8];
+	out[1]=asct[9];
+	out[2]='/';
+	out[3]=asct[4];
+	out[4]=asct[5];
+	out[5]=asct[6];
+	out[6]='/';
+	sprintf(&out[7], "%i", GMtime->tm_year);
+	out[11]=':';
+	out[12]=asct[11];
+	out[13]=asct[12];
+	out[14]=':';
+	out[15]=asct[14];
+	out[16]=asct[15];
+	out[17]=':';
+	out[18]=asct[17];
+	out[19]=asct[18];
+	out[20]=' ';
+  out[21]='+';
+  out[22]='0';
+  out[23]='0';
+  out[24]='0';
+  out[25]='0';
+  out[26]='\0';
+  return out;
+}
+
+
 
 /*!
  *Trim a string from the right side.
