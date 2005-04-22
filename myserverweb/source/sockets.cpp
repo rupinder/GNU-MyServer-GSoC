@@ -313,6 +313,7 @@ int Socket::rawSend(const char* buffer,int len,int flags)
   {
     ret=::send(socketHandle,buffer,len,flags);
   }while((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
+  return ret;
 #endif
 #ifdef NOT_WIN
 	return	::send((int)socketHandle,buffer,len,flags);

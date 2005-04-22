@@ -588,6 +588,9 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			lineControlled=1;
 	
 			request->AUTH.assign(token,tokenOff);
+      td->connection->setLogin("");
+      td->connection->setPassword("");
+      td->identity[0]='\0';
 			if(!request->AUTH.compare("Basic"))
 			{
 				u_long i;

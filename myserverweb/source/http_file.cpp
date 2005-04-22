@@ -273,7 +273,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         {
           if(!td->appendOutputs)
           {
-            ret=(u_long)s->socket.send(td->buffer->GetBuffer(), nbr, 0);
+            ret=s->socket.send(td->buffer->GetBuffer(), nbr, 0);
             if(ret==SOCKET_ERROR)
             {
               ostringstream buffer;
