@@ -427,7 +427,7 @@ const char* getGMTLogFormatDate(string& out, int len)
  */
 const char* getLocalLogFormatDate(const time_t t, char* out, int len)
 {
-  extern long timezone; 
+  int offset = 0;
 	time_t ltime;
 	time( &ltime );
 	char *asct;
@@ -454,11 +454,22 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
 	out[18]=asct[17];
 	out[19]=asct[18];
 	out[20]=' ';
-  if(timezone > 0)
+
+#ifdef NOT_WIN
+  extern long timezone; 
+  offset=-timezone;
+#else
+  TIME_ZONE_INFORMATION tzi;
+  GetTimeZoneInformation(&tzi);
+  offset=-tzi.bias;
+
+#endif
+
+  if(offset < 0)
     out[21]='-';
   else
     out[21]='+';
-	sprintf(&out[22], "%.2i%.2i", -timezone/(60*60), -timezone%(60*60)/60);
+	sprintf(&out[22], "%.2i%.2i", offset/(60*60), offset%(60*60)/60);
   out[26]='\0';
   return out;
 }
