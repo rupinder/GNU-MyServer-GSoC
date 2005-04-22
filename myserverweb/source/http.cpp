@@ -2027,7 +2027,6 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     {
       td->response.CONNECTION.assign("Keep-Alive");
     }
-
     if(ID==e_401AUTH)
     {
       td->response.httpStatus = 401;
