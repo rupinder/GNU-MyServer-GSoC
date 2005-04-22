@@ -56,7 +56,7 @@ In <span class="code">myserver.xml</span>, you can set the timeout for client co
 The time unit is seconds. So, in the line above, if your client doesn't access your site for more than 60 seconds, the connection will be closed. Or if you prefer, set this value to 0 and you won't have HTTP Keep-Alive Connections.
 <br />
 <br />
-<h2 class="code">Max Connections:</h2>
+<h2 class="title">Max Connections:</h2>
 You can change the default maximum number of connections your webserver will accept, by changing the line below in <span class="code">myserver.xml</span>:<br />
 <p class="code">
 &lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
@@ -66,7 +66,7 @@ The default value 0 means you will accept infinite connections. Any other value 
 
 <br />
 <br />
-<h2 class="code">Max FastCGI Servers:</h2>
+<h2 class="title">Max FastCGI Servers:</h2>
 MyServer lets you configure the maximum number of FastCGI servers allowed to run, by changing the value in the line below, <span class="code">in myserver.xml</span>:<br />
 <p class="code">
 &lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />

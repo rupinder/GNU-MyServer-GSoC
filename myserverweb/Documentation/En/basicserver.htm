@@ -39,6 +39,7 @@ http://mypc.net, the page that will appear when accessing that address
 on the browser, will be one of the files above. You can add more lines
 or change any of them, if you need a different filename. The same mechanism is used for every directory and 
 not only with the root one.<br />
+
 <br />
 <br /><br />
 In <a class="code" href="errorfiles.html">Errors</a> section you
@@ -51,10 +52,18 @@ disable the custom error pages, by changing the line below:<br />
 <br />You can change the layout of the
 directory browsing page (used when you don't have a default page, as
 described in the <a href="browsefolder.html">Browse directory
-index</a> section). The line below, in myserver.xml, points to the CSS
-file used to configure the layout of that page:<br />
-<span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span><br />
-<hr /><br />
+index</a> section). 
+The line below, in myserver.xml, points to the CSS
+file used to configure the layout for the browsing directory pages:<br />
+<span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span>
+
+
+<br />
+&nbsp;
+<hr />
+&nbsp;
+<br />
+
 CGI Scripts can get the Server Administrator E-mail and show them to
 the user(through the <span class="code">SERVER_ADMIN</span> environment variable). So, it can be important you define this address properly, by
 setting the value in the line below, <span class="code">in myserver.xml</span>:<br />
