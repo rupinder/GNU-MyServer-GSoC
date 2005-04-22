@@ -462,7 +462,6 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
   TIME_ZONE_INFORMATION tzi;
   GetTimeZoneInformation(&tzi);
   offset=-tzi.Bias;
-
 #endif
 
   if(offset < 0)
