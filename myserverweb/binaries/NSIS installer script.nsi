@@ -54,16 +54,16 @@ Section "MyServer core" SecCore
   File "readme.txt"
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
-  File "web\*.*"
+  File "web\*.html"
+  File "web\*.png"
   SetOutPath $INSTDIR\system
   File "system\security"
-  File "system\*.*"
+  File "system\*.css"
   SetOutPath $INSTDIR\system\errors
-  File "system\errors\*.*"
+  File "system\errors\*.html"
   SetOutPath $INSTDIR\system\icons
-  File "system\icons\*.*"
   SetOutPath $INSTDIR\system\icons\codes
-  File "system\icons\codes\*.*"
+  File "system\icons\codes\*.png"
   SetOutPath $INSTDIR\languages
   File "languages\English.xml"
   SetOutPath $INSTDIR\languages\control
@@ -82,12 +82,15 @@ Section "MyServer core" SecCore
   !insertmacro MUI_STARTMENU_WRITE_END
   
   CreateDirectory "$INSTDIR\certificates"
+  SetOutPath $INSTDIR\certificates
+  File "certificates\*.txt"
 SectionEnd
 
 
 Section "Web examples" SecWebEx
   SetOutPath "$INSTDIR\web\cgi-bin"
-  File "web\cgi-bin\*.*"
+  File "web\cgi-bin\*.html"
+  File "web\cgi-bin\*.mscgi"
 ; COPY SOURCE CODE
 ;  SetOutPath $INSTDIR\web\cgi-src\math_sum
 ;  File "web\cgi-src\math_sum\*.*"
@@ -96,7 +99,9 @@ Section "Web examples" SecWebEx
 ;  SetOutPath "$INSTDIR\web\cgi-src\counter"
 ;  File "web\cgi-src\counter\*.*"
   SetOutPath "$INSTDIR\web\downloads"
-  File "web\downloads\*.*"
+  File "web\downloads\*.php"
+  File "web\downloads\*.txt"
+  File "web\downloads\*.sh"
 SectionEnd
 
 Section "MyServer center" SecControl
@@ -118,16 +123,18 @@ SectionEnd
 
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
-  File "..\Documentation\En\*.*"
+  File "..\Documentation\En\*.htm"
+  File "..\Documentation\En\*.css"
   SetOutPath "$INSTDIR\web\documentation\images"
-  File "..\Documentation\En\images\*.*"
+  File "..\Documentation\En\images\*.png"
+  File "..\Documentation\En\images\*.jpg"
 SectionEnd
 
 Section "Install other languages" SecLanguages
   SetOutPath $INSTDIR\languages
-  File "languages\*.*"
+  File "languages\*.xml"
   SetOutPath $INSTDIR\languages\configure
-  File "languages\configure\*.*"
+  File "languages\configure\*.xml"
 SectionEnd
 
 Section "Install the service" SecService
