@@ -35,9 +35,6 @@ cp languages/*.xml $1/languages
 mkdir $1/languages/configure
 cp languages/configure/*.xml $1/languages/configure
 
-mkdir $1/certificates
-cp certificates/*.txt $1/certificates
-
 mkdir $1/web/cgi-bin
 cp web/cgi-bin/*.html $1/web/cgi-bin
 cp web/cgi-bin/*.readme $1/web/cgi-bin
