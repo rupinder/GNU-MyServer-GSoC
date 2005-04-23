@@ -14,6 +14,9 @@ mkdir $1/web
 cp web/*.html $1/web
 cp web/*.png $1/web
 
+mkdir $1/certificates
+cp certificates/*.txt $1/certificates
+
 mkdir $1/system
 cp system/*.css $1/system
 cp system/security $1/system
