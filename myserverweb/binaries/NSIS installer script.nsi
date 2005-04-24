@@ -66,7 +66,7 @@ Section "MyServer core" SecCore
   File "system\icons\codes\*.png"
   SetOutPath $INSTDIR\languages
   File "languages\English.xml"
-  SetOutPath $INSTDIR\languages\control
+  SetOutPath $INSTDIR\languages\configure
   File "languages\configure\english.xml"
    
   !insertmacro MUI_STARTMENU_WRITE_BEGIN MyServer
