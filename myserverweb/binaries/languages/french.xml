@@ -12,7 +12,7 @@
 <ERR_OPENP>Erreur lors de l'ouverture du port, le port est déjà peut-être utilisé par un autre application</ERR_OPENP>
 <MSG_BIND_PORT>Binding du port...</MSG_BIND_PORT>
 <ERR_BIND>Erreur pendant le binding du port, le port est déjà peut-être utilisé par un autre application</ERR_BIND>
-<MSG_PORT_BINDED>Le port est bindé</MSG_PORT_BINDED>
+<MSG_PORT_BOUND>Le port est bindé</MSG_PORT_BOUND>
 <MSG_SLISTEN>Tentative d'écoute du port...</MSG_SLISTEN>
 <ERR_LISTEN>Erreur lors de l'écoute du port</ERR_LISTEN>
 <MSG_LISTEN>Le serveur écoute le port</MSG_LISTEN>

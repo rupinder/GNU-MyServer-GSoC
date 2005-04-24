@@ -13,7 +13,7 @@
 <ERR_OPENP>Ошибка открытия порта, возможно, порт используется другим приложением</ERR_OPENP>
 <MSG_BIND_PORT>Попытка связи с портом</MSG_BIND_PORT>
 <ERR_BIND>Ошибка при попытке связи с портом, возможно, порт используется другим приложением</ERR_BIND>
-<MSG_PORT_BINDED>Связь с портом установлена</MSG_PORT_BINDED>
+<MSG_PORT_BOUND>Связь с портом установлена</MSG_PORT_BOUND>
 <MSG_SLISTEN>Попытка прослушивания порта...</MSG_SLISTEN>
 <ERR_LISTEN>Ошибка прослушивания</ERR_LISTEN>
 <MSG_LISTEN>Прослушивание порта</MSG_LISTEN>

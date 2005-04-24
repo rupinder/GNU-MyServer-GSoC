@@ -12,7 +12,7 @@
 <ERR_OPENP>Errore nell'apertura della porta</ERR_OPENP>
 <MSG_BIND_PORT>Binding della porta...</MSG_BIND_PORT>
 <ERR_BIND>Errore nel binding della porta</ERR_BIND>
-<MSG_PORT_BINDED>Bind della porta avvenuto</MSG_PORT_BINDED>
+<MSG_PORT_BOUND>Bind della porta avvenuto</MSG_PORT_BOUND>
 <MSG_SLISTEN>Tentativo di ascolto sulla porta...</MSG_SLISTEN>
 <ERR_LISTEN>Errore nell'ascoltare sulla porta</ERR_LISTEN>
 <MSG_LISTEN>Il server ascolta sulla porta</MSG_LISTEN>

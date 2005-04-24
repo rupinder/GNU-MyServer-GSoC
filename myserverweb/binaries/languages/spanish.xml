@@ -17,7 +17,7 @@ por otra aplicación</ERR_OPENP>
 <MSG_BIND_PORT>Intentando fijar puerto...</MSG_BIND_PORT>
 <ERR_BIND>Error fijando puerto, puede que el puerto esté siendo usado 
 por otra aplicación</ERR_BIND>
-<MSG_PORT_BINDED>El puerto está fijado</MSG_PORT_BINDED>
+<MSG_PORT_BOUND>El puerto está fijado</MSG_PORT_BOUND>
 <MSG_SLISTEN>Intentando escuchar en puerto...</MSG_SLISTEN>
 <ERR_LISTEN>Error al escuchar</ERR_LISTEN>
 <MSG_LISTEN>Escuchando en puerto</MSG_LISTEN>

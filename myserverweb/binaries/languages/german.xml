@@ -13,7 +13,7 @@
 <ERR_OPENP>Fehler beim Oeffnen des Ports, Port kann bereits von einer anderen Applikation benutzt werden</ERR_OPENP>
 <MSG_BIND_PORT>Versuche Port zu binden...</MSG_BIND_PORT>
 <ERR_BIND>Fehler beim Binden des Ports, Port kann bereits von einer anderen Applikation bentutz werden</ERR_BIND>
-<MSG_PORT_BINDED>Port wurde gebunden</MSG_PORT_BINDED>
+<MSG_PORT_BOUND>Port wurde gebunden</MSG_PORT_BOUND>
 <MSG_SLISTEN>Versuche auf Port zu hoeren...</MSG_SLISTEN>
 <ERR_LISTEN>Fehler beim Hoeren</ERR_LISTEN>
 <MSG_LISTEN>Hoere auf Port</MSG_LISTEN>

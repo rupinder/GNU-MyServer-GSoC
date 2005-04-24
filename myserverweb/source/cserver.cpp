@@ -514,7 +514,7 @@ int Server::createServerAndListener(u_long port)
       logEndPrintError();
       return 0;
     }
-    logWriteln(languageParser.getValue("MSG_PORT_BINDED"));
+    logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
   
 	/*!
    *Set connections listen queque to max allowable.

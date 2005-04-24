@@ -16,7 +16,7 @@ aplicação</ERR_OPENP>
 <MSG_BIND_PORT>Tentando dar bind na porta...</MSG_BIND_PORT>
 <ERR_BIND>Erro de binding na porta, ela pode estar sendo usada por 
 outra aplicação</ERR_BIND>
-<MSG_PORT_BINDED>Está feito o binding na porta</MSG_PORT_BINDED>
+<MSG_PORT_BOUND>Está feito o binding na porta</MSG_PORT_BOUND>
 <MSG_SLISTEN>Tentando ouvir na porta...</MSG_SLISTEN>
 <ERR_LISTEN>Erro ao ouvir na porta</ERR_LISTEN>
 <MSG_LISTEN>Ouvindo na porta</MSG_LISTEN>
