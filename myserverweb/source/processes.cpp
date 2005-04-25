@@ -99,7 +99,42 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		// Set env vars
 		int i = 0;
 		int index = 0;
-		char * envp[100];
+		const char *envp[100];
+    const char *args[100];
+
+    /*! Build the args vector. */
+    args[0]=spi->cmd.c_str();
+    {
+      int count=1;
+      int len=spi->cmd.length();
+      for(int i=1; i<len; i++)
+        if(spi->cmd[i]==' ' && spi->cmd[i-1]!='\\')
+        {
+          if(count < 99)
+          {
+            if((const char*)&(spi->cmd.c_str())[i+1])
+              args[count++]=(const char*)&(spi->cmd.c_str())[i+1];
+            spi->cmd[i]='\0';
+          }
+          else
+            break;
+        }
+      args[count++]=spi->arg.c_str();
+      len=spi->arg.length();
+      for(int i=1; i<len; i++)
+        if(spi->arg[i]==' ' && spi->arg[i-1]!='\\')
+        {
+          if(count < 100)
+          {
+            args[count++]=(const char*)&(spi->arg.c_str())[i+1];
+            spi->arg[i]='\0';
+          }
+          else
+            break;
+        }
+      args[count]=NULL;
+    }
+
 		if(spi->envString != NULL)
 		{
 			while(*((char *)(spi->envString) + i) != '\0')
@@ -151,25 +186,11 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-		if(spi->arg.length())
-		{
-			ret=execle((const char*)(spi->cmd.c_str()), 
-                 (const char*)(spi->cmd.c_str()), 
-                 (const char*)(spi->arg.c_str()), NULL, envp);
+    ret=execve((const char*)(spi->cmd.c_str()),
+               (char* const*)args,(char* const*) envp);
 
-			if(ret == -1)
-				exit(1);
-		}
-		else
-		{
-			ret=execle((const char*)(spi->cmd.c_str()), 
-                 (const char*)(spi->cmd.c_str()), 
-                 NULL, envp);
+    exit(1);
 
-			if(ret == -1)
-				exit(1);	
-		}
-		exit(1);
 	} // end else if(pid == 0)
 	// Parent
 	// Wait till child dies
@@ -295,7 +316,41 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 		// Set env vars
 		int i = 0;
 		int index = 0;
-		char * envp[100];
+		const char *envp[100];
+    const char *args[100];
+
+   /*! Build the args vector. */
+    args[0]=spi->cmd.c_str();
+    {
+      int count=1;
+      int len=spi->cmd.length();
+      for(int i=1; i<len; i++)
+        if(spi->cmd[i]==' ' && spi->cmd[i-1]!='\\')
+        {
+          if(count < 99)
+          {
+            if((const char*)&(spi->cmd.c_str())[i+1])
+              args[count++]=(const char*)&(spi->cmd.c_str())[i+1];
+            spi->cmd[i]='\0';
+          }
+          else
+            break;
+        }
+      args[count++]=spi->arg.c_str();
+      len=spi->arg.length();
+      for(int i=1; i<len; i++)
+        if(spi->arg[i]==' ' && spi->arg[i-1]!='\\')
+        {
+          if(count < 100)
+          {
+            args[count++]=(const char*)&(spi->arg.c_str())[i+1];
+            spi->arg[i]='\0';
+          }
+          else
+            break;
+        }
+      args[count]=NULL;
+    }
 		
 		if(spi->envString != NULL)
 		{
@@ -340,22 +395,11 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-    if(spi->arg.length())
-		{
-			ret = execle((const char*)(spi->cmd.c_str()), 
-                   (const char*)(spi->cmd.c_str()), 
-                   (const char*)(spi->arg.c_str()), NULL, envp);
-      
-			if(ret == -1)
-				exit (1);
-		}
-		else	
-		{
-			ret=execle((const char*)(spi->cmd.c_str()), 
-                 (const char*)(spi->cmd.c_str()), NULL, envp);
-			if(ret == -1)
-				exit (1);
-		}
+
+    ret = execve((const char*)(spi->cmd.c_str()), 
+                 (char* const*)args,(char* const*) envp);
+    
+    
 		exit(1);
 	} // end else if(pid == 0)
  else
