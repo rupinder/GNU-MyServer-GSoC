@@ -2172,6 +2172,8 @@ int Server::countAvailableThreads()
  */
 int Server::logWriteln(const char* str)
 {
+  if(!str)
+    return 0;
   /*!
    *If the log receiver is not the console output a timestamp.
    */
