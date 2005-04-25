@@ -167,7 +167,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    *created because more threads can access more CGI at the same time.
    */
 
-  outputDataPath << getdefaultwd(0,0) << "/stdOutFileCGI_" <<  (unsigned int)td->id;
+  outputDataPath << getdefaultwd(0,0) << "/stdOutFileCGI_" 
+                 <<  (unsigned int)td->id;
   
   /*!
    *Open the stdout file for the new CGI process. 
