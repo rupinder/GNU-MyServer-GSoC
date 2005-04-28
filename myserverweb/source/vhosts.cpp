@@ -432,7 +432,7 @@ void Vhost::setMaxLogSize(int newSize)
 }
 
 /*!
- *Get the max size of the log files.
+ *Get the max size of the log files. Return 0 on success.
  */
 int Vhost::getMaxLogSize()
 {
@@ -446,32 +446,79 @@ int Vhost::getMaxLogSize()
 /*!
  *vhostmanager costructor.
  */
-void VhostManager::addVHost(Vhost* VHost)
+int VhostManager::addVHost(Vhost* VHost)
 {
+  sVhostList* hostl=vhostList;
+  sVhostList* lastHost=vhostList;
+  while(hostl)
+  {
+    if(hostl->next)
+      lastHost=hostl->next;
+
+    /*! Do a case sensitive compare under windows. */
+#ifdef WIN32
+    if(!stringcmpi(VHost->accessesLogFileName, 
+                   hostl->host->accessesLogFileName))
+#else
+    if(!stringcmp(VHost->accessesLogFileName, 
+                  hostl->host->accessesLogFileName))
+#endif
+    {
+      string error;
+      error.assign("Warning: multiple hosts use the same log file:" );
+      error.append(VHost->accessesLogFileName);
+      lserver->logPreparePrintError();
+      lserver->logWriteln(error.c_str());     
+      lserver->logEndPrintError();
+    }
+
+#ifdef WIN32
+    if(!stringcmpi(VHost->warningsLogFileName, 
+                   hostl->host->warningsLogFileName))
+#else
+    if(!stringcmp(VHost->warningsLogFileName, 
+                  hostl->host->warningsLogFileName))
+#endif
+    {
+      string error;
+      error.assign("Warning: multiple hosts use the same log file:" );
+      error.append(VHost->warningsLogFileName);
+      lserver->logPreparePrintError();
+      lserver->logWriteln(error.c_str());     
+      lserver->logEndPrintError();
+    }
+    hostl=hostl->next;
+  }
+
 	if(vhostList==0)
 	{
 		vhostList=new sVhostList();	
+    if(vhostList == 0)
+    {
+      lserver->logPreparePrintError();
+      lserver->logWriteln( "Error allocating memory" );     
+      lserver->logEndPrintError();
+      return 1;
+    }
 		vhostList->host=VHost;
 		vhostList->next =0;
-	}
+  }
 	else
 	{
-		sVhostList* hostl=vhostList;
     /*!Append the new host to the end of the linked list. */
-		for(;;)
-		{
-			if(hostl->next )
-				hostl=hostl->next;
-			else
-				break;
-		}
-		hostl->next = new sVhostList();	
-    if(hostl->next==0)
-      return;
-		hostl->next->next =0; /*!Make sure that next is null*/
-		hostl->next->host=VHost;
+		lastHost->next = new sVhostList();	
+    if(lastHost->next==0)
+    {
+      lserver->logPreparePrintError();
+      lserver->logWriteln( "Error allocating memory" );     
+      lserver->logEndPrintError();
+      return 1;
+    }
+    /*!Make sure that next is null. */
+		lastHost->next->next =0;
+		lastHost->next->host=VHost;
 	}
-	
+	return 0;
 }
 /*!
  *Get the vhost for the connection. A return value of 0 means that
@@ -735,7 +782,12 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 		warnings->load(buffer2);
 		vh->setMaxLogSize(maxlogSize);
 		cc++;
-		addVHost(vh);
+		if(addVHost(vh))
+    {
+      clean();
+      fh.closeFile();
+      return 1;
+    }
 	}
 	fh.closeFile();
   return 0;
@@ -1145,7 +1197,12 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
 
     vh->setMaxLogSize(maxlogSize);
     vh->initializeSSL();
-    addVHost(vh);
+    if(addVHost(vh))
+    {
+      parser.close();
+      clean();
+      return 1;
+    }
     
   }
   parser.close();

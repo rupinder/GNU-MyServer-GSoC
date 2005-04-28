@@ -211,7 +211,7 @@ public:
 	Vhost* getVHost(const char*,const char*,u_short);
 	
 	/*! Add an element to the vhost list.  */
-	void addVHost(Vhost*);
+	int addVHost(Vhost*);
 	
 	/*! Load the virtual hosts list from a configuration file.  */
 	int loadConfigurationFile(const char *,int maxlogSize=0);
