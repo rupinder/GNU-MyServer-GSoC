@@ -116,9 +116,11 @@ void Vhost::clearHostList()
 	sHostList* prevshl=0;
 	while(shl)
 	{
-    prevshl->hostRegex.free();
 		if(prevshl)
-			delete prevshl;
+    {
+      prevshl->hostRegex.free();
+      delete prevshl;
+    }
 		prevshl=shl;
 		shl=shl->next;
 	}
