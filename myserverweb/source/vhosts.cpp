@@ -108,7 +108,7 @@ MimeManager* Vhost::getMIME()
 }
 
 /*!
- *Clear the list of the hosts
+ *Clear the list of the hosts.
  */
 void Vhost::clearHostList()
 {
@@ -130,7 +130,7 @@ void Vhost::clearHostList()
 }
 
 /*!
- *Clear the list of IPs
+ *Clear the list of IPs.
  */
 void Vhost::clearIPList()
 {
@@ -152,7 +152,7 @@ void Vhost::clearIPList()
 }
 
 /*!
- *Add an IP address to the list
+ *Add an IP address to the list.
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {
@@ -292,7 +292,7 @@ int Vhost::areAllIPAllowed()
 
 /*!
  *Check if the network is allowed to the connection(control the network 
- *by the local IP)
+ *by the local IP).
  */
 int Vhost::isIPAllowed(const char* ip)
 {
@@ -318,7 +318,7 @@ int Vhost::isIPAllowed(const char* ip)
 }
 
 /*!
- *Add an host to the allowed host list
+ *Add an host to the allowed host list.
  */
 void Vhost::addHost(const char *host, int isRegex)
 {
@@ -376,8 +376,8 @@ u_long Vhost::warningslogTerminateAccess(int id)
 }
 
 /*!
-*Write to the accesses log file
-*/
+ *Write to the accesses log file.
+ */
 int Vhost::accessesLogWrite(const char* str)
 {
 	return accessesLogFile.write(str);
