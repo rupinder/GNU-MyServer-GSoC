@@ -1851,21 +1851,21 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           /*!
            *If the inputData file was not closed close it.
            */
-				if(td.inputData.getHandle())
-        {
-					td.inputData.closeFile();
-					File::deleteFile(td.inputDataPath);
-				}
-				/*!
-         *If the outputData file was not closed close it.
-         */
-				if(td.outputData.getHandle())
-        {
-					td.outputData.closeFile();
-					File::deleteFile(td.outputDataPath);
-				}	
-				logHTTPaccess(&td, a);
-				return 0;
+          if(td.inputData.getHandle())
+          {
+            td.inputData.closeFile();
+            File::deleteFile(td.inputDataPath);
+          }
+          /*!
+           *If the outputData file was not closed close it.
+           */
+          if(td.outputData.getHandle())
+          {
+            td.outputData.closeFile();
+            File::deleteFile(td.outputDataPath);
+          }	
+          logHTTPaccess(&td, a);
+          return 0;
         }
       }
 		
