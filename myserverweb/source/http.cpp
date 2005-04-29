@@ -1557,7 +1557,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
             }
             retvalue = raiseHTTPError(&td, a, e_400);
             logHTTPaccess(&td, a);
-            return retvalue;
+            return retvalue ? 1 : 0;
           }
         }
         /*!
@@ -1630,7 +1630,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
             td.outputData.deleteFile(td.outputDataPath);
             retvalue = raiseHTTPError(&td, a, e_500);
             logHTTPaccess(&td, a);
-            return retvalue;
+            return retvalue ? 1 : 0;
           }
         }
         /*! If CONTENT-LENGTH is not specified read all the data. */
