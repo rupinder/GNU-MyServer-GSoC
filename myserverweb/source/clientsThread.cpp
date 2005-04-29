@@ -349,13 +349,14 @@ int ClientsThread::controlConnections()
 		buffer.SetBuffer(c->connectionBuffer, c->getDataRead());
 
 		c->thread=this;
-
-		switch(((Vhost*)(c->host))->protocol)
-		{
-			/*!
-       *controlHTTPConnection returns 0 if the connection must be removed from
-       *the active connections list.
-       */
+    try
+    {
+      switch(((Vhost*)(c->host))->protocol)
+      {
+        /*!
+         *controlHTTPConnection returns 0 if the connection must be removed from
+         *the active connections list.
+         */
 			case PROTOCOL_HTTP:
         if(http_parser == 0)
         {
@@ -364,49 +365,54 @@ int ClientsThread::controlConnections()
             return 0;
         }
 				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
-                     (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
-                     buffer2.GetRealLength(), nBytesToRead, id);
+                                  (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
+                                   buffer2.GetRealLength(), nBytesToRead, id);
  				break;
-			/*!
-       *Parse an HTTPS connection request.
-       */
-			case PROTOCOL_HTTPS:
-        if(https_parser == 0)
-        {
-          https_parser = new Https();
-          if(https_parser==0)
-            return 0;
-        }
-				retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
-                     (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
-                     buffer2.GetRealLength(), nBytesToRead, id);
-				break;
-			case PROTOCOL_CONTROL:
-        if(control_protocol_parser == 0)
-        {
-          control_protocol_parser = new ControlProtocol();
+        /*!
+         *Parse an HTTPS connection request.
+         */
+			  case PROTOCOL_HTTPS:
+          if(https_parser == 0)
+          {
+            https_parser = new Https();
+            if(https_parser==0)
+              return 0;
+          }
+          retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
+                               (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
+                                buffer2.GetRealLength(), nBytesToRead, id);
+          break;
+			  case PROTOCOL_CONTROL:
           if(control_protocol_parser == 0)
-            return 0;
-        }
-        retcode=control_protocol_parser->controlConnection(c, 
-                     (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), 
-                     buffer.GetRealLength(), buffer2.GetRealLength(), 
-                                                           nBytesToRead, id);
-				break;
-			default:
-        dp=lserver->getDynProtocol(((Vhost*)(c->host))->protocol_name.c_str());
-				if(dp==0)
-				{
-					retcode=0;
-				}
-				else
-				{
-					retcode=dp->controlConnection(c, (char*)buffer.GetBuffer(), 
-                  (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
-                  buffer2.GetRealLength(), nBytesToRead, id);
-				}
-				break;
-		}
+          {
+            control_protocol_parser = new ControlProtocol();
+            if(control_protocol_parser == 0)
+              return 0;
+          }
+          retcode=control_protocol_parser->controlConnection(c, 
+                       (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), 
+                       buffer.GetRealLength(), buffer2.GetRealLength(), 
+                                                             nBytesToRead, id);
+          break;
+		  	default:
+          dp=lserver->getDynProtocol(((Vhost*)(c->host))->protocol_name.c_str());
+			  	if(dp==0)
+			  	{
+			  		retcode=0;
+			  	}
+			  	else
+				  {
+				  	retcode=dp->controlConnection(c, (char*)buffer.GetBuffer(), 
+                    (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
+                    buffer2.GetRealLength(), nBytesToRead, id);
+				  }
+          break;
+      }
+    }
+    catch(...)
+    {
+      retcode=0;
+    };
 		/*!
      *The protocols parser functions return:
      *0 to delete the connection from the active connections list.
