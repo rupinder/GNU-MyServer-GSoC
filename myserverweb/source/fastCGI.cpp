@@ -855,7 +855,6 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
    *remote one. 
    */
 	int localServer;
-  int ret;
   int toReboot=0;
   sfCGIservers* server;
 	static u_short portsDelta=0;
