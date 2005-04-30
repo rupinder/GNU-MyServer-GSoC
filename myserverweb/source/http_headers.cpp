@@ -338,7 +338,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	u_long nLines, maxTotchars;
 	int validRequest;
 	const int maxUri = HTTP_REQUEST_URI_DIM + 200 ;
-	const char seps[]   = "\n\r";
 	const char cmdSeps[]   = ": ,\t\n\r";
 
 	char *token=0;
@@ -782,7 +781,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(!lstrcmpi(command,"Accept"))
 		{
 			int max = HTTP_REQUEST_ACCEPT_DIM-(int)request->ACCEPT.length();
-			int oldlen = request->ACCEPT.length();
 			if(max < 0)
 				return e_400;
 			tokenOff = getEndLine(token, max);
@@ -901,15 +899,15 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			}
 			while((*(++localToken) != '\r' )&&(i<12));
 
-      for(i=0;i<request->RANGETYPE.length();i++)
+      for(i=0;i<static_cast<int>(request->RANGETYPE.length());i++)
         if(request->RANGETYPE[i]== '=')
           request->RANGETYPE[i]='\0';
 
-      for(i=0; i<strlen(RANGEBYTEBEGIN); i++)
+      for(i=0; i<static_cast<int>(strlen(RANGEBYTEBEGIN)); i++)
         if(RANGEBYTEBEGIN[i]== '=')
           RANGEBYTEBEGIN[i]='\0';
 
-      for(i=0; i<strlen(RANGEBYTEEND); i++)
+      for(i=0; i<static_cast<int>(strlen(RANGEBYTEEND)); i++)
         if(RANGEBYTEEND[i]== '=')
           RANGEBYTEEND[i]='\0';
 			
@@ -984,7 +982,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
    *control if this is a regular request.
    *The HTTP header ends with a \r\n\r\n sequence.
    */
-	int noinputspecified=0;
 	char *newInput;
 	u_long nLines,maxTotchars;
 	u_long validResponse;

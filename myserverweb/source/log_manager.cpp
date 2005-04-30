@@ -238,7 +238,7 @@ int LogManager::storeFile()
     getRFC822LocalTime(time, 32);
     time = trim(time.substr(5,32));
     
-    for(int i=0;i< time.length(); i++)
+    for(int i=0;i< static_cast<int>(time.length()); i++)
       if((time[i] == ' ') || (time[i] == ':'))
         time[i]= '.';
     newfilename << filedir << "/" << filename << "." << time;

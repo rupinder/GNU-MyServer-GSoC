@@ -94,7 +94,7 @@ int XmlParser::open(const char* filename)
 		return -1;
 	}
   mtime = File::getLastModTime(filename);
-  if(mtime == (u_long)-1)
+  if(mtime == static_cast<time_t>(-1))
   {
 		close();
 		return -1;

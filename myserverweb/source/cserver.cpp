@@ -82,7 +82,6 @@ Server::Server()
   throttlingRate = 0;
   uid= 0;
   gid = 0;
-  int serverReady;
 
   try
   {
@@ -559,7 +558,8 @@ int Server::createServerAndListener(u_long port)
     ostringstream s;
     s << "Error :" << e.what();
     logWriteln(s.str().c_str());  
-  }; 
+  };
+  return 0;
 }
 
 /*!

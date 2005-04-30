@@ -978,8 +978,6 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
 	{
     string filename;
     string ext;
-    int dirLen = 0;
-    int filenameLen = 0;
     u_long nbw = 0;
     /*! Do not show files starting with a dot. */
     if(fd.name[0]=='.')

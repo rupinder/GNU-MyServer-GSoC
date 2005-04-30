@@ -60,10 +60,11 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
    */
   if(parser)
   {
-    u_long fileModTime;
+    time_t fileModTime;
     /*! If the file was modified reload it. */
     fileModTime=File::getLastModTime(permissionsFile.c_str());
-    if((fileModTime != (u_long)-1)  && (parser->getLastModTime() != fileModTime))
+    if((fileModTime != static_cast<time_t>(-1))  && 
+       (parser->getLastModTime() != fileModTime))
     {
       parser->close();
       if(parser->open(permissionsFile.c_str()) == -1)
@@ -197,10 +198,11 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
    */
   if(parser)
   {
-    u_long fileModTime;
+    time_t fileModTime;
     /*! If the file was modified reload it. */
     fileModTime=File::getLastModTime(permissionsFile.c_str());
-    if((fileModTime != (u_long)-1)  && (parser->getLastModTime() != fileModTime))
+    if((fileModTime != static_cast<time_t>(-1))  && 
+       (parser->getLastModTime() != fileModTime))
     {
       parser->close();
       if(parser->open(permissionsFile.c_str()) == -1)

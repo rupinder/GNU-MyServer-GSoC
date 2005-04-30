@@ -241,7 +241,6 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   string directory;
 	int httpStatus=td->response.httpStatus;
 	int keepalive=0;
-  int directoryLen=0;
   int permissions2=0;
   char auth_type[16];	
   SecurityToken st;
@@ -979,7 +978,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
     }
 
     /*! If a throttling rate was specifed use it. */
-    if(st.throttlingRate != (u_long)-1)
+    if(st.throttlingRate != -1)
       s->socket.setThrottling(st.throttlingRate);
     /*!
      *Get the PATH_INFO value.
@@ -1029,7 +1028,6 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
      */
     if(td->pathInfo.length()>1)
     {
-      int ptlen=0;
       int ret;
       /*!
        *Start from the second character because the first is a
@@ -1379,7 +1377,6 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
  	int retvalue=-1;
   int ret = 0;
 	int validRequest;
-  int cwdLen;
   u_long dataRead=0;
   u_long dataToRead=0;
   /*! Dimension of the POST data. */
@@ -1504,7 +1501,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         u_long timeout;
         td.request.URIOPTSPTR=&(td.buffer->GetBuffer())[td.nHeaderChars];
         td.buffer->GetBuffer()[td.nBytesToRead<td.buffer->GetRealLength()-1 
-                               ? td.nBytesToRead : td.buffer->GetRealLength()-1]='\0';
+                      ? td.nBytesToRead : td.buffer->GetRealLength()-1]='\0';
         /*!
          *Create the file that contains the data posted.
          *This data is the stdin file in the CGI.
@@ -1514,7 +1511,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           return 0;
         nbw=0;
         total_nbr=(td.nBytesToRead<td.buffer->GetRealLength()-1 
-                   ? td.nBytesToRead : td.buffer->GetRealLength()-1 ) -td.nHeaderChars;
+           ? td.nBytesToRead : td.buffer->GetRealLength()-1 ) -td.nHeaderChars;
         if(total_nbr)
         {
           if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
@@ -1564,7 +1561,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          *If there are others bytes to read from the socket.
          */
         timeout=get_ticks();
-        if((content_len!=-1)&&((content_len!=nbw) || (nbw==0)))
+        if((content_len!=-1) && 
+           ((content_len!=static_cast<int>(nbw) ) || (nbw==0)))
         {
           int ret;
           u_long fs;
@@ -1574,7 +1572,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
             fs=td.inputData.getFileSize();
             while(get_ticks()-timeout<MYSERVER_SEC(5))
 					  {
-              if(content_len==total_nbr)
+              if(content_len==static_cast<int>(total_nbr))
 						  {
                 /*!
                  *Consider only CONTENT-LENGTH bytes of data.
@@ -1589,10 +1587,13 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                 }
                 break;
               }
-              if((content_len>fs) && (td.connection->socket.bytesToRead()))
+              if((content_len>static_cast<int>(fs)) && 
+                 (td.connection->socket.bytesToRead()))
               {				
-                u_long tr=content_len-total_nbr < td.buffer2->GetRealLength() 
-                  ? content_len-total_nbr :  td.buffer2->GetRealLength();
+                u_long tr=static_cast<u_long>(content_len)-total_nbr < 
+                  td.buffer2->GetRealLength() 
+                  ? static_cast<u_long>(content_len)-total_nbr 
+                  : td.buffer2->GetRealLength() ;
 
                 ret=td.connection->socket.recv(td.buffer2->GetBuffer(), tr, 0);
                 if(ret==-1)
@@ -1602,7 +1603,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                   return 0;
                 }
 							
-                if(td.inputData.writeToFile(td.buffer2->GetBuffer(), (u_long)ret, &nbw))
+                if(td.inputData.writeToFile(td.buffer2->GetBuffer(), 
+                                            static_cast<u_long>(ret), &nbw))
                 {
                   td.inputData.closeFile();
                   td.inputData.deleteFile(td.inputDataPath);
@@ -1616,10 +1618,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
             if(get_ticks()-timeout>=MYSERVER_SEC(5))
               break;
           }
-          while(content_len!=total_nbr);
+          while(content_len!=static_cast<int>(total_nbr));
           
-          fs=td.inputData.getFileSize();
-          if(content_len!=fs)
+          fs=static_cast<u_long>(td.inputData.getFileSize());
+          if(content_len!=static_cast<int>(fs))
           {
             /*!
              *If we get an error remove the file and the connection.
@@ -1664,7 +1666,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
             /*! Wait a bit. */
             Thread::wait(2);
           }
-          while(content_len!=total_nbr);
+          while(content_len!=static_cast<int>(total_nbr));
           buff << td.inputData.getFileSize();
           /*! Store a new value for CONTENT_LENGTH. */
           td.response.CONTENT_LENGTH.assign(buff.str());
@@ -2284,8 +2286,6 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/,
 	{	
 		if(filename[0])
 		{
-      int filenamePathLen;
-      u_long len;
       const char *root;
       /*! 
        *URI starting with a /sys/ will use the system directory as
@@ -2540,7 +2540,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 
 	}
   
-  for(int i=0; i<defaultFilename.size(); i++ )
+  for(int i=0; i<static_cast<int>(defaultFilename.size()); i++ )
   {
     string *str=defaultFilename[i];
     delete str;
@@ -2558,7 +2558,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	else
 	{
 		u_long i;
-		for(i=0; i<nDefaultFilename; i++)
+		for(i=0; i<static_cast<u_long>(nDefaultFilename); i++)
 		{
 			ostringstream xmlMember;
 			xmlMember << "DEFAULT_FILENAME"<< (u_int)i;
@@ -2605,7 +2605,7 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 
   sec_cache_mutex.destroy();
 
-  for(int i=0; i<defaultFilename.size(); i++ )
+  for(int i=0; i<static_cast<int>(defaultFilename.size()); i++ )
   {
     string *str=defaultFilename[i];
     delete str;

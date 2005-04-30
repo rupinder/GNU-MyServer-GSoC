@@ -479,7 +479,6 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
  */
 const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 {
-  extern long timezone; 
 	time_t ltime;
 	time( &ltime );
 	char *asct;

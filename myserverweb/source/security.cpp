@@ -165,7 +165,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 	ostringstream permissionsFile;
 
 	char tempPassword[32];
-  int ret = 0;
 
   /*! Generic permission data mask for the user. */
 	int genericPermissions=0;

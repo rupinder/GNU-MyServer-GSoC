@@ -61,7 +61,7 @@ int File::getPathRecursionLevel(const char* path)
   token = strtok( lpath, "\\/" );
 	do
 	{
-		if(token != NULL) 
+		if(token != 0) 
 		{
 			/*! ".." decreases the recursion level. */
 			if( !strcmp(token,"..")  )
@@ -71,9 +71,9 @@ int File::getPathRecursionLevel(const char* path)
 			/*! Everything else increases it. */
 				rec++;
 		}
-		token = strtok( NULL, "\\/" );
+		token = strtok( 0, "\\/" );
 	}
-	while( token != NULL );
+	while( token != 0 );
   delete [] lpath;
 	return rec;
 }
@@ -127,7 +127,6 @@ File::File(char *nfilename, int opt)
 int File::openFile(const char* nfilename,u_long opt)
 {
 	long ret=0;
-  int filename_len;
 
 	filename.assign(nfilename);
 #ifdef WIN32
@@ -413,10 +412,14 @@ int File::renameFile(const char* before, const char* after)
 {
 #ifdef WIN32
   return MoveFile(before, after) ? 0 : 1;
-#endif
+#else
 
 #ifdef NOTWIN
   return rename(before, after);
+#else
+  return -1;
+#endif
+
 #endif
 }
 
@@ -663,7 +666,7 @@ void File::getFilename(const char *path, char *filename)
  */
 void File::getFilename(string const &path, string& filename)
 {
-  int splitpoint = path.find_last_of("\\/");
+  u_long splitpoint = path.find_last_of("\\/");
   if(splitpoint != string::npos)
   {
     filename=path.substr(splitpoint+1, path.length()-1);
@@ -755,8 +758,8 @@ void File::splitPath(const char *path, char *dir, char *filename)
  */
 void File::splitPath(string const &path, string& dir, string& filename)
 {
-  int splitpoint;
-  int len = path.length();
+  u_long splitpoint;
+  u_long len = path.length();
   splitpoint = path.find_last_of("\\/");
   if(splitpoint != string::npos)
   {
@@ -793,7 +796,7 @@ void File::getFileExt(char* ext,const char* filename)
  */
 void File::getFileExt(string& ext, string const &filename)
 {
-  int pos = filename.find_last_of('.');
+  u_long pos = filename.find_last_of('.');
   if(pos != string::npos)
   {
     ext = filename.substr(pos+1, filename.length()-1);
