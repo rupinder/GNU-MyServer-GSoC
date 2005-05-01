@@ -80,7 +80,7 @@ ControlProtocol::ControlProtocol()
 {
   Ifile=0;
   Ofile=0;
-	PROTOCOL_OPTIONS = PROTOCOL_USES_SSL;
+	protocolOptions = PROTOCOL_USES_SSL;
   Reboot = true;
 }
 

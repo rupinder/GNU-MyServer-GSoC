@@ -101,7 +101,7 @@ char *DynamicProtocol::getProtocolName()
  */
 int DynamicProtocol::getOptions()
 {
-	return  PROTOCOL_OPTIONS;
+	return  protocolOptions;
 }
 
 
@@ -139,7 +139,7 @@ char* DynamicProtocol::registerName(char* out,int len)
  */
 DynamicProtocol::DynamicProtocol()
 {
-	PROTOCOL_OPTIONS=0;
+	protocolOptions=0;
   filename.assign("");
   errorParser=0;
 }
@@ -151,7 +151,7 @@ DynamicProtocol::~DynamicProtocol()
 {
   unloadProtocol(errorParser);
   errorParser=0;
-	PROTOCOL_OPTIONS=0;
+	protocolOptions=0;
   filename.assign("");
 }
 

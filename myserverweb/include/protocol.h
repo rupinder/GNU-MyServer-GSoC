@@ -32,7 +32,7 @@ class Protocol
 private:
 
 public:
-	int PROTOCOL_OPTIONS;
+	int protocolOptions;
 	Protocol();
 	char* registerName(char*,int len);
 	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,

@@ -68,5 +68,5 @@ char* Protocol::registerName(char* /*out*/,int /*len*/)
  */
 Protocol::Protocol()
 {
-	PROTOCOL_OPTIONS=0;
+	protocolOptions=0;
 }

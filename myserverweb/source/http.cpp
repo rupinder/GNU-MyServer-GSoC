@@ -2646,7 +2646,7 @@ char* Http::registerName(char* out, int len)
 Http::Http()
 {
 	protocolPrefix.assign("http://");
-	PROTOCOL_OPTIONS=0;
+	protocolOptions=0;
 	td.filenamePath.assign("");
 	td.pathInfo.assign("");
 	td.pathTranslated.assign("");

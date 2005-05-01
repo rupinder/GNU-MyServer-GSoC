@@ -93,7 +93,7 @@ private:
 protected:
 	string protocolPrefix;
 public:
-	int PROTOCOL_OPTIONS;
+	int protocolOptions;
 	const char *getDefaultFilenamePath(u_long ID);
 	int sendHTTPResource(HttpThreadContext*,ConnectionPtr s, string& filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
