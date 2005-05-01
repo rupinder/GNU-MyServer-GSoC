@@ -213,14 +213,18 @@ int main (int argn, char **argv)
   {
     if(server->setLogFile(input.logFileName))
     {
-      printf("Error loading log file\n");
+      cout << "Error loading log file" << endl;
       return 1;
     }
   }
 	/*! If the version flag is up, show the version and exit. */
 	if(input.version)
 	{
-		printf("MyServer %s\r\n",versionOfSoftware);
+    cout << "MyServer "<< versionOfSoftware 
+#ifdef __DATE__
+         << " compiled on " << __DATE__  
+#endif
+         << endl;
 		return 0;   
 	}
 #else
@@ -228,7 +232,7 @@ int main (int argn, char **argv)
 	{	
 		if(!lstrcmpi(argv[1],"VERSION"))
 		{
-			printf("MyServer %s\r\n",versionOfSoftware);
+			cout << "MyServer " << versionOfSoftware << endl;
 			return 0;
 		}
 		if(!lstrcmpi(argv[1],"CONSOLE"))
