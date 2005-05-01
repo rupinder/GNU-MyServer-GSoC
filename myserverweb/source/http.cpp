@@ -1845,8 +1845,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         /*!
          *Find the virtual host to check both host name and IP value.
          */
-        a->host=lserver->vhostList->getVHost((char*)td.request.HOST.c_str(), 
-                                             a->getLocalIpAddr(), a->getLocalPort());
+        Vhost* newHost=lserver->vhostList->getVHost((char*)td.request.HOST.c_str(), 
+                                            a->getLocalIpAddr(), a->getLocalPort());
+        ((Vhost*)a->host)->removeRef();
+        a->host=newHost;
         if(a->host==0)
         {
           raiseHTTPError(&td, a, e_400);

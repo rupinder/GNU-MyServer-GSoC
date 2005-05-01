@@ -54,11 +54,12 @@ Vhost::Vhost()
   accessesLogFileName.assign("");
   warningsLogFileName.assign("");
   /*! 
-   *By default use a non specified value for the throttling rate. -1 means that the
-   *throttling rate was not specified, while 0 means it was specified but there is not
-   *a limit.
+   *By default use a non specified value for the throttling rate. -1 means 
+   *that the throttling rate was not specified, while 0 means it was 
+   *specified but there is not a limit.
    */
   throttlingRate = (u_long) -1;
+  refCount = 0;
 }
 
 /*!
@@ -527,8 +528,13 @@ int VhostManager::addVHost(Vhost* VHost)
 Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 {
 	sVhostList* vhl;
+  mutex.lock();
   if(extSource)
-    return extSource->getVHost(host, ip, port);
+  {
+    Vhost*ret=extSource->getVHost(host, ip, port);
+    mutex.unlock();
+    return  ret;
+  }
 	for(vhl=vhostList;vhl;vhl=vhl->next )
 	{
     /*! Control if the host port is the correct one. */
@@ -541,8 +547,11 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 		if(host && !vhl->host->isHostAllowed(host))
 			continue;
     /*! We find a valid host. */
+    mutex.unlock();
+    vhl->host->addRef();
 		return vhl->host;
 	}
+  mutex.unlock();
 	return 0;
 }
 
@@ -553,6 +562,7 @@ VhostManager::VhostManager()
 {
 	vhostList=0;
   extSource=0;
+  mutex.init();
 }
 
 /*!
@@ -585,6 +595,7 @@ void VhostManager::clean()
 VhostManager::~VhostManager()
 {
 	clean();
+  mutex.destroy();
 }
 /*!
  *Load the virtual hosts from a configuration file.
@@ -1428,13 +1439,21 @@ int Vhost::freeSSL()
  */
 Vhost* VhostManager::getVHostByNumber(int n)
 {
-	sVhostList *hl=vhostList;
+	sVhostList *hl;
+  mutex.lock();
+  hl=vhostList;
   if(extSource)
-    return extSource->getVHostByNumber(n);
+  {
+    Vhost* ret=extSource->getVHostByNumber(n);
+    mutex.unlock();
+    return ret;
+  }
 	for(int i=0;(i<n)&& hl;i++)
 	{
 		hl=hl->next;
 	}
+  hl->host->addRef();
+  mutex.unlock();
 	return hl->host;
 }
 
@@ -1521,4 +1540,36 @@ Vhost* VhostSource::getVHost(const char*, const char*, u_short)
 Vhost* VhostSource::getVHostByNumber(int n)
 {
   return 0;
+}
+
+/*!
+ *Increment current references counter by 1.
+ */
+void Vhost::addRef()
+{
+  refCount++;
+}
+
+/*!
+ *Decrement current references counter by 1.
+ */
+void Vhost::removeRef()
+{
+  refCount--;
+}
+
+/*!
+ *Get the references counter.
+ */
+int Vhost::getRef()
+{
+  return refCount;
+}
+
+/*!
+ *Set the reference counter for the virtual host.
+ */
+void Vhost::setRef(int n)
+{
+  refCount=n;
 }

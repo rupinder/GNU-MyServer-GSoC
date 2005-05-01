@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include "../include/connectionstruct.h"
-
+#include "../include/vhosts.h"
 /*!
  *Create the buffer.
  */
@@ -78,6 +78,8 @@ Connection::~Connection()
   if(protocolBuffer)
     delete  protocolBuffer;
 
+  /*! Remove the reference for the vhost. */
+  ((Vhost*)host)->removeRef();
 }
 
 /*!

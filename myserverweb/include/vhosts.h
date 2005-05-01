@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/myserver_regex.h"
 #include "../include/log_manager.h"
 #include "../include/MIME_manager.h"
+#include "../include/threads.h"
 
 #include <string>
 
@@ -55,6 +56,9 @@ class Vhost
 	LogManager accessesLogFile;
 
   MimeManager mime_manager;
+
+  /*! How many connections are using this virtual host? */
+  int refCount;
 
 public:
 	struct sHostList
@@ -105,7 +109,7 @@ public:
 
 	/*! Protocol used by the vhost. */
 	string protocol_name;
-	
+
 	/*! Initialize SSL things. */
 	int initializeSSL();
 	
@@ -146,6 +150,10 @@ public:
 	void removeHost(const char *);
 	int areAllHostAllowed();
 	int areAllIPAllowed();
+  void addRef();
+  void removeRef();
+  int getRef();
+  void setRef(int);
 	void clearIPList();
 	void clearHostList();
 	int isHostAllowed(const char*);
@@ -185,6 +193,7 @@ public:
 
 class VhostManager
 {
+  Mutex mutex;
 public:
 	struct sVhostList
 	{

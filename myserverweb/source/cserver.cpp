@@ -1288,7 +1288,6 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 		delete new_connection;
 		return 0;
 	}
-
 	if(((Vhost*)new_connection->host)->protocol > 1000	)
 	{
 		doSSLhandshake=1;
