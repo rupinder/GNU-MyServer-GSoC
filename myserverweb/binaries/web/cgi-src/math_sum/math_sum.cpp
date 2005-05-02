@@ -8,7 +8,7 @@ int isNumber(char* s)
 {
   if(!s)
     return 0;
-  for(int i=0; i<strlen(s);i++)
+  for(u_long i=0; i<strlen(s);i++)
     if(!isdigit(s[i]))
       return 0;
   return 1;

@@ -38,7 +38,6 @@ extern "C" int main (char *cmd,MsCgiData* data)
 			post=cm.getParam("T1");
 		if(post)
 			cm.write(post);
-	
 		cm.write("\r\n</div>\r\n</body>\r\n</html>");
 	}
 	cm.clean();
