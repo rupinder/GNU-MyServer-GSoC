@@ -449,77 +449,93 @@ int Vhost::getMaxLogSize()
  */
 int VhostManager::addVHost(Vhost* VHost)
 {
-  sVhostList* hostl=vhostList;
-  sVhostList* lastHost=vhostList;
-  while(hostl)
+  sVhostList* hostl;
+  sVhostList* lastHost;
+
+  mutex.lock();
+
+  hostl=vhostList;
+  lastHost=vhostList;
+  try
   {
-    if(hostl->next)
-      lastHost=hostl->next;
+    while(hostl)
+    {
+      if(hostl->next)
+        lastHost=hostl->next;
 
-    /*! Do a case sensitive compare under windows. */
+      /*! Do a case sensitive compare under windows. */
 #ifdef WIN32
-    if(!stringcmpi(VHost->accessesLogFileName, 
-                   hostl->host->accessesLogFileName))
+      if(!stringcmpi(VHost->accessesLogFileName, 
+                     hostl->host->accessesLogFileName))
 #else
-    if(!stringcmp(VHost->accessesLogFileName, 
-                  hostl->host->accessesLogFileName))
+        if(!stringcmp(VHost->accessesLogFileName, 
+                      hostl->host->accessesLogFileName))
 #endif
-    {
-      string error;
-      error.assign("Warning: multiple hosts use the same log file:" );
-      error.append(VHost->accessesLogFileName);
-      lserver->logPreparePrintError();
-      lserver->logWriteln(error.c_str());     
-      lserver->logEndPrintError();
-    }
+        {
+          string error;
+          error.assign("Warning: multiple hosts use the same log file:" );
+          error.append(VHost->accessesLogFileName);
+          lserver->logPreparePrintError();
+          lserver->logWriteln(error.c_str());     
+          lserver->logEndPrintError();
+        }
 
 #ifdef WIN32
-    if(!stringcmpi(VHost->warningsLogFileName, 
-                   hostl->host->warningsLogFileName))
+      if(!stringcmpi(VHost->warningsLogFileName, 
+                     hostl->host->warningsLogFileName))
 #else
-    if(!stringcmp(VHost->warningsLogFileName, 
-                  hostl->host->warningsLogFileName))
+        if(!stringcmp(VHost->warningsLogFileName, 
+                      hostl->host->warningsLogFileName))
 #endif
-    {
-      string error;
-      error.assign("Warning: multiple hosts use the same log file:" );
-      error.append(VHost->warningsLogFileName);
-      lserver->logPreparePrintError();
-      lserver->logWriteln(error.c_str());     
-      lserver->logEndPrintError();
+        {
+          string error;
+          error.assign("Warning: multiple hosts use the same log file:" );
+          error.append(VHost->warningsLogFileName);
+          lserver->logPreparePrintError();
+          lserver->logWriteln(error.c_str());     
+          lserver->logEndPrintError();
+        }
+      hostl=hostl->next;
     }
-    hostl=hostl->next;
-  }
 
-	if(vhostList==0)
-	{
-		vhostList=new sVhostList();	
-    if(vhostList == 0)
+    if(vhostList==0)
     {
-      lserver->logPreparePrintError();
-      lserver->logWriteln( "Error allocating memory" );     
-      lserver->logEndPrintError();
-      return 1;
+      vhostList=new sVhostList();	
+      if(vhostList == 0)
+      {
+        lserver->logPreparePrintError();
+        lserver->logWriteln( "Error allocating memory" );     
+        lserver->logEndPrintError();
+        mutex.unlock();
+        return 1;
+      }
+      vhostList->host=VHost;
+      vhostList->next =0;
     }
-		vhostList->host=VHost;
-		vhostList->next =0;
+    else
+    {
+      /*! Append the new host to the end of the linked list. */
+      lastHost->next = new sVhostList();	
+      if(lastHost->next==0)
+      {
+        lserver->logPreparePrintError();
+        lserver->logWriteln( "Error allocating memory" );     
+        lserver->logEndPrintError();
+        mutex.unlock();
+        return 1;
+      }
+      /*! Make sure that next is null. */
+      lastHost->next->next =0;
+      lastHost->next->host=VHost;
+    }
+    mutex.unlock();
+    return 0;
   }
-	else
-	{
-    /*!Append the new host to the end of the linked list. */
-		lastHost->next = new sVhostList();	
-    if(lastHost->next==0)
-    {
-      lserver->logPreparePrintError();
-      lserver->logWriteln( "Error allocating memory" );     
-      lserver->logEndPrintError();
-      return 1;
-    }
-    /*!Make sure that next is null. */
-		lastHost->next->next =0;
-		lastHost->next->host=VHost;
-	}
-	return 0;
+  catch(...)
+  {
+    mutex.unlock();
+    return 0;
+  };
 }
 /*!
  *Get the vhost for the connection. A return value of 0 means that
@@ -528,31 +544,42 @@ int VhostManager::addVHost(Vhost* VHost)
 Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 {
 	sVhostList* vhl;
+  
   mutex.lock();
-  if(extSource)
+  
+  try
   {
-    Vhost*ret=extSource->getVHost(host, ip, port);
+    if(extSource)
+    {
+      Vhost*ret=extSource->getVHost(host, ip, port);
+      mutex.unlock();
+      return  ret;
+    }
+    for(vhl=vhostList;vhl;vhl=vhl->next )
+    {
+      /*! Control if the host port is the correct one. */
+      if(vhl->host->port!=port)
+        continue;
+      /*! If ip is defined check that it is allowed to connect to the host. */
+      if(ip && !vhl->host->isIPAllowed(ip))
+        continue;
+      /*! If host is defined check if it is allowed to connect to the host. */
+      if(host && !vhl->host->isHostAllowed(host))
+        continue;
+      /*! We find a valid host. */
+      mutex.unlock();
+      /*! Add a reference. */
+      vhl->host->addRef();
+      return vhl->host;
+    }
     mutex.unlock();
-    return  ret;
+    return 0;
   }
-	for(vhl=vhostList;vhl;vhl=vhl->next )
-	{
-    /*! Control if the host port is the correct one. */
-		if(vhl->host->port!=port)
-			continue;
-    /*! If ip is defined check that it is allowed to connect to the host. */
-		if(ip && !vhl->host->isIPAllowed(ip))
-			continue;
-    /*! If host is defined check that it is allowed to connect to the host. */
-		if(host && !vhl->host->isHostAllowed(host))
-			continue;
-    /*! We find a valid host. */
+  catch(...)
+  {
     mutex.unlock();
-    vhl->host->addRef();
-		return vhl->host;
-	}
-  mutex.unlock();
-	return 0;
+    return 0;   
+  };
 }
 
 /*!
@@ -570,25 +597,39 @@ VhostManager::VhostManager()
  */
 void VhostManager::clean()
 {
-	sVhostList* shl=vhostList;
+  sVhostList* shl;
 	sVhostList* prevshl=0;
-	while(shl)
-	{
- 		if(prevshl)
-		{
-      delete prevshl->host;
-			delete prevshl;
-		}
-		prevshl=shl;
-		shl=shl->next;
-	}
-	if(prevshl)
+
+	mutex.lock();
+  
+  try
   {
-    delete prevshl->host;
-		delete prevshl;
+    shl=vhostList;
+    while(shl)
+    {
+      if(prevshl)
+      {
+        delete prevshl->host;
+        delete prevshl;
+      }
+      prevshl=shl;
+      shl=shl->next;
+    }
+    if(prevshl)
+    {
+      delete prevshl->host;
+      delete prevshl;
+    }
+    vhostList = 0;
+    mutex.unlock();
   }
-  vhostList = 0;
+  catch(...)
+  {
+    mutex.unlock();
+    return;  
+  };
 }
+
 /*!
  *vhostmanager destructor.
  */
@@ -597,6 +638,7 @@ VhostManager::~VhostManager()
 	clean();
   mutex.destroy();
 }
+
 /*!
  *Load the virtual hosts from a configuration file.
  */
@@ -620,23 +662,25 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
    *between "/ *" and "* /" without the space.
    *In 5) and 6) for use absolute path use the character | before the full path.
    */
-	char buffer[MYSERVER_KB(10)];/*!Exists a line greater than 10 KB?!?*/
+	char buffer[MYSERVER_KB(10)];/*! Max line length=10KB*/
 	char buffer2[256];
-	u_long nbr;/*!Number of bytes read from the file*/
+	u_long nbr;/*! Number of bytes read from the file. */
 	File fh;
 	Vhost *vh;
   LogManager *accesses;
 	LogManager * warnings;
 	char c;
 	int ret=fh.openFile(filename,FILE_OPEN_IFEXISTS|FILE_OPEN_READ);
-	if(ret)/*!If the file cannot be opened simply do nothing*/
+  /*! If the file cannot be opened simply do nothing. */
+	if(ret)
 		return -1;
 
 	for(;;)
 	{
 		int cc=0;
 		buffer[0]='\0';
-		for(;;)/*!Save a line in the buffer. A line ends with a diesis.*/
+    /*! Save a line in the buffer. A line ends with a diesis.*/
+		for(;;)
 		{
 			fh.readFromFile(&c,1,&nbr);
 			if(c!='#')
@@ -661,7 +705,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 			else
 				break;
 		}
-		if(buffer[0]=='\0')/*!If the buffer is only a point, we reached the file end*/
+		if(buffer[0]=='\0')
 			break;		
 		vh=new Vhost();
     if(vh==0)
@@ -670,9 +714,9 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
       clean();
       return -1;
     }
-		/*!Parse the line. */
+		/*! Parse the line. */
     cc = 0;
-    /*!Get the hosts list. */
+    /*! Get the hosts list. */
 		for(;;)
 		{
 			buffer2[0]='\0';
@@ -812,104 +856,120 @@ void VhostManager::saveConfigurationFile(const char *filename)
 	char buffer[1024];
 	if(vhostList==0)
 		return;
-	sVhostList*vhl=vhostList;
 	u_long nbw;
 	File fh;
-	fh.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
-	for(;vhl;vhl=vhl->next )
-	{
-		Vhost* vh=vhl->host;
-		Vhost::sHostList* hl=vh->hostList;
-		if(hl)
-		{
-			while(hl)
-			{ 
-				fh.writeToFile(hl->hostName.c_str(),hl->hostName.length(),&nbw);
-				strcpy(buffer,",");
-				fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-				if(hl->next )
-					hl=hl->next;
-			}
-		}
-		else
-		{
-			strcpy(buffer,"0");
-			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		}
-		strcpy(buffer,";");
-		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		Vhost::sIpList* il=vh->ipList;
-		if(il)
-		{
-			while(il)
-			{ 
-				fh.writeToFile(il->hostIp.c_str(),(u_long)il->hostIp.length(),&nbw);
-				if(il->next )
-				{
-					strcpy(buffer,",");
-					fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-				}
+	sVhostList*vhl;
 
-				il=il->next;
-			}
-		}
-		else
-		{
-			strcpy(buffer,"0");
-			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		}
-		sprintf(buffer,";%u;",vh->port);
-		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+  mutex.lock();
 
-		if(vh->protocol==PROTOCOL_HTTP)
-		{
-			strcpy(buffer,"HTTP;");
-			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		}
-		else if(vh->protocol==PROTOCOL_HTTPS)
-		{
-			strcpy(buffer,"HTTPS;");
-			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		}
-		else if(vh->protocol==PROTOCOL_CONTROL)
-		{
-			strcpy(buffer,"CONTROL;");
-			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		}
-		else if(vh->protocol==PROTOCOL_FTP)
-		{
-			strcpy(buffer,"FTP;");
-			fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-		}
-		else
-		{
-			fh.writeToFile(vh->protocol_name.c_str(),(u_long)vh->protocol_name.length(),&nbw);
-		}
+  vhl=vhostList;
+  try
+  {
+    fh.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
+    for(;vhl;vhl=vhl->next )
+    {
+      Vhost* vh=vhl->host;
+      Vhost::sIpList* il;
+      Vhost::sHostList* hl=vh->hostList;
+      if(hl)
+      {
+        while(hl)
+        { 
+          fh.writeToFile(hl->hostName.c_str(),hl->hostName.length(),&nbw);
+          strcpy(buffer,",");
+          fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+          if(hl->next )
+            hl=hl->next;
+        }
+      }
+      else
+      {
+        strcpy(buffer,"0");
+        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      }
+      strcpy(buffer,";");
+      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      il=vh->ipList;
+      if(il)
+      {
+        while(il)
+        { 
+          fh.writeToFile(il->hostIp.c_str(),(u_long)il->hostIp.length(),&nbw);
+          if(il->next )
+          {
+            strcpy(buffer,",");
+            fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+          }
 
-		fh.writeToFile(vh->documentRoot.c_str(),(u_long)vh->documentRoot.length(),&nbw);
-		strcpy(buffer,";");
-		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+          il=il->next;
+        }
+      }
+      else
+      {
+        strcpy(buffer,"0");
+        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      }
+      sprintf(buffer,";%u;",vh->port);
+      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
-		fh.writeToFile(vh->systemRoot.c_str(),(u_long)vh->systemRoot.length(),&nbw);
-		strcpy(buffer,";");
-		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      if(vh->protocol==PROTOCOL_HTTP)
+      {
+        strcpy(buffer,"HTTP;");
+        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      }
+      else if(vh->protocol==PROTOCOL_HTTPS)
+      {
+        strcpy(buffer,"HTTPS;");
+        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      }
+      else if(vh->protocol==PROTOCOL_CONTROL)
+      {
+        strcpy(buffer,"CONTROL;");
+        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      }
+      else if(vh->protocol==PROTOCOL_FTP)
+      {
+        strcpy(buffer,"FTP;");
+        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      }
+      else
+      {
+        fh.writeToFile(vh->protocol_name.c_str(), 
+                       (u_long)vh->protocol_name.length(),&nbw);
+      }
 
-		fh.writeToFile(vh->accessesLogFileName.c_str(), 
-                   (u_long)vh->accessesLogFileName.length(), &nbw);
+      fh.writeToFile(vh->documentRoot.c_str(), 
+                     (u_long)vh->documentRoot.length(),&nbw);
+      strcpy(buffer,";");
+      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
-		strcpy(buffer,";");
-		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      fh.writeToFile(vh->systemRoot.c_str(),(u_long)vh->systemRoot.length(),&nbw);
+      strcpy(buffer,";");
+      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      
+      fh.writeToFile(vh->accessesLogFileName.c_str(), 
+                     (u_long)vh->accessesLogFileName.length(), &nbw);
 
-		fh.writeToFile(vh->warningsLogFileName.c_str(), 
-                   (u_long)vh->warningsLogFileName.length(), &nbw);
-		if(vhl->next )
-			strcpy(buffer,";#\r\n");
-		else
-			strcpy(buffer,";##\r\n\0");
-		fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-	}
-	fh.closeFile();
+      strcpy(buffer,";");
+      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      
+      fh.writeToFile(vh->warningsLogFileName.c_str(), 
+                     (u_long)vh->warningsLogFileName.length(), &nbw);
+      if(vhl->next )
+        strcpy(buffer,";#\r\n");
+      else
+        strcpy(buffer,";##\r\n\0");
+      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+    }
+    fh.closeFile();
+    mutex.unlock();
+  }
+  catch(...)
+  {
+    mutex.unlock();
+  };
 }
+
 /*!
  *Returns the entire virtual hosts list.
  */
@@ -917,6 +977,7 @@ VhostManager::sVhostList* VhostManager::getVHostList()
 {
 	return this->vhostList;
 }
+
 /*!
  *Switch the position between two virtual hosts
  *Zero based index.
@@ -924,6 +985,7 @@ VhostManager::sVhostList* VhostManager::getVHostList()
 int VhostManager::switchVhosts(int n1,int n2)
 {
 	sVhostList *vh1;
+	sVhostList *vh2;
 	int i;
 	if(max(n1,n2)>=getHostsNumber())
 		return 0;
@@ -932,7 +994,7 @@ int VhostManager::switchVhosts(int n1,int n2)
 	{
 		vh1=vh1->next;
 	}
-	sVhostList *vh2 = vhostList;
+	vh2 = vhostList;
 	for(i=0;i<n2;i++)
 	{
 		vh2=vh2->next;
@@ -940,10 +1002,11 @@ int VhostManager::switchVhosts(int n1,int n2)
 	return switchVhosts(vh1,vh2);
 
 }
+
 /*!
  *Switch two virtual hosts.
  */
-int VhostManager::switchVhosts(sVhostList * vh1,sVhostList * vh2)
+int VhostManager::switchVhosts(sVhostList * vh1, sVhostList * vh2)
 {
   Vhost* vh3;
 	if((vh1==0)||(vh2==0))
@@ -1230,108 +1293,121 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 	u_long nbw;
 	out.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
 	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
-	list=this->getVHostList();
-	while(list)
-	{
-		char port[6];
-		out.writeToFile("<VHOST>\r\n",9,&nbw);
 
-		out.writeToFile("<NAME>",6,&nbw);
-		out.writeToFile(list->host->name.c_str(), list->host->name.length(), &nbw);
-		out.writeToFile("</NAME>\r\n",9,&nbw);
+  mutex.lock();
+  try
+  {
+    list=this->getVHostList();
+    while(list)
+    {
+      char port[6];
+      Vhost::sIpList *ipList;
+      Vhost::sHostList *hostList;
+      out.writeToFile("<VHOST>\r\n",9,&nbw);
+      
+      out.writeToFile("<NAME>",6,&nbw);
+      out.writeToFile(list->host->name.c_str(), list->host->name.length(), &nbw);
+      out.writeToFile("</NAME>\r\n",9,&nbw);
+      
+      ipList = list->host->ipList;
+      while(ipList)
+      {
+        out.writeToFile("<IP>",4,&nbw);
+        out.writeToFile(ipList->hostIp.c_str(), ipList->hostIp.length(), &nbw);
+        out.writeToFile("</IP>\r\n",7,&nbw);
+        ipList=ipList->next;
+      }
+      hostList = list->host->hostList;
+      while(hostList)
+      {
+        out.writeToFile("<HOST>",6,&nbw);
+        out.writeToFile(hostList->hostName.c_str(), 
+                        hostList->hostName.length(), &nbw);
+        out.writeToFile("</HOST>\r\n",9,&nbw);
+        hostList=hostList->next;
+      }
+      out.writeToFile("<PORT>",6,&nbw);
+      sprintf(port,"%i",list->host->port);
+      out.writeToFile(port,(u_long)strlen(port),&nbw);
+      out.writeToFile("</PORT>\r\n",9,&nbw);
 
-		Vhost::sIpList *ipList = list->host->ipList;
-		while(ipList)
-		{
-			out.writeToFile("<IP>",4,&nbw);
-			out.writeToFile(ipList->hostIp.c_str(), ipList->hostIp.length(), &nbw);
-			out.writeToFile("</IP>\r\n",7,&nbw);
-			ipList=ipList->next;
-		}
-		Vhost::sHostList *hostList = list->host->hostList;
-		while(hostList)
-		{
-			out.writeToFile("<HOST>",6,&nbw);
-			out.writeToFile(hostList->hostName.c_str(),hostList->hostName.length(),&nbw);
-			out.writeToFile("</HOST>\r\n",9,&nbw);
-			hostList=hostList->next;
-		}
-		out.writeToFile("<PORT>",6,&nbw);
-		sprintf(port,"%i",list->host->port);
-		out.writeToFile(port,(u_long)strlen(port),&nbw);
-		out.writeToFile("</PORT>\r\n",9,&nbw);
+      if(list->host->sslContext.privateKeyFile.length())
+      {
+        out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
+        out.writeToFile(list->host->sslContext.privateKeyFile.c_str(),
+                        (u_long)list->host->sslContext.privateKeyFile.length(),&nbw);
+        out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
+      }
+      
+      if(list->host->sslContext.certificateFile.length())
+      {
+        out.writeToFile("<SSL_CERTIFICATE>",17,&nbw);
+        out.writeToFile(list->host->sslContext.certificateFile.c_str(),
+                 (u_long)list->host->sslContext.certificateFile.length(),&nbw);
+        out.writeToFile("</SSL_CERTIFICATE>\r\n",20,&nbw);
+      }
 
-		if(list->host->sslContext.privateKeyFile.length())
-		{
-			out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
-			out.writeToFile(list->host->sslContext.privateKeyFile.c_str(),
-                      (u_long)list->host->sslContext.privateKeyFile.length(),&nbw);
-			out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
-		}
+      if(list->host->sslContext.password.length())
+      {
+        out.writeToFile("<SSL_PASSWORD>",14,&nbw);
+        out.writeToFile(list->host->sslContext.password.c_str(),
+                        list->host->sslContext.password.length(),&nbw);
+        out.writeToFile("</SSL_PASSWORD>\r\n",17,&nbw);
+      }
 
-		if(list->host->sslContext.certificateFile.length())
-		{
-			out.writeToFile("<SSL_CERTIFICATE>",17,&nbw);
-			out.writeToFile(list->host->sslContext.certificateFile.c_str(),
-                      (u_long)list->host->sslContext.certificateFile.length(),&nbw);
-			out.writeToFile("</SSL_CERTIFICATE>\r\n",20,&nbw);
-		}
-
-		if(list->host->sslContext.password.length())
-		{
-			out.writeToFile("<SSL_PASSWORD>",14,&nbw);
-			out.writeToFile(list->host->sslContext.password.c_str(),
-                      list->host->sslContext.password.length(),&nbw);
-			out.writeToFile("</SSL_PASSWORD>\r\n",17,&nbw);
-		}
-
-		out.writeToFile("<PROTOCOL>",10,&nbw);
-		switch( list->host->protocol)
-		{
-			case PROTOCOL_HTTP:
-				out.writeToFile("HTTP",4,&nbw);
-				break;
-			case PROTOCOL_HTTPS:
-				out.writeToFile("HTTPS",5,&nbw);
-				break;
-			case PROTOCOL_FTP:
-				out.writeToFile("FTP",3,&nbw);
-				break;
-			case PROTOCOL_CONTROL:
-				out.writeToFile("CONTROL", 7, &nbw);
-				break;
-			default:			
-				out.writeToFile(list->host->protocol_name.c_str(),3,&nbw);
-				break;
-		}
-		out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
-
-		out.writeToFile("<DOCROOT>",9,&nbw);
-		out.writeToFile(list->host->documentRoot.c_str(), 
-                    (u_long)list->host->documentRoot.length(), &nbw);
-		out.writeToFile("</DOCROOT>\r\n",12,&nbw);
-
-		out.writeToFile("<SYSFOLDER>",11,&nbw);
-		out.writeToFile(list->host->systemRoot.c_str(), 
-                    (u_long)list->host->systemRoot.length(), &nbw);
-
-		out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
-
-		out.writeToFile("<ACCESSESLOG>",13,&nbw);
-		out.writeToFile(list->host->accessesLogFileName.c_str(),
-                    (u_long)list->host->accessesLogFileName.length(), &nbw);
-		out.writeToFile("</ACCESSESLOG>\r\n",16,&nbw);
-
-		out.writeToFile("<WARNINGLOG>",12,&nbw);
-		out.writeToFile(list->host->warningsLogFileName.c_str(),
-                    (u_long)list->host->warningsLogFileName.length(),&nbw);
-		out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
-
-		out.writeToFile("</VHOST>\r\n",10,&nbw);
-		list=list->next;
-	}
-	out.writeToFile("</VHOSTS>\r\n",11,&nbw);
-	out.closeFile();
+      out.writeToFile("<PROTOCOL>",10,&nbw);
+      switch( list->host->protocol)
+      {
+			  case PROTOCOL_HTTP:
+          out.writeToFile("HTTP",4,&nbw);
+          break;
+			  case PROTOCOL_HTTPS:
+			  	out.writeToFile("HTTPS",5,&nbw);
+			  	break;
+			  case PROTOCOL_FTP:
+			  	out.writeToFile("FTP",3,&nbw);
+			  	break;
+			  case PROTOCOL_CONTROL:
+				  out.writeToFile("CONTROL", 7, &nbw);
+				  break;
+			  default:			
+				  out.writeToFile(list->host->protocol_name.c_str(),3,&nbw);
+				  break;
+      }
+      out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
+      
+      out.writeToFile("<DOCROOT>",9,&nbw);
+      out.writeToFile(list->host->documentRoot.c_str(), 
+                      (u_long)list->host->documentRoot.length(), &nbw);
+      out.writeToFile("</DOCROOT>\r\n",12,&nbw);
+      
+      out.writeToFile("<SYSFOLDER>",11,&nbw);
+      out.writeToFile(list->host->systemRoot.c_str(), 
+                      (u_long)list->host->systemRoot.length(), &nbw);
+      
+      out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
+      
+      out.writeToFile("<ACCESSESLOG>",13,&nbw);
+      out.writeToFile(list->host->accessesLogFileName.c_str(),
+                      (u_long)list->host->accessesLogFileName.length(), &nbw);
+      out.writeToFile("</ACCESSESLOG>\r\n",16,&nbw);
+      
+      out.writeToFile("<WARNINGLOG>",12,&nbw);
+      out.writeToFile(list->host->warningsLogFileName.c_str(),
+                      (u_long)list->host->warningsLogFileName.length(),&nbw);
+      out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
+      
+      out.writeToFile("</VHOST>\r\n",10,&nbw);
+      list=list->next;
+    }
+    out.writeToFile("</VHOSTS>\r\n",11,&nbw);
+    out.closeFile();
+    mutex.unlock();
+  }
+  catch(...)
+  {
+    mutex.unlock();
+  };
 }
 
 /*!
@@ -1345,7 +1421,8 @@ int Vhost::initializeSSL()
 #ifndef DO_NOT_USE_SSL
 
 	dp = lserver->getDynProtocol(protocol_name.c_str());
-  if(this->protocol<1000 && !(dp && ( dp->getOptions() &  PROTOCOL_USES_SSL ))  )
+  if(this->protocol<1000 && !(dp && 
+                              (dp->getOptions() & PROTOCOL_USES_SSL)) )
     return -2;
   sslContext.method = SSLv23_method();
   sslContext.context = SSL_CTX_new(sslContext.method);
@@ -1363,7 +1440,8 @@ int Vhost::initializeSSL()
   if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,
                                           sslContext.certificateFile.c_str())))
     return -1;
-  SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, &sslContext.password);
+  SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, 
+                                         &sslContext.password);
   SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
   /*!
    *The specified file doesn't exist.
@@ -1371,7 +1449,7 @@ int Vhost::initializeSSL()
   if(File::fileExists(sslContext.privateKeyFile) == 0)
     return -1;
   if(!(SSL_CTX_use_PrivateKey_file(sslContext.context, 
-                               sslContext.privateKeyFile.c_str(), SSL_FILETYPE_PEM)))
+            sslContext.privateKeyFile.c_str(), SSL_FILETYPE_PEM)))
     return -1;
 
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
@@ -1441,20 +1519,28 @@ Vhost* VhostManager::getVHostByNumber(int n)
 {
 	sVhostList *hl;
   mutex.lock();
-  hl=vhostList;
-  if(extSource)
+  try
   {
-    Vhost* ret=extSource->getVHostByNumber(n);
+    hl=vhostList;
+    if(extSource)
+    {
+      Vhost* ret=extSource->getVHostByNumber(n);
+      mutex.unlock();
+      return ret;
+    }
+    for(int i=0;(i<n)&& hl;i++)
+    {
+      hl=hl->next;
+    }
+    hl->host->addRef();
     mutex.unlock();
-    return ret;
+    return hl->host;
   }
-	for(int i=0;(i<n)&& hl;i++)
-	{
-		hl=hl->next;
-	}
-  hl->host->addRef();
-  mutex.unlock();
-	return hl->host;
+  catch(...)
+  {
+    mutex.unlock();
+    return hl->host;
+  };
 }
 
 /*!
@@ -1463,27 +1549,36 @@ Vhost* VhostManager::getVHostByNumber(int n)
  */
 int VhostManager::removeVHost(int n)
 {
-	sVhostList *hl=vhostList;
+	sVhostList *hl;
 	sVhostList *bl=0;
-	for(int i=0;hl;i++)
-	{
-		if(i==n)
-		{
-			if(bl)
-			{
-				bl->next =hl->next;
-			}
-			else
-			{
-				vhostList->next =hl->next;
-			}
-			delete hl->host;
-			return 1;
-		}
-		bl=hl;
-		hl=hl->next;
-	}
-	return 0;
+	
+  mutex.lock();
+	try
+  {
+    hl=vhostList;
+    for(int i=0;hl;i++)
+    {
+      if(i==n)
+      {
+        if(bl)
+          bl->next =hl->next;
+        else
+          vhostList->next =hl->next;
+        delete hl->host;
+        mutex.unlock();
+        return 1;
+      }
+      bl=hl;
+      hl=hl->next;
+    }
+    mutex.unlock();
+    return 0;
+  }
+  catch(...)
+  {
+    mutex.unlock();
+    return 0;   
+  };
 }
 
 /*!
