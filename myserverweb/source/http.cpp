@@ -130,7 +130,7 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     else
       *td->buffer2 << "\r\n\r\n";
     
-    /*! Send the HTTP header.  */
+    /*! Send the HTTP header. */
     ret = s->socket.send(td->buffer2->GetBuffer(), 
                          (u_long)td->buffer2->GetLength(), 0);
     if( ret == SOCKET_ERROR )
@@ -169,7 +169,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     *td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) 
                  << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
     
-    /*! Send our HTTP header.  */
+    /*! Send our HTTP header. */
     ret = s->socket.send(td->buffer2->GetBuffer(), 
                          (u_long)td->buffer2->GetLength(), 0);
     if( ret == SOCKET_ERROR )
@@ -177,7 +177,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       return 0;
     }
     
-    /*! Send the client request header as the HTTP body.  */
+    /*! Send the client request header as the HTTP body. */
     ret = s->socket.send(td->buffer->GetBuffer(), content_len, 0);
     if(ret == SOCKET_ERROR)
     {
@@ -197,7 +197,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 int Http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
 {
 	int ret;
-	/*! Check if the host allows HTTP trace.  */
+	/*! Check if the host allows HTTP trace. */
 	ostringstream filename;
   char *http_trace_value;
 	XmlParser parser;
@@ -352,7 +352,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
-    /*! Check if we have to use digest for the current directory.  */
+    /*! Check if we have to use digest for the current directory. */
     if(!lstrcmpi(auth_type, "Digest"))
     {
       if(!td->request.AUTH.compare("Digest"))
@@ -372,7 +372,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     {
       td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
     }	
-    /*! If there are no permissions, use the Guest permissions.  */
+    /*! If there are no permissions, use the Guest permissions. */
     if(td->request.AUTH.length() && (permissions==0))
     {
       st.user = "Guest";
@@ -408,12 +408,12 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     }
     if(File::fileExists(td->filenamePath.c_str()))
     {
-      /*! If the file exists update it.  */
+      /*! If the file exists update it. */
       File file;
       if(file.openFile(td->filenamePath.c_str(), FILE_OPEN_IFEXISTS | 
                        FILE_OPEN_WRITE))
       {
-        /*! Return an internal server error.  */
+        /*! Return an internal server error. */
         return raiseHTTPError(td, s, e_500);
       }
       file.setFilePointer(firstByte);
