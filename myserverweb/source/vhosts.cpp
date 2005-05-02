@@ -553,7 +553,7 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
     {
       Vhost*ret=extSource->getVHost(host, ip, port);
       mutex.unlock();
-      return  ret;
+      return ret;
     }
     for(vhl=vhostList;vhl;vhl=vhl->next )
     {
@@ -973,7 +973,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
 /*!
  *Returns the entire virtual hosts list.
  */
-VhostManager::sVhostList* VhostManager::getVHostList()
+sVhostList* VhostManager::getVHostList()
 {
 	return this->vhostList;
 }
@@ -1586,7 +1586,9 @@ int VhostManager::removeVHost(int n)
  */
 void VhostManager::setExternalSource(VhostSource* nExtSource)
 {
+  mutex.lock();
   extSource = nExtSource;
+  mutex.unlock();
 }
 
 /*!

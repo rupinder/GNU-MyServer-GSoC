@@ -180,8 +180,16 @@ public:
 	File* getWarningsLogFile();
 };
 
+struct sVhostList
+{
+  Vhost* host;
+  sVhostList* next;
+};
+
 class VhostSource
 {
+private:
+	sVhostList *hostList;
 public:
   VhostSource();
   ~VhostSource();
@@ -195,11 +203,6 @@ class VhostManager
 {
   Mutex mutex;
 public:
-	struct sVhostList
-	{
-		Vhost* host;
-		sVhostList* next;
-	};
 private:
 	VhostSource* extSource;
 	/*! List of virtual hosts. */
@@ -214,7 +217,7 @@ public:
 	int removeVHost(int n);
 	int switchVhosts(int n1,int n2);
 	int switchVhosts(sVhostList*,sVhostList*);
-	VhostManager::sVhostList*  getVHostList();
+	sVhostList* getVHostList();
 	
 	/*! Get a pointer to a vhost.  */
 	Vhost* getVHost(const char*,const char*,u_short);
