@@ -1349,9 +1349,11 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
     if(strstr((((Vhost*)(a->host)))->accessLogOpt, "type=combined"))
       *td->buffer2 << " "  << td->request.REFERER.c_str() << " "  
                    << td->request.USER_AGENT.c_str();
-    
+#ifdef WIN32
     *td->buffer2  << "\r\n" << end_str;
-
+#else
+    *td->buffer2  << "\n" << end_str;
+#endif
     /*!
      *Request the access to the log file then write then append the message.
      */
