@@ -585,7 +585,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		memCgi << td->connection->getLogin();
 	}
 	
-	if(((Vhost*)(td->connection->host))->protocol==PROTOCOL_HTTPS)
+	if(((Vhost*)(td->connection->host))->getProtocol()==PROTOCOL_HTTPS)
 		memCgi << end_str << "SSL=ON";
 	else
 		memCgi << end_str << "SSL=OFF";
@@ -656,7 +656,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << strTmp;
 
 	memCgi << end_str << "DOCUMENT_ROOT=";
-	memCgi << ((Vhost*)(td->connection->host))->documentRoot;
+	memCgi << ((Vhost*)(td->connection->host))->getDocumentRoot();
 
 	memCgi << end_str << "DOCUMENT_URI=";
 	memCgi << td->request.URI.c_str();

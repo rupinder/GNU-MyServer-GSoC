@@ -576,7 +576,7 @@ void Server::createListenThreads()
 		int needThread=1;
 		sVhostList *list2=vhostList->getVHostList();
     /*! No port was specified. */
-		if(list->host->port==0)
+		if(list->host->getPort()==0)
 			continue;
 		for(;;)
 		{
@@ -589,13 +589,13 @@ void Server::createListenThreads()
        *If there is still a thread listening on the specified 
        *port do not create the thread here.
        */
-			if(list2->host->port == list->host->port)
+			if(list2->host->getPort() == list->host->getPort())
 				needThread=0;
 		}
 
 		if(needThread)
 		{
-			if(createServerAndListener(list->host->port)==0)
+			if(createServerAndListener(list->host->getPort())==0)
 			{
         string err;
 				logPreparePrintError();
@@ -669,6 +669,59 @@ void * listenServer(void* params)
   ret = serverSocket->setNonBlocking(1);
 
 	lserver->increaseListeningThreadCount();
+
+  if(lserver->getUid() | lserver->getGid())
+  {
+    int uid = lserver->getUid();
+    int gid = lserver->getGid();
+
+    /**
+     *Change the user and group identifier to -1 
+     *if they are not specified.
+     */    
+    if(!uid)
+      uid = -1;
+
+    if(!gid)
+      gid = -1;
+ 
+    /*! 
+     *Change the log files owner if a different user or group
+     *identifier is specified.
+     */
+    for(int i=0; ; i++)
+    {
+      Vhost* vh = lserver->vhostList->getVHostByNumber(i);
+      /*! Break if we reach the end of the list. */
+      if(!vh)
+        break;
+
+      /*! Chown the log files. */
+      err  = File::chown(vh->getAccessesLogFileName(), uid, gid);
+      if(err)
+      {
+        string str;
+        str.assign("Error changing owner for: ");
+        str.append(vh->getAccessesLogFileName());
+        lserver->logPreparePrintError();
+        lserver->logWriteln(str);
+        lserver->logEndPrintError();    
+      }
+
+      err = File::chown(vh->getWarningsLogFileName(), uid, gid);  
+      if(err)
+      {
+        string str;
+        str.assign("Error changing owner for: ");
+        str.append(vh->getWarningsLogFileName());
+        lserver->logPreparePrintError();
+        lserver->logWriteln(str);
+        lserver->logEndPrintError();
+      }
+
+    }
+
+  }
 
   if(lserver->getUid() && Process::setuid(lserver->getUid()))
   {
@@ -1287,14 +1340,14 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 		delete new_connection;
 		return 0;
 	}
-	if(((Vhost*)new_connection->host)->protocol > 1000	)
+	if(((Vhost*)new_connection->host)->getProtocol() > 1000	)
 	{
 		doSSLhandshake=1;
 	}
-	else if(((Vhost*)new_connection->host)->protocol==PROTOCOL_UNKNOWN)
+	else if(((Vhost*)new_connection->host)->getProtocol() == PROTOCOL_UNKNOWN)
 	{	
 		DynamicProtocol* dp;
-    dp=lserver->getDynProtocol(((Vhost*)(new_connection->host))->protocol_name.c_str());	
+    dp=lserver->getDynProtocol(((Vhost*)(new_connection->host))->getProtocolName());
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;	
 	}

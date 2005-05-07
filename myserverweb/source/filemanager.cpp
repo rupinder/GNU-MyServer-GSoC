@@ -615,6 +615,19 @@ time_t File::getLastAccTime()
 }
 
 /*!
+ *Change the owner of the current file, use the value -1 for uid or gid
+ *to do not change the value. Return 0 on success.
+ */
+int File::chown(const char* filename, int uid, int gid)
+{
+#ifdef NOT_WIN
+  return ::chown(filename, uid, gid) ? 1 : 0;
+#endif 
+
+  return 0;
+}
+
+/*!
  *Get the length of the file in the path.
  */
 int File::getFilenameLength(const char *path, int *filename)

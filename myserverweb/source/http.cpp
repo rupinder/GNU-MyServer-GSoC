@@ -202,7 +202,7 @@ int Http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
   char *http_trace_value;
 	XmlParser parser;
 	
-  filename << ((Vhost*)(s->host))->documentRoot << "/security" ;
+  filename << ((Vhost*)(s->host))->getDocumentRoot() << "/security" ;
 	if(parser.open(filename.str().c_str()))
 	{
 		return 0;
@@ -307,7 +307,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.user = s->getLogin();
       st.password = s->getPassword();
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+      st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
       st.filename = filename.c_str();
       st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
       st.permission2 = &permissions2;
@@ -331,7 +331,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
         st.user = "Guest";
         st.password = "";
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+        st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
         st.filename = filename.c_str();
         st.password2 = 0;
         st.permission2 = 0;
@@ -378,7 +378,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.user = "Guest";
       st.password = "";
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+      st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
       st.filename = filename.c_str();
       st.password2 = 0;
       st.permission2 = 0;
@@ -577,7 +577,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.user = s->getLogin();
       st.password = s->getPassword();
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+      st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
       st.filename = filename.c_str();
       st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
       st.permission2 = &permissions2;
@@ -598,7 +598,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.user = "Guest";
       st.password = "";
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+      st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
       st.filename = filename.c_str();
       st.password2 = 0;
       st.permission2 = 0;
@@ -648,7 +648,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.user = "Guest";
       st.password = "";
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+      st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
       st.filename = filename.c_str();
       st.password2 = 0;
       st.permission2 = 0;
@@ -885,7 +885,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.user = s->getLogin();
         st.password = s->getPassword();
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+        st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
         st.filename = filename.c_str();
         st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
         st.permission2 = &permissions2;
@@ -906,7 +906,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.user = "Guest";
         st.password = "";
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+        st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
         st.filename = filename.c_str();
         st.password2 = 0;
         st.permission2 = 0;
@@ -951,7 +951,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.user = "Guest";
         st.password = "";
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(s->host))->systemRoot.c_str();
+        st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
         st.filename = filename.c_str();
         st.password2 = 0;
         st.permission2 = 0;
@@ -1346,7 +1346,7 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
       *td->buffer2  << td->response.CONTENT_LENGTH.c_str();
     else
       *td->buffer2 << "0";
-    if(strstr((((Vhost*)(a->host)))->accessLogOpt, "type=combined"))
+    if(strstr((((Vhost*)(a->host)))->getAccessLogOpt(), "type=combined"))
       *td->buffer2 << " "  << td->request.REFERER.c_str() << " "  
                    << td->request.USER_AGENT.c_str();
 #ifdef WIN32
@@ -2125,9 +2125,9 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
        *The specified error file name must be in the web directory 
        *of the virtual host. 
        */
-      ret = sec_cache.getErrorFileName(((Vhost*)a->host)->documentRoot.c_str(), 
+      ret = sec_cache.getErrorFileName(((Vhost*)a->host)->getDocumentRoot(), 
                                        getHTTPStatusCodeFromErrorID(ID),
-                                       ((Vhost*)(a->host))->systemRoot.c_str(), defFile);
+                                       ((Vhost*)(a->host))->getSystemRoot(), defFile);
       sec_cache_mutex.unlock();
       if(ret == -1)
       {
@@ -2151,7 +2151,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
           }
         }
         if(!isPortSpecified)
-          nURL << ":" << ((Vhost*)a->host)->port;
+          nURL << ":" << ((Vhost*)a->host)->getPort();
         if(nURL.str()[nURL.str().length()-1]!='/')
           nURL << "/";
 
@@ -2165,7 +2165,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     td->response.ERROR_TYPE.assign(HTTP_ERROR_MSGS[ID], 
                                    HTTP_RESPONSE_ERROR_TYPE_DIM);
     
-    errorFile  << ((Vhost*)(a->host))->systemRoot << "/" << HTTP_ERROR_HTMLS[ID];
+    errorFile << ((Vhost*)(a->host))->getSystemRoot() << "/" << HTTP_ERROR_HTMLS[ID];
     if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
     {
         string tmp;
@@ -2275,12 +2275,12 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/,
    */
 	if(systemrequest)
 	{
-    if(!((Vhost*)(td->connection->host))->systemRoot.length() 
+    if(!strlen(((Vhost*)(td->connection->host))->getSystemRoot()) 
        || File::getPathRecursionLevel(filename)< 2 )
     {
       return e_401;
     }
-    filenamePath.assign(((Vhost*)(td->connection->host))->systemRoot.c_str());
+    filenamePath.assign(((Vhost*)(td->connection->host))->getSystemRoot());
     filenamePath.append(filename);
 	}
 	/*!
@@ -2299,7 +2299,7 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/,
       if(filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
          && filename[3] == 's' && filename[4] == '/')
       {
-        root=((Vhost*)(td->connection->host))->systemRoot.c_str();
+        root=((Vhost*)(td->connection->host))->getSystemRoot();
         /*! 
          *Do not allow access to the system directory root but only
          *to subdirectories. 
@@ -2312,14 +2312,14 @@ int Http::getPath(HttpThreadContext* td, ConnectionPtr /*s*/,
       }
       else
       {
-        root=((Vhost*)(td->connection->host))->documentRoot.c_str();
+        root=((Vhost*)(td->connection->host))->getDocumentRoot();
       }
 			filenamePath.assign(root);
       filenamePath.append(filename);
 		}
 		else
 		{
-      filenamePath.append(((Vhost*)(td->connection->host))->documentRoot.c_str());
+      filenamePath.append(((Vhost*)(td->connection->host))->getDocumentRoot());
 		}
 
 	}

@@ -78,6 +78,10 @@ public:
 	static time_t getLastAccTime(string const &filename)
     {return getLastAccTime(filename.c_str());}
 
+  static int chown(const char* filename, int uid, int gid);
+  static int chown(string const &filename, int uid, int gid)
+    {return chown(filename.c_str(), uid, gid);}
+
 	time_t getLastModTime();
 	time_t getCreationTime();
 	time_t getLastAccTime();

@@ -351,11 +351,11 @@ int ClientsThread::controlConnections()
 		c->thread=this;
     try
     {
-      switch(((Vhost*)(c->host))->protocol)
+      switch(((Vhost*)(c->host))->getProtocol())
       {
         /*!
-         *controlHTTPConnection returns 0 if the connection must be removed from
-         *the active connections list.
+         *controlHTTPConnection returns 0 if the connection must 
+         *be removed from the active connections list.
          */
 			case PROTOCOL_HTTP:
         if(http_parser == 0)
@@ -365,8 +365,8 @@ int ClientsThread::controlConnections()
             return 0;
         }
 				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
-                                  (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
-                                   buffer2.GetRealLength(), nBytesToRead, id);
+                               (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
+                               buffer2.GetRealLength(), nBytesToRead, id);
  				break;
         /*!
          *Parse an HTTPS connection request.
@@ -395,7 +395,7 @@ int ClientsThread::controlConnections()
                                                              nBytesToRead, id);
           break;
 		  	default:
-          dp=lserver->getDynProtocol(((Vhost*)(c->host))->protocol_name.c_str());
+          dp=lserver->getDynProtocol(((Vhost*)(c->host))->getProtocolName());
 			  	if(dp==0)
 			  	{
 			  		retcode=0;

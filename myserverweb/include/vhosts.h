@@ -48,19 +48,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using namespace std;
 
-#define LOG_FILES_OPTS_LEN	256
-
 class Vhost
 {
-	LogManager warningsLogFile;
-	LogManager accessesLogFile;
-
-  MimeManager mime_manager;
-
-  /*! How many connections are using this virtual host? */
-  int refCount;
-
 public:
+  friend class VHostManager;
 	struct sHostList
 	{
 		string hostName;
@@ -68,9 +59,6 @@ public:
 		sHostList *next;
 	};
 
-	/*! List of hosts allowed by the vhost. */
-	sHostList *hostList;
-	
 	struct vhsslcontext
 	{
 #ifndef DO_NOT_USE_SSL
@@ -84,16 +72,28 @@ public:
 		string privateKeyFile;
 		string password;
 	};
-	
-	/*! SSL context. */
-	vhsslcontext sslContext;
-
 	struct sIpList
 	{
     string hostIp;
     Regex ipRegex;
     sIpList *next; 
 	};
+
+
+private:
+	LogManager warningsLogFile;
+	LogManager accessesLogFile;
+
+  MimeManager mime_manager;
+
+  /*! How many connections are using this virtual host? */
+  int refCount;
+
+	/*! SSL context. */
+	vhsslcontext sslContext;
+
+	/*! List of hosts allowed by the vhost. */
+	sHostList *hostList;
 	
 	/*! List of IPs allowed by the vhost. */
 	sIpList *ipList;
@@ -110,22 +110,9 @@ public:
 	/*! Protocol used by the vhost. */
 	string protocol_name;
 
-	/*! Initialize SSL things. */
-	int initializeSSL();
-	
-	/*! Clear SSL things. */
-	int freeSSL();
-	
-	/*! Generate the RSA key for the SSL context. */
-	void generateRsaKey();
-#ifndef DO_NOT_USE_SSL
-	SSL_CTX* getSSLContext();
-#else
-	void* getSSLContext();
-#endif
   /*! Additional data for log files. Defined in configuration files. */
-	char accessLogOpt[LOG_FILES_OPTS_LEN];
-	char warningLogOpt[LOG_FILES_OPTS_LEN];
+	string accessLogOpt;
+	string warningLogOpt;
 	
 	/*! Path to the document root. */
 	string documentRoot;
@@ -141,9 +128,132 @@ public:
 	
 	/*! Description or name of the virtual host. */
 	string name;
+
+public:
+
+  /*! Get the host name. */
+  const char* getName()
+    {return name.c_str();}
+  
+  /*! Set the host name. */
+  void setName(const char* c)
+    {name.assign(c);}
+
+  /*! Get the accesses log file name. */
+  const char* getAccessesLogFileName()
+    {return accessesLogFileName.c_str();}
+
+  /*! Set the accesses log file name. */
+  void setAccessesLogFileName(const char* n)
+    {accessesLogFileName.assign(n);}
+
+  /*! Get the warnings log file name. */
+  const char* getWarningsLogFileName()
+    {return warningsLogFileName.c_str();}
+
+  /*! Set the warnings log file name. */
+  void setWarningsLogFileName(const char* n)
+    {warningsLogFileName.assign(n);}
+
+  /*! Get the system root. */
+  const char* getSystemRoot()
+    {return systemRoot.c_str();}
+
+  /*! Set the system root. */
+  void setSystemRoot(const char* n)
+    {systemRoot.assign(n);}
+
+  /*! Get the document root. */
+  const char* getDocumentRoot()
+    {return documentRoot.c_str();}
+
+  /*! Set the document root. */
+  void setDocumentRoot(const char* n)
+    {documentRoot.assign(n);}
+
+  /*! Get the access log file options. */
+  const char* getAccessLogOpt()
+    {return accessLogOpt.c_str();}
+
+  /*! Get the warnings log file options. */
+	const char* getWarningLogOpt()
+    {return warningLogOpt.c_str(); }
+
+  /*! Set the access log file options. */
+  void setAccessLogOpt(const char* c)
+    {accessLogOpt.assign(c);}
+
+  /*! Set the warnings log file options. */
+  void setWarningLogOpt(const char* c)
+    {warningLogOpt.assign(c); }
+
+  /*! Get a pointer to the vhost SSL context. */
+  vhsslcontext *getVhostSSLContext()
+    {return &sslContext;};
+
+	/*! Initialize SSL things. */
+	int initializeSSL();
 	
-  u_long getThrottlingRate();
+	/*! Clear SSL things. */
+	int freeSSL();
+	
+	/*! Generate the RSA key for the SSL context. */
+	void generateRsaKey();
+
+#ifndef DO_NOT_USE_SSL
+	SSL_CTX* getSSLContext();
+#else
+	void* getSSLContext();
+#endif
+
+  /*! Get the list of hosts allowed.*/
+	sHostList *getHostList()
+    {return hostList;};
+	
+	/*! List of IPs allowed by the vhost. */
+	sIpList *getIpList()
+    {return ipList;}
+
+  /*! Return the port used by the host. */
+	u_short getPort()
+    {return port;};
+
+  /*! Set the port used by the host. */
+	void setPort(u_short p)
+    {port=p;};
+
+  /*! Get the protocol name for the virtual host. */
+	const char* getProtocolName()
+    {return protocol_name.c_str();};
+
+  /*! Set the protocol name for the virtual host. */
+	void setProtocolName(const char *name)
+    {protocol_name.assign(name);};
+
+  /*! 
+   *Get the protocol used by the virtual host. 
+   *This is used only for the built in protocols. 
+   */
+	CONNECTION_PROTOCOL getProtocol()
+    {return protocol;};
+
+  /*! 
+   *Set the protocol used by the virtual host. 
+   *This is used only for the built in protocols. 
+   */
+	void setProtocol(CONNECTION_PROTOCOL cp)
+    {protocol=cp;};
+
+  /*! Get the throttling rate for the virtual host. */
+  u_long getThrottlingRate()
+    {return throttlingRate;};
+
+  /*! Set the throttling rate for the virtual host. */
+  void setThrottlingRate(u_long tr)
+    {throttlingRate=tr;};
+
 	Vhost();
+
 	void addIP(const char *, int);
 	void addHost(const char *, int);
 	void removeIP(const char *);
@@ -161,6 +271,7 @@ public:
 	void setMaxLogSize(int);
 	int getMaxLogSize();
   int isMIME();
+
   MimeManager* getMIME();
 
 	LogManager* getWarningsLog();
