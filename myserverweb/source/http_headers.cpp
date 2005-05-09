@@ -1062,21 +1062,24 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->SERVER_NAME.assign(token);
+      if(token)
+        response->SERVER_NAME.assign(token);
 		}else
 		/*!Location*/
 		if(!lstrcmpi(command,"Location"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->LOCATION.assign(token);
+      if(token)
+        response->LOCATION.assign(token);
 		}else
 		/*!Last-Modified*/
 		if(!lstrcmpi(command,"Last-Modified"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->LAST_MODIFIED.assign(token);
+      if(token)
+        response->LAST_MODIFIED.assign(token);
 		}else
 		/*!Status*/
 		if(!lstrcmpi(command,"Status"))
@@ -1085,50 +1088,59 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			lineControlled=1;
       /*! If the response status is different from 200 don't modify it. */
       if(response->httpStatus == 200)
-        response->httpStatus=atoi(token);
+        if(token)
+          response->httpStatus=atoi(token);
 		}else
 		/*!Content-Encoding*/
 		if(!lstrcmpi(command,"Content-Encoding"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_ENCODING.assign(token);
+      if(token)
+        response->CONTENT_ENCODING.assign(token);
 		}else
 		/*!Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CACHE_CONTROL.assign(token);
+      if(token)
+        response->CACHE_CONTROL.assign(token);
 		}else
 		/*!Date*/
 		if(!lstrcmpi(command,"Date"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->DATE.assign(token);
+      if(token)
+        response->DATE.assign(token);
 		}else
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_TYPE.assign(token);
+      if(token)
+        response->CONTENT_TYPE.assign(token);
 		}else
 		/*!MIME-Version*/
 		if(!lstrcmpi(command,"MIME-Version"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->MIMEVER.assign(token);
+      if(token)
+        response->MIMEVER.assign(token);
 		}else
 		/*!Set-Cookie*/
 		if(!lstrcmpi(command,"Set-Cookie"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->COOKIE.append(token );
-			response->COOKIE.append("\n");/*! Divide multiple cookies. */
+      if(token)
+      {
+        response->COOKIE.append(token );
+        response->COOKIE.append("\n");/*! Divide multiple cookies. */
+      }
 		}else
 		/*!Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
@@ -1142,13 +1154,15 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_RANGE.assign(token);
+      if(token)
+        response->CONTENT_RANGE.assign(token);
 		}else
 		/*!P3P*/
 		if(!lstrcmpi(command,"P3P"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
+      if(token)
 			response->P3P.assign(token);
 		}else
 		/*!Connection*/
@@ -1156,14 +1170,16 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONNECTION.assign(token);
+      if(token)
+        response->CONNECTION.assign(token);
 		}else
 		/*!Expires*/
 		if(!lstrcmpi(command,"Expires"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->DATEEXP.assign(token);
+      if(token)
+        response->DATEEXP.assign(token);
 		}
 		/*!
      *If the line is not controlled arrive with the token
@@ -1187,7 +1203,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			}
 		}
 		token = strtok( NULL, cmdSeps );
-	}while((u_long)(token-input)<maxTotchars);
+	}while(token && ((u_long)(token-input)<maxTotchars));
 	/*!
    *END REQUEST STRUCTURE BUILD.
    */
