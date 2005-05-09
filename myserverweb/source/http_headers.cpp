@@ -653,63 +653,93 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					if(!lstrcmpi(digestToken,"nonce"))
 					{
 						digestToken = strtok( NULL, "," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_nonce,digestToken,48+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken,"\" ");
+              myserver_strlcpy(td->request.digest_nonce,digestToken,48+1);
+            }
 					}
 					else if(!lstrcmpi(digestToken,"opaque"))
 					{
 						digestToken = strtok( NULL, "," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_opaque,digestToken,48+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken,"\" ");
+              myserver_strlcpy(td->request.digest_opaque,digestToken,48+1);
+            }
 					}
 					else if(!lstrcmpi(digestToken,"uri"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_uri,digestToken,1024+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken,"\" ");
+              myserver_strlcpy(td->request.digest_uri,digestToken,1024+1);
+            }
 					}
 					else if(!lstrcmpi(digestToken,"method"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_method,digestToken,16+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken,"\" ");
+              myserver_strlcpy(td->request.digest_method,digestToken,16+1);
+            }
 					}	
 					else if(!lstrcmpi(digestToken,"qop"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_qop,digestToken,16+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken,"\" ");
+              myserver_strlcpy(td->request.digest_qop,digestToken,16+1);
+            }
 					}					
 					else if(!lstrcmpi(digestToken,"realm"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_realm,digestToken,48+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken,"\" ");
+              myserver_strlcpy(td->request.digest_realm,digestToken,48+1);
+            }
 					}
 					else if(!lstrcmpi(digestToken,"cnonce"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken," \"");
-						myserver_strlcpy(td->request.digest_cnonce, digestToken, 48+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken," \"");
+              myserver_strlcpy(td->request.digest_cnonce, digestToken, 48+1);
+            }
 					}
 					else if(!lstrcmpi(digestToken, "username"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken, "\" ");
-						myserver_strlcpy(td->request.digest_username, digestToken, 48+1);
-						td->connection->setLogin(digestToken);
+            if(digestToken)
+            {
+              StrTrim(digestToken, "\" ");
+              myserver_strlcpy(td->request.digest_username, digestToken, 48+1);
+              td->connection->setLogin(digestToken);
+            }
 					}
 					else if(!lstrcmpi(digestToken,"response"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_response,digestToken,48+1);
+            if(digestToken)
+             {
+               StrTrim(digestToken,"\" ");
+               myserver_strlcpy(td->request.digest_response,digestToken,48+1);
+             }
 					}
 					else if(!lstrcmpi(digestToken,"nc"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
-						StrTrim(digestToken,"\" ");
-						myserver_strlcpy(td->request.digest_nc,digestToken,10+1);
+            if(digestToken)
+            {
+              StrTrim(digestToken,"\" ");
+              myserver_strlcpy(td->request.digest_nc,digestToken,10+1);
+            }
 					}
 					else 
 					{
