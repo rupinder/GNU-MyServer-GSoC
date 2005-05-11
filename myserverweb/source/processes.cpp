@@ -410,6 +410,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
      *Process::isProcessAlive routine.
      */
    struct sigaction sa;
+   memset(&sa, 0, sizeof(sa));
    sa.sa_handler = SIG_IGN;
    sa.sa_flags   = SA_RESTART;
    sigaction(SIGCHLD,&sa, (struct sigaction *)NULL);

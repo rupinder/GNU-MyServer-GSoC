@@ -76,6 +76,8 @@ Server::Server()
   listeningThreads = 0;
   nThreads=0;
   pausing=0;
+  maxConnections=0;
+  nConnections=0;
   connections=0;
   connectionToParse=0;
   serverReady = 0;
