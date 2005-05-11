@@ -64,7 +64,26 @@ int File::getPathRecursionLevel(const char* path)
 		if(token != 0) 
 		{
 			/*! ".." decreases the recursion level. */
+#ifdef WIN32
+      int allDots=1;
+      int i;
+      int tokenLen=strlen(token);
+      if(tokenLen>1)
+      {
+        for(i=0; i<strlen(token); i++)
+          if(token[i]!='.')
+          {
+            allDots=0;
+            break;
+          }
+      }
+      else
+        allDots=0;   
+      
+      if( (tokenLen>1) && allDots  )
+#else
 			if( !strcmp(token,"..")  )
+#endif
 				rec--;
 			/*! "." keeps recursion level equal to the previous. */
 			else if(strcmp(token,".") )
