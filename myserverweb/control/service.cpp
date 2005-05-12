@@ -136,6 +136,8 @@ void InstallService()
 	  }
 	CloseServiceHandle (manager);
      }
+     /*Run the service after its installation. */
+     RunAsService();
 #endif
 }
 

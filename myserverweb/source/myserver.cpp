@@ -242,6 +242,9 @@ int main (int argn, char **argv)
 		if(!lstrcmpi(argv[1],"REGISTER"))
 		{
       registerService();
+#ifndef ARGP
+      RunAsService();
+#endif
 			runas = MYSERVER_RUNAS_SERVICE;
       return 0;
 		}
