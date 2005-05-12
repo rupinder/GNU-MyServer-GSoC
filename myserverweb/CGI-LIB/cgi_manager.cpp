@@ -116,19 +116,24 @@ CgiManager::~CgiManager(void)
  */
 char* CgiManager::getParam(char* param)
 {
-	if(td->request.URIOPTS[0]=='\0')
+  const char* c;
+	if(td->request.URIOPTS.length()==0)
 		return 0;
 	localbuffer[0]='\0';
-	char *c=&(td->request.URIOPTS)[0];
+	c=td->request.URIOPTS.c_str();
 	for(;;)
 	{
-		while((*c) && strncmp(c,param,min( strlen(param),strlen(c) )))c++;
+		while((*c) && strncmp(c, param, min(strlen(param),strlen(c)) ))
+      c++;
+      
 		if(*c=='\0')
 		{
-			return &localbuffer[0];
+ 	    return &localbuffer[0];
 		}
+		
 		c+=strlen(param);
-		if(*c=='=')
+		
+    if(*c=='=')
 		{
 			c++;
 			break;
@@ -158,7 +163,7 @@ char* CgiManager::postParam(char* param)
 	
 	u_long toRead=td->inputData.getFileSize();
 	
-	if(!toRead)
+	if( (toRead == 0) || (toRead==(u_long)-1) )
 		return 0;
 	do
 	{
@@ -178,7 +183,7 @@ char* CgiManager::postParam(char* param)
 		{
 			if(lstrlen(buffer)+1 < LOCAL_BUFFER_DIM + 50)
 			{
-				strcat(buffer,c);
+				strncat(buffer,c, LOCAL_BUFFER_DIM-strlen(buffer));
 			}
 		}
 	}while(--toRead);
