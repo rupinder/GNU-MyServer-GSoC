@@ -643,7 +643,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				if(!digestBuff)
 					return e_400;
 				memcpy(digestBuff,token,tokenOff);
-				digestBuff[tokenOff+1]='\0';
+				digestBuff[tokenOff]='\0';
 				digestToken = strtok( digestBuff, "=" );
 				if(!digestToken)
 					return e_400;
