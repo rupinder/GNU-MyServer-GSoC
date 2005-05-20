@@ -260,32 +260,22 @@ int ProtocolsManager::loadProtocols(const char* directory, XmlParser* parser,
                                      char* confFile, Server* lserver)
 {
 	FindData fd;
-  int filenamelen = 0;
-	char *filename = 0;
+  string filename;
   int ret;
-  char *completeFileName = 0;
-  int completeFileNameLen = 0;
+  string completeFileName;
 #ifdef WIN32
-  filenamelen=strlen(directory)+6;
-  filename=new char[filenamelen];
-  if(filename == 0)
-    return -1;
-	sprintf(filename,"%s/*.*", directory);
+  filename.assign(directory);
+  filename.append("/*.*");
 #endif	
+
 #ifdef NOT_WIN
-  filenamelen=strlen(directory)+2;
-  filename=new char[filenamelen];
-  if(filename == 0)
-    return -1;
-	strncpy(filename, directory, filenamelen);
+	filename.assign(directory);
 #endif	
 	
-	ret = fd.findfirst(filename);	
+	ret = fd.findfirst(filename.c_str());	
 	
   if(ret==-1)
   {
-    delete [] filename;
-    filename = 0;
 		return -1;	
   }
 
@@ -303,20 +293,11 @@ int ProtocolsManager::loadProtocols(const char* directory, XmlParser* parser,
 		if(!strstr(fd.name,".so"))
 #endif		
 			continue;
-    completeFileNameLen = strlen(directory) + strlen(fd.name) + 2;
-		completeFileName = new char[completeFileNameLen];
-    if(completeFileName == 0)
-    {
-      delete [] filename;
-      filename = 0;
-      return -1;
-    }
-		sprintf(completeFileName,"%s/%s", directory, fd.name);
-		addProtocol(completeFileName, parser, confFile, lserver);
-		delete [] completeFileName;
+    completeFileName.assign(directory);
+    completeFileName.append("/");
+    completeFileName.append(fd.name);
+		addProtocol(completeFileName.c_str(), parser, confFile, lserver);
 	}while(!fd.findnext());
 	fd.findclose();
-  delete [] filename;
-  filename = 0;
   return 0;
 }
