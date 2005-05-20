@@ -31,6 +31,11 @@ AC_SUBST(LDFLAGS)
 dnl Look for argp.h
 AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are avaible]))
 
+dnl Look for error.h
+AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1, [Define if the error.h file is present]))
+
+AC_CHECK_FUNCS(gettimeofday,AC_DEFINE(GETTIMEOFDAY, 1, [Define if the gettimeofday function is present]) )
+
 dnl Look for pthreads
 GNOME_PTHREAD_CHECK
 if test x$PTHREAD_LIB = x; then

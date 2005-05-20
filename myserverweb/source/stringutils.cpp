@@ -29,6 +29,10 @@ extern "C" {
 #endif
 }
 
+#ifdef GETTIMEOFDAY
+#include <sys/time.h>
+#endif
+
 #ifdef WIN32
 #include <direct.h>
 #endif
@@ -459,13 +463,27 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
   extern long timezone; 
   offset=-timezone;
 #else
+
+#ifdef GETTIMEOFDAY
+  struct timeval tv;
+  struct timezone tz;
+
+  gettimeofday(&tv, &tz);
+  offset = -tz.tz_minuteswest*60;
+
+#else
   TIME_ZONE_INFORMATION tzi;
   GetTimeZoneInformation(&tzi);
   offset=-tzi.Bias*60;
 #endif
 
+#endif
+
   if(offset < 0)
+  {
+    offset = -offset;
     out[21]='-';
+  }
   else
     out[21]='+';
 	sprintf(&out[22], "%.2i%.2i", offset/(60*60), offset%(60*60)/60);

@@ -31,7 +31,9 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/time.h>
+#ifdef ERRORH
 #include <error.h>
+#endif
 #include <errno.h>
 #endif
 }
@@ -156,6 +158,11 @@ int setcwdBuffer()
 	if(currentPath[strlen(currentPath)]=='/')
 		currentPath[strlen(currentPath)]='\0';
   return 0;
+#endif
+
+#ifdef __OpenBSD__
+  currentPath = getcwd(0, 0);
+  return currentPath ? 0 : 1;
 #endif
 
 #ifdef NOT_WIN
