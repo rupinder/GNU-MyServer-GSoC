@@ -166,6 +166,9 @@ int main (int argn, char **argv)
 #ifdef NOT_WIN
 	struct sigaction sig1, sig2, sig3;
   sig1.sa_flags = sig2.sa_flags = sig3.sa_flags = SA_RESETHAND;
+  memset(&sig1, 0, sizeof(sig1));
+  memset(&sig2, 0, sizeof(sig2));
+  memset(&sig3, 0, sizeof(sig3));
 	sig1.sa_handler = SIG_IGN;
 	sig2.sa_handler = Sig_Quit;
   sig3.sa_handler = Sig_Hup;

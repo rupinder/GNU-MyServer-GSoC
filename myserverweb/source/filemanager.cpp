@@ -50,14 +50,15 @@ extern int mustEndServer;
  */
 int File::getPathRecursionLevel(const char* path)
 {
-	char *lpath;
-  int lpath_len = strlen(path) + 1;
+	char *lpath=0;
+  int lpath_len = strlen(path);
 	int rec=0;
-	char *token;
-  lpath = new char[lpath_len];
+	char *token=0;
+  lpath = new char[lpath_len+1];
   if(lpath == 0)
     return -1;
-	strcpy(lpath,path);
+	strncpy(lpath,path, lpath_len);
+  lpath[lpath_len]='\0';
   token = strtok( lpath, "\\/" );
 	do
 	{

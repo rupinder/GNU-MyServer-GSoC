@@ -54,6 +54,7 @@ extern "C" {
  */
 ClientsThread::ClientsThread()
 {
+  parsing=0;
 	err=0;
 	initialized=0;
   next = 0;
