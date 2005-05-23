@@ -157,6 +157,8 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	string time;
   try
   {
+    CMemBuf tmp;
+    CMemBuf::IntToStr(tmp, content_len, tmpStr, 12);
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     if(!allowHTTPTRACE(td, s))
       return raiseHTTPError(td, s, e_401);
@@ -166,7 +168,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     *td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
     if(td->request.CONNECTION.length())
       *td->buffer2 << "\r\nConnection:" << td->request.CONNECTION.c_str() ;
-    *td->buffer2 <<"\r\nContent-length:" << CMemBuf::IntToStr(content_len, tmpStr, 12) 
+    *td->buffer2 <<"\r\nContent-length:" << tmp
                  << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
     
     /*! Send our HTTP header. */
@@ -1849,7 +1851,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          */
         Vhost* newHost=lserver->vhostList->getVHost((char*)td.request.HOST.c_str(), 
                                             a->getLocalIpAddr(), a->getLocalPort());
-        ((Vhost*)a->host)->removeRef();
+        if(a->host)
+          ((Vhost*)a->host)->removeRef();
         a->host=newHost;
         if(a->host==0)
         {
@@ -2198,6 +2201,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
  */
 int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 {
+  CMemBuf tmp;
 	char tmpStr[12];
 	string time;
 	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\">"
@@ -2214,7 +2218,8 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
 	*td->buffer2 << versionOfSoftware;
 	*td->buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
-	*td->buffer2  <<   CMemBuf::IntToStr((int)strlen(hardHTML), tmpStr, 12);
+  CMemBuf::IntToStr(tmp, (int)strlen(hardHTML), tmpStr, 12);
+	*td->buffer2  <<   tmp;
 	*td->buffer2   << "\r\n";
 	*td->buffer2 <<"Date: ";
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);

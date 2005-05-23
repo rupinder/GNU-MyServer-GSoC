@@ -411,11 +411,9 @@ void CMemBuf::SetLength(u_int newSize)
 
 // Hex <-> Data conversion functions
 
-/*! Return a CMemBuf with the hex representation of pAdr */
-CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
+/*! Write to the CMemBuf the hex representation of pAdr */
+void CMemBuf::Hex(CMemBuf &hexFinal, const void* pAdr, u_int nSize)
 {
-	CMemBuf hexFinal;
-	hexFinal.m_bCanDelete = false;
 	const u_int nFinalSize = nSize * 2;
 	hexFinal.SetLength(nFinalSize + 1);
 	const char* hex_chars = "0123456789abcdef";
@@ -426,7 +424,6 @@ CMemBuf CMemBuf::Hex(const void* pAdr, u_int nSize)
 	}
 	hexFinal << '\0';
 	hexFinal.m_nSize = nFinalSize;
-	return hexFinal;
 }
 
 /*! Return the decimal number of an hexadecimal character */
@@ -457,25 +454,20 @@ CMemBuf CMemBuf::HexToData(const void* pAdr, u_int nSize)
 }
 
 /*! MD5 hashing function */
-CMemBuf CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
+void CMemBuf::Hash_MD5(CMemBuf &mem_MD5, const void* pAdr, u_int nSize)
 {
-	CMemBuf mem_MD5;
 	Md5 md5;
-	mem_MD5.m_bCanDelete = 0;
 	mem_MD5.SetLength(16);
 
 	md5.init();
 	md5.update((unsigned char*) pAdr, nSize);
 	md5.final((unsigned char*) mem_MD5.GetBuffer());
 	mem_MD5.m_nSize = 16;
-	return mem_MD5;
 }
 
 /*! CRC hashing function */
-CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
+void CMemBuf::Hash_CRC(CMemBuf &membuf, const void* pAdr, u_int nSize)
 {
-	CMemBuf membuf;
-	membuf.m_bCanDelete = 0;
 	membuf.SetLength(4);
 	u_int* nCrc32 = (u_int*) membuf.GetBuffer();
 	*nCrc32 = 0xFFFFFFFF;
@@ -486,21 +478,17 @@ CMemBuf CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 	}
 	*nCrc32 = ~(*nCrc32);
 	membuf.m_nSize = 4;
-	return membuf;
 }
 
 // Int <-> Str conversion functions
 
 /*! Return a CMemBuf with the string representation of "i" */
-CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
+void CMemBuf::XIntToStr(CMemBuf &strFinal, u_int i, int bNegative)
 {
-	CMemBuf strFinal;
-	strFinal.m_bCanDelete = 0;
 	if (i == 0) // log10(0) won't work !!
 	{
 		strFinal.SetBuffer("0", 2);
 		strFinal.m_nSize = 1;
-		return strFinal;
 	}
 #ifdef DONT_MATCH_LENGTH
 	strFinal.SetLength(12);
@@ -532,20 +520,17 @@ CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative)
 	while (pFirst < pLast);
 	strFinal << end_str;
 	strFinal.m_nSize--;
-	return strFinal;
 }
 
 /*! Return a CMemBuf with the string representation of "i" using an external buffer. */
-CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
+void CMemBuf::XIntToStr(CMemBuf& strFinal, u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
 {
-	CMemBuf strFinal;
 	strFinal.m_nSizeLimit = nBufSize;
 	strFinal.SetExternalBuffer(pBufToUse, nBufSize);
 	if (i == 0) // log10(0) won't work !!
 	{
 		strFinal.SetBuffer("0", 2);
 		strFinal.m_nSize = 1;
-		return strFinal;
 	}
 	do
 	{
@@ -572,7 +557,6 @@ CMemBuf CMemBuf::XIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSi
 	while (pFirst < pLast);
 	strFinal << end_str;
 	strFinal.m_nSize--;
-	return strFinal;
 }
 
 /* Convert a string into an unsigned number */
@@ -615,10 +599,13 @@ void CMemBuf::AddBuffer(CMemBuf *nmb)
 int CMemBuf::Free() 
 {
 	if(m_buffer != NULL && m_bCanDelete) 
+  {
 		mem_free(m_buffer); 
-	m_buffer = NULL; 
-	m_nSize = m_nRealSize = 0; 
-	return 1;
+    m_buffer = NULL; 
+    m_nSize = m_nRealSize = 0; 
+    return 0;
+  }
+  return 1;
 };
 /*!
 *Get the real allocated size.
@@ -747,43 +734,43 @@ CMemBuf& CMemBuf::operator=(const char* src)
 	return* this;
 }
 	
-CMemBuf CMemBuf::UIntToStr(u_int i) 
+void CMemBuf::UIntToStr(CMemBuf& out,u_int i) 
 {
-	return XIntToStr(i, 0);
+	XIntToStr(out, i, 0);
 }
 
-CMemBuf CMemBuf::UIntToStr(u_int i, char* pBufToUse, u_int nBufSize) 
+void CMemBuf::UIntToStr(CMemBuf &out, u_int i, char* pBufToUse, u_int nBufSize) 
 {
-	return XIntToStr(i, 0, pBufToUse, nBufSize);
+	XIntToStr(out, i, 0, pBufToUse, nBufSize);
 }
 
-CMemBuf CMemBuf::IntToStr(int i)
+void CMemBuf::IntToStr(CMemBuf& out, int i)
 {
 	if (i < 0) 
-		return XIntToStr((u_int)(-i), 1); 
+		XIntToStr(out, (u_int)(-i), 1); 
 	else 
-		return XIntToStr((u_int) i, 0);
+		XIntToStr(out, (u_int) i, 0);
 }
 
-CMemBuf CMemBuf::IntToStr(int i, char* pBufToUse, u_int nBufSize) 
+void CMemBuf::IntToStr(CMemBuf& out, int i, char* pBufToUse, u_int nBufSize) 
 {
 	if (i < 0) 
-		return XIntToStr((u_int)(-i), 1, pBufToUse, nBufSize); 
+		XIntToStr(out, (u_int)(-i), 1, pBufToUse, nBufSize); 
 	else 
-		return XIntToStr((u_int) i, 0, pBufToUse, nBufSize);
+		XIntToStr(out, (u_int) i, 0, pBufToUse, nBufSize);
 }
 
-CMemBuf CMemBuf::Hex(CMemBuf& membuf)
+void CMemBuf::Hex(CMemBuf &out, CMemBuf& membuf)
 {
-	return Hex(membuf.m_buffer, membuf.m_nSize);
+	Hex(out, membuf.m_buffer, membuf.m_nSize);
 }
-CMemBuf CMemBuf::Hash_MD5(CMemBuf& membuf) 
+void CMemBuf::Hash_MD5(CMemBuf &out,CMemBuf& membuf) 
 {
-	return Hash_MD5(membuf.m_buffer, membuf.m_nSize);
+	Hash_MD5(out, membuf.m_buffer, membuf.m_nSize);
 }
-CMemBuf CMemBuf::Hash_CRC(CMemBuf& membuf) 
+void CMemBuf::Hash_CRC(CMemBuf &out, CMemBuf& membuf) 
 {
-	return Hash_CRC(membuf.m_buffer, membuf.m_nSize);
+	Hash_CRC(out, membuf.m_buffer, membuf.m_nSize);
 }
 
 void CMemBuf::AllocBuffer(u_int size)

@@ -79,7 +79,8 @@ Connection::~Connection()
     delete  protocolBuffer;
 
   /*! Remove the reference for the vhost. */
-  ((Vhost*)host)->removeRef();
+  if(host)
+    ((Vhost*)host)->removeRef();
 }
 
 /*!

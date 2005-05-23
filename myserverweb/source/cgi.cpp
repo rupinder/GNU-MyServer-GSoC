@@ -476,9 +476,11 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "SERVER_PROTOCOL=";
 	memCgi << td->request.VER.c_str();	
 	
-	memCgi << end_str << "SERVER_PORT="<< CMemBuf::UIntToStr(
-                                                 td->connection->getLocalPort());
-
+  {
+    CMemBuf b;
+    CMemBuf::UIntToStr(b, td->connection->getLocalPort());
+    memCgi << end_str << "SERVER_PORT="<< b;
+  }
 	memCgi << end_str << "SERVER_ADMIN=";
 	memCgi << lserver->getServerAdmin();
 
@@ -508,9 +510,11 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	else
 	{
 		u_long fs=0;
+    CMemBuf tmp;
 		if(td->inputData.getHandle())
 			fs=td->inputData.getFileSize();
-		memCgi << end_str << "CONTENT_LENGTH=" << CMemBuf::UIntToStr(fs);
+    CMemBuf::UIntToStr(tmp, fs);
+		memCgi << end_str << "CONTENT_LENGTH=" << tmp;
 	}
 
 	if(td->request.COOKIE.length())
@@ -575,8 +579,10 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	if(td->connection->getPort())
 	{
+    CMemBuf tmp;
+    CMemBuf::UIntToStr(tmp, td->connection->getPort() );
 	 	memCgi << end_str << "REMOTE_PORT=";
-		memCgi << CMemBuf::UIntToStr(td->connection->getPort() );
+		memCgi << tmp;
 	}
 
 	if(td->connection->getLogin()[0])
