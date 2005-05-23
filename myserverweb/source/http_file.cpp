@@ -151,10 +151,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     buffer << (u_int)bytes_to_send;
     td->response.CONTENT_LENGTH.assign(buffer.str());
     
-    /*! Specify the content length. */
+    /*! Specify the connection type. */
     if(!keepalive)
     {
       td->response.CONNECTION.assign("close");
+    }
+    else
+    {
+      td->response.CONNECTION.assign("keep-alive");
     }
 
     if(use_gzip)
