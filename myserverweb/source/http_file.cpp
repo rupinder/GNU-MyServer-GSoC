@@ -58,7 +58,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
   u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
-
+  ostringstream buffer;
 
  	/*! gzip compression object.  */
 	Gzip gzip;
@@ -140,7 +140,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     /*! If a Range was requested send 206 and not 200 for success.  */
     if( td->request.RANGEBYTEBEGIN ||  td->request.RANGEBYTEEND )
     {	
-      ostringstream buffer;
       td->response.httpStatus = 206;
       buffer << "bytes "<< (u_long)firstByte << "-" 
              << (u_long)lastByte << "/" << (u_long)filesize ;
@@ -148,16 +147,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       use_gzip = 0;
     }
 
-    /*! Specify the content length with keep-alive connections. */
-    if(keepalive)
+
+    buffer << (u_int)bytes_to_send;
+    td->response.CONTENT_LENGTH.assign(buffer.str());
+    
+    /*! Specify the content length. */
+    if(!keepalive)
     {
-      ostringstream buffer;
-      buffer << (u_int)bytes_to_send;
-      td->response.CONTENT_LENGTH.assign(buffer.str());
-    }	
-    else
       td->response.CONNECTION.assign("close");
-	
+    }
+
     if(use_gzip)
     {
       /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
