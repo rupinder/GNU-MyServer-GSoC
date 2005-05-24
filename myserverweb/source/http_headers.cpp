@@ -216,7 +216,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
  */
 void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 {
-  char date[HTTP_RESPONSE_DATE_DIM];
+  string date;
   ostringstream stream;
 	resetHTTPResponse(response);
 	/*!
@@ -231,7 +231,7 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 	response->VER.assign("HTTP/1.1");
 	getRFC822GMTTime(date,HTTP_RESPONSE_DATE_DIM);
   response->DATE.assign(date);
-	response->DATEEXP.assign(date,HTTP_RESPONSE_DATEEXP_DIM);
+	response->DATEEXP.assign(date);
   stream << "MyServer " << versionOfSoftware;
 	response->SERVER_NAME.assign(stream.str());
 }
