@@ -147,10 +147,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       use_gzip = 0;
     }
 
+    if(!use_gzip)
+    {
+      buffer << (u_int)bytes_to_send;
+      td->response.CONTENT_LENGTH.assign(buffer.str());
+    }
 
-    buffer << (u_int)bytes_to_send;
-    td->response.CONTENT_LENGTH.assign(buffer.str());
-    
     /*! Specify the connection type. */
     if(!keepalive)
     {
