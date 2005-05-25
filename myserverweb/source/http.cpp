@@ -158,7 +158,7 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   try
   {
     CMemBuf tmp;
-    CMemBuf::IntToStr(tmp, content_len, tmpStr, 12);
+    tmp.IntToStr(content_len, tmpStr, 12);
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     if(!allowHTTPTRACE(td, s))
       return raiseHTTPError(td, s, e_401);
@@ -2218,7 +2218,7 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
 	*td->buffer2 << versionOfSoftware;
 	*td->buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
-  CMemBuf::IntToStr(tmp, (int)strlen(hardHTML), tmpStr, 12);
+  tmp.IntToStr((int)strlen(hardHTML), tmpStr, 12);
 	*td->buffer2  <<   tmp;
 	*td->buffer2   << "\r\n";
 	*td->buffer2 <<"Date: ";

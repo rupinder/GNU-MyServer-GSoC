@@ -396,7 +396,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
    int ret1, ret2;
    int len, pos;
    int bytes;
-   CMemBuf::IntToStr(tmp, data.GetLength());
+   tmp.IntToStr(data.GetLength());
    Buffer.SetLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";

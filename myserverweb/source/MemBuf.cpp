@@ -407,23 +407,21 @@ void CMemBuf::SetLength(u_int newSize)
 	}
 }
 
-// Static conversion functions
-
 // Hex <-> Data conversion functions
 
 /*! Write to the CMemBuf the hex representation of pAdr */
-void CMemBuf::Hex(CMemBuf &hexFinal, const void* pAdr, u_int nSize)
+void CMemBuf::Hex(const void* pAdr, u_int nSize)
 {
 	const u_int nFinalSize = nSize * 2;
-	hexFinal.SetLength(nFinalSize + 1);
+	SetLength(nFinalSize + 1);
 	const char* hex_chars = "0123456789abcdef";
 	for (u_int i = 0; i < nSize; i++)
 	{
 		const unsigned char c = *((unsigned char*) pAdr + i);
-		hexFinal << hex_chars[c >> 4] << hex_chars[c & 15];
+		*this << hex_chars[c >> 4] << hex_chars[c & 15];
 	}
-	hexFinal << '\0';
-	hexFinal.m_nSize = nFinalSize;
+	*this << '\0';
+	m_nSize = nFinalSize;
 }
 
 /*! Return the decimal number of an hexadecimal character */
@@ -454,22 +452,22 @@ CMemBuf CMemBuf::HexToData(const void* pAdr, u_int nSize)
 }
 
 /*! MD5 hashing function */
-void CMemBuf::Hash_MD5(CMemBuf &mem_MD5, const void* pAdr, u_int nSize)
+void CMemBuf::Hash_MD5(const void* pAdr, u_int nSize)
 {
 	Md5 md5;
-	mem_MD5.SetLength(16);
+	SetLength(16);
 
 	md5.init();
 	md5.update((unsigned char*) pAdr, nSize);
-	md5.final((unsigned char*) mem_MD5.GetBuffer());
-	mem_MD5.m_nSize = 16;
+	md5.final((unsigned char*) GetBuffer());
+	m_nSize = 16;
 }
 
 /*! CRC hashing function */
-void CMemBuf::Hash_CRC(CMemBuf &membuf, const void* pAdr, u_int nSize)
+void CMemBuf::Hash_CRC(const void* pAdr, u_int nSize)
 {
-	membuf.SetLength(4);
-	u_int* nCrc32 = (u_int*) membuf.GetBuffer();
+	SetLength(4);
+	u_int* nCrc32 = (u_int*) GetBuffer();
 	*nCrc32 = 0xFFFFFFFF;
 	for (u_int i = 0; i < nSize; i++)
 	{
@@ -477,37 +475,37 @@ void CMemBuf::Hash_CRC(CMemBuf &membuf, const void* pAdr, u_int nSize)
 		*nCrc32 = ((*nCrc32) >> 8) ^ crc32Table[(byte) ^ ((*nCrc32) & 0x000000FF)];
 	}
 	*nCrc32 = ~(*nCrc32);
-	membuf.m_nSize = 4;
+	m_nSize = 4;
 }
 
 // Int <-> Str conversion functions
 
 /*! Return a CMemBuf with the string representation of "i" */
-void CMemBuf::XIntToStr(CMemBuf &strFinal, u_int i, int bNegative)
+void CMemBuf::XIntToStr(u_int i, int bNegative)
 {
 	if (i == 0) // log10(0) won't work !!
 	{
-		strFinal.SetBuffer("0", 2);
-		strFinal.m_nSize = 1;
+		SetBuffer("0", 2);
+		m_nSize = 1;
 	}
 #ifdef DONT_MATCH_LENGTH
-	strFinal.SetLength(12);
+	SetLength(12);
 #else
-	strFinal.SetLength((u_int) log10(i) + 3);
+	SetLength((u_int) log10(i) + 3);
 #endif
 	do
 	{
-		strFinal << (char) ('0' + i % 10);
+		*this << (char) ('0' + i % 10);
 		i /= 10;
 	}
 	while (i > 0);
 	if (bNegative)
-		strFinal << '-';
+		*this << '-';
 	// Here, we got the string but in reverse order.
 	// So, we reverse it :)
 
-	char *pFirst = strFinal.m_buffer;
-	char *pLast = strFinal.m_buffer + strFinal.m_nSize - 1;
+	char *pFirst = m_buffer;
+	char *pLast = m_buffer + m_nSize - 1;
 	char temp;
 	do
 	{
@@ -518,33 +516,33 @@ void CMemBuf::XIntToStr(CMemBuf &strFinal, u_int i, int bNegative)
 		pLast--;
 	}
 	while (pFirst < pLast);
-	strFinal << end_str;
-	strFinal.m_nSize--;
+	*this << end_str;
+	m_nSize--;
 }
 
 /*! Return a CMemBuf with the string representation of "i" using an external buffer. */
-void CMemBuf::XIntToStr(CMemBuf& strFinal, u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
+void CMemBuf::XIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
 {
-	strFinal.m_nSizeLimit = nBufSize;
-	strFinal.SetExternalBuffer(pBufToUse, nBufSize);
+	m_nSizeLimit = nBufSize;
+	SetExternalBuffer(pBufToUse, nBufSize);
 	if (i == 0) // log10(0) won't work !!
 	{
-		strFinal.SetBuffer("0", 2);
-		strFinal.m_nSize = 1;
+		SetBuffer("0", 2);
+		m_nSize = 1;
 	}
 	do
 	{
-		strFinal << (char) ('0' + i % 10);
+		*this << (char) ('0' + i % 10);
 		i /= 10;
 	}
 	while (i > 0);
 	if (bNegative)
-		strFinal << '-';
+		*this << '-';
 	// Here, we got the string but in reverse order.
 	// So, we reverse it :)
 
 	char *pFirst = pBufToUse;
-	char *pLast = pBufToUse + strFinal.m_nSize - 1;
+	char *pLast = pBufToUse + m_nSize - 1;
 	char temp;
 	do
 	{
@@ -555,8 +553,8 @@ void CMemBuf::XIntToStr(CMemBuf& strFinal, u_int i, int bNegative, char* pBufToU
 		pLast--;
 	}
 	while (pFirst < pLast);
-	strFinal << end_str;
-	strFinal.m_nSize--;
+	*this << end_str;
+	m_nSize--;
 }
 
 /* Convert a string into an unsigned number */
@@ -734,43 +732,43 @@ CMemBuf& CMemBuf::operator=(const char* src)
 	return* this;
 }
 	
-void CMemBuf::UIntToStr(CMemBuf& out,u_int i) 
+void CMemBuf::UIntToStr(u_int i) 
 {
-	XIntToStr(out, i, 0);
+	XIntToStr(i, 0);
 }
 
-void CMemBuf::UIntToStr(CMemBuf &out, u_int i, char* pBufToUse, u_int nBufSize) 
+void CMemBuf::UIntToStr(u_int i, char* pBufToUse, u_int nBufSize) 
 {
-	XIntToStr(out, i, 0, pBufToUse, nBufSize);
+	XIntToStr(i, 0, pBufToUse, nBufSize);
 }
 
-void CMemBuf::IntToStr(CMemBuf& out, int i)
+void CMemBuf::IntToStr(int i)
 {
 	if (i < 0) 
-		XIntToStr(out, (u_int)(-i), 1); 
+		XIntToStr( (u_int)(-i), 1); 
 	else 
-		XIntToStr(out, (u_int) i, 0);
+		XIntToStr( (u_int) i, 0);
 }
 
-void CMemBuf::IntToStr(CMemBuf& out, int i, char* pBufToUse, u_int nBufSize) 
+void CMemBuf::IntToStr(int i, char* pBufToUse, u_int nBufSize) 
 {
 	if (i < 0) 
-		XIntToStr(out, (u_int)(-i), 1, pBufToUse, nBufSize); 
+		XIntToStr((u_int)(-i), 1, pBufToUse, nBufSize); 
 	else 
-		XIntToStr(out, (u_int) i, 0, pBufToUse, nBufSize);
+		XIntToStr((u_int) i, 0, pBufToUse, nBufSize);
 }
 
-void CMemBuf::Hex(CMemBuf &out, CMemBuf& membuf)
+void CMemBuf::Hex(CMemBuf& membuf)
 {
-	Hex(out, membuf.m_buffer, membuf.m_nSize);
+	Hex(membuf.m_buffer, membuf.m_nSize);
 }
-void CMemBuf::Hash_MD5(CMemBuf &out,CMemBuf& membuf) 
+void CMemBuf::Hash_MD5(CMemBuf& membuf) 
 {
-	Hash_MD5(out, membuf.m_buffer, membuf.m_nSize);
+	Hash_MD5(membuf.m_buffer, membuf.m_nSize);
 }
-void CMemBuf::Hash_CRC(CMemBuf &out, CMemBuf& membuf) 
+void CMemBuf::Hash_CRC(CMemBuf& membuf) 
 {
-	Hash_CRC(out, membuf.m_buffer, membuf.m_nSize);
+	Hash_CRC(membuf.m_buffer, membuf.m_nSize);
 }
 
 void CMemBuf::AllocBuffer(u_int size)

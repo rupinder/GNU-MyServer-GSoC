@@ -109,24 +109,24 @@ public:
 	u_int m_nSizeLimit; // The maximun size that the buffer can reached ; 0 if none
 	u_int m_nBlockLength; // Minimun size of new allocated blocks during addings
 						 // We assume that m_nBlockLength < m_nSizeLimit
-public: // Static conversion functions (hex, CRC...)
-	static void Hash_MD5(CMemBuf&, const void* pAdr, u_int nSize);
-	static void Hash_CRC(CMemBuf&,const void* pAdr, u_int nSize);
-	static void Hex(CMemBuf&, const void* pAdr, u_int nSize);
-	static void UIntToStr(CMemBuf&,u_int i);
-	static void IntToStr(CMemBuf&, int i);
+public: 
+	void Hash_MD5(const void* pAdr, u_int nSize);
+	void Hash_CRC(const void* pAdr, u_int nSize);
+	void Hex(const void* pAdr, u_int nSize);
+	void UIntToStr(u_int i);
+	void IntToStr( int i);
 	u_int StrToUint(const char* pAdr);
 	unsigned char HexCharToNumber(unsigned char c);
 	CMemBuf HexToData(const void* pAdr, u_int nSize);
 	int StrToInt(const char* pAdr);
-	static void Hex(CMemBuf&,CMemBuf& membuf) ;
-	static void Hash_MD5(CMemBuf&,CMemBuf& membuf);
-	static void Hash_CRC(CMemBuf&,CMemBuf& membuf);
-	static void UIntToStr(CMemBuf&,u_int i, char* pBufToUse, u_int nBufSize) ;
-	static void XIntToStr(CMemBuf&,u_int i, int bNegative, char* pBufToUse, u_int nBufSize);	
-	static void IntToStr(CMemBuf&,int i, char* pBufToUse, u_int nBufSize);
+	void Hex(CMemBuf& membuf) ;
+	void Hash_MD5(CMemBuf& membuf);
+	void Hash_CRC(CMemBuf& membuf);
+	void UIntToStr(u_int i, char* pBufToUse, u_int nBufSize) ;
+	void XIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);	
+	void IntToStr(int i, char* pBufToUse, u_int nBufSize);
 protected:
-	static void XIntToStr(CMemBuf&,u_int i, int bNegative);
+	void XIntToStr(u_int i, int bNegative);
 	void AllocBuffer(u_int size);
 	char* m_buffer; // Using of char* instead of void* because the C++ Compilator doesn't know the size of a void* !!!!!
 	u_int m_nSize;
