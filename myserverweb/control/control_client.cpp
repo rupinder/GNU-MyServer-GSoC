@@ -392,14 +392,15 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
    memset(LastCode, 0, 4);
    if(!Connected)
      return -1;
-   
+   CMemBuf tmp;
    int ret1, ret2;
    int len, pos;
    int bytes;
+   CMemBuf::IntToStr(tmp, data.GetLength());
    Buffer.SetLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
-   Buffer << "/LEN " << CMemBuf::IntToStr(data.GetLength()) << "\r\n";
+   Buffer << "/LEN " << tmp << "\r\n";
    Buffer << "/AUTH " << UserName << ":" << UserPass << "\r\n";
    Buffer << "\r\n";
    ret1 = socket.send((const char *)Buffer.GetBuffer(), Buffer.GetLength(), 0);
