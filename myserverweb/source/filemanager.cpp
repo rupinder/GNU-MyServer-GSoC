@@ -527,6 +527,25 @@ int File::isDirectory(const char *filename)
 }
 
 /*!
+ *Returns a non-null value if the given path is a link.
+ */
+int File::isLink(const char* filename)
+{
+#ifdef WIN32
+  return 0;
+#endif
+#ifdef NOT_WIN
+	struct stat F_Stats;
+	int ret = lstat(filename, &F_Stats);
+	if(ret < 0)
+		return 0;
+
+	return (S_ISLNK(F_Stats.st_mode))? 1 : 0;
+#endif
+ 
+}
+
+/*!
  *Returns a non-null value if the given path is a valid file.
  */
 int File::fileExists(const char* filename)

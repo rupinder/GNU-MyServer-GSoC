@@ -857,14 +857,20 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       if(ret!=e_200)
         return raiseHTTPError(td, s, ret);
     }
+
     /*! By default allows only few actions. */
     permissions= MYSERVER_PERMISSION_READ |  MYSERVER_PERMISSION_BROWSE ;
+
     if(!systemrequest)
     {
       string directory;
       if(File::isDirectory(td->filenamePath.c_str()))
       {
         directory.assign(td->filenamePath);
+      }
+      else if(File::isLink(td->filenamePath.c_str())) 
+      {
+        return raiseHTTPError(td, s, e_401);
       }
       else
       {
@@ -947,7 +953,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         td->auth_scheme=HTTP_AUTH_SCHEME_BASIC;
       }	
-      /*! If there are no permissions, use the Guest permissions. */
+ 
+     /*! If there are no permissions, use the Guest permissions. */
       if(td->request.AUTH.length() && (permissions==0))
       {
         st.user = "Guest";
@@ -979,9 +986,12 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       return raiseHTTPError(td, s, e_500); 
     }
 
+
     /*! If a throttling rate was specifed use it. */
     if(st.throttlingRate != -1)
       s->socket.setThrottling(st.throttlingRate);
+
+
     /*!
      *Get the PATH_INFO value.
      *Use dirscan as a buffer for put temporary directory scan.
@@ -999,9 +1009,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
        *When a request has this form send the file filetosend.php with the
        *environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
        *to QUERY_INFO_VALUE.
-       */
-      
-      /*!
+       *
        *If there is the '/' character check if dirscan is a file.
        */
       if(i && (td->filenamePath[i]=='/'))
@@ -1024,9 +1032,10 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         dirscan.append(db);
       }
     }
+
     /*!
      *If there is a PATH_INFO value the get the PATH_TRANSLATED too.
-     *PATH_TRANSLATED is the mapped to the local filesystem version of PATH_INFO.
+     *PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
      */
     if(td->pathInfo.length()>1)
     {
@@ -1046,6 +1055,15 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
     }
     File::completePath(td->filenamePath);
 
+
+    /*!
+     *Raise an error if the token is a link.
+     */
+    if(File::isLink(td->filenamePath.c_str())) 
+    {
+      return raiseHTTPError(td, s, e_401);
+    }
+
     /*!
      *If there are not any extension then we do one of this in order:
      *1)We send the default files in the directory in order.
@@ -1063,7 +1081,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         const char *defaultFileNamePath=getDefaultFilenamePath(i);
         ostringstream defaultFileName;
-        
+        defaultFileName.clear();
         if(defaultFileNamePath)
         {
           defaultFileName << td->filenamePath << "/" << defaultFileNamePath;
@@ -1086,7 +1104,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
             while(last_slash_offset && URI[last_slash_offset]!='/')
               --last_slash_offset;
             
-            nURL  <<  &(URI.c_str()[last_slash_offset  ? last_slash_offset+1 : 0]) 
+            nURL  <<  &(URI.c_str()[last_slash_offset ? last_slash_offset+1 : 0]) 
                   << "/" << defaultFileNamePath;
           }
           /*! Send a redirect to the new location.  */
@@ -1111,8 +1129,10 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       string contentType;
       contentType[0]='\0';
       mimeCMD=getMIME(td, contentType, td->filenamePath, ext, data);
+      /*! Set the default content type, this can be changed later. */
       td->response.CONTENT_TYPE.assign(contentType);
     }
+
     if(mimeCMD==CGI_CMD_RUNCGI)
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
@@ -1263,7 +1283,8 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       delete [] pathInfo;
       return ret;
     }
-  
+
+    /*! By default try to send the file as it is. */
     if(!(permissions & MYSERVER_PERMISSION_READ))
     {     
       return sendAuth(td, s);
@@ -1289,6 +1310,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
   {
     return raiseHTTPError(td, s, e_500); 
   };
+
 	return ret;
 }
 /*!
