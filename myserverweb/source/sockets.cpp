@@ -309,10 +309,18 @@ int Socket::rawSend(const char* buffer,int len,int flags)
 #endif
 #ifdef WIN32
 	int ret;
-	do
+  SetLastError(0);
+	for(;;)
   {
     ret=::send(socketHandle,buffer,len,flags);
-  }while((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
+    if((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK))
+    {
+      Thread::wait(10);
+    }
+    else
+      break;        
+     
+  }
   return ret;
 #endif
 #ifdef NOT_WIN

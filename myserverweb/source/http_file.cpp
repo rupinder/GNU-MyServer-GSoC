@@ -58,7 +58,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
   u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
-  ostringstream buffer;
 
  	/*! gzip compression object.  */
 	Gzip gzip;
@@ -92,7 +91,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
        *If the client use ranges set the right value 
        *for the last byte number.  
        */
-      lastByte = ((u_long)lastByte < bytes_to_send) ? lastByte : bytes_to_send;
+      lastByte = ((u_long)lastByte+1 < bytes_to_send) ? lastByte+1 : bytes_to_send;
     }
 
     /*! 
@@ -140,15 +139,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     /*! If a Range was requested send 206 and not 200 for success.  */
     if( td->request.RANGEBYTEBEGIN ||  td->request.RANGEBYTEEND )
     {	
+      ostringstream buffer;
       td->response.httpStatus = 206;
       buffer << "bytes "<< (u_long)firstByte << "-" 
              << (u_long)lastByte << "/" << (u_long)filesize ;
       td->response.CONTENT_RANGE.assign(buffer.str());
       use_gzip = 0;
     }
-
-    if(!use_gzip)
+    else if(!use_gzip)
     {
+      ostringstream buffer;
       buffer << (u_int)bytes_to_send;
       td->response.CONTENT_LENGTH.assign(buffer.str());
     }
