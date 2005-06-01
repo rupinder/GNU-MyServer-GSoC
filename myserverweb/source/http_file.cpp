@@ -146,7 +146,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       td->response.CONTENT_RANGE.assign(buffer.str());
       use_gzip = 0;
     }
-    else if(!use_gzip)
+    if(!use_gzip)
     {
       ostringstream buffer;
       buffer << (u_int)bytes_to_send;
