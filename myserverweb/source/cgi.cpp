@@ -510,11 +510,14 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	else
 	{
 		u_long fs=0;
-    CMemBuf contentLengthBuffer;
+    ostringstream stream;
+ 
 		if(td->inputData.getHandle())
 			fs=td->inputData.getFileSize();
-    contentLengthBuffer.UIntToStr(fs);
-		memCgi << end_str << "CONTENT_LENGTH=" << contentLengthBuffer;
+
+    stream << fs;
+
+		memCgi << end_str << "CONTENT_LENGTH=" << stream.str().c_str();
 	}
 
 	if(td->request.COOKIE.length())
