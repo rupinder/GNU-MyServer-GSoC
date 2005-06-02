@@ -1,4 +1,9 @@
 <?php
+if($_SERVER['REMOTE_ADDR'] != "127.0.0.1")
+{
+	print "This page is accessible only locally.";
+	die;
+}
 if(isset($_GET['showsource']))
 {
 	show_source(__FILE__);
