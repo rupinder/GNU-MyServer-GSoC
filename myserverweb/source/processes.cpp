@@ -162,6 +162,7 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 			if(ret == -1)
 				exit(1);
 		}
+
 		// If stdOut is -1, pipe to /dev/null
 		if((long)spi->stdOut == -1)
 			spi->stdOut = (FileHandle)open("/dev/null", O_WRONLY);
@@ -189,8 +190,8 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		// Run the script
     ret=execve((const char*)(spi->cmd.c_str()),
                (char* const*)args,(char* const*) envp);
-
-    exit(1);
+    printf("\r\n\r\n%i\n", ret);
+    exit(0);
 
 	} // end else if(pid == 0)
 	// Parent
@@ -207,7 +208,10 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
     ret = waitpid(pid, NULL, WNOHANG);
     if(ret == -1)
     {
-      return (-1);
+      if(errno == ECHILD)
+        return 0;
+      else
+        return (-1);
     }
     else if(ret != 0)
     {
