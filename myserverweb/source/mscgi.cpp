@@ -93,7 +93,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		data.stdOut.setHandle(td->outputData.getHandle());
 	}
 
-	ret = hinstLib.loadLibrary(exec);
+	ret = hinstLib.loadLibrary(exec, 0);
 
 	if (!ret) 
 	{ 
