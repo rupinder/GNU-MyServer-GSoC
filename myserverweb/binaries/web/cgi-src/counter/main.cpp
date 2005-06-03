@@ -20,15 +20,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
 #endif
 #include "../../../cgi-lib/cgi_manager.h"
+#include "../../../../include/threads.h"
 #include "counter_output.h"
 #include <limits.h>
+
+static Mutex lock;
 
 #ifdef WIN32
 int EXPORTABLE main (char *cmd, MsCgiData* data)
 #else
 extern "C" int main (char *cmd, MsCgiData* data)
 #endif
-{ 
+{	   
+	lock.lock();	
+
 	CgiManager cm(data);
 	
 	Counter_Output counter;
@@ -80,6 +85,9 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	counter.run();
 	
 	cm.clean();
+	
+	lock.unlock();
+	
 	return 0; 
 }  
 
