@@ -320,7 +320,10 @@ int ClientsThread::controlConnections()
 	lserver->connections_mutex_unlock();
 
   /*! Number of bytes waiting to be read. */
-  nBytesToRead = c->socket.bytesToRead();
+  if(c->socket.dataOnRead())
+    nBytesToRead = c->socket.bytesToRead();
+  else
+    nBytesToRead = 0 ;
 
 	if(nBytesToRead || c->getForceParsing())
 	{
