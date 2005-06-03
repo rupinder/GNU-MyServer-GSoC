@@ -2052,7 +2052,12 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     string time;
     ostringstream errorFile;
     Md5 md5;
+    
+    if(td->lastError)
+      return sendHTTPhardError500(td, a);
+
     td->lastError = ID;
+
     HttpHeaders::buildDefaultHTTPResponseHeader(&(td->response));
     if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
     {
