@@ -41,6 +41,7 @@ cp web/cgi-bin/*.readme $1/web/cgi-bin
 cp web/cgi-bin/*.mscgi $1/web/cgi-bin
 
 mkdir $1/logs
+touch $1/logs/.keep_me
 
 mkdir $1/web/downloads
 cp web/downloads/*.txt $1/web/downloads
