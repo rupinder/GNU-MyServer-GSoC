@@ -328,7 +328,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	/*! Now read the output. This flag is used by the external loop. */
 	exit=0;
 
-  /*! Return 1 if keep the connection. */
+  /*! Return 1 if keep the connection. A nonzero value also mean no errors. */
   ret = 1;
 	
 	time1 = get_ticks();
@@ -373,8 +373,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                                              td->buffer->GetBuffer());
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         sendFcgiBody(&con,0,0,FCGIABORT_REQUEST,id);
-        con.sock.shutdown(2);
-        con.sock.closesocket();
+        ret = 0;
         break;
       }
     }
@@ -416,7 +415,20 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 				case FCGISTDOUT:
 					nbr=con.sock.recv(td->buffer->GetBuffer(), (dim < td->buffer->GetRealLength())
                             ? dim: td->buffer->GetRealLength(), 0);
-          con.tempOut.writeToFile(td->buffer->GetBuffer(), nbr, &nbw);
+          if(nbr == (u_long)-1)
+          {
+						exit = 1;
+            ret = 0;
+						break;
+          }
+
+          if(con.tempOut.writeToFile(td->buffer->GetBuffer(), nbr, &nbw))
+          {
+						exit = 1;
+            ret = 0;
+						break;
+          }
+
 					data_sent=nbw;
 					if(data_sent==0)
 					{
@@ -424,12 +436,19 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
             ret = 0;
 						break;
 					}
+
 					while(data_sent<dim)
 					{
 						if( con.sock.bytesToRead() )
             {
 							nbr=con.sock.recv(td->buffer->GetBuffer(), (dim<data_sent)?dim :data_sent, 
                                 td->buffer->GetRealLength(), 0);
+              if(nbr == (u_long)-1)
+              {
+                exit = 1;
+                ret = 0;
+                break;
+              }
             }
 						else
 						{
@@ -456,12 +475,23 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			}
 		}
 	}while((!exit) && nbr);
+
 	con.tempOut.setFilePointer(0);
 	td->buffer->GetAt(0)='\0';
 	buffer=td->buffer->GetBuffer();
-	con.tempOut.readFromFile(buffer,td->buffer->GetRealLength(),&nbr);
 
-	/*!
+  /*! Return an error message if ret is 0. */
+  if((!ret) || con.tempOut.readFromFile(buffer,td->buffer->GetRealLength(),&nbr))
+  {
+    td->inputData.closeFile();
+    File::deleteFile(td->inputDataPath);
+    con.tempOut.closeFile();
+    File::deleteFile(outDataPath.str().c_str());
+    con.sock.closesocket();
+    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
+  }
+	
+  /*!
    *Find the \r\n\r\n sequence.
    */
 	for(u_long i=0; i<nbr; i++)
