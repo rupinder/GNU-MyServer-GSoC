@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/filemanager.h"
 #include "../include/MemBuf.h"
 #include "../include/connectionstruct.h"
+#include "../include/MIME_manager.h"
 
 extern "C" {
 #ifdef WIN32
@@ -87,6 +88,7 @@ struct HttpThreadContext
 	File inputData;
 	File outputData;
 	int auth_scheme;
+  MimeManager::MimeRecord *mime;
 	void* lhttp;
 };
 

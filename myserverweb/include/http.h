@@ -116,10 +116,8 @@ public:
 	int getPath(HttpThreadContext* td, ConnectionPtr s, string& filenamePath,
                const char *filename,int systemrequest);
 
-	int getMIME(HttpThreadContext* td, char *MIME, char *filename, 
-              char *dest, char **dest2);
-	int getMIME(HttpThreadContext* td, string& MIME, string& filename, 
-              string& dest, string& dest2);
+  MimeManager::MimeRecord* getMIME(HttpThreadContext* td,string& filename);
+
 	int logHTTPaccess(HttpThreadContext* td,ConnectionPtr a);
 	int sendHTTPRedirect(HttpThreadContext* td,ConnectionPtr a, const char *newURL);
 	int sendHTTPNonModified(HttpThreadContext* td,ConnectionPtr a);

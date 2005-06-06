@@ -801,7 +801,6 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
    *that we must send over the HTTP.
    */
 	string filename;
-  string ext;
   int permissions;
   int permissions2;
   string dirscan;
@@ -1126,11 +1125,15 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
      */
     data.assign("");
     {
-      string contentType;
-      contentType[0]='\0';
-      mimeCMD=getMIME(td, contentType, td->filenamePath, ext, data);
+      td->response.CONTENT_TYPE[0]='\0';
+      td->mime=getMIME(td, td->filenamePath);
       /*! Set the default content type, this can be changed later. */
-      td->response.CONTENT_TYPE.assign(contentType);
+      if(td->mime)
+      {
+        td->response.CONTENT_TYPE.assign(td->mime->mime_type);
+        mimeCMD = td->mime->command;
+        data.assign(td->mime->cgi_manager);
+      }
     }
 
     if(mimeCMD==CGI_CMD_RUNCGI)
@@ -2265,34 +2268,18 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 
 /*!
  *Returns the MIME type passing its extension.
- *Returns 1 if the file is registered.
+ *Returns zero if the file is registered.
  */
-int Http::getMIME(HttpThreadContext* td, char *MIME, char *filename, 
-                  char *ext, char **dest2)
+MimeManager::MimeRecord* Http::getMIME(HttpThreadContext* td, string &filename)
 {
+  string ext;
 	File::getFileExt(ext, filename);
 	
   if(allow_vhost_mime && ((Vhost*)(td->connection->host))->isMIME() )
   {
-    return ((Vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
+    return ((Vhost*)(td->connection->host))->getMIME()->getRecord(ext);
   }
-	return lserver->mimeManager.getMIME(ext, MIME, dest2);
-}
-
-/*!
- *Returns the MIME type passing its extension.
- *Returns 1 if the file is registered.
- */
-int Http::getMIME(HttpThreadContext* td, string& MIME, string& filename, 
-                  string& ext, string& dest2)
-{
-	File::getFileExt(ext, filename);
-	
-  if(allow_vhost_mime && ((Vhost*)(td->connection->host))->isMIME() )
-  {
-    return ((Vhost*)(td->connection->host))->getMIME()->getMIME(ext, MIME, dest2);
-  }
-	return lserver->mimeManager.getMIME(ext, MIME, dest2);
+	return lserver->mimeManager.getRecord(ext);
 }
 
 /*!
