@@ -65,8 +65,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 	u_long gzipheaderadded=0;
 	
 	/*! Number of bytes created by the zip compressor by loop.  */
-	u_long gzip_dataused=0;
-	u_long dataSent=0;
+	int gzip_dataused=0;
+	int dataSent=0;
 
   try
   {
@@ -220,8 +220,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         {
           if(gzipheaderadded==0)
           {
-            gzip_dataused+=gzip.getHEADER(td->buffer->GetBuffer(), 
-                                          td->buffer->GetLength());
+            gzip_dataused+=gzip.getHEADER(td->buffer->GetBuffer(), td->buffer->GetLength());
             gzipheaderadded=1;
           }
           gzip_dataused+=gzip.compress(td->buffer2->GetBuffer(), nbr, 
@@ -230,9 +229,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         }
         else
         {
-          gzip_dataused=gzip.flush(td->buffer->GetBuffer(), 
-                                   td->buffer->GetRealLength());
-          gzip_dataused+=gzip.getFOOTER(td->buffer->GetBuffer()+gzip_dataused,
+          gzip_dataused=gzip.flush(td->buffer->GetBuffer(), td->buffer->GetRealLength()) ;
+          gzip_dataused+=gzip.getFOOTER(td->buffer->GetBuffer()+gzip_dataused, 
                                         td->buffer->GetRealLength()-gzip_dataused);
           gzip.free();
         }

@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define GZIP_HEADER_LENGTH		10
 #define GZIP_FOOTER_LENGTH		8
 extern char GZIP_HEADER[];
-class Gzip
+class Gzip 
 {
 public:
 	struct gzip_data
@@ -44,15 +44,15 @@ public:
 		u_long initialized;
 	};
 #ifdef GZIP_CHECK_BOUNDS	
-	static u_long compressBound(int size);
+	static int compressBound(int size);
 #endif
-	u_long updateCRC(char* buffer,int size);
-	u_long getFOOTER(char *str,int size);
-	u_long initialize();
-	u_long compress(char* in,u_long sizeIN,char *out,u_long sizeOUT);
-	u_long free();
-	u_long flush(char *out,u_long sizeOUT);
-	u_long getHEADER(char *buffer,u_long buffersize);
+	int updateCRC(char* buffer,int size);
+	int getFOOTER(char *str,int size);
+	int initialize();
+	int compress(char* in,u_long sizeIN,char *out,u_long sizeOUT);
+	int free();
+	int flush(char *out,u_long sizeOUT);
+	int getHEADER(char *buffer,u_long buffersize);
 private:
 	gzip_data data;
 };

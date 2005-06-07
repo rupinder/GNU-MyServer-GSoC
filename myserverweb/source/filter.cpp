@@ -19,9 +19,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  
 #include "../include/isapi.h"
 #include "../include/stream.h"
+#include "../include/filter.h"
 
 #include <string>
 #include <sstream>
+
 using namespace std;
 
 /*!
@@ -56,6 +58,14 @@ Filter::~Filter()
 void Filter::setParent(Stream* p)
 {
   parent = p;
+}
+
+/*!
+ *Flush everything to the stream. Returns -1 on errors.
+ */
+int Filter::flush()
+{
+  return -1;
 }
 
 /*!

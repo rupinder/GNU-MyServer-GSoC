@@ -111,7 +111,7 @@ File::File()
  *nbw is a pointer to an unsigned long that receive the number of the
  *bytes written correctly.
  */
-int File::writeToFile(const char* buffer, u_long buffersize,u_long* nbw)
+int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 {
 	if(buffersize==0)
 	{

@@ -31,7 +31,7 @@ public:
  
   virtual int read(char* buffer, int len);
   virtual int write(char* buffer, int len);
-	virtual int flush(char *buffer, int len);
+	virtual int flush();
   void setParent(Stream*);
   Stream* getParent();
   Filter();

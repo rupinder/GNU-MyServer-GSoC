@@ -263,7 +263,7 @@ int LogManager::storeFile()
       if(gzipLog)
       {    
         u_long nbw;
-        u_long  len = gzip.getHEADER(gzipData, 16);
+        int len = gzip.getHEADER(gzipData, 16);
         if(newFile.writeToFile(gzipData, len,  &nbw))
         {
           newFile.closeFile();
@@ -286,7 +286,7 @@ int LogManager::storeFile()
         if(gzipLog)
         {
           u_long nbw;
-          u_long size=gzip.compress(buffer,nbr, buffer2, 512);
+          int size=gzip.compress(buffer,nbr, buffer2, 512);
           if(newFile.writeToFile(buffer2, size, &nbw))
           {
             newFile.closeFile();

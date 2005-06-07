@@ -50,7 +50,7 @@ char GZIP_HEADER[]={(char)0x1f,(char)0x8b,Z_DEFLATED,0,0,0,0,0,0,0x03};
 /*!
 *Initialize the gzip structure value.
 */
-u_long Gzip::initialize()
+int Gzip::initialize()
 {
 #ifndef DO_NOT_USE_GZIP		
 	long level = Z_DEFAULT_COMPRESSION;
@@ -70,7 +70,7 @@ u_long Gzip::initialize()
 };
 
 #ifdef GZIP_CHECK_BOUNDS	
-u_long Gzip::compressBound(int size)
+int Gzip::compressBound(int size)
 {
 #ifdef compressBound 
 	return compressBound(size);
@@ -83,7 +83,7 @@ u_long Gzip::compressBound(int size)
 /*!
 *Compress the in buffer to the out buffer using the gzip compression.
 */
-u_long Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
+int Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
 {
 #ifndef DO_NOT_USE_GZIP	
 	u_long old_total_out=data.stream.total_out;
@@ -103,20 +103,20 @@ u_long Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
 
 	data.data_size+=data.stream.total_out-old_total_out;
 	data.crc = crc32(data.crc, (const Bytef *) in, sizeIn);
-	return data.stream.total_out-old_total_out;
+	return static_cast<int>(data.stream.total_out-old_total_out);
 #else 
 	/*
 	*If is specified DO_NOT_USE_GZIP copy the input buffer to the output one as it is.
 	*/
 	memcpy(out, in, min(sizeIn,sizeOut));
-	return min(sizeIn, sizeOut);
+	return min(static_cast<int>(sizeIn), static_cast<int>(sizeOut));
 #endif
 }
 
 /*!
  *Close the gzip compression.
  */
-u_long Gzip::free()
+int Gzip::free()
 {
 int ret=0;
 #ifndef DO_NOT_USE_GZIP
@@ -131,7 +131,7 @@ int ret=0;
 /*!
 *Flush all the data
 */
-u_long Gzip::flush(char *out,u_long sizeOUT)
+int Gzip::flush(char *out,u_long sizeOUT)
 {
 #ifndef DO_NOT_USE_GZIP	
 	int ret;
@@ -146,7 +146,7 @@ u_long Gzip::flush(char *out,u_long sizeOUT)
 	ret = deflate(&(data.stream), Z_FINISH);
 
 	data.data_size+=data.stream.total_out-old_total_out;
-	return data.stream.total_out-old_total_out;
+	return static_cast<int>(data.stream.total_out-old_total_out);
 #else 
 	return 0;
 #endif
@@ -155,7 +155,7 @@ u_long Gzip::flush(char *out,u_long sizeOUT)
 /*!
  *Update the existent CRC.
  */
-u_long Gzip::updateCRC(char* buffer,int size)
+int Gzip::updateCRC(char* buffer, int size)
 {
 #ifndef DO_NOT_USE_GZIP		
 	data.crc = crc32(data.crc, (const Bytef *) buffer,(u_long)size);
@@ -168,7 +168,7 @@ u_long Gzip::updateCRC(char* buffer,int size)
 /*!
  *Get the GZIP footer.
  */
-u_long Gzip::getFOOTER(char *str,int /*size*/)
+int Gzip::getFOOTER(char *str,int /*size*/)
 {
 #ifndef DO_NOT_USE_GZIP		
 	char *footer =  str;
@@ -190,7 +190,7 @@ u_long Gzip::getFOOTER(char *str,int /*size*/)
 /*!
  *Copy the GZIP header in the buffer.
  */
-u_long Gzip::getHEADER(char *buffer,u_long buffersize)
+int Gzip::getHEADER(char *buffer,u_long buffersize)
 {
 	if(buffersize<GZIP_HEADER_LENGTH)
 		return 0;
