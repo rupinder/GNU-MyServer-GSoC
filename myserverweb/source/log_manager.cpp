@@ -241,6 +241,7 @@ int LogManager::storeFile()
     for(int i=0;i< static_cast<int>(time.length()); i++)
       if((time[i] == ' ') || (time[i] == ':'))
         time[i]= '.';
+
     newfilename << filedir << "/" << filename << "." << time;
     
     if(gzipLog)
@@ -263,7 +264,7 @@ int LogManager::storeFile()
       if(gzipLog)
       {    
         u_long nbw;
-        int len = gzip.getHEADER(gzipData, 16);
+        u_long len = gzip.getHEADER(gzipData, 16);
         if(newFile.writeToFile(gzipData, len,  &nbw))
         {
           newFile.closeFile();
@@ -286,7 +287,7 @@ int LogManager::storeFile()
         if(gzipLog)
         {
           u_long nbw;
-          int size=gzip.compress(buffer,nbr, buffer2, 512);
+          u_long size=gzip.compress(buffer,nbr, buffer2, 512);
           if(newFile.writeToFile(buffer2, size, &nbw))
           {
             newFile.closeFile();

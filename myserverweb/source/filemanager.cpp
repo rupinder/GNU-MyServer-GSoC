@@ -1040,23 +1040,23 @@ int File::completePath(string &fileName)
 /*!
  *Inherited from Stream.
  */
-int File::read(char* buffer, int len)
+u_long File::read(char* buffer, int len)
 {
   u_long nbr;
 	int ret = readFromFile(buffer, len, &nbr );
   if(ret != 0)
-    return -1;
+    return static_cast<u_long>(-1);
   return nbr;
 }
 
 /*!
  *Inherited from Stream.
  */
-int File::write(char* buffer, int len)
+u_long File::write(char* buffer, int len)
 {
   u_long nbw;
 	int ret = writeToFile(buffer, len, &nbw );
   if(ret != 0)
-    return -1;
+    return static_cast<u_long>(-1);
   return nbw;
 }

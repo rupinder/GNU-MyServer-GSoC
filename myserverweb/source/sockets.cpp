@@ -766,16 +766,16 @@ int Socket::dataOnRead(int sec, int usec)
  *Inherited from Stream.
  *Return values are equals to recv.
  */
-int Socket::read(char* buffer, int len)
+u_long Socket::read(char* buffer, int len)
 {
-	return recv(buffer, len, 0);
+	return static_cast<u_long>(recv(buffer, len, 0));
 }
 
 /*!
  *Inherited from Stream.
  *Return values are equals to send.
  */
-int Socket::write(char* buffer, int len)
+u_long Socket::write(char* buffer, int len)
 {
-  return send(buffer, len, 0);
+  return static_cast<u_long>(send(buffer, len, 0));
 }

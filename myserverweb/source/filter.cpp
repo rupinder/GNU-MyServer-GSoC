@@ -29,17 +29,17 @@ using namespace std;
 /*!
  *Read [len] characters using the filter. Returns -1 on errors.
  */
-int Filter::read(char* buffer, int len)
+u_long Filter::read(char* buffer, int len)
 {
-  return -1;
+  return static_cast<u_long>(-1);
 }
 
 /*!
  *Write [len] characters to the stream. Returns -1 on errors.
  */
-int Filter::write(char* buffer, int len)
+u_long Filter::write(char* buffer, int len)
 {
-  return -1;
+  return static_cast<u_long>(-1);
 }
 
 Filter::Filter()
@@ -63,9 +63,9 @@ void Filter::setParent(Stream* p)
 /*!
  *Flush everything to the stream. Returns -1 on errors.
  */
-int Filter::flush()
+u_long Filter::flush()
 {
-  return -1;
+  return static_cast<u_long>(-1);
 }
 
 /*!

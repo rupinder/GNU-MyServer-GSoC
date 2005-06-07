@@ -128,7 +128,7 @@ public:
   void setThrottling(u_long);
 
   /*! Inherithed from Stream. */
-  virtual int read(char* buffer, int len);
-  virtual int write(char* buffer, int len);
+  virtual u_long read(char* buffer, int len);
+  virtual u_long write(char* buffer, int len);
 };
 #endif

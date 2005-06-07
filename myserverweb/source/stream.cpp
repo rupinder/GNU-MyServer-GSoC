@@ -27,17 +27,17 @@ using namespace std;
 /*!
  *Read [len] characters from the stream. Returns -1 on errors.
  */
-int Stream::read(char* buffer, int len)
+u_long Stream::read(char* buffer, int len)
 {
-  return -1;
+  return static_cast<u_long>(-1);
 }
 
 /*!
  *Write [len] characters to the stream. Returns -1 on errors.
  */
-int Stream::write(char* buffer, int len)
+u_long Stream::write(char* buffer, int len)
 {
-  return -1;
+  return static_cast<u_long>(-1);
 }
 
 Stream::Stream()

@@ -65,7 +65,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 	u_long gzipheaderadded=0;
 	
 	/*! Number of bytes created by the zip compressor by loop.  */
-	int gzip_dataused=0;
+	u_long gzip_dataused=0;
 	int dataSent=0;
 
   try
@@ -211,7 +211,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         {
           ostringstream buffer;
           h.closeFile();
-          buffer << (int)dataSent;
+          buffer << dataSent;
           td->response.CONTENT_LENGTH.assign(buffer.str());
           return 0;
         }

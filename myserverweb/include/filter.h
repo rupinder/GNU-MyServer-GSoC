@@ -29,9 +29,9 @@ class Filter : public Stream
   Stream *parent;
 public:
  
-  virtual int read(char* buffer, int len);
-  virtual int write(char* buffer, int len);
-	virtual int flush();
+  virtual u_long read(char* buffer, int len);
+  virtual u_long write(char* buffer, int len);
+	virtual u_long flush();
   void setParent(Stream*);
   Stream* getParent();
   Filter();
