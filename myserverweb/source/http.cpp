@@ -1429,6 +1429,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     td.filenamePath.assign("");
     td.outputDataPath.assign("");
     td.inputDataPath.assign("");
+    td.mime=0;
     /*!
      *Reset the request and response structures.
      */
