@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define FILEMANAGER_H
 
 #include "../stdafx.h"
+#include "../include/stream.h"
 #include <string>
 
 #ifdef WIN32
@@ -41,7 +42,7 @@ const u_long FILE_OPEN_APPEND = (1<<6);
 const u_long FILE_CREATE_ALWAYS = (1<<7);
 const u_long FILE_NO_INHERIT = (1<<8);
 
-class File
+class File : public Stream
 {
 private:
 	FileHandle handle;
@@ -127,6 +128,10 @@ public:
   static int getFilenameLength(const char*, int *);
 	static void getFilename(const char* path, char* filename);
 	static void getFilename(string const &path, string& filename);
+
+  /*! Inherithed from Stream. */
+  virtual int read(char* buffer, int len);
+  virtual int write(char* buffer, int len);
 
 };
 #endif

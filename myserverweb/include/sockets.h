@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define SOCKETS_H
 
 #include "../stdafx.h"
+#include "../include/stream.h"
+
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
 #include<openssl/crypto.h>
@@ -62,7 +64,8 @@ typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
 typedef struct sockaddr MYSERVER_SOCKADDR;
 typedef struct hostent MYSERVER_HOSTENT;
 int startupSocketLib(u_short);
-class Socket
+
+class Socket: public Stream
 {
 private:
 	SocketHandle socketHandle;
@@ -123,5 +126,9 @@ public:
 	int dataOnRead(int sec = 0, int usec = 500);
   u_long getThrottling();
   void setThrottling(u_long);
+
+  /*! Inherithed from Stream. */
+  virtual int read(char* buffer, int len);
+  virtual int write(char* buffer, int len);
 };
 #endif

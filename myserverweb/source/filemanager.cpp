@@ -123,7 +123,7 @@ int File::writeToFile(const char* buffer, u_long buffersize,u_long* nbw)
 	return (!ret);
 #endif
 #ifdef NOT_WIN
-	*nbw =  write((long)handle, buffer, buffersize);
+	*nbw =  ::write((long)handle, buffer, buffersize);
 	return (*nbw==buffersize)? 0 : 1 ;
 #endif
 }
@@ -367,7 +367,7 @@ const char *File::getFilename()
 
 /*!
  *Read data from a file to a buffer.
- *Return 1 or errors.
+ *Return 1 on errors.
  *Return 0 on success.
  */
 int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
@@ -377,7 +377,7 @@ int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 	return (!ret);
 #endif
 #ifdef NOT_WIN
-	int ret  = read((long)handle, buffer, buffersize);
+	int ret  = ::read((long)handle, buffer, buffersize);
   *nbr = (u_long)ret;
 	return (ret == -1) ;
 #endif
@@ -1035,4 +1035,28 @@ int File::completePath(string &fileName)
   }
 	return 0;
 #endif
+}
+
+/*!
+ *Inherited from Stream.
+ */
+int File::read(char* buffer, int len)
+{
+  u_long nbr;
+	int ret = readFromFile(buffer, len, &nbr );
+  if(ret != 0)
+    return -1;
+  return nbr;
+}
+
+/*!
+ *Inherited from Stream.
+ */
+int File::write(char* buffer, int len)
+{
+  u_long nbw;
+	int ret = writeToFile(buffer, len, &nbw );
+  if(ret != 0)
+    return -1;
+  return nbw;
 }

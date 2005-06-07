@@ -330,7 +330,8 @@ int Socket::rawSend(const char* buffer,int len,int flags)
 
 /*!
  *Send data over the socket.
- *Return -1 on error.
+ *Returns -1 on error.
+ *Returns the number of bytes sent on success.
  *If a throttling rate is specified, send will use it.
  */
 int Socket::send(const char* buffer, int len, int flags)
@@ -758,4 +759,23 @@ int Socket::dataOnRead(int sec, int usec)
 		return 1;
 	else
 		return 0;
+}
+
+
+/*!
+ *Inherited from Stream.
+ *Return values are equals to recv.
+ */
+int Socket::read(char* buffer, int len)
+{
+	return recv(buffer, len, 0);
+}
+
+/*!
+ *Inherited from Stream.
+ *Return values are equals to send.
+ */
+int Socket::write(char* buffer, int len)
+{
+  return send(buffer, len, 0);
 }
