@@ -16,23 +16,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef STREAM_H
-#define STREAM_H
-
+#ifndef FILTER_H
+#define FILTER_H
 #include "../stdafx.h"
+#include "../include/stream.h"
 
 /*!
- *Abstract class to handle virtual data streams.
+ *Abstract class to handle virtual data filters.
  */
-class Stream
+class Filter : public Stream
 {
+  Stream *parent;
 public:
+ 
   virtual int read(char* buffer, int len);
   virtual int write(char* buffer, int len);
-  Stream();
+	virtual int flush(char *buffer, int len);
+  void setParent(Stream*);
+  Stream* getParent();
+  Filter();
 
   /*! Avoid direct instances of this class. */
-  virtual ~Stream()=0;
+  virtual ~Filter()=0;
 };
 
 

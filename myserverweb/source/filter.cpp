@@ -16,24 +16,52 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef STREAM_H
-#define STREAM_H
+ 
+#include "../include/isapi.h"
+#include "../include/stream.h"
 
-#include "../stdafx.h"
+#include <string>
+#include <sstream>
+using namespace std;
 
 /*!
- *Abstract class to handle virtual data streams.
+ *Read [len] characters using the filter. Returns -1 on errors.
  */
-class Stream
+int Filter::read(char* buffer, int len)
 {
-public:
-  virtual int read(char* buffer, int len);
-  virtual int write(char* buffer, int len);
-  Stream();
+  return -1;
+}
 
-  /*! Avoid direct instances of this class. */
-  virtual ~Stream()=0;
-};
+/*!
+ *Write [len] characters to the stream. Returns -1 on errors.
+ */
+int Filter::write(char* buffer, int len)
+{
+  return -1;
+}
 
+Filter::Filter()
+{
+  parent = 0;
+}
 
-#endif
+Filter::~Filter()
+{
+
+}
+
+/*!
+ *Set the stream where apply the filter. The stream
+ */
+void Filter::setParent(Stream* p)
+{
+  parent = p;
+}
+
+/*!
+ *Get the stream used by the filter.
+ */
+Stream* Filter::getParent()
+{
+  return parent;
+}
