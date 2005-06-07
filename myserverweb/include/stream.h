@@ -29,6 +29,8 @@ public:
   virtual int read(char* buffer, int len);
   virtual int write(char* buffer, int len);
   Stream();
+
+  /*! Avoid direct instances of this class. */
   virtual ~Stream()=0;
 };
 
