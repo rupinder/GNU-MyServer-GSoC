@@ -65,7 +65,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 	u_long gzipheaderadded=0;
 	
 	/*! Number of bytes created by the zip compressor by loop.  */
-	u_long gzip_dataused=0;
+	u_long GzipDataused=0;
 	int dataSent=0;
 
   try
@@ -203,7 +203,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       
       if(use_gzip)
       {
-        gzip_dataused=0;
+        GzipDataused=0;
         u_long datatoread=(bytes_to_send < td->buffer2->GetRealLength()/2) 
           ? bytes_to_send : td->buffer2->GetRealLength()/2 ;
         /*! Read from the file the bytes to send.  */
@@ -220,31 +220,31 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         {
           if(gzipheaderadded==0)
           {
-            gzip_dataused+=gzip.getHEADER(td->buffer->GetBuffer(), td->buffer->GetLength());
+            GzipDataused+=gzip.getHeader(td->buffer->GetBuffer(), td->buffer->GetLength());
             gzipheaderadded=1;
           }
-          gzip_dataused+=gzip.compress(td->buffer2->GetBuffer(), nbr, 
-                                       &((td->buffer->GetBuffer())[gzip_dataused]),
-                                       td->buffer->GetRealLength()-gzip_dataused);
+          GzipDataused+=gzip.compress(td->buffer2->GetBuffer(), nbr, 
+                                       &((td->buffer->GetBuffer())[GzipDataused]),
+                                       td->buffer->GetRealLength()-GzipDataused);
         }
         else
         {
-          gzip_dataused=gzip.flush(td->buffer->GetBuffer(), td->buffer->GetRealLength()) ;
-          gzip_dataused+=gzip.getFOOTER(td->buffer->GetBuffer()+gzip_dataused, 
-                                        td->buffer->GetRealLength()-gzip_dataused);
+          GzipDataused=gzip.flush(td->buffer->GetBuffer(), td->buffer->GetRealLength()) ;
+          GzipDataused+=gzip.getFooter(td->buffer->GetBuffer()+GzipDataused, 
+                                        td->buffer->GetRealLength()-GzipDataused);
           gzip.free();
         }
         if(keepalive)
         {
           ostringstream buffer;
-          buffer << hex << gzip_dataused << "\r\n";
+          buffer << hex << GzipDataused << "\r\n";
           ret = s->socket.send(buffer.str().c_str(), buffer.str().length(), 0);
           if(ret == SOCKET_ERROR)
             break;
         }
-        if(gzip_dataused)
+        if(GzipDataused)
         {
-          ret=s->socket.send(td->buffer->GetBuffer(), gzip_dataused, 0);
+          ret=s->socket.send(td->buffer->GetBuffer(), GzipDataused, 0);
           if(ret == SOCKET_ERROR)
             break;
           dataSent+=ret;

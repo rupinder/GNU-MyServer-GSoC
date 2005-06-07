@@ -102,7 +102,7 @@ private:
 	u_short port;
 
 	/*! Protocol used by the virtual host. Used for built-in protocols. */
-	CONNECTION_PROTOCOL protocol;
+	ConnectionProtocol protocol;
 
   /*! Throttling rate to use with the virtual host. */
 	u_long throttlingRate;
@@ -234,14 +234,14 @@ public:
    *Get the protocol used by the virtual host. 
    *This is used only for the built in protocols. 
    */
-	CONNECTION_PROTOCOL getProtocol()
+	ConnectionProtocol getProtocol()
     {return protocol;};
 
   /*! 
    *Set the protocol used by the virtual host. 
    *This is used only for the built in protocols. 
    */
-	void setProtocol(CONNECTION_PROTOCOL cp)
+	void setProtocol(ConnectionProtocol cp)
     {protocol=cp;};
 
   /*! Get the throttling rate for the virtual host. */

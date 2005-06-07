@@ -131,12 +131,12 @@ u_long Gzip::free()
 /*!
 *Flush all the data
 */
-u_long Gzip::flush(char *out,u_long sizeOUT)
+u_long Gzip::flush(char *out,u_long sizeOut)
 {
 #ifndef DO_NOT_USE_GZIP	
 	int ret;
 	u_long old_total_out=data.stream.total_out;
-	uLongf destLen=sizeOUT;
+	uLongf destLen=sizeOut;
 
 	data.stream.data_type=Z_BINARY;
 	data.stream.next_in = 0;
@@ -168,7 +168,7 @@ u_long Gzip::updateCRC(char* buffer, int size)
 /*!
  *Get the GZIP footer.
  */
-u_long Gzip::getFOOTER(char *str,int /*size*/)
+u_long Gzip::getFooter(char *str,int /*size*/)
 {
 #ifndef DO_NOT_USE_GZIP		
 	char *footer =  str;
@@ -190,7 +190,7 @@ u_long Gzip::getFOOTER(char *str,int /*size*/)
 /*!
  *Copy the GZIP header in the buffer.
  */
-u_long Gzip::getHEADER(char *buffer,u_long buffersize)
+u_long Gzip::getHeader(char *buffer,u_long buffersize)
 {
 	if(buffersize<GZIP_HEADER_LENGTH)
 		return 0;

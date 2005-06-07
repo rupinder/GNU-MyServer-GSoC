@@ -36,7 +36,7 @@ extern char GZIP_HEADER[];
 class Gzip 
 {
 public:
-	struct gzip_data
+	struct GzipData
 	{
 		z_stream stream;
 		u_long crc;
@@ -49,13 +49,13 @@ public:
 #endif
 
 	u_long updateCRC(char* buffer,int size);
-	u_long getFOOTER(char *str,int size);
+	u_long getFooter(char *str,int size);
 	u_long initialize();
-	u_long compress(char* in,u_long sizeIN,char *out,u_long sizeOUT);
+	u_long compress(char* in,u_long sizeIn,char *out,u_long sizeOut);
 	u_long free();
-	u_long flush(char *out,u_long sizeOUT);
-	u_long getHEADER(char *buffer,u_long buffersize);
+	u_long flush(char *out,u_long sizeOut);
+	u_long getHeader(char *buffer,u_long buffersize);
 private:
-	gzip_data data;
+	GzipData data;
 };
 #endif

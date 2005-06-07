@@ -42,7 +42,7 @@ using namespace std;
 #define CONNECTION_USER_KILL        2
 
 
-typedef u_long CONNECTION_PROTOCOL;
+typedef u_long ConnectionProtocol;
 
 /*!
  *Base class to handle a buffer in the connection.
