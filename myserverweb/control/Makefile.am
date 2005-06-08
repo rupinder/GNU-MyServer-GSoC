@@ -1,5 +1,5 @@
 bin_PROGRAMS = myserver-configure 
-myserver_configure_SOURCES = main.cpp fltkconfig.cpp service.cpp progress.cpp ../source/filemanager.cpp ../source/cXMLParser.cpp ../source/utility.cpp ../source/lfind.cpp language.cpp ../source/vector.cpp  mimetype.cpp vhost.cpp ../source/md5.cpp ../source/MemBuf.cpp control_client.cpp ../source/sockets.cpp  ../source/threads.cpp
+myserver_configure_SOURCES = main.cpp fltkconfig.cpp service.cpp progress.cpp ../source/filemanager.cpp ../source/cXMLParser.cpp ../source/utility.cpp ../source/lfind.cpp language.cpp ../source/vector.cpp  mimetype.cpp vhost.cpp ../source/md5.cpp ../source/MemBuf.cpp control_client.cpp ../source/sockets.cpp  ../source/threads.cpp ../source/stream.cpp
 
 INCLUDES = $(all_includes)
 
