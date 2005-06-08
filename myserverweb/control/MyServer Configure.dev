@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=32
+UnitCount=33
 Type=0
 Ver=1
 ObjFiles=
@@ -359,6 +359,16 @@ BuildCmd=
 
 [Unit32]
 FileName=..\source\threads.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit33]
+FileName=..\source\stream.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
