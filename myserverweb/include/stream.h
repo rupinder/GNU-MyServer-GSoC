@@ -27,8 +27,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 class Stream
 {
 public:
-  virtual u_long read(char* buffer, int len);
-  virtual u_long write(char* buffer, int len);
+  virtual int read(char* buffer, u_long len, u_long*);
+  virtual int write(char* buffer, u_long len, u_long*);
   Stream();
 
   /*! Avoid direct instances of this class. */

@@ -130,8 +130,8 @@ public:
 	static void getFilename(string const &path, string& filename);
 
   /*! Inherithed from Stream. */
-  virtual u_long read(char* buffer, int len);
-  virtual u_long write(char* buffer, int len);
+  virtual int read(char* buffer, u_long len, u_long *nbr);
+  virtual int write(char* buffer, u_long len, u_long *nbw);
 
 };
 #endif

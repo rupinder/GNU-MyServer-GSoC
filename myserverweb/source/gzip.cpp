@@ -197,3 +197,74 @@ u_long Gzip::getHeader(char *buffer,u_long buffersize)
 	memcpy(buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
 	return GZIP_HEADER_LENGTH;
 }
+
+/*! 
+ *Inherited from Filter.
+ *This function uses an internal buffer slowing it. 
+ *It is better to use directly the Gzip::compress routine where possible.
+ */
+int Gzip::read(char* buffer, u_long len, u_long *nbr)
+{
+  char *tmp_buff;
+  int ret;
+  u_long nbr_parent;
+  if(!parent)
+    return -1;
+  tmp_buff = new char[len/2];
+  if(!tmp_buff)
+    return -1; 
+  
+  ret = parent->read(tmp_buff, len/2, &nbr_parent);
+
+  if(ret == -1)
+  {
+    delete [] tmp_buff;
+    return -1;
+  }
+  *nbr = compress(tmp_buff, nbr_parent, buffer, len);
+  delete [] tmp_buff;
+  return 0;
+}
+
+/*! 
+ *Inherited from Filter.
+ */
+int Gzip::write(char* buffer, u_long len, u_long *nbw)
+{
+  char tmp_buffer[1024];
+  u_long written=0;
+  if(!parent)
+    return -1;
+  while(len)
+  {
+    u_long nbw_parent;
+    u_long ret=compress(buffer, len < 512 ? len : 512, tmp_buffer, 1024);
+    if(ret)
+      if(parent->write(tmp_buffer, ret, &nbw_parent) == -1 )
+        return -1;
+    written+=ret;
+    buffer+=512;
+    len-=512;
+  }
+  *nbw=written;
+  return 0;
+}
+
+/*! 
+ *Inherited from Filter.
+ */
+int Gzip::flush(u_long *nbw)
+{
+  char buffer[512];
+  *nbw = flush(buffer, 512);
+  if(*nbw)
+  {
+    int ret=0;
+    u_long nbw_parent;
+    if(!parent)
+      return -1;
+    ret = parent->write(buffer, *nbw, &nbw_parent);
+    return ret;
+   }
+  return 0;
+}

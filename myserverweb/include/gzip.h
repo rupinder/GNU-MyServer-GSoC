@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef GZIP_H
 #define GZIP_H
 #include "../stdafx.h"
+#include "../include/filter.h"
 
 /*! If is defined DO_NOT_USE_GZIP don't use the zlib library. */
 #ifndef DO_NOT_USE_GZIP	
@@ -33,7 +34,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define GZIP_HEADER_LENGTH		10
 #define GZIP_FOOTER_LENGTH		8
 extern char GZIP_HEADER[];
-class Gzip 
+
+class Gzip : public Filter
 {
 public:
 	struct GzipData
@@ -55,6 +57,11 @@ public:
 	u_long free();
 	u_long flush(char *out,u_long sizeOut);
 	u_long getHeader(char *buffer,u_long buffersize);
+
+  /*! From Filter*/
+  virtual int read(char* buffer, u_long len, u_long*);
+  virtual int write(char* buffer, u_long len, u_long*);
+	virtual int flush(u_long*);
 private:
 	GzipData data;
 };
