@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
+/*! Handle a dictionary of strings trough hashing.*/
 class HashDictionary
 {
 private:
