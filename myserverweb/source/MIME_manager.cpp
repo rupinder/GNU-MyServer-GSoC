@@ -421,8 +421,7 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 		{
       if(mr->cgi_manager.length())
       {
-        int cgi_managerlen=mr->cgi_manager.length()+1;
-        *dest2=new char[cgi_managerlen];
+        *dest2=new char[mr->cgi_manager.length()+1];
         if(*dest2==0)
           return 0;
         strcpy(*dest2, mr->cgi_manager.c_str());
@@ -491,8 +490,7 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 			{
 				if(mr->cgi_manager.length())
         {
-          int cgi_managerlen=mr->cgi_manager.length()+1;
-          *dest2=new char[cgi_managerlen];
+          *dest2=new char[mr->cgi_manager.length()+1];
           if(*dest2==0)
             return 0;
 					strcpy(*dest2, mr->cgi_manager.c_str());
