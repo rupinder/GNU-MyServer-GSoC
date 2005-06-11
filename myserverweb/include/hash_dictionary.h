@@ -29,8 +29,8 @@ private:
   };
   sNode *node;
   int nodes_count;
-  unsigned int hash(const char *);
 public:
+  static unsigned int hash(const char *);
   HashDictionary();
   ~HashDictionary();
   void *getData(const char*);

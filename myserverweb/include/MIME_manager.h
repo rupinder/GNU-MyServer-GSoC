@@ -35,7 +35,10 @@ extern "C" {
 #endif
 }
 
+#include "../include/hash_dictionary.h"
+
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -85,18 +88,19 @@ public:
 		string mime_type;
 		int command;
 		string cgi_manager;
-		MimeRecord* next;
+    unsigned int extensionHashCode;
 	};
+
 private:
   int loaded;
-	MimeRecord *data;
+  map<unsigned int, MimeRecord*> data;
 	u_long numMimeTypesLoaded;
 	string filename;
 public:
 	const char *getFilename();
 	MimeManager();
   ~MimeManager();
-	int addRecord(MimeManager::MimeRecord);
+	int addRecord(MimeManager::MimeRecord& record);
 	MimeManager::MimeRecord *getRecord(string const &ext);
 	void removeAllRecords();
 	void removeRecord(const string& ext);
