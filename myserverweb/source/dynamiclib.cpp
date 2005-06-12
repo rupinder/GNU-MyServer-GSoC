@@ -40,7 +40,7 @@ DynamicLibrary::~DynamicLibrary()
 int DynamicLibrary::loadLibrary(const char* filename, int globally)
 {
 #ifdef WIN32
-	handle = LoadLibrary(filename);
+  handle = LoadLibrary(filename);
 #endif
 #ifdef HAVE_DL
   if(globally)
