@@ -24,8 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 HashDictionary::HashDictionary()
 {
-  node = 0;
-  nodes_count = 0;
+  data.clear();
 }
 
 /*!
@@ -64,52 +63,11 @@ HashDictionary::~HashDictionary()
 void *HashDictionary::getData(const char* name)
 {
   unsigned int nameHash = hash(name);
-  sNode* cur = node;
-  while(cur)
-  {
-    if(cur->hash == nameHash)
-      return cur->data;
-    cur = cur->next;
-  }
-
-  return 0;
-
-}
-
-/*!
- *Add a node at the end of the list.
- */
-int HashDictionary::append(const char* name, void* data)
-{
-  if(name == 0)
-    return 0;
-  sNode *newNode = new sNode();
-  if(newNode == 0)
-    return 0;
-  newNode->hash = hash(name);
-  newNode->data = data;
-  newNode->next = 0;
-
-  if(node == 0)
-  {
-    node = newNode;
-    nodes_count++;
-    return 1;
-  }
+  map<int, sNode*>::iterator iter = data.find(nameHash);
+  if(iter != data.end())
+    return (*iter).second->data;
   else
-  {
-    int ret = 2;
-    sNode *cur = node;
-    while(cur->next)
-    {
-      cur = cur->next;
-      ret++;
-    }
-    cur->next = newNode;
-    nodes_count++;
-    return ret;
-  }
-  return 0;
+    return 0;
 }
 
 /*!
@@ -118,29 +76,14 @@ int HashDictionary::append(const char* name, void* data)
  */
 void* HashDictionary::removeNode(const char* name)
 {
-  unsigned int node_hash = hash(name);
-  sNode *cur = node;
-  sNode *prev = 0;
-  while(cur)
+  unsigned int nodeHash = hash(name);
+  map<int, sNode*>::iterator iter = data.find(nodeHash); 
+  
+  if(iter != data.end())
   {
-    if(node_hash == cur->hash)
-    {
-      void *data;
-      if(prev)
-      {
-        prev->next = cur->next;
-      }
-      else
-      {
-        node = cur->next;
-      }
-      data = cur->data;
-      delete cur;
-      nodes_count--;
-      return data;
-    }
-    prev = cur;
-    cur = cur->next;
+    void* ret=((sNode*)(*iter).second)->data;
+    data.erase(iter);
+    return ret;
   }
   return 0;
 }
@@ -150,7 +93,7 @@ void* HashDictionary::removeNode(const char* name)
  */
 int HashDictionary::nodesNumber()
 {
-  return nodes_count;
+  return static_cast<int>(data.size());
 }
 
 /*!
@@ -158,15 +101,12 @@ int HashDictionary::nodesNumber()
  */
 void HashDictionary::free()
 {
-  sNode *cur = node;
-  while(cur)
+  map<int, sNode*>::iterator iter = data.begin(); 
+  for( ; iter != data.end(); iter++)
   {
-    sNode *toremove = cur;   
-    cur = cur->next;
-    delete toremove;
+    delete (*iter).second;
   }
-  node = 0;
-  nodes_count = 0;
+  data.clear();
 }
 
 /*!
@@ -175,14 +115,12 @@ void HashDictionary::free()
 void *HashDictionary::getData(int order)
 {
   int i;
+  map<int, sNode*>::iterator iter;
   if(order == 0)
     return 0;
-  sNode *cur = node;
-  for(i = 1; (i < order) && ( cur ); i++)
-  {
-    cur = cur->next;
-  }
-  return (cur ? cur->data : 0);
+  iter = data.begin(); 
+  for(i = 1; (i < order) && ( iter != data.end() ); i++);
+  return (iter!=data.end() ? (*iter).second->data : 0);
 }
 
 /*!
@@ -190,53 +128,15 @@ void *HashDictionary::getData(int order)
  */
 int HashDictionary::isEmpty()
 {
-  return nodes_count ? 0 : 1;
+  return data.empty() ? 1 : 0;
 }
 
-/*!
- *Insert a node at the specified position.
- */
-int HashDictionary::insertAt(const char* name, void* data, int pos)
-{
-  int i;
-  sNode *cur;
-  sNode *prev;
-  if(name == 0)
-    return -1;
-  sNode *newNode = new sNode();
-  if(newNode == 0)
-    return -1;
-  newNode->hash = hash(name);
-  newNode->data = data;
-  cur = node;
-  prev = 0;
-  for(i = 1; i < pos; i++)
-  {
-    if(cur == 0)
-    {
-      delete newNode;
-      return -1;
-    }
-    prev = cur;
-    cur = cur->next;
-  }
-  if(prev)
-  {
-    prev->next = newNode;
-  }
-  else
-  {
-    node = newNode;
-  }
-  newNode->next = cur;
-  nodes_count++;
-  return pos;
-}
+
 
 /*!
- *Insert a new node at the beginning of the list.
+ *Insert a new node at the beginning of the list. Returns zero on success.
  */
-int HashDictionary::insert(const char* name,void* data)
+int HashDictionary::insert(const char* name,void* dataPtr)
 {
   if(name == 0)
     return -1;
@@ -244,9 +144,9 @@ int HashDictionary::insert(const char* name,void* data)
   if(newNode == 0)
     return -1;
   newNode->hash = hash(name);
-  newNode->data = data;
-  newNode->next = node;
-  return  0;
+  newNode->data = dataPtr;
+  data[newNode->hash]=newNode;
+  return 0;
 }
 
 
@@ -255,28 +155,20 @@ int HashDictionary::insert(const char* name,void* data)
  */
 void* HashDictionary::removeNodeAt(int order)
 {
-  sNode *cur = node;
-  sNode *prev = 0;
+  map<int, sNode*>::iterator iter=data.begin();
   int pos = 1;
-  void *data = 0;
-  while((pos<order) && cur)
+  void *ret = 0;
+  while((pos<order) && (iter!=data.end()) )
   {
     pos++;
-    prev = cur;
-    cur = cur->next;    
+    iter++;
   }
+
   if(pos != order)
     return 0;
-  if(prev)
-  {
-    prev->next = cur->next;
-  }
-  else
-  {
-    node = cur->next;
-  }
-  data = cur->data;
-  delete cur;
-  nodes_count--;
-  return data;
+
+  ret = (*iter).second->data;
+
+  data.erase(iter);
+  return ret;
 }

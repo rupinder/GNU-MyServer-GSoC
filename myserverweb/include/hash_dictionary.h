@@ -18,6 +18,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
+#include <map>
+
+using namespace std;
+
 /*! Handle a dictionary of strings trough hashing.*/
 class HashDictionary
 {
@@ -25,20 +29,16 @@ private:
   struct sNode
   {
     unsigned int hash;
-    sNode *next;
     void *data;
   };
-  sNode *node;
-  int nodes_count;
+  map<int, sNode*> data;
 public:
   static unsigned int hash(const char *);
   HashDictionary();
   ~HashDictionary();
   void *getData(const char*);
   void *getData(int);
-  int append(const char*, void*);
   int insert(const char*, void*);
-  int insertAt(const char*,void*,int);
   void* removeNode(const char*);
   void* removeNodeAt(int);
   int nodesNumber();

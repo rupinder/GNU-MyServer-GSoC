@@ -115,7 +115,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
       if(toremove)
         delete toremove;
     }
-    if(dictionary.append(permissionsFile.c_str(), (void*)parser) == 0)
+    if(dictionary.insert(permissionsFile.c_str(), (void*)parser) != 0)
     {
       delete parser;
       return -1;
@@ -253,7 +253,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
       if(toremove)
         delete toremove;
     }
-    if(dictionary.append(permissionsFile.c_str(), (void*)parser) == 0)
+    if(dictionary.insert(permissionsFile.c_str(), (void*)parser) != 0)
     {
       delete parser;
       return -1;
