@@ -22,7 +22,7 @@
 #include <FL/Fl_Browser.H>
 #include <FL/Fl_Choice.H>
 
-#include "../include/vector.h"
+#include "vector.h"
 #include "../include/MemBuf.h"
 
 enum 

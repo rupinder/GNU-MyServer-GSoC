@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/cXMLParser.h"
 #include "../include/filemanager.h"
-#include "../include/vector.h"
+#include "vector.h"
 #include "fltkconfig.h"
 
 # include "../include/lfind.h"

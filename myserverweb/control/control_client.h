@@ -19,7 +19,7 @@
 #define CONTROL_CLIENT_H
 
 #include "../include/sockets.h"
-#include "../include/vector.h"
+#include "vector.h"
 #include "../include/filemanager.h"
 #include "../include/control_errors.h"
 #include "../include/stringutils.h"

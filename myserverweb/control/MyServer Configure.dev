@@ -140,7 +140,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit12]
-FileName=..\include\vector.h
+FileName=vector.h
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -180,7 +180,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit16]
-FileName=..\source\vector.cpp
+FileName=vector.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
