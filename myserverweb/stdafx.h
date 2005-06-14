@@ -61,6 +61,7 @@ extern "C"
 #else
 #define MAX_PATH 255
 #endif
+#endif
 
 #ifndef MAX_COMPUTERNAME_LENGTH
 #define MAX_COMPUTERNAME_LENGTH 255
