@@ -54,12 +54,12 @@ class DynHttpCommandManager
 private:
   HashDictionary data;
 public:
-  int addMethod(char* name, XmlParser* p, Server* s);
+  int addMethod(const char* name, XmlParser* p, Server* s);
   DynHttpCommandManager();
   virtual ~DynHttpCommandManager();
-  int loadMethods(char* dir);
+  int loadMethods(const char* dir, XmlParser* p, Server* s);
   int clean();
-  DynamicHttpCommand* getMethodByName(char* name);
+  DynamicHttpCommand* getMethodByName(const char* name);
   DynamicHttpCommand* getMethodByNumber(int n);
   int size();
 

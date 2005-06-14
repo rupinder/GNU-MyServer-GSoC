@@ -135,7 +135,7 @@ DynHttpCommandManager::~DynHttpCommandManager()
 /*!
  *Load the plugins in te specified directory.
  */
-int DynHttpCommandManager::loadMethods(char* directory)
+int DynHttpCommandManager::loadMethods(const char* directory, XmlParser* p, Server* s)
 {
 	FindData fd;
   string filename;
@@ -174,7 +174,7 @@ int DynHttpCommandManager::loadMethods(char* directory)
     completeFileName.assign(directory);
     completeFileName.append("/");
     completeFileName.append(fd.name);
-		//addMethod(completeFileName.c_str(), parser, confFile, lserver);
+		addMethod(completeFileName.c_str(), p, s);
 	}while(!fd.findnext());
 	fd.findclose();
   return 0;
@@ -183,7 +183,7 @@ int DynHttpCommandManager::loadMethods(char* directory)
 /*!
  *Add a new method to the list. Returns 0 on success.
  */
-int DynHttpCommandManager::addMethod(char* fileName, XmlParser* p, Server* s)
+int DynHttpCommandManager::addMethod(const char* fileName, XmlParser* p, Server* s)
 {
   DynamicHttpCommand *mod = new DynamicHttpCommand();
   char * methodName=0;
@@ -222,7 +222,7 @@ int DynHttpCommandManager::clean()
 /*!
  *Get a method by its name. Returns 0 on errors.
  */
-DynamicHttpCommand* DynHttpCommandManager::getMethodByName(char* name)
+DynamicHttpCommand* DynHttpCommandManager::getMethodByName(const char* name)
 {
   return (DynamicHttpCommand*)data.getData(name);
 }
