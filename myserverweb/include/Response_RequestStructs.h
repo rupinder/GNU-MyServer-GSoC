@@ -140,16 +140,16 @@ struct HttpRequestHeader
 	int uriEndsWithSlash;
 	
 	/*! Digest authorization scheme stuff.  */
-	char digest_realm[48+1];
-	char digest_opaque[48+1];
-	char digest_nonce[48+1];
-	char digest_cnonce[48+1];
-	char digest_uri[1024+1];
-	char digest_method[16+1];		
-	char digest_username[48+1];
-	char digest_response[48+1];
-	char digest_qop[16+1];
-	char digest_nc[10+1];
+	char digestRealm[48+1];
+	char digestOpaque[48+1];
+	char digestNonce[48+1];
+	char digestCnonce[48+1];
+	char digestUri[1024+1];
+	char digestMethod[16+1];		
+	char digestUsername[48+1];
+	char digestResponse[48+1];
+	char digestQop[16+1];
+	char digestNc[10+1];
 
   HttpRequestHeader();
   ~HttpRequestHeader();

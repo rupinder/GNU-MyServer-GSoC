@@ -84,7 +84,7 @@ private:
 	LogManager warningsLogFile;
 	LogManager accessesLogFile;
 
-  MimeManager mime_manager;
+  MimeManager mimeManager;
 
   /*! How many connections are using this virtual host? */
   int refCount;
@@ -108,7 +108,7 @@ private:
 	u_long throttlingRate;
 
 	/*! Protocol used by the vhost. */
-	string protocol_name;
+	string protocolName;
 
   /*! Additional data for log files. Defined in configuration files. */
 	string accessLogOpt;
@@ -224,11 +224,11 @@ public:
 
   /*! Get the protocol name for the virtual host. */
 	const char* getProtocolName()
-    {return protocol_name.c_str();};
+    {return protocolName.c_str();};
 
   /*! Set the protocol name for the virtual host. */
 	void setProtocolName(const char *name)
-    {protocol_name.assign(name);};
+    {protocolName.assign(name);};
 
   /*! 
    *Get the protocol used by the virtual host. 

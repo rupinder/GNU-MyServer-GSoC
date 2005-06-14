@@ -286,7 +286,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			ConnInfo->headerSent=1;
       
       /*! If only the header was requested return. */
-      if(ConnInfo->headerSent && ConnInfo->only_header)
+      if(ConnInfo->headerSent && ConnInfo->onlyHeader)
         return 0;
 
 			/*!Send the first chunk. */
@@ -647,7 +647,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
  */
 int Isapi::send(HttpThreadContext* td,ConnectionPtr connection, 
                 const char* scriptpath, const char *cgipath, 
-                int execute,int only_header)
+                int execute,int onlyHeader)
 {
 /*!
  *ISAPI works only on the windows architecture.
@@ -715,7 +715,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	}
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
-  connTable[connIndex].only_header = only_header;
+  connTable[connIndex].onlyHeader = onlyHeader;
 	connTable[connIndex].headerSent=0;
 	connTable[connIndex].headerSize=0;
 	connTable[connIndex].dataSent=0;
@@ -909,7 +909,7 @@ int Isapi::load(XmlParser*/* confFile*/)
   for(int i=0;i<max_Connections; i++)
   {
    	connTable[i].Allocated=0;
-    connTable[i].only_header=0;
+    connTable[i].onlyHeader=0;
 	  connTable[i].headerSent=0;
 	  connTable[i].headerSize=0;
 	  connTable[i].td=0;

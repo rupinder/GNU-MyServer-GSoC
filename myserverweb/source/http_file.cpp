@@ -41,7 +41,7 @@ extern "C"
  *Send a file to the client using the HTTP protocol.
  */
 int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath, 
-                   const char* /*exec*/,int only_header)
+                   const char* /*exec*/,int onlyHeader)
 {
 	/*!
    *With this routine we send a file through the HTTP protocol.
@@ -190,7 +190,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
      *If is requested only the header exit from the function; 
      *used by the HEAD request.  
      */
-    if(only_header)
+    if(onlyHeader)
     {
       h.closeFile();
       return 1;

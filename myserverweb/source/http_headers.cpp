@@ -656,7 +656,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,"\" ");
-              myserver_strlcpy(td->request.digest_nonce,digestToken,48+1);
+              myserver_strlcpy(td->request.digestNonce,digestToken,48+1);
             }
 					}
 					else if(!lstrcmpi(digestToken,"opaque"))
@@ -665,7 +665,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,"\" ");
-              myserver_strlcpy(td->request.digest_opaque,digestToken,48+1);
+              myserver_strlcpy(td->request.digestOpaque,digestToken,48+1);
             }
 					}
 					else if(!lstrcmpi(digestToken,"uri"))
@@ -674,7 +674,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,"\" ");
-              myserver_strlcpy(td->request.digest_uri,digestToken,1024+1);
+              myserver_strlcpy(td->request.digestUri,digestToken,1024+1);
             }
 					}
 					else if(!lstrcmpi(digestToken,"method"))
@@ -683,7 +683,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,"\" ");
-              myserver_strlcpy(td->request.digest_method,digestToken,16+1);
+              myserver_strlcpy(td->request.digestMethod,digestToken,16+1);
             }
 					}	
 					else if(!lstrcmpi(digestToken,"qop"))
@@ -692,7 +692,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,"\" ");
-              myserver_strlcpy(td->request.digest_qop,digestToken,16+1);
+              myserver_strlcpy(td->request.digestQop,digestToken,16+1);
             }
 					}					
 					else if(!lstrcmpi(digestToken,"realm"))
@@ -701,7 +701,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,"\" ");
-              myserver_strlcpy(td->request.digest_realm,digestToken,48+1);
+              myserver_strlcpy(td->request.digestRealm,digestToken,48+1);
             }
 					}
 					else if(!lstrcmpi(digestToken,"cnonce"))
@@ -710,7 +710,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken," \"");
-              myserver_strlcpy(td->request.digest_cnonce, digestToken, 48+1);
+              myserver_strlcpy(td->request.digestCnonce, digestToken, 48+1);
             }
 					}
 					else if(!lstrcmpi(digestToken, "username"))
@@ -719,7 +719,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, "\" ");
-              myserver_strlcpy(td->request.digest_username, digestToken, 48+1);
+              myserver_strlcpy(td->request.digestUsername, digestToken, 48+1);
               td->connection->setLogin(digestToken);
             }
 					}
@@ -729,7 +729,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
              {
                StrTrim(digestToken,"\" ");
-               myserver_strlcpy(td->request.digest_response,digestToken,48+1);
+               myserver_strlcpy(td->request.digestResponse,digestToken,48+1);
              }
 					}
 					else if(!lstrcmpi(digestToken,"nc"))
@@ -738,7 +738,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,"\" ");
-              myserver_strlcpy(td->request.digest_nc,digestToken,10+1);
+              myserver_strlcpy(td->request.digestNc,digestToken,10+1);
             }
 					}
 					else 

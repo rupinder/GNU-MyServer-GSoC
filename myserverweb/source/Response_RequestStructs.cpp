@@ -72,16 +72,16 @@ void HttpRequestHeader::free()
 	RANGEBYTEBEGIN=0;
 	RANGEBYTEEND=0;
 	uriEndsWithSlash=0;
-	digest_realm[0]='\0';
-	digest_opaque[0]='\0';
-	digest_nonce[0]='\0';
-	digest_cnonce[0]='\0';
-	digest_uri[0]='\0';
-	digest_method[0]='\0';
-	digest_username[0]='\0';
-	digest_response[0]='\0';
-	digest_qop[0]='\0';
-	digest_nc[0]='\0';
+	digestRealm[0]='\0';
+	digestOpaque[0]='\0';
+	digestNonce[0]='\0';
+	digestCnonce[0]='\0';
+	digestUri[0]='\0';
+	digestMethod[0]='\0';
+	digestUsername[0]='\0';
+	digestResponse[0]='\0';
+	digestQop[0]='\0';
+	digestNc[0]='\0';
 }
 
 

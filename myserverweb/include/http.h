@@ -52,13 +52,13 @@ public:
 	/*! Cnonce string used by Digest authorization scheme.  */
 	char cnonce[48];
 	/*! Password string used by Digest authorization scheme.  */
-	char needed_password[32];
+	char neededPassword[32];
 	/*! Nonce count used by Digest authorization scheme.  */
 	u_long nc;
 	/*! Nonzero if the user was authenticated trough the Digest scheme.  */
 	int digest;
 	/*! Nonzero if the digest was already checked.  */
-	int digest_checked;
+	int digestChecked;
   HttpUserData();
   ~HttpUserData();
 	void reset();
@@ -67,20 +67,20 @@ public:
 class Http : public Protocol
 {
 private:
-  static Mutex sec_cache_mutex;
-  static SecurityCache sec_cache;
+  static Mutex secCacheMutex;
+  static SecurityCache secCache;
 	static int initialized;
 	/*! Store if the MSCGI library was loaded.  */
 	static int mscgiLoaded;
 	static string browseDirCSSpath;
-	static u_long gzip_threshold;
+	static u_long gzipThreshold;
 	static int useMessagesFiles;	
 	static vector<string*> defaultFilename;
-  static int cgi_timeout;
-  static int fastcgi_initial_port;
-  static int fastcgi_servers;
-  static int allow_vhost_mime;
-  static int allow_mscgi;
+  static int cgiTimeout;
+  static int fastcgiInitialPort;
+  static int fastcgiServers;
+  static int allowVhostMime;
+  static int allowMscgi;
 	MsCgi lmscgi;
 	WinCgi lwincgi;
 	Isapi lisapi;

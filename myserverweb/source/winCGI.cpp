@@ -80,7 +80,7 @@ u_long WinCgi::getTimeout()
  *Send the WinCGI data.
  */
 int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename, 
-                 int /*execute*/, int only_header)
+                 int /*execute*/, int onlyHeader)
 {
 #ifdef WIN32
   Process proc;
@@ -329,7 +329,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                                           &td->response);
 		s->socket.send((const char*)td->buffer->GetBuffer(),
                    (int)strlen((const char*)td->buffer->GetBuffer()), 0);
-    if(only_header)
+    if(onlyHeader)
     {
       OutFileHandle.closeFile();
       File::deleteFile(outFilePath);
@@ -345,7 +345,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   {
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
                                           &td->response);
-    if(only_header)
+    if(onlyHeader)
     {
       return 1;
     }

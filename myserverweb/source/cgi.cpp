@@ -60,13 +60,13 @@ using namespace std;
 /*!
  *By default use a timeout of 15 seconds on new processes.
  */
-int Cgi::cgi_timeout = MYSERVER_SEC(15);
+int Cgi::cgiTimeout = MYSERVER_SEC(15);
 
 /*!
  *Run the standard CGI and send the result to the client.
  */
 int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath, 
-              const char *cgipath, int execute, int only_header)
+              const char *cgipath, int execute, int onlyHeader)
 {
  	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
@@ -219,7 +219,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   /*! Execute the CGI process. */
   {
     Process cgiProc;
-    if( cgiProc.execHiddenProcess(&spi, cgi_timeout) )
+    if( cgiProc.execHiddenProcess(&spi, cgiTimeout) )
     {
       stdInFile.closeFile();
       stdOutFile.closeFile();
@@ -350,7 +350,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         /*! Remove the connection on sockets error. */
         return 0;
       }
-      if(only_header)
+      if(onlyHeader)
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
@@ -371,7 +371,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		}
 		else
     {
-      if(only_header)
+      if(onlyHeader)
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
@@ -703,7 +703,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
  */
 void Cgi::setTimeout(int nt)
 {
-   cgi_timeout = nt;
+   cgiTimeout = nt;
 }
 
 /*!
@@ -711,5 +711,5 @@ void Cgi::setTimeout(int nt)
  */
 int Cgi::getTimeout()
 {
-  return cgi_timeout;
+  return cgiTimeout;
 }

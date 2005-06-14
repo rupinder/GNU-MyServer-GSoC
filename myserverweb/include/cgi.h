@@ -30,12 +30,12 @@ extern const char *versionOfSoftware;
 
 class Cgi : public HttpDataHandler
 {
-  static int cgi_timeout;
+  static int cgiTimeout;
 public:
   static void setTimeout(int);
   static int getTimeout();
 	int send(HttpThreadContext*, ConnectionPtr s, const char* scriptpath, 
-           const char* exec, int execute, int only_header=0);
+           const char* exec, int execute, int onlyHeader=0);
 	static void buildCGIEnvironmentString(HttpThreadContext*, char*, int=1);
 };
 #endif

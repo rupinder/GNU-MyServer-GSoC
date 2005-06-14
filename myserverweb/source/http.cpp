@@ -67,16 +67,16 @@ extern "C"
 int Http::mscgiLoaded=0;
 
 /*! Allow the definition of a MIME file for host. */
-int Http::allow_vhost_mime=1;
+int Http::allowVhostMime=1;
 
 /*! Allow the possibility to use MSCGI. */
-int Http::allow_mscgi=1;
+int Http::allowMscgi=1;
 
 /*! Path to the .css file used by directory browsing.  */
 string Http::browseDirCSSpath;
 
 /*! Threshold value to send data in gzip.  */
-u_long Http::gzip_threshold=0;
+u_long Http::gzipThreshold=0;
 
 /*!Use files for HTTP errors?  */
 int Http::useMessagesFiles=0;
@@ -88,19 +88,19 @@ vector<string*> Http::defaultFilename;
 int Http::initialized=0;
 
 /*! If not specified differently use a timeout of 15 seconds.  */
-int Http::cgi_timeout=MYSERVER_SEC(15);
+int Http::cgiTimeout=MYSERVER_SEC(15);
 
 /*! Max number of FastCGI servers allowed to run. */
-int Http::fastcgi_servers;
+int Http::fastcgiServers;
 
 /*! Cache for security files. */
-SecurityCache Http::sec_cache;
+SecurityCache Http::secCache;
 
 /*! Access the security cache safely. */
-Mutex Http::sec_cache_mutex;
+Mutex Http::secCacheMutex;
 
 /*! Initial port for FastCGI servers. */
-int Http::fastcgi_initial_port=3333;
+int Http::fastcgiInitialPort=3333;
 
 /*!
  *Build a response for an OPTIONS request.
@@ -229,7 +229,7 @@ int Http::allowHTTPTRACE(HttpThreadContext* td, ConnectionPtr s)
  */
 int Http::getCGItimeout()
 {
-  return cgi_timeout;
+  return cgiTimeout;
 }
 
 /*!
@@ -311,23 +311,23 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.directory = directory.c_str();
       st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
       st.filename = filename.c_str();
-      st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
+      st.password2 = ((HttpUserData*)s->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
-      sec_cache_mutex.lock();
+      secCacheMutex.lock();
       try
       {
-        permissions=sec_cache.getPermissionMask(&st);
-        sec_cache_mutex.unlock();  
+        permissions=secCache.getPermissionMask(&st);
+        secCacheMutex.unlock();  
       }
       catch(...)
       {
-        sec_cache_mutex.unlock();
+        secCacheMutex.unlock();
         throw;
       };
     }
     else/*! The default user is Guest with a null password. */
     {
-      sec_cache_mutex.lock();
+      secCacheMutex.lock();
       try
       {
         st.user = "Guest";
@@ -337,12 +337,12 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
         st.filename = filename.c_str();
         st.password2 = 0;
         st.permission2 = 0;
-        permissions=sec_cache.getPermissionMask(&st);
-        sec_cache_mutex.unlock();
+        permissions=secCache.getPermissionMask(&st);
+        secCacheMutex.unlock();
       }
       catch(...)
       {
-        sec_cache_mutex.unlock();
+        secCacheMutex.unlock();
         throw;
       };
     }
@@ -359,12 +359,12 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     {
       if(!td->request.AUTH.compare("Digest"))
       {
-        if(!((HttpUserData*)s->protocolBuffer)->digest_checked)
+        if(!((HttpUserData*)s->protocolBuffer)->digestChecked)
           ((HttpUserData*)s->protocolBuffer)->digest = checkDigest(td, s);
-        ((HttpUserData*)s->protocolBuffer)->digest_checked=1;
+        ((HttpUserData*)s->protocolBuffer)->digestChecked=1;
         if(((HttpUserData*)s->protocolBuffer)->digest==1)
         {
-          s->setPassword(((HttpUserData*)s->protocolBuffer)->needed_password);
+          s->setPassword(((HttpUserData*)s->protocolBuffer)->neededPassword);
           permissions=permissions2;
         }
       }
@@ -385,15 +385,15 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password2 = 0;
       st.permission2 = 0;
       
-      sec_cache_mutex.lock();
+      secCacheMutex.lock();
       try
       {
-        permissions=sec_cache.getPermissionMask(&st);		
-        sec_cache_mutex.unlock();
+        permissions=secCache.getPermissionMask(&st);		
+        secCacheMutex.unlock();
       }
       catch(...)
       {
-        sec_cache_mutex.unlock();
+        secCacheMutex.unlock();
         throw;
       };
     }
@@ -581,17 +581,17 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.directory = directory.c_str();
       st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
       st.filename = filename.c_str();
-      st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
+      st.password2 = ((HttpUserData*)s->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
-      sec_cache_mutex.lock();
+      secCacheMutex.lock();
       try
       {
-        permissions=sec_cache.getPermissionMask(&st);
-        sec_cache_mutex.unlock();
+        permissions=secCache.getPermissionMask(&st);
+        secCacheMutex.unlock();
       }
       catch(...)
       {
-        sec_cache_mutex.unlock();
+        secCacheMutex.unlock();
         throw;
       };
     }
@@ -604,15 +604,15 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.filename = filename.c_str();
       st.password2 = 0;
       st.permission2 = 0;
-      sec_cache_mutex.lock();
+      secCacheMutex.lock();
       try
       {
-        permissions=sec_cache.getPermissionMask(&st);
-        sec_cache_mutex.unlock();
+        permissions=secCache.getPermissionMask(&st);
+        secCacheMutex.unlock();
       }
       catch(...)
       {
-        sec_cache_mutex.unlock();
+        secCacheMutex.unlock();
         throw;
       };
     }	
@@ -628,12 +628,12 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     {
       if(!td->request.AUTH.compare("Digest"))
       {
-        if(!((HttpUserData*)s->protocolBuffer)->digest_checked)
+        if(!((HttpUserData*)s->protocolBuffer)->digestChecked)
           ((HttpUserData*)s->protocolBuffer)->digest = checkDigest(td, s);
-        ((HttpUserData*)s->protocolBuffer)->digest_checked=1;
+        ((HttpUserData*)s->protocolBuffer)->digestChecked=1;
         if(((HttpUserData*)s->protocolBuffer)->digest==1)
         {
-          s->setPassword(((HttpUserData*)s->protocolBuffer)->needed_password);
+          s->setPassword(((HttpUserData*)s->protocolBuffer)->neededPassword);
            permissions=permissions2;
         }
       }
@@ -654,15 +654,15 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.filename = filename.c_str();
       st.password2 = 0;
       st.permission2 = 0;
-      sec_cache_mutex.lock();
+      secCacheMutex.lock();
       try
       {
-        permissions=sec_cache.getPermissionMask(&st);	
-        sec_cache_mutex.unlock();
+        permissions=secCache.getPermissionMask(&st);	
+        secCacheMutex.unlock();
       }
       catch(...)
       {
-        sec_cache_mutex.unlock();
+        secCacheMutex.unlock();
         throw;
       };
     }
@@ -708,14 +708,14 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
   char *uri;
 	u_long digest_count;
   /*! Return 0 if the password is different. */
-	if(td->request.digest_opaque[0] && lstrcmp(td->request.digest_opaque, 
+	if(td->request.digestOpaque[0] && lstrcmp(td->request.digestOpaque, 
                                              ((HttpUserData*)s->protocolBuffer)->opaque))
 		return 0;
   /*! If is not equal return 0. */
-	if(lstrcmp(td->request.digest_realm, ((HttpUserData*)s->protocolBuffer)->realm))
+	if(lstrcmp(td->request.digestRealm, ((HttpUserData*)s->protocolBuffer)->realm))
 		return 0;
 	
-	digest_count = hexToInt(td->request.digest_nc);
+	digest_count = hexToInt(td->request.digestNc);
 	
 	if(digest_count != ((HttpUserData*)s->protocolBuffer)->nc+1)
 		return 0;
@@ -724,8 +724,8 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
    
 	md5.init();
 	td->buffer2->SetLength(0);
-	*td->buffer2 << td->request.digest_username << ":" << td->request.digest_realm 
-               << ":" << ((HttpUserData*)s->protocolBuffer)->needed_password;
+	*td->buffer2 << td->request.digestUsername << ":" << td->request.digestRealm 
+               << ":" << ((HttpUserData*)s->protocolBuffer)->neededPassword;
 
 	md5.update((unsigned char const*)td->buffer2->GetBuffer(), 
              (unsigned int)td->buffer2->GetLength());
@@ -733,8 +733,8 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	
 	md5.init();
 
-	if(td->request.digest_uri[0])
-		uri=td->request.digest_uri;
+	if(td->request.digestUri[0])
+		uri=td->request.digestUri;
   else
     uri=(char*)td->request.URIOPTS.c_str();
 
@@ -747,13 +747,13 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 	md5.init();
 	td->buffer2->SetLength(0);
 	*td->buffer2 << A1 << ":"  << ((HttpUserData*)s->protocolBuffer)->nonce << ":" 
-               << td->request.digest_nc << ":"  << td->request.digest_cnonce << ":" 
-               << td->request.digest_qop  << ":" << A2;
+               << td->request.digestNc << ":"  << td->request.digestCnonce << ":" 
+               << td->request.digestQop  << ":" << A2;
 	md5.update((unsigned char const*)td->buffer2->GetBuffer(), 
              (unsigned int)td->buffer2->GetLength());
 	md5.end(response);	
 
-	if(!lstrcmp(response, td->request.digest_response))
+	if(!lstrcmp(response, td->request.digestResponse))
 		return 1;
 	return 0;
 }
@@ -783,8 +783,8 @@ void HttpUserData::reset()
 	opaque[0]='\0';
 	nonce[0]='\0';
 	cnonce[0]='\0';
-	digest_checked=0;
-	needed_password[0]='\0';
+	digestChecked=0;
+	neededPassword[0]='\0';
 	nc=0;
 	digest=0;
 }
@@ -794,7 +794,7 @@ void HttpUserData::reset()
  *Main function to send a resource to a client.
  */
 int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI, 
-                           int systemrequest, int only_header, int yetmapped)
+                           int systemrequest, int onlyHeader, int yetmapped)
 {
 	/*!
    *With this code we manage a request of a file or a directory or anything 
@@ -894,17 +894,17 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.directory = directory.c_str();
         st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
         st.filename = filename.c_str();
-        st.password2 = ((HttpUserData*)s->protocolBuffer)->needed_password;
+        st.password2 = ((HttpUserData*)s->protocolBuffer)->neededPassword;
         st.permission2 = &permissions2;
-        sec_cache_mutex.lock();
+        secCacheMutex.lock();
         try
         {
-          permissions=sec_cache.getPermissionMask(&st);
-          sec_cache_mutex.unlock();
+          permissions=secCache.getPermissionMask(&st);
+          secCacheMutex.unlock();
         }
         catch(...)
         {
-          sec_cache_mutex.unlock();
+          secCacheMutex.unlock();
           throw;
         };
       }
@@ -917,15 +917,15 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.filename = filename.c_str();
         st.password2 = 0;
         st.permission2 = 0;
-        sec_cache_mutex.lock();
+        secCacheMutex.lock();
         try
         {
-          permissions=sec_cache.getPermissionMask(&st);
-          sec_cache_mutex.unlock();
+          permissions=secCache.getPermissionMask(&st);
+          secCacheMutex.unlock();
         }
         catch(...)
         {
-          sec_cache_mutex.unlock();
+          secCacheMutex.unlock();
           throw;
         };
       }	
@@ -935,14 +935,14 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
 		  {
         if(!td->request.AUTH.compare("Digest"))
 			  {
-          if(!((HttpUserData*)s->protocolBuffer)->digest_checked)
+          if(!((HttpUserData*)s->protocolBuffer)->digestChecked)
             ((HttpUserData*)s->protocolBuffer)->digest = checkDigest(td, s);
 
-          ((HttpUserData*)s->protocolBuffer)->digest_checked=1;
+          ((HttpUserData*)s->protocolBuffer)->digestChecked=1;
 
           if(((HttpUserData*)s->protocolBuffer)->digest==1)
           {
-            s->setPassword(((HttpUserData*)s->protocolBuffer)->needed_password);
+            s->setPassword(((HttpUserData*)s->protocolBuffer)->neededPassword);
             permissions=permissions2;
           }
         }
@@ -963,15 +963,15 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         st.filename = filename.c_str();
         st.password2 = 0;
         st.permission2 = 0;
-        sec_cache_mutex.lock();
+        secCacheMutex.lock();
         try
         {
-          permissions=sec_cache.getPermissionMask(&st);
-          sec_cache_mutex.unlock();
+          permissions=secCache.getPermissionMask(&st);
+          secCacheMutex.unlock();
         }
         catch(...)
         {
-          sec_cache_mutex.unlock();
+          secCacheMutex.unlock();
           throw;
         };
       }
@@ -1114,7 +1114,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
           return ret;
         }
       }
-      return lhttp_dir.send(td, s, td->filenamePath.c_str(), 0, only_header);
+      return lhttp_dir.send(td, s, td->filenamePath.c_str(), 0, onlyHeader);
     }
     
     if(!File::fileExists(td->filenamePath.c_str()))
@@ -1142,7 +1142,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         return sendAuth(td, s);
       }
-      ret = lcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0,  only_header);
+      ret = lcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0,  onlyHeader);
       return ret;
     }
     else if(mimeCMD==CGI_CMD_EXECUTE )
@@ -1151,7 +1151,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
 		  {
         return sendAuth(td, s);
       }
-      ret = lcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, only_header);
+      ret = lcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, onlyHeader);
       return ret;
     }
     else if(mimeCMD == CGI_CMD_RUNISAPI)
@@ -1161,7 +1161,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         return sendAuth(td, s);
       }
       ret = lisapi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0, 
-                        only_header);
+                        onlyHeader);
       return ret;
 
     }
@@ -1172,13 +1172,13 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         return sendAuth(td, s);
       }
       ret = lisapi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, 
-                        only_header);
+                        onlyHeader);
       return ret;
     }
     else if( mimeCMD == CGI_CMD_RUNMSCGI )
     {
       char* target;
-      if((!allow_mscgi) || (!(permissions & MYSERVER_PERMISSION_EXECUTE)))
+      if((!allowMscgi) || (!(permissions & MYSERVER_PERMISSION_EXECUTE)))
       {
         return sendAuth(td, s);
       }
@@ -1189,7 +1189,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       /*! Check if the MSCGI library is loaded. */
       if(mscgiLoaded)
       {
-        ret=lmscgi.send(td, s, td->filenamePath.c_str(), target, 1, only_header);
+        ret=lmscgi.send(td, s, td->filenamePath.c_str(), target, 1, onlyHeader);
         return ret;
       }
       return raiseHTTPError(td, s, e_500);
@@ -1209,7 +1209,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         cgipath << td->filenamePath;
       }
-      ret=lwincgi.send(td, s, cgipath.str().c_str(), 1, only_header);
+      ret=lwincgi.send(td, s, cgipath.str().c_str(), 1, onlyHeader);
       return ret;
     }
     else if( mimeCMD == CGI_CMD_RUNFASTCGI )
@@ -1219,7 +1219,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         return sendAuth(td, s);
       }	
       ret = lfastcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0, 
-                          only_header);
+                          onlyHeader);
       return ret;
     }
     else if(mimeCMD==CGI_CMD_EXECUTEFASTCGI)
@@ -1229,7 +1229,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         return sendAuth(td, s);
       }
       ret = lfastcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, 
-                          only_header);
+                          onlyHeader);
       return ret;
     }
     else if( mimeCMD == CGI_CMD_SENDLINK )
@@ -1278,7 +1278,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
       {
         string uri;
         uri.assign(linkpath);
-        ret = sendHTTPResource(td, s, uri, systemrequest, only_header, 1);
+        ret = sendHTTPResource(td, s, uri, systemrequest, onlyHeader, 1);
       }
       else
         ret = raiseHTTPError(td, s, e_404);
@@ -1307,7 +1307,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         return sendHTTPNonModified(td, s);
       }
     }
-    ret = lhttp_file.send(td, s, td->filenamePath.c_str(), 0, only_header);
+    ret = lhttp_file.send(td, s, td->filenamePath.c_str(), 0, onlyHeader);
   }
   catch(...)
   {
@@ -1423,7 +1423,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     td.lastError = 0;
     td.lhttp=this;
     td.appendOutputs=0;
-    td.only_header = 0;
+    td.onlyHeader = 0;
     td.inputData.setHandle((FileHandle)0);
     td.outputData.setHandle((FileHandle)0);
     td.filenamePath.assign("");
@@ -1475,7 +1475,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     }
 	
     if(a->protocolBuffer)
-      ((HttpUserData*)a->protocolBuffer)->digest_checked=0;	
+      ((HttpUserData*)a->protocolBuffer)->digestChecked=0;	
 	
     /*!
      *If the validRequest cointains an error code send it to the user.
@@ -1966,7 +1966,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       /*! HEAD REQUEST. */
       else if(!td.request.CMD.compare("HEAD"))
       {
-        td.only_header = 1;
+        td.onlyHeader = 1;
         if(!td.request.RANGETYPE.compare("bytes"))
           ret = sendHTTPResource(&td, a,  td.request.URI, 0, 1);
         else
@@ -2154,15 +2154,15 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
       string defFile;
       int ret;
       td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
-      sec_cache_mutex.lock();
+      secCacheMutex.lock();
       /*! 
        *The specified error file name must be in the web directory 
        *of the virtual host. 
        */
-      ret = sec_cache.getErrorFileName(((Vhost*)a->host)->getDocumentRoot(), 
+      ret = secCache.getErrorFileName(((Vhost*)a->host)->getDocumentRoot(), 
                                        getHTTPStatusCodeFromErrorID(ID),
                                        ((Vhost*)(a->host))->getSystemRoot(), defFile);
-      sec_cache_mutex.unlock();
+      secCacheMutex.unlock();
       if(ret == -1)
       {
         sendHTTPhardError500(td, a);
@@ -2204,7 +2204,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     {
         string tmp;
         tmp.assign(HTTP_ERROR_HTMLS[ID]);
-        return sendHTTPResource(td, a, tmp, 1, td->only_header);
+        return sendHTTPResource(td, a, tmp, 1, td->onlyHeader);
     }
 
   
@@ -2261,7 +2261,7 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
                     (u_long)td->buffer2->GetLength(), 0)!= -1)
 	{
 		/*! Send the body. */
-    if(!td->only_header)
+    if(!td->onlyHeader)
    		a->socket.send(hardHTML, (u_long)strlen(hardHTML), 0);
 	}
 	return 0;
@@ -2276,7 +2276,7 @@ MimeManager::MimeRecord* Http::getMIME(HttpThreadContext* td, string &filename)
   string ext;
 	File::getFileExt(ext, filename);
 	
-  if(allow_vhost_mime && ((Vhost*)(td->connection->host))->isMIME() )
+  if(allowVhostMime && ((Vhost*)(td->connection->host))->isMIME() )
   {
     return ((Vhost*)(td->connection->host))->getMIME()->getRecord(ext);
   }
@@ -2359,7 +2359,7 @@ const char* Http::getBrowseDirCSSFile()
  */
 u_long Http::getGzipThreshold()
 {
-  return gzip_threshold;
+  return gzipThreshold;
 }
 
 /*!
@@ -2451,16 +2451,16 @@ int Http::loadProtocol(XmlParser* languageParser)
 
   main_configuration_file = lserver->getMainConfFile();
 
-  sec_cache_mutex.init();
+  secCacheMutex.init();
 		
 	/*! 
    *Store defaults value.  
    *By default use GZIP with files bigger than a MB.  
    */
-  cgi_timeout = MYSERVER_SEC(15);
-  fastcgi_servers = 25;
-  fastcgi_initial_port = 3333;
-	gzip_threshold=1<<20;
+  cgiTimeout = MYSERVER_SEC(15);
+  fastcgiServers = 25;
+  fastcgiInitialPort = 3333;
+	gzipThreshold=1<<20;
 	useMessagesFiles=1;
 	browseDirCSSpath.assign("");
 
@@ -2492,40 +2492,40 @@ int Http::loadProtocol(XmlParser* languageParser)
 	data=configurationFileManager.getValue("GZIP_THRESHOLD");
 	if(data)
 	{
-		gzip_threshold=atoi(data);
+		gzipThreshold=atoi(data);
 	}	
 	data=configurationFileManager.getValue("ALLOW_VHOST_MIME");
 	if(data)
 	{
 
     if(!strcmpi(data, "YES"))
-      allow_vhost_mime=1;
+      allowVhostMime=1;
     else
-      allow_vhost_mime=0;      
+      allowVhostMime=0;      
 	}	
 	data=configurationFileManager.getValue("ALLOW_MSCGI");
 	if(data)
 	{
     if(!strcmpi(data, "YES"))
-      allow_mscgi=1;
+      allowMscgi=1;
     else
-      allow_mscgi=0;      
+      allowMscgi=0;      
 	}	
 
 	data=configurationFileManager.getValue("CGI_TIMEOUT");
 	if(data)
 	{
-		cgi_timeout=MYSERVER_SEC(atoi(data));
+		cgiTimeout=MYSERVER_SEC(atoi(data));
 	}	
 	data=configurationFileManager.getValue("FASTCGI_MAX_SERVERS");
 	if(data)
 	{
-    fastcgi_servers=atoi(data);
+    fastcgiServers=atoi(data);
 	}	
 	data=configurationFileManager.getValue("FASTCGI_INITIAL_PORT");
 	if(data)
 	{
-    fastcgi_initial_port=atoi(data);
+    fastcgiInitialPort=atoi(data);
 	}	
 	data=configurationFileManager.getValue("USE_ERRORS_FILES");
 	if(data)
@@ -2541,12 +2541,12 @@ int Http::loadProtocol(XmlParser* languageParser)
     browseDirCSSpath.append(data);
 	}
 
-  Cgi::setTimeout(cgi_timeout);
-  FastCgi::setTimeout(cgi_timeout);
-  WinCgi::setTimeout(cgi_timeout);
-  Isapi::setTimeout(cgi_timeout);
-  FastCgi::setMaxFcgiServers(fastcgi_servers);
-  FastCgi::setInitialPort(fastcgi_initial_port);
+  Cgi::setTimeout(cgiTimeout);
+  FastCgi::setTimeout(cgiTimeout);
+  WinCgi::setTimeout(cgiTimeout);
+  Isapi::setTimeout(cgiTimeout);
+  FastCgi::setMaxFcgiServers(fastcgiServers);
+  FastCgi::setInitialPort(fastcgiInitialPort);
 	/*! 
    *Determine the number of default filenames written in 
    *the configuration file.  
@@ -2625,9 +2625,9 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 	
   HttpDir::unload();
   
-  sec_cache.free();
+  secCache.free();
 
-  sec_cache_mutex.destroy();
+  secCacheMutex.destroy();
 
   for(int i=0; i<static_cast<int>(defaultFilename.size()); i++ )
   {

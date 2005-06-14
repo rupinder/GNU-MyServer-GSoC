@@ -34,7 +34,7 @@ using namespace std;
  *need a new process to run so it is faster.
  */
 int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
-                char* cmdLine, int /*execute*/, int only_header)
+                char* cmdLine, int /*execute*/, int onlyHeader)
 {
 	/*!
    *This is the code for manage a .mscgi file.
@@ -170,7 +170,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       /*! Internal server error. */
       return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
-    if(only_header)
+    if(onlyHeader)
     {
       return 1;
     }

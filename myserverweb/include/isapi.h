@@ -110,7 +110,7 @@ typedef struct _EXTENSION_CONTROL_BLOCK
 struct ConnTableRecord
 {
 	BOOL Allocated;
-  int only_header;
+  int onlyHeader;
 	int headerSent;
 	int headerSize;
 	HttpThreadContext *td;
@@ -152,7 +152,7 @@ public:
 	static void setTimeout(u_long);
   static u_long getTimeout();
 	int send(HttpThreadContext* td,ConnectionPtr connection, const char* scriptpath,
-           const char *cgipath, int execute, int only_header);
+           const char *cgipath, int execute, int onlyHeader);
 };
 
 #ifdef WIN32	

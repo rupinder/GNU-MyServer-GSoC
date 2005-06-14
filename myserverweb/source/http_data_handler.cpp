@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 int HttpDataHandler::send(HttpThreadContext*/* td*/, ConnectionPtr /*s*/, 
                           const char* /*filenamePath*/, const char* /*exec*/,
-                          int /*only_header*/)
+                          int /*onlyHeader*/)
 {
   return 0;
 }

@@ -82,7 +82,7 @@ Vhost::~Vhost()
   documentRoot.assign("");
 	systemRoot.assign("");
 
-  mime_manager.clean();
+  mimeManager.clean();
 }
 
 /*!
@@ -90,7 +90,7 @@ Vhost::~Vhost()
  */
 int Vhost::isMIME()
 {
-  return mime_manager.isLoaded();
+  return mimeManager.isLoaded();
 }
 
 /*!
@@ -98,7 +98,7 @@ int Vhost::isMIME()
  */
 MimeManager* Vhost::getMIME()
 {
-  return &mime_manager;
+  return &mimeManager;
 }
 
 /*!
@@ -1419,7 +1419,7 @@ int Vhost::initializeSSL()
   sslContext.method = 0;
 #ifndef DO_NOT_USE_SSL
 
-	dp = lserver->getDynProtocol(protocol_name.c_str());
+	dp = lserver->getDynProtocol(protocolName.c_str());
   if(this->protocol<1000 && !(dp && 
                               (dp->getOptions() & PROTOCOL_USES_SSL)) )
     return -2;

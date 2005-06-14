@@ -82,7 +82,7 @@ int FastCgi::getMaxFcgiServers()
  */
 int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                   const char* scriptpath, const char *cgipath, 
-                  int execute, int only_header)
+                  int execute, int onlyHeader)
 {
 	fCGIContext con;
 	FcgiBeginRequestBody tBody;
@@ -536,7 +536,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 				break;
 			}
 
-      if(only_header)
+      if(onlyHeader)
       {
         exit = 1;
         ret = 1;
@@ -553,7 +553,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		}
 		else/*! If appendOutputs. */
 		{
-      if(only_header)
+      if(onlyHeader)
       {
         exit = 1;
         ret = 1;

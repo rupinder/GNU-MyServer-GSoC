@@ -31,7 +31,7 @@ public:
   static int load(XmlParser*);
   static int unload();
 	int send(HttpThreadContext*, ConnectionPtr s, const char* directory, 
-                        const char* cgi, int only_header=0);
+                        const char* cgi, int onlyHeader=0);
   HttpDir();
   virtual ~HttpDir();
 };
