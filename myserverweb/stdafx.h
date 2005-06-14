@@ -54,11 +54,11 @@ extern "C"
 }
 #endif
 
-#ifdef PATH_MAX
-#define MAX_PATH PATH_MAX
-#endif
 
 #ifndef MAX_PATH
+#ifdef PATH_MAX
+#define MAX_PATH PATH_MAX
+#else
 #define MAX_PATH 255
 #endif
 
