@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/dynamiclib.h"
 #include "../include/http.h"
 #include "../include/http_headers.h"
-
+#include "../include/hash_dictionary.h"
 #include <string>
 using namespace std;
 
@@ -37,10 +37,10 @@ private:
 	string filename;
 	DynamicLibrary hinstLib;
 public:
-	char *getCommandName(char*,int len);
+	char *getCommandName(char* str,int len=0);
 	DynamicHttpCommand();
 	virtual ~DynamicHttpCommand();
-	int loadCommand(char*name, XmlParser*, Server*);
+	int loadCommand(const char*name, XmlParser*, Server*);
 	int loadCommand(string &name, XmlParser* p, Server* s)
     {return loadCommand(name.c_str(), p, s);}
 	int unloadCommand(XmlParser*);
@@ -49,4 +49,20 @@ public:
            string& Uri, int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
 };
 
+class DynHttpCommandManager
+{
+private:
+  HashDictionary data;
+public:
+  int addMethod(char* name, XmlParser* p, Server* s);
+  DynHttpCommandManager();
+  virtual ~DynHttpCommandManager();
+  int loadMethods(char* dir);
+  int clean();
+  DynamicHttpCommand* getMethodByName(char* name);
+  DynamicHttpCommand* getMethodByNumber(int n);
+  int size();
+
+
+};
 #endif

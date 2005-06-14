@@ -69,7 +69,7 @@ DynamicHttpCommand::~DynamicHttpCommand()
 /*!
  *Load the plugin. Returns 0 on success.
  */
-int DynamicHttpCommand::loadCommand(char* name, XmlParser* parser, Server* server)
+int DynamicHttpCommand::loadCommand(const char* name, XmlParser* parser, Server* server)
 {
   if(hinstLib.loadLibrary(name))
     return 1;
@@ -113,4 +113,132 @@ int DynamicHttpCommand::send(HttpThreadContext* context, ConnectionPtr* lpconnec
     return control(context, lpconnection, Uri.c_str(), systemrequest, OnlyHeader, yetmapped);
   else
     return 0;
+}
+
+
+/*!
+ *Initialize the object.
+ */
+DynHttpCommandManager::DynHttpCommandManager()
+{
+
+}
+
+/*!
+ *Destroy the object.
+ */
+DynHttpCommandManager::~DynHttpCommandManager()
+{
+
+}
+
+/*!
+ *Load the plugins in te specified directory.
+ */
+int DynHttpCommandManager::loadMethods(char* directory)
+{
+	FindData fd;
+  string filename;
+  int ret;
+  string completeFileName;
+#ifdef WIN32
+  filename.assign(directory);
+  filename.append("/*.*");
+#endif	
+
+#ifdef NOT_WIN
+	filename.assign(directory);
+#endif	
+	
+	ret = fd.findfirst(filename.c_str());	
+	
+  if(ret==-1)
+  {
+		return -1;	
+  }
+
+	do
+	{	
+		if(fd.name[0]=='.')
+			continue;
+		/*!
+     *Do not consider file other than dynamic libraries.
+     */
+#ifdef WIN32
+		if(!strstr(fd.name,".dll"))
+#endif
+#ifdef NOT_WIN
+		if(!strstr(fd.name,".so"))
+#endif		
+			continue;
+    completeFileName.assign(directory);
+    completeFileName.append("/");
+    completeFileName.append(fd.name);
+		//addMethod(completeFileName.c_str(), parser, confFile, lserver);
+	}while(!fd.findnext());
+	fd.findclose();
+  return 0;
+}
+
+/*!
+ *Add a new method to the list. Returns 0 on success.
+ */
+int DynHttpCommandManager::addMethod(char* fileName, XmlParser* p, Server* s)
+{
+  DynamicHttpCommand *mod = new DynamicHttpCommand();
+  char * methodName=0;
+  if(mod == 0)
+    return 1;
+  if(mod->loadCommand(fileName, p, s))
+  {
+    delete mod;
+    return 1;
+  }
+  methodName=mod->getCommandName(0);
+  if(!methodName)
+  {
+    delete mod;
+    return 1;
+  }  
+  data.insert(methodName, mod);
+  return 0;
+}
+
+/*!
+ *Clean everything.
+ */
+int DynHttpCommandManager::clean()
+{
+  for(int i=1; i <= data.nodesNumber(); i++)
+  {
+    DynamicHttpCommand* d=(DynamicHttpCommand*)data.getData(i);
+    if(d)
+      delete d;
+  }
+  data.free();
+  return 0;
+}
+
+/*!
+ *Get a method by its name. Returns 0 on errors.
+ */
+DynamicHttpCommand* DynHttpCommandManager::getMethodByName(char* name)
+{
+  return (DynamicHttpCommand*)data.getData(name);
+}
+
+/*!
+ *Get a method by its number in the list. Returns 0 on errors.
+ */
+DynamicHttpCommand* DynHttpCommandManager::getMethodByNumber(int i)
+{
+  return (DynamicHttpCommand*)data.getData(i);
+}
+
+/*!
+ *Returns how many plugins were loaded.
+ */
+int DynHttpCommandManager::size()
+{
+  return data.nodesNumber();
 }
