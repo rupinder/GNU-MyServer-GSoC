@@ -1967,10 +1967,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       else if(!td.request.CMD.compare("HEAD"))
       {
         td.onlyHeader = 1;
-        if(!td.request.RANGETYPE.compare("bytes"))
-          ret = sendHTTPResource(&td, a,  td.request.URI, 0, 1);
-        else
-          ret = sendHTTPResource(&td, a,  td.request.URI, 0, 1);
+        ret = sendHTTPResource(&td, a,  td.request.URI, 0, 1);
       }
       /*! DELETE REQUEST. */
       else if(!td.request.CMD.compare("DELETE"))
@@ -1980,10 +1977,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       /*! PUT REQUEST. */
       else if(!td.request.CMD.compare("PUT"))
       {
-        if(!td.request.RANGETYPE.compare("bytes"))
-          ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
-        else
-          ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
+        ret = putHTTPRESOURCE(&td, a, td.request.URI, 0, 1);
       }
       /*! OPTIONS REQUEST. */
       else if(!td.request.CMD.compare("OPTIONS"))
