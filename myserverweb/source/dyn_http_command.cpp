@@ -48,6 +48,7 @@ char *DynamicHttpCommand::getCommandName(char* out, int len)
   registerNamePROC name = (registerNamePROC)hinstLib.getProc("registerName");
   if(name)
     return name(out, len);
+  return 0;
 }
 
 /*!
@@ -69,7 +70,8 @@ DynamicHttpCommand::~DynamicHttpCommand()
 /*!
  *Load the plugin. Returns 0 on success.
  */
-int DynamicHttpCommand::loadCommand(const char* name, XmlParser* parser, Server* server)
+int DynamicHttpCommand::loadCommand(const char* name, XmlParser* parser, 
+                                    Server* server)
 {
   if(hinstLib.loadLibrary(name))
     return 1;
@@ -77,6 +79,7 @@ int DynamicHttpCommand::loadCommand(const char* name, XmlParser* parser, Server*
   errorParser=parser;
   if(load)
     return load(parser, server);
+  return 0;
 }
 
 /*!
@@ -87,6 +90,7 @@ int DynamicHttpCommand::unloadCommand(XmlParser*)
   unloadMethodPROC unload =(unloadMethodPROC) hinstLib.getProc("unloadMethod");
   if(unload)
     return unload(errorParser);
+  return 0;
 }
 
 /*!
@@ -135,7 +139,8 @@ DynHttpCommandManager::~DynHttpCommandManager()
 /*!
  *Load the plugins in te specified directory.
  */
-int DynHttpCommandManager::loadMethods(const char* directory, XmlParser* p, Server* s)
+int DynHttpCommandManager::loadMethods(const char* directory, 
+                                       XmlParser* p, Server* s)
 {
 	FindData fd;
   string filename;
@@ -183,7 +188,8 @@ int DynHttpCommandManager::loadMethods(const char* directory, XmlParser* p, Serv
 /*!
  *Add a new method to the list. Returns 0 on success.
  */
-int DynHttpCommandManager::addMethod(const char* fileName, XmlParser* p, Server* s)
+int DynHttpCommandManager::addMethod(const char* fileName, 
+                                     XmlParser* p, Server* s)
 {
   DynamicHttpCommand *mod = new DynamicHttpCommand();
   char * methodName=0;
