@@ -173,18 +173,18 @@ int DynamicProtocol::setFilename(const char *nf)
 int ProtocolsManager::addProtocol(const char *file, XmlParser* parser,
                                    char* confFile, Server* lserver)
 {
-  string log_buf;
+  string logBuf;
 	DynamicProtocolListElement* ne = new DynamicProtocolListElement();
 	ne->data.setFilename(file);
 	ne->data.loadProtocol(parser, lserver);
 	ne->next=list;
 	list=ne;
-  log_buf.assign(parser->getValue("MSG_LOADED"));
-  log_buf.append(" ");
-  log_buf.append(file);
-  log_buf.append(" --> ");
-  log_buf.append( ne->data.getProtocolName());
-  lserver->logWriteln( log_buf.c_str() );
+  logBuf.assign(parser->getValue("MSG_LOADED"));
+  logBuf.append(" ");
+  logBuf.append(file);
+  logBuf.append(" --> ");
+  logBuf.append( ne->data.getProtocolName());
+  lserver->logWriteln( logBuf.c_str() );
 	return 1;
 }
 

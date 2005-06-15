@@ -192,6 +192,7 @@ int DynHttpCommandManager::addMethod(const char* fileName,
                                      XmlParser* p, Server* s)
 {
   DynamicHttpCommand *mod = new DynamicHttpCommand();
+  string logBuf;
   char * methodName=0;
   if(mod == 0)
     return 1;
@@ -206,6 +207,12 @@ int DynHttpCommandManager::addMethod(const char* fileName,
     delete mod;
     return 1;
   }  
+  logBuf.assign(p->getValue("MSG_LOADED"));
+  logBuf.append(" ");
+  logBuf.append(fileName);
+  logBuf.append(" --> ");
+  logBuf.append(methodName);
+  s->logWriteln( logBuf.c_str() );
   data.insert(methodName, mod);
   return 0;
 }
