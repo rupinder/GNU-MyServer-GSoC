@@ -1,6 +1,5 @@
 myserverdatadir = $(root_prefix)/var/web/documentation/images
 
-dist_myserverdata_DATA = browsefolder.png confMIME.png consolescreen.png \
-control_file.png control_service.png myfiles.png myserver.png \
-runserver.jpg sample404.png webserver.png wiss1.jpg wiss2.jpg wiss3.jpg \
-wiss4.jpg
+dist_myserverdata_DATA = browsefolder.png   control_file.png myserver.png \
+         confMIME.png       control_service.png  sample404.png \
+	consolescreen.png   myfiles.png          webserver.png
