@@ -149,7 +149,7 @@ int DynHttpCommandManager::loadMethods(const char* directory,
   if(directory==0)
   {
     filename.assign(s->getExternalPath());
-    filename.append("/http_comands");
+    filename.append("/http_commands");
   }
   else
   {
@@ -159,7 +159,6 @@ int DynHttpCommandManager::loadMethods(const char* directory,
 #ifdef WIN32
   filename.append("/*.*");
 #endif	
-
 
 	ret = fd.findfirst(filename.c_str());	
 	
@@ -182,7 +181,7 @@ int DynHttpCommandManager::loadMethods(const char* directory,
 		if(!strstr(fd.name,".so"))
 #endif		
 			continue;
-    completeFileName.assign(directory);
+    completeFileName.assign(filename);
     completeFileName.append("/");
     completeFileName.append(fd.name);
 		addMethod(completeFileName.c_str(), p, s);

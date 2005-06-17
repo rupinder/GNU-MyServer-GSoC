@@ -1803,11 +1803,6 @@ int Server::loadSettings()
     vhostList->loadXMLConfigurationFile(vhost_configuration_file.c_str(), 
                                         this->getMaxLogFileSize());
     
-    Http::loadProtocol(&languageParser);
-    Https::loadProtocol(&languageParser);
-    ControlProtocol::loadProtocol(&languageParser);
-
-  
 #ifdef NOT_WIN
     if(File::fileExists("external"))
       externalPath.assign("external");
@@ -1828,6 +1823,10 @@ int Server::loadSettings()
 
 #endif
 
+    Http::loadProtocol(&languageParser);
+    Https::loadProtocol(&languageParser);
+    ControlProtocol::loadProtocol(&languageParser);
+
     /*! Load external protocols. */
     {
       string protocolsPath;
@@ -1836,7 +1835,7 @@ int Server::loadSettings()
       protocols.loadProtocols(protocolsPath.c_str(), &languageParser, 
                               "myserver.xml", this);
     }
-    
+
     logWriteln( languageParser.getValue("MSG_CREATET"));
 
     for(i=0; i<nStaticThreads; i++)
