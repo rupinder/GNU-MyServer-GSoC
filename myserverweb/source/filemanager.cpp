@@ -47,16 +47,17 @@ extern int mustEndServer;
 /*!
  *Diagram
  *This funtion iterates through every character of the path
- *	The first IF tries to clear out the bars, if it finds one, just advances one character and starts the cycle again
- *	The second IF tries to find at least two dots.
- *		if it finds only 1, does nothing,
- *		WIN32 if it finds 2 or more rec=rec-(number of dots -1)
- *		UNIX if it finds 2, decrements rec, if it finds more, increments it considering it's a name
- *		if it ends with something else other then a bar of a NULL,
- *			then it's a path of the form "/...qwerty/" that should be considered rec++
+ *The first IF tries to clear out the bars, if it finds one, 
+ *just advances one character and starts the cycle again
+ *The second IF tries to find at least two dots.
+ *	if it finds only 1, does nothing,
+ *	WIN32 if it finds 2 or more rec=rec-(number of dots -1)
+ *	UNIX if it finds 2, decrements rec, if it finds more, 
+ *  increments it considering it's a name if it ends with 
+ *  something else other then a bar of a NULL,
+ *	then it's a path of the form "/...qwerty/" that should be considered rec++
  *	The last ELSE, catches the rest and advances to the next bar.
  *Return the recursion of the path.
- *Return <0 on errors, >0 on oks.
  */
 int File::getPathRecursionLevel(const char* path)
 {
