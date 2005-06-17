@@ -1622,6 +1622,15 @@ int Server::connections_mutex_unlock()
 	connections_mutex->unlock();
 	return 1;
 }
+
+/*!
+ *Get where external protocols are.
+ */
+const char* Server::getExternalPath()
+{
+  return externalPath.c_str();
+}
+
 /*!
  *Load the main server settings.
  *Return nonzero on errors.

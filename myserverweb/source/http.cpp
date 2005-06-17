@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/isapi.h"
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
-
 #include <string>
 #include <ostream>
 
@@ -101,6 +100,9 @@ Mutex Http::secCacheMutex;
 
 /*! Initial port for FastCGI servers. */
 int Http::fastcgiInitialPort=3333;
+
+/*! Dynamic commands manager. */
+DynHttpCommandManager Http::dynCmdManager;
 
 /*!
  *Build a response for an OPTIONS request.
@@ -1410,6 +1412,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   u_long dataToRead=0;
   /*! Dimension of the POST data. */
 	int content_len=-1;
+  DynamicHttpCommand *dynamicCommand;
   try
   {
     td.buffer=((ClientsThread*)a->thread)->GetBuffer();
@@ -1517,7 +1520,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       td.outputDataPath.assign(streamOut.str());
     }
 
-    if((!td.request.CMD.compare("POST"))||(!td.request.CMD.compare("PUT")))
+    dynamicCommand=dynCmdManager.getMethodByName(td.request.CMD.c_str());
+
+    if((!td.request.CMD.compare("POST"))||(!td.request.CMD.compare("PUT")) || 
+       (dynamicCommand && dynamicCommand->acceptData() ))
     {
       if(td.request.CONTENT_TYPE.length() == 0)
         td.request.CONTENT_TYPE.assign("application/x-www-form-urlencoded");
@@ -1992,8 +1998,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       /*! Return Method not implemented(501). */
       else
       {
-        raiseHTTPError(&td, a, e_501);
-        retvalue=0;
+        if(!dynamicCommand)
+          ret=raiseHTTPError(&td, a, e_501);
+        else
+          retvalue=dynamicCommand->send(&td, a, td.request.URI, 0, 0, 0);
       }
       logHTTPaccess(&td, a);
     }
@@ -2481,6 +2489,8 @@ int Http::loadProtocol(XmlParser* languageParser)
   HttpFile::load(&configurationFileManager);
 	
   HttpDir::load(&configurationFileManager);
+
+  dynCmdManager.loadMethods(0, languageParser, lserver);
 	
 	/*! Determine the min file size that will use GZIP compression.  */
 	data=configurationFileManager.getValue("GZIP_THRESHOLD");
@@ -2602,6 +2612,8 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 {
 	 if(!initialized)
 		 return 0;
+
+   dynCmdManager.clean();
 	/*!
    *Clean ISAPI.
    */

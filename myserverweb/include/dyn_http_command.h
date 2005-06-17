@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/protocol.h"
 #include "../include/connectionstruct.h"
 #include "../include/dynamiclib.h"
-#include "../include/http.h"
 #include "../include/http_headers.h"
 #include "../include/hash_dictionary.h"
 #include <string>
@@ -45,7 +44,7 @@ public:
     {return loadCommand(name.c_str(), p, s);}
 	int unloadCommand(XmlParser*);
 	int acceptData();
-  int send(HttpThreadContext* context, ConnectionPtr* lpconnection, 
+  int send(HttpThreadContext* context, ConnectionPtr lpconnection, 
            string& Uri, int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
 };
 

@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/threads.h"
 #include "../include/http_file.h"
 #include "../include/http_dir.h"
+#include "../include/dyn_http_command.h"
 
 #include <string>
 #include <sstream>
@@ -81,6 +82,7 @@ private:
   static int fastcgiServers;
   static int allowVhostMime;
   static int allowMscgi;
+  static DynHttpCommandManager dynCmdManager;
 	MsCgi lmscgi;
 	WinCgi lwincgi;
 	Isapi lisapi;

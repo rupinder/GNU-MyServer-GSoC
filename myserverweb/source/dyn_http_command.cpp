@@ -109,7 +109,7 @@ int DynamicHttpCommand::acceptData()
 /*!
  *Control a request.
  */
-int DynamicHttpCommand::send(HttpThreadContext* context, ConnectionPtr* lpconnection, 
+int DynamicHttpCommand::send(HttpThreadContext* context, ConnectionPtr lpconnection, 
                              string& Uri, int systemrequest, int OnlyHeader, int yetmapped)
 {
   controlMethodPROC control = (controlMethodPROC)hinstLib.getProc("controlMethod");
@@ -146,15 +146,21 @@ int DynHttpCommandManager::loadMethods(const char* directory,
   string filename;
   int ret;
   string completeFileName;
+  if(directory==0)
+  {
+    filename.assign(s->getExternalPath());
+    filename.append("/http_comands");
+  }
+  else
+  {
+    filename.assign(directory);
+  }
+
 #ifdef WIN32
-  filename.assign(directory);
   filename.append("/*.*");
 #endif	
 
-#ifdef NOT_WIN
-	filename.assign(directory);
-#endif	
-	
+
 	ret = fd.findfirst(filename.c_str());	
 	
   if(ret==-1)

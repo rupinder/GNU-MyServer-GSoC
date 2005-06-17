@@ -162,6 +162,7 @@ public:
   const char *getMIMEConfFile();
   const char *getLanguagesPath();
   const char *getLanguageFile();
+  const char* getExternalPath();
   XmlParser* getLanguageParser();
 	Server();
 	~Server();
