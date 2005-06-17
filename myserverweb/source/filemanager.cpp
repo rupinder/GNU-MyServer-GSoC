@@ -45,56 +45,74 @@ using namespace std;
 extern int mustEndServer; 
 
 /*!
+ *Diagram
+ *This funtion iterates through every character of the path
+ *	The first IF tries to clear out the bars, if it finds one, just advances one character and starts the cycle again
+ *	The second IF tries to find at least two dots.
+ *		if it finds only 1, does nothing,
+ *		WIN32 if it finds 2 or more rec=rec-(number of dots -1)
+ *		UNIX if it finds 2, decrements rec, if it finds more, increments it considering it's a name
+ *		if it ends with something else other then a bar of a NULL,
+ *			then it's a path of the form "/...qwerty/" that should be considered rec++
+ *	The last ELSE, catches the rest and advances to the next bar.
  *Return the recursion of the path.
- *Return -1 on errors.
+ *Return <0 on errors, >0 on oks.
  */
 int File::getPathRecursionLevel(const char* path)
 {
-	char *lpath=0;
-  int lpath_len = strlen(path);
-	int rec=0;
-	char *token=0;
-  lpath = new char[lpath_len+1];
-  if(lpath == 0)
-    return -1;
-	strncpy(lpath,path, lpath_len);
-  lpath[lpath_len]='\0';
-  token = strtok( lpath, "\\/" );
-	do
+	const char *lpath=path;
+	int rec=0, temp;
+
+	while(*lpath!=0)
 	{
-		if(token != 0) 
+	/*! ".." decreases the recursion level. */
+		if( (*lpath=='\\') || (*lpath=='/') )
 		{
-			/*! ".." decreases the recursion level. */
-#ifdef WIN32
-      int allDots=1;
-      int i;
-      int tokenLen=strlen(token);
-      if(tokenLen>1)
-      {
-        for(i=0; i<strlen(token); i++)
-          if(token[i]!='.')
-          {
-            allDots=0;
-            break;
-          }
-      }
-      else
-        allDots=0;   
-      
-      if( (tokenLen>1) && allDots  )
-#else
-			if( !strcmp(token,"..")  )
-#endif
-				rec--;
-			/*! "." keeps recursion level equal to the previous. */
-			else if(strcmp(token,".") )
-			/*! Everything else increases it. */
-				rec++;
+			lpath++;
+			continue;
 		}
-		token = strtok( 0, "\\/" );
+		
+		if(*lpath=='.')
+		{
+			lpath++;
+#ifdef WIN32//--------------------------------
+			temp=0;
+			while(*lpath=='.')
+			{
+				lpath++;
+				temp++;
+			}
+			if( (*lpath=='\\') || (*lpath=='/') || (*lpath==0))
+				rec-=temp;
+			else
+			{
+				lpath++;
+				while( (*lpath!='\\') && (*lpath!='/') && (*lpath!=0))
+					lpath++;
+				rec++;
+			}
+#else		//--------------------------------
+			if(*lpath=='.')
+			{
+				lpath++;
+				if( (*lpath=='\\') || (*lpath=='/') || (*lpath==0))
+					rec--;
+				else
+				{
+					while( (*lpath!='\\') && (*lpath!='/') && (*lpath!=0))
+						lpath++;
+					rec++;
+				}
+			}
+#endif		//--------------------------------
+		}
+		else
+		{
+			while( (*lpath!='\\') && (*lpath!='/') && (*lpath!=0))
+				lpath++;
+			rec++;
+		}
 	}
-	while( token != 0 );
-  delete [] lpath;
 	return rec;
 }
 /*!
