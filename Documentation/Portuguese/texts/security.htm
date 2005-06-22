@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Documentation - Controling Access - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">CONTROLANDO O ACESSO<br />
+</h1>
+Para controlar o acesso a um arquivo, voc&ecirc; tem que colocar o arquivo <font class="code">security</font> 
+na pasta que gostaria de proteger.<br />
+<br />
+A sintaxe desse arquivo &eacute;:<br />
+<span class="code"> &lt;?xml version="1.0"?&gt; <br />
+  &lt;SECURITY&gt; <br />
+  &lt;HTTP TRACE=&quot;ON&quot; /&gt; <br />
+  &lt;AUTH TYPE=&quot;Basic&quot; /&gt;<br />
+  &lt;USER NAME="God" PASS="godpassword" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" 
+  EXECUTE="TRUE" /&gt; <br />
+  &lt;!--Aqui &eacute; a configura&ccedil;&atilde;o para o usu&aacute;rio--&gt; 
+  <br />
+  &lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt; <br />
+  &lt;!--O usu&aacute;rio guest--&gt; <br />
+  &lt;USER NAME="Tim" PASS="Tom" READ="TRUE" EXECUTE="TRUE" BROWSE="TRUE"/&gt; 
+  <br />
+  &lt;!--Outro usu&aacute;rio--&gt; <br />
+  &lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt; <br />
+  &lt;!--Define um arquivo e suas permiss&otilde;es--&gt; <br />
+  &lt;USER NAME="Jim" PASS="Morrison" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" 
+  /&gt;&nbsp <br />
+  &lt;!--Define as permiss&otilde;es de usu&aacute;rio para o arquivo--&gt; <br />
+  &lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt; 
+  <br />
+  &lt;!--Permiss&otilde;es do outro usu&aacute;rio para o arquivo--&gt; <br />
+  &lt;/ITEM&gt; <br />
+  &lt;--FIm do bloco de seguran&ccedil;a--&gt; <br />
+      &lt;/SECURITY&gt; </span> <br />
+      <br />
+      A linha <span class="code">&lt;HTTP TRACE=&quot;ON&quot; /&gt;</span> &eacute; 
+      opcional, e est&aacute; descrita na se&ccedil;&atilde;o que trata de <a href="virtualhosts.htm">Virtual 
+      Hosts</a>. Por favor, d&ecirc; uma olhada naquele link, se quiser saber 
+      sobre aquela linha. <br />
+      <br />
+      A linha <span class="code">&lt;AUTH TYPE=&quot;Basic&quot; /&gt;, </span>opcional, 
+        seleciona o esquema de autentica&ccedil;&atilde;o a ser usada para seu 
+        site. O valor default &eacute; o &quot;Basic&quot;, mas voc&ecirc; pode 
+        utilizar tamb&eacute;m o esquema &quot;Digest&quot;, ficando desse modo: 
+        <span class="code"><br />
+        <br />
+        &lt;AUTH TYPE=&quot;Digest&quot; /&gt;</span><br />
+        Se a linha n&atilde;o estiver contida no arquivo, ser&aacute; usada a 
+        autentica&ccedil;&atilde;o &quot;Basic&quot;.<br />
+        O esquema &quot;Digest&quot; &eacute; mais seguro, pois a senhas n&atilde;o 
+        trafegam em aberto, pela rede.<br />
+        <br />
+        O programa primeiro verifica se o usu&aacute;rio tem permiss&otilde;es 
+        no bloco do arquivo:<br />
+        <br />
+        <span class="code">&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" 
+        EXECUTE="TRUE" /&gt;</span><br />
+        <br />
+        Se n&atilde;o houver permiss&otilde;es definidas, o sistema tenta usar 
+        as permiss&otilde;es que est&atilde;o definidas para o arquivo:<br />
+        <br />
+        <span class="code">&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt; 
+        </span><br />
+        <br />
+        Se n&atilde;o pude encontrar nenhuma permiss&atilde;o para o arquivo, 
+        o sistema tenta usar as configura&ccedil;&otilde;es gerais para o usu&aacute;rio:<br />
+        <br />
+        <span class="code"> &lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt; 
+        </span><br />
+        <br />
+        Se o usu&aacute;rio n&atilde;o estiver definido, o sistema vai enviar 
+        um erro para o usu&aacute;rio. 
+         Se o arquivo de seguran&ccedil;a n&atilde;o estiver presente, um arquivo 
+          de seguran&ccedil;a default ser&aacute; usado pelo sistema. Esse arquivo 
+          default est&aacute; na pasta system.<br /><br />
+    </td></tr></table>
+</body>
+</html>

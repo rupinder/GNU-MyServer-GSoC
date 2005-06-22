@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Documentation - FastCGI - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title" >FastCGI<br>
+</h1>
+O FastCGI&nbsp; &eacute; uma extens&atilde;o ao CGI,
+n&atilde;o-dependente de linguagem, e que prov&ecirc; alta performance
+para aplica&ccedil;&otilde;es, pois n&atilde;o usa APIs
+espec&iacute;ficas de servidor. No FastCGI, voc&ecirc; n&atilde;o tem
+um processo separado para cada script requisitado.<br>
+<br>
+      Voc&ecirc; pode usar FastCGI no MyServer, bastando setar o <a
+ href="mimetypes.htm" class="code">MIME Type</a> para sua linguagem de script 
+      para rodar como um FastCGI (configure como <font class="code">RUNFASTCGI</font><span
+ style="color: rgb(0, 102, 0);"></span>).<br>
+<br>
+      Leia a se&ccedil;&atilde;o sobre <a class="code" href="php.html">PHP</a> 
+      sobre como usar PHP+FastCGI.<br>
+<br>
+Como no CGI, voc&ecirc; pode colocar um diret&oacute;rio <span
+ class="code">cgi-bin</span>
+dentro do <span class="code">web</span> no MyServer
+como visto abaixo, e colocar todas as suas aplica&ccedil;&otilde;es
+nele:<br>
+<br>
+<br>
+      <div style="text-align: center;"><img src="../images/myfiles.png" title=""
+ alt="Web folder" height="260" width="468" style="border: 1px solid #000000" /><br>
+</div>
+<div style="text-align: center;">A pasta cgi-bin est&aacute;
+diretamente abaixo da pasta web selecionada.
+</div>
+      <p><br>
+        <br>
+        <br>
+        Contudo, scripts de CGI podem ser colocados em qualquer lugar, contanto 
+        que suas localiza&ccedil;&otilde;es sejam indicadas no c&oacute;digo HTML.<br>
+        <br>
+      </p>
+      <h2 class="title">Servidores FastCGI Remotos </h2>
+      O MyServer tem a capacidade de usar um servidor FastCGI remoto. O seguinte 
+      MIME usa uma conex&atilde;o remota:<br />
+      <span class="code"> &lt;MIMETYPE&gt;<br />
+      &lt;EXT&gt;php&lt;/EXT&gt;<br />
+      &lt;MIME&gt;text/html&lt;/MIME&gt;<br />
+      &lt;CMD&gt;RUNFASTCGI&lt;/CMD&gt;<br />
+      <br />
+      &lt;MANAGER&gt;@host:port&lt;/MANAGER&gt;<br />
+      &lt;/MIMETYPE&gt;<br />
+      </span> <br />
+      A defini&ccedil;&atilde;o para um gerenciador remoto deve come&ccedil;ar 
+      com @.<br />
+      Se voc&ecirc; est&aacute; configurando os MIME types pela aplica&ccedil;&atilde;o 
+      Control Center, voc&ecirc; pode adicionar um servidor remotoadicionando 
+      a linha abaixo no formul&aacute;rio<br />
+      <span class="code">@HOST:PORT </span> no campo de caminho do FastCGI 
+      <br>
+        <br>
+        <br>
+        Por favor, veja o site oficial do <a href="http://www.fastcgi.com/"
+ target="_blank">FastCGI</a> para mais informa&ccedil;&otilde;es sobre o FastCGI.<br>
+        <br>
+      
+      </td></tr></table>
+</body>
+</html>

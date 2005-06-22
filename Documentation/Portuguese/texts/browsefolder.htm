@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Documentation - Browse Folder Index - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">NAVEGA&Ccedil;&Atilde;O DE PASTAS </h1>
+Quando um cliente requisita uma pasta (diret&oacute;rio, subdiret&oacute;rio) 
+do servidor, e o servidor n&atilde;o conseguir encontrar um arquivo default para 
+enviar, ele indexa a pasta e envia uma lista dos arquivos para o cliente. Isso 
+permite ao cliente navegar pela pasta e acessar qualquer arquivo dentro dela.<br>
+      <p style="text-align: center;"><img src="../images/browsefolder.png" alt="Browse Folder" width="730" height="371" /><br />
+        <br />
+        <div class="center"><small>Pasta indexada para Navega&ccedil;&atilde;o</small><br>
+        </div>
+        
+        <br>
+        Se voc&ecirc; quiser definir um estilo CSS para a p&aacute;gina 
+        de &iacute;ndice de pastas, voc&ecirc; pode modificar o arquivo<span
+ class="code"> myserver.xml.</span><br>
+        <br>
+        Localize a linha: <br><span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span><br />
+        e substitua <font  class="code">system/folderstyle.css</font> com o nome 
+        de seu arquivo .css. 
+        <p>O arquivo <font class="code">system/folderstyle.css</font> tem a forma 
+          default:<br />
+          <br />
+          <span
+  class="code">body { font-family: Arial; color: #000000;background-color:#FFFFFF 
+          }</span> <br>
+          <br>
+    </td></tr></table>
+</body>
+</html>

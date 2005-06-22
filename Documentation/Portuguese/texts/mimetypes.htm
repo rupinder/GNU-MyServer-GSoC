@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Documentation - MIME - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">MIME TYPES</h1>
+Voc&ecirc; pode modificar os MIME types usados pelo MyServer, alterando o arquivo 
+      "MIMEtypes.xml". O que segue &eacute; um exemplo de um arquivo .xml:<br />
+<br /><br />
+<p class="code">&lt;MIMETYPES&gt;<br />
+-<br />
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br />
+-<br />
+&nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br />
+&lt;EXT&gt;htm&lt;/EXT&gt;<br />
+&lt;MIME&gt;text/html&lt;/MIME&gt;<br />
+&lt;CMD&gt;SEND&lt;/CMD&gt;<br />
+&lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br />
+&lt;/MIMETYPE&gt;
+<br /><br />
+<br />
+  Cada linha descreve um MIME type diferente.<br /><br />
+<span class="code">&lt;EXT&gt;</span> &eacute; o tipo do arquivo<br />
+<br />
+<span class="code">&lt;MIME&gt;</span> &eacute; o Mime type.<br />
+<br />
+<span class="code">&lt;CMD&gt;</span> &eacute; o modo de enviar o arquivo ao cliente<br />
+<br />
+<span class="code">&lt;MANAGER&gt;</span> descreve o comando <span class="code">&lt;CMD&gt;</span>.<br />
+<br />
+Os seguintes valores para enviar o arquivo ao cliente s&atilde;o v&aacute;lidos 
+  na se&ccedil;&atilde;o <span class="code">&lt;MANAGER&gt;</span>:<br />
+<br /><br />
+<div align="left"> 
+  <ol>
+    <li><span class="code">SEND</span> - Envia o arquivo estaticamente como ele 
+      &eacute;. Esse comando &eacute; usado para extens&otilde;es de arquivo tais 
+      como .html e .jpg, que n&atilde;o precisam de interven&ccedil;&atilde;o 
+      externa do servidor web.</li>
+    <li><span class="code">RUNCGI</span> - Executa o script CGI indicado no caminho. 
+      &Eacute; usado para extens&otilde;es de arquivo tais como .php e .pl, necess&aacute;rios 
+      de serem processados antes de enviar qualquer dado para o cliente. </li>
+    <li><span class="code">RUNFASTCGI</span><span
+ style="color: rgb(0, 102, 0);"> </span>- Roda o script Fastcgi. Esse tipo precisa 
+      de um parser de Fastcgi (veja a p&aacute;gina do PHP). &Eacute; tamb&eacute;m 
+      usado para extens&otilde;es de arquivo como .php e .pl</li>
+    <li><span class="code">EXECUTEFASTCGI</span> - Isso tamb&eacute;m roda o script 
+      Fastcgi, mas diferentemente do RUNFASTCGI acima, n&atilde;o precisa de um 
+      servidor para rodar o script, ao inv&eacute;s, ele age como um auto-servidor.</li>
+    <li><span class="code">RUNMSCGI</span>- Roda o script MSCGI. Essa library 
+      s&oacute; est&aacute; dispon&iacute;vel para o myServer. &Eacute; usada 
+      para construir CGIs r&aacute;pidos e eficientes.</li>
+    <li><span class="code">EXECUTE </span>-Trata o arquivo como um execut&aacute;vel 
+      e envia a sa&iacute;da gerada para o cliente.&nbsp;</li>
+    <li><span class="code">SENDLINK</span> -Envia o arquivo contido em um link. 
+    </li>
+    <li><span class="code">EXECUTEWINCGI</span> - Envia o arquivo como um WinCGI</li>
+    <li><span class="code">RUNISAPI</span> - Roda o script ISAPI.</li>
+    <li><span class="code">EXECUTEISAPI</span> - Roda o script ISAPI mas n&atilde;o 
+      precisa de um servidor para executar. Ao inv&eacute;s disso, ele age como 
+      um auto-servidor.</li>
+  </ol>
+</div>
+A maioria das aplica&ccedil;&otilde;es j&aacute; est&atilde;o listadas no arquivo 
+  .xml. Se voc&ecirc; gostaria de adicionar um MIME type, coloque no fim do arquivo 
+  e uso o c&oacute;digo como um exemplo.<br /><br />
+  </td></tr></table>
+</body>
+</html>

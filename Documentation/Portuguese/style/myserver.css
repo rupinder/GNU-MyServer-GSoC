@@ -1,0 +1,118 @@
+html, body {background: #ffffff; color: #000000;}
+
+body { text-align: center; color:#000000; background-color:#FFFFFF; 
+					font-family: tahoma,verdana,helvetica,arial,sans-serif; 
+				font-size:  12pt}
+
+a{ color: #000000; text-decoration: none }
+
+a:hover {color: red;}
+
+.code		 {	text-align:center;color: #006600;}
+
+.warning	 {	text-align:center;color: #CC0000;}
+
+.cohead {color: blue; text-decoration: underline;}
+
+.cuhead {text-decoration: underline;}
+
+.box {border: 1px #000000 solid;}
+
+.boxl {border: 1px #000000 solid; text-align: left;}
+
+.boxc {border: 1px #000000 solid; text-align: center;}
+
+.boxr {border: 1px #000000 solid; text-align: right;}
+
+h1.center {   text-align:center;color: #006600;}
+
+h1.left {text-align: left;}
+
+h1.right {text-align: right;}
+
+h2.left {text-align: left;}
+
+h2.center {text-align: center;}
+
+h2.right {text-align: right;}
+
+h3.left {text-align: left;}
+
+h3.center {text-align: center;}
+
+h3.right {text-align: right;}
+
+h2	{   text-align:center;color: #006600;}
+
+h3	{   text-align:center;color: #006600;}
+
+div {}
+
+div.left {text-align: left;}
+
+div.center {text-align: center;}
+
+div.right {text-align: right;}
+
+table {}
+
+table.left {text-align: left;}
+
+table.center {text-align: center;}
+
+table.right {text-align: right;}
+
+tr {}
+
+tr.left {text-align: left;}
+
+tr.center {text-align: center;}
+
+tr.right {text-align: right;}
+
+td {}
+
+td.left {text-align: left;}
+
+td.center {text-align: center;}
+
+td.right {text-align: right;}
+
+p {}
+
+hr { border: #000000; color: #000000; background-color: #000000;  height: 1px;}
+
+p.left {text-align: left;}
+
+p.center {text-align: center;}
+
+p.right {text-align: right;}
+
+.title		 {	 text-align:center;  color: #666699;}
+
+.signature  {	 text-align:center; color: #666699;}
+
+textarea     {   text-align:center;color: #000000;}
+
+html         {   text-align:center;color: #000000;}
+
+table        {   text-align:center;color: #000000;}
+
+
+
+form	     {border-style: solid; border-width: 1px; 
+								padding-left: 4px; padding-right: 4px; padding-top: 1px; 
+								padding-bottom: 1px}
+
+.heading     { color:  #0000FF;   font-size: 14pt; font-weight: bold; }
+
+.current     {color:  #008000;   font-size: 14pt; font-weight: bold;  }
+
+.link	     { color:  #000000;   font-size: 12pt; }
+
+.Box1	     {width:  100%;  height:  15%;   text-align:  right; 
+						color:  green; }
+
+.Box2	     {width:  20%; height:  70%; overflow: hidden;}
+
+.Box3	     {Width:  80%; height:  70%; overflow: hidden;}
