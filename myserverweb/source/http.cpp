@@ -1375,9 +1375,12 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
       *td->buffer2  << td->response.CONTENT_LENGTH.c_str();
     else
       *td->buffer2 << "0";
-    if(strstr((((Vhost*)(a->host)))->getAccessLogOpt(), "type=combined"))
-      *td->buffer2 << " "  << td->request.REFERER.c_str() << " "  
+    if(a->host)
+    {
+      if(strstr((((Vhost*)(a->host)))->getAccessLogOpt(), "type=combined"))
+        *td->buffer2 << " "  << td->request.REFERER.c_str() << " "  
                    << td->request.USER_AGENT.c_str();
+    }  
 #ifdef WIN32
     *td->buffer2  << "\r\n" << end_str;
 #else
@@ -1386,9 +1389,12 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
     /*!
      *Request the access to the log file then write then append the message.
      */
-    ((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
-    ((Vhost*)(a->host))->accessesLogWrite(td->buffer2->GetBuffer());
-    ((Vhost*)(a->host))->accesseslogTerminateAccess(td->id);
+     if(a->host)
+     {
+       ((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
+       ((Vhost*)(a->host))->accessesLogWrite(td->buffer2->GetBuffer());
+       ((Vhost*)(a->host))->accesseslogTerminateAccess(td->id);
+     }
     td->buffer2->SetLength(0);
   }
   catch(...)
@@ -2154,16 +2160,19 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     else
     {
       string defFile;
-      int ret;
+      int ret=0;
       td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
       secCacheMutex.lock();
       /*! 
        *The specified error file name must be in the web directory 
        *of the virtual host. 
        */
-      ret = secCache.getErrorFileName(((Vhost*)a->host)->getDocumentRoot(), 
+      if(a->host)
+        ret = secCache.getErrorFileName(((Vhost*)a->host)->getDocumentRoot(), 
                                        getHTTPStatusCodeFromErrorID(ID),
-                                       ((Vhost*)(a->host))->getSystemRoot(), defFile);
+                                     ((Vhost*)(a->host))->getSystemRoot(), defFile);
+      else
+        ret=-1;
       secCacheMutex.unlock();
       if(ret == -1)
       {
