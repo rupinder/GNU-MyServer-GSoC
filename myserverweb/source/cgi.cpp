@@ -75,6 +75,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 
 	ostringstream outputDataPath;
 	StartProcInfo spi;
+	string moreArg;
+	string tmpCgiPath;
 	u_long nBytesRead;
 	u_long headerSize;
 	/*!
@@ -87,12 +89,26 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	td->scriptPath.assign(scriptpath);
   
   {
-    string tmp;
-    tmp.assign(cgipath);
-    File::splitPath(tmp, td->cgiRoot, td->cgiFile);
+    int x;
+    int len=strlen(cgipath);
+    for(x=1;x<len;x++)
+      if(cgipath[x]==' ' && cgipath[x-1]!='\\')
+        break;
+    if(x<len)
+    {
+      string tmpString(cgipath);
+      tmpCgiPath.assign(tmpString.substr(0, x));
+      moreArg.assign(tmpString.substr(x, len-1));  
+    }
+    else
+    {
+      tmpCgiPath.assign(cgipath);
+      moreArg.assign("");
+    }
+    File::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
     
-    tmp.assign(scriptpath);
-    File::splitPath(tmp, td->scriptDir, td->scriptFile);
+    tmpCgiPath.assign(scriptpath);
+    File::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
   }
 	
   if(execute)
@@ -103,10 +119,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
      *use the sintact "cmd /c filename".
      */
     if(cgipath && strlen(cgipath))
-      cmdLine << "cmd /c " << cgipath << " " << 
-        td->scriptFile <<  (td->pathInfo.length() ? &td->pathInfo[1]:td->pathInfo) ;
+      cmdLine << "cmd /c " << td->cgiRoot << "/"  <<  " " << moreArg << td->cgiFile << " " << 
+          td->scriptFile <<  (td->pathInfo.length() ? &td->pathInfo[1]:td->pathInfo) ;
     else
-      cmdLine << "cmd /c " << td->scriptFile << " " <<
+      cmdLine << "cmd /c " << td->scriptFile <<  " " << moreArg <<  " " <<
               (td->pathInfo.length() ? &td->pathInfo[1] : td->pathInfo);
 #endif
     if(td->scriptFile.length()>4 && td->scriptFile[0]=='n'  && td->scriptFile[1]=='p'
@@ -117,20 +133,26 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    
     if(cgipath && strlen(cgipath))
     {
-      spi.cmd.assign(cgipath);
-      spi.arg.assign(td->scriptFile);
+      spi.cmd.assign(td->cgiRoot);
+      spi.cmd.append("/");
+      spi.cmd.append(td->cgiFile);
+      spi.arg.assign(moreArg);
+      spi.arg.append(" ");
+      spi.arg.append(td->scriptFile);
     }
     else
     {
       spi.cmd.assign(scriptpath);
-      spi.arg.assign(td->pathInfo);
+      spi.arg.assign(moreArg);
+      spi.arg.append(" ");
+      spi.arg.append(td->pathInfo);
     }
 
 	}
 	else
 	{
      /*! Check if the CGI executable exists. */
-		if((!cgipath) || (!File::fileExists(cgipath)))
+		if((!cgipath) || (!File::fileExists(tmpCgiPath.c_str())))
 		{
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       if(cgipath && strlen(cgipath))
@@ -150,7 +172,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       td->scriptDir.assign("");
 			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
-    cmdLine << cgipath << " " << td->scriptFile;
+    cmdLine << td->cgiRoot << "/" <<td->cgiFile << " " << spi.arg  
+                           << " " << td->scriptFile;
     if(td->cgiFile.length()>4 && td->cgiFile[0]=='n'  && td->cgiFile[1]=='p'
                               && td->cgiFile[2]=='h' && td->cgiFile[3]=='-' )
       nph=1;

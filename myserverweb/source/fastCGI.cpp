@@ -123,7 +123,20 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		if(cgipath && strlen(cgipath))
     {
 #ifdef WIN32
-			fullpath << "\"" << cgipath << "\" \"" <<  td->filenamePath << "\"";
+      {
+        int x;
+        string cgipathString(cgipath);
+        int len=strlen(cgipath);
+        for(x=1;x< len; x++)
+          if(cgipath[x]==' ' && cgipath[x-1]!='\\')
+            break;
+        if(x<len)
+          fullpath << "\"" << cgipathString.substr(0, x) << "\"  " <<  
+                   cgipathString.substr(x, len-1) << " " <<
+                   td->filenamePath;
+        else
+			    fullpath << "\"" << cgipath << "\" \"" <<  td->filenamePath << "\"";
+      }
 #else
  			fullpath << cgipath << " " << td->filenamePath;     
 #endif
@@ -131,7 +144,19 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		else
     {
 #ifdef WIN32
-			fullpath << "\"" << td->filenamePath << "\"";	
+      {
+        int x;
+        int len = td->filenamePath.length();
+        for(x=1;x<len; x++)
+          if(td->filenamePath[x]==' ' && td->filenamePath[x-1]!='\\')
+            break;
+        
+        if(x<len)
+			    fullpath << "\"" << td->filenamePath.substr(0, x) << "\"" 
+                   << td->filenamePath.substr(x, len-1);
+        else
+ 			    fullpath << "\"" << td->filenamePath << "\"";           	
+      }
 #else
       fullpath << td->filenamePath;		   
 #endif
@@ -141,8 +166,19 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	else
 	{
 #ifdef WIN32
-    fullpath << "\"" <<  cgipath << "\"";
+    int x;
+    string cgipathString(cgipath);
+    int len=strlen(cgipath);
+    for(x=1;x<len; x++)
+    if(cgipath[x]==' ' && cgipath[x-1]!='\\')
+      break;
+    if(x<len)
+      fullpath << "\"" << cgipathString.substr(0, x) << "\" " <<  
+              cgipathString.substr(x, len-1);
+      else
+			  fullpath << "\"" << cgipath << "\"";
 #else
+  {
     fullpath << cgipath;   
 #endif
 	}
