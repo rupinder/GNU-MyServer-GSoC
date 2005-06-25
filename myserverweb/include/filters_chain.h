@@ -16,29 +16,33 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef FILTER_H
-#define FILTER_H
+#ifndef FILTERS_CHAIN_H
+#define FILTERS_CHAIN_H
 #include "../stdafx.h"
 #include "../include/stream.h"
+#include "../include/filter.h"
+#include <list>
 
+using namespace std;
 
-/*!
- *Abstract class to handle virtual data filters.
- */
-class Filter : public Stream
+class FiltersChain 
 {
 protected:
-  Stream *parent;
+  list <Filter*> filters;
+  Filter* firstFilter;
+  Stream *stream;
 public:
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(char* buffer, u_long len, u_long*);
-	virtual int flush(u_long*);
-  void setParent(Stream*);
-  Stream* getParent();
-  Filter();
-
-  /*! Avoid direct instances of this class. */
-  virtual ~Filter()=0;
+  void setStream(Stream*);
+  Stream* getStream();
+  void addFilter(Filter*);
+  int isFilterPresent(Filter*);
+  int removeFilter(Filter*);
+  int clear();
+  int read(char* buffer, u_long len, u_long*);
+  int write(char* buffer, u_long len, u_long*);
+	int flush(u_long*);
+  FiltersChain();
+  ~FiltersChain();
 };
 
 
