@@ -178,7 +178,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       else
 			  fullpath << "\"" << cgipath << "\"";
 #else
-  {
     fullpath << cgipath;   
 #endif
 	}
