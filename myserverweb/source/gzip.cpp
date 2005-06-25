@@ -219,7 +219,7 @@ int Gzip::read(char* buffer, u_long len, u_long *nbr)
   if(ret == -1)
   {
     delete [] tmp_buff;
-    return -1;
+    return  -1;
   }
   *nbr = compress(tmp_buff, nbr_parent, buffer, len);
   delete [] tmp_buff;
@@ -233,6 +233,7 @@ int Gzip::write(char* buffer, u_long len, u_long *nbw)
 {
   char tmp_buffer[1024];
   u_long written=0;
+  *nbw=0;
   if(!parent)
     return -1;
   while(len)
@@ -245,8 +246,8 @@ int Gzip::write(char* buffer, u_long len, u_long *nbw)
     written+=ret;
     buffer+=512;
     len-=512;
+    *nbw+=nbw_parent;
   }
-  *nbw=written;
   return 0;
 }
 
@@ -259,12 +260,15 @@ int Gzip::flush(u_long *nbw)
   *nbw = flush(buffer, 512);
   if(*nbw)
   {
-    int ret=0;
-    u_long nbw_parent;
+    u_long nbwParent;
+    u_long nbwParentFlush;
     if(!parent)
       return -1;
-    ret = parent->write(buffer, *nbw, &nbw_parent);
-    return ret;
+    if(parent->write(buffer, *nbw, &nbwParent) != 0)
+      return -1;
+    if(parent->flush(&nbwParentFlush) != 0)
+      return -1;  
+    *nbw=nbwParentFlush+nbwParent;
    }
   return 0;
 }
