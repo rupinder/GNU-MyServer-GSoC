@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=91
+UnitCount=93
 Type=1
 Ver=1
 ObjFiles=
@@ -992,6 +992,26 @@ BuildCmd=
 
 [Unit91]
 FileName=include\dyn_http_command.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit92]
+FileName=include\filters_chain.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit93]
+FileName=source\filters_chain.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
