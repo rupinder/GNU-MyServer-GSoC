@@ -470,9 +470,9 @@ int File::deleteFile(const char *filename)
 {
 	int ret;
 #ifdef WIN32
-	ret = DeleteFile(filename);
-	if(ret)
-		return 0;
+  ret = DeleteFile(filename);
+  if(ret)
+    return 0;
 #endif
 #ifdef NOT_WIN
 	ret = remove(filename);

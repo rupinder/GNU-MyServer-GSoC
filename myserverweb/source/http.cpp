@@ -1549,8 +1549,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          *This data is the stdin file in the CGI.
          */
         if(td.inputData.openFile(td.inputDataPath,FILE_CREATE_ALWAYS | 
-                                 FILE_OPEN_READ|FILE_OPEN_WRITE))
+                           FILE_OPEN_TEMPORARY|FILE_OPEN_READ|FILE_OPEN_WRITE))
           return 0;
+          
         nbw=0;
         total_nbr=(td.nBytesToRead<td.buffer->GetRealLength()-1 
            ? td.nBytesToRead : td.buffer->GetRealLength()-1 ) -td.nHeaderChars;
@@ -1737,7 +1738,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       
       newfilename <<  td.inputData.getFilename() <<  "_encoded";
       if(newStdIn.openFile(td.inputDataPath, FILE_CREATE_ALWAYS | 
-                           FILE_OPEN_READ|FILE_OPEN_WRITE))
+                        FILE_NO_INHERIT|FILE_OPEN_READ|FILE_OPEN_WRITE))
       {
         td.inputData.closeFile();
         td.inputData.deleteFile(td.inputDataPath);
