@@ -40,6 +40,13 @@ int Stream::write(char* buffer, u_long len, u_long *nbw)
   return -1;
 }
 
+/*! Write remaining data to the stream. */
+int Stream::flush(u_long* nbw)
+{
+  nbw=0;
+  return 0;
+}
+
 Stream::Stream()
 {
 
