@@ -1549,7 +1549,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          *This data is the stdin file in the CGI.
          */
         if(td.inputData.openFile(td.inputDataPath,FILE_CREATE_ALWAYS | 
-                           FILE_OPEN_TEMPORARY|FILE_OPEN_READ|FILE_OPEN_WRITE))
+                                 FILE_OPEN_READ|FILE_OPEN_WRITE))
           return 0;
           
         nbw=0;
