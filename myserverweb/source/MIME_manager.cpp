@@ -294,16 +294,18 @@ int MimeManager::saveXML(const char *filename)
 {
 	File::deleteFile(filename);
 	File f;
-  map<unsigned int, MimeRecord*>::iterator iter;
+  int i;
 	u_long nbw;
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
 	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
 
-	for(iter=data.begin(); iter!=data.end(); iter++)
+	for(i=0; i<data.size(); i++)
 	{
-    MimeRecord *rc=(*iter).second;
+    MimeRecord *rc=data.getData(i);
 		char command[16];
+    if(!rc)
+       break;
 		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
 		f.writeToFile(rc->extension.c_str(),(u_long)rc->extension.length(),&nbw);
 		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
@@ -350,14 +352,16 @@ int MimeManager::saveXML(const char *filename)
 int MimeManager::save(const char *filename)
 {
 	File f;
-  map<unsigned int, MimeRecord*>::iterator iter;
+  int i;
   u_long nbw;
 	File::deleteFile(filename);
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
-	for(iter=data.begin(); iter!=data.end(); iter++ )
+	for(i=0;i<data.size(); i++ )
 	{
 		char command[16];
-    MimeManager::MimeRecord *nmr1=(*iter).second;
+    MimeManager::MimeRecord *nmr1=data.getData(i);
+    if(!nmr1)
+      break;
 		f.writeToFile(nmr1->extension.c_str(), 
                   (u_long)nmr1->extension.length(), &nbw);
 		f.writeToFile(",",1,&nbw);
@@ -408,12 +412,9 @@ int MimeManager::save(const char *filename)
  */
 int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
-  map<unsigned int, MimeRecord*>::iterator iter
-                  =data.find(HashDictionary<void*>::hash(ext));
-
-  if(iter != data.end())
+  MimeRecord* mr=data.getData(ext);
+  if(mr)
   {
-    MimeRecord* mr=(*iter).second;
     if(dest)
       strcpy(dest,mr->mime_type.c_str());
 
@@ -445,11 +446,9 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
  */
 int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 {
-  map<unsigned int, MimeRecord*>::iterator iter=
-                       data.find(HashDictionary<void*>::hash(ext.c_str()));
-	if(iter!=data.end())
+  MimeManager::MimeRecord *mr=data.getData(ext.c_str());
+	if(mr)
 	{
-    MimeManager::MimeRecord *mr=(*iter).second;
 		if(!stringcmpi(mr->extension, ext.c_str()))
 		{
 			dest.assign(mr->mime_type.c_str());
@@ -476,36 +475,36 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 {
 	int i=0;
-  map<unsigned int, MimeRecord*>::iterator iter=data.begin();
-	for( ; iter != data.end() ; iter++ )
-	{
-    MimeRecord *mr = (*iter).second;
-		if(i==id)
-		{
-			if(ext)
-				strcpy(ext,mr->extension.c_str());
-			if(dest)
-				strcpy(dest,mr->mime_type.c_str());
-			if(dest2)
-			{
-				if(mr->cgi_manager.length())
-        {
-          *dest2=new char[mr->cgi_manager.length()+1];
-          if(*dest2==0)
-            return 0;
-					strcpy(*dest2, mr->cgi_manager.c_str());
-        }
-				else
-					dest2=0;
-			}
-			return mr->command;
-		}
-    i++;
-	}
-	/*!
-   *If the ext is not registered send the file as it is.
-   */
-	return CGI_CMD_SEND;
+  MimeRecord *mr;
+  if(id > data.size() || id < 0)
+  {
+    return CGI_CMD_SEND;   
+  }
+
+  mr = data.getData(id);
+
+  if(!mr)
+    return CGI_CMD_SEND;
+
+  if(ext)
+    strcpy(ext,mr->extension.c_str());
+  if(dest)
+    strcpy(dest,mr->mime_type.c_str());
+  if(dest2)
+  {
+    if(mr->cgi_manager.length())
+    {
+      *dest2=new char[mr->cgi_manager.length()+1];
+      if(*dest2==0)
+        return 0;
+      strcpy(*dest2, mr->cgi_manager.c_str());
+    }
+    else
+      dest2=0;
+  }
+
+  return mr->command;
+
 }
 
 /*!
@@ -513,27 +512,28 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
  */
 int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
 {
-	int i=0;
-  map<unsigned int, MimeRecord*>::iterator iter=data.begin();
-	for( ;iter != data.end(); iter++ )
-	{
-    MimeManager::MimeRecord *mr=(*iter).second;
-		if(i==id)
-		{
-      ext.assign(mr->extension);
-      dest.assign(mr->mime_type);
+  MimeManager::MimeRecord *mr;
+  if(id > data.size() || id < 0)
+  {
+    return CGI_CMD_SEND;   
+  }
+
+  mr=data.getData(ext.c_str());
+  if(mr)
+  {
+    ext.assign(mr->extension);
+    dest.assign(mr->mime_type);
 			
-      if(mr->cgi_manager.length())
-      {
-        dest2.assign(mr->cgi_manager.c_str());
-      }
-      else
-        dest2.assign("");
+    if(mr->cgi_manager.length())
+    {
+      dest2.assign(mr->cgi_manager.c_str());
+    }
+    else
+      dest2.assign("");
 			
-			return mr->command;
-		}
-    i++;
-	}
+    return mr->command;
+  }
+
 	/*!
    *If the ext is not registered send the file as it is.
    */
@@ -585,12 +585,11 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
     nmr = new MimeManager::MimeRecord;
     if(!nmr)	
       return 1;
-    nmr->extensionHashCode=HashDictionary<void*>::hash(mr.extension.c_str());
     nmr->extension.assign(mr.extension);
     nmr->mime_type.assign(mr.mime_type);
     nmr->command=mr.command;
     nmr->cgi_manager.assign(mr.cgi_manager);
-    data[nmr->extensionHashCode] = nmr;
+    data.insert(mr.extension.c_str(), nmr);
   }
   catch(...)
   {
@@ -607,11 +606,9 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
  */
 void MimeManager::removeRecord(const string& ext)
 {
-  map<unsigned int, MimeRecord*>::iterator iter=
-                 data.find(HashDictionary<void*>::hash(ext.c_str()));
-  if(iter != data.end())
-    delete (*iter).second;
-  data.erase(iter);
+  MimeManager::MimeRecord *rec=data.removeNode(ext.c_str());
+  if(rec)
+    delete rec;
 }
 
 /*!
@@ -619,11 +616,12 @@ void MimeManager::removeRecord(const string& ext)
  */
 void MimeManager::removeAllRecords()
 {
-  map<unsigned int, MimeRecord*>::iterator iter = data.begin();
-
-  for( ; iter != data.end(); iter++)
+  int i;
+  for(i=0 ; i<data.size(); i++)
   {
-    delete (*iter).second;
+    MimeManager::MimeRecord *rec=data.getData(i);
+    if(rec)
+      delete rec;
   }
 
 	data.clear();
@@ -631,15 +629,10 @@ void MimeManager::removeAllRecords()
 
 /*!
  *Get a pointer to an existing record passing its extension.
- *Don't modify the member next of the returned structure.
  */
 MimeManager::MimeRecord *MimeManager::getRecord(string const &ext)
 {
-  map<unsigned int, MimeRecord*>::iterator iter=
-          data.find(HashDictionary<void*>::hash(ext.c_str()));
-  if(iter != data.end())
-    return (*iter).second;
-	return 0;
+  return data.getData(ext.c_str());
 }
 
 /*!

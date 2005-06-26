@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-#ifndef DICTIONARY_H
-#define DICTIONARY_H
+#ifndef HASH_DICTIONARY_H
+#define HASH_DICTIONARY_H
 
 #include <map>
 
@@ -32,8 +32,8 @@ private:
     T data;
   };
   map<int, sNode*> data;
-public:
   static unsigned int hash(const char *);
+public:
   HashDictionary();
   ~HashDictionary();
   T getData(const char*);
@@ -42,7 +42,11 @@ public:
   T removeNode(const char*);
   T removeNodeAt(int);
   int nodesNumber();
+  int size()
+    {return nodesNumber(); }
   void free();
+  void clear()
+    {free();}
   int isEmpty();
 };
 

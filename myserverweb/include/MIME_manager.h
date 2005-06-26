@@ -93,7 +93,7 @@ public:
 
 private:
   int loaded;
-  map<unsigned int, MimeRecord*> data;
+  HashDictionary<MimeRecord*> data;
 	u_long numMimeTypesLoaded;
 	string filename;
 public:
