@@ -51,3 +51,17 @@ int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
   return dictionary.insert(name, fnc);
 }
 
+/*!
+ *Get a new filter by its name. 
+ *Returns the new created object on success.
+ *Returns 0 on errors.
+ */
+Filter *FiltersFactory::getFilter(const char* name)
+{
+  FILTERCREATE factory = dictionary.getData(name);
+  /*! If the filter exists create a new object and return it. */
+  if(factory)
+    return factory(name);
+
+  return 0;
+}

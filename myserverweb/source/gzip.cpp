@@ -272,3 +272,11 @@ int Gzip::flush(u_long *nbw)
    }
   return 0;
 }
+
+/*!
+ *Returns a new Gzip object.
+ */
+Filter* Gzip::factory(const char* name)
+{
+  return new Gzip();
+}

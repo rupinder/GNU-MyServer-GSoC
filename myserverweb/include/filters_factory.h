@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using namespace std;
 
-typedef Filter* (*FILTERCREATE)(); 
+typedef Filter* (*FILTERCREATE)(const char* name); 
 
 class FiltersFactory 
 {
@@ -33,6 +33,7 @@ protected:
   HashDictionary<FILTERCREATE> dictionary;
 public:
   int insert(const char*, FILTERCREATE ptr);
+  Filter *getFilter(const char*);
   FiltersFactory();
   ~FiltersFactory();
 };

@@ -58,6 +58,8 @@ public:
 	u_long flush(char *out,u_long sizeOut);
 	u_long getHeader(char *buffer,u_long buffersize);
 
+  static Filter* factory(const char* name);
+ 
   /*! From Filter*/
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(char* buffer, u_long len, u_long*);
