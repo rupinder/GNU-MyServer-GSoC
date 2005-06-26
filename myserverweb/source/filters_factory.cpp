@@ -75,6 +75,8 @@ FiltersChain* FiltersFactory::chain(list<string*> l)
 {
   FiltersChain *ret = new FiltersChain();
   list<string*>::iterator i=l.begin();
+  if(ret == 0)
+    return 0;
   for( ; i != l.end(); i++)
   {
     Filter *n=getFilter((*i)->c_str());
