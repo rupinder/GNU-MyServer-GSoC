@@ -16,13 +16,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "string.h"
+#include <string>
+
+/*! Do not include the file multiple times. */
+#define HASH_DICTIONARY_H_NO_SRC
 #include "../include/hash_dictionary.h"
+
+
 
 /*!
  *Create the object.
  */
-HashDictionary::HashDictionary()
+template<class T>
+HashDictionary<T>::HashDictionary()
 {
   data.clear();
 }
@@ -30,7 +36,8 @@ HashDictionary::HashDictionary()
 /*!
  *Internal hashing function. This function uses the ELF hash algorithm.
  */
-unsigned int HashDictionary::hash(const char * name)
+template<typename T>
+unsigned int HashDictionary<T>::hash(const char * name)
 {
    unsigned int ret,x;
    int i;
@@ -52,7 +59,8 @@ unsigned int HashDictionary::hash(const char * name)
 /*!
  *Destroy the object.
  */
-HashDictionary::~HashDictionary()
+template<typename T>
+HashDictionary<T>::~HashDictionary()
 {
   free();
 }
@@ -60,10 +68,11 @@ HashDictionary::~HashDictionary()
 /*!
  *Get the data of the node by name.
  */
-void *HashDictionary::getData(const char* name)
+template<typename T>
+T HashDictionary<T>::getData(const char* name)
 {
   unsigned int nameHash = hash(name);
-  map<int, sNode*>::iterator iter = data.find(nameHash);
+  class map<int, sNode*>::iterator iter = data.find(nameHash);
   if(iter != data.end())
     return (*iter).second->data;
   else
@@ -74,14 +83,15 @@ void *HashDictionary::getData(const char* name)
  *Remove a node by name. The function returns the data for the removed node. If
  *there is not any node then zero is returned.
  */
-void* HashDictionary::removeNode(const char* name)
+template<typename T>
+T HashDictionary<T>::removeNode(const char* name)
 {
   unsigned int nodeHash = hash(name);
-  map<int, sNode*>::iterator iter = data.find(nodeHash); 
+  class map<int, sNode*>::iterator iter = data.find(nodeHash); 
   
   if(iter != data.end())
   {
-    void* ret=((sNode*)(*iter).second)->data;
+    T ret=((sNode*)(*iter).second)->data;
     data.erase(iter);
     return ret;
   }
@@ -91,7 +101,8 @@ void* HashDictionary::removeNode(const char* name)
 /*!
  *Return the number of nodes currently in the dictionary.
  */
-int HashDictionary::nodesNumber()
+template<typename T>
+int HashDictionary<T>::nodesNumber()
 {
   return static_cast<int>(data.size());
 }
@@ -99,9 +110,10 @@ int HashDictionary::nodesNumber()
 /*!
  *Free the dictionary.
  */
-void HashDictionary::free()
+template<typename T>
+void HashDictionary<T>::free()
 {
-  map<int, sNode*>::iterator iter = data.begin(); 
+  class map<int, sNode*>::iterator iter = data.begin(); 
   for( ; iter != data.end(); iter++)
   {
     delete (*iter).second;
@@ -112,10 +124,11 @@ void HashDictionary::free()
 /*!
  *Get the data for the node using the order position. First node has index 1.
  */
-void *HashDictionary::getData(int order)
+template<typename T>
+T HashDictionary<T>::getData(int order)
 {
   int i;
-  map<int, sNode*>::iterator iter;
+  class map<int, sNode*>::iterator iter;
   if(order == 0)
     return 0;
   iter = data.begin(); 
@@ -126,7 +139,8 @@ void *HashDictionary::getData(int order)
 /*!
  *Check if the dictionary is empty.
  */
-int HashDictionary::isEmpty()
+template<typename T>
+int HashDictionary<T>::isEmpty()
 {
   return data.empty() ? 1 : 0;
 }
@@ -136,7 +150,8 @@ int HashDictionary::isEmpty()
 /*!
  *Insert a new node at the beginning of the list. Returns zero on success.
  */
-int HashDictionary::insert(const char* name,void* dataPtr)
+template<typename T>
+int HashDictionary<T>::insert(const char* name, T dataPtr)
 {
   if(name == 0)
     return -1;
@@ -153,11 +168,12 @@ int HashDictionary::insert(const char* name,void* dataPtr)
 /*!
  *Remove a node by its position.
  */
-void* HashDictionary::removeNodeAt(int order)
+template<typename T>
+T HashDictionary<T>::removeNodeAt(int order)
 {
-  map<int, sNode*>::iterator iter=data.begin();
+  class map<int, sNode*>::iterator iter=data.begin();
   int pos = 1;
-  void *ret = 0;
+  T ret = 0;
   while((pos<order) && (iter!=data.end()) )
   {
     pos++;

@@ -23,28 +23,33 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using namespace std;
 
 /*! Handle a dictionary of strings trough hashing.*/
-class HashDictionary
+template<typename T> class HashDictionary
 {
 private:
   struct sNode
   {
     unsigned int hash;
-    void *data;
+    T data;
   };
   map<int, sNode*> data;
 public:
   static unsigned int hash(const char *);
   HashDictionary();
   ~HashDictionary();
-  void *getData(const char*);
-  void *getData(int);
-  int insert(const char*, void*);
-  void* removeNode(const char*);
-  void* removeNodeAt(int);
+  T getData(const char*);
+  T getData(int);
+  int insert(const char*, T);
+  T removeNode(const char*);
+  T removeNodeAt(int);
   int nodesNumber();
   void free();
   int isEmpty();
 };
+
+/*! Needed when exporting templates. */
+#ifndef HASH_DICTIONARY_H_NO_SRC
+#include "../source/hash_dictionary.cpp"
+#endif
 
 
 #endif
