@@ -65,3 +65,25 @@ Filter *FiltersFactory::getFilter(const char* name)
 
   return 0;
 }
+
+/*!
+ *Create a FiltersChain starting from a list of strings. 
+ *On success returns the new object.
+ *On errors returns 0.
+ */
+FiltersChain* FiltersFactory::chain(list<string*> l)
+{
+  FiltersChain *ret = new FiltersChain();
+  list<string*>::iterator i=l.begin();
+  for( ; i != l.end(); i++)
+  {
+    Filter *n=getFilter((*i)->c_str());
+    if(!n)
+    {
+      ret->clearAllFilters();
+      return 0;
+    }
+    ret->addFilter(n);
+  }
+  return ret;
+}

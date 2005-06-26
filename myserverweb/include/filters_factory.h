@@ -21,7 +21,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/stream.h"
 #include "../include/filter.h"
+#include "../include/filters_chain.h"
 #include "../include/hash_dictionary.h"
+
+#include <list>
 
 using namespace std;
 
@@ -34,6 +37,7 @@ protected:
 public:
   int insert(const char*, FILTERCREATE ptr);
   Filter *getFilter(const char*);
+  FiltersChain* chain(list<string*> l);
   FiltersFactory();
   ~FiltersFactory();
 };
