@@ -171,3 +171,17 @@ int FiltersChain::removeFilter(Filter* f)
       
   return 0;
 }
+
+/*!
+ *Destroy filters objects. This destroys all the filters objects in the list.
+ */
+void FiltersChain::clearAllFilters()
+{
+  list<Filter*>::iterator i=filters.begin();
+  for( ; i!=filters.end();i++)
+  {
+    delete (*i);
+  }
+  filters.clear();
+  firstFilter=0;
+}

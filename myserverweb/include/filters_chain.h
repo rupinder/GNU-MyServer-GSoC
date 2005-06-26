@@ -35,6 +35,7 @@ public:
   void setStream(Stream*);
   Stream* getStream();
   void addFilter(Filter*);
+  void clearAllFilters();
   int isFilterPresent(Filter*);
   int removeFilter(Filter*);
   int clear();
