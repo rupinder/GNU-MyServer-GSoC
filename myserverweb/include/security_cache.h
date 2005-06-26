@@ -30,7 +30,7 @@ private:
   /*! Object used to handle security on the server. */
   SecurityManager sm;
   /*! Store a list of opened files using a hash dictionary. */
-  HashDictionary dictionary;
+  HashDictionary<XmlParser*> dictionary;
   int limit;
 public:
   SecurityCache();

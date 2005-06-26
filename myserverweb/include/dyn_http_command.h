@@ -51,7 +51,7 @@ public:
 class DynHttpCommandManager
 {
 private:
-  HashDictionary data;
+  HashDictionary <DynamicHttpCommand*> data;
 public:
   int addMethod(const char* name, XmlParser* p, Server* s);
   DynHttpCommandManager();

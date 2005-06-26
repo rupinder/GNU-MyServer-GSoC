@@ -54,7 +54,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
   permissionsFile.assign(directory);
   permissionsFile.append("/security");
 
-  parser =(XmlParser*)dictionary.getData(permissionsFile.c_str());
+  parser =dictionary.getData(permissionsFile.c_str());
   /*!
    *If the parser is still present use it.
    */
@@ -111,11 +111,11 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
     }
     if(dictionary.nodesNumber() >= limit)
     {
-      XmlParser* toremove =(XmlParser*) dictionary.removeNodeAt(1);
+      XmlParser* toremove = dictionary.removeNodeAt(1);
       if(toremove)
         delete toremove;
     }
-    if(dictionary.insert(permissionsFile.c_str(), (void*)parser) != 0)
+    if(dictionary.insert(permissionsFile.c_str(), parser) != 0)
     {
       delete parser;
       return -1;
@@ -144,7 +144,7 @@ void SecurityCache::free()
   int i;
   for(i=1; i <= dictionary.nodesNumber(); i++ )
   {
-    XmlParser *el =(XmlParser*) dictionary.getData(i);
+    XmlParser *el = dictionary.getData(i);
     if(el)
       delete el;
   }
@@ -159,7 +159,7 @@ void SecurityCache::setMaxNodes(int newLimit)
   /*! Remove all the additional nodes from the dictionary. */
   while(newLimit < dictionary.nodesNumber())
   {
-    XmlParser* toremove =(XmlParser*) dictionary.removeNodeAt(1);
+    XmlParser* toremove = dictionary.removeNodeAt(1);
     if(toremove)
       delete toremove;    
   }
@@ -192,7 +192,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
   permissionsFile.assign(st->directory); 
   permissionsFile.append("/security");
 
-  parser =(XmlParser*)dictionary.getData(permissionsFile.c_str());
+  parser = dictionary.getData(permissionsFile.c_str());
   /*!
    *If the parser is still present use it.
    */
@@ -249,11 +249,11 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
     }
     if(dictionary.nodesNumber() >= limit)
     {
-      XmlParser* toremove =(XmlParser*) dictionary.removeNodeAt(1);
+      XmlParser* toremove = dictionary.removeNodeAt(1);
       if(toremove)
         delete toremove;
     }
-    if(dictionary.insert(permissionsFile.c_str(), (void*)parser) != 0)
+    if(dictionary.insert(permissionsFile.c_str(), parser) != 0)
     {
       delete parser;
       return -1;

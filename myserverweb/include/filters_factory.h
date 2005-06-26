@@ -16,38 +16,26 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
- 
+#ifndef FILTERS_FACTORY_H
+#define FILTERS_FACTORY_H
 #include "../stdafx.h"
-#include "../include/filters_factory.h"
-
-#include <string>
-#include <sstream>
+#include "../include/stream.h"
+#include "../include/filter.h"
+#include "../include/hash_dictionary.h"
 
 using namespace std;
 
+typedef Filter* (*FILTERCREATE)(); 
 
-/*!
- *Initialize the object.
- */
-FiltersFactory::FiltersFactory()
+class FiltersFactory 
 {
+protected:
+  HashDictionary<FILTERCREATE> dictionary;
+public:
+  int insert(const char*, FILTERCREATE ptr);
+  FiltersFactory();
+  ~FiltersFactory();
+};
 
-}
 
-/*!
- *Destroy the object.
- */
-FiltersFactory::~FiltersFactory()
-{
-
-}
-
-/*!
- *Insert a filter by name and factory routine. Returns 0 if the entry
- *was added correctly.
- */
-int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
-{
-  return dictionary.insert(name, fnc);
-}
-
+#endif

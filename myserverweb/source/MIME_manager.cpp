@@ -409,7 +409,7 @@ int MimeManager::save(const char *filename)
 int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
   map<unsigned int, MimeRecord*>::iterator iter
-                  =data.find(HashDictionary::hash(ext));
+                  =data.find(HashDictionary<void*>::hash(ext));
 
   if(iter != data.end())
   {
@@ -446,7 +446,7 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 {
   map<unsigned int, MimeRecord*>::iterator iter=
-                       data.find(HashDictionary::hash(ext.c_str()));
+                       data.find(HashDictionary<void*>::hash(ext.c_str()));
 	if(iter!=data.end())
 	{
     MimeManager::MimeRecord *mr=(*iter).second;
@@ -585,7 +585,7 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
     nmr = new MimeManager::MimeRecord;
     if(!nmr)	
       return 1;
-    nmr->extensionHashCode=HashDictionary::hash(mr.extension.c_str());
+    nmr->extensionHashCode=HashDictionary<void*>::hash(mr.extension.c_str());
     nmr->extension.assign(mr.extension);
     nmr->mime_type.assign(mr.mime_type);
     nmr->command=mr.command;
@@ -608,7 +608,7 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
 void MimeManager::removeRecord(const string& ext)
 {
   map<unsigned int, MimeRecord*>::iterator iter=
-                 data.find(HashDictionary::hash(ext.c_str()));
+                 data.find(HashDictionary<void*>::hash(ext.c_str()));
   if(iter != data.end())
     delete (*iter).second;
   data.erase(iter);
@@ -636,7 +636,7 @@ void MimeManager::removeAllRecords()
 MimeManager::MimeRecord *MimeManager::getRecord(string const &ext)
 {
   map<unsigned int, MimeRecord*>::iterator iter=
-          data.find(HashDictionary::hash(ext.c_str()));
+          data.find(HashDictionary<void*>::hash(ext.c_str()));
   if(iter != data.end())
     return (*iter).second;
 	return 0;

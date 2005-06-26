@@ -229,7 +229,7 @@ int DynHttpCommandManager::clean()
 {
   for(int i=1; i <= data.nodesNumber(); i++)
   {
-    DynamicHttpCommand* d=(DynamicHttpCommand*)data.getData(i);
+    DynamicHttpCommand* d = data.getData(i);
     if(d)
       delete d;
   }
@@ -242,7 +242,7 @@ int DynHttpCommandManager::clean()
  */
 DynamicHttpCommand* DynHttpCommandManager::getMethodByName(const char* name)
 {
-  return (DynamicHttpCommand*)data.getData(name);
+  return data.getData(name);
 }
 
 /*!
@@ -250,7 +250,7 @@ DynamicHttpCommand* DynHttpCommandManager::getMethodByName(const char* name)
  */
 DynamicHttpCommand* DynHttpCommandManager::getMethodByNumber(int i)
 {
-  return (DynamicHttpCommand*)data.getData(i);
+  return data.getData(i);
 }
 
 /*!
