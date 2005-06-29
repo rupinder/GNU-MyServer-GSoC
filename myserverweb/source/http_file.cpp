@@ -51,7 +51,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 	/*! 
    *Will we use GZIP compression to send data?
    */
-	int use_gzip=0;
+	int useGzip=0;
   u_long filesize=0;
 	File h;
 	u_long bytes_to_send;
@@ -100,24 +100,24 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if( ((Http*)td->lhttp)->getGzipThreshold() && 
         (bytes_to_send > ((Http*)td->lhttp)->getGzipThreshold() ))
     {
-      use_gzip=1;
+      useGzip=1;
     }
     keepalive = !lstrcmpi(td->request.CONNECTION.c_str(),"Keep-Alive");
 
-#ifndef DO_NOT_USE_GZIP
+#ifndef DO_NOT_USEGZIP
     /*! 
      *Be sure that the client accept GZIP compressed data.  
      */
-    if(use_gzip)
-      use_gzip &= (td->request.ACCEPTENC.find("gzip") != string::npos);
+    if(useGzip)
+      useGzip &= (td->request.ACCEPTENC.find("gzip") != string::npos);
 #else
     /*! 
      *If compiled without GZIP support force the server to don't use it.  
      */
-    use_gzip=0;
+    useGzip=0;
 #endif	
     if(td->appendOutputs)
-      use_gzip=0;
+      useGzip=0;
 
     /*! 
      *bytes_to_send is the interval between the first and the last byte.  
@@ -144,10 +144,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       buffer << "bytes "<< (u_long)firstByte << "-" 
              << (u_long)lastByte << "/" << (u_long)filesize ;
       td->response.CONTENT_RANGE.assign(buffer.str());
-      use_gzip = 0;
+      useGzip = 0;
     }
 
-    if(keepalive && !use_gzip)
+    if(keepalive && !useGzip)
     {
       ostringstream buffer;
       buffer << (u_int)bytes_to_send;
@@ -164,7 +164,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       td->response.CONNECTION.assign("keep-alive");
     }
 
-    if(use_gzip)
+    if(useGzip)
     {
       /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
       if(keepalive)
@@ -195,13 +195,13 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       h.closeFile();
       return 1;
     }
-    if(use_gzip)
+    if(useGzip)
       gzip.initialize();
     for(;;)
     {
       u_long nbr;
       
-      if(use_gzip)
+      if(useGzip)
       {
         GzipDataused=0;
         u_long datatoread=(bytes_to_send < td->buffer2->GetRealLength()/2) 
@@ -256,7 +256,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             break;
         }
         
-      }//if(use_gzip)
+      }//if(useGzip)
       else
       {
         /*! Read from the file the bytes to send. */
@@ -310,7 +310,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
        */
       if(nbr==0)
       {
-        if(keepalive && use_gzip )
+        if(keepalive && useGzip )
         {
           ret=s->socket.send("0\r\n\r\n", 5, 0);
           if(ret==SOCKET_ERROR)
