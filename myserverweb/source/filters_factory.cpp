@@ -31,7 +31,7 @@ using namespace std;
  */
 FiltersFactory::FiltersFactory()
 {
-
+  dictionary.free();
 }
 
 /*!

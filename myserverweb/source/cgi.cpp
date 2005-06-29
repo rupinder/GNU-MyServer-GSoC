@@ -157,9 +157,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       if(cgipath && strlen(cgipath))
       {
-        ((Vhost*)td->connection->host)->warningsLogWrite("Cannot find ");
-        ((Vhost*)td->connection->host)->warningsLogWrite(cgipath);
-        ((Vhost*)td->connection->host)->warningsLogWrite(" executable\r\n");
+        string msg;
+        msg.assign("Cannot find ");
+        msg.append(cgipath);
+        msg.append("executable");
+        ((Vhost*)td->connection->host)->warningsLogWrite(msg.c_str());
 			}
       else
       {

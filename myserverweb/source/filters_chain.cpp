@@ -110,7 +110,9 @@ void FiltersChain::addFilter(Filter* f)
   filters.push_front(f);
 }
 
-/*! Flush remaining data. Returns 0 on success. */
+/*! 
+ *Flush remaining data. Returns 0 on success. 
+ */
 int FiltersChain::flush(u_long* nbw)
 {
   if(firstFilter!=0)
@@ -138,7 +140,6 @@ int FiltersChain::isFilterPresent(Filter* f)
 
   return 0;
 }
-
 
 /*!
  *Remove the first occurrence of the specified filter from the chain.

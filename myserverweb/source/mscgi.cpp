@@ -110,13 +110,15 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			(ProcMain)(cmdLine,&data);
 		}
     else
-      {
-        ((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-        ((Vhost*)td->connection->host)->warningsLogWrite("Error accessing entrypoint: ");
-        ((Vhost*)td->connection->host)->warningsLogWrite(exec);
-        ((Vhost*)td->connection->host)->warningsLogWrite("\r\n");
-        ((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
-      }
+    {
+      string msg;
+      msg.assign("Error accessing entrypoint: ");
+      msg.append(exec);
+      msg.append("\r\n");
+      ((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
+      ((Vhost*)td->connection->host)->warningsLogWrite(msg.c_str());
+      ((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+    }
 		hinstLib.close();
 
 		/*
@@ -141,7 +143,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     {
 			data.stdOut.closeFile();
 			File::deleteFile(outDataPath.str().c_str());
-			return ((Http*)td->lhttp)->raiseHTTPError(td,s,errID);
+			return ((Http*)td->lhttp)->raiseHTTPError(td, s, errID);
     }
 	}
 	/*!
