@@ -406,8 +406,13 @@ LogManager* Vhost::getAccessesLog()
  */
 int Vhost::warningsLogWrite(const char* str)
 {
-	return warningsLogFile.write(str);
+  string msg;
+  getLocalLogFormatDate(msg, 100);
+  msg.append(" -- ");
+  msg.append(str);
+	return warningsLogFile.write(msg.c_str());
 }
+
 /*!
  *Return a pointer to the file used by the warnings log.
  */
