@@ -106,6 +106,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   char *buffer=0;
   char tmpSize[11];
 
+  const size_t maxStdinChunk=4096;/*! Size of data chunks to use with STDIN. */
+
   td->scriptPath.assign(scriptpath);
 
   {
@@ -283,7 +285,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
 		con.sock.closesocket();
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
-	}	
+	}
+	
 	if(atoi(td->request.CONTENT_LENGTH.c_str()))
 	{
 		td->buffer->SetLength(0);
@@ -298,13 +301,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       }
 
+    /*! Send the STDIN data. */
 		do
 		{
-      const size_t maxStdinChunk=td->buffer->GetRealLength() < 1<<16 
-                                 ? td->buffer->GetRealLength()
-                                 : 1<<16 ;
-
-			if(td->inputData.readFromFile(td->buffer->GetBuffer(),
+      if(td->inputData.readFromFile(td->buffer->GetBuffer(),
                                     maxStdinChunk, &nbr))
       {
         td->inputData.closeFile();
@@ -320,11 +320,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         }
         return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
       }
-   
+
       if(!nbr)
-			{
         break;
-      }
 			
       generateFcgiHeader( header, FCGISTDIN, id, nbr);
       if(con.sock.send((char*)&header, sizeof(header), 0) == -1)
@@ -349,8 +347,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         }
         return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
       }
-    }while(nbr==td->buffer->GetRealLength());
+    }while(nbr==maxStdinChunk);
 	}
+
   /*! Final stdin chunk. */
 	if(sendFcgiBody(&con,0,0,FCGISTDIN,id))
 	{
