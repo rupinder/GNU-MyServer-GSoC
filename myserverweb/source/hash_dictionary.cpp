@@ -91,6 +91,7 @@ T HashDictionary<T>::removeNode(const char* name)
   {
     T ret=((sNode*)(*iter).second)->data;
     data.erase(iter);
+    delete (sNode*)(*iter).second;
     return ret;
   }
   return 0;
@@ -143,7 +144,39 @@ int HashDictionary<T>::isEmpty()
   return data.empty() ? 1 : 0;
 }
 
+/*!
+ *Create a copy of an existent dictionary.
+ */
+template<typename T>
+int HashDictionary<T>::clone(HashDictionary<T>& hd)
+{
+  typename map<int, sNode*>::iterator i = hd.data.begin();
+  
+  for( ; i != hd.data.end(); i++)
+  {
+    try
+    {
+      sNode *copy=new sNode((*i)->second->hash, (*i)->data);
+      data[copy->hash]=copy;
+    }
+    catch(...)
+    {
+      free();
+      return 1;
+    }
+  }
+  return 0;
+}
 
+/*!
+ *Copy constructor.
+ */
+template<typename T>
+HashDictionary<T>::HashDictionary(HashDictionary<T>& h)
+{
+  if(clone(h))
+    throw runtime_exception();
+}
 
 /*!
  *Insert a new node at the beginning of the list. Returns zero on success.
@@ -184,5 +217,8 @@ T HashDictionary<T>::removeNodeAt(int order)
   ret = (*iter).second->data;
 
   data.erase(iter);
+  
+  delete (*iter).second;
+
   return ret;
 }

@@ -30,11 +30,17 @@ private:
   {
     unsigned int hash;
     T data;
+    sNode()
+    {hash=0;}
+    sNode(unsigned int h, T t)
+      {hash=h; data=t;}
   };
   map<int, sNode*> data;
   static unsigned int hash(const char *);
 public:
+  int clone(HashDictionary<T>& hd);
   HashDictionary();
+  explicit HashDictionary(HashDictionary<T>&);
   ~HashDictionary();
   T getData(const char*);
   T getData(int);
