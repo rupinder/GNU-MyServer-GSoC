@@ -50,6 +50,9 @@ public:
 	static u_long compressBound(int size);
 #endif
 
+  Gzip();
+  ~Gzip();
+
 	u_long updateCRC(char* buffer,int size);
 	u_long getFooter(char *str,int size);
 	u_long initialize();

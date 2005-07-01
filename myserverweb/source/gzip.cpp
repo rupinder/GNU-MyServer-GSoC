@@ -152,6 +152,18 @@ u_long Gzip::flush(char *out,u_long sizeOut)
 #endif
 }
 
+/*! Constructor for the class. */
+Gzip::Gzip()
+{
+  initialize();
+}
+
+/*! Destructor for the class. */
+Gzip::~Gzip()
+{
+  free();
+}
+
 /*!
  *Update the existent CRC.
  */

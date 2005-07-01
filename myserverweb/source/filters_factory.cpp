@@ -53,6 +53,7 @@ int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
 
 /*!
  *Get a new filter by its name. 
+ *The object have to be freed after its use to avoid memory leaks.
  *Returns the new created object on success.
  *Returns 0 on errors.
  */
@@ -88,4 +89,12 @@ FiltersChain* FiltersFactory::chain(list<string*> l)
     ret->addFilter(n);
   }
   return ret;
+}
+
+/*!
+ *Free the object.
+ */
+void FiltersFactory::free()
+{
+  dictionary.free();
 }

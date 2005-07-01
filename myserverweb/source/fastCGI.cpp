@@ -216,8 +216,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   server = fcgiConnect(&con,fullpath.str().c_str());
 	if(server == 0)
   {
-    td->inputData.closeFile();
-		File::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
@@ -238,8 +236,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 	if(sendFcgiBody(&con,(char*)&tBody,sizeof(tBody),FCGIBEGIN_REQUEST,id))
 	{
-    td->inputData.closeFile();
-		File::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
@@ -255,8 +251,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	if(sendFcgiBody(&con,td->buffer2->GetBuffer(),sizeEnvString,
                   FCGIPARAMS,id))
 	{
-    td->inputData.closeFile();
-		File::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
@@ -271,8 +265,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 	if(sendFcgiBody(&con,0,0,FCGIPARAMS,id))
 	{
-    td->inputData.closeFile();
-		File::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
@@ -305,8 +297,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       if(td->inputData.readFromFile(td->buffer->GetBuffer(),
                                     maxStdinChunk, &nbr))
       {
-        td->inputData.closeFile();
-        File::deleteFile(td->inputDataPath);
         td->buffer->SetLength(0);
         if(lserver->getVerbosity() > 2)
         {
@@ -325,15 +315,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       generateFcgiHeader( header, FCGISTDIN, id, nbr);
       if(con.sock.send((char*)&header, sizeof(header), 0) == -1)
       {
-        td->inputData.closeFile();
-        File::deleteFile(td->inputDataPath);
         return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
       }
 
       if(con.sock.send(td->buffer->GetBuffer(),nbr,0) == -1)
       {
-        td->inputData.closeFile();
-        File::deleteFile(td->inputDataPath);
         td->buffer->SetLength(0);
         if(lserver->getVerbosity() > 2)
         {
@@ -351,8 +337,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   /*! Final stdin chunk. */
 	if(sendFcgiBody(&con,0,0,FCGISTDIN,id))
 	{
-    td->inputData.closeFile();
-		File::deleteFile(td->inputDataPath);
 		td->buffer->SetLength(0);
     if(lserver->getVerbosity() > 2)
     {
@@ -381,8 +365,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                           FILE_OPEN_READ | FILE_CREATE_ALWAYS |
                           FILE_NO_INHERIT))
   {
-    td->inputData.closeFile();
-		File::deleteFile(td->inputDataPath);
     td->buffer->SetLength(0);
 		*td->buffer << "FastCGI: Error opening stdout file\r\n"<< '\0';
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -525,8 +507,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   /*! Return an error message if ret is 0. */
   if((!ret) || con.tempOut.readFromFile(buffer,td->buffer->GetRealLength(),&nbr))
   {
-    td->inputData.closeFile();
-    File::deleteFile(td->inputDataPath);
     con.tempOut.closeFile();
     File::deleteFile(outDataPath.str().c_str());
     con.sock.closesocket();
@@ -554,8 +534,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	{
 		if(td->response.LOCATION[0])
 		{
-      td->inputData.closeFile();
-      File::deleteFile(td->inputDataPath);
       con.tempOut.closeFile();
       File::deleteFile(outDataPath.str().c_str());
       con.sock.closesocket();
@@ -651,8 +629,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	
     break;
 	}
-  td->inputData.closeFile();
-  File::deleteFile(td->inputDataPath.c_str());
 	con.tempOut.closeFile();
 	File::deleteFile(outDataPath.str().c_str());
 	con.sock.closesocket();

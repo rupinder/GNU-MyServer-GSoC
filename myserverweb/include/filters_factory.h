@@ -40,6 +40,7 @@ public:
   FiltersChain* chain(list<string*> l);
   FiltersFactory();
   ~FiltersFactory();
+  void free();
 };
 
 

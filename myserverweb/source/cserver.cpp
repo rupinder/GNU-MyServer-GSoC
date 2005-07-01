@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002, 2003, 2004 The MyServer Team
+*Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/security.h"
 #include "../include/stringutils.h"
 #include "../include/sockets.h"
+#include "../include/gzip.h"
 #include "../include/myserver_regex.h"
 
 extern "C" {
@@ -899,6 +900,8 @@ int Server::terminate()
   ControlProtocol::unloadProtocol(&languageParser);
 	protocols.unloadProtocols(&languageParser);
 
+  filtersFactory.free();
+
 	/*!
    *Destroy the connections mutex.
    */
@@ -1709,6 +1712,8 @@ int Server::loadSettings()
         mime_configuration_file.assign("MIMEtypes.xml");
       }
 
+    filtersFactory.insert("gzip", Gzip::factory);
+
     /*! Load the MIME types. */
     logWriteln(languageParser.getValue("MSG_LOADMIME"));
     if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file.c_str()))
@@ -2207,6 +2212,14 @@ int Server::removeThread(u_long ID)
 	threads_mutex->unlock();
   return ret_code;
 
+}
+
+/*!
+ *Get a pointer to a filters factory object.
+ */
+FiltersFactory* Server::getFiltersFactory()
+{
+  return &filtersFactory;
 }
 
 /*!

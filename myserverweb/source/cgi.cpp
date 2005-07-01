@@ -207,8 +207,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
   
-	td->inputData.closeFile();
-  
   /*! Open the stdin file for the new CGI process. */
   if(stdInFile.openFile(td->inputDataPath, FILE_OPEN_READ|FILE_OPEN_ALWAYS|FILE_OPEN_TEMPORARY))
   {

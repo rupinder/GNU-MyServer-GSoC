@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002,2003,2004 The MyServer Team
+*Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/protocols_manager.h"
 #include "../include/connectionstruct.h"
 #include "../include/log_manager.h"
+#include "../include/filters_factory.h"
 
 #include <string>
 using namespace std;
@@ -88,6 +89,7 @@ class Server
 	friend int control_handler (u_long control_type);
 #endif
 private:
+  FiltersFactory filtersFactory;
   u_long uid;
   u_long gid;
   int currentThreadID;
@@ -145,6 +147,7 @@ private:
 	string vhost_configuration_file;
 	string mime_configuration_file;
 public:
+  FiltersFactory* getFiltersFactory();
 	int getMaxThreads(); 
   u_long getUid();
   u_long getGid();
