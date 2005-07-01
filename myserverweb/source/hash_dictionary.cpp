@@ -17,10 +17,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include <string>
-
+#include <stdexcept>
 /*! Do not include the file multiple times. */
 #define HASH_DICTIONARY_H_NO_SRC
 #include "../include/hash_dictionary.h"
+
+using namespace std;
 
 /*!
  *Create the object.
@@ -175,8 +177,7 @@ template<typename T>
 HashDictionary<T>::HashDictionary(HashDictionary<T>& h)
 {
   if(clone(h))
-    throw runtime_exception(
-             string("HashDictionary::HashDictionary(HashDictionary<T>&)"));
+    throw runtime_error("");
 }
 
 /*!
