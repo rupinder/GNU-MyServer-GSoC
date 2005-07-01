@@ -287,26 +287,25 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	if(atoi(td->request.CONTENT_LENGTH.c_str()))
 	{
 		td->buffer->SetLength(0);
-    if(lserver->getVerbosity() > 2)
-    {
-      *td->buffer << "FastCGI: Error sending POST data\r\n"<< '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->GetBuffer());
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    }
-		generateFcgiHeader( header, FCGISTDIN, id, 
-                        atoi(td->request.CONTENT_LENGTH.c_str()));
-		if(con.sock.send((char*)&header,sizeof(header),0)==-1)
-    {
-      td->inputData.closeFile();
-      File::deleteFile(td->inputDataPath);
-			return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
-    }
-		td->inputData.setFilePointer(0);
+
+
+		if(td->inputData.setFilePointer(0))
+      if(lserver->getVerbosity() > 2)
+      {
+        *td->buffer << "FastCGI: Error sending POST data\r\n"<< '\0';
+        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->GetBuffer());
+        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      }
+
 		do
 		{
+      const size_t maxStdinChunk=td->buffer->GetRealLength() < 1<<16 
+                                 ? td->buffer->GetRealLength()
+                                 : 1<<16 ;
+
 			if(td->inputData.readFromFile(td->buffer->GetBuffer(),
-                                    td->buffer->GetRealLength(),&nbr))
+                                    maxStdinChunk, &nbr))
       {
         td->inputData.closeFile();
         File::deleteFile(td->inputDataPath);
@@ -320,28 +319,39 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
           ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         }
         return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
-      }      
-      
-			if(nbr)
+      }
+   
+      if(!nbr)
 			{
-				if(con.sock.send(td->buffer->GetBuffer(),nbr,0) == -1)
+        break;
+      }
+			
+      generateFcgiHeader( header, FCGISTDIN, id, nbr);
+      if(con.sock.send((char*)&header, sizeof(header), 0) == -1)
+      {
+        td->inputData.closeFile();
+        File::deleteFile(td->inputDataPath);
+        return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+      }
+
+      if(con.sock.send(td->buffer->GetBuffer(),nbr,0) == -1)
+      {
+        td->inputData.closeFile();
+        File::deleteFile(td->inputDataPath);
+        td->buffer->SetLength(0);
+        if(lserver->getVerbosity() > 2)
         {
-          td->inputData.closeFile();
-          File::deleteFile(td->inputDataPath);
-          td->buffer->SetLength(0);
-          if(lserver->getVerbosity() > 2)
-          {
-            *td->buffer << "FastCGI: Error sending data\r\n" << '\0';
-            ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-            ((Vhost*)td->connection->host)->warningsLogWrite(
-                                                  td->buffer->GetBuffer());
-            ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-          }
-					return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+          *td->buffer << "FastCGI: Error sending data\r\n" << '\0';
+          ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+          ((Vhost*)td->connection->host)->warningsLogWrite(
+                                                           td->buffer->GetBuffer());
+          ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         }
-			}
-		}while(nbr==td->buffer->GetRealLength());
+        return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+      }
+    }while(nbr==td->buffer->GetRealLength());
 	}
+  /*! Final stdin chunk. */
 	if(sendFcgiBody(&con,0,0,FCGISTDIN,id))
 	{
     td->inputData.closeFile();
