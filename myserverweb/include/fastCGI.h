@@ -29,8 +29,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/stringutils.h"
 #include "../include/threads.h"
 #include "../include/http_data_handler.h"
-
+#include "../include/hash_dictionary.h"
 #include <string>
+
 using namespace std;
 
 /*!
@@ -146,7 +147,7 @@ typedef struct {
     FcgiUnknownTypeBody body;
 } FcgiUnknownTypeRecord;
 
-struct sfCGIservers
+struct sserversList
 {
   /*! Server executable path. */
 	string path;
@@ -160,13 +161,12 @@ struct sfCGIservers
 	char host[128];
 	Process process; 
 	u_short port;
-  sfCGIservers* next;
 };
 
-struct fCGIContext
+struct FcgiContext
 {
 	HttpThreadContext* td;
-  sfCGIservers* server;
+  sserversList* server;
 	Socket sock;
 	File tempOut;
 };
@@ -179,20 +179,17 @@ private:
   static int max_fcgi_servers;
 	static int initialized;
   static Mutex servers_mutex;
-	static struct sfCGIservers *fCGIservers;
+	static HashDictionary<sserversList*> serversList;
 
-	/*! Number of thread currently loaded.  */
-	static int fCGIserversN;
-
-	int fcgiConnectSocket(fCGIContext*,sfCGIservers*);
+	int fcgiConnectSocket(FcgiContext*,sserversList*);
 	void generateFcgiHeader( FcgiHeader&, int ,int, int );
 	Socket getFcgiConnection();
 	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
-	int sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id);
-	sfCGIservers* isFcgiServerRunning(const char*);
-  sfCGIservers* runFcgiServer(fCGIContext*, const char*);
-	sfCGIservers* fcgiConnect(fCGIContext*, const char*);
-  int runLocalServer(sfCGIservers* server, const char* path, int port);
+	int sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id);
+	sserversList* isFcgiServerRunning(const char*);
+  sserversList* runFcgiServer(FcgiContext*, const char*);
+	sserversList* fcgiConnect(FcgiContext*, const char*);
+  int runLocalServer(sserversList* server, const char* path, int port);
 public:
   static void setInitialPort(int);
   static int getInitialPort(); 

@@ -32,10 +32,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <sstream>
 using namespace std;
 
-struct sfCGIservers *FastCgi::fCGIservers = 0;
-
-/*! Number of thread currently loaded. */
-int FastCgi::fCGIserversN=0;
+/*! Running servers. */
+HashDictionary<sserversList*> FastCgi::serversList;
 
 /*! Is the fastcgi initialized? */
 int FastCgi::initialized=0;
@@ -84,7 +82,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                   const char* scriptpath, const char *cgipath, 
                   int execute, int onlyHeader)
 {
-	fCGIContext con;
+	FcgiContext con;
 	FcgiBeginRequestBody tBody;
 	con.td=td;
 	u_long nbr=0;
@@ -100,13 +98,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	ostringstream outDataPath;
 
   int sizeEnvString;
-  sfCGIservers* server=0;
+  sserversList* server=0;
   int id;
 	ostringstream fullpath;
   char *buffer=0;
   char tmpSize[11];
 
-  const size_t maxStdinChunk=4096;/*! Size of data chunks to use with STDIN. */
+  const size_t maxStdinChunk=8192;/*! Size of data chunks to use with STDIN. */
 
   td->scriptPath.assign(scriptpath);
 
@@ -665,7 +663,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
  *Send the buffer content over the FastCGI connection
  *Return non-zero on errors.
  */
-int FastCgi::sendFcgiBody(fCGIContext* con,char* buffer,int len,int type,int id)
+int FastCgi::sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id)
 {
 	FcgiHeader header;
 	generateFcgiHeader( header, type, id, len );
@@ -780,8 +778,6 @@ int FastCgi::load(XmlParser* /*confFile*/)
 {
 	if(initialized)
 		return 1;
-  fCGIservers = 0;
-	fCGIserversN=0;
 	initialized=1;
   servers_mutex.init();
 	return 1;
@@ -792,25 +788,25 @@ int FastCgi::load(XmlParser* /*confFile*/)
  */
 int FastCgi::unload()
 {
-  sfCGIservers* list = fCGIservers;
   servers_mutex.lock();
   try
   {
-    while(list)
+    int i;
+    for(i=0; i<serversList.size() ; i++)
     {
-      sfCGIservers* toremove;
+      sserversList* server=serversList.getData(i);
+      if(!server)
+        continue;
       /*! If the server is a remote one do nothing. */
-      if(list->path.length() && list->path[0]!='@')
+      if(server->path.length() && server->path[0]!='@')
       {
-        list->socket.closesocket();
-        list->process.terminateProcess();
+        server->socket.closesocket();
+        server->process.terminateProcess();
       }
-      list->path.assign("");
-      
-      toremove = list;
-      list = list->next;
-      delete toremove;
+      server->path.assign("");
+      delete server;
     }
+    serversList.clear();
   }
   catch(bad_alloc& b)
   {
@@ -828,7 +824,6 @@ int FastCgi::unload()
     return 0;
   };
   servers_mutex.unlock();
-  list = 0;
   servers_mutex.destroy();
   initialized=0;
 	return 0;
@@ -838,36 +833,27 @@ int FastCgi::unload()
  *Return the the running server specified by path.
  *If the server is not running returns 0.
  */
-sfCGIservers* FastCgi::isFcgiServerRunning(const char* path)
+sserversList* FastCgi::isFcgiServerRunning(const char* path)
 {
   servers_mutex.lock();
 
   try
   { 
-    sfCGIservers *cur = fCGIservers;
-    while(cur)
-    {
-      if(!stringcmpi(cur->path, path))
-      {
-        servers_mutex.unlock();
-        return cur;  
-      }
-      cur = cur->next;
-    }
+    sserversList *s = serversList.getData(path);
+    servers_mutex.unlock();
+    return s;
   }
   catch(...)
   {
     servers_mutex.unlock();
   };
-
-  servers_mutex.unlock();
 	return 0;
 }
 
 /*!
  *Get a client socket in the fCGI context structure
  */
-int FastCgi::fcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
+int FastCgi::fcgiConnectSocket(FcgiContext* con, sserversList* server )
 {
 	MYSERVER_HOSTENT *hp=Socket::gethostbyname(server->host);
 	struct sockaddr_in sockAddr;
@@ -900,10 +886,10 @@ int FastCgi::fcgiConnectSocket(fCGIContext* con, sfCGIservers* server )
 /*!
  *Get a connection to the FastCGI server.
  */
-sfCGIservers* FastCgi::fcgiConnect(fCGIContext* con, const char* path)
+sserversList* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
 {
 
-	sfCGIservers* server = runFcgiServer(con, path);
+	sserversList* server = runFcgiServer(con, path);
 	/*!
    *If we find a valid server try the connection to it.
    */
@@ -923,7 +909,7 @@ sfCGIservers* FastCgi::fcgiConnect(fCGIContext* con, const char* path)
  *Run the FastCGI server.
  *If the path starts with a @ character, the path is handled as a remote server.
  */
-sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
+sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
 {
   /*! 
    *Flag to identify a local server(running on localhost) from a 
@@ -931,7 +917,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
    */
 	int localServer;
   int toReboot=0;
-  sfCGIservers* server;
+  sserversList* server;
 	static u_short portsDelta=0;
  
   /*! Path that init with @ are not local path. */
@@ -952,7 +938,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
   }
 
   /*! Do not create it if we reach the max allowed. */
-	if(fCGIserversN==max_fcgi_servers-1)
+	if(serversList.size()==max_fcgi_servers-1)
 		return 0;
 
   servers_mutex.lock();
@@ -961,7 +947,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
   {
     /*! Create the new structure if necessary. */
     if(!toReboot)
-      server = new sfCGIservers();
+      server = new sserversList();
     if(server == 0)
     {
       if(lserver->getVerbosity() > 2)
@@ -1013,7 +999,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
                                  << path << "\r\n" << '\0';
             ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
             ((Vhost*)context->td->connection->host)->warningsLogWrite(
-                                                                      context->td->buffer->GetBuffer());
+                                                     context->td->buffer->GetBuffer());
             ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
           }
           delete server;
@@ -1028,7 +1014,7 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
       int i=1;
       
       /*! Fill the structure with a remote server. */
-      fCGIservers[fCGIserversN].path.assign(path);
+      server->path.assign(path);
         
       memset(server->host, 0, 128);
       
@@ -1037,17 +1023,12 @@ sfCGIservers* FastCgi::runFcgiServer(fCGIContext* context, const char* path)
        */
       while(path[i]!=':')
         server->host[i-1]=path[i++];
+      server->host[i-1]='\0';
       server->port=(u_short)atoi(&path[++i]);
     }
   
-    server->next = fCGIservers;
-    fCGIservers = server;
+    serversList.insert(server->path.c_str(), server);
 
-    /*!
-     *Increase the number of running servers.
-     */
-    fCGIserversN++;
-    
     servers_mutex.unlock();  
 
   }
@@ -1097,7 +1078,7 @@ void FastCgi::setTimeout(int ntimeout)
 /*!
  *Start the server on the specified port. Return zero on success.
  */
-int FastCgi::runLocalServer(sfCGIservers* server, const char* path, int port)
+int FastCgi::runLocalServer(sserversList* server, const char* path, int port)
 {
   int ret;
   StartProcInfo spi;
