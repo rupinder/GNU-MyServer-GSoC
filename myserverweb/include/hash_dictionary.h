@@ -31,7 +31,7 @@ private:
     unsigned int hash;
     T data;
     sNode()
-    {hash=0;}
+      {hash=0;}
     sNode(unsigned int h, T t)
       {hash=h; data=t;}
   };

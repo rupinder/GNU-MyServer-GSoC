@@ -175,7 +175,8 @@ template<typename T>
 HashDictionary<T>::HashDictionary(HashDictionary<T>& h)
 {
   if(clone(h))
-    throw runtime_exception();
+    throw runtime_exception(
+             string("HashDictionary::HashDictionary(HashDictionary<T>&)"));
 }
 
 /*!
