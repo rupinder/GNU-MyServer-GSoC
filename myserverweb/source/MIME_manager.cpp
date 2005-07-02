@@ -162,6 +162,10 @@ int MimeManager::load(const char *fn)
     }
 		nc++;
 	}
+
+  /*! Store the loaded status. */
+  loaded = 1;
+
 	delete [] buffer;
 	return data.size();
 
@@ -554,9 +558,12 @@ MimeManager::~MimeManager()
  */
 void MimeManager::clean()
 {
-  loaded = 0;
-  filename.assign("");
-	removeAllRecords();
+  if(loaded)
+  {
+    loaded = 0;
+    filename.assign("");
+    removeAllRecords();
+  }
 }
 
 /*!
