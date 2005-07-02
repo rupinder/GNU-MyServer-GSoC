@@ -227,7 +227,7 @@ int DynHttpCommandManager::addMethod(const char* fileName,
  */
 int DynHttpCommandManager::clean()
 {
-  for(int i=1; i <= data.nodesNumber(); i++)
+  for(int i=0; i < data.nodesNumber(); i++)
   {
     DynamicHttpCommand* d = data.getData(i);
     if(d)

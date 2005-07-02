@@ -585,7 +585,7 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
     nmr = new MimeManager::MimeRecord(mr);
     if(!nmr)	
       return 1;
-    data.insert(mr.extension.c_str(), nmr);
+    data.insert(nmr->extension.c_str(), nmr);
   }
   catch(...)
   {

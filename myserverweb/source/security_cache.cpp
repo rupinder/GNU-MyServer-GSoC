@@ -54,7 +54,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
   permissionsFile.assign(directory);
   permissionsFile.append("/security");
 
-  parser =dictionary.getData(permissionsFile.c_str());
+  parser = dictionary.getData(permissionsFile.c_str());
   /*!
    *If the parser is still present use it.
    */
@@ -142,7 +142,7 @@ SecurityCache::~SecurityCache()
 void SecurityCache::free()
 {
   int i;
-  for(i=1; i <= dictionary.nodesNumber(); i++ )
+  for(i=0; i < dictionary.nodesNumber(); i++ )
   {
     XmlParser *el = dictionary.getData(i);
     if(el)

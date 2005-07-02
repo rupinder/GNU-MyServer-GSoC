@@ -123,7 +123,7 @@ void HashDictionary<T>::free()
 }
 
 /*!
- *Get the data for the node using the order position. First node has index 1.
+ *Get the data for the node using the order position. First node has index 0.
  */
 template<typename T>
 T HashDictionary<T>::getData(int order)
@@ -133,7 +133,7 @@ T HashDictionary<T>::getData(int order)
   if(order == 0)
     return 0;
   iter = data.begin(); 
-  for(i = 1; (i < order) && ( iter != data.end() ); i++);
+  for(i = 0; (i < order) && ( iter != data.end() ); i++);
   return (iter!=data.end() ? (*iter).second->data : 0);
 }
 
