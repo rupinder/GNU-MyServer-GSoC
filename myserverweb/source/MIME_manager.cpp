@@ -582,13 +582,9 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
   {
     if(getRecord(mr.extension))
       removeRecord(mr.extension);
-    nmr = new MimeManager::MimeRecord;
+    nmr = new MimeManager::MimeRecord(mr);
     if(!nmr)	
       return 1;
-    nmr->extension.assign(mr.extension);
-    nmr->mime_type.assign(mr.mime_type);
-    nmr->command=mr.command;
-    nmr->cgi_manager.assign(mr.cgi_manager);
     data.insert(mr.extension.c_str(), nmr);
   }
   catch(...)
