@@ -34,26 +34,16 @@ HashDictionary<T>::HashDictionary()
 }
 
 /*!
- *Internal hashing function. This function uses the ELF hash algorithm.
+ *Internal hashing function.
  */
 template<typename T>
-unsigned int HashDictionary<T>::hash(const char * name)
+unsigned int HashDictionary<T>::hash(const char * str)
 {
-   unsigned int ret,x;
-   int i;
-   int strLen = strlen(name);
-   ret = x = i = 0;  
-   for(i = 0; i < strLen; name++, i++)
-   {
-      ret = (ret << 4) + (*name);
-      x = ret & 0xF0000000L;
-      if(x != 0)
-      {
-         ret ^= (x >> 24);
-         ret &= ~x;
-      }
-   }
-   return (ret & 0x7FFFFFFF);
+  unsigned int ret, len;
+  len=strlen(str);
+  while (len--)
+    ret = ((*str++) & 255) + 65587L * ret;
+
 }
 
 /*!
