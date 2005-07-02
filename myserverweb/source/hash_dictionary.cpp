@@ -129,9 +129,8 @@ template<typename T>
 T HashDictionary<T>::getData(int order)
 {
   int i;
-  class map<int, sNode*>::iterator iter;
-  iter = data.begin(); 
-  for(i = 0; (i <= order) && ( iter != data.end() ); i++);
+  class map<int, sNode*>::iterator iter = data.begin(); 
+  for(i = 0; (i < order) && ( iter != data.end() ); i++, iter++);
   return (iter!=data.end() ? (*iter).second->data : 0);
 }
 

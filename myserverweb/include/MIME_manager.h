@@ -96,6 +96,9 @@ public:
       {extension.assign(m.extension); mime_type.assign(m.mime_type);
        command=m.command; cgi_manager.assign(m.cgi_manager); 
        extensionHashCode=m.extensionHashCode;}
+    ~MimeRecord()
+      {extension.assign(""); mime_type.assign(""); 
+       cgi_manager.assign("");}    
 	};
 
 private:
