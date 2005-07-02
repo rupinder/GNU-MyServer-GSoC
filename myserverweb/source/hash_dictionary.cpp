@@ -130,10 +130,8 @@ T HashDictionary<T>::getData(int order)
 {
   int i;
   class map<int, sNode*>::iterator iter;
-  if(order == 0)
-    return 0;
   iter = data.begin(); 
-  for(i = 0; (i < order) && ( iter != data.end() ); i++);
+  for(i = 0; (i <= order) && ( iter != data.end() ); i++);
   return (iter!=data.end() ? (*iter).second->data : 0);
 }
 
