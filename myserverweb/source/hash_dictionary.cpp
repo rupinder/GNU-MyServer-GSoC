@@ -80,8 +80,8 @@ T HashDictionary<T>::getData(const char* name)
 }
 
 /*!
- *Remove a node by name. The function returns the data for the removed node. If
- *there is not any node then zero is returned.
+ *Remove a node by name. The function returns the data for the removed node.
+ *If the node doesn't exist then zero is returned.
  */
 template<typename T>
 T HashDictionary<T>::removeNode(const char* name)
@@ -93,7 +93,7 @@ T HashDictionary<T>::removeNode(const char* name)
   {
     T ret=((sNode*)(*iter).second)->data;
     data.erase(iter);
-    delete (sNode*)(*iter).second;
+    delete (*iter).second;
     return ret;
   }
   return 0;
