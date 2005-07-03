@@ -105,11 +105,11 @@ u_long Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
 	data.crc = crc32(data.crc, (const Bytef *) in, sizeIn);
 	return data.stream.total_out-old_total_out;
 #else 
-	/*
-	*If is specified DO_NOT_USE_GZIP copy the input buffer to the output one as it is.
-	*/
-	memcpy(out, in, min(sizeIn,sizeOut));
-	return min(sizeIn, sizeOut);
+	/*!
+   *If is specified DO_NOT_USE_GZIP copy the input buffer to the output one as it is.
+   */
+	memcpy(out, in, std::min(sizeIn, sizeOut));
+	return std::min(sizeIn, sizeOut);
 #endif
 }
 
@@ -162,10 +162,9 @@ int Gzip::modifyData()
 /*!
  *Flush all the remaining data.
  */
-u_long Gzip::flush(char *out,u_long sizeOut)
+u_long Gzip::flush(char *out, u_long sizeOut)
 {
 #ifndef DO_NOT_USE_GZIP	
-	int ret;
 	u_long old_total_out=data.stream.total_out;
 	uLongf destLen=sizeOut;
 
@@ -174,7 +173,7 @@ u_long Gzip::flush(char *out,u_long sizeOut)
 	data.stream.avail_in = 0;
 	data.stream.next_out = (Bytef*) out;
 	data.stream.avail_out = destLen;
-	ret = deflate(&(data.stream), Z_FINISH);
+	deflate(&(data.stream), Z_FINISH);
 
 	data.data_size+=data.stream.total_out-old_total_out;
 	return data.stream.total_out-old_total_out;
@@ -274,21 +273,27 @@ int Gzip::read(char* buffer, u_long len, u_long *nbr)
  */
 int Gzip::write(char* buffer, u_long len, u_long *nbw)
 {
-  char tmp_buffer[1024];
+  char tmpBuffer[1024];
   u_long written=0;
   *nbw=0;
+
+  /*! No stream to write to. */
   if(!parent)
     return -1;
+
   while(len)
   {
     u_long nbw_parent;
-    u_long ret=compress(buffer, len < 512 ? len : 512, tmp_buffer, 1024);
+    u_long size=std::min(len, 512UL);
+    u_long ret=compress(buffer, size, tmpBuffer, 1024);
+
     if(ret)
-      if(parent->write(tmp_buffer, ret, &nbw_parent) == -1 )
+      if(parent->write(tmpBuffer, ret, &nbw_parent) == -1 )
         return -1;
+
     written+=ret;
-    buffer+=512;
-    len-=512;
+    buffer+=size;
+    len-=size;
     *nbw+=nbw_parent;
   }
   return 0;

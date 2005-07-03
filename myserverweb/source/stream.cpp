@@ -29,7 +29,8 @@ using namespace std;
  */
 int Stream::read(char* buffer,u_long len, u_long *nbr)
 {
-  return -1;
+  *nbr=0;
+  return 0;
 }
 
 /*!
@@ -37,13 +38,16 @@ int Stream::read(char* buffer,u_long len, u_long *nbr)
  */
 int Stream::write(char* buffer, u_long len, u_long *nbw)
 {
-  return -1;
+  *nbw=0;
+  return 0;
 }
 
-/*! Write remaining data to the stream. */
+/*! 
+ *Write remaining data to the stream. 
+ */
 int Stream::flush(u_long* nbw)
 {
-  nbw=0;
+  *nbw=0;
   return 0;
 }
 

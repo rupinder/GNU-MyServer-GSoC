@@ -1712,7 +1712,14 @@ int Server::loadSettings()
         mime_configuration_file.assign("MIMEtypes.xml");
       }
 
-    filtersFactory.insert("gzip", Gzip::factory);
+    if(filtersFactory.insert("gzip", Gzip::factory))
+    {
+      ostringstream stream;
+      stream <<  languageParser.getValue("ERR_ERROR") << ": Gzip Filter";
+      logPreparePrintError();
+      logWriteln(stream.str().c_str());
+      logEndPrintError();
+    }
 
     /*! Load the MIME types. */
     logWriteln(languageParser.getValue("MSG_LOADMIME"));

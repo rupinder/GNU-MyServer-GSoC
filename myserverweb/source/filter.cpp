@@ -85,7 +85,8 @@ void Filter::setParent(Stream* p)
  */
 int Filter::flush(u_long *nbw)
 {
-  return -1;
+  *nbw = 0;
+  return 0;
 }
 
 /*!

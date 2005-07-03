@@ -37,13 +37,12 @@ HashDictionary<T>::HashDictionary()
  *Internal hashing function.
  */
 template<typename T>
-unsigned int HashDictionary<T>::hash(const char * str)
+u_long HashDictionary<T>::hash(const char * str)
 {
-  unsigned int ret, len;
-  len=strlen(str);
+  u_long ret=0, len=strlen(str);
   while (len--)
     ret = ((*str++) & 255) + 65587L * ret;
-
+  return ret;
 }
 
 /*!
@@ -62,7 +61,7 @@ template<typename T>
 T HashDictionary<T>::getData(const char* name)
 {
   unsigned int nameHash = hash(name);
-  class map<int, sNode*>::iterator iter = data.find(nameHash);
+  class map<u_long, sNode*>::iterator iter = data.find(nameHash);
   if(iter != data.end())
     return (*iter).second->data;
   else
@@ -77,7 +76,7 @@ template<typename T>
 T HashDictionary<T>::removeNode(const char* name)
 {
   unsigned int nodeHash = hash(name);
-  class map<int, sNode*>::iterator iter = data.find(nodeHash); 
+  class map<u_long, sNode*>::iterator iter = data.find(nodeHash); 
   
   if(iter != data.end())
   {
@@ -104,7 +103,7 @@ int HashDictionary<T>::nodesNumber()
 template<typename T>
 void HashDictionary<T>::free()
 {
-  class map<int, sNode*>::iterator iter = data.begin(); 
+  class map<u_long, sNode*>::iterator iter = data.begin(); 
   for( ; iter != data.end(); iter++)
   {
     delete (*iter).second;
@@ -119,7 +118,7 @@ template<typename T>
 T HashDictionary<T>::getData(int order)
 {
   int i;
-  class map<int, sNode*>::iterator iter = data.begin(); 
+  class map<u_long, sNode*>::iterator iter = data.begin(); 
   for(i = 0; (i < order) && ( iter != data.end() ); i++, iter++);
   return (iter!=data.end() ? (*iter).second->data : 0);
 }
@@ -139,7 +138,7 @@ int HashDictionary<T>::isEmpty()
 template<typename T>
 int HashDictionary<T>::clone(HashDictionary<T>& hd)
 {
-  typename map<int, sNode*>::iterator i = hd.data.begin();
+  typename map<u_long, sNode*>::iterator i = hd.data.begin();
   
   for( ; i != hd.data.end(); i++)
   {
@@ -191,7 +190,7 @@ int HashDictionary<T>::insert(const char* name, T dataPtr)
 template<typename T>
 T HashDictionary<T>::removeNodeAt(int order)
 {
-  class map<int, sNode*>::iterator iter=data.begin();
+  class map<u_long, sNode*>::iterator iter=data.begin();
   int pos = 1;
   T ret = 0;
   while((pos<order) && (iter!=data.end()) )

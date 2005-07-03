@@ -93,31 +93,35 @@ FiltersChain::~FiltersChain()
 
 /*!
  *Add a filter to the chain. 
- *Returns the number of bytes written to initialize the filter. 
+ *Returns 0 on success.
+ *the number of bytes written to initialize the filter. 
  */
-u_long FiltersChain::addFilter(Filter* f)
+int FiltersChain::addFilter(Filter* f, u_long *nbw)
 {
   u_long ret = 0;
-  if(firstFilter==0)
+  char buffer[512];
+  u_long nbw2;
+  u_long nbwFirstFilter;
+
+  if(!firstFilter)
   {
     f->setParent(stream);
   }
   else
   {
-    char buffer[512];
-    u_long nbw;
-    u_long nbwFirstFilter;
     f->setParent(firstFilter);
-    /*! Write the filter header(if any) using the upper chain. */
-    if(!f->getHeader(buffer, 512, &nbw))
-    {
-      if(!nbw)
-        ret = 0;
-      else if(firstFilter->write(buffer, nbw, &nbwFirstFilter))
-        ret = 0;
-      else
-        ret = nbwFirstFilter;
-    }
+  }
+
+  /*! Write the filter header(if any) using the upper chain. */
+  if(!f->getHeader(buffer, 512, &nbw2))
+  {
+    if(f->getParent()->write(buffer, nbw2, &nbwFirstFilter))
+      ret = 1;
+    *nbw = nbwFirstFilter;
+  }
+  else
+  {
+    return 1;
   }
 
   /*! 
@@ -126,6 +130,7 @@ u_long FiltersChain::addFilter(Filter* f)
    */
   firstFilter=f;
 
+  /*! Add the filters in the list in the same order they are used. */
   filters.push_front(f);
   return ret;
 }
@@ -153,15 +158,21 @@ int FiltersChain::flush(u_long* nbw)
   }
   written=*nbw;
 
-  i = filters.end();
-  /*! 
+  ;
+  /*!
    *Position on the last element. 
-   *Do not consider the first filter in the list, it is the output stream.
    */
-  for( i-- ; i!=filters.begin(); i--)
+  int ss=filters.size();
+  i = filters.end();
+
+  while(i != filters.begin())
   {
-    Filter* f = *i;
+    Filter* f;
     u_long tmpNbw=0;
+
+    --i;
+    f = *i;
+
     if(f->getFooter(buffer, 512, &tmpNbw))
       return -1;
     f->getParent()->write(buffer, tmpNbw, nbw);
@@ -180,7 +191,7 @@ int FiltersChain::isFilterPresent(Filter* f)
 {
   list<Filter*>::iterator i=filters.begin();
 
-  for( ; i!=filters.end(); i++ )
+  for( ; i!=filters.end(); ++i )
     if(*i==f)
       return 1;
 
@@ -194,7 +205,7 @@ int FiltersChain::removeFilter(Filter* f)
 {
   list<Filter*>::iterator i=filters.begin();
   list<Filter*>::iterator prev=filters.end();   
-  for( ; i!=filters.end(); i++ )
+  for( ; i!=filters.end(); ++i )
     if(*i==f)
     {
       if(prev != filters.end())
@@ -220,6 +231,14 @@ int FiltersChain::removeFilter(Filter* f)
 }
 
 /*!
+ *Returns a nonzero value if the chain is empty.
+ */
+int FiltersChain::isEmpty()
+{
+  return !firstFilter;
+}
+
+/*!
  *Destroy filters objects. This destroys all the filters objects in the list.
  */
 void FiltersChain::clearAllFilters()
@@ -239,10 +258,18 @@ void FiltersChain::clearAllFilters()
 int FiltersChain::hasModifiersFilters()
 {
   list <Filter*>::iterator i=filters.begin();
-  for( ;i!=filters.end(); i++)
+  for( ;i!=filters.end(); ++i)
   {
     if((*i)->modifyData())
       return 1;
   }
   return 0;
+}
+
+/*!
+ *Get the first filter of the chain.
+ */
+Filter* FiltersChain::getFirstFilter()
+{
+  return firstFilter;
 }

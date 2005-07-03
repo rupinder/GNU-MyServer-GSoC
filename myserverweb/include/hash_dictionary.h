@@ -35,8 +35,8 @@ private:
     sNode(unsigned int h, T t)
       {hash=h; data=t;}
   };
-  map<int, sNode*> data;
-  static unsigned int hash(const char *);
+  map<u_long, sNode*> data;
+  static u_long hash(const char *);
 public:
   int clone(HashDictionary<T>& hd);
   HashDictionary();

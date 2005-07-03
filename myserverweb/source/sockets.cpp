@@ -780,8 +780,9 @@ int Socket::read(char* buffer, u_long len, u_long *nbr)
  */
 int Socket::write(char* buffer, u_long len, u_long *nbw)
 {
-  *nbw = static_cast<u_long>(send(buffer, len, 0));
- 	if(*nbw == static_cast<u_long>(-1))
+  int ret = send(buffer, len, 0);
+  if(ret == -1)
     return -1;
+  *nbw = static_cast<u_long>(ret);
   return 0;
 }

@@ -74,21 +74,25 @@ Filter *FiltersFactory::getFilter(const char* name)
  *will not modify the data.
  *On errors returns 0.
  */
-FiltersChain* FiltersFactory::chain(list<string*> l, int onlyNotModifiers)
+FiltersChain* FiltersFactory::chain(list<string*> l, Stream* out, u_long *nbw, int onlyNotModifiers)
 {
   FiltersChain *ret = new FiltersChain();
   list<string*>::iterator i=l.begin();
   if(ret == 0)
     return 0;
+  ret->setStream(out);
+  *nbw=0;
   for( ; i != l.end(); i++)
   {
+    u_long tmp;
     Filter *n=getFilter((*i)->c_str());
     if( !n || ( onlyNotModifiers && n->modifyData() )  )
     {
       ret->clearAllFilters();
       return 0;
     }
-    ret->addFilter(n);
+    ret->addFilter(n, &tmp);
+    *nbw+=tmp;
   }
   return ret;
 }
