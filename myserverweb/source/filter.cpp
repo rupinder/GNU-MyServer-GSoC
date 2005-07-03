@@ -31,7 +31,8 @@ using namespace std;
  */
 int Filter::read(char* buffer, u_long len, u_long *nbr)
 {
-  return -1;
+  *nbr=0;
+  return 0;
 }
 
 /*!
@@ -39,7 +40,26 @@ int Filter::read(char* buffer, u_long len, u_long *nbr)
  */
 int Filter::write(char* buffer, u_long len, u_long* nbw)
 {
-  return -1;
+  *nbw = 0;
+  return 0;
+}
+
+/*!
+ *Get an header for the filter. Returns -1 on errors.
+ */
+int Filter::getHeader(char* buffer, u_long len, u_long* nbw)
+{
+  *nbw = 0; 
+  return 0;
+}
+
+/*!
+ *Get a footer for the filter. Returns -1 on errors.
+ */
+int Filter::getFooter(char* buffer, u_long len, u_long* nbw)
+{
+  *nbw = 0;
+  return 0;
 }
 
 Filter::Filter()

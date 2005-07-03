@@ -92,39 +92,85 @@ FiltersChain::~FiltersChain()
 }
 
 /*!
- *Add a filter to the chain.
+ *Add a filter to the chain. 
+ *Returns the number of bytes written to initialize the filter. 
  */
-void FiltersChain::addFilter(Filter* f)
+u_long FiltersChain::addFilter(Filter* f)
 {
+  u_long ret = 0;
   if(firstFilter==0)
   {
     f->setParent(stream);
   }
   else
   {
+    char buffer[512];
+    u_long nbw;
+    u_long nbwFirstFilter;
     f->setParent(firstFilter);
+    /*! Write the filter header(if any) using the upper chain. */
+    if(!f->getHeader(buffer, 512, &nbw))
+    {
+      if(!nbw)
+        ret = 0;
+      else if(firstFilter->write(buffer, nbw, &nbwFirstFilter))
+        ret = 0;
+      else
+        ret = nbwFirstFilter;
+    }
   }
-  /*! Add the new filter at the end of the list. */
+
+  /*! 
+   *Add the new filter at the end of the list.
+   *The new filter will write directly the old firstFilter.
+   */
   firstFilter=f;
 
   filters.push_front(f);
+  return ret;
 }
 
 /*! 
- *Flush remaining data. Returns 0 on success. 
+ *Flush remaining data.
+ *Additional footer data for filters is added at the end.
+ *Returns 0 on success. 
  */
 int FiltersChain::flush(u_long* nbw)
 {
+  u_long written=0;
+  char buffer[512];
+  list<Filter*>::iterator i;
+  *nbw=0;
   if(firstFilter!=0)
   {
-    return firstFilter->flush(nbw);
+    if(firstFilter->flush(nbw))
+      return 1;
   }
   else if(stream)
-    return stream->flush(nbw);
+  {
+    if(stream->flush(nbw))
+      return 1;
+  }
+  written=*nbw;
 
-  /*! Both filters and streams are not defined. */
-  *nbw=0;
-  return -1;
+  i = filters.end();
+  /*! 
+   *Position on the last element. 
+   *Do not consider the first filter in the list, it is the output stream.
+   */
+  for( i-- ; i!=filters.begin(); i--)
+  {
+    Filter* f = *i;
+    u_long tmpNbw=0;
+    if(f->getFooter(buffer, 512, &tmpNbw))
+      return -1;
+    f->getParent()->write(buffer, tmpNbw, nbw);
+    written += (*nbw);
+  }
+  
+  /*! Set the final value. */
+  *nbw=written;
+  return 0;
 }
 
 /*!

@@ -128,6 +128,29 @@ u_long Gzip::free()
 #endif
 	return ret;
 }
+
+/*! 
+ *Inherited from Filter.
+ */
+int Gzip::getHeader(char* buffer, u_long len, u_long* nbw)
+{
+  *nbw = getHeader(buffer, len);
+  return !(*nbw);
+}
+
+/*! 
+ *Inherited from Filter.
+ */
+int Gzip::getFooter(char* buffer, u_long len, u_long* nbw)
+{
+  if(len < GZIP_FOOTER_LENGTH)
+    return -1;
+  getFooter(buffer, GZIP_FOOTER_LENGTH);
+  *nbw = GZIP_FOOTER_LENGTH;
+  return 0;
+
+}
+
 /*!
 *Flush all the data
 */

@@ -34,7 +34,7 @@ protected:
 public:
   void setStream(Stream*);
   Stream* getStream();
-  void addFilter(Filter*);
+  u_long addFilter(Filter*);
   void clearAllFilters();
   int isFilterPresent(Filter*);
   int removeFilter(Filter*);

@@ -30,6 +30,8 @@ class Filter : public Stream
 protected:
   Stream *parent;
 public:
+  virtual int getHeader(char* buffer, u_long len, u_long* nbw);
+  virtual int getFooter(char* buffer, u_long len, u_long* nbw);
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
