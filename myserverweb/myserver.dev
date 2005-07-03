@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=94
+UnitCount=96
 Type=1
 Ver=1
 ObjFiles=
@@ -1022,6 +1022,26 @@ BuildCmd=
 
 [Unit94]
 FileName=source\filters_factory.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit95]
+FileName=source\memory_stream.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit96]
+FileName=include\memory_stream.h
 CompileCpp=1
 Folder=myserver
 Compile=1
