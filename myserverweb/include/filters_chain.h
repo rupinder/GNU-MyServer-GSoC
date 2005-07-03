@@ -39,6 +39,7 @@ public:
   int isFilterPresent(Filter*);
   int removeFilter(Filter*);
   int clear();
+  int hasModifiersFilters();
   int read(char* buffer, u_long len, u_long*);
   int write(char* buffer, u_long len, u_long*);
 	int flush(u_long*);

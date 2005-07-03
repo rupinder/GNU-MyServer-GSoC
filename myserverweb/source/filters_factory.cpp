@@ -70,9 +70,11 @@ Filter *FiltersFactory::getFilter(const char* name)
 /*!
  *Create a FiltersChain starting from a list of strings. 
  *On success returns the new object.
+ *If specified [onlyNotModifiers] the method wil check that all the filters
+ *will not modify the data.
  *On errors returns 0.
  */
-FiltersChain* FiltersFactory::chain(list<string*> l)
+FiltersChain* FiltersFactory::chain(list<string*> l, int onlyNotModifiers)
 {
   FiltersChain *ret = new FiltersChain();
   list<string*>::iterator i=l.begin();
@@ -81,7 +83,7 @@ FiltersChain* FiltersFactory::chain(list<string*> l)
   for( ; i != l.end(); i++)
   {
     Filter *n=getFilter((*i)->c_str());
-    if(!n)
+    if( !n || ( onlyNotModifiers && n->modifyData() )  )
     {
       ret->clearAllFilters();
       return 0;

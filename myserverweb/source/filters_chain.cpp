@@ -232,3 +232,17 @@ void FiltersChain::clearAllFilters()
   filters.clear();
   firstFilter=0;
 }
+
+/*!
+ *Returns a nonzero value if the chain contains any modifier filter.
+ */
+int FiltersChain::hasModifiersFilters()
+{
+  list <Filter*>::iterator i=filters.begin();
+  for( ;i!=filters.end(); i++)
+  {
+    if((*i)->modifyData())
+      return 1;
+  }
+  return 0;
+}

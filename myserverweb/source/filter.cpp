@@ -95,3 +95,11 @@ Stream* Filter::getParent()
 {
   return parent;
 }
+
+/*!
+ *Returns a nonzero value if the 
+ */
+int Filter::modifyData()
+{
+  return 0;
+}

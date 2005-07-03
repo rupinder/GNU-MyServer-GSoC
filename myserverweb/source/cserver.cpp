@@ -518,9 +518,9 @@ int Server::createServerAndListener(u_long port)
     }
     logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
   
-	/*!
-   *Set connections listen queque to max allowable.
-   */
+    /*!
+     *Set connections listen queque to max allowable.
+     */
     logWriteln( languageParser.getValue("MSG_SLISTEN"));
     if (serverSocket->listen(SOMAXCONN))
     { 

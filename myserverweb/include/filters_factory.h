@@ -37,7 +37,7 @@ protected:
 public:
   int insert(const char*, FILTERCREATE ptr);
   Filter *getFilter(const char*);
-  FiltersChain* chain(list<string*> l);
+  FiltersChain* chain(list<string*> l, int onlyNotModifiers=0);
   FiltersFactory();
   ~FiltersFactory();
   void free();

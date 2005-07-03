@@ -35,6 +35,7 @@ public:
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
+	virtual int modifyData();
   void setParent(Stream*);
   Stream* getParent();
   Filter();

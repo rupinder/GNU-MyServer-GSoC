@@ -152,8 +152,16 @@ int Gzip::getFooter(char* buffer, u_long len, u_long* nbw)
 }
 
 /*!
-*Flush all the data
-*/
+ *The Gzip filter modifies the data. 
+ */
+int Gzip::modifyData()
+{
+  return 1;
+}
+
+/*!
+ *Flush all the remaining data.
+ */
 u_long Gzip::flush(char *out,u_long sizeOut)
 {
 #ifndef DO_NOT_USE_GZIP	
