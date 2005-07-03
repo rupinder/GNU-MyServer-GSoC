@@ -60,6 +60,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
   u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
+  int usechunks=0;
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
 	
@@ -166,10 +167,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(useGzip)
     {
       td->response.CONTENT_ENCODING.assign("gzip");
+      /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
+      if(keepalive)
+      {
+        usechunks=1;
+        td->response.TRANSFER_ENCODING.assign("chunked");
+      }
+
     }
-    /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
-    if(keepalive)
-      td->response.TRANSFER_ENCODING.assign("chunked");
 
     HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
                                          &td->response);
@@ -251,14 +256,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         u_long nbw;
         memStream.refresh();
         memStream.write(td->buffer->GetBuffer(), nbr, &nbw);
-        if(keepalive)
+        if(usechunks)
         {
           ostringstream buffer;
           Stream *s;
           u_long availableToRead=memStream.availableToRead();
           buffer << hex << availableToRead << "\r\n";
           /*!TODO: remove ugly (char*) cast. */
-          ret=chain.getStream()->write((char*)buffer.str().c_str(), buffer.str().length(), &nbw);
+          ret=chain.getStream()->write((char*)buffer.str().c_str(), 
+                                       buffer.str().length(), &nbw);
           if(ret)
             break;
 
@@ -274,7 +280,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           
           dataSent += nbw;
 
-
+          ret=chain.getStream()->write("\r\n", 2, &nbw);
+          if(ret)
+            break;
         }
         else
         {
@@ -284,16 +292,13 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             break;     
           
           dataSent += nbw;       
-
-          ret=chain.getStream()->write("\r\n", 2, &nbw);
-          if(ret)
-            break;   
         }
+
       }
 
       if(breakAtTheEnd)
       {
-        if(keepalive)
+        if(usechunks)
         {
           u_long nbw;
           ret=chain.getStream()->write("0\r\n\r\n", 5, &nbw);
