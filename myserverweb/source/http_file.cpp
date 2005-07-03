@@ -21,7 +21,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../include/http_headers.h"
 #include "../include/http_file.h"
 #include "../include/gzip.h"
-
+#include "../include/cserver.h"
+#include "../include/filters_chain.h"
+#include "../include/memory_stream.h"
 #include <sstream>
 
 extern "C" 
@@ -58,11 +60,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   u_long firstByte = td->request.RANGEBYTEBEGIN; 
   u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
-
- 	/*! gzip compression object.  */
-	Gzip gzip;
-	/*! Is the GZIP header still added to the buffer?  */
-	u_long gzipheaderadded=0;
+  MemoryStream memStream(td->buffer2);
+  FiltersChain chain;
 	
 	/*! Number of bytes created by the zip compressor by loop.  */
 	u_long GzipDataused=0;
@@ -124,8 +123,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
      */
     bytes_to_send=lastByte-firstByte;
     
-    /*! 
-     *If failed to set the file pointer returns an internal server error.  
+    /*!
+     *If fail to set the file pointer returns an internal server error.  
      */
     ret = h.setFilePointer(firstByte);
     if(ret)
@@ -155,22 +154,22 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     }
 
     /*! Specify the connection type. */
-    if(!keepalive)
+    if(keepalive)
     {
-      td->response.CONNECTION.assign("close");
+      td->response.CONNECTION.assign("keep-alive");
     }
     else
     {
-      td->response.CONNECTION.assign("keep-alive");
+      td->response.CONNECTION.assign("close");
     }
 
     if(useGzip)
     {
-      /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
-      if(keepalive)
-        td->response.TRANSFER_ENCODING.assign("chunked");
       td->response.CONTENT_ENCODING.assign("gzip");
     }
+    /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
+    if(keepalive)
+      td->response.TRANSFER_ENCODING.assign("chunked");
 
     HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
                                          &td->response);
@@ -195,136 +194,115 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       h.closeFile();
       return 1;
     }
+
+    if(td->appendOutputs)
+      chain.setStream(&(td->outputData));   
+    else
+        chain.setStream(&(s->socket));
+
     if(useGzip)
-      gzip.initialize();
+    {
+      Filter* gzipFilter = lserver->getFiltersFactory()->getFilter("gzip");
+      u_long nbw;
+      if(!gzipFilter)
+      {
+        h.closeFile();
+        chain.clearAllFilters();
+        return 0;
+      }
+
+      if(chain.addFilter(gzipFilter, &nbw))
+      {
+        delete gzipFilter;
+        h.closeFile();
+        chain.clearAllFilters();
+        return 0;
+      }
+
+      dataSent+=nbw;
+    }
+
     for(;;)
     {
       u_long nbr;
-      
-      if(useGzip)
+      u_long breakAtTheEnd=0;
+      /*! Read from the file the bytes to send. */
+      ret = h.readFromFile(td->buffer->GetBuffer(),
+                           (bytes_to_send<td->buffer->GetRealLength()? 
+                            bytes_to_send :td->buffer->GetRealLength()), &nbr);
+      if(ret)
+        break;
+
+      bytes_to_send-=nbr;
+
+      /*! If there are bytes to send, send them. */
+      if(!nbr)
       {
-        GzipDataused=0;
-        u_long datatoread=(bytes_to_send < td->buffer2->GetRealLength()/2) 
-          ? bytes_to_send : td->buffer2->GetRealLength()/2 ;
-        /*! Read from the file the bytes to send.  */
-        if(h.readFromFile(td->buffer2->GetBuffer(), datatoread, &nbr))
+        ret=chain.flush(&nbr);
+       
+        if(ret || !keepalive)
+          break;
+
+        breakAtTheEnd=1; 
+      }
+      
+      if(nbr)
+      {
+        u_long nbw;
+        memStream.refresh();
+        memStream.write(td->buffer->GetBuffer(), nbr, &nbw);
+        if(keepalive)
         {
           ostringstream buffer;
-          h.closeFile();
-          buffer << dataSent;
-          td->response.CONTENT_LENGTH.assign(buffer.str());
-          return 0;
-        }
-      
-        if(nbr)
-        {
-          if(gzipheaderadded==0)
-          {
-            GzipDataused+=gzip.getHeader(td->buffer->GetBuffer(), td->buffer->GetLength());
-            gzipheaderadded=1;
-          }
-          GzipDataused+=gzip.compress(td->buffer2->GetBuffer(), nbr, 
-                                       &((td->buffer->GetBuffer())[GzipDataused]),
-                                       td->buffer->GetRealLength()-GzipDataused);
+          Stream *s;
+          u_long availableToRead=memStream.availableToRead();
+          buffer << hex << availableToRead << "\r\n";
+          /*!TODO: remove ugly (char*) cast. */
+          ret=chain.getStream()->write((char*)buffer.str().c_str(), buffer.str().length(), &nbw);
+          if(ret)
+            break;
+
+          s=chain.getFirstFilter();
+          if(!s)
+             s=chain.getStream();
+          if(!s)
+            break;
+
+          ret=memStream.read(s, availableToRead, &nbw);
+          if(ret)
+            break;     
+          
+          dataSent += nbw;
+
+
         }
         else
         {
-          GzipDataused=gzip.flush(td->buffer->GetBuffer(), td->buffer->GetRealLength()) ;
-          GzipDataused+=gzip.getFooter(td->buffer->GetBuffer()+GzipDataused, 
-                                        td->buffer->GetRealLength()-GzipDataused);
-          gzip.free();
-        }
-        if(keepalive)
-        {
-          ostringstream buffer;
-          buffer << hex << GzipDataused << "\r\n";
-          ret = s->socket.send(buffer.str().c_str(), buffer.str().length(), 0);
-          if(ret == SOCKET_ERROR)
-            break;
-        }
-        if(GzipDataused)
-        {
-          ret=s->socket.send(td->buffer->GetBuffer(), GzipDataused, 0);
-          if(ret == SOCKET_ERROR)
-            break;
-          dataSent+=ret;
-        }
-        if(keepalive)
-        {
-          ret=s->socket.send("\r\n", 2, 0);
-          if(ret == SOCKET_ERROR)
-            break;
-        }
-        
-      }//if(useGzip)
-      else
-      {
-        /*! Read from the file the bytes to send. */
-        ret = h.readFromFile(td->buffer->GetBuffer(),
-                             (bytes_to_send<td->buffer->GetRealLength()? 
-                              bytes_to_send :td->buffer->GetRealLength()), &nbr);
-        if(ret)
-        {
-          ostringstream buffer;
-          h.closeFile();
-          buffer << dataSent;
-          td->response.CONTENT_LENGTH.assign(buffer.str().c_str());
-          return 0;
-        }
-        bytes_to_send-=nbr;
-        /*! If there are bytes to send, send them. */
-        if(nbr)
-        {
-          if(!td->appendOutputs)
-          {
-            ret=s->socket.send(td->buffer->GetBuffer(), nbr, 0);
-            if(ret==SOCKET_ERROR)
-            {
-              ostringstream buffer;
-              h.closeFile();
-              buffer << dataSent;
-              td->response.CONTENT_LENGTH.assign(buffer.str().c_str());
-              return 0;
-            }
-            dataSent+=ret;
-          }
-          else
-          {
-            u_long nbw;
-            ret = td->outputData.writeToFile(td->buffer->GetBuffer(), 
-                                             nbr, &nbw);
-            if(ret)
-            {
-              h.closeFile();
-              td->response.CONTENT_LENGTH.assign("0");
-              return 0;
-            }
-            dataSent+=nbw;
-            
-          }
+          u_long nbw;
+          ret = chain.write(td->buffer->GetBuffer(), nbr, &nbw);
+          if(ret)
+            break;     
+          
+          dataSent += nbw;       
+
+          ret=chain.getStream()->write("\r\n", 2, &nbw);
+          if(ret)
+            break;   
         }
       }
-      /*! 
-       *When the bytes number read from the file is zero, 
-       *stop to send the file.  
-       */
-      if(nbr==0)
+
+      if(breakAtTheEnd)
       {
-        if(keepalive && useGzip )
+        if(keepalive)
         {
-          ret=s->socket.send("0\r\n\r\n", 5, 0);
-          if(ret==SOCKET_ERROR)
-          {
-            ostringstream buffer;
-            h.closeFile();
-            buffer << dataSent;
-            td->response.CONTENT_LENGTH.assign(buffer.str());
-            return 0;
-          }
+          u_long nbw;
+          ret=chain.getStream()->write("0\r\n\r\n", 5, &nbw);
         }
         break;
       }
+
     }/*End for loop. */
+
     h.closeFile();
     /*! Update the Content-Length field for logging activity. */
     {
@@ -339,6 +317,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
     ((Vhost*)(s->host))->warningsLogWrite("HTTP File: Error allocating memory\r\n");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
+    chain.clearAllFilters();
     return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   catch(...)
@@ -347,9 +326,11 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
     ((Vhost*)(s->host))->warningsLogWrite("HTTP File: Internal error\r\n");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
+    chain.clearAllFilters();
     return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   };
-    
+
+  chain.clearAllFilters();
 	return 1;
 }
 
