@@ -61,6 +61,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
   int usechunks=0;
+
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
 	
@@ -203,17 +204,24 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(td->appendOutputs)
       chain.setStream(&(td->outputData));   
     else
-        chain.setStream(&(s->socket));
+      chain.setStream(&(s->socket));
 
     if(useGzip)
     {
       Filter* gzipFilter = lserver->getFiltersFactory()->getFilter("gzip");
       u_long nbw;
+      Stream *tmp;
       if(!gzipFilter)
       {
         h.closeFile();
         chain.clearAllFilters();
         return 0;
+      }
+
+      if(usechunks)
+      {
+        tmp=chain.getStream();
+        chain.setStream(&memStream);
       }
 
       if(chain.addFilter(gzipFilter, &nbw))
@@ -224,12 +232,17 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         return 0;
       }
 
+      if(usechunks)
+      {
+        chain.setStream(tmp);
+      }
       dataSent+=nbw;
     }
 
     for(;;)
     {
       u_long nbr;
+      u_long nbw;
       u_long breakAtTheEnd=0;
       /*! Read from the file the bytes to send. */
       ret = h.readFromFile(td->buffer->GetBuffer(),
@@ -243,42 +256,32 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       /*! If there are bytes to send, send them. */
       if(!nbr)
       {
-        ret=chain.flush(&nbr);
-       
-        if(ret || !keepalive)
-          break;
-
-        breakAtTheEnd=1; 
-      }
-      
-      if(nbr)
-      {
-        u_long nbw;
-        memStream.refresh();
-        memStream.write(td->buffer->GetBuffer(), nbr, &nbw);
         if(usechunks)
         {
+          u_long nbw2;
           ostringstream buffer;
-          Stream *s;
-          u_long availableToRead=memStream.availableToRead();
-          buffer << hex << availableToRead << "\r\n";
+          {
+            Stream *tmp=chain.getStream();
+            chain.setStream(&memStream);
+            chain.flush(&nbw);
+            chain.setStream(tmp);
+          }
+          ret=memStream.read(td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbw);
+          if(ret)
+            break;
+          buffer << hex << nbw << "\r\n";
           /*!TODO: remove ugly (char*) cast. */
           ret=chain.getStream()->write((char*)buffer.str().c_str(), 
-                                       buffer.str().length(), &nbw);
-          if(ret)
-            break;
-
-          s=chain.getFirstFilter();
-          if(!s)
-             s=chain.getStream();
-          if(!s)
-            break;
-
-          ret=memStream.read(s, availableToRead, &nbw);
-          if(ret)
-            break;     
+                                       buffer.str().length(), &nbw2);
           
-          dataSent += nbw;
+          if(ret)
+            break;
+
+          ret=chain.getStream()->write(td->buffer->GetBuffer(), nbw, &nbw2);
+          if(ret)
+            break; 
+
+          dataSent += nbw2;
 
           ret=chain.getStream()->write("\r\n", 2, &nbw);
           if(ret)
@@ -286,7 +289,60 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         }
         else
         {
-          u_long nbw;
+          ret=chain.flush(&nbr);
+          if(ret)
+            break;
+          dataSent+=nbr;
+        }
+        if(ret)
+          break;
+
+        breakAtTheEnd=1; 
+      }
+      
+      if(nbr)
+      {
+        if(usechunks)
+        {
+          u_long nbw2;
+          ostringstream buffer;
+          Stream *s;
+   
+          s=chain.getFirstFilter();
+          if(!s)
+             s=chain.getStream();
+          if(!s)
+            break;
+
+          {
+            Stream *tmp=chain.getStream();
+            chain.setStream(&memStream);
+            chain.write(td->buffer->GetBuffer(), nbr, &nbw);
+            chain.setStream(tmp);
+          }
+          ret=memStream.read(td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbw);
+          if(ret)
+            break;  
+
+          buffer << hex << nbw << "\r\n";
+          /*!TODO: remove ugly (char*) cast. */
+          ret=chain.getStream()->write((char*)buffer.str().c_str(), 
+                                       buffer.str().length(), &nbw2);
+          if(ret)
+            break;
+
+          ret=chain.getStream()->write(td->buffer->GetBuffer(), nbw, &nbw2);
+          if(ret)
+            break; 
+          
+          dataSent += nbw2;
+
+          ret=chain.getStream()->write("\r\n", 2, &nbw);
+          if(ret)
+            break;
+        }
+        else
+        {
           ret = chain.write(td->buffer->GetBuffer(), nbr, &nbw);
           if(ret)
             break;     
@@ -305,6 +361,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         }
         break;
       }
+      memStream.refresh();
 
     }/*End for loop. */
 
