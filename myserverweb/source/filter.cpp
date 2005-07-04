@@ -104,3 +104,17 @@ int Filter::modifyData()
 {
   return 0;
 }
+
+/*!
+ *Return a string with the filter name. 
+ *If an external buffer is provided write the name there too.
+ */
+const char* Filter::getName(char* name, u_long len)
+{
+  /*! No name by default. */
+  if(name)
+  {
+    name[0]='\0';
+  }
+  return "\0";
+}

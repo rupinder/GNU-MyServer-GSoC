@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../stdafx.h"
 #include "../include/stream.h"
 
-
 /*!
  *Abstract class to handle virtual data filters.
  */
@@ -36,6 +35,7 @@ public:
   virtual int write(char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
 	virtual int modifyData();
+  virtual const char* getName(char*, u_long);
   void setParent(Stream*);
   Stream* getParent();
   Filter();

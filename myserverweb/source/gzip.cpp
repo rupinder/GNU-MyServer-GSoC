@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 #include "../include/gzip.h"
+#include "../include/securestr.h"
 
 extern "C" {
 #ifdef WIN32
@@ -327,4 +327,18 @@ int Gzip::flush(u_long *nbw)
 Filter* Gzip::factory(const char* name)
 {
   return new Gzip();
+}
+
+/*!
+ *Return a string with the filter name. 
+ *If an external buffer is provided write the name there too.
+ */
+const char* Gzip::getName(char* name, u_long len)
+{
+  /*! No name by default. */
+  if(name)
+  {
+    myserver_strlcpy(name, "gzip", len);
+  }
+  return "gzip";
 }

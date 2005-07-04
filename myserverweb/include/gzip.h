@@ -70,6 +70,7 @@ public:
   virtual int write(char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
 	virtual int modifyData();
+  virtual const char* getName(char* name, u_long len);
 private:
 	GzipData data;
 };
