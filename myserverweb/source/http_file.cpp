@@ -269,23 +269,26 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           ret=memStream.read(td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbw);
           if(ret)
             break;
-          buffer << hex << nbw << "\r\n";
-          /*!TODO: remove ugly (char*) cast. */
-          ret=chain.getStream()->write((char*)buffer.str().c_str(), 
-                                       buffer.str().length(), &nbw2);
+          if(nbw)
+          {
+            buffer << hex << nbw << "\r\n";
+            /*!TODO: remove ugly (char*) cast. */
+            ret=chain.getStream()->write((char*)buffer.str().c_str(), 
+                                         buffer.str().length(), &nbw2);
           
-          if(ret)
-            break;
+            if(ret)
+              break;
 
-          ret=chain.getStream()->write(td->buffer->GetBuffer(), nbw, &nbw2);
-          if(ret)
-            break; 
+            ret=chain.getStream()->write(td->buffer->GetBuffer(), nbw, &nbw2);
+            if(ret)
+              break; 
 
           dataSent += nbw2;
 
           ret=chain.getStream()->write("\r\n", 2, &nbw);
           if(ret)
             break;
+          }
         }
         else
         {
