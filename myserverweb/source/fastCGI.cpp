@@ -417,7 +417,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
      *contentLengthB1 is the high word of the content length value
      *while contentLengthB0 is the low one.
      *To retrieve the value of content length push left contentLengthB1
-     *of eight byte then do a or with contentLengthB0.
+     *of eight byte then do an or with contentLengthB0.
      */
 		dim=(header.contentLengthB1<<8) | header.contentLengthB0;
 		data_sent=0;
@@ -503,6 +503,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	con.tempOut.setFilePointer(0);
 	td->buffer->GetAt(0)='\0';
 	buffer=td->buffer->GetBuffer();
+
+  con.tempOut.setFilePointer(0);
 
   /*! Return an error message if ret is 0. */
   if((!ret) || con.tempOut.readFromFile(buffer,td->buffer->GetRealLength(),&nbr))

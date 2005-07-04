@@ -46,7 +46,7 @@ void FiltersChain::setStream(Stream* s)
   list<Filter*>::iterator i=filters.begin();
 
   for( ; i!=filters.end(); i++ )
-    if((*i)->getParent()==s)
+    if((*i)->getParent()==stream)
     {
       (*i)->setParent(s);
     }

@@ -79,6 +79,7 @@ MemoryStream::MemoryStream(CMemBuf* out)
   readSeek=0;
   internalData=0;
   data=out;
+  data->SetLength(0);
 }
 
 /*!
@@ -97,6 +98,7 @@ MemoryStream::MemoryStream()
   internalData=1;
   readSeek=0;
   data = new CMemBuf();
+  data->SetLength(0);
 }
 
 /*!
