@@ -68,7 +68,7 @@ int MIMEtypeXML::load(const char * filename)
 /// Load the MIME types configuration from memory.
 /// returns -1 on error.
 ///
-int MIMEtypeXML::loadMemBuf(CMemBuf & buffer)
+int MIMEtypeXML::loadMemBuf(MemBuf & buffer)
 {
    XmlParser parser;
    if(parser.openMemBuf(buffer))
@@ -181,7 +181,7 @@ int MIMEtypeXML::save(const char * filename)
 /// Save the MIME types configuration to a memory buffer.
 /// Returns negative on error.
 ///
-int MIMEtypeXML::saveMemBuf(CMemBuf & buffer)
+int MIMEtypeXML::saveMemBuf(MemBuf & buffer)
 {
    XmlParser xmlFile;
    int ret = save_core(xmlFile);
@@ -194,7 +194,7 @@ int MIMEtypeXML::saveMemBuf(CMemBuf & buffer)
 /// Save the MIME types configuration to xml data.
 /// Returns negative on error.
 //  Copied and modified from MIME_manager.cpp
-//  Old text way remove to make use of CMemBuf
+//  Old text way remove to make use of MemBuf
 // 
 int MIMEtypeXML::save_core(XmlParser & xmlFile)
 {

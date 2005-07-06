@@ -4,7 +4,7 @@
 *Copyright (C) 2004, Guinet Adrien (grainailleur)
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -13,12 +13,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef MEMBUF_CLASS
-#define MEMBUF_CLASS
+#ifndef MEMBUF_H
+#define MEMBUF_H
 
 #ifndef NULL
 #define NULL 0
@@ -46,88 +46,86 @@ using namespace std;
 
 #define end_str '\0'
 
-
-
-class CMemBuf
+class MemBuf
 {
 public:
-	CMemBuf();
-	CMemBuf(const void* pAdr, u_int size);
-	CMemBuf(const CMemBuf& srcBuf);
-	CMemBuf(CMemBuf& srcBuf, int bCopy);
-	~CMemBuf();
+	MemBuf();
+	MemBuf(const void* pAdr, u_int size);
+	MemBuf(const MemBuf& srcBuf);
+	MemBuf(MemBuf& srcBuf, int bCopy);
+	~MemBuf();
 public:
-	void SetExternalBuffer(const void* pAdr, u_int size);
-	int SetBuffer(const void* pAdr, u_int size);
-	void SetLength(u_int newSize);
+	void setExternalBuffer(const void* pAdr, u_int size);
+	int setBuffer(const void* pAdr, u_int size);
+	void setLength(u_int newSize);
 
-	void AddBuffer(const void* pAdr, u_int size);
-	void AddBuffer(CMemBuf *nmb);
+	void addBuffer(const void* pAdr, u_int size);
+	void addBuffer(MemBuf *nmb);
 
-	int Free();
+	int free();
 public:
-	u_int Find(char c, u_int start = 0);
-	u_int Find(CMemBuf *smb, u_int start = 0);
-	u_int Find(const void* pAdr, u_int size, u_int start = 0);
-	void Replace(char what, char by);
+	u_int find(char c, u_int start = 0);
+	u_int find(MemBuf *smb, u_int start = 0);
+	u_int find(const void* pAdr, u_int size, u_int start = 0);
+	void replace(char what, char by);
 public:
-	char& GetAt(u_int nIndex);
+	char& getAt(u_int nIndex);
 	char& operator[](u_int nIndex);
 
-	int GetPart(u_int nStart, u_int nEnd, CMemBuf& result);
-	int GetPartAsString(u_int nStart, u_int nEnd, CMemBuf& result);
+	int getPart(u_int nStart, u_int nEnd, MemBuf& result);
+	int getPartAsString(u_int nStart, u_int nEnd, MemBuf& result);
 
-	char* GetBufferSetLength(u_int newSize);
+	char* getBuffersetLength(u_int newSize);
 
-	u_int GetLength();
-	u_int GetRealLength();
+	u_int getLength();
+	u_int getRealLength();
 
-	int IsValid();
+	int isValid();
 
-	char* GetBuffer();
+	char* getBuffer();
 	operator const void*() ;
 public:
-	CMemBuf operator+ (CMemBuf& src);
-	CMemBuf operator+ (const char* src);
-	const CMemBuf& operator+= (CMemBuf& add);
-	const CMemBuf& operator+= (const char* pStr);
-	const CMemBuf& operator+= (char c) ;
+	MemBuf operator+ (MemBuf& src);
+	MemBuf operator+ (const char* src);
+	const MemBuf& operator+= (MemBuf& add);
+	const MemBuf& operator+= (const char* pStr);
+	const MemBuf& operator+= (char c) ;
 public:
-	CMemBuf& operator<< (const char* pSrc) ;
-	CMemBuf& operator<< (int i) ;
-	CMemBuf& operator<< (unsigned int i) ;
-	CMemBuf& operator<< (long i) ;
-	CMemBuf& operator<< (unsigned long i);
-	CMemBuf& operator<< (char c) ;
-	CMemBuf& operator<< (unsigned char c) ;
-	CMemBuf& operator<< (const CMemBuf &src) ;
-	CMemBuf& operator<< (const string &src) ;
+	MemBuf& operator<< (const char* pSrc) ;
+	MemBuf& operator<< (int i) ;
+	MemBuf& operator<< (unsigned int i) ;
+	MemBuf& operator<< (long i) ;
+	MemBuf& operator<< (unsigned long i);
+	MemBuf& operator<< (char c) ;
+	MemBuf& operator<< (unsigned char c) ;
+	MemBuf& operator<< (const MemBuf &src) ;
+	MemBuf& operator<< (const string &src) ;
 public:
-	CMemBuf& operator=(const CMemBuf& src) ;
-	CMemBuf& operator=(const char* src);
+	MemBuf& operator=(const MemBuf& src) ;
+	MemBuf& operator=(const char* src);
 public:
 	u_int m_nSizeLimit; // The maximun size that the buffer can reached ; 0 if none
 	u_int m_nBlockLength; // Minimun size of new allocated blocks during addings
 						 // We assume that m_nBlockLength < m_nSizeLimit
 public: 
-	void Hash_MD5(const void* pAdr, u_int nSize);
-	void Hash_CRC(const void* pAdr, u_int nSize);
-	void Hex(const void* pAdr, u_int nSize);
-	void UIntToStr(u_int i);
-	void IntToStr( int i);
-	u_int StrToUint(const char* pAdr);
-	unsigned char HexCharToNumber(unsigned char c);
-	CMemBuf HexToData(const void* pAdr, u_int nSize);
-	int StrToInt(const char* pAdr);
-	void Hex(CMemBuf& membuf) ;
-	void Hash_MD5(CMemBuf& membuf);
-	void Hash_CRC(CMemBuf& membuf);
-	void UIntToStr(u_int i, char* pBufToUse, u_int nBufSize) ;
-	void XIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);	
-	void IntToStr(int i, char* pBufToUse, u_int nBufSize);
+	void hashMD5(const void* pAdr, u_int nSize);
+	void hashCRC(const void* pAdr, u_int nSize);
+	void hex(const void* pAdr, u_int nSize);
+	void uintToStr(u_int i);
+	void intToStr( int i);
+	u_int strToUint(const char* pAdr);
+	unsigned char hexCharToNumber(unsigned char c);
+	MemBuf hexToData(const void* pAdr, u_int nSize);
+	int strToInt(const char* pAdr);
+	void hex(MemBuf& membuf) ;
+	void hashMD5(MemBuf& membuf);
+	void hashCRC(MemBuf& membuf);
+	void uintToStr(u_int i, char* pBufToUse, u_int nBufSize) ;
+	void xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);	
+	void intToStr(int i, char* pBufToUse, u_int nBufSize);
 protected:
-	void XIntToStr(u_int i, int bNegative);
-	void AllocBuffer(u_int size);
+	void xIntToStr(u_int i, int bNegative);
+	void allocBuffer(u_int size);
 	char* m_buffer; // Using of char* instead of void* because the C++ Compilator doesn't know the size of a void* !!!!!
 	u_int m_nSize;
 	u_int m_nRealSize;

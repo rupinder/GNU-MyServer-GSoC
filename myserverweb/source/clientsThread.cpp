@@ -3,7 +3,7 @@
 *Copyright (C) 2002, 2003, 2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, 
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -151,9 +151,9 @@ void * startClientsThread(void* pParam)
 	ct->buffersize=lserver->getBuffersize();
 	ct->buffersize2=lserver->getBuffersize2();
 	
-	ct->buffer.SetLength(ct->buffersize);
+	ct->buffer.setLength(ct->buffersize);
 	ct->buffer.m_nSizeLimit = ct->buffersize;
-	ct->buffer2.SetLength(ct->buffersize2);
+	ct->buffer2.setLength(ct->buffersize2);
 	ct->buffer2.m_nSizeLimit = ct->buffersize2;
 
   /*! Built-in protocols will be initialized at the first use. */
@@ -164,10 +164,10 @@ void * startClientsThread(void* pParam)
 	ct->initialized=1;
 
   /*! Reset first 1024 bytes for thread buffers. */
-	memset((char*)ct->buffer.GetBuffer(), 0, 
-         1024>ct->buffer.GetRealLength()?1024:ct->buffer.GetRealLength());
-	memset((char*)ct->buffer2.GetBuffer(), 0, 
-         1024>ct->buffer2.GetRealLength()?1024:ct->buffer2.GetRealLength());
+	memset((char*)ct->buffer.getBuffer(), 0, 
+         1024>ct->buffer.getRealLength()?1024:ct->buffer.getRealLength());
+	memset((char*)ct->buffer2.getBuffer(), 0, 
+         1024>ct->buffer2.getRealLength()?1024:ct->buffer2.getRealLength());
 
 	/*! Wait that the server is ready before go in the running loop. */
   while(!lserver->isServerReady())
@@ -329,7 +329,7 @@ int ClientsThread::controlConnections()
 	{
 		c->setForceParsing(0);
 		if(nBytesToRead)
-			err=c->socket.recv(&((char*)(buffer.GetBuffer()))[c->getDataRead()],
+			err=c->socket.recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
                          MYSERVER_KB(8) - c->getDataRead(), 0);
 
     /*! Refresh with the right value. */
@@ -342,7 +342,7 @@ int ClientsThread::controlConnections()
 		}
  		if((c->getDataRead() + err) <= MYSERVER_KB(8))
 		{
-			((char*)buffer.GetBuffer())[c->getDataRead() + err]='\0';
+			((char*)buffer.getBuffer())[c->getDataRead() + err]='\0';
 		}
 		else
 		{
@@ -350,7 +350,7 @@ int ClientsThread::controlConnections()
 			return 0;
 		}
 
-		buffer.SetBuffer(c->connectionBuffer, c->getDataRead());
+		buffer.setBuffer(c->connectionBuffer, c->getDataRead());
 
 		c->thread=this;
     try
@@ -368,9 +368,9 @@ int ClientsThread::controlConnections()
           if(http_parser==0)
             return 0;
         }
-				retcode=http_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
-                               (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
-                               buffer2.GetRealLength(), nBytesToRead, id);
+				retcode=http_parser->controlConnection(c, (char*)buffer.getBuffer(), 
+                               (char*)buffer2.getBuffer(), buffer.getRealLength(), 
+                               buffer2.getRealLength(), nBytesToRead, id);
  				break;
         /*!
          *Parse an HTTPS connection request.
@@ -382,9 +382,9 @@ int ClientsThread::controlConnections()
             if(https_parser==0)
               return 0;
           }
-          retcode=https_parser->controlConnection(c, (char*)buffer.GetBuffer(), 
-                               (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
-                                buffer2.GetRealLength(), nBytesToRead, id);
+          retcode=https_parser->controlConnection(c, (char*)buffer.getBuffer(), 
+                               (char*)buffer2.getBuffer(), buffer.getRealLength(), 
+                                buffer2.getRealLength(), nBytesToRead, id);
           break;
 			  case PROTOCOL_CONTROL:
           if(control_protocol_parser == 0)
@@ -394,8 +394,8 @@ int ClientsThread::controlConnections()
               return 0;
           }
           retcode=control_protocol_parser->controlConnection(c, 
-                       (char*)buffer.GetBuffer(), (char*)buffer2.GetBuffer(), 
-                       buffer.GetRealLength(), buffer2.GetRealLength(), 
+                       (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
+                       buffer.getRealLength(), buffer2.getRealLength(), 
                                                              nBytesToRead, id);
           break;
 		  	default:
@@ -406,9 +406,9 @@ int ClientsThread::controlConnections()
 			  	}
 			  	else
 				  {
-				  	retcode=dp->controlConnection(c, (char*)buffer.GetBuffer(), 
-                    (char*)buffer2.GetBuffer(), buffer.GetRealLength(), 
-                    buffer2.GetRealLength(), nBytesToRead, id);
+				  	retcode=dp->controlConnection(c, (char*)buffer.getBuffer(), 
+                    (char*)buffer2.getBuffer(), buffer.getRealLength(), 
+                    buffer2.getRealLength(), nBytesToRead, id);
 				  }
           break;
       }
@@ -441,7 +441,7 @@ int ClientsThread::controlConnections()
        *data in the connection buffer.
        *Save the header in the connection buffer.
        */
-			memcpy(c->connectionBuffer, (char*)buffer.GetBuffer(), c->getDataRead() + err);
+			memcpy(c->connectionBuffer, (char*)buffer.getBuffer(), c->getDataRead() + err);
 
 			c->setDataRead(c->getDataRead() + err);
 		}
@@ -508,8 +508,8 @@ void ClientsThread::clean()
   if(control_protocol_parser)
     delete control_protocol_parser;
 
-	buffer.Free();
-	buffer2.Free();
+	buffer.free();
+	buffer2.free();
 
 	initialized=0;
 }
@@ -534,14 +534,14 @@ int ClientsThread::isStopped()
 /*!
  *Get a pointer to the buffer.
  */
-CMemBuf* ClientsThread::GetBuffer()
+MemBuf* ClientsThread::getBuffer()
 {
 	return &buffer;
 }
 /*!
  *Get a pointer to the buffer2.
  */
-CMemBuf *ClientsThread::GetBuffer2()
+MemBuf *ClientsThread::getBuffer2()
 {
 	return &buffer2;
 }

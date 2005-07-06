@@ -3,7 +3,7 @@
 *Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, 
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -241,7 +241,7 @@ void Server::start()
     logWriteln(buffer.c_str()); 
     
     /*!
-     *Find the IP addresses of the local machine.
+     *find the IP addresses of the local machine.
      */
     localhe=Socket::gethostbyname(serverName);
     in_addr ia;
@@ -893,7 +893,7 @@ int Server::terminate()
 	/*!
    *Under WIN32 cleanup environment strings.
    */
-	FreeEnvironmentStrings((LPTSTR)envString);
+	freeEnvironmentStrings((LPTSTR)envString);
 #endif
 	Http::unloadProtocol(&languageParser);
 	Https::unloadProtocol(&languageParser);
@@ -908,7 +908,7 @@ int Server::terminate()
 	delete connections_mutex;
 
   /*!
-   *Free all the threads.
+   *free all the threads.
    */
   thread = threads;
   while(thread)
@@ -1369,7 +1369,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 #endif		
 		if(ret<0)
 		{
-			/*! Free the connection on errors. */
+			/*! free the connection on errors. */
 			delete new_connection;
 			return 0;
 		}
@@ -1527,7 +1527,7 @@ void Server::clearAllConnections()
 }
 
 /*!
- *Find a connection passing its socket.
+ *find a connection passing its socket.
  */
 ConnectionPtr Server::findConnectionBySocket(Socket a)
 {
@@ -1546,7 +1546,7 @@ ConnectionPtr Server::findConnectionBySocket(Socket a)
 }
 
 /*!
- *Find a CONNECTION in the list by its ID.
+ *find a CONNECTION in the list by its ID.
  */
 ConnectionPtr Server::findConnectionByID(u_long ID)
 {

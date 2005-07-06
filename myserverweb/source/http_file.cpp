@@ -3,7 +3,7 @@
 *Copyright (C) 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, 
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -135,7 +135,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       return  ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
     }
 
-    td->buffer->SetLength(0);
+    td->buffer->setLength(0);
 
     /*! If a Range was requested send 206 and not 200 for success.  */
     if( td->request.RANGEBYTEBEGIN ||  td->request.RANGEBYTEEND )
@@ -177,14 +177,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
     }
 
-    HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
+    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                          &td->response);
-    td->buffer->SetLength((u_long)strlen(td->buffer->GetBuffer()));
+    td->buffer->setLength((u_long)strlen(td->buffer->getBuffer()));
     if(!td->appendOutputs)
     {
       /*! Send the HTTP header.  */
-      if(s->socket.send(td->buffer->GetBuffer(), 
-                        (u_long)td->buffer->GetLength(), 0)== SOCKET_ERROR)
+      if(s->socket.send(td->buffer->getBuffer(), 
+                        (u_long)td->buffer->getLength(), 0)== SOCKET_ERROR)
       {
         h.closeFile();
         return 0;
@@ -245,9 +245,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       u_long nbw;
       u_long breakAtTheEnd=0;
       /*! Read from the file the bytes to send. */
-      ret = h.readFromFile(td->buffer->GetBuffer(),
-                           (bytes_to_send<td->buffer->GetRealLength()? 
-                            bytes_to_send :td->buffer->GetRealLength()), &nbr);
+      ret = h.readFromFile(td->buffer->getBuffer(),
+                           (bytes_to_send<td->buffer->getRealLength()? 
+                            bytes_to_send :td->buffer->getRealLength()), &nbr);
       if(ret)
         break;
 
@@ -266,7 +266,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             chain.flush(&nbw);
             chain.setStream(tmp);
           }
-          ret=memStream.read(td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbw);
+          ret=memStream.read(td->buffer->getBuffer(), td->buffer->getRealLength(), &nbw);
           if(ret)
             break;
           if(nbw)
@@ -279,7 +279,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             if(ret)
               break;
 
-            ret=chain.getStream()->write(td->buffer->GetBuffer(), nbw, &nbw2);
+            ret=chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
             if(ret)
               break; 
 
@@ -320,10 +320,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           {
             Stream *tmp=chain.getStream();
             chain.setStream(&memStream);
-            chain.write(td->buffer->GetBuffer(), nbr, &nbw);
+            chain.write(td->buffer->getBuffer(), nbr, &nbw);
             chain.setStream(tmp);
           }
-          ret=memStream.read(td->buffer->GetBuffer(), td->buffer->GetRealLength(), &nbw);
+          ret=memStream.read(td->buffer->getBuffer(), td->buffer->getRealLength(), &nbw);
           if(ret)
             break;  
 
@@ -334,7 +334,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           if(ret)
             break;
 
-          ret=chain.getStream()->write(td->buffer->GetBuffer(), nbw, &nbw2);
+          ret=chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
           if(ret)
             break; 
           
@@ -346,7 +346,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         }
         else
         {
-          ret = chain.write(td->buffer->GetBuffer(), nbr, &nbw);
+          ret = chain.write(td->buffer->getBuffer(), nbr, &nbw);
           if(ret)
             break;     
           

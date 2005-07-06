@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -63,7 +63,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
   int nbs=0;
 	MsCgiData data;
  	data.envString=td->request.URIOPTSPTR ?
-                    td->request.URIOPTSPTR : (char*) td->buffer->GetBuffer();
+                    td->request.URIOPTSPTR : (char*) td->buffer->getBuffer();
 	
 	data.td = td;
 	data.errorPage=0;
@@ -101,7 +101,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
      *Set the working directory to the MSCGI file one.
      */
 		setcwd(td->scriptDir.c_str());
-		td->buffer2->GetAt(0)='\0';
+		td->buffer2->getAt(0)='\0';
 
 		ProcMain = (CGIMAIN) hinstLib.getProc( "main"); 
 
@@ -157,8 +157,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
    */
 	if(!td->appendOutputs)
 	{
-		char *buffer = td->buffer2->GetBuffer();
-		u_long bufferSize= td->buffer2->GetRealLength();
+		char *buffer = td->buffer2->getBuffer();
+		u_long bufferSize= td->buffer2->getRealLength();
 		data.stdOut.setFilePointer(0);
 		HttpHeaders::buildHTTPResponseHeader(buffer,&(td->response));
 		if(s->socket.send(buffer,(int)strlen(buffer), 0)==SOCKET_ERROR)
@@ -244,7 +244,7 @@ int MsCgi::load(XmlParser* /*confFile*/)
 }
 
 /*!
-*Free the memory allocated by the MSCGI library.
+*free the memory allocated by the MSCGI library.
 */
 int MsCgi::unload()
 {

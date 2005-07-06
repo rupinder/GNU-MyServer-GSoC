@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -128,8 +128,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
-	td->buffer2->SetLength(0);
-	buffer=td->buffer2->GetBuffer();
+	td->buffer2->setLength(0);
+	buffer=td->buffer2->getBuffer();
 
 	strcpy(buffer,"[CGI]\r\n");
 	DataFileHandle.writeToFile(buffer,7,&nbr);
@@ -138,7 +138,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	DataFileHandle.writeToFile(buffer,26,&nbr);
 
 	*td->buffer2 << "Server Admin=" << lserver->getServerAdmin() << "\r\n";
-	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
+	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
 	if(stringcmpi(td->request.CONNECTION,"Keep-Alive"))
 	{
@@ -151,17 +151,17 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		DataFileHandle.writeToFile(buffer,24,&nbr);
 	}
 
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "Request Method=" << td->request.CMD << "\r\n";
-	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
+	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "Request Protocol=HTTP/" << td->request.VER << "\r\n";
-	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
+	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
-	 td->buffer2->SetLength(0);	
+	 td->buffer2->setLength(0);	
 	*td->buffer2 << "Executable Path=" << execname << "\r\n";
-	DataFileHandle.writeToFile(buffer,td->buffer2->GetLength(),&nbr);
+	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
 	if(td->request.URIOPTS[0])
 	{
@@ -283,7 +283,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
-	OutFileHandle.readFromFile(buffer,td->buffer2->GetRealLength(),&nBytesRead);
+	OutFileHandle.readFromFile(buffer,td->buffer2->getRealLength(),&nBytesRead);
 	if(nBytesRead==0)
 	{
     ostringstream msg;
@@ -325,10 +325,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     /*!
      *Send the header if it is not appending.
      */
-		HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
+		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                           &td->response);
-		s->socket.send((const char*)td->buffer->GetBuffer(),
-                   (int)strlen((const char*)td->buffer->GetBuffer()), 0);
+		s->socket.send((const char*)td->buffer->getBuffer(),
+                   (int)strlen((const char*)td->buffer->getBuffer()), 0);
     if(onlyHeader)
     {
       OutFileHandle.closeFile();
@@ -343,7 +343,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	}
 	else
   {
-		HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
+		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                           &td->response);
     if(onlyHeader)
     {
@@ -356,7 +356,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   /*! Flush the rest of the file. */
   do
 	{
-    OutFileHandle.readFromFile(buffer,td->buffer2->GetLength(),&nBytesRead);
+    OutFileHandle.readFromFile(buffer,td->buffer2->getLength(),&nBytesRead);
 		if(nBytesRead)
 		{
       int ret;
@@ -396,10 +396,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
 #ifdef NOT_WIN
   /*! WinCGI is available only under windows. */
-	td->buffer->SetLength(0);
+	td->buffer->setLength(0);
 	*td->buffer << "Error WinCGI is not implemented on the current architecture\r\n" << '\0';
 	((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-	((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->GetBuffer());
+	((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
 	((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 	return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_501);
 #endif

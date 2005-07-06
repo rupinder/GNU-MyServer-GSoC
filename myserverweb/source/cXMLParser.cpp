@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -47,7 +47,7 @@ extern "C" {
 /* internal call back functions for saveMemBuf */
 static int MemBufWriteCallback(void * context, const char * buffer, int len)
 {
-	((CMemBuf *)context)->AddBuffer((const void *)buffer, len);
+	((MemBuf *)context)->addBuffer((const void *)buffer, len);
 	return len;
 }
 static int MemBufCloseCallback(void * context)
@@ -115,15 +115,15 @@ time_t XmlParser::getLastModTime()
  *Read the xml data from a char array
  *Return nonzero on errors.
  */
-int XmlParser::openMemBuf(CMemBuf & memory)
+int XmlParser::openMemBuf(MemBuf & memory)
 {
   mtime=0;
 	cur=0;
-	if(memory.GetLength() == 0)
+	if(memory.getLength() == 0)
 		return -1;
 	if(doc==0)
-		doc = xmlParseMemory((const char * )memory.GetBuffer(),
-		                     memory.GetLength());
+		doc = xmlParseMemory((const char * )memory.getBuffer(),
+		                     memory.getLength());
 	else
 		close();
 	if(!doc)
@@ -250,7 +250,7 @@ char *XmlParser::getAttr(char* field,char *attr)
 }
 
 /*!
- *Free the memory used by the class.
+ *free the memory used by the class.
  */
 int XmlParser::close()
 {
@@ -284,7 +284,7 @@ int XmlParser::save(const char *filename,int *nbytes)
  *If no errors nbytes[optional] will cointain the number 
  *of bytes written.
  */
-int XmlParser::saveMemBuf(CMemBuf & memory,int *nbytes)
+int XmlParser::saveMemBuf(MemBuf & memory,int *nbytes)
 {
   /*! Initialize the callback struct. */
   xmlOutputBufferPtr callback;
@@ -294,7 +294,7 @@ int XmlParser::saveMemBuf(CMemBuf & memory,int *nbytes)
                                      NULL);
   
   /*! Clear out the buffer. */
-  memory.Free(); 
+  memory.free(); 
   
   /*! Let libxml2 fill the MemBuf class with our interal callbacks. */
   int err = xmlSaveFileTo(callback, doc, NULL);

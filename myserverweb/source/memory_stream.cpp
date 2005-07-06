@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -31,8 +31,8 @@ int MemoryStream::read(char* buffer,u_long len, u_long *nbr)
 {
   char *b;
   u_long towrite;
-  towrite = *nbr = std::min(len, static_cast<u_long>(data->GetLength() - readSeek));
-  b=data->GetBuffer()+readSeek;
+  towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));
+  b=data->getBuffer()+readSeek;
   while(towrite--)
   {
     *buffer++ = *b++;
@@ -46,8 +46,8 @@ int MemoryStream::read(char* buffer,u_long len, u_long *nbr)
  */
 int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
 {
-  u_long towrite = *nbr = std::min(len, static_cast<u_long>(data->GetLength() - readSeek));  
-  int ret = s->write(data->GetBuffer()+readSeek, towrite, nbr);
+  u_long towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));  
+  int ret = s->write(data->getBuffer()+readSeek, towrite, nbr);
   readSeek+=towrite;
   return ret;
 }
@@ -57,7 +57,7 @@ int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
  */
 int MemoryStream::write(char* buffer, u_long len, u_long *nbw)
 {
-  data->AddBuffer(buffer, len);
+  data->addBuffer(buffer, len);
   *nbw=len;
   return 0;
 }
@@ -74,12 +74,12 @@ int MemoryStream::flush(u_long* nbw)
 /*!
  *Use an external buffer to store data.
  */
-MemoryStream::MemoryStream(CMemBuf* out)
+MemoryStream::MemoryStream(MemBuf* out)
 {
   readSeek=0;
   internalData=0;
   data=out;
-  data->SetLength(0);
+  data->setLength(0);
 }
 
 /*!
@@ -87,7 +87,7 @@ MemoryStream::MemoryStream(CMemBuf* out)
  */
 int MemoryStream::availableToRead()
 {
-  return data->GetLength()-readSeek;
+  return data->getLength()-readSeek;
 }
 
 /*!
@@ -97,8 +97,8 @@ MemoryStream::MemoryStream()
 {
   internalData=1;
   readSeek=0;
-  data = new CMemBuf();
-  data->SetLength(0);
+  data = new MemBuf();
+  data->setLength(0);
 }
 
 /*!
@@ -116,5 +116,5 @@ MemoryStream::~MemoryStream()
 int MemoryStream::refresh()
 {
   readSeek=0;
-  data->SetLength(0);
+  data->setLength(0);
 }

@@ -3,7 +3,7 @@
 *Copyright (C) 2002, 2003, 2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, 
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -222,8 +222,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    *by the execHiddenProcess(...) function.
    *Use the td->buffer2 to build the environment string.
    */
-	(td->buffer2->GetBuffer())[0]='\0';
-	buildCGIEnvironmentString(td, td->buffer2->GetBuffer());
+	(td->buffer2->getBuffer())[0]='\0';
+	buildCGIEnvironmentString(td, td->buffer2->getBuffer());
   
 	/*!
    *With this code we execute the CGI process.
@@ -236,7 +236,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	spi.stdError = stdOutFile.getHandle();
 	spi.stdIn = stdInFile.getHandle();
 	spi.stdOut = stdOutFile.getHandle();
-	spi.envString=td->buffer2->GetBuffer();
+	spi.envString=td->buffer2->getBuffer();
   
   /*! Execute the CGI process. */
   {
@@ -253,7 +253,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     }
   }
   /*! Reset the buffer2 length counter. */
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 
 	/*! Read the CGI output.  */
 	nBytesRead=0;
@@ -270,8 +270,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
   
-  if(stdOutFile.readFromFile(td->buffer2->GetBuffer(), 
-                             td->buffer2->GetRealLength()-1, &nBytesRead))
+  if(stdOutFile.readFromFile(td->buffer2->getBuffer(), 
+                             td->buffer2->getRealLength()-1, &nBytesRead))
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
@@ -282,7 +282,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   }
 		
-	(td->buffer2->GetBuffer())[nBytesRead]='\0';
+	(td->buffer2->getBuffer())[nBytesRead]='\0';
 		
 	if(nBytesRead==0)
 	{
@@ -297,7 +297,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 
 	for(u_long i=0; i<nBytesRead; i++)
 	{
-		char *buff=td->buffer2->GetBuffer();
+		char *buff=td->buffer2->getBuffer();
 		if( (buff[i]=='\r') && (buff[i+1]=='\n') 
         && (buff[i+2]=='\r') && (buff[i+3]=='\n') )
 		{
@@ -310,7 +310,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			break;
 		}
 		/*! If it is present Location: xxx in the header send a redirect to xxx.  */
-		else if(!strncmp(&(td->buffer2->GetBuffer())[i], "Location:", 9))
+		else if(!strncmp(&(td->buffer2->getBuffer())[i], "Location:", 9))
 		{
       /*! If no other data was send, send the redirect. */
 			if(!yetoutputted)
@@ -318,11 +318,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         string nURL;
         u_long len = 0;
 
-        while( (td->buffer2->GetBuffer())[i + len + 9] != '\r' )
+        while( (td->buffer2->getBuffer())[i + len + 9] != '\r' )
         {
             len++;
         }
-        nURL.assign(&(td->buffer2->GetBuffer()[i + 9]), len);
+        nURL.assign(&(td->buffer2->getBuffer()[i + 9]), len);
 				((Http*)td->lhttp)->sendHTTPRedirect(td, s, nURL.c_str());
         /*! Store the new flag. */
         yetoutputted=1;
@@ -354,17 +354,17 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       /*! Send the header.  */
 			if(headerSize)
 				HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
-                                                    td->buffer2->GetBuffer());
+                                                    td->buffer2->getBuffer());
       /*! Always specify the size of the HTTP contents.  */
 			tmp << (u_int) (stdOutFile.getFileSize()-headerSize);
       td->response.CONTENT_LENGTH.assign(tmp.str());
-			HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(),
+			HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                             &td->response);
 
-			td->buffer->SetLength((u_int)strlen(td->buffer->GetBuffer()));
+			td->buffer->setLength((u_int)strlen(td->buffer->getBuffer()));
 
-			if(s->socket.send(td->buffer->GetBuffer(),
-                        static_cast<int>(td->buffer->GetLength()), 0)==SOCKET_ERROR)
+			if(s->socket.send(td->buffer->getBuffer(),
+                        static_cast<int>(td->buffer->getLength()), 0)==SOCKET_ERROR)
       {
         stdInFile.closeFile();
         stdOutFile.closeFile();
@@ -381,7 +381,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       }
 
       /*! Send other remaining data in the buffer. */
-			if(s->socket.send((td->buffer2->GetBuffer() + headerSize), 
+			if(s->socket.send((td->buffer2->getBuffer() + headerSize), 
                         nBytesRead-headerSize, 0)==SOCKET_ERROR)
       {
         stdOutFile.closeFile();
@@ -402,14 +402,14 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       }
 
       /*! Do not put the HTTP header if appending. */
-			td->outputData.writeToFile(td->buffer2->GetBuffer()+headerSize, 
+			td->outputData.writeToFile(td->buffer2->getBuffer()+headerSize, 
                                  nBytesRead-headerSize, &nbw);
     }
     do
     {
       /*! Flush other data. */
-      if(stdOutFile.readFromFile(td->buffer2->GetBuffer(), 
-                                 td->buffer2->GetRealLength(), &nBytesRead))
+      if(stdOutFile.readFromFile(td->buffer2->getBuffer(), 
+                                 td->buffer2->getRealLength(), &nBytesRead))
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
@@ -422,7 +422,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 
         if(!td->appendOutputs)
         {
-          if(s->socket.send(td->buffer2->GetBuffer(), nBytesRead, 0)
+          if(s->socket.send(td->buffer2->getBuffer(), nBytesRead, 0)
              ==SOCKET_ERROR)
           {
             stdOutFile.closeFile();
@@ -434,7 +434,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         }
         else
         {
-          if(td->outputData.writeToFile(td->buffer2->GetBuffer(), 
+          if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
                                         nBytesRead, &nbw))
           {
             stdOutFile.closeFile();
@@ -470,10 +470,10 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
    *For no problems with the function strcat we use the character \r for 
    *the \0 character and at the end we change every \r in \0.
    */
-	CMemBuf memCgi;
+	MemBuf memCgi;
 	char strTmp[32];
 
-	memCgi.SetExternalBuffer(cgi_env_string, td->buffer2->GetRealLength());
+	memCgi.setExternalBuffer(cgi_env_string, td->buffer2->getRealLength());
 	memCgi << "SERVER_SOFTWARE=MyServer " << versionOfSoftware;
 
 #ifdef WIN32
@@ -500,8 +500,8 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << td->request.VER.c_str();	
 	
   {
-    CMemBuf portBuffer;
-    portBuffer.UIntToStr( td->connection->getLocalPort());
+    MemBuf portBuffer;
+    portBuffer.uintToStr( td->connection->getLocalPort());
     memCgi << end_str << "SERVER_PORT="<< portBuffer;
   }
 	memCgi << end_str << "SERVER_ADMIN=";
@@ -605,8 +605,8 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	if(td->connection->getPort())
 	{
-    CMemBuf remotePortBuffer;
-    remotePortBuffer.CMemBuf::UIntToStr(td->connection->getPort() );
+    MemBuf remotePortBuffer;
+    remotePortBuffer.MemBuf::uintToStr(td->connection->getPort() );
 	 	memCgi << end_str << "REMOTE_PORT=" << remotePortBuffer;
 	}
 

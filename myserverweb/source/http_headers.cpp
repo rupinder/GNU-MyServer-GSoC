@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -355,7 +355,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	/*! If input was not specified use the buffer. */
 	if(input==0)
 	{
-		token=input=td->buffer->GetBuffer();
+		token=input=td->buffer->getBuffer();
 	}
 	else
 		token=input;
@@ -1026,7 +1026,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 
 	if(input==0)
 	{
-		input=td->buffer2->GetBuffer();
+		input=td->buffer2->getBuffer();
 	}
 	/*! Control if the HTTP header is a valid header.  */
 	if(input[0]==0)
@@ -1267,7 +1267,7 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 		{
 			if(req[i+2]=='\n')
 			{
-				if((i+3) > td->buffer->GetRealLength())
+				if((i+3) > td->buffer->getRealLength())
 					return e_400;
 				break;
 			}

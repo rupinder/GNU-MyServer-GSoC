@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -53,14 +53,14 @@ private:
 	Http *http_parser;
 	Https *https_parser;
   ControlProtocol  *control_protocol_parser;
-	CMemBuf buffer;
-	CMemBuf buffer2;
+	MemBuf buffer;
+	MemBuf buffer2;
 	int controlConnections();
 	u_long nBytesToRead;
 public:
   ClientsThread *next;
-	CMemBuf *GetBuffer();
-	CMemBuf *GetBuffer2();
+	MemBuf *getBuffer();
+	MemBuf *getBuffer2();
 	const static u_long ID_OFFSET = 200;
 	ClientsThread();
 	~ClientsThread();

@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -51,7 +51,7 @@ public:
 	xmlDocPtr getDoc();
 	int open(const char* filename);
 	int open(string const &filename){return open(filename.c_str());};
-	int openMemBuf(CMemBuf &);
+	int openMemBuf(MemBuf &);
 	char *getValue(const char* field);
 	char *getValue(string const &field){return getValue(field.c_str());};
 	char *getAttr(char* field,char *attr);
@@ -59,7 +59,7 @@ public:
 	int close();
 	int save(const char *filename,int *nbytes=0);
 	int save(string const &filename,int *nbytes=0){return save(filename.c_str(), nbytes);};
-	int saveMemBuf(CMemBuf &,int *nbytes=0);
+	int saveMemBuf(MemBuf &,int *nbytes=0);
 	void newfile(const char * root);
 	void newfile(string const &root){newfile(root.c_str());};
 	void addChild(const char * name, const char * value);

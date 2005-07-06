@@ -54,7 +54,7 @@ int VHostXML::load(const char * filename)
    return ret;
 }
 
-int VHostXML::loadMemBuf(CMemBuf & buffer)
+int VHostXML::loadMemBuf(MemBuf & buffer)
 {
    XmlParser parser;
    if(parser.openMemBuf(buffer))
@@ -199,7 +199,7 @@ int VHostXML::save(const char * filename)
    return ret;
 }
 
-int VHostXML::saveMemBuf(CMemBuf & buffer)
+int VHostXML::saveMemBuf(MemBuf & buffer)
 {
    XmlParser xmlFile;
    int ret = save_core(xmlFile);
@@ -209,7 +209,7 @@ int VHostXML::saveMemBuf(CMemBuf & buffer)
 }
 
 // from vhosts.cpp with modification
-// Old text way removed to make use of CMemBuf
+// Old text way removed to make use of MemBuf
 int VHostXML::save_core(XmlParser & xmlFile)
 {
    if(VHosts.isempty())

@@ -3,7 +3,7 @@
 *Copyright (C) 2002,2003,2004 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -217,7 +217,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	
   if(ConnInfo == NULL)
     return 1;
-	buffer=(char*)ConnInfo->td->buffer->GetBuffer();
+	buffer=(char*)ConnInfo->td->buffer->getBuffer();
 	if (ConnInfo == NULL) 
 	{
 		((Vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
@@ -264,7 +264,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		{
 			int len = ConnInfo->headerSize-headerSize;
       HttpHeaders::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,
-                                  ConnInfo->td,(char*)ConnInfo->td->buffer->GetBuffer());
+                                  ConnInfo->td,(char*)ConnInfo->td->buffer->getBuffer());
 			if(!ConnInfo->td->appendOutputs)
 			{
 				if(keepalive)
@@ -275,11 +275,11 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				else
 					ConnInfo->td->response.CONNECTION.assign("Close");
 				HttpHeaders::buildHTTPResponseHeader(
-                 (char*)ConnInfo->td->buffer2->GetBuffer(),&(ConnInfo->td->response));
+                 (char*)ConnInfo->td->buffer2->getBuffer(),&(ConnInfo->td->response));
 	
 				if(ConnInfo->connection->socket.send(
-                     (char*)ConnInfo->td->buffer2->GetBuffer(),
-                     (int)strlen((char*)ConnInfo->td->buffer2->GetBuffer()), 0)==-1)
+                     (char*)ConnInfo->td->buffer2->getBuffer(),
+                     (int)strlen((char*)ConnInfo->td->buffer2->getBuffer()), 0)==-1)
 					return 0;
 			}
       /*! Save the headerSent status. */
@@ -437,7 +437,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 	else
 	{
 		/*!
-     *Find in ConnInfo->envString the value lpszVariableName 
+     *find in ConnInfo->envString the value lpszVariableName 
      *and copy next string in lpvBuffer.
      */
 		char *localEnv;
@@ -738,7 +738,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		if(!appHnd.close())
 		{
       string msg;
-      msg.assign("ISAPI: Failed to FreeLibrary in ISAPI module: ");
+      msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
       msg.append(cgipath);
       msg.append("\r\n");
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -756,7 +756,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		if(!appHnd.close())
 		{
       string msg;
-      msg.assign("ISAPI: Failed to FreeLibrary in ISAPI module: ");
+      msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
       msg.append(cgipath);
       msg.append("\r\n");
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -775,7 +775,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		{
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((Vhost*)(td->connection->host))->warningsLogWrite(
-                                  "ISAPI: Failed to FreeLibrary in ISAPI module: ");
+                                  "ISAPI: Failed to freeLibrary in ISAPI module: ");
 			((Vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 			((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -785,7 +785,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	/*!
    *Store the environment string in the buffer2.
 	*/
-	connTable[connIndex].envString=td->buffer2->GetBuffer();
+	connTable[connIndex].envString=td->buffer2->getBuffer();
 	
 	/*!
    *Build the environment string.
@@ -824,8 +824,8 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.lpbData = 0;
 	ExtCtrlBlk.lpszContentType =(char*)td->request.CONTENT_TYPE.c_str();
 
-	connTable[connIndex].td->buffer->SetLength(0);
-	connTable[connIndex].td->buffer->GetAt(0)='\0';
+	connTable[connIndex].td->buffer->setLength(0);
+	connTable[connIndex].td->buffer->getAt(0)='\0';
 	HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)appHnd.getProc("HttpExtensionProc");
 	if (HttpExtensionProc == NULL) 
 	{
@@ -862,7 +862,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	{
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)(td->connection->host))->warningsLogWrite(
-                                      "ISAPI: Failed to FreeLibrary module");
+                                      "ISAPI: Failed to freeLibrary module");
 		((Vhost*)(td->connection->host))->warningsLogWrite(cgipath);
 		((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);

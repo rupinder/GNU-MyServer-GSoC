@@ -2762,7 +2762,7 @@ return 0;
 int MainDlg::load_config_remote() {
   int i;
 int ret;
-CMemBuf Buffer;
+MemBuf Buffer;
 Vector list;
 
 // ======== Progress display ========
@@ -3087,7 +3087,7 @@ return 0;
 
 int MainDlg::save_config_remote() {
   int ret;
-CMemBuf Buffer;
+MemBuf Buffer;
 
 // ======== Progress display ========
 // Say something...
@@ -3358,7 +3358,7 @@ void MainDlg::ServerConnections() {
   int ret;
 int time;
 int i;
-CMemBuf MSvr;
+MemBuf MSvr;
 Vector list;
 ConnectionsDlgVr->value("");
 ConnectionsDlgList->clear();
@@ -3383,7 +3383,7 @@ if(ret) { // no dice
 
 // update display
 MSvr << '\0';
-ConnectionsDlgVr->value((const char *)MSvr.GetBuffer());
+ConnectionsDlgVr->value((const char *)MSvr.getBuffer());
 
 time = get_ticks();
 ConnectionsDlgList->clear();

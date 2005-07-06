@@ -29,7 +29,7 @@ ControlClient::ControlClient()
 {
    clearCallback();
    Connected = false;
-   Buffer.Free();
+   Buffer.free();
    UserName[0] = '\0';
    memset(UserPass, 0, 64);
    memset(LastCode, 0, 4);
@@ -39,7 +39,7 @@ ControlClient::~ControlClient()
 {
    clearCallback();
    memset(UserPass, 0, 64); // no memory snoops here
-   Buffer.Free();
+   Buffer.free();
    if(Connected)
      socket.closesocket();
 }
@@ -109,21 +109,21 @@ int ControlClient::Login(const char * address, const int port,
 	return ret;
      }
 
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
 int ControlClient::Logout()
 {
    memset(UserPass, 0, 64); // no memory snoops here
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    if(Connected)
      socket.closesocket();
    Connected = false;
    return 0;
 }
 
-int ControlClient::getVersion(CMemBuf & data)
+int ControlClient::getVersion(MemBuf & data)
 {
    int ret;
    ret = sendRequest("VERSION", "");
@@ -134,8 +134,8 @@ int ControlClient::getVersion(CMemBuf & data)
      return ret;
    if(DataPos == -1)
      return -1;
-   Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.SetLength(0);
+   Buffer.getPart(DataPos, Buffer.getLength(), data);
+   Buffer.setLength(0);
    return 0;
 }
 
@@ -148,7 +148,7 @@ int ControlClient::sendReboot()
    return 0;
 }
 
-int ControlClient::getMyserverConf(CMemBuf & data)
+int ControlClient::getMyserverConf(MemBuf & data)
 {
    int ret;
    ret = sendRequest("GETFILE", "myserver.xml");
@@ -159,12 +159,12 @@ int ControlClient::getMyserverConf(CMemBuf & data)
      return ret;
    if(DataPos == -1)
      return -1;
-   Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.SetLength(0);
+   Buffer.getPart(DataPos, Buffer.getLength(), data);
+   Buffer.setLength(0);
    return 0;
 }
 
-int ControlClient::getVhostsConf(CMemBuf & data)
+int ControlClient::getVhostsConf(MemBuf & data)
 {
    int ret;
    ret = sendRequest("GETFILE", "virtualhosts.xml");
@@ -175,12 +175,12 @@ int ControlClient::getVhostsConf(CMemBuf & data)
      return ret;
    if(DataPos == -1)
      return -1;
-   Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.SetLength(0);
+   Buffer.getPart(DataPos, Buffer.getLength(), data);
+   Buffer.setLength(0);
    return 0;
 }
 
-int ControlClient::getMIMEtypesConf(CMemBuf & data)
+int ControlClient::getMIMEtypesConf(MemBuf & data)
 {
    int ret;
    ret = sendRequest("GETFILE", "MIMEtypes.xml");
@@ -191,12 +191,12 @@ int ControlClient::getMIMEtypesConf(CMemBuf & data)
      return ret;
    if(DataPos == -1)
      return -1;
-   Buffer.GetPart(DataPos, Buffer.GetLength(), data);
-   Buffer.SetLength(0);
+   Buffer.getPart(DataPos, Buffer.getLength(), data);
+   Buffer.setLength(0);
    return 0;
 }
 
-int ControlClient::sendMyserverConf(CMemBuf & data)
+int ControlClient::sendMyserverConf(MemBuf & data)
 {
    int ret;
    ret = sendRequest("PUTFILE", "myserver.xml", data);
@@ -205,11 +205,11 @@ int ControlClient::sendMyserverConf(CMemBuf & data)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
-int ControlClient::sendVhostsConf(CMemBuf & data)
+int ControlClient::sendVhostsConf(MemBuf & data)
 {
    int ret;
    ret = sendRequest("PUTFILE", "virtualhosts.xml", data);
@@ -218,11 +218,11 @@ int ControlClient::sendVhostsConf(CMemBuf & data)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
-int ControlClient::sendMIMEtypesConf(CMemBuf & data)
+int ControlClient::sendMIMEtypesConf(MemBuf & data)
 {
    int ret;
    ret = sendRequest("PUTFILE", "MIMEtypes.xml", data);
@@ -231,7 +231,7 @@ int ControlClient::sendMIMEtypesConf(CMemBuf & data)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
@@ -250,7 +250,7 @@ int ControlClient::getLanguages(Vector & list)
    list.clear();
    int i, len;
    char * chrptr = &Buffer[DataPos];
-   len = Buffer.GetLength();
+   len = Buffer.getLength();
    for(i = DataPos; i < len; i++) // slow but not critical
      {
 	if(Buffer[i] == '\r')
@@ -260,7 +260,7 @@ int ControlClient::getLanguages(Vector & list)
 	     chrptr = &Buffer[i] + 2; // avoid error checking
 	  } // if
      } // for
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
@@ -279,7 +279,7 @@ int ControlClient::getDynamicProtocols(Vector & list)
    /* Warning: this is destructive to Buffer */
    int i, len;
    char * chrptr = &Buffer[DataPos];
-   len = Buffer.GetLength();
+   len = Buffer.getLength();
    for(i = DataPos; i < len; i++) // slow but not critical
      {
 	if(Buffer[i] == '\r')
@@ -289,7 +289,7 @@ int ControlClient::getDynamicProtocols(Vector & list)
 	     chrptr = &Buffer[i] + 2; // avoid error checking
 	  } // if
      } // for
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
@@ -308,7 +308,7 @@ int ControlClient::getConnections(Vector & list)
    /* Warning: this is destructive to Buffer */
    int i, len;
    char * chrptr = &Buffer[DataPos];
-   len = Buffer.GetLength();
+   len = Buffer.getLength();
    for(i = DataPos; i < len; i++) // slow but not critical
      {
 	if(Buffer[i] == '\r')
@@ -318,7 +318,7 @@ int ControlClient::getConnections(Vector & list)
 	     chrptr = &Buffer[i] + 2; // avoid error checking
 	  } // if
      } // for
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
@@ -338,7 +338,7 @@ int ControlClient::sendKillConnection(VectorNode * node)
    ret = getResponse();
    if(ret)
      return ret;
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return 0;
 }
 
@@ -373,42 +373,42 @@ int ControlClient::sendRequest(const char * cmd, const char * opt)
      return -1;
 
    int ret;
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
    Buffer << "/LEN 0\r\n";
    Buffer << "/AUTH " << UserName << ":" << UserPass << "\r\n";
    Buffer << "\r\n";
-   ret = socket.send((const char *)Buffer.GetBuffer(), Buffer.GetLength(), 0);
+   ret = socket.send((const char *)Buffer.getBuffer(), Buffer.getLength(), 0);
 #ifdef DEBUG
-   write(1, (const char *)Buffer.GetBuffer(), Buffer.GetLength());
+   write(1, (const char *)Buffer.getBuffer(), Buffer.getLength());
 #endif   
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
    return (ret == -1 ? -1 : 0);
 }
 
-int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & data)
+int ControlClient::sendRequest(const char * cmd, const char * opt, MemBuf & data)
 {
    memset(LastCode, 0, 4);
    if(!Connected)
      return -1;
-   CMemBuf tmp;
+   MemBuf tmp;
    int ret1, ret2;
    int len, pos;
    int bytes;
-   tmp.IntToStr(data.GetLength());
-   Buffer.SetLength(0);
+   tmp.intToStr(data.getLength());
+   Buffer.setLength(0);
    Buffer << "/" << cmd << " CONTROL/1.0 " << opt << "\r\n";
    Buffer << "/CONNECTION Keep-Alive\r\n";
    Buffer << "/LEN " << tmp << "\r\n";
    Buffer << "/AUTH " << UserName << ":" << UserPass << "\r\n";
    Buffer << "\r\n";
-   ret1 = socket.send((const char *)Buffer.GetBuffer(), Buffer.GetLength(), 0);
+   ret1 = socket.send((const char *)Buffer.getBuffer(), Buffer.getLength(), 0);
 #ifdef DEBUG
-   write(1, (const char *)Buffer.GetBuffer(), Buffer.GetLength());
+   write(1, (const char *)Buffer.getBuffer(), Buffer.getLength());
 #endif
    // send small chuncks for some user feedback
-   len = data.GetLength();
+   len = data.getLength();
    pos = 0;
    while(pos < len)
      {
@@ -421,7 +421,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, CMemBuf & dat
 	if(Progress)
 	  Progress(Object, len, pos);
      }
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
 #ifdef DEBUG
    if(ret1 == -1)
      write(1, "ret1 is -1\n", strlen("ret1 is -1\n"));
@@ -450,11 +450,11 @@ int ControlClient::getResponse()
    int hLen = 0;
    int returnLEN = 0;
    char cBuffer[BUFFSIZE];
-   Buffer.SetLength(0);
+   Buffer.setLength(0);
 #ifdef DEBUG
    write(1, "Find header:", strlen("Find header:"));
 #endif
-   while(Buffer.Find("\r\n\r\n", 4, 0) == (u_int)-1) // a little costly, may change
+   while(Buffer.find("\r\n\r\n", 4, 0) == (u_int)-1) // a little costly, may change
      {
 	ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 
@@ -464,9 +464,9 @@ int ControlClient::getResponse()
 	     return -1;
 	  }
 
-	Buffer.AddBuffer((const void *)cBuffer, ret);
+	Buffer.addBuffer((const void *)cBuffer, ret);
 	
-	if(Buffer.GetLength() > MAXHEADERLEN)
+	if(Buffer.getLength() > MAXHEADERLEN)
 	  {
 	     HeaderGetReturn(); // get the code if any
 	     return -1;
@@ -481,7 +481,7 @@ int ControlClient::getResponse()
 #endif
    
    // get header len
-   hLen = Buffer.Find("\r\n\r\n", 4, 0) + 4;
+   hLen = Buffer.find("\r\n\r\n", 4, 0) + 4;
 
    // process the header
    ret = HeaderGetReturn();
@@ -512,7 +512,7 @@ int ControlClient::getResponse()
 	write(1, "Get data:", strlen("Get data:"));
 #endif
 	DataPos = hLen;
-	while(Buffer.GetLength() < (u_int)(hLen + returnLEN))
+	while(Buffer.getLength() < (u_int)(hLen + returnLEN))
 	  {
 	     ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 
@@ -521,11 +521,11 @@ int ControlClient::getResponse()
 #ifdef DEBUG
 	     write(1, cBuffer, ret);
 #endif
-	     Buffer.AddBuffer((const void *)cBuffer, ret);
+	     Buffer.addBuffer((const void *)cBuffer, ret);
 	     
 	     // Callback function
 	     if(Progress)
-	       Progress(Object, returnLEN, Buffer.GetLength() - hLen); 
+	       Progress(Object, returnLEN, Buffer.getLength() - hLen); 
 	  } // while
 #ifdef DEBUG
    write(1, "\nDone\n", strlen("\nDone\n"));
@@ -539,9 +539,9 @@ int ControlClient::getResponse()
 
 int ControlClient::HeaderGetReturn()
 {
-   int pos = Buffer.Find('/');
+   int pos = Buffer.find('/');
    int end = pos;
-   int len = Buffer.GetLength();
+   int len = Buffer.getLength();
    int ret;
    
    if(pos == -1)
@@ -555,7 +555,7 @@ int ControlClient::HeaderGetReturn()
      }
    
    char temp[end - pos];
-   memcpy(temp, &Buffer.GetAt(pos), end - pos);
+   memcpy(temp, &Buffer.getAt(pos), end - pos);
    temp[end - pos] = '\0';
    
    ret = atoi(&temp[1]);
@@ -567,9 +567,9 @@ int ControlClient::HeaderGetReturn()
 
 int ControlClient::HeaderGetLEN()
 {
-   int pos = Buffer.Find((const void *)"/LEN", 4);
+   int pos = Buffer.find((const void *)"/LEN", 4);
    int end = pos;
-   int len = Buffer.GetLength();
+   int len = Buffer.getLength();
    
    if(pos == -1)
      return -1;
@@ -582,7 +582,7 @@ int ControlClient::HeaderGetLEN()
      }
    
    char temp[end - pos];
-   memcpy(temp, &Buffer.GetAt(pos), end - pos);
+   memcpy(temp, &Buffer.getAt(pos), end - pos);
    temp[end - pos] = '\0';
    
    return atoi(&temp[4]);

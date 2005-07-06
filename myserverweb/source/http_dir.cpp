@@ -3,7 +3,7 @@
 *Copyright (C) 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, 
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -136,7 +136,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			}
 		}
 	}
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2<<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
     "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
@@ -144,8 +144,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     "\r\n<head>\r\n<title>" ;
 	*td->buffer2<< td->request.URI.c_str() ;
 	*td->buffer2<< "</title>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n</head>\r\n"; 
-	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
-                                    (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
+                                    (u_long)td->buffer2->getLength(), &nbw);
 	if(ret)
 	{
     /*! Return an internal server error. */
@@ -166,21 +166,21 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		if(ret == 0)
 		{
 			u_long nbr;
-			ret = cssHandle.readFromFile(td->buffer->GetBuffer(), 
-                                   td->buffer->GetRealLength(), &nbr);
+			ret = cssHandle.readFromFile(td->buffer->getBuffer(), 
+                                   td->buffer->getRealLength(), &nbr);
 			if(ret == 0)
 			{
-				td->buffer2->SetLength(0);
+				td->buffer2->setLength(0);
 				*td->buffer2 << "<style type=\"text/css\">\r\n<!--\r\n" ;
-				ret=td->outputData.writeToFile(td->buffer2->GetBuffer(), 
-                                       (u_long)td->buffer2->GetLength(), &nbw);
+				ret=td->outputData.writeToFile(td->buffer2->getBuffer(), 
+                                       (u_long)td->buffer2->getLength(), &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
 					/* Return an internal server error.  */
 					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
-				ret = td->outputData.writeToFile(td->buffer->GetBuffer(),
+				ret = td->outputData.writeToFile(td->buffer->getBuffer(),
                                           (u_long)nbr, &nbw);
 				if(ret)
 				{
@@ -189,10 +189,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
 
-				td->buffer2->SetLength(0);
+				td->buffer2->setLength(0);
 				*td->buffer2 << "-->\r\n</style>\r\n";
-				ret=td->outputData.writeToFile(td->buffer2->GetBuffer(),
-                                       (u_long)td->buffer2->GetLength(), &nbw);
+				ret=td->outputData.writeToFile(td->buffer2->getBuffer(),
+                                       (u_long)td->buffer2->getLength(), &nbw);
 				if(ret)
 				{
 					td->outputData.closeFile();
@@ -209,12 +209,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 #ifdef WIN32
   filename.append("/*");
 #endif
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "<body>\r\n<h1>Contents of directory ";
 	*td->buffer2 <<  &td->request.URI[startchar] ;
 	*td->buffer2 << "</h1>\r\n<hr />\r\n";
-	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
-                                   (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
+                                   (u_long)td->buffer2->getLength(), &nbw);
 	if(ret)
 	{
 		td->outputData.closeFile();
@@ -230,10 +230,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
    *With the current code we build the HTML TABLE to indicize the
    *files in the directory.
    */
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n<td><b>Last Modified</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
-	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
-                                    (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
+                                    (u_long)td->buffer2->getLength(), &nbw);
 	if(ret)
 	{
 		td->outputData.closeFile();
@@ -248,7 +248,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		/*! Do not show the security file.  */
 		if(!strcmp(fd.name, "security"))
 			continue;
-		td->buffer2->SetLength(0);
+		td->buffer2->setLength(0);
 		*td->buffer2 << "<tr>\r\n<td><a href=\"";
 		if(!td->request.uriEndsWithSlash)
 		{
@@ -276,8 +276,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			*td->buffer2 << fileSize.str();
 		}
 		*td->buffer2 << "</td>\r\n</tr>\r\n";
-		ret = td->outputData.writeToFile(td->buffer2->GetBuffer(), 
-                                     (u_long)td->buffer2->GetLength(), &nbw);
+		ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
+                                     (u_long)td->buffer2->getLength(), &nbw);
 		if(ret)
 		{
 			fd.findclose();
@@ -286,7 +286,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
 	}while(!fd.findnext());
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " << versionOfSoftware;
               
   if(td->request.HOST[0])
@@ -299,8 +299,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     *td->buffer2 << portBuff.str();
   }
 	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
-	ret = td->outputData.writeToFile(td->buffer2->GetBuffer(),
-                                   (u_long)td->buffer2->GetLength(), &nbw);
+	ret = td->outputData.writeToFile(td->buffer2->getBuffer(),
+                                   (u_long)td->buffer2->getLength(), &nbw);
 	if(ret)
 	{
 		fd.findclose();
@@ -311,7 +311,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	fd.findclose();
   *td->buffer2 << end_str;
 	/*! Changes the \ character in the / character.  */
-	bufferloop=td->buffer2->GetBuffer();
+	bufferloop=td->buffer2->getBuffer();
 	while(*bufferloop++)
 		if(*bufferloop=='\\')
 			*bufferloop='/';
@@ -328,10 +328,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		u_long nbr=0;
     int nbs=0;
 		td->outputData.setFilePointer(0);
-		HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
+		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                           &(td->response));
-		nbs=s->socket.send(td->buffer->GetBuffer(), 
-                       (u_long)strlen(td->buffer->GetBuffer()), 0);
+		nbs=s->socket.send(td->buffer->getBuffer(), 
+                       (u_long)strlen(td->buffer->getBuffer()), 0);
 		if(nbs == SOCKET_ERROR)
 		{
 			/* Remove the connection.  */
@@ -343,8 +343,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     
     do
 		{
-			ret = td->outputData.readFromFile(td->buffer->GetBuffer(), 
-                                        td->buffer->GetRealLength(), &nbr);
+			ret = td->outputData.readFromFile(td->buffer->getBuffer(), 
+                                        td->buffer->getRealLength(), &nbr);
 			if(ret)
 			{
 				td->outputData.closeFile();
@@ -352,7 +352,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 				return 0;
 			}
 			if(nbr)
-				nbs=s->socket.send(td->buffer->GetBuffer(), nbr, 0);
+				nbs=s->socket.send(td->buffer->getBuffer(), nbr, 0);
       else
         nbs = 0;
 			if(nbs==SOCKET_ERROR)
@@ -364,7 +364,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	}
   else
   {
-    HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), 
+    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                           &(td->response));
   }
 	return 1;

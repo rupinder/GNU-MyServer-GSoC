@@ -39,16 +39,16 @@ class ControlClient
    int Login(const char *, const int, const char *, const char *);
    int Logout();
    
-   int getVersion(CMemBuf &);
+   int getVersion(MemBuf &);
    int sendReboot();
    
-   int getMyserverConf(CMemBuf &);
-   int getVhostsConf(CMemBuf &);
-   int getMIMEtypesConf(CMemBuf &);
+   int getMyserverConf(MemBuf &);
+   int getVhostsConf(MemBuf &);
+   int getMIMEtypesConf(MemBuf &);
    
-   int sendMyserverConf(CMemBuf &);
-   int sendVhostsConf(CMemBuf &);
-   int sendMIMEtypesConf(CMemBuf &);
+   int sendMyserverConf(MemBuf &);
+   int sendVhostsConf(MemBuf &);
+   int sendMIMEtypesConf(MemBuf &);
    
    int getLanguages(Vector &);
    int getDynamicProtocols(Vector &);
@@ -62,11 +62,11 @@ class ControlClient
    char LastCode[4];
  protected:
    int sendRequest(const char *, const char *);
-   int sendRequest(const char *, const char *, CMemBuf &);
+   int sendRequest(const char *, const char *, MemBuf &);
    int getResponse();
    Socket socket;
    bool Connected;
-   CMemBuf Buffer;
+   MemBuf Buffer;
    int DataPos;
  private:
    int HeaderGetReturn();

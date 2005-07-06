@@ -3,7 +3,7 @@
 *Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, 
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to the free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -115,7 +115,7 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
   try
   {
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-    td->buffer2->SetLength(0);
+    td->buffer2->setLength(0);
     *td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
     *td->buffer2 << "Date: " << time ;
     *td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
@@ -133,8 +133,8 @@ int Http::optionsHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       *td->buffer2 << "\r\n\r\n";
     
     /*! Send the HTTP header. */
-    ret = s->socket.send(td->buffer2->GetBuffer(), 
-                         (u_long)td->buffer2->GetLength(), 0);
+    ret = s->socket.send(td->buffer2->getBuffer(), 
+                         (u_long)td->buffer2->getLength(), 0);
     if( ret == SOCKET_ERROR )
     {
       return 0;
@@ -159,12 +159,12 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	string time;
   try
   {
-    CMemBuf tmp;
-    tmp.IntToStr(content_len, tmpStr, 12);
+    MemBuf tmp;
+    tmp.intToStr(content_len, tmpStr, 12);
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     if(!allowHTTPTRACE(td, s))
       return raiseHTTPError(td, s, e_401);
-    td->buffer2->SetLength(0);
+    td->buffer2->setLength(0);
     *td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
     *td->buffer2 << "Date: " << time ;
     *td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
@@ -174,15 +174,15 @@ int Http::traceHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
                  << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
     
     /*! Send our HTTP header. */
-    ret = s->socket.send(td->buffer2->GetBuffer(), 
-                         (u_long)td->buffer2->GetLength(), 0);
+    ret = s->socket.send(td->buffer2->getBuffer(), 
+                         (u_long)td->buffer2->getLength(), 0);
     if( ret == SOCKET_ERROR )
     {
       return 0;
     }
     
     /*! Send the client request header as the HTTP body. */
-    ret = s->socket.send(td->buffer->GetBuffer(), content_len, 0);
+    ret = s->socket.send(td->buffer->getBuffer(), content_len, 0);
     if(ret == SOCKET_ERROR)
     {
       return 0;
@@ -424,8 +424,8 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       for(;;)
       {
         u_long nbr=0, nbw=0;
-        if(td->inputData.readFromFile(td->buffer->GetBuffer(), 
-                                      td->buffer->GetRealLength(), &nbr))
+        if(td->inputData.readFromFile(td->buffer->getBuffer(), 
+                                      td->buffer->getRealLength(), &nbr))
         {
           file.closeFile();
           /*! Return an internal server error. */
@@ -433,7 +433,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
         }
         if(nbr)
         {
-          if(file.writeToFile(td->buffer->GetBuffer(), nbr, &nbw))
+          if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
           {
             file.closeFile();
             /*! Return an internal server error. */
@@ -470,15 +470,15 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       for(;;)
       {
         u_long nbr=0, nbw=0;
-        if(td->inputData.readFromFile(td->buffer->GetBuffer(), 
-                                      td->buffer->GetRealLength(), &nbr))
+        if(td->inputData.readFromFile(td->buffer->getBuffer(), 
+                                      td->buffer->getRealLength(), &nbr))
         {
           file.closeFile();
           return raiseHTTPError(td, s, e_500);
         }
         if(nbr)
         {
-          if(file.writeToFile(td->buffer->GetBuffer(), nbr, &nbw))
+          if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
           {
             file.closeFile();
             return raiseHTTPError(td, s, e_500);
@@ -725,12 +725,12 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
 		((HttpUserData*)s->protocolBuffer)->nc++;
    
 	md5.init();
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << td->request.digestUsername << ":" << td->request.digestRealm 
                << ":" << ((HttpUserData*)s->protocolBuffer)->neededPassword;
 
-	md5.update((unsigned char const*)td->buffer2->GetBuffer(), 
-             (unsigned int)td->buffer2->GetLength());
+	md5.update((unsigned char const*)td->buffer2->getBuffer(), 
+             (unsigned int)td->buffer2->getLength());
 	md5.end(A1);
 	
 	md5.init();
@@ -740,19 +740,19 @@ u_long Http::checkDigest(HttpThreadContext* td, ConnectionPtr s)
   else
     uri=(char*)td->request.URIOPTS.c_str();
 
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 <<  td->request.CMD.c_str() <<  ":" << uri;
-	md5.update((unsigned char const*)td->buffer2->GetBuffer(), 
-             (unsigned int)td->buffer2->GetLength());
+	md5.update((unsigned char const*)td->buffer2->getBuffer(), 
+             (unsigned int)td->buffer2->getLength());
 	md5.end( A2);
 	
 	md5.init();
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << A1 << ":"  << ((HttpUserData*)s->protocolBuffer)->nonce << ":" 
                << td->request.digestNc << ":"  << td->request.digestCnonce << ":" 
                << td->request.digestQop  << ":" << A2;
-	md5.update((unsigned char const*)td->buffer2->GetBuffer(), 
-             (unsigned int)td->buffer2->GetLength());
+	md5.update((unsigned char const*)td->buffer2->getBuffer(), 
+             (unsigned int)td->buffer2->getLength());
 	md5.end(response);	
 
 	if(!lstrcmp(response, td->request.digestResponse))
@@ -821,7 +821,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
     st.len_auth = 16;
     
     filename.assign(URI);
-    td->buffer->SetLength(0);
+    td->buffer->setLength(0);
     
     HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);	
     if(!stringcmpi(td->request.CONNECTION, "Keep-Alive"))
@@ -1328,7 +1328,7 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
 
   try
   {
-    td->buffer2->SetLength(0);
+    td->buffer2->setLength(0);
     *td->buffer2 << a->getIpAddr();
     *td->buffer2<< " ";
 	
@@ -1392,10 +1392,10 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
      if(a->host)
      {
        ((Vhost*)(a->host))->accesseslogRequestAccess(td->id);
-       ((Vhost*)(a->host))->accessesLogWrite(td->buffer2->GetBuffer());
+       ((Vhost*)(a->host))->accessesLogWrite(td->buffer2->getBuffer());
        ((Vhost*)(a->host))->accesseslogTerminateAccess(td->id);
      }
-    td->buffer2->SetLength(0);
+    td->buffer2->setLength(0);
   }
   catch(...)
   {
@@ -1421,8 +1421,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   DynamicHttpCommand *dynamicCommand;
   try
   {
-    td.buffer=((ClientsThread*)a->thread)->GetBuffer();
-    td.buffer2=((ClientsThread*)a->thread)->GetBuffer2();
+    td.buffer=((ClientsThread*)a->thread)->getBuffer();
+    td.buffer2=((ClientsThread*)a->thread)->getBuffer2();
     td.buffersize=bs1;
     td.buffersize2=bs2;
     td.nBytesToRead=nbtr;
@@ -1541,9 +1541,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         u_long nbw=0;
         u_long total_nbr=0;
         u_long timeout;
-        td.request.URIOPTSPTR=&(td.buffer->GetBuffer())[td.nHeaderChars];
-        td.buffer->GetBuffer()[td.nBytesToRead<td.buffer->GetRealLength()-1 
-                      ? td.nBytesToRead : td.buffer->GetRealLength()-1]='\0';
+        td.request.URIOPTSPTR=&(td.buffer->getBuffer())[td.nHeaderChars];
+        td.buffer->getBuffer()[td.nBytesToRead<td.buffer->getRealLength()-1 
+                      ? td.nBytesToRead : td.buffer->getRealLength()-1]='\0';
         /*!
          *Create the file that contains the data posted.
          *This data is the stdin file in the CGI.
@@ -1553,8 +1553,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           return 0;
           
         nbw=0;
-        total_nbr=(td.nBytesToRead<td.buffer->GetRealLength()-1 
-           ? td.nBytesToRead : td.buffer->GetRealLength()-1 ) -td.nHeaderChars;
+        total_nbr=(td.nBytesToRead<td.buffer->getRealLength()-1 
+           ? td.nBytesToRead : td.buffer->getRealLength()-1 ) -td.nHeaderChars;
         if(total_nbr)
         {
           if(td.inputData.writeToFile(td.request.URIOPTSPTR, total_nbr, &nbw))
@@ -1625,8 +1625,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                   /*!
                    *Read the unwanted bytes but do not save them.
                    */
-                  ret=td.connection->socket.recv(td.buffer2->GetBuffer(), 
-                                                 td.buffer2->GetRealLength(), 0);
+                  ret=td.connection->socket.recv(td.buffer2->getBuffer(), 
+                                                 td.buffer2->getRealLength(), 0);
                 }
                 break;
               }
@@ -1634,11 +1634,11 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                  (td.connection->socket.bytesToRead()))
               {				
                 u_long tr=static_cast<u_long>(content_len)-total_nbr < 
-                  td.buffer2->GetRealLength() 
+                  td.buffer2->getRealLength() 
                   ? static_cast<u_long>(content_len)-total_nbr 
-                  : td.buffer2->GetRealLength() ;
+                  : td.buffer2->getRealLength() ;
 
-                ret=td.connection->socket.recv(td.buffer2->GetBuffer(), tr, 0);
+                ret=td.connection->socket.recv(td.buffer2->getBuffer(), tr, 0);
                 if(ret==-1)
                 {
                   td.inputData.closeFile();
@@ -1646,7 +1646,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                   return 0;
                 }
 							
-                if(td.inputData.writeToFile(td.buffer2->GetBuffer(), 
+                if(td.inputData.writeToFile(td.buffer2->getBuffer(), 
                                             static_cast<u_long>(ret), &nbw))
                 {
                   td.inputData.closeFile();
@@ -1690,10 +1690,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
             {
               if(td.connection->socket.bytesToRead())
               {
-                ret=td.connection->socket.recv(td.buffer2->GetBuffer(), 
-                                               td.buffer2->GetRealLength(), 0);
+                ret=td.connection->socket.recv(td.buffer2->getBuffer(), 
+                                               td.buffer2->getRealLength(), 0);
 
-                if(td.inputData.writeToFile(td.buffer2->GetBuffer(), ret, &nbw))
+                if(td.inputData.writeToFile(td.buffer2->getBuffer(), ret, &nbw))
                 {
                   td.inputData.deleteFile(td.inputDataPath);
                   td.inputData.closeFile();
@@ -1790,9 +1790,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         while(dataRead<dataToRead)
         {
           u_long nbw;
-          if(td.inputData.readFromFile(td.buffer->GetBuffer(), 
-                         dataToRead-dataRead < td.buffer->GetRealLength()-1 
-                        ? dataToRead-dataRead: td.buffer->GetRealLength()-1 , &nbr))
+          if(td.inputData.readFromFile(td.buffer->getBuffer(), 
+                         dataToRead-dataRead < td.buffer->getRealLength()-1 
+                        ? dataToRead-dataRead: td.buffer->getRealLength()-1 , &nbr))
           {
             td.inputData.closeFile();
             td.inputData.deleteFile(td.inputDataPath);
@@ -1803,7 +1803,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           if(nbr==0)
             break;
           dataRead+=nbr;
-          if(newStdIn.writeToFile(td.buffer->GetBuffer(), nbr, &nbw))
+          if(newStdIn.writeToFile(td.buffer->getBuffer(), nbr, &nbw))
           {
             td.inputData.closeFile();
             td.inputData.deleteFile(td.inputDataPath);
@@ -1886,7 +1886,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       else
       {
         /*!
-         *Find the virtual host to check both host name and IP value.
+         *find the virtual host to check both host name and IP value.
          */
         Vhost* newHost=lserver->vhostList->getVHost((char*)td.request.HOST.c_str(), 
                                             a->getLocalIpAddr(), a->getLocalPort());
@@ -1927,12 +1927,12 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           /*!
            *connectionBuffer is 8 KB, so don't copy more bytes.
            */
-          a->setDataRead(MYSERVER_KB(8) < (int)strlen(td.buffer->GetBuffer()) -
+          a->setDataRead(MYSERVER_KB(8) < (int)strlen(td.buffer->getBuffer()) -
                          td.nHeaderChars ? MYSERVER_KB(8) : 
-                         (int)strlen(td.buffer->GetBuffer()) - td.nHeaderChars );
+                         (int)strlen(td.buffer->getBuffer()) - td.nHeaderChars );
           if(a->getDataRead() )
           {
-            memcpy(a->connectionBuffer, (td.buffer->GetBuffer() +
+            memcpy(a->connectionBuffer, (td.buffer->getBuffer() +
                                          td.nHeaderChars), a->getDataRead() );
             retvalue=3;
           }
@@ -2079,7 +2079,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     if(ID==e_401AUTH)
     {
       td->response.httpStatus = 401;
-      td->buffer2->SetLength(0);
+      td->buffer2->setLength(0);
       *td->buffer2 << 
            "HTTP/1.1 401 Unauthorized\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
       *td->buffer2 << versionOfSoftware ;
@@ -2151,8 +2151,8 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
       getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
       *td->buffer2  << time;
       *td->buffer2 << "\r\n\r\n";
-      if(a->socket.send(td->buffer2->GetBuffer(), 
-                        td->buffer2->GetLength(), 0)==-1)
+      if(a->socket.send(td->buffer2->getBuffer(), 
+                        td->buffer2->getLength(), 0)==-1)
       {
         return 0;
       }
@@ -2223,9 +2223,9 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     /*! Send the error over the HTTP. */
     td->response.CONTENT_LENGTH.assign("0");
 
-    HttpHeaders::buildHTTPResponseHeader(td->buffer->GetBuffer(), &td->response);
-    if(a->socket.send(td->buffer->GetBuffer(), 
-                      (u_long)strlen(td->buffer->GetBuffer()), 0)==-1)
+    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), &td->response);
+    if(a->socket.send(td->buffer->getBuffer(), 
+                      (u_long)strlen(td->buffer->getBuffer()), 0)==-1)
       return 0;
     return 1;
   }
@@ -2244,7 +2244,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
  */
 int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 {
-  CMemBuf tmp;
+  MemBuf tmp;
 	char tmpStr[12];
 	string time;
 	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\">"
@@ -2252,16 +2252,16 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
      "<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\">"    
      "<font size=\"5\" color=\"#00C800\">Internal Server error</font></p>\r\n";
 	td->response.httpStatus=500;
-	td->buffer->SetLength(0);
+	td->buffer->setLength(0);
 	*td->buffer <<  HTTP_ERROR_MSGS[e_500];
 	*td->buffer << " from: " ;
 	*td->buffer << a->getIpAddr() ;
 	*td->buffer << "\r\n";	
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
 	*td->buffer2 << versionOfSoftware;
 	*td->buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
-  tmp.IntToStr((int)strlen(hardHTML), tmpStr, 12);
+  tmp.intToStr((int)strlen(hardHTML), tmpStr, 12);
 	*td->buffer2  <<   tmp;
 	*td->buffer2   << "\r\n";
 	*td->buffer2 <<"Date: ";
@@ -2269,8 +2269,8 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
 	*td->buffer2 << time;
 	*td->buffer2 << "\r\n\r\n";
 	/*! Send the header. */
-	if(a->socket.send(td->buffer2->GetBuffer(), 
-                    (u_long)td->buffer2->GetLength(), 0)!= -1)
+	if(a->socket.send(td->buffer2->getBuffer(), 
+                    (u_long)td->buffer2->getLength(), 0)!= -1)
 	{
 		/*! Send the body. */
     if(!td->onlyHeader)
@@ -2382,7 +2382,7 @@ int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a,
 {
 	string time;
 	td->response.httpStatus=302;
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
 	*td->buffer2<< versionOfSoftware;
 	*td->buffer2 << "\r\nContent-type: text/html\r\nLocation: ";
@@ -2397,8 +2397,8 @@ int Http::sendHTTPRedirect(HttpThreadContext* td, ConnectionPtr a,
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time ;
 	*td->buffer2 << "\r\n\r\n";
-	if(a->socket.send(td->buffer2->GetBuffer(), 
-                    (int)td->buffer2->GetLength(), 0) == -1)
+	if(a->socket.send(td->buffer2->getBuffer(), 
+                    (int)td->buffer2->getLength(), 0) == -1)
 		return 0;
 
 	return 1;
@@ -2411,7 +2411,7 @@ int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 {
 	string time;
 	td->response.httpStatus=304;
-	td->buffer2->SetLength(0);
+	td->buffer2->setLength(0);
 	*td->buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
                   "Server: MyServer " ;
 
@@ -2427,8 +2427,8 @@ int Http::sendHTTPNonModified(HttpThreadContext* td, ConnectionPtr a)
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td->buffer2 << time << "\r\n\r\n";
 
-	if(a->socket.send(td->buffer2->GetBuffer(), 
-                    (int)td->buffer2->GetLength(), 0) == -1)
+	if(a->socket.send(td->buffer2->getBuffer(), 
+                    (int)td->buffer2->getLength(), 0) == -1)
 		return 0;
 	return 1;
 }
