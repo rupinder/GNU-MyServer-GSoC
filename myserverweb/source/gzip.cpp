@@ -30,7 +30,9 @@ extern "C" {
 #include <errno.h>
 #endif
 }
-
+#ifdef WIN32
+#include <algorithm>
+#endif
 #ifdef NOT_WIN
 #include "../include/lfind.h"
 
