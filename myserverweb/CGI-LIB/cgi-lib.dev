@@ -1,7 +1,7 @@
 [Project]
 FileName=cgi-lib.dev
 Name=CGI-LIB
-UnitCount=5
+UnitCount=7
 Type=3
 Ver=1
 ObjFiles=
@@ -90,6 +90,26 @@ AutoIncBuildNr=0
 
 [Unit5]
 FileName=..\source\filemanager.cpp
+CompileCpp=1
+Folder=CGI-LIB
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit6]
+FileName=..\source\stream.cpp
+CompileCpp=1
+Folder=CGI-LIB
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit7]
+FileName=..\include\stream.h
 CompileCpp=1
 Folder=CGI-LIB
 Compile=1
