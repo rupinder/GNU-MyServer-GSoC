@@ -893,7 +893,7 @@ int Server::terminate()
 	/*!
    *Under WIN32 cleanup environment strings.
    */
-	freeEnvironmentStrings((LPTSTR)envString);
+	FreeEnvironmentStrings((LPTSTR)envString);
 #endif
 	Http::unloadProtocol(&languageParser);
 	Https::unloadProtocol(&languageParser);
