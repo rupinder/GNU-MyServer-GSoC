@@ -679,7 +679,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		sprintf(fullpath,"%s",cgipath);
 	}
 
-  ConnInfo->td->inputData.setFilePointer(0);
+    td->inputData.setFilePointer(0);
 
 	EnterCriticalSection(&GetTableEntryCritSec);
 	connIndex = 0;
