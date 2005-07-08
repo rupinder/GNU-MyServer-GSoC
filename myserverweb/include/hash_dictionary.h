@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #ifndef HASH_DICTIONARY_H
 #define HASH_DICTIONARY_H
-
+#include "../stdafx.h"
 #include <map>
 
 using namespace std;
