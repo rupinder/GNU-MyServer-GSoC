@@ -76,7 +76,7 @@ int DynamicLibrary::close()
   if(!handle)
     return 1;
 #ifdef WIN32
-		ret = freeLibrary((HMODULE)handle) ? 0 : 1; 
+		ret = FreeLibrary((HMODULE)handle) ? 0 : 1; 
 #endif
 #ifdef HAVE_DL
 		ret = dlclose(handle);
