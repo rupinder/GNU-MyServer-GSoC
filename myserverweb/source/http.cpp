@@ -1136,6 +1136,12 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& URI,
         mimeCMD = td->mime->command;
         data.assign(td->mime->cgi_manager);
       }
+      else
+      {
+        td->response.CONTENT_TYPE.assign("text/html");
+        mimeCMD = CGI_CMD_SEND;
+        data.assign("");
+      }        
     }
 
     if(mimeCMD==CGI_CMD_RUNCGI)
