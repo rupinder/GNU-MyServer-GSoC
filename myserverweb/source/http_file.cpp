@@ -246,8 +246,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       u_long breakAtTheEnd=0;
       /*! Read from the file the bytes to send. */
       ret = h.readFromFile(td->buffer->getBuffer(),
-                           (bytes_to_send<td->buffer->getRealLength()? 
-                            bytes_to_send :td->buffer->getRealLength()), &nbr);
+                           (bytes_to_send<td->buffer->getRealLength()/2? 
+                            bytes_to_send :td->buffer->getRealLength()/2), &nbr);
       if(ret)
         break;
 
