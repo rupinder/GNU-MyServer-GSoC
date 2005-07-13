@@ -69,8 +69,8 @@ void Counter_Output::run()
 	}
 	
 	digets = i;
-	
-	// alocate the counter image
+
+	// Allocate the counter image
 	outBuffer = new unsigned char [(numbers_image.width / 10) * digets * numbers_image.bytes_per_pixel * numbers_image.height + 1];
 	
 	unsigned int num;
@@ -108,16 +108,18 @@ void Counter_Output::run()
 	}
 	// Take a breath, its done
 	
+
 	// write the image
 	mainprog_info png_enc;
-	
+	memset(&png_enc, 0, sizeof(mainprog_info));
 	png_enc.width = (numbers_image.width / 10) * digets;
 	png_enc.height = numbers_image.height;
 	
 	png_enc.image_data = (uch*)outBuffer;
+
 	
 	// setup the row pointers for png
-	unsigned char ** row_pointers= new unsigned char*[numbers_image.height];
+	unsigned char **row_pointers= new unsigned char*[numbers_image.height];
 	
 	for(i = 0; i < numbers_image.height; i++)
 	{
@@ -142,7 +144,9 @@ void Counter_Output::run()
 	png_set_write_fn(*png_ptr, &png_enc, user_write_data, user_flush_data);
 
 	writepng_init(&png_enc);
+
 	writepng_encode_image(&png_enc);
+
 	writepng_encode_finish(&png_enc);
 	writepng_cleanup(&png_enc);
 	

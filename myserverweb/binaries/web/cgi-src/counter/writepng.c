@@ -85,8 +85,6 @@ int writepng_init(mainprog_info *mainprog_ptr)
         return 4;   /* out of memory */
     }
 
-    printf("%x\n", info_ptr);
-
     /* setjmp() must be called in every function that calls a PNG-writing
      * libpng function, unless an alternate error handler was installed--
      * but compatible error handlers must either use longjmp() themselves

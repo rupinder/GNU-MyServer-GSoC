@@ -55,9 +55,9 @@ extern "C" int main (char *cmd, MsCgiData* data)
 		{
 			msfile.readFromFile((char *)&count, sizeof(count), &nbw);
 			msfile.closeFile();
-        }
-        else
-                count = 0;
+    }
+    else
+      count = 0;
 		
 		count++; // add the hit
 		
@@ -66,10 +66,10 @@ extern "C" int main (char *cmd, MsCgiData* data)
 			
 		//now save it
 		if(msfile.openFile("count.dat", FILE_OPEN_WRITE|FILE_OPEN_ALWAYS)==0)
-		{
+    {
 		  msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		  msfile.closeFile();
-        }
+    }
 	}
 	else
 	{
@@ -81,7 +81,9 @@ extern "C" int main (char *cmd, MsCgiData* data)
 		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
 		msfile.closeFile();
 	}
+
 	counter.setNumber(count);
+
 	counter.run();
 	
 	cm.clean();
