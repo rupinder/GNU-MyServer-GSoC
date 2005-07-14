@@ -123,6 +123,7 @@ SectionEnd
 
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
+  File "..\Documentation\En\*.htm"
 
   SetOutPath "$INSTDIR\web\documentation\images"
   File "..\Documentation\En\images\*.png"
