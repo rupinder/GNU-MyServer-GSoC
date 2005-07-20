@@ -64,7 +64,7 @@ Stream* FiltersChain::getStream()
 /*!
  *Write data using the chain. Returns 0 on success.
  */
-int FiltersChain::write(char* buffer, u_long len, u_long* nbw)
+int FiltersChain::write(const char* buffer, u_long len, u_long* nbw)
 {
   if(stream == 0)
     return -1;

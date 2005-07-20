@@ -38,7 +38,7 @@ int Filter::read(char* buffer, u_long len, u_long *nbr)
 /*!
  *Write [len] characters to the stream. Returns -1 on errors.
  */
-int Filter::write(char* buffer, u_long len, u_long* nbw)
+int Filter::write(const char* buffer, u_long len, u_long* nbw)
 {
   *nbw = 0;
   return 0;

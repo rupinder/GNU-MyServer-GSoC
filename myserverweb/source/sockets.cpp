@@ -793,7 +793,7 @@ int Socket::read(char* buffer, u_long len, u_long *nbr)
  *Inherited from Stream.
  *Return values are equals to send.
  */
-int Socket::write(char* buffer, u_long len, u_long *nbw)
+int Socket::write(const char* buffer, u_long len, u_long *nbw)
 {
   int ret = send(buffer, len, 0);
   if(ret == -1)

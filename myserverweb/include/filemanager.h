@@ -131,7 +131,7 @@ public:
 
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);
-  virtual int write(char* buffer, u_long len, u_long *nbw);
+  virtual int write(const char* buffer, u_long len, u_long *nbw);
 
 };
 #endif

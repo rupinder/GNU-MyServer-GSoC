@@ -85,7 +85,8 @@ u_long Gzip::compressBound(int size)
 /*!
 *Compress the in buffer to the out buffer using the gzip compression.
 */
-u_long Gzip::compress(char* in,u_long sizeIn,char *out,u_long sizeOut)
+u_long Gzip::compress(const char* in, u_long sizeIn, 
+                      char *out, u_long sizeOut)
 {
 #ifndef DO_NOT_USE_GZIP	
 	u_long old_total_out=data.stream.total_out;
@@ -273,7 +274,7 @@ int Gzip::read(char* buffer, u_long len, u_long *nbr)
 /*! 
  *Inherited from Filter.
  */
-int Gzip::write(char* buffer, u_long len, u_long *nbw)
+int Gzip::write(const char* buffer, u_long len, u_long *nbw)
 {
   char tmpBuffer[1024];
   u_long written=0;

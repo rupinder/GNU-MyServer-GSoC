@@ -31,7 +31,7 @@ private:
   int readSeek;
 public:
   virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(char* buffer, u_long len, u_long*);
+  virtual int write(const char* buffer, u_long len, u_long*);
   virtual int flush(u_long*);
   int refresh();
   int availableToRead();

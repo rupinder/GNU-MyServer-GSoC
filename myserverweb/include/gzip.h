@@ -56,7 +56,8 @@ public:
 	u_long updateCRC(char* buffer,int size);
 	u_long getFooter(char *str,int size);
 	u_long initialize();
-	u_long compress(char* in,u_long sizeIn,char *out,u_long sizeOut);
+	u_long compress(const char* in, u_long sizeIn, 
+                  char *out,u_long sizeOut);
 	u_long free();
 	u_long flush(char *out,u_long sizeOut);
 	u_long getHeader(char *buffer,u_long buffersize);
@@ -67,7 +68,7 @@ public:
   virtual int getHeader(char* buffer, u_long len, u_long* nbw);
   virtual int getFooter(char* buffer, u_long len, u_long* nbw);
   virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(char* buffer, u_long len, u_long*);
+  virtual int write(const char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
 	virtual int modifyData();
   virtual const char* getName(char* name, u_long len);

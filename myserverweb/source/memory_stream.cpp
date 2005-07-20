@@ -55,7 +55,7 @@ int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
 /*!
  *Inherited from Stream.
  */
-int MemoryStream::write(char* buffer, u_long len, u_long *nbw)
+int MemoryStream::write(const char* buffer, u_long len, u_long *nbw)
 {
   data->addBuffer(buffer, len);
   *nbw=len;

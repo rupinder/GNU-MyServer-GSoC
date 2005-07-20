@@ -1070,7 +1070,7 @@ int File::read(char* buffer, u_long len, u_long *nbr)
 /*!
  *Inherited from Stream.
  */
-int File::write(char* buffer, u_long len, u_long *nbw)
+int File::write(const char* buffer, u_long len, u_long *nbw)
 {
 	int ret = writeToFile(buffer, len, nbw );
   if(ret != 0)

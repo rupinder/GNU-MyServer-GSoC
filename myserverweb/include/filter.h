@@ -32,7 +32,7 @@ public:
   virtual int getHeader(char* buffer, u_long len, u_long* nbw);
   virtual int getFooter(char* buffer, u_long len, u_long* nbw);
   virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(char* buffer, u_long len, u_long*);
+  virtual int write(const char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
 	virtual int modifyData();
   virtual const char* getName(char*, u_long);

@@ -36,7 +36,7 @@ int Stream::read(char* buffer,u_long len, u_long *nbr)
 /*!
  *Write [len] characters to the stream. Returns -1 on errors.
  */
-int Stream::write(char* buffer, u_long len, u_long *nbw)
+int Stream::write(const char* buffer, u_long len, u_long *nbw)
 {
   *nbw=0;
   return 0;

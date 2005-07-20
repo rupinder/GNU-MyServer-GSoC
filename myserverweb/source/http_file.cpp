@@ -272,9 +272,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           if(nbw)
           {
             buffer << hex << nbw << "\r\n";
-            /*!TODO: remove ugly (char*) cast. */
-            ret=chain.getStream()->write((char*)buffer.str().c_str(), 
-                                         buffer.str().length(), &nbw2);
+             ret=chain.getStream()->write(buffer.str().c_str(), 
+                                          buffer.str().length(), &nbw2);
           
             if(ret)
               break;
@@ -328,8 +327,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             break;  
 
           buffer << hex << nbw << "\r\n";
-          /*!TODO: remove ugly (char*) cast. */
-          ret=chain.getStream()->write((char*)buffer.str().c_str(), 
+          ret=chain.getStream()->write(buffer.str().c_str(), 
                                        buffer.str().length(), &nbw2);
           if(ret)
             break;
