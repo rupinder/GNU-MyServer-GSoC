@@ -53,7 +53,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 	/*! 
    *Will we use GZIP compression to send data?
    */
-	int useGzip=0;
+	bool useGzip=0;
   u_long filesize=0;
 	File h;
 	u_long bytes_to_send;
