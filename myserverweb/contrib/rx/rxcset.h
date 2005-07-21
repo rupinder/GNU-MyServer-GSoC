@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU Library General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330, 
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02110-1301, USA. 
  */
 
 /*  lord	Sun May  7 12:34:11 1995	*/
