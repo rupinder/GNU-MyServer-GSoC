@@ -40,7 +40,7 @@ private:
   int cycleLog;
   int gzipLog;
 public:
-  void setGzip(int);
+  void setGzip(bool);
   int getGzip();
   void setCycleLog(int);
   int getCycleLog();
