@@ -104,7 +104,7 @@ public:
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
 	static int gethostname(char*, int);
-	int socket(int, int, int, int=0);
+	int socket(int, int, int, bool=0);
 	int bind(MYSERVER_SOCKADDR*, int);
 	int listen(int);
 	Socket();

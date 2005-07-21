@@ -93,7 +93,7 @@ int Socket::operator=(Socket s)
 /*!
  *Create the socket.
  */
-int Socket::socket(int af,int type,int protocol,int useSSL)
+int Socket::socket(int af,int type,int protocol,bool useSSL)
 {
 	sslSocket=useSSL;
 	socketHandle=(SocketHandle)::socket(af,type,protocol);
