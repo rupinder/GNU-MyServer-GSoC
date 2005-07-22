@@ -22,7 +22,9 @@
 #include "rxsimp.h"
 
 
-
+#ifndef WIN32
+#include<ctype.h>
+#endif
 
 /* Could reasonably hashcons instead of in rxunfa.c */
 

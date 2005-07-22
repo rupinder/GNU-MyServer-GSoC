@@ -16,12 +16,17 @@
  * Boston, MA 02110-1301, USA. 
  */
 
-
 #include <sys/types.h>
 #include "rxall.h"
 #include "rx.h"
 #include "rxgnucomp.h"
 #include "inst-rxposix.h"
+#include <string.h>
+#include <stdio.h>
+
+#ifndef WIN32
+#include <ctype.h>
+#endif
 
 /* {A Syntax Table} 
  */
@@ -671,11 +676,11 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
         case '$':
           {
             if (   /* If at end of pattern, it's an operator.  */
-                   p == pend 
+                (p == pend) 
                    /* If context independent, it's an operator.  */
-                || syntax & RE_CONTEXT_INDEP_ANCHORS
+                || (syntax & RE_CONTEXT_INDEP_ANCHORS)
                    /* Otherwise, depends on what's next.  */
-                || at_endline_loc_p (p, pend, syntax))
+                || (at_endline_loc_p (p, pend, syntax)))
 	      {
 		struct rexp_rxnode * n
 		  = rx_mk_r_int (r_context, '$');
@@ -1216,11 +1221,12 @@ rx_parse (rexp_p, pattern, size, syntax, cset_size, translate)
             handle_close:
               /* See similar code for backslashed left paren above.  */
               if (COMPILE_STACK_EMPTY)
-                if (syntax & RE_UNMATCHED_RIGHT_PAREN_ORD)
-                  goto normal_char;
-                else
-                  { compile_error = REG_ERPAREN; goto error_return; }
-
+                {
+                  if (syntax & RE_UNMATCHED_RIGHT_PAREN_ORD)
+                    goto normal_char;
+                  else
+                    { compile_error = REG_ERPAREN; goto error_return; }
+                }
               /* Since we just checked for an empty stack above, this
                * ``can't happen''. 
 	       */

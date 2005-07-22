@@ -31,7 +31,10 @@ protected:
   list <Filter*> filters;
   Filter* firstFilter;
   Stream *stream;
+  int acceptDuplicates;
 public:
+  void setAcceptDuplicates(int);
+  int getAcceptDuplicates();
   void setStream(Stream*);
   Stream* getStream();
   Filter* getFirstFilter();

@@ -20,6 +20,7 @@
 
 #include "rxall.h"
 #include "rxstr.h"
+#include <string.h>
 
 #ifdef _VC
 #define strncasecmp(a,b,c) _strnicmp(a,b,c)

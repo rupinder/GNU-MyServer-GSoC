@@ -19,11 +19,11 @@
  */
 
 
-
-#include "rxall.h"
-#include "rxnode.h"
-
 
+#include "rxall.h"
+#include "rx.h"
+#include "rxnode.h"
+#include <string.h>
 
 #define INITSIZE   8
 #define EXPANDSIZE 8

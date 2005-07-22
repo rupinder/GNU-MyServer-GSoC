@@ -17,13 +17,18 @@
  */
 
 
-
 #include "rxall.h"
 #include "rxposix.h"
 #include "rxgnucomp.h"
 #include "rxbasic.h"
 #include "rxsimp.h"
-
+#include <string.h>
+#include "rx.h"
+
+#ifndef WIN32
+#include <ctype.h>
+#endif
+
 /* regcomp takes a regular expression as a string and compiles it.
  *
  * PATTERN is the address of the pattern string.
@@ -336,11 +341,13 @@ rx_regexec (pmatch, preg, rules, start, end, string)
 	}
     nomatch:
       if (anchored)
-	if (!preg->newline_anchor)
-	  {
-	    rx_free_unfa (unfa);
-	    return REG_NOMATCH;
-	  }
+        {
+          if (!preg->newline_anchor)
+            {
+              rx_free_unfa (unfa);
+              return REG_NOMATCH;
+            }
+        }
 	else
 	  while (x < end)
 	    if (string[x] == '\n')

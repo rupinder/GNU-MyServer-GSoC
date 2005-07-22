@@ -20,7 +20,7 @@
 
 #include "rxall.h"
 #include "rxsuper.h"
-
+#include "rx.h"
 
 /* The functions in the next several pages define the lazy-NFA-conversion used
  * by matchers.  The input to this construction is an NFA such as 
@@ -385,7 +385,9 @@ rx_really_free_superstate (cache)
      struct rx_cache * cache;
 #endif
 {
+#if 0
   int locked_superstates = 0;
+#endif
   struct rx_superstate * it;
 
   if (!cache->superstates)
@@ -650,8 +652,9 @@ superset_hash_item_liberator (it, rules)
 }
 
 int rx_cache_bound = 3;
+#if 0
 static int rx_default_cache_got = 0;
-
+#endif
 static struct rx_cache default_cache = 
 {
   {
@@ -676,10 +679,14 @@ static struct rx_cache default_cache =
     0,
     0,
     0,
-    0,
-    0
+    {
+      0,  
+      0,
+      0
+    }
   }
 };
+
 struct rx_cache * rx_default_cache = &default_cache;
 
 /* This adds an element to a superstate set.  These sets are lists, such

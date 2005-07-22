@@ -70,3 +70,11 @@ Protocol::Protocol()
 {
 	protocolOptions=0;
 }
+
+/*!
+ *Destroy the object.
+ */
+Protocol::~Protocol()
+{
+
+}

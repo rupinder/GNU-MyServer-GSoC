@@ -24,7 +24,9 @@
 #include "rxgnucomp.h"
 #include "rxnfa.h"
 
-
+#ifndef WIN32
+#include <ctype.h>
+#endif
 
 #ifdef HAVE_POSITIONAL_ARRAY_INITS
 #define AT(X) [X] =
@@ -106,14 +108,14 @@ print_rexp (int cset_size, int indent, struct rexp_rxnode * rexp)
   else
     {
       printf ("Node %d type %d (%s), iv=%d(%c), iv2=%d, len=%d obs=%d cs=",
-	      rexp->id, rexp->type, rxnode_type_names[rexp->type],
-	      rexp->params.intval,
+	      (int)rexp->id, (int)rexp->type, rxnode_type_names[rexp->type],
+	      (int)rexp->params.intval,
 	      (isprint (rexp->params.intval)
-	       ? rexp->params.intval
+	       ? (int)rexp->params.intval
 	       : ' '),
-	      rexp->params.intval2,
-	      rexp->len,
-	      rexp->observed);
+              (int)rexp->params.intval2,
+              (int)rexp->len,
+              (int)rexp->observed);
       print_cset (cset_size, rexp->params.cset);
       printf (" s=");
       print_string (&(rexp->params.cstr), 1);
@@ -173,7 +175,7 @@ unparse_print_rexp (int cset_size, struct rexp_rxnode * rexp)
 	break;
 
       case r_cut:
-	printf ("[[:cut %d:]]", rexp->params.intval);
+        printf ("[[:cut %d:]]", (int)rexp->params.intval);
 	break;
 
       case r_concat:
@@ -204,7 +206,7 @@ unparse_print_rexp (int cset_size, struct rexp_rxnode * rexp)
 
       case r_interval:
 	unparse_print_rexp (cset_size, rexp->params.rxpair.left);
-	printf ("{%d,%d}", rexp->params.intval, rexp->params.intval2);
+	printf ("{%d,%d}", (int)rexp->params.intval, (int)rexp->params.intval2);
 	break;
       }
 }
@@ -228,7 +230,7 @@ print_nfa_state (struct rx *rx, struct rx_nfa_state * state)
       if (e->type == ne_cset)
 	print_cset (rx->local_cset_size, e->params.cset);
       else
-	printf ("%d", (long)e->params.side_effect);
+        printf ("%i", (int)((long)e->params.side_effect));
       putchar ('\n');
     }
 }

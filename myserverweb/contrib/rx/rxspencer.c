@@ -17,13 +17,13 @@
  */
 
 
-
+
 #include <stdio.h>
 #include "rxall.h"
 #include "rxspencer.h"
 #include "rxsimp.h"
-
-
+#include <string.h>
+#include "rx.h"
 
 static char * silly_hack_2 = 0;
 
@@ -437,7 +437,7 @@ rx_best_end_guess (solns, exp, bound)
 #endif
 
 
-
+
 #ifdef __STDC__
 enum rx_answers
 rx_next_solution (struct rx_solutions * solns)
@@ -1188,4 +1188,5 @@ rx_next_solution (solns)
 	}
       return rx_bogus;
     }
+  return rx_bogus;
 }

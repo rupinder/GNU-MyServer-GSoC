@@ -79,8 +79,25 @@ int FiltersChain::write(const char* buffer, u_long len, u_long* nbw)
  */
 FiltersChain::FiltersChain()
 {
+  acceptDuplicates=1;
   stream=0;
   firstFilter=0;
+}
+
+/*!
+ *Set if the chain can cointain duplicates of the same filter on different levels.
+ */
+void FiltersChain::setAcceptDuplicates(int v)
+{
+  acceptDuplicates = v;
+}
+
+/*!
+ *Return if the chain can have the same filter in multiple places. 
+ */
+int FiltersChain::getAcceptDuplicates()
+{
+  return acceptDuplicates;
 }
 
 /*!
@@ -112,10 +129,17 @@ int FiltersChain::addFilter(Filter* f, u_long *nbw)
     f->setParent(firstFilter);
   }
 
+  /*! If the chain doesn't support duplicates check if the filter is already present.*/
+  if(!acceptDuplicates)
+  {
+    if(isFilterPresent(f))
+      return 0;
+  }
+
   /*! Write the filter header(if any) using the upper chain. */
   if(!f->getHeader(buffer, 512, &nbw2))
   {
-    if(f->getParent()->write(buffer, nbw2, &nbwFirstFilter))
+    if(nbw2 && f->getParent()->write(buffer, nbw2, &nbwFirstFilter))
       ret = 1;
     *nbw = nbwFirstFilter;
   }

@@ -24,7 +24,7 @@
 
 #include "rxall.h"
 #include "rxnfa.h"
-
+#include "rx.h"
 
 
 #define remalloc(M, S) (M ? realloc (M, S) : malloc (S))

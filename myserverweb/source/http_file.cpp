@@ -24,7 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cserver.h"
 #include "../include/filters_chain.h"
 #include "../include/memory_stream.h"
+
 #include <sstream>
+#include <algorithm>
+using namespace std;
 
 extern "C" 
 {
@@ -65,8 +68,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
 	
-	/*! Number of bytes created by the zip compressor by loop.  */
-	u_long GzipDataused=0;
 	int dataSent=0;
 
   try
@@ -92,7 +93,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
        *If the client use ranges set the right value 
        *for the last byte number.  
        */
-      lastByte = ((u_long)lastByte+1 < bytes_to_send) ? lastByte+1 : bytes_to_send;
+      lastByte = std::min(lastByte+1, bytes_to_send);
     }
 
     /*! 
@@ -243,11 +244,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     {
       u_long nbr;
       u_long nbw;
-      u_long breakAtTheEnd=0;
+      u_long lastchunk=0;
       /*! Read from the file the bytes to send. */
       ret = h.readFromFile(td->buffer->getBuffer(),
-                           (bytes_to_send<td->buffer->getRealLength()/2? 
-                            bytes_to_send :td->buffer->getRealLength()/2), &nbr);
+                           std::min(static_cast<u_long>(bytes_to_send), 
+                                    static_cast<u_long>(td->buffer->getRealLength()/2)), 
+                           &nbr);
       if(ret)
         break;
 
@@ -266,7 +268,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             chain.flush(&nbw);
             chain.setStream(tmp);
           }
-          ret=memStream.read(td->buffer->getBuffer(), td->buffer->getRealLength(), &nbw);
+          ret=memStream.read(td->buffer->getBuffer(), 
+                             td->buffer->getRealLength(), &nbw);
           if(ret)
             break;
           if(nbw)
@@ -299,7 +302,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         if(ret)
           break;
 
-        breakAtTheEnd=1; 
+        lastchunk=1; 
       }
       
       if(nbr)
@@ -322,7 +325,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             chain.write(td->buffer->getBuffer(), nbr, &nbw);
             chain.setStream(tmp);
           }
-          ret=memStream.read(td->buffer->getBuffer(), td->buffer->getRealLength(), &nbw);
+          ret=memStream.read(td->buffer->getBuffer(), 
+                             td->buffer->getRealLength(), &nbw);
           if(ret)
             break;  
 
@@ -353,7 +357,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
       }
 
-      if(breakAtTheEnd)
+      if(lastchunk)
       {
         if(usechunks)
         {

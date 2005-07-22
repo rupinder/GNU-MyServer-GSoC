@@ -24,7 +24,7 @@
 
 #include "rxall.h"
 #include "rxhash.h"
-
+#include "rx.h"
 
 
 #ifdef __STDC__
