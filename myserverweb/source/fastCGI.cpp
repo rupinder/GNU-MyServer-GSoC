@@ -1000,7 +1000,10 @@ sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
        *A remote server path has the form @hosttoconnect:porttouse.
        */
       while(path[i]!=':')
-        server->host[i-1]=path[i++];
+      {
+        server->host[i-1]=path[i];
+        i++;
+      }      
       server->host[i-1]='\0';
       server->port=(u_short)atoi(&path[++i]);
     }
