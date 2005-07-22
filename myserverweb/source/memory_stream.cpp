@@ -117,4 +117,5 @@ int MemoryStream::refresh()
 {
   readSeek=0;
   data->setLength(0);
+  return 0;
 }

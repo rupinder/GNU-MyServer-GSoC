@@ -170,6 +170,51 @@ int MimeManager::load(const char *fn)
 	return data.size();
 
 }
+
+/*!
+ *Destroy the object.
+ */
+MimeManager::MimeRecord::~MimeRecord()
+{
+  clear();
+}
+
+/*!
+ *Copy constructor.
+ */
+MimeManager::MimeRecord::MimeRecord(MimeRecord& m)
+{
+  list<string*>::iterator i=m.filters.begin();
+
+  filters.clear(); 
+
+  for( ; i != m.filters.end(); i++)
+  {
+    string *filter = new string();
+    filter->assign( *(*i) );
+    filters.push_back(filter);
+  }
+  extension.assign(m.extension); 
+  mime_type.assign(m.mime_type);
+  command=m.command; 
+  cgi_manager.assign(m.cgi_manager);
+} 
+
+/*!
+  *Clear the used memory.
+  */
+void MimeManager::MimeRecord::clear()
+{
+  list<string*>::iterator i = filters.begin();
+  for( ; i != filters.end() ; i++)
+  {
+    delete (*i);
+  }
+  extension.assign(""); 
+  mime_type.assign(""); 
+  cgi_manager.assign("");
+}  
+
 /*!
  *Get the name of the file opened by the class.
  */
@@ -202,10 +247,7 @@ int MimeManager::loadXML(const char *fn)
 		MimeRecord rc;
 		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
 			continue;
-		rc.command='\0';
-    rc.extension.assign("");
-    rc.mime_type.assign("");
-    rc.cgi_manager.assign("");
+		rc.clear();
 		while(lcur)
 		{
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
@@ -289,6 +331,28 @@ int MimeManager::loadXML(const char *fn)
   loaded = 1;
 
 	return data.size();
+}
+
+/*!
+ *Add a filter to the list of filters to apply on this MIME type.
+ *Return zero if the filters was not added.
+ */
+int MimeManager::MimeRecord::addFilter(const char* n, int acceptDuplicate) 
+{
+  string *s;
+  if(!acceptDuplicate)
+  {
+    list<string*>::iterator i = filters.begin();
+    for( ; i != filters.end() ;i++ )
+    {
+      if(!stringcmpi(*(*i), n))
+        return 0;
+    }
+  }
+  s = new string();
+  s->assign(n);
+  filters.push_back(s);
+  return 1;
 }
 
 /*!
@@ -478,7 +542,6 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
  */
 int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 {
-	int i=0;
   MimeRecord *mr;
   if(id > data.size() || id < 0)
   {
