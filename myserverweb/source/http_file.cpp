@@ -56,7 +56,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 	/*! 
    *Will we use GZIP compression to send data?
    */
-	bool useGzip=0;
+	bool useGzip=false;
   u_long filesize=0;
 	File h;
 	u_long bytes_to_send;
@@ -64,7 +64,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   u_long lastByte = td->request.RANGEBYTEEND;
   int keepalive;
   int usechunks=0;
-
+  int useModifiers=0;
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
 	
@@ -72,7 +72,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
   try
   {
-    ret  = h.openFile(filenamePath, FILE_OPEN_IFEXISTS | 
+    ret = h.openFile(filenamePath, FILE_OPEN_IFEXISTS | 
                       FILE_OPEN_READ);
     if(ret)
     {	
@@ -102,7 +102,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if( ((Http*)td->lhttp)->getGzipThreshold() && 
         (bytes_to_send > ((Http*)td->lhttp)->getGzipThreshold() ))
     {
-      useGzip=1;
+      useGzip=true;
     }
     keepalive = !lstrcmpi(td->request.CONNECTION.c_str(),"Keep-Alive");
 
@@ -116,10 +116,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     /*! 
      *If compiled without GZIP support force the server to don't use it.  
      */
-    useGzip=0;
+    useGzip=false;
 #endif	
     if(td->appendOutputs)
-      useGzip=0;
+      useGzip=false;
 
     /*! 
      *bytes_to_send is the interval between the first and the last byte.  
@@ -146,10 +146,34 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       buffer << "bytes "<< (u_long)firstByte << "-" 
              << (u_long)lastByte << "/" << (u_long)filesize ;
       td->response.CONTENT_RANGE.assign(buffer.str());
-      useGzip = 0;
+      useGzip = false;
     }
 
-    if(keepalive && !useGzip)
+    chain.setStream(&memStream);
+    if(useGzip)
+    {
+      Filter* gzipFilter = lserver->getFiltersFactory()->getFilter("gzip");
+      u_long nbw;
+      if(!gzipFilter)
+      {
+        h.closeFile();
+        chain.clearAllFilters();
+        return 0;
+      }
+      if(chain.addFilter(gzipFilter, &nbw))
+      {
+        delete gzipFilter;
+        h.closeFile();
+        chain.clearAllFilters();
+        return 0;
+      }
+      dataSent+=nbw;
+    }
+
+
+    useModifiers=chain.hasModifiersFilters();
+ 
+    if(keepalive && !useModifiers)
     {
       ostringstream buffer;
       buffer << (u_int)bytes_to_send;
@@ -166,9 +190,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       td->response.CONNECTION.assign("close");
     }
 
-    if(useGzip)
+    if(useModifiers)
     {
-      td->response.CONTENT_ENCODING.assign("gzip");
+      chain.getName(td->response.CONTENT_ENCODING);
       /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
       if(keepalive)
       {
@@ -178,6 +202,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
     }
 
+ 
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                          &td->response);
     td->buffer->setLength((u_long)strlen(td->buffer->getBuffer()));
@@ -188,6 +213,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
                         (u_long)td->buffer->getLength(), 0)== SOCKET_ERROR)
       {
         h.closeFile();
+        chain.clearAllFilters();
         return 0;
       }
     }
@@ -199,46 +225,71 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(onlyHeader)
     {
       h.closeFile();
+      chain.clearAllFilters();
       return 1;
     }
 
     if(td->appendOutputs)
-      chain.setStream(&(td->outputData));   
+      chain.setStream(&(td->outputData)); 
     else
       chain.setStream(&(s->socket));
 
-    if(useGzip)
+    
+    /*! Flush initial data. */
+    if(memStream.availableToRead())
     {
-      Filter* gzipFilter = lserver->getFiltersFactory()->getFilter("gzip");
-      u_long nbw;
-      Stream *tmp;
-      if(!gzipFilter)
+      ostringstream buffer;
+      u_long nbw=0;
+      u_long nbr=0;    
+      ret = memStream.read(td->buffer->getBuffer(),
+                           td->buffer->getRealLength(), 
+                           &nbr);
+      
+      if(ret)
       {
         h.closeFile();
         chain.clearAllFilters();
-        return 0;
+        return 1;
       }
 
-      if(usechunks)
+      if(nbr)
       {
-        tmp=chain.getStream();
-        chain.setStream(&memStream);
-      }
+        if(usechunks)
+        {
+          buffer << hex << nbw << "\r\n";     
+          ret=chain.getStream()->write(buffer.str().c_str(), buffer.str().length(), &nbw); 
+          if(!ret)
+          {
+            ret=chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
+            if(!ret)
+            {
+              dataSent += nbw;
+              ret=chain.getStream()->write("\r\n", 2, &nbw);
+            }
+          }
 
-      if(chain.addFilter(gzipFilter, &nbw))
-      {
-        delete gzipFilter;
-        h.closeFile();
-        chain.clearAllFilters();
-        return 0;
-      }
+          if(ret)
+          {
+            h.closeFile();
+            chain.clearAllFilters();
+            return 1;
+          }     
+          dataSent += nbw;
+        }
+        else
+        {
+          ret=chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
+          if(ret)
+          {
+            h.closeFile();
+            chain.clearAllFilters();
+            return 1;
+          }     
+          dataSent += nbw;
+        }
+      }/*! nbr. */
+    } /*! memStream.availableToRead() */
 
-      if(usechunks)
-      {
-        chain.setStream(tmp);
-      }
-      dataSent+=nbw;
-    }
 
     for(;;)
     {
@@ -252,7 +303,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
                            &nbr);
       if(ret)
         break;
-
+      
       bytes_to_send-=nbr;
 
       /*! If there are bytes to send, send them. */
@@ -263,6 +314,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           u_long nbw2;
           ostringstream buffer;
           {
+            /*! Flush to the memory stream and use it to send chunks. */
             Stream *tmp=chain.getStream();
             chain.setStream(&memStream);
             chain.flush(&nbw);
@@ -275,7 +327,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           if(nbw)
           {
             buffer << hex << nbw << "\r\n";
-             ret=chain.getStream()->write(buffer.str().c_str(), 
+            ret=chain.getStream()->write(buffer.str().c_str(), 
                                           buffer.str().length(), &nbw2);
           
             if(ret)
@@ -285,11 +337,11 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             if(ret)
               break; 
 
-          dataSent += nbw2;
+            dataSent += nbw2;
 
-          ret=chain.getStream()->write("\r\n", 2, &nbw);
-          if(ret)
-            break;
+            ret=chain.getStream()->write("\r\n", 2, &nbw);
+            if(ret)
+              break;
           }
         }
         else
@@ -346,7 +398,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           if(ret)
             break;
         }
-        else
+        else/*! Do not use chunks. */
         {
           ret = chain.write(td->buffer->getBuffer(), nbr, &nbw);
           if(ret)

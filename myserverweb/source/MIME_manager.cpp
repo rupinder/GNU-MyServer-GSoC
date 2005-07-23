@@ -259,7 +259,13 @@ int MimeManager::loadXML(const char *fn)
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
 			{
 				if(lcur->children->content)
-					rc.mime_type.assign((char*)lcur->children->content);
+					rc.mime_type.assign((const char*)lcur->children->content);
+			}
+
+			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
+			{
+				if(lcur->children->content)
+          rc.addFilter((const char*)lcur->children->content);
 			}
 
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
@@ -310,7 +316,7 @@ int MimeManager::loadXML(const char *fn)
         /*! If the specified manager is not NONE store its path in the record. */
 				if(lcur->children->content && lstrcmpi((char*)lcur->children->content,"NONE"))
         {
-          rc.cgi_manager.assign((char*)lcur->children->content);
+          rc.cgi_manager.assign((const char*)lcur->children->content);
         }
         else
         {

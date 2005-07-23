@@ -39,11 +39,12 @@ public:
   Stream* getStream();
   Filter* getFirstFilter();
   int isEmpty();
-  int addFilter(Filter*,u_long *nbw);
+  int addFilter(Filter*,u_long *nbw, int sendData=1);
   void clearAllFilters();
   int isFilterPresent(Filter*);
   int removeFilter(Filter*);
   int clear();
+  void getName(string& out);
   int hasModifiersFilters();
   int read(char* buffer, u_long len, u_long*);
   int write(const char* buffer, u_long len, u_long*);

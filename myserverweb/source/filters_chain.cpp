@@ -113,7 +113,7 @@ FiltersChain::~FiltersChain()
  *Returns 0 on success.
  *the number of bytes written to initialize the filter. 
  */
-int FiltersChain::addFilter(Filter* f, u_long *nbw)
+int FiltersChain::addFilter(Filter* f, u_long *nbw, int sendData)
 {
   u_long ret = 0;
   char buffer[512];
@@ -136,16 +136,19 @@ int FiltersChain::addFilter(Filter* f, u_long *nbw)
       return 0;
   }
 
-  /*! Write the filter header(if any) using the upper chain. */
-  if(!f->getHeader(buffer, 512, &nbw2))
+  if(sendData)
   {
-    if(nbw2 && f->getParent()->write(buffer, nbw2, &nbwFirstFilter))
-      ret = 1;
-    *nbw = nbwFirstFilter;
-  }
-  else
-  {
-    return 1;
+    /*! Write the filter header(if any) using the upper chain. */
+    if(!f->getHeader(buffer, 512, &nbw2))
+    {
+      if(nbw2 && f->getParent()->write(buffer, nbw2, &nbwFirstFilter))
+        ret = 1;
+      *nbw = nbwFirstFilter;
+    }
+    else
+    {
+      return 1;
+    }
   }
 
   /*! 
@@ -186,7 +189,6 @@ int FiltersChain::flush(u_long* nbw)
   /*!
    *Position on the last element. 
    */
-  int ss=filters.size();
   i = filters.end();
 
   while(i != filters.begin())
@@ -296,4 +298,28 @@ int FiltersChain::hasModifiersFilters()
 Filter* FiltersChain::getFirstFilter()
 {
   return firstFilter;
+}
+
+
+/*!
+ *Fullfill the out string with a comma separated list of the filters
+ *present in the chain.
+ */
+void FiltersChain::getName(string& out)
+{
+  list<Filter*>::iterator i = filters.begin();
+  out.clear();
+
+  for(;;)
+  {
+    if(i != filters.end())
+      out.append((*i)->getName(0, 32));
+ 
+    i++;
+    if(i != filters.end())
+      out.append(",");
+    else
+      break;
+  }
+
 }
