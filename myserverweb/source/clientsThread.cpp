@@ -417,6 +417,7 @@ int ClientsThread::controlConnections()
     {
       retcode=0;
     };
+
 		/*!
      *The protocols parser functions return:
      *0 to delete the connection from the active connections list.
@@ -424,7 +425,7 @@ int ClientsThread::controlConnections()
      *2 if the header is incomplete and to save it in a temporary buffer.
      *3 if the header is incomplete without save it in a temporary buffer.
      */
-		if(retcode==0)/*! Delete the connection. */
+ 		if(retcode==0)/*! Delete the connection. */
 		{
 			lserver->deleteConnection(c, this->id);
 			return 0;

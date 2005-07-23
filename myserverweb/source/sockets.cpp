@@ -757,7 +757,7 @@ int Socket::dataOnRead(int sec, int usec)
   {
     struct timeval tv;
     fd_set readfds;
-  
+    int ret;
     tv.tv_sec = sec;
     tv.tv_usec = usec;
     
@@ -767,8 +767,9 @@ int Socket::dataOnRead(int sec, int usec)
 #else
     FD_SET(socketHandle, &readfds);
 #endif
-    ::select(socketHandle+1, &readfds, NULL, NULL, &tv);
-
+    ret = ::select(socketHandle+1, &readfds, NULL, NULL, &tv);
+    if(ret == -1 || ret == 0)
+      return 0;
     if (FD_ISSET(socketHandle, &readfds))
       return 1;
     return 0;

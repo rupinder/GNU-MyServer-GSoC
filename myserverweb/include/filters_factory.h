@@ -37,7 +37,9 @@ protected:
 public:
   int insert(const char*, FILTERCREATE ptr);
   Filter *getFilter(const char*);
-  FiltersChain* chain(list<string*> l, Stream* out, u_long *nbw, int onlyNotModifiers=0);
+  FiltersChain* chain(list<string*> &l, Stream* out, u_long *nbw, int onlyNotModifiers=0);
+  int chain(FiltersChain*, list<string*> &l, Stream* out, u_long *nbw, 
+             int onlyNotModifiers=0);
   FiltersFactory();
   ~FiltersFactory();
   void free();

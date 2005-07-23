@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  
 #include "../stdafx.h"
 #include "../include/filters_chain.h"
+#include "../include/stringutils.h"
 
 #include <string>
 #include <sstream>
@@ -221,6 +222,19 @@ int FiltersChain::isFilterPresent(Filter* f)
     if(*i==f)
       return 1;
 
+  return 0;
+}
+
+/*!
+ *Check if a filter is present in the chain by its name.
+ */
+int FiltersChain::isFilterPresent(const char* name)
+{
+  list<Filter*>::iterator i=filters.begin();
+
+  for( ; i!=filters.end(); ++i )
+    if(!lstrcmpi((*i)->getName(0, 0), name))
+      return 1;
   return 0;
 }
 

@@ -74,31 +74,57 @@ Filter *FiltersFactory::getFilter(const char* name)
  *will not modify the data.
  *On errors returns 0.
  */
-FiltersChain* FiltersFactory::chain(list<string*> l, Stream* out, u_long *nbw, int onlyNotModifiers)
+FiltersChain* FiltersFactory::chain(list<string*> &l, Stream* out, u_long *nbw, 
+                                    int onlyNotModifiers)
 {
   FiltersChain *ret = new FiltersChain();
-  list<string*>::iterator i=l.begin();
-  if(ret == 0)
+  if(!ret)
     return 0;
-  ret->setStream(out);
+  if(chain(ret, l, out, nbw, onlyNotModifiers))
+  {
+    ret->clearAllFilters();
+    delete ret;
+    return 0;
+  }
+  return ret;
+}
+
+/*!
+ *Add new filters to an existent chain.
+ *If specified [onlyNotModifiers] the method wil check that all the filters
+ *will not modify the data.
+ *On errors returns nonzero.
+ */
+int FiltersFactory::chain(FiltersChain* c, list<string*> &l, Stream* out, u_long *nbw, 
+                          int onlyNotModifiers)
+{
+
+  list<string*>::iterator i=l.begin();
+
+  if(!c)
+    return 1;
+
+  c->setStream(out);
   *nbw=0;
+
   for( ; i != l.end(); i++)
   {
     u_long tmp;
     Filter *n=getFilter((*i)->c_str());
     if( !n || ( onlyNotModifiers && n->modifyData() )  )
     {
-      ret->clearAllFilters();
-      return 0;
+      c->clearAllFilters();
+      return 1;
     }
-    ret->addFilter(n, &tmp);
+    c->addFilter(n, &tmp);
     *nbw+=tmp;
   }
-  return ret;
+
+  return 0;
 }
 
 /*!
- *free the object.
+ *Free the object.
  */
 void FiltersFactory::free()
 {

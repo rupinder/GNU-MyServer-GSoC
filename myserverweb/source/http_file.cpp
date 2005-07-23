@@ -150,7 +150,18 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     }
 
     chain.setStream(&memStream);
-    if(useGzip)
+    if(td->mime)
+    {
+      u_long nbw;
+      if(lserver->getFiltersFactory()->chain(&chain, td->mime->filters, &memStream, &nbw))
+      {
+        h.closeFile();
+        chain.clearAllFilters();
+        return 0;
+      }
+      dataSent+=nbw;  
+    }
+    if(useGzip && !chain.isFilterPresent("gzip"))
     {
       Filter* gzipFilter = lserver->getFiltersFactory()->getFilter("gzip");
       u_long nbw;
@@ -169,7 +180,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }
       dataSent+=nbw;
     }
-
 
     useModifiers=chain.hasModifiersFilters();
  
@@ -201,7 +211,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }
 
     }
-
  
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                          &td->response);
@@ -256,7 +265,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       {
         if(usechunks)
         {
-          buffer << hex << nbw << "\r\n";     
+          buffer << hex << nbr << "\r\n";     
           ret=chain.getStream()->write(buffer.str().c_str(), buffer.str().length(), &nbw); 
           if(!ret)
           {

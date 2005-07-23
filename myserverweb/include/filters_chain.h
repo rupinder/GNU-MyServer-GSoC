@@ -42,6 +42,7 @@ public:
   int addFilter(Filter*,u_long *nbw, int sendData=1);
   void clearAllFilters();
   int isFilterPresent(Filter*);
+  int isFilterPresent(const char*);
   int removeFilter(Filter*);
   int clear();
   void getName(string& out);

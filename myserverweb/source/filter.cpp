@@ -98,7 +98,7 @@ Stream* Filter::getParent()
 }
 
 /*!
- *Returns a nonzero value if the 
+ *Returns a nonzero value if the filter modify the input/output data.
  */
 int Filter::modifyData()
 {
