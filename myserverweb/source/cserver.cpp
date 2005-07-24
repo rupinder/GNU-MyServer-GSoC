@@ -900,6 +900,7 @@ int Server::terminate()
   ControlProtocol::unloadProtocol(&languageParser);
 	protocols.unloadProtocols(&languageParser);
 
+  filters.clear();
   filtersFactory.free();
 
 	/*!
@@ -1844,10 +1845,41 @@ int Server::loadSettings()
       string protocolsPath;
       protocolsPath.assign(externalPath);
       protocolsPath.append("/protocols");
-      protocols.loadProtocols(protocolsPath.c_str(), &languageParser, 
-                              "myserver.xml", this);
+      if(protocols.loadProtocols(protocolsPath.c_str(), &languageParser, 
+                                 "myserver.xml", this))
+      {
+        ostringstream out;
+        logPreparePrintError();
+        out << languageParser.getValue("ERR_GENERIC") << ": dynamic protocols";
+        logWriteln(out.str().c_str());
+        logEndPrintError();	  
+      }
+        
     }
 
+    /*! Load external filters. */
+    {
+      string filtersPath;
+      filtersPath.assign(externalPath);
+      filtersPath.append("/protocols");
+      if(filters.loadFilters(filtersPath.c_str(), &languageParser))
+      {
+        ostringstream out;
+        logPreparePrintError();
+        out << languageParser.getValue("ERR_GENERIC") << ": dynamic protocols";
+        logWriteln(out.str().c_str());
+        logEndPrintError();	  
+      }
+      if(filters.registerFilters(&filtersFactory))
+      {
+        ostringstream out;
+        logPreparePrintError();
+        out << languageParser.getValue("ERR_GENERIC") << ": registering filters";
+        logWriteln(out.str().c_str());
+        logEndPrintError();	  
+      }
+    }
+    
     logWriteln( languageParser.getValue("MSG_CREATET"));
 
     for(i=0; i<nStaticThreads; i++)

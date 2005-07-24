@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/connectionstruct.h"
 #include "../include/log_manager.h"
 #include "../include/filters_factory.h"
+#include "../include/dyn_filter.h"
 
 #include <string>
 using namespace std;
@@ -90,6 +91,7 @@ class Server
 #endif
 private:
   FiltersFactory filtersFactory;
+  DynamicFiltersManager filters;
   u_long uid;
   u_long gid;
   int currentThreadID;
