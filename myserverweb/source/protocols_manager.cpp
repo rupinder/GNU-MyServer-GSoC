@@ -276,7 +276,7 @@ int ProtocolsManager::loadProtocols(const char* directory, XmlParser* parser,
 	
   if(ret==-1)
   {
-		return -1;	
+		return 0;	
   }
 
 	do

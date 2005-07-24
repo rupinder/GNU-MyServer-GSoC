@@ -396,7 +396,7 @@ int DynamicFiltersManager::loadFilters(const char* dir, XmlParser* parser)
   ret = fd.findfirst(dir);
 
   if(ret==-1)
-		return -1;
+		return 0;
 
 	do
 	{	
