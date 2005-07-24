@@ -729,7 +729,7 @@ void * listenServer(void* params)
   if(lserver->getUid() && Process::setuid(lserver->getUid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_GENERIC") 
+    out << lserver->getLanguageParser()->getValue("ERR_ERROR") 
         << ": setuid " << lserver->getUid();
     lserver->logPreparePrintError();
     lserver->logWriteln(out.str().c_str());
@@ -741,7 +741,7 @@ void * listenServer(void* params)
   if(lserver->getGid() && Process::setgid(lserver->getGid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_GENERIC")
+    out << lserver->getLanguageParser()->getValue("ERR_ERROR")
         << ": setgid "  << lserver->getGid();
     lserver->logPreparePrintError();
     lserver->logWriteln(out.str().c_str());
@@ -1850,7 +1850,7 @@ int Server::loadSettings()
       {
         ostringstream out;
         logPreparePrintError();
-        out << languageParser.getValue("ERR_GENERIC") << ": dynamic protocols";
+        out << languageParser.getValue("ERR_ERROR") << ": dynamic protocols";
         logWriteln(out.str().c_str());
         logEndPrintError();	  
       }
@@ -1866,7 +1866,7 @@ int Server::loadSettings()
       {
         ostringstream out;
         logPreparePrintError();
-        out << languageParser.getValue("ERR_GENERIC") << ": dynamic protocols";
+        out << languageParser.getValue("ERR_ERROR") << ": dynamic protocols";
         logWriteln(out.str().c_str());
         logEndPrintError();	  
       }
@@ -1874,7 +1874,7 @@ int Server::loadSettings()
       {
         ostringstream out;
         logPreparePrintError();
-        out << languageParser.getValue("ERR_GENERIC") << ": registering filters";
+        out << languageParser.getValue("ERR_ERROR") << ": registering filters";
         logWriteln(out.str().c_str());
         logEndPrintError();	  
       }
@@ -1910,7 +1910,7 @@ int Server::loadSettings()
       ostringstream out;
       if(Process::setuid(uid))
       {
-        out << languageParser.getValue("ERR_GENERIC") << ": setuid " << uid;
+        out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
         logPreparePrintError();
         logWriteln(out.str().c_str());
         logEndPrintError();	  
@@ -1927,7 +1927,7 @@ int Server::loadSettings()
        ostringstream out;
        if(Process::setgid(gid))
        {
-         out << languageParser.getValue("ERR_GENERIC") << ": setgid " << gid;
+         out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
          logPreparePrintError();
          logWriteln(out.str().c_str());
          logEndPrintError();

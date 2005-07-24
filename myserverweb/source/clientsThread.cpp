@@ -125,7 +125,7 @@ void * startClientsThread(void* pParam)
   if(lserver->getUid() && Process::setuid(lserver->getUid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_GENERIC") 
+    out << lserver->getLanguageParser()->getValue("ERR_ERROR") 
         << ": setuid " << lserver->getUid();
     lserver->logPreparePrintError();
     lserver->logWriteln(out.str().c_str());
@@ -137,7 +137,7 @@ void * startClientsThread(void* pParam)
   if(lserver->getGid() && Process::setgid(lserver->getGid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_GENERIC")
+    out << lserver->getLanguageParser()->getValue("ERR_ERROR")
         << ": setgid "  << lserver->getGid();
     lserver->logPreparePrintError();
     lserver->logWriteln(out.str().c_str());
