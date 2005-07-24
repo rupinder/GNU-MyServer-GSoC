@@ -77,14 +77,14 @@ protected:
   static u_long counter;
   static DynamicFiltersManager* dynamicfiltersmanager;
   HashDictionary<DynamicFilterFile*> filters;
-  int add(const char*, XmlParser*);
+  int add(const char*, XmlParser*, Server*);
   static Filter* createFilter(const char* name); 
 public:
   DynamicFiltersManager();
   ~DynamicFiltersManager();
   void clear();
   int registerFilters(FiltersFactory* ff);
-  int loadFilters(const char*, XmlParser*);
+  int loadFilters(const char*, XmlParser*, Server*);
 };
 
 #endif

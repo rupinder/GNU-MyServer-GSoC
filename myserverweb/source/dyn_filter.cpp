@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/filter.h"
 #include "../include/dyn_filter.h"
 #include "../include/lfind.h"
+#include "../include/cserver.h"
 #include <string>
 #include <sstream>
 
@@ -376,7 +377,7 @@ void DynamicFiltersManager::clear()
 /*!
  *Load all the modules in the directory.
  */
-int DynamicFiltersManager::loadFilters(const char* dir, XmlParser* parser)
+int DynamicFiltersManager::loadFilters(const char* dir, XmlParser* parser, Server* server)
 {
 	FindData fd;
 	int ret;	
@@ -415,7 +416,7 @@ int DynamicFiltersManager::loadFilters(const char* dir, XmlParser* parser)
     completeFileName.assign(dir);
     completeFileName.append("/");
     completeFileName.append(fd.name);
-		if(add(completeFileName.c_str(), parser))
+		if(add(completeFileName.c_str(), parser, server))
     {
       clear();
       fd.findclose();
@@ -429,11 +430,11 @@ int DynamicFiltersManager::loadFilters(const char* dir, XmlParser* parser)
 /*!
  *Add a filter to the collection.
  */
-int DynamicFiltersManager::add(const char* file, XmlParser* /*parser*/)
+int DynamicFiltersManager::add(const char* file, XmlParser* parser, Server* server)
 {
   DynamicFilterFile* f;
   const char* name;
-
+  string logBuf;
   if(!dynamicfiltersmanager)
     return 0;
 
@@ -453,6 +454,12 @@ int DynamicFiltersManager::add(const char* file, XmlParser* /*parser*/)
     delete f;
     return -1;
   }
+  logBuf.assign(parser->getValue("MSG_LOADED"));
+  logBuf.append(" ");
+  logBuf.append(file);
+  logBuf.append(" --> ");
+  logBuf.append( name);
+  lserver->logWriteln( logBuf.c_str() );
 
   dynamicfiltersmanager->filters.insert(name, f);
   return 0;

@@ -1862,7 +1862,7 @@ int Server::loadSettings()
       string filtersPath;
       filtersPath.assign(externalPath);
       filtersPath.append("/filters");
-      if(filters.loadFilters(filtersPath.c_str(), &languageParser))
+      if(filters.loadFilters(filtersPath.c_str(), &languageParser, this))
       {
         ostringstream out;
         logPreparePrintError();
