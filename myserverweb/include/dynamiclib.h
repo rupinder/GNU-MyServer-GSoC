@@ -35,6 +35,7 @@ class DynamicLibrary
 private:
   void *handle;
 public:
+  int validHandle();
   DynamicLibrary();
   ~DynamicLibrary();
   int loadLibrary(const char* filename, int globally=0);

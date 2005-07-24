@@ -85,3 +85,10 @@ int DynamicLibrary::close()
     return ret;
 }
 
+/*!
+ *Return if the object has a valid handle.
+ */
+int DynamicLibrary::validHandle()
+{
+  return handle ? 1 : 0;
+}

@@ -62,18 +62,25 @@ int Filter::getFooter(char* buffer, u_long len, u_long* nbw)
   return 0;
 }
 
+/*!
+ *Default constructor.
+ */
 Filter::Filter()
 {
   parent = 0;
 }
 
+
+/*!
+ *Default destrunctor.
+ */
 Filter::~Filter()
 {
 
 }
 
 /*!
- *Set the stream where apply the filter. The stream
+ *Set the stream where apply the filter.
  */
 void Filter::setParent(Stream* p)
 {
