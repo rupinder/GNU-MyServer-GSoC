@@ -1861,7 +1861,7 @@ int Server::loadSettings()
     {
       string filtersPath;
       filtersPath.assign(externalPath);
-      filtersPath.append("/protocols");
+      filtersPath.append("/filters");
       if(filters.loadFilters(filtersPath.c_str(), &languageParser))
       {
         ostringstream out;
