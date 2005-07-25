@@ -31,7 +31,6 @@ public:
   virtual int write(const char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
   Stream();
-
   /*! Avoid direct instances of this class. */
   virtual ~Stream()=0;
 };

@@ -210,7 +210,7 @@ int DynamicFilter::read(char* buffer, u_long len, u_long *nbr)
   if(!file)
     return 0;
 
-  return file->read(id, stream, buffer, len, nbr);
+  return file->read(id, parent, buffer, len, nbr);
 }
 
 /*!
@@ -223,7 +223,7 @@ int DynamicFilter::write(const char* buffer,
   if(!file)
     return 0;
   
-  return file->write(id, stream, buffer, len, nbw);
+  return file->write(id, parent, buffer, len, nbw);
 }
 
 /*!
@@ -236,7 +236,7 @@ int DynamicFilter::getHeader(char* buffer,
   if(!file)
     return 0;
   
-  return file->getHeader(id, stream, buffer, len, nbw);
+  return file->getHeader(id, parent, buffer, len, nbw);
 }
 
 /*!
@@ -248,7 +248,7 @@ int DynamicFilter::getFooter(char* buffer, u_long len, u_long* nbw)
   if(!file)
     return 0;
   
-  return file->getFooter(id, stream, buffer, len, nbw);
+  return file->getFooter(id, parent, buffer, len, nbw);
 }
 
 /*!
@@ -299,7 +299,7 @@ void DynamicFilter::setParent(Stream* p)
  */
 DynamicFilter::DynamicFilter(DynamicFilterFile* f,Stream* s, u_long i)
 {
-  stream = s;
+  parent = s;
   id=i;
   file=f;
 }
@@ -328,7 +328,7 @@ int DynamicFilter::modifyData()
 {
   if(!file)
     return 0;
-  return file->modifyData(id, stream);
+  return file->modifyData(id, parent);
 }
 
 /*!
@@ -339,7 +339,7 @@ const char* DynamicFilter::getName(char* name, u_long len)
 {
   if(!file)
     return 0;
-  return file->getName(id, stream, name, len);
+  return file->getName(id, parent, name, len);
 }
 
 

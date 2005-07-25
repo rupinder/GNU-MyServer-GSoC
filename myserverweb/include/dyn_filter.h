@@ -49,7 +49,6 @@ public:
 class DynamicFilter : public Filter
 {
 protected:
-  Stream *stream;
   DynamicFilterFile* file;
   u_long id;
 public:
