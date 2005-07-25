@@ -52,7 +52,7 @@ int DynamicLibrary::loadLibrary(const char* filename, int globally)
 }
 
 /*!
- *Get a pointer to the pecified function. Returns 0 on errors or 
+ *Get a pointer to the specified function. Returns 0 on errors or 
  *the function address. 
  */
 void* DynamicLibrary::getProc(const char* fnName)

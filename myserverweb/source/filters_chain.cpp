@@ -326,9 +326,12 @@ void FiltersChain::getName(string& out)
 
   for(;;)
   {
-    if(i != filters.end())
-      out.append((*i)->getName(0, 32));
- 
+    if(i != filters.end() && (*i)->modifyData())
+    {
+      const char* name = (*i)->getName(0, 0);
+      if(name)
+        out.append(name);
+    }
     i++;
     if(i != filters.end())
       out.append(",");

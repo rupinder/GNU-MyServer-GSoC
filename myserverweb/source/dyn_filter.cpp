@@ -132,7 +132,7 @@ int DynamicFilterFile::read(u_long id, Stream* s, char* buffer,
   readPROC proc;
   if(!file.validHandle())
     return -1;
-  proc = (readPROC) file.getProc("read");
+  proc = (readPROC) file.getProc("filteredRead");
   if(proc)
     return proc(id, s, buffer, len, nbr);
 
@@ -148,7 +148,7 @@ int DynamicFilterFile::write(u_long id, Stream* s, const char* buffer,
   writePROC proc;
   if(!file.validHandle())
     return -1;
-  proc = (writePROC) file.getProc("write");
+  proc = (writePROC) file.getProc("filteredWrite");
   if(proc)
     return proc(id, s, buffer, len, nbw);
 
@@ -163,7 +163,7 @@ int DynamicFilterFile::flush(u_long id, Stream* s, u_long* nbw)
   flushPROC proc;
   if(!file.validHandle())
     return -1;
-  proc = (flushPROC) file.getProc("flush");
+  proc = (flushPROC) file.getProc("filteredFlush");
   if(proc)
     return proc(id, s, nbw);
 
@@ -254,9 +254,11 @@ int DynamicFilter::getFooter(char* buffer, u_long len, u_long* nbw)
 /*!
  *Construct the DynamicFilter object.
  */
-DynamicFilter::DynamicFilter()
+DynamicFilter::DynamicFilter(DynamicFilterFile* f)
 {
   parent = 0;
+  file = f;
+  id = 0;
 }
 
 /*!
@@ -295,11 +297,11 @@ void DynamicFilter::setParent(Stream* p)
 /*!
  *Construct the object passing a stream and a numeric ID.
  */
-DynamicFilter::DynamicFilter(Stream* s, u_long i)
+DynamicFilter::DynamicFilter(DynamicFilterFile* f,Stream* s, u_long i)
 {
   stream = s;
   id=i;
-
+  file=f;
 }
 
 /*!
@@ -377,7 +379,8 @@ void DynamicFiltersManager::clear()
 /*!
  *Load all the modules in the directory.
  */
-int DynamicFiltersManager::loadFilters(const char* dir, XmlParser* parser, Server* server)
+int DynamicFiltersManager::loadFilters(const char* dir, XmlParser* parser, 
+                                       Server* server)
 {
 	FindData fd;
 	int ret;	
@@ -481,7 +484,7 @@ Filter* DynamicFiltersManager::createFilter(const char* name)
   if(!file)
     return 0;
 
-  filter = new DynamicFilter();
+  filter = new DynamicFilter(file);
 
   if(!file)
     return 0;

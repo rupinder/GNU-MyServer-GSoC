@@ -50,7 +50,6 @@ class DynamicFilter : public Filter
 {
 protected:
   Stream *stream;
-  DynamicLibrary lib;
   DynamicFilterFile* file;
   u_long id;
 public:
@@ -65,8 +64,8 @@ public:
   virtual const char* getName(char*, u_long);
   void setParent(Stream*);
   Stream* getParent();
-  DynamicFilter();
-  DynamicFilter(Stream*, u_long);
+  DynamicFilter(DynamicFilterFile*);
+  DynamicFilter(DynamicFilterFile*,Stream*, u_long);
   ~DynamicFilter();
 };
 
