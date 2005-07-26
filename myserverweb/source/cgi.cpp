@@ -479,8 +479,8 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 #ifdef WIN32
 	memCgi << " (WIN32)";
 #else
-#ifdef host_STR
-	memCgi << " " << host_STR;
+#ifdef HOST_STR
+	memCgi << " " << HOST_STR;
 #else
 	memCgi << " (Unknown)";
 #endif
@@ -488,7 +488,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	/*! *Must use REDIRECT_STATUS for php and others.  */
 	memCgi << end_str << "REDIRECT_STATUS=TRUE";
 	
-	memCgi << end_str << "serverName=";
+	memCgi << end_str << "SERVER_NAME=";
  	memCgi << lserver->getServerName();
 
 	memCgi << end_str << "SERVER_SIGNATURE=";
@@ -496,7 +496,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << versionOfSoftware;
 	memCgi << "</address>";
 
-	memCgi << end_str << "SERVER_PROCOL=";
+	memCgi << end_str << "SERVER_PROTOCOL=";
 	memCgi << td->request.ver.c_str();	
 	
   {
@@ -510,7 +510,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "REQUEST_METHOD=";
 	memCgi << td->request.cmd.c_str();
 
-	memCgi << end_str << "REQUEST_uri=";
+	memCgi << end_str << "REQUEST_URI=";
 	
  	memCgi << td->request.uri.c_str();
 
@@ -521,13 +521,13 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	if(td->request.contentType.length())
 	{
-		memCgi << end_str << "contentType=";
+		memCgi << end_str << "CONTENT_TYPE=";
 		memCgi << td->request.contentType.c_str();
 	}
 
 	if(td->request.contentLength.length())
 	{
-		memCgi << end_str << "contentLength=";
+		memCgi << end_str << "CONTENT_LENGTH=";
 		memCgi << td->request.contentLength.c_str();
 	}
 	else
@@ -540,12 +540,12 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
     stream << fs;
 
-		memCgi << end_str << "contentLength=" << stream.str().c_str();
+		memCgi << end_str << "CONTENT_LENGTH=" << stream.str().c_str();
 	}
 
 	if(td->request.cookie.length())
 	{
-		memCgi << end_str << "HTTP_cookie=";
+		memCgi << end_str << "HTTP_COOKIE=";
 		memCgi << td->request.cookie.c_str();
 	}
 
@@ -569,19 +569,19 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	if(td->request.referer.length())
 	{
-		memCgi << end_str << "HTTP_referer=";
+		memCgi << end_str << "HTTP_REFERER=";
 		memCgi << td->request.referer.c_str();
 	}
 
 	if(td->request.cacheControl.length())
 	{
-		memCgi << end_str << "HTTP_cacheControl=";
+		memCgi << end_str << "HTTP_CACHE_CONTROL=";
 		memCgi << td->request.cacheControl.c_str();
 	}
 
 	if(td->request.accept.length())
-	{
-		memCgi << end_str << "HTTP_accept=";
+{
+		memCgi << end_str << "HTTP_ACCEPT=";
 		memCgi << td->request.accept.c_str();
 	}
 
@@ -593,7 +593,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	if(td->request.host.length())
 	{
-		memCgi << end_str << "HTTP_host=";
+		memCgi << end_str << "HTTP_HOST=";
 		memCgi << td->request.host.c_str();
 	}
 
@@ -629,25 +629,25 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	if(td->request.auth.length())
 	{
-		memCgi << end_str << "auth_TYPE=";
+		memCgi << end_str << "AUTH_TYPE=";
 		memCgi << td->request.auth.c_str();
 	}
 
 	if(td->request.userAgent.length())
 	{
-		memCgi << end_str << "HTTP_userAgent=";
+		memCgi << end_str << "HTTP_USER_AGENT=";
 		memCgi << td->request.userAgent.c_str();
 	}
 
 	if(td->request.acceptEncoding.length())
 	{
-		memCgi << end_str << "HTTP_accept_ENCODING=";
+		memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
 		memCgi << td->request.acceptEncoding.c_str();
 	}
 
 	if(td->request.acceptLanguage.length())
 	{
-		memCgi << end_str << "HTTP_accept_LANGUAGE=";
+		memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
     memCgi << td->request.acceptLanguage.c_str();
 	}
 
@@ -669,7 +669,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << td->filenamePath;
 	
 	/*!
-   *For the DOCUMENT_uri and SCRIPT_NAME copy the 
+   *For the DOCUMENT_URI and SCRIPT_NAME copy the 
    *requested uri without the pathInfo.
    */
 	memCgi << end_str << "SCRIPT_NAME=";
@@ -678,18 +678,18 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "SCRIPT_URL=";
 	memCgi << td->request.uri.c_str();
 
-	memCgi << end_str << "date_GMT=";
+	memCgi << end_str << "DATE_GMT=";
 	getRFC822GMTTime(strTmp, HTTP_RESPONSE_DATE_DIM);
 	memCgi << strTmp;
 
- 	memCgi << end_str << "date_LOCAL=";
+ 	memCgi << end_str << "DATE_LOCAL=";
 	getRFC822LocalTime(strTmp, HTTP_RESPONSE_DATE_DIM);
 	memCgi << strTmp;
 
 	memCgi << end_str << "DOCUMENT_ROOT=";
 	memCgi << ((Vhost*)(td->connection->host))->getDocumentRoot();
 
-	memCgi << end_str << "DOCUMENT_uri=";
+	memCgi << end_str << "DOCUMENT_URI=";
 	memCgi << td->request.uri.c_str();
 	
 	memCgi << end_str << "DOCUMENT_NAME=";

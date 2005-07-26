@@ -1139,12 +1139,12 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       else
       {
         td->response.contentType.assign("text/html");
-        mimecmd = CGI_cmd_SEND;
+        mimecmd = CGI_CMD_SEND;
         data.assign("");
       }        
     }
 
-    if(mimecmd==CGI_cmd_RUNCGI)
+    if(mimecmd==CGI_CMD_RUNCGI)
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
@@ -1153,7 +1153,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       ret = lcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 0,  onlyHeader);
       return ret;
     }
-    else if(mimecmd==CGI_cmd_EXECUTE )
+    else if(mimecmd==CGI_CMD_EXECUTE )
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
 		  {
@@ -1162,7 +1162,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       ret = lcgi.send(td, s, td->filenamePath.c_str(), data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if(mimecmd == CGI_cmd_RUNISAPI)
+    else if(mimecmd == CGI_CMD_RUNISAPI)
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
@@ -1173,7 +1173,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       return ret;
 
     }
-    else if(mimecmd==CGI_cmd_EXECUTEISAPI)
+    else if(mimecmd==CGI_CMD_EXECUTEISAPI)
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
@@ -1183,7 +1183,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
                         onlyHeader);
       return ret;
     }
-    else if( mimecmd == CGI_cmd_RUNMSCGI )
+    else if( mimecmd == CGI_CMD_RUNMSCGI )
     {
       char* target;
       if((!allowMscgi) || (!(permissions & MYSERVER_PERMISSION_EXECUTE)))
@@ -1202,7 +1202,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       }
       return raiseHTTPError(td, s, e_500);
     }
-    else if( mimecmd == CGI_cmd_EXECUTEWINCGI )
+    else if( mimecmd == CGI_CMD_EXECUTEWINCGI )
     {
       ostringstream cgipath;
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
@@ -1220,7 +1220,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       ret=lwincgi.send(td, s, cgipath.str().c_str(), 1, onlyHeader);
       return ret;
     }
-    else if( mimecmd == CGI_cmd_RUNFASTCGI )
+    else if( mimecmd == CGI_CMD_RUNFASTCGI )
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
@@ -1230,7 +1230,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
                           onlyHeader);
       return ret;
     }
-    else if(mimecmd==CGI_cmd_EXECUTEFASTCGI)
+    else if(mimecmd==CGI_CMD_EXECUTEFASTCGI)
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
@@ -1240,7 +1240,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
                           onlyHeader);
       return ret;
     }
-    else if( mimecmd == CGI_cmd_SENDLINK )
+    else if( mimecmd == CGI_CMD_SENDLINK )
     {
       u_long nbr;
       char* linkpath;
