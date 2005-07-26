@@ -18,6 +18,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../stdafx.h"
 #include "../include/Response_RequestStructs.h"
+#include "../include/stringutils.h"
+
+#include <sstream>
+
+using namespace std;
 
 /*!
  *Create the object.
@@ -57,7 +62,6 @@ void HttpRequestHeader::free()
 	DATE.clear();
 	FROM.clear();
 	DATEEXP.clear();	
-	MODIFIED_SINCE.clear();
 	LAST_MODIFIED.clear();	
 	URI.clear();
 	URIOPTS.clear();
@@ -126,4 +130,188 @@ void HttpResponseHeader::free()
 	LAST_MODIFIED.clear();
 	CACHE_CONTROL.clear();
 	CONTENT_RANGE.clear();
+}
+
+int HttpRequestHeader::getValue(const char* name, string& out)
+{
+  if(!strcmpi(name,"CMD"))
+  {
+    out.assign(CMD.c_str());
+    return 1;
+  }  
+
+  if(!strcmpi(name,"VER"))
+  { 
+    out.assign( VER.c_str()); 
+    return 1;
+  }
+ 
+  if(!strcmpi(name,"URI"))
+  { 
+    out.assign( URI.c_str()); 
+    return 1;
+  } 
+ 
+  if(!strcmpi(name,"URIOPTS"))
+  { 
+    out.assign( URIOPTS.c_str());
+    return 1;
+  } 
+
+  if(!strcmpi(name,"ACCEPT"))
+  { 
+    out.assign( ACCEPT.c_str()); 
+    return 1;
+  }
+ 
+  if(!strcmpi(name,"Content-Encoding"))
+  { 
+    out.assign( CONTENT_ENCODING.c_str()); 
+    return 1;
+  }
+ if(!strcmpi(name,"Transfer-Encoding"))
+ { 
+   out.assign( TRANSFER_ENCODING.c_str()); 
+   return 1;
+ }
+ if(!strcmpi(name,"Authorization"))
+ { 
+   out.assign( AUTH.c_str()); 
+   return 1;
+ }
+ 
+ if(!strcmpi(name,"Accept-Encoding"))
+ { 
+   out.assign( ACCEPTENC.c_str()); 
+   return 1;
+ }
+ if(!strcmpi(name,"Accept-Language"))
+ { 
+   out.assign( ACCEPTLAN.c_str()); 
+   return 1;
+ }
+ if(!strcmpi(name,"Accept-Charset"))
+ { 
+   out.assign( ACCEPTCHARSET.c_str()); 
+   return 1;
+ }  
+ if(!strcmpi(name,"If-Modified-Since"))
+ { 
+   out.assign( IF_MODIFIED_SINCE.c_str()); 
+   return 1;
+ }  
+ if(!strcmpi(name,"Connection"))
+ { 
+   out.assign( CONNECTION.c_str()); 
+   return 1;
+ }  
+ if(!strcmpi(name,"User-Agent"))
+ { 
+   out.assign( USER_AGENT.c_str()); 
+   return 1;
+ } 
+ if(!strcmpi(name,"Cookie"))
+ { 
+   out.assign( COOKIE.c_str()); 
+   return 1;
+ }
+ if(!strcmpi(name,"Content-Type"))
+ { 
+   out.assign( CONTENT_TYPE.c_str()); 
+   return 1;
+ } 
+ if(!strcmpi(name,"Content-Length"))
+ { 
+   out.assign( CONTENT_LENGTH.c_str()); 
+   return 1;
+ } 
+
+ if(!strcmpi(name,"Date"))
+ { 
+   out.assign( DATE.c_str()); 
+   return 1;
+ } 
+ if(!strcmpi(name,"Expires"))
+ { 
+   out.assign( DATEEXP.c_str()); 
+   return 1;
+ } 
+ if(!strcmpi(name,"Last-Modified"))
+ { 
+   out.assign( LAST_MODIFIED.c_str()); 
+   return 1;
+ } 
+
+ if(!strcmpi(name,"Cache-Control"))
+ { 
+   out.assign( CACHE_CONTROL.c_str()); 
+   return 1;
+ } 
+
+ if(!strcmpi(name,"Pragma"))
+ { 
+   out.assign( PRAGMA.c_str()); 
+   return 1;
+ } 
+
+ if(!strcmpi(name,"Referer"))
+ { 
+   out.assign( REFERER.c_str()); 
+   return 1;
+ } 
+
+ if(!strcmpi(name,"From"))
+ { 
+   out.assign( FROM.c_str()); 
+   return 1;
+ } 
+
+ if(!strcmpi(name,"Host"))
+ { 
+   out.assign( HOST.c_str()); 
+   return 1;
+ } 
+
+ if(!strcmpi(name,"RANGETYPE"))
+ { 
+   out.assign( RANGETYPE.c_str()); 
+   return 1;
+ } 
+ 
+
+ if(!strcmpi(name,"RANGEBYTEBEGIN"))
+ {
+   ostringstream s;
+   s << RANGEBYTEBEGIN;
+   out.assign(s.str());
+   return 1; 
+ }
+
+ if(!strcmpi(name,"RANGEBYTEEND"))
+ {
+   ostringstream s;
+   s << RANGEBYTEEND;
+   out.assign(s.str());
+   return 1; 
+ }
+
+ {
+   char *s_pos;
+   char *ptr = strstr(OTHER.c_str(), name);
+   if(!ptr)
+   {
+     out.assign("");
+     return 0;
+   }
+   ptr += strlen(name);
+   while(*ptr && (*ptr == ':') && (*ptr == ' ')) 
+     ptr++;
+   s_pos = ptr;
+   while(*ptr && (*ptr!='\n') )
+     ptr++;
+
+   out.assign(s_pos, ptr - s_pos);
+   return 1;
+ }
+
 }

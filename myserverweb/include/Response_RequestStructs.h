@@ -42,8 +42,8 @@ using namespace std;
 #define HTTP_RESPONSE_LAST_MODIFIED_DIM 32
 
 /*!
-*Structure to describe an HTTP response
-*/
+ *Structure to describe an HTTP response
+ */
 struct HttpResponseHeader
 {
 	int httpStatus;
@@ -102,8 +102,8 @@ struct HttpResponseHeader
 #define HTTP_REQUEST_RANGETYPE_DIM 16
 
 /*!
-*Structure to describe an HTTP request.
-*/
+ *Structure to describe an HTTP request.
+ */
 struct HttpRequestHeader
 {
 	string CMD;		
@@ -123,7 +123,6 @@ struct HttpRequestHeader
 	string CONTENT_LENGTH;
 	string DATE;
 	string DATEEXP;	
-	string MODIFIED_SINCE;
 	string LAST_MODIFIED;	
 	string URI;
 	string CACHE_CONTROL;
@@ -150,6 +149,8 @@ struct HttpRequestHeader
 	char digestResponse[48+1];
 	char digestQop[16+1];
 	char digestNc[10+1];
+
+  int getValue(const char* name, string& out);
 
   HttpRequestHeader();
   ~HttpRequestHeader();
