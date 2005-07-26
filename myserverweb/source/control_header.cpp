@@ -45,6 +45,8 @@ extern "C"
 #define intptr_t int
 #endif
 
+#undef min
+#define min(a,b) ((a<b)?a:b)
 /*!
  *Return a string containing options specified by the client.
  */
@@ -195,7 +197,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
        *For first line field name is the command itself. 
        *Do not copy initial /.
        */
-      myserver_strlcpy(command, field, min(fieldLen + 1 , 32) );
+      myserver_strlcpy(command, field, std::min(fieldLen + 1 , 32) );
       
       /*! Update the offset. */
       offset += fieldLen + 1;
