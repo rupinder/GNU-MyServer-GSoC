@@ -69,6 +69,9 @@ struct HttpResponseHeader
 
   HttpResponseHeader();
   ~HttpResponseHeader();
+
+  string* getValue(const char* name, string* out);
+
   void free();
 };
 

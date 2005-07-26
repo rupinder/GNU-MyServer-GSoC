@@ -41,7 +41,7 @@ HttpRequestHeader::~HttpRequestHeader()
 }
 
 /*!
- *free the structure.
+ *Free the structure.
  */
 void HttpRequestHeader::free()
 {
@@ -88,6 +88,158 @@ void HttpRequestHeader::free()
 	digestNc[0]='\0';
 }
 
+/*!
+ *Get the value of the [name] field.
+ */
+string* HttpResponseHeader::getValue(const char* name, string* out)
+{
+  if(!strcmpi(name,"Ver"))
+  {
+    if(out)
+      out->assign(ver.c_str());
+    return &ver;
+  }  
+
+  if(!strcmpi(name,"Server"))
+  { 
+    if(out)
+      out->assign( serverName.c_str()); 
+    return &ver;
+  }
+
+  if(!strcmpi(name,"Content-Type"))
+  { 
+    if(out)
+      out->assign( contentType.c_str()); 
+    return &contentType;
+  }
+
+  if(!strcmpi(name,"Connection"))
+  { 
+    if(out)
+      out->assign( connection.c_str()); 
+    return &connection;
+  }
+
+  if(!strcmpi(name,"Content-Type"))
+  { 
+    if(out)
+      out->assign( contentType.c_str()); 
+    return &contentType;
+  }
+
+  if(!strcmpi(name,"MIME-Version"))
+  { 
+    if(out)
+      out->assign( mimeVer.c_str()); 
+    return &mimeVer;
+  }
+
+  if(!strcmpi(name,"P3P"))
+  { 
+    if(out)
+      out->assign( p3p.c_str()); 
+    return &p3p;
+  }
+
+  if(!strcmpi(name,"Cookie"))
+  { 
+    if(out)
+      out->assign( cookie.c_str()); 
+    return &cookie;
+  }
+
+  if(!strcmpi(name,"Content-Length"))
+  { 
+    if(out)
+      out->assign( contentLength.c_str()); 
+    return &contentLength;
+  }
+
+  if(!strcmpi(name,"Last-Modified"))
+  { 
+    if(out)
+      out->assign( lastModified.c_str()); 
+    return &lastModified;
+  }
+
+  if(!strcmpi(name,"Location"))
+  { 
+    if(out)
+      out->assign( location.c_str()); 
+    return &location;
+  }
+
+  if(!strcmpi(name,"Date"))
+  { 
+    if(out)
+      out->assign(date.c_str()); 
+    return &date;
+  }
+
+  if(!strcmpi(name,"Date-Expires"))
+  { 
+    if(out)
+      out->assign( location.c_str()); 
+    return &location;
+  }
+
+  if(!strcmpi(name,"WWW-Authenticate"))
+  { 
+    if(out)
+      out->assign(auth.c_str()); 
+    return &auth;
+  }
+
+  if(!strcmpi(name,"Content-Encoding"))
+  { 
+    if(out)
+      out->assign(contentEncoding.c_str()); 
+    return &contentEncoding;
+  }
+
+  if(!strcmpi(name,"Transfer-Encoding"))
+  { 
+    if(out)
+      out->assign(transferEncoding.c_str()); 
+    return &transferEncoding;
+  }
+  if(!strcmpi(name,"Cache-Control"))
+  { 
+    if(out)
+      out->assign(cacheControl.c_str()); 
+    return &cacheControl;
+  }
+  if(!strcmpi(name,"Content-Range"))
+  { 
+    if(out)
+      out->assign(contentRange.c_str()); 
+    return &contentRange;
+  }
+
+ if(!out)
+   return 0;
+
+ {
+   char *s_pos;
+   char *ptr = strstr(other.c_str(), name);
+   if(!ptr)
+   {
+     out->assign("");
+     return 0;
+   }
+   ptr += strlen(name);
+   while(*ptr && (*ptr == ':') && (*ptr == ' ')) 
+     ptr++;
+   s_pos = ptr;
+   while(*ptr && (*ptr!='\n') )
+     ptr++;
+
+   out->assign(s_pos, ptr - s_pos);
+   return 0;
+ }
+
+} 
 
 /*!
  *Create the object.
