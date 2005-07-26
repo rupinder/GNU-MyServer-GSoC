@@ -62,84 +62,84 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
    */
 	if(response->httpStatus!=200)
 	{
-		if(response->ERROR_TYPE.length() == 0)
+		if(response->errorType.length() == 0)
 		{
 			int errID = getErrorIDfromHTTPStatusCode(response->httpStatus);
 			if(errID!=-1)
-				response->ERROR_TYPE.assign(HTTP_ERROR_MSGS[errID], 
+				response->errorType.assign(HTTP_ERROR_MSGS[errID], 
                                     HTTP_RESPONSE_ERROR_TYPE_DIM);
 		}
-		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->VER.c_str(),
-            response->httpStatus, response->ERROR_TYPE.c_str(), 
-            response->ERROR_TYPE.c_str() );
+		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->ver.c_str(),
+            response->httpStatus, response->errorType.c_str(), 
+            response->errorType.c_str() );
 	}
 	else
-    sprintf(str,"%s 200 OK\r\n",response->VER.c_str());
+    sprintf(str,"%s 200 OK\r\n",response->ver.c_str());
 	
-	if(response->SERVER_NAME.length())
+	if(response->serverName.length())
 	{
 		strcat(str,"Server: ");
-		strcat(str, response->SERVER_NAME.c_str());
+		strcat(str, response->serverName.c_str());
 		strcat(str,"\r\n");
 	}
-	if(response->CACHE_CONTROL.length())
+	if(response->cacheControl.length())
 	{
 		strcat(str,"Cache-Control: ");
-		strcat(str, response->CACHE_CONTROL.c_str());
+		strcat(str, response->cacheControl.c_str());
 		strcat(str,"\r\n");
 	}
-	if(response->LAST_MODIFIED.length())
+	if(response->lastModified.length())
 	{
 		strcat(str,"Last-Modified: ");
-		strcat(str, response->LAST_MODIFIED.c_str());
+		strcat(str, response->lastModified.c_str());
 		strcat(str,"\r\n");
 	}
-	if(response->CONNECTION.length())
+	if(response->connection.length())
 	{
 		strcat(str,"Connection: ");
-		strcat(str, response->CONNECTION.c_str());
+		strcat(str, response->connection.c_str());
 		strcat(str, "\r\n");
 	}
 	else
 	{
 		strcat(str, "Connection: Close\r\n");
 	}
-	if(response->TRANSFER_ENCODING.length())
+	if(response->transferEncoding.length())
 	{
 		strcat(str, "Transfer-Encoding: ");
-		strcat(str, response->TRANSFER_ENCODING.c_str());
+		strcat(str, response->transferEncoding.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->CONTENT_ENCODING.length())
+	if(response->contentEncoding.length())
 	{
 		strcat(str, "Content-Encoding: ");
-		strcat(str, response->CONTENT_ENCODING.c_str());
+		strcat(str, response->contentEncoding.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->CONTENT_RANGE.length())
+	if(response->contentRange.length())
 	{
 		strcat(str, "Content-Range: ");
-		strcat(str, response->CONTENT_RANGE.c_str());
+		strcat(str, response->contentRange.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->CONTENT_LENGTH.length())
+	if(response->contentLength.length())
 	{
 		/*!
 		*Do not specify the Content-Length field if it is used
 		*the chunked Transfer-Encoding.
 		*/
-		if(response->TRANSFER_ENCODING.find("chunked",0) == string::npos )
+		if(response->transferEncoding.find("chunked",0) == string::npos )
 		{
 			strcat(str, "Content-Length: ");
-			strcat(str, response->CONTENT_LENGTH.c_str());
+			strcat(str, response->contentLength.c_str());
 			strcat(str, "\r\n");
 		}
 	}
-	if(response->COOKIE.length())
+	if(response->cookie.length())
 	{
     string cookie;
-		const char *token = response->COOKIE.c_str();
-    int max = response->COOKIE.length();
+		const char *token = response->cookie.c_str();
+    int max = response->cookie.length();
 		while(token)
 		{
       int len = getCharInString(token, "\n", max);
@@ -152,53 +152,53 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 			token+=len+1;
 		}
 	}
-	if(response->P3P.length())
+	if(response->p3p.length())
 	{
-		strcat(str, "P3P: ");
-		strcat(str, response->P3P.c_str());
+		strcat(str, "p3p: ");
+		strcat(str, response->p3p.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->MIMEVER.length())
+	if(response->mimeVer.length())
 	{
 		strcat(str, "MIME-Version: ");
-		strcat(str, response->MIMEVER.c_str());
+		strcat(str, response->mimeVer.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->CONTENT_TYPE.length())
+	if(response->contentType.length())
 	{
 		strcat(str, "Content-Type: ");
-		strcat(str, response->CONTENT_TYPE.c_str());
+		strcat(str, response->contentType.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->DATE.length())
+	if(response->date.length())
 	{
 		strcat(str, "Date: ");
-		strcat(str, response->DATE.c_str());
+		strcat(str, response->date.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->DATEEXP.length())
+	if(response->dateExp.length())
 	{
 		strcat(str, "Expires: ");
-		strcat(str, response->DATEEXP.c_str());
+		strcat(str, response->dateExp.c_str());
 		strcat(str, "\r\n");
 	}
-	if(response->AUTH.length())
+	if(response->auth.length())
 	{
 		strcat(str, "WWW-Authenticate: ");
-		strcat(str, response->AUTH.c_str());
+		strcat(str, response->auth.c_str());
 		strcat(str, "\r\n");
 	}
 	
-	if(response->LOCATION.length())
+	if(response->location.length())
 	{
 		strcat(str, "Location: ");
-		strcat(str, response->LOCATION.c_str());
+		strcat(str, response->location.c_str());
 		strcat(str, "\r\n");
 	}
 
-	if(response->OTHER.length())
+	if(response->other.length())
 	{
-		strcat(str, response->OTHER.c_str());
+		strcat(str, response->other.c_str());
 	}
 
 	/*!
@@ -227,13 +227,13 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 	*4) set the name of the server.
 	*5) set the page that it is not an error page.
 	*/
-	response->CONTENT_TYPE.assign("text/html");
-	response->VER.assign("HTTP/1.1");
+	response->contentType.assign("text/html");
+	response->ver.assign("HTTP/1.1");
 	getRFC822GMTTime(date,HTTP_RESPONSE_DATE_DIM);
-  response->DATE.assign(date);
-	response->DATEEXP.assign(date);
+  response->date.assign(date);
+	response->dateExp.assign(date);
   stream << "MyServer " << versionOfSoftware;
-	response->SERVER_NAME.assign(stream.str());
+	response->serverName.assign(stream.str());
 }
 
 
@@ -374,9 +374,9 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/* Keep trace of first line for logging. */
 		tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
 		if(tokenOff > 0)
-			request->URI.assign( input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+			request->uri.assign( input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
 		else
-      request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+      request->uri.assign(input, HTTP_REQUEST_URI_DIM );
 		return validRequest;
 	}
 
@@ -388,9 +388,9 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
     /*! Keep trace of first line for logging. */
     tokenOff = getEndLine(token, HTTP_REQUEST_URI_DIM);
     if(tokenOff > 0)
-      request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+      request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
     else
-      request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+      request->uri.assign(input, HTTP_REQUEST_URI_DIM );
   }
 	
   do
@@ -420,30 +420,30 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
        */
 			lineControlled=1;
 			/*! Copy the method type. */
-			request->CMD.assign(command, tokenOff);
+			request->cmd.assign(command, tokenOff);
 			tokenOff = getEndLine(token, 
                             HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
 			len_token = tokenOff;
 			if(tokenOff==-1)
         {
-          request->VER.clear();
-          request->CMD.clear();
+          request->ver.clear();
+          request->cmd.clear();
           tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
           if(tokenOff > 0)
-            request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+            request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
           else
-            request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+            request->uri.assign(input, HTTP_REQUEST_URI_DIM );
           return e_400;
         }
       if(tokenOff > maxUri)
         {
-          request->VER.clear();
-          request->CMD.clear();
+          request->ver.clear();
+          request->cmd.clear();
           tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
           if(tokenOff > 0)
-            request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+            request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
           else
-            request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+            request->uri.assign(input, HTTP_REQUEST_URI_DIM );
           return e_400;
         }
 			max=(int)tokenOff;
@@ -463,28 +463,28 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			}
 
       /*! 
-       *If a URI was specified store it. If it wasn't specified 
+       *If a uri was specified store it. If it wasn't specified 
        *return an invalid header value.
        */
       if(i)
-        request->URI.assign(token, i);
+        request->uri.assign(token, i);
       else
       {
-        request->VER.clear();
-        request->CMD.clear();
+        request->ver.clear();
+        request->cmd.clear();
         tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
         if(tokenOff > 0)
-          request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+          request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
-          request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+          request->uri.assign(input, HTTP_REQUEST_URI_DIM );
         return e_400;
       }  
 
-      /*! If the URI contains some query data determine how long it is. */
+      /*! If the uri contains some query data determine how long it is. */
 			if(containOpts)
 			{
         j = getEndLine(&token[i], HTTP_REQUEST_URI_DIM);
-				for(j=0;((int)(i+j+1)<max) && (j<HTTP_REQUEST_URIOPTS_DIM-1);j++)
+				for(j=0;((int)(i+j+1)<max) && (j<HTTP_REQUEST_URI_OPTS_DIM-1);j++)
 				{
 					++j;
 				}
@@ -494,12 +494,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
        *Save the query data and seek the cursor at the end of it. Start copying
        *from the second byte(do not store the  ? character).
        */
-      request->URIOPTS.assign(&token[i+1], j);
+      request->uriOpts.assign(&token[i+1], j);
       i+=j+1;
 
       /*! 
        *Seek the cursor at the end of the spaces. Do not allow more than 
-       *10 spaces character between the URI token and the HTTP version. 
+       *10 spaces character between the uri token and the HTTP version. 
        */
       for(j=0; j<10; j++)
       {
@@ -514,13 +514,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
        */
       if(j == 10)
       {
-        request->VER.clear();
-        request->CMD.clear();
+        request->ver.clear();
+        request->cmd.clear();
         tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
         if(tokenOff > 0)
-          request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+          request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
-          request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+          request->uri.assign(input, HTTP_REQUEST_URI_DIM );
         return e_400;
       }
 
@@ -532,7 +532,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 
       /*! Save the HTTP version. */
       if(i-j)
-        request->VER.assign(&token[j], i-j);
+        request->ver.assign(&token[j], i-j);
 
       /*! 
        *If the version is not specified or it is too long store 
@@ -540,18 +540,18 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
        */
       if((!j) || ( (i-j) == HTTP_REQUEST_VER_DIM ))
       {
-        request->VER.clear();
-        request->CMD.clear();   
+        request->ver.clear();
+        request->cmd.clear();   
         tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
         if(tokenOff > 0)
-          request->URI.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+          request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
         else
-          request->URI.assign(input, HTTP_REQUEST_URI_DIM );
+          request->uri.assign(input, HTTP_REQUEST_URI_DIM );
         return e_400;
       }
 			
-      /*! Store if the requested URI terminates with a slash character. */
-      if(request->URI[(request->URI.length())-1]=='/')
+      /*! Store if the requested uri terminates with a slash character. */
+      if(request->uri[(request->uri.length())-1]=='/')
       {
 				request->uriEndsWithSlash=1;
  			}
@@ -560,11 +560,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				request->uriEndsWithSlash=0;
       }
       /*! 
-       *Do not maintain any slash character if the URI has them at 
+       *Do not maintain any slash character if the uri has them at 
        *the begin or at the end.
        */
-      request->URI=trimRight(request->URI, " /");
-			request->URIOPTS=trim(request->URIOPTS, " ");
+      request->uri=trimRight(request->uri, " /");
+			request->uriOpts=trim(request->uriOpts, " ");
 
 		}else
 		/*!User-Agent*/
@@ -573,7 +573,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			tokenOff = getEndLine(token, HTTP_REQUEST_USER_AGENT_DIM);
       if(tokenOff==-1)return e_400;
 			lineControlled=1;
-			request->USER_AGENT.assign(token,tokenOff+1);
+			request->userAgent.assign(token,tokenOff+1);
 		}else
 		/*!Authorization*/
 		if(!lstrcmpi(command,"Authorization"))
@@ -586,11 +586,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		
 			lineControlled=1;
 	
-			request->AUTH.assign(token,tokenOff);
+			request->auth.assign(token,tokenOff);
       td->connection->setLogin("");
       td->connection->setPassword("");
       td->identity[0]='\0';
-			if(!request->AUTH.compare("Basic"))
+			if(!request->auth.compare("Basic"))
 			{
 				u_long i;
 				char *base64=&token[strlen("Basic ")];
@@ -629,7 +629,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         tokenOff = getEndLine(token, 100);
         delete keep_lbuffer2;
 			}
-			else if(!request->AUTH.compare("Digest"))
+			else if(!request->auth.compare("Digest"))
 			{
 				char *digestBuff;
 				char *digestToken;
@@ -759,15 +759,15 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->HOST.assign(token,tokenOff);
+			request->host.assign(token,tokenOff);
       /*!
        *Do not save the port if specified.
        */
-      while(request->HOST[cur])
+      while(request->host[cur])
       {
-        if(request->HOST[cur]==':')
+        if(request->host[cur]==':')
         {
-          request->HOST[cur]='\0';
+          request->host[cur]='\0';
           break;
         }
         cur++;
@@ -779,7 +779,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_ENCODING_DIM);
 			if(tokenOff==-1)return e_400;
 			lineControlled=1;
-			request->CONTENT_ENCODING.assign(token,tokenOff);
+			request->contentEncoding.assign(token,tokenOff);
 		}else
 		/*!Transfer-Encoding*/
 		if(!lstrcmpi(command,"Transfer-Encoding"))
@@ -787,7 +787,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			tokenOff = getEndLine(token, HTTP_REQUEST_TRANSFER_ENCODING_DIM);
 			if(tokenOff==-1)return e_400;
 			lineControlled=1;
-			request->TRANSFER_ENCODING.assign(token,tokenOff);
+			request->transferEncoding.assign(token,tokenOff);
 		}else
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
@@ -796,7 +796,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->CONTENT_TYPE.assign(token,tokenOff);
+			request->contentType.assign(token,tokenOff);
 		}else
 		/*!If-Modified-Since*/
 		if(!lstrcmpi(command,"If-Modified-Since"))
@@ -805,46 +805,46 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->IF_MODIFIED_SINCE.assign(token,tokenOff);
+			request->ifModifiedSince.assign(token,tokenOff);
 		}else
 		/*!Accept*/
 		if(!lstrcmpi(command,"Accept"))
 		{
-			int max = HTTP_REQUEST_ACCEPT_DIM-(int)request->ACCEPT.length();
+			int max = HTTP_REQUEST_ACCEPT_DIM-(int)request->accept.length();
 			if(max < 0)
 				return e_400;
 			tokenOff = getEndLine(token, max);
 			if(tokenOff == -1)
         return e_400;
 			lineControlled=1;
-			request->ACCEPT.append(token,tokenOff+1);
+			request->accept.append(token,tokenOff+1);
 		}else
 		/*!Accept-Language*/
 		if(!lstrcmpi(command,"Accept-Language"))
 		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTLAN_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPT_LANGUAGE_DIM);
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->ACCEPTLAN.assign(token,tokenOff);
+			request->acceptLanguage.assign(token,tokenOff);
 		}else
 		/*!Accept-Charset*/
 		if(!lstrcmpi(command,"Accept-Charset"))
 		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTCHARSET_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPT_CHARSET_DIM);
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->ACCEPTCHARSET.assign(token,tokenOff);
+			request->acceptCharset.assign(token,tokenOff);
 		}else
 		/*!Accept-Encoding*/
 		if(!lstrcmpi(command,"Accept-Encoding"))
 		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPTENC_DIM);
+			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPT_ENCODING_DIM);
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->ACCEPTENC.assign(token,tokenOff);
+			request->acceptEncoding.assign(token,tokenOff);
 		}else
 		/*!Connection*/
 		if(!lstrcmpi(command,"Connection"))
@@ -853,7 +853,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->CONNECTION.assign(token,tokenOff);
+			request->connection.assign(token,tokenOff);
 		}else
 		/*!Cookie*/
 		if(!lstrcmpi(command,"Cookie"))
@@ -862,7 +862,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->COOKIE.assign(token,tokenOff);
+			request->cookie.assign(token,tokenOff);
 		}else
 		/*!From*/
 		if(!lstrcmpi(command,"From"))
@@ -871,7 +871,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->FROM.assign(token,tokenOff);
+			request->from.assign(token,tokenOff);
 		}else
 		/*!Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
@@ -880,7 +880,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->CONTENT_LENGTH.assign(token,tokenOff);
+			request->contentLength.assign(token,tokenOff);
 		}else
 		/*!Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))
@@ -889,74 +889,74 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
-			request->CACHE_CONTROL.assign(token,tokenOff);
+			request->cacheControl.assign(token,tokenOff);
 		}else
 		/*!Range*/
 		if(!lstrcmpi(command,"Range"))
 		{
-      char RANGEBYTEBEGIN[13];
-      char RANGEBYTEEND[13];
+      char rangeByteBegin[13];
+      char rangeByteEnd[13];
       char *localToken = token;
 			int i=0;
-			RANGEBYTEBEGIN[0]='\0';
-			RANGEBYTEEND[0]='\0';
+			rangeByteBegin[0]='\0';
+			rangeByteEnd[0]='\0';
 			lineControlled=1;
-			tokenOff = getEndLine(token, HTTP_REQUEST_RANGETYPE_DIM+30);
+			tokenOff = getEndLine(token, HTTP_REQUEST_RANGE_TYPE_DIM+30);
 			if(tokenOff==-1)
         return e_400;
 			do
 			{
         i++;
 			}
-			while((*(++localToken) != '=')&&(i<HTTP_REQUEST_RANGETYPE_DIM));
+			while((*(++localToken) != '=')&&(i<HTTP_REQUEST_RANGE_TYPE_DIM));
 
-      request->RANGETYPE.assign(localToken, i);
+      request->rangeType.assign(localToken, i);
 
 			i=0;
       localToken++;
 			do
 			{
-				RANGEBYTEBEGIN[i++]=*localToken;
-				RANGEBYTEBEGIN[i]='\0';
+				rangeByteBegin[i++]=*localToken;
+				rangeByteBegin[i]='\0';
 			}
 			while((*(++localToken) != '-')&&(i<12) && (*localToken != '\r'));
 			i=0;
       localToken++;
 			do
 			{
-				RANGEBYTEEND[i++]=*localToken;
-				RANGEBYTEEND[i]='\0';
+				rangeByteEnd[i++]=*localToken;
+				rangeByteEnd[i]='\0';
 			}
 			while((*(++localToken) != '\r' )&&(i<12));
 
-      for(i=0;i<static_cast<int>(request->RANGETYPE.length());i++)
-        if(request->RANGETYPE[i]== '=')
-          request->RANGETYPE[i]='\0';
+      for(i=0;i<static_cast<int>(request->rangeType.length());i++)
+        if(request->rangeType[i]== '=')
+          request->rangeType[i]='\0';
 
-      for(i=0; i<static_cast<int>(strlen(RANGEBYTEBEGIN)); i++)
-        if(RANGEBYTEBEGIN[i]== '=')
-          RANGEBYTEBEGIN[i]='\0';
+      for(i=0; i<static_cast<int>(strlen(rangeByteBegin)); i++)
+        if(rangeByteBegin[i]== '=')
+          rangeByteBegin[i]='\0';
 
-      for(i=0; i<static_cast<int>(strlen(RANGEBYTEEND)); i++)
-        if(RANGEBYTEEND[i]== '=')
-          RANGEBYTEEND[i]='\0';
+      for(i=0; i<static_cast<int>(strlen(rangeByteEnd)); i++)
+        if(rangeByteEnd[i]== '=')
+          rangeByteEnd[i]='\0';
 			
-			if(RANGEBYTEBEGIN[0] == 0)
+			if(rangeByteBegin[0] == 0)
       {
-				request->RANGEBYTEBEGIN=0;
+				request->rangeByteBegin=0;
       }			
       else
       {
-        request->RANGEBYTEBEGIN=(u_long)atol(RANGEBYTEBEGIN); 
+        request->rangeByteBegin=(u_long)atol(rangeByteBegin); 
       }
-      if(RANGEBYTEEND[0]=='\r')
+      if(rangeByteEnd[0]=='\r')
       {
-        request->RANGEBYTEEND=0;
+        request->rangeByteEnd=0;
       }
       else
       {
-        request->RANGEBYTEEND=(u_long)atol(RANGEBYTEEND);
-        if(request->RANGEBYTEEND < request->RANGEBYTEBEGIN)
+        request->rangeByteEnd=(u_long)atol(rangeByteEnd);
+        if(request->rangeByteEnd < request->rangeByteBegin)
           return e_400;
       }
 		}else
@@ -966,7 +966,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			tokenOff = getEndLine(token, HTTP_REQUEST_REFERER_DIM);
 			if(tokenOff==-1)return e_400;
 			lineControlled=1;
-			request->REFERER.assign(token,tokenOff);
+			request->referer.assign(token,tokenOff);
 		}else
 		/*!Pragma*/
 		if(!lstrcmpi(command,"Pragma"))
@@ -974,7 +974,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			tokenOff = getEndLine(token, HTTP_REQUEST_PRAGMA_DIM);
 			if(tokenOff==-1)return e_400;
 			lineControlled=1;
-			request->PRAGMA.assign(token,tokenOff);
+			request->pragma.assign(token,tokenOff);
 		}
     if(!lineControlled)
     {
@@ -1076,7 +1076,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			lineControlled=1;
 			/*! Copy the HTTP version. */
-      response->VER.assign(command);
+      response->ver.assign(command);
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			if(token)
@@ -1084,7 +1084,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			
 			token = strtok( NULL, "\r\n\0" );
 			if(token)
-				response->ERROR_TYPE.assign(token);
+				response->errorType.assign(token);
 
 		}else
 		/*!Server*/
@@ -1093,7 +1093,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->SERVER_NAME.assign(token);
+        response->serverName.assign(token);
 		}else
 		/*!Location*/
 		if(!lstrcmpi(command,"Location"))
@@ -1101,7 +1101,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->LOCATION.assign(token);
+        response->location.assign(token);
 		}else
 		/*!Last-Modified*/
 		if(!lstrcmpi(command,"Last-Modified"))
@@ -1109,7 +1109,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->LAST_MODIFIED.assign(token);
+        response->lastModified.assign(token);
 		}else
 		/*!Status*/
 		if(!lstrcmpi(command,"Status"))
@@ -1127,7 +1127,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->CONTENT_ENCODING.assign(token);
+        response->contentEncoding.assign(token);
 		}else
 		/*!Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))
@@ -1135,7 +1135,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->CACHE_CONTROL.assign(token);
+        response->cacheControl.assign(token);
 		}else
 		/*!Date*/
 		if(!lstrcmpi(command,"Date"))
@@ -1143,7 +1143,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->DATE.assign(token);
+        response->date.assign(token);
 		}else
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
@@ -1151,7 +1151,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->CONTENT_TYPE.assign(token);
+        response->contentType.assign(token);
 		}else
 		/*!MIME-Version*/
 		if(!lstrcmpi(command,"MIME-Version"))
@@ -1159,7 +1159,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->MIMEVER.assign(token);
+        response->mimeVer.assign(token);
 		}else
 		/*!Set-Cookie*/
 		if(!lstrcmpi(command,"Set-Cookie"))
@@ -1168,8 +1168,8 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			lineControlled=1;
       if(token)
       {
-        response->COOKIE.append(token );
-        response->COOKIE.append("\n");/*! Divide multiple cookies. */
+        response->cookie.append(token );
+        response->cookie.append("\n");/*! Divide multiple cookies. */
       }
 		}else
 		/*!Content-Length*/
@@ -1177,7 +1177,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
-			response->CONTENT_LENGTH.assign(token);
+			response->contentLength.assign(token);
 		}else
 		/*!Content-Range*/
 		if(!lstrcmpi(command,"Content-Range"))
@@ -1185,15 +1185,15 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->CONTENT_RANGE.assign(token);
+        response->contentRange.assign(token);
 		}else
-		/*!P3P*/
-		if(!lstrcmpi(command,"P3P"))
+		/*!p3p*/
+		if(!lstrcmpi(command,"p3p"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-			response->P3P.assign(token);
+			response->p3p.assign(token);
 		}else
 		/*!Connection*/
 		if(!lstrcmpi(command,"Connection"))
@@ -1201,7 +1201,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->CONNECTION.assign(token);
+        response->connection.assign(token);
 		}else
 		/*!Expires*/
 		if(!lstrcmpi(command,"Expires"))
@@ -1209,7 +1209,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
-        response->DATEEXP.assign(token);
+        response->dateExp.assign(token);
 		}
 		/*!
      *If the line is not controlled arrive with the token
@@ -1221,14 +1221,14 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			if(token)
 			{
         int len = HTTP_RESPONSE_OTHER_DIM-
-                      (response->OTHER.length()+strlen(command)+strlen(token));
+                      (response->other.length()+strlen(command)+strlen(token));
         
         if(len > 0)
         {
-          response->OTHER.append(command);
-          response->OTHER.append(": ");
-          response->OTHER.append(token);
-          response->OTHER.append("\n");
+          response->other.append(command);
+          response->other.append(": ");
+          response->other.append(token);
+          response->other.append("\n");
         }
 			}
 		}

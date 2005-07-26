@@ -114,21 +114,21 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		}
 	}
 
-	for(i=0;td->request.URI[i];i++)
+	for(i=0;td->request.uri[i];i++)
 	{
-		if(td->request.URI[i]=='/')
+		if(td->request.uri[i]=='/')
 			nDirectories++;
 	}
-	for(startchar=0, i=0;td->request.URI[i];i++)
+	for(startchar=0, i=0;td->request.uri[i];i++)
 	{
-		if(td->request.URI[i]=='/')
+		if(td->request.uri[i]=='/')
 		{
 			startchar++;
 			if(startchar==nDirectories)
 			{
 				/*!
          *At the end of the loop set startchar to te real value.
-         *startchar indicates the initial position in td->request.URI 
+         *startchar indicates the initial position in td->request.uri 
          *of the file path.
          */
 				startchar=i+1;
@@ -142,7 +142,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
     "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
     "\r\n<head>\r\n<title>" ;
-	*td->buffer2<< td->request.URI.c_str() ;
+	*td->buffer2<< td->request.uri.c_str() ;
 	*td->buffer2<< "</title>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n</head>\r\n"; 
 	ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
                                     (u_long)td->buffer2->getLength(), &nbw);
@@ -211,7 +211,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 #endif
 	td->buffer2->setLength(0);
 	*td->buffer2 << "<body>\r\n<h1>Contents of directory ";
-	*td->buffer2 <<  &td->request.URI[startchar] ;
+	*td->buffer2 <<  &td->request.uri[startchar] ;
 	*td->buffer2 << "</h1>\r\n<hr />\r\n";
 	ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
                                    (u_long)td->buffer2->getLength(), &nbw);
@@ -252,7 +252,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		*td->buffer2 << "<tr>\r\n<td><a href=\"";
 		if(!td->request.uriEndsWithSlash)
 		{
-			*td->buffer2 << &td->request.URI[startchar];
+			*td->buffer2 << &td->request.uri[startchar];
 			*td->buffer2 << "/" ;
 		}
 		*td->buffer2 << fd.name ;
@@ -289,11 +289,11 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	td->buffer2->setLength(0);
 	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " << versionOfSoftware;
               
-  if(td->request.HOST[0])
+  if(td->request.host[0])
   {    
     ostringstream portBuff;
     *td->buffer2 << " on ";
-    *td->buffer2 << td->request.HOST.c_str() ;
+    *td->buffer2 << td->request.host.c_str() ;
     *td->buffer2 << " Port ";
     portBuff << td->connection->getLocalPort();
     *td->buffer2 << portBuff.str();
@@ -315,12 +315,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	while(*bufferloop++)
 		if(*bufferloop=='\\')
 			*bufferloop='/';
-	if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
-		td->response.CONNECTION.assign( "Keep-Alive");
+	if(!lstrcmpi(td->request.connection.c_str(), "Keep-Alive"))
+		td->response.connection.assign( "Keep-Alive");
   {
     ostringstream tmp;
     tmp << td->outputData.getFileSize();
-    td->response.CONTENT_LENGTH.assign(tmp.str());
+    td->response.contentLength.assign(tmp.str());
   }
 	/*! If we haven't to append the output build the HTTP header and send the data.  */
 	if(!td->appendOutputs)

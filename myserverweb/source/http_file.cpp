@@ -60,8 +60,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   u_long filesize=0;
 	File h;
 	u_long bytes_to_send;
-  u_long firstByte = td->request.RANGEBYTEBEGIN; 
-  u_long lastByte = td->request.RANGEBYTEEND;
+  u_long firstByte = td->request.rangeByteBegin; 
+  u_long lastByte = td->request.rangeByteEnd;
   int keepalive;
   int usechunks=0;
   int useModifiers=0;
@@ -104,14 +104,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     {
       useGzip=true;
     }
-    keepalive = !lstrcmpi(td->request.CONNECTION.c_str(),"Keep-Alive");
+    keepalive = !lstrcmpi(td->request.connection.c_str(),"Keep-Alive");
 
 #ifndef DO_NOT_USEGZIP
     /*! 
      *Be sure that the client accept GZIP compressed data.  
      */
     if(useGzip)
-      useGzip &= (td->request.ACCEPTENC.find("gzip") != string::npos);
+      useGzip &= (td->request.acceptEncoding.find("gzip") != string::npos);
 #else
     /*! 
      *If compiled without GZIP support force the server to don't use it.  
@@ -139,13 +139,13 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     td->buffer->setLength(0);
 
     /*! If a Range was requested send 206 and not 200 for success.  */
-    if( td->request.RANGEBYTEBEGIN ||  td->request.RANGEBYTEEND )
+    if( td->request.rangeByteBegin ||  td->request.rangeByteEnd )
     {	
       ostringstream buffer;
       td->response.httpStatus = 206;
       buffer << "bytes "<< (u_long)firstByte << "-" 
              << (u_long)lastByte << "/" << (u_long)filesize ;
-      td->response.CONTENT_RANGE.assign(buffer.str());
+      td->response.contentRange.assign(buffer.str());
       useGzip = false;
     }
 
@@ -188,27 +188,27 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     {
       ostringstream buffer;
       buffer << (u_int)bytes_to_send;
-      td->response.CONTENT_LENGTH.assign(buffer.str());
+      td->response.contentLength.assign(buffer.str());
     }
 
     /*! Specify the connection type. */
     if(keepalive)
     {
-      td->response.CONNECTION.assign("keep-alive");
+      td->response.connection.assign("keep-alive");
     }
     else
     {
-      td->response.CONNECTION.assign("close");
+      td->response.connection.assign("close");
     }
 
     if(useModifiers)
     {
-      chain.getName(td->response.CONTENT_ENCODING);
+      chain.getName(td->response.contentEncoding);
       /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
       if(keepalive)
       {
         usechunks=1;
-        td->response.TRANSFER_ENCODING.assign("chunked");
+        td->response.transferEncoding.assign("chunked");
       }
 
     }
@@ -437,7 +437,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     {
       ostringstream buffer;
       buffer << dataSent;
-      td->response.CONTENT_LENGTH.assign(buffer.str());
+      td->response.contentLength.assign(buffer.str());
     }
   }
   catch(bad_alloc &ba)

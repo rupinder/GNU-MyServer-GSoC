@@ -33,7 +33,7 @@ char HTTP_ERROR_MSGS[29][64]=
 	"Proxy Authentication Required",	/*!407*/
 	"Precondition Failed",				/*!412*/
 	"Request Entity Too Large",			/*!413*/
-	"Request-URI Too Long",				/*!414*/
+	"Request-uri Too Long",				/*!414*/
 	"Internal Server Error",			/*!500*/
 	"Not Implemented",					/*!501*/
 	"Bad Gateway",						/*!502*/
