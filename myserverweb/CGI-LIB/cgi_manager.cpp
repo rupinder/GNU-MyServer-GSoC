@@ -117,10 +117,10 @@ CgiManager::~CgiManager(void)
 char* CgiManager::getParam(char* param)
 {
   const char* c;
-	if(td->request.URIOPTS.length()==0)
+	if(td->request.uriOpts.length()==0)
 		return 0;
 	localbuffer[0]='\0';
-	c=td->request.URIOPTS.c_str();
+	c=td->request.uriOpts.c_str();
 	for(;;)
 	{
 		while((*c) && strncmp(c, param, min(strlen(param),strlen(c)) ))
@@ -209,7 +209,7 @@ char *CgiManager::operator >>(char* str)
    *If it is a POST request return a param from the POST values
    *else return a GET param.
    */
-	if(td->request.URIOPTSPTR)
+	if(td->request.uriOptsPtr)
 		return postParam(str);
 	else
 		return getParam(str);
@@ -256,5 +256,5 @@ MsCgiData* CgiManager::getCgiData()
  */
 void CgiManager::setContentType(char * Type)
 {
-	td->response.CONTENT_TYPE.assign(Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
+	td->response.contentType.assign(Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
 }
