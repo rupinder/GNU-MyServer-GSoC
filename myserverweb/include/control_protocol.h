@@ -40,10 +40,10 @@ class ControlProtocol : public Protocol
   /*! Use control_header to parse the request. */
   ControlHeader header;
   int checkAuth();
-  int SHOWCONNECTIONS(ConnectionPtr,File* out, char *b1,int bs1);
+  int SHOWconnectionS(ConnectionPtr,File* out, char *b1,int bs1);
   int SHOWDYNAMICPROTOCOLS(ConnectionPtr,File* out, char *b1,int bs1);
   int SHOWLANGUAGEFILES(ConnectionPtr, File* out, char *b1,int bs1);
-  int KILLCONNECTION(ConnectionPtr,u_long ID, File* out, char *b1,int bs1);
+  int KILLconnection(ConnectionPtr,u_long ID, File* out, char *b1,int bs1);
   int GETFILE(ConnectionPtr, char*, File* in, File* out, 
               char *b1,int bs1 );
   int PUTFILE(ConnectionPtr,char*, File* in, File* out, 

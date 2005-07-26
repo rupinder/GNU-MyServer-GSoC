@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CONNECTIONSTRUCT_H
-#define CONNECTIONSTRUCT_H
+#ifndef connectionSTRUCT_H
+#define connectionSTRUCT_H
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
@@ -36,10 +36,10 @@ using namespace std;
 #define PROTOCOL_CONTROL		1002
 
 /*! Remove the connection due a high server load.  */
-#define CONNECTION_REMOVE_OVERLOAD 1
+#define CONNECTION_REMOVE_OverLOAD 1
 
 /*! Remove the connection if the administrator decided this.  */
-#define CONNECTION_USER_KILL        2
+#define connection_USER_KILL        2
 
 
 typedef u_long ConnectionProtocol;
@@ -56,7 +56,7 @@ public:
 
 class Connection
 {
-  /*! Identifier for the CONNECTION. */
+  /*! Identifier for the connection. */
   u_long ID;
 
 	/*! The server is parsing this connection. */
@@ -103,7 +103,7 @@ public:
   u_long getID();
   void setID(u_long);
 
-	/*! Pointer to the thread struct that is using the CONNECTION. */
+	/*! Pointer to the thread struct that is using the connection. */
 	void *thread;
 
   void setParsing(int);
@@ -137,7 +137,7 @@ public:
 	/*! Connection socket.  */
 	Socket socket;
 	
-	/*! Next CONNECTION in linked list.  */
+	/*! Next connection in linked list.  */
 	Connection* next;
 	
 	/*! Pointer to an host structure.  */

@@ -233,7 +233,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         return -1;
       }
 
-      if(!strncmp(field, "/AUTH ", 6))
+      if(!strncmp(field, "/auth ", 6))
       {
         offset += 6;
         int len = getCharInString(offset, ":", 64);
@@ -247,7 +247,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         myserver_strlcpy(authPassword, offset, min(len + 1, 64));
         offset += len + 2;
       }
-      else if(!strncmp(field, "/CONNECTION ", 12))
+      else if(!strncmp(field, "/connection ", 12))
       {
         offset += 12;
         int len = getCharInString(offset, "\r", 32);

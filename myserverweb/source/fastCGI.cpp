@@ -277,7 +277,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	
-	if(atoi(td->request.CONTENT_LENGTH.c_str()))
+	if(atoi(td->request.contentLength.c_str()))
 	{
 		td->buffer->setLength(0);
 
@@ -528,25 +528,25 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		}
 	}
 	sprintf(tmpSize, "%u", (u_int)(con.tempOut.getFileSize()-headerSize));
-  td->response.CONTENT_LENGTH.assign(tmpSize);
+  td->response.contentLength.assign(tmpSize);
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response,td,
                                              td->buffer->getBuffer());
 
 	for(;;)
 	{
-		if(td->response.LOCATION[0])
+		if(td->response.location[0])
 		{
       con.tempOut.closeFile();
       File::deleteFile(outDataPath.str().c_str());
       con.sock.closesocket();
 			return ((Http*)td->lhttp)->sendHTTPRedirect(td, connection, 
-                                              (char*)td->response.LOCATION.c_str());
+                                              (char*)td->response.location.c_str());
 		}
 		/*! Send the header. */
 		if(!td->appendOutputs)
 		{
-			if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
-				td->response.CONNECTION.assign("Keep-Alive");		
+			if(!lstrcmpi(td->request.connection.c_str(), "Keep-Alive"))
+				td->response.connection.assign("Keep-Alive");		
 			HttpHeaders::buildHTTPResponseHeader(td->buffer2->getBuffer(),
                                             &td->response);
 			if(td->connection->socket.send( td->buffer2->getBuffer(),

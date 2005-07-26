@@ -62,8 +62,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
   int ret = 0;
   int nbs=0;
 	MsCgiData data;
- 	data.envString=td->request.URIOPTSPTR ?
-                    td->request.URIOPTSPTR : (char*) td->buffer->getBuffer();
+ 	data.envString=td->request.uriOptsPtr ?
+                    td->request.uriOptsPtr : (char*) td->buffer->getBuffer();
 	
 	data.td = td;
 	data.errorPage=0;
@@ -151,7 +151,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
    */
   tmpStream << (u_int)data.stdOut.getFileSize();
 
-  td->response.CONTENT_LENGTH.assign(tmpStream.str());
+  td->response.contentLength.assign(tmpStream.str());
 	/*!
    *Send all the data to the client if the append is not used.
    */

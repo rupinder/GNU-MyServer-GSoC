@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define CONTROL_BAD_LEN     205
 
   /*! The server is too busy to handle the request. */
-#define CONTROL_SERVER_BUSY      206
+#define CONTROL_SERver_BUSY      206
 
   /*! The client uses a version of this protocol that we cannot understand. */
 #define CONTROL_BAD_VERSION      207

@@ -45,36 +45,36 @@ HttpRequestHeader::~HttpRequestHeader()
  */
 void HttpRequestHeader::free()
 {
-  VER.clear();
-	TRANSFER_ENCODING.clear();	
-	CONTENT_ENCODING.clear();	
-	CMD.clear();		
-	ACCEPT.clear();
-	AUTH.clear();
-	ACCEPTENC.clear();	
-	ACCEPTLAN.clear();	
-	ACCEPTCHARSET.clear();
-	CONNECTION.clear();
-	USER_AGENT.clear();
-	COOKIE.clear();
-	CONTENT_TYPE.clear();
-	CONTENT_LENGTH.clear();
-	DATE.clear();
-	FROM.clear();
-	DATEEXP.clear();	
-	LAST_MODIFIED.clear();	
-	URI.clear();
-	URIOPTS.clear();
-	URIOPTSPTR=NULL;
-	REFERER.clear();
-	HOST.clear();
-	CACHE_CONTROL.clear();
-	IF_MODIFIED_SINCE.clear();
-	OTHER.clear();
-	PRAGMA.clear();
-	RANGETYPE.clear();
-	RANGEBYTEBEGIN=0;
-	RANGEBYTEEND=0;
+  ver.clear();
+	transferEncoding.clear();	
+	contentEncoding.clear();	
+	cmd.clear();		
+	accept.clear();
+	auth.clear();
+	acceptEncoding.clear();	
+	acceptLanguage.clear();	
+	acceptCharset.clear();
+	connection.clear();
+	userAgent.clear();
+	cookie.clear();
+	contentType.clear();
+	contentLength.clear();
+	date.clear();
+	from.clear();
+	dateExp.clear();	
+	lastModified.clear();	
+	uri.clear();
+	uriOpts.clear();
+	uriOptsPtr=NULL;
+	referer.clear();
+	host.clear();
+	cacheControl.clear();
+	ifModifiedSince.clear();
+	other.clear();
+	pragma.clear();
+	rangeType.clear();
+	rangeByteBegin=0;
+	rangeByteEnd=0;
 	uriEndsWithSlash=0;
 	digestRealm[0]='\0';
 	digestOpaque[0]='\0';
@@ -111,193 +111,193 @@ HttpResponseHeader::~HttpResponseHeader()
  */
 void HttpResponseHeader::free()
 {
-	VER.clear();	
-	SERVER_NAME.clear();
-	CONTENT_TYPE.clear();
-	CONNECTION.clear();
-	MIMEVER.clear();
-	P3P.clear();
-	COOKIE.clear();
-	CONTENT_LENGTH.clear();
-	ERROR_TYPE.clear();
-	CONTENT_ENCODING.clear();
-	TRANSFER_ENCODING.clear();
-	LOCATION.clear();
-	DATE.clear();		
-	AUTH.clear();
-	DATEEXP.clear();	
-	OTHER.clear();
-	LAST_MODIFIED.clear();
-	CACHE_CONTROL.clear();
-	CONTENT_RANGE.clear();
+	ver.clear();	
+	serverName.clear();
+	contentType.clear();
+	connection.clear();
+	mimeVer.clear();
+	p3p.clear();
+	cookie.clear();
+	contentLength.clear();
+	errorType.clear();
+	contentEncoding.clear();
+	transferEncoding.clear();
+	location.clear();
+	date.clear();		
+	auth.clear();
+	dateExp.clear();	
+	other.clear();
+	lastModified.clear();
+	cacheControl.clear();
+	contentRange.clear();
 }
 
 int HttpRequestHeader::getValue(const char* name, string& out)
 {
-  if(!strcmpi(name,"CMD"))
+  if(!strcmpi(name,"cmd"))
   {
-    out.assign(CMD.c_str());
+    out.assign(cmd.c_str());
     return 1;
   }  
 
-  if(!strcmpi(name,"VER"))
+  if(!strcmpi(name,"ver"))
   { 
-    out.assign( VER.c_str()); 
+    out.assign( ver.c_str()); 
     return 1;
   }
  
-  if(!strcmpi(name,"URI"))
+  if(!strcmpi(name,"uri"))
   { 
-    out.assign( URI.c_str()); 
+    out.assign( uri.c_str()); 
     return 1;
   } 
  
-  if(!strcmpi(name,"URIOPTS"))
+  if(!strcmpi(name,"uriOpts"))
   { 
-    out.assign( URIOPTS.c_str());
+    out.assign( uriOpts.c_str());
     return 1;
   } 
 
-  if(!strcmpi(name,"ACCEPT"))
+  if(!strcmpi(name,"accept"))
   { 
-    out.assign( ACCEPT.c_str()); 
+    out.assign( accept.c_str()); 
     return 1;
   }
  
   if(!strcmpi(name,"Content-Encoding"))
   { 
-    out.assign( CONTENT_ENCODING.c_str()); 
+    out.assign( contentEncoding.c_str()); 
     return 1;
   }
  if(!strcmpi(name,"Transfer-Encoding"))
  { 
-   out.assign( TRANSFER_ENCODING.c_str()); 
+   out.assign( transferEncoding.c_str()); 
    return 1;
  }
  if(!strcmpi(name,"Authorization"))
  { 
-   out.assign( AUTH.c_str()); 
+   out.assign( auth.c_str()); 
    return 1;
  }
  
  if(!strcmpi(name,"Accept-Encoding"))
  { 
-   out.assign( ACCEPTENC.c_str()); 
+   out.assign( acceptEncoding.c_str()); 
    return 1;
  }
  if(!strcmpi(name,"Accept-Language"))
  { 
-   out.assign( ACCEPTLAN.c_str()); 
+   out.assign( acceptLanguage.c_str()); 
    return 1;
  }
  if(!strcmpi(name,"Accept-Charset"))
  { 
-   out.assign( ACCEPTCHARSET.c_str()); 
+   out.assign( acceptCharset.c_str()); 
    return 1;
  }  
  if(!strcmpi(name,"If-Modified-Since"))
  { 
-   out.assign( IF_MODIFIED_SINCE.c_str()); 
+   out.assign( ifModifiedSince.c_str()); 
    return 1;
  }  
  if(!strcmpi(name,"Connection"))
  { 
-   out.assign( CONNECTION.c_str()); 
+   out.assign( connection.c_str()); 
    return 1;
  }  
  if(!strcmpi(name,"User-Agent"))
  { 
-   out.assign( USER_AGENT.c_str()); 
+   out.assign( userAgent.c_str()); 
    return 1;
  } 
  if(!strcmpi(name,"Cookie"))
  { 
-   out.assign( COOKIE.c_str()); 
+   out.assign( cookie.c_str()); 
    return 1;
  }
  if(!strcmpi(name,"Content-Type"))
  { 
-   out.assign( CONTENT_TYPE.c_str()); 
+   out.assign( contentType.c_str()); 
    return 1;
  } 
  if(!strcmpi(name,"Content-Length"))
  { 
-   out.assign( CONTENT_LENGTH.c_str()); 
+   out.assign( contentLength.c_str()); 
    return 1;
  } 
 
  if(!strcmpi(name,"Date"))
  { 
-   out.assign( DATE.c_str()); 
+   out.assign( date.c_str()); 
    return 1;
  } 
  if(!strcmpi(name,"Expires"))
  { 
-   out.assign( DATEEXP.c_str()); 
+   out.assign( dateExp.c_str()); 
    return 1;
  } 
  if(!strcmpi(name,"Last-Modified"))
  { 
-   out.assign( LAST_MODIFIED.c_str()); 
+   out.assign( lastModified.c_str()); 
    return 1;
  } 
 
  if(!strcmpi(name,"Cache-Control"))
  { 
-   out.assign( CACHE_CONTROL.c_str()); 
+   out.assign( cacheControl.c_str()); 
    return 1;
  } 
 
  if(!strcmpi(name,"Pragma"))
  { 
-   out.assign( PRAGMA.c_str()); 
+   out.assign( pragma.c_str()); 
    return 1;
  } 
 
  if(!strcmpi(name,"Referer"))
  { 
-   out.assign( REFERER.c_str()); 
+   out.assign( referer.c_str()); 
    return 1;
  } 
 
  if(!strcmpi(name,"From"))
  { 
-   out.assign( FROM.c_str()); 
+   out.assign( from.c_str()); 
    return 1;
  } 
 
  if(!strcmpi(name,"Host"))
  { 
-   out.assign( HOST.c_str()); 
+   out.assign( host.c_str()); 
    return 1;
  } 
 
- if(!strcmpi(name,"RANGETYPE"))
+ if(!strcmpi(name,"rangeType"))
  { 
-   out.assign( RANGETYPE.c_str()); 
+   out.assign( rangeType.c_str()); 
    return 1;
  } 
  
 
- if(!strcmpi(name,"RANGEBYTEBEGIN"))
+ if(!strcmpi(name,"rangeByteBegin"))
  {
    ostringstream s;
-   s << RANGEBYTEBEGIN;
+   s << rangeByteBegin;
    out.assign(s.str());
    return 1; 
  }
 
- if(!strcmpi(name,"RANGEBYTEEND"))
+ if(!strcmpi(name,"rangeByteEnd"))
  {
    ostringstream s;
-   s << RANGEBYTEEND;
+   s << rangeByteEnd;
    out.assign(s.str());
    return 1; 
  }
 
  {
    char *s_pos;
-   char *ptr = strstr(OTHER.c_str(), name);
+   char *ptr = strstr(other.c_str(), name);
    if(!ptr)
    {
      out.assign("");

@@ -49,34 +49,34 @@ using namespace std;
 enum CGI_COMMANDS
 {
 	/*! Sends the file as it is; for example an HTML page.  */
-	CGI_CMD_SEND,
+	CGI_cmd_SEND,
 			
 	/*! Run the cgi_manager program.  */
-	CGI_CMD_RUNCGI,
+	CGI_cmd_RUNCGI,
 			
 	/*! Run the ISAPI module.  */
-	CGI_CMD_RUNISAPI,
+	CGI_cmd_RUNISAPI,
 			
 	/*! Run the file as a self ISAPI module.  */
-	CGI_CMD_EXECUTEISAPI,
+	CGI_cmd_EXECUTEISAPI,
 			
 	/*! Run the the file as a MSCGI script.  */
-	CGI_CMD_RUNMSCGI,
+	CGI_cmd_RUNMSCGI,
 			
 	/*! Handle the file as an executable.  */
-	CGI_CMD_EXECUTE,
+	CGI_cmd_EXECUTE,
 			
 	/*! Send the file included  in the file.  */
-	CGI_CMD_SENDLINK,
+	CGI_cmd_SENDLINK,
 			
 	/*! Send the file as a WinCGI.  */
-	CGI_CMD_EXECUTEWINCGI,
+	CGI_cmd_EXECUTEWINCGI,
 	
 	/*! Send the file using the specified FastCGI server.  */
-	CGI_CMD_RUNFASTCGI,
+	CGI_cmd_RUNFASTCGI,
 	
 	/*! Send the file as a FastCGI.  */
-	CGI_CMD_EXECUTEFASTCGI	
+	CGI_cmd_EXECUTEFASTCGI	
 };
 
 

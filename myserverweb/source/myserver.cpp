@@ -224,8 +224,8 @@ int main (int argn, char **argv)
 	if(input.version)
 	{
     cout << "MyServer "<< versionOfSoftware 
-#ifdef __DATE__
-         << " compiled on " << __DATE__  
+#ifdef __date__
+         << " compiled on " << __date__  
 #endif
          << endl;
 		return 0;   
@@ -410,8 +410,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP 
-                                           | SERVICE_ACCEPT_SHUTDOWN);
+		MyServiceStatus.dwControlsAccepted |= (SERVICE_accept_STOP 
+                                           | SERVICE_accept_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
@@ -420,8 +420,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP 
-                                            | SERVICE_ACCEPT_SHUTDOWN);
+		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_accept_STOP 
+                                            | SERVICE_accept_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 	}

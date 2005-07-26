@@ -236,8 +236,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 		switch(a->getToRemove())
 		{
       /*! Remove the connection from the list. */
-			case CONNECTION_REMOVE_OVERLOAD:
-        sendResponse(b2, bs2, a, CONTROL_SERVER_BUSY, 0);
+			case CONNECTION_REMOVE_OverLOAD:
+        sendResponse(b2, bs2, a, CONTROL_SERver_BUSY, 0);
 				return 0;
       default:
         return 0;
@@ -463,12 +463,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     Ofile=0;
     return 0;
   }
-  if(!strcmp(command, "SHOWCONNECTIONS"))
+  if(!strcmp(command, "SHOWconnectionS"))
   {
     knownCommand = 1;
-    ret = SHOWCONNECTIONS(a, Ofile, b1, bs1);
+    ret = SHOWconnectionS(a, Ofile, b1, bs1);
   }
-  else if(!strcmp(command, "KILLCONNECTION"))
+  else if(!strcmp(command, "KILLconnection"))
   {
     char buff[11];
     u_long id;
@@ -476,7 +476,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     strncpy(buff, header.getOptions(), 10 );
     buff[10] = '\0';
     id = header.getOptions() ? atol(buff) : 0;
-    ret = KILLCONNECTION(a, id ,Ofile, b1, bs1);
+    ret = KILLconnection(a, id ,Ofile, b1, bs1);
   }
   else if(!strcmp(command, "REBOOT"))
   {
@@ -698,7 +698,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
 /*!
  *Show the currect active connections.
  */
-int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,File* out, char *b1, 
+int  ControlProtocol::SHOWconnectionS(ConnectionPtr a,File* out, char *b1, 
                                        int bs1)
 {
   int ret =  0;
@@ -727,7 +727,7 @@ int  ControlProtocol::SHOWCONNECTIONS(ConnectionPtr a,File* out, char *b1,
 /*!
  *Kill a connection by its ID.
  */
-int  ControlProtocol::KILLCONNECTION(ConnectionPtr a, u_long ID, File* out, 
+int  ControlProtocol::KILLconnection(ConnectionPtr a, u_long ID, File* out, 
                                       char *b1, int bs1)
 {
   int ret = 0;
@@ -739,7 +739,7 @@ int  ControlProtocol::KILLCONNECTION(ConnectionPtr a, u_long ID, File* out,
   if(con)
   {
     /*! Define why the connection is killed. */
-    con->setToRemove(CONNECTION_USER_KILL);
+    con->setToRemove(connection_USER_KILL);
   }
   lserver->connections_mutex_unlock();
   return ret;

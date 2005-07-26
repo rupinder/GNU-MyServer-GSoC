@@ -138,7 +138,7 @@ public:
 #ifdef WIN32
 	static ConnTableRecord *HConnRecord(HCONN hConn);
 	int Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL);
-	int SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL);
+	int Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL);
 	int SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL);
 	static BOOL buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr a,LPVOID output,
                                   LPDWORD maxLen);

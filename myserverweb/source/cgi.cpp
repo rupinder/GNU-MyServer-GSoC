@@ -334,8 +334,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	if(!yetoutputted)
 	{
 		u_long nbw=0;
-		if(!lstrcmpi(td->request.CONNECTION.c_str(), "Keep-Alive"))
-			td->response.CONNECTION.assign("Keep-Alive");
+		if(!lstrcmpi(td->request.connection.c_str(), "Keep-Alive"))
+			td->response.connection.assign("Keep-Alive");
 		/*!
      *Do not send any other HTTP header if the CGI executable
      *has the nph-. form name.  
@@ -344,7 +344,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		{
 			/*! Resetting the structure we send only the information gived by the CGI. */
 			HttpHeaders::resetHTTPResponse(&(td->response));
-      td->response.VER.assign(td->request.VER.c_str());
+      td->response.ver.assign(td->request.ver.c_str());
 		}
 
     /*! If we have not to append the output send data directly to the client. */
@@ -357,7 +357,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                                     td->buffer2->getBuffer());
       /*! Always specify the size of the HTTP contents.  */
 			tmp << (u_int) (stdOutFile.getFileSize()-headerSize);
-      td->response.CONTENT_LENGTH.assign(tmp.str());
+      td->response.contentLength.assign(tmp.str());
 			HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                             &td->response);
 
@@ -479,8 +479,8 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 #ifdef WIN32
 	memCgi << " (WIN32)";
 #else
-#ifdef HOST_STR
-	memCgi << " " << HOST_STR;
+#ifdef host_STR
+	memCgi << " " << host_STR;
 #else
 	memCgi << " (Unknown)";
 #endif
@@ -488,7 +488,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	/*! *Must use REDIRECT_STATUS for php and others.  */
 	memCgi << end_str << "REDIRECT_STATUS=TRUE";
 	
-	memCgi << end_str << "SERVER_NAME=";
+	memCgi << end_str << "serverName=";
  	memCgi << lserver->getServerName();
 
 	memCgi << end_str << "SERVER_SIGNATURE=";
@@ -496,8 +496,8 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << versionOfSoftware;
 	memCgi << "</address>";
 
-	memCgi << end_str << "SERVER_PROTOCOL=";
-	memCgi << td->request.VER.c_str();	
+	memCgi << end_str << "SERVER_PROCOL=";
+	memCgi << td->request.ver.c_str();	
 	
   {
     MemBuf portBuffer;
@@ -508,27 +508,27 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << lserver->getServerAdmin();
 
 	memCgi << end_str << "REQUEST_METHOD=";
-	memCgi << td->request.CMD.c_str();
+	memCgi << td->request.cmd.c_str();
 
-	memCgi << end_str << "REQUEST_URI=";
+	memCgi << end_str << "REQUEST_uri=";
 	
- 	memCgi << td->request.URI.c_str();
+ 	memCgi << td->request.uri.c_str();
 
 	memCgi << end_str << "QUERY_STRING=";
-	memCgi << td->request.URIOPTS.c_str();
+	memCgi << td->request.uriOpts.c_str();
 
 	memCgi << end_str << "GATEWAY_INTERFACE=CGI/1.1";
 
-	if(td->request.CONTENT_TYPE.length())
+	if(td->request.contentType.length())
 	{
-		memCgi << end_str << "CONTENT_TYPE=";
-		memCgi << td->request.CONTENT_TYPE.c_str();
+		memCgi << end_str << "contentType=";
+		memCgi << td->request.contentType.c_str();
 	}
 
-	if(td->request.CONTENT_LENGTH.length())
+	if(td->request.contentLength.length())
 	{
-		memCgi << end_str << "CONTENT_LENGTH=";
-		memCgi << td->request.CONTENT_LENGTH.c_str();
+		memCgi << end_str << "contentLength=";
+		memCgi << td->request.contentLength.c_str();
 	}
 	else
 	{
@@ -540,49 +540,49 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
     stream << fs;
 
-		memCgi << end_str << "CONTENT_LENGTH=" << stream.str().c_str();
+		memCgi << end_str << "contentLength=" << stream.str().c_str();
 	}
 
-	if(td->request.COOKIE.length())
+	if(td->request.cookie.length())
 	{
-		memCgi << end_str << "HTTP_COOKIE=";
-		memCgi << td->request.COOKIE.c_str();
+		memCgi << end_str << "HTTP_cookie=";
+		memCgi << td->request.cookie.c_str();
 	}
 
-	if(td->request.RANGEBYTEBEGIN || td->request.RANGEBYTEEND)
+	if(td->request.rangeByteBegin || td->request.rangeByteEnd)
 	{
     ostringstream rangeBuffer;
-		memCgi << end_str << "HTTP_RANGE=" << td->request.RANGETYPE << "=" ;
-    if(td->request.RANGEBYTEBEGIN)
+		memCgi << end_str << "HTTP_RANGE=" << td->request.rangeType << "=" ;
+    if(td->request.rangeByteBegin)
     {
-      rangeBuffer << static_cast<int>(td->request.RANGEBYTEBEGIN);
+      rangeBuffer << static_cast<int>(td->request.rangeByteBegin);
       memCgi << rangeBuffer.str();
     }
     memCgi << "-";
-    if(td->request.RANGEBYTEEND)
+    if(td->request.rangeByteEnd)
     {
-      rangeBuffer << td->request.RANGEBYTEEND;
+      rangeBuffer << td->request.rangeByteEnd;
       memCgi << rangeBuffer.str();
     }   
 
 	}
 
-	if(td->request.REFERER.length())
+	if(td->request.referer.length())
 	{
-		memCgi << end_str << "HTTP_REFERER=";
-		memCgi << td->request.REFERER.c_str();
+		memCgi << end_str << "HTTP_referer=";
+		memCgi << td->request.referer.c_str();
 	}
 
-	if(td->request.CACHE_CONTROL.length())
+	if(td->request.cacheControl.length())
 	{
-		memCgi << end_str << "HTTP_CACHE_CONTROL=";
-		memCgi << td->request.CACHE_CONTROL.c_str();
+		memCgi << end_str << "HTTP_cacheControl=";
+		memCgi << td->request.cacheControl.c_str();
 	}
 
-	if(td->request.ACCEPT.length())
+	if(td->request.accept.length())
 	{
-		memCgi << end_str << "HTTP_ACCEPT=";
-		memCgi << td->request.ACCEPT.c_str();
+		memCgi << end_str << "HTTP_accept=";
+		memCgi << td->request.accept.c_str();
 	}
 
 	if(td->cgiRoot.length())
@@ -591,10 +591,10 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		memCgi << td->cgiRoot;
 	}
 
-	if(td->request.HOST.length())
+	if(td->request.host.length())
 	{
-		memCgi << end_str << "HTTP_HOST=";
-		memCgi << td->request.HOST.c_str();
+		memCgi << end_str << "HTTP_host=";
+		memCgi << td->request.host.c_str();
 	}
 
 	if(td->connection->getIpAddr()[0])
@@ -621,34 +621,34 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	else
 		memCgi << end_str << "SSL=OFF";
 
-	if(td->request.CONNECTION.length())
+	if(td->request.connection.length())
 	{
 		memCgi << end_str << "HTTP_CONNECTION=";
-		memCgi << td->request.CONNECTION.c_str();
+		memCgi << td->request.connection.c_str();
 	}
 
-	if(td->request.AUTH.length())
+	if(td->request.auth.length())
 	{
-		memCgi << end_str << "AUTH_TYPE=";
-		memCgi << td->request.AUTH.c_str();
+		memCgi << end_str << "auth_TYPE=";
+		memCgi << td->request.auth.c_str();
 	}
 
-	if(td->request.USER_AGENT.length())
+	if(td->request.userAgent.length())
 	{
-		memCgi << end_str << "HTTP_USER_AGENT=";
-		memCgi << td->request.USER_AGENT.c_str();
+		memCgi << end_str << "HTTP_userAgent=";
+		memCgi << td->request.userAgent.c_str();
 	}
 
-	if(td->request.ACCEPTENC.length())
+	if(td->request.acceptEncoding.length())
 	{
-		memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
-		memCgi << td->request.ACCEPTENC.c_str();
+		memCgi << end_str << "HTTP_accept_ENCODING=";
+		memCgi << td->request.acceptEncoding.c_str();
 	}
 
-	if(td->request.ACCEPTLAN.length())
+	if(td->request.acceptLanguage.length())
 	{
-		memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
-    memCgi << td->request.ACCEPTLAN.c_str();
+		memCgi << end_str << "HTTP_accept_LANGUAGE=";
+    memCgi << td->request.acceptLanguage.c_str();
 	}
 
 	if(td->pathInfo.length())
@@ -669,28 +669,28 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << td->filenamePath;
 	
 	/*!
-   *For the DOCUMENT_URI and SCRIPT_NAME copy the 
-   *requested URI without the pathInfo.
+   *For the DOCUMENT_uri and SCRIPT_NAME copy the 
+   *requested uri without the pathInfo.
    */
 	memCgi << end_str << "SCRIPT_NAME=";
-	memCgi << td->request.URI.c_str();
+	memCgi << td->request.uri.c_str();
 
 	memCgi << end_str << "SCRIPT_URL=";
-	memCgi << td->request.URI.c_str();
+	memCgi << td->request.uri.c_str();
 
-	memCgi << end_str << "DATE_GMT=";
+	memCgi << end_str << "date_GMT=";
 	getRFC822GMTTime(strTmp, HTTP_RESPONSE_DATE_DIM);
 	memCgi << strTmp;
 
- 	memCgi << end_str << "DATE_LOCAL=";
+ 	memCgi << end_str << "date_LOCAL=";
 	getRFC822LocalTime(strTmp, HTTP_RESPONSE_DATE_DIM);
 	memCgi << strTmp;
 
 	memCgi << end_str << "DOCUMENT_ROOT=";
 	memCgi << ((Vhost*)(td->connection->host))->getDocumentRoot();
 
-	memCgi << end_str << "DOCUMENT_URI=";
-	memCgi << td->request.URI.c_str();
+	memCgi << end_str << "DOCUMENT_uri=";
+	memCgi << td->request.uri.c_str();
 	
 	memCgi << end_str << "DOCUMENT_NAME=";
 	memCgi << td->filenamePath;

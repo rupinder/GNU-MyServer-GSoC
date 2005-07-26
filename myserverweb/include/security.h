@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef SECURITY_H
-#define SECURITY_H
+#ifndef SECuriTY_H
+#define SECuriTY_H
 
 #include "../stdafx.h"
 #include "../include/connectionstruct.h"

@@ -140,7 +140,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	*td->buffer2 << "Server Admin=" << lserver->getServerAdmin() << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
-	if(stringcmpi(td->request.CONNECTION,"Keep-Alive"))
+	if(stringcmpi(td->request.connection,"Keep-Alive"))
 	{
 		strcpy(buffer,"Request Keep-Alive=No\r\n");
 		DataFileHandle.writeToFile(buffer,23,&nbr);
@@ -152,45 +152,45 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	}
 
 	td->buffer2->setLength(0);
-	*td->buffer2 << "Request Method=" << td->request.CMD << "\r\n";
+	*td->buffer2 << "Request Method=" << td->request.cmd << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
 	td->buffer2->setLength(0);
-	*td->buffer2 << "Request Protocol=HTTP/" << td->request.VER << "\r\n";
+	*td->buffer2 << "Request Protocol=HTTP/" << td->request.ver << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
 	 td->buffer2->setLength(0);	
 	*td->buffer2 << "Executable Path=" << execname << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
-	if(td->request.URIOPTS[0])
+	if(td->request.uriOpts[0])
 	{
-		sprintf(buffer,"Query String=%s\r\n",td->request.URIOPTS.c_str());
+		sprintf(buffer,"Query String=%s\r\n",td->request.uriOpts.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
-	if(td->request.REFERER[0])
+	if(td->request.referer[0])
 	{
-		sprintf(buffer,"Referer=%s\r\n",td->request.REFERER.c_str());
+		sprintf(buffer,"Referer=%s\r\n",td->request.referer.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
-	if(td->request.CONTENT_TYPE[0])
+	if(td->request.contentType[0])
 	{
-		sprintf(buffer,"Content Type=%s\r\n",td->request.CONTENT_TYPE.c_str());
+		sprintf(buffer,"Content Type=%s\r\n",td->request.contentType.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 
-	if(td->request.USER_AGENT[0])
+	if(td->request.userAgent[0])
 	{
-		sprintf(buffer,"User Agent=%s\r\n",td->request.USER_AGENT.c_str());
+		sprintf(buffer,"User Agent=%s\r\n",td->request.userAgent.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 
 	sprintf(buffer,"Content File=%s\r\n",td->inputData.getFilename());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
-	if(td->request.CONTENT_LENGTH[0])
+	if(td->request.contentLength[0])
 	{
-		sprintf(buffer,"Content Length=%s\r\n",td->request.CONTENT_LENGTH.c_str());
+		sprintf(buffer,"Content Length=%s\r\n",td->request.contentLength.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
 	else
@@ -208,7 +208,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	sprintf(buffer,"Server Port=%u\r\n",td->connection->getLocalPort());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
-	sprintf(buffer,"Server Name=%s\r\n",td->request.HOST.c_str());
+	sprintf(buffer,"Server Name=%s\r\n",td->request.host.c_str());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 
 	strcpy(buffer,"[System]\r\n");
@@ -312,14 +312,14 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			break;
 		}
 	}
-	if(!stringcmpi(td->request.CONNECTION,"Keep-Alive"))
-		td->response.CONNECTION.assign("Keep-Alive");
+	if(!stringcmpi(td->request.connection,"Keep-Alive"))
+		td->response.connection.assign("Keep-Alive");
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response,td,buffer);
 	/*!
    *Always specify the size of the HTTP contents.
    */
   stream << OutFileHandle.getFileSize()-headerSize;
-	td->response.CONTENT_LENGTH.assign(stream.str());
+	td->response.contentLength.assign(stream.str());
 	if(!td->appendOutputs)
 	{
     /*!

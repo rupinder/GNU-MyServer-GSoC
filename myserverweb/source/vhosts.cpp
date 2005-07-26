@@ -1457,7 +1457,7 @@ int Vhost::initializeSSL()
     return -1;
 
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
-  SSL_CTX_set_verify_depth(ctx,1);
+  SSL_CTX_set_verify_depth(sslContext.context, 1);
 #endif
 	return 1;
 #else

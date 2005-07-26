@@ -112,27 +112,27 @@ int MimeManager::load(const char *fn)
        *Parse all the possible actions.
        *By default send the file as it is.
        */
-			record.command=CGI_CMD_SEND;
+			record.command=CGI_cmd_SEND;
 			if(!lstrcmpi(commandString, "SEND"))
-				record.command=CGI_CMD_SEND;
+				record.command=CGI_cmd_SEND;
 			if(!lstrcmpi(commandString, "RUNCGI"))
-				record.command=CGI_CMD_RUNCGI;
+				record.command=CGI_cmd_RUNCGI;
 			if(!lstrcmpi(commandString, "RUNMSCGI"))
-				record.command=CGI_CMD_RUNMSCGI;
+				record.command=CGI_cmd_RUNMSCGI;
 			if(!lstrcmpi(commandString, "EXECUTE"))
-				record.command=CGI_CMD_EXECUTE;
+				record.command=CGI_cmd_EXECUTE;
 			if(!lstrcmpi(commandString, "RUNISAPI"))
-				record.command=CGI_CMD_RUNISAPI;
+				record.command=CGI_cmd_RUNISAPI;
 			if(!lstrcmpi(commandString, "EXECUTEISAPI"))
-				record.command=CGI_CMD_EXECUTEISAPI;
+				record.command=CGI_cmd_EXECUTEISAPI;
 			if(!lstrcmpi(commandString, "SENDLINK"))
-				record.command=CGI_CMD_SENDLINK;
+				record.command=CGI_cmd_SENDLINK;
 			if(!lstrcmpi(commandString, "EXECUTEWINCGI"))
-				record.command=CGI_CMD_EXECUTEWINCGI;
+				record.command=CGI_cmd_EXECUTEWINCGI;
 			if(!lstrcmpi(commandString, "RUNFASTCGI"))
-				record.command=CGI_CMD_RUNFASTCGI;
+				record.command=CGI_cmd_RUNFASTCGI;
 			if(!lstrcmpi(commandString, "EXECUTEFASTCGI"))
-				record.command=CGI_CMD_EXECUTEFASTCGI;
+				record.command=CGI_cmd_EXECUTEFASTCGI;
 			
 		}
 		nc++;
@@ -268,47 +268,47 @@ int MimeManager::loadXML(const char *fn)
           rc.addFilter((const char*)lcur->children->content);
 			}
 
-			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
+			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"cmd"))
 			{
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"SEND"))
-					rc.command=CGI_CMD_SEND;
+					rc.command=CGI_cmd_SEND;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNCGI"))
-					rc.command=CGI_CMD_RUNCGI;
+					rc.command=CGI_cmd_RUNCGI;
 			
         if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNMSCGI"))
-					rc.command=CGI_CMD_RUNMSCGI;
+					rc.command=CGI_cmd_RUNMSCGI;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTE"))
-					rc.command=CGI_CMD_EXECUTE;
+					rc.command=CGI_cmd_EXECUTE;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNISAPI"))
-					rc.command=CGI_CMD_RUNISAPI;
+					rc.command=CGI_cmd_RUNISAPI;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEISAPI"))
-					rc.command=CGI_CMD_EXECUTEISAPI;
+					rc.command=CGI_cmd_EXECUTEISAPI;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
-					rc.command=CGI_CMD_SENDLINK;
+					rc.command=CGI_cmd_SENDLINK;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEWINCGI"))
-					rc.command=CGI_CMD_EXECUTEWINCGI;
+					rc.command=CGI_cmd_EXECUTEWINCGI;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
-					rc.command=CGI_CMD_RUNFASTCGI;
+					rc.command=CGI_cmd_RUNFASTCGI;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
-					rc.command=CGI_CMD_EXECUTEFASTCGI;
+					rc.command=CGI_cmd_EXECUTEFASTCGI;
 			}
 
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
@@ -384,30 +384,30 @@ int MimeManager::saveXML(const char *filename)
 		f.writeToFile(rc->extension.c_str(),(u_long)rc->extension.length(),&nbw);
 		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
 		f.writeToFile(rc->mime_type.c_str(),(u_long)rc->mime_type.length(),&nbw);
-		f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
-		if(rc->command==CGI_CMD_SEND)
+		f.writeToFile("</MIME>\r\n<cmd>",14,&nbw);
+		if(rc->command==CGI_cmd_SEND)
 			strcpy(command,"SEND");
-		else if(rc->command==CGI_CMD_RUNCGI)
+		else if(rc->command==CGI_cmd_RUNCGI)
 			strcpy(command,"RUNCGI");
-		else if(rc->command==CGI_CMD_RUNMSCGI)
+		else if(rc->command==CGI_cmd_RUNMSCGI)
 			strcpy(command,"RUNMSCGI");
-		else if(rc->command==CGI_CMD_EXECUTE)
+		else if(rc->command==CGI_cmd_EXECUTE)
 			strcpy(command,"EXECUTE");
-		else if(rc->command==CGI_CMD_SENDLINK)
+		else if(rc->command==CGI_cmd_SENDLINK)
 			strcpy(command,"SENDLINK");
-		else if(rc->command==CGI_CMD_RUNISAPI)
+		else if(rc->command==CGI_cmd_RUNISAPI)
 			strcpy(command,"RUNISAPI");
-		else if(rc->command==CGI_CMD_EXECUTEISAPI)
+		else if(rc->command==CGI_cmd_EXECUTEISAPI)
 			strcpy(command,"EXECUTEISAPI");
-		else if(rc->command==CGI_CMD_EXECUTEWINCGI)
+		else if(rc->command==CGI_cmd_EXECUTEWINCGI)
 			strcpy(command,"EXECUTEWINCGI");
-		else if(rc->command==CGI_CMD_RUNFASTCGI)
+		else if(rc->command==CGI_cmd_RUNFASTCGI)
 			strcpy(command,"RUNFASTCGI");	
-		else if(rc->command==CGI_CMD_EXECUTEFASTCGI)
+		else if(rc->command==CGI_cmd_EXECUTEFASTCGI)
 			strcpy(command,"EXECUTEFASTCGI");	
 		f.writeToFile(command,(u_long)strlen(command),&nbw);
 
-		f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
+		f.writeToFile("</cmd>\r\n<MANAGER>",17,&nbw);
 		if(rc->cgi_manager.length())
 			f.writeToFile(rc->cgi_manager.c_str(), 
                     (u_long)rc->cgi_manager.length(),&nbw);
@@ -442,25 +442,25 @@ int MimeManager::save(const char *filename)
 		f.writeToFile(nmr1->mime_type.c_str(), 
                   (u_long)nmr1->mime_type.length(), &nbw);
 		f.writeToFile(",",1,&nbw);
-		if(nmr1->command==CGI_CMD_SEND)
+		if(nmr1->command==CGI_cmd_SEND)
 			strcpy(command,"SEND ");
-		else if(nmr1->command==CGI_CMD_RUNCGI)
+		else if(nmr1->command==CGI_cmd_RUNCGI)
 			strcpy(command,"RUNCGI ");
-		else if(nmr1->command==CGI_CMD_RUNMSCGI)
+		else if(nmr1->command==CGI_cmd_RUNMSCGI)
 			strcpy(command,"RUNMSCGI ");
-		else if(nmr1->command==CGI_CMD_EXECUTE)
+		else if(nmr1->command==CGI_cmd_EXECUTE)
 			strcpy(command,"EXECUTE ");
-		else if(nmr1->command==CGI_CMD_SENDLINK)
+		else if(nmr1->command==CGI_cmd_SENDLINK)
 			strcpy(command,"SENDLINK ");
-		else if(nmr1->command==CGI_CMD_RUNISAPI)
+		else if(nmr1->command==CGI_cmd_RUNISAPI)
 			strcpy(command,"RUNISAPI ");
-		else if(nmr1->command==CGI_CMD_EXECUTEISAPI)
+		else if(nmr1->command==CGI_cmd_EXECUTEISAPI)
 			strcpy(command,"EXECUTEISAPI ");
-		else if(nmr1->command==CGI_CMD_EXECUTEWINCGI)
+		else if(nmr1->command==CGI_cmd_EXECUTEWINCGI)
 			strcpy(command,"EXECUTEWINCGI ");
-		else if(nmr1->command==CGI_CMD_RUNFASTCGI)
+		else if(nmr1->command==CGI_cmd_RUNFASTCGI)
 			strcpy(command,"RUNFASTCGI ");	
-		else if(nmr1->command==CGI_CMD_EXECUTEFASTCGI)
+		else if(nmr1->command==CGI_cmd_EXECUTEFASTCGI)
 			strcpy(command,"EXECUTEFASTCGI ");	
 
 		f.writeToFile(command,(u_long)strlen(command),&nbw);
@@ -509,7 +509,7 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 	/*!
    *If the ext is not registered send the file as it is.
    */
-	return CGI_CMD_SEND;
+	return CGI_cmd_SEND;
 }
 
 /*!
@@ -540,7 +540,7 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 	/*!
    *If the ext is not registered send the file as it is.
    */
-	return CGI_CMD_SEND;
+	return CGI_cmd_SEND;
 }
 
 /*!
@@ -551,13 +551,13 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
   MimeRecord *mr;
   if(id > data.size() || id < 0)
   {
-    return CGI_CMD_SEND;   
+    return CGI_cmd_SEND;   
   }
 
   mr = data.getData(id);
 
   if(!mr)
-    return CGI_CMD_SEND;
+    return CGI_cmd_SEND;
 
   if(ext)
     strcpy(ext,mr->extension.c_str());
@@ -588,7 +588,7 @@ int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
   MimeManager::MimeRecord *mr;
   if(id > data.size() || id < 0)
   {
-    return CGI_CMD_SEND;   
+    return CGI_cmd_SEND;   
   }
 
   mr=data.getData(ext.c_str());
@@ -610,7 +610,7 @@ int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
 	/*!
    *If the ext is not registered send the file as it is.
    */
-	return CGI_CMD_SEND;
+	return CGI_cmd_SEND;
 }
 
 

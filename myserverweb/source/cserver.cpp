@@ -1318,7 +1318,7 @@ int Server::getMaxThreads()
 }
 /*!
  *Add a new connection.
- *A connection is defined using a CONNECTION struct.
+ *A connection is defined using a connection struct.
  */
 ConnectionPtr Server::addConnectionToList(Socket s, 
                         MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, 
@@ -1405,7 +1405,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
    *to remove it from the active connections list.
    */
 	if(maxConnections && (nConnections>maxConnections))
-		new_connection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
+		new_connection->setToRemove(CONNECTION_REMOVE_OverLOAD);
 
 	return new_connection;
 }
@@ -1547,7 +1547,7 @@ ConnectionPtr Server::findConnectionBySocket(Socket a)
 }
 
 /*!
- *find a CONNECTION in the list by its ID.
+ *find a connection in the list by its ID.
  */
 ConnectionPtr Server::findConnectionByID(u_long ID)
 {

@@ -52,7 +52,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 	ConnTableRecord *ConnInfo;
   int ret;
 	char *buffer=0;	
-	char URI[MAX_PATH];/*! Under windows use MAX_PATH. */	
+	char uri[MAX_PATH];/*! Under windows use MAX_PATH. */	
 
 	Isapi::isapi_mutex->lock();
 	ConnInfo = Isapi::HConnRecord(hConn);
@@ -94,12 +94,12 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			break;
 		case HSE_REQ_MAP_URL_TO_PATH:
 			if(((char*)lpvBuffer)[0])
-				strcpy(URI,(char*)lpvBuffer);
+				strcpy(uri,(char*)lpvBuffer);
 			else
-        lstrcpyn(URI,ConnInfo->td->request.URI.c_str(),
-                 (int)ConnInfo->td->request.URI.length()-ConnInfo->td->pathInfo.length() +1);
+        lstrcpyn(uri,ConnInfo->td->request.uri.c_str(),
+                 (int)ConnInfo->td->request.uri.length()-ConnInfo->td->pathInfo.length() +1);
 			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
-                                            tmp ,URI,0);
+                                            tmp ,uri,0);
       if(ret!=e_200)
       {
         if(buffer)
@@ -125,7 +125,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                               ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_SEND_URL:
-    return ((Isapi*)ConnInfo->lisapi)->SendURI(ConnInfo->td,
+    return ((Isapi*)ConnInfo->lisapi)->Senduri(ConnInfo->td,
                                            ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_SEND_RESPONSE_HEADER:
@@ -137,7 +137,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     SetEvent(ConnInfo->ISAPIDoneEvent);
     break;
   case HSE_REQ_IS_KEEP_CONN:
-    if(!stringcmpi(ConnInfo->td->request.CONNECTION, "Keep-Alive"))
+    if(!stringcmpi(ConnInfo->td->request.connection, "Keep-Alive"))
       *((BOOL*)lpvBuffer)=1;
     else
       *((BOOL*)lpvBuffer)=0;
@@ -178,9 +178,9 @@ int Isapi::Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL)
 }
 
 /*!
- *Send an HTTP URI.
+ *Send an HTTP uri.
  */
-int Isapi::SendURI(HttpThreadContext* td,ConnectionPtr a,char *URL)
+int Isapi::Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
   string tmp;
   tmp.assign(URL);
@@ -228,7 +228,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
                                                                 ConnInfo->td->id);
 		return 0;
 	}
-	keepalive =(!stringcmpi(ConnInfo->td->request.CONNECTION, "Keep-Alive")) ;
+	keepalive =(!stringcmpi(ConnInfo->td->request.connection, "Keep-Alive")) ;
 
   /*If the HTTP header was sent do not send it again. */
 	if(!ConnInfo->headerSent)
@@ -268,12 +268,12 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			if(!ConnInfo->td->appendOutputs)
 			{
 				if(keepalive)
-					ConnInfo->td->response.TRANSFER_ENCODING.assign("chunked");
+					ConnInfo->td->response.transferEncoding.assign("chunked");
 
 				if(keepalive)
-					ConnInfo->td->response.CONNECTION.assign("Keep-Alive");
+					ConnInfo->td->response.connection.assign("Keep-Alive");
 				else
-					ConnInfo->td->response.CONNECTION.assign("Close");
+					ConnInfo->td->response.connection.assign("Close");
 				HttpHeaders::buildHTTPResponseHeader(
                  (char*)ConnInfo->td->buffer2->getBuffer(),&(ConnInfo->td->response));
 	
@@ -472,92 +472,92 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 	DWORD maxLen=*dwMaxLen;
 	char *ValStr=(char*)output;
 
-	if(td->request.ACCEPT[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT:%s\n",td->request.ACCEPT.c_str());
+	if(td->request.accept[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_accept:%s\n",td->request.accept.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.ACCEPTLAN[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
-                    td->request.ACCEPTLAN.c_str());
+	if(td->request.acceptLanguage[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_accept_LANGUAGE:%s\n",
+                    td->request.acceptLanguage.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.CACHE_CONTROL[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_CACHE_CONTROL:%s\n",
-                    td->request.CACHE_CONTROL.c_str());
+	if(td->request.cacheControl[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_cacheControl:%s\n",
+                    td->request.cacheControl.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if((td->request.RANGEBYTEBEGIN || td->request.RANGEBYTEEND) && (valLen+30<maxLen))
+	if((td->request.rangeByteBegin || td->request.rangeByteEnd) && (valLen+30<maxLen))
 	{
     ostringstream rangeBuffer;
-		rangeBuffer << "HTTP_RANGE:" << td->request.RANGETYPE << "=" ;
-    if(td->request.RANGEBYTEBEGIN)
+		rangeBuffer << "HTTP_RANGE:" << td->request.rangeType << "=" ;
+    if(td->request.rangeByteBegin)
     {
-      rangeBuffer << (int)td->request.RANGEBYTEBEGIN;
+      rangeBuffer << (int)td->request.rangeByteBegin;
     }
     rangeBuffer << "-";
-    if(td->request.RANGEBYTEEND)
+    if(td->request.rangeByteEnd)
     {
-      rangeBuffer << td->request.RANGEBYTEEND;
+      rangeBuffer << td->request.rangeByteEnd;
      }   
 		valLen+=sprintf(&ValStr[valLen],"%s\n",rangeBuffer.str().c_str());
 	}
   		
-	if(td->request.ACCEPTENC[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",
-                    td->request.ACCEPTENC.c_str());
+	if(td->request.acceptEncoding[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_accept_ENCODING:%s\n",
+                    td->request.acceptEncoding.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.CONNECTION[0] && (valLen+30<maxLen))
+	if(td->request.connection[0] && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"HTTP_CONNECTION:%s\n", 
-                    td->request.CONNECTION.c_str());
+                    td->request.connection.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.COOKIE[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_COOKIE:%s\n",td->request.COOKIE.c_str());
+	if(td->request.cookie[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_cookie:%s\n",td->request.cookie.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.HOST[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_HOST:%s\n",td->request.HOST.c_str());
+	if(td->request.host[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_host:%s\n",td->request.host.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.DATE[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_DATE:%s\n",td->request.DATE.c_str());
+	if(td->request.date[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_date:%s\n",td->request.date.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.MODIFIED_SINCE[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ifModifiedSince:%s\n",
                     td->request.MODIFIED_SINCE.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.REFERER[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_REFERER:%s\n", 
-                    td->request.REFERER.c_str());
+	if(td->request.referer[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_referer:%s\n", 
+                    td->request.referer.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.PRAGMA[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_PRAGMA:%s\n", 
-                    td->request.PRAGMA.c_str());
+	if(td->request.pragma[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_pragma:%s\n", 
+                    td->request.pragma.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.USER_AGENT[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_USER_AGENT:%s\n", 
-                    td->request.USER_AGENT.c_str());
+	if(td->request.userAgent[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_userAgent:%s\n", 
+                    td->request.userAgent.c_str());
 	else if(valLen+30<maxLen)
 		return 0;
 
-	if(td->request.FROM[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_FROM:%s\n",td->request.FROM.c_str());
+	if(td->request.from[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_from:%s\n",td->request.from.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 	return 1;
@@ -586,13 +586,13 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.URIOPTS[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"QUERY_STRING:%s\n",td->request.URIOPTS[0]);
+	if(td->request.uriOpts[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"QUERY_STRING:%s\n",td->request.uriOpts[0]);
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.CMD[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"REQUEST_METHOD:%s\n",td->request.CMD[0]);
+	if(td->request.cmd[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"REQUEST_METHOD:%s\n",td->request.cmd[0]);
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -630,9 +630,9 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 	if(valLen+MAX_PATH<maxLen)
 	{
 		valLen+=sprintf(&ValStr[valLen],"SCRIPT_NAME:");
-		lstrcpyn(&ValStr[valLen],td->request.URI.c_str(),
-             td->request.URI.length()- td->pathInfo.length()+1);
-		valLen+=(DWORD)td->request.URI.length()-td->pathInfo.length()+1;
+		lstrcpyn(&ValStr[valLen],td->request.uri.c_str(),
+             td->request.uri.length()- td->pathInfo.length()+1);
+		valLen+=(DWORD)td->request.uri.length()-td->pathInfo.length()+1;
 		valLen+=(DWORD)sprintf(&ValStr[valLen],"\n");
 	}
 	else if(valLen+30<maxLen) 
@@ -812,8 +812,8 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.ConnID = (HCONN) (connIndex + 1);
 	ExtCtrlBlk.dwHttpStatusCode = 200;
 	ExtCtrlBlk.lpszLogData[0] = '0';
-	ExtCtrlBlk.lpszMethod = (char*)td->request.CMD.c_str();
-	ExtCtrlBlk.lpszQueryString =(char*) td->request.URIOPTS.c_str();
+	ExtCtrlBlk.lpszMethod = (char*)td->request.cmd.c_str();
+	ExtCtrlBlk.lpszQueryString =(char*) td->request.uriOpts.c_str();
 	ExtCtrlBlk.lpszPathInfo = td->pathInfo.length() ? (char*)td->pathInfo.c_str() : (CHAR*)"" ;
 	if(td->pathInfo.length())
 		ExtCtrlBlk.lpszPathTranslated = (char*)td->pathTranslated.c_str();
@@ -822,7 +822,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.cbTotalBytes = td->inputData.getFileSize();
 	ExtCtrlBlk.cbAvailable = 0;
 	ExtCtrlBlk.lpbData = 0;
-	ExtCtrlBlk.lpszContentType =(char*)td->request.CONTENT_TYPE.c_str();
+	ExtCtrlBlk.lpszContentType =(char*)td->request.contentType.c_str();
 
 	connTable[connIndex].td->buffer->setLength(0);
 	connTable[connIndex].td->buffer->getAt(0)='\0';
@@ -871,7 +871,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	{
     ostringstream tmp;
     tmp <<  connTable[connIndex].dataSent;
-    connTable[connIndex].td->response.CONTENT_LENGTH.assign(tmp.str()); 
+    connTable[connIndex].td->response.contentLength.assign(tmp.str()); 
   }                                      
 
 	connTable[connIndex].Allocated = 0;
