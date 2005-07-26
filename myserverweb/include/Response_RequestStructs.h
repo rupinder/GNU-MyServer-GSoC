@@ -149,7 +149,7 @@ struct HttpRequestHeader
 	char digestQop[16+1];
 	char digestNc[10+1];
 
-  int getValue(const char* name, string& out);
+  string* getValue(const char* name, string* out);
 
   HttpRequestHeader();
   ~HttpRequestHeader();

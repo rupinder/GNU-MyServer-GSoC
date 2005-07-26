@@ -131,168 +131,200 @@ void HttpResponseHeader::free()
 	cacheControl.clear();
 	contentRange.clear();
 }
+ 
 
-int HttpRequestHeader::getValue(const char* name, string& out)
+/*!
+ *Get the value of the [name] field.
+ */
+string* HttpRequestHeader::getValue(const char* name, string* out)
 {
   if(!strcmpi(name,"cmd"))
   {
-    out.assign(cmd.c_str());
-    return 1;
+    if(out)
+      out->assign(cmd.c_str());
+    return &cmd;
   }  
 
   if(!strcmpi(name,"ver"))
   { 
-    out.assign( ver.c_str()); 
-    return 1;
+    if(out)
+      out->assign( ver.c_str()); 
+    return &ver;
   }
  
   if(!strcmpi(name,"uri"))
   { 
-    out.assign( uri.c_str()); 
-    return 1;
+    if(out)
+      out->assign( uri.c_str()); 
+    return &uri;
   } 
  
   if(!strcmpi(name,"uriOpts"))
   { 
-    out.assign( uriOpts.c_str());
-    return 1;
+    if(out)
+      out->assign( uriOpts.c_str());
+    return &uriOpts;
   } 
 
   if(!strcmpi(name,"accept"))
   { 
-    out.assign( accept.c_str()); 
-    return 1;
+    if(out)
+      out->assign( accept.c_str()); 
+    return &accept;
   }
  
   if(!strcmpi(name,"Content-Encoding"))
   { 
-    out.assign( contentEncoding.c_str()); 
-    return 1;
+    if(out)
+      out->assign( contentEncoding.c_str()); 
+    return &contentEncoding;
   }
  if(!strcmpi(name,"Transfer-Encoding"))
  { 
-   out.assign( transferEncoding.c_str()); 
-   return 1;
+   if(out)
+     out->assign( transferEncoding.c_str()); 
+   return &transferEncoding;
  }
  if(!strcmpi(name,"Authorization"))
  { 
-   out.assign( auth.c_str()); 
-   return 1;
+   if(out)
+     out->assign( auth.c_str()); 
+   return &auth;
  }
  
  if(!strcmpi(name,"Accept-Encoding"))
  { 
-   out.assign( acceptEncoding.c_str()); 
-   return 1;
+   if(out)
+     out->assign( acceptEncoding.c_str()); 
+   return &acceptEncoding;
  }
  if(!strcmpi(name,"Accept-Language"))
  { 
-   out.assign( acceptLanguage.c_str()); 
-   return 1;
+    if(out)
+   out->assign( acceptLanguage.c_str()); 
+   return &acceptLanguage;
  }
  if(!strcmpi(name,"Accept-Charset"))
  { 
-   out.assign( acceptCharset.c_str()); 
-   return 1;
+   if(out)
+     out->assign( acceptCharset.c_str()); 
+   return &acceptCharset;
  }  
  if(!strcmpi(name,"If-Modified-Since"))
  { 
-   out.assign( ifModifiedSince.c_str()); 
-   return 1;
+   if(out)
+     out->assign( ifModifiedSince.c_str()); 
+   return &ifModifiedSince;
  }  
  if(!strcmpi(name,"Connection"))
- { 
-   out.assign( connection.c_str()); 
-   return 1;
+ {     
+   if(out)
+     out->assign( connection.c_str()); 
+   return &connection;
  }  
  if(!strcmpi(name,"User-Agent"))
  { 
-   out.assign( userAgent.c_str()); 
-   return 1;
+   if(out)
+     out->assign( userAgent.c_str()); 
+   return &userAgent;
  } 
  if(!strcmpi(name,"Cookie"))
  { 
-   out.assign( cookie.c_str()); 
-   return 1;
+   if(out)
+     out->assign( cookie.c_str()); 
+   return &cookie;
  }
  if(!strcmpi(name,"Content-Type"))
  { 
-   out.assign( contentType.c_str()); 
-   return 1;
+   if(out)
+     out->assign( contentType.c_str()); 
+   return &contentType;
  } 
  if(!strcmpi(name,"Content-Length"))
  { 
-   out.assign( contentLength.c_str()); 
-   return 1;
+   if(out)
+     out->assign( contentLength.c_str()); 
+   return &contentLength;
  } 
 
  if(!strcmpi(name,"Date"))
  { 
-   out.assign( date.c_str()); 
-   return 1;
+   if(out)
+     out->assign( date.c_str()); 
+   return &date;
  } 
  if(!strcmpi(name,"Expires"))
  { 
-   out.assign( dateExp.c_str()); 
-   return 1;
+   if(out)
+     out->assign( dateExp.c_str()); 
+   return &dateExp;
  } 
  if(!strcmpi(name,"Last-Modified"))
  { 
-   out.assign( lastModified.c_str()); 
-   return 1;
+   if(out)
+     out->assign( lastModified.c_str()); 
+   return &lastModified;
  } 
 
  if(!strcmpi(name,"Cache-Control"))
  { 
-   out.assign( cacheControl.c_str()); 
-   return 1;
+   if(out)
+     out->assign( cacheControl.c_str()); 
+   return &cacheControl;
  } 
 
  if(!strcmpi(name,"Pragma"))
  { 
-   out.assign( pragma.c_str()); 
-   return 1;
+   if(out)
+     out->assign( pragma.c_str()); 
+   return &pragma;
  } 
 
  if(!strcmpi(name,"Referer"))
  { 
-   out.assign( referer.c_str()); 
-   return 1;
+   if(out)
+     out->assign( referer.c_str()); 
+   return &referer;
  } 
 
  if(!strcmpi(name,"From"))
  { 
-   out.assign( from.c_str()); 
-   return 1;
+   if(out)
+     out->assign( from.c_str()); 
+   return &from;
  } 
 
  if(!strcmpi(name,"Host"))
  { 
-   out.assign( host.c_str()); 
-   return 1;
+   if(out)
+     out->assign( host.c_str()); 
+   return &host;
  } 
 
  if(!strcmpi(name,"rangeType"))
  { 
-   out.assign( rangeType.c_str()); 
-   return 1;
+   if(out)
+     out->assign( rangeType.c_str()); 
+   return &rangeType;
  } 
  
+ if(!out)
+   return 0;
 
  if(!strcmpi(name,"rangeByteBegin"))
  {
    ostringstream s;
    s << rangeByteBegin;
-   out.assign(s.str());
-   return 1; 
+   out->assign(s.str());
+   return 0; 
  }
 
  if(!strcmpi(name,"rangeByteEnd"))
  {
    ostringstream s;
    s << rangeByteEnd;
-   out.assign(s.str());
-   return 1; 
+   out->assign(s.str());
+   return 0; 
  }
 
  {
@@ -300,7 +332,7 @@ int HttpRequestHeader::getValue(const char* name, string& out)
    char *ptr = strstr(other.c_str(), name);
    if(!ptr)
    {
-     out.assign("");
+     out->assign("");
      return 0;
    }
    ptr += strlen(name);
@@ -310,8 +342,8 @@ int HttpRequestHeader::getValue(const char* name, string& out)
    while(*ptr && (*ptr!='\n') )
      ptr++;
 
-   out.assign(s_pos, ptr - s_pos);
-   return 1;
+   out->assign(s_pos, ptr - s_pos);
+   return 0;
  }
 
 }
