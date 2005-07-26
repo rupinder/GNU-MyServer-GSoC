@@ -1422,7 +1422,6 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 	int validRequest;
   u_long dataRead=0;
   u_long dataToRead=0;
-  string tmp;
   /*! Dimension of the POST data. */
 	int content_len=-1;
   DynamicHttpCommand *dynamicCommand;
