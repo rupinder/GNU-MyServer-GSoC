@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef SECuriTY_CACHE_H
-#define SECuriTY_CACHE_H
+#ifndef SECURITY_CACHE_H
+#define SECURITY_CACHE_H
 #include "../include/hash_dictionary.h"
 #include "../include/security.h"
 
