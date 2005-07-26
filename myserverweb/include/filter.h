@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define FILTER_H
 #include "../stdafx.h"
 #include "../include/stream.h"
+#include "../include/protocol.h"
 
 /*!
  *Abstract class to handle virtual data filters.
@@ -27,8 +28,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class Filter : public Stream
 {
 protected:
+  Protocol *protocol;
   Stream *parent;
 public:
+  Protocol* getProtocol()
+  {
+    return protocol;
+  }
+  void setProtocol(Protocol* pr)
+  {
+    protocol=pr;
+  }
   virtual int getHeader(char* buffer, u_long len, u_long* nbw);
   virtual int getFooter(char* buffer, u_long len, u_long* nbw);
   virtual int read(char* buffer, u_long len, u_long*);
@@ -39,7 +49,6 @@ public:
   void setParent(Stream*);
   Stream* getParent();
   Filter();
-
   /*! Avoid direct instances of this class. */
   virtual ~Filter()=0;
 };

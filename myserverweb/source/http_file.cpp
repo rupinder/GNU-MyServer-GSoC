@@ -148,7 +148,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       td->response.contentRange.assign(buffer.str());
       useGzip = false;
     }
-
+    chain.setProtocol((Http*)td->lhttp);
     chain.setStream(&memStream);
     if(td->mime)
     {

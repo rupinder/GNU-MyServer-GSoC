@@ -83,6 +83,7 @@ FiltersChain::FiltersChain()
   acceptDuplicates=1;
   stream=0;
   firstFilter=0;
+  protocol = 0;
 }
 
 /*!
@@ -157,6 +158,8 @@ int FiltersChain::addFilter(Filter* f, u_long *nbw, int sendData)
    *The new filter will write directly the old firstFilter.
    */
   firstFilter=f;
+
+  f->setProtocol(protocol);
 
   /*! Add the filters in the list in the same order they are used. */
   filters.push_front(f);

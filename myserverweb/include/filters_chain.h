@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/stream.h"
 #include "../include/filter.h"
+#include "../include/protocol.h"
 #include <list>
 
 using namespace std;
@@ -28,11 +29,20 @@ using namespace std;
 class FiltersChain 
 {
 protected:
+  Protocol *protocol;
   list <Filter*> filters;
   Filter* firstFilter;
   Stream *stream;
   int acceptDuplicates;
 public:
+  Protocol* getProtocol()
+  {
+    return protocol;
+  }
+  void setProtocol(Protocol* pr)
+  {
+    protocol=pr;
+  }
   void setAcceptDuplicates(int);
   int getAcceptDuplicates();
   void setStream(Stream*);
