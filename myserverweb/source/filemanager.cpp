@@ -62,8 +62,10 @@ extern int mustEndServer;
 int File::getPathRecursionLevel(const char* path)
 {
 	const char *lpath=path;
-	int rec=0, temp;
-
+	int rec=0;
+#ifdef WIN32
+  int temp;
+#endif
 	while(*lpath!=0)
 	{
 	/*! ".." decreases the recursion level. */
