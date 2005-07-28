@@ -171,7 +171,7 @@ int File::openFile(const char* nfilename,u_long opt)
 
 	filename.assign(nfilename);
 #ifdef WIN32
-	SECuriTY_ATTRIBUTES sa = {0};
+	SECURITY_ATTRIBUTES sa = {0};
 	sa.nLength = sizeof(sa);
 	if(opt & FILE_NO_INHERIT)
 		sa.bInheritHandle = FALSE;
