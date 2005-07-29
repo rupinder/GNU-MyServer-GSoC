@@ -1,4 +1,3 @@
-
 /*
 *MyServer
 *Copyright (C) 2002,2003,2004 The MyServer Team
