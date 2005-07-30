@@ -38,6 +38,7 @@ extern char GZIP_HEADER[];
 class Gzip : public Filter
 {
   int active;
+	GzipData data;
 public:
 	struct GzipData
 	{
@@ -73,7 +74,5 @@ public:
 	virtual int flush(u_long*);
 	virtual int modifyData();
   virtual const char* getName(char* name, u_long len);
-private:
-	GzipData data;
 };
 #endif

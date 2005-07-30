@@ -67,6 +67,8 @@ int Filter::getFooter(char* buffer, u_long len, u_long* nbw)
  */
 Filter::Filter()
 {
+  protocol=0;
+  protocolData=0;
   parent = 0;
 }
 

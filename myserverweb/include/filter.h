@@ -30,6 +30,7 @@ class Filter : public Stream
 protected:
   Protocol *protocol;
   Stream *parent;
+  void* protocolData;
 public:
   Protocol* getProtocol()
   {
@@ -38,6 +39,14 @@ public:
   void setProtocol(Protocol* pr)
   {
     protocol=pr;
+  }
+  void* getProtocolData()
+  {
+    return protocolData;
+  }
+  void setProtocolData(void* prd)
+  {
+    protocolData=prd;
   }
   virtual int getHeader(char* buffer, u_long len, u_long* nbw);
   virtual int getFooter(char* buffer, u_long len, u_long* nbw);

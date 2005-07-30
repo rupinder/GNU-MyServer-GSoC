@@ -30,6 +30,7 @@ class FiltersChain
 {
 protected:
   Protocol *protocol;
+  void *protocolData;
   list <Filter*> filters;
   Filter* firstFilter;
   Stream *stream;
@@ -42,6 +43,14 @@ public:
   void setProtocol(Protocol* pr)
   {
     protocol=pr;
+  }
+  void* getProtocolData()
+  {
+    return protocolData;
+  }
+  void setProtocolData(void* prd)
+  {
+    protocolData=prd;
   }
   void setAcceptDuplicates(int);
   int getAcceptDuplicates();
