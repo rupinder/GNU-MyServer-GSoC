@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/gzip.h"
 #include "../include/securestr.h"
+#include "../include/http.h"
 
 extern "C" {
 #ifdef WIN32
@@ -57,6 +58,14 @@ u_long Gzip::initialize()
 #ifndef DO_NOT_USE_GZIP		
 	long level = Z_DEFAULT_COMPRESSION;
 
+  if(protocol && protocolData)
+  {
+    if(!strstr(protocol->registerName(0,0), "HTTP"))
+    {
+      active &= ((HttpThreadContext*)protocolData)->request.acceptEncoding.find("gzip")
+                                                                            != string::npos;
+    }
+  }
 	data.initialized=1;
 	data.data_size=0;
 	data.crc = crc32(0L, Z_NULL, 0);
@@ -188,6 +197,7 @@ u_long Gzip::flush(char *out, u_long sizeOut)
 /*! Constructor for the class. */
 Gzip::Gzip()
 {
+  active=1;
   initialize();
 }
 
@@ -259,6 +269,9 @@ int Gzip::read(char* buffer, u_long len, u_long *nbr)
   if(!tmp_buff)
     return -1; 
   
+  if(!active)
+    return parent->read(buffer, len, nbr);
+
   ret = parent->read(tmp_buff, len/2, &nbr_parent);
 
   if(ret == -1)
@@ -284,6 +297,9 @@ int Gzip::write(const char* buffer, u_long len, u_long *nbw)
   if(!parent)
     return -1;
 
+  if(!active)
+    return parent->write(buffer, len, nbw);
+
   while(len)
   {
     u_long nbw_parent;
@@ -308,6 +324,10 @@ int Gzip::write(const char* buffer, u_long len, u_long *nbw)
 int Gzip::flush(u_long *nbw)
 {
   char buffer[512];
+
+  if(!active)
+    return 0;
+
   *nbw = flush(buffer, 512);
   if(*nbw)
   {

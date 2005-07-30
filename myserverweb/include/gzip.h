@@ -37,6 +37,7 @@ extern char GZIP_HEADER[];
 
 class Gzip : public Filter
 {
+  int active;
 public:
 	struct GzipData
 	{
