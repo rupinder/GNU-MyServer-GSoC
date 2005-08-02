@@ -241,7 +241,7 @@ int Socket::closesocket()
 MYSERVER_HOSTENT *Socket::gethostbyaddr(char* addr,int len,int type)
 {
 #ifdef WIN32
-	hostENT *he=::gethostbyaddr(addr,len,type);
+	HOSTENT *he=::gethostbyaddr(addr,len,type);
 #endif
 #ifdef NOT_WIN
 	struct hostent * he=::gethostbyaddr(addr,len,type);

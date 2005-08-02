@@ -410,8 +410,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		MyServiceStatus.dwControlsAccepted |= (SERVICE_accept_STOP 
-                                           | SERVICE_accept_SHUTDOWN);
+		MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP 
+                                           | SERVICE_ACCEPT_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
@@ -420,8 +420,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_accept_STOP 
-                                            | SERVICE_accept_SHUTDOWN);
+		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP 
+                                            | SERVICE_ACCEPT_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 	}

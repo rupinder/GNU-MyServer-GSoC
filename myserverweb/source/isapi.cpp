@@ -473,18 +473,18 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 	char *ValStr=(char*)output;
 
 	if(td->request.accept[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_accept:%s\n",td->request.accept.c_str());
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT:%s\n",td->request.accept.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.acceptLanguage[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_accept_LANGUAGE:%s\n",
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
                     td->request.acceptLanguage.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.cacheControl[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_cacheControl:%s\n",
+		valLen+=sprintf(&ValStr[valLen],"HTTP_CACHE_CONTROL:%s\n",
                     td->request.cacheControl.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
@@ -506,7 +506,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 	}
   		
 	if(td->request.acceptEncoding[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_accept_ENCODING:%s\n",
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",
                     td->request.acceptEncoding.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
@@ -518,46 +518,46 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 		return 0;
 
 	if(td->request.cookie[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_cookie:%s\n",td->request.cookie.c_str());
+		valLen+=sprintf(&ValStr[valLen],"HTTP_COOKIE:%s\n",td->request.cookie.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.host[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_host:%s\n",td->request.host.c_str());
+		valLen+=sprintf(&ValStr[valLen],"HTTP_HOST:%s\n",td->request.host.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.date[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_date:%s\n",td->request.date.c_str());
+		valLen+=sprintf(&ValStr[valLen],"HTTP_DATE:%s\n",td->request.date.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.MODIFIED_SINCE[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ifModifiedSince:%s\n",
-                    td->request.MODIFIED_SINCE.c_str());
+	if(td->request.ifModifiedSince[0] && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
+                    td->request.ifModifiedSince.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.referer[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_referer:%s\n", 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_REFERER:%s\n", 
                     td->request.referer.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.pragma[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_pragma:%s\n", 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_PRAGMA:%s\n", 
                     td->request.pragma.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
 	if(td->request.userAgent[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_userAgent:%s\n", 
+		valLen+=sprintf(&ValStr[valLen],"HTTP_USER_AGENT:%s\n", 
                     td->request.userAgent.c_str());
 	else if(valLen+30<maxLen)
 		return 0;
 
 	if(td->request.from[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_from:%s\n",td->request.from.c_str());
+		valLen+=sprintf(&ValStr[valLen],"HTTP_FROM:%s\n",td->request.from.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 	return 1;
