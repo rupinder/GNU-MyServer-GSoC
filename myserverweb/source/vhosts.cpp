@@ -243,9 +243,10 @@ void Vhost::removeHost(const char *host)
  */
 int Vhost::isHostAllowed(const char* host)
 {
-	if(hostList == 0)/*If no hosts are specified, every host is allowed to connect to*/
-		return 1;
 	sHostList *lhl = hostList;
+  /*! If no hosts are specified then every host is allowed to connect here. */
+	if((lhl == 0) || (host == 0))
+		return 1;
 	while(lhl)
 	{
     regmatch_t pm;

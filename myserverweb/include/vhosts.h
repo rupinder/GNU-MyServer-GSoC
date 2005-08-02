@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef Vhost_IN
-#define Vhost_IN
+#ifndef VHOST_IN
+#define VHOST_IN
 
 #include "../stdafx.h"
 #include "../include/cXMLParser.h"
@@ -42,8 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include<openssl/x509.h>
 #include<openssl/rand.h>
 #else
-	#define SSL_CTX int;
-	#define SSL_METHOD int;
+#define SSL_CTX int;
+#define SSL_METHOD int;
 #endif
 
 using namespace std;
