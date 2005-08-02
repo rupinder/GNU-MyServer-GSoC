@@ -29,8 +29,15 @@ extern "C" {
 #include <sys/ioctl.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 }
+
+
+#include <sstream>
+
+using namespace std;
 
 #ifdef WIN32
 
@@ -284,6 +291,40 @@ int	Socket::setsockopt(int level,int optname,
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
 }
 
+/*!
+ *Fill the out string with a list of the local IPs. Returns 0 on success.
+ */
+int Socket::getLocalIPsList(string &out)
+{
+  char serverName[MAX_COMPUTERNAME_LENGTH];
+  MYSERVER_HOSTENT *localhe;
+  in_addr ia;
+
+  Socket::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
+  localhe=Socket::gethostbyname(serverName);
+
+  if(localhe)
+  {
+    ostringstream stream;
+    int i;
+    /*! Print all the interfaces IPs. */
+    for(i=0;(localhe->h_addr_list[i]);i++)
+    {
+#ifdef WIN32
+      ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+#endif
+#ifdef NOT_WIN
+      ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
+#endif
+      stream << ( (i!=0)?", ":"") << inet_ntoa(ia);
+    }
+    
+    out.assign(stream.str());
+    return 0;
+  }
+
+  return -1;
+}
 
 /*!
  *Send data over the socket.

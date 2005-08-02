@@ -53,6 +53,10 @@ extern "C" {
 #include <stdio.h>
 #include <unistd.h>
 }
+#include <string>
+
+using namespace std;
+
 #define SOCKET int
 #define INVALID_SOCKET -1
 #define SD_BOTH SHUT_RDWR
@@ -126,7 +130,7 @@ public:
 	int dataOnRead(int sec = 0, int usec = 500);
   u_long getThrottling();
   void setThrottling(u_long);
-
+  static int getLocalIPsList(string&);
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);
   virtual int write(const char* buffer, u_long len, u_long *nbw);

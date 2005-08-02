@@ -56,10 +56,6 @@ void* listenServer(void* pParam);
 #define CONF_FILES_MAX_PATH 260
 #endif
 
-/*!
- *Define the max number of network interfaces to consider.
- */
-#define MAX_ALLOWED_IPs 8
 /*
  *Defined in myserver.cpp
  */
@@ -111,7 +107,7 @@ private:
 	u_long buffersize2;
 	u_long getNumConnections();
 	/*! Buffer that contains all the local machine IP values.  */
-	char ipAddresses[MAX_IP_STRING_LEN*MAX_ALLOWED_IPs];
+	string ipAddresses;
 	char serverName[MAX_COMPUTERNAME_LENGTH+1];
 	string path;
   string externalPath;

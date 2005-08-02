@@ -120,7 +120,6 @@ void Server::start()
   time_t myserver_mime_conf;
   string buffer;
   int err = 0;
-  MYSERVER_HOSTENT *localhe=0;
   int os_ver=getOSVersion();
 #ifdef WIN32
   DWORD eventsCount, cNumRead; 
@@ -243,34 +242,29 @@ void Server::start()
     /*!
      *find the IP addresses of the local machine.
      */
-    localhe=Socket::gethostbyname(serverName);
-    in_addr ia;
-    ipAddresses[0]='\0';
+    ipAddresses.clear();
     buffer.assign("Host: ");
     buffer.append(serverName);
     logWriteln(buffer.c_str() ); 
-    if(localhe)
+
+    if(Socket::getLocalIPsList(ipAddresses))
     {
-      /*! Print all the interfaces IPs. */
-      for(i=0;(localhe->h_addr_list[i])&&(i< MAX_ALLOWED_IPs);i++)
-      {
-        ostringstream stream;
-#ifdef WIN32
-        ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
-#endif
-#ifdef NOT_WIN
-        ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
-#endif
-
-        stream <<  languageParser.getValue("MSG_ADDRESS") << " #" 
-               << (u_int)(i+1) << ": " << inet_ntoa(ia);
-      
-        logWriteln(stream.str().c_str());
-
-        sprintf(&ipAddresses[strlen(ipAddresses)], "%s%s", 
-                strlen(ipAddresses)?", ":"", inet_ntoa(ia));
-      }
+      string msg;
+      msg.assign(languageParser.getValue("ERR_ERROR"));
+      msg.append(" : Reading IP list");
+      logPreparePrintError();
+      logWriteln(msg.c_str());
+      logEndPrintError();
+      return;
     }
+    else
+    {
+      string msg;
+      msg.assign("IP: ");
+      msg.append(ipAddresses);
+      logWriteln(msg.c_str());  
+    }
+
     loadSettings();
   
     myserver_main_conf = File::getLastModTime(main_configuration_file.c_str());
@@ -1596,7 +1590,7 @@ u_long Server::getNumThreads()
  */
 const char *Server::getAddresses()
 {
-	return ipAddresses;
+	return ipAddresses.c_str();
 }
 
 /*!
