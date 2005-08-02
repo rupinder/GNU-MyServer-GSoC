@@ -196,9 +196,21 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		strcat(str, "\r\n");
 	}
 
-	if(response->other.length())
+	if(response->other.size())
 	{
-		strcat(str, response->other.c_str());
+    int i;
+    for(i=0; i < response->other.size(); i++)
+    {
+      HttpResponseHeader::Entry *e = response->other.getData(i);
+      if(e)
+      {
+        strcat(str, e->name.c_str());
+        strcat(str, ": ");
+        strcat(str, e->value.c_str());
+        strcat(str, "\r\n");
+      }
+      
+    }
 	}
 
 	/*!
@@ -593,7 +605,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(!request->auth.compare("Basic"))
 			{
 				u_long i;
-				char *base64=&token[strlen("Basic ")];
+				char *base64 = &token[strlen("Basic ")];
 				int len = getEndLine(base64, 64);
 				char *tmp = base64 + len - 1;
 				char* lbuffer2;
@@ -981,6 +993,18 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       tokenOff = getEndLine(token, maxTotchars);
       if(tokenOff==-1)
         return e_400;
+      if(!request->other.getData(command))
+      {
+        HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry(); 
+        if(e)
+        {
+          e->name.assign(command);
+          e->value.assign(token, tokenOff);
+          if(request->other.insert(command, e))
+            delete e;
+        }
+
+      }
 		}
     token+= tokenOff + 2;
 		tokenOff = getCharInString(token,":",maxTotchars);
@@ -1220,15 +1244,17 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
-        int len = HTTP_RESPONSE_OTHER_DIM-
-                      (response->other.length()+strlen(command)+strlen(token));
-        
-        if(len > 0)
+        if(!response->other.getData(command))
         {
-          response->other.append(command);
-          response->other.append(": ");
-          response->other.append(token);
-          response->other.append("\n");
+          HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry(); 
+          if(e)
+          {
+            e->name.assign(command);
+            e->value.assign(token);
+            if(response->other.insert(command, e))
+              delete e;
+          }
+
         }
 			}
 		}

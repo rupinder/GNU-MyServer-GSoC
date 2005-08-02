@@ -17,6 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <string>
+#include "../include/hash_dictionary.h"
 using namespace std;
 
 #ifndef RESPONSE_REQUESTSTRUCTS_H
@@ -46,6 +47,11 @@ using namespace std;
  */
 struct HttpResponseHeader
 {
+  struct Entry
+  {
+    string name;
+    string value;
+  };
 	int httpStatus;
 	string ver;	
 	string serverName;
@@ -61,12 +67,11 @@ struct HttpResponseHeader
 	string date;		
 	string dateExp;	
 	string auth;
-	string other;	
 	string contentEncoding;
 	string transferEncoding;
 	string cacheControl;
 	string contentRange;
-
+	HashDictionary<HttpResponseHeader::Entry*> other;	
   HttpResponseHeader();
   ~HttpResponseHeader();
 
@@ -108,6 +113,11 @@ struct HttpResponseHeader
  */
 struct HttpRequestHeader
 {
+  struct Entry
+  {
+    string name;
+    string value;
+  };
 	string cmd;		
 	string ver;		
 	string accept;
@@ -134,7 +144,7 @@ struct HttpRequestHeader
 	string referer;	
 	string from;
 	string host;			
-	string other;
+	HashDictionary<HttpRequestHeader::Entry*> other;
 	string rangeType;	
 	u_long  rangeByteBegin;
 	u_long  rangeByteEnd;

@@ -45,6 +45,7 @@ HttpRequestHeader::~HttpRequestHeader()
  */
 void HttpRequestHeader::free()
 {
+  int i;
   ver.clear();
 	transferEncoding.clear();	
 	contentEncoding.clear();	
@@ -70,6 +71,12 @@ void HttpRequestHeader::free()
 	host.clear();
 	cacheControl.clear();
 	ifModifiedSince.clear();
+  for(i=0; i < other.size(); i++)
+  {
+    HttpRequestHeader::Entry* e = other.getData(i);
+    if(e)
+      delete e;
+  }
 	other.clear();
 	pragma.clear();
 	rangeType.clear();
@@ -221,21 +228,12 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
    return 0;
 
  {
-   char *s_pos;
-   char *ptr = strstr(other.c_str(), name);
-   if(!ptr)
+   HttpResponseHeader::Entry *e = other.getData(name);
+   if(e)
    {
-     out->assign("");
-     return 0;
+     out->assign(e->value);      
+     return &(e->value);
    }
-   ptr += strlen(name);
-   while(*ptr && (*ptr == ':') && (*ptr == ' ')) 
-     ptr++;
-   s_pos = ptr;
-   while(*ptr && (*ptr!='\n') )
-     ptr++;
-
-   out->assign(s_pos, ptr - s_pos);
    return 0;
  }
 
@@ -263,6 +261,7 @@ HttpResponseHeader::~HttpResponseHeader()
  */
 void HttpResponseHeader::free()
 {
+  int i;
 	ver.clear();	
 	serverName.clear();
 	contentType.clear();
@@ -278,6 +277,12 @@ void HttpResponseHeader::free()
 	date.clear();		
 	auth.clear();
 	dateExp.clear();	
+  for(i=0; i < other.size(); i++)
+  {
+    HttpResponseHeader::Entry* e = other.getData(i);
+    if(e)
+      delete e;
+  }
 	other.clear();
 	lastModified.clear();
 	cacheControl.clear();
@@ -480,21 +485,12 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
  }
 
  {
-   char *s_pos;
-   char *ptr = strstr(other.c_str(), name);
-   if(!ptr)
+   HttpRequestHeader::Entry *e = other.getData(name);
+   if(e)
    {
-     out->assign("");
-     return 0;
+     out->assign(e->value);      
+     return &(e->value);
    }
-   ptr += strlen(name);
-   while(*ptr && (*ptr == ':') && (*ptr == ' ')) 
-     ptr++;
-   s_pos = ptr;
-   while(*ptr && (*ptr!='\n') )
-     ptr++;
-
-   out->assign(s_pos, ptr - s_pos);
    return 0;
  }
 

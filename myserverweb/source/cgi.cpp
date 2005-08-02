@@ -699,7 +699,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	{
   		memCgi << end_str << "REMOTE_IDENT=";
       memCgi << td->identity;
- }
+  }
 #ifdef WIN32
 	if(processEnv)
 	{
