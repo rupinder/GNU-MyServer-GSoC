@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=98
+UnitCount=100
 Type=1
 Ver=1
 ObjFiles=
@@ -1062,6 +1062,26 @@ BuildCmd=
 
 [Unit98]
 FileName=include\dyn_filter.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit99]
+FileName=include\http_header_checker.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit100]
+FileName=source\http_header_checker.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
