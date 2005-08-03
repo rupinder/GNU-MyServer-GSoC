@@ -127,7 +127,11 @@ public:
 	int operator=(Socket);
 	int getsockname(MYSERVER_SOCKADDR*,int*);
   int setNonBlocking(int);
+#ifdef __HURD__
+	int dataOnRead(int sec = 1, int usec = 500);
+#else
 	int dataOnRead(int sec = 0, int usec = 500);
+#endif
   u_long getThrottling();
   void setThrottling(u_long);
   static int getLocalIPsList(string&);
