@@ -39,6 +39,17 @@ extern "C"
 #endif
 }
 
+
+/*!
+ *Add a rule to check to the chain.
+ */
+void HttpHeaderChecker::addRule(HttpHeaderChecker::Rule& r)
+{
+  HttpHeaderChecker::Rule* r2 = new Rule(r); 
+  if(r2)
+    addRule(r2);
+}
+
 /*!
  *Add a rule to check to the chain.
  */
@@ -68,7 +79,7 @@ void HttpHeaderChecker::clear()
  */
 HttpHeaderChecker::HttpHeaderChecker()
 {
-  
+  defaultCmd=ALLOW;
 }
 
 /*!
@@ -91,7 +102,7 @@ int HttpHeaderChecker::isAllowed(HttpHeader* h)
     if(val && (*i)->value.isCompiled())
     {
       regmatch_t pm;
-      if((*i)->value.exec(val->c_str(), 1,&pm, REG_NOTBOL))
+      if(!(*i)->value.exec(val->c_str(), 1,&pm, REG_NOTEOL))
       {
         return (*i)->cmd;
       }
@@ -133,10 +144,10 @@ void HttpHeaderChecker::clone(HttpHeaderChecker& h)
 {
   list<HttpHeaderChecker::Rule*>::iterator i = h.rules.begin();
   clear();
-  for(;i != rules.end(); i++)
+  for(;i != h.rules.end(); i++)
   {
     HttpHeaderChecker::Rule* r = new HttpHeaderChecker::Rule(*(*i));
-    rules.push_back(r);
+    addRule(r);
   }  
 
   defaultCmd = h.defaultCmd;

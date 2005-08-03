@@ -1141,7 +1141,13 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
         td->response.contentType.assign("text/html");
         mimecmd = CGI_CMD_SEND;
         data.assign("");
-      }        
+      }
+    }
+
+    if(td->mime && 
+       !((MimeManager::MimeRecord*)td->mime)->headerChecker.isAllowed(&(td->request) ))
+    {
+      return sendAuth(td, s);
     }
 
     if(mimecmd==CGI_CMD_RUNCGI)

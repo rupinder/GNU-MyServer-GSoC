@@ -32,14 +32,14 @@ using namespace std;
 class HttpHeaderChecker
 {
 public:
-  enum CMD{DENY_IF=0,  ACCEPT_IF=1};  
+  enum CMD{DENY=0,  ALLOW=1};  
   struct Rule
   {
     string name;
     Regex value;
     CMD cmd;
     Rule()
-    {name.assign(""); cmd=DENY_IF;}
+    {name.assign(""); cmd=ALLOW;}
 
     Rule(Rule& r)
     {name.assign(r.name); value.clone(r.value); cmd=r.cmd;}
@@ -48,6 +48,7 @@ public:
   HttpHeaderChecker(HttpHeaderChecker&);
   ~HttpHeaderChecker();  
   void addRule(HttpHeaderChecker::Rule*);
+  void addRule(HttpHeaderChecker::Rule&);
   void clear();
   int isAllowed(HttpHeader*);
   CMD getDefaultCmd();
