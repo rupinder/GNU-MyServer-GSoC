@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/stream.h"
 
+#include <string>
+using namespace std;
+
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
 #include<openssl/crypto.h>
@@ -53,9 +56,6 @@ extern "C" {
 #include <stdio.h>
 #include <unistd.h>
 }
-#include <string>
-
-using namespace std;
 
 #define SOCKET int
 #define INVALID_SOCKET -1
