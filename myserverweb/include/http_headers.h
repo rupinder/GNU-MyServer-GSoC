@@ -18,13 +18,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef HTTP_HEADERS_H
 #define HTTP_HEADERS_H
+
 #include "../stdafx.h"
+#include "../include/MIME_manager.h"
 #include "../include/Response_RequestStructs.h"
 #include "../include/stringutils.h"
 #include "../include/filemanager.h"
 #include "../include/MemBuf.h"
 #include "../include/connectionstruct.h"
-#include "../include/MIME_manager.h"
 
 extern "C" {
 #ifdef WIN32
@@ -40,9 +41,8 @@ extern "C" {
 #include <string>
 using namespace std;
 
-#ifndef WIN32
-#include "../include/lfind.h"
 
+#ifndef WIN32
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 #endif
@@ -88,8 +88,8 @@ struct HttpThreadContext
 	File inputData;
 	File outputData;
 	int auth_scheme;
-  MimeManager::MimeRecord *mime;
 	void* lhttp;
+  void* mime;
 };
 
 

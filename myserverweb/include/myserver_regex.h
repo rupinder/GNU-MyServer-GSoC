@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef MYSERVER_REGEX_IN
-#define MYSERVER_REGEX_IN
+#ifndef MYSERVER_REGEX_H
+#define MYSERVER_REGEX_H
 
 #include "../stdafx.h"
 #ifndef _VC
@@ -43,8 +43,12 @@ class Regex
   regex_t compiled_regex;
   regmatch_t match;
   int compiled;
+  string pattern;
+  int flags;
 public:
   Regex();
+  void clone(Regex&);
+  Regex(Regex&);
   Regex(const char *pattern, int flags);
   ~Regex();
   int isCompiled();
@@ -57,4 +61,5 @@ public:
   int exec(string const &str, size_t nmatch, regmatch_t matchptr [], int eflags)
     {return exec(str.c_str(), nmatch, matchptr, eflags);}
 };
+
 #endif

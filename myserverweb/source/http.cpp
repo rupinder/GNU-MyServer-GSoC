@@ -1132,9 +1132,9 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       /*! Set the default content type, this can be changed later. */
       if(td->mime)
       {
-        td->response.contentType.assign(td->mime->mime_type);
-        mimecmd = td->mime->command;
-        data.assign(td->mime->cgi_manager);
+        td->response.contentType.assign(((MimeManager::MimeRecord*)td->mime)->mime_type);
+        mimecmd = ((MimeManager::MimeRecord*)td->mime)->command;
+        data.assign(((MimeManager::MimeRecord*)td->mime)->cgi_manager);
       }
       else
       {
@@ -2514,7 +2514,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	{
 		gzipThreshold=atoi(data);
 	}	
-	data=configurationFileManager.getValue("ALLOW_Vhost_MIME");
+	data=configurationFileManager.getValue("ALLOW_VHOST_MIME");
 	if(data)
 	{
 

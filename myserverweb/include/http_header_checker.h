@@ -18,16 +18,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef HTTP_HEADER_CHECKER_H
 #define HTTP_HEADER_CHECKER_H
+
 #include "../stdafx.h"
-#include "../include/protocol.h"
 #include "../include/http_headers.h"
 #include "../include/myserver_regex.h"
-#include "../include/security_cache.h"
-#include "../include/cXMLParser.h"
-#include "../include/threads.h"
-#include "../include/http_file.h"
-#include "../include/http_dir.h"
-#include "../include/dyn_http_command.h"
+#include "../include/Response_RequestStructs.h"
 
 #include <string>
 #include <sstream>
@@ -43,18 +38,24 @@ public:
     string name;
     Regex value;
     CMD cmd;
+    Rule()
+    {name.assign(""); cmd=DENY_IF;}
+
+    Rule(Rule& r)
+    {name.assign(r.name); value.clone(r.value); cmd=r.cmd;}
   };
   HttpHeaderChecker();
+  HttpHeaderChecker(HttpHeaderChecker&);
   ~HttpHeaderChecker();  
   void addRule(HttpHeaderChecker::Rule*);
   void clear();
   int isAllowed(HttpHeader*);
   CMD getDefaultCmd();
   void setDefaultCmd(CMD);
+  void clone(HttpHeaderChecker&);
 protected:
   list<HttpHeaderChecker::Rule*> rules;
   CMD defaultCmd;
-  HttpHeader * obj;
 };
 
 #endif

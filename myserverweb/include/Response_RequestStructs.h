@@ -19,8 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include "../include/hash_dictionary.h"
 
-#ifndef RESPONSE_REQUESTSTRUCTS_H
-#define RESPONSE_REQUESTSTRUCTS_H
+#ifndef RESPONSE_REQUEST_STRUCTS_H
+#define RESPONSE_REQUEST_STRUCTS_H
 
 using namespace std;
 
@@ -176,5 +176,6 @@ struct HttpRequestHeader : public HttpHeader
   ~HttpRequestHeader();
   void free();
  
-}; 
+};
+
 #endif

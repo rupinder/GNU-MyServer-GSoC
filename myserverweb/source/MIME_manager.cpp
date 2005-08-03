@@ -43,6 +43,7 @@ int MimeManager::load(const char *fn)
   char commandString[16];
 	File f;
 	u_long nbw, fs;
+  u_long nc=0;
 	MimeManager::MimeRecord record;  
   if(fn == 0)
     return -1;
@@ -60,7 +61,7 @@ int MimeManager::load(const char *fn)
 
 	f.readFromFile(buffer,fs,&nbw);
 	f.closeFile();
-	for(u_long nc=0;;)
+	for(;;)
 	{
 		/*!
      *Do not consider the \r \n and space characters.
@@ -198,6 +199,7 @@ MimeManager::MimeRecord::MimeRecord(MimeRecord& m)
   mime_type.assign(m.mime_type);
   command=m.command; 
   cgi_manager.assign(m.cgi_manager);
+  headerChecker.clone(m.headerChecker);
 } 
 
 /*!
@@ -374,9 +376,9 @@ int MimeManager::saveXML(const char *filename)
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
 	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
 
-	for(i=0; i<data.size(); i++)
+	for(i=0; i < data.size(); i++)
 	{
-    MimeRecord *rc=data.getData(i);
+    MimeRecord *rc = data.getData(i);
 		char command[16];
     if(!rc)
        break;
@@ -520,7 +522,7 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
  */
 int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 {
-  MimeManager::MimeRecord *mr=data.getData(ext.c_str());
+  MimeManager::MimeRecord *mr = data.getData(ext.c_str());
 	if(mr)
 	{
 		if(!stringcmpi(mr->extension, ext.c_str()))
@@ -567,7 +569,7 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
   {
     if(mr->cgi_manager.length())
     {
-      *dest2=new char[mr->cgi_manager.length()+1];
+      *dest2 = new char[mr->cgi_manager.length()+1];
       if(*dest2==0)
         return 0;
       strcpy(*dest2, mr->cgi_manager.c_str());
@@ -598,9 +600,7 @@ int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
     dest.assign(mr->mime_type);
 			
     if(mr->cgi_manager.length())
-    {
       dest2.assign(mr->cgi_manager.c_str());
-    }
     else
       dest2.assign("");
 			

@@ -154,8 +154,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(td->mime)
     {
       u_long nbw;
-      if(lserver->getFiltersFactory()->chain(&chain, td->mime->filters, 
-                                             &memStream, &nbw))
+      if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+                                             ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                                         &memStream, &nbw))
       {
         h.closeFile();
         chain.clearAllFilters();

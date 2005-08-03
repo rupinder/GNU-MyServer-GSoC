@@ -999,7 +999,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         if(e)
         {
           e->name.assign(command, HTTP_RESPONSE_OTHER_DIM);
-          e->value.assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff) );
+          e->value.assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
           if(request->other.insert(command, e))
             delete e;
         }

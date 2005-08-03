@@ -115,5 +115,29 @@ HttpHeaderChecker::CMD HttpHeaderChecker::getDefaultCmd()
  */
 void HttpHeaderChecker::setDefaultCmd(HttpHeaderChecker::CMD cmd)
 {
-  defaultCmd=cmd;
+  defaultCmd = cmd;
+}
+
+/*!
+ *Construct by copy.
+ */
+HttpHeaderChecker::HttpHeaderChecker(HttpHeaderChecker& hhc)
+{
+  clone(hhc);
+}
+
+/*!
+ *Create a clone of the object.
+ */
+void HttpHeaderChecker::clone(HttpHeaderChecker& h)
+{
+  list<HttpHeaderChecker::Rule*>::iterator i = h.rules.begin();
+  clear();
+  for(;i != rules.end(); i++)
+  {
+    HttpHeaderChecker::Rule* r = new HttpHeaderChecker::Rule(*(*i));
+    rules.push_back(r);
+  }  
+
+  defaultCmd = h.defaultCmd;
 }

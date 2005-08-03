@@ -24,9 +24,11 @@ regmatch_t match;
 /*!
  *Compile the regex pattern.
  */
-int Regex::compile(const char *pattern, int flags)
+int Regex::compile(const char *p, int f)
 {
-  int ret = regcomp(&compiled_regex, pattern, flags);
+  int ret = regcomp(&compiled_regex, p, f);
+  pattern.assign(p);
+  flags=f;
   if(!ret)
     compiled = 1;
   return ret;
@@ -45,7 +47,7 @@ int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [],
 }
 
 /*!
- *free the used memory.
+ *Free the used memory.
  */
 void Regex::free()
 {
@@ -83,4 +85,20 @@ Regex::Regex(const char *pattern, int flags)
 int Regex::isCompiled()
 {
   return compiled;
+}
+
+/*!
+ *Construct by copy.
+ */
+Regex::Regex(Regex& r)
+{
+  clone(r);
+}
+
+/*!
+ *Create a clone.
+ */
+void Regex::clone(Regex& r)
+{
+  compile(r.pattern.c_str(), r.flags);
 }

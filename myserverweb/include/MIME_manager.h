@@ -16,11 +16,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #ifndef MIME_MANAGER_H
 #define MIME_MANAGER_H
 
 #include "../include/utility.h"
+#include "../include/hash_dictionary.h"
+#include "../include/http_header_checker.h"
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -34,8 +36,6 @@ extern "C" {
 #include <io.h>
 #endif
 }
-
-#include "../include/hash_dictionary.h"
 
 #include <string>
 #include <map>
@@ -91,21 +91,15 @@ public:
 		int command;
 		string cgi_manager;
     unsigned int extensionHashCode;
+    HttpHeaderChecker headerChecker;
     MimeRecord()
-    {filters.clear();extension.assign(""); mime_type.assign(""); 
-       cgi_manager.assign(""); command=extensionHashCode=0;}
-    MimeRecord(MimeRecord& m);
+    {headerChecker.clear(); filters.clear(); extension.assign(""); 
+    mime_type.assign(""); cgi_manager.assign(""); command=extensionHashCode=0;}
+    MimeRecord(MimeRecord&);
     int addFilter(const char*, int acceptDuplicate=1);
     ~MimeRecord();
     void clear();
   };
-
-private:
-  int loaded;
-  HashDictionary<MimeRecord*> data;
-	u_long numMimeTypesLoaded;
-	string filename;
-public:
 	const char *getFilename();
 	MimeManager();
   ~MimeManager();
@@ -137,5 +131,11 @@ public:
   int getMIME(int id,string& ext,string& dest,string& dest2);
 	void clean();
   int isLoaded();
+
+private:
+  int loaded;
+  HashDictionary<MimeRecord*> data;
+	u_long numMimeTypesLoaded;
+	string filename;
 };
 #endif 
