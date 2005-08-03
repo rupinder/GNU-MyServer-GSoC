@@ -18,10 +18,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 #include "../include/hash_dictionary.h"
-using namespace std;
 
 #ifndef RESPONSE_REQUESTSTRUCTS_H
 #define RESPONSE_REQUESTSTRUCTS_H
+
+using namespace std;
+
+struct HttpHeader
+{
+  virtual string* getValue(const char* name, string* out)=0;
+  virtual ~HttpHeader(){}
+};
+
 #define HTTP_RESPONSE_ver_DIM 10
 #define HTTP_RESPONSE_SERVER_NAME_DIM 64
 #define HTTP_RESPONSE_CONTENT_TYPE_DIM 48
@@ -45,7 +53,7 @@ using namespace std;
 /*!
  *Structure to describe an HTTP response
  */
-struct HttpResponseHeader
+struct HttpResponseHeader : public HttpHeader
 {
   struct Entry
   {
@@ -75,7 +83,7 @@ struct HttpResponseHeader
   HttpResponseHeader();
   ~HttpResponseHeader();
 
-  string* getValue(const char* name, string* out);
+  virtual string* getValue(const char* name, string* out);
 
   void free();
 };
@@ -111,7 +119,7 @@ struct HttpResponseHeader
 /*!
  *Structure to describe an HTTP request.
  */
-struct HttpRequestHeader
+struct HttpRequestHeader : public HttpHeader
 {
   struct Entry
   {
@@ -162,7 +170,7 @@ struct HttpRequestHeader
 	char digestQop[16+1];
 	char digestNc[10+1];
 
-  string* getValue(const char* name, string* out);
+  virtual string* getValue(const char* name, string* out);
 
   HttpRequestHeader();
   ~HttpRequestHeader();
