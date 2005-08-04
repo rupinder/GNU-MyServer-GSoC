@@ -212,6 +212,7 @@ void MimeManager::MimeRecord::clear()
   {
     delete (*i);
   }
+  filters.clear();
   headerChecker.clear();
   extension.assign(""); 
   mime_type.assign(""); 
