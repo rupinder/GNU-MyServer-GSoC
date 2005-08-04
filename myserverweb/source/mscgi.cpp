@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
 #include "../include/utility.h"
-
+#include "../include/filters_chain.h"
 #include <sstream>
 using namespace std; 
 
@@ -45,6 +45,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
    */
   ostringstream tmpStream;
   ostringstream outDataPath;
+  FiltersChain chain;
+  u_long nbw;
 #ifndef WIN32
 #ifdef DO_NOT_USE_MSCGI
 	/*!
@@ -60,7 +62,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
   CGIMAIN ProcMain=0;
 	u_long nbr=0;
   int ret = 0;
-  int nbs=0;
+  u_long nbs=0;
 	MsCgiData data;
  	data.envString=td->request.uriOptsPtr ?
                     td->request.uriOptsPtr : (char*) td->buffer->getBuffer();
@@ -92,6 +94,23 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	{
 		data.stdOut.setHandle(td->outputData.getHandle());
 	}
+
+  chain.setProtocol((Http*)td->lhttp);
+  chain.setProtocolData(td);
+  chain.setStream(&(td->connection->socket));
+  if(td->mime)
+  {
+    if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                                       &(td->connection->socket) , &nbw, 1))
+      {
+        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
+        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        chain.clearAllFilters(); 
+        return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      }
+  }
 
 	ret = hinstLib.loadLibrary(exec, 0);
 
@@ -133,6 +152,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       data.stdOut.closeFile();
       File::deleteFile(outDataPath.str().c_str());
     }
+    chain.clearAllFilters(); 
     /*! Internal server error. */
     return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
@@ -141,6 +161,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
 		if(errID!=-1)
     {
+      chain.clearAllFilters(); 
 			data.stdOut.closeFile();
 			File::deleteFile(outDataPath.str().c_str());
 			return ((Http*)td->lhttp)->raiseHTTPError(td, s, errID);
@@ -172,8 +193,12 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       /*! Internal server error. */
       return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
+
     if(onlyHeader)
     {
+      data.stdOut.closeFile();
+      File::deleteFile(outDataPath.str().c_str());
+      chain.clearAllFilters(); 
       return 1;
     }
 		do
@@ -181,17 +206,18 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			data.stdOut.readFromFile(buffer,bufferSize,&nbr);
 			if(nbr)
 			{
-				nbs=s->socket.send(buffer,nbr,0);
-				if(nbs==-1)
+				if(chain.write(buffer,nbr,&nbs))
 				{
 					if(!td->appendOutputs)
 					{
 						data.stdOut.closeFile();
 						File::deleteFile(outDataPath.str().c_str());
           }
+          chain.clearAllFilters(); 
           /*! Internal server error. */
           return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 				}	
+        nbw += nbs;
 			}
 		}while(nbr && nbs);
 		if(!td->appendOutputs)
@@ -200,6 +226,13 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			File::deleteFile(outDataPath.str().c_str());
 		}
 	}
+
+	{
+    ostringstream tmp;
+    tmp <<  nbw;
+    td->response.contentLength.assign(tmp.str()); 
+  } 
+  chain.clearAllFilters(); 
 	return 1;
 
 #endif
