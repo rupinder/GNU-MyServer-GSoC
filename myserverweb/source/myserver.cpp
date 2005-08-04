@@ -16,7 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #include "../stdafx.h"
 #include "../include/cserver.h"
 #include "../include/stringutils.h"
@@ -115,27 +114,32 @@ static struct argp_option options[] =
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {	
-  argp_input *in = (argp_input*)state->input;
+  argp_input *in = static_cast<argp_input*>(state->input);
   switch(key)
   {
      case 'v':
        in->version = 1;
        break;
+       
      case 'r':
        if(!strcmpi(arg, "CONSOLE"))
          in->runas = MYSERVER_RUNAS_CONSOLE;
-       if(!strcmpi(arg, "SERVICE"))
+       else if(!strcmpi(arg, "SERVICE"))
          in->runas = MYSERVER_RUNAS_SERVICE;
        break;
+       
      case 'l':
        in->logFileName = arg;
        break;
+       
      case 'p':
        in->pidFileName = arg;
        break;
+       
      case ARGP_KEY_ARG:
      case ARGP_KEY_END:
        break;
+       
      default:
        return static_cast<error_t>(ARGP_ERR_UNKNOWN);
   }
