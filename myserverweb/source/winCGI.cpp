@@ -131,7 +131,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
         ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-        stdOutFile.closeFile();
+
         chain.clearAllFilters(); 
         return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
       }
@@ -373,7 +373,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	}
 	else
   {
-    u_ong nbw2;
+    u_long nbw2;
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                           &td->response);
     if(onlyHeader)
