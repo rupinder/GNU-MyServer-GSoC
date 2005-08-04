@@ -352,7 +352,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
   {
     ostringstream buffer;
     buffer << ConnInfo->dataSent;
-    td->response.contentLength.assign(buffer.str());
+    ConnInfo->td->response.contentLength.assign(buffer.str());
   }
 
 	if (nbw!=-1) 
@@ -736,9 +736,8 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
         ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-        stdOutFile.closeFile();
         connTable[connIndex].chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+        return ((Http*)td->lhttp)->raiseHTTPError(td, connection, e_500);
       }
   }
 
