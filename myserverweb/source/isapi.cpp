@@ -53,8 +53,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
   int ret;
 	char *buffer=0;	
 	char uri[MAX_PATH];/*! Under windows use MAX_PATH. */	
-
-	Isapi::isapi_mutex->lock();
+  Isapi::isapi_mutex->lock();
 	ConnInfo = Isapi::HConnRecord(hConn);
 	Isapi::isapi_mutex->unlock();
 	if (ConnInfo == NULL) 
@@ -67,7 +66,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 		return 0;
 	}
 
-	switch (dwHSERRequest) 
+ 	switch (dwHSERRequest) 
 	{
 		case HSE_REQ_MAP_URL_TO_PATH_EX:
 			HSE_URL_MAPEX_INFO  *mapInfo;
@@ -78,17 +77,18 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                                                 tmp,(char*)lpvBuffer,0);
       if(ret!=e_200)
         return 1;
-			mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
+			
+      mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
 			mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
       delete [] mapInfo->lpszPath;
       mapInfo->lpszPath = new char[tmp.length()+1];
       if(mapInfo->lpszPath == 0)
-     if(buffer==0)
-      {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return 0;            
-      }
-       strcpy(mapInfo->lpszPath, tmp.c_str());
+        if(buffer==0)
+        {
+          SetLastError(ERROR_INSUFFICIENT_BUFFER);
+          return 0;            
+        }
+      strcpy(mapInfo->lpszPath, tmp.c_str());
 			mapInfo->dwFlags = HSE_URL_FLAGS_WRITE|HSE_URL_FLAGS_SCRIPT 
                                             | HSE_URL_FLAGS_EXECUTE;
 			break;
@@ -309,9 +309,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				}
 				else
 				{
-					nbw=(u_long)ConnInfo->connection->socket.send((char*)(buffer+headerSize), 
-                                                        len, 0);
-					if((nbw == (u_long)-1))
+          if(ConnInfo->chain.write((char*)(buffer+headerSize), 
+                                   len, &nbw))
 						return 0;
           ConnInfo->dataSent += nbw;
 				}
@@ -349,6 +348,12 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	}
 
 	*lpdwBytes = nbw;
+
+  {
+    ostringstream buffer;
+    buffer << ConnInfo->dataSent;
+    td->response.contentLength.assign(buffer.str());
+  }
 
 	if (nbw!=-1) 
 	{
@@ -717,6 +722,26 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
+
+  connTable[connIndex].chain.setProtocol((Http*)td->lhttp);
+  connTable[connIndex].chain.setProtocolData(td);
+  connTable[connIndex].chain.setStream(&(td->connection->socket));
+  if(td->mime)
+  {
+    u_long nbw;
+    if(td->mime && lserver->getFiltersFactory()->chain(&(connTable[connIndex].chain), 
+                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                                       &(td->connection->socket) , &nbw, 1))
+      {
+        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
+        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        stdOutFile.closeFile();
+        connTable[connIndex].chain.clearAllFilters(); 
+        return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      }
+  }
+
 	connTable[connIndex].connection = connection;
 	connTable[connIndex].td = td;
   connTable[connIndex].onlyHeader = onlyHeader;
@@ -745,6 +770,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			((Vhost*)(td->connection->host))->warningsLogWrite(msg.c_str());
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
+    connTable[connIndex].chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	if(!GetExtensionVersion(&Ver)) 
@@ -763,6 +789,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			((Vhost*)(td->connection->host))->warningsLogWrite(msg.c_str());
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
+    connTable[connIndex].chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
@@ -780,6 +807,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			((Vhost*)(td->connection->host))->warningsLogWrite("\r\n");
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
+    connTable[connIndex].chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 	/*!
@@ -836,6 +864,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     appHnd.close();
+    connTable[connIndex].chain.clearAllFilters(); 
     return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
 	}
 
@@ -873,7 +902,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     tmp <<  connTable[connIndex].dataSent;
     connTable[connIndex].td->response.contentLength.assign(tmp.str()); 
   }                                      
-
+  connTable[connIndex].chain.clearAllFilters(); 
 	connTable[connIndex].Allocated = 0;
 	return retvalue;
 #else

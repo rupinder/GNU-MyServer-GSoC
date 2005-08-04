@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/utility.h"
 #include "../include/winCGI.h"
 #include "../include/stringutils.h"
+#include "../include/filters_chain.h"
 extern "C" 
 {
 #ifdef WIN32
@@ -83,6 +84,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                  int /*execute*/, int onlyHeader)
 {
 #ifdef WIN32
+  FiltersChain chain;
   Process proc;
 	u_long nbr;
 	char  dataFilePath[MAX_PATH];/*! Use MAX_PATH under windows. */
@@ -93,7 +95,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	time_t ltime=100;
 	int gmhour;
 	int bias;
-
+  
   int ret;
 	char execname[MAX_PATH];/*! Use MAX_PATH under windows. */
 	char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
@@ -116,6 +118,26 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	strcat(outFilePath,"WC");
 	td->inputData.setFilePointer(0);
 
+  chain.setProtocol((Http*)td->lhttp);
+  chain.setProtocolData(td);
+  chain.setStream(&(td->connection->socket));
+  if(td->mime)
+  {
+    u_long nbw2;
+    if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                                       &(td->connection->socket) , &nbw2, 1))
+      {
+        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
+        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        stdOutFile.closeFile();
+        chain.clearAllFilters(); 
+        return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      }
+  }
+	
+
 	/*!
    *The WinCGI protocol uses a .ini file to send data to the new process.
    */
@@ -128,6 +150,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
+
 	td->buffer2->setLength(0);
 	buffer=td->buffer2->getBuffer();
 
@@ -250,6 +273,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			DataFileHandle.closeFile();
 			File::deleteFile(outFilePath);
 			File::deleteFile(dataFilePath);
+      chain.clearAllFilters(); 
 			return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 		}
 	}
@@ -269,6 +293,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
+    chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 
@@ -281,6 +306,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite(msg.str().c_str());
 		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+    chain.clearAllFilters();
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 	OutFileHandle.readFromFile(buffer,td->buffer2->getRealLength(),&nBytesRead);
@@ -295,6 +321,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		OutFileHandle.closeFile();
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
+    chain.clearAllFilters();
 		return ((Http*)td->lhttp)->raiseHTTPError(td,s,e_500);
 	}
 
@@ -322,6 +349,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	td->response.contentLength.assign(stream.str());
 	if(!td->appendOutputs)
 	{
+    u_long nbw2;
     /*!
      *Send the header if it is not appending.
      */
@@ -334,23 +362,29 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
       OutFileHandle.closeFile();
       File::deleteFile(outFilePath);
       File::deleteFile(dataFilePath);
+      chain.clearAllFilters();
       return 1;
     }
     /*!
      *Send other data in the buffer.
      */
-		s->socket.send((char*)(buffer+headerSize),nBytesRead-headerSize, 0);
+		chain.write((char*)(buffer+headerSize),nBytesRead-headerSize, &nbw2);
+    nbw += nbw2;
 	}
 	else
   {
+    u_ong nbw2;
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                           &td->response);
     if(onlyHeader)
     {
+      chain.clearAllFilters();
       return 1;
     }
+    
 		td->outputData.writeToFile((char*)(buffer+headerSize),
-                               nBytesRead-headerSize,&nbw);
+                               nBytesRead-headerSize,&nbw2);
+    nbw +=    nbw2;
   }
 
   /*! Flush the rest of the file. */
@@ -368,17 +402,20 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
           OutFileHandle.closeFile();
           File::deleteFile(outFilePath);
           File::deleteFile(dataFilePath);
+          chain.clearAllFilters();
           return 0;
         }
       }			
       else
       {
-				ret = s->socket.send((char*)buffer,nBytesRead, 0);
+        u_long nbw2;
+				ret = chain.write((char*)buffer,nBytesRead, &nbw2);
         if(ret == -1)
         {
           OutFileHandle.closeFile();
           File::deleteFile(outFilePath);
           File::deleteFile(dataFilePath);
+          chain.clearAllFilters();
           return 0;
         }
       }
@@ -387,7 +424,14 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			break;
 
 	}while(nBytesRead);
-	
+
+  {
+    ostringstream buffer;
+    buffer << nbw;
+    td->response.contentLength.assign(buffer.str());
+  }
+
+  chain.clearAllFilters();	
 	OutFileHandle.closeFile();
 	File::deleteFile(outFilePath);
 	File::deleteFile(dataFilePath);
