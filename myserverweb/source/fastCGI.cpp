@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /*!
  *To get more info about the FastCGI protocol please visit the official FastCGI site
  *at: http://www.fastcgi.com.
- *On that site you can find samples and all the languages supported.
+ *On that site you can find samples and all the supported languages.
  */
 #include "../include/fastCGI.h"
 #include "../include/cgi.h"
@@ -414,7 +414,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		}
 		if(con.sock.bytesToRead())
     {
-			nbr=con.sock.recv((char*)&header,sizeof(FcgiHeader),0);
+			nbr=con.sock.recv((char*)&header, sizeof(FcgiHeader), 0, static_cast<u_long>(timeout));
       if(nbr == (u_long)-1)
       {
         td->buffer->setLength(0);
@@ -465,7 +465,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 					break;
 				case FCGISTDOUT:
 					nbr=con.sock.recv(td->buffer->getBuffer(), (dim < td->buffer->getRealLength())
-                            ? dim: td->buffer->getRealLength(), 0);
+                            ? dim: td->buffer->getRealLength(), 0, static_cast<u_long>(timeout));
           if(nbr == (u_long)-1)
           {
 						exit = 1;
@@ -492,8 +492,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 					{
 						if( con.sock.bytesToRead() )
             {
-							nbr=con.sock.recv(td->buffer->getBuffer(), (dim<data_sent)?dim :data_sent, 
-                                td->buffer->getRealLength(), 0);
+							nbr=con.sock.recv(td->buffer->getBuffer(), 
+                                std::min(static_cast<u_long>(td->buffer->getRealLength()), 
+                                                                  dim-data_sent), 0, 
+                                static_cast<u_long>(timeout));
               if(nbr == (u_long)-1)
               {
                 exit = 1;
