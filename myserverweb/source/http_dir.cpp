@@ -16,10 +16,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
+#include "../stdafx.h"
+#include "../include/cserver.h"
 #include "../include/http.h"
 #include "../include/http_headers.h"
 #include "../include/http_dir.h"
+#include "../include/filters_chain.h"
 
 extern "C" 
 {
@@ -89,6 +91,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
   string filename;
 	int ret;
 	FindData fd;
+  FiltersChain chain;
 	int startchar=0;
 	int nDirectories=0;
 	int i;
@@ -113,6 +116,24 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
 	}
+
+
+  chain.setProtocol((Http*)td->lhttp);
+  chain.setProtocolData(td);
+  chain.setStream(&(td->connection->socket));
+  if(td->mime)
+  {
+    if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                                       &(td->connection->socket) , &nbw, 1))
+      {
+        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
+        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        chain.clearAllFilters(); 
+        return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      }
+  }
 
 	for(i=0;td->request.uri[i];i++)
 	{
@@ -150,6 +171,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	{
     /*! Return an internal server error. */
 		td->outputData.closeFile();
+    chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
   browseDirCSSpath = ((Http*)td->lhttp)->getBrowseDirCSSFile();
@@ -177,6 +199,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 				if(ret)
 				{
 					td->outputData.closeFile();
+          chain.clearAllFilters(); 
 					/* Return an internal server error.  */
 					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
@@ -196,6 +219,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 				if(ret)
 				{
 					td->outputData.closeFile();
+          chain.clearAllFilters(); 
 					/* Return an internal server error.  */
 					return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 				}
@@ -224,6 +248,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	ret=fd.findfirst(filename.c_str());
 	if(ret==-1)
 	{
+    chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_404);
 	}
 	/*! 
@@ -237,6 +262,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	if(ret)
 	{
 		td->outputData.closeFile();
+    chain.clearAllFilters(); 
 		/* Return an internal server error.  */
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
@@ -282,6 +308,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		{
 			fd.findclose();
 			td->outputData.closeFile();
+      chain.clearAllFilters(); 
 			/* Return an internal server error.  */
 			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
@@ -317,12 +344,17 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			*bufferloop='/';
 	if(!lstrcmpi(td->request.connection.c_str(), "Keep-Alive"))
 		td->response.connection.assign( "Keep-Alive");
+
   {
     ostringstream tmp;
     tmp << td->outputData.getFileSize();
     td->response.contentLength.assign(tmp.str());
   }
-	/*! If we haven't to append the output build the HTTP header and send the data.  */
+
+	/*! 
+   *If we haven't to append the output build the HTTP header 
+   *and send the data.  
+   */
 	if(!td->appendOutputs)
   {
 		u_long nbr=0;
@@ -334,7 +366,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
                        (u_long)strlen(td->buffer->getBuffer()), 0);
 		if(nbs == SOCKET_ERROR)
 		{
-			/* Remove the connection.  */
+			/*! Remove the connection.  */
 			return 0;
 		}	
     
@@ -348,18 +380,23 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			if(ret)
 			{
 				td->outputData.closeFile();
-				/* Return an internal server error.  */
+        chain.clearAllFilters(); 
+				/*! Return an internal server error.  */
 				return 0;
 			}
-			if(nbr)
-				nbs=s->socket.send(td->buffer->getBuffer(), nbr, 0);
+      if(nbr)
+      {
+        u_long nbw;
+        if(chain.write(td->buffer->getBuffer(), nbr, &nbw))
+        {
+          chain.clearAllFilters(); 
+          /*! Return an internal server error.  */
+          return 0;
+        }
+        nbs = static_cast<int>(nbw);
+      }
       else
         nbs = 0;
-			if(nbs==SOCKET_ERROR)
-			{
-				/* Return an internal server error.  */
-				return 0;
-			}
 		}while(nbr && nbs);
 	}
   else
@@ -367,6 +404,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                           &(td->response));
   }
+
+  chain.clearAllFilters(); 
 	return 1;
 
 }
