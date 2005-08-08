@@ -30,7 +30,7 @@ struct HttpHeader
   virtual ~HttpHeader(){}
 };
 
-#define HTTP_RESPONSE_ver_DIM 10
+#define HTTP_RESPONSE_VER_DIM 10
 #define HTTP_RESPONSE_SERVER_NAME_DIM 64
 #define HTTP_RESPONSE_CONTENT_TYPE_DIM 48
 #define HTTP_RESPONSE_CONTENT_RANGE_DIM 32
