@@ -60,6 +60,8 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
    *Passing a HttpResponseHeader struct this builds an header string.
    *Every directive ends with a \r\n sequence.
    */
+  char *pos = str;
+  const int MAX = MYSERVER_KB(8);
 	if(response->httpStatus!=200)
 	{
 		if(response->errorType.length() == 0)
@@ -69,58 +71,58 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 				response->errorType.assign(HTTP_ERROR_MSGS[errID], 
                                     HTTP_RESPONSE_ERROR_TYPE_DIM);
 		}
-		sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->ver.c_str(),
+		pos += sprintf(str,"%s %i %s\r\nStatus: %s\r\n",response->ver.c_str(),
             response->httpStatus, response->errorType.c_str(), 
             response->errorType.c_str() );
 	}
 	else
-    sprintf(str,"%s 200 OK\r\n",response->ver.c_str());
+    pos += sprintf(str,"%s 200 OK\r\n",response->ver.c_str());
 	
 	if(response->serverName.length())
 	{
-		strcat(str,"Server: ");
-		strcat(str, response->serverName.c_str());
-		strcat(str,"\r\n");
+		pos += myserver_strlcpy(pos, "Server: ", MAX);
+		pos += myserver_strlcpy(pos, response->serverName.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->cacheControl.length())
 	{
-		strcat(str,"Cache-Control: ");
-		strcat(str, response->cacheControl.c_str());
-		strcat(str,"\r\n");
+		pos += myserver_strlcpy(pos, "Cache-Control: ", MAX);
+		pos += myserver_strlcpy(pos, response->cacheControl.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->lastModified.length())
 	{
-		strcat(str,"Last-Modified: ");
-		strcat(str, response->lastModified.c_str());
-		strcat(str,"\r\n");
+		pos += myserver_strlcpy(pos,"Last-Modified: ", MAX);
+		pos += myserver_strlcpy(pos, response->lastModified.c_str(), MAX);
+		pos += myserver_strlcpy(pos,"\r\n", MAX);
 	}
 	if(response->connection.length())
 	{
-		strcat(str,"Connection: ");
-		strcat(str, response->connection.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos,"Connection: ", MAX);
+		pos += myserver_strlcpy(pos, response->connection.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	else
 	{
-		strcat(str, "Connection: Close\r\n");
+		pos += myserver_strlcpy(pos, "Connection: Close\r\n", MAX);
 	}
 	if(response->transferEncoding.length())
 	{
-		strcat(str, "Transfer-Encoding: ");
-		strcat(str, response->transferEncoding.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "Transfer-Encoding: ", MAX);
+		pos += myserver_strlcpy(pos, response->transferEncoding.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->contentEncoding.length())
 	{
-		strcat(str, "Content-Encoding: ");
-		strcat(str, response->contentEncoding.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "Content-Encoding: ", MAX);
+		pos += myserver_strlcpy(pos, response->contentEncoding.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->contentRange.length())
 	{
-		strcat(str, "Content-Range: ");
-		strcat(str, response->contentRange.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "Content-Range: ", MAX);
+		pos += myserver_strlcpy(pos, response->contentRange.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->contentLength.length())
 	{
@@ -130,9 +132,9 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		*/
 		if(response->transferEncoding.find("chunked",0) == string::npos )
 		{
-			strcat(str, "Content-Length: ");
-			strcat(str, response->contentLength.c_str());
-			strcat(str, "\r\n");
+			pos += myserver_strlcpy(pos, "Content-Length: ", MAX);
+			pos += myserver_strlcpy(pos, response->contentLength.c_str(), MAX);
+			pos += myserver_strlcpy(pos, "\r\n", MAX);
 		}
 	}
 	if(response->cookie.length())
@@ -148,52 +150,52 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
       cookie.assign("Set-Cookie: ");
 			cookie.append(token, len);
 			cookie.append("\r\n");	
-      strcat(str, cookie.c_str());	
+      pos += myserver_strlcpy(pos, cookie.c_str(), MAX);	
 			token+=len+1;
 		}
 	}
 	if(response->p3p.length())
 	{
-		strcat(str, "p3p: ");
-		strcat(str, response->p3p.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "p3p: ", MAX);
+		pos += myserver_strlcpy(pos, response->p3p.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->mimeVer.length())
 	{
-		strcat(str, "MIME-Version: ");
-		strcat(str, response->mimeVer.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "MIME-Version: ", MAX);
+		pos += myserver_strlcpy(pos, response->mimeVer.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->contentType.length())
 	{
-		strcat(str, "Content-Type: ");
-		strcat(str, response->contentType.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "Content-Type: ", MAX);
+		pos += myserver_strlcpy(pos, response->contentType.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->date.length())
 	{
-		strcat(str, "Date: ");
-		strcat(str, response->date.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "Date: ", MAX);
+		pos += myserver_strlcpy(pos, response->date.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->dateExp.length())
 	{
-		strcat(str, "Expires: ");
-		strcat(str, response->dateExp.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "Expires: ", MAX);
+		pos += myserver_strlcpy(pos, response->dateExp.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	if(response->auth.length())
 	{
-		strcat(str, "WWW-Authenticate: ");
-		strcat(str, response->auth.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "WWW-Authenticate: ", MAX);
+		pos += myserver_strlcpy(pos, response->auth.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 	
 	if(response->location.length())
 	{
-		strcat(str, "Location: ");
-		strcat(str, response->location.c_str());
-		strcat(str, "\r\n");
+		pos += myserver_strlcpy(pos, "Location: ", MAX);
+		pos += myserver_strlcpy(pos, response->location.c_str(), MAX);
+		pos += myserver_strlcpy(pos, "\r\n", MAX);
 	}
 
 	if(response->other.size())
@@ -204,10 +206,10 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
       HttpResponseHeader::Entry *e = response->other.getData(i);
       if(e)
       {
-        strcat(str, e->name.c_str());
-        strcat(str, ": ");
-        strcat(str, e->value.c_str());
-        strcat(str, "\r\n");
+        pos += myserver_strlcpy(pos, e->name.c_str(), MAX);
+        pos += myserver_strlcpy(pos, ": ", MAX);
+        pos += myserver_strlcpy(pos, e->value.c_str(), MAX);
+        pos += myserver_strlcpy(pos, "\r\n", MAX);
       }
       
     }
@@ -216,12 +218,12 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	/*!
 	*MyServer supports the bytes range.
 	*/
-	strcat(str, "Accept-Ranges: bytes\r\n");
+	pos += myserver_strlcpy(pos, "Accept-Ranges: bytes\r\n", MAX);
   
 	/*!
 	*The HTTP header ends with a \r\n sequence.
 	*/
-	strcat(str, "\r\n\0\0\0\0\0");
+	pos += myserver_strlcpy(pos, "\r\n\0\0\0\0\0", MAX);
 }
 /*!
  *Set the defaults value for a HttpResponseHeader structure.
