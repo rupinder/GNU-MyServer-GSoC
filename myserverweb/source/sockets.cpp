@@ -296,11 +296,11 @@ int	Socket::setsockopt(int level,int optname,
  */
 int Socket::getLocalIPsList(string &out)
 {
-  char serverName[MAX_COMPUTERNAME_LENGTH];
+  char serverName[HOST_NAME_MAX];
   MYSERVER_HOSTENT *localhe;
   in_addr ia;
 
-  Socket::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
+  Socket::gethostname(serverName, HOST_NAME_MAX);
   localhe=Socket::gethostbyname(serverName);
 
   if(localhe)

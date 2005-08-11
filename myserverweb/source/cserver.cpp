@@ -232,7 +232,7 @@ void Server::start()
     /*!
      *Get the name of the local machine.
      */
-    Socket::gethostname(serverName, MAX_COMPUTERNAME_LENGTH);
+    Socket::gethostname(serverName, HOST_NAME_MAX);
     
     buffer.assign(languageParser.getValue("MSG_GETNAME"));
     buffer.append(" ");
@@ -325,7 +325,7 @@ void Server::start()
 #ifdef WIN32
       /*!
        *ReadConsoleInput is a blocking call, so be sure that there are 
-       *events before call it
+       *events before call it.
        */
       err = GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), 
                                           &eventsCount);

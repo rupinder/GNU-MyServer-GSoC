@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002,2003,2004 The MyServer Team
+*Copyright (C) 2002,2003,2004,2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -63,8 +63,8 @@ extern "C"
 #endif
 #endif
 
-#ifndef MAX_COMPUTERNAME_LENGTH
-#define MAX_COMPUTERNAME_LENGTH 255
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 255
 #endif
 
 #ifndef MAXIMUM_PROCESSORS
@@ -79,7 +79,6 @@ typedef unsigned short u_short;
 
 typedef void* HANDLE;
 extern class Server *lserver;
-extern class CBase64Utils base64Utils;
 extern const char *versionOfSoftware;
 extern int mustEndServer;
 
