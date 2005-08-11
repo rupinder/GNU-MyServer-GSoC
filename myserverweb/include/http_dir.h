@@ -22,11 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocol.h"
 #include "../include/http_headers.h"
 #include "../include/http_data_handler.h"
+#include <list>
+
+using namespace std;
 
 class HttpDir : public HttpDataHandler
 {
 private:
-
+  void getFormattedSize(int bytes, string& out);
 public:
   static int load(XmlParser*);
   static int unload();

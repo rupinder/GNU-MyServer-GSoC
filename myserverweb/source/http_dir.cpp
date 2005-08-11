@@ -80,6 +80,43 @@ int HttpDir::unload()
 }
 
 
+/*!
+ *Fullfill the string out with a formatted representation fr bytes.
+ */
+void HttpDir::getFormattedSize(int bytes, string& out)
+{
+  ostringstream tmp;
+do
+  {
+    if(bytes / (1024*1024))
+    {
+      int mb = bytes / (1024*1024);
+      tmp <<  mb;
+      bytes -= mb * 1024 * 1024;
+      if(bytes / 1024)
+      {
+        int kbytes = bytes/= 1024;
+        
+        while(kbytes >= 10)
+          kbytes /= 10;
+        tmp <<  "." << kbytes;
+      }
+      tmp << "M";
+      break;
+    }
+
+   if(bytes / 1024)
+   {
+     int kb = bytes / 1024;
+     tmp <<  kb << "k";
+     break;
+   }
+
+    tmp << bytes << " bytes";  
+  }
+ while(0);
+ out.assign(tmp.str());
+}
 
 /*!
  *Browse a directory printing its contents in an HTML file.
@@ -124,8 +161,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
   if(td->mime)
   {
     if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
-                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
-                                                       &(td->connection->socket) , &nbw, 1))
+                                   ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                   &(td->connection->socket) , &nbw, 1))
       {
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
         ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
@@ -297,9 +334,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		}
 		else
 		{
-      ostringstream fileSize;
-      fileSize << (u_int) fd.size << " bytes";
-			*td->buffer2 << fileSize.str();
+      string out;
+      getFormattedSize(fd.size, out);
+ 			*td->buffer2 << out;
+
 		}
 		*td->buffer2 << "</td>\r\n</tr>\r\n";
 		ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
