@@ -1303,7 +1303,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       delete [] pathInfo;
       return ret;
     }
-    else
+    else if( mimecmd == CGI_CMD_EXTERNAL )
     {
      
       if((MimeManager::MimeRecord*)td->mime)
