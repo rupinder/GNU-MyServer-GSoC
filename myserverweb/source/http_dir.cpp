@@ -379,6 +379,42 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
 
+
+  td->buffer2->setLength(0);
+
+  if(File::getPathRecursionLevel(td->request.uri) >= 1)
+  {
+    string file;
+    time_t lastModTime;
+    char time[33];
+    file.assign(td->request.uri);
+    file.append("/../");
+    lastModTime = File::getLastModTime(file.c_str());
+
+    if(lastModTime != -1)
+      getRFC822GMTTime(lastModTime, time, 32);
+    else
+      time[0] = '\0';
+
+      *td->buffer2 << "<tr>\r\n<td><a href=" 
+                   << (td->request.uriEndsWithSlash ? ".." : "." )
+                   << ">Up[..]</a></td><td>"
+                   << time
+                   << "</td><td>[directory]</td></tr>\r\n";
+
+    
+  }
+  ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
+                                   (u_long)td->buffer2->getLength(), &nbw);
+  if(ret)
+	{
+    fd.findclose();
+    td->outputData.closeFile();
+    chain.clearAllFilters(); 
+    /* Return an internal server error.  */
+    return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+  }
+
 	do
 	{	
 		if(fd.name[0]=='.')
@@ -386,7 +422,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		/*! Do not show the security file.  */
 		if(!strcmp(fd.name, "security"))
 			continue;
-		td->buffer2->setLength(0);
+
+    td->buffer2->setLength(0);
+
 		*td->buffer2 << "<tr>\r\n<td><a href=\"";
 		if(!td->request.uriEndsWithSlash)
 		{
