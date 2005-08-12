@@ -124,10 +124,71 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     tmp << kb <<  "." << static_cast<unsigned int>(leftover) << " kb";
     
   }
-  else
+  else if ((bytes>=1048576) && (bytes<(1073741824)))  //  MB case
   {
-    tmp << bytes << " bytes";
+    u_long mb = static_cast<unsigned long int>(bytes/1048576);
+    leftover  = bytes%1048576;
+	  
+    if(leftover<50.0)
+      leftover=0.0;
+    
+    // note: this case isn't handled through compiler casting
+    // using the output at the end!!!
+    // therefore it has to be here ...
+    else if(((static_cast<unsigned int>(leftover))%100)>50)
+		  leftover+=100.0;
+    
+    if(leftover>=1000.0)
+    {
+      leftover=0.0;
+      mb++;
+    }
+    else
+    {
+      while(leftover>=10)
+      {	
+        if (leftover)
+          leftover/=10;
+      }
+    }
+
+    // output ---> X.y MB
+    tmp << mb <<  "." << static_cast<unsigned int>(leftover) << " MB";
+    
   }
+  else //  GB case
+  {
+    u_long gb = static_cast<unsigned long int>(bytes/1073741824);
+    leftover  = bytes%1073741824;
+	  
+    if(leftover<50.0)
+      leftover=0.0;
+    
+    // note: this case isn't handled through compiler casting
+    // using the output at the end!!!
+    // therefore it has to be here ...
+    else if(((static_cast<unsigned int>(leftover))%100)>50)
+		  leftover+=100.0;
+    
+    if(leftover>=1000.0)
+    {
+      leftover=0.0;
+      gb++;
+    }
+    else
+    {
+      while(leftover>=10)
+      {	
+        if (leftover)
+          leftover/=10;
+      }
+    }
+
+    // output ---> X.y GB
+    tmp << gb <<  "." << static_cast<unsigned int>(leftover) << " GB";
+    
+  }
+ 
 
  out.assign(tmp.str());
 }
