@@ -326,6 +326,8 @@ int MimeManager::loadXML(const char *fn)
 			{
         if(lcur->children->content)
           rc.cmd_name.assign((const char*)lcur->children->content);
+        
+        rc.command=CGI_CMD_SEND;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"SEND"))
