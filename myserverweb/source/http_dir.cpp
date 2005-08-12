@@ -88,58 +88,47 @@ void HttpDir::getFormattedSize(int bytes, string& out)
   ostringstream tmp;
 
   double leftover=0.0;
-
-do
+   
+  if(bytes<1024)               //  Byte case
+    tmp << bytes << " bytes";
+  
+  else if ((bytes>=1024) && (bytes<(1048576)))  //  KB case
   {
-   
-    if(bytes<1024)               //  Byte case
-      tmp << bytes << " Byte";
-
-
-    else if ((bytes>=1024) && (bytes<(1048576)))  //  KB case
-      {
-	    unsigned long int KB = static_cast<unsigned long int>(bytes/1024);
-	    leftover  = bytes%1024;
-	    
-	    if(leftover<50.0)
-	      leftover=0.0;
-
-	    // note: this case isn't handled through compiler casting
-	    // using the output at the end!!!
-	    // therefore it has to be here ...
-	    else if(((static_cast<unsigned int>(leftover))%100)>50)
+    u_long kb = static_cast<unsigned long int>(bytes/1024);
+    leftover  = bytes%1024;
+	  
+    if(leftover<50.0)
+      leftover=0.0;
+    
+    // note: this case isn't handled through compiler casting
+    // using the output at the end!!!
+    // therefore it has to be here ...
+    else if(((static_cast<unsigned int>(leftover))%100)>50)
 		  leftover+=100.0;
-   
-	    if(leftover>=1000.0)
-	      {
-		leftover=0.0;
-		KB++;
-	      }
-	    else
-	      {
-		while(leftover>=10)
-		{	
-		  if (leftover)
-		  leftover/=10;
-		}
-	      }
-
-	    // output ---> X.y KB
-	    tmp << KB <<  "." << static_cast<unsigned int>(leftover) << " KB";
-
-	  }
-
+    
+    if(leftover>=1000.0)
+    {
+      leftover=0.0;
+      kb++;
+    }
     else
-      {
-	tmp << bytes << " Byte";
+    {
+      while(leftover>=10)
+      {	
+        if (leftover)
+          leftover/=10;
       }
+    }
 
-
-	  // clean leftover:
-	  leftover=0.0;
-      
+    // output ---> X.y KB
+    tmp << kb <<  "." << static_cast<unsigned int>(leftover) << " kb";
+    
   }
- while(0);
+  else
+  {
+    tmp << bytes << " bytes";
+  }
+
  out.assign(tmp.str());
 }
 
