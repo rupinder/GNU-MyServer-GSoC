@@ -86,33 +86,58 @@ int HttpDir::unload()
 void HttpDir::getFormattedSize(int bytes, string& out)
 {
   ostringstream tmp;
+
+  double leftover=0.0;
+
 do
   {
-    if(bytes / (1024*1024))
-    {
-      int mb = bytes / (1024*1024);
-      tmp <<  mb;
-      bytes -= mb * 1024 * 1024;
-      if(bytes / 1024)
+   
+    if(bytes<1024)               //  Byte case
+      tmp << bytes << " Byte";
+
+
+    else if ((bytes>=1024) && (bytes<(1048576)))  //  KB case
       {
-        int kbytes = bytes/= 1024;
-        
-        while(kbytes >= 10)
-          kbytes /= 10;
-        tmp <<  "." << kbytes;
+	    unsigned long int KB = static_cast<unsigned long int>(bytes/1024);
+	    leftover  = bytes%1024;
+	    
+	    if(leftover<50.0)
+	      leftover=0.0;
+
+	    // note: this case isn't handled through compiler casting
+	    // using the output at the end!!!
+	    // therefore it has to be here ...
+	    else if(((static_cast<unsigned int>(leftover))%100)>50)
+		  leftover+=100.0;
+   
+	    if(leftover>=1000.0)
+	      {
+		leftover=0.0;
+		KB++;
+	      }
+	    else
+	      {
+		while(leftover>=10)
+		{	
+		  if (leftover)
+		  leftover/=10;
+		}
+	      }
+
+	    // output ---> X.y KB
+	    tmp << KB <<  "." << static_cast<unsigned int>(leftover) << " KB";
+
+	  }
+
+    else
+      {
+	tmp << bytes << " Byte";
       }
-      tmp << "M";
-      break;
-    }
 
-   if(bytes / 1024)
-   {
-     int kb = bytes / 1024;
-     tmp <<  kb << "k";
-     break;
-   }
 
-    tmp << bytes << " bytes";  
+	  // clean leftover:
+	  leftover=0.0;
+      
   }
  while(0);
  out.assign(tmp.str());
@@ -444,6 +469,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
   }
 
   chain.clearAllFilters(); 
-	return 1;
+  return 1;
 
 }
