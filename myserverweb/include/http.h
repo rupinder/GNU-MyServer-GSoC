@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/http_file.h"
 #include "../include/http_dir.h"
 #include "../include/dyn_http_command.h"
+#include "../include/dyn_http_manager.h"
 
 #include <string>
 #include <sstream>
@@ -83,6 +84,7 @@ private:
   static int allowVhostMime;
   static int allowMscgi;
   static DynHttpCommandManager dynCmdManager;
+  static DynHttpManagerList dynManagerList;
 	MsCgi lmscgi;
 	WinCgi lwincgi;
 	Isapi lisapi;

@@ -104,6 +104,9 @@ int Http::fastcgiInitialPort=3333;
 /*! Dynamic commands manager. */
 DynHttpCommandManager Http::dynCmdManager;
 
+/*! Dynamic managers. */
+DynHttpManagerList Http::dynManagerList;
+
 /*!
  *Build a response for an OPTIONS request.
  */
@@ -1299,6 +1302,22 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       delete [] linkpath;
       delete [] pathInfo;
       return ret;
+    }
+    else
+    {
+     
+      if((MimeManager::MimeRecord*)td->mime)
+      {
+        DynamicHttpManager* manager = dynManagerList.getManagerByName(
+                             ((MimeManager::MimeRecord*)td->mime)->cmd_name.c_str());
+
+        if(manager)
+          return manager->send(td, s, td->filenamePath.c_str(), 
+                               data.c_str(), onlyHeader);
+        else
+          return raiseHTTPError(td, s, e_501);
+      }
+
     }
 
     /*! By default try to send the file as it is. */
@@ -2513,6 +2532,8 @@ int Http::loadProtocol(XmlParser* languageParser)
   HttpDir::load(&configurationFileManager);
 
   dynCmdManager.loadMethods(0, languageParser, lserver);
+
+  dynManagerList.loadManagers(0, languageParser, lserver);
 	
 	/*! Determine the min file size that will use GZIP compression.  */
 	data=configurationFileManager.getValue("GZIP_THRESHOLD");
@@ -2636,6 +2657,7 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 		 return 0;
 
    dynCmdManager.clean();
+   dynManagerList.clean();
 	/*!
    *Clean ISAPI.
    */

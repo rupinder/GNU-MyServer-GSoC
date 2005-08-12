@@ -76,7 +76,10 @@ enum CGI_COMMANDS
 	CGI_CMD_RUNFASTCGI,
 	
 	/*! Send the file as a FastCGI.  */
-	CGI_CMD_EXECUTEFASTCGI	
+	CGI_CMD_EXECUTEFASTCGI,	
+
+	/*! Use an external plugin to handle this MIME type.  */
+	CGI_CMD_EXTERNAL
 };
 
 
@@ -88,13 +91,15 @@ public:
     list<string*> filters;
 		string extension;
 		string mime_type;
+    string cmd_name;
 		int command;
 		string cgi_manager;
     unsigned int extensionHashCode;
     HttpHeaderChecker headerChecker;
     MimeRecord()
     {headerChecker.clear(); filters.clear(); extension.assign(""); 
-    mime_type.assign(""); cgi_manager.assign(""); command=extensionHashCode=0;}
+      mime_type.assign(""); cgi_manager.assign(""); cmd_name.assign("");
+      command=extensionHashCode=0;}
     MimeRecord(MimeRecord&);
     int addFilter(const char*, int acceptDuplicate=1);
     ~MimeRecord();

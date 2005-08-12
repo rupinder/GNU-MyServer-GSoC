@@ -54,7 +54,7 @@ public:
 	MemBuf(const MemBuf& srcBuf);
 	MemBuf(MemBuf& srcBuf, int bCopy);
 	~MemBuf();
-public:
+
 	void setExternalBuffer(const void* pAdr, u_int size);
 	int setBuffer(const void* pAdr, u_int size);
 	void setLength(u_int newSize);
@@ -63,12 +63,11 @@ public:
 	void addBuffer(MemBuf *nmb);
 
 	int free();
-public:
+
 	u_int find(char c, u_int start = 0);
 	u_int find(MemBuf *smb, u_int start = 0);
 	u_int find(const void* pAdr, u_int size, u_int start = 0);
 	void replace(char what, char by);
-public:
 	char& getAt(u_int nIndex);
 	char& operator[](u_int nIndex);
 
@@ -84,13 +83,12 @@ public:
 
 	char* getBuffer();
 	operator const void*() ;
-public:
 	MemBuf operator+ (MemBuf& src);
 	MemBuf operator+ (const char* src);
 	const MemBuf& operator+= (MemBuf& add);
 	const MemBuf& operator+= (const char* pStr);
 	const MemBuf& operator+= (char c) ;
-public:
+
 	MemBuf& operator<< (const char* pSrc) ;
 	MemBuf& operator<< (int i) ;
 	MemBuf& operator<< (unsigned int i) ;
@@ -100,14 +98,13 @@ public:
 	MemBuf& operator<< (unsigned char c) ;
 	MemBuf& operator<< (const MemBuf &src) ;
 	MemBuf& operator<< (const string &src) ;
-public:
 	MemBuf& operator=(const MemBuf& src) ;
 	MemBuf& operator=(const char* src);
-public:
+
 	u_int m_nSizeLimit; // The maximun size that the buffer can reached ; 0 if none
 	u_int m_nBlockLength; // Minimun size of new allocated blocks during addings
 						 // We assume that m_nBlockLength < m_nSizeLimit
-public: 
+ 
 	void hashMD5(const void* pAdr, u_int nSize);
 	void hashCRC(const void* pAdr, u_int nSize);
 	void hex(const void* pAdr, u_int nSize);
@@ -123,6 +120,7 @@ public:
 	void uintToStr(u_int i, char* pBufToUse, u_int nBufSize) ;
 	void xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);	
 	void intToStr(int i, char* pBufToUse, u_int nBufSize);
+
 protected:
 	void xIntToStr(u_int i, int bNegative);
 	void allocBuffer(u_int size);
