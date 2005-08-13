@@ -490,25 +490,16 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 					while(data_sent<dim)
 					{
-						if( con.sock.bytesToRead() )
+            nbr=con.sock.recv(td->buffer->getBuffer(), 
+                              std::min(static_cast<u_long>(td->buffer->getRealLength()), 
+                                       dim-data_sent), 0, static_cast<u_long>(timeout));
+            if(nbr == (u_long)-1)
             {
-							nbr=con.sock.recv(td->buffer->getBuffer(), 
-                                std::min(static_cast<u_long>(td->buffer->getRealLength()), 
-                                                                  dim-data_sent), 0, 
-                                static_cast<u_long>(timeout));
-              if(nbr == (u_long)-1)
-              {
-                exit = 1;
-                ret = 0;
-                break;
-              }
-            }
-						else
-						{
+              exit = 1;
               ret = 0;
-							exit = 1;
-							break;
-						}
+              break;
+            }
+ 
 						if(con.tempOut.writeToFile((char*)(td->buffer->getBuffer()),nbr,&nbw))
             {
               ret = 0;
