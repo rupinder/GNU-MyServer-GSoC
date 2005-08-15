@@ -385,22 +385,14 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
   if(File::getPathRecursionLevel(td->request.uri) >= 1)
   {
     string file;
-    time_t lastModTime;
-    char time[33];
     file.assign(td->request.uri);
     file.append("/../");
-    lastModTime = File::getLastModTime(file.c_str());
-
-    if(lastModTime != -1)
-      getRFC822GMTTime(lastModTime, time, 32);
-    else
-      time[0] = '\0';
-
-      *td->buffer2 << "<tr>\r\n<td><a href=" 
-                   << (td->request.uriEndsWithSlash ? ".." : "." )
-                   << ">Up[..]</a></td><td>"
-                   << time
-                   << "</td><td>[directory]</td></tr>\r\n";
+    
+    *td->buffer2 << "<tr>\r\n<td colspan=\"2\">"
+                 << "<a href=\""
+                 << (td->request.uriEndsWithSlash ? ".." : ".")
+	         << "\">[ .. ]</a></td>\n"
+                 << "<td>[directory]</td></tr>\r\n";
 
     
   }
