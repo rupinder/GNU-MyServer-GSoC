@@ -232,11 +232,15 @@ int main (int argn, char **argv)
         /*! If the version flag is up, show the version and exit. */
         if(input.version)
         {
-    cout << "MyServer "<< versionOfSoftware 
-#ifdef __date__
-         << " compiled on " << __date__  
+	  cout << "MyServer "<< versionOfSoftware << endl;
+	  
+	  cout 
+#ifdef __DATE__
+         << "Compiled on " << __DATE__  
 #endif
          << endl;
+
+	  cout << "www.myserverproject.net" << endl;
                 return 0;   
         }
 #else
