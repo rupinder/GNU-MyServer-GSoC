@@ -113,9 +113,9 @@ private:
   string externalPath;
 	string serverAdmin;
 	int initialize(int);
-	ConnectionPtr addConnectionToList(Socket s,MYSERVER_SOCKADDRIN *asock_in,
-                                   char *ipAddr,char *localIpAddr,int port,
-                                   int localPort,int);
+	ConnectionPtr addConnectionToList(Socket s, MYSERVER_SOCKADDRIN *asock_in,
+                                    char *ipAddr, char *localIpAddr, 
+                                    u_short port, u_short localPort,int);
   u_long nConnections;
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;
@@ -123,7 +123,7 @@ private:
 	int deleteConnection(ConnectionPtr,int,int=1);
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
-	int createServerAndListener(u_long);
+	int createServerAndListener(u_short);
 	int loadSettings();
 	Mutex *connections_mutex;
 	ConnectionPtr connectionToParse;
