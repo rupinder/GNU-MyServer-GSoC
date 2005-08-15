@@ -1032,15 +1032,21 @@ int VhostManager::getHostsNumber()
  *Load the virtual hosts from a XML configuration file
  *Returns non-null on errors.
  */
-int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
+int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
 {
 	XmlParser parser;
 	xmlDocPtr doc;
 	xmlNodePtr node;
   LogManager *warningLogFile ;
   LogManager *accessLogFile;
+  string errMsg;
 	if(parser.open(filename))
 	{
+    errMsg.assign("Error opening: ");
+    errMsg.append(filename);
+    lserver->logPreparePrintError();
+    lserver->logWriteln(errMsg.c_str());
+    lserver->logEndPrintError();
 		return -1;
 	}
 	doc = parser.getDoc();
@@ -1057,7 +1063,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
     {
       parser.close();
       clean();
-			return -1;
+      errMsg.assign("Error: allocating memory");
+      lserver->logPreparePrintError();
+      lserver->logWriteln(errMsg.c_str());
+      lserver->logEndPrintError();
+      return -1;
     }
 		while(lcur)
     {
@@ -1119,7 +1129,16 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
 			{
-				vh->setPort((u_short)atoi((char*)lcur->children->content));
+        int val = atoi((char*)lcur->children->content);
+        if(val > 1<<16 || strlen((const char*)lcur->children->content) > 6)
+        {
+          errMsg.assign("Error: specified port greater than 65536 or invalid: ");
+          errMsg.append((char*)lcur->children->content);
+          lserver->logPreparePrintError();
+          lserver->logWriteln(errMsg.c_str());
+          lserver->logEndPrintError();
+        }
+				vh->setPort((u_short)val);
 			}
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
 			{
@@ -1276,9 +1295,14 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,int maxlogSize)
     vh->initializeSSL();
     if(addVHost(vh))
     {
+      errMsg.assign("Error: adding vhost");
+      lserver->logPreparePrintError();
+      lserver->logWriteln(errMsg.c_str());
+      lserver->logEndPrintError();
+      
       parser.close();
       clean();
-      return 1;
+      return -1;
     }
     
   }

@@ -447,9 +447,9 @@ void Server::finalCleanup()
 
 /*!
  *This function is used to create a socket server and a thread listener 
- *for a protocol.
+ *for a port.
  */
-int Server::createServerAndListener(u_long port)
+int Server::createServerAndListener(u_short port)
 {
   
 	int optvalReuseAddr=1;
@@ -479,7 +479,7 @@ int Server::createServerAndListener(u_long port)
     logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
     sock_inserverSocket.sin_family=AF_INET;
     sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-    sock_inserverSocket.sin_port=htons(static_cast<u_short>(port));
+    sock_inserverSocket.sin_port=htons(port);
  
 #ifdef NOT_WIN
     /*!
@@ -497,9 +497,9 @@ int Server::createServerAndListener(u_long port)
       return 0;
     }
 #endif
-	/*!
-   *Bind the port.
-   */
+    /*!
+     *Bind the port.
+     */
     logWriteln(languageParser.getValue("MSG_BIND_PORT"));
     
     if(serverSocket->bind((sockaddr*)&sock_inserverSocket, 
@@ -547,7 +547,7 @@ int Server::createServerAndListener(u_long port)
   catch( bad_alloc &ba)
   {
     ostringstream s;
-    s << "Bad allocation :" << ba.what();
+    s << "Error: Bad allocation " << ba.what();
     logWriteln(s.str().c_str());  
   }
   catch( exception &e)
@@ -1250,9 +1250,9 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 	MYSERVER_SOCKADDRIN  localsock_in;
   int dim;
   /*! Remote port used by the client to open the connection. */
-	int port;
+	u_short port;
   /*! Port used by the server to listen. */
-	int myport;
+	u_short myport;
 
 	if( s.getHandle() == 0 )
 		return 0;
@@ -1315,8 +1315,9 @@ int Server::getMaxThreads()
  *A connection is defined using a connection struct.
  */
 ConnectionPtr Server::addConnectionToList(Socket s, 
-                        MYSERVER_SOCKADDRIN* /*asock_in*/, char *ipAddr, 
-                        char *localIpAddr, int port, int localPort, int /*id*/)
+                                    MYSERVER_SOCKADDRIN* /*asock_in*/, 
+                                    char *ipAddr, char *localIpAddr, 
+                                    u_short port, u_short localPort, int /*id*/)
 {
   static u_long connection_ID = 0;
 	int doSSLhandshake=0;
@@ -1328,11 +1329,11 @@ ConnectionPtr Server::addConnectionToList(Socket s,
   new_connection->socket = s;
 	new_connection->setPort(port);
 	new_connection->setTimeout( get_ticks() );
-	new_connection->setLocalPort(static_cast<u_short>(localPort));
+	new_connection->setLocalPort(localPort);
 	new_connection->setIpAddr(ipAddr);
 	new_connection->setLocalIpAddr(localIpAddr);
 	new_connection->host = (void*)lserver->vhostList->getVHost(0, localIpAddr, 
-                                                             static_cast<u_short>(localPort));
+                                                             localPort);
 
   /*! No vhost for the connection so bail. */
 	if(new_connection->host == 0) 
@@ -1388,7 +1389,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
   catch(...)
   {
     logPreparePrintError();
-    logWriteln("Error adding connection to list");
+    logWriteln("Error: adding connection to list");
     logEndPrintError();	
     lserver->connections_mutex_unlock();
   };
