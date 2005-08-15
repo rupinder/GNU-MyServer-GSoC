@@ -479,7 +479,7 @@ int Server::createServerAndListener(u_long port)
     logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
     sock_inserverSocket.sin_family=AF_INET;
     sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-    sock_inserverSocket.sin_port=htons((u_short)port);
+    sock_inserverSocket.sin_port=htons(static_cast<u_short>(port));
  
 #ifdef NOT_WIN
     /*!
@@ -592,7 +592,7 @@ void Server::createListenThreads()
 
 		if(needThread)
 		{
-			if(createServerAndListener(list->host->getPort())==0)
+		  if(!createServerAndListener(list->host->getPort()))
 			{
         string err;
 				logPreparePrintError();
@@ -1328,11 +1328,11 @@ ConnectionPtr Server::addConnectionToList(Socket s,
   new_connection->socket = s;
 	new_connection->setPort(port);
 	new_connection->setTimeout( get_ticks() );
-	new_connection->setLocalPort((u_short)localPort);
+	new_connection->setLocalPort(static_cast<u_short>(localPort));
 	new_connection->setIpAddr(ipAddr);
 	new_connection->setLocalIpAddr(localIpAddr);
 	new_connection->host = (void*)lserver->vhostList->getVHost(0, localIpAddr, 
-                                                             (u_short)localPort);
+                                                             static_cast<u_short>(localPort));
 
   /*! No vhost for the connection so bail. */
 	if(new_connection->host == 0) 
