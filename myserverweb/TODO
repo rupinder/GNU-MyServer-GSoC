@@ -94,6 +94,8 @@
 ** Add new methods to the manager class.(*)
 ** Port to other languages, maybe not natively compiled.(*)
 
+
+
 * Other.
 ** Add access restriction by hostname / ip range / network range / browser client / etc.
 ** Implement pipes support in the file class.(*)
@@ -106,6 +108,7 @@
 * GUI.
 ** Update/improve GUI of configuration tool.
 ** Tooltips.(*)
+** Automatic deployment.
 ** Better graphics.(*)
 ** Create SSL files trough the GUI.(*)
 ** If asked to run on XP as service automatically install the service.
@@ -114,6 +117,9 @@
 ** Possibility to have virtual hosts data in external sources(other than virtualhosts.xml).
 ** Add a counter to the virtual host class to reference hosts usages.
 ** Add a callback method when reference counter is zero.
+
+* Support for Frontpage extensions.
+* Desing and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
 
 * Setuid and Setgid for CGI processes.
 * IPv6 Implementation. 
