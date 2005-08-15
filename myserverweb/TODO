@@ -4,6 +4,12 @@ Developer's TODO LIST for MyServer
 NOW:
 =====
 
+- add local charset to allow MyServer handles URL like
+  in Germany ß, ä, ö, ü
+ --> because  this will be available sooner or later for china
+     and all around the world
+
+
 - Create AMD64 debs (MyServer 0.8.2)
 - Create Pentium MMX debs (MyServer 0.8.2)
 ---> use CXXFLAGS="-O3 -march=amd64" / pentium-mmx
