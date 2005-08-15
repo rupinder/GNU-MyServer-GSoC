@@ -4,6 +4,11 @@ Developer's TODO LIST for MyServer
 NOW:
 =====
 
+- write MyServer chroot section into docs (codingmaster)
+
+- update README
+- update INSTALL
+
 - add local charset to allow MyServer handles URL like
   in Germany ß, ä, ö, ü
  --> because  this will be available sooner or later for china
