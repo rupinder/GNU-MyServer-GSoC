@@ -1,138 +1,140 @@
-* Write MyServer chroot section into docs.
-* Update README.
-* Update INSTALL.
+TODO list for MyServer.
 
-* Add local charset to allow MyServer handles URL like in Germany ß, ä, ö, ü, because  this will be available sooner or later for china and all around the world.
+*	Write MyServer chroot section into docs.
+*	Update README.
+*	Update INSTALL.
+
+*	Add local charsets to allow MyServer handles URL like in Germany ß, ä, ö, ü, because  this will be available sooner or later for china and all around the world.
 
 * Create AMD64 debs.
 * Create Pentium MMX debs.
-** Use CFLAGS="-O3" CXXFLAGS="-O3 -march=amd64" / pentium-mmx.
+**	Use CFLAGS="-O3" CXXFLAGS="-O3 -march=amd64" / pentium-mmx.
 
 * Rename ACCESSESLOG to ACCESSLOG.
 
 * Think about renaming some XML tags.
 
-* implement SYMLINKS:
-** system wide.
-** webroot.
-** checkowner.
-*** don't follow bad symlinks.
+*	implement SYMLINKS:
+**	system wide.
+**	webroot.
+**	checkowner.
+***	don't follow bad symlinks.
 
-* Rewrite the linked list in cserver.cpp in C++ using stl list class.
+*	Rewrite the linked list in cserver.cpp in C++ using stl list class.
 *	Search for other linked list an rewrite it in C++ using stl list class.
 
-* Security mechanism: SECURE ONE FILE with "security".
-** Add more functionality to "security".
+*	Security mechanism: SECURE ONE FILE with "security".
+**	Add more functionality to "security".
 
-* Deny and allow ACCESS by ip, browser, etc.
-** Provide this functionality for "security".
+*	Deny and allow ACCESS by ip, browser, etc.
+**	Provide this functionality for "security".
 
-* MyServer start/reboot/stop script.
+*	MyServer start/reboot/stop script.
 
+*	Check all file and use C++ castings.
+**	Rewrite strange functions to avoid so many castings.
 
-* Check all file and use C++ castings.
-** Rewrite strange functions to avoid so many castings.
+*	Check http_dir.cpp for correct filesize displaying: mb, gb.
+**	Add tb.
 
+*	Gcc-4.x compiled binaries for all provided platforms.
+*	Rename myServerErr and others to MyServer.
+*	Provide a good api (MYSERVER, mySERVER, myServer, etc.)
+*	Fix some hardcoded errors in MyServer, they should now show directly to the new error files.
+*	Use C++ static_cast<TYPE>... instead of the C like casting (TYPE).
+*	LibXML compability(*) (at the moment MyServer uses LibXML2).
 
-* Check http_dir.cpp for correct filesize displaying: mb, gb.
-** Add tb.
+*	Documentation.
+**	Fix the documentation.
+**	Translation of the documentation to other languages.
+**	New documentation layout.(*)
 
+*	Configurability.
+**	Show http_dir: Last modified, etc (rewrite html code).
+**	Provide Bity, KB, MB, GB, TB for the show http_dir.
+**	Add XML tags in the configuration, like <directory show_type="MB">.
+**	Cleanely compile MyServer with g++ -Wall(./configure CXXFLAGS="-Wall" CFLAGS="-Wall").
+**	Possibility to set the logfile size in Byte, KB, MB, GB, TB(handle="KB" value="1024" or xml --> handle "MB" value="1").
+**	Provide more command line options (also compile date, add more to --version), compiled in binaries, etc....
 
-* Gcc-4.x compiled binaries for all provided platforms.
-* Rename myServerErr and others to MyServer.
-* Provide a good api (MYSERVER, mySERVER, myServer, etc.)
-* Fix some hardcoded errors in MyServer, they should now show directly to the new error files.
-* Use C++ static_cast<TYPE>... instead of the C like casting (TYPE).
-* LibXML compability(*) (at the moment MyServer uses LibXML2).
+*	Port MyServer to other platforms.
+**	Add MyServer to OpenBSD ports.
+**	FreeBSD workaround / ports system.
+**	MacOS X packages / binaries.
+**	GNU Hurd workaround / improvements.
+**	Packages for MyServer available on SF. (deb, rpm, slackware, openbsd)
 
-* Documentation.
-** Fix the documentation.
-** Translation of the documentation to other languages.
-** New documentation layout.(*)
+*	Performance model.
+**	Running test with lots of server load. 
+**	Optimization of the performance model.
 
-* Configurability.
-** Show http_dir: Last modified, etc (rewrite html code).
-** Provide Bity, KB, MB, GB, TB for the show http_dir.
-** Add XML tags in the configuration, like <directory show_type="MB">.
-** Cleanely compile MyServer with g++ -Wall(./configure CXXFLAGS="-Wall" CFLAGS="-Wall").
-** Possibility to set the logfile size in Byte, KB, MB, GB, TB(handle="KB" value="1024" or xml --> handle "MB" value="1").
-** Provide more command line options (also compile date, add more to --version), compiled in binaries, etc....
+*	Packages.
+**	Rpm and debs for Debian, Fedora Core and Mandrake.
+**	Packages for Slackware.
+**	Create new DevCPP devpaks for MyServer (provide the current development libraries needed to compile MyServer cvs under windows).
+**	Update all libraries needed to run MyServer (windows binary release).
+**	Perl installation script INSTALL.pl that copies the files to the right place.
 
-* Port MyServer to other platforms.
-** Add MyServer to OpenBSD ports.
-** FreeBSD workaround / ports system.
-** MacOS X packages / binaries.
-** GNU Hurd workaround / improvements.
-** Packages for MyServer available on SF. (deb, rpm, slackware, openbsd)
+*	Plugins system.
+**	Use plugins for HTTP optional commands(other than what was implemented GET, POST...).
+**	Plugins for HTTP data handler(other than what was implemented CGI, ISAPI, FastCGI...).
+**	Filters on returned data. (*)
 
-* Performance model.
-** Running test with lots of server load. 
-** Optimization of the performance model.
+*	HTTP header control.
+**	Allow or deny access based on HTTP header content.
+**	Find a way to have that mechanism in the xml security file.
+**	Modify the Request class to handle HTTP header data as in a map.
+**	Abstract mechanism to allow/deny access not only from security files.
 
-* Packages.
-** Rpm and debs for Debian, Fedora Core and Mandrake.
-** Packages for Slackware.
-** Create new DevCPP devpaks for MyServer (provide the current development libraries needed to compile MyServer cvs under windows).
-** Update all libraries needed to run MyServer (windows binary release).
-** Perl installation script INSTALL.pl that copies the files to the right place.
+*	Control protocol improvements.
+**	Allow access to log files.(*)
 
-* Plugins system.
-** Use plugins for HTTP optional commands(other than what was implemented GET, POST...).
-** Plugins for HTTP data handler(other than what was implemented CGI, ISAPI, FastCGI...).
-** Filters on returned data. (*)
+*	MSCGI.
+**	Add new methods to the manager class.(*)
+**	Port to other languages, maybe not natively compiled.(*)
+**	Implements other facilities to easily write CGI programs.
+**	Implements a caching mechanism.
 
-* HTTP header control.
-** Allow or deny access based on HTTP header content.
-** Find a way to have that mechanism in the xml security file.
-** Modify the Request class to handle HTTP header data as in a map.
-** Abstract mechanism to allow/deny access not only from security files.
+*	ISAPI.
+**	Caching mechanism for modules.
 
-* Control protocol improvements.
-** Allow access to log files.(*)
+*	Other.
+**	Add access restriction by hostname / ip range / network range / browser client / etc.
+**	Implement pipes support in the file class.(*)
+**	Better handle of requests with chunked data.
+**	HTTP "chunked" transfer coding support where not used.
+**	Rewrite securestr.cpp.
+**	Change socket IO model to use IOCPs instead for NT+ systems.(*)
+**	Include the new options for logging.(*)
 
-* MSCGI.
-** Add new methods to the manager class.(*)
-** Port to other languages, maybe not natively compiled.(*)
+*	GUI.
+**	Update/improve GUI of configuration tool.
+**	Tooltips.(*)
+**	Automatic deployment.
+**	Better graphics.(*)
+**	Create SSL files trough the GUI.(*)
+**	If asked to run on XP as service automatically install the service.
 
+*	Virtual hosts data.
+**	Possibility to have virtual hosts data in external sources(other than virtualhosts.xml).
+**	Add a counter to the virtual host class to reference hosts usages.
+**	Add a callback method when reference counter is zero.
 
+*	Support for Frontpage extensions.
+*	Desing and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
 
-* Other.
-** Add access restriction by hostname / ip range / network range / browser client / etc.
-** Implement pipes support in the file class.(*)
-** Better handle of requests with chunked data.
-** HTTP "chunked" transfer coding support where not used.
-** Rewrite securestr.cpp.
-** Change socket IO model to use IOCPs instead for NT+ systems.(*)
-** Include the new options for logging.(*)
-
-* GUI.
-** Update/improve GUI of configuration tool.
-** Tooltips.(*)
-** Automatic deployment.
-** Better graphics.(*)
-** Create SSL files trough the GUI.(*)
-** If asked to run on XP as service automatically install the service.
-
-* Virtual hosts data.
-** Possibility to have virtual hosts data in external sources(other than virtualhosts.xml).
-** Add a counter to the virtual host class to reference hosts usages.
-** Add a callback method when reference counter is zero.
-
-* Support for Frontpage extensions.
-* Desing and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
-
-* Setuid and Setgid for CGI processes.
-* IPv6 Implementation. 
-* PHP Configuration Tool. 
-* SSI files support.
-* FTP server.
-* Support for JSP and servlets.
-* HTTP proxy server.
-* Embedded perl.
-* PHP SAPI module.
-* Other ideas?
+*	Setuid and Setgid for CGI processes.
+*	IPv6 Implementation. 
+*	PHP Configuration Tool. 
+*	SSI files support.
+*	FTP server.
+*	Support for JSP and servlets.
+*	HTTP proxy server.
+*	Embedded perl.
+*	PHP SAPI module.
+*	Other ideas?
 
 (*) Not so important to have now.
 
 
-Please consider to join the developing mailing list and start to ask there before start to work on something.
+Please consider to join the developing mailing list and ask there before start to work on something.
