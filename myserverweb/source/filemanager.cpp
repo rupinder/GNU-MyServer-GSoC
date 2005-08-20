@@ -231,31 +231,13 @@ int File::openFile(const char* nfilename,u_long opt)
 #ifdef NOT_WIN
 	struct stat F_Stats;
 	int F_Flags;
-  char Buffer[filename.length()+1];
-	if(opt && FILE_OPEN_READ && FILE_OPEN_WRITE)
+	if(opt & FILE_OPEN_READ && opt & FILE_OPEN_WRITE)
 		F_Flags = O_RDWR;
 	else if(opt & FILE_OPEN_READ)
 		F_Flags = O_RDONLY;
 	else if(opt & FILE_OPEN_WRITE)
 		F_Flags = O_WRONLY;
 		
-	if(opt & FILE_OPEN_HIDDEN)
-	{
-		int index;
-		Buffer[0] = '\0';
-		for(index = filename.length(); index >= 0; index--)
-			if(filename[index] == '/')
-			{
-				index++;
-				break;
-			}
-		if(index > 0)
-			strncat(Buffer, filename.c_str(), index);
-		strcat(Buffer, ".");
-		strcat(Buffer, filename.c_str() + index);
-	}
-	else
-		strcpy(Buffer, filename.c_str());
 		
 	if(opt & FILE_OPEN_IFEXISTS)
 	{
@@ -265,7 +247,7 @@ int File::openFile(const char* nfilename,u_long opt)
       filename.clear();
 			return 1;
 		}
-		ret = open(Buffer,F_Flags);
+		ret = open(filename.c_str(), F_Flags);
 		if(ret == -1)
     {
       filename.clear();
@@ -277,9 +259,9 @@ int File::openFile(const char* nfilename,u_long opt)
 	{
 		ret = stat(filename.c_str(), &F_Stats);
 		if(ret < 0)
-			ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+			ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
-			ret = open(Buffer,O_APPEND | F_Flags);
+			ret = open(filename.c_str(),O_APPEND | F_Flags);
 		if(ret == -1)
      {
       filename.c_str();
@@ -294,7 +276,7 @@ int File::openFile(const char* nfilename,u_long opt)
 		if(ret)
 			remove(filename.c_str());
 
-		ret = open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+		ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		if(ret == -1)
     {
       filename.clear();
@@ -307,9 +289,9 @@ int File::openFile(const char* nfilename,u_long opt)
 	{
 		ret = stat(filename.c_str(), &F_Stats);
 		if(ret < 0)
-			ret =open(Buffer,O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+			ret =open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
 		else
-			ret = open(Buffer,F_Flags);
+			ret = open(filename.c_str(),F_Flags);
 		if(ret == -1)
     {
       filename.clear();
@@ -320,7 +302,7 @@ int File::openFile(const char* nfilename,u_long opt)
 	}
 	
 	if(opt & FILE_OPEN_TEMPORARY)
-		unlink(Buffer); // Remove File on close
+		unlink(filename.c_str()); // Remove File on close
 	
 	if((long)handle < 0)
   {
