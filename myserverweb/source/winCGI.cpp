@@ -355,8 +355,16 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
      */
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                           &td->response);
-		s->socket.send((const char*)td->buffer->getBuffer(),
-                   (int)strlen((const char*)td->buffer->getBuffer()), 0);
+    if(chain.write((const char*)td->buffer->getBuffer(),
+                          (int)strlen((const char*)td->buffer->getBuffer()), &nbw2))
+    {
+      OutFileHandle.closeFile();
+      File::deleteFile(outFilePath);
+      File::deleteFile(dataFilePath);
+      chain.clearAllFilters();
+      return 0;
+    }
+    	
     if(onlyHeader)
     {
       OutFileHandle.closeFile();
