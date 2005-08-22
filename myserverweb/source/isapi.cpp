@@ -178,7 +178,7 @@ int Isapi::Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL)
 }
 
 /*!
- *Send an HTTP uri.
+ *Send an HTTP URI.
  */
 int Isapi::Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL)
 {
@@ -190,11 +190,10 @@ int Isapi::Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL)
 /*!
  *Send the ISAPI header.
  */
-int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL)
+int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *data)
 {
-	string tmp;
-  tmp.assign(URL);
-  return ((Http*)td->lhttp)->sendHTTPResource(td, a, tmp, 0, 1);
+  HttpHeaders::buildHTTPResponseHeaderStruct(&(td->response), td, data);
+  return 1;
 }
 
 /*!
@@ -234,29 +233,38 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	if(!ConnInfo->headerSent)
 	{
 	  int headerSize=0;
+    u_long size = (u_long)strlen(buffer);
 		strncat(buffer,(char*)Buffer,*lpdwBytes);
 		ConnInfo->headerSize+=*lpdwBytes;
-		for(u_long i=0;i<(u_long)strlen(buffer);i++)
-		{
-			if(buffer[i]=='\r')
-				if(buffer[i+1]=='\n')
-					if(buffer[i+2]=='\r')
-						if(buffer[i+3]=='\n')
-						{
-							headerSize=i+4;
-							buffer[i+2]='\0';
-							break;
-						}
-			if(buffer[i]=='\n')
-			{
-				if(buffer[i+1]=='\n')
-				{
-					headerSize=i+2;
-					buffer[i+1]='\0';
-					break;
-				}
-			}
-		}
+	  if(buffer[0]=='\r')
+	  {
+		  if(buffer[1]=='\n')
+        headerSize = 2;
+    }
+    else
+    {
+		  for(u_long i=0;i<size;i++)
+		  {
+		   	if(buffer[i]=='\r')
+			  	if(buffer[i+1]=='\n')
+			  		if(buffer[i+2]=='\r')
+			  			if(buffer[i+3]=='\n')
+			  			{
+			  				headerSize=i+4;
+			  				buffer[i+2]='\0';
+			  				break;
+			  			}
+  			if(buffer[i]=='\n')
+  			{
+  				if(buffer[i+1]=='\n')
+  				{
+  					headerSize=i+2;
+  					buffer[i+1]='\0';
+  					break;
+  				}
+  			}
+  		}
+    } 
     /*!
      *Handle the HTTP header if exists.
      */
@@ -268,10 +276,10 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			if(!ConnInfo->td->appendOutputs)
 			{
 				if(keepalive)
+				{
 					ConnInfo->td->response.transferEncoding.assign("chunked");
-
-				if(keepalive)
 					ConnInfo->td->response.connection.assign("Keep-Alive");
+        }
 				else
 					ConnInfo->td->response.connection.assign("Close");
 				HttpHeaders::buildHTTPResponseHeader(
@@ -296,9 +304,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				if(keepalive && (!ConnInfo->td->appendOutputs))
 				{
 					sprintf(chunk_size,"%x\r\n",len);
-          nbw=ConnInfo->connection->socket.send(chunk_size,
-                             (int)strlen(chunk_size),0);
-					if((nbw == (u_long)-1))
+				  if(ConnInfo->chain.write(chunk_size, (int)strlen(chunk_size), &nbw))			
 						return 0;
 				}
 				if(ConnInfo->td->appendOutputs)
@@ -318,8 +324,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
         /*! Send the chunk tailer.*/
 				if(keepalive && (!ConnInfo->td->appendOutputs))
 				{
-					nbw = ConnInfo->connection->socket.send("\r\n",2, 0);
-					if((nbw == (u_long)-1))
+          if(ConnInfo->chain.write("\r\n", 2, &nbw))					
 						return 0;
 				}
 			}
@@ -872,8 +877,13 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	{
 		WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, timeout);
 	}
-	connTable[connIndex].connection->socket.send("\r\n\r\n",4, 0);
-
+	
+	{
+    u_long nbw=0;
+    if(!stringcmpi(connTable[connIndex].td->request.connection, "Keep-Alive"))
+	    Ret = connTable[connIndex].chain.write("0\r\n\r\n", 5, &nbw);
+  }
+  
 	switch(Ret) 
 	{
 		case HSE_STATUS_SUCCESS_AND_KEEP_CONN:
