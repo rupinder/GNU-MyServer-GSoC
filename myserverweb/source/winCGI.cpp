@@ -283,7 +283,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	spi.cmdLine.append("\" ");
 	spi.cmdLine.append(dataFilePath);
 	spi.cwd.assign(pathname);
-
+  spi.envString = 0;
 	if (proc.execHiddenProcess(&spi, timeout))
 	{
     ostringstream msg;

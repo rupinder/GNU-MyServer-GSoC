@@ -59,7 +59,7 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
     */
 	STARTUPINFO si;
   PROCESS_INFORMATION pi;
-	char *cwd;
+	const char *cwd;
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 	si.hStdInput = (HANDLE)spi->stdIn;
@@ -70,7 +70,7 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 		si.dwFlags|=STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
 
-  cwd=spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
+  cwd = spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
 	ZeroMemory( &pi, sizeof(pi) );
 	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
                       spi->envString, cwd, &si, &pi);
