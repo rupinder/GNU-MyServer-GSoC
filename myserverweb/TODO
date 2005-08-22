@@ -37,6 +37,12 @@ TODO list for MyServer.
 *	Check http_dir.cpp for correct filesize displaying: mb, gb.
 **	Add tb.
 
+*	fix http_dir.cpp sort:
+**	the default sorting machanism for many files is strange
+
+*	Add sorting possiblity to http_dir.cpp:
+**	name, date, size
+
 *	Gcc-4.x compiled binaries for all provided platforms.
 *	Rename myServerErr and others to MyServer.
 *	Provide a good api (MYSERVER, mySERVER, myServer, etc.)
