@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using namespace std; 
 
 /*!
- *Sends the MyServer CGI; differently from standard CGI this don't 
- *need a new process to run so it is faster.
+ *Sends the MyServer CGI; differently from standard CGI this doesn't 
+ *need a new process to run making it faster.
  */
 int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
                 char* cmdLine, int /*execute*/, int onlyHeader)

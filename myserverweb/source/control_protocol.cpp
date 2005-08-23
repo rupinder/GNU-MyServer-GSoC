@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocols_manager.h"
 #include "../include/control_errors.h"
 #include "../include/stringutils.h"
+
 extern "C" 
 {
 #ifdef WIN32
@@ -236,8 +237,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 		switch(a->getToRemove())
 		{
       /*! Remove the connection from the list. */
-			case CONNECTION_REMOVE_OverLOAD:
-        sendResponse(b2, bs2, a, CONTROL_SERver_BUSY, 0);
+			case CONNECTION_REMOVE_OVERLOAD:
+        sendResponse(b2, bs2, a, CONTROL_SERVER_BUSY, 0);
 				return 0;
       default:
         return 0;
@@ -463,12 +464,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     Ofile=0;
     return 0;
   }
-  if(!strcmp(command, "SHOWconnectionS"))
+  if(!strcmp(command, "SHOWCONNECTIONS"))
   {
     knownCommand = 1;
-    ret = SHOWconnectionS(a, Ofile, b1, bs1);
+    ret = showConnections(a, Ofile, b1, bs1);
   }
-  else if(!strcmp(command, "KILLconnection"))
+  else if(!strcmp(command, "KILLCONNECTION"))
   {
     char buff[11];
     u_long id;
@@ -476,7 +477,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     strncpy(buff, header.getOptions(), 10 );
     buff[10] = '\0';
     id = header.getOptions() ? atol(buff) : 0;
-    ret = KILLconnection(a, id ,Ofile, b1, bs1);
+    ret = killConnection(a, id ,Ofile, b1, bs1);
   }
   else if(!strcmp(command, "REBOOT"))
   {
@@ -487,12 +488,12 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   else if(!strcmp(command, "GETFILE"))
   {
     knownCommand = 1;
-    ret = GETFILE(a,header.getOptions(), Ifile, Ofile, b1, bs1);
+    ret = getFile(a,header.getOptions(), Ifile, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "PUTFILE"))
   {
     knownCommand = 1;
-    ret = PUTFILE(a,header.getOptions(), Ifile, Ofile, b1, bs1);
+    ret = putFile(a,header.getOptions(), Ifile, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "DISABLEREBOOT"))
   {
@@ -509,17 +510,17 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   else if(!strcmp(command, "SHOWLANGUAGEFILES"))
   {
     knownCommand = 1;
-    ret = SHOWLANGUAGEFILES(a, Ofile, b1, bs1);
+    ret = showLanguageFiles(a, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "SHOWDYNAMICPROTOCOLS"))
   {
     knownCommand = 1;
-    ret = SHOWDYNAMICPROTOCOLS(a, Ofile, b1, bs1);
+    ret = showDynamicProtocols(a, Ofile, b1, bs1);
   }
   else if(!strcmp(command, "VERSION"))
   {
     knownCommand = 1;
-    ret = GETVERSION(a, Ofile, b1, bs1);
+    ret = getVersion(a, Ofile, b1, bs1);
   }
 
   if(knownCommand)
@@ -583,21 +584,24 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 /*!
  *Add the entry to the error log file.
  */
-int ControlProtocol::addToErrorLog(ConnectionPtr con, char *b1, int bs1)
+int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1)
 {
-	string time;
+  string time;
+  ostringstream out;
   /*!
    *Check that the verbosity is at least 1.
    */
   if(lserver->getVerbosity() < 1)
     return 0;
 	getRFC822GMTTime(time, 32);
-  sprintf(b1,"%s [%s] %s:%s:%s - %s\r\n", con->getIpAddr(), time.c_str(), 
-          header.getCommand(),  header.getVersion(), header.getOptions(), 
-          header.getAuthLogin());
-	((Vhost*)(con->host))->warningslogRequestAccess(id);
-	((Vhost*)(con->host))->warningsLogWrite(b1);
-	((Vhost*)(con->host))->warningslogTerminateAccess(id);
+	
+	getRFC822GMTTime(time, 32);
+
+	out << con->getIpAddr() << " [" << time.c_str() << "] " << b1;
+	((Vhost*)(con->host))->accesseslogRequestAccess(id);
+	((Vhost*)(con->host))->accessesLogWrite(out.str().c_str());
+	((Vhost*)(con->host))->accesseslogTerminateAccess(id);
+
   return 0;
 }
 
@@ -698,7 +702,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
 /*!
  *Show the currect active connections.
  */
-int  ControlProtocol::SHOWconnectionS(ConnectionPtr a,File* out, char *b1, 
+int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1, 
                                        int bs1)
 {
   int ret =  0;
@@ -715,8 +719,8 @@ int  ControlProtocol::SHOWconnectionS(ConnectionPtr a,File* out, char *b1,
     ret = out->writeToFile(b1, strlen(b1), &nbw);   
     if(ret)
     {
-      strcpy(b1,"Control: Error in writing to file");
-      addToErrorLog(a,b1, strlen(b1));
+      strcpy(b1,"Control: Error while writing to file");
+      addToErrorLog(a, b1, strlen(b1));
     }
     con = con->next;
   }
@@ -727,7 +731,7 @@ int  ControlProtocol::SHOWconnectionS(ConnectionPtr a,File* out, char *b1,
 /*!
  *Kill a connection by its ID.
  */
-int  ControlProtocol::KILLconnection(ConnectionPtr a, u_long ID, File* out, 
+int  ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out, 
                                       char *b1, int bs1)
 {
   int ret = 0;
@@ -748,7 +752,7 @@ int  ControlProtocol::KILLconnection(ConnectionPtr a, u_long ID, File* out,
 /*!
  *List all the dynamic protocols used by the server.
  */
-int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, File* out, 
+int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out, 
                                            char *b1,int bs1)
 {
   int i = 0;
@@ -764,8 +768,8 @@ int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, File* out,
     ret = out->writeToFile(b1, strlen(b1), &nbw);
     if(ret)
     {
-      strcpy(b1,"Control: Error in writing to file");
-      addToErrorLog(a,b1, strlen(b1));
+      strcpy(b1, "Control: Error while writing to file");
+      addToErrorLog(a, b1, strlen(b1));
       return CONTROL_INTERNAL;
     }
     i++;
@@ -776,7 +780,7 @@ int ControlProtocol::SHOWDYNAMICPROTOCOLS(ConnectionPtr a, File* out,
 /*!
  *Return the requested file to the client.
  */
-int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in, 
+int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in, 
                               File* out, char *b1,int bs1 )
 {
   const char *filename = 0;
@@ -799,31 +803,41 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
   else if(!lstrcmpi(fn, "virtualhosts.xml"))
   {
     filename = lserver->getVhostConfFile();
-  }  
-  /*! If we cannot find the file send the right error ID. */
-  if(!filename)
+  }
+  else if(!File::fileExists(fn))
   {
-    strcpy(b1,"Control: Requested file doesn't exist");
-    addToErrorLog(a,b1, strlen(b1));
+    /*! If we cannot find the file send the right error ID. */
+    string msg;
+    msg.assign("Control: Requested file doesn't exist ");
+    msg.append(filename);
+    addToErrorLog(a, msg);  
     return CONTROL_FILE_NOT_FOUND;
   }
-
-  ret = localfile.openFile(fn, FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
+  else
+  {
+    filename = fn;    
+  }
+  
+  ret = localfile.openFile(filename, FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 
   /*! An internal server error happens. */
   if(ret)
   {
-    strcpy(b1,"Control: Error in opening the file");
-    addToErrorLog(a,b1, strlen(b1));
+    string msg;
+    msg.assign("Control: Error while opening the file ");
+    msg.append(filename);
+    addToErrorLog(a, msg);         
     return CONTROL_INTERNAL;
   }
-  for( ; ;)
+  for(;;)
   {
     ret = localfile.readFromFile(b1, bs1, &nbr);
     if(ret)
     {
-      strcpy(b1,"Control: Error in reading from file");
-      addToErrorLog(a,b1, strlen(b1));
+      string msg;
+      msg.assign("Control: Error while reading from file ");
+      msg.append(filename);
+      addToErrorLog(a, msg);
       return CONTROL_INTERNAL;
     }
 
@@ -835,8 +849,10 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
 
     if(ret)
     {
-      strcpy(b1,"Control: Error in writing to file");
-      addToErrorLog(a,b1, strlen(b1));
+      string msg;
+      msg.assign("Control: Error while writing to file ");
+      msg.append(filename);
+      addToErrorLog(a, msg);
       return CONTROL_INTERNAL;
     }
 
@@ -849,7 +865,7 @@ int ControlProtocol::GETFILE(ConnectionPtr a, char* fn, File* in,
 /*!
  *Save the file on the local FS.
  */
-int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in, 
+int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in, 
                               File* out, char *b1,int bs1 )
 {
   const char *filename = 0;
@@ -872,19 +888,26 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
   else if(!lstrcmpi(fn, "virtualhosts.xml"))
   {
     filename = lserver->getVhostConfFile();
-  }  
-  /*! If we cannot find the file send the right error ID. */
-  if(!filename)
+  }
+  else if(!File::fileExists(fn))
   {
-    strcpy(b1,"Control: Requested file doesn't exist");
-    addToErrorLog(a, b1, strlen(b1));
+    /*! If we cannot find the file send the right error ID. */
+    string msg;
+    msg.assign("Control: Requested file doesn't exist ");
+    msg.append(filename);
+    addToErrorLog(a, msg);
     Reboot = true;
     if(isAutoRebootToEnable)
       lserver->enableAutoReboot();
     return CONTROL_FILE_NOT_FOUND;
   }
+  else
+  {
+    filename = fn;    
+  }  
 
-  ret = File::deleteFile(fn);
+  /*! Remove the file before create it. */
+  ret = File::deleteFile(filename);
 
   /*! An internal server error happens. */
   if(ret)
@@ -897,25 +920,29 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
     return CONTROL_INTERNAL;
   }
 
-  ret = localfile.openFile(fn, FILE_OPEN_WRITE | FILE_OPEN_ALWAYS);
+  ret = localfile.openFile(filename, FILE_OPEN_WRITE | FILE_OPEN_ALWAYS);
 
   /*! An internal server error happens. */
   if(ret)
   {
-    strcpy(b1,"Control: Error opening the file");
-    addToErrorLog(a, b1, strlen(b1));
+    string msg;
+    msg.assign("Control: Error while opening the file ");
+    msg.append(filename);
+    addToErrorLog(a, msg);
     Reboot = true;
     if(isAutoRebootToEnable)
       lserver->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
-  for( ; ;)
+  for(;;)
   {
     ret = Ifile->readFromFile(b1, bs1, &nbr);
     if(ret)
     {
-      strcpy(b1,"Control: Error in reading from file");
-      addToErrorLog(a, b1, strlen(b1));
+      string msg;
+      msg.assign("Control: Error while reading to file ");
+      msg.append(filename);
+      addToErrorLog(a, msg);
       Reboot = true;
       if(isAutoRebootToEnable)
         lserver->enableAutoReboot();
@@ -930,8 +957,10 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
 
     if(ret)
     {
-      strcpy(b1,"Control: Error in writing to file");
-      addToErrorLog(a, b1, strlen(b1));
+      string msg;
+      msg.assign("Control: Error while writing to file ");
+      msg.append(filename);
+      addToErrorLog(a, msg);
       Reboot = true;
       if(isAutoRebootToEnable)
         lserver->enableAutoReboot();
@@ -949,7 +978,7 @@ int ControlProtocol::PUTFILE(ConnectionPtr a, char* fn, File* in,
 /*!
  *Show all the language files that the server can use.
  */
-int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out, 
+int ControlProtocol::showLanguageFiles(ConnectionPtr a, File* out, 
                                         char *b1,int bs1)
 {
   string searchPath;
@@ -994,8 +1023,10 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
 
     if(ret)
     {
-      strcpy(b1,"Control: Error in writing to temporary file");
-      addToErrorLog(a,b1, strlen(b1));
+      string outMsg;
+      outMsg.assign("Control: Error while writing to temporary file ");
+      outMsg.append(filename);
+      addToErrorLog(a,outMsg);
       return CONTROL_INTERNAL;
     }
   }
@@ -1007,7 +1038,7 @@ int ControlProtocol::SHOWLANGUAGEFILES(ConnectionPtr a, File* out,
 /*!
  *Return the current MyServer version.
  */
-int ControlProtocol::GETVERSION(ConnectionPtr a, File* out, char *b1,int bs1)
+int ControlProtocol::getVersion(ConnectionPtr a, File* out, char *b1,int bs1)
 {
   u_long nbw;
   sprintf(b1, "MyServer %s", versionOfSoftware);

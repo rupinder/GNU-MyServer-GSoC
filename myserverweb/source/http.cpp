@@ -1487,7 +1487,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       switch(td.connection->getToRemove())
       {
         /*! Remove the connection from the list. */
-      case CONNECTION_REMOVE_OverLOAD:
+      case CONNECTION_REMOVE_OVERLOAD:
         retvalue = raiseHTTPError(&td, a, e_503);
 				logHTTPaccess(&td, a);
 				return 0;
@@ -2107,7 +2107,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     {
       td->response.connection.assign("Keep-Alive");
     }
-    if(ID==e_401auth)
+    if(ID==e_401AUTH)
     {
       td->response.httpStatus = 401;
       td->buffer2->setLength(0);
@@ -2476,7 +2476,7 @@ int Http::sendAuth(HttpThreadContext* td, ConnectionPtr s)
 	else
 	{	
 		s->incnTries();
-		return raiseHTTPError(td, s, e_401auth);
+		return raiseHTTPError(td, s, e_401AUTH);
 	}
 }
 

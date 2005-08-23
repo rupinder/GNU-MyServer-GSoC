@@ -36,7 +36,7 @@ using namespace std;
 #define PROTOCOL_CONTROL		1002
 
 /*! Remove the connection due a high server load.  */
-#define CONNECTION_REMOVE_OverLOAD 1
+#define CONNECTION_REMOVE_OVERLOAD 1
 
 /*! Remove the connection if the administrator decided this.  */
 #define connection_USER_KILL        2

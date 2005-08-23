@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocol.h"
 #include "../include/control_header.h"
 
+#include <string>
+
+using namespace std;
 
 class ControlProtocol : public Protocol
 {
@@ -40,17 +43,20 @@ class ControlProtocol : public Protocol
   /*! Use control_header to parse the request. */
   ControlHeader header;
   int checkAuth();
-  int SHOWconnectionS(ConnectionPtr,File* out, char *b1,int bs1);
-  int SHOWDYNAMICPROTOCOLS(ConnectionPtr,File* out, char *b1,int bs1);
-  int SHOWLANGUAGEFILES(ConnectionPtr, File* out, char *b1,int bs1);
-  int KILLconnection(ConnectionPtr,u_long ID, File* out, char *b1,int bs1);
-  int GETFILE(ConnectionPtr, char*, File* in, File* out, 
+  int showConnections(ConnectionPtr,File* out, char *b1,int bs1);
+  int showDynamicProtocols(ConnectionPtr,File* out, char *b1,int bs1);
+  int showLanguageFiles(ConnectionPtr, File* out, char *b1,int bs1);
+  int killConnection(ConnectionPtr,u_long ID, File* out, char *b1,int bs1);
+  int getFile(ConnectionPtr, char*, File* in, File* out, 
               char *b1,int bs1 );
-  int PUTFILE(ConnectionPtr,char*, File* in, File* out, 
+  int putFile(ConnectionPtr,char*, File* in, File* out, 
               char *b1,int bs1 );
-  int GETVERSION(ConnectionPtr,File* out, char *b1,int bs1);
-  int addToErrorLog(ConnectionPtr con, char *b1, int bs1);
+  int getVersion(ConnectionPtr,File* out, char *b1,int bs1);
+  int addToErrorLog(ConnectionPtr con, const char *b1, int bs1);
   int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1);
+  int addToErrorLog(ConnectionPtr con, string& m)
+    {return addToErrorLog(con, m.c_str(), m.size());}
+
 public:
   int sendResponse(char*, int, ConnectionPtr, int, File* = 0);
   static int loadProtocol(XmlParser* languageParser);

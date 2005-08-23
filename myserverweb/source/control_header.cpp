@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2004, 2005 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -235,7 +235,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         return -1;
       }
 
-      if(!strncmp(field, "/auth ", 6))
+      if(!strncmp(field, "/AUTH ", 6))
       {
         offset += 6;
         int len = getCharInString(offset, ":", 64);
@@ -249,7 +249,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         myserver_strlcpy(authPassword, offset, min(len + 1, 64));
         offset += len + 2;
       }
-      else if(!strncmp(field, "/connection ", 12))
+      else if(!strncmp(field, "/CONNECTION ", 12))
       {
         offset += 12;
         int len = getCharInString(offset, "\r", 32);

@@ -1400,7 +1400,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
    *to remove it from the active connections list.
    */
 	if(maxConnections && (nConnections>maxConnections))
-		new_connection->setToRemove(CONNECTION_REMOVE_OverLOAD);
+		new_connection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
 	return new_connection;
 }
