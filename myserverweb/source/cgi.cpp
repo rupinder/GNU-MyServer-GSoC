@@ -209,7 +209,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   
 	/*!
    *Use a temporary file to store CGI output.
-   *Every thread has it own tmp file name(td->outputDataPath), 
+   *Every thread has its own tmp file name(td->outputDataPath), 
    *so use this name for the file that is going to be
    *created because more threads can access more CGI at the same time.
    */
@@ -229,9 +229,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 	}
-  
+
   /*! Open the stdin file for the new CGI process. */
-  if(stdInFile.openFile(td->inputDataPath, FILE_OPEN_READ|FILE_OPEN_ALWAYS|FILE_OPEN_TEMPORARY))
+  if(stdInFile.openFile(td->inputDataPath, 
+                        FILE_ATTRIBUTE_TEMPORARY|FILE_OPEN_READ|FILE_OPEN_ALWAYS))
   {
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file\r\n");
@@ -395,7 +396,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       {
         stdInFile.closeFile();
         stdOutFile.closeFile();
-        File::deleteFile(td->inputDataPath);
         chain.clearAllFilters(); 
         /*! Remove the connection on sockets error. */
         return 0;
@@ -404,7 +404,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        File::deleteFile(td->inputDataPath);
         chain.clearAllFilters(); 
         return 1;
       }
@@ -415,7 +414,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        File::deleteFile(td->inputDataPath);
         chain.clearAllFilters(); 
         /*! Remove the connection on sockets error. */
         return 0;       
@@ -428,7 +426,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        File::deleteFile(td->inputDataPath);
         chain.clearAllFilters(); 
         return 1;
       }
@@ -446,7 +443,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
-        File::deleteFile(td->inputDataPath);
         chain.clearAllFilters(); 
         /*! Remove the connection on sockets error. */
         return 0;      
@@ -460,7 +456,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
           {
             stdOutFile.closeFile();
             stdInFile.closeFile();
-            File::deleteFile(td->inputDataPath);
             chain.clearAllFilters(); 
             /*! Remove the connection on sockets error. */
             return 0;      
@@ -493,11 +488,16 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     td->response.contentLength.assign(buffer.str());
   }
   chain.clearAllFilters(); 	
-	/*! Close and delete the stdin and stdout files used by the CGI.  */
+	
+  /*! Close the stdin and stdout files used by the CGI.  */
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
-	File::deleteFile(td->inputDataPath);
-	File::deleteFile(td->outputDataPath);
+	
+	/*! Delete the file only if it was created by the CGI module. */
+	if(!td->inputData.getHandle())
+	  File::deleteFile(td->inputDataPath.c_str());
+  
+  File::deleteFile(outputDataPath.str().c_str());
 	return 1;  
 }
 

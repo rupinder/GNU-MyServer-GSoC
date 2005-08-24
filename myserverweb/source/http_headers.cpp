@@ -1251,8 +1251,10 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
           HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry(); 
           if(e)
           {
-            e->name.assign(command, HTTP_RESPONSE_OTHER_DIM);
-            e->value.assign(token,  HTTP_RESPONSE_OTHER_DIM);
+            if(strlen(command) > HTTP_RESPONSE_OTHER_DIM || strlen(token) > HTTP_RESPONSE_OTHER_DIM)
+              return 0;
+            e->name.assign(command);
+            e->value.assign(token);
             if(response->other.insert(command, e))
               delete e;
           }

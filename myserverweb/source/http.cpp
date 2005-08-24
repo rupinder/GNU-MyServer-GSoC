@@ -1576,7 +1576,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         td.buffer->getBuffer()[td.nBytesToRead<td.buffer->getRealLength()-1 
                       ? td.nBytesToRead : td.buffer->getRealLength()-1]='\0';
         /*!
-         *Create the file that contains the data posted.
+         *Create the file that contains the posted data.
          *This data is the stdin file in the CGI.
          */
         if(td.inputData.openFile(td.inputDataPath,FILE_CREATE_ALWAYS | 
@@ -2033,9 +2033,12 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       {
         ret = traceHTTPRESOURCE(&td, a, td.request.uri, 0);
       }
-      /*! Return Method not implemented(501). */
       else
       {
+        /*! 
+         *Return Method not implemented(501) if there 
+         *is not a dunamic methods manager. 
+         */
         if(!dynamicCommand)
           ret=raiseHTTPError(&td, a, e_501);
         else

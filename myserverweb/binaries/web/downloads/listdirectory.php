@@ -60,7 +60,7 @@ while(gettype($file=readdir($dh))!=boolean)
 
 	if(is_readable($file))		print "<td>r</td>";	else print "<td></td>";
 	if(is_writable($file))		print "<td>w</td>";	else print "<td></td>";
-	if(is_executable($file))	print "<td>x</td>";	else print "<td></td>";
+  if(is_executable($file))	print "<td>x</td>";	else print "<td></td>";
 
 	print "<td>".date("D d M Y g:i A T",fileatime($file))."</td>";
 	print "<td>".date("D d M Y g:i A T",filemtime($file))."</td>";
