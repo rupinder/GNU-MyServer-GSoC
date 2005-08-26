@@ -410,7 +410,11 @@ int Vhost::warningsLogWrite(const char* str)
   getLocalLogFormatDate(msg, 100);
   msg.append(" -- ");
   msg.append(str);
+#ifdef WIN32
   msg.append("\r\n");
+#else
+  msg.append("\n");
+#endif  
 	return warningsLogFile.write(msg.c_str());
 }
 
