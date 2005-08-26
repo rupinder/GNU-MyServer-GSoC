@@ -446,7 +446,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   {
     h.closeFile();
     ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
-    ((Vhost*)(s->host))->warningsLogWrite("HTTP File: Error allocating memory\r\n");
+    ((Vhost*)(s->host))->warningsLogWrite("HttpFile: Error allocating memory");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
     return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
@@ -455,7 +455,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   {
     h.closeFile();
     ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
-    ((Vhost*)(s->host))->warningsLogWrite("HTTP File: Internal error\r\n");
+    ((Vhost*)(s->host))->warningsLogWrite("HttpFile: Internal error");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
     return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);

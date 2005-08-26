@@ -29,7 +29,7 @@
 <MSG_THREADR>Thread crée</MSG_THREADR>
 <MSG_LISTENT>Création du thread écouteur...</MSG_LISTENT>
 <MSG_LISTENTR>Le thread écouteur est crée</MSG_LISTENTR>
-<MSG_READY>myServer est maintenant près à accepter des connections</MSG_READY>
+<MSG_READY>MyServer est maintenant près à accepter des connections</MSG_READY>
 <MSG_BREAK>Appuyer sur Ctrl+C pour arréter le serveur</MSG_BREAK>
 <MSG_STOPT>Extinction des threads...</MSG_STOPT>
 <MSG_TSTOPPED>Threads terminés</MSG_TSTOPPED>

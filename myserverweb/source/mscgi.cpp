@@ -105,7 +105,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
                                                        &(td->connection->socket) , &nbw, 1))
       {
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-        ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
+        ((Vhost*)td->connection->host)->warningsLogWrite("MSCGI: Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
         return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
@@ -131,9 +131,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     else
     {
       string msg;
-      msg.assign("Error accessing entrypoint: ");
+      msg.assign("MSCGI: error accessing entrypoint for ");
       msg.append(exec);
-      msg.append("\r\n");
       ((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(msg.c_str());
       ((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);

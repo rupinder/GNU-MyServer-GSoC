@@ -402,7 +402,7 @@ LogManager* Vhost::getAccessesLog()
 }
 
 /*!
- *Write to the warnings log file.
+ *Write a line to the warnings log file.
  */
 int Vhost::warningsLogWrite(const char* str)
 {
@@ -410,6 +410,7 @@ int Vhost::warningsLogWrite(const char* str)
   getLocalLogFormatDate(msg, 100);
   msg.append(" -- ");
   msg.append(str);
+  msg.append("\r\n");
 	return warningsLogFile.write(msg.c_str());
 }
 

@@ -34,7 +34,7 @@ por otra aplicación</ERR_BIND>
 <MSG_THREADR>Hilo creado</MSG_THREADR>
 <MSG_LISTENT>Creando hilo para escuchar...</MSG_LISTENT>
 <MSG_LISTENTR>Hilo para escuchar creado</MSG_LISTENTR>
-<MSG_READY>myServer preparado para aceptar conexiones</MSG_READY>
+<MSG_READY>MyServer preparado para aceptar conexiones</MSG_READY>
 <MSG_BREAK>Presione Ctrl+C para interrumpir ejecución</MSG_BREAK>
 <MSG_STOPT>Terminando hilos...</MSG_STOPT>
 <MSG_TSTOPPED>Hilos terminados</MSG_TSTOPPED>

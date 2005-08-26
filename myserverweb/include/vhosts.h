@@ -288,6 +288,7 @@ public:
 	File* getAccessesLogFile();
 
   int warningsLogWrite(const char*);
+  int warningsLogWriteln(const char*);  
 	File* getWarningsLogFile();
 };
 

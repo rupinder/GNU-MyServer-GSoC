@@ -27,7 +27,7 @@
 <MSG_THREADR>Thread creato</MSG_THREADR>
 <MSG_LISTENT>Creazione del thread di ascolto...</MSG_LISTENT>
 <MSG_LISTENTR>Thread di ascolto creato con successo</MSG_LISTENTR>
-<MSG_READY>myServer pronto ad accettare connessioni</MSG_READY>
+<MSG_READY>MyServer pronto ad accettare connessioni</MSG_READY>
 <MSG_BREAK>Premere Ctrl+C per terminare l'esecuzione</MSG_BREAK>
 <MSG_STOPT>Chiusura threads in corso...</MSG_STOPT>
 <MSG_TSTOPPED>Threads chiusi con successo</MSG_TSTOPPED>

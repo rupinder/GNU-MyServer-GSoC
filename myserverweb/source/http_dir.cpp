@@ -240,7 +240,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
                                    &(td->connection->socket) , &nbw, 1))
       {
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-        ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters\r\n");
+        ((Vhost*)td->connection->host)->warningsLogWrite("HttpDir: Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
         return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);

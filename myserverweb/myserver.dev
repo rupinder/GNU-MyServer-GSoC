@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=102
+UnitCount=103
 Type=1
 Ver=1
 ObjFiles=
@@ -1102,6 +1102,16 @@ BuildCmd=
 
 [Unit102]
 FileName=include\dyn_http_manager.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit103]
+FileName=include\filter.h
 CompileCpp=1
 Folder=myserver
 Compile=1

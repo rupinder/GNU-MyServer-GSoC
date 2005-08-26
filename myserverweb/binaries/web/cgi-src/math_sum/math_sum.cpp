@@ -31,7 +31,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 </head>\r\n<body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
 <br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n\
 <form action=\"math_sum.mscgi\" method=\"get\" enctype=\"text/plain\">\r\n\
-<div>\r\n<input type=\"text\" name=\"a\" size=\"20\" />\r\n<br /><br />\r\n+<br /><br /><br />\r\n<input type=\"text\" name=\"b\" size=\"20\" />\r\n<br /><br />\r\n<input type=\"submit\" value=\"Compute!\" />\r\n</div>\r\n</form>\r\n<br />\r\n</div>\r\n</body>\r\n</html>");
+<div>\r\n<input type=\"text\" name=\"a\" size=\"20\" />\r\n<br /><br />\r\n+<br /><br />\r\n<input type=\"text\" name=\"b\" size=\"20\" />\r\n<br /><br />\r\n<input type=\"submit\" value=\"Compute!\" />\r\n</div>\r\n</form>\r\n<br />\r\n</div>\r\n</body>\r\n</html>");
 	}     
 	else     
 	{ 	

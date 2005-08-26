@@ -33,7 +33,7 @@ outra aplicação</ERR_BIND>
 <MSG_THREADR>Thread criada</MSG_THREADR>
 <MSG_LISTENT>Criando thread de escuta...</MSG_LISTENT>
 <MSG_LISTENTR>Thread de escuta criada</MSG_LISTENTR>
-<MSG_READY>myServer está pronto para aceitar conexões agora</MSG_READY>
+<MSG_READY>MyServer está pronto para aceitar conexões agora</MSG_READY>
 <MSG_BREAK>Use o Ctrl+C para abortar a execução</MSG_BREAK>
 <MSG_STOPT>Terminando threads...</MSG_STOPT>
 <MSG_TSTOPPED>Threads terminadas</MSG_TSTOPPED>
