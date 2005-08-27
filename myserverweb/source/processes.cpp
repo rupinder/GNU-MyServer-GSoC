@@ -46,7 +46,7 @@ extern int mustEndServer;
  *Return -1 on fails.
  *Return 0 on success.
  */
-int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
+int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 {
 	int ret=0;
 #ifdef NOT_WIN
@@ -93,7 +93,7 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
 #endif
 #ifdef NOT_WIN
 	pid = fork();
-	if(pid < 0) // a bad thing happend
+	if(pid < 0) // a bad thing happened
 		return 0;
 	else if(pid == 0) // child
 	{	
@@ -106,10 +106,12 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
     /*! Build the args vector. */
     args[0]=spi->cmd.c_str();
     {
-      int count=1;
-      int len=spi->cmd.length();
-      for(int i=1; i<len; i++)
-        if(spi->cmd[i]==' ' && spi->cmd[i-1]!='\\')
+      int count = 1;
+      int len = spi->cmd.length();
+      int subString = (spi->cmd[0] == '"') ? 1 : 0;
+      for(int i = 1; i<len; i++)
+      {
+        if(spi->cmd[i]==' ' && !subString)
         {
           if(count < 99)
           {
@@ -120,6 +122,9 @@ int Process::execHiddenProcess(StartProcInfo *spi,u_long timeout)
           else
             break;
         }
+        if(spi->cmd[i]=='"')
+          subString = !subString;
+      }
       args[count++]=spi->arg.c_str();
       len=spi->arg.length();
       for(int i=1; i<len; i++)
@@ -329,8 +334,10 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
     {
       int count=1;
       int len=spi->cmd.length();
+      int subString = (spi->cmd[0] == '"') ? 1 : 0;
       for(int i=1; i<len; i++)
-        if(spi->cmd[i]==' ' && spi->cmd[i-1]!='\\')
+      {
+        if(spi->cmd[i]==' ' && !subString)
         {
           if(count < 99)
           {
@@ -341,6 +348,9 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
           else
             break;
         }
+        if(spi->cmd[i]=='"')
+          subString = !subString;
+      }
       args[count++]=spi->arg.c_str();
       len=spi->arg.length();
       for(int i=1; i<len; i++)

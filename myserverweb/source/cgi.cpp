@@ -82,6 +82,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	string tmpCgiPath;
 	u_long nBytesRead;
 	u_long headerSize;
+	
 	/*!
    *Standard CGI uses STDOUT to output the result and the STDIN 
    *to get other params like in a POST request.
@@ -92,25 +93,37 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	td->scriptPath.assign(scriptpath);
   
   {
+    /*! Do not modify the text between " and ". */
     int x;
     int subString = cgipath[0] == '"';
     int len=strlen(cgipath);
     for(x=1;x<len;x++)
     {
-      if(!subString && cgipath[x]==' ' && cgipath[x-1]!='\\')
+      if(!subString && cgipath[x]==' ')
         break;
       if(cgipath[x]=='"')
         subString = !subString;
     }
+
+    /*!
+     *Save the cgi path and the possible arguments.
+     *the (x<len) case is when additional arguments are specified. 
+     *If the cgipath is enclosed between " and " do not consider them 
+     *when splitting directory and file name.
+     */
     if(x<len)
     {
       string tmpString(cgipath);
-      tmpCgiPath.assign(tmpString.substr(0, x));
+      int begin = tmpString[0]=='"' ? 1: 0;
+      int end = tmpString[x]=='"' ? x: x-1;
+      tmpCgiPath.assign(tmpString.substr(begin, end-1));
       moreArg.assign(tmpString.substr(x, len-1));  
     }
     else
     {
-      tmpCgiPath.assign(cgipath);
+      int begin = (cgipath[0] == '"') ? 1 : 0;
+      int end   = (cgipath[len-1] == '"') ? len-1 : len-2;
+      tmpCgiPath.assign(&cgipath[begin], end-begin);
       moreArg.assign("");
     }
     File::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
@@ -142,7 +155,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 #ifdef WIN32
 		/*!
      *Under the windows platform to run a file like an executable
-     *use the sintact "cmd /c filename".
+     *use the command "cmd /c filename".
      */
     if(cgipath && strlen(cgipath))
       cmdLine << "cmd /c " << td->cgiRoot << "/"  <<  " " << moreArg << td->cgiFile << " " << 
@@ -184,7 +197,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       if(cgipath && strlen(cgipath))
       {
         string msg;
-        msg.assign("Cannot find ");
+        msg.assign("Cannot find the ");
         msg.append(cgipath);
         msg.append("executable");
         ((Vhost*)td->connection->host)->warningsLogWrite(msg.c_str());
@@ -201,15 +214,23 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       chain.clearAllFilters(); 
 			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
 		}
-    cmdLine << td->cgiRoot << "/" <<td->cgiFile << " " << spi.arg  
-                           << " " << td->scriptFile;
+
+    spi.arg.assign(moreArg);
+    spi.arg.append(" ");
+    spi.arg.append(td->scriptFile);		
+    
+    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " << moreArg 
+                    << " " << td->scriptFile;
+  
+    spi.cmd.assign(td->cgiRoot);
+    spi.cmd.append("/");
+    spi.cmd.append(td->cgiFile);
+    
     if(td->cgiFile.length()>4 && td->cgiFile[0]=='n'  && td->cgiFile[1]=='p'
                               && td->cgiFile[2]=='h' && td->cgiFile[3]=='-' )
       nph=1;
     else
       nph=0;
-    spi.cmd.assign(cgipath);
-    spi.arg.assign(td->scriptFile);
 	}
   
 	/*!
@@ -218,7 +239,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    *so use this name for the file that is going to be
    *created because more threads can access more CGI at the same time.
    */
-
   outputDataPath << getdefaultwd(0,0) << "/stdOutFileCGI_" 
                  <<  (unsigned int)td->id;
   
@@ -262,7 +282,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    */
 	spi.cmdLine = cmdLine.str();
 	spi.cwd.assign(td->scriptDir);
-  
+
 	spi.stdError = stdOutFile.getHandle();
 	spi.stdIn = stdInFile.getHandle();
 	spi.stdOut = stdOutFile.getHandle();

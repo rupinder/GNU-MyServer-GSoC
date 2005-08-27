@@ -149,7 +149,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         int subString = cgipath[0] == '"';
         for(x=1;x< len; x++)
         {
-          if(!subString && cgipath[x]==' ' && cgipath[x-1]!='\\')
+          if(!subString && cgipath[x]==' ' && (cgipath[x-1]!='\\' || cgipath[x-1]!='/'))
             break;
           if(cgipath[x]=='"')
             subString = !subString;
@@ -179,7 +179,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     int subString = cgipath[0] == '"';
     for(x=1;x<len; x++)
     {
-      if(!subString && cgipath[x]==' ' && cgipath[x-1]!='\\')
+      if(!subString && cgipath[x]==' ' && (cgipath[x-1]!='\\' || cgipath[x-1]!='/'))
         break;
       if(cgipath[x]=='"')
         subString = !subString;
