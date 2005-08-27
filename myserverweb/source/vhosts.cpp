@@ -105,8 +105,8 @@ MimeManager* Vhost::getMIME()
  */
 void Vhost::clearHostList()
 {
-	sHostList* shl=hostList;
-	sHostList* prevshl=0;
+	HostList* shl=hostList;
+	HostList* prevshl=0;
 	while(shl)
 	{
 		if(prevshl)
@@ -127,8 +127,8 @@ void Vhost::clearHostList()
  */
 void Vhost::clearIPList()
 {
-	sIpList* sil = ipList;
-	sIpList* prevsil = 0;
+	IpList* sil = ipList;
+	IpList* prevsil = 0;
 	while(sil)
 	{
 		if(prevsil)
@@ -149,7 +149,7 @@ void Vhost::clearIPList()
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {
-	sIpList* il=new sIpList();
+	IpList* il=new IpList();
   if(il==0)
     return;
 	il->hostIp.assign(ip);
@@ -171,8 +171,8 @@ void Vhost::addIP(const char *ip, int isRegex)
  */
 void Vhost::removeIP(const char *ip)
 {
-	Vhost::sIpList *iterator = ipList;
-	Vhost::sIpList *iteratorBack = 0;
+	Vhost::IpList *iterator = ipList;
+	Vhost::IpList *iteratorBack = 0;
 	if(iterator==0)
 		return;
 	while(iterator)
@@ -208,8 +208,8 @@ void Vhost::removeIP(const char *ip)
  */
 void Vhost::removeHost(const char *host)
 {
-	Vhost::sHostList *iterator = hostList;
-	Vhost::sHostList *iteratorBack = 0;
+	Vhost::HostList *iterator = hostList;
+	Vhost::HostList *iteratorBack = 0;
 	if(iterator == 0)
 		return;
 	while(iterator)
@@ -243,7 +243,7 @@ void Vhost::removeHost(const char *host)
  */
 int Vhost::isHostAllowed(const char* host)
 {
-	sHostList *lhl = hostList;
+	HostList *lhl = hostList;
   /*! If no hosts are specified then every host is allowed to connect here. */
 	if((lhl == 0) || (host == 0))
 		return 1;
@@ -293,7 +293,7 @@ int Vhost::isIPAllowed(const char* ip)
   /*! If no IPs are specified, every IP is allowed to connect to. */
 	if(ipList == 0)
 		return 1;
-	sIpList *lipl=ipList;
+	IpList *lipl=ipList;
 	while(lipl)
 	{
     regmatch_t pm;
@@ -316,7 +316,7 @@ int Vhost::isIPAllowed(const char* ip)
  */
 void Vhost::addHost(const char *host, int isRegex)
 {
-	sHostList* hl=new sHostList();
+	HostList* hl=new HostList();
   if(hl==0)
     return;
 	hl->hostName.assign( host );
@@ -452,8 +452,8 @@ int Vhost::getMaxLogSize()
  */
 int VhostManager::addVHost(Vhost* VHost)
 {
-  sVhostList* hostl;
-  sVhostList* lastHost;
+  VhostList* hostl;
+  VhostList* lastHost;
 
   mutex.lock();
 
@@ -503,7 +503,7 @@ int VhostManager::addVHost(Vhost* VHost)
 
     if(vhostList==0)
     {
-      vhostList=new sVhostList();	
+      vhostList=new VhostList();	
       if(vhostList == 0)
       {
         lserver->logPreparePrintError();
@@ -518,7 +518,7 @@ int VhostManager::addVHost(Vhost* VHost)
     else
     {
       /*! Append the new host to the end of the linked list. */
-      lastHost->next = new sVhostList();	
+      lastHost->next = new VhostList();	
       if(lastHost->next==0)
       {
         lserver->logPreparePrintError();
@@ -546,7 +546,7 @@ int VhostManager::addVHost(Vhost* VHost)
  */
 Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 {
-	sVhostList* vhl;
+	VhostList* vhl;
   
   mutex.lock();
   
@@ -600,8 +600,8 @@ VhostManager::VhostManager()
  */
 void VhostManager::clean()
 {
-  sVhostList* shl;
-	sVhostList* prevshl=0;
+  VhostList* shl;
+	VhostList* prevshl=0;
 
 	mutex.lock();
   
@@ -863,7 +863,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
 		return;
 	u_long nbw;
 	File fh;
-	sVhostList*vhl;
+	VhostList* vhl;
 
   mutex.lock();
 
@@ -874,8 +874,8 @@ void VhostManager::saveConfigurationFile(const char *filename)
     for(;vhl;vhl=vhl->next )
     {
       Vhost* vh=vhl->host;
-      Vhost::sIpList* il;
-      Vhost::sHostList* hl=vh->getHostList();
+      Vhost::IpList* il;
+      Vhost::HostList* hl=vh->getHostList();
       if(hl)
       {
         while(hl)
@@ -978,7 +978,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
 /*!
  *Returns the entire virtual hosts list.
  */
-sVhostList* VhostManager::getVHostList()
+VhostList* VhostManager::getVHostList()
 {
 	return this->vhostList;
 }
@@ -989,8 +989,8 @@ sVhostList* VhostManager::getVHostList()
  */
 int VhostManager::switchVhosts(int n1,int n2)
 {
-	sVhostList *vh1;
-	sVhostList *vh2;
+	VhostList *vh1;
+	VhostList *vh2;
 	int i;
 	if(max(n1,n2)>=getHostsNumber())
 		return 0;
@@ -1011,7 +1011,7 @@ int VhostManager::switchVhosts(int n1,int n2)
 /*!
  *Switch two virtual hosts.
  */
-int VhostManager::switchVhosts(sVhostList * vh1, sVhostList * vh2)
+int VhostManager::switchVhosts(VhostList * vh1, VhostList * vh2)
 {
   Vhost* vh3;
 	if((vh1==0)||(vh2==0))
@@ -1028,7 +1028,7 @@ int VhostManager::switchVhosts(sVhostList * vh1, sVhostList * vh2)
 int VhostManager::getHostsNumber()
 {
 	int i;
-	sVhostList *vh = vhostList;
+	VhostList *vh = vhostList;
 	for(i=0;vh;i++,vh=vh->next );
 	return i;
 }
@@ -1076,7 +1076,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
     }
 		while(lcur)
     {
-      Vhost::vhsslcontext * sslContext = vh->getVhostSSLContext();
+      Vhost::VhSslContext * sslContext = vh->getVhostSSLContext();
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
 			{
         int useRegex = 0;
@@ -1320,7 +1320,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
  */
 void VhostManager::saveXMLConfigurationFile(const char *filename)
 {
-	sVhostList *list;
+	VhostList *list;
 	File out;
 	u_long nbw;
 	out.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
@@ -1333,8 +1333,8 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
     while(list)
     {
       char port[6];
-      Vhost::sIpList *ipList;
-      Vhost::sHostList *hostList;
+      Vhost::IpList *ipList;
+      Vhost::HostList *hostList;
       out.writeToFile("<VHOST>\r\n",9,&nbw);
       
       out.writeToFile("<NAME>",6,&nbw);
@@ -1550,7 +1550,7 @@ int Vhost::freeSSL()
  */
 Vhost* VhostManager::getVHostByNumber(int n)
 {
-	sVhostList *hl;
+	VhostList *hl;
   mutex.lock();
   try
   {
@@ -1587,8 +1587,8 @@ Vhost* VhostManager::getVHostByNumber(int n)
  */
 int VhostManager::removeVHost(int n)
 {
-	sVhostList *hl;
-	sVhostList *bl=0;
+	VhostList *hl;
+	VhostList *bl=0;
 	
   mutex.lock();
 	try

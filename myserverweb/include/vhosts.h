@@ -56,7 +56,7 @@ public:
 	{
 		string hostName;
     Regex hostRegex;
-		sHostList *next;
+		HostList *next;
 	};
 
 	struct VhSslContext
@@ -76,7 +76,7 @@ public:
 	{
     string hostIp;
     Regex ipRegex;
-    sIpList *next; 
+    IpList *next; 
 	};
 
 
@@ -188,7 +188,7 @@ public:
     {warningLogOpt.assign(c); }
 
   /*! Get a pointer to the vhost SSL context. */
-  vhsslcontext *getVhostSSLContext()
+  VhSslContext *getVhostSSLContext()
     {return &sslContext;};
 
 	/*! Initialize SSL things. */
@@ -207,11 +207,11 @@ public:
 #endif
 
   /*! Get the list of hosts allowed.*/
-	sHostList *getHostList()
+	HostList *getHostList()
     {return hostList;};
 	
 	/*! List of IPs allowed by the vhost. */
-	sIpList *getIpList()
+	IpList *getIpList()
     {return ipList;}
 
   /*! Return the port used by the host. */
@@ -292,16 +292,16 @@ public:
 	File* getWarningsLogFile();
 };
 
-struct sVhostList
+struct VhostList
 {
   Vhost* host;
-  sVhostList* next;
+  VhostList* next;
 };
 
 class VhostSource
 {
 private:
-	sVhostList *hostList;
+	VhostList *hostList;
 public:
   VhostSource();
   ~VhostSource();
@@ -318,7 +318,7 @@ public:
 private:
 	VhostSource* extSource;
 	/*! List of virtual hosts. */
-	sVhostList *vhostList;
+	VhostList *vhostList;
 public:
   void setExternalSource(VhostSource* extSource);
 	VhostManager();
@@ -328,8 +328,8 @@ public:
 	void clean();
 	int removeVHost(int n);
 	int switchVhosts(int n1,int n2);
-	int switchVhosts(sVhostList*,sVhostList*);
-	sVhostList* getVHostList();
+	int switchVhosts(VhostList*,VhostList*);
+	VhostList* getVHostList();
 	
 	/*! Get a pointer to a vhost.  */
 	Vhost* getVHost(const char*,const char*,u_short);
