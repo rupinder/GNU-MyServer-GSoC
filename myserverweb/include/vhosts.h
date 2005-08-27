@@ -52,14 +52,14 @@ class Vhost
 {
 public:
   friend class VHostManager;
-	struct sHostList
+	struct HostList
 	{
 		string hostName;
     Regex hostRegex;
 		sHostList *next;
 	};
 
-	struct vhsslcontext
+	struct VhSslContext
 	{
 #ifndef DO_NOT_USE_SSL
 		SSL_CTX* context;
@@ -72,7 +72,7 @@ public:
 		string privateKeyFile;
 		string password;
 	};
-	struct sIpList
+	struct IpList
 	{
     string hostIp;
     Regex ipRegex;
@@ -90,13 +90,13 @@ private:
   int refCount;
 
 	/*! SSL context. */
-	vhsslcontext sslContext;
+	VhSslContext sslContext;
 
 	/*! List of hosts allowed by the vhost. */
-	sHostList *hostList;
+	HostList *hostList;
 	
 	/*! List of IPs allowed by the vhost. */
-	sIpList *ipList;
+	IpList *ipList;
 
 	/*! TCP port used to listen on. */
 	u_short port;
