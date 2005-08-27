@@ -93,10 +93,15 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   
   {
     int x;
+    int subString = cgipath[0] == '"';
     int len=strlen(cgipath);
     for(x=1;x<len;x++)
-      if(cgipath[x]==' ' && cgipath[x-1]!='\\')
+    {
+      if(!subString && cgipath[x]==' ' && cgipath[x-1]!='\\')
         break;
+      if(cgipath[x]=='"')
+        subString = !subString;
+    }
     if(x<len)
     {
       string tmpString(cgipath);

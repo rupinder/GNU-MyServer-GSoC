@@ -146,9 +146,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         int x;
         string cgipathString(cgipath);
         int len=strlen(cgipath);
+        int subString = cgipath[0] == '"';
         for(x=1;x< len; x++)
-          if(cgipath[x]==' ' && cgipath[x-1]!='\\')
+        {
+          if(!subString && cgipath[x]==' ' && cgipath[x-1]!='\\')
             break;
+          if(cgipath[x]=='"')
+            subString = !subString;
+        }
         if(x<len)
           fullpath << "\"" << cgipathString.substr(0, x) << "\"  " <<  
                    cgipathString.substr(x, len-1) << " " <<
@@ -162,24 +167,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
 		else
     {
-#ifdef WIN32
-      {
-        int x;
-        int len = td->filenamePath.length();
-        for(x=1;x<len; x++)
-          if(td->filenamePath[x]==' ' && td->filenamePath[x-1]!='\\')
-            break;
-        
-        if(x<len)
-			    fullpath << "\"" << td->filenamePath.substr(0, x) << "\"" 
-                   << td->filenamePath.substr(x, len-1);
-        else
- 			    fullpath << "\"" << td->filenamePath << "\"";           	
-      }
-#else
-      fullpath << td->filenamePath;		   
-#endif
-		
+      fullpath << scriptpath;
     }
 	}
 	else
@@ -188,9 +176,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     int x;
     string cgipathString(cgipath);
     int len=strlen(cgipath);
+    int subString = cgipath[0] == '"';
     for(x=1;x<len; x++)
-    if(cgipath[x]==' ' && cgipath[x-1]!='\\')
-      break;
+    {
+      if(!subString && cgipath[x]==' ' && cgipath[x-1]!='\\')
+        break;
+      if(cgipath[x]=='"')
+        subString = !subString;
+    }
     if(x<len)
       fullpath << "\"" << cgipathString.substr(0, x) << "\" " <<  
               cgipathString.substr(x, len-1);
@@ -209,7 +202,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer<< "FastCGI: Error to build env string";
+      *td->buffer<< "FastCGI: Error to build env string" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -225,7 +218,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer<< "FastCGI: Error opening stdin file";
+      *td->buffer<< "FastCGI: Error opening stdin file" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -241,7 +234,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(lserver->getVerbosity() > 2)
     {
       *td->buffer<< "FastCGI: Error connecting to FastCGI "
-                 << fullpath.str().c_str() << " process";
+                 << fullpath.str().c_str() << " process" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -261,7 +254,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer<< "FastCGI: Error beginning the request";
+      *td->buffer<< "FastCGI: Error beginning the request" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -277,7 +270,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer << "FastCGI: Error sending params";
+      *td->buffer << "FastCGI: Error sending params" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -292,7 +285,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer << "FastCGI: Error sending params";
+      *td->buffer << "FastCGI: Error sending params" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -310,7 +303,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		if(td->inputData.setFilePointer(0))
       if(lserver->getVerbosity() > 2)
       {
-        *td->buffer << "FastCGI: Error sending POST data";
+        *td->buffer << "FastCGI: Error sending POST data" << '\0';
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
         ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -325,7 +318,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         td->buffer->setLength(0);
         if(lserver->getVerbosity() > 2)
         {
-          *td->buffer << "FastCGI: Error reading from file";
+          *td->buffer << "FastCGI: Error reading from file" << '\0';
           ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
           ((Vhost*)td->connection->host)->warningsLogWrite(
                                                     td->buffer->getBuffer());
@@ -349,7 +342,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         td->buffer->setLength(0);
         if(lserver->getVerbosity() > 2)
         {
-          *td->buffer << "FastCGI: Error sending data";
+          *td->buffer << "FastCGI: Error sending data" << '\0';
           ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
           ((Vhost*)td->connection->host)->warningsLogWrite(
                                                            td->buffer->getBuffer());
@@ -367,7 +360,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer << "FastCGI: Error sending POST data";
+      *td->buffer << "FastCGI: Error sending POST data" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->
                      warningsLogWrite(td->buffer->getBuffer());
@@ -393,7 +386,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                           FILE_NO_INHERIT))
   {
     td->buffer->setLength(0);
-		*td->buffer << "FastCGI: Error opening stdout file";
+		*td->buffer << "FastCGI: Error opening stdout file" << '\0';
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->
                             warningsLogWrite(td->buffer->getBuffer());
@@ -418,7 +411,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       if(nbr == (u_long)-1)
       {
         td->buffer->setLength(0);
-        *td->buffer << "FastCGI: Error reading data";
+        *td->buffer << "FastCGI: Error reading data" << '\0';
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
         ((Vhost*)td->connection->host)->warningsLogWrite(
                                              td->buffer->getBuffer());
@@ -431,7 +424,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		else
 		{
 			td->buffer->setLength(0);
-			*td->buffer << "FastCGI: Error timeout";
+			*td->buffer << "FastCGI: Error timeout" << '\0';
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 			((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -954,7 +947,7 @@ sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
     {
       if(lserver->getVerbosity() > 2)
       {
-        *context->td->buffer<< "FastCGI: Error allocating memory";
+        *context->td->buffer<< "FastCGI: Error allocating memory" << '\0';
         ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
         ((Vhost*)context->td->connection->host)->warningsLogWrite(context->td->buffer->getBuffer());
         ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
@@ -977,7 +970,7 @@ sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
           if(lserver->getVerbosity() > 1)
           {
             *context->td->buffer << "FastCGI: Error while rebooting " 
-                                 << path;
+                                 << path << '\0';
             ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
             ((Vhost*)context->td->connection->host)->warningsLogWrite(
                                                                       context->td->buffer->getBuffer());
@@ -998,7 +991,7 @@ sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
           if(lserver->getVerbosity() > 1)
           {
             *context->td->buffer << "FastCGI: Error running " 
-                                 << path;
+                                 << path << '\0';
             ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(context->td->id);
             ((Vhost*)context->td->connection->host)->warningsLogWrite(
                                                      context->td->buffer->getBuffer());

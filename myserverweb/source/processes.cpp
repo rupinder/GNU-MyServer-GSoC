@@ -307,7 +307,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 
 	ret=CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
                     spi->envString, cwd, &si, &pi);
-	if(!ret)
+ 	if(!ret)
 		return (-1);	
 	pid = (*((int*)&pi.hProcess));
   return pid;

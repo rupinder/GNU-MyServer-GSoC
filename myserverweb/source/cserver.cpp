@@ -568,10 +568,10 @@ void Server::createListenThreads()
    *Create the listens threads.
    *Every port uses a thread.
    */
-	for(sVhostList *list=vhostList->getVHostList(); list; list=list->next)
+	for(VhostList *list=vhostList->getVHostList(); list; list=list->next)
 	{
 		int needThread=1;
-		sVhostList *list2=vhostList->getVHostList();
+		VhostList *list2=vhostList->getVHostList();
     /*! No port was specified. */
 		if(list->host->getPort()==0)
 			continue;

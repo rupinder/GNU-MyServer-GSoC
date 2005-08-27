@@ -392,7 +392,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     
 		td->outputData.writeToFile((char*)(buffer+headerSize),
                                nBytesRead-headerSize,&nbw2);
-    nbw +=    nbw2;
+    nbw += nbw2;
   }
 
   /*! Flush the rest of the file. */

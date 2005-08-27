@@ -68,7 +68,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
 	
-	int dataSent=0;
+	u_long dataSent=0;
 
   try
   {
@@ -164,6 +164,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }
       dataSent+=nbw;  
     }
+    
     if(useGzip && !chain.isFilterPresent("gzip"))
     {
       Filter* gzipFilter = lserver->getFiltersFactory()->getFilter("gzip");
@@ -286,7 +287,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             chain.clearAllFilters();
             return 1;
           }     
-          dataSent += nbw;
         }
         else
         {
@@ -318,7 +318,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       
       bytes_to_send-=nbr;
 
-      /*! If there are bytes to send, send them. */
+      /*! Check if there are no other bytes to send. */
       if(!nbr)
       {
         if(usechunks)
@@ -355,42 +355,49 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             if(ret)
               break;
           }
+          
         }
         else
         {
-          ret=chain.flush(&nbr);
+          /*! If we don't use chunks we can flush directly. */
+          ret=chain.flush(&nbw);
           if(ret)
             break;
-          dataSent+=nbr;
+          dataSent+=nbw;
         }
         if(ret)
           break;
 
         lastchunk=1; 
       }
-      
+
       if(nbr)
       {
         if(usechunks)
         {
           u_long nbw2;
           ostringstream buffer;
-          Stream *s;
-   
-          s=chain.getFirstFilter();
-          if(!s)
-             s=chain.getStream();
-          if(!s)
-            break;
 
+          /*! 
+          *We need to save data in the memory stream as we need the final length
+          *before we can flush to the real stream.
+          */
           {
             Stream *tmp=chain.getStream();
+            if(!tmp)
+            {
+              ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
+              ((Vhost*)(s->host))->warningsLogWrite("HttpFile: no stream");
+              ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
+              break;
+            }
             chain.setStream(&memStream);
             chain.write(td->buffer->getBuffer(), nbr, &nbw);
             chain.setStream(tmp);
           }
           ret=memStream.read(td->buffer->getBuffer(), 
                              td->buffer->getRealLength(), &nbw);
+                             
           if(ret)
             break;  
 
@@ -435,12 +442,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     }/*End for loop. */
 
     h.closeFile();
-    /*! Update the Content-Length field for logging activity. */
-    {
-      ostringstream buffer;
-      buffer << dataSent;
-      td->response.contentLength.assign(buffer.str());
-    }
   }
   catch(bad_alloc &ba)
   {
@@ -460,7 +461,13 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     chain.clearAllFilters();
     return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
   };
-
+ 
+  /*! Update the Content-Length field for logging activity. */
+  {
+    ostringstream buffer;
+    buffer << dataSent;
+    td->response.contentLength.assign(buffer.str());
+  } 
   chain.clearAllFilters();
 	return 1;
 }
