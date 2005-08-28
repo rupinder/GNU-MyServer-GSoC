@@ -102,43 +102,62 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		int index = 0;
 		const char *envp[100];
     const char *args[100];
-
     /*! Build the args vector. */
     args[0]=spi->cmd.c_str();
     {
       int count = 1;
-      int len = spi->cmd.length();
-      int subString = (spi->cmd[0] == '"') ? 1 : 0;
-      for(int i = 1; i<len; i++)
+      int len=spi->arg.length();
+      int start = 0;
+      while((spi->arg[start]== ' ') && (start < len))
+        start++;
+      for(int i=start; i<len; i++)
       {
-        if(spi->cmd[i]==' ' && !subString)
-        {
-          if(count < 99)
-          {
-            if((const char*)&(spi->cmd.c_str())[i+1])
-              args[count++]=(const char*)&(spi->cmd.c_str())[i+1];
-            spi->cmd[i]='\0';
-          }
-          else
-            break;
-        }
-        if(spi->cmd[i]=='"')
-          subString = !subString;
-      }
-      args[count++]=spi->arg.c_str();
-      len=spi->arg.length();
-      for(int i=1; i<len; i++)
-        if(spi->arg[i]==' ' && spi->arg[i-1]!='\\')
+        if(spi->arg[i]=='"')
         {
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[i+1];
+            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            start = i+1;
             spi->arg[i]='\0';
           }
           else
             break;
+          while(spi->arg[++i]!='"' && i<len);
+          if(i==len)
+            exit(1);
+          if(count < 100)
+          {
+            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            start = i+1;
+            spi->arg[i]='\0';
+          }
+          else
+            break;                                      
         }
+        else if(spi->arg[i]==' ')
+        {
+          if(i-start <= 1)
+            continue;
+          if(count < 100)
+          {
+            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            start = i+1;
+            spi->arg[i]='\0';
+            while((spi->arg[start]== ' ') && (start < len))
+              start++;
+            i=start;
+          }
+          else
+            break;
+        }
+      }
+      if(count < 100 && (len != start))
+      {
+        args[count++]=(const char*)&(spi->arg.c_str())[start];
+      }
+
       args[count]=NULL;
+   
     }
 
 		if(spi->envString != NULL)
@@ -167,8 +186,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 			if(ret == -1)
 				exit(1);
 		}
-
-		// If stdOut is -1, pipe to /dev/null
+ 		// If stdOut is -1, pipe to /dev/null
 		if((long)spi->stdOut == -1)
 			spi->stdOut = (FileHandle)open("/dev/null", O_WRONLY);
 		// map stdio to files
@@ -195,7 +213,6 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		// Run the script
     ret=execve((const char*)(spi->cmd.c_str()),
                (char* const*)args,(char* const*) envp);
-    printf("\r\n\r\n%i\n", ret);
     exit(0);
 
 	} // end else if(pid == 0)
@@ -332,41 +349,60 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
    /*! Build the args vector. */
     args[0]=spi->cmd.c_str();
     {
-      int count=1;
-      int len=spi->cmd.length();
-      int subString = (spi->cmd[0] == '"') ? 1 : 0;
-      for(int i=1; i<len; i++)
+      int count = 1;
+      int len=spi->arg.length();
+      int start = 0;
+      while((spi->arg[start]== ' ') && (start < len))
+        start++;
+      for(int i=start; i<len; i++)
       {
-        if(spi->cmd[i]==' ' && !subString)
-        {
-          if(count < 99)
-          {
-            if((const char*)&(spi->cmd.c_str())[i+1])
-              args[count++]=(const char*)&(spi->cmd.c_str())[i+1];
-            spi->cmd[i]='\0';
-          }
-          else
-            break;
-        }
-        if(spi->cmd[i]=='"')
-          subString = !subString;
-      }
-      args[count++]=spi->arg.c_str();
-      len=spi->arg.length();
-      for(int i=1; i<len; i++)
-        if(spi->arg[i]==' ' && spi->arg[i-1]!='\\')
+        if(spi->arg[i]=='"')
         {
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[i+1];
+            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            start = i+1;
             spi->arg[i]='\0';
           }
           else
             break;
+          while(spi->arg[++i]!='"' && i<len);
+          if(i==len)
+            exit(1);
+          if(count < 100)
+          {
+            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            start = i+1;
+            spi->arg[i]='\0';
+          }
+          else
+            break;                                      
         }
+        else if(spi->arg[i]==' ')
+        {
+          if(i-start <= 1)
+            continue;
+          if(count < 100)
+          {
+            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            start = i+1;
+            spi->arg[i]='\0';
+            while((spi->arg[start]== ' ') && (start < len))
+              start++;
+            i=start;
+          }
+          else
+            break;
+        }
+      }
+      if(count < 100 && len != start)
+      {
+        args[count++]=(const char*)&(spi->arg.c_str())[start];
+      }
+
       args[count]=NULL;
     }
-		
+   
 		if(spi->envString != NULL)
 		{
 			while(*((char *)(spi->envString) + i) != '\0')

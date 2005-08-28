@@ -444,10 +444,11 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	File::deleteFile(outFilePath);
 	File::deleteFile(dataFilePath);
 	return 1;
-#endif
-
-#ifdef NOT_WIN
-  /*! WinCGI is available only under windows. */
+#else
+  /*! 
+   *WinCGI is available only under windows. Raise the right error when it is used under another
+   *architecture.
+   */
 	td->buffer->setLength(0);
 	*td->buffer << "WinCGI: Not implemented";
 	((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);

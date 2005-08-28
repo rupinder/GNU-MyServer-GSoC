@@ -101,10 +101,12 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   int sizeEnvString;
   sserversList* server=0;
   int id;
-	ostringstream fullpath;
+	ostringstream cmdLine;
   char *buffer=0;
   char tmpSize[11];
 
+  string moreArg;
+  
   const size_t maxStdinChunk=8192;/*! Size of data chunks to use with STDIN. */
 
   td->scriptPath.assign(scriptpath);
@@ -137,6 +139,50 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   td->buffer->setLength(0);
 	td->buffer2->getAt(0)='\0';
+	
+	
+  {
+    /*! Do not modify the text between " and ". */
+    int x;
+    int subString = cgipath[0] == '"';
+    int len=strlen(cgipath);
+    string tmpCgiPath;
+    for(x=1;x<len;x++)
+    {
+      if(!subString && cgipath[x]==' ')
+        break;
+      if(cgipath[x]=='"')
+        subString = !subString;
+    }
+    /*!
+     *Save the cgi path and the possible arguments.
+     *the (x<len) case is when additional arguments are specified. 
+     *If the cgipath is enclosed between " and " do not consider them 
+     *when splitting directory and file name.
+     */
+    if(len)
+    {
+      if(x<len)
+      {
+        string tmpString(cgipath);
+        int begin = tmpString[0]=='"' ? 1: 0;
+        int end = tmpString[x]=='"' ? x: x-1;
+        tmpCgiPath.assign(tmpString.substr(begin, end-1));
+        moreArg.assign(tmpString.substr(x, len-1));  
+      }
+      else
+      {
+        int begin = (cgipath[0] == '"') ? 1 : 0;
+        int end   = (cgipath[len] == '"') ? len-1 : len;
+        tmpCgiPath.assign(&cgipath[begin], end-begin);
+        moreArg.assign("");
+      }
+      File::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
+    }
+    tmpCgiPath.assign(scriptpath);
+    File::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
+  }
+  
 	if(execute)
 	{
 		if(cgipath && strlen(cgipath))
@@ -147,50 +193,29 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         string cgipathString(cgipath);
         int len=strlen(cgipath);
         int subString = cgipath[0] == '"';
-        for(x=1;x< len; x++)
-        {
-          if(!subString && cgipath[x]==' ' && (cgipath[x-1]!='\\' || cgipath[x-1]!='/'))
-            break;
-          if(cgipath[x]=='"')
-            subString = !subString;
-        }
-        if(x<len)
-          fullpath << "\"" << cgipathString.substr(0, x) << "\"  " <<  
-                   cgipathString.substr(x, len-1) << " " <<
-                   td->filenamePath;
-        else
-			    fullpath << "\"" << cgipath << "\" \"" <<  td->filenamePath << "\"";
+
+		    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " << moreArg 
+                           << " \"" <<  td->filenamePath << "\""; 
       }
 #else
- 			fullpath << cgipath << " " << td->filenamePath;     
+ 			cmdLine << cgipath << " " << td->filenamePath;     
 #endif
-    }
+    }/*if(execute)*/
 		else
     {
-      fullpath << scriptpath;
+      cmdLine << scriptpath;
     }
 	}
 	else
 	{
 #ifdef WIN32
-    int x;
-    string cgipathString(cgipath);
-    int len=strlen(cgipath);
-    int subString = cgipath[0] == '"';
-    for(x=1;x<len; x++)
-    {
-      if(!subString && cgipath[x]==' ' && (cgipath[x-1]!='\\' || cgipath[x-1]!='/'))
-        break;
-      if(cgipath[x]=='"')
-        subString = !subString;
-    }
-    if(x<len)
-      fullpath << "\"" << cgipathString.substr(0, x) << "\" " <<  
-              cgipathString.substr(x, len-1);
-      else
-			  fullpath << "\"" << cgipath << "\"";
+    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile 
+            << "\" " << moreArg;
 #else
-    fullpath << cgipath;   
+    if(moreArg.length())
+      cmdLine << cgipath << " " << moreArg;
+    else
+      cmdLine << cgipath;
 #endif
 	}
 
@@ -202,7 +227,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer<< "FastCGI: Error to build env string" << '\0';
+      *td->buffer << "FastCGI: Error to build env string" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -218,7 +243,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer<< "FastCGI: Error opening stdin file" << '\0';
+      *td->buffer << "FastCGI: Error opening stdin file" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
@@ -227,14 +252,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
   }
 
-  server = fcgiConnect(&con,fullpath.str().c_str());
+  server = fcgiConnect(&con,cmdLine.str().c_str());
 	if(server == 0)
   {
 		td->buffer->setLength(0);
     if(lserver->getVerbosity() > 2)
     {
-      *td->buffer<< "FastCGI: Error connecting to FastCGI "
-                 << fullpath.str().c_str() << " process" << '\0';
+      *td->buffer << "FastCGI: Error connecting to FastCGI "
+                  << cmdLine.str().c_str() << " process" << '\0';
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
       ((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);

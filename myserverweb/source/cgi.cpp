@@ -122,7 +122,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     else
     {
       int begin = (cgipath[0] == '"') ? 1 : 0;
-      int end   = (cgipath[len-1] == '"') ? len-1 : len-2;
+      int end   = (cgipath[len] == '"') ? len-1 : len;
       tmpCgiPath.assign(&cgipath[begin], end-begin);
       moreArg.assign("");
     }
@@ -217,6 +217,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 
     spi.arg.assign(moreArg);
     spi.arg.append(" ");
+    spi.arg.append(td->scriptDir);	
+    spi.arg.append("/");
     spi.arg.append(td->scriptFile);		
     
     cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " << moreArg 
@@ -257,7 +259,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 
   /*! Open the stdin file for the new CGI process. */
   if(stdInFile.openFile(td->inputDataPath, 
-                        FILE_ATTRIBUTE_TEMPORARY|FILE_OPEN_READ|FILE_OPEN_ALWAYS))
+                        FILE_OPEN_TEMPORARY|FILE_OPEN_READ|FILE_OPEN_ALWAYS))
   {
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite("Cannot open CGI stdin file");
