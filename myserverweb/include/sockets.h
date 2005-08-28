@@ -81,7 +81,7 @@ private:
 	SSL_CTX *sslContext;
 	X509 *clientCert;
 
-  /*! This is used only by clientside sockets. */
+  /*! This is used only by clients sockets. */
   SSL_METHOD* sslMethod;
 #endif
 	/*! Pointer to the socket that has accepted this connection.  */
@@ -120,6 +120,7 @@ public:
 	int ioctlsocket(long, unsigned long*);
 	int send(const char*, int, int);
 	int connect(MYSERVER_SOCKADDR*, int);
+	int connect(const char* host, u_short port);
 	int recv(char*, int, int);
 	int recv(char*, int, int, u_long);
 	u_long bytesToRead();

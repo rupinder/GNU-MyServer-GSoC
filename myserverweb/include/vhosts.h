@@ -81,6 +81,7 @@ public:
 
 
 private:
+  Mutex refMutex;
 	LogManager warningsLogFile;
 	LogManager accessesLogFile;
 
@@ -189,7 +190,7 @@ public:
 
   /*! Get a pointer to the vhost SSL context. */
   VhSslContext *getVhostSSLContext()
-    {return &sslContext;};
+    {return &sslContext;}
 
 	/*! Initialize SSL things. */
 	int initializeSSL();
@@ -208,7 +209,7 @@ public:
 
   /*! Get the list of hosts allowed.*/
 	HostList *getHostList()
-    {return hostList;};
+    {return hostList;}
 	
 	/*! List of IPs allowed by the vhost. */
 	IpList *getIpList()
@@ -216,41 +217,41 @@ public:
 
   /*! Return the port used by the host. */
 	u_short getPort()
-    {return port;};
+    {return port;}
 
   /*! Set the port used by the host. */
 	void setPort(u_short p)
-    {port=p;};
+    {port=p;}
 
   /*! Get the protocol name for the virtual host. */
 	const char* getProtocolName()
-    {return protocolName.c_str();};
+    {return protocolName.c_str();}
 
   /*! Set the protocol name for the virtual host. */
 	void setProtocolName(const char *name)
-    {protocolName.assign(name);};
+    {protocolName.assign(name);}
 
   /*! 
    *Get the protocol used by the virtual host. 
    *This is used only for the built in protocols. 
    */
 	ConnectionProtocol getProtocol()
-    {return protocol;};
+    {return protocol;}
 
   /*! 
    *Set the protocol used by the virtual host. 
    *This is used only for the built in protocols. 
    */
 	void setProtocol(ConnectionProtocol cp)
-    {protocol=cp;};
+    {protocol=cp;}
 
   /*! Get the throttling rate for the virtual host. */
   u_long getThrottlingRate()
-    {return throttlingRate;};
+    {return throttlingRate;}
 
   /*! Set the throttling rate for the virtual host. */
   void setThrottlingRate(u_long tr)
-    {throttlingRate=tr;};
+    {throttlingRate=tr;}
 
 	Vhost();
 

@@ -116,10 +116,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     /*! 
      *If compiled without GZIP support force the server to don't use it.  
      */
-    useGzip=false;
+    useGzip =  false;
 #endif	
     if(td->appendOutputs)
-      useGzip=false;
+      useGzip = false;
 
     /*! 
      *bytes_to_send is the interval between the first and the last byte.  
@@ -133,7 +133,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(ret)
     {
       h.closeFile();
-      return  ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      return((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
     }
 
     td->buffer->setLength(0);
@@ -302,7 +302,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }/*! nbr. */
     } /*! memStream.availableToRead() */
 
-
+    /*! Flush the rest of the file. */
     for(;;)
     {
       u_long nbr;
@@ -344,7 +344,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           
             if(ret)
               break;
-
+            /*! 
+             *Write directly to the stream what we have bufferized in 
+             *the memory stream.
+             *We need to use the memory stream before send data to the final stream
+             *as we cannot know the final length for the data chunk.
+             */
             ret=chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
             if(ret)
               break; 
@@ -367,7 +372,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         }
         if(ret)
           break;
-
+        /*! Set the flag when we reached the end of the file. */
         lastchunk=1; 
       }
 
@@ -439,7 +444,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }
       memStream.refresh();
 
-    }/*End for loop. */
+    }/*! End for loop. */
 
     h.closeFile();
   }

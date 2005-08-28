@@ -48,6 +48,7 @@ Vhost::Vhost()
 	sslContext.password.assign("");
 	ipList=0;
 	hostList=0;
+	refMutex.init();
   documentRoot.assign("");
 	systemRoot.assign("");
   accessesLogFileName.assign("");
@@ -70,7 +71,7 @@ Vhost::~Vhost()
 	clearHostList();
 	clearIPList();
 	freeSSL();
-
+  refMutex.destroy();
   accessesLogFileName.assign("");
   
   warningsLogFileName.assign("");
@@ -466,7 +467,7 @@ int VhostManager::addVHost(Vhost* VHost)
       if(hostl->next)
         lastHost=hostl->next;
 
-      /*! Do a case sensitive compare under windows. */
+      /*! Do not do a case sensitive compare under windows. */
 #ifdef WIN32
       if(!stringcmpi(VHost->getAccessesLogFileName(), 
                      hostl->host->getAccessesLogFileName()))
@@ -558,6 +559,7 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
       mutex.unlock();
       return ret;
     }
+    /*! Do a linear search here. We have to use the first full-matching virtual host. */
     for(vhl=vhostList;vhl;vhl=vhl->next )
     {
       /*! Control if the host port is the correct one. */
@@ -1682,7 +1684,9 @@ Vhost* VhostSource::getVHostByNumber(int n)
  */
 void Vhost::addRef()
 {
+  refMutex.lock(0);
   refCount++;
+  refMutex.unlock(0);
 }
 
 /*!
@@ -1690,7 +1694,9 @@ void Vhost::addRef()
  */
 void Vhost::removeRef()
 {
+  refMutex.lock(0);
   refCount--;
+  refMutex.unlock(0);
 }
 
 /*!

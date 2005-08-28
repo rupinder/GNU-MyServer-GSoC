@@ -229,14 +229,24 @@ int Socket::closesocket()
 #endif
 #ifdef WIN32
   if(socketHandle)
-    return ::closesocket(socketHandle);
+  {
+    int ret = ::closesocket(socketHandle);
+    sslSocket = 0;
+    socketHandle = 0;
+    return ret;
+  }
   else
     return 0;
 #endif
 
 #ifdef NOT_WIN
   if(socketHandle)
-    return ::close((int)socketHandle);
+  {
+    int ret = ::close((int)socketHandle);
+    sslSocket = 0;
+    socketHandle = 0;
+    return ret;   
+  }
   else
     return 0;
 #endif
@@ -431,6 +441,39 @@ int Socket::ioctlsocket(long cmd,unsigned long* argp)
 }
 
 /*!
+ *Connect to the specified host:port.
+ *Returns zero on success.
+ */
+int Socket::connect(const char* host, u_short port)
+{
+  MYSERVER_HOSTENT *hp=Socket::gethostbyname(host);
+	struct sockaddr_in sockAddr;
+	int sockLen;
+  if(hp == 0)
+    return -1;
+    
+  /*! If the socket is not created, create it before use. */
+  if(socketHandle == 0)
+  {
+	  if(Socket::socket(AF_INET, SOCK_STREAM, 0) == -1)
+	  {
+	  	return -1;
+	  }                  
+  }
+  sockLen = sizeof(sockAddr);
+  memset(&sockAddr, 0, sizeof(sockAddr));
+  sockAddr.sin_family = AF_INET;
+	memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
+	sockAddr.sin_port = htons(port);
+	if(Socket::connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
+	{
+		Socket::closesocket();
+		return -1;
+	}
+	return 0;
+}
+
+/*!
  *Connect the socket.
  */
 int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
@@ -487,7 +530,7 @@ int Socket::recv(char* buffer, int len, int flags, u_long timeout)
 	u_long time=get_ticks();
 	while(get_ticks()-time<timeout)
 	{
-    /*! Check if there is data to read before do any read. */
+    /*! Check if there is data to read before do it. */
 		if(bytesToRead())
 			return recv(buffer,len,flags);
 	}
@@ -495,8 +538,9 @@ int Socket::recv(char* buffer, int len, int flags, u_long timeout)
 
 }
 #ifndef DO_NOT_USE_SSL
+
 /*!
- *free the SSL connection.
+ *Free the SSL connection.
  */
 int Socket::freeSSL()
 {
@@ -543,6 +587,7 @@ int Socket::initializeSSL(SSL* connection)
 	}
 	return 0;
 }
+
 /*!
  *Set SSL for the socket.
  *Return nonzero on errors.
@@ -613,6 +658,7 @@ int Socket::sslAccept()
 	return 0;
 
 }
+
 /*!
  *Returns the SSL connection.
  */
@@ -777,7 +823,7 @@ Socket* Socket::getServerSocket()
 }
 
 /*!
- *Check for data to be read on the socket
+ *Check if there is data ready to be read.
  *Returns 1 if there is data to read, 0 if not.
  */
 int Socket::dataOnRead(int sec, int usec)
@@ -818,10 +864,9 @@ int Socket::dataOnRead(int sec, int usec)
   return 0;
 }
 
-
 /*!
  *Inherited from Stream.
- *Return values are equals to recv.
+ *Return zero on success.
  */
 int Socket::read(char* buffer, u_long len, u_long *nbr)
 {

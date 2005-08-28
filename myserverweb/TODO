@@ -3,7 +3,7 @@ TODO list for MyServer.
 *	Write MyServer chroot section into docs.
 *	Update README.
 *	Update INSTALL.
-*	add information about error codes to MyServer documentation
+*	Add information about error codes to MyServer documentation.
 
 *	Add local charsets to allow MyServer handles URL like in Germany ß, ä, ö, ü, because  this will be available sooner or later for china and all around the world.
 
@@ -123,6 +123,7 @@ TODO list for MyServer.
 **	If asked to run on XP as service automatically install the service.
 
 *	Virtual hosts data.
+**  Find and implement a faster way than the linear search in vhosts handling code.
 **	Possibility to have virtual hosts data in external sources(other than virtualhosts.xml).
 **	Add a counter to the virtual host class to reference hosts usages.
 **	Add a callback method when reference counter is zero.

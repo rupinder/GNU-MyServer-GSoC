@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using namespace std;
 
 /*! Running servers. */
-HashDictionary<sserversList*> FastCgi::serversList;
+HashDictionary<FastCgiServersList*> FastCgi::serversList;
 
 /*! Is the fastcgi initialized? */
 int FastCgi::initialized=0;
@@ -99,7 +99,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	ostringstream outDataPath;
 
   int sizeEnvString;
-  sserversList* server=0;
+  FastCgiServersList* server=0;
   int id;
 	ostringstream cmdLine;
   char *buffer=0;
@@ -814,7 +814,7 @@ int FastCgi::unload()
     int i;
     for(i=0; i<serversList.size() ; i++)
     {
-      sserversList* server=serversList.getData(i);
+      FastCgiServersList* server=serversList.getData(i);
       if(!server)
         continue;
       /*! If the server is a remote one do nothing. */
@@ -853,13 +853,13 @@ int FastCgi::unload()
  *Return the the running server specified by path.
  *If the server is not running returns 0.
  */
-sserversList* FastCgi::isFcgiServerRunning(const char* path)
+FastCgiServersList* FastCgi::isFcgiServerRunning(const char* path)
 {
   servers_mutex.lock();
 
   try
   { 
-    sserversList *s = serversList.getData(path);
+    FastCgiServersList *s = serversList.getData(path);
     servers_mutex.unlock();
     return s;
   }
@@ -873,27 +873,15 @@ sserversList* FastCgi::isFcgiServerRunning(const char* path)
 /*!
  *Get a client socket in the fCGI context structure
  */
-int FastCgi::fcgiConnectSocket(FcgiContext* con, sserversList* server )
+int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServersList* server )
 {
-	MYSERVER_HOSTENT *hp=Socket::gethostbyname(server->host);
-	struct sockaddr_in sockAddr;
-	int sockLen;
-  if(hp == 0)
-    return -1;
-
-  sockLen = sizeof(sockAddr);
-  memset(&sockAddr, 0, sizeof(sockAddr));
-  sockAddr.sin_family = AF_INET;
-	memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
-	sockAddr.sin_port = htons(server->port);
-  
 	/*! Try to create the socket. */
 	if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)
 	{
 		return -1;
 	}
   /*! If the socket was created try to connect. */
-	if(con->sock.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
+	if(con->sock.connect(server->host, server->port) == -1)
 	{
 		con->sock.closesocket();
 		return -1;
@@ -906,10 +894,10 @@ int FastCgi::fcgiConnectSocket(FcgiContext* con, sserversList* server )
 /*!
  *Get a connection to the FastCGI server.
  */
-sserversList* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
+FastCgiServersList* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
 {
 
-	sserversList* server = runFcgiServer(con, path);
+	FastCgiServersList* server = runFcgiServer(con, path);
 	/*!
    *If we find a valid server try the connection to it.
    */
@@ -929,7 +917,7 @@ sserversList* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
  *Run the FastCGI server.
  *If the path starts with a @ character, the path is handled as a remote server.
  */
-sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
+FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
 {
   /*! 
    *Flag to identify a local server(running on localhost) from a 
@@ -937,7 +925,7 @@ sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
    */
 	int localServer;
   int toReboot=0;
-  sserversList* server;
+  FastCgiServersList* server;
 	static u_short portsDelta=0;
  
   /*! Path that init with @ are not local path. */
@@ -967,7 +955,7 @@ sserversList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
   {
     /*! Create the new structure if necessary. */
     if(!toReboot)
-      server = new sserversList();
+      server = new FastCgiServersList();
     if(server == 0)
     {
       if(lserver->getVerbosity() > 2)
@@ -1101,9 +1089,8 @@ void FastCgi::setTimeout(int ntimeout)
 /*!
  *Start the server on the specified port. Return zero on success.
  */
-int FastCgi::runLocalServer(sserversList* server, const char* path, int port)
+int FastCgi::runLocalServer(FastCgiServersList* server, const char* path, int port)
 {
-  int ret;
   StartProcInfo spi;
   MYSERVER_SOCKADDRIN sock_inserverSocket;
   strcpy(server->host, "localhost");
@@ -1139,9 +1126,7 @@ int FastCgi::runLocalServer(sserversList* server, const char* path, int port)
   
   spi.stdOut = spi.stdError =(FileHandle) -1;
   
-  ret = server->process.execConcurrentProcess(&spi);
-  
-  if(ret == -1)
+  if(server->process.execConcurrentProcess(&spi) == -1)
 	{
     server->socket.closesocket();
     return 1;

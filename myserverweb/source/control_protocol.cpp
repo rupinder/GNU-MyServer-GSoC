@@ -743,7 +743,7 @@ int  ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out,
   if(con)
   {
     /*! Define why the connection is killed. */
-    con->setToRemove(connection_USER_KILL);
+    con->setToRemove(CONNECTION_USER_KILL);
   }
   lserver->connections_mutex_unlock();
   return ret;

@@ -147,7 +147,7 @@ typedef struct {
     FcgiUnknownTypeBody body;
 } FcgiUnknownTypeRecord;
 
-struct sserversList
+struct FastCgiServersList
 {
   /*! Server executable path. */
 	string path;
@@ -166,7 +166,7 @@ struct sserversList
 struct FcgiContext
 {
 	HttpThreadContext* td;
-  sserversList* server;
+  FastCgiServersList* server;
 	Socket sock;
 	File tempOut;
 };
@@ -179,17 +179,17 @@ private:
   static int max_fcgi_servers;
 	static int initialized;
   static Mutex servers_mutex;
-	static HashDictionary<sserversList*> serversList;
+	static HashDictionary<FastCgiServersList*> serversList;
 
-	int fcgiConnectSocket(FcgiContext*,sserversList*);
+	int fcgiConnectSocket(FcgiContext*,FastCgiServersList*);
 	void generateFcgiHeader( FcgiHeader&, int ,int, int );
 	Socket getFcgiConnection();
 	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
 	int sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id);
-	sserversList* isFcgiServerRunning(const char*);
-  sserversList* runFcgiServer(FcgiContext*, const char*);
-	sserversList* fcgiConnect(FcgiContext*, const char*);
-  int runLocalServer(sserversList* server, const char* path, int port);
+	FastCgiServersList* isFcgiServerRunning(const char*);
+  FastCgiServersList* runFcgiServer(FcgiContext*, const char*);
+	FastCgiServersList* fcgiConnect(FcgiContext*, const char*);
+  int runLocalServer(FastCgiServersList* server, const char* path, int port);
 public:
   static void setInitialPort(int);
   static int getInitialPort(); 

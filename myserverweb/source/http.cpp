@@ -1917,7 +1917,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       else
       {
         /*!
-         *find the virtual host to check both host name and IP value.
+         *Find the virtual host to check both host name and IP value.
          */
         Vhost* newHost=lserver->vhostList->getVHost((char*)td.request.host.c_str(), 
                                             a->getLocalIpAddr(), a->getLocalPort());

@@ -39,7 +39,7 @@ using namespace std;
 #define CONNECTION_REMOVE_OVERLOAD 1
 
 /*! Remove the connection if the administrator decided this.  */
-#define connection_USER_KILL        2
+#define CONNECTION_USER_KILL        2
 
 
 typedef u_long ConnectionProtocol;
