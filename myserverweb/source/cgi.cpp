@@ -217,8 +217,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 
     spi.arg.assign(moreArg);
     spi.arg.append(" ");
-    spi.arg.append(td->scriptDir);	
-    spi.arg.append("/");
     spi.arg.append(td->scriptFile);		
     
     cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " << moreArg 
