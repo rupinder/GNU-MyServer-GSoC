@@ -124,6 +124,19 @@ T HashDictionary<T>::getData(int order)
 }
 
 /*!
+ *Get the data for the node using the order position. First node has index 0.
+ */
+template<typename T>
+const char* HashDictionary<T>::getName(int order)
+{
+  int i;
+  class map<u_long, sNode*>::iterator iter = data.begin(); 
+  for(i = 0; (i < order) && ( iter != data.end() ); i++, iter++);
+  return (iter!=data.end() ? (*iter).second->name.c_str() : 0);
+}
+const char* getName(int);
+
+/*!
  *Check if the dictionary is empty.
  */
 template<typename T>
@@ -144,7 +157,7 @@ int HashDictionary<T>::clone(HashDictionary<T>& hd)
   {
     try
     {
-      sNode *copy=new sNode((*i)->second->hash, (*i)->data);
+      sNode *copy=new sNode((*i)->second->hash, (*i)->second->name,(*i)->data);
       data[copy->hash]=copy;
     }
     catch(...)
@@ -178,6 +191,7 @@ int HashDictionary<T>::insert(const char* name, T dataPtr)
   if(newNode == 0)
     return -1;
   newNode->hash = hash(name);
+  newNode->name.assign(name); 
   newNode->data = dataPtr;
   data[newNode->hash]=newNode;
   return 0;

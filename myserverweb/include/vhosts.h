@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/log_manager.h"
 #include "../include/MIME_manager.h"
 #include "../include/threads.h"
+#include "../include/hash_dictionary.h"
 
 #include <string>
 #include <list>
@@ -48,11 +49,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 using namespace std;
+typedef int (*NULL_REFERENCECB)(class Vhost*); 
 
 class Vhost
 {
 public:
-  friend class VHostManager;
+  friend class VhostManager;
   
 	struct StringRegex
 	{
@@ -80,6 +82,8 @@ public:
 	};
 
 private:
+  HashDictionary<string*> hashedData;
+  NULL_REFERENCECB nullReferenceCb;
   Mutex refMutex;
 	LogManager warningsLogFile;
 	LogManager accessesLogFile;
@@ -94,7 +98,7 @@ private:
 
 	/*! List of hosts allowed by the vhost. */
 	list<StringRegex*> hostList;
-	
+
 	/*! List of IPs allowed by the vhost. */
 	list<StringRegex*> ipList;
 
@@ -130,7 +134,6 @@ private:
 	string name;
 
 public:
-
   /*! Get the host name. */
   const char* getName()
     {return name.c_str();}
@@ -196,6 +199,9 @@ public:
 	
 	/*! Clear SSL things. */
 	int freeSSL();
+
+	/*! Clear the data dictionary. */
+	int freeHashedData();
 	
 	/*! Generate the RSA key for the SSL context. */
 	void generateRsaKey();
@@ -271,6 +277,8 @@ public:
 	void setMaxLogSize(int);
 	int getMaxLogSize();
   int isMIME();
+  void setNullRefCB(NULL_REFERENCECB);
+  NULL_REFERENCECB getNullRefCB();
 
   MimeManager* getMIME();
 

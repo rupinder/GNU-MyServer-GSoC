@@ -19,9 +19,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../stdafx.h"
 #include "../include/HTTPmsg.h"
+
 /*!
-*This array is used to describe the errors for the HTTP protocol.
-*/
+ *This array is used to describe the errors for the HTTP protocol.
+ */
 char HTTP_ERROR_MSGS[29][64]=
 {
 	"Bad Request",						/*!400*/
@@ -54,9 +55,10 @@ char HTTP_ERROR_MSGS[29][64]=
 	"Gateway Timeout",					/*!504*/
 	"HTTP Version Not Supported"		/*!505*/		
 };
+
 /*!
-*This array is used to describe the HTTP files for personalized errors page.
-*/
+ *This array is used to describe the HTTP files for personalized errors page.
+ */
 char HTTP_ERROR_HTMLS[29][64]=
 {
 	"/errors/400.html",						/*!400*/

@@ -28,12 +28,15 @@ template<typename T> class HashDictionary
 private:
   struct sNode
   {
+    string name;
     unsigned int hash;
     T data;
     sNode()
-      {hash=0;}
+      {hash=0; name.assign("");}
     sNode(unsigned int h, T t)
       {hash=h; data=t;}
+    sNode(unsigned int h, string s, T t)
+      {hash=h; name.assign(s); data=t;}
   };
   map<u_long, sNode*> data;
   static u_long hash(const char *);
@@ -44,6 +47,7 @@ public:
   ~HashDictionary();
   T getData(const char*);
   T getData(int);
+  const char* getName(int);
   int insert(const char*, T);
   T removeNode(const char*);
   T removeNodeAt(int);

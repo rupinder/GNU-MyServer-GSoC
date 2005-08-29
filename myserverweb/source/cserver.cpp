@@ -573,10 +573,12 @@ void Server::createListenThreads()
 	{
 		int needThread=1;
 		list<Vhost*>::iterator j = vhostList->getVHostList()->begin();
+
     /*! No port was specified. */
 		if((*i)->getPort()==0)
 			continue;
-		for(;j != i; j++)
+
+		for( ;j != i; j++)
 		{
       /*! 
        *If there is still a thread listening on the specified 
@@ -603,7 +605,6 @@ void Server::createListenThreads()
 			}
 		}
 	}
-
 
 }
 
@@ -2149,7 +2150,6 @@ int Server::isAutorebootEnabled()
   return autoRebootEnabled;
 }
 
-
 /*!
  *Create a new thread.
  */
@@ -2184,7 +2184,6 @@ int Server::addThread(int staticThread)
   /*!
    *If everything was done correctly add the new thread to the linked list.
    */
-
 	threads_mutex->lock();
 
   if(threads == 0)

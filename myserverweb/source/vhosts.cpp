@@ -53,6 +53,7 @@ Vhost::Vhost()
 	systemRoot.assign("");
   accessesLogFileName.assign("");
   warningsLogFileName.assign("");
+  hashedData.clear();
   /*! 
    *By default use a non specified value for the throttling rate. -1 means 
    *that the throttling rate was not specified, while 0 means it was 
@@ -60,6 +61,7 @@ Vhost::Vhost()
    */
   throttlingRate = (u_long) -1;
   refCount = 0;
+  nullReferenceCb = 0;
 }
 
 
@@ -71,6 +73,7 @@ Vhost::~Vhost()
 	clearHostList();
 	clearIPList();
 	freeSSL();
+	freeHashedData();
   refMutex.destroy();
   accessesLogFileName.assign("");
   
@@ -83,6 +86,27 @@ Vhost::~Vhost()
 	systemRoot.assign("");
 
   mimeManager.clean();
+}
+
+/*! 
+ *Clear the data dictionary. 
+ *Returns zero on success.
+ */
+int Vhost::freeHashedData()
+{
+  int i;
+  try
+  {
+    for(i=0;i<hashedData.size();i++)
+      delete hashedData.getData(i); 
+    
+    hashedData.clear();
+  }
+  catch(...)
+  {
+    return 1;
+  }
+  return 0;
 }
 
 /*!
@@ -968,26 +992,26 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
         }
 			  vh->addHost((char*)lcur->children->content, useRegex);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
 			{
 				vh->setName((char*)lcur->children->content);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
 			{
 				sslContext->privateKeyFile.assign((char*)lcur->children->content);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
 			{
 				sslContext->certificateFile.assign((char*)lcur->children->content);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
 			{
 				if(lcur->children)
 					sslContext->password.assign((char*)lcur->children->content);
 				else
 					sslContext->password.assign("");
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
 			{
         int useRegex = 0;
         xmlAttr *attrs =  lcur->properties;
@@ -1005,7 +1029,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
         }
 	  	 vh->addIP((char*)lcur->children->content, useRegex);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
 			{
         int val = atoi((char*)lcur->children->content);
         if(val > 1<<16 || strlen((const char*)lcur->children->content) > 6)
@@ -1018,7 +1042,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
         }
 				vh->setPort((u_short)val);
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
 			{
 				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTP"))
 					vh->setProtocol(PROTOCOL_HTTP);
@@ -1035,7 +1059,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
 				vh->setProtocolName((char*)lcur->children->content);
 				
 			}
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
 			{
         if(lcur->children && lcur->children->content)
         {
@@ -1055,7 +1079,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
           vh->setDocumentRoot("");
         }
 			}
-      if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
 			{
         if(lcur->children && lcur->children->content)
         {
@@ -1075,7 +1099,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
           vh->setSystemRoot("");
         }
       }
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
 			{
         xmlAttr *attr;
         string opt;
@@ -1098,8 +1122,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
         }
         vh->setAccessLogOpt(opt.c_str());
 			}
-			
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
       {
 				xmlAttr *attr;
         string opt;
@@ -1123,17 +1146,27 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
         
         vh->setWarningLogOpt(opt.c_str());
       }
-
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME_FILE"))
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME_FILE"))
 			{
 				if(lcur->children)
           vh->getMIME()->loadXML((char*)lcur->children->content);
 			}
-
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"THROTTLING_RATE"))
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"THROTTLING_RATE"))
 			{
 				vh->setThrottlingRate((u_long)atoi((char*)lcur->children->content));
  			}
+ 			else if(lcur->children && lcur->children->content)
+ 			{
+        string *s = new string((const char*)lcur->children->content);
+        if(s == 0)
+          return -1;
+
+        if(vh->hashedData.insert((const char*)lcur->name, s))
+        {
+          delete s;
+          return -1;
+        }            
+      }
       lcur=lcur->next;
     }
 
@@ -1205,6 +1238,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
     for( ; i != hostList.end() ; i++)
     {
       char port[6];
+      int el;
       list<Vhost::StringRegex*>::iterator il = (*i)->getIpList()->begin();
       list<Vhost::StringRegex*>::iterator hl = (*i)->getHostList()->begin();
       out.writeToFile("<VHOST>\r\n",9,&nbw);
@@ -1301,6 +1335,17 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
                       (u_long)strlen((*i)->getWarningsLogFileName()),&nbw);
       out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
       
+      for(el=0; el < (*i)->hashedData.size(); el++)
+      {
+        ostringstream outString;
+        string *val = (*i)->hashedData.getData(el);
+        const char *name = (*i)->hashedData.getName(el);
+        outString << "<" << name << ">" << val  << "</" << name << ">" << endl;
+
+        out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
+      }
+      
+      
       out.writeToFile("</VHOST>\r\n",10,&nbw);
     }
     
@@ -1323,7 +1368,6 @@ int Vhost::initializeSSL()
   sslContext.context = 0;
   sslContext.method = 0;
 #ifndef DO_NOT_USE_SSL
-
 	dp = lserver->getDynProtocol(protocolName.c_str());
   if(this->protocol<1000 && !(dp && 
                               (dp->getOptions() & PROTOCOL_USES_SSL)) )
@@ -1347,6 +1391,7 @@ int Vhost::initializeSSL()
   SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, 
                                          &sslContext.password);
   SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
+  
   /*!
    *The specified file doesn't exist.
    */
@@ -1435,16 +1480,16 @@ Vhost* VhostManager::getVHostByNumber(int n)
     
     for( ; i != hostList.end(); i++)
     {
-         if(!(n--))
-         {
-           ret = *i;
-           ret->addRef();
-           break;
-         }
+      if(!(n--))
+      {
+        ret = *i;
+        ret->addRef();
+        break;
+      }
     }
     mutex.unlock();
     
-    return ret ? ret : 0;
+    return ret;
   }
   catch(...)
   {
@@ -1464,7 +1509,7 @@ int VhostManager::removeVHost(int n)
   {
     list<Vhost*>::iterator i = hostList.begin();
     
-    for(;i != hostList.end(); i++)
+    for( ;i != hostList.end(); i++)
     {
       if(!(n--))
       {
@@ -1552,12 +1597,35 @@ void Vhost::addRef()
 }
 
 /*!
+ *Set the null reference callback function. It is called when the reference
+ *counter for the virtual host is zero. 
+ */
+void Vhost::setNullRefCB(NULL_REFERENCECB cb)
+{
+  nullReferenceCb = cb;
+}
+
+/*!
+ *Get the null reference callback function used by the virtual host.
+ */
+NULL_REFERENCECB Vhost::getNullRefCB()
+{
+  return nullReferenceCb;               
+}
+
+/*!
  *Decrement current references counter by 1.
  */
 void Vhost::removeRef()
 {
   refMutex.lock(0);
   refCount--;
+  /*! 
+   *If the reference count reaches zero and a callback 
+   *function is defined call it.
+   */
+  if(refCount == 0 && nullReferenceCb)
+    nullReferenceCb(this);
   refMutex.unlock(0);
 }
 

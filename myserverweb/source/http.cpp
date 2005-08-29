@@ -2110,6 +2110,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     {
       td->response.connection.assign("Keep-Alive");
     }
+    
     if(ID==e_401AUTH)
     {
       td->response.httpStatus = 401;
@@ -2177,7 +2178,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
       else
       {
         /*!
-         *Just send a non implemented error page.
+         *Send a non implemented error page if the auth scheme is not known.
          */
         return raiseHTTPError(td, a, 501);
       }				
@@ -2196,19 +2197,22 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     {
       string defFile;
       int ret=0;
-      td->response.httpStatus=getHTTPStatusCodeFromErrorID(ID);
+      td->response.httpStatus = getHTTPStatusCodeFromErrorID(ID);
       secCacheMutex.lock();
+      
       /*! 
        *The specified error file name must be in the web directory 
        *of the virtual host. 
        */
       if(a->host)
         ret = secCache.getErrorFileName(((Vhost*)a->host)->getDocumentRoot(), 
-                                       getHTTPStatusCodeFromErrorID(ID),
-                                     ((Vhost*)(a->host))->getSystemRoot(), defFile);
+                                        getHTTPStatusCodeFromErrorID(ID),
+                                        ((Vhost*)(a->host))->getSystemRoot(), defFile);
       else
         ret=-1;
+      
       secCacheMutex.unlock();
+      
       if(ret == -1)
       {
         sendHTTPhardError500(td, a);
@@ -2217,11 +2221,11 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
       else if(ret)
       {
         /*!
-         *Change the uri to reflect the default file name.
+         *Change the Uri to reflect the default file name.
          */
         ostringstream nURL;
         int isPortSpecified=0;
-        nURL << protocolPrefix << td->request.host.c_str() ;
+        nURL << protocolPrefix << td->request.host.c_str();
         for(int i=0;td->request.host[i];i++)
         {
           if(td->request.host[i]==':')
@@ -2240,12 +2244,14 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
         return sendHTTPRedirect(td, a, nURL.str().c_str());
       }
     }
+    
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_EXPIRES_DIM);
     td->response.dateExp.assign(time);
     td->response.errorType.assign(HTTP_ERROR_MSGS[ID], 
                                    HTTP_RESPONSE_ERROR_TYPE_DIM);
     
     errorFile << ((Vhost*)(a->host))->getSystemRoot() << "/" << HTTP_ERROR_HTMLS[ID];
+    
     if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
     {
         string tmp;
