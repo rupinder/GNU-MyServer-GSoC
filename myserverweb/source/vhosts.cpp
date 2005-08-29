@@ -1359,6 +1359,15 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
   };
 }
 
+/*! 
+ *Get the value for name in the hash dictionary. 
+ */
+const char* Vhost::getHashedData(const char* name)
+{
+  string *s = hashedData.getData(name);
+  return s ? s->c_str() : 0;
+}
+  
 /*!
  *Initialize SSL on the virtual host.
  */

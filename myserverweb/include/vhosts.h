@@ -141,7 +141,7 @@ public:
   /*! Set the host name. */
   void setName(const char* c)
     {name.assign(c);}
-
+    
   /*! Get the accesses log file name. */
   const char* getAccessesLogFileName()
     {return accessesLogFileName.c_str();}
@@ -260,6 +260,7 @@ public:
 
 	Vhost();
 
+  const char* getHashedData(const char* name);
 	void addIP(const char *, int);
 	void addHost(const char *, int);
 	void removeIP(const char *);

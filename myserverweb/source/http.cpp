@@ -1991,6 +1991,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       /*!
        *Here we control all the HTTP commands.
        */
+       
       /*! GET REQUEST. */
       if(!td.request.cmd.compare("GET"))
       {
