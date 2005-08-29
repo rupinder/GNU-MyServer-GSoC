@@ -568,31 +568,30 @@ void Server::createListenThreads()
    *Create the listens threads.
    *Every port uses a thread.
    */
-	for(VhostList *list=vhostList->getVHostList(); list; list=list->next)
+  list<Vhost*>::iterator i = vhostList->getVHostList()->begin();
+	for( ;i != vhostList->getVHostList()->end(); i++)
 	{
 		int needThread=1;
-		VhostList *list2=vhostList->getVHostList();
+		list<Vhost*>::iterator j = vhostList->getVHostList()->begin();
     /*! No port was specified. */
-		if(list->host->getPort()==0)
+		if((*i)->getPort()==0)
 			continue;
-		for(;;)
+		for(;j != i; j++)
 		{
-			list2=list2->next;
-			if(list2==0)
-				break;
-			if(list2==list)
-				break;
       /*! 
        *If there is still a thread listening on the specified 
        *port do not create the thread here.
        */
-			if(list2->host->getPort() == list->host->getPort())
+			if((*i)->getPort() == (*j)->getPort())
+			{
 				needThread=0;
+				break;
+      }
 		}
 
 		if(needThread)
 		{
-		  if(!createServerAndListener(list->host->getPort()))
+		  if(!createServerAndListener((*i)->getPort()))
 			{
         string err;
 				logPreparePrintError();

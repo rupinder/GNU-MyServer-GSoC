@@ -46,8 +46,8 @@ Vhost::Vhost()
 	sslContext.method = 0;
 	sslContext.privateKeyFile.assign("");
 	sslContext.password.assign("");
-	ipList=0;
-	hostList=0;
+	ipList.clear();
+	hostList.clear();
 	refMutex.init();
   documentRoot.assign("");
 	systemRoot.assign("");
@@ -106,21 +106,13 @@ MimeManager* Vhost::getMIME()
  */
 void Vhost::clearHostList()
 {
-	HostList* shl=hostList;
-	HostList* prevshl=0;
-	while(shl)
+  list<StringRegex*>::iterator i = hostList.begin();
+	while(i != hostList.end())
 	{
-		if(prevshl)
-    {
-      prevshl->hostRegex.free();
-      delete prevshl;
-    }
-		prevshl=shl;
-		shl=shl->next;
+    StringRegex* sr = *i;
+    delete sr;
 	}
-	if(prevshl)
-		delete prevshl;
-	hostList=0;
+	hostList.clear();
 }
 
 /*!
@@ -128,21 +120,13 @@ void Vhost::clearHostList()
  */
 void Vhost::clearIPList()
 {
-	IpList* sil = ipList;
-	IpList* prevsil = 0;
-	while(sil)
+  list<StringRegex*>::iterator i = ipList.begin();
+	while(i != ipList.end())
 	{
-		if(prevsil)
-    {
-      prevsil->ipRegex.free();
-			delete prevsil;
-    }
-		prevsil = sil;
-		sil = sil->next;
+    StringRegex* sr = *i;
+    delete sr;
 	}
-	if(prevsil)
-		delete prevsil;
-	ipList=0;
+	hostList.clear();
 }
 
 /*!
@@ -150,58 +134,36 @@ void Vhost::clearIPList()
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {
-	IpList* il=new IpList();
-  if(il==0)
+	StringRegex* sr=new StringRegex();
+  if(sr==0)
     return;
-	il->hostIp.assign(ip);
+	sr->name.assign(ip);
   /*! If is a regular expression, the ip string is a pattern. */
   if(isRegex)
-    il->ipRegex.compile(ip, REG_EXTENDED);
-	if(ipList)
-	{
-		il->next = ipList;
-	}
-	else
-	{
-		il->next = 0;
-	}
-	ipList=il;
+    sr->regex.compile(ip, REG_EXTENDED);
+  ipList.push_back(sr);
 }
 /*!
  *Remove the IP address to the list.
  */
 void Vhost::removeIP(const char *ip)
 {
-	Vhost::IpList *iterator = ipList;
-	Vhost::IpList *iteratorBack = 0;
-	if(iterator==0)
-		return;
-	while(iterator)
+  list<StringRegex*>::iterator i = ipList.begin();
+
+	while(i != ipList.end())
 	{
+    StringRegex* sr = *i;
 		/*!
      *If this is the virtual host with the right IP.
      */
-		if(!stringcmp(iterator->hostIp,ip))
+		if(!stringcmp(sr->name,ip))
 		{
-			if(iteratorBack)
-			{
-				iteratorBack->next = iterator->next;
-         iterator->ipRegex.free();
-				delete iterator;
-				return;
-			}
-			else
-			{
-				ipList = iterator->next;
-         iterator->ipRegex.free();
-				delete iterator;
-				return;
-			}
+		  ipList.erase(i);
+		  return;
 		}
-		iteratorBack = iterator;	
-		iterator = iterator->next;
+		
+		i++;
 	}
-
 }
 
 /*!
@@ -209,34 +171,21 @@ void Vhost::removeIP(const char *ip)
  */
 void Vhost::removeHost(const char *host)
 {
-	Vhost::HostList *iterator = hostList;
-	Vhost::HostList *iteratorBack = 0;
-	if(iterator == 0)
-		return;
-	while(iterator)
+  list<StringRegex*>::iterator i = hostList.begin();
+
+	while(i != hostList.end())
 	{
+    StringRegex* sr = *i;
 		/*!
-     *If this is the virtual host with the right host name
+     *If this is the virtual host with the right IP.
      */
-		if(!stringcmp(iterator->hostName,host))
+		if(!stringcmp(sr->name,host))
 		{
-			if(iteratorBack)
-			{
-				iteratorBack->next =iterator->next;
-         iterator->hostRegex.free();
-				delete iterator;
-				return;
-			}
-			else
-			{
-				hostList=iterator->next;
-         iterator->hostRegex.free();
-				delete iterator;
-				return;
-			}
+		  hostList.erase(i);
+		  return;
 		}
-		iteratorBack = iterator;	
-		iterator = iterator->next;
+		
+		i++;
 	}
 }
 /*!
@@ -244,23 +193,27 @@ void Vhost::removeHost(const char *host)
  */
 int Vhost::isHostAllowed(const char* host)
 {
-	HostList *lhl = hostList;
   /*! If no hosts are specified then every host is allowed to connect here. */
-	if((lhl == 0) || (host == 0))
-		return 1;
-	while(lhl)
+	if(!hostList.size() || !host)
+	  return 1;
+	  
+  list<StringRegex*>::iterator i = hostList.begin();
+	while(i != hostList.end())
 	{
+    StringRegex* sr = *i;
     regmatch_t pm;
-    if(lhl->hostRegex.isCompiled())
+    if(sr->regex.isCompiled())
     {
-      if (!lhl->hostRegex.exec(host ,1, &pm, REG_NOTBOL))
+      if (!sr->regex.exec(host ,1, &pm, REG_NOTBOL))
       {
         return 1;
       }
     }
-		if(!stringcmp(lhl->hostName, host))
+    
+		if(!stringcmp(sr->name, host))
 			return 1;
-		lhl = lhl->next;
+			
+		i++;
 	}
 	return 0;
 }
@@ -270,7 +223,7 @@ int Vhost::isHostAllowed(const char* host)
  */
 int Vhost::areAllHostAllowed()
 {
-	if(hostList==0)
+	if(hostList.size() == 0)
 		return 1;
 	return 0;
 }
@@ -280,7 +233,7 @@ int Vhost::areAllHostAllowed()
  */
 int Vhost::areAllIPAllowed()
 {
-	if(ipList == 0)
+	if(ipList.size() == 0)
 		return 1;
 	return 0;
 }
@@ -291,23 +244,27 @@ int Vhost::areAllIPAllowed()
  */
 int Vhost::isIPAllowed(const char* ip)
 {
-  /*! If no IPs are specified, every IP is allowed to connect to. */
-	if(ipList == 0)
-		return 1;
-	IpList *lipl=ipList;
-	while(lipl)
+ /*! If no IPs are specified then every host is allowed to connect here. */
+	if(!ipList.size() || !ip)
+	  return 1;
+	  
+  list<StringRegex*>::iterator i = ipList.begin();
+	while(i != ipList.end())
 	{
+    StringRegex* sr = *i;
     regmatch_t pm;
-    if(lipl->ipRegex.isCompiled())
+    if(sr->regex.isCompiled())
     {
-      if (!lipl->ipRegex.exec(ip ,1, &pm, REG_NOTBOL))
+      if (!sr->regex.exec(ip ,1, &pm, REG_NOTBOL))
       {
         return 1;
       }
     }
-		else if(!stringcmp(lipl->hostIp, ip))
+    
+		if(!stringcmp(sr->name, ip))
 			return 1;
-		lipl=lipl->next;
+			
+		i++;
 	}
 	return 0;
 }
@@ -317,21 +274,13 @@ int Vhost::isIPAllowed(const char* ip)
  */
 void Vhost::addHost(const char *host, int isRegex)
 {
-	HostList* hl=new HostList();
+	StringRegex* hl=new StringRegex();
   if(hl==0)
     return;
-	hl->hostName.assign( host );
+	hl->name.assign( host );
   if(isRegex)
-    hl->hostRegex.compile(host, REG_EXTENDED);
-	if(hostList)
-	{
-		hl->next =hostList;
-	}
-	else
-	{
-		hl->next =0;
-	}
-	hostList=hl;
+    hl->regex.compile(host, REG_EXTENDED);
+  hostList.push_back(hl);
 }
 
 /*!
@@ -449,89 +398,59 @@ int Vhost::getMaxLogSize()
 }
 
 /*!
- *vhostmanager costructor.
+ *VhostManager add function.
  */
-int VhostManager::addVHost(Vhost* VHost)
+int VhostManager::addVHost(Vhost* vh)
 {
-  VhostList* hostl;
-  VhostList* lastHost;
-
+  Vhost* hostl;
+  
+  list<Vhost*>::iterator it;
+  
   mutex.lock();
 
-  hostl=vhostList;
-  lastHost=vhostList;
+  it = hostList.begin();
+
   try
   {
-    while(hostl)
+    for(;it != hostList.end(); it++)
     {
-      if(hostl->next)
-        lastHost=hostl->next;
+      hostl = *it;
 
       /*! Do not do a case sensitive compare under windows. */
 #ifdef WIN32
-      if(!stringcmpi(VHost->getAccessesLogFileName(), 
-                     hostl->host->getAccessesLogFileName()))
+      if(!stringcmpi(vh->getAccessesLogFileName(), 
+                     hostl->getAccessesLogFileName()))
 #else
-        if(!stringcmp(VHost->getAccessesLogFileName(), 
-                      hostl->host->getAccessesLogFileName()))
+        if(!stringcmp(vh->getAccessesLogFileName(), 
+                      hostl->getAccessesLogFileName()))
 #endif
         {
           string error;
           error.assign("Warning: multiple hosts use the same log file:" );
-          error.append(VHost->getAccessesLogFileName());
+          error.append(vh->getAccessesLogFileName());
           lserver->logPreparePrintError();
           lserver->logWriteln(error.c_str());     
           lserver->logEndPrintError();
         }
 
 #ifdef WIN32
-      if(!stringcmpi(VHost->getWarningsLogFileName(), 
-                     hostl->host->getWarningsLogFileName()))
+      if(!stringcmpi(vh->getWarningsLogFileName(), 
+                     hostl->getWarningsLogFileName()))
 #else
-        if(!stringcmp(VHost->getWarningsLogFileName(), 
-                      hostl->host->getWarningsLogFileName()))
+        if(!stringcmp(vh->getWarningsLogFileName(), 
+                      hostl->getWarningsLogFileName()))
 #endif
         {
           string error;
           error.assign("Warning: multiple hosts use the same log file:" );
-          error.append(VHost->getWarningsLogFileName());
+          error.append(vh->getWarningsLogFileName());
           lserver->logPreparePrintError();
           lserver->logWriteln(error.c_str());     
           lserver->logEndPrintError();
         }
-      hostl=hostl->next;
     }
 
-    if(vhostList==0)
-    {
-      vhostList=new VhostList();	
-      if(vhostList == 0)
-      {
-        lserver->logPreparePrintError();
-        lserver->logWriteln( "Error allocating memory" );     
-        lserver->logEndPrintError();
-        mutex.unlock();
-        return 1;
-      }
-      vhostList->host=VHost;
-      vhostList->next =0;
-    }
-    else
-    {
-      /*! Append the new host to the end of the linked list. */
-      lastHost->next = new VhostList();	
-      if(lastHost->next==0)
-      {
-        lserver->logPreparePrintError();
-        lserver->logWriteln( "Error allocating memory" );     
-        lserver->logEndPrintError();
-        mutex.unlock();
-        return 1;
-      }
-      /*! Make sure that next is null. */
-      lastHost->next->next =0;
-      lastHost->next->host=VHost;
-    }
+    hostList.push_back(vh);
     mutex.unlock();
     return 0;
   }
@@ -547,35 +466,38 @@ int VhostManager::addVHost(Vhost* VHost)
  */
 Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 {
-	VhostList* vhl;
-  
+  list<Vhost*>::iterator it;
+
   mutex.lock();
+
+  it = hostList.begin();  
   
   try
   {
     if(extSource)
     {
-      Vhost*ret=extSource->getVHost(host, ip, port);
+      Vhost* ret=extSource->getVHost(host, ip, port);
       mutex.unlock();
       return ret;
     }
     /*! Do a linear search here. We have to use the first full-matching virtual host. */
-    for(vhl=vhostList;vhl;vhl=vhl->next )
+    for(; it != hostList.end(); it++)
     {
+      Vhost* vh = *it;
       /*! Control if the host port is the correct one. */
-      if(vhl->host->getPort()!=port)
+      if(vh->getPort()!=port)
         continue;
       /*! If ip is defined check that it is allowed to connect to the host. */
-      if(ip && !vhl->host->isIPAllowed(ip))
+      if(ip && !vh->isIPAllowed(ip))
         continue;
       /*! If host is defined check if it is allowed to connect to the host. */
-      if(host && !vhl->host->isHostAllowed(host))
+      if(host && !vh->isHostAllowed(host))
         continue;
       /*! We find a valid host. */
       mutex.unlock();
       /*! Add a reference. */
-      vhl->host->addRef();
-      return vhl->host;
+      vh->addRef();
+      return vh;
     }
     mutex.unlock();
     return 0;
@@ -592,7 +514,7 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
  */
 VhostManager::VhostManager()
 {
-	vhostList=0;
+	hostList.clear();
   extSource=0;
   mutex.init();
 }
@@ -602,30 +524,19 @@ VhostManager::VhostManager()
  */
 void VhostManager::clean()
 {
-  VhostList* shl;
-	VhostList* prevshl=0;
+  list<Vhost*>::iterator it;
 
-	mutex.lock();
+  mutex.lock();
+
+  it = hostList.begin();  
   
   try
   {
-    shl=vhostList;
-    while(shl)
-    {
-      if(prevshl)
-      {
-        delete prevshl->host;
-        delete prevshl;
-      }
-      prevshl=shl;
-      shl=shl->next;
-    }
-    if(prevshl)
-    {
-      delete prevshl->host;
-      delete prevshl;
-    }
-    vhostList = 0;
+    for(;it != hostList.end(); it++)
+      delete *it;
+      
+    hostList.clear();
+    
     mutex.unlock();
   }
   catch(...)
@@ -861,32 +772,30 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 void VhostManager::saveConfigurationFile(const char *filename)
 {
 	char buffer[1024];
-	if(vhostList==0)
-		return;
 	u_long nbw;
 	File fh;
-	VhostList* vhl;
-
+	if(hostList.size() == 0)
+		return;
+		
   mutex.lock();
 
-  vhl=vhostList;
   try
   {
+    list<Vhost*>::iterator i = hostList.begin();
     fh.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
-    for(;vhl;vhl=vhl->next )
+    for( ;i != hostList.end(); i++ )
     {
-      Vhost* vh=vhl->host;
-      Vhost::IpList* il;
-      Vhost::HostList* hl=vh->getHostList();
-      if(hl)
+      Vhost* vh=*i;
+      list<Vhost::StringRegex*>::iterator il = vh->getIpList()->begin();
+      list<Vhost::StringRegex*>::iterator hl = vh->getHostList()->begin();      
+
+      if(hl != vh->getHostList()->end())
       {
-        while(hl)
-        { 
-          fh.writeToFile(hl->hostName.c_str(),hl->hostName.length(),&nbw);
+        for( ;hl!=vh->getHostList()->end(); hl++)
+        {
+          fh.writeToFile((*hl)->name.c_str(), (*hl)->name.length(),&nbw);
           strcpy(buffer,",");
           fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-          if(hl->next )
-            hl=hl->next;
         }
       }
       else
@@ -896,19 +805,17 @@ void VhostManager::saveConfigurationFile(const char *filename)
       }
       strcpy(buffer,";");
       fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
-      il=vh->getIpList();
-      if(il)
+
+      if(il != vh->getIpList()->end())
       {
-        while(il)
+        for( ;il!=vh->getIpList()->end(); il++)
         { 
-          fh.writeToFile(il->hostIp.c_str(),(u_long)il->hostIp.length(),&nbw);
-          if(il->next )
+          if(il != vh->getIpList()->begin())
           {
             strcpy(buffer,",");
             fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
           }
-
-          il=il->next;
+          fh.writeToFile((*il)->name.c_str(),(u_long)(*il)->name.length(),&nbw);
         }
       }
       else
@@ -962,10 +869,15 @@ void VhostManager::saveConfigurationFile(const char *filename)
       
       fh.writeToFile(vh->getWarningsLogFileName(), 
                      (u_long)strlen(vh->getWarningsLogFileName()), &nbw);
-      if(vhl->next )
-        strcpy(buffer,";#\r\n");
-      else
-        strcpy(buffer,";##\r\n\0");
+                     
+      {
+        list<Vhost*>::iterator j = i;
+        j++;
+        if(j != hostList.end())
+          strcpy(buffer,";#\r\n");
+        else
+          strcpy(buffer,";##\r\n\0");
+      }
       fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
     }
     fh.closeFile();
@@ -980,59 +892,18 @@ void VhostManager::saveConfigurationFile(const char *filename)
 /*!
  *Returns the entire virtual hosts list.
  */
-VhostList* VhostManager::getVHostList()
+list<Vhost*>* VhostManager::getVHostList()
 {
-	return this->vhostList;
+	return &(this->hostList);
 }
 
-/*!
- *Switch the position between two virtual hosts
- *Zero based index.
- */
-int VhostManager::switchVhosts(int n1,int n2)
-{
-	VhostList *vh1;
-	VhostList *vh2;
-	int i;
-	if(max(n1,n2)>=getHostsNumber())
-		return 0;
-	vh1 = vhostList;
-	for(i=0;i<n1;i++)
-	{
-		vh1=vh1->next;
-	}
-	vh2 = vhostList;
-	for(i=0;i<n2;i++)
-	{
-		vh2=vh2->next;
-	}
-	return switchVhosts(vh1,vh2);
-
-}
-
-/*!
- *Switch two virtual hosts.
- */
-int VhostManager::switchVhosts(VhostList * vh1, VhostList * vh2)
-{
-  Vhost* vh3;
-	if((vh1==0)||(vh2==0))
-		return 0;
-	vh3=vh1->host;
-	vh1->host = vh2->host;
-	vh2->host = vh3;
-	return 1;
-}
 
 /*!
  *Returns the number of hosts in the list
  */
 int VhostManager::getHostsNumber()
 {
-	int i;
-	VhostList *vh = vhostList;
-	for(i=0;vh;i++,vh=vh->next );
-	return i;
+	return hostList.size();
 }
 
 /*!
@@ -1322,7 +1193,6 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
  */
 void VhostManager::saveXMLConfigurationFile(const char *filename)
 {
-	VhostList *list;
 	File out;
 	u_long nbw;
 	out.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
@@ -1331,66 +1201,65 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
   mutex.lock();
   try
   {
-    list=this->getVHostList();
-    while(list)
+    list<Vhost*>::iterator i = hostList.begin();
+    for( ; i != hostList.end() ; i++)
     {
       char port[6];
-      Vhost::IpList *ipList;
-      Vhost::HostList *hostList;
+      list<Vhost::StringRegex*>::iterator il = (*i)->getIpList()->begin();
+      list<Vhost::StringRegex*>::iterator hl = (*i)->getHostList()->begin();
       out.writeToFile("<VHOST>\r\n",9,&nbw);
       
       out.writeToFile("<NAME>",6,&nbw);
-      out.writeToFile(list->host->getName(), strlen(list->host->getName()), &nbw);
+      out.writeToFile((*i)->getName(), strlen((*i)->getName()), &nbw);
       out.writeToFile("</NAME>\r\n",9,&nbw);
-      
-      ipList = list->host->getIpList();
-      while(ipList)
+       
+      for(; il != (*i)->getIpList()->end(); il++)
       {
+        string *n = &((*il)->name);
         out.writeToFile("<IP>",4,&nbw);
-        out.writeToFile(ipList->hostIp.c_str(), ipList->hostIp.length(), &nbw);
+        out.writeToFile(n->c_str(), n->length(), &nbw);
         out.writeToFile("</IP>\r\n",7,&nbw);
-        ipList=ipList->next;
       }
-      hostList = list->host->getHostList();
-      while(hostList)
+
+      for(; hl != (*i)->getHostList()->end(); hl++)
       {
+        string *n = &((*hl)->name);
         out.writeToFile("<HOST>",6,&nbw);
-        out.writeToFile(hostList->hostName.c_str(), 
-                        hostList->hostName.length(), &nbw);
+        out.writeToFile(n->c_str(), n->length(), &nbw);
         out.writeToFile("</HOST>\r\n",9,&nbw);
-        hostList=hostList->next;
       }
+
       out.writeToFile("<PORT>",6,&nbw);
-      sprintf(port,"%i",list->host->getPort());
+      sprintf(port,"%i", (*i)->getPort());
       out.writeToFile(port,(u_long)strlen(port),&nbw);
       out.writeToFile("</PORT>\r\n",9,&nbw);
 
-      if(list->host->getVhostSSLContext()->privateKeyFile.length())
+      if((*i)->getVhostSSLContext()->privateKeyFile.length())
       {
         out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
-        out.writeToFile(list->host->getVhostSSLContext()->privateKeyFile.c_str(),
-            (u_long)list->host->getVhostSSLContext()->privateKeyFile.length(),&nbw);
+        out.writeToFile((*i)->getVhostSSLContext()->privateKeyFile.c_str(),
+            (u_long)(*i)->getVhostSSLContext()->privateKeyFile.length(),&nbw);
         out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
       }
       
-      if(list->host->getVhostSSLContext()->certificateFile.length())
+      if((*i)->getVhostSSLContext()->certificateFile.length())
       {
         out.writeToFile("<SSL_CERTIFICATE>",17,&nbw);
-        out.writeToFile(list->host->getVhostSSLContext()->certificateFile.c_str(),
-          (u_long)list->host->getVhostSSLContext()->certificateFile.length(),&nbw);
+        out.writeToFile((*i)->getVhostSSLContext()->certificateFile.c_str(),
+          (u_long)(*i)->getVhostSSLContext()->certificateFile.length(),&nbw);
         out.writeToFile("</SSL_CERTIFICATE>\r\n",20,&nbw);
       }
 
-      if(list->host->getVhostSSLContext()->password.length())
+      if((*i)->getVhostSSLContext()->password.length())
       {
         out.writeToFile("<SSL_PASSWORD>",14,&nbw);
-        out.writeToFile(list->host->getVhostSSLContext()->password.c_str(),
-                        list->host->getVhostSSLContext()->password.length(),&nbw);
+        out.writeToFile((*i)->getVhostSSLContext()->password.c_str(),
+                        (*i)->getVhostSSLContext()->password.length(),&nbw);
         out.writeToFile("</SSL_PASSWORD>\r\n",17,&nbw);
       }
 
       out.writeToFile("<PROTOCOL>",10,&nbw);
-      switch( list->host->getProtocol())
+      switch( (*i)->getProtocol())
       {
 			  case PROTOCOL_HTTP:
           out.writeToFile("HTTP",4,&nbw);
@@ -1405,36 +1274,36 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 				  out.writeToFile("CONTROL", 7, &nbw);
 				  break;
 			  default:			
-				  out.writeToFile(list->host->getProtocolName(), 
-                          strlen(list->host->getProtocolName()), &nbw);
+				  out.writeToFile((*i)->getProtocolName(), 
+                          strlen((*i)->getProtocolName()), &nbw);
 				  break;
       }
       out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
       
       out.writeToFile("<DOCROOT>",9,&nbw);
-      out.writeToFile(list->host->getDocumentRoot(), 
-                      (u_long)strlen(list->host->getDocumentRoot()), &nbw);
+      out.writeToFile((*i)->getDocumentRoot(), 
+                      (u_long)strlen((*i)->getDocumentRoot()), &nbw);
       out.writeToFile("</DOCROOT>\r\n",12,&nbw);
       
       out.writeToFile("<SYSFOLDER>",11,&nbw);
-      out.writeToFile(list->host->getSystemRoot(), 
-                      (u_long)strlen(list->host->getSystemRoot()), &nbw);
+      out.writeToFile((*i)->getSystemRoot(), 
+                      (u_long)strlen((*i)->getSystemRoot()), &nbw);
       
       out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
       
       out.writeToFile("<ACCESSESLOG>",13,&nbw);
-      out.writeToFile(list->host->getAccessesLogFileName(),
-                      (u_long)strlen(list->host->getAccessesLogFileName()), &nbw);
+      out.writeToFile((*i)->getAccessesLogFileName(),
+                      (u_long)strlen((*i)->getAccessesLogFileName()), &nbw);
       out.writeToFile("</ACCESSESLOG>\r\n",16,&nbw);
       
       out.writeToFile("<WARNINGLOG>",12,&nbw);
-      out.writeToFile(list->host->getWarningsLogFileName(),
-                      (u_long)strlen(list->host->getWarningsLogFileName()),&nbw);
+      out.writeToFile((*i)->getWarningsLogFileName(),
+                      (u_long)strlen((*i)->getWarningsLogFileName()),&nbw);
       out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
       
       out.writeToFile("</VHOST>\r\n",10,&nbw);
-      list=list->next;
     }
+    
     out.writeToFile("</VHOSTS>\r\n",11,&nbw);
     out.closeFile();
     mutex.unlock();
@@ -1552,34 +1421,35 @@ int Vhost::freeSSL()
  */
 Vhost* VhostManager::getVHostByNumber(int n)
 {
-	VhostList *hl;
+  Vhost* ret = 0;
   mutex.lock();
   try
   {
-    int i;
-    hl=vhostList;
+    list<Vhost*>::iterator i = hostList.begin();
     if(extSource)
     {
-      Vhost* ret=extSource->getVHostByNumber(n);
+      ret=extSource->getVHostByNumber(n);
       mutex.unlock();
       return ret;
     }
-
-    for(i=0;(i<n)&& hl;i++)
+    
+    for( ; i != hostList.end(); i++)
     {
-      hl=hl->next;
-    }
-    if(hl)
-    {
-        hl->host->addRef();
+         if(!(n--))
+         {
+           ret = *i;
+           ret->addRef();
+           break;
+         }
     }
     mutex.unlock();
-    return hl ? hl->host : 0;
+    
+    return ret ? ret : 0;
   }
   catch(...)
   {
     mutex.unlock();
-    return hl->host;
+    return ret;
   };
 }
 
@@ -1589,27 +1459,19 @@ Vhost* VhostManager::getVHostByNumber(int n)
  */
 int VhostManager::removeVHost(int n)
 {
-	VhostList *hl;
-	VhostList *bl=0;
-	
   mutex.lock();
 	try
   {
-    hl=vhostList;
-    for(int i=0;hl;i++)
+    list<Vhost*>::iterator i = hostList.begin();
+    
+    for(;i != hostList.end(); i++)
     {
-      if(i==n)
+      if(!(n--))
       {
-        if(bl)
-          bl->next =hl->next;
-        else
-          vhostList->next =hl->next;
-        delete hl->host;
+        delete *i;
         mutex.unlock();
         return 1;
       }
-      bl=hl;
-      hl=hl->next;
     }
     mutex.unlock();
     return 0;

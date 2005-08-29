@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/threads.h"
 
 #include <string>
+#include <list>
 
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>
@@ -52,12 +53,17 @@ class Vhost
 {
 public:
   friend class VHostManager;
-	struct HostList
+  
+	struct StringRegex
 	{
-		string hostName;
-    Regex hostRegex;
-		HostList *next;
+		string name;
+    Regex regex;
+    StringRegex()
+      {}
+    ~StringRegex()
+      {regex.free();}
 	};
+	
 
 	struct VhSslContext
 	{
@@ -72,13 +78,6 @@ public:
 		string privateKeyFile;
 		string password;
 	};
-	struct IpList
-	{
-    string hostIp;
-    Regex ipRegex;
-    IpList *next; 
-	};
-
 
 private:
   Mutex refMutex;
@@ -94,10 +93,10 @@ private:
 	VhSslContext sslContext;
 
 	/*! List of hosts allowed by the vhost. */
-	HostList *hostList;
+	list<StringRegex*> hostList;
 	
 	/*! List of IPs allowed by the vhost. */
-	IpList *ipList;
+	list<StringRegex*> ipList;
 
 	/*! TCP port used to listen on. */
 	u_short port;
@@ -208,12 +207,12 @@ public:
 #endif
 
   /*! Get the list of hosts allowed.*/
-	HostList *getHostList()
-    {return hostList;}
+	list<StringRegex*>* getHostList()
+    {return &hostList;}
 	
 	/*! List of IPs allowed by the vhost. */
-	IpList *getIpList()
-    {return ipList;}
+	list<StringRegex*>* getIpList()
+    {return &ipList;}
 
   /*! Return the port used by the host. */
 	u_short getPort()
@@ -293,16 +292,11 @@ public:
 	File* getWarningsLogFile();
 };
 
-struct VhostList
-{
-  Vhost* host;
-  VhostList* next;
-};
 
 class VhostSource
 {
 private:
-	VhostList *hostList;
+	list<Vhost*> *hostList;
 public:
   VhostSource();
   ~VhostSource();
@@ -315,11 +309,9 @@ public:
 class VhostManager
 {
   Mutex mutex;
-public:
-private:
 	VhostSource* extSource;
 	/*! List of virtual hosts. */
-	VhostList *vhostList;
+	list<Vhost*> hostList;
 public:
   void setExternalSource(VhostSource* extSource);
 	VhostManager();
@@ -329,8 +321,7 @@ public:
 	void clean();
 	int removeVHost(int n);
 	int switchVhosts(int n1,int n2);
-	int switchVhosts(VhostList*,VhostList*);
-	VhostList* getVHostList();
+	list<Vhost*>* getVHostList();
 	
 	/*! Get a pointer to a vhost.  */
 	Vhost* getVHost(const char*,const char*,u_short);

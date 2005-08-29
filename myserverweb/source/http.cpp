@@ -1418,7 +1418,7 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
     *td->buffer2  << "\n" << end_str;
 #endif
     /*!
-     *Request the access to the log file then write then append the message.
+     *Request the access to the log file then append the message.
      */
      if(a->host)
      {
