@@ -39,7 +39,6 @@ extern "C"
 #endif
 }
 
-
 /*!
  *Add a rule to check to the chain.
  */

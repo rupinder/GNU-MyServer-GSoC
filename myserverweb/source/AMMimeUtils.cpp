@@ -384,8 +384,9 @@ char* CBase64Utils::Encode(char *input, int bufsize)
 	}
 	return finalresult;
 }
+
 /*!
- *Decode a string from a Base64 codification
+ *Decode a Base64 coded string.
  */
 char* CBase64Utils::Decode(char *input, int *bufsize)
 {

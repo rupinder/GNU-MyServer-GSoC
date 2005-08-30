@@ -77,9 +77,6 @@ string Http::browseDirCSSpath;
 /*! Threshold value to send data in gzip.  */
 u_long Http::gzipThreshold=0;
 
-/*!Use files for HTTP errors?  */
-int Http::useMessagesFiles=0;
-
 /*! Vector with default filenames.  */
 vector<string*> Http::defaultFilename;
 
@@ -1948,6 +1945,24 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         }
       }
 		
+		  /*! 
+       *Check if there is a limit for the number of connections in the virtual host.
+       */
+		  {
+        const char* val = ((Vhost*)a->host)->getHashedData("MAX_CONNECTIONS");
+        if(val)
+        {
+          u_long limit = atoi(val);
+          if(((Vhost*)a->host)->getRef() >= limit)
+          {
+            retvalue = raiseHTTPError(&td, a, e_500);
+            logHTTPaccess(&td, a);
+            return retvalue ? 1 : 0;
+          }     
+        }
+      }
+
+		
       if(!stringcmpi(td.request.connection, "Keep-Alive")) 
       {
         /*!
@@ -2101,6 +2116,15 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     ostringstream errorFile;
     Md5 md5;
     int errorBodyLength=0;
+    int useMessagesFiles = 1;
+    const char *useMessagesVal = 	((Vhost*)a->host)->getHashedData("USE_ERRORS_FILES");
+    if(useMessagesVal)
+    {
+	    if(!lstrcmpi(useMessagesVal, "YES"))
+	   	  useMessagesFiles=1;
+	   	else
+	      useMessagesFiles=0;
+   	}
 
     if(td->lastError)
       return sendHTTPhardError500(td, a);
@@ -2222,11 +2246,11 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
       }
       else if(ret)
       {
+        ostringstream nURL;
+        int isPortSpecified=0;
         /*!
          *Change the Uri to reflect the default file name.
          */
-        ostringstream nURL;
-        int isPortSpecified=0;
         nURL << protocolPrefix << td->request.host.c_str();
         for(int i=0;td->request.host[i];i++)
         {
@@ -2535,7 +2559,6 @@ int Http::loadProtocol(XmlParser* languageParser)
   fastcgiServers = 25;
   fastcgiInitialPort = 3333;
 	gzipThreshold=1<<20;
-	useMessagesFiles=1;
 	browseDirCSSpath.assign("");
 
 	configurationFileManager.open(main_configuration_file);
@@ -2595,7 +2618,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	{
 		cgiTimeout=MYSERVER_SEC(atoi(data));
 	}	
-	data=configurationFileManager.getValue("FASTCGI_MAX_SERverS");
+	data=configurationFileManager.getValue("FASTCGI_MAX_SERVERS");
 	if(data)
 	{
     fastcgiServers=atoi(data);
@@ -2605,14 +2628,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	{
     fastcgiInitialPort=atoi(data);
 	}	
-	data=configurationFileManager.getValue("USE_ERRORS_FILES");
-	if(data)
-	{
-		if(!lstrcmpi(data, "YES"))
-			useMessagesFiles=1;
-		else
-			useMessagesFiles=0;
-	}
+
 	data=configurationFileManager.getValue("BROWSEFOLDER_CSS");
 	if(data)
 	{

@@ -197,7 +197,6 @@ int HashDictionary<T>::insert(const char* name, T dataPtr)
   return 0;
 }
 
-
 /*!
  *Remove a node by its position.
  */
