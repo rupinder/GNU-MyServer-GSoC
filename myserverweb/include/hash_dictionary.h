@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define HASH_DICTIONARY_H
 #include "../stdafx.h"
 #include <map>
-
+#include <string>
 using namespace std;
 
 /*! Handle a dictionary of strings trough hashing.*/

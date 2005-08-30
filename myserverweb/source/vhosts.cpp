@@ -1360,12 +1360,16 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 }
 
 /*! 
- *Get the value for name in the hash dictionary. 
+ *Get the value for name in the hash dictionary. If the data is not present
+ *it tries to get it from the Server class.
  */
 const char* Vhost::getHashedData(const char* name)
 {
   string *s = hashedData.getData(name);
-  return s ? s->c_str() : 0;
+  if(s)
+    return s->c_str();
+
+  return lserver ? lserver->getHashedData(name) : 0 ;
 }
   
 /*!

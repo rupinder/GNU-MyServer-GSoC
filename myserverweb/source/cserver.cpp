@@ -872,6 +872,8 @@ int Server::terminate()
 	{
 		clearAllConnections();
 	}
+	freeHashedData();
+	
   languages_path.assign("");
   languageFile.assign("");
 	delete vhostList;
@@ -1193,6 +1195,26 @@ int Server::initialize(int /*!os_ver*/)
 		gid=atoi(data);
 	}
 
+  {
+	  xmlNodePtr node=xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode;
+    for(;node;node=node->next )
+    {
+      if(node->children && node->children->content)
+      {
+        string *s = new string((const char*)node->children->content);
+        if(s == 0)
+          return -1;
+
+        if(hashedData.insert((const char*)node->name, s))
+        {
+          delete s;
+          return -1;
+        }   
+      }
+    }
+  }
+
+
 	configurationFileManager.close();
 	
 	if(languageParser.open(languageFile.c_str()))
@@ -1272,7 +1294,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
     addThread(0);
   }
 
-	memset(&localsock_in,  0,  sizeof(localsock_in));
+	memset(&localsock_in, 0, sizeof(localsock_in));
 
 	dim=sizeof(localsock_in);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
@@ -1592,6 +1614,36 @@ u_long Server::getNumThreads()
 const char *Server::getAddresses()
 {
 	return ipAddresses.c_str();
+}
+
+/*! 
+ *Clear the data dictionary. 
+ *Returns zero on success.
+ */
+int Server::freeHashedData()
+{
+  int i;
+  try
+  {
+    for(i=0;i<hashedData.size();i++)
+      delete hashedData.getData(i); 
+    
+    hashedData.clear();
+  }
+  catch(...)
+  {
+    return 1;
+  }
+  return 0;
+}
+
+/*! 
+ *Get the value for name in the hash dictionary. 
+ */
+const char* Server::getHashedData(const char* name)
+{
+  string *s = hashedData.getData(name);
+  return s ? s->c_str() : 0;
 }
 
 /*!

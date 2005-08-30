@@ -165,13 +165,13 @@ xmlDocPtr XmlParser::getDoc()
 }
 
 /*!
- *Only get the value of the vName root children element.
+ *Get the value of the vName root children element.
  */
 char *XmlParser::getValue(const char* vName)
 {
   char *ret = 0;
 	xmlNodePtr lcur;
-
+  cur = xmlDocGetRootElement(doc);
 	if(!cur)
 		return 0;
 
@@ -224,7 +224,7 @@ int XmlParser::setValue(char* vName,char *value)
 }
 
 /*!
- *Get the attribute attr for the node field
+ *Get the attribute attr for the node field.
  */
 char *XmlParser::getAttr(char* field,char *attr)
 {
@@ -367,7 +367,7 @@ void XmlParser::endGroup()
 }
 
 /*!
- *Sets or resets an Atrribute
+ *Sets or resets an Attribute
  *Returns nothing.
  *Uses last node entry, name is the name and value is the value
  */

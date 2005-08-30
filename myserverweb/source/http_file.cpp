@@ -79,7 +79,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
     }
     /*! 
-     *Read how many bytes are waiting to be send.  
+     *Check how many bytes are ready to be send.  
      */
     filesize=h.getFileSize();
     bytes_to_send=filesize;
@@ -96,13 +96,20 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       lastByte = std::min(lastByte+1, bytes_to_send);
     }
 
-    /*! 
-     *Use GZIP compression to send files bigger than GZIP threshold.  
-     */
-    if( ((Http*)td->lhttp)->getGzipThreshold() && 
-        (bytes_to_send > ((Http*)td->lhttp)->getGzipThreshold() ))
+
     {
-      useGzip=true;
+      /*! 
+       *Use GZIP compression to send files bigger than GZIP threshold.  
+       */
+      const char* val = (((Vhost*)(s->host)))->getHashedData("GZIP_THRESHOLD");
+      useGzip=false;
+      if(val)
+      {
+        u_long gzipThreshold=atoi(val);
+        if(bytes_to_send >= gzipThreshold)
+          useGzip=false;
+      }
+
     }
     keepalive = !lstrcmpi(td->request.connection.c_str(),"Keep-Alive");
 

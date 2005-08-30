@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/log_manager.h"
 #include "../include/filters_factory.h"
 #include "../include/dyn_filter.h"
+#include "../include/hash_dictionary.h"
 
 #include <string>
 using namespace std;
@@ -86,6 +87,7 @@ class Server
 	friend int control_handler (u_long control_type);
 #endif
 private:
+  HashDictionary<string*> hashedData;
   FiltersFactory filtersFactory;
   DynamicFiltersManager filters;
   u_long uid;
@@ -120,6 +122,7 @@ private:
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;
 	void clearAllConnections();
+	int freeHashedData();
 	int deleteConnection(ConnectionPtr,int,int=1);
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
@@ -145,6 +148,7 @@ private:
 	string vhost_configuration_file;
 	string mime_configuration_file;
 public:
+  const char* getHashedData(const char* name);
   FiltersFactory* getFiltersFactory();
 	int getMaxThreads(); 
   u_long getUid();

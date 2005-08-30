@@ -2038,7 +2038,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       {
         /*! 
          *Return Method not implemented(501) if there 
-         *is not a dunamic methods manager. 
+         *is not a dynamic methods manager. 
          */
         if(!dynamicCommand)
           ret=raiseHTTPError(&td, a, e_501);
@@ -2100,7 +2100,8 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     string time;
     ostringstream errorFile;
     Md5 md5;
-    
+    int errorBodyLength=0;
+
     if(td->lastError)
       return sendHTTPhardError500(td, a);
 
@@ -2260,15 +2261,35 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
         return sendHTTPResource(td, a, tmp, 1, td->onlyHeader);
     }
 
-  
-    /*! Send the error over the HTTP. */
-    td->response.contentLength.assign("0");
+    /*! Send only the header(and the body if specified). */
 
+    {
+      const char* value = ((Vhost*)a->host)->getHashedData("ERRORS_INCLUDE_BODY");  
+      if(value && !strcmpi(value, "YES"))
+      {
+        ostringstream s;
+        errorBodyLength = strlen(HTTP_ERROR_MSGS[ID]);
+        s << errorBodyLength;
+        td->response.contentLength.assign(s.str());
+      }
+      else
+      {
+        errorBodyLength = 0;
+        td->response.contentLength.assign("0");
+      }
+      
+    }
+    
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), &td->response);
     if(a->socket.send(td->buffer->getBuffer(), 
                       (u_long)strlen(td->buffer->getBuffer()), 0)==-1)
       return 0;
-    return 1;
+
+    if(errorBodyLength && (a->socket.send(HTTP_ERROR_MSGS[ID],errorBodyLength, 
+                       0)==-1))
+      return 0;  
+ 
+    return 1;                    
   }
   catch(bad_alloc &ba)
   {
