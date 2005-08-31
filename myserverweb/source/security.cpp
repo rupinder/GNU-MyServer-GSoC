@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cXMLParser.h"
 #include "../include/connectionstruct.h"
 #include "../include/securestr.h"
+#include "../include/myserver_regex.h"
 
 #include <string>
 #include <sstream>
@@ -189,6 +190,19 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
 	XmlParser localParser;
   xmlDocPtr doc;
+  
+  /*! 
+   *Store where actions are found. 
+   *0 Not Found.
+   *1 Globally.
+   *2 User.
+   *3 Item.
+   *4 Item+User.
+   */
+	int actionsFound=0;
+	int tmpActionsFound=0;
+ 	xmlNode *actionsNode=0;
+ 	xmlNode *tmpActionsNode=0;
 
 	tempPassword[0]='\0';
 	if(st && st->auth_type)
@@ -260,13 +274,37 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				attr=attr->next;
 			}
 		}
+		if(!xmlStrcmp(node->name, (const xmlChar *)"ACTION"))
+		{
+	    if(actionsFound < 1)
+	    {
+        actionsFound=1;
+ 	      actionsNode = doc->children->children;            
+      }
+    }
+
     /*! USER block. */
 		if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
 		{
 			int tempGenericPermissions=0;
 			int rightUser=0;
 			int rightPassword=0;
+			xmlNode *node2 = node->children;
       attr =  node->properties;
+      tmpActionsFound = 0;      
+      while(node2)
+      {
+        if(!xmlStrcmp(node2->name, (const xmlChar *)"ACTION"))
+        {
+ 	        if(actionsFound < 2)
+	        {
+            tmpActionsFound=2;
+ 	          tmpActionsNode = node->children;  
+          }                                   
+        }           
+        node2 = node2->next;            
+      }
+      
       while(attr)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
@@ -319,6 +357,11 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
          */
 				if(rightUser && (filePermissionsFound==0) && (userPermissionsFound==0))
 				{
+ 	        if(tmpActionsFound == 2)
+	        {
+            actionsFound=2;
+ 	          actionsNode = tmpActionsNode;            
+          }   
           if(st->password2)
             strncpy(st->password2, tempPassword, 32);
           if(tempThrottlingRate != (u_long) -1) 
@@ -341,15 +384,34 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       int tempFilePermissions;
       xmlNode *node2=node->children;
       tempThrottlingRate=(u_long)-1;
+      tempFilePermissions=0;
+      tmpActionsFound=0;
 			while(node2)
 			{
-        tempFilePermissions=0;
+        if(!xmlStrcmp(node2->name, (const xmlChar *)"ACTION"))
+        {
+ 	        if(actionsFound <= 3)
+	        {
+            tmpActionsFound=3;
+ 	          tmpActionsNode = node->children;
+          }                                   
+        }      
         if(!xmlStrcmp(node2->name, (const xmlChar *)"USER"))
 				{
 					int tempUserPermissions=0;
 					int rightUser=0;
 					int rightPassword=0;
 					attr = node2->properties;
+          xmlNode *node3=node2->children;
+          while(node3)
+          {
+            if(!xmlStrcmp(node3->name, (const xmlChar *)"ACTION"))
+            {
+              tmpActionsFound=4;
+              tmpActionsNode = node2->children;            
+            }
+            node3 = node3->next;                              
+          }    
 					while(attr)
 					{
 						if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
@@ -460,7 +522,12 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
                 userPermissionsFound=1;
               if(userPermissions2Found==2)
                 userPermissions2Found=1;
-              
+                
+              if(actionsFound<tmpActionsFound)
+              {
+                actionsFound=tmpActionsFound;
+                actionsNode = tmpActionsNode;
+              }
             }
           }
           attr=attr->next;
@@ -509,6 +576,41 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 		}
 
 	}
+
+  for( ;actionsNode; actionsNode = actionsNode->next)
+  {
+    xmlAttr *attr=actionsNode->properties;
+    int deny=0;
+    regmatch_t pm;
+    const char* name = 0;
+    Regex value;
+    string* headerVal=0;
+    if(strcmpi((const char*)actionsNode->name, "ACTION"))
+      continue;
+
+    if(actionsNode->children && actionsNode->children->content 
+       && !strcmpi((const char*)actionsNode->children->content, "DENY"))
+         deny = 1;
+    if(!deny)
+      continue;
+
+    for( ; attr; attr = attr->next)
+    {
+      if(!strcmpi((const char*)attr->name, "NAME"))
+        name = (const char*) attr->children->content;
+      if(!strcmpi((const char*)attr->name, "VALUE"))
+        value.compile((const char*)attr->children->content, REG_EXTENDED);         
+    }
+    if(name)
+      headerVal = st->td->request.getValue(name, 0);
+    if(!headerVal)
+      continue;
+    /*! If the regular expression matches the header value then deny the access. */
+    if(value.isCompiled() && !value.exec(headerVal->c_str(), 1,&pm, REG_NOTEOL))
+      return 0;
+    else
+      break;
+  }
 
 	if(userPermissionsFound==1)
 		return userPermissions;

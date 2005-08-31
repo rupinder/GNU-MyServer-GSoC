@@ -242,13 +242,15 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 {
   u_long firstByte = td->request.rangeByteBegin; 
   int permissions=-1;
-  string directory;
 	int httpStatus=td->response.httpStatus;
 	int keepalive=0;
   int permissions2=0;
   char auth_type[16];	
   SecurityToken st;
+  string directory;
+  string file;
 
+  st.td=td;
   st.auth_type = auth_type;
   st.len_auth = 16;
   try
@@ -259,6 +261,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       td->response.connection.assign("Keep-Alive");
       keepalive=1;
     }
+    File::splitPath(td->filenamePath, directory, file);
     td->response.httpStatus=httpStatus;
     /*!
      *td->filenamePath is the file system mapped path while filename 
@@ -312,7 +315,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password = s->getPassword();
       st.directory = directory.c_str();
       st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-      st.filename = filename.c_str();
+      st.filename = file.c_str();
       st.password2 = ((HttpUserData*)s->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
       secCacheMutex.lock();
@@ -336,7 +339,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
         st.password = "";
         st.directory = directory.c_str();
         st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-        st.filename = filename.c_str();
+        st.filename = file.c_str();
         st.password2 = 0;
         st.permission2 = 0;
         permissions=secCache.getPermissionMask(&st);
@@ -383,7 +386,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password = "";
       st.directory = directory.c_str();
       st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-      st.filename = filename.c_str();
+      st.filename = file.c_str();
       st.password2 = 0;
       st.permission2 = 0;
       
@@ -519,6 +522,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
 	int permissions2=0;
 	char auth_type[16];
   SecurityToken st;
+  string file;
   try
   {
     HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
@@ -528,7 +532,8 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     }
     st.auth_type = auth_type;
     st.len_auth = 16;
-    
+    st.td=td;
+    File::splitPath(td->filenamePath, directory, file);    
     td->response.httpStatus=httpStatus;
     /*!
      *td->filenamePath is the file system mapped path while filename 
@@ -562,7 +567,6 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     }
     else
     {
-      string file;
       File::splitPath(td->filenamePath, directory, file);
     }
 
@@ -582,7 +586,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password = s->getPassword();
       st.directory = directory.c_str();
       st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-      st.filename = filename.c_str();
+      st.filename = file.c_str();
       st.password2 = ((HttpUserData*)s->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
       secCacheMutex.lock();
@@ -603,7 +607,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password = "";
       st.directory = directory.c_str();
       st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-      st.filename = filename.c_str();
+      st.filename = file.c_str();
       st.password2 = 0;
       st.permission2 = 0;
       secCacheMutex.lock();
@@ -653,7 +657,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
       st.password = "";
       st.directory = directory.c_str();
       st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-      st.filename = filename.c_str();
+      st.filename = file.c_str();
       st.password2 = 0;
       st.permission2 = 0;
       secCacheMutex.lock();
@@ -814,12 +818,13 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
   char auth_type[16];
   string tmpTime;
   SecurityToken st;
-
+  string directory;
+  string file;
   try
   {
     st.auth_type = auth_type;
     st.len_auth = 16;
-    
+    st.td=td;
     filename.assign(uri);
     td->buffer->setLength(0);
     
@@ -864,7 +869,6 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
 
     if(!systemrequest)
     {
-      string directory;
       if(File::isDirectory(td->filenamePath.c_str()))
       {
         directory.assign(td->filenamePath);
@@ -875,8 +879,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       }
       else
       {
-        string fn;
-        File::splitPath(td->filenamePath, directory, fn);
+        File::splitPath(td->filenamePath, directory, file);
       }
 
       if(s->protocolBuffer==0)
@@ -895,7 +898,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
         st.password = s->getPassword();
         st.directory = directory.c_str();
         st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-        st.filename = filename.c_str();
+        st.filename = file.c_str();
         st.password2 = ((HttpUserData*)s->protocolBuffer)->neededPassword;
         st.permission2 = &permissions2;
         secCacheMutex.lock();
@@ -916,7 +919,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
         st.password = "";
         st.directory = directory.c_str();
         st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-        st.filename = filename.c_str();
+        st.filename = file.c_str();
         st.password2 = 0;
         st.permission2 = 0;
         secCacheMutex.lock();
@@ -962,7 +965,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
         st.password = "";
         st.directory = directory.c_str();
         st.sysdirectory = ((Vhost*)(s->host))->getSystemRoot();
-        st.filename = filename.c_str();
+        st.filename = file.c_str();
         st.password2 = 0;
         st.permission2 = 0;
         secCacheMutex.lock();
