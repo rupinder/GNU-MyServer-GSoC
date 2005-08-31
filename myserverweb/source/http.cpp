@@ -78,7 +78,7 @@ string Http::browseDirCSSpath;
 u_long Http::gzipThreshold=0;
 
 /*! Vector with default filenames.  */
-vector<string*> Http::defaultFilename;
+vector<string> Http::defaultFilename;
 
 /*! Is the HTTP protocol loaded?  */
 int Http::initialized=0;
@@ -2657,12 +2657,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 
 
 	}
-  
-  for(int i=0; i<static_cast<int>(defaultFilename.size()); i++ )
-  {
-    string *str=defaultFilename[i];
-    delete str;
-  }
+
   defaultFilename.clear();
   
 	/*!
@@ -2670,8 +2665,7 @@ int Http::loadProtocol(XmlParser* languageParser)
    */
 	if(nDefaultFilename==0)
 	{
-    string *str=new string("default.html");
-    defaultFilename.push_back (str);
+    defaultFilename.push_back("default.html");
 	}
 	else
 	{
@@ -2683,8 +2677,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 			data=configurationFileManager.getValue(xmlMember.str().c_str());
 			if(data)
       {
-        string* str = new string(data);
-        defaultFilename.push_back(str);
+        defaultFilename.push_back(data);
       }
 		}
 	}	
@@ -2726,11 +2719,6 @@ int Http::unloadProtocol(XmlParser* /*languageParser*/)
 
   secCacheMutex.destroy();
 
-  for(int i=0; i<static_cast<int>(defaultFilename.size()); i++ )
-  {
-    string *str=defaultFilename[i];
-    delete str;
-  }
   defaultFilename.clear();
   browseDirCSSpath.assign("");
 
@@ -2745,7 +2733,7 @@ const char *Http::getDefaultFilenamePath(u_long ID)
 {
   if(defaultFilename.size() <= ID)
     return 0;
-  return defaultFilename[ID]->c_str();
+  return defaultFilename[ID].c_str();
 }
 
 /*!

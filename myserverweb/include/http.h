@@ -76,7 +76,7 @@ private:
 	static int mscgiLoaded;
 	static string browseDirCSSpath;
 	static u_long gzipThreshold;
-	static vector<string*> defaultFilename;
+	static vector<string> defaultFilename;
   static int cgiTimeout;
   static int fastcgiInitialPort;
   static int fastcgiServers;

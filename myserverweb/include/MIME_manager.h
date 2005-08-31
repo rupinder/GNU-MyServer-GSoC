@@ -88,7 +88,7 @@ class MimeManager
 public:
 	struct MimeRecord
 	{
-    list<string*> filters;
+    list<string> filters;
 		string extension;
 		string mime_type;
     string cmd_name;

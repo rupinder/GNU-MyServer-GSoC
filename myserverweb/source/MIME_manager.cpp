@@ -187,15 +187,13 @@ MimeManager::MimeRecord::~MimeRecord()
  */
 MimeManager::MimeRecord::MimeRecord(MimeRecord& m)
 {
-  list<string*>::iterator i=m.filters.begin();
+  list<string>::iterator i=m.filters.begin();
 
   filters.clear(); 
 
   for( ; i != m.filters.end(); i++)
   {
-    string *filter = new string();
-    filter->assign( *(*i) );
-    filters.push_back(filter);
+    filters.push_back(*i);
   }
   extension.assign(m.extension); 
   mime_type.assign(m.mime_type);
@@ -210,11 +208,6 @@ MimeManager::MimeRecord::MimeRecord(MimeRecord& m)
   */
 void MimeManager::MimeRecord::clear()
 {
-  list<string*>::iterator i = filters.begin();
-  for( ; i != filters.end() ; i++)
-  {
-    delete (*i);
-  }
   filters.clear();
   headerChecker.clear();
   extension.assign(""); 
@@ -410,16 +403,14 @@ int MimeManager::MimeRecord::addFilter(const char* n, int acceptDuplicate)
   string *s;
   if(!acceptDuplicate)
   {
-    list<string*>::iterator i = filters.begin();
+    list<string>::iterator i = filters.begin();
     for( ; i != filters.end() ;i++ )
     {
-      if(!stringcmpi(*(*i), n))
+      if(!stringcmpi(*i, n))
         return 0;
     }
   }
-  s = new string();
-  s->assign(n);
-  filters.push_back(s);
+  filters.push_back(n);
   return 1;
 }
 
