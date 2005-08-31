@@ -98,7 +98,7 @@ int HashDictionary<T>::nodesNumber()
 }
 
 /*!
- *free the dictionary.
+ *Free the dictionary.
  */
 template<typename T>
 void HashDictionary<T>::free()
