@@ -81,7 +81,6 @@ private:
   static int fastcgiInitialPort;
   static int fastcgiServers;
   static int allowVhostMime;
-  static int allowMscgi;
   static DynHttpCommandManager dynCmdManager;
   static DynHttpManagerList dynManagerList;
 	MsCgi lmscgi;

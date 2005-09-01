@@ -68,9 +68,6 @@ int Http::mscgiLoaded=0;
 /*! Allow the definition of a MIME file for host. */
 int Http::allowVhostMime=1;
 
-/*! Allow the possibility to use MSCGI. */
-int Http::allowMscgi=1;
-
 /*! Path to the .css file used by directory browsing.  */
 string Http::browseDirCSSpath;
 
@@ -355,7 +352,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Http: Error reading security file");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -405,7 +402,7 @@ int Http::putHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Http: Error reading security file");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -625,7 +622,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Http: Error reading security file");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -675,7 +672,7 @@ int Http::deleteHTTPRESOURCE(HttpThreadContext* td, ConnectionPtr s,
     if(permissions == -1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Http: Error reading security file");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -985,7 +982,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     if(permissions==-1)
     {
       ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)td->connection->host)->warningsLogWrite("Error reading security file");
+      ((Vhost*)td->connection->host)->warningsLogWrite("Http: Error reading security file");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       return raiseHTTPError(td, s, e_500); 
     }
@@ -1155,7 +1152,17 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
 
     if(mimecmd==CGI_CMD_RUNCGI)
     {
-      if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+      int allowCgi = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_CGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowCgi=1;
+        else
+          allowCgi=0;      
+	    }
+
+      if(!allowCgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
         return sendAuth(td, s);
       }
@@ -1164,7 +1171,17 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     }
     else if(mimecmd==CGI_CMD_EXECUTE )
     {
-      if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+      int allowCgi = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_CGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowCgi=1;
+        else
+          allowCgi=0;      
+	    }
+
+      if(!allowCgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
 		  {
         return sendAuth(td, s);
       }
@@ -1173,7 +1190,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     }
     else if(mimecmd == CGI_CMD_RUNISAPI)
     {
-      if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+      int allowIsapi = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_ISAPI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowIsapi=1;
+        else
+          allowIsapi=0;      
+	    }
+      if(!allowIsapi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
         return sendAuth(td, s);
       }
@@ -1195,7 +1221,17 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     else if( mimecmd == CGI_CMD_RUNMSCGI )
     {
       char* target;
-      if((!allowMscgi) || (!(permissions & MYSERVER_PERMISSION_EXECUTE)))
+      int allowMscgi = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_MSCGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowMscgi=1;
+        else
+          allowMscgi=0;      
+	    }
+
+      if(!allowMscgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
         return sendAuth(td, s);
       }
@@ -1214,7 +1250,17 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     else if( mimecmd == CGI_CMD_EXECUTEWINCGI )
     {
       ostringstream cgipath;
-      if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+      int allowWincgi = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_WINCGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowWincgi=1;
+        else
+          allowWincgi=0;      
+	    }
+
+      if(!allowWincgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
         return sendAuth(td, s);
       }
@@ -1231,7 +1277,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     }
     else if( mimecmd == CGI_CMD_RUNFASTCGI )
     {
-      if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+      int allowFastcgi = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_FASTCGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowFastcgi=1;
+        else
+          allowFastcgi=0;      
+	    }
+      if(!allowFastcgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
         return sendAuth(td, s);
       }	
@@ -1241,7 +1296,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     }
     else if(mimecmd==CGI_CMD_EXECUTEFASTCGI)
     {
-      if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
+      int allowFastcgi = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_FASTCGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowFastcgi=1;
+        else
+          allowFastcgi=0;      
+	    }
+      if(!allowFastcgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
         return sendAuth(td, s);
       }
@@ -1256,7 +1320,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
       char* pathInfo;
       int linkpathSize;
       File h;
-      if(!(permissions & MYSERVER_PERMISSION_READ))
+      int allowSendlink = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_SEND_LINK");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowSendlink=1;
+        else
+          allowSendlink=0;      
+	    }
+      if(!allowSendlink || !(permissions & MYSERVER_PERMISSION_READ))
       {
         return sendAuth(td, s);
       }
@@ -1305,8 +1378,16 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     }
     else if( mimecmd == CGI_CMD_EXTERNAL )
     {
-     
-      if((MimeManager::MimeRecord*)td->mime)
+      int allowExternal = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_EXTERNAL_COMMANDS");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowExternal=1;
+        else
+          allowExternal=0;      
+	    }     
+      if(allowExternal && (MimeManager::MimeRecord*)td->mime)
       {
         DynamicHttpManager* manager = dynManagerList.getManagerByName(
                              ((MimeManager::MimeRecord*)td->mime)->cmd_name.c_str());
@@ -1318,6 +1399,22 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
           return raiseHTTPError(td, s, e_501);
       }
 
+    }
+
+    {
+      int allowSend = 1;
+	    const char *dataH=((Vhost*)(s->host))->getHashedData("ALLOW_SEND_FILE");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowSend=1;
+        else
+          allowSend=0;      
+	    }   
+      if(!allowSend)
+      {     
+        return sendAuth(td, s);
+      }       
     }
 
     /*! By default try to send the file as it is. */
@@ -2607,15 +2704,6 @@ int Http::loadProtocol(XmlParser* languageParser)
     else
       allowVhostMime=0;      
 	}	
-	data=configurationFileManager.getValue("ALLOW_MSCGI");
-	if(data)
-	{
-    if(!strcmpi(data, "YES"))
-      allowMscgi=1;
-    else
-      allowMscgi=0;      
-	}	
-
 	data=configurationFileManager.getValue("CGI_TIMEOUT");
 	if(data)
 	{
