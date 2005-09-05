@@ -371,6 +371,14 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			headerSize= i + 4 ;
 			break;
 		}
+    else if((buff[i]=='\n') && (buff[i+1]=='\n'))
+    {
+      /*!
+       *\n\n case.
+       */
+      headerSize= i + 2;
+      break;
+    }
 		/*! If it is present Location: xxx in the header send a redirect to xxx.  */
 		else if(!strncmp(&(td->buffer2->getBuffer())[i], "Location:", 9))
 		{
