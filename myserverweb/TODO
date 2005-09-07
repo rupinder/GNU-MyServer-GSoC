@@ -7,15 +7,15 @@ TODO list for MyServer.
 
 *	Add local charsets to allow MyServer handles URL like in Germany ß, ä, ö, ü, because  this will be available sooner or later for china and all around the world.
 
-* Create AMD64 debs.
-* Create Pentium MMX debs.
+*	Create AMD64 debs.
+*	Create Pentium MMX debs.
 **	Use CFLAGS="-O3" CXXFLAGS="-O3 -march=amd64" / pentium-mmx.
 
 * Rename ACCESSESLOG to ACCESSLOG.
 
 * Think about renaming some XML tags.
 
-*	implement SYMLINKS:
+*	Implement SYMLINKS:
 **	system wide.
 **	webroot.
 **	checkowner.
@@ -38,7 +38,7 @@ TODO list for MyServer.
 *	Check http_dir.cpp for correct filesize displaying: mb, gb.
 **	Add tb.
 
-*	fix http_dir.cpp sort:
+*	fix http_dir.cpp sort.
 **	the default sorting mechanism for many files is strange.
 
 *	Add sorting possiblity to http_dir.cpp:
@@ -123,17 +123,17 @@ TODO list for MyServer.
 **	If asked to run on XP as service automatically install the service.
 
 *	Virtual hosts data.
-**  Find and implement a faster way than the linear search in vhosts handling code.
+**	Find and implement a faster way than the linear search in vhosts handling code.
 **	Possibility to have virtual hosts data in external sources(other than virtualhosts.xml).
 
 *	Support for Frontpage extensions.
 *	Desing and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
 
-* HashDictionary
-** Render HashDictionary faster(extendible hashing?)
-** Specialize HashDictionary for pointers.
-** Better way to iter trough its elements.
-** Do an additional check when the the element is found(do not use only the hash value comparison).
+*	HashDictionary
+**	Render HashDictionary faster(extendible hashing?)
+**	Specialize HashDictionary for pointers.
+**	Better way to iter trough its elements.
+**	Do an additional check when the the element is found(do not use only the hash value comparison).
 
 *	Setuid and Setgid for CGI processes.
 *	IPv6 Implementation. 
