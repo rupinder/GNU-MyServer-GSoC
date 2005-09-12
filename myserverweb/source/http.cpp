@@ -2047,13 +2047,14 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		
 		  /*! 
        *Check if there is a limit for the number of connections in the virtual host.
+       *A value of zero means no limit.
        */
 		  {
         const char* val = ((Vhost*)a->host)->getHashedData("MAX_CONNECTIONS");
         if(val)
         {
           u_long limit = atoi(val);
-          if(((Vhost*)a->host)->getRef() >= limit)
+          if(limit && ((Vhost*)a->host)->getRef() >= limit)
           {
             retvalue = raiseHTTPError(&td, a, e_500);
             logHTTPaccess(&td, a);
