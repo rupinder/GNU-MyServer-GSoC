@@ -889,18 +889,6 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
   {
     filename = lserver->getVhostConfFile();
   }
-  else if(!File::fileExists(fn))
-  {
-    /*! If we cannot find the file send the right error ID. */
-    string msg;
-    msg.assign("Control: Requested file doesn't exist ");
-    msg.append(filename);
-    addToErrorLog(a, msg);
-    Reboot = true;
-    if(isAutoRebootToEnable)
-      lserver->enableAutoReboot();
-    return CONTROL_FILE_NOT_FOUND;
-  }
   else
   {
     filename = fn;    
