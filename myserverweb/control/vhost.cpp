@@ -176,7 +176,7 @@ int VHostXML::load_core(XmlParser & parser)
       else
         setSysfolder(NameNo, "");
 	       }
-	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSLOG"))
 	       {
 		  setAccesseslog(NameNo, (char*)lcur->children->content);
 	       }
@@ -278,7 +278,7 @@ int VHostXML::save_core(XmlParser & xmlFile)
 
 	xmlFile.addChild("SYSFOLDER", getSysfolder(i));
 
-	xmlFile.addChild("ACCESSESLOG", getAccesseslog(i));
+	xmlFile.addChild("ACCESSLOG", getAccesseslog(i));
 
 	xmlFile.addChild("WARNINGLOG", getWarninglog(i));
 

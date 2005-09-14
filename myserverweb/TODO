@@ -11,8 +11,6 @@ TODO list for MyServer.
 *	Create Pentium MMX debs.
 **	Use CFLAGS="-O3" CXXFLAGS="-O3 -march=amd64" / pentium-mmx.
 
-* Rename ACCESSESLOG to ACCESSLOG.
-
 * Think about renaming some XML tags.
 
 *	Implement SYMLINKS:

@@ -31,7 +31,7 @@ like:<br />
   &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br />
   &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br />
   &lt;HOST&gt;www.mysite.com&lt;/HOST&gt; <br />
-  &lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br />
+  &lt;ACCESSLOG&gt;logs/myServer.log&lt;/ACCESSLOG&gt;<br />
   &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br />
   &lt;/VHOST&gt;<br />
     -<br />
@@ -60,7 +60,7 @@ used by the virtual host.<br />
 <br />
 <p>
 Log files can have extra options:<br />
-<span class="code">&lt;ACCESSESLOG type="combined"&gt;logs/myServerHTTP.log&lt;/ACCESSESLOG&gt;</span> <br />
+<span class="code">&lt;ACCESSLOG type="combined"&gt;logs/myServerHTTP.log&lt;/ACCESSLOG&gt;</span> <br />
 With this option, the logs will have two extra fields: HTTP Referer and
 HTTP User Agent.<br />
 Using <span class="code">cycle="yes"</span> you will enable log cycler on the log file. When a log file 

@@ -1099,7 +1099,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
           vh->setSystemRoot("");
         }
       }
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSESLOG"))
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSLOG"))
 			{
         xmlAttr *attr;
         string opt;
@@ -1325,10 +1325,10 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
       
       out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
       
-      out.writeToFile("<ACCESSESLOG>",13,&nbw);
+      out.writeToFile("<ACCESSLOG>",13,&nbw);
       out.writeToFile((*i)->getAccessesLogFileName(),
                       (u_long)strlen((*i)->getAccessesLogFileName()), &nbw);
-      out.writeToFile("</ACCESSESLOG>\r\n",16,&nbw);
+      out.writeToFile("</ACCESSLOG>\r\n",16,&nbw);
       
       out.writeToFile("<WARNINGLOG>",12,&nbw);
       out.writeToFile((*i)->getWarningsLogFileName(),

@@ -7,7 +7,7 @@
 <PROTOCOL>HTTP</PROTOCOL>
 <DOCROOT>/var/web/</DOCROOT>
 <SYSFOLDER>/usr/share/myserver/system/</SYSFOLDER>
-<ACCESSESLOG>/var/log/myserver/MyServerHTTP.log</ACCESSESLOG>
+<ACCESSLOG>/var/log/myserver/MyServerHTTP.log</ACCESSLOG>
 <WARNINGLOG>/var/log/myserver/MyServerHTTP.err</WARNINGLOG>
 </VHOST>
 
