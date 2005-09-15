@@ -1,3 +1,4 @@
+
 /*
 MyServer
 Copyright (C) 2005 The MyServer Team
@@ -310,7 +311,10 @@ DynamicFilter::DynamicFilter(DynamicFilterFile* f,Stream* s, u_long i)
 int DynamicFilter::flush(u_long *nbw)
 {
   *nbw = 0;
-  return 0;
+  if(!file)
+    return 0;
+
+  return file->flush(id, parent, nbw);
 }
 
 /*!
