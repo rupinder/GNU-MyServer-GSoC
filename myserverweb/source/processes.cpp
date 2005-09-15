@@ -269,9 +269,8 @@ int Process::isProcessAlive()
 #endif
 
 #ifdef NOT_WIN
-
-#ifdef PROCESS_ALIVE_USEWAITPID
   int status = 0;
+#ifdef PROCESS_ALIVE_USEWAITPID
   int ret;
   do
   {
@@ -291,6 +290,10 @@ int Process::isProcessAlive()
   while(!ret && errno==EINTR);
   if(ret == 0)
     return 1;
+
+  /*! Waitpid it to free the resource. */
+  waitpid(pid, &status, WNOHANG | WUNTRACED);
+
   return 0;
 #endif
 
