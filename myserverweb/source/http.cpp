@@ -1460,15 +1460,15 @@ int Http::logHTTPaccess(HttpThreadContext* td, ConnectionPtr a)
     *td->buffer2 << a->getIpAddr();
     *td->buffer2<< " ";
 	
-    if(td->identity[0])
-      *td->buffer2 << td->identity;
+	  if(a->getLogin())
+      *td->buffer2 << a->getLogin();
     else
       *td->buffer2 << "-";
 
     *td->buffer2<< " ";  
 
-    if(td->identity[0])
-      *td->buffer2 << td->identity;
+    if(a->getLogin())
+      *td->buffer2 << a->getLogin();
     else
       *td->buffer2 << "-";
     
