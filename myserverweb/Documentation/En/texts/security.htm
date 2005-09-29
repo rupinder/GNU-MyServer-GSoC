@@ -12,60 +12,91 @@
 <table class="center" width="95%">
 <tr>
 <td class="center">
-<h1 class="title">CONTROLING ACCESSES</h1>
-<br />
-In order to control the access to a file, you must add the security in the directory you would like to protect.<br /><br />
-
-The syntax of the file is:<br /><br />
-<span class="code">
-&lt;?xml version="1.0"?&gt;<br />
-&lt;SECURITY&gt;<br />
-&lt;HTTP TRACE="ON" /&gt;<br />
-&lt;AUTH TYPE="Basic" /&gt;<br />
-&lt;USER NAME="God" PASS="godpassword" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" EXECUTE="TRUE" /&gt;<br />
-&lt;!--This is the setting for the user--&gt;<br />
-&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;<br />
-&lt;!--The guest user--&gt;<br />
-&lt;USER NAME="Tim" PASS="Tom" READ="TRUE" EXECUTE="TRUE" BROWSE="TRUE"/&gt;<br />
-&lt;!--Another user--&gt;<br />
-&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />
-&lt;!--Define a file and its permissions--&gt;<br />
-&lt;USER NAME="Jim" PASS="Morrison" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" /&gt;<br />
-&lt;!--Define the user permissions for the file--&gt;<br />
-&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;<br />
-&lt;!--Another user permissions for the file--&gt;<br />
-&lt;/ITEM&gt;<br />
-&lt;--End of the file block--&gt;<br />
-&lt;/SECURITY&gt;<br />
-</span>
-<br /><br />
-      The line <span class="code">&lt;HTTP TRACE="ON" /&gt;</span> is optional, 
-      and is described in the <a href="virtualhosts.htm">Virtual Hosts</a> section 
-      of this guide. Please, go to that link if you want to understand about that 
-      line.<br />
+<h1 class="title">CONTROLLING ACCESSES</h1>
       <br />
-
-The line <span class="code">&lt;AUTH TYPE="Basic" /&gt;</span>, optional, selects the authentication scheme to be used for your site. Its default value is "Basic", but you can also use "Digest", so it will look like this:<br /><br />
-<span class="code">&lt;AUTH TYPE="Digest" /&gt;</span><br />
-if the line isn't in the file, the default "Basic" will be used.<br />
-The "Digest" schema is safer, as the passwords aren't transferred open through the net.<br /><br />
-
-The engine first checks to see if the user has permissions in the file block:<br />
-<span class="code">&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;</span><br /><br />
-
-If there are no permissions defined, the engine tries to use the permissions that are defined for the file:<br />
-
-<span class="code">&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;</span><br /><br />
-
-If the engine cannot find any file permissions, it then uses the general settings for the user:
-<br /><br />
-
-<span class="code">&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;</span><br /><br />
-
-If the user is not defined, the engine will send an error to the user.<br /><br />
-
-If the security file is not present, a default security file will be used by the engine. The default security file is found in the system directory.<br />
-</td>
+        In order to control the access to a file, you must add the security in 
+        the directory you would like to protect.<br />
+        <br />
+        The syntax of the file is:<br />
+        <br />
+        <span class="code"> &lt;?xml version="1.0"?&gt;<br />
+        &lt;SECURITY&gt;<br />
+        &lt;HTTP TRACE="ON" /&gt;<br />
+        &lt;AUTH TYPE="Basic" /&gt;</span><span class="code"><br />
+        &lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt;<br />
+        &lt;USER NAME="God" PASS="godpassword" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" 
+        EXECUTE="TRUE" /&gt;<br />
+        &lt;!--This is the setting for the user--&gt;<br />
+        &lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;<br />
+        &lt;!--The guest user--&gt;<br />
+        &lt;USER NAME="Tim" PASS="Tom" READ="TRUE" EXECUTE="TRUE" BROWSE="TRUE"/&gt;<br />
+        &lt;!--Another user--&gt;<br />
+        &lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />
+        &lt;ACTION name=&quot;Host&quot; value=&quot;remote&quot;&gt;DENY&lt;/ACTION&gt;<br />
+        &lt;!--Define a file and its permissions--&gt;<br />
+        &lt;USER NAME="Jim" PASS="Morrison" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" 
+        /&gt;<br />
+        &lt;!--Define the user permissions for the file--&gt;<br />
+        &lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" 
+        /&gt;<br />
+        &lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;DENY&lt;/ACTION&gt; 
+        <br />
+        &lt;!--Another user permissions for the file--&gt;<br />
+        &lt;/ITEM&gt;<br />
+        &lt;--End of the file block--&gt;<br />
+        &lt;/SECURITY&gt;<br />
+        </span> <br />
+        <br />
+        The line <span class="code">&lt;HTTP TRACE="ON" /&gt;</span> is optional, 
+        and is described in the <a href="virtualhosts.htm">Virtual Hosts</a> section 
+        of this guide. Please, go to that link if you want to understand about 
+        that line.<br />
+        <br />
+        The line <span class="code">&lt;AUTH TYPE="Basic" /&gt;</span>, optional, 
+        selects the authentication scheme to be used for your site. Its default 
+        value is "Basic", but you can also use "Digest", so it will look like 
+        this:<br />
+        <br />
+        <span class="code">&lt;AUTH TYPE="Digest" /&gt;</span><br />
+        if the line isn't in the file, the default "Basic" will be used.<br />
+        The "Digest" schema is safer, as the passwords aren't transferred open 
+        through the net.<br />
+        <br />
+        The engine first checks to see if the user has permissions in the file 
+        block:<br />
+        <span class="code">&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" 
+        EXECUTE="TRUE" /&gt;</span><br />
+        <br />
+        If there are no permissions defined, the engine tries to use the permissions 
+        that are defined for the file:<br />
+        <span class="code">&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;</span><br />
+        <br />
+        If the engine cannot find any file permissions, it then uses the general 
+        settings for the user: <br />
+        <br />
+        <span class="code">&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;</span><br />
+        <br />
+        If the user is not defined, the engine will send an error to the user.<br />
+        <br />
+        <br />
+        <br />
+        <span class="code">The &lt;ACTION&gt;</span> lines above define if a resource 
+        will be allowed to be accessed or not, depending on the conditions. For 
+        example, the line <br />
+      <br /><br /><span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;remote&quot;&gt;DENY&lt;/ACTION&gt;</span>
+      <br /><br />means the file &quot;file1&quot; will be denied if the Host used to access 
+        the file is &quot;remote&quot; as hostname. But if there were others maps 
+        to the file in other hostnames, for example &quot;localhost&quot;, it 
+        can be accessed, execpt by user Bob, as specified by the line below:<br />
+        <br />
+      <span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;DENY&lt;/ACTION&gt; 
+      </span> <br />
+      <br /><br />
+      
+        If the security file is not present, a default security file will be used 
+        by the engine. The default security file is found in the system directory.<br />
+      
+      </td>
 </tr>
 </table>
 </body>
