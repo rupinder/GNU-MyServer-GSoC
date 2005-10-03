@@ -19,6 +19,10 @@ TODO list for MyServer.
 **	checkowner.
 ***	don't follow bad symlinks.
 
+* Provide support for other ssl libraries
+*	Provide support for GnuTLS
+*	Provide support for Mozilla libnss
+
 *	Rewrite the linked list in cserver.cpp in C++ using stl list class.
 *	Search for other linked list an rewrite it in C++ using stl list class.
 

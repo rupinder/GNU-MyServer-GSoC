@@ -28,15 +28,15 @@ AC_SUBST(LDFLAGS)
 #dnl Options
 #AM_OPTIONS_WXCONFIG
 
-dnl Look for argp.h
+dnl Looking for argp.h
 AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are avaible]))
 
-dnl Look for error.h
+dnl Looking for error.h
 AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1, [Define if the error.h file is present]))
 
 AC_CHECK_FUNCS(gettimeofday,AC_DEFINE(GETTIMEOFDAY, 1, [Define if the gettimeofday function is present]) )
 
-dnl Look for pthreads
+dnl Looking for pthreads
 GNOME_PTHREAD_CHECK
 if test x$PTHREAD_LIB = x; then
    AC_MSG_ERROR([
@@ -65,7 +65,7 @@ dnl check for Unix98 socklen_t
          [AC_MSG_RESULT(no)
           AC_DEFINE(socklen_t, int, need to define this where socklen_t is not present)])
 
-dnl Look for dl
+dnl Looking for dl
 AC_CHECK_LIB(dl ,dlopen, have_dl=yes)
 AC_CHECK_LIB(c ,dlopen, have_dl=yes; no_dl_ld=yes)
 
@@ -87,7 +87,8 @@ if test x$no_dl_ld = xyes; then
 fi
 AC_SUBST(DL_LIB)
 
-dnl Look for XML2
+
+dnl Looking for LibXML2
 AM_PATH_XML2(2.6.0, have_xml2=yes)
 if test x$have_xml2 != xyes; then
     AC_MSG_ERROR([
@@ -96,21 +97,41 @@ if test x$have_xml2 != xyes; then
 ])
 fi
 
-dnl Look for OpenSSL
-AC_CHECK_LIB(ssl, SSL_accept, have_ssl=yes)
-if test x$have_ssl != xyes; then
-   AC_MSG_WARN([
-*** Cannot find OpenSSL
-*** HTTPS and other SSL protocols will not be enabled
-])
-    AC_DEFINE(DO_NOT_USE_SSL, 1, [SSL support in MyServer, define to 1 to disable])
-    OPENSSL_LIB=""
-else
-    OPENSSL_LIB="-lssl"
-fi
-AC_SUBST(OPENSSL_LIB)
 
-dnl Look for Zlib
+dnl CHECKING FOR OPENSSL
+    for dir in $withval /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr; do
+        ssldir="$dir";
+        if test -f "$dir/include/openssl/ssl.h"; then
+            found_ssl="yes";
+            CFLAGS="$CFLAGS -I$ssldir/include/openssl -DHAVE_SSL";
+            CXXFLAGS="$CXXFLAGS -I$ssldir/include/openssl -DHAVE_SSL";
+            break
+        fi
+        if test -f "$dir/include/ssl.h"; then
+            found_ssl="yes";
+            CFLAGS="$CFLAGS -I$ssldir/include/ -DHAVE_SSL";
+            CXXFLAGS="$CXXFLAGS -I$ssldir/include/ -DHAVE_SSL";
+            break
+        fi
+    done
+    if test x_$found_ssl != x_yes; then
+        AC_MSG_ERROR(Cannot find ssl libraries)
+	AC_DEFINE(DO_NOT_USE_SSL, 1, [SSL support in MyServer, define to 1 to disable])
+	OPENSSL_LIB="" # not set
+    else
+        printf "OpenSSL found in $ssldir\n";
+        LIBS="$LIBS -lssl -lcrypto";
+        LDFLAGS="$LDFLAGS -L$ssldir/lib";
+	OPENSSL_LIB="-lssl" # myserver
+        HAVE_SSL="yes"
+    fi
+    AC_SUBST(HAVE_SSL)
+    AC_SUBST(OPENSSL_LIB) # myserver
+    
+
+
+
+dnl Looking for zlib
 AC_CHECK_LIB(z, uncompress, have_libz=yes)
 if test x$have_libz != xyes; then
     AC_MSG_WARN([
@@ -134,7 +155,7 @@ else
 fi
 AC_SUBST(ZLIB_LIB)
 
-dnl Look for libPNG
+dnl Looking for libpng
 AM_PATH_LIBPNG(1.2.5, have_png=yes)
 if test x$have_png != xyes; then
     AC_MSG_WARN([
@@ -146,7 +167,7 @@ else
     MAKE_COUNTER=yes
 fi
 
-#dnl Look for wxwindows
+#dnl Looking for wxwindows
 #AM_PATH_WXCONFIG(2.4.0, have_wxwindows=yes)
 #if test x$have_wxwindows != xyes; then
 #    AC_MSG_WARN([
@@ -158,7 +179,7 @@ fi
 #    MAKE_CONTROL=yes
 #fi
 
-dnl Look for FLTK
+dnl Looking for FLTK
 AM_PATH_FLTK(1.1.0, have_fltk=yes)
 if test x$have_fltk != xyes; then
     AC_MSG_WARN([
