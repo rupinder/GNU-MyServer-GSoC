@@ -215,6 +215,9 @@ int LogManager::getGzip()
  */
 int LogManager::storeFile()
 {
+  char *buffer = 0;
+  char *buffer2= 0;
+  const u_long bufferSize = MYSERVER_KB(64);
   try
   {
     string filepath;
@@ -223,6 +226,7 @@ int LogManager::storeFile()
     ostringstream newfilename;
     string time;
     Gzip gzip;
+
     /*! Do nothing if we haven't to cycle log files. */
     if(!cycleLog)
       return 1;
@@ -251,13 +255,28 @@ int LogManager::storeFile()
       char gzipData[16];
       File newFile;
       File *currentFile = getFile();
-      char buffer[512];
-      char buffer2[512];
+
+      buffer = new char[bufferSize];
+      if(buffer == 0)
+        return 1;
+      buffer2 = new char[bufferSize];
+      if(buffer == 0)
+        {
+          delete [] buffer;
+          return 1;
+        }
+     
       if(newFile.openFile(newfilename.str().c_str(), 
                           FILE_OPEN_WRITE | FILE_NO_INHERIT | FILE_CREATE_ALWAYS ))
+      {
+        delete [] buffer;
+        delete [] buffer2;
         return 1;
+      }
       if(currentFile->setFilePointer(0))
       {
+        delete [] buffer;
+        delete [] buffer2;
         newFile.closeFile();
         return 1;
       }
@@ -267,6 +286,8 @@ int LogManager::storeFile()
         u_long len = gzip.getHeader(gzipData, 16);
         if(newFile.writeToFile(gzipData, len,  &nbw))
         {
+          delete [] buffer;
+          delete [] buffer2;
           newFile.closeFile();
           return 1;
         }  
@@ -277,8 +298,10 @@ int LogManager::storeFile()
       {
         u_long nbr;
         u_long nbw;
-        if(currentFile->readFromFile(buffer,gzipLog ? 256 : 512, &nbr))
+        if(currentFile->readFromFile(buffer,gzipLog ? bufferSize/2 : bufferSize, &nbr))
         {
+          delete [] buffer;
+          delete [] buffer2;      
           newFile.closeFile();
           return 1;
         }    
@@ -287,15 +310,19 @@ int LogManager::storeFile()
         if(gzipLog)
         {
           u_long nbw;
-          u_long size=gzip.compress(buffer,nbr, buffer2, 512);
+          u_long size=gzip.compress(buffer,nbr, buffer2, bufferSize/2);
           if(newFile.writeToFile(buffer2, size, &nbw))
           {
+            delete [] buffer;
+            delete [] buffer2;
             newFile.closeFile();
             return 1;
           } 
         }
         else if(newFile.writeToFile(buffer, nbr, &nbw))
         {
+          delete [] buffer;
+          delete [] buffer2;
           newFile.closeFile();
           return 1;
         } 
@@ -303,15 +330,19 @@ int LogManager::storeFile()
       if(gzipLog)
       {
         u_long nbw;
-        u_long len = gzip.flush(buffer2, 512);
+        u_long len = gzip.flush(buffer2, bufferSize/2);
         if(newFile.writeToFile(buffer2, len, &nbw))
         {
+          delete [] buffer;
+          delete [] buffer2;
           newFile.closeFile();
           return 1;
         }  
         len=gzip.getFooter(gzipData, 16);
         if(newFile.writeToFile(gzipData, len, &nbw))
         {
+          delete [] buffer;
+          delete [] buffer2;
           newFile.closeFile();
           return 1;
         }   
@@ -322,17 +353,30 @@ int LogManager::storeFile()
       File::deleteFile(filepath.c_str());
       if(currentFile->openFile(filepath.c_str(), FILE_OPEN_APPEND| 
                        FILE_OPEN_ALWAYS|FILE_OPEN_WRITE|FILE_OPEN_READ|FILE_NO_INHERIT))
+      {
+        delete [] buffer;
+        delete [] buffer2;
         return 1;
+      }
     }
-    
+    delete [] buffer;
+    delete [] buffer2;
     return 0;
   }
   catch(bad_alloc &ba)
   {
+    if(buffer)
+      delete [] buffer;
+    if(buffer2)
+      delete [] buffer2;
     throw;
   }
   catch(...)
   {
+    if(buffer)
+      delete [] buffer;
+    if(buffer2)
+      delete [] buffer2;
     throw;
   };
 }
