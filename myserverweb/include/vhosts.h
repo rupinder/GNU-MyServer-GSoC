@@ -60,10 +60,10 @@ public:
 	{
 		string name;
     Regex regex;
-    StringRegex()
+    StringRegex() : regex()
       {}
     ~StringRegex()
-      {regex.free();}
+      {}
 	};
 	
 

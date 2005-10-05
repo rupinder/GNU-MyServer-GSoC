@@ -135,6 +135,7 @@ void Vhost::clearHostList()
 	{
     StringRegex* sr = *i;
     delete sr;
+    i++;
 	}
 	hostList.clear();
 }
@@ -149,6 +150,7 @@ void Vhost::clearIPList()
 	{
     StringRegex* sr = *i;
     delete sr;
+    i++;
 	}
 	hostList.clear();
 }
