@@ -72,6 +72,13 @@ CGI Scripts can get the Server Administrator E-mail and show them to
 the user(through the <span class="code">SERVER_ADMIN</span> environment variable). So, it can be important you define this address properly, by
 setting the value in the line below, <span class="code">in myserver.xml</span>:<br />
 <span class="code">&lt;SERVER_ADMIN&gt;administrator@localhost&lt;/SERVER_ADMIN&gt;</span>
+<br />
+<hr />
+MyServer offers the feature to follow symlinks on Unix-like Operating systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.).<br />
+You can add the symlink following feature for all hosts in the myserver.xml file.<br />
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+The default is: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+This value is used by default by MyServer.
 </td>
 </tr>
 </table>

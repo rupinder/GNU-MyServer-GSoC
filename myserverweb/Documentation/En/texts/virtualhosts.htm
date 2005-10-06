@@ -92,7 +92,14 @@ like:<br />
           default, it's disabled (so, simply delete the line, if you want to disable 
           it)</p>
         <br /><br />
-      &nbsp; </td>
+
+<hr />
+MyServer offers the feature to follow symlinks on Unix-like Operating systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.).<br />
+You can add the symlink following feature for each virtual host in the virtualhosts.xml file.<br />
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+The default is: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+This value is used by default by MyServer.
+</td>
 </tr>
 </table>
 </body>

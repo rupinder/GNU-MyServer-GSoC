@@ -26,6 +26,15 @@ Locate the line:
 and replace system/folderstyle.css with the name of your .css file.
 <p>The file <span class="code">system/folderstyle.css</span> has the default form:</p>
 <span class="code">body { font-family: Arial; color: #000000;background-color:#FFFFFF }</span>
+<br />
+<br />
+<div class="center">Following symlinks</div>
+<br />
+On Unix-like Operating systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.) MyServer supports the feature to follow Symlinks.<br />
+You can add the symlink following feature to each virtual host in the virtualhosts.xml file or in the myserver.xml for all hosts.<br />
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+The default is: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+This value is used by default by MyServer.
 </td>
 </tr>
 </table>
