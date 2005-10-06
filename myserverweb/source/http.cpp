@@ -866,13 +866,17 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
 
     if(!systemrequest)
     {
-      if(File::isDirectory(td->filenamePath.c_str()))
+      if(File::isLink(td->filenamePath.c_str())) 
+      {
+        const char *perm = 	((Vhost*)s->host)->getHashedData("ALLOW_LINKS");
+        if(perm && !strcmpi(perm, "YES"))
+          mimecmd = CGI_CMD_SEND;
+        else
+          return raiseHTTPError(td, s, e_401);
+      }
+      else if(File::isDirectory(td->filenamePath.c_str()))
       {
         directory.assign(td->filenamePath);
-      }
-      else if(File::isLink(td->filenamePath.c_str())) 
-      {
-        return raiseHTTPError(td, s, e_401);
       }
       else
       {
@@ -1062,7 +1066,11 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
      */
     if(File::isLink(td->filenamePath.c_str())) 
     {
-      return raiseHTTPError(td, s, e_401);
+      const char *perm = 	((Vhost*)s->host)->getHashedData("ALLOW_LINKS");
+      if(perm && !strcmpi(perm, "YES"))
+        mimecmd = CGI_CMD_SEND;
+      else
+        return raiseHTTPError(td, s, e_401);
     }
 
     /*!
@@ -2053,8 +2061,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         const char* val = ((Vhost*)a->host)->getHashedData("MAX_CONNECTIONS");
         if(val)
         {
-          u_long limit = atoi(val);
-          if(limit && ((Vhost*)a->host)->getRef() >= limit)
+          u_long limit = (u_long)atoi(val);
+          if(limit && (u_long)((Vhost*)a->host)->getRef() >= limit)
           {
             retvalue = raiseHTTPError(&td, a, e_500);
             logHTTPaccess(&td, a);
