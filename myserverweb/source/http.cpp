@@ -2226,7 +2226,7 @@ int Http::raiseHTTPError(HttpThreadContext* td, ConnectionPtr a, int ID)
     Md5 md5;
     int errorBodyLength=0;
     int useMessagesFiles = 1;
-    const char *useMessagesVal = 	((Vhost*)a->host)->getHashedData("USE_ERRORS_FILES");
+    const char *useMessagesVal = 	((Vhost*)a->host)->getHashedData("USE_ERROR_FILE");
     if(useMessagesVal)
     {
 	    if(!lstrcmpi(useMessagesVal, "YES"))
