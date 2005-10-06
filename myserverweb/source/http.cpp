@@ -868,7 +868,7 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     {
       if(File::isLink(td->filenamePath.c_str())) 
       {
-        const char *perm = 	((Vhost*)s->host)->getHashedData("ALLOW_LINKS");
+        const char *perm = 	((Vhost*)s->host)->getHashedData("FOLLOW_LINKS");
         if(perm && !strcmpi(perm, "YES"))
           mimecmd = CGI_CMD_SEND;
         else
