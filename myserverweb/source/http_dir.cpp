@@ -396,8 +396,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 
     
   }
-  ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
-                                   (u_long)td->buffer2->getLength(), &nbw);
+  
+  ret = td->buffer2->getLength()  ? td->outputData.writeToFile(td->buffer2->getBuffer(), 
+                                                 (u_long)td->buffer2->getLength(), &nbw)
+                                  : 0;
   if(ret)
 	{
     fd.findclose();
