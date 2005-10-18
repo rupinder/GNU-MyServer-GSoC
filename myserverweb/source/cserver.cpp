@@ -279,6 +279,7 @@ void Server::start()
     while(!mustEndServer)
     {
       Thread::wait(500);
+
       if(autoRebootEnabled)
       {
         configsCheck++;
@@ -1287,7 +1288,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 
   /*!
    *Create a new thread if there are not available threads and
-   *we did not reach the limit.
+   *we had not reach the limit.
    */
   if((nThreads < nMaxThreads) && (countAvailableThreads() == 0))
   {
@@ -2212,11 +2213,11 @@ int Server::addThread(int staticThread)
 
   ClientsThread* newThread = new ClientsThread();
 
-  newThread->setStatic(staticThread);
-
   if(newThread == 0)
     return -1;
-  
+
+  newThread->setStatic(staticThread);
+
   newThread->id=(u_long)(++currentThreadID);
 
   ret = Thread::create(&ID, &::startClientsThread, 
