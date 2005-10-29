@@ -1060,19 +1060,6 @@ int Http::sendHTTPResource(HttpThreadContext* td, ConnectionPtr s, string& uri,
     }
     File::completePath(td->filenamePath);
 
-
-    /*!
-     *Raise an error if the token is a link.
-     */
-    if(File::isLink(td->filenamePath.c_str())) 
-    {
-      const char *perm = 	((Vhost*)s->host)->getHashedData("ALLOW_LINKS");
-      if(perm && !strcmpi(perm, "YES"))
-        mimecmd = CGI_CMD_SEND;
-      else
-        return raiseHTTPError(td, s, e_401);
-    }
-
     /*!
      *If there are not any extension then we do one of this in order:
      *1)We send the default files in the directory in order.
