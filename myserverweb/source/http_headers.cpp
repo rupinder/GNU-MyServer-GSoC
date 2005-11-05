@@ -768,13 +768,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		/*!Host*/
 		if(!lstrcmpi(command,"Host"))
 		{
-      int cur = 0;
-			tokenOff = getEndLine(token, HTTP_REQUEST_HOST_DIM);
+ 			tokenOff = getEndLine(token, HTTP_REQUEST_HOST_DIM);
 			if(tokenOff==-1)
         return e_400;
 			lineControlled=1;
 			request->host.assign(token,tokenOff);
-      /*!
+#ifdef DO_NOT_SAVE_HOST_PORT
+     int cur = 0; 
+     /*!
        *Do not save the port if specified.
        */
       while(request->host[cur])
@@ -786,6 +787,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         }
         cur++;
       }
+#endif
 		}else
 		/*!Content-Encoding*/
 		if(!lstrcmpi(command,"Content-Encoding"))
