@@ -58,7 +58,7 @@ HashDictionary<T>::~HashDictionary()
  *Get the data of the node by name.
  */
 template<typename T>
-T HashDictionary<T>::getData(const char* name)
+T HashDictionary<T>::get(const char* name)
 {
   unsigned int nameHash = hash(name);
   class map<u_long, sNode*>::iterator iter = data.find(nameHash);
@@ -73,7 +73,7 @@ T HashDictionary<T>::getData(const char* name)
  *If the node doesn't exist then zero is returned.
  */
 template<typename T>
-T HashDictionary<T>::removeNode(const char* name)
+T HashDictionary<T>::remove(const char* name)
 {
   unsigned int nodeHash = hash(name);
   class map<u_long, sNode*>::iterator iter = data.find(nodeHash); 
@@ -92,7 +92,7 @@ T HashDictionary<T>::removeNode(const char* name)
  *Return the number of nodes currently in the dictionary.
  */
 template<typename T>
-int HashDictionary<T>::nodesNumber()
+int HashDictionary<T>::size()
 {
   return static_cast<int>(data.size());
 }
@@ -115,7 +115,7 @@ void HashDictionary<T>::free()
  *Get the data for the node using the order position. First node has index 0.
  */
 template<typename T>
-T HashDictionary<T>::getData(int order)
+T HashDictionary<T>::get(int order)
 {
   int i;
   class map<u_long, sNode*>::iterator iter = data.begin(); 

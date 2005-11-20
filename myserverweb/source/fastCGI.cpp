@@ -814,7 +814,7 @@ int FastCgi::unload()
     int i;
     for(i=0; i<serversList.size() ; i++)
     {
-      FastCgiServersList* server=serversList.getData(i);
+      FastCgiServersList* server=serversList.get(i);
       if(!server)
         continue;
       /*! If the server is a remote one do nothing. */
@@ -859,7 +859,7 @@ FastCgiServersList* FastCgi::isFcgiServerRunning(const char* path)
 
   try
   { 
-    FastCgiServersList *s = serversList.getData(path);
+    FastCgiServersList *s = serversList.get(path);
     servers_mutex.unlock();
     return s;
   }

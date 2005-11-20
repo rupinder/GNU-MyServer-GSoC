@@ -98,7 +98,7 @@ int Vhost::freeHashedData()
   try
   {
     for(i=0;i<hashedData.size();i++)
-      delete hashedData.getData(i); 
+      delete hashedData.get(i); 
     
     hashedData.clear();
   }
@@ -1340,7 +1340,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
       for(el=0; el < (*i)->hashedData.size(); el++)
       {
         ostringstream outString;
-        string *val = (*i)->hashedData.getData(el);
+        string *val = (*i)->hashedData.get(el);
         const char *name = (*i)->hashedData.getName(el);
         outString << "<" << name << ">" << val  << "</" << name << ">" << endl;
 
@@ -1367,7 +1367,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
  */
 const char* Vhost::getHashedData(const char* name)
 {
-  string *s = hashedData.getData(name);
+  string *s = hashedData.get(name);
   if(s)
     return s->c_str();
 

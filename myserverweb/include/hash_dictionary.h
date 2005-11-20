@@ -45,15 +45,13 @@ public:
   HashDictionary();
   explicit HashDictionary(HashDictionary<T>&);
   ~HashDictionary();
-  T getData(const char*);
-  T getData(int);
+  T get(const char*);
+  T get(int);
   const char* getName(int);
   int insert(const char*, T);
-  T removeNode(const char*);
+  T remove(const char*);
   T removeNodeAt(int);
-  int nodesNumber();
-  int size()
-    {return nodesNumber(); }
+  int size();
   void free();
   void clear()
     {free();}

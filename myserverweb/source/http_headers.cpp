@@ -203,7 +203,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
     int i;
     for(i=0; i < response->other.size(); i++)
     {
-      HttpResponseHeader::Entry *e = response->other.getData(i);
+      HttpResponseHeader::Entry *e = response->other.get(i);
       if(e)
       {
         pos += myserver_strlcpy(pos, e->name.c_str(), MAX);
@@ -997,7 +997,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       tokenOff = getEndLine(token, maxTotchars);
       if(tokenOff==-1)
         return e_400;
-      if(!request->other.getData(command))
+      if(!request->other.get(command))
       {
         HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry(); 
         if(e)
@@ -1248,7 +1248,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
-        if(!response->other.getData(command))
+        if(!response->other.get(command))
         {
           HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry(); 
           if(e)

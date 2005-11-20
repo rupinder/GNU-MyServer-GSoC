@@ -374,7 +374,7 @@ void DynamicFiltersManager::clear()
   int i;
   for(i=0; i< filters.size(); i++)
   {
-    DynamicFilterFile *dff = filters.getData(i);
+    DynamicFilterFile *dff = filters.get(i);
     dff->close();
   }
   filters.clear();
@@ -483,7 +483,7 @@ Filter* DynamicFiltersManager::createFilter(const char* name)
   if(!dynamicfiltersmanager)
     return 0;
 
-  file = dynamicfiltersmanager->filters.getData(name);
+  file = dynamicfiltersmanager->filters.get(name);
 
   if(!file)
     return 0;
@@ -511,7 +511,7 @@ int DynamicFiltersManager::registerFilters(FiltersFactory* ff)
     return -1;
   for(i=0; i< filters.size(); i++)
   {
-    DynamicFilterFile* f = dynamicfiltersmanager->filters.getData(i);
+    DynamicFilterFile* f = dynamicfiltersmanager->filters.get(i);
     if(f)
     {
       if(ff->insert(f->getName(0, 0, 0, 0), DynamicFiltersManager::createFilter))

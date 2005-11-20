@@ -59,7 +59,7 @@ int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
  */
 Filter *FiltersFactory::getFilter(const char* name)
 {
-  FILTERCREATE factory = dictionary.getData(name);
+  FILTERCREATE factory = dictionary.get(name);
   /*! If the filter exists create a new object and return it. */
   if(factory)
     return factory(name);

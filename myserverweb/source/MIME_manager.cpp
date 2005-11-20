@@ -429,7 +429,7 @@ int MimeManager::saveXML(const char *filename)
 
 	for(i=0; i < data.size(); i++)
 	{
-    MimeRecord *rc = data.getData(i);
+    MimeRecord *rc = data.get(i);
 		char command[16];
     if(!rc)
        break;
@@ -489,7 +489,7 @@ int MimeManager::save(const char *filename)
 	for(i=0;i<data.size(); i++ )
 	{
 		char command[16];
-    MimeManager::MimeRecord *nmr1=data.getData(i);
+    MimeManager::MimeRecord *nmr1=data.get(i);
     if(!nmr1)
       break;
 		f.writeToFile(nmr1->extension.c_str(), 
@@ -543,7 +543,7 @@ int MimeManager::save(const char *filename)
  */
 int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
-  MimeRecord* mr=data.getData(ext);
+  MimeRecord* mr=data.get(ext);
   if(mr)
   {
     if(dest)
@@ -577,7 +577,7 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
  */
 int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 {
-  MimeManager::MimeRecord *mr = data.getData(ext.c_str());
+  MimeManager::MimeRecord *mr = data.get(ext.c_str());
 	if(mr)
 	{
 		if(!stringcmpi(mr->extension, ext.c_str()))
@@ -611,7 +611,7 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
     return CGI_CMD_SEND;   
   }
 
-  mr = data.getData(id);
+  mr = data.get(id);
 
   if(!mr)
     return CGI_CMD_SEND;
@@ -648,7 +648,7 @@ int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
     return CGI_CMD_SEND;   
   }
 
-  mr=data.getData(ext.c_str());
+  mr=data.get(ext.c_str());
   if(mr)
   {
     ext.assign(mr->extension);
@@ -733,7 +733,7 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
  */
 void MimeManager::removeRecord(const string& ext)
 {
-  MimeManager::MimeRecord *rec=data.removeNode(ext.c_str());
+  MimeManager::MimeRecord *rec=data.remove(ext.c_str());
   if(rec)
     delete rec;
 }
@@ -746,7 +746,7 @@ void MimeManager::removeAllRecords()
   int i;
   for(i=0 ; i<data.size(); i++)
   {
-    MimeManager::MimeRecord *rec=data.getData(i);
+    MimeManager::MimeRecord *rec=data.get(i);
     if(rec)
       delete rec;
   }
@@ -759,7 +759,7 @@ void MimeManager::removeAllRecords()
  */
 MimeManager::MimeRecord *MimeManager::getRecord(string const &ext)
 {
-  return data.getData(ext.c_str());
+  return data.get(ext.c_str());
 }
 
 /*!

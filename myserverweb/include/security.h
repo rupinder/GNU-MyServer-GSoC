@@ -81,6 +81,7 @@ struct SecurityToken
   /*! Permission mask that the user will have if providing a [password2]. */
   int *permission2;
 
+  struct HttpThreadContext* context;
 
   /*! Authorization scheme to use. */
   char* auth_type;

@@ -1627,7 +1627,7 @@ int Server::freeHashedData()
   try
   {
     for(i=0;i<hashedData.size();i++)
-      delete hashedData.getData(i); 
+      delete hashedData.get(i); 
     
     hashedData.clear();
   }
@@ -1643,7 +1643,7 @@ int Server::freeHashedData()
  */
 const char* Server::getHashedData(const char* name)
 {
-  string *s = hashedData.getData(name);
+  string *s = hashedData.get(name);
   return s ? s->c_str() : 0;
 }
 

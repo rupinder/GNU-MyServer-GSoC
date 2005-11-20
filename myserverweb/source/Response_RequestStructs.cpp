@@ -73,7 +73,7 @@ void HttpRequestHeader::free()
 	ifModifiedSince.clear();
   for(i=0; i < other.size(); i++)
   {
-    HttpRequestHeader::Entry* e = other.getData(i);
+    HttpRequestHeader::Entry* e = other.get(i);
     if(e)
       delete e;
   }
@@ -228,7 +228,7 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
    return 0;
 
  {
-   HttpResponseHeader::Entry *e = other.getData(name);
+   HttpResponseHeader::Entry *e = other.get(name);
    if(e)
    {
      out->assign(e->value);      
@@ -279,7 +279,7 @@ void HttpResponseHeader::free()
 	dateExp.clear();	
   for(i=0; i < other.size(); i++)
   {
-    HttpResponseHeader::Entry* e = other.getData(i);
+    HttpResponseHeader::Entry* e = other.get(i);
     if(e)
       delete e;
   }
@@ -485,7 +485,7 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
  }
 
  {
-   HttpRequestHeader::Entry *e = other.getData(name);
+   HttpRequestHeader::Entry *e = other.get(name);
    if(e)
    {
      out->assign(e->value);      
