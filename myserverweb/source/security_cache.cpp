@@ -54,7 +54,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
   permissionsFile.assign(directory);
   permissionsFile.append("/security");
 
-  parser = dictionary.get(permissionsFile.c_str());
+  parser = dictionary.get(permissionsFile);
   /*!
    *If the parser is still present use it.
    */
@@ -69,7 +69,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
       parser->close();
       if(parser->open(permissionsFile.c_str()) == -1)
       {
-        dictionary.remove(permissionsFile.c_str());
+        dictionary.remove(permissionsFile);
         return -1;
       }
     }
@@ -109,13 +109,18 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
       delete parser;
       return -1;
     }
+
+		/*! FIXME: Correct this with new hash map.
     if(dictionary.size() >= limit)
     {
+			HashMap<string, XmlParser*>::Iterator it = data.begin();
       XmlParser* toremove = dictionary.removeNodeAt(1);
       if(toremove)
         delete toremove;
     }
-    if(dictionary.insert(permissionsFile.c_str(), parser) != 0)
+		*/
+
+    if(dictionary.put(permissionsFile, parser) != 0)
     {
       delete parser;
       return -1;
@@ -141,14 +146,15 @@ SecurityCache::~SecurityCache()
  */
 void SecurityCache::free()
 {
-  int i;
-  for(i=0; i < dictionary.size(); i++ )
-  {
-    XmlParser *el = dictionary.get(i);
-    if(el)
-      delete el;
-  }
-  dictionary.free();
+	HashMap<string, XmlParser*>::Iterator it = dictionary.begin();
+	HashMap<string, XmlParser*>::Iterator end = dictionary.end();
+
+	for (;it != end; it++)
+	{
+		delete (*it);
+	}
+
+  dictionary.clear();
 }
 
 /*!
@@ -157,12 +163,15 @@ void SecurityCache::free()
 void SecurityCache::setMaxNodes(int newLimit)
 {
   /*! Remove all the additional nodes from the dictionary. */
-  while(newLimit < dictionary.size())
-  {
-    XmlParser* toremove = dictionary.removeNodeAt(1);
-    if(toremove)
-      delete toremove;    
-  }
+	
+	/*! FIXME: Correct this with new hash map.
+	while(newLimit < dictionary.size())
+	{
+		 XmlParser* toremove = dictionary.removeNodeAt(1);
+		 if(toremove)
+		 delete toremove;    
+	}
+	*/
   limit = newLimit;
 }
 
@@ -247,13 +256,15 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
       delete parser;
       return -1;
     }
+		/*! FIXME: Correct this with new hash map.
     if(dictionary.size() >= limit)
     {
       XmlParser* toremove = dictionary.removeNodeAt(1);
       if(toremove)
         delete toremove;
     }
-    if(dictionary.insert(permissionsFile.c_str(), parser) != 0)
+		*/
+    if(dictionary.put(permissionsFile, parser) != 0)
     {
       delete parser;
       return -1;

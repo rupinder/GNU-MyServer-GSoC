@@ -821,7 +821,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit74]
-FileName=source\hash_dictionary.cpp
+FileName=source\hash_map.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -841,7 +841,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit76]
-FileName=include\hash_dictionary.h
+FileName=include\hash_map.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -953,7 +953,7 @@ BuildCmd=
 [Unit87]
 FileName=source\Response_RequestStructs.cpp
 CompileCpp=1
-Folder=myserver/hash_dictionary.h
+Folder=myserver
 Compile=1
 Link=1
 Priority=1000

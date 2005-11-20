@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/dynamiclib.h"
 #include "../include/cXMLParser.h"
 #include "../include/filters_factory.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 #include "../include/threads.h"
 
 using namespace std;
@@ -74,7 +74,7 @@ protected:
   static Mutex counterMutex;
   static u_long counter;
   static DynamicFiltersManager* dynamicfiltersmanager;
-  HashDictionary<DynamicFilterFile*> filters;
+  HashMap<string,DynamicFilterFile*> filters;
   int add(const char*, XmlParser*, Server*);
   static Filter* createFilter(const char* name); 
 public:

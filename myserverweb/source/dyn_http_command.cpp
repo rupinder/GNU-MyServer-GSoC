@@ -218,7 +218,10 @@ int DynHttpCommandManager::addMethod(const char* fileName,
   logBuf.append(" --> ");
   logBuf.append(methodName);
   s->logWriteln( logBuf.c_str() );
-  data.insert(methodName, mod);
+	{
+		string methodNameStr(methodName);
+		data.put(methodNameStr, mod);
+	}
   return 0;
 }
 
@@ -227,13 +230,14 @@ int DynHttpCommandManager::addMethod(const char* fileName,
  */
 int DynHttpCommandManager::clean()
 {
-  for(int i=0; i < data.size(); i++)
-  {
-    DynamicHttpCommand* d = data.get(i);
-    if(d)
-      delete d;
-  }
-  data.free();
+	HashMap<string, DynamicHttpCommand*>::Iterator it = data.begin();
+	HashMap<string, DynamicHttpCommand*>::Iterator end = data.end();
+	
+	for(;it != end; it++)
+	{
+		delete (*it);
+	}
+  data.clear();
   return 0;
 }
 
@@ -243,14 +247,6 @@ int DynHttpCommandManager::clean()
 DynamicHttpCommand* DynHttpCommandManager::getMethodByName(const char* name)
 {
   return data.get(name);
-}
-
-/*!
- *Get a method by its number in the list. Returns 0 on errors.
- */
-DynamicHttpCommand* DynHttpCommandManager::getMethodByNumber(int i)
-{
-  return data.get(i);
 }
 
 /*!

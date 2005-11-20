@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <string>
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 
 #ifndef RESPONSE_REQUEST_STRUCTS_H
 #define RESPONSE_REQUEST_STRUCTS_H
@@ -109,7 +109,7 @@ struct HttpResponseHeader : public HttpHeader
 	string transferEncoding;
 	string cacheControl;
 	string contentRange;
-	HashDictionary<HttpResponseHeader::Entry*> other;	
+	HashMap<string,HttpResponseHeader::Entry*> other;	
   HttpResponseHeader();
   ~HttpResponseHeader();
 
@@ -154,7 +154,7 @@ struct HttpRequestHeader : public HttpHeader
 	string referer;	
 	string from;
 	string host;			
-	HashDictionary<HttpRequestHeader::Entry*> other;
+	HashMap<string, HttpRequestHeader::Entry*> other;
 	string rangeType;	
 	u_long  rangeByteBegin;
 	u_long  rangeByteEnd;

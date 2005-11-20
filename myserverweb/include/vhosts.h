@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/log_manager.h"
 #include "../include/MIME_manager.h"
 #include "../include/threads.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 
 #include <string>
 #include <list>
@@ -82,7 +82,7 @@ public:
 	};
 
 private:
-  HashDictionary<string*> hashedData;
+  HashMap<string, string*> hashedData;
   NULL_REFERENCECB nullReferenceCb;
   Mutex refMutex;
 	LogManager warningsLogFile;

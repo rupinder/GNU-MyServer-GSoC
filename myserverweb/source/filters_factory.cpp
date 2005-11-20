@@ -31,7 +31,7 @@ using namespace std;
  */
 FiltersFactory::FiltersFactory()
 {
-  dictionary.free();
+  dictionary.clear();
 }
 
 /*!
@@ -48,7 +48,9 @@ FiltersFactory::~FiltersFactory()
  */
 int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
 {
-  return dictionary.insert(name, fnc);
+	string nameStr(name);
+  dictionary.put(nameStr, fnc);
+	return 0;
 }
 
 /*!
@@ -128,5 +130,5 @@ int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out, u_long 
  */
 void FiltersFactory::free()
 {
-  dictionary.free();
+  dictionary.clear();
 }

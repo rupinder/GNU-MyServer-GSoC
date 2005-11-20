@@ -209,8 +209,11 @@ int DynHttpManagerList::addManager(const char* fileName,
   logBuf.append(" --> ");
   logBuf.append(managerName);
   s->logWriteln( logBuf.c_str() );
-  data.insert(managerName, man);
-  return 0;
+	{
+		string managerNameStr(managerName);
+		data.put(managerNameStr, man);
+	}  
+	return 0;
 }
 
 /*!
@@ -218,13 +221,14 @@ int DynHttpManagerList::addManager(const char* fileName,
  */
 int DynHttpManagerList::clean()
 {
-  for(int i=0; i < data.size(); i++)
-  {
-    DynamicHttpManager* d = data.get(i);
-    if(d)
-      delete d;
-  }
-  data.free();
+	HashMap<string, DynamicHttpManager*>::Iterator it = data.begin();
+	HashMap<string, DynamicHttpManager*>::Iterator end = data.end();
+	
+	for (;it != end; it++)
+	{
+		delete (*it);
+	}
+  data.clear();
   return 0;
 }
 
@@ -234,14 +238,6 @@ int DynHttpManagerList::clean()
 DynamicHttpManager* DynHttpManagerList::getManagerByName(const char* name)
 {
   return data.get(name);
-}
-
-/*!
- *Get a method by its number in the list. Returns 0 on errors.
- */
-DynamicHttpManager* DynHttpManagerList::getManagerByNumber(int i)
-{
-  return data.get(i);
 }
 
 /*!

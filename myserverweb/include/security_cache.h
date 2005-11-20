@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #ifndef SECURITY_CACHE_H
 #define SECURITY_CACHE_H
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 #include "../include/security.h"
 
 #include <string>
@@ -30,7 +30,7 @@ private:
   /*! Object used to handle security on the server. */
   SecurityManager sm;
   /*! Store a list of opened files using a hash dictionary. */
-  HashDictionary<XmlParser*> dictionary;
+  HashMap<string, XmlParser*> dictionary;
   int limit;
 public:
   SecurityCache();

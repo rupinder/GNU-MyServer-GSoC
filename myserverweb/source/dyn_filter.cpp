@@ -371,13 +371,14 @@ DynamicFiltersManager::~DynamicFiltersManager()
  */
 void DynamicFiltersManager::clear()
 {
-  int i;
-  for(i=0; i< filters.size(); i++)
-  {
-    DynamicFilterFile *dff = filters.get(i);
-    dff->close();
-  }
-  filters.clear();
+	HashMap<string, DynamicFilterFile*>::Iterator it = filters.begin();
+	HashMap<string, DynamicFilterFile*>::Iterator end = filters.end();
+	for (;it != end; it++)
+	{
+		(*it)->close();
+		delete *it;
+	}
+	filters.clear();
 }
 
 /*!
@@ -468,7 +469,10 @@ int DynamicFiltersManager::add(const char* file, XmlParser* parser, Server* serv
   logBuf.append( name);
   lserver->logWriteln( logBuf.c_str() );
 
-  dynamicfiltersmanager->filters.insert(name, f);
+	{
+		string strName(name);
+		dynamicfiltersmanager->filters.put(strName, f);
+	}
   return 0;
 }
 
@@ -505,18 +509,15 @@ Filter* DynamicFiltersManager::createFilter(const char* name)
  */
 int DynamicFiltersManager::registerFilters(FiltersFactory* ff)
 {
-  int i=0;
-
   if(!dynamicfiltersmanager)
     return -1;
-  for(i=0; i< filters.size(); i++)
-  {
-    DynamicFilterFile* f = dynamicfiltersmanager->filters.get(i);
-    if(f)
-    {
-      if(ff->insert(f->getName(0, 0, 0, 0), DynamicFiltersManager::createFilter))
-        return -1;
-    }
-  }
+	HashMap<string, DynamicFilterFile*>::Iterator it = filters.begin();
+	HashMap<string, DynamicFilterFile*>::Iterator end = filters.end();
+	
+	for (;it != end; it++)
+	{
+		if(ff->insert((*it)->getName(0, 0, 0, 0), DynamicFiltersManager::createFilter))
+			return -1;
+	}
   return 0;
 }

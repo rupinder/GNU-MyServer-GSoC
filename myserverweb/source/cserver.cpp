@@ -1202,13 +1202,13 @@ int Server::initialize(int /*!os_ver*/)
     {
       if(node->children && node->children->content)
       {
-        string *s = new string((const char*)node->children->content);
-        if(s == 0)
+        string *value = new string((const char*)node->children->content);
+				string key((const char*)node->name);
+				if(value == 0)
           return -1;
-
-        if(hashedData.insert((const char*)node->name, s))
+        if(hashedData.put(key, value))
         {
-          delete s;
+          delete value;
           return -1;
         }   
       }
@@ -1623,12 +1623,12 @@ const char *Server::getAddresses()
  */
 int Server::freeHashedData()
 {
-  int i;
   try
   {
-    for(i=0;i<hashedData.size();i++)
-      delete hashedData.get(i); 
-    
+		HashMap<string, string*>::Iterator it = hashedData.begin();
+		HashMap<string, string*>::Iterator end = hashedData.end();
+		for (;it != end; it++)
+			delete *it;
     hashedData.clear();
   }
   catch(...)

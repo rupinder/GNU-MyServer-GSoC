@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/log_manager.h"
 #include "../include/filters_factory.h"
 #include "../include/dyn_filter.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 
 #include <string>
 using namespace std;
@@ -87,7 +87,7 @@ class Server
 	friend int control_handler (u_long control_type);
 #endif
 private:
-  HashDictionary<string*> hashedData;
+  HashMap<string, string*> hashedData;
   FiltersFactory filtersFactory;
   DynamicFiltersManager filters;
   u_long uid;

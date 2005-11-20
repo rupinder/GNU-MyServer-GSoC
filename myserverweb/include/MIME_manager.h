@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define MIME_MANAGER_H
 
 #include "../include/utility.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 #include "../include/http_header_checker.h"
 
 #ifdef WIN32
@@ -139,7 +139,7 @@ public:
 
 private:
   int loaded;
-  HashDictionary<MimeRecord*> data;
+  HashMap<string, MimeRecord*> data;
 	u_long numMimeTypesLoaded;
 	string filename;
 };

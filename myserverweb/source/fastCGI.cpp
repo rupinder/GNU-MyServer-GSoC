@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using namespace std;
 
 /*! Running servers. */
-HashDictionary<FastCgiServersList*> FastCgi::serversList;
+HashMap<string, FastCgiServersList*> FastCgi::serversList;
 
 /*! Is the fastcgi initialized? */
 int FastCgi::initialized=0;
@@ -811,10 +811,12 @@ int FastCgi::unload()
   servers_mutex.lock();
   try
   {
-    int i;
-    for(i=0; i<serversList.size() ; i++)
-    {
-      FastCgiServersList* server=serversList.get(i);
+		HashMap<string, FastCgiServersList*>::Iterator it = serversList.begin();
+		HashMap<string, FastCgiServersList*>::Iterator end = serversList.end();
+	
+		for (;it != end; it++)
+		{
+      FastCgiServersList* server=*it;
       if(!server)
         continue;
       /*! If the server is a remote one do nothing. */
@@ -826,6 +828,7 @@ int FastCgi::unload()
       server->path.assign("");
       delete server;
     }
+
     serversList.clear();
   }
   catch(bad_alloc& b)
@@ -1038,7 +1041,7 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
       server->port=(u_short)atoi(&path[++i]);
     }
   
-    serversList.insert(server->path.c_str(), server);
+    serversList.put(server->path, server);
 
     servers_mutex.unlock();  
 

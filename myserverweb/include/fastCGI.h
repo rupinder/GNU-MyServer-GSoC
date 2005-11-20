@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/stringutils.h"
 #include "../include/threads.h"
 #include "../include/http_data_handler.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 #include <string>
 
 using namespace std;
@@ -179,7 +179,7 @@ private:
   static int max_fcgi_servers;
 	static int initialized;
   static Mutex servers_mutex;
-	static HashDictionary<FastCgiServersList*> serversList;
+	static HashMap<string,FastCgiServersList*> serversList;
 
 	int fcgiConnectSocket(FcgiContext*,FastCgiServersList*);
 	void generateFcgiHeader( FcgiHeader&, int ,int, int );

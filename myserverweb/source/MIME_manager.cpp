@@ -400,7 +400,6 @@ int MimeManager::loadXML(const char *fn)
  */
 int MimeManager::MimeRecord::addFilter(const char* n, int acceptDuplicate) 
 {
-  string *s;
   if(!acceptDuplicate)
   {
     list<string>::iterator i = filters.begin();
@@ -421,15 +420,17 @@ int MimeManager::saveXML(const char *filename)
 {
 	File::deleteFile(filename);
 	File f;
-  int i;
 	u_long nbw;
+	HashMap<string, MimeRecord*>::Iterator it = data.begin();
+	HashMap<string, MimeRecord*>::Iterator end = data.end();
+
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
 	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
 
-	for(i=0; i < data.size(); i++)
+	for(; it!=end; it++)
 	{
-    MimeRecord *rc = data.get(i);
+    MimeRecord *rc = *it;
 		char command[16];
     if(!rc)
        break;
@@ -482,14 +483,16 @@ int MimeManager::saveXML(const char *filename)
 int MimeManager::save(const char *filename)
 {
 	File f;
-  int i;
-  u_long nbw;
+	u_long nbw;
+	HashMap<string, MimeRecord*>::Iterator it = data.begin();
+	HashMap<string, MimeRecord*>::Iterator end = data.end();
+
 	File::deleteFile(filename);
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
-	for(i=0;i<data.size(); i++ )
+	for(;it != end; it++ )
 	{
 		char command[16];
-    MimeManager::MimeRecord *nmr1=data.get(i);
+    MimeManager::MimeRecord *nmr1=*it;
     if(!nmr1)
       break;
 		f.writeToFile(nmr1->extension.c_str(), 
@@ -606,12 +609,16 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 {
   MimeRecord *mr;
+	HashMap<string, MimeRecord*>::Iterator it = data.begin();
+	HashMap<string, MimeRecord*>::Iterator end = data.end();
   if(id > data.size() || id < 0)
   {
     return CGI_CMD_SEND;   
   }
+	/*! FIXME: find a O(1) solution. */
+	while(id-- && it != end)it++;
 
-  mr = data.get(id);
+  mr = *it;
 
   if(!mr)
     return CGI_CMD_SEND;
@@ -716,7 +723,8 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
     nmr = new MimeManager::MimeRecord(mr);
     if(!nmr)	
       return 1;
-    data.insert(nmr->extension.c_str(), nmr);
+		string keyStr(nmr->extension);
+    data.put(keyStr, nmr);
   }
   catch(...)
   {
@@ -743,10 +751,11 @@ void MimeManager::removeRecord(const string& ext)
  */
 void MimeManager::removeAllRecords()
 {
-  int i;
-  for(i=0 ; i<data.size(); i++)
+	HashMap<string, MimeRecord*>::Iterator it = data.begin();
+	HashMap<string, MimeRecord*>::Iterator end = data.end();
+  for(; it != end; it++)
   {
-    MimeManager::MimeRecord *rec=data.get(i);
+    MimeManager::MimeRecord *rec=*it;
     if(rec)
       delete rec;
   }

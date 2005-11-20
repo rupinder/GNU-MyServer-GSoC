@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/stream.h"
 #include "../include/filter.h"
 #include "../include/filters_chain.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 
 #include <list>
 
@@ -33,7 +33,7 @@ typedef Filter* (*FILTERCREATE)(const char* name);
 class FiltersFactory 
 {
 protected:
-  HashDictionary<FILTERCREATE> dictionary;
+  HashMap<string, FILTERCREATE> dictionary;
 public:
   int insert(const char*, FILTERCREATE ptr);
   Filter *getFilter(const char*);

@@ -94,12 +94,14 @@ Vhost::~Vhost()
  */
 int Vhost::freeHashedData()
 {
-  int i;
   try
   {
-    for(i=0;i<hashedData.size();i++)
-      delete hashedData.get(i); 
-    
+		HashMap<string, string*>::Iterator it = hashedData.begin();
+		HashMap<string, string*>::Iterator end = hashedData.end();
+		for (;it != end; it++)
+		{
+			delete (*it);
+		}
     hashedData.clear();
   }
   catch(...)
@@ -1162,8 +1164,8 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
         string *s = new string((const char*)lcur->children->content);
         if(s == 0)
           return -1;
-
-        if(vh->hashedData.insert((const char*)lcur->name, s))
+				string keyValue((const char*)lcur->name);
+        if(vh->hashedData.put(keyValue, s))
         {
           delete s;
           return -1;
@@ -1240,7 +1242,6 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
     for( ; i != hostList.end() ; i++)
     {
       char port[6];
-      int el;
       list<Vhost::StringRegex*>::iterator il = (*i)->getIpList()->begin();
       list<Vhost::StringRegex*>::iterator hl = (*i)->getHostList()->begin();
       out.writeToFile("<VHOST>\r\n",9,&nbw);
@@ -1337,23 +1338,25 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
                       (u_long)strlen((*i)->getWarningsLogFileName()),&nbw);
       out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
       
-      for(el=0; el < (*i)->hashedData.size(); el++)
-      {
-        ostringstream outString;
-        string *val = (*i)->hashedData.get(el);
-        const char *name = (*i)->hashedData.getName(el);
-        outString << "<" << name << ">" << val  << "</" << name << ">" << endl;
-
-        out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
-      }
-      
-      
-      out.writeToFile("</VHOST>\r\n",10,&nbw);
-    }
-    
-    out.writeToFile("</VHOSTS>\r\n",11,&nbw);
-    out.closeFile();
-    mutex.unlock();
+			{
+				/*FIXME: Correct to work with new hashmap.			
+				HashMap<string, string*>::Iterator it = (*i)->hashedData.begin();
+				HashMap<string, string*>::Iterator end = (*i)->hashedData.end();
+				for(;it!=end;it++)
+				{
+					ostringstream outString;
+					string *val = *it;
+					const char *name = (*it)->getKey();
+					outString << "<" << name << ">" << val  << "</" << name << ">" << endl;
+					out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
+				}
+			*/
+				out.writeToFile("</VHOST>\r\n",10,&nbw);
+			}
+		}
+		out.writeToFile("</VHOSTS>\r\n",11,&nbw);
+		out.closeFile();
+		mutex.unlock();
   }
   catch(...)
   {

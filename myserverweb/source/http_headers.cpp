@@ -200,10 +200,11 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 
 	if(response->other.size())
 	{
-    int i;
-    for(i=0; i < response->other.size(); i++)
+		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = response->other.begin();
+		HashMap<string,  HttpResponseHeader::Entry*>::Iterator end = response->other.end();
+    for(; it != end; it++)
     {
-      HttpResponseHeader::Entry *e = response->other.get(i);
+      HttpResponseHeader::Entry *e = *it;
       if(e)
       {
         pos += myserver_strlcpy(pos, e->name.c_str(), MAX);
@@ -1002,9 +1003,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry(); 
         if(e)
         {
+					string cmdStr(command);
           e->name.assign(command, HTTP_RESPONSE_OTHER_DIM);
           e->value.assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
-          if(request->other.insert(command, e))
+          if(request->other.put(cmdStr, e))
             delete e;
         }
 
@@ -1257,8 +1259,11 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
               return 0;
             e->name.assign(command);
             e->value.assign(token);
-            if(response->other.insert(command, e))
-              delete e;
+						{
+							string cmdString(command);
+							if(response->other.put(cmdString, e))
+								delete e;
+						}
           }
 
         }

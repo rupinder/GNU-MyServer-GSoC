@@ -45,7 +45,6 @@ HttpRequestHeader::~HttpRequestHeader()
  */
 void HttpRequestHeader::free()
 {
-  int i;
   ver.clear();
 	transferEncoding.clear();	
 	contentEncoding.clear();	
@@ -71,12 +70,13 @@ void HttpRequestHeader::free()
 	host.clear();
 	cacheControl.clear();
 	ifModifiedSince.clear();
-  for(i=0; i < other.size(); i++)
-  {
-    HttpRequestHeader::Entry* e = other.get(i);
-    if(e)
-      delete e;
-  }
+
+	{
+		HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
+		HashMap<string, HttpRequestHeader::Entry*>::Iterator end = other.end();
+		for(;it!=end;it++)
+			delete (*it);
+	}
 	other.clear();
 	pragma.clear();
 	rangeType.clear();
@@ -224,18 +224,18 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
     return &contentRange;
   }
 
- if(!out)
-   return 0;
-
- {
-   HttpResponseHeader::Entry *e = other.get(name);
-   if(e)
-   {
-     out->assign(e->value);      
-     return &(e->value);
-   }
-   return 0;
- }
+	if(!out)
+		return 0;
+	
+	{
+		HttpResponseHeader::Entry *e = other.get(name);
+		if(e)
+		{
+			out->assign(e->value);      
+			return &(e->value);
+		}
+		return 0;
+	}
 
 } 
 
@@ -261,7 +261,6 @@ HttpResponseHeader::~HttpResponseHeader()
  */
 void HttpResponseHeader::free()
 {
-  int i;
 	ver.clear();	
 	serverName.clear();
 	contentType.clear();
@@ -277,12 +276,12 @@ void HttpResponseHeader::free()
 	date.clear();		
 	auth.clear();
 	dateExp.clear();	
-  for(i=0; i < other.size(); i++)
-  {
-    HttpResponseHeader::Entry* e = other.get(i);
-    if(e)
-      delete e;
-  }
+	{
+		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
+		HashMap<string, HttpResponseHeader::Entry*>::Iterator end = other.end();
+		for(;it!=end;it++)
+			delete (*it);
+	}
 	other.clear();
 	lastModified.clear();
 	cacheControl.clear();

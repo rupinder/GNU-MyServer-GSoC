@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/connectionstruct.h"
 #include "../include/dynamiclib.h"
 #include "../include/http_headers.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 #include <string>
 using namespace std;
 
@@ -50,7 +50,7 @@ public:
 class DynHttpManagerList
 {
 private:
-  HashDictionary <DynamicHttpManager*> data;
+  HashMap <string, DynamicHttpManager*> data;
 public:
   int addManager(const char* name, XmlParser* p, Server* s);
   DynHttpManagerList();
@@ -58,7 +58,6 @@ public:
   int loadManagers(const char* dir, XmlParser* p, Server* s);
   int clean();
   DynamicHttpManager* getManagerByName(const char* name);
-  DynamicHttpManager* getManagerByNumber(int n);
   int size();
 
 

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/connectionstruct.h"
 #include "../include/dynamiclib.h"
 #include "../include/http_headers.h"
-#include "../include/hash_dictionary.h"
+#include "../include/hash_map.h"
 #include <string>
 using namespace std;
 
@@ -51,7 +51,7 @@ public:
 class DynHttpCommandManager
 {
 private:
-  HashDictionary <DynamicHttpCommand*> data;
+  HashMap <string, DynamicHttpCommand*> data;
 public:
   int addMethod(const char* name, XmlParser* p, Server* s);
   DynHttpCommandManager();
@@ -59,7 +59,6 @@ public:
   int loadMethods(const char* dir, XmlParser* p, Server* s);
   int clean();
   DynamicHttpCommand* getMethodByName(const char* name);
-  DynamicHttpCommand* getMethodByNumber(int n);
   int size();
 
 
