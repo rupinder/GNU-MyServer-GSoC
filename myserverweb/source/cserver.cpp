@@ -1202,15 +1202,16 @@ int Server::initialize(int /*!os_ver*/)
     {
       if(node->children && node->children->content)
       {
+				string* old;
         string *value = new string((const char*)node->children->content);
 				string key((const char*)node->name);
 				if(value == 0)
           return -1;
-        if(hashedData.put(key, value))
+				old=hashedData.put(key, value);
+        if(old)
         {
-          delete value;
-          return -1;
-        }   
+          delete old;
+        }
       }
     }
   }

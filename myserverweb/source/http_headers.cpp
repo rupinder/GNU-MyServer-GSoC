@@ -1003,13 +1003,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry(); 
         if(e)
         {
+					HttpRequestHeader::Entry *old;
 					string cmdStr(command);
           e->name.assign(command, HTTP_RESPONSE_OTHER_DIM);
           e->value.assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
-          if(request->other.put(cmdStr, e))
-            delete e;
+          old = request->other.put(cmdStr, e);
+					if(old)
+						delete old;
         }
-
       }
 		}
     token+= tokenOff + 2;
@@ -1260,9 +1261,11 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
             e->name.assign(command);
             e->value.assign(token);
 						{
+							HttpResponseHeader::Entry *old;
 							string cmdString(command);
-							if(response->other.put(cmdString, e))
-								delete e;
+							old = response->other.put(cmdString, e);
+							if(old)
+								delete old;
 						}
           }
 

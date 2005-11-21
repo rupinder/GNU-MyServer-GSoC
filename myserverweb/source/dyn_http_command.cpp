@@ -219,8 +219,11 @@ int DynHttpCommandManager::addMethod(const char* fileName,
   logBuf.append(methodName);
   s->logWriteln( logBuf.c_str() );
 	{
+		DynamicHttpCommand *old;
 		string methodNameStr(methodName);
-		data.put(methodNameStr, mod);
+		old = data.put(methodNameStr, mod);
+		if(old)
+			delete old;
 	}
   return 0;
 }

@@ -470,8 +470,14 @@ int DynamicFiltersManager::add(const char* file, XmlParser* parser, Server* serv
   lserver->logWriteln( logBuf.c_str() );
 
 	{
+		DynamicFilterFile* old;
 		string strName(name);
-		dynamicfiltersmanager->filters.put(strName, f);
+		old = dynamicfiltersmanager->filters.put(strName, f);
+		if(old)
+		{
+			old->close();
+			delete old;
+		}
 	}
   return 0;
 }

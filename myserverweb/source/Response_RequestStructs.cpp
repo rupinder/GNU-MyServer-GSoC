@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/stringutils.h"
 
 #include <sstream>
-
 using namespace std;
 
 /*!
@@ -275,7 +274,7 @@ void HttpResponseHeader::free()
 	location.clear();
 	date.clear();		
 	auth.clear();
-	dateExp.clear();	
+	dateExp.clear();
 	{
 		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
 		HashMap<string, HttpResponseHeader::Entry*>::Iterator end = other.end();

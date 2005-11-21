@@ -210,8 +210,11 @@ int DynHttpManagerList::addManager(const char* fileName,
   logBuf.append(managerName);
   s->logWriteln( logBuf.c_str() );
 	{
+		DynamicHttpManager *old;
 		string managerNameStr(managerName);
-		data.put(managerNameStr, man);
+		old = data.put(managerNameStr, man);
+		if(old)
+			delete old;
 	}  
 	return 0;
 }

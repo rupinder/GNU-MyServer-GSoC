@@ -1161,14 +1161,15 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
  			}
  			else if(lcur->children && lcur->children->content)
  			{
+				string *old;
         string *s = new string((const char*)lcur->children->content);
         if(s == 0)
           return -1;
 				string keyValue((const char*)lcur->name);
-        if(vh->hashedData.put(keyValue, s))
+        old = vh->hashedData.put(keyValue, s);
+				if(old)
         {
-          delete s;
-          return -1;
+          delete old;
         }            
       }
       lcur=lcur->next;
@@ -1339,18 +1340,15 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
       out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
       
 			{
-				/*FIXME: Correct to work with new hashmap.			
 				HashMap<string, string*>::Iterator it = (*i)->hashedData.begin();
 				HashMap<string, string*>::Iterator end = (*i)->hashedData.end();
 				for(;it!=end;it++)
 				{
 					ostringstream outString;
-					string *val = *it;
-					const char *name = (*it)->getKey();
-					outString << "<" << name << ">" << val  << "</" << name << ">" << endl;
+					outString << "<" << it.getKey() << ">" << (*it)  << "</" 
+										<< it.getKey() << ">" << endl;
 					out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
 				}
-			*/
 				out.writeToFile("</VHOST>\r\n",10,&nbw);
 			}
 		}

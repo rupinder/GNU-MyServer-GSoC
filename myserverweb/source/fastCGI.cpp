@@ -1041,7 +1041,22 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
       server->port=(u_short)atoi(&path[++i]);
     }
   
-    serversList.put(server->path, server);
+
+		{
+			FastCgiServersList* old;
+			old=serversList.put(server->path, server);
+			if(old)
+			{
+				/*! If the server is a remote one do nothing. */
+				if(old->path.length() && old->path[0]!='@')
+				{
+					old->socket.closesocket();
+					old->process.terminateProcess();
+				}
+				old->path.assign("");
+				delete old;
+			}
+		}
 
     servers_mutex.unlock();  
 

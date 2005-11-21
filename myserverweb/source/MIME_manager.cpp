@@ -718,13 +718,16 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
   MimeManager::MimeRecord *nmr=0;
   try
   {
+		MimeManager::MimeRecord *old;
     if(getRecord(mr.extension))
       removeRecord(mr.extension);
     nmr = new MimeManager::MimeRecord(mr);
     if(!nmr)	
       return 1;
 		string keyStr(nmr->extension);
-    data.put(keyStr, nmr);
+    old = data.put(keyStr, nmr);
+		if(old)
+			delete old;
   }
   catch(...)
   {
