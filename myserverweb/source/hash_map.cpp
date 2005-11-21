@@ -25,10 +25,7 @@ It's released under the Paul Hsieh derivative license
 */
 
 #define HASHMAP_CPP
-
-#ifndef HASHMAP_H
 #include "../include/hash_map.h"
-#endif
 
 //HashMap
 template <typename KeyType, typename ValueType>
@@ -542,120 +539,176 @@ inline int HashMap<void*, ValueType>::size(void) const
 template <typename KeyType, typename ValueType>
 inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType>::begin(void)
 {
-	int i=0;
-	for(;i<capacity;++i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.begin()+i;
-	tempIterator.listIter=data[i].begin();
+	if(load)
+	{
+		int i=0;
+		for(;i<capacity;++i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=data[i].begin();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
 template <typename ValueType>
 inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>::begin(void)
 {
-	int i=0;
-	for(;i<capacity;++i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.begin()+i;
-	tempIterator.listIter=data[i].begin();
+	if(load)
+	{
+		int i=0;
+		for(;i<capacity;++i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=data[i].begin();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
 template <typename ValueType>
 inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::begin(void)
 {
-	int i=0;
-	for(;i<capacity;++i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.begin()+i;
-	tempIterator.listIter=data[i].begin();
+	if(load)
+	{
+		int i=0;
+		for(;i<capacity;++i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=data[i].begin();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
 template <typename ValueType>
 inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::begin(void)
 {
-	int i=0;
-	for(;i<capacity;++i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.begin()+i;
-	tempIterator.listIter=data[i].begin();
+	if(load)
+	{
+		int i=0;
+		for(;i<capacity;++i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=data[i].begin();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
 template <typename KeyType, typename ValueType>
 inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType>::back(void)
 {
-	int i=capacity-1;
-	for(;i>=0;--i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.being()+i;
-	tempIterator.listIter=data[i].end()-1;
+	if(load)
+	{
+		int i=capacity-1;
+		for(;i>=0;--i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=--data[i].end();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
 template <typename ValueType>
 inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>::back(void)
 {
-	int i=capacity-1;
-	for(;i>=0;--i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.being()+i;
-	tempIterator.listIter=data[i].end()-1;
+	if(load)
+	{
+		int i=capacity-1;
+		for(;i>=0;--i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=--data[i].end();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
 template <typename ValueType>
 inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::back(void)
 {
-	int i=capacity-1;
-	for(;i>=0;--i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.being()+i;
-	tempIterator.listIter=data[i].end()-1;
+	if(load)
+	{
+		int i=capacity-1;
+		for(;i>=0;--i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=--data[i].end();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
 template <typename ValueType>
 inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::back(void)
 {
-	int i=capacity-1;
-	for(;i>=0;--i)
-	{
-		if(map[i])
-			break;
-	}
 	tempIterator.vectorPtr=&data;
-	tempIterator.vectorIter=data.being()+i;
-	tempIterator.listIter=data[i].end()-1;
+	if(load)
+	{
+		int i=capacity-1;
+		for(;i>=0;--i)
+		{
+			if(map[i])
+				break;
+		}
+		tempIterator.vectorIter=data.begin()+i;
+		tempIterator.listIter=--data[i].end();
+	}else
+	{
+		tempIterator.vectorIter=data.end();
+		tempIterator.listIter=tempIterator.vectorIter->end();
+	}
 	return(tempIterator);
 }
 
@@ -693,6 +746,54 @@ inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::e
 	tempIterator.vectorIter=data.end();
 	tempIterator.listIter=tempIterator.vectorIter->end();
 	return(tempIterator);
+}
+
+template <typename KeyType, typename ValueType>
+ValueType HashMap<KeyType, ValueType>::remove(const Iterator& iter)
+{
+	--load;
+	tempShkv.value=iter.listIter->value;
+	tempShkv.hash=iter.listIter->hash;
+	iter.vectorIter->erase(iter.listIter);
+	if(iter.vectorIter->empty())
+		map[tempShkv.hash & mask]=0;
+	return(tempShkv.value);
+}
+
+template <typename ValueType>
+ValueType HashMap<string, ValueType>::remove(const Iterator& iter)
+{
+	--load;
+	tempShkv.value=iter.listIter->value;
+	tempShkv.hash=iter.listIter->hash;
+	iter.vectorIter->erase(iter.listIter);
+	if(iter.vectorIter->empty())
+		map[tempShkv.hash & mask]=0;
+	return(tempShkv.value);
+}
+
+template <typename ValueType>
+ValueType HashMap<char*, ValueType>::remove(const Iterator& iter)
+{
+	--load;
+	tempShkv.value=iter.listIter->value;
+	tempShkv.hash=iter.listIter->hash;
+	iter.vectorIter->erase(iter.listIter);
+	if(iter.vectorIter->empty())
+		map[tempShkv.hash & mask]=0;
+	return(tempShkv.value);
+}
+
+template <typename ValueType>
+ValueType HashMap<void*, ValueType>::remove(const Iterator& iter)
+{
+	--load;
+	tempShkv.value=iter.listIter->value;
+	tempShkv.hash=iter.listIter->hash;
+	iter.vectorIter->erase(iter.listIter);
+	if(iter.vectorIter->empty())
+		map[tempShkv.hash & mask]=0;
+	return(tempShkv.value);
 }
 
 template <typename KeyType, typename ValueType>
@@ -1221,7 +1322,7 @@ void HashMap<string, ValueType>::increaseSize (const int powerOffset)
 				dataIter!=data[i].end();
 				)
 			{
-				if((dataIter->hash & mask)!=(unsigned int)i)
+				if((dataIter->hash & mask)!=i)
 				{
 					map[dataIter->hash & mask]=offset;
 					data[dataIter->hash & mask].push_front(*dataIter);
@@ -1704,4 +1805,59 @@ inline MyIterator<KeyType, ValueType> MyIterator<KeyType, ValueType>::operator++
 		listIter=vectorIter->end();
 	}
 	return(tempIterator);
+}
+
+template <typename KeyType, typename ValueType>
+inline MyIterator<KeyType, ValueType>& MyIterator<KeyType, ValueType>::operator--()
+{
+	if(listIter==vectorIter->begin())
+	{
+		while(vectorIter!=vectorPtr->begin())
+		{
+			--vectorIter;
+			if(!vectorIter->empty())
+			{
+				listIter=vectorIter->end();
+				--listIter;
+				return(*this);
+			}
+		}
+
+		vectorIter=vectorPtr->end();
+		listIter=vectorIter->end();
+		return(*this);
+	}
+	--listIter;
+	return(*this);
+}
+
+template <typename KeyType, typename ValueType>
+inline MyIterator<KeyType, ValueType> MyIterator<KeyType, ValueType>::operator--(int)
+{
+	MyIterator tempIterator=*this;
+	if(listIter==vectorIter->begin())
+	{
+		while(vectorIter!=vectorPtr->begin())
+		{
+			--vectorIter;
+			if(!vectorIter->empty())
+			{
+				listIter=vectorIter->end();
+				--listIter;
+				return(tempIterator);
+			}
+		}
+
+		vectorIter=vectorPtr->end();
+		listIter=vectorIter->end();
+		return(tempIterator);
+	}
+	--listIter;
+	return(tempIterator);
+}
+
+template <typename KeyType, typename ValueType>
+inline KeyType MyIterator<KeyType, ValueType>::getKey() const
+{
+	return(listIter->key);
 }

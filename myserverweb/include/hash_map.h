@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //valueType putList( const list <keyType>&, const list <valueType>&);
 //valueType putList( const hashmap <keyType, valueType>&);
-//valueType remove(const iterator&);
 //valueType removeList(const list <keyType>&);
 //valueType removeList(const hashmap <keyType, valueType>&);
 
@@ -61,14 +60,16 @@ class MyIterator
 	friend class HashMap;
 
 	MyIterator();
+	inline KeyType getKey() const;
 
 	inline bool operator==(const MyIterator&) const;
 	inline bool operator!=(const MyIterator&) const;
 	inline ValueType& operator*() const;
-	inline MyIterator& operator++();		//prefix
+	inline MyIterator& operator++();	//prefix
 	inline MyIterator operator++(int);	//postfix
-	//inline iterator& operator--();	//prefix
-	//inline iterator operator--(int);	//postfix
+	inline MyIterator& operator--();	//prefix
+	inline MyIterator operator--(int);	//postfix
+	//inline MyIterator operator delete(void*);
 
 	private:
 
@@ -94,6 +95,7 @@ class HashMap
 	inline Iterator begin(void);
 	inline Iterator back(void);
 	inline Iterator end(void);
+	ValueType remove(const Iterator&);
 	bool containsKey(const KeyType&);
 	ValueType get(const KeyType&);
 	Iterator getI(const KeyType&);
@@ -121,7 +123,7 @@ class HashMap <string, ValueType>
 {
 	public:
 
-	typedef MyIterator<string, ValueType> Iterator;
+    typedef MyIterator<string, ValueType> Iterator;
 
 	HashMap();
 	HashMap(int);
@@ -133,6 +135,7 @@ class HashMap <string, ValueType>
 	inline Iterator begin(void);
 	inline Iterator back(void);
 	inline Iterator end(void);
+	ValueType remove(const Iterator&);
 	bool containsKey(const string&);
 	ValueType get(const string&);
 	Iterator getI(const string&);
@@ -172,6 +175,7 @@ class HashMap <char*, ValueType>
 	inline Iterator begin(void);
 	inline Iterator back(void);
 	inline Iterator end(void);
+	ValueType remove(const Iterator&);
 	bool containsKey(const char* const);
 	ValueType get(const char* const);
 	Iterator getI(const char* const);
@@ -211,6 +215,7 @@ class HashMap <void*, ValueType>
 	inline Iterator begin(void);
 	inline Iterator back(void);
 	inline Iterator end(void);
+	ValueType remove(const Iterator&);
 	bool containsKey(const void* const);
 	ValueType get(const void* const);
 	Iterator getI(const void* const);
