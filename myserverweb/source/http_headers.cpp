@@ -1007,7 +1007,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					string cmdStr(command);
           e->name.assign(command, HTTP_RESPONSE_OTHER_DIM);
           e->value.assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
-          old = request->other.put(cmdStr, e);
+					old = request->other.put(cmdStr, e);
 					if(old)
 						delete old;
         }

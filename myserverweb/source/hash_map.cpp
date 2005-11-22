@@ -1288,7 +1288,7 @@ void HashMap<KeyType, ValueType>::increaseSize (const int powerOffset)
 				dataIter!=data[i].end();
 				)
 			{
-				if((dataIter->hash & mask)!=i)
+				if((dataIter->hash & mask)!=(unsigned int)i)
 				{
 					map[dataIter->hash & mask]=offset;
 					data[dataIter->hash & mask].push_front(*dataIter);
