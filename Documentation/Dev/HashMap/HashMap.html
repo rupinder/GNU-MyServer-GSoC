@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Pedro Azevedo">
+	<META NAME="CREATED" CONTENT="20051123;7213555">
+	<META NAME="CHANGEDBY" CONTENT="Pedro Azevedo">
+	<META NAME="CHANGED" CONTENT="20051123;7402841">
+	<STYLE>
+	<!--
+		@page { size: 21cm 29.7cm; margin: 2cm }
+		P { margin-bottom: 0.21cm }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=LEFT><B>HashMap&lt;KeyType, ValueType&gt;</B></P>
+<P ALIGN=LEFT><BR><BR>
+</P>
+<P ALIGN=LEFT><B>Description:</B></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><I>HashMap</I> is a
+template class that efficiently associates objects of type <I>KeyType</I>
+with objects of type <I>ValueType</I>.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><BR><BR>
+</P>
+<P ALIGN=LEFT><B>Header file:</B></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm">hash_map.h</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><BR><BR>
+</P>
+<P ALIGN=LEFT><B>Template parameters:</B></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><I>KeyType</I> represents
+the type of the keys.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm">Interprets Strings as STL
+strings, char* as C-like(null terminated) strings, void* as pointers
+and everything else as the respective type.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><I>ValueType</I> represents
+the type of the values.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm">Interprets everything as
+their respective type.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><BR><BR>
+</P>
+<P ALIGN=LEFT><B>Types:</B></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><I><U><B>Iterator</B></U></I></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>Iterator()</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">This doesn't do anything,
+no arguments.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>bool Operator==</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Checks if two <I>Iterators</I>
+are equal.</P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Complexity: O(1), constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>bool Operator!=</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Checks if two <I>Iterators</I>
+are not equal.</P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Complexity: O(1), constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>ValueType Operator*</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Returns the value that
+<I>Iterator</I> is pointing to.</P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Complexity: O(1), constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>Iterator
+Operator++(prefix)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Points to the next element
+on the <I>HashMap</I> and returns an <I>Iterator</I> to it.</P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+low enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>Iterator
+Operator++(sufix)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Returns an <I>Iterator</I>
+to the current element on the <I>HashMap</I> and points the <I>Iterator</I>
+to the next element on the <I>HashMap</I>.</P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+low enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>Iterator
+Operator--(prefix)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Points to the previous
+element on the <I>HashMap</I> and returns an <I>Iterator</I> to it.</P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+low enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>Iterator
+Operator--(sufix)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm">Returns an <I>Iterator</I>
+to the current element on the <I>HashMap</I> and points the <I>Iterator</I>
+to the previous element on the <I>HashMap</I>.</P>
+<P LANG="pt-PT" ALIGN=LEFT STYLE="margin-left: 3.75cm; text-decoration: none">
+Complexity: O(1), constant time. Note that chosing a poor <I>loadFactor</I>,
+specifically one low enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><U>KeyType getKey()</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm"><SPAN LANG="pt-PT">Returns
+the key the iterator is currently pointing at.</SPAN></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.75cm"><SPAN LANG="pt-PT">Complexity:
+O(1), constant time.</SPAN></P>
+<P LANG="pt-PT" ALIGN=LEFT STYLE="margin-left: 3.75cm"><BR><BR>
+</P>
+<P ALIGN=LEFT><B>Members:</B></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>HashMap()</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Creates an <I>HashMap</I>
+object with the standard initial size of 16, which is also the
+minimal size, and astandard <I>loadFactor</I> of 0.75. The <I>loadFactor</I>
+is the percentage of space the <I>HashMap</I> must have filled before
+it increases it's size. In this case it will only increase it's size
+when it has more then 12 elements out of the 16.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(N), where N is
+the size of the object.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>HashMap(int size)</U></P>
+<P ALIGN=LEFT STYLE="text-indent: 2.5cm">Same as <I>HashMap()</I>
+except it specifies the initial size for the <I>HashMap</I> object.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(N), where N is
+the size of the object.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>HashMap(const float
+loadFactor)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Same as <I>HashMap()</I>
+except it specifies the <I>loadFactor</I> for the <I>HashMap</I>
+object.Complexity: O(N), where N is the size of the object.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>HashMap(int size, const
+float loadFactor)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Same as <I>HashMap()</I>
+except it specifies both the initial size and the <I>loadFactor</I>
+for the <I>HashMap</I> object.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(N), where N is
+the size of the object.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>bool empty(void)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns true if <I>HashMap</I>
+object is empty, otherwise false.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1) constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>void clear(void)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Clears all elements.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>int size(void)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns the amount of
+elements currently in the <I>HashMap</I> object.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>Iterator begin(void)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns an <I>Iterator</I>
+pointing to the first element on the <I>HashMap</I> object. Note that
+the order of the elements in the <I>HashMap</I> object has no
+relation to the order by which the elements were inserted or their
+size or their numerical value.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+low enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>Iterator back(void)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns an <I>Iterator</I>
+pointing to the last element on the <I>HashMap</I> object. Note that
+the order of the elements in the <I>HashMap</I> object has no
+relation to the order by which the elements were inserted, their size
+or their numerical value.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+low enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>Iterator end(void)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns an <I>Iterator</I>
+pointing to the element after the last element on the <I>HashMap</I>
+object. Note that the order of the elements in the <I>HashMap</I>
+object has no relation to the order by which the elements were
+inserted, their size or their numerical value.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>bool containsKey(const
+KeyType&amp; key)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns true if the <I>HashMap</I>
+object contains key, otherwise false.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+high enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>ValueType get(const
+KeyType&amp; key)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns the value associated
+with <I>key</I>, if there is none returns zero. Note that if the
+value associated with <I>key</I> IS zero, there is no way to know,
+using this method if there was or not a value associated with <I>key</I>,
+to be sure you can either avoid using zeros or use the <I>containsKey</I>
+method or the <I>getI</I> method.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+high enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>Iterator getI(const
+KeyType&amp; key)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Returns an <I>Iterator</I>
+object pointing to the value associated with <I>key</I>.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1) ,constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+high enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>ValueType put(const
+KeyType&amp; key, const ValueType&amp; value)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Inserts a new <I>key</I> in
+the <I>HashMap</I> object and associates it with <I>value</I>.
+Returns the previously associated with <I>key</I> if there was one,
+otherwise returns zero. Note that if the value associated with <I>key</I>
+IS zero, there is no way to know, using this method if there was or
+not a value associated with <I>key</I>, to be sure you can either
+avoid using zeros or use the <I>containsKey</I> method or the <I>getI</I>
+method.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+high enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>ValueType remove(const
+KeyType&amp; key)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Removes <I>key</I> from the
+<I>HashMap</I> object and returns the value associated with it. If
+<I>key</I> isn't found, returns zero. Note that if the value
+associated with <I>key</I> IS zero, there is no way to know, using
+this method if there was or not a value associated with <I>key</I>,
+to be sure you can either avoid using zeros or use the <I>containsKey</I>
+method or the <I>getI</I> method.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time. Note that chosing a poor <I>loadFactor</I>, specifically one
+high enough, will degrade the performance to O(N).</P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm"><U>ValueType
+remove(Iterator iter)</U></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Removes the element <I>iter</I>
+is pointing at from the <I>HashMap</I> object and returns the value
+associated with it.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm">Complexity: O(1), constant
+time.</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-left: 2.5cm"><BR><BR>
+</P>
+</BODY>
+</HTML>
