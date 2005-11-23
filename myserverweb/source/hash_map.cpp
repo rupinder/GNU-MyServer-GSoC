@@ -545,7 +545,7 @@ inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType
 		int i=0;
 		for(;i<capacity;++i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
@@ -567,7 +567,7 @@ inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>:
 		int i=0;
 		for(;i<capacity;++i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
@@ -589,7 +589,7 @@ inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::b
 		int i=0;
 		for(;i<capacity;++i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
@@ -611,7 +611,7 @@ inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::b
 		int i=0;
 		for(;i<capacity;++i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
@@ -633,7 +633,7 @@ inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType
 		int i=capacity-1;
 		for(;i>=0;--i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
@@ -655,7 +655,7 @@ inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>:
 		int i=capacity-1;
 		for(;i>=0;--i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
@@ -677,7 +677,7 @@ inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::b
 		int i=capacity-1;
 		for(;i>=0;--i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
@@ -699,7 +699,7 @@ inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::b
 		int i=capacity-1;
 		for(;i>=0;--i)
 		{
-			if(map[i])
+			if(map[i]>=offset)
 				break;
 		}
 		tempIterator.vectorIter=data.begin()+i;
