@@ -1424,7 +1424,10 @@ void HashMap<KeyType, ValueType>::decreaseSize (const int powerOffset)
 				++dataIter)
 			{
 				if(map[dataIter->hash & mask]<offset)
+				{
 					map[dataIter->hash & mask]=offset;
+					data[dataIter->hash & mask].clear();
+				}
 				data[dataIter->hash & mask].push_front(*dataIter);
 			}
 		}
@@ -1449,7 +1452,10 @@ void HashMap<string, ValueType>::decreaseSize (const int powerOffset)
 				++dataIter)
 			{
 				if(map[dataIter->hash & mask]<offset)
+				{
 					map[dataIter->hash & mask]=offset;
+					data[dataIter->hash & mask].clear();
+				}
 				data[dataIter->hash & mask].push_front(*dataIter);
 			}
 		}
@@ -1474,7 +1480,10 @@ void HashMap<char*, ValueType>::decreaseSize (const int powerOffset)
 				++dataIter)
 			{
 				if(map[dataIter->hash & mask]<offset)
+				{
 					map[dataIter->hash & mask]=offset;
+					data[dataIter->hash & mask].clear();
+				}
 				data[dataIter->hash & mask].push_front(*dataIter);
 			}
 		}
@@ -1499,7 +1508,10 @@ void HashMap<void*, ValueType>::decreaseSize (const int powerOffset)
 				++dataIter)
 			{
 				if(map[dataIter->hash & mask]<offset)
+				{
 					map[dataIter->hash & mask]=offset;
+					data[dataIter->hash & mask].clear();
+				}
 				data[dataIter->hash & mask].push_front(*dataIter);
 			}
 		}
