@@ -30,13 +30,13 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Browser.H>
+#include <FL/Fl_Box.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Text_Display.H>
 #include <FL/Fl_Progress.H>
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Counter.H>
-#include <FL/Fl_Box.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/fl_ask.H>
 #include "../include/cXMLParser.h"
@@ -261,6 +261,46 @@ public:
 private:
   inline void cb_Port_i(Fl_Value_Input*, void*);
   static void cb_Port(Fl_Value_Input*, void*);
+public:
+  Fl_Check_Button *Allow_CGI;
+private:
+  inline void cb_Allow_CGI_i(Fl_Check_Button*, void*);
+  static void cb_Allow_CGI(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_ISAPI;
+private:
+  inline void cb_Allow_ISAPI_i(Fl_Check_Button*, void*);
+  static void cb_Allow_ISAPI(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_MSCGI;
+private:
+  inline void cb_Allow_MSCGI_i(Fl_Check_Button*, void*);
+  static void cb_Allow_MSCGI(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_WINCGI;
+private:
+  inline void cb_Allow_WINCGI_i(Fl_Check_Button*, void*);
+  static void cb_Allow_WINCGI(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_FASTCGI;
+private:
+  inline void cb_Allow_FASTCGI_i(Fl_Check_Button*, void*);
+  static void cb_Allow_FASTCGI(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_SEND_LINK;
+private:
+  inline void cb_Allow_SEND_LINK_i(Fl_Check_Button*, void*);
+  static void cb_Allow_SEND_LINK(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_EXTERNAL_COMMANDS;
+private:
+  inline void cb_Allow_EXTERNAL_COMMANDS_i(Fl_Check_Button*, void*);
+  static void cb_Allow_EXTERNAL_COMMANDS(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_SEND_FILE;
+private:
+  inline void cb_Allow_SEND_FILE_i(Fl_Check_Button*, void*);
+  static void cb_Allow_SEND_FILE(Fl_Check_Button*, void*);
 public:
   Fl_Input *Docroot;
 private:

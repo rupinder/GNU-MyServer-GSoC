@@ -184,6 +184,54 @@ int VHostXML::load_core(XmlParser & parser)
 	       {
 		  setWarninglog(NameNo, (char*)lcur->children->content);
 	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_CGI"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_CGI, false);
+	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_ISAPI"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_ISAPI, false);
+	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_MSCGI"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_MSCGI, false);
+	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_WINCGI"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_WINCGI, false);
+	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_FASTCGI"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_FASTCGI, false);
+	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_SEND_LINK"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_SEND_LINK, false);
+	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_EXTERNAL_COMMANDS"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_EXTERNAL_COMMANDS, false);
+	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_SEND_FILE"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_SEND_FILE, false);
+	       }
 	     lcur=lcur->next;
 	  }
      }
@@ -290,6 +338,30 @@ int VHostXML::save_core(XmlParser & xmlFile)
 
 	xmlFile.addChild("WARNINGLOG", getWarninglog(i));
 
+	if(!getService(i, ALLOW_CGI))
+	  xmlFile.addChild("ALLOW_CGI", "NO");	
+
+	if(!getService(i, ALLOW_ISAPI))
+	  xmlFile.addChild("ALLOW_ISAPI", "NO");
+
+	if(!getService(i, ALLOW_MSCGI))
+	  xmlFile.addChild("ALLOW_MSCGI", "NO");
+
+	if(!getService(i, ALLOW_WINCGI))
+	  xmlFile.addChild("ALLOW_WINCGI", "NO");
+
+	if(!getService(i, ALLOW_FASTCGI))
+	  xmlFile.addChild("ALLOW_FASTCGI", "NO");
+
+	if(!getService(i, ALLOW_SEND_LINK))
+	  xmlFile.addChild("ALLOW_SEND_LINK", "NO");
+
+	if(!getService(i, ALLOW_EXTERNAL_COMMANDS))
+	  xmlFile.addChild("ALLOW_EXTERNAL_COMMANDS", "NO");
+
+	if(!getService(i, ALLOW_SEND_FILE))
+	  xmlFile.addChild("ALLOW_SEND_FILE", "NO");
+	
 	xmlFile.endGroup();
      }
    return 0;
@@ -329,6 +401,7 @@ int VHostXML::addName(const char * Text)
    NewNode->Ip.clear();
    NewNode->Port = 0;
    NewNode->Protocol = 0;
+   NewNode->Service = ALLOW_ALL;
    NewNode->Ssl_Privatekey = (char *)EMPTY;
    NewNode->Ssl_Certificate = (char *)EMPTY;
    NewNode->Ssl_Password = (char *)EMPTY;
@@ -393,6 +466,23 @@ void VHostXML::setProtocol(int VHostNo, int val)
    if(VHosts.isempty())
      return;
    ((VHostNode *)(VHosts.at(VHostNo)->Data))->Protocol = val;
+}
+
+void VHostXML::setService(int VHostNo, int serv, bool val)
+{
+   if(VHosts.isempty())
+     return;
+   
+   if(((VHostNode *)(VHosts.at(VHostNo)->Data))->Service & serv)
+     {
+	if(!val)
+	  ((VHostNode *)(VHosts.at(VHostNo)->Data))->Service ^= serv;
+     }
+   else
+     {
+	if(val)
+	  ((VHostNode *)(VHosts.at(VHostNo)->Data))->Service |= serv;
+     }
 }
 
 static inline void setstr(char *& dest, const char * val)
@@ -468,6 +558,13 @@ int VHostXML::getProtocol(int VHostNo)
    return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Protocol;
 }
 
+bool VHostXML::getService(int VHostNo, int serv)
+{
+   if(VHosts.isempty())
+     return 0;
+   return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Service & serv;
+}
+   
 const char * VHostXML::getSsl_Privatekey(int VHostNo)
 {
    if(VHosts.isempty())

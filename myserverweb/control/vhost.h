@@ -34,6 +34,16 @@ enum
    PROTOCOL_DYNAMIC
 };
 
+#define ALLOW_CGI               0x001
+#define ALLOW_ISAPI             0x002
+#define ALLOW_MSCGI             0x004
+#define ALLOW_WINCGI            0x008
+#define ALLOW_FASTCGI           0x010
+#define ALLOW_SEND_LINK         0x020
+#define ALLOW_EXTERNAL_COMMANDS 0x040
+#define ALLOW_SEND_FILE         0x080
+#define ALLOW_ALL               0xFFF
+
 extern const char * EMPTY;
 
 struct VHostNode
@@ -42,6 +52,7 @@ struct VHostNode
    Vector Ip;
    int Port;
    int Protocol;
+   int Service;
    char * Ssl_Privatekey;
    char * Ssl_Certificate;
    char * Ssl_Password;
@@ -73,6 +84,7 @@ class VHostXML
    void removeIp(int, int);
    void setPort(int, int);
    void setProtocol(int, int);
+   void setService(int, int, bool);
    void setSsl_Privatekey(int, const char *);
    void setSsl_Certificate(int, const char *);
    void setSsl_Password(int, const char *);
@@ -82,6 +94,7 @@ class VHostXML
    void setWarninglog(int, const char *);
    int getPort(int);
    int getProtocol(int);
+   bool getService(int, int);
    const char * getSsl_Privatekey(int);
    const char * getSsl_Certificate(int);
    const char * getSsl_Password(int);

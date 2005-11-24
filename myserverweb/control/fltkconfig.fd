@@ -18,7 +18,7 @@ class MainDlg {open selected
 else {
   ConfDlg->hide();
 }} open
-      xywh {470 30 550 360} type Double hide
+      xywh {462 30 550 360} type Double hide
     } {
       Fl_Menu_Bar {} {open
         xywh {0 0 550 25}
@@ -575,6 +575,14 @@ Docroot->value(VHostConf.getDocroot(i));
 Sysfolder->value(VHostConf.getSysfolder(i));
 Accesseslog->value(VHostConf.getAccesseslog(i));
 Warninglog->value(VHostConf.getWarninglog(i));
+Allow_CGI->value(VHostConf.getService(i, ALLOW_CGI));
+Allow_ISAPI->value(VHostConf.getService(i, ALLOW_ISAPI));
+Allow_MSCGI->value(VHostConf.getService(i, ALLOW_MSCGI));
+Allow_WINCGI->value(VHostConf.getService(i, ALLOW_WINCGI));
+Allow_FASTCGI->value(VHostConf.getService(i, ALLOW_FASTCGI));
+Allow_SEND_LINK->value(VHostConf.getService(i, ALLOW_SEND_LINK));
+Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(i, ALLOW_EXTERNAL_COMMANDS));
+Allow_SEND_FILE->value(VHostConf.getService(i, ALLOW_SEND_FILE));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -613,6 +621,14 @@ if(val != 0) {
   Sysfolder->value(VHostConf.getSysfolder(i));
   Accesseslog->value(VHostConf.getAccesseslog(i));
   Warninglog->value(VHostConf.getWarninglog(i));
+  Allow_CGI->value(VHostConf.getService(i, ALLOW_CGI));
+  Allow_ISAPI->value(VHostConf.getService(i, ALLOW_ISAPI));
+  Allow_MSCGI->value(VHostConf.getService(i, ALLOW_MSCGI));
+  Allow_WINCGI->value(VHostConf.getService(i, ALLOW_WINCGI));
+  Allow_FASTCGI->value(VHostConf.getService(i, ALLOW_FASTCGI));
+  Allow_SEND_LINK->value(VHostConf.getService(i, ALLOW_SEND_LINK));
+  Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(i, ALLOW_EXTERNAL_COMMANDS));
+  Allow_SEND_FILE->value(VHostConf.getService(i, ALLOW_SEND_FILE));
   i = Protocol->value();
   if(i != 1 && i != 3) {
     Ssl_Privatekey->deactivate();
@@ -669,7 +685,7 @@ else {
             }
           }
           Fl_Group {} {open
-            xywh {10 110 530 240} box ENGRAVED_FRAME
+            xywh {10 110 535 240} box ENGRAVED_FRAME
           } {
             Fl_Tabs {} {open
               xywh {20 120 510 220}
@@ -861,6 +877,71 @@ if(i != 0) {
 int i = Name->value();
 VHostConf.setPort(i, (int)Port->value());}
                   xywh {435 165 65 25} maximum 10240 step 1
+                }
+              }
+              Fl_Group {} {
+                label {HTTP Services} open
+                xywh {20 145 510 195} hide
+              } {
+                Fl_Box {} {
+                  label {Enable:}
+                  xywh {40 155 115 25} align 20
+                }
+                Fl_Check_Button Allow_CGI {
+                  label CGI
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_CGI, Allow_CGI->value());}
+                  xywh {60 180 20 25} down_box DOWN_BOX align 8
+                }
+                Fl_Check_Button Allow_ISAPI {
+                  label ISAPI
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_ISAPI, Allow_ISAPI->value());}
+                  xywh {60 200 20 25} down_box DOWN_BOX align 8
+                }
+                Fl_Check_Button Allow_MSCGI {
+                  label MSCGI
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_MSCGI, Allow_MSCGI->value());}
+                  xywh {60 220 20 25} down_box DOWN_BOX align 8
+                }
+                Fl_Check_Button Allow_WINCGI {
+                  label WINCGI
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_WINCGI, Allow_WINCGI->value());}
+                  xywh {60 240 20 25} down_box DOWN_BOX align 8
+                }
+                Fl_Check_Button Allow_FASTCGI {
+                  label FASTCGI
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_FASTCGI, Allow_FASTCGI->value());}
+                  xywh {60 260 20 25} down_box DOWN_BOX align 8
+                }
+                Fl_Check_Button Allow_SEND_LINK {
+                  label {SEND LINK}
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_SEND_LINK, Allow_SEND_LINK->value());}
+                  xywh {225 180 20 25} down_box DOWN_BOX align 8
+                }
+                Fl_Check_Button Allow_EXTERNAL_COMMANDS {
+                  label {EXTERNAL COMMANDS}
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_EXTERNAL_COMMANDS, Allow_EXTERNAL_COMMANDS->value());}
+                  xywh {225 200 20 25} down_box DOWN_BOX align 8
+                }
+                Fl_Check_Button Allow_SEND_FILE {
+                  label {SEND FILE}
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_SEND_FILE, Allow_SEND_FILE->value());}
+                  xywh {225 220 20 25} down_box DOWN_BOX align 8
                 }
               }
               Fl_Group {} {
@@ -1247,6 +1328,14 @@ Docroot->value(VHostConf.getDocroot(0));
 Sysfolder->value(VHostConf.getSysfolder(0));
 Accesseslog->value(VHostConf.getAccesseslog(0));
 Warninglog->value(VHostConf.getWarninglog(0));
+Allow_CGI->value(VHostConf.getService(0, ALLOW_CGI));
+Allow_ISAPI->value(VHostConf.getService(0, ALLOW_ISAPI));
+Allow_MSCGI->value(VHostConf.getService(0, ALLOW_MSCGI));
+Allow_WINCGI->value(VHostConf.getService(0, ALLOW_WINCGI));
+Allow_FASTCGI->value(VHostConf.getService(0, ALLOW_FASTCGI));
+Allow_SEND_LINK->value(VHostConf.getService(0, ALLOW_SEND_LINK));
+Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(0, ALLOW_EXTERNAL_COMMANDS));
+Allow_SEND_FILE->value(VHostConf.getService(0, ALLOW_SEND_FILE));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -1396,6 +1485,14 @@ Docroot->value(VHostConf.getDocroot(0));
 Sysfolder->value(VHostConf.getSysfolder(0));
 Accesseslog->value(VHostConf.getAccesseslog(0));
 Warninglog->value(VHostConf.getWarninglog(0));
+Allow_CGI->value(VHostConf.getService(0, ALLOW_CGI));
+Allow_ISAPI->value(VHostConf.getService(0, ALLOW_ISAPI));
+Allow_MSCGI->value(VHostConf.getService(0, ALLOW_MSCGI));
+Allow_WINCGI->value(VHostConf.getService(0, ALLOW_WINCGI));
+Allow_FASTCGI->value(VHostConf.getService(0, ALLOW_FASTCGI));
+Allow_SEND_LINK->value(VHostConf.getService(0, ALLOW_SEND_LINK));
+Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(0, ALLOW_EXTERNAL_COMMANDS));
+Allow_SEND_FILE->value(VHostConf.getService(0, ALLOW_SEND_FILE));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();

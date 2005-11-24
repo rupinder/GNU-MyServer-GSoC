@@ -597,6 +597,14 @@ Docroot->value(VHostConf.getDocroot(i));
 Sysfolder->value(VHostConf.getSysfolder(i));
 Accesseslog->value(VHostConf.getAccesseslog(i));
 Warninglog->value(VHostConf.getWarninglog(i));
+Allow_CGI->value(VHostConf.getService(i, ALLOW_CGI));
+Allow_ISAPI->value(VHostConf.getService(i, ALLOW_ISAPI));
+Allow_MSCGI->value(VHostConf.getService(i, ALLOW_MSCGI));
+Allow_WINCGI->value(VHostConf.getService(i, ALLOW_WINCGI));
+Allow_FASTCGI->value(VHostConf.getService(i, ALLOW_FASTCGI));
+Allow_SEND_LINK->value(VHostConf.getService(i, ALLOW_SEND_LINK));
+Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(i, ALLOW_EXTERNAL_COMMANDS));
+Allow_SEND_FILE->value(VHostConf.getService(i, ALLOW_SEND_FILE));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -637,6 +645,14 @@ if(val != 0) {
   Sysfolder->value(VHostConf.getSysfolder(i));
   Accesseslog->value(VHostConf.getAccesseslog(i));
   Warninglog->value(VHostConf.getWarninglog(i));
+  Allow_CGI->value(VHostConf.getService(i, ALLOW_CGI));
+  Allow_ISAPI->value(VHostConf.getService(i, ALLOW_ISAPI));
+  Allow_MSCGI->value(VHostConf.getService(i, ALLOW_MSCGI));
+  Allow_WINCGI->value(VHostConf.getService(i, ALLOW_WINCGI));
+  Allow_FASTCGI->value(VHostConf.getService(i, ALLOW_FASTCGI));
+  Allow_SEND_LINK->value(VHostConf.getService(i, ALLOW_SEND_LINK));
+  Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(i, ALLOW_EXTERNAL_COMMANDS));
+  Allow_SEND_FILE->value(VHostConf.getService(i, ALLOW_SEND_FILE));
   i = Protocol->value();
   if(i != 1 && i != 3) {
     Ssl_Privatekey->deactivate();
@@ -878,6 +894,78 @@ VHostConf.setPort(i, (int)Port->value());
 }
 void MainDlg::cb_Port(Fl_Value_Input* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Port_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_CGI_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_CGI, Allow_CGI->value());
+}
+void MainDlg::cb_Allow_CGI(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_CGI_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_ISAPI_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_ISAPI, Allow_ISAPI->value());
+}
+void MainDlg::cb_Allow_ISAPI(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_ISAPI_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_MSCGI_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_MSCGI, Allow_MSCGI->value());
+}
+void MainDlg::cb_Allow_MSCGI(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_MSCGI_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_WINCGI_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_WINCGI, Allow_WINCGI->value());
+}
+void MainDlg::cb_Allow_WINCGI(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_WINCGI_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_FASTCGI_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_FASTCGI, Allow_FASTCGI->value());
+}
+void MainDlg::cb_Allow_FASTCGI(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_FASTCGI_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_SEND_LINK_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_SEND_LINK, Allow_SEND_LINK->value());
+}
+void MainDlg::cb_Allow_SEND_LINK(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_SEND_LINK_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_EXTERNAL_COMMANDS_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_EXTERNAL_COMMANDS, Allow_EXTERNAL_COMMANDS->value());
+}
+void MainDlg::cb_Allow_EXTERNAL_COMMANDS(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_EXTERNAL_COMMANDS_i(o,v);
+}
+
+inline void MainDlg::cb_Allow_SEND_FILE_i(Fl_Check_Button*, void*) {
+  Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_SEND_FILE, Allow_SEND_FILE->value());
+}
+void MainDlg::cb_Allow_SEND_FILE(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_Allow_SEND_FILE_i(o,v);
 }
 
 inline void MainDlg::cb_Docroot_i(Fl_Input*, void*) {
@@ -3414,7 +3502,7 @@ Fl_Double_Window* MainDlg::make_window() {
           }
           o->end();
         }
-        { Fl_Group* o = new Fl_Group(10, 110, 530, 240);
+        { Fl_Group* o = new Fl_Group(10, 110, 535, 240);
           o->box(FL_ENGRAVED_FRAME);
           { Fl_Tabs* o = new Fl_Tabs(20, 120, 510, 220);
             { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Protocol"));
@@ -3476,6 +3564,53 @@ Fl_Double_Window* MainDlg::make_window() {
                 o->maximum(10240);
                 o->step(1);
                 o->callback((Fl_Callback*)cb_Port);
+              }
+              o->end();
+            }
+            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("HTTP Services"));
+              o->hide();
+              { Fl_Box* o = new Fl_Box(40, 155, 115, 25, gettext("Enable:"));
+                o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+              }
+              { Fl_Check_Button* o = Allow_CGI = new Fl_Check_Button(60, 180, 20, 25, gettext("CGI"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_CGI);
+                o->align(FL_ALIGN_RIGHT);
+              }
+              { Fl_Check_Button* o = Allow_ISAPI = new Fl_Check_Button(60, 200, 20, 25, gettext("ISAPI"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_ISAPI);
+                o->align(FL_ALIGN_RIGHT);
+              }
+              { Fl_Check_Button* o = Allow_MSCGI = new Fl_Check_Button(60, 220, 20, 25, gettext("MSCGI"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_MSCGI);
+                o->align(FL_ALIGN_RIGHT);
+              }
+              { Fl_Check_Button* o = Allow_WINCGI = new Fl_Check_Button(60, 240, 20, 25, gettext("WINCGI"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_WINCGI);
+                o->align(FL_ALIGN_RIGHT);
+              }
+              { Fl_Check_Button* o = Allow_FASTCGI = new Fl_Check_Button(60, 260, 20, 25, gettext("FASTCGI"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_FASTCGI);
+                o->align(FL_ALIGN_RIGHT);
+              }
+              { Fl_Check_Button* o = Allow_SEND_LINK = new Fl_Check_Button(225, 180, 20, 25, gettext("SEND LINK"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_SEND_LINK);
+                o->align(FL_ALIGN_RIGHT);
+              }
+              { Fl_Check_Button* o = Allow_EXTERNAL_COMMANDS = new Fl_Check_Button(225, 200, 20, 25, gettext("EXTERNAL COMMANDS"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_EXTERNAL_COMMANDS);
+                o->align(FL_ALIGN_RIGHT);
+              }
+              { Fl_Check_Button* o = Allow_SEND_FILE = new Fl_Check_Button(225, 220, 20, 25, gettext("SEND FILE"));
+                o->down_box(FL_DOWN_BOX);
+                o->callback((Fl_Callback*)cb_Allow_SEND_FILE);
+                o->align(FL_ALIGN_RIGHT);
               }
               o->end();
             }
@@ -3833,6 +3968,14 @@ Docroot->value(VHostConf.getDocroot(0));
 Sysfolder->value(VHostConf.getSysfolder(0));
 Accesseslog->value(VHostConf.getAccesseslog(0));
 Warninglog->value(VHostConf.getWarninglog(0));
+Allow_CGI->value(VHostConf.getService(0, ALLOW_CGI));
+Allow_ISAPI->value(VHostConf.getService(0, ALLOW_ISAPI));
+Allow_MSCGI->value(VHostConf.getService(0, ALLOW_MSCGI));
+Allow_WINCGI->value(VHostConf.getService(0, ALLOW_WINCGI));
+Allow_FASTCGI->value(VHostConf.getService(0, ALLOW_FASTCGI));
+Allow_SEND_LINK->value(VHostConf.getService(0, ALLOW_SEND_LINK));
+Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(0, ALLOW_EXTERNAL_COMMANDS));
+Allow_SEND_FILE->value(VHostConf.getService(0, ALLOW_SEND_FILE));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();
@@ -3982,6 +4125,14 @@ Docroot->value(VHostConf.getDocroot(0));
 Sysfolder->value(VHostConf.getSysfolder(0));
 Accesseslog->value(VHostConf.getAccesseslog(0));
 Warninglog->value(VHostConf.getWarninglog(0));
+Allow_CGI->value(VHostConf.getService(0, ALLOW_CGI));
+Allow_ISAPI->value(VHostConf.getService(0, ALLOW_ISAPI));
+Allow_MSCGI->value(VHostConf.getService(0, ALLOW_MSCGI));
+Allow_WINCGI->value(VHostConf.getService(0, ALLOW_WINCGI));
+Allow_FASTCGI->value(VHostConf.getService(0, ALLOW_FASTCGI));
+Allow_SEND_LINK->value(VHostConf.getService(0, ALLOW_SEND_LINK));
+Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(0, ALLOW_EXTERNAL_COMMANDS));
+Allow_SEND_FILE->value(VHostConf.getService(0, ALLOW_SEND_FILE));
 i = Protocol->value();
 if(i != 1 && i != 3) {
   Ssl_Privatekey->deactivate();

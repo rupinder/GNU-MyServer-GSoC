@@ -55,11 +55,10 @@
   
   #ifndef fltkconfig_h
 ***************
-*** 20,25 ****
---- 37,54 ----
+*** 21,26 ****
+--- 38,55 ----
   #include <FL/Fl_Output.H>
   #include <FL/Fl_Counter.H>
-  #include <FL/Fl_Box.H>
 + #include <FL/Fl_File_Chooser.H>
 + #include <FL/fl_ask.H>
 + #include "../include/cXMLParser.h"
