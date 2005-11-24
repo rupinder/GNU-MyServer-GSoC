@@ -1,20 +1,5 @@
-# MyServer
-# Copyright (C) 2002,2003,2004 The MyServer Team
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0104 
+version 1.0106 
 i18n_type 1 
 i18n_include "language.h" 
 i18n_function gettext 
@@ -820,11 +805,12 @@ if(chrptr != 0) {
                   label {Add...}
                   callback {char * val;
 int NameNo, i;
-val = (char *)fl_input(LanguageXMLEnter_Host);
+bool reg = false;
+val = (char *)regex_input(LanguageXMLEnter_Host, reg);
 if(val != 0) {
   Changed = true;
   NameNo = Name->value();
-  i = VHostConf.addHost(NameNo, val, true);
+  i = VHostConf.addHost(NameNo, val, reg);
   VHostConf.populateHost(NameNo, Host);
   Host->value(i + 1);
 }}
@@ -846,11 +832,12 @@ if(i != 0) {
                   label {Add...}
                   callback {char * val;
 int NameNo, i;
-val = (char *)fl_input(LanguageXMLEnter_Ip);
+bool reg;
+val = (char *)regex_input(LanguageXMLEnter_Ip, reg);
 if(val != 0) {
   Changed = true;
   NameNo = Name->value();
-  i = VHostConf.addIp(NameNo, val, true);
+  i = VHostConf.addIp(NameNo, val, reg);
   VHostConf.populateIp(NameNo, Ip);
   Ip->value(i + 1);
 }}
@@ -1037,7 +1024,7 @@ AboutText->buffer(atext);} {}
   Function {make_login()} {} {
     Fl_Window LoginDlg {
       label {Remote Login} open
-      xywh {328 239 607 124} type Double hide modal
+      xywh {328 239 605 120} type Double hide modal
     } {
       Fl_Input LoginDlgAddress {
         label {Address:}
@@ -1068,7 +1055,7 @@ AboutText->buffer(atext);} {}
   Function {make_status()} {} {
     Fl_Window StatusDlg {
       label Status open
-      xywh {372 471 279 100} type Double hide modal
+      xywh {372 471 275 100} type Double hide modal
     } {
       Fl_Group StatusDlgGroup {open
         xywh {10 15 260 65} align 17
@@ -1106,6 +1093,31 @@ AboutText->buffer(atext);} {}
       Fl_Button ConnectionsDlgDone {
         label Done
         xywh {340 305 130 25}
+      }
+    }
+  }
+  Function {make_regask()} {} {
+    Fl_Window RegaskDlg {open
+      xywh {462 30 425 110} type Double hide modal
+    } {
+      Fl_Input RegaskDlgInput {
+        xywh {75 35 340 25} align 5
+      }
+      Fl_Button RegaskDlgCancel {
+        label Cancel
+        xywh {340 70 75 25}
+      }
+      Fl_Return_Button RegaskDlgOK {
+        label OK
+        xywh {250 70 75 25}
+      }
+      Fl_Check_Button RegaskDlgRegex {
+        label Regex
+        xywh {75 65 95 25} down_box DOWN_BOX
+      }
+      Fl_Box {} {
+        xywh {10 10 55 55} box THIN_UP_BOX color 255 labelfont 9 labelsize 43 labelcolor 4
+        code0 {o->label("?");}
       }
     }
   }
@@ -1938,6 +1950,31 @@ for(;;) {
 } // for
 
 ConnectionsDlg->hide();} {}
+  }
+  Function {regex_input(const char * capt, bool & reg)} {private return_type {char *}
+  } {
+    code {fl_beep(FL_BEEP_QUESTION);
+RegaskDlgInput->value("");
+RegaskDlgInput->label(capt);
+RegaskDlgRegex->value(false);
+RegaskDlg->hotspot(RegaskDlgCancel);
+RegaskDlg->show();
+int ret;
+for(;;) {
+  Fl_Widget *o = Fl::readqueue();
+  if(!o) Fl::wait();
+  else if(o == RegaskDlgOK) {ret = 0; break;}
+  else if(o == RegaskDlgCancel) {ret = -1; break;}
+  else if(o == RegaskDlg) {ret = -1; break;}
+}
+RegaskDlg->hide();
+
+if(ret || strcmp(RegaskDlgInput->value(), "") == 0) {
+  return NULL;
+}
+  
+reg = RegaskDlgRegex->value();
+return (char *)RegaskDlgInput->value();} {}
   }
   Function {fl_alertcat(const char * c1, const char * c2)} {private return_type void
   } {

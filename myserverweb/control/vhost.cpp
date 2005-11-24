@@ -229,11 +229,19 @@ int VHostXML::save_core(XmlParser & xmlFile)
 	for(i2 = 0; i2 < ((VHostNode *)(VHosts.at(i)->Data))->Ip.size(); i2++)
 	  {
 	     xmlFile.addChild("IP", ((VHostNode *)(VHosts.at(i)->Data))->Ip.at(i2)->Text);
+	     if((bool)((VHostNode *)(VHosts.at(i)->Data))->Ip.at(i2)->Data)
+	       {
+		  xmlFile.setAttr("isRegex", "YES");
+	       }
 	  }
 
 	for(i2 = 0; i2 < ((VHostNode *)(VHosts.at(i)->Data))->Host.size(); i2++)
 	  {
 	     xmlFile.addChild("HOST", ((VHostNode *)(VHosts.at(i)->Data))->Host.at(i2)->Text);
+	     if((bool)((VHostNode *)(VHosts.at(i)->Data))->Host.at(i2)->Data)
+	       {
+		  xmlFile.setAttr("isRegex", "YES");
+	       }
 	  }
 
 	char port[6];

@@ -1,6 +1,6 @@
 /*
- MyServer
- Copyright (C) 2002, 2003, 2004 The MyServer Team
+ *MyServer
+ *Copyright (C) 2002,2003,2004 The MyServer Team
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -36,6 +36,7 @@
 #include <FL/Fl_Progress.H>
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Counter.H>
+#include <FL/Fl_Box.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/fl_ask.H>
 #include "../include/cXMLParser.h"
@@ -350,6 +351,12 @@ public:
   Fl_Counter *ConnectionsDlgRate;
   Fl_Button *ConnectionsDlgKill;
   Fl_Button *ConnectionsDlgDone;
+  Fl_Double_Window* make_regask();
+  Fl_Double_Window *RegaskDlg;
+  Fl_Input *RegaskDlgInput;
+  Fl_Button *RegaskDlgCancel;
+  Fl_Return_Button *RegaskDlgOK;
+  Fl_Check_Button *RegaskDlgRegex;
   int ask_type();
   int load_config();
   int load_config_remote();
@@ -365,6 +372,7 @@ private:
   void ServerLogout();
   int ServerLogin(bool stat);
   void ServerConnections();
+  char * regex_input(const char * capt, bool & reg);
   void fl_alertcat(const char * c1, const char * c2);
   void fl_wait(int len);
   const char * mystrcat(const char * a, const char * b);

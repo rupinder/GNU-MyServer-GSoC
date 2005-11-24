@@ -223,7 +223,8 @@ int main(int argc, char * argv[])
    Configure.make_login();
    Configure.make_status();
    Configure.make_connections();
-
+   Configure.make_regask();
+   
    // Show the main window
    Configure.ConfDlg->show(argc, argv);
 

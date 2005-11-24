@@ -55,11 +55,11 @@
   
   #ifndef fltkconfig_h
 ***************
-*** 19,24 ****
---- 36,53 ----
-  #include <FL/Fl_Progress.H>
+*** 20,25 ****
+--- 37,54 ----
   #include <FL/Fl_Output.H>
   #include <FL/Fl_Counter.H>
+  #include <FL/Fl_Box.H>
 + #include <FL/Fl_File_Chooser.H>
 + #include <FL/fl_ask.H>
 + #include "../include/cXMLParser.h"
