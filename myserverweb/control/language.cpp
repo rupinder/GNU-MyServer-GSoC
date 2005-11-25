@@ -110,7 +110,7 @@ void ClearList()
 ///
 void LanguageXMLinit()
 {
-   LanguageXMLLast_Change = strdup("Last change not saved.  Continue anyways?");
+   LanguageXMLLast_Change = strdup("Last change not saved.  Continue anyway?");
    LanguageXMLNot_Found = strdup("Config files not found.");
    LanguageXMLReload_Prev = strdup("Reload prevous values?");
    LanguageXMLEnter_Default = strdup("Please enter a default file name:");

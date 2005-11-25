@@ -892,56 +892,56 @@ VHostConf.setPort(i, (int)Port->value());}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_CGI, Allow_CGI->value());}
-                  xywh {60 180 20 25} down_box DOWN_BOX align 8
+                  xywh {60 180 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_ISAPI {
                   label ISAPI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_ISAPI, Allow_ISAPI->value());}
-                  xywh {60 200 20 25} down_box DOWN_BOX align 8
+                  xywh {60 200 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_MSCGI {
                   label MSCGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_MSCGI, Allow_MSCGI->value());}
-                  xywh {60 220 20 25} down_box DOWN_BOX align 8
+                  xywh {60 220 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_WINCGI {
                   label WINCGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_WINCGI, Allow_WINCGI->value());}
-                  xywh {60 240 20 25} down_box DOWN_BOX align 8
+                  xywh {60 240 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_FASTCGI {
                   label FASTCGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_FASTCGI, Allow_FASTCGI->value());}
-                  xywh {60 260 20 25} down_box DOWN_BOX align 8
+                  xywh {60 260 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_SEND_LINK {
                   label {SEND LINK}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_SEND_LINK, Allow_SEND_LINK->value());}
-                  xywh {225 180 20 25} down_box DOWN_BOX align 8
+                  xywh {225 180 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_EXTERNAL_COMMANDS {
                   label {EXTERNAL COMMANDS}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_EXTERNAL_COMMANDS, Allow_EXTERNAL_COMMANDS->value());}
-                  xywh {225 200 20 25} down_box DOWN_BOX align 8
+                  xywh {225 200 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_SEND_FILE {
                   label {SEND FILE}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_SEND_FILE, Allow_SEND_FILE->value());}
-                  xywh {225 220 20 25} down_box DOWN_BOX align 8
+                  xywh {225 220 20 25} down_box DOWN_BOX align 8 when 1
                 }
               }
               Fl_Group {} {
@@ -1084,18 +1084,18 @@ else {
   Function {make_about()} {} {
     Fl_Window AboutDlg {
       label About open
-      xywh {360 453 559 119} type Double hide modal
+      xywh {320 453 595 115} type Double hide modal
     } {
       Fl_Group {} {open
-        image {../binaries/web/logo.png} xywh {15 20 120 75} align 21
+        image {../binaries/web/logo.png} xywh {15 20 155 80} align 21
       } {}
       Fl_Text_Display AboutText {
-        xywh {150 10 305 95} align 0
+        xywh {185 10 305 95} align 0
       }
       Fl_Return_Button {} {
         label OK
         callback {AboutDlg->hide();}
-        xywh {470 10 75 25}
+        xywh {505 10 75 25}
       }
     }
     code {Fl_Text_Buffer * atext = new Fl_Text_Buffer;

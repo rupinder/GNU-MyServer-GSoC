@@ -3576,41 +3576,49 @@ Fl_Double_Window* MainDlg::make_window() {
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_CGI);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               { Fl_Check_Button* o = Allow_ISAPI = new Fl_Check_Button(60, 200, 20, 25, gettext("ISAPI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_ISAPI);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               { Fl_Check_Button* o = Allow_MSCGI = new Fl_Check_Button(60, 220, 20, 25, gettext("MSCGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_MSCGI);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               { Fl_Check_Button* o = Allow_WINCGI = new Fl_Check_Button(60, 240, 20, 25, gettext("WINCGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_WINCGI);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               { Fl_Check_Button* o = Allow_FASTCGI = new Fl_Check_Button(60, 260, 20, 25, gettext("FASTCGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_FASTCGI);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               { Fl_Check_Button* o = Allow_SEND_LINK = new Fl_Check_Button(225, 180, 20, 25, gettext("SEND LINK"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_SEND_LINK);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               { Fl_Check_Button* o = Allow_EXTERNAL_COMMANDS = new Fl_Check_Button(225, 200, 20, 25, gettext("EXTERNAL COMMANDS"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_EXTERNAL_COMMANDS);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               { Fl_Check_Button* o = Allow_SEND_FILE = new Fl_Check_Button(225, 220, 20, 25, gettext("SEND FILE"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_SEND_FILE);
                 o->align(FL_ALIGN_RIGHT);
+                o->when(FL_WHEN_CHANGED);
               }
               o->end();
             }
@@ -3723,18 +3731,18 @@ Fl_Double_Window* MainDlg::make_type() {
 
 Fl_Double_Window* MainDlg::make_about() {
   Fl_Double_Window* w;
-  { Fl_Double_Window* o = AboutDlg = new Fl_Double_Window(559, 119, gettext("About"));
+  { Fl_Double_Window* o = AboutDlg = new Fl_Double_Window(595, 115, gettext("About"));
     w = o;
     o->user_data((void*)(this));
-    { Fl_Group* o = new Fl_Group(15, 20, 120, 75);
+    { Fl_Group* o = new Fl_Group(15, 20, 155, 80);
       o->image(image_logo);
       o->align(FL_ALIGN_TOP_LEFT|FL_ALIGN_INSIDE);
       o->end();
     }
-    { Fl_Text_Display* o = AboutText = new Fl_Text_Display(150, 10, 305, 95);
+    { Fl_Text_Display* o = AboutText = new Fl_Text_Display(185, 10, 305, 95);
       o->align(FL_ALIGN_CENTER);
     }
-    { Fl_Return_Button* o = new Fl_Return_Button(470, 10, 75, 25, gettext("OK"));
+    { Fl_Return_Button* o = new Fl_Return_Button(505, 10, 75, 25, gettext("OK"));
       o->callback((Fl_Callback*)cb_OK);
     }
     o->set_modal();
