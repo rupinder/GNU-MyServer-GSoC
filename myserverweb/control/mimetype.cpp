@@ -215,34 +215,34 @@ int MIMEtypeXML::save_core(XmlParser & xmlFile)
 	switch(getCmd(i))
 	  {
 	   case CMD_SEND:
-	     strcpy(command,"SEND");
+	     strncpy(command,"SEND",16);
 	     break;
 	   case CMD_RUNCGI:
-	     strcpy(command,"RUNCGI");
+	     strncpy(command,"RUNCGI",16);
 	     break;
 	   case CMD_RUNMSCGI:
-	     strcpy(command,"RUNMSCGI");
+	     strncpy(command,"RUNMSCGI",16);
 	     break;
 	   case CMD_EXECUTE:
-	     strcpy(command,"EXECUTE");
+	     strncpy(command,"EXECUTE",16);
 	     break;
 	   case CMD_SENDLINK:
-	     strcpy(command,"SENDLINK");
+	     strncpy(command,"SENDLINK",16);
 	     break;
 	   case CMD_RUNISAPI:
-	     strcpy(command,"RUNISAPI");
+	     strncpy(command,"RUNISAPI",16);
 	     break;
 	   case CMD_EXECUTEISAPI:
-	     strcpy(command,"EXECUTEISAPI");
+	     strncpy(command,"EXECUTEISAPI",16);
 	     break;
 	   case CMD_EXECUTEWINCGI:
-	     strcpy(command,"EXECUTEWINCGI");
+	     strncpy(command,"EXECUTEWINCGI",16);
 	     break;
 	   case CMD_RUNFASTCGI:
-	     strcpy(command,"RUNFASTCGI");
+	     strncpy(command,"RUNFASTCGI",16);
 	     break;
 	   case CMD_EXECUTEFASTCGI:
-	     strcpy(command,"EXECUTEFASTCGI");
+	     strncpy(command,"EXECUTEFASTCGI",16);
 	     break;
 	   default:
 	     break;

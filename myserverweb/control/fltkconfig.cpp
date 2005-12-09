@@ -4721,9 +4721,9 @@ return (char *)RegaskDlgInput->value();
 }
 
 void MainDlg::fl_alertcat(const char * c1, const char * c2) {
-  char temp[strlen(c1) + strlen(c2)];
-strcpy(temp, c1);
-strcat(temp, c2);
+char temp[strlen(c1) + strlen(c2)];
+strncpy(temp, c1, (strlen(c1)+strlen(c2)));
+strncat(temp,c2,(strlen(c1)+strlen(c2)+1));
 fl_alert(temp);
 }
 
