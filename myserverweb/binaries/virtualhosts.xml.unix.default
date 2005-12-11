@@ -8,7 +8,6 @@
 <DOCROOT>/var/web/</DOCROOT>
 <SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
 <ACCESSLOG>/var/log/myserver/MyServerHTTP.log</ACCESSLOG>
-<SYSFOLDER>/usr/share/myserver/system/</SYSFOLDER>
 <WARNINGLOG>/var/log/myserver/MyServerHTTP.err</WARNINGLOG>
 </VHOST>
 
