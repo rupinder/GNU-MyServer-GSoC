@@ -320,7 +320,7 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
    filename=new char[filenamelen];
    if(filename == 0)
      return;
-   sprintf(filename,"%s/*.*",folder);
+   snprintf(filename,filenamelen,"%s/*.*",folder);
 #endif
 #ifdef NOT_WIN
    filenamelen=strlen(folder)+2;
@@ -361,7 +361,7 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
 	     filename = 0;
 	     return;
 	  }
-	sprintf(completeFileName,"%s/%s",folder,fd.name);
+	snprintf(completeFileName,completeFileNameLen,"%s/%s",folder,fd.name);
 #ifdef WIN32
 	module = LoadLibrary(completeFileName);
 #endif

@@ -41,8 +41,8 @@ char* strustr(char *source, char *s)
     delete [] csource;
     return 0;
   }
-  strcpy(csource, source);
-  strcpy(cs, s);
+  strncpy(csource, source, (strlen(source)+2));
+  strncpy(cs, s, (strlen(s)+2));
 	strupr(csource);
 	strupr(cs);
 	char *result = strstr(csource, cs);
@@ -221,7 +221,7 @@ char* MimeDecodeMailHeaderField(char *s)
 			if (strlen(mid) > 0)
 			{
 				rest = new char[strlen(mid) + 1];
-				strcpy(rest, mid);
+				strncpy(rest, mid,(strlen(mid)+2));
 			}
 		}
 		if (strupos(s1, "?Q?") > 0)
@@ -252,12 +252,12 @@ char* MimeDecodeMailHeaderField(char *s)
 		s[0] = '\0';
 		if (start != NULL)
 		{
-			strcat(s, start);
+			strncat(s, start, strlen(s));
 		}
-		strcat(s, decodedText);
+		strncat(s, decodedText, strlen(s));
   	if (rest != NULL)
 		{
-			strcat(s, rest);
+			strncat(s, rest, strlen(s));
 		}
 		delete [] decodedText;
 	}
