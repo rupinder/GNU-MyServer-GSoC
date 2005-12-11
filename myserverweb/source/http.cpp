@@ -2429,10 +2429,24 @@ int Http::sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a)
   MemBuf tmp;
 	char tmpStr[12];
 	string time;
-	const char hardHTML[] = "<!-- Hard Coded 500 Response --><body bgcolor=\"#000000\">"
-          "<p align=\"center\">"
-     "<font size=\"5\" color=\"#00C800\">Error 500</font></p><p align=\"center\">"    
-     "<font size=\"5\" color=\"#00C800\">Internal Server error</font></p>\r\n";
+
+	const char hardHTML[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n\
+\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n\
+<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n\
+<head>\n\
+<title>500 Internal Server Error</title>\n\
+<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\n\
+</head>\n\
+<body style=\"color: #666699;\">\n\
+<br />\n\
+<h1 style=\"text-align: center;\">\n\
+Error 500\n\
+<br /><br />\n\
+Internal Server Error\n\
+</h1>\n\
+</body>\n\
+</html>\r\n";
 	td->response.httpStatus=500;
 	td->buffer->setLength(0);
 	*td->buffer <<  HTTP_ERROR_MSGS[e_500];
