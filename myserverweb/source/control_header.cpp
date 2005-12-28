@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocol.h"
 #include "../include/securestr.h"
 #include "../include/control_header.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "../include/control_errors.h"
 extern "C" 
 {

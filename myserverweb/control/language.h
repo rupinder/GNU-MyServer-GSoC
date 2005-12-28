@@ -18,7 +18,7 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 
 //void LanguageXMLinit();  // handeled internaly
 void LanguageXMLend();

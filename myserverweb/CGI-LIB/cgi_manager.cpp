@@ -16,9 +16,9 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../stdafx.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "cgi_manager.h"
-#include "../include/Response_RequestStructs.h"
+#include "../include/response_request.h"
 #include "../include/http.h"
 #include "../include/mscgi.h"
 

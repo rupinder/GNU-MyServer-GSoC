@@ -18,8 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "../include/protocols_manager.h"
-#include "../include/cXMLParser.h"
-#include "../include/cserver.h"
+#include "../include/xml_parser.h"
+#include "../include/server.h"
 #include "../include/lfind.h"
 
 #include <string>

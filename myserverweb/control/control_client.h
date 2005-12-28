@@ -23,7 +23,7 @@
 #include "../include/filemanager.h"
 #include "../include/control_errors.h"
 #include "../include/stringutils.h"
-#include "../include/MemBuf.h"
+#include "../include/mem_buff.h"
 
 typedef void (*ControlClientCallback)(void *, unsigned int, unsigned int);
 

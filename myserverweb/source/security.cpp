@@ -19,8 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/security.h"
 #include "../include/utility.h"
-#include "../include/HTTPmsg.h"
-#include "../include/cXMLParser.h"
+#include "../include/http_constants.h"
+#include "../include/xml_parser.h"
 #include "../include/connectionstruct.h"
 #include "../include/securestr.h"
 #include "../include/myserver_regex.h"

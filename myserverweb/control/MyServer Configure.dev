@@ -150,7 +150,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit13]
-FileName=..\include\cXMLParser.h
+FileName=..\include\xml_parser.h
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -190,7 +190,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit17]
-FileName=..\source\cXMLParser.cpp
+FileName=..\source\xml_parser.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -278,7 +278,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit24]
-FileName=..\source\MemBuf.cpp
+FileName=..\source\mem_buff.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -288,7 +288,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit25]
-FileName=..\include\MemBuf.h
+FileName=..\include\mem_buff.h
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1

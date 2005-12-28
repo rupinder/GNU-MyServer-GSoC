@@ -90,7 +90,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit20]
-FileName=include\AMMimeUtils.h
+FileName=include\mime_utils.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -110,7 +110,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit22]
-FileName=include\clientsThread.h
+FileName=include\clients_thread.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -130,7 +130,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit24]
-FileName=include\cserver.h
+FileName=include\server.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -140,7 +140,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit25]
-FileName=include\cXMLParser.h
+FileName=include\xml_parser.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -178,7 +178,7 @@ ProductVersion=
 AutoIncBuildNr=0
 
 [Unit28]
-FileName=include\HTTPmsg.h
+FileName=include\http_constants.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -198,7 +198,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit30]
-FileName=include\MIME_manager.h
+FileName=include\mime_manager.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -268,7 +268,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit5]
-FileName=source\clientsThread.cpp
+FileName=source\clients_thread.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -278,7 +278,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=source\cserver.cpp
+FileName=source\server.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -288,7 +288,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit7]
-FileName=source\cXMLParser.cpp
+FileName=source\xml_parser.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -338,7 +338,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit12]
-FileName=source\MIME_manager.cpp
+FileName=source\mime_manager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -368,7 +368,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit32]
-FileName=include\Response_RequestStructs.h
+FileName=include\response_request.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -428,7 +428,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit38]
-FileName=source\winCGI.cpp
+FileName=source\wincgi.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -438,7 +438,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=source\AMMimeUtils.cpp
+FileName=source\mime_utils.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -461,7 +461,7 @@ BuildCmd=
 ProjectView=1
 
 [Unit39]
-FileName=include\winCGI.h
+FileName=include\wincgi.h
 Folder=myserver
 Compile=1
 CompileCpp=1
@@ -471,7 +471,7 @@ Link=1
 Priority=1000
 
 [Unit40]
-FileName=source\fastCGI.cpp
+FileName=source\fastcgi.cpp
 Folder=myserver
 Compile=1
 CompileCpp=1
@@ -481,7 +481,7 @@ Link=1
 Priority=1000
 
 [Unit41]
-FileName=include\fastCGI.h
+FileName=include\fastcgi.h
 Folder=myserver
 Compile=1
 CompileCpp=1
@@ -671,7 +671,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit59]
-FileName=source\MemBuf.cpp
+FileName=source\mem_buff.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -701,7 +701,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit62]
-FileName=include\MemBuf.h
+FileName=include\mem_buff.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -951,7 +951,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit87]
-FileName=source\Response_RequestStructs.cpp
+FileName=source\response_request.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

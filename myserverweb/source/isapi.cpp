@@ -19,9 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  
 #include "../include/isapi.h"
 #include "../include/http.h"
-#include "../include/cserver.h"
+#include "../include/server.h"
 #include "../include/filemanager.h"
-#include "../include/HTTPmsg.h"
+#include "../include/http_constants.h"
 #include "../include/cgi.h"
 #include "../include/dynamiclib.h"
 

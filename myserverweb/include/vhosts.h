@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define VHOST_IN
 
 #include "../stdafx.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "../include/filemanager.h"
 #include "../include/utility.h"
 #include "../include/connectionstruct.h"/*! Used for protocols IDs. */
 #include "../include/myserver_regex.h"
 #include "../include/log_manager.h"
-#include "../include/MIME_manager.h"
+#include "../include/mime_manager.h"
 #include "../include/threads.h"
 #include "../include/hash_map.h"
 

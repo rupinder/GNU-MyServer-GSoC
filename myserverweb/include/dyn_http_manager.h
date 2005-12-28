@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define DYN_HTTP_MANAGER_H
 
 #include "../stdafx.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "../include/protocol.h"
 #include "../include/connectionstruct.h"
 #include "../include/dynamiclib.h"

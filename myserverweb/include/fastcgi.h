@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/utility.h"
 #include "../include/sockets.h"
 #include "../include/vhosts.h"
-#include "../include/HTTPmsg.h"
+#include "../include/http_constants.h"
 #include "../include/connectionstruct.h"
 #include "../include/stringutils.h"
 #include "../include/threads.h"

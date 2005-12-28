@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../stdafx.h"
 #include "../include/connectionstruct.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "../include/http_headers.h"
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>

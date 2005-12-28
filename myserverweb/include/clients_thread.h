@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/connectionstruct.h"
 #include "../include/security.h"
 #include "../include/http.h"
-#include "../include/MemBuf.h"
+#include "../include/mem_buff.h"
 #include "../include/https.h"
 #include "../include/control_protocol.h"
 class  ClientsThread

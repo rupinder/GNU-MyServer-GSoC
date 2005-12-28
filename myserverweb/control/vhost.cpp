@@ -23,7 +23,7 @@ extern "C"
 
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "vhost.h"
 
 using namespace std;
@@ -66,7 +66,7 @@ int VHostXML::loadMemBuf(MemBuf & buffer)
 }
 
 // from vhosts.cpp with modification
-// TODO: Change to use libxml2 or cXMLParser more "proper"
+// TODO: Change to use libxml2 or xml_parser more "proper"
 int VHostXML::load_core(XmlParser & parser)
 {
    int NameNo = 0;

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/protocol.h"
 #include "../include/http_headers.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 
 /*!
  *Base class to handle HTTP data.

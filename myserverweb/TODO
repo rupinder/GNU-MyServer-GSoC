@@ -23,7 +23,7 @@ TODO list for MyServer.
 *	Provide support for GnuTLS
 *	Provide support for Mozilla libnss
 
-*	Rewrite the linked list in cserver.cpp in C++ using stl list class.
+*	Rewrite the linked list in server.cpp in C++ using stl list class.
 *	Search for other linked list an rewrite it in C++ using stl list class.
 
 *	Security mechanism: SECURE ONE FILE with "security".

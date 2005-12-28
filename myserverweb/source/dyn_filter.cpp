@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/filter.h"
 #include "../include/dyn_filter.h"
 #include "../include/lfind.h"
-#include "../include/cserver.h"
+#include "../include/server.h"
 #include <string>
 #include <sstream>
 

@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define CSERVER_IN
 
 #include "../stdafx.h"
-#include "../include/clientsThread.h"
+#include "../include/clients_thread.h"
 #include "../include/utility.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "../include/utility.h"
 #include "../include/connectionstruct.h"
 #include "../include/sockets.h"
-#include "../include/MIME_manager.h"
+#include "../include/mime_manager.h"
 #include "../include/vhosts.h"
 #include "../include/protocols_manager.h"
 #include "../include/connectionstruct.h"

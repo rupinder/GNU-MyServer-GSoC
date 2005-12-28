@@ -23,7 +23,7 @@ extern "C"
 
 #include "../include/filemanager.h"
 #include "../include/stringutils.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "mimetype.h"
 
 using namespace std;
@@ -80,7 +80,7 @@ int MIMEtypeXML::loadMemBuf(MemBuf & buffer)
 
 ///
 /// Load the values from xml data.
-/// Copied and modified from MIME_manager.cpp
+/// Copied and modified from mime_manager.cpp
 /// Only returns 0.
 //  TODO: Change to use libxml2 or XmlParser more "proper"
 // 
@@ -193,7 +193,7 @@ int MIMEtypeXML::saveMemBuf(MemBuf & buffer)
 ///
 /// Save the MIME types configuration to xml data.
 /// Returns negative on error.
-//  Copied and modified from MIME_manager.cpp
+//  Copied and modified from mime_manager.cpp
 //  Old text way remove to make use of MemBuf
 // 
 int MIMEtypeXML::save_core(XmlParser & xmlFile)
@@ -201,7 +201,7 @@ int MIMEtypeXML::save_core(XmlParser & xmlFile)
    if(Ext.isempty())
      return -1;
 
-   // New cXMLParser way...
+   // New xml_parser way...
    int i;
    
    xmlFile.newfile("MIMETYPES");

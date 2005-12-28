@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/http_headers.h"
 #include "../include/myserver_regex.h"
-#include "../include/Response_RequestStructs.h"
+#include "../include/response_request.h"
 
 #include <string>
 #include <sstream>

@@ -23,7 +23,7 @@
 #include <FL/Fl_Choice.H>
 
 #include "vector.h"
-#include "../include/MemBuf.h"
+#include "../include/mem_buff.h"
 
 enum 
 {

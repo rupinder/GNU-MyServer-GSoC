@@ -20,14 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cgi.h"
 #include "../include/http_headers.h"
 #include "../include/http.h"
-#include "../include/HTTPmsg.h"
-#include "../include/cserver.h"
+#include "../include/http_constants.h"
+#include "../include/server.h"
 #include "../include/security.h"
-#include "../include/AMMimeUtils.h"
+#include "../include/mime_utils.h"
 #include "../include/filemanager.h"
 #include "../include/sockets.h"
 #include "../include/utility.h"
-#include "../include/MemBuf.h"
+#include "../include/mem_buff.h"
 #include "../include/filters_chain.h"
 
 #include <string>

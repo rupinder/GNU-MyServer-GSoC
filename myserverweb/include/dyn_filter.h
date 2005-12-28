@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/stream.h"
 #include "../include/dynamiclib.h"
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "../include/filters_factory.h"
 #include "../include/hash_map.h"
 #include "../include/threads.h"

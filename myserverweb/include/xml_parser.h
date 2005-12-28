@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../stdafx.h"
 #include "../include/filemanager.h"
-#include "../include/MemBuf.h"
+#include "../include/mem_buff.h"
 extern "C" 
 {
 #include <libxml/xmlmemory.h>

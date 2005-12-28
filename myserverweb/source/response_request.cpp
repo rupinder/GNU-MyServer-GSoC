@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "../stdafx.h"
-#include "../include/Response_RequestStructs.h"
+#include "../include/response_request.h"
 #include "../include/stringutils.h"
 
 #include <sstream>

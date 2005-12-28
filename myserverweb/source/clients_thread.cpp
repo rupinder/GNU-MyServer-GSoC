@@ -17,13 +17,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "../stdafx.h"
-#include "../include/clientsThread.h"
-#include "../include/cserver.h"
+#include "../include/clients_thread.h"
+#include "../include/server.h"
 #include "../include/security.h"
-#include "../include/Response_RequestStructs.h"
+#include "../include/response_request.h"
 #include "../include/sockets.h"
 #include "../include/stringutils.h"
-#include "../include/MemBuf.h"
+#include "../include/mem_buff.h"
 
 #ifdef NOT_WIN
 extern "C" {

@@ -21,12 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *at: http://www.fastcgi.com.
  *On that site you can find samples and all the supported languages.
  */
-#include "../include/fastCGI.h"
+#include "../include/fastcgi.h"
 #include "../include/cgi.h"
 #include "../include/http.h"
-#include "../include/HTTPmsg.h"
+#include "../include/http_constants.h"
 #include "../include/stringutils.h"
-#include "../include/cserver.h"
+#include "../include/server.h"
 #include "../include/filters_chain.h"
 #include <string>
 #include <sstream>

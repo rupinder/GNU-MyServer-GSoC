@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "../stdafx.h"
-#include "../include/cserver.h"
+#include "../include/server.h"
 #include "../include/http.h"
 #include "../include/http_headers.h"
 #include "../include/http_dir.h"

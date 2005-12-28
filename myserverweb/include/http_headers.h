@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define HTTP_HEADERS_H
 
 #include "../stdafx.h"
-#include "../include/MIME_manager.h"
-#include "../include/Response_RequestStructs.h"
+#include "../include/mime_manager.h"
+#include "../include/response_request.h"
 #include "../include/stringutils.h"
 #include "../include/filemanager.h"
-#include "../include/MemBuf.h"
+#include "../include/mem_buff.h"
 #include "../include/connectionstruct.h"
 
 extern "C" {

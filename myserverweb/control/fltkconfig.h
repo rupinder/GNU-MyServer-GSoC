@@ -39,7 +39,7 @@
 #include <FL/Fl_Counter.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/fl_ask.H>
-#include "../include/cXMLParser.h"
+#include "../include/xml_parser.h"
 #include "../include/stringutils.h"
 #include "../include/md5.h"
 #include "../include/utility.h"
