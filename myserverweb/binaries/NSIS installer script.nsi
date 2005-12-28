@@ -1,7 +1,7 @@
 ;NSIS Installation script for MyServer
 !include "MUI.nsh"
 
-SetCompressor lzma
+SetCompressor /SOLID lzma
 
 Name "MyServer"
 OutFile "setup.exe"
