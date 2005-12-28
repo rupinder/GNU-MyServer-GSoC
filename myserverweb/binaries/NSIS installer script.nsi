@@ -4,7 +4,7 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "setup.exe"
+OutFile "MyServer-win32-0.8.2-rc1.exe"
 
 Var STARTMENU_FOLDER
 
@@ -45,7 +45,7 @@ Section "MyServer core" SecCore
   File "libpng13.dll"
   File "zlib1.dll"
   File "libssl32.dll"
-  File "libintl-2.dll"
+  File "libintl3.dll"
   File "rx.dll"
   File "libeay32.dll"
   File "MIMEtypes.xml.default"
