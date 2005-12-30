@@ -9,6 +9,11 @@ cp myserver $1
 cp myserver-configure $1
 cp *.default $1
 cp readme.txt $1
+cp ../COPYING $1
+cp ../INSTALL $1
+cp ../NEWS $1
+cp ../README $1
+cp ../TODO $1
 
 mkdir $1/web
 cp web/*.html $1/web
