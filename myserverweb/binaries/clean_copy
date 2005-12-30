@@ -59,6 +59,7 @@ cp cgi-lib/cgi_manager.h $1/cgi-lib
 cp cgi-lib/license.txt $1/cgi-lib
 
 mkdir $1/web/documentation
+cp ../Documentation/En/index.htm $1/web/documentation/
 
 mkdir $1/web/documentation/texts
 cp ../Documentation/En/texts/*.htm $1/web/documentation/texts/
