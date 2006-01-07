@@ -195,6 +195,7 @@ Section "MyServer core" SecCore
   File "myserver.xml.default"
   File "virtualhosts.xml.default"
   File "readme.txt"
+  File "license.txt"
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
   File "web\*.html"
