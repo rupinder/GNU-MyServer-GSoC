@@ -107,7 +107,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       {
         u_long gzipThreshold=atoi(val);
         if(bytes_to_send >= gzipThreshold)
-          useGzip=false;
+          useGzip=true;
       }
 
     }
@@ -277,7 +277,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         if(usechunks)
         {
           buffer << hex << nbr << "\r\n";     
-          ret=chain.getStream()->write(buffer.str().c_str(), buffer.str().length(), &nbw); 
+          ret=chain.getStream()->write(buffer.str().c_str(), 
+																			 buffer.str().length(), &nbw); 
           if(!ret)
           {
             ret=chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
@@ -347,15 +348,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           {
             buffer << hex << nbw << "\r\n";
             ret=chain.getStream()->write(buffer.str().c_str(), 
-                                          buffer.str().length(), &nbw2);
+																				 buffer.str().length(), &nbw2);
           
             if(ret)
               break;
             /*! 
              *Write directly to the stream what we have bufferized in 
              *the memory stream.
-             *We need to use the memory stream before send data to the final stream
-             *as we cannot know the final length for the data chunk.
+             *We need to use the memory stream before send data to the 
+						 *final stream as we cannot know the final length for the 
+						 *data chunk.
              */
             ret=chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
             if(ret)
@@ -391,11 +393,11 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           ostringstream buffer;
 
           /*! 
-          *We need to save data in the memory stream as we need the final length
-          *before we can flush to the real stream.
+          *We need to save data in the memory stream as we need to know
+					*the final length before we can flush to the real stream.
           */
           {
-            Stream *tmp=chain.getStream();
+            Stream *tmp = chain.getStream();
             if(!tmp)
             {
               ((Vhost*)(s->host))->warningslogRequestAccess(td->id);

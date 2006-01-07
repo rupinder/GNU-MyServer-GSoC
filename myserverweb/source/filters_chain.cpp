@@ -338,7 +338,7 @@ void FiltersChain::getName(string& out)
         out.append(name);
     }
     i++;
-    if(i != filters.end())
+    if(i != filters.end() && (*i)->modifyData())
       out.append(",");
     else
       break;

@@ -339,7 +339,7 @@ int Socket::getLocalIPsList(string &out)
 /*!
  *Send data over the socket.
  *Return -1 on error.
- *This routine is acccessible only from the Socket class.
+ *This routine is accessible only from the Socket class.
  */
 int Socket::rawSend(const char* buffer,int len,int flags)
 {

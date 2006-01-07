@@ -163,34 +163,34 @@ int main (int argn, char **argv)
   int runas=MYSERVER_RUNAS_CONSOLE;
   int path_len;
 #ifdef ARGP
-        struct argp_input input;
+	struct argp_input input;
 #endif
 #ifdef NOT_WIN
-    pid_t pid;
-    pid_t sid;
+	pid_t pid;
+	pid_t sid;
 #endif
-
-        ::argn=argn;
-        ::argv=argv;
+	
+	::argn=argn;
+	::argv=argv;
 #ifdef NOT_WIN
-        struct sigaction sig1, sig2, sig3;
-  sig1.sa_flags = sig2.sa_flags = sig3.sa_flags = SA_RESETHAND;
-  memset(&sig1, 0, sizeof(sig1));
-  memset(&sig2, 0, sizeof(sig2));
-  memset(&sig3, 0, sizeof(sig3));
-        sig1.sa_handler = SIG_IGN;
-        sig2.sa_handler = Sig_Quit;
-  sig3.sa_handler = Sig_Hup;
-        sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
-        sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
-        sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
-        sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
+	struct sigaction sig1, sig2, sig3;
+	sig1.sa_flags = sig2.sa_flags = sig3.sa_flags = SA_RESETHAND;
+	memset(&sig1, 0, sizeof(sig1));
+	memset(&sig2, 0, sizeof(sig2));
+	memset(&sig3, 0, sizeof(sig3));
+	sig1.sa_handler = SIG_IGN;
+	sig2.sa_handler = Sig_Quit;
+	sig3.sa_handler = Sig_Hup;
+	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
+	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
+	sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
+	sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
 #endif
-
-  try
-  {
-    server = new Server();
-  }
+	
+	try
+	{
+		server = new Server();
+	}
   catch(...)
   {
     /*! Die if we get exceptions here. */
