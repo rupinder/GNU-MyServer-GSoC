@@ -29,7 +29,7 @@ AC_SUBST(LDFLAGS)
 #AM_OPTIONS_WXCONFIG
 
 dnl Looking for argp.h
-AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are avaible]))
+AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are available]))
 
 dnl Looking for error.h
 AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1, [Define if the error.h file is present]))
