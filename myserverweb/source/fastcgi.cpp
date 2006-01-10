@@ -133,7 +133,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         ((Vhost*)td->connection->host)->warningsLogWrite("FastCGI: Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(td, connection, e_500);
+        return ((Http*)td->lhttp)->raiseHTTPError(connection, e_500);
       }
   }
 
@@ -219,7 +219,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 #endif
 	}
 
-  Cgi::buildCGIEnvironmentString(td,td->buffer->getBuffer());
+  Cgi::buildCGIEnvironmentString(td, td->buffer->getBuffer());
   sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer->getBuffer(),
                                               td->buffer2->getBuffer());
   if(sizeEnvString == -1)
@@ -233,7 +233,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath,
@@ -249,7 +249,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
   }
 
   server = fcgiConnect(&con,cmdLine.str().c_str());
@@ -265,7 +265,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
   }
 
 	id=td->id+1;
@@ -286,7 +286,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
-		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,td->buffer2->getBuffer(),sizeEnvString,
@@ -302,7 +302,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
-		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_501);
 	}
 
 	if(sendFcgiBody(&con,0,0,FCGIPARAMS,id))
@@ -317,7 +317,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
-		return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
 	}
 	
 	if(atoi(td->request.contentLength.c_str()))
@@ -349,7 +349,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                                                     td->buffer->getBuffer());
           ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         }
-        return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
+        return ((Http*)td->lhttp)->sendHTTPhardError500(connection);
       }
 
       if(!nbr)
@@ -359,7 +359,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       if(con.sock.send((char*)&header, sizeof(header), 0) == -1)
       {
         chain.clearAllFilters();
-        return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_501);
+        return ((Http*)td->lhttp)->raiseHTTPError(connection,e_501);
       }
 
       if(con.sock.send(td->buffer->getBuffer(),nbr,0) == -1)
@@ -374,7 +374,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
           ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         }
         chain.clearAllFilters();
-        return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+        return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
       }
     }while(nbr==maxStdinChunk);
 	}
@@ -393,7 +393,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     }
 		con.sock.closesocket();
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
 	}	
 
 	/*! Now read the output. This flag is used by the external loop. */
@@ -417,7 +417,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                             warningsLogWrite(td->buffer->getBuffer());
 
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-    return ((Http*)td->lhttp)->raiseHTTPError(td,connection,e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
   }
 
 	do	
@@ -477,7 +477,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			{
 				case FCGISTDERR:
 					con.sock.closesocket();
-					((Http*)td->lhttp)->raiseHTTPError(td, connection, e_501);
+					((Http*)td->lhttp)->raiseHTTPError(connection, e_501);
 					exit = 1;
           ret = 0;
 					break;
@@ -551,7 +551,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     File::deleteFile(outDataPath.str().c_str());
     con.sock.closesocket();
     chain.clearAllFilters();
-    return ((Http*)td->lhttp)->sendHTTPhardError500(td, connection);
+    return ((Http*)td->lhttp)->sendHTTPhardError500(connection);
   }
 	
   /*!
@@ -580,7 +580,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       File::deleteFile(outDataPath.str().c_str());
       con.sock.closesocket();
       chain.clearAllFilters();
-			return ((Http*)td->lhttp)->sendHTTPRedirect(td, connection, 
+			return ((Http*)td->lhttp)->sendHTTPRedirect(connection, 
                                               (char*)td->response.location.c_str());
 		}
 		/*! Send the header. */

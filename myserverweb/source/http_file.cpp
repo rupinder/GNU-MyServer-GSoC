@@ -76,7 +76,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
                       FILE_OPEN_READ);
     if(ret)
     {	
-      return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
     }
     /*! 
      *Check how many bytes are ready to be send.  
@@ -140,7 +140,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(ret)
     {
       h.closeFile();
-      return((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      return((Http*)td->lhttp)->raiseHTTPError(s, e_500);
     }
 
     td->buffer->setLength(0);
@@ -464,7 +464,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     ((Vhost*)(s->host))->warningsLogWrite("HttpFile: Error allocating memory");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-    return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
   }
   catch(...)
   {
@@ -473,7 +473,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     ((Vhost*)(s->host))->warningsLogWrite("HttpFile: Internal error");
     ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-    return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
   };
  
   /*! Update the Content-Length field for logging activity. */

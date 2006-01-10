@@ -97,36 +97,36 @@ protected:
 public:
 	int protocolOptions;
 	const char *getDefaultFilenamePath(u_long ID);
-	int sendHTTPResource(HttpThreadContext*,ConnectionPtr s, string& filename,
+	int sendHTTPResource(ConnectionPtr s, string& filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int putHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string &filename,
+	int putHTTPRESOURCE(ConnectionPtr s, string &filename,
                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int allowHTTPTRACE(HttpThreadContext*,ConnectionPtr s);
-	int optionsHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string &filename,
+	int allowHTTPTRACE(ConnectionPtr s);
+	int optionsHTTPRESOURCE(ConnectionPtr s, string &filename,
                           int yetmapped=0);
-	int traceHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string& filename,
+	int traceHTTPRESOURCE(ConnectionPtr s, string& filename,
                         int yetmapped=0);
-	int deleteHTTPRESOURCE(HttpThreadContext*,ConnectionPtr s, string& filename,
+	int deleteHTTPRESOURCE(ConnectionPtr s, string& filename,
                          int yetmapped=0);
-	int raiseHTTPError(HttpThreadContext*, ConnectionPtr a, int ID);
-	int sendHTTPhardError500(HttpThreadContext* td, ConnectionPtr a);
-	int sendAuth(HttpThreadContext* td, ConnectionPtr a);
-	int getPath(HttpThreadContext* td, ConnectionPtr s, string& filenamePath,
+	int raiseHTTPError(ConnectionPtr a, int ID);
+	int sendHTTPhardError500(ConnectionPtr a);
+	int sendAuth(ConnectionPtr a);
+	int getPath(ConnectionPtr s, string& filenamePath,
                const string& filename,int systemrequest)
-    {return getPath(td, s, filenamePath, filename.c_str(), systemrequest);}
+    {return getPath(s, filenamePath, filename.c_str(), systemrequest);}
 
-	int getPath(HttpThreadContext* td, ConnectionPtr s, string& filenamePath,
+	int getPath(ConnectionPtr s, string& filenamePath,
                const char *filename,int systemrequest);
 
-  MimeManager::MimeRecord* getMIME(HttpThreadContext* td,string& filename);
+  MimeManager::MimeRecord* getMIME(string& filename);
 
-	int logHTTPaccess(HttpThreadContext* td,ConnectionPtr a);
-	int sendHTTPRedirect(HttpThreadContext* td,ConnectionPtr a, const char *newURL);
-	int sendHTTPNonModified(HttpThreadContext* td,ConnectionPtr a);
+	int logHTTPaccess(ConnectionPtr a);
+	int sendHTTPRedirect(ConnectionPtr a, const char *newURL);
+	int sendHTTPNonModified(ConnectionPtr a);
 	Http();
 	virtual ~Http();
-	void computeDigest(HttpThreadContext* td, char*, char*);
-	u_long checkDigest(HttpThreadContext* td, ConnectionPtr s);
+	void computeDigest(char*, char*);
+	u_long checkDigest(ConnectionPtr s);
   const char* getBrowseDirCSSFile();
 	u_long getGzipThreshold();
 	virtual char* registerName(char*,int len);

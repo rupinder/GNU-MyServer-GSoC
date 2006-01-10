@@ -146,7 +146,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         stdOutFile.closeFile();
         chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+        return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
       }
   }
 	
@@ -221,7 +221,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       td->scriptFile.assign("");
       td->scriptDir.assign("");
       chain.clearAllFilters(); 
-			return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+			return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
 		}
 
     spi.arg.assign(moreArg);
@@ -261,7 +261,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                         ("Cgi: Cannot create CGI stdout file" );
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
 	}
 
   /*! Open the stdin file for the new CGI process. */
@@ -273,7 +273,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
   }
   
 	/*!
@@ -309,7 +309,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                        ("Cgi: Error in the CGI execution");
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
       chain.clearAllFilters(); 
-      return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+      return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
     }
   }
   /*! Reset the buffer2 length counter. */
@@ -328,7 +328,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                ("Cgi: Error setting file pointer");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
   }
   
   if(stdOutFile.readFromFile(td->buffer2->getBuffer(), 
@@ -341,7 +341,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                ("Cgi: Error reading from CGI std out file");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
   }
 		
 	(td->buffer2->getBuffer())[nBytesRead]='\0';
@@ -351,7 +351,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite("Cgi: Error CGI zero bytes read" );
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		((Http*)td->lhttp)->raiseHTTPError(td, s, e_500);
+		((Http*)td->lhttp)->raiseHTTPError(s, e_500);
 		yetoutputted=1;
 	}
 	/*! Standard CGI can include an extra HTTP header.  */
@@ -393,7 +393,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
             len++;
         }
         nURL.assign(&(td->buffer2->getBuffer()[i + 9]), len);
-				((Http*)td->lhttp)->sendHTTPRedirect(td, s, nURL.c_str());
+				((Http*)td->lhttp)->sendHTTPRedirect(s, nURL.c_str());
         /*! Store the new flag. */
         yetoutputted=1;
 
