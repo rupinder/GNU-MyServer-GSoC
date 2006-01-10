@@ -73,7 +73,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
       mapInfo->lpszPath = 0;
       tmp.assign(mapInfo->lpszPath);
-			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td,ConnInfo->connection,
+			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->connection,
                                                 tmp,(char*)lpvBuffer,0);
       if(ret!=e_200)
         return 1;
@@ -98,8 +98,8 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			else
         lstrcpyn(uri,ConnInfo->td->request.uri.c_str(),
                  (int)ConnInfo->td->request.uri.length()-ConnInfo->td->pathInfo.length() +1);
-			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->td, ConnInfo->connection,
-                                            tmp ,uri,0);
+			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->connection,
+																								tmp ,uri,0);
       if(ret!=e_200)
       {
         if(buffer)
