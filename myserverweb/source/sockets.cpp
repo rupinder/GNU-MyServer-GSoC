@@ -828,40 +828,24 @@ Socket* Socket::getServerSocket()
  */
 int Socket::dataOnRead(int sec, int usec)
 {
-#ifndef DO_NOT_USE_SSL
-	if(sslSocket)
-	{
-		char b;
-		int ret = SSL_peek(sslConnection,&b,1);
-    if(ret < 0)
-      return 0;
-    if((ret == 0) &&(sslConnection->shutdown))
-      return 0;
-		return  SSL_pending(sslConnection);
-	}
-  else
-#endif
-  {
-    struct timeval tv;
-    fd_set readfds;
-    int ret;
-    tv.tv_sec = sec;
-    tv.tv_usec = usec;
+	struct timeval tv;
+	fd_set readfds;
+	int ret;
+	tv.tv_sec = sec;
+	tv.tv_usec = usec;
     
-    FD_ZERO(&readfds);
+	FD_ZERO(&readfds);
 #ifdef WIN32
-    FD_SET((SOCKET)socketHandle, &readfds);
+	FD_SET((SOCKET)socketHandle, &readfds);
 #else
-    FD_SET(socketHandle, &readfds);
+	FD_SET(socketHandle, &readfds);
 #endif
-    ret = ::select(socketHandle+1, &readfds, NULL, NULL, &tv);
-    if(ret == -1 || ret == 0)
-      return 0;
-    if (FD_ISSET(socketHandle, &readfds))
-      return 1;
-    return 0;
-  }
-  return 0;
+	ret = ::select(socketHandle+1, &readfds, NULL, NULL, &tv);
+	if(ret == -1 || ret == 0)
+		return 0;
+	if (FD_ISSET(socketHandle, &readfds))
+		return 1;
+	return 0;
 }
 
 /*!
