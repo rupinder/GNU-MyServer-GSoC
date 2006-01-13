@@ -1368,7 +1368,11 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
  */
 const char* Vhost::getHashedData(const char* name)
 {
-  string *s = hashedData.get(name);
+	
+  string *s;
+	if(name == 0)
+		return 0;
+	s = hashedData.get(name);
   if(s)
     return s->c_str();
 

@@ -132,12 +132,6 @@ TODO list for MyServer.
 *	Support for Frontpage extensions.
 *	Desing and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
 
-*	HashDictionary
-**	Render HashDictionary faster(extendible hashing?)
-**	Specialize HashDictionary for pointers.
-**	Better way to iter trough its elements.
-**	Do an additional check when the the element is found(do not use only the hash value comparison).
-
 *	Setuid and Setgid for CGI processes.
 *	IPv6 Implementation. 
 *	PHP Configuration Tool. 
