@@ -437,9 +437,11 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 
 	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
 	{
-		if(Isapi::buildAllHttpHeaders(lpvBuffer, lpdwSize))
+
+        if(Isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection, lpvBuffer, lpdwSize))
 			ret=1;
-		else
+		
+        else
 		{
       SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			ret=0;
