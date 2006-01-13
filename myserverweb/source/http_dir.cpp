@@ -225,7 +225,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		if(ret)
 		{
 			/*! Return an internal server error.  */
-			return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+			return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 		}
 	}
 
@@ -243,7 +243,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
         ((Vhost*)td->connection->host)->warningsLogWrite("HttpDir: Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+        return ((Http*)td->lhttp)->raiseHTTPError(e_500);
       }
   }
 
@@ -284,7 +284,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     /*! Return an internal server error. */
 		td->outputData.closeFile();
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
   browseDirCSSpath = ((Http*)td->lhttp)->getBrowseDirCSSFile();
 
@@ -313,7 +313,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 					td->outputData.closeFile();
           chain.clearAllFilters(); 
 					/* Return an internal server error.  */
-					return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+					return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 				}
 				ret = td->outputData.writeToFile(td->buffer->getBuffer(),
                                           (u_long)nbr, &nbw);
@@ -321,7 +321,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 				{
 					td->outputData.closeFile();
 					/* Return an internal server error.  */
-					return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+					return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 				}
 
 				td->buffer2->setLength(0);
@@ -333,7 +333,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 					td->outputData.closeFile();
           chain.clearAllFilters(); 
 					/* Return an internal server error.  */
-					return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+					return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 				}
 			}
 			cssHandle.closeFile();
@@ -355,13 +355,13 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	{
 		td->outputData.closeFile();
 		/*! Return an internal server error.  */
-		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 	ret=fd.findfirst(filename.c_str());
 	if(ret==-1)
 	{
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(s, e_404);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_404);
 	}
 	/*! 
    *With the current code we build the HTML TABLE to indicize the
@@ -376,7 +376,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		td->outputData.closeFile();
     chain.clearAllFilters(); 
 		/* Return an internal server error.  */
-		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 
 
@@ -406,7 +406,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     td->outputData.closeFile();
     chain.clearAllFilters(); 
     /* Return an internal server error.  */
-    return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   }
 
 	do
@@ -455,7 +455,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			td->outputData.closeFile();
       chain.clearAllFilters(); 
 			/* Return an internal server error.  */
-			return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+			return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 		}
 	}while(!fd.findnext());
 	td->buffer2->setLength(0);
@@ -478,7 +478,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 		fd.findclose();
 		td->outputData.closeFile();
 		/* Return an internal server error.  */
-		return ((Http*)td->lhttp)->raiseHTTPError(s, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}	
 	fd.findclose();
   *td->buffer2 << end_str;

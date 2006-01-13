@@ -97,36 +97,36 @@ protected:
 public:
 	int protocolOptions;
 	const char *getDefaultFilenamePath(u_long ID);
-	int sendHTTPResource(ConnectionPtr s, string& filename,
+	int sendHTTPResource(string& filename,
                        int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int putHTTPRESOURCE(ConnectionPtr s, string &filename,
+	int putHTTPRESOURCE(string &filename,
                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
-	int allowHTTPTRACE(ConnectionPtr s);
-	int optionsHTTPRESOURCE(ConnectionPtr s, string &filename,
+	int allowHTTPTRACE();
+	int optionsHTTPRESOURCE(string &filename,
                           int yetmapped=0);
-	int traceHTTPRESOURCE(ConnectionPtr s, string& filename,
+	int traceHTTPRESOURCE(string& filename,
                         int yetmapped=0);
-	int deleteHTTPRESOURCE(ConnectionPtr s, string& filename,
+	int deleteHTTPRESOURCE(string& filename,
                          int yetmapped=0);
-	int raiseHTTPError(ConnectionPtr a, int ID);
-	int sendHTTPhardError500(ConnectionPtr a);
-	int sendAuth(ConnectionPtr a);
-	int getPath(ConnectionPtr s, string& filenamePath,
+	int raiseHTTPError(int ID);
+	int sendHTTPhardError500();
+	int sendAuth();
+	int getPath(string& filenamePath,
                const string& filename,int systemrequest)
-    {return getPath(s, filenamePath, filename.c_str(), systemrequest);}
+    {return getPath(filenamePath, filename.c_str(), systemrequest);}
 
-	int getPath(ConnectionPtr s, string& filenamePath,
+	int getPath(string& filenamePath,
                const char *filename,int systemrequest);
 
   MimeManager::MimeRecord* getMIME(string& filename);
 
-	int logHTTPaccess(ConnectionPtr a);
-	int sendHTTPRedirect(ConnectionPtr a, const char *newURL);
-	int sendHTTPNonModified(ConnectionPtr a);
+	int logHTTPaccess();
+	int sendHTTPRedirect(const char *newURL);
+	int sendHTTPNonModified();
 	Http();
 	virtual ~Http();
 	void computeDigest(char*, char*);
-	u_long checkDigest(ConnectionPtr s);
+	u_long checkDigest();
   const char* getBrowseDirCSSFile();
 	u_long getGzipThreshold();
 	virtual char* registerName(char*,int len);

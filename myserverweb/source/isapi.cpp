@@ -73,8 +73,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
       mapInfo->lpszPath = 0;
       tmp.assign(mapInfo->lpszPath);
-			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->connection,
-                                                tmp,(char*)lpvBuffer,0);
+			ret=((Http*)ConnInfo->td->lhttp)->getPath(tmp,(char*)lpvBuffer,0);
       if(ret!=e_200)
         return 1;
 			
@@ -98,8 +97,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 			else
         lstrcpyn(uri,ConnInfo->td->request.uri.c_str(),
                  (int)ConnInfo->td->request.uri.length()-ConnInfo->td->pathInfo.length() +1);
-			ret=((Http*)ConnInfo->td->lhttp)->getPath(ConnInfo->connection,
-																								tmp ,uri,0);
+			ret=((Http*)ConnInfo->td->lhttp)->getPath(tmp ,uri,0);
       if(ret!=e_200)
       {
         if(buffer)
@@ -174,7 +172,7 @@ ConnTableRecord *Isapi::HConnRecord(HCONN hConn)
  */
 int Isapi::Redirect(HttpThreadContext* td, ConnectionPtr a, char *URL) 
 {
-	return ((Http*)td->lhttp)->sendHTTPRedirect(a, URL);
+	return ((Http*)td->lhttp)->sendHTTPRedirect(URL);
 }
 
 /*!
@@ -184,7 +182,7 @@ int Isapi::Senduri(HttpThreadContext* td, ConnectionPtr a, char *URL)
 {
   string tmp;
   tmp.assign(URL);
-	return ((Http*)td->lhttp)->sendHTTPResource(a, tmp, 0, 0);
+	return ((Http*)td->lhttp)->sendHTTPResource(tmp, 0, 0);
 }
 
 /*!
@@ -439,8 +437,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 
 	if (!strcmp(lpszVariableName, "ALL_HTTP")) 
 	{
-		if(Isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection, 
-                                  lpvBuffer, lpdwSize))
+		if(Isapi::buildAllHttpHeaders(lpvBuffer, lpdwSize))
 			ret=1;
 		else
 		{
@@ -678,7 +675,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
  *ISAPI works only on the windows architecture.
  */
 #ifdef NOT_WIN
-  return ((Http*)td->lhttp)->raiseHTTPError(connection, e_501);
+  return ((Http*)td->lhttp)->raiseHTTPError(e_501);
 #endif
 
 #ifdef WIN32
@@ -722,7 +719,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		((Vhost*)td->connection->host)->warningsLogWrite(
                                             "ISAPI: Error max connections");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((Http*)td->lhttp)->raiseHTTPError(connection, e_503);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_503);
 	}
 	if(execute)
   	loadLib=scriptpath;
@@ -739,7 +736,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
 		((Vhost*)td->connection->host)->warningsLogWrite(msg.c_str());
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
-		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 
   connTable[connIndex].chain.setProtocol((Http*)td->lhttp);
@@ -756,7 +753,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
         ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         connTable[connIndex].chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(connection, e_500);
+        return ((Http*)td->lhttp)->raiseHTTPError(e_500);
       }
   }
 
@@ -789,7 +786,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
     connTable[connIndex].chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(connection, e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
@@ -807,7 +804,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
     connTable[connIndex].chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR)) 
 	{
@@ -825,7 +822,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		}
     connTable[connIndex].chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(connection,e_500);
+		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 	/*!
    *Store the environment string in the buffer2.
@@ -882,7 +879,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     appHnd.close();
     connTable[connIndex].chain.clearAllFilters(); 
-    return ((Http*)td->lhttp)->raiseHTTPError(connection, e_500);
+    return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
@@ -935,7 +932,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	((Vhost*)td->connection->host)->warningsLogWrite(
                                    "ISAPI: Not implemented");
 	((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);	
-	return ((Http*)td->lhttp)->raiseHTTPError(connection,e_501);
+	return ((Http*)td->lhttp)->raiseHTTPError(e_501);
 #endif	
 }
 
