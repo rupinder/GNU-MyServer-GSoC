@@ -1531,7 +1531,7 @@ It's released under the Paul Hsieh derivative license
 template <typename KeyType, typename ValueType>
 unsigned int HashMap<KeyType, ValueType>::superFastHash (const char *data, int len)
 {
-	unsigned int hash=static_cast<unsigned int>len, tmp;
+	unsigned int hash=static_cast<unsigned int>(len), tmp;
 	int rem;
 
 	if((len<=0) || (data==NULL))
