@@ -235,7 +235,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
   chain.setStream(&(td->connection->socket));
   if(td->mime)
   {
-    if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
                                    ((MimeManager::MimeRecord*)td->mime)->filters, 
                                    &(td->connection->socket) , &nbw, 1))
       {

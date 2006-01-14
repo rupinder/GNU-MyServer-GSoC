@@ -122,34 +122,34 @@ void * startClientsThread(void* pParam)
   return (void*)1;
 #endif
 
-  if(lserver->getUid() && Process::setuid(lserver->getUid()))
+  if(Server::getInstance()->getUid() && Process::setuid(Server::getInstance()->getUid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_ERROR") 
-        << ": setuid " << lserver->getUid();
-    lserver->logPreparePrintError();
-    lserver->logWriteln(out.str().c_str());
-    lserver->logEndPrintError();
+    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR") 
+        << ": setuid " << Server::getInstance()->getUid();
+    Server::getInstance()->logPreparePrintError();
+    Server::getInstance()->logWriteln(out.str().c_str());
+    Server::getInstance()->logEndPrintError();
     Thread::terminate();
     return 0;
 
   }	
-  if(lserver->getGid() && Process::setgid(lserver->getGid()))
+  if(Server::getInstance()->getGid() && Process::setgid(Server::getInstance()->getGid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setgid "  << lserver->getGid();
-    lserver->logPreparePrintError();
-    lserver->logWriteln(out.str().c_str());
-    lserver->logEndPrintError();
+    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
+        << ": setgid "  << Server::getInstance()->getGid();
+    Server::getInstance()->logPreparePrintError();
+    Server::getInstance()->logWriteln(out.str().c_str());
+    Server::getInstance()->logEndPrintError();
     Thread::terminate();
     return 0;
   }	
 
 	ct->threadIsRunning=1;
 	ct->threadIsStopped=0;
-	ct->buffersize=lserver->getBuffersize();
-	ct->buffersize2=lserver->getBuffersize2();
+	ct->buffersize=Server::getInstance()->getBuffersize();
+	ct->buffersize2=Server::getInstance()->getBuffersize2();
 	
 	ct->buffer.setLength(ct->buffersize);
 	ct->buffer.m_nSizeLimit = ct->buffersize;
@@ -170,7 +170,7 @@ void * startClientsThread(void* pParam)
          1024>ct->buffer2.getRealLength()?1024:ct->buffer2.getRealLength());
 
 	/*! Wait that the server is ready before go in the running loop. */
-  while(!lserver->isServerReady())
+  while(!Server::getInstance()->isServerReady())
   {
     Thread::wait(500);
   }
@@ -219,18 +219,18 @@ void * startClientsThread(void* pParam)
       ostringstream s;
       s << "Bad alloc: " << ba.what();
       
-      lserver->logPreparePrintError();
-      lserver->logWriteln(s.str().c_str());
-      lserver->logEndPrintError();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(s.str().c_str());
+      Server::getInstance()->logEndPrintError();
     }
     catch( exception &e)
     {
       ostringstream s;
       s << "Error: " << e.what();
 
-      lserver->logPreparePrintError();
-      lserver->logWriteln(s.str().c_str());
-      lserver->logEndPrintError();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(s.str().c_str());
+      Server::getInstance()->logEndPrintError();
     };
     
     ct->parsing = 0;
@@ -292,8 +292,8 @@ int ClientsThread::controlConnections()
 	/*!
    *Get the access to the connections list.
    */
-	lserver->connections_mutex_lock();
-	c=lserver->getConnection(this->id);
+	Server::getInstance()->connections_mutex_lock();
+	c=Server::getInstance()->getConnection(this->id);
 	/*!
    *Check if c exists.
    *Check if c is a valid connection structure.
@@ -301,12 +301,12 @@ int ClientsThread::controlConnections()
    */
   if(!c)
   {
-		lserver->connections_mutex_unlock();
+		Server::getInstance()->connections_mutex_unlock();
     return 1;
   }
 	if((!c)  || c->isParsing())
 	{
-		lserver->connections_mutex_unlock();
+		Server::getInstance()->connections_mutex_unlock();
 		return 0;
 	}
 	/*!
@@ -317,7 +317,7 @@ int ClientsThread::controlConnections()
 	/*!
    *Unlock connections list access after setting parsing flag.
    */
-	lserver->connections_mutex_unlock();
+	Server::getInstance()->connections_mutex_unlock();
 
   /*! Number of bytes waiting to be read. */
   if(c->socket.dataOnRead())
@@ -337,7 +337,7 @@ int ClientsThread::controlConnections()
 
 		if(err==-1)
 		{
-			lserver->deleteConnection(c, this->id);
+			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
  		if((c->getDataRead() + err) <= MYSERVER_KB(8))
@@ -346,7 +346,7 @@ int ClientsThread::controlConnections()
 		}
 		else
 		{
-			lserver->deleteConnection(c, this->id);
+			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
 
@@ -399,7 +399,7 @@ int ClientsThread::controlConnections()
                                                              nBytesToRead, id);
           break;
 		  	default:
-          dp=lserver->getDynProtocol(((Vhost*)(c->host))->getProtocolName());
+          dp=Server::getInstance()->getDynProtocol(((Vhost*)(c->host))->getProtocolName());
 			  	if(dp==0)
 			  	{
 			  		retcode=0;
@@ -427,7 +427,7 @@ int ClientsThread::controlConnections()
      */
  		if(retcode==0)/*! Delete the connection. */
 		{
-			lserver->deleteConnection(c, this->id);
+			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
 		else if(retcode==1)/*! Keep the connection. */
@@ -463,9 +463,9 @@ int ClientsThread::controlConnections()
      *If the connection is inactive for a time greater that the value
      *configured remove the connection from the connections pool
      */
-		if((get_ticks()- c->getTimeout()) > lserver->getTimeout() )
+		if((get_ticks()- c->getTimeout()) > Server::getInstance()->getTimeout() )
 		{
-			lserver->deleteConnection(c, this->id);
+			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
 	}

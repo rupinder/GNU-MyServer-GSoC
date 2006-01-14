@@ -161,7 +161,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(td->mime)
     {
       u_long nbw;
-      if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+      if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
                                              ((MimeManager::MimeRecord*)td->mime)->filters, 
                                                          &memStream, &nbw))
       {
@@ -174,7 +174,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     
     if(useGzip && !chain.isFilterPresent("gzip"))
     {
-      Filter* gzipFilter = lserver->getFiltersFactory()->getFilter("gzip");
+      Filter* gzipFilter = Server::getInstance()->getFiltersFactory()->getFilter("gzip");
       u_long nbw;
       if(!gzipFilter)
       {

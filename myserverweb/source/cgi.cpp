@@ -137,7 +137,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   chain.setStream(&(td->connection->socket));
   if(td->mime)
   {
-    if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
                                                  ((MimeManager::MimeRecord*)td->mime)->filters, 
                                                        &(td->connection->socket) , &nbw, 1))
       {
@@ -574,7 +574,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << end_str << "REDIRECT_STATUS=TRUE";
 	
 	memCgi << end_str << "SERVER_NAME=";
- 	memCgi << lserver->getServerName();
+ 	memCgi << Server::getInstance()->getServerName();
 
 	memCgi << end_str << "SERVER_SIGNATURE=";
 	memCgi << "<address>MyServer ";
@@ -590,7 +590,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
     memCgi << end_str << "SERVER_PORT="<< portBuffer;
   }
 	memCgi << end_str << "SERVER_ADMIN=";
-	memCgi << lserver->getServerAdmin();
+	memCgi << Server::getInstance()->getServerAdmin();
 
 	memCgi << end_str << "REQUEST_METHOD=";
 	memCgi << td->request.cmd.c_str();
@@ -790,7 +790,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	{
     LPTSTR lpszVariable; 
 		LPVOID lpvEnv; 
-		lpvEnv = lserver->envString; 
+		lpvEnv = Server::getInstance()->envString; 
 		memCgi << end_str;
 		for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
 		{ 

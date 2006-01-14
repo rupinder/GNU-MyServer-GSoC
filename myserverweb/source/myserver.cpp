@@ -36,9 +36,6 @@ extern "C" {
 #endif
 }
 
-Server *server;
-
-
 /*! External libraries to be included in the project. */
 #ifdef WIN32
 #pragma comment(lib,"winmm.lib")
@@ -71,9 +68,9 @@ char **argv;
 #ifdef NOT_WIN
 void Sig_Quit(int signal)
 {
-        server->logWriteln("Exiting...");
-        sync();
-        server->stop();
+	Server::getInstance()->logWriteln("Exiting...");
+	sync();
+	Server::getInstance()->stop();
 }
 
 void Sig_Hup(int signal)
@@ -81,7 +78,7 @@ void Sig_Hup(int signal)
   /*!
    *On the SIGHUP signal reboot the server.
    */
-        server->rebootOnNextLoop();
+	Server::getInstance()->rebootOnNextLoop();
 }
 
 #endif
@@ -106,11 +103,11 @@ static char args_doc[] = "";
 static struct argp_option options[] = 
 {
   /*LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION*/
-        {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
-        {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server(by default console mode)"},
-        {"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
-        {"pidfile", 'p', "pidfile", OPTION_HIDDEN, "Specify the file where write the PID"},     
-        {0}
+	{"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
+	{"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server(by default console mode)"},
+	{"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
+	{"pidfile", 'p', "pidfile", OPTION_HIDDEN, "Specify the file where write the PID"},     
+	{0}
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -189,7 +186,7 @@ int main (int argn, char **argv)
 	
 	try
 	{
-		server = new Server();
+		Server::createInstance();
 	}
   catch(...)
   {
@@ -200,103 +197,103 @@ int main (int argn, char **argv)
   path = new char[path_len];
   if(path == 0)
     return 1;
-        lstrcpy(path,argv[0]);
-        u_long len=(u_long)strlen(path);
-        while((path[len]!='\\')&&(path[len]!='/'))
-                len--;
-        path[len]='\0';
-
-  /*! Current working directory is where the myserver executable is. */
-        setcwd(path);
+	lstrcpy(path,argv[0]);
+	u_long len=(u_long)strlen(path);
+	while((path[len]!='\\')&&(path[len]!='/'))
+		len--;
+	path[len]='\0';
+				
+	/*! Current working directory is where the myserver executable is. */
+	setcwd(path);
   
   /*! We can free path memory now. */
   delete [] path;
-        
+  
 #ifdef ARGP
-        /*! Reset the struct. */
-        input.version = 0;
+	/*! Reset the struct. */
+	input.version = 0;
   input.logFileName = 0;
-        input.runas = MYSERVER_RUNAS_CONSOLE;
+	input.runas = MYSERVER_RUNAS_CONSOLE;
   input.pidFileName = 0;
-        /*! Call the parser. */
-        argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
-        runas=input.runas;
+	/*! Call the parser. */
+	argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
+	runas=input.runas;
   if(input.logFileName)
-  {
-    if(server->setLogFile(input.logFileName))
-    {
-      cout << "Error loading log file" << endl;
+	{
+		if(Server::getInstance()->setLogFile(input.logFileName))
+		{
+			cout << "Error loading log file" << endl;
       return 1;
     }
   }
-        /*! If the version flag is up, show the version and exit. */
-        if(input.version)
-        {
+	/*! If the version flag is up, show the version and exit. */
+	if(input.version)
+	{
 	  cout << "MyServer "<< versionOfSoftware << endl;
 	  
 	  cout 
 #ifdef __DATE__
-         << "Compiled on " << __DATE__  
+			<< "Compiled on " << __DATE__  
 #endif
-         << endl;
+			<< endl;
 
 	  cout << "www.myserverproject.net" << endl;
-                return 0;   
-        }
+		return 0;   
+	}
 #else
-        if(argn > 1)
-        {       
-                if(!lstrcmpi(argv[1],"VERSION"))
-                {
-                        cout << "MyServer " << versionOfSoftware << endl;
-                        return 0;
-                }
-                if(!lstrcmpi(argv[1],"CONSOLE"))
-                {
-                        runas = MYSERVER_RUNAS_CONSOLE;
-                }
-                if(!lstrcmpi(argv[1],"REGISTER"))
-                {
+	if(argn > 1)
+	{       
+		if(!lstrcmpi(argv[1],"VERSION"))
+		{
+			cout << "MyServer " << versionOfSoftware << endl;
+			return 0;
+		}
+		if(!lstrcmpi(argv[1],"CONSOLE"))
+		{
+			runas = MYSERVER_RUNAS_CONSOLE;
+		}
+		if(!lstrcmpi(argv[1],"REGISTER"))
+		{
       registerService();
 #ifndef ARGP
       RunAsService();
 #endif
-                        runas = MYSERVER_RUNAS_SERVICE;
+			runas = MYSERVER_RUNAS_SERVICE;
       return 0;
-                }
-                if(!lstrcmpi(argv[1],"RUNSERVICE"))
-                {
-      RunAsService();
-      return 0;
-                }
-                if(!lstrcmpi(argv[1],"UNREGISTER"))
-                {
-      removeService();
-                        runas = MYSERVER_RUNAS_SERVICE;
-                }
-                if(!lstrcmpi(argv[1],"SERVICE"))
-                {
-      /*!
-       *Set the log file to use when in service mode.
-       */
-                        runas = MYSERVER_RUNAS_SERVICE;
-                }
-        }
+		}
+		if(!lstrcmpi(argv[1],"RUNSERVICE"))
+		{
+			RunAsService();
+			return 0;
+		}
+		if(!lstrcmpi(argv[1],"UNREGISTER"))
+		{
+			removeService();
+			runas = MYSERVER_RUNAS_SERVICE;
+		}
+		if(!lstrcmpi(argv[1],"SERVICE"))
+		{
+			/*!
+			 *Set the log file to use when in service mode.
+			 */
+			runas = MYSERVER_RUNAS_SERVICE;
+		}
+	}
 #endif
   /*!
    *Start here the MyServer execution.
    */
    
-  try
-  {
+	 try
+		 {
     switch(runas)
     {
-          case MYSERVER_RUNAS_CONSOLE:
-                console_service(argn, argv);
-                break;
-          case MYSERVER_RUNAS_SERVICE:
+		case MYSERVER_RUNAS_CONSOLE:
+			console_service(argn, argv);
+			break;
+		case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
-                runService();
+			runService();
 #else
       /*!
        *Run the daemon.
@@ -304,7 +301,7 @@ int main (int argn, char **argv)
        *Fork the process.
        */
       pid = fork();
-
+			
       /*!  
        *An error happened, return with errors.
        */
@@ -346,10 +343,9 @@ int main (int argn, char **argv)
       /*!
        *Finally run the server from the forked process.
        */
-                console_service(argn, argv);
+			console_service(argn, argv);
 #endif
-
-                break;
+			break;
     }
   }
   catch(...)
@@ -389,10 +385,10 @@ int  write_pidfile(char* filename)
 void console_service (int, char **)
 {
 #ifdef WIN32
-        SetConsoleCtrlHandler (NULL, TRUE);
-        SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT );
+	SetConsoleCtrlHandler (NULL, TRUE);
+	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT );
 #endif
-        server->start();
+	Server::getInstance()->start();
 }
 
 
@@ -408,36 +404,36 @@ SERVICE_STATUS_HANDLE   MyServiceStatusHandle;
  */
 void  __stdcall myServerMain (u_long, LPTSTR*)
 {
-        MyServiceStatus.dwServiceType = SERVICE_WIN32;
-        MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
-        MyServiceStatus.dwControlsAccepted = 0;
-        MyServiceStatus.dwWin32ExitCode = NO_ERROR;
-        MyServiceStatus.dwServiceSpecificExitCode = NO_ERROR;
-        MyServiceStatus.dwCheckPoint = 0;
-        MyServiceStatus.dwWaitHint = 0;
-
-        MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer", 
+	MyServiceStatus.dwServiceType = SERVICE_WIN32;
+	MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
+	MyServiceStatus.dwControlsAccepted = 0;
+	MyServiceStatus.dwWin32ExitCode = NO_ERROR;
+	MyServiceStatus.dwServiceSpecificExitCode = NO_ERROR;
+	MyServiceStatus.dwCheckPoint = 0;
+	MyServiceStatus.dwWaitHint = 0;
+	
+	MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer", 
                                                       myServerCtrlHandler );
-        if ( MyServiceStatusHandle )
-        {
-                MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
-                SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-
-                MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP 
+	if ( MyServiceStatusHandle )
+	{
+		MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+		
+		MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP 
                                            | SERVICE_ACCEPT_SHUTDOWN);
-                MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
-                SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+		MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
+		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+		
+		Server::getInstance()->start();
+    
+		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-                server->start();
-        
-                MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-                SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-
-                MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP 
+		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP 
                                             | SERVICE_ACCEPT_SHUTDOWN);
-                MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
-                SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-        }
+		MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
+		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+	}
 }
 
 /*!
@@ -445,31 +441,30 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
  */
 void __stdcall myServerCtrlHandler(u_long fdwControl)
 {
-        switch ( fdwControl )
-        {
-                case SERVICE_CONTROL_INTERROGATE:
-                        break;
+	switch ( fdwControl )
+	{
+	case SERVICE_CONTROL_INTERROGATE:
+		break;
+		
+	case SERVICE_CONTROL_SHUTDOWN:
+	case SERVICE_CONTROL_STOP:
+		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+		server->stop();
+		return;
+		
+	case SERVICE_CONTROL_PAUSE:
+		break;
 
-                case SERVICE_CONTROL_SHUTDOWN:
-                case SERVICE_CONTROL_STOP:
-                        MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-                        SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-                        server->stop();
-                        return;
-
-                case SERVICE_CONTROL_PAUSE:
-                        break;
-
-                case SERVICE_CONTROL_CONTINUE:
-                        break;
-
-                default:
-                        if ( fdwControl >= 128 && fdwControl <= 255 )
-                                break;
-                        else
-                                break;
-        }
-        SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+	case SERVICE_CONTROL_CONTINUE:
+		break;
+	default:
+		if ( fdwControl >= 128 && fdwControl <= 255 )
+			break;
+		else
+			break;
+	}
+	SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 }
 #endif
 
@@ -478,28 +473,28 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
  */
 void runService()
 {
-        server->logWriteln("Running service...");
+	Server::getInstance()->logWriteln("Running service...");
 #ifdef WIN32
-        SERVICE_TABLE_ENTRY serviceTable[] =
-        {
-                { "MyServer", myServerMain },
-                { 0, 0 }
-        };
-        if(!StartServiceCtrlDispatcher( serviceTable ))
-        {
-                if(GetLastError()==ERROR_INVALID_DATA)
-                {
-                        server->logWriteln("Invalid data");
-                }
-                else if(GetLastError()==ERROR_SERVICE_ALREADY_RUNNING)
-                {
-                        server->logWriteln("Already running");
-                }
-                else
-                {
-                        server->logWriteln("Error running service");
-                }
-        }
+	SERVICE_TABLE_ENTRY serviceTable[] =
+		{
+			{ "MyServer", myServerMain },
+			{ 0, 0 }
+		};
+	if(!StartServiceCtrlDispatcher( serviceTable ))
+	{
+		if(GetLastError()==ERROR_INVALID_DATA)
+		{
+			Server::getInstance()->logWriteln("Invalid data");
+		}
+		else if(GetLastError()==ERROR_SERVICE_ALREADY_RUNNING)
+		{
+			Server::getInstance()->logWriteln("Already running");
+		}
+		else
+		{
+			Server::getInstance()->logWriteln("Error running service");
+		}
+	}
 #endif
 }
 
@@ -509,26 +504,26 @@ void runService()
 void registerService()
 {
 #ifdef WIN32
-        SC_HANDLE service,manager;
-        char path [MAX_PATH];
-        GetCurrentDirectory(MAX_PATH,path);
-        lstrcat(path,"\\");
-        lstrcat(path,"myServer.exe SERVICE");
-        
-        manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
-        if (manager)
-        {
-                service = CreateService(manager,"MyServer","MyServer",
-                            SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,
-                            SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,
-                            0, 0, 0, 0, 0);
-                if (service)
-                {
-                        CloseServiceHandle (service);
-                }
+	SC_HANDLE service,manager;
+	char path [MAX_PATH];
+	GetCurrentDirectory(MAX_PATH,path);
+	lstrcat(path,"\\");
+	lstrcat(path,"myServer.exe SERVICE");
+  
+	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+	if (manager)
+	{
+		service = CreateService(manager,"MyServer","MyServer",
+														SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,
+														SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,
+														0, 0, 0, 0, 0);
+		if (service)
+		{
+			CloseServiceHandle (service);
+		}
 
-                CloseServiceHandle (manager);
-        }
+		CloseServiceHandle (manager);
+	}
 #endif
 }
 
@@ -538,22 +533,22 @@ void registerService()
 void removeService()
 {
 #ifdef WIN32
-        SC_HANDLE service,manager;
-  manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
-        if (manager)
-        {
-                service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
-                if (service)
-                {
-                        ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);
-                        while (QueryServiceStatus (service, &MyServiceStatus))
-        if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
-          break;
-                        DeleteService(service);
-                        CloseServiceHandle (service);
-                        CloseServiceHandle (manager);
-                }
-        }
+	SC_HANDLE service,manager;
+	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+	if (manager)
+	{
+		service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
+		if (service)
+		{
+			ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);
+			while (QueryServiceStatus (service, &MyServiceStatus))
+				if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
+					break;
+			DeleteService(service);
+			CloseServiceHandle (service);
+			CloseServiceHandle (manager);
+		}
+	}
 #endif
 }
 
@@ -574,11 +569,10 @@ void RunAsService()
        StartService(service,0,NULL);
        while (QueryServiceStatus (service, &MyServiceStatus))
          if (MyServiceStatus.dwCurrentState != SERVICE_START_PENDING)
-               break;
+					 break;
        CloseServiceHandle (service);
        CloseServiceHandle (manager);
      }
    }
 #endif
 }
-

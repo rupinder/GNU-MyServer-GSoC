@@ -2008,7 +2008,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         /*!
          *Find the virtual host to check both host name and IP value.
          */
-        Vhost* newHost=lserver->vhostList->getVHost((char*)td.request.host.c_str(), 
+        Vhost* newHost=Server::getInstance()->vhostList->getVHost((char*)td.request.host.c_str(), 
                                             a->getLocalIpAddr(), a->getLocalPort());
         if(a->host)
           ((Vhost*)a->host)->removeRef();
@@ -2092,7 +2092,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *overwritten later. 
        */
       if(((Vhost*)a->host)->getThrottlingRate() == (u_long) -1)
-        a->socket.setThrottling(lserver->getThrottlingRate());
+        a->socket.setThrottling(Server::getInstance()->getThrottlingRate());
       else
         a->socket.setThrottling(((Vhost*)a->host)->getThrottlingRate());
       
@@ -2487,7 +2487,7 @@ MimeManager::MimeRecord* Http::getMIME(string &filename)
   {
     return ((Vhost*)(td.connection->host))->getMIME()->getRecord(ext);
   }
-	return lserver->mimeManager.getRecord(ext);
+	return Server::getInstance()->mimeManager.getRecord(ext);
 }
 
 /*!
@@ -2654,7 +2654,7 @@ int Http::loadProtocol(XmlParser* languageParser)
   if(initialized)
 		return 0;
 
-  main_configuration_file = lserver->getMainConfFile();
+  main_configuration_file = Server::getInstance()->getMainConfFile();
 
   secCacheMutex.init();
 		
@@ -2680,20 +2680,20 @@ int Http::loadProtocol(XmlParser* languageParser)
 	mscgiLoaded = MsCgi::load(&configurationFileManager) ? 0 : 1;
 	if(mscgiLoaded)
   {
-		lserver->logWriteln(languageParser->getValue("MSG_LOADMSCGI") );
+		Server::getInstance()->logWriteln(languageParser->getValue("MSG_LOADMSCGI") );
   }
 	else
 	{
-		lserver->logPreparePrintError();
-		lserver->logWriteln(languageParser->getValue("ERR_LOADMSCGI") );
-		lserver->logEndPrintError();
+		Server::getInstance()->logPreparePrintError();
+		Server::getInstance()->logWriteln(languageParser->getValue("ERR_LOADMSCGI") );
+		Server::getInstance()->logEndPrintError();
 	}
   HttpFile::load(&configurationFileManager);
   HttpDir::load(&configurationFileManager);
 
-  dynCmdManager.loadMethods(0, languageParser, lserver);
+  dynCmdManager.loadMethods(0, languageParser, Server::getInstance());
 
-  dynManagerList.loadManagers(0, languageParser, lserver);
+  dynManagerList.loadManagers(0, languageParser, Server::getInstance());
 	
 	/*! Determine the min file size that will use GZIP compression.  */
 	data=configurationFileManager.getValue("GZIP_THRESHOLD");

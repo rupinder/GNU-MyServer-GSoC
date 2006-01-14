@@ -59,10 +59,9 @@ extern "C" {
 #endif
 
 /*!
- *This is the unique istance for the class Server in the application.
+ *At startup the server instance is null.
  */
-Server *lserver=0;
-
+Server* Server::instance = 0;
 /*!
  *When the flag mustEndServer is 1 all the threads are 
  *stopped and the application stop its execution.
@@ -125,11 +124,7 @@ void Server::start()
   DWORD eventsCount, cNumRead; 
   INPUT_RECORD irInBuf[128]; 
 #endif
-  /*!
-   *Save the unique instance of this class.
-   */
-  lserver=this;
-  
+
 #ifdef CLEAR_BOOT_SCREEN
 
   if(logManager.getType() == LogManager::TYPE_CONSOLE )
@@ -666,12 +661,12 @@ void * listenServer(void* params)
 
   ret = serverSocket->setNonBlocking(1);
 
-	lserver->increaseListeningThreadCount();
+	Server::getInstance()->increaseListeningThreadCount();
 
-  if(lserver->getUid() | lserver->getGid())
+  if(Server::getInstance()->getUid() | Server::getInstance()->getGid())
   {
-    int uid = lserver->getUid();
-    int gid = lserver->getGid();
+    int uid = Server::getInstance()->getUid();
+    int gid = Server::getInstance()->getGid();
 
     /**
      *Change the user and group identifier to -1 
@@ -689,7 +684,7 @@ void * listenServer(void* params)
      */
     for(int i=0; ; i++)
     {
-      Vhost* vh = lserver->vhostList->getVHostByNumber(i);
+      Vhost* vh = Server::getInstance()->vhostList->getVHostByNumber(i);
       /*! Break if we reach the end of the list. */
       if(!vh)
         break;
@@ -701,9 +696,9 @@ void * listenServer(void* params)
         string str;
         str.assign("Error changing owner for: ");
         str.append(vh->getAccessesLogFileName());
-        lserver->logPreparePrintError();
-        lserver->logWriteln(str);
-        lserver->logEndPrintError();    
+        Server::getInstance()->logPreparePrintError();
+        Server::getInstance()->logWriteln(str);
+        Server::getInstance()->logEndPrintError();    
       }
 
       err = File::chown(vh->getWarningsLogFileName(), uid, gid);  
@@ -712,35 +707,35 @@ void * listenServer(void* params)
         string str;
         str.assign("Error changing owner for: ");
         str.append(vh->getWarningsLogFileName());
-        lserver->logPreparePrintError();
-        lserver->logWriteln(str);
-        lserver->logEndPrintError();
+        Server::getInstance()->logPreparePrintError();
+        Server::getInstance()->logWriteln(str);
+        Server::getInstance()->logEndPrintError();
       }
 
     }
 
   }
 
-  if(lserver->getUid() && Process::setuid(lserver->getUid()))
+  if(Server::getInstance()->getUid() && Process::setuid(Server::getInstance()->getUid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_ERROR") 
-        << ": setuid " << lserver->getUid();
-    lserver->logPreparePrintError();
-    lserver->logWriteln(out.str().c_str());
-    lserver->logEndPrintError();
+    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR") 
+        << ": setuid " << Server::getInstance()->getUid();
+    Server::getInstance()->logPreparePrintError();
+    Server::getInstance()->logWriteln(out.str().c_str());
+    Server::getInstance()->logEndPrintError();
     Thread::terminate();
     return 0;
 
   }	
-  if(lserver->getGid() && Process::setgid(lserver->getGid()))
+  if(Server::getInstance()->getGid() && Process::setgid(Server::getInstance()->getGid()))
   {
     ostringstream out;
-    out << lserver->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setgid "  << lserver->getGid();
-    lserver->logPreparePrintError();
-    lserver->logWriteln(out.str().c_str());
-    lserver->logEndPrintError();
+    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
+        << ": setgid "  << Server::getInstance()->getGid();
+    Server::getInstance()->logPreparePrintError();
+    Server::getInstance()->logWriteln(out.str().c_str());
+    Server::getInstance()->logEndPrintError();
     Thread::terminate();
     return 0;
   }	
@@ -773,7 +768,7 @@ void * listenServer(void* params)
 		if(asock.getHandle()==(SocketHandle)INVALID_SOCKET)
 			continue;
 		asock.setServerSocket(serverSocket);
-		lserver->addConnection(asock, &asock_in);
+		Server::getInstance()->addConnection(asock, &asock_in);
 	}
 	
 	/*!
@@ -787,7 +782,7 @@ void * listenServer(void* params)
 	}while(err!=-1);
 	serverSocket->closesocket();
   delete serverSocket;
-	lserver->decreaseListeningThreadCount();
+	Server::getInstance()->decreaseListeningThreadCount();
 	
 	/*!
    *Automatically free the current thread.
@@ -849,7 +844,7 @@ int Server::terminate()
     thread = thread->next;
   }
 
-	while(lserver->getListeningThreadCount())
+	while(Server::getInstance()->getListeningThreadCount())
 	{
 		Thread::wait(1000);
 	}
@@ -1356,7 +1351,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	new_connection->setLocalPort(localPort);
 	new_connection->setIpAddr(ipAddr);
 	new_connection->setLocalIpAddr(localIpAddr);
-	new_connection->host = (void*)lserver->vhostList->getVHost(0, localIpAddr, 
+	new_connection->host = (void*)Server::getInstance()->vhostList->getVHost(0, localIpAddr, 
                                                              localPort);
 
   /*! No vhost for the connection so bail. */
@@ -1372,7 +1367,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	else if(((Vhost*)new_connection->host)->getProtocol() == PROTOCOL_UNKNOWN)
 	{	
 		DynamicProtocol* dp;
-    dp=lserver->getDynProtocol(((Vhost*)(new_connection->host))->getProtocolName());
+    dp=Server::getInstance()->getDynProtocol(((Vhost*)(new_connection->host))->getProtocolName());
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;	
 	}
@@ -1402,20 +1397,20 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	/*! Update the list. */
   try
   {
-    lserver->connections_mutex_lock();
+    Server::getInstance()->connections_mutex_lock();
     connection_ID++;
     new_connection->setID(connection_ID);
     new_connection->next = connections;
    	connections=new_connection;
     nConnections++;
-    lserver->connections_mutex_unlock();
+    Server::getInstance()->connections_mutex_unlock();
   }
   catch(...)
   {
     logPreparePrintError();
     logWriteln("Error: adding connection to list");
     logEndPrintError();	
-    lserver->connections_mutex_unlock();
+    Server::getInstance()->connections_mutex_unlock();
   };
 
 	/*!
@@ -2298,6 +2293,17 @@ int Server::removeThread(u_long ID)
 	threads_mutex->unlock();
   return ret_code;
 
+}
+
+/*!
+ *Create the class instance.  Call this before use 
+ *the Server class.  The instance is not created in
+ *getInstance to have a faster inline function.
+ */
+void Server::createInstance()
+{
+	if(instance == 0)
+		instance = new Server();
 }
 
 /*!

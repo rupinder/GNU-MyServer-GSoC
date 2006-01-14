@@ -467,7 +467,7 @@ int DynamicFiltersManager::add(const char* file, XmlParser* parser, Server* serv
   logBuf.append(file);
   logBuf.append(" --> ");
   logBuf.append( name);
-  lserver->logWriteln( logBuf.c_str() );
+  Server::getInstance()->logWriteln( logBuf.c_str() );
 
 	{
 		DynamicFilterFile* old;

@@ -456,9 +456,9 @@ int VhostManager::addVHost(Vhost* vh)
           string error;
           error.assign("Warning: multiple hosts use the same log file:" );
           error.append(vh->getAccessesLogFileName());
-          lserver->logPreparePrintError();
-          lserver->logWriteln(error.c_str());     
-          lserver->logEndPrintError();
+          Server::getInstance()->logPreparePrintError();
+          Server::getInstance()->logWriteln(error.c_str());     
+          Server::getInstance()->logEndPrintError();
         }
 
 #ifdef WIN32
@@ -472,9 +472,9 @@ int VhostManager::addVHost(Vhost* vh)
           string error;
           error.assign("Warning: multiple hosts use the same log file:" );
           error.append(vh->getWarningsLogFileName());
-          lserver->logPreparePrintError();
-          lserver->logWriteln(error.c_str());     
-          lserver->logEndPrintError();
+          Server::getInstance()->logPreparePrintError();
+          Server::getInstance()->logWriteln(error.c_str());     
+          Server::getInstance()->logEndPrintError();
         }
     }
 
@@ -950,9 +950,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
 	{
     errMsg.assign("Error opening: ");
     errMsg.append(filename);
-    lserver->logPreparePrintError();
-    lserver->logWriteln(errMsg.c_str());
-    lserver->logEndPrintError();
+    Server::getInstance()->logPreparePrintError();
+    Server::getInstance()->logWriteln(errMsg.c_str());
+    Server::getInstance()->logEndPrintError();
 		return -1;
 	}
 	doc = parser.getDoc();
@@ -970,9 +970,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
       parser.close();
       clean();
       errMsg.assign("Error: allocating memory");
-      lserver->logPreparePrintError();
-      lserver->logWriteln(errMsg.c_str());
-      lserver->logEndPrintError();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(errMsg.c_str());
+      Server::getInstance()->logEndPrintError();
       return -1;
     }
 		while(lcur)
@@ -1040,9 +1040,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
         {
           errMsg.assign("Error: specified port greater than 65536 or invalid: ");
           errMsg.append((char*)lcur->children->content);
-          lserver->logPreparePrintError();
-          lserver->logWriteln(errMsg.c_str());
-          lserver->logEndPrintError();
+          Server::getInstance()->logPreparePrintError();
+          Server::getInstance()->logWriteln(errMsg.c_str());
+          Server::getInstance()->logEndPrintError();
         }
 				vh->setPort((u_short)val);
 			}
@@ -1212,9 +1212,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
     if(addVHost(vh))
     {
       errMsg.assign("Error: adding vhost");
-      lserver->logPreparePrintError();
-      lserver->logWriteln(errMsg.c_str());
-      lserver->logEndPrintError();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(errMsg.c_str());
+      Server::getInstance()->logEndPrintError();
       
       parser.close();
       clean();
@@ -1376,7 +1376,7 @@ const char* Vhost::getHashedData(const char* name)
   if(s)
     return s->c_str();
 
-  return lserver ? lserver->getHashedData(name) : 0 ;
+  return Server::getInstance() ? Server::getInstance()->getHashedData(name) : 0 ;
 }
   
 /*!
@@ -1388,7 +1388,7 @@ int Vhost::initializeSSL()
   sslContext.context = 0;
   sslContext.method = 0;
 #ifndef DO_NOT_USE_SSL
-	dp = lserver->getDynProtocol(protocolName.c_str());
+	dp = Server::getInstance()->getDynProtocol(protocolName.c_str());
   if(this->protocol<1000 && !(dp && 
                               (dp->getOptions() & PROTOCOL_USES_SSL)) )
     return -2;

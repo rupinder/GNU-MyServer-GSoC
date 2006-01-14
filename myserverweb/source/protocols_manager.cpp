@@ -42,7 +42,7 @@ typedef char* (*registerNamePROC)(char*,int);
 /*!
  *Load the protocol. Called once at runtime.
  */
-int DynamicProtocol::loadProtocol(XmlParser* languageParser, Server* lserver)
+int DynamicProtocol::loadProtocol(XmlParser* languageParser, Server* server)
 {
 	loadProtocolPROC Proc;
 	int ret=0;
@@ -55,7 +55,7 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser, Server* lserver)
     log_str.assign(languageParser->getValue("ERR_LOADED"));
     log_str.append(" ");
     log_str.append(filename);
-    lserver->logWriteln(log_str.c_str());  
+    Server::getInstance()->logWriteln(log_str.c_str());  
 		return 0;
 	}
   Proc = (loadProtocolPROC) hinstLib.getProc( "loadProtocol"); 
@@ -64,7 +64,7 @@ int DynamicProtocol::loadProtocol(XmlParser* languageParser, Server* lserver)
   {
     ret = registerName(protocolName,16)[0] != '\0' ? 1 : 0 ;
  		if(ret)
-      ret = (Proc((void*)languageParser, (void*)lserver));
+      ret = (Proc((void*)languageParser, server));
 	}
   else
     ret = 0;
@@ -171,12 +171,12 @@ int DynamicProtocol::setFilename(const char *nf)
  *Add a new protocol to the list by its module name.
  */
 int ProtocolsManager::addProtocol(const char *file, XmlParser* parser,
-                                   char* confFile, Server* lserver)
+                                   char* confFile, Server* server)
 {
   string logBuf;
 	DynamicProtocolListElement* ne = new DynamicProtocolListElement();
 	ne->data.setFilename(file);
-	ne->data.loadProtocol(parser, lserver);
+	ne->data.loadProtocol(parser, server);
 	ne->next=list;
 	list=ne;
   logBuf.assign(parser->getValue("MSG_LOADED"));
@@ -184,7 +184,7 @@ int ProtocolsManager::addProtocol(const char *file, XmlParser* parser,
   logBuf.append(file);
   logBuf.append(" --> ");
   logBuf.append( ne->data.getProtocolName());
-  lserver->logWriteln( logBuf.c_str() );
+  Server::getInstance()->logWriteln( logBuf.c_str() );
 	return 1;
 }
 
@@ -257,7 +257,7 @@ DynamicProtocol* ProtocolsManager::getDynProtocol(const char *protocolName)
  *Returns Nonzero on errors.
  */
 int ProtocolsManager::loadProtocols(const char* directory, XmlParser* parser,
-                                     char* confFile, Server* lserver)
+                                     char* confFile, Server* server)
 {
 	FindData fd;
   string filename;
@@ -296,7 +296,7 @@ int ProtocolsManager::loadProtocols(const char* directory, XmlParser* parser,
     completeFileName.assign(directory);
     completeFileName.append("/");
     completeFileName.append(fd.name);
-		addProtocol(completeFileName.c_str(), parser, confFile, lserver);
+		addProtocol(completeFileName.c_str(), parser, confFile, server);
 	}while(!fd.findnext());
 	fd.findclose();
   return 0;

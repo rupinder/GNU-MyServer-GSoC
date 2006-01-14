@@ -124,7 +124,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   if(td->mime)
   {
     u_long nbw2;
-    if(td->mime && lserver->getFiltersFactory()->chain(&chain, 
+    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
                                                  ((MimeManager::MimeRecord*)td->mime)->filters, 
                                                        &(td->connection->socket) , &nbw2, 1))
       {
@@ -160,7 +160,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	strcpy(buffer,"CGI Version=CGI/1.3a WIN\r\n");
 	DataFileHandle.writeToFile(buffer,26,&nbr);
 
-	*td->buffer2 << "Server Admin=" << lserver->getServerAdmin() << "\r\n";
+	*td->buffer2 << "Server Admin=" << Server::getInstance()->getServerAdmin() << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
 	if(stringcmpi(td->request.connection,"Keep-Alive"))

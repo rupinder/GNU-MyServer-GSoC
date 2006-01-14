@@ -111,7 +111,7 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
   int adminPasswordMD5ized = 0;
 
   char *data = 0;
-  const char *main_configuration_file = lserver->getMainConfFile();
+  const char *main_configuration_file = Server::getInstance()->getMainConfFile();
 	XmlParser configurationFileManager;
 	configurationFileManager.open(main_configuration_file);
 
@@ -482,7 +482,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   else if(!strcmp(command, "REBOOT"))
   {
     knownCommand = 1;
-    lserver->rebootOnNextLoop();
+    Server::getInstance()->rebootOnNextLoop();
     ret = 0;
   }
   else if(!strcmp(command, "GETFILE"))
@@ -497,13 +497,13 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   }
   else if(!strcmp(command, "DISABLEREBOOT"))
   {
-    lserver->disableAutoReboot();
+    Server::getInstance()->disableAutoReboot();
     knownCommand = 1;
 
   }
   else if(!strcmp(command, "ENABLEREBOOT"))
   {
-    lserver->enableAutoReboot();
+    Server::getInstance()->enableAutoReboot();
     knownCommand = 1;
 
   }
@@ -591,7 +591,7 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1)
   /*!
    *Check that the verbosity is at least 1.
    */
-  if(lserver->getVerbosity() < 1)
+  if(Server::getInstance()->getVerbosity() < 1)
     return 0;
 	getRFC822GMTTime(time, 32);
 	
@@ -708,8 +708,8 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
   int ret =  0;
   u_long nbw;
   ConnectionPtr con;
-  lserver->connections_mutex_lock();
-  con = lserver->getConnections();
+  Server::getInstance()->connections_mutex_lock();
+  con = Server::getInstance()->getConnections();
   while(con)
   {
     sprintf(b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
@@ -724,7 +724,7 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
     }
     con = con->next;
   }
-  lserver->connections_mutex_unlock();
+  Server::getInstance()->connections_mutex_unlock();
   return ret;
 }
 
@@ -738,14 +738,14 @@ int  ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out,
   ConnectionPtr con;
   if(ID == 0)
     return -1;
-  con = lserver->findConnectionByID(ID);
-  lserver->connections_mutex_lock();
+  con = Server::getInstance()->findConnectionByID(ID);
+  Server::getInstance()->connections_mutex_lock();
   if(con)
   {
     /*! Define why the connection is killed. */
     con->setToRemove(CONNECTION_USER_KILL);
   }
-  lserver->connections_mutex_unlock();
+  Server::getInstance()->connections_mutex_unlock();
   return ret;
 }
 
@@ -761,7 +761,7 @@ int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out,
   int ret;
   for( ;;)
   {
-    dp = lserver->getProtocolsManager()->getDynProtocolByOrder(i);
+    dp = Server::getInstance()->getProtocolsManager()->getDynProtocolByOrder(i);
     if(dp == 0)
       break;
     sprintf(b1,"%s\r\n", dp->getProtocolName() );
@@ -794,15 +794,15 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
 
   if(!lstrcmpi(fn, "myserver.xml"))
   {
-    filename = lserver->getMainConfFile();
+    filename = Server::getInstance()->getMainConfFile();
   }
   else if(!lstrcmpi(fn, "MIMEtypes.xml"))
   {
-    filename = lserver->getMIMEConfFile();
+    filename = Server::getInstance()->getMIMEConfFile();
   }
   else if(!lstrcmpi(fn, "virtualhosts.xml"))
   {
-    filename = lserver->getVhostConfFile();
+    filename = Server::getInstance()->getVhostConfFile();
   }
   else if(!File::fileExists(fn))
   {
@@ -870,24 +870,24 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
 {
   const char *filename = 0;
   File localfile;
-  int isAutoRebootToEnable = lserver->isAutorebootEnabled();
+  int isAutoRebootToEnable = Server::getInstance()->isAutorebootEnabled();
   int ret = 0;
   /*! # of bytes read. */
   u_long nbr = 0;
   /*! # of bytes written. */
   u_long nbw = 0;
-  lserver->disableAutoReboot();
+  Server::getInstance()->disableAutoReboot();
   if(!lstrcmpi(fn, "myserver.xml"))
   {
-    filename = lserver->getMainConfFile();
+    filename = Server::getInstance()->getMainConfFile();
   }
   else if(!lstrcmpi(fn, "MIMEtypes.xml"))
   {
-    filename = lserver->getMIMEConfFile();
+    filename = Server::getInstance()->getMIMEConfFile();
   }
   else if(!lstrcmpi(fn, "virtualhosts.xml"))
   {
-    filename = lserver->getVhostConfFile();
+    filename = Server::getInstance()->getVhostConfFile();
   }
   else
   {
@@ -904,7 +904,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
     addToErrorLog(a, b1, strlen(b1));
     Reboot = true;
     if(isAutoRebootToEnable)
-      lserver->enableAutoReboot();
+      Server::getInstance()->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
 
@@ -919,7 +919,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
     addToErrorLog(a, msg);
     Reboot = true;
     if(isAutoRebootToEnable)
-      lserver->enableAutoReboot();
+      Server::getInstance()->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
   for(;;)
@@ -933,7 +933,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
       addToErrorLog(a, msg);
       Reboot = true;
       if(isAutoRebootToEnable)
-        lserver->enableAutoReboot();
+        Server::getInstance()->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
 
@@ -951,14 +951,14 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
       addToErrorLog(a, msg);
       Reboot = true;
       if(isAutoRebootToEnable)
-        lserver->enableAutoReboot();
+        Server::getInstance()->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
   }
   localfile.closeFile();
   
   if(isAutoRebootToEnable)
-    lserver->enableAutoReboot();
+    Server::getInstance()->enableAutoReboot();
 
   return 0;
 }
@@ -970,7 +970,7 @@ int ControlProtocol::showLanguageFiles(ConnectionPtr a, File* out,
                                         char *b1,int bs1)
 {
   string searchPath;
-  const char *path = lserver->getLanguagesPath();
+  const char *path = Server::getInstance()->getLanguagesPath();
   FindData fd;
   int ret = 0;
   if(path == 0)

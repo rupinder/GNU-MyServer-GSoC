@@ -58,11 +58,11 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
 	Isapi::isapi_mutex->unlock();
 	if (ConnInfo == NULL) 
 	{
-    lserver->logLockAccess();
-		lserver->logPreparePrintError();
-		lserver->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
-		lserver->logEndPrintError();
-    lserver->logUnlockAccess();
+    Server::getInstance()->logLockAccess();
+		Server::getInstance()->logPreparePrintError();
+		Server::getInstance()->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
+		Server::getInstance()->logEndPrintError();
+    Server::getInstance()->logUnlockAccess();
 		return 0;
 	}
 
@@ -427,11 +427,11 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, LPSTR lpszVariableName,
 	Isapi::isapi_mutex->unlock();
 	if (ConnInfo == NULL) 
 	{
-    lserver->logLockAccess();
-    lserver->logPreparePrintError();
-		lserver->logWriteln("isapi::GetServerVariableExport: invalid hConn");
-		lserver->logEndPrintError();
-    lserver->logUnlockAccess();
+    Server::getInstance()->logLockAccess();
+    Server::getInstance()->logPreparePrintError();
+		Server::getInstance()->logWriteln("isapi::GetServerVariableExport: invalid hConn");
+		Server::getInstance()->logEndPrintError();
+    Server::getInstance()->logUnlockAccess();
 		return 0;
 	}
 
@@ -647,7 +647,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 		return 0;
 
 	if(valLen+30<maxLen)
-		valLen+=sprintf(&ValStr[valLen],"SERVER_ADMIN:%s\n",lserver->getServerAdmin());
+		valLen+=sprintf(&ValStr[valLen],"SERVER_ADMIN:%s\n",Server::getInstance()->getServerAdmin());
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -747,7 +747,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   if(td->mime)
   {
     u_long nbw;
-    if(td->mime && lserver->getFiltersFactory()->chain(&(connTable[connIndex].chain), 
+    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&(connTable[connIndex].chain), 
                                                  ((MimeManager::MimeRecord*)td->mime)->filters, 
                                                        &(td->connection->socket) , &nbw, 1))
       {
@@ -952,7 +952,7 @@ Isapi::Isapi()
 int Isapi::load(XmlParser*/* confFile*/)
 {
 #ifdef WIN32
-  u_long n_threads = lserver->getMaxThreads()/2;
+  u_long n_threads = Server::getInstance()->getMaxThreads()/2;
 	if(initialized)
 		return 0;
 	isapi_mutex = new Mutex;

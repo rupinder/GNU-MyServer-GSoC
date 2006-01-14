@@ -87,6 +87,13 @@ class Server
 	friend int control_handler (u_long control_type);
 #endif
 private:
+
+	/*! Singleton instance.  Call createInstance before use it.  */
+	static Server* instance;
+
+	/*! Do not allow to create directly objects.  */
+	Server();
+
   HashMap<string, string*> hashedData;
   FiltersFactory filtersFactory;
   DynamicFiltersManager filters;
@@ -148,6 +155,12 @@ private:
 	string vhost_configuration_file;
 	string mime_configuration_file;
 public:
+	static void createInstance();
+	static Server* getInstance()
+	{
+		return instance;
+	}
+
   const char* getHashedData(const char* name);
   FiltersFactory* getFiltersFactory();
 	int getMaxThreads(); 
@@ -169,7 +182,6 @@ public:
   const char *getLanguageFile();
   const char* getExternalPath();
   XmlParser* getLanguageParser();
-	Server();
 	~Server();
 	DynamicProtocol* getDynProtocol(const char *protocolName);
 	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
@@ -212,6 +224,5 @@ public:
 	u_long getBuffersize2();
   u_long getThrottlingRate();
 }; 
-extern class Server *lserver;
 
 #endif
