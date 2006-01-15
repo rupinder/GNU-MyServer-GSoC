@@ -450,7 +450,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 	case SERVICE_CONTROL_STOP:
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-		server->stop();
+		Server::getInstance()->stop();
 		return;
 		
 	case SERVICE_CONTROL_PAUSE:
