@@ -47,7 +47,7 @@ Contents of <span class="bold">downloads</span><br />
 
 $directory="./";
 $dh=opendir($directory);
-while(gettype($file=readdir($dh))!=boolean)
+while(!is_bool($file=readdir($dh)))
 {
 	print "<tr>";
 
