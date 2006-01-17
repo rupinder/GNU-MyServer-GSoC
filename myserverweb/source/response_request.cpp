@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/response_request.h"
 #include "../include/stringutils.h"
-
+#include <iostream>
 #include <sstream>
 using namespace std;
 
@@ -230,8 +230,8 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
 		HttpResponseHeader::Entry *e = other.get(name);
 		if(e)
 		{
-			out->assign(e->value);      
-			return &(e->value);
+			out->assign(*(e->value));      
+			return e->value;
 		}
 		return 0;
 	}
@@ -278,8 +278,9 @@ void HttpResponseHeader::free()
 	{
 		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
 		HashMap<string, HttpResponseHeader::Entry*>::Iterator end = other.end();
-		for(;it!=end;it++)
+		for(;it!=end;it++){
 			delete (*it);
+		}
 	}
 	other.clear();
 	lastModified.clear();
@@ -486,8 +487,8 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    HttpRequestHeader::Entry *e = other.get(name);
    if(e)
    {
-     out->assign(e->value);      
-     return &(e->value);
+     out->assign(*(e->value));      
+     return (e->value);
    }
    return 0;
  }

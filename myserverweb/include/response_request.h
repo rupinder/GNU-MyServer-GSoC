@@ -87,8 +87,19 @@ struct HttpResponseHeader : public HttpHeader
 {
   struct Entry
   {
-    string name;
-    string value;
+    string *name;
+    string *value;
+		Entry()
+		{
+			name = new string();
+			value = new string();
+		}
+		~Entry()
+		{
+			delete name;
+			delete value;
+			
+		}
   };
 	int httpStatus;
 	string ver;	
@@ -125,8 +136,20 @@ struct HttpRequestHeader : public HttpHeader
 {
   struct Entry
   {
-    string name;
-    string value;
+    string *name;
+    string *value;
+		Entry()
+		{
+			name = new string();
+			value = new string();
+		}
+		~Entry()
+		{
+			delete name;
+			delete value;
+			
+		}
+
   };
 	string cmd;		
 	string ver;		

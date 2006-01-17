@@ -197,25 +197,25 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		pos += myserver_strlcpy(pos, response->location.c_str(), MAX-(long)(pos-str));
 		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
 	}
-
+	/*
 	if(response->other.size())
 	{
 		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = response->other.begin();
-		HashMap<string,  HttpResponseHeader::Entry*>::Iterator end = response->other.end();
+		HashMap<string, HttpResponseHeader::Entry*>::Iterator end = response->other.end();
     for(; it != end; it++)
     {
       HttpResponseHeader::Entry *e = *it;
       if(e)
       {
-        pos += myserver_strlcpy(pos, e->name.c_str(), MAX-(long)(pos-str));
+        pos += myserver_strlcpy(pos, e->name->c_str(), MAX-(long)(pos-str));
         pos += myserver_strlcpy(pos, ": ", MAX-(long)(pos-str));
-        pos += myserver_strlcpy(pos, e->value.c_str(), MAX-(long)(pos-str));
+        pos += myserver_strlcpy(pos, e->value->c_str(), MAX-(long)(pos-str));
         pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
       }
       
     }
 	}
-
+	*/
 	/*!
 	*MyServer supports the bytes range.
 	*/
@@ -998,16 +998,17 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       tokenOff = getEndLine(token, maxTotchars);
       if(tokenOff==-1)
         return e_400;
-      if(!request->other.get(command))
       {
         HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry(); 
         if(e)
         {
+					HttpRequestHeader::Entry *old;
 					string cmdStr(command);
-          e->name.assign(command, HTTP_RESPONSE_OTHER_DIM);
-          e->value.assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
-					request->other.remove(cmdStr);
-					request->other.put(cmdStr, e);
+          e->name->assign(command, HTTP_RESPONSE_OTHER_DIM);
+          e->value->assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
+					old = request->other.put(cmdStr, e);
+					if(old)
+						delete old;
 				}
       }
 		}
@@ -1249,25 +1250,23 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			token = strtok( NULL, "\n" );
 			if(token)
 			{
-        if(!response->other.get(command))
-        {
-          HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry(); 
-          if(e)
-          {
-            if(strlen(command) > HTTP_RESPONSE_OTHER_DIM || strlen(token) > HTTP_RESPONSE_OTHER_DIM)
-              return 0;
-            e->name.assign(command);
-            e->value.assign(token);
-						{
-							HttpResponseHeader::Entry *old;
-							string cmdString(command);
-							old = response->other.put(cmdString, e);
-							if(old)
-								delete old;
-						}
-          }
+				HttpResponseHeader::Entry *e;
+				if(strlen(command) > HTTP_RESPONSE_OTHER_DIM || strlen(token) > HTTP_RESPONSE_OTHER_DIM)
+					return 0;
 
-        }
+				e = new HttpResponseHeader::Entry(); 
+				if(e)
+        {
+					e->name->assign(command);
+					e->value->assign(token);
+					{
+						HttpResponseHeader::Entry *old = 0;
+						string cmdString(command);
+						old = response->other.put(cmdString, e);
+						if(old)
+							delete old;
+					}
+				}
 			}
 		}
 		token = strtok( NULL, cmdSeps );
