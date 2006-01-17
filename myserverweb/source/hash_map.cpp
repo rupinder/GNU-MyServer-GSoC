@@ -540,6 +540,7 @@ template <typename KeyType, typename ValueType>
 inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType>::begin(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=0;
@@ -548,10 +549,12 @@ inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=data[i].begin();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -562,6 +565,7 @@ template <typename ValueType>
 inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>::begin(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=0;
@@ -570,10 +574,12 @@ inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>:
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=data[i].begin();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -584,6 +590,7 @@ template <typename ValueType>
 inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::begin(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=0;
@@ -592,10 +599,12 @@ inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::b
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=data[i].begin();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -606,6 +615,7 @@ template <typename ValueType>
 inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::begin(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=0;
@@ -614,10 +624,12 @@ inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::b
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=data[i].begin();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -628,6 +640,7 @@ template <typename KeyType, typename ValueType>
 inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType>::back(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=capacity-1;
@@ -636,10 +649,12 @@ inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=--data[i].end();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -650,6 +665,7 @@ template <typename ValueType>
 inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>::back(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=capacity-1;
@@ -658,10 +674,12 @@ inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>:
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=--data[i].end();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -672,6 +690,7 @@ template <typename ValueType>
 inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::back(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=capacity-1;
@@ -680,10 +699,12 @@ inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::b
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=--data[i].end();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -694,6 +715,7 @@ template <typename ValueType>
 inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::back(void)
 {
 	tempIterator.vectorPtr=&data;
+	tempIterator.offset=offset;
 	if(load)
 	{
 		int i=capacity-1;
@@ -702,10 +724,12 @@ inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::b
 			if(map[i]>=offset)
 				break;
 		}
+		tempIterator.mapIter=map.begin()+i;
 		tempIterator.vectorIter=data.begin()+i;
 		tempIterator.listIter=--data[i].end();
 	}else
 	{
+	    tempIterator.mapIter=map.end();
 		tempIterator.vectorIter=data.end();
 		tempIterator.listIter=tempIterator.vectorIter->end();
 	}
@@ -715,7 +739,9 @@ inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::b
 template <typename KeyType, typename ValueType>
 inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType>::end(void)
 {
+    tempIterator.offset=offset;
 	tempIterator.vectorPtr=&data;
+	tempIterator.mapIter=map.end();
 	tempIterator.vectorIter=data.end();
 	tempIterator.listIter=tempIterator.vectorIter->end();
 	return(tempIterator);
@@ -724,7 +750,9 @@ inline typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType
 template <typename ValueType>
 inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>::end(void)
 {
-	tempIterator.vectorPtr=&data;
+    tempIterator.offset=offset;
+    tempIterator.vectorPtr=&data;
+	tempIterator.mapIter=map.end();
 	tempIterator.vectorIter=data.end();
 	tempIterator.listIter=tempIterator.vectorIter->end();
 	return(tempIterator);
@@ -733,7 +761,9 @@ inline typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>:
 template <typename ValueType>
 inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::end(void)
 {
-	tempIterator.vectorPtr=&data;
+    tempIterator.offset=offset;
+    tempIterator.vectorPtr=&data;
+	tempIterator.mapIter=map.end();
 	tempIterator.vectorIter=data.end();
 	tempIterator.listIter=tempIterator.vectorIter->end();
 	return(tempIterator);
@@ -742,7 +772,9 @@ inline typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::e
 template <typename ValueType>
 inline typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::end(void)
 {
-	tempIterator.vectorPtr=&data;
+    tempIterator.offset=offset;
+    tempIterator.vectorPtr=&data;
+	tempIterator.mapIter=map.end();
 	tempIterator.vectorIter=data.end();
 	tempIterator.listIter=tempIterator.vectorIter->end();
 	return(tempIterator);
@@ -1782,16 +1814,19 @@ inline MyIterator<KeyType, ValueType>& MyIterator<KeyType, ValueType>::operator+
 	++listIter;
 	if(listIter==vectorIter->end())
 	{
+	    ++mapIter;
 		++vectorIter;
 		while(vectorIter!=vectorPtr->end())
 		{
-			if(!vectorIter->empty())
+			if(*mapIter>=offset)
 			{
 				listIter=vectorIter->begin();
 				return(*this);
 			}
+			++mapIter;
 			++vectorIter;
 		}
+
 		listIter=vectorIter->end();
 	}
 	return(*this);
@@ -1804,16 +1839,19 @@ inline MyIterator<KeyType, ValueType> MyIterator<KeyType, ValueType>::operator++
 	++listIter;
 	if(listIter==vectorIter->end())
 	{
+	    ++mapIter;
 		++vectorIter;
 		while(vectorIter!=vectorPtr->end())
 		{
-			if(!vectorIter->empty())
+			if(*mapIter>=offset)
 			{
 				listIter=vectorIter->begin();
 				return(tempIterator);
 			}
+			++mapIter;
 			++vectorIter;
 		}
+
 		listIter=vectorIter->end();
 	}
 	return(tempIterator);
@@ -1826,8 +1864,9 @@ inline MyIterator<KeyType, ValueType>& MyIterator<KeyType, ValueType>::operator-
 	{
 		while(vectorIter!=vectorPtr->begin())
 		{
+		    --mapIter;
 			--vectorIter;
-			if(!vectorIter->empty())
+			if(*mapIter>=offset)
 			{
 				listIter=vectorIter->end();
 				--listIter;
@@ -1835,8 +1874,8 @@ inline MyIterator<KeyType, ValueType>& MyIterator<KeyType, ValueType>::operator-
 			}
 		}
 
-		vectorIter=vectorPtr->end();
-		listIter=vectorIter->end();
+		//vectorIter=vectorPtr->end();
+		listIter=vectorIter->begin();
 		return(*this);
 	}
 	--listIter;
@@ -1851,8 +1890,9 @@ inline MyIterator<KeyType, ValueType> MyIterator<KeyType, ValueType>::operator--
 	{
 		while(vectorIter!=vectorPtr->begin())
 		{
+		    --mapIter;
 			--vectorIter;
-			if(!vectorIter->empty())
+			if(*mapIter>=offset)
 			{
 				listIter=vectorIter->end();
 				--listIter;
@@ -1860,8 +1900,8 @@ inline MyIterator<KeyType, ValueType> MyIterator<KeyType, ValueType>::operator--
 			}
 		}
 
-		vectorIter=vectorPtr->end();
-		listIter=vectorIter->end();
+		//vectorIter=vectorPtr->end();
+		listIter=vectorIter->begin();
 		return(tempIterator);
 	}
 	--listIter;

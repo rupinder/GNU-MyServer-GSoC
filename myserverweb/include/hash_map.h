@@ -73,7 +73,9 @@ class MyIterator
 
 	private:
 
+	unsigned int offset;
 	vector< list< Shkv<KeyType, ValueType> > > *vectorPtr;
+	typename vector <unsigned int>::iterator mapIter;
 	typename vector< list< Shkv<KeyType, ValueType> > >::iterator vectorIter;
 	typename list< Shkv<KeyType, ValueType> >::iterator listIter;
 };
