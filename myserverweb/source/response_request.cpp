@@ -141,13 +141,6 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
     return &mimeVer;
   }
 
-  if(!strcmpi(name,"P3P"))
-  { 
-    if(out)
-      out->assign( p3p.c_str()); 
-    return &p3p;
-  }
-
   if(!strcmpi(name,"Cookie"))
   { 
     if(out)
@@ -265,7 +258,6 @@ void HttpResponseHeader::free()
 	contentType.clear();
 	connection.clear();
 	mimeVer.clear();
-	p3p.clear();
 	cookie.clear();
 	contentLength.clear();
 	errorType.clear();

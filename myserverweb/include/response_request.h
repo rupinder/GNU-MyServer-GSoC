@@ -31,7 +31,6 @@ using namespace std;
 #define HTTP_RESPONSE_CONTENT_RANGE_DIM 32
 #define HTTP_RESPONSE_CONNECTION_DIM 32
 #define HTTP_RESPONSE_MIME_VER_DIM 8
-#define HTTP_RESPONSE_P3P_DIM 256
 #define HTTP_RESPONSE_COOKIE_DIM 8192
 #define HTTP_RESPONSE_CONTENT_LENGTH_DIM 8
 #define HTTP_RESPONSE_ERROR_TYPE_DIM 32
@@ -107,7 +106,6 @@ struct HttpResponseHeader : public HttpHeader
 	string contentType;
 	string connection;
 	string mimeVer;
-  string p3p;
 	string cookie;
 	string contentLength;
 	string errorType;
@@ -177,7 +175,6 @@ struct HttpRequestHeader : public HttpHeader
 	string referer;	
 	string from;
 	string host;			
-	HashMap<string, HttpRequestHeader::Entry*> other;
 	string rangeType;	
 	u_long  rangeByteBegin;
 	u_long  rangeByteEnd;
@@ -195,6 +192,8 @@ struct HttpRequestHeader : public HttpHeader
 	char digestQop[16+1];
 	char digestNc[10+1];
 
+
+	HashMap<string, HttpRequestHeader::Entry*> other;
   virtual string* getValue(const char* name, string* out);
 
   HttpRequestHeader();

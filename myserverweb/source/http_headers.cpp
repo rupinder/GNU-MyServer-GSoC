@@ -154,12 +154,6 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 			token+=len+1;
 		}
 	}
-	if(response->p3p.length())
-	{
-		pos += myserver_strlcpy(pos, "p3p: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->p3p.c_str(), MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
-	}
 	if(response->mimeVer.length())
 	{
 		pos += myserver_strlcpy(pos, "MIME-Version: ", MAX-(long)(pos-str));
@@ -1015,6 +1009,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
     token+= tokenOff + 2;
 		tokenOff = getCharInString(token,":",maxTotchars);
 	}while(((u_long)(token-input)<maxTotchars) && token[0]!='\r');
+
 	/*!
    *END REQUEST STRUCTURE BUILD.
    */
@@ -1217,14 +1212,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->contentRange.assign(token);
 		}else
-		/*!p3p*/
-		if(!lstrcmpi(command,"p3p"))
-		{
-			token = strtok( NULL, "\r\n\0" );
-			lineControlled=1;
-      if(token)
-			response->p3p.assign(token);
-		}else
 		/*!Connection*/
 		if(!lstrcmpi(command,"Connection"))
 		{
@@ -1271,6 +1258,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		}
 		token = strtok( NULL, cmdSeps );
 	}while(token && ((u_long)(token-input)<maxTotchars));
+
 	/*!
    *END REQUEST STRUCTURE BUILD.
    */
