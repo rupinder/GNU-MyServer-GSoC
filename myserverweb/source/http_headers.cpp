@@ -848,15 +848,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			lineControlled=1;
 			request->cookie.assign(token,tokenOff);
 		}else
-		/*!From*/
-		if(!lstrcmpi(command,"From"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_FROM_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->from.assign(token,tokenOff);
-		}else
 		/*!Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
 		{

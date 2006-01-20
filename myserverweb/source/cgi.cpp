@@ -665,7 +665,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	}
 
 	if(td->request.accept.length())
-{
+  {
 		memCgi << end_str << "HTTP_ACCEPT=";
 		memCgi << td->request.accept.c_str();
 	}
@@ -729,6 +729,15 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		if(e)
 		{
 			memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("From");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_FROM=";
 			memCgi << e->value->c_str();
 		}
 	}

@@ -64,7 +64,6 @@ using namespace std;
 #define HTTP_REQUEST_PRAGMA_DIM 256
 #define HTTP_REQUEST_URI_OPTS_DIM 1024
 #define HTTP_REQUEST_REFERER_DIM MAX_PATH
-#define HTTP_REQUEST_FROM_DIM MAX_PATH
 #define HTTP_REQUEST_HOST_DIM 128
 #define HTTP_REQUEST_OTHER_DIM 256
 #define HTTP_REQUEST_CACHE_CONTROL_DIM 64
@@ -167,7 +166,6 @@ struct HttpRequestHeader : public HttpHeader
 	string uriOpts;		
 	char *uriOptsPtr;		
 	string referer;	
-	string from;
 	string host;			
 	string rangeType;	
 	u_long  rangeByteBegin;

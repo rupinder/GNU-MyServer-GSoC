@@ -56,7 +56,6 @@ void HttpRequestHeader::free()
 	contentType.clear();
 	contentLength.clear();
 	date.clear();
-	from.clear();
 	dateExp.clear();	
 	lastModified.clear();	
 	uri.clear();
@@ -412,13 +411,6 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    if(out)
      out->assign( referer.c_str()); 
    return &referer;
- } 
-
- if(!strcmpi(name,"From"))
- { 
-   if(out)
-     out->assign( from.c_str()); 
-   return &from;
  } 
 
  if(!strcmpi(name,"Host"))
