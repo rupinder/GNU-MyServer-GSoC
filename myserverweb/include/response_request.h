@@ -49,9 +49,6 @@ using namespace std;
 #define HTTP_REQUEST_VER_DIM 10
 #define HTTP_REQUEST_ACCEPT_DIM 4096
 #define HTTP_REQUEST_AUTH_DIM 16
-#define HTTP_REQUEST_ACCEPT_ENCODING_DIM 256
-#define HTTP_REQUEST_ACCEPT_LANGUAGE_DIM 512
-#define HTTP_REQUEST_ACCEPT_CHARSET_DIM 512
 #define HTTP_REQUEST_CONNECTION_DIM 32
 #define HTTP_REQUEST_USER_AGENT_DIM 128
 #define HTTP_REQUEST_COOKIE_DIM 2048
@@ -155,9 +152,6 @@ struct HttpRequestHeader : public HttpHeader
 	string contentEncoding;
 	string transferEncoding;
 	string auth;
-	string acceptEncoding;	
-	string acceptLanguage;	
-	string acceptCharset;
 	string ifModifiedSince;
 	string connection;
 	string userAgent;

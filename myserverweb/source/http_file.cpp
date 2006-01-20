@@ -118,7 +118,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
      *Be sure that the client accept GZIP compressed data.  
      */
     if(useGzip)
-      useGzip &= (td->request.acceptEncoding.find("gzip") != string::npos);
+		{
+			HttpRequestHeader::Entry* e = td->request.other.get("Accept-Encoding");
+			if(e)
+			{
+				useGzip &= (e->value->find("gzip") != string::npos);
+			}
+			else
+				useGzip = false;
+
+		}
 #else
     /*! 
      *If compiled without GZIP support force the server to don't use it.  

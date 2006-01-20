@@ -501,12 +501,6 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.acceptLanguage[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
-                    td->request.acceptLanguage.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
-
 	if(td->request.cacheControl[0] && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"HTTP_CACHE_CONTROL:%s\n",
                     td->request.cacheControl.c_str());
@@ -528,13 +522,35 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
      }   
 		valLen+=sprintf(&ValStr[valLen],"%s\n",rangeBuffer.str().c_str());
 	}
-  		
-	if(td->request.acceptEncoding[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",
-                    td->request.acceptEncoding.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
 
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Accept-Encoding");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_ENCODING:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
+
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Accept-Language");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
+
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Accept-Charset");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT_CHARSET:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 	if(td->request.connection[0] && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"HTTP_CONNECTION:%s\n", 
                     td->request.connection.c_str());

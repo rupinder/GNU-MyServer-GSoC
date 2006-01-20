@@ -50,9 +50,6 @@ void HttpRequestHeader::free()
 	cmd.clear();		
 	accept.clear();
 	auth.clear();
-	acceptEncoding.clear();	
-	acceptLanguage.clear();	
-	acceptCharset.clear();
 	connection.clear();
 	userAgent.clear();
 	cookie.clear();
@@ -340,24 +337,6 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    return &auth;
  }
  
- if(!strcmpi(name,"Accept-Encoding"))
- { 
-   if(out)
-     out->assign( acceptEncoding.c_str()); 
-   return &acceptEncoding;
- }
- if(!strcmpi(name,"Accept-Language"))
- { 
-    if(out)
-   out->assign( acceptLanguage.c_str()); 
-   return &acceptLanguage;
- }
- if(!strcmpi(name,"Accept-Charset"))
- { 
-   if(out)
-     out->assign( acceptCharset.c_str()); 
-   return &acceptCharset;
- }  
  if(!strcmpi(name,"If-Modified-Since"))
  { 
    if(out)

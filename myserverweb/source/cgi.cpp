@@ -724,16 +724,31 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		memCgi << td->request.userAgent.c_str();
 	}
 
-	if(td->request.acceptEncoding.length())
 	{
-		memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
-		memCgi << td->request.acceptEncoding.c_str();
+		HttpRequestHeader::Entry* e = td->request.other.get("Accept-Encoding");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
+			memCgi << e->value->c_str();
+		}
 	}
 
-	if(td->request.acceptLanguage.length())
 	{
-		memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
-    memCgi << td->request.acceptLanguage.c_str();
+		HttpRequestHeader::Entry* e = td->request.other.get("Accept-Language");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Accept-Charset");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_ACCEPT_CHARSET=";
+			memCgi << e->value->c_str();
+		}
 	}
 
 	if(td->pathInfo.length())

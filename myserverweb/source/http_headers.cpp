@@ -191,7 +191,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		pos += myserver_strlcpy(pos, response->location.c_str(), MAX-(long)(pos-str));
 		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
 	}
-	/*
+
 	if(response->other.size())
 	{
 		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = response->other.begin();
@@ -209,7 +209,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
       
     }
 	}
-	*/
+
 	/*!
 	*MyServer supports the bytes range.
 	*/
@@ -830,33 +830,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			lineControlled=1;
 			request->accept.append(token,tokenOff+1);
 		}else
-		/*!Accept-Language*/
-		if(!lstrcmpi(command,"Accept-Language"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPT_LANGUAGE_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->acceptLanguage.assign(token,tokenOff);
-		}else
-		/*!Accept-Charset*/
-		if(!lstrcmpi(command,"Accept-Charset"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPT_CHARSET_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->acceptCharset.assign(token,tokenOff);
-		}else
-		/*!Accept-Encoding*/
-		if(!lstrcmpi(command,"Accept-Encoding"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_ACCEPT_ENCODING_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->acceptEncoding.assign(token,tokenOff);
-		}else
 		/*!Connection*/
 		if(!lstrcmpi(command,"Connection"))
 		{
@@ -992,19 +965,28 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       tokenOff = getEndLine(token, maxTotchars);
       if(tokenOff==-1)
         return e_400;
-      {
-        HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry(); 
-        if(e)
-        {
-					HttpRequestHeader::Entry *old;
-					string cmdStr(command);
-          e->name->assign(command, HTTP_RESPONSE_OTHER_DIM);
-          e->value->assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
-					old = request->other.put(cmdStr, e);
-					if(old)
-						delete old;
+      
+			{
+				string cmdStr(command);
+				HttpRequestHeader::Entry *old = request->other.get(cmdStr);
+				if(old)
+				{
+					old->value->append(", ");
+					old->value->append(token, std::min(static_cast<int>(HTTP_RESPONSE_OTHER_DIM - 
+																															old->value->length()),  
+																						 static_cast<int>(tokenOff)));
 				}
-      }
+				else
+				{
+					HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry(); 
+					if(e)
+					{
+						e->name->assign(command, HTTP_RESPONSE_OTHER_DIM);
+						e->value->assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
+						request->other.put(cmdStr, e);
+					}
+				}
+			}
 		}
     token+= tokenOff + 2;
 		tokenOff = getCharInString(token,":",maxTotchars);

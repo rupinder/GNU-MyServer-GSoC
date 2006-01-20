@@ -62,8 +62,13 @@ u_long Gzip::initialize()
   {
     if(!strstr(protocol->registerName(0,0), "HTTP"))
     {
-      active &= ((HttpThreadContext*)protocolData)->request.acceptEncoding.find("gzip")
-                                                                            != string::npos;
+			HttpRequestHeader::Entry* e = ((HttpThreadContext*)protocolData)->request.other.get("Accept-Encoding");
+			if(e)
+			{
+				active &= (e->value->find("gzip") != string::npos);
+			}
+			else
+				active = false;
     }
   }
 	data.initialized=1;
