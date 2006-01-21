@@ -247,9 +247,13 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
 	sprintf(buffer,"Server Port=%u\r\n",td->connection->getLocalPort());
 	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
-
-	sprintf(buffer,"Server Name=%s\r\n",td->request.host.c_str());
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	
+	{
+		HttpRequestHeader::Entry *host = td->request.other.get("Host");
+		if(host)
+			sprintf(buffer,"Server Name=%s\r\n", host->value->c_str());
+		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	}
 
 	strcpy(buffer,"[System]\r\n");
 	DataFileHandle.writeToFile(buffer,10,&nbr);
@@ -356,8 +360,13 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			break;
 		}
 	}
-	if(!stringcmpi(td->request.connection,"keep-alive"))
-		td->response.connection.assign("keep-alive");
+
+	{
+		HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
+
+		if(connection && !stringcmpi(connection->value->c_str(),"keep-alive"))
+			td->response.connection.assign("keep-alive");
+	}
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, buffer);
 	/*!
    *Always specify the size of the HTTP contents.
