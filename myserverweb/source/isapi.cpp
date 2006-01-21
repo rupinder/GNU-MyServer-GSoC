@@ -65,6 +65,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     Server::getInstance()->logUnlockAccess();
 		return 0;
 	}
+	HttpRequestHeader::Entry *connection = ConnInfo->td->request.other.get("Connection");
 
  	switch (dwHSERRequest) 
 	{
@@ -135,7 +136,6 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     SetEvent(ConnInfo->ISAPIDoneEvent);
     break;
   case HSE_REQ_IS_KEEP_CONN:
-		HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
     if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
       *((BOOL*)lpvBuffer)=1;
     else
@@ -206,7 +206,6 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	ConnTableRecord *ConnInfo;
 	char chunk_size[15];
 	u_long nbw=0;
-	HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
 
 	if(*lpdwBytes==0)
 		return 1;
@@ -218,6 +217,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
   if(ConnInfo == NULL)
     return 1;
 	buffer=(char*)ConnInfo->td->buffer->getBuffer();
+	HttpRequestHeader::Entry *connection = ConnInfo->td->request.other.get("Connection");
+
 	if (ConnInfo == NULL) 
 	{
 		((Vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
@@ -508,16 +509,16 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 	DWORD valLen=0;
 	DWORD maxLen=*dwMaxLen;
 	char *ValStr=(char*)output;
-	HttpRequestHeader::Entry *accept = td.request.other.get("Accept");
-	HttpRequestHeader::Entry *cache = td.request.other.get("Cache-Control");
+	HttpRequestHeader::Entry *accept = td->request.other.get("Accept");
+	HttpRequestHeader::Entry *cache = td->request.other.get("Cache-Control");
 
-	if(td->request.accept[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT:%s\n", accept ? accept->value->c_str() : "");
+	if(accept && accept->value->length() && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_ACCEPT:%s\n", accept->value->c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
-	if(td->request.cacheControl[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_CACHE_CONTROL:%s\n", cache ? cache->value->c_str(): "");
+	if(cache && cache->value->length() && (valLen+30<maxLen))
+		valLen+=sprintf(&ValStr[valLen],"HTTP_CACHE_CONTROL:%s\n", cache->value->c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
@@ -929,7 +930,11 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	ExtCtrlBlk.cbTotalBytes = td->inputData.getFileSize();
 	ExtCtrlBlk.cbAvailable = 0;
 	ExtCtrlBlk.lpbData = 0;
-	ExtCtrlBlk.lpszContentType =(char*)td->request.contentType.c_str();
+	{
+		HttpRequestHeader::Entry *content = td->request.other.get("Content-Type");
+
+		ExtCtrlBlk.lpszContentType = content ? content->value->c_str() : 0;
+	}
 
 	connTable[connIndex].td->buffer->setLength(0);
 	connTable[connIndex].td->buffer->getAt(0)='\0';
