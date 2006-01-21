@@ -163,15 +163,18 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	*td->buffer2 << "Server Admin=" << Server::getInstance()->getServerAdmin() << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
-	if(stringcmpi(td->request.connection,"keep-alive"))
 	{
-		strcpy(buffer,"Request Keep-Alive=No\r\n");
-		DataFileHandle.writeToFile(buffer,23,&nbr);
-	}
-	else
-	{
-		strcpy(buffer,"Request Keep-Alive=Yes\r\n");
-		DataFileHandle.writeToFile(buffer,24,&nbr);
+		HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
+		if(connection && stringcmpi(connection->value->c_str(), "keep-alive"))
+		{
+			strcpy(buffer,"Request Keep-Alive=No\r\n");
+			DataFileHandle.writeToFile(buffer,23,&nbr);
+		}
+		else
+		{
+			strcpy(buffer,"Request Keep-Alive=Yes\r\n");
+			DataFileHandle.writeToFile(buffer,24,&nbr);
+		}
 	}
 
 	td->buffer2->setLength(0);
@@ -191,21 +194,35 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		sprintf(buffer,"Query String=%s\r\n",td->request.uriOpts.c_str());
 		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
 	}
-	if(td->request.referer[0])
+
 	{
-		sprintf(buffer,"Referer=%s\r\n",td->request.referer.c_str());
-		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
-	}
-	if(td->request.contentType[0])
-	{
-		sprintf(buffer,"Content Type=%s\r\n",td->request.contentType.c_str());
-		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+		HttpRequestHeader::Entry *referer = td->request.other.get("Referer");
+
+		if(referer && referer->value->length())
+		{
+			sprintf(buffer,"Referer=%s\r\n", referer->value->c_str());
+			DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+		}
 	}
 
-	if(td->request.userAgent[0])
 	{
-		sprintf(buffer,"User Agent=%s\r\n",td->request.userAgent.c_str());
-		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+		HttpRequestHeader::Entry *contentType = td->request.other.get("Content-Type");
+
+		if(contentType && contentType->value->length())
+		{
+			sprintf(buffer,"Content Type=%s\r\n",contentType->value->c_str());
+			DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry *userAgent = td->request.other.get("User-Agent");
+		
+		if(userAgent && userAgent->value->length())
+		{
+			sprintf(buffer,"User Agent=%s\r\n", userAgent->value->c_str());
+			DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+		}
 	}
 
 	sprintf(buffer,"Content File=%s\r\n",td->inputData.getFilename());

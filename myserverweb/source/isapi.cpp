@@ -933,7 +933,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	{
 		HttpRequestHeader::Entry *content = td->request.other.get("Content-Type");
 
-		ExtCtrlBlk.lpszContentType = content ? content->value->c_str() : 0;
+		ExtCtrlBlk.lpszContentType = content ? (char*)content->value->c_str() : 0;
 	}
 
 	connTable[connIndex].td->buffer->setLength(0);
