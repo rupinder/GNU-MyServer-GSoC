@@ -106,18 +106,6 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	{
 		pos += myserver_strlcpy(pos, "Connection: Close\r\n", MAX-(long)(pos-str));
 	}
-	if(response->transferEncoding.length())
-	{
-		pos += myserver_strlcpy(pos, "Transfer-Encoding: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->transferEncoding.c_str(), MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
-	}
-	if(response->contentEncoding.length())
-	{
-		pos += myserver_strlcpy(pos, "Content-Encoding: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->contentEncoding.c_str(), MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
-	}
 	if(response->contentRange.length())
 	{
 		pos += myserver_strlcpy(pos, "Content-Range: ", MAX-(long)(pos-str));
@@ -130,7 +118,9 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		*Do not specify the Content-Length field if it is used
 		*the chunked Transfer-Encoding.
 		*/
-		if(response->transferEncoding.find("chunked",0) == string::npos )
+		HttpResponseHeader::Entry *e = response->other.get("Transfer-Encoding");
+
+		if(e && e->value->find("chunked",0) == string::npos )
 		{
 			pos += myserver_strlcpy(pos, "Content-Length: ", MAX-(long)(pos-str));
 			pos += myserver_strlcpy(pos, response->contentLength.c_str(), MAX-(long)(pos-str));
@@ -784,22 +774,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       }
 #endif
 		}else
-		/*!Content-Encoding*/
-		if(!lstrcmpi(command,"Content-Encoding"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_ENCODING_DIM);
-			if(tokenOff==-1)return e_400;
-			lineControlled=1;
-			request->contentEncoding.assign(token,tokenOff);
-		}else
-		/*!Transfer-Encoding*/
-		if(!lstrcmpi(command,"Transfer-Encoding"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_TRANSFER_ENCODING_DIM);
-			if(tokenOff==-1)return e_400;
-			lineControlled=1;
-			request->transferEncoding.assign(token,tokenOff);
-		}else
 		/*!Content-Type*/
 		if(!lstrcmpi(command,"Content-Type"))
 		{
@@ -943,14 +917,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			lineControlled=1;
 			request->referer.assign(token,tokenOff);
 		}else
-		/*!Pragma*/
-		if(!lstrcmpi(command,"Pragma"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_PRAGMA_DIM);
-			if(tokenOff==-1)return e_400;
-			lineControlled=1;
-			request->pragma.assign(token,tokenOff);
-		}
     if(!lineControlled)
     {
       tokenOff = getEndLine(token, maxTotchars);
@@ -1118,14 +1084,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(response->httpStatus == 200)
         if(token)
           response->httpStatus=atoi(token);
-		}else
-		/*!Content-Encoding*/
-		if(!lstrcmpi(command,"Content-Encoding"))
-		{
-			token = strtok( NULL, "\r\n\0" );
-			lineControlled=1;
-      if(token)
-        response->contentEncoding.assign(token);
 		}else
 		/*!Cache-Control*/
 		if(!lstrcmpi(command,"Cache-Control"))

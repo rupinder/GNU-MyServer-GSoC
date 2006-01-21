@@ -117,7 +117,7 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
     *td.buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
     if(td.request.connection.length())
       *td.buffer2 << "\r\nConnection:" << td.request.connection.c_str() ;
-    *td.buffer2 <<"\r\nContent-length: 0\r\nAccept-Ranges: bytes\r\n";
+    *td.buffer2 <<"\r\nContent-Length: 0\r\nAccept-Ranges: bytes\r\n";
     *td.buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
     
     /*!
@@ -165,7 +165,7 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
     *td.buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
     if(td.request.connection.length())
       *td.buffer2 << "\r\nConnection:" << td.request.connection.c_str() ;
-    *td.buffer2 <<"\r\nContent-length:" << tmp
+    *td.buffer2 <<"\r\nContent-Length:" << tmp
                  << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
     
     /*! Send our HTTP header. */
@@ -1696,7 +1696,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          */
         if(!stringcmpi(td.request.connection, "Keep-Alive"))
         {
-          if((td.request.contentEncoding.length()=='\0') 
+					HttpRequestHeader::Entry *content = td.request.other.get("Content-Encoding");
+					
+          if(content && (content->value->length()=='\0') 
              && (td.request.contentLength.length() == 0))
           {
             /*!
@@ -1847,130 +1849,132 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
      *Data loaded before don't take care of the TRANSFER ENCODING. 
      *Here we clean data, making it usable.
      */
-    if(!td.request.transferEncoding.compare("chunked"))
-    {
-      File newStdIn;
-      char buffer[20];
-      char c;
-      u_long nbr;
-      u_long bufferlen;
-      ostringstream newfilename;
-      
-      newfilename <<  td.inputData.getFilename() <<  "_encoded";
-      if(newStdIn.openFile(td.inputDataPath, FILE_CREATE_ALWAYS | 
-                        FILE_NO_INHERIT|FILE_OPEN_READ|FILE_OPEN_WRITE))
-      {
-        td.inputData.closeFile();
-        td.inputData.deleteFile(td.inputDataPath);
-        return 0;
-      }
-      for(;;)
-      {
-        bufferlen=0;
-        buffer[0]='\0';
-        for(;;)
-        {
-          if(td.inputData.readFromFile(&c, 1, &nbr))
-          {
-            td.inputData.closeFile();
-            td.inputData.deleteFile(td.inputDataPath);
-            newStdIn.closeFile();
-            newStdIn.deleteFile(newfilename.str().c_str());
-            return 0;
-          }
-          if(nbr!=1)
-          {
-            break;
-          }
-          if((c!='\r') && (bufferlen<19))
-          {
-            buffer[bufferlen++]=c;
-            buffer[bufferlen]='\0';
-          }
-          else
-          {
-            break;
-          }
-        }
-        /*!Read the \n char too. */
-        if(td.inputData.readFromFile(&c, 1, &nbr))
-        {
-          td.inputData.closeFile();
-          td.inputData.deleteFile(td.inputDataPath);
-          newStdIn.closeFile();
-          newStdIn.deleteFile(newfilename.str().c_str());
-          return 0;
-        }
-        dataToRead=(u_long)hexToInt(buffer);
+		{
+			HttpRequestHeader::Entry *encoding = td.request.other.get("Transfer-Encoding");
 
-        /*! The last chunk length is 0. */
-        if(dataToRead==0)
-          break;
+			if(encoding && !encoding->value->compare("chunked"))
+			{
+				File newStdIn;
+				char buffer[20];
+				char c;
+				u_long nbr;
+				u_long bufferlen;
+				ostringstream newfilename;
+				
+				newfilename <<  td.inputData.getFilename() <<  "_encoded";
+				if(newStdIn.openFile(td.inputDataPath, FILE_CREATE_ALWAYS | 
+														 FILE_NO_INHERIT|FILE_OPEN_READ|FILE_OPEN_WRITE))
+				{
+					td.inputData.closeFile();
+					td.inputData.deleteFile(td.inputDataPath);
+					return 0;
+				}
+				for(;;)
+				{
+					bufferlen=0;
+					buffer[0]='\0';
+					for(;;)
+					{
+						if(td.inputData.readFromFile(&c, 1, &nbr))
+						{
+							td.inputData.closeFile();
+							td.inputData.deleteFile(td.inputDataPath);
+							newStdIn.closeFile();
+							newStdIn.deleteFile(newfilename.str().c_str());
+							return 0;
+						}
+						if(nbr!=1)
+						{
+							break;
+						}
+						if((c!='\r') && (bufferlen<19))
+						{
+							buffer[bufferlen++]=c;
+							buffer[bufferlen]='\0';
+						}
+						else
+							break;
+					}
+					/*!Read the \n char too. */
+					if(td.inputData.readFromFile(&c, 1, &nbr))
+					{
+						td.inputData.closeFile();
+						td.inputData.deleteFile(td.inputDataPath);
+						newStdIn.closeFile();
+						newStdIn.deleteFile(newfilename.str().c_str());
+						return 0;
+					}
+					dataToRead=(u_long)hexToInt(buffer);
 
-        while(dataRead<dataToRead)
-        {
-          u_long nbw;
-          if(td.inputData.readFromFile(td.buffer->getBuffer(), 
-                         dataToRead-dataRead < td.buffer->getRealLength()-1 
-                        ? dataToRead-dataRead: td.buffer->getRealLength()-1 , &nbr))
-          {
-            td.inputData.closeFile();
-            td.inputData.deleteFile(td.inputDataPath);
-            newStdIn.closeFile();
-            newStdIn.deleteFile(newfilename.str().c_str());
-            return 0;
-          }
-          if(nbr==0)
-            break;
-          dataRead+=nbr;
-          if(newStdIn.writeToFile(td.buffer->getBuffer(), nbr, &nbw))
-          {
-            td.inputData.closeFile();
-            td.inputData.deleteFile(td.inputDataPath);
-            newStdIn.closeFile();
-            newStdIn.deleteFile(newfilename.str().c_str());
-            return 0;
-          }
-          if(nbw!=nbr)
-            break;
-        }
-        
-      }
-      /*!
-       *Now replace the file with the not-chunked one.
-       */
-      td.inputData.closeFile();
-      td.inputData.deleteFile(td.inputDataPath.c_str());
-      td.inputDataPath.assign(newfilename.str().c_str());
-      td.inputData=newStdIn;
-      td.inputData.setFilePointer(0);
-    }
-    /*!
-     *If is specified another Transfer Encoding not supported by the 
-     *server send a 501 error.
-     */
-    else if(td.request.transferEncoding.length())
-    {
-      raiseHTTPError(e_501);
-      /*!
-       *If the inputData file was not closed close it.
-       */
-      if(td.inputData.getHandle())
-      {
-        td.inputData.closeFile();
-        File::deleteFile(td.inputDataPath);
-      }
-      /*!
-       *If the outputData file was not closed close it.
-       */
-      if(td.outputData.getHandle())
-      {
-        td.outputData.closeFile();
-        File::deleteFile(td.outputDataPath);
-      }
-      logHTTPaccess();
-      return 0;
-    }
+					/*! The last chunk length is 0. */
+					if(dataToRead==0)
+						break;
+					
+					while(dataRead<dataToRead)
+					{
+						u_long nbw;
+						if(td.inputData.readFromFile(td.buffer->getBuffer(), 
+																				 dataToRead-dataRead < td.buffer->getRealLength()-1 
+																				 ? dataToRead-dataRead: td.buffer->getRealLength()-1 , &nbr))
+						{
+							td.inputData.closeFile();
+							td.inputData.deleteFile(td.inputDataPath);
+							newStdIn.closeFile();
+							newStdIn.deleteFile(newfilename.str().c_str());
+							return 0;
+						}
+						if(nbr==0)
+							break;
+						dataRead+=nbr;
+						if(newStdIn.writeToFile(td.buffer->getBuffer(), nbr, &nbw))
+						{
+							td.inputData.closeFile();
+							td.inputData.deleteFile(td.inputDataPath);
+							newStdIn.closeFile();
+							newStdIn.deleteFile(newfilename.str().c_str());
+							return 0;
+						}
+						if(nbw!=nbr)
+							break;
+					}
+					
+				}
+				/*!
+				 *Now replace the file with the not-chunked one.
+				 */
+				td.inputData.closeFile();
+				td.inputData.deleteFile(td.inputDataPath.c_str());
+				td.inputDataPath.assign(newfilename.str().c_str());
+				td.inputData=newStdIn;
+				td.inputData.setFilePointer(0);
+			}
+			/*!
+			 *If is specified another Transfer Encoding not supported by the 
+			 *server send a 501 error.
+			 */
+			else if(encoding && encoding->value->length())
+			{
+				raiseHTTPError(e_501);
+				/*!
+				 *If the inputData file was not closed close it.
+				 */
+				if(td.inputData.getHandle())
+				{
+					td.inputData.closeFile();
+					File::deleteFile(td.inputDataPath);
+				}
+				/*!
+				 *If the outputData file was not closed close it.
+				 */
+				if(td.outputData.getHandle())
+				{
+					td.outputData.closeFile();
+					File::deleteFile(td.outputDataPath);
+				}
+				logHTTPaccess();
+				return 0;
+			}
+		}
 
     /*! If return value is not configured propertly. */
     if(retvalue==-1)

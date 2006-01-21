@@ -45,8 +45,6 @@ HttpRequestHeader::~HttpRequestHeader()
 void HttpRequestHeader::free()
 {
   ver.clear();
-	transferEncoding.clear();	
-	contentEncoding.clear();	
 	cmd.clear();		
 	accept.clear();
 	auth.clear();
@@ -73,7 +71,6 @@ void HttpRequestHeader::free()
 			delete (*it);
 	}
 	other.clear();
-	pragma.clear();
 	rangeType.clear();
 	rangeByteBegin=0;
 	rangeByteEnd=0;
@@ -186,19 +183,6 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
     return &auth;
   }
 
-  if(!strcmpi(name,"Content-Encoding"))
-  { 
-    if(out)
-      out->assign(contentEncoding.c_str()); 
-    return &contentEncoding;
-  }
-
-  if(!strcmpi(name,"Transfer-Encoding"))
-  { 
-    if(out)
-      out->assign(transferEncoding.c_str()); 
-    return &transferEncoding;
-  }
   if(!strcmpi(name,"Cache-Control"))
   { 
     if(out)
@@ -257,8 +241,6 @@ void HttpResponseHeader::free()
 	cookie.clear();
 	contentLength.clear();
 	errorType.clear();
-	contentEncoding.clear();
-	transferEncoding.clear();
 	location.clear();
 	date.clear();		
 	auth.clear();
@@ -317,18 +299,6 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
     return &accept;
   }
  
-  if(!strcmpi(name,"Content-Encoding"))
-  { 
-    if(out)
-      out->assign( contentEncoding.c_str()); 
-    return &contentEncoding;
-  }
- if(!strcmpi(name,"Transfer-Encoding"))
- { 
-   if(out)
-     out->assign( transferEncoding.c_str()); 
-   return &transferEncoding;
- }
  if(!strcmpi(name,"Authorization"))
  { 
    if(out)
@@ -397,13 +367,6 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    if(out)
      out->assign( cacheControl.c_str()); 
    return &cacheControl;
- } 
-
- if(!strcmpi(name,"Pragma"))
- { 
-   if(out)
-     out->assign( pragma.c_str()); 
-   return &pragma;
  } 
 
  if(!strcmpi(name,"Referer"))

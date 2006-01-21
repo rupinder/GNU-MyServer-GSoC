@@ -222,14 +222,36 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
     if(useModifiers)
     {
-      chain.getName(td->response.contentEncoding);
+			string s;
+			HttpResponseHeader::Entry *e;
+			chain.getName(s);
+			e = td->response.other.get("Content-Encoding");
+			if(e)
+				e->value->assign(s);
+			else
+			{
+				e = new HttpResponseHeader::Entry();
+				e->name->assign("Content-Encoding");
+				e->value->assign(s);
+				td->response.other.put(*(e->name), e);
+			}
       /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
       if(keepalive)
       {
-        usechunks=1;
-        td->response.transferEncoding.assign("chunked");
-      }
+				HttpResponseHeader::Entry *e;
+				e = td->response.other.get("Transfer-Encoding");
+				if(e)
+					e->value->assign("chunked");
+				else
+  			{
+					e = new HttpResponseHeader::Entry();
+					e->name->assign("Transfer-Encoding");
+					e->value->assign("chunked");
+					td->response.other.put(*(e->name), e);
+				}
 
+        usechunks=1;
+			}
     }
  
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 

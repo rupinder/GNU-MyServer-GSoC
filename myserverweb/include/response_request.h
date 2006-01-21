@@ -36,8 +36,6 @@ using namespace std;
 #define HTTP_RESPONSE_ERROR_TYPE_DIM 32
 #define HTTP_RESPONSE_LOCATION_DIM MAX_PATH
 #define HTTP_RESPONSE_DATE_DIM 32
-#define HTTP_RESPONSE_CONTENT_ENCODING_DIM 32
-#define HTTP_RESPONSE_TRANSFER_ENCODING_DIM 32
 #define HTTP_RESPONSE_DATE_EXPIRES_DIM 32
 #define HTTP_RESPONSE_CACHE_CONTROL_DIM 64
 #define HTTP_RESPONSE_AUTH_DIM 256
@@ -54,14 +52,11 @@ using namespace std;
 #define HTTP_REQUEST_COOKIE_DIM 2048
 #define HTTP_REQUEST_CONTENT_TYPE_DIM 96
 #define HTTP_REQUEST_CONTENT_LENGTH_DIM 12
-#define HTTP_REQUEST_CONTENT_ENCODING_DIM 16
-#define HTTP_REQUEST_TRANSFER_ENCODING_DIM 16
 #define HTTP_REQUEST_DATE_DIM 32
 #define HTTP_REQUEST_DATE_EXPIRES_DIM 32
 #define HTTP_REQUEST_IF_MODIFIED_SINCE_DIM 35
 #define HTTP_REQUEST_LAST_MODIFIED_DIM 32
 #define HTTP_REQUEST_URI_DIM 1024
-#define HTTP_REQUEST_PRAGMA_DIM 256
 #define HTTP_REQUEST_URI_OPTS_DIM 1024
 #define HTTP_REQUEST_REFERER_DIM MAX_PATH
 #define HTTP_REQUEST_HOST_DIM 128
@@ -110,8 +105,6 @@ struct HttpResponseHeader : public HttpHeader
 	string date;		
 	string dateExp;	
 	string auth;
-	string contentEncoding;
-	string transferEncoding;
 	string cacheControl;
 	string contentRange;
 	HashMap<string,HttpResponseHeader::Entry*> other;	
@@ -148,8 +141,6 @@ struct HttpRequestHeader : public HttpHeader
 	string cmd;		
 	string ver;		
 	string accept;
-	string contentEncoding;
-	string transferEncoding;
 	string auth;
 	string ifModifiedSince;
 	string connection;
@@ -162,7 +153,6 @@ struct HttpRequestHeader : public HttpHeader
 	string lastModified;	
 	string uri;
 	string cacheControl;
-	string pragma;
 	string uriOpts;		
 	char *uriOptsPtr;		
 	string referer;	

@@ -275,11 +275,21 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 			{
 				if(keepalive)
 				{
-					ConnInfo->td->response.transferEncoding.assign("chunked");
-					ConnInfo->td->response.connection.assign("Keep-Alive");
-        }
+					HttpResponseHeader::Entry *e;
+					e = ConnInfo->td->response.other.get("Transfer-Encoding");
+					if(e)
+						e->value->assign("chunked");
+					else
+					{
+						e = new HttpResponseHeader::Entry();
+						e->name->assign("Transfer-Encoding");
+						e->value->assign("chunked");
+						ConnInfo->td->response.other.put(*(e->name), e);
+					}
+				}
 				else
 					ConnInfo->td->response.connection.assign("Close");
+				
 				HttpHeaders::buildHTTPResponseHeader(
                  (char*)ConnInfo->td->buffer2->getBuffer(),&(ConnInfo->td->response));
 	
@@ -551,6 +561,16 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 		else if(valLen+30<maxLen) 
 			return 0;
 	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Pragma");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_PRAGMA:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
+
 	if(td->request.connection[0] && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"HTTP_CONNECTION:%s\n", 
                     td->request.connection.c_str());
@@ -581,12 +601,6 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 	if(td->request.referer[0] && (valLen+30<maxLen))
 		valLen+=sprintf(&ValStr[valLen],"HTTP_REFERER:%s\n", 
                     td->request.referer.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
-
-	if(td->request.pragma[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_PRAGMA:%s\n", 
-                    td->request.pragma.c_str());
 	else if(valLen+30<maxLen) 
 		return 0;
 
