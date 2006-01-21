@@ -120,7 +120,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		*/
 		HttpResponseHeader::Entry *e = response->other.get("Transfer-Encoding");
 
-		if(e && e->value->find("chunked",0) == string::npos )
+		if(!e || (e && e->value->find("chunked",0) == string::npos ))
 		{
 			pos += myserver_strlcpy(pos, "Content-Length: ", MAX-(long)(pos-str));
 			pos += myserver_strlcpy(pos, response->contentLength.c_str(), MAX-(long)(pos-str));
@@ -424,27 +424,27 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
                             HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
 			len_token = tokenOff;
 			if(tokenOff==-1)
-        {
-          request->ver.clear();
-          request->cmd.clear();
-          tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
-          if(tokenOff > 0)
-            request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
-          else
-            request->uri.assign(input, HTTP_REQUEST_URI_DIM );
-          return e_400;
-        }
+      {
+				request->ver.clear();
+				request->cmd.clear();
+				tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
+				if(tokenOff > 0)
+					request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+				else
+					request->uri.assign(input, HTTP_REQUEST_URI_DIM );
+				return e_400;
+			}
       if(tokenOff > maxUri)
-        {
-          request->ver.clear();
-          request->cmd.clear();
-          tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
-          if(tokenOff > 0)
-            request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
-          else
-            request->uri.assign(input, HTTP_REQUEST_URI_DIM );
-          return e_400;
-        }
+      {
+				request->ver.clear();
+				request->cmd.clear();
+				tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
+				if(tokenOff > 0)
+					request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+				else
+					request->uri.assign(input, HTTP_REQUEST_URI_DIM );
+				return e_400;
+			}
 			max=(int)tokenOff;
 			while((token[max]!=' ') && (len_token-max<HTTP_REQUEST_VER_DIM))
 				max--;
@@ -565,14 +565,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       request->uri=trimRight(request->uri, " /");
 			request->uriOpts=trim(request->uriOpts, " ");
 
-		}else
-		/*!User-Agent*/
-		if(!lstrcmpi(command,"User-Agent"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_USER_AGENT_DIM);
-      if(tokenOff==-1)return e_400;
-			lineControlled=1;
-			request->userAgent.assign(token,tokenOff+1);
 		}else
 		/*!Authorization*/
 		if(!lstrcmpi(command,"Authorization"))
@@ -750,78 +742,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				delete  [] digestBuff;
 			}
 		}else
-		/*!Host*/
-		if(!lstrcmpi(command,"Host"))
-		{
- 			tokenOff = getEndLine(token, HTTP_REQUEST_HOST_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->host.assign(token,tokenOff);
-#ifdef DO_NOT_SAVE_HOST_PORT
-     int cur = 0; 
-     /*!
-       *Do not save the port if specified.
-       */
-      while(request->host[cur])
-      {
-        if(request->host[cur]==':')
-        {
-          request->host[cur]='\0';
-          break;
-        }
-        cur++;
-      }
-#endif
-		}else
-		/*!Content-Type*/
-		if(!lstrcmpi(command,"Content-Type"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_TYPE_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->contentType.assign(token,tokenOff);
-		}else
-		/*!If-Modified-Since*/
-		if(!lstrcmpi(command,"If-Modified-Since"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_IF_MODIFIED_SINCE_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->ifModifiedSince.assign(token,tokenOff);
-		}else
-		/*!Accept*/
-		if(!lstrcmpi(command,"Accept"))
-		{
-			int max = HTTP_REQUEST_ACCEPT_DIM-(int)request->accept.length();
-			if(max < 0)
-				return e_400;
-			tokenOff = getEndLine(token, max);
-			if(tokenOff == -1)
-        return e_400;
-			lineControlled=1;
-			request->accept.append(token,tokenOff+1);
-		}else
-		/*!Connection*/
-		if(!lstrcmpi(command,"Connection"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_CONNECTION_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->connection.assign(token,tokenOff);
-		}else
-		/*!Cookie*/
-		if(!lstrcmpi(command,"Cookie"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_COOKIE_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->cookie.assign(token,tokenOff);
-		}else
 		/*!Content-Length*/
 		if(!lstrcmpi(command,"Content-Length"))
 		{
@@ -830,15 +750,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         return e_400;
 			lineControlled=1;
 			request->contentLength.assign(token,tokenOff);
-		}else
-		/*!Cache-Control*/
-		if(!lstrcmpi(command,"Cache-Control"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_CACHE_CONTROL_DIM);
-			if(tokenOff==-1)
-        return e_400;
-			lineControlled=1;
-			request->cacheControl.assign(token,tokenOff);
 		}else
 		/*!Range*/
 		if(!lstrcmpi(command,"Range"))
@@ -908,14 +819,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         if(request->rangeByteEnd < request->rangeByteBegin)
           return e_400;
       }
-		}else
-		/*!Referer*/
-		if(!lstrcmpi(command,"Referer"))
-		{
-			tokenOff = getEndLine(token, HTTP_REQUEST_REFERER_DIM);
-			if(tokenOff==-1)return e_400;
-			lineControlled=1;
-			request->referer.assign(token,tokenOff);
 		}else
     if(!lineControlled)
     {

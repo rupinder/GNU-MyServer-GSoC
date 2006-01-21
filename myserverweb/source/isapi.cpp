@@ -135,7 +135,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     SetEvent(ConnInfo->ISAPIDoneEvent);
     break;
   case HSE_REQ_IS_KEEP_CONN:
-    if(!stringcmpi(ConnInfo->td->request.connection, "Keep-Alive"))
+    if(!stringcmpi(ConnInfo->td->request.connection, "keep-alive"))
       *((BOOL*)lpvBuffer)=1;
     else
       *((BOOL*)lpvBuffer)=0;
@@ -225,7 +225,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
                                                                 ConnInfo->td->id);
 		return 0;
 	}
-	keepalive =(!stringcmpi(ConnInfo->td->request.connection, "Keep-Alive")) ;
+	keepalive =(!stringcmpi(ConnInfo->td->request.connection, "keep-alive")) ;
 
   /*If the HTTP header was sent do not send it again. */
 	if(!ConnInfo->headerSent)
@@ -571,49 +571,78 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr /*!a*/,
 			return 0;
 	}
 
-	if(td->request.connection[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_CONNECTION:%s\n", 
-                    td->request.connection.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Connection");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_CONNECTION:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 
-	if(td->request.cookie[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_COOKIE:%s\n",td->request.cookie.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Cookie");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_COOKIE:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 
-	if(td->request.host[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_HOST:%s\n",td->request.host.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Host");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_HOST:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 
-	if(td->request.date[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_DATE:%s\n",td->request.date.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Date");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_DATE:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 
-	if(td->request.ifModifiedSince[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
-                    td->request.ifModifiedSince.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("If-Modified-Since");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 
-	if(td->request.referer[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_REFERER:%s\n", 
-                    td->request.referer.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Referer");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_REFERER:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 
-	if(td->request.userAgent[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_USER_AGENT:%s\n", 
-                    td->request.userAgent.c_str());
-	else if(valLen+30<maxLen)
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("User-Agent");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_USER_AGENT:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
 
-	if(td->request.from[0] && (valLen+30<maxLen))
-		valLen+=sprintf(&ValStr[valLen],"HTTP_FROM:%s\n",td->request.from.c_str());
-	else if(valLen+30<maxLen) 
-		return 0;
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("From");
+		if(e && (valLen+30<maxLen))
+			valLen+=sprintf(&ValStr[valLen],"HTTP_FROM:%s\n",
+											e.value->c_str());
+		else if(valLen+30<maxLen) 
+			return 0;
+	}
+
 	return 1;
 }
 
@@ -922,7 +951,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	
 	{
     u_long nbw=0;
-    if(!stringcmpi(connTable[connIndex].td->request.connection, "Keep-Alive"))
+    if(!stringcmpi(connTable[connIndex].td->request.connection, "keep-alive"))
 	    Ret = connTable[connIndex].chain.write("0\r\n\r\n", 5, &nbw);
   }
   

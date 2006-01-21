@@ -45,24 +45,12 @@ HttpRequestHeader::~HttpRequestHeader()
 void HttpRequestHeader::free()
 {
   ver.clear();
-	cmd.clear();		
-	accept.clear();
+	cmd.clear();
 	auth.clear();
-	connection.clear();
-	userAgent.clear();
-	cookie.clear();
-	contentType.clear();
 	contentLength.clear();
-	date.clear();
-	dateExp.clear();	
-	lastModified.clear();	
 	uri.clear();
 	uriOpts.clear();
 	uriOptsPtr=NULL;
-	referer.clear();
-	host.clear();
-	cacheControl.clear();
-	ifModifiedSince.clear();
 
 	{
 		HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
@@ -292,13 +280,6 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
     return &uriOpts;
   } 
 
-  if(!strcmpi(name,"accept"))
-  { 
-    if(out)
-      out->assign( accept.c_str()); 
-    return &accept;
-  }
- 
  if(!strcmpi(name,"Authorization"))
  { 
    if(out)
@@ -306,81 +287,11 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    return &auth;
  }
  
- if(!strcmpi(name,"If-Modified-Since"))
- { 
-   if(out)
-     out->assign( ifModifiedSince.c_str()); 
-   return &ifModifiedSince;
- }  
- if(!strcmpi(name,"Connection"))
- {     
-   if(out)
-     out->assign( connection.c_str()); 
-   return &connection;
- }  
- if(!strcmpi(name,"User-Agent"))
- { 
-   if(out)
-     out->assign( userAgent.c_str()); 
-   return &userAgent;
- } 
- if(!strcmpi(name,"Cookie"))
- { 
-   if(out)
-     out->assign( cookie.c_str()); 
-   return &cookie;
- }
- if(!strcmpi(name,"Content-Type"))
- { 
-   if(out)
-     out->assign( contentType.c_str()); 
-   return &contentType;
- } 
  if(!strcmpi(name,"Content-Length"))
  { 
    if(out)
      out->assign( contentLength.c_str()); 
    return &contentLength;
- } 
-
- if(!strcmpi(name,"Date"))
- { 
-   if(out)
-     out->assign( date.c_str()); 
-   return &date;
- } 
- if(!strcmpi(name,"Expires"))
- { 
-   if(out)
-     out->assign( dateExp.c_str()); 
-   return &dateExp;
- } 
- if(!strcmpi(name,"Last-Modified"))
- { 
-   if(out)
-     out->assign( lastModified.c_str()); 
-   return &lastModified;
- } 
-
- if(!strcmpi(name,"Cache-Control"))
- { 
-   if(out)
-     out->assign( cacheControl.c_str()); 
-   return &cacheControl;
- } 
-
- if(!strcmpi(name,"Referer"))
- { 
-   if(out)
-     out->assign( referer.c_str()); 
-   return &referer;
- } 
-
- if(!strcmpi(name,"Host"))
- { 
-   if(out)
-     out->assign( host.c_str()); 
-   return &host;
  } 
 
  if(!strcmpi(name,"rangeType"))

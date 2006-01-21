@@ -45,23 +45,11 @@ using namespace std;
 /*! Max length for a HTTP request fields. */
 #define HTTP_REQUEST_CMD_DIM 16
 #define HTTP_REQUEST_VER_DIM 10
-#define HTTP_REQUEST_ACCEPT_DIM 4096
 #define HTTP_REQUEST_AUTH_DIM 16
-#define HTTP_REQUEST_CONNECTION_DIM 32
-#define HTTP_REQUEST_USER_AGENT_DIM 128
-#define HTTP_REQUEST_COOKIE_DIM 2048
-#define HTTP_REQUEST_CONTENT_TYPE_DIM 96
 #define HTTP_REQUEST_CONTENT_LENGTH_DIM 12
-#define HTTP_REQUEST_DATE_DIM 32
-#define HTTP_REQUEST_DATE_EXPIRES_DIM 32
-#define HTTP_REQUEST_IF_MODIFIED_SINCE_DIM 35
-#define HTTP_REQUEST_LAST_MODIFIED_DIM 32
 #define HTTP_REQUEST_URI_DIM 1024
 #define HTTP_REQUEST_URI_OPTS_DIM 1024
-#define HTTP_REQUEST_REFERER_DIM MAX_PATH
-#define HTTP_REQUEST_HOST_DIM 128
-#define HTTP_REQUEST_OTHER_DIM 256
-#define HTTP_REQUEST_CACHE_CONTROL_DIM 64
+#define HTTP_REQUEST_OTHER_DIM 4096
 #define HTTP_REQUEST_RANGE_TYPE_DIM 16
 
 struct HttpHeader
@@ -83,6 +71,15 @@ struct HttpResponseHeader : public HttpHeader
 		{
 			name = new string();
 			value = new string();
+		}
+
+		Entry(string& n, string& v) 
+		{
+			name = new string();
+			value = new string();
+			
+			name->assign(n);
+			value->assign(v);
 		}
 		~Entry()
 		{
@@ -130,6 +127,16 @@ struct HttpRequestHeader : public HttpHeader
 			name = new string();
 			value = new string();
 		}
+		
+		Entry(string& n, string& v)
+		{
+			name = new string();
+			value = new string();
+
+			name->assign(n);
+			value->assign(v);
+		}
+
 		~Entry()
 		{
 			delete name;
@@ -140,26 +147,14 @@ struct HttpRequestHeader : public HttpHeader
   };
 	string cmd;		
 	string ver;		
-	string accept;
 	string auth;
-	string ifModifiedSince;
-	string connection;
-	string userAgent;
-	string cookie;
-	string contentType;
 	string contentLength;
-	string date;
-	string dateExp;	
-	string lastModified;	
 	string uri;
-	string cacheControl;
 	string uriOpts;		
 	char *uriOptsPtr;		
-	string referer;	
-	string host;			
 	string rangeType;	
-	u_long  rangeByteBegin;
-	u_long  rangeByteEnd;
+	u_long rangeByteBegin;
+	u_long rangeByteEnd;
 	int uriEndsWithSlash;
 	
 	/*! Digest authorization scheme stuff.  */

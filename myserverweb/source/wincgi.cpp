@@ -163,7 +163,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	*td->buffer2 << "Server Admin=" << Server::getInstance()->getServerAdmin() << "\r\n";
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
-	if(stringcmpi(td->request.connection,"Keep-Alive"))
+	if(stringcmpi(td->request.connection,"keep-alive"))
 	{
 		strcpy(buffer,"Request Keep-Alive=No\r\n");
 		DataFileHandle.writeToFile(buffer,23,&nbr);
@@ -339,8 +339,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			break;
 		}
 	}
-	if(!stringcmpi(td->request.connection,"Keep-Alive"))
-		td->response.connection.assign("Keep-Alive");
+	if(!stringcmpi(td->request.connection,"keep-alive"))
+		td->response.connection.assign("keep-alive");
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, buffer);
 	/*!
    *Always specify the size of the HTTP contents.

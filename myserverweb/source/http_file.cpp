@@ -111,7 +111,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }
 
     }
-    keepalive = !lstrcmpi(td->request.connection.c_str(),"Keep-Alive");
+
+		{
+			HttpRequestHeader::Entry* e = td->request.other.get("Connection");
+			if(e)
+				keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
+			else
+				keepalive = 0;
+		}
 
 #ifndef DO_NOT_USEGZIP
     /*! 

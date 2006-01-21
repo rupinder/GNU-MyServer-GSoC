@@ -404,8 +404,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	if(!yetoutputted)
 	{
     u_long nbw2=0;
-		if(!lstrcmpi(td->request.connection.c_str(), "Keep-Alive"))
-			td->response.connection.assign("Keep-Alive");
+		HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
+		
+		if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
+		  td->response.connection.assign("keep-alive");
 		/*!
      *Do not send any other HTTP header if the CGI executable
      *has the nph-. form name.  
@@ -604,12 +606,6 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	memCgi << end_str << "GATEWAY_INTERFACE=CGI/1.1";
 
-	if(td->request.contentType.length())
-	{
-		memCgi << end_str << "CONTENT_TYPE=";
-		memCgi << td->request.contentType.c_str();
-	}
-
 	if(td->request.contentLength.length())
 	{
 		memCgi << end_str << "CONTENT_LENGTH=";
@@ -628,11 +624,6 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		memCgi << end_str << "CONTENT_LENGTH=" << stream.str().c_str();
 	}
 
-	if(td->request.cookie.length())
-	{
-		memCgi << end_str << "HTTP_COOKIE=";
-		memCgi << td->request.cookie.c_str();
-	}
 
 	if(td->request.rangeByteBegin || td->request.rangeByteEnd)
 	{
@@ -652,34 +643,10 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 	}
 
-	if(td->request.referer.length())
-	{
-		memCgi << end_str << "HTTP_REFERER=";
-		memCgi << td->request.referer.c_str();
-	}
-
-	if(td->request.cacheControl.length())
-	{
-		memCgi << end_str << "HTTP_CACHE_CONTROL=";
-		memCgi << td->request.cacheControl.c_str();
-	}
-
-	if(td->request.accept.length())
-  {
-		memCgi << end_str << "HTTP_ACCEPT=";
-		memCgi << td->request.accept.c_str();
-	}
-
 	if(td->cgiRoot.length())
 	{
 		memCgi << end_str << "CGI_ROOT=";
 		memCgi << td->cgiRoot;
-	}
-
-	if(td->request.host.length())
-	{
-		memCgi << end_str << "HTTP_HOST=";
-		memCgi << td->request.host.c_str();
 	}
 
 	if(td->connection->getIpAddr()[0])
@@ -706,22 +673,83 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	else
 		memCgi << end_str << "SSL=OFF";
 
-	if(td->request.connection.length())
-	{
-		memCgi << end_str << "HTTP_CONNECTION=";
-		memCgi << td->request.connection.c_str();
-	}
-
 	if(td->request.auth.length())
 	{
 		memCgi << end_str << "AUTH_TYPE=";
 		memCgi << td->request.auth.c_str();
 	}
 
-	if(td->request.userAgent.length())
 	{
-		memCgi << end_str << "HTTP_USER_AGENT=";
-		memCgi << td->request.userAgent.c_str();
+		HttpRequestHeader::Entry* e = td->request.other.get("Host");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_HOST=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Cookie");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_COOKIE=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Connection");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_CONNECTION=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("User-Agent");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_USER_AGENT=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Accept");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_ACCEPT=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Content-Type");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_CONTENT_TYPE=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Cache-Control");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_CACHE_CONTROL=";
+			memCgi << e->value->c_str();
+		}
+	}
+
+	{
+		HttpRequestHeader::Entry* e = td->request.other.get("Referer");
+		if(e)
+		{
+			memCgi << end_str << "HTTP_REFERER=";
+			memCgi << e->value->c_str();
+		}
 	}
 
 	{

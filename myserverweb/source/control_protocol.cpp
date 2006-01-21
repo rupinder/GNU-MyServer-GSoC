@@ -552,7 +552,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
      *If the Keep-Alive was specified keep the connection in the
      *active connections list.
      */
-    if(!strcmpi(connection,"Keep-Alive"))
+    if(!strcmpi(connection,"keep-alive"))
       return 1;
     else 
       return 0;

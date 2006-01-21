@@ -110,13 +110,14 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
 	string time;
   try
   {
+		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     td.buffer2->setLength(0);
     *td.buffer2 <<  "HTTP/1.1 200 OK\r\n";
     *td.buffer2 << "Date: " << time ;
     *td.buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
-    if(td.request.connection.length())
-      *td.buffer2 << "\r\nConnection:" << td.request.connection.c_str() ;
+    if(connection && connection->value->length())
+      *td.buffer2 << "\r\nConnection:" << connection->value->c_str() ;
     *td.buffer2 <<"\r\nContent-Length: 0\r\nAccept-Ranges: bytes\r\n";
     *td.buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
     
@@ -155,6 +156,8 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
   try
   {
     MemBuf tmp;
+		HttpRequestHeader::Entry *connection;
+
     tmp.intToStr(content_len, tmpStr, 12);
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     if(!allowHTTPTRACE())
@@ -163,8 +166,9 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
     *td.buffer2 <<  "HTTP/1.1 200 OK\r\n";
     *td.buffer2 << "Date: " << time ;
     *td.buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
-    if(td.request.connection.length())
-      *td.buffer2 << "\r\nConnection:" << td.request.connection.c_str() ;
+		connection = td.request.other.get("Connection");
+    if(connection && connection->value->length())
+      *td.buffer2 << "\r\nConnection:" << connection->value->c_str();
     *td.buffer2 <<"\r\nContent-Length:" << tmp
                  << "\r\nContent-Type: message/http\r\nAccept-Ranges: bytes\r\n\r\n";
     
@@ -251,9 +255,10 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
   try
   {
     HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
-    if(!stringcmpi(td.request.connection, "Keep-Alive"))
+		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     {
-      td.response.connection.assign("Keep-Alive");
+      td.response.connection.assign("keep-alive");
       keepalive=1;
     }
     File::splitPath(td.filenamePath, directory, file);
@@ -520,9 +525,11 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
   try
   {
     HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
-    if(!stringcmpi(td.request.connection, "Keep-Alive"))
+		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+
+    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     {
-      td.response.connection.assign( "Keep-Alive");
+      td.response.connection.assign( "keep-alive");
     }
     st.auth_type = auth_type;
     st.len_auth = 16;
@@ -816,16 +823,17 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
   string file;
   try
   {
+		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+
     st.auth_type = auth_type;
     st.len_auth = 16;
     st.td=&td;
     filename.assign(uri);
     td.buffer->setLength(0);
-    
-    HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);	
-    if(!stringcmpi(td.request.connection, "Keep-Alive"))
+
+    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     {
-      td.response.connection.assign("Keep-Alive");
+      td.response.connection.assign("keep-alive");
     }
     
 
@@ -1421,14 +1429,19 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       return raiseHTTPError(e_500);
     }
     getRFC822GMTTime(lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
-    td.response.lastModified.assign(tmpTime);
-    if(td.request.ifModifiedSince.length())
-    {
-      if(!td.request.ifModifiedSince.compare(td.response.lastModified.c_str()))
-      {
-        return sendHTTPNonModified();
-      }
-    }
+		td.response.lastModified.assign(tmpTime);
+    
+		{
+			HttpRequestHeader::Entry *ifModifiedSince = td.request.other.get("Last-Modified");
+
+			if(ifModifiedSince && ifModifiedSince->value->length())
+			{
+				if(!ifModifiedSince->value->compare(td.response.lastModified.c_str()))
+				{
+					return sendHTTPNonModified();
+				}
+			}
+		}
     ret = lhttp_file.send(&td, td.connection, td.filenamePath.c_str(), 0, onlyHeader);
   }
   catch(...)
@@ -1497,9 +1510,12 @@ int Http::logHTTPaccess()
       *td.buffer2 << "0";
     if(td.connection->host)
     {
+			HttpRequestHeader::Entry *userAgent = td.request.other.get("User-Agent");
+			HttpRequestHeader::Entry *referer = td.request.other.get("Refer");
+
       if(strstr((((Vhost*)(td.connection->host)))->getAccessLogOpt(), "type=combined"))
-        *td.buffer2 << " "  << td.request.referer.c_str() << " "  
-                   << td.request.userAgent.c_str();
+        *td.buffer2 << " "  << (referer   ? referer->value->c_str() : "") 
+										<< " "  << (userAgent ? userAgent->value->c_str() : "");
     }  
 #ifdef WIN32
     *td.buffer2  << "\r\n" << end_str;
@@ -1625,11 +1641,18 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       /*! Remove the connection from the list. */
       return 0;
     }
+
+		td.response.ver.assign(td.request.ver.c_str());
+
     /*! Do not use Keep-Alive over HTTP version older than 1.1. */
     if(td.request.ver.compare("HTTP/1.1") )
     {
-      if(td.request.connection.length())
-        td.request.connection.assign("close");
+			HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+
+      if(connection && connection->value->length())
+			{
+        connection->value->assign("close");
+			}
     }
 
     /*!
@@ -1651,8 +1674,16 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     if((!td.request.cmd.compare("POST"))||(!td.request.cmd.compare("PUT")) || 
        (dynamicCommand && dynamicCommand->acceptData() ))
     {
-      if(td.request.contentType.length() == 0)
-        td.request.contentType.assign("application/x-www-form-urlencoded");
+			HttpRequestHeader::Entry *contentType = td.request.other.get("Content-Type");
+
+			if(contentType == 0)
+			{
+				contentType = new HttpRequestHeader::Entry();
+				contentType->name->assign("Content-Type");
+				contentType->value->assign("application/x-www-form-urlencoded");
+			}
+			else if(contentType->value->length() == 0)
+        contentType->value->assign("application/x-www-form-urlencoded");
       
       /*!
        *Read POST data.
@@ -1694,34 +1725,38 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not 
          *always needed.
          */
-        if(!stringcmpi(td.request.connection, "Keep-Alive"))
-        {
-					HttpRequestHeader::Entry *content = td.request.other.get("Content-Encoding");
+				{
+					HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
 					
-          if(content && (content->value->length()=='\0') 
-             && (td.request.contentLength.length() == 0))
-          {
-            /*!
-             *If the inputData file was not closed close it.
-             */
-            if(td.inputData.getHandle())
-            {
-              td.inputData.closeFile();
-              File::deleteFile(td.inputDataPath);
-            }
-            /*!
-             *If the outputData file was not closed close it.
-             */
-            if(td.outputData.getHandle())
-            {
-              td.outputData.closeFile();
-              File::deleteFile(td.outputDataPath);
-            }
-            retvalue = raiseHTTPError(e_400);
-            logHTTPaccess();
-            return retvalue ? 1 : 0;
-          }
-        }
+					if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
+					{
+						HttpRequestHeader::Entry *content = td.request.other.get("Content-Encoding");
+					
+						if(content && (content->value->length()=='\0') 
+							 && (td.request.contentLength.length() == 0))
+						{
+							/*!
+							 *If the inputData file was not closed close it.
+							 */
+							if(td.inputData.getHandle())
+							{
+								td.inputData.closeFile();
+								File::deleteFile(td.inputDataPath);
+							}
+							/*!
+							 *If the outputData file was not closed close it.
+							 */
+							if(td.outputData.getHandle())
+							{
+								td.outputData.closeFile();
+								File::deleteFile(td.outputDataPath);
+							}
+							retvalue = raiseHTTPError(e_400);
+							logHTTPaccess();
+							return retvalue ? 1 : 0;
+						}
+					}
+				}
         /*!
          *If there are others bytes to read from the socket.
          */
@@ -1755,8 +1790,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
               if((content_len>static_cast<int>(fs)) && 
                  (td.connection->socket.bytesToRead()))
               {				
-                u_long tr=static_cast<u_long>(content_len)-total_nbr < 
-                  td.buffer2->getRealLength() 
+                u_long tr = static_cast<u_long>(content_len)-total_nbr < 
+								td.buffer2->getRealLength() 
                   ? static_cast<u_long>(content_len)-total_nbr 
                   : td.buffer2->getRealLength() ;
 
@@ -1985,7 +2020,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
        *request does not include a Host request-header.
        */
-      if((!td.request.ver.compare("HTTP/1.1")) && td.request.host.length()==0)
+			HttpRequestHeader::Entry *host = td.request.other.get("Host");
+			HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+		
+      if((!td.request.ver.compare("HTTP/1.1")) && ((host && host->value->length()==0) || (host==0)) )
       {
         raiseHTTPError(e_400);
         /*!
@@ -2012,8 +2050,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         /*!
          *Find the virtual host to check both host name and IP value.
          */
-        Vhost* newHost=Server::getInstance()->vhostList->getVHost((char*)td.request.host.c_str(), 
-                                            a->getLocalIpAddr(), a->getLocalPort());
+        Vhost* newHost=Server::getInstance()->vhostList->getVHost(host->value->c_str(), 
+																									 	a->getLocalIpAddr(), a->getLocalPort());
         if(a->host)
           ((Vhost*)a->host)->removeRef();
         a->host=newHost;
@@ -2058,9 +2096,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           }     
         }
       }
-
 		
-      if(!stringcmpi(td.request.connection, "Keep-Alive")) 
+      if(connection && !stringcmpi(connection->value->c_str(), "keep-alive")) 
       {
         /*!
          *Support for HTTP pipelining.
@@ -2177,8 +2214,15 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       td.outputData.closeFile();
       File::deleteFile(td.outputDataPath);
     }
-    ret &= !stringcmpi(td.request.connection, "Keep-Alive");
-    return (ret && retvalue) ? retvalue : 0;
+		
+		{
+			HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+			if(connection)
+				ret &= !stringcmpi(connection->value->c_str(), "keep-alive");
+			else
+				ret = 0;
+    }
+		return (ret && retvalue) ? retvalue : 0;
   }
   catch(...)
   {
@@ -2215,6 +2259,8 @@ int Http::raiseHTTPError(int ID)
     Md5 md5;
     int errorBodyLength=0;
     int useMessagesFiles = 1;
+		HttpRequestHeader::Entry *host = td.request.other.get("Host");
+		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
     const char *useMessagesVal = td.connection->host ? 
 			((Vhost*)td.connection->host)->getHashedData("USE_ERROR_FILE") : 0;
     if(useMessagesVal)
@@ -2231,9 +2277,9 @@ int Http::raiseHTTPError(int ID)
     td.lastError = ID;
 
     HttpHeaders::buildDefaultHTTPResponseHeader(&(td.response));
-    if(!stringcmpi(td.request.connection, "Keep-Alive"))
+    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     {
-      td.response.connection.assign("Keep-Alive");
+      td.response.connection.assign("keep-alive");
     }
     
     if(ID==e_401AUTH)
@@ -2244,16 +2290,17 @@ int Http::raiseHTTPError(int ID)
            "HTTP/1.1 401 Unauthorized\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
       *td.buffer2 << versionOfSoftware ;
       *td.buffer2 << "\r\nContent-type: text/html\r\nConnection: ";
-      *td.buffer2 <<td.request.connection.c_str();
+      *td.buffer2 << (connection ? connection->value->c_str() : "");
       *td.buffer2 << "\r\nContent-length: 0\r\n";
       if(td.auth_scheme==HTTP_AUTH_SCHEME_BASIC)
       {
         *td.buffer2 <<  "WWW-Authenticate: Basic realm=\"" 
-                                         << td.request.host.c_str() <<  "\"\r\n";
+										<< (host ? host->value->c_str() : "") <<  "\"\r\n";
       }
       else if(td.auth_scheme==HTTP_AUTH_SCHEME_DIGEST)
       {
         char md5_str[256];
+
         if(td.connection->protocolBuffer==0)
         {
           td.connection->protocolBuffer = new HttpUserData;
@@ -2265,7 +2312,7 @@ int Http::raiseHTTPError(int ID)
           ((HttpUserData*)(td.connection->protocolBuffer))->reset();
         }
         myserver_strlcpy(((HttpUserData*)td.connection->protocolBuffer)->realm, 
-                         td.request.host.c_str(), 48);
+                         host ? host->value->c_str() : "", 48);
 
         /*! Just a random string. */
         md5_str[0]=(char)td.id;
@@ -2347,13 +2394,14 @@ int Http::raiseHTTPError(int ID)
       {
         ostringstream nURL;
         int isPortSpecified=0;
+				const char* hostStr = host ? host->value->c_str() : "";
         /*!
          *Change the Uri to reflect the default file name.
          */
-        nURL << protocolPrefix << td.request.host.c_str();
-        for(int i=0;td.request.host[i];i++)
+        nURL << protocolPrefix << hostStr;
+        for(int i=0; hostStr[i]; i++)
         {
-          if(td.request.host[i]==':')
+          if(hostStr[i]==':')
           {
             isPortSpecified = 1;
             break;
@@ -2578,6 +2626,8 @@ u_long Http::getGzipThreshold()
 int Http::sendHTTPRedirect(const char *newURL)
 {
 	string time;
+	HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+
 	td.response.httpStatus=302;
 	td.buffer2->setLength(0);
 	*td.buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\nServer: MyServer " ;
@@ -2586,9 +2636,9 @@ int Http::sendHTTPRedirect(const char *newURL)
 	*td.buffer2  << newURL ;
 	*td.buffer2  << "\r\nContent-length: 0\r\n";
 
-	if(!stringcmpi(td.request.connection, "Keep-Alive"))
+	if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
 	{
-		*td.buffer2 << "Connection: Keep-Alive\r\n";	
+		*td.buffer2 << "Connection: keep-alive\r\n";	
 	}
 	*td.buffer2<< "Date: ";
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
@@ -2607,6 +2657,8 @@ int Http::sendHTTPRedirect(const char *newURL)
 int Http::sendHTTPNonModified()
 {
 	string time;
+	HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+
 	td.response.httpStatus=304;
 	td.buffer2->setLength(0);
 	*td.buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
@@ -2615,9 +2667,9 @@ int Http::sendHTTPNonModified()
 	*td.buffer2 << versionOfSoftware  ;
 	*td.buffer2 <<  "\r\n";
 
-	if(!stringcmpi(td.request.connection, "Keep-Alive"))
+	if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
 	{
-		*td.buffer2 << "Connection: Keep-Alive\r\n";	
+		*td.buffer2 << "Connection: keep-alive\r\n";	
 	}	
 	*td.buffer2 << "Date: ";
 	

@@ -585,8 +585,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		/*! Send the header. */
 		if(!td->appendOutputs)
 		{
-			if(!lstrcmpi(td->request.connection.c_str(), "Keep-Alive"))
-				td->response.connection.assign("Keep-Alive");		
+			HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
+
+			if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
+				td->response.connection.assign("keep-alive");		
 			HttpHeaders::buildHTTPResponseHeader(td->buffer2->getBuffer(),
                                             &td->response);
 			if(td->connection->socket.send( td->buffer2->getBuffer(),
