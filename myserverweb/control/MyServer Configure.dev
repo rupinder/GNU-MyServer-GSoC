@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=33
+UnitCount=34
 Type=0
 Ver=1
 ObjFiles=
@@ -160,16 +160,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit14]
-FileName=..\include\filemanager.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit15]
 FileName=..\include\stringutils.h
 CompileCpp=1
 Folder=MyServer Configure
@@ -179,7 +169,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit16]
+[Unit15]
 FileName=vector.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -189,7 +179,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit17]
+[Unit16]
 FileName=..\source\xml_parser.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -199,7 +189,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
+[Unit17]
 FileName=..\source\stringutils.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -209,8 +199,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit19]
+FileName=..\include\utility.h
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit20]
-FileName=..\source\utility.cpp
+FileName=..\source\md5.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -220,7 +220,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit21]
-FileName=..\include\utility.h
+FileName=..\include\md5.h
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -248,7 +248,7 @@ ProductVersion=0.8.2-rc1
 AutoIncBuildNr=0
 
 [Unit18]
-FileName=..\source\filemanager.cpp
+FileName=..\source\utility.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -258,26 +258,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit22]
-FileName=..\source\md5.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit23]
-FileName=..\include\md5.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit24]
 FileName=..\source\mem_buff.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -287,7 +267,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit25]
+[Unit23]
 FileName=..\include\mem_buff.h
 CompileCpp=1
 Folder=MyServer Configure
@@ -297,7 +277,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit26]
+[Unit24]
 FileName=control_client.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -307,7 +287,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit27]
+[Unit25]
 FileName=..\source\sockets.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -317,7 +297,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit28]
+[Unit26]
 FileName=control_client.h
 CompileCpp=1
 Folder=MyServer Configure
@@ -327,7 +307,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit29]
+[Unit27]
 FileName=progress.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -337,7 +317,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
+[Unit28]
 FileName=..\source\lfind.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -347,7 +327,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit29]
 FileName=..\include\lfind.h
 CompileCpp=1
 Folder=MyServer Configure
@@ -357,8 +337,28 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit30]
+FileName=..\source\stream.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit31]
+FileName=..\include\file.h
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit32]
-FileName=..\source\threads.cpp
+FileName=..\source\mutex.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -368,7 +368,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit33]
-FileName=..\source\stream.cpp
+FileName=..\source\thread.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit34]
+FileName=..\source\file.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1

@@ -20,7 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
 #endif
 #include "../../../cgi-lib/cgi_manager.h"
-#include "../../../../include/threads.h"
+#include "../../../../include/thread.h"
+#include "../../../../include/mutex.h"
 #include "counter_output.h"
 #include <limits.h>
 
