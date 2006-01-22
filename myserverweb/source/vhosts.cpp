@@ -17,11 +17,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "../include/vhosts.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/server.h"
 #include "../include/connectionstruct.h"
 #include "../include/stringutils.h"
-#include "../include/threads.h"
 #include "../include/securestr.h"
 
 /*!

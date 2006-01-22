@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/xml_parser.h"
 #include "../include/filters_factory.h"
 #include "../include/hash_map.h"
-#include "../include/threads.h"
+#include "../include/thread.h"
+#include "../include/mutex.h"
 
 using namespace std;
 

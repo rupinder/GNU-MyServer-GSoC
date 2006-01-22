@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/security_cache.h"
 #include "../include/security.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 
 #include <string>
 

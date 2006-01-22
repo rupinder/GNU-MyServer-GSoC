@@ -19,11 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef MSCGI_H
 #define MSCGI_H
 #include "../stdafx.h"
-#include "../include/response_request.h"
+#include "../include/http_request.h"
+#include "../include/http_response.h"
 #include "../include/connectionstruct.h"
 #include "../include/mime_manager.h"
 #include "../include/cgi.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/http_headers.h"
 #include "../include/http_data_handler.h"
 #include "../include/dynamiclib.h"

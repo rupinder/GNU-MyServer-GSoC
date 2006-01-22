@@ -16,28 +16,32 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef WINCGI_H
-#define WINCGI_H
+#ifndef THREAD_H
+#define THREAD_H
 
-#include "../include/http_request.h"
-#include "../include/http_response.h"
-#include "../include/mime_manager.h"
-#include "../include/security.h"
-#include "../include/http_headers.h"
-#include "../include/http_data_handler.h"
+#include "../stdafx.h"
+#include "../include/file.h"
+#include "../include/stringutils.h"
 
-extern const char *versionOfSoftware;
+#ifdef WIN32
+	typedef unsigned int ThreadID;
+#endif
+#ifdef HAVE_PTHREAD
+	typedef pthread_t ThreadID;
+#endif
 
-class WinCgi : public HttpDataHandler
+class Thread
 {
-private:
-  static u_long timeout;
 public:
-  WinCgi();
-  ~WinCgi();
-  static void setTimeout(u_long);
-  static u_long getTimeout();
-	int send(HttpThreadContext*, ConnectionPtr s,const char* filename, 
-           int execute, int onlyHeader=0);
+  static void wait(u_long);
+#ifdef WIN32
+	static int create(ThreadID*  thread, 
+             unsigned int (_stdcall *start_routine)(void *), void * arg);
+#endif
+#ifdef HAVE_PTHREAD
+	static int create(ThreadID*  thread, void * (*start_routine)(void *), 
+                    void * arg);
+#endif
+	static void terminate();  
 };
 #endif

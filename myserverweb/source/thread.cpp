@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/utility.h"
 #include "../include/sockets.h"
+#include "../include/thread.h"
 
 extern "C" {
 #include <string.h>
@@ -59,96 +60,6 @@ void Thread::wait(u_long time)
 }
 
 /*!
- *Constructor for the mutex class.
- */
-Mutex::Mutex()
-{
-	initialized=0;
-	init();
-}
-/*!
- *Initialize a mutex.
- */
-int Mutex::init()
-{
-  int ret;
-	if(initialized)
-	{
-		destroy();
-		initialized=0;
-	}
-#ifdef HAVE_PTHREAD
-
-
-#if 0
-  pthread_mutexattr_t   mta = NULL;
-	pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-	ret = pthread_mutex_init(&mutex, &mta);
-#else
-	ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
-#endif
-
-
-#else
-	mutex=CreateMutex(0,0,0);
-  ret=!mutex;
-#endif
-	initialized=1;
-	return ret ? 1 : 0;
-}
-
-/*!
- *Destroy a mutex.
- */
-int Mutex::destroy()
-{
-#ifdef HAVE_PTHREAD
-  if(initialized)
-    pthread_mutex_destroy(&mutex);
-#else
-  if(initialized)
-    CloseHandle(mutex);
-#endif
-	initialized=0;
-	return 0;
-}
-
-/*!
- *Lock the mutex.
- */
-int Mutex::lock(u_long /*id*/)
-{
-#ifdef HAVE_PTHREAD
-#ifdef PTHREAD_ALTERNATE_LOCK
-	pthread_mutex_lock(&mutex);
-#else
-	while(pthread_mutex_trylock(&mutex))
-	{
-		Thread::wait(1);
-	}
-#endif
-
-#else	
-	WaitForSingleObject(mutex,INFINITE);
-#endif
-	return 0;
-}
-
-/*!
-*Unlock the mutex access.
-*/
-int Mutex::unlock(u_long/*! id*/)
-{
-#ifdef HAVE_PTHREAD
-	int err;
-	err = pthread_mutex_unlock(&mutex);
-#else	
-	ReleaseMutex(mutex);
-#endif
-	return 1;
-}
-
-/*!
 *Create a new thread.
 */
 #ifdef WIN32
@@ -181,12 +92,4 @@ void Thread::terminate()
 #ifdef HAVE_PTHREAD
 	pthread_exit(0);
 #endif
-}
-
-/*!
-*Destroy the object.
-*/
-Mutex::~Mutex()
-{
-	destroy();
 }

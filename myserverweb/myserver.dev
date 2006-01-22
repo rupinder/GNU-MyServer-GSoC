@@ -298,7 +298,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit8]
-FileName=source\filemanager.cpp
+FileName=source\file.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -358,7 +358,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit26]
-FileName=include\filemanager.h
+FileName=include\file.h
 CompileCpp=1
 Folder=myserver
 Compile=1

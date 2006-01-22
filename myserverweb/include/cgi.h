@@ -19,7 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef CGI_H
 #define CGI_H
 
-#include "../include/response_request.h"
+#include "../include/http_response.h"
+#include "../include/http_request.h"
 #include "../include/mime_manager.h"
 #include "../include/mscgi.h"
 #include "../include/security.h"

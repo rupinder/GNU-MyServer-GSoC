@@ -30,7 +30,7 @@ extern "C" {
 }
 #endif
 
-#include "../include/filemanager.h"
+#include "../include/file.h"
 
 #ifdef WIN32
 static DWORD WINAPI consoleWatchDogThread(LPVOID);

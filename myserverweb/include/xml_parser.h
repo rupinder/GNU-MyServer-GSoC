@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define CXMLPARSER_IN
 
 #include "../stdafx.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/mem_buff.h"
 extern "C" 
 {

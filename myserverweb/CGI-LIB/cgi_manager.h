@@ -31,8 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "../include/http.h"
-#include "../include/filemanager.h"
-#include "../include/response_request.h"
+#include "../include/file.h"
+#include "../include/http_request.h"
+#include "../include/http_response.h"
 #include "../include/stringutils.h"
 #define LOCAL_BUFFER_DIM 150
 

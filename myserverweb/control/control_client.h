@@ -20,7 +20,7 @@
 
 #include "../include/sockets.h"
 #include "vector.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/control_errors.h"
 #include "../include/stringutils.h"
 #include "../include/mem_buff.h"

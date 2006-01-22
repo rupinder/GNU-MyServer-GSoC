@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "language.h"
 #include "../include/stringutils.h"
 #include "../include/xml_parser.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "vector.h"
 #include "fltkconfig.h"
 

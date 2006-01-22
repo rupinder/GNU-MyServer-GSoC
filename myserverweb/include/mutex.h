@@ -16,11 +16,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef THREADS_H
-#define THREADS_H
+#ifndef MUTEX_H
+#define MUTEX_H
 
 #include "../stdafx.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/stringutils.h"
 
 #ifdef HAVE_PTHREAD
@@ -41,27 +41,5 @@ public:
 	int destroy();
 	int lock(u_long id=0);
 	int unlock(u_long id=0);
-};
-
-#ifdef WIN32
-	typedef unsigned int ThreadID;
-#endif
-#ifdef HAVE_PTHREAD
-	typedef pthread_t ThreadID;
-#endif
-
-class Thread
-{
-public:
-  static void wait(u_long);
-#ifdef WIN32
-	static int create(ThreadID*  thread, 
-             unsigned int (_stdcall *start_routine)(void *), void * arg);
-#endif
-#ifdef HAVE_PTHREAD
-	static int create(ThreadID*  thread, void * (*start_routine)(void *), 
-                    void * arg);
-#endif
-	static void terminate();  
 };
 #endif

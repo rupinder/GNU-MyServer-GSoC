@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define UTILITY_H
 
 #include "../stdafx.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/stringutils.h"
 #include "../include/processes.h"
-#include "../include/threads.h"
-
+#include "../include/thread.h"
+#include "../include/mutex.h"
 #include <string.h>
 using namespace std;
 

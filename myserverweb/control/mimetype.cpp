@@ -21,7 +21,7 @@ extern "C"
 #include <stdlib.h>
 }
 
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/stringutils.h"
 #include "../include/xml_parser.h"
 #include "mimetype.h"

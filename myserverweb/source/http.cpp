@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/security.h"
 #include "../include/mime_utils.h"
 #include "../include/cgi.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/clients_thread.h"
 #include "../include/sockets.h"
 #include "../include/wincgi.h"

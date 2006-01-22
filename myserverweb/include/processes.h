@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define PROCESSES_H
 
 #include "../stdafx.h"
-#include "../include/filemanager.h"
+#include "../include/file.h"
 #include "../include/stringutils.h"
 
 #include <string>
