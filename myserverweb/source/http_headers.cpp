@@ -1068,7 +1068,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
      */
 		if( (!lineControlled)&&  ((!containStatusLine) || (nLineControlled!=1)) )
 		{
-			token = strtok( NULL, "\n" );
+			token = strtok( NULL, "\r\n" );
 			if(token)
 			{
 				HttpResponseHeader::Entry *e;
