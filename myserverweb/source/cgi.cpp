@@ -729,7 +729,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 		HttpRequestHeader::Entry* e = td->request.other.get("Content-Type");
 		if(e)
 		{
-			memCgi << end_str << "HTTP_CONTENT_TYPE=";
+			memCgi << end_str << "CONTENT_TYPE=";
 			memCgi << e->value->c_str();
 		}
 	}

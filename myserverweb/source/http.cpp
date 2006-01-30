@@ -1684,7 +1684,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			}
 			else if(contentType->value->length() == 0)
         contentType->value->assign("application/x-www-form-urlencoded");
-      
+		
       /*!
        *Read POST data.
        */
