@@ -28,7 +28,7 @@
 
 inline void MainDlg::cb_ConfDlg_i(Fl_Double_Window*, void*) {
   if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change,"No","Yes",NULL)) {
     ConfDlg->hide();
   }
 }
@@ -43,7 +43,7 @@ void MainDlg::cb_ConfDlg(Fl_Double_Window* o, void* v) {
 inline void MainDlg::cb_Open_i(Fl_Menu_*, void*) {
   int ret;
 if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change,"No","Yes",NULL)) {
     ret = ask_type();
     if(ret == -1) {
       ret = 0;
@@ -88,7 +88,7 @@ void MainDlg::cb_Save(Fl_Menu_* o, void* v) {
 }
 
 inline void MainDlg::cb_Revert_i(Fl_Menu_*, void*) {
-  if(fl_ask(LanguageXMLReload_Prev)) {
+  if(fl_choice(LanguageXMLReload_Prev,"No","Yes",NULL)) {
   load_config();
 };
 }
@@ -126,7 +126,7 @@ void MainDlg::cb_Service(Fl_Menu_* o, void* v) {
 
 inline void MainDlg::cb_Quit_i(Fl_Menu_*, void*) {
   if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change,"No","Yes",NULL)) {
     ConfDlg->hide();
   }
 }
@@ -169,7 +169,7 @@ void MainDlg::cb_MenuLogout(Fl_Menu_* o, void* v) {
 inline void MainDlg::cb_MenuGetConfig_i(Fl_Menu_*, void*) {
   int ret;
 if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change,"No","Yes",NULL)) {
 
     ret = load_config_remote();
 
@@ -215,7 +215,7 @@ void MainDlg::cb_MenuGetConfig(Fl_Menu_* o, void* v) {
 
 inline void MainDlg::cb_MenuSendConfig_i(Fl_Menu_*, void*) {
   int ret;
-ret = fl_ask(LanguageXMLKill_All);
+ret = fl_choice(LanguageXMLKill_All,"No","Yes",NULL);
 if(ret) {
 
   ret = save_config_remote();
@@ -249,7 +249,7 @@ void MainDlg::cb_MenuConnections(Fl_Menu_* o, void* v) {
 
 inline void MainDlg::cb_MenuReboot_i(Fl_Menu_*, void*) {
   int ret;
-ret = fl_ask(LanguageXMLKill_All);
+ret = fl_choice(LanguageXMLKill_All,"No","Yes",NULL);
 if(ret) {
   ret = Server.sendReboot();
   
