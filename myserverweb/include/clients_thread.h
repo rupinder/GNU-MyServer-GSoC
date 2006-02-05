@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define CLIENTSTHREAD_H
 #include "../stdafx.h"
 #include "../include/utility.h"
-#include "../include/connectionstruct.h"
+#include "../include/connection.h"
 #include "../include/security.h"
 #include "../include/http.h"
 #include "../include/mem_buff.h"

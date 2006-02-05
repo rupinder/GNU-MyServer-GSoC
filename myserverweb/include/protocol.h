@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define PROTOCOL_H
 #include "../stdafx.h"
 #include "xml_parser.h"
-#include "connectionstruct.h"
+#include "connection.h"
 /*! Various options that can be use for the protocol.  */
 #define PROTOCOL_USES_SSL 1
 

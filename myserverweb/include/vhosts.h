@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/xml_parser.h"
 #include "../include/file.h"
 #include "../include/utility.h"
-#include "../include/connectionstruct.h"/*! Used for protocols IDs. */
+#include "../include/connection.h"/*! Used for protocols IDs. */
 #include "../include/myserver_regex.h"
 #include "../include/log_manager.h"
 #include "../include/mime_manager.h"

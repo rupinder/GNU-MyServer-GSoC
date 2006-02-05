@@ -120,7 +120,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit23]
-FileName=include\connectionstruct.h
+FileName=include\connection.h
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -751,7 +751,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit67]
-FileName=source\connectionstruct.cpp
+FileName=source\connection.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
