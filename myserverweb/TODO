@@ -98,6 +98,11 @@ TODO list for MyServer.
 *	Control protocol improvements.
 **	Allow access to log files.(*)
 
+* Scripting support.
+**	Define a script language to use (maybe libguile?).
+**	Possibility to use scripts inside myserver.
+**	Use them in security files.
+
 *	MSCGI.
 **	Add new methods to the manager class.(*)
 **	Port to other languages, maybe not natively compiled.(*)
