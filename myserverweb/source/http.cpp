@@ -1363,7 +1363,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       }
       strcpy(pathInfo, td.pathInfo.c_str());
       translateEscapeString(pathInfo);
-      strcat(linkpath, pathInfo);
+      strncat(linkpath, pathInfo,strlen(linkpath));
       if(nbr)
       {
         string uri;

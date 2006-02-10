@@ -215,7 +215,7 @@ int XmlParser::setValue(char* vName,char *value)
 		{
 			last_node = lcur;
 			if(lcur->children->content)
-				strcpy((char*)lcur->children->content,value);
+				strncpy((char*)lcur->children->content,value,strlen((const char*)lcur->children->content));
 			return 0;
 		}
 		lcur=lcur->next;

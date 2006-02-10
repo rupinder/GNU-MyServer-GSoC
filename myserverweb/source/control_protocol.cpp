@@ -272,7 +272,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     Ifile = new File();
     if(Ifile == 0)
     {
-      strcpy(b2,"Control: Error allocating memory");
+      strncpy(b2,"Control: Error allocating memory",strlen(b2));
       addToErrorLog(a,b2, strlen(b2));
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       return 0;                                   
