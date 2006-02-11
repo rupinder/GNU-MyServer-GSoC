@@ -44,7 +44,7 @@ extern "C" {
 #define MYSERVER_RUNAS_CONSOLE 1
 #define MYSERVER_RUNAS_SERVICE 2
 
-void console_service (int, char **);
+void console_service ();
 
 #ifdef WIN32
 void __stdcall myServerCtrlHandler(u_long fdwControl);
@@ -289,7 +289,7 @@ int main (int argn, char **argv)
     switch(runas)
     {
 		case MYSERVER_RUNAS_CONSOLE:
-			console_service(argn, argv);
+			console_service();
 			break;
 		case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
@@ -343,7 +343,7 @@ int main (int argn, char **argv)
       /*!
        *Finally run the server from the forked process.
        */
-			console_service(argn, argv);
+			console_service();
 #endif
 			break;
     }
@@ -382,7 +382,7 @@ int  write_pidfile(char* filename)
 /*!
  *Start MyServer in console mode
  */
-void console_service (int, char **)
+void console_service ()
 {
 #ifdef WIN32
 	SetConsoleCtrlHandler (NULL, TRUE);
