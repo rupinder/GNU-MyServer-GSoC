@@ -52,10 +52,12 @@ extern "C" {
 
 /*!
  *Builds an HTTP header string starting from an HttpResponseHeader structure.
+ *\param str The buffer where write the HTTP header.
+ *\param response the HttpResponseHeader where the HTTP data is.
  */
 void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* response)
 {
-	/*!
+	/*
    *Here is builded the HEADER of a HTTP response.
    *Passing a HttpResponseHeader struct this builds an header string.
    *Every directive ends with a \r\n sequence.
@@ -114,7 +116,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	}
 	if(response->contentLength.length())
 	{
-		/*!
+		/*
 		*Do not specify the Content-Length field if it is used
 		*the chunked Transfer-Encoding.
 		*/
@@ -200,18 +202,20 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
     }
 	}
 
-	/*!
-	*MyServer supports the bytes range.
-	*/
+	/*
+	 *MyServer supports the bytes range.
+	 */
 	pos += myserver_strlcpy(pos, "Accept-Ranges: bytes\r\n", MAX-(long)(pos-str));
   
-	/*!
-	*The HTTP header ends with a \r\n sequence.
-	*/
+	/*
+	 *The HTTP header ends with a \r\n sequence.
+	 */
 	pos += myserver_strlcpy(pos, "\r\n\0\0\0\0\0", MAX-(long)(pos-str));
 }
 /*!
  *Set the defaults value for a HttpResponseHeader structure.
+ *\param response The HTTP response header structure to fullfill with
+ *the default data.
  */
 void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 {
@@ -219,13 +223,13 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
   ostringstream stream;
 	resetHTTPResponse(response);
 	/*!
-	*By default use:
-	*1) the MIME type of the page equal to text/html.
-	*2) the version of the HTTP protocol to 1.1.
-	*3) the date of the page and the expire date to the current time.
-	*4) set the name of the server.
-	*5) set the page that it is not an error page.
-	*/
+	 *By default use:
+	 *-# the MIME type of the page equal to text/html.
+	 *-# the version of the HTTP protocol to 1.1.
+	 *-# the date of the page and the expire date to the current time.
+	 *-# set the name of the server.
+	 *-# set the page that it is not an error page.
+	 */
 	response->contentType.assign("text/html");
 	response->ver.assign("HTTP/1.1");
 	getRFC822GMTTime(date,HTTP_RESPONSE_DATE_DIM);
@@ -238,6 +242,7 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 
 /*!
  *Reset all the HTTP_REQUEST_HEADER structure members.
+ *\param request the HTTP request header to free.
  */
 void HttpHeaders::resetHTTPRequest(HttpRequestHeader *request)
 {
@@ -246,6 +251,7 @@ void HttpHeaders::resetHTTPRequest(HttpRequestHeader *request)
 
 /*!
  *Reset all the HttpResponseHeader structure members.
+ *\param response the HTTP response header to free.
  */
 void HttpHeaders::resetHTTPResponse(HttpResponseHeader *response)
 {
@@ -256,8 +262,10 @@ void HttpHeaders::resetHTTPResponse(HttpResponseHeader *response)
 /*!
  *Controls if the req string is a valid HTTP response header.
  *Returns 0 if req is an invalid header, a non-zero value if is a valid header.
- *nLinesptr is a value of the lines number in the HEADER.
- *ncharsptr is a value of the characters number in the HEADER.
+ *\param res the buffer with the HTTP header.
+ *\param td the thread context for the current executing thread.
+ *\param nLinesptr is a value of the lines number in the HEADER.
+ *\param ncharsptr is a value of the characters number in the HEADER.
  */
 int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td, 
                                     u_long* nLinesptr, u_long* ncharsptr)
@@ -268,9 +276,9 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
 
 	if(res==0)
 		return 0;
-	/*!
-	*Count the number of lines in the header.
-	*/
+	/*
+	 *Count the number of lines in the header.
+	 */
 	for(i=0;;i++)
 	{
 		if(res[i]=='\n')
@@ -285,26 +293,26 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
 		}
 		else
 		{
-			/*!
-			*We set a maximal theorical number of characters in a line.
-			*If a line contains more than 4160 characters we consider the 
-      *header invalid.
-			*/
+			/*
+			 *We set a maximal theorical number of characters in a line.
+			 *If a line contains more than 4160 characters we consider the 
+			 *header invalid.
+			 */
 			if(nLinechars>=4160)
 	    		return 0;
 	    	nLinechars++;
 		}
 	}
 	
-	/*!
-	*Set the output variables.
-	*/
+	/*
+	 *Set the output variables.
+	 */
 	*nLinesptr=nLines;
 	*ncharsptr=i+3;
 	
-	/*!
-	*Return if is a valid request header.
-	*/
+	/*
+	 *Return if is a valid request header.
+	 */
 	return 1;
 }
 
@@ -316,6 +324,9 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
  *Returns e_200 if is a valid request.
  *Returns -1 if the request is incomplete.
  *Any other returned value is the HTTP error.
+ *\param request HTTP request structure to fullfill with data.
+ *\param td the current executing thread context.
+ *\param input buffer with the HTTP header.
  */
 int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request, 
                                               HttpThreadContext* td, char* input)
@@ -323,10 +334,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	/*!
    *In this function there is the HTTP protocol parse.
    *The request is mapped into a HttpRequestHeader structure
-   *And at the end of this every command is treated
-   *differently. We use this mode for parse the HTTP
+   *And at the end of this each command is treated
+   *differently. We use this mode to parse the HTTP
    *cause especially in the CGI is requested a continous
-   *HTTP header access.
+   *access to HTTP header data.
    *Before mapping the header in the structure 
    *control if this is a regular request.
    *The HTTP header ends with a \r\n\r\n sequence.
@@ -345,13 +356,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	int nLineControlled = 0;
 	int lineControlled = 0;
 
-	/*! 
+	/*
    *TokenOff is the length of the token starting from 
    *the location token.  
    */
 	int tokenOff;
 
-	/*! If input was not specified use the buffer. */
+	/* If input was not specified use the buffer. */
 	if(input==0)
 	{
 		token=input=td->buffer->getBuffer();
@@ -359,15 +370,15 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	else
 		token=input;
 
-	/*!
+	/*
    *Control if the HTTP header is a valid header.
    */
 	validRequest=validHTTPRequest(input, td, &nLines, &maxTotchars);
 
-	/*! Invalid header.  */
+	/* Invalid header.  */
 	if(validRequest!=e_200)
   {
-    /*! Incomplete header.  */
+    /* Incomplete header.  */
     if(validRequest==-1)
 			return -1;
 		/* Keep trace of first line for logging. */
@@ -379,12 +390,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		return validRequest;
 	}
 
-  /*! Get the first token, this is the HTTP command.*/
+  /* Get the first token, this is the HTTP command.*/
 	tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
   
   if(tokenOff == -1)
   {
-    /*! Keep trace of first line for logging. */
+    /* Keep trace of first line for logging. */
     tokenOff = getEndLine(token, HTTP_REQUEST_URI_DIM);
     if(tokenOff > 0)
       request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
@@ -397,7 +408,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(tokenOff== -1 )
 			return e_400;
 		
-		/*! Copy the HTTP field(this is the command if we are on the first line). */
+		/* Copy the HTTP field(this is the command if we are on the first line). */
 		myserver_strlcpy(command, token, min(96, tokenOff+1) );
 	
 		token+=tokenOff;
@@ -413,12 +424,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		{
 			int containOpts=0;
 			u_long len_token =tokenOff;
-			/*!
+			/*
        *The first line has the form:
        *GET /index.html HTTP/1.1
        */
 			lineControlled=1;
-			/*! Copy the method type. */
+			
+			/* Copy the method type. */
 			request->cmd.assign(command, tokenOff);
 			tokenOff = getEndLine(token, 
                             HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
@@ -461,7 +473,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}
 			}
 
-      /*! 
+      /*
        *If a uri was specified store it. If it wasn't specified 
        *return an invalid header value.
        */
@@ -479,7 +491,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         return e_400;
       }  
 
-      /*! If the uri contains some query data determine how long it is. */
+      /* If the uri contains some query data determine how long it is. */
 			if(containOpts)
 			{
         j = getEndLine(&token[i], HTTP_REQUEST_URI_DIM);
@@ -489,14 +501,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}
 			}
 
-      /*! 
+      /*
        *Save the query data and seek the cursor at the end of it. Start copying
        *from the second byte(do not store the  ? character).
        */
       request->uriOpts.assign(&token[i+1], j);
       i+=j+1;
 
-      /*! 
+      /*
        *Seek the cursor at the end of the spaces. Do not allow more than 
        *10 spaces character between the uri token and the HTTP version. 
        */
@@ -507,7 +519,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         else 
           break;
       }
-      /*! 
+      /*
        *If there are more than 10 black spaces store the entire line 
        *for logging then return an invalid header value.
        */
@@ -523,17 +535,17 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         return e_400;
       }
 
-      /*! Count how long the version token is. */
+      /* Count how long the version token is. */
       j=i;
       while((i-j < HTTP_REQUEST_VER_DIM) && (token[i]!='\r') 
             && (token[i]!='\n'))
         i++;
 
-      /*! Save the HTTP version. */
+      /* Save the HTTP version. */
       if(i-j)
         request->ver.assign(&token[j], i-j);
 
-      /*! 
+      /*
        *If the version is not specified or it is too long store 
        *some information for logging then return an invalid header value. 
        */
@@ -549,7 +561,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
         return e_400;
       }
 			
-      /*! Store if the requested uri terminates with a slash character. */
+      /* Store if the requested uri terminates with a slash character. */
       if(request->uri[(request->uri.length())-1]=='/')
       {
 				request->uriEndsWithSlash=1;
@@ -558,7 +570,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       {
 				request->uriEndsWithSlash=0;
       }
-      /*! 
+      /*
        *Do not maintain any slash character if the uri has them at 
        *the begin or at the end.
        */
@@ -566,7 +578,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			request->uriOpts=trim(request->uriOpts, " ");
 
 		}else
-		/*!Authorization*/
+		/* Authorization.  */
 		if(!lstrcmpi(command,"Authorization"))
 		{
 			while(*token==' ')
@@ -736,13 +748,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					{
 						digestToken = strtok( NULL, "\r\n," );
 					}
-					/*! Update digestToken. */
+					/* Update digestToken.  */
 					digestToken = strtok( NULL, "=" );
 				}while(digestToken);
 				delete  [] digestBuff;
 			}
 		}else
-		/*!Content-Length*/
+		/* Content-Length.  */
 		if(!lstrcmpi(command,"Content-Length"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
@@ -751,7 +763,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			lineControlled=1;
 			request->contentLength.assign(token,tokenOff);
 		}else
-		/*!Range*/
+		/* Range.  */
 		if(!lstrcmpi(command,"Range"))
 		{
       char rangeByteBegin[13];
@@ -852,7 +864,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		tokenOff = getCharInString(token,":",maxTotchars);
 	}while(((u_long)(token-input)<maxTotchars) && token[0]!='\r');
 
-	/*!
+	/*
    *END REQUEST STRUCTURE BUILD.
    */
 	td->nHeaderChars=maxTotchars;
@@ -864,11 +876,15 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
  *If no input is specified the input is the main buffer of the 
  *HttpThreadContext structure.
  *Return 0 on invalid input or internal errors.
+ *\param response the HTTP response structure to fullfill.
+ *\param td the current executing thread context.
+ *\param input the buffer with the HTTP header data.
  */
 int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response, 
                                                 HttpThreadContext *td,char *input)
 {
 	/*!
+	 *Brief description.
    *In this function there is the HTTP protocol parse.
    *The request is mapped into a HttpRequestHeader structure
    *And at the end of this every command is treated
@@ -877,7 +893,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
    *HTTP header access.
    *Before mapping the header in the structure 
    *control if this is a regular request.
-   *The HTTP header ends with a \r\n\r\n sequence.
    */
 	char *newInput;
 	u_long nLines,maxTotchars;
@@ -895,7 +910,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 	{
 		input=td->buffer2->getBuffer();
 	}
-	/*! Control if the HTTP header is a valid header.  */
+	/* Control if the HTTP header is a valid header.  */
 	if(input[0]==0)
 		return 0;
 	validResponse=validHTTPResponse(input, td, &nLines, &maxTotchars);
@@ -905,7 +920,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		newInput=new char[maxTotchars + 1];
 		if(!newInput)
 			return 0;
-		/*! FIXME: Don't alloc new memory but simply use a no-destructive parsing.  */
+		/* FIXME: Don't alloc new memory but simply use a no-destructive parsing.  */
 		memcpy(newInput, input, maxTotchars);
 		newInput[maxTotchars]='\0';
 		input = newInput;
@@ -915,7 +930,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 
 	token=input;
 	
-	/*! Check if is specified the first line containing the HTTP status.  */
+	/* Check if is specified the first line containing the HTTP status.  */
 	if((input[0]=='H')&&(input[1]=='T')&&(input[2]=='T')
      &&(input[3]=='P')&&(input[4]==' '))
 	{
@@ -928,12 +943,12 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 	{
 		if(!token)
 			break;
-		/*!
+		/*
      *Reset the flag lineControlled.
      */
 		lineControlled=0;
 
-		/*!
+		/*
      *Copy the HTTP command.
      */
 		myserver_strlcpy(command, token, 96);
@@ -942,7 +957,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		if((nLineControlled==1)&& containStatusLine)
 		{
 			lineControlled=1;
-			/*! Copy the HTTP version. */
+			/* Copy the HTTP version.  */
       response->ver.assign(command);
 		
 			token = strtok( NULL, " ,\t\n\r" );
@@ -954,7 +969,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 				response->errorType.assign(token);
 
 		}else
-		/*!Server*/
+		/* Server.  */
 		if(!lstrcmpi(command,"Server"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -962,7 +977,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->serverName.assign(token);
 		}else
-		/*!Location*/
+		/* Location  */
 		if(!lstrcmpi(command,"Location"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -970,7 +985,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->location.assign(token);
 		}else
-		/*!Last-Modified*/
+		/* Last-Modified.  */
 		if(!lstrcmpi(command,"Last-Modified"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -978,7 +993,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->lastModified.assign(token);
 		}else
-		/*!Status*/
+		/* Status.  */
 		if(!lstrcmpi(command,"Status"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -988,7 +1003,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         if(token)
           response->httpStatus=atoi(token);
 		}else
-		/*!Cache-Control*/
+		/* Cache-Control.  */
 		if(!lstrcmpi(command,"Cache-Control"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -996,7 +1011,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->cacheControl.assign(token);
 		}else
-		/*!Date*/
+		/* Date.  */
 		if(!lstrcmpi(command,"Date"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -1004,7 +1019,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->date.assign(token);
 		}else
-		/*!Content-Type*/
+		/* Content-Type.  */
 		if(!lstrcmpi(command,"Content-Type"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -1012,7 +1027,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->contentType.assign(token);
 		}else
-		/*!MIME-Version*/
+		/* MIME-Version.  */
 		if(!lstrcmpi(command,"MIME-Version"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -1020,25 +1035,26 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->mimeVer.assign(token);
 		}else
-		/*!Set-Cookie*/
+		/* Set-Cookie.  */
 		if(!lstrcmpi(command,"Set-Cookie"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
       if(token)
       {
+				/* Divide multiple cookies.  */
         response->cookie.append(token );
-        response->cookie.append("\n");/*! Divide multiple cookies. */
+        response->cookie.append("\n");
       }
 		}else
-		/*!Content-Length*/
+		/* Content-Length.  */
 		if(!lstrcmpi(command,"Content-Length"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
 			response->contentLength.assign(token);
 		}else
-		/*!Content-Range*/
+		/* Content-Range.  */
 		if(!lstrcmpi(command,"Content-Range"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -1046,7 +1062,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->contentRange.assign(token);
 		}else
-		/*!Connection*/
+		/* Connection.  */
 		if(!lstrcmpi(command,"Connection"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -1054,7 +1070,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->connection.assign(token);
 		}else
-		/*!Expires*/
+		/* Expires.  */
 		if(!lstrcmpi(command,"Expires"))
 		{
 			token = strtok( NULL, "\r\n\0" );
@@ -1062,7 +1078,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       if(token)
         response->dateExp.assign(token);
 		}
-		/*!
+		/*
      *If the line is not controlled arrive with the token
      *at the end of the line.
      */
@@ -1093,7 +1109,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		token = strtok( NULL, cmdSeps );
 	}while(token && ((u_long)(token-input)<maxTotchars));
 
-	/*!
+	/*
    *END REQUEST STRUCTURE BUILD.
    */
 	td->nBytesToRead=maxTotchars;
@@ -1106,8 +1122,10 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
  *Returns e_200 if is a valid request.
  *Returns -1 if the request is incomplete.
  *Any other returned value is the HTTP error.
- *nLinesptr is a value of the lines number in the HEADER.
- *ncharsptr is a value of the characters number in the HEADER.
+ *\param req the buffer with the HTTP request.
+ *\param td the current executing thread context.
+ *\param nLinesptr is a value of the lines number in the HEADER.
+ *\param ncharsptr is a value of the characters number in the HEADER.
  */
 int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
                                    u_long* nLinesptr,u_long* ncharsptr)
@@ -1130,9 +1148,9 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 					return e_400;
 				break;
 			}
-			/*! 
-			*If the lines number is greater than 25 we consider 
-			*the header invalid.
+			/* 
+			 *If the lines number is greater than 25 we consider 
+			 *the header invalid.
 			*/
 			if(nLines>=25)
 				return e_400;
@@ -1141,7 +1159,7 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 		}
 		else if(req[i]=='\0')
       return -1;
-		/*!
+		/*
 		*We set a maximal theorical number of characters in a line to 2048.
 		*If a line contains more than N characters we consider the header invalid.
 		*/
@@ -1154,10 +1172,10 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 		nLinechars++;
 	}
 
-	/*! Set the output variables.  */
+	/* Set the output variables.  */
 	*nLinesptr=nLines;
 	*ncharsptr=i+3;
 	
-	/*! Return if is a valid request header.  */
+	/* Return if is a valid request header.  */
 	return e_200;
 }
