@@ -648,7 +648,12 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   if(outFile)
     dataLength = outFile->getFileSize();
   /*! Build and send the first line. */
-  sprintf(buffer, "/%i\r\n", errID);
+#ifdef HAVE_SNPRINTF
+	snprintf(buffer, buffersize,
+#else
+  sprintf(buffer, 
+#endif
+					"/%i\r\n", errID);
   err = conn->socket.send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
@@ -658,8 +663,14 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   }
 
   /*! Build and send the Length line. */
-  sprintf(buffer, "/LEN %u\r\n", (u_int)dataLength);
-  err = conn->socket.send(buffer, strlen(buffer), 0);
+#ifdef HAVE_SNPRINTF
+	snprintf(buffer, buffersize,
+#else
+  sprintf(buffer, 
+#endif 
+					"/LEN %u\r\n", (u_int)dataLength);
+ 
+	err = conn->socket.send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
     strcpy(buffer,"Control: Error sending data");
@@ -719,11 +730,18 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
   con = Server::getInstance()->getConnections();
   while(con)
   {
-    sprintf(b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
-            static_cast<int>(con->getID()),  con->getIpAddr(), static_cast<int>(con->getPort()), 
+#ifdef HAVE_SNPRINTF
+		snprintf(b1, bs1,
+#else
+		sprintf(b1, 
+#endif
+						"%i - %s - %i - %s - %i - %s - %s\r\n", 
+            static_cast<int>(con->getID()),  con->getIpAddr(), 
+						static_cast<int>(con->getPort()), 
             con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
             con->getLogin(), con->getPassword());
-    ret = out->writeToFile(b1, strlen(b1), &nbw);   
+   
+		ret = out->writeToFile(b1, strlen(b1), &nbw);   
     if(ret)
     {
       strcpy(b1,"Control: Error while writing to file");
@@ -771,8 +789,14 @@ int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out,
     dp = Server::getInstance()->getProtocolsManager()->getDynProtocolByOrder(i);
     if(dp == 0)
       break;
-    sprintf(b1,"%s\r\n", dp->getProtocolName() );
-    ret = out->writeToFile(b1, strlen(b1), &nbw);
+#ifdef HAVE_SNPRINTF
+		snprintf(b1, bs1,
+#else
+    sprintf(b1,
+#endif
+						"%s\r\n", dp->getProtocolName() );
+   
+		ret = out->writeToFile(b1, strlen(b1), &nbw);
     if(ret)
     {
       strcpy(b1, "Control: Error while writing to file");
@@ -1036,6 +1060,12 @@ int ControlProtocol::showLanguageFiles(ConnectionPtr a, File* out,
 int ControlProtocol::getVersion(ConnectionPtr a, File* out, char *b1,int bs1)
 {
   u_long nbw;
-  sprintf(b1, "MyServer %s", versionOfSoftware);
-  return Ofile->writeToFile(b1, strlen(b1), &nbw);
+#ifdef HAVE_SNPRINTF
+	snprintf(b1, bs1,
+#else
+  sprintf(b1, 
+#endif
+					"MyServer %s", versionOfSoftware);
+ 
+	return Ofile->writeToFile(b1, strlen(b1), &nbw);
 }
