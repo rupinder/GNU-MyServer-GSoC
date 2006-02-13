@@ -360,16 +360,16 @@ int main (int argn, char **argv)
 /*!
  *Write the current PID to the file.
  */
-int  write_pidfile(char* filename)
+int write_pidfile(char* filename)
 {
-        int pidfile;
-        pid_t pid = getpid(); 
+	int pidfile;
+	pid_t pid = getpid(); 
   char buff[12];
   int ret;
   pidfile = open(filename, O_RDWR | O_CREAT);
 
   if(pidfile == -1)
-                return -1;
+		return -1;
 
   sprintf(buff,"%i\n", pid);
   ret = write(pidfile, buff, strlen(buff));

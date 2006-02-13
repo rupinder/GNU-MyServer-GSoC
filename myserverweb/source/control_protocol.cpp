@@ -612,9 +612,16 @@ int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
 {
 	string time;
 	getRFC822GMTTime(time, 32);
-  sprintf(b1,"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr(), time.c_str(), 
+
+#ifdef HAVE_SNPRINTF
+	snprintf(b1, bs1,
+#else
+  sprintf(b1,
+#endif
+					"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr(), time.c_str(), 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin() , retCode);
+
 	((Vhost*)(con->host))->accesseslogRequestAccess(id);
 	((Vhost*)(con->host))->accessesLogWrite(b1);
 	((Vhost*)(con->host))->accesseslogTerminateAccess(id);
