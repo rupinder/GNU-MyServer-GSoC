@@ -40,22 +40,6 @@ extern "C" {
 #include <string.h>
 }
 
-#ifndef lstrcpy
-#define lstrcpy strcpy
-#endif
-#ifndef lstrlen
-#define lstrlen strlen
-#endif
-#ifndef lstrcpyn
-#define lstrcpyn strncpy
-#endif
-#ifndef strcat
-#define strcat strcat
-#endif
-#ifndef strnicmp
-#define strnicmp strncmp
-#endif
-
 using namespace std;
 
 /*!
@@ -65,11 +49,17 @@ int Cgi::cgiTimeout = MYSERVER_SEC(15);
 
 /*!
  *Run the standard CGI and send the result to the client.
+ *\param td The HTTP thread context.
+ *\param s A pointer to the connection structure.
+ *\param scriptpath The script path.
+ *\param cgipath The CGI handler path as specified by the MIME type.
+ *\param execute Specify if the script has to be executed.
+ *\param onlyHeader Specify if send only the HTTP header.
  */
 int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath, 
               const char *cgipath, int execute, int onlyHeader)
 {
- 	/*! Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
+ 	/* Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
 	ostringstream cmdLine;
 	int yetoutputted=0;
@@ -93,7 +83,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	td->scriptPath.assign(scriptpath);
   
   {
-    /*! Do not modify the text between " and ". */
+    /* Do not modify the text between " and ". */
     int x;
     int subString = cgipath[0] == '"';
     int len=strlen(cgipath);
@@ -105,7 +95,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         subString = !subString;
     }
 
-    /*!
+    /*
      *Save the cgi path and the possible arguments.
      *the (x<len) case is when additional arguments are specified. 
      *If the cgipath is enclosed between " and " do not consider them 
@@ -138,8 +128,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   if(td->mime)
   {
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
-                                                       &(td->connection->socket) , &nbw, 1))
+															((MimeManager::MimeRecord*)td->mime)->filters, 
+                              &(td->connection->socket) , &nbw, 1))
       {
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
         ((Vhost*)td->connection->host)->warningsLogWrite("Cgi: Error loading filters");
@@ -199,7 +189,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	}
 	else
 	{
-     /*! Check if the CGI executable exists. */
+     /* Check if the CGI executable exists. */
 		if((!cgipath) || (!File::fileExists(tmpCgiPath.c_str())))
 		{
 			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
@@ -242,7 +232,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       nph=0;
 	}
   
-	/*!
+	/*
    *Use a temporary file to store CGI output.
    *Every thread has its own tmp file name(td->outputDataPath), 
    *so use this name for the file that is going to be
@@ -251,7 +241,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   outputDataPath << getdefaultwd(0,0) << "/stdOutFileCGI_" 
                  <<  (unsigned int)td->id;
   
-  /*!
+  /*
    *Open the stdout file for the new CGI process. 
    */
 	if(stdOutFile.createTemporaryFile( outputDataPath.str().c_str() ))
@@ -276,7 +266,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   }
   
-	/*!
+	/*
    *Build the environment string used by the CGI started
    *by the execHiddenProcess(...) function.
    *Use the td->buffer2 to build the environment string.
@@ -284,7 +274,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	(td->buffer2->getBuffer())[0]='\0';
 	buildCGIEnvironmentString(td, td->buffer2->getBuffer());
   
-	/*!
+	/*
    *With this code we execute the CGI process.
    *Fill the StartProcInfo struct with the correct values and use it
    *to run the process.
@@ -297,7 +287,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	spi.stdOut = stdOutFile.getHandle();
 	spi.envString=td->buffer2->getBuffer();
   
-  /*! Execute the CGI process. */
+  /* Execute the CGI process. */
   {
     Process cgiProc;
     if( cgiProc.execHiddenProcess(&spi, cgiTimeout) )
@@ -312,13 +302,13 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       return ((Http*)td->lhttp)->raiseHTTPError(e_500);
     }
   }
-  /*! Reset the buffer2 length counter. */
+  /* Reset the buffer2 length counter. */
 	td->buffer2->setLength(0);
 
-	/*! Read the CGI output.  */
+	/* Read the CGI output.  */
 	nBytesRead=0;
 
-  /*! Return an internal error if we cannot seek on the file. */
+  /* Return an internal error if we cannot seek on the file. */
 	if(stdOutFile.setFilePointer(0))
   {
     stdInFile.closeFile();
@@ -354,7 +344,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		((Http*)td->lhttp)->raiseHTTPError(e_500);
 		yetoutputted=1;
 	}
-	/*! Standard CGI can include an extra HTTP header.  */
+	/* Standard CGI can include an extra HTTP header.  */
 	headerSize=0;
   nbw=0;
 	for(u_long i=0; i<nBytesRead; i++)
@@ -363,7 +353,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		if( (buff[i]=='\r') && (buff[i+1]=='\n') 
         && (buff[i+2]=='\r') && (buff[i+3]=='\n') )
 		{
-			/*!
+			/*
        *The HTTP header ends with a \r\n\r\n sequence so 
        *determinate where it ends and set the header size
        *to i + 4.
@@ -373,16 +363,16 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		}
     else if((buff[i]=='\n') && (buff[i+1]=='\n'))
     {
-      /*!
+      /*
        *\n\n case.
        */
       headerSize= i + 2;
       break;
     }
-		/*! If it is present Location: xxx in the header send a redirect to xxx.  */
+		/* If it is present Location: xxx in the header send a redirect to xxx.  */
 		else if(!strncmp(&(td->buffer2->getBuffer())[i], "Location:", 9))
 		{
-      /*! If no other data was send, send the redirect. */
+      /* If no other data was send, send the redirect. */
 			if(!yetoutputted)
 			{
         string nURL;
@@ -394,7 +384,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         }
         nURL.assign(&(td->buffer2->getBuffer()[i + 9]), len);
 				((Http*)td->lhttp)->sendHTTPRedirect(nURL.c_str());
-        /*! Store the new flag. */
+        /* Store the new flag.  */
         yetoutputted=1;
 
       }
@@ -408,22 +398,22 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		
 		if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
 		  td->response.connection.assign("keep-alive");
-		/*!
+		/*
      *Do not send any other HTTP header if the CGI executable
      *has the nph-. form name.  
      */
 		if(nph)
 		{
-			/*! Resetting the structure we send only the information gived by the CGI. */
+			/* Resetting the structure we send only the information gived by the CGI.  */
 			HttpHeaders::resetHTTPResponse(&(td->response));
       td->response.ver.assign(td->request.ver.c_str());
 		}
 
-    /*! If we have not to append the output send data directly to the client. */
+    /* If we have not to append the output send data directly to the client.  */
 		if(!td->appendOutputs)
 		{
       ostringstream tmp;
-      /*! Send the header.  */
+      /* Send the header.  */
 			if(headerSize)
 				HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
                                                     td->buffer2->getBuffer());
@@ -441,7 +431,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         stdInFile.closeFile();
         stdOutFile.closeFile();
         chain.clearAllFilters(); 
-        /*! Remove the connection on sockets error. */
+        /* Remove the connection on sockets error. */
         return 0;
       }
       if(onlyHeader)
@@ -452,14 +442,14 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         return 1;
       }
 
-      /*! Send other remaining data in the buffer. */
+      /* Send other remaining data in the buffer. */
 			if(chain.write((td->buffer2->getBuffer() + headerSize), 
                         nBytesRead-headerSize, &nbw2))
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
         chain.clearAllFilters(); 
-        /*! Remove the connection on sockets error. */
+        /* Remove the connection on sockets error.  */
         return 0;       
       }
       nbw += nbw2;
@@ -474,21 +464,21 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         return 1;
       }
 
-      /*! Do not put the HTTP header if appending. */
+      /* Do not put the HTTP header if appending.  */
 			td->outputData.writeToFile(td->buffer2->getBuffer()+headerSize, 
                                  nBytesRead-headerSize, &nbw2);
       nbw += nbw2;
     }
     do
     {
-      /*! Flush other data. */
+      /* Flush other data.  */
       if(stdOutFile.readFromFile(td->buffer2->getBuffer(), 
                                  td->buffer2->getRealLength(), &nBytesRead))
       {
         stdOutFile.closeFile();
         stdInFile.closeFile();
         chain.clearAllFilters(); 
-        /*! Remove the connection on sockets error. */
+        /* Remove the connection on sockets error.  */
         return 0;      
       }
       if(nBytesRead)
@@ -501,7 +491,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
             stdOutFile.closeFile();
             stdInFile.closeFile();
             chain.clearAllFilters(); 
-            /*! Remove the connection on sockets error. */
+            /* Remove the connection on sockets error.  */
             return 0;      
           }
           nbw += nbw2;
@@ -515,7 +505,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
             stdInFile.closeFile();
             chain.clearAllFilters(); 
             File::deleteFile(td->inputDataPath);
-            /*! Remove the connection on sockets error. */
+            /* Remove the connection on sockets error.  */
             return 0;      
           }
           nbw += nbw2;
@@ -525,7 +515,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		}while(nBytesRead);
 
 	}
-   /*! Update the Content-Length field for logging activity. */
+   /* Update the Content-Length field for logging activity.  */
   {
     ostringstream buffer;
     buffer << nbw;
@@ -533,11 +523,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   }
   chain.clearAllFilters(); 	
 	
-  /*! Close the stdin and stdout files used by the CGI.  */
+  /* Close the stdin and stdout files used by the CGI.  */
 	stdOutFile.closeFile();
 	stdInFile.closeFile();
 	
-	/*! Delete the file only if it was created by the CGI module. */
+	/* Delete the file only if it was created by the CGI module.  */
 	if(!td->inputData.getHandle())
 	  File::deleteFile(td->inputDataPath.c_str());
   
@@ -548,19 +538,17 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 /*!
  *Write the string that contain the CGI environment to cgiEnvString.
  *This function is used by other server side protocols too.
+ *\param td The HTTP thread context.
+ *\param cgiEnv The zero terminated list of environment string.
+ *\param processEnv Specify if add current process environment variables too.
  */
-void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string, 
+void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv, 
                                     int processEnv)
 {
-	/*!
-   *The Environment string is a null-terminated block of null-terminated strings.
-   *For no problems with the function strcat we use the character \r for 
-   *the \0 character and at the end we change every \r in \0.
-   */
 	MemBuf memCgi;
 	char strTmp[32];
 
-	memCgi.setExternalBuffer(cgi_env_string, td->buffer2->getRealLength());
+	memCgi.setExternalBuffer(cgiEnv, td->buffer2->getRealLength());
 	memCgi << "SERVER_SOFTWARE=MyServer " << versionOfSoftware;
 
 #ifdef WIN32
@@ -572,7 +560,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 	memCgi << " (Unknown)";
 #endif
 #endif
-	/*! *Must use REDIRECT_STATUS for php and others.  */
+	/* *Must use REDIRECT_STATUS for php and others.  */
 	memCgi << end_str << "REDIRECT_STATUS=TRUE";
 	
 	memCgi << end_str << "SERVER_NAME=";
@@ -805,7 +793,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
  	memCgi << end_str << "SCRIPT_FILENAME=";
 	memCgi << td->filenamePath;
 	
-	/*!
+	/*
    *For the DOCUMENT_URI and SCRIPT_NAME copy the 
    *requested uri without the pathInfo.
    */
@@ -860,6 +848,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgi_env_string,
 
 /*!
  *Set the CGI timeout for the new processes.
+ *\param nt The new timeout value.
  */
 void Cgi::setTimeout(int nt)
 {
