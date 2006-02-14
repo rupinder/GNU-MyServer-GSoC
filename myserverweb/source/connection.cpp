@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/connection.h"
 #include "../include/vhosts.h"
+
 /*!
  *Create the buffer.
  */
@@ -27,7 +28,7 @@ ProtocolBuffer::ProtocolBuffer()
 }
 
 /*!
- *Destroy the object.
+ *Destroy the protocol buffer object.
  */
 ProtocolBuffer::~ProtocolBuffer()
 {
@@ -36,15 +37,15 @@ ProtocolBuffer::~ProtocolBuffer()
 
 
 /*!
- *Contructor for the Connection class.
+ *Constructor for the Connection class.
  */
 Connection::Connection()
 {
-  thread=0;
-  parsing=0;
+  thread = 0;
+  parsing = 0;
   login.assign("");
   password.assign("");
-  nTries=0;
+  nTries = 0;
 	ipAddr[0]='\0';
   localIpAddr[0]='\0';
   port = 0;
@@ -55,7 +56,7 @@ Connection::Connection()
 	dataRead = 0;
   toRemove = 0;
   forceParsing = 0;
-  connectionBuffer[0]='\0';
+  connectionBuffer[0] = '\0';
   protocolBuffer = 0;
 
 }
@@ -93,6 +94,7 @@ u_long Connection::getID()
 
 /*!
  *Set the IDentifier for the connection.
+ *\param nID The new ID. 
  */
 void Connection::setID(u_long nID)
 {
@@ -101,11 +103,13 @@ void Connection::setID(u_long nID)
 
 /*!
  *Set the parsing state.
+ *\param np The new parsing state.
  */
 void Connection::setParsing(int np)
 {
   parsing = np;
 }
+
 /*!
  *Return if the connection is currently parsed.
  */
@@ -124,10 +128,11 @@ u_short Connection::getPort()
 
 /*!
  *Set the port used by the connection.
+ *\param newPort The new port.
  */
-void Connection::setPort(u_short np)
+void Connection::setPort(u_short newPort)
 {
-  port = np;
+  port = newPort;
 }
 
 /*!
@@ -140,19 +145,22 @@ const char* Connection::getLogin()
 
 /*!
  *Set the login name for the connection user.
+ *\param loginName The login name. 
  */
-void Connection::setLogin(const char* l)
+void Connection::setLogin(const char* loginName)
 {
-  login.assign(l);
+  login.assign(loginName);
 }
 
 /*!
  *Set the # of attempts to authenticate the user.
+ *\arg n The new number of tries.
  */
 void Connection::setnTries(char n)
 {
   nTries = n;
 }
+
 /*!
 *Get the # of attempts to authenticate the user.
  */
@@ -178,6 +186,7 @@ const char* Connection::getIpAddr()
 
 /*!
  *Set the IP address of the client.
+ *\param na The new IP address.
  */
 void Connection::setIpAddr(const char* na)
 {
@@ -194,6 +203,7 @@ const char* Connection::getLocalIpAddr()
 
 /*!
  *Set the IP address of the local interface used to connect to.
+ *\param na The new local IP address.
  */
 void Connection::setLocalIpAddr(const char* na)
 {
@@ -210,6 +220,7 @@ u_short Connection::getLocalPort()
 
 /*!
  *Set the local port used to connect to.
+ *\param np The new local port. 
  */
 void Connection::setLocalPort(u_short np)
 {
@@ -226,6 +237,7 @@ u_long Connection::getTimeout()
 
 /*!
  *Set the timeout to use with the connection.
+ *\param nTimeout The new timeout value. 
  */
 void Connection::setTimeout(u_long nTimeout)
 {
@@ -242,6 +254,7 @@ int Connection::getDataRead()
 
 /*!
  *Set the number of bytes read.
+ *\param dr The new data read value. 
  */
 void Connection::setDataRead(int dr)
 {
@@ -258,6 +271,7 @@ int Connection::getToRemove()
 
 /*!
  *Set the reason to remove the connection.
+ *\param r Set if the connection has to be removed. 
  */
 void Connection::setToRemove(int r)
 {
@@ -273,6 +287,7 @@ int Connection::getForceParsing()
 }
 /*!
  *Force the parsing of this connection on next server loop.
+ *\param fp The new force parsing value even if there is new data. 
  */
 void Connection::setForceParsing(int fp)
 {
@@ -289,6 +304,7 @@ const char* Connection::getPassword()
 
 /*!
  *Set the password for the user.
+ *\param p The new password.
  */
 void Connection::setPassword(const char* p)
 {
