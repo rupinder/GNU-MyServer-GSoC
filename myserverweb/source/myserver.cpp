@@ -198,11 +198,13 @@ int main (int argn, char **argv)
   if(path == 0)
     return 1;
 	lstrcpy(path,argv[0]);
-	u_long len=(u_long)strlen(path);
-	while((path[len]!='\\')&&(path[len]!='/'))
-		len--;
-	path[len]='\0';
-				
+	
+	{
+		u_long len=(u_long)strlen(path);
+		while((path[len]!='\\')&&(path[len]!='/'))
+			len--;
+		path[len]='\0';
+	}
 	/*! Current working directory is where the myserver executable is. */
 	setcwd(path);
   

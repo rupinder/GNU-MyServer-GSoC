@@ -48,10 +48,13 @@ int MimeManager::load(const char *fn)
   if(fn == 0)
     return -1;
 	
-	filename.assign(fn);
+	if(filename)
+		delete filename;
+	filename = new string(fn);
+
 	numMimeTypesLoaded=0;
 
-	ret=f.openFile(filename.c_str(), FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
+	ret=f.openFile(filename->c_str(), FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 	if(ret)
 		return 0;
 	fs=f.getFileSize();
@@ -221,7 +224,9 @@ void MimeManager::MimeRecord::clear()
  */
 const char *MimeManager::getFilename()
 {
-	return filename.c_str();
+	if(filename == 0)
+		return "";
+	return filename->c_str();
 }
 
 /*!
@@ -235,7 +240,11 @@ int MimeManager::loadXML(const char *fn)
   xmlDocPtr doc;
   if(!fn)
     return -1;
-	filename.assign(fn);
+	if(filename)
+		delete filename;
+
+	filename = new string(fn);
+
 	if(parser.open(fn))
 	{
 		return -1;
@@ -692,7 +701,9 @@ void MimeManager::clean()
   if(loaded)
   {
     loaded = 0;
-    filename.assign("");
+		if(filename) 
+			delete filename;
+    filename = 0;
     removeAllRecords();
   }
 }
@@ -703,7 +714,7 @@ void MimeManager::clean()
 MimeManager::MimeManager()
 {
 	data.clear();
-  filename.assign("");
+  filename = 0;
   loaded = 0;
 }
 
