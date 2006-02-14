@@ -36,6 +36,8 @@ DynamicLibrary::~DynamicLibrary()
 
 /*!
  *Load the specified dynamic library. It returns 0 on success.
+ *\param filename Name of the file to load.
+ *\param globally Set if the library is loaded globally.
  */
 int DynamicLibrary::loadLibrary(const char* filename, int globally)
 {
@@ -54,6 +56,7 @@ int DynamicLibrary::loadLibrary(const char* filename, int globally)
 /*!
  *Get a pointer to the specified function. Returns 0 on errors or 
  *the function address. 
+ *\param fnName Function name to find.
  */
 void* DynamicLibrary::getProc(const char* fnName)
 {
