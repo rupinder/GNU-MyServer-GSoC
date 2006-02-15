@@ -116,7 +116,7 @@ private:
 	u_long buffersize2;
 	u_long getNumConnections();
 	/*! Buffer that contains all the local machine IP values.  */
-	string ipAddresses;
+	string *ipAddresses;
 	char serverName[HOST_NAME_MAX+1];
 	string *path;
   string *externalPath;

@@ -93,6 +93,7 @@ Server::Server()
 	languageFile = 0;
 	externalPath = 0;
 	path = 0;
+	ipAddresses = 0;
 }
 
 /*!
@@ -233,12 +234,14 @@ void Server::start()
     /*!
      *find the IP addresses of the local machine.
      */
-    ipAddresses.clear();
+		if(ipAddresses)
+			delete ipAddresses;
+		ipAddresses = new string();
     buffer.assign("Host: ");
     buffer.append(serverName);
     logWriteln(buffer.c_str() ); 
 
-    if(Socket::getLocalIPsList(ipAddresses))
+    if(Socket::getLocalIPsList(*ipAddresses))
     {
       string msg;
       msg.assign(languageParser.getValue("ERR_ERROR"));
@@ -252,7 +255,7 @@ void Server::start()
     {
       string msg;
       msg.assign("IP: ");
-      msg.append(ipAddresses);
+      msg.append(*ipAddresses);
       logWriteln(msg.c_str());  
     }
 
@@ -892,6 +895,11 @@ int Server::terminate()
 	if(path)
 		delete path;
 	path = 0;
+
+	if(ipAddresses)
+		delete ipAddresses;
+
+	ipAddresses = 0;
 
   vhostList = 0;
 	languageParser.close();
@@ -1638,7 +1646,7 @@ u_long Server::getNumThreads()
  */
 const char *Server::getAddresses()
 {
-	return ipAddresses.c_str();
+	return ipAddresses ? ipAddresses->c_str() : "";
 }
 
 /*! 
