@@ -84,7 +84,7 @@ Server::Server()
   throttlingRate = 0;
   uid= 0;
   gid = 0;
-
+	mimeManager = 0;
   try
   {
     languages_path.assign("");
@@ -880,7 +880,8 @@ int Server::terminate()
   path.assign("");
   vhostList = 0;
 	languageParser.close();
-	mimeManager.clean();
+	mimeManager->clean();
+	delete mimeManager;
 #ifdef WIN32
 	/*!
    *Under WIN32 cleanup environment strings.
@@ -1768,7 +1769,10 @@ int Server::loadSettings()
 
     /*! Load the MIME types. */
     logWriteln(languageParser.getValue("MSG_LOADMIME"));
-    if(int nMIMEtypes=mimeManager.loadXML(mime_configuration_file.c_str()))
+		if(mimeManager)
+			delete mimeManager;
+		mimeManager = new MimeManager();
+    if(int nMIMEtypes=mimeManager->loadXML(mime_configuration_file.c_str()))
     {
       ostringstream stream;
       stream <<  languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;

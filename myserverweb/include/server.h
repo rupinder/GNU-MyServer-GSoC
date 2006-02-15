@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CSERVER_IN
-#define CSERVER_IN
+#ifndef SERVER_IN
+#define SERVER_IN
 
 #include "../stdafx.h"
 #include "../include/clients_thread.h"
@@ -198,7 +198,7 @@ public:
 	const char *getAddresses();
 	void *envString;
 	VhostManager *vhostList;
-	MimeManager mimeManager;
+	MimeManager *mimeManager;
 	const char  *getPath();
 	u_long getNumThreads();
 	const char  *getDefaultFilenamePath(u_long ID=0);

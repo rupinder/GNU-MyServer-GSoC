@@ -2539,7 +2539,7 @@ MimeManager::MimeRecord* Http::getMIME(string &filename)
   {
     return ((Vhost*)(td.connection->host))->getMIME()->getRecord(ext);
   }
-	return Server::getInstance()->mimeManager.getRecord(ext);
+	return Server::getInstance()->mimeManager->getRecord(ext);
 }
 
 /*!
