@@ -120,7 +120,7 @@ private:
 	char serverName[HOST_NAME_MAX+1];
 	string path;
   string externalPath;
-	string serverAdmin;
+	string *serverAdmin;
 	int initialize(int);
 	ConnectionPtr addConnectionToList(Socket s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr, 

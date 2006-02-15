@@ -82,8 +82,9 @@ Server::Server()
   connectionToParse=0;
   serverReady = 0;
   throttlingRate = 0;
-  uid= 0;
+  uid = 0;
   gid = 0;
+	serverAdmin = 0;
 	mimeManager = 0;
 	mime_configuration_file = 0;
   main_configuration_file = 0;
@@ -981,7 +982,7 @@ void Server::stopThreads()
  */
 const char *Server::getServerAdmin()
 {
-	return serverAdmin.c_str();
+	return serverAdmin ? serverAdmin->c_str() : "";
 }
 
 /*!
@@ -1021,7 +1022,9 @@ int Server::initialize(int /*!os_ver*/)
   throttlingRate = 0;
 	maxConnections=0;
   maxConnectionsToAccept=0;
-	serverAdmin.assign("");
+	if(serverAdmin)
+		delete serverAdmin;
+	serverAdmin = 0;
 	autoRebootEnabled = 1;
 	languages_path = new string();
 #ifndef WIN32
@@ -1186,7 +1189,9 @@ int Server::initialize(int /*!os_ver*/)
 	data=configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
 	{
-		serverAdmin.assign(data);
+		if(serverAdmin == 0)
+			serverAdmin = new string();
+		serverAdmin->assign(data);
 	}
 
 	data=configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
