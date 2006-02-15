@@ -139,7 +139,7 @@ public:
 
 private:
   int loaded;
-  HashMap<string, MimeRecord*> data;
+  HashMap<string, MimeRecord*> *data;
 	u_long numMimeTypesLoaded;
 	string *filename;
 };

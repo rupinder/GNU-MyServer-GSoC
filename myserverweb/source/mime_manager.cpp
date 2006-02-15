@@ -53,7 +53,9 @@ int MimeManager::load(const char *fn)
 	filename = new string(fn);
 
 	numMimeTypesLoaded=0;
-
+	if(data)
+		delete data;
+	data = new HashMap<string, MimeRecord*>();
 	ret=f.openFile(filename->c_str(), FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 	if(ret)
 		return 0;
@@ -173,7 +175,7 @@ int MimeManager::load(const char *fn)
   loaded = 1;
 
 	delete [] buffer;
-	return data.size();
+	return data->size();
 
 }
 
@@ -244,7 +246,9 @@ int MimeManager::loadXML(const char *fn)
 		delete filename;
 
 	filename = new string(fn);
-
+	if(data)
+		delete data;
+	data = new  HashMap<string, MimeRecord*>();
 	if(parser.open(fn))
 	{
 		return -1;
@@ -400,7 +404,7 @@ int MimeManager::loadXML(const char *fn)
   /*! Store the loaded status. */
   loaded = 1;
 
-	return data.size();
+	return data->size();
 }
 
 /*!
@@ -430,8 +434,8 @@ int MimeManager::saveXML(const char *filename)
 	File::deleteFile(filename);
 	File f;
 	u_long nbw;
-	HashMap<string, MimeRecord*>::Iterator it = data.begin();
-	HashMap<string, MimeRecord*>::Iterator end = data.end();
+	HashMap<string, MimeRecord*>::Iterator it = data->begin();
+	HashMap<string, MimeRecord*>::Iterator end = data->end();
 
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
@@ -493,8 +497,8 @@ int MimeManager::save(const char *filename)
 {
 	File f;
 	u_long nbw;
-	HashMap<string, MimeRecord*>::Iterator it = data.begin();
-	HashMap<string, MimeRecord*>::Iterator end = data.end();
+	HashMap<string, MimeRecord*>::Iterator it = data->begin();
+	HashMap<string, MimeRecord*>::Iterator end = data->end();
 
 	File::deleteFile(filename);
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
@@ -555,7 +559,7 @@ int MimeManager::save(const char *filename)
  */
 int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
-  MimeRecord* mr=data.get(ext);
+  MimeRecord* mr=data ? data->get(ext) : 0;
   if(mr)
   {
     if(dest)
@@ -589,7 +593,7 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
  */
 int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 {
-  MimeManager::MimeRecord *mr = data.get(ext.c_str());
+  MimeManager::MimeRecord *mr = data ? data->get(ext.c_str()): 0;
 	if(mr)
 	{
 		if(!stringcmpi(mr->extension, ext.c_str()))
@@ -618,9 +622,15 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 {
   MimeRecord *mr;
-	HashMap<string, MimeRecord*>::Iterator it = data.begin();
-	HashMap<string, MimeRecord*>::Iterator end = data.end();
-  if(id > data.size() || id < 0)
+	HashMap<string, MimeRecord*>::Iterator it;
+	HashMap<string, MimeRecord*>::Iterator end;
+
+	if(data == 0)
+		return 0;
+
+	it = data->begin();
+	end = data->end();
+	if(id > data->size() || id < 0)
   {
     return CGI_CMD_SEND;   
   }
@@ -659,12 +669,12 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
 int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
 {
   MimeManager::MimeRecord *mr;
-  if(id > data.size() || id < 0)
+  if(!data || id > data->size() || id < 0)
   {
     return CGI_CMD_SEND;   
   }
 
-  mr=data.get(ext.c_str());
+  mr=data->get(ext.c_str());
   if(mr)
   {
     ext.assign(mr->extension);
@@ -713,7 +723,7 @@ void MimeManager::clean()
  */
 MimeManager::MimeManager()
 {
-	data.clear();
+	data = 0;
   filename = 0;
   loaded = 0;
 }
@@ -736,7 +746,7 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
     if(!nmr)	
       return 1;
 		string keyStr(nmr->extension);
-    old = data.put(keyStr, nmr);
+    old = data->put(keyStr, nmr);
 		if(old)
 			delete old;
   }
@@ -755,7 +765,7 @@ int MimeManager::addRecord(MimeManager::MimeRecord& mr)
  */
 void MimeManager::removeRecord(const string& ext)
 {
-  MimeManager::MimeRecord *rec=data.remove(ext.c_str());
+  MimeManager::MimeRecord *rec=data->remove(ext.c_str());
   if(rec)
     delete rec;
 }
@@ -765,8 +775,8 @@ void MimeManager::removeRecord(const string& ext)
  */
 void MimeManager::removeAllRecords()
 {
-	HashMap<string, MimeRecord*>::Iterator it = data.begin();
-	HashMap<string, MimeRecord*>::Iterator end = data.end();
+	HashMap<string, MimeRecord*>::Iterator it = data->begin();
+	HashMap<string, MimeRecord*>::Iterator end = data->end();
   for(; it != end; it++)
   {
     MimeManager::MimeRecord *rec=*it;
@@ -774,7 +784,7 @@ void MimeManager::removeAllRecords()
       delete rec;
   }
 
-	data.clear();
+	data->clear();
 }
 
 /*!
@@ -782,7 +792,7 @@ void MimeManager::removeAllRecords()
  */
 MimeManager::MimeRecord *MimeManager::getRecord(string const &ext)
 {
-  return data.get(ext.c_str());
+  return data ? data->get(ext.c_str()) : 0;
 }
 
 /*!
@@ -790,7 +800,7 @@ MimeManager::MimeRecord *MimeManager::getRecord(string const &ext)
  */
 u_long MimeManager::getNumMIMELoaded()
 {
-	return data.size();
+	return data ? data->size() : 0;
 }
 
 /*!
