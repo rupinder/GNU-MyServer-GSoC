@@ -20,7 +20,7 @@ extern "C" int main (char *cmd,MsCgiData* data)
 <meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n\
 </head>\r\n<body style=\"color: #666699;\">\r\n<div style=\"text-align: center;\">\r\n\
 <br />\r\n<img src=\"/logo.png\" alt=\"\" style=\"border: 0px;\" />\r\n<br /><br />\r\n\
-<form action=\"post.mscgi\" method=\"get\" enctype=\"text/plain\">\r\n\
+<form action=\"post.mscgi\" method=\"post\" enctype=\"text/plain\">\r\n\
 <div>\r\n<input type=\"text\" name=\"T1\" size=\"20\" value=\"POST\" />\r\n<br /><br />\r\n<input type=\"submit\" value=\"Send\" />\r\n\
 <input type=\"reset\" value=\"Reset\" />\r\n</div>\r\n</form>\r\n<br />\r\n</div>\r\n</body>\r\n</html>");
 	}

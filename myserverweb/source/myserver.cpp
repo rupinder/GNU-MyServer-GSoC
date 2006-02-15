@@ -193,14 +193,14 @@ int main (int argn, char **argv)
     /*! Die if we get exceptions here. */
     return(1);
   };
-  path_len = strlen(argv[0]) +1 ;
-  path = new char[path_len];
+  path_len = strlen(argv[0]);
+  path = new char[path_len + 1];
   if(path == 0)
     return 1;
-	lstrcpy(path,argv[0]);
+	strncpy(path, argv[0], path_len);
 	
 	{
-		u_long len=(u_long)strlen(path);
+		u_long len = path_len;
 		while((path[len]!='\\')&&(path[len]!='/'))
 			len--;
 		path[len]='\0';
