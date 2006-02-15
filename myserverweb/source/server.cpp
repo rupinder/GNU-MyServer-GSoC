@@ -88,15 +88,8 @@ Server::Server()
 	mime_configuration_file = 0;
   main_configuration_file = 0;
 	vhost_configuration_file = 0;
-	try
-  {
-    languages_path.assign("");
-	}
-  catch(...)
-  {
-    throw;
-  };
-
+	languages_path = 0;
+	languageFile = 0;
 }
 
 /*!
@@ -870,8 +863,14 @@ int Server::terminate()
 	}
 	freeHashedData();
 	
-  languages_path.assign("");
-  languageFile.assign("");
+	if(languages_path)
+		delete languages_path;
+	languages_path = 0;
+
+  if(languageFile)
+		delete languageFile;
+	languageFile = 0;
+
 	delete vhostList;
 
   delete vhost_configuration_file;
@@ -1024,6 +1023,7 @@ int Server::initialize(int /*!os_ver*/)
   maxConnectionsToAccept=0;
 	serverAdmin.assign("");
 	autoRebootEnabled = 1;
+	languages_path = new string();
 #ifndef WIN32
 	/*! 
    *Do not use the files in the directory /usr/share/myserver/languages
@@ -1031,18 +1031,18 @@ int Server::initialize(int /*!os_ver*/)
    */
 	if(File::fileExists("languages"))
 	{
-		languages_path.assign(getdefaultwd(0, 0) );
-    languages_path.append("/languages/");
+		languages_path->assign(getdefaultwd(0, 0) );
+    languages_path->append("/languages/");
  
 	}
 	else
 	{
 #ifdef PREFIX
-		languages_path.assign(PREFIX );
-    languages_path.append("/share/myserver/languages/");
+		languages_path->assign(PREFIX);
+    languages_path->append("/share/myserver/languages/");
 #else
     /*! Default PREFIX is /usr/. */
-		languages_path.assign("/usr/share/myserver/languages/");
+		languages_path->assign("/usr/share/myserver/languages/");
 #endif
 	}
 #endif
@@ -1052,7 +1052,7 @@ int Server::initialize(int /*!os_ver*/)
 	main_configuration_file = new string();
 
 #ifdef WIN32
-  languages_path.assign( "languages/" );
+  languages_path->assign( "languages/" );
 #endif 
 
 #ifndef WIN32
@@ -1128,15 +1128,18 @@ int Server::initialize(int /*!os_ver*/)
 		verbosity=(u_long)atoi(data);
 	}
 	data=configurationFileManager.getValue("LANGUAGE");
+	if(languageFile)
+		delete languageFile;
+	languageFile = new string();
 	if(data)
 	{
-    languageFile.assign(languages_path);
-    languageFile.append("/");
-    languageFile.append(data);
+    languageFile->assign(*languages_path);
+    languageFile->append("/");
+    languageFile->append(data);
 	}
 	else
 	{
-		languageFile.assign("languages/english.xml");
+		languageFile->assign("languages/english.xml");
 	}
 
 	data=configurationFileManager.getValue("BUFFER_SIZE");
@@ -1225,12 +1228,12 @@ int Server::initialize(int /*!os_ver*/)
 
 	configurationFileManager.close();
 	
-	if(languageParser.open(languageFile.c_str()))
+	if(languageParser.open(languageFile->c_str()))
   {
     string err;
     logPreparePrintError();
     err.assign("Error loading: ");
-    err.append(languageFile );
+    err.append( *languageFile );
     logWriteln( err.c_str() );     
     logEndPrintError();
     return -1;
@@ -2202,7 +2205,7 @@ ProtocolsManager *Server::getProtocolsManager()
  */
 const char *Server::getLanguagesPath()
 {
-  return languages_path.c_str();
+  return languages_path ? languages_path->c_str() : "";
 }
 
 /*!
@@ -2210,7 +2213,7 @@ const char *Server::getLanguagesPath()
  */
 const char *Server::getLanguageFile()
 {
-  return languageFile.c_str();
+  return languageFile ? languageFile->c_str() : "";
 }
 
 /*!

@@ -149,8 +149,8 @@ private:
 	void createListenThreads();
 	int reboot();
 	u_int listeningThreads;
-	string languageFile;
-	string languages_path;
+	string *languageFile;
+	string *languages_path;
 	string *main_configuration_file;
 	string *vhost_configuration_file;
 	string *mime_configuration_file;
