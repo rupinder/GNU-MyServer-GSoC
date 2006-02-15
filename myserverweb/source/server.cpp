@@ -85,13 +85,13 @@ Server::Server()
   uid= 0;
   gid = 0;
 	mimeManager = 0;
-  try
+	mime_configuration_file = 0;
+  main_configuration_file = 0;
+	vhost_configuration_file = 0;
+	try
   {
     languages_path.assign("");
-    main_configuration_file.assign("");
-    vhost_configuration_file.assign("");
-    mime_configuration_file.assign("");
-  }
+	}
   catch(...)
   {
     throw;
@@ -262,9 +262,9 @@ void Server::start()
 
     loadSettings();
   
-    myserver_main_conf = File::getLastModTime(main_configuration_file.c_str());
-    myserver_hosts_conf = File::getLastModTime(vhost_configuration_file.c_str());
-    myserver_mime_conf = File::getLastModTime(mime_configuration_file.c_str());
+    myserver_main_conf = File::getLastModTime(main_configuration_file->c_str());
+    myserver_hosts_conf = File::getLastModTime(vhost_configuration_file->c_str());
+    myserver_mime_conf = File::getLastModTime(mime_configuration_file->c_str());
     
     /*!
      *Keep thread alive.
@@ -282,11 +282,11 @@ void Server::start()
         if(configsCheck>10)
         {
           time_t myserver_main_conf_now=
-            File::getLastModTime(main_configuration_file.c_str());
+            File::getLastModTime(main_configuration_file->c_str());
           time_t myserver_hosts_conf_now=
-            File::getLastModTime(vhost_configuration_file.c_str());
+            File::getLastModTime(vhost_configuration_file->c_str());
           time_t myserver_mime_conf_now=
-            File::getLastModTime(mime_configuration_file.c_str());
+            File::getLastModTime(mime_configuration_file->c_str());
 
           /*! If a configuration file was modified reboot the server. */
           if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
@@ -873,11 +873,17 @@ int Server::terminate()
   languages_path.assign("");
   languageFile.assign("");
 	delete vhostList;
-  main_configuration_file.assign("");
-  vhost_configuration_file.assign("");
-	mime_configuration_file.assign("");
+
+  delete vhost_configuration_file;
+	vhost_configuration_file = 0;
 	
-  path.assign("");
+	delete main_configuration_file;
+	main_configuration_file = 0;
+
+	delete mime_configuration_file;
+	mime_configuration_file = 0;
+  
+	path.assign("");
   vhostList = 0;
 	languageParser.close();
 	mimeManager->clean();
@@ -1041,6 +1047,10 @@ int Server::initialize(int /*!os_ver*/)
 	}
 #endif
 
+	if(main_configuration_file)
+		delete main_configuration_file;
+	main_configuration_file = new string();
+
 #ifdef WIN32
   languages_path.assign( "languages/" );
 #endif 
@@ -1055,22 +1065,22 @@ int Server::initialize(int /*!os_ver*/)
    */
 	if(File::fileExists("myserver.xml"))
 	{
-		main_configuration_file.assign("myserver.xml");
+		main_configuration_file->assign("myserver.xml");
 	}
 	else if(File::fileExists("~/.myserver/myserver.xml"))
 	{
-		main_configuration_file.assign("~/.myserver/myserver.xml");
+		main_configuration_file->assign("~/.myserver/myserver.xml");
 	}
 	else if(File::fileExists("/etc/myserver/myserver.xml"))
 	{
-		main_configuration_file.assign("/etc/myserver/myserver.xml");
+		main_configuration_file->assign("/etc/myserver/myserver.xml");
 	}
 	else
 #endif
 	/*! If the myserver.xml files doesn't exist copy it from the default one. */
 	if(!File::fileExists("myserver.xml"))
 	{
-    main_configuration_file.assign("myserver.xml");
+    main_configuration_file->assign("myserver.xml");
 		File inputF;
 		File outputF;
 		ret = inputF.openFile("myserver.xml.default", 
@@ -1107,9 +1117,9 @@ int Server::initialize(int /*!os_ver*/)
 	}
 	else
   {
-		main_configuration_file.assign("myserver.xml");
+		main_configuration_file->assign("myserver.xml");
   }
-	configurationFileManager.open(main_configuration_file.c_str());
+	configurationFileManager.open(main_configuration_file->c_str());
 
 
 	data=configurationFileManager.getValue("VERBOSITY");
@@ -1694,6 +1704,9 @@ int Server::loadSettings()
   u_long nbr, nbw;
   try
   {
+		if(mime_configuration_file)
+			delete mime_configuration_file;
+		mime_configuration_file = new string();
 #ifndef WIN32
     /*! 
      *Under an *nix environment look for .xml files in the following order.
@@ -1704,15 +1717,15 @@ int Server::loadSettings()
      */
     if(File::fileExists("MIMEtypes.xml"))
     {
-      mime_configuration_file.assign("MIMEtypes.xml");
+      mime_configuration_file->assign("MIMEtypes.xml");
     }
     else if(File::fileExists("~/.myserver/MIMEtypes.xml"))
     {
-      mime_configuration_file.assign("~/.myserver/MIMEtypes.xml");
+      mime_configuration_file->assign("~/.myserver/MIMEtypes.xml");
     }
     else if(File::fileExists("/etc/myserver/MIMEtypes.xml"))
     {
-      mime_configuration_file.assign("/etc/myserver/MIMEtypes.xml");
+      mime_configuration_file->assign("/etc/myserver/MIMEtypes.xml");
     }
     else
 #endif
@@ -1724,7 +1737,7 @@ int Server::loadSettings()
       {
         File inputF;
         File outputF;
-        mime_configuration_file.assign("MIMEtypes.xml");
+        mime_configuration_file->assign("MIMEtypes.xml");
         ret=inputF.openFile("MIMEtypes.xml.default", FILE_OPEN_READ|
                             FILE_OPEN_IFEXISTS);
         if(ret)
@@ -1755,7 +1768,7 @@ int Server::loadSettings()
       }
       else
       {
-        mime_configuration_file.assign("MIMEtypes.xml");
+        mime_configuration_file->assign("MIMEtypes.xml");
       }
 
     if(filtersFactory.insert("gzip", Gzip::factory))
@@ -1772,7 +1785,7 @@ int Server::loadSettings()
 		if(mimeManager)
 			delete mimeManager;
 		mimeManager = new MimeManager();
-    if(int nMIMEtypes=mimeManager->loadXML(mime_configuration_file.c_str()))
+    if(int nMIMEtypes=mimeManager->loadXML(mime_configuration_file->c_str()))
     {
       ostringstream stream;
       stream <<  languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
@@ -1792,6 +1805,8 @@ int Server::loadSettings()
     strCPU.append(nCPU.str());
     logWriteln(strCPU.c_str());
 
+		vhost_configuration_file = new string();
+
 #ifndef WIN32
     /*!
      *Under an *nix environment look for .xml files in the following order.
@@ -1802,15 +1817,15 @@ int Server::loadSettings()
      */
     if(File::fileExists("virtualhosts.xml"))
     {
-      vhost_configuration_file.assign("virtualhosts.xml");
+      vhost_configuration_file->assign("virtualhosts.xml");
     }
     else if(File::fileExists("~/.myserver/virtualhosts.xml"))
     {
-      vhost_configuration_file.assign("~/.myserver/virtualhosts.xml");
+      vhost_configuration_file->assign("~/.myserver/virtualhosts.xml");
     }
     else if(File::fileExists("/etc/myserver/virtualhosts.xml"))
     {
-      vhost_configuration_file.assign("/etc/myserver/virtualhosts.xml");
+      vhost_configuration_file->assign("/etc/myserver/virtualhosts.xml");
     }
     else
 #endif
@@ -1822,7 +1837,7 @@ int Server::loadSettings()
       {
         File inputF;
         File outputF;
-        vhost_configuration_file.assign("virtualhosts.xml");		
+        vhost_configuration_file->assign("virtualhosts.xml");		
         ret = inputF.openFile("virtualhosts.xml.default", FILE_OPEN_READ | 
                               FILE_OPEN_IFEXISTS );
         if(ret)
@@ -1853,7 +1868,7 @@ int Server::loadSettings()
       }	
       else
       {
-        vhost_configuration_file.assign("virtualhosts.xml");
+        vhost_configuration_file->assign("virtualhosts.xml");
       }
     vhostList = new VhostManager();
     if(vhostList == 0)
@@ -1861,7 +1876,7 @@ int Server::loadSettings()
       return -1;
     }
     /*! Load the virtual hosts configuration from the xml file. */
-    vhostList->loadXMLConfigurationFile(vhost_configuration_file.c_str(), 
+    vhostList->loadXMLConfigurationFile(vhost_configuration_file->c_str(), 
                                         this->getMaxLogFileSize());
     
 #ifdef NOT_WIN
@@ -2126,7 +2141,8 @@ void Server::decreaseListeningThreadCount()
  */
 const char *Server::getMainConfFile()
 {
-  return main_configuration_file.c_str();
+  return main_configuration_file 
+		? main_configuration_file->c_str() : 0;
 }
 
 /*!
@@ -2134,7 +2150,8 @@ const char *Server::getMainConfFile()
  */
 const char *Server::getVhostConfFile()
 {
-  return vhost_configuration_file.c_str();
+  return vhost_configuration_file 
+		? vhost_configuration_file->c_str() : 0;
 }
 
 /*!
@@ -2142,7 +2159,8 @@ const char *Server::getVhostConfFile()
  */
 const char *Server::getMIMEConfFile()
 {
-  return mime_configuration_file.c_str();
+  return mime_configuration_file 
+		? mime_configuration_file->c_str() : "";
 }
 
 /*!

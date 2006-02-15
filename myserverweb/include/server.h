@@ -151,9 +151,9 @@ private:
 	u_int listeningThreads;
 	string languageFile;
 	string languages_path;
-	string main_configuration_file;
-	string vhost_configuration_file;
-	string mime_configuration_file;
+	string *main_configuration_file;
+	string *vhost_configuration_file;
+	string *mime_configuration_file;
 public:
 	static void createInstance();
 	static Server* getInstance()
