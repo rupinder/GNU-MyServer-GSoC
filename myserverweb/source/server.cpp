@@ -91,6 +91,8 @@ Server::Server()
 	vhost_configuration_file = 0;
 	languages_path = 0;
 	languageFile = 0;
+	externalPath = 0;
+	path = 0;
 }
 
 /*!
@@ -883,7 +885,14 @@ int Server::terminate()
 	delete mime_configuration_file;
 	mime_configuration_file = 0;
   
-	path.assign("");
+	if(externalPath)
+		delete externalPath;
+	externalPath = 0;
+
+	if(path)
+		delete path;
+	path = 0;
+
   vhostList = 0;
 	languageParser.close();
 	mimeManager->clean();
@@ -1604,7 +1613,7 @@ ConnectionPtr Server::findConnectionByID(u_long ID)
  */
 const char *Server::getPath()
 {
-	return path.c_str();
+	return path ? path->c_str() : "";
 }
 
 /*!
@@ -1695,7 +1704,7 @@ int Server::connections_mutex_unlock()
  */
 const char* Server::getExternalPath()
 {
-  return externalPath.c_str();
+  return externalPath ? externalPath->c_str() : "";
 }
 
 /*!
@@ -1887,23 +1896,26 @@ int Server::loadSettings()
     vhostList->loadXMLConfigurationFile(vhost_configuration_file->c_str(), 
                                         this->getMaxLogFileSize());
     
+		if(externalPath)
+			delete externalPath;
+		externalPath = new string();
 #ifdef NOT_WIN
     if(File::fileExists("external"))
-      externalPath.assign("external");
+      externalPath->assign("external");
     else
     {
 #ifdef PREFIX
-      externalPath.assign(PREFIX);
-      externalPath.append("/lib/myserver/external");
+      externalPath->assign(PREFIX);
+      externalPath->append("/lib/myserver/external");
  #else
-      externalPath.assign("/usr/lib/myserver/external");
+      externalPath->assign("/usr/lib/myserver/external");
 #endif
     }
 
 #endif
  
 #ifdef WIN32
-    externalPath.assign("external/protocols");
+    externalPath->assign("external/protocols");
 
 #endif
 
@@ -1914,7 +1926,7 @@ int Server::loadSettings()
     /*! Load external protocols. */
     {
       string protocolsPath;
-      protocolsPath.assign(externalPath);
+      protocolsPath.assign(*externalPath);
       protocolsPath.append("/protocols");
       if(protocols.loadProtocols(protocolsPath.c_str(), &languageParser, 
                                  "myserver.xml", this))
@@ -1931,7 +1943,7 @@ int Server::loadSettings()
     /*! Load external filters. */
     {
       string filtersPath;
-      filtersPath.assign(externalPath);
+      filtersPath.assign(*externalPath);
       filtersPath.append("/filters");
       if(filters.loadFilters(filtersPath.c_str(), &languageParser, this))
       {
@@ -1961,8 +1973,11 @@ int Server::loadSettings()
     }
     logWriteln(languageParser.getValue("MSG_THREADR"));
 
+		if(path == 0)
+			path = new string();
+
     /*! Return 1 if we had an allocation problem.  */
-    if(getdefaultwd(path))
+    if(getdefaultwd(*path))
       return -1;
     /*!
      *Then we create here all the listens threads. 
