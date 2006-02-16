@@ -111,9 +111,9 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
   int adminPasswordMD5ized = 0;
 
   char *data = 0;
-  const char *main_configuration_file = Server::getInstance()->getMainConfFile();
+  const char *mainConfigurationFile = Server::getInstance()->getMainConfFile();
 	XmlParser configurationFileManager;
-	configurationFileManager.open(main_configuration_file);
+	configurationFileManager.open(mainConfigurationFile);
 
 	data=configurationFileManager.getValue("CONTROL_ENABLED");
 	if(data && (!strcmpi(data, "YES")))

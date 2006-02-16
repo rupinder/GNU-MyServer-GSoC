@@ -2703,14 +2703,14 @@ int Http::sendAuth()
  */
 int Http::loadProtocol(XmlParser* languageParser)
 {
-  const char *main_configuration_file;
+  const char *mainConfigurationFile;
   char *data;
   int  nDefaultFilename = 0;
 	XmlParser configurationFileManager;
   if(initialized)
 		return 0;
 
-  main_configuration_file = Server::getInstance()->getMainConfFile();
+  mainConfigurationFile = Server::getInstance()->getMainConfFile();
 
   secCacheMutex.init();
 		
@@ -2724,7 +2724,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	gzipThreshold=1<<20;
 	browseDirCSSpath.assign("");
 
-	configurationFileManager.open(main_configuration_file);
+	configurationFileManager.open(mainConfigurationFile);
 
 	/*! Initialize ISAPI.  */
 	Isapi::load(&configurationFileManager);

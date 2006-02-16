@@ -86,10 +86,10 @@ Server::Server()
   gid = 0;
 	serverAdmin = 0;
 	mimeManager = 0;
-	mime_configuration_file = 0;
-  main_configuration_file = 0;
-	vhost_configuration_file = 0;
-	languages_path = 0;
+	mimeConfigurationFile = 0;
+  mainConfigurationFile = 0;
+	vhostConfigurationFile = 0;
+	languagesPath = 0;
 	languageFile = 0;
 	externalPath = 0;
 	path = 0;
@@ -261,9 +261,9 @@ void Server::start()
 
     loadSettings();
   
-    myserver_main_conf = File::getLastModTime(main_configuration_file->c_str());
-    myserver_hosts_conf = File::getLastModTime(vhost_configuration_file->c_str());
-    myserver_mime_conf = File::getLastModTime(mime_configuration_file->c_str());
+    myserver_main_conf = File::getLastModTime(mainConfigurationFile->c_str());
+    myserver_hosts_conf = File::getLastModTime(vhostConfigurationFile->c_str());
+    myserver_mime_conf = File::getLastModTime(mimeConfigurationFile->c_str());
     
     /*!
      *Keep thread alive.
@@ -281,11 +281,11 @@ void Server::start()
         if(configsCheck>10)
         {
           time_t myserver_main_conf_now=
-            File::getLastModTime(main_configuration_file->c_str());
+            File::getLastModTime(mainConfigurationFile->c_str());
           time_t myserver_hosts_conf_now=
-            File::getLastModTime(vhost_configuration_file->c_str());
+            File::getLastModTime(vhostConfigurationFile->c_str());
           time_t myserver_mime_conf_now=
-            File::getLastModTime(mime_configuration_file->c_str());
+            File::getLastModTime(mimeConfigurationFile->c_str());
 
           /*! If a configuration file was modified reboot the server. */
           if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  && 
@@ -389,7 +389,7 @@ int Server::purgeThreads()
   if(nThreads == nStaticThreads)
     return 0;
 
-  threads_mutex->lock();
+  threadsMutex->lock();
   thread = threads;
   prev = 0;
   prev_threads_count = nThreads;
@@ -397,7 +397,7 @@ int Server::purgeThreads()
   {
     if(nThreads == nStaticThreads)
     {
-      threads_mutex->unlock();
+      threadsMutex->unlock();
       return prev_threads_count- nThreads;
     }
 
@@ -426,7 +426,7 @@ int Server::purgeThreads()
     prev = thread;
     thread = thread->next;
   }
-  threads_mutex->unlock();
+  threadsMutex->unlock();
 
   return prev_threads_count- nThreads;
 }
@@ -869,9 +869,9 @@ int Server::terminate()
 	}
 	freeHashedData();
 	
-	if(languages_path)
-		delete languages_path;
-	languages_path = 0;
+	if(languagesPath)
+		delete languagesPath;
+	languagesPath = 0;
 
   if(languageFile)
 		delete languageFile;
@@ -879,14 +879,14 @@ int Server::terminate()
 
 	delete vhostList;
 
-  delete vhost_configuration_file;
-	vhost_configuration_file = 0;
+  delete vhostConfigurationFile;
+	vhostConfigurationFile = 0;
 	
-	delete main_configuration_file;
-	main_configuration_file = 0;
+	delete mainConfigurationFile;
+	mainConfigurationFile = 0;
 
-	delete mime_configuration_file;
-	mime_configuration_file = 0;
+	delete mimeConfigurationFile;
+	mimeConfigurationFile = 0;
   
 	if(externalPath)
 		delete externalPath;
@@ -935,7 +935,7 @@ int Server::terminate()
     thread = next;
   }
 	threads = 0;
-  delete threads_mutex;
+  delete threadsMutex;
 
 	nStaticThreads = 0;
 	if(verbosity > 1)
@@ -1025,7 +1025,7 @@ int Server::initialize(int /*!os_ver*/)
   /*!
    *Create the mutex for the threads.
    */
-  threads_mutex = new Mutex();
+  threadsMutex = new Mutex();
 
 	/*!
    *Store the default values.
@@ -1043,7 +1043,7 @@ int Server::initialize(int /*!os_ver*/)
 		delete serverAdmin;
 	serverAdmin = 0;
 	autoRebootEnabled = 1;
-	languages_path = new string();
+	languagesPath = new string();
 #ifndef WIN32
 	/*! 
    *Do not use the files in the directory /usr/share/myserver/languages
@@ -1051,28 +1051,28 @@ int Server::initialize(int /*!os_ver*/)
    */
 	if(File::fileExists("languages"))
 	{
-		languages_path->assign(getdefaultwd(0, 0) );
-    languages_path->append("/languages/");
+		languagesPath->assign(getdefaultwd(0, 0) );
+    languagesPath->append("/languages/");
  
 	}
 	else
 	{
 #ifdef PREFIX
-		languages_path->assign(PREFIX);
-    languages_path->append("/share/myserver/languages/");
+		languagesPath->assign(PREFIX);
+    languagesPath->append("/share/myserver/languages/");
 #else
     /*! Default PREFIX is /usr/. */
-		languages_path->assign("/usr/share/myserver/languages/");
+		languagesPath->assign("/usr/share/myserver/languages/");
 #endif
 	}
 #endif
 
-	if(main_configuration_file)
-		delete main_configuration_file;
-	main_configuration_file = new string();
+	if(mainConfigurationFile)
+		delete mainConfigurationFile;
+	mainConfigurationFile = new string();
 
 #ifdef WIN32
-  languages_path->assign( "languages/" );
+  languagesPath->assign( "languages/" );
 #endif 
 
 #ifndef WIN32
@@ -1085,22 +1085,22 @@ int Server::initialize(int /*!os_ver*/)
    */
 	if(File::fileExists("myserver.xml"))
 	{
-		main_configuration_file->assign("myserver.xml");
+		mainConfigurationFile->assign("myserver.xml");
 	}
 	else if(File::fileExists("~/.myserver/myserver.xml"))
 	{
-		main_configuration_file->assign("~/.myserver/myserver.xml");
+		mainConfigurationFile->assign("~/.myserver/myserver.xml");
 	}
 	else if(File::fileExists("/etc/myserver/myserver.xml"))
 	{
-		main_configuration_file->assign("/etc/myserver/myserver.xml");
+		mainConfigurationFile->assign("/etc/myserver/myserver.xml");
 	}
 	else
 #endif
 	/*! If the myserver.xml files doesn't exist copy it from the default one. */
 	if(!File::fileExists("myserver.xml"))
 	{
-    main_configuration_file->assign("myserver.xml");
+    mainConfigurationFile->assign("myserver.xml");
 		File inputF;
 		File outputF;
 		ret = inputF.openFile("myserver.xml.default", 
@@ -1137,9 +1137,9 @@ int Server::initialize(int /*!os_ver*/)
 	}
 	else
   {
-		main_configuration_file->assign("myserver.xml");
+		mainConfigurationFile->assign("myserver.xml");
   }
-	configurationFileManager.open(main_configuration_file->c_str());
+	configurationFileManager.open(mainConfigurationFile->c_str());
 
 
 	data=configurationFileManager.getValue("VERBOSITY");
@@ -1153,7 +1153,7 @@ int Server::initialize(int /*!os_ver*/)
 	languageFile = new string();
 	if(data)
 	{
-    languageFile->assign(*languages_path);
+    languageFile->assign(*languagesPath);
     languageFile->append("/");
     languageFile->append(data);
 	}
@@ -1729,9 +1729,9 @@ int Server::loadSettings()
   u_long nbr, nbw;
   try
   {
-		if(mime_configuration_file)
-			delete mime_configuration_file;
-		mime_configuration_file = new string();
+		if(mimeConfigurationFile)
+			delete mimeConfigurationFile;
+		mimeConfigurationFile = new string();
 #ifndef WIN32
     /*! 
      *Under an *nix environment look for .xml files in the following order.
@@ -1742,15 +1742,15 @@ int Server::loadSettings()
      */
     if(File::fileExists("MIMEtypes.xml"))
     {
-      mime_configuration_file->assign("MIMEtypes.xml");
+      mimeConfigurationFile->assign("MIMEtypes.xml");
     }
     else if(File::fileExists("~/.myserver/MIMEtypes.xml"))
     {
-      mime_configuration_file->assign("~/.myserver/MIMEtypes.xml");
+      mimeConfigurationFile->assign("~/.myserver/MIMEtypes.xml");
     }
     else if(File::fileExists("/etc/myserver/MIMEtypes.xml"))
     {
-      mime_configuration_file->assign("/etc/myserver/MIMEtypes.xml");
+      mimeConfigurationFile->assign("/etc/myserver/MIMEtypes.xml");
     }
     else
 #endif
@@ -1762,7 +1762,7 @@ int Server::loadSettings()
       {
         File inputF;
         File outputF;
-        mime_configuration_file->assign("MIMEtypes.xml");
+        mimeConfigurationFile->assign("MIMEtypes.xml");
         ret=inputF.openFile("MIMEtypes.xml.default", FILE_OPEN_READ|
                             FILE_OPEN_IFEXISTS);
         if(ret)
@@ -1793,7 +1793,7 @@ int Server::loadSettings()
       }
       else
       {
-        mime_configuration_file->assign("MIMEtypes.xml");
+        mimeConfigurationFile->assign("MIMEtypes.xml");
       }
 
     if(filtersFactory.insert("gzip", Gzip::factory))
@@ -1810,7 +1810,7 @@ int Server::loadSettings()
 		if(mimeManager)
 			delete mimeManager;
 		mimeManager = new MimeManager();
-    if(int nMIMEtypes=mimeManager->loadXML(mime_configuration_file->c_str()))
+    if(int nMIMEtypes=mimeManager->loadXML(mimeConfigurationFile->c_str()))
     {
       ostringstream stream;
       stream <<  languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
@@ -1830,7 +1830,7 @@ int Server::loadSettings()
     strCPU.append(nCPU.str());
     logWriteln(strCPU.c_str());
 
-		vhost_configuration_file = new string();
+		vhostConfigurationFile = new string();
 
 #ifndef WIN32
     /*!
@@ -1842,15 +1842,15 @@ int Server::loadSettings()
      */
     if(File::fileExists("virtualhosts.xml"))
     {
-      vhost_configuration_file->assign("virtualhosts.xml");
+      vhostConfigurationFile->assign("virtualhosts.xml");
     }
     else if(File::fileExists("~/.myserver/virtualhosts.xml"))
     {
-      vhost_configuration_file->assign("~/.myserver/virtualhosts.xml");
+      vhostConfigurationFile->assign("~/.myserver/virtualhosts.xml");
     }
     else if(File::fileExists("/etc/myserver/virtualhosts.xml"))
     {
-      vhost_configuration_file->assign("/etc/myserver/virtualhosts.xml");
+      vhostConfigurationFile->assign("/etc/myserver/virtualhosts.xml");
     }
     else
 #endif
@@ -1862,7 +1862,7 @@ int Server::loadSettings()
       {
         File inputF;
         File outputF;
-        vhost_configuration_file->assign("virtualhosts.xml");		
+        vhostConfigurationFile->assign("virtualhosts.xml");		
         ret = inputF.openFile("virtualhosts.xml.default", FILE_OPEN_READ | 
                               FILE_OPEN_IFEXISTS );
         if(ret)
@@ -1893,7 +1893,7 @@ int Server::loadSettings()
       }	
       else
       {
-        vhost_configuration_file->assign("virtualhosts.xml");
+        vhostConfigurationFile->assign("virtualhosts.xml");
       }
     vhostList = new VhostManager();
     if(vhostList == 0)
@@ -1901,7 +1901,7 @@ int Server::loadSettings()
       return -1;
     }
     /*! Load the virtual hosts configuration from the xml file. */
-    vhostList->loadXMLConfigurationFile(vhost_configuration_file->c_str(), 
+    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(), 
                                         this->getMaxLogFileSize());
     
 		if(externalPath)
@@ -2172,8 +2172,8 @@ void Server::decreaseListeningThreadCount()
  */
 const char *Server::getMainConfFile()
 {
-  return main_configuration_file 
-		? main_configuration_file->c_str() : 0;
+  return mainConfigurationFile 
+		? mainConfigurationFile->c_str() : 0;
 }
 
 /*!
@@ -2181,8 +2181,8 @@ const char *Server::getMainConfFile()
  */
 const char *Server::getVhostConfFile()
 {
-  return vhost_configuration_file 
-		? vhost_configuration_file->c_str() : 0;
+  return vhostConfigurationFile 
+		? vhostConfigurationFile->c_str() : 0;
 }
 
 /*!
@@ -2190,8 +2190,8 @@ const char *Server::getVhostConfFile()
  */
 const char *Server::getMIMEConfFile()
 {
-  return mime_configuration_file 
-		? mime_configuration_file->c_str() : "";
+  return mimeConfigurationFile 
+		? mimeConfigurationFile->c_str() : "";
 }
 
 /*!
@@ -2233,7 +2233,7 @@ ProtocolsManager *Server::getProtocolsManager()
  */
 const char *Server::getLanguagesPath()
 {
-  return languages_path ? languages_path->c_str() : "";
+  return languagesPath ? languagesPath->c_str() : "";
 }
 
 /*!
@@ -2286,7 +2286,7 @@ int Server::addThread(int staticThread)
   /*!
    *If everything was done correctly add the new thread to the linked list.
    */
-	threads_mutex->lock();
+	threadsMutex->lock();
 
   if(threads == 0)
   {
@@ -2300,7 +2300,7 @@ int Server::addThread(int staticThread)
   }
   nThreads++;
 
-	threads_mutex->unlock();
+	threadsMutex->unlock();
 
   return 0;
 }
@@ -2312,7 +2312,7 @@ int Server::addThread(int staticThread)
 int Server::removeThread(u_long ID)
 {
   int ret_code = 1;
-  threads_mutex->lock();
+  threadsMutex->lock();
   ClientsThread *thread = threads;
   ClientsThread *prev = 0;
   /*!
@@ -2343,7 +2343,7 @@ int Server::removeThread(u_long ID)
     thread = thread->next;
   }
 
-	threads_mutex->unlock();
+	threadsMutex->unlock();
   return ret_code;
 
 }
@@ -2374,7 +2374,7 @@ int Server::countAvailableThreads()
 {
   int count = 0;
   ClientsThread* thread;
-	threads_mutex->lock();
+	threadsMutex->lock();
   thread = threads;
   while(thread)
   {
@@ -2382,7 +2382,7 @@ int Server::countAvailableThreads()
       count++;
     thread = thread->next;
   }
-	threads_mutex->unlock();
+	threadsMutex->unlock();
   return count;
 }
 

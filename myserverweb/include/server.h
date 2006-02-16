@@ -141,7 +141,7 @@ private:
   u_long nMaxThreads;
   u_long nThreads;
 
-  Mutex *threads_mutex;
+  Mutex *threadsMutex;
   ClientsThread *threads;
 
   int purgeThreads();
@@ -150,10 +150,10 @@ private:
 	int reboot();
 	u_int listeningThreads;
 	string *languageFile;
-	string *languages_path;
-	string *main_configuration_file;
-	string *vhost_configuration_file;
-	string *mime_configuration_file;
+	string *languagesPath;
+	string *mainConfigurationFile;
+	string *vhostConfigurationFile;
+	string *mimeConfigurationFile;
 public:
 	static void createInstance();
 	static Server* getInstance()

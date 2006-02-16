@@ -413,6 +413,17 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 	MyServiceStatus.dwServiceSpecificExitCode = NO_ERROR;
 	MyServiceStatus.dwCheckPoint = 0;
 	MyServiceStatus.dwWaitHint = 0;
+
+	try
+	{
+		Server::createInstance();
+	}
+  catch(...)
+  {
+    /*! Die if we get exceptions here. */
+    return;
+  };
+
 	
 	MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer", 
                                                       myServerCtrlHandler );
