@@ -163,18 +163,18 @@ BuildCmd=
 Major=0
 Minor=8
 Release=2
-Build=1
+Build=2
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.2-rc1
+FileVersion=0.8.2-rc2
 FileDescription=MyServer webserver
-InternalName=Happy Holidays
+InternalName=Torino 2006
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.2-rc1
+ProductVersion=0.8.2-rc2
 AutoIncBuildNr=0
 
 [Unit28]
