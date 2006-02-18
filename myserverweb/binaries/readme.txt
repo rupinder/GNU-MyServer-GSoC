@@ -1,46 +1,23 @@
------------------------------------------------------------------------------------------------------
--------------------------------------------MYSERVER--------------------------------------------------
------------------------------------------------------------------------------------------------------
+MyServer
 
+MyServer is a powerful and easy to configure web server. Its multi-threaded architecture makes it extremely scalable and usable in large scale sites as well as in small networks, it has a lot of built-in features. Share your files in minutes!
 
--------------------------------------------BRIEF NOTES-----------------------------------------------
-The primary goal of this software is to create a free and simple to manage web server.
-MyServer is distribuited under the terms of the GNU Library General Public License as published by the 
-Free Software Foundation; either version 2 of the License, or (at your option) any later version. 
-Read the full license agrement before install any copy of MyServer.
+MyServer is Free Software and it is licensed under the GNU General Public License (GPL) terms. See the license file for additional info.
 
+Our principal goal is to create a free and simple server to allow everyone to transform his home PC in a server and be your own webmaster with few clicks and share information easily with all the world!
 
-----------------------------------------INSTALLATION NOTES--------------------------------------------
-This software is developed to run under all versions of windows and posix compatible operating systems.
-This software is supported on the windows platform in two ways: the first like a normal application, 
-the second like a service.  Running like a service is supported onto Windows 2000 and XP and give 
-options security and the application can be managed from the service manager; running like a normal 
-application the Administrator hadn't any security and all the contents in the web directory are visible 
-to everyone.  For run MyServer like a service we need before to register it, for register it we can 
-run the batch file "REGISTER SERVICE.bat" that register it in the service pool manager.  At this point 
-we can start it or from the service control manager or running the batch file "START SERVICE.bat". 
-For stop the service execution you need to run the "STOP SERVICE.bat" file.  For easily manage the 
-service you can start the control.exe application that allows with a simple GUI to start and stop 
-MyServer.  For run MyServer like a normal application you can start 
-the "START CONSOLE.bat", for stop MyServer you must press Ctrl+C in the console window.
-The program control.exe is developed to help you in MyServer management.
-The files contained in the web directory must be overwritten with your files. They are present 
-only for a demostration of MyServer functionality.
-The GNU/linux binaries are myserver and control are dynamically linked with glibc6.  
-If you cannot get the dinamic ones to run download the souce and run ./configure && make in the 
-root dir of the uncompressed source. The myserver program only has console mode and that is the 
-default running mode.  The control program can also start myserver in console mode by 
-invoking xterm.  
-To run them, open a terminal, cd into the binaries directory and type ./myserver the server 
-itself or ./control for the contol program that also can run the myserver program. 
+MyServer has a lot of common as well as unique features, it is under continuous development and new features will be made available in future releases.
 
-------------------------------------------------ADDITIONAL INFORMATION-----------------------------
-For additional information and news about this project see the project site at:  	
-http://www.myserverproject.net
+For more information, please visit:
+http://www.myserverproject.net/
 
+We do not receive any reward for our work, so if you find this software interesting and you want to contribute to its development please go to the Donation page:
+http://www.myserverproject.net/donation.php
 
-------------------------------------------------HELP US--------------------------------------------
-If you report problems running MyServer, post your messages on the forum at:
+If you are a developer, MyServer needs your help, contact the project administrator if you are interested to work on this project, go to the TODO list for an indicative list of things to implement.
+http://www.myserverproject.net/todo.php
+
+If you have any questions about MyServer please use the forum, we will try to help you:
 http://www.myserverproject.net
 
 
