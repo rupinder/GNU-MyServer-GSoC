@@ -9,7 +9,7 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "MyServer-win32-0.8.2-rc1.exe"
+OutFile "MyServer-win32-0.8.2-rc2.exe"
 
 
 ; Setting the Style
@@ -178,6 +178,7 @@ LicenseLangString MUILicense ${LANG_KURDISH} "license.txt"
 
 
 Section "MyServer core" SecCore
+
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
   File "myserver.exe"
@@ -228,6 +229,14 @@ Section "MyServer core" SecCore
   CreateDirectory "$INSTDIR\certificates"
   SetOutPath $INSTDIR\certificates
   File "certificates\*.txt"
+
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MyServer" \
+		   "DisplayName" "MyServer webserver"
+
+
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MyServer" \
+                   "UninstallString" "$INSTDIR\uninstall.exe"
+
 SectionEnd
 
 
@@ -380,6 +389,9 @@ Section "Uninstall"
   RMDir "$SMPROGRAMS\$0\Configuration files"
   RMDir "$SMPROGRAMS\$0"
   DeleteRegKey /ifempty HKLM  "Software\MyServer"  
+
+DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MyServer"
+
 
 SectionEnd
 
