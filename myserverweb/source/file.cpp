@@ -772,7 +772,7 @@ void File::splitPath(const char *path, char *dir, char *filename)
 	{
 		dir[0] = 0;
     if(filename)
-      strncpy(filename, path,strlen(filename));
+      strcpy(filename, path);
 	}
 	else
 	{

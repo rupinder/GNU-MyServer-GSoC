@@ -44,16 +44,22 @@ extern "C"
 
 /*!
  *Send a file to the client using the HTTP protocol.
- */
+ *\param td The current HTTP thread context.
+ *\param s A pointer to the connection.
+ *\param filenamePath The path of the static file to send.
+ *\param exec Not used.
+ *\param onlyHeader Specify if send only the HTTP header.
+  */
 int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath, 
                    const char* /*exec*/,int onlyHeader)
 {
-	/*!
+	/*
    *With this routine we send a file through the HTTP protocol.
    *Open the file and save its handle.
    */
 	int ret;
-	/*! 
+
+	/* 
    *Will we use GZIP compression to send data?
    */
 	bool useGzip=false;
@@ -78,7 +84,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     {	
       return ((Http*)td->lhttp)->raiseHTTPError(e_500);
     }
-    /*! 
+    /*
      *Check how many bytes are ready to be send.  
      */
     filesize=h.getFileSize();
@@ -89,7 +95,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     }
     else
     {
-      /*! 
+      /* 
        *If the client use ranges set the right value 
        *for the last byte number.  
        */
@@ -98,7 +104,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
 
     {
-      /*! 
+      /* 
        *Use GZIP compression to send files bigger than GZIP threshold.  
        */
       const char* val = (((Vhost*)(s->host)))->getHashedData("GZIP_THRESHOLD");
@@ -121,7 +127,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 		}
 
 #ifndef DO_NOT_USEGZIP
-    /*! 
+    /*
      *Be sure that the client accept GZIP compressed data.  
      */
     if(useGzip)
@@ -136,7 +142,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
 		}
 #else
-    /*! 
+    /* 
      *If compiled without GZIP support force the server to don't use it.  
      */
     useGzip =  false;
@@ -144,12 +150,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(td->appendOutputs)
       useGzip = false;
 
-    /*! 
+    /*
      *bytes_to_send is the interval between the first and the last byte.  
      */
     bytes_to_send=lastByte-firstByte;
     
-    /*!
+    /*
      *If fail to set the file pointer returns an internal server error.  
      */
     ret = h.setFilePointer(firstByte);
@@ -161,7 +167,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
     td->buffer->setLength(0);
 
-    /*! If a Range was requested send 206 and not 200 for success.  */
+    /* If a Range was requested send 206 and not 200 for success.  */
     if( td->request.rangeByteBegin ||  td->request.rangeByteEnd )
     {	
       ostringstream buffer;
@@ -217,7 +223,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       td->response.contentLength.assign(buffer.str());
     }
 
-    /*! Specify the connection type. */
+    /* Specify the connection type. */
     if(keepalive)
     {
       td->response.connection.assign("keep-alive");
@@ -242,7 +248,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 				e->value->assign(s);
 				td->response.other.put(*(e->name), e);
 			}
-      /*! Do not use chunked transfer with old HTTP/1.0 clients.  */
+      /* Do not use chunked transfer with old HTTP/1.0 clients.  */
       if(keepalive)
       {
 				HttpResponseHeader::Entry *e;
@@ -266,7 +272,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     td->buffer->setLength((u_long)strlen(td->buffer->getBuffer()));
     if(!td->appendOutputs)
     {
-      /*! Send the HTTP header.  */
+      /* Send the HTTP header.  */
       if(s->socket.send(td->buffer->getBuffer(), 
                         (u_long)td->buffer->getLength(), 0)== SOCKET_ERROR)
       {
@@ -276,7 +282,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }
     }
 
-    /*! 
+    /*
      *If is requested only the header exit from the function; 
      *used by the HEAD request.  
      */
@@ -293,7 +299,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       chain.setStream(&(s->socket));
 
     
-    /*! Flush initial data. */
+    /* Flush initial data. */
     if(memStream.availableToRead())
     {
       ostringstream buffer;
@@ -345,16 +351,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           }     
           dataSent += nbw;
         }
-      }/*! nbr. */
-    } /*! memStream.availableToRead() */
+      }/* nbr.  */
+    } /* memStream.availableToRead().  */
 
-    /*! Flush the rest of the file. */
+    /* Flush the rest of the file.  */
     for(;;)
     {
       u_long nbr;
       u_long nbw;
       u_long lastchunk=0;
-      /*! Read from the file the bytes to send. */
+      /* Read from the file the bytes to send.  */
       ret = h.readFromFile(td->buffer->getBuffer(),
                            std::min(static_cast<u_long>(bytes_to_send), 
                                     static_cast<u_long>(td->buffer->getRealLength()/2)), 
@@ -364,7 +370,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       
       bytes_to_send-=nbr;
 
-      /*! Check if there are no other bytes to send. */
+      /* Check if there are no other bytes to send.  */
       if(!nbr)
       {
         if(usechunks)
@@ -372,7 +378,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           u_long nbw2;
           ostringstream buffer;
           {
-            /*! Flush to the memory stream and use it to send chunks. */
+            /* Flush to the memory stream and use it to send chunks.  */
             Stream *tmp=chain.getStream();
             chain.setStream(&memStream);
             chain.flush(&nbw);
@@ -390,7 +396,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           
             if(ret)
               break;
-            /*! 
+            /* 
              *Write directly to the stream what we have bufferized in 
              *the memory stream.
              *We need to use the memory stream before send data to the 
@@ -411,7 +417,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         }
         else
         {
-          /*! If we don't use chunks we can flush directly. */
+          /* If we don't use chunks we can flush directly.  */
           ret=chain.flush(&nbw);
           if(ret)
             break;
@@ -419,7 +425,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
         }
         if(ret)
           break;
-        /*! Set the flag when we reached the end of the file. */
+        /* Set the flag when we reached the end of the file. */
         lastchunk=1; 
       }
 
@@ -430,10 +436,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           u_long nbw2;
           ostringstream buffer;
 
-          /*! 
-          *We need to save data in the memory stream as we need to know
-					*the final length before we can flush to the real stream.
-          */
+          /* 
+					 *We need to save data in the memory stream as we need to know
+					 *the final length before we can flush to the real stream.
+					 */
           {
             Stream *tmp = chain.getStream();
             if(!tmp)
@@ -469,7 +475,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
           if(ret)
             break;
         }
-        else/*! Do not use chunks. */
+        else/* Do not use chunks.  */
         {
           ret = chain.write(td->buffer->getBuffer(), nbr, &nbw);
           if(ret)
@@ -491,7 +497,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       }
       memStream.refresh();
 
-    }/*! End for loop. */
+    }/* End for loop.  */
 
     h.closeFile();
   }
@@ -514,7 +520,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   };
  
-  /*! Update the Content-Length field for logging activity. */
+  /* Update the Content-Length field for logging activity.  */
   {
     ostringstream buffer;
     buffer << dataSent;
@@ -542,6 +548,7 @@ HttpFile::~HttpFile()
 
 /*!
  *Load the static elements.
+ *\param confFile Not used.
  */
 int HttpFile::load(XmlParser* /*confFile*/)
 {

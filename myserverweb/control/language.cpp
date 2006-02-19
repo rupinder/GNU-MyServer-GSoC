@@ -238,7 +238,7 @@ void LanguageXMLclose()
 void LanguageXMLload()
 {
    char languages_path[MAX_PATH];
-   char languege_file[MAX_PATH];
+   char language_file[MAX_PATH];
    char main_configuration_file[MAX_PATH];
    char * chrptr;
    XmlParser xmlFile;
@@ -309,9 +309,9 @@ void LanguageXMLload()
 	xmlFile.open(main_configuration_file);
 	chrptr = xmlFile.getValue("LANGUAGE");
 	if(chrptr != NULL)
-	  snprintf(languege_file, MAX_PATH, "%sconfigure/%s", languages_path, chrptr);
+	  snprintf(language_file, MAX_PATH, "%sconfigure/%s", languages_path, chrptr);
 	xmlFile.close();
-	ret = LanguageXMLfile(languege_file);
+	ret = LanguageXMLfile(language_file);
 	if(ret)
 	  loadok = false;
      }
