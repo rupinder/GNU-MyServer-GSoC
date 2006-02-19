@@ -833,7 +833,7 @@ void File::getFileExt(char* ext,const char* filename)
 	while ((nDot > 0) && (filename[nDot] != '.'))
 		nDot--;
 	if (nDot > 0)
-		strncpy(ext, filename + nDot + 1,strlen(ext));
+		strcpy(ext, filename + nDot + 1);
 	else
 		ext[0] = 0;
 }
@@ -873,7 +873,7 @@ int File::getShortFileName(char *out,int buffersize)
   if(filename_len < buffersize)
   {
     ret = 0;
-    strncpy(out,filename.c_str(), buffersize);
+    strcpy(out,filename.c_str());
   }
   else
   {
@@ -919,7 +919,7 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
   {
     return -1;
   }
-  strncpy(buffer, *fileName,strlen(buffer));
+  strcpy(buffer, *fileName);
   bufferNewLen = GetFullPathName(buffer, 0, *fileName, 0) + 1;
   if(bufferNewLen == 0)
   {
@@ -967,7 +967,7 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
   buffer = new char[bufferLen];
   if(buffer == 0)
     return 0;
-	strncpy(buffer, *fileName,strlen(buffer));
+	strcpy(buffer, *fileName);
   bufferNewLen =  getdefaultwdlen() +  bufferLen + 1 ;
   if(dontRealloc)
   {
@@ -986,9 +986,8 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
     }
     *size = bufferNewLen;
   }
- 
-  snprintf(*fileName, strlen(*fileName), "%s/%s", getdefaultwd(0, 0), buffer );
-  delete [] buffer;
+	sprintf(*fileName, "%s/%s", getdefaultwd(0, 0), buffer );
+	delete [] buffer;
 	return 0;
 #endif
 }
