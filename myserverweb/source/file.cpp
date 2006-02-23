@@ -693,7 +693,7 @@ void File::getFilename(const char *path, char *filename)
     splitpoint--;
 	if ((splitpoint == 0) && (path[splitpoint] != '/'))
 	{
-		strncpy(filename, path,strlen(filename));
+		strcpy(filename, path);
 	}
 	else
 	{
