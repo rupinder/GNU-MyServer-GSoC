@@ -905,6 +905,7 @@ int Server::terminate()
 	languageParser.close();
 	mimeManager->clean();
 	delete mimeManager;
+	mimeManager = 0;
 #ifdef WIN32
 	/*!
    *Under WIN32 cleanup environment strings.
