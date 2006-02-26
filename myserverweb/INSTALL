@@ -4,8 +4,9 @@ I. Compiling from Source
 
 MyServer can be compiled from source with:
 ./configure
-You can pass special environment and specific options to configure.
-To view them type "./configure --help" instead.
+You can pass special environment and specific options 
+to configure.  To view them type "./configure --help" 
+instead.
 
 To compile the sources type:
 make
