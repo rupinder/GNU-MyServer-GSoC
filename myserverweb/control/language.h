@@ -46,6 +46,8 @@ extern const char * LanguageXMLConnect_Server;
 extern const char * LanguageXMLLogin_Failed;
 extern const char * LanguageXMLCannot_Connect;
 extern const char * LanguageXMLServer_Closed;
+extern const char * LanguageXMLYes;
+extern const char * LanguageXMLNo;
 
 extern "C" char * gettext(const char *);
 

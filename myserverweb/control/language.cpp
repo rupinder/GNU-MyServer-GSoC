@@ -78,6 +78,8 @@ const char * LanguageXMLConnect_Server;
 const char * LanguageXMLLogin_Failed;
 const char * LanguageXMLCannot_Connect;
 const char * LanguageXMLServer_Closed;
+const char * LanguageXMLYes;
+const char * LanguageXMLNo;
 
 ///
 /// Add the ptr to the list for latter deletetion.
@@ -131,6 +133,8 @@ void LanguageXMLinit()
    LanguageXMLLogin_Failed = strdup("Login failed.  Code: ");
    LanguageXMLCannot_Connect = strdup("Could not connect to server.");
    LanguageXMLServer_Closed = strdup("Server closed connection.  Code: ");
+   LanguageXMLYes = strdup("Yes");
+   LanguageXMLNo = strdup("No");
    loaded = false;
    loadok = true;
 }
@@ -162,6 +166,8 @@ void LanguageXMLend()
    free((char *)LanguageXMLLogin_Failed);
    free((char *)LanguageXMLCannot_Connect);
    free((char *)LanguageXMLServer_Closed);
+   free((char *)LanguageXMLYes);
+   free((char *)LanguageXMLNo);
    ClearList();
 }
 
@@ -212,6 +218,8 @@ int LanguageXMLfile(const char * filename)
    SetValueXML((char **)&LanguageXMLLogin_Failed, "LOGIN_FAILED");
    SetValueXML((char **)&LanguageXMLCannot_Connect, "CANNOT_CONNECT");
    SetValueXML((char **)&LanguageXMLServer_Closed, "SERVER_CLOSED");
+   SetValueXML((char **)&LanguageXMLYes, "YES");
+   SetValueXML((char **)&LanguageXMLNo, "NO");
 
    return 0;
 }

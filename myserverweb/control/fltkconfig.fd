@@ -11,7 +11,7 @@ class MainDlg {open selected
     Fl_Window ConfDlg {
       label {MyServer Configure}
       callback {if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change, LanguageXMLNo, LanguageXMLYes, NULL)) {
     ConfDlg->hide();
   }
 }
@@ -31,7 +31,7 @@ else {
             label {&Open...}
             callback {int ret;
 if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change, LanguageXMLNo, LanguageXMLYes, NULL)) {
     ret = ask_type();
     if(ret == -1) {
       ret = 0;
@@ -72,7 +72,7 @@ if(i != -1) {
           }
           menuitem {} {
             label {&Revert}
-            callback {if(fl_ask(LanguageXMLReload_Prev)) {
+            callback {if(fl_choice(LanguageXMLReload_Prev, LanguageXMLNo, LanguageXMLYes, NULL)) {
   load_config();
 }}
             xywh {0 0 100 20} divider
@@ -111,7 +111,7 @@ if(i != -1) {
           menuitem {} {
             label {&Quit}
             callback {if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change, LanguageXMLNo, LanguageXMLYes, NULL)) {
     ConfDlg->hide();
   }
 }
@@ -155,7 +155,7 @@ else {
             label {Get Config}
             callback {int ret;
 if(Changed) {
-  if(fl_ask(LanguageXMLLast_Change)) {
+  if(fl_choice(LanguageXMLLast_Change, LanguageXMLNo, LanguageXMLYes, NULL)) {
 
     ret = load_config_remote();
 
@@ -199,7 +199,7 @@ else {
           menuitem MenuSendConfig {
             label {Send Config}
             callback {int ret;
-ret = fl_ask(LanguageXMLKill_All);
+ret = fl_choice(LanguageXMLKill_All, LanguageXMLNo, LanguageXMLYes, NULL);
 if(ret) {
 
   ret = save_config_remote();
@@ -229,7 +229,7 @@ ServerLogout();}
           menuitem MenuReboot {
             label {Reboot...}
             callback {int ret;
-ret = fl_ask(LanguageXMLKill_All);
+ret = fl_choice(LanguageXMLKill_All, LanguageXMLNo, LanguageXMLYes, NULL);
 if(ret) {
   ret = Server.sendReboot();
   
@@ -2076,8 +2076,8 @@ return (char *)RegaskDlgInput->value();} {}
   Function {fl_alertcat(const char * c1, const char * c2)} {private return_type void
   } {
     code {char temp[strlen(c1) + strlen(c2)];
-strcpy(temp, c1);
-strcat(temp, c2);
+strncpy(temp, c1, (strlen(c1) + strlen(c2)));
+strncat(temp, c2, (strlen(c1) + strlen(c2) + 1));
 fl_alert(temp);} {}
   }
   Function {fl_wait(int len)} {private return_type void
