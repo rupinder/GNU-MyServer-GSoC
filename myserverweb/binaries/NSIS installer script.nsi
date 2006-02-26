@@ -276,17 +276,17 @@ SectionEnd
 
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
-  File "..\Documentation\En\*.htm"
+  File "..\documentation\english\*.htm"
 
   SetOutPath "$INSTDIR\web\documentation\images"
-  File "..\Documentation\En\images\*.png"
-  File "..\Documentation\En\images\*.jpg"
+  File "..\Documentation\english\images\*.png"
+  File "..\Documentation\english\images\*.jpg"
 
   SetOutPath "$INSTDIR\web\documentation\style"
-  File "..\Documentation\En\style\*.css"
+  File "..\documentation\english\style\*.css"
 
   SetOutPath "$INSTDIR\web\documentation\texts"
-  File "..\Documentation\En\texts\*.htm"
+  File "..\documentation\english\texts\*.htm"
 
 SectionEnd
 

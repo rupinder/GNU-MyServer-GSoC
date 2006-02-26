@@ -1,2 +1,2 @@
-SUBDIRS = En
+SUBDIRS = english
  
