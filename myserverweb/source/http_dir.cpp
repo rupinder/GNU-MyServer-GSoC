@@ -82,6 +82,8 @@ int HttpDir::unload()
 
 /*!
  *Fullfill the string out with a formatted representation fr bytes.
+ *\param bytes Size to format.
+ *\param out Out string. 
  */
 void HttpDir::getFormattedSize(int bytes, string& out)
 {
@@ -195,9 +197,15 @@ void HttpDir::getFormattedSize(int bytes, string& out)
 
 /*!
  *Browse a directory printing its contents in an HTML file.
- */
-int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory, 
-                  const char* /*cgi*/, int onlyHeader)
+ *\param td The current thread context.
+ *\param s The current connection structure.
+ *\param directory Directory to show.
+ *\param cgi non used.
+ *\param onlyHeader Specify if send only the HTTP header.
+*/
+int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, 
+									const char* directory, const char* /*cgi*/, 
+									int onlyHeader)
 {
 	u_long nbw;
   string filename;
@@ -213,8 +221,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	FileHandle outputDataHandle = td->outputData.getHandle();
 	HttpRequestHeader::Entry *host = td->request.other.get("Host");
 	HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
-
-  /*!
+	
+	/*
    *Create a new file if the old is not valid.
    */
 	if( outputDataHandle == 0 )
@@ -227,7 +235,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
                                   FILE_OPEN_WRITE);
 		if(ret)
 		{
-			/*! Return an internal server error.  */
+			/* Return an internal server error.  */
 			return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 		}
 	}
@@ -262,7 +270,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			startchar++;
 			if(startchar==nDirectories)
 			{
-				/*!
+				/*
          *At the end of the loop set startchar to te real value.
          *startchar indicates the initial position in td->request.uri 
          *of the file path.
@@ -284,14 +292,14 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
                                     (u_long)td->buffer2->getLength(), &nbw);
 	if(ret)
 	{
-    /*! Return an internal server error. */
+    /* Return an internal server error. */
 		td->outputData.closeFile();
     chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
   browseDirCSSpath = ((Http*)td->lhttp)->getBrowseDirCSSFile();
 
-	/*! 
+	/*
    *If it is defined a CSS file for the graphic layout of 
    *the browse directory insert it in the page.  
    */
@@ -357,7 +365,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	if(ret)
 	{
 		td->outputData.closeFile();
-		/*! Return an internal server error.  */
+		/* Return an internal server error.  */
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 	ret=fd.findfirst(filename.c_str());
@@ -366,7 +374,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(e_404);
 	}
-	/*! 
+	/*
    *With the current code we build the HTML TABLE to indicize the
    *files in the directory.
    */
@@ -400,9 +408,11 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     
   }
   
-  ret = td->buffer2->getLength()  ? td->outputData.writeToFile(td->buffer2->getBuffer(), 
-                                                 (u_long)td->buffer2->getLength(), &nbw)
-                                  : 0;
+  ret = td->buffer2->getLength() ? 
+		td->outputData.writeToFile(td->buffer2->getBuffer(), 
+															 (u_long)td->buffer2->getLength(), &nbw) :
+		0;
+
   if(ret)
 	{
     fd.findclose();
@@ -416,7 +426,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	{	
 		if(fd.name[0]=='.')
 			continue;
-		/*! Do not show the security file.  */
+		/* Do not show the security file.  */
 		if(!strcmp(fd.name, "security"))
 			continue;
 
@@ -485,7 +495,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 	}	
 	fd.findclose();
   *td->buffer2 << end_str;
-	/*! Changes the \ character in the / character.  */
+	/* Changes the \ character in the / character.  */
 	bufferloop = td->buffer2->getBuffer();
 	while(*bufferloop++)
 		if(*bufferloop == '\\')
@@ -499,7 +509,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
     td->response.contentLength.assign(tmp.str());
   }
 
-	/*! 
+	/*
    *If we haven't to append the output build the HTTP header 
    *and send the data.  
    */
@@ -514,7 +524,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
                        (u_long)strlen(td->buffer->getBuffer()), 0);
 		if(nbs == SOCKET_ERROR)
 		{
-			/*! Remove the connection.  */
+			/* Remove the connection.  */
 			return 0;
 		}	
     
@@ -529,7 +539,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
 			{
 				td->outputData.closeFile();
         chain.clearAllFilters(); 
-				/*! Return an internal server error.  */
+				/* Return an internal server error.  */
 				return 0;
 			}
       if(nbr)
@@ -538,7 +548,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, const char* directory,
         if(chain.write(td->buffer->getBuffer(), nbr, &nbw))
         {
           chain.clearAllFilters(); 
-          /*! Return an internal server error.  */
+          /* Return an internal server error.  */
           return 0;
         }
         nbs = static_cast<int>(nbw);
