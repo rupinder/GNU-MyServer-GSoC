@@ -62,6 +62,8 @@ void SecurityToken::reset()
   auth_type      = 0;
   len_auth       = 0;
   throttlingRate = (u_long)-1;
+	otherValues    = 0;
+
 }
 
 /*!
@@ -94,13 +96,21 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
   {
     doc=parser->getDoc();
   }
-  if(doc == 0)
-    return 0;
 
+  if(doc == 0)
+	{
+		if(parser== 0)
+			localParser.close();
+    return 0;
+	}
   node=doc->children->children;
 
   if(node == 0)
+	{
+		if(parser== 0)
+			localParser.close();
     return 0;
+	}
 
 	while(node)
 	{
@@ -151,6 +161,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
   return 0;
 
 }
+
 
 /*!
  *Get the permissions mask for the file[filename]. 
@@ -242,7 +253,11 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   }
 
   if(!doc)
+	{
+		if(parser== 0)
+			localParser.close();
     return -1;
+	}
 
   /*! 
    *If the file is not valid, returns 0.
@@ -274,7 +289,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				attr=attr->next;
 			}
 		}
-		if(!xmlStrcmp(node->name, (const xmlChar *)"ACTION"))
+		else if(!xmlStrcmp(node->name, (const xmlChar *)"ACTION"))
 		{
 	    if(actionsFound < 1)
 	    {
@@ -284,7 +299,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     }
 
     /*! USER block. */
-		if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
+		else if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
 		{
 			int tempGenericPermissions=0;
 			int rightUser=0;
@@ -379,7 +394,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
 		}
     /*! ITEM block. */
-		if(!xmlStrcmp(node->name, (const xmlChar *)"ITEM"))
+		else if(!xmlStrcmp(node->name, (const xmlChar *)"ITEM"))
 		{
       int tempFilePermissions;
       xmlNode *node2=node->children;
@@ -548,6 +563,15 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 			if(filePermissionsFound)
 				filePermissions=tempFilePermissions;
 		
+		}
+		else if(node->children && node->children->content && st->otherValues)
+		{
+			string* val = new string((char*)node->children->content);
+			string name((char*)node->name);
+			string* old = st->otherValues->put(name, val);
+			/* Remove the old stored object.  */
+			if(old)
+				delete old;
 		}
 		node=node->next;
 	}

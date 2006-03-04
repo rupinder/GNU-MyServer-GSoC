@@ -90,6 +90,8 @@ struct SecurityToken
   /*! Throttling rate to use with specified user. */
   int throttlingRate;
 
+	HashMap<string,string*> *otherValues;
+
   HttpThreadContext* td;
 
   SecurityToken();
