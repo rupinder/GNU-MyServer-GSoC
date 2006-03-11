@@ -44,9 +44,9 @@ extern "C" {
 }
 #endif
 
-/*! Define SD_BOTH in case it is not defined. */
+/*! Define SD_BOTH in case it is not defined.  */
 #ifndef SD_BOTH
-#define SD_BOTH 2 /*! to close TCP connection in both directions */
+#define SD_BOTH 2 /*! Close the TCP connection in both directions.  */
 #endif
 
 
@@ -82,6 +82,7 @@ int ClientsThread::getTimeout()
 
 /*!
  *Set the timeout value for the thread.
+ *\param new_timeout The new timeout value.
  */
 void ClientsThread::setTimeout(int new_timeout)
 {
@@ -89,9 +90,10 @@ void ClientsThread::setTimeout(int new_timeout)
 }
 
 /*!
-*This function starts a new thread controlled by a ClientsThread 
-*class instance.
-*/
+ *This function starts a new thread controlled by a ClientsThread 
+ *class instance.
+ *\param pParam Params to pass to the new thread.
+ */
 #ifdef WIN32
 #define ClientsThread_TYPE int
 unsigned int __stdcall startClientsThread(void* pParam)
@@ -104,7 +106,7 @@ void * startClientsThread(void* pParam)
 
 {
 #ifdef NOT_WIN
-	/*! Block SigTerm, SigInt, and SigPipe in threads. */
+	/* Block SigTerm, SigInt, and SigPipe in threads.  */
 	sigset_t sigmask;
 	sigemptyset(&sigmask);
 	sigaddset(&sigmask, SIGPIPE);
@@ -114,7 +116,7 @@ void * startClientsThread(void* pParam)
 #endif
 	ClientsThread *ct=(ClientsThread*)pParam;
 
-  /*! Return an error if the thread is initialized. */
+  /* Return an error if the thread is initialized.  */
 	if(ct->initialized)
 #ifdef WIN32
 		return 1;
@@ -157,26 +159,26 @@ void * startClientsThread(void* pParam)
 	ct->buffer2.setLength(ct->buffersize2);
 	ct->buffer2.m_nSizeLimit = ct->buffersize2;
 
-  /*! Built-in protocols will be initialized at the first use. */
+  /* Built-in protocols will be initialized at the first use.  */
   ct->http_parser = 0;
   ct->https_parser = 0;
   ct->control_protocol_parser = 0;
 
 	ct->initialized=1;
 
-  /*! Reset first 1024 bytes for thread buffers. */
+  /* Reset first 1024 bytes for thread buffers.  */
 	memset((char*)ct->buffer.getBuffer(), 0, 
          1024>ct->buffer.getRealLength()?1024:ct->buffer.getRealLength());
 	memset((char*)ct->buffer2.getBuffer(), 0, 
          1024>ct->buffer2.getRealLength()?1024:ct->buffer2.getRealLength());
 
-	/*! Wait that the server is ready before go in the running loop. */
+	/* Wait that the server is ready before go in the running loop.  */
   while(!Server::getInstance()->isServerReady())
   {
     Thread::wait(500);
   }
 
-	/*!
+	/*
    *This function when is alive only call the controlConnections(...) function
    *of the ClientsThread class instance used for control the thread.
    */
@@ -186,7 +188,7 @@ void * startClientsThread(void* pParam)
     try
     {
       Thread::wait(1);
-      /*!
+      /*
        *If the thread can be destroyed don't use it.
        */
       if((!ct->isStatic()) && ct->isToDestroy() )
@@ -197,7 +199,7 @@ void * startClientsThread(void* pParam)
       ct->parsing = 1;
       ret = ct->controlConnections();
 
-      /*!
+      /*
        *The thread served the connection, so update the timeout value.
        */
       if(ret != 1)
@@ -206,7 +208,7 @@ void * startClientsThread(void* pParam)
       }
       else
       {
-        /*!
+        /*
          *Long inactive non static thread... Maybe we don't need it.
          */
         if(!ct->isStatic())
@@ -260,6 +262,7 @@ int ClientsThread::isStatic()
 
 /*!
  *Set the thread to be static.
+ *\param value The new static value.
  */
 void ClientsThread::setStatic(int value)
 {
@@ -268,6 +271,7 @@ void ClientsThread::setStatic(int value)
 
 /*!
  *Set if the thread can be destroyed.
+ *\param value The new destroy value.
  */
 void ClientsThread::setToDestroy(int value)
 {
@@ -284,18 +288,20 @@ void ClientsThread::setToDestroy(int value)
  */
 int ClientsThread::controlConnections()
 {
-  /*!
+  /*
    *Control the protocol used by the connection.
    */
   int retcode=0;
   ConnectionPtr c;
   DynamicProtocol* dp=0;
-	/*!
+	
+	/*
    *Get the access to the connections list.
    */
 	Server::getInstance()->connections_mutex_lock();
 	c=Server::getInstance()->getConnection(this->id);
-	/*!
+	
+	/*
    *Check if c exists.
    *Check if c is a valid connection structure.
    *Do not parse a connection that is going to be parsed by another thread.
@@ -310,17 +316,17 @@ int ClientsThread::controlConnections()
 		Server::getInstance()->connections_mutex_unlock();
 		return 0;
 	}
-	/*!
+	/*
    *Set the connection parsing flag to true.
    */
 	c->setParsing(1);
 
-	/*!
+	/*
    *Unlock connections list access after setting parsing flag.
    */
 	Server::getInstance()->connections_mutex_unlock();
 
-  /*! Number of bytes waiting to be read. */
+  /* Number of bytes waiting to be read.  */
   if(c->socket.dataOnRead())
     nBytesToRead = c->socket.bytesToRead();
   else
@@ -333,7 +339,7 @@ int ClientsThread::controlConnections()
 			err=c->socket.recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
                          MYSERVER_KB(8) - c->getDataRead(), 0);
 
-    /*! Refresh with the right value. */
+    /* Refresh with the right value.  */
     nBytesToRead = c->getDataRead() + err;
 
 		if(err==-1)
@@ -358,7 +364,7 @@ int ClientsThread::controlConnections()
     {
       switch(((Vhost*)(c->host))->getProtocol())
       {
-        /*!
+        /*
          *controlHTTPConnection returns 0 if the connection must 
          *be removed from the active connections list.
          */
@@ -373,7 +379,7 @@ int ClientsThread::controlConnections()
                                (char*)buffer2.getBuffer(), buffer.getRealLength(), 
                                buffer2.getRealLength(), nBytesToRead, id);
  				break;
-        /*!
+        /*
          *Parse an HTTPS connection request.
          */
 			  case PROTOCOL_HTTPS:
@@ -419,35 +425,36 @@ int ClientsThread::controlConnections()
       retcode=0;
     };
 
-		/*!
+		/*
      *The protocols parser functions return:
      *0 to delete the connection from the active connections list.
      *1 to keep the connection active and clear the connectionBuffer.
      *2 if the header is incomplete and to save it in a temporary buffer.
      *3 if the header is incomplete without save it in a temporary buffer.
      */
- 		if(retcode==0)/*! Delete the connection. */
+ 		if(retcode==0)/*! Delete the connection.  */
 		{
 			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
-		else if(retcode==1)/*! Keep the connection. */
+		else if(retcode==1)/*! Keep the connection.  */
 		{
 			c->setDataRead(0);
 			c->connectionBuffer[0]='\0';
 		}
-		else if(retcode==2)/*! Incomplete request to buffer. */
+		else if(retcode==2)/*! Incomplete request to buffer.  */
 		{
-			/*!
+			/*
        *If the header is incomplete save the current received
        *data in the connection buffer.
        *Save the header in the connection buffer.
        */
-			memcpy(c->connectionBuffer, (char*)buffer.getBuffer(), c->getDataRead() + err);
+			memcpy(c->connectionBuffer, (char*)buffer.getBuffer(), 
+						 c->getDataRead() + err);
 
 			c->setDataRead(c->getDataRead() + err);
 		}
-		/*! Incomplete request bufferized by the protocol.  */
+		/* Incomplete request bufferized by the protocol.  */
 		else if(retcode == 3)
 		{
 			c->setForceParsing(1);
@@ -456,11 +463,11 @@ int ClientsThread::controlConnections()
 	}
 	else
 	{
-		/*! Reset nTries after 5 seconds.  */
+		/* Reset nTries after 5 seconds.  */
 		if(get_ticks() - c->getTimeout() > 5000)
 			c->setnTries( 0 );
 
-		/*!
+		/*
      *If the connection is inactive for a time greater that the value
      *configured remove the connection from the connections pool
      */
@@ -470,7 +477,7 @@ int ClientsThread::controlConnections()
 			return 0;
 		}
 	}
-	/*! Reset the parsing flag on the connection.  */
+	/* Reset the parsing flag on the connection.  */
 	c->setParsing(0);
   return 0;
 }
@@ -480,7 +487,7 @@ int ClientsThread::controlConnections()
  */
 void ClientsThread::stop()
 {
-	/*!
+	/*
    *Set the run flag to False.
    *When the current thread find the threadIsRunning
    *flag setted to 0 automatically destroy the
@@ -494,10 +501,10 @@ void ClientsThread::stop()
  */
 void ClientsThread::clean()
 {
-	/*! If the thread was not initialized return from the clean function.  */
+	/* If the thread was not initialized return from the clean function.  */
 	if(initialized == 0)
 		return;
-  /*! If the thread is parsing wait. */
+  /* If the thread is parsing wait.  */
   while(parsing)
   {
     Thread::wait(100);
