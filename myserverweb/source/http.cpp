@@ -1575,6 +1575,13 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     td.outputDataPath.assign("");
     td.inputDataPath.assign("");
     td.mime=0;
+		{
+			HashMap<string,string*>::Iterator it = td.other.begin();
+			while(it != td.other.end())
+				delete (*it);
+		}
+		td.other.clear();
+
     /*!
      *Reset the request and response structures.
      */

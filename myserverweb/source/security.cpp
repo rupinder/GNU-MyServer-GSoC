@@ -62,8 +62,6 @@ void SecurityToken::reset()
   auth_type      = 0;
   len_auth       = 0;
   throttlingRate = (u_long)-1;
-	otherValues    = 0;
-
 }
 
 /*!
@@ -568,7 +566,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 		{
 			string* val = new string((char*)node->children->content);
 			string name((char*)node->name);
-			string* old = st->otherValues->put(name, val);
+			string* old = st->td->other.put(name, val);
 			/* Remove the old stored object.  */
 			if(old)
 				delete old;

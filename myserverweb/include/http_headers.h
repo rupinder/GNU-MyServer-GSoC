@@ -85,6 +85,7 @@ struct HttpThreadContext
 	string scriptFile;
 	string inputDataPath;
 	string outputDataPath;
+	HashMap<string,string*> other;
 	char identity[32];
 	File inputData;
 	File outputData;
