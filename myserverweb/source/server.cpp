@@ -1388,7 +1388,8 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	new_connection->setLocalPort(localPort);
 	new_connection->setIpAddr(ipAddr);
 	new_connection->setLocalIpAddr(localIpAddr);
-	new_connection->host = (void*)Server::getInstance()->vhostList->getVHost(0, localIpAddr, 
+	new_connection->host = Server::getInstance()->vhostList->getVHost(0, 
+																					                   localIpAddr, 
                                                              localPort);
 
   /*! No vhost for the connection so bail. */

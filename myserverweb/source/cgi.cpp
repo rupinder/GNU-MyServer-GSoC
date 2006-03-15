@@ -132,7 +132,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                               &(td->connection->socket) , &nbw, 1))
       {
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-        ((Vhost*)td->connection->host)->warningsLogWrite("Cgi: Error loading filters");
+        td->connection->host->warningsLogWrite("Cgi: Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         stdOutFile.closeFile();
         chain.clearAllFilters(); 
@@ -199,11 +199,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         msg.assign("Cgi: Cannot find the ");
         msg.append(cgipath);
         msg.append("executable");
-        ((Vhost*)td->connection->host)->warningsLogWrite(msg.c_str());
+        td->connection->host->warningsLogWrite(msg.c_str());
 			}
       else
       {
-        ((Vhost*)td->connection->host)->warningsLogWrite(
+        td->connection->host->warningsLogWrite(
                                           "Cgi: Executable file not specified");
       }
       ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
@@ -247,7 +247,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	if(stdOutFile.createTemporaryFile( outputDataPath.str().c_str() ))
 	{
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite
+		td->connection->host->warningsLogWrite
                                         ("Cgi: Cannot create CGI stdout file" );
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
@@ -259,7 +259,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                         FILE_OPEN_READ|FILE_OPEN_ALWAYS))
   {
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite("Cgi: Cannot open CGI stdin file");
+		td->connection->host->warningsLogWrite("Cgi: Cannot open CGI stdin file");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
     chain.clearAllFilters(); 
@@ -339,7 +339,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	if(nBytesRead==0)
 	{
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite("Cgi: Error CGI zero bytes read" );
+		td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read" );
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		((Http*)td->lhttp)->raiseHTTPError(e_500);
 		yetoutputted=1;

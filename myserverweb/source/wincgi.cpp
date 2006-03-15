@@ -129,7 +129,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                                                        &(td->connection->socket) , &nbw2, 1))
       {
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-        ((Vhost*)td->connection->host)->warningsLogWrite("WinCGI: Error loading filters");
+        td->connection->host->warningsLogWrite("WinCGI: Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 
         chain.clearAllFilters(); 
@@ -145,9 +145,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                      FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
 	if ( ret ) 
 	{
-		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite("WinCGI: Error creating .ini");
-		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite("WinCGI: Error creating .ini");
+		td->connection->host->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
 
@@ -287,10 +287,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		ret = OutFileHandle.openFile(outFilePath,FILE_CREATE_ALWAYS);
 		if (ret)
 		{
-			((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-			((Vhost*)td->connection->host)->warningsLogWrite(
+			td->connection->host->warningslogRequestAccess(td->id);
+			td->connection->host->warningsLogWrite(
                                       "WinCGI: Error creating output file");
-			((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+			td->connection->host->warningslogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
 			File::deleteFile(outFilePath);
 			File::deleteFile(dataFilePath);
@@ -309,9 +309,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	{
     ostringstream msg;
     msg << "WinCGI: Error executing process " << filename;
-		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(msg.str().c_str());
-		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite(msg.str().c_str());
+		td->connection->host->warningslogTerminateAccess(td->id);
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
     chain.clearAllFilters(); 
@@ -324,9 +324,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	{
     ostringstream msg;
     msg << "WinCGI: Error opening output file " << outFilePath;
-		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(msg.str().c_str());
-		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite(msg.str().c_str());
+		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
@@ -336,9 +336,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     ostringstream msg;
     msg << "WinCGI: Error zero bytes read from the WinCGI output file " 
         << outFilePath;
-		((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(msg.str().c_str());
-		((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite(msg.str().c_str());
+		td->connection->host->warningslogTerminateAccess(td->id);
 		OutFileHandle.closeFile();
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
@@ -477,9 +477,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
    */
 	td->buffer->setLength(0);
 	*td->buffer << "WinCGI: Not implemented";
-	((Vhost*)td->connection->host)->warningslogRequestAccess(td->id);
-	((Vhost*)td->connection->host)->warningsLogWrite(td->buffer->getBuffer());
-	((Vhost*)td->connection->host)->warningslogTerminateAccess(td->id);
+	td->connection->host->warningslogRequestAccess(td->id);
+	td->connection->host->warningsLogWrite(td->buffer->getBuffer());
+	td->connection->host->warningslogTerminateAccess(td->id);
 	return ((Http*)td->lhttp)->raiseHTTPError(e_501);
 #endif
 }

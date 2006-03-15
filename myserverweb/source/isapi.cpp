@@ -782,7 +782,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	if (connIndex == max_Connections) 
 	{
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(
+		td->connection->host->warningsLogWrite(
                                             "ISAPI: Error max connections");
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(e_503);
@@ -800,7 +800,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     msg.assign("ISAPI: Cannot load library ");
     msg.append(loadLib);
 		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)td->connection->host)->warningsLogWrite(msg.c_str());
+		td->connection->host->warningsLogWrite(msg.c_str());
 		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
@@ -816,7 +816,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
                                                        &(td->connection->socket) , &nbw, 1))
       {
         ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-        ((Vhost*)td->connection->host)->warningsLogWrite("Error loading filters");
+        td->connection->host->warningsLogWrite("Error loading filters");
         ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
         connTable[connIndex].chain.clearAllFilters(); 
         return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -1001,7 +1001,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
    *On other archs returns a non implemented error. 
    */
 	((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-	((Vhost*)td->connection->host)->warningsLogWrite(
+	td->connection->host->warningsLogWrite(
                                    "ISAPI: Not implemented");
 	((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);	
 	return ((Http*)td->lhttp)->raiseHTTPError(e_501);

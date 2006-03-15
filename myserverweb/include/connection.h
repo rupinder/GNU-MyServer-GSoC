@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
+class Vhost;
+
 #include <string>
 
 using namespace std;
@@ -141,7 +143,7 @@ public:
 	Connection* next;
 	
 	/*! Pointer to an host structure.  */
-	void *host;
+	Vhost *host;
 	
   int getDataRead();
   void setDataRead(int);
