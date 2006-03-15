@@ -57,7 +57,7 @@ extern int mustEndServer;
  *	then it's a path of the form "/...qwerty/" that should be considered rec++
  *	The last ELSE, catches the rest and advances to the next bar.
  *Return the recursion of the path.
- *\argument path The file name.
+ *\param path The file name.
  */
 int File::getPathRecursionLevel(const char* path)
 {
@@ -133,9 +133,9 @@ File::File()
  *buffersize is the number of byte to write
  *nbw is a pointer to an unsigned long that receive the number of the
  *bytes written correctly.
- *\argument buffer The buffer where write.
- *\argument buffersize The length of the buffer in bytes.
- *\argument nbw How many bytes were written to the file.
+ *\param buffer The buffer where write.
+ *\param buffersize The length of the buffer in bytes.
+ *\param nbw How many bytes were written to the file.
  */
 int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 {
@@ -156,7 +156,7 @@ int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 
 /*!
  *Constructor for the class.
- *\argument nfilename Filename to open.
+ *\param nfilename Filename to open.
  *\agument opt Specify how open the file.
  */
 File::File(char *nfilename, int opt) 
@@ -168,7 +168,7 @@ File::File(char *nfilename, int opt)
 /*!
  *Open(or create if not exists) a file.
  *If the function have success the return value is nonzero.
- *\argument nfilename Filename to open.
+ *\param nfilename Filename to open.
  *\agument opt Specify how open the file.
  *openFile returns 0 if the call was successfull, any other value on errors.
  */
@@ -333,7 +333,7 @@ FileHandle File::getHandle()
 /*!
  *Set the file handle.
  *Return a non null-value on errors.
- *\argument hl The new file handle.
+ *\param hl The new file handle.
  */
 int File::setHandle(FileHandle hl)
 {
@@ -343,7 +343,7 @@ int File::setHandle(FileHandle hl)
 
 /*!
  *define the operator =.
- *\argument f The file to copy.
+ *\param f The file to copy.
  */
 int File::operator =(File f)
 {
@@ -363,7 +363,7 @@ int File::operator =(File f)
 /*!
  *Set the name of the file
  *Return Non-zero on errors.
- *\argument nfilename The new file name.
+ *\param nfilename The new file name.
  */
 int File::setFilename(const char* nfilename)
 {
@@ -383,9 +383,9 @@ const char *File::getFilename()
  *Read data from a file to a buffer.
  *Return 1 on errors.
  *Return 0 on success.
- *\argument buffer The buffer where write.
- *\argument buffersize The length of the buffer in bytes.
- *\argument nbr How many bytes were read to the buffer.
+ *\param buffer The buffer where write.
+ *\param buffersize The length of the buffer in bytes.
+ *\param nbr How many bytes were read to the buffer.
  */
 int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
@@ -402,7 +402,7 @@ int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 
 /*!
  *Create a temporary file.
- *\argument filename The new temporary file name.
+ *\param filename The new temporary file name.
  */
 int File::createTemporaryFile(const char* filename)
 { 
@@ -437,8 +437,8 @@ int File::closeFile()
 
 /*!
  *Rename the file [BEFORE] to [AFTER]. Returns 0 on success.
- *\argument before The old file name.
- *\argument after The new file name.
+ *\param before The old file name.
+ *\param after The new file name.
  */
 int File::renameFile(const char* before, const char* after)
 {
@@ -458,7 +458,7 @@ int File::renameFile(const char* before, const char* after)
 /*!
  *Delete an existing file passing the path.
  *Return a non-null value on errors.
- *\argument filename The file to delete.
+ *\param filename The file to delete.
  */
 int File::deleteFile(const char *filename)
 {
@@ -502,7 +502,7 @@ u_long File::getFileSize()
 
 /*!
  *Change the position of the pointer to the file.
- *\argument initialByte The new file pointer position.
+ *\param initialByte The new file pointer position.
  */
 int File::setFilePointer(u_long initialByte)
 {
@@ -520,7 +520,7 @@ int File::setFilePointer(u_long initialByte)
 
 /*!
  *Returns a non-null value if the path is a directory.
- *\argument filename The path to check.
+ *\param filename The path to check.
  */
 int File::isDirectory(const char *filename)
 {
@@ -543,7 +543,7 @@ int File::isDirectory(const char *filename)
 
 /*!
  *Returns a non-null value if the given path is a link.
- *\argument filename The path to check.
+ *\param filename The path to check.
  */
 int File::isLink(const char* filename)
 {
@@ -563,7 +563,7 @@ int File::isLink(const char* filename)
 
 /*!
  *Returns a non-null value if the given path is a valid file.
- *\argument filename The path to check.
+ *\param filename The path to check.
  */
 int File::fileExists(const char* filename)
 {
@@ -586,7 +586,7 @@ int File::fileExists(const char* filename)
 /*!
  *Returns the time of the last modify to the file.
  *Returns -1 on errors.
- *\argument filename The path to check.
+ *\param filename The path to check.
  */
 time_t File::getLastModTime(const char *filename)
 {
@@ -616,7 +616,7 @@ time_t File::getLastModTime()
 /*!
  *Returns the time of the file creation.
  *Returns -1 on errors.
- *\argument filename The path to check.
+ *\param filename The path to check.
  */
 time_t File::getCreationTime(const char *filename)
 {
@@ -646,7 +646,7 @@ time_t File::getCreationTime()
 /*!
  *Returns the time of the last access to the file.
  *Returns -1 on errors.
- *\argument filename The path to check.
+ *\param filename The path to check.
  */
 time_t File::getLastAccTime(const char *filename)
 {
@@ -676,9 +676,9 @@ time_t File::getLastAccTime()
 /*!
  *Change the owner of the current file, use the value -1 for uid or gid
  *to do not change the value. Return 0 on success.
- *\argument filename The path to the file to chown.
- *\argument uid The user id.
- *\argument gid the group id.
+ *\param filename The path to the file to chown.
+ *\param uid The user id.
+ *\param gid the group id.
  */
 int File::chown(const char* filename, int uid, int gid)
 {
@@ -691,8 +691,8 @@ int File::chown(const char* filename, int uid, int gid)
 
 /*!
  *Get the length of the file in the path.
- *\argument path The full path where get the filename length.
- *\argument filename A pointer to the start of the file name.
+ *\param path The full path where get the filename length.
+ *\param filename A pointer to the start of the file name.
  */
 int File::getFilenameLength(const char *path, int *filename)
 {
@@ -711,8 +711,8 @@ int File::getFilenameLength(const char *path, int *filename)
  *Get the filename from a path.
  *Be sure that the filename buffer is at least getFilenameLength(...) bytes
  *before call this function.
- *\argument path The full path to the file.
- *\argument filename A buffer to fullfill with the file name.
+ *\param path The full path to the file.
+ *\param filename A buffer to fullfill with the file name.
  */
 void File::getFilename(const char *path, char *filename)
 {
@@ -742,8 +742,8 @@ void File::getFilename(const char *path, char *filename)
 
 /*!
  *Get the filename from a path.
- *\argument path The full path to the file.
- *\argument filename A buffer to fullfill with the file name.
+ *\param path The full path to the file.
+ *\param filename A buffer to fullfill with the file name.
  */
 void File::getFilename(string const &path, string& filename)
 {
@@ -760,9 +760,9 @@ void File::getFilename(string const &path, string& filename)
 /*!
  *Use this function before call splitPath to be sure that the buffers
  *dir and filename are bigger enough to contain the data.
- *\argument path The full path to the file.
- *\argument dir The directory part length of the path.
- *\argument filename The length of the buffer needed to contain the file name.
+ *\param path The full path to the file.
+ *\param dir The directory part length of the path.
+ *\param filename The length of the buffer needed to contain the file name.
  */
 void File::splitPathLength(const char *path, int *dir, int *filename)
 {
@@ -791,9 +791,9 @@ void File::splitPathLength(const char *path, int *dir, int *filename)
 /*!
  *Splits a file path into a directory and filename.
  *Path is an input value while dir and filename are the output values.
- *\argument path The full path to the file.
- *\argument dir The directory part of the path.
- *\argument filename A buffer to fullfill with the file name.
+ *\param path The full path to the file.
+ *\param dir The directory part of the path.
+ *\param filename A buffer to fullfill with the file name.
  */
 void File::splitPath(const char *path, char *dir, char *filename)
 {
@@ -842,9 +842,9 @@ void File::splitPath(const char *path, char *dir, char *filename)
 
 /*!
  *Split a path in a dir and a filename.
- *\argument path The full path to the file.
- *\argument dir The directory part of the path.
- *\argument filename A buffer to fullfill with the file name.
+ *\param path The full path to the file.
+ *\param dir The directory part of the path.
+ *\param filename A buffer to fullfill with the file name.
  */
 void File::splitPath(string const &path, string& dir, string& filename)
 {
@@ -866,8 +866,8 @@ void File::splitPath(string const &path, string& dir, string& filename)
 /*!
  *Get the file extension passing its path.
  *Save in ext all the bytes afer the last dot(.) in filename.
- *\argument ext The buffer to fullfill with the file extension.
- *\argument filename The path to the file.
+ *\param ext The buffer to fullfill with the file extension.
+ *\param filename The path to the file.
  */
 void File::getFileExt(char* ext,const char* filename)
 {
@@ -885,8 +885,8 @@ void File::getFileExt(char* ext,const char* filename)
 /*!
  *Get the file extension passing its path.
  *Save in ext all the bytes afer the last dot(.) in filename.
- *\argument ext The buffer to fullfill with the file extension.
- *\argument filename The path to the file.
+ *\param ext The buffer to fullfill with the file extension.
+ *\param filename The path to the file.
  */
 void File::getFileExt(string& ext, string const &filename)
 {
@@ -904,8 +904,8 @@ void File::getFileExt(string& ext, string const &filename)
 
 /*!
  *Get the file path in the short form.
- *\argument out The buffer where write.
- *\argument buffersize The buffer length.
+ *\param out The buffer where write.
+ *\param buffersize The buffer length.
  */
 int File::getShortFileName(char *out,int buffersize)
 {
@@ -934,9 +934,9 @@ int File::getShortFileName(char *out,int buffersize)
 /*!
  *Get the file path in the short form of the specified file
  *Return -1 on errors.
- *\argument filePath The path to use.
- *\argument out The buffer where write.
- *\argument buffersize The buffer length.
+ *\param filePath The path to use.
+ *\param out The buffer where write.
+ *\param buffersize The buffer length.
  */
 int File::getShortFileName(char *filePath,char *out,int buffersize)
 {
@@ -955,9 +955,9 @@ int File::getShortFileName(char *filePath,char *out,int buffersize)
 /*!
  *Complete the path of the file.
  *Return non-zero on errors.
- *\argument fileName The buffer to use.
- *\argument size The new buffer size.
- *\argument dontRealloc Don't realloc a new buffer.
+ *\param fileName The buffer to use.
+ *\param size The new buffer size.
+ *\param dontRealloc Don't realloc a new buffer.
  */
 int File::completePath(char **fileName,int *size, int dontRealloc)
 {
@@ -1048,7 +1048,7 @@ int File::completePath(char **fileName,int *size, int dontRealloc)
 /*!
  *Complete the path of the file.
  *Return non-zero on errors.
- *\argument fileName The file name to complete.
+ *\param fileName The file name to complete.
  */
 int File::completePath(string &fileName)
 {

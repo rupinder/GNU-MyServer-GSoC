@@ -29,8 +29,8 @@ using namespace std;
 /*!
  *Read [len] characters using the filter. Returns -1 on errors.
  *\argument buffer The buffer where receive read data.
- *\argument len The buffer length in bytes.
- *\argument nbr A pointer to receive the number of read bytes.
+ *\param len The buffer length in bytes.
+ *\param nbr A pointer to receive the number of read bytes.
  */
 int Filter::read(char* buffer, u_long len, u_long *nbr)
 {
@@ -40,9 +40,9 @@ int Filter::read(char* buffer, u_long len, u_long *nbr)
 
 /*!
  *Write [len] characters to the stream. Returns -1 on errors.
- *\argument buffer The buffer with the data to write.
- *\argument len Number of bytes to use.
- *\argument nbw A pointer to receive the number of written bytes.
+ *\param buffer The buffer with the data to write.
+ *\param len Number of bytes to use.
+ *\param nbw A pointer to receive the number of written bytes.
  */
 int Filter::write(const char* buffer, u_long len, u_long* nbw)
 {
@@ -52,9 +52,9 @@ int Filter::write(const char* buffer, u_long len, u_long* nbw)
 
 /*!
  *Get an header for the filter. Returns -1 on errors.
- *\argument buffer The buffer where receive read data.
- *\argument len The buffer length in bytes.
- *\argument nbr A pointer to receive the number of read bytes.
+ *\param buffer The buffer where receive read data.
+ *\param len The buffer length in bytes.
+ *\param nbr A pointer to receive the number of read bytes.
  */
 int Filter::getHeader(char* buffer, u_long len, u_long* nbr)
 {
@@ -64,9 +64,9 @@ int Filter::getHeader(char* buffer, u_long len, u_long* nbr)
 
 /*!
  *Get a footer for the filter. Returns -1 on errors.
- *\argument buffer The buffer where receive read data.
- *\argument len The buffer length in bytes.
- *\argument nbr A pointer to receive the number of read bytes.
+ *\param buffer The buffer where receive read data.
+ *\param len The buffer length in bytes.
+ *\param nbr A pointer to receive the number of read bytes.
  */
 int Filter::getFooter(char* buffer, u_long len, u_long* nbr)
 {
@@ -95,7 +95,7 @@ Filter::~Filter()
 
 /*!
  *Set the stream where apply the filter.
- *\argument parentStream The stream to use as parent.
+ *\param parentStream The stream to use as parent.
  */
 void Filter::setParent(Stream* parentStream)
 {
@@ -104,7 +104,7 @@ void Filter::setParent(Stream* parentStream)
 
 /*!
  *Flush everything to the stream. Returns -1 on errors.
- *\argument nbw A pointer to receive the number of read bytes.
+ *\param nbw A pointer to receive the number of read bytes.
  */
 int Filter::flush(u_long *nbw)
 {
@@ -131,8 +131,8 @@ int Filter::modifyData()
 /*!
  *Return a string with the filter name. 
  *If an external buffer is provided write the name there too.
- *\argument name The buffer where write the filter name.
- *\argument len The buffer length.
+ *\param name The buffer where write the filter name.
+ *\param len The buffer length.
  */
 const char* Filter::getName(char* name, u_long len)
 {
