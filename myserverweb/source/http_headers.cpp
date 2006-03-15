@@ -239,6 +239,21 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 	response->serverName.assign(stream.str());
 }
 
+/*!
+ *Get the value for name in the hash dictionary.
+ *If the key is not present in the hash map then the request
+ *is propagated to the virtual host, if it is defined.
+ *\param name The key name to look for in the hash map.
+ */
+const char* HttpThreadContext::getHashedData(const char *name)
+{
+	Vhost *vh = (Vhost*)connection->host;
+	string *ret = other.get(string(name));
+	if(ret)
+		return ret->c_str();
+	else
+		return vh ? vh->getHashedData(name) : 0;
+}
 
 /*!
  *Reset all the HTTP_REQUEST_HEADER structure members.

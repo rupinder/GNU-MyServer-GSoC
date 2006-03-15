@@ -92,6 +92,7 @@ struct HttpThreadContext
 	int auth_scheme;
 	void* lhttp;
   void* mime;
+	const char * getHashedData (const char *name);
 };
 
 
