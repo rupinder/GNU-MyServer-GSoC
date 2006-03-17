@@ -104,9 +104,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
                                                  ((MimeManager::MimeRecord*)td->mime)->filters, 
                                                        &(td->connection->socket) , &nbw, 1))
       {
-        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
-        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        td->connection->host->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
         return ((Http*)td->lhttp)->raiseHTTPError(e_500);
       }

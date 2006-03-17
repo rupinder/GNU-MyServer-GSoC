@@ -131,9 +131,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 															((MimeManager::MimeRecord*)td->mime)->filters, 
                               &(td->connection->socket) , &nbw, 1))
       {
-        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("Cgi: Error loading filters");
-        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        td->connection->host->warningslogTerminateAccess(td->id);
         stdOutFile.closeFile();
         chain.clearAllFilters(); 
         return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -192,7 +192,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
      /* Check if the CGI executable exists. */
 		if((!cgipath) || (!File::fileExists(tmpCgiPath.c_str())))
 		{
-			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			td->connection->host->warningslogRequestAccess(td->id);
       if(cgipath && strlen(cgipath))
       {
         string msg;
@@ -206,7 +206,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         td->connection->host->warningsLogWrite(
                                           "Cgi: Executable file not specified");
       }
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);		
+      td->connection->host->warningslogTerminateAccess(td->id);		
       td->scriptPath.assign("");
       td->scriptFile.assign("");
       td->scriptDir.assign("");
@@ -246,10 +246,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    */
 	if(stdOutFile.createTemporaryFile( outputDataPath.str().c_str() ))
 	{
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite
                                         ("Cgi: Cannot create CGI stdout file" );
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
 	}
@@ -258,9 +258,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   if(stdInFile.openFile(td->inputDataPath, 
                         FILE_OPEN_READ|FILE_OPEN_ALWAYS))
   {
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("Cgi: Cannot open CGI stdin file");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
     chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -294,10 +294,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     {
       stdInFile.closeFile();
       stdOutFile.closeFile();
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-      ((Vhost*)(td->connection->host))->warningsLogWrite
+      td->connection->host->warningslogRequestAccess(td->id);
+      td->connection->host->warningsLogWrite
                                        ("Cgi: Error in the CGI execution");
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
       chain.clearAllFilters(); 
       return ((Http*)td->lhttp)->raiseHTTPError(e_500);
     }
@@ -313,10 +313,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite
                                ("Cgi: Error setting file pointer");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   }
@@ -326,10 +326,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   {
     stdInFile.closeFile();
 		stdOutFile.closeFile();
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
-		((Vhost*)(td->connection->host))->warningsLogWrite
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite
                                ("Cgi: Error reading from CGI std out file");
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   }
@@ -338,9 +338,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		
 	if(nBytesRead==0)
 	{
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read" );
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogTerminateAccess(td->id);
 		((Http*)td->lhttp)->raiseHTTPError(e_500);
 		yetoutputted=1;
 	}
@@ -656,7 +656,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 		memCgi << td->connection->getLogin();
 	}
 	
-	if(((Vhost*)(td->connection->host))->getProtocol()==PROTOCOL_HTTPS)
+	if(td->connection->host->getProtocol()==PROTOCOL_HTTPS)
 		memCgi << end_str << "SSL=ON";
 	else
 		memCgi << end_str << "SSL=OFF";
@@ -812,7 +812,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 	memCgi << strTmp;
 
 	memCgi << end_str << "DOCUMENT_ROOT=";
-	memCgi << ((Vhost*)(td->connection->host))->getDocumentRoot();
+	memCgi << td->connection->host->getDocumentRoot();
 
 	memCgi << end_str << "DOCUMENT_URI=";
 	memCgi << td->request.uri.c_str();

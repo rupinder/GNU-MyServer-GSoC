@@ -1409,14 +1409,14 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 		delete new_connection;
 		return 0;
 	}
-	if(((Vhost*)new_connection->host)->getProtocol() > 1000	)
+	if(new_connection->host->getProtocol() > 1000	)
 	{
 		doSSLhandshake=1;
 	}
-	else if(((Vhost*)new_connection->host)->getProtocol() == PROTOCOL_UNKNOWN)
+	else if(new_connection->host->getProtocol() == PROTOCOL_UNKNOWN)
 	{	
 		DynamicProtocol* dp;
-    dp=Server::getInstance()->getDynProtocol(((Vhost*)(new_connection->host))->getProtocolName());
+    dp=Server::getInstance()->getDynProtocol(new_connection->host->getProtocolName());
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;	
 	}
@@ -1426,7 +1426,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	{
 		int ret =0;
 #ifndef DO_NOT_USE_SSL
-		SSL_CTX* ctx=((Vhost*)new_connection->host)->getSSLContext();
+		SSL_CTX* ctx = new_connection->host->getSSLContext();
 		new_connection->socket.setSSLContext(ctx);
 		ret=new_connection->socket.sslAccept();
 		

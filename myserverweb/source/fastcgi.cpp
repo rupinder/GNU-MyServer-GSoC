@@ -129,9 +129,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                                                  ((MimeManager::MimeRecord*)td->mime)->filters, 
                                                        &(td->connection->socket) , &nbw, 1))
       {
-        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("FastCGI: Error loading filters");
-        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        td->connection->host->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
         return ((Http*)td->lhttp)->raiseHTTPError(e_500);
       }
@@ -228,9 +228,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error to build env string" << '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -244,9 +244,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error opening stdin file" << '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -260,9 +260,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     {
       *td->buffer << "FastCGI: Error connecting to FastCGI "
                   << cmdLine.str().c_str() << " process" << '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -280,9 +280,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer<< "FastCGI: Error beginning the request" << '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
@@ -296,9 +296,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error sending params" << '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
@@ -311,9 +311,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error sending params" << '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
@@ -329,9 +329,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       if(Server::getInstance()->getVerbosity() > 2)
       {
         *td->buffer << "FastCGI: Error sending POST data" << '\0';
-        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        td->connection->host->warningslogTerminateAccess(td->id);
       }
 
     /*! Send the STDIN data. */
@@ -344,10 +344,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         if(Server::getInstance()->getVerbosity() > 2)
         {
           *td->buffer << "FastCGI: Error reading from file" << '\0';
-          ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+          td->connection->host->warningslogRequestAccess(td->id);
           td->connection->host->warningsLogWrite(
                                                     td->buffer->getBuffer());
-          ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+          td->connection->host->warningslogTerminateAccess(td->id);
         }
         return ((Http*)td->lhttp)->sendHTTPhardError500();
       }
@@ -368,10 +368,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         if(Server::getInstance()->getVerbosity() > 2)
         {
           *td->buffer << "FastCGI: Error sending data" << '\0';
-          ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+          td->connection->host->warningslogRequestAccess(td->id);
           td->connection->host->warningsLogWrite(
                                                            td->buffer->getBuffer());
-          ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+          td->connection->host->warningslogTerminateAccess(td->id);
         }
         chain.clearAllFilters();
         return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -386,11 +386,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error sending POST data" << '\0';
-      ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+      td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->
                      warningsLogWrite(td->buffer->getBuffer());
 
-      ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+      td->connection->host->warningslogTerminateAccess(td->id);
     }
 		con.sock.closesocket();
     return ((Http*)td->lhttp)->raiseHTTPError(e_500);
@@ -412,11 +412,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   {
     td->buffer->setLength(0);
 		*td->buffer << "FastCGI: Error opening stdout file" << '\0';
-		((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->
                             warningsLogWrite(td->buffer->getBuffer());
 
-		((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+		td->connection->host->warningslogTerminateAccess(td->id);
     return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   }
 
@@ -437,10 +437,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       {
         td->buffer->setLength(0);
         *td->buffer << "FastCGI: Error reading data" << '\0';
-        ((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+        td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite(
                                              td->buffer->getBuffer());
-        ((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+        td->connection->host->warningslogTerminateAccess(td->id);
         sendFcgiBody(&con,0,0,FCGIABORT_REQUEST,id);
         ret = 0;
         break;
@@ -450,9 +450,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		{
 			td->buffer->setLength(0);
 			*td->buffer << "FastCGI: Error timeout" << '\0';
-			((Vhost*)(td->connection->host))->warningslogRequestAccess(td->id);
+			td->connection->host->warningslogRequestAccess(td->id);
 			td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-			((Vhost*)(td->connection->host))->warningslogTerminateAccess(td->id);
+			td->connection->host->warningslogTerminateAccess(td->id);
 			sendFcgiBody(&con,0,0,FCGIABORT_REQUEST,id);
 			con.sock.shutdown(2);
 			con.sock.closesocket();
