@@ -157,7 +157,7 @@ int HomeDir::load()
  		while(buffer[counter++] != '\0');
 		/* Next tuple.  */
 	}
-
+	loaded = 1;
 	delete [] buffer;
 	usersFile.closeFile();
 #endif

@@ -2060,8 +2060,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         /*!
          *Find the virtual host to check both host name and IP value.
          */
-        Vhost* newHost=Server::getInstance()->vhostList->getVHost(host ? host->value->c_str() : "", 
-																												a->getLocalIpAddr(), a->getLocalPort());
+        Vhost* newHost=Server::getInstance()->vhostList->getVHost(host ? 
+																		 host->value->c_str() : "", 
+																		 a->getLocalIpAddr(), a->getLocalPort());
         if(a->host)
           a->host->removeRef();
         a->host=newHost;
@@ -2091,26 +2092,33 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
 			if(td.request.uri.length() > 2 && td.request.uri[1] == '~'){
 				string documentRoot;
-				u_long len = 2;
-				while(len < td.request.uri.length())
-					if(td.request.uri[++len] == '/')
+				u_long pos = 2;
+				const string *homeDir = 0;
+				string user;
+				while(pos < td.request.uri.length())
+					if(td.request.uri[++pos] == '/')
 						break;
-				documentRoot.assign("/home/");
-				documentRoot.append(td.request.uri.substr(2, len-2));
-				documentRoot.append("/public_html");
-	
-				td.vhostDir.assign(documentRoot);
-				if(!td.request.uriEndsWithSlash)
+				user.assign(td.request.uri.substr(2, pos-2));
+				homeDir = Server::getInstance()->getHomeDir()->getHomeDir(user);
+				
+				if(homeDir)
 				{
-					td.request.uri.append("/");
-					return sendHTTPRedirect(td.request.uri.c_str());
-				}
+					documentRoot.assign(homeDir->c_str());
+					documentRoot.append("/public_html");
+					td.vhostDir.assign(documentRoot);
+					
+					if(!td.request.uriEndsWithSlash && !(td.request.uri.length() - pos))
+					{
+						td.request.uri.append("/");
+						return sendHTTPRedirect(td.request.uri.c_str());
+					}
 
-				if(td.request.uri.length() - len)
-					td.request.uri.assign(td.request.uri.substr(len, 
-		 																					td.request.uri.length()));
-				else
-					td.request.uri.assign("");
+					if(td.request.uri.length() - pos)
+						td.request.uri.assign(td.request.uri.substr(pos,
+																td.request.uri.length()));
+					else
+						td.request.uri.assign("");
+				}
 			}
 			
 		  /*! 
@@ -2142,8 +2150,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
            *connectionBuffer is 8 KB, so don't copy more bytes.
            */
           a->setDataRead(MYSERVER_KB(8) < (int)strlen(td.buffer->getBuffer()) -
-                         td.nHeaderChars ? MYSERVER_KB(8) : 
-                         (int)strlen(td.buffer->getBuffer()) - td.nHeaderChars );
+                       td.nHeaderChars ? MYSERVER_KB(8) : 
+                       (int)strlen(td.buffer->getBuffer()) - td.nHeaderChars);
           if(a->getDataRead() )
           {
             memcpy(a->connectionBuffer, (td.buffer->getBuffer() +

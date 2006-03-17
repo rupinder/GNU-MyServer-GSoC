@@ -601,14 +601,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       }
 			
       /* Store if the requested uri terminates with a slash character. */
-      if(request->uri[(request->uri.length())-1]=='/')
-      {
-				request->uriEndsWithSlash=1;
- 			}
-      else
-      {
-				request->uriEndsWithSlash=0;
-      }
+      request->uriEndsWithSlash = request->uri[(request->uri.length())-1]=='/';
+
       /*
        *Do not maintain any slash character if the uri has them at 
        *the begin or at the end.

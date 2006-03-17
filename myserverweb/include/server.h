@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/filters_factory.h"
 #include "../include/dyn_filter.h"
 #include "../include/hash_map.h"
-
+#include "../include/home_dir.h"
 #include <string>
 using namespace std;
 
@@ -94,6 +94,7 @@ private:
 	/*! Do not allow to create directly objects.  */
 	Server();
 
+	HomeDir homeDir;
   HashMap<string, string*> hashedData;
   FiltersFactory filtersFactory;
   DynamicFiltersManager filters;
@@ -118,9 +119,9 @@ private:
 	/*! Buffer that contains all the local machine IP values.  */
 	string *ipAddresses;
 	char serverName[HOST_NAME_MAX+1];
-	string *path;
-  string *externalPath;
-	string *serverAdmin;
+	string* path;
+  string* externalPath;
+	string* serverAdmin;
 	int initialize(int);
 	ConnectionPtr addConnectionToList(Socket s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr, 
@@ -135,26 +136,27 @@ private:
 	u_long maxLogFileSize;
 	int createServerAndListener(u_short);
 	int loadSettings();
-	Mutex *connections_mutex;
+	Mutex* connections_mutex;
 	ConnectionPtr connectionToParse;
 	u_long nStaticThreads;
   u_long nMaxThreads;
   u_long nThreads;
 
-  Mutex *threadsMutex;
-  ClientsThread *threads;
+  Mutex* threadsMutex;
+  ClientsThread* threads;
 
   int purgeThreads();
 	ConnectionPtr connections;
 	void createListenThreads();
 	int reboot();
 	u_int listeningThreads;
-	string *languageFile;
-	string *languagesPath;
-	string *mainConfigurationFile;
-	string *vhostConfigurationFile;
-	string *mimeConfigurationFile;
+	string* languageFile;
+	string* languagesPath;
+	string* mainConfigurationFile;
+	string* vhostConfigurationFile;
+	string* mimeConfigurationFile;
 public:
+	HomeDir* getHomeDir();
 	static void createInstance();
 	static Server* getInstance()
 	{
@@ -170,16 +172,16 @@ public:
   int addThread(int staticThread = 0);
   int removeThread(u_long ID);
   int isServerReady();
-  ProtocolsManager *getProtocolsManager();
+  ProtocolsManager* getProtocolsManager();
   void disableAutoReboot();
   void enableAutoReboot();
   int isAutorebootEnabled();
   void rebootOnNextLoop();
-  const char *getMainConfFile();
-  const char *getVhostConfFile();
-  const char *getMIMEConfFile();
-  const char *getLanguagesPath();
-  const char *getLanguageFile();
+  const char* getMainConfFile();
+  const char* getVhostConfFile();
+  const char* getMIMEConfFile();
+  const char* getLanguagesPath();
+  const char* getLanguageFile();
   const char* getExternalPath();
   XmlParser* getLanguageParser();
 	~Server();
@@ -199,15 +201,15 @@ public:
 	void *envString;
 	VhostManager *vhostList;
 	MimeManager *mimeManager;
-	const char  *getPath();
+	const char *getPath();
 	u_long getNumThreads();
-	const char  *getDefaultFilenamePath(u_long ID=0);
-	const char  *getServerName();
-	u_long  getVerbosity();
+	const char *getDefaultFilenamePath(u_long ID=0);
+	const char *getServerName();
+	u_long getVerbosity();
 	const char *getServerAdmin();
 	int getMaxLogFileSize();
-	int  mustUseLogonOption();
-	void  setVerbosity(u_long);
+	int mustUseLogonOption();
+	void setVerbosity(u_long);
 	void start();
 	void stop();
 	void finalCleanup();

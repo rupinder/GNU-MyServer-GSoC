@@ -816,6 +816,14 @@ void  Server::setVerbosity(u_long nv)
 }
 
 /*!
+ *Return a home directory object.
+ */
+HomeDir* Server::getHomeDir()
+{
+	return &homeDir;
+}
+
+/*!
  *Stop the execution of the server.
  */
 void Server::stop()
@@ -847,6 +855,9 @@ int Server::terminate()
 	{
 		Thread::wait(1000);
 	}
+
+	/* Clear the home directories data.  */
+	homeDir.clear();
 
   /*! Stop the active hreads. */
 	stopThreads();
@@ -1229,8 +1240,9 @@ int Server::initialize(int /*!os_ver*/)
 	}
 
   {
-	  xmlNodePtr node=xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode;
-    for(;node;node=node->next )
+	  xmlNodePtr node = 
+			xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode;
+    for(;node; node = node->next)
     {
       if(node->children && node->children->content)
       {
@@ -1247,7 +1259,6 @@ int Server::initialize(int /*!os_ver*/)
       }
     }
   }
-
 
 	configurationFileManager.close();
 	
@@ -1933,7 +1944,10 @@ int Server::loadSettings()
     Https::loadProtocol(&languageParser);
     ControlProtocol::loadProtocol(&languageParser);
 
-    /*! Load external protocols. */
+		/* Load the home directories configuration.  */
+		homeDir.load();
+
+    /* Load external protocols.  */
     {
       string protocolsPath;
       protocolsPath.assign(*externalPath);
