@@ -205,7 +205,7 @@ int Http::allowHTTPTRACE()
   char *http_trace_value;
 	XmlParser parser;
 	
-  filename << ((Vhost*)(td.connection->host))->getDocumentRoot() << "/security" ;
+  filename << td.getVhostDir() << "/security" ;
 	if(parser.open(filename.str().c_str()))
 	{
 		return 0;
@@ -314,7 +314,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       st.user = td.connection->getLogin();
       st.password = td.connection->getPassword();
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+      st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
       st.password2 = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
@@ -338,7 +338,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         st.user = "Guest";
         st.password = "";
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+        st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
         st.password2 = 0;
         st.permission2 = 0;
@@ -354,9 +354,9 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 
     if(permissions == -1)
     {
-      ((Vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
-      ((Vhost*)td.connection->host)->warningsLogWrite("Http: Error reading security file");
-      ((Vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
+      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500); 
     }
     /*! Check if we have to use digest for the current directory. */
@@ -385,7 +385,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       st.user = "Guest";
       st.password = "";
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+      st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
       st.password2 = 0;
       st.permission2 = 0;
@@ -404,9 +404,9 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     }
     if(permissions == -1)
     {
-      ((Vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
-      ((Vhost*)td.connection->host)->warningsLogWrite("Http: Error reading security file");
-      ((Vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
+      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500); 
     }
     if(!(permissions & MYSERVER_PERMISSION_WRITE))
@@ -586,7 +586,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.user = td.connection->getLogin();
       st.password = td.connection->getPassword();
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+      st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
       st.password2 = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
@@ -607,7 +607,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.user = "Guest";
       st.password = "";
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+      st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
       st.password2 = 0;
       st.permission2 = 0;
@@ -625,9 +625,9 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
     }
     if(permissions == -1)
     {
-      ((Vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
-      ((Vhost*)td.connection->host)->warningsLogWrite("Http: Error reading security file");
-      ((Vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
+      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500); 
     }
     /*! Check if we have to use digest for the current directory. */
@@ -657,7 +657,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.user = "Guest";
       st.password = "";
       st.directory = directory.c_str();
-      st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+      st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
       st.password2 = 0;
       st.permission2 = 0;
@@ -675,9 +675,9 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
     }
     if(permissions == -1)
     {
-      ((Vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
-      ((Vhost*)td.connection->host)->warningsLogWrite("Http: Error reading security file");
-      ((Vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
+      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500);
     }
     if(!(permissions & MYSERVER_PERMISSION_DELETE))
@@ -873,7 +873,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     {
       if(File::isLink(td.filenamePath.c_str())) 
       {
-        const char *perm = 	((Vhost*)td.connection->host)->getHashedData("FOLLOW_LINKS");
+        const char *perm = td.connection->host->getHashedData("FOLLOW_LINKS");
         if(perm && !strcmpi(perm, "YES"))
           mimecmd = CGI_CMD_SEND;
         else
@@ -903,7 +903,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.user = td.connection->getLogin();
         st.password = td.connection->getPassword();
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+        st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
         st.password2 = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
         st.permission2 = &permissions2;
@@ -924,7 +924,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.user = "Guest";
         st.password = "";
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+        st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
         st.password2 = 0;
         st.permission2 = 0;
@@ -970,7 +970,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.user = "Guest";
         st.password = "";
         st.directory = directory.c_str();
-        st.sysdirectory = ((Vhost*)(td.connection->host))->getSystemRoot();
+        st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
         st.password2 = 0;
         st.permission2 = 0;
@@ -990,9 +990,9 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
     if(permissions==-1)
     {
-      ((Vhost*)(td.connection->host))->warningslogRequestAccess(td.id);
-      ((Vhost*)td.connection->host)->warningsLogWrite("Http: Error reading security file");
-      ((Vhost*)(td.connection->host))->warningslogTerminateAccess(td.id);
+      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500); 
     }
 
@@ -1104,8 +1104,9 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
             int last_slash_offset = uri.length();
             while(last_slash_offset && uri[last_slash_offset]!='/')
               --last_slash_offset;
-            
-            nURL  <<  &(uri.c_str()[last_slash_offset ? last_slash_offset+1 : 0]) 
+						
+            nURL  <<  &(uri.c_str()[last_slash_offset ? 
+																		last_slash_offset+1 : 0]) 
                   << "/" << defaultFileNamePath;
           }
           /*! Send a redirect to the new location.  */
@@ -1153,7 +1154,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     if(mimecmd==CGI_CMD_RUNCGI)
     {
       int allowCgi = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_CGI");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_CGI");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1172,7 +1173,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     else if(mimecmd==CGI_CMD_EXECUTE )
     {
       int allowCgi = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_CGI");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_CGI");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1191,7 +1192,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     else if(mimecmd == CGI_CMD_RUNISAPI)
     {
       int allowIsapi = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_ISAPI");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_ISAPI");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1222,7 +1223,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     {
       char* target;
       int allowMscgi = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_MSCGI");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_MSCGI");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1251,7 +1252,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     {
       ostringstream cgipath;
       int allowWincgi = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_WINCGI");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_WINCGI");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1278,7 +1279,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     else if( mimecmd == CGI_CMD_RUNFASTCGI )
     {
       int allowFastcgi = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_FASTCGI");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_FASTCGI");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1297,7 +1298,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     else if(mimecmd==CGI_CMD_EXECUTEFASTCGI)
     {
       int allowFastcgi = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_FASTCGI");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_FASTCGI");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1321,7 +1322,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       int linkpathSize;
       File h;
       int allowSendlink = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_SEND_LINK");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_SEND_LINK");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1379,7 +1380,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     else if( mimecmd == CGI_CMD_EXTERNAL )
     {
       int allowExternal = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_EXTERNAL_COMMANDS");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_EXTERNAL_COMMANDS");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1403,7 +1404,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
     {
       int allowSend = 1;
-	    const char *dataH=((Vhost*)(td.connection->host))->getHashedData("ALLOW_SEND_FILE");
+	    const char *dataH=td.connection->host->getHashedData("ALLOW_SEND_FILE");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
@@ -1513,7 +1514,7 @@ int Http::logHTTPaccess()
 			HttpRequestHeader::Entry *userAgent = td.request.other.get("User-Agent");
 			HttpRequestHeader::Entry *referer = td.request.other.get("Refer");
 
-      if(strstr((((Vhost*)(td.connection->host)))->getAccessLogOpt(), "type=combined"))
+      if(strstr((td.connection->host)->getAccessLogOpt(), "type=combined"))
         *td.buffer2 << " "  << (referer   ? referer->value->c_str() : "") 
 										<< " "  << (userAgent ? userAgent->value->c_str() : "");
     }  
@@ -1527,9 +1528,9 @@ int Http::logHTTPaccess()
      */
      if(td.connection->host)
      {
-       ((Vhost*)(td.connection->host))->accesseslogRequestAccess(td.id);
-       ((Vhost*)(td.connection->host))->accessesLogWrite(td.buffer2->getBuffer());
-       ((Vhost*)(td.connection->host))->accesseslogTerminateAccess(td.id);
+       td.connection->host->accesseslogRequestAccess(td.id);
+       td.connection->host->accessesLogWrite(td.buffer2->getBuffer());
+       td.connection->host->accesseslogTerminateAccess(td.id);
      }
     td.buffer2->setLength(0);
   }
@@ -1575,6 +1576,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     td.outputDataPath.assign("");
     td.inputDataPath.assign("");
     td.mime=0;
+		td.vhostDir.assign("");
+		td.vhostSys.assign("");
 		{
 			HashMap<string,string*>::Iterator it = td.other.begin();
 			while(it != td.other.end())
@@ -2060,7 +2063,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         Vhost* newHost=Server::getInstance()->vhostList->getVHost(host ? host->value->c_str() : "", 
 																												a->getLocalIpAddr(), a->getLocalPort());
         if(a->host)
-          ((Vhost*)a->host)->removeRef();
+          a->host->removeRef();
         a->host=newHost;
         if(a->host==0)
         {
@@ -2085,17 +2088,41 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           return 0;
         }
       }
-		
+
+			if(td.request.uri.length() > 2 && td.request.uri[1] == '~'){
+				string documentRoot;
+				u_long len = 2;
+				while(len < td.request.uri.length())
+					if(td.request.uri[++len] == '/')
+						break;
+				documentRoot.assign("/home/");
+				documentRoot.append(td.request.uri.substr(2, len-2));
+				documentRoot.append("/public_html");
+	
+				td.vhostDir.assign(documentRoot);
+				if(!td.request.uriEndsWithSlash)
+				{
+					td.request.uri.append("/");
+					return sendHTTPRedirect(td.request.uri.c_str());
+				}
+
+				if(td.request.uri.length() - len)
+					td.request.uri.assign(td.request.uri.substr(len, 
+		 																					td.request.uri.length()));
+				else
+					td.request.uri.assign("");
+			}
+			
 		  /*! 
-       *Check if there is a limit for the number of connections in the virtual host.
-       *A value of zero means no limit.
+       *Check if there is a limit for the number of connections in the 
+			 *virtual host A value of zero means no limit.
        */
 		  {
-        const char* val = ((Vhost*)a->host)->getHashedData("MAX_CONNECTIONS");
+        const char* val = a->host->getHashedData("MAX_CONNECTIONS");
         if(val)
         {
           u_long limit = (u_long)atoi(val);
-          if(limit && (u_long)((Vhost*)a->host)->getRef() >= limit)
+          if(limit && (u_long)a->host->getRef() >= limit)
           {
             retvalue = raiseHTTPError(e_500);
             logHTTPaccess();
@@ -2139,10 +2166,11 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *Set the throttling rate for the socket. This setting can be 
        *overwritten later. 
        */
-      if(((Vhost*)a->host)->getThrottlingRate() == (u_long) -1)
+      if(a->host->getThrottlingRate() == (u_long) -1)
         a->socket.setThrottling(Server::getInstance()->getThrottlingRate());
       else
-        a->socket.setThrottling(((Vhost*)a->host)->getThrottlingRate());
+        a->socket.setThrottling(a->host->getThrottlingRate());
+
       
       /*!
        *Here we control all the HTTP commands.
@@ -2269,7 +2297,7 @@ int Http::raiseHTTPError(int ID)
 		HttpRequestHeader::Entry *host = td.request.other.get("Host");
 		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
     const char *useMessagesVal = td.connection->host ? 
-			((Vhost*)td.connection->host)->getHashedData("USE_ERROR_FILE") : 0;
+			td.connection->host->getHashedData("USE_ERROR_FILE") : 0;
     if(useMessagesVal)
     {
 	    if(!lstrcmpi(useMessagesVal, "YES"))
@@ -2384,9 +2412,9 @@ int Http::raiseHTTPError(int ID)
        *of the virtual host. 
        */
       if(td.connection->host)
-        ret = secCache.getErrorFileName(((Vhost*)td.connection->host)->getDocumentRoot(), 
-                                        getHTTPStatusCodeFromErrorID(ID),
-                                        ((Vhost*)(td.connection->host))->getSystemRoot(), defFile);
+        ret=secCache.getErrorFileName(td.getVhostDir(), 
+																			getHTTPStatusCodeFromErrorID(ID),
+																			td.getVhostSys(), defFile);
       else
         ret=-1;
       
@@ -2415,7 +2443,7 @@ int Http::raiseHTTPError(int ID)
           }
         }
         if(!isPortSpecified)
-          nURL << ":" << ((Vhost*)td.connection->host)->getPort();
+          nURL << ":" << td.connection->host->getPort();
         if(nURL.str()[nURL.str().length()-1]!='/')
           nURL << "/";
 
@@ -2430,7 +2458,7 @@ int Http::raiseHTTPError(int ID)
     td.response.errorType.assign(HTTP_ERROR_MSGS[ID], 
                                    HTTP_RESPONSE_ERROR_TYPE_DIM);
     
-    errorFile << ((Vhost*)(td.connection->host))->getSystemRoot() << "/" << HTTP_ERROR_HTMLS[ID];
+    errorFile << td.getVhostSys() << "/" << HTTP_ERROR_HTMLS[ID];
     
     if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
     {
@@ -2442,7 +2470,7 @@ int Http::raiseHTTPError(int ID)
     /*! Send only the header(and the body if specified). */
 
     {
-      const char* value = ((Vhost*)td.connection->host)->getHashedData("ERRORS_INCLUDE_BODY");  
+      const char* value = td.connection->host->getHashedData("ERRORS_INCLUDE_BODY");  
       if(value && !strcmpi(value, "YES"))
       {
         ostringstream s;
@@ -2542,9 +2570,9 @@ MimeManager::MimeRecord* Http::getMIME(string &filename)
   string ext;
 	File::getFileExt(ext, filename);
 	
-  if(allowVhostMime && ((Vhost*)(td.connection->host))->isMIME() )
+  if(allowVhostMime && td.connection->host->isMIME() )
   {
-    return ((Vhost*)(td.connection->host))->getMIME()->getRecord(ext);
+    return td.connection->host->getMIME()->getRecord(ext);
   }
 	return Server::getInstance()->mimeManager->getRecord(ext);
 }
@@ -2560,12 +2588,12 @@ int Http::getPath(string& filenamePath, const char *filename, int systemrequest)
    */
 	if(systemrequest)
 	{
-    if(!strlen(((Vhost*)(td.connection->host))->getSystemRoot()) 
+    if(!strlen(td.getVhostSys()) 
        || File::getPathRecursionLevel(filename)< 2 )
     {
       return e_401;
     }
-    filenamePath.assign(((Vhost*)(td.connection->host))->getSystemRoot());
+    filenamePath.assign(td.getVhostSys());
     filenamePath.append(filename);
 	}
 	/*!
@@ -2584,7 +2612,7 @@ int Http::getPath(string& filenamePath, const char *filename, int systemrequest)
       if(filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
          && filename[3] == 's' && filename[4] == '/')
       {
-        root=((Vhost*)(td.connection->host))->getSystemRoot();
+        root = td.getVhostDir();
         /*! 
          *Do not allow access to the system directory root but only
          *to subdirectories. 
@@ -2597,14 +2625,14 @@ int Http::getPath(string& filenamePath, const char *filename, int systemrequest)
       }
       else
       {
-        root=((Vhost*)(td.connection->host))->getDocumentRoot();
+        root = td.getVhostDir();
       }
 			filenamePath.assign(root);
       filenamePath.append(filename);
 		}
 		else
 		{
-      filenamePath.append(((Vhost*)(td.connection->host))->getDocumentRoot());
+      filenamePath.append(td.getVhostDir());
 		}
 
 	}

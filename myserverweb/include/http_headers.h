@@ -85,6 +85,8 @@ struct HttpThreadContext
 	string scriptFile;
 	string inputDataPath;
 	string outputDataPath;
+	string vhostDir;
+	string vhostSys;
 	HashMap<string,string*> other;
 	char identity[32];
 	File inputData;
@@ -92,6 +94,8 @@ struct HttpThreadContext
 	int auth_scheme;
 	void* lhttp;
   void* mime;
+	const char * getVhostDir();
+	const char * getVhostSys();
 	const char * getHashedData (const char *name);
 };
 

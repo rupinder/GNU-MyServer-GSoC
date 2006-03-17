@@ -256,6 +256,30 @@ const char* HttpThreadContext::getHashedData(const char *name)
 }
 
 /*!
+ *Get the current vhost doc directory for the environvment.
+ */
+const char *HttpThreadContext::getVhostDir()
+{
+	if(vhostDir.length() > 1)
+		return vhostDir.c_str();
+	if(connection && connection->host)
+		return connection->host->getDocumentRoot();
+	return "";
+}
+
+/*!
+ *Get the current vhost sys directory for the environvment.
+ */
+const char *HttpThreadContext::getVhostSys()
+{
+	if(vhostSys.length() > 1)
+		return vhostSys.c_str();
+	if(connection && connection->host)
+		return connection->host->getSystemRoot();
+	return "";
+}
+
+/*!
  *Reset all the HTTP_REQUEST_HEADER structure members.
  *\param request the HTTP request header to free.
  */

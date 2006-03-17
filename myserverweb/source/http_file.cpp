@@ -107,7 +107,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       /* 
        *Use GZIP compression to send files bigger than GZIP threshold.  
        */
-      const char* val = (((Vhost*)(s->host)))->getHashedData("GZIP_THRESHOLD");
+      const char* val = s->host->getHashedData("GZIP_THRESHOLD");
       useGzip=false;
       if(val)
       {
@@ -444,9 +444,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
             Stream *tmp = chain.getStream();
             if(!tmp)
             {
-              ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
-              ((Vhost*)(s->host))->warningsLogWrite("HttpFile: no stream");
-              ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
+              s->host->warningslogRequestAccess(td->id);
+              s->host->warningsLogWrite("HttpFile: no stream");
+              s->host->warningslogTerminateAccess(td->id);
               break;
             }
             chain.setStream(&memStream);
@@ -504,18 +504,18 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
   catch(bad_alloc &ba)
   {
     h.closeFile();
-    ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
-    ((Vhost*)(s->host))->warningsLogWrite("HttpFile: Error allocating memory");
-    ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
+    s->host->warningslogRequestAccess(td->id);
+    s->host->warningsLogWrite("HttpFile: Error allocating memory");
+    s->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
     return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   }
   catch(...)
   {
     h.closeFile();
-    ((Vhost*)(s->host))->warningslogRequestAccess(td->id);
-    ((Vhost*)(s->host))->warningsLogWrite("HttpFile: Internal error");
-    ((Vhost*)(s->host))->warningslogTerminateAccess(td->id);
+    s->host->warningslogRequestAccess(td->id);
+    s->host->warningsLogWrite("HttpFile: Internal error");
+    s->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
     return ((Http*)td->lhttp)->raiseHTTPError(e_500);
   };
