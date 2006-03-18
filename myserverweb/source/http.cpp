@@ -1133,9 +1133,9 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       /*! Set the default content type, this can be changed later. */
       if(td.mime)
       {
-        td.response.contentType.assign(((MimeManager::MimeRecord*)td.mime)->mime_type);
-        mimecmd = ((MimeManager::MimeRecord*)td.mime)->command;
-        data.assign(((MimeManager::MimeRecord*)td.mime)->cgi_manager);
+        td.response.contentType.assign(td.mime->mime_type);
+        mimecmd = td.mime->command;
+        data.assign(td.mime->cgi_manager);
       }
       else
       {
@@ -1146,7 +1146,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
 
     if(td.mime && 
-       !((MimeManager::MimeRecord*)td.mime)->headerChecker.isAllowed(&(td.request) ))
+       !td.mime->headerChecker.isAllowed(&(td.request) ))
     {
       return sendAuth();
     }
@@ -1388,10 +1388,10 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         else
           allowExternal=0;      
 	    }     
-      if(allowExternal && (MimeManager::MimeRecord*)td.mime)
+      if(allowExternal && (MimeRecord*)td.mime)
       {
         DynamicHttpManager* manager = dynManagerList.getManagerByName(
-                             ((MimeManager::MimeRecord*)td.mime)->cmd_name.c_str());
+                             td.mime->cmd_name.c_str());
 
         if(manager)
           return manager->send(&td, td.connection, td.filenamePath.c_str(), 
@@ -1567,7 +1567,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     td.connection=a;
     td.id=id;
     td.lastError = 0;
-    td.lhttp=this;
+    td.http=this;
     td.appendOutputs=0;
     td.onlyHeader = 0;
     td.inputData.setHandle((FileHandle)0);
@@ -2573,7 +2573,7 @@ Internal Server Error\n\
  *Returns the MIME type passing its extension.
  *Returns zero if the file is registered.
  */
-MimeManager::MimeRecord* Http::getMIME(string &filename)
+MimeRecord* Http::getMIME(string &filename)
 {
   string ext;
 	File::getFileExt(ext, filename);

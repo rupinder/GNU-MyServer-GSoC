@@ -106,7 +106,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   ostringstream stream;
 
 	if(!File::fileExists(filename))
-		return ((Http*)td->lhttp)->raiseHTTPError(e_404);
+		return td->http->raiseHTTPError(e_404);
 
 	File::splitPath(filename,pathname,execname);
 	
@@ -118,14 +118,14 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	strcat(outFilePath,"WC");
 	td->inputData.setFilePointer(0);
 
-  chain.setProtocol((Http*)td->lhttp);
+  chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(&(td->connection->socket));
   if(td->mime)
   {
     u_long nbw2;
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                                 td->mime->filters, 
                                                        &(td->connection->socket) , &nbw2, 1))
       {
         td->connection->host->warningslogRequestAccess(td->id);
@@ -133,7 +133,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
         td->connection->host->warningslogTerminateAccess(td->id);
 
         chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(e_500);
       }
   }
 	
@@ -148,7 +148,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("WinCGI: Error creating .ini");
 		td->connection->host->warningslogTerminateAccess(td->id);
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
 	}
 
 	td->buffer2->setLength(0);
@@ -295,7 +295,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			File::deleteFile(outFilePath);
 			File::deleteFile(dataFilePath);
       chain.clearAllFilters(); 
-			return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+			return td->http->raiseHTTPError(e_500);
 		}
 	}
 	OutFileHandle.closeFile();
@@ -315,7 +315,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
 	}
 
 	ret=OutFileHandle.openFile(outFilePath,FILE_OPEN_ALWAYS|
@@ -328,7 +328,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		td->connection->host->warningsLogWrite(msg.str().c_str());
 		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
 	}
 	OutFileHandle.readFromFile(buffer,td->buffer2->getRealLength(),&nBytesRead);
 	if(nBytesRead==0)
@@ -343,7 +343,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
     chain.clearAllFilters();
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
 	}
 
 	for(u_long i=0;i<nBytesRead;i++)
@@ -480,6 +480,6 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	td->connection->host->warningslogRequestAccess(td->id);
 	td->connection->host->warningsLogWrite(td->buffer->getBuffer());
 	td->connection->host->warningslogTerminateAccess(td->id);
-	return ((Http*)td->lhttp)->raiseHTTPError(e_501);
+	return td->http->raiseHTTPError(e_501);
 #endif
 }

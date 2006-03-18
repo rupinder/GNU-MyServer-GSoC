@@ -80,7 +80,7 @@ TODO list for MyServer.
 *	Packages.
 **	Rpm and debs for Debian, Fedora Core and Mandrake.
 **	Packages for Slackware.
-**	Create new DevCPP devpaks for MyServer (provide the current development libraries needed to compile MyServer cvs under windows).
+**	Create new DevCPP devpaks for MyServer (provide the current development libraries needed to compile MyServer subversion under windows).
 **	Update all libraries needed to run MyServer (windows binary release).
 **	Perl installation script INSTALL.pl that copies the files to the right place.
 

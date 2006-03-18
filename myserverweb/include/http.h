@@ -119,7 +119,7 @@ public:
 	int getPath(string& filenamePath,
                const char *filename,int systemrequest);
 
-  MimeManager::MimeRecord* getMIME(string& filename);
+  MimeRecord* getMIME(string& filename);
 
 	int logHTTPaccess();
 	int sendHTTPRedirect(const char *newURL);

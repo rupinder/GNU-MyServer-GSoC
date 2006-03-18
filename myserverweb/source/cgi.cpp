@@ -122,13 +122,13 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     File::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
   }
 
-  chain.setProtocol((Http*)td->lhttp);
+  chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(&(td->connection->socket));
   if(td->mime)
   {
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-															((MimeManager::MimeRecord*)td->mime)->filters, 
+															td->mime->filters, 
                               &(td->connection->socket) , &nbw, 1))
       {
         td->connection->host->warningslogRequestAccess(td->id);
@@ -136,7 +136,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         td->connection->host->warningslogTerminateAccess(td->id);
         stdOutFile.closeFile();
         chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(e_500);
       }
   }
 	
@@ -149,18 +149,19 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       args = &td->pathInfo[1];
 
     if(cgipath && strlen(cgipath))
-      cmdLine << td->cgiRoot << "/"  << td->cgiFile <<  " " << moreArg  << " " << 
-          td->scriptFile <<  (args ? args : "" ) ;
+      cmdLine << td->cgiRoot << "/" << td->cgiFile << " " << moreArg << " " 
+							<< td->scriptFile <<  (args ? args : "" ) ;
     else
-      cmdLine << td->scriptDir << "/" << td->scriptFile <<  " " << moreArg <<  " "
-              << (args ? args : "" );
+      cmdLine << td->scriptDir << "/" << td->scriptFile << " " 
+							<< moreArg << " " << (args ? args : "" );
 
-    if(td->scriptFile.length()>4 && td->scriptFile[0]=='n'  && td->scriptFile[1]=='p'
-       && td->scriptFile[2]=='h' && td->scriptFile[3]=='-' )
+    if(td->scriptFile.length()>4 && td->scriptFile[0]=='n'
+			 && td->scriptFile[1]=='p' && td->scriptFile[2]=='h' 
+			 && td->scriptFile[3]=='-' )
       nph=1; 
     else
       nph=0;
-   
+
     if(cgipath && strlen(cgipath))
     {
       spi.cmd.assign(td->cgiRoot);
@@ -189,7 +190,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	}
 	else
 	{
-     /* Check if the CGI executable exists. */
+     /* Check if the CGI executable exists.  */
 		if((!cgipath) || (!File::fileExists(tmpCgiPath.c_str())))
 		{
 			td->connection->host->warningslogRequestAccess(td->id);
@@ -211,15 +212,15 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       td->scriptFile.assign("");
       td->scriptDir.assign("");
       chain.clearAllFilters(); 
-			return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+			return td->http->raiseHTTPError(e_500);
 		}
 
     spi.arg.assign(moreArg);
     spi.arg.append(" ");
     spi.arg.append(td->scriptFile);		
     
-    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " << moreArg 
-                    << " " << td->scriptFile;
+    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " 
+						<< moreArg << " " << td->scriptFile;
   
     spi.cmd.assign(td->cgiRoot);
     spi.cmd.append("/");
@@ -231,7 +232,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     else
       nph=0;
 	}
-  
+
 	/*
    *Use a temporary file to store CGI output.
    *Every thread has its own tmp file name(td->outputDataPath), 
@@ -239,7 +240,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    *created because more threads can access more CGI at the same time.
    */
   outputDataPath << getdefaultwd(0,0) << "/stdOutFileCGI_" 
-                 <<  (unsigned int)td->id;
+                 << (unsigned int)td->id;
   
   /*
    *Open the stdout file for the new CGI process. 
@@ -248,10 +249,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	{
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite
-                                        ("Cgi: Cannot create CGI stdout file" );
+			      ("Cgi: Cannot create CGI stdout file");
 		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
 	}
 
   /*! Open the stdin file for the new CGI process. */
@@ -263,7 +264,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		td->connection->host->warningslogTerminateAccess(td->id);
 		stdOutFile.closeFile();
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
   }
   
 	/*
@@ -299,7 +300,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                        ("Cgi: Error in the CGI execution");
       td->connection->host->warningslogTerminateAccess(td->id);
       chain.clearAllFilters(); 
-      return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(e_500);
     }
   }
   /* Reset the buffer2 length counter. */
@@ -318,7 +319,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                ("Cgi: Error setting file pointer");
 		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
   }
   
   if(stdOutFile.readFromFile(td->buffer2->getBuffer(), 
@@ -331,7 +332,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
                                ("Cgi: Error reading from CGI std out file");
 		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
-		return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(e_500);
   }
 		
 	(td->buffer2->getBuffer())[nBytesRead]='\0';
@@ -341,7 +342,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read" );
 		td->connection->host->warningslogTerminateAccess(td->id);
-		((Http*)td->lhttp)->raiseHTTPError(e_500);
+		td->http->raiseHTTPError(e_500);
 		yetoutputted=1;
 	}
 	/* Standard CGI can include an extra HTTP header.  */
@@ -383,7 +384,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
             len++;
         }
         nURL.assign(&(td->buffer2->getBuffer()[i + 9]), len);
-				((Http*)td->lhttp)->sendHTTPRedirect(nURL.c_str());
+				td->http->sendHTTPRedirect(nURL.c_str());
         /* Store the new flag.  */
         yetoutputted=1;
 
@@ -842,7 +843,6 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 		} 
 	}
 #endif
-
 	memCgi << end_str << end_str  << end_str  << end_str  << end_str  ;
 }
 

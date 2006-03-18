@@ -53,7 +53,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
    *On the platforms where is not available the MSCGI support send a 
    *non implemented error.
    */
-	return ((Http*)td->lhttp)->raiseHTTPError(e_501);
+	return td->http->raiseHTTPError(e_501);
 #endif
 #endif
 
@@ -87,7 +87,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		if(data.stdOut.openFile(outDataPath.str().c_str(), FILE_CREATE_ALWAYS | 
                                 FILE_OPEN_READ | FILE_OPEN_WRITE))
     {
-      return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(e_500);
     }
 	}
 	else
@@ -95,20 +95,20 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		data.stdOut.setHandle(td->outputData.getHandle());
 	}
 
-  chain.setProtocol((Http*)td->lhttp);
+  chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(&(td->connection->socket));
   if(td->mime)
   {
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-                                                 ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                                 td->mime->filters, 
                                                        &(td->connection->socket) , &nbw, 1))
       {
         td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
         td->connection->host->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
-        return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(e_500);
       }
   }
 
@@ -153,7 +153,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     }
     chain.clearAllFilters(); 
     /*! Internal server error. */
-    return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(e_500);
 	}
 	if(data.errorPage)
 	{
@@ -163,7 +163,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       chain.clearAllFilters(); 
 			data.stdOut.closeFile();
 			File::deleteFile(outDataPath.str().c_str());
-			return ((Http*)td->lhttp)->raiseHTTPError(errID);
+			return td->http->raiseHTTPError(errID);
     }
 	}
 	/*!
@@ -190,7 +190,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			}
 
       /*! Internal server error. */
-      return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(e_500);
 		}
 
     if(onlyHeader)
@@ -214,7 +214,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
           }
           chain.clearAllFilters(); 
           /*! Internal server error. */
-          return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+          return td->http->raiseHTTPError(e_500);
 				}	
         nbw += nbs;
 			}

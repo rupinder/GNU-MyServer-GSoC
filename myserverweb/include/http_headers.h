@@ -39,6 +39,8 @@ extern "C" {
 #endif
 }
 
+class Http;
+
 #include <string>
 using namespace std;
 
@@ -56,6 +58,8 @@ extern class CBase64Utils base64Utils;
 
 #define HTTP_AUTH_SCHEME_BASIC 0
 #define HTTP_AUTH_SCHEME_DIGEST 1
+
+class MimeRecord;
 
 /*!
  *Structure used by the HTTP protocol parser to describe a thread.
@@ -92,8 +96,8 @@ struct HttpThreadContext
 	File inputData;
 	File outputData;
 	int auth_scheme;
-	void* lhttp;
-  void* mime;
+	Http* http;
+	MimeRecord *mime;
 	const char * getVhostDir();
 	const char * getVhostSys();
 	const char * getHashedData (const char *name);

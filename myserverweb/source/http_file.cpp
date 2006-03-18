@@ -82,7 +82,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
                       FILE_OPEN_READ);
     if(ret)
     {	
-      return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(e_500);
     }
     /*
      *Check how many bytes are ready to be send.  
@@ -162,7 +162,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     if(ret)
     {
       h.closeFile();
-      return((Http*)td->lhttp)->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(e_500);
     }
 
     td->buffer->setLength(0);
@@ -177,14 +177,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       td->response.contentRange.assign(buffer.str());
       useGzip = false;
     }
-    chain.setProtocol((Http*)td->lhttp);
+    chain.setProtocol(td->http);
     chain.setProtocolData(td);
     chain.setStream(&memStream);
     if(td->mime)
     {
       u_long nbw;
       if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-                                             ((MimeManager::MimeRecord*)td->mime)->filters, 
+                                             td->mime->filters, 
                                                          &memStream, &nbw))
       {
         h.closeFile();
@@ -508,7 +508,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     s->host->warningsLogWrite("HttpFile: Error allocating memory");
     s->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-    return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(e_500);
   }
   catch(...)
   {
@@ -517,7 +517,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
     s->host->warningsLogWrite("HttpFile: Internal error");
     s->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-    return ((Http*)td->lhttp)->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(e_500);
   };
  
   /* Update the Content-Length field for logging activity.  */

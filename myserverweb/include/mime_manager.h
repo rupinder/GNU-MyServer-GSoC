@@ -83,33 +83,34 @@ enum CGI_COMMANDS
 };
 
 
+struct MimeRecord
+{
+	list<string> filters;
+	string extension;
+	string mime_type;
+	string cmd_name;
+	int command;
+	string cgi_manager;
+	unsigned int extensionHashCode;
+	HttpHeaderChecker headerChecker;
+	MimeRecord()
+	{headerChecker.clear(); filters.clear(); extension.assign(""); 
+		mime_type.assign(""); cgi_manager.assign(""); cmd_name.assign("");
+		command=extensionHashCode=0;}
+	MimeRecord(MimeRecord&);
+	int addFilter(const char*, int acceptDuplicate=1);
+	~MimeRecord();
+	void clear();
+};
+
 class MimeManager
 {
 public:
-	struct MimeRecord
-	{
-    list<string> filters;
-		string extension;
-		string mime_type;
-    string cmd_name;
-		int command;
-		string cgi_manager;
-    unsigned int extensionHashCode;
-    HttpHeaderChecker headerChecker;
-    MimeRecord()
-    {headerChecker.clear(); filters.clear(); extension.assign(""); 
-      mime_type.assign(""); cgi_manager.assign(""); cmd_name.assign("");
-      command=extensionHashCode=0;}
-    MimeRecord(MimeRecord&);
-    int addFilter(const char*, int acceptDuplicate=1);
-    ~MimeRecord();
-    void clear();
-  };
 	const char *getFilename();
 	MimeManager();
   ~MimeManager();
-	int addRecord(MimeManager::MimeRecord& record);
-	MimeManager::MimeRecord *getRecord(string const &ext);
+	int addRecord(MimeRecord& record);
+	MimeRecord *getRecord(string const &ext);
 	void removeAllRecords();
 	void removeRecord(const string& ext);
 	u_long getNumMIMELoaded();
@@ -136,11 +137,11 @@ public:
   int getMIME(int id,string& ext,string& dest,string& dest2);
 	void clean();
   int isLoaded();
-
 private:
   int loaded;
   HashMap<string, MimeRecord*> *data;
 	u_long numMimeTypesLoaded;
 	string *filename;
 };
+
 #endif 
