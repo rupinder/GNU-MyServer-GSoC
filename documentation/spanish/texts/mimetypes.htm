@@ -1,0 +1,40 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaci&oacute;n de MyServer - MIME - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">TIPOS MIME</h1>
+      <p><br /> <br /> Puede modificar los tipos MIME usados por MyServer al modificar el archivo &quot;MIMEtypes.xml&quot;. El siguiente, es un  ejemplo del archivo .xml:<br /> <span class="code">&lt;MIMETYPES&gt;<br /> -<br /> &nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br /> -<br /> &nbsp;&nbsp;&nbsp; &lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;<br /> &lt;EXT&gt;htm&lt;/EXT&gt;<br /> &lt;MIME&gt;text/html&lt;/MIME&gt;<br /> &lt;CMD&gt;SEND&lt;/CMD&gt;<br /> &lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt; <br /> &lt;FILTER&gt;gzip&lt;/FILTER&gt;<br /> &lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br /> &lt;/MIMETYPE&gt; <br /></span> <br /> <br /> Cada bloque describe un tipo MIME diferente. <br /> <br /> <span class="code">&lt;EXT&gt;</span> el tipo de archivo<br /> <br /> <span class="code">&lt;MIME&gt;</span> es del tipo Mime.<br /> <br /> <span class="code">&lt;CMD&gt;</span> es la manera de enviar el archivo al cliente.<br> <br> <span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt;</span> permitir&aacute; el acceso a los tipos MIME deseados si el Host es &quot;localhost&quot;. En la l&iacute;nea <span class="code">&lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;</span> diremos que nuestro tipo MIME denegar&aacute; el acceso desde cualquier host que no se haya escrito en la etiqueta ACTION correcta (entonces tendr&aacute; que existir en la configuraci&oacute;n). Tambi&eacute;n la propiedad<br /> <span class="code">defaultAction </span>es optativa (cuando es omitida, se establece como &quot;ALLOW&quot;). Entonces, en el ejemplo de arriba, los archivos HTML ser&aacute;n accedidos s&oacute;lo a trav&eacute;s del nombre del host &quot;localhost&quot;.</p> 
+      <p>La etiqueta &lt;ACTION&gt; es optativa, a menos que se escriba &quot;DENY&quot; para su defaultAction en su tipo MIME.<br> <br /> <span class="code">&lt;FILTER&gt;</span> define un filtro para ese Tipo MIME. La informaci&oacute;n que pasa a trav&eacute;s del filtro antes de ser enviada al usuario. En el ejemplo de arriba, la informaci&oacute;n ser&iacute;a enviada comprimida con Gzip al usuario. Significa que Gzip trabaja como un filtro en MyServer. Puede definirlo para que se ejecute autom&aacute;ticamente por cada archivo basado en el tama&ntilde;o, estableci&eacute;ndolo en &lt;GZIP_THRESHOLD&gt;, en el archivo myserver.xml. Por razones obvias, la informaci&oacute;n ser&aacute; enviada comprimida s&oacute;lo si el cliente es compatible con Gzip - de otra manera recibir&iacute;a un mont&oacute;n de caracteres extra&ntilde;os en vez del sitio requerido.<br /> <br /> En general, los filtros tambi&eacute;n pueden ser aplicados a la informaci&oacute;n din&aacute;mica - como CGI, ISAPI, FastCGI - pero necesita filtros que no modifiquen los contenidos de la p&aacute;gina a mostrar al usuario.<br /> <br /> <span class="code">&lt;MANAGER&gt;</span> describe el comando <span class="code">&lt;CMD&gt;</span>.<br /> <br /> <br /> <br /> Los siguientes valores para el env&iacute;o de archivos al cliente son v&aacute;lidos en la secci&oacute;n <span class="code">&lt;MANAGER&gt;</span>:<br /> 
+      </p>
+      <div class="left">
+<ol>
+  <li><span class="code">SEND</span> - Env&iacute;a el archivo est&aacute;ticamente como est&aacute;.  Este comando se usa para extensiones de archivos como .html y .jpg que no necesitan una intervenci&oacute;n externa desde el servidor Web.</li> 
+  <li><span class="code">RUNCGI</span> - Ejecuta la secuencia de comandos CGI que est&aacute; en la ruta de acceso. Se usa para las extensiones como .php y .pl que necesitan ser procesadas antes de enviar cualquier informaci&oacute;n al cliente.</li> 
+  <li><span class="code">RUNFASTCGI</span><span
+ style="color: rgb(0, 102, 0);"> </span>- Ejecuta la secuencia de comandos Fastcgi.  Este tipo necesitar&aacute; descargar un analizador fastcgi (vea la p&aacute;gina PHP). Tambi&eacute;n se usa para extensiones como .php y .pl</li> 
+  <li><span class="code">EXECUTEFASTCGI</span> - Tambi&eacute;n ejecuta secuencias de comandos Fastcgi, pero a diferencia de RUNFASTCGI arriba, no necesita un servidor para ejecutar una secuencia de comandos, sino que act&uacute;a como su propio servidor.</li> 
+  <li><span class="code">RUNMSCGI</span> - Ejecuta la secuencia de comandos MSCGI. Esta biblioteca se usa solamente para myServer. Se usa para construir CGis r&aacute;pidos y eficientes.</li> 
+  <li><span class="code">EXECUTE </span>-Trata el archivo como un ejecutable y env&iacute;a el resultado al cliente.</li> 
+  <li><span class="code">SENDLINK</span> - Env&iacute;a el archivo que contiene el v&iacute;nculo.</li> 
+  <li><span class="code">EXECUTEWINCGI</span> - Env&iacute;a el archivo como WinCGI</li> 
+  <li><span class="code">RUNISAPI</span> - Ejecuta la secuencia de comandos ISAPI. &nbsp;</li> 
+  <li><span class="code">EXECUTEISAPI</span> - Ejecuta la secuencia de comandos ISAPI pero no necesita un servidor para ejecutarse. En cambio act&uacute;a como su servidor.</li> 
+</ol>
+</div>
+La mayor&iacute;a de las aplicaciones ya son tratadas en el archivo .xml. Si quiere 
+      agregar un tipo MIME, anexe el archivo y use el c&oacute;digo como ejemplo.</td>
+</tr>
+</table>
+</body>
+</html>

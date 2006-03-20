@@ -1,0 +1,29 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaci&oacute;n de MyServer - Tratamiento de errores - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">P&Aacute;GINAS DE ERROR</h1>  
+<br /> Puede modificar las p&aacute;ginas html que son enviadas cuando ocurre un error.<br /> <br /> Los archivos por defecto est&aacute;n contenidos en el directorio de <span class="code">sistema</span> usado por el host y se puede reemplazar con sus archivos. Diferentes <a href="virtualhosts.html">Host Virtuales</a> pueden usar archivos de error diferentes.<br /> <br /> Las p&aacute;ginas no deben contener referencias a otros documentos en el directorio del sistema. <br /> Toda solicitud a <span class="code"/sys></span> ser&aacute; asignada al directorio de sistema. Entonces una solicitud a <a href="http://sys/file.html"http://sys/file.html></a> enviar&aacute; el archivo <span class="code">file.html</span> contenido en el directorio del <span class="code">sistema</span> por el host virtual. <br /> <br /> <img src="../images/sample404.png" title="" alt="Error 404 de Ejemplo " /><br /> El famoso error 404 ocurre cuando un archivo no puede ser encontrado en el servidor.  
+<p><br />
+</p>
+      <p>Para definir un archivo de p&aacute;ginas de error personalizado para un host virtual puede agregar una l&iacute;nea como la siguiente en el archivo de seguridad del host virtual principal. Al definir un archivo diferente, el servidor buscar&aacute; en el directorio <span class="code">Web</span> en vez del de <span class="code">sistema</span>. Si no se usan archivos personalizados, el servidor buscar&aacute; en el archivo <span class="code">x.html</span> en el directorio de <span class="code">sistema</span>, en d&oacute;nde <span class="code">x</span> es el n&uacute;mero de error (por ejemplo:  html	HTML<span class="code">404.html</span>). Un archivo de seguridad principal para un host virtual es el archivo de seguridad que est&aacute; ubicado en el directorio principal del host virtual. Si el error no est&aacute; especificado entonces se usar&aacute; el predeterminado en el directorio de sistema, si tambi&eacute;n no existe este archivo ser&aacute; comunicado a trav&eacute;s del un mensaje de error HTTP. <span  class="code"> <br />  ERROR	ERROR, Error, Error, ERROR, Error, ERROR, Error, Error, ERROR, ERROR, Error, Error, Error, Error, Error, Error, Error&lt;ERROR FILE=&quot;error404.html&quot; ID=&quot;404&quot; /&gt; </span> </p>  
+      <p><br />
+        <br />
+        Por m&aacute;s informaci&oacute;n sobre p&aacute;ginas de error consulte 
+        el documento RFC2068 que se encuentra en <a href="http://www.w3.org" target="_blank">www.w3c.org</a>.</p>
+      </td>
+</tr>
+</table>
+</body>
+</html>

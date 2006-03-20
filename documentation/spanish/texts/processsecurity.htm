@@ -1,0 +1,32 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaci&oacute;n de MyServer - Procesos de Seguridad - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">PROCESO DE SEGURIDAD</h1>
+<br /> En plataformas parecidas a UNIX es posible cambiar identificadores de usuarios e identificadores de grupos para el proceso de MyServer despu&eacute;s de que se haya enlazado los puertos necesarios (s&oacute;lo Ra&iacute;z puede enlazar puertos &lt; 1024). <br /> 
+
+<h2 class="title">Procesar identificador de usuario</h2>
+Usar una l&iacute;nea como la siguiente en myserver.xml har&aacute; que MyServer cambie su identificador de usuario al especificado: <br /> <span class="code">&lt;PROCESS_USER_ID&gt;PID&lt;/PROCESS_USER_ID&gt;</span><br/> d&oacute;nde <span class="code">PID</span> es el identificador de usuario a usar. 
+
+<br />
+
+<h2 class="title">Procesar identificador de grupo</h2>
+Usar una l&iacute;nea como la siguiente en myserver.xml har&aacute; que MyServer cambie su identificador de grupo especificado: <br /> <span class="code">&lt;PROCESS_USER_ID&gt;PID&lt;/PROCESS_USER_ID&gt;</span><br/> d&oacute;nde <span class="code">PID</span> es el identificador de grupo a usar. <br /> <br />
+      <span class="warning">Advertencia:</span> Cuando se usa una de las caracter&iacute;sticas 
+      de reinicio no se usar&aacute; en MyServer, ya que no podr&aacute; volver 
+      a los permisos viejos de nuevo.</td>
+</tr>
+</table>
+</body>
+</html>

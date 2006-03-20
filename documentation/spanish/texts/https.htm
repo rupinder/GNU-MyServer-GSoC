@@ -1,0 +1,42 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaci&oacute;n de MyServer - HTTPS - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<table class="center" width="95%">
+
+<tr>
+
+<td class="center">
+
+
+<h1 class="title">HTTPS</h1>
+
+
+<br />
+<h2 class="title">Notas Breves sobre cifrado de informaci&oacute;n</h2> 
+El cifrado de informaci&oacute;n se usa para proteger la informaci&oacute;n que es enviada entre el cliente y el servidor. Hay dos tipos de algoritmos: algoritmos de cifrado de informaci&oacute;n sim&eacute;tricos y asim&eacute;tricos. La diferencia entre los dos tipos de algoritmos es que para los algoritmos sim&eacute;tricos se usa la misma llave para cifrar como para descifrar. Estos algoritmos no son usados por servidores con un n&uacute;mero potencialmente grande de clientes porque la informaci&oacute;n capturada puede ser descifrada por un cliente que sabe la llave y porque la llave necesita ser distribuida de una manera segura (por ejemplo un disquete) y no a trav&eacute;s de una red grande como Internet. Los algoritmos asim&eacute;tricos trabajan de otra manera, la informaci&oacute;n cifrada con una llave puede ser descifrada solamente con la otra llave y viceversa. Todos conocen la llave p&uacute;blica pero s&oacute;lo el due&ntilde;o sabe la privada. De esta manera, el due&ntilde;o de la llave no la tiene que distribuir a clientes conocidos sino que lo puede hacer a trav&eacute;s de una red de gran escala.  
+
+<br /> <br />
+<h2 class="title">Como crear certificados SSL con OpenSSL</h2>
+Se necesita un certificado para certificar su identidad a trav&eacute;s de una CA(Certification Authority) Puede usar un certificado sin registrarse a una tercera parte CA pero cre&aacute;ndolo como certificado Root Certification (Certificado de Ra&iacute;z). Puede encontrar todo lo necesario para crear certificados en la Biblioteca OpenSSL en: www.openssl.org. Despu&eacute;s de la instalaci&oacute;n vaya a los directorios de binarios y escriba: <br /> <span  class="code">openssl genrsa -out server.key</span> <br /> Esto crear&aacute; una llave privada para cifrar su informaci&oacute;n. <br /> <br /> Despu&eacute;s de este comando: <br /> <span  class="code">openssl req -new -x509 -days 730 -config openssl.cnf -key server.key -out server.pem</span> <br /> para crear un certificado p&uacute;blico. De esta manera el certificado puede ser usado por 730 d&iacute;as y la llave p&uacute;blica ser&aacute; el archivo server.pem. <br /> <br /> 
+
+<h2 class="title">Uso de certificados en MyServer</h2>
+Para configurar certificados en MyServer tiene que poner dos archivos: server.key, server.pem  en la carpeta de certificados en la ruta de instalaci&oacute;n de MyServer. Despu&eacute;s de esto tiene que configurar un host virtual en el archivo virtualhosts.xml. <br /> <span  class="code">&lt;VHOST&gt;<br /> &lt;NAME&gt;Every connection&lt;/NAME&gt;<br /> &lt;PORT&gt;443&lt;/PORT&gt;<br /> &lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt;<br /> &lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE&gt;<br /> &lt;PROTOCOL&gt;HTTPS&lt;/PROTOCOL&gt;<br /> &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br /> &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br /> &lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br /> &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br /> &lt;/VHOST&gt;<br /></span> <br />
+      Con este host ponemos un proceso de escucha https en el puerto 443(el predeterminado 
+      para HTTPS) y usamos el archivo certificates/server.key para la llave privada 
+      y los certificates/server.pem para las p&uacute;blicas.</td>
+</tr>
+</table>
+</body>
+</html>
+

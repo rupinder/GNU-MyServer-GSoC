@@ -1,0 +1,95 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaci&oacute;n MyServer - Ajuste de rendimiento - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<table class="center" width="95%">
+<tr>
+<td class="center">
+      <h1 class="title">AJUSTE DE RENDIMIENTO</h1><br />
+        
+        Aqu&iacute; puede ver algunas opciones que puede establecer para ajustar el rendimiento de su servidor Web.<br /> 
+      
+<h2 class="title">Ajuste de Subprocesos:</h2>
+En el archivo myserver.xml puede configurar la cantidad de subprocesos que MyServer usar&aacute;. En las l&iacute;neas de abajo, se configura los dos par&aacute;metros configurables <span class="code">NTHREADS_STATIC</span> y <span class="code">NTHREADS_MAX</span>, el primero se usa para definir el n&uacute;mero de subprocesos vivos, el segundo se usa para definir el n&uacute;mero mayor de subprocesos que myserver puede crear:<br /> 
+
+<br /> <br />
+
+<span class="code">&lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br /> &lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;</span>
+
+<br /> <br />
+<h2 class="title">Tama&ntilde;o del b&uacute;fer:</h2> 
+Puede establecer el tama&ntilde;o de los b&uacute;feres usados por MyServer al agregar la l&iacute;nea de abajo, en el archivo myserver.xml <br /> 
+<p class="code">
+&lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br />
+</p>
+<p>
+S&oacute;lo cambie el valor predeterminado 102400 a su valor deseado. Recuerde que su b&uacute;fer ser&aacute; el doble del tama&ntilde;o que establezca aqu&iacute; (en Bytes), multiplicado por el n&uacute;mero de los subprocesos en ejecuci&oacute;n. <br /> <br /> 
+<h2 class="title">Tiempo espera de la Conexi&oacute;n:</h2> 
+
+En <span class="code">myserver.xml</span>, puede ver el tiempo de espera de las conexiones del cliente al servidor, en la l&iacute;nea de abajo: <br /> <br /> 
+<p class="code">
+&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br />
+</p>
+<p>
+La unidad de tiempo es el segundo. Entonces, en la l&iacute;nea de arriba si su cliente no tiene acceso a su sitio durante 60 segundos la conexi&oacute;n ser&aacute; cerrada. O si prefiere, establezca este valor en 0 y no tendr&aacute; mantenimiento de conexiones activas HTTP. <br /> <br /> 
+<h2 class="title">M&aacute;ximo de Conexiones:</h2> 
+Puede cambiar el n&uacute;mero m&aacute;ximo predeterminado de conexiones que su servidor Web aceptar&aacute; al cambiar la l&iacute;nea de abajo en <span class="code">myserver.xml</span>:<br /> 
+<p class="code">
+&lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
+</p>
+<p>
+El valor predeterminado 0 significa que aceptara conexiones infinitas. Cualquier otro valor limitar&aacute; cu&aacute;ntos usuarios podr&aacute;n acceder a su servidor. 
+
+<br /> <br />
+<h2 class="title">M&aacute;ximo de Servidores FastCGI:</h2> 
+MyServer le permite configurar el n&uacute;mero m&aacute;ximo de servidores FastCGI permitidos para ser ejecutados al cambiar el valor de la l&iacute;nea de abajo, <span class="code">en myserver.xml</span>:<br /> 
+<p class="code">
+&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />
+</p>
+<p>
+
+<h2 class="title">Establecer el Tiempo de espera de CGI:</h2>
+
+Puede establecer el tiempo de espera predeterminado para sus secuencias de comandos CGI en MyServer al cambiar el valor de la variable CGI_TIMEOUT en su archivo <span class="code">myserver.xml</span>.<br /> S&oacute;lo cambie la l&iacute;nea de abajo para ajustarla a sus necesidades:<br /> 
+<p class="code">
+&lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;<br />
+</p>
+
+<p>
+La configuraci&oacute;n de abajo significar&iacute;a que establece el tiempo de espera de CGI en 15 segundos (la unidad es el &quot;segundo&quot;) 
+
+<br /> <br />
+<h2 class="title">Establecer la aceleraci&oacute;n de informaci&oacute;n:</h2> 
+
+Puede establecer la velocidad de aceleraci&oacute;n de informaci&oacute;n en MyServer (deshabilitado como predeterminado) al agregar una l&iacute;nea como la siguiente: 
+<p class="code">
+&lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;<br />
+</p>
+<p>
+(La unidad es bytes/segundo)<br /> Si la misma l&iacute;neas esta disponible en <span class="code">virtualhosts.xml</span>, habilitar&aacute; y configurar&aacute; la aceleraci&oacute;n de informaci&oacute;n para el host virtual correspondiente.<br /> <br /> 
+
+Tambi&eacute;n puede configurar la a aceleraci&oacute;n de informaci&oacute;n para directorios individuales al usar las siguientes configuraciones en el archivo de seguridad:<br /> 
+<p class="code">
+ USER	USUARIO, Usuario, usuario, Usuario, usuario, Usuario, Usuario, Usuario, USUARIO, Usuario&lt;USER NAME=&quot;Guest&quot; PASS=&quot;&quot; READ=&quot;TRUE&quot; WRITE=&quot;TRUE&quot; BROWSE=&quot;TRUE&quot;<br /> EXECUTE=&quot;TRUE&quot; THROTTLING_RATE=&quot;1024&quot;/&gt;<br />
+</p>
+<p>
+Con eso habilitar&iacute;a la aceleraci&oacute;n de 1024 bytes/segundo para el usuario invitado (Guest).<br /> Si agrega una l&iacute;nea como la siguiente, habilitar&iacute;a la aceleraci&oacute;n para el archivo &quot;bigfile&quot;:<br /> 
+<p class="code">
+&lt;ITEM FILE=&quot;bigfile&quot; READ=&quot;TRUE&quot; WRITE=&quot;FALSE&quot; EXECUTE=&quot;FALSE&quot;<br /> THROTTLING_RATE=&quot;1024&quot; /&gt;<br /> Tambi&eacute;n puede mezclar las dos posibilidades y habilitar a un usuario espec&iacute;fico con un s&oacute;lo archivo:<br />  USER	USUARIO, Usuario, usuario, Usuario, usuario, Usuario, Usuario, Usuario, USUARIO, Usuario&lt;ITEM FILE=&quot;bigfile&quot; READ=&quot;TRUE&quot; WRITE=&quot;FALSE&quot; EXECUTE=&quot;FALSE&quot;&gt;<br /> &lt;USER NAME=&quot;Guest&quot; PASS=&quot;&quot; READ=&quot;TRUE&quot; WRITE=&quot;TRUE&quot; BROWSE=&quot;TRUE&quot;<br /> EXECUTE=&quot;TRUE&quot; THROTTLING_RATE=&quot;1024&quot;/&gt;<br /> &lt;/ITEM&gt;<br /><br /> 
+</p>
+<p>
+Esta es el orden para comprobar la configuraci&oacute;n de la aceleraci&oacute;n de informaci&oacute;n:<br /> 1) Usuario &amp; archivo (atributo de USUARIO dentro de ITEM).<br /> 2) ARCHIVO (Atributo ITEM).<br /> 3) Usuario (Atributo USUARIO).<br /> 4) Host virtual (archivo virtualhosts.xml).<br />
+        5) Configuraci&oacute;n de Servidor (archivo myserver.xml).
+    </td>
+</tr>
+</table>
+</body>
+</html>

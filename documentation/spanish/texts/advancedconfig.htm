@@ -1,0 +1,46 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaci&oacute;n de MyServer - Configuraci&oacute;n Avanzada - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<table class="center" width="95%">
+<tr>
+<td class="center">
+      <h1 class="title">CONFIGURACI&Oacute;N AVANZADA</h1>      <br /> Aqu&iacute; encontrar&aacute; opciones que se establecen en el archivo de configuraci&oacute;n de MyServer. <br />  
+
+
+      <h2 class="title">Tipos MIME para Hosts Virtuales:</h2>
+      <br /> En myserver.xml, se permite que los hosts virtuales tengan su propio tipos MIME o no, al usar la l&iacute;nea de abajo con la opci&oacute;n &quot;Yes&quot; o &quot;No&quot;.<br /> <br /><span class="code">&lt;ALLOW_VHOST_MIME&gt;YES&lt;/ALLOW_VHOST_MIME&gt;</span><br /> <br />  
+      <h2 class="title">Archivos MSCGI:</h2>
+Puede permitir el uso de archivos MSCGI en MyServer al establecer el valor deseado en la l&iacute;nea de abajo, en myserver.xml: <br />  
+      <p class="code"> &lt;ALLOW_MSCGI&gt;YES&lt;/ALLOW_MSCGI&gt;</p>
+      
+        
+                  
+                    <h2 class="title">Umbral GZIP:</h2>
+                    Puede configurar MyServer comprimir&aacute; autom&aacute;ticamente la informaci&oacute;n enviada a los usuarios, si la informaci&oacute;n enviada es mayor que el valor especificado en bytes al agregar en la l&iacute;nea de abajo de myserver.xml:<br />  
+      <p class="code"> &lt;GZIP_THRESHOLD&gt;1024&lt;/GZIP_THRESHOLD&gt;</p>
+      <br /><br /> Para ese ejemplo si la informaci&oacute;n es mayor a 1024 bytes, se comprimir&aacute; la informaci&oacute;n antes de de ser enviado al cliente.<br /> <br /> &nbsp;  
+<h2 class="title">Permiso para Acceso de Controladores de Informaci&oacute;n HTTP:</h2>  
+      <br />
+      La opci&oacute;n <span class="code">&lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;</span> 
+      negar&iacute;a el acceso al controlador de informaci&oacute;n CGI en todo 
+      el servidor. Esta opci&oacute;n puede ser agregado tambi&eacute;n a cada 
+      host virtual y si se incluye en virtualhosts.xml ser&aacute; usada en lugar 
+      de la configuraci&oacute;n global.<span class="code">ALLOW_CGI </span> tambi&eacute;n 
+      puede aparecer como <span class="code">ALLOW_FASTCGI</span>, <span class="code">ALLOW_ISAPI</span>, 
+      <span class="code">ALLOW_MSCGI</span> , <span class="code">ALLOW_WINCGI</span>, 
+      <span class="code">ALLOW_SEND_LINK, ALLOW_EXTERNAL_COMMANDS</span>, <span class="code">ALLOW_SEND_FILE</span>, 
+      cada uno de ellos deniega/permite que el controlador de informaci&oacute;n 
+      HTTP apropiado sea usado.</td>
+</tr>
+</table>
+</body>
+</html>
