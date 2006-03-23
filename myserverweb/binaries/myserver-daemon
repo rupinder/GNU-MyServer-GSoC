@@ -1,0 +1,101 @@
+# MyServer
+# Copyright (C) 2006 The MyServer Team
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+#! /bin/sh
+
+#
+# This file should be placed in /etc/init.d
+#
+# please do a chmod a+x on the file
+#
+
+set -e
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+NAME="MyServer 0.8.3 - Daemon Script"
+DESC="www.myserverproject.net"
+
+
+DAEMON="/usr/local/bin/myserver-daemon"
+PIDFILE="/var/run/myserver.pid"
+SCRIPTNAME="/etc/init.d/myserver"
+LOGFILE="/var/log/myserver/MyServer_DAEMON.log"
+
+
+test -x $DAEMON || exit 0
+
+
+d_start()
+{
+	start-stop-daemon --start --pidfile $PIDFILE \
+	--exec $DAEMON -- -rSERVICE --logfile=$LOGFILE --pidfile=$PIDFILE
+}
+
+
+d_stop()
+{
+	start-stop-daemon --stop --pidfile $PIDFILE \
+	--exec $DAEMON -- -rSERVICE --logfile=$LOGFILE --pidfile=$PIDFILE
+
+}
+
+
+d_reload()
+{
+	start-stop-daemon --stop  --signal 1  --pidfile $PIDFILE \
+	--exec $DAEMON -- -rSERVICE --logfile=$LOGFILE --pidfile=$PIDFILE
+}
+
+d_restart()
+{
+	d_stop
+	sleep 1
+	d_start
+}
+
+echo $NAME
+echo $DESC
+echo;
+
+case "$1" in
+		start)
+				echo "Starting MyServer..."
+				d_start
+				;;
+  		
+		stop)
+				echo "Stopping MyServer..."
+				d_stop
+				;;
+  		
+		reload)
+				echo "Reloading MyServer configuration..."
+				d_reload
+				echo "done..."
+				;;
+  
+		restart|force-reload)
+				echo "Restarting MyServer..."
+				d_restart
+				;;
+  		
+		*)
+				echo "Usage: $SCRIPTNAME {start | stop | restart | reload | force-reload}" >&2
+				exit 1
+				;;
+esac
+
+exit 0
