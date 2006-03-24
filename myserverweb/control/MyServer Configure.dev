@@ -232,19 +232,19 @@ BuildCmd=
 [VersionInfo]
 Major=0
 Minor=8
-Release=2
-Build=2
+Release=3
+Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.2-rc2
+FileVersion=0.8.3-rc1
 FileDescription=MyServer Configuration Interface
-InternalName=Torino 2006
+InternalName=RC1
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=MyServer Configure.exe
 ProductName=MyServer
-ProductVersion=0.8.2-rc2
+ProductVersion=0.8.3-rc1
 AutoIncBuildNr=0
 
 [Unit18]
