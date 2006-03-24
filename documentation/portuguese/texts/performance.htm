@@ -93,7 +93,7 @@
       Voc&ecirc; pode setar a taxa de data throttling para conex&otilde;es no 
       MyServer (por default, isso fica desabilitado) adicionando uma linha como 
       a seguinte: 
-      <p class="code"> &lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;<br />
+      <span class="code"> &lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;</span><br />
       <br /><br />
        (A unidade &eacute; bytes/segundo)<br />
         Se a mesma linha estiver no <span class="code">virtualhosts.xml</span>, 
@@ -102,9 +102,9 @@
         Tamb&eacute;m voc&ecirc; pode configurar o data throttling para diret&oacute;rios 
         individuais, usando essas configura&ccedil;&otilde;es em seu arquivo security:<br />
       
-      <p class="code"> &lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" 
+      <span class="code"> &lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" 
         BROWSE="TRUE"<br />
-        EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />
+        EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br /></span>
       <br /><br />
        Com aquilo,voc&ecirc; estaria habilitando a taxa de 1024 bytes/segundo 
         para o usu&aacute;rio Guest.<br />
@@ -112,15 +112,15 @@
         habilitando o controle para um arquivo chamado"bigfile":<br />
         <br />
       
-      <p class="code"> &lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"<br />
-        THROTTLING_RATE="1024" /&gt;<br />
+      <span class="code"> &lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"<br />
+        THROTTLING_RATE="1024" /&gt;<br /></span>
         Voc&ecirc; pode tamb&eacute;m misturar as duas possibilidades e setar 
         essa configura&ccedil;&atilde;o para um usu&aacute;rio espec&iacute;fico 
         e um arquivo &uacute;nico:<br />
-        &lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />
+         <span class="code">&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />
         &lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />
         EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />
-        &lt;/ITEM&gt;<br />
+        &lt;/ITEM&gt;<br /></span>
         <br />
       <br /><br />
        Esta &eacute; a ordem de verifica&ccedil;&atilde;o para a configura&ccedil;&atilde;o 
