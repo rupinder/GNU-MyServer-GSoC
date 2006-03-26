@@ -20,7 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/file.h"
 #include "../include/home_dir.h"
-
+#ifdef WIN32
+#include <userenv.h>
+#endif
 extern "C" {
 #include <string.h>
 #include <stdlib.h>
@@ -49,7 +51,11 @@ extern "C" {
  */
 HomeDir::HomeDir()
 {
+#ifdef WIN32
+  data.assign("");
+#else
 	data.clear();
+#endif
 	timestamp = 0;
 	loaded = 0;
 }
@@ -67,6 +73,9 @@ HomeDir::~HomeDir()
  */
 void HomeDir::clear()
 {
+#ifdef WIN32
+  data.assign("");
+#else
 	HashMap<string, string*>::Iterator i = data.begin();
 	HashMap<string, string*>::Iterator end = data.end();
 	for( ; i != end ; i++)
@@ -78,6 +87,7 @@ void HomeDir::clear()
 	data.clear();
 	timestamp = 0;
 	loaded = 0;
+#endif
 }
 
 /*!
@@ -85,8 +95,23 @@ void HomeDir::clear()
  */
 int HomeDir::load()
 {
-
-#ifdef NOT_WIN
+#ifdef WIN32
+  DWORD len = 64;
+  char *buf;
+  buf = new char[len];
+  if(!GetProfilesDirectory(buf, &len))
+  {
+    delete buf;
+    buf = new char[len];
+    if(!GetProfilesDirectory(buf, &len))
+    {
+      delete buf; 
+      return 1;                               
+    }
+  }
+  data.assign(buf);
+  return 0;
+#else
 	File usersFile;
 	u_long size;
 	char* buffer;
@@ -171,6 +196,13 @@ int HomeDir::load()
  */
 const string *HomeDir::getHomeDir(string& userName)
 {
+#ifdef WIN32
+  static string retString;
+  retString.assign(data);
+  retString.append("/");
+  retString.append(userName);
+  return &retString;
+#else
 	if(!loaded)
 		return 0;
 	/* TODO: don't check always but wait some time before.  */
@@ -178,4 +210,5 @@ const string *HomeDir::getHomeDir(string& userName)
 		load();
 
 	return data.get(userName);
+#endif
 }

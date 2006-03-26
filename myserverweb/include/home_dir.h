@@ -30,7 +30,11 @@ using namespace std;
 class HomeDir
 {
 private:
+#ifdef WIN32
+  string data;
+#else
 	HashMap<string, string*> data;
+#endif
 	time_t timestamp;
 	int loaded;
 public:
