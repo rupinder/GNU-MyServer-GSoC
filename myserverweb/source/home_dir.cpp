@@ -237,8 +237,6 @@ void HomeDir::getHomeDir(string& userName, string& out)
 	if(res)
 	{
 		out.assign(*res);
-		out.append("/");
-		out.append(userName);
 	}
 	else
 		out.assign("");

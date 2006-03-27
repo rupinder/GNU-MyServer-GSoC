@@ -2093,19 +2093,18 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			if(td.request.uri.length() > 2 && td.request.uri[1] == '~'){
 				string documentRoot;
 				u_long pos = 2;
-				const string *homeDir = 0;
 				string user;
 				while(pos < td.request.uri.length())
 					if(td.request.uri[++pos] == '/')
 						break;
 				user.assign(td.request.uri.substr(2, pos-2));
-				homeDir = Server::getInstance()->getHomeDir()->getHomeDir(user);
+				Server::getInstance()->getHomeDir()->getHomeDir(user,
+																												documentRoot);
 				
-				if(homeDir)
+				if(documentRoot.length())
 				{
-					documentRoot.assign(homeDir->c_str());
-					documentRoot.append("/public_html");
 					td.vhostDir.assign(documentRoot);
+					td.vhostDir.append("/public_html");
 					
 					if(!td.request.uriEndsWithSlash && !(td.request.uri.length() - pos))
 					{
@@ -2120,7 +2119,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 						td.request.uri.assign("");
 				}
 			}
-			
+
 		  /*! 
        *Check if there is a limit for the number of connections in the 
 			 *virtual host A value of zero means no limit.
