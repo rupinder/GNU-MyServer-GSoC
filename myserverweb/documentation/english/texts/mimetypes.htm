@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Documentation - MIME - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">MIME TYPES</h1>
+      <p><br />
+        <br />
+        You can modify the MIME types used by MyServer by modifing the file "MIMEtypes.xml". 
+        The following is an example of the .xml file:<br />
+        <span class="code">&lt;MIMETYPES&gt;<br />
+        -<br />
+        &nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br />
+        -<br />
+        &nbsp;&nbsp;&nbsp; &lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;<br />
+        &lt;EXT&gt;htm&lt;/EXT&gt;<br />
+        &lt;MIME&gt;text/html&lt;/MIME&gt;<br />
+        &lt;CMD&gt;SEND&lt;/CMD&gt;<br />
+        &lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt; 
+        <br />
+        &lt;FILTER&gt;gzip&lt;/FILTER&gt;<br />
+        &lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br />
+        &lt;/MIMETYPE&gt; <br />
+        </span> <br />
+        <br />
+        Each block describes a different MIME type. <br />
+        <br />
+        <span class="code">&lt;EXT&gt;</span> is the type of file<br />
+        <br />
+        <span class="code">&lt;MIME&gt;</span> is the Mime type.<br />
+        <br />
+        <span class="code">&lt;CMD&gt;</span> is the way to send the file to the 
+        client.<br>
+        <br>
+        <span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt; 
+        </span> will allow access to the desired MIME Type if the Host is &quot;localhost&quot;. 
+        In the line <span class="code">&lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;</span> 
+        we tell that our MIME Type will DNY access from any host we don't set 
+        in the proper ACTION tag (so, it will have to exist in the configuration). 
+        Also, the property <br />
+        <span class="code">defaultAction </span>is optional (when it's omitted, 
+        it's set to &quot;ALLOW&quot;). So, in the above example, HTML files will 
+        be accessed only through the hostname &quot;localhost&quot;.</p>
+      <p>The tag &lt;ACTION&gt; is optional, unless you specify &quot;DENY&quot; 
+        for your defaultAction in your MIME Type.<br>
+        <br />
+        <span class="code">&lt;FILTER&gt;</span> defines a filter for that Mime 
+        Type. The data will pass through the filter before being sent to the user. 
+        In the example above, the data would be sent gzipped to the user. It means 
+        Gzip works as a filter in MyServer. you can define Gzip to automatically 
+        run for every file based in its size, setting the &lt;GZIP_THRESHOLD&gt;, 
+        in myserver.xml file. For obvious reasons, data will be sent gzipped only 
+        if the client supports gzip - otherwise he'd receive a lot of wierd characters 
+        instead of the site requested.<br />
+        <br />
+        In general, filters can also be applied to dynamic data - like CGI, ISAPI, 
+        FastCGI - but they need to be filters that don't modify the contents of 
+        the page to be shown to the user.<br />
+        <br />
+        <span class="code">&lt;MANAGER&gt;</span> describes the <span class="code">&lt;CMD&gt;</span> 
+        command.<br />
+        <br />
+        <br />
+        <br />
+        The following values for sending the file to the client are valid in the 
+        <span class="code">&lt;MANAGER&gt;</span> section:<br />
+      </p>
+      <div class="left">
+<ol>
+  <li><span class="code">SEND</span>
+- Send the file statically as
+is. &nbsp;This command is used for files extensions such as .html and
+.jpg that don't need any external intervention from the web server.</li>
+  <li><span class="code">RUNCGI</span>
+- Run the CGI script
+indicated in the path. &nbsp;It is used for file extensions such as
+.php and .pl that need to be processed before sending any data to the
+client.</li>
+  <li><span class="code">RUNFASTCGI</span><span
+ style="color: rgb(0, 102, 0);"> </span>- Run the Fastcgi script.
+&nbsp;This type will need a fastcgi parser downloaded (see the PHP
+page).
+&nbsp;It is also used for file extensions such as .php and .pl</li>
+  <li><span class="code">EXECUTEFASTCGI</span>
+- This also runs the
+Fastcgi script, but unlike the RUNFASTCGI above, it does not need a
+server to run the script, instead it acts as a self server.</li>
+  <li><span class="code">RUNMSCGI</span>- Run the MSCGI script. This library is only available for myServer. 
+It is used to build fast and efficient CGIs.</li>
+  <li><span class="code">EXECUTE </span>-Treat the file as an
+executable and send the output to the client.&nbsp;</li>
+  <li><span class="code">SENDLINK</span>
+- Send the file that is
+contained in a link.</li>
+  <li><span class="code">EXECUTEWINCGI</span>
+- Send the file as a
+WinCGI</li>
+  <li><span class="code">RUNISAPI</span>
+- Run the ISAPI script.
+&nbsp;</li>
+  <li><span class="code">EXECUTEISAPI</span>
+- Runs the ISAPI script
+but does not need a server to run. Instead, it acts as a self server.</li>
+</ol>
+</div>
+Most applications are already handled in the .xml file.&nbsp; If you
+would like to add a MIME type append the file and use the code as an
+example.
+</td>
+</tr>
+</table>
+</body>
+</html>

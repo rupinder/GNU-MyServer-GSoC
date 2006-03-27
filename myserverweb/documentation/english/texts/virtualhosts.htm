@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Documentation - Creating Virtual Hosts - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">VIRTUAL HOSTS</h1>
+<br />
+In theory, virtual hosts allow users to lodge an infinite number of
+sites on a single machine. For example http://mypc.net is different
+from http://sub.mypc.net. To define virtual hosts in myServer open the
+file virtualhosts.xml in a text editor (such as notepad in
+Windows or GNU Emacs in GNU/Linux). A sample virtual hosts configuration file looks
+like:<br />
+<br />
+      <p class="code">&lt;VHOSTS&gt;<br />
+        -<br />
+        &nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br />
+        &lt;NAME&gt;Every connection&lt;/NAME&gt;<br />
+        &lt;PORT&gt;80&lt;/PORT&gt;<br />
+        &lt;IP&gt;127.0.0.1&lt;/IP&gt; <br />
+        &lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br />
+        &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br />
+        &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br />
+        &lt;HOST&gt;www.mysite.com&lt;/HOST&gt; <br />
+        &lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br />
+        &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br />
+        &lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;<br />
+        &lt;/VHOST&gt;<br />
+        -<br />
+        &lt;/VHOSTS&gt;<br />
+      </p>
+      <br /><br /><br />
+        <span class="code">&lt;NAME&gt;</span> gives the server administrator 
+        an idea of what the virtual host is such as internal Ethernet, external 
+        ethernet or every connection.&nbsp; <br />
+        <br />
+        <span class="code">&lt;PORT&gt;</span> is the port used for accepting 
+        connections<br />
+        <span class="code">&lt;IP&gt;</span> is optional. It is the IP address 
+        for the interface your virtual host will be working on. The optional <span class="code">useRegex=&quot;YES&quot;</span> 
+        means the address would act as a regular expression, not only a fixed 
+        value. This is more useful for networks with dynamic IP addressing.<br />
+        <span class="code">&lt;PROTOCOL&gt;</span> is the protocol to be used 
+        by the host<br />
+        <span class="code"></span><span class="code">&lt;DOCROOT&gt;</span> is 
+        the folder where the files are found<br />
+        <span class="code">&lt;SYSFOLDER&gt;</span> is the system folder<br />
+        <span class="code">&lt;HOST&gt;</span> is your virtual host's name. The 
+        optional <span class="code">useRegex=&quot;YES&quot;</span> means the 
+        address would act as a regular expression, not only a fixed value.<br />
+        <span class="code">&lt;ACCESSLOG&gt;</span> is the access log used by 
+        the virtual host<br />
+        <span class="code">&lt;WARNINGLOG&gt;</span> is the errors log file used 
+        by the virtual host.<br />
+        <span class="code">&lt;ALLOW_CGI&gt;</span> This option would deny the 
+        access to CGI in this virtual host. This line can exist in myserver.xml 
+        too, as a global configuration, but if it is included in virtualhosts.xml, 
+        this is the one that will be considered.<span class="code"> ALLOW_CGI 
+        </span> can also appear as <span class="code">ALLOW_FASTCGI</span>, <span class="code">ALLOW_ISAPI</span>, 
+        <span class="code">ALLOW_MSCGI</span> , <span class="code">ALLOW_WINCGI</span>, 
+        <span class="code">ALLOW_SEND_LINK, ALLOW_EXTERNAL_COMMANDS</span>, <span class="code">ALLOW_SEND_FILE</span>, 
+        eache of them denying/allowing the proper HTTP data handler to be used.<br />
+        <br /><br /> Log files can have extra options:<br />
+          <span class="code">&lt;ACCESSESLOG type="combined"&gt;logs/myServerHTTP.log&lt;/ACCESSESLOG&gt;</span> 
+          <br />
+          With this option, the logs will have two extra fields: HTTP Referer 
+          and HTTP User Agent.<br />
+          Using <span class="code">cycle="yes"</span> you will enable log cycler 
+          on the log file. When a log file with cycling enabled reaches the max 
+          size for log files it will write its content to a new file and recreate 
+          the original file. By default cycled log files uses the gzip compression 
+          to save space, if you don't want to use gzip specify <span class="code">cycle_gzip="no"</span>. 
+          <br />
+      <hr />
+        <p class="center">MyServer gives you the option to enable the HTTP TRACE 
+          command for each virtual host. All you need to do is edit the security.xml 
+          file of the root of your virtual host (not a subdirectory in it! if 
+          the file doesn't exist, you may create a new one, in the format described 
+          in the <a href="Security.html">Security</a> section of this documentation), 
+          and add the parameter</p>
+        <p class="code">&lt;HTTP TRACE="ON" /&gt;</p>
+        <p class="center">Once you do that, you enable HTTP TRACE command. By 
+          default, it's disabled (so, simply delete the line, if you want to disable 
+          it)</p>
+        <br /><br />
+
+<hr />
+MyServer offers the feature to follow symlinks on Unix-like Operating systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.).<br />
+You can add the symlink following feature for each virtual host in the virtualhosts.xml file.<br />
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+The default is: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+This value is used by default by MyServer.
+</td>
+</tr>
+</table>
+</body>
+</html>

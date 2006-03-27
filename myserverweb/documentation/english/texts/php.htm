@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Documentation - PHP - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">HOW TO USE PHP UNDER MYSERVER</h1>
+<br />
+PHP (Hypertext Preprocessor) is the most used server-side scripting
+language in the world. A server-side language is used to create web pages with
+dynamic content. You can use PHP with MyServer as either a standard CGI
+executable or as a FastCGI server. While using PHP like a CGI
+executable, MyServer will create a new process for every page
+requested. &nbsp;While using PHP in the FastCGI mode, MyServer does not
+require a new process for every request and, therefore, the server
+performs better. Please refer to the official <a
+ href="http://www.fastcgi.com/" target="_blank">FastCGI </a>site for
+more information about FastCGI.<br />
+<br />
+In order to use PHP, you must first download the installer from: <span class="code">
+<a href="http://www.php.net" target="_blank">www.php.net</a></span>.
+<p>With the last versions of PHP you will also need to modify
+the <span class="code">php.ini</span> file to set the
+cgi.force_redirect option to null. Find the line in the php
+configuration file:</p>
+<span  class="code">;cgi.force_redirect= 0</span>
+<p>and remove the first semicolon. <br />
+The line will then read:<br />
+</p>
+<span class="code">cgi.force_redirect = 0</span><br /><br />
+
+
+</td>
+</tr>
+</table>
+</body>
+</html>
