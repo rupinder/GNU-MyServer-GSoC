@@ -60,17 +60,17 @@ cp cgi-lib/cgi_manager.h $1/cgi-lib
 cp cgi-lib/license.txt $1/cgi-lib
 
 mkdir $1/web/documentation
-cp ../documentation/index.htm $1/web/documentation/
+cp ../documentation/english/index.htm $1/web/documentation/
 
 mkdir $1/web/documentation/texts
-cp ../documentation/texts/*.htm $1/web/documentation/texts/
+cp ../documentation/english/texts/*.htm $1/web/documentation/texts/
 
 mkdir $1/web/documentation/style
-cp ../documentation/style/*.css $1/web/documentation/style/
+cp ../documentation/english/style/*.css $1/web/documentation/style/
 
 mkdir $1/web/documentation/images
-cp ../documentation/images/*.png $1/web/documentation/images/
-cp ../documentation/images/*.jpg $1/web/documentation/images/
+cp ../documentation/english/images/*.png $1/web/documentation/images/
+cp ../documentation/english/images/*.jpg $1/web/documentation/images/
 
 
 if [  $# = 2 ]; then
@@ -78,5 +78,3 @@ tar -cvf $2.tar $1
 bzip2 $2.tar 
 rm -f -r $1
 fi
-
-
