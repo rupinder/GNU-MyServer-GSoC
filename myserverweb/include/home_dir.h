@@ -44,6 +44,6 @@ public:
 	void clear();
 	int load();
 	const string *getHomeDir(string& userName);
-
+	void getHomeDir(string& userName, string& out);
 };
 #endif

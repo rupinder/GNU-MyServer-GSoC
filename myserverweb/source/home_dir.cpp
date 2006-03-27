@@ -212,3 +212,35 @@ const string *HomeDir::getHomeDir(string& userName)
 	return data.get(userName);
 #endif
 }
+
+
+/*!
+ *Get the home directory for a specified user and write
+ *it directly to the supplied buffer.
+ *\param userName The user name.
+ *\param out The buffer where write.
+ */
+void HomeDir::getHomeDir(string& userName, string& out)
+{
+#ifdef WIN32
+  out.assign(data);
+  out.append("/");
+  out.append(userName);
+#else
+	string *res = 0;
+	if(!loaded)
+		return;
+	/* TODO: don't check always but wait some time before.  */
+	if(File::getLastModTime("/etc/passwd") != timestamp)
+		load();
+	res = data.get(userName);
+	if(res)
+	{
+		out.assign(*res);
+		out.append("/");
+		out.append(userName);
+	}
+	else
+		out.assign("");
+#endif
+}
