@@ -60,17 +60,17 @@ cp cgi-lib/cgi_manager.h $1/cgi-lib
 cp cgi-lib/license.txt $1/cgi-lib
 
 mkdir $1/web/documentation
-cp ../documentation/En/index.htm $1/web/documentation/
+cp ../documentation/index.htm $1/web/documentation/
 
 mkdir $1/web/documentation/texts
-cp ../documentation/En/texts/*.htm $1/web/documentation/texts/
+cp ../documentation/texts/*.htm $1/web/documentation/texts/
 
 mkdir $1/web/documentation/style
-cp ../documentation/En/style/*.css $1/web/documentation/style/
+cp ../documentation/style/*.css $1/web/documentation/style/
 
 mkdir $1/web/documentation/images
-cp ../documentation/En/images/*.png $1/web/documentation/images/
-cp ../documentation/En/images/*.jpg $1/web/documentation/images/
+cp ../documentation/images/*.png $1/web/documentation/images/
+cp ../documentation/images/*.jpg $1/web/documentation/images/
 
 
 if [  $# = 2 ]; then
