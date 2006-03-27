@@ -221,10 +221,9 @@ AC_CONFIG_FILES(Makefile \
   contrib/Makefile \
   contrib/rx/Makefile \
   documentation/Makefile \
-  documentation/english/Makefile \
-  documentation/english/images/Makefile \
-  documentation/english/style/Makefile \
-  documentation/english/texts/Makefile \
+  documentation/images/Makefile \
+  documentation/style/Makefile \
+  documentation/texts/Makefile \
   source/Makefile \
   CGI-LIB/Makefile)
 AC_OUTPUT
