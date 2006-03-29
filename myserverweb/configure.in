@@ -25,8 +25,6 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LDFLAGS)
 
-#dnl Options
-#AM_OPTIONS_WXCONFIG
 
 dnl Looking for argp.h
 AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are available]))
@@ -170,17 +168,6 @@ else
     MAKE_COUNTER=yes
 fi
 
-#dnl Looking for wxwindows
-#AM_PATH_WXCONFIG(2.4.0, have_wxwindows=yes)
-#if test x$have_wxwindows != xyes; then
-#    AC_MSG_WARN([
-#*** Cannot find wxWindows
-#*** control program will not be built
-#])
-#    MAKE_CONTROL=no
-#else
-#    MAKE_CONTROL=yes
-#fi
 
 dnl Looking for FLTK
 AM_PATH_FLTK(1.1.0, have_fltk=yes)
