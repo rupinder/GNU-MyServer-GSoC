@@ -220,6 +220,7 @@ AC_CONFIG_FILES(Makefile \
   control/Makefile \
   contrib/Makefile \
   contrib/rx/Makefile \
+  documentation/Makefile\
   documentation/english/Makefile \
   documentation/english/images/Makefile \
   documentation/english/style/Makefile \
