@@ -15,15 +15,17 @@
 <td class="center">
 <h1 class="title">CONTROL REMOTO</h1>
 MyServer permite cambiar su configuraci&oacute;n de manera remota, a trav&eacute;s de su aplicaci&oacute;n Centro de Control, desde cualquier parte del mundo. S&oacute;lo necesita habilitar el Protocolo de Control.<br /> <br /> Para ello, debe agregar un host virtual que usar&aacute; el Protocolo de Control. Puede hacer esto al modificar el archivo virtualhosts.xml, as&iacute; que se parece a:<br /> <br /> 
-<p class="code"> WARNINGLOG	Advertencia, Advertencia, ADVERTENCIA, Advertencia, Advertencia, ADVERTENCIA, Advertencia, Advertencia, ADVERTENCIA, Advertencia, Advertencia, Advertencia, Advertencia, Advertencia PROTOCOL	Nombre de protocolo, Protocolo, Protocolo, Protocolo, Protocolo, Protocolo, Protocolo, Protocolo server.pem	Servidores, Servidores, Servidores, Servidores, Servidores server.key	Servidores, Servidores, Servidores, Servidores, Servidores NAME	Nombre, Nombre, Nombre, Nombre completo, Nombre, Nombre, Nombre, Nombre, Nombre, Nombre, Nombre, Nombre, Nombre, Nombre, Nombre connection	Conexi&oacute;n, Conexi&oacute;n, Conexi&oacute;n, Conexi&oacute;n, Conexi&oacute;n, Conexi&oacute;n, Conexi&oacute;n&lt;VHOST&gt; <br /> &lt;NAME&gt;Every control connection&lt;/NAME&gt; <br /> &lt;PORT&gt;270&lt;/PORT&gt; <br /> &lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt; &nbsp;<br /> &lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE &gt; &nbsp;<br /> &lt;PROTOCOL&gt;CONTROL&lt;/PROTOCOL&gt; <br /> &lt;DOCROOT&gt;&lt;/DOCROOT&gt; <br /> &lt;SYSFOLDER&gt;&lt;/SYSFOLDER&gt; <br /> &lt;ACCESSESLOG&gt;logs/control.log&lt;/ACCESSESLOG&gt; <br /> &lt;WARNINGLOG&gt;logs/control.err&lt;/WARNINGLOG&gt; <br /> &lt;/VHOST&gt;&nbsp; </p> 
-<p>La l&iacute;nea <span class="code">&lt;PORT&gt;270&lt;/PORT&gt;</span> describe el puerto a usar para el acceso del Control Remoto. En el ejemplo de arriba puede acceder el Control Remoto de su servidor Web al conectarse a su host local en el puerto 270</p> 
-<p>Por favor note que certificates/server.key y certificates/server.pem se deben crear para poder usarlos. Consulte como crear llaves SSL para m&aacute;s informaci&oacute;n sobre el tema. <br /> 
-</p>
-<p>Tambi&eacute;n necesita modificar myserver.xml para establecer una contrase&ntilde;a de la administraci&oacute;n al agregar las siguientes l&iacute;neas:<br /> <br /> <span class="code">&lt;CONTROL_ENABLED&gt;YES&lt;/CONTROL_ENABLED&gt;&nbsp; <br /> &lt;CONTROL_ADMIN&gt;ADMIN&lt;/CONTROL_ADMIN&gt;&nbsp; <br /> &lt;CONTROL_PASSWORD&gt;PASSWORD&lt;/CONTROL_PASSWORD&gt;&nbsp; <br /></span></p> 
-<p>S&oacute;lo cambie el valor de ADMIN y PASSWORD para que se adapten a su nombre de administrador y contrase&ntilde;a, y recuerde usar YES en el par&aacute;metro CONTROL_ENABLED (de otra manera, no podr&aacute; usar el centro de Control Remoto.)<br /> 
-</p>
-      <p>Tambi&eacute;n define un nombre y una contrase&ntilde;a para el administrador, 
-        es mejor si NO usa palabras simples como admin o contrase&ntilde;a.</p> 
+      <span class="code"> &lt;VHOST&gt; <br />
+         &lt;NAME&gt;Every control connection&lt;/NAME&gt; <br /> &lt;PORT&gt;270&lt;/PORT&gt; <br /> &lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt; &nbsp;<br /> &lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE &gt; &nbsp;<br /> &lt;PROTOCOL&gt;CONTROL&lt;/PROTOCOL&gt; <br /> &lt;DOCROOT&gt;&lt;/DOCROOT&gt; <br /> &lt;SYSFOLDER&gt;&lt;/SYSFOLDER&gt; <br /> &lt;ACCESSESLOG&gt;logs/control.log&lt;/ACCESSESLOG&gt; <br /> &lt;WARNINGLOG&gt;logs/control.err&lt;/WARNINGLOG&gt; <br /> &lt;/VHOST&gt;&nbsp; 
+		 </span> 
+<br><br>La l&iacute;nea <span class="code">&lt;PORT&gt;270&lt;/PORT&gt;</span> describe el puerto a usar para el acceso del Control Remoto. En el ejemplo de arriba puede acceder el Control Remoto de su servidor Web al conectarse a su host local en el puerto 270</p> 
+<br><br>Por favor note que certificates/server.key y certificates/server.pem se deben crear para poder usarlos. Consulte como crear llaves SSL para m&aacute;s informaci&oacute;n sobre el tema. <br /> 
+
+<br><br>Tambi&eacute;n necesita modificar myserver.xml para establecer una contrase&ntilde;a de la administraci&oacute;n al agregar las siguientes l&iacute;neas:<br /> <br /> <span class="code">&lt;CONTROL_ENABLED&gt;YES&lt;/CONTROL_ENABLED&gt;&nbsp; <br /> &lt;CONTROL_ADMIN&gt;ADMIN&lt;/CONTROL_ADMIN&gt;&nbsp; <br /> &lt;CONTROL_PASSWORD&gt;PASSWORD&lt;/CONTROL_PASSWORD&gt;&nbsp; <br /></span></p> 
+<br><br>S&oacute;lo cambie el valor de ADMIN y PASSWORD para que se adapten a su nombre de administrador y contrase&ntilde;a, y recuerde usar YES en el par&aacute;metro CONTROL_ENABLED (de otra manera, no podr&aacute; usar el centro de Control Remoto.)<br /> 
+
+      <br><br>Tambi&eacute;n define un nombre y una contrase&ntilde;a para el administrador, 
+        es mejor si NO usa palabras simples como admin o contrase&ntilde;a.
 </td>
 </tr>
 </table>
