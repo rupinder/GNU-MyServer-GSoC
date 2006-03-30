@@ -2103,8 +2103,13 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				
 				if(documentRoot.length())
 				{
+					const char *homeDir = td.connection-> host ? 
+						td.connection->host->getHashedData("HOME_DIRECTORY") : 0;
+					if(homeDir == 0)
+						homeDir = "public_html";
 					td.vhostDir.assign(documentRoot);
-					td.vhostDir.append("/public_html");
+					td.vhostDir.append("/");
+					td.vhostDir.append(homeDir);
 					
 					if(!td.request.uriEndsWithSlash && !(td.request.uri.length() - pos))
 					{
