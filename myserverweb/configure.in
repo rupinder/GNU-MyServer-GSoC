@@ -14,7 +14,6 @@ AC_HEADER_STDC
 AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_RANLIB
-
 AC_PROG_LIBTOOL
 
 CFLAGS="$CFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
@@ -211,7 +210,8 @@ AC_CONFIG_FILES(Makefile \
   documentation/english/Makefile \
   documentation/english/images/Makefile \
   documentation/english/style/Makefile \
-  documentation/english/texts/Makefile \  
+  documentation/english/texts/Makefile \
   source/Makefile \
   CGI-LIB/Makefile)
+
 AC_OUTPUT
