@@ -120,3 +120,16 @@ void Pipe::close()
 	::close(handles[1]);
 #endif
 }
+
+/*!
+ *Invert the current pipe on another instance of the class.
+ *The input will be used as output and viceversa.
+ *\param pipe The pipe where write.
+ */
+void Pipe::inverted(Pipe& pipe)
+{
+#ifdef NOT_WIN
+	pipe.handles[0] = handles[1];
+	pipe.handles[1] = handles[0];
+#endif
+}
