@@ -310,7 +310,7 @@ int Process::isProcessAlive()
 int Process::execConcurrentProcess(StartProcInfo* spi)
 {
 	int ret;
-	pid=0;
+	pid = 0;
 #ifdef WIN32
 	/*!
    *Set the standard output values for the CGI process.

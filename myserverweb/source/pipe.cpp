@@ -116,8 +116,10 @@ long Pipe::getWriteHandle()
 void Pipe::close()
 {
 #ifdef NOT_WIN
-	::close(handles[0]);
-	::close(handles[1]);
+	if(handles[0])
+		::close(handles[0]);
+	if(handles[1])
+		::close(handles[1]);
 #endif
 }
 
@@ -131,5 +133,35 @@ void Pipe::inverted(Pipe& pipe)
 #ifdef NOT_WIN
 	pipe.handles[0] = handles[1];
 	pipe.handles[1] = handles[0];
+#endif
+}
+
+Pipe::Pipe()
+{
+#ifdef NOT_WIN
+	handles[0] = handles[1] = 0;
+#endif
+}
+
+/*!
+ *Close the read stream of the pipe.
+ */
+void Pipe::closeRead()
+{
+#ifdef NOT_WIN
+	if(handles[0])
+		::close(handles[0]);
+#endif
+
+}
+
+/*!
+ *Close the write stream of the pipe.
+ */
+void Pipe::closeWrite()
+{
+#ifdef NOT_WIN
+	if(handles[1])
+		::close(handles[1]);
 #endif
 }

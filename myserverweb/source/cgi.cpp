@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/utility.h"
 #include "../include/mem_buff.h"
 #include "../include/filters_chain.h"
+#include "../include/pipe.h"
 
 #include <string>
 #include <sstream>
@@ -62,9 +63,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
  	/* Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
 	int nph = 0;
 	ostringstream cmdLine;
-	int yetoutputted=0;
-  u_long nbw=0;
+  u_long nbw = 0;
+	u_long nbw2 = 0;
+
   FiltersChain chain;
+	Process cgiProc;
+	u_long procStartTime;
 
 	ostringstream outputDataPath;
 	StartProcInfo spi;
@@ -72,12 +76,15 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	string tmpCgiPath;
 	u_long nBytesRead;
 	u_long headerSize;
-	
+	int usechunks;
+	int keepalive;
+	int headerCompleted = 0;
+	u_long headerOffset = 0;
 	/*!
    *Standard CGI uses STDOUT to output the result and the STDIN 
    *to get other params like in a POST request.
    */
-	File stdOutFile;
+	Pipe stdOutFile;
 	File stdInFile;
 
 	td->scriptPath.assign(scriptpath);
@@ -87,13 +94,39 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     int x;
     int subString = cgipath[0] == '"';
     int len=strlen(cgipath);
-    for(x=1;x<len;x++)
+    for(x = 1; x < len; x++)
     {
-      if(!subString && cgipath[x]==' ')
+      if(!subString && cgipath[x] == ' ')
         break;
-      if(cgipath[x]=='"')
+      if(cgipath[x] == '"')
         subString = !subString;
     }
+
+
+		{
+			HttpRequestHeader::Entry* e = td->request.other.get("Connection");
+			if(e)
+				keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
+			else
+				keepalive = 0;
+		}
+
+		/* Do not use chunked transfer with old HTTP/1.0 clients.  */
+		if(keepalive)
+    {
+			HttpResponseHeader::Entry *e;
+			e = td->response.other.get("Transfer-Encoding");
+			if(e)
+				e->value->assign("chunked");
+			else
+  		{
+				e = new HttpResponseHeader::Entry();
+				e->name->assign("Transfer-Encoding");
+				e->value->assign("chunked");
+				td->response.other.put(*(e->name), e);
+			}
+			usechunks=1;
+		}
 
     /*
      *Save the cgi path and the possible arguments.
@@ -104,8 +137,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     if(x<len)
     {
       string tmpString(cgipath);
-      int begin = tmpString[0]=='"' ? 1: 0;
-      int end = tmpString[x]=='"' ? x: x-1;
+      int begin = tmpString[0] == '"' ? 1: 0;
+      int end = tmpString[x] == '"' ? x: x-1;
       tmpCgiPath.assign(tmpString.substr(begin, end-1));
       moreArg.assign(tmpString.substr(x, len-1));  
     }
@@ -134,7 +167,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
         td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("Cgi: Error loading filters");
         td->connection->host->warningslogTerminateAccess(td->id);
-        stdOutFile.closeFile();
         chain.clearAllFilters(); 
         return td->http->raiseHTTPError(e_500);
       }
@@ -158,9 +190,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     if(td->scriptFile.length()>4 && td->scriptFile[0]=='n'
 			 && td->scriptFile[1]=='p' && td->scriptFile[2]=='h' 
 			 && td->scriptFile[3]=='-' )
-      nph=1; 
+      nph = 1; 
     else
-      nph=0;
+      nph = 0;
 
     if(cgipath && strlen(cgipath))
     {
@@ -228,9 +260,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     
     if(td->cgiFile.length()>4 && td->cgiFile[0]=='n'  && td->cgiFile[1]=='p'
                               && td->cgiFile[2]=='h' && td->cgiFile[3]=='-' )
-      nph=1;
+      nph = 1;
     else
-      nph=0;
+      nph = 0;
 	}
 
 	/*
@@ -245,7 +277,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   /*
    *Open the stdout file for the new CGI process. 
    */
-	if(stdOutFile.createTemporaryFile( outputDataPath.str().c_str() ))
+
+	if(stdOutFile.create())
 	{
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite
@@ -262,7 +295,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("Cgi: Cannot open CGI stdin file");
 		td->connection->host->warningslogTerminateAccess(td->id);
-		stdOutFile.closeFile();
+		stdOutFile.close();
     chain.clearAllFilters(); 
 		return td->http->raiseHTTPError(e_500);
   }
@@ -272,7 +305,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
    *by the execHiddenProcess(...) function.
    *Use the td->buffer2 to build the environment string.
    */
-	(td->buffer2->getBuffer())[0]='\0';
+	(td->buffer2->getBuffer())[0] = '\0';
 	buildCGIEnvironmentString(td, td->buffer2->getBuffer());
   
 	/*
@@ -283,18 +316,17 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	spi.cmdLine = cmdLine.str();
 	spi.cwd.assign(td->scriptDir);
 
-	spi.stdError = stdOutFile.getHandle();
+	spi.stdError = stdOutFile.getWriteHandle();
 	spi.stdIn = stdInFile.getHandle();
-	spi.stdOut = stdOutFile.getHandle();
+	spi.stdOut = stdOutFile.getWriteHandle();
 	spi.envString=td->buffer2->getBuffer();
   
   /* Execute the CGI process. */
   {
-    Process cgiProc;
-    if( cgiProc.execHiddenProcess(&spi, cgiTimeout) )
+    if( cgiProc.execConcurrentProcess(&spi) == -1)
     {
       stdInFile.closeFile();
-      stdOutFile.closeFile();
+      stdOutFile.close();
       td->connection->host->warningslogRequestAccess(td->id);
       td->connection->host->warningsLogWrite
                                        ("Cgi: Error in the CGI execution");
@@ -302,220 +334,314 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       chain.clearAllFilters(); 
       return td->http->raiseHTTPError(e_500);
     }
+		/* Close the write stream of the pipe on the server.  */
+		stdOutFile.closeWrite();
+		
+		procStartTime = get_ticks();
   }
   /* Reset the buffer2 length counter. */
 	td->buffer2->setLength(0);
 
 	/* Read the CGI output.  */
-	nBytesRead=0;
+	nBytesRead = 0;
 
-  /* Return an internal error if we cannot seek on the file. */
-	if(stdOutFile.setFilePointer(0))
-  {
-    stdInFile.closeFile();
-		stdOutFile.closeFile();
-		td->connection->host->warningslogRequestAccess(td->id);
-		td->connection->host->warningsLogWrite
-                               ("Cgi: Error setting file pointer");
-		td->connection->host->warningslogTerminateAccess(td->id);
-    chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
-  }
-  
-  if(stdOutFile.readFromFile(td->buffer2->getBuffer(), 
-                             td->buffer2->getRealLength()-1, &nBytesRead))
-  {
-    stdInFile.closeFile();
-		stdOutFile.closeFile();
-		td->connection->host->warningslogRequestAccess(td->id);
-		td->connection->host->warningsLogWrite
-                               ("Cgi: Error reading from CGI std out file");
-		td->connection->host->warningslogTerminateAccess(td->id);
-    chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
-  }
-		
-	(td->buffer2->getBuffer())[nBytesRead]='\0';
-		
-	if(nBytesRead==0)
+
+	while(!headerCompleted)
 	{
-		td->connection->host->warningslogRequestAccess(td->id);
-		td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read" );
-		td->connection->host->warningslogTerminateAccess(td->id);
-		td->http->raiseHTTPError(e_500);
-		yetoutputted=1;
-	}
-	/* Standard CGI can include an extra HTTP header.  */
-	headerSize=0;
-  nbw=0;
-	for(u_long i=0; i<nBytesRead; i++)
-	{
-		char *buff=td->buffer2->getBuffer();
-		if( (buff[i]=='\r') && (buff[i+1]=='\n') 
-        && (buff[i+2]=='\r') && (buff[i+3]=='\n') )
+		if(stdOutFile.read(td->buffer2->getBuffer() + headerOffset, 
+											 td->buffer2->getRealLength()-headerOffset-1, 
+											 &nBytesRead))
 		{
-			/*
-       *The HTTP header ends with a \r\n\r\n sequence so 
-       *determinate where it ends and set the header size
-       *to i + 4.
-       */
-			headerSize= i + 4 ;
-			break;
+			stdInFile.closeFile();
+			stdOutFile.close();
+			td->connection->host->warningslogRequestAccess(td->id);
+			td->connection->host->warningsLogWrite
+				("Cgi: Error reading from CGI std out file");
+			td->connection->host->warningslogTerminateAccess(td->id);
+			chain.clearAllFilters(); 
+			return td->http->raiseHTTPError(e_500);
 		}
-    else if((buff[i]=='\n') && (buff[i+1]=='\n'))
-    {
-      /*
-       *\n\n case.
-       */
-      headerSize= i + 2;
-      break;
-    }
-		/* If it is present Location: xxx in the header send a redirect to xxx.  */
-		else if(!strncmp(&(td->buffer2->getBuffer())[i], "Location:", 9))
+		headerOffset += nBytesRead;
+
+		if(headerOffset > td->buffersize2 - 5)
+			(td->buffer2->getBuffer())[headerOffset] = '\0';
+		
+		if(nBytesRead == 0 && headerOffset == 0)
 		{
-      /* If no other data was send, send the redirect. */
-			if(!yetoutputted)
+			td->connection->host->warningslogRequestAccess(td->id);
+			td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read");
+			td->connection->host->warningslogTerminateAccess(td->id);
+			td->http->raiseHTTPError(e_500);
+			stdOutFile.close();
+			stdInFile.closeFile();
+			chain.clearAllFilters(); 
+			cgiProc.terminateProcess();
+			return 0;
+		}
+
+		/* Standard CGI can include an extra HTTP header.  */
+		headerSize = 0;
+		nbw = 0;
+		for(u_long i = 0; i < headerOffset; i++)
+		{
+			char *buff = td->buffer2->getBuffer();
+			if( (buff[i]=='\r') && (buff[i+1]=='\n') 
+					&& (buff[i+2]=='\r') && (buff[i+3]=='\n') )
 			{
-        string nURL;
-        u_long len = 0;
-
-        while( (td->buffer2->getBuffer())[i + len + 9] != '\r' )
-        {
-            len++;
-        }
-        nURL.assign(&(td->buffer2->getBuffer()[i + 9]), len);
+				/*
+				 *The HTTP header ends with a \r\n\r\n sequence so 
+				 *determinate where it ends and set the header size
+				 *to i + 4.
+				 */
+				headerSize = i + 4 ;
+				headerCompleted = 1;
+				break;
+			}
+			else if((buff[i]=='\n') && (buff[i+1]=='\n'))
+			{
+				/*
+				 *\n\n case.
+				 */
+				headerSize = i + 2;
+				headerCompleted = 1;
+				break;
+			}
+			/*
+			 *If it is present Location: xxx in the header 
+			 *send a redirect to xxx.  
+			 */
+			else if(!strncmp(&(td->buffer2->getBuffer())[i], "Location:", 9))
+			{
+				string nURL;
+				u_long len = 0;
+				while( (td->buffer2->getBuffer())[i + len + 9] != '\r' )
+				{
+					len++;
+				}
+				nURL.assign(&(td->buffer2->getBuffer()[i + 9]), len);
 				td->http->sendHTTPRedirect(nURL.c_str());
-        /* Store the new flag.  */
-        yetoutputted=1;
-
-      }
+				stdOutFile.close();
+				stdInFile.closeFile();
+				chain.clearAllFilters(); 
+				cgiProc.terminateProcess();
+				return 1;
+			}
 		}
-	}
 
-	if(!yetoutputted)
-	{
-    u_long nbw2=0;
-		HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
+		if(nBytesRead == 0 && (int)(get_ticks() - procStartTime) > 100)
+			break;
 		
-		if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
-		  td->response.connection.assign("keep-alive");
-		/*
-     *Do not send any other HTTP header if the CGI executable
-     *has the nph-. form name.  
-     */
-		if(nph)
+		if(!headerSize)
+			continue;
+		
+		if((int)(get_ticks() - procStartTime) > cgiTimeout)
+			break;
+			
 		{
-			/* Resetting the structure we send only the information gived by the CGI.  */
-			HttpHeaders::resetHTTPResponse(&(td->response));
-      td->response.ver.assign(td->request.ver.c_str());
-		}
-
-    /* If we have not to append the output send data directly to the client.  */
-		if(!td->appendOutputs)
+			HttpRequestHeader::Entry *connection = 
+				td->request.other.get("Connection");
+				
+			if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
+				td->response.connection.assign("keep-alive");
+			/*
+			 *Do not send any other HTTP header if the CGI executable
+			 *has the nph-. form name.  
+			 */
+			if(nph)
+			{
+				/*
+				 *Resetting the structure we send only the information gived 
+				 *by the CGI.  
+				 */
+				HttpHeaders::resetHTTPResponse(&(td->response));
+				td->response.ver.assign(td->request.ver.c_str());
+			}
+				
+			/*
+			 *If we have not to append the output send data 
+			 *directly to the client.  
+			 */
+			if(!td->appendOutputs)
+			{
+				/* Send the header.  */
+				if(headerSize)
+					HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
+																								 td->buffer2->getBuffer());
+					
+				HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
+																						 &td->response);
+				
+				td->buffer->setLength((u_int)strlen(td->buffer->getBuffer()));
+				
+				if(chain.write(td->buffer->getBuffer(),
+											 static_cast<int>(td->buffer->getLength()), &nbw2))
+				{
+					stdInFile.closeFile();
+					stdOutFile.close();
+					chain.clearAllFilters(); 
+					/* Remove the connection on sockets error. */
+					cgiProc.terminateProcess();
+					return 0;
+				}
+				
+				if(onlyHeader)
+				{
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					cgiProc.terminateProcess();
+					return 1;
+				}
+			}
+		}//header. 
+		
+		if(headerOffset-headerSize)
 		{
-      ostringstream tmp;
-      /* Send the header.  */
-			if(headerSize)
-				HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
-                                                    td->buffer2->getBuffer());
-      /*! Always specify the size of the HTTP contents.  */
-			tmp << (u_int) (stdOutFile.getFileSize()-headerSize);
-      td->response.contentLength.assign(tmp.str());
-			HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
-                                            &td->response);
-
-			td->buffer->setLength((u_int)strlen(td->buffer->getBuffer()));
-
-			if(s->socket.send(td->buffer->getBuffer(),
-                        static_cast<int>(td->buffer->getLength()), 0)==SOCKET_ERROR)
-      {
-        stdInFile.closeFile();
-        stdOutFile.closeFile();
-        chain.clearAllFilters(); 
-        /* Remove the connection on sockets error. */
-        return 0;
-      }
-      if(onlyHeader)
-      {
-        stdOutFile.closeFile();
-        stdInFile.closeFile();
-        chain.clearAllFilters(); 
-        return 1;
-      }
-
-      /* Send other remaining data in the buffer. */
+			if(usechunks)
+			{
+				ostringstream tmp;
+				tmp << hex << (u_int) (headerOffset-headerSize) << "\r\n";
+				td->response.contentLength.assign(tmp.str());
+				if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+				{
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;       
+				}
+			}
+			
+			/* Send other remaining data in the buffer. */
 			if(chain.write((td->buffer2->getBuffer() + headerSize), 
-                        nBytesRead-headerSize, &nbw2))
-      {
-        stdOutFile.closeFile();
-        stdInFile.closeFile();
-        chain.clearAllFilters(); 
-        /* Remove the connection on sockets error.  */
-        return 0;       
-      }
-      nbw += nbw2;
+										 nBytesRead-headerSize, &nbw2))
+			{
+				stdOutFile.close();
+				stdInFile.closeFile();
+				chain.clearAllFilters(); 
+				/* Remove the connection on sockets error.  */
+				cgiProc.terminateProcess();
+				return 0;       
+			}
+			
+			nbw += nbw2;
+			
+			if(usechunks)
+			{
+				if(chain.write("\r\n", 2, &nbw2))
+				{
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;       
+				}
+			}
 		}
-		else
-    {
-      if(onlyHeader)
-      {
-        stdOutFile.closeFile();
-        stdInFile.closeFile();
-        chain.clearAllFilters(); 
-        return 1;
-      }
-
-      /* Do not put the HTTP header if appending.  */
-			td->outputData.writeToFile(td->buffer2->getBuffer()+headerSize, 
-                                 nBytesRead-headerSize, &nbw2);
-      nbw += nbw2;
-    }
-    do
-    {
-      /* Flush other data.  */
-      if(stdOutFile.readFromFile(td->buffer2->getBuffer(), 
-                                 td->buffer2->getRealLength(), &nBytesRead))
-      {
-        stdOutFile.closeFile();
-        stdInFile.closeFile();
-        chain.clearAllFilters(); 
-        /* Remove the connection on sockets error.  */
-        return 0;      
-      }
-      if(nBytesRead)
-      {
-
-        if(!td->appendOutputs)
-        {
-          if(chain.write(td->buffer2->getBuffer(), nBytesRead, &nbw2))
-          {
-            stdOutFile.closeFile();
-            stdInFile.closeFile();
-            chain.clearAllFilters(); 
-            /* Remove the connection on sockets error.  */
-            return 0;      
-          }
-          nbw += nbw2;
-        }
-        else
-        {
-          if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
-                                        nBytesRead, &nbw2))
-          {
-            stdOutFile.closeFile();
-            stdInFile.closeFile();
-            chain.clearAllFilters(); 
-            File::deleteFile(td->inputDataPath);
-            /* Remove the connection on sockets error.  */
-            return 0;      
-          }
-          nbw += nbw2;
-        }
-      }
-
-		}while(nBytesRead);
-
 	}
+
+	do
+  {
+		/* Process timeout.  */
+		if((int)(get_ticks() - procStartTime) > cgiTimeout)
+		{
+			stdOutFile.close();
+			stdInFile.closeFile();
+			chain.clearAllFilters(); 
+			/* Remove the connection on sockets error.  */
+			cgiProc.terminateProcess();
+			return 0;       
+		}
+		
+		/* Flush other data.  */
+		if(stdOutFile.read(td->buffer2->getBuffer(), 
+											 td->buffer2->getRealLength(), &nBytesRead))
+    {
+			stdOutFile.close();
+			stdInFile.closeFile();
+			chain.clearAllFilters(); 
+			/* Remove the connection on sockets error.  */
+			cgiProc.terminateProcess();
+			return 0;      
+		}
+
+		if(nBytesRead)
+		{
+			if(!td->appendOutputs)
+      {
+				if(usechunks)
+				{
+					ostringstream tmp;
+					tmp << hex << (u_int) (nBytesRead-headerSize) << "\r\n";
+					td->response.contentLength.assign(tmp.str());
+					if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+				 	{
+						stdOutFile.close();
+						stdInFile.closeFile();
+						chain.clearAllFilters(); 
+						/* Remove the connection on sockets error.  */
+						cgiProc.terminateProcess();
+						return 0;       
+					}
+				}
+
+				if(chain.write(td->buffer2->getBuffer(), nBytesRead, &nbw2))
+        {
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;      
+				}
+				nbw += nbw2;
+				
+				if(usechunks)
+				{
+					if(chain.write("\r\n", 2, &nbw2))
+					{
+						stdOutFile.close();
+						stdInFile.closeFile();
+						chain.clearAllFilters(); 
+						/* Remove the connection on sockets error.  */
+						cgiProc.terminateProcess();
+						return 0;       
+					}
+				}
+			}
+			else
+       {
+				 if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
+																			 nBytesRead, &nbw2))
+				 {
+					 stdOutFile.close();
+					 stdInFile.closeFile();
+					 chain.clearAllFilters(); 
+					 File::deleteFile(td->inputDataPath);
+					 /* Remove the connection on sockets error.  */
+					 cgiProc.terminateProcess();
+					 return 0;      
+				 }
+				 nbw += nbw2;
+			 }
+		}
+		
+	}while(nBytesRead || cgiProc.isProcessAlive());
+
+	if(usechunks)
+		if(chain.write("0\r\n\r\n", 5, &nbw2))
+		{
+			stdOutFile.close();
+			stdInFile.closeFile();
+			chain.clearAllFilters(); 
+			/* Remove the connection on sockets error.  */
+			cgiProc.terminateProcess();
+			return 0;       
+		}
+
+
    /* Update the Content-Length field for logging activity.  */
   {
     ostringstream buffer;
@@ -523,9 +649,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     td->response.contentLength.assign(buffer.str());
   }
   chain.clearAllFilters(); 	
+
+	cgiProc.terminateProcess();
 	
   /* Close the stdin and stdout files used by the CGI.  */
-	stdOutFile.closeFile();
+	stdOutFile.close();
 	stdInFile.closeFile();
 	
 	/* Delete the file only if it was created by the CGI module.  */
