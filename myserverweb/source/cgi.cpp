@@ -316,9 +316,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	spi.cmdLine = cmdLine.str();
 	spi.cwd.assign(td->scriptDir);
 
-	spi.stdError = stdOutFile.getWriteHandle();
-	spi.stdIn = stdInFile.getHandle();
-	spi.stdOut = stdOutFile.getWriteHandle();
+	spi.stdError = (FileHandle) stdOutFile.getWriteHandle();
+	spi.stdIn = (FileHandle) stdInFile.getHandle();
+	spi.stdOut = (FileHandle) stdOutFile.getWriteHandle();
 	spi.envString=td->buffer2->getBuffer();
   
   /* Execute the CGI process. */

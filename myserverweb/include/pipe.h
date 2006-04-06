@@ -31,6 +31,9 @@ class Pipe : public Stream
 private:
 #ifdef NOT_WIN
 	int handles[2];
+#else
+  HANDLE readHandle;
+  HANDLE writeHandle;
 #endif
 public:
 	Pipe();

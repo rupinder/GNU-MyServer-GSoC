@@ -35,6 +35,8 @@ extern "C" {
 #include <math.h>
 #include <time.h>
 }
+#else
+#include <windows.h>
 #endif
 
 #include <string>
@@ -56,6 +58,8 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
 		return 1;
 	else
 		*nbr = (u_long)ret;
+#else
+ return !ReadFile(readHandle, buffer, len, nbr, NULL);
 #endif
 	return 0;
 }
@@ -68,6 +72,8 @@ int Pipe::create()
 {
 #ifdef NOT_WIN
 	return pipe(handles);
+#else
+  return !CreatePipe(&readHandle, &writeHandle, NULL, 0);
 #endif
 }
 
@@ -85,6 +91,8 @@ int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 		return 1;
 	else
 		*nbw = (u_long) ret;
+#else
+  return !WriteFile(writeHandle, buffer, len, nbw, NULL);
 #endif
 	return 0;
 }
@@ -96,6 +104,8 @@ long Pipe::getReadHandle()
 {
 #ifdef NOT_WIN
 	return handles[0];
+#else
+  return (long)readHandle;
 #endif
 }
 
@@ -106,6 +116,8 @@ long Pipe::getWriteHandle()
 {
 #ifdef NOT_WIN
 	return handles[1];
+#else
+  return (long)writeHandle;
 #endif
 }
 
@@ -120,6 +132,13 @@ void Pipe::close()
 		::close(handles[0]);
 	if(handles[1])
 		::close(handles[1]);
+  handles[0] = handles[1] = 0;
+#else
+  if(readHandle)
+    CloseHandle(readHandle);
+  if(writeHandle)
+    CloseHandle(writeHandle);
+  readHandle = writeHandle = 0;
 #endif
 }
 
@@ -133,6 +152,9 @@ void Pipe::inverted(Pipe& pipe)
 #ifdef NOT_WIN
 	pipe.handles[0] = handles[1];
 	pipe.handles[1] = handles[0];
+#else
+  pipe.readHandle = writeHandle;
+  pipe.writeHandle = readHandle;
 #endif
 }
 
@@ -140,6 +162,8 @@ Pipe::Pipe()
 {
 #ifdef NOT_WIN
 	handles[0] = handles[1] = 0;
+#else
+  readHandle = writeHandle = 0;
 #endif
 }
 
@@ -151,6 +175,11 @@ void Pipe::closeRead()
 #ifdef NOT_WIN
 	if(handles[0])
 		::close(handles[0]);
+  handles[0] = 0;
+#else
+  if(readHandle)
+    CloseHandle(readHandle);
+  readHandle = 0;
 #endif
 
 }
@@ -163,5 +192,10 @@ void Pipe::closeWrite()
 #ifdef NOT_WIN
 	if(handles[1])
 		::close(handles[1]);
+	handles[1] = 0;
+#else
+  if(writeHandle)
+    CloseHandle(writeHandle);
+    writeHandle = 0;
 #endif
 }

@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=111
+UnitCount=113
 Type=1
 Ver=1
 ObjFiles=
@@ -1192,6 +1192,26 @@ BuildCmd=
 
 [Unit111]
 FileName=source\home_dir.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit112]
+FileName=source\pipe.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit113]
+FileName=include\pipe.h
 CompileCpp=1
 Folder=myserver
 Compile=1
