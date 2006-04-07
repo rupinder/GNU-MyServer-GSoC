@@ -494,13 +494,13 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				}
 			}
 		}//header. 
-		
+
 		if(headerOffset-headerSize)
 		{
 			if(usechunks)
 			{
 				ostringstream tmp;
-				tmp << hex << (u_int) (headerOffset-headerSize) << "\r\n";
+				tmp << hex << (headerOffset-headerSize) << "\r\n";
 				td->response.contentLength.assign(tmp.str());
 				if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
 				{
@@ -574,7 +574,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				if(usechunks)
 				{
 					ostringstream tmp;
-					tmp << hex << (u_int) (nBytesRead-headerSize) << "\r\n";
+					tmp << hex <<  nBytesRead << "\r\n";
 					td->response.contentLength.assign(tmp.str());
 					if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
 				 	{
@@ -640,7 +640,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			cgiProc.terminateProcess();
 			return 0;       
 		}
-
 
    /* Update the Content-Length field for logging activity.  */
   {
