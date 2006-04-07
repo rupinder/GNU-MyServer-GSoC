@@ -93,7 +93,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     /* Do not modify the text between " and ". */
     int x;
     int subString = cgipath[0] == '"';
-    int len=strlen(cgipath);
+    int len = strlen(cgipath);
     for(x = 1; x < len; x++)
     {
       if(!subString && cgipath[x] == ' ')
@@ -125,7 +125,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				e->value->assign("chunked");
 				td->response.other.put(*(e->name), e);
 			}
-			usechunks=1;
+			usechunks = 1;
 		}
 
     /*
@@ -174,7 +174,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	
   if(execute)
   {
-    const char *args=0;
+    const char *args = 0;
     if(td->request.uriOpts.length())
       args = td->request.uriOpts.c_str();
     else if(td->pathInfo.length())
@@ -187,9 +187,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       cmdLine << td->scriptDir << "/" << td->scriptFile << " " 
 							<< moreArg << " " << (args ? args : "" );
 
-    if(td->scriptFile.length()>4 && td->scriptFile[0]=='n'
-			 && td->scriptFile[1]=='p' && td->scriptFile[2]=='h' 
-			 && td->scriptFile[3]=='-' )
+    if(td->scriptFile.length() > 4 && td->scriptFile[0] == 'n'
+			 && td->scriptFile[1] == 'p' && td->scriptFile[2] == 'h' 
+			 && td->scriptFile[3] == '-' )
       nph = 1; 
     else
       nph = 0;
@@ -258,8 +258,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
     spi.cmd.append("/");
     spi.cmd.append(td->cgiFile);
     
-    if(td->cgiFile.length()>4 && td->cgiFile[0]=='n'  && td->cgiFile[1]=='p'
-                              && td->cgiFile[2]=='h' && td->cgiFile[3]=='-' )
+    if(td->cgiFile.length() > 4 && td->cgiFile[0] == 'n'  
+			 && td->cgiFile[1] == 'p' && td->cgiFile[2] == 'h' 
+			 && td->cgiFile[3] == '-' )
       nph = 1;
     else
       nph = 0;
@@ -319,7 +320,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	spi.stdError = (FileHandle) stdOutFile.getWriteHandle();
 	spi.stdIn = (FileHandle) stdInFile.getHandle();
 	spi.stdOut = (FileHandle) stdOutFile.getWriteHandle();
-	spi.envString=td->buffer2->getBuffer();
+	spi.envString = td->buffer2->getBuffer();
   
   /* Execute the CGI process. */
   {
@@ -385,8 +386,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		for(u_long i = 0; i < headerOffset; i++)
 		{
 			char *buff = td->buffer2->getBuffer();
-			if( (buff[i]=='\r') && (buff[i+1]=='\n') 
-					&& (buff[i+2]=='\r') && (buff[i+3]=='\n') )
+			if( (buff[i] == '\r') && (buff[i+1] == '\n') 
+					&& (buff[i+2] == '\r') && (buff[i+3] == '\n') )
 			{
 				/*
 				 *The HTTP header ends with a \r\n\r\n sequence so 
@@ -397,7 +398,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				headerCompleted = 1;
 				break;
 			}
-			else if((buff[i]=='\n') && (buff[i+1]=='\n'))
+			else if((buff[i] == '\n') && (buff[i+1] == '\n'))
 			{
 				/*
 				 *\n\n case.
@@ -729,11 +730,11 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 	}
 	else
 	{
-		u_long fs=0;
+		u_long fs = 0;
     ostringstream stream;
  
 		if(td->inputData.getHandle())
-			fs=td->inputData.getFileSize();
+			fs = td->inputData.getFileSize();
 
     stream << fs;
 
@@ -784,7 +785,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 		memCgi << td->connection->getLogin();
 	}
 	
-	if(td->connection->host->getProtocol()==PROTOCOL_HTTPS)
+	if(td->connection->host->getProtocol() == PROTOCOL_HTTPS)
 		memCgi << end_str << "SSL=ON";
 	else
 		memCgi << end_str << "SSL=OFF";

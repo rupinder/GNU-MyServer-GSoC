@@ -55,9 +55,9 @@ extern "C" {
  */
 ClientsThread::ClientsThread()
 {
-  parsing=0;
-	err=0;
-	initialized=0;
+  parsing = 0;
+	err = 0;
+	initialized = 0;
   next = 0;
   toDestroy = 0;
   staticThread = 0;
@@ -86,7 +86,7 @@ int ClientsThread::getTimeout()
  */
 void ClientsThread::setTimeout(int new_timeout)
 {
-  timeout=new_timeout;
+  timeout = new_timeout;
 }
 
 /*!
@@ -125,7 +125,8 @@ void * startClientsThread(void* pParam)
   return (void*)1;
 #endif
 
-  if(Server::getInstance()->getUid() && Process::setuid(Server::getInstance()->getUid()))
+  if(Server::getInstance()->getUid() && 
+		 Process::setuid(Server::getInstance()->getUid()))
   {
     ostringstream out;
     out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR") 
@@ -137,7 +138,8 @@ void * startClientsThread(void* pParam)
     return 0;
 
   }	
-  if(Server::getInstance()->getGid() && Process::setgid(Server::getInstance()->getGid()))
+  if(Server::getInstance()->getGid() && 
+		 Process::setgid(Server::getInstance()->getGid()))
   {
     ostringstream out;
     out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
@@ -149,8 +151,8 @@ void * startClientsThread(void* pParam)
     return 0;
   }	
 
-	ct->threadIsRunning=1;
-	ct->threadIsStopped=0;
+	ct->threadIsRunning = 1;
+	ct->threadIsStopped = 0;
 	ct->buffersize=Server::getInstance()->getBuffersize();
 	ct->buffersize2=Server::getInstance()->getBuffersize2();
 	
@@ -164,7 +166,7 @@ void * startClientsThread(void* pParam)
   ct->https_parser = 0;
   ct->control_protocol_parser = 0;
 
-	ct->initialized=1;
+	ct->initialized = 1;
 
   /* Reset first 1024 bytes for thread buffers.  */
 	memset((char*)ct->buffer.getBuffer(), 0, 
@@ -299,7 +301,7 @@ int ClientsThread::controlConnections()
    *Get the access to the connections list.
    */
 	Server::getInstance()->connections_mutex_lock();
-	c=Server::getInstance()->getConnection(this->id);
+	c = Server::getInstance()->getConnection(this->id);
 	
 	/*
    *Check if c exists.
@@ -330,7 +332,7 @@ int ClientsThread::controlConnections()
   if(c->socket.dataOnRead())
     nBytesToRead = c->socket.bytesToRead();
   else
-    nBytesToRead = 0 ;
+    nBytesToRead = 0;
 
 	if(nBytesToRead || c->getForceParsing())
 	{
@@ -342,14 +344,14 @@ int ClientsThread::controlConnections()
     /* Refresh with the right value.  */
     nBytesToRead = c->getDataRead() + err;
 
-		if(err==-1)
+		if(err == -1)
 		{
 			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
  		if((c->getDataRead() + err) <= MYSERVER_KB(8))
 		{
-			((char*)buffer.getBuffer())[c->getDataRead() + err]='\0';
+			((char*)buffer.getBuffer())[c->getDataRead() + err] = '\0';
 		}
 		else
 		{
@@ -359,7 +361,7 @@ int ClientsThread::controlConnections()
 
 		buffer.setBuffer(c->connectionBuffer, c->getDataRead());
 
-		c->thread=this;
+		c->thread = this;
     try
     {
       switch(((Vhost*)(c->host))->getProtocol())
@@ -372,49 +374,52 @@ int ClientsThread::controlConnections()
         if(http_parser == 0)
         {
           http_parser = new Http();
-          if(http_parser==0)
+          if(!http_parser)
             return 0;
         }
-				retcode=http_parser->controlConnection(c, (char*)buffer.getBuffer(), 
-                               (char*)buffer2.getBuffer(), buffer.getRealLength(), 
-                               buffer2.getRealLength(), nBytesToRead, id);
+				retcode = http_parser->controlConnection(c, (char*)buffer.getBuffer(), 
+													 (char*)buffer2.getBuffer(), buffer.getRealLength(), 
+																	 buffer2.getRealLength(), nBytesToRead, id);
  				break;
         /*
          *Parse an HTTPS connection request.
          */
 			  case PROTOCOL_HTTPS:
-          if(https_parser == 0)
+          if(!https_parser)
           {
             https_parser = new Https();
-            if(https_parser==0)
+            if(!https_parser)
               return 0;
           }
-          retcode=https_parser->controlConnection(c, (char*)buffer.getBuffer(), 
-                               (char*)buffer2.getBuffer(), buffer.getRealLength(), 
-                                buffer2.getRealLength(), nBytesToRead, id);
+          retcode = https_parser->controlConnection(c, 
+																										(char*)buffer.getBuffer(), 
+																									(char*)buffer2.getBuffer(), 
+																										buffer.getRealLength(), 
+																										buffer2.getRealLength(), 
+																										nBytesToRead, id);
           break;
 			  case PROTOCOL_CONTROL:
-          if(control_protocol_parser == 0)
+          if(!control_protocol_parser)
           {
             control_protocol_parser = new ControlProtocol();
-            if(control_protocol_parser == 0)
+            if(!control_protocol_parser)
               return 0;
           }
-          retcode=control_protocol_parser->controlConnection(c, 
+          retcode = control_protocol_parser->controlConnection(c, 
                        (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
                        buffer.getRealLength(), buffer2.getRealLength(), 
-                                                             nBytesToRead, id);
+																												nBytesToRead, id);
           break;
 		  	default:
-          dp=Server::getInstance()->getDynProtocol(((Vhost*)(c->host))->getProtocolName());
-			  	if(dp==0)
+          dp = Server::getInstance()->getDynProtocol(((Vhost*)(c->host))->getProtocolName());
+			  	if(!dp)
 			  	{
-			  		retcode=0;
+			  		retcode = 0;
 			  	}
 			  	else
 				  {
-				  	retcode=dp->controlConnection(c, (char*)buffer.getBuffer(), 
-                    (char*)buffer2.getBuffer(), buffer.getRealLength(), 
+				  	retcode = dp->controlConnection(c, (char*)buffer.getBuffer(), 
+											(char*)buffer2.getBuffer(), buffer.getRealLength(), 
                     buffer2.getRealLength(), nBytesToRead, id);
 				  }
           break;
@@ -422,7 +427,7 @@ int ClientsThread::controlConnections()
     }
     catch(...)
     {
-      retcode=0;
+      retcode = 0;
     };
 
 		/*
@@ -432,17 +437,17 @@ int ClientsThread::controlConnections()
      *2 if the header is incomplete and to save it in a temporary buffer.
      *3 if the header is incomplete without save it in a temporary buffer.
      */
- 		if(retcode==0)/*! Delete the connection.  */
+ 		if(retcode == 0)/*! Delete the connection.  */
 		{
 			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
-		else if(retcode==1)/*! Keep the connection.  */
+		else if(retcode == 1)/*! Keep the connection.  */
 		{
 			c->setDataRead(0);
-			c->connectionBuffer[0]='\0';
+			c->connectionBuffer[0] = '\0';
 		}
-		else if(retcode==2)/*! Incomplete request to buffer.  */
+		else if(retcode == 2)/*! Incomplete request to buffer.  */
 		{
 			/*
        *If the header is incomplete save the current received
@@ -509,7 +514,7 @@ void ClientsThread::clean()
   {
     Thread::wait(100);
   }
-	threadIsRunning=0;
+	threadIsRunning = 0;
   if(http_parser)
     delete http_parser;
   if(https_parser)

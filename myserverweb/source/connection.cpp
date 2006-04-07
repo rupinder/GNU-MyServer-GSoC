@@ -46,8 +46,8 @@ Connection::Connection()
   login.assign("");
   password.assign("");
   nTries = 0;
-	ipAddr[0]='\0';
-  localIpAddr[0]='\0';
+	ipAddr[0] = '\0';
+  localIpAddr[0] = '\0';
   port = 0;
 	localPort = 0;
   timeout = 0;
@@ -68,7 +68,7 @@ Connection::~Connection()
 {
 	socket.shutdown(SD_BOTH);
 	char buffer[256];
-	int buffersize=256;
+	int buffersize = 256;
   int err;
 	do
 	{
@@ -162,7 +162,7 @@ void Connection::setnTries(char n)
 }
 
 /*!
-*Get the # of attempts to authenticate the user.
+ *Get the attempts number to authenticate the user.
  */
 char Connection::getnTries()
 {

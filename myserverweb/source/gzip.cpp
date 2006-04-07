@@ -47,12 +47,13 @@ extern "C" {
 #endif
 
 
-char GZIP_HEADER[]={(char)0x1f,(char)0x8b,Z_DEFLATED,0,0,0,0,0,0,0x03};
+char GZIP_HEADER[]={(char)0x1f, (char)0x8b, Z_DEFLATED, 
+										0, 0, 0, 0, 0, 0, 0x03};
 
 
 /*!
-*Initialize the gzip structure value.
-*/
+ *Initialize the gzip structure value.
+ */
 u_long Gzip::initialize()
 {
 #ifndef DO_NOT_USE_GZIP		
@@ -106,28 +107,29 @@ u_long Gzip::compressBound(int size)
 u_long Gzip::compress(const char* in, u_long sizeIn, 
                       char *out, u_long sizeOut)
 {
-#ifndef DO_NOT_USE_GZIP	
-	u_long old_total_out=data.stream.total_out;
-	uLongf destLen=sizeOut;
+#ifndef DO_NOT_USE_GZIP
+	u_long old_total_out = data.stream.total_out;
+	uLongf destLen = sizeOut;
 	u_long ret;
 
 #ifdef GZIP_CHECK_BOUNDS
-	if(compressBound(sizeIn)>(u_long)sizeOut)
+	if(compressBound(sizeIn) > (u_long)sizeOut)
 		return 0;
 #endif
-	data.stream.data_type=Z_BINARY;
+	data.stream.data_type = Z_BINARY;
 	data.stream.next_in = (Bytef*) in;
 	data.stream.avail_in = sizeIn;
 	data.stream.next_out = (Bytef*) out;
 	data.stream.avail_out = destLen;
 	ret = deflate(&(data.stream), Z_FULL_FLUSH);
 
-	data.data_size+=data.stream.total_out-old_total_out;
+	data.data_size += data.stream.total_out - old_total_out;
 	data.crc = crc32(data.crc, (const Bytef *) in, sizeIn);
-	return data.stream.total_out-old_total_out;
+	return data.stream.total_out - old_total_out;
 #else 
 	/*!
-   *If is specified DO_NOT_USE_GZIP copy the input buffer to the output one as it is.
+   *If is specified DO_NOT_USE_GZIP copy the input buffer 
+	 *to the output one as it is.
    */
 	memcpy(out, in, std::min(sizeIn, sizeOut));
 	return std::min(sizeIn, sizeOut);
@@ -204,8 +206,8 @@ u_long Gzip::flush(char *out, u_long sizeOut)
 	data.stream.avail_out = destLen;
 	deflate(&(data.stream), Z_FINISH);
 
-	data.data_size+=data.stream.total_out-old_total_out;
-	return data.stream.total_out-old_total_out;
+	data.data_size += data.stream.total_out - old_total_out;
+	return data.stream.total_out - old_total_out;
 #else 
 	return 0;
 #endif
@@ -214,7 +216,7 @@ u_long Gzip::flush(char *out, u_long sizeOut)
 /*! Constructor for the class. */
 Gzip::Gzip()
 {
-  active=1;
+  active = 1;
   initialize();
 }
 
@@ -232,7 +234,8 @@ Gzip::~Gzip()
 u_long Gzip::updateCRC(char* buffer, int size)
 {
 #ifndef DO_NOT_USE_GZIP		
-	data.crc = crc32(data.crc, (const Bytef *) buffer,(u_long)size);
+	data.crc = crc32(data.crc, (const Bytef *) buffer, 
+									 (u_long)size);
 	return data.crc;
 #else
 	return 0;
@@ -270,7 +273,7 @@ u_long Gzip::getFooter(char *str,int /*size*/)
  */
 u_long Gzip::getHeader(char *buffer,u_long buffersize)
 {
-	if(buffersize<GZIP_HEADER_LENGTH)
+	if(buffersize < GZIP_HEADER_LENGTH)
 		return 0;
 	memcpy(buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
 	return GZIP_HEADER_LENGTH;
@@ -303,7 +306,7 @@ int Gzip::read(char* buffer, u_long len, u_long *nbr)
   if(ret == -1)
   {
     delete [] tmp_buff;
-    return  -1;
+    return -1;
   }
   *nbr = compress(tmp_buff, nbr_parent, buffer, len);
   delete [] tmp_buff;
@@ -335,14 +338,14 @@ int Gzip::write(const char* buffer, u_long len, u_long *nbw)
     u_long size=std::min(len, 512UL);
     u_long ret=compress(buffer, size, tmpBuffer, 1024);
 
-    if(ret)
+		if(ret)
       if(parent->write(tmpBuffer, ret, &nbw_parent) == -1 )
         return -1;
 
-    written+=ret;
-    buffer+=size;
-    len-=size;
-    *nbw+=nbw_parent;
+    written += ret;
+    buffer += size;
+    len -= size;
+    *nbw += nbw_parent;
   }
   return 0;
 }
