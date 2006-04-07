@@ -1,4 +1,4 @@
-# Makefile : Builds myserver, control, CGI-LIB, math_sum, counter, and post
+# Makefile : Builds myserver, control, cgi-lib, math_sum, counter, and post
 #
 
 if BUILD_CONTROL
@@ -6,7 +6,7 @@ CONTROL = control
 endif
 
 if BUILD_MSCGI
-CGI_LIB = CGI-LIB
+CGI_LIB = cgi-lib
 endif
 
 am__aclocal_m4_deps = $(top_srcdir)/m4/gnome-pthread-check.m4 \

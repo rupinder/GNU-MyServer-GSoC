@@ -212,6 +212,6 @@ AC_CONFIG_FILES(Makefile \
   documentation/english/style/Makefile \
   documentation/english/texts/Makefile \
   source/Makefile \
-  CGI-LIB/Makefile)
+  cgi-lib/Makefile)
 
 AC_OUTPUT

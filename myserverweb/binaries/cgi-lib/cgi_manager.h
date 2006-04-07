@@ -1,6 +1,6 @@
 /*
 *MyServer
-*Copyright (C) 2002 The MyServer Team
+*Copyright (C) 2002, 2006 The MyServer Team
 *This library is free software; you can redistribute it and/or
 *modify it under the terms of the GNU Library General Public
 *License as published by the Free Software Foundation; either
@@ -16,5 +16,5 @@
 *Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 *Boston, MA  02110-1301, USA.
 */
-#include "../../CGI-LIB/cgi_manager.h"
+#include "../../cgi-lib/cgi_manager.h"
 

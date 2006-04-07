@@ -72,7 +72,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 INPUT                  = source \
                          include \
-                         CGI-LIB \
+                         cgi-lib \
                          control
 FILE_PATTERNS          = 
 RECURSIVE              = NO
