@@ -528,17 +528,14 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			
 			nbw += nbw2;
 			
-			if(usechunks)
+			if(usechunks && chain.write("\r\n", 2, &nbw2))
 			{
-				if(chain.write("\r\n", 2, &nbw2))
-				{
-					stdOutFile.close();
-					stdInFile.closeFile();
-					chain.clearAllFilters(); 
-					/* Remove the connection on sockets error.  */
-					cgiProc.terminateProcess();
-					return 0;       
-				}
+				stdOutFile.close();
+				stdInFile.closeFile();
+				chain.clearAllFilters(); 
+				/* Remove the connection on sockets error.  */
+				cgiProc.terminateProcess();
+				return 0;       
 			}
 		}
 	}
@@ -599,50 +596,45 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				}
 				nbw += nbw2;
 				
-				if(usechunks)
+				if(usechunks && chain.write("\r\n", 2, &nbw2))
 				{
-					if(chain.write("\r\n", 2, &nbw2))
-					{
-						stdOutFile.close();
-						stdInFile.closeFile();
-						chain.clearAllFilters(); 
-						/* Remove the connection on sockets error.  */
-						cgiProc.terminateProcess();
-						return 0;       
-					}
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;       
 				}
 			}
 			else
-       {
-				 if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
-																			 nBytesRead, &nbw2))
-				 {
-					 stdOutFile.close();
-					 stdInFile.closeFile();
-					 chain.clearAllFilters(); 
-					 File::deleteFile(td->inputDataPath);
-					 /* Remove the connection on sockets error.  */
-					 cgiProc.terminateProcess();
-					 return 0;      
-				 }
-				 nbw += nbw2;
-			 }
+			{
+				if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
+																			nBytesRead, &nbw2))
+				{
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					File::deleteFile(td->inputDataPath);
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;      
+				}
+				nbw += nbw2;
+			}
 		}
-		
 	}while(nBytesRead || cgiProc.isProcessAlive());
 
-	if(usechunks)
-		if(chain.write("0\r\n\r\n", 5, &nbw2))
-		{
-			stdOutFile.close();
-			stdInFile.closeFile();
-			chain.clearAllFilters(); 
-			/* Remove the connection on sockets error.  */
-			cgiProc.terminateProcess();
-			return 0;       
-		}
+	if(usechunks && chain.write("0\r\n\r\n", 5, &nbw2))
+	{
+		stdOutFile.close();
+		stdInFile.closeFile();
+		chain.clearAllFilters(); 
+		/* Remove the connection on sockets error.  */
+		cgiProc.terminateProcess();
+		return 0;       
+	}
 
-   /* Update the Content-Length field for logging activity.  */
+	/* Update the Content-Length field for logging activity.  */
   {
     ostringstream buffer;
     buffer << nbw;
@@ -689,7 +681,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 	memCgi << " (Unknown)";
 #endif
 #endif
-	/* *Must use REDIRECT_STATUS for php and others.  */
+	/* Must use REDIRECT_STATUS for php and others.  */
 	memCgi << end_str << "REDIRECT_STATUS=TRUE";
 	
 	memCgi << end_str << "SERVER_NAME=";
@@ -708,6 +700,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
     portBuffer.uintToStr( td->connection->getLocalPort());
     memCgi << end_str << "SERVER_PORT="<< portBuffer;
   }
+
 	memCgi << end_str << "SERVER_ADMIN=";
 	memCgi << Server::getInstance()->getServerAdmin();
 
@@ -967,7 +960,8 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 			{
 				memCgi << (char*)lpszVariable << end_str;
 			}
-			while (*lpszVariable)*lpszVariable++;
+			while(*lpszVariable)
+				*lpszVariable++;
 		} 
 	}
 #endif
