@@ -54,20 +54,20 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 #endif
   pid=0;
 #ifdef WIN32
-    /*!
-    *Set the standard output values for the CGI process.
-    */
+	/*!
+	 *Set the standard output values for the CGI process.
+	 */
 	STARTUPINFO si;
   PROCESS_INFORMATION pi;
 	const char *cwd;
-	ZeroMemory( &si, sizeof(si) );
+	ZeroMemory( &si, sizeof(si));
 	si.cb = sizeof(si);
 	si.hStdInput = (HANDLE)spi->stdIn;
-	si.hStdOutput =(HANDLE)spi->stdOut;
-	si.hStdError= (HANDLE)spi->stdError;
-	si.dwFlags=STARTF_USESHOWWINDOW;
-	if(si.hStdInput||si.hStdOutput||si.hStdError)
-		si.dwFlags|=STARTF_USESTDHANDLES;
+	si.hStdOutput = (HANDLE)spi->stdOut;
+	si.hStdError = (HANDLE)spi->stdError;
+	si.dwFlags = STARTF_USESHOWWINDOW;
+	if(si.hStdInput || si.hStdOutput ||si.hStdError)
+		si.dwFlags |= STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
 
   cwd = spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
@@ -78,8 +78,8 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		return (-1);
   pid = (u_long)pi.hProcess;
 	/*!
-	*Wait until the process stops its execution.
-	*/
+	 *Wait until the process stops its execution.
+	 */
 	ret=WaitForSingleObject(pi.hProcess, timeout);
 	if(ret == WAIT_FAILED)
 		return (u_long)(-1);
@@ -103,60 +103,67 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		const char *envp[100];
     const char *args[100];
     /*! Build the args vector. */
-    args[0]=spi->cmd.c_str();
+    args[0] = spi->cmd.c_str();
     {
       int count = 1;
-      int len=spi->arg.length();
+      int len = spi->arg.length();
       int start = 0;
+
       while((spi->arg[start]== ' ') && (start < len))
         start++;
-      for(int i=start; i<len; i++)
+
+      for(int i = start; i < len; i++)
       {
-        if(spi->arg[i]=='"')
+        if(spi->arg[i] == '"')
         {
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            args[count++] = (const char*)&(spi->arg.c_str())[start];
             start = i+1;
-            spi->arg[i]='\0';
+            spi->arg[i] = '\0';
           }
           else
             break;
-          while(spi->arg[++i]!='"' && i<len);
-          if(i==len)
+
+          while(spi->arg[++i] != '"' && i < len);
+
+          if(i == len)
             exit(1);
+
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            args[count++] = (const char*)&(spi->arg.c_str())[start];
             start = i+1;
-            spi->arg[i]='\0';
+            spi->arg[i] = '\0';
           }
           else
             break;                                      
         }
-        else if(spi->arg[i]==' ')
+        else if(spi->arg[i] == ' ')
         {
           if(i-start <= 1)
             continue;
+
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[start];
+            args[count++] = (const char*)&(spi->arg.c_str())[start];
             start = i+1;
-            spi->arg[i]='\0';
-            while((spi->arg[start]== ' ') && (start < len))
+            spi->arg[i] = '\0';
+            while((spi->arg[start] == ' ') && (start < len))
               start++;
-            i=start;
+            i = start;
           }
           else
             break;
         }
       }
+
       if(count < 100 && (len != start))
       {
-        args[count++]=(const char*)&(spi->arg.c_str())[start];
+        args[count++] = (const char*)&(spi->arg.c_str())[start];
       }
 
-      args[count]=NULL;
+      args[count] = NULL;
    
     }
 
@@ -190,29 +197,29 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		if((long)spi->stdOut == -1)
 			spi->stdOut = (FileHandle)open("/dev/null", O_WRONLY);
 		// map stdio to files
-		ret=close(0); // close stdin
+		ret = close(0); // close stdin
 		if(ret == -1)
 			exit (1);
-		ret=dup2(spi->stdIn, 0);
+		ret = dup2(spi->stdIn, 0);
 		if(ret == -1)
 			exit (1);
-		ret=close(spi->stdIn);
+		ret = close(spi->stdIn);
 		if(ret == -1)
 			exit (1);
-		ret=close(1); // close stdout
+		ret = close(1); // close stdout
 		if(ret == -1)
 			exit (1);
-		ret=dup2(spi->stdOut, 1);
+		ret = dup2(spi->stdOut, 1);
 		if(ret == -1)
 			exit (1);
-		ret=close(spi->stdOut);
+		ret = close(spi->stdOut);
 		if(ret == -1)
 			exit(1);
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
-    ret=execve((const char*)(spi->cmd.c_str()),
-               (char* const*)args,(char* const*) envp);
+    ret = execve((const char*)(spi->cmd.c_str()),
+								 (char* const*)args, (char* const*) envp);
     exit(0);
 
 	} // end else if(pid == 0)
@@ -276,7 +283,7 @@ int Process::isProcessAlive()
   {
     ret = waitpid(pid, &status, WNOHANG);
   }
-  while(!ret && errno==EINTR);
+  while(!ret && errno == EINTR);
   if(!ret)
     return 1;
   return 0;
@@ -285,9 +292,9 @@ int Process::isProcessAlive()
   int ret;
   do
   {
-    ret=kill(pid, 0);
+    ret = kill(pid, 0);
   }
-  while(!ret && errno==EINTR);
+  while(!ret && errno == EINTR);
   if(ret == 0)
     return 1;
 
@@ -296,7 +303,6 @@ int Process::isProcessAlive()
 
   return 0;
 #endif
-
 
 #endif
   return 0;
@@ -322,18 +328,18 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 	si.cb = sizeof(si);
 	si.hStdInput = (HANDLE)spi->stdIn;
 	si.hStdOutput =(HANDLE)spi->stdOut;
-	si.hStdError= (HANDLE)spi->stdError;
-	si.dwFlags=(u_long)STARTF_USESHOWWINDOW;
-  cwd =(char*)spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
-	if(si.hStdInput||si.hStdOutput||si.hStdError)
-		si.dwFlags|=STARTF_USESTDHANDLES;
+	si.hStdError = (HANDLE)spi->stdError;
+	si.dwFlags = (u_long)STARTF_USESHOWWINDOW;
+  cwd  = (char*)spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
+	if(si.hStdInput || si.hStdOutput|| si.hStdError)
+		si.dwFlags |= STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
 	ZeroMemory( &pi, sizeof(pi) );
 
-	ret=CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
-                    spi->envString, cwd, &si, &pi);
+	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
+											spi->envString, cwd, &si, &pi);
  	if(!ret)
-		return (-1);	
+		return (-1);
 	pid = (*((int*)&pi.hProcess));
   return pid;
 #endif
@@ -350,49 +356,49 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
     const char *args[100];
 
    /*! Build the args vector. */
-    args[0]=spi->cmd.c_str();
+    args[0] = spi->cmd.c_str();
     {
       int count = 1;
-      int len=spi->arg.length();
+      int len = spi->arg.length();
       int start = 0;
-      while((spi->arg[start]== ' ') && (start < len))
+      while((spi->arg[start] == ' ') && (start < len))
         start++;
-      for(int i=start; i<len; i++)
+      for(int i = start; i < len; i++)
       {
-        if(spi->arg[i]=='"')
+        if(spi->arg[i] == '"')
         {
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[start];
-            start = i+1;
-            spi->arg[i]='\0';
+            args[count++] = (const char*)&(spi->arg.c_str())[start];
+            start = i + 1;
+            spi->arg[i] = '\0';
           }
           else
             break;
-          while(spi->arg[++i]!='"' && i<len);
-          if(i==len)
+          while(spi->arg[++i] != '"' && i < len);
+          if(i == len)
             exit(1);
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[start];
-            start = i+1;
-            spi->arg[i]='\0';
+            args[count++] = (const char*)&(spi->arg.c_str())[start];
+            start = i + 1;
+            spi->arg[i] = '\0';
           }
           else
             break;                                      
         }
-        else if(spi->arg[i]==' ')
+        else if(spi->arg[i] == ' ')
         {
           if(i-start <= 1)
             continue;
           if(count < 100)
           {
-            args[count++]=(const char*)&(spi->arg.c_str())[start];
-            start = i+1;
-            spi->arg[i]='\0';
-            while((spi->arg[start]== ' ') && (start < len))
+            args[count++] = (const char*)&(spi->arg.c_str())[start];
+            start = i + 1;
+            spi->arg[i] = '\0';
+            while((spi->arg[start] == ' ') && (start < len))
               start++;
-            i=start;
+            i = start;
           }
           else
             break;
@@ -400,7 +406,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
       }
       if(count < 100 && len != start)
       {
-        args[count++]=(const char*)&(spi->arg.c_str())[start];
+        args[count++] = (const char*)&(spi->arg.c_str())[start];
       }
 
       args[count]=NULL;
@@ -431,19 +437,19 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 		ret = close(0); // close stdin
 		if(ret == -1)
 			exit (1);
-		ret=dup2((long)spi->stdIn, 0);
+		ret = dup2((long)spi->stdIn, 0);
 		if(ret == -1)
 			exit (1);	
-		ret=close((long)spi->stdIn);
+		ret = close((long)spi->stdIn);
 		if(ret == -1)
 			exit (1);	
-		ret=close(1); // close stdout
+		ret = close(1); // close stdout
 		if(ret == -1)
 			exit (1);
-		ret=dup2((long)spi->stdOut, 1);
+		ret = dup2((long)spi->stdOut, 1);
 		if(ret == -1)
 			exit (1);	
-		ret=close((long)spi->stdOut);
+		ret = close((long)spi->stdOut);
 		if(ret == -1)
 			exit (1);	
 		//close(2); // close stderr
@@ -458,17 +464,17 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 	} // end else if(pid == 0)
  else
  {
-    /*! 
-     *Avoid to become a zombie process. This is needed by the
-     *Process::isProcessAlive routine.
-     */
+	 /*! 
+		*Avoid to become a zombie process. This is needed by the
+		*Process::isProcessAlive routine.
+		*/
    struct sigaction sa;
    memset(&sa, 0, sizeof(sa));
    sa.sa_handler = SIG_IGN;
    sa.sa_flags   = SA_RESTART;
    sigaction(SIGCHLD,&sa, (struct sigaction *)NULL);
-	return pid;
-}
+	 return pid;
+ }
 #endif	
 
 }
