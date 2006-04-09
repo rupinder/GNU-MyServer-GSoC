@@ -85,7 +85,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	{	
 		outDataPath << getdefaultwd(0, 0 ) << "/stdOutFileMSCGI_" << (u_int)td->id;
 		if(data.stdOut.openFile(outDataPath.str().c_str(), FILE_CREATE_ALWAYS | 
-                                FILE_OPEN_READ | FILE_OPEN_WRITE))
+														FILE_OPEN_READ | FILE_OPEN_WRITE))
     {
       return td->http->raiseHTTPError(e_500);
     }
@@ -98,19 +98,17 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(&(td->connection->socket));
-  if(td->mime)
-  {
-    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-                                                 td->mime->filters, 
-                                                       &(td->connection->socket) , &nbw, 1))
-      {
-        td->connection->host->warningslogRequestAccess(td->id);
-        td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
-        td->connection->host->warningslogTerminateAccess(td->id);
-        chain.clearAllFilters(); 
-        return td->http->raiseHTTPError(e_500);
-      }
-  }
+
+	if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
+																										td->mime->filters, 
+																				 &(td->connection->socket) , &nbw, 1))
+	{
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
+		td->connection->host->warningslogTerminateAccess(td->id);
+		chain.clearAllFilters(); 
+		return td->http->raiseHTTPError(e_500);
+	}
 
 	ret = hinstLib.loadLibrary(exec, 0);
 
@@ -120,13 +118,13 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
      *Set the working directory to the MSCGI file one.
      */
 		setcwd(td->scriptDir.c_str());
-		td->buffer2->getAt(0)='\0';
+		td->buffer2->getAt(0) = '\0';
 
 		ProcMain = (CGIMAIN) hinstLib.getProc( "main"); 
 
 		if(ProcMain)
 		{
-			(ProcMain)(cmdLine,&data);
+			(ProcMain)(cmdLine, &data);
 		}
     else
     {
@@ -142,7 +140,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		/*
 		*Restore the working directory.
 		*/
-		setcwd(getdefaultwd(0,0));
+		setcwd(getdefaultwd(0, 0));
 	} 
 	else
 	{
@@ -158,7 +156,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	if(data.errorPage)
 	{
 		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
-		if(errID!=-1)
+		if(errID != -1)
     {
       chain.clearAllFilters(); 
 			data.stdOut.closeFile();
@@ -178,10 +176,10 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	if(!td->appendOutputs)
 	{
 		char *buffer = td->buffer2->getBuffer();
-		u_long bufferSize= td->buffer2->getRealLength();
+		u_long bufferSize = td->buffer2->getRealLength();
 		data.stdOut.setFilePointer(0);
-		HttpHeaders::buildHTTPResponseHeader(buffer,&(td->response));
-		if(s->socket.send(buffer,(int)strlen(buffer), 0)==SOCKET_ERROR)
+		HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
+		if(s->socket.send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)
 		{
 			if(!td->appendOutputs)
 			{
@@ -202,10 +200,10 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     }
 		do
 		{
-			data.stdOut.readFromFile(buffer,bufferSize,&nbr);
+			data.stdOut.readFromFile(buffer, bufferSize, &nbr);
 			if(nbr)
 			{
-				if(chain.write(buffer,nbr,&nbs))
+				if(chain.write(buffer, nbr, &nbs))
 				{
 					if(!td->appendOutputs)
 					{
@@ -276,7 +274,7 @@ int MsCgi::load(XmlParser* /*confFile*/)
 }
 
 /*!
-*free the memory allocated by the MSCGI library.
+*Free the memory allocated by the MSCGI library.
 */
 int MsCgi::unload()
 {
