@@ -2624,7 +2624,7 @@ int Http::getPath(string& filenamePath, const char *filename, int systemrequest)
       if(filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
          && filename[3] == 's' && filename[4] == '/')
       {
-        root = td.getVhostDir();
+        root = td.getVhostSys();
         /*! 
          *Do not allow access to the system directory root but only
          *to subdirectories. 
