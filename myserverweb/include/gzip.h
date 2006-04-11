@@ -55,8 +55,8 @@ public:
   Gzip();
   ~Gzip();
 
-	u_long headerSize();
-	u_long footerSize();
+	static u_long headerSize();
+	static u_long footerSize();
 
 	u_long updateCRC(char* buffer,int size);
 	u_long getFooter(char *str,int size);
