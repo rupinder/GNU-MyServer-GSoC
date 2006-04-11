@@ -55,6 +55,9 @@ public:
   Gzip();
   ~Gzip();
 
+	u_long headerSize();
+	u_long footerSize();
+
 	u_long updateCRC(char* buffer,int size);
 	u_long getFooter(char *str,int size);
 	u_long initialize();
@@ -74,7 +77,6 @@ public:
 	virtual int flush(u_long*);
 	virtual int modifyData();
   virtual const char* getName(char* name, u_long len);
-
 private:
 	int active;
 	GzipData data;

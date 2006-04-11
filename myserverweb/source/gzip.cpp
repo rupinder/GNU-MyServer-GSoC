@@ -401,3 +401,19 @@ const char* Gzip::getName(char* name, u_long len)
   }
   return "gzip";
 }
+
+/*!
+ *Get the GZIP header size.
+ */
+u_long Gzip::headerSize()
+{
+	return GZIP_HEADER_LENGTH;
+}
+
+/*!
+ *Get the GZIP footer size.
+ */
+u_long Gzip::footerSize()
+{
+	return GZIP_FOOTER_LENGTH;
+}
