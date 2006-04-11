@@ -32,12 +32,12 @@ int MemoryStream::read(char* buffer,u_long len, u_long *nbr)
   char *b;
   u_long towrite;
   towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));
-  b=data->getBuffer()+readSeek;
+  b = data->getBuffer() + readSeek;
   while(towrite--)
   {
     *buffer++ = *b++;
   }
-  readSeek+=(*nbr);
+  readSeek += (*nbr);
   return 0;
 }
 
@@ -48,7 +48,7 @@ int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
 {
   u_long towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));  
   int ret = s->write(data->getBuffer()+readSeek, towrite, nbr);
-  readSeek+=towrite;
+  readSeek += towrite;
   return ret;
 }
 
@@ -58,7 +58,7 @@ int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
 int MemoryStream::write(const char* buffer, u_long len, u_long *nbw)
 {
   data->addBuffer(buffer, len);
-  *nbw=len;
+  *nbw = len;
   return 0;
 }
 
@@ -67,7 +67,7 @@ int MemoryStream::write(const char* buffer, u_long len, u_long *nbw)
  */
 int MemoryStream::flush(u_long* nbw)
 {
-  *nbw=0;
+  *nbw = 0;
   return 0;
 }
 
@@ -76,9 +76,9 @@ int MemoryStream::flush(u_long* nbw)
  */
 MemoryStream::MemoryStream(MemBuf* out)
 {
-  readSeek=0;
-  internalData=0;
-  data=out;
+  readSeek = 0;
+  internalData = 0;
+  data = out;
   data->setLength(0);
 }
 
@@ -95,8 +95,8 @@ int MemoryStream::availableToRead()
  */
 MemoryStream::MemoryStream()
 {
-  internalData=1;
-  readSeek=0;
+  internalData = 1;
+  readSeek = 0;
   data = new MemBuf();
   data->setLength(0);
 }
@@ -115,7 +115,7 @@ MemoryStream::~MemoryStream()
  */
 int MemoryStream::refresh()
 {
-  readSeek=0;
+  readSeek = 0;
   data->setLength(0);
   return 0;
 }
