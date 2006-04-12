@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=113
+UnitCount=115
 Type=1
 Ver=1
 ObjFiles=
@@ -1212,6 +1212,26 @@ BuildCmd=
 
 [Unit113]
 FileName=include\pipe.h
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit114]
+FileName=source\gzip_decompress.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit115]
+FileName=include\gzip_decompress.h
 CompileCpp=1
 Folder=myserver
 Compile=1
