@@ -266,7 +266,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   }
   specified_length = header.getLength();
   version = header.getVersion();
-  timeout=get_ticks();
+  timeout=getTicks();
   if(specified_length)
   {
     Ifile = new File();
@@ -345,9 +345,9 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       
         if(dataWritten >=  specified_length)
           break;
-        timeout = get_ticks();
+        timeout = getTicks();
       }
-      else if(get_ticks() - timeout > MYSERVER_SEC(5))
+      else if(getTicks() - timeout > MYSERVER_SEC(5))
       {
         strcpy(b2,"Control: Bad content length specified");
         addToErrorLog(a,b2, strlen(b2));

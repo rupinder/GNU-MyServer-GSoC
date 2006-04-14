@@ -402,7 +402,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   /*! Return 1 if keep the connection. A nonzero value also mean no errors. */
   ret = 1;
 	
-	time1 = get_ticks();
+	time1 = getTicks();
 
   outDataPath << getdefaultwd(0, 0) << "/stdOutFileFcgi_" << (u_int)td->id ;
 
@@ -427,7 +427,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     u_long nbw;
 		while(con.sock.bytesToRead()<sizeof(FcgiHeader))
 		{
-			if((clock_t)(get_ticks()-time1) > timeout)
+			if((clock_t)(getTicks()-time1) > timeout)
 				break;
 		}
 		if(con.sock.bytesToRead())

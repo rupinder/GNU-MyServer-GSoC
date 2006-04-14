@@ -78,7 +78,7 @@ SocketHandle Socket::getHandle()
  */
 int Socket::setHandle(SocketHandle h)
 {
-	socketHandle=h;
+	socketHandle = h;
 	return 1;
 }
 /*!
@@ -86,15 +86,15 @@ int Socket::setHandle(SocketHandle h)
  */
 int Socket::operator==(Socket s)
 {
-	return socketHandle==s.socketHandle;
+	return socketHandle == s.socketHandle;
 }
 /*!
  *Set the socket using the = operator
  */
 int Socket::operator=(Socket s)
 {
-  /*! Do a raw memory copy.*/
-	memcpy(this,&s,sizeof(s));
+  /*! Do a raw memory copy.  */
+	memcpy(this, &s, sizeof(s));
 	return 1;
 }
 /*!
@@ -102,7 +102,7 @@ int Socket::operator=(Socket s)
  */
 int Socket::socket(int af,int type,int protocol,bool useSSL)
 {
-	sslSocket=useSSL;
+	sslSocket = useSSL;
 	socketHandle=(SocketHandle)::socket(af,type,protocol);
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
@@ -147,13 +147,13 @@ Socket::Socket()
   /*! Reset everything. */
 #ifndef DO_NOT_USE_SSL
   localSSL = 0;
-	sslSocket=0;
-	sslConnection=0;
-	sslContext=0;
+	sslSocket = 0;
+	sslConnection = 0;
+	sslContext = 0;
   sslMethod = 0;
 #endif
   throttlingRate = 0;
-	serverSocket=0;
+	serverSocket = 0;
 	setHandle(0);
 }
 
@@ -197,14 +197,14 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa,
 
 	Socket s;
 #ifndef DO_NOT_USE_SSL
-	s.sslConnection=0;
-	s.sslContext=0;
-	s.sslSocket=0;
+	s.sslConnection = 0;
+	s.sslContext = 0;
+	s.sslSocket = 0;
 #endif
 
 #ifdef WIN32
-	SocketHandle h=(SocketHandle)::accept(socketHandle,sa,
-                                        sockaddrlen);
+	SocketHandle h = (SocketHandle)::accept(socketHandle,sa,
+																					sockaddrlen);
 	s.setHandle(h);
 #endif
 
@@ -258,10 +258,10 @@ int Socket::closesocket()
 MYSERVER_HOSTENT *Socket::gethostbyaddr(char* addr,int len,int type)
 {
 #ifdef WIN32
-	HOSTENT *he=::gethostbyaddr(addr,len,type);
+	HOSTENT *he = ::gethostbyaddr(addr,len,type);
 #endif
 #ifdef NOT_WIN
-	struct hostent * he=::gethostbyaddr(addr,len,type);
+	struct hostent * he = ::gethostbyaddr(addr,len,type);
 #endif
 	return he;
 }
@@ -311,14 +311,14 @@ int Socket::getLocalIPsList(string &out)
   in_addr ia;
 
   Socket::gethostname(serverName, HOST_NAME_MAX);
-  localhe=Socket::gethostbyname(serverName);
+  localhe = Socket::gethostbyname(serverName);
 
   if(localhe)
   {
     ostringstream stream;
     int i;
     /*! Print all the interfaces IPs. */
-    for(i=0;(localhe->h_addr_list[i]);i++)
+    for(i= 0; (localhe->h_addr_list[i]); i++)
     {
 #ifdef WIN32
       ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
@@ -326,7 +326,7 @@ int Socket::getLocalIPsList(string &out)
 #ifdef NOT_WIN
       ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
-      stream << ( (i!=0)?", ":"") << inet_ntoa(ia);
+      stream << ( (i != 0) ? ", " : "") << inet_ntoa(ia);
     }
     
     out.assign(stream.str());
@@ -349,10 +349,10 @@ int Socket::rawSend(const char* buffer,int len,int flags)
 		int err;
 		do
 		{
-			err=SSL_write(sslConnection,buffer,len);
-		}while((err<=0) &&(SSL_get_error(sslConnection,err) ==SSL_ERROR_WANT_WRITE 
+			err = SSL_write(sslConnection,buffer,len);
+		}while((err <= 0) &&(SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE 
                   || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
-    if(err<=0)
+    if(err <= 0)
       return -1;
     else
       return err;
@@ -363,7 +363,7 @@ int Socket::rawSend(const char* buffer,int len,int flags)
   SetLastError(0);
 	for(;;)
   {
-    ret=::send(socketHandle,buffer,len,flags);
+    ret = ::send(socketHandle,buffer,len,flags);
     if((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK))
     {
       Thread::wait(10);
@@ -387,7 +387,7 @@ int Socket::rawSend(const char* buffer,int len,int flags)
  */
 int Socket::send(const char* buffer, int len, int flags)
 {
-  u_long toSend =(u_long) len;
+  u_long toSend = (u_long) len;
 	int ret;
   /*! If no throttling is specified, send only one big data chunk. */
   if(throttlingRate == 0)
@@ -400,7 +400,7 @@ int Socket::send(const char* buffer, int len, int flags)
     for(;;)
     {
       /*! When we can send data again? */
-      u_long time = get_ticks() + (1000*1024/throttlingRate) ;
+      u_long time = getTicks() + (1000*1024/throttlingRate) ;
       /*! If a throttling rate is specified, send chunks of 1024 bytes. */
       ret = rawSend( buffer+(len-toSend), toSend < 1024 ? toSend : 1024, flags);  
       /*! On errors returns directly -1. */
@@ -411,7 +411,7 @@ int Socket::send(const char* buffer, int len, int flags)
       if(toSend)
       {
         
-        while(get_ticks() <= time)
+        while(getTicks() <= time)
           Thread::wait(1);
       }    
       else
@@ -446,7 +446,7 @@ int Socket::ioctlsocket(long cmd,unsigned long* argp)
  */
 int Socket::connect(const char* host, u_short port)
 {
-  MYSERVER_HOSTENT *hp=Socket::gethostbyname(host);
+  MYSERVER_HOSTENT *hp = Socket::gethostbyname(host);
 	struct sockaddr_in sockAddr;
 	int sockLen;
   if(hp == 0)
@@ -527,8 +527,8 @@ int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
  */
 int Socket::recv(char* buffer, int len, int flags, u_long timeout)
 {
-	u_long time=get_ticks();
-	while(get_ticks()-time<timeout)
+	u_long time = getTicks();
+	while(getTicks() - time < timeout)
 	{
     /*! Check if there is data to read before do it. */
 		if(bytesToRead())
@@ -548,7 +548,7 @@ int Socket::freeSSL()
 	if(sslConnection)
 	{
 		SSL_free(sslConnection);
-		sslConnection=0;
+		sslConnection = 0;
 	}
   if(localSSL && sslContext)
   {
@@ -563,7 +563,7 @@ int Socket::freeSSL()
  */
 int Socket::setSSLContext(SSL_CTX* context)
 {
-	sslContext=context;
+	sslContext = context;
 	return 1;
 }
 
@@ -578,9 +578,9 @@ int Socket::initializeSSL(SSL* connection)
 		sslConnection = connection;
 	else
 	{
-		if(sslContext==0)
+		if(sslContext == 0)
 			return 1;
-		sslConnection =(SSL *)SSL_new(sslContext);
+		sslConnection = (SSL *)SSL_new(sslContext);
     if(sslConnection == 0)
       return 1;
 		SSL_set_read_ahead(sslConnection,0);
@@ -594,13 +594,13 @@ int Socket::initializeSSL(SSL* connection)
  */
 int Socket::setSSL(int nSSL,SSL* connection)
 {
-  int ret=0;
-	if(sslSocket && (nSSL==0))
+  int ret = 0;
+	if(sslSocket && (nSSL == 0))
 		freeSSL();
-	if(nSSL && (sslSocket==0))
+	if(nSSL && (sslSocket == 0))
 		ret = initializeSSL(connection);
 
-	sslSocket=nSSL;
+	sslSocket = nSSL;
   return ret;
 }
 
@@ -610,20 +610,20 @@ int Socket::setSSL(int nSSL,SSL* connection)
  */
 int Socket::sslAccept()
 {
-	if(sslContext==0)
+	if(sslContext == 0)
 		return -1;
 	sslSocket = 1;
 	if(sslConnection)
 		freeSSL();
-	sslConnection=SSL_new(sslContext);
-	if(sslConnection==0)
+	sslConnection = SSL_new(sslContext);
+	if(sslConnection == 0)
   {
 		freeSSL();
     return   -1;
   }
 	int ssl_accept;
 	SSL_set_accept_state(sslConnection);
-	if(SSL_set_fd(sslConnection,socketHandle)==0)
+	if(SSL_set_fd(sslConnection,socketHandle) == 0)
 	{
 		shutdown(2);
 		freeSSL();
@@ -635,7 +635,7 @@ int Socket::sslAccept()
 	{
 		ssl_accept = SSL_accept(sslConnection);
 	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP 
-         || SSL_get_error(sslConnection,ssl_accept) ==SSL_ERROR_WANT_READ);
+         || SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_READ);
 
 	if(ssl_accept != 1 )
 	{
@@ -648,7 +648,7 @@ int Socket::sslAccept()
 
 	clientCert = SSL_get_peer_certificate(sslConnection);
 
-	if(SSL_get_verify_result(sslConnection)!=X509_V_OK)
+	if(SSL_get_verify_result(sslConnection) != X509_V_OK)
 	{
 		shutdown(2);
 		freeSSL();
@@ -684,19 +684,19 @@ int Socket::getSSL()
  */
 int Socket::recv(char* buffer,int len,int flags)
 {
-	int err=0;
+	int err = 0;
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket && sslConnection)
 	{
     do
     {	
-        err=SSL_read(sslConnection,buffer,len);
+        err = SSL_read(sslConnection,buffer,len);
     }while((err <= 0) && 
            (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_X509_LOOKUP)
            || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ)
             || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE));
 
-		if(err<=0)
+		if(err <= 0)
 			return -1;
 		else 
 			return err;
@@ -706,15 +706,15 @@ int Socket::recv(char* buffer,int len,int flags)
 #ifdef WIN32
 	do
   {
-  	err=::recv(socketHandle,buffer,len,flags);
+  	err = ::recv(socketHandle,buffer,len,flags);
   }while((err == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
-	if(err==SOCKET_ERROR)
+	if(err == SOCKET_ERROR)
 		return -1;
 	else 
 		return err;
 #endif
 #ifdef NOT_WIN
-	err=::recv((int)socketHandle,buffer,len,flags);
+	err = ::recv((int)socketHandle, buffer, len, flags);
 	if(err == 0)
 		err = -1;
 	return err;
@@ -727,7 +727,7 @@ int Socket::recv(char* buffer,int len,int flags)
  */
 u_long Socket::bytesToRead()
 {
-  u_long nBytesToRead=0;
+  u_long nBytesToRead = 0;
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
@@ -735,7 +735,7 @@ u_long Socket::bytesToRead()
 		int ret = SSL_peek(sslConnection,&b,1);
     if(ret < 0)
       return 0;
-    if((ret == 0) &&(sslConnection->shutdown))
+    if((ret == 0) && (sslConnection->shutdown))
       return 0;
 		return  SSL_pending(sslConnection);
 	}
@@ -812,7 +812,7 @@ int Socket::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
  */
 void Socket::setServerSocket(Socket* sock)
 {
-	serverSocket=sock;
+	serverSocket = sock;
 }
 /*!
  *Returns the server socket.
@@ -854,7 +854,7 @@ int Socket::dataOnRead(int sec, int usec)
  */
 int Socket::read(char* buffer, u_long len, u_long *nbr)
 {
-  *nbr=static_cast<u_long>(recv(buffer, len, 0));
+  *nbr = static_cast<u_long>(recv(buffer, len, 0));
 	if(*nbr == static_cast<u_long>(-1))
     return -1;
   return 0;

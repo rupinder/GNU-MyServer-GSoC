@@ -4639,7 +4639,7 @@ if(ret) { // no dice
 MSvr << '\0';
 ConnectionsDlgVr->value((const char *)MSvr.getBuffer());
 
-time = get_ticks();
+time = getTicks();
 ConnectionsDlgList->clear();
 ret = Server.getConnections(list);
 
@@ -4670,12 +4670,12 @@ for(;;) {
         break;
       } // if
       // A cheap trick
-      time = (int)get_ticks() - (int)ConnectionsDlgRate->value() * 2000;
+      time = (int)getTicks() - (int)ConnectionsDlgRate->value() * 2000;
     } // if
   } // else if
 
-  if((int)(get_ticks() - time) > (int)ConnectionsDlgRate->value() * 1000) {
-    time = get_ticks();
+  if((int)(getTicks() - time) > (int)ConnectionsDlgRate->value() * 1000) {
+    time = getTicks();
     ConnectionsDlgList->clear();
     ret = Server.getConnections(list);
 
@@ -4728,8 +4728,8 @@ fl_alert(temp);
 }
 
 void MainDlg::fl_wait(int len) {
-  int time = (int)get_ticks();
-while((int)(get_ticks() - time) < len) {
+  int time = (int)getTicks();
+while((int)(getTicks() - time) < len) {
   Fl::wait(0);
 }
 }

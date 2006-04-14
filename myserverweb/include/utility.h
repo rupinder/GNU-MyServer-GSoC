@@ -46,7 +46,7 @@ int endPrintError();
 
 int getOSVersion();
 u_long getCPUCount();
-u_long get_ticks();
+u_long getTicks();
 int setcwdBuffer();
 int getdefaultwdlen();
 char *getdefaultwd(char* dwd,int maxlen);

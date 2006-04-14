@@ -1314,7 +1314,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
    */
 	char ip[MAX_IP_STRING_LEN];
 	char local_ip[MAX_IP_STRING_LEN];
-	MYSERVER_SOCKADDRIN  localsock_in;
+	MYSERVER_SOCKADDRIN  localsockIn;
   int dim;
   /*! Remote port used by the client to open the connection. */
 	u_short port;
@@ -1339,22 +1339,22 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
     addThread(0);
   }
 
-	memset(&localsock_in, 0, sizeof(localsock_in));
+	memset(&localsockIn, 0, sizeof(localsockIn));
 
-	dim=sizeof(localsock_in);
-	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
+	dim=sizeof(localsockIn);
+	s.getsockname((MYSERVER_SOCKADDR*)&localsockIn, &dim);
 
   // NOTE: inet_ntop supports IPv6
 	strncpy(ip,  inet_ntoa(asock_in->sin_addr),  MAX_IP_STRING_LEN); 
 
   // NOTE: inet_ntop supports IPv6
-	strncpy(local_ip,  inet_ntoa(localsock_in.sin_addr),  MAX_IP_STRING_LEN); 
+	strncpy(local_ip,  inet_ntoa(localsockIn.sin_addr),  MAX_IP_STRING_LEN); 
 
   /*! Port used by the client. */
 	port=ntohs((*asock_in).sin_port);
 
   /*! Port used by the server. */
-	myport=ntohs(localsock_in.sin_port);
+	myport=ntohs(localsockIn.sin_port);
 
 	if(!addConnectionToList(s, asock_in, &ip[0], &local_ip[0], port, myport, 1))
 	{
@@ -1395,7 +1395,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	}
   new_connection->socket = s;
 	new_connection->setPort(port);
-	new_connection->setTimeout( get_ticks() );
+	new_connection->setTimeout( getTicks() );
 	new_connection->setLocalPort(localPort);
 	new_connection->setIpAddr(ipAddr);
 	new_connection->setLocalIpAddr(localIpAddr);

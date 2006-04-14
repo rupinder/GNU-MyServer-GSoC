@@ -86,7 +86,7 @@ Filter::Filter()
 
 
 /*!
- *Default destrunctor.
+ *Default destructor.
  */
 Filter::~Filter()
 {

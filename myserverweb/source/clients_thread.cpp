@@ -206,7 +206,7 @@ void * startClientsThread(void* pParam)
        */
       if(ret != 1)
       {
-        ct->setTimeout( get_ticks() );
+        ct->setTimeout( getTicks() );
       }
       else
       {
@@ -214,7 +214,7 @@ void * startClientsThread(void* pParam)
          *Long inactive non static thread... Maybe we don't need it.
          */
         if(!ct->isStatic())
-          if(get_ticks() - ct->getTimeout() > MYSERVER_SEC(15) )
+          if(getTicks() - ct->getTimeout() > MYSERVER_SEC(15) )
             ct->setToDestroy(1);
         
       }
@@ -464,19 +464,19 @@ int ClientsThread::controlConnections()
 		{
 			c->setForceParsing(1);
 		}		
-		c->setTimeout( get_ticks() );
+		c->setTimeout( getTicks() );
 	}
 	else
 	{
 		/* Reset nTries after 5 seconds.  */
-		if(get_ticks() - c->getTimeout() > 5000)
+		if(getTicks() - c->getTimeout() > 5000)
 			c->setnTries( 0 );
 
 		/*
      *If the connection is inactive for a time greater that the value
      *configured remove the connection from the connections pool
      */
-		if((get_ticks()- c->getTimeout()) > Server::getInstance()->getTimeout() )
+		if((getTicks()- c->getTimeout()) > Server::getInstance()->getTimeout() )
 		{
 			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;

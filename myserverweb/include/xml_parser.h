@@ -40,8 +40,8 @@ class XmlParser
 	xmlDocPtr doc;
 	char buffer[250];
 	xmlNodePtr cur;
-	xmlNodePtr prev_cur;
-	xmlNodePtr last_node;
+	xmlNodePtr prevCur;
+	xmlNodePtr lastNode;
   time_t mtime;
 public:
 	static int startXML();

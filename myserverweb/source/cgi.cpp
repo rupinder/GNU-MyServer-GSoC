@@ -338,7 +338,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		/* Close the write stream of the pipe on the server.  */
 		stdOutFile.closeWrite();
 		
-		procStartTime = get_ticks();
+		procStartTime = getTicks();
   }
   /* Reset the buffer2 length counter. */
 	td->buffer2->setLength(0);
@@ -429,13 +429,13 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			}
 		}
 
-		if(nBytesRead == 0 && (int)(get_ticks() - procStartTime) > 100)
+		if(nBytesRead == 0 && (int)(getTicks() - procStartTime) > 100)
 			break;
 		
 		if(!headerSize)
 			continue;
 		
-		if((int)(get_ticks() - procStartTime) > cgiTimeout)
+		if((int)(getTicks() - procStartTime) > cgiTimeout)
 			break;
 			
 		{
@@ -543,7 +543,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	do
   {
 		/* Process timeout.  */
-		if((int)(get_ticks() - procStartTime) > cgiTimeout)
+		if((int)(getTicks() - procStartTime) > cgiTimeout)
 		{
 			stdOutFile.close();
 			stdInFile.closeFile();

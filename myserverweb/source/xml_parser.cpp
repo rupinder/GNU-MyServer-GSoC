@@ -144,8 +144,8 @@ XmlParser::XmlParser()
 {
   doc = 0;
 	cur = 0;
-	prev_cur = 0;
-	last_node = 0;
+	prevCur = 0;
+	lastNode = 0;
 }
 
 /*!
@@ -181,7 +181,7 @@ char *XmlParser::getValue(const char* vName)
 	{
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
 		{
-			last_node = lcur;
+			lastNode = lcur;
 			if(lcur->children->content)
       {
         int outlen = 250;
@@ -213,7 +213,7 @@ int XmlParser::setValue(char* vName,char *value)
 	{
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
 		{
-			last_node = lcur;
+			lastNode = lcur;
 			if(lcur->children->content)
 				strcpy((char*)lcur->children->content, value);
 			return 0;
@@ -234,7 +234,7 @@ char *XmlParser::getAttr(char* field,char *attr)
 	{
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)field))
 		{
-			last_node = lcur;
+			lastNode = lcur;
 			xmlAttr *attrs =  lcur->properties;
 			while(attrs)
 			{
@@ -258,8 +258,8 @@ int XmlParser::close()
     xmlFreeDoc(doc);
 	doc=0;
 	cur=0;
-	prev_cur=0;
-	last_node=0;
+	prevCur=0;
+	lastNode=0;
 	return 0;
 }
 
@@ -328,7 +328,7 @@ void XmlParser::newfile(const char * root)
  */
 void XmlParser::addChild(const char * name, const char * value)
 {
-   last_node = xmlNewTextChild(cur, NULL, (const xmlChar*)name,
+   lastNode = xmlNewTextChild(cur, NULL, (const xmlChar*)name,
                                (const xmlChar*)value);
    addLineFeed();
 }
@@ -340,11 +340,11 @@ void XmlParser::addChild(const char * name, const char * value)
  */
 void XmlParser::addGroup(const char * name)
 {
-  if(prev_cur == 0)
+  if(prevCur == 0)
   {
-    prev_cur = cur;
+    prevCur = cur;
     cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
-    last_node = cur;
+    lastNode = cur;
      
     addLineFeed();
   }
@@ -356,10 +356,10 @@ void XmlParser::addGroup(const char * name)
  */
 void XmlParser::endGroup()
 {
-  if(prev_cur != 0)
+  if(prevCur != 0)
   {
-    cur = prev_cur;
-    prev_cur = 0;
+    cur = prevCur;
+    prevCur = 0;
      
     addLineFeed();
     addLineFeed();
@@ -373,9 +373,9 @@ void XmlParser::endGroup()
  */
 void XmlParser::setAttr(const char * name, const char * value)
 {
-	if(last_node == 0)
+	if(lastNode == 0)
 		return;
-	xmlSetProp(last_node, (const xmlChar*)name, (const xmlChar*)value);
+	xmlSetProp(lastNode, (const xmlChar*)name, (const xmlChar*)value);
 }
 /*!
  * Adds a line feed to the xml data

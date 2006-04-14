@@ -1770,7 +1770,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         /*!
          *If there are others bytes to read from the socket.
          */
-        timeout=get_ticks();
+        timeout=getTicks();
         if((content_len!=-1) && 
            ((content_len!=static_cast<int>(nbw) ) || (nbw==0)))
         {
@@ -1780,7 +1780,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           {
             ret=0;
             fs=td.inputData.getFileSize();
-            while(get_ticks()-timeout<MYSERVER_SEC(5))
+            while(getTicks()-timeout<MYSERVER_SEC(5))
 					  {
               if(content_len==static_cast<int>(total_nbr))
 						  {
@@ -1821,11 +1821,11 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                   return 0;
                 }
                 total_nbr+=nbw;
-                timeout=get_ticks();
+                timeout=getTicks();
                 break;
               }
             }
-            if(get_ticks()-timeout>=MYSERVER_SEC(5))
+            if(getTicks()-timeout>=MYSERVER_SEC(5))
               break;
           }
           while(content_len!=static_cast<int>(total_nbr));
@@ -1853,7 +1853,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           do
           {
             ret=0;
-            while(get_ticks()-timeout<MYSERVER_SEC(3))
+            while(getTicks()-timeout<MYSERVER_SEC(3))
             {
               if(td.connection->socket.bytesToRead())
               {
@@ -1867,11 +1867,11 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                   return 0;
                 }
                 total_nbr+=nbw;
-                timeout=get_ticks();
+                timeout=getTicks();
                 break;
               }
             }
-            if(get_ticks()-timeout>=MYSERVER_SEC(3))
+            if(getTicks()-timeout>=MYSERVER_SEC(3))
               break;
             /*! Wait a bit. */
             Thread::wait(2);

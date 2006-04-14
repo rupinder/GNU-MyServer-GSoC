@@ -44,7 +44,8 @@ extern "C" {
 
 #include <iostream>
 using namespace std;
-/*!
+
+/*
  *Various utility functions.
  */
 extern int mustEndServer; 
@@ -56,40 +57,40 @@ static char *currentPath = 0;
  */
 int getOSVersion()
 {
-	int ret=0;
+	int ret = 0;
 	/*!
    *This is the code for the win32 platform.
    */
 #ifdef WIN32
 	OSVERSIONINFO osvi;
-	osvi.dwOSVersionInfoSize=sizeof(osvi);
+	osvi.dwOSVersionInfoSize = sizeof(osvi);
 	ret = GetVersionEx(&osvi);
 	if(!ret)
 		return 0;	
 	switch(osvi.dwMinorVersion)
 	{
 	case 0:
-		if(osvi.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-			ret=OS_WINDOWS_9X;
+		if(osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
+			ret = OS_WINDOWS_9X;
 		else
-			ret=OS_WINDOWS_2000;
+			ret = OS_WINDOWS_2000;
 		break;
 	case 10:
-		ret=OS_WINDOWS_9X;
+		ret = OS_WINDOWS_9X;
 		break;	
 	case 90:
-		ret=OS_WINDOWS_9X;
+		ret = OS_WINDOWS_9X;
 		break;
 	case 51:
-		ret=OS_WINDOWS_NT3;
+		ret = OS_WINDOWS_NT3;
 		break;
 	case 1:
-		ret=OS_WINDOWS_XP;
+		ret = OS_WINDOWS_XP;
 		break;
 	}
 #else
 #ifdef __linux__
-        ret = OS_LINUX;
+	ret = OS_LINUX;
 #else
 	ret = 0;
 #endif
@@ -103,17 +104,17 @@ int getOSVersion()
 u_long getCPUCount()
 {
 	/*! By default use 1 processor.  */
-	u_long ret=1;
+	u_long ret = 1;
 #ifdef WIN32
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
-	ret=si.dwNumberOfProcessors;
+	ret = si.dwNumberOfProcessors;
 #endif
 
 #ifdef _SC_NPROCESSORS_CONF
-	ret=(u_long)sysconf(_SC_NPROCESSORS_CONF); 
+	ret = (u_long)sysconf(_SC_NPROCESSORS_CONF); 
   /*! Use only a processor if some error happens.  */
-  if(ret==(u_long)-1)
+  if(ret == (u_long)-1)
     ret = 1;
 #endif
 
@@ -151,12 +152,12 @@ int setcwdBuffer()
 	char* ret =(char*) _getcwd(currentPath,MAX_PATH);
 	if(ret == 0)
 		return -1;
-	ret=0;
-	for(u_long i=0;i<(u_long)strlen(currentPath);i++)
-		if(currentPath[i]=='\\')
-			currentPath[i]='/';
-	if(currentPath[strlen(currentPath)]=='/')
-		currentPath[strlen(currentPath)]='\0';
+	ret = 0;
+	for(u_long i = 0; i<(u_long)strlen(currentPath); i++)
+		if(currentPath[i] == '\\')
+			currentPath[i] = '/';
+	if(currentPath[strlen(currentPath)] == '/')
+		currentPath[strlen(currentPath)] = '\0';
   return 0;
 #endif
 
@@ -176,17 +177,17 @@ int setcwdBuffer()
     {
       return (-1);
     }
-    ret=getcwd(currentPath, size);
-    /*! Realloc the buffer if it cannot contain the current directory. */
-    if(ret==0)
+    ret = getcwd(currentPath, size);
+    /*! Realloc the buffer if it cannot contain the current directory.  */
+    if(ret == 0)
     {
       size++;
       delete [] currentPath;
       currentPath = new char[size];
     }
   }while( (ret == 0) && (errno == ERANGE) );
-	if(currentPath[strlen(currentPath)]=='/') 
-		currentPath[strlen(currentPath)]='\0';
+	if(currentPath[strlen(currentPath)] == '/') 
+		currentPath[strlen(currentPath)] = '\0';
   return 0;
 #endif
 }
@@ -194,6 +195,7 @@ int setcwdBuffer()
 /*!
  *Get the defult directory using a string as output.
  *Return 0 on success.
+ *\param out The string where write.
  */
 int getdefaultwd(string& out)
 {
@@ -218,13 +220,15 @@ int freecwdBuffer()
  */
 int getdefaultwdlen()
 {
-  return strlen(currentPath)+1;
+  return strlen(currentPath) + 1;
 }
 
 /*!
- *Get the default working directory(Where is the main executable).
+ *Get the default working directory (Where is the main executable).
+ *\param path The buffer where write.
+ *\param len The length of the buffer.
  */
-char *getdefaultwd(char *path,int len)
+char *getdefaultwd(char *path, int len)
 {
 
 	if(path)
@@ -242,6 +246,7 @@ char *getdefaultwd(char *path,int len)
 
 /*!
  *Set the current working directory. Returns Zero if successful.
+ *\param dir The current working directory.
  */
 int setcwd(const char *dir)
 {
@@ -297,7 +302,7 @@ static struct timeval tval;
  *Return the ticks count. Used to check time variations.
  *Return 0 on errors.
  */
-u_long get_ticks()
+u_long getTicks()
 {
 #ifdef WIN32
 	return GetTickCount();
