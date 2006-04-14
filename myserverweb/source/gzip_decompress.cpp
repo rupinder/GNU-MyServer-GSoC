@@ -46,10 +46,6 @@ extern "C" {
 #endif
 
 
-char GZIP_HEADER[] = {(char)0x1f, (char)0x8b, Z_DEFLATED, 
-											0, 0, 0, 0, 0, 0, 0x03};
-
-
 /*!
  *Initialize the gzip structure value.
  */
