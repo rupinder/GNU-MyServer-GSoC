@@ -43,7 +43,7 @@ using namespace std;
 /*!
  *Initialize the timeout value to 15 seconds.
  */
-u_long WinCgi::timeout=MYSERVER_SEC(15);
+u_long WinCgi::timeout = MYSERVER_SEC(15);
 
 /*!
  *Set a new timeout value to use for new processes.
@@ -92,7 +92,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   char *buffer;
 	File DataFileHandle, OutFileHandle;
 	StartProcInfo spi;
-	time_t ltime=100;
+	time_t ltime = 100;
 	int gmhour;
 	int bias;
   
@@ -100,9 +100,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	char execname[MAX_PATH];/*! Use MAX_PATH under windows. */
 	char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
 
-	u_long nBytesRead=0;
-	u_long headerSize=0;
-	u_long nbw=0;
+	u_long nBytesRead = 0;
+	u_long headerSize = 0;
+	u_long nbw = 0;
   ostringstream stream;
 
 	if(!File::fileExists(filename))
@@ -154,10 +154,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	td->buffer2->setLength(0);
 	buffer=td->buffer2->getBuffer();
 
-	strcpy(buffer,"[CGI]\r\n");
+	strcpy(buffer, "[CGI]\r\n");
 	DataFileHandle.writeToFile(buffer,7,&nbr);
 
-	strcpy(buffer,"CGI Version=CGI/1.3a WIN\r\n");
+	strcpy(buffer, "CGI Version=CGI/1.3a WIN\r\n");
 	DataFileHandle.writeToFile(buffer,26,&nbr);
 
 	*td->buffer2 << "Server Admin=" << Server::getInstance()->getServerAdmin() << "\r\n";
@@ -168,22 +168,22 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		if(connection && stringcmpi(connection->value->c_str(), "keep-alive"))
 		{
 			strcpy(buffer,"Request Keep-Alive=No\r\n");
-			DataFileHandle.writeToFile(buffer,23,&nbr);
+			DataFileHandle.writeToFile(buffer, 23, &nbr);
 		}
 		else
 		{
 			strcpy(buffer,"Request Keep-Alive=Yes\r\n");
-			DataFileHandle.writeToFile(buffer,24,&nbr);
+			DataFileHandle.writeToFile(buffer, 24, &nbr);
 		}
 	}
 
 	td->buffer2->setLength(0);
 	*td->buffer2 << "Request Method=" << td->request.cmd << "\r\n";
-	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
+	DataFileHandle.writeToFile(buffer, td->buffer2->getLength(), &nbr);
 
 	td->buffer2->setLength(0);
 	*td->buffer2 << "Request Protocol=HTTP/" << td->request.ver << "\r\n";
-	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
+	DataFileHandle.writeToFile(buffer, td->buffer2->getLength(), &nbr);
 
 	 td->buffer2->setLength(0);	
 	*td->buffer2 << "Executable Path=" << execname << "\r\n";
@@ -191,8 +191,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
 	if(td->request.uriOpts[0])
 	{
-		sprintf(buffer,"Query String=%s\r\n",td->request.uriOpts.c_str());
-		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+		sprintf(buffer, "Query String=%s\r\n", td->request.uriOpts.c_str());
+		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer), &nbr);
 	}
 
 	{
@@ -210,8 +210,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
 		if(contentType && contentType->value->length())
 		{
-			sprintf(buffer,"Content Type=%s\r\n",contentType->value->c_str());
-			DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+			sprintf(buffer, "Content Type=%s\r\n", contentType->value->c_str());
+			DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 		}
 	}
 
@@ -221,70 +221,71 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		if(userAgent && userAgent->value->length())
 		{
 			sprintf(buffer,"User Agent=%s\r\n", userAgent->value->c_str());
-			DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+			DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 		}
 	}
 
-	sprintf(buffer,"Content File=%s\r\n",td->inputData.getFilename());
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	sprintf(buffer,"Content File=%s\r\n", td->inputData.getFilename());
+	DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 
 	if(td->request.contentLength[0])
 	{
-		sprintf(buffer,"Content Length=%s\r\n",td->request.contentLength.c_str());
-		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+		sprintf(buffer, "Content Length=%s\r\n", 
+						td->request.contentLength.c_str());
+		DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 	}
 	else
 	{
-		strcpy(buffer,"Content Length=0\r\n");
-		DataFileHandle.writeToFile(buffer,18,&nbr);	
+		strcpy(buffer, "Content Length=0\r\n");
+		DataFileHandle.writeToFile(buffer, 18, &nbr);	
 	}
 
 	strcpy(buffer,"Server Software=MyServer\r\n");
-	DataFileHandle.writeToFile(buffer,26,&nbr);
+	DataFileHandle.writeToFile(buffer, 26, &nbr);
 
-	sprintf(buffer,"Remote Address=%s\r\n",td->connection->getIpAddr());
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	sprintf(buffer, "Remote Address=%s\r\n", td->connection->getIpAddr());
+	DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 
-	sprintf(buffer,"Server Port=%u\r\n",td->connection->getLocalPort());
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	sprintf(buffer, "Server Port=%u\r\n", td->connection->getLocalPort());
+	DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 	
 	{
 		HttpRequestHeader::Entry *host = td->request.other.get("Host");
 		if(host)
-			sprintf(buffer,"Server Name=%s\r\n", host->value->c_str());
-		DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+			sprintf(buffer, "Server Name=%s\r\n", host->value->c_str());
+		DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 	}
 
-	strcpy(buffer,"[System]\r\n");
-	DataFileHandle.writeToFile(buffer,10,&nbr);
+	strcpy(buffer, "[System]\r\n");
+	DataFileHandle.writeToFile(buffer, 10, &nbr);
 
-	sprintf(buffer,"Output File=%s\r\n",outFilePath);
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	sprintf(buffer, "Output File=%s\r\n", outFilePath);
+	DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 
-	sprintf(buffer,"Content File=%s\r\n",td->inputData.getFilename());
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	sprintf(buffer,"Content File=%s\r\n", td->inputData.getFilename());
+	DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 
-	/*!
+	/*
    *Compute the local offset from the GMT time
    */
-	ltime=100;
-	gmhour=gmtime( &ltime)->tm_hour;
-	bias=localtime(&ltime)->tm_hour-gmhour;
+	ltime = 100;
+	gmhour = gmtime( &ltime)->tm_hour;
+	bias = localtime(&ltime)->tm_hour-gmhour;
 
-	sprintf(buffer,"GMT Offset=%i\r\n",bias);
-	DataFileHandle.writeToFile(buffer,(u_long)strlen(buffer),&nbr);
+	sprintf(buffer, "GMT Offset=%i\r\n", bias);
+	DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 
-	sprintf(buffer,"Debug Mode=No\r\n",bias);
-	DataFileHandle.writeToFile(buffer,15,&nbr);
+	sprintf(buffer, "Debug Mode=No\r\n", bias);
+	DataFileHandle.writeToFile(buffer, 15, &nbr);
 
 	DataFileHandle.closeFile();
 
-	/*!
+	/*
    *Create the out file.
    */
 	if(!File::fileExists(outFilePath))
 	{
-		ret = OutFileHandle.openFile(outFilePath,FILE_CREATE_ALWAYS);
+		ret = OutFileHandle.openFile(outFilePath, FILE_CREATE_ALWAYS);
 		if (ret)
 		{
 			td->connection->host->warningslogRequestAccess(td->id);
@@ -314,11 +315,11 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		td->connection->host->warningslogTerminateAccess(td->id);
 		File::deleteFile(outFilePath);
 		File::deleteFile(dataFilePath);
-    chain.clearAllFilters(); 
+    chain.clearAllFilters();
 		return td->http->raiseHTTPError(e_500);
 	}
 
-	ret=OutFileHandle.openFile(outFilePath,FILE_OPEN_ALWAYS|
+	ret=OutFileHandle.openFile(outFilePath, FILE_OPEN_ALWAYS|
                              FILE_OPEN_READ);
 	if (ret)
 	{
@@ -331,7 +332,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		return td->http->raiseHTTPError(e_500);
 	}
 	OutFileHandle.readFromFile(buffer,td->buffer2->getRealLength(),&nBytesRead);
-	if(nBytesRead==0)
+	if(!nBytesRead)
 	{
     ostringstream msg;
     msg << "WinCGI: Error zero bytes read from the WinCGI output file " 
@@ -346,17 +347,17 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		return td->http->raiseHTTPError(e_500);
 	}
 
-	for(u_long i=0;i<nBytesRead;i++)
+	for(u_long i = 0; i < nBytesRead; i++)
 	{
-		if((buffer[i]=='\r')&&(buffer[i+1]=='\n')
-       &&(buffer[i+2]=='\r')&&(buffer[i+3]=='\n'))
+		if((buffer[i] == '\r') && (buffer[i+1] == '\n')
+       &&(buffer[i+2] == '\r') && (buffer[i+3] == '\n'))
 		{
-			/*!
+			/*
        *The HTTP header ends with a \r\n\r\n sequence so
        *determinate where it ends and set the header size
        *to i + 4.
        */
-			headerSize=i+4;
+			headerSize = i + 4;
 			break;
 		}
 	}
@@ -368,10 +369,11 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			td->response.connection.assign("keep-alive");
 	}
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, buffer);
-	/*!
+
+	/*
    *Always specify the size of the HTTP contents.
    */
-  stream << OutFileHandle.getFileSize()-headerSize;
+  stream << OutFileHandle.getFileSize() - headerSize;
 	td->response.contentLength.assign(stream.str());
 	if(!td->appendOutputs)
 	{
@@ -382,7 +384,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                           &td->response);
     if(chain.write((const char*)td->buffer->getBuffer(),
-                          (int)strlen((const char*)td->buffer->getBuffer()), &nbw2))
+                          (int)strlen((const char*)td->buffer->getBuffer()), 
+									 &nbw2))
     {
       OutFileHandle.closeFile();
       File::deleteFile(outFilePath);
@@ -402,7 +405,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     /*!
      *Send other data in the buffer.
      */
-		chain.write((char*)(buffer+headerSize),nBytesRead-headerSize, &nbw2);
+		chain.write((char*)(buffer + headerSize), nBytesRead - headerSize, &nbw2);
     nbw += nbw2;
 	}
 	else
@@ -416,21 +419,21 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
       return 1;
     }
     
-		td->outputData.writeToFile((char*)(buffer+headerSize),
-                               nBytesRead-headerSize,&nbw2);
+		td->outputData.writeToFile((char*)(buffer + headerSize),
+                               nBytesRead - headerSize,&nbw2);
     nbw += nbw2;
   }
 
-  /*! Flush the rest of the file. */
+  /* Flush the rest of the file.  */
   do
 	{
-    OutFileHandle.readFromFile(buffer,td->buffer2->getLength(),&nBytesRead);
+    OutFileHandle.readFromFile(buffer, td->buffer2->getLength(), &nBytesRead);
 		if(nBytesRead)
 		{
       int ret;
 			if(td->appendOutputs)
       {
-				ret = td->outputData.writeToFile(buffer,nBytesRead,&nbw);
+				ret = td->outputData.writeToFile(buffer, nBytesRead, &nbw);
         if(ret)
         {
           OutFileHandle.closeFile();
@@ -443,7 +446,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
       else
       {
         u_long nbw2;
-				ret = chain.write((char*)buffer,nBytesRead, &nbw2);
+				ret = chain.write((char*)buffer, nBytesRead, &nbw2);
         if(ret == -1)
         {
           OutFileHandle.closeFile();
@@ -471,9 +474,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	File::deleteFile(dataFilePath);
 	return 1;
 #else
-  /*! 
-   *WinCGI is available only under windows. Raise the right error when it is used under another
-   *architecture.
+  /*
+   *WinCGI is available only under windows. Raise the right error 
+	 *when it is used under another architecture.
    */
 	td->buffer->setLength(0);
 	*td->buffer << "WinCGI: Not implemented";
