@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002,2003,2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004 The MyServer Team
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -23,11 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #undef min
 #undef max
-#define min(a,b)		((a<b)?a:b)
-#define max(a,b)		((a>b)?a:b)
+#define min(a, b)		((a < b)? a : b)
+#define max(a, b)		((a > b)? a : b)
 
 #ifdef WIN32
-#pragma comment(lib,"wsock32.lib")
+#pragma comment(lib, "wsock32.lib")
 #endif
 
 /*!
@@ -38,7 +38,7 @@ int CgiManager::write(char* str)
 	if(str)
 	{
 		u_long nbw;
-		cgidata->stdOut.writeToFile(str,(u_long)strlen(str),&nbw);
+		cgidata->stdOut.writeToFile(str, (u_long)strlen(str), &nbw);
 		return 1;
 	}
 	return 0;
@@ -52,7 +52,7 @@ int CgiManager::write(void* data, int len)
 	if(data)
 	{
 		u_long nbw;
-		cgidata->stdOut.writeToFile((char*)data,(u_long)len,&nbw);
+		cgidata->stdOut.writeToFile((char*)data, (u_long)len, &nbw);
 		return 1;
 	}
 	return 0;
@@ -63,8 +63,8 @@ int CgiManager::write(void* data, int len)
  */
 int CgiManager::start(MsCgiData* data)
 {
-	cgidata=data;
-	td=data->td;
+	cgidata = data;
+	td = data->td;
 	return 1;
 }
 
@@ -81,7 +81,7 @@ int CgiManager::clean()
  */
 int CgiManager::setPageError(int ID)
 {
-	td->response.httpStatus=ID;
+	td->response.httpStatus = ID;
 	return 1;
 }
 
@@ -90,7 +90,7 @@ int CgiManager::setPageError(int ID)
  */
 int CgiManager::raiseError(int ID)
 {
-	cgidata->errorPage=ID;
+	cgidata->errorPage = ID;
 	return 1;
 }
 
@@ -116,33 +116,33 @@ CgiManager::~CgiManager(void)
 char* CgiManager::getParam(char* param)
 {
   const char* c;
-	if(td->request.uriOpts.length()==0)
+	u_long len = 0;
+	if(td->request.uriOpts.length() == 0)
 		return 0;
 	localbuffer[0]='\0';
-	c=td->request.uriOpts.c_str();
+	c = td->request.uriOpts.c_str();
 	for(;;)
 	{
-		while((*c) && strncmp(c, param, min(strlen(param),strlen(c)) ))
+		while((*c) && strncmp(c, param, min(strlen(param), strlen(c))))
       c++;
       
-		if(*c=='\0')
+		if(*c == '\0')
 		{
  	    return &localbuffer[0];
 		}
 		
-		c+=strlen(param);
+		c += strlen(param);
 		
-    if(*c=='=')
+    if(*c == '=')
 		{
 			c++;
 			break;
 		}
 	}
-	u_long len=0;
-	while((c[len]) && (c[len]!='&') && (len < LOCAL_BUFFER_DIM-1 ))
+	while((c[len]) && (c[len] != '&') && (len < LOCAL_BUFFER_DIM-1 ))
 	{
-		localbuffer[len]=c[len];
-		localbuffer[len+1]='\0';
+		localbuffer[len] = c[len];
+		localbuffer[len+1] = '\0';
 		len++;
 	}
 	return localbuffer;
@@ -153,36 +153,37 @@ char* CgiManager::getParam(char* param)
  */
 char* CgiManager::postParam(char* param)
 {
-	char buffer[LOCAL_BUFFER_DIM+50];
-	u_long nbr=0;
+	char buffer[LOCAL_BUFFER_DIM + 50];
+	u_long nbr = 0;
 	char c[2];
-	c[1]='\0';
-	buffer[0]='\0';
-	localbuffer[0]='\0';
 	
-	u_long toRead=td->inputData.getFileSize();
+	u_long toRead = td->inputData.getFileSize();
+
+	c[1] = '\0';
+	buffer[0] = '\0';
+	localbuffer[0] = '\0';
 	
 	if( (toRead == 0) || (toRead==(u_long)-1) )
 		return 0;
 	do
 	{
-		cgidata->td->inputData.readFromFile(&c[0],1,&nbr);
-		if(nbr==0)
+		cgidata->td->inputData.readFromFile(&c[0], 1, &nbr);
+		if(nbr == 0)
 			break;
-		if((c[0]=='&') |(toRead==1))
+		if((c[0] == '&') |(toRead == 1))
 		{
-			if(!strncmp(param,buffer,strlen(param)))
+			if(!strncmp(param, buffer, strlen(param)))
 			{
-				lstrcpyn(localbuffer,&buffer[strlen(param)],LOCAL_BUFFER_DIM);
+				lstrcpyn(localbuffer, &buffer[strlen(param)], LOCAL_BUFFER_DIM);
 				break;
 			}
-			buffer[0]='\0';
+			buffer[0] = '\0';
 		}
 		else
 		{
-			if(lstrlen(buffer)+1 < LOCAL_BUFFER_DIM + 50)
+			if(lstrlen(buffer) + 1 < LOCAL_BUFFER_DIM + 50)
 			{
-				strncat(buffer,c, LOCAL_BUFFER_DIM-strlen(buffer));
+				strncat(buffer, c, LOCAL_BUFFER_DIM - strlen(buffer));
 			}
 		}
 	}while(--toRead);
@@ -219,26 +220,27 @@ char *CgiManager::operator >>(char* str)
  */
 void CgiManager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)
 {
-	((char*)lpvBuffer)[0]='\0';
-	char *localEnv=cgidata->envString;
-	size_t variableNameLen=strlen(lpszVariableName);
-	for(u_long i=0;;i+=(u_long)strlen(&localEnv[i])+1)
+	((char*)lpvBuffer)[0] = '\0';
+	char *localEnv = cgidata->envString;
+	size_t variableNameLen = strlen(lpszVariableName);
+	for(u_long i = 0; ; i += (u_long)strlen(&localEnv[i]) + 1)
 	{
 		if(((localEnv[i+variableNameLen])== '=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
 		{
-			u_long j=0;
-			u_long min_v=min(strlen(&localEnv[i+variableNameLen+1]),(u_long)(*lpvBuffer)-1); 
-			for(j=0;j<min_v;j++)
-				lpvBuffer[j]=localEnv[i+variableNameLen+1+j];
-			lpvBuffer[j]='\0';
+			u_long j = 0;
+			u_long min_v = min(strlen(&localEnv[i + variableNameLen+1]),
+												 (u_long)(*lpvBuffer)-1); 
+			for(j = 0; j < min_v; j++)
+				lpvBuffer[j] = localEnv[i + variableNameLen + j + 1];
+			lpvBuffer[j] = '\0';
 			break;
 		}
-		else if((localEnv[i]=='\0') && (localEnv[i+1]=='\0'))
+		else if((localEnv[i] == '\0') && (localEnv[i + 1] == '\0'))
 		{
 			break;
 		}
 	}
-	*lpdwSize=(u_int)strlen((char*)lpvBuffer);
+	*lpdwSize = (u_int)strlen((char*)lpvBuffer);
 }
 
 /*!

@@ -32,17 +32,17 @@ extern "C" {
 char* strustr(char *source, char *s)
 {
 
-	char *csource=new char[strlen(source)+1];
+	char *csource = new char[strlen(source) + 1];
   if(csource == 0)
     return 0;
-	char *cs = new char[strlen(s)+1];
-  if(cs==0)
+	char *cs = new char[strlen(s) + 1];
+  if(cs == 0)
   {
     delete [] csource;
     return 0;
   }
-  strncpy(csource, source, (strlen(source)+2));
-  strncpy(cs, s, (strlen(s)+2));
+  strncpy(csource, source, (strlen(source) + 2));
+  strncpy(cs, s, (strlen(s) + 2));
 	strupr(csource);
 	strupr(cs);
 	char *result = strstr(csource, cs);
@@ -212,7 +212,7 @@ char* MimeDecodeMailHeaderField(char *s)
 		}
 		else
 		{
-			plainpos =static_cast<int>(strupos(s1, "?="));
+			plainpos = static_cast<int>(strupos(s1, "?="));
 		}
 		if (plainpos > 1)
 		{
@@ -221,13 +221,13 @@ char* MimeDecodeMailHeaderField(char *s)
 			if (strlen(mid) > 0)
 			{
 				rest = new char[strlen(mid) + 1];
-				strncpy(rest, mid,(strlen(mid)+2));
+				strncpy(rest, mid,(strlen(mid) + 2));
 			}
 		}
 		if (strupos(s1, "?Q?") > 0)
 		{
 			CQPUtils qp;
-			int pos =static_cast<int>(strupos(s1, "?Q?"));
+			int pos = static_cast<int>(strupos(s1, "?Q?"));
 			s1 += pos;
 			if (strlen(s1) < 4) return s;
 			s1 += 3;
@@ -237,11 +237,11 @@ char* MimeDecodeMailHeaderField(char *s)
 		{
       CBase64Utils bu;
       int sLen;
-			int pos =static_cast<int>(strupos(s1, "?B?"));
+			int pos = static_cast<int>(strupos(s1, "?B?"));
 			s1 += pos;
 			if (strlen(s1) < 4) return s; 
 			s1 += 3;
-      sLen =static_cast<int>(strlen(s1));
+      sLen = static_cast<int>(strlen(s1));
 			decodedText = bu.Decode(s1, &sLen);
 		}
 		alloclen =static_cast<int>(strlen(decodedText)) + 1;
@@ -467,7 +467,8 @@ CQPUtils::~CQPUtils()
 char* CQPUtils::Decode(char *input)
 {
 	char *s = input;
-	char *finalresult = (char*)calloc(strlen(input) + sizeof(char), sizeof(char));
+	char *finalresult = (char*)calloc(strlen(input) + sizeof(char), 
+																		sizeof(char));
 	char *result = finalresult;
 	while (*s != '\0')
 	{

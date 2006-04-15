@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -32,11 +32,17 @@ using namespace std;
 /*!
  *Sends the MyServer CGI; differently from standard CGI this doesn't 
  *need a new process to run making it faster.
+ *\param td The HTTP thread context.
+ *\param s A pointer to the connection structure.
+ *\param exec The script path.
+ *\param cmdLine The command line.
+ *\param execute Specify if the script has to be executed.
+ *\param onlyHeader Specify if send only the HTTP header.
  */
 int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
                 char* cmdLine, int /*execute*/, int onlyHeader)
 {
-	/*!
+	/*
    *This is the code for manage a .mscgi file.
    *This files differently from standard CGI don't need a new process to run
    *but are allocated in the caller process virtual space.
@@ -59,16 +65,16 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 
 #ifndef DO_NOT_USE_MSCGI 
 	DynamicLibrary hinstLib; 
-  CGIMAIN ProcMain=0;
-	u_long nbr=0;
+  CGIMAIN ProcMain = 0;
+	u_long nbr = 0;
   int ret = 0;
-  u_long nbs=0;
+  u_long nbs = 0;
 	MsCgiData data;
- 	data.envString=td->request.uriOptsPtr ?
+ 	data.envString = td->request.uriOptsPtr ?
                     td->request.uriOptsPtr : (char*) td->buffer->getBuffer();
 	
 	data.td = td;
-	data.errorPage=0;
+	data.errorPage = 0;
 
  	td->scriptPath.assign(exec);
 
@@ -114,7 +120,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 
 	if (!ret) 
 	{ 
-		/*!
+		/*
      *Set the working directory to the MSCGI file one.
      */
 		setcwd(td->scriptDir.c_str());
@@ -138,8 +144,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		hinstLib.close();
 
 		/*
-		*Restore the working directory.
-		*/
+		 *Restore the working directory.
+		 */
 		setcwd(getdefaultwd(0, 0));
 	} 
 	else
@@ -150,7 +156,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       File::deleteFile(outDataPath.str().c_str());
     }
     chain.clearAllFilters(); 
-    /*! Internal server error. */
+    /* Internal server error.  */
     return td->http->raiseHTTPError(e_500);
 	}
 	if(data.errorPage)
@@ -164,15 +170,11 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			return td->http->raiseHTTPError(errID);
     }
 	}
-	/*!
-   *Compute the response length.
-   */
+	/* Compute the response length.  */
   tmpStream << (u_int)data.stdOut.getFileSize();
 
   td->response.contentLength.assign(tmpStream.str());
-	/*!
-   *Send all the data to the client if the append is not used.
-   */
+	/* Send all the data to the client if the append is not used.  */
 	if(!td->appendOutputs)
 	{
 		char *buffer = td->buffer2->getBuffer();
@@ -187,7 +189,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 				File::deleteFile(outDataPath.str().c_str());
 			}
 
-      /*! Internal server error. */
+      /* Internal server error.  */
       return td->http->raiseHTTPError(e_500);
 		}
 
@@ -211,7 +213,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 						File::deleteFile(outDataPath.str().c_str());
           }
           chain.clearAllFilters(); 
-          /*! Internal server error. */
+          /* Internal server error.  */
           return td->http->raiseHTTPError(e_500);
 				}	
         nbw += nbs;
@@ -242,6 +244,7 @@ static DynamicLibrary mscgiModule;
 
 /*!
  *Map the library in the application address space.
+ *\param confFile The xml parser with configuration.
  */
 int MsCgi::load(XmlParser* /*confFile*/)
 {
@@ -274,12 +277,10 @@ int MsCgi::load(XmlParser* /*confFile*/)
 }
 
 /*!
-*Free the memory allocated by the MSCGI library.
-*/
+ *Free the memory allocated by the MSCGI library.
+ */
 int MsCgi::unload()
 {
-	/*!
-   *Return 1 if the library was closed correctly returns successfully.
-   */
+	/* Return 1 if the library was closed correctly returns successfully.  */
 	return mscgiModule.close();
 }
