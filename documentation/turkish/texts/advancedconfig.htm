@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Belgeleri - Gelişmiş Ayarlar - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+      <h1 class="title">GELİŞMİŞ AYARLAR</h1>      <br /> Burada, MyServer ayar dosyanızda ayarlayabileceğiniz diğer se&ccedil;enekleri bulacaksınız. <br />
+
+
+      <h2 class="title">Sanal Ana Makina i&ccedil;in MIME tipleri:</h2>
+      <br /> myserver.xml dosyasında, sanal ana makinaların keni MIME tiplerinin olup olmamasına aşağıdaki satırı uygun &quot;YES&quot; veya &quot;NO&quot; se&ccedil;eneği ile kullanarak belirleyebilirsiniz:<br /> <br /><span class="code">&lt;ALLOW_VHOST_MIME&gt;YES&lt;/ALLOW_VHOST_MIME&gt;</span><br /> <br />
+      <h2 class="title">MSCGI Dosyaları:</h2>
+MyServer'da MSCGI dosyalarının kullanımına, myserver.xml dosyasında aşağıdaki satırda istenilen değeri ayarlayarak, izin verebilirsiniz: <br />
+      <p class="code"> &lt;ALLOW_MSCGI&gt;YES&lt;/ALLOW_MSCGI&gt;</p>
+      
+        
+                  
+                    <h2 class="title">GZIP Eşiği:</h2>
+                      Myserver'ı, kullanıcılara g&ouml;nderilecek veri, eğer belirli bir bayt değerinden b&uuml;y&uuml;kse, myserver.xml dosyasına aşağıdaki satırı ekleyerek otomatik olarak Gzip olarak sıkıştıracak şekilde ayarlayabilirsiniz: <br />
+      <p class="code"> &lt;GZIP_THRESHOLD&gt;1024&lt;/GZIP_THRESHOLD&gt;</p>
+      <br /><br /> Bu &ouml;rnekte, eğer veri 1024 bayttan b&uuml;y&uuml;k ise, istemciye g&ouml;nderilmeden &ouml;nce gzip ile sıkıştırılacaktır.<br /> <br /> &nbsp;
+<h2 class="title">HTTP Veri İşleyici Erişimi Yetkileri: </h2>
+      <br /><span class="code">&lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;</span> Se&ccedil;eneği, sunucunun tamamında CGI veri işleyicilere erişimi kısıtlar. Bu her bir sanal ana makinaya da eklenebilir  ve eğer virtualhosts.xml i&ccedil;inde yer alırsa, genel ayarlamaların yerine buradaki ayarlar kullanılacaktır.<span class="code">ALLOW_CGI </span> ayrıca şu şekillerde de g&ouml;r&uuml;lebilir <span class="code">ALLOW_FASTCGI</span>, <span class="code">ALLOW_ISAPI</span>, <span class="code">ALLOW_MSCGI</span> , <span class="code">ALLOW_WINCGI</span>, <span class="code">ALLOW_SEND_LINK, ALLOW_EXTERNAL_COMMANDS</span>, <span class="code">ALLOW_SEND_FILE</span>, her biri ilgili HTTP veri işleyicinin kullanımını kısıtlar veya izin verir. 
+    </td>
+</tr>
+</table>
+</body>
+</html>

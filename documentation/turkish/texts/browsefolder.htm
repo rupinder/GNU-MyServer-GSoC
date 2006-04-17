@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Belgeleri - Dizin G&ouml;z atma İndeksi - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<h1 class="title">DİZİN G&Ouml;Z ATMA</h1>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+Bir istemci sunucudan bir dizini talep ettiğinde ve sunucu g&ouml;nderecek varsayılan dosya bulamadığında, dizini indeksler ve istemciye dizindeki dosyaların listesini g&ouml;nderir.  Bu, istemcinin dizine g&ouml;z atabilmesini ve i&ccedil;indeki herhangi bir dosyaya erişebilmesine izin verir.<br />
+      <p style="text-align: center;"><img src="../images/browsefolder.png" alt="Dizine G&ouml;z at" width="730" height="371" /></p>
+<div class="center"><small>Tarama i&ccedil;in indekslenmiş Dizin</small></div>
+<br /> <br /> Eğer dizin indeks sayfası i&ccedil;in basamaklı bir stil sayfası tanımlamak istiyorsanız, <span style="code">myserver.xml</span> dosyasında değişiklik yapabilirsiniz. <br /> <br /> Satırına gelin: <span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span><br /><br /> ve system/folderstyle.css değişkenini kendi .css dosyanızın adı ile değiştirin.
+<p><span class="code">system/folderstyle.css</span> dosyasının varsayılan şekli ş&ouml;yledir:</p>
+<span class="code">body { font-family: Arial; color: #000000;background-color:#FFFFFF }</span> <br /> <br />
+<div class="center">Symlinklerin takibi</div>
+<br /> MyServer Unix-t&uuml;revi İşletim Sistemlerinde (&ouml;rn.:Linux, *BSD, GNU/HURD, Solaris, vb.) symlinks'i takip etme &ouml;zelliğini destekler.<br /> Symlink takibi &ouml;zelliğini, virtualhosts.xml dosyasında her bir sanal ana makina i&ccedil;in veya myserver.xml dosyasında t&uuml;m ana makinalar ekleyebilirsiniz.<br /> <span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br /> Varsayılanı : <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span> MyServer tarafından varsayılan olarak bu değer kullanılır.
+</td>
+</tr>
+</table>
+</body>
+</html>
