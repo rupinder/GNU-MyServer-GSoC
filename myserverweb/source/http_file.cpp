@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -50,8 +50,9 @@ extern "C"
  *\param exec Not used.
  *\param onlyHeader Specify if send only the HTTP header.
   */
-int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath, 
-                   const char* /*exec*/,int onlyHeader)
+int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, 
+									 const char *filenamePath, const char* /*exec*/,
+									 int onlyHeader)
 {
 	/*
    *With this routine we send a file through the HTTP protocol.
@@ -62,19 +63,19 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 	/* 
    *Will we use GZIP compression to send data?
    */
-	bool useGzip=false;
-  u_long filesize=0;
+	bool useGzip = false;
+  u_long filesize = 0;
 	File h;
 	u_long bytes_to_send;
   u_long firstByte = td->request.rangeByteBegin; 
   u_long lastByte = td->request.rangeByteEnd;
-  int keepalive;
-  int usechunks=0;
-  int useModifiers=0;
+  bool keepalive = false;
+  bool useChunks = false;
+  bool useModifiers = false;
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
 	
-	u_long dataSent=0;
+	u_long dataSent = 0;
 
   try
   {
@@ -123,7 +124,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 			if(e)
 				keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
 			else
-				keepalive = 0;
+				keepalive = false;
 		}
 
 #ifndef DO_NOT_USEGZIP
@@ -263,7 +264,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 					td->response.other.put(*(e->name), e);
 				}
 
-        usechunks=1;
+        useChunks = true;
 			}
     }
  
@@ -318,7 +319,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
       if(nbr)
       {
-        if(usechunks)
+        if(useChunks)
         {
           buffer << hex << nbr << "\r\n";     
           ret=chain.getStream()->write(buffer.str().c_str(), 
@@ -373,7 +374,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
       /* Check if there are no other bytes to send.  */
       if(!nbr)
       {
-        if(usechunks)
+        if(useChunks)
         {
           u_long nbw2;
           ostringstream buffer;
@@ -431,7 +432,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
       if(nbr)
       {
-        if(usechunks)
+        if(useChunks)
         {
           u_long nbw2;
           ostringstream buffer;
@@ -488,7 +489,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, const char *filenameP
 
       if(lastchunk)
       {
-        if(usechunks)
+        if(useChunks)
         {
           u_long nbw;
           ret=chain.getStream()->write("0\r\n\r\n", 5, &nbw);

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -76,9 +76,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	string tmpCgiPath;
 	u_long nBytesRead;
 	u_long headerSize;
-	int usechunks;
-	int keepalive;
-	int headerCompleted = 0;
+	bool useChunks = false;
+	bool keepalive = false;
+	bool headerCompleted = false;
 	u_long headerOffset = 0;
 	/*!
    *Standard CGI uses STDOUT to output the result and the STDIN 
@@ -108,7 +108,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			if(e)
 				keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
 			else
-				keepalive = 0;
+				keepalive = false;
 		}
 
 		/* Do not use chunked transfer with old HTTP/1.0 clients.  */
@@ -125,7 +125,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				e->value->assign("chunked");
 				td->response.other.put(*(e->name), e);
 			}
-			usechunks = 1;
+			useChunks = true;
 		}
 
     /*
@@ -395,7 +395,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				 *to i + 4.
 				 */
 				headerSize = i + 4 ;
-				headerCompleted = 1;
+				headerCompleted = true;
 				break;
 			}
 			else if((buff[i] == '\n') && (buff[i+1] == '\n'))
@@ -404,7 +404,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				 *\n\n case.
 				 */
 				headerSize = i + 2;
-				headerCompleted = 1;
+				headerCompleted = true;
 				break;
 			}
 			/*
@@ -496,9 +496,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			}
 		}//header. 
 
+		/* Flush the buffer.  Data from the header parsing can be present.  */
 		if(headerOffset-headerSize)
 		{
-			if(usechunks)
+			if(useChunks)
 			{
 				ostringstream tmp;
 				tmp << hex << (headerOffset-headerSize) << "\r\n";
@@ -514,7 +515,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				}
 			}
 			
-			/* Send other remaining data in the buffer. */
 			if(chain.write((td->buffer2->getBuffer() + headerSize), 
 										 nBytesRead-headerSize, &nbw2))
 			{
@@ -528,7 +528,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			
 			nbw += nbw2;
 			
-			if(usechunks && chain.write("\r\n", 2, &nbw2))
+			if(useChunks && chain.write("\r\n", 2, &nbw2))
 			{
 				stdOutFile.close();
 				stdInFile.closeFile();
@@ -553,7 +553,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			return 0;       
 		}
 		
-		/* Flush other data.  */
+		/* Read data from the process standard output file.  */
 		if(stdOutFile.read(td->buffer2->getBuffer(), 
 											 td->buffer2->getRealLength(), &nBytesRead))
     {
@@ -569,7 +569,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		{
 			if(!td->appendOutputs)
       {
-				if(usechunks)
+				if(useChunks)
 				{
 					ostringstream tmp;
 					tmp << hex <<  nBytesRead << "\r\n";
@@ -596,7 +596,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				}
 				nbw += nbw2;
 				
-				if(usechunks && chain.write("\r\n", 2, &nbw2))
+				if(useChunks && chain.write("\r\n", 2, &nbw2))
 				{
 					stdOutFile.close();
 					stdInFile.closeFile();
@@ -606,7 +606,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 					return 0;       
 				}
 			}
-			else
+			else/* !td->appendOutputs.  */
 			{
 				if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
 																			nBytesRead, &nbw2))
@@ -624,7 +624,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		}
 	}while(nBytesRead || cgiProc.isProcessAlive());
 
-	if(usechunks && chain.write("0\r\n\r\n", 5, &nbw2))
+	if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
 	{
 		stdOutFile.close();
 		stdInFile.closeFile();
