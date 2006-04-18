@@ -89,36 +89,36 @@ void HttpDir::getFormattedSize(int bytes, string& out)
 {
   ostringstream tmp;
 
-  double leftover=0.0;
+  double leftover = 0.0;
    
-  if(bytes<1024)               //  Byte case
+  if(bytes < 1024)               //  Byte case
     tmp << bytes << " bytes";
   
-  else if ((bytes>=1024) && (bytes<(1048576)))  //  KB case
+  else if ((bytes >= 1024) && (bytes < 1048576))  //  KB case
   {
-    u_long kb = static_cast<unsigned long int>(bytes/1024);
-    leftover  = bytes%1024;
-	  
-    if(leftover<50.0)
-      leftover=0.0;
+    u_long kb = static_cast<unsigned long int>(bytes / 1024);
+    leftover  = bytes % 1024;
+	   
+    if(leftover < 50.0)
+      leftover = 0.0;
     
     // note: this case isn't handled through compiler casting
     // using the output at the end!!!
     // therefore it has to be here ...
-    else if(((static_cast<unsigned int>(leftover))%100)>50)
-		  leftover+=100.0;
+    else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
+		  leftover += 100.0;
     
-    if(leftover>=1000.0)
+    if(leftover >= 1000.0)
     {
-      leftover=0.0;
+      leftover = 0.0;
       kb++;
     }
     else
     {
-      while(leftover>=10)
+      while(leftover >= 10)
       {	
         if (leftover)
-          leftover/=10;
+          leftover /= 10;
       }
     }
 
@@ -126,31 +126,31 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     tmp << kb <<  "." << static_cast<unsigned int>(leftover) << " kb";
     
   }
-  else if ((bytes>=1048576) && (bytes<(1073741824)))  //  MB case
+  else if ((bytes >= 1048576) && (bytes < 1073741824))  //  MB case
   {
-    u_long mb = static_cast<unsigned long int>(bytes/1048576);
-    leftover  = bytes%1048576;
+    u_long mb = static_cast<unsigned long int>(bytes / 1048576);
+    leftover  = bytes % 1048576;
 	  
-    if(leftover<50.0)
-      leftover=0.0;
+    if(leftover < 50.0)
+      leftover = 0.0;
     
     // note: this case isn't handled through compiler casting
     // using the output at the end!!!
     // therefore it has to be here ...
-    else if(((static_cast<unsigned int>(leftover))%100)>50)
-		  leftover+=100.0;
+    else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
+		  leftover += 100.0;
     
-    if(leftover>=1000.0)
+    if(leftover >= 1000.0)
     {
-      leftover=0.0;
+      leftover = 0.0;
       mb++;
     }
     else
     {
-      while(leftover>=10)
+      while(leftover >= 10)
       {	
         if (leftover)
-          leftover/=10;
+          leftover /= 10;
       }
     }
 
@@ -160,29 +160,29 @@ void HttpDir::getFormattedSize(int bytes, string& out)
   }
   else //  GB case
   {
-    u_long gb = static_cast<unsigned long int>(bytes/1073741824);
-    leftover  = bytes%1073741824;
+    u_long gb = static_cast<unsigned long int>(bytes / 1073741824);
+    leftover  = bytes % 1073741824;
 	  
-    if(leftover<50.0)
-      leftover=0.0;
+    if(leftover < 50.0)
+      leftover = 0.0;
     
     // note: this case isn't handled through compiler casting
     // using the output at the end!!!
     // therefore it has to be here ...
-    else if(((static_cast<unsigned int>(leftover))%100)>50)
-		  leftover+=100.0;
+    else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
+		  leftover += 100.0;
     
-    if(leftover>=1000.0)
+    if(leftover >= 1000.0)
     {
-      leftover=0.0;
+      leftover = 0.0;
       gb++;
     }
     else
     {
-      while(leftover>=10)
+      while(leftover >= 10)
       {	
         if (leftover)
-          leftover/=10;
+          leftover /= 10;
       }
     }
 
@@ -190,8 +190,6 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     tmp << gb <<  "." << static_cast<unsigned int>(leftover) << " GB";
     
   }
- 
-
  out.assign(tmp.str());
 }
 
@@ -258,36 +256,36 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
       }
   }
 
-	for(i=0;td->request.uri[i];i++)
+	for(i=0; td->request.uri[i]; i++)
 	{
-		if(td->request.uri[i]=='/')
+		if(td->request.uri[i] == '/')
 			nDirectories++;
 	}
-	for(startchar=0, i=0;td->request.uri[i];i++)
+	for(startchar = 0, i = 0; td->request.uri[i]; i++)
 	{
-		if(td->request.uri[i]=='/')
+		if(td->request.uri[i] == '/')
 		{
 			startchar++;
-			if(startchar==nDirectories)
+			if(startchar == nDirectories)
 			{
 				/*
          *At the end of the loop set startchar to te real value.
          *startchar indicates the initial position in td->request.uri 
          *of the file path.
          */
-				startchar=i+1;
+				startchar = i + 1;
 				break;
 			}
 		}
 	}
 	td->buffer2->setLength(0);
-	*td->buffer2<<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+	*td->buffer2 << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
     "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n"
     "\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
     "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
     "\r\n<head>\r\n<title>" ;
-	*td->buffer2<< td->request.uri.c_str() ;
-	*td->buffer2<< "</title>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n</head>\r\n"; 
+	*td->buffer2 << td->request.uri.c_str() ;
+	*td->buffer2 << "</title>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n</head>\r\n"; 
 	ret = td->outputData.writeToFile(td->buffer2->getBuffer(), 
                                     (u_long)td->buffer2->getLength(), &nbw);
 	if(ret)
@@ -306,8 +304,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	if(browseDirCSSpath != 0)
 	{
 		File cssHandle;
-		ret=cssHandle.openFile(browseDirCSSpath, FILE_OPEN_IFEXISTS | 
-                           FILE_OPEN_READ);
+		ret = cssHandle.openFile(browseDirCSSpath, FILE_OPEN_IFEXISTS | 
+														 FILE_OPEN_READ);
 		if(ret == 0)
 		{
 			u_long nbr;
@@ -322,7 +320,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 				if(ret)
 				{
 					td->outputData.closeFile();
-          chain.clearAllFilters(); 
+          chain.clearAllFilters();
 					/* Return an internal server error.  */
 					return td->http->raiseHTTPError(e_500);
 				}
