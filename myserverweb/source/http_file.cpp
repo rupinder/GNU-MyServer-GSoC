@@ -66,7 +66,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 	bool useGzip = false;
   u_long filesize = 0;
 	File h;
-	u_long bytes_to_send;
+	u_long bytesToSend;
   u_long firstByte = td->request.rangeByteBegin; 
   u_long lastByte = td->request.rangeByteEnd;
   bool keepalive = false;
@@ -88,11 +88,11 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     /*
      *Check how many bytes are ready to be send.  
      */
-    filesize=h.getFileSize();
-    bytes_to_send=filesize;
+    filesize = h.getFileSize();
+    bytesToSend = filesize;
     if(lastByte == 0)
     {
-      lastByte = bytes_to_send;
+      lastByte = bytesToSend;
     }
     else
     {
@@ -100,7 +100,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
        *If the client use ranges set the right value 
        *for the last byte number.  
        */
-      lastByte = std::min(lastByte+1, bytes_to_send);
+      lastByte = std::min(lastByte+1, bytesToSend);
     }
 
 
@@ -109,12 +109,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
        *Use GZIP compression to send files bigger than GZIP threshold.  
        */
       const char* val = s->host->getHashedData("GZIP_THRESHOLD");
-      useGzip=false;
+      useGzip = false;
       if(val)
       {
-        u_long gzipThreshold=atoi(val);
-        if(bytes_to_send >= gzipThreshold)
-          useGzip=true;
+        u_long gzipThreshold = atoi(val);
+        if(bytesToSend >= gzipThreshold)
+          useGzip = true;
       }
 
     }
@@ -146,15 +146,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     /* 
      *If compiled without GZIP support force the server to don't use it.  
      */
-    useGzip =  false;
+    useGzip = false;
 #endif	
     if(td->appendOutputs)
       useGzip = false;
 
     /*
-     *bytes_to_send is the interval between the first and the last byte.  
+     *bytesToSend is the interval between the first and the last byte.  
      */
-    bytes_to_send=lastByte-firstByte;
+    bytesToSend = lastByte-firstByte;
     
     /*
      *If fail to set the file pointer returns an internal server error.  
@@ -192,7 +192,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         chain.clearAllFilters();
         return 0;
       }
-      dataSent+=nbw;  
+      dataSent += nbw;  
     }
     
     if(useGzip && !chain.isFilterPresent("gzip"))
@@ -212,15 +212,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         chain.clearAllFilters();
         return 0;
       }
-      dataSent+=nbw;
+      dataSent += nbw;
     }
 
-    useModifiers=chain.hasModifiersFilters();
+    useModifiers = chain.hasModifiersFilters();
  
     if(keepalive && !useModifiers)
     {
       ostringstream buffer;
-      buffer << (u_int)bytes_to_send;
+      buffer << (u_int)bytesToSend;
       td->response.contentLength.assign(buffer.str());
     }
 
@@ -275,7 +275,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     {
       /* Send the HTTP header.  */
       if(s->socket.send(td->buffer->getBuffer(), 
-                        (u_long)td->buffer->getLength(), 0)== SOCKET_ERROR)
+                        (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
       {
         h.closeFile();
         chain.clearAllFilters();
@@ -304,8 +304,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(memStream.availableToRead())
     {
       ostringstream buffer;
-      u_long nbw=0;
-      u_long nbr=0;    
+      u_long nbw = 0;
+      u_long nbr = 0;    
       ret = memStream.read(td->buffer->getBuffer(),
                            td->buffer->getRealLength(), 
                            &nbr);
@@ -322,15 +322,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         if(useChunks)
         {
           buffer << hex << nbr << "\r\n";     
-          ret=chain.getStream()->write(buffer.str().c_str(), 
-																			 buffer.str().length(), &nbw); 
+          ret = chain.getStream()->write(buffer.str().c_str(), 
+																				 buffer.str().length(), &nbw); 
           if(!ret)
           {
-            ret=chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
+            ret = chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
             if(!ret)
             {
               dataSent += nbw;
-              ret=chain.getStream()->write("\r\n", 2, &nbw);
+              ret = chain.getStream()->write("\r\n", 2, &nbw);
             }
           }
 
@@ -343,7 +343,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         }
         else
         {
-          ret=chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
+          ret = chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
           if(ret)
           {
             h.closeFile();
@@ -360,16 +360,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     {
       u_long nbr;
       u_long nbw;
-      u_long lastchunk=0;
+      bool lastChunk = false;
       /* Read from the file the bytes to send.  */
       ret = h.readFromFile(td->buffer->getBuffer(),
-                           std::min(static_cast<u_long>(bytes_to_send), 
+                           std::min(static_cast<u_long>(bytesToSend), 
                                     static_cast<u_long>(td->buffer->getRealLength()/2)), 
                            &nbr);
       if(ret)
         break;
       
-      bytes_to_send-=nbr;
+      bytesToSend -= nbr;
 
       /* Check if there are no other bytes to send.  */
       if(!nbr)
@@ -380,19 +380,19 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
           ostringstream buffer;
           {
             /* Flush to the memory stream and use it to send chunks.  */
-            Stream *tmp=chain.getStream();
+            Stream *tmp = chain.getStream();
             chain.setStream(&memStream);
             chain.flush(&nbw);
             chain.setStream(tmp);
           }
-          ret=memStream.read(td->buffer->getBuffer(), 
+          ret = memStream.read(td->buffer->getBuffer(), 
                              td->buffer->getRealLength(), &nbw);
           if(ret)
             break;
           if(nbw)
           {
             buffer << hex << nbw << "\r\n";
-            ret=chain.getStream()->write(buffer.str().c_str(), 
+            ret = chain.getStream()->write(buffer.str().c_str(), 
 																				 buffer.str().length(), &nbw2);
           
             if(ret)
@@ -404,13 +404,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 						 *final stream as we cannot know the final length for the 
 						 *data chunk.
              */
-            ret=chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
+            ret = chain.getStream()->write(td->buffer->getBuffer(), 
+																					 nbw, &nbw2);
             if(ret)
               break; 
 
             dataSent += nbw2;
 
-            ret=chain.getStream()->write("\r\n", 2, &nbw);
+            ret = chain.getStream()->write("\r\n", 2, &nbw);
             if(ret)
               break;
           }
@@ -419,15 +420,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         else
         {
           /* If we don't use chunks we can flush directly.  */
-          ret=chain.flush(&nbw);
+          ret = chain.flush(&nbw);
           if(ret)
             break;
-          dataSent+=nbw;
+          dataSent += nbw;
         }
         if(ret)
           break;
         /* Set the flag when we reached the end of the file. */
-        lastchunk=1; 
+        lastChunk = true; 
       }
 
       if(nbr)
@@ -454,25 +455,25 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
             chain.write(td->buffer->getBuffer(), nbr, &nbw);
             chain.setStream(tmp);
           }
-          ret=memStream.read(td->buffer->getBuffer(), 
-                             td->buffer->getRealLength(), &nbw);
+          ret = memStream.read(td->buffer->getBuffer(), 
+															 td->buffer->getRealLength(), &nbw);
                              
           if(ret)
             break;  
 
           buffer << hex << nbw << "\r\n";
-          ret=chain.getStream()->write(buffer.str().c_str(), 
-                                       buffer.str().length(), &nbw2);
+          ret = chain.getStream()->write(buffer.str().c_str(), 
+																				 buffer.str().length(), &nbw2);
           if(ret)
             break;
 
-          ret=chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
+          ret = chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
           if(ret)
             break; 
           
           dataSent += nbw2;
 
-          ret=chain.getStream()->write("\r\n", 2, &nbw);
+          ret = chain.getStream()->write("\r\n", 2, &nbw);
           if(ret)
             break;
         }
@@ -487,12 +488,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
       }
 
-      if(lastchunk)
+      if(lastChunk)
       {
         if(useChunks)
         {
           u_long nbw;
-          ret=chain.getStream()->write("0\r\n\r\n", 5, &nbw);
+          ret = chain.getStream()->write("0\r\n\r\n", 5, &nbw);
         }
         break;
       }
