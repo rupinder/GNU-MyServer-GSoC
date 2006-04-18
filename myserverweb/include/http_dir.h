@@ -30,11 +30,15 @@ class HttpDir : public HttpDataHandler
 {
 private:
   void getFormattedSize(int bytes, string& out);
+	int appendDataToHTTPChannel(HttpThreadContext* td, char* buffer, 
+															u_long size, File* appendFile,
+															FiltersChain *chain,
+															bool append, bool useChunks);
 public:
   static int load(XmlParser*);
   static int unload();
 	int send(HttpThreadContext*, ConnectionPtr s, const char* directory, 
-                        const char* cgi, int onlyHeader=0);
+                        const char* cgi, int onlyHeader = 0);
   HttpDir();
   virtual ~HttpDir();
 };
