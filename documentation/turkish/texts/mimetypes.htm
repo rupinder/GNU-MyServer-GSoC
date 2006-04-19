@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Belgeleri - MIME - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">MIME TİPLERİ</h1>
+      <p><br /> <br /> &quot;MIMEtypes.xml&quot; dosyasını değiştirerek MyServer tarafından kullanılan MIME tiplerini değiştirebilirsiniz. &Ouml;rnek bir .xml dosyası aşağıda verilmiştir:<br /> <span class="code">&lt;MIMETYPES&gt;<br /> -<br /> &nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br /> -<br /> &nbsp;&nbsp;&nbsp; &lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;<br /> &lt;EXT&gt;htm&lt;/EXT&gt;<br /> &lt;MIME&gt;text/html&lt;/MIME&gt;<br /> &lt;CMD&gt;SEND&lt;/CMD&gt;<br /> &lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt; <br /> &lt;FILTER&gt;gzip&lt;/FILTER&gt;<br /> &lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br /> &lt;/MIMETYPE&gt; <br /></span> <br /> <br /> Her bir blok farklı bir MIME tipini tanımlamaktadır. <br /> <br /> <span class="code">&lt;EXT&gt;</span> dosya tipi iken <br /> <br /> <span class="code">&lt;MIME&gt;</span> Mime tipidir.<br /> <br /> <span class="code">&lt;CMD&gt;</span> dosyayı istemciye g&ouml;nderme yoludur.<br> <br> <span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt;</span> satırı, ana makina &quot;localhost&quot; ise istenilen MIME Tipine erişime izin verecektir <span class="code">&lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;</span> satırında, bizim MIME Tipimizin, ACTION etiketi altında uygun olarak ayarlamadığımız her hangi bir ana makinanın erişimini ENGELLEmesini s&ouml;yl&uuml;yoruz. (yani, ayarlarda bulunmak zorunda). Ayrıca,  <br /> <span class="code">defaultAction </span> &ouml;zelliği tercihe bağlıdır (yok sayıldığında, &quot;ALLOW&quot; -izin ver- olarak ayarlanır). Yani, yukarıdaki &ouml;rnekte, HTML dosyalarına yalnızca &quot;localhost&quot; isimli ana makinadan erişebilinecektir.</p>
+      <p>MIME tipiniz i&ccedil;in defaultAction olarak &quot;DENY&quot; -kısıtla- belirlemediğiniz s&uuml;rece &lt;ACTION&gt; etiketi tercihe bağlıdır.<br> <br /> <span class="code">&lt;FILTER&gt;</span> o Mime Tipi i&ccedil;in bir filtre tanımlar. Veri kullanıcıya g&ouml;nderilmeden &ouml;nce filtreden ge&ccedil;irilecektir. Yukarıdaki &ouml;rnekte, veri kullanıcıya gzip ile sıkıştırılarak g&ouml;nderilecektir. Bu demektir ki Gzip MyServer'da bir filtre gibi &ccedil;alışmaktadır. myserver.xml dosyasında &lt;GZIP_THRESHOLD&gt;'u ayarlayarak Gzip'i dosyanın boyutuna bağlı olarak her dosya i&ccedil;in otomatik olarak &ccedil;alıştırılmasını sağlayabilirsiniz. A&ccedil;ıktır ki, g&ouml;nderilecek veri yalnızca istemci gzip destekliyorsa gzip olarak g&ouml;nderilecektir - aksi halde kullanıcı istediği site yerine bir &ccedil;ok anlamsız karakter g&ouml;recektir.<br /> <br /> Genel olarak, filtreler ayrıca dinamik verilere de uygulanabilir - CGI, ISAPI, FastCGI gibi - fakat bunların kullanıcıya g&ouml;sterilecek sayfanın i&ccedil;eriğiini değiştirmeyen filtreler olmaları gerekir.<br /> <br /> <span class="code">&lt;MANAGER&gt;</span> ,  <span class="code">&lt;CMD&gt;</span> komutunu tanımlar.<br /> <br /> <br /> <br /> Kullanıcıya dosya g&ouml;ndermek i&ccedil;in olan aşağıdaki değerler <span class="code">&lt;MANAGER&gt;</span> b&ouml;l&uuml;m&uuml;nde ge&ccedil;erlidir:<br />
+      </p>
+      <div class="left">
+<ol>
+  <li><span class="code">SEND</span> - Dosyayı olduğu gibi statik olarak g&ouml;nder.  Bu komut .html ve .jpg gibi web sunucu tarafından herhangi bir harici girişime gerek olmayan dosya uzantıları i&ccedil;in kullanılır.</li>
+  <li><span class="code">RUNCGI</span> - Adreste g&ouml;sterilen CGI komut dosyasını &ccedil;alıştır. Bu komut .php ve .pl gibi istemciye herhangi bir veri g&ouml;ndermeden &ouml;nce işlenmesi gereken dosya uzantıları i&ccedil;in kullanılır.</li>
+  <li><span class="code">RUNFASTCGI</span><span
+ style="color: rgb(0, 102, 0);"> </span>- Fastcgi komut dosyasını &ccedil;alıştır.  Bu tip fastcgi ayrıştırıcısının indirilmesini gerektirir (bkz. PHP sayfası). &nbsp;Bu ayrıca .php ve .pl gibi uzantılar i&ccedil;in de kullanılır.</li>
+  <li><span class="code">EXECUTEFASTCGI</span> - Bu da Fastcgi komut dosyasını &ccedil;alıştırır, fakat yukarıdaki RUNFASTCGI'dan farklı olarak, komut dosyasını &ccedil;alıştıracak bir sunucuya ihtiya&ccedil; duymaz, onun yerine kendisi sunucu olarak davranır.</li>
+  <li><span class="code">RUNMSCGI</span>- MSCGI komut dosyasını &ccedil;alıştır. Bu k&uuml;t&uuml;phane yalnızca myServer i&ccedil;in mevcuttur. Hızlı ve verimli CGI lar derlemek i&ccedil;in kullanılır.</li>
+  <li><span class="code">EXECUTE </span>-Dosyayı &ccedil;alıştırılabilr dosya gibi işle ve &ccedil;ıktıyı istemciye g&ouml;nder.&nbsp;</li>
+  <li><span class="code">SENDLINK</span> - Bağlantı i&ccedil;inde yer alan dosyayı g&ouml;nder.</li>
+  <li><span class="code">EXECUTEWINCGI</span> - Dosyayı WinCGI gibi g&ouml;nder.</li>
+  <li><span class="code">RUNISAPI</span> - ISAPI komut dosyasını &ccedil;alıştır. &nbsp;</li>
+  <li><span class="code">EXECUTEISAPI</span> - ISAPI komut dosyasını &ccedil;alıştırır, ancak &ccedil;alıştırmak i&ccedil;in bir sunucuya ihtiya&ccedil; duymaz. Onun yerine, kendisi bir sunucu gibi davranır.</li>
+</ol>
+</div>
+&Ccedil;oğu uygulamalar zaten daha &ouml;nce .xml dosyasında ele alınmıştı. Eğer MIME tipi eklemek isterseniz, kodu &ouml;rnek alarak dosyanın sonuna ekleyebilirsiniz.
+</td>
+</tr>
+</table>
+</body>
+</html>

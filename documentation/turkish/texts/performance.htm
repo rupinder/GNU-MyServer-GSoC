@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Belgeleri - Performans İnce Ayarı - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+      <h1 class="title">PERFORMANS İNCE AYARI</h1><br />
+        
+        Burada web sunucunuzun performansını hassas olarak ayarlayabileceğiniz bir ka&ccedil; se&ccedil;enek g&ouml;receksiniz.<br />
+      
+<h2 class="title">İş par&ccedil;acığı İnce ayarı:</h2>
+myserver.xml dosyasında MyServer'ın kullanacağı iş par&ccedil;acığı miktarını ayarlayabilirsiniz. Aşağıdaki satırlarda, iki ayarlanabilir parametre olan <span class="code">NTHREADS_STATIC</span> ve <span class="code">NTHREADS_MAX</span>'ı ayarlayabilirsiniz, ilki her zaman etkin olacak iş par&ccedil;acığı sayısını tanımlarken, ikincisi myserverın en fazla yaratabileceği iş par&ccedil;acığı sayısını tanımlar :<br />
+
+<br /> <br />
+
+<span class="code">&lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br /> &lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;</span>
+
+<br /> <br />
+<h2 class="title">Tampon Boyutu:</h2>
+MyServer'da kullanılacak Tampon boyutunu , myserver.xml dosyasında aşağıdaki satırda değeri ayarlayarak, belirleyebilirsiniz: <br />
+<p class="code">
+&lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br />
+</p>
+<p>
+Tek yapmanız gereken varsayılan değer olan 102400 yerine kendi istediğiniz değeri girmek. Unutmayın ki aslında yaratılacak tampon sizin buraya girdiğiniz değerin (Bayt olarak) iki katı olacak, &ccedil;alışan iş par&ccedil;acı sayısı ile &ccedil;arpılarak. <br /> <br />
+<h2 class="title">Bağlantı Zaman aşımı:</h2>
+
+<span class="code">myserver.xml</span> dosyasında, sunucunuza istemci bağlantıları i&ccedil;in zaman aşımı s&uuml;resini aşağıdaki satırdaki gibi ayarlayabilirsiniz: <br /> <br />
+<p class="code">
+&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br />
+</p>
+<p>
+Zaman birimi saniyedir. Yani yukarıdaki satırda, eğer istemci sitenize 60 saniyeden uzun s&uuml;re erişmezse, bağlantı kesilecektir. Veya dilerseniz, bu değeri 0 olarak ayarlayabilirsiniz, bu durumda HTTP Keep-Alive (s&uuml;rekli etkin) bağlantılarınız olamaz. <br /> <br />
+<h2 class="title">En Fazla Bağlantı:</h2>
+Sunucunuzun kabul edeceği varsayılan en fazla bağlantı sayısını <span class="code">myserver.xml</span> dosyasında aşağıdaki satırı değiştirerek ayarlayabilirsiniz:<br />
+<p class="code">
+&lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
+</p>
+<p>
+Varsayılan değer 0, sınırsız bağlantıyı kabul edeceği anlamına gelir. Bunun dışındaki herhangi bir değer sunucunuza erişebilecek kullanıcı sayısını sınırlayacaktır.
+
+<br /> <br />
+<h2 class="title">En Fazla FastCGI Sunucuları:</h2>
+Sunucunuzun &ccedil;alıştırmasına izin vereceğiniz en fazla FastCGI sunucu sayısını <span class="code">myserver.xml</span> dosyasında aşağıdaki satırı değiştirerek ayarlayabilirsiniz:<br />
+<p class="code">
+&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />
+</p>
+<p>
+
+<h2 class="title">CGI Zaman Aşımı Ayarı:</h2>
+
+MyServer'daki CGI komut dosyalarınız i&ccedil;in varsayılan zaman aşımı s&uuml;resini <span class="code">myserver.xml</span> dosyanızdaki CGI_TIMEOUT değişkeninin değerini değiştirerek ayarlayabilirsiniz.<br /> Tek yapmanız gereken aşağıdaki satırı ihtiyacınız y&ouml;n&uuml;nde değiştirmek:<br />
+<p class="code">
+&lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;<br />
+</p>
+
+<p>
+Yukarıdaki ayarlama CGI Zaman aşımını 15 saniye olarak ayarladığınız anlamına gelir (birim &quot;saniye&quot;)
+
+<br /> <br />
+<h2 class="title">Veri Kısmasının ayarlanması:</h2>
+
+MyServer'da aşağıdaki satırı ekleyerek bağlantılar i&ccedil;in veri kısması ayarlayabilirsiniz (&ouml;ntanımlı olarak kapalıdır).
+<p class="code">
+&lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;<br />
+</p>
+<p>
+(Birim is bayt/saniye'dir)<br /> Eğer aynı satır <span class="code">virtualhosts.xml</span> dosyasında da mevcutsa, ilgili sanal ana makina i&ccedil;in veri kısmasını etkinleştirip ayarlayacaktır.<br /> <br />
+
+Ayrıca, g&uuml;venlik dosyanızda şu ayarları kullanarak, teker teker dizinler i&ccedil;in de veri kısma ayarlayabilirsiniz :<br />
+<p class="code">
+&lt;USER NAME=&quot;Guest&quot; PASS=&quot;&quot; READ=&quot;TRUE&quot; WRITE=&quot;TRUE&quot; BROWSE=&quot;TRUE&quot;<br /> EXECUTE=&quot;TRUE&quot; THROTTLING_RATE=&quot;1024&quot;/&gt;<br />
+</p>
+<p>
+Bununla, Guest -misafir- kullanıcı i&ccedil;in kısmayı 1024  bayt/saniyeolarak ayarlayabilirsiniz.<br /> Aşağıdaki gibi bir satır eklemek isterseniz, &quot;buyukdosya&quot; isimli dosya i&ccedil;in kısmayı ayarlarsınız:<br />
+<p class="code">
+&lt;ITEM FILE=&quot;buyukdosya&quot; READ=&quot;TRUE&quot; WRITE=&quot;FALSE&quot; EXECUTE=&quot;FALSE&quot;<br /> THROTTLING_RATE=&quot;1024&quot; /&gt;<br /> Ayrıca iki se&ccedil;eneği karıştırarak, belirli bir kullanıcı i&ccedil;in belirli bir dosya i&ccedil;in kısma ayarlayabilirsiniz:<br /> &lt;ITEM FILE=&quot;buyukdosya&quot; READ=&quot;TRUE&quot; WRITE=&quot;FALSE&quot; EXECUTE=&quot;FALSE&quot;&gt;<br /> &lt;USER NAME=&quot;Guest&quot; PASS=&quot;&quot; READ=&quot;TRUE&quot; WRITE=&quot;TRUE&quot; BROWSE=&quot;TRUE&quot;<br /> EXECUTE=&quot;TRUE&quot; THROTTLING_RATE=&quot;1024&quot;/&gt;<br /> &lt;/ITEM&gt;<br /><br />
+</p>
+<p>
+Veri kısma ayarı kontrol sırası ş&ouml;yledir:<br /> 1) Kullanıcı &amp; dosya (ITEM altında USER &ouml;zniteliği).<br /> 2) Dosya (ITEM &ouml;zniteliği).<br /> 3) Kullanıcı (Kullanıcı &ouml;zniteliği).<br /> 4) Sanal ana makinalaer (virtualhosts.xml dosyası).<br /> 5) Sunucu ayarı (myserver.xml dosyası).<br /> <br /> <br />
+
+</td>
+</tr>
+</table>
+</body>
+</html>
