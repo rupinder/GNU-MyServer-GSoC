@@ -135,7 +135,7 @@ TODO list for MyServer.
 **	Possibility to have virtual hosts data in external sources(other than virtualhosts.xml).
 
 *	Support for Frontpage extensions.
-*	Desing and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
+*	Design and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
 
 *	Setuid and Setgid for CGI processes.
 *	IPv6 Implementation. 
