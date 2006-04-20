@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Belgeleri - HTTPS - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+
+<table class="center" width="95%">
+
+<tr>
+
+<td class="center">
+
+
+<h1 class="title">HTTPS</h1>
+
+
+<br />
+<h2 class="title">Veri şifreleme &uuml;zerine kısa notlar</h2>
+Veri şifreleme istemci ve sunucu arasında g&ouml;nderilen verinin korunması i&ccedil;in kullanılır. İki tip algoritma vardır:  simetrik ve asimetrik veri şifreleme algoritmaları. Bu iki tip algoritma arasındaki fark, simetrik algoritmada aynı kodların hem şifreleme hem de şifre &ccedil;&ouml;zmek i&ccedil;in kullanılmasıdır. Bu algoritmalar, b&uuml;y&uuml;k istemci sayılı sunucularda kullanılmazlar, &ccedil;&uuml;nk&uuml; yakalanan veri şifresi kodu bilen herhangi bir istemci tarafından &ccedil;&ouml;z&uuml;lebilir ve kodun internet gibi b&uuml;y&uuml;k bir ağda değil de g&uuml;venli bir şekilde (&ouml;rneğin disket s&uuml;r&uuml;c&uuml;) dağıtılması gerekir. Asimetrik algoritmalar farklı olarak , bir kod ile şifrelenen veri yalnızca başka bir kod ile a&ccedil;ılacak şekilde yada tam tersi şekilde &ccedil;alışır. A&ccedil;ık kodu herkes bilebilir fakat &ouml;zel olanı yalnızca sahibi bilir. Bu y&ouml;ntemle kod sahibi kodu yalnızca bilinen istemcilere dağıtmak zorunda değildir, fakat b&uuml;y&uuml;k &ouml;l&ccedil;ekli ağlarda dağıtabilir. 
+
+<br /> <br />
+<h2 class="title">OpenSSL ile Nasıl SSL sertifikası yaratılır</h2>
+Kendi kimliğinizi sertifikalamak i&ccedil;in bir CA(Sertifikasyon Otoritesi) aracılığıyla bir sertifika gereklidir. &Uuml;&ccedil;&uuml;nc&uuml; grup bir Sertifikasyon Otoritesine (CA) kaydettirmeden de bir sertifikayı kullanabilirsiniz, fakat K&ouml;k Sertifikasyon sertifikası yaratarak. OpenSSL k&uuml;t&uuml;phanesini kullanarak sertifika yaratmak ile ilgili t&uuml;m gerekli bilgileri şu adreste bulabilirsiniz :  www.openssl.org. Y&uuml;klemeden sonra, binaries dizinine girip şu komutu &ccedil;alıştırın:  <br /> <span  class="code">openssl genrsa -out server.key</span> <br /> Bu verinizi şifrelemek i&ccedil;in &ouml;zel bir kod yaratacaktır. <br /> <br /> Sonra genel kodu yaratmak i&ccedil;in şu komutu &ccedil;alıştırın: <br /> <span  class="code">openssl req -new -x509 -days 730 -config openssl.cnf -key server.key -out server.pem</span> <br /> Bu şekilde sertifika 730 g&uuml;n kullanılabilir ve genel kod server.pem dosyası olacaktır. <br /> <br />
+
+<h2 class="title">MyServer'da Sertifikaların Kullanımı</h2>
+MyServer'da sertifikaları ayarlamak i&ccedil;in, iki dosya yerleştirmelisiniz: MyServer y&uuml;kleme adresinin altındaki certificates dizininin i&ccedil;in server.key, server.pem dosyaları. Bundan sonra virtualhosts.xml dosyasında https virtual host (sanal ana makina) ayarlamanız gerekir. <br /> <span  class="code">&lt;VHOST&gt;<br /> &lt;NAME&gt;Every connection&lt;/NAME&gt;<br /> &lt;PORT&gt;443&lt;/PORT&gt;<br /> &lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt;<br /> &lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE&gt;<br /> &lt;PROTOCOL&gt;HTTPS&lt;/PROTOCOL&gt;<br /> &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br /> &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br /> &lt;ACCESSLOG&gt;logs/myServer.log&lt;/ACCESSLOG&gt;<br /> &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br /> &lt;/VHOST&gt;<br /></span> <br /> Bu ana makina (host) ile, 443 nolu kapıya(port - HTTPS i&ccedil;in varsayılan port) bir https dinleyici koyar ve certificates/server.key dosyasını &ouml;zel kod i&ccedil;in ve certificates/server.pem dosyasını da genel kod i&ccedil;in kullanırız.
+</td>
+</tr>
+</table>
+</body>
+</html>
+
