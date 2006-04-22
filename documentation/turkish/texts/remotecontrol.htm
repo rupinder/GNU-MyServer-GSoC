@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>MyServer Belgeleri - Uzaktan Kontrol - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">UZAKTAN KONTROL</h1>
+MyServer ayarlarının uzaktan, d&uuml;nyanın herhangi bir yerinden, Kontrol Merkezi aracılığıyla y&ouml;netilmesine izin verir. Tek yapmanız gereken Kontrol Protokol&uuml;n&uuml; etkinleştirmek.<br /> <br /> Bunu yapmak i&ccedil;in, Kontrol Protokol&uuml;n&uuml; kullanacak bir sanal ana makina(host) eklemelisiniz. Bunu, virtualhosts.xml dosyasını d&uuml;zenleyerek yapabilirsiniz, sonu&ccedil;ta şu şekilde g&ouml;r&uuml;nmelidir:<br /> <br />
+<p class="code">&lt;VHOST&gt; <br /> &lt;NAME&gt;Every control connection&lt;/NAME&gt; <br /> &lt;PORT&gt;270&lt;/PORT&gt; <br /> &lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt; &nbsp;<br /> &lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE &gt; &nbsp;<br /> &lt;PROTOCOL&gt;CONTROL&lt;/PROTOCOL&gt; <br /> &lt;DOCROOT&gt;&lt;/DOCROOT&gt; <br /> &lt;SYSFOLDER&gt;&lt;/SYSFOLDER&gt; <br /> &lt;ACCESSLOG&gt;logs/control.log&lt;/ACCESSLOG&gt; <br /> &lt;WARNINGLOG&gt;logs/control.err&lt;/WARNINGLOG&gt; <br /> &lt;/VHOST&gt;&nbsp; </p>
+<p><span class="code">&lt;PORT&gt;270&lt;/PORT&gt;</span> Satırı, Uzaktan Kontrole erişmek i&ccedil;in kullanılacak kapıyı (port) ayarlar. Yukarıdaki &ouml;rnekte, yerel makinanın 270 nolu kapısından(port) bağlanarak web sunucunuzun Kullanıcı aray&uuml;z&uuml; ile Uzaktan Kontrol&uuml;ne ulaşabilirsiniz</p>
+<p>L&uuml;tfen certificates/server.key ve certificates/server.pem dosyalarının kullanmadan &ouml;nce yaratılmış olmaları gerektiğini unutmayın. Ayrıntılı bilgi i&ccedil;in, nasıl SSL kodu yaratılır b&ouml;l&uuml;m&uuml;ne bakınız. <br />
+</p>
+<p>Ayrıca, y&ouml;netici şifresini belirlemek i&ccedil;in myserver.xml dosyasında da aşağıdaki satırları değiştirmeniz gerekir:<br /> <br /> <span class="code">&lt;CONTROL_ENABLED&gt;YES&lt;/CONTROL_ENABLED&gt;&nbsp; <br /> &lt;CONTROL_ADMIN&gt;ADMIN&lt;/CONTROL_ADMIN&gt;&nbsp; <br /> &lt;CONTROL_PASSWORD&gt;SİFRE&lt;/CONTROL_PASSWORD&gt;&nbsp; <br /></span></p>
+<p>Yalnızca, yukarıdaki satırdaki ADMIN ve PASSWORD değerlerini kendi kullanıcı adı ve şifreniz ile değiştirin ve CONTROL_ENABLED parametresini YES olarak ayarlamayı unutmayın (aksi halde, Uzaktan Kontrol Merkezini kullanamazsınız.)<br />
+</p>
+<p>Ayrıca y&ouml;netici adını ve şifresi belirleyin, tercihen admin ve şifre gibi basit kelimeler kullanmayın.</p>
+</td>
+</tr>
+</table>
+</body>
+</html>
