@@ -55,9 +55,15 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
 #ifdef NOT_WIN
 	int ret = ::read(handles[0], buffer, len);
 	if(ret == -1)
+	{
+		terminated = true;
 		return 1;
+	}
 	else
+	{
 		*nbr = (u_long)ret;
+	}
+	return 0;
 #else
   if( !ReadFile(readHandle, buffer, len, nbr, NULL) || !nbr)
   {
@@ -72,6 +78,7 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
   }
   return 0;
 #endif
+
 	return 0;
 }
 
@@ -131,7 +138,10 @@ int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 #ifdef NOT_WIN
 	int ret = ::write(handles[1], buffer, len);
 	if(ret == -1)
-      return 1;
+	{
+		terminated = true;
+    return 1;
+	}
 	else
 	  *nbw = (u_long) ret;
 #else
