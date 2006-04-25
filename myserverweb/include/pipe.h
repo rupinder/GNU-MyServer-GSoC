@@ -29,6 +29,7 @@ using namespace std;
 class Pipe : public Stream
 {
 private:
+  bool terminated;
 #ifdef NOT_WIN
 	int handles[2];
 #else
@@ -37,7 +38,7 @@ private:
 #endif
 public:
 	Pipe();
-	int create();
+	int create(bool readPipe = true);
 	long getReadHandle();
 	long getWriteHandle();
 	void inverted(Pipe&);
@@ -46,5 +47,6 @@ public:
 	void close();
 	void closeRead();
 	void closeWrite();
+	bool pipeTerminated(){return terminated;}
 };
 #endif

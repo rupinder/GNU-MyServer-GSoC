@@ -335,10 +335,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       chain.clearAllFilters(); 
       return td->http->raiseHTTPError(e_500);
     }
-		/* Close the write stream of the pipe on the server.  */
-		stdOutFile.closeWrite();
-		
-		procStartTime = getTicks();
+    /* Close the write stream of the pipe on the server.  */
+	stdOutFile.closeWrite();	
+	procStartTime = getTicks();
   }
   /* Reset the buffer2 length counter. */
 	td->buffer2->setLength(0);
@@ -362,6 +361,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			chain.clearAllFilters(); 
 			return td->http->raiseHTTPError(e_500);
 		}
+		if(stdOutFile.pipeTerminated())
+  		  break;
+
 		headerOffset += nBytesRead;
 
 		if(headerOffset > td->buffersize2 - 5)
@@ -495,40 +497,17 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				}
 			}
 		}//header. 
+      }
 
-		/* Flush the buffer.  Data from the header parsing can be present.  */
-		if(headerOffset-headerSize)
+	  /* Flush the buffer.  Data from the header parsing can be present.  */
+	  if(headerOffset-headerSize)
+	  {
+		if(useChunks)
 		{
-			if(useChunks)
-			{
-				ostringstream tmp;
-				tmp << hex << (headerOffset-headerSize) << "\r\n";
-				td->response.contentLength.assign(tmp.str());
-				if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
-				{
-					stdOutFile.close();
-					stdInFile.closeFile();
-					chain.clearAllFilters(); 
-					/* Remove the connection on sockets error.  */
-					cgiProc.terminateProcess();
-					return 0;       
-				}
-			}
-			
-			if(chain.write((td->buffer2->getBuffer() + headerSize), 
-										 nBytesRead-headerSize, &nbw2))
-			{
-				stdOutFile.close();
-				stdInFile.closeFile();
-				chain.clearAllFilters(); 
-				/* Remove the connection on sockets error.  */
-				cgiProc.terminateProcess();
-				return 0;       
-			}
-			
-			nbw += nbw2;
-			
-			if(useChunks && chain.write("\r\n", 2, &nbw2))
+			ostringstream tmp;
+			tmp << hex << (headerOffset-headerSize) << "\r\n";
+			td->response.contentLength.assign(tmp.str());
+			if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
 			{
 				stdOutFile.close();
 				stdInFile.closeFile();
@@ -538,10 +517,32 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				return 0;       
 			}
 		}
+		if(chain.write((td->buffer2->getBuffer() + headerSize), 
+								 headerOffset-headerSize, &nbw2))
+		{
+			stdOutFile.close();
+			stdInFile.closeFile();
+			chain.clearAllFilters(); 
+			/* Remove the connection on sockets error.  */
+			cgiProc.terminateProcess();
+			return 0;       
+		}
+		
+		nbw += nbw2;
+		
+		if(useChunks && chain.write("\r\n", 2, &nbw2))
+		{
+			stdOutFile.close();
+			stdInFile.closeFile();
+			chain.clearAllFilters(); 
+			/* Remove the connection on sockets error.  */
+			cgiProc.terminateProcess();
+			return 0;       
+		}
 	}
-
+	
 	do
-  {
+   {
 		/* Process timeout.  */
 		if((int)(getTicks() - procStartTime) > cgiTimeout)
 		{
@@ -553,18 +554,26 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			return 0;       
 		}
 		
-		/* Read data from the process standard output file.  */
-		if(stdOutFile.read(td->buffer2->getBuffer(), 
-											 td->buffer2->getRealLength(), &nBytesRead))
-    {
+		if(stdOutFile.pipeTerminated())
+		{
+          nBytesRead = 0;   
+        }
+        else
+        {
+		  /* Read data from the process standard output file.  */
+		  if(stdOutFile.read(td->buffer2->getBuffer(), 
+	     					       td->buffer2->getRealLength(), 
+                                   &nBytesRead))
+          {
 			stdOutFile.close();
 			stdInFile.closeFile();
 			chain.clearAllFilters(); 
 			/* Remove the connection on sockets error.  */
 			cgiProc.terminateProcess();
 			return 0;      
-		}
+		  }
 
+        }
 		if(nBytesRead)
 		{
 			if(!td->appendOutputs)
@@ -622,7 +631,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 				nbw += nbw2;
 			}
 		}
-	}while(nBytesRead || cgiProc.isProcessAlive());
+	}while(!stdOutFile.pipeTerminated());
 
 	if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
 	{

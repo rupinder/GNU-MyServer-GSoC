@@ -59,7 +59,18 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
 	else
 		*nbr = (u_long)ret;
 #else
- return !ReadFile(readHandle, buffer, len, nbr, NULL);
+  if( !ReadFile(readHandle, buffer, len, nbr, NULL) || !nbr)
+  {
+    *nbr = 0;
+    if(GetLastError() != ERROR_BROKEN_PIPE)
+      return 1;
+    else
+    {
+      terminated = true;
+      return 0;
+    }
+  }
+  return 0;
 #endif
 	return 0;
 }
@@ -68,12 +79,44 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
 /*!
  *Create the pipe descriptors.  Return 0 on success.
  */
-int Pipe::create()
+int Pipe::create(bool readPipe)
 {
 #ifdef NOT_WIN
 	return pipe(handles);
 #else
-  return !CreatePipe(&readHandle, &writeHandle, NULL, 0);
+  HANDLE tmp;
+  SECURITY_ATTRIBUTES sa;
+  sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+  sa.bInheritHandle = TRUE;
+  sa.lpSecurityDescriptor = NULL;
+  if(!CreatePipe(&readHandle, &writeHandle, &sa, 0))
+    return 1;
+    
+  if(readPipe)
+  {
+    if(!DuplicateHandle(GetCurrentProcess(), readHandle, 
+                        GetCurrentProcess(), &tmp, 0, 
+                        FALSE, DUPLICATE_SAME_ACCESS))
+    {
+      close();
+      return 1;                    
+    }
+    CloseHandle(readHandle);
+    readHandle = tmp;
+  }
+  else
+  {
+    if(!DuplicateHandle(GetCurrentProcess(), writeHandle, 
+                        GetCurrentProcess(), &tmp, 0, 
+                        FALSE, DUPLICATE_SAME_ACCESS))
+    {
+      close();
+      return 1;                    
+    }
+    CloseHandle(writeHandle);
+    writeHandle = tmp;
+  }
+  return 0;
 #endif
 }
 
@@ -88,9 +131,9 @@ int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 #ifdef NOT_WIN
 	int ret = ::write(handles[1], buffer, len);
 	if(ret == -1)
-		return 1;
+      return 1;
 	else
-		*nbw = (u_long) ret;
+	  *nbw = (u_long) ret;
 #else
   return !WriteFile(writeHandle, buffer, len, nbw, NULL);
 #endif
@@ -160,6 +203,7 @@ void Pipe::inverted(Pipe& pipe)
 
 Pipe::Pipe()
 {
+  terminated = false;
 #ifdef NOT_WIN
 	handles[0] = handles[1] = 0;
 #else
