@@ -59,6 +59,11 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
 		terminated = true;
 		return 1;
 	}
+	else if(!ret)
+	{
+		terminated = true;
+		return 0;
+	}
 	else
 	{
 		*nbr = (u_long)ret;

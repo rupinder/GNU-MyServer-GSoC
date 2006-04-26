@@ -341,7 +341,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	{
 		/* Do not try to read using a small buffer as this has some
 			 bad influence on the performances.  */
-		if(td->buffer2->getRealLength()-headerOffset-1 < 512)
+		if(td->buffer2->getRealLength() - headerOffset - 1 < 512)
 			break;
 
 		if(stdOutFile.read(td->buffer2->getBuffer() + headerOffset, 
@@ -357,6 +357,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 			chain.clearAllFilters();
 			return td->http->raiseHTTPError(e_500);
 		}
+
 		if(stdOutFile.pipeTerminated())
   		  break;
 
@@ -375,7 +376,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 		if(headerOffset > td->buffersize2 - 5)
 			(td->buffer2->getBuffer())[headerOffset] = '\0';
 		
-		if(nBytesRead == 0 && headerOffset == 0)
+		if(headerOffset == 0)
 		{
 			td->connection->host->warningslogRequestAccess(td->id);
 			td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read");
