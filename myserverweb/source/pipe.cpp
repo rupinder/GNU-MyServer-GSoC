@@ -85,6 +85,8 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
 
 /*!
  *Create the pipe descriptors.  Return 0 on success.
+ *\param readPipe Specify if the current process uses it for read.  A false
+ *value means the process uses it to write.
  */
 int Pipe::create(bool readPipe)
 {
