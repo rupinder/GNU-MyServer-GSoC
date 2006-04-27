@@ -405,14 +405,15 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     /*!
      *Send other data in the buffer.
      */
-		chain.write((char*)(buffer + headerSize), nBytesRead - headerSize, &nbw2);
+		chain.write((char*)(buffer + headerSize), nBytesRead - headerSize, 
+								&nbw2);
     nbw += nbw2;
 	}
 	else
   {
     u_long nbw2;
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
-                                          &td->response);
+																				 &td->response);
     if(onlyHeader)
     {
       chain.clearAllFilters();
@@ -427,7 +428,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   /* Flush the rest of the file.  */
   do
 	{
-    OutFileHandle.readFromFile(buffer, td->buffer2->getLength(), &nBytesRead);
+    OutFileHandle.readFromFile(buffer, td->buffer2->getLength(), 
+															 &nBytesRead);
 		if(nBytesRead)
 		{
       int ret;
@@ -462,11 +464,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
 	}while(nBytesRead);
 
-  {
-    ostringstream buffer;
-    buffer << nbw;
-    td->response.contentLength.assign(buffer.str());
-  }
+	td->sentData += nbw;
 
   chain.clearAllFilters();	
 	OutFileHandle.closeFile();

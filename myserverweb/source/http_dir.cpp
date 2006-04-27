@@ -578,11 +578,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	}
 
 	/* For logging activity.  */	
-	{
-		ostringstream tmp;
-		tmp << sentData;
-		td->response.contentLength.assign(tmp.str());
-	}
+	td->sentData += sentData;
 
   chain.clearAllFilters(); 
   return 1;

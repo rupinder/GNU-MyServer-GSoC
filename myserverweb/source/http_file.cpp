@@ -154,7 +154,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     /*
      *bytesToSend is the interval between the first and the last byte.  
      */
-    bytesToSend = lastByte-firstByte;
+    bytesToSend = lastByte - firstByte;
     
     /*
      *If fail to set the file pointer returns an internal server error.  
@@ -184,15 +184,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(td->mime)
     {
       u_long nbw;
-      if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-                                             td->mime->filters, 
+      if(td->mime && 
+				 Server::getInstance()->getFiltersFactory()->chain(&chain, 
+																												 td->mime->filters, 
                                                          &memStream, &nbw))
       {
         h.closeFile();
         chain.clearAllFilters();
         return 0;
       }
-      dataSent += nbw;  
+      dataSent += nbw;
     }
     
     if(useGzip && !chain.isFilterPresent("gzip"))
@@ -522,12 +523,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     return td->http->raiseHTTPError(e_500);
   };
  
-  /* Update the Content-Length field for logging activity.  */
-  {
-    ostringstream buffer;
-    buffer << dataSent;
-    td->response.contentLength.assign(buffer.str());
-  } 
+  /* For logging activity.  */
+	td->sentData += dataSent;
+
   chain.clearAllFilters();
 	return 1;
 }

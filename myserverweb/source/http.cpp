@@ -1458,6 +1458,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 int Http::logHTTPaccess()
 {
 	char tmpStrInt[12];
+
   string time;
 
   try
@@ -1505,10 +1506,10 @@ int Http::logHTTPaccess()
     
     *td.buffer2<< "\" " << tmpStrInt  << " ";
 	
-    if(td.response.contentLength.length())
-      *td.buffer2  << td.response.contentLength.c_str();
-    else
-      *td.buffer2 << "0";
+
+    sprintf(tmpStrInt, "%u", td.sentData);
+		*td.buffer2 << tmpStrInt;
+
     if(td.connection->host)
     {
 			HttpRequestHeader::Entry *userAgent = td.request.other.get("User-Agent");
@@ -1558,24 +1559,25 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   DynamicHttpCommand *dynamicCommand;
   try
   {
-    td.buffer=((ClientsThread*)a->thread)->getBuffer();
-    td.buffer2=((ClientsThread*)a->thread)->getBuffer2();
-    td.buffersize=bs1;
-    td.buffersize2=bs2;
-    td.nBytesToRead=nbtr;
-    td.identity[0]='\0';
-    td.connection=a;
-    td.id=id;
+    td.buffer = ((ClientsThread*)a->thread)->getBuffer();
+    td.buffer2 = ((ClientsThread*)a->thread)->getBuffer2();
+    td.buffersize = bs1;
+    td.buffersize2 = bs2;
+    td.nBytesToRead = nbtr;
+    td.identity[0] = '\0';
+    td.connection = a;
+    td.id = id;
     td.lastError = 0;
-    td.http=this;
-    td.appendOutputs=0;
+    td.http = this;
+    td.appendOutputs = 0;
     td.onlyHeader = 0;
     td.inputData.setHandle((FileHandle)0);
     td.outputData.setHandle((FileHandle)0);
     td.filenamePath.assign("");
     td.outputDataPath.assign("");
     td.inputDataPath.assign("");
-    td.mime=0;
+    td.mime = 0;
+		td.sentData = 0;
 		td.vhostDir.assign("");
 		td.vhostSys.assign("");
 		{
@@ -1592,7 +1594,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     HttpHeaders::resetHTTPResponse(&td.response);
     
     /*! Reset the HTTP status once per request. */
-    td.response.httpStatus=200;
+    td.response.httpStatus = 200;
     
     /*!
      *If the connection must be removed, remove it.
@@ -1610,10 +1612,11 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         return 0;
       }
     }
-    validRequest=HttpHeaders::buildHTTPRequestHeaderStruct(&td.request, &td);
+    validRequest = 
+			HttpHeaders::buildHTTPRequestHeaderStruct(&td.request, &td);
   
     /*! If the header is incomplete returns 2. */
-    if(validRequest==-1)/*!If the header is incomplete returns 2*/
+    if(validRequest == -1)/*!If the header is incomplete returns 2*/
     {
       /*! Be sure that the client can handle the 100 status code. */
       if(td.request.ver.compare("HTTP/1.0"))
@@ -1635,7 +1638,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     /*!
      *If the validRequest cointains an error code send it to the user.
      */
-    if(validRequest!=e_200)
+    if(validRequest != e_200)
     {
       retvalue = raiseHTTPError(validRequest);
       logHTTPaccess();

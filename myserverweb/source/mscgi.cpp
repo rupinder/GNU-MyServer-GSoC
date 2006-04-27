@@ -106,8 +106,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
   chain.setStream(&(td->connection->socket));
 
 	if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-																										td->mime->filters, 
-																				 &(td->connection->socket) , &nbw, 1))
+																								 td->mime->filters, 
+																								 &(td->connection->socket), 
+																																	 &nbw, 1))
 	{
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
@@ -161,7 +162,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	}
 	if(data.errorPage)
 	{
-		int errID=getErrorIDfromHTTPStatusCode(data.errorPage);
+		int errID = getErrorIDfromHTTPStatusCode(data.errorPage);
 		if(errID != -1)
     {
       chain.clearAllFilters(); 
@@ -170,10 +171,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			return td->http->raiseHTTPError(errID);
     }
 	}
-	/* Compute the response length.  */
-  tmpStream << (u_int)data.stdOut.getFileSize();
+	/* Compute the response length for logging.  */
+  td->sentData += data.stdOut.getFileSize();
 
-  td->response.contentLength.assign(tmpStream.str());
 	/* Send all the data to the client if the append is not used.  */
 	if(!td->appendOutputs)
 	{

@@ -98,6 +98,7 @@ struct HttpThreadContext
 	int auth_scheme;
 	Http* http;
 	MimeRecord *mime;
+	int sentData;
 	const char * getVhostDir();
 	const char * getVhostSys();
 	const char * getHashedData (const char *name);

@@ -656,11 +656,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	}
 
 	/* Update the Content-Length field for logging activity.  */
-  {
-    ostringstream buffer;
-    buffer << nbw;
-    td->response.contentLength.assign(buffer.str());
-  }
+	td->sentData += nbw;
+
   chain.clearAllFilters(); 	
 
 	cgiProc.terminateProcess();

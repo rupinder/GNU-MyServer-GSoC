@@ -134,7 +134,7 @@ private:
 #ifdef WIN32	
 	static int initialized;
 	static ConnTableRecord *connTable;
-	static  u_long max_Connections;
+	static  u_long maxConnections;
 #endif	
 public:	
 #ifdef WIN32

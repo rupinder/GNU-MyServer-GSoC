@@ -566,8 +566,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			break;
 		}
 	}
-	sprintf(tmpSize, "%u", (u_int)(con.tempOut.getFileSize()-headerSize));
-  td->response.contentLength.assign(tmpSize);
+
+	/* For logging.  */
+	td->sentData += con.tempOut.getFileSize()-headerSize;
+
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response,td,
                                              td->buffer->getBuffer());
 
