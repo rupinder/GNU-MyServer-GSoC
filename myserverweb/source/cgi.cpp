@@ -57,10 +57,14 @@ int Cgi::cgiTimeout = MYSERVER_SEC(15);
  *\param execute Specify if the script has to be executed.
  *\param onlyHeader Specify if send only the HTTP header.
  */
-int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath, 
-              const char *cgipath, int execute, int onlyHeader)
+int Cgi::send(HttpThreadContext* td, ConnectionPtr s, 
+							const char* scriptpath, const char *cgipath, 
+							int execute, int onlyHeader)
 {
- 	/* Use this flag to check if the CGI executable is nph(Non Parsed Header).  */
+ 	/* 
+	 *Use this flag to check if the CGI executable is 
+	 *nph (Non Parsed Header).  
+	 */
 	int nph = 0;
 	ostringstream cmdLine;
   u_long nbw = 0;
@@ -79,6 +83,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	bool keepalive = false;
 	bool headerCompleted = false;
 	u_long headerOffset = 0;
+
 	/*!
    *Standard CGI uses STDOUT to output the result and the STDIN 
    *to get other params like in a POST request.
@@ -89,7 +94,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	td->scriptPath.assign(scriptpath);
   
   {
-    /* Do not modify the text between " and ". */
+    /* Do not modify the text between " and ".  */
     int x;
     int subString = cgipath[0] == '"';
     int len = strlen(cgipath);
@@ -133,7 +138,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
      *If the cgipath is enclosed between " and " do not consider them 
      *when splitting directory and file name.
      */
-    if(x<len)
+    if(x < len)
     {
       string tmpString(cgipath);
       int begin = tmpString[0] == '"' ? 1: 0;
@@ -159,7 +164,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
   chain.setStream(&(td->connection->socket));
   if(td->mime)
   {
-    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
+    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
 															td->mime->filters, 
                               &(td->connection->socket) , &nbw, 1))
       {
@@ -236,7 +241,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
       else
       {
         td->connection->host->warningsLogWrite(
-                                          "Cgi: Executable file not specified");
+                                    "Cgi: Executable file not specified");
       }
       td->connection->host->warningslogTerminateAccess(td->id);		
       td->scriptPath.assign("");
@@ -548,100 +553,101 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
 	
 	/* Send the rest of the data until we can read from the pipe.  */
 	do
-   {
-		 /* Process timeout.  */
-		 if((int)(getTicks() - procStartTime) > cgiTimeout)
-		 {
-			 stdOutFile.close();
-			 stdInFile.closeFile();
-			 chain.clearAllFilters(); 
-			 /* Remove the connection on sockets error.  */
-			 cgiProc.terminateProcess();
-			 return 0;       
-		 }
+	{
+		/* Process timeout.  */
+		if((int)(getTicks() - procStartTime) > cgiTimeout)
+		{
+			stdOutFile.close();
+			stdInFile.closeFile();
+			chain.clearAllFilters(); 
+			/* Remove the connection on sockets error.  */
+			cgiProc.terminateProcess();
+			return 0;       
+		}
 		
-		 if(stdOutFile.pipeTerminated() || 
-				(!nBytesRead && !cgiProc.isProcessAlive()))
-		 {
-			 nBytesRead = 0;   
-		 }
-		 else
-		 {
-			 /* Read data from the process standard output file.  */
-			 if(stdOutFile.read(td->buffer2->getBuffer(), 
-													td->buffer2->getRealLength(), 
-													&nBytesRead))
-			 {
-				 stdOutFile.close();
-				 stdInFile.closeFile();
-				 chain.clearAllFilters(); 
-				 /* Remove the connection on sockets error.  */
-				 cgiProc.terminateProcess();
-				 return 0;      
-			 }
-			 
-		 }
+		if(stdOutFile.pipeTerminated() || 
+			 (!nBytesRead && !cgiProc.isProcessAlive()))
+		{
+			nBytesRead = 0;   
+		}
+		else
+		{
+			/* Read data from the process standard output file.  */
+			if(stdOutFile.read(td->buffer2->getBuffer(), 
+												 td->buffer2->getRealLength(), 
+												 &nBytesRead))
+			{
+				stdOutFile.close();
+				stdInFile.closeFile();
+				chain.clearAllFilters(); 
+				/* Remove the connection on sockets error.  */
+				cgiProc.terminateProcess();
+				return 0;      
+			}
+			
+		}
 
-		 if(nBytesRead)
-		 {
-			 if(!td->appendOutputs)
-			 {
-				 if(useChunks)
-				 {
-					 ostringstream tmp;
-					 tmp << hex <<  nBytesRead << "\r\n";
-					 td->response.contentLength.assign(tmp.str());
-					 if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
-					 {
-						 stdOutFile.close();
-						 stdInFile.closeFile();
-						 chain.clearAllFilters(); 
-						 /* Remove the connection on sockets error.  */
-						 cgiProc.terminateProcess();
-						 return 0;       
-					 }
-				 }
+		if(nBytesRead)
+		{
+			if(!td->appendOutputs)
+			{
+				if(useChunks)
+				{
+					ostringstream tmp;
+					tmp << hex <<  nBytesRead << "\r\n";
+					td->response.contentLength.assign(tmp.str());
+					if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+					{
+						stdOutFile.close();
+						stdInFile.closeFile();
+						chain.clearAllFilters(); 
+						/* Remove the connection on sockets error.  */
+						cgiProc.terminateProcess();
+						return 0;       
+					}
+				}
 
-				 if(chain.write(td->buffer2->getBuffer(), nBytesRead, &nbw2))
-				 {
-					 stdOutFile.close();
-					 stdInFile.closeFile();
-					 chain.clearAllFilters(); 
-					 /* Remove the connection on sockets error.  */
-					 cgiProc.terminateProcess();
-					 return 0;      
-				 }
+				if(chain.write(td->buffer2->getBuffer(), nBytesRead, &nbw2))
+				{
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;      
+				}
 
-				 nbw += nbw2;
-				 
-				 if(useChunks && chain.write("\r\n", 2, &nbw2))
-				 {
-					 stdOutFile.close();
-					 stdInFile.closeFile();
-					 chain.clearAllFilters(); 
-					 /* Remove the connection on sockets error.  */
-					 cgiProc.terminateProcess();
-					 return 0;       
-				 }
-			 }
-			 else/* !td->appendOutputs.  */
-			 {
-				 if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
-																			 nBytesRead, &nbw2))
-				 {
-					 stdOutFile.close();
-					 stdInFile.closeFile();
-					 chain.clearAllFilters(); 
-					 File::deleteFile(td->inputDataPath);
-					 /* Remove the connection on sockets error.  */
-					 cgiProc.terminateProcess();
-					 return 0;      
-				 }
-				 nbw += nbw2;
-			 }
-		 }
-	 } while(!stdOutFile.pipeTerminated() && 
-					 ( nBytesRead || cgiProc.isProcessAlive()));
+				nbw += nbw2;
+				
+				if(useChunks && chain.write("\r\n", 2, &nbw2))
+				{
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;       
+				}
+			}
+			else/* !td->appendOutputs.  */
+			{
+				if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
+																			nBytesRead, &nbw2))
+				{
+					stdOutFile.close();
+					stdInFile.closeFile();
+					chain.clearAllFilters(); 
+					File::deleteFile(td->inputDataPath);
+					/* Remove the connection on sockets error.  */
+					cgiProc.terminateProcess();
+					return 0;      
+				}
+				nbw += nbw2;
+			}
+		}
+	} 
+	while(!stdOutFile.pipeTerminated() && 
+				( nBytesRead || cgiProc.isProcessAlive()));
 	
 	/* Send the last null chunk if needed.  */
 	if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
@@ -678,7 +684,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s, const char* scriptpath,
  *This function is used by other server side protocols too.
  *\param td The HTTP thread context.
  *\param cgiEnv The zero terminated list of environment string.
- *\param processEnv Specify if add current process environment variables too.
+ *\param processEnv Specify if add current process environment 
+ *variables too.
  */
 void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv, 
                                     int processEnv)
