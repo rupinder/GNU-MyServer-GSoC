@@ -96,7 +96,13 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
 int Pipe::create(bool readPipe)
 {
 #ifdef NOT_WIN
+
+#ifdef HAVE_PIPE
 	return pipe(handles);
+#else
+	return 1;
+#endif
+
 #else
   HANDLE tmp;
   SECURITY_ATTRIBUTES sa;
