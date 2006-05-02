@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -36,7 +36,7 @@ extern "C" {
 #endif
 }
 
-/*! External libraries to be included in the project. */
+/*! External libraries to be included in the project.  */
 #ifdef WIN32
 #pragma comment(lib,"winmm.lib")
 #endif
@@ -44,13 +44,13 @@ extern "C" {
 #define MYSERVER_RUNAS_CONSOLE 1
 #define MYSERVER_RUNAS_SERVICE 2
 
-void console_service ();
+void consoleService ();
 
 #ifdef WIN32
 void __stdcall myServerCtrlHandler(u_long fdwControl);
 void __stdcall myServerMain (u_long , LPTSTR *argv); 
 #else
-int  write_pidfile(char*);
+int  writePidfile(char*);
 #endif
 void runService();
 void registerService();
@@ -88,21 +88,21 @@ void Sig_Hup(int signal)
 
 struct argp_input
 {
-  /*! Print the version for MyServer? */
+  /*! Print the version for MyServer?  */
   int version;
   char* logFileName;
-  /*! Define how run the server. */
+  /*! Define how run the server.  */
   int runas;
   char* pidFileName;
 };
 
 static char doc[] = "MyServer ";
-static char args_doc[] = "";
+static char argsDoc[] = "";
 
-/*! Use the GNU C argp parser under not windows environments. */
+/*! Use the GNU C argp parser under not windows environments.  */
 static struct argp_option options[] = 
 {
-  /*LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION*/
+  /* LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION.  */
 	{"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
 	{"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server(by default console mode)"},
 	{"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
@@ -110,55 +110,56 @@ static struct argp_option options[] =
 	{0}
 };
 
-static error_t parse_opt(int key, char *arg, struct argp_state *state)
+static error_t parseOpt(int key, char *arg, struct argp_state *state)
 {       
   argp_input *in = static_cast<argp_input*>(state->input);
   switch(key)
   {
-     case 'v':
-       in->version = 1;
-       break;
-       
-     case 'r':
-       if(arg)
-       {
-         if(!strcmpi(arg, "CONSOLE"))
-           in->runas = MYSERVER_RUNAS_CONSOLE;
-         else if(!strcmpi(arg, "SERVICE"))
-           in->runas = MYSERVER_RUNAS_SERVICE;
-       }
-       else
-         in->runas = MYSERVER_RUNAS_CONSOLE;
-       break;
+	case 'v':
+		in->version = 1;
+		break;
+    
+	case 'r':
+		if(arg)
+		{
+			if(!strcmpi(arg, "CONSOLE"))
+				in->runas = MYSERVER_RUNAS_CONSOLE;
+			else if(!strcmpi(arg, "SERVICE"))
+				in->runas = MYSERVER_RUNAS_SERVICE;
+		}
+		else
+			in->runas = MYSERVER_RUNAS_CONSOLE;
+		break;
+
   case 'l':
-       in->logFileName = arg;
-       break;
-       
-     case 'p':
-       in->pidFileName = arg;
-       break;
-       
-     case ARGP_KEY_ARG:
-     case ARGP_KEY_END:
-       break;
-       
-     default:
-       return static_cast<error_t>(ARGP_ERR_UNKNOWN);
+		in->logFileName = arg;
+		break;
+    
+	case 'p':
+		in->pidFileName = arg;
+		break;
+    
+	case ARGP_KEY_ARG:
+	case ARGP_KEY_END:
+		break;
+    
+	default:
+		return static_cast<error_t>(ARGP_ERR_UNKNOWN);
   }
   return static_cast<error_t>(0);
 }
 
-static struct argp myserver_argp = {options, parse_opt, args_doc, doc};
+static struct argp myserverArgp = {options, parseOpt, argsDoc, doc};
 
 #endif
 
 /*!
- *Main function for MyServer
+ *Main function for MyServer.
  */
 int main (int argn, char **argv)
 {
-  int runas=MYSERVER_RUNAS_CONSOLE;
-  int path_len;
+  int runas = MYSERVER_RUNAS_CONSOLE;
+  int pathLen;
 #ifdef ARGP
 	struct argp_input input;
 #endif
@@ -190,35 +191,35 @@ int main (int argn, char **argv)
 	}
   catch(...)
   {
-    /*! Die if we get exceptions here. */
+    /*! Die if we get exceptions here.  */
     return(1);
   };
-  path_len = strlen(argv[0]);
-  path = new char[path_len + 1];
+  pathLen = strlen(argv[0]);
+  path = new char[pathLen + 1];
   if(path == 0)
     return 1;
-	strncpy(path, argv[0], path_len);
+	strncpy(path, argv[0], pathLen);
 	
 	{
-		u_long len = path_len;
-		while((path[len]!='\\')&&(path[len]!='/'))
+		u_long len = pathLen;
+		while((path[len] != '\\') && (path[len] != '/'))
 			len--;
-		path[len]='\0';
+		path[len] = '\0';
 	}
-	/*! Current working directory is where the myserver executable is. */
+	/*! Current working directory is where the myserver executable is.  */
 	setcwd(path);
   
-  /*! We can free path memory now. */
+  /*! We can free path memory now.  */
   delete [] path;
   
 #ifdef ARGP
-	/*! Reset the struct. */
+	/*! Reset the struct.  */
 	input.version = 0;
   input.logFileName = 0;
 	input.runas = MYSERVER_RUNAS_CONSOLE;
   input.pidFileName = 0;
-	/*! Call the parser. */
-	argp_parse(&myserver_argp, argn, argv, 0, 0, &input);
+	/*! Call the parser.  */
+	argp_parse(&myserverArgp, argn, argv, 0, 0, &input);
 	runas=input.runas;
   if(input.logFileName)
 	{
@@ -228,7 +229,7 @@ int main (int argn, char **argv)
       return 1;
     }
   }
-	/*! If the version flag is up, show the version and exit. */
+	/*! If the version flag is up, show the version and exit.  */
 	if(input.version)
 	{
 	  cout << "MyServer "<< versionOfSoftware << endl;
@@ -245,16 +246,16 @@ int main (int argn, char **argv)
 #else
 	if(argn > 1)
 	{       
-		if(!lstrcmpi(argv[1],"VERSION"))
+		if(!lstrcmpi(argv[1], "VERSION"))
 		{
 			cout << "MyServer " << versionOfSoftware << endl;
 			return 0;
 		}
-		if(!lstrcmpi(argv[1],"CONSOLE"))
+		if(!lstrcmpi(argv[1], "CONSOLE"))
 		{
 			runas = MYSERVER_RUNAS_CONSOLE;
 		}
-		if(!lstrcmpi(argv[1],"REGISTER"))
+		if(!lstrcmpi(argv[1], "REGISTER"))
 		{
       registerService();
 #ifndef ARGP
@@ -263,17 +264,17 @@ int main (int argn, char **argv)
 			runas = MYSERVER_RUNAS_SERVICE;
       return 0;
 		}
-		if(!lstrcmpi(argv[1],"RUNSERVICE"))
+		if(!lstrcmpi(argv[1], "RUNSERVICE"))
 		{
 			RunAsService();
 			return 0;
 		}
-		if(!lstrcmpi(argv[1],"UNREGISTER"))
+		if(!lstrcmpi(argv[1], "UNREGISTER"))
 		{
 			removeService();
 			runas = MYSERVER_RUNAS_SERVICE;
 		}
-		if(!lstrcmpi(argv[1],"SERVICE"))
+		if(!lstrcmpi(argv[1], "SERVICE"))
 		{
 			/*!
 			 *Set the log file to use when in service mode.
@@ -285,76 +286,75 @@ int main (int argn, char **argv)
   /*!
    *Start here the MyServer execution.
    */
-   
-	 try
+	try
 		 {
-    switch(runas)
-    {
-		case MYSERVER_RUNAS_CONSOLE:
-			console_service();
-			break;
-		case MYSERVER_RUNAS_SERVICE:
+			 switch(runas)
+			 {
+			 case MYSERVER_RUNAS_CONSOLE:
+				 consoleService();
+				 break;
+			 case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
-			runService();
+				 runService();
 #else
-      /*!
-       *Run the daemon.
-       *pid is the process ID for the forked process.
-       *Fork the process.
-       */
-      pid = fork();
+				 /*!
+					*Run the daemon.
+					*pid is the process ID for the forked process.
+					*Fork the process.
+					*/
+				 pid = fork();
 			
-      /*!  
-       *An error happened, return with errors.
-       */
-      if (pid < 0) 
-      {
-        return 1;
-      }
-      /*!
-       *A good process id, return with success. 
-       */
-      if (pid > 0) 
-      {
-        return 0;
-      }
-      /*!
-       *Store the PID.
-       */
+				 /*!  
+					*An error happened, return with errors.
+					*/
+				 if (pid < 0) 
+				 {
+					 return 1;
+				 }
+				 /*!
+					*A good process id, return with success. 
+					*/
+				 if (pid > 0) 
+				 {
+					 return 0;
+				 }
+				 /*!
+					*Store the PID.
+					*/
 #ifdef ARGP
-      if(input.pidFileName)
-        write_pidfile(input.pidFileName);
-      else
-        write_pidfile("/var/run/myserver.pid");
+				 if(input.pidFileName)
+					 writePidfile(input.pidFileName);
+				 else
+					 writePidfile("/var/run/myserver.pid");
 #else
-      write_pidfile("/var/run/myserver.pid");
+				 writePidfile("/var/run/myserver.pid");
 #endif
-      /*!
-       *Create a SID for the new process.
-       */
-      sid = setsid();
+				 /*!
+					*Create a SID for the new process.
+					*/
+				 sid = setsid();
 
-      /*!
-       *Error in setting a new sid, return the error.
-       */
-      if (sid < 0) 
-      {
-        return 1;
-      }   
+				 /*!
+					*Error in setting a new sid, return the error.
+					*/
+				 if (sid < 0) 
+				 {
+					 return 1;
+				 }
     
-      /*!
-       *Finally run the server from the forked process.
-       */
-			console_service();
+				 /*!
+					*Finally run the server from the forked process.
+					*/
+			consoleService();
 #endif
 			break;
-    }
-  }
-  catch(...)
-  {
-    return 1;
-  };
-        return 0;
+			 }
+		 }
+	 catch(...)
+		 {
+			 return 1;
+		 };
+	 return 0;
 } 
 
 #ifndef WIN32
@@ -362,7 +362,7 @@ int main (int argn, char **argv)
 /*!
  *Write the current PID to the file.
  */
-int write_pidfile(char* filename)
+int writePidfile(char* filename)
 {
 	int pidfile;
 	pid_t pid = getpid(); 
@@ -382,9 +382,9 @@ int write_pidfile(char* filename)
 #endif
 
 /*!
- *Start MyServer in console mode
+ *Start MyServer in console mode.
  */
-void console_service ()
+void consoleService ()
 {
 #ifdef WIN32
 	SetConsoleCtrlHandler (NULL, TRUE);
@@ -413,21 +413,21 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 	MyServiceStatus.dwServiceSpecificExitCode = NO_ERROR;
 	MyServiceStatus.dwCheckPoint = 0;
 	MyServiceStatus.dwWaitHint = 0;
-
+	
 	try
 	{
 		Server::createInstance();
 	}
   catch(...)
-  {
-    /*! Die if we get exceptions here. */
+	{
+    /*! Die if we get exceptions here.  */
     return;
   };
 
 	
 	MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer", 
                                                       myServerCtrlHandler );
-	if ( MyServiceStatusHandle )
+	if(MyServiceStatusHandle)
 	{
 		MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
@@ -441,7 +441,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
     
 		MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-
+		
 		MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP 
                                             | SERVICE_ACCEPT_SHUTDOWN);
 		MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
@@ -468,7 +468,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 		
 	case SERVICE_CONTROL_PAUSE:
 		break;
-
+		
 	case SERVICE_CONTROL_CONTINUE:
 		break;
 	default:
@@ -495,11 +495,11 @@ void runService()
 		};
 	if(!StartServiceCtrlDispatcher( serviceTable ))
 	{
-		if(GetLastError()==ERROR_INVALID_DATA)
+		if(GetLastError() == ERROR_INVALID_DATA)
 		{
 			Server::getInstance()->logWriteln("Invalid data");
 		}
-		else if(GetLastError()==ERROR_SERVICE_ALREADY_RUNNING)
+		else if(GetLastError() == ERROR_SERVICE_ALREADY_RUNNING)
 		{
 			Server::getInstance()->logWriteln("Already running");
 		}
@@ -512,7 +512,7 @@ void runService()
 }
 
 /*!
- *Register the service
+ *Register the service.
  */
 void registerService()
 {
