@@ -177,9 +177,9 @@ class FastCgi  : public HttpDataHandler
 private:
   static int initialPort;
 	static int timeout;
-  static int max_fcgi_servers;
+  static int maxFcgiServers;
 	static int initialized;
-  static Mutex servers_mutex;
+  static Mutex serversMutex;
 	static HashMap<string,FastCgiServersList*> serversList;
 
 	int fcgiConnectSocket(FcgiContext*,FastCgiServersList*);
@@ -191,6 +191,7 @@ private:
   FastCgiServersList* runFcgiServer(FcgiContext*, const char*);
 	FastCgiServersList* fcgiConnect(FcgiContext*, const char*);
   int runLocalServer(FastCgiServersList* server, const char* path, int port);
+	bool isRemoteServer(const char*);
 public:
   static void setInitialPort(int);
   static int getInitialPort(); 

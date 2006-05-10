@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -36,19 +36,19 @@ using namespace std;
 HashMap<string, FastCgiServersList*> FastCgi::serversList;
 
 /*! Is the fastcgi initialized? */
-int FastCgi::initialized=0;
+int FastCgi::initialized = 0;
 
 /*! By default allows 25 servers. */
-int FastCgi::max_fcgi_servers=25;
+int FastCgi::maxFcgiServers = 25;
 
 /*! Use a default timeout of 15 seconds. */
-int FastCgi::timeout=MYSERVER_SEC(15);
+int FastCgi::timeout = MYSERVER_SEC(15);
 
 /*! By default start binding ports from 3333. */
-int FastCgi::initialPort=3333;
+int FastCgi::initialPort = 3333;
 
 /*! Mutex used to access fastCGI servers. */
-Mutex FastCgi::servers_mutex;
+Mutex FastCgi::serversMutex;
 
 struct FourChar
 {	
@@ -64,7 +64,7 @@ struct FourChar
  */
 void FastCgi::setMaxFcgiServers(int max)
 {
-  max_fcgi_servers = max;
+  maxFcgiServers = max;
 }
 
 /*!
@@ -72,7 +72,7 @@ void FastCgi::setMaxFcgiServers(int max)
  */
 int FastCgi::getMaxFcgiServers()
 {
-  return max_fcgi_servers;
+  return maxFcgiServers;
 }
 
 /*!
@@ -84,12 +84,12 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 {
 	FcgiContext con;
 	FcgiBeginRequestBody tBody;
-	con.td=td;
-	u_long nbr=0;
+	con.td = td;
+	u_long nbr = 0;
 	FcgiHeader header;
   FiltersChain chain;
 
-	u_long headerSize=0;
+	u_long headerSize = 0;
 
 	int exit;
   int ret;
@@ -99,15 +99,15 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	ostringstream outDataPath;
 
   int sizeEnvString;
-  FastCgiServersList* server=0;
+  FastCgiServersList* server = 0;
   int id;
 	ostringstream cmdLine;
-  char *buffer=0;
-  char tmpSize[11];
+  char *buffer = 0;
 
   string moreArg;
   
-  const size_t maxStdinChunk=8192;/*! Size of data chunks to use with STDIN. */
+	/*! Size of data chunks to use with STDIN. */
+  const size_t maxStdinChunk = 8192;
 
   td->scriptPath.assign(scriptpath);
 
@@ -138,16 +138,16 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 
   td->buffer->setLength(0);
-	td->buffer2->getAt(0)='\0';
+	td->buffer2->getAt(0) = '\0';
 	
 	
   {
     /*! Do not modify the text between " and ". */
     int x;
     int subString = cgipath[0] == '"';
-    int len=strlen(cgipath);
+    int len = strlen(cgipath);
     string tmpCgiPath;
-    for(x=1;x<len;x++)
+    for(x = 1; x < len; x++)
     {
       if(!subString && cgipath[x]==' ')
         break;
@@ -191,7 +191,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       {
         int x;
         string cgipathString(cgipath);
-        int len=strlen(cgipath);
+        int len = strlen(cgipath);
         int subString = cgipath[0] == '"';
 
 		    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " << moreArg 
@@ -619,7 +619,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		}
 		else/*! If appendOutputs. */
 		{
-      u_long nbw=0;    
+      u_long nbw = 0;    
       if(onlyHeader)
       {
         exit = 1;
@@ -656,7 +656,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         u_long nbw2;
 				if(chain.write(td->buffer->getBuffer(),nbr, &nbw2))
         {
-          exit=1;
+          exit = 1;
           ret = 0;
 					break;
         }
@@ -666,7 +666,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 				u_long nbw=0;
 				if(td->outputData.writeToFile(td->buffer->getBuffer(),nbr,&nbw))
         {
-          exit=1;
+          exit = 1;
           ret = 0;
 					break;     
         }
@@ -691,9 +691,9 @@ int FastCgi::sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id)
 	FcgiHeader header;
 	generateFcgiHeader( header, type, id, len );
 	
-	if(con->sock.send((char*)&header,sizeof(header),0)==-1)
+	if(con->sock.send((char*)&header, sizeof(header), 0) == -1)
 		return -1;
-	if(con->sock.send((char*)buffer,len,0)==-1)
+	if(con->sock.send((char*)buffer, len, 0) == -1)
 		return -1;
 	return 0;
 }
@@ -705,8 +705,8 @@ int FastCgi::sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id)
 int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp, 
                                            char* ep)
 {
-	char *ptr=ep;
-	char *sptr=sp;
+	char *ptr = ep;
+	char *sptr = sp;
 	char varName[100];
 	char varValue[2500];
 	for(;;)
@@ -715,9 +715,9 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp,
 		FourChar varNameLen;
 		FourChar varValueLen;
 
-		varNameLen.i=varValueLen.i=0;
-		varName[0]='\0';
-		varValue[0]='\0';
+		varNameLen.i = varValueLen.i = 0;
+		varName[0] = '\0';
+		varValue[0] = '\0';
 		while((--max) && *sptr != '=')
 		{
 			varName[varNameLen.i++]=*sptr++;
@@ -736,38 +736,38 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp,
       return -1;
 		if(varNameLen.i > 127)
 		{
-			unsigned char fb=varValueLen.c[3]|0x80;
-			*ptr++=fb;
-			*ptr++=varNameLen.c[2];
-			*ptr++=varNameLen.c[1];
-			*ptr++=varNameLen.c[0];
+			unsigned char fb = varValueLen.c[3]|0x80;
+			*ptr++ = fb;
+			*ptr++ = varNameLen.c[2];
+			*ptr++ = varNameLen.c[1];
+			*ptr++ = varNameLen.c[0];
 		}
 		else
 		{
-			*ptr++=varNameLen.c[0];
+			*ptr++ = varNameLen.c[0];
 		}
 
 		if(varValueLen.i > 127)
 		{
-			unsigned char fb=varValueLen.c[3]|0x80;
-			*ptr++=fb;
-			*ptr++=varValueLen.c[2];
-			*ptr++=varValueLen.c[1];
-			*ptr++=varValueLen.c[0];
+			unsigned char fb = varValueLen.c[3]|0x80;
+			*ptr++ = fb;
+			*ptr++ = varValueLen.c[2];
+			*ptr++ = varValueLen.c[1];
+			*ptr++ = varValueLen.c[0];
 		}
 		else
 		{
-			*ptr++=varValueLen.c[0];
+			*ptr++ = varValueLen.c[0];
 		}
 		u_long i;
-		for(i=0;i<varNameLen.i; i++)
-			*ptr++=varName[i];
-		for(i=0;i<varValueLen.i; i++)
-			*ptr++=varValue[i];
-		if(*(++sptr)=='\0')
+		for(i = 0; i < varNameLen.i; i++)
+			*ptr++ = varName[i];
+		for(i = 0; i < varValueLen.i; i++)
+			*ptr++ = varValue[i];
+		if(*(++sptr) == '\0')
 			break;
 	}
-	return static_cast<int>(ptr-ep);
+	return static_cast<int>(ptr - ep);
 }
 
 /*!
@@ -801,8 +801,8 @@ int FastCgi::load(XmlParser* /*confFile*/)
 {
 	if(initialized)
 		return 1;
-	initialized=1;
-  servers_mutex.init();
+	initialized = 1;
+  serversMutex.init();
 	return 1;
 }
 
@@ -811,7 +811,7 @@ int FastCgi::load(XmlParser* /*confFile*/)
  */
 int FastCgi::unload()
 {
-  servers_mutex.lock();
+  serversMutex.lock();
   try
   {
 		HashMap<string, FastCgiServersList*>::Iterator it = serversList.begin();
@@ -822,7 +822,7 @@ int FastCgi::unload()
       FastCgiServersList* server=*it;
       if(!server)
         continue;
-      /*! If the server is a remote one do nothing. */
+      /*! If the server is a remote one do nothing.  */
       if(server->path.length() && server->path[0]!='@')
       {
         server->socket.closesocket();
@@ -836,22 +836,22 @@ int FastCgi::unload()
   }
   catch(bad_alloc& b)
   {
-    servers_mutex.unlock();
+    serversMutex.unlock();
     return 0;
   }
   catch(exception& e)
   {
-    servers_mutex.unlock();
+    serversMutex.unlock();
     return 0;
   }
   catch(...)
   {
-    servers_mutex.unlock();
+    serversMutex.unlock();
     return 0;
   };
-  servers_mutex.unlock();
-  servers_mutex.destroy();
-  initialized=0;
+  serversMutex.unlock();
+  serversMutex.destroy();
+  initialized = 0;
 	return 0;
 }
 
@@ -861,17 +861,17 @@ int FastCgi::unload()
  */
 FastCgiServersList* FastCgi::isFcgiServerRunning(const char* path)
 {
-  servers_mutex.lock();
+  serversMutex.lock();
 
   try
   { 
     FastCgiServersList *s = serversList.get(path);
-    servers_mutex.unlock();
+    serversMutex.unlock();
     return s;
   }
   catch(...)
   {
-    servers_mutex.unlock();
+    serversMutex.unlock();
   };
 	return 0;
 }
@@ -912,30 +912,44 @@ FastCgiServersList* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
 		/*!
      *Connect to the FastCGI server.
      */
-		int ret=fcgiConnectSocket(con, server);
-		if(ret==-1)
+		int ret = fcgiConnectSocket(con, server);
+		if(ret == -1)
 			return 0;
 	}
 	return server;
 }
 
 /*!
+ *Return if the location is a remote one.
+ *A remote location starts with a @.
+ *\param location The location to check.
+ */
+bool FastCgi::isRemoteServer(const char* location) 
+{
+	if(!location) 
+		return false;
+	while(*location && *location == '\"')location++;
+	return *location == '@';
+}
+
+/*!
  *Run the FastCGI server.
  *If the path starts with a @ character, the path is handled as a remote server.
  */
-FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* path)
+FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, 
+																					 const char* path)
 {
   /*! 
    *Flag to identify a local server(running on localhost) from a 
    *remote one. 
    */
 	int localServer;
-  int toReboot=0;
+  int toReboot = 0;
   FastCgiServersList* server;
-	static u_short portsDelta=0;
+	static u_short portsDelta = 0;
  
-  /*! Path that init with @ are not local path. */
-	localServer=path[0]!='@';
+  /*! Check if the specified location is remote. */
+	localServer = !isRemoteServer(path);
 
   /*! Get the server position in the array. */
   server = isFcgiServerRunning(path);
@@ -952,10 +966,10 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
   }
 
   /*! Do not create it if we reach the max allowed. */
-	if(serversList.size()==max_fcgi_servers-1)
+	if(serversList.size() == maxFcgiServers - 1)
 		return 0;
 
-  servers_mutex.lock();
+  serversMutex.lock();
 
   try
   {
@@ -971,7 +985,7 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
         ((Vhost*)context->td->connection->host)->warningsLogWrite(context->td->buffer->getBuffer());
         ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
       }
-      servers_mutex.unlock();
+      serversMutex.unlock();
       return 0;
     }
 
@@ -983,7 +997,7 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
         int ret;
         server->socket.closesocket();
         server->process.terminateProcess();
-        ret=runLocalServer(server, path, server->port);
+        ret = runLocalServer(server, path, server->port);
         if(ret)
         {
           if(Server::getInstance()->getVerbosity() > 1)
@@ -995,16 +1009,16 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
                                                                       context->td->buffer->getBuffer());
             ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
           }
-          servers_mutex.unlock();
+          serversMutex.unlock();
           return 0;
         }
-        servers_mutex.unlock();
+        serversMutex.unlock();
         return server;
       }
       else
       {
-        int ret=runLocalServer(server, path, initialPort + (portsDelta++));
-        servers_mutex.unlock();
+        int ret = runLocalServer(server, path, initialPort + (portsDelta++));
+        serversMutex.unlock();
         if(ret)
         {
           if(Server::getInstance()->getVerbosity() > 1)
@@ -1017,7 +1031,7 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
             ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(context->td->id);
           }
           delete server;
-          servers_mutex.unlock();
+          serversMutex.unlock();
           return 0;
         }
       }
@@ -1025,8 +1039,9 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
     else
     {
       /*! Do not copy the @ character. */
-      int i=1;
-      
+      int i = 0;
+      while(path[i] && (path[i] == '\"' || path[i] == '@' ))i++;
+
       /*! Fill the structure with a remote server. */
       server->path.assign(path);
         
@@ -1037,21 +1052,21 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
        */
       while(path[i]!=':')
       {
-        server->host[i-1]=path[i];
+        server->host[i - 1]=path[i];
         i++;
       }      
-      server->host[i-1]='\0';
-      server->port=(u_short)atoi(&path[++i]);
+      server->host[i - 1]='\0';
+      server->port = (u_short)atoi(&path[++i]);
     }
   
 
 		{
 			FastCgiServersList* old;
-			old=serversList.put(server->path, server);
+			old = serversList.put(server->path, server);
 			if(old)
 			{
 				/*! If the server is a remote one do nothing. */
-				if(old->path.length() && old->path[0]!='@')
+				if(!isRemoteServer(old->path.c_str()))
 				{
 					old->socket.closesocket();
 					old->process.terminateProcess();
@@ -1061,12 +1076,12 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, const char* pat
 			}
 		}
 
-    servers_mutex.unlock();  
+    serversMutex.unlock();  
 
   }
   catch(...)
   {
-    servers_mutex.unlock();
+    serversMutex.unlock();
     throw;
   };
   /*!
