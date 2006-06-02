@@ -13,7 +13,8 @@
 		<tr>
 			<td class="center">
 				<h1 class="title">CONFIGURATION AVANC&Eacute;E</h1>
-				<br />Vous trouverez ici d'autres options configurables dans votre fichier de
+				<br />
+				Vous trouverez ici d'autres options modifiables dans votre fichier de
 				configuration de MyServer.
 				<br />
 				
@@ -34,22 +35,23 @@
 				<h2 class="title">Seuil GZIP:</h2>
 				Vous pouvez configurer MyServer pour qu'il compresse les donn&eacute;es
 				envoy&eacute;es &agrave; l'utilisateur au format Gzip, si les donn&eacute;es d&eacute;passent une
-				certaine taille en octets, en ajoutant la ligne suivante adns le fihier
+				certaine taille en octets, en ajoutant la ligne suivante dans le fichier
 				myserver.xml:
 				<br /><p class="code"> &lt;GZIP_THRESHOLD&gt;1024&lt;/GZIP_THRESHOLD&gt;</p>
 				<br />
 				<br />Ici, toute donn&eacute;e sup&eacute;rieure &agrave; 1024 octets (1 Ko) sera automatiquement
-				compress&eacute; avant d'être envoy&eacute; au client.
+				compress&eacute;e avant d'être envoy&eacute;e au client.
 				<br />
 				<br />
 				
 				<h2 class="title">Permission d'acc&egrave;s des gestionnaires de donn&eacute;es HTTP:</h2>
-				<br />L'option <span class="code">&lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;</span>
-				empêche l'acc&egrave;s au gestionnaire de donn&eacute;es CGI sur tout voter serveur.
+				<br />
+				L'option <span class="code">&lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;</span>
+				empêche l'acc&egrave;s au gestionnaire de donn&eacute;es CGI sur tout votre serveur.
 				Cette option peut être ajout&eacute;e &agrave; chaque h&ocirc;te virtuel, via le fichier
 				virtualhosts.xml, ignorant ainsi la valeur du fichier de configuration
 				global.
-				<span class="code">ALLOW_CGI </span> peut aussi apparaitre comme
+				<span class="code">ALLOW_CGI </span> peut aussi apparaître comme
 				<span class="code">ALLOW_FASTCGI</span>,
 				<span class="code">ALLOW_ISAPI</span>,
 				<span class="code">ALLOW_MSCGI</span>,

@@ -13,43 +13,46 @@
 		<tr>
 			<td class="center">
 				<h1 class="title">HTTPS</h1>
-				<br /><h2 class="title">Brèves notes sur le cryptage de données</h2>
-				Le cryptage de données est utilisé pour protéger des données envoyées entre le client et
-				le serveur. Il y a deux types d'algorithmes: les algorithme de cryptage de données symétrique
-				et asymétrique. La différence entre ces deux algorithmes est que dans la cas du cryptage
-				symétrique, la même clé de cryptage/décryptage est utilisée. Ces algorithmes ne sont pas
-				utilisés par les serveurs au nombre de clients potentiellement grand car les données
-				reçues peuvent être décryptées par n'importe quel client qui connait la clé, et parceque
-				la clé nécessite d'être distribuée de manière sécurisée (sur un disquette par exemple), non
-				pas sur un grand réseau comme Internet.
-				Les algorithmes asymétriques fonctionne autrement. Les données cryptées avec une clé peuvent être
-				décryptées uniquement avec l'autre clé et vice versa. Tout le monde connait la clé publique,
-				mais la clé privé n'est connu que d'une personne. De cette façon, le possesseur de la clé n'a
-				pas besoin de distribuer la clé publique aux seules personnes intéressées, mais peut le faire
-				sur tout un réseau.
+				<br /><h2 class="title">Brèves notes sur le cryptage de donn&eacute;es</h2>
+				Le cryptage de donn&eacute;es est utilis&eacute; pour prot&eacute;ger des donn&eacute;es envoy&eacute;es entre le client et
+				le serveur. Il y a deux types d'algorithmes: les algorithmes de cryptage de donn&eacute;es sym&eacute;trique
+				et asym&eacute;trique.
+				<br />La diff&eacute;rence entre ces deux algorithmes est que dans le cas du cryptage
+				sym&eacute;trique, la même cl&eacute; de cryptage/d&eacute;cryptage est utilis&eacute;e. Ce type d'algorithme n'est donc pas
+				utilis&eacute; par les serveurs ayant un nombre important de clients car :
+				<ul><li>les donn&eacute;es reçues peuvent être d&eacute;crypt&eacute;es par n'importe quel client qui connait la cl&eacute;</li>
+				<li>la cl&eacute; n&eacute;cessite d'être distribu&eacute;e de manière s&eacute;curis&eacute;e (sur un disquette par exemple), et non
+				pas sur un grand r&eacute;seau comme Internet.</li></ul>
+				Les algorithmes asym&eacute;triques fonctionnent avec non pas une mais 2 clés . Les donn&eacute;es sont crypt&eacute;es avec l'une et ne peuvent être
+				d&eacute;crypt&eacute;es qu'avec l'autre cl&eacute;. Les deux clés sont appelées <b>clé publique</b> et <b>clé privée</b>. La clé publique est diffusée librement et sert à encrypter le message, alors 
+				que la cl&eacute; priv&eacute;e n'est connue que d'une personne et sert à le décrypter. Lorsque l'on veut envoyer un message crypté,
+				on le crypte avec la clé publique que le destinataire nous as remis, puis on lui envoie.
+Ensuite, le destinaire n'a plus qu'a décrypter le message à l'aide de sa clé privée.
+				L'avantage par rapport a la méthode symétrique est que le possesseur de la cl&eacute; n'a
+				pas besoin de distribuer secrètement la cl&eacute; sur disquette &agrave; chaque personne int&eacute;ress&eacute;e, mais peut le faire librement par le r&eacute;seau.
 				<br />
-				<br />
+				<br />une autre explication (avec des schémas) est disponible <a href="http://fr.wikipedia.org/wiki/Cryptographie_asym%C3%A9trique">ici</a>
 				
-				<h2 class="title">Comment créer des certificats SSL avec OpenSSL</h2>
-				Un certificat est nécessaire pour vous identifier via une CA(Certification Authority).
-				Vous pouvez utiliser un certificat sans l'enregistrer sur une CA, mais en créant un
+				<h2 class="title">Comment cr&eacute;er des certificats SSL avec OpenSSL</h2>
+				Un certificat est n&eacute;cessaire pour vous identifier via une CA(Certification Authority).
+				Vous pouvez utiliser un certificat sans l'enregistrer sur une CA, mais en cr&eacute;ant un
 				certificat "Root Certification" (Certification Racine).
-				Vous pouvez trouver tout les outils nécessaires à la création de certificat dans
-				le bibliothèqye OpenSSL sur <a href="http://www.openssl.org" targe="_blank">www.openssl.org</a>.
-				Après son installation, rendez vous en ligne de commande dans le répertoire binaire et tapez:
+				Vous pouvez trouver tous les outils n&eacute;cessaires à la cr&eacute;ation de certificat dans
+				le bibliothèque OpenSSL sur <a href="http://www.openssl.org" targe="_blank">www.openssl.org</a>.
+				Après son installation, rendez vous en ligne de commande dans le r&eacute;pertoire binaire et tapez:
 				<br /><span  class="code">openssl genrsa -out server.key </span>
-				<br />Cela créera la clé privée nécessaire à l'encodage de vos données.
+				<br />Cela cr&eacute;era la cl&eacute; priv&eacute;e n&eacute;cessaire à l'encodage de vos donn&eacute;es.
 				<br />
 				<br />Lancez ensuite cette commande:
 				<br /><span  class="code">openssl req -new -x509 -days 730 -config openssl.cnf -key server.key -out server.pem </span>
-				<br />pour créer un certificat publique. De cette manière, le certificat peut être utilisé durant
-				730 jours, et la clé publique sera le fichier server.pem.
+				<br />pour cr&eacute;er un certificat publique. De cette manière, le certificat peut être utilis&eacute; durant
+				730 jours, et la cl&eacute; publique sera le fichier server.pem.
 				<br />
 				<br />
 				
 				<h2 class="title">Utilisation des certificats dans MyServer </h2>
 				Pour configurer les certificats dans MyServer, vous devez rajouter les deux fichiers
-				server.key et server.pem dans les repertoire certificates de votre chemin d'installation
+				server.key et server.pem dans les r&eacute;pertoires <i>certificates</i> de votre chemin d'installation
 				de MyServer.
 				Après cela, vous devez configurer un hôte virtuel https dans le fichier virtualhosts.xml.
 				<br /><span  class="code">&lt;VHOST&gt;
@@ -64,10 +67,11 @@
 				<br />&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;
 				<br />&lt;/VHOST&gt;
 				<br /></span>
-				<br />Avec cet hôte, nous plaçons un écouteur https sur le port 443 (port HTTPS par défaut),
-				et nous utilisons le fichier certificates/server.key pour la clé privée, et le fichier
-				certificates/server.pem pour la clé publique.
-			</td>
+				<br />Avec cet hôte, nous plaçons un &eacute;couteur https sur le port 443 (port HTTPS par d&eacute;faut),
+				et nous utilisons le fichier certificates/server.key pour la cl&eacute; priv&eacute;e, et le fichier
+				certificates/server.pem pour la cl&eacute; publique.
+				<br />
+				<br /><a href="http://sebsauvage.net/comprendre/ssl/" target="_blank">site décrivant le fonctionnement de SSL</a>
 		</tr>
 	</table>
 </body>

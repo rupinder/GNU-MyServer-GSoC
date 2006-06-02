@@ -3,7 +3,7 @@
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
-	<title>Documentation MyServer - Contrôle distant - www.myserverproject.net</title>
+	<title>Documentation MyServer - Controle distant - www.myserverproject.net</title>
 	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
@@ -12,13 +12,13 @@
 	<table class="center" width="95%">
 		<tr>
 			<td class="center">
-				<h1 class="title">CONTROLE DISTANT</h1>
-				MyServe permet la gestion distante de sa configuration, via votre Centre de
-				Controle, de n'importe où dans le monde. Vous avez juste besoin d'autoriser
-				le protocole de Controle.
+				<h1 class="title">contr&ocirc;le DISTANT</h1>
+				MyServer permet la gestion distante de sa configuration, via le Centre de
+				Contr&ocirc;le, depuis n'importe où dans le monde. Vous avez juste besoin d'autoriser
+				le protocole de contr&ocirc;le.
 				<br />
 				<br />Pour cela, vous devez ajouter un hôte virtuel qui utilisera le protocole
-				de controle. Vous pouvez faire cela en modifiant le fichier virtualhosts.xml,
+				de contr&ocirc;le. Vous pouvez faire cela en modifiant le fichier virtualhosts.xml,
 				de manière à le faire ressembler à ceci:
 				<br />
 				<br /><p class="code">&lt;VHOST&gt;
@@ -34,27 +34,28 @@
 				<br />&lt;ACCESSLOG&gt;logs/control.log&lt;/ACCESSLOG&gt;
 				<br />&lt;WARNINGLOG&gt;logs/control.err&lt;/WARNINGLOG&gt;
 				<br />&lt;/VHOST&gt;&nbsp; </p>
-				<p>La ligne <span class="code">&lt;PORT&gt;270&lt;/PORT&gt;</span> indique le
-				port à utiliser pour l'accès au Controle distant. Dans l'exemple ci dessus, vous
-				pourriez accéder au Controle distant avec l'interface en vous connectant au port
-				270</p>
+				<p>La ligne <span class="code">&lt;PORT&gt;270&lt;/PORT&gt;</span> identifie le
+				port à utiliser pour l'accès au contr&ocirc;le distant. Dans l'exemple ci dessus, vous
+				pourriez acc&eacute;der au contr&ocirc;le distant avec l'interface en vous connectant au port
+				270.</p>
 				<p>Notez que les fichiers certificates/server.key et certificates/server.pem
-				doivent être créés pour pouvoir utiliser ce service. Réferez vous au manuel
-				de création de clés SSL pour plus d'informations à ce sujet.
+				doivent être cr&eacute;&eacute;s pour pouvoir utiliser ce service. R&eacute;f&eacute;rez vous au manuel
+				de cr&eacute;ation de cl&eacute;s SSL pour plus d'informations à ce sujet.
 				<br /></p>
-				<p>Vous devez également modifier le fichier myserver.xml pour définir un mot de
+				<p>Vous devez &eacute;galement modifier le fichier myserver.xml pour d&eacute;finir un mot de
 				passe d'administration, en ajoutant les lignes:
 				<br />
 				<br /><span class="code">&lt;CONTROL_ENABLED&gt;YES&lt;/CONTROL_ENABLED&gt;&nbsp;
 				<br />&lt;CONTROL_ADMIN&gt;ADMIN&lt;/CONTROL_ADMIN&gt;&nbsp;
 				<br />&lt;CONTROL_PASSWORD&gt;PASSWORD&lt;/CONTROL_PASSWORD&gt;&nbsp;
 				<br /></span></p>
-				<p>Changez juste les valeurs de ADMIN et PASSWORD pour correspondre au mot de
+				<p>Changez juste les valeurs de ADMIN et PASSWORD pour les faire correspondre au mot de
 				passe et login de l'administrateur, et souvenez vous de mettre à YES le
-				paramètre CONTROL_ENABLED (sinon vous n'aurez pas accès au Controle distant).
-				<br /></p>
-				<p>N'oubliez pas de définir un nom et un mot de passe pour l'administrateur,
-				de préférence en n'utilisant pas des mots simples comme admin ou password.</p>
+				paramètre CONTROL_ENABLED (sinon vous n'aurez pas accès au contr&ocirc;le distant).
+				<br />
+				</p>
+				<p>N'oubliez pas de d&eacute;finir un nom et un mot de passe pour l'administrateur,
+				de pr&eacute;f&eacute;rence en n'utilisant pas des mots simples comme admin ou password.</p>
 			</td>
 		</tr>
 	</table>
