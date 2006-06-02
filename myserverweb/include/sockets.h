@@ -40,6 +40,7 @@ using namespace std;
 #ifndef SOCKETLIBINCLUDED
 extern "C"
 {
+#include <Ws2tcpip.h>
 #include <winsock2.h>
 }
 #define SOCKETLIBINCLUDED
@@ -62,10 +63,13 @@ extern "C" {
 #define SD_BOTH SHUT_RDWR
 #endif
 
-#define MAX_IP_STRING_LEN	32
+#define MAX_IP_STRING_LEN	INET6_ADDRSTRLEN
 typedef unsigned int SocketHandle;
-typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
-typedef struct sockaddr MYSERVER_SOCKADDR;
+typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
+typedef struct sockaddr_storage MYSERVER_SOCKADDRIN;
+//typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
+//typedef struct sockaddr MYSERVER_SOCKADDR;
+typedef struct sockaddr_storage MYSERVER_SOCKADDR;
 typedef struct hostent MYSERVER_HOSTENT;
 int startupSocketLib(u_short);
 
@@ -108,7 +112,7 @@ public:
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
 	static int gethostname(char*, int);
-	int socket(int, int, int, bool=0);
+	int socket(int, int, int, bool=false);
 	int bind(MYSERVER_SOCKADDR*, int);
 	int listen(int);
 	Socket();
