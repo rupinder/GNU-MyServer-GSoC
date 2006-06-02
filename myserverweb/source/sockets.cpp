@@ -45,7 +45,7 @@ using namespace std;
 #pragma comment(lib,"ws2_32.lib")
 
 #ifndef DO_NOT_USE_SSL
- #pragma comment(lib,"libssl.lib")/*!Import the OpenSSL library*/ 
+ #pragma comment(lib,"libssl.lib")/*!Import the OpenSSL library*/
  #pragma comment(lib,"libcrypto.lib")/*!Import the OpenSSL library*/
 #endif
 
@@ -56,7 +56,7 @@ using namespace std;
  */
 int startupSocketLib(u_short ver)
 {
-#ifdef WIN32	
+#ifdef WIN32
 	/*!
    *Under windows we need to initialize the socket library before use it.
    */
@@ -131,7 +131,7 @@ u_long Socket::getThrottling()
 }
 
 /*!
- *Set the throttling rate(bytes/second) for the socket. 
+ *Set the throttling rate(bytes/second) for the socket.
  *Use a zero rate to disable throttling.
  */
 void Socket::setThrottling(u_long tr)
@@ -162,11 +162,16 @@ Socket::Socket()
  */
 int Socket::bind(MYSERVER_SOCKADDR* sa,int namelen)
 {
-#ifdef WIN32	
-	return ::bind((SOCKET)socketHandle,sa,namelen);
+ 	if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
+ 	   return 1;//Andu: TODO our error code or what?
+  if ( (sa->ss_family == AF_INET && namelen != sizeof(sockaddr_in)) || 
+  (sa->ss_family == AF_INET6 && namelen != sizeof(sockaddr_in6)) )
+     return 1;//Andu: TODO our error code or what?
+#ifdef WIN32
+	return ::bind((SOCKET)socketHandle,(const struct sockaddr*)sa,namelen);
 #endif
 #ifdef NOT_WIN
-	return ::bind((int)socketHandle,sa,namelen);
+	return ::bind((int)socketHandle,(const struct sockaddr*)sa,namelen);
 #endif
 }
 
@@ -189,7 +194,8 @@ int Socket::listen(int max)
 Socket Socket::accept(MYSERVER_SOCKADDR* sa,
                                 int* sockaddrlen, int /*!sslHandShake*/)
 {
-
+ 	if ( sa == NULL )
+ 	   return 1;//Andu: TODO our error code or what?
 #ifdef NOT_WIN
 	socklen_t Connect_Size;
 	int accept_handle;
@@ -203,15 +209,15 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa,
 #endif
 
 #ifdef WIN32
-	SocketHandle h = (SocketHandle)::accept(socketHandle,sa,
-																					sockaddrlen);
+	SocketHandle h=(SocketHandle)::accept(socketHandle,(struct sockaddr*)sa,
+                                        sockaddrlen);
 	s.setHandle(h);
 #endif
 
 #ifdef NOT_WIN
 	Connect_Size = (socklen_t) *sockaddrlen;
-	
-  accept_handle = ::accept((int)socketHandle, sa, 
+
+  accept_handle = ::accept((int)socketHandle, (struct sockaddr *)sa,
                            (socklen_t*)&Connect_Size);
 	s.setHandle(accept_handle);
 #endif
@@ -245,7 +251,7 @@ int Socket::closesocket()
     int ret = ::close((int)socketHandle);
     sslSocket = 0;
     socketHandle = 0;
-    return ret;   
+    return ret;
   }
   else
     return 0;
@@ -270,7 +276,7 @@ MYSERVER_HOSTENT *Socket::gethostbyaddr(char* addr,int len,int type)
 *Returns an host by its name
 */
 MYSERVER_HOSTENT *Socket::gethostbyname(const char *hostname)
-{	
+{
 	return (MYSERVER_HOSTENT *)::gethostbyname(hostname);
 }
 
@@ -295,7 +301,7 @@ int Socket::shutdown(int how)
 /*!
  *Set socket options.
  */
-int	Socket::setsockopt(int level,int optname, 
+int	Socket::setsockopt(int level,int optname,
                                 const char *optval,int optlen)
 {
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
@@ -306,11 +312,40 @@ int	Socket::setsockopt(int level,int optname,
  */
 int Socket::getLocalIPsList(string &out)
 {
-  char serverName[HOST_NAME_MAX];
-  MYSERVER_HOSTENT *localhe;
-  in_addr ia;
+  char serverName[HOST_NAME_MAX+1];
+  memset(serverName, 0, HOST_NAME_MAX+1);
 
   Socket::gethostname(serverName, HOST_NAME_MAX);
+#if ( IPv6_OS )
+	addrinfo aiHints = { 0 }, *pHostInfo = NULL, *pCrtHostInfo = NULL;
+	aiHints.ai_socktype = SOCK_STREAM;// only interested in socket types the that server will listen to
+	if ( getaddrinfo(serverName, NULL, &aiHints, &pHostInfo) == 0 && pHostInfo != NULL )
+	{
+		sockaddr_storage *pCurrentSockAddr = NULL;
+		char straddr[NI_MAXHOST] = "";
+		memset(straddr, 0, NI_MAXHOST);
+		ostringstream stream;
+		for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; pCrtHostInfo = pCrtHostInfo->ai_next )
+		{
+			pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+			if ( pCurrentSockAddr == NULL )
+				continue;
+
+            if ( !getnameinfo(reinterpret_cast<sockaddr *>(pCurrentSockAddr), sizeof(sockaddr_storage), straddr, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) )
+            {
+				stream << ( !stream.str().empty() ? ", " : "" ) << straddr;
+            }
+            else
+		    return -1;
+        }
+        out.assign(stream.str());
+        freeaddrinfo(pHostInfo);
+    }
+    return 0;
+#else// !IPv6_OS
+
+  MYSERVER_HOSTENT *localhe;
+  in_addr ia;
   localhe = Socket::gethostbyname(serverName);
 
   if(localhe)
@@ -328,11 +363,11 @@ int Socket::getLocalIPsList(string &out)
 #endif
       stream << ( (i != 0) ? ", " : "") << inet_ntoa(ia);
     }
-    
+
     out.assign(stream.str());
     return 0;
   }
-
+#endif//IPv6_OS
   return -1;
 }
 
@@ -369,8 +404,8 @@ int Socket::rawSend(const char* buffer,int len,int flags)
       Thread::wait(10);
     }
     else
-      break;        
-     
+      break;
+
   }
   return ret;
 #endif
@@ -402,7 +437,7 @@ int Socket::send(const char* buffer, int len, int flags)
       /*! When we can send data again? */
       u_long time = getTicks() + (1000*1024/throttlingRate) ;
       /*! If a throttling rate is specified, send chunks of 1024 bytes. */
-      ret = rawSend( buffer+(len-toSend), toSend < 1024 ? toSend : 1024, flags);  
+      ret = rawSend( buffer+(len-toSend), toSend < 1024 ? toSend : 1024, flags);
       /*! On errors returns directly -1. */
       if(ret < 0)
         return -1;
@@ -410,10 +445,10 @@ int Socket::send(const char* buffer, int len, int flags)
       /*! If there are other bytes to send wait before cycle again. */
       if(toSend)
       {
-        
+
         while(getTicks() <= time)
           Thread::wait(1);
-      }    
+      }
       else
         break;
     }
@@ -446,12 +481,103 @@ int Socket::ioctlsocket(long cmd,unsigned long* argp)
  */
 int Socket::connect(const char* host, u_short port)
 {
-  MYSERVER_HOSTENT *hp = Socket::gethostbyname(host);
+	if ( host == NULL )
+		return -1;
+		
+#if ( IPv6_OS )
+	addrinfo aiHints = { 0 };
+  /*! If the socket is not created, wait to see what address families have this host, than create socket. */
+	
+	MYSERVER_SOCKADDRIN thisSock = { 0 };
+	int nLength = sizeof(MYSERVER_SOCKADDRIN);
+	//getsockname(&thisSock, &nLength); 
+	if ( getsockname(&thisSock, &nLength) == 0 )
+	{
+		aiHints.ai_family = thisSock.ss_family;
+		aiHints.ai_socktype = SOCK_STREAM;
+	}
+//	else
+//		return -1;
+
+	char szPort[10];
+	memset(szPort, 0, sizeof(char)*10);
+//#ifdef WIN32
+//	itoa(port, szPort, 10);
+//#else
+        snprintf(szPort, 10, "%d", port);
+//#endif
+	int nGetaddrinfoRet = 0;
+	addrinfo *pHostInfo = NULL, *pCrtHostInfo = NULL;
+	MYSERVER_SOCKADDRIN *pCurrentSockAddr = NULL, connectionSockAddrIn = { 0 };
+	if ( aiHints.ai_family != 0 )
+		nGetaddrinfoRet = getaddrinfo(host, NULL, &aiHints, &pHostInfo);
+	else
+		nGetaddrinfoRet = getaddrinfo(host, NULL, NULL, &pHostInfo);
+	if ( nGetaddrinfoRet != 0 || pHostInfo == NULL )
+		return -1;
+	int nSockLen = 0;
+	bool bSocketConnected = false;
+	for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; pCrtHostInfo = pCrtHostInfo->ai_next )
+	{
+		pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+		if ( pCurrentSockAddr == NULL || 
+				(thisSock.ss_family != 0 && pCurrentSockAddr->ss_family != thisSock.ss_family) )
+			continue;
+		if ( thisSock.ss_family == 0 )// socket not created yet
+		{
+			//so try to create one now based on 'pCurrentSockAddr' 
+			if ( pCurrentSockAddr->ss_family == AF_INET )
+			{
+				if(Socket::socket(AF_INET, SOCK_STREAM, 0) == -1)
+					continue;
+			}
+			else if ( pCurrentSockAddr->ss_family == AF_INET6 )
+			{
+				if(Socket::socket(AF_INET6, SOCK_STREAM, 0) == -1)
+					continue;
+			}
+			if ( getsockname(&thisSock, &nLength) != 0 )
+				return -1;
+		}
+		memset(&connectionSockAddrIn, 0, sizeof(connectionSockAddrIn));
+	   connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
+	
+	   if ( connectionSockAddrIn.ss_family != AF_INET && 
+	   	  connectionSockAddrIn.ss_family != AF_INET6 )
+	   	  continue;
+	   	  
+		if ( connectionSockAddrIn.ss_family == AF_INET )
+		{
+  		   nSockLen = sizeof(sockaddr_in);
+	  	 memcpy(&(((sockaddr_in *)(&connectionSockAddrIn))->sin_addr), &(((sockaddr_in *)pCurrentSockAddr)->sin_addr), nSockLen);
+	  	 ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons(port);
+		  }
+	   else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
+	   {
+		   nSockLen = sizeof(sockaddr_in);
+	   	  memcpy(&(((sockaddr_in6 *)(&connectionSockAddrIn))->sin6_addr), &(((sockaddr_in6 *)pCurrentSockAddr)->sin6_addr), nSockLen);
+	 	  ((sockaddr_in6 *)(&connectionSockAddrIn))->sin6_port = htons(port);
+	   }
+		if(Socket::connect((MYSERVER_SOCKADDR*)(&connectionSockAddrIn), nSockLen) == -1)
+		{
+			Socket::closesocket();
+		}
+		else
+		{
+		 	bSocketConnected = true;
+		 	break;
+		}
+	}
+	freeaddrinfo(pHostInfo);
+	if ( !bSocketConnected )
+	   return -1;
+#else
+  MYSERVER_HOSTENT *hp=Socket::gethostbyname(host);
 	struct sockaddr_in sockAddr;
 	int sockLen;
   if(hp == 0)
     return -1;
-    
+
   /*! If the socket is not created, create it before use. */
   if(socketHandle == 0)
   {
@@ -470,6 +596,8 @@ int Socket::connect(const char* host, u_short port)
 		Socket::closesocket();
 		return -1;
 	}
+#endif
+
 	return 0;
 }
 
@@ -478,6 +606,11 @@ int Socket::connect(const char* host, u_short port)
  */
 int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
 {
+ 	if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
+ 	   return 1;//Andu: TODO our error code or what?
+  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) || 
+  (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6)) )
+     return 1;//Andu: TODO our error code or what?
 #ifndef DO_NOT_USE_SSL
 	if(sslSocket)
 	{
@@ -488,7 +621,7 @@ int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
       return -1;
 
     /*! Do the TCP connection. */
-    if(::connect((int)socketHandle,sa,na))
+    if(::connect((int)socketHandle,(const sockaddr *)sa,na))
     {
       SSL_CTX_free(sslContext);
       sslContext = 0;
@@ -515,10 +648,10 @@ int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
 #endif
 
 #ifdef WIN32
-  return ::connect((SOCKET)socketHandle,sa,na);
+	   return ::connect((SOCKET)socketHandle,(const sockaddr *)sa,na);
 #endif
 #ifdef NOT_WIN
-  return ::connect((int)socketHandle,sa,na);
+  return ::connect((int)socketHandle,(const sockaddr *)sa,na);
 #endif
 }
 
@@ -634,7 +767,7 @@ int Socket::sslAccept()
 	do
 	{
 		ssl_accept = SSL_accept(sslConnection);
-	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP 
+	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP
          || SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_READ);
 
 	if(ssl_accept != 1 )
@@ -689,16 +822,16 @@ int Socket::recv(char* buffer,int len,int flags)
 	if(sslSocket && sslConnection)
 	{
     do
-    {	
+    {
         err = SSL_read(sslConnection,buffer,len);
-    }while((err <= 0) && 
+    }while((err <= 0) &&
            (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_X509_LOOKUP)
            || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ)
             || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE));
 
 		if(err <= 0)
 			return -1;
-		else 
+		else
 			return err;
 	}
 #endif
@@ -710,7 +843,7 @@ int Socket::recv(char* buffer,int len,int flags)
   }while((err == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
 	if(err == SOCKET_ERROR)
 		return -1;
-	else 
+	else
 		return err;
 #endif
 #ifdef NOT_WIN
@@ -744,7 +877,7 @@ u_long Socket::bytesToRead()
   {
 #ifdef FIONREAD
     ioctlsocket(FIONREAD,&nBytesToRead);
-#else 
+#else
 #ifdef I_NREAD
     ::ioctlsocket( I_NREAD, &nBytesToRead ) ;
 #endif
@@ -768,14 +901,14 @@ int Socket::setNonBlocking(int non_blocking)
 #ifdef NOT_WIN
   int flags;
   flags = fcntl((int)socketHandle, F_GETFL, 0);
-  if (flags < 0) 
+  if (flags < 0)
     return -1;
-  
+
   if(non_blocking)
     flags |= O_NONBLOCK;
   else
     flags &= ~O_NONBLOCK;
- 
+
   ret = fcntl((int)socketHandle, F_SETFL, flags);
 #endif
 
@@ -797,11 +930,11 @@ int Socket::gethostname(char *name,int namelen)
 int Socket::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
 {
 #ifdef WIN32
-	return ::getsockname(socketHandle,ad,namelen);
+	   return ::getsockname(socketHandle,(sockaddr *)ad,namelen);
 #endif
 #ifdef NOT_WIN
 	socklen_t len =(socklen_t) *namelen;
-	int ret = ::getsockname((int)socketHandle, ad, &len);
+	int ret = ::getsockname((int)socketHandle, (struct sockaddr *)ad, &len);
 	*namelen = (int)len;
 	return ret;
 #endif
@@ -833,7 +966,7 @@ int Socket::dataOnRead(int sec, int usec)
 	int ret;
 	tv.tv_sec = sec;
 	tv.tv_usec = usec;
-    
+
 	FD_ZERO(&readfds);
 #ifdef WIN32
 	FD_SET((SOCKET)socketHandle, &readfds);
