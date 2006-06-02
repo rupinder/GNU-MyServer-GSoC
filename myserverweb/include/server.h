@@ -65,7 +65,8 @@ extern int rebootMyServerConsole;
 struct listenThreadArgv
 {
 	u_long port;
-	Socket *serverSocket;
+	Socket *serverSocketIPv4;
+	Socket *serverSocketIPv6;
 	int SSLsocket;
 };
 
@@ -124,7 +125,7 @@ private:
 	string* serverAdmin;
 	int initialize(int);
 	ConnectionPtr addConnectionToList(Socket s, MYSERVER_SOCKADDRIN *asock_in,
-                                    char *ipAddr, char *localIpAddr, 
+                                    char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort,int);
   u_long nConnections;
 	u_long maxConnections;
@@ -165,7 +166,7 @@ public:
 
   const char* getHashedData(const char* name);
   FiltersFactory* getFiltersFactory();
-	int getMaxThreads(); 
+	int getMaxThreads();
   u_long getUid();
   u_long getGid();
   int countAvailableThreads();
@@ -218,13 +219,13 @@ public:
   int logWriteln(string const &str)
     {return logWriteln(str.c_str());};
   int logPreparePrintError();
-  int logEndPrintError();  
+  int logEndPrintError();
   int logLockAccess();
-  int logUnlockAccess(); 
+  int logUnlockAccess();
   int setLogFile(char*);
 	u_long getBuffersize();
 	u_long getBuffersize2();
   u_long getThrottlingRate();
-}; 
+};
 
 #endif
