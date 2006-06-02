@@ -38,7 +38,7 @@ extern "C" {
 #include <direct.h>
 #endif
 
-extern int mustEndServer; 
+extern int mustEndServer;
 
 /*!
  *Execute an hidden process and wait until it ends itself or its execution
@@ -88,7 +88,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		return (u_long)(-1);
 	ret=CloseHandle( pi.hThread );
 	if(!ret)
-		return (u_long)(-1);	
+		return (u_long)(-1);
 	return 0;
 #endif
 #ifdef NOT_WIN
@@ -96,7 +96,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 	if(pid < 0) // a bad thing happened
 		return 0;
 	else if(pid == 0) // child
-	{	
+	{
 		// Set env vars
 		int i = 0;
 		int index = 0;
@@ -137,7 +137,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
             spi->arg[i] = '\0';
           }
           else
-            break;                                      
+            break;
         }
         else if(spi->arg[i] == ' ')
         {
@@ -164,7 +164,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
       }
 
       args[count] = NULL;
-   
+
     }
 
 		if(spi->envString != NULL)
@@ -177,7 +177,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 				{
 					break;
 				}
-				
+
 				while(*((char *)(spi->envString) + i) != '\0')
 					i++;
 				i++;
@@ -253,7 +253,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		return (-1);
 	return 0;
 
-#endif	
+#endif
 
 }
 
@@ -272,7 +272,7 @@ int Process::isProcessAlive()
     return 0;
   if(ec == STILL_ACTIVE)
     return 1;
-  return 0; 
+  return 0;
 #endif
 
 #ifdef NOT_WIN
@@ -323,9 +323,10 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
    */
 	STARTUPINFO si;
   PROCESS_INFORMATION pi;
-  char* cwd;   
+  char* cwd;
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
+	SetHandleInformation(spi->stdIn, HANDLE_FLAG_INHERIT,TRUE);
 	si.hStdInput = (HANDLE)spi->stdIn;
 	si.hStdOutput =(HANDLE)spi->stdOut;
 	si.hStdError = (HANDLE)spi->stdError;
@@ -336,11 +337,13 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 	si.wShowWindow = SW_HIDE;
 	ZeroMemory( &pi, sizeof(pi) );
 
-	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0, 
+	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0,
 											spi->envString, cwd, &si, &pi);
  	if(!ret)
 		return (-1);
 	pid = (*((int*)&pi.hProcess));
+ if ( !isProcessAlive())
+ 	return -1;
   return pid;
 #endif
 #ifdef NOT_WIN
@@ -348,7 +351,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 	if(pid < 0) // a bad thing happend
 		return 0;
 	else if(pid == 0) // child
-	{	
+	{
 		// Set env vars
 		int i = 0;
 		int index = 0;
@@ -385,7 +388,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
             spi->arg[i] = '\0';
           }
           else
-            break;                                      
+            break;
         }
         else if(spi->arg[i] == ' ')
         {
@@ -411,14 +414,14 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 
       args[count]=NULL;
     }
-   
+
 		if(spi->envString != NULL)
 		{
 			while(*((char *)(spi->envString) + i) != '\0')
 			{
 				envp[index] = ((char *)(spi->envString) + i);
 				index++;
-				
+
 				while(*((char *)(spi->envString) + i) != '\0')
 					i++;
 				i++;
@@ -439,32 +442,32 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 			exit (1);
 		ret = dup2((long)spi->stdIn, 0);
 		if(ret == -1)
-			exit (1);	
+			exit (1);
 		ret = close((long)spi->stdIn);
 		if(ret == -1)
-			exit (1);	
+			exit (1);
 		ret = close(1); // close stdout
 		if(ret == -1)
 			exit (1);
 		ret = dup2((long)spi->stdOut, 1);
 		if(ret == -1)
-			exit (1);	
+			exit (1);
 		ret = close((long)spi->stdOut);
 		if(ret == -1)
-			exit (1);	
+			exit (1);
 		//close(2); // close stderr
 		//dup2((int)spi->stdError, 2);
 		// Run the script
 
-    ret = execve((const char*)(spi->cmd.c_str()), 
+    ret = execve((const char*)(spi->cmd.c_str()),
                  (char* const*)args,(char* const*) envp);
-    
-    
+
+
 		exit(1);
 	} // end else if(pid == 0)
  else
  {
-	 /*! 
+	 /*!
 		*Avoid to become a zombie process. This is needed by the
 		*Process::isProcessAlive routine.
 		*/
@@ -475,7 +478,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
    sigaction(SIGCHLD,&sa, (struct sigaction *)NULL);
 	 return pid;
  }
-#endif	
+#endif
 
 }
 
@@ -514,7 +517,7 @@ int Process::terminateProcess()
 	ret = kill((pid_t)pid, SIGKILL);
   pid = 0;
 	return ret;
-#endif	
+#endif
 }
 
 /*!
