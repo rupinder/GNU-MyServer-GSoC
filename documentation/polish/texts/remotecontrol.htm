@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+
+
+
+
+  
+  
+  
+  
+  <title>MyServer Documentation - Remote Control - www.myserverproject.net</title>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+
+
+
+  
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+
+
+
+  
+  
+  <link rel="stylesheet" type="text/css" href="../style/myserver.css">
+</head>
+
+
+<body>
+
+
+
+<table class="center" width="95%">
+
+
+
+  <tbody>
+
+
+    <tr>
+
+
+
+      <td class="center">
+      
+      
+      <h1 class="title">ZDALNE ZARZĄDZANIE</h1>
+
+
+MyServer umożliwia zdalne zarządzanie konfiguracją poprzez aplikację
+Control Center&nbsp;z każdego miejsca na świecie. Aby mieć możliwość
+zdalnego zarządzania konfiguracją musisz uaktywnić Protok&oacute;ł
+Kontrolny.<br>
+
+
+
+      <br>
+
+
+Aktywacja Protokołu Kontrolnego polega na dodaniu odpowiednio
+skonfigurowanego wirtualnego serwera. Należy zmodyfikować
+plik&nbsp;virtualhosts.xml, aby wyglądał jak poniżej:<br>
+
+
+
+      <br>
+
+
+
+      
+      
+      <p class="code">&lt;VHOST&gt; <br>
+
+
+
+&lt;NAME&gt;Every control connection&lt;/NAME&gt; <br>
+
+
+
+&lt;PORT&gt;270&lt;/PORT&gt; <br>
+
+
+
+&lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt;
+&nbsp;<br>
+
+
+
+&lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE &gt;
+&nbsp;<br>
+
+
+
+&lt;PROTOCOL&gt;CONTROL&lt;/PROTOCOL&gt; <br>
+
+
+
+&lt;DOCROOT&gt;&lt;/DOCROOT&gt; <br>
+
+
+
+&lt;SYSFOLDER&gt;&lt;/SYSFOLDER&gt; <br>
+
+
+
+&lt;ACCESSESLOG&gt;logs/control.log&lt;/ACCESSESLOG&gt; <br>
+
+
+
+&lt;WARNINGLOG&gt;logs/control.err&lt;/WARNINGLOG&gt; <br>
+
+
+
+&lt;/VHOST&gt;&nbsp; </p>
+
+
+
+      
+      
+      <p>Wpis&nbsp;<span class="code">&lt;PORT&gt;270&lt;/PORT&gt;</span>
+definiuje numer portu kt&oacute;ry będzie używany do zdalnego
+zarządzania konfiguracją. Według powyższego przykładu, możesz zdalnie
+zarządzać serwerem z wykorzystaniem GUI łącząc się z adresem
+'localhost' na porcie 270.</p>
+
+
+
+      
+      
+      <p>Aby m&oacute;c zdalnie zarządzać serwerem musisz posiadać
+wygenerowane pliki certificates/server.key i certificates/server.pem.
+W rozdziale HTTPS znajdziesz dodatkowe informacje w jaki spos&oacute;b wygenerować certyfikaty SSL. <br>
+
+
+
+      </p>
+
+
+
+      
+      
+      <p>Musisz także zmodyfikować plik myserver.xml aby ustawić hasło do administracji, dodając poniższy wpis:<br>
+
+
+
+      <br>
+
+
+
+      <span class="code">&lt;CONTROL_ENABLED&gt;YES&lt;/CONTROL_ENABLED&gt;&nbsp;
+      <br>
+
+
+
+&lt;CONTROL_ADMIN&gt;ADMIN&lt;/CONTROL_ADMIN&gt;&nbsp; <br>
+
+
+
+&lt;CONTROL_PASSWORD&gt;PASSWORD&lt;/CONTROL_PASSWORD&gt;&nbsp; <br>
+
+
+
+      </span></p>
+
+
+
+      
+      
+      <p>Po prostu zmień wartość ADMIN i PASSWORD na własne dane i
+pamiętaj, że wartość parametru CONTROL_ENABLED musi być ustawiona na
+YES (w przeciwnym przypadku nie będziesz m&oacute;gł zdalnie zarządzać
+serwerem)<br>
+
+
+
+      </p>
+
+
+
+      
+      
+      <p>Określając nazwę i hasło dla administratora pamiętaj aby nie używać zbyt prostych sł&oacute;w takich jak np. admin lub password.</p>
+
+
+
+      </td>
+
+
+
+    </tr>
+
+
+
+  
+  
+  </tbody>
+</table>
+
+
+
+</body>
+</html>

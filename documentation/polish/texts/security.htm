@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+
+
+
+
+  
+  
+  
+  
+  <title>MyServer Documentation - Controling Access - www.myserverproject.net</title>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+
+
+
+  
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+
+
+
+  
+  
+  <link rel="stylesheet" type="text/css" href="../style/myserver.css">
+</head>
+
+
+<body>
+
+
+
+<table class="center" width="95%">
+
+
+
+  <tbody>
+
+
+    <tr>
+
+
+
+      <td class="center">
+      
+      
+      <h1 class="title">KONTROLA DOSTĘPU</h1>
+
+
+
+      <br>
+
+
+Aby kontrolować dostęp do plik&oacute;w, musisz dodać plik security.xml w katalogu w kt&oacute;rym chciałbyś kontrolować dostęp.<br>
+
+
+
+        <br>
+
+
+Składnia pliku przedstawiona jest poniżej:<br>
+
+
+
+        <br>
+
+
+
+        <span class="code"> &lt;?xml version="1.0"?&gt;<br>
+
+
+
+        &lt;SECURITY&gt;<br>
+
+
+
+        &lt;HTTP TRACE="ON" /&gt;<br>
+
+
+
+        &lt;AUTH TYPE="Basic" /&gt;</span><span class="code"><br>
+
+
+
+        &lt;ACTION name="Host" value="localhost"&gt;ALLOW&lt;/ACTION&gt;<br>
+
+
+
+        &lt;USER NAME="God" PASS="godpassword" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" 
+        EXECUTE="TRUE" /&gt;<br>
+
+
+
+        &lt;!--This is the setting for the user--&gt;<br>
+
+
+
+        &lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;<br>
+
+
+
+        &lt;!--The guest user--&gt;<br>
+
+
+
+        &lt;USER NAME="Tim" PASS="Tom" READ="TRUE" EXECUTE="TRUE" BROWSE="TRUE"/&gt;<br>
+
+
+
+        &lt;!--Another user--&gt;<br>
+
+
+
+        &lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br>
+
+
+
+        &lt;ACTION name="Host" value="remote"&gt;DENY&lt;/ACTION&gt;<br>
+
+
+
+        &lt;!--Define a file and its permissions--&gt;<br>
+
+
+
+        &lt;USER NAME="Jim" PASS="Morrison" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" 
+        /&gt;<br>
+
+
+
+        &lt;!--Define the user permissions for the file--&gt;<br>
+
+
+
+        &lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" 
+        /&gt;<br>
+
+
+
+        &lt;ACTION name="Host" value="localhost"&gt;DENY&lt;/ACTION&gt; 
+        <br>
+
+
+
+        &lt;!--Another user permissions for the file--&gt;<br>
+
+
+
+        &lt;/ITEM&gt;<br>
+
+
+
+        &lt;--End of the file block--&gt;<br>
+
+
+
+        &lt;/SECURITY&gt;<br>
+
+
+
+        </span> <br>
+
+
+
+        <br>
+
+
+Parametr <span class="code">&lt;HTTP TRACE="ON" /&gt;</span> jest opcjonalny i dokładniej opisany w rozdziale&nbsp;<a href="virtualhosts.htm">Wirtualne Serwery</a>. Jeżeli chcesz uzyskać więcej informacji zapoznaj się z informacjami w tym rozdziale<br>
+
+
+Parametr&nbsp;<span class="code">&lt;AUTH TYPE="Basic" /&gt;</span>
+jest opcjonalny, umożliwia wyb&oacute;r rodzaju autentykacji. Domyślna
+wartość to 'Basic', ale możesz ustalić także wartość na 'Digest', wtedy
+opcja będzie wyglądać jak poniżej:<br>
+
+
+
+        <br>
+
+
+
+        <span class="code">&lt;AUTH TYPE="Digest" /&gt;</span><br>
+
+Jeżeli parametr nie został zdefiniowany, zostanie użyta domyślna wartość 'Basic'.<br>
+
+Ustawienie wartości 'Digest' podnosi poziom bezpieczeństwa, ponieważ
+hasło nie jest przesyłane przez sieć w postaci pozwalającej na
+odczytanie.<br>
+
+
+
+        <br>
+
+Mechanizm serwera na podstawie poniższego wpisu sprawdza czy użytkownik posiada odpowiednie uprawnienia dostępu do pliku:<br>
+
+
+
+        <span class="code">&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" 
+        EXECUTE="TRUE" /&gt;</span><br>
+
+
+
+        <br>
+
+Jeżeli uprawnienia nie zostały zdefiniowane, sprawdzane są uprawnienia określone dla pliku:<br>
+
+
+
+        <span class="code">&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;</span><br>
+
+
+
+        <br>
+
+
+
+        Jeżeli nie zostały zdefiniowane żadne uprawnienia, zostaną użyte globalne ustawienia dla użytkownika: <br>
+
+
+
+        <br>
+
+
+
+        <span class="code">&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;</span><br>
+
+
+
+        <br>
+
+Jeżeli użytkownik nie jest zdefiniowany, wtedy wysyłana jest informacji o błędzie.<br>
+
+
+
+        <br>
+
+
+
+        <br>
+
+
+
+        Wpis<span class="code"> &lt;ACTION&gt;</span> pokazany poniżej określa dostęp do zasobu w zależności od zdefiniowanego warunku. W poniższym przykładzie<br>
+
+
+
+      <br>
+
+
+      <span class="code">&lt;ACTION name="Host" value="remote"&gt;DENY&lt;/ACTION&gt;</span>
+      <br>
+
+
+      <br>
+
+dostęp do pliku jest zabroniony dla połączeń przychodzących z komputera o nazwie 'remote'. <br>
+
+
+      <br>
+
+Jeżeli plik konfiguracyjny bezpieczeństwa nie zostanie znaleziony,
+używane są domyślne ustawienia serwera, kt&oacute;re zdefiniowane są w
+pliku konfiguracyjnym znajdującym się w katalogu system.<br>
+
+
+
+      
+      </td>
+
+
+
+    </tr>
+
+
+
+  
+  
+  </tbody>
+</table>
+
+
+
+</body>
+</html>

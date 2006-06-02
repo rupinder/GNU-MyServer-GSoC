@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+
+
+
+  
+  
+  <title>MyServer Documentation - Creating Virtual Hosts - www.myserverproject.net</title>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+
+
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+
+
+  
+  <link rel="stylesheet" type="text/css" href="../style/myserver.css">
+</head>
+
+
+<body>
+
+
+<table class="center" width="95%">
+
+
+  <tbody>
+
+    <tr>
+
+
+      <td class="center">
+      
+      <h1 class="title">WIRTUALNE SERWERY</h1>
+
+
+      <br>
+
+Teoretycznie, wirtualne serwery umożliwiają użytkownikowi na
+uruchomienie nieskończonej liczby witryn na pojedynczej maszynie. Dla
+przykładu&nbsp;adres http://mypc.net jest r&oacute;żny od adresu
+http://sub.mypc.net. Aby zdefiniować wirtualne serwery w MyServer
+otw&oacute;rz plik virtualhosts.xml w edytorze&nbsp;(np. Notatnik
+Windows lub&nbsp;GNU Emacs w systemie GNU/Linux). Przykładowa
+konfiguracja serwera wirtualnego może wyglądać jak poniżej:<br>
+
+
+      <br>
+
+
+      
+      
+      <p class="code">&lt;VHOSTS&gt;<br>
+
+
+        -<br>
+
+
+        &nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br>
+
+
+        &lt;NAME&gt;Every connection&lt;/NAME&gt;<br>
+
+
+        &lt;PORT&gt;80&lt;/PORT&gt;<br>
+
+
+        &lt;IP&gt;127.0.0.1&lt;/IP&gt; <br>
+
+
+        &lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br>
+
+
+        &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br>
+
+
+        &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br>
+
+
+        &lt;HOST&gt;www.mysite.com&lt;/HOST&gt; <br>
+
+
+        &lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br>
+
+
+        &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br>
+
+
+        &lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;<br>
+
+
+        &lt;/VHOST&gt;<br>
+
+
+        -<br>
+
+
+        &lt;/VHOSTS&gt;<br>
+
+
+      </p>
+
+
+      <br>
+
+      <br>
+
+      <br>
+
+
+        <span class="code">&lt;NAME&gt;</span>Nazwa serwera
+wirtualnego ustalona przez administratora, kt&oacute;ry na jej
+podstawie będzie m&oacute;gł zidentyfikować wirtualny serwer.&nbsp; <br>
+
+
+        <span class="code">&lt;PORT&gt;</span> port na kt&oacute;rym serwer obsługuje przychodzące połączenia<br>
+
+
+        <span class="code">&lt;IP&gt;</span> parametr opcjonalny. Adres IP interfejsu na kt&oacute;rym działa serwer wirtualny. Użycie opcjonalnego atrybutu <span class="code">useRegex="YES"</span>
+spowoduje, że adres będzie traktowany jako wyrażenie regularne a nie
+tylko jako stała wartość. Opcja ta jest użyteczna w sieciach z
+dynamicznym adresowaniem IP.<br>
+
+
+        <span class="code">&lt;PROTOCOL&gt;</span> protok&oacute;ł używany przez serwer<br>
+
+
+        <span class="code"></span><span class="code">&lt;DOCROOT&gt;</span> katalog gł&oacute;wny serwera<br>
+
+
+        <span class="code">&lt;SYSFOLDER&gt;</span> katalog 'system'<br>
+
+
+        <span class="code">&lt;HOST&gt;</span> nazwa URL wirtualnego serwera.&nbsp;Użycie opcjonalnego atrybutu <span class="code">useRegex="YES"</span> 
+        spowoduje, że adres będzie traktowany jako wyrażenie regularne a nie tylko jako stała wartość.<br>
+
+
+        <span class="code">&lt;ACCESSLOG&gt;</span> określa plik do kt&oacute;rego serwer wirtualny zapisuje informacje o zdarzeniach.<br>
+
+
+        <span class="code">&lt;WARNINGLOG&gt;</span> określa plik do kt&oacute;rego serwer wirtualny zapisuje informacji o błędach.<br>
+
+
+        <span class="code">&lt;ALLOW_CGI&gt;</span> Włączenie tej
+opcji spowoduje blokadę dostępu do skrypt&oacute;w CGI w wirtualnym
+serwerze. Wpis ten może także znajdować się w pliku konfiguracyjnym
+myserver.xml, jako ustawienie globalne, jednak&nbsp;opcja zdefiniowana
+w ustawieniach wirtualnego serwera (virtualhosts.xml) ma większy
+priorytet. Opcje podobne do<span class="code"> ALLOW_CGI</span>, kt&oacute;re można wykorzystać w konfiguracja serwera wirtualnego to&nbsp;<span class="code">ALLOW_FASTCGI</span>, <span class="code">ALLOW_ISAPI</span>, 
+        <span class="code">ALLOW_MSCGI</span> , <span class="code">ALLOW_WINCGI</span>, 
+        <span class="code">ALLOW_SEND_LINK, ALLOW_EXTERNAL_COMMANDS</span>, <span class="code">ALLOW_SEND_FILE</span>. 
+        Każda z tych opcji włącza/wyłącza obsługę odpowiedniego uchwytu danych HTTP..<br>
+
+
+        <br>
+
+      <br>
+
+ Konfiguracja pliku do kt&oacute;rego serwera loguje informacje o zdarzeniach może mieć dodatkowe parametry:<br>
+
+
+          <span class="code">&lt;ACCESSESLOG type="combined"&gt;logs/myServerHTTP.log&lt;/ACCESSESLOG&gt;</span> 
+          <br>
+
+Użycie tej opcji spowoduje, że każdy wpis będzie posiadał dodatkowe dwa pola: HTTP Referer i HTTP User Agent.<br>
+
+Użycie opcji&nbsp;<span class="code">cycle="yes"</span> spowoduje
+włączenie rotacji pliku logowania. Kiedy rozmiar pliku logowania
+przekroczy maksymalny ustalony rozmiar, tworzony jest &nbsp; plik
+logowania a dane ze starego pliku zostają zachowane w pliku zapasowym.
+Domyślnie plik logowania kompresuje dane (używając kompresji gzip) aby
+zachować więcej dostępnej przestrzeni dyskowej, jeśli nie chcesz
+kompresować danych ustaw parametr <span class="code">cycle_gzip="no"</span>. 
+          <br>
+
+
+      
+      
+      <hr>
+        
+      
+      <p class="center">MyServer pozwala na uruchomienie komendy HTTP
+TRACE dla każdego wirtualnego serwera. Wszystko co musisz zrobić to
+edytować plik security.xml w katalogu gł&oacute;wnym serwera
+wirtualnego (nie podkatalog! jeżeli plik ten nie istnieje możesz
+utworzyć nowy zgodnie z opisem z rozdziału <a href="Security.html">Bezpieczeństwo</a>) i dodać wpis&nbsp;</p>
+
+
+        
+      
+      <p class="code">&lt;HTTP TRACE="ON" /&gt;</p>
+
+
+        
+      
+      <p class="center">Kiedy to zrobisz, aktywna będzie komenda HTTP
+TRACE. Domyślnie opcja ta jest wyłączona (wystarczy skasować wpis
+jeżeli chcesz wyłączyć opcję)</p>
+
+
+        <br>
+
+      <br>
+
+
+      &nbsp; </td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+</body>
+</html>

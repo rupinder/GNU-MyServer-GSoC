@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <title>MyServer Documentation - Web Server - www.myserverproject.net</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
+
+
+
+
+  
+  
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" type="text/css" href="../style/myserver.css">
+</head>
+
+
+<body>
+
+
+
+
+<table class="center" width="95%">
+
+
+
+
+  <tbody>
+
+
+
+    <tr>
+
+
+
+
+      <td class="center">
+      
+      
+      
+      <h1 class="title">SERWER WWW</h1>
+
+
+
+
+      
+      
+      
+      <h2 class="title">Co to jest serwer WWW?</h2>
+
+
+
+
+Serwer WWW jest aplikacją pozwalającą użytkownikom na publikację zasob&oacute;w w sieci Internet lub w sieci lokalnej.<br>
+
+
+
+
+      <br>
+
+
+
+
+Do nawiązania połączenia z serwerem WWW potrzebujesz tylko przeglądarki internetowej.<br>
+
+
+
+
+      <br>
+
+
+
+
+      <img src="../images/webserver.png" title="" alt="Many clients connecting to a Web Server" class="box" height="513" width="394"> 
+      <br>
+
+
+
+
+Kilku klient&oacute;w podłączonych do serwera WWW.
+      <br>
+
+
+
+
+      <br>
+
+
+
+Powyższa ilustracja pokazuje w jaki spos&oacute;b kilku klient&oacute;w
+może być podłączonych do Twojego serwera w tym samym czasie. Poprzez
+sieć serwer otrzymuje żądanie od klienta. Następnie serwer przygotowuje
+odpowiednie dane i odsyła je do klienta. Rozw&oacute;j sieci Internet,
+stworzył z architektury Serwer - Klient najprostszą metodę
+udostępniania informacji, dając jednocześnie każdemu użytkownikowi
+możliwość decydowania co i komu chce udostępniać.<br>
+
+
+
+
+      
+      
+      
+      <h2 class="title">W jaki spos&oacute;b serwer udostępnia pliki?</h2>
+
+
+
+Podstawową funkcją serwera jest udostępnianie plik&oacute;w. Do
+podstawowych typ&oacute;w plik&oacute;w należą dokumenty HTML i pliki
+graficzne. Są to pliki statyczne, kt&oacute;re serwer udostępnia
+użytkownikowi przeglądającemu daną stronę WWW w postaci jakiej zostały
+umieszczone na serwerze. Dane przesyłane są z wykorzystaniem protokołu
+HTTP (HyperText Transfer Protocol).
+      <br>
+
+
+
+
+      <br>
+
+
+W przypadku gdy istnieje potrzeba przetwarzania dynamicznych danych,
+np. uruchomienie sklepu internetowego,
+r&oacute;żne protokoły są używane do komunikacji pomiędzy serwerem a
+zewnętrznymi procesami. Niekt&oacute;re z tych proces&oacute;w to
+Common
+Gateway Interface (CGI), ISAPI, FastCGI i WinCGI.<br>
+
+
+
+Protok&oacute;ł HTTP nie gwarantuje poufności przesyłanych danych.
+Bezpieczne połączenia i szyfrowanie przesyłanych danych jest możliwe z
+wykorzystaniem protokołu&nbsp;HTTPS (HyperText Transfer Procol Secure).
+Więcej informacji na temat protokołu HTTPS uzyskasz&nbsp;<a href="HTTPS.html">tutaj</a>.
+      <br>
+
+
+
+
+      
+      
+      
+      <h2 class="title">Tłumaczenie adresu</h2>
+
+
+
+Serwer WWW przekształca ścieżkę dostępu z URI (Uniform Resource Identifier) na ścieżkę w lokalnym systemie plik&oacute;w. 
+Ścieżka dostępu zawarta w URI jest względna do katalogu gł&oacute;wnego serwera WWW (<a href="virtualhosts.html">Wirtualne Serwery</a>).
+Dla przykładu jeśli klient chce pobrać plik&nbsp;<span class="code">/mydirectory/myfile</span>&nbsp;wysłane jest następujące żądanie do serwera: <br>
+
+
+
+
+      <br>
+
+
+
+
+ <span class="code">
+GET /mydirectory/myfile HTTP/1.1<br>
+
+
+
+
+Host: www.host.com
+      </span>
+      <br>
+
+
+
+
+      <br>
+
+
+
+Serwer dopasowuje nazwę pliku do&nbsp;aktualnego katalogu
+gł&oacute;wnego serwera WWW. Jeżeli gł&oacute;wnym katalogiem serwera
+WWW jest&nbsp;<span class="code">/var/www</span> zwr&oacute;cony zostanie zas&oacute;b <span class="code">/var/www/mydirectory/myfile</span> zgodnie z specyfikacja MIME dla tego typu.
+      </td>
+
+
+
+
+    </tr>
+
+
+
+
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+</body>
+</html>

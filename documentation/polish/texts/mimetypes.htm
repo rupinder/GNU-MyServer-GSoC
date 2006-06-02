@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+
+
+
+  
+  
+  <title>MyServer Documentation - MIME - www.myserverproject.net</title>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+
+
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+
+
+  
+  <link rel="stylesheet" type="text/css" href="../style/myserver.css">
+</head>
+
+
+<body>
+
+
+<table class="center" width="95%">
+
+
+  <tbody>
+
+    <tr>
+
+
+      <td class="center">
+      
+      <h1 class="title">TYPY MIME</h1>
+
+
+      
+      
+      <p><br>
+
+
+        <br>
+Możesz zmienić typy MIME używane w MyServer edytując plik "MIMEtypes.xml". 
+        Poniżej znajduje się przykładowy plik MIMEtypes.xml :<br>
+
+
+        <span class="code">&lt;MIMETYPES&gt;<br>
+
+
+        -<br>
+
+
+        &nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br>
+
+
+        -<br>
+
+
+        &nbsp;&nbsp;&nbsp; &lt;MIMETYPE defaultAction="DENY"&gt;<br>
+
+
+        &lt;EXT&gt;htm&lt;/EXT&gt;<br>
+
+
+        &lt;MIME&gt;text/html&lt;/MIME&gt;<br>
+
+
+        &lt;CMD&gt;SEND&lt;/CMD&gt;<br>
+
+
+        &lt;ACTION name="Host" value="localhost"&gt;ALLOW&lt;/ACTION&gt; 
+        <br>
+
+
+        &lt;FILTER&gt;gzip&lt;/FILTER&gt;<br>
+
+
+        &lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br>
+
+
+        &lt;/MIMETYPE&gt; <br>
+
+
+        </span> <br>
+
+
+        <br>
+Każdy blok definiuje r&oacute;żny typ MIME. <br>
+
+
+        <br>
+
+
+        <span class="code">&lt;EXT&gt;</span>&nbsp;typ pliku<br>
+
+
+        <br>
+
+
+        <span class="code">&lt;MIME&gt;</span> typ MIME<br>
+
+
+        <br>
+
+
+        <span class="code">&lt;CMD&gt;</span> spos&oacute;b w jaki zostanie wysłany plik do klienta.<br>
+
+
+        <br>
+
+
+        <span class="code">&lt;ACTION name="Host" value="localhost"&gt;ALLOW&lt;/ACTION&gt;&nbsp;</span> zezwoli na dostęp do danego typu MIME z komputera na kt&oacute;rym uruchomiony jest serwer WWW. Wpis&nbsp;<span class="code">&lt;MIMETYPE defaultAction="DENY"&gt;</span>
+oznacza, że dla danego typu MIME zablokowany zostanie dostęp z każdego
+komputera, kt&oacute;ry nie został zdefiniowany w elemencie
+ACTION&nbsp;(czyli, musi być skonfigurowany). Parametr <span class="code">defaultAction </span>jest
+opcjonalny (jego brak oznacz ustawienie wartości "ALLOW"). W powyższym
+przykładzie, dostęp do plik&oacute;w HTML jest możliwy tylko z
+komputera na kt&oacute;rym uruchomiony jest serwer (localhost).</p>
+
+
+      
+      
+      <p>Parametr &lt;ACTION&gt; jest opcjonalny, dop&oacute;ki nie
+zostanie ustawiona wartość "DENY" parametru defaultAction dla typu MIME.<br>
+
+
+        <br>
+
+
+        <span class="code">&lt;FILTER&gt;</span> określa filtr dla
+danego typu MIME. Dane zostaną najpierw przefiltrowane, zanim zostaną
+wysłane do użytkownika. W powyższym przykładzie, dane zostaną
+skompresowana i w takiej postaci wysłane do użytkownika. Filtrem w tym
+przypadku jest Gzip. Gzip może być uruchamiany automatycznie w
+zależności od rozmiaru pliku definiowanego
+parametrem&nbsp;&lt;GZIP_THRESHOLD&gt; w pliku myserver.xml.
+Oczywiście,&nbsp;wysyłane dane będą kompresowany tylko wtedy jeżeli
+klient może rozkompresować otrzymany pakiet - w przeciwnym przypadku,
+klient nie będzie potrafił przetworzyć otrzymanych danych.<br>
+
+
+        <br>
+Filtry mogą być także użyte w przypadku dynamicznie generowanych&nbsp;danych przez skrypty&nbsp;CGI, ISAPI, 
+        FastCGI - w tym przypadku można używać filtr&oacute;w, kt&oacute;re nie modyfikują semantyki przesyłanych danych.&nbsp;<br>
+
+
+        <br>
+
+
+        <span class="code">&lt;MANAGER&gt;</span> opisuje&nbsp;<span class="code">&lt;CMD&gt;</span> komendę.<br>
+
+
+        <br>
+
+
+        <br>
+
+
+        <br>
+
+
+        Następujące wartość są prawidłowe i mogą być użyte w parametrze&nbsp;<span class="code">&lt;MANAGER&gt;</span>:<br>
+
+
+      </p>
+
+
+      
+      
+      <div class="left">
+      
+      <ol>
+
+
+  <li><span class="code">SEND</span>- wysyła plik w postaci jakiej
+jest. Ten rodzaj komendy jest wykorzystywany dla plik&oacute;w takich
+jak .html czy .jpg, czyli takich, kt&oacute;re nie wymagają
+przetworzenia przez serwer.</li>
+
+
+  <li><span class="code">RUNCGI</span>- uruchamia skrypt CGI
+określony ścieżką. Gł&oacute;wnie wykorzystywany dla plik&oacute;w z
+rozszerzeniem .php i .pl, kt&oacute;re muszą być przetworzone przed
+wysłaniem danych do klienta.</li>
+
+
+  <li><span class="code">RUNFASTCGI</span><span style="color: rgb(0, 102, 0);"> </span>- uruchamia skrypt FastCGI.
+&nbsp;Aby korzystać z tej opcji, należy zdefiniować serwer FastCGI. Używany jest dla plik&oacute;w .php i .pl.</li>
+
+
+  <li><span class="code">EXECUTEFASTCGI</span>
+- tak jak powyżej, uruchamia skrypt FastCGI, ale nie wymaga osobnego serwera.</li>
+
+
+  <li><span class="code">RUNMSCGI</span>- uruchamia skrypt MSCGI.
+Opcja ta jest dostępna tylko w myServer, wykorzystywana jest do budowy
+szybkich i wydajnych skrypt&oacute;w.</li>
+
+
+  <li><span class="code">EXECUTE </span>- traktuje plik jak wykonywalny, kt&oacute;ry uruchamia a dane z wyjścia przekazuje do klienta.</li>
+
+
+  <li><span class="code">SENDLINK</span>
+- wysyła plik określony przez odnośnik.</li>
+
+
+  <li><span class="code">EXECUTEWINCGI</span>
+- wysyła plik jako WinCGI</li>
+
+
+  <li><span class="code">RUNISAPI</span>
+- uruchamia skrypt ISAPI.
+&nbsp;</li>
+
+
+  <li><span class="code">EXECUTEISAPI</span>
+- także uruchamia skrypt ISAPI, ale nie wymaga oddzielnego serwera.</li>
+
+
+      
+      </ol>
+
+
+      </div>
+Większość typ&oacute;w MIME jest domyślnie obsługiwana przez MyServer i
+zdefiniowana w pliku konfiguracyjnym. Jeżeli jednak chciałbyś dodać
+obsługę nowego typu MIME dodaj odpowiedni wpis w pliku konfiguracyjnym
+bazując na przykładzie z tego rozdziału. </td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+</body>
+</html>

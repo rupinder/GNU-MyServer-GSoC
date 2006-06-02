@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+
+
+
+  
+  
+  <title>MyServer Documentation - HTTPS - www.myserverproject.net</title>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+
+
+  
+  <meta http-equiv="Content-Style-Type" content="text/css">
+
+
+  
+  <link rel="stylesheet" type="text/css" href="../style/myserver.css">
+</head>
+
+
+<body>
+
+
+
+<table class="center" width="95%">
+
+
+
+  <tbody>
+
+    <tr>
+
+
+
+      <td class="center">
+
+
+      
+      <h1 class="title">HTTPS</h1>
+
+
+
+
+      <br>
+
+
+      
+      <h2 class="title">Szyfrowanie danych - kr&oacute;tkie wprowadzenie</h2>
+
+Szyfrowanie danych ma na celu zapewnienie poufności danych przesyłanych
+pomiędzy klientem i serwerem. Możemy wyr&oacute;żnić dwa typy
+algorytm&oacute;w szyfrujących: &nbsp;symetryczny i asymetryczny.
+R&oacute;żnica pomiędzy algorytmami jest taka, że w przypadku algorytmu
+symetrycznego ten sam klucz jest używany do szyfrowania i odszyfrowania
+danych. Tego typu&nbsp;algorytmy nie są używane przez serwery ponieważ,
+po pierwsze dane mogą być przechwycone i odszyfrowane przez dowolnego
+klienta, po drugie klucz musiałby być dostarczany klientom w bezpieczny
+spos&oacute;b np. na dyskietce a nie dystrybuowany przez ogromną sieć
+jaką jest sieć Internet.&nbsp; Algorytm asymetryczny działa w inny
+spos&oacute;b. Dane zaszyfrowane przy użyciu klucza mogą być
+odszyfrowane tylko przy użyciu innego klucza i na odwr&oacute;t. Każdy
+zna klucz publiczny ale tylko właściciel zna klucz prywatny. W ten
+spos&oacute;b właściciel klucza nie musi dystrybuować klucza tylko do
+wybranych klient&oacute;w ale może go udostępnić wszystkim.
+      <br>
+
+
+      <br>
+
+
+      
+      <h2 class="title">OpenSSL i tworzenie certyfikat&oacute;w SSL </h2>
+
+Certyfikat jest potrzebny do potwierdzenia tożsamości&nbsp;przez
+CA(Certification Authority). Możesz używać certyfikatu bez
+rejestrowania&nbsp;w urzędzie certyfikacji. W tym celu musisz utworzyć
+certyfikat podpisany przez siebie samego (Root Certificate). Wszystko
+co potrzebujesz do utworzenia certyfikatu znajdziesz w pakiecie OpenSSL
+na stronie: www.openssl.org. Po zainstalowaniu pakietu przejdź do
+katalogu zawierającego pliki wykonywalne i wykonaj następujące
+polecenie: <br>
+
+
+      <span class="code">
+openssl genrsa -out server.key 
+      </span>
+      <br>
+
+Wykonanie tej komendy spowoduje utworzenie prywatnego klucza, kt&oacute;ry będzie używany do szyfrowania danych.
+      <br>
+
+
+      <br>
+
+Po wykonaniu poniższego polecenia: 
+      <br>
+
+
+      <span class="code">
+openssl req -new -x509 -days 730 -config openssl.cnf -key server.key -out server.pem 
+      </span>
+      <br>
+
+zostanie utworzony certyfikat publiczny, kt&oacute;ry będzie działał
+przez 730 dni a klucz publiczny zostanie zapisany w pliku server.pem. <br>
+
+
+      <br>
+
+
+
+      
+      <h2 class="title">Użycie certyfikat&oacute;w w MyServer </h2>
+
+Aby skonfigurować użycie certyfikat&oacute;w w&nbsp;MyServer musisz umieścić pliki server.key i 
+server.pem w katalogu certificates znajdującym się w katalogu gł&oacute;wnym instalacji&nbsp;MyServer. 
+Następnie musisz skonfigurować wirtualny serwer https w pliku virtualhosts.xml. 
+      <br>
+
+
+      <span class="code">
+&lt;VHOST&gt;<br>
+
+
+&lt;NAME&gt;Every connection&lt;/NAME&gt;<br>
+
+
+&lt;PORT&gt;443&lt;/PORT&gt;<br>
+
+
+&lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt;<br>
+
+
+&lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE&gt;<br>
+
+
+&lt;PROTOCOL&gt;HTTPS&lt;/PROTOCOL&gt;<br>
+
+
+&lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br>
+
+
+&lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br>
+
+
+&lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;<br>
+
+
+&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br>
+
+
+&lt;/VHOST&gt;<br>
+
+
+      </span>
+      <br>
+
+Serwer będzie obsługiwał połączenia przychodzące na porcie 433
+&nbsp;(domyślny port dla protokołu HTTPS) ,
+plik&nbsp;certificates/server.key zostanie użyty jako klucz prywatny a
+plik certificates/server.pem jako publiczny.
+      </td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+</body>
+</html>
