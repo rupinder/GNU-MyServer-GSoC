@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>Documentation MyServer - Sécurité Processus - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+	<table class="center" width="95%">
+		<tr>
+			<td class="center">
+				<h1 class="title">SECURITE PROCESSUS</h1>
+				<br />Sur des plates formes de type UNIX, il est possible demodifier l'identité et le groupe de l'utilisateur du processus de
+				MyServer uen fois les ports d'écoute démarrés (seul le root peut écouter les ports < 1024).
+				<br />
+				
+				<h2 class="title">Identifiant utilisateur du processus</h2>
+				En utilisant la ligne ci dessous dans votre fichier myserver.xml, MyServer changera pour l'utilisateur spécifié:
+				<br /><span class="code">&lt;PROCESS_USER_ID&gt;PID&lt;/PROCESS_USER_ID&gt;</span>
+				<br/>où <span class="code">PID</span> est l'identifiant à utiliser.
+				<br />
+				
+				<h2 class="title">Identifiant groupe du processus</h2>
+				En utilisant la ligne ci dessous dans votre fichier myserver.xml, MyServer changera pour le groupe spécifié:
+				<br /><span class="code">&lt;PROCESS_GROUP_ID&gt;GID&lt;/PROCESS_GROUP_ID&gt;</span>
+				<br/>où <span class="code">GID</span> est le groupe à utiliser.
+				<br />
+				<br /><span class="warning">Attention:</span> L'utilisation d'une de ces options
+				empêchera l'autoreboot dans MyServer, car le retour aux anciennes permissions seront impossibles.
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

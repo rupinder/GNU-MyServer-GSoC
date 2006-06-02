@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+<title>Documentation MyServer - Configuration avanc&eacute;e - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+	<table class="center" width="95%">
+		<tr>
+			<td class="center">
+				<h1 class="title">CONFIGURATION AVANC&Eacute;E</h1>
+				<br />Vous trouverez ici d'autres options configurables dans votre fichier de
+				configuration de MyServer.
+				<br />
+				
+				<h2 class="title">Types MIME pour les h&ocirc;tes virtuels:</h2>
+				<br />Dans le fichier myserver.xml, vous pouvez autoriser vos h&ocirc;tes virtuels &agrave; avoir leurs
+				propres types MIME ou non, en utilisant la ligne ci dessous, avec l'option &quot;YES&quot; (oui)
+				ou &quot;NO&quot; (non).
+				<br />
+				<br /><span class="code">&lt;ALLOW_VHOST_MIME&gt;YES&lt;/ALLOW_VHOST_MIME&gt;</span>
+				<br />
+				<br />
+				
+				<h2 class="title">Fichiers MSCGI:</h2>
+				Vous pouvez autoriser l'utilisation des fichiers MSCGI dans MyServer, en d&eacute;finissant la
+				valeur ci dessous dans votre fichier myserver.xml:
+				<br /><p class="code"> &lt;ALLOW_MSCGI&gt;YES&lt;/ALLOW_MSCGI&gt;</p>
+				
+				<h2 class="title">Seuil GZIP:</h2>
+				Vous pouvez configurer MyServer pour qu'il compresse les donn&eacute;es
+				envoy&eacute;es &agrave; l'utilisateur au format Gzip, si les donn&eacute;es d&eacute;passent une
+				certaine taille en octets, en ajoutant la ligne suivante adns le fihier
+				myserver.xml:
+				<br /><p class="code"> &lt;GZIP_THRESHOLD&gt;1024&lt;/GZIP_THRESHOLD&gt;</p>
+				<br />
+				<br />Ici, toute donn&eacute;e sup&eacute;rieure &agrave; 1024 octets (1 Ko) sera automatiquement
+				compress&eacute; avant d'être envoy&eacute; au client.
+				<br />
+				<br />
+				
+				<h2 class="title">Permission d'acc&egrave;s des gestionnaires de donn&eacute;es HTTP:</h2>
+				<br />L'option <span class="code">&lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;</span>
+				empêche l'acc&egrave;s au gestionnaire de donn&eacute;es CGI sur tout voter serveur.
+				Cette option peut être ajout&eacute;e &agrave; chaque h&ocirc;te virtuel, via le fichier
+				virtualhosts.xml, ignorant ainsi la valeur du fichier de configuration
+				global.
+				<span class="code">ALLOW_CGI </span> peut aussi apparaitre comme
+				<span class="code">ALLOW_FASTCGI</span>,
+				<span class="code">ALLOW_ISAPI</span>,
+				<span class="code">ALLOW_MSCGI</span>,
+				<span class="code">ALLOW_WINCGI</span>,
+				<span class="code">ALLOW_SEND_LINK</span>,
+				<span class="code">ALLOW_EXTERNAL_COMMANDS</span>, 
+				<span class="code">ALLOW_SEND_FILE</span>,
+				chacun d'entre eux empêchant/autorisant l'acc&egrave;s au gestionnaire de
+				donn&eacute;es HTTP &agrave; utiliser.
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

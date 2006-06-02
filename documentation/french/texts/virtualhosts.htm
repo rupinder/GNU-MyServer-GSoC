@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>Documentation MyServer - Création d'hôtes virtuels - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+	<table class="center" width="95%">
+		<tr>
+			<td class="center">
+				<h1 class="title">HÔTES VIRTUELS</h1>
+				<br />En théorie, les hôtes virtuels permettent d'héberger un nombre infini de sites sur
+				une même machine. Par exemple, l'adresse  http://mypc.net est différente de
+				http://sub.mypc.net. Pour définir des hôtes virtuels dans MyServer, ouvrez le fichier
+				virtualhosts.xml dans un éditeur de texte (comme le Bloc Note ou GNU Emacs sous GNU/Linux).
+				Un exemple fichier de configuration d'hôte virtuel ressemble à ceci:
+				<br />
+				<br /><p class="code">&lt;VHOSTS&gt;
+				<br />-
+				<br />&nbsp;&nbsp;&nbsp; &lt;VHOST&gt;
+				<br />&lt;NAME&gt;Every connection&lt;/NAME&gt;
+				<br />&lt;PORT&gt;80&lt;/PORT&gt;
+				<br />&lt;IP&gt;127.0.0.1&lt;/IP&gt;
+				<br />&lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;
+				<br />&lt;DOCROOT&gt;web&lt;/DOCROOT&gt;
+				<br />&lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;
+				<br />&lt;HOST&gt;www.mysite.com&lt;/HOST&gt;
+				<br />&lt;ACCESSESLOG&gt;logs/myServer.log&lt;/ACCESSESLOG&gt;
+				<br />&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;
+				<br />&lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;
+				<br />&lt;/VHOST&gt;
+				<br />-
+				<br />&lt;/VHOSTS&gt;
+				<br /></p>
+				<br />
+				<br />
+				<br /><span class="code">&lt;NAME&gt;</span> indique à l'administrateur si l'hôte
+				est accessible en interne, en exerne ou les deux.&nbsp;
+				<br /><span class="code">&lt;PORT&gt;</span> est le port utilisé pour les connections
+				<br /><span class="code">&lt;IP&gt;</span> est optionnel. Il s'agit de l'adresse IP de l'interface
+				à utiliser pour l'hôte virtuel. La proprieté optionnelle <span class="code">useRegex=&quot;YES&quot;</span>
+				indique que l'adresse est une expression régulière, et non pas une adresse fixe.
+				Cela est plus pratique pour des réseaux à adressage d'IP dynamique.
+				<br /><span class="code">&lt;PROTOCOL&gt;</span> est le protocole à utiliser par l'hôte
+				<br /><span class="code"></span><span class="code">&lt;DOCROOT&gt;</span> est le
+				répertoire racine de l'hôte où seront placés les fichiers
+				<br /><span class="code">&lt;SYSFOLDER&gt;</span> est le répertoire système
+				<br /><span class="code">&lt;HOST&gt;</span> est le nom de votre hôte virtuel. La propriété
+				optionnelle <span class="code">useRegex=&quot;YES&quot;</span> indique que l'adresse est une
+				expression régulière, et non pas un nom fixe.
+				<br /><span class="code">&lt;ACCESSLOG&gt;</span> est le fichier log d'accès utilisé par l'hôte virtuel
+				<br /><span class="code">&lt;WARNINGLOG&gt;</span> est le fichier log d'erreurs utilisé par l'hôte virtuel
+				<br /><span class="code">&lt;ALLOW_CGI&gt;</span> Cette option refusera l'accès au CGI dans l'hôte virtuel.
+				Elle peut exister dans le fichier myserver.xml également, agissant comme valeure globale, mais la valeur
+				de virtualhosts.xml est prioritaire.
+				<span class="code">ALLOW_CGI</span> peut aussi aparraitre comme
+				<span class="code">ALLOW_FASTCGI</span>,
+				<span class="code">ALLOW_ISAPI</span>,
+				<span class="code">ALLOW_MSCGI</span>,
+				<span class="code">ALLOW_WINCGI</span>,
+				<span class="code">ALLOW_SEND_LINK, ALLOW_EXTERNAL_COMMANDS</span>,
+				<span class="code">ALLOW_SEND_FILE</span>,
+				chacun d'eux autorisant/refusant l'utilisation du gestionnaire de données HTTP.
+				<br />
+				<br />
+				<br />Les fichiers log peuvent avoir d'autres options:
+				<br /><span class="code">&lt;ACCESSESLOG type="combined"&gt;logs/myServerHTTP.log&lt;/ACCESSESLOG&gt;</span> 
+				<br />Cette option ajoute deux champs aux logs : HTTP Referer et HTTP User Agent.
+				<br />Utiliser <span class="code">cycle="yes"</span> autorisera le log en boucle. Lorsqu'un
+				log est en boucle, il recopie son contenu dans un nouveau fichier lorsqu'il atteint une taille
+				maximale avant de se vider. Les fichiers créés sont compressés en gzip afin de gagner de la place.
+				Vous pouvez annuler cela avec l'option <span class="code">cycle_gzip="no"</span>.
+				<br />
+				
+				<hr /><p class="center">MyServer veut permet d'autoriser la commande HTTP TRACE pour chaque
+				hôte virtuel. Il suffit pour cela d'éditer le fichier security.xml de la racine de votre hôte
+				virtuel (sans sous répertoire! Vous pouvez créer le fichier en vous référant à la section
+				<a href="Security.html">Sécurité</a> de cette documentation), en ajoutant le paramètre</p>
+				<p class="code">&lt;HTTP TRACE="ON" /&gt;</p>
+				<p class="center">Une fois effectué, la commande HTTP TRACE sera disponible. Par défaut,
+				elle n'est pas activé.</p>
+				<br />
+				<br />
+				
+				<hr />MyServer offre la possibilité de suivre les liens symboliques sur des systèmes d'exploitation
+				de type Unix (i.e.: Linux, *BSD, GNU/HURD, Solaris, etc.).
+				<br />Vous pouvez autoriser ce fonctionnement pour chaque hôte virtuel en modifiant le
+				fichier virtualhosts.xml.
+				<br /><span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span>
+				<br />
+				<br />La valeur utilisée par défaut dans MyServer est :
+				<span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

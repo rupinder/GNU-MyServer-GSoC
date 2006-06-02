@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>Documentation MyServer - Serveur Web - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+	<table class="center" width="95%">
+		<tr>
+			<td class="center">
+				<h1 class="title">SERVEUR WEB</h1>
+				<h2 class="title">Qu'est ce qu'un serveur web?</h2>
+				Un serveur web est un programme permettant aux utilisateurs de partagers des documents sur Internet
+				ou sur un réseau local.
+				<br />
+				<br />Vous avez uniquement besoin d'un navigateur pour vous connecter au serveur web.
+				<br />
+				<br /><img src="../images/webserver.png" title="" alt="Many clients connecting to a Web Server" class="box" width="394" height="513" />
+				<br />Plusieurs clients se connectant à un serveur web.
+				<br />
+				<br />Cette image montre comment des clients variés peuvent accéder à votre serveur au
+				même moment. La requête arrive sur votre serveur grâce au réseau. Une réponse est générée par
+				le serveyr et renvoyée au client. L'évolution d'Internet a fait du modèle Client-Serveur la
+				façon la plus simple de partager rapidement des données, offrant ainsi la possibilité à chaque
+				utilisateur de choisir ce qu'il ou elle veut partager avec les autres utilisateurs.
+				<br />
+				
+				<h2 class="title">Comment les fichiers sont-ils partagés?</h2>
+				Grâce au niveau le plus basique, le serveur web partage des documents HTML et des images. Ces
+				documents et images sont de simples fichiers statiques correspondant aux fichiers que vous voyez
+				lorsque vous accédez à un site web. Ces fichiers sont transférés au moyen du protocole
+				HTTP (HyperText Transfer Protocol).
+				<br />
+				<br />Si du contenu dynamique est nécessaire, par exemple pour faire fonctionner un site
+				d'e-commerce, différents protocoles sont utilisés pour la communication du serveur web avec
+				un processus externe. On trouve parmis ces protocoles : Common Gateway Interface (CGI), ISAPI,
+				FastCGI ou bien encore WinCGI.
+				<br />HTTP n'est pas un protocole sécurisé, car les données transmises ne sont pas cryptés.
+				Le cryptage reste possible pour des transmissions sécurisées grâce  à HTTPS
+				(HyperText Transfer Procol Secure). Plus d'informations sur HTTPS peuvent être trouvées
+				<a href="HTTPS.html">ici</a>.
+				<br />
+				
+				<h2 class="title">Traduction de chemin</h2>
+				Les serveurs web traduisent un chemin d'une URI en une ressource système locale.
+				Le chemin URI spécifié par le client est relatif au répertoire racine du serveur web
+				(<a href="virtualhosts.html">Hôtes virtuels</a>).
+				Par exemple, le client peut demander l'accès au fichier <span class="code">/mydirectory/myfile</span>
+				avec la commande suivante:
+				<br />
+				<br /><span class="code">GET /mydirectory/myfile HTTP/1.1
+				<br />Host: www.host.com</span>
+				<br />
+				<br />Le serveur rajoute au répertoire racine de l'hôte virtuel courrant le nom du fichier. Si le
+				répertoire racine est <span class="code">/var/www</span>, alors la ressource retournée sera
+				<span class="code">/var/www/mydirectory/myfile</span>, en fonction des spécifications de son
+				type MIME.
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>Documentation MyServer - Réglage de performance - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+	<table class="center" width="95%">
+		<tr>
+			<td class="center">
+				<h1 class="title">REGLAGE DE PERFORMANCE</h1>
+				<br />Ici vous pouvez voir quelques options à modifier pour améliorer les
+				performances de votre serveur web.
+				<br />
+				
+				<h2 class="title">Réglages Threads:</h2>
+				Dans le ficheir myserver.xml, vous pouvez indiquer le nombre de threads utilisées par MyServer.
+				Dans les lignes ci dessous, deux paramètres sont configurés <span class="code">NTHREADS_STATIC</span> et
+				<span class="code">NTHREADS_MAX</span>. Le premier est utilisé pour définir le nombre de threads toujours
+				lancés, le second pour le nombre de threads maximum que myserver peut créer
+				<br />
+				<br />
+				<br /><span class="code">&lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;
+				<br />&lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;</span>
+				<br />
+				<br />
+				
+				<h2 class="title">Taille du Tampon:</h2>
+				Vous pouvez modifier la taille des tampons utilisés par MyServer, en modifiant la ligne ci dessus
+				du fichier myserver.xml:
+				<br /><p class="code">&lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;</p>
+				<br /><p>Modifiez la valeur par défaut 102400 en la valeur désirée. Souvenez vous qu'en réalité, le tampon fera le double de la valeur
+				spécifiée ici (en octets), multiplié par le nombre de threads lancés.
+				<br />
+				<br />
+				
+				<h2 class="title">Délai d'attente de connecion:</h2>
+				Dans <span class="code">myserver.xml</span>, vous pouvez modifier le délai d'attente pour les connections des client,
+				à la ligne suivante:
+				<br />
+				<br /><p class="code">&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;</p>
+				<br /><p>L'unité de temps est la seconde. Ainsi, la ligne ci dessus dit que si un client n'accède pas à votre site pendant
+				une minute, la connection sera fermée. Vous pouvez mettre cette valeur à 0 pour ne plus avoir de connections
+				HTTP "Keep-Alive".
+				<br />
+				<br />
+				
+				<h2 class="title">Connections maximum:</h2>
+				Vous pouvez modifier le nombre de connections maximum sur votre serveur web via la ligne suivante du fichier
+				<span class="code">myserver.xml</span>:
+				<br /><p class="code">&lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;</p>
+				<br /><p>La valeur par défaut, 0, indique qu'un nombre infinie de connection est autorisé. Tout autre valeur limitera
+				le nombre d'accès au serveur.
+				<br />
+				<br />
+				
+				<h2 class="title">Maximum de serveurs Max FastCGI:</h2>
+				Vous pouvez indiquer la quantité maximum de serveurs FastCGI en modifiant la ligne ci dessous du fichier
+				<span class="code">myserver.xml</span>:
+				<br /><p class="code">&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;</p>
+				<br /><p>
+				
+				<h2 class="title">Délai d'attente CGI:</h2>
+				Vous pouvez modifier le délai d'attente par défaut de vos scripts CGI dans MyServer en modifiant la valeur
+				de la variable CGI_TIMEOUT dans le fichier <span class="code">myserver.xml</span>.
+				<br />Changez la ligne ci dessous à votre convenance:
+				<br /><p class="code">&lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;</p>
+				<br /><p>La configuration ci dessus change le délai d'attente CGI à 15 secondes.
+				<br />
+				<br />
+				
+				<h2 class="title">Limitation des envois:</h2>
+				Vous pouvez limiter la vitesse d'envoi des données dans MyServer (désactivé par défaut) en ajoutant la ligne ci dessous:
+				<p class="code">
+				&lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;</p>
+				<br /><p>(Unité en octets/secondes)
+				<br />Si cette ligne est présente dans le fichier <span class="code">virtualhosts.xml</span>,
+				cela activera et configurera la limitation de la vitesse des envois sur l'hôte virtuel correspondant.
+				<br />
+				<br />De même, vous pouvez configurer la limitation des envois pour des repertoires spécifiques en utilisant
+				cette ligne dans votre fichier de sécurité:
+				<br /><p class="code">&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"
+				<br />EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;</p>
+				<br /><p>De cette façon, vous limitez la vitesse à 1Ko/s pour l'utilisateur Guest.
+				<br />En ajoutant une ligne comme celle ci dessous, vous autorisez la limitation pour le fichier "bigfile":
+				<br /><p class="code">&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"
+				<br />THROTTLING_RATE="1024" /&gt;
+				<br />Vous pouvez bien entendu mélanger les deux possibilités et ainsi limiter la vitesse pour un utilisateur sur
+				un fichier spécifique:
+				<br />&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;
+				<br />&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"
+				<br />EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;
+				<br />&lt;/ITEM&gt;
+				<br />
+				<br /></p><p>Voici l'ordre de vérification de la configuration de la limite d'envoi de données:
+				<br />1) Utilisateur & fichier (attribut USER dans ITEM).
+				<br />2) Fichier (attribut ITEM).
+				<br />3) Utilisateur (attribut USER).
+				<br />4) Hôte virtuel (fichier virtualhosts.xml).
+				<br />5) Configuration serveur (fichier myserver.xml).
+				<br />
+				<br />
+				<br />
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

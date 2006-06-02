@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>Documentation MyServer - HTTPS - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+	<table class="center" width="95%">
+		<tr>
+			<td class="center">
+				<h1 class="title">HTTPS</h1>
+				<br /><h2 class="title">Brèves notes sur le cryptage de données</h2>
+				Le cryptage de données est utilisé pour protéger des données envoyées entre le client et
+				le serveur. Il y a deux types d'algorithmes: les algorithme de cryptage de données symétrique
+				et asymétrique. La différence entre ces deux algorithmes est que dans la cas du cryptage
+				symétrique, la même clé de cryptage/décryptage est utilisée. Ces algorithmes ne sont pas
+				utilisés par les serveurs au nombre de clients potentiellement grand car les données
+				reçues peuvent être décryptées par n'importe quel client qui connait la clé, et parceque
+				la clé nécessite d'être distribuée de manière sécurisée (sur un disquette par exemple), non
+				pas sur un grand réseau comme Internet.
+				Les algorithmes asymétriques fonctionne autrement. Les données cryptées avec une clé peuvent être
+				décryptées uniquement avec l'autre clé et vice versa. Tout le monde connait la clé publique,
+				mais la clé privé n'est connu que d'une personne. De cette façon, le possesseur de la clé n'a
+				pas besoin de distribuer la clé publique aux seules personnes intéressées, mais peut le faire
+				sur tout un réseau.
+				<br />
+				<br />
+				
+				<h2 class="title">Comment créer des certificats SSL avec OpenSSL</h2>
+				Un certificat est nécessaire pour vous identifier via une CA(Certification Authority).
+				Vous pouvez utiliser un certificat sans l'enregistrer sur une CA, mais en créant un
+				certificat "Root Certification" (Certification Racine).
+				Vous pouvez trouver tout les outils nécessaires à la création de certificat dans
+				le bibliothèqye OpenSSL sur <a href="http://www.openssl.org" targe="_blank">www.openssl.org</a>.
+				Après son installation, rendez vous en ligne de commande dans le répertoire binaire et tapez:
+				<br /><span  class="code">openssl genrsa -out server.key </span>
+				<br />Cela créera la clé privée nécessaire à l'encodage de vos données.
+				<br />
+				<br />Lancez ensuite cette commande:
+				<br /><span  class="code">openssl req -new -x509 -days 730 -config openssl.cnf -key server.key -out server.pem </span>
+				<br />pour créer un certificat publique. De cette manière, le certificat peut être utilisé durant
+				730 jours, et la clé publique sera le fichier server.pem.
+				<br />
+				<br />
+				
+				<h2 class="title">Utilisation des certificats dans MyServer </h2>
+				Pour configurer les certificats dans MyServer, vous devez rajouter les deux fichiers
+				server.key et server.pem dans les repertoire certificates de votre chemin d'installation
+				de MyServer.
+				Après cela, vous devez configurer un hôte virtuel https dans le fichier virtualhosts.xml.
+				<br /><span  class="code">&lt;VHOST&gt;
+				<br />&lt;NAME&gt;Every connection&lt;/NAME&gt;
+				<br />&lt;PORT&gt;443&lt;/PORT&gt;
+				<br />&lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt;
+				<br />&lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE&gt;
+				<br />&lt;PROTOCOL&gt;HTTPS&lt;/PROTOCOL&gt;
+				<br />&lt;DOCROOT&gt;web&lt;/DOCROOT&gt;
+				<br />&lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;
+				<br />&lt;ACCESSLOG&gt;logs/myServer.log&lt;/ACCESSLOG&gt;
+				<br />&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;
+				<br />&lt;/VHOST&gt;
+				<br /></span>
+				<br />Avec cet hôte, nous plaçons un écouteur https sur le port 443 (port HTTPS par défaut),
+				et nous utilisons le fichier certificates/server.key pour la clé privée, et le fichier
+				certificates/server.pem pour la clé publique.
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>MyServer Documentation - Contrôle des accès - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+	<table class="center" width="95%">
+		<tr>
+			<td class="center">
+				<h1 class="title">CONTROLE DES ACCES</h1>
+				<br />Afin de pouvoir controler l'accès à un fichier, vous devez ajouter un fichier
+				sécurité au répertoire que vous voulez protéger.
+				<br />
+				<br />La syntaxe de ce fichier est:
+				<br />
+				<br /><span class="code"> &lt;?xml version="1.0"?&gt;
+				<br />&lt;SECURITY&gt;
+				<br />&lt;HTTP TRACE="ON" /&gt;
+				<br />&lt;AUTH TYPE="Basic" /&gt;</span>
+				<span class="code">
+				<br />&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt;
+				<br />&lt;USER NAME="God" PASS="godpassword" READ="TRUE" WRITE="TRUE" BROWSE="TRUE" EXECUTE="TRUE" /&gt;
+				<br />&lt;!--This is the setting for the user--&gt;
+				<br />&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;
+				<br />&lt;!--The guest user--&gt;
+				<br />&lt;USER NAME="Tim" PASS="Tom" READ="TRUE" EXECUTE="TRUE" BROWSE="TRUE"/&gt;
+				<br />&lt;!--Another user--&gt;
+				<br />&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;
+				<br />&lt;ACTION name=&quot;Host&quot; value=&quot;remote&quot;&gt;DENY&lt;/ACTION&gt;
+				<br />&lt;!--Define a file and its permissions--&gt;
+				<br />&lt;USER NAME="Jim" PASS="Morrison" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE" /&gt;
+				<br />&lt;!--Define the user permissions for the file--&gt;
+				<br />&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" EXECUTE="TRUE" /&gt;
+				<br />&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;DENY&lt;/ACTION&gt; 
+				<br />&lt;!--Another user permissions for the file--&gt;
+				<br />&lt;/ITEM&gt;
+				<br />&lt;--End of the file block--&gt;
+				<br />&lt;/SECURITY&gt;
+				<br /></span>
+				<br />
+				<br />La ligne <span class="code">&lt;HTTP TRACE="ON" /&gt;</span> est optionnelle, et est
+				décrite dans la section <a href="virtualhosts.htm">H&ocirc;tes virtuels</a> de ce manuel.
+				Rendez vous sur cette page pour comprendre cette ligne.
+				<br />
+				<br />La ligne <span class="code">&lt;AUTH TYPE="Basic" /&gt;</span> est optionnelle. Elle
+				permet de choisir la méthode d'authentification à utiliser sur votre site. Par défaut elle
+				vaut "Basic", mais vous pouvez la metter à "Digest" comme ci dessous:
+				<br />
+				<br /><span class="code">&lt;AUTH TYPE="Digest" /&gt;</span>
+				<br />Si la ligne n'est pas indiquée, la valeur "Basic" sera utilisée.
+				<br />La méthode "Digest" est plus sécurisée, puisque les mots de passes ne sont pas
+				envoyés en clair sur le réseau.
+				<br />
+				<br />Le programme vérifie tout d'abord si l'utilisateur possède les permissions nécessaire
+				dans le bloc du fichier:
+				<br /><span class="code">&lt;USER NAME="Bob" PASS="Marley" READ="TRUE" WRITE="FALSE" 
+				EXECUTE="TRUE" /&gt;</span>
+				<br />
+				<br />Si aucune permission n'est définie, le programme essaie d'utiliser les permissions définies
+				dans le fichier:
+				<br /><span class="code">&lt;ITEM FILE="file1" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;</span>
+				<br />
+				<br />Si le programme ne trouve aucun fichier de permissions, il utilise alors les
+				valeurs générales de l'utilisateur:
+				<br />
+				<span class="code">&lt;USER NAME="Guest" PASS="" READ="TRUE" BROWSE="TRUE"/&gt;</span>
+				<br />
+				<br />Si l'utilisateur n'existe pas, le programme lui renverra une erreur.
+				<br />
+				<br />
+				<br />
+				<br />Les lignes <span class="code">&lt;ACTION&gt;</span> ci dessus définissent si une resource peut
+				ou non être accédée, en fonctions des conditions. Par exemple, la ligne
+				<br />
+				<br />
+				<br /><span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;remote&quot;&gt;DENY&lt;/ACTION&gt;</span>
+				<br />
+				<br />indique le le fichier &quot;file1&quot; sera refusé si l'hôte utilisé a pour nom
+				&quot;remote&quot;. Mais s'il y avait d'autres lignes pour ce fichier, par exemple &quot;localhost&quot;,
+				il serait accessible, sauf pour l'utilisateur Bob.
+				<br />
+				<br /><span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;DENY&lt;/ACTION&gt;</span>
+				<br />
+				<br />
+				<br />Si le fichier de sécurité est absent, un fichier de sécurité par défaut est utilisé
+				par le programme. Ce fichier peut être trouvé dans le répertoire system.
+				<br />
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
