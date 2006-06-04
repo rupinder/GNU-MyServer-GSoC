@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #include <string.h>
 #include <stdio.h>
+#ifdef WIN32
+#include <Ws2tcpip.h>
+#endif
 #ifndef WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
