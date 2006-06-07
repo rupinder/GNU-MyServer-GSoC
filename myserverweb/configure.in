@@ -182,6 +182,30 @@ else
     MAKE_CONTROL=yes
 fi
 
+dnl Check for IPv6
+AC_MSG_CHECKING([for IPv6])
+AC_TRY_RUN([ /* AF_INET6 available check */
+#include <sys/types.h>
+#include <sys/socket.h>
+main()
+{
+ if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
+   exit(1);
+ else
+   exit(0);
+}
+],
+[ AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_IPV6, 1, [Enable IPv6 support])
+	 ],
+[ AC_MSG_RESULT(no)
+  AC_DEFINE(HAVE_IPV6, 0, [Enable IPv6 support])
+],
+[ AC_MSG_RESULT(no)
+  AC_DEFINE(HAVE_IPV6, 0, [Enable IPv6 support])
+]
+)
+
 AM_CONDITIONAL(BUILD_MSCGI, test "$MAKE_MSCGI" = "yes")
 AM_CONDITIONAL(BUILD_COUNTER, test "$MAKE_COUNTER" = "yes")
 AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")

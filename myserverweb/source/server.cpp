@@ -547,7 +547,7 @@ int Server::createServerAndListener(u_short port)
 //    sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
 //    sock_inserverSocket.sin_port=htons(port);
 
-#if ( IPv6_OS )
+#if ( HAVE_IPV6 )
 	serverSocketIPv6 = new Socket();
 	
 	if ( serverSocketIPv6 != NULL )
@@ -624,7 +624,7 @@ int Server::createServerAndListener(u_short port)
 			}
 		}
 	}
-#endif // IPv6_OS
+#endif // HAVE_IPV6
 
     /*!
      *Set connections listen queque to max allowable.
@@ -1549,7 +1549,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 //	memset(&localsock_in, 0, sizeof(localsock_in));
 
 
-#if ( IPv6_OS )
+#if ( HAVE_IPV6 )
 	if ( asock_in->ss_family == AF_INET )
 	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asock_in), sizeof(sockaddr_in),
 	        ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
@@ -1576,7 +1576,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
     {
 	   return ret;
 	 }
-#else// !IPv6_OS
+#else// !HAVE_IPV6
 	dim=sizeof(localsock_in);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
   // NOTE: inet_ntop supports IPv6
@@ -1584,7 +1584,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 
   // NOTE: inet_ntop supports IPv6
 	strncpy(local_ip,  inet_ntoa(((sockaddr_in *)&localsock_in)->sin_addr),  MAX_IP_STRING_LEN);
-#endif//IPv6_OS
+#endif//HAVE_IPV6
 
   /*! Port used by the client. */
   	if ( asock_in->ss_family == AF_INET )

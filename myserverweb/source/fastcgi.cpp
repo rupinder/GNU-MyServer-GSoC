@@ -907,7 +907,7 @@ int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServersList* server )
 		}
 
 	}
-#if ( IPv6_OS && false )/* IPv6 communication not implemented yet by php.  */
+#if ( HAVE_IPV6 && false )/* IPv6 communication not implemented yet by php.  */
 	else if ( fastcgiServerSock.ss_family == AF_INET6 )
 	{
 		/*! Try to create the socket.  */
@@ -920,7 +920,7 @@ int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServersList* server )
 			return -1;
 		}
 	}
-#endif // IPv6_OS
+#endif // HAVE_IPV6
 	con->sock.setNonBlocking(1);
 
 	con->server = server;
@@ -1213,7 +1213,7 @@ int FastCgi::runLocalServer(FastCgiServersList* server, const char* path, int po
   }
   else
   {
-#if ( IPv6_OS && false/* IPv6 communication not implemented yet by php.  */ )
+#if ( HAVE_IPV6 && false/* IPv6 communication not implemented yet by php.  */ )
 		server->socket.socket(AF_INET6, SOCK_STREAM, 0);
 		if(server->socket.getHandle() != (SocketHandle)INVALID_SOCKET)
 		{

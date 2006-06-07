@@ -319,7 +319,7 @@ int Socket::getLocalIPsList(string &out)
   memset(serverName, 0, HOST_NAME_MAX+1);
 
   Socket::gethostname(serverName, HOST_NAME_MAX);
-#if ( IPv6_OS )
+#if ( HAVE_IPV6 )
 	addrinfo aiHints = { 0 }, *pHostInfo = NULL, *pCrtHostInfo = NULL;
 	aiHints.ai_socktype = SOCK_STREAM;// only interested in socket types the that server will listen to
 	if ( getaddrinfo(serverName, NULL, &aiHints, &pHostInfo) == 0 && pHostInfo != NULL )
@@ -345,7 +345,7 @@ int Socket::getLocalIPsList(string &out)
         freeaddrinfo(pHostInfo);
     }
     return 0;
-#else// !IPv6_OS
+#else// !HAVE_IPV6
 
   MYSERVER_HOSTENT *localhe;
   in_addr ia;
@@ -370,7 +370,7 @@ int Socket::getLocalIPsList(string &out)
     out.assign(stream.str());
     return 0;
   }
-#endif//IPv6_OS
+#endif//HAVE_IPV6
   return -1;
 }
 
@@ -487,7 +487,7 @@ int Socket::connect(const char* host, u_short port)
 	if ( host == NULL )
 		return -1;
 		
-#if ( IPv6_OS )
+#if ( HAVE_IPV6 )
 	addrinfo aiHints = { 0 };
   /*! If the socket is not created, wait to see what address families have this host, than create socket. */
 	
