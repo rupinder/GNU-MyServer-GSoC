@@ -52,6 +52,7 @@ using namespace std;
  */
 int Pipe::read(char* buffer, u_long len, u_long *nbr)
 {
+	*nbr = 0;
 #ifdef NOT_WIN
 	int ret = ::read(handles[0], buffer, len);
 	if(ret == -1)
@@ -148,6 +149,7 @@ int Pipe::create(bool readPipe)
  */
 int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 {
+	*nbw = 0;
 #ifdef NOT_WIN
 	int ret = ::write(handles[1], buffer, len);
 	if(ret == -1)

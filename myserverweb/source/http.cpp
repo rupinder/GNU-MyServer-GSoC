@@ -874,14 +874,13 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(File::isLink(td.filenamePath.c_str())) 
       {
         const char *perm = td.connection->host->getHashedData("FOLLOW_LINKS");
-        if(perm && !strcmpi(perm, "YES"))
-          mimecmd = CGI_CMD_SEND;
-        else
+        if(!perm || strcmpi(perm, "YES"))
           return raiseHTTPError(e_401);
       }
-      else if(File::isDirectory(td.filenamePath.c_str()))
+
+      if(File::isDirectory(td.filenamePath.c_str()))
       {
-        directory.assign(td.filenamePath);
+				directory.assign(td.filenamePath);
       }
       else
       {
