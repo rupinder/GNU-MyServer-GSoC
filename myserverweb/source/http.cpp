@@ -1380,18 +1380,18 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     else if( mimecmd == CGI_CMD_EXTERNAL )
     {
       int allowExternal = 1;
-	    const char *dataH=td.connection->host->getHashedData("ALLOW_EXTERNAL_COMMANDS");
+	    const char *dataH = td.connection->host->getHashedData("ALLOW_EXTERNAL_COMMANDS");
 	    if(dataH)
 	    {
         if(!strcmpi(dataH, "YES"))
-          allowExternal=1;
+          allowExternal = 1;
         else
-          allowExternal=0;      
+          allowExternal = 0;      
 	    }     
-      if(allowExternal && (MimeRecord*)td.mime)
+      if(allowExternal && td.mime)
       {
         DynamicHttpManager* manager = dynManagerList.getManagerByName(
-                             td.mime->cmd_name.c_str());
+																							td.mime->cmd_name.c_str());
 
         if(manager)
           return manager->send(&td, td.connection, td.filenamePath.c_str(), 
@@ -1404,28 +1404,28 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
     {
       int allowSend = 1;
-	    const char *dataH=td.connection->host->getHashedData("ALLOW_SEND_FILE");
-	    if(dataH)
+	    const char *data = td.connection->host->getHashedData("ALLOW_SEND_FILE");
+	    if(data)
 	    {
-        if(!strcmpi(dataH, "YES"))
-          allowSend=1;
+        if(!strcmpi(data, "YES"))
+          allowSend = 1;
         else
-          allowSend=0;      
+          allowSend = 0;      
 	    }   
       if(!allowSend)
-      {     
+      {
         return sendAuth();
       }       
     }
 
-    /*! By default try to send the file as it is. */
+    /*! By default try to send the file as it is.  */
     if(!(permissions & MYSERVER_PERMISSION_READ))
     {     
       return sendAuth();
     }
 
-    lastMT=File::getLastModTime(td.filenamePath.c_str());
-    if(lastMT==-1)
+    lastMT = File::getLastModTime(td.filenamePath.c_str());
+    if(lastMT == -1)
     {
       return raiseHTTPError(e_500);
     }

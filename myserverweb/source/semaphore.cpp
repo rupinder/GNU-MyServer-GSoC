@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/utility.h"
 #include "../include/sockets.h"
-#include "../include/mutex.h"
+#include "../include/semaphore.h"
 
 extern "C" {
 #include <string.h>
@@ -46,17 +46,18 @@ extern "C" {
 #endif
 
 /*!
- *Constructor for the mutex class.
+ *Constructor for the semaphore class.
  */
-Mutex::Mutex()
+Semaphore::Semaphore(int n)
 {
 	initialized = 0;
-	init();
+	init(n);
 }
+
 /*!
- *Initialize a mutex.
+ *Initialize the semaphore.
  */
-int Mutex::init()
+int Semaphore::init(int n)
 {
   int ret = 0;
 	if(initialized)
@@ -65,72 +66,62 @@ int Mutex::init()
 		initialized = 0;
 	}
 #ifdef HAVE_PTHREAD
-
-
-#if 0
-  pthread_mutexattr_t mta = NULL;
-	pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-	ret = pthread_mutex_init(&mutex, &mta);
+	ret = sem_init(&semaphore, 0, n);
 #else
-	ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
-#endif
-
-
-#else
-	mutex = CreateMutex(0, 0, 0);
-  ret = !mutex;
+	semaphore = CreateSemaphore(0, 0, n, 0);
+  ret = !semaphore;
 #endif
 	initialized = 1;
 	return ret ? 1 : 0;
 }
 
 /*!
- *Destroy a mutex.
+ *Destroy the semaphore.
  */
-int Mutex::destroy()
+int Semaphore::destroy()
 {
 #ifdef HAVE_PTHREAD
   if(initialized)
-    pthread_mutex_destroy(&mutex);
+    sem_destroy(&semaphore);
 #else
   if(initialized)
-    CloseHandle(mutex);
+    CloseHandle(semaphore);
 #endif
 	initialized = 0;
 	return 0;
 }
 
 /*!
- *Lock the mutex.
+ *Lock the semaphore (p).
  */
-int Mutex::lock(u_long /*id*/)
+int Semaphore::lock(u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
 #ifdef PTHREAD_ALTERNATE_LOCK
-	pthread_mutex_lock(&mutex);
+	sem_wait(&semaphore);
 #else
-	while(pthread_mutex_trylock(&mutex))
+	while(sem_trywait(&semaphore))
 	{
 		Thread::wait(1);
 	}
 #endif
 
 #else	
-	WaitForSingleObject(mutex, INFINITE);
+	WaitForSingleObject(semaphore, INFINITE);
 #endif
 	return 0;
 }
 
 /*!
-*Unlock the mutex access.
+*Unlock the semaphore access (n).
 */
-int Mutex::unlock(u_long/*! id*/)
+int Semaphore::unlock(u_long/*! id*/)
 {
 #ifdef HAVE_PTHREAD
 	int err;
-	err = pthread_mutex_unlock(&mutex);
+	err = sem_post(&semaphore);
 #else	
-	ReleaseMutex(mutex);
+	ReleaseSemaphore(semaphore);
 #endif
 	return 1;
 }
@@ -138,7 +129,7 @@ int Mutex::unlock(u_long/*! id*/)
 /*!
 *Destroy the object.
 */
-Mutex::~Mutex()
+Semaphore::~Semaphore()
 {
 	destroy();
 }
