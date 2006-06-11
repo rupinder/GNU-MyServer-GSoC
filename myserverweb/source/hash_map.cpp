@@ -472,6 +472,7 @@ void HashMap<KeyType, ValueType>::clear(void)
 	if(offset==0x0)
 	{
 		offset=1;
+		data.clear();
 		map.assign(capacity, 0);
 	}
 }
@@ -484,6 +485,8 @@ void HashMap<string, ValueType>::clear(void)
 	if(offset==0x0)
 	{
 		offset=1;
+		data.clear();
+
 		map.assign(capacity, 0);
 	}
 }
@@ -496,6 +499,7 @@ void HashMap<char*, ValueType>::clear(void)
 	if(offset==0x0)
 	{
 		offset=1;
+		data.clear();
 		map.assign(capacity, 0);
 	}
 }
@@ -508,6 +512,7 @@ void HashMap<void*, ValueType>::clear(void)
 	if(offset==0x0)
 	{
 		offset=1;
+		data.clear();
 		map.assign(capacity, 0);
 	}
 }

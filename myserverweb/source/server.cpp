@@ -781,10 +781,9 @@ void * listenServer(void* params)
 {
 	char buffer[256];
 	int err;
-	listenThreadArgv *argv=(listenThreadArgv*)params;
-//	Socket *serverSocket=argv->serverSocket;
-	Socket *serverSocketIPv4 =argv->serverSocketIPv4;
-	Socket *serverSocketIPv6 =argv->serverSocketIPv6;
+	listenThreadArgv *argv = (listenThreadArgv*)params;
+	Socket *serverSocketIPv4 = argv->serverSocketIPv4;
+	Socket *serverSocketIPv6 = argv->serverSocketIPv6;
 	
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
 	   return 0;
@@ -803,12 +802,13 @@ void * listenServer(void* params)
 	sigaddset(&sigmask, SIGTERM);
 	sigprocmask(SIG_SETMASK, &sigmask, NULL);
 #endif
-	delete argv;
 
-//	ret = serverSocket->setNonBlocking(1);
-	if ( serverSocketIPv4 != NULL )
+	/* Free the structure used to pass parameters to the new thread.  */
+	delete params;
+
+	if (serverSocketIPv4 != NULL )
   	   ret = serverSocketIPv4->setNonBlocking(1);
-  	if ( serverSocketIPv6 != NULL )
+  	if (serverSocketIPv6 != NULL )
   	   ret = serverSocketIPv6->setNonBlocking(1);
 
 	Server::getInstance()->increaseListeningThreadCount();
@@ -818,7 +818,7 @@ void * listenServer(void* params)
     int uid = Server::getInstance()->getUid();
     int gid = Server::getInstance()->getGid();
 
-    /**
+    /*
      *Change the user and group identifier to -1
      *if they are not specified.
      */
@@ -828,19 +828,19 @@ void * listenServer(void* params)
     if(!gid)
       gid = -1;
 
-    /*!
+    /*
      *Change the log files owner if a different user or group
      *identifier is specified.
      */
-    for(int i=0; ; i++)
+    for(int i = 0; ; i++)
     {
       Vhost* vh = Server::getInstance()->vhostList->getVHostByNumber(i);
-      /*! Break if we reach the end of the list. */
+      /* Break if we reach the end of the list.  */
       if(!vh)
         break;
 
-      /*! Chown the log files. */
-      err  = File::chown(vh->getAccessesLogFileName(), uid, gid);
+      /* Chown the log files.  */
+      err = File::chown(vh->getAccessesLogFileName(), uid, gid);
       if(err)
       {
         string str;
@@ -861,12 +861,11 @@ void * listenServer(void* params)
         Server::getInstance()->logWriteln(str);
         Server::getInstance()->logEndPrintError();
       }
-
     }
-
   }
 
-  if(Server::getInstance()->getUid() && Process::setuid(Server::getInstance()->getUid()))
+  if(Server::getInstance()->getUid() && 
+		 Process::setuid(Server::getInstance()->getUid()))
   {
     ostringstream out;
     out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
@@ -878,7 +877,8 @@ void * listenServer(void* params)
     return 0;
 
   }
-  if(Server::getInstance()->getGid() && Process::setgid(Server::getInstance()->getGid()))
+  if(Server::getInstance()->getGid() && 
+		 Process::setgid(Server::getInstance()->getGid()))
   {
     ostringstream out;
     out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
@@ -901,7 +901,7 @@ void * listenServer(void* params)
     timeoutValue = 5;
 #endif
 
-		/*!
+		/*
      *Accept connections.
      *Every new connection is sended to Server::addConnection function;
      *this function sends connections between the various threads.
@@ -925,7 +925,8 @@ void * listenServer(void* params)
 				asock_inLen = sizeof(sockaddr_in);
 				asock = serverSocketIPv4->accept(&asock_in,
 										 &asock_inLen);
-				if(asock.getHandle() != 0 && asock.getHandle() != (SocketHandle)INVALID_SOCKET)
+				if(asock.getHandle() != 0 && 
+					 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
 				{
  					 //Andu: do we need 'setServerSocket' anymore?
 					//asock.setServerSocket(serverSocketIPv4);
@@ -943,10 +944,13 @@ void * listenServer(void* params)
 			asock_inLen = sizeof(sockaddr_in6);
 			asock = serverSocketIPv6->accept(&asock_in,
 									 &asock_inLen);
+
 			if(asock.getHandle()==0)
 				continue;
+
 			if(asock.getHandle()==(SocketHandle)INVALID_SOCKET)
 				continue;
+
 			//Andu: do we need 'setServerSocket' anymore?
 			//asock.setServerSocket(serverSocketIPv6);
 			Server::getInstance()->addConnection(asock, &asock_in);
@@ -963,24 +967,23 @@ void * listenServer(void* params)
 		serverSocketIPv4->shutdown(SD_BOTH);
 		do
 		{
-			err=serverSocketIPv4->recv(buffer, 256, 0);
-		}while(err!=-1);
+			err = serverSocketIPv4->recv(buffer, 256, 0);
+		}while(err != -1);
+
 		serverSocketIPv4->closesocket();
 		delete serverSocketIPv4;
 	}
-  	argv->serverSocketIPv4 = NULL;
 
 	if ( serverSocketIPv6 != NULL )
 	{
 		serverSocketIPv6->shutdown(SD_BOTH);
 		do
 		{
-			err=serverSocketIPv6->recv(buffer, 256, 0);
-		}while(err!=-1);
+			err = serverSocketIPv6->recv(buffer, 256, 0);
+		}while(err != -1);
 		serverSocketIPv6->closesocket();
 		delete serverSocketIPv6;
 	}
-	argv->serverSocketIPv6 = NULL;
 	
 	Server::getInstance()->decreaseListeningThreadCount();
 	/*!
