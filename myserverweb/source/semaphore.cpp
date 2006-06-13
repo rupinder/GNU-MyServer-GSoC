@@ -121,7 +121,7 @@ int Semaphore::unlock(u_long/*! id*/)
 	int err;
 	err = sem_post(&semaphore);
 #else	
-	ReleaseSemaphore(semaphore);
+	ReleaseSemaphore(semaphore, 1, NULL);
 #endif
 	return 1;
 }

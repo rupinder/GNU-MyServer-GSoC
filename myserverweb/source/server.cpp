@@ -804,7 +804,7 @@ void * listenServer(void* params)
 #endif
 
 	/* Free the structure used to pass parameters to the new thread.  */
-	delete params;
+	delete argv;
 
 	if (serverSocketIPv4 != NULL )
   	   ret = serverSocketIPv4->setNonBlocking(1);
