@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -57,7 +57,7 @@ void SecurityToken::reset()
   password       = 0;
   directory      = 0;
   filename       = 0;
-  password2      = 0;
+  neededPassword      = 0;
   permission2    = 0;
   auth_type      = 0;
   len_auth       = 0;
@@ -166,7 +166,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
  *The file [directory]/security will be parsed. If a [parser] is specified, 
  *it will be used instead of opening the security file.
  *[permission2] is the permission mask that the [user] will have 
- *if providing a [password2].
+ *if providing a [neededPassword].
  *Returns -1 on errors.
  */
 int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
@@ -176,24 +176,24 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
 	char tempPassword[32];
 
-  /*! Generic permission data mask for the user. */
-	int genericPermissions=0;
-	int genericPermissionsFound=0;
+  /*! Generic permission data mask for the user.  */
+	int genericPermissions = 0;
+	int genericPermissionsFound = 0;
 
-  /*! Permission data for the file. */
-	int filePermissions=0;
-	int filePermissionsFound=0;
+  /*! Permission data for the file.  */
+	int filePermissions = 0;
+	int filePermissionsFound = 0;
 
-  /*! Permission data for the user and the file. */
-	int userPermissions=0;
-	int userPermissionsFound=0;
+  /*! Permission data for the user and the file.  */
+	int userPermissions = 0;
+	int userPermissionsFound = 0;
 
-  /*! Store what we found for password2. */
-	int filePermissions2Found=0;
-	int userPermissions2Found=0;
-	int genericPermissions2Found=0;
+  /*! Store what we found for neededPassword.  */
+	int filePermissions2Found = 0;
+	int userPermissions2Found = 0;
+	int genericPermissions2Found = 0;
 
-  u_long tempThrottlingRate=(u_long)-1;
+  u_long tempThrottlingRate = (u_long)-1;
   xmlAttr *attr;
 	xmlNode *node;
 
@@ -213,9 +213,9 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
  	xmlNode *actionsNode = 0;
  	xmlNode *tmpActionsNode = 0;
 
-	tempPassword[0]='\0';
+	tempPassword[0] = '\0';
 	if(st && st->auth_type)
-		st->auth_type[0]='\0';
+		st->auth_type[0] = '\0';
   if(st->user == 0)
     return -1;
   if(st->directory == 0)
@@ -246,8 +246,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   }
   else
   {
-    /*! If the parser object is specified get the doc from it. */
-    doc=parser->getDoc();
+    /*! If the parser object is specified get the doc from it.  */
+    doc = parser->getDoc();
   }
 
   if(!doc)
@@ -284,7 +284,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 						strncpy(st->auth_type,(const char*)attr->children->content, 
                     st->len_auth);
 				}
-				attr=attr->next;
+				attr = attr->next;
 			}
 		}
 		else if(!xmlStrcmp(node->name, (const xmlChar *)"ACTION"))
@@ -376,8 +376,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
             actionsFound = 2;
  	          actionsNode = tmpActionsNode;            
           }   
-          if(st->password2)
-            strncpy(st->password2, tempPassword, 32);
+          if(st->neededPassword)
+            strncpy(st->neededPassword, tempPassword, 32);
           if(tempThrottlingRate != (u_long) -1) 
             st->throttlingRate = tempThrottlingRate;
         }
@@ -474,8 +474,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
              */
 						if(rightUser)
 						{
-              if(st->password2)
-                myserver_strlcpy(st->password2, tempPassword, 32);
+              if(st->neededPassword)
+                myserver_strlcpy(st->neededPassword, tempPassword, 32);
 						}
 
 						attr = attr->next;
@@ -551,7 +551,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
             }
           }
           attr = attr->next;
-        }/*! End attributes loop. */
+        }/*! End attributes loop.  */
 
         /*! 
          *Check that was not specified a file permission mask 

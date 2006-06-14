@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -316,7 +316,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.password2 = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
+      st.neededPassword = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
       secCacheMutex.lock();
       try
@@ -340,7 +340,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.password2 = 0;
+        st.neededPassword = 0;
         st.permission2 = 0;
         permissions=secCache.getPermissionMask(&st);
         secCacheMutex.unlock();
@@ -387,7 +387,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.password2 = 0;
+      st.neededPassword = 0;
       st.permission2 = 0;
       
       secCacheMutex.lock();
@@ -588,7 +588,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.password2 = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
+      st.neededPassword = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
       secCacheMutex.lock();
       try
@@ -609,7 +609,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.password2 = 0;
+      st.neededPassword = 0;
       st.permission2 = 0;
       secCacheMutex.lock();
       try
@@ -659,7 +659,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.password2 = 0;
+      st.neededPassword = 0;
       st.permission2 = 0;
       secCacheMutex.lock();
       try
@@ -904,7 +904,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.password2 = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
+        st.neededPassword = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
         st.permission2 = &permissions2;
         secCacheMutex.lock();
         try
@@ -925,7 +925,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.password2 = 0;
+        st.neededPassword = 0;
         st.permission2 = 0;
         secCacheMutex.lock();
         try
@@ -971,7 +971,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.password2 = 0;
+        st.neededPassword = 0;
         st.permission2 = 0;
         secCacheMutex.lock();
         try

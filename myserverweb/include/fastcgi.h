@@ -112,7 +112,7 @@ typedef struct {
  *Values for role component of FcgiBeginRequestBody.
  */
 #define FCGIRESPONDER  1
-#define FCGIauthORIZER 2
+#define FCGIAUTHORIZER 2
 #define FCGIFILTER     3
 
 
@@ -135,7 +135,7 @@ typedef struct {
  */
 #define FCGIREQUEST_COMPLETE 0
 #define FCGICANT_MPX_CONN    1
-#define FCGIOverLOADED       2
+#define FCGIOVERLOADED       2
 #define FCGIUNKNOWN_ROLE     3
 
 typedef struct {

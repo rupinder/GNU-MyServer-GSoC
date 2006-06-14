@@ -77,7 +77,7 @@ struct SecurityToken
    *This is used in authorization schemes like the HTTP digest,
    *where the password is not sent in clear on the network.
    */
-  char *password2;
+  char *neededPassword;
   /*! Permission mask that the user will have if providing a [password2]. */
   int *permission2;
 
