@@ -508,24 +508,27 @@ int Server::createServerAndListener(u_short port)
 			  //return 0; allow IPv6
 			}
 #endif
-			/*!
-			 *Bind the port.
-			 */
-			logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-
-			if(serverSocketIPv4 != NULL &&
-			serverSocketIPv4->bind(&sock_inserverSocketIPv4,
-								  sizeof(sockaddr_in))!=0)
-			{
-			  logPreparePrintError();
-			  logWriteln(languageParser.getValue("ERR_BIND"));
-			  logEndPrintError();
-			delete serverSocketIPv4;
-			serverSocketIPv4 = NULL;
-			}
-			else
-			{
-				logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
+	  		if( serverSocketIPv4 != NULL )
+	  		{
+				/*!
+				 *Bind the port.
+				 */
+				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
+	
+				
+				if ( serverSocketIPv4->bind(&sock_inserverSocketIPv4,
+									  sizeof(sockaddr_in))!=0)
+				{
+				  logPreparePrintError();
+				  logWriteln(languageParser.getValue("ERR_BIND"));
+				  logEndPrintError();
+				delete serverSocketIPv4;
+				serverSocketIPv4 = NULL;
+				}
+				else
+				{
+					logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
+				}
 			}
 		}
 	}
@@ -603,28 +606,33 @@ int Server::createServerAndListener(u_short port)
 			  //return 0;allow IPv6
 			}
 #endif
-			/*!
-			 *Bind the port.
-			 */
-			logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-
-			if(serverSocketIPv6 != NULL &&
-			serverSocketIPv6->bind(&sock_inserverSocketIPv6,
-								  sizeof(sockaddr_in6))!=0)
+			if(serverSocketIPv6 != NULL )
 			{
-			  logPreparePrintError();
-			  logWriteln(languageParser.getValue("ERR_BIND"));
-			  logEndPrintError();
-			delete serverSocketIPv6;
-			serverSocketIPv6 = NULL;
-			}
-			else
-			{
-				logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
+				/*!
+				 *Bind the port.
+				 */
+				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
+	
+				if ( serverSocketIPv6->bind(&sock_inserverSocketIPv6,
+									  sizeof(sockaddr_in6))!=0)
+				{
+				  logPreparePrintError();
+				  logWriteln(languageParser.getValue("ERR_BIND"));
+				  logEndPrintError();
+				delete serverSocketIPv6;
+				serverSocketIPv6 = NULL;
+				}
+				else
+				{
+					logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
+				}
 			}
 		}
 	}
 #endif // HAVE_IPV6
+
+	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
+		return 0;
 
     /*!
      *Set connections listen queque to max allowable.
@@ -637,8 +645,6 @@ int Server::createServerAndListener(u_short port)
 //      logEndPrintError();
 //      return 0;
 //    }
-	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-		return 0;
 	if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
 	{
       logPreparePrintError();
@@ -658,6 +664,9 @@ int Server::createServerAndListener(u_short port)
       //return 0;
 	}
 
+	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
+		return 0;
+		
     port_buff << (u_int)port;
 
     listen_port_msg.assign(languageParser.getValue("MSG_LISTEN"));
