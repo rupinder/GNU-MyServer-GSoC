@@ -105,6 +105,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   string moreArg;
 
+	bool useChunks = false;
+	bool keepalive = false;
+
 	/*! Size of data chunks to use with STDIN. */
   const size_t maxStdinChunk = 8192;
 
@@ -596,7 +599,27 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 				td->request.other.get("Connection");
 
 			if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
+			{
+				keepalive = true;
 				td->response.connection.assign("keep-alive");
+			}
+
+			if(keepalive)
+			{
+				HttpResponseHeader::Entry *e;
+				e = td->response.other.get("Transfer-Encoding");
+				if(e)
+					e->value->assign("chunked");
+				else
+				{
+					e = new HttpResponseHeader::Entry();
+					e->name->assign("Transfer-Encoding");
+					e->value->assign("chunked");
+					td->response.other.put(*(e->name), e);
+				}
+				useChunks = true;
+			}
+
 			HttpHeaders::buildHTTPResponseHeader(td->buffer2->getBuffer(),
                                             &td->response);
 			if(td->connection->socket.send( td->buffer2->getBuffer(),
@@ -615,8 +638,28 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         break;
       }
 
+			if(useChunks)
+			{
+				ostringstream tmp;
+				tmp << hex << (nbr - headerSize) << "\r\n";
+				td->response.contentLength.assign(tmp.str());
+				if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+				{
+					exit = 0;
+					ret = 0;
+					break;
+				}
+			}
+
 			if(chain.write((char*)((td->buffer->getBuffer())
                              +headerSize), nbr - headerSize, &nbw2))
+			{
+				exit = 0;
+        ret = 0;
+				break;
+			}
+
+			if(useChunks && chain.write("\r\n", 2, &nbw2))
 			{
 				exit = 0;
         ret = 0;
@@ -661,12 +704,35 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			if(!td->appendOutputs)
 			{
         u_long nbw2;
-				if(chain.write(td->buffer->getBuffer(), nbr, &nbw2))
-        {
-          exit = 1;
-          ret = 0;
-					break;
-        }
+				if(nbr)
+				{
+					if(useChunks)
+					{
+						ostringstream tmp;
+						tmp << hex << nbr << "\r\n";
+						td->response.contentLength.assign(tmp.str());
+						if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+						{
+							exit = 1;
+							ret = 0;
+							break;
+						}
+					}
+
+					if(chain.write(td->buffer->getBuffer(), nbr, &nbw2))
+					{
+						exit = 1;
+						ret = 0;
+						break;
+					}
+
+					if(useChunks && chain.write("\r\n", 2, &nbw2))
+					{
+						exit = 1;
+						ret = 0;
+						break;
+					}
+				}
 			}
 			else
 			{
@@ -679,6 +745,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         }
 			}
 		}while(nbr);
+
+		if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
+		{
+			exit = 1;
+			ret = 0;
+			break;
+		}
 
     break;
 	}
