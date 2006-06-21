@@ -487,7 +487,7 @@ int Server::createServerAndListener(u_short port)
     		logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
 			MYSERVER_SOCKADDR_STORAGE sock_inserverSocketIPv4 = { 0 };
 			((sockaddr_in*)(&sock_inserverSocketIPv4))->sin_family=AF_INET;
-			((sockaddr_in*)(&sock_inserverSocketIPv4))->sin_addr.s_addr=htonl(INADDR_LOOPBACK);//INADDR_ANY;
+			((sockaddr_in*)(&sock_inserverSocketIPv4))->sin_addr.s_addr=htonl(INADDR_ANY);
 			((sockaddr_in*)(&sock_inserverSocketIPv4))->sin_port=htons((u_short)port);
 
 #ifdef NOT_WIN
@@ -514,8 +514,8 @@ int Server::createServerAndListener(u_short port)
 				 *Bind the port.
 				 */
 				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-	
-				
+
+
 				if ( serverSocketIPv4->bind(&sock_inserverSocketIPv4,
 									  sizeof(sockaddr_in))!=0)
 				{
@@ -552,7 +552,7 @@ int Server::createServerAndListener(u_short port)
 
 #if ( HAVE_IPV6 )
 	serverSocketIPv6 = new Socket();
-	
+
 	if ( serverSocketIPv6 != NULL )
 	{
 		logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
@@ -612,7 +612,7 @@ int Server::createServerAndListener(u_short port)
 				 *Bind the port.
 				 */
 				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-	
+
 				if ( serverSocketIPv6->bind(&sock_inserverSocketIPv6,
 									  sizeof(sockaddr_in6))!=0)
 				{
@@ -666,7 +666,7 @@ int Server::createServerAndListener(u_short port)
 
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
 		return 0;
-		
+
     port_buff << (u_int)port;
 
     listen_port_msg.assign(languageParser.getValue("MSG_LISTEN"));
@@ -793,10 +793,10 @@ void * listenServer(void* params)
 	listenThreadArgv *argv = (listenThreadArgv*)params;
 	Socket *serverSocketIPv4 = argv->serverSocketIPv4;
 	Socket *serverSocketIPv6 = argv->serverSocketIPv6;
-	
+
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
 	   return 0;
-	
+
 	MYSERVER_SOCKADDRIN asock_in;
 	int asock_inLen = 0;
 	Socket asock;
@@ -873,7 +873,7 @@ void * listenServer(void* params)
     }
   }
 
-  if(Server::getInstance()->getUid() && 
+  if(Server::getInstance()->getUid() &&
 		 Process::setuid(Server::getInstance()->getUid()))
   {
     ostringstream out;
@@ -886,7 +886,7 @@ void * listenServer(void* params)
     return 0;
 
   }
-  if(Server::getInstance()->getGid() && 
+  if(Server::getInstance()->getGid() &&
 		 Process::setgid(Server::getInstance()->getGid()))
   {
     ostringstream out;
@@ -934,7 +934,7 @@ void * listenServer(void* params)
 				asock_inLen = sizeof(sockaddr_in);
 				asock = serverSocketIPv4->accept(&asock_in,
 										 &asock_inLen);
-				if(asock.getHandle() != 0 && 
+				if(asock.getHandle() != 0 &&
 					 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
 				{
  					 //Andu: do we need 'setServerSocket' anymore?
@@ -993,7 +993,7 @@ void * listenServer(void* params)
 		serverSocketIPv6->closesocket();
 		delete serverSocketIPv6;
 	}
-	
+
 	Server::getInstance()->decreaseListeningThreadCount();
 	/*!
    *Automatically free the current thread.
@@ -1519,7 +1519,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 {
 
 	int ret=1;
-	if ( asock_in == NULL || 
+	if ( asock_in == NULL ||
 	(asock_in->ss_family != AF_INET && asock_in->ss_family != AF_INET6) )
 		return ret;
 	/*!
@@ -1527,7 +1527,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
    *connecting to the server.
    *local_ip is the local addrress used by the connection.
    */
-	//Andu: we can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST 
+	//Andu: we can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
 	//in getnameinfo call; Otherwise we should have used NI_MAXHOST
 	char ip[MAX_IP_STRING_LEN];
 	memset(ip,  0,  MAX_IP_STRING_LEN);
@@ -1577,7 +1577,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 	else
 		dim=sizeof(sockaddr_in6);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
-	
+
 	 if ( asock_in->ss_family == AF_INET )
 	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localsock_in), sizeof(sockaddr_in),
 	        local_ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
@@ -1613,7 +1613,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 		myport=ntohs(((sockaddr_in6 *)(&localsock_in))->sin6_port);
 	//else not permited anymore
 	//	return 0;
-	
+
 	if(!addConnectionToList(s, asock_in, &ip[0], &local_ip[0], port, myport, 1))
 	{
 		/*! If we report error to add the connection to the thread. */
