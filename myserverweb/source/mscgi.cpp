@@ -69,7 +69,10 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	u_long nbr = 0;
   int ret = 0;
   u_long nbs = 0;
+  u_long nbw2 = 0;
 	MsCgiData data;
+	bool useChunks = false;
+	bool keepalive = false;
  	data.envString = td->request.uriOptsPtr ?
                     td->request.uriOptsPtr : (char*) td->buffer->getBuffer();
 	
@@ -179,7 +182,30 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	{
 		char *buffer = td->buffer2->getBuffer();
 		u_long bufferSize = td->buffer2->getRealLength();
+		HttpRequestHeader::Entry* e = td->request.other.get("Connection");
 		data.stdOut.setFilePointer(0);
+
+		if(e)
+			keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
+		else
+			keepalive = false;
+
+		if(keepalive)
+    {
+			HttpResponseHeader::Entry *e;
+			e = td->response.other.get("Transfer-Encoding");
+			if(e)
+				e->value->assign("chunked");
+			else
+  		{
+				e = new HttpResponseHeader::Entry();
+				e->name->assign("Transfer-Encoding");
+				e->value->assign("chunked");
+				td->response.other.put(*(e->name), e);
+			}
+			useChunks = true;
+		}
+
 		HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
 		if(s->socket.send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)
 		{
@@ -205,6 +231,24 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			data.stdOut.readFromFile(buffer, bufferSize, &nbr);
 			if(nbr)
 			{
+
+				if(useChunks)
+				{
+					ostringstream tmp;
+					tmp << hex << nbr << "\r\n";
+					td->response.contentLength.assign(tmp.str());
+					if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+					{
+						if(!td->appendOutputs)
+						{
+							data.stdOut.closeFile();
+							File::deleteFile(outDataPath.str().c_str());
+						}
+						chain.clearAllFilters(); 
+						return 0;
+					}
+				}
+
 				if(chain.write(buffer, nbr, &nbs))
 				{
 					if(!td->appendOutputs)
@@ -213,12 +257,30 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 						File::deleteFile(outDataPath.str().c_str());
           }
           chain.clearAllFilters(); 
-          /* Internal server error.  */
-          return td->http->raiseHTTPError(e_500);
+          return 0;
 				}	
         nbw += nbs;
+
+				if(useChunks && chain.write("\r\n", 2, &nbw2))
+				{
+					if(!td->appendOutputs)
+					{
+						data.stdOut.closeFile();
+						File::deleteFile(outDataPath.str().c_str());
+          }
+          chain.clearAllFilters(); 
+          return 0;
+				}
+
 			}
 		}while(nbr && nbs);
+
+		if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
+		{
+			data.stdOut.closeFile();
+			File::deleteFile(outDataPath.str().c_str());
+			return 0;
+		}
 		if(!td->appendOutputs)
 		{
 			data.stdOut.closeFile();
