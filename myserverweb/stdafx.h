@@ -19,7 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef STDAFX_H
 #define STDAFX_H
 
+#ifndef WIN32
 #include "config.h"
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
