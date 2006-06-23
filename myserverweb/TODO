@@ -14,6 +14,7 @@ TODO list for MyServer.
 * Think about renaming some XML tags.
 
 *	Implement SYMLINKS:
+**  windows implementation.
 **	system wide.
 **	webroot.
 **	checkowner.
@@ -51,19 +52,19 @@ TODO list for MyServer.
 *	Provide a good api (MYSERVER, mySERVER, myServer, etc.)
 *	Fix some hardcoded errors in MyServer, they should now show directly to the new error files.
 *	Use C++ static_cast<TYPE>... instead of the C like casting (TYPE).
-*	LibXML compability(*) (at the moment MyServer uses LibXML2).
+*	LibXML compability (*) (at the moment MyServer uses LibXML2).
 
 *	Documentation.
 **	Fix the documentation.
 **	Translation of the documentation to other languages.
-**	New documentation layout.(*)
+**	New documentation layout. (*)
 
 *	Configurability.
 **	Show http_dir: Last modified, etc (rewrite html code).
 **	Provide Bity, KB, MB, GB, TB for the show http_dir.
 **	Add XML tags in the configuration, like <directory show_type="MB">.
-**	Cleanely compile MyServer with g++ -Wall(./configure CXXFLAGS="-Wall" CFLAGS="-Wall").
-**	Possibility to set the logfile size in Byte, KB, MB, GB, TB(handle="KB" value="1024" or xml --> handle "MB" value="1").
+**	Cleanely compile MyServer with g++ -Wall (./configure CXXFLAGS="-Wall" CFLAGS="-Wall").
+**	Possibility to set the logfile size in Byte, KB, MB, GB, TB (handle="KB" value="1024" or xml --> handle "MB" value="1").
 **	Provide more command line options (also compile date, add more to --version), compiled in binaries, etc....
 
 *	Port MyServer to other platforms.
@@ -85,8 +86,8 @@ TODO list for MyServer.
 **	Perl installation script INSTALL.pl that copies the files to the right place.
 
 *	Plugins system.
-**	Use plugins for HTTP optional commands(other than what was implemented GET, POST...).
-**	Plugins for HTTP data handler(other than what was implemented CGI, ISAPI, FastCGI...).
+**	Use plugins for HTTP optional commands (other than what was implemented GET, POST...).
+**	Plugins for HTTP data handler (other than what was implemented CGI, ISAPI, FastCGI...).
 **	Filters on returned data. (*)
 
 *	HTTP header control.
@@ -96,7 +97,7 @@ TODO list for MyServer.
 **	Abstract mechanism to allow/deny access not only from security files.
 
 *	Control protocol improvements.
-**	Allow access to log files.(*)
+**	Allow access to log files. (*)
 
 * Scripting support.
 **	Define a script language to use (maybe libguile?).
@@ -104,8 +105,8 @@ TODO list for MyServer.
 **	Use them in security files.
 
 *	MSCGI.
-**	Add new methods to the manager class.(*)
-**	Port to other languages, maybe not natively compiled.(*)
+**	Add new methods to the manager class. (*)
+**	Port to other languages, maybe not natively compiled. (*)
 **	Implements other facilities to easily write CGI programs.
 **	Implements a caching mechanism.
 
@@ -118,21 +119,21 @@ TODO list for MyServer.
 **	Better handle of requests with chunked data.
 **	HTTP "chunked" transfer coding support where not used.
 **	Rewrite securestr.cpp.
-**	Change socket IO model to use IOCPs instead for NT+ systems.(*)
-**	Include the new options for logging.(*)
+**	Change socket IO model to use IOCPs instead for NT+ systems. (*)
+**	Include the new options for logging. (*)
 **	Implement ident for the common log format.
 
 *	GUI.
 **	Update/improve GUI of configuration tool.
-**	Tooltips.(*)
+**	Tooltips. (*)
 **	Automatic deployment.
-**	Better graphics.(*)
-**	Create SSL files trough the GUI.(*)
+**	Better graphics. (*)
+**	Create SSL files trough the GUI. (*)
 **	If asked to run on XP as service automatically install the service.
 
 *	Virtual hosts data.
 **	Find and implement a faster way than the linear search in vhosts handling code.
-**	Possibility to have virtual hosts data in external sources(other than virtualhosts.xml).
+**	Possibility to have virtual hosts data in external sources (other than virtualhosts.xml).
 
 *	Support for Frontpage extensions.
 *	Design and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
