@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -48,18 +48,6 @@ unsigned int __stdcall listenServer(void* pParam);
 void* listenServer(void* pParam);
 #endif
 
-/*!
- *On systems with a MAX_PATH limit use it.
- */
-#ifdef MAX_PATH
-#define CONF_FILES_MAX_PATH MAX_PATH
-#else
-#define CONF_FILES_MAX_PATH 260
-#endif
-
-/*
- *Defined in myserver.cpp
- */
 extern int rebootMyServerConsole;
 
 struct listenThreadArgv
@@ -119,25 +107,25 @@ private:
 	u_long getNumConnections();
 	/*! Buffer that contains all the local machine IP values.  */
 	string *ipAddresses;
-	char serverName[HOST_NAME_MAX+1];
+	char serverName[HOST_NAME_MAX + 1];
 	string* path;
   string* externalPath;
 	string* serverAdmin;
 	int initialize(int);
 	ConnectionPtr addConnectionToList(Socket s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
-                                    u_short port, u_short localPort,int);
+                                    u_short port, u_short localPort, int);
   u_long nConnections;
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;
 	void clearAllConnections();
 	int freeHashedData();
-	int deleteConnection(ConnectionPtr,int,int=1);
+	int deleteConnection(ConnectionPtr, int, int = 1);
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
 	int createServerAndListener(u_short);
 	int loadSettings();
-	Mutex* connections_mutex;
+	Mutex* connectionsMutex;
 	ConnectionPtr connectionToParse;
 	u_long nStaticThreads;
   u_long nMaxThreads;
@@ -188,8 +176,8 @@ public:
 	~Server();
 	DynamicProtocol* getDynProtocol(const char *protocolName);
 	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
-	int connections_mutex_lock();
-	int connections_mutex_unlock();
+	int connectionsMutexLock();
+	int connectionsMutexUnlock();
   ConnectionPtr getConnections();
 	ConnectionPtr getConnection(int);
 	ConnectionPtr findConnectionBySocket(Socket);
@@ -204,7 +192,7 @@ public:
 	MimeManager *mimeManager;
 	const char *getPath();
 	u_long getNumThreads();
-	const char *getDefaultFilenamePath(u_long ID=0);
+	const char *getDefaultFilenamePath(u_long ID = 0);
 	const char *getServerName();
 	u_long getVerbosity();
 	const char *getServerAdmin();

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -300,7 +300,7 @@ int ClientsThread::controlConnections()
 	/*
    *Get the access to the connections list.
    */
-	Server::getInstance()->connections_mutex_lock();
+	Server::getInstance()->connectionsMutexLock();
 	c = Server::getInstance()->getConnection(this->id);
 	
 	/*
@@ -310,12 +310,12 @@ int ClientsThread::controlConnections()
    */
   if(!c)
   {
-		Server::getInstance()->connections_mutex_unlock();
+		Server::getInstance()->connectionsMutexUnlock();
     return 1;
   }
 	if((!c)  || c->isParsing())
 	{
-		Server::getInstance()->connections_mutex_unlock();
+		Server::getInstance()->connectionsMutexUnlock();
 		return 0;
 	}
 	/*
@@ -326,7 +326,7 @@ int ClientsThread::controlConnections()
 	/*
    *Unlock connections list access after setting parsing flag.
    */
-	Server::getInstance()->connections_mutex_unlock();
+	Server::getInstance()->connectionsMutexUnlock();
 
   /* Number of bytes waiting to be read.  */
   if(c->socket.dataOnRead())

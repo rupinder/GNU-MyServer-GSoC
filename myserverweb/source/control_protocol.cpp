@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005 The MyServer Team
+Copyright (C) 2004, 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -726,7 +726,7 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
   int ret =  0;
   u_long nbw;
   ConnectionPtr con;
-  Server::getInstance()->connections_mutex_lock();
+  Server::getInstance()->connectionsMutexLock();
   con = Server::getInstance()->getConnections();
   while(con)
   {
@@ -749,7 +749,7 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
     }
     con = con->next;
   }
-  Server::getInstance()->connections_mutex_unlock();
+  Server::getInstance()->connectionsMutexUnlock();
   return ret;
 }
 
@@ -764,13 +764,13 @@ int  ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out,
   if(ID == 0)
     return -1;
   con = Server::getInstance()->findConnectionByID(ID);
-  Server::getInstance()->connections_mutex_lock();
+  Server::getInstance()->connectionsMutexLock();
   if(con)
   {
     /*! Define why the connection is killed. */
     con->setToRemove(CONNECTION_USER_KILL);
   }
-  Server::getInstance()->connections_mutex_unlock();
+  Server::getInstance()->connectionsMutexUnlock();
   return ret;
 }
 

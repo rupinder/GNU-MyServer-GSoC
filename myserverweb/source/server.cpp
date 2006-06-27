@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -43,9 +43,11 @@ extern "C" {
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
 #ifdef HAVE_PTHREAD
 #include <pthread.h>
 #endif
+
 #endif
 }
 #include <sstream>
@@ -76,12 +78,12 @@ Server::Server()
   toReboot = 0;
   autoRebootEnabled = 1;
   listeningThreads = 0;
-  nThreads=0;
-  pausing=0;
-  maxConnections=0;
-  nConnections=0;
-  connections=0;
-  connectionToParse=0;
+  nThreads = 0;
+  pausing = 0;
+  maxConnections = 0;
+  nConnections = 0;
+  connections = 0;
+  connectionToParse = 0;
   serverReady = 0;
   throttlingRate = 0;
   uid = 0;
@@ -112,13 +114,13 @@ Server::~Server()
 void Server::start()
 {
   u_long i;
-  u_long configsCheck=0;
-  time_t myserver_main_conf;
-  time_t myserver_hosts_conf;
-  time_t myserver_mime_conf;
+  u_long configsCheck = 0;
+  time_t mainConfTime;
+  time_t hostsConfTime;
+  time_t mimeConf;
   string buffer;
   int err = 0;
-  int os_ver=getOSVersion();
+  int osVer = getOSVersion();
 #ifdef WIN32
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
@@ -198,9 +200,9 @@ void Server::start()
      */
     logWriteln("Initializing server configuration...");
     err = 0;
-    os_ver=getOSVersion();
+    osVer = getOSVersion();
 
-    err = initialize(os_ver);
+    err = initialize(osVer);
     if(err)
       return;
 
@@ -213,7 +215,7 @@ void Server::start()
 
     /*! *Startup the socket library.  */
     logWriteln( languageParser.getValue("MSG_ISOCK") );
-    err= startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
+    err = startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
     if (err != 0)
     {
       logPreparePrintError();
@@ -264,9 +266,9 @@ void Server::start()
 
     loadSettings();
 
-    myserver_main_conf = File::getLastModTime(mainConfigurationFile->c_str());
-    myserver_hosts_conf = File::getLastModTime(vhostConfigurationFile->c_str());
-    myserver_mime_conf = File::getLastModTime(mimeConfigurationFile->c_str());
+    mainConfTime = File::getLastModTime(mainConfigurationFile->c_str());
+    hostsConfTime = File::getLastModTime(vhostConfigurationFile->c_str());
+    mimeConf = File::getLastModTime(mimeConfigurationFile->c_str());
 
     /*!
      *Keep thread alive.
@@ -280,31 +282,31 @@ void Server::start()
       if(autoRebootEnabled)
       {
         configsCheck++;
-        /*! Do not check for modified configuration files every cycle. */
-        if(configsCheck>10)
+        /*! Do not check for modified configuration files every cycle.  */
+        if(configsCheck > 10)
         {
-          time_t myserver_main_conf_now=
+          time_t mainConfTimeNow =
             File::getLastModTime(mainConfigurationFile->c_str());
-          time_t myserver_hosts_conf_now=
+          time_t hostsConfTimeNow =
             File::getLastModTime(vhostConfigurationFile->c_str());
-          time_t myserver_mime_conf_now=
+          time_t mimeConfNow =
             File::getLastModTime(mimeConfigurationFile->c_str());
 
           /*! If a configuration file was modified reboot the server. */
-          if(((myserver_main_conf_now!=-1) && (myserver_hosts_conf_now!=-1)  &&
-              (myserver_mime_conf_now!=-1)) || toReboot)
+          if(((mainConfTimeNow!=-1) && (hostsConfTimeNow!=-1)  &&
+              (mimeConfNow!=-1)) || toReboot)
           {
-            if( ((myserver_main_conf_now  != myserver_main_conf)  ||
-                 (myserver_hosts_conf_now != myserver_hosts_conf) ||
-                 (myserver_mime_conf_now  != myserver_mime_conf)) || toReboot  )
+            if( ((mainConfTimeNow  != mainConfTime)  ||
+                 (hostsConfTimeNow != hostsConfTime) ||
+                 (mimeConfNow  != mimeConf)) || toReboot)
             {
               reboot();
-              /*! Store new mtime values. */
-              myserver_main_conf = myserver_main_conf_now;
-              myserver_hosts_conf=myserver_hosts_conf_now;
-              myserver_mime_conf=myserver_mime_conf_now;
+              /*! Store new mtime values.  */
+              mainConfTime = mainConfTimeNow;
+              hostsConfTime = hostsConfTimeNow;
+              mimeConf = mimeConfNow;
             }
-            configsCheck=0;
+            configsCheck = 0;
           }
           else
           {
@@ -312,12 +314,12 @@ void Server::start()
              *If there are problems in loading mtimes
              *check again after a bit.
              */
-            configsCheck=7;
+            configsCheck = 7;
           }
         }
       }//end  if(autoRebootEnabled)
 
-      /*! Check threads. */
+      /*! Check threads.  */
       purgeThreads();
 
 #ifdef WIN32
@@ -391,20 +393,20 @@ int Server::purgeThreads()
    */
   ClientsThread *thread;
   ClientsThread *prev;
-  int prev_threads_count;
+  int prevThreadsCount;
   if(nThreads == nStaticThreads)
     return 0;
 
   threadsMutex->lock();
   thread = threads;
   prev = 0;
-  prev_threads_count = nThreads;
+  prevThreadsCount = nThreads;
   while(thread)
   {
     if(nThreads == nStaticThreads)
     {
       threadsMutex->unlock();
-      return prev_threads_count- nThreads;
+      return prevThreadsCount- nThreads;
     }
 
     /*!
@@ -434,7 +436,7 @@ int Server::purgeThreads()
   }
   threadsMutex->unlock();
 
-  return prev_threads_count- nThreads;
+  return prevThreadsCount - nThreads;
 }
 
 /*!
@@ -452,12 +454,12 @@ void Server::finalCleanup()
  */
 int Server::createServerAndListener(u_short port)
 {
-	int optvalReuseAddr=1;
-  ostringstream port_buff;
-  string listen_port_msg;
-	ThreadID threadId=0;
+	int optvalReuseAddr = 1;
+  ostringstream portBuff;
+  string listenPortMsg;
+	ThreadID threadId = 0;
   listenThreadArgv* argv;
-//	MYSERVER_SOCKADDRIN sock_inserverSocket;
+//	MYSERVER_SOCKADDRIN sockServerSocket;
   	/*!
 	*Create the server sockets:
 	*one server socket for IPv4 and another one for IPv6
@@ -484,11 +486,11 @@ int Server::createServerAndListener(u_short port)
 		}
 		else
 		{
-    		logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-			MYSERVER_SOCKADDR_STORAGE sock_inserverSocketIPv4 = { 0 };
-			((sockaddr_in*)(&sock_inserverSocketIPv4))->sin_family=AF_INET;
-			((sockaddr_in*)(&sock_inserverSocketIPv4))->sin_addr.s_addr=htonl(INADDR_ANY);
-			((sockaddr_in*)(&sock_inserverSocketIPv4))->sin_port=htons((u_short)port);
+			MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
+			logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
+			((sockaddr_in*)(&sockServerSocketIPv4))->sin_family=AF_INET;
+			((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr=htonl(INADDR_ANY);
+			((sockaddr_in*)(&sockServerSocketIPv4))->sin_port=htons((u_short)port);
 
 #ifdef NOT_WIN
 			/*!
@@ -497,8 +499,8 @@ int Server::createServerAndListener(u_short port)
 			 *To avoid this behavior we use the current code.
 			 */
 			if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-										(const char *)&optvalReuseAddr,
-										sizeof(optvalReuseAddr))<0)
+																			(const char *)&optvalReuseAddr,
+																			sizeof(optvalReuseAddr)) < 0)
 			{
 			  logPreparePrintError();
 			  logWriteln(languageParser.getValue("ERR_ERROR"));
@@ -516,7 +518,7 @@ int Server::createServerAndListener(u_short port)
 				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
 
 
-				if ( serverSocketIPv4->bind(&sock_inserverSocketIPv4,
+				if ( serverSocketIPv4->bind(&sockServerSocketIPv4,
 									  sizeof(sockaddr_in))!=0)
 				{
 				  logPreparePrintError();
@@ -546,9 +548,9 @@ int Server::createServerAndListener(u_short port)
 //      return 0;
 //    }
 //    logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-//    sock_inserverSocket.sin_family=AF_INET;
-//    sock_inserverSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-//    sock_inserverSocket.sin_port=htons(port);
+//    sockServerSocket.sin_family=AF_INET;
+//    sockServerSocket.sin_addr.s_addr=htonl(INADDR_ANY);
+//    sockServerSocket.sin_port=htons(port);
 
 #if ( HAVE_IPV6 )
 	serverSocketIPv6 = new Socket();
@@ -567,11 +569,12 @@ int Server::createServerAndListener(u_short port)
 		}
 		else
 		{
-    		logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-			MYSERVER_SOCKADDR_STORAGE sock_inserverSocketIPv6 = { 0 };
-			((sockaddr_in6*)(&sock_inserverSocketIPv6))->sin6_family=AF_INET6;
-			((sockaddr_in6*)(&sock_inserverSocketIPv6))->sin6_addr=in6addr_any;
-			((sockaddr_in6*)(&sock_inserverSocketIPv6))->sin6_port=htons((u_short)port);
+			MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
+			logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
+			((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
+			((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
+			((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
+				htons((u_short)port);
 #ifdef NOT_WIN
 			/*!
 			 *Under the unix environment the application needs some time before
@@ -579,14 +582,14 @@ int Server::createServerAndListener(u_short port)
 			 *To avoid this behavior we use the current code.
 			 */
 			if(serverSocketIPv6->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-										(const char *)&optvalReuseAddr,
-										sizeof(optvalReuseAddr))<0)
+																			(const char *)&optvalReuseAddr,
+																			sizeof(optvalReuseAddr))<0)
 			{
 			  logPreparePrintError();
 			  logWriteln(languageParser.getValue("ERR_ERROR"));
 			  logEndPrintError();
-			delete serverSocketIPv6;
-			serverSocketIPv6 = NULL;
+				delete serverSocketIPv6;
+				serverSocketIPv6 = NULL;
 			  //return 0;allow IPv6
 			}
 			/*!TODO: Andu: please check out this comment and correct it if it's not true.
@@ -595,14 +598,14 @@ int Server::createServerAndListener(u_short port)
 			 *because we already have a socket for IPv4 communication.
 			 */
 			if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
-										(const char *)&optvalReuseAddr,
-										sizeof(optvalReuseAddr))<0)
+																			(const char *)&optvalReuseAddr,
+																			sizeof(optvalReuseAddr)) < 0)
 			{
 			  logPreparePrintError();
 			  logWriteln(languageParser.getValue("ERR_ERROR"));
 			  logEndPrintError();
-			delete serverSocketIPv6;
-			serverSocketIPv6 = NULL;
+				delete serverSocketIPv6;
+				serverSocketIPv6 = NULL;
 			  //return 0;allow IPv6
 			}
 #endif
@@ -613,7 +616,7 @@ int Server::createServerAndListener(u_short port)
 				 */
 				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
 
-				if ( serverSocketIPv6->bind(&sock_inserverSocketIPv6,
+				if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
 									  sizeof(sockaddr_in6))!=0)
 				{
 				  logPreparePrintError();
@@ -667,13 +670,13 @@ int Server::createServerAndListener(u_short port)
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
 		return 0;
 
-    port_buff << (u_int)port;
+    portBuff << (u_int)port;
 
-    listen_port_msg.assign(languageParser.getValue("MSG_LISTEN"));
-    listen_port_msg.append(": ");
-    listen_port_msg.append(port_buff.str());
+    listenPortMsg.assign(languageParser.getValue("MSG_LISTEN"));
+    listenPortMsg.append(": ");
+    listenPortMsg.append(portBuff.str());
 
-    logWriteln(listen_port_msg.c_str());
+    logWriteln(listenPortMsg.c_str());
 
     logWriteln(languageParser.getValue("MSG_LISTENTR"));
 
@@ -719,7 +722,7 @@ void Server::createListenThreads()
 		int needThread=1;
 		list<Vhost*>::iterator j = vhostList->getVHostList()->begin();
 
-    /*! No port was specified. */
+    /*! No port was specified.  */
 		if((*i)->getPort()==0)
 			continue;
 
@@ -797,8 +800,8 @@ void * listenServer(void* params)
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
 	   return 0;
 
-	MYSERVER_SOCKADDRIN asock_in;
-	int asock_inLen = 0;
+	MYSERVER_SOCKADDRIN asockIn;
+	int asockInLen = 0;
 	Socket asock;
   int ret;
 
@@ -924,22 +927,22 @@ void * listenServer(void* params)
 			}
 			else
 			{
-//				asock = serverSocket->accept((struct sockaddr*)&asock_in,
-//										 &asock_inLen);
+//				asock = serverSocket->accept((struct sockaddr*)&asockIn,
+//										 &asockInLen);
 //				if(asock.getHandle()==0)
 //					continue;
 //				if(asock.getHandle()==(SocketHandle)INVALID_SOCKET)
 //					continue;
 //				asock.setServerSocket(serverSocket);
-				asock_inLen = sizeof(sockaddr_in);
-				asock = serverSocketIPv4->accept(&asock_in,
-										 &asock_inLen);
+				asockInLen = sizeof(sockaddr_in);
+				asock = serverSocketIPv4->accept(&asockIn,
+										 &asockInLen);
 				if(asock.getHandle() != 0 &&
 					 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
 				{
  					 //Andu: do we need 'setServerSocket' anymore?
 					//asock.setServerSocket(serverSocketIPv4);
-					Server::getInstance()->addConnection(asock, &asock_in);
+					Server::getInstance()->addConnection(asock, &asockIn);
 				}
 			}
 		}
@@ -950,9 +953,9 @@ void * listenServer(void* params)
 				Thread::wait(10);
 				continue;
 			}
-			asock_inLen = sizeof(sockaddr_in6);
-			asock = serverSocketIPv6->accept(&asock_in,
-									 &asock_inLen);
+			asockInLen = sizeof(sockaddr_in6);
+			asock = serverSocketIPv6->accept(&asockIn,
+									 &asockInLen);
 
 			if(asock.getHandle()==0)
 				continue;
@@ -962,7 +965,7 @@ void * listenServer(void* params)
 
 			//Andu: do we need 'setServerSocket' anymore?
 			//asock.setServerSocket(serverSocketIPv6);
-			Server::getInstance()->addConnection(asock, &asock_in);
+			Server::getInstance()->addConnection(asock, &asockIn);
 		}
 	}
 
@@ -1146,7 +1149,7 @@ int Server::terminate()
 	/*!
    *Destroy the connections mutex.
    */
-	delete connections_mutex;
+	delete connectionsMutex;
 
   /*!
    *free all the threads.
@@ -1231,7 +1234,7 @@ const char *Server::getServerAdmin()
  *The configuration file is a XML file.
  *Return nonzero on errors.
  */
-int Server::initialize(int /*!os_ver*/)
+int Server::initialize(int /*!osVer*/)
 {
 	char *data;
   int ret;
@@ -1244,7 +1247,7 @@ int Server::initialize(int /*!os_ver*/)
 	/*!
    *Create the mutex for the connections.
    */
-	connections_mutex = new Mutex();
+	connectionsMutex = new Mutex();
 
   /*!
    *Create the mutex for the threads.
@@ -1515,12 +1518,12 @@ u_long Server::getTimeout()
 /*!
  *This function add a new connection to the list.
  */
-int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
+int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 {
 
 	int ret=1;
-	if ( asock_in == NULL ||
-	(asock_in->ss_family != AF_INET && asock_in->ss_family != AF_INET6) )
+	if ( asockIn == NULL ||
+	(asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6) )
 		return ret;
 	/*!
    *ip is the string containing the address of the remote host
@@ -1562,23 +1565,23 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 
 
 #if ( HAVE_IPV6 )
-	if ( asock_in->ss_family == AF_INET )
-	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asock_in), sizeof(sockaddr_in),
+	if ( asockIn->ss_family == AF_INET )
+	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), sizeof(sockaddr_in),
 	        ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
      else// AF_INET6
-	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asock_in), sizeof(sockaddr_in6),
+	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), sizeof(sockaddr_in6),
 	        ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
     if ( ret != 0 )
     {
 	   return ret;
 	 }
-	if ( asock_in->ss_family == AF_INET )
+	if ( asockIn->ss_family == AF_INET )
 		dim=sizeof(sockaddr_in);
 	else
 		dim=sizeof(sockaddr_in6);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
 
-	 if ( asock_in->ss_family == AF_INET )
+	 if ( asockIn->ss_family == AF_INET )
 	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localsock_in), sizeof(sockaddr_in),
 	        local_ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
      else// AF_INET6
@@ -1592,17 +1595,17 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 	dim=sizeof(localsock_in);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
   // NOTE: inet_ntop supports IPv6
-	strncpy(ip,  inet_ntoa(((sockaddr_in *)asock_in)->sin_addr),  MAX_IP_STRING_LEN);
+	strncpy(ip,  inet_ntoa(((sockaddr_in *)asockIn)->sin_addr),  MAX_IP_STRING_LEN);
 
   // NOTE: inet_ntop supports IPv6
 	strncpy(local_ip,  inet_ntoa(((sockaddr_in *)&localsock_in)->sin_addr),  MAX_IP_STRING_LEN);
 #endif//HAVE_IPV6
 
   /*! Port used by the client. */
-  	if ( asock_in->ss_family == AF_INET )
-  		port=ntohs(((sockaddr_in *)(asock_in))->sin_port);
-	else// if ( asock_in->ss_family == AF_INET6 )
-		port=ntohs(((sockaddr_in6 *)(asock_in))->sin6_port);
+  	if ( asockIn->ss_family == AF_INET )
+  		port=ntohs(((sockaddr_in *)(asockIn))->sin_port);
+	else// if ( asockIn->ss_family == AF_INET6 )
+		port=ntohs(((sockaddr_in6 *)(asockIn))->sin6_port);
 	//else not permited anymore
 	//	return 0;
 
@@ -1614,7 +1617,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asock_in)
 	//else not permited anymore
 	//	return 0;
 
-	if(!addConnectionToList(s, asock_in, &ip[0], &local_ip[0], port, myport, 1))
+	if(!addConnectionToList(s, asockIn, &ip[0], &local_ip[0], port, myport, 1))
 	{
 		/*! If we report error to add the connection to the thread. */
 		ret=0;
@@ -1640,84 +1643,84 @@ int Server::getMaxThreads()
  *A connection is defined using a connection struct.
  */
 ConnectionPtr Server::addConnectionToList(Socket s,
-                                    MYSERVER_SOCKADDRIN* /*asock_in*/,
-                                    char *ipAddr, char *localIpAddr,
-                                    u_short port, u_short localPort, int /*id*/)
+																					MYSERVER_SOCKADDRIN* /*asockIn*/,
+																					char *ipAddr, char *localIpAddr,
+																					u_short port, u_short localPort, 
+																					int /*id*/)
 {
-  static u_long connection_ID = 0;
-	int doSSLhandshake=0;
-	ConnectionPtr new_connection=new Connection;
-	if(!new_connection)
+  static u_long connectionId = 0;
+	int doSSLhandshake = 0;
+	ConnectionPtr newConnection = new Connection;
+	if(!newConnection)
 	{
 		return NULL;
 	}
-  new_connection->socket = s;
-	new_connection->setPort(port);
-	new_connection->setTimeout( getTicks() );
-	new_connection->setLocalPort(localPort);
-	new_connection->setIpAddr(ipAddr);
-	new_connection->setLocalIpAddr(localIpAddr);
-	new_connection->host = Server::getInstance()->vhostList->getVHost(0,
+  newConnection->socket = s;
+	newConnection->setPort(port);
+	newConnection->setTimeout( getTicks() );
+	newConnection->setLocalPort(localPort);
+	newConnection->setIpAddr(ipAddr);
+	newConnection->setLocalIpAddr(localIpAddr);
+	newConnection->host = Server::getInstance()->vhostList->getVHost(0,
 																					                   localIpAddr,
                                                              localPort);
 
-  /*! No vhost for the connection so bail. */
-	if(new_connection->host == 0)
+  /*! No vhost for the connection so bail.  */
+	if(newConnection->host == 0)
 	{
-		delete new_connection;
+		delete newConnection;
 		return 0;
 	}
-	if(new_connection->host->getProtocol() > 1000	)
+	if(newConnection->host->getProtocol() > 1000	)
 	{
-		doSSLhandshake=1;
+		doSSLhandshake = 1;
 	}
-	else if(new_connection->host->getProtocol() == PROTOCOL_UNKNOWN)
+	else if(newConnection->host->getProtocol() == PROTOCOL_UNKNOWN)
 	{
 		DynamicProtocol* dp;
-    dp=Server::getInstance()->getDynProtocol(new_connection->host->getProtocolName());
+    dp = Server::getInstance()->getDynProtocol(newConnection->host->getProtocolName());
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake=1;
 	}
 
-	/*! Do the SSL handshake if required. */
+	/*! Do the SSL handshake if required.  */
 	if(doSSLhandshake)
 	{
-		int ret =0;
+		int ret = 0;
 #ifndef DO_NOT_USE_SSL
-		SSL_CTX* ctx = new_connection->host->getSSLContext();
-		new_connection->socket.setSSLContext(ctx);
-		ret=new_connection->socket.sslAccept();
-
+		SSL_CTX* ctx = newConnection->host->getSSLContext();
+		newConnection->socket.setSSLContext(ctx);
+		ret=newConnection->socket.sslAccept();
 #endif
-		if(ret<0)
+		if(ret < 0)
 		{
 			/*! free the connection on errors. */
-			delete new_connection;
+			delete newConnection;
 			return 0;
 		}
 	}
-	if(new_connection->host==0)
+	if(!newConnection->host)
 	{
-		delete new_connection;
+		delete newConnection;
 		return 0;
 	}
-	/*! Update the list. */
+	/*! Update the list.  */
   try
   {
-    Server::getInstance()->connections_mutex_lock();
-    connection_ID++;
-    new_connection->setID(connection_ID);
-    new_connection->next = connections;
-   	connections=new_connection;
+    Server::getInstance()->connectionsMutexLock();
+    connectionId++;
+    newConnection->setID(connectionId);
+    newConnection->next = connections;
+   	connections=newConnection;
     nConnections++;
-    Server::getInstance()->connections_mutex_unlock();
+    Server::getInstance()->connectionsMutexUnlock();
   }
   catch(...)
   {
     logPreparePrintError();
     logWriteln("Error: adding connection to list");
     logEndPrintError();
-    Server::getInstance()->connections_mutex_unlock();
+    Server::getInstance()->connectionsMutexUnlock();
   };
 
 	/*!
@@ -1726,9 +1729,9 @@ ConnectionPtr Server::addConnectionToList(Socket s,
    *to remove it from the active connections list.
    */
 	if(maxConnections && (nConnections>maxConnections))
-		new_connection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
+		newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
-	return new_connection;
+	return newConnection;
 }
 
 /*!
@@ -1736,12 +1739,12 @@ ConnectionPtr Server::addConnectionToList(Socket s,
  */
 int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 {
-	int ret=0;
+	int ret = 0;
 
 	/*!
    *Remove the connection from the active connections list.
    */
-	ConnectionPtr prev=0;
+	ConnectionPtr prev = 0;
 
 	if(!s)
 	{
@@ -1752,9 +1755,9 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
    *Get the access to the connections list.
    */
   if(doLock)
-    connections_mutex_lock();
+    connectionsMutexLock();
 
-	for(ConnectionPtr i=connections;i;i=i->next )
+	for(ConnectionPtr i = connections; i; i = i->next )
 	{
 		if(i == s)
 		{
@@ -1776,7 +1779,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 	nConnections--;
 
   if(doLock)
-    connections_mutex_unlock();
+    connectionsMutexUnlock();
 
 	delete s;
 	return ret;
@@ -1824,7 +1827,7 @@ void Server::clearAllConnections()
 {
 	ConnectionPtr c;
 	ConnectionPtr next;
-	connections_mutex_lock();
+	connectionsMutexLock();
   try
   {
     c=connections;
@@ -1838,10 +1841,10 @@ void Server::clearAllConnections()
   }
   catch(...)
   {
-    connections_mutex_unlock();
+    connectionsMutexUnlock();
     throw;
   };
-	connections_mutex_unlock();
+	connectionsMutexUnlock();
 	/*! Reset everything.	*/
 	nConnections=0;
 	connections=0;
@@ -1854,16 +1857,16 @@ void Server::clearAllConnections()
 ConnectionPtr Server::findConnectionBySocket(Socket a)
 {
 	ConnectionPtr c;
-	connections_mutex_lock();
+	connectionsMutexLock();
 	for(c=connections;c;c=c->next )
 	{
 		if(c->socket==a)
 		{
-			connections_mutex_unlock();
+			connectionsMutexUnlock();
 			return c;
 		}
 	}
-	connections_mutex_unlock();
+	connectionsMutexUnlock();
 	return NULL;
 }
 
@@ -1873,16 +1876,16 @@ ConnectionPtr Server::findConnectionBySocket(Socket a)
 ConnectionPtr Server::findConnectionByID(u_long ID)
 {
 	ConnectionPtr c;
-	connections_mutex_lock();
-	for(c=connections;c;c=c->next )
+	connectionsMutexLock();
+	for(c = connections; c; c = c->next )
 	{
 		if(c->getID()==ID)
 		{
-			connections_mutex_unlock();
+			connectionsMutexUnlock();
 			return c;
 		}
 	}
-	connections_mutex_unlock();
+	connectionsMutexUnlock();
 	return 0;
 }
 
@@ -1963,18 +1966,18 @@ DynamicProtocol* Server::getDynProtocol(const char *protocolName)
 /*!
  *Lock connections list access to the caller thread.
  */
-int Server::connections_mutex_lock()
+int Server::connectionsMutexLock()
 {
-	connections_mutex->lock();
+	connectionsMutex->lock();
 	return 1;
 }
 
 /*!
  *Unlock connections list access.
  */
-int Server::connections_mutex_unlock()
+int Server::connectionsMutexUnlock()
 {
-	connections_mutex->unlock();
+	connectionsMutex->unlock();
 	return 1;
 }
 
@@ -2426,9 +2429,9 @@ int Server::getListeningThreadCount()
  */
 void Server::increaseListeningThreadCount()
 {
-	connections_mutex_lock();
+	connectionsMutexLock();
 	++listeningThreads;
-	connections_mutex_unlock();
+	connectionsMutexUnlock();
 }
 
 /*!
@@ -2436,9 +2439,9 @@ void Server::increaseListeningThreadCount()
  */
 void Server::decreaseListeningThreadCount()
 {
-	connections_mutex_lock();
+	connectionsMutexLock();
 	--listeningThreads;
-	connections_mutex_unlock();
+	connectionsMutexUnlock();
 }
 
 /*!
