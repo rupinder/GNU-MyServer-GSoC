@@ -86,6 +86,13 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		pos += myserver_strlcpy(pos, response->serverName.c_str(), MAX-(long)(pos-str));
 		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
 	}
+	else
+	{
+		pos += myserver_strlcpy(pos, "Server: MyServer ", MAX-(long)(pos-str));
+		pos += myserver_strlcpy(pos, versionOfSoftware,	MAX-(long)(pos-str));
+		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
+	}
+
 	if(response->cacheControl.length())
 	{
 		pos += myserver_strlcpy(pos, "Cache-Control: ", MAX-(long)(pos-str));

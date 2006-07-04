@@ -2505,8 +2505,9 @@ int Http::raiseHTTPError(int ID)
                       (u_long)strlen(td.buffer->getBuffer()), 0)==-1)
       return 0;
 
-    if(errorBodyLength && (td.connection->socket.send(HTTP_ERROR_MSGS[ID],errorBodyLength, 
-																											0)==-1))
+    if(errorBodyLength && (td.connection->socket.send(HTTP_ERROR_MSGS[ID],
+																											errorBodyLength, 0) 
+													 == -1))
       return 0;  
  
     return 1;                    
