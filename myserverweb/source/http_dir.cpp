@@ -441,12 +441,13 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 																td->appendOutputs, useChunks);
 
 	if(ret)
-		{
+  {
 		td->outputData.closeFile();
     chain.clearAllFilters(); 
 		/* Return an internal server error.  */
 		return td->http->raiseHTTPError(e_500);
 	}
+
 	sentData += td->buffer2->getLength();
 
   td->buffer2->setLength(0);
@@ -462,23 +463,21 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
                  << (td->request.uriEndsWithSlash ? ".." : ".")
 	         << "\">[ .. ]</a></td>\n"
                  << "<td>[directory]</td></tr>\r\n";
-
     
-  }
-
-	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																td->buffer2->getLength(),
-																&(td->outputData), &chain,
-																td->appendOutputs, useChunks);
-  if(ret)
-	{
-    fd.findclose();
-    td->outputData.closeFile();
-    chain.clearAllFilters(); 
-    /* Return an internal server error.  */
-    return td->http->raiseHTTPError(e_500);
-  }
-	sentData += td->buffer2->getLength();
+		ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+																	td->buffer2->getLength(),
+																	&(td->outputData), &chain,
+																	td->appendOutputs, useChunks);
+		if(ret)
+		{
+			fd.findclose();
+			td->outputData.closeFile();
+			chain.clearAllFilters(); 
+			/* Return an internal server error.  */
+			return td->http->raiseHTTPError(e_500);
+		}
+		sentData += td->buffer2->getLength();
+	}
 
 	do
 	{	
