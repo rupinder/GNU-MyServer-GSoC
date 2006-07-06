@@ -340,7 +340,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	/* Read the CGI output.  */
 	nBytesRead = 0;
 
-
 	/* Parse initial chunks of data looking for the HTTP header.  */
 	while(!headerCompleted)
 	{
@@ -363,12 +362,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 			return td->http->raiseHTTPError(e_500);
 		}
 
-		if(stdOutFile.pipeTerminated())
-  		  break;
-
 		if(nBytesRead == 0)
 		{
-			 if((int)(getTicks() - procStartTime) > cgiTimeout)
+			if((int)(getTicks() - procStartTime) > cgiTimeout)
 			 {
 				 break;
 			 }
@@ -445,6 +441,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 			}
 		}
 
+		if(stdOutFile.pipeTerminated())
+  		  break;
 		if(!headerSize)
 			continue;	
 	}
