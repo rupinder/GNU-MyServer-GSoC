@@ -78,7 +78,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	string moreArg;
 	string tmpCgiPath;
 	u_long nBytesRead;
-	u_long headerSize;
+	u_long headerSize = 0;
 	bool useChunks = false;
 	bool keepalive = false;
 	bool headerCompleted = false;
@@ -331,7 +331,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     }
     /* Close the write stream of the pipe on the server.  */
 		stdOutFile.closeWrite();	
-		procStartTime = getTicks();
   }
 
   /* Reset the buffer2 length counter. */
@@ -340,16 +339,23 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	/* Read the CGI output.  */
 	nBytesRead = 0;
 
+	procStartTime = getTicks();
+
 	/* Parse initial chunks of data looking for the HTTP header.  */
 	while(!headerCompleted)
 	{
+		bool term;
 		/* Do not try to read using a small buffer as this has some
 			 bad influence on the performances.  */
 		if(td->buffer2->getRealLength() - headerOffset - 1 < 512)
 			break;
-
+		
+		nBytesRead = 0;
+		
+		term = stdOutFile.pipeTerminated();
+			
 		if(stdOutFile.read(td->buffer2->getBuffer() + headerOffset, 
-											 td->buffer2->getRealLength()-headerOffset-1, 
+											 td->buffer2->getRealLength() - headerOffset - 1, 
 											 &nBytesRead))
 		{
 			stdInFile.closeFile();
@@ -361,18 +367,23 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 			chain.clearAllFilters();
 			return td->http->raiseHTTPError(e_500);
 		}
-
+			
 		if(nBytesRead == 0)
 		{
 			if((int)(getTicks() - procStartTime) > cgiTimeout)
 			 {
 				 break;
 			 }
-			 else
-				 continue;
+			else
+				{
+					if(term)
+						break;
+					continue;
+				}
 		}
 
 		headerOffset += nBytesRead;
+
 
 		if(headerOffset > td->buffersize2 - 5)
 			(td->buffer2->getBuffer())[headerOffset] = '\0';
@@ -393,7 +404,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 		/* Standard CGI can include an extra HTTP header.  */
 		headerSize = 0;
 		nbw = 0;
-		for(u_long i = std::min(0, (int)headerOffset - (int)nBytesRead - 10); 
+		for(u_long i = std::max(0, (int)headerOffset - (int)nBytesRead - 10); 
 				i < headerOffset; i++)
 		{
 			char *buff = td->buffer2->getBuffer();
@@ -402,7 +413,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 			{
 				/*
 				 *The HTTP header ends with a \r\n\r\n sequence so 
-				 *determinate where it ends and set the header size
+				 *determine where it ends and set the header size
 				 *to i + 4.
 				 */
 				headerSize = i + 4 ;
@@ -440,11 +451,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 				return 1;
 			}
 		}
-
-		if(stdOutFile.pipeTerminated())
-  		  break;
-		if(!headerSize)
-			continue;	
 	}
 
 	/* Send the header.  */
