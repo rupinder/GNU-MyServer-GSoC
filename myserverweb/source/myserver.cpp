@@ -188,6 +188,7 @@ int main (int argn, char **argv)
 	try
 	{
 		Server::createInstance();
+		Process::initialize();
 	}
   catch(...)
   {

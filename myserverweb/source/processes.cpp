@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -39,6 +39,7 @@ extern "C" {
 #endif
 
 extern int mustEndServer;
+Mutex Process::forkMutex;
 
 /*!
  *Execute an hidden process and wait until it ends itself or its execution
@@ -48,11 +49,11 @@ extern int mustEndServer;
  */
 int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 {
-	int ret=0;
+	int ret = 0;
 #ifdef NOT_WIN
   u_long count;
 #endif
-  pid=0;
+  pid = 0;
 #ifdef WIN32
 	/*!
 	 *Set the standard output values for the CGI process.
@@ -80,13 +81,13 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 	/*!
 	 *Wait until the process stops its execution.
 	 */
-	ret=WaitForSingleObject(pi.hProcess, timeout);
+	ret = WaitForSingleObject(pi.hProcess, timeout);
 	if(ret == WAIT_FAILED)
 		return (u_long)(-1);
-	ret=CloseHandle( pi.hProcess );
+	ret = CloseHandle( pi.hProcess );
 	if(!ret)
 		return (u_long)(-1);
-	ret=CloseHandle( pi.hThread );
+	ret = CloseHandle( pi.hThread );
 	if(!ret)
 		return (u_long)(-1);
 	return 0;
@@ -109,7 +110,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
       int len = spi->arg.length();
       int start = 0;
 
-      while((spi->arg[start]== ' ') && (start < len))
+      while((spi->arg[start] == ' ') && (start < len))
         start++;
 
       for(int i = start; i < len; i++)
@@ -119,7 +120,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
           if(count < 100)
           {
             args[count++] = (const char*)&(spi->arg.c_str())[start];
-            start = i+1;
+            start = i + 1;
             spi->arg[i] = '\0';
           }
           else
@@ -133,7 +134,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
           if(count < 100)
           {
             args[count++] = (const char*)&(spi->arg.c_str())[start];
-            start = i+1;
+            start = i + 1;
             spi->arg[i] = '\0';
           }
           else
@@ -147,7 +148,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
           if(count < 100)
           {
             args[count++] = (const char*)&(spi->arg.c_str())[start];
-            start = i+1;
+            start = i + 1;
             spi->arg[i] = '\0';
             while((spi->arg[start] == ' ') && (start < len))
               start++;
@@ -164,7 +165,6 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
       }
 
       args[count] = NULL;
-
     }
 
 		if(spi->envString != NULL)
@@ -189,7 +189,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 		// change to working dir
 		if(spi->cwd.length())
 		{
-			ret=chdir((const char*)(spi->cwd.c_str()));
+			ret = chdir((const char*)(spi->cwd.c_str()));
 			if(ret == -1)
 				exit(1);
 		}
@@ -288,7 +288,7 @@ int Process::isProcessAlive()
     return 1;
   return 0;
 #else
-  /*! Send the pseudo-signal 0 to check if the process is alive. */
+  /*! Send the pseudo-signal 0 to check if the process is alive.  */
   int ret;
   do
   {
@@ -298,7 +298,7 @@ int Process::isProcessAlive()
   if(ret == 0)
     return 1;
 
-  /*! Waitpid it to free the resource. */
+  /*! Waitpid it to free the resource.  */
   waitpid(pid, &status, WNOHANG | WUNTRACED);
 
   return 0;
@@ -348,7 +348,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 #endif
 #ifdef NOT_WIN
 	pid = fork();
-	if(pid < 0) // a bad thing happend
+	if(pid < 0) // a bad thing happened
 		return 0;
 	else if(pid == 0) // child
 	{
@@ -358,7 +358,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 		const char *envp[100];
     const char *args[100];
 
-   /*! Build the args vector. */
+   /*! Build the args vector.  */
     args[0] = spi->cmd.c_str();
     {
       int count = 1;
@@ -475,11 +475,49 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
    memset(&sa, 0, sizeof(sa));
    sa.sa_handler = SIG_IGN;
    sa.sa_flags   = SA_RESTART;
-   sigaction(SIGCHLD,&sa, (struct sigaction *)NULL);
+   sigaction(SIGCHLD, &sa, (struct sigaction *)NULL);
 	 return pid;
  }
 #endif
 
+}
+
+#ifdef HAVE_PTHREAD
+
+/*!
+ *Called in the parent before do a fork.
+ */
+void Process::forkPrepare()
+{
+	forkMutex.lock();
+}
+
+/*!
+ *Called in the parent after the fork.
+ */
+void Process::forkParent()
+{
+	forkMutex.unlock();
+}
+
+/*!
+ *Called in the child process after the fork.
+ */
+void Process::forkChild()
+{
+	forkMutex.unlock();	
+}
+#endif
+
+/*!
+ *Initialize the static process data.
+ */
+void Process::initialize()
+{
+#ifdef HAVE_PTHREAD
+	forkMutex.init();
+	pthread_atfork(forkPrepare, forkParent, forkChild);
+#endif
 }
 
 /*!
@@ -541,3 +579,4 @@ int Process::setgid(u_long gid)
 #endif
   return 0;
 }
+
