@@ -923,25 +923,15 @@ void * listenServer(void* params)
 			if(serverSocketIPv4->dataOnRead(timeoutValue, 0) == 0 )
 			{
 				Thread::wait(10);
-				//continue; maybe IPv6
 			}
 			else
 			{
-//				asock = serverSocket->accept((struct sockaddr*)&asockIn,
-//										 &asockInLen);
-//				if(asock.getHandle()==0)
-//					continue;
-//				if(asock.getHandle()==(SocketHandle)INVALID_SOCKET)
-//					continue;
-//				asock.setServerSocket(serverSocket);
 				asockInLen = sizeof(sockaddr_in);
 				asock = serverSocketIPv4->accept(&asockIn,
 										 &asockInLen);
 				if(asock.getHandle() != 0 &&
 					 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
 				{
- 					 //Andu: do we need 'setServerSocket' anymore?
-					//asock.setServerSocket(serverSocketIPv4);
 					Server::getInstance()->addConnection(asock, &asockIn);
 				}
 			}
@@ -957,14 +947,12 @@ void * listenServer(void* params)
 			asock = serverSocketIPv6->accept(&asockIn,
 									 &asockInLen);
 
-			if(asock.getHandle()==0)
+			if(asock.getHandle() == 0)
 				continue;
 
-			if(asock.getHandle()==(SocketHandle)INVALID_SOCKET)
+			if(asock.getHandle() == (SocketHandle)INVALID_SOCKET)
 				continue;
 
-			//Andu: do we need 'setServerSocket' anymore?
-			//asock.setServerSocket(serverSocketIPv6);
 			Server::getInstance()->addConnection(asock, &asockIn);
 		}
 	}
@@ -973,7 +961,7 @@ void * listenServer(void* params)
    *When the flag mustEndServer is 1 end current thread and clean
    *the socket used for listening.
    */
-//	serverSocket->shutdown( SD_BOTH);
+
 	if ( serverSocketIPv4 != NULL )
 	{
 		serverSocketIPv4->shutdown(SD_BOTH);
@@ -998,12 +986,12 @@ void * listenServer(void* params)
 	}
 
 	Server::getInstance()->decreaseListeningThreadCount();
+
 	/*!
    *Automatically free the current thread.
    */
 	Thread::terminate();
 	return 0;
-
 }
 
 /*!
@@ -1521,31 +1509,35 @@ u_long Server::getTimeout()
 int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 {
 
-	int ret=1;
-	if ( asockIn == NULL ||
-	(asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6) )
-		return ret;
-	/*!
-   *ip is the string containing the address of the remote host
-   *connecting to the server.
-   *local_ip is the local addrress used by the connection.
-   */
-	//Andu: we can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
-	//in getnameinfo call; Otherwise we should have used NI_MAXHOST
+	int ret = 1;
 	char ip[MAX_IP_STRING_LEN];
-	memset(ip,  0,  MAX_IP_STRING_LEN);
 	char local_ip[MAX_IP_STRING_LEN];
-	memset(local_ip,  0,  MAX_IP_STRING_LEN);
-  /*! Remote port used by the client to open the connection. */
 	u_short port;
-  /*! Port used by the server to listen. */
 	u_short myport;
+
+
+	/* We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
+	 * in getnameinfo call; Otherwise we should have used NI_MAXHOST.
+   *ip is the string containing the address of the remote host connecting 
+	 *to the server.
+   *local_ip is the local addrress used by the connection.
+	 *port is the remote port used by the client to open the connection.
+	 *myport is the port used by the server to listen.
+	 */
+
+	if ( asockIn == NULL ||
+			 (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
+		return ret;
+
+	memset(ip,  0,  MAX_IP_STRING_LEN);
+	memset(local_ip,  0,  MAX_IP_STRING_LEN);
 
 	if( s.getHandle() == 0 )
 		return 0;
 
   /*!
-   *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is defined.
+   *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is 
+	 *defined.
    */
   if(maxConnectionsToAccept && (nConnections >= maxConnectionsToAccept))
     return 0;
@@ -1555,72 +1547,73 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
    *we had not reach the limit.
    */
   if((nThreads < nMaxThreads) && (countAvailableThreads() == 0))
-  {
-    addThread(0);
+	{
+		addThread(0);
   }
 
 	MYSERVER_SOCKADDRIN  localsock_in = { 0 };
 	int dim;
-//	memset(&localsock_in, 0, sizeof(localsock_in));
-
 
 #if ( HAVE_IPV6 )
 	if ( asockIn->ss_family == AF_INET )
-	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), sizeof(sockaddr_in),
+	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
+												sizeof(sockaddr_in),
 	        ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
-     else// AF_INET6
-	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), sizeof(sockaddr_in6),
-	        ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
+     else
+	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
+												sizeof(sockaddr_in6),	ip, MAX_IP_STRING_LEN, 
+												NULL, 0, NI_NUMERICHOST);
     if ( ret != 0 )
     {
 	   return ret;
 	 }
 	if ( asockIn->ss_family == AF_INET )
-		dim=sizeof(sockaddr_in);
+		dim = sizeof(sockaddr_in);
 	else
-		dim=sizeof(sockaddr_in6);
+		dim = sizeof(sockaddr_in6);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
 
 	 if ( asockIn->ss_family == AF_INET )
-	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localsock_in), sizeof(sockaddr_in),
-	        local_ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
+	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localsock_in), 
+												sizeof(sockaddr_in), local_ip, MAX_IP_STRING_LEN, 
+												NULL, 0, NI_NUMERICHOST);
      else// AF_INET6
-	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localsock_in), sizeof(sockaddr_in6),
-	        local_ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
+	    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localsock_in), 
+												sizeof(sockaddr_in6), local_ip, MAX_IP_STRING_LEN, 
+												NULL, 0, NI_NUMERICHOST);
     if ( ret != 0 )
     {
 	   return ret;
 	 }
 #else// !HAVE_IPV6
-	dim=sizeof(localsock_in);
+	dim = sizeof(localsock_in);
 	s.getsockname((MYSERVER_SOCKADDR*)&localsock_in, &dim);
-  // NOTE: inet_ntop supports IPv6
-	strncpy(ip,  inet_ntoa(((sockaddr_in *)asockIn)->sin_addr),  MAX_IP_STRING_LEN);
-
-  // NOTE: inet_ntop supports IPv6
-	strncpy(local_ip,  inet_ntoa(((sockaddr_in *)&localsock_in)->sin_addr),  MAX_IP_STRING_LEN);
+	strncpy(ip,  inet_ntoa(((sockaddr_in *)asockIn)->sin_addr), 
+					MAX_IP_STRING_LEN);
+	strncpy(local_ip,  inet_ntoa(((sockaddr_in *)&localsock_in)->sin_addr),
+					MAX_IP_STRING_LEN);
 #endif//HAVE_IPV6
 
   /*! Port used by the client. */
   	if ( asockIn->ss_family == AF_INET )
-  		port=ntohs(((sockaddr_in *)(asockIn))->sin_port);
+  		port = ntohs(((sockaddr_in *)(asockIn))->sin_port);
 	else// if ( asockIn->ss_family == AF_INET6 )
-		port=ntohs(((sockaddr_in6 *)(asockIn))->sin6_port);
+		port = ntohs(((sockaddr_in6 *)(asockIn))->sin6_port);
 	//else not permited anymore
 	//	return 0;
 
   /*! Port used by the server. */
   if ( localsock_in.ss_family == AF_INET )
-	myport=ntohs(((sockaddr_in *)(&localsock_in))->sin_port);
+	myport = ntohs(((sockaddr_in *)(&localsock_in))->sin_port);
 	else// if ( localsock_in.ss_family == AF_INET6 )
-		myport=ntohs(((sockaddr_in6 *)(&localsock_in))->sin6_port);
+		myport = ntohs(((sockaddr_in6 *)(&localsock_in))->sin6_port);
 	//else not permited anymore
 	//	return 0;
 
 	if(!addConnectionToList(s, asockIn, &ip[0], &local_ip[0], port, myport, 1))
 	{
 		/*! If we report error to add the connection to the thread. */
-		ret=0;
+		ret = 0;
 
     /*! Shutdown the socket both on receive that on send. */
 		s.shutdown(2);
@@ -1678,9 +1671,10 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	else if(newConnection->host->getProtocol() == PROTOCOL_UNKNOWN)
 	{
 		DynamicProtocol* dp;
-    dp = Server::getInstance()->getDynProtocol(newConnection->host->getProtocolName());
+    dp = Server::getInstance()->getDynProtocol(
+																newConnection->host->getProtocolName());
 		if(dp->getOptions() & PROTOCOL_USES_SSL)
-			doSSLhandshake=1;
+			doSSLhandshake = 1;
 	}
 
 	/*! Do the SSL handshake if required.  */
