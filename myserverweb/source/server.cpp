@@ -1673,7 +1673,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 		DynamicProtocol* dp;
     dp = Server::getInstance()->getDynProtocol(
 																newConnection->host->getProtocolName());
-		if(dp->getOptions() & PROTOCOL_USES_SSL)
+		if(dp && dp->getOptions() & PROTOCOL_USES_SSL)
 			doSSLhandshake = 1;
 	}
 

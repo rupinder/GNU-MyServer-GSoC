@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License,  or
@@ -327,38 +327,39 @@ const char *getRFC822LocalTime(char* out, int len)
 const char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
 	char *asct;
-	tm*  GMtime = localtime( &ltime );
-	GMtime->tm_year+=1900;
-	asct=asctime(GMtime);
-	out[0]=asct[0];
-	out[1]=asct[1];
-	out[2]=asct[2];
-	out[3]=',';
-	out[4]=' ';
-	out[5]=asct[8];
-	out[6]=asct[9];
-	out[7]=' ';
-	out[8]=asct[4];
-	out[9]=asct[5];
-	out[10]=asct[6];
-	out[11]=' ';
-	sprintf(&out[12], "%i", GMtime->tm_year);
-	out[16]=' ';
-	out[17]=asct[11];
-	out[18]=asct[12];
-	out[19]=':';
-	out[20]=asct[14];
-	out[21]=asct[15];
-	out[22]=':';
-	out[23]=asct[17];
-	out[24]=asct[18];
-	out[25]=' ';
-	out[26]='\0';
-	out[27]='\0';
-	out[28]='\0';
-	out[29]='\0';
-	out[30]='\0';
-	out[31]='\0';
+	tm result;
+	localtime_r( &ltime, &result );
+	result.tm_year+=1900;
+	asct=asctime(&result);
+	out[0] = asct[0];
+	out[1] = asct[1];
+	out[2] = asct[2];
+	out[3] = ',';
+	out[4] = ' ';
+	out[5] = asct[8];
+	out[6] = asct[9];
+	out[7] = ' ';
+	out[8] = asct[4];
+	out[9] = asct[5];
+	out[10] = asct[6];
+	out[11] = ' ';
+	sprintf(&out[12], "%i", result.tm_year);
+	out[16] = ' ';
+	out[17] = asct[11];
+	out[18] = asct[12];
+	out[19] = ':';
+	out[20] = asct[14];
+	out[21] = asct[15];
+	out[22] = ':';
+	out[23] = asct[17];
+	out[24] = asct[18];
+	out[25] = ' ';
+	out[26] = '\0';
+	out[27] = '\0';
+	out[28] = '\0';
+	out[29] = '\0';
+	out[30] = '\0';
+	out[31] = '\0';
 	return out;
 }
 
@@ -500,11 +501,12 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 	time_t ltime;
 	time( &ltime );
 	char *asct;
-	tm*  GMtime = localtime( &ltime );
+	tm result;
+	localtime_r( &ltime, &result );
   if(len < 25)
     return 0;
-  GMtime->tm_year+=1900;
-	asct=asctime(GMtime);
+  result.tm_year += 1900;
+	asct = asctime(&result);
  	out[0]=asct[8];
 	out[1]=asct[9];
 	out[2]='/';
@@ -512,7 +514,7 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 	out[4]=asct[5];
 	out[5]=asct[6];
 	out[6]='/';
-	sprintf(&out[7], "%i", GMtime->tm_year);
+	sprintf(&out[7], "%i", result.tm_year);
 	out[11]=':';
 	out[12]=asct[11];
 	out[13]=asct[12];
@@ -575,8 +577,8 @@ string trim(string const &s,  string const &t)
 
 void StrTrim(char* str, char* trimchars)
 {
-	char *strptr=str;
-	char *trimptr=trimchars;
+	char *strptr = str;
+	char *trimptr = trimchars;
 	
 	/*!
 	*Here we trim the characters of the head of the string.
@@ -587,16 +589,16 @@ void StrTrim(char* str, char* trimchars)
 	*/
 	while(*trimptr && *strptr)
 	{
-		if(*strptr==*trimptr)
+		if(*strptr == *trimptr)
 		{
 			strptr++;
-			trimptr=trimchars;
+			trimptr = trimchars;
 			continue;
 		}
 		trimptr++;
 	}
 
-	trimptr=trimchars;
+	trimptr = trimchars;
 	
 	/*!
 	*Here we push the string back to occupy the potencial
@@ -606,7 +608,7 @@ void StrTrim(char* str, char* trimchars)
 	*If no 'holes' were created (!if(str!=strptr)) just move
 	*the pointer to the tail of the string to check there now.
 	*/
-	if(str!=strptr)			//Holes were created
+	if(str != strptr)			//Holes were created
 	{
 		if(!(*strptr))		//Full trim
 		{
@@ -615,7 +617,7 @@ void StrTrim(char* str, char* trimchars)
 		}
 		while(*strptr)
 		{
-			*str=*strptr;
+			*str = *strptr;
 			str++;
 			strptr++;
 		}
@@ -643,10 +645,10 @@ void StrTrim(char* str, char* trimchars)
 	*/
 	while(*trimptr)
 	{
-		if(*str==*trimptr)
+		if(*str == *trimptr)
 		{
 			str--;
-			trimptr=trimchars;
+			trimptr = trimchars;
 			continue;
 		}
 		trimptr++;
