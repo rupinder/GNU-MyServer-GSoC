@@ -823,8 +823,6 @@ void * listenServer(void* params)
   	if (serverSocketIPv6 != NULL )
   	   ret = serverSocketIPv6->setNonBlocking(1);
 
-	Server::getInstance()->increaseListeningThreadCount();
-
   if(Server::getInstance()->getUid() | Server::getInstance()->getGid())
   {
     int uid = Server::getInstance()->getUid();
@@ -901,6 +899,8 @@ void * listenServer(void* params)
     Thread::terminate();
     return 0;
   }
+
+	Server::getInstance()->increaseListeningThreadCount();
 
 	while(!mustEndServer)
 	{
