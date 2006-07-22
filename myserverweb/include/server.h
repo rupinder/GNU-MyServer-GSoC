@@ -53,8 +53,7 @@ extern int rebootMyServerConsole;
 struct listenThreadArgv
 {
 	u_long port;
-	Socket *serverSocketIPv4;
-	Socket *serverSocketIPv6;
+	Socket *serverSocket;
 	int SSLsocket;
 };
 

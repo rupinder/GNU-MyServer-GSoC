@@ -457,7 +457,8 @@ int Server::createServerAndListener(u_short port)
 	int optvalReuseAddr = 1;
   ostringstream portBuff;
   string listenPortMsg;
-	ThreadID threadId = 0;
+	ThreadID threadIdIPv4 = 0;
+	ThreadID threadIdIPv6 = 0;
   listenThreadArgv* argv;
 //	MYSERVER_SOCKADDRIN sockServerSocket;
   	/*!
@@ -505,13 +506,13 @@ int Server::createServerAndListener(u_short port)
 			  logPreparePrintError();
 			  logWriteln(languageParser.getValue("ERR_ERROR"));
 			  logEndPrintError();
-    			delete serverSocketIPv4;
-    			serverSocketIPv4 = NULL;
+				delete serverSocketIPv4;
+				serverSocketIPv4 = NULL;
 			  //return 0; allow IPv6
 			}
 #endif
-	  		if( serverSocketIPv4 != NULL )
-	  		{
+			if( serverSocketIPv4 != NULL )
+	  	{
 				/*!
 				 *Bind the port.
 				 */
@@ -681,16 +682,31 @@ int Server::createServerAndListener(u_short port)
     logWriteln(languageParser.getValue("MSG_LISTENTR"));
 
     /*!
-     *Create the listen thread.
+     *Create the listen threads.
      */
-    argv=new listenThreadArgv;
-    argv->port=port;
-//    argv->serverSocket=serverSocket;
-	argv->serverSocketIPv4=serverSocketIPv4;
-	argv->serverSocketIPv6=serverSocketIPv6;
+		if(serverSocketIPv4)
+	 	{
+			argv = new listenThreadArgv;
+			argv->port = port;
+			argv->serverSocket = serverSocketIPv4;
+			Thread::create(&threadIdIPv4, &::listenServer,  (void *)(argv));
+			/* Free the argument if something goes wrong with the thread creation. */
+			if(!threadIdIPv4)
+				delete argv;
+		}
 
-    Thread::create(&threadId, &::listenServer,  (void *)(argv));
-    return (threadId) ? 1 : 0 ;
+		if(serverSocketIPv6)
+	 	{
+			argv = new listenThreadArgv;
+			argv->port = port;
+			argv->serverSocket = serverSocketIPv6;
+			Thread::create(&threadIdIPv6, &::listenServer,  (void *)(argv));
+			/* Free the argument if something goes wrong with the thread creation. */
+			if(!threadIdIPv6)
+				delete argv;
+
+		}
+    return threadIdIPv4 && threadIdIPv6;
   }
   catch( bad_alloc &ba)
   {
@@ -794,16 +810,16 @@ void * listenServer(void* params)
 	char buffer[256];
 	int err;
 	listenThreadArgv *argv = (listenThreadArgv*)params;
-	Socket *serverSocketIPv4 = argv->serverSocketIPv4;
-	Socket *serverSocketIPv6 = argv->serverSocketIPv6;
-
-	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-	   return 0;
+	Socket *serverSocket = argv->serverSocket;
 
 	MYSERVER_SOCKADDRIN asockIn;
 	int asockInLen = 0;
 	Socket asock;
   int ret;
+
+	if ( serverSocket == NULL)
+	   return 0;
+
 
 #ifdef NOT_WIN
 	// Block SigTerm, SigInt, and SigPipe in threads
@@ -818,10 +834,8 @@ void * listenServer(void* params)
 	/* Free the structure used to pass parameters to the new thread.  */
 	delete argv;
 
-	if (serverSocketIPv4 != NULL )
-  	   ret = serverSocketIPv4->setNonBlocking(1);
-  	if (serverSocketIPv6 != NULL )
-  	   ret = serverSocketIPv6->setNonBlocking(1);
+	if (serverSocket != NULL )
+  	   ret = serverSocket->setNonBlocking(1);
 
   if(Server::getInstance()->getUid() | Server::getInstance()->getGid())
   {
@@ -918,42 +932,20 @@ void * listenServer(void* params)
      *Every new connection is sended to Server::addConnection function;
      *this function sends connections between the various threads.
      */
-		if ( serverSocketIPv4 != NULL )
+		if(serverSocket->dataOnRead(timeoutValue, 0) == 0 )
 		{
-			if(serverSocketIPv4->dataOnRead(timeoutValue, 0) == 0 )
-			{
-				Thread::wait(10);
-			}
-			else
-			{
-				asockInLen = sizeof(sockaddr_in);
-				asock = serverSocketIPv4->accept(&asockIn,
-										 &asockInLen);
-				if(asock.getHandle() != 0 &&
-					 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
-				{
-					Server::getInstance()->addConnection(asock, &asockIn);
-				}
-			}
+			Thread::wait(10);
 		}
-		if ( serverSocketIPv6 != NULL )
+		else
 		{
-			if(serverSocketIPv6->dataOnRead(timeoutValue, 0) == 0 )
+			asockInLen = sizeof(sockaddr_in);
+			asock = serverSocket->accept(&asockIn,
+																	 &asockInLen);
+			if(asock.getHandle() != 0 &&
+				 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
 			{
-				Thread::wait(10);
-				continue;
+				Server::getInstance()->addConnection(asock, &asockIn);
 			}
-			asockInLen = sizeof(sockaddr_in6);
-			asock = serverSocketIPv6->accept(&asockIn,
-									 &asockInLen);
-
-			if(asock.getHandle() == 0)
-				continue;
-
-			if(asock.getHandle() == (SocketHandle)INVALID_SOCKET)
-				continue;
-
-			Server::getInstance()->addConnection(asock, &asockIn);
 		}
 	}
 
@@ -961,29 +953,14 @@ void * listenServer(void* params)
    *When the flag mustEndServer is 1 end current thread and clean
    *the socket used for listening.
    */
-
-	if ( serverSocketIPv4 != NULL )
+	serverSocket->shutdown(SD_BOTH);
+	do
 	{
-		serverSocketIPv4->shutdown(SD_BOTH);
-		do
-		{
-			err = serverSocketIPv4->recv(buffer, 256, 0);
-		}while(err != -1);
+		err = serverSocket->recv(buffer, 256, 0);
+	}while(err != -1);
 
-		serverSocketIPv4->closesocket();
-		delete serverSocketIPv4;
-	}
-
-	if ( serverSocketIPv6 != NULL )
-	{
-		serverSocketIPv6->shutdown(SD_BOTH);
-		do
-		{
-			err = serverSocketIPv6->recv(buffer, 256, 0);
-		}while(err != -1);
-		serverSocketIPv6->closesocket();
-		delete serverSocketIPv6;
-	}
+	serverSocket->closesocket();
+	delete serverSocket;
 
 	Server::getInstance()->decreaseListeningThreadCount();
 
