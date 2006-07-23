@@ -706,7 +706,7 @@ int Server::createServerAndListener(u_short port)
 				delete argv;
 
 		}
-    return threadIdIPv4 && threadIdIPv6;
+    return threadIdIPv4 || threadIdIPv6;
   }
   catch( bad_alloc &ba)
   {
