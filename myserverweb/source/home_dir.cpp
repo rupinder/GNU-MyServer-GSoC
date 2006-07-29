@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/file.h"
 #include "../include/home_dir.h"
+#include "../include/utility.h"
 #ifdef WIN32
 #include <userenv.h>
 #endif
@@ -227,12 +228,16 @@ void HomeDir::getHomeDir(string& userName, string& out)
   out.append("/");
   out.append(userName);
 #else
+	static u_long lastCheckTime = 0;
 	string *res = 0;
 	if(!loaded)
 		return;
-	/* TODO: don't check always but wait some time before.  */
-	if(File::getLastModTime("/etc/passwd") != timestamp)
-		load();
+	if(getTicks() - lastCheckTime > MYSERVER_SEC(1))
+	{
+		if(File::getLastModTime("/etc/passwd") != timestamp)
+			load();
+		lastCheckTime = getTicks();
+	}
 	res = data.get(userName);
 	if(res)
 	{

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -31,10 +31,9 @@ using namespace std;
 /*!
 *Macros to do simple transformations.
 */
-#define MYSERVER_KB(x) (x<<10)       //x*1024
-#define MYSERVER_MB(x) (x<<20)       //x*1024*1024
-#define MYSERVER_SEC(x) (x*1000)
-#define my_intabs(x)((x<0)?(-x):(x))
+#define MYSERVER_KB(x) (x << 10)       //x * 1024
+#define MYSERVER_MB(x) (x << 20)       //x * 1024 * 1024
+#define MYSERVER_SEC(x) (x * 1000)
 #define OS_WINDOWS_9X		  1
 #define OS_WINDOWS_2000		2
 #define OS_WINDOWS_NT3		3
