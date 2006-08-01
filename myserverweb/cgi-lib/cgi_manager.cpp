@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -56,6 +56,11 @@ int CgiManager::write(void* data, int len)
 		return 1;
 	}
 	return 0;
+}
+
+Server* CgiManager::getServer()
+{
+	return cgidata->server;
 }
 
 /*!

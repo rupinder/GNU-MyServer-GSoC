@@ -78,6 +78,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	
 	data.td = td;
 	data.errorPage = 0;
+	data.server = Server::getInstance();
 
  	td->scriptPath.assign(exec);
 

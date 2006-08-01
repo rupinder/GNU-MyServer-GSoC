@@ -1111,7 +1111,7 @@ int Server::terminate()
 	delete connectionsMutex;
 
   /*!
-   *free all the threads.
+   *Free all the threads.
    */
   thread = threads;
   while(thread)
@@ -1247,7 +1247,7 @@ int Server::initialize(int /*!osVer*/)
 		languagesPath->assign(PREFIX);
     languagesPath->append("/share/myserver/languages/");
 #else
-    /*! Default PREFIX is /usr/. */
+    /*! Default PREFIX is /usr/.  */
 		languagesPath->assign("/usr/share/myserver/languages/");
 #endif
 	}

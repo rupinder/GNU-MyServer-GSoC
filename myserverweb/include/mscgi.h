@@ -36,7 +36,7 @@ struct MsCgiData
 	HttpThreadContext* td;
 	int errorPage;
 	File stdOut;
-
+	Server* server;
 };
 typedef int (*CGIMAIN)(char*, MsCgiData*); 
 
