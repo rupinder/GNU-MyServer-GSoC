@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sstream>
 using namespace std; 
 
+DynamicLibrary MsCgi::mscgiModule;
+
 /*!
  *Sends the MyServer CGI; differently from standard CGI this doesn't 
  *need a new process to run making it faster.
@@ -300,10 +302,6 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 #endif
 }
 
-/*!
- *Store the MSCGI library module handle.
- */
-static DynamicLibrary mscgiModule;
 
 /*!
  *Map the library in the application address space.

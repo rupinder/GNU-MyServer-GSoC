@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -42,6 +42,10 @@ typedef int (*CGIMAIN)(char*, MsCgiData*);
 
 class MsCgi : public HttpDataHandler
 {
+	/*!
+	 *Store the MSCGI library module handle.
+	 */
+	static DynamicLibrary mscgiModule;
 public:
 	/*!
 	*Functions to Load and free the MSCGI library.
@@ -52,7 +56,7 @@ public:
 	*Use this to send a MSCGI file through the HTTP protocol.
 	*/
 	int send(HttpThreadContext*, ConnectionPtr s, const char* exec,
-                char* cmdLine=0, int execute=0, int onlyHeader=0);
+                char* cmdLine = 0, int execute = 0, int onlyHeader = 0);
 	typedef int (*CGIMAIN)(char*, MsCgiData*); 
 };
 #endif
