@@ -438,7 +438,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 			{
 				string nURL;
 				u_long len = 0;
-				while( (td->buffer2->getBuffer())[i + len + 9] != '\r' )
+				while( (td->buffer2->getBuffer())[i + len + 9] != '\r' &&
+							 len < td->buffer2->getRealLength() - i - 9)
 				{
 					len++;
 				}
