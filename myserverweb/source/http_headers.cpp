@@ -643,8 +643,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				char* keep_lbuffer2;
         char login[32];
         char password[32];
-		    if(len==-1)
+				
+		    if(len == -1)
 					return e_400;		
+
+				login[0] = password[0] = '\0';
+
 				while (len > 0 && (*tmp == '\r' || *tmp == '\n'))
 				{
 					tmp--;
@@ -652,20 +656,20 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				}
 				if (len <= 1)
 					return e_400;
-				lbuffer2=base64Utils.Decode(base64,&len);
-				keep_lbuffer2=lbuffer2;
+				lbuffer2 = base64Utils.Decode(base64,&len);
+				keep_lbuffer2 = lbuffer2;
    
-				for(i=0;(*lbuffer2!=':') && (i<32);i++)
+				for(i = 0; (*lbuffer2 != ':') && (i < 32);i++)
 				{
-					login[i]=*lbuffer2++;
-          login[i+1]='\0';
+					login[i] = *lbuffer2++;
+          login[i+1] = '\0';
 				}
 				myserver_strlcpy(td->identity,td->connection->getLogin(),32+1);
         lbuffer2++;
-				for(i=0;(*lbuffer2)&&(i<31);i++)
+				for(i = 0; (*lbuffer2) && (i < 31); i++)
 				{
-					password[i]=*lbuffer2++;
-					password[i+1]='\0';
+					password[i] = *lbuffer2++;
+					password[i+1] = '\0';
 				}
         td->connection->setLogin(login);
         td->connection->setPassword(password);
@@ -676,8 +680,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			{
 				char *digestBuff;
 				char *digestToken;
-				token+=tokenOff;
-				while(*token==' ')
+				token += tokenOff;
+				while(*token == ' ')
 					token++;
 				tokenOff = getEndLine(token, 1024);
 			  if(tokenOff==-1)
@@ -810,11 +814,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       char rangeByteEnd[13];
       char *localToken = token;
 			int i=0;
-			rangeByteBegin[0]='\0';
-			rangeByteEnd[0]='\0';
-			lineControlled=1;
+			rangeByteBegin[0] = '\0';
+			rangeByteEnd[0] = '\0';
+			lineControlled = 1;
 			tokenOff = getEndLine(token, HTTP_REQUEST_RANGE_TYPE_DIM+30);
-			if(tokenOff==-1)
+			if(tokenOff ==-1)
         return e_400;
 			do
 			{
@@ -828,28 +832,28 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       localToken++;
 			do
 			{
-				rangeByteBegin[i++]=*localToken;
-				rangeByteBegin[i]='\0';
+				rangeByteBegin[i++] = *localToken;
+				rangeByteBegin[i] = '\0';
 			}
-			while((*(++localToken) != '-')&&(i<12) && (*localToken != '\r'));
-			i=0;
+			while((*(++localToken) != '-') && (i<12) && (*localToken != '\r'));
+			i = 0;
       localToken++;
 			do
 			{
-				rangeByteEnd[i++]=*localToken;
-				rangeByteEnd[i]='\0';
+				rangeByteEnd[i++] = *localToken;
+				rangeByteEnd[i] = '\0';
 			}
 			while((*(++localToken) != '\r' )&&(i<12));
 
-      for(i=0;i<static_cast<int>(request->rangeType.length());i++)
-        if(request->rangeType[i]== '=')
-          request->rangeType[i]='\0';
+      for(i=0;i < static_cast<int>(request->rangeType.length()); i++)
+        if(request->rangeType[i] == '=')
+          request->rangeType[i] = '\0';
 
-      for(i=0; i<static_cast<int>(strlen(rangeByteBegin)); i++)
-        if(rangeByteBegin[i]== '=')
-          rangeByteBegin[i]='\0';
+      for(i = 0; i < static_cast<int>(strlen(rangeByteBegin)); i++)
+        if(rangeByteBegin[i] == '=')
+          rangeByteBegin[i] = '\0';
 
-      for(i=0; i<static_cast<int>(strlen(rangeByteEnd)); i++)
+      for(i = 0; i < static_cast<int>(strlen(rangeByteEnd)); i++)
         if(rangeByteEnd[i]== '=')
           rangeByteEnd[i]='\0';
 			
@@ -859,15 +863,15 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       }			
       else
       {
-        request->rangeByteBegin=(u_long)atol(rangeByteBegin); 
+        request->rangeByteBegin = (u_long)atol(rangeByteBegin); 
       }
-      if(rangeByteEnd[0]=='\r')
+      if(rangeByteEnd[0] == '\r')
       {
-        request->rangeByteEnd=0;
+        request->rangeByteEnd = 0;
       }
       else
       {
-        request->rangeByteEnd=(u_long)atol(rangeByteEnd);
+        request->rangeByteEnd = (u_long)atol(rangeByteEnd);
         if(request->rangeByteEnd < request->rangeByteBegin)
           return e_400;
       }
