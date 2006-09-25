@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -77,13 +77,17 @@ void SecurityCache::setMaxNodes(int newLimit)
 }
 
 /*!
- *Get the security file to use starting from the file location.
+ *Get the security file to use starting from the file location, returns
+ *zero on success.
+ *\param dir The directory we need a security parser for.
+ *\param sys The system directory.
+ *\param out Output string where put the security file path. 
  */
-int SecurityCache::getSecurityFile(const char* ps, const char* sys, 
+int SecurityCache::getSecurityFile(const char* dir, const char* sys, 
 																	 string& out)
 {
 	int found = 0;
-	string file(ps);
+	string file(dir);
 	string secFile;
 	int i = file.length() - 1;
 
@@ -93,20 +97,29 @@ int SecurityCache::getSecurityFile(const char* ps, const char* sys,
 	secFile.assign(file);
 	secFile.append("/security");
 
-	if(File::fileExists(secFile)){
+	/* The security file exists in the directory.  */
+	if(File::fileExists(secFile))
+  {
 		out.assign(secFile);
 		return 0;
 	}
 	
+	/* Go upper in the tree till we find a security file.  */
 	do
 	{
 		for(i = file.length() - 1; i; i--)
-			if(file[i] == '/'){
+			if(file[i] == '/')
+			{
 				file.erase(i, file.length() - i);
 				break;
 			}
 
-		if(i == 0){
+		/* 
+		 *Top of the tree, check if the security file is present in the 
+		 *system directory, returns an error if it is not.
+		 */
+		if(i == 0)
+		{
 			out.assign(sys);
 			out.append("/security");
 			return !File::fileExists(out);
@@ -119,7 +132,6 @@ int SecurityCache::getSecurityFile(const char* ps, const char* sys,
 
 	out.assign(secFile);
 	return 0;
-	
 }
 
 
@@ -212,6 +224,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
 {
   XmlParser *parser;
 	string permissionFile;
+	out.assign("");
   if(directory == 0)
     return -1;
 
@@ -273,4 +286,3 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
 
   return 0;
 }
-

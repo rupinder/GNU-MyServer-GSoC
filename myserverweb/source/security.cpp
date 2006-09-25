@@ -57,7 +57,7 @@ void SecurityToken::reset()
   password       = 0;
   directory      = 0;
   filename       = 0;
-  neededPassword      = 0;
+  neededPassword = 0;
   permission2    = 0;
   auth_type      = 0;
   len_auth       = 0;
@@ -97,7 +97,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
 
   if(doc == 0)
 	{
-		if(parser== 0)
+		if(parser == 0)
 			localParser.close();
     return 0;
 	}
@@ -105,7 +105,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
 
   if(node == 0)
 	{
-		if(parser== 0)
+		if(parser == 0)
 			localParser.close();
     return 0;
 	}
@@ -122,37 +122,37 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
         {
           fileName = (char*)attr->children->content;
 
-          /*! The error ID is correct. */
+          /* The error ID is correct.  */
           if(found)
           {
             out.assign(fileName);
           }
-       }
+				}
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
 				{
 					int errorId;
           errorId = atoi((const char*)attr->children->content);
 					if(errorId == error)
-						found=1;
+						found = 1;
           else
             continue;
-          /*! The file name was still specified. */
+          /* The file name was still specified.  */
           if(fileName)
           {
             out.assign(fileName);
           }
 				}
-				attr=attr->next;
+				attr = attr->next;
 			}
 			if(found)
 				break;
 		}
-		node=node->next;
+		node = node->next;
 	}
-  if(parser== 0)
+  if(parser == 0)
     localParser.close();
   
-  /*! Return 1 if both it was found and well configured. */
+  /* Return 1 if both it was found and well configured.  */
   if(found && out.length())
     return 1;
   
@@ -176,19 +176,19 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
 	char tempPassword[32];
 
-  /*! Generic permission data mask for the user.  */
+  /* Generic permission data mask for the user.  */
 	int genericPermissions = 0;
 	int genericPermissionsFound = 0;
 
-  /*! Permission data for the file.  */
+  /* Permission data for the file.  */
 	int filePermissions = 0;
 	int filePermissionsFound = 0;
 
-  /*! Permission data for the user and the file.  */
+  /* Permission data for the user and the file.  */
 	int userPermissions = 0;
 	int userPermissionsFound = 0;
 
-  /*! Store what we found for neededPassword.  */
+  /* Store what we found for neededPassword.  */
 	int filePermissions2Found = 0;
 	int userPermissions2Found = 0;
 	int genericPermissions2Found = 0;
@@ -200,7 +200,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 	XmlParser localParser;
   xmlDocPtr doc;
   
-  /*! 
+  /*
    *Store where actions are found. 
    *0 Not Found.
    *1 Globally.
@@ -222,7 +222,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     return -1;
   if(st->filename == 0)
     return -1;
-  /*! 
+
+  /* 
    *If there is not specified the parser to use, create a new parser
    *object and initialize it. 
    */
@@ -230,7 +231,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   {
     permissionsFile << st->directory << "/security";
 
-    /*! If the specified file doesn't exist return 0. */
+    /* If the specified file doesn't exist return 0.  */
     if(!File::fileExists(permissionsFile.str().c_str()))
     {
       return 0;
@@ -241,12 +242,12 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       {
         return -1;
       }
-      doc=localParser.getDoc();
+      doc = localParser.getDoc();
     }
   }
   else
   {
-    /*! If the parser object is specified get the doc from it.  */
+    /* If the parser object is specified get the doc from it.  */
     doc = parser->getDoc();
   }
 
@@ -257,7 +258,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     return -1;
 	}
 
-  /*! 
+  /*
    *If the file is not valid, returns 0.
    *Clean the parser object if was created here.
    */
@@ -272,7 +273,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 	while(node)
 	{
     tempThrottlingRate = (u_long)-1;
-    /*! Retrieve the authorization scheme to use if specified. */
+
+    /* Retrieve the authorization scheme to use if specified.  */
 		if(!xmlStrcmp(node->name, (const xmlChar *)"AUTH"))
 		{
 			attr = node->properties;
@@ -296,7 +298,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       }
     }
 
-    /*! USER block. */
+    /* USER block.  */
 		else if(!xmlStrcmp(node->name, (const xmlChar *)"USER"))
 		{
 			int tempGenericPermissions = 0;
@@ -353,7 +355,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				else if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
 				{
           myserver_strlcpy(tempPassword,(char*)attr->children->content, 32);
-          /*! If a password is provided check that it is valid.  */
+          /* If a password is provided check that it is valid.  */
 					if(st->password && (!xmlStrcmp(attr->children->content, 
                                          (const xmlChar *)st->password)) )
 						rightPassword = 1;
@@ -364,7 +366,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
              ((userPermissionsFound == 0) && (filePermissionsFound == 0)))
           tempThrottlingRate = (u_long)atoi((char*)attr->children->content);
 				}
-        /*! 
+        /*  
          *USER is the weakest permission considered. Be sure that no others are
          *specified before save objects in the security token object.
          */
@@ -392,7 +394,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 			}
 
 		}
-    /*! ITEM block.  */
+    /* ITEM block.  */
 		else if(!xmlStrcmp(node->name, (const xmlChar *)"ITEM"))
 		{
       int tempFilePermissions;
@@ -468,7 +470,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
               tempThrottlingRate = (u_long)atoi((char*)
 																								attr->children->content);
             }
-            /*! 
+            /*
              *USER inside ITEM is the strongest mask considered. 
              *Do not check for other masks to save it.
              */
@@ -499,7 +501,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       {
         attr = node->properties;
         tempThrottlingRate = (u_long)-1;
-        /*! Generic ITEM permissions. */
+        /* Generic ITEM permissions.  */
         while(attr)
         {
           if(!xmlStrcmp(attr->name, (const xmlChar *)"READ"))
@@ -529,7 +531,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
               tempThrottlingRate = (u_long)atoi(
 																						(char*)attr->children->content);
           }
-          /*! Check if the file name is correct.  */
+          /* Check if the file name is correct.  */
           if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
           {
             if(attr->children && attr->children->content &&
@@ -551,9 +553,9 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
             }
           }
           attr = attr->next;
-        }/*! End attributes loop.  */
+        }/* End attributes loop.  */
 
-        /*! 
+        /* 
          *Check that was not specified a file permission mask 
          *before overwrite these items.
          */
@@ -563,7 +565,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
             st->throttlingRate = tempThrottlingRate;
         }
 
-      }/*! End generic ITEM attributes.  */
+      }/* End generic ITEM attributes.  */
 
 			if(filePermissionsFound)
 				filePermissions = tempFilePermissions;
@@ -634,7 +636,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       headerVal = st->td->request.getValue(name, 0);
     if(!headerVal)
       continue;
-    /*! 
+
+    /*
 		 *If the regular expression matches the header value then deny the 
 		 *access. 
 		 */

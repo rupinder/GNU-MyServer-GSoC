@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -43,6 +43,5 @@ public:
   int getErrorFileName(const char *root, int error, 
                        const char* sysdirectory, string& out);
 };
-
 
 #endif
