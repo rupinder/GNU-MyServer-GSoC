@@ -37,103 +37,6 @@ SecurityCache::SecurityCache()
 }
 
 /*!
- *Get the error file name from the security file.
- */
-int SecurityCache::getErrorFileName(const char *directory, int error, 
-                                    const char* sysdirectory, string& out)
-{
-  string permissionsFile;
-  XmlParser *parser;
-  if(directory == 0)
-  {
-    if(sysdirectory == 0)
-      return -1;
-    directory = sysdirectory;
-    sysdirectory = 0;
-  }
-  permissionsFile.assign(directory);
-  permissionsFile.append("/security");
-
-  parser = dictionary.get(permissionsFile);
-  /*!
-   *If the parser is still present use it.
-   */
-  if(parser)
-  {
-    time_t fileModTime;
-    /*! If the file was modified reload it. */
-    fileModTime=File::getLastModTime(permissionsFile.c_str());
-    if((fileModTime != static_cast<time_t>(-1))  && 
-       (parser->getLastModTime() != fileModTime))
-    {
-      parser->close();
-      if(parser->open(permissionsFile.c_str()) == -1)
-      {
-        dictionary.remove(permissionsFile);
-        return -1;
-      }
-    }
-    return sm.getErrorFileName(directory, error, out, parser);
-
-  }
-  else
-  {
-    /*! 
-     *Create the parser and append at the dictionary.
-     */
-    parser = new XmlParser();
-    if(parser == 0)
-    {  
-      return -1;
-    }
-   
-    if(!File::fileExists(permissionsFile.c_str()))
-    {
-      /*!
-       *If the security file doesn't exist try with a default one(the one in the system
-       *directory).
-       */
-      if(sysdirectory!=0)
-      {
-        delete parser;
-        return getErrorFileName(sysdirectory, error, 0, out);
-      }
-      else
-      {
-        delete parser;
-        return -1;
-      }
-    }
-    if(parser->open(permissionsFile.c_str()) == -1)
-    {
-      delete parser;
-      return -1;
-    }
-
-    if(dictionary.size() >= limit)
-    {
-      XmlParser* toremove = dictionary.remove(dictionary.begin());
-      if(toremove)
-        delete toremove;
-    }
-
-		{
-			XmlParser* old;	
-			old=dictionary.put(permissionsFile, parser);
-			if(old)
-			{
-				delete old;
-			}
-		}
-    return sm.getErrorFileName(directory, error, out, parser);  
-  }
-
-  return 0;
-
-
-}
-
-/*!
  *Destroy the security cache object.
  */
 SecurityCache::~SecurityCache()
@@ -174,6 +77,53 @@ void SecurityCache::setMaxNodes(int newLimit)
 }
 
 /*!
+ *Get the security file to use starting from the file location.
+ */
+int SecurityCache::getSecurityFile(const char* ps, const char* sys, 
+																	 string& out)
+{
+	int found = 0;
+	string file(ps);
+	string secFile;
+	int i = file.length() - 1;
+
+	while(i && file[i] == '/')
+		file.erase(i--, 1);
+
+	secFile.assign(file);
+	secFile.append("/security");
+
+	if(File::fileExists(secFile)){
+		out.assign(secFile);
+		return 0;
+	}
+	
+	do
+	{
+		for(i = file.length() - 1; i; i--)
+			if(file[i] == '/'){
+				file.erase(i, file.length() - i);
+				break;
+			}
+
+		if(i == 0){
+			out.assign(sys);
+			out.append("/security");
+			return !File::fileExists(out);
+		}
+		secFile.assign(file);
+		secFile.append("/security");
+
+	}
+	while(!(found = File::fileExists(secFile)));
+
+	out.assign(secFile);
+	return 0;
+	
+}
+
+
+/*!
  *Get the actual limit of open nodes.
  */
 int SecurityCache::getMaxNodes()
@@ -189,32 +139,32 @@ int SecurityCache::getMaxNodes()
 int SecurityCache::getPermissionMask(SecurityToken* st)
 {
   XmlParser *parser;
-  string permissionsFile;
-
+	string permissionFile;
   if(st->directory == 0)
     return -1;
   if(st->filename == 0)
     return -1;
 
-  permissionsFile.assign(st->directory); 
-  permissionsFile.append("/security");
+	if(getSecurityFile(st->directory, st->sysdirectory, permissionFile))
+		return -1;
 
-  parser = dictionary.get(permissionsFile.c_str());
+  parser = dictionary.get(permissionFile.c_str());
+
   /*!
-   *If the parser is still present use it.
+   *If the parser is already present use it.
    */
   if(parser)
   {
     time_t fileModTime;
     /*! If the file was modified reload it. */
-    fileModTime=File::getLastModTime(permissionsFile.c_str());
+    fileModTime = File::getLastModTime(permissionFile.c_str());
     if((fileModTime != static_cast<time_t>(-1))  && 
        (parser->getLastModTime() != fileModTime))
     {
       parser->close();
-      if(parser->open(permissionsFile.c_str()) == -1)
+      if(parser->open(permissionFile.c_str()) == -1)
       {
-        dictionary.remove(permissionsFile.c_str());
+        dictionary.remove(permissionFile.c_str());
         return -1;
       }
 
@@ -226,33 +176,10 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
     /*! 
      *Create the parser and append at the dictionary.
      */
+		XmlParser* old;
     parser = new XmlParser();
     if(parser == 0)
     {  
-      return -1;
-    }
-    if(!File::fileExists(permissionsFile.c_str()))
-    {
-      /*!
-       *If the security file doesn't exist try with a default one.
-       */
-      if(st->sysdirectory!=0)
-      {
-        delete parser;
-        st->directory = st->sysdirectory;
-        st->sysdirectory = 0;
-        return getPermissionMask(st);
-      }
-      else
-      {
-        delete parser;
-        return -1;
-      }
-    }
-
-    if(parser->open(permissionsFile.c_str()) == -1)
-    {
-      delete parser;
       return -1;
     }
 
@@ -263,15 +190,87 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
         delete toremove;
     }
 
+		if(parser->open(permissionFile.c_str()) == -1)
+			return -1;
+
+		old = dictionary.put(permissionFile, parser);
+		if(old)
 		{
-			XmlParser* old = dictionary.put(permissionsFile, parser);
-			if(old)
-			{
-				delete old;
-			}
+			delete old;
 		}
-    return sm.getPermissionMask(st, parser);  
+		return sm.getPermissionMask(st, parser);  
   }
 
   return 0;
 }
+
+/*!
+ *Get the error file name from the security file.
+ */
+int SecurityCache::getErrorFileName(const char *directory, int error, 
+                                    const char* sysdirectory, string& out)
+{
+  XmlParser *parser;
+	string permissionFile;
+  if(directory == 0)
+    return -1;
+
+	if(getSecurityFile(directory, sysdirectory, permissionFile))
+		return -1;
+
+  parser = dictionary.get(permissionFile.c_str());
+
+  /*!
+   *If the parser is already present use it.
+   */
+  if(parser)
+  {
+    time_t fileModTime;
+    /*! If the file was modified reload it. */
+    fileModTime = File::getLastModTime(permissionFile.c_str());
+    if((fileModTime != static_cast<time_t>(-1))  && 
+       (parser->getLastModTime() != fileModTime))
+    {
+      parser->close();
+      if(parser->open(permissionFile.c_str()) == -1)
+      {
+        dictionary.remove(permissionFile.c_str());
+        return -1;
+      }
+
+    }
+    return sm.getErrorFileName(directory, error, out, parser);
+  }
+  else
+  {
+    /*! 
+     *Create the parser and append at the dictionary.
+     */
+		XmlParser* old;
+    parser = new XmlParser();
+    if(parser == 0)
+    {  
+      return -1;
+    }
+
+    if(dictionary.size() >= limit)
+    {
+      XmlParser* toremove = dictionary.remove(dictionary.begin());
+      if(toremove)
+        delete toremove;
+    }
+
+		if(parser->open(permissionFile.c_str()) == -1)
+			return -1;
+
+		old = dictionary.put(permissionFile, parser);
+		if(old)
+		{
+			delete old;
+		}
+    return sm.getErrorFileName(directory, error, out, parser);  
+  }
+
+  return 0;
+}
+
