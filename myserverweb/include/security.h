@@ -78,15 +78,15 @@ struct SecurityToken
    *where the password is not sent in clear on the network.
    */
   char *neededPassword;
-  /*! Permission mask that the user will have if providing a [password2]. */
+  /*! Permission mask that the user will have providing [neededPassword]. */
   int *permission2;
 
   struct HttpThreadContext* context;
 
   /*! Authorization scheme to use. */
-  char* auth_type;
-  /*! Length for the [auth_type] allocated string. */
-  int len_auth;
+  char* authType;
+  /*! Length for the [authType] allocated string. */
+  int authTypeLen;
   /*! Throttling rate to use with specified user. */
   int throttlingRate;
 

@@ -44,12 +44,6 @@ extern "C" {
 }
 #endif
 
-/*! Define SD_BOTH in case it is not defined.  */
-#ifndef SD_BOTH
-#define SD_BOTH 2 /*! Close the TCP connection in both directions.  */
-#endif
-
-
 /*!
  *Construct the object.
  */
@@ -82,11 +76,11 @@ int ClientsThread::getTimeout()
 
 /*!
  *Set the timeout value for the thread.
- *\param new_timeout The new timeout value.
+ *\param newTimeout The new timeout value.
  */
-void ClientsThread::setTimeout(int new_timeout)
+void ClientsThread::setTimeout(int newTimeout)
 {
-  timeout = new_timeout;
+  timeout = newTimeout;
 }
 
 /*!
@@ -114,7 +108,7 @@ void * startClientsThread(void* pParam)
 	sigaddset(&sigmask, SIGTERM);
 	sigprocmask(SIG_SETMASK, &sigmask, NULL);
 #endif
-	ClientsThread *ct=(ClientsThread*)pParam;
+	ClientsThread *ct = (ClientsThread*)pParam;
 
   /* Return an error if the thread is initialized.  */
 	if(ct->initialized)
@@ -293,9 +287,9 @@ int ClientsThread::controlConnections()
   /*
    *Control the protocol used by the connection.
    */
-  int retcode=0;
+  int retcode = 0;
   ConnectionPtr c;
-  DynamicProtocol* dp=0;
+  DynamicProtocol* dp = 0;
 	
 	/*
    *Get the access to the connections list.
@@ -411,7 +405,8 @@ int ClientsThread::controlConnections()
 																												nBytesToRead, id);
           break;
 		  	default:
-          dp = Server::getInstance()->getDynProtocol(((Vhost*)(c->host))->getProtocolName());
+          dp = Server::getInstance()->getDynProtocol(
+																							c->host->getProtocolName());
 			  	if(!dp)
 			  	{
 			  		retcode = 0;
@@ -430,25 +425,21 @@ int ClientsThread::controlConnections()
       retcode = 0;
     };
 
-		/*
-     *The protocols parser functions return:
-     *0 to delete the connection from the active connections list.
-     *1 to keep the connection active and clear the connectionBuffer.
-     *2 if the header is incomplete and to save it in a temporary buffer.
-     *3 if the header is incomplete without save it in a temporary buffer.
-     */
- 		if(retcode == 0)/*! Delete the connection.  */
+		/*! Delete the connection.  */
+ 		if(retcode == DELETE_CONNECTION)
 		{
 			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
-		else if(retcode == 1)/*! Keep the connection.  */
+		/*! Keep the connection.  */
+		else if(retcode == KEEP_CONNECTION)
 		{
 			c->setDataRead(0);
 			c->connectionBuffer[0] = '\0';
 		}
-		else if(retcode == 2)/*! Incomplete request to buffer.  */
-		{
+		/*! Incomplete request to buffer.  */
+		else if(retcode == INCOMPLETE_REQUEST)
+    {
 			/*
        *If the header is incomplete save the current received
        *data in the connection buffer.
@@ -459,8 +450,8 @@ int ClientsThread::controlConnections()
 
 			c->setDataRead(c->getDataRead() + err);
 		}
-		/* Incomplete request bufferized by the protocol.  */
-		else if(retcode == 3)
+		/* Incomplete request to check before new data is available.  */
+		else if(retcode == INCOMPLETE_REQUEST_NO_WAIT)
 		{
 			c->setForceParsing(1);
 		}		
@@ -525,7 +516,7 @@ void ClientsThread::clean()
 	buffer.free();
 	buffer2.free();
 
-	initialized=0;
+	initialized = 0;
 }
 
 

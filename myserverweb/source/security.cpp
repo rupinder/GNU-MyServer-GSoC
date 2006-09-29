@@ -59,8 +59,8 @@ void SecurityToken::reset()
   filename       = 0;
   neededPassword = 0;
   permission2    = 0;
-  auth_type      = 0;
-  len_auth       = 0;
+  authType      = 0;
+  authTypeLen       = 0;
   throttlingRate = (u_long)-1;
 }
 
@@ -214,8 +214,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
  	xmlNode *tmpActionsNode = 0;
 
 	tempPassword[0] = '\0';
-	if(st && st->auth_type)
-		st->auth_type[0] = '\0';
+	if(st && st->authType)
+		st->authType[0] = '\0';
   if(st->user == 0)
     return -1;
   if(st->directory == 0)
@@ -282,9 +282,9 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 			{
 				if(!xmlStrcmp(attr->name, (const xmlChar *)"TYPE"))
 				{
-					if(st && st->auth_type)
-						strncpy(st->auth_type,(const char*)attr->children->content, 
-                    st->len_auth);
+					if(st && st->authType)
+						strncpy(st->authType,(const char*)attr->children->content, 
+                    st->authTypeLen);
 				}
 				attr = attr->next;
 			}

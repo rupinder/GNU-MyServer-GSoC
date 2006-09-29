@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/mem_buff.h"
 #include "../include/https.h"
 #include "../include/control_protocol.h"
+
 class  ClientsThread
 {
 	friend class Server;
@@ -58,6 +59,27 @@ private:
 	int controlConnections();
 	u_long nBytesToRead;
 public:
+	enum RETURN_CODE
+	{
+		/*!
+		 *Delete the current connection from the connections pool.  
+		 */
+		DELETE_CONNECTION = 0,
+		/*!
+		 *Keep the connection in the connections pool waiting for new data.  
+		 */
+		KEEP_CONNECTION = 1,
+		/*!
+		 *The request present in the connection buffer is not complete, keep
+		 *data in the buffer and append to it.  
+		 */
+		INCOMPLETE_REQUEST = 2,
+		/*!
+		*The request present in the buffer is not complete, append to the buffer
+		*and check before new data is present.
+		*/
+		INCOMPLETE_REQUEST_NO_WAIT = 3
+	};
   ClientsThread *next;
 	MemBuf *getBuffer();
 	MemBuf *getBuffer2();
@@ -74,9 +96,11 @@ public:
   int isParsing();
   void setStatic(int);
 };
+
 #ifdef WIN32
 unsigned int __stdcall startClientsThread(void* pParam); 
 #endif
+
 #ifdef HAVE_PTHREAD
 void* startClientsThread(void* pParam);
 #endif

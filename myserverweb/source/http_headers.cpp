@@ -888,9 +888,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				if(old)
 				{
 					old->value->append(", ");
-					old->value->append(token, std::min(static_cast<int>(HTTP_RESPONSE_OTHER_DIM - 
-																															old->value->length()),  
-																						 static_cast<int>(tokenOff)));
+					old->value->append(token, 
+														 std::min(static_cast<int>(HTTP_RESPONSE_OTHER_DIM
+																											 - old->value->length()),
+																			static_cast<int>(tokenOff)));
 				}
 				else
 				{
@@ -898,7 +899,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					if(e)
 					{
 						e->name->assign(command, HTTP_RESPONSE_OTHER_DIM);
-						e->value->assign(token, std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
+						e->value->assign(token, 
+														 std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
 						request->other.put(cmdStr, e);
 					}
 				}
