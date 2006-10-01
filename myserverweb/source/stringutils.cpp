@@ -107,38 +107,45 @@ const char *getRFC822GMTTime(char* out, int len)
 const char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 {
   char *asct;
+	u_long ind = 0;
 	tm* GMtime = gmtime( &ltime );
-	GMtime->tm_year+=1900;
+	GMtime->tm_year += 1900;
 	asct=asctime(GMtime);
-	out[0]=asct[0];
-	out[1]=asct[1];
-	out[2]=asct[2];
-	out[3]=',';
-	out[4]=' ';
-	out[5]=asct[8];
-	out[6]=asct[9];
-	out[7]=' ';
-	out[8]=asct[4];
-	out[9]=asct[5];
-	out[10]=asct[6];
-	out[11]=' ';
-	sprintf(&out[12], "%i", GMtime->tm_year);
-	out[16]=' ';
-	out[17]=asct[11];
-	out[18]=asct[12];
-	out[19]=':';
-	out[20]=asct[14];
-	out[21]=asct[15];
-	out[22]=':';
-	out[23]=asct[17];
-	out[24]=asct[18];
-	out[25]=' ';
-	out[26]='G';
-	out[27]='M';
-	out[28]='T';
-	out[29]='\0';
-	out[30]='\0';
-	out[31]='\0';
+	out[ind++]=asct[0];
+	out[ind++]=asct[1];
+	out[ind++]=asct[2];
+	out[ind++]=',';
+
+	if(asct[8] != ' ')
+		out[ind++]=' ';
+
+	out[ind++]=asct[8];
+	out[ind++]=asct[9];
+	out[ind++]=' ';
+	out[ind++]=asct[4];
+	out[ind++]=asct[5];
+	out[ind++]=asct[6];
+	out[ind++]=' ';
+
+	sprintf(&out[ind], "%i", GMtime->tm_year);
+	ind += 4;
+
+	out[ind++]=' ';
+	out[ind++]=asct[11];
+	out[ind++]=asct[12];
+	out[ind++]=':';
+	out[ind++]=asct[14];
+	out[ind++]=asct[15];
+	out[ind++]=':';
+	out[ind++]=asct[17];
+	out[ind++]=asct[18];
+	out[ind++]=' ';
+	out[ind++]='G';
+	out[ind++]='M';
+	out[ind++]='T';
+	out[ind++]='\0';
+	out[ind++]='\0';
+	out[ind++]='\0';
 	return out;
 }
 /*!
@@ -150,18 +157,18 @@ time_t getTime(const char* str)
 	int c=0;
 	int i;
 	tm t;
-	for(i=0;i<30;i++)
+	for(i = 0; i < 30; i++)
 	{
-		if(str[c]==',')
+		if(str[c] == ',')
 		{
 			c++;
-			lb[i]='\0';
+			lb[i] = '\0';
 			break;
 		}
 		else
-			lb[i]=str[c++];
+			lb[i] = str[c++];
 	}
-	i=lb[0]+lb[1]+lb[3];
+	i = lb[0] + lb[1] + lb[3];
 	switch(i)
 	{
 		case 310:
@@ -188,31 +195,31 @@ time_t getTime(const char* str)
 	}
 
 	c++;
-	for(i=0;i<30;i++)
+	for(i = 0; i < 30; i++)
 	{
 		if(i && str[c]==' ')
 		{
 			c++;
-			lb[i]='\0';
+			lb[i] = '\0';
 			break;
 		}
 		else
-			lb[i]=str[c++];
+			lb[i] = str[c++];
 	}
-	t.tm_mday=atoi(lb);
+	t.tm_mday = atoi(lb);
 	
-	for(i=0;i<30;i++)
+	for(i = 0; i < 30; i++)
 	{
-		if(i && str[c]==' ')
+		if(i && str[c] == ' ')
 		{
 			c++;
-			lb[i]='\0';
+			lb[i] = '\0';
 			break;
 		}
 		else
-			lb[i]=str[c++];
+			lb[i] = str[c++];
 	}
-	i=lb[0]+lb[1]+lb[3];
+	i = lb[0] + lb[1] + lb[3];
 	switch(i)
 	{
 		case 281:
@@ -253,61 +260,61 @@ time_t getTime(const char* str)
 			break;
 	}
 
-	for(i=0;i<30;i++)
+	for(i = 0; i < 30; i++)
 	{
 		if(i && str[c]==' ')
 		{
 			c++;
-			lb[i]='\0';
+			lb[i] = '\0';
 			break;
 		}
 		else
-			lb[i]=str[c++];
+			lb[i] = str[c++];
 	}
-	t.tm_year=atoi(lb)-1900;
+	t.tm_year = atoi(lb) - 1900;
 	
-	for(i=0;i<30;i++)
+	for(i = 0; i < 30; i++)
 	{
-		if(i && str[c]==':')
+		if(i && str[c] == ':')
 		{
 			c++;
-			lb[i]='\0';
+			lb[i] = '\0';
 			break;
 		}
 		else
-			lb[i]=str[c++];
+			lb[i] = str[c++];
 	}
 	t.tm_hour = atoi(lb);
 
-	for(i=0;i<30;i++)
+	for(i = 0; i < 30; i++)
 	{
-		if(i && str[c]==':')
+		if(i && str[c] == ':')
 		{
 			c++;
-			lb[i]='\0';
+			lb[i] = '\0';
 			break;
 		}
 		else
-			lb[i]=str[c++];
+			lb[i] = str[c++];
 	}
 	t.tm_min = atoi(lb);
 
-	for(i=0;i<30;i++)
+	for(i = 0; i < 30; i++)
 	{
 		if(i && str[c]==':')
 		{
 			c++;
-			lb[i]='\0';
+			lb[i] = '\0';
 			break;
 		}
 		else
-			lb[i]=str[c++];
+			lb[i] = str[c++];
 	}
 	t.tm_sec = atoi(lb);
-	t.tm_yday=0;
-	t.tm_wday=0;	
+	t.tm_yday = 0;
+	t.tm_wday = 0;	
 
-	t.tm_isdst=-1;
+	t.tm_isdst = -1;
 
   return mktime(&t);
 }
@@ -328,38 +335,45 @@ const char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
 	char *asct;
 	tm result;
+	u_long ind = 0;
 	localtime_r( &ltime, &result );
 	result.tm_year+=1900;
 	asct=asctime(&result);
-	out[0] = asct[0];
-	out[1] = asct[1];
-	out[2] = asct[2];
-	out[3] = ',';
-	out[4] = ' ';
-	out[5] = asct[8];
-	out[6] = asct[9];
-	out[7] = ' ';
-	out[8] = asct[4];
-	out[9] = asct[5];
-	out[10] = asct[6];
-	out[11] = ' ';
-	sprintf(&out[12], "%i", result.tm_year);
-	out[16] = ' ';
-	out[17] = asct[11];
-	out[18] = asct[12];
-	out[19] = ':';
-	out[20] = asct[14];
-	out[21] = asct[15];
-	out[22] = ':';
-	out[23] = asct[17];
-	out[24] = asct[18];
-	out[25] = ' ';
-	out[26] = '\0';
-	out[27] = '\0';
-	out[28] = '\0';
-	out[29] = '\0';
-	out[30] = '\0';
-	out[31] = '\0';
+	out[ind++] = asct[0];
+	out[ind++] = asct[1];
+	out[ind++] = asct[2];
+	out[ind++] = ',';
+
+	if(asct[8] != ' ')
+		out[ind++] = ' ';
+
+	out[ind++] = asct[8];
+	out[ind++] = asct[9];
+	out[ind++] = ' ';
+	out[ind++] = asct[4];
+	out[ind++] = asct[5];
+	out[ind++] = asct[6];
+	out[ind++] = ' ';
+
+	sprintf(&out[ind], "%i", result.tm_year);
+	ind += 4;
+
+	out[ind++] = ' ';
+	out[ind++] = asct[11];
+	out[ind++] = asct[12];
+	out[ind++] = ':';
+	out[ind++] = asct[14];
+	out[ind++] = asct[15];
+	out[ind++] = ':';
+	out[ind++] = asct[17];
+	out[ind++] = asct[18];
+	out[ind++] = ' ';
+	out[ind++] = '\0';
+	out[ind++] = '\0';
+	out[ind++] = '\0';
+	out[ind++] = '\0';
+	out[ind++] = '\0';
+	out[ind++] = '\0';
 	return out;
 }
 
@@ -428,7 +442,8 @@ const char* getGMTLogFormatDate(string& out, int len)
 }
 
 /*!
- *Get a string in the format "day/month/year:hour:minute:second offset" for the local zone.
+ *Get a string in the format "day/month/year:hour:minute:second offset" 
+ *for the local zone.
  */
 const char* getLocalLogFormatDate(const time_t t, char* out, int len)
 {
@@ -439,30 +454,30 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
 	tm*  GMtime = localtime( &ltime );
   if(len < 25)
     return 0;
-  GMtime->tm_year+=1900;
-	asct=asctime(GMtime);
- 	out[0]=asct[8];
-	out[1]=asct[9];
-	out[2]='/';
-	out[3]=asct[4];
-	out[4]=asct[5];
-	out[5]=asct[6];
-	out[6]='/';
+  GMtime->tm_year += 1900;
+	asct = asctime(GMtime);
+ 	out[0] = asct[8];
+	out[1] = asct[9];
+	out[2] = '/';
+	out[3] = asct[4];
+	out[4]= asct[5];
+	out[5] = asct[6];
+	out[6] = '/';
 	sprintf(&out[7], "%i", GMtime->tm_year);
-	out[11]=':';
-	out[12]=asct[11];
-	out[13]=asct[12];
-	out[14]=':';
-	out[15]=asct[14];
-	out[16]=asct[15];
-	out[17]=':';
-	out[18]=asct[17];
-	out[19]=asct[18];
-	out[20]=' ';
+	out[11] = ':';
+	out[12] = asct[11];
+	out[13] = asct[12];
+	out[14] = ':';
+	out[15] = asct[14];
+	out[16] = asct[15];
+	out[17] = ':';
+	out[18] = asct[17];
+	out[19] = asct[18];
+	out[20] = ' ';
 
 #ifdef NOT_WIN
   extern long timezone; 
-  offset=-timezone;
+  offset = -timezone;
 #else
 
 #ifdef GETTIMEOFDAY
@@ -475,7 +490,7 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
 #else
   TIME_ZONE_INFORMATION tzi;
   GetTimeZoneInformation(&tzi);
-  offset=-tzi.Bias*60;
+  offset = -tzi.Bias*60;
 #endif
 
 #endif
@@ -483,18 +498,19 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
   if(offset < 0)
   {
     offset = -offset;
-    out[21]='-';
+    out[21] = '-';
   }
   else
-    out[21]='+';
-	sprintf(&out[22], "%.2i%.2i", offset/(60*60), offset%(60*60)/60);
-  out[26]='\0';
+    out[21] = '+';
+	sprintf(&out[22], "%.2i%.2i", offset / (60 * 60), offset % (60 * 60) / 60);
+  out[26] = '\0';
   return out;
 }
 
 
 /*!
- *Get a string in the format "day/month/year:hour:minute:second offset" for the GMT zone.
+ *Get a string in the format "day/month/year:hour:minute:second offset" 
+ *for the GMT zone.
  */
 const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 {
@@ -507,34 +523,32 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
     return 0;
   result.tm_year += 1900;
 	asct = asctime(&result);
- 	out[0]=asct[8];
-	out[1]=asct[9];
-	out[2]='/';
-	out[3]=asct[4];
-	out[4]=asct[5];
-	out[5]=asct[6];
-	out[6]='/';
+ 	out[0] = asct[8];
+	out[1] = asct[9];
+	out[2] = '/';
+	out[3] = asct[4];
+	out[4] = asct[5];
+	out[5] = asct[6];
+	out[6] = '/';
 	sprintf(&out[7], "%i", result.tm_year);
-	out[11]=':';
-	out[12]=asct[11];
-	out[13]=asct[12];
-	out[14]=':';
-	out[15]=asct[14];
-	out[16]=asct[15];
-	out[17]=':';
-	out[18]=asct[17];
-	out[19]=asct[18];
-	out[20]=' ';
-  out[21]='+';
-  out[22]='0';
-  out[23]='0';
-  out[24]='0';
-  out[25]='0';
-  out[26]='\0';
+	out[11] = ':';
+	out[12] = asct[11];
+	out[13] = asct[12];
+	out[14] = ':';
+	out[15] = asct[14];
+	out[16] = asct[15];
+	out[17] = ':';
+	out[18] = asct[17];
+	out[19] = asct[18];
+	out[20] = ' ';
+  out[21] = '+';
+  out[22] = '0';
+  out[23] = '0';
+  out[24] = '0';
+  out[25] = '0';
+  out[26] = '\0';
   return out;
 }
-
-
 
 /*!
  *Trim a string from the right side.
@@ -542,17 +556,17 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 string trimRight(string const &s, string const &t )
 {
   string str = s;
-  return str.erase ( str.find_last_not_of ( t ) + 1 ) ;
+  return str.erase(str.find_last_not_of(t) + 1 ) ;
 }
 
 
 /*!
  *Trim a string from the left side.
  */
-string trimLeft (string  const &s, string const &t )
+string trimLeft(string const &s, string const &t )
 {
   std::string str = s;
-  return str.erase ( 0 , s.find_first_not_of ( t ) ) ;
+  return str.erase( 0, s.find_first_not_of (t)) ;
 }
 
 /*!
@@ -612,7 +626,7 @@ void StrTrim(char* str, char* trimchars)
 	{
 		if(!(*strptr))		//Full trim
 		{
-			*str=0;
+			*str = 0;
 			return;
 		}
 		while(*strptr)
@@ -653,7 +667,7 @@ void StrTrim(char* str, char* trimchars)
 		}
 		trimptr++;
 	}
-	*(str+1)=0;				//Now to finish up
+	*(str + 1) = 0;				//Now to finish up
 }
 
 /*!
@@ -662,7 +676,9 @@ void StrTrim(char* str, char* trimchars)
  */
 void gotoNextLine(char** cmd)
 {
-	while(*(*cmd++)!='\n')if(**cmd=='\0')break;
+	while(*(*cmd++) != '\n')
+		if(**cmd=='\0')
+			break;
 
 }
 
@@ -774,21 +790,21 @@ int getCharInString(const char* str, const char* characters, int max)
 	
 	if(max)
 	{
-		for(i=0; (i<max) && (str[i]); i++ )
+		for(i = 0; (i < max) && (str[i]); i++ )
 		{
-			for(j=0;characters[j];j++)
+			for(j = 0; characters[j]; j++)
 			{
-				if(str[i]==characters[j])
+				if(str[i] == characters[j])
 					return i;
 			}
 		}
 	}else
 	{	
-		for(i=0; str[i]; i++ )
+		for(i = 0; str[i]; i++ )
 		{
-			for(j=0;characters[j];j++)
+			for(j = 0; characters[j]; j++)
 			{
-				if(str[i]==characters[j])
+				if(str[i] == characters[j])
 					return i;
 			}
 		}
@@ -806,16 +822,16 @@ int getEndLine(const char* str, int max)
 	
 	if(max)
 	{
-		for(i=0; (i<max) && (str[i]); i++ )
+		for(i = 0; (i < max) && (str[i]); i++ )
 		{
 			if((str[i]=='\r') || (str[i]=='\n'))
 				return i;
 		}
 	}else
 	{
-		for(i=1; str[i]; i++ )
+		for(i = 1; str[i]; i++ )
 		{
-			if((str[i]=='\r') || (str[i]=='\n'))
+			if((str[i] == '\r') || (str[i] == '\n'))
 				return i;
 		}
 	}

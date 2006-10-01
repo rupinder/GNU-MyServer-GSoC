@@ -136,7 +136,8 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
  {
    ostringstream s;
    s << rangeByteBegin;
-   out->assign(s.str());
+	 if(out)
+		 out->assign(s.str());
    return 0; 
  }
 
@@ -144,7 +145,8 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
  {
    ostringstream s;
    s << rangeByteEnd;
-   out->assign(s.str());
+	 if(out)
+		 out->assign(s.str());
    return 0; 
  }
 
@@ -152,7 +154,8 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    HttpRequestHeader::Entry *e = other.get(name);
    if(e)
    {
-     out->assign(*(e->value));      
+		 if(out)
+			 out->assign(*(e->value));      
      return (e->value);
    }
    return 0;

@@ -171,11 +171,35 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     /* If a Range was requested send 206 and not 200 for success.  */
     if( td->request.rangeByteBegin ||  td->request.rangeByteEnd )
     {	
+			HttpResponseHeader::Entry *e;
       ostringstream buffer;
       td->response.httpStatus = 206;
       buffer << "bytes "<< (u_long)firstByte << "-" 
              << (u_long)lastByte << "/" << (u_long)filesize ;
-      td->response.contentRange.assign(buffer.str());
+
+			e = td->response.other.get("Content-Range");
+			if(e)
+				e->value->assign(buffer.str());
+			else
+  		{
+				e = new HttpResponseHeader::Entry();
+				e->name->assign("Transfer-Encoding");
+				e->value->assign(buffer.str());
+				td->response.other.put(*(e->name), e);
+			}
+
+
+			e = td->response.other.get("Transfer-Encoding");
+			if(e)
+				e->value->assign("chunked");
+			else
+  		{
+				e = new HttpResponseHeader::Entry();
+				e->name->assign("Transfer-Encoding");
+				e->value->assign("chunked");
+				td->response.other.put(*(e->name), e);
+			}
+
       useGzip = false;
     }
     chain.setProtocol(td->http);

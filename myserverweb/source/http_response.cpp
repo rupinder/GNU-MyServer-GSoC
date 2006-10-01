@@ -119,32 +119,16 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
     return &auth;
   }
 
-  if(!strcmpi(name,"Cache-Control"))
-  { 
-    if(out)
-      out->assign(cacheControl.c_str()); 
-    return &cacheControl;
-  }
-  if(!strcmpi(name,"Content-Range"))
-  { 
-    if(out)
-      out->assign(contentRange.c_str()); 
-    return &contentRange;
-  }
-
-	if(!out)
-		return 0;
-	
 	{
 		HttpResponseHeader::Entry *e = other.get(name);
 		if(e)
 		{
-			out->assign(*(e->value));      
+			if(out)
+				out->assign(*(e->value));
 			return e->value;
 		}
 		return 0;
 	}
-
 } 
 
 /*!
@@ -190,6 +174,4 @@ void HttpResponseHeader::free()
 	}
 	other.clear();
 	lastModified.clear();
-	cacheControl.clear();
-	contentRange.clear();
 }

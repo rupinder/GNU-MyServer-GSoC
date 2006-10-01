@@ -93,33 +93,23 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
 	}
 
-	if(response->cacheControl.length())
-	{
-		pos += myserver_strlcpy(pos, "Cache-Control: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->cacheControl.c_str(), MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
-	}
 	if(response->lastModified.length())
 	{
 		pos += myserver_strlcpy(pos,"Last-Modified: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->lastModified.c_str(), MAX-(long)(pos-str));
+		pos += myserver_strlcpy(pos, response->lastModified.c_str(), 
+														MAX-(long)(pos-str));
 		pos += myserver_strlcpy(pos,"\r\n", MAX-(long)(pos-str));
 	}
 	if(response->connection.length())
 	{
 		pos += myserver_strlcpy(pos,"Connection: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->connection.c_str(), MAX-(long)(pos-str));
+		pos += myserver_strlcpy(pos, response->connection.c_str(), 
+														MAX-(long)(pos-str));
 		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
 	}
 	else
 	{
 		pos += myserver_strlcpy(pos, "Connection: Close\r\n", MAX-(long)(pos-str));
-	}
-	if(response->contentRange.length())
-	{
-		pos += myserver_strlcpy(pos, "Content-Range: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->contentRange.c_str(), MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
 	}
 	if(response->contentLength.length())
 	{
@@ -1049,14 +1039,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         if(token)
           response->httpStatus=atoi(token);
 		}else
-		/* Cache-Control.  */
-		if(!lstrcmpi(command,"Cache-Control"))
-		{
-			token = strtok( NULL, "\r\n\0" );
-			lineControlled=1;
-      if(token)
-        response->cacheControl.assign(token);
-		}else
 		/* Date.  */
 		if(!lstrcmpi(command,"Date"))
 		{
@@ -1100,19 +1082,12 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 			lineControlled=1;
 			response->contentLength.assign(token);
 		}else
-		/* Content-Range.  */
-		if(!lstrcmpi(command,"Content-Range"))
-		{
-			token = strtok( NULL, "\r\n\0" );
-			lineControlled=1;
-      if(token)
-        response->contentRange.assign(token);
-		}else
 		/* Connection.  */
 		if(!lstrcmpi(command,"Connection"))
 		{
 			token = strtok( NULL, "\r\n\0" );
-			lineControlled=1;
+			lineControlled = 1;
+
       if(token)
         response->connection.assign(token);
 		}else
@@ -1120,7 +1095,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		if(!lstrcmpi(command,"Expires"))
 		{
 			token = strtok( NULL, "\r\n\0" );
-			lineControlled=1;
+			lineControlled = 1;
       if(token)
         response->dateExp.assign(token);
 		}
@@ -1128,13 +1103,14 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
      *If the line is not controlled arrive with the token
      *at the end of the line.
      */
-		if( (!lineControlled)&&  ((!containStatusLine) || (nLineControlled!=1)) )
+		if( (!lineControlled) &&  ((!containStatusLine) || (nLineControlled!=1)) )
 		{
-			token = strtok( NULL, "\r\n" );
+			token = strtok(NULL, "\r\n");
 			if(token)
 			{
 				HttpResponseHeader::Entry *e;
-				if(strlen(command) > HTTP_RESPONSE_OTHER_DIM || strlen(token) > HTTP_RESPONSE_OTHER_DIM)
+				if(strlen(command) > HTTP_RESPONSE_OTHER_DIM || 
+					 strlen(token) > HTTP_RESPONSE_OTHER_DIM)
 					return 0;
 
 				e = new HttpResponseHeader::Entry(); 
@@ -1152,13 +1128,13 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 				}
 			}
 		}
-		token = strtok( NULL, cmdSeps );
-	}while(token && ((u_long)(token-input)<maxTotchars));
+		token = strtok(NULL, cmdSeps);
+	}while(token && ((u_long)(token - input) < maxTotchars));
 
 	/*
    *END REQUEST STRUCTURE BUILD.
    */
-	td->nBytesToRead=maxTotchars;
+	td->nBytesToRead = maxTotchars;
 	delete [] input;
 	return validResponse;
 }
@@ -1177,20 +1153,20 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
                                    u_long* nLinesptr,u_long* ncharsptr)
 {
 	u_long i=0;
-	u_long nLinechars=0;
-	nLinechars=0;
-	u_long nLines=0;
+	u_long nLinechars = 0;
+	nLinechars = 0;
+	u_long nLines = 0;
 	
-	if(req==0)
+	if(req == 0)
 		return e_400;
 	
-	for(;(i<MYSERVER_KB(8));i++)
+	for(;(i < MYSERVER_KB(8)); i++)
 	{
 		if(req[i]=='\n')
 		{
-			if(req[i+2]=='\n')
+			if(req[i + 2]=='\n')
 			{
-				if((i+3) > td->buffer->getRealLength())
+				if((i + 3) > td->buffer->getRealLength())
 					return e_400;
 				break;
 			}
@@ -1198,9 +1174,9 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 			 *If the lines number is greater than 25 we consider 
 			 *the header invalid.
 			*/
-			if(nLines>=25)
+			if(nLines >= 25)
 				return e_400;
-			nLinechars=0;
+			nLinechars = 0;
 			nLines++;
 		}
 		else if(req[i]=='\0')
@@ -1209,7 +1185,7 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 		*We set a maximal theorical number of characters in a line to 2048.
 		*If a line contains more than N characters we consider the header invalid.
 		*/
-		if(nLinechars>=2048)
+		if(nLinechars >= 2048)
     {
       if(nLines == 0)
         return e_414;
@@ -1219,8 +1195,8 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
 	}
 
 	/* Set the output variables.  */
-	*nLinesptr=nLines;
-	*ncharsptr=i+3;
+	*nLinesptr = nLines;
+	*ncharsptr = i+3;
 	
 	/* Return if is a valid request header.  */
 	return e_200;

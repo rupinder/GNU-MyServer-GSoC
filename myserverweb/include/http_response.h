@@ -87,8 +87,6 @@ struct HttpResponseHeader : public HttpHeader
 	string date;		
 	string dateExp;	
 	string auth;
-	string cacheControl;
-	string contentRange;
 	HashMap<string,HttpResponseHeader::Entry*> other;	
   HttpResponseHeader();
   ~HttpResponseHeader();

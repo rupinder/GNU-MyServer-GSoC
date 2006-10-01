@@ -249,7 +249,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
   string directory;
   string file;
 
-  st.td=&td;
+  st.td = &td;
   st.authType = authType;
   st.authTypeLen = 16;
   try
@@ -259,10 +259,11 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     {
       td.response.connection.assign("keep-alive");
-      keepalive=1;
+      keepalive = 1;
     }
+
     File::splitPath(td.filenamePath, directory, file);
-    td.response.httpStatus=httpStatus;
+    td.response.httpStatus = httpStatus;
     /*!
      *td.filenamePath is the file system mapped path while filename 
      *is the uri requested.
@@ -287,7 +288,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         return raiseHTTPError(e_401);
       }
       ret = getPath(td.filenamePath, filename, 0);
-      if(ret!=e_200)
+      if(ret != e_200)
         return raiseHTTPError(ret);
     }
     if(File::isDirectory(td.filenamePath.c_str()))
@@ -370,14 +371,14 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         if(((HttpUserData*)td.connection->protocolBuffer)->digest==1)
         {
           td.connection->setPassword(((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
-          permissions=permissions2;
+          permissions = permissions2;
         }
       }
-      td.auth_scheme=HTTP_AUTH_SCHEME_DIGEST;
+      td.auth_scheme = HTTP_AUTH_SCHEME_DIGEST;
     }
     else/*! By default use the Basic authentication scheme. */
     {
-      td.auth_scheme=HTTP_AUTH_SCHEME_BASIC;
+      td.auth_scheme = HTTP_AUTH_SCHEME_BASIC;
     }	
     /*! If there are no permissions, use the Guest permissions. */
     if(td.request.auth.length() && (permissions==0))
@@ -393,7 +394,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       secCacheMutex.lock();
       try
       {
-        permissions=secCache.getPermissionMask(&st);		
+        permissions = secCache.getPermissionMask(&st);		
         secCacheMutex.unlock();
       }
       catch(...)
@@ -426,12 +427,12 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       file.setFilePointer(firstByte);
       for(;;)
       {
-        u_long nbr=0, nbw=0;
+        u_long nbr = 0, nbw = 0;
         if(td.inputData.readFromFile(td.buffer->getBuffer(), 
 																		 td.buffer->getRealLength(), &nbr))
         {
           file.closeFile();
-          /*! Return an internal server error. */
+          /*! Return an internal server error.  */
           return raiseHTTPError(e_500);
         }
         if(nbr)
@@ -439,7 +440,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
           if(file.writeToFile(td.buffer->getBuffer(), nbr, &nbw))
           {
             file.closeFile();
-            /*! Return an internal server error. */
+            /*! Return an internal server error.  */
             return raiseHTTPError(e_500);
           }
         }
@@ -448,12 +449,12 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         if(nbw!=nbr)
         {
           file.closeFile();
-          /*! Internal server error. */
+          /*! Internal server error.  */
           return raiseHTTPError(e_500);
         }
       }
       file.closeFile();
-      /*! Successful updated. */
+      /*! Successful updated.  */
       raiseHTTPError(e_200);
       
       return keepalive;
@@ -2707,9 +2708,10 @@ int Http::sendHTTPRedirect(const char *newURL)
 							<< "\r\nContent-length: 0\r\n";
 
 	if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
-	{
 		*td.buffer2 << "Connection: keep-alive\r\n";	
-	}
+	else
+		*td.buffer2 << "Connection: close\r\n";	
+		
 	*td.buffer2<< "Date: ";
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td.buffer2 << time
@@ -2737,9 +2739,10 @@ int Http::sendHTTPNonModified()
 	*td.buffer2 << versionOfSoftware <<  "\r\n";
 
 	if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
-	{
 		*td.buffer2 << "Connection: keep-alive\r\n";	
-	}	
+	else
+		*td.buffer2 << "Connection: close\r\n";	
+
 	*td.buffer2 << "Date: ";
 	
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
