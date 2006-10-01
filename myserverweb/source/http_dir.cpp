@@ -346,7 +346,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 			if(ret == 0)
 			{
 				td->buffer2->setLength(0);
-				*td->buffer2 << "<style type=\"text/css\">\r\n<!--\r\n" ;
+				*td->buffer2 << "<style type=\"text/css\">\r\n";
 
 				ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
 																			td->buffer2->getLength(),
@@ -379,7 +379,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 				sentData += nbr;
 
 				td->buffer2->setLength(0);
-				*td->buffer2 << "-->\r\n</style>\r\n";
+				*td->buffer2 << "\r\n</style>\r\n";
 				ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
 																			td->buffer2->getLength(),
 																			&(td->outputData), &chain,
@@ -436,7 +436,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
    *files in the directory.
    */
 	td->buffer2->setLength(0);
-	*td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n<td><b>File</b></td>\r\n<td><b>Last Modified</b></td>\r\n<td><b>Size</b></td>\r\n</tr>\r\n";
+	*td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n" 
+							 << "<th>File</th>\r\n"
+							 << "<th>Last Modified</th>\r\n" 
+							 << "<th>Size</th>\r\n</tr>\r\n";
 
 	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
 																td->buffer2->getLength(),
