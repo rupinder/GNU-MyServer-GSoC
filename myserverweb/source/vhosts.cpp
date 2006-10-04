@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -477,6 +477,15 @@ int VhostManager::addVHost(Vhost* vh)
         }
     }
 
+		if(!vh->protocol)
+		{
+			string error;
+			error.assign("Warning: protocol not defined for virtual host: " );
+			error.append(vh->getName());
+			Server::getInstance()->logPreparePrintError();
+			Server::getInstance()->logWriteln(error.c_str());     
+			Server::getInstance()->logEndPrintError();
+		}
     hostList.push_back(vh);
     mutex.unlock();
     return 0;
