@@ -21,10 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/http.h"
 #include "../include/mscgi.h"
 
-#undef min
-#undef max
-#define min(a, b)		((a < b)? a : b)
-#define max(a, b)		((a > b)? a : b)
+#include <algorithm>
+
+using namespace std;
 
 #ifdef WIN32
 #pragma comment(lib, "wsock32.lib")
@@ -128,7 +127,7 @@ char* CgiManager::getParam(char* param)
 	c = td->request.uriOpts.c_str();
 	for(;;)
 	{
-		while((*c) && strncmp(c, param, min(strlen(param), strlen(c))))
+		while((*c) && strncmp(c, param, std::min(strlen(param), strlen(c))))
       c++;
       
 		if(*c == '\0')
@@ -168,7 +167,7 @@ char* CgiManager::postParam(char* param)
 	buffer[0] = '\0';
 	localbuffer[0] = '\0';
 	
-	if( (toRead == 0) || (toRead==(u_long)-1) )
+	if( (toRead == 0) || (toRead == (u_long)-1) )
 		return 0;
 	do
 	{
@@ -223,18 +222,20 @@ char *CgiManager::operator >>(char* str)
 /*!
  *Get the value of an environment variable.
  */
-void CgiManager::getenv(char* lpszVariableName,char *lpvBuffer,unsigned int* lpdwSize)
+void CgiManager::getenv(char* lpszVariableName, char *lpvBuffer, 
+												unsigned int* lpdwSize)
 {
 	((char*)lpvBuffer)[0] = '\0';
 	char *localEnv = cgidata->envString;
 	size_t variableNameLen = strlen(lpszVariableName);
 	for(u_long i = 0; ; i += (u_long)strlen(&localEnv[i]) + 1)
 	{
-		if(((localEnv[i+variableNameLen])== '=')&&(!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
+		if(((localEnv[i+variableNameLen])== '=') && 
+			 (!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
 		{
 			u_long j = 0;
-			u_long min_v = min(strlen(&localEnv[i + variableNameLen+1]),
-												 (u_long)(*lpvBuffer)-1); 
+			u_long min_v = std::min(strlen(&localEnv[i + variableNameLen+1]),
+															(u_long)(*lpvBuffer)-1); 
 			for(j = 0; j < min_v; j++)
 				lpvBuffer[j] = localEnv[i + variableNameLen + j + 1];
 			lpvBuffer[j] = '\0';

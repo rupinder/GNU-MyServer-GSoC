@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define DO_NOT_USE_SSL
 #endif
 
+#include "../include/server.h"
 #include "../include/http.h"
 #include "../include/file.h"
 #include "../include/http_request.h"
@@ -51,17 +52,17 @@ public:
 	Server *getServer();
 	MsCgiData* getCgiData();
 	void setContentType(char *);
-	int  setPageError(int);
+	int setPageError(int);
 	int raiseError(int);
 	CgiManager(MsCgiData* data);
 	~CgiManager(void);
-	int  operator <<(char*);
-	char*  operator >>(char*);
-	int   start(MsCgiData* data);
+	int operator <<(char*);
+	char* operator >>(char*);
+	int start(MsCgiData* data);
 	int clean();
-	void   getenv(char*,char*,unsigned int*);
-	char*  getParam(char*);
-	char*  postParam(char*);
+	void getenv(char*,char*,unsigned int*);
+	char* getParam(char*);
+	char* postParam(char*);
 	int write(char*);
 	int write(void*, int);
 };
