@@ -234,7 +234,7 @@ void CgiManager::getenv(char* lpszVariableName, char *lpvBuffer,
 			 (!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
 		{
 			u_long j = 0;
-			u_long min_v = std::min(strlen(&localEnv[i + variableNameLen+1]),
+			u_long min_v = std::min((u_long)strlen(&localEnv[i + variableNameLen+1]),
 															(u_long)(*lpvBuffer)-1); 
 			for(j = 0; j < min_v; j++)
 				lpvBuffer[j] = localEnv[i + variableNameLen + j + 1];
