@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaţia MyServer - Crearea de Gazde Virtuale - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">GAZDE VIRTUALE</h1>
+<br />
+Teoretic, gazdele virtuale permit găzduirea unui număr infinit de siteuri pe o singură 
+masina(calculator). De exemplu http://mypc.net este diferit de http://sub.mypc.net. 
+Pentru a defini gazdele virtuale în MyServer deschideţi fişierul virtualhosts.xml 
+într-un editor de text (cum ar fi notepad pe Windows sau GNU Vim/Emacs pe GNU/Linux).
+Un exemplu de configurare pentru gazde virtuale arată aşa:<br />
+<br />
+      <p class="code">&lt;VHOSTS&gt;<br />
+        -<br />
+        &nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br />
+        &lt;NAME&gt;Every connection&lt;/NAME&gt;<br />
+        &lt;PORT&gt;80&lt;/PORT&gt;<br />
+        &lt;IP&gt;127.0.0.1&lt;/IP&gt; <br />
+        &lt;PROTOCOL&gt;HTTP&lt;/PROTOCOL&gt;<br />
+        &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br />
+        &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br />
+        &lt;HOST&gt;www.mysite.com&lt;/HOST&gt; <br />
+        &lt;ACCESSLOG&gt;logs/myServer.log&lt;/ACCESSLOG&gt;<br />
+        &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br />
+        &lt;ALLOW_CGI&gt;NO&lt;/ALLOW_CGI&gt;<br />
+        &lt;/VHOST&gt;<br />
+        -<br />
+        &lt;/VHOSTS&gt;<br />
+      </p>
+      <br /><br /><br />
+      <span class="code">&lt;NAME&gt;</span> indică administratorului serverului 
+      ce gazdă virtuală este configurată ca spre exemplu conexiunea internă, externă 
+      sau oricare dintre conexiuni.&nbsp; <br />
+        <br />
+        <span class="code">&lt;PORT&gt;</span> portul folosit pentru conexiuni<br />
+	<span class="code">&lt;IP&gt;</span> este opţional. Reprezintă adresa IP a interfeţei 
+	pe care va răspunde gazda virtuală. Se pot indica (este opţional) 
+	<span class="code">useRegex=&quot;YES&quot;</span> adrese ca expresii regulate, nu 
+	doar adrese prestabilite. Acestea sunt de obicei folosite pentru reţelele cu adresare dinamică.<br />
+        <span class="code">&lt;PROTOCOL&gt;</span> este protocolul folosit de către gazdă<br />
+	<span class="code"></span><span class="code">&lt;DOCROOT&gt;</span> este directorul unde sunt 
+	găsite fişierele siteului<br />
+        <span class="code">&lt;SYSFOLDER&gt;</span> directorul system<br />
+	<span class="code">&lt;HOST&gt;</span> este numele gazdei virtuale. La fel, se poate 
+	folosi (este opţional) <span class="code">useRegex=&quot;YES&quot;</span> adresa ca expresie 
+	regulată, nu doar ca valoare prestabilită.<br />
+        <span class="code">&lt;ACCESSLOG&gt;</span> este jurnalierul de accesări al acestei gazde virtuale<br />
+        <span class="code">&lt;WARNINGLOG&gt;</span> este jurmalierul de erori al acestei gazde virtuale.<br />
+	<span class="code">&lt;ALLOW_CGI&gt;</span> Această opţiune interzice accesul la CGI a gazdei virtual.
+	Acest rând poate exista de asemenea în myserver.xml, ca configurare globală, însă dacă este inclus în 
+	virtualhosts.xml, acesta are prioritate.<span class="code"> ALLOW_CGI 
+        </span> poate apărea ca <span class="code">ALLOW_FASTCGI</span>, <span class="code">ALLOW_ISAPI</span>, 
+        <span class="code">ALLOW_MSCGI</span> , <span class="code">ALLOW_WINCGI</span>, 
+        <span class="code">ALLOW_SEND_LINK, ALLOW_EXTERNAL_COMMANDS</span>, <span class="code">ALLOW_SEND_FILE</span>, 
+        fiecare permiţând/interzicând folosirea respectivului handler HTTP.<br />
+        <br /><br /> Fişierele jurnalier pot avea câteva extraopţiuni:<br />
+          <span class="code">&lt;ACCESSLOG type="combined"&gt;logs/myServerHTTP.log&lt;/ACCESSLOG&gt;</span> 
+          <br />
+          Cu această opţiune, jurnalele vor conţine două noi câmpuri: HTTP Referer 
+          şi HTTP User Agent.<br />
+	  Folosind <span class="code">cycle="yes"</span> permiteţi scrierea ciclică a jurnalului.
+	  Când un fişier jurnal scris ciclic ajunge la dimensiunea maximă conţinutul acestuia se 
+	  scrie într-un nou fişier iar jurnalierul iniţial este golit(recreat).
+	  Implicit jurnalierele folosesc compresia gzip pentru a economisi spaţiu,
+	  însă dacă nu doriţi să folosiţi gzip specificaţi <span class="code">cycle_gzip="no"</span>. 
+          <br />
+      <hr />
+        <p class="center">MyServer oferă posibilitatea de a activa comanda HTTP TRACE 
+          pentru fiecare gazdă virtuală. Tot ce trebui să faceţi e sa editaţi fişierul security.xml 
+	  în directorul rădăcină al gazdei dvs. virtuale (în rădăcină nu în vre-un subdirector! 
+	  Dacă un astfel de fişier nu există puteţi creea unul nou în formatul descris în secţiunea <a href="Security.html">Securitate</a> a documentaţiei) şi adăugaţi parametrul</p>
+        <p class="code">&lt;HTTP TRACE="ON" /&gt;</p>
+	<p class="center">Acest rând activează comanda HTTP TRACE. În mod implicit
+	este inactivă (deci ştergeţi acest rândul dacă doriţi să dezactivaţi această comandă)</p>
+        <br /><br />
+
+<hr />
+MyServer oferă facilitatea de a naviga pe symlinkuri pe sistemele de operare bazate pe Unix(de ex.: Linux, *BSD, GNU/HURD, Solaris, etc.).<br />
+Puteţi adăuga facilitatea de navigare pe symlinkuri pentru fiecare gazdă virtuală în fişierul virtualhosts.xml.<br />
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+Implicit este: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+</td>
+</tr>
+</table>
+</body>
+</html>

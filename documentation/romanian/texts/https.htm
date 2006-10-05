@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaţia MyServer - HTTPS - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+
+<table class="center" width="95%">
+
+<tr>
+
+<td class="center">
+
+
+<h1 class="title">HTTPS</h1>
+
+
+<br />
+<h2 class="title">Câteva note despre criptarea datelor</h2>
+Criptarea este folosită pentru protejarea datelor trimise între client şi server.
+Sunt doua tipuri de algoritmi: algoritmul de cripare a datelor simetric şi cel asimetric.
+Diferenţa intre cele două tipuri este că la algoritmul simetric se foloseşte aceeaşi 
+cheie atât pentru criptare cât şi pentru decriptare. 
+Aceşti alogoritmi nu sunt folosiţi de serverele cu un potenţial număr mare de clienţi
+deoarece datele astfel trimise pot fi decriptate de către oricine ştie unica cheie
+şi deoarece cheia trebuie distribuită într-o maniera sigura (cum ar fi spre exemplu o 
+dischetă) şi nu o reţea mare cum ar fi Internet-ul.
+Algoritmul asimetric lucrează în mod diferit: datele criptate cu o anumită cheie
+nu pot fi decriptate decât cu o cheie unică diferită de prima şi viceversa.
+În acest fel, una dintre chei poate fi făcută publică iar cealaltă ţinută secret.
+Fiecare parte a comunicaţiei (client şi server) are două chei: una privată şi una publică.
+Astfel că orice client cunoaşte cheia publică a serverului (una dintre cele doua explicate 
+mai sus) iar fiecare client are cheia proprie, unică. Astfel cheia publică poate fi 
+distribuită fără a periclita securitatea comunicaţiei în reţele mari (ca spre 
+exemplu Internet).
+<br />
+<br />
+<h2 class="title">Cum să creezi un certificat SSL cu OpenSSL </h2>
+Un certificat SSL este necesar pentru a atesta identitatea. Acestea sunt emise de 
+către un CA(Certification Authority). Se poate folosi un astfel de certificat fără 
+a-l mai înregistra la un alt CA folosind un Root Certification (un certificat 
+nesemnat).
+Puteţi afla tot ce este necesar despre cum se pot crea certificatele folosind 
+libraria OpenSSL la: www.openssl.org.
+După instalare tastaţi în directorul binarelor:
+<br />
+<span  class="code">
+openssl genrsa -out server.key 
+</span>
+<br />
+Această comandă va crea o cheie privată pentru codarea datelor dvs.
+<br />
+<br />
+Apoi tastaţi această comandă:
+<br />
+<span  class="code">
+openssl req -new -x509 -days 730 -config openssl.cnf -key server.key -out server.pem 
+</span>
+<br />
+pentru a crea un certificat public. Un astfel de certificat poate fi folosit 730 de 
+zile iar cheia publică este fişierul server.pem.
+<br />
+<br />
+
+<h2 class="title"> Folosirea certificatelor în MyServer </h2>
+Pentru a configura certificate pentru MyServer cele doua fişiere: server.key şi 
+server.pem trebuiesc puse in directorul certificatelor sub directorul unde
+s-a instalat MyServer.
+Apoi o gazdă virtuală https trebuie configurată in fişierul virtualhosts.xml.
+<br />
+<span  class="code">
+&lt;VHOST&gt;<br />
+&lt;NAME&gt;Every connection&lt;/NAME&gt;<br />
+&lt;PORT&gt;443&lt;/PORT&gt;<br />
+&lt;SSL_PRIVATEKEY&gt;certificates/server.key&lt;/SSL_PRIVATEKEY&gt;<br />
+&lt;SSL_CERTIFICATE&gt;certificates/server.pem&lt;/SSL_CERTIFICATE&gt;<br />
+&lt;PROTOCOL&gt;HTTPS&lt;/PROTOCOL&gt;<br />
+&lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br />
+&lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br />
+&lt;ACCESSLOG&gt;logs/myServer.log&lt;/ACCESSLOG&gt;<br />
+&lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br />
+&lt;/VHOST&gt;<br />
+</span>
+<br />
+Această gazdă va asculta https pe portul 443 (portul implicit pentru https) şi 
+va folosi fişierul cerificates/server.key pentru cheia privată şi 
+certificates/server.pem pentru cheia publică.
+</td>
+</tr>
+</table>
+</body>
+</html>
+

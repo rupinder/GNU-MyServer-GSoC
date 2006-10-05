@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaţia MyServer - Traversarea indexului unui director - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<h1 class="title">TRAVERSAREA DIRECTOARELOR</h1>
+<table class="center" width="95%">
+<tr>
+	<td class="center">
+		Când un client cere server-ului un director care nu conţine nici un fişier implicit (ca de ex. index.html sau default.html), acesta din urmă indexează directorul şi trimite o lista cu fişierele din director clientului. Astfel clientul poate trece in revistă (browse) conţinutul directorului şi accesa orice fişier din cele afişate.
+<br />
+      <p style="text-align: center;"><img src="../images/browsefolder.png" alt="Browse Folder" width="730" height="371" /></p>
+<div class="center"><small>Imaginea de mai sus reprezintă pagina cu indexul unui director fără fişier implicit afişată de server pentru a fi traversat (răsfoit) de către client</small></div>
+<br />
+<br />
+Dacă doriţi să definiţi un alt mod de afişare a paginii cu indexul directorului puteţi modifica fişierul
+<span style="code">myserver.xml</span>.
+<br />
+<br />
+Localizaţi rândul:
+<span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span><br /><br />
+şi înclocuiţi system/folderstyle.css cu numele fişierului .css al dvs.
+<p>Fişierul <span class="code">system/folderstyle.css</span> are următoarele valori implicite:</p>
+<span class="code">body { font-family: Arial; color: #000000;background-color:#FFFFFF }</span>
+<br />
+<br />
+<div class="center">Urmarea symlink-urilor</div>
+<br />
+Cănd rulează pe sisteme de operare Unix-like (de ex.: Linux, *BSD, GNU/HURD, Solaris, etc.) MyServer poate urma symlink-uri.<br />
+Puteţi adăuga această facilitate fiecărei gazde virtuale din fişierul virtualhosts.xml sau modificând în fişierul myserver.xml pentru toate gazdele.<br />
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+Valoarea implicită este: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+Aceasta este valoarea fără nici o modificare de configurare cu care vine MyServer.
+</td>
+</tr>
+</table>
+</body>
+</html>

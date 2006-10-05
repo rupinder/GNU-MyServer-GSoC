@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaţia MyServer - MIME - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">TIPURI MIME</h1>
+      <p><br />
+        <br />
+        Puteţi modifica tipurile MIME folosite de către MyServer modificând fişierul "MIMEtypes.xml".
+        Următoarele rânduri sunt un exemplu de cum ar putea arata fişierul MIMEtypes.xml:<br />
+        <span class="code">&lt;MIMETYPES&gt;<br />
+        -<br />
+        &nbsp;&nbsp;&nbsp; &lt;MIMETYPE&gt;<br />
+        -<br />
+        &nbsp;&nbsp;&nbsp; &lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;<br />
+        &lt;EXT&gt;htm&lt;/EXT&gt;<br />
+        &lt;MIME&gt;text/html&lt;/MIME&gt;<br />
+        &lt;CMD&gt;SEND&lt;/CMD&gt;<br />
+        &lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt; 
+        <br />
+        &lt;FILTER&gt;gzip&lt;/FILTER&gt;<br />
+        &lt;MANAGER&gt;NONE&lt;/MANAGER&gt;<br />
+        &lt;/MIMETYPE&gt; <br />
+        </span> <br />
+        <br />
+        Fiecare bloc descrie un tip MIME diferit. <br />
+        <br />
+        <span class="code">&lt;EXT&gt;</span> este tipul fişierului<br />
+        <br />
+        <span class="code">&lt;MIME&gt;</span> este tipul MIME.<br />
+        <br />
+        <span class="code">&lt;CMD&gt;</span> este felul în care va fi trimis fişierul clientului.<br>
+        <br>
+        <span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;localhost&quot;&gt;ALLOW&lt;/ACTION&gt; 
+        </span> va permite accesul la tipul MIME dorit dacă Host este &quot;localhost&quot;. 
+        În linia <span class="code">&lt;MIMETYPE defaultAction=&quot;DENY&quot;&gt;</span> 
+	vom preciza că tipul nostru MIME va interzice accesul gazdelor neconfigurate explicit
+	cu un tag ACTION corespunzător (deci, acest tag trebuie sa existe configurari ca sa permită accesul de la localhost). 
+        Properietatea <br />
+        <span class="code">defaultAction </span>este opţională (dacă este omisă, 
+	aceasta are valoarea implicită &quot;ALLOW&quot;). Deci, în exemplul de mai sus,
+	fişierele HTML vor fi accesate doar folosind hostname-ul &quot;localhost&quot;.</p>
+      <p>Tagul &lt;ACTION&gt; este opţional, dacă nu are valoarea &quot;DENY&quot; 
+        pentru defaultAction în tipul MIME.<br>
+        <br />
+	<span class="code">&lt;FILTER&gt;</span> defineşte un filtru pentru respectivul 
+	tip MIME. Datele vor fi transferate printr-un filtru înainte de a fi trimise 
+	utilizatorului. 
+	În exemplul de mai sus, datele vor fi compresate cu gzip şi apoi trimise 
+	utilizatorului. Asta înseamnă că GZip lucrează ca un filtru pentru MyServer.
+	Se poate defini ca Gzip să ruleze în mod automat pentru fiecare fişier a cărui 
+	dimensiune depăşeşte o anumită valoare setând &lt;GZIP_THRESHOLD&gt;, 
+	în fişierul myserver.xml. Evident că fişierele astfel selectate vor fi trimise 
+	compresat doar dacă clientul poate decompresa gzip - altfel acesta ar vedea doar
+       o înşiruire de caractere ciudate în locul fişierului cerut.<br />
+        <br />
+        În general filtrele pot fi aplicate şi pe datele dinamice - cum ar fi CGI, ISAPI, 
+	FastCGI - însă acestea nu trebuie sa modifice conţinutul paginii care urmează să 
+	fie afişată clientului.<br />
+        <br />
+        <span class="code">&lt;MANAGER&gt;</span> descrie comanda<span class="code">&lt;CMD&gt;</span>.<br />
+        <br />
+        <br />
+        <br />
+	Următoarele valori pentru felul în care sunt trimise fişierele clientului sunt
+       valabile în secţiunea
+        <span class="code">&lt;MANAGER&gt;</span> :<br />
+      </p>
+      <div class="left">
+<ol>
+  <li><span class="code">SEND</span>
+- Trimite fişierul aşa cum este. &nbsp;Această comandă este folosită pentru fişiere cu extensia .html şi .jpg care nu necesită o interpretare din partea serverului.</li>
+  <li><span class="code">RUNCGI</span>
+  - Executa un script CGI indicat în path. &nbsp;Este folosit pentru fişiere cu extensia 
+  .php şi .pl care necesita procesare înainte de a fi trimise clientului.</li>
+  <li><span class="code">RUNFASTCGI</span><span
+ style="color: rgb(0, 102, 0);"> </span>- Execută un script Fastcgi.
+&nbsp;Acest mod de rulare necesită un parser de fastcgi să fie downloadat (vezi pagina 
+despre PHP).
+&nbsp;Este folosit tot pentru extensiile .php şi .pl</li>
+  <li><span class="code">EXECUTEFASTCGI</span>
+  - Acest mod ruleaza de asemenea un script fastcgi însă spre deosebire de RUNFASTCGI nu 
+  are nevoie de un server care să ruleze scriptul ci înglobează funcţionalitatea serverului.</li>
+  <li><span class="code">RUNMSCGI</span>- Rulează un script MSCGI. 
+  Aceasta librărie este disponibilă doar pentru MyServer. 
+Este folositoare pentru a rula repede şi eficient scripturi CGI.</li>
+  <li><span class="code">EXECUTE </span>-Tratează fişierul ca un executabil şi trimite outputul clientului.&nbsp;</li>
+  <li><span class="code">SENDLINK</span>
+- Trimite clientului fişierul pointat de linkul respectiv.</li>
+  <li><span class="code">EXECUTEWINCGI</span>
+- Trimite fişierul ca un WinCGI</li>
+  <li><span class="code">RUNISAPI</span>
+- Execută un script ISAPI.
+&nbsp;</li>
+  <li><span class="code">EXECUTEISAPI</span>
+  - Execută un script ISAPI însă nu necesită un server ISAPI pentru al executa. 
+  Acest tip înglobează funcţionalitatea serverului.</li>
+</ol>
+</div>
+Majoritatea tipurilor MIME sunt deja configurate în fişierul .xml.&nbsp; Dacă aveţi 
+totuşi nevoie să adăugaţi alte tipuri MIME folosiţi codul de mai sus ca exemplu.
+</td>
+</tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaţia MyServer - Configuraţia de baza a serverului - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+<h1 class="title">CONFIGURAŢIA DE BAZĂ A SERVERULUI</h1>
+În fişierul <span class="code">myserver.xml</span> puteţi stabili pagina implicită 
+pentru site-ul de web găzduit de către MyServer.<br />
+<br />
+Rândurile de mai jos există deja in fişierul de configurare:<br />
+<p class="code">
+&lt;DEFAULT_FILENAME0&gt;default.html&lt;/DEFAULT_FILENAME0&gt;<br />
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME1&gt;default.php&lt;/DEFAULT_FILENAME1&gt;<br />
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME2&gt;default.php3&lt;/DEFAULT_FILENAME2&gt;<br />
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME3&gt;index.html&lt;/DEFAULT_FILENAME3&gt;<br />
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME4&gt;index.php&lt;/DEFAULT_FILENAME4&gt;<br />
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME5&gt;index.php3&lt;/DEFAULT_FILENAME5&gt;<br />
+&nbsp;&nbsp;&nbsp;
+&lt;DEFAULT_FILENAME6&gt;default.htm&lt;/DEFAULT_FILENAME6&gt; <br />
+</p>
+<br />
+Deci, dacă aveţi o <a class="code" href="virtualhosts.html">Gază Virtuală</a>
+http://mypc.net, pagina care va fi afişată accesând această adresa cu browserul,
+va fi generată folosind unul dintre fişierele de mai sus. Puteţi adăuga rânduri
+sau să schimbaţi oricare dintre ele, dacă aveţi nevoie de un nume de fişier diferit 
+faţă de cele deja existente.
+Aceelaşi mecanism este folosit pentru fiecare director în parte nu numai pentru 
+rădăcină.<br />
+<br />
+<br /><br />
+În secţiunea <a class="code" href="errorfiles.html">Erori</a> aţi aflat cum să creaţi 
+şi să folosiţi propriile pagini de erori. De asemenea puteţi inhiba paginile de erori
+proprii schimbând următorul rând:<br />
+<span class="code">&lt;USE_ERROR_FILE&gt;YES&lt;/USE_ERROR_FILE&gt;<br />
+      </span>Deci, atribuind valoarea NO, astfel,<br />
+<span class="code">&lt;USE_ERROR_FILE&gt;NO&lt;/USE_ERROR_FILE&gt;<br />
+      </span>MyServer va trimite (implicit) browserului un header cu codul erorii.
+      Există şi opţiunea de a trimite conţinutul (body) HTTP inclus in mesajul de 
+      eroare adăugând această linie:<br>
+      <span class="code">&lt;ERRORS_INCLUDE_BODY&gt;YES&lt;/ERRORS_INCLUDE_BODY&gt;</span> 
+      <br />
+<br />Puteţi schimbă aspectul paginii care afişează conţinutul directoarelor (atunci când 
+nu aveţi o pagina implicită aşa cum este descris în secţiunea 
+<a href="browsefolder.html">Browse directory index</a> ). 
+Rândul de mai jos indică fişierul CSS folosit pentru configurarea aranjamentului în paginile 
+care afişează structura directoarelor:<br />
+<span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span>
+
+
+<br />
+&nbsp;
+<hr />
+&nbsp;
+<br />
+
+Scripturile CGI pot obţine adresa de email a adimistratorului serverului şi a o afişa utilizatorilor
+(folosind variabila de mediu a serverului <span class="code">SERVER_ADMIN</span> ). Deci este important 
+să definiţi aceasta adresa corect atribuindu-i o valoare ca in rândul de mai jos, în fişierul 
+<span class="code">myserver.xml</span>:<br />
+<span class="code">&lt;SERVER_ADMIN&gt;administrator@localhost&lt;/SERVER_ADMIN&gt;</span>
+<br />
+<hr />
+MyServer ofera utilizatorilor facilitatea de a urma symlink-uri când serverul rulează pe 
+sisteme de operare Unix-like(ca spre exemplu: Linux, *BSD, GNU/HURD, Solaris, etc.).<br />
+Această facilitate poate fi adăugată pentru toate gazdele modificând în fişierul myserver.xml:<br />
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+Valoarea implicită este: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+Aceasta este valoarea fără nici o modificare de configurare cu care vine MyServer.
+</td>
+</tr>
+</table>
+</body>
+</html>

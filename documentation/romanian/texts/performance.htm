@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Documentaţia MyServer - Acord fin al performanţei - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+</head>
+<body>
+<table class="center" width="95%">
+<tr>
+<td class="center">
+      <h1 class="title">ACORD FIN AL PERFORMANŢEI</h1><br />
+        
+      Sunt descrise aici câteva opţiuni pentru acordul fin al performanţei
+      serverului dvs. de web.<br />
+      
+<h2 class="title">Setarea numărului de fire de execuţie:</h2>
+În fişierul myserver.xml se poate stabili numărul de fire de execuţie pe care MyServer să-l folosească.
+În rândurile de mai jos, se pot stabili valorile pentru cei doi parametrii care pot fi configuraţi
+<span class="code">NTHREADS_STATIC</span> şi <span class="code">NTHREADS_MAX</span>, primul indică numărul 
+minim de fire de execuţie care vor exista la o rulare, 
+al doilea indică numărul maxim care pot fi create de către MyServer:<br />
+
+<br />
+<br />
+
+<span class="code">
+&lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br />
+&lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;
+</span>
+
+<br />
+<br />
+<h2 class="title">Dimensiunea Bufferului:</h2>
+Se poate stabili dimensiunea bufferelor folosite de către MyServer, modificând rândul de mai jos, 
+în fişierul myserver.xml:
+<br />
+<p class="code">
+&lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br />
+</p>
+<p>
+Schimbaţi valoarea implicită 102400 cu valoarea dorită. Atenţie la dimensiune, pentru că în realitate 
+aceasta va avea o valoare dublă (în Bytes), înmulţită cu numărul de fire de execuţie care rulează.
+<br />
+<br />
+<h2 class="title">Timpul limită al conexiunii:</h2>
+
+În fişierul <span class="code">myserver.xml</span>, se poate stabili timpul limită pentru conexiunile între client şi server în rândul de mai jos:
+<br />
+<br />
+<p class="code">
+&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br />
+</p>
+<p>
+Unitatea de măsura a timpului este secunda. Deci, linia de mai sus stabileşte faptul că dacă clientul nu accesează site-ul vizitat pentru mai mult de 60 de secunde, conexiunea va fi oprită. Sau dacă preferaţi stabiliţi această valoare la 0 şi nu veţi mai avea conexiuni HTTP Keep-Alive.
+<br />
+<br />
+<h2 class="title">Numărul maxim de conexiuni:</h2>
+Puteţi schimba valoare implicită a numărului maxim de conexiuni pe care serverul dvs. de web îl va accepta modificând rândul de mai jos în fişierul:<span class="code">myserver.xml</span>:<br />
+<p class="code">
+&lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
+</p>
+<p>
+Valoare implicită 0 semnifică faptul că serverul acceptă un număr infinit de conexiuni. Oricare altă valoare va limita numărul de utilizatori care acceseaza serverul dvs.
+
+<br />
+<br />
+<h2 class="title">Numărul maxim de servere FastCGI:</h2>
+MyServer permite stabilirea numărului maxim de servere FastCGI permise să ruleze, modificând valoarea din rândul de mai jos, In fişierul <span class="code">in myserver.xml</span>:<br />
+<p class="code">
+&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />
+</p>
+<p>
+
+<h2 class="title">Stabilirea timpului limită CGI:</h2>
+
+Se poate stabili valoarea implicită pentru scripurile CGI modificând valoarea variabilei CGI_TIMEOUT în fişierul<span class="code">myserver.xml</span><br />
+Modificaţi linia de mai jos:<br />
+<p class="code">
+&lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;<br />
+</p>
+
+<p>
+Rândul de mai sus stabileşte timpul limită al CGI la 15 secunde (unitatea este "secunda")
+
+<br />
+<br />
+<h2 class="title">Stabilirea lăţimi benzi de date:</h2>
+
+Puteţi stabili lăţimea benzi de date a conexiunilor MyServer (implicit, această facilitate nu este activă) adăugând
+un rând astfel:
+<p class="code">
+&lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;<br />
+</p>
+<p>
+(Unitatea este bytes/secunda)<br />
+Dacă aceeaşi linie este prezentă şi în fişierul <span class="code">virtualhosts.xml</span>, va fi posibilă configurarea lăţimii benzii de date pentru gazda respectivă.<br />
+<br />
+
+De asemenea se poate configura lăţimea benzii de date per director folosind aceaşi configurare in fişierele de securitate din directoarele respective:<br />
+<p class="code">
+&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />
+        EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />
+</p>
+<p>
+Cu aceast rând se stabileşte o bandă de date de 1024  bytes/secundă pentru utilizatorul Guest.<br />
+Dacă adăugaţi un rând ca următorul, veţi activa limitarea benzi de date pentru un fişier numit "bigfile":<br />
+<p class="code">
+&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"<br />
+        THROTTLING_RATE="1024" /&gt;<br />
+	Se pot combina cele doua astfel încăt limitarea benzi să fie valabilă pentru un singur utilizator pentru un singur 
+	fişier:<br />
+&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />
+&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />
+        EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />
+&lt;/ITEM&gt;<br /><br />
+</p>
+<p>
+Aceasta este ordinea în care se verifică dacă există configurată vre-o limitare a benzii de date:<br />
+1) Utilizator & fişier(atributul USER în ITEM).<br />
+2) Fişier(atributul ITEM).<br />
+3) Utilizator(atributul USER).<br />
+4) Gazdă virtuală (fişierul virtualhosts.xml).<br />
+5) Configuraţia serverului (fişierul myserver.xml).<br />
+<br />
+<br />
+
+</td>
+</tr>
+</table>
+</body>
+</html>
