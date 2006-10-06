@@ -482,6 +482,8 @@ int VhostManager::addVHost(Vhost* vh)
 			string error;
 			error.assign("Warning: protocol not defined for virtual host: " );
 			error.append(vh->getName());
+			error.append(", using HTTP by default");
+			vh->setProtocol(PROTOCOL_HTTP);
 			Server::getInstance()->logPreparePrintError();
 			Server::getInstance()->logWriteln(error.c_str());     
 			Server::getInstance()->logEndPrintError();
