@@ -460,38 +460,40 @@ int Server::createServerAndListener(u_short port)
 	ThreadID threadIdIPv4 = 0;
 	ThreadID threadIdIPv6 = 0;
   listenThreadArgv* argv;
-//	MYSERVER_SOCKADDRIN sockServerSocket;
-  	/*!
-	*Create the server sockets:
-	*one server socket for IPv4 and another one for IPv6
-	*/
+	//	MYSERVER_SOCKADDRIN sockServerSocket;
+	/*!
+	 *Create the server sockets:
+	 *one server socket for IPv4 and another one for IPv6
+	 */
 	Socket *serverSocketIPv4 = new Socket();
 	Socket *serverSocketIPv6 = NULL;
-//	Socket *serverSocket;
+
 	/*!
    *Create the server socket.
    */
   try
   {
-	if ( serverSocketIPv4 != NULL )
-	{
-		logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
-		serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if ( serverSocketIPv4->getHandle()==(SocketHandle)INVALID_SOCKET )
+		if ( serverSocketIPv4 != NULL )
 		{
-			logPreparePrintError();
-			logWriteln(languageParser.getValue("ERR_OPENP"));
-			logEndPrintError();
-			delete serverSocketIPv4;
-			serverSocketIPv4 = NULL;
-		}
-		else
-		{
-			MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
-			logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-			((sockaddr_in*)(&sockServerSocketIPv4))->sin_family=AF_INET;
-			((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr=htonl(INADDR_ANY);
-			((sockaddr_in*)(&sockServerSocketIPv4))->sin_port=htons((u_short)port);
+			logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
+			serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			if ( serverSocketIPv4->getHandle() == (SocketHandle)INVALID_SOCKET )
+			{
+				logPreparePrintError();
+				logWriteln(languageParser.getValue("ERR_OPENP"));
+				logEndPrintError();
+				delete serverSocketIPv4;
+				serverSocketIPv4 = NULL;
+			}
+			else
+				{
+					MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
+					logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
+					((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
+					((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
+						htonl(INADDR_ANY);
+					((sockaddr_in*)(&sockServerSocketIPv4))->sin_port = 
+						htons((u_short)port);
 
 #ifdef NOT_WIN
 			/*!
@@ -499,104 +501,87 @@ int Server::createServerAndListener(u_short port)
 			 * create a new socket for the same address.
 			 *To avoid this behavior we use the current code.
 			 */
-			if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-																			(const char *)&optvalReuseAddr,
-																			sizeof(optvalReuseAddr)) < 0)
-			{
-			  logPreparePrintError();
-			  logWriteln(languageParser.getValue("ERR_ERROR"));
-			  logEndPrintError();
-				delete serverSocketIPv4;
-				serverSocketIPv4 = NULL;
-			  //return 0; allow IPv6
-			}
+					if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
+																					(const char *)&optvalReuseAddr,
+																					sizeof(optvalReuseAddr)) < 0)
+					{
+						logPreparePrintError();
+						logWriteln(languageParser.getValue("ERR_ERROR"));
+						logEndPrintError();
+						delete serverSocketIPv4;
+						serverSocketIPv4 = NULL;
+						//return 0; allow IPv6
+					}
 #endif
-			if( serverSocketIPv4 != NULL )
-	  	{
-				/*!
-				 *Bind the port.
-				 */
-				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-
-
-				if ( serverSocketIPv4->bind(&sockServerSocketIPv4,
-									  sizeof(sockaddr_in))!=0)
-				{
-				  logPreparePrintError();
-				  logWriteln(languageParser.getValue("ERR_BIND"));
-				  logEndPrintError();
-				delete serverSocketIPv4;
-				serverSocketIPv4 = NULL;
+					if( serverSocketIPv4 != NULL )
+					{
+						/*!
+						 *Bind the port.
+						 */
+						logWriteln(languageParser.getValue("MSG_BIND_PORT"));
+						
+						if (serverSocketIPv4->bind(&sockServerSocketIPv4,
+																			 sizeof(sockaddr_in)) != 0)
+						{
+							logPreparePrintError();
+							logWriteln(languageParser.getValue("ERR_BIND"));
+							logEndPrintError();
+							delete serverSocketIPv4;
+							serverSocketIPv4 = NULL;
+						}
+						else
+						{
+							logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
+						}
+					}
 				}
-				else
-				{
-					logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
-				}
-			}
 		}
-	}
-
-//    logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
-//    serverSocket = new Socket();
-//    if(!serverSocket)
-//      return 0;
-//    serverSocket->socket(AF_INET, SOCK_STREAM, 0);
-//    if(serverSocket->getHandle()==(SocketHandle)INVALID_SOCKET)
-//    {
-//      logPreparePrintError();
-//      logWriteln(languageParser.getValue("ERR_OPENP"));
-//      logEndPrintError();
-//      return 0;
-//    }
-//    logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-//    sockServerSocket.sin_family=AF_INET;
-//    sockServerSocket.sin_addr.s_addr=htonl(INADDR_ANY);
-//    sockServerSocket.sin_port=htons(port);
 
 #if ( HAVE_IPV6 )
-	serverSocketIPv6 = new Socket();
+		serverSocketIPv6 = new Socket();
 
-	if ( serverSocketIPv6 != NULL )
-	{
-		logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
-		serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-		if ( serverSocketIPv6->getHandle()==(SocketHandle)INVALID_SOCKET )
+		if (serverSocketIPv6 != NULL)
 		{
-			logPreparePrintError();
-			logWriteln(languageParser.getValue("ERR_OPENP"));
-			logEndPrintError();
-			delete serverSocketIPv6;
-			serverSocketIPv6 = NULL;
-		}
-		else
-		{
-			MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
-			logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-			((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
-			((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
-			((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
-				htons((u_short)port);
+			logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
+			serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+			if ( serverSocketIPv6->getHandle() == (SocketHandle)INVALID_SOCKET )
+			{
+				logPreparePrintError();
+				logWriteln(languageParser.getValue("ERR_OPENP"));
+				logEndPrintError();
+				delete serverSocketIPv6;
+				serverSocketIPv6 = NULL;
+			}
+			else
+			{
+				MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
+				logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
+				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
+				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
+				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
+					htons((u_short)port);
 #ifdef NOT_WIN
 			/*!
 			 *Under the unix environment the application needs some time before
 			 * create a new socket for the same address.
 			 *To avoid this behavior we use the current code.
 			 */
-			if(serverSocketIPv6->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-																			(const char *)&optvalReuseAddr,
-																			sizeof(optvalReuseAddr))<0)
-			{
-			  logPreparePrintError();
-			  logWriteln(languageParser.getValue("ERR_ERROR"));
-			  logEndPrintError();
-				delete serverSocketIPv6;
-				serverSocketIPv6 = NULL;
-			  //return 0;allow IPv6
+				if(serverSocketIPv6->setsockopt(SOL_SOCKET, SO_REUSEADDR,
+																				(const char *)&optvalReuseAddr,
+																				sizeof(optvalReuseAddr))<0)
+				{
+					logPreparePrintError();
+					logWriteln(languageParser.getValue("ERR_ERROR"));
+					logEndPrintError();
+					delete serverSocketIPv6;
+					serverSocketIPv6 = NULL;
+					//return 0;allow IPv6
 			}
-			/*!TODO: Andu: please check out this comment and correct it if it's not true.
-			 *Under the unix environment the IPv6 sockets also listen on IPv4 addreses
-			 *so before binding assure we'll only use this socket for IPv6 communication
-			 *because we already have a socket for IPv4 communication.
+			/*!TODO: Andu: please check out this comment and correct it if it's not 
+			 *true.
+			 *Under the unix environment the IPv6 sockets also listen on IPv4 
+			 *addreses so before binding assure we'll only use this socket for IPv6 
+			 *communication because we already have a socket for IPv4 communication.
 			 */
 			if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
 																			(const char *)&optvalReuseAddr,
@@ -618,13 +603,13 @@ int Server::createServerAndListener(u_short port)
 				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
 
 				if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
-									  sizeof(sockaddr_in6))!=0)
+									  sizeof(sockaddr_in6)) != 0)
 				{
 				  logPreparePrintError();
 				  logWriteln(languageParser.getValue("ERR_BIND"));
 				  logEndPrintError();
-				delete serverSocketIPv6;
-				serverSocketIPv6 = NULL;
+					delete serverSocketIPv6;
+					serverSocketIPv6 = NULL;
 				}
 				else
 				{
@@ -731,45 +716,37 @@ void Server::createListenThreads()
 	/*!
    *Create the listens threads.
    *Every port uses a thread.
+	 *Put all the connections in a hash map to avoid duplicates.
+	 *Iterate it to create the listen threads.
    */
+	HashMap<u_short, u_short> portsMap;
+	HashMap<u_short, u_short>::Iterator it;
+
   list<Vhost*>::iterator i = vhostList->getVHostList()->begin();
+
 	for( ;i != vhostList->getVHostList()->end(); i++)
 	{
-		int needThread=1;
-		list<Vhost*>::iterator j = vhostList->getVHostList()->begin();
-
-    /*! No port was specified.  */
-		if((*i)->getPort()==0)
+		u_short port = (*i)->getPort();
+		if(port == 0)
 			continue;
-
-		for( ;j != i; j++)
-		{
-      /*!
-       *If there is still a thread listening on the specified
-       *port do not create the thread here.
-       */
-			if((*i)->getPort() == (*j)->getPort())
-			{
-				needThread=0;
-				break;
-      }
-		}
-
-		if(needThread)
-		{
-		  if(!createServerAndListener((*i)->getPort()))
-			{
-        string err;
-				logPreparePrintError();
-        err.assign(languageParser.getValue("ERR_ERROR"));
-        err.append(": Listen threads");
-        logWriteln( err.c_str() );
-				logEndPrintError();
-				return;
-			}
-		}
+		if(!portsMap.containsKey(port))
+			portsMap.put(port, port);
 	}
 
+
+	for(it = portsMap.begin(); it != portsMap.end(); it++)
+	{
+		if(!createServerAndListener(*it))
+		{
+			string err;
+			logPreparePrintError();
+			err.assign(languageParser.getValue("ERR_ERROR"));
+			err.append(": Listen threads");
+			logWriteln( err.c_str() );
+			logEndPrintError();
+			return;
+		}
+	}
 }
 
 /*!
