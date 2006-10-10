@@ -156,9 +156,9 @@ void * startClientsThread(void* pParam)
 	ct->buffer2.m_nSizeLimit = ct->buffersize2;
 
   /* Built-in protocols will be initialized at the first use.  */
-  ct->http_parser = 0;
-  ct->https_parser = 0;
-  ct->control_protocol_parser = 0;
+  ct->httpParser = 0;
+  ct->httpsParser = 0;
+  ct->controlProtocolParser = 0;
 
 	ct->initialized = 1;
 
@@ -365,13 +365,13 @@ int ClientsThread::controlConnections()
          *be removed from the active connections list.
          */
 			case PROTOCOL_HTTP:
-        if(http_parser == 0)
+        if(httpParser == 0)
         {
-          http_parser = new Http();
-          if(!http_parser)
+          httpParser = new Http();
+          if(!httpParser)
             return 0;
         }
-				retcode = http_parser->controlConnection(c, (char*)buffer.getBuffer(), 
+				retcode = httpParser->controlConnection(c, (char*)buffer.getBuffer(), 
 													 (char*)buffer2.getBuffer(), buffer.getRealLength(), 
 																	 buffer2.getRealLength(), nBytesToRead, id);
  				break;
@@ -379,13 +379,13 @@ int ClientsThread::controlConnections()
          *Parse an HTTPS connection request.
          */
 			  case PROTOCOL_HTTPS:
-          if(!https_parser)
+          if(!httpsParser)
           {
-            https_parser = new Https();
-            if(!https_parser)
+            httpsParser = new Https();
+            if(!httpsParser)
               return 0;
           }
-          retcode = https_parser->controlConnection(c, 
+          retcode = httpsParser->controlConnection(c, 
 																										(char*)buffer.getBuffer(), 
 																									(char*)buffer2.getBuffer(), 
 																										buffer.getRealLength(), 
@@ -393,13 +393,13 @@ int ClientsThread::controlConnections()
 																										nBytesToRead, id);
           break;
 			  case PROTOCOL_CONTROL:
-          if(!control_protocol_parser)
+          if(!controlProtocolParser)
           {
-            control_protocol_parser = new ControlProtocol();
-            if(!control_protocol_parser)
+            controlProtocolParser = new ControlProtocol();
+            if(!controlProtocolParser)
               return 0;
           }
-          retcode = control_protocol_parser->controlConnection(c, 
+          retcode = controlProtocolParser->controlConnection(c, 
                        (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
                        buffer.getRealLength(), buffer2.getRealLength(), 
 																												nBytesToRead, id);
@@ -506,12 +506,12 @@ void ClientsThread::clean()
     Thread::wait(100);
   }
 	threadIsRunning = 0;
-  if(http_parser)
-    delete http_parser;
-  if(https_parser)
-    delete https_parser;
-  if(control_protocol_parser)
-    delete control_protocol_parser;
+  if(httpParser)
+    delete httpParser;
+  if(httpsParser)
+    delete httpsParser;
+  if(controlProtocolParser)
+    delete controlProtocolParser;
 
 	buffer.free();
 	buffer2.free();

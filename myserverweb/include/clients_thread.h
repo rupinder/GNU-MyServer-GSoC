@@ -51,9 +51,9 @@ private:
 	u_long buffersize2;
 	int isRunning();
 	int isStopped();
-	Http *http_parser;
-	Https *https_parser;
-  ControlProtocol  *control_protocol_parser;
+	Http *httpParser;
+	Https *httpsParser;
+  ControlProtocol  *controlProtocolParser;
 	MemBuf buffer;
 	MemBuf buffer2;
 	int controlConnections();
