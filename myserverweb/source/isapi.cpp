@@ -120,15 +120,15 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
       *lpdwSize=(DWORD)strlen((char*)lpvBuffer);
       break;
   case HSE_REQ_SEND_URL_REDIRECT_RESP:
-    return ((Isapi*)ConnInfo->lisapi)->Redirect(ConnInfo->td,
+    return ((Isapi*)ConnInfo->isapi)->Redirect(ConnInfo->td,
                               ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_SEND_URL:
-    return ((Isapi*)ConnInfo->lisapi)->Senduri(ConnInfo->td,
+    return ((Isapi*)ConnInfo->isapi)->Senduri(ConnInfo->td,
                                            ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_SEND_RESPONSE_HEADER:
-    return ((Isapi*)ConnInfo->lisapi)->SendHeader(ConnInfo->td,
+    return ((Isapi*)ConnInfo->isapi)->SendHeader(ConnInfo->td,
                                            ConnInfo->connection,(char *)lpvBuffer);
     break;
   case HSE_REQ_DONE_WITH_SESSION:
@@ -840,7 +840,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 	connTable[connIndex].headerSize = 0;
 	connTable[connIndex].dataSent = 0;
 	connTable[connIndex].Allocated = 1;
-	connTable[connIndex].lisapi = this;
+	connTable[connIndex].isapi = this;
 	connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, 1, 0, NULL);
   
 	GetExtensionVersion = (PFN_GETEXTENSIONVERSION)appHnd.getProc("GetExtensionVersion");
@@ -1056,7 +1056,7 @@ int Isapi::load(XmlParser*/* confFile*/)
   	connTable[i].envString=0;
   	connTable[i].connection=0;
   	connTable[i].ISAPIDoneEvent=0;
-  	connTable[i].lisapi=0;         
+  	connTable[i].isapi=0;         
   }
 	InitializeCriticalSection(&GetTableEntryCritSec);	
 	initialized=1;

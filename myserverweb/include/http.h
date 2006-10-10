@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -84,13 +84,13 @@ private:
   static int allowVhostMime;
   static DynHttpCommandManager dynCmdManager;
   static DynHttpManagerList dynManagerList;
-	MsCgi lmscgi;
-	WinCgi lwincgi;
-	Isapi lisapi;
-	Cgi lcgi;
-	FastCgi lfastcgi;
-  HttpFile lhttp_file;
-  HttpDir lhttp_dir;
+	MsCgi mscgi;
+	WinCgi wincgi;
+	Isapi isapi;
+	Cgi cgi;
+	FastCgi fastcgi;
+  HttpFile httpFile;
+  HttpDir httpDir;
 	struct HttpThreadContext td;
   void clean();
 protected:
@@ -99,25 +99,31 @@ public:
 	int protocolOptions;
 	const char *getDefaultFilenamePath(u_long ID);
 	int sendHTTPResource(string& filename,
-                       int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
+                       int systemrequest = 0, 
+											 int onlyHeader = 0, 
+											 int yetMapped = 0);
 	int putHTTPRESOURCE(string &filename,
-                      int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
+                      int systemrequest = 0,
+											int onlyHeader = 0,
+											int yetMapped = 0);
 	int allowHTTPTRACE();
 	int optionsHTTPRESOURCE(string &filename,
-                          int yetmapped=0);
+                          int yetMapped = 0);
 	int traceHTTPRESOURCE(string& filename,
-                        int yetmapped=0);
+                        int yetMapped = 0);
 	int deleteHTTPRESOURCE(string& filename,
-                         int yetmapped=0);
+                         int yetMapped = 0);
 	int raiseHTTPError(int ID);
 	int sendHTTPhardError500();
 	int sendAuth();
 	int getPath(string& filenamePath,
-               const string& filename,int systemrequest)
+               const string& filename,
+							int systemrequest)
     {return getPath(filenamePath, filename.c_str(), systemrequest);}
 
 	int getPath(string& filenamePath,
-               const char *filename,int systemrequest);
+               const char *filename,
+							int systemrequest);
 
   MimeRecord* getMIME(string& filename);
 

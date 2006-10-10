@@ -120,7 +120,7 @@ struct ConnTableRecord
 	char* envString;
 	ConnectionPtr connection;
 	HANDLE ISAPIDoneEvent;
-	void *lisapi;
+	void *isapi;
 };
 typedef BOOL (WINAPI * PFN_GETEXTENSIONVERSION)(HSE_VERSION_INFO *pVer);
 typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
