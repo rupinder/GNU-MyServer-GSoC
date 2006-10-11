@@ -73,6 +73,7 @@ private:
   static Mutex secCacheMutex;
   static SecurityCache secCache;
 	static int initialized;
+
 	/*! Store if the MSCGI library was loaded.  */
 	static int mscgiLoaded;
 	static string browseDirCSSpath;
@@ -93,36 +94,50 @@ private:
   HttpDir httpDir;
 	struct HttpThreadContext td;
   void clean();
+
+	int readPostData(HttpThreadContext* td, int* ret);
+
 protected:
 	string protocolPrefix;
 public:
 	int protocolOptions;
 	const char *getDefaultFilenamePath(u_long ID);
+
 	int sendHTTPResource(string& filename,
                        int systemrequest = 0, 
 											 int onlyHeader = 0, 
 											 int yetMapped = 0);
+
 	int putHTTPRESOURCE(string &filename,
                       int systemrequest = 0,
 											int onlyHeader = 0,
 											int yetMapped = 0);
+
 	int allowHTTPTRACE();
+
+
 	int optionsHTTPRESOURCE(string &filename,
                           int yetMapped = 0);
+
 	int traceHTTPRESOURCE(string& filename,
                         int yetMapped = 0);
+
 	int deleteHTTPRESOURCE(string& filename,
                          int yetMapped = 0);
+
 	int raiseHTTPError(int ID);
+
 	int sendHTTPhardError500();
+
 	int sendAuth();
+
 	int getPath(string& filenamePath,
                const string& filename,
 							int systemrequest)
-    {return getPath(filenamePath, filename.c_str(), systemrequest);}
+	  {return getPath(filenamePath, filename.c_str(), systemrequest);}
 
 	int getPath(string& filenamePath,
-               const char *filename,
+							const char *filename,
 							int systemrequest);
 
   MimeRecord* getMIME(string& filename);
@@ -137,10 +152,18 @@ public:
   const char* getBrowseDirCSSFile();
 	u_long getGzipThreshold();
 	virtual char* registerName(char*,int len);
-	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
-                        int bs2, u_long nbtr, u_long id);
+	int controlConnection(ConnectionPtr a, 
+												char *b1, 
+												char *b2, 
+												int bs1, 
+                        int bs2, 
+												u_long nbtr, 
+												u_long id);
+
 	static int loadProtocol(XmlParser*);
+
 	static int unloadProtocol(XmlParser*);
+
   int getCGItimeout();
 };
 
