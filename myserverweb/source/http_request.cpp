@@ -129,9 +129,6 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    return &rangeType;
  } 
  
- if(!out)
-   return 0;
-
  if(!strcmpi(name,"rangeByteBegin"))
  {
    ostringstream s;
