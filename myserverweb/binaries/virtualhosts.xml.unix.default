@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
 <VHOSTS>
 
-<VHOST>
-<NAME>Every connection</NAME>
-<PORT>80</PORT>
-<PROTOCOL>HTTP</PROTOCOL>
-<DOCROOT>/var/web/</DOCROOT>
-<SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
-<ACCESSLOG>/var/log/myserver/MyServerHTTP.log</ACCESSLOG>
-<WARNINGLOG>/var/log/myserver/MyServerHTTP.err</WARNINGLOG>
-</VHOST>
+	<VHOST>
+		<NAME>Every connection</NAME>
+		
+		<PORT>80</PORT>
+		<PROTOCOL>HTTP</PROTOCOL>
+
+		<DOCROOT>/var/web/</DOCROOT>
+		<SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
+
+		<ACCESSLOG>/var/log/myserver/MyServerHTTP.log</ACCESSLOG>
+		<WARNINGLOG>/var/log/myserver/MyServerHTTP.err</WARNINGLOG>
+	</VHOST>
 
 </VHOSTS>
