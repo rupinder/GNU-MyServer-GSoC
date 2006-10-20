@@ -29,9 +29,9 @@ NAME="MyServer 0.8.3 - Daemon Script"
 DESC="www.myserverproject.net"
 
 
-DAEMON="/usr/local/bin/myserver-daemon"
+DAEMON="/usr/local/bin/myserver"
 PIDFILE="/var/run/myserver.pid"
-SCRIPTNAME="/etc/init.d/myserver"
+SCRIPTNAME="/etc/init.d/myserver-daemon"
 LOGFILE="/var/log/myserver/MyServer_DAEMON.log"
 
 
