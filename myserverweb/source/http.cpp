@@ -203,7 +203,7 @@ int Http::allowHTTPTRACE()
 	int ret;
 	/*! Check if the host allows HTTP trace. */
 	ostringstream filename;
-  char *http_trace_value;
+  char *httpTraceValue;
 	XmlParser parser;
 	
   filename << td.getVhostDir() << "/security" ;
@@ -211,14 +211,14 @@ int Http::allowHTTPTRACE()
 	{
 		return 0;
 	}
-	http_trace_value=parser.getAttr("HTTP", "TRACE");
+	httpTraceValue = parser.getAttr("HTTP", "TRACE");
 	
   /*! 
    *If the returned value is equal to ON so the 
    *HTTP TRACE is active for this vhost.  
    *By default don't allow the trace.
    */
-	if(http_trace_value &&  !lstrcmpi(http_trace_value, "ON"))
+	if(httpTraceValue && !lstrcmpi(httpTraceValue, "ON"))
 		ret = 1;
 	else
 		ret = 0;
@@ -558,7 +558,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       {
         return raiseHTTPError(e_401);
       }
-      ret=getPath(td.filenamePath, filename, 0);
+      ret = getPath(td.filenamePath, filename, 0);
       if(ret != e_200)
         return raiseHTTPError(ret);
     }
@@ -2669,7 +2669,8 @@ MimeRecord* Http::getMIME(string &filename)
  *Map an URL to the machine file system. Return e_200 on success. 
  *Any other return value is the HTTP error.
  */
-int Http::getPath(string& filenamePath, const char *filename, int systemrequest)
+int Http::getPath(string& filenamePath, const char *filename, 
+									int systemrequest)
 {
 	/*!
    *If it is a system request, search the file in the system directory.
@@ -2705,7 +2706,7 @@ int Http::getPath(string& filenamePath, const char *filename, int systemrequest)
          *Do not allow access to the system directory root but only
          *to subdirectories. 
          */
-        if(File::getPathRecursionLevel(filename)< 2 )
+        if(File::getPathRecursionLevel(filename)< 2)
         {
           return e_401;
         }

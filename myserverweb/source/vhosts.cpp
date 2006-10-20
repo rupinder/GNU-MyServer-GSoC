@@ -747,31 +747,31 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 		
 		cc++;
 		/*!Get the document root used by the virtual host*/
-		buffer2[0]='\0';
-		while(buffer[cc]!=';')
+		buffer2[0] = '\0';
+		while(buffer[cc] != ';')
 		{
-			buffer2[strlen(buffer2)+1]='\0';
-			buffer2[strlen(buffer2)]=buffer[cc];
+			buffer2[strlen(buffer2)+1] = '\0';
+			buffer2[strlen(buffer2)] = buffer[cc];
 			cc++;
 		}	
 		vh->setDocumentRoot(buffer2);
 		cc++;
 		/*!Get the system folder used by the virtual host*/
-		buffer2[0]='\0';
-		while(buffer[cc]!=';')
+		buffer2[0] = '\0';
+		while(buffer[cc] != ';')
 		{
-			buffer2[strlen(buffer2)+1]='\0';
-			buffer2[strlen(buffer2)]=buffer[cc];
+			buffer2[strlen(buffer2) + 1] = '\0';
+			buffer2[strlen(buffer2)] = buffer[cc];
 			cc++;
 		}	
 		vh->setSystemRoot(buffer2);
 		cc++;
 		/*!Get the accesses log file used by the virtual host*/
-		buffer2[0]='\0';
-		while(buffer[cc]!=';')
+		buffer2[0] = '\0';
+		while(buffer[cc] != ';')
 		{
-			buffer2[strlen(buffer2)+1]='\0';
-			buffer2[strlen(buffer2)]=buffer[cc];
+			buffer2[strlen(buffer2) + 1] = '\0';
+			buffer2[strlen(buffer2)] = buffer[cc];
 			cc++;
 		}	
 		vh->setAccessesLogFileName(buffer2);
@@ -781,11 +781,11 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 
 		cc++;
 		/*!Get the warnings log file used by the virtual host*/
-		buffer2[0]='\0';
-		while(buffer[cc]!=';' && buffer[cc])
+		buffer2[0] = '\0';
+		while(buffer[cc] != ';' && buffer[cc])
 		{
-			buffer2[strlen(buffer2)+1]='\0';
-			buffer2[strlen(buffer2)]=buffer[cc];
+			buffer2[strlen(buffer2) + 1] = '\0';
+			buffer2[strlen(buffer2)] = buffer[cc];
 			cc++;
 		}	
 		vh->setWarningsLogFileName(buffer2);
@@ -895,7 +895,8 @@ void VhostManager::saveConfigurationFile(const char *filename)
       strcpy(buffer,";");
       fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
 
-      fh.writeToFile(vh->getSystemRoot(),(u_long)strlen(vh->getSystemRoot()),&nbw);
+      fh.writeToFile(vh->getSystemRoot(),(u_long)strlen(vh->getSystemRoot()),
+										 &nbw);
       strcpy(buffer,";");
       fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
       
@@ -948,7 +949,8 @@ int VhostManager::getHostsNumber()
  *Load the virtual hosts from a XML configuration file
  *Returns non-null on errors.
  */
-int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
+int VhostManager::loadXMLConfigurationFile(const char *filename, 
+																					 int maxlogSize)
 {
 	XmlParser parser;
 	xmlDocPtr doc;
@@ -966,8 +968,8 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
 		return -1;
 	}
 	doc = parser.getDoc();
-	node=doc->children->children;
-	for(;node;node=node->next )
+	node = doc->children->children;
+	for(;node;node = node->next )
 	{
 		xmlNodePtr lcur;
 		Vhost *vh;
@@ -975,7 +977,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
 			continue;
 		lcur=node->children;
 		vh=new Vhost();
-    if(vh==0)
+    if(vh == 0)
     {
       parser.close();
       clean();
@@ -997,12 +999,13 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
             if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
             {
               if(attrs->children && attrs->children->content && 
-                 (!xmlStrcmp(attrs->children->content, (const xmlChar *)"YES")))
+                 (!xmlStrcmp(attrs->children->content, 
+														 (const xmlChar *)"YES")))
               {
                 useRegex = 1;
               }
             }
-            attrs=attrs->next;
+            attrs = attrs->next;
         }
 			  vh->addHost((char*)lcur->children->content, useRegex);
 			}
@@ -1039,14 +1042,14 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
                 useRegex = 1;
               }
             }
-            attrs=attrs->next;
+            attrs = attrs->next;
         }
 	  	 vh->addIP((char*)lcur->children->content, useRegex);
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
 			{
         int val = atoi((char*)lcur->children->content);
-        if(val > 1<<16 || strlen((const char*)lcur->children->content) > 6)
+        if(val > 1 << 16 || strlen((const char*)lcur->children->content) > 6)
         {
           errMsg.assign("Error: specified port greater than 65536 or invalid: ");
           errMsg.append((char*)lcur->children->content);
@@ -1077,16 +1080,15 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
 			{
         if(lcur->children && lcur->children->content)
         {
-          char lastChar;
-          vh->setDocumentRoot((char*)lcur->children->content);
-          lastChar = vh->getDocumentRoot()[strlen(vh->getDocumentRoot())-1];
-          if(lastChar != '\\' && lastChar != '/')
+          char* lastChar = (char*)lcur->children->content;
+					while(*(lastChar+1) != '\0')
+						lastChar++;
+
+          if(*lastChar == '\\' || *lastChar == '/')
           {
-            string tmp;
-            tmp.assign(vh->getDocumentRoot());
-            tmp.append("/");
-            vh->setDocumentRoot(tmp.c_str());
+						*lastChar = '\0';
           }
+					vh->setDocumentRoot((const char*)lcur->children->content);
         }
         else
         {
@@ -1097,16 +1099,15 @@ int VhostManager::loadXMLConfigurationFile(const char *filename, int maxlogSize)
 			{
         if(lcur->children && lcur->children->content)
         {
-          char lastChar ;
-          vh->setSystemRoot((char*)lcur->children->content);
-          lastChar = vh->getSystemRoot()[strlen(vh->getSystemRoot())-1];
-          if(lastChar != '\\' && lastChar != '/')
+          char* lastChar = (char*)lcur->children->content;
+					while(*(lastChar+1) != '\0')
+						lastChar++;
+
+          if(*lastChar == '\\' || *lastChar == '/')
           {
-            string tmp;
-            tmp.assign(vh->getSystemRoot());
-            tmp.append("/");
-            vh->setSystemRoot(tmp.c_str());
+						*lastChar = '\0';
           }
+            vh->setSystemRoot((const char*)lcur->children->content);
         }
         else
         {
