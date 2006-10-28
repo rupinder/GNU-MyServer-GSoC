@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=59
+UnitCount=60
 Type=1
 Ver=1
 ObjFiles=
@@ -610,6 +610,16 @@ BuildCmd=
 
 [Unit59]
 FileName=source\lfind.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit60]
+FileName=source\files_utility.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

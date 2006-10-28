@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/stringutils.h"
 #include "../include/xml_parser.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 #include "vector.h"
 #include "fltkconfig.h"
 
@@ -91,7 +92,7 @@ int main(int argc, char * argv[])
    strncpy(languages_path, "languages/", MAX_PATH);
    fd_ret=fd.findfirst("languages/*.xml");
 #else
-   if(File::fileExists("languages"))
+   if(FilesUtility::fileExists("languages"))
      {
 	strncpy(languages_path, "languages/", MAX_PATH);
      }
@@ -103,7 +104,7 @@ int main(int argc, char * argv[])
 	strncpy(languages_path, "/usr/share/myserver/languages/", MAX_PATH);
 # endif
      }
-   if(!(File::fileExists(languages_path)))
+   if(!(FilesUtility::fileExists(languages_path)))
      {
 	fl_alert("Languages directory not found.");
 	langFound = false;
@@ -123,17 +124,17 @@ int main(int argc, char * argv[])
    // just a little hack
    snprintf(main_configuration_file, MAX_PATH, "%s/.myserver/myserver.xml", getenv("HOME"));
 #endif
-   if(File::fileExists("myserver.xml"))
+   if(FilesUtility::fileExists("myserver.xml"))
      {
 	conf_location = 1;
 	strncpy(main_configuration_file,"myserver.xml", MAX_PATH);
      }
 #ifndef WIN32
-   else if(File::fileExists(main_configuration_file))
+   else if(FilesUtility::fileExists(main_configuration_file))
      {
 	conf_location = 2;
      }
-   else if(File::fileExists("/etc/myserver/myserver.xml"))
+   else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
      {
 	conf_location = 3;
 	strncpy(main_configuration_file,"/etc/myserver/myserver.xml", MAX_PATH);
@@ -148,7 +149,7 @@ int main(int argc, char * argv[])
 	strncpy(main_configuration_file,"myserver.xml", MAX_PATH);
 	File inputF;
 	File outputF;
-	if(!File::fileExists("myserver.xml.default"))
+	if(!FilesUtility::fileExists("myserver.xml.default"))
 	  {  // no configuration files found
 	     fl_alert("Default configuration files not found.  Loading empty values.");
 	     confFound = false;
@@ -171,7 +172,7 @@ int main(int argc, char * argv[])
 	     inputF.closeFile();
 	     outputF.closeFile();
 
-	     if(File::fileExists("MIMEtypes.xml.default"))
+	     if(FilesUtility::fileExists("MIMEtypes.xml.default"))
 	       {
 		  char buffer[512];
 		  u_long nbr, nbw;
@@ -188,7 +189,7 @@ int main(int argc, char * argv[])
 		  outputF.closeFile();
 	       }
 
-	     if(File::fileExists("virtualhosts.xml.default"))
+	     if(FilesUtility::fileExists("virtualhosts.xml.default"))
 	       {
 		  char buffer[512];
 		  u_long nbr, nbw;
@@ -236,9 +237,9 @@ int main(int argc, char * argv[])
 	  {
 	     char dir[MAX_PATH];
 	     char filename[MAX_PATH];
-	     if(fd.name[0]=='.')
+	     if(fd.name[0] == '.')
 	       continue;
-	     File::splitPath(fd.name,dir,filename);
+	     FilesUtility::splitPath(fd.name,dir,filename);
 	     if(strcmpi(&(filename[strlen(filename) - 3]), "xml") == 0)
 	       Configure.Language->add(filename, 0, 0, 0, 0);
 	  }
@@ -248,18 +249,18 @@ int main(int argc, char * argv[])
    
    // Load the dynamic protocol names
    Vector list;
-   if(File::fileExists("external/protocols"))
+   if(FilesUtility::fileExists("external/protocols"))
      {
 	GetDynamicProtocols("external/protocols", list);
      }
 #ifndef WIN32
 #ifdef PREFIX
-   else if(File::fileExists(PREFIX "/lib/myserver/external/protocols"))
+   else if(FilesUtility::fileExists(PREFIX "/lib/myserver/external/protocols"))
      {
 	GetDynamicProtocols(PREFIX "/lib/myserver/external/protocols", list);
      }
 #else
-   else if(File::fileExists("/usr/lib/myserver/external/protocols"))
+   else if(FilesUtility::fileExists("/usr/lib/myserver/external/protocols"))
      {
 	GetDynamicProtocols("/usr/lib/myserver/external/protocols", list);
      }

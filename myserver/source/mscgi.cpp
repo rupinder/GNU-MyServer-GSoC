@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cgi.h"
 #include "../include/mime_utils.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 #include "../include/sockets.h"
 #include "../include/utility.h"
 #include "../include/filters_chain.h"
@@ -87,8 +88,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
   {
     string tmp;
     tmp.assign(exec);
-    File::splitPath(tmp, td->cgiRoot, td->cgiFile);
-    File::splitPath(exec, td->scriptDir, td->scriptFile);
+    FilesUtility::splitPath(tmp, td->cgiRoot, td->cgiFile);
+    FilesUtility::splitPath(exec, td->scriptDir, td->scriptFile);
   }
 
 	Cgi::buildCGIEnvironmentString(td,data.envString);
@@ -160,7 +161,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     if(!td->appendOutputs)
     {	
       data.stdOut.closeFile();
-      File::deleteFile(outDataPath.str().c_str());
+      FilesUtility::deleteFile(outDataPath.str().c_str());
     }
     chain.clearAllFilters(); 
     /* Internal server error.  */
@@ -173,7 +174,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     {
       chain.clearAllFilters(); 
 			data.stdOut.closeFile();
-			File::deleteFile(outDataPath.str().c_str());
+			FilesUtility::deleteFile(outDataPath.str().c_str());
 			return td->http->raiseHTTPError(errID);
     }
 	}
@@ -215,7 +216,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			if(!td->appendOutputs)
 			{
 				data.stdOut.closeFile();
-				File::deleteFile(outDataPath.str().c_str());
+				FilesUtility::deleteFile(outDataPath.str().c_str());
 			}
 
       /* Internal server error.  */
@@ -225,7 +226,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     if(onlyHeader)
     {
       data.stdOut.closeFile();
-      File::deleteFile(outDataPath.str().c_str());
+      FilesUtility::deleteFile(outDataPath.str().c_str());
       chain.clearAllFilters(); 
       return 1;
     }
@@ -245,7 +246,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 						if(!td->appendOutputs)
 						{
 							data.stdOut.closeFile();
-							File::deleteFile(outDataPath.str().c_str());
+							FilesUtility::deleteFile(outDataPath.str().c_str());
 						}
 						chain.clearAllFilters(); 
 						return 0;
@@ -257,7 +258,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 					if(!td->appendOutputs)
 					{
 						data.stdOut.closeFile();
-						File::deleteFile(outDataPath.str().c_str());
+						FilesUtility::deleteFile(outDataPath.str().c_str());
           }
           chain.clearAllFilters(); 
           return 0;
@@ -269,7 +270,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 					if(!td->appendOutputs)
 					{
 						data.stdOut.closeFile();
-						File::deleteFile(outDataPath.str().c_str());
+						FilesUtility::deleteFile(outDataPath.str().c_str());
           }
           chain.clearAllFilters(); 
           return 0;
@@ -281,13 +282,13 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
 		{
 			data.stdOut.closeFile();
-			File::deleteFile(outDataPath.str().c_str());
+			FilesUtility::deleteFile(outDataPath.str().c_str());
 			return 0;
 		}
 		if(!td->appendOutputs)
 		{
 			data.stdOut.closeFile();
-			File::deleteFile(outDataPath.str().c_str());
+			FilesUtility::deleteFile(outDataPath.str().c_str());
 		}
 	}
 
@@ -317,7 +318,7 @@ int MsCgi::load(XmlParser* /*confFile*/)
 #ifdef HAVE_DL
 	ostringstream mscgi_path;
 	
-	if(File::fileExists("cgi-lib/cgi-lib.so"))
+	if(FilesUtility::fileExists("cgi-lib/cgi-lib.so"))
 	{
     mscgi_path << "cgi-lib/cgi-lib.so";
 	}

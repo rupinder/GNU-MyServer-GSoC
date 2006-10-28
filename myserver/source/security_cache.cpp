@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/security_cache.h"
 #include "../include/security.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 
 #include <string>
 
@@ -98,7 +99,7 @@ int SecurityCache::getSecurityFile(const char* dir, const char* sys,
 	secFile.append("/security");
 
 	/* The security file exists in the directory.  */
-	if(File::fileExists(secFile))
+	if(FilesUtility::fileExists(secFile))
   {
 		out.assign(secFile);
 		return 0;
@@ -122,13 +123,13 @@ int SecurityCache::getSecurityFile(const char* dir, const char* sys,
 		{
 			out.assign(sys);
 			out.append("/security");
-			return !File::fileExists(out);
+			return !FilesUtility::fileExists(out);
 		}
 		secFile.assign(file);
 		secFile.append("/security");
 
 	}
-	while(!(found = File::fileExists(secFile)));
+	while(!(found = FilesUtility::fileExists(secFile)));
 
 	out.assign(secFile);
 	return 0;
@@ -169,7 +170,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
   {
     time_t fileModTime;
     /*! If the file was modified reload it. */
-    fileModTime = File::getLastModTime(permissionFile.c_str());
+    fileModTime = FilesUtility::getLastModTime(permissionFile.c_str());
     if((fileModTime != static_cast<time_t>(-1))  && 
        (parser->getLastModTime() != fileModTime))
     {
@@ -240,7 +241,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
   {
     time_t fileModTime;
     /*! If the file was modified reload it. */
-    fileModTime = File::getLastModTime(permissionFile.c_str());
+    fileModTime = FilesUtility::getLastModTime(permissionFile.c_str());
     if((fileModTime != static_cast<time_t>(-1))  && 
        (parser->getLastModTime() != fileModTime))
     {

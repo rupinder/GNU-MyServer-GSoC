@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/vhosts.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 #include "../include/server.h"
 #include "../include/connection.h"
 #include "../include/stringutils.h"
@@ -1411,7 +1412,7 @@ int Vhost::initializeSSL()
   /*!
    *The specified file doesn't exist.
    */
-  if(File::fileExists(sslContext.certificateFile.c_str()) == 0)
+  if(FilesUtility::fileExists(sslContext.certificateFile.c_str()) == 0)
   {
     return -1;
   }
@@ -1426,7 +1427,7 @@ int Vhost::initializeSSL()
   /*!
    *The specified file doesn't exist.
    */
-  if(File::fileExists(sslContext.privateKeyFile) == 0)
+  if(FilesUtility::fileExists(sslContext.privateKeyFile) == 0)
     return -1;
   if(!(SSL_CTX_use_PrivateKey_file(sslContext.context, 
             sslContext.privateKeyFile.c_str(), SSL_FILETYPE_PEM)))

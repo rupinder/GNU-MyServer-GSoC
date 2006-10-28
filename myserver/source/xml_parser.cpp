@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -18,8 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/xml_parser.h"
 #include "../include/utility.h"
-
-
+#include "../include/files_utility.h"
 
 extern "C" {
 #include <string.h>
@@ -31,7 +30,8 @@ extern "C" {
 
 #ifdef WIN32
 /*!
- *Libxml2.lib is the dynamic version of the libxml2 while libxml2_a.lib is static.
+ *Libxml2.lib is the dynamic version of the libxml2 while libxml2_a.lib is 
+ *static.
  *With static version use the linker options: /NODEFAULTLIB:LIBCMT
  * /NODEFAULTLIB:LIBCMTD.
  */
@@ -44,7 +44,7 @@ extern "C" {
 
 #endif
 
-/* internal call back functions for saveMemBuf */
+/* Internal call back functions for saveMemBuf.  */
 static int MemBufWriteCallback(void * context, const char * buffer, int len)
 {
 	((MemBuf *)context)->addBuffer((const void *)buffer, len);
@@ -56,7 +56,7 @@ static int MemBufCloseCallback(void * context)
 }
 
 /*!
- *Initialize the libxml2 library
+ *Initialize the libxml2 library.
  */
 int XmlParser::startXML()
 {
@@ -80,7 +80,7 @@ int XmlParser::cleanXML()
 int XmlParser::open(const char* filename)
 {
 	cur=0;
-	if(!File::fileExists(filename))
+	if(!FilesUtility::fileExists(filename))
 		return -1;
 	if(doc!=0)
 		close();
@@ -93,7 +93,7 @@ int XmlParser::open(const char* filename)
 		close();
 		return -1;
 	}
-  mtime = File::getLastModTime(filename);
+  mtime = FilesUtility::getLastModTime(filename);
   if(mtime == static_cast<time_t>(-1))
   {
 		close();

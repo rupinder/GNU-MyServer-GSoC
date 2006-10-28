@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/http_headers.h"
 #include "../include/http_dir.h"
 #include "../include/filters_chain.h"
+#include "../include/files_utility.h"
 
 extern "C" 
 {
@@ -458,7 +459,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   td->buffer2->setLength(0);
 
-  if(File::getPathRecursionLevel(td->request.uri) >= 1)
+  if(FilesUtility::getPathRecursionLevel(td->request.uri) >= 1)
   {
     string file;
     file.assign(td->request.uri);

@@ -1,6 +1,6 @@
 /*
  * MyServer
- * Copyright (C) 2002, 2003, 2004 The MyServer Team
+ * Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -31,6 +31,7 @@ extern "C" {
 #endif
 
 #include "../include/file.h"
+#include "../include/files_utility.h"
 
 #ifdef WIN32
 static DWORD WINAPI consoleWatchDogThread(LPVOID);
@@ -48,12 +49,12 @@ void RunAsConsole()
 #ifdef WIN32
    CreateProcess(NULL,"myserver.exe CONSOLE",NULL,NULL,FALSE,0,0,0,&si,&pi);
    DWORD id;
-   consoleModeWatchDog=CreateThread(0,0,consoleWatchDogThread,0,0,&id);
+   consoleModeWatchDog = CreateThread(0,0,consoleWatchDogThread,0,0,&id);
 #else
    int pid = fork();
    if(pid == 0)
      {
-	if(File::fileExists("myserver"))
+	if(FilesUtility::fileExists("myserver"))
 	  execlp("xterm", "xterm", "-e", "./myserver", NULL);
 	else
 	  execlp("xterm", "xterm", "-e", "myserver", NULL);

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/mime_utils.h"
 #include "../include/cgi.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 #include "../include/clients_thread.h"
 #include "../include/sockets.h"
 #include "../include/wincgi.h"
@@ -263,7 +264,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       keepalive = 1;
     }
 
-    File::splitPath(td.filenamePath, directory, file);
+    FilesUtility::splitPath(td.filenamePath, directory, file);
     td.response.httpStatus = httpStatus;
     /*!
      *td.filenamePath is the file system mapped path while filename 
@@ -284,7 +285,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
        */
       translateEscapeString(filename);
       if((filename[0] != '\0') && 
-         (File::getPathRecursionLevel(filename) < 1))
+         (FilesUtility::getPathRecursionLevel(filename) < 1))
       {
         return raiseHTTPError(e_401);
       }
@@ -292,7 +293,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       if(ret != e_200)
         return raiseHTTPError(ret);
     }
-    if(File::isDirectory(td.filenamePath.c_str()))
+    if(FilesUtility::isDirectory(td.filenamePath.c_str()))
     {
       directory.assign(td.filenamePath);
     }
@@ -300,7 +301,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     {
       string fn;
       fn.assign(filename);
-      File::splitPath(td.filenamePath, directory, fn);
+      FilesUtility::splitPath(td.filenamePath, directory, fn);
     }
     if(td.connection->protocolBuffer == 0)
     {
@@ -416,7 +417,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     {
       return sendAuth();
     }
-    if(File::fileExists(td.filenamePath.c_str()))
+    if(FilesUtility::fileExists(td.filenamePath.c_str()))
     {
       /*! If the file exists update it. */
       File file;
@@ -534,7 +535,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
     st.authType = authType;
     st.authTypeLen = 16;
     st.td=&td;
-    File::splitPath(td.filenamePath, directory, file);    
+    FilesUtility::splitPath(td.filenamePath, directory, file);    
     td.response.httpStatus = httpStatus;
     /*!
      *td.filenamePath is the file system mapped path while filename 
@@ -554,7 +555,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
        *send a HTTP 401 error page.
        */
       translateEscapeString(filename );
-      if((filename[0] != '\0') && (File::getPathRecursionLevel(filename)<1))
+      if((filename[0] != '\0') && (FilesUtility::getPathRecursionLevel(filename)<1))
       {
         return raiseHTTPError(e_401);
       }
@@ -562,13 +563,13 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       if(ret != e_200)
         return raiseHTTPError(ret);
     }
-    if(File::isDirectory(td.filenamePath.c_str()))
+    if(FilesUtility::isDirectory(td.filenamePath.c_str()))
     {
       directory.assign(td.filenamePath);
     }
     else
     {
-      File::splitPath(td.filenamePath, directory, file);
+      FilesUtility::splitPath(td.filenamePath, directory, file);
     }
 
     if(td.connection->protocolBuffer == 0)
@@ -684,9 +685,9 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
 	  {
       return sendAuth();
     }
-    if(File::fileExists(td.filenamePath))
+    if(FilesUtility::fileExists(td.filenamePath))
 	  {
-      File::deleteFile(td.filenamePath.c_str());
+      FilesUtility::deleteFile(td.filenamePath.c_str());
       /*! Successful deleted.  */
       return raiseHTTPError(e_202);
     }
@@ -866,7 +867,7 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 			if(td->inputData.getHandle())
 			{
 				td->inputData.closeFile();
-				File::deleteFile(td->inputDataPath);
+				FilesUtility::deleteFile(td->inputDataPath);
 			}
 			/*!
 			 *If the outputData file was not closed close it.
@@ -874,7 +875,7 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 			if(td->outputData.getHandle())
 			{
 				td->outputData.closeFile();
-				File::deleteFile(td->outputDataPath);
+				FilesUtility::deleteFile(td->outputDataPath);
 			}
 			retvalue = raiseHTTPError(e_400);
 			logHTTPaccess();
@@ -928,7 +929,7 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 						if(ret == -1)
 						{
 							td->inputData.closeFile();
-							td->inputData.deleteFile(td->inputDataPath);
+							FilesUtility::deleteFile(td->inputDataPath);
 							*retcmd = ClientsThread::DELETE_CONNECTION;
 							return 1;
 						}
@@ -937,7 +938,7 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 																				 static_cast<u_long>(ret), &nbw))
 						{
 							td->inputData.closeFile();
-							td->inputData.deleteFile(td->inputDataPath);
+							FilesUtility::deleteFile(td->inputDataPath);
 							*retcmd = ClientsThread::DELETE_CONNECTION;
 							return 1;
 						}
@@ -959,9 +960,9 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 				 *If we get an error remove the file and the connection.
 				 */
 				td->inputData.closeFile();
-				td->inputData.deleteFile(td->inputDataPath);
+				FilesUtility::deleteFile(td->inputDataPath);
 				td->outputData.closeFile();
-				td->outputData.deleteFile(td->outputDataPath);
+				FilesUtility::deleteFile(td->outputDataPath);
 				retvalue = raiseHTTPError(e_500);
 				logHTTPaccess();
 				*retcmd = retvalue ? ClientsThread::KEEP_CONNECTION 
@@ -987,8 +988,8 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 					if(td->inputData.writeToFile(td->buffer2->getBuffer(), ret, 
 																			 &nbw))
 					{
-						td->inputData.deleteFile(td->inputDataPath);
 						td->inputData.closeFile();
+						FilesUtility::deleteFile(td->inputDataPath);
 						*retcmd = ClientsThread::DELETE_CONNECTION;
 						return 1;
 					}
@@ -1084,7 +1085,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
        */
       translateEscapeString(filename);
       if(filename.length() && (filename[0] != '\0')&&
-         (File::getPathRecursionLevel(filename) < 1))
+         (FilesUtility::getPathRecursionLevel(filename) < 1))
       {
         return raiseHTTPError(e_401);
       }
@@ -1099,20 +1100,20 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
     if(!systemrequest)
     {
-      if(File::isLink(td.filenamePath.c_str())) 
+      if(FilesUtility::isLink(td.filenamePath.c_str())) 
       {
         const char *perm = td.connection->host->getHashedData("FOLLOW_LINKS");
         if(!perm || strcmpi(perm, "YES"))
           return raiseHTTPError(e_401);
       }
 
-      if(File::isDirectory(td.filenamePath.c_str()))
+      if(FilesUtility::isDirectory(td.filenamePath.c_str()))
       {
 				directory.assign(td.filenamePath);
       }
       else
       {
-        File::splitPath(td.filenamePath, directory, file);
+        FilesUtility::splitPath(td.filenamePath, directory, file);
       }
 
       if(td.connection->protocolBuffer == 0)
@@ -1255,7 +1256,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         /*!
          *If the token is a file.
          */
-        if(!File::isDirectory(dirscan.c_str()))
+        if(!FilesUtility::isDirectory(dirscan.c_str()))
         {
           td.pathInfo.assign((char*)&(td.filenamePath[i]));
           td.filenamePath.assign(dirscan);
@@ -1285,13 +1286,13 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       ret = getPath(td.pathTranslated, &((td.pathInfo.c_str())[1]), 0);
       if(ret != e_200)
         return raiseHTTPError(ret);
-      File::completePath(td.pathTranslated);
+      FilesUtility::completePath(td.pathTranslated);
     }
     else
     {
       td.pathTranslated.assign("");
     }
-    File::completePath(td.filenamePath);
+    FilesUtility::completePath(td.filenamePath);
 
     /*!
      *If there are not any extension then we do one of this in order:
@@ -1299,7 +1300,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
      *2)We send the directory content.
      *3)We send an error.
      */
-    if(File::isDirectory(td.filenamePath.c_str()))
+    if(FilesUtility::isDirectory(td.filenamePath.c_str()))
     {
       int i;
       if(!(permissions & MYSERVER_PERMISSION_BROWSE))
@@ -1320,7 +1321,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
           break;
         }
 
-        if(File::fileExists(defaultFileName.str().c_str()))
+        if(FilesUtility::fileExists(defaultFileName.str().c_str()))
         { 
           ostringstream nURL;
           if(td.request.uriEndsWithSlash)
@@ -1349,7 +1350,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 													onlyHeader);
     }
     
-    if(!File::fileExists(td.filenamePath.c_str()))
+    if(!FilesUtility::fileExists(td.filenamePath.c_str()))
       return raiseHTTPError(e_404);
 
     /*!
@@ -1674,7 +1675,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       return sendAuth();
     }
 
-    lastMT = File::getLastModTime(td.filenamePath.c_str());
+    lastMT = FilesUtility::getLastModTime(td.filenamePath.c_str());
     if(lastMT == -1)
     {
       return raiseHTTPError(e_500);
@@ -1973,7 +1974,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 														 FILE_NO_INHERIT|FILE_OPEN_READ|FILE_OPEN_WRITE))
 				{
 					td.inputData.closeFile();
-					td.inputData.deleteFile(td.inputDataPath);
+					FilesUtility::deleteFile(td.inputDataPath);
 					return 0;
 				}
 				for(;;)
@@ -1985,9 +1986,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 						if(td.inputData.readFromFile(&c, 1, &nbr))
 						{
 							td.inputData.closeFile();
-							td.inputData.deleteFile(td.inputDataPath);
+							FilesUtility::deleteFile(td.inputDataPath);
 							newStdIn.closeFile();
-							newStdIn.deleteFile(newfilename.str().c_str());
+							FilesUtility::deleteFile(newfilename.str().c_str());
 							return 0;
 						}
 						if(nbr != 1)
@@ -2006,9 +2007,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					if(td.inputData.readFromFile(&c, 1, &nbr))
 					{
 						td.inputData.closeFile();
-						td.inputData.deleteFile(td.inputDataPath);
+						FilesUtility::deleteFile(td.inputDataPath);
 						newStdIn.closeFile();
-						newStdIn.deleteFile(newfilename.str().c_str());
+						FilesUtility::deleteFile(newfilename.str().c_str());
 						return ClientsThread::DELETE_CONNECTION;
 					}
 					dataToRead = (u_long)hexToInt(buffer);
@@ -2026,9 +2027,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 																		 : td.buffer->getRealLength()-1 , &nbr))
 						{
 							td.inputData.closeFile();
-							td.inputData.deleteFile(td.inputDataPath);
+							FilesUtility::deleteFile(td.inputDataPath);
 							newStdIn.closeFile();
-							newStdIn.deleteFile(newfilename.str().c_str());
+							FilesUtility::deleteFile(newfilename.str().c_str());
 							return ClientsThread::DELETE_CONNECTION;
 						}
 						if(nbr == 0)
@@ -2037,9 +2038,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 						if(newStdIn.writeToFile(td.buffer->getBuffer(), nbr, &nbw))
 						{
 							td.inputData.closeFile();
-							td.inputData.deleteFile(td.inputDataPath);
+							FilesUtility::deleteFile(td.inputDataPath);
 							newStdIn.closeFile();
-							newStdIn.deleteFile(newfilename.str().c_str());
+							FilesUtility::deleteFile(newfilename.str().c_str());
 							return ClientsThread::DELETE_CONNECTION;
 
 						}
@@ -2052,7 +2053,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				 *Now replace the file with the not-chunked one.
 				 */
 				td.inputData.closeFile();
-				td.inputData.deleteFile(td.inputDataPath.c_str());
+				FilesUtility::deleteFile(td.inputDataPath.c_str());
 				td.inputDataPath.assign(newfilename.str().c_str());
 				td.inputData = newStdIn;
 				td.inputData.setFilePointer(0);
@@ -2070,7 +2071,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				if(td.inputData.getHandle())
 				{
 					td.inputData.closeFile();
-					File::deleteFile(td.inputDataPath);
+					FilesUtility::deleteFile(td.inputDataPath);
 				}
 				/*!
 				 *If the outputData file was not closed close it.
@@ -2078,7 +2079,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				if(td.outputData.getHandle())
 				{
 					td.outputData.closeFile();
-					File::deleteFile(td.outputDataPath);
+					FilesUtility::deleteFile(td.outputDataPath);
 				}
 				logHTTPaccess();
 				return ClientsThread::DELETE_CONNECTION;
@@ -2107,7 +2108,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         if(td.inputData.getHandle())
         {
           td.inputData.closeFile();
-          File::deleteFile(td.inputDataPath);
+          FilesUtility::deleteFile(td.inputDataPath);
         }
         /*!
          *If the outputData file was not closed close it.
@@ -2115,7 +2116,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         if(td.outputData.getHandle())
         {
           td.outputData.closeFile();
-          File::deleteFile(td.outputDataPath);
+          FilesUtility::deleteFile(td.outputDataPath);
         }
         logHTTPaccess();
 				return ClientsThread::DELETE_CONNECTION;
@@ -2140,7 +2141,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           if(td.inputData.getHandle())
           {
             td.inputData.closeFile();
-            File::deleteFile(td.inputDataPath);
+            FilesUtility::deleteFile(td.inputDataPath);
           }
           /*!
            *If the outputData file was not closed close it.
@@ -2148,7 +2149,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           if(td.outputData.getHandle())
           {
             td.outputData.closeFile();
-            File::deleteFile(td.outputDataPath);
+            FilesUtility::deleteFile(td.outputDataPath);
           }	
           logHTTPaccess();
 					return ClientsThread::DELETE_CONNECTION;
@@ -2328,7 +2329,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     if(td.inputData.getHandle())
     {
       td.inputData.closeFile();
-      File::deleteFile(td.inputDataPath);
+      FilesUtility::deleteFile(td.inputDataPath);
     }
     /*!
      *If the outputData file was not closed close it.
@@ -2336,7 +2337,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     if(td.outputData.getHandle())
     {
       td.outputData.closeFile();
-      File::deleteFile(td.outputDataPath);
+      FilesUtility::deleteFile(td.outputDataPath);
     }
 		
 		{
@@ -2556,7 +2557,7 @@ int Http::raiseHTTPError(int ID)
     
     errorFile << td.getVhostSys() << "/" << HTTP_ERROR_HTMLS[ID];
     
-    if(useMessagesFiles && File::fileExists(errorFile.str().c_str()))
+    if(useMessagesFiles && FilesUtility::fileExists(errorFile.str().c_str()))
     {
         string tmp;
         tmp.assign(HTTP_ERROR_HTMLS[ID]);
@@ -2666,7 +2667,7 @@ Internal Server Error\n\
 MimeRecord* Http::getMIME(string &filename)
 {
   string ext;
-	File::getFileExt(ext, filename);
+	FilesUtility::getFileExt(ext, filename);
 	
   if(allowVhostMime && td.connection->host->isMIME() )
   {
@@ -2688,7 +2689,7 @@ int Http::getPath(string& filenamePath, const char *filename,
 	if(systemrequest)
 	{
     if(!strlen(td.getVhostSys()) 
-       || File::getPathRecursionLevel(filename)< 2 )
+       || FilesUtility::getPathRecursionLevel(filename)< 2 )
     {
       return e_401;
     }
@@ -2716,7 +2717,7 @@ int Http::getPath(string& filenamePath, const char *filename,
          *Do not allow access to the system directory root but only
          *to subdirectories. 
          */
-        if(File::getPathRecursionLevel(filename)< 2)
+        if(FilesUtility::getPathRecursionLevel(filename)< 2)
         {
           return e_401;
         }

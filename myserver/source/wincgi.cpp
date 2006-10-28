@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/security.h"
 #include "../include/mime_utils.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 #include "../include/sockets.h"
 #include "../include/server.h"
 #include "../include/http_headers.h"
@@ -105,10 +106,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	u_long nbw = 0;
   ostringstream stream;
 
-	if(!File::fileExists(filename))
+	if(!FilesUtility::fileExists(filename))
 		return td->http->raiseHTTPError(e_404);
 
-	File::splitPath(filename,pathname,execname);
+	FilesUtility::splitPath(filename,pathname,execname);
 	
 	getdefaultwd(dataFilePath,MAX_PATH);
 	GetShortPathName(dataFilePath,dataFilePath,MAX_PATH);
@@ -283,7 +284,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	/*
    *Create the out file.
    */
-	if(!File::fileExists(outFilePath))
+	if(!FilesUtility::fileExists(outFilePath))
 	{
 		ret = OutFileHandle.openFile(outFilePath, FILE_CREATE_ALWAYS);
 		if (ret)
@@ -293,8 +294,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                                       "WinCGI: Error creating output file");
 			td->connection->host->warningslogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
-			File::deleteFile(outFilePath);
-			File::deleteFile(dataFilePath);
+			FilesUtility::deleteFile(outFilePath);
+			FilesUtility::deleteFile(dataFilePath);
       chain.clearAllFilters(); 
 			return td->http->raiseHTTPError(e_500);
 		}
@@ -313,8 +314,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite(msg.str().c_str());
 		td->connection->host->warningslogTerminateAccess(td->id);
-		File::deleteFile(outFilePath);
-		File::deleteFile(dataFilePath);
+		FilesUtility::deleteFile(outFilePath);
+		FilesUtility::deleteFile(dataFilePath);
     chain.clearAllFilters();
 		return td->http->raiseHTTPError(e_500);
 	}
@@ -341,8 +342,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		td->connection->host->warningsLogWrite(msg.str().c_str());
 		td->connection->host->warningslogTerminateAccess(td->id);
 		OutFileHandle.closeFile();
-		File::deleteFile(outFilePath);
-		File::deleteFile(dataFilePath);
+		FilesUtility::deleteFile(outFilePath);
+		FilesUtility::deleteFile(dataFilePath);
     chain.clearAllFilters();
 		return td->http->raiseHTTPError(e_500);
 	}
@@ -388,8 +389,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 									 &nbw2))
     {
       OutFileHandle.closeFile();
-      File::deleteFile(outFilePath);
-      File::deleteFile(dataFilePath);
+      FilesUtility::deleteFile(outFilePath);
+      FilesUtility::deleteFile(dataFilePath);
       chain.clearAllFilters();
       return 0;
     }
@@ -397,8 +398,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     if(onlyHeader)
     {
       OutFileHandle.closeFile();
-      File::deleteFile(outFilePath);
-      File::deleteFile(dataFilePath);
+      FilesUtility::deleteFile(outFilePath);
+      FilesUtility::deleteFile(dataFilePath);
       chain.clearAllFilters();
       return 1;
     }
@@ -439,8 +440,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
         if(ret)
         {
           OutFileHandle.closeFile();
-          File::deleteFile(outFilePath);
-          File::deleteFile(dataFilePath);
+          FilesUtility::deleteFile(outFilePath);
+          FilesUtility::deleteFile(dataFilePath);
           chain.clearAllFilters();
           return 0;
         }
@@ -452,8 +453,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
         if(ret == -1)
         {
           OutFileHandle.closeFile();
-          File::deleteFile(outFilePath);
-          File::deleteFile(dataFilePath);
+          FilesUtility::deleteFile(outFilePath);
+          FilesUtility::deleteFile(dataFilePath);
           chain.clearAllFilters();
           return 0;
         }
@@ -468,8 +469,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
   chain.clearAllFilters();	
 	OutFileHandle.closeFile();
-	File::deleteFile(outFilePath);
-	File::deleteFile(dataFilePath);
+	FilesUtility::deleteFile(outFilePath);
+	FilesUtility::deleteFile(dataFilePath);
 	return 1;
 #else
   /*

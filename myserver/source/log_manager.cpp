@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/log_manager.h"
 #include "../include/utility.h"
 #include "../include/gzip.h"
+#include "../include/files_utility.h"
 
 #include <string>
 #include <sstream>
@@ -236,8 +237,8 @@ int LogManager::storeFile()
 #endif
 
     filepath.assign(getFile()->getFilename());
-    File::completePath(filepath);
-    File::splitPath(filepath, filedir, filename);
+    FilesUtility::completePath(filepath);
+    FilesUtility::splitPath(filepath, filedir, filename);
 
     getRFC822LocalTime(time, 32);
     time = trim(time.substr(5,32));
@@ -350,7 +351,7 @@ int LogManager::storeFile()
       }
       newFile.closeFile();
       currentFile->closeFile();
-      File::deleteFile(filepath.c_str());
+      FilesUtility::deleteFile(filepath.c_str());
       if(currentFile->openFile(filepath.c_str(), FILE_OPEN_APPEND| 
                        FILE_OPEN_ALWAYS|FILE_OPEN_WRITE|FILE_OPEN_READ|FILE_NO_INHERIT))
       {

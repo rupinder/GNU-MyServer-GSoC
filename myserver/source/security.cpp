@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/connection.h"
 #include "../include/securestr.h"
 #include "../include/myserver_regex.h"
+#include "../include/files_utility.h"
 
 #include <string>
 #include <sstream>
@@ -82,7 +83,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
   if(parser == 0)
   { 
     permissionsFile << sysDir << "/security" ;
-    if(!File::fileExists(permissionsFile.str().c_str()))
+    if(!FilesUtility::fileExists(permissionsFile.str().c_str()))
     {
       return 0;
     }
@@ -232,7 +233,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     permissionsFile << st->directory << "/security";
 
     /* If the specified file doesn't exist return 0.  */
-    if(!File::fileExists(permissionsFile.str().c_str()))
+    if(!FilesUtility::fileExists(permissionsFile.str().c_str()))
     {
       return 0;
     }

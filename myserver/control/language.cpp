@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2002, 2003, 2004 The MyServer Team
+ Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +23,8 @@ extern "C"
 #include <stdio.h>
 #include <string.h>
 }
+
+#include "../include/files_utility.h"
 
 // Debug flag.  Set this to print (to stdout) xml tags that were not found.
 // This will generate the expected xml data that was not found that can
@@ -260,7 +262,7 @@ void LanguageXMLload()
 #ifdef WIN32
    strncpy(languages_path, "languages/", MAX_PATH);
 #else
-   if(File::fileExists("languages"))
+   if(FilesUtility::fileExists("languages"))
      {
 	strncpy(languages_path, "languages/", MAX_PATH);
      }
@@ -272,7 +274,7 @@ void LanguageXMLload()
 	strncpy(languages_path, "/usr/share/myserver/languages/", MAX_PATH);
 # endif
      }
-   if(!(File::fileExists(languages_path)))
+   if(!(FilesUtility::fileExists(languages_path)))
      {
 	loadok = false;
 	langFound = false;
@@ -290,16 +292,16 @@ void LanguageXMLload()
    // just a little hack
    snprintf(main_configuration_file, MAX_PATH, "%s/.myserver/myserver.xml", getenv("HOME"));
 #endif
-   if(File::fileExists("myserver.xml"))
+   if(FilesUtility::fileExists("myserver.xml"))
      {
 	strncpy(main_configuration_file,"myserver.xml", MAX_PATH);
      }
 #ifndef WIN32
-   else if(File::fileExists(main_configuration_file))
+   else if(FilesUtility::fileExists(main_configuration_file))
      {
 	// do nothing
      }
-   else if(File::fileExists("/etc/myserver/myserver.xml"))
+   else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
      {
 	strncpy(main_configuration_file,"/etc/myserver/myserver.xml", MAX_PATH);
      }

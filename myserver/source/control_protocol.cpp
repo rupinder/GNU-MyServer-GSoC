@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocols_manager.h"
 #include "../include/control_errors.h"
 #include "../include/stringutils.h"
+#include "../include/files_utility.h"
 
 extern "C" 
 {
@@ -287,7 +288,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       addToErrorLog(a,b2, strlen(b2));
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
       Ifile->closeFile();
-      File::deleteFile(IfilePath.str().c_str());
+      FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       return 0;
     }
@@ -302,7 +303,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         addToErrorLog(a,b2, strlen(b2));
         sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
         Ifile->closeFile();
-        File::deleteFile(IfilePath.str().c_str());
+        FilesUtility::deleteFile(IfilePath.str().c_str());
         delete Ifile;
         Ifile=0;
         return 0;
@@ -325,7 +326,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
           addToErrorLog(a,b2, strlen(b2));
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
           Ifile->closeFile();
-          File::deleteFile(IfilePath.str().c_str());
+          FilesUtility::deleteFile(IfilePath.str().c_str());
           delete Ifile;
           Ifile=0;
           return -1;
@@ -338,7 +339,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
           addToErrorLog(a,b2, strlen(b2));
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
           Ifile->closeFile();
-          File::deleteFile(IfilePath.str().c_str());
+          FilesUtility::deleteFile(IfilePath.str().c_str());
           delete Ifile;
           Ifile=0;
         }
@@ -353,7 +354,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         addToErrorLog(a,b2, strlen(b2));
         sendResponse(b2, bs2, a, CONTROL_BAD_LEN, 0);
         Ifile->closeFile();
-        File::deleteFile(IfilePath.str().c_str());
+        FilesUtility::deleteFile(IfilePath.str().c_str());
         delete Ifile;
         Ifile=0;
         return 0;
@@ -377,7 +378,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     if(Ifile)
     {
       Ifile->closeFile();
-      File::deleteFile(IfilePath.str().c_str());
+      FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
     }
@@ -397,7 +398,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     if(Ifile)
     {
       Ifile->closeFile();
-      File::deleteFile(IfilePath.str().c_str());
+      FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
     }
@@ -415,7 +416,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     if(Ifile)
     {
       Ifile->closeFile();
-      File::deleteFile(IfilePath.str().c_str());
+      FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
     }
@@ -439,7 +440,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     addToErrorLog(a,b2, strlen(b2));
     sendResponse(b2, bs2, a, CONTROL_INTERNAL, 0);
     Ifile->closeFile();
-    File::deleteFile(IfilePath.str().c_str());
+    FilesUtility::deleteFile(IfilePath.str().c_str());
     delete Ifile;
     Ifile=0;
     return 0;                                   
@@ -457,8 +458,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     Ifile->closeFile();
     delete Ifile;
 
-    File::deleteFile(IfilePath.str().c_str());
-    File::deleteFile(OfilePath.str().c_str());
+    FilesUtility::deleteFile(IfilePath.str().c_str());
+    FilesUtility::deleteFile(OfilePath.str().c_str());
 
     Ifile=0;
     Ofile=0;
@@ -545,8 +546,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       delete Ofile;
       Ofile=0;
     }
-    File::deleteFile(IfilePath.str().c_str());
-    File::deleteFile(OfilePath.str().c_str());
+    FilesUtility::deleteFile(IfilePath.str().c_str());
+    FilesUtility::deleteFile(OfilePath.str().c_str());
     connection = header.getConnection();
     /*! 
      *If the Keep-Alive was specified keep the connection in the
@@ -575,8 +576,8 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       delete Ofile;
       Ofile=0;
     }
-    File::deleteFile(IfilePath.str().c_str());
-    File::deleteFile(OfilePath.str().c_str());
+    FilesUtility::deleteFile(IfilePath.str().c_str());
+    FilesUtility::deleteFile(OfilePath.str().c_str());
     return 0;
   }
 }
@@ -835,7 +836,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
   {
     filename = Server::getInstance()->getVhostConfFile();
   }
-  else if(!File::fileExists(fn))
+  else if(!FilesUtility::fileExists(fn))
   {
     /*! If we cannot find the file send the right error ID. */
     string msg;
@@ -926,7 +927,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
   }  
 
   /*! Remove the file before create it. */
-  ret = File::deleteFile(filename);
+  ret = FilesUtility::deleteFile(filename);
 
   /*! An internal server error happens. */
   if(ret)
@@ -1032,7 +1033,7 @@ int ControlProtocol::showLanguageFiles(ConnectionPtr a, File* out,
       continue;
  
     filename.assign(fd.name);
-    File::getFileExt(ext, filename);
+    FilesUtility::getFileExt(ext, filename);
     if(stringcmpi(ext, "xml") == 0)
     {
       ret = out->writeToFile(filename.c_str(), filename.length(), &nbw);

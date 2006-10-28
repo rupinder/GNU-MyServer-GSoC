@@ -112,7 +112,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
         return 0;
       }    
       strcpy((char*)lpvBuffer, tmp.c_str());
-      if(File::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
+      if(FilesUtility::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
       {
         SetLastError(ERROR_INSUFFICIENT_BUFFER);
         return 0;
@@ -914,9 +914,9 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   {
     string tmp;
     tmp.assign(cgipath);
-    File::splitPath(tmp, td->cgiRoot, td->cgiFile);
+    FilesUtility::splitPath(tmp, td->cgiRoot, td->cgiFile);
     tmp.assign(scriptpath);
-    File::splitPath(tmp, td->scriptDir, td->scriptFile);
+    FilesUtility::splitPath(tmp, td->scriptDir, td->scriptFile);
   }
 	connTable[connIndex].envString[0]='\0';
 	Cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);

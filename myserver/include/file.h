@@ -63,26 +63,6 @@ public:
 	u_long getFileSize();
 	int setFilePointer(u_long);
 
-	static int getPathRecursionLevel(const char*);
-  static int getPathRecursionLevel(string& filename)
-    {return getPathRecursionLevel(filename.c_str()); }
-
-	static time_t getLastModTime(const char *filename);
-	static time_t getLastModTime(string const &filename)
-    {return getLastModTime(filename.c_str());}
-
-	static time_t getCreationTime(const char *filename);
-	static time_t getCreationTime(string const &filename)
-    {return getCreationTime(filename.c_str());}
-
-	static time_t getLastAccTime(const char *filename);
-	static time_t getLastAccTime(string const &filename)
-    {return getLastAccTime(filename.c_str());}
-
-  static int chown(const char* filename, int uid, int gid);
-  static int chown(string const &filename, int uid, int gid)
-    {return chown(filename.c_str(), uid, gid);}
-
 	time_t getLastModTime();
 	time_t getCreationTime();
 	time_t getLastAccTime();
@@ -94,40 +74,6 @@ public:
 	int operator =(File);
 	int closeFile();
   int getShortFileName(char*,int);
-
-	static int completePath(char**, int *size, int dontRealloc=0);
-  static int completePath(string &fileName);
-
-	static int isDirectory(const char*);
-  static int isDirectory(string& dir){return isDirectory(dir.c_str());}
-
-	static int isLink(const char*);
-  static int isLink(string& dir){return isLink(dir.c_str());}
-
-  static int getShortFileName(char*,char*,int);
-
-	static int fileExists(const char * );
-	static int fileExists(string const &file)
-    {return fileExists(file.c_str());}
-
-	static int deleteFile(const char * );
-	static int deleteFile(string const &file)
-    {return deleteFile(file.c_str());}
-
-  static int renameFile(const char*, const char*);
-	static int renameFile(string const &before, string const &after)
-    {return renameFile(before.c_str(), after.c_str());}
-
-	static void getFileExt(char* ext,const char* filename);
-	static void getFileExt(string& ext, string const &filename);
-
-  static void splitPathLength(const char *path, int *dir, int *filename);
-	static void splitPath(const char* path, char* dir, char*filename);
-	static void splitPath(string const &path, string& dir, string& filename);
-
-  static int getFilenameLength(const char*, int *);
-	static void getFilename(const char* path, char* filename);
-	static void getFilename(string const &path, string& filename);
 
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);

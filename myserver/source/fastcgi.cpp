@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/stringutils.h"
 #include "../include/server.h"
 #include "../include/filters_chain.h"
+#include "../include/files_utility.h"
 #include <string>
 #include <sstream>
 using namespace std;
@@ -118,9 +119,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   {
     string tmp;
     tmp.assign(cgipath);
-    File::splitPath(tmp, td->cgiRoot, td->cgiFile);
+    FilesUtility::splitPath(tmp, td->cgiRoot, td->cgiFile);
     tmp.assign(scriptpath);
-    File::splitPath(tmp, td->scriptDir, td->scriptFile);
+    FilesUtility::splitPath(tmp, td->scriptDir, td->scriptFile);
   }
 
   chain.setProtocol(td->http);
@@ -184,10 +185,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         tmpCgiPath.assign(&cgipath[begin], end-begin);
         moreArg.assign("");
       }
-      File::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
+      FilesUtility::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
     }
     tmpCgiPath.assign(scriptpath);
-    File::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
+    FilesUtility::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
   }
 
 	if(execute)
@@ -556,7 +557,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 																				td->buffer->getRealLength(), &nbr))
   {
     con.tempOut.closeFile();
-    File::deleteFile(outDataPath.str().c_str());
+    FilesUtility::deleteFile(outDataPath.str().c_str());
     con.sock.closesocket();
     chain.clearAllFilters();
     return td->http->sendHTTPhardError500();
@@ -587,7 +588,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		if(td->response.location[0])
 		{
       con.tempOut.closeFile();
-      File::deleteFile(outDataPath.str().c_str());
+      FilesUtility::deleteFile(outDataPath.str().c_str());
       con.sock.closesocket();
       chain.clearAllFilters();
 			return td->http->sendHTTPRedirect((char*)td->response.location.c_str());
@@ -757,7 +758,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	}
   chain.clearAllFilters();
 	con.tempOut.closeFile();
-	File::deleteFile(outDataPath.str().c_str());
+	FilesUtility::deleteFile(outDataPath.str().c_str());
 	con.sock.closesocket();
 	return ret;
 }

@@ -19,16 +19,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/server.h"
 
-/*! Include headers for built-in protocols. */
-#include "../include/http.h"	/*Include the HTTP protocol. */
-#include "../include/https.h" /*Include the HTTPS protocol. */
-#include "../include/control_protocol.h" /*Include the control protocol. */
+/*! Include headers for built-in protocols.  */
+#include "../include/http.h"	/*Include the HTTP protocol.  */
+#include "../include/https.h" /*Include the HTTPS protocol.  */
+#include "../include/control_protocol.h" /*Include the control protocol.  */
 
 #include "../include/security.h"
 #include "../include/stringutils.h"
 #include "../include/sockets.h"
 #include "../include/gzip.h"
 #include "../include/myserver_regex.h"
+#include "../include/files_utility.h"
 
 extern "C" {
 #ifdef WIN32
@@ -266,9 +267,9 @@ void Server::start()
 
     loadSettings();
 
-    mainConfTime = File::getLastModTime(mainConfigurationFile->c_str());
-    hostsConfTime = File::getLastModTime(vhostConfigurationFile->c_str());
-    mimeConf = File::getLastModTime(mimeConfigurationFile->c_str());
+    mainConfTime = FilesUtility::getLastModTime(mainConfigurationFile->c_str());
+    hostsConfTime = FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
+    mimeConf = FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
 
     /*!
      *Keep thread alive.
@@ -286,11 +287,11 @@ void Server::start()
         if(configsCheck > 10)
         {
           time_t mainConfTimeNow =
-            File::getLastModTime(mainConfigurationFile->c_str());
+            FilesUtility::getLastModTime(mainConfigurationFile->c_str());
           time_t hostsConfTimeNow =
-            File::getLastModTime(vhostConfigurationFile->c_str());
+            FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
           time_t mimeConfNow =
-            File::getLastModTime(mimeConfigurationFile->c_str());
+            FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
 
           /*! If a configuration file was modified reboot the server. */
           if(((mainConfTimeNow!=-1) && (hostsConfTimeNow!=-1)  &&
@@ -849,7 +850,7 @@ void * listenServer(void* params)
         break;
 
       /* Chown the log files.  */
-      err = File::chown(vh->getAccessesLogFileName(), uid, gid);
+      err = FilesUtility::chown(vh->getAccessesLogFileName(), uid, gid);
       if(err)
       {
         string str;
@@ -860,7 +861,7 @@ void * listenServer(void* params)
         Server::getInstance()->logEndPrintError();
       }
 
-      err = File::chown(vh->getWarningsLogFileName(), uid, gid);
+      err = FilesUtility::chown(vh->getWarningsLogFileName(), uid, gid);
       if(err)
       {
         string str;
@@ -1212,7 +1213,7 @@ int Server::initialize(int /*!osVer*/)
    *Do not use the files in the directory /usr/share/myserver/languages
    *if exists a local directory.
    */
-	if(File::fileExists("languages"))
+	if(FilesUtility::fileExists("languages"))
 	{
 		languagesPath->assign(getdefaultwd(0, 0) );
     languagesPath->append("/languages/");
@@ -1246,22 +1247,22 @@ int Server::initialize(int /*!osVer*/)
    *3) /etc/myserver/
    *4) default files will be copied in myserver executable working
    */
-	if(File::fileExists("myserver.xml"))
+	if(FilesUtility::fileExists("myserver.xml"))
 	{
 		mainConfigurationFile->assign("myserver.xml");
 	}
-	else if(File::fileExists("~/.myserver/myserver.xml"))
+	else if(FilesUtility::fileExists("~/.myserver/myserver.xml"))
 	{
 		mainConfigurationFile->assign("~/.myserver/myserver.xml");
 	}
-	else if(File::fileExists("/etc/myserver/myserver.xml"))
+	else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
 	{
 		mainConfigurationFile->assign("/etc/myserver/myserver.xml");
 	}
 	else
 #endif
 	/*! If the myserver.xml files doesn't exist copy it from the default one. */
-	if(!File::fileExists("myserver.xml"))
+	if(!FilesUtility::fileExists("myserver.xml"))
 	{
     mainConfigurationFile->assign("myserver.xml");
 		File inputF;
@@ -1956,15 +1957,15 @@ int Server::loadSettings()
      *3) /etc/myserver/
      *4) default files will be copied in myserver executable working
      */
-    if(File::fileExists("MIMEtypes.xml"))
+    if(FilesUtility::fileExists("MIMEtypes.xml"))
     {
       mimeConfigurationFile->assign("MIMEtypes.xml");
     }
-    else if(File::fileExists("~/.myserver/MIMEtypes.xml"))
+    else if(FilesUtility::fileExists("~/.myserver/MIMEtypes.xml"))
     {
       mimeConfigurationFile->assign("~/.myserver/MIMEtypes.xml");
     }
-    else if(File::fileExists("/etc/myserver/MIMEtypes.xml"))
+    else if(FilesUtility::fileExists("/etc/myserver/MIMEtypes.xml"))
     {
       mimeConfigurationFile->assign("/etc/myserver/MIMEtypes.xml");
     }
@@ -1974,7 +1975,7 @@ int Server::loadSettings()
        *If the MIMEtypes.xml files doesn't exist copy it
        *from the default one.
        */
-      if(!File::fileExists("MIMEtypes.xml"))
+      if(!FilesUtility::fileExists("MIMEtypes.xml"))
       {
         File inputF;
         File outputF;
@@ -2056,15 +2057,15 @@ int Server::loadSettings()
      *3) /etc/myserver/
      *4) default files will be copied in myserver executable working
      */
-    if(File::fileExists("virtualhosts.xml"))
+    if(FilesUtility::fileExists("virtualhosts.xml"))
     {
       vhostConfigurationFile->assign("virtualhosts.xml");
     }
-    else if(File::fileExists("~/.myserver/virtualhosts.xml"))
+    else if(FilesUtility::fileExists("~/.myserver/virtualhosts.xml"))
     {
       vhostConfigurationFile->assign("~/.myserver/virtualhosts.xml");
     }
-    else if(File::fileExists("/etc/myserver/virtualhosts.xml"))
+    else if(FilesUtility::fileExists("/etc/myserver/virtualhosts.xml"))
     {
       vhostConfigurationFile->assign("/etc/myserver/virtualhosts.xml");
     }
@@ -2074,7 +2075,7 @@ int Server::loadSettings()
        *If the virtualhosts.xml file doesn't exist copy it
        *from the default one.
        */
-      if(!File::fileExists("virtualhosts.xml"))
+      if(!FilesUtility::fileExists("virtualhosts.xml"))
       {
         File inputF;
         File outputF;
@@ -2124,7 +2125,7 @@ int Server::loadSettings()
 			delete externalPath;
 		externalPath = new string();
 #ifdef NOT_WIN
-    if(File::fileExists("external"))
+    if(FilesUtility::fileExists("external"))
       externalPath->assign("external");
     else
     {

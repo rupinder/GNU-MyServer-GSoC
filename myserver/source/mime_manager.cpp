@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../stdafx.h"
 #include "../include/mime_manager.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 #include "../include/stringutils.h"
 #include "../include/xml_parser.h"
 
@@ -431,7 +432,7 @@ int MimeRecord::addFilter(const char* n, int acceptDuplicate)
  */
 int MimeManager::saveXML(const char *filename)
 {
-	File::deleteFile(filename);
+	FilesUtility::deleteFile(filename);
 	File f;
 	u_long nbw;
 	HashMap<string, MimeRecord*>::Iterator it = data->begin();
@@ -500,7 +501,7 @@ int MimeManager::save(const char *filename)
 	HashMap<string, MimeRecord*>::Iterator it = data->begin();
 	HashMap<string, MimeRecord*>::Iterator end = data->end();
 
-	File::deleteFile(filename);
+	FilesUtility::deleteFile(filename);
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	for(;it != end; it++ )
 	{

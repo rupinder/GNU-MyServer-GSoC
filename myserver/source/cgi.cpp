@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/security.h"
 #include "../include/mime_utils.h"
 #include "../include/file.h"
+#include "../include/files_utility.h"
 #include "../include/sockets.h"
 #include "../include/utility.h"
 #include "../include/mem_buff.h"
@@ -155,10 +156,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       tmpCgiPath.assign(&cgipath[begin], end-begin);
       moreArg.assign("");
     }
-    File::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
+    FilesUtility::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
     
     tmpCgiPath.assign(scriptpath);
-    File::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
+    FilesUtility::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
   }
 
   chain.setProtocol(td->http);
@@ -229,7 +230,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	else
 	{
      /* Check if the CGI executable exists.  */
-		if((!cgipath) || (!File::fileExists(tmpCgiPath.c_str())))
+		if((!cgipath) || (!FilesUtility::fileExists(tmpCgiPath.c_str())))
 		{
 			td->connection->host->warningslogRequestAccess(td->id);
       if(cgipath && strlen(cgipath))
@@ -654,7 +655,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 					stdOutFile.close();
 					stdInFile.closeFile();
 					chain.clearAllFilters(); 
-					File::deleteFile(td->inputDataPath);
+					FilesUtility::deleteFile(td->inputDataPath);
 					/* Remove the connection on sockets error.  */
 					cgiProc.terminateProcess();
 					return 0;      
@@ -691,7 +692,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	
 	/* Delete the file only if it was created by the CGI module.  */
 	if(!td->inputData.getHandle())
-	  File::deleteFile(td->inputDataPath.c_str());
+	  FilesUtility::deleteFile(td->inputDataPath.c_str());
   
 	return 1;  
 }

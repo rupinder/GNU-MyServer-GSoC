@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../../../cgi-lib/cgi_manager.h"
 #include "../../../../include/thread.h"
 #include "../../../../include/mutex.h"
+#include "../../../../include/files_utility.h"
 #include "counter_output.h"
 #include <limits.h>
 
@@ -49,7 +50,7 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	
 	File msfile;
 
-	if(File::fileExists("count.dat"))
+	if(FilesUtility::fileExists("count.dat"))
 	{
 		// read the last number
 		if(msfile.openFile("count.dat", FILE_OPEN_READ|FILE_OPEN_IFEXISTS) == 0)
