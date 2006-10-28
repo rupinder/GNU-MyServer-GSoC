@@ -63,7 +63,12 @@ extern "C" {
 #define SD_BOTH SHUT_RDWR
 #endif
 
+#ifdef INET6_ADDRSTRLEN
 #define MAX_IP_STRING_LEN	INET6_ADDRSTRLEN
+#else
+#define MAX_IP_STRING_LEN	32
+#endif
+
 typedef unsigned int SocketHandle;
 typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
 typedef struct sockaddr_storage MYSERVER_SOCKADDRIN;
