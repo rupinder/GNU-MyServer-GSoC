@@ -39,7 +39,10 @@ extern "C" {
 #endif
 
 extern int mustEndServer;
+
+#ifdef HAVE_PTHREAD
 Mutex Process::forkMutex;
+#endif
 
 /*!
  *Execute an hidden process and wait until it ends itself or its execution

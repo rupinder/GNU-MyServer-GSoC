@@ -35,8 +35,8 @@ extern "C" {
 
 #ifdef WIN32
 #include <direct.h>
+#include <time.h>
 #endif
-#define u_short unsigned short
 
 /*!
  *This function format current time to the RFC 822 format and output 
@@ -334,11 +334,17 @@ const char *getRFC822LocalTime(char* out, int len)
 const char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
 	char *asct;
-	tm result;
+	tm *result;
 	u_long ind = 0;
-	localtime_r( &ltime, &result );
-	result.tm_year+=1900;
-	asct=asctime(&result);
+#ifdef WIN32
+	result = localtime( &ltime );
+#else
+	tm tmp;
+	localtime_r( &ltime, &tmp );
+	result = &tmp;
+#endif
+	result->tm_year += 1900;
+	asct=asctime(result);
 	out[ind++] = asct[0];
 	out[ind++] = asct[1];
 	out[ind++] = asct[2];
@@ -355,7 +361,7 @@ const char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 	out[ind++] = asct[6];
 	out[ind++] = ' ';
 
-	sprintf(&out[ind], "%i", result.tm_year);
+	sprintf(&out[ind], "%i", result->tm_year);
 	ind += 4;
 
 	out[ind++] = ' ';
@@ -517,30 +523,36 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 	time_t ltime;
 	time( &ltime );
 	char *asct;
-	tm result;
-	localtime_r( &ltime, &result );
+	tm *result;
+#ifdef WIN32
+	result = localtime( &ltime );
+#else
+    tm tmp;
+	localtime_r( &ltime, &tmp );
+    result = &tmp;
+#endif
   if(len < 25)
     return 0;
-  result.tm_year += 1900;
-	asct = asctime(&result);
- 	out[0] = asct[8];
-	out[1] = asct[9];
-	out[2] = '/';
-	out[3] = asct[4];
-	out[4] = asct[5];
-	out[5] = asct[6];
-	out[6] = '/';
-	sprintf(&out[7], "%i", result.tm_year);
-	out[11] = ':';
-	out[12] = asct[11];
-	out[13] = asct[12];
-	out[14] = ':';
-	out[15] = asct[14];
-	out[16] = asct[15];
-	out[17] = ':';
-	out[18] = asct[17];
-	out[19] = asct[18];
-	out[20] = ' ';
+  result->tm_year += 1900;
+  asct = asctime(result);
+  out[0] = asct[8];
+  out[1] = asct[9];
+  out[2] = '/';
+  out[3] = asct[4];
+  out[4] = asct[5];
+  out[5] = asct[6];
+  out[6] = '/';
+  sprintf(&out[7], "%i", result->tm_year);
+  out[11] = ':';
+  out[12] = asct[11];
+  out[13] = asct[12];
+  out[14] = ':';
+  out[15] = asct[14];
+  out[16] = asct[15];
+  out[17] = ':';
+  out[18] = asct[17];
+  out[19] = asct[18];
+  out[20] = ' ';
   out[21] = '+';
   out[22] = '0';
   out[23] = '0';
