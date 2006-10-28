@@ -2168,10 +2168,20 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				
 				if(documentRoot.length())
 				{
+
+					const char *useHomeDir = td.connection-> host ? 
+						td.connection->host->getHashedData("USE_HOME_DIRECTORY") : 0;
+
 					const char *homeDir = td.connection-> host ? 
 						td.connection->host->getHashedData("HOME_DIRECTORY") : 0;
+
 					if(homeDir == 0)
 						homeDir = "public_html";
+
+					if(useHomeDir == 0 || strcmpi(useHomeDir, "YES"))
+						return raiseHTTPError(e_404);
+
+
 					td.vhostDir.assign(documentRoot);
 					td.vhostDir.append("/");
 					td.vhostDir.append(homeDir);
