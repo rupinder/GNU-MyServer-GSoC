@@ -95,14 +95,16 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   
   {
     /* Do not modify the text between " and ".  */
-    int x;
+
+		/* Are we in a string block?  */
     int subString = cgipath[0] == '"';
     int len = strlen(cgipath);
-    for(x = 1; x < len; x++)
+    int i;
+    for(i = 1; i < len; i++)
     {
-      if(!subString && cgipath[x] == ' ')
+      if(!subString && cgipath[i] == ' ')
         break;
-      if(cgipath[x] == '"')
+      if(cgipath[i] == '"' && cgipath[i - 1] != '\\')
         subString = !subString;
     }
 
@@ -134,17 +136,17 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
     /*
      *Save the cgi path and the possible arguments.
-     *the (x<len) case is when additional arguments are specified. 
+     *the (x < len) case is when additional arguments are specified. 
      *If the cgipath is enclosed between " and " do not consider them 
      *when splitting directory and file name.
      */
-    if(x < len)
+    if(i < len)
     {
       string tmpString(cgipath);
-      int begin = tmpString[0] == '"' ? 1: 0;
-      int end = tmpString[x] == '"' ? x: x-1;
-      tmpCgiPath.assign(tmpString.substr(begin, end-1));
-      moreArg.assign(tmpString.substr(x, len-1));  
+      int begin = tmpString[0] == '"' ? 1 : 0;
+      int end   = tmpString[i] == '"' ? i : i - 1;
+      tmpCgiPath.assign(tmpString.substr(begin, end - 1));
+      moreArg.assign(tmpString.substr(i, len - 1));  
     }
     else
     {
@@ -183,7 +185,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       args = td->request.uriOpts.c_str();
     else if(td->pathInfo.length())
       args = &td->pathInfo[1];
-
+		
     if(cgipath && strlen(cgipath))
       cmdLine << td->cgiRoot << "/" << td->cgiFile << " " << moreArg << " " 
 							<< td->scriptFile <<  (args ? args : "" ) ;
@@ -277,7 +279,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	{
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite
-			      ("Cgi: Cannot create CGI stdout file");
+			                    ("Cgi: Cannot create CGI stdout file");
 		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
 		return td->http->raiseHTTPError(e_500);
@@ -316,6 +318,16 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	spi.stdOut = (FileHandle) stdOutFile.getWriteHandle();
 	spi.envString = td->buffer2->getBuffer();
   
+	if(spi.stdError == -1 || spi.stdIn == -1 || spi.stdOut == -1)
+  {
+		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogWrite("Cgi: Invalid file handler");
+		td->connection->host->warningslogTerminateAccess(td->id);
+		stdOutFile.close();
+    chain.clearAllFilters(); 
+		return td->http->raiseHTTPError(e_500);
+  }
+
   /* Execute the CGI process. */
   {
     if( cgiProc.execConcurrentProcess(&spi) == -1)

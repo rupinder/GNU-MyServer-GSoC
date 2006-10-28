@@ -17,8 +17,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /*!
- *To get more info about the FastCGI protocol please visit the official FastCGI site
- *at: http://www.fastcgi.com.
+ *To get more info about the FastCGI protocol please visit the official 
+ *FastCGI site at: http://www.fastcgi.com.
  *On that site you can find samples and all the supported languages.
  */
 #include "../include/fastcgi.h"
@@ -32,22 +32,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sstream>
 using namespace std;
 
-/*! Running servers. */
+/*! Running servers.  */
 HashMap<string, FastCgiServersList*> FastCgi::serversList;
 
-/*! Is the fastcgi initialized? */
+/*! Is the fastcgi initialized?  */
 int FastCgi::initialized = 0;
 
-/*! By default allows 25 servers. */
+/*! By default allows 25 servers.  */
 int FastCgi::maxFcgiServers = 25;
 
-/*! Use a default timeout of 15 seconds. */
+/*! Use a default timeout of 15 seconds.  */
 int FastCgi::timeout = MYSERVER_SEC(15);
 
-/*! By default start binding ports from 3333. */
+/*! By default start binding ports from 3333.  */
 int FastCgi::initialPort = 3333;
 
-/*! Mutex used to access fastCGI servers. */
+/*! Mutex used to access fastCGI servers.  */
 Mutex FastCgi::serversMutex;
 
 struct FourChar
@@ -108,7 +108,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	bool useChunks = false;
 	bool keepalive = false;
 
-	/*! Size of data chunks to use with STDIN. */
+	/*! Size of data chunks to use with STDIN.  */
   const size_t maxStdinChunk = 8192;
 
 	con.td = td;
@@ -149,38 +149,38 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 
   {
-    /*! Do not modify the text between " and ". */
-    int x;
+    /*! Do not modify the text between " and ".  */
+    int i;
     int subString = cgipath[0] == '"';
     int len = strlen(cgipath);
     string tmpCgiPath;
-    for(x = 1; x < len; x++)
+    for(i = 1; i < len; i++)
     {
-      if(!subString && cgipath[x]==' ')
+      if(!subString && cgipath[i]==' ')
         break;
-      if(cgipath[x] == '"')
+      if(cgipath[i] == '"' && cgipath[i - 1] != '\\')
         subString = !subString;
     }
     /*!
      *Save the cgi path and the possible arguments.
-     *the (x<len) case is when additional arguments are specified.
+     *the (x < len) case is when additional arguments are specified.
      *If the cgipath is enclosed between " and " do not consider them
      *when splitting directory and file name.
      */
     if(len)
     {
-      if(x<len)
+      if(i < len)
       {
         string tmpString(cgipath);
         int begin = tmpString[0]=='"' ? 1: 0;
-        int end = tmpString[x]=='"' ? x: x-1;
-        tmpCgiPath.assign(tmpString.substr(begin, end-1));
-        moreArg.assign(tmpString.substr(x, len-1));
+        int end = tmpString[i] == '"' ? i : i - 1;
+        tmpCgiPath.assign(tmpString.substr(begin, end - 1));
+        moreArg.assign(tmpString.substr(i, len - 1));
       }
       else
       {
         int begin = (cgipath[0] == '"') ? 1 : 0;
-        int end   = (cgipath[len] == '"') ? len-1 : len;
+        int end   = (cgipath[len] == '"') ? len - 1 : len;
         tmpCgiPath.assign(&cgipath[begin], end-begin);
         moreArg.assign("");
       }

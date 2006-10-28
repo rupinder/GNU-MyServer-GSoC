@@ -2717,6 +2717,7 @@ int Http::getPath(string& filenamePath, const char *filename,
         root = td.getVhostDir();
       }
 			filenamePath.assign(root);
+      filenamePath.append("/");
       filenamePath.append(filename);
 		}
 		else
