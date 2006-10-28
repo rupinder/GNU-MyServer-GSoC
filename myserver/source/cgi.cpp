@@ -319,7 +319,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	spi.stdOut = (FileHandle) stdOutFile.getWriteHandle();
 	spi.envString = td->buffer2->getBuffer();
   
-	if(spi.stdError == -1 || spi.stdIn == -1 || spi.stdOut == -1)
+	if(spi.stdError ==  (FileHandle*)-1 || 
+       spi.stdIn == (FileHandle*)-1 || 
+       spi.stdOut == (FileHandle*)-1)
   {
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("Cgi: Invalid file handler");
