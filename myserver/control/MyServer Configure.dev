@@ -348,16 +348,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit31]
-FileName=..\include\files_utility.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit32]
 FileName=..\source\mutex.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -367,7 +357,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit33]
+[Unit32]
 FileName=..\source\thread.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -377,8 +367,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit34]
+[Unit33]
 FileName=..\source\file.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit34]
+FileName=..\source\files_utility.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
