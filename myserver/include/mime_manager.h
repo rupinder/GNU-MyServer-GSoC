@@ -87,18 +87,18 @@ struct MimeRecord
 {
 	list<string> filters;
 	string extension;
-	string mime_type;
-	string cmd_name;
+	string mimeType;
+	string cmdName;
 	int command;
-	string cgi_manager;
+	string cgiManager;
 	unsigned int extensionHashCode;
 	HttpHeaderChecker headerChecker;
 	MimeRecord()
 	{headerChecker.clear(); filters.clear(); extension.assign(""); 
-		mime_type.assign(""); cgi_manager.assign(""); cmd_name.assign("");
-		command=extensionHashCode=0;}
+		mimeType.assign(""); cgiManager.assign(""); cmdName.assign("");
+		command=extensionHashCode = 0;}
 	MimeRecord(MimeRecord&);
-	int addFilter(const char*, int acceptDuplicate=1);
+	int addFilter(const char*, int acceptDuplicate = 1);
 	~MimeRecord();
 	void clear();
 };

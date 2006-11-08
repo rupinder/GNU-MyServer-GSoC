@@ -34,8 +34,9 @@ using namespace std;
  *html,text/html,SEND NONE;
  *1)its extension(for example HTML)
  *2)its MIME description(for example text/html)
- *3)simple script to describe the action to do for handle the files of this type.
- *The file is ended by a '#' character.
+ *3)simple script to describe the action to do for handle the files of this 
+ *  type.
+ *The file finishes with a '#' character.
  */
 int MimeManager::load(const char *fn)
 {
@@ -44,7 +45,7 @@ int MimeManager::load(const char *fn)
   char commandString[16];
 	File f;
 	u_long nbw, fs;
-  u_long nc=0;
+  u_long nc = 0;
 	MimeRecord record;  
   if(fn == 0)
     return -1;
@@ -53,15 +54,15 @@ int MimeManager::load(const char *fn)
 		delete filename;
 	filename = new string(fn);
 
-	numMimeTypesLoaded=0;
+	numMimeTypesLoaded = 0;
 	if(data)
 		delete data;
 	data = new HashMap<string, MimeRecord*>();
-	ret=f.openFile(filename->c_str(), FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
+	ret = f.openFile(filename->c_str(), FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
 	if(ret)
 		return 0;
-	fs=f.getFileSize();
-	buffer=new char[fs+1];
+	fs = f.getFileSize();
+	buffer = new char[fs+1];
 	if(!buffer)
 		return 0;
 
@@ -72,35 +73,35 @@ int MimeManager::load(const char *fn)
 		/*!
      *Do not consider the \r \n and space characters.
      */
-		while((buffer[nc]==' ') || (buffer[nc]=='\r') ||(buffer[nc]=='\n'))
+		while((buffer[nc] == ' ') || (buffer[nc] == '\r') ||(buffer[nc] == '\n'))
 			nc++;
 		/*!
      *If is reached the # character or the end of the string end the loop.
      */
-		if(buffer[nc]=='\0'||buffer[nc]=='#'||nc==nbw)
+		if(buffer[nc] == '\0'||buffer[nc] == '#'||nc == nbw)
 			break;
-		while(buffer[nc]!=',')
+		while(buffer[nc] != ',')
 		{
       char db[2];
-      db[1]='\0';
-			if(isalpha(buffer[nc])||isdigit(buffer[nc]))
+      db[1] = '\0';
+			if(isalpha(buffer[nc]) || isdigit(buffer[nc]))
 				if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
         {
-          db[0]=buffer[nc];
+          db[0] = buffer[nc];
 					record.extension.append((const char*)db);
         }
 			nc++;
 		}
 		nc++;
-		while(buffer[nc]!=',')
+		while(buffer[nc] != ',')
 		{
       char db[2];
-      db[1]='\0';
+      db[1] = '\0';
       
-			if((buffer[nc]!='\n')&&(buffer[nc]!='\r')&&(buffer[nc]!=' '))
+			if((buffer[nc] != '\n')&&(buffer[nc] != '\r')&&(buffer[nc] != ' '))
       {
-        db[0]=buffer[nc];
-				record.mime_type.append((const char*) db);
+        db[0] = buffer[nc];
+				record.mimeType.append((const char*) db);
       }
 			nc++;
 		}
@@ -110,58 +111,58 @@ int MimeManager::load(const char *fn)
      */
 		memset(commandString, 0, 16);
 
-		while(buffer[nc]!=' ')
+		while(buffer[nc] != ' ')
 		{
-			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
-				commandString[strlen(commandString)]=buffer[nc];
+			if((buffer[nc] != '\n')&&(buffer[nc] != '\r'))
+				commandString[strlen(commandString)] = buffer[nc];
 			nc++;
 			/*!
        *Parse all the possible actions.
        *By default send the file as it is.
        */
-			record.command=CGI_CMD_SEND;
+			record.command = CGI_CMD_SEND;
 			if(!lstrcmpi(commandString, "SEND"))
-				record.command=CGI_CMD_SEND;
+				record.command = CGI_CMD_SEND;
 			else if(!lstrcmpi(commandString, "RUNCGI"))
-				record.command=CGI_CMD_RUNCGI;
+				record.command = CGI_CMD_RUNCGI;
 			else if(!lstrcmpi(commandString, "RUNMSCGI"))
-				record.command=CGI_CMD_RUNMSCGI;
+				record.command = CGI_CMD_RUNMSCGI;
 			else if(!lstrcmpi(commandString, "EXECUTE"))
-				record.command=CGI_CMD_EXECUTE;
+				record.command = CGI_CMD_EXECUTE;
 			else if(!lstrcmpi(commandString, "RUNISAPI"))
-				record.command=CGI_CMD_RUNISAPI;
+				record.command = CGI_CMD_RUNISAPI;
 			else if(!lstrcmpi(commandString, "EXECUTEISAPI"))
-				record.command=CGI_CMD_EXECUTEISAPI;
+				record.command = CGI_CMD_EXECUTEISAPI;
 			else if(!lstrcmpi(commandString, "SENDLINK"))
-				record.command=CGI_CMD_SENDLINK;
+				record.command = CGI_CMD_SENDLINK;
 			else if(!lstrcmpi(commandString, "EXECUTEWINCGI"))
-				record.command=CGI_CMD_EXECUTEWINCGI;
+				record.command = CGI_CMD_EXECUTEWINCGI;
 			else if(!lstrcmpi(commandString, "RUNFASTCGI"))
-				record.command=CGI_CMD_RUNFASTCGI;
+				record.command = CGI_CMD_RUNFASTCGI;
 			else if(!lstrcmpi(commandString, "EXECUTEFASTCGI"))
-				record.command=CGI_CMD_EXECUTEFASTCGI;
+				record.command = CGI_CMD_EXECUTEFASTCGI;
 			else
-        record.command=CGI_CMD_EXTERNAL;
-      record.cmd_name.assign(commandString);
+        record.command = CGI_CMD_EXTERNAL;
+      record.cmdName.assign(commandString);
 		}
 		nc++;
-    record.cgi_manager.assign("");
-		while(buffer[nc]!=';')
+    record.cgiManager.assign("");
+		while(buffer[nc] != ';')
 		{
       char db[2];
       db[1]='\0';
-			if((buffer[nc]!='\n')&&(buffer[nc]!='\r'))
+			if((buffer[nc] != '\n')&&(buffer[nc] != '\r'))
       {
-        db[0]=buffer[nc];
-				record.cgi_manager.append((const char*)db);
+        db[0] = buffer[nc];
+				record.cgiManager.append((const char*)db);
       }
 			nc++;
 			/*!
-       *If the CGI manager path is "NONE" then set the cgi_manager element to
+       *If the CGI manager path is "NONE" then set the cgiManager element to
        *be empty.
        */
-			if(!stringcmpi(record.cgi_manager,"NONE"))
-				record.cgi_manager.assign("");
+			if(!stringcmpi(record.cgiManager,"NONE"))
+				record.cgiManager.assign("");
 			
 		}
 		if(addRecord(record))
@@ -193,7 +194,7 @@ MimeRecord::~MimeRecord()
  */
 MimeRecord::MimeRecord(MimeRecord& m)
 {
-  list<string>::iterator i=m.filters.begin();
+  list<string>::iterator i = m.filters.begin();
 
   filters.clear(); 
 
@@ -202,10 +203,10 @@ MimeRecord::MimeRecord(MimeRecord& m)
     filters.push_back(*i);
   }
   extension.assign(m.extension); 
-  mime_type.assign(m.mime_type);
-  command=m.command;
-  cmd_name.assign(m.cmd_name);
-  cgi_manager.assign(m.cgi_manager);
+  mimeType.assign(m.mimeType);
+  command = m.command;
+  cmdName.assign(m.cmdName);
+  cgiManager.assign(m.cgiManager);
   headerChecker.clone(m.headerChecker);
 } 
 
@@ -217,9 +218,9 @@ void MimeRecord::clear()
   filters.clear();
   headerChecker.clear();
   extension.assign(""); 
-  mime_type.assign(""); 
-  cmd_name.assign("");
-  cgi_manager.assign("");
+  mimeType.assign(""); 
+  cmdName.assign("");
+  cgiManager.assign("");
 }  
 
 /*!
@@ -247,16 +248,21 @@ int MimeManager::loadXML(const char *fn)
 		delete filename;
 
 	filename = new string(fn);
+
 	if(data)
 		delete data;
-	data = new  HashMap<string, MimeRecord*>();
+
+	data = new HashMap<string, MimeRecord*>();
+
 	if(parser.open(fn))
 	{
 		return -1;
 	}
+
 	doc = parser.getDoc();
-	node=doc->children->children;
-	for(;node;node=node->next )
+	node = doc->children->children;
+
+	for(; node; node = node->next )
 	{
 		xmlNodePtr lcur = node->children;
     xmlAttr *attrs = lcur ? lcur->properties : 0;
@@ -275,7 +281,7 @@ int MimeManager::loadXML(const char *fn)
         else
           rc.headerChecker.setDefaultCmd(HttpHeaderChecker::DENY);
       }
-      attrs=attrs->next;
+      attrs = attrs->next;
     }
 
 		while(lcur)
@@ -303,7 +309,8 @@ int MimeManager::loadXML(const char *fn)
           if(!xmlStrcmp(actionAttrs->name, (const xmlChar *)"value"))
           {
             if(actionAttrs->children && actionAttrs->children->content)
-              r.value.compile((const char*)actionAttrs->children->content, REG_EXTENDED);
+              r.value.compile((const char*)actionAttrs->children->content, 
+															REG_EXTENDED);
           }
           actionAttrs=actionAttrs->next;
 
@@ -320,7 +327,7 @@ int MimeManager::loadXML(const char *fn)
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
 			{
 				if(lcur->children->content)
-					rc.mime_type.assign((const char*)lcur->children->content);
+					rc.mimeType.assign((const char*)lcur->children->content);
 			}
 
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
@@ -332,67 +339,71 @@ int MimeManager::loadXML(const char *fn)
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
 			{
         if(lcur->children->content)
-          rc.cmd_name.assign((const char*)lcur->children->content);
+          rc.cmdName.assign((const char*)lcur->children->content);
         
-        rc.command=CGI_CMD_SEND;
+        rc.command = CGI_CMD_SEND;
 
 				if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"SEND"))
-					rc.command=CGI_CMD_SEND;
+					rc.command = CGI_CMD_SEND;
 
 				else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNCGI"))
-					rc.command=CGI_CMD_RUNCGI;
+					rc.command = CGI_CMD_RUNCGI;
 			
         else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNMSCGI"))
-					rc.command=CGI_CMD_RUNMSCGI;
+					rc.command = CGI_CMD_RUNMSCGI;
 
 				else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTE"))
-					rc.command=CGI_CMD_EXECUTE;
+					rc.command = CGI_CMD_EXECUTE;
 
 				else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNISAPI"))
-					rc.command=CGI_CMD_RUNISAPI;
+					rc.command = CGI_CMD_RUNISAPI;
 
 				else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEISAPI"))
-					rc.command=CGI_CMD_EXECUTEISAPI;
+					rc.command = CGI_CMD_EXECUTEISAPI;
 
 				else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
-					rc.command=CGI_CMD_SENDLINK;
+					rc.command = CGI_CMD_SENDLINK;
 
 				else if(lcur->children->content && 
-           !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEWINCGI"))
-					rc.command=CGI_CMD_EXECUTEWINCGI;
+           !xmlStrcmp(lcur->children->content,
+											(const xmlChar *)"EXECUTEWINCGI"))
+					rc.command = CGI_CMD_EXECUTEWINCGI;
 
 				else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
-					rc.command=CGI_CMD_RUNFASTCGI;
+					rc.command = CGI_CMD_RUNFASTCGI;
 
 				else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
-					rc.command=CGI_CMD_EXECUTEFASTCGI;
+					rc.command = CGI_CMD_EXECUTEFASTCGI;
 
         else if(lcur->children->content)
-          rc.command=CGI_CMD_EXTERNAL;
+          rc.command = CGI_CMD_EXTERNAL;
 			}
 
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
 			{
-        /*! If the specified manager is not NONE store its path in the record. */
-				if(lcur->children->content && lstrcmpi((char*)lcur->children->content,"NONE"))
+        /*! 
+				 *If the specified manager is not NONE store its path in the record. 
+				 */
+				if(lcur->children->content && lstrcmpi((char*)lcur->children->content,
+																							 "NONE"))
         {
-          rc.cgi_manager.assign((const char*)lcur->children->content);
+          rc.cgiManager.assign((const char*)lcur->children->content);
         }
         else
         {
-          rc.cgi_manager.assign("");
+          rc.cgiManager.assign("");
         }
       }
-			lcur=lcur->next;
+			lcur = lcur->next;
 		}
 		if(addRecord(rc))
     {
@@ -440,9 +451,9 @@ int MimeManager::saveXML(const char *filename)
 
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
-	f.writeToFile("<MIMETYPES>\r\n",13,&nbw);
+	f.writeToFile("<MIMETYPES>\r\n", 13, &nbw);
 
-	for(; it!=end; it++)
+	for(; it != end; it++)
 	{
     MimeRecord *rc = *it;
 		char command[16];
@@ -451,42 +462,42 @@ int MimeManager::saveXML(const char *filename)
 		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
 		f.writeToFile(rc->extension.c_str(),(u_long)rc->extension.length(),&nbw);
 		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
-		f.writeToFile(rc->mime_type.c_str(),(u_long)rc->mime_type.length(),&nbw);
+		f.writeToFile(rc->mimeType.c_str(),(u_long)rc->mimeType.length(),&nbw);
 		f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
-		if(rc->command==CGI_CMD_SEND)
-			strcpy(command,"SEND");
-		else if(rc->command==CGI_CMD_RUNCGI)
-			strcpy(command,"RUNCGI");
-		else if(rc->command==CGI_CMD_RUNMSCGI)
-			strcpy(command,"RUNMSCGI");
-		else if(rc->command==CGI_CMD_EXECUTE)
-			strcpy(command,"EXECUTE");
-		else if(rc->command==CGI_CMD_SENDLINK)
-			strcpy(command,"SENDLINK");
-		else if(rc->command==CGI_CMD_RUNISAPI)
-			strcpy(command,"RUNISAPI");
-		else if(rc->command==CGI_CMD_EXECUTEISAPI)
-			strcpy(command,"EXECUTEISAPI");
-		else if(rc->command==CGI_CMD_EXECUTEWINCGI)
-			strcpy(command,"EXECUTEWINCGI");
-		else if(rc->command==CGI_CMD_RUNFASTCGI)
-			strcpy(command,"RUNFASTCGI");	
-		else if(rc->command==CGI_CMD_EXECUTEFASTCGI)
-			strcpy(command,"EXECUTEFASTCGI");	
-		else if(rc->command==CGI_CMD_EXTERNAL)
-			strcpy(command, rc->cmd_name.c_str());
+		if(rc->command == CGI_CMD_SEND)
+			strcpy(command, "SEND");
+		else if(rc->command == CGI_CMD_RUNCGI)
+			strcpy(command, "RUNCGI");
+		else if(rc->command == CGI_CMD_RUNMSCGI)
+			strcpy(command, "RUNMSCGI");
+		else if(rc->command == CGI_CMD_EXECUTE)
+			strcpy(command, "EXECUTE");
+		else if(rc->command == CGI_CMD_SENDLINK)
+			strcpy(command, "SENDLINK");
+		else if(rc->command == CGI_CMD_RUNISAPI)
+			strcpy(command, "RUNISAPI");
+		else if(rc->command == CGI_CMD_EXECUTEISAPI)
+			strcpy(command, "EXECUTEISAPI");
+		else if(rc->command == CGI_CMD_EXECUTEWINCGI)
+			strcpy(command, "EXECUTEWINCGI");
+		else if(rc->command == CGI_CMD_RUNFASTCGI)
+			strcpy(command, "RUNFASTCGI");	
+		else if(rc->command == CGI_CMD_EXECUTEFASTCGI)
+			strcpy(command, "EXECUTEFASTCGI");	
+		else if(rc->command == CGI_CMD_EXTERNAL)
+			strcpy(command, rc->cmdName.c_str());
 	
 		f.writeToFile(command,(u_long)strlen(command),&nbw);
 
 		f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
-		if(rc->cgi_manager.length())
-			f.writeToFile(rc->cgi_manager.c_str(), 
-                    (u_long)rc->cgi_manager.length(),&nbw);
+		if(rc->cgiManager.length())
+			f.writeToFile(rc->cgiManager.c_str(), 
+                    (u_long)rc->cgiManager.length(), &nbw);
 		else
-			f.writeToFile("NONE",4,&nbw);
-		f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n",25,&nbw);	
+			f.writeToFile("NONE", 4, &nbw);
+		f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n", 25, &nbw);	
 	}
-	f.writeToFile("\r\n</MIMETYPES>",14,&nbw);
+	f.writeToFile("\r\n</MIMETYPES>", 14, &nbw);
 	f.closeFile();
 	return 1;
 }
@@ -503,50 +514,50 @@ int MimeManager::save(const char *filename)
 
 	FilesUtility::deleteFile(filename);
 	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
-	for(;it != end; it++ )
+	for(;it != end; it++)
 	{
 		char command[16];
-    MimeRecord *nmr1=*it;
+    MimeRecord *nmr1 = *it;
     if(!nmr1)
       break;
 		f.writeToFile(nmr1->extension.c_str(), 
                   (u_long)nmr1->extension.length(), &nbw);
-		f.writeToFile(",",1,&nbw);
-		f.writeToFile(nmr1->mime_type.c_str(), 
-                  (u_long)nmr1->mime_type.length(), &nbw);
-		f.writeToFile(",",1,&nbw);
-		if(nmr1->command==CGI_CMD_SEND)
-			strcpy(command,"SEND ");
-		else if(nmr1->command==CGI_CMD_RUNCGI)
-			strcpy(command,"RUNCGI ");
-		else if(nmr1->command==CGI_CMD_RUNMSCGI)
-			strcpy(command,"RUNMSCGI ");
-		else if(nmr1->command==CGI_CMD_EXECUTE)
-			strcpy(command,"EXECUTE ");
-		else if(nmr1->command==CGI_CMD_SENDLINK)
-			strcpy(command,"SENDLINK ");
-		else if(nmr1->command==CGI_CMD_RUNISAPI)
-			strcpy(command,"RUNISAPI ");
-		else if(nmr1->command==CGI_CMD_EXECUTEISAPI)
-			strcpy(command,"EXECUTEISAPI ");
-		else if(nmr1->command==CGI_CMD_EXECUTEWINCGI)
-			strcpy(command,"EXECUTEWINCGI ");
-		else if(nmr1->command==CGI_CMD_RUNFASTCGI)
-			strcpy(command,"RUNFASTCGI ");	
-		else if(nmr1->command==CGI_CMD_EXECUTEFASTCGI)
-			strcpy(command,"EXECUTEFASTCGI ");	
+		f.writeToFile(",", 1, &nbw);
+		f.writeToFile(nmr1->mimeType.c_str(), 
+                  (u_long)nmr1->mimeType.length(), &nbw);
+		f.writeToFile(",", 1, &nbw);
+		if(nmr1->command == CGI_CMD_SEND)
+			strcpy(command, "SEND ");
+		else if(nmr1->command == CGI_CMD_RUNCGI)
+			strcpy(command, "RUNCGI ");
+		else if(nmr1->command == CGI_CMD_RUNMSCGI)
+			strcpy(command, "RUNMSCGI ");
+		else if(nmr1->command == CGI_CMD_EXECUTE)
+			strcpy(command, "EXECUTE ");
+		else if(nmr1->command == CGI_CMD_SENDLINK)
+			strcpy(command, "SENDLINK ");
+		else if(nmr1->command == CGI_CMD_RUNISAPI)
+			strcpy(command, "RUNISAPI ");
+		else if(nmr1->command == CGI_CMD_EXECUTEISAPI)
+			strcpy(command, "EXECUTEISAPI ");
+		else if(nmr1->command == CGI_CMD_EXECUTEWINCGI)
+			strcpy(command, "EXECUTEWINCGI ");
+		else if(nmr1->command == CGI_CMD_RUNFASTCGI)
+			strcpy(command, "RUNFASTCGI ");	
+		else if(nmr1->command == CGI_CMD_EXECUTEFASTCGI)
+			strcpy(command, "EXECUTEFASTCGI ");	
 		else
-			strcpy(command, nmr1->cmd_name.c_str());
-		f.writeToFile(command,(u_long)strlen(command),&nbw);
-		if(nmr1->cgi_manager.length())
-			f.writeToFile(nmr1->cgi_manager.c_str(), 
-                    (u_long)nmr1->cgi_manager.length(),&nbw);
+			strcpy(command, nmr1->cmdName.c_str());
+		f.writeToFile(command, (u_long)strlen(command), &nbw);
+		if(nmr1->cgiManager.length())
+			f.writeToFile(nmr1->cgiManager.c_str(), 
+                    (u_long)nmr1->cgiManager.length(), &nbw);
 		else
-			f.writeToFile("NONE",(u_long)strlen("NONE"),&nbw);
-		f.writeToFile(";\r\n",(u_long)strlen(";\r\n"),&nbw);
+			f.writeToFile("NONE", (u_long)strlen("NONE"), &nbw);
+		f.writeToFile(";\r\n", (u_long)strlen(";\r\n"), &nbw);
 	}
-	f.setFilePointer(f.getFileSize()-2);
-	f.writeToFile("#\0",2,&nbw);
+	f.setFilePointer(f.getFileSize() - 2);
+	f.writeToFile("#\0", 2, &nbw);
 	f.closeFile();
 
 	return 1;
@@ -564,19 +575,19 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
   if(mr)
   {
     if(dest)
-      strcpy(dest,mr->mime_type.c_str());
+      strcpy(dest, mr->mimeType.c_str());
 
     if(dest2)
 		{
-      if(mr->cgi_manager.length())
+      if(mr->cgiManager.length())
       {
-        *dest2=new char[mr->cgi_manager.length()+1];
-        if(*dest2==0)
+        *dest2 = new char[mr->cgiManager.length() + 1];
+        if(*dest2 == 0)
           return 0;
-        strcpy(*dest2, mr->cgi_manager.c_str());
+        strcpy(*dest2, mr->cgiManager.c_str());
         }
 				else
-					*dest2=0;
+					*dest2 = 0;
     }
     return mr->command;
   }
@@ -599,11 +610,11 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 	{
 		if(!stringcmpi(mr->extension, ext.c_str()))
 		{
-			dest.assign(mr->mime_type.c_str());
+			dest.assign(mr->mimeType.c_str());
 
-      if(mr->cgi_manager.length())
+      if(mr->cgiManager.length())
       {
-        dest2.assign(mr->cgi_manager.c_str());
+        dest2.assign(mr->cgiManager.c_str());
       }
       else
         dest2.assign("");
@@ -620,7 +631,7 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 /*!
  *Get a MIME type by the position of the record in the list.
  */
-int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
+int MimeManager::getMIME(int id, char* ext, char *dest, char **dest2)
 {
   MimeRecord *mr;
 	HashMap<string, MimeRecord*>::Iterator it;
@@ -635,7 +646,7 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
   {
     return CGI_CMD_SEND;   
   }
-	/*! FIXME: find a O(1) solution. */
+	/*! FIXME: find a O(1) solution.  */
 	while(id-- && it != end)it++;
 
   mr = *it;
@@ -646,18 +657,18 @@ int MimeManager::getMIME(int id,char* ext,char *dest,char **dest2)
   if(ext)
     strcpy(ext,mr->extension.c_str());
   if(dest)
-    strcpy(dest,mr->mime_type.c_str());
+    strcpy(dest,mr->mimeType.c_str());
   if(dest2)
   {
-    if(mr->cgi_manager.length())
+    if(mr->cgiManager.length())
     {
-      *dest2 = new char[mr->cgi_manager.length()+1];
-      if(*dest2==0)
+      *dest2 = new char[mr->cgiManager.length() + 1];
+      if(*dest2 == 0)
         return 0;
-      strcpy(*dest2, mr->cgi_manager.c_str());
+      strcpy(*dest2, mr->cgiManager.c_str());
     }
     else
-      dest2=0;
+      dest2 = 0;
   }
 
   return mr->command;
@@ -679,10 +690,10 @@ int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
   if(mr)
   {
     ext.assign(mr->extension);
-    dest.assign(mr->mime_type);
+    dest.assign(mr->mimeType);
 			
-    if(mr->cgi_manager.length())
-      dest2.assign(mr->cgi_manager.c_str());
+    if(mr->cgiManager.length())
+      dest2.assign(mr->cgiManager.c_str());
     else
       dest2.assign("");
 			
@@ -737,7 +748,7 @@ int MimeManager::addRecord(MimeRecord& mr)
 	/*!
    *If the MIME type already exists remove it.
    */
-  MimeRecord *nmr=0;
+  MimeRecord *nmr = 0;
   try
   {
 		MimeRecord *old;
@@ -766,7 +777,7 @@ int MimeManager::addRecord(MimeRecord& mr)
  */
 void MimeManager::removeRecord(const string& ext)
 {
-  MimeRecord *rec=data->remove(ext.c_str());
+  MimeRecord *rec = data->remove(ext.c_str());
   if(rec)
     delete rec;
 }
@@ -780,7 +791,7 @@ void MimeManager::removeAllRecords()
 	HashMap<string, MimeRecord*>::Iterator end = data->end();
   for(; it != end; it++)
   {
-    MimeRecord *rec=*it;
+    MimeRecord *rec = *it;
     if(rec)
       delete rec;
   }

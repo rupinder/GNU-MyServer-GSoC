@@ -62,7 +62,7 @@ void SecurityToken::reset()
   permission2    = 0;
   authType      = 0;
   authTypeLen       = 0;
-  throttlingRate = (u_long)-1;
+  throttlingRate = (int)-1;
 }
 
 /*!

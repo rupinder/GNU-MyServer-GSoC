@@ -1363,9 +1363,9 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       /*! Set the default content type, this can be changed later. */
       if(td.mime)
       {
-        td.response.contentType.assign(td.mime->mime_type);
+        td.response.contentType.assign(td.mime->mimeType);
         mimecmd = td.mime->command;
-        data.assign(td.mime->cgi_manager);
+        data.assign(td.mime->cgiManager);
       }
       else
       {
@@ -1642,7 +1642,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(allowExternal && td.mime)
       {
         DynamicHttpManager* manager = dynManagerList.getManagerByName(
-																							td.mime->cmd_name.c_str());
+																							td.mime->cmdName.c_str());
 
         if(manager)
           return manager->send(&td, td.connection, td.filenamePath.c_str(), 
