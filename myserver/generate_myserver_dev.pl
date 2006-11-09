@@ -35,7 +35,27 @@ SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0000001000000101000000
 UseCustomMakefile=0
-CustomMakefile=";
+CustomMakefile=
+
+
+[VersionInfo]
+Major=0
+Minor=8
+Release=3
+Build=1
+LanguageID=1033
+CharsetID=1252
+CompanyName=MyServer Project
+FileVersion=0.8.3-rc1
+FileDescription=MyServer webserver
+InternalName=Back to Life
+LegalCopyright=MyServer Team
+LegalTrademarks=
+OriginalFilename=myserver.exe
+ProductName=MyServer
+ProductVersion=0.8.3-rc1
+AutoIncBuildNr=0";
+
 
 $unit_options = "CompileCpp=1
 Folder=myserver
