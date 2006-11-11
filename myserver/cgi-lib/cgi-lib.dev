@@ -1,7 +1,7 @@
 [Project]
 FileName=cgi-lib.dev
 Name=CGI-LIB
-UnitCount=7
+UnitCount=8
 Type=3
 Ver=1
 ObjFiles=
@@ -110,6 +110,16 @@ BuildCmd=
 
 [Unit7]
 FileName=..\source\file.cpp
+CompileCpp=1
+Folder=CGI-LIB
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit8]
+FileName=..\source\files_utility.cpp
 CompileCpp=1
 Folder=CGI-LIB
 Compile=1
