@@ -488,6 +488,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
 	do
 	{	
+		string formattedName;
+		string::size_type pos = 0;
 		if(fd.name[0] == '.')
 			continue;
 		/* Do not show the security file.  */
@@ -502,9 +504,14 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 			*td->buffer2 << &td->request.uri[startchar];
 			*td->buffer2 << "/" ;
 		}
-		*td->buffer2 << fd.name ;
+		/* TODO: add other characters.  */
+		formattedName.assign(fd.name);
+		while((pos = formattedName.find("&", pos + 1)) != string::npos)
+			formattedName.replace(pos, 1, "&#38;");
+
+		*td->buffer2 << formattedName ;
 		*td->buffer2 << "\">" ;
-		*td->buffer2 << fd.name;
+		*td->buffer2 << formattedName;
 		*td->buffer2 << "</a></td>\r\n<td>";
 	
 		getRFC822GMTTime((time_t)fd.time_write, fileTime, 32);
