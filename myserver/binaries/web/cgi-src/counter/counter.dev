@@ -1,7 +1,7 @@
 [Project]
 FileName=counter.dev
 Name=counter
-UnitCount=12
+UnitCount=14
 Type=3
 Ver=1
 ObjFiles=
@@ -159,6 +159,26 @@ BuildCmd=
 
 [Unit12]
 FileName=..\..\..\..\source\file.cpp
+CompileCpp=1
+Folder=counter
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit13]
+FileName=..\..\..\..\source\files_utility.cpp
+CompileCpp=1
+Folder=counter
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit14]
+FileName=..\..\..\..\cgi-lib\cgi_manager.cpp
 CompileCpp=1
 Folder=counter
 Compile=1
