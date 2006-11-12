@@ -504,10 +504,29 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 			*td->buffer2 << &td->request.uri[startchar];
 			*td->buffer2 << "/" ;
 		}
-		/* TODO: add other characters.  */
 		formattedName.assign(fd.name);
-		while((pos = formattedName.find("&", pos + 1)) != string::npos)
-			formattedName.replace(pos, 1, "&#38;");
+
+		/*
+		 *Replace characters in the ranges 32-65 91-96 123-126 160-255
+		 *with "&#CODE;".
+		 */
+		for(pos = 0; formattedName[pos] != '\0'; pos++)
+		{
+			if(((u_char)formattedName[pos] >= 32 && 
+					(u_char)formattedName[pos] <= 65)   ||
+				 ((u_char)formattedName[pos] >= 91 && 
+					(u_char)formattedName[pos] <= 96)   ||
+				 ((u_char)formattedName[pos] >= 123 && 
+					(u_char)formattedName[pos] <= 126) ||
+				((u_char)formattedName[pos] >= 160 && 
+				 (u_char)formattedName[pos] < 255))
+			{
+				ostringstream os;
+				os << "&#" << (int)formattedName[pos] << ";";
+				formattedName.replace(pos, 1, os.str());
+				pos += 4;
+			}
+		}
 
 		*td->buffer2 << formattedName ;
 		*td->buffer2 << "\">" ;

@@ -80,6 +80,7 @@ extern "C"
 typedef unsigned long DWORD;
 typedef unsigned long u_long;
 typedef unsigned short u_short;
+typedef unsigned char u_char;
 
 typedef void* HANDLE;
 extern class Server *lserver;
