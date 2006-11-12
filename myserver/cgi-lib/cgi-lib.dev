@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DBUILDING_DLL=1 -DDO_NOT_USE_SSL_@@_
 CppCompiler=
-Linker=--add-stdcall-alias --output-def ../binaries/cgi-lib/CGI-LIB.def_@@_--output-lib ../binaries/cgi-lib/CGI-LIB.lib_@@_
+Linker=--add-stdcall-alias --output-lib ../binaries/cgi-lib/CGI-LIB.lib_@@_
 IsCpp=1
 Icon=
 ExeOutput=..\binaries\cgi-lib
@@ -26,7 +26,7 @@ CommandLine=move *.a ../binaries/cgi-lib
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000000000000
+CompilerSettings=0000000000001000000100
 UseCustomMakefile=0
 CustomMakefile=
 

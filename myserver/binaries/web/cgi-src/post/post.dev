@@ -25,7 +25,7 @@ CommandLine=move *.a ../binaries/cgi-lib
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=000000000000000000
+CompilerSettings=0000000000000000000100
 UseCustomMakefile=0
 CustomMakefile=
 
