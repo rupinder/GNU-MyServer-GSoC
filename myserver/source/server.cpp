@@ -1730,20 +1730,23 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 
 /*!
  *Get a connection to parse. Be sure to have the connections mutex
- *access for the caller thread before use this.
+ *access with connectionsMutexLock() for the caller thread before use 
+ *this.
  *Using this without the right permissions can cause wrong data
  *returned to the client.
  */
 ConnectionPtr Server::getConnection(int /*id*/)
 {
 	/*! Do nothing if there are not connections.  */
-	if(connections==0)
+	if(connections == 0)
 		return 0;
+	
 	/*! Stop the thread if the server is pausing.  */
 	while(pausing)
 	{
 		Thread::wait(5);
 	}
+	
 	if(connectionToParse)
 	{
 			connectionToParse = connectionToParse->next;
@@ -1753,9 +1756,10 @@ ConnectionPtr Server::getConnection(int /*id*/)
     /*! Link to the first element in the linked list.  */
 		connectionToParse = connections;
 	}
-  /*!
-   *Check that we are not in the end of the linked list, in that
-   *case link to the first node.
+  
+	/*!
+   *Check if we are at the end of the linked list, in this case 
+	 *point to the first node.
    */
 	if(!connectionToParse)
 		connectionToParse = connections;

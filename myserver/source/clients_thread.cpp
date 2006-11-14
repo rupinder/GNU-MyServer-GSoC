@@ -147,8 +147,8 @@ void * startClientsThread(void* pParam)
 
 	ct->threadIsRunning = 1;
 	ct->threadIsStopped = 0;
-	ct->buffersize=Server::getInstance()->getBuffersize();
-	ct->buffersize2=Server::getInstance()->getBuffersize2();
+	ct->buffersize = Server::getInstance()->getBuffersize();
+	ct->buffersize2 = Server::getInstance()->getBuffersize2();
 	
 	ct->buffer.setLength(ct->buffersize);
 	ct->buffer.m_nSizeLimit = ct->buffersize;
@@ -164,9 +164,11 @@ void * startClientsThread(void* pParam)
 
   /* Reset first 1024 bytes for thread buffers.  */
 	memset((char*)ct->buffer.getBuffer(), 0, 
-         1024>ct->buffer.getRealLength()?1024:ct->buffer.getRealLength());
+         1024 > ct->buffer.getRealLength() ? 1024 
+				                                   : ct->buffer.getRealLength());
 	memset((char*)ct->buffer2.getBuffer(), 0, 
-         1024>ct->buffer2.getRealLength()?1024:ct->buffer2.getRealLength());
+         1024 > ct->buffer2.getRealLength() ? 1024 
+				                                    : ct->buffer2.getRealLength());
 
 	/* Wait that the server is ready before go in the running loop.  */
   while(!Server::getInstance()->isServerReady())
@@ -210,7 +212,6 @@ void * startClientsThread(void* pParam)
         if(!ct->isStatic())
           if(getTicks() - ct->getTimeout() > MYSERVER_SEC(15) )
             ct->setToDestroy(1);
-        
       }
     }
     catch( bad_alloc &ba)
@@ -307,15 +308,12 @@ int ClientsThread::controlConnections()
 		Server::getInstance()->connectionsMutexUnlock();
     return 1;
   }
-	if((!c)  || c->isParsing())
+
+	if(c->isParsing())
 	{
 		Server::getInstance()->connectionsMutexUnlock();
 		return 0;
 	}
-	/*
-   *Set the connection parsing flag to true.
-   */
-	c->setParsing(1);
 
 	/*
    *Unlock connections list access after setting parsing flag.
@@ -332,8 +330,8 @@ int ClientsThread::controlConnections()
 	{
 		c->setForceParsing(0);
 		if(nBytesToRead)
-			err=c->socket.recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
-                         MYSERVER_KB(8) - c->getDataRead(), 0);
+			err = c->socket.recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
+													 MYSERVER_KB(8) - c->getDataRead(), 0);
 
     /* Refresh with the right value.  */
     nBytesToRead = c->getDataRead() + err;
@@ -343,7 +341,7 @@ int ClientsThread::controlConnections()
 			Server::getInstance()->deleteConnection(c, this->id);
 			return 0;
 		}
- 		if((c->getDataRead() + err) <= MYSERVER_KB(8))
+ 		if((c->getDataRead() + err) < MYSERVER_KB(8))
 		{
 			((char*)buffer.getBuffer())[c->getDataRead() + err] = '\0';
 		}
@@ -358,7 +356,7 @@ int ClientsThread::controlConnections()
 		c->thread = this;
     try
     {
-      switch(((Vhost*)(c->host))->getProtocol())
+      switch(c->host->getProtocol())
       {
         /*
          *controlHTTPConnection returns 0 if the connection must 
@@ -473,8 +471,7 @@ int ClientsThread::controlConnections()
 			return 0;
 		}
 	}
-	/* Reset the parsing flag on the connection.  */
-	c->setParsing(0);
+
   return 0;
 }
 
