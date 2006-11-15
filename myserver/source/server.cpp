@@ -1705,18 +1705,18 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 		if(i == s)
 		{
       if(connectionToParse == i)
-        connectionToParse=connectionToParse->next;
+        connectionToParse = connectionToParse->next;
 
 			if(prev)
 				prev->next = i->next;
 			else
 				connections = i->next;
-			ret=1;
+			ret = 1;
 			break;
 		}
 		else
 		{
-			prev=i;
+			prev = i;
 		}
 	}
 	nConnections--;

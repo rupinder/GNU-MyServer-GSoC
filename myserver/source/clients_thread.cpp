@@ -314,6 +314,7 @@ int ClientsThread::controlConnections()
 		Server::getInstance()->connectionsMutexUnlock();
 		return 0;
 	}
+	c->setParsing(1);
 
 	/*
    *Unlock connections list access after setting parsing flag.
@@ -459,7 +460,7 @@ int ClientsThread::controlConnections()
 	{
 		/* Reset nTries after 5 seconds.  */
 		if(getTicks() - c->getTimeout() > 5000)
-			c->setnTries( 0 );
+			c->setnTries(0);
 
 		/*
      *If the connection is inactive for a time greater that the value
@@ -471,7 +472,7 @@ int ClientsThread::controlConnections()
 			return 0;
 		}
 	}
-
+	c->setParsing(0);
   return 0;
 }
 
