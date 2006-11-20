@@ -421,8 +421,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     {
       /*! If the file exists update it. */
       File file;
-      if(file.openFile(td.filenamePath.c_str(), FILE_OPEN_IFEXISTS | 
-                       FILE_OPEN_WRITE))
+      if(file.openFile(td.filenamePath.c_str(), File::OPEN_IFEXISTS | 
+                       File::OPEN_WRITE))
       {
         /*! Return an internal server error. */
         return raiseHTTPError(e_500);
@@ -469,7 +469,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
        */
       File file;
       if(file.openFile(td.filenamePath.c_str(), 
-                       FILE_CREATE_ALWAYS|FILE_OPEN_WRITE))
+                       File::CREATE_ALWAYS | File::OPEN_WRITE))
       {
         /*! Internal server error. */
         return raiseHTTPError(e_500);
@@ -555,7 +555,8 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
        *send a HTTP 401 error page.
        */
       translateEscapeString(filename );
-      if((filename[0] != '\0') && (FilesUtility::getPathRecursionLevel(filename)<1))
+      if((filename[0] != '\0') && 
+				 (FilesUtility::getPathRecursionLevel(filename)<1))
       {
         return raiseHTTPError(e_401);
       }
@@ -589,12 +590,13 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.neededPassword = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
+      st.neededPassword = 
+				((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
       secCacheMutex.lock();
       try
       {
-        permissions=secCache.getPermissionMask(&st);
+        permissions = secCache.getPermissionMask(&st);
         secCacheMutex.unlock();
       }
       catch(...)
@@ -627,7 +629,8 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
     if(permissions == -1)
     {
       td.connection->host->warningslogRequestAccess(td.id);
-      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningsLogWrite(
+																		 "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500); 
     }
@@ -637,11 +640,13 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       if(!td.request.auth.compare("Digest"))
       {
         if(!((HttpUserData*)td.connection->protocolBuffer)->digestChecked)
-          ((HttpUserData*)td.connection->protocolBuffer)->digest = checkDigest();
+          ((HttpUserData*)td.connection->protocolBuffer)->digest = 
+						checkDigest();
         ((HttpUserData*)td.connection->protocolBuffer)->digestChecked = 1;
         if(((HttpUserData*)td.connection->protocolBuffer)->digest == 1)
         {
-          td.connection->setPassword(((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
+          td.connection->setPassword(
+               ((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
 					permissions = permissions2;
         }
       }
@@ -677,7 +682,8 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
     if(permissions == -1)
     {
       td.connection->host->warningslogRequestAccess(td.id);
-      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningsLogWrite(
+                             "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500);
     }
@@ -714,7 +720,7 @@ u_long Http::checkDigest()
 	char A2[48];
 	char response[48];
   char *uri;
-	u_long digest_count;
+	u_long digestCount;
   /*! Return 0 if the password is different.  */
 	if(td.request.digestOpaque[0] && lstrcmp(td.request.digestOpaque, 
                       ((HttpUserData*)td.connection->protocolBuffer)->opaque))
@@ -724,9 +730,9 @@ u_long Http::checkDigest()
 						 ((HttpUserData*)td.connection->protocolBuffer)->realm))
 		return 0;
 	
-	digest_count = hexToInt(td.request.digestNc);
+	digestCount = hexToInt(td.request.digestNc);
 	
-	if(digest_count != ((HttpUserData*)td.connection->protocolBuffer)->nc + 1)
+	if(digestCount != ((HttpUserData*)td.connection->protocolBuffer)->nc + 1)
 		return 0;
 	else
 		((HttpUserData*)td.connection->protocolBuffer)->nc++;
@@ -734,7 +740,7 @@ u_long Http::checkDigest()
 	md5.init();
 	td.buffer2->setLength(0);
 	*td.buffer2 << td.request.digestUsername << ":" << td.request.digestRealm 
-							<< ":" << ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
+			<< ":" << ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
 
 	md5.update((unsigned char const*)td.buffer2->getBuffer(), 
              (unsigned int)td.buffer2->getLength());
@@ -822,8 +828,8 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 	 *Create the file that contains the posted data.
 	 *This data is the stdin file in the CGI.
 	 */
-	if(td->inputData.openFile(td->inputDataPath, FILE_CREATE_ALWAYS | 
-														FILE_OPEN_READ | FILE_OPEN_WRITE))
+	if(td->inputData.openFile(td->inputDataPath, File::CREATE_ALWAYS | 
+														File::OPEN_READ | File::OPEN_WRITE))
 	{
 		*retcmd = ClientsThread::DELETE_CONNECTION;
 		return 1;
@@ -1182,19 +1188,20 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
           if(((HttpUserData*)td.connection->protocolBuffer)->digest == 1)
           {
-            td.connection->setPassword(((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
+            td.connection->setPassword(
+               ((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
             permissions = permissions2;
           }
         }
         td.auth_scheme = HTTP_AUTH_SCHEME_DIGEST;
       }
-      else/*! By default use the Basic authentication scheme. */
+      else/*! By default use the Basic authentication scheme.  */
       {
         td.auth_scheme = HTTP_AUTH_SCHEME_BASIC;
       }	
  
-     /*! If there are no permissions, use the Guest permissions. */
-      if(td.request.auth.length() && (permissions==0))
+     /*! If there are no permissions, use the Guest permissions.  */
+      if(td.request.auth.length() && (permissions == 0))
       {
         st.user = "Guest";
         st.password = "";
@@ -1220,7 +1227,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     if(permissions == -1)
     {
       td.connection->host->warningslogRequestAccess(td.id);
-      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningsLogWrite(
+                               "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500); 
     }
@@ -1258,11 +1266,12 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
          */
         if(!FilesUtility::isDirectory(dirscan.c_str()))
         {
-          td.pathInfo.assign((char*)&(td.filenamePath[i]));
+          td.pathInfo.assign((char*) & (td.filenamePath[i]));
           td.filenamePath.assign(dirscan);
           break;
         }
       }
+
       if(len + 1 < filenamePathLen)
       {
         char db[2];
@@ -1376,7 +1385,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
 
     if(td.mime && 
-       !td.mime->headerChecker.isAllowed(&(td.request) ))
+       !td.mime->headerChecker.isAllowed(&(td.request)))
     {
       return sendAuth();
     }
@@ -1574,12 +1583,12 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       }
 
       if(h.openFile(td.filenamePath.c_str(), 
-                    FILE_OPEN_IFEXISTS|FILE_OPEN_READ))
+                    File::OPEN_IFEXISTS|File::OPEN_READ))
       {
-        return raiseHTTPError(e_500);/*!Internal server error*/
+        return raiseHTTPError(e_500);
       }
 
-      linkpathSize = h.getFileSize()+td.pathInfo.length()+1;
+      linkpathSize = h.getFileSize() + td.pathInfo.length() + 1;
 
       if(linkpathSize > MYSERVER_KB(10))
         linkpathSize = MYSERVER_KB(10);
@@ -1601,7 +1610,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       h.closeFile();
       linkpath[nbr]='\0';
 
-      pathInfo = new char[td.pathInfo.length()+1];
+      pathInfo = new char[td.pathInfo.length() + 1];
 
       if(pathInfo == 0)
       {
@@ -1970,8 +1979,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				ostringstream newfilename;
 				
 				newfilename << td.inputData.getFilename() << "_encoded";
-				if(newStdIn.openFile(td.inputDataPath, FILE_CREATE_ALWAYS | 
-														 FILE_NO_INHERIT|FILE_OPEN_READ|FILE_OPEN_WRITE))
+				if(newStdIn.openFile(td.inputDataPath, File::CREATE_ALWAYS | 
+												 File::NO_INHERIT|File::OPEN_READ|File::OPEN_WRITE))
 				{
 					td.inputData.closeFile();
 					FilesUtility::deleteFile(td.inputDataPath);

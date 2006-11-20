@@ -174,8 +174,8 @@ int FilesUtility::isDirectory(const char *filename)
 {
 #ifdef WIN32
 	u_long fa = GetFileAttributes(filename);
-	if(fa != INVALID_FILE_ATTRIBUTES)
-		return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
+	if(fa != INVALID_File.ATTRIBUTES)
+		return(fa & File.ATTRIBUTE_DIRECTORY)?1:0;
 	else
 		return 0;
 #endif
@@ -219,7 +219,7 @@ int FilesUtility::fileExists(const char* filename)
 	OFSTRUCT of;
 	/*! OpenFile is now a wrapper for CreateFile.  */
 	int ret = OpenFile(filename, &of, OF_EXIST);
-	return (ret != HFILE_ERROR)?1:0;
+	return (ret != HFile.ERROR)?1:0;
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;

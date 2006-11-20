@@ -32,22 +32,22 @@ typedef long  FileHandle;
 
 using namespace std;
 
-const u_long FILE_OPEN_READ = (1<<0);
-const u_long FILE_OPEN_WRITE = (1<<1);
-const u_long FILE_OPEN_TEMPORARY = (1<<2);
-const u_long FILE_OPEN_HIDDEN = (1<<3);
-const u_long FILE_OPEN_ALWAYS = (1<<4);
-const u_long FILE_OPEN_IFEXISTS = (1<<5);
-const u_long FILE_OPEN_APPEND = (1<<6);
-const u_long FILE_CREATE_ALWAYS = (1<<7);
-const u_long FILE_NO_INHERIT = (1<<8);
-
 class File : public Stream
 {
 private:
 	FileHandle handle;
 	string filename;
 public:
+	static const u_long OPEN_READ = (1<<0);
+	static const u_long OPEN_WRITE = (1<<1);
+	static const u_long OPEN_TEMPORARY = (1<<2);
+	static const u_long OPEN_HIDDEN = (1<<3);
+	static const u_long OPEN_ALWAYS = (1<<4);
+	static const u_long OPEN_IFEXISTS = (1<<5);
+	static const u_long OPEN_APPEND = (1<<6);
+	static const u_long CREATE_ALWAYS = (1<<7);
+	static const u_long NO_INHERIT = (1<<8);
+
 	File();
   File(char *,int);
 	FileHandle getHandle();
@@ -73,7 +73,6 @@ public:
 
 	int operator =(File);
 	int closeFile();
-  int getShortFileName(char*,int);
 
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);

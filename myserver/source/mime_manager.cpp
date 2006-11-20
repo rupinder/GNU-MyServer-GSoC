@@ -58,7 +58,7 @@ int MimeManager::load(const char *fn)
 	if(data)
 		delete data;
 	data = new HashMap<string, MimeRecord*>();
-	ret = f.openFile(filename->c_str(), FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
+	ret = f.openFile(filename->c_str(), File::OPEN_READ|File::OPEN_IFEXISTS);
 	if(ret)
 		return 0;
 	fs = f.getFileSize();
@@ -449,7 +449,7 @@ int MimeManager::saveXML(const char *filename)
 	HashMap<string, MimeRecord*>::Iterator it = data->begin();
 	HashMap<string, MimeRecord*>::Iterator end = data->end();
 
-	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
+	f.openFile(filename, File::OPEN_WRITE|File::OPEN_ALWAYS);
 	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
 	f.writeToFile("<MIMETYPES>\r\n", 13, &nbw);
 
@@ -513,7 +513,7 @@ int MimeManager::save(const char *filename)
 	HashMap<string, MimeRecord*>::Iterator end = data->end();
 
 	FilesUtility::deleteFile(filename);
-	f.openFile(filename, FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
+	f.openFile(filename, File::OPEN_WRITE|File::OPEN_ALWAYS);
 	for(;it != end; it++)
 	{
 		char command[16];

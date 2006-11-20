@@ -625,7 +625,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
   LogManager *accesses;
 	LogManager * warnings;
 	char c;
-	int ret=fh.openFile(filename,FILE_OPEN_IFEXISTS|FILE_OPEN_READ);
+	int ret=fh.openFile(filename,File::OPEN_IFEXISTS|File::OPEN_READ);
   /*! If the file cannot be opened simply do nothing. */
 	if(ret)
 		return -1;
@@ -821,7 +821,7 @@ void VhostManager::saveConfigurationFile(const char *filename)
   try
   {
     list<Vhost*>::iterator i = hostList.begin();
-    fh.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
+    fh.openFile(filename, File::CREATE_ALWAYS | File::OPEN_WRITE);
     for( ;i != hostList.end(); i++ )
     {
       Vhost* vh=*i;
@@ -1245,8 +1245,8 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 {
 	File out;
 	u_long nbw;
-	out.openFile(filename,FILE_CREATE_ALWAYS|FILE_OPEN_WRITE);
-	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n",33,&nbw);
+	out.openFile(filename, File::CREATE_ALWAYS | File::OPEN_WRITE);
+	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n", 33, &nbw);
 
   mutex.lock();
   try
@@ -1674,5 +1674,5 @@ int Vhost::getRef()
  */
 void Vhost::setRef(int n)
 {
-  refCount=n;
+  refCount = n;
 }

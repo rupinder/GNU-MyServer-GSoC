@@ -1268,7 +1268,7 @@ int Server::initialize(int /*!osVer*/)
 		File inputF;
 		File outputF;
 		ret = inputF.openFile("myserver.xml.default",
-                              FILE_OPEN_READ|FILE_OPEN_IFEXISTS);
+                              File::OPEN_READ|File::OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1276,8 +1276,8 @@ int Server::initialize(int /*!osVer*/)
 			logEndPrintError();
 			return -1;
 		}
-		ret = outputF.openFile("myserver.xml", FILE_OPEN_WRITE |
-                     FILE_OPEN_ALWAYS);
+		ret = outputF.openFile("myserver.xml", File::OPEN_WRITE |
+                     File::OPEN_ALWAYS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1377,7 +1377,7 @@ int Server::initialize(int /*!osVer*/)
 		serverAdmin->assign(data);
 	}
 
-	data = configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
+	data = configurationFileManager.getValue("MAX_LOG_File.SIZE");
 	if(data)
 	{
 		maxLogFileSize=(u_long)atol(data);
@@ -1984,8 +1984,8 @@ int Server::loadSettings()
         File inputF;
         File outputF;
         mimeConfigurationFile->assign("MIMEtypes.xml");
-        ret = inputF.openFile("MIMEtypes.xml.default", FILE_OPEN_READ|
-															FILE_OPEN_IFEXISTS);
+        ret = inputF.openFile("MIMEtypes.xml.default", File::OPEN_READ|
+															File::OPEN_IFEXISTS);
         if(ret)
         {
           logPreparePrintError();
@@ -1993,8 +1993,8 @@ int Server::loadSettings()
           logEndPrintError();
           return -1;
         }
-        ret = outputF.openFile("MIMEtypes.xml", FILE_OPEN_WRITE|
-                               FILE_OPEN_ALWAYS);
+        ret = outputF.openFile("MIMEtypes.xml", File::OPEN_WRITE|
+                               File::OPEN_ALWAYS);
         if(ret)
           return -1;
 
@@ -2084,8 +2084,8 @@ int Server::loadSettings()
         File inputF;
         File outputF;
         vhostConfigurationFile->assign("virtualhosts.xml");
-        ret = inputF.openFile("virtualhosts.xml.default", FILE_OPEN_READ |
-                              FILE_OPEN_IFEXISTS );
+        ret = inputF.openFile("virtualhosts.xml.default", File::OPEN_READ |
+                              File::OPEN_IFEXISTS );
         if(ret)
         {
           logPreparePrintError();
@@ -2094,7 +2094,7 @@ int Server::loadSettings()
           return -1;
         }
         ret = outputF.openFile("virtualhosts.xml",
-                               FILE_OPEN_WRITE|FILE_OPEN_ALWAYS);
+                               File::OPEN_WRITE|File::OPEN_ALWAYS);
         if(ret)
           return -1;
         for(;;)
