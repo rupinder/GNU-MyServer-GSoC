@@ -97,8 +97,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	if(!td->appendOutputs)
 	{	
 		outDataPath << getdefaultwd(0, 0 ) << "/stdOutFileMSCGI_" << (u_int)td->id;
-		if(data.stdOut.openFile(outDataPath.str().c_str(), File::CREATE_ALWAYS | 
-														File::OPEN_READ | File::OPEN_WRITE))
+		if(data.stdOut.openFile(outDataPath.str().c_str(), File::MYSERVER_CREATE_ALWAYS | 
+														File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_WRITE))
     {
       return td->http->raiseHTTPError(e_500);
     }

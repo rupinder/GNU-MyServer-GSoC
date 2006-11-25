@@ -421,8 +421,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     {
       /*! If the file exists update it. */
       File file;
-      if(file.openFile(td.filenamePath.c_str(), File::OPEN_IFEXISTS | 
-                       File::OPEN_WRITE))
+      if(file.openFile(td.filenamePath.c_str(), File::MYSERVER_OPEN_IFEXISTS | 
+                       File::MYSERVER_OPEN_WRITE))
       {
         /*! Return an internal server error. */
         return raiseHTTPError(e_500);
@@ -469,7 +469,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
        */
       File file;
       if(file.openFile(td.filenamePath.c_str(), 
-                       File::CREATE_ALWAYS | File::OPEN_WRITE))
+                       File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE))
       {
         /*! Internal server error. */
         return raiseHTTPError(e_500);
@@ -828,8 +828,8 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 	 *Create the file that contains the posted data.
 	 *This data is the stdin file in the CGI.
 	 */
-	if(td->inputData.openFile(td->inputDataPath, File::CREATE_ALWAYS | 
-														File::OPEN_READ | File::OPEN_WRITE))
+	if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_CREATE_ALWAYS | 
+														File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_WRITE))
 	{
 		*retcmd = ClientsThread::DELETE_CONNECTION;
 		return 1;
@@ -1583,7 +1583,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       }
 
       if(h.openFile(td.filenamePath.c_str(), 
-                    File::OPEN_IFEXISTS|File::OPEN_READ))
+                    File::MYSERVER_OPEN_IFEXISTS|File::MYSERVER_OPEN_READ))
       {
         return raiseHTTPError(e_500);
       }
@@ -1979,8 +1979,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				ostringstream newfilename;
 				
 				newfilename << td.inputData.getFilename() << "_encoded";
-				if(newStdIn.openFile(td.inputDataPath, File::CREATE_ALWAYS | 
-												 File::NO_INHERIT|File::OPEN_READ|File::OPEN_WRITE))
+				if(newStdIn.openFile(td.inputDataPath, File::MYSERVER_CREATE_ALWAYS | 
+												 File::MYSERVER_NO_INHERIT|File::MYSERVER_OPEN_READ|File::MYSERVER_OPEN_WRITE))
 				{
 					td.inputData.closeFile();
 					FilesUtility::deleteFile(td.inputDataPath);

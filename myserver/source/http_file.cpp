@@ -79,8 +79,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
   try
   {
-    ret = h.openFile(filenamePath, File::OPEN_IFEXISTS | 
-                      File::OPEN_READ);
+    ret = h.openFile(filenamePath, File::MYSERVER_OPEN_IFEXISTS | 
+                      File::MYSERVER_OPEN_READ);
     if(ret)
     {	
       return td->http->raiseHTTPError(e_500);

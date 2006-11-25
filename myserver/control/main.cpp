@@ -160,8 +160,8 @@ int main(int argc, char * argv[])
 	     char buffer[512];
 	     u_long nbr, nbw;
 	     fl_alert("Configuration files not found.  Loading default files.");
-	     inputF.openFile("myserver.xml.default", File::OPEN_READ|File::OPEN_IFEXISTS);
-	     outputF.openFile("myserver.xml", File::OPEN_WRITE|File::OPEN_ALWAYS);
+	     inputF.openFile("myserver.xml.default", File::MYSERVER_OPEN_READ|File::MYSERVER_OPEN_IFEXISTS);
+	     outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_ALWAYS);
 	     for(;;)
 	       {
 		  inputF.readFromFile(buffer, 512, &nbr );
@@ -176,8 +176,8 @@ int main(int argc, char * argv[])
 	       {
 		  char buffer[512];
 		  u_long nbr, nbw;
-		  inputF.openFile("MIMEtypes.xml.default", File::OPEN_READ|File::OPEN_IFEXISTS);
-		  outputF.openFile("MIMEtypes.xml", File::OPEN_WRITE|File::OPEN_ALWAYS);
+		  inputF.openFile("MIMEtypes.xml.default", File::MYSERVER_OPEN_READ|File::MYSERVER_OPEN_IFEXISTS);
+		  outputF.openFile("MIMEtypes.xml", File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_ALWAYS);
 		  for(;;)
 		    {
 		       inputF.readFromFile(buffer, 512, &nbr );
@@ -193,10 +193,10 @@ int main(int argc, char * argv[])
 	       {
 		  char buffer[512];
 		  u_long nbr, nbw;
-		  inputF.openFile("virtualhosts.xml.default", File::OPEN_READ|
-											File::OPEN_IFEXISTS);
-		  outputF.openFile("virtualhosts.xml", File::OPEN_WRITE| 
-											 File::OPEN_ALWAYS);
+		  inputF.openFile("virtualhosts.xml.default", File::MYSERVER_OPEN_READ|
+											File::MYSERVER_OPEN_IFEXISTS);
+		  outputF.openFile("virtualhosts.xml", File::MYSERVER_OPEN_WRITE| 
+											 File::MYSERVER_OPEN_ALWAYS);
 		  for(;;)
 		    {
 		       inputF.readFromFile(buffer, 512, &nbr );

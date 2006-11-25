@@ -122,8 +122,8 @@ int HomeDir::load()
 
 	clear();
 
-	if(usersFile.openFile("/etc/passwd", File::OPEN_READ | 
-												File::OPEN_IFEXISTS))
+	if(usersFile.openFile("/etc/passwd", File::MYSERVER_OPEN_READ | 
+												File::MYSERVER_OPEN_IFEXISTS))
 		return 1;
 	size = usersFile.getFileSize();
 	timestamp = usersFile.getLastModTime();

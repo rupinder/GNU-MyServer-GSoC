@@ -73,8 +73,8 @@ int LogManager::load(const char *filename)
   if(loaded)
     close();
 
-  opt = File::OPEN_APPEND | File::OPEN_ALWAYS |
-     		File::OPEN_WRITE | File::OPEN_READ | File::NO_INHERIT;
+  opt = File::MYSERVER_OPEN_APPEND | File::MYSERVER_OPEN_ALWAYS |
+     		File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_READ | File::MYSERVER_NO_INHERIT;
 
   ret = file.openFile(filename, opt);
 
@@ -268,7 +268,7 @@ int LogManager::storeFile()
         }
      
       if(newFile.openFile(newfilename.str().c_str(), 
-              File::OPEN_WRITE | File::NO_INHERIT | File::CREATE_ALWAYS ))
+              File::MYSERVER_OPEN_WRITE | File::MYSERVER_NO_INHERIT | File::MYSERVER_CREATE_ALWAYS ))
       {
         delete [] buffer;
         delete [] buffer2;
@@ -352,8 +352,8 @@ int LogManager::storeFile()
       newFile.closeFile();
       currentFile->closeFile();
       FilesUtility::deleteFile(filepath.c_str());
-      if(currentFile->openFile(filepath.c_str(), File::OPEN_APPEND| 
-			 File::OPEN_ALWAYS|File::OPEN_WRITE|File::OPEN_READ|File::NO_INHERIT))
+      if(currentFile->openFile(filepath.c_str(), File::MYSERVER_OPEN_APPEND| 
+			 File::MYSERVER_OPEN_ALWAYS|File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_READ|File::MYSERVER_NO_INHERIT))
       {
         delete [] buffer;
         delete [] buffer2;

@@ -337,8 +337,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	if(browseDirCSSpath != 0)
 	{
 		File cssHandle;
-		ret = cssHandle.openFile(browseDirCSSpath, File::OPEN_IFEXISTS | 
-														 File::OPEN_READ);
+		ret = cssHandle.openFile(browseDirCSSpath, File::MYSERVER_OPEN_IFEXISTS | 
+														 File::MYSERVER_OPEN_READ);
 		if(ret == 0)
 		{
 			u_long nbr;

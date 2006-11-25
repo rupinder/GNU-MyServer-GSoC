@@ -245,8 +245,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath,
-                         File::OPEN_READ | File::OPEN_ALWAYS |
-                            File::NO_INHERIT))
+                         File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_ALWAYS |
+                            File::MYSERVER_NO_INHERIT))
   {
 		td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
@@ -413,9 +413,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   outDataPath << getdefaultwd(0, 0) << "/stdOutFileFcgi_" << (u_int)td->id ;
 
-	if(con.tempOut.openFile(outDataPath.str().c_str(),File::OPEN_WRITE |
-                          File::OPEN_READ | File::CREATE_ALWAYS |
-                          File::NO_INHERIT))
+	if(con.tempOut.openFile(outDataPath.str().c_str(),File::MYSERVER_OPEN_WRITE |
+                          File::MYSERVER_OPEN_READ | File::MYSERVER_CREATE_ALWAYS |
+                          File::MYSERVER_NO_INHERIT))
   {
     td->buffer->setLength(0);
 		*td->buffer << "FastCGI: Error opening stdout file" << '\0';
