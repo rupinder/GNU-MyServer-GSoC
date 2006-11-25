@@ -45,6 +45,17 @@ using namespace std;
 
 extern int mustEndServer; 
 
+const u_long File::OPEN_READ = (1<<0);
+const u_long File::OPEN_WRITE = (1<<1);
+const u_long File::OPEN_TEMPORARY = (1<<2);
+const u_long File::OPEN_HIDDEN = (1<<3);
+const u_long File::OPEN_ALWAYS = (1<<4);
+const u_long File::OPEN_IFEXISTS = (1<<5);
+const u_long File::OPEN_APPEND = (1<<6);
+const u_long File::CREATE_ALWAYS = (1<<7);
+const u_long File::NO_INHERIT = (1<<8);
+
+
 /*!
  *Costructor of the class.
  */

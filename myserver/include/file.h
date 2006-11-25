@@ -38,15 +38,15 @@ private:
 	FileHandle handle;
 	string filename;
 public:
-	static const u_long OPEN_READ = (1<<0);
-	static const u_long OPEN_WRITE = (1<<1);
-	static const u_long OPEN_TEMPORARY = (1<<2);
-	static const u_long OPEN_HIDDEN = (1<<3);
-	static const u_long OPEN_ALWAYS = (1<<4);
-	static const u_long OPEN_IFEXISTS = (1<<5);
-	static const u_long OPEN_APPEND = (1<<6);
-	static const u_long CREATE_ALWAYS = (1<<7);
-	static const u_long NO_INHERIT = (1<<8);
+	static const u_long OPEN_READ;
+	static const u_long OPEN_WRITE;
+	static const u_long OPEN_TEMPORARY;
+	static const u_long OPEN_HIDDEN;
+	static const u_long OPEN_ALWAYS;
+	static const u_long OPEN_IFEXISTS;
+	static const u_long OPEN_APPEND;
+	static const u_long CREATE_ALWAYS;
+	static const u_long NO_INHERIT;
 
 	File();
   File(char *,int);
