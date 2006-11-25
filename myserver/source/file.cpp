@@ -140,17 +140,17 @@ int File::openFile(const char* nfilename,u_long opt)
 
 	if(opt & File::MYSERVER_OPEN_TEMPORARY)
 	{
-		openFlag |= File::ATTRIBUTE_TEMPORARY; 
-		attributeFlag|=File.FLAG_DELETE_ON_CLOSE;
+		openFlag |= FILE_ATTRIBUTE_TEMPORARY; 
+		attributeFlag |= FILE_FLAG_DELETE_ON_CLOSE;
 	}
 	if(opt & File::MYSERVER_OPEN_HIDDEN)
-		openFlag|=File.ATTRIBUTE_HIDDEN;
+		openFlag|= FILE_ATTRIBUTE_HIDDEN;
 
 	if(attributeFlag == 0)
-		attributeFlag = File.ATTRIBUTE_NORMAL;
+		attributeFlag = FILE_ATTRIBUTE_NORMAL;
 
 	handle = (FileHandle)CreateFile(filename.c_str(), openFlag, 
-																	File.SHARE_READ|File.SHARE_WRITE, 
+																	FILE_SHARE_READ|FILE_SHARE_WRITE, 
 																	&sa, creationFlag, attributeFlag, NULL);
 
 	/*! Return 1 if an error happens.  */
@@ -384,7 +384,7 @@ u_long File::getFileSize()
 	u_long ret;
 #ifdef WIN32
 	ret = GetFileSize((HANDLE)handle,NULL);
-	if(ret != INVALID_File.SIZE)
+	if(ret != INVALID_FILE_SIZE)
 	{
 		return ret;
 	}
@@ -409,9 +409,9 @@ int File::setFilePointer(u_long initialByte)
 {
 	u_long ret;
 #ifdef WIN32
-	ret=SetFilePointer((HANDLE)handle,initialByte,NULL,File.BEGIN);
-  /*! SetFilePointer returns INVALID_SET_File.POINTER on an error.  */
-	return (ret == INVALID_SET_File.POINTER) ? 1 : 0;
+	ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN);
+  /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
+	return (ret == INVALID_SET_FILE_POINTER) ? 1 : 0;
 #endif
 #ifdef NOT_WIN
 	ret = lseek((long)handle, initialByte, SEEK_SET);
