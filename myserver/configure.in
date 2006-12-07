@@ -111,7 +111,6 @@ if test x$have_xml2 != xyes; then
 *** Cannot find libXML2
 *** libXML2 is required for MyServer
 ])
-fi
 
 else
 	CPPFLAGS="$CPPFLAGS $XML_CPPFLAGS"
