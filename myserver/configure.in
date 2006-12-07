@@ -185,6 +185,9 @@ if test x$have_png != xyes; then
 ])
     MAKE_COUNTER=no
 else
+    CFLAGS="$CFLAGS $LIBPNG_CFLAGS"
+    CXXFLAGS="$CXXFLAGS $LIBPNG_CFLAGS"
+    LIBS="$LIBPNG_LIBS $LIBS"
     MAKE_COUNTER=yes
 fi
 
