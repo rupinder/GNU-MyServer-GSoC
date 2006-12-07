@@ -113,6 +113,11 @@ if test x$have_xml2 != xyes; then
 ])
 fi
 
+else
+	CPPFLAGS="$CPPFLAGS $XML_CPPFLAGS"
+	LIBS="$XML_LIBS $LIBS"
+fi
+
 
 dnl CHECKING FOR OPENSSL
     for dir in $withval /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr; do
