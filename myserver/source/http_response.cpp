@@ -28,91 +28,91 @@ using namespace std;
  */
 string* HttpResponseHeader::getValue(const char* name, string* out)
 {
-  if(!strcmpi(name,"Ver"))
+  if(!strcmpi(name, "Ver"))
   {
     if(out)
       out->assign(ver.c_str());
     return &ver;
   }  
 
-  if(!strcmpi(name,"Server"))
+  if(!strcmpi(name, "Server"))
   { 
     if(out)
-      out->assign( serverName.c_str()); 
+      out->assign(serverName.c_str()); 
     return &ver;
   }
 
-  if(!strcmpi(name,"Content-Type"))
+  if(!strcmpi(name, "Content-Type"))
   { 
     if(out)
-      out->assign( contentType.c_str()); 
+      out->assign(contentType.c_str()); 
     return &contentType;
   }
 
-  if(!strcmpi(name,"Connection"))
+  if(!strcmpi(name, "Connection"))
   { 
     if(out)
-      out->assign( connection.c_str()); 
+      out->assign(connection.c_str()); 
     return &connection;
   }
 
-  if(!strcmpi(name,"Content-Type"))
+  if(!strcmpi(name, "Content-Type"))
   { 
     if(out)
-      out->assign( contentType.c_str()); 
+      out->assign(contentType.c_str()); 
     return &contentType;
   }
 
-  if(!strcmpi(name,"MIME-Version"))
+  if(!strcmpi(name, "MIME-Version"))
   { 
     if(out)
-      out->assign( mimeVer.c_str()); 
+      out->assign(mimeVer.c_str()); 
     return &mimeVer;
   }
 
-  if(!strcmpi(name,"Cookie"))
+  if(!strcmpi(name, "Cookie"))
   { 
     if(out)
-      out->assign( cookie.c_str()); 
+      out->assign(cookie.c_str()); 
     return &cookie;
   }
 
-  if(!strcmpi(name,"Content-Length"))
+  if(!strcmpi(name, "Content-Length"))
   { 
     if(out)
-      out->assign( contentLength.c_str()); 
+      out->assign(contentLength.c_str()); 
     return &contentLength;
   }
 
-  if(!strcmpi(name,"Last-Modified"))
+  if(!strcmpi(name, "Last-Modified"))
   { 
     if(out)
-      out->assign( lastModified.c_str()); 
+      out->assign(lastModified.c_str()); 
     return &lastModified;
   }
 
-  if(!strcmpi(name,"Location"))
+  if(!strcmpi(name, "Location"))
   { 
     if(out)
-      out->assign( location.c_str()); 
+      out->assign(location.c_str()); 
     return &location;
   }
 
-  if(!strcmpi(name,"Date"))
+  if(!strcmpi(name, "Date"))
   { 
     if(out)
       out->assign(date.c_str()); 
     return &date;
   }
 
-  if(!strcmpi(name,"Date-Expires"))
+  if(!strcmpi(name, "Date-Expires"))
   { 
     if(out)
-      out->assign( location.c_str()); 
+      out->assign(location.c_str()); 
     return &location;
   }
 
-  if(!strcmpi(name,"WWW-Authenticate"))
+  if(!strcmpi(name, "WWW-Authenticate"))
   { 
     if(out)
       out->assign(auth.c_str()); 
@@ -167,8 +167,7 @@ void HttpResponseHeader::free()
 	dateExp.clear();
 	{
 		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
-		HashMap<string, HttpResponseHeader::Entry*>::Iterator end = other.end();
-		for(;it!=end;it++){
+		for(;it != other.end(); it++){
 			delete (*it);
 		}
 	}

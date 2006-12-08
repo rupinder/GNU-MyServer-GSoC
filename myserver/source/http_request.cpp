@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -50,29 +50,28 @@ void HttpRequestHeader::free()
 	contentLength.clear();
 	uri.clear();
 	uriOpts.clear();
-	uriOptsPtr=NULL;
+	uriOptsPtr = NULL;
 
 	{
 		HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
-		HashMap<string, HttpRequestHeader::Entry*>::Iterator end = other.end();
-		for(;it!=end;it++)
+		for(; it != other.end(); it++)
 			delete (*it);
 	}
 	other.clear();
 	rangeType.clear();
-	rangeByteBegin=0;
-	rangeByteEnd=0;
-	uriEndsWithSlash=0;
-	digestRealm[0]='\0';
-	digestOpaque[0]='\0';
-	digestNonce[0]='\0';
-	digestCnonce[0]='\0';
-	digestUri[0]='\0';
-	digestMethod[0]='\0';
-	digestUsername[0]='\0';
-	digestResponse[0]='\0';
-	digestQop[0]='\0';
-	digestNc[0]='\0';
+	rangeByteBegin = 0;
+	rangeByteEnd = 0;
+	uriEndsWithSlash = 0;
+	digestRealm[0] = '\0';
+	digestOpaque[0] = '\0';
+	digestNonce[0] = '\0';
+	digestCnonce[0] = '\0';
+	digestUri[0] = '\0';
+	digestMethod[0] = '\0';
+	digestUsername[0] = '\0';
+	digestResponse[0] = '\0';
+	digestQop[0] = '\0';
+	digestNc[0] = '\0';
 }
 
 /*!
@@ -80,56 +79,56 @@ void HttpRequestHeader::free()
  */
 string* HttpRequestHeader::getValue(const char* name, string* out)
 {
-  if(!strcmpi(name,"cmd"))
+  if(!strcmpi(name, "cmd"))
   {
     if(out)
       out->assign(cmd.c_str());
     return &cmd;
   }  
 
-  if(!strcmpi(name,"ver"))
+  if(!strcmpi(name, "ver"))
   { 
     if(out)
-      out->assign( ver.c_str()); 
+      out->assign(ver.c_str()); 
     return &ver;
   }
  
-  if(!strcmpi(name,"uri"))
+  if(!strcmpi(name, "uri"))
   { 
     if(out)
-      out->assign( uri.c_str()); 
+      out->assign(uri.c_str()); 
     return &uri;
   } 
  
-  if(!strcmpi(name,"uriOpts"))
+  if(!strcmpi(name, "uriOpts"))
   { 
     if(out)
-      out->assign( uriOpts.c_str());
+      out->assign(uriOpts.c_str());
     return &uriOpts;
   } 
 
- if(!strcmpi(name,"Authorization"))
+ if(!strcmpi(name, "Authorization"))
  { 
    if(out)
-     out->assign( auth.c_str()); 
+     out->assign(auth.c_str()); 
    return &auth;
  }
  
- if(!strcmpi(name,"Content-Length"))
+ if(!strcmpi(name, "Content-Length"))
  { 
    if(out)
-     out->assign( contentLength.c_str()); 
+     out->assign(contentLength.c_str()); 
    return &contentLength;
  } 
 
- if(!strcmpi(name,"rangeType"))
+ if(!strcmpi(name, "rangeType"))
  { 
    if(out)
-     out->assign( rangeType.c_str()); 
+     out->assign(rangeType.c_str()); 
    return &rangeType;
  } 
  
- if(!strcmpi(name,"rangeByteBegin"))
+ if(!strcmpi(name, "rangeByteBegin"))
  {
    ostringstream s;
    s << rangeByteBegin;
@@ -138,7 +137,7 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    return 0; 
  }
 
- if(!strcmpi(name,"rangeByteEnd"))
+ if(!strcmpi(name, "rangeByteEnd"))
  {
    ostringstream s;
    s << rangeByteEnd;
