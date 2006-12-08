@@ -97,8 +97,7 @@ int Vhost::freeHashedData()
   try
   {
 		HashMap<string, string*>::Iterator it = hashedData.begin();
-		HashMap<string, string*>::Iterator end = hashedData.end();
-		for (;it != end; it++)
+		for (;it != hashedData.end(); it++)
 		{
 			delete (*it);
 		}
@@ -1353,8 +1352,7 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
       
 			{
 				HashMap<string, string*>::Iterator it = (*i)->hashedData.begin();
-				HashMap<string, string*>::Iterator end = (*i)->hashedData.end();
-				for(;it!=end;it++)
+				for(; it != (*i)->hashedData.end(); it++)
 				{
 					ostringstream outString;
 					outString << "<" << it.getKey() << ">" << (*it)  << "</" 

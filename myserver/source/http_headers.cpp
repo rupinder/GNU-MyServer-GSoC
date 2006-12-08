@@ -176,16 +176,17 @@ void HttpHeaders::buildHTTPResponseHeader(char *str, HttpResponseHeader* respons
 	
 	if(response->location.length())
 	{
-		pos += myserver_strlcpy(pos, "Location: ", MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, response->location.c_str(), MAX-(long)(pos-str));
-		pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
+		pos += myserver_strlcpy(pos, "Location: ", MAX - (long)(pos - str));
+		pos += myserver_strlcpy(pos, response->location.c_str(), 
+														MAX - (long)(pos-str));
+		pos += myserver_strlcpy(pos, "\r\n", MAX - (long)(pos - str));
 	}
 
 	if(response->other.size())
 	{
-		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = response->other.begin();
-		HashMap<string, HttpResponseHeader::Entry*>::Iterator end = response->other.end();
-    for(; it != end; it++)
+		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = 
+			response->other.begin();
+    for(; it != response->other.end(); it++)
     {
       HttpResponseHeader::Entry *e = *it;
       if(e)

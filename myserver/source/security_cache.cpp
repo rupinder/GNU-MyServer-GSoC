@@ -51,9 +51,8 @@ SecurityCache::~SecurityCache()
 void SecurityCache::free()
 {
 	HashMap<string, XmlParser*>::Iterator it = dictionary.begin();
-	HashMap<string, XmlParser*>::Iterator end = dictionary.end();
 
-	for (;it != end; it++)
+	for (;it != dictionary.end(); it++)
 	{
 		delete (*it);
 	}

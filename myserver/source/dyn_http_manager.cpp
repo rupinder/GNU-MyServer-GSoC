@@ -225,9 +225,8 @@ int DynHttpManagerList::addManager(const char* fileName,
 int DynHttpManagerList::clean()
 {
 	HashMap<string, DynamicHttpManager*>::Iterator it = data.begin();
-	HashMap<string, DynamicHttpManager*>::Iterator end = data.end();
 	
-	for (;it != end; it++)
+	for (;it != data.end(); it++)
 	{
 		delete (*it);
 	}

@@ -1879,8 +1879,7 @@ int Server::freeHashedData()
   try
   {
 		HashMap<string, string*>::Iterator it = hashedData.begin();
-		HashMap<string, string*>::Iterator end = hashedData.end();
-		for (;it != end; it++)
+		for (;it != hashedData.end(); it++)
 			delete *it;
     hashedData.clear();
   }

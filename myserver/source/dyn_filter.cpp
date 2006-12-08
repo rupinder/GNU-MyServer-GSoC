@@ -1,7 +1,6 @@
-
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -372,8 +371,7 @@ DynamicFiltersManager::~DynamicFiltersManager()
 void DynamicFiltersManager::clear()
 {
 	HashMap<string, DynamicFilterFile*>::Iterator it = filters.begin();
-	HashMap<string, DynamicFilterFile*>::Iterator end = filters.end();
-	for (;it != end; it++)
+	for (;it != filters.end(); it++)
 	{
 		(*it)->close();
 		delete *it;
@@ -518,11 +516,11 @@ int DynamicFiltersManager::registerFilters(FiltersFactory* ff)
   if(!dynamicfiltersmanager)
     return -1;
 	HashMap<string, DynamicFilterFile*>::Iterator it = filters.begin();
-	HashMap<string, DynamicFilterFile*>::Iterator end = filters.end();
 	
-	for (;it != end; it++)
+	for (;it != filters.end(); it++)
 	{
-		if(ff->insert((*it)->getName(0, 0, 0, 0), DynamicFiltersManager::createFilter))
+		if(ff->insert((*it)->getName(0, 0, 0, 0), 
+									DynamicFiltersManager::createFilter))
 			return -1;
 	}
   return 0;

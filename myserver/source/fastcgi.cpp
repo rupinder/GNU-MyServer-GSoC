@@ -897,9 +897,8 @@ int FastCgi::unload()
   try
   {
 		HashMap<string, FastCgiServersList*>::Iterator it = serversList.begin();
-		HashMap<string, FastCgiServersList*>::Iterator end = serversList.end();
 
-		for (;it != end; it++)
+		for (;it != serversList.end(); it++)
 		{
       FastCgiServersList* server = *it;
       if(!server)

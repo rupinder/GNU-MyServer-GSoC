@@ -79,8 +79,7 @@ void HomeDir::clear()
   data.assign("");
 #else
 	HashMap<string, string*>::Iterator i = data.begin();
-	HashMap<string, string*>::Iterator end = data.end();
-	for( ; i != end ; i++)
+	for( ; i != data.end(); i++)
 	{
 		string* val = *i;
 		if(val)
