@@ -42,18 +42,18 @@ CustomMakefile=
 Major=0
 Minor=8
 Release=3
-Build=1
+Build=2
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.3-rc1
+FileVersion=0.8.3
 FileDescription=MyServer webserver
-InternalName=Back to Life
+InternalName=Storm
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.3-rc1
+ProductVersion=0.8.3
 AutoIncBuildNr=0";
 
 

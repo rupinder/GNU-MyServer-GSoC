@@ -9,7 +9,7 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "MyServer-win32-0.8.3-rc1.exe"
+OutFile "MyServer-win32-0.8.3.exe"
 
 
 ; Setting the Style
