@@ -522,9 +522,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 				 (u_char)formattedName[pos] < 255))
 			{
 				ostringstream os;
-				os << "&#" << (int)formattedName[pos] << ";";
+				os << "&#" << (int)((unsigned char)formattedName[pos]) << ";";
 				formattedName.replace(pos, 1, os.str());
-				pos += 4;
+				pos += os.str().length() - 1;
 			}
 		}
 
