@@ -41,19 +41,19 @@ CustomMakefile=
 [VersionInfo]
 Major=0
 Minor=8
-Release=3
-Build=2
+Release=4
+Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.3
+FileVersion=0.8.4-rc1
 FileDescription=MyServer webserver
-InternalName=Lightning
+InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.3
+ProductVersion=0.8.4
 AutoIncBuildNr=0";
 
 
