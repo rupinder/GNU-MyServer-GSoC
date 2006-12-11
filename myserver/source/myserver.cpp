@@ -224,7 +224,6 @@ int main (int argn, char **argv)
 		if(differentCwd)
     {
 			setcwd(path);
-			cout << path << endl ;
 		}
 
 		/*! We can free path memory now.  */
