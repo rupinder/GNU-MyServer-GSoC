@@ -159,7 +159,6 @@ static struct argp myserverArgp = {options, parseOpt, argsDoc, doc};
 int main (int argn, char **argv)
 {
   int runas = MYSERVER_RUNAS_CONSOLE;
-  int pathLen;
 #ifdef ARGP
 	struct argp_input input;
 #endif
@@ -195,23 +194,43 @@ int main (int argn, char **argv)
     /*! Die if we get exceptions here.  */
     return(1);
   };
-  pathLen = strlen(argv[0]);
-  path = new char[pathLen + 1];
-  if(path == 0)
-    return 1;
-	strncpy(path, argv[0], pathLen);
 	
 	{
-		u_long len = pathLen;
+		int pathLen;
+		u_long len;
+		bool differentCwd = false;
+
+		pathLen = strlen(argv[0]);
+		path = new char[pathLen + 1];
+		if(path == 0)
+			return 1;
+		strncpy(path, argv[0], pathLen);
+
+		for(len = 0; len < pathLen; len++)
+		{
+			if(path[len] == '/' || path[len] == '\\')
+			{
+				differentCwd = true;
+				break;
+			}
+		}
+		len = pathLen;
 		while((path[len] != '\\') && (path[len] != '/'))
 			len--;
+
 		path[len] = '\0';
+
+		/*! Current working directory is where the myserver executable is.  */
+		if(differentCwd)
+    {
+			setcwd(path);
+			cout << path << endl ;
+		}
+
+		/*! We can free path memory now.  */
+		delete [] path;
 	}
-	/*! Current working directory is where the myserver executable is.  */
-	setcwd(path);
   
-  /*! We can free path memory now.  */
-  delete [] path;
   
 #ifdef ARGP
 	/*! Reset the struct.  */
