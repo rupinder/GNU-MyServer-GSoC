@@ -132,12 +132,12 @@ int CachedFile::operator =(CachedFile f)
 int CachedFile::readFromFile(char* buffer, u_long buffersize, u_long* nbr)
 {
 	u_long toRead = std::min(buffersize, this->buffer->getFileSize() - fseek);
-	u_long i;
+	const char* src = &(this->buffer->getBuffer()[fseek]);
 	if(nbr)
 		*nbr = toRead;
 
-	for(i = 0; i < toRead; i++)
-		buffer[i] = this->buffer->getBuffer()[i + fseek];
+	while(--toRead)
+		buffer[toRead] = src[toRead];
 
 	fseek += toRead;
 
