@@ -1,0 +1,10 @@
+The CachedFile class was developed to boost access to a file keeping its image
+in the primary memory and don't access the disk every time.  A cached file can
+be accessed in read-only mode.
+To create a cached file a factory object has to be used, CachedFileFactory will
+create our cached file instance.  CachedFile uses the flyweight design
+pattern, while static data is keep in another class (CachedFileBuffer),
+CachedFile keeps a pointer to it plus other volatile data as the current file
+pointer, that is different for each access to this file.
+If for any reason a CachedFile can't be created then a normal File will be
+created and used in the same way.
