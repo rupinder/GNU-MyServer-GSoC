@@ -182,6 +182,8 @@ File* CachedFileFactory::open(const char* filename)
 			}
 
 			buffer = new CachedFileBuffer(file);
+			record->mtime = file->getLastModTime();
+
 			
 			file->closeFile();
 			delete file;
@@ -194,7 +196,6 @@ File* CachedFileFactory::open(const char* filename)
 			}
 			record->created = getTicks();
 			record->buffer = buffer;
-			record->mtime = file->getLastModTime();
 
 			buffers.put((char *)filename, record);
 			usedSize -= fileSize;
