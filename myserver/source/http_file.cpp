@@ -65,7 +65,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
    */
 	bool useGzip = false;
   u_long filesize = 0;
-	File h;
+	File *file;
 	u_long bytesToSend;
   u_long firstByte = td->request.rangeByteBegin; 
   u_long lastByte = td->request.rangeByteEnd;
@@ -79,16 +79,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
   try
   {
-    ret = h.openFile(filenamePath, File::MYSERVER_OPEN_IFEXISTS | 
-                      File::MYSERVER_OPEN_READ);
-    if(ret)
+		file = Server::getInstance()->getCachedFiles()->open(filenamePath);
+    if(file == 0)
     {	
       return td->http->raiseHTTPError(e_500);
     }
     /*
      *Check how many bytes are ready to be send.  
      */
-    filesize = h.getFileSize();
+    filesize = file->getFileSize();
     bytesToSend = filesize;
     if(lastByte == 0)
     {
@@ -100,7 +99,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
        *If the client use ranges set the right value 
        *for the last byte number.  
        */
-      lastByte = std::min(lastByte+1, bytesToSend);
+      lastByte = std::min(lastByte + 1, bytesToSend);
     }
 
 
@@ -159,10 +158,11 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     /*
      *If fail to set the file pointer returns an internal server error.  
      */
-    ret = h.setFilePointer(firstByte);
+    ret = file->setFilePointer(firstByte);
     if(ret)
     {
-      h.closeFile();
+      file->closeFile();
+			delete file;
       return td->http->raiseHTTPError(e_500);
     }
 
@@ -213,7 +213,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 																												 td->mime->filters, 
                                                          &memStream, &nbw))
       {
-        h.closeFile();
+        file->closeFile();
+				delete file;
         chain.clearAllFilters();
         return 0;
       }
@@ -226,14 +227,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       u_long nbw;
       if(!gzipFilter)
       {
-        h.closeFile();
+        file->closeFile();
+				delete file;
         chain.clearAllFilters();
         return 0;
       }
       if(chain.addFilter(gzipFilter, &nbw))
       {
         delete gzipFilter;
-        h.closeFile();
+        file->closeFile();
+				delete file;
         chain.clearAllFilters();
         return 0;
       }
@@ -302,7 +305,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       if(s->socket.send(td->buffer->getBuffer(), 
                         (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
       {
-        h.closeFile();
+        file->closeFile();
+				delete file;
         chain.clearAllFilters();
         return 0;
       }
@@ -314,7 +318,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
      */
     if(onlyHeader)
     {
-      h.closeFile();
+      file->closeFile();
+			delete file;
       chain.clearAllFilters();
       return 1;
     }
@@ -337,7 +342,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       
       if(ret)
       {
-        h.closeFile();
+        file->closeFile();
+				delete file;
         chain.clearAllFilters();
         return 1;
       }
@@ -361,7 +367,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
           if(ret)
           {
-            h.closeFile();
+            file->closeFile();
+						delete file;
             chain.clearAllFilters();
             return 1;
           }     
@@ -371,7 +378,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
           ret = chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
           if(ret)
           {
-            h.closeFile();
+            file->closeFile();
+						delete file;
             chain.clearAllFilters();
             return 1;
           }     
@@ -387,9 +395,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       u_long nbw;
       bool lastChunk = false;
       /* Read from the file the bytes to send.  */
-      ret = h.readFromFile(td->buffer->getBuffer(),
-                           std::min(static_cast<u_long>(bytesToSend), 
-                                    static_cast<u_long>(td->buffer->getRealLength()/2)), 
+      ret = file->readFromFile(td->buffer->getBuffer(),
+														std::min(static_cast<u_long>(bytesToSend), 
+												 static_cast<u_long>(td->buffer->getRealLength()/2)), 
                            &nbr);
       if(ret)
         break;
@@ -526,11 +534,13 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
     }/* End for loop.  */
 
-    h.closeFile();
+    file->closeFile();
+		delete file;
   }
   catch(bad_alloc &ba)
   {
-    h.closeFile();
+    file->closeFile();
+		delete file;
     s->host->warningslogRequestAccess(td->id);
     s->host->warningsLogWrite("HttpFile: Error allocating memory");
     s->host->warningslogTerminateAccess(td->id);
@@ -539,7 +549,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   }
   catch(...)
   {
-    h.closeFile();
+    file->closeFile();
+		delete file;
     s->host->warningslogRequestAccess(td->id);
     s->host->warningsLogWrite("HttpFile: Internal error");
     s->host->warningslogTerminateAccess(td->id);

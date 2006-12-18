@@ -196,8 +196,8 @@ int main (int argn, char **argv)
   };
 	
 	{
-		int pathLen;
-		u_long len;
+		u_int pathLen;
+		u_int len;
 		bool differentCwd = false;
 
 		pathLen = strlen(argv[0]);

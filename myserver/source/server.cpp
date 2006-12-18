@@ -1376,12 +1376,43 @@ int Server::initialize(int /*!osVer*/)
 			serverAdmin = new string();
 		serverAdmin->assign(data);
 	}
+	data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
+	if(data)
+	{
+		connectionTimeout=MYSERVER_SEC((u_long)atol(data));
+	}
 
-	data = configurationFileManager.getValue("MAX_LOG_File.SIZE");
+	data = configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
 	if(data)
 	{
 		maxLogFileSize=(u_long)atol(data);
 	}
+
+	data = configurationFileManager.getValue("MAX_FILES_CACHE_SIZE");
+	if(data)
+	{
+		u_long maxSize = (u_long)atol(data);
+		cachedFiles.initialize(maxSize);
+	}
+	else
+		cachedFiles.initialize(1 << 23);
+
+
+	data = configurationFileManager.getValue("MAX_FILE_CACHE_SIZE");
+	if(data)
+	{
+		u_long maxSize = (u_long)atol(data);
+		cachedFiles.setMaxSize(maxSize);
+	}
+
+	data = configurationFileManager.getValue("MIN_FILE_CACHE_SIZE");
+	if(data)
+	{
+		u_long minSize = (u_long)atol(data);
+		cachedFiles.setMinSize(minSize);
+	}
+
+
   data = configurationFileManager.getValue("PROCESS_USER_ID");
 	if(data)
 	{
@@ -2379,6 +2410,15 @@ void Server::increaseListeningThreadCount()
 	++listeningThreads;
 	connectionsMutexUnlock();
 }
+
+/*!
+ *Return the factory object to create cached files.
+ */
+CachedFileFactory* Server::getCachedFiles()
+{
+	return &cachedFiles;
+}
+
 
 /*!
  *Decrease of one the number of active listening threads.

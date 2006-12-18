@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/dyn_filter.h"
 #include "../include/hash_map.h"
 #include "../include/home_dir.h"
+#include "../include/cached_file_factory.h"
 #include <string>
 using namespace std;
 
@@ -81,6 +82,8 @@ private:
 
 	/*! Do not allow to create directly objects.  */
 	Server();
+
+	CachedFileFactory cachedFiles;
 
 	HomeDir homeDir;
   HashMap<string, string*> hashedData;
@@ -150,6 +153,7 @@ public:
 		return instance;
 	}
 
+	CachedFileFactory* getCachedFiles();
   const char* getHashedData(const char* name);
   FiltersFactory* getFiltersFactory();
 	int getMaxThreads();

@@ -107,7 +107,7 @@ File::File(char *nfilename, int opt)
  *If the function have success the return value is nonzero.
  *\param nfilename Filename to open.
  *\agument opt Specify how open the file.
- *openFile returns 0 if the call was successfull, any other value on errors.
+ *openFile returns 0 if the call was successful, any other value on errors.
  */
 int File::openFile(const char* nfilename,u_long opt)
 {

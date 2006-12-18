@@ -256,8 +256,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
   st.authTypeLen = 16;
   try
   {
-    HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
 		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+    HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
     if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     {
       td.response.connection.assign("keep-alive");
@@ -320,7 +320,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.neededPassword = ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
+      st.neededPassword = 
+				((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
       st.permission2 = &permissions2;
       secCacheMutex.lock();
       try
@@ -369,11 +370,13 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       if(!td.request.auth.compare("Digest"))
       {
         if(!((HttpUserData*)td.connection->protocolBuffer)->digestChecked)
-          ((HttpUserData*)td.connection->protocolBuffer)->digest = checkDigest();
-        ((HttpUserData*)td.connection->protocolBuffer)->digestChecked=1;
-        if(((HttpUserData*)td.connection->protocolBuffer)->digest==1)
+          ((HttpUserData*)td.connection->protocolBuffer)->digest = 
+						checkDigest();
+        ((HttpUserData*)td.connection->protocolBuffer)->digestChecked = 1;
+        if(((HttpUserData*)td.connection->protocolBuffer)->digest == 1)
         {
-          td.connection->setPassword(((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
+          td.connection->setPassword(
+							 ((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
           permissions = permissions2;
         }
       }
@@ -409,7 +412,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     if(permissions == -1)
     {
       td.connection->host->warningslogRequestAccess(td.id);
-      td.connection->host->warningsLogWrite("Http: Error reading security file");
+      td.connection->host->warningsLogWrite(
+																	 "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
       return raiseHTTPError(e_500); 
     }

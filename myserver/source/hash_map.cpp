@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright © 2005 The MyServer Team
+Copyright © 2005, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -1374,26 +1374,26 @@ void HashMap<string, ValueType>::increaseSize (const int powerOffset)
 				map[i]=0;
 		}
 	}
-	capacity=0x1<<power;
+	capacity = 0x1 << power;
 }
 
 template <typename ValueType>
 void HashMap<char*, ValueType>::increaseSize (const int powerOffset)
 {
-	power+=powerOffset;
-    mask=0xffffffff>>(32-power);
-	data.resize(0x1<<power);
-	map.resize(0x1<<power, 0);
+	power += powerOffset;
+	mask = 0xffffffff >> (32 - power);
+	data.resize(0x1 << power);
+	map.resize(0x1 << power, 0);
 
-	for(int i=0;i<capacity;++i)
+	for(int i = 0; i < capacity; i++)
 	{
-		if(map[i]>=offset)
+		if(map[i] >= offset)
 		{
-			for(dataIter=data[i].begin();
-				dataIter!=data[i].end();
+			for(dataIter = data[i].begin();
+				dataIter != data[i].end();
 				)
 			{
-				if((dataIter->hash & mask)!=i)
+				if((int)(dataIter->hash & mask) != i)
 				{
 					map[dataIter->hash & mask]=offset;
 					data[dataIter->hash & mask].push_front(*dataIter);
