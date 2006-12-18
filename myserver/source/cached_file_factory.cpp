@@ -146,7 +146,26 @@ File* CachedFileFactory::open(const char* filename)
 	record = buffers.get(filename);
 	buffer = record ? record->buffer : 0;
 
+
 	used++;
+
+	/*!
+	 *If the file on the file system has a different mtime then don't use
+	 *the cache, in this way when opened instance of this file will be closed
+	 *the null reference callback can be called and the file reloaded.
+	 */
+	if(record && (FilesUtility::getLastModTime(filename) != record->mtime))
+	{
+		mutex.unlock();
+		File *file = new File();
+			if(file->openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
+												File::MYSERVER_OPEN_READ))
+			{
+					delete file;
+					return 0;
+			}
+		return file;
+	}
 
 	if(buffer == 0)
 	{
