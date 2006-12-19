@@ -156,14 +156,16 @@ File* CachedFileFactory::open(const char* filename)
 	 */
 	if(record && (FilesUtility::getLastModTime(filename) != record->mtime))
 	{
+		File *file;
 		mutex.unlock();
-		File *file = new File();
-			if(file->openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
-												File::MYSERVER_OPEN_READ))
-			{
-					delete file;
-					return 0;
-			}
+
+		file = new File();
+		if(file->openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
+											File::MYSERVER_OPEN_READ))
+		{
+			delete file;
+			return 0;
+		}
 		return file;
 	}
 
@@ -213,6 +215,7 @@ File* CachedFileFactory::open(const char* filename)
 				mutex.unlock();
 				return 0;
 			}
+			buffer->setFactoryToNotify(this);
 			record->created = getTicks();
 			record->buffer = buffer;
 

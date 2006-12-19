@@ -42,10 +42,10 @@ LogManager::LogManager()
    *By default put everything on the console.
    */
   type = TYPE_CONSOLE;
-  gzipLog=1;
-  max_size = 0;
+  gzipLog = 1;
+  maxSize = 0;
 	mutex.init();
-  cycleLog=0;
+  cycleLog = 0;
 }
 
 /*!
@@ -73,8 +73,11 @@ int LogManager::load(const char *filename)
   if(loaded)
     close();
 
-  opt = File::MYSERVER_OPEN_APPEND | File::MYSERVER_OPEN_ALWAYS |
-     		File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_READ | File::MYSERVER_NO_INHERIT;
+  opt = File::MYSERVER_OPEN_APPEND | 
+		File::MYSERVER_OPEN_ALWAYS |
+		File::MYSERVER_OPEN_WRITE | 
+		File::MYSERVER_OPEN_READ | 
+		File::MYSERVER_NO_INHERIT;
 
   ret = file.openFile(filename, opt);
 
@@ -113,8 +116,8 @@ void LogManager::setType(int nType)
  */
 u_long LogManager::setMaxSize(u_long nMax)
 {
-  u_long oldMax = max_size;
-  max_size = nMax;
+  u_long oldMax = maxSize;
+  maxSize = nMax;
   return oldMax;
 }
 
@@ -177,9 +180,9 @@ int LogManager::write(const char *str, int len)
 
     /*!
      *We reached the max file size.
-     *Don't use this limitation if max_size is equal to zero.
+     *Don't use this limitation if maxSize is equal to zero.
      */
-    if(max_size && (file.getFileSize() > max_size))
+    if(maxSize && (file.getFileSize() > maxSize))
     {
       if(storeFile())
         return 1;
@@ -447,7 +450,7 @@ int LogManager::terminateAccess()
  */
 u_long LogManager::getMaxSize()
 {
-  return max_size;
+  return maxSize;
 }
 
 /*!

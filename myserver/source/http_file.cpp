@@ -223,7 +223,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     
     if(useGzip && !chain.isFilterPresent("gzip"))
     {
-      Filter* gzipFilter = Server::getInstance()->getFiltersFactory()->getFilter("gzip");
+      Filter* gzipFilter = 
+				Server::getInstance()->getFiltersFactory()->getFilter("gzip");
       u_long nbw;
       if(!gzipFilter)
       {
@@ -252,7 +253,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       td->response.contentLength.assign(buffer.str());
     }
 
-    /* Specify the connection type. */
+    /* Specify the connection type.  */
     if(keepalive)
     {
       td->response.connection.assign("keep-alive");
@@ -330,7 +331,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       chain.setStream(&(s->socket));
 
     
-    /* Flush initial data. */
+    /* Flush initial data.  */
     if(memStream.availableToRead())
     {
       ostringstream buffer;

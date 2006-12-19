@@ -348,9 +348,12 @@ int File::createTemporaryFile(const char* filename)
 { 
   if(FilesUtility::fileExists(filename))
     FilesUtility::deleteFile(filename);
-	return openFile(filename, File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_WRITE
-                  | File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_TEMPORARY);
 
+	return openFile(filename, File::MYSERVER_OPEN_READ | 
+									File::MYSERVER_OPEN_WRITE| 
+									File::MYSERVER_CREATE_ALWAYS | 
+									File::MYSERVER_OPEN_TEMPORARY |
+									File::MYSERVER_NO_INHERIT);
 }
 
 /*!

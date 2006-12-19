@@ -1983,13 +1983,17 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				ostringstream newfilename;
 				
 				newfilename << td.inputData.getFilename() << "_encoded";
-				if(newStdIn.openFile(td.inputDataPath, File::MYSERVER_CREATE_ALWAYS | 
-												 File::MYSERVER_NO_INHERIT|File::MYSERVER_OPEN_READ|File::MYSERVER_OPEN_WRITE))
+				if(newStdIn.openFile(td.inputDataPath, 
+														 File::MYSERVER_CREATE_ALWAYS | 
+														 File::MYSERVER_NO_INHERIT | 
+														 File::MYSERVER_OPEN_READ | 
+														 File::MYSERVER_OPEN_WRITE))
 				{
 					td.inputData.closeFile();
 					FilesUtility::deleteFile(td.inputDataPath);
 					return 0;
 				}
+
 				for(;;)
 				{
 					bufferlen = 0;
@@ -2004,10 +2008,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 							FilesUtility::deleteFile(newfilename.str().c_str());
 							return 0;
 						}
+
 						if(nbr != 1)
-						{
 							break;
-						}
+
 						if((c != '\r') && (bufferlen < 19))
 						{
 							buffer[bufferlen++] = c;
@@ -2037,7 +2041,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 						if(td.inputData.readFromFile(td.buffer->getBuffer(), 
 												dataToRead-dataRead < td.buffer->getRealLength() - 1 
 																		 ? dataToRead-dataRead 
-																		 : td.buffer->getRealLength()-1 , &nbr))
+																		 : td.buffer->getRealLength()-1 , 
+																				 &nbr))
 						{
 							td.inputData.closeFile();
 							FilesUtility::deleteFile(td.inputDataPath);
@@ -2109,7 +2114,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *request does not include a Host request-header.
        */
 			HttpRequestHeader::Entry *host = td.request.other.get("Host");
-			HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+			HttpRequestHeader::Entry *connection = 
+				td.request.other.get("Connection");
 		
       if((!td.request.ver.compare("HTTP/1.1")) && 
 				 ((host && host->value->length() == 0) || (host == 0)) )
@@ -2123,7 +2129,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           td.inputData.closeFile();
           FilesUtility::deleteFile(td.inputDataPath);
         }
-        /*!
+
+				/*!
          *If the outputData file was not closed close it.
          */
         if(td.outputData.getHandle())
@@ -2163,7 +2170,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           {
             td.outputData.closeFile();
             FilesUtility::deleteFile(td.outputDataPath);
-          }	
+          }
           logHTTPaccess();
 					return ClientsThread::DELETE_CONNECTION;
         }
@@ -2244,8 +2251,10 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
            *connectionBuffer is 8 KB, so don't copy more bytes.
            */
           a->setDataRead(MYSERVER_KB(8) < (int)strlen(td.buffer->getBuffer()) -
-                       td.nHeaderChars ? MYSERVER_KB(8) : 
-                       (int)strlen(td.buffer->getBuffer()) - td.nHeaderChars);
+											 td.nHeaderChars ? 
+											 MYSERVER_KB(8) : 
+											 (int)strlen(td.buffer->getBuffer()) - td.nHeaderChars);
+
           if(a->getDataRead() )
           {
             memcpy(a->connectionBuffer, (td.buffer->getBuffer() +
@@ -2266,7 +2275,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       
       /*! 
        *Set the throttling rate for the socket. This setting can be 
-       *overwritten later. 
+       *changed later.
        */
       if(a->host->getThrottlingRate() == (u_long) -1)
         a->socket.setThrottling(Server::getInstance()->getThrottlingRate());
@@ -2340,7 +2349,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
      *If the inputData file was not closed close it.
      */
     if(td.inputData.getHandle())
-    {
+		{
       td.inputData.closeFile();
       FilesUtility::deleteFile(td.inputDataPath);
     }
@@ -2455,7 +2464,7 @@ int Http::raiseHTTPError(int ID)
         myserver_strlcpy(((HttpUserData*)td.connection->protocolBuffer)->realm,
                          host ? host->value->c_str() : "", 48);
 
-        /*! Just a random string. */
+        /*! Just a random string.  */
         md5_str[0] = (char)td.id;
         md5_str[1] = (char)((clock() >> 24) & 0xFF);
         md5_str[2] = (char)((clock() >> 16) & 0xFF);
@@ -2541,7 +2550,7 @@ int Http::raiseHTTPError(int ID)
         int isPortSpecified = 0;
 				const char* hostStr = host ? host->value->c_str() : "";
         /*!
-         *Change the Uri to reflect the default file name.
+         *Change the URI to reflect the default file name.
          */
         nURL << protocolPrefix << hostStr;
         for(int i = 0; hostStr[i]; i++)
@@ -2577,8 +2586,7 @@ int Http::raiseHTTPError(int ID)
         return sendHTTPResource(tmp, 1, td.onlyHeader);
     }
 
-    /*! Send only the header(and the body if specified). */
-
+    /*! Send only the header (and the body if specified). */
     {
       const char* value = 
 				td.connection->host->getHashedData("ERRORS_INCLUDE_BODY");  
@@ -2779,11 +2787,11 @@ int Http::sendHTTPRedirect(const char *newURL)
 
 	td.response.httpStatus = 302;
 	td.buffer2->setLength(0);
-	*td.buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\nServer: MyServer "
-							<< versionOfSoftware
-							<< "\r\nContent-type: text/html\r\nLocation: "
-							<< newURL
-							<< "\r\nContent-length: 0\r\n";
+	*td.buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
+							<< "Server: MyServer "	<< versionOfSoftware << "\r\n"
+							<< "Content-type: text/html\r\n"
+							<< "Location: " << newURL << "\r\n"
+							<< "Content-length: 0\r\n";
 
 	if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
 		*td.buffer2 << "Connection: keep-alive\r\n";	
@@ -2809,25 +2817,22 @@ int Http::sendHTTPNonModified()
 	string time;
 	HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
 
-	td.response.httpStatus=304;
+	td.response.httpStatus = 304;
 	td.buffer2->setLength(0);
 	*td.buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
-                  "Server: MyServer " ;
-
-	*td.buffer2 << versionOfSoftware <<  "\r\n";
+							<< "Server: MyServer "  << versionOfSoftware <<  "\r\n";
 
 	if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
 		*td.buffer2 << "Connection: keep-alive\r\n";	
 	else
 		*td.buffer2 << "Connection: close\r\n";	
 
-	*td.buffer2 << "Date: ";
-	
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-	*td.buffer2 << time << "\r\n\r\n";
+
+	*td.buffer2 << "Date: " << time << "\r\n\r\n";
 
 	if(td.connection->socket.send(td.buffer2->getBuffer(), 
-                    (int)td.buffer2->getLength(), 0) == -1)
+																(int)td.buffer2->getLength(), 0) == -1)
 		return 0;
 	return 1;
 }

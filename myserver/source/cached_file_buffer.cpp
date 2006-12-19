@@ -124,8 +124,10 @@ u_long CachedFileBuffer::getReferenceCounter()
 CachedFileBuffer::CachedFileBuffer(File* file)
 {
 	u_long nbr;
+	factoryToNotify = 0;
 	fileSize = file->getFileSize();
 	buffer = new char[fileSize];
+	filename.assign(file->getFilename());
 	file->setFilePointer(0);
 	file->read(buffer, fileSize, &nbr);
 }

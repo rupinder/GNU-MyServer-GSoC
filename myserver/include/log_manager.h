@@ -36,7 +36,7 @@ private:
    *loaded is used to store if the file object is initialized correctly.
    */
   int loaded;
-  u_long max_size;
+  u_long maxSize;
 	Mutex mutex;
   int cycleLog;
   int gzipLog;

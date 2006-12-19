@@ -133,13 +133,17 @@ int CachedFile::readFromFile(char* buffer, u_long buffersize, u_long* nbr)
 {
 	u_long toRead = std::min(buffersize, this->buffer->getFileSize() - fseek);
 	const char* src = &(this->buffer->getBuffer()[fseek]);
+	u_long i;
 	if(nbr)
 		*nbr = toRead;
 
-	while(--toRead)
-		buffer[toRead] = src[toRead];
+	i = toRead;
 
-	fseek += toRead;
+	if(toRead)
+		while(--i)
+			buffer[i] = src[i];
+
+	fseek +=toRead;
 
 	return toRead == 0 ? 1 : 0;
 }
