@@ -96,7 +96,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 	clock_t time1;
 
-	ostringstream outDataPath;
+	string outDataPath;
 
   int sizeEnvString;
   FastCgiServersList* server = 0;
@@ -411,9 +411,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 	time1 = getTicks();
 
-  outDataPath << getdefaultwd(0, 0) << "/stdOutFileFcgi_" << (u_int)td->id ;
+	Server::getInstance()->temporaryFileName(td->id, outDataPath);
 
-	if(con.tempOut.createTemporaryFile(outDataPath.str().c_str()))
+	if(con.tempOut.createTemporaryFile(outDataPath.c_str()))
   {
     td->buffer->setLength(0);
 		*td->buffer << "FastCGI: Error opening stdout file" << '\0';
@@ -555,7 +555,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 																				td->buffer->getRealLength(), &nbr))
   {
     con.tempOut.closeFile();
-    FilesUtility::deleteFile(outDataPath.str().c_str());
+    FilesUtility::deleteFile(outDataPath.c_str());
     con.sock.closesocket();
     chain.clearAllFilters();
     return td->http->sendHTTPhardError500();
@@ -586,7 +586,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		if(td->response.location[0])
 		{
       con.tempOut.closeFile();
-      FilesUtility::deleteFile(outDataPath.str().c_str());
+      FilesUtility::deleteFile(outDataPath.c_str());
       con.sock.closesocket();
       chain.clearAllFilters();
 			return td->http->sendHTTPRedirect((char*)td->response.location.c_str());
@@ -756,7 +756,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	}
   chain.clearAllFilters();
 	con.tempOut.closeFile();
-	FilesUtility::deleteFile(outDataPath.str().c_str());
+	FilesUtility::deleteFile(outDataPath.c_str());
 	con.sock.closesocket();
 	return ret;
 }

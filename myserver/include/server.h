@@ -145,6 +145,8 @@ private:
 	string* mainConfigurationFile;
 	string* vhostConfigurationFile;
 	string* mimeConfigurationFile;
+
+	string tmpPath;
 public:
 	HomeDir* getHomeDir();
 	static void createInstance();
@@ -217,6 +219,7 @@ public:
 	u_long getBuffersize();
 	u_long getBuffersize2();
   u_long getThrottlingRate();
+	void temporaryFileName(u_long tid, string &out);
 };
 
 #endif

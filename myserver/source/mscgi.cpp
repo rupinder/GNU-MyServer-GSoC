@@ -96,8 +96,11 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	
 	if(!td->appendOutputs)
 	{	
-		outDataPath << getdefaultwd(0, 0 ) << "/stdOutFileMSCGI_" << (u_int)td->id;
-		if(data.stdOut.createTemporaryFile(outDataPath.str().c_str()))
+		string outDataPath;
+
+		Server::getInstance()->temporaryFileName(td->id, outDataPath);
+		
+		if(data.stdOut.createTemporaryFile(outDataPath.c_str()))
 		{
       return td->http->raiseHTTPError(e_500);
     }

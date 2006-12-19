@@ -1939,15 +1939,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
      *For methods that accept data after the HTTP header set the correct 
      *pointer and create a file containing the informations after the header.
      */
-    {
-      ostringstream streamIn;
-      ostringstream streamOut;
-      streamIn << getdefaultwd(0, 0) << "/stdInFile_" <<  (u_int)td.id;
-      td.inputDataPath.assign(streamIn.str());
-      
-      streamOut << getdefaultwd(0, 0) << "/stdOutFile_" <<  (u_int)td.id;
-      td.outputDataPath.assign(streamOut.str());
-    }
+		Server::getInstance()->temporaryFileName(td.id, td.inputDataPath);
+		Server::getInstance()->temporaryFileName(td.id, td.outputDataPath);
 
     dynamicCommand = dynCmdManager.getMethodByName(td.request.cmd.c_str());
 
@@ -2858,8 +2851,8 @@ int Http::sendAuth()
  */
 int Http::loadProtocol(XmlParser* languageParser)
 {
-  const char *mainConfigurationFile;
-  char *data;
+  const char *mainConfigurationFile = 0;
+  char *data = 0;
   int  nDefaultFilename = 0;
 	XmlParser configurationFileManager;
   if(initialized)
@@ -2891,12 +2884,14 @@ int Http::loadProtocol(XmlParser* languageParser)
 	mscgiLoaded = MsCgi::load(&configurationFileManager) ? 0 : 1;
 	if(mscgiLoaded)
   {
-		Server::getInstance()->logWriteln(languageParser->getValue("MSG_LOADMSCGI") );
+		Server::getInstance()->logWriteln(
+																languageParser->getValue("MSG_LOADMSCGI") );
   }
 	else
 	{
 		Server::getInstance()->logPreparePrintError();
-		Server::getInstance()->logWriteln(languageParser->getValue("ERR_LOADMSCGI") );
+		Server::getInstance()->logWriteln(
+														 languageParser->getValue("ERR_LOADMSCGI") );
 		Server::getInstance()->logEndPrintError();
 	}
   HttpFile::load(&configurationFileManager);
@@ -2907,12 +2902,12 @@ int Http::loadProtocol(XmlParser* languageParser)
   dynManagerList.loadManagers(0, languageParser, Server::getInstance());
 	
 	/*! Determine the min file size that will use GZIP compression.  */
-	data=configurationFileManager.getValue("GZIP_THRESHOLD");
+	data = configurationFileManager.getValue("GZIP_THRESHOLD");
 	if(data)
 	{
-		gzipThreshold=atoi(data);
+		gzipThreshold = atoi(data);
 	}	
-	data=configurationFileManager.getValue("ALLOW_VHOST_MIME");
+	data = configurationFileManager.getValue("ALLOW_VHOST_MIME");
 	if(data)
 	{
 
@@ -2953,7 +2948,7 @@ int Http::loadProtocol(XmlParser* languageParser)
    *Determine the number of default filenames written in 
    *the configuration file.  
    */
-	nDefaultFilename=0;
+	nDefaultFilename = 0;
 
 	for(;;)
 	{
@@ -2976,7 +2971,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	else
 	{
 		u_long i;
-		for(i = 0; i<static_cast<u_long>(nDefaultFilename); i++)
+		for(i = 0; i < static_cast<u_long>(nDefaultFilename); i++)
 		{
 			ostringstream xmlMember;
 			xmlMember << "DEFAULT_FILENAME"<< (u_int)i;
@@ -3061,7 +3056,7 @@ char* Http::registerName(char* out, int len)
 Http::Http()
 {
 	protocolPrefix.assign("http://");
-	protocolOptions=0;
+	protocolOptions = 0;
 	td.filenamePath.assign("");
 	td.pathInfo.assign("");
 	td.pathTranslated.assign("");

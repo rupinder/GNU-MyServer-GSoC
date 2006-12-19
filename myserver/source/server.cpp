@@ -1397,6 +1397,16 @@ int Server::initialize(int /*!osVer*/)
 	else
 		cachedFiles.initialize(1 << 23);
 
+	data = configurationFileManager.getValue("TEMP_DIRECTORY");
+	if(data)
+	{
+		tmpPath.assign(data);
+		FilesUtility::completePath(tmpPath);
+	}
+	else
+	{
+		tmpPath.assign(getdefaultwd(0, 0));
+	}
 
 	data = configurationFileManager.getValue("MAX_FILE_CACHE_SIZE");
 	if(data)
@@ -2663,19 +2673,33 @@ int Server::logWriteln(const char* str)
   {
     char time[38];
     int len;
-    time[0]='[';
+    time[0] = '[';
     getRFC822GMTTime(&time[1], 32);
     len = strlen(time);
-    time[len+0]=']';
-    time[len+1]=' ';
-    time[len+2]='-';
-    time[len+3]='-';
-    time[len+4]=' ';
-    time[len+5]='\0';
+    time[len + 0] = ']';
+    time[len + 1] = ' ';
+    time[len + 2] = '-';
+    time[len + 3] = '-';
+    time[len + 4] = ' ';
+    time[len + 5] = '\0';
     if(logManager.write(time))
       return 1;
   }
   return logManager.writeln((char*)str);
+}
+
+/*!
+ *Create an unique temporary file name.  This function doesn't create the
+ *file or open it but generates only its name.
+ *\param
+ */
+void Server::temporaryFileName(u_long tid, string &out)
+{
+	ostringstream stream;
+	static u_long counter = 1;
+	counter++;
+	stream << tmpPath << "/tmp_" << counter  << "_" << tid;
+	out.assign(stream.str());
 }
 
 /*!
