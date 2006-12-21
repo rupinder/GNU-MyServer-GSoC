@@ -99,6 +99,7 @@ void * startClientsThread(void* pParam)
 #endif
 
 {
+	Server* server = Server::getInstance();
 #ifdef NOT_WIN
 	/* Block SigTerm, SigInt, and SigPipe in threads.  */
 	sigset_t sigmask;
@@ -119,36 +120,35 @@ void * startClientsThread(void* pParam)
   return (void*)1;
 #endif
 
-  if(Server::getInstance()->getUid() && 
-		 Process::setuid(Server::getInstance()->getUid()))
+  if(server->getUid() && Process::setuid(server->getUid()))
   {
     ostringstream out;
-    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR") 
-        << ": setuid " << Server::getInstance()->getUid();
-    Server::getInstance()->logPreparePrintError();
-    Server::getInstance()->logWriteln(out.str().c_str());
-    Server::getInstance()->logEndPrintError();
+    out << server->getInstance()->getLanguageParser()->getValue("ERR_ERROR") 
+        << ": setuid " << server->getInstance()->getUid();
+    server->getInstance()->logPreparePrintError();
+    server->getInstance()->logWriteln(out.str().c_str());
+    server->getInstance()->logEndPrintError();
     Thread::terminate();
     return 0;
 
   }	
-  if(Server::getInstance()->getGid() && 
-		 Process::setgid(Server::getInstance()->getGid()))
+  if(server->getGid() && 
+		 Process::setgid(server->getInstance()->getGid()))
   {
     ostringstream out;
-    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setgid "  << Server::getInstance()->getGid();
-    Server::getInstance()->logPreparePrintError();
-    Server::getInstance()->logWriteln(out.str().c_str());
-    Server::getInstance()->logEndPrintError();
+    out << server->getInstance()->getLanguageParser()->getValue("ERR_ERROR")
+        << ": setgid "  << server->getInstance()->getGid();
+    server->getInstance()->logPreparePrintError();
+    server->getInstance()->logWriteln(out.str().c_str());
+    server->getInstance()->logEndPrintError();
     Thread::terminate();
     return 0;
   }	
 
 	ct->threadIsRunning = 1;
 	ct->threadIsStopped = 0;
-	ct->buffersize = Server::getInstance()->getBuffersize();
-	ct->buffersize2 = Server::getInstance()->getBuffersize2();
+	ct->buffersize = server->getInstance()->getBuffersize();
+	ct->buffersize2 = server->getInstance()->getBuffersize2();
 	
 	ct->buffer.setLength(ct->buffersize);
 	ct->buffer.m_nSizeLimit = ct->buffersize;
@@ -171,7 +171,7 @@ void * startClientsThread(void* pParam)
 				                                    : ct->buffer2.getRealLength());
 
 	/* Wait that the server is ready before go in the running loop.  */
-  while(!Server::getInstance()->isServerReady())
+  while(!server->getInstance()->isServerReady())
   {
     Thread::wait(500);
   }
@@ -185,15 +185,25 @@ void * startClientsThread(void* pParam)
     int ret;
     try
     {
-      Thread::wait(1);
+			if(server->getNumConnections())
+			{
+				Thread::wait(1);
+				ret = 0;
+			}
+			else
+			{
+				ret = server->getInstance()->waitNewConnection(ct->id, 5000);
+			}
+
       /*
        *If the thread can be destroyed don't use it.
        */
-      if((!ct->isStatic()) && ct->isToDestroy() )
+      if(ret || ((!ct->isStatic()) && ct->isToDestroy()))
       {
         continue;
       }
-      
+
+
       ct->parsing = 1;
       ret = ct->controlConnections();
 
@@ -207,7 +217,7 @@ void * startClientsThread(void* pParam)
       else
       {
         /*
-         *Long inactive non static thread... Maybe we don't need it.
+         *Long inactive not static thread... Maybe we don't need it.
          */
         if(!ct->isStatic())
           if(getTicks() - ct->getTimeout() > MYSERVER_SEC(15) )

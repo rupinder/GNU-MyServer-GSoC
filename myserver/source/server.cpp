@@ -267,9 +267,12 @@ void Server::start()
 
     loadSettings();
 
-    mainConfTime = FilesUtility::getLastModTime(mainConfigurationFile->c_str());
-    hostsConfTime = FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
-    mimeConf = FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
+    mainConfTime = 
+			FilesUtility::getLastModTime(mainConfigurationFile->c_str());
+    hostsConfTime = 
+			FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
+    mimeConf = 
+			FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
 
     /*!
      *Keep thread alive.
@@ -628,13 +631,6 @@ int Server::createServerAndListener(u_short port)
      *Set connections listen queque to max allowable.
      */
     logWriteln( languageParser.getValue("MSG_SLISTEN"));
-//    if (serverSocket->listen(SOMAXCONN))
-//    {
-//      logPreparePrintError();
-//      logWriteln(languageParser.getValue("ERR_LISTEN"));
-//      logEndPrintError();
-//      return 0;
-//    }
 	if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
 	{
       logPreparePrintError();
@@ -642,7 +638,6 @@ int Server::createServerAndListener(u_short port)
       logEndPrintError();
       delete serverSocketIPv4;
       serverSocketIPv4 = NULL;
-      //return 0;
 	}
 	if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
 	{
@@ -651,7 +646,6 @@ int Server::createServerAndListener(u_short port)
       logEndPrintError();
       delete serverSocketIPv6;
       serverSocketIPv6 = NULL;
-      //return 0;
 	}
 
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
@@ -676,7 +670,7 @@ int Server::createServerAndListener(u_short port)
 			argv->port = port;
 			argv->serverSocket = serverSocketIPv4;
 			Thread::create(&threadIdIPv4, &::listenServer,  (void *)(argv));
-			/* Free the argument if something goes wrong with the thread creation. */
+
 			if(!threadIdIPv4)
 				delete argv;
 		}
@@ -687,7 +681,7 @@ int Server::createServerAndListener(u_short port)
 			argv->port = port;
 			argv->serverSocket = serverSocketIPv6;
 			Thread::create(&threadIdIPv6, &::listenServer,  (void *)(argv));
-			/* Free the argument if something goes wrong with the thread creation. */
+
 			if(!threadIdIPv6)
 				delete argv;
 
@@ -717,8 +711,8 @@ void Server::createListenThreads()
 	/*!
    *Create the listens threads.
    *Every port uses a thread.
-	 *Put all the connections in a hash map to avoid duplicates.
-	 *Iterate it to create the listen threads.
+	 *1) Put all the connections in a hash map to avoid duplicates.
+	 *2) Iterate it and create the listen threads.
    */
 	HashMap<u_short, u_short> portsMap;
 	HashMap<u_short, u_short>::Iterator it;
@@ -1008,6 +1002,9 @@ int Server::terminate()
 		Thread::wait(1000);
 	}
 
+	delete newConnectionEvent;
+	newConnectionEvent = 0;
+
 	/* Clear the home directories data.  */
 	homeDir.clear();
 
@@ -1190,6 +1187,8 @@ int Server::initialize(int /*!osVer*/)
    *Create the mutex for the threads.
    */
   threadsMutex = new Mutex();
+
+	newConnectionEvent = new Event(false);
 
 	/*!
    *Store the default values.
@@ -1714,6 +1713,12 @@ ConnectionPtr Server::addConnectionToList(Socket s,
    */
 	if(maxConnections && (nConnections>maxConnections))
 		newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
+
+	/*
+	 *Signal the new connection to the waiting threads.
+	 */
+	if(newConnectionEvent)
+		newConnectionEvent->signal();
 
 	return newConnection;
 }
@@ -2524,6 +2529,20 @@ int Server::isAutorebootEnabled()
 {
   return autoRebootEnabled;
 }
+
+/*!
+ *Block the calling thread until a new connection is up.
+ *Delegate the control to the newConnectionEvent object.
+ *\param tid Calling thread id.
+ *\param timeout Timeout value for the blocking call.
+ */
+int Server::waitNewConnection(u_long tid, u_long timeout)
+{
+	if(newConnectionEvent)
+		return newConnectionEvent->wait(tid, timeout);
+	return -1;
+}
+
 
 /*!
  *Create a new thread.

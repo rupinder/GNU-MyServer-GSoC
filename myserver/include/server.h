@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/utility.h"
 #include "../include/connection.h"
 #include "../include/sockets.h"
+#include "../include/event.h"
 #include "../include/mime_manager.h"
 #include "../include/vhosts.h"
 #include "../include/protocols_manager.h"
@@ -145,8 +146,8 @@ private:
 	string* mainConfigurationFile;
 	string* vhostConfigurationFile;
 	string* mimeConfigurationFile;
-
 	string tmpPath;
+	Event *newConnectionEvent;
 public:
 	HomeDir* getHomeDir();
 	static void createInstance();
@@ -220,6 +221,7 @@ public:
 	u_long getBuffersize2();
   u_long getThrottlingRate();
 	void temporaryFileName(u_long tid, string &out);
+	int waitNewConnection(u_long tid, u_long timeout);
 };
 
 #endif
