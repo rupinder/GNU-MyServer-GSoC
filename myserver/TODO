@@ -139,7 +139,6 @@ TODO list for MyServer.
 *	Design and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
 
 *	Setuid and Setgid for CGI processes.
-*	IPv6 Implementation. 
 *	PHP Configuration Tool. 
 *	SSI files support.
 *	FTP server.
