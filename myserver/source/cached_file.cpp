@@ -88,7 +88,7 @@ int CachedFile::openFile(const char* nfilename,u_long opt)
  */
 FileHandle CachedFile::getHandle()
 {
-	return -1;
+	return (FileHandle)-1;
 }
 
 /*!

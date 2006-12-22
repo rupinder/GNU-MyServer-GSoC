@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=63
+UnitCount=64
 Type=1
 Ver=1
 ObjFiles=
@@ -29,7 +29,6 @@ CompilerSettings=0000001000000101000000
 UseCustomMakefile=0
 CustomMakefile=
 
-
 [VersionInfo]
 Major=0
 Minor=8
@@ -47,6 +46,7 @@ OriginalFilename=myserver.exe
 ProductName=MyServer
 ProductVersion=0.8.4
 AutoIncBuildNr=0
+
 [Unit1]
 FileName=stdafx.cpp
 CompileCpp=1
@@ -669,6 +669,16 @@ BuildCmd=
 
 [Unit63]
 FileName=source\cached_file_factory.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit64]
+FileName=source\event.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
