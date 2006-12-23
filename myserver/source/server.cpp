@@ -67,6 +67,7 @@ const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
  *At startup the server instance is null.
  */
 Server* Server::instance = 0;
+
 /*!
  *When the flag mustEndServer is 1 all the threads are
  *stopped and the application stop its execution.
@@ -132,6 +133,7 @@ void Server::start()
   if(logManager.getType() == LogManager::TYPE_CONSOLE )
   {
 #ifdef WIN32
+
     /*!
      *Under the windows platform use the cls operating-system
      *command to clear the screen.
@@ -140,6 +142,7 @@ void Server::start()
     system("cls");
 #endif
 #ifdef NOT_WIN
+
 	/*!
    *Under an UNIX environment, clearing the screen
    *can be done in a similar method
@@ -464,7 +467,7 @@ int Server::createServerAndListener(u_short port)
 	ThreadID threadIdIPv4 = 0;
 	ThreadID threadIdIPv6 = 0;
   listenThreadArgv* argv;
-	//	MYSERVER_SOCKADDRIN sockServerSocket;
+
 	/*!
 	 *Create the server sockets:
 	 *one server socket for IPv4 and another one for IPv6
@@ -500,11 +503,11 @@ int Server::createServerAndListener(u_short port)
 						htons((u_short)port);
 
 #ifdef NOT_WIN
-			/*!
-			 *Under the unix environment the application needs some time before
-			 * create a new socket for the same address.
-			 *To avoid this behavior we use the current code.
-			 */
+					/*!
+					 *Under the unix environment the application needs some time before
+					 * create a new socket for the same address.
+					 *To avoid this behavior we use the current code.
+					 */
 					if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
 																					(const char *)&optvalReuseAddr,
 																					sizeof(optvalReuseAddr)) < 0)
@@ -627,10 +630,10 @@ int Server::createServerAndListener(u_short port)
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
 		return 0;
 
-    /*!
-     *Set connections listen queque to max allowable.
-     */
-    logWriteln( languageParser.getValue("MSG_SLISTEN"));
+	/*!
+	 *Set connections listen queque to max allowable.
+	 */
+	logWriteln( languageParser.getValue("MSG_SLISTEN"));
 	if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
 	{
       logPreparePrintError();
@@ -1005,11 +1008,29 @@ int Server::terminate()
 	delete newConnectionEvent;
 	newConnectionEvent = 0;
 
+	connectionsMutexLock();
+  try
+  {
+		Connection* c = connections;
+    while(c)
+    {
+			c->socket.closesocket();
+      c = c->next;
+    }
+  }
+  catch(...)
+  {
+    connectionsMutexUnlock();
+    throw;
+  };
+	connectionsMutexUnlock();
+
+
+	/*! Stop the active threads. */
+	stopThreads();
+
 	/* Clear the home directories data.  */
 	homeDir.clear();
-
-  /*! Stop the active hreads. */
-	stopThreads();
 
   if(verbosity > 1)
     logWriteln(languageParser.getValue("MSG_TSTOPPED"));
@@ -1127,10 +1148,10 @@ void Server::stopThreads()
     thread = thread->next;
   }
 
-	threadsStopTime=0;
+	threadsStopTime = 0;
 	for(;;)
 	{
-		threadsStopped=0;
+		threadsStopped = 0;
 
     thread = threads;
     while(thread)

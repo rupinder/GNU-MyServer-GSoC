@@ -69,6 +69,7 @@ int startupSocketLib(u_short ver)
 	return 0;
 #endif
 }
+
 /*!
  *Returns the socket handle
  */
@@ -76,6 +77,7 @@ SocketHandle Socket::getHandle()
 {
 	return socketHandle;
 }
+
 /*!
  *Set the handle for the socket
  */
@@ -91,6 +93,7 @@ int Socket::operator==(Socket s)
 {
 	return socketHandle == s.socketHandle;
 }
+
 /*!
  *Set the socket using the = operator
  */
@@ -115,6 +118,7 @@ int Socket::socket(int af,int type,int protocol,bool useSSL)
 #endif
 	return	(int)socketHandle;
 }
+
 /*!
  *Set the socket handle.
  */
@@ -301,6 +305,7 @@ int Socket::shutdown(int how)
 	return ::shutdown((int)socketHandle,how);
 #endif
 }
+
 /*!
  *Set socket options.
  */
@@ -321,8 +326,10 @@ int Socket::getLocalIPsList(string &out)
   Socket::gethostname(serverName, HOST_NAME_MAX);
 #if ( HAVE_IPV6 )
 	addrinfo aiHints = { 0 }, *pHostInfo = NULL, *pCrtHostInfo = NULL;
-	aiHints.ai_socktype = SOCK_STREAM;// only interested in socket types the that server will listen to
-	if ( getaddrinfo(serverName, NULL, &aiHints, &pHostInfo) == 0 && pHostInfo != NULL )
+	/* only interested in socket types the that server will listen to.  */
+	aiHints.ai_socktype = SOCK_STREAM;
+	if ( getaddrinfo(serverName, NULL, &aiHints, &pHostInfo) == 0 && 
+			 pHostInfo != NULL )
 	{
 		sockaddr_storage *pCurrentSockAddr = NULL;
 		char straddr[NI_MAXHOST] = "";
@@ -437,19 +444,24 @@ int Socket::send(const char* buffer, int len, int flags)
   {
     for(;;)
     {
-      /*! When we can send data again? */
+      /*! When we can send data again?  */
       u_long time = getTicks() + (1000*1024/throttlingRate) ;
-      /*! If a throttling rate is specified, send chunks of 1024 bytes. */
-      ret = rawSend( buffer+(len-toSend), toSend < 1024 ? toSend : 1024, flags);
-      /*! On errors returns directly -1. */
+      /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
+      ret = rawSend(buffer + (len - toSend), toSend < 1024 ? 
+										toSend : 1024, flags);
+      /*! On errors returns directly -1.  */
       if(ret < 0)
         return -1;
       toSend -= (u_long)ret;
-      /*! If there are other bytes to send wait before cycle again. */
+      /*! 
+			 *If there are other bytes to send wait before cycle again.  This
+			 *loop can stop the thread for a long time, better check if the server
+			 *is still running while we wait.
+			 */
       if(toSend)
       {
 
-        while(getTicks() <= time)
+        while((getTicks() <= time)  && !mustEndServer)
           Thread::wait(1);
       }
       else
@@ -499,16 +511,11 @@ int Socket::connect(const char* host, u_short port)
 		aiHints.ai_family = thisSock.ss_family;
 		aiHints.ai_socktype = SOCK_STREAM;
 	}
-//	else
-//		return -1;
 
 	char szPort[10];
 	memset(szPort, 0, sizeof(char)*10);
-//#ifdef WIN32
-//	itoa(port, szPort, 10);
-//#else
-        snprintf(szPort, 10, "%d", port);
-//#endif
+	snprintf(szPort, 10, "%d", port);
+
 	int nGetaddrinfoRet = 0;
 	addrinfo *pHostInfo = NULL, *pCrtHostInfo = NULL;
 	MYSERVER_SOCKADDRIN *pCurrentSockAddr = NULL, connectionSockAddrIn = { 0 };

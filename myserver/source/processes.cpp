@@ -415,7 +415,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
         args[count++] = (const char*)&(spi->arg.c_str())[start];
       }
 
-      args[count]=NULL;
+      args[count] = NULL;
     }
 
 		if(spi->envString != NULL)
