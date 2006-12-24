@@ -49,8 +49,7 @@ AC_CHECK_FUNCS(gettimeofday, AC_DEFINE(GETTIMEOFDAY, 1, [Define if the gettimeof
 
 AC_CHECK_FUNCS(pipe, AC_DEFINE(PIPE, 1, [Define if the pipe function is present]) )
 
-
-AC_CHECK_FUNCS(snprintf,AC_DEFINE(GETTIMEOFDAY, 1, [Define if the snprintf function is present]) )
+AC_CHECK_FUNCS(snprintf, AC_DEFINE(SNPRINTF, 1, [Define if the snprintf function is present]) )
 
 dnl Looking for pthreads
 GNOME_PTHREAD_CHECK
