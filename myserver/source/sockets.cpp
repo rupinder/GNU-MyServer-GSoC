@@ -37,7 +37,6 @@ extern "C" {
 #endif
 }
 
-
 #include <sstream>
 
 using namespace std;
@@ -48,11 +47,14 @@ using namespace std;
 #pragma comment(lib,"ws2_32.lib")
 
 #ifndef DO_NOT_USE_SSL
- #pragma comment(lib,"libssl.lib")/*!Import the OpenSSL library*/
- #pragma comment(lib,"libcrypto.lib")/*!Import the OpenSSL library*/
+ #pragma comment(lib,"libssl.lib")/*! Import the OpenSSL library.  */
+ #pragma comment(lib,"libcrypto.lib")/*! Import the OpenSSL library.  */
 #endif
 
 #endif
+
+bool Socket::denyBlockingOperations = false;
+
 
 /*!
  *Source code to wrap the socket library to MyServer project.
@@ -86,6 +88,7 @@ int Socket::setHandle(SocketHandle h)
 	socketHandle = h;
 	return 1;
 }
+
 /*!
  *Check if the two sockets have the same handle descriptor
  */
@@ -151,7 +154,7 @@ void Socket::setThrottling(u_long tr)
  */
 Socket::Socket()
 {
-  /*! Reset everything. */
+  /*! Reset everything.  */
 #ifndef DO_NOT_USE_SSL
   localSSL = 0;
 	sslSocket = 0;
@@ -216,8 +219,8 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa,
 #endif
 
 #ifdef WIN32
-	SocketHandle h=(SocketHandle)::accept(socketHandle,(struct sockaddr*)sa,
-                                        sockaddrlen);
+	SocketHandle h = (SocketHandle)::accept(socketHandle,(struct sockaddr*)sa,
+																					sockaddrlen);
 	s.setHandle(h);
 #endif
 
@@ -310,7 +313,7 @@ int Socket::shutdown(int how)
  *Set socket options.
  */
 int	Socket::setsockopt(int level,int optname,
-                                const char *optval,int optlen)
+											 const char *optval,int optlen)
 {
 	return ::setsockopt(socketHandle,level, optname,optval,optlen);
 }
@@ -382,6 +385,14 @@ int Socket::getLocalIPsList(string &out)
 }
 
 /*!
+ *Set this to true to stop any operation that can block sockets.
+ */
+void Socket::stopBlockingOperations(bool value)
+{
+	denyBlockingOperations = value;
+}
+
+/*!
  *Send data over the socket.
  *Return -1 on error.
  *This routine is accessible only from the Socket class.
@@ -395,8 +406,9 @@ int Socket::rawSend(const char* buffer,int len,int flags)
 		do
 		{
 			err = SSL_write(sslConnection,buffer,len);
-		}while((err <= 0) &&(SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE 
-                  || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
+		}while((err <= 0) &&
+					 (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE 
+						|| SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
     if(err <= 0)
       return -1;
     else
@@ -406,9 +418,9 @@ int Socket::rawSend(const char* buffer,int len,int flags)
 #ifdef WIN32
 	int ret;
   SetLastError(0);
-	for(;;)
+	while(!denyBlockingOperations)
   {
-    ret = ::send(socketHandle,buffer,len,flags);
+    ret = ::send(socketHandle, buffer, len, flags);
     if((ret == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK))
     {
       Thread::wait(10);
@@ -442,10 +454,10 @@ int Socket::send(const char* buffer, int len, int flags)
   }
   else
   {
-    for(;;)
+		while(!denyBlockingOperations)
     {
       /*! When we can send data again?  */
-      u_long time = getTicks() + (1000*1024/throttlingRate) ;
+      u_long time = getTicks() + (1000 * 1024 / throttlingRate) ;
       /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
       ret = rawSend(buffer + (len - toSend), toSend < 1024 ? 
 										toSend : 1024, flags);
@@ -454,21 +466,18 @@ int Socket::send(const char* buffer, int len, int flags)
         return -1;
       toSend -= (u_long)ret;
       /*! 
-			 *If there are other bytes to send wait before cycle again.  This
-			 *loop can stop the thread for a long time, better check if the server
-			 *is still running while we wait.
+			 *If there are other bytes to send wait before cycle again. 
 			 */
       if(toSend)
       {
-
-        while((getTicks() <= time)  && !mustEndServer)
+        while((getTicks() <= time) && !denyBlockingOperations)
           Thread::wait(1);
       }
       else
         break;
     }
     /*! Return the number of sent bytes. */
-    return len-toSend;
+    return len - toSend;
   }
   return 0;
 }
@@ -582,7 +591,7 @@ int Socket::connect(const char* host, u_short port)
 	if ( !bSocketConnected )
 	   return -1;
 #else
-  MYSERVER_HOSTENT *hp=Socket::gethostbyname(host);
+  MYSERVER_HOSTENT *hp = Socket::gethostbyname(host);
 	struct sockaddr_in sockAddr;
 	int sockLen;
   if(hp == 0)
@@ -675,7 +684,7 @@ int Socket::recv(char* buffer, int len, int flags, u_long timeout)
 	{
     /*! Check if there is data to read before do it. */
 		if(bytesToRead())
-			return recv(buffer,len,flags);
+			return recv(buffer, len, flags);
 	}
 	return -1;
 
@@ -833,7 +842,7 @@ int Socket::recv(char* buffer,int len,int flags)
 	{
     do
     {
-        err = SSL_read(sslConnection,buffer,len);
+        err = SSL_read(sslConnection, buffer, len);
     }while((err <= 0) &&
            (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_X509_LOOKUP)
            || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ)
@@ -849,7 +858,7 @@ int Socket::recv(char* buffer,int len,int flags)
 #ifdef WIN32
 	do
   {
-  	err = ::recv(socketHandle,buffer,len,flags);
+  	err = ::recv(socketHandle, buffer, len, flags);
   }while((err == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
 	if(err == SOCKET_ERROR)
 		return -1;

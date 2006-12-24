@@ -341,7 +341,8 @@ void Server::start()
       while(eventsCount--)
       {
         if(!mustEndServer)
-          ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), irInBuf, 128, &cNumRead);
+          ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), irInBuf, 128, 
+													 &cNumRead);
         else
           break;
         for (i = 0; i < cNumRead; i++)
@@ -370,13 +371,13 @@ void Server::start()
 #endif
     }
   }
-  catch( bad_alloc &ba)
+  catch(bad_alloc &ba)
   {
     ostringstream s;
     s << "Bad alloc: " << ba.what();
     logWriteln(s.str().c_str());
   }
-  catch( exception &e)
+  catch(exception &e)
   {
     ostringstream s;
     s << "Error: " << e.what();
@@ -484,7 +485,7 @@ int Server::createServerAndListener(u_short port)
 		{
 			logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
 			serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			if ( serverSocketIPv4->getHandle() == (SocketHandle)INVALID_SOCKET )
+			if (serverSocketIPv4->getHandle() == (SocketHandle)INVALID_SOCKET)
 			{
 				logPreparePrintError();
 				logWriteln(languageParser.getValue("ERR_OPENP"));
@@ -493,55 +494,55 @@ int Server::createServerAndListener(u_short port)
 				serverSocketIPv4 = NULL;
 			}
 			else
-				{
-					MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
-					logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-					((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
-					((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
-						htonl(INADDR_ANY);
-					((sockaddr_in*)(&sockServerSocketIPv4))->sin_port = 
-						htons((u_short)port);
+			{
+				MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
+				logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
+				((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
+				((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
+					htonl(INADDR_ANY);
+				((sockaddr_in*)(&sockServerSocketIPv4))->sin_port = 
+					htons((u_short)port);
 
 #ifdef NOT_WIN
+				/*!
+				 *Under the unix environment the application needs some time before
+				 * create a new socket for the same address.
+				 *To avoid this behavior we use the current code.
+				 */
+				if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
+																				(const char *)&optvalReuseAddr,
+																				sizeof(optvalReuseAddr)) < 0)
+				{
+					logPreparePrintError();
+					logWriteln(languageParser.getValue("ERR_ERROR"));
+					logEndPrintError();
+					delete serverSocketIPv4;
+					serverSocketIPv4 = NULL;
+					//return 0; allow IPv6
+				}
+#endif
+				if( serverSocketIPv4 != NULL )
+				{
 					/*!
-					 *Under the unix environment the application needs some time before
-					 * create a new socket for the same address.
-					 *To avoid this behavior we use the current code.
+					 *Bind the port.
 					 */
-					if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-																					(const char *)&optvalReuseAddr,
-																					sizeof(optvalReuseAddr)) < 0)
+					logWriteln(languageParser.getValue("MSG_BIND_PORT"));
+					
+					if (serverSocketIPv4->bind(&sockServerSocketIPv4,
+																		 sizeof(sockaddr_in)) != 0)
 					{
 						logPreparePrintError();
-						logWriteln(languageParser.getValue("ERR_ERROR"));
+						logWriteln(languageParser.getValue("ERR_BIND"));
 						logEndPrintError();
 						delete serverSocketIPv4;
 						serverSocketIPv4 = NULL;
-						//return 0; allow IPv6
 					}
-#endif
-					if( serverSocketIPv4 != NULL )
+					else
 					{
-						/*!
-						 *Bind the port.
-						 */
-						logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-						
-						if (serverSocketIPv4->bind(&sockServerSocketIPv4,
-																			 sizeof(sockaddr_in)) != 0)
-						{
-							logPreparePrintError();
-							logWriteln(languageParser.getValue("ERR_BIND"));
-							logEndPrintError();
-							delete serverSocketIPv4;
-							serverSocketIPv4 = NULL;
-						}
-						else
-						{
-							logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
-						}
+						logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
 					}
 				}
+			}
 		}
 
 #if ( HAVE_IPV6 )
@@ -1005,6 +1006,8 @@ int Server::terminate()
 		Thread::wait(1000);
 	}
 
+	Socket::stopBlockingOperations(true);
+
 	delete newConnectionEvent;
 	newConnectionEvent = 0;
 
@@ -1049,6 +1052,9 @@ int Server::terminate()
 		clearAllConnections();
 	}
 	freeHashedData();
+
+	/*! Restore the blocking status in case of a reboot.  */
+	Socket::stopBlockingOperations(false);
 
 	if(languagesPath)
 		delete languagesPath;

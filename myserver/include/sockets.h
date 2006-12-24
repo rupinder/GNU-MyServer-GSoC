@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -84,20 +84,23 @@ private:
 	SocketHandle socketHandle;
 	int sslSocket;
 #ifndef DO_NOT_USE_SSL
-  /*! This is defined if all SSL members are used only by this socket. */
+  /*! This is defined if all SSL members are used only by this socket.  */
   int localSSL;
 	SSL *sslConnection;
 	SSL_CTX *sslContext;
 	X509 *clientCert;
 
-  /*! This is used only by clients sockets. */
+  /*! This is used only by clients sockets.  */
   SSL_METHOD* sslMethod;
 #endif
 	/*! Pointer to the socket that has accepted this connection.  */
 	Socket *serverSocket;
 
-  /*! Send throttling rate. */
+  /*! Send throttling rate.  */
   u_long throttlingRate;
+
+	/*! Stop the sockets system.  */
+	static bool denyBlockingOperations;
 
   int rawSend(const char* buffer,int len,int flags);
 public:
@@ -111,6 +114,7 @@ public:
 	SSL* getSSLConnection();
 	int sslAccept();
 #endif
+	static void stopBlockingOperations(bool);
 	int getSSL();
 	SocketHandle getHandle();
 	int setHandle(SocketHandle);
@@ -122,7 +126,7 @@ public:
 	int listen(int);
 	Socket();
 	Socket(SocketHandle);
-	Socket accept(MYSERVER_SOCKADDR*, int*, int sslHandShake=0);
+	Socket accept(MYSERVER_SOCKADDR*, int*, int sslHandShake = 0);
 	int closesocket();
 	int setsockopt(int,int, const char*,int);
 	int shutdown(int how);
@@ -145,7 +149,7 @@ public:
   u_long getThrottling();
   void setThrottling(u_long);
   static int getLocalIPsList(string&);
-  /*! Inherithed from Stream. */
+  /*! Inherithed from Stream.  */
   virtual int read(char* buffer, u_long len, u_long *nbr);
   virtual int write(const char* buffer, u_long len, u_long *nbw);
 };
