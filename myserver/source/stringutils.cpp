@@ -529,7 +529,7 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 #else
     tm tmp;
 	localtime_r( &ltime, &tmp );
-    result = &tmp;
+	result = &tmp;
 #endif
   if(len < 25)
     return 0;

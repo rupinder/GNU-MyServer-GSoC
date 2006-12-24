@@ -84,7 +84,7 @@ int Event::init(bool broadcast)
 /*!
  *Wait for the event.
  *\param id The calling thread id.
- *\param timeout Timeout value. 
+ *\param timeout Timeout value in milliseconds. 
  */
 int Event::wait(u_long id, u_long timeout)
 {
@@ -94,9 +94,12 @@ int Event::wait(u_long id, u_long timeout)
 	{
 		timespec ts;
 		timeval tp;
+		const u_long nano = 1000000L;
 		gettimeofday(&tp, NULL);
-		ts.tv_sec  = tp.tv_sec;
-		ts.tv_nsec = tp.tv_usec * 1000 + timeout;
+
+		ts.tv_nsec = (tp.tv_usec + timeout) * 1000;
+		ts.tv_sec += tp.tv_sec + ts.tv_nsec / nano;
+		ts.tv_nsec %= nano;
 
 		pthread_mutex_lock(&mutex);
 		ret = pthread_cond_timedwait(&event, &mutex, &ts);
