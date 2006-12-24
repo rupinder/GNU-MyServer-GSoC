@@ -140,9 +140,10 @@ File* CachedFileFactory::open(const char* filename)
 {
 	CachedFileFactoryRecord *record;
 	CachedFileBuffer *buffer;
-
+	u_long ticks;
 	mutex.lock();
 	
+	ticks = getTicks();
 	record = buffers.get(filename);
 	buffer = record ? record->buffer : 0;
 
@@ -154,19 +155,30 @@ File* CachedFileFactory::open(const char* filename)
 	 *the cache, in this way when opened instance of this file will be closed
 	 *the null reference callback can be called and the file reloaded.
 	 */
-	if(record && (FilesUtility::getLastModTime(filename) != record->mtime))
+	if(record)
 	{
-		File *file;
-		mutex.unlock();
-
-		file = new File();
-		if(file->openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
-											File::MYSERVER_OPEN_READ))
+		
+		if(ticks - record->lastModTimeCheck > MYSERVER_SEC(5))
 		{
-			delete file;
-			return 0;
+			record->invalidCache = (FilesUtility::getLastModTime(filename) != 
+															record->mtime);
+			record->lastModTimeCheck = ticks;
 		}
-		return file;
+
+		if(record->invalidCache)
+		{
+			File *file;
+			mutex.unlock();
+			
+			file = new File();
+			if(file->openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
+												File::MYSERVER_OPEN_READ))
+			{
+				delete file;
+				return 0;
+			}
+			return file;
+		}
 	}
 
 	if(buffer == 0)
@@ -258,7 +270,7 @@ void CachedFileFactory::nullReferences(CachedFileBuffer* cfb)
 	if(((spaceUsage > 0.65f) && (bufferAverageUsage < averageUsage) 
 			 && ((getTicks() - record->created) > 10000)) 
 		 || (spaceUsage > 0.9f)
-		 || (FilesUtility::getLastModTime(cfb->getFilename()) != record->mtime))
+		 || record->invalidCache)
   {
 		record = buffers.remove(cfb->getFilename());
 		if(record)

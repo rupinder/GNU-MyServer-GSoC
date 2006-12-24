@@ -64,6 +64,12 @@ protected:
 
 		/*! Last mtime for this file.  */
 		time_t mtime;
+
+		/*! Last time we checked for the mtime of the buffered file.  */
+		u_long lastModTimeCheck;
+
+		/*! This entry is not valid and will be removed when refCount = 0.  */
+		bool invalidCache;
 	};
 
 	HashMap<char*, CachedFileFactoryRecord*> buffers;
