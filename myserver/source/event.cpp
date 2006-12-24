@@ -94,7 +94,7 @@ int Event::wait(u_long id, u_long timeout)
 	{
 		timespec ts;
 		timeval tp;
-		const u_long nano = 1000000L;
+		const u_long nano = 1000000000L;
 		gettimeofday(&tp, NULL);
 
 		ts.tv_nsec = (tp.tv_usec + timeout) * 1000;
