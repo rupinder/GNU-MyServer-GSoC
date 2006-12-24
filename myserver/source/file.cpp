@@ -43,8 +43,6 @@ extern "C" {
 
 using namespace std;
 
-extern int mustEndServer; 
-
 const u_long File::MYSERVER_OPEN_READ = (1<<0);
 const u_long File::MYSERVER_OPEN_WRITE = (1<<1);
 const u_long File::MYSERVER_OPEN_TEMPORARY = (1<<2);

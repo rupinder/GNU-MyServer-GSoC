@@ -48,7 +48,6 @@ using namespace std;
 /*
  *Various utility functions.
  */
-extern int mustEndServer; 
 static char *currentPath = 0;
 
 /*!

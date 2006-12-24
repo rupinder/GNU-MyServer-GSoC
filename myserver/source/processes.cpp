@@ -38,8 +38,6 @@ extern "C" {
 #include <direct.h>
 #endif
 
-extern int mustEndServer;
-
 #ifdef HAVE_PTHREAD
 Mutex Process::forkMutex;
 #endif

@@ -68,12 +68,6 @@ const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
  */
 Server* Server::instance = 0;
 
-/*!
- *When the flag mustEndServer is 1 all the threads are
- *stopped and the application stop its execution.
- */
-int mustEndServer;
-
 Server::Server()
 {
   threads = 0;
@@ -900,7 +894,7 @@ void * listenServer(void* params)
 
 	Server::getInstance()->increaseListeningThreadCount();
 
-	while(!mustEndServer)
+	while(!Server::getInstance()->stopServer())
 	{
 		/*
      *Accept connections.

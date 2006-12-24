@@ -77,6 +77,11 @@ class Server
 	friend int control_handler (u_long control_type);
 #endif
 private:
+	/*!
+	 *When the flag mustEndServer is 1 all the threads are
+	 *stopped and the application stop its execution.
+	 */
+	int mustEndServer;
 
 	/*! Singleton instance.  Call createInstance before use it.  */
 	static Server* instance;
@@ -149,6 +154,7 @@ private:
 	string tmpPath;
 	Event *newConnectionEvent;
 public:
+	bool stopServer(){return mustEndServer;}
 	HomeDir* getHomeDir();
 	static void createInstance();
 	static Server* getInstance()
