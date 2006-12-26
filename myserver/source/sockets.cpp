@@ -505,15 +505,26 @@ int Socket::ioctlsocket(long cmd,unsigned long* argp)
  */
 int Socket::connect(const char* host, u_short port)
 {
+	MYSERVER_SOCKADDRIN thisSock = { 0 };
+	int nLength = sizeof(MYSERVER_SOCKADDRIN);
+	int nSockLen = 0;
+	bool bSocketConnected = false;
+	int nGetaddrinfoRet = 0;
+	addrinfo *pHostInfo = NULL, *pCrtHostInfo = NULL;
+	MYSERVER_SOCKADDRIN *pCurrentSockAddr = NULL, connectionSockAddrIn = { 0 };
+	char szPort[10];
+
 	if ( host == NULL )
 		return -1;
 		
 #if ( HAVE_IPV6 )
 	addrinfo aiHints = { 0 };
-  /*! If the socket is not created, wait to see what address families have this host, than create socket. */
+
+  /*
+	 *If the socket is not created, wait to see what address families 
+	 *have this host, than create socket. 
+	 */
 	
-	MYSERVER_SOCKADDRIN thisSock = { 0 };
-	int nLength = sizeof(MYSERVER_SOCKADDRIN);
 	//getsockname(&thisSock, &nLength); 
 	if ( getsockname(&thisSock, &nLength) == 0 )
 	{
@@ -521,27 +532,26 @@ int Socket::connect(const char* host, u_short port)
 		aiHints.ai_socktype = SOCK_STREAM;
 	}
 
-	char szPort[10];
 	memset(szPort, 0, sizeof(char)*10);
 	snprintf(szPort, 10, "%d", port);
 
-	int nGetaddrinfoRet = 0;
-	addrinfo *pHostInfo = NULL, *pCrtHostInfo = NULL;
-	MYSERVER_SOCKADDRIN *pCurrentSockAddr = NULL, connectionSockAddrIn = { 0 };
-	if ( aiHints.ai_family != 0 )
+	if (aiHints.ai_family != 0)
 		nGetaddrinfoRet = getaddrinfo(host, NULL, &aiHints, &pHostInfo);
 	else
 		nGetaddrinfoRet = getaddrinfo(host, NULL, NULL, &pHostInfo);
-	if ( nGetaddrinfoRet != 0 || pHostInfo == NULL )
+	if (nGetaddrinfoRet != 0 || pHostInfo == NULL )
 		return -1;
-	int nSockLen = 0;
-	bool bSocketConnected = false;
-	for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; pCrtHostInfo = pCrtHostInfo->ai_next )
+
+	for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; 
+				pCrtHostInfo = pCrtHostInfo->ai_next )
 	{
-		pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+		pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>
+			(pCrtHostInfo->ai_addr);
 		if ( pCurrentSockAddr == NULL || 
-				(thisSock.ss_family != 0 && pCurrentSockAddr->ss_family != thisSock.ss_family) )
+				(thisSock.ss_family != 0 && 
+				 pCurrentSockAddr->ss_family != thisSock.ss_family) )
 			continue;
+
 		if ( thisSock.ss_family == 0 )// socket not created yet
 		{
 			//so try to create one now based on 'pCurrentSockAddr' 
@@ -558,8 +568,9 @@ int Socket::connect(const char* host, u_short port)
 			if ( getsockname(&thisSock, &nLength) != 0 )
 				return -1;
 		}
+
 		memset(&connectionSockAddrIn, 0, sizeof(connectionSockAddrIn));
-	   connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
+		connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
 	
 	   if ( connectionSockAddrIn.ss_family != AF_INET && 
 	   	  connectionSockAddrIn.ss_family != AF_INET6 )
@@ -567,17 +578,22 @@ int Socket::connect(const char* host, u_short port)
 	   	  
 		if ( connectionSockAddrIn.ss_family == AF_INET )
 		{
-  		   nSockLen = sizeof(sockaddr_in);
-	  	 memcpy(&(((sockaddr_in *)(&connectionSockAddrIn))->sin_addr), &(((sockaddr_in *)pCurrentSockAddr)->sin_addr), nSockLen);
-	  	 ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons(port);
-		  }
-	   else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
-	   {
-		   nSockLen = sizeof(sockaddr_in);
-	   	  memcpy(&(((sockaddr_in6 *)(&connectionSockAddrIn))->sin6_addr), &(((sockaddr_in6 *)pCurrentSockAddr)->sin6_addr), nSockLen);
-	 	  ((sockaddr_in6 *)(&connectionSockAddrIn))->sin6_port = htons(port);
-	   }
-		if(Socket::connect((MYSERVER_SOCKADDR*)(&connectionSockAddrIn), nSockLen) == -1)
+			nSockLen = sizeof(sockaddr_in);
+			memcpy((sockaddr_in *)&connectionSockAddrIn, 
+						 (sockaddr_in *)pCurrentSockAddr, nSockLen);
+			((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons(port);
+
+		}
+		else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
+		{
+			nSockLen = sizeof(sockaddr_in6);
+			memcpy((sockaddr_in6 *)&connectionSockAddrIn, 
+						 (sockaddr_in6 *)pCurrentSockAddr, nSockLen);
+			((sockaddr_in6 *)&connectionSockAddrIn)->sin6_port = htons(port);
+		}
+
+		if(Socket::connect((MYSERVER_SOCKADDR*)(&connectionSockAddrIn), 
+											 nSockLen) == -1)
 		{
 			Socket::closesocket();
 		}

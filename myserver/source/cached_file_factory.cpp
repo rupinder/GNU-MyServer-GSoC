@@ -128,6 +128,7 @@ void CachedFileFactory::initialize(u_long size)
 	used = 0;
 	maxSize = 0;
 	minSize = 0;
+	usedSize = 0;
 	created = getTicks();
 	mutex.init();
 }
@@ -228,7 +229,7 @@ File* CachedFileFactory::open(const char* filename)
 				return 0;
 			}
 			buffer->setFactoryToNotify(this);
-			record->created = getTicks();
+			record->created = ticks;
 			record->buffer = buffer;
 
 			buffers.put((char *)filename, record);
@@ -252,9 +253,10 @@ void CachedFileFactory::nullReferences(CachedFileBuffer* cfb)
 	float averageUsage;
 	float bufferAverageUsage;
 	float spaceUsage;
-
+	u_long ticks;
 	mutex.lock();
 
+	ticks = getTicks();
 	record = buffers.get(cfb->getFilename());
 	if(record == 0)
 	{
@@ -263,12 +265,12 @@ void CachedFileFactory::nullReferences(CachedFileBuffer* cfb)
 	}
 	
 	spaceUsage = (float)usedSize / size;
-	averageUsage = (float)used * 1000.0f / (getTicks() - created);
+	averageUsage = (float)used * 1000.0f / (ticks - created);
 	bufferAverageUsage = (float)record->used * 1000.0f / 
 		(getTicks() - record->created);
 
 	if(((spaceUsage > 0.65f) && (bufferAverageUsage < averageUsage) 
-			 && ((getTicks() - record->created) > 10000)) 
+			 && ((ticks - record->created) > 10000)) 
 		 || (spaceUsage > 0.9f)
 		 || record->invalidCache)
   {

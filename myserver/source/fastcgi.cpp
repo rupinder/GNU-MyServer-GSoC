@@ -94,7 +94,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	int exit;
   int ret;
 
-	clock_t time1;
+	clock_t initialTicks;
 
 	string outDataPath;
 
@@ -294,7 +294,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
-		return td->http->raiseHTTPError(e_501);
+		return td->http->raiseHTTPError(e_500);
 	}
 
 	if(sendFcgiBody(&con,td->buffer2->getBuffer(), sizeEnvString,
@@ -409,7 +409,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   /*! Return 1 if keep the connection. A nonzero value also mean no errors. */
   ret = 1;
 
-	time1 = getTicks();
+	initialTicks = getTicks();
 
 	Server::getInstance()->temporaryFileName(td->id, outDataPath);
 
@@ -426,13 +426,16 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	do
 	{
 		u_long dim;
-		u_long data_sent;
+		u_long dataSent;
     u_long nbw;
+
 		while(con.sock.bytesToRead() < sizeof(FcgiHeader))
 		{
-			if((clock_t)(getTicks()-time1) > timeout)
+			if((clock_t)(getTicks() - initialTicks) > timeout)
 				break;
+			Thread::wait(1);
 		}
+
 		if(con.sock.bytesToRead())
     {
 			nbr = con.sock.recv((char*)&header, sizeof(FcgiHeader), 0, 
@@ -467,8 +470,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
      *To retrieve the value of content length push left contentLengthB1
      *of eight byte then do an or with contentLengthB0.
      */
-		dim = (header.contentLengthB1<<8) | header.contentLengthB0;
-		data_sent = 0;
+		dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
+		dataSent = 0;
 		if(dim == 0)
 		{
       exit = 1;
@@ -487,9 +490,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 				case FCGISTDOUT:
 					nbr = con.sock.recv(td->buffer->getBuffer(), 
 															(dim < td->buffer->getRealLength())
-                            ? dim: td->buffer->getRealLength(), 0, 
+															? dim: td->buffer->getRealLength(), 0, 
 															static_cast<u_long>(timeout));
-          if(nbr == (u_long)-1)
+          if(nbr == (u_long) -1)
           {
 						exit = 1;
             ret = 0;
@@ -503,19 +506,19 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 						break;
           }
 
-					data_sent = nbw;
-					if(data_sent == 0)
+					dataSent = nbw;
+					if(dataSent == 0)
 					{
 						exit = 1;
             ret = 0;
 						break;
 					}
 
-					while(data_sent < dim)
+					while(dataSent < dim)
 					{
             nbr=con.sock.recv(td->buffer->getBuffer(),
                     std::min(static_cast<u_long>(td->buffer->getRealLength()),
-                             dim-data_sent), 0, static_cast<u_long>(timeout));
+                             dim - dataSent), 0, static_cast<u_long>(timeout));
             if(nbr == (u_long)-1)
             {
               exit = 1;
@@ -530,7 +533,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
               exit = 1;
               break;
             }
-						data_sent += nbw;
+						dataSent += nbw;
 					}
 					break;
 				case FCGIEND_REQUEST:
@@ -960,17 +963,16 @@ FastCgiServersList* FastCgi::isFcgiServerRunning(const char* path)
  */
 int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServersList* server )
 {
-	// what address family has server's socket?
 	MYSERVER_SOCKADDRIN  fastcgiServerSock = { 0 };
 	socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
 	getsockname(server->socket.getHandle(), (sockaddr *)&fastcgiServerSock, 
 							&nLength);
 	if ( fastcgiServerSock.ss_family == AF_INET )
 	{
-		/*! Try to create the socket. */
+		/*! Try to create the socket.  */
 		if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)
 			return -1;
-	  	/*! If the socket was created try to connect. */
+	  	/*! If the socket was created try to connect.  */
 		if(con->sock.connect(server->host, server->port) == -1)
 		{
 			con->sock.closesocket();

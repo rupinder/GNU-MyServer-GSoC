@@ -88,6 +88,8 @@ int Event::init(bool broadcast)
  */
 int Event::wait(u_long id, u_long timeout)
 {
+	if(!initialized)
+		return -1;
 #ifdef HAVE_PTHREAD
 	int ret;
 	if(timeout)
@@ -138,6 +140,9 @@ int Event::wait(u_long id, u_long timeout)
  */
 int Event::signal(u_long id)
 {
+	if(!initialized)
+		return -1;
+
 #ifdef HAVE_PTHREAD
 	if(broadcast)
 	{
@@ -171,8 +176,13 @@ int Event::destroy()
 #ifdef HAVE_PTHREAD
   if(initialized)
 	{
-		pthread_mutex_destroy(&mutex);
+		pthread_mutex_lock(&mutex);
+		pthread_cond_broadcast(&event);
+		pthread_mutex_unlock(&mutex);
+		initialized = false;
+
 		pthread_cond_destroy(&event);
+		pthread_mutex_destroy(&mutex);
 	}
 #else
   if(initialized)

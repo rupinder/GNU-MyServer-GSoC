@@ -138,5 +138,5 @@ CachedFileBuffer::CachedFileBuffer(File* file)
 CachedFileBuffer::~CachedFileBuffer()
 {
 	mutex.destroy();
-	delete buffer;
+	delete [] buffer;
 }
