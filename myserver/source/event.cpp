@@ -177,9 +177,9 @@ int Event::destroy()
   if(initialized)
 	{
 		pthread_mutex_lock(&mutex);
+		initialized = false;
 		pthread_cond_broadcast(&event);
 		pthread_mutex_unlock(&mutex);
-		initialized = false;
 
 		pthread_cond_destroy(&event);
 		pthread_mutex_destroy(&mutex);

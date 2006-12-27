@@ -54,7 +54,7 @@ CachedFileBuffer::CachedFileBuffer(const char* filename)
 	u_long nbw;
 	mutex.init();
 	factoryToNotify = 0;
-
+	refCounter = 0;
 	this->filename.assign(filename);
 
 	file.openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
@@ -125,6 +125,7 @@ CachedFileBuffer::CachedFileBuffer(File* file)
 {
 	u_long nbr;
 	factoryToNotify = 0;
+	refCounter = 0;
 	fileSize = file->getFileSize();
 	buffer = new char[fileSize];
 	filename.assign(file->getFilename());

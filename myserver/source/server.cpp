@@ -1002,9 +1002,6 @@ int Server::terminate()
 
 	Socket::stopBlockingOperations(true);
 
-	delete newConnectionEvent;
-	newConnectionEvent = 0;
-
 	connectionsMutexLock();
   try
   {
@@ -1049,6 +1046,9 @@ int Server::terminate()
 
 	/*! Restore the blocking status in case of a reboot.  */
 	Socket::stopBlockingOperations(false);
+
+	delete newConnectionEvent;
+	newConnectionEvent = 0;
 
 	if(languagesPath)
 		delete languagesPath;
