@@ -64,7 +64,7 @@ void Thread::wait(u_long time)
  */
 #ifdef WIN32
 int Thread::create(ThreadID*  ID, 
-                            unsigned int  (_stdcall *start_routine)(void *), 
+                            unsigned int  (_stdcall *startRoutine)(void *), 
                             void * arg)
 #endif
 #ifdef HAVE_PTHREAD
