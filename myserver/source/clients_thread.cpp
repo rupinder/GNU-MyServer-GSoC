@@ -192,7 +192,8 @@ void * startClientsThread(void* pParam)
 			}
 			else
 			{
-				ret = server->getInstance()->waitNewConnection(ct->id, 5000);
+				ret = server->getInstance()->waitNewConnection(ct->id, 
+																											 MYSERVER_SEC(2));
 			}
 
       /*
@@ -212,7 +213,7 @@ void * startClientsThread(void* pParam)
        */
       if(ret != 1)
       {
-        ct->setTimeout( getTicks() );
+        ct->setTimeout(getTicks());
       }
       else
       {

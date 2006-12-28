@@ -128,7 +128,7 @@ void Server::start()
   {
 #ifdef WIN32
 
-    /*!
+    /*
      *Under the windows platform use the cls operating-system
      *command to clear the screen.
      */
@@ -137,7 +137,7 @@ void Server::start()
 #endif
 #ifdef NOT_WIN
 
-	/*!
+	/*
    *Under an UNIX environment, clearing the screen
    *can be done in a similar method
    */
@@ -146,9 +146,9 @@ void Server::start()
 #endif
   }
 
-#endif /*! CLEAR_BOOT_SCREEN. */
+#endif /* CLEAR_BOOT_SCREEN.  */
 
-  /*!
+  /*
    *Print the MyServer signature only if the log writes to the console.
    */
   if(logManager.getType() == LogManager::TYPE_CONSOLE )
@@ -187,13 +187,14 @@ void Server::start()
 
   try
   {
-    /*!
+    /*
      *Set the current working directory.
      */
     setcwdBuffer();
 
     XmlParser::startXML();
-    /*!
+
+    /*
      *Setup the server configuration.
      */
     logWriteln("Initializing server configuration...");
@@ -204,16 +205,16 @@ void Server::start()
     if(err)
       return;
 
-    /*! Initialize the SSL library.  */
+    /* Initialize the SSL library.  */
 #ifndef DO_NOT_USE_SSL
     SSL_library_init();
     SSL_load_error_strings();
 #endif
     logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
 
-    /*! *Startup the socket library.  */
+    /* Startup the socket library.  */
     logWriteln( languageParser.getValue("MSG_ISOCK") );
-    err = startupSocketLib(/*!MAKEWORD( 2, 2 )*/MAKEWORD( 1, 1));
+    err = startupSocketLib(/* MAKEWORD( 2, 2 ) */MAKEWORD( 1, 1));
     if (err != 0)
     {
       logPreparePrintError();
@@ -223,7 +224,7 @@ void Server::start()
     }
     logWriteln( languageParser.getValue("MSG_SOCKSTART") );
 
-    /*!
+    /*
      *Get the name of the local machine.
      */
     memset(serverName, 0, HOST_NAME_MAX+1);
@@ -234,8 +235,8 @@ void Server::start()
     buffer.append(serverName);
     logWriteln(buffer.c_str());
 
-    /*!
-     *find the IP addresses of the local machine.
+    /*
+     *Find the IP addresses of the local machine.
      */
 		if(ipAddresses)
 			delete ipAddresses;
@@ -271,7 +272,7 @@ void Server::start()
     mimeConf = 
 			FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
 
-    /*!
+    /*
      *Keep thread alive.
      *When the mustEndServer flag is set to True exit
      *from the loop and terminate the server execution.
@@ -283,7 +284,7 @@ void Server::start()
       if(autoRebootEnabled)
       {
         configsCheck++;
-        /*! Do not check for modified configuration files every cycle.  */
+        /* Do not check for modified configuration files every cycle.  */
         if(configsCheck > 10)
         {
           time_t mainConfTimeNow =
@@ -293,7 +294,7 @@ void Server::start()
           time_t mimeConfNow =
             FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
 
-          /*! If a configuration file was modified reboot the server. */
+          /* If a configuration file was modified reboot the server. */
           if(((mainConfTimeNow!=-1) && (hostsConfTimeNow!=-1)  &&
               (mimeConfNow!=-1)) || toReboot)
           {
@@ -302,7 +303,7 @@ void Server::start()
                  (mimeConfNow  != mimeConf)) || toReboot)
             {
               reboot();
-              /*! Store new mtime values.  */
+              /* Store new mtime values.  */
               mainConfTime = mainConfTimeNow;
               hostsConfTime = hostsConfTimeNow;
               mimeConf = mimeConfNow;
@@ -311,7 +312,7 @@ void Server::start()
           }
           else
           {
-            /*!
+            /*
              *If there are problems in loading mtimes
              *check again after a bit.
              */
@@ -320,11 +321,11 @@ void Server::start()
         }
       }//end  if(autoRebootEnabled)
 
-      /*! Check threads.  */
+      /* Check threads.  */
       purgeThreads();
 
 #ifdef WIN32
-      /*!
+      /*
        *ReadConsoleInput is a blocking call, so be sure that there are
        *events before call it.
        */
@@ -390,7 +391,7 @@ void Server::start()
  */
 int Server::purgeThreads()
 {
-  /*!
+  /*
    *We don't need to do anything.
    */
   ClientsThread *thread;
@@ -411,7 +412,7 @@ int Server::purgeThreads()
       return prevThreadsCount- nThreads;
     }
 
-    /*!
+    /*
      *Shutdown all threads that can be destroyed.
      */
     if(thread->isToDestroy())
@@ -442,7 +443,7 @@ int Server::purgeThreads()
 }
 
 /*!
- *Do the final cleanup. Called only once.
+ *Do the final cleanup.  Called once when the process is terminated.
  */
 void Server::finalCleanup()
 {
@@ -463,14 +464,14 @@ int Server::createServerAndListener(u_short port)
 	ThreadID threadIdIPv6 = 0;
   listenThreadArgv* argv;
 
-	/*!
+	/*
 	 *Create the server sockets:
 	 *one server socket for IPv4 and another one for IPv6
 	 */
 	Socket *serverSocketIPv4 = new Socket();
 	Socket *serverSocketIPv6 = NULL;
 
-	/*!
+	/*
    *Create the server socket.
    */
   try
@@ -498,7 +499,7 @@ int Server::createServerAndListener(u_short port)
 					htons((u_short)port);
 
 #ifdef NOT_WIN
-				/*!
+				/*
 				 *Under the unix environment the application needs some time before
 				 * create a new socket for the same address.
 				 *To avoid this behavior we use the current code.
@@ -517,7 +518,7 @@ int Server::createServerAndListener(u_short port)
 #endif
 				if( serverSocketIPv4 != NULL )
 				{
-					/*!
+					/*
 					 *Bind the port.
 					 */
 					logWriteln(languageParser.getValue("MSG_BIND_PORT"));
@@ -563,7 +564,7 @@ int Server::createServerAndListener(u_short port)
 				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
 					htons((u_short)port);
 #ifdef NOT_WIN
-			/*!
+			/*
 			 *Under the unix environment the application needs some time before
 			 * create a new socket for the same address.
 			 *To avoid this behavior we use the current code.
@@ -579,12 +580,7 @@ int Server::createServerAndListener(u_short port)
 					serverSocketIPv6 = NULL;
 					//return 0;allow IPv6
 			}
-			/*!TODO: Andu: please check out this comment and correct it if it's not 
-			 *true.
-			 *Under the unix environment the IPv6 sockets also listen on IPv4 
-			 *addreses so before binding assure we'll only use this socket for IPv6 
-			 *communication because we already have a socket for IPv4 communication.
-			 */
+
 			if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
 																			(const char *)&optvalReuseAddr,
 																			sizeof(optvalReuseAddr)) < 0)
@@ -599,7 +595,7 @@ int Server::createServerAndListener(u_short port)
 #endif
 			if(serverSocketIPv6 != NULL )
 			{
-				/*!
+				/*
 				 *Bind the port.
 				 */
 				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
@@ -625,7 +621,7 @@ int Server::createServerAndListener(u_short port)
 	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
 		return 0;
 
-	/*!
+	/*
 	 *Set connections listen queque to max allowable.
 	 */
 	logWriteln( languageParser.getValue("MSG_SLISTEN"));
@@ -659,7 +655,7 @@ int Server::createServerAndListener(u_short port)
 
     logWriteln(languageParser.getValue("MSG_LISTENTR"));
 
-    /*!
+    /*
      *Create the listen threads.
      */
 		if(serverSocketIPv4)
@@ -706,7 +702,7 @@ int Server::createServerAndListener(u_short port)
  */
 void Server::createListenThreads()
 {
-	/*!
+	/*
    *Create the listens threads.
    *Every port uses a thread.
 	 *1) Put all the connections in a hash map to avoid duplicates.
@@ -928,7 +924,7 @@ void * listenServer(void* params)
 
 	Server::getInstance()->decreaseListeningThreadCount();
 
-	/*!
+	/*
    *Automatically free the current thread.
    */
 	Thread::terminate();
@@ -981,7 +977,7 @@ void Server::stop()
  */
 int Server::terminate()
 {
-	/*!
+	/*
    *Stop the server execution.
    */
   ClientsThread* thread = threads ;
@@ -1020,7 +1016,7 @@ int Server::terminate()
 	connectionsMutexUnlock();
 
 
-	/*! Stop the active threads. */
+	/* Stop the active threads. */
 	stopThreads();
 
 	/* Clear the home directories data.  */
@@ -1035,7 +1031,7 @@ int Server::terminate()
     logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
 	}
 
-	/*!
+	/*
    *If there are open connections close them.
    */
 	if(connections)
@@ -1044,7 +1040,7 @@ int Server::terminate()
 	}
 	freeHashedData();
 
-	/*! Restore the blocking status in case of a reboot.  */
+	/* Restore the blocking status in case of a reboot.  */
 	Socket::stopBlockingOperations(false);
 
 	delete newConnectionEvent;
@@ -1059,6 +1055,10 @@ int Server::terminate()
 	languageFile = 0;
 
 	delete vhostList;
+
+	if(serverAdmin)
+		delete serverAdmin;
+	serverAdmin = 0;
 
   delete vhostConfigurationFile;
 	vhostConfigurationFile = 0;
@@ -1088,7 +1088,7 @@ int Server::terminate()
 	delete mimeManager;
 	mimeManager = 0;
 #ifdef WIN32
-	/*!
+	/*
    *Under WIN32 cleanup environment strings.
    */
 	FreeEnvironmentStrings((LPTSTR)envString);
@@ -1101,12 +1101,12 @@ int Server::terminate()
   filters.clear();
   filtersFactory.free();
 
-	/*!
+	/*
    *Destroy the connections mutex.
    */
 	delete connectionsMutex;
 
-  /*!
+  /*
    *Free all the threads.
    */
   thread = threads;
@@ -1132,13 +1132,13 @@ int Server::terminate()
  */
 void Server::stopThreads()
 {
-	/*!
+	/*
    *Clean here the memory allocated.
    */
 	u_long threadsStopped = 0;
 	u_long threadsStopTime = 0;
 
-	/*!
+	/*
    *Wait before clean the threads that all the threads are stopped.
    */
   ClientsThread* thread = threads;
@@ -1160,16 +1160,17 @@ void Server::stopThreads()
 				threadsStopped++;
       thread = thread->next;
     }
-		/*!
+
+		/*
      *If all the threads are stopped break the loop.
      */
 		if(threadsStopped == nStaticThreads)
 			break;
 
-		/*!
+		/*
      *Do not wait a lot to kill the thread.
      */
-		if(++threadsStopTime > 500 )
+		if(++threadsStopTime > 500)
 			break;
 		Thread::wait(200);
 	}
@@ -1199,21 +1200,16 @@ int Server::initialize(int /*!osVer*/)
 #ifdef WIN32
 	envString = GetEnvironmentStrings();
 #endif
-	/*!
-   *Create the mutex for the connections.
-   */
+
+	/* Create the mutex for the connections.  */
 	connectionsMutex = new Mutex();
 
-  /*!
-   *Create the mutex for the threads.
-   */
+  /* Create the mutex for the threads.  */
   threadsMutex = new Mutex();
 
 	newConnectionEvent = new Event(false);
 
-	/*!
-   *Store the default values.
-   */
+	/* Store the default values.  */
   nStaticThreads = 20;
   nMaxThreads = 50;
   currentThreadID = ClientsThread::ID_OFFSET;
@@ -1229,7 +1225,8 @@ int Server::initialize(int /*!osVer*/)
 	autoRebootEnabled = 1;
 	languagesPath = new string();
 #ifndef WIN32
-	/*!
+
+	/*
    *Do not use the files in the directory /usr/share/myserver/languages
    *if exists a local directory.
    */
@@ -1245,7 +1242,7 @@ int Server::initialize(int /*!osVer*/)
 		languagesPath->assign(PREFIX);
     languagesPath->append("/share/myserver/languages/");
 #else
-    /*! Default PREFIX is /usr/.  */
+    /* Default PREFIX is /usr/.  */
 		languagesPath->assign("/usr/share/myserver/languages/");
 #endif
 	}
@@ -1260,7 +1257,8 @@ int Server::initialize(int /*!osVer*/)
 #endif
 
 #ifndef WIN32
-  /*!
+
+  /*
    *Under an *nix environment look for .xml files in the following order.
    *1) myserver executable working directory
    *2) ~/.myserver/
@@ -1281,14 +1279,15 @@ int Server::initialize(int /*!osVer*/)
 	}
 	else
 #endif
-	/*! If the myserver.xml files doesn't exist copy it from the default one. */
+	/* If the myserver.xml files doesn't exist copy it from the default one.  */
 	if(!FilesUtility::fileExists("myserver.xml"))
 	{
     mainConfigurationFile->assign("myserver.xml");
 		File inputF;
 		File outputF;
 		ret = inputF.openFile("myserver.xml.default",
-                              File::MYSERVER_OPEN_READ|File::MYSERVER_OPEN_IFEXISTS);
+													File::MYSERVER_OPEN_READ | 
+													File::MYSERVER_OPEN_IFEXISTS);
 		if(ret)
 		{
 			logPreparePrintError();
@@ -1370,25 +1369,28 @@ int Server::initialize(int /*!osVer*/)
 		nMaxThreads = atoi(data);
 	}
 
-	/*! Get the max connections number to allow. */
+	/* Get the max connections number to allow.  */
 	data = configurationFileManager.getValue("MAX_CONNECTIONS");
 	if(data)
 	{
 		maxConnections=atoi(data);
 	}
-	/*! Get the max connections number to allow. */
+
+	/* Get the max connections number to accept.  */
 	data = configurationFileManager.getValue("MAX_CONNECTIONS_TO_ACCEPT");
 	if(data)
 	{
 		maxConnectionsToAccept=atoi(data);
 	}
-	/*! Get the default throttling rate to use on connections. */
+
+	/* Get the default throttling rate to use on connections.  */
 	data = configurationFileManager.getValue("THROTTLING_RATE");
 	if(data)
 	{
 		throttlingRate=(u_long)atoi(data);
 	}
-	/*! Load the server administrator e-mail. */
+
+	/* Load the server administrator e-mail.  */
 	data = configurationFileManager.getValue("SERVER_ADMIN");
 	if(data)
 	{
@@ -1396,6 +1398,7 @@ int Server::initialize(int /*!osVer*/)
 			serverAdmin = new string();
 		serverAdmin->assign(data);
 	}
+
 	data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
 	{
@@ -1441,7 +1444,6 @@ int Server::initialize(int /*!osVer*/)
 		u_long minSize = (u_long)atol(data);
 		cachedFiles.setMinSize(minSize);
 	}
-
 
   data = configurationFileManager.getValue("PROCESS_USER_ID");
 	if(data)
@@ -1508,6 +1510,7 @@ int Server::getMaxLogFileSize()
 {
 	return maxLogFileSize;
 }
+
 /*!
  *Returns the connection timeout.
  */
@@ -1515,6 +1518,7 @@ u_long Server::getTimeout()
 {
 	return connectionTimeout;
 }
+
 /*!
  *This function add a new connection to the list.
  */
@@ -1526,9 +1530,11 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 	char localIp[MAX_IP_STRING_LEN];
 	u_short port;
 	u_short myPort;
+	MYSERVER_SOCKADDRIN  localSockIn = { 0 };
+	int dim;
 
-
-	/*We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
+	/*
+	 *We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
 	 *in getnameinfo call; Otherwise we should have used NI_MAXHOST.
    *ip is the string containing the address of the remote host connecting 
 	 *to the server.
@@ -1541,20 +1547,20 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 			 (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
 		return ret;
 
-	memset(ip,  0,  MAX_IP_STRING_LEN);
-	memset(localIp,  0,  MAX_IP_STRING_LEN);
+	memset(ip, 0, MAX_IP_STRING_LEN);
+	memset(localIp, 0, MAX_IP_STRING_LEN);
 
 	if( s.getHandle() == 0 )
 		return 0;
 
-  /*!
+  /*
    *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is 
 	 *defined.
    */
   if(maxConnectionsToAccept && (nConnections >= maxConnectionsToAccept))
     return 0;
 
-  /*!
+  /*
    *Create a new thread if there are not available threads and
    *we had not reach the limit.
    */
@@ -1562,9 +1568,6 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 	{
 		addThread(0);
   }
-
-	MYSERVER_SOCKADDRIN  localSockIn = { 0 };
-	int dim;
 
 #if ( HAVE_IPV6 )
 	if ( asockIn->ss_family == AF_INET )
@@ -1603,31 +1606,28 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 					MAX_IP_STRING_LEN);
 #endif//HAVE_IPV6
 
-  /*! Port used by the client. */
+  /* Port used by the client.  */
   	if ( asockIn->ss_family == AF_INET )
   		port = ntohs(((sockaddr_in *)(asockIn))->sin_port);
-	else// if ( asockIn->ss_family == AF_INET6 )
+	else
 		port = ntohs(((sockaddr_in6 *)(asockIn))->sin6_port);
-	//else not permited anymore
-	//	return 0;
 
-  /*! Port used by the server. */
+  /* Port used by the server. */
 		if ( localSockIn.ss_family == AF_INET )
 			myPort = ntohs(((sockaddr_in *)(&localSockIn))->sin_port);
-	else// if ( localSockIn.ss_family == AF_INET6 )
+	else
 		myPort = ntohs(((sockaddr_in6 *)(&localSockIn))->sin6_port);
-	//else not permited anymore
-	//	return 0;
+
 
 	if(!addConnectionToList(s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
 	{
-		/*! If we report error to add the connection to the thread.  */
+		/* If we report error to add the connection to the thread.  */
 		ret = 0;
 
-    /*! Shutdown the socket both on receive that on send.  */
+    /* Shutdown the socket both on receive that on send.  */
 		s.shutdown(2);
 
-    /*! Then close it.  */
+    /* Then close it.  */
 		s.closesocket();
 	}
 	return ret;
@@ -1640,6 +1640,7 @@ int Server::getMaxThreads()
 {
   return nMaxThreads;
 }
+
 /*!
  *Add a new connection.
  *A connection is defined using a connection struct.
@@ -1667,7 +1668,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 																					                   localIpAddr,
                                                              localPort);
 
-  /*! No vhost for the connection so bail.  */
+  /* No vhost for the connection so bail.  */
 	if(newConnection->host == 0)
 	{
 		delete newConnection;
@@ -1687,7 +1688,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 			doSSLhandshake = 1;
 	}
 
-	/*! Do the SSL handshake if required.  */
+	/* Do the SSL handshake if required.  */
 	if(doSSLhandshake)
 	{
 		int ret = 0;
@@ -1698,7 +1699,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 #endif
 		if(ret < 0)
 		{
-			/*! free the connection on errors. */
+			/* Free the connection on errors. */
 			delete newConnection;
 			return 0;
 		}
@@ -1708,7 +1709,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 		delete newConnection;
 		return 0;
 	}
-	/*! Update the list.  */
+	/* Update the list.  */
   try
   {
     Server::getInstance()->connectionsMutexLock();
@@ -1727,7 +1728,7 @@ ConnectionPtr Server::addConnectionToList(Socket s,
     Server::getInstance()->connectionsMutexUnlock();
   };
 
-	/*!
+	/*
    *If defined maxConnections and the number of active connections
    *is bigger than it say to the protocol that will parse the connection
    *to remove it from the active connections list.
@@ -1751,7 +1752,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 {
 	int ret = 0;
 
-	/*!
+	/*
    *Remove the connection from the active connections list.
    */
 	ConnectionPtr prev = 0;
@@ -1761,7 +1762,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 		return 0;
 	}
 
-	/*!
+	/*
    *Get the access to the connections list.
    */
   if(doLock)
@@ -1804,11 +1805,11 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
  */
 ConnectionPtr Server::getConnection(int /*id*/)
 {
-	/*! Do nothing if there are not connections.  */
+	/* Do nothing if there are not connections.  */
 	if(connections == 0)
 		return 0;
 	
-	/*! Stop the thread if the server is pausing.  */
+	/* Stop the thread if the server is pausing.  */
 	while(pausing)
 	{
 		Thread::wait(5);
@@ -1820,11 +1821,11 @@ ConnectionPtr Server::getConnection(int /*id*/)
 	}
 	else
 	{
-    /*! Link to the first element in the linked list.  */
+    /* Link to the first element in the linked list.  */
 		connectionToParse = connections;
 	}
   
-	/*!
+	/*
    *Check if we are at the end of the linked list, in this case 
 	 *point to the first node.
    */
@@ -1859,14 +1860,14 @@ void Server::clearAllConnections()
     throw;
   };
 	connectionsMutexUnlock();
-	/*! Reset everything.	 */
+	/* Reset everything.	 */
 	nConnections = 0;
 	connections = 0;
 	connectionToParse = 0;
 }
 
 /*!
- *find a connection passing its socket.
+ *Find a connection passing its socket.
  */
 ConnectionPtr Server::findConnectionBySocket(Socket a)
 {
@@ -1885,7 +1886,7 @@ ConnectionPtr Server::findConnectionBySocket(Socket a)
 }
 
 /*!
- *find a connection in the list by its ID.
+ *Find a connection in the list by its ID.
  */
 ConnectionPtr Server::findConnectionByID(u_long ID)
 {
@@ -2020,7 +2021,7 @@ int Server::loadSettings()
 			delete mimeConfigurationFile;
 		mimeConfigurationFile = new string();
 #ifndef WIN32
-    /*!
+    /*
      *Under an *nix environment look for .xml files in the following order.
      *1) myserver executable working directory
      *2) ~/.myserver/
@@ -2041,7 +2042,7 @@ int Server::loadSettings()
     }
     else
 #endif
-      /*!
+      /*
        *If the MIMEtypes.xml files doesn't exist copy it
        *from the default one.
        */
@@ -2050,7 +2051,8 @@ int Server::loadSettings()
         File inputF;
         File outputF;
         mimeConfigurationFile->assign("MIMEtypes.xml");
-        ret = inputF.openFile("MIMEtypes.xml.default", File::MYSERVER_OPEN_READ|
+        ret = inputF.openFile("MIMEtypes.xml.default", 
+															File::MYSERVER_OPEN_READ |
 															File::MYSERVER_OPEN_IFEXISTS);
         if(ret)
         {
@@ -2092,7 +2094,7 @@ int Server::loadSettings()
       logEndPrintError();
     }
 
-    /*! Load the MIME types.  */
+    /* Load the MIME types.  */
     logWriteln(languageParser.getValue("MSG_LOADMIME"));
 		if(mimeManager)
 			delete mimeManager;
@@ -2120,7 +2122,7 @@ int Server::loadSettings()
 		vhostConfigurationFile = new string();
 
 #ifndef WIN32
-    /*!
+    /*
      *Under an *nix environment look for .xml files in the following order.
      *1) myserver executable working directory
      *2) ~/.myserver/
@@ -2141,7 +2143,7 @@ int Server::loadSettings()
     }
     else
 #endif
-      /*!
+      /*
        *If the virtualhosts.xml file doesn't exist copy it
        *from the default one.
        */
@@ -2150,7 +2152,8 @@ int Server::loadSettings()
         File inputF;
         File outputF;
         vhostConfigurationFile->assign("virtualhosts.xml");
-        ret = inputF.openFile("virtualhosts.xml.default", File::MYSERVER_OPEN_READ |
+        ret = inputF.openFile("virtualhosts.xml.default", 
+															File::MYSERVER_OPEN_READ |
                               File::MYSERVER_OPEN_IFEXISTS );
         if(ret)
         {
@@ -2160,7 +2163,8 @@ int Server::loadSettings()
           return -1;
         }
         ret = outputF.openFile("virtualhosts.xml",
-                               File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_ALWAYS);
+                               File::MYSERVER_OPEN_WRITE | 
+															 File::MYSERVER_OPEN_ALWAYS);
         if(ret)
           return -1;
         for(;;)
@@ -2187,7 +2191,7 @@ int Server::loadSettings()
     {
       return -1;
     }
-    /*! Load the virtual hosts configuration from the xml file. */
+    /* Load the virtual hosts configuration from the xml file. */
     vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
                                         getMaxLogFileSize());
 
@@ -2238,7 +2242,7 @@ int Server::loadSettings()
 
     }
 
-    /*! Load external filters. */
+    /* Load external filters.  */
     {
       string filtersPath;
       filtersPath.assign(*externalPath);
@@ -2263,7 +2267,7 @@ int Server::loadSettings()
 
     logWriteln( languageParser.getValue("MSG_CREATET"));
 
-    for(i=0; i<nStaticThreads; i++)
+    for(i = 0; i < nStaticThreads; i++)
 	  {
       ret = addThread(1);
       if(ret)
@@ -2274,17 +2278,18 @@ int Server::loadSettings()
 		if(path == 0)
 			path = new string();
 
-    /*! Return 1 if we had an allocation problem.  */
+    /* Return 1 if we had an allocation problem.  */
     if(getdefaultwd(*path))
       return -1;
-    /*!
+
+    /*
      *Then we create here all the listens threads.
      *Check that all the port used for listening have a listen thread.
      */
     logWriteln(languageParser.getValue("MSG_LISTENT"));
     createListenThreads();
 
-    /*!
+    /*
      *If the configuration file provides a user identifier, change the
      *current user for the process. Disable the reboot when this feature
      *is used.
@@ -2303,7 +2308,8 @@ int Server::loadSettings()
       logWriteln(out.str().c_str());
       autoRebootEnabled = 0;
     }
-    /*!
+
+    /*
      *Do a similar thing for the group identifier.
      */
     if(gid)
@@ -2323,13 +2329,13 @@ int Server::loadSettings()
 
     logWriteln(languageParser.getValue("MSG_READY"));
 
-    /*!
+    /*
      *Print this message only if the log outputs to the console screen.
      */
     if(logManager.getType() == LogManager::TYPE_CONSOLE)
       logWriteln(languageParser.getValue("MSG_BREAK"));
 
-    /*!
+    /*
      *Server initialization is now completed.
      */
     serverReady = 1;
@@ -2381,13 +2387,13 @@ int Server::reboot()
 {
   int ret = 0;
   serverReady = 0;
-  /*! Reset the toReboot flag.  */
+  /* Reset the toReboot flag.  */
   toReboot = 0;
 
-  /*! Do nothing if the reboot is disabled.  */
+  /* Do nothing if the reboot is disabled.  */
   if(!autoRebootEnabled)
     return 0;
-  /*! Do a beep if outputting to console.  */
+  /* Do a beep if outputting to console.  */
   if(logManager.getType() == LogManager::TYPE_CONSOLE)
   {
     char beep[]={static_cast<char>(0x7), '\0'};
@@ -2402,7 +2408,7 @@ int Server::reboot()
   if(ret)
     return ret;
 	mustEndServer = 0;
-  /*! Wait a bit before restart the server. */
+  /* Wait a bit before restart the server. */
 	Thread::wait(5000);
 	ret = initialize(0);
   if(ret)
@@ -2455,7 +2461,6 @@ CachedFileFactory* Server::getCachedFiles()
 	return &cachedFiles;
 }
 
-
 /*!
  *Decrease of one the number of active listening threads.
  */
@@ -2480,8 +2485,7 @@ const char *Server::getMainConfFile()
  */
 const char *Server::getVhostConfFile()
 {
-  return vhostConfigurationFile
-		? vhostConfigurationFile->c_str() : 0;
+  return vhostConfigurationFile ? vhostConfigurationFile->c_str() : 0;
 }
 
 /*!
@@ -2489,8 +2493,7 @@ const char *Server::getVhostConfFile()
  */
 const char *Server::getMIMEConfFile()
 {
-  return mimeConfigurationFile
-		? mimeConfigurationFile->c_str() : "";
+  return mimeConfigurationFile ? mimeConfigurationFile->c_str() : "";
 }
 
 /*!
@@ -2560,7 +2563,10 @@ int Server::isAutorebootEnabled()
 int Server::waitNewConnection(u_long tid, u_long timeout)
 {
 	if(newConnectionEvent)
-		return newConnectionEvent->wait(tid, timeout);
+		if(timeout)
+			return newConnectionEvent->wait(tid, timeout);
+		else
+			return newConnectionEvent->wait(tid);
 	return -1;
 }
 
@@ -2596,7 +2602,7 @@ int Server::addThread(int staticThread)
     return -1;
   }
 
-  /*!
+  /*
    *If everything was done correctly add the new thread to the linked list.
    */
 	threadsMutex->lock();
@@ -2706,7 +2712,8 @@ int Server::logWriteln(const char* str)
 {
   if(!str)
     return 0;
-  /*!
+
+  /*
    *If the log receiver is not the console output a timestamp.
    */
   if(logManager.getType() != LogManager::TYPE_CONSOLE)

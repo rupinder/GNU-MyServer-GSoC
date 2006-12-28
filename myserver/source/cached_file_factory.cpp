@@ -148,7 +148,6 @@ File* CachedFileFactory::open(const char* filename)
 	record = buffers.get(filename);
 	buffer = record ? record->buffer : 0;
 
-
 	used++;
 
 	/*!

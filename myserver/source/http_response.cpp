@@ -145,7 +145,7 @@ HttpResponseHeader::HttpResponseHeader()
  */
 HttpResponseHeader::~HttpResponseHeader()
 {
-
+	free();
 }
 
 /*!

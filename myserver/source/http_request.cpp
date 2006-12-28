@@ -36,7 +36,7 @@ HttpRequestHeader::HttpRequestHeader()
  */
 HttpRequestHeader::~HttpRequestHeader()
 {
-
+	free();
 }
 
 /*!

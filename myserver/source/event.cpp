@@ -94,14 +94,11 @@ int Event::wait(u_long id, u_long timeout)
 	int ret;
 	if(timeout)
 	{
-		timespec ts;
-		timeval tp;
-		const u_long nano = 1000000000L;
+		struct timespec ts;
+		struct timeval tp;
 		gettimeofday(&tp, NULL);
-
-		ts.tv_nsec = (tp.tv_usec + timeout) * 1000;
-		ts.tv_sec += tp.tv_sec + ts.tv_nsec / nano;
-		ts.tv_nsec %= nano;
+		ts.tv_sec = tp.tv_sec + tp.tv_usec / 1000000 + timeout / 1000;
+		ts.tv_nsec = (tp.tv_usec * 1000 + timeout * 1000000) % 1000000000;
 
 		pthread_mutex_lock(&mutex);
 		ret = pthread_cond_timedwait(&event, &mutex, &ts);

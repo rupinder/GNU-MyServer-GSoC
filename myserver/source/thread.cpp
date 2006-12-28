@@ -68,15 +68,15 @@ int Thread::create(ThreadID*  ID,
                             void * arg)
 #endif
 #ifdef HAVE_PTHREAD
-int Thread::create(ThreadID*  ID, void * (*start_routine)(void *), 
+int Thread::create(ThreadID*  ID, void * (*startRoutine)(void *), 
                             void * arg)
 #endif
 {
 #ifdef WIN32
-	_beginthreadex(NULL, 0, start_routine, arg, 0, (unsigned int*)ID);
+	_beginthreadex(NULL, 0, startRoutine, arg, 0, (unsigned int*)ID);
 #endif
 #ifdef HAVE_PTHREAD
-	pthread_create((pthread_t*)ID, NULL, start_routine, (void *)(arg));
+	pthread_create((pthread_t*)ID, NULL, startRoutine, (void *)(arg));
 #endif
 	return 0;
 }

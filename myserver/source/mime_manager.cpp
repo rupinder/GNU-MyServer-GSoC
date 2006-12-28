@@ -727,6 +727,8 @@ void MimeManager::clean()
 			delete filename;
     filename = 0;
     removeAllRecords();
+		delete data;
+		data = 0;
   }
 }
 
@@ -788,8 +790,7 @@ void MimeManager::removeRecord(const string& ext)
 void MimeManager::removeAllRecords()
 {
 	HashMap<string, MimeRecord*>::Iterator it = data->begin();
-	HashMap<string, MimeRecord*>::Iterator end = data->end();
-  for(; it != end; it++)
+  for(; it != data->end(); it++)
   {
     MimeRecord *rec = *it;
     if(rec)
