@@ -126,23 +126,23 @@ It is possible to configure a cache for static files, in this way it is not
 needed to open a new file for each request but read directly from a buffer in
 the memory. The cache is configured trough three values in myserver.xml. 
 <br />
-<span class="code">MAX_FILES_CACHE_SIZE</span> defines the max dimension in
+<span class="code">MAX_FILESCACHE_SIZE</span> defines the max dimension in
 bytes for the cache. A value of zero means the caching mechanism is not
 used.<br />
-<span class="code">MAX_FILE_CACHE_SIZE</span> defines the max dimension in
+<span class="code">MAX_FILESCACHE_FILESIZE</span> defines the max dimension in
 bytes for a file to be added in the cache. It is a good idea to put a limit
 here and don't cache big files, the overhead caused by opening big files and
 send them is unnoticeable, in addition it would be better to use the buffer for
 many small files than few big ones. A value of zero means that this limit is
 not used.<br />
-<span class="code">MIN_FILE_CACHE_SIZE</span> defines the min dimension in
+<span class="code">MIN_FILESCACHE_FILESIZE</span> defines the min dimension in
 bytes for a file to be added in the cache. It is better to use a low value for
 it. A value of zero means that this limit is not used.
 
 <p class="code">
-	&lt;MAX_FILES_CACHE_SIZE&gt;100000000000&lt;/MAX_FILES_CACHE_SIZE&gt;<br/>
-	&lt;MAX_FILE_CACHE_SIZE&gt;100000&lt;/MAX_FILE_CACHE_SIZE&gt;<br/>
-	&lt;MIN_FILE_CACHE_SIZE&gt;0&lt;/MIN_FILE_CACHE_SIZE&gt;<br/>
+	&lt;MAX_FILESCACHE_SIZE&gt;100000000000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+	&lt;MAX_FILESCACHE_FILESIZE&gt;100000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+	&lt;MIN_FILESCACHE_FILESIZE&gt;0&lt;/MIN_FILESCACHE_FILESIZE&gt;<br/>
 </p>
 
 <br />
