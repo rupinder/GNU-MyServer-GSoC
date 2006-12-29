@@ -1411,7 +1411,7 @@ int Server::initialize(int /*!osVer*/)
 		maxLogFileSize=(u_long)atol(data);
 	}
 
-	data = configurationFileManager.getValue("MAX_FILES_CACHE_SIZE");
+	data = configurationFileManager.getValue("MAX_FILESCACHE_SIZE");
 	if(data)
 	{
 		u_long maxSize = (u_long)atol(data);
@@ -1431,14 +1431,14 @@ int Server::initialize(int /*!osVer*/)
 		tmpPath.assign(getdefaultwd(0, 0));
 	}
 
-	data = configurationFileManager.getValue("MAX_FILE_CACHE_SIZE");
+	data = configurationFileManager.getValue("MAX_FILESCACHE_FILESIZE");
 	if(data)
 	{
 		u_long maxSize = (u_long)atol(data);
 		cachedFiles.setMaxSize(maxSize);
 	}
 
-	data = configurationFileManager.getValue("MIN_FILE_CACHE_SIZE");
+	data = configurationFileManager.getValue("MIN_FILESCACHE_FILESIZE");
 	if(data)
 	{
 		u_long minSize = (u_long)atol(data);
