@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -144,17 +144,20 @@ u_long getCPUCount()
 int setcwdBuffer()
 {
 #ifdef WIN32
-  /*! Under windows there is MAX_PATH, we will use it. */
+  /*! Under windows there is MAX_PATH, we will use it.  */
   currentPath = new char [MAX_PATH];
   if(currentPath == 0)
     return (-1);
 	char* ret =(char*) _getcwd(currentPath,MAX_PATH);
 	if(ret == 0)
 		return -1;
+
 	ret = 0;
+
 	for(u_long i = 0; i<(u_long)strlen(currentPath); i++)
 		if(currentPath[i] == '\\')
 			currentPath[i] = '/';
+
 	if(currentPath[strlen(currentPath)] == '/')
 		currentPath[strlen(currentPath)] = '\0';
   return 0;
@@ -171,7 +174,7 @@ int setcwdBuffer()
   currentPath = new char[size];
   do
   {
-    /*! Allocation problem is up. */
+    /*! Allocation problem is up.  */
     if(currentPath == 0)
     {
       return (-1);
@@ -180,7 +183,7 @@ int setcwdBuffer()
     /*! Realloc the buffer if it cannot contain the current directory.  */
     if(ret == 0)
     {
-      size++;
+      size *= 2;
       delete [] currentPath;
       currentPath = new char[size];
     }
@@ -232,11 +235,11 @@ char *getdefaultwd(char *path, int len)
 
 	if(path)
   {
-    /*! If len is equal to zero we assume no limit. */
+    /*! If len is equal to zero we assume no limit.  */
     if(len)
-      lstrcpyn(path,currentPath,len);
+      lstrcpyn(path, currentPath, len);
     else
-      lstrcpy(path,currentPath);
+      lstrcpy(path, currentPath);
   }
 
 	return currentPath;
@@ -265,7 +268,8 @@ int preparePrintError()
 {
 #ifdef WIN32
 	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                    FOREGROUND_RED|FOREGROUND_INTENSITY);
+                                    FOREGROUND_RED | 
+																		FOREGROUND_INTENSITY);
 	if(ret)
 		return 0;
 #endif
@@ -284,7 +288,9 @@ int endPrintError()
 {
 #ifdef WIN32
 	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                    FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+                                    FOREGROUND_RED | 
+																		FOREGROUND_GREEN | 
+																		FOREGROUND_BLUE);
 	if(ret)
 		return 0;
 #endif
