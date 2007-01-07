@@ -220,10 +220,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
             << "\" " << moreArg;
 #else
-    if(moreArg.length())
-      cmdLine << cgipath << " " << moreArg;
-    else
-      cmdLine << cgipath;
+		cmdLine << cgipath;
 #endif
 	}
 
@@ -1236,7 +1233,8 @@ void FastCgi::setTimeout(int ntimeout)
 /*!
  *Start the server on the specified port. Return zero on success.
  */
-int FastCgi::runLocalServer(FastCgiServersList* server, const char* path, int port)
+int FastCgi::runLocalServer(FastCgiServersList* server, const char* path, 
+														int port)
 {
   StartProcInfo spi;
   MYSERVER_SOCKADDRIN sock_inserverSocket;
@@ -1257,10 +1255,41 @@ int FastCgi::runLocalServer(FastCgiServersList* server, const char* path, int po
 	  {
 		  if( !server->socket.listen(SOMAXCONN) )
 			{
+				string tmpCgiPath;
+				string moreArg;
+				int subString = path[0] == '"';
+				int i;
+				int len = strlen(path);
+				for(i = 1; i < len; i++)
+				{
+					if(!subString && path[i] == ' ')
+						break;
+					if(path[i] == '"' && path[i - 1] != '\\')
+						subString = !subString;
+				}
+
+				if(i < len)
+				{
+					string tmpString(path);
+					int begin = tmpString[0] == '"' ? 1 : 0;
+					int end   = tmpString[i] == '"' ? i + 1 : i ;
+					tmpCgiPath.assign(tmpString.substr(begin, end));
+					moreArg.assign(tmpString.substr(i, len));  
+				}
+				else
+				{
+					int begin = (path[0] == '"') ? 1 : 0;
+					int end   = (path[len] == '"') ? len-1 : len;
+					tmpCgiPath.assign(&path[begin], end-begin);
+					moreArg.assign("");
+				}
+
+
 			  server->DESCRIPTOR.fileHandle = server->socket.getHandle();
 			  spi.envString = 0;
 			  spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
-			  spi.cmd.assign(path);
+			  spi.cmd.assign(tmpCgiPath);
+				spi.arg.assign(moreArg);
 			  spi.cmdLine.assign(path);
 			  server->path.assign(path);
 

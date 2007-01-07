@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -79,7 +79,8 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 	if(!ret)
 		return (-1);
   pid = (u_long)pi.hProcess;
-	/*!
+
+	/*
 	 *Wait until the process stops its execution.
 	 */
 	ret = WaitForSingleObject(pi.hProcess, timeout);
@@ -116,25 +117,16 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 
       for(int i = start; i < len; i++)
       {
+
         if(spi->arg[i] == '"')
         {
-          if(count < 100)
-          {
-            args[count++] = (const char*)&(spi->arg.c_str())[start];
-            start = i + 1;
-            spi->arg[i] = '\0';
-          }
-          else
-            break;
-
+					start = i++;
           while(spi->arg[++i] != '"' && i < len);
-
           if(i == len)
             exit(1);
-
           if(count < 100)
           {
-            args[count++] = (const char*)&(spi->arg.c_str())[start];
+            args[count++] = (const char*)&(spi->arg.c_str())[start + 1];
             start = i + 1;
             spi->arg[i] = '\0';
           }
@@ -143,24 +135,23 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
         }
         else if(spi->arg[i] == ' ')
         {
-          if(i-start <= 1)
+          if(i - start <= 1)
             continue;
-
           if(count < 100)
           {
             args[count++] = (const char*)&(spi->arg.c_str())[start];
-            start = i + 1;
             spi->arg[i] = '\0';
-            while((spi->arg[start] == ' ') && (start < len))
-              start++;
-            i = start;
+
+            while((spi->arg[i] == ' ') && (i < len))
+              i++;
+
+            start = i + 1;
           }
           else
             break;
         }
       }
-
-      if(count < 100 && (len != start))
+      if(count < 100 && len != start)
       {
         args[count++] = (const char*)&(spi->arg.c_str())[start];
       }
@@ -365,26 +356,22 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
       int count = 1;
       int len = spi->arg.length();
       int start = 0;
-      while((spi->arg[start] == ' ') && (start < len))
-        start++;
+
+			while((spi->arg[start] == ' ') && (start < len))
+				start++;
+
       for(int i = start; i < len; i++)
       {
+
         if(spi->arg[i] == '"')
         {
-          if(count < 100)
-          {
-            args[count++] = (const char*)&(spi->arg.c_str())[start];
-            start = i + 1;
-            spi->arg[i] = '\0';
-          }
-          else
-            break;
+					start = i++;
           while(spi->arg[++i] != '"' && i < len);
           if(i == len)
             exit(1);
           if(count < 100)
           {
-            args[count++] = (const char*)&(spi->arg.c_str())[start];
+            args[count++] = (const char*)&(spi->arg.c_str())[start + 1];
             start = i + 1;
             spi->arg[i] = '\0';
           }
@@ -393,16 +380,17 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
         }
         else if(spi->arg[i] == ' ')
         {
-          if(i-start <= 1)
+          if(i - start <= 1)
             continue;
           if(count < 100)
           {
             args[count++] = (const char*)&(spi->arg.c_str())[start];
-            start = i + 1;
             spi->arg[i] = '\0';
-            while((spi->arg[start] == ' ') && (start < len))
-              start++;
-            i = start;
+
+            while((spi->arg[i] == ' ') && (i < len))
+              i++;
+
+            start = i + 1;
           }
           else
             break;
@@ -431,6 +419,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 		}
 		else
 			envp[0] = NULL;
+
 			// change to working dir
 		if(spi->cwd.length())
 			chdir((const char*)(spi->cwd.c_str()));
@@ -466,7 +455,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
 
 		exit(1);
 	} // end else if(pid == 0)
- else
+	else
  {
 	 /*!
 		*Avoid to become a zombie process. This is needed by the
