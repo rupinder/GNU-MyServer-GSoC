@@ -232,19 +232,19 @@ BuildCmd=
 [VersionInfo]
 Major=0
 Minor=8
-Release=4
-Build=2
+Release=5
+Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.4
+FileVersion=0.8.5
 FileDescription=MyServer Configuration Interface
-InternalName=Gathering Clouds
+InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=MyServer Configure.exe
 ProductName=MyServer
-ProductVersion=0.8.4
+ProductVersion=0.8.5
 AutoIncBuildNr=0
 
 [Unit18]
