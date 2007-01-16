@@ -174,15 +174,15 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       {
         string tmpString(cgipath);
         int begin = tmpString[0]=='"' ? 1: 0;
-        int end = tmpString[i] == '"' ? i : i - 1;
-        tmpCgiPath.assign(tmpString.substr(begin, end - 1));
+        int end = tmpString[i] == '"' ? i - 1: i;
+        tmpCgiPath.assign(tmpString.substr(begin, end - begin));
         moreArg.assign(tmpString.substr(i, len - 1));
       }
       else
       {
         int begin = (cgipath[0] == '"') ? 1 : 0;
         int end   = (cgipath[len] == '"') ? len - 1 : len;
-        tmpCgiPath.assign(&cgipath[begin], end-begin);
+        tmpCgiPath.assign(&cgipath[begin], end - begin);
         moreArg.assign("");
       }
       FilesUtility::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
