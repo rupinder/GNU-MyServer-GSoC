@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -61,15 +61,18 @@ void Thread::wait(u_long time)
 
 /*!
  *Create a new thread.
+ *\param ID Pointer to ThreadID to receive the new thread identifier.
+ *\param startRoutine Start routine for the new thread.
+ *\param arg Argument to pass to the new created thread.
  */
 #ifdef WIN32
 int Thread::create(ThreadID*  ID, 
-                            unsigned int  (_stdcall *startRoutine)(void *), 
-                            void * arg)
+									 unsigned int  (_stdcall *startRoutine)(void *), 
+									 void * arg)
 #endif
 #ifdef HAVE_PTHREAD
 int Thread::create(ThreadID*  ID, void * (*startRoutine)(void *), 
-                            void * arg)
+									 void * arg)
 #endif
 {
 #ifdef WIN32
