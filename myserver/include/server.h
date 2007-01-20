@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef SERVER_IN
-#define SERVER_IN
+#ifndef SERVER_H
+#define SERVER_H
 
 #include "../stdafx.h"
 #include "../include/clients_thread.h"
@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/connection.h"
 #include "../include/log_manager.h"
 #include "../include/filters_factory.h"
+#include "../include/dyn_filters_manager.h"
 #include "../include/dyn_filter.h"
 #include "../include/hash_map.h"
 #include "../include/home_dir.h"

@@ -23,50 +23,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocol.h"
 #include "../include/connection.h"
 #include "../include/dynamiclib.h"
+#include "../include/plugin.h"
+#include "../include/dynamic_protocol.h"
 
 #include <string>
 using namespace std;
 
-class DynamicProtocol : public Protocol
+class ProtocolsManager : public PluginsNamespaceManager
 {
-private:
-  XmlParser *errorParser;
-	string filename;
-	DynamicLibrary hinstLib;
-	char protocolName[16];
-public:
-	char *getProtocolName();
-	int setFilename(const char *filename);
-	DynamicProtocol();
-	virtual ~DynamicProtocol();
-	char* registerName(char*,int len);
-	virtual int controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
-                                int bs2,u_long nbtr,u_long id);
-	int loadProtocol(XmlParser*, Server*);
-	int unloadProtocol(XmlParser*);	
-	int getOptions();
-};
-
-/*! Structure used to create a linked list. */
-struct DynamicProtocolListElement
-{
-	DynamicProtocol data;
-	DynamicProtocolListElement* next;
-	
-};
-
-class ProtocolsManager
-{
-private:
-	DynamicProtocolListElement* list;
 public:
 	ProtocolsManager();
-  DynamicProtocol* getDynProtocolByOrder(int order);
-	DynamicProtocol* getDynProtocol(const char *protocolName);
-	DynamicProtocol* getDynProtocol(string& protocolName)
-    {return getDynProtocol(protocolName.c_str()); };
-	int	addProtocol(const char*, XmlParser*, char*, Server* lserver);
-	int unloadProtocols(XmlParser*);
-	int loadProtocols(const char* directory, XmlParser*, char*, Server* lserver);
+	~ProtocolsManager();
+  DynamicProtocol* getPlugin(string& name)
+	{
+		return (DynamicProtocol*)PluginsNamespaceManager::getPlugin(name);
+	}
+
 };
+
 #endif

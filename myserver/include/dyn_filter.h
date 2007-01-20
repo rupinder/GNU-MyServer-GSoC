@@ -26,26 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/hash_map.h"
 #include "../include/thread.h"
 #include "../include/mutex.h"
+#include "../include/plugin.h"
+#include "../include/dyn_filter_file.h"
 
 using namespace std;
-
-class DynamicFilterFile
-{
-protected:
-  DynamicLibrary file;
-public:
-  DynamicFilterFile();
-  ~DynamicFilterFile();
-  int loadFromFile(const char* name);
-  int close();
-  int getHeader(u_long id, Stream* s, char* buffer, u_long len, u_long* nbw);
-  int getFooter(u_long id, Stream* s, char* buffer, u_long len, u_long* nbw);
-  int read(u_long id, Stream* s, char* buffer, u_long len, u_long*);
-  int write(u_long id, Stream* s, const char* buffer, u_long len, u_long*);
-	int flush(u_long id, Stream* s, u_long*);
-	int modifyData(u_long id, Stream* s);
-  const char* getName(u_long id, Stream* s, char*, u_long);
-};
 
 class DynamicFilter : public Filter
 {
@@ -67,23 +51,6 @@ public:
   DynamicFilter(DynamicFilterFile*);
   DynamicFilter(DynamicFilterFile*,Stream*, u_long);
   ~DynamicFilter();
-};
-
-class DynamicFiltersManager
-{
-protected:
-  static Mutex counterMutex;
-  static u_long counter;
-  static DynamicFiltersManager* dynamicfiltersmanager;
-  HashMap<string,DynamicFilterFile*> filters;
-  int add(const char*, XmlParser*, Server*);
-  static Filter* createFilter(const char* name); 
-public:
-  DynamicFiltersManager();
-  ~DynamicFiltersManager();
-  void clear();
-  int registerFilters(FiltersFactory* ff);
-  int loadFilters(const char*, XmlParser*, Server*);
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -31,7 +31,7 @@ using namespace std;
  */
 FiltersFactory::FiltersFactory()
 {
-  dictionary.clear();
+  staticFilters.clear();
 }
 
 /*!
@@ -43,13 +43,24 @@ FiltersFactory::~FiltersFactory()
 }
 
 /*!
+ *Insert a filter by name and factory object. Returns 0 if the entry
+ *was added correctly.
+ */
+int FiltersFactory::insert(const char* name, FiltersSource* ptr)
+{
+	string nameStr(name);
+  dynamicFilters.put(nameStr, ptr);
+	return 0;
+}
+
+/*!
  *Insert a filter by name and factory routine. Returns 0 if the entry
  *was added correctly.
  */
 int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
 {
 	string nameStr(name);
-  dictionary.put(nameStr, fnc);
+  staticFilters.put(nameStr, fnc);
 	return 0;
 }
 
@@ -61,10 +72,17 @@ int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
  */
 Filter *FiltersFactory::getFilter(const char* name)
 {
-  FILTERCREATE factory = dictionary.get(name);
+  FILTERCREATE staticFactory = staticFilters.get(name);
+  FiltersSource* dynamicFactory;
   /*! If the filter exists create a new object and return it. */
-  if(factory)
-    return factory(name);
+  if(staticFactory)
+    return staticFactory(name);
+
+ 
+  dynamicFactory = dynamicFilters.get(name);
+
+  if(dynamicFactory)
+    return dynamicFactory->createFilter(name);
 
   return 0;
 }
@@ -97,11 +115,11 @@ FiltersChain* FiltersFactory::chain(list<string> &l, Stream* out, u_long *nbw,
  *will not modify the data.
  *On errors returns nonzero.
  */
-int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out, u_long *nbw, 
-                          int onlyNotModifiers)
+int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out, 
+													u_long *nbw, int onlyNotModifiers)
 {
 
-  list<string>::iterator i=l.begin();
+  list<string>::iterator  i =l.begin();
 
   if(!c)
     return 1;
@@ -112,14 +130,14 @@ int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out, u_long 
   for( ; i != l.end(); i++)
   {
     u_long tmp;
-    Filter *n=getFilter((*i).c_str());
+    Filter *n = getFilter((*i).c_str());
     if( !n || ( onlyNotModifiers && n->modifyData() )  )
     {
       c->clearAllFilters();
       return 1;
     }
     c->addFilter(n, &tmp);
-    *nbw+=tmp;
+    *nbw += tmp;
   }
 
   return 0;
@@ -130,5 +148,6 @@ int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out, u_long 
  */
 void FiltersFactory::free()
 {
-  dictionary.clear();
+  staticFilters.clear();
+	dynamicFilters.clear();
 }

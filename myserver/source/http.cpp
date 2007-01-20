@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -1654,8 +1654,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
       if(allowExternal && td.mime)
       {
-        DynamicHttpManager* manager = dynManagerList.getManagerByName(
-																							td.mime->cmdName.c_str());
+        DynamicHttpManager* manager = 
+					dynManagerList.getPlugin(td.mime->cmdName);
 
         if(manager)
           return manager->send(&td, td.connection, td.filenamePath.c_str(), 
@@ -1942,7 +1942,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		Server::getInstance()->temporaryFileName(td.id, td.inputDataPath);
 		Server::getInstance()->temporaryFileName(td.id, td.outputDataPath);
 
-    dynamicCommand = dynCmdManager.getMethodByName(td.request.cmd.c_str());
+    dynamicCommand = dynCmdManager.getPlugin(td.request.cmd);
 
 		/* If the used method supports POST data, read it.  */
     if((!td.request.cmd.compare("POST")) || 
@@ -2855,6 +2855,7 @@ int Http::loadProtocol(XmlParser* languageParser)
   char *data = 0;
   int  nDefaultFilename = 0;
 	XmlParser configurationFileManager;
+	string pluginsResource(Server::getInstance()->getExternalPath());
   if(initialized)
 		return 0;
 
@@ -2897,9 +2898,8 @@ int Http::loadProtocol(XmlParser* languageParser)
   HttpFile::load(&configurationFileManager);
   HttpDir::load(&configurationFileManager);
 
-  dynCmdManager.loadMethods(0, languageParser, Server::getInstance());
-
-  dynManagerList.loadManagers(0, languageParser, Server::getInstance());
+  dynCmdManager.load(Server::getInstance(), languageParser, pluginsResource);
+  dynManagerList.load(Server::getInstance(), languageParser, pluginsResource);
 	
 	/*! Determine the min file size that will use GZIP compression.  */
 	data = configurationFileManager.getValue("GZIP_THRESHOLD");
@@ -2992,13 +2992,13 @@ int Http::loadProtocol(XmlParser* languageParser)
 /*!
  *Unload the HTTP protocol.
  */
-int Http::unloadProtocol(XmlParser* /*languageParser*/)
+int Http::unloadProtocol(XmlParser* languageParser)
 {
 	 if(!initialized)
 		 return 0;
 
-   dynCmdManager.clean();
-   dynManagerList.clean();
+   dynCmdManager.unload(languageParser);
+   dynManagerList.unload(languageParser);
 	/*!
    *Clean ISAPI.
    */

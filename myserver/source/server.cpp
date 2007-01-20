@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -1096,9 +1096,8 @@ int Server::terminate()
 	Http::unloadProtocol(&languageParser);
 	Https::unloadProtocol(&languageParser);
   ControlProtocol::unloadProtocol(&languageParser);
-	protocols.unloadProtocols(&languageParser);
+	protocols.unload(&languageParser);
 
-  filters.clear();
   filtersFactory.free();
 
 	/*
@@ -1974,7 +1973,8 @@ const char* Server::getHashedData(const char* name)
  */
 DynamicProtocol* Server::getDynProtocol(const char *protocolName)
 {
-	return protocols.getDynProtocol(protocolName);
+	string protocol(protocolName);
+	return protocols.getPlugin(protocol);
 }
 
 /*!
@@ -2227,11 +2227,7 @@ int Server::loadSettings()
 
     /* Load external protocols.  */
     {
-      string protocolsPath;
-      protocolsPath.assign(*externalPath);
-      protocolsPath.append("/protocols");
-      if(protocols.loadProtocols(protocolsPath.c_str(), &languageParser,
-                                 "myserver.xml", this))
+			if(protocols.load(this, &languageParser, *externalPath))
       {
         ostringstream out;
         logPreparePrintError();
@@ -2247,7 +2243,7 @@ int Server::loadSettings()
       string filtersPath;
       filtersPath.assign(*externalPath);
       filtersPath.append("/filters");
-      if(filters.loadFilters(filtersPath.c_str(), &languageParser, this))
+      if(filters.load(this, &languageParser, filtersPath))
       {
         ostringstream out;
         logPreparePrintError();

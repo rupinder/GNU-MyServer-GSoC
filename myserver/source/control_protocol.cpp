@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005, 2006 The MyServer Team
+Copyright (C) 2004, 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -782,14 +782,14 @@ int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out,
                                            char *b1,int bs1)
 {
   int i = 0;
-  DynamicProtocol* dp;
   u_long nbw;
   int ret;
-  for( ;;)
+	HashMap<string, Plugin*>::Iterator it = 
+		Server::getInstance()->getProtocolsManager()->begin();
+
+  for(; it != Server::getInstance()->getProtocolsManager()->end(); it++)
   {
-    dp = Server::getInstance()->getProtocolsManager()->getDynProtocolByOrder(i);
-    if(dp == 0)
-      break;
+		DynamicProtocol* dp = (DynamicProtocol*) *it;
 #ifdef HAVE_SNPRINTF
 		snprintf(b1, bs1,
 #else

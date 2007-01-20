@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -32,7 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/mutex.h"
 #include "../include/http_file.h"
 #include "../include/http_dir.h"
+#include "../include/dyn_http_command_manager.h"
 #include "../include/dyn_http_command.h"
+#include "../include/dyn_http_manager_list.h"
 #include "../include/dyn_http_manager.h"
 
 #include <string>

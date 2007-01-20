@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -79,8 +79,8 @@ int Filter::getFooter(char* buffer, u_long len, u_long* nbr)
  */
 Filter::Filter()
 {
-  protocol=0;
-  protocolData=0;
+  protocol = 0;
+  protocolData = 0;
   parent = 0;
 }
 
@@ -139,7 +139,7 @@ const char* Filter::getName(char* name, u_long len)
   /* No name by default.  */
   if(name)
   {
-    name[0]='\0';
+    name[0] = '\0';
   }
   return "\0";
 }

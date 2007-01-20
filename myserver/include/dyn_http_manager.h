@@ -26,40 +26,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/dynamiclib.h"
 #include "../include/http_headers.h"
 #include "../include/hash_map.h"
+#include "../include/plugin.h"
+#include "../include/plugins_namespace_manager.h"
 #include <string>
 using namespace std;
 
-class DynamicHttpManager
+
+class DynamicHttpManager : public Plugin
 {
-private:
-  XmlParser *errorParser;
-	string filename;
-	DynamicLibrary hinstLib;
 public:
-	char *getManagerName(char* str,int len=0);
 	DynamicHttpManager();
 	virtual ~DynamicHttpManager();
-	int loadManager(const char*name, XmlParser*, Server*);
-	int loadManager(string &name, XmlParser* p, Server* s)
-    {return loadManager(name.c_str(), p, s);}
-	int unloadManager(XmlParser*);
 	int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
-                   const char* cgi, int onlyHeader=0);
+                   const char* cgi, int onlyHeader = 0);
 };
 
-class DynHttpManagerList
-{
-private:
-  HashMap <string, DynamicHttpManager*> data;
-public:
-  int addManager(const char* name, XmlParser* p, Server* s);
-  DynHttpManagerList();
-  virtual ~DynHttpManagerList();
-  int loadManagers(const char* dir, XmlParser* p, Server* s);
-  int clean();
-  DynamicHttpManager* getManagerByName(const char* name);
-  int size();
-
-
-};
 #endif

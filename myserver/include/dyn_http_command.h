@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -26,41 +26,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/dynamiclib.h"
 #include "../include/http_headers.h"
 #include "../include/hash_map.h"
+#include "../include/plugin.h"
+#include "../include/plugins_namespace_manager.h"
 #include <string>
 using namespace std;
 
-class DynamicHttpCommand 
+class DynamicHttpCommand : public Plugin
 {
 private:
   XmlParser *errorParser;
 	string filename;
 	DynamicLibrary hinstLib;
 public:
-	char *getCommandName(char* str,int len=0);
 	DynamicHttpCommand();
 	virtual ~DynamicHttpCommand();
-	int loadCommand(const char*name, XmlParser*, Server*);
-	int loadCommand(string &name, XmlParser* p, Server* s)
-    {return loadCommand(name.c_str(), p, s);}
-	int unloadCommand(XmlParser*);
 	int acceptData();
   int send(HttpThreadContext* context, ConnectionPtr lpconnection, 
-           string& Uri, int systemrequest=0,int OnlyHeader=0,int yetmapped=0);
+           string& Uri, int systemrequest = 0, 
+					 int OnlyHeader = 0, int yetmapped = 0);
 };
 
-class DynHttpCommandManager
-{
-private:
-  HashMap <string, DynamicHttpCommand*> data;
-public:
-  int addMethod(const char* name, XmlParser* p, Server* s);
-  DynHttpCommandManager();
-  virtual ~DynHttpCommandManager();
-  int loadMethods(const char* dir, XmlParser* p, Server* s);
-  int clean();
-  DynamicHttpCommand* getMethodByName(const char* name);
-  int size();
-
-
-};
 #endif
