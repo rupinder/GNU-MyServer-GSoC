@@ -41,19 +41,19 @@ CustomMakefile=
 [VersionInfo]
 Major=0
 Minor=8
-Release=5
+Release=6
 Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.5
+FileVersion=0.8.6-rc1
 FileDescription=MyServer webserver
-InternalName=Black Clouds
+InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.5
+ProductVersion=0.8.6
 AutoIncBuildNr=0";
 
 
