@@ -1096,7 +1096,8 @@ int Server::terminate()
 	Http::unloadProtocol(&languageParser);
 	Https::unloadProtocol(&languageParser);
   ControlProtocol::unloadProtocol(&languageParser);
-	protocols.unload(&languageParser);
+
+	getPluginsManager()->unload(this, &languageParser);
 
   filtersFactory.free();
 
@@ -2225,44 +2226,18 @@ int Server::loadSettings()
 		/* Load the home directories configuration.  */
 		homeDir.load();
 
-    /* Load external protocols.  */
-    {
-			if(protocols.load(this, &languageParser, *externalPath))
-      {
-        ostringstream out;
-        logPreparePrintError();
-        out << languageParser.getValue("ERR_ERROR") << ": dynamic protocols";
-        logWriteln(out.str().c_str());
-        logEndPrintError();
-      }
 
-    }
+		getPluginsManager()->addNamespace(&protocols);
+		getPluginsManager()->addNamespace(&filters);
 
-    /* Load external filters.  */
-    {
-      string filtersPath;
-      filtersPath.assign(*externalPath);
-      filtersPath.append("/filters");
-      if(filters.load(this, &languageParser, filtersPath))
-      {
-        ostringstream out;
-        logPreparePrintError();
-        out << languageParser.getValue("ERR_ERROR") << ": dynamic protocols";
-        logWriteln(out.str().c_str());
-        logEndPrintError();
-      }
-      if(filters.registerFilters(&filtersFactory))
-      {
-        ostringstream out;
-        logPreparePrintError();
-        out << languageParser.getValue("ERR_ERROR") << ": registering filters";
-        logWriteln(out.str().c_str());
-        logEndPrintError();
-      }
-    }
+		{
+			string res("external");
+			getPluginsManager()->load(this, &languageParser, res);
+			getPluginsManager()->postLoad(this, &languageParser);
+		}
+
 
     logWriteln( languageParser.getValue("MSG_CREATET"));
-
     for(i = 0; i < nStaticThreads; i++)
 	  {
       ret = addThread(1);

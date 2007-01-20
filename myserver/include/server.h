@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/hash_map.h"
 #include "../include/home_dir.h"
 #include "../include/cached_file_factory.h"
+#include "../include/plugins_manager.h"
 #include <string>
 using namespace std;
 
@@ -154,7 +155,9 @@ private:
 	string* mimeConfigurationFile;
 	string tmpPath;
 	Event *newConnectionEvent;
+	PluginsManager pluginsManager;
 public:
+	PluginsManager* getPluginsManager(){return &pluginsManager;}
 	bool stopServer(){return mustEndServer;}
 	HomeDir* getHomeDir();
 	static void createInstance();

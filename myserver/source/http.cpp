@@ -2898,9 +2898,9 @@ int Http::loadProtocol(XmlParser* languageParser)
   HttpFile::load(&configurationFileManager);
   HttpDir::load(&configurationFileManager);
 
-  dynCmdManager.load(Server::getInstance(), languageParser, pluginsResource);
-  dynManagerList.load(Server::getInstance(), languageParser, pluginsResource);
-	
+	Server::getInstance()->getPluginsManager()->addNamespace(&dynCmdManager);
+	Server::getInstance()->getPluginsManager()->addNamespace(&dynManagerList);
+
 	/*! Determine the min file size that will use GZIP compression.  */
 	data = configurationFileManager.getValue("GZIP_THRESHOLD");
 	if(data)
@@ -2997,8 +2997,6 @@ int Http::unloadProtocol(XmlParser* languageParser)
 	 if(!initialized)
 		 return 0;
 
-   dynCmdManager.unload(languageParser);
-   dynManagerList.unload(languageParser);
 	/*!
    *Clean ISAPI.
    */
