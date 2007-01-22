@@ -24,7 +24,6 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LDFLAGS)
 
-
 AC_ARG_WITH([root-prefix], [  --with-root-prefix=PREFIX override prefix variable for files to be placed in the root], root_prefix=$withval, root_prefix="")
 
 root_bindir='${root_prefix}/bin'
@@ -101,6 +100,38 @@ if test x$no_dl_ld = xyes; then
    DL_LIB=""
 fi
 AC_SUBST(DL_LIB)
+
+
+
+# Libidn checks
+# -------------
+AC_CHECK_HEADER(idna.h,, 
+[
+   AC_MSG_ERROR([idna.h not found which is part of GNU libidn.])
+])
+
+AC_ARG_WITH(idn-lib,
+  [[  --with-idn-lib=FILE     Use the given path to the idn library.]],
+  [
+	if test "$withval" != "yes" -a "$withval" != ""; then
+		 IDN_LIB=$withval
+		 fi
+  ])
+
+if test "x$IDN_LIB" = "x"; then
+    AC_CHECK_LIB(idn, stringprep_check_version, 	
+		have_idn="yes")
+
+		if test "x$have_idn" = "xyes"; then
+				IDN_LIB="-lidn"
+				AC_DEFINE(HAVE_IDN, 1, [Define if the IDN library is present])
+		fi
+  fi
+
+if test "x$have_idn" = "xyes"; then
+	LDFLAGS="$LDFLAGS $IDN_LIB"
+  AC_SUBST(IDN_LIB)
+fi
 
 
 dnl Looking for LibXML2

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -20,16 +20,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/file.h"
 #include "../include/files_utility.h"
 #include "../include/server.h"
+
 #include "../include/connection.h"
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
+
+#ifdef HAVE_IDN
+#include <stringprep.h>
+#include <punycode.h>
+#include <idna.h>
+#endif
 
 /*!
  *SSL password callback function.
  */
 static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
 {
-	if((size_t)num<strlen((char*)userdata)+1)
+	if((size_t)num < strlen((char*)userdata) + 1)
 		return 0;
 
   ((string*)userdata)->assign(buf);
@@ -161,11 +168,11 @@ void Vhost::clearIPList()
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {
-	StringRegex* sr=new StringRegex();
-  if(sr==0)
+	StringRegex* sr = new StringRegex();
+  if(sr == 0)
     return;
 	sr->name.assign(ip);
-  /*! If is a regular expression, the ip string is a pattern. */
+  /* If is a regular expression, the ip string is a pattern. */
   if(isRegex)
     sr->regex.compile(ip, REG_EXTENDED);
   ipList.push_back(sr);
@@ -180,7 +187,7 @@ void Vhost::removeIP(const char *ip)
 	while(i != ipList.end())
 	{
     StringRegex* sr = *i;
-		/*!
+		/*
      *If this is the virtual host with the right IP.
      */
 		if(!stringcmp(sr->name,ip))
@@ -203,10 +210,10 @@ void Vhost::removeHost(const char *host)
 	while(i != hostList.end())
 	{
     StringRegex* sr = *i;
-		/*!
+		/*
      *If this is the virtual host with the right IP.
      */
-		if(!stringcmp(sr->name,host))
+		if(!stringcmp(sr->name, host))
 		{
 		  hostList.erase(i);
 		  return;
@@ -220,7 +227,7 @@ void Vhost::removeHost(const char *host)
  */
 int Vhost::isHostAllowed(const char* host)
 {
-  /*! If no hosts are specified then every host is allowed to connect here. */
+  /* If no hosts are specified then every host is allowed to connect here. */
 	if(!hostList.size() || !host)
 	  return 1;
 	  
@@ -231,7 +238,7 @@ int Vhost::isHostAllowed(const char* host)
     regmatch_t pm;
     if(sr->regex.isCompiled())
     {
-      if (!sr->regex.exec(host ,1, &pm, REG_NOTBOL))
+      if (!sr->regex.exec(host, 1, &pm, REG_NOTBOL))
       {
         return 1;
       }
@@ -271,7 +278,7 @@ int Vhost::areAllIPAllowed()
  */
 int Vhost::isIPAllowed(const char* ip)
 {
- /*! If no IPs are specified then every host is allowed to connect here. */
+ /* If no IPs are specified then every host is allowed to connect here. */
 	if(!ipList.size() || !ip)
 	  return 1;
 	  
@@ -301,13 +308,39 @@ int Vhost::isIPAllowed(const char* ip)
  */
 void Vhost::addHost(const char *host, int isRegex)
 {
-	StringRegex* hl=new StringRegex();
-  if(hl==0)
+	StringRegex* hl = new StringRegex();
+	size_t len;
+  if(hl == 0)
     return;
-	hl->name.assign( host );
+
+#ifdef HAVE_IDN
+	int ret;
+	char* ascii = 0;
+	uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);
+
+	if(!ucs4)
+		return;
+
+	ret = idna_to_ascii_4z (ucs4, &ascii, 0);
+
+	free(ucs4);
+	
+	if (ret != IDNA_SUCCESS)
+		return;
+
+	host = ascii;
+#endif
+
+	hl->name.assign(host);
+
   if(isRegex)
     hl->regex.compile(host, REG_EXTENDED);
   hostList.push_back(hl);
+
+#ifdef HAVE_IDN
+	free(ascii);
+#endif
+
 }
 
 /*!
@@ -417,7 +450,7 @@ void Vhost::setMaxLogSize(int newSize)
  */
 int Vhost::getMaxLogSize()
 {
-  /*!
+  /*
    *warningsLogFile max log size is equal to the  
    *accessesLogFile one.
    */
@@ -443,7 +476,7 @@ int VhostManager::addVHost(Vhost* vh)
     {
       hostl = *it;
 
-      /*! Do not do a case sensitive compare under windows. */
+      /* Do not do a case sensitive compare under windows.  */
 #ifdef WIN32
       if(!stringcmpi(vh->getAccessesLogFileName(), 
                      hostl->getAccessesLogFileName()))
@@ -518,22 +551,24 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
       mutex.unlock();
       return ret;
     }
-    /*! Do a linear search here. We have to use the first full-matching virtual host. */
+    /*Do a linear search here. We have to use the first full-matching 
+		 *virtual host. 
+		 */
     for(; it != hostList.end(); it++)
     {
       Vhost* vh = *it;
-      /*! Control if the host port is the correct one. */
-      if(vh->getPort()!=port)
+      /* Control if the host port is the correct one.  */
+      if(vh->getPort() != port)
         continue;
-      /*! If ip is defined check that it is allowed to connect to the host. */
+      /* If ip is defined check that it is allowed to connect to the host.  */
       if(ip && !vh->isIPAllowed(ip))
         continue;
-      /*! If host is defined check if it is allowed to connect to the host. */
+      /* If host is defined check if it is allowed to connect to the host.  */
       if(host && !vh->isHostAllowed(host))
         continue;
-      /*! We find a valid host. */
+      /* We find a valid host.  */
       mutex.unlock();
-      /*! Add a reference. */
+      /* Add a reference.  */
       vh->addRef();
       return vh;
     }
@@ -553,7 +588,7 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 VhostManager::VhostManager()
 {
 	hostList.clear();
-  extSource=0;
+  extSource = 0;
   mutex.init();
 }
 
@@ -602,7 +637,8 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
    *FILE STRUCTURE:
    *hosts;IPs;port;protocol;documentRoot;systemFolder;accessesLog;warningLog#
    *1)hosts is a list of valid hosts name that the virtual host can accept, 
-   * every value is separated by a comma. If host is 0 every host name is valid.
+   * every value is separated by a comma.  If host is 0 every host name is 
+	 * valid.
    *2)IPs is a list of valid IP that the virtual host can accept, 
    * every value is separated by a comma. If IPs is 0 every IP name is valid.
    *3)port in the port used to listen.
@@ -614,18 +650,20 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
    *The last virtual host ends with two final diesis, '##'.
    *Comments can be done like are done comments on multiline in C++, 
    *between "/ *" and "* /" without the space.
-   *In 5) and 6) for use absolute path use the character | before the full path.
+   *In 5) and 6) for use absolute path use the character | before the full 
+	 *path.
    */
-	char buffer[MYSERVER_KB(10)];/*! Max line length=10KB*/
+	char buffer[MYSERVER_KB(10)];/* Max line length = 10KB.  */
 	char buffer2[256];
-	u_long nbr;/*! Number of bytes read from the file. */
+	u_long nbr;/* Number of bytes read from the file.  */
 	File fh;
 	Vhost *vh;
   LogManager *accesses;
 	LogManager * warnings;
 	char c;
-	int ret=fh.openFile(filename,File::MYSERVER_OPEN_IFEXISTS|File::MYSERVER_OPEN_READ);
-  /*! If the file cannot be opened simply do nothing. */
+	int ret = fh.openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
+												File::MYSERVER_OPEN_READ);
+  /* If the file cannot be opened simply do nothing.  */
 	if(ret)
 		return -1;
 
@@ -633,7 +671,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 	{
 		int cc=0;
 		buffer[0]='\0';
-    /*! Save a line in the buffer. A line ends with a diesis.*/
+    /* Save a line in the buffer.  A line ends with a diesis.  */
 		for(;;)
 		{
 			fh.readFromFile(&c,1,&nbr);
@@ -650,58 +688,58 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 					do
 					{
 						oldc = c;
-						fh.readFromFile(&c,1,&nbr);
-					}while(c!='/' && oldc!='*');
-					buffer[0]='\0';
+						fh.readFromFile(&c, 1, &nbr);
+					}while(c != '/' && oldc != '*');
+					buffer[0] = '\0';
 					continue;
 				}
 			}
 			else
 				break;
 		}
-		if(buffer[0]=='\0')
+		if(buffer[0] == '\0')
 			break;		
-		vh=new Vhost();
-    if(vh==0)
+		vh = new Vhost();
+    if(!vh)
     {
       fh.closeFile();
       clean();
       return -1;
     }
-		/*! Parse the line. */
+		/* Parse the line.  */
     cc = 0;
-    /*! Get the hosts list. */
+    /* Get the hosts list.  */
 		for(;;)
 		{
 			buffer2[0]='\0';
-			while((buffer[cc]!=',')&&(buffer[cc]!=';'))
+			while((buffer[cc]!=',') && (buffer[cc]!=';'))
 			{
-				buffer2[strlen(buffer2)+1]='\0';
-				buffer2[strlen(buffer2)]=buffer[cc];
+				buffer2[strlen(buffer2) + 1]='\0';
+				buffer2[strlen(buffer2)] = buffer[cc];
 				cc++;
 			}
-      /*!
+      /*
        *If the host list is equal 
        *to 0 don't add anything to the list
        */
-			if(buffer2[0]&&buffer2[0]!='0')
+			if(buffer2[0] && buffer2[0] != '0')
 				vh->addHost(buffer2, 0);
-			if(buffer[cc]==';')
+			if(buffer[cc] == ';')
 				break;
 			cc++;
 		}
 		cc++;
-		for(;;)/*!Get the ip list*/
+		for(;;)
 		{
 			buffer2[0]='\0';
 
-			while((buffer[cc]!=',')&&(buffer[cc]!=';'))
+			while((buffer[cc] != ',') && (buffer[cc] != ';'))
 			{
 				buffer2[strlen(buffer2)+1]='\0';
 				buffer2[strlen(buffer2)]=buffer[cc];
 				cc++;
 			}
-      /*!
+      /*
        *If the ip list is equal to 0 don't add anything to the list.
        */
 			if(buffer2[0]&&buffer2[0]!='0')
@@ -711,32 +749,32 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 			cc++;
 		}
 		cc++;
-		/*!Get the port used by the virtual host*/
-		buffer2[0]='\0';
-		while(buffer[cc]!=';')
+		/* Get the port used by the virtual host.  */
+		buffer2[0] = '\0';
+		while(buffer[cc] != ';')
 		{
-			buffer2[strlen(buffer2)+1]='\0';
-			buffer2[strlen(buffer2)]=buffer[cc];
+			buffer2[strlen(buffer2)+1] = '\0';
+			buffer2[strlen(buffer2)] = buffer[cc];
 			cc++;
 		}
 		vh->setPort((u_short)atoi(buffer2));
 		cc++;		
-		/*!Get the protocol used by the virtual host*/
-		buffer2[0]='\0';
-		while(buffer[cc]!=';')
+		/* Get the protocol used by the virtual host.  */
+		buffer2[0] = '\0';
+		while(buffer[cc] != ';')
 		{
-			buffer2[strlen(buffer2)+1]='\0';
-			buffer2[strlen(buffer2)]=buffer[cc];
+			buffer2[strlen(buffer2) + 1] = '\0';
+			buffer2[strlen(buffer2)] = buffer[cc];
 			cc++;
 		}
 
-		if(!strcmp(buffer2,"HTTP"))
+		if(!strcmp(buffer2, "HTTP"))
 			vh->setProtocol(PROTOCOL_HTTP);
-		else if(!strcmp(buffer2,"HTTPS"))
+		else if(!strcmp(buffer2, "HTTPS"))
 			vh->setProtocol(PROTOCOL_HTTPS);
-		else if(!strcmp(buffer2,"FTP"))
+		else if(!strcmp(buffer2, "FTP"))
 			vh->setProtocol(PROTOCOL_FTP);
-		else if(!strcmp(buffer2,"CONTROL"))
+		else if(!strcmp(buffer2, "CONTROL"))
 			vh->setProtocol(PROTOCOL_CONTROL);
 		else
 		{
@@ -746,17 +784,17 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 		vh->setProtocolName(buffer2);
 		
 		cc++;
-		/*!Get the document root used by the virtual host*/
+		/* Get the document root used by the virtual host.  */
 		buffer2[0] = '\0';
 		while(buffer[cc] != ';')
 		{
-			buffer2[strlen(buffer2)+1] = '\0';
+			buffer2[strlen(buffer2) + 1] = '\0';
 			buffer2[strlen(buffer2)] = buffer[cc];
 			cc++;
 		}	
 		vh->setDocumentRoot(buffer2);
 		cc++;
-		/*!Get the system folder used by the virtual host*/
+		/* Get the system folder used by the virtual host.  */
 		buffer2[0] = '\0';
 		while(buffer[cc] != ';')
 		{
@@ -766,7 +804,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 		}	
 		vh->setSystemRoot(buffer2);
 		cc++;
-		/*!Get the accesses log file used by the virtual host*/
+		/* Get the accesses log file used by the virtual host.  */
 		buffer2[0] = '\0';
 		while(buffer[cc] != ';')
 		{
@@ -775,7 +813,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 			cc++;
 		}	
 		vh->setAccessesLogFileName(buffer2);
-		accesses=vh->getAccessesLog();
+		accesses = vh->getAccessesLog();
     
 		accesses->load(buffer2);
 
@@ -789,7 +827,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 			cc++;
 		}	
 		vh->setWarningsLogFileName(buffer2);
-		warnings=vh->getWarningsLog();
+		warnings = vh->getWarningsLog();
 		warnings->load(buffer2);
 		vh->setMaxLogSize(maxlogSize);
 		cc++;
@@ -820,91 +858,93 @@ void VhostManager::saveConfigurationFile(const char *filename)
   try
   {
     list<Vhost*>::iterator i = hostList.begin();
-    fh.openFile(filename, File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE);
+    fh.openFile(filename, File::MYSERVER_CREATE_ALWAYS | 
+								File::MYSERVER_OPEN_WRITE);
     for( ;i != hostList.end(); i++ )
     {
       Vhost* vh=*i;
       list<Vhost::StringRegex*>::iterator il = vh->getIpList()->begin();
-      list<Vhost::StringRegex*>::iterator hl = vh->getHostList()->begin();      
+      list<Vhost::StringRegex*>::iterator hl = vh->getHostList()->begin();
 
       if(hl != vh->getHostList()->end())
       {
         for( ;hl!=vh->getHostList()->end(); hl++)
         {
           fh.writeToFile((*hl)->name.c_str(), (*hl)->name.length(),&nbw);
-          strcpy(buffer,",");
-          fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+          strcpy(buffer, ",");
+          fh.writeToFile(buffer, (u_long)strlen(buffer),&nbw);
         }
       }
       else
       {
-        strcpy(buffer,"0");
-        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+        strcpy(buffer, "0");
+        fh.writeToFile(buffer, (u_long)strlen(buffer),&nbw);
       }
-      strcpy(buffer,";");
-      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      strcpy(buffer, ";");
+      fh.writeToFile(buffer, (u_long)strlen(buffer),&nbw);
 
       if(il != vh->getIpList()->end())
       {
-        for( ;il!=vh->getIpList()->end(); il++)
+        for( ;il != vh->getIpList()->end(); il++)
         { 
           if(il != vh->getIpList()->begin())
           {
-            strcpy(buffer,",");
-            fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+            strcpy(buffer, ",");
+            fh.writeToFile(buffer, (u_long)strlen(buffer),&nbw);
           }
-          fh.writeToFile((*il)->name.c_str(),(u_long)(*il)->name.length(),&nbw);
+          fh.writeToFile((*il)->name.c_str(), 
+												 (u_long)(*il)->name.length(),&nbw);
         }
       }
       else
       {
-        strcpy(buffer,"0");
-        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+        strcpy(buffer, "0");
+        fh.writeToFile(buffer, (u_long)strlen(buffer),&nbw);
       }
-      sprintf(buffer,";%u;",vh->getPort());
-      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      sprintf(buffer, ";%u;", vh->getPort());
+      fh.writeToFile(buffer, (u_long)strlen(buffer), &nbw);
 
-      if(vh->getProtocol()==PROTOCOL_HTTP)
+      if(vh->getProtocol() == PROTOCOL_HTTP)
       {
-        strcpy(buffer,"HTTP;");
-        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+        strcpy(buffer, "HTTP;");
+        fh.writeToFile(buffer, (u_long)strlen(buffer), &nbw);
       }
-      else if(vh->getProtocol()==PROTOCOL_HTTPS)
+      else if(vh->getProtocol() == PROTOCOL_HTTPS)
       {
-        strcpy(buffer,"HTTPS;");
-        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+        strcpy(buffer, "HTTPS;");
+        fh.writeToFile(buffer, (u_long)strlen(buffer), &nbw);
       }
-      else if(vh->getProtocol()==PROTOCOL_CONTROL)
+      else if(vh->getProtocol() == PROTOCOL_CONTROL)
       {
-        strcpy(buffer,"CONTROL;");
-        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+        strcpy(buffer, "CONTROL;");
+        fh.writeToFile(buffer, (u_long)strlen(buffer), &nbw);
       }
-      else if(vh->getProtocol()==PROTOCOL_FTP)
+      else if(vh->getProtocol() == PROTOCOL_FTP)
       {
-        strcpy(buffer,"FTP;");
-        fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+        strcpy(buffer, "FTP;");
+        fh.writeToFile(buffer,(u_long)strlen(buffer), &nbw);
       }
       else
       {
         fh.writeToFile(vh->getProtocolName(), 
-                       strlen(vh->getProtocolName()),&nbw);
+                       strlen(vh->getProtocolName()), &nbw);
       }
 
       fh.writeToFile(vh->getDocumentRoot(), 
-                     (u_long)strlen(vh->getDocumentRoot()),&nbw);
-      strcpy(buffer,";");
-      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+                     (u_long)strlen(vh->getDocumentRoot()), &nbw);
+      strcpy(buffer, ";");
+      fh.writeToFile(buffer,(u_long)strlen(buffer), &nbw);
 
-      fh.writeToFile(vh->getSystemRoot(),(u_long)strlen(vh->getSystemRoot()),
+      fh.writeToFile(vh->getSystemRoot(), (u_long)strlen(vh->getSystemRoot()),
 										 &nbw);
-      strcpy(buffer,";");
-      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      strcpy(buffer, ";");
+      fh.writeToFile(buffer, (u_long)strlen(buffer),&nbw);
       
       fh.writeToFile(vh->getAccessesLogFileName(), 
                      (u_long)strlen(vh->getAccessesLogFileName()), &nbw);
 
       strcpy(buffer,";");
-      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      fh.writeToFile(buffer, (u_long)strlen(buffer), &nbw);
       
       fh.writeToFile(vh->getWarningsLogFileName(), 
                      (u_long)strlen(vh->getWarningsLogFileName()), &nbw);
@@ -913,11 +953,11 @@ void VhostManager::saveConfigurationFile(const char *filename)
         list<Vhost*>::iterator j = i;
         j++;
         if(j != hostList.end())
-          strcpy(buffer,";#\r\n");
+          strcpy(buffer, ";#\r\n");
         else
-          strcpy(buffer,";##\r\n\0");
+          strcpy(buffer, ";##\r\n\0");
       }
-      fh.writeToFile(buffer,(u_long)strlen(buffer),&nbw);
+      fh.writeToFile(buffer, (u_long)strlen(buffer), &nbw);
     }
     fh.closeFile();
     mutex.unlock();
@@ -1007,7 +1047,8 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
             }
             attrs = attrs->next;
         }
-			  vh->addHost((char*)lcur->children->content, useRegex);
+
+			  vh->addHost((const char*)lcur->children->content, useRegex);
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
 			{
@@ -1037,7 +1078,8 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
             if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
             {
               if(attrs->children && attrs->children->content && 
-                 (!xmlStrcmp(attrs->children->content, (const xmlChar *)"YES")))
+                 (!xmlStrcmp(attrs->children->content, 
+														 (const xmlChar *)"YES")))
               {
                 useRegex = 1;
               }
@@ -1133,7 +1175,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 					{
 						opt.append(",");
 					}
-					attr=attr->next;
+					attr = attr->next;
         }
         vh->setAccessLogOpt(opt.c_str());
 			}
@@ -1407,7 +1449,7 @@ int Vhost::initializeSSL()
   if(sslContext.context==0)
     return -1;
   
-  /*!
+  /*
    *The specified file doesn't exist.
    */
   if(FilesUtility::fileExists(sslContext.certificateFile.c_str()) == 0)
@@ -1422,7 +1464,7 @@ int Vhost::initializeSSL()
                                          &sslContext.password);
   SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
   
-  /*!
+  /*
    *The specified file doesn't exist.
    */
   if(FilesUtility::fileExists(sslContext.privateKeyFile) == 0)
@@ -1593,7 +1635,7 @@ int VhostSource::load()
 }
 
 /*!
- *free the object.
+ *Free the object.
  */
 int VhostSource::free()
 {

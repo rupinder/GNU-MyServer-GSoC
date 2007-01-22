@@ -78,6 +78,7 @@ extern "C"
 #define USE_NEW
 
 typedef unsigned long DWORD;
+typedef unsigned int u_int;
 typedef unsigned long u_long;
 typedef unsigned short u_short;
 typedef unsigned char u_char;
