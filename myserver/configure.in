@@ -107,7 +107,7 @@ AC_SUBST(DL_LIB)
 # -------------
 AC_CHECK_HEADER(idna.h,, 
 [
-   AC_MSG_ERROR([idna.h not found which is part of GNU libidn.])
+   AC_MSG_WARN([idna.h not found which is part of GNU libidn.])
 ])
 
 AC_ARG_WITH(idn-lib,

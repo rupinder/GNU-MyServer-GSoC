@@ -1908,7 +1908,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     {
       retvalue = raiseHTTPError(validRequest);
       logHTTPaccess();
-      return 0;
+      return ClientsThread::DELETE_CONNECTION;
     }
     /*! Be sure that we can handle the HTTP version.  */
     if((td.request.ver.compare("HTTP/1.1")) && 
@@ -1918,7 +1918,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       raiseHTTPError(e_505);
       logHTTPaccess();
       /*! Remove the connection from the list.  */
-      return 0;
+      return ClientsThread::DELETE_CONNECTION;
     }
 
 		td.response.ver.assign(td.request.ver.c_str());
@@ -1984,7 +1984,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 				{
 					td.inputData.closeFile();
 					FilesUtility::deleteFile(td.inputDataPath);
-					return 0;
+					return ClientsThread::DELETE_CONNECTION;
 				}
 
 				for(;;)
@@ -1999,7 +1999,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 							FilesUtility::deleteFile(td.inputDataPath);
 							newStdIn.closeFile();
 							FilesUtility::deleteFile(newfilename.str().c_str());
-							return 0;
+							return ClientsThread::DELETE_CONNECTION;
 						}
 
 						if(nbr != 1)
@@ -2370,14 +2370,14 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   catch(...)
   {
     logHTTPaccess();
-    return 0;
+    return ClientsThread::DELETE_CONNECTION;
   }
 }
 
 /*!
  *Compute the Digest outputting it to a buffer.
  */
-void Http::computeDigest(char* out , char* buffer)
+void Http::computeDigest(char* out, char* buffer)
 {
 	Md5 md5;
 	if(!out)
@@ -2385,7 +2385,7 @@ void Http::computeDigest(char* out , char* buffer)
 	sprintf(buffer, "%i-%u-%s", (int)clock(), (u_int)td.id, 
           td.connection->getIpAddr());
 	md5.init();
-	md5.update((unsigned char const*)buffer , (unsigned int)strlen(buffer));
+	md5.update((unsigned char const*)buffer, (unsigned int)strlen(buffer));
 	md5.end(out);
 }
 
