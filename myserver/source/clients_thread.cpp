@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -119,6 +119,19 @@ void * startClientsThread(void* pParam)
 #ifdef HAVE_PTHREAD
   return (void*)1;
 #endif
+  if(server->getGid() && 
+		 Process::setgid(server->getInstance()->getGid()))
+  {
+    ostringstream out;
+    out << server->getInstance()->getLanguageParser()->getValue("ERR_ERROR")
+        << ": setgid "  << server->getInstance()->getGid();
+    server->getInstance()->logPreparePrintError();
+    server->getInstance()->logWriteln(out.str().c_str());
+    server->getInstance()->logEndPrintError();
+    Thread::terminate();
+    return 0;
+  }	
+
 
   if(server->getUid() && Process::setuid(server->getUid()))
   {
@@ -131,18 +144,6 @@ void * startClientsThread(void* pParam)
     Thread::terminate();
     return 0;
 
-  }	
-  if(server->getGid() && 
-		 Process::setgid(server->getInstance()->getGid()))
-  {
-    ostringstream out;
-    out << server->getInstance()->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setgid "  << server->getInstance()->getGid();
-    server->getInstance()->logPreparePrintError();
-    server->getInstance()->logWriteln(out.str().c_str());
-    server->getInstance()->logEndPrintError();
-    Thread::terminate();
-    return 0;
   }	
 
 	ct->threadIsRunning = 1;
