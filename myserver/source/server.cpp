@@ -862,6 +862,19 @@ void * listenServer(void* params)
     }
   }
 
+  if(Server::getInstance()->getGid() &&
+		 Process::setgid(Server::getInstance()->getGid()))
+  {
+    ostringstream out;
+    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
+        << ": setgid "  << Server::getInstance()->getGid();
+    Server::getInstance()->logPreparePrintError();
+    Server::getInstance()->logWriteln(out.str().c_str());
+    Server::getInstance()->logEndPrintError();
+    Thread::terminate();
+    return 0;
+  }
+
   if(Server::getInstance()->getUid() &&
 		 Process::setuid(Server::getInstance()->getUid()))
   {
@@ -874,18 +887,6 @@ void * listenServer(void* params)
     Thread::terminate();
     return 0;
 
-  }
-  if(Server::getInstance()->getGid() &&
-		 Process::setgid(Server::getInstance()->getGid()))
-  {
-    ostringstream out;
-    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setgid "  << Server::getInstance()->getGid();
-    Server::getInstance()->logPreparePrintError();
-    Server::getInstance()->logWriteln(out.str().c_str());
-    Server::getInstance()->logEndPrintError();
-    Thread::terminate();
-    return 0;
   }
 
 	Server::getInstance()->increaseListeningThreadCount();
