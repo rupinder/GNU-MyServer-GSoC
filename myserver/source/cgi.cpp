@@ -998,15 +998,16 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 		LPVOID lpvEnv; 
 		lpvEnv = Server::getInstance()->envString; 
 		memCgi << end_str;
-		for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
-		{ 
-			if(((char*)lpszVariable)[0]  != '=' )
+		if (lpvEnv)
+  		  for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
+		  { 
+		  	if(((char*)lpszVariable)[0]  != '=' )
 			{
 				memCgi << (char*)lpszVariable << end_str;
 			}
 			while(*lpszVariable)
 				*lpszVariable++;
-		} 
+		  } 
 	}
 #endif
 	memCgi << end_str << end_str  << end_str  << end_str  << end_str  ;
