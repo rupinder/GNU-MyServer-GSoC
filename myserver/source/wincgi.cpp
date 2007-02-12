@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/wincgi.h"
 #include "../include/stringutils.h"
 #include "../include/filters_chain.h"
+#include "../include/safetime.h"
+
 extern "C" 
 {
 #ifdef WIN32
@@ -269,10 +271,12 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	/*
    *Compute the local offset from the GMT time
    */
-	ltime = 100;
-	gmhour = gmtime( &ltime)->tm_hour;
-	bias = localtime(&ltime)->tm_hour-gmhour;
-
+	{
+		tm tmpTm;
+		ltime = 100;
+		gmhour = myserver_gmtime( &ltime, &tmpTm)->tm_hour;
+		bias = myserver_localtime(&ltime, &tmpTm)->tm_hour - gmhour;
+	}
 	sprintf(buffer, "GMT Offset=%i\r\n", bias);
 	DataFileHandle.writeToFile(buffer, (u_long)strlen(buffer), &nbr);
 

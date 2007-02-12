@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../stdafx.h"
 #include "../include/server.h"
+#include "../include/safetime.h"
 
 /*! Include headers for built-in protocols.  */
 #include "../include/http.h"	/*Include the HTTP protocol.  */
@@ -160,13 +161,13 @@ void Server::start()
       software_signature.append(versionOfSoftware);
       software_signature.append("************");
 
-      i=software_signature.length();
+      i = software_signature.length();
       while(i--)
         logManager.write("*");
       logManager.writeln("");
       logManager.write(software_signature.c_str());
       logManager.write("\n");
-      i=software_signature.length();
+      i = software_signature.length();
       while(i--)
         logManager.write("*");
       logManager.writeln("");
@@ -193,6 +194,8 @@ void Server::start()
     setcwdBuffer();
 
     XmlParser::startXML();
+
+		myserver_safetime_init();
 
     /*
      *Setup the server configuration.
@@ -449,6 +452,7 @@ void Server::finalCleanup()
 {
 	XmlParser::cleanXML();
   freecwdBuffer();
+	myserver_safetime_destroy();
 }
 
 /*!
@@ -1388,7 +1392,7 @@ int Server::initialize(int /*!osVer*/)
 	data = configurationFileManager.getValue("THROTTLING_RATE");
 	if(data)
 	{
-		throttlingRate=(u_long)atoi(data);
+		throttlingRate = (u_long)atoi(data);
 	}
 
 	/* Load the server administrator e-mail.  */
@@ -2238,6 +2242,13 @@ int Server::loadSettings()
 		}
 
 
+    /*
+     *Create the listens threads.
+     *Check that all the port used for listening have a listen thread.
+     */
+    logWriteln(languageParser.getValue("MSG_LISTENT"));
+    createListenThreads();
+
     logWriteln( languageParser.getValue("MSG_CREATET"));
     for(i = 0; i < nStaticThreads; i++)
 	  {
@@ -2253,13 +2264,6 @@ int Server::loadSettings()
     /* Return 1 if we had an allocation problem.  */
     if(getdefaultwd(*path))
       return -1;
-
-    /*
-     *Then we create here all the listens threads.
-     *Check that all the port used for listening have a listen thread.
-     */
-    logWriteln(languageParser.getValue("MSG_LISTENT"));
-    createListenThreads();
 
     /*
      *If the configuration file provides a user identifier, change the

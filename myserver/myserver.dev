@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=73
+UnitCount=74
 Type=1
 Ver=1
 ObjFiles=
@@ -33,19 +33,19 @@ CustomMakefile=
 [VersionInfo]
 Major=0
 Minor=8
-Release=5
+Release=6
 Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.5
+FileVersion=0.8.6-rc1
 FileDescription=MyServer webserver
 InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.5
+ProductVersion=0.8.6
 AutoIncBuildNr=0
 [Unit1]
 FileName=stdafx.cpp
@@ -769,6 +769,16 @@ BuildCmd=
 
 [Unit73]
 FileName=source\dyn_filters_manager.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit74]
+FileName=source\safetime.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License,  or
@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../stdafx.h"
 #include "../include/stringutils.h"
+#include "../include/safetime.h"
 
 extern "C" {
 #include <stdlib.h>
@@ -154,7 +155,7 @@ const char *getRFC822GMTTime(const time_t ltime, char* out, int /*!len*/)
 time_t getTime(const char* str)
 {
 	char lb[30];
-	int c=0;
+	int c = 0;
 	int i;
 	tm t;
 	for(i = 0; i < 30; i++)
@@ -334,17 +335,13 @@ const char *getRFC822LocalTime(char* out, int len)
 const char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 {
 	char *asct;
-	tm *result;
+	tm result;
 	u_long ind = 0;
-#ifdef WIN32
-	result = localtime( &ltime );
-#else
-	tm tmp;
-	localtime_r( &ltime, &tmp );
-	result = &tmp;
-#endif
-	result->tm_year += 1900;
-	asct=asctime(result);
+	
+	myserver_localtime( &ltime, &result );
+
+	result.tm_year += 1900;
+	asct = asctime(&result);
 	out[ind++] = asct[0];
 	out[ind++] = asct[1];
 	out[ind++] = asct[2];
@@ -361,7 +358,7 @@ const char *getRFC822LocalTime(const time_t ltime, char* out, int /*!len*/)
 	out[ind++] = asct[6];
 	out[ind++] = ' ';
 
-	sprintf(&out[ind], "%i", result->tm_year);
+	sprintf(&out[ind], "%i", result.tm_year);
 	ind += 4;
 
 	out[ind++] = ' ';
@@ -457,11 +454,12 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
 	time_t ltime;
 	time( &ltime );
 	char *asct;
-	tm*  GMtime = localtime( &ltime );
+	tm GMtime;
+	myserver_localtime( &ltime, &GMtime );
   if(len < 25)
     return 0;
-  GMtime->tm_year += 1900;
-	asct = asctime(GMtime);
+  GMtime.tm_year += 1900;
+	asct = asctime(&GMtime);
  	out[0] = asct[8];
 	out[1] = asct[9];
 	out[2] = '/';
@@ -469,7 +467,7 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
 	out[4]= asct[5];
 	out[5] = asct[6];
 	out[6] = '/';
-	sprintf(&out[7], "%i", GMtime->tm_year);
+	sprintf(&out[7], "%i", GMtime.tm_year);
 	out[11] = ':';
 	out[12] = asct[11];
 	out[13] = asct[12];
@@ -491,12 +489,12 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
   struct timezone tz;
 
   gettimeofday(&tv, &tz);
-  offset = -tz.tz_minuteswest*60;
+  offset = -tz.tz_minuteswest * 60;
 
 #else
   TIME_ZONE_INFORMATION tzi;
   GetTimeZoneInformation(&tzi);
-  offset = -tzi.Bias*60;
+  offset = -tzi.Bias * 60;
 #endif
 
 #endif
@@ -523,18 +521,15 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 	time_t ltime;
 	time( &ltime );
 	char *asct;
-	tm *result;
-#ifdef WIN32
-	result = localtime( &ltime );
-#else
-    tm tmp;
-	localtime_r( &ltime, &tmp );
-	result = &tmp;
-#endif
+	tm result;
+
+	myserver_localtime( &ltime, &result );
+
   if(len < 25)
     return 0;
-  result->tm_year += 1900;
-  asct = asctime(result);
+
+  result.tm_year += 1900;
+  asct = asctime(&result);
   out[0] = asct[8];
   out[1] = asct[9];
   out[2] = '/';
@@ -542,7 +537,7 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
   out[4] = asct[5];
   out[5] = asct[6];
   out[6] = '/';
-  sprintf(&out[7], "%i", result->tm_year);
+  sprintf(&out[7], "%i", result.tm_year);
   out[11] = ':';
   out[12] = asct[11];
   out[13] = asct[12];
@@ -689,7 +684,7 @@ void StrTrim(char* str, char* trimchars)
 void gotoNextLine(char** cmd)
 {
 	while(*(*cmd++) != '\n')
-		if(**cmd=='\0')
+		if(**cmd == '\0')
 			break;
 
 }
@@ -704,9 +699,9 @@ void translateEscapeString(char *str)
 	j = 0;
 	while (str[i] != 0)
 	{
-		if ((str[i] == '%') && (str[i+1] != 0) && (str[i+2] != 0))
+		if ((str[i] == '%') && (str[i + 1] != 0) && (str[i + 2] != 0))
 		{
-			str[j] =(char) (16 * hexVal(str[i+1]) + hexVal(str[i+2]));
+			str[j] =(char) (16 * hexVal(str[i + 1]) + hexVal(str[i + 2]));
 			i = i + 3;
 		}
 		else
@@ -730,9 +725,9 @@ void translateEscapeString(string& str)
   len = str.length();
 	while (len--)
 	{
-		if ((str[i] == '%') && (str[i+1] != 0) && (str[i+2] != 0))
+		if ((str[i] == '%') && (str[i + 1] != 0) && (str[i + 2] != 0))
 		{
-			str[j] =(char) (16 * hexVal(str[i+1]) + hexVal(str[i+2]));
+			str[j] =(char) (16 * hexVal(str[i + 1]) + hexVal(str[i + 2]));
 			i = i + 3;
 		}
 		else
@@ -777,13 +772,17 @@ int hexToInt(const char *str)
 	if (*cp == '\0')
 	    return 0;
 	u = 0;
+
 	while (*cp != '\0') 
 	{
 		if (!isxdigit((int)*cp))
 			return 0;
+
 		if (u >= 0x10000000)
 		    return 0;
+
 		u <<= 4;
+
 		if (*cp <= '9')	
 		    u += *cp++ - '0';
 		else if (*cp >= 'a')
