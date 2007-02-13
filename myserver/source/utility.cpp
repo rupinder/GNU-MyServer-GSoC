@@ -299,9 +299,6 @@ int endPrintError()
   return 0;
 #endif
 }
-#ifndef WIN32
-static struct timeval tval;
-#endif
 
 /*!
  *Return the ticks count. Used to check time variations.
@@ -312,6 +309,7 @@ u_long getTicks()
 #ifdef WIN32
 	return GetTickCount();
 #else
+	struct timeval tval;
 	int ret = gettimeofday(&tval, 0);
   if(ret == -1)
     return 0;
