@@ -479,7 +479,7 @@ int Server::createServerAndListener(u_short port)
    *Create the server socket.
    */
   try
-  {
+	{
 		if ( serverSocketIPv4 != NULL )
 		{
 			logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
@@ -537,9 +537,7 @@ int Server::createServerAndListener(u_short port)
 						serverSocketIPv4 = NULL;
 					}
 					else
-					{
 						logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
-					}
 				}
 			}
 		}
@@ -568,11 +566,11 @@ int Server::createServerAndListener(u_short port)
 				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
 					htons((u_short)port);
 #ifdef NOT_WIN
-			/*
-			 *Under the unix environment the application needs some time before
-			 * create a new socket for the same address.
-			 *To avoid this behavior we use the current code.
-			 */
+				/*
+				 *Under the unix environment the application needs some time before
+				 * create a new socket for the same address.
+				 *To avoid this behavior we use the current code.
+				 */
 				if(serverSocketIPv6->setsockopt(SOL_SOCKET, SO_REUSEADDR,
 																				(const char *)&optvalReuseAddr,
 																				sizeof(optvalReuseAddr))<0)
@@ -583,98 +581,98 @@ int Server::createServerAndListener(u_short port)
 					delete serverSocketIPv6;
 					serverSocketIPv6 = NULL;
 					//return 0;allow IPv6
-			}
+				}
 
-			if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
-																			(const char *)&optvalReuseAddr,
-																			sizeof(optvalReuseAddr)) < 0)
-			{
-			  logPreparePrintError();
-			  logWriteln(languageParser.getValue("ERR_ERROR"));
-			  logEndPrintError();
-				delete serverSocketIPv6;
-				serverSocketIPv6 = NULL;
-			  //return 0;allow IPv6
-			}
-#endif
-			if(serverSocketIPv6 != NULL )
-			{
-				/*
-				 *Bind the port.
-				 */
-				logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-
-				if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
-									  sizeof(sockaddr_in6)) != 0)
+				if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
+																				(const char *)&optvalReuseAddr,
+																				sizeof(optvalReuseAddr)) < 0)
 				{
-				  logPreparePrintError();
-				  logWriteln(languageParser.getValue("ERR_BIND"));
-				  logEndPrintError();
+					logPreparePrintError();
+					logWriteln(languageParser.getValue("ERR_ERROR"));
+					logEndPrintError();
 					delete serverSocketIPv6;
 					serverSocketIPv6 = NULL;
+					//return 0;allow IPv6
 				}
-				else
+#endif
+				if(serverSocketIPv6 != NULL )
 				{
-					logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
+					/*
+					 *Bind the port.
+					 */
+					logWriteln(languageParser.getValue("MSG_BIND_PORT"));
+					
+					if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
+																			sizeof(sockaddr_in6)) != 0)
+					{
+						logPreparePrintError();
+						logWriteln(languageParser.getValue("ERR_BIND"));
+						logEndPrintError();
+						delete serverSocketIPv6;
+						serverSocketIPv6 = NULL;
+					}
+					else
+						logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
+
 				}
 			}
 		}
-	}
 #endif // HAVE_IPV6
-
-	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-		return 0;
+		
+		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
+			return 0;
 
 	/*
 	 *Set connections listen queque to max allowable.
 	 */
-	logWriteln( languageParser.getValue("MSG_SLISTEN"));
-	if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
-	{
+		logWriteln( languageParser.getValue("MSG_SLISTEN"));
+		if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
+		{
       logPreparePrintError();
       logWriteln(languageParser.getValue("ERR_LISTEN"));
       logEndPrintError();
       delete serverSocketIPv4;
       serverSocketIPv4 = NULL;
-	}
-	if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
-	{
+		}
+
+		if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
+		{
       logPreparePrintError();
       logWriteln(languageParser.getValue("ERR_LISTEN"));
       logEndPrintError();
       delete serverSocketIPv6;
       serverSocketIPv6 = NULL;
-	}
+		}
 
-	if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-		return 0;
+		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
+			return 0;
 
-    portBuff << (u_int)port;
+		portBuff << (u_int)port;
 
-    listenPortMsg.assign(languageParser.getValue("MSG_LISTEN"));
-    listenPortMsg.append(": ");
-    listenPortMsg.append(portBuff.str());
+		listenPortMsg.assign(languageParser.getValue("MSG_LISTEN"));
+		listenPortMsg.append(": ");
+		listenPortMsg.append(portBuff.str());
+	
+		logWriteln(listenPortMsg.c_str());
 
-    logWriteln(listenPortMsg.c_str());
+		logWriteln(languageParser.getValue("MSG_LISTENT"));
 
-    logWriteln(languageParser.getValue("MSG_LISTENTR"));
-
-    /*
-     *Create the listen threads.
-     */
+		/*
+		 *Create the listen threads.
+		 */
 		if(serverSocketIPv4)
-	 	{
+		{
 			argv = new listenThreadArgv;
 			argv->port = port;
 			argv->serverSocket = serverSocketIPv4;
 			Thread::create(&threadIdIPv4, &::listenServer,  (void *)(argv));
-
+		
 			if(!threadIdIPv4)
 				delete argv;
 		}
 
 		if(serverSocketIPv6)
-	 	{
+		{
 			argv = new listenThreadArgv;
 			argv->port = port;
 			argv->serverSocket = serverSocketIPv6;
@@ -682,8 +680,11 @@ int Server::createServerAndListener(u_short port)
 
 			if(!threadIdIPv6)
 				delete argv;
-
 		}
+
+		if(threadIdIPv4 || threadIdIPv6)
+			logWriteln(languageParser.getValue("MSG_LISTENTR"));
+
     return threadIdIPv4 || threadIdIPv6;
   }
   catch( bad_alloc &ba)
@@ -813,7 +814,7 @@ void * listenServer(void* params)
 	delete argv;
 
 	if (serverSocket != NULL )
-  	   ret = serverSocket->setNonBlocking(1);
+		ret = serverSocket->setNonBlocking(1);
 
   if(Server::getInstance()->getUid() | Server::getInstance()->getGid())
   {
@@ -2246,17 +2247,16 @@ int Server::loadSettings()
      *Create the listens threads.
      *Check that all the port used for listening have a listen thread.
      */
-    logWriteln(languageParser.getValue("MSG_LISTENT"));
     createListenThreads();
 
-    logWriteln( languageParser.getValue("MSG_CREATET"));
     for(i = 0; i < nStaticThreads; i++)
 	  {
+			logWriteln(languageParser.getValue("MSG_CREATET"));
       ret = addThread(1);
       if(ret)
         return -1;
+			logWriteln(languageParser.getValue("MSG_THREADR"));
     }
-    logWriteln(languageParser.getValue("MSG_THREADR"));
 
 		if(path == 0)
 			path = new string();

@@ -25,7 +25,7 @@
 <ERR_LOADMIME>MIME types cannot be loaded</ERR_LOADMIME>
 <ERR_ERROR>Generic error</ERR_ERROR>
 <MSG_NUM_CPU>Number of processors:</MSG_NUM_CPU>
-<MSG_CREATET>Creating thread</MSG_CREATET>
+<MSG_CREATET>Creating thread...</MSG_CREATET>
 <MSG_THREADR>Thread created</MSG_THREADR>
 <MSG_LISTENT>Creating listening thread...</MSG_LISTENT>
 <MSG_LISTENTR>Listening thread is created</MSG_LISTENTR>
