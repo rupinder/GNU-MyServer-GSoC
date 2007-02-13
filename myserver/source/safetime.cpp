@@ -67,8 +67,8 @@ struct tm *myserver_localtime(const time_t *timep, tm* res)
 {
 #ifdef WIN32
 	/* The localtime function under WIN32 is thread-safe.  */
-	return localtime(timep);
-
+	memcpy(res, localtime(timep), sizeof(tm));
+  return res;
 #elif HAVE_LOCALTIME_R
 	return localtime_r(timep, res);
 #else
@@ -88,7 +88,8 @@ struct tm *myserver_gmtime(const time_t *timep, tm* res)
 {
 #ifdef WIN32
 	/* The gmtime function under WIN32 is thread-safe.  */
-	return gmtime(timep);
+	memcpy(res, gmtime(timep), sizeof(tm));
+  return res;
 
 #elif HAVE_LOCALTIME_R
 	return gmtime_r(timep, res);
