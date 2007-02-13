@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -117,7 +117,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
 																								 td->mime->filters, 
 																								 &(td->connection->socket), 
-																																	 &nbw, 1))
+																																	 &nbw, 
+																																	 1))
 	{
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
@@ -166,6 +167,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       FilesUtility::deleteFile(outDataPath.str().c_str());
     }
     chain.clearAllFilters(); 
+
     /* Internal server error.  */
     return td->http->raiseHTTPError(e_500);
 	}
@@ -296,9 +298,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 
 	{
     ostringstream tmp;
-    tmp <<  nbw;
+    tmp << nbw;
     td->response.contentLength.assign(tmp.str()); 
-  } 
+  }
   chain.clearAllFilters(); 
 	return 1;
 
@@ -318,23 +320,23 @@ int MsCgi::load(XmlParser* /*confFile*/)
 #endif
 
 #ifdef HAVE_DL
-	ostringstream mscgi_path;
+	ostringstream mscgiPath;
 	
 	if(FilesUtility::fileExists("cgi-lib/cgi-lib.so"))
 	{
-    mscgi_path << "cgi-lib/cgi-lib.so";
+    mscgiPath << "cgi-lib/cgi-lib.so";
 	}
 	else
 	{
 #ifdef PREFIX
-    mscgi_path << PREFIX << "/lib/myserver/cgi-lib.so";
+    mscgiPath << PREFIX << "/lib/myserver/cgi-lib.so";
 #else
-    mscgi_path << "/usr/lib/myserver/cgi-lib.so";
+    mscgiPath << "/usr/lib/myserver/cgi-lib.so";
 #endif
 	}
-  if(mscgi_path.str().length())
+  if(mscgiPath.str().length())
   {
-    ret = mscgiModule.loadLibrary(mscgi_path.str().c_str(), 1);
+    ret = mscgiModule.loadLibrary(mscgiPath.str().c_str(), 1);
   }
 #endif
 	return ret;
@@ -344,7 +346,6 @@ int MsCgi::load(XmlParser* /*confFile*/)
  *Free the memory allocated by the MSCGI library.
  */
 int MsCgi::unload()
-{
-	/* Return 1 if the library was closed correctly returns successfully.  */
+ {
 	return mscgiModule.close();
 }
