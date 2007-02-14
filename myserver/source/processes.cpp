@@ -26,11 +26,17 @@ extern "C" {
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 #ifndef WIN32
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#ifdef GRP
+#include <grp.h>
+#endif
+
 #endif
 }
 
@@ -565,8 +571,42 @@ int Process::setuid(u_long uid)
 int Process::setgid(u_long gid)
 {
 #ifdef NOT_WIN
-  return ::setgid(gid);
+	return ::setgid(gid);
 #endif
   return 0;
 }
 
+/*!
+ *Set the additional groups list for the process.
+ */
+int Process::setAdditionalGroups(u_long len, u_long *groups)
+{
+#ifdef NOT_WIN
+
+#if HAVE_SETGROUPS
+	u_long i;
+	int ret;
+	gid_t *gids = new gid_t[len];
+	
+	for(i = 0; i < len; i++)
+		if(groups)
+			gids[i] = (gid_t)groups[i];
+		else
+			gids[i] = (gid_t)0;
+
+	ret = setgroups((size_t)0, gids) == -1;
+
+	delete [] gids;
+
+	if(errno == EPERM && len == 0)
+		return 0;
+	return ret;
+
+#else
+	return 0;
+#endif
+
+#else
+	return 0;
+#endif
+}

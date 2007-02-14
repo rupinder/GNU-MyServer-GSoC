@@ -867,32 +867,7 @@ void * listenServer(void* params)
     }
   }
 
-  if(Server::getInstance()->getGid() &&
-		 Process::setgid(Server::getInstance()->getGid()))
-  {
-    ostringstream out;
-    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setgid "  << Server::getInstance()->getGid();
-    Server::getInstance()->logPreparePrintError();
-    Server::getInstance()->logWriteln(out.str().c_str());
-    Server::getInstance()->logEndPrintError();
-    Thread::terminate();
-    return 0;
-  }
-
-  if(Server::getInstance()->getUid() &&
-		 Process::setuid(Server::getInstance()->getUid()))
-  {
-    ostringstream out;
-    out << Server::getInstance()->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setuid " << Server::getInstance()->getUid();
-    Server::getInstance()->logPreparePrintError();
-    Server::getInstance()->logWriteln(out.str().c_str());
-    Server::getInstance()->logEndPrintError();
-    Thread::terminate();
-    return 0;
-
-  }
+	Server::getInstance()->setProcessPermissions();
 
 	Server::getInstance()->increaseListeningThreadCount();
 
@@ -2242,21 +2217,11 @@ int Server::loadSettings()
 			getPluginsManager()->postLoad(this, &languageParser);
 		}
 
-
     /*
      *Create the listens threads.
      *Check that all the port used for listening have a listen thread.
      */
-    createListenThreads();
-
-    for(i = 0; i < nStaticThreads; i++)
-	  {
-			logWriteln(languageParser.getValue("MSG_CREATET"));
-      ret = addThread(1);
-      if(ret)
-        return -1;
-			logWriteln(languageParser.getValue("MSG_THREADR"));
-    }
+		createListenThreads();
 
 		if(path == 0)
 			path = new string();
@@ -2265,43 +2230,30 @@ int Server::loadSettings()
     if(getdefaultwd(*path))
       return -1;
 
-    /*
-     *If the configuration file provides a user identifier, change the
-     *current user for the process. Disable the reboot when this feature
-     *is used.
-     */
-    if(uid)
-    {
-      ostringstream out;
-      if(Process::setuid(uid))
-      {
-        out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
-        logPreparePrintError();
-        logWriteln(out.str().c_str());
-        logEndPrintError();
-      }
+		setProcessPermissions();
+
+		if(getGid())
+		{
+			ostringstream out;
+			out << "gid: " << gid;
+			logWriteln(out.str().c_str());
+		}
+
+		if(getUid())
+		{
+			ostringstream out;
       out << "uid: " << uid;
       logWriteln(out.str().c_str());
-      autoRebootEnabled = 0;
-    }
+		}
 
-    /*
-     *Do a similar thing for the group identifier.
-     */
-    if(gid)
-     {
-       ostringstream out;
-       if(Process::setgid(gid))
-       {
-         out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
-         logPreparePrintError();
-         logWriteln(out.str().c_str());
-         logEndPrintError();
-       }
-       out << "gid: " << gid;
-       logWriteln(out.str().c_str());
-       autoRebootEnabled = 0;
-     }
+    for(i = 0; i < nStaticThreads; i++)
+	  {
+			logWriteln(languageParser.getValue("MSG_CREATET"));
+      ret = addThread(1);
+      if(ret)
+				return -1;
+			logWriteln(languageParser.getValue("MSG_THREADR"));
+    }
 
     logWriteln(languageParser.getValue("MSG_READY"));
 
@@ -2338,6 +2290,58 @@ int Server::loadSettings()
   }
   return 0;
 }
+
+/*!
+ *If specified set the uid/gid for the process.
+ */
+void Server::setProcessPermissions()
+{
+    /*
+     *If the configuration specify a group id, change the current group for
+		 *the process.
+     */
+    if(gid)
+     {
+       ostringstream out;
+
+       if(Process::setAdditionalGroups(0, 0))
+       {
+         out << languageParser.getValue("ERR_ERROR") 
+						 << ": setAdditionalGroups";
+         logPreparePrintError();
+         logWriteln(out.str().c_str());
+         logEndPrintError();
+       }
+
+       if(Process::setgid(gid))
+       {
+         out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
+         logPreparePrintError();
+         logWriteln(out.str().c_str());
+         logEndPrintError();
+       }
+       autoRebootEnabled = 0;
+     }
+
+    /*
+     *If the configuration file provides a user identifier, change the
+     *current user for the process. Disable the reboot when this feature
+     *is used.
+     */
+    if(uid)
+    {
+      ostringstream out;
+      if(Process::setuid(uid))
+      {
+        out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
+        logPreparePrintError();
+        logWriteln(out.str().c_str());
+        logEndPrintError();
+      }
+      autoRebootEnabled = 0;
+    }
+}
+
 
 /*!
  *Lock the access to the log file.

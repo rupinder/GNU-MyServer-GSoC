@@ -119,32 +119,6 @@ void * startClientsThread(void* pParam)
 #ifdef HAVE_PTHREAD
   return (void*)1;
 #endif
-  if(server->getGid() && 
-		 Process::setgid(server->getInstance()->getGid()))
-  {
-    ostringstream out;
-    out << server->getInstance()->getLanguageParser()->getValue("ERR_ERROR")
-        << ": setgid "  << server->getInstance()->getGid();
-    server->getInstance()->logPreparePrintError();
-    server->getInstance()->logWriteln(out.str().c_str());
-    server->getInstance()->logEndPrintError();
-    Thread::terminate();
-    return 0;
-  }	
-
-
-  if(server->getUid() && Process::setuid(server->getUid()))
-  {
-    ostringstream out;
-    out << server->getInstance()->getLanguageParser()->getValue("ERR_ERROR") 
-        << ": setuid " << server->getInstance()->getUid();
-    server->getInstance()->logPreparePrintError();
-    server->getInstance()->logWriteln(out.str().c_str());
-    server->getInstance()->logEndPrintError();
-    Thread::terminate();
-    return 0;
-
-  }	
 
 	ct->threadIsRunning = 1;
 	ct->threadIsStopped = 0;

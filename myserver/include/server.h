@@ -120,6 +120,7 @@ private:
 	string* path;
   string* externalPath;
 	string* serverAdmin;
+	void setProcessPermissions();
 	int initialize(int);
 	ConnectionPtr addConnectionToList(Socket s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
