@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -356,8 +356,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
 	procStartTime = getTicks();
 
+	headerSize = 0;
+
 	/* Parse initial chunks of data looking for the HTTP header.  */
-	while(!headerCompleted)
+	while(!headerCompleted && !nph)
 	{
 		bool term;
 		/* Do not try to read using a small buffer as this has some
@@ -393,6 +395,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 				{
 					if(term)
 						break;
+
 					continue;
 				}
 		}
@@ -417,7 +420,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 		}
 
 		/* Standard CGI can include an extra HTTP header.  */
-		headerSize = 0;
 		nbw = 0;
 		for(u_long i = std::max(0, (int)headerOffset - (int)nBytesRead - 10); 
 				i < headerOffset; i++)
@@ -470,26 +472,14 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	}
 
 	/* Send the header.  */
+	if(!nph)
 	{
 		HttpRequestHeader::Entry *connection = 
 			td->request.other.get("Connection");
 		
 		if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
 			td->response.connection.assign("keep-alive");
-		/*
-		 *Do not send any other HTTP header if the CGI executable
-		 *has the nph-. form name.  
-		 */
-		if(nph)
-		{
-			/*
-			 *Resetting the structure we send only the information gived 
-			 *by the CGI.  
-			 */
-			HttpHeaders::resetHTTPResponse(&(td->response));
-			td->response.ver.assign(td->request.ver.c_str());
-		}
-		
+
 		/*
 		 *If we have not to append the output send data 
 		 *directly to the client.  
@@ -529,7 +519,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	}
 
 	/* Flush the buffer.  Data from the header parsing can be present.  */
-	if(headerOffset-headerSize)
+	if(headerOffset - headerSize)
 	{
 		if(useChunks)
 		{
