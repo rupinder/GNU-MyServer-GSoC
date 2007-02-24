@@ -66,13 +66,28 @@
         FastCGI - but they need to be filters that don't modify the contents of 
         the page to be shown to the user.<br />
         <br />
-        <span class="code">&lt;MANAGER&gt;</span> describes the <span class="code">&lt;CMD&gt;</span> 
-        command.<br />
+        <span class="code">&lt;MANAGER&gt;</span> completes
+        the <span class="code">&lt;CMD&gt;</span> command specifying, if
+        necessary for the command, an external application to use.<br />
+				For example using the RUNCGI command, it will be necessary to specify
+        an external process to execute the CGI command, MANAGER under
+        GNU/Linux will be something like this:
+				<br />
+				<span class="code">
+				&lt;MANAGER&gt;/usr/bin/php-cgi&lt;/MANAGER&gt;
+				</span>
+				<br />
+				or under Windows:
+				<br />
+				<span class="code">
+				&lt;MANAGER&gt;c:\php\php-cgi.exe&lt;/MANAGER&gt;
+				</span>
+        <br />
         <br />
         <br />
         <br />
         The following values for sending the file to the client are valid in the 
-        <span class="code">&lt;MANAGER&gt;</span> section:<br />
+        <span class="code">&lt;CMD&gt;</span> section:<br />
       </p>
       <div class="left">
 <ol>
