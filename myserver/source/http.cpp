@@ -1955,7 +1955,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     }
     else
     {
-      td.request.uriOptsPtr = 0;
+			 contentLength = 0;
+			 td.request.uriOptsPtr = 0;
     }
     /*
      *Manage chunked transfers.
