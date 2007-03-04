@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2002, 2003, 2004 The MyServer Team
+ Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -79,8 +79,10 @@ int ControlClient::Login(const char * address, const int port,
    sockAddr.sin_port = htons(port);
    
    /*! Try to create the socket. */
-   if(socket.socket(AF_INET, SOCK_STREAM, 0, 1) == -1)
+   if(socket.socket(AF_INET, SOCK_STREAM, 0) == -1)
      return -2;
+
+	 socket.initializeSSL();
 
    /*! If the socket was created try to connect. */
    if(socket.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)

@@ -32,27 +32,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 /*!
- *SSL password callback function.
- */
-static int password_cb(char *buf,int num,int /*!rwflag*/,void *userdata)
-{
-	if((size_t)num < strlen((char*)userdata) + 1)
-		return 0;
-
-  ((string*)userdata)->assign(buf);
-
-	return ((string*)userdata)->length();
-}
-
-/*!
  *vhost costructor
  */
 Vhost::Vhost()
 {
-	sslContext.certificateFile.assign("");
-	sslContext.method = 0;
-	sslContext.privateKeyFile.assign("");
-	sslContext.password.assign("");
 	ipList.clear();
 	hostList.clear();
 	refMutex.init();
@@ -497,17 +480,17 @@ int VhostManager::addVHost(Vhost* vh)
       if(!stringcmpi(vh->getWarningsLogFileName(), 
                      hostl->getWarningsLogFileName()))
 #else
-        if(!stringcmp(vh->getWarningsLogFileName(), 
-                      hostl->getWarningsLogFileName()))
+      if(!stringcmp(vh->getWarningsLogFileName(), 
+										hostl->getWarningsLogFileName()))
 #endif
-        {
-          string error;
-          error.assign("Warning: multiple hosts use the same log file:" );
-          error.append(vh->getWarningsLogFileName());
-          Server::getInstance()->logPreparePrintError();
-          Server::getInstance()->logWriteln(error.c_str());     
-          Server::getInstance()->logEndPrintError();
-        }
+      {
+				string error;
+				error.assign("Warning: multiple hosts use the same log file:" );
+				error.append(vh->getWarningsLogFileName());
+				Server::getInstance()->logPreparePrintError();
+				Server::getInstance()->logWriteln(error.c_str());     
+				Server::getInstance()->logEndPrintError();
+			}
     }
 
 		if(!vh->protocol)
@@ -531,6 +514,7 @@ int VhostManager::addVHost(Vhost* vh)
     return 0;
   };
 }
+
 /*!
  *Get the vhost for the connection. A return value of 0 means that
  *a valid host was not found. 
@@ -547,7 +531,7 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
   {
     if(extSource)
     {
-      Vhost* ret=extSource->getVHost(host, ip, port);
+      Vhost* ret = extSource->getVHost(host, ip, port);
       mutex.unlock();
       return ret;
     }
@@ -655,7 +639,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
    */
 	char buffer[MYSERVER_KB(10)];/* Max line length = 10KB.  */
 	char buffer2[256];
-	u_long nbr;/* Number of bytes read from the file.  */
+	u_long nbr; /* Number of bytes read from the file.  */
 	File fh;
 	Vhost *vh;
   LogManager *accesses;
@@ -670,7 +654,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
 	for(;;)
 	{
 		int cc=0;
-		buffer[0]='\0';
+		buffer[0] = '\0';
     /* Save a line in the buffer.  A line ends with a diesis.  */
 		for(;;)
 		{
@@ -1029,7 +1013,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
     }
 		while(lcur)
     {
-      Vhost::VhSslContext * sslContext = vh->getVhostSSLContext();
+      SslContext* sslContext = vh->getVhostSSLContext();
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
 			{
         int useRegex = 0;
@@ -1056,18 +1040,24 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
 			{
-				sslContext->privateKeyFile.assign((char*)lcur->children->content);
+				string pk((char*)lcur->children->content);
+				sslContext->setPrivateKeyFile(pk);
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
 			{
-				sslContext->certificateFile.assign((char*)lcur->children->content);
+				string certificate((char*)lcur->children->content);
+				sslContext->setCertificateFile(certificate);
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
 			{
+				string pw;
 				if(lcur->children)
-					sslContext->password.assign((char*)lcur->children->content);
+					pw.assign((char*)lcur->children->content);
 				else
-					sslContext->password.assign("");
+					pw.assign("");
+
+					sslContext->setPassword(pw);
+
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
 			{
@@ -1075,23 +1065,23 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
         xmlAttr *attrs =  lcur->properties;
         while(attrs)
         {
-            if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
+					if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
+          {
+						if(attrs->children && attrs->children->content && 
+							 (!xmlStrcmp(attrs->children->content, 
+													 (const xmlChar *)"YES")))
             {
-              if(attrs->children && attrs->children->content && 
-                 (!xmlStrcmp(attrs->children->content, 
-														 (const xmlChar *)"YES")))
-              {
-                useRegex = 1;
-              }
-            }
-            attrs = attrs->next;
+							useRegex = 1;
+						}
+					}
+					attrs = attrs->next;
         }
 	  	 vh->addIP((char*)lcur->children->content, useRegex);
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
 			{
         int val = atoi((char*)lcur->children->content);
-        if(val > 1 << 16 || strlen((const char*)lcur->children->content) > 6)
+        if(val > (1 << 16) || strlen((const char*)lcur->children->content) > 6)
         {
           errMsg.assign("Error: specified port greater than 65536 or invalid: ");
           errMsg.append((char*)lcur->children->content);
@@ -1325,35 +1315,36 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
       out.writeToFile(port,(u_long)strlen(port),&nbw);
       out.writeToFile("</PORT>\r\n",9,&nbw);
 
-      if((*i)->getVhostSSLContext()->privateKeyFile.length())
+      if((*i)->getVhostSSLContext()->getPrivateKeyFile().length())
       {
+				string &pk = (*i)->getVhostSSLContext()->getPrivateKeyFile();
         out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
-        out.writeToFile((*i)->getVhostSSLContext()->privateKeyFile.c_str(),
-            (u_long)(*i)->getVhostSSLContext()->privateKeyFile.length(),&nbw);
+        out.writeToFile(pk.c_str(), pk.length(),&nbw);
         out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
       }
       
-      if((*i)->getVhostSSLContext()->certificateFile.length())
+      if((*i)->getVhostSSLContext()->getCertificateFile().length())
       {
-        out.writeToFile("<SSL_CERTIFICATE>",17,&nbw);
-        out.writeToFile((*i)->getVhostSSLContext()->certificateFile.c_str(),
-          (u_long)(*i)->getVhostSSLContext()->certificateFile.length(),&nbw);
-        out.writeToFile("</SSL_CERTIFICATE>\r\n",20,&nbw);
+				string &certificate = (*i)->getVhostSSLContext()->getCertificateFile();
+        out.writeToFile("<SSL_CERTIFICATE>", 17, &nbw);
+        out.writeToFile(certificate.c_str(), (u_long)certificate.length(), 
+												&nbw);
+        out.writeToFile("</SSL_CERTIFICATE>\r\n", 20, &nbw);
       }
 
-      if((*i)->getVhostSSLContext()->password.length())
+      if((*i)->getVhostSSLContext()->getPassword().length())
       {
-        out.writeToFile("<SSL_PASSWORD>",14,&nbw);
-        out.writeToFile((*i)->getVhostSSLContext()->password.c_str(),
-                        (*i)->getVhostSSLContext()->password.length(),&nbw);
-        out.writeToFile("</SSL_PASSWORD>\r\n",17,&nbw);
+				string& pw = (*i)->getVhostSSLContext()->getPassword();
+        out.writeToFile("<SSL_PASSWORD>", 14, &nbw);
+        out.writeToFile(pw.c_str(), pw.length(), &nbw);
+        out.writeToFile("</SSL_PASSWORD>\r\n", 17, &nbw);
       }
 
-      out.writeToFile("<PROTOCOL>",10,&nbw);
+      out.writeToFile("<PROTOCOL>", 10, &nbw);
       switch( (*i)->getProtocol())
       {
 			  case PROTOCOL_HTTP:
-          out.writeToFile("HTTP",4,&nbw);
+          out.writeToFile("HTTP", 4, &nbw);
           break;
 			  case PROTOCOL_HTTPS:
 			  	out.writeToFile("HTTPS",5,&nbw);
@@ -1369,28 +1360,28 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
                           strlen((*i)->getProtocolName()), &nbw);
 				  break;
       }
-      out.writeToFile("</PROTOCOL>\r\n",13,&nbw);
+      out.writeToFile("</PROTOCOL>\r\n", 13, &nbw);
       
-      out.writeToFile("<DOCROOT>",9,&nbw);
+      out.writeToFile("<DOCROOT>", 9, &nbw);
       out.writeToFile((*i)->getDocumentRoot(), 
                       (u_long)strlen((*i)->getDocumentRoot()), &nbw);
-      out.writeToFile("</DOCROOT>\r\n",12,&nbw);
+      out.writeToFile("</DOCROOT>\r\n", 12, &nbw);
       
-      out.writeToFile("<SYSFOLDER>",11,&nbw);
+      out.writeToFile("<SYSFOLDER>", 11, &nbw);
       out.writeToFile((*i)->getSystemRoot(), 
                       (u_long)strlen((*i)->getSystemRoot()), &nbw);
       
-      out.writeToFile("</SYSFOLDER>\r\n",14,&nbw);
+      out.writeToFile("</SYSFOLDER>\r\n", 14, &nbw);
       
-      out.writeToFile("<ACCESSLOG>",13,&nbw);
+      out.writeToFile("<ACCESSLOG>", 13, &nbw);
       out.writeToFile((*i)->getAccessesLogFileName(),
                       (u_long)strlen((*i)->getAccessesLogFileName()), &nbw);
-      out.writeToFile("</ACCESSLOG>\r\n",16,&nbw);
+      out.writeToFile("</ACCESSLOG>\r\n", 16, &nbw);
       
-      out.writeToFile("<WARNINGLOG>",12,&nbw);
+      out.writeToFile("<WARNINGLOG>", 12, &nbw);
       out.writeToFile((*i)->getWarningsLogFileName(),
                       (u_long)strlen((*i)->getWarningsLogFileName()),&nbw);
-      out.writeToFile("</WARNINGLOG>\r\n",15,&nbw);
+      out.writeToFile("</WARNINGLOG>\r\n", 15, &nbw);
       
 			{
 				HashMap<string, string*>::Iterator it = (*i)->hashedData.begin();
@@ -1401,10 +1392,10 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
 										<< it.getKey() << ">" << endl;
 					out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
 				}
-				out.writeToFile("</VHOST>\r\n",10,&nbw);
+				out.writeToFile("</VHOST>\r\n", 10, &nbw);
 			}
 		}
-		out.writeToFile("</VHOSTS>\r\n",11,&nbw);
+		out.writeToFile("</VHOSTS>\r\n", 11, &nbw);
 		out.closeFile();
 		mutex.unlock();
   }
@@ -1428,7 +1419,8 @@ const char* Vhost::getHashedData(const char* name)
   if(s)
     return s->c_str();
 
-  return Server::getInstance() ? Server::getInstance()->getHashedData(name) : 0 ;
+  return Server::getInstance() ? Server::getInstance()->getHashedData(name) 
+		: 0 ;
 }
   
 /*!
@@ -1437,99 +1429,31 @@ const char* Vhost::getHashedData(const char* name)
 int Vhost::initializeSSL()
 {
 	DynamicProtocol* dp;
-  sslContext.context = 0;
-  sslContext.method = 0;
-#ifndef DO_NOT_USE_SSL
+
 	dp = Server::getInstance()->getDynProtocol(protocolName.c_str());
   if(this->protocol<1000 && !(dp && 
                               (dp->getOptions() & PROTOCOL_USES_SSL)) )
     return -2;
-  sslContext.method = SSLv23_method();
-  sslContext.context = SSL_CTX_new(sslContext.method);
-  if(sslContext.context==0)
-    return -1;
-  
-  /*
-   *The specified file doesn't exist.
-   */
-  if(FilesUtility::fileExists(sslContext.certificateFile.c_str()) == 0)
-  {
-    return -1;
-  }
-  
-  if(!(SSL_CTX_use_certificate_chain_file(sslContext.context,
-                                          sslContext.certificateFile.c_str())))
-    return -1;
-  SSL_CTX_set_default_passwd_cb_userdata(sslContext.context, 
-                                         &sslContext.password);
-  SSL_CTX_set_default_passwd_cb(sslContext.context, password_cb);
-  
-  /*
-   *The specified file doesn't exist.
-   */
-  if(FilesUtility::fileExists(sslContext.privateKeyFile) == 0)
-    return -1;
-  if(!(SSL_CTX_use_PrivateKey_file(sslContext.context, 
-            sslContext.privateKeyFile.c_str(), SSL_FILETYPE_PEM)))
-    return -1;
 
-#if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
-  SSL_CTX_set_verify_depth(sslContext.context, 1);
-#endif
-	return 1;
-#else
-	return 1;
-#endif
+  return sslContext.initialize();
 }	
 
-/*!
- *Generate a RSA key and pass it to the SSL context.
- */
-void Vhost::generateRsaKey()
-{
-#ifndef DO_NOT_USE_SSL
-  RSA *rsa;
-
-  rsa = RSA_generate_key(512, RSA_F4, NULL, NULL);
-
-  if (!SSL_CTX_set_tmp_rsa(sslContext.context, rsa))
-    return;
-
-  RSA_free(rsa);
-#endif
-}
-
-#ifndef DO_NOT_USE_SSL
 
 /*!
  *Get the SSL context.
  */
 SSL_CTX* Vhost::getSSLContext()
 {
-	return sslContext.context;
+	return sslContext.getContext();
 }
-#endif
+
 
 /*!
  *Clean the memory used by the SSL context.
  */
 int Vhost::freeSSL()
 {
-#ifndef DO_NOT_USE_SSL
-  int ret=0;
-	if(sslContext.context)
-  {
-    SSL_CTX_free(sslContext.context);
-    ret=1;
-  }
-	else 
-		ret = 0;
-  sslContext.certificateFile.assign("");
-  sslContext.privateKeyFile.assign("");
-  return ret;
-#else
-	return 1;
-#endif
+	return sslContext.free();
 }
 
 /*!

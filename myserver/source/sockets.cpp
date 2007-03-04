@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -109,16 +109,10 @@ int Socket::operator=(Socket s)
 /*!
  *Create the socket.
  */
-int Socket::socket(int af,int type,int protocol,bool useSSL)
+int Socket::socket(int af,int type,int protocol)
 {
-	sslSocket = useSSL;
-	socketHandle=(SocketHandle)::socket(af,type,protocol);
-#ifndef DO_NOT_USE_SSL
-	if(sslSocket)
-	{
-		initializeSSL();
-	}
-#endif
+	sslSocket = false;
+	socketHandle = (SocketHandle)::socket(af, type, protocol);
 	return	(int)socketHandle;
 }
 
@@ -201,14 +195,13 @@ int Socket::listen(int max)
 /*!
  *Accept a new connection.
  */
-Socket Socket::accept(MYSERVER_SOCKADDR* sa,
-                                int* sockaddrlen, int /*!sslHandShake*/)
+Socket Socket::accept(MYSERVER_SOCKADDR* sa, int* sockaddrlen)
 {
  	if ( sa == NULL )
  	   return 1;//Andu: TODO our error code or what?
 #ifdef NOT_WIN
-	socklen_t Connect_Size;
-	int accept_handle;
+	socklen_t connectSize;
+	int acceptHandle;
 #endif
 
 	Socket s;
@@ -225,11 +218,11 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa,
 #endif
 
 #ifdef NOT_WIN
-	Connect_Size = (socklen_t) *sockaddrlen;
+	connectSize = (socklen_t) *sockaddrlen;
 
-  accept_handle = ::accept((int)socketHandle, (struct sockaddr *)sa,
-                           (socklen_t*)&Connect_Size);
-	s.setHandle(accept_handle);
+  acceptHandle = ::accept((int)socketHandle, (struct sockaddr *)sa,
+                           (socklen_t*)&connectSize);
+	s.setHandle(acceptHandle);
 #endif
 
 	return s;
@@ -301,9 +294,11 @@ int Socket::shutdown(int how)
 		SSL_shutdown(sslConnection);
 	}
 #endif
+
 #ifdef WIN32
 	return ::shutdown(socketHandle,how);
 #endif
+
 #ifdef NOT_WIN
 	return ::shutdown((int)socketHandle,how);
 #endif
@@ -312,10 +307,10 @@ int Socket::shutdown(int how)
 /*!
  *Set socket options.
  */
-int	Socket::setsockopt(int level,int optname,
-											 const char *optval,int optlen)
+int	Socket::setsockopt(int level, int optname,
+											 const char *optval, int optlen)
 {
-	return ::setsockopt(socketHandle,level, optname,optval,optlen);
+	return ::setsockopt(socketHandle, level, optname, optval, optlen);
 }
 
 /*!
@@ -323,8 +318,8 @@ int	Socket::setsockopt(int level,int optname,
  */
 int Socket::getLocalIPsList(string &out)
 {
-  char serverName[HOST_NAME_MAX+1];
-  memset(serverName, 0, HOST_NAME_MAX+1);
+  char serverName[HOST_NAME_MAX + 1];
+  memset(serverName, 0, HOST_NAME_MAX + 1);
 
   Socket::gethostname(serverName, HOST_NAME_MAX);
 #if ( HAVE_IPV6 )
@@ -338,15 +333,19 @@ int Socket::getLocalIPsList(string &out)
 		char straddr[NI_MAXHOST] = "";
 		memset(straddr, 0, NI_MAXHOST);
 		ostringstream stream;
-		for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; pCrtHostInfo = pCrtHostInfo->ai_next )
+		for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; 
+					pCrtHostInfo = pCrtHostInfo->ai_next )
 		{
-			pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+			pCurrentSockAddr = 
+				reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
 			if ( pCurrentSockAddr == NULL )
 				continue;
 
-            if ( !getnameinfo(reinterpret_cast<sockaddr *>(pCurrentSockAddr), sizeof(sockaddr_storage), straddr, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) )
+            if ( !getnameinfo(reinterpret_cast<sockaddr *>(pCurrentSockAddr), 
+															sizeof(sockaddr_storage), straddr, NI_MAXHOST, 
+															NULL, 0, NI_NUMERICHOST) )
             {
-				stream << ( !stream.str().empty() ? ", " : "" ) << straddr;
+							stream << ( !stream.str().empty() ? ", " : "" ) << straddr;
             }
             else
 		    return -1;
@@ -742,6 +741,7 @@ int Socket::setSSLContext(SSL_CTX* context)
 int Socket::initializeSSL(SSL* connection)
 {
 	freeSSL();
+	sslSocket = 1;
 	if(connection)
 		sslConnection = connection;
 	else
@@ -1008,7 +1008,7 @@ int Socket::dataOnRead(int sec, int usec)
 #else
 	FD_SET(socketHandle, &readfds);
 #endif
-	ret = ::select(socketHandle+1, &readfds, NULL, NULL, &tv);
+	ret = ::select(socketHandle + 1, &readfds, NULL, NULL, &tv);
 	if(ret == -1 || ret == 0)
 		return 0;
 	if (FD_ISSET(socketHandle, &readfds))

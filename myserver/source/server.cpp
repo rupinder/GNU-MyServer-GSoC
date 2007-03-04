@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/gzip.h"
 #include "../include/myserver_regex.h"
 #include "../include/files_utility.h"
+#include "../include/ssl.h"
 
 extern "C" {
 #ifdef WIN32
@@ -209,10 +210,8 @@ void Server::start()
       return;
 
     /* Initialize the SSL library.  */
-#ifndef DO_NOT_USE_SSL
-    SSL_library_init();
-    SSL_load_error_strings();
-#endif
+		initializeSSL();
+
     logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
 
     /* Startup the socket library.  */
@@ -1673,11 +1672,10 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	if(doSSLhandshake)
 	{
 		int ret = 0;
-#ifndef DO_NOT_USE_SSL
 		SSL_CTX* ctx = newConnection->host->getSSLContext();
 		newConnection->socket.setSSLContext(ctx);
 		ret = newConnection->socket.sslAccept();
-#endif
+
 		if(ret < 0)
 		{
 			/* Free the connection on errors. */

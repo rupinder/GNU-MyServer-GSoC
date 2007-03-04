@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef VHOSTS_IN
-#define VHOSTS_IN
+#ifndef VHOSTS_H
+#define VHOSTS_H
 
 #include "../stdafx.h"
 #include "../include/xml_parser.h"
@@ -30,23 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/thread.h"
 #include "../include/hash_map.h"
 #include "../include/mutex.h"
+#include "../include/ssl.h"
 #include <string>
 #include <list>
 
-#ifndef DO_NOT_USE_SSL
-#include<openssl/ssl.h>
-#include<openssl/rsa.h>
-#include<openssl/crypto.h>
-#include<openssl/lhash.h>
-#include<openssl/err.h>
-#include<openssl/bn.h>
-#include<openssl/pem.h>
-#include<openssl/x509.h>
-#include<openssl/rand.h>
-#else
-#define SSL_CTX int;
-#define SSL_METHOD int;
-#endif
 
 using namespace std;
 typedef int (*NULL_REFERENCECB)(class Vhost*); 
@@ -67,20 +54,6 @@ public:
 	};
 	
 
-	struct VhSslContext
-	{
-#ifndef DO_NOT_USE_SSL
-		SSL_CTX* context;
-		SSL_METHOD* method;
-#else
-		void* context;
-		void* method;
-#endif
-		string certificateFile;
-		string privateKeyFile;
-		string password;
-	};
-
 private:
   HashMap<string, string*> hashedData;
   NULL_REFERENCECB nullReferenceCb;
@@ -94,7 +67,7 @@ private:
   int refCount;
 
 	/*! SSL context. */
-	VhSslContext sslContext;
+	SslContext sslContext;
 
 	/*! List of hosts allowed by the vhost. */
 	list<StringRegex*> hostList;
@@ -191,7 +164,7 @@ public:
     {warningLogOpt.assign(c); }
 
   /*! Get a pointer to the vhost SSL context. */
-  VhSslContext *getVhostSSLContext()
+  SslContext *getVhostSSLContext()
     {return &sslContext;}
 
 	/*! Initialize SSL things. */
@@ -206,11 +179,8 @@ public:
 	/*! Generate the RSA key for the SSL context. */
 	void generateRsaKey();
 
-#ifndef DO_NOT_USE_SSL
 	SSL_CTX* getSSLContext();
-#else
-	void* getSSLContext();
-#endif
+
 
   /*! Get the list of hosts allowed.*/
 	list<StringRegex*>* getHostList()
@@ -226,7 +196,7 @@ public:
 
   /*! Set the port used by the host. */
 	void setPort(u_short p)
-    {port=p;}
+    {port = p;}
 
   /*! Get the protocol name for the virtual host. */
 	const char* getProtocolName()
@@ -256,7 +226,7 @@ public:
 
   /*! Set the throttling rate for the virtual host. */
   void setThrottlingRate(u_long tr)
-    {throttlingRate=tr;}
+    {throttlingRate = tr;}
 
 	Vhost();
 

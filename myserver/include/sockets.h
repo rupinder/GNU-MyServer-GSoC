@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -121,12 +121,12 @@ public:
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
 	static int gethostname(char*, int);
-	int socket(int, int, int, bool=false);
+	int socket(int, int, int);
 	int bind(MYSERVER_SOCKADDR*, int);
 	int listen(int);
 	Socket();
 	Socket(SocketHandle);
-	Socket accept(MYSERVER_SOCKADDR*, int*, int sslHandShake = 0);
+	Socket accept(MYSERVER_SOCKADDR*, int*);
 	int closesocket();
 	int setsockopt(int,int, const char*,int);
 	int shutdown(int how);
