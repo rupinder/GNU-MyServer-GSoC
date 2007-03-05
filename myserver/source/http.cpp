@@ -1347,10 +1347,18 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
             while(lastSlashOffset && uri[lastSlashOffset] != '/')
               --lastSlashOffset;
 						
-            nURL  <<  &(uri.c_str()[lastSlashOffset ? 
-																		lastSlashOffset + 1 : 0]) 
-                  << "/" << defaultFileNamePath;
+            nURL << &(uri.c_str()[lastSlashOffset ? 
+																	lastSlashOffset + 1 : 0]) 
+								 << "/" << defaultFileNamePath;
           }
+
+					if(td.pathInfo.length())
+						nURL << "/" << td.pathInfo;
+
+
+					if(td.request.uriOpts.length())
+						nURL << "?" << td.request.uriOpts;
+
           /*! Send a redirect to the new location.  */
           if(sendHTTPRedirect(nURL.str().c_str()))
             ret = 1;
@@ -2204,6 +2212,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					if(!td.request.uriEndsWithSlash && !(td.request.uri.length() - pos))
 					{
 						td.request.uri.append("/");
+
 						return sendHTTPRedirect(td.request.uri.c_str());
 					}
 
@@ -2561,6 +2570,12 @@ int Http::raiseHTTPError(int ID)
           nURL << "/";
 
         nURL << defFile;
+
+				if(td.pathInfo.length())
+					nURL << "/" << td.pathInfo;
+
+				if(td.request.uriOpts.length())
+					nURL << "?" << td.request.uriOpts;
         
         return sendHTTPRedirect(nURL.str().c_str());
       }
