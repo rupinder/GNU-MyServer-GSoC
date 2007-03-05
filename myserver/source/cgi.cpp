@@ -164,12 +164,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
-  chain.setStream(&(td->connection->socket));
+  chain.setStream(td->connection->socket);
   if(td->mime)
   {
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
 															td->mime->filters, 
-                              &(td->connection->socket) , &nbw, 1))
+                              td->connection->socket, &nbw, 1))
       {
         td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("Cgi: Error loading filters");

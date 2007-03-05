@@ -112,11 +112,11 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
-  chain.setStream(&(td->connection->socket));
+  chain.setStream(td->connection->socket);
 
 	if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
 																								 td->mime->filters, 
-																								 &(td->connection->socket), 
+																								 td->connection->socket, 
 																																	 &nbw, 
 																																	 1))
 	{
@@ -215,7 +215,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		}
 
 		HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
-		if(s->socket.send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)
+		if(s->socket->send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)
 		{
 			if(!td->appendOutputs)
 			{

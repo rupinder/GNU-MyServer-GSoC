@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -298,7 +298,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 				HttpHeaders::buildHTTPResponseHeader(
                  (char*)ConnInfo->td->buffer2->getBuffer(),&(ConnInfo->td->response));
 	
-				if(ConnInfo->connection->socket.send(
+				if(ConnInfo->connection->socket->send(
                      (char*)ConnInfo->td->buffer2->getBuffer(),
                      (int)strlen((char*)ConnInfo->td->buffer2->getBuffer()), 0)==-1)
 					return 0;
@@ -354,7 +354,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		if(keepalive  && (!ConnInfo->td->appendOutputs))
 		{
 			sprintf(chunk_size,"%x\r\n",*lpdwBytes);
-			nbw = ConnInfo->connection->socket.send(chunk_size,(int)strlen(chunk_size), 0);
+			nbw = ConnInfo->connection->socket->send(chunk_size,(int)strlen(chunk_size), 0);
 			if((nbw == (u_long)-1) || (!nbw))
 				return 0;
 		}
@@ -374,7 +374,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 
 		if(keepalive  && (!ConnInfo->td->appendOutputs))
     {
-      nbw = ConnInfo->connection->socket.send("\r\n",2, 0);
+      nbw = ConnInfo->connection->socket->send("\r\n",2, 0);
 			if((nbw == (u_long)-1) || (!nbw))
 				return 0;
 		}

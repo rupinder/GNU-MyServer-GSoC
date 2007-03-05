@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -126,13 +126,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
-  chain.setStream(&(td->connection->socket));
+  chain.setStream(td->connection->socket);
   if(td->mime)
   {
     u_long nbw;
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
 																										td->mime->filters,
-                                                    &(td->connection->socket),
+                                                    td->connection->socket,
 																										&nbw, 
 																										1))
       {
@@ -621,7 +621,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 			HttpHeaders::buildHTTPResponseHeader(td->buffer2->getBuffer(),
                                             &td->response);
-			if(td->connection->socket.send( td->buffer2->getBuffer(),
+			if(td->connection->socket->send( td->buffer2->getBuffer(),
                            static_cast<int>(strlen(td->buffer2->getBuffer())),
                                       0) == SOCKET_ERROR )
       {

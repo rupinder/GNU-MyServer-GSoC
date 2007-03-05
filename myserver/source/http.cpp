@@ -131,8 +131,8 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
       *td.buffer2 << "\r\n\r\n";
     
     /*! Send the HTTP header. */
-    ret = td.connection->socket.send(td.buffer2->getBuffer(), 
-														 (u_long)td.buffer2->getLength(), 0);
+    ret = td.connection->socket->send(td.buffer2->getBuffer(), 
+																			(u_long)td.buffer2->getLength(), 0);
     if( ret == SOCKET_ERROR )
     {
       return 0;
@@ -175,15 +175,16 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
 								<< "Accept-Ranges: bytes\r\n\r\n";
     
     /*! Send our HTTP header.  */
-    ret = td.connection->socket.send(td.buffer2->getBuffer(), 
-																		 (u_long)td.buffer2->getLength(), 0);
+    ret = td.connection->socket->send(td.buffer2->getBuffer(), 
+																			(u_long)td.buffer2->getLength(), 0);
     if( ret == SOCKET_ERROR )
     {
       return 0;
     }
     
     /*! Send the client request header as the HTTP body.  */
-    ret = td.connection->socket.send(td.buffer->getBuffer(), contentLength, 0);
+    ret = td.connection->socket->send(td.buffer->getBuffer(), 
+																			contentLength, 0);
     if(ret == SOCKET_ERROR)
     {
       return 0;
@@ -916,25 +917,25 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 						/*!
 						 *Consider only CONTENT-LENGTH bytes of data.
 						 */
-  					while(td->connection->socket.bytesToRead())
+  					while(td->connection->socket->bytesToRead())
 						{
 							/*!
   						 *Read the unwanted bytes but do not save them.
   						 */
-  						ret = td->connection->socket.recv(td->buffer2->getBuffer(), 
-																								td->buffer2->getRealLength(), 
-																								0);
+  						ret = td->connection->socket->recv(td->buffer2->getBuffer(), 
+																								 td->buffer2->getRealLength(), 
+																								 0);
 				  	}
 				  	break;
 			  	}
 				
-		  		if((contentLength > fs) && td->connection->socket.bytesToRead())
+		  		if((contentLength > fs) && td->connection->socket->bytesToRead())
   				{				
 					  u_long tr = std::min(static_cast<u_long>(contentLength) - totalNbr,
 													static_cast<u_long>(td->buffer2->getRealLength() ));
 
-						ret = td->connection->socket.recv(td->buffer2->getBuffer(), 
-																							tr, 0);
+						ret = td->connection->socket->recv(td->buffer2->getBuffer(), 
+																							 tr, 0);
 				
 						if(ret == -1)
 						{
@@ -990,10 +991,10 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 			ret = 0;
 			while(getTicks() - timeout < MYSERVER_SEC(3))
 			{
-				if(td->connection->socket.bytesToRead())
+				if(td->connection->socket->bytesToRead())
 				{
-					ret = td->connection->socket.recv(td->buffer2->getBuffer(), 
-																						td->buffer2->getRealLength(), 0);
+					ret = td->connection->socket->recv(td->buffer2->getBuffer(), 
+																						 td->buffer2->getRealLength(), 0);
 					 
 					if(td->inputData.writeToFile(td->buffer2->getBuffer(), ret, 
 																			 &nbw))
@@ -1240,7 +1241,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
     /*! If a throttling rate was specifed use it. */
     if(st.throttlingRate != -1)
-      td.connection->socket.setThrottling(st.throttlingRate);
+      td.connection->socket->setThrottling(st.throttlingRate);
 
 
     /*!
@@ -1897,9 +1898,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       {
         char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
         Thread::wait(2);
-        if(a->socket.bytesToRead() == 0) 
+        if(a->socket->bytesToRead() == 0) 
         {
-          if(a->socket.send(msg, (int)strlen(msg), 0)==-1)
+          if(a->socket->send(msg, (int)strlen(msg), 0)==-1)
             return ClientsThread::DELETE_CONNECTION;
         }
       }
@@ -2281,9 +2282,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *changed later.
        */
       if(a->host->getThrottlingRate() == (u_long) -1)
-        a->socket.setThrottling(Server::getInstance()->getThrottlingRate());
+        a->socket->setThrottling(Server::getInstance()->getThrottlingRate());
       else
-        a->socket.setThrottling(a->host->getThrottlingRate());
+        a->socket->setThrottling(a->host->getThrottlingRate());
 
       
       /*!
@@ -2515,8 +2516,8 @@ int Http::raiseHTTPError(int ID)
       getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
       *td.buffer2  << time
 									 << "\r\n\r\n";
-      if(td.connection->socket.send(td.buffer2->getBuffer(), 
-																		td.buffer2->getLength(), 0) == -1)
+      if(td.connection->socket->send(td.buffer2->getBuffer(), 
+																		 td.buffer2->getLength(), 0) == -1)
       {
         return 0;
       }
@@ -2615,12 +2616,13 @@ int Http::raiseHTTPError(int ID)
     }
     
     HttpHeaders::buildHTTPResponseHeader(td.buffer->getBuffer(), &td.response);
-    if(td.connection->socket.send(td.buffer->getBuffer(), 
-                      (u_long)strlen(td.buffer->getBuffer()), 0)==-1)
+    if(td.connection->socket->send(td.buffer->getBuffer(), 
+																	 (u_long)strlen(td.buffer->getBuffer()), 0) 
+			 == -1)
       return 0;
 
-    if(errorBodyLength && (td.connection->socket.send(HTTP_ERROR_MSGS[ID],
-																											errorBodyLength, 0) 
+    if(errorBodyLength && (td.connection->socket->send(HTTP_ERROR_MSGS[ID],
+																											 errorBodyLength, 0) 
 													 == -1))
       return 0;  
  
@@ -2680,12 +2682,12 @@ Internal Server Error\n\
 	*td.buffer2 << time;
 	*td.buffer2 << "\r\n\r\n";
 	/*! Send the header.  */
-	if(td.connection->socket.send(td.buffer2->getBuffer(), 
-                    (u_long)td.buffer2->getLength(), 0) != -1)
+	if(td.connection->socket->send(td.buffer2->getBuffer(), 
+																 (u_long)td.buffer2->getLength(), 0) != -1)
 	{
 		/*! Send the body.  */
     if(!td.onlyHeader)
-   		td.connection->socket.send(hardHTML, (u_long)strlen(hardHTML), 0);
+   		td.connection->socket->send(hardHTML, (u_long)strlen(hardHTML), 0);
 	}
 	return 0;
 }
@@ -2811,8 +2813,8 @@ int Http::sendHTTPRedirect(const char *newURL)
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td.buffer2 << time
 							<< "\r\n\r\n";
-	if(td.connection->socket.send(td.buffer2->getBuffer(), 
-																(int)td.buffer2->getLength(), 0) == -1)
+	if(td.connection->socket->send(td.buffer2->getBuffer(), 
+																 (int)td.buffer2->getLength(), 0) == -1)
 		return 0;
 
 	return 1;
@@ -2840,8 +2842,8 @@ int Http::sendHTTPNonModified()
 
 	*td.buffer2 << "Date: " << time << "\r\n\r\n";
 
-	if(td.connection->socket.send(td.buffer2->getBuffer(), 
-																(int)td.buffer2->getLength(), 0) == -1)
+	if(td.connection->socket->send(td.buffer2->getBuffer(), 
+																 (int)td.buffer2->getLength(), 0) == -1)
 		return 0;
 	return 1;
 }

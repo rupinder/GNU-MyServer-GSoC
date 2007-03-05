@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef CONNECTIONSTRUCT_H
-#define CONNECTIONSTRUCT_H
+#ifndef CONNECTION_H
+#define CONNECTION_H
+
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
@@ -137,7 +138,7 @@ public:
   void setTimeout(u_long);
 
 	/*! Connection socket.  */
-	Socket socket;
+	Socket *socket;
 	
 	/*! Next connection in linked list.  */
 	Connection* next;

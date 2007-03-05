@@ -33,6 +33,7 @@ ControlClient::ControlClient()
    UserName[0] = '\0';
    memset(UserPass, 0, 64);
    memset(LastCode, 0, 4);
+	 socket = 0;
 }
 
 ControlClient::~ControlClient()
@@ -41,7 +42,9 @@ ControlClient::~ControlClient()
    memset(UserPass, 0, 64); // no memory snoops here
    Buffer.free();
    if(Connected)
-     socket.closesocket();
+     socket->closesocket();
+	 if(socket)
+		 delete socket;
 }
 
 void ControlClient::setCallback(ControlClientCallback callback, void * parm)
@@ -70,7 +73,7 @@ int ControlClient::Login(const char * address, const int port,
      return -2;
 
    int ret;
-
+	 Socket* tcpSocket;
    struct sockaddr_in sockAddr;
    int sockLen = sizeof(sockAddr);
    memset(&sockAddr, 0, sizeof(sockAddr));
@@ -79,17 +82,19 @@ int ControlClient::Login(const char * address, const int port,
    sockAddr.sin_port = htons(port);
    
    /*! Try to create the socket. */
-   if(socket.socket(AF_INET, SOCK_STREAM, 0) == -1)
+   if(tcpSocket->socket(AF_INET, SOCK_STREAM, 0) == -1)
      return -2;
 
-	 socket.initializeSSL();
+
+	 socket = new SslSocket(tcpSocket);
 
    /*! If the socket was created try to connect. */
-   if(socket.connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
+   if(tcpSocket->connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
      {
-       socket.closesocket();
+       socket->closesocket();
        return -2;
      }
+
 
    Connected = true;
 
@@ -120,7 +125,7 @@ int ControlClient::Logout()
    memset(UserPass, 0, 64); // no memory snoops here
    Buffer.setLength(0);
    if(Connected)
-     socket.closesocket();
+     socket->closesocket();
    Connected = false;
    return 0;
 }
@@ -381,7 +386,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt)
    Buffer << "/LEN 0\r\n";
    Buffer << "/AUTH " << UserName << ":" << UserPass << "\r\n";
    Buffer << "\r\n";
-   ret = socket.send((const char *)Buffer.getBuffer(), Buffer.getLength(), 0);
+   ret = socket->send((const char *)Buffer.getBuffer(), Buffer.getLength(), 0);
 #ifdef DEBUG
    write(1, (const char *)Buffer.getBuffer(), Buffer.getLength());
 #endif   
@@ -405,7 +410,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, MemBuf & data
    Buffer << "/LEN " << tmp << "\r\n";
    Buffer << "/AUTH " << UserName << ":" << UserPass << "\r\n";
    Buffer << "\r\n";
-   ret1 = socket.send((const char *)Buffer.getBuffer(), Buffer.getLength(), 0);
+   ret1 = socket->send((const char *)Buffer.getBuffer(), Buffer.getLength(), 0);
 #ifdef DEBUG
    write(1, (const char *)Buffer.getBuffer(), Buffer.getLength());
 #endif
@@ -415,7 +420,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt, MemBuf & data
    while(pos < len)
      {
 	bytes = (len - pos < BUFFSIZE ? len - pos : BUFFSIZE);
-	ret2 = socket.send((const char *)&data[pos], bytes, 0);
+	ret2 = socket->send((const char *)&data[pos], bytes, 0);
 	if(ret2 == -1)
 	  break;
 	pos += ret2;
@@ -445,7 +450,7 @@ int ControlClient::getResponse()
 {
    if(!Connected)
      return -1;
-//   if(!socket.bytesToRead())
+//   if(!socket->bytesToRead())
 //     return  1;
 
    int ret = 0;
@@ -458,7 +463,7 @@ int ControlClient::getResponse()
 #endif
    while(Buffer.find("\r\n\r\n", 4, 0) == (u_int)-1) // a little costly, may change
      {
-	ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
+	ret = socket->recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 
 	if(ret == -1)
 	  {
@@ -516,7 +521,7 @@ int ControlClient::getResponse()
 	DataPos = hLen;
 	while(Buffer.getLength() < (u_int)(hLen + returnLEN))
 	  {
-	     ret = socket.recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
+	     ret = socket->recv(cBuffer, BUFFSIZE, 0, TIMEOUT);
 
 	     if(ret == -1)
 	       return -1;  // problem here

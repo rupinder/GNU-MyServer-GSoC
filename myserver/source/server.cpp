@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/myserver_regex.h"
 #include "../include/files_utility.h"
 #include "../include/ssl.h"
+#include "../include/ssl_sockets.h"
 
 extern "C" {
 #ifdef WIN32
@@ -984,7 +985,7 @@ int Server::terminate()
 		Connection* c = connections;
     while(c)
     {
-			c->socket.closesocket();
+			c->socket->closesocket();
       c = c->next;
     }
   }
@@ -1599,7 +1600,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 		myPort = ntohs(((sockaddr_in6 *)(&localSockIn))->sin6_port);
 
 
-	if(!addConnectionToList(s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
+	if(!addConnectionToList(&s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
 	{
 		/* If we report error to add the connection to the thread.  */
 		ret = 0;
@@ -1625,7 +1626,7 @@ int Server::getMaxThreads()
  *Add a new connection.
  *A connection is defined using a connection struct.
  */
-ConnectionPtr Server::addConnectionToList(Socket s,
+ConnectionPtr Server::addConnectionToList(Socket* s,
 																					MYSERVER_SOCKADDRIN* /*asockIn*/,
 																					char *ipAddr, char *localIpAddr,
 																					u_short port, u_short localPort, 
@@ -1638,7 +1639,6 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 	{
 		return NULL;
 	}
-  newConnection->socket = s;
 	newConnection->setPort(port);
 	newConnection->setTimeout( getTicks() );
 	newConnection->setLocalPort(localPort);
@@ -1668,25 +1668,35 @@ ConnectionPtr Server::addConnectionToList(Socket s,
 			doSSLhandshake = 1;
 	}
 
+
+	if(!newConnection->host)
+	{
+		delete newConnection;
+		return 0;
+	}
+
 	/* Do the SSL handshake if required.  */
 	if(doSSLhandshake)
 	{
 		int ret = 0;
 		SSL_CTX* ctx = newConnection->host->getSSLContext();
-		newConnection->socket.setSSLContext(ctx);
-		ret = newConnection->socket.sslAccept();
+		SslSocket *sslSocket = new SslSocket(s);
+
+		sslSocket->setSSLContext(ctx);
+		ret = sslSocket->sslAccept();
 
 		if(ret < 0)
 		{
 			/* Free the connection on errors. */
 			delete newConnection;
+			delete sslSocket;
 			return 0;
 		}
+		newConnection->socket = sslSocket;
 	}
-	if(!newConnection->host)
+	else
 	{
-		delete newConnection;
-		return 0;
+		newConnection->socket = new Socket(s);
 	}
 	/* Update the list.  */
   try
@@ -1771,6 +1781,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
   if(doLock)
     connectionsMutexUnlock();
 
+	delete s->socket;
 	delete s;
 	return ret;
 }
@@ -1854,7 +1865,7 @@ ConnectionPtr Server::findConnectionBySocket(Socket a)
 	connectionsMutexLock();
 	for(c=connections; c; c = c->next )
 	{
-		if(c->socket == a)
+		if(*c->socket == a)
 		{
 			connectionsMutexUnlock();
 			return c;

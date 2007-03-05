@@ -122,7 +122,7 @@ private:
 	string* serverAdmin;
 	void setProcessPermissions();
 	int initialize(int);
-	ConnectionPtr addConnectionToList(Socket s, MYSERVER_SOCKADDRIN *asock_in,
+	ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);
   u_long nConnections;

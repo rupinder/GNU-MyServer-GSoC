@@ -19,6 +19,7 @@
 #define CONTROL_CLIENT_H
 
 #include "../include/sockets.h"
+#include "../include/ssl_sockets.h"
 #include "vector.h"
 #include "../include/file.h"
 #include "../include/control_errors.h"
@@ -64,7 +65,7 @@ class ControlClient
    int sendRequest(const char *, const char *);
    int sendRequest(const char *, const char *, MemBuf &);
    int getResponse();
-   Socket socket;
+   Socket* socket;
    bool Connected;
    MemBuf Buffer;
    int DataPos;

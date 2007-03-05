@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006 The MyServer Team
+Copyright (C) 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -303,8 +303,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(!td->appendOutputs)
     {
       /* Send the HTTP header.  */
-      if(s->socket.send(td->buffer->getBuffer(), 
-                        (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
+      if(s->socket->send(td->buffer->getBuffer(), 
+												 (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
       {
         file->closeFile();
 				delete file;
@@ -328,7 +328,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(td->appendOutputs)
       chain.setStream(&(td->outputData)); 
     else
-      chain.setStream(&(s->socket));
+      chain.setStream(s->socket);
 
     
     /* Flush initial data.  */

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -66,18 +66,18 @@ Connection::Connection()
  */
 Connection::~Connection()
 {
-	socket.shutdown(SD_BOTH);
+	socket->shutdown(SD_BOTH);
 	char buffer[256];
 	int buffersize = 256;
   int err;
 	do
 	{
-		err=socket.recv(buffer, buffersize, 0);
+		err=socket->recv(buffer, buffersize, 0);
 	}while((err!=-1) && err);
-	socket.closesocket();
+	socket->closesocket();
 
   if(protocolBuffer)
-    delete  protocolBuffer;
+    delete protocolBuffer;
 
   /*! Remove the reference for the vhost. */
   if(host)

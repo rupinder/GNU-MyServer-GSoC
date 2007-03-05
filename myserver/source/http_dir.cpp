@@ -225,10 +225,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
-  chain.setStream(&(td->connection->socket));
+  chain.setStream(td->connection->socket);
 	if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
 																												td->mime->filters, 
-                                   &(td->connection->socket) , &nbw, 1))
+																						 td->connection->socket, &nbw, 1))
 	{
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("HttpDir: Error loading filters");
@@ -293,8 +293,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
 																				 &(td->response));
 
-		if(s->socket.send(td->buffer->getBuffer(), 
-												 (u_long)strlen(td->buffer->getBuffer()), 0) 
+		if(s->socket->send(td->buffer->getBuffer(), 
+											 (u_long)strlen(td->buffer->getBuffer()), 0) 
 			 == SOCKET_ERROR)
 		{
 			/* Remove the connection.  */

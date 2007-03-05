@@ -45,21 +45,11 @@ using namespace std;
 
 extern const char *versionOfSoftware;
 
-#ifdef NOT_WIN
 #include "../include/lfind.h"
 
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#endif
 
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
-#endif
-
-
-char ControlProtocol::adminLogin[64]="";
-char ControlProtocol::adminPassword[64]="";
+char ControlProtocol::adminLogin[64] = "";
+char ControlProtocol::adminPassword[64] = "";
 int  ControlProtocol::controlEnabled = 0;
 
 /*!
@@ -317,9 +307,9 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     /*! Check if we can read all the specified data. */
     while(specified_length != static_cast<int>(nbtr - realHeaderLength))
     {
-      if(a->socket.bytesToRead())
+      if(a->socket->bytesToRead())
       {
-        ret = a->socket.recv(b2, bs2, 0);
+        ret = a->socket->recv(b2, bs2, 0);
         if(ret == -1)
         {
           strcpy(b2,"Control: Error in communication");
@@ -655,7 +645,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   sprintf(buffer, 
 #endif
 					"/%i\r\n", errID);
-  err = conn->socket.send(buffer, strlen(buffer), 0);
+  err = conn->socket->send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
     strcpy(buffer,"Control: Error sending data");
@@ -671,7 +661,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
 #endif 
 					"/LEN %u\r\n", (u_int)dataLength);
  
-	err = conn->socket.send(buffer, strlen(buffer), 0);
+	err = conn->socket->send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
     strcpy(buffer,"Control: Error sending data");
@@ -680,7 +670,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   }
 
   /*! Send the end of the header. */
-  err = conn->socket.send("\r\n", 2, 0);
+  err = conn->socket->send("\r\n", 2, 0);
   if(err == -1)
   {
     strcpy(buffer,"Control: Error sending data");
@@ -703,7 +693,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
         return -1;
       }
       dataToSend -= nbr;
-      err = conn->socket.send(buffer, nbr, 0);
+      err = conn->socket->send(buffer, nbr, 0);
       if(dataToSend == 0)
         break;
       if(err == -1)

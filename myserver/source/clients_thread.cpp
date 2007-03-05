@@ -308,8 +308,8 @@ int ClientsThread::controlConnections()
 	Server::getInstance()->connectionsMutexUnlock();
 
   /* Number of bytes waiting to be read.  */
-  if(c->socket.dataOnRead())
-    nBytesToRead = c->socket.bytesToRead();
+  if(c->socket->dataOnRead())
+    nBytesToRead = c->socket->bytesToRead();
   else
     nBytesToRead = 0;
 
@@ -317,8 +317,8 @@ int ClientsThread::controlConnections()
 	{
 		c->setForceParsing(0);
 		if(nBytesToRead)
-			err = c->socket.recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
-													 MYSERVER_KB(8) - c->getDataRead(), 0);
+			err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
+														MYSERVER_KB(8) - c->getDataRead(), 0);
 
     /* Refresh with the right value.  */
     nBytesToRead = c->getDataRead() + err;
