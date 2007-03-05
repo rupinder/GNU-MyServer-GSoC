@@ -302,14 +302,20 @@ void Vhost::addHost(const char *host, int isRegex)
 	uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);
 
 	if(!ucs4)
+	{
+		delete hl;
 		return;
+	}
 
 	ret = idna_to_ascii_4z (ucs4, &ascii, 0);
 
 	free(ucs4);
 	
 	if (ret != IDNA_SUCCESS)
+	{	 
+		delete hl;
 		return;
+	}
 
 	host = ascii;
 #endif
