@@ -474,7 +474,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
        */
       File file;
       if(file.openFile(td.filenamePath.c_str(), 
-                       File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE))
+                       File::MYSERVER_CREATE_ALWAYS | 
+											 File::MYSERVER_OPEN_WRITE))
       {
         /*! Internal server error. */
         return raiseHTTPError(e_500);

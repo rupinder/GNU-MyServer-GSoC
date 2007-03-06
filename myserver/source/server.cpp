@@ -1745,7 +1745,6 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
    *Remove the connection from the active connections list.
    */
 	ConnectionPtr prev = 0;
-
 	if(!s)
 	{
 		return 0;
@@ -1781,11 +1780,6 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
   if(doLock)
     connectionsMutexUnlock();
 
-  if(s->socket)
-  {
-	  delete s->socket;
-	  s->socket = 0;
-  }
 	delete s;
 	return ret;
 }
