@@ -816,14 +816,14 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 
   connTable[connIndex].chain.setProtocol(td->http);
   connTable[connIndex].chain.setProtocolData(td);
-  connTable[connIndex].chain.setStream(&(td->connection->socket));
+  connTable[connIndex].chain.setStream(td->connection->socket);
   if(td->mime)
   {
     u_long nbw;
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(
 																					&(connTable[connIndex].chain),
 																					td->mime->filters, 
-																					&(td->connection->socket), 
+																					td->connection->socket, 
 																					&nbw, 1))
       {
         td->connection->host->warningslogRequestAccess(td->id);

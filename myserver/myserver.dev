@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -rdynamic_@
+Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -rdynamic_@_@@_
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -28,7 +28,6 @@ CompilerSet=0
 CompilerSettings=0000001000000101000000
 UseCustomMakefile=0
 CustomMakefile=
-
 
 [VersionInfo]
 Major=0
@@ -47,6 +46,7 @@ OriginalFilename=myserver.exe
 ProductName=MyServer
 ProductVersion=0.8.6
 AutoIncBuildNr=0
+
 [Unit1]
 FileName=stdafx.cpp
 CompileCpp=1

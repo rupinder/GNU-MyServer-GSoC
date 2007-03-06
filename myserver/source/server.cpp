@@ -1781,7 +1781,11 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
   if(doLock)
     connectionsMutexUnlock();
 
-	delete s->socket;
+  if(s->socket)
+  {
+	  delete s->socket;
+	  s->socket = 0;
+  }
 	delete s;
 	return ret;
 }

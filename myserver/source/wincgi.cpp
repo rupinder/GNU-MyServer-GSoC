@@ -123,13 +123,13 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
-  chain.setStream(&(td->connection->socket));
+  chain.setStream(td->connection->socket);
   if(td->mime)
   {
     u_long nbw2;
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
                                                  td->mime->filters, 
-                                                       &(td->connection->socket) , &nbw2, 1))
+                                                 td->connection->socket, &nbw2, 1))
       {
         td->connection->host->warningslogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("WinCGI: Error loading filters");

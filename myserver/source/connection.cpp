@@ -66,16 +66,18 @@ Connection::Connection()
  */
 Connection::~Connection()
 {
-	socket->shutdown(SD_BOTH);
-	char buffer[256];
-	int buffersize = 256;
-  int err;
-	do
-	{
-		err=socket->recv(buffer, buffersize, 0);
-	}while((err!=-1) && err);
-	socket->closesocket();
-
+  if(socket)
+  {
+   socket->shutdown(SD_BOTH);
+	 char buffer[256];
+	 int buffersize = 256;
+   int err;
+	 do
+	 {
+	 	err=socket->recv(buffer, buffersize, 0);
+	  }while((err!=-1) && err);
+	  socket->closesocket();
+  }
   if(protocolBuffer)
     delete protocolBuffer;
 

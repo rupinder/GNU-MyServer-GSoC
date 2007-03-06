@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=34
+UnitCount=36
 Type=0
 Ver=1
 ObjFiles=
@@ -388,6 +388,16 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit35]
+FileName=..\source\safetime.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit36]
 FileName=..\source\ssl_sockets.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -396,3 +406,4 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+
