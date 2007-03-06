@@ -1835,8 +1835,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   DynamicHttpCommand *dynamicCommand;
   try
   {
-    td.buffer = ((ClientsThread*)a->thread)->getBuffer();
-    td.buffer2 = ((ClientsThread*)a->thread)->getBuffer2();
+    td.buffer = a->getActiveThread()->getBuffer();
+    td.buffer2 = a->getActiveThread()->getBuffer2();
     td.buffersize = bs1;
     td.buffersize2 = bs2;
     td.nBytesToRead = nbtr;

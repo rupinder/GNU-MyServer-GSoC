@@ -340,7 +340,7 @@ int ClientsThread::controlConnections()
 
 		buffer.setBuffer(c->connectionBuffer, c->getDataRead());
 
-		c->thread = this;
+		c->setActiveThread(this);
     try
     {
       switch(c->host->getProtocol())

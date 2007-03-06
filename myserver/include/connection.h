@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/utility.h"
 
 class Vhost;
+class ClientsThread;
 
 #include <string>
 
@@ -59,55 +60,12 @@ public:
 
 class Connection
 {
-  /*! Identifier for the connection. */
-  u_long ID;
-
-	/*! The server is parsing this connection. */
-	int parsing;
-
-	/*! Remote port used.  */
-	u_short port;
-
-	/*! Login name. */
-	string login;
-	
-	/*! Password used to log in. */
-	string password;
-
-	/*! # of tries for an authorized login. */
-	char nTries;
-
-	/*! Remote IP address.  */
-	char ipAddr[MAX_IP_STRING_LEN];
-	
-	/*! Local IP used to connect to.  */
-	char localIpAddr[MAX_IP_STRING_LEN];
-
-	/*! Local port used to connect to.  */
-	u_short localPort;
-
-	/*! Current timeout for the connection.  */
-	u_long timeout;
-
-  /*! Number of bytes ready in the buffer. */
-	int dataRead;
-	
-	/*
-   *!If nonzero the server is saying to the protocol to remove the connection.
-   *Protocols can not consider this but is a good idea do it to avoid server
-   *overloads. 
-   *Reasons to remove the connection are defined at the begin of this file.  
-   */
-	int toRemove;
-	
-	/*! Force the connection to be parsed.  */
-	int forceParsing;
 public:
+	/*! Next connection in linked list.  */
+	Connection* next;
+	
   u_long getID();
   void setID(u_long);
-
-	/*! Pointer to the thread struct that is using the connection. */
-	void *thread;
 
   void setParsing(int);
   int isParsing();
@@ -140,9 +98,6 @@ public:
 	/*! Connection socket.  */
 	Socket *socket;
 	
-	/*! Next connection in linked list.  */
-	Connection* next;
-	
 	/*! Pointer to an host structure.  */
 	Vhost *host;
 	
@@ -156,13 +111,65 @@ public:
   void setForceParsing(int);	
 	
 	/*! This buffer must be used only by the ClientsTHREAD class.  */
-	char connectionBuffer[MYSERVER_KB(8)];
+	char *connectionBuffer;
 	
 	/*! Buffer for the connecion struct. Used by protocols.  */
 	ProtocolBuffer *protocolBuffer;
 
   Connection();
   virtual ~Connection();
+
+	/*! Set the thread that is currently using the connection.  */
+	void setActiveThread(ClientsThread* t){thread = t;}
+
+	/*! Get the thread that is using the connection.  */
+	ClientsThread* getActiveThread(){return thread;}
+protected:
+	ClientsThread *thread;
+
+  /*! Identifier for the connection. */
+  u_long ID;
+
+	/*! The server is parsing this connection. */
+	int parsing;
+
+	/*! Remote port used.  */
+	u_short port;
+
+	/*! Login name. */
+	string login;
+	
+	/*! Password used to log in. */
+	string password;
+
+	/*! # of tries for an authorized login. */
+	char nTries;
+
+	/*! Remote IP address.  */
+	string ipAddr;
+	
+	/*! Local IP used to connect to.  */
+	string localIpAddr;
+
+	/*! Local port used to connect to.  */
+	u_short localPort;
+
+	/*! Current timeout for the connection.  */
+	u_long timeout;
+
+  /*! Number of bytes ready in the buffer. */
+	int dataRead;
+	
+	/*
+   *!If nonzero the server is saying to the protocol to remove the connection.
+   *Protocols can not consider this but is a good idea do it to avoid server
+   *overloads. 
+   *Reasons to remove the connection are defined at the begin of this file.  
+   */
+	int toRemove;
+	
+	/*! Force the connection to be parsed.  */
+	int forceParsing;
 };
                                    
 typedef  Connection* volatile ConnectionPtr;

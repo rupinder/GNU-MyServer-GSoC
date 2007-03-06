@@ -56,7 +56,7 @@ Connection::Connection()
 	dataRead = 0;
   toRemove = 0;
   forceParsing = 0;
-  connectionBuffer[0] = '\0';
+  connectionBuffer = new 	char [MYSERVER_KB(8)];
   protocolBuffer = 0;
 
 }
@@ -82,6 +82,8 @@ Connection::~Connection()
 
   if(protocolBuffer)
     delete protocolBuffer;
+
+	delete connectionBuffer;
 
   /*! Remove the reference for the vhost. */
   if(host)
@@ -185,7 +187,7 @@ void Connection::incnTries()
  */
 const char* Connection::getIpAddr()
 {
-  return ipAddr;
+  return ipAddr.c_str();
 }
 
 /*!
@@ -194,7 +196,7 @@ const char* Connection::getIpAddr()
  */
 void Connection::setIpAddr(const char* na)
 {
-  strncpy(ipAddr, na, MAX_IP_STRING_LEN);
+  ipAddr.assign(na);
 }
 
 /*!
@@ -202,7 +204,7 @@ void Connection::setIpAddr(const char* na)
  */
 const char* Connection::getLocalIpAddr()
 {
-  return localIpAddr;
+  return localIpAddr.c_str();
 }
 
 /*!
@@ -211,7 +213,7 @@ const char* Connection::getLocalIpAddr()
  */
 void Connection::setLocalIpAddr(const char* na)
 {
-  strncpy(localIpAddr, na, MAX_IP_STRING_LEN);
+  localIpAddr.assign(na);
 }
 
 /*!
