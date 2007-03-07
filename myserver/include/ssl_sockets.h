@@ -58,7 +58,6 @@ public:
 
 #ifndef DO_NOT_USE_SSL
 	int freeSSL();
-	int initializeSSL(SSL* connection = 0);
 	SSL* getSSLConnection();
 #endif
 
@@ -73,6 +72,7 @@ public:
 	~SslSocket();
 
 protected:
+	bool externalContext;
 	Socket* socket;
 #ifndef DO_NOT_USE_SSL
 	SSL *sslConnection;

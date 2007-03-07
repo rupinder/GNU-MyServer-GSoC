@@ -531,8 +531,6 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 
   mutex.lock();
 
-  it = hostList.begin();  
-  
   try
   {
     if(extSource)
@@ -541,6 +539,9 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
       mutex.unlock();
       return ret;
     }
+
+		it = hostList.begin();
+
     /*Do a linear search here. We have to use the first full-matching 
 		 *virtual host. 
 		 */

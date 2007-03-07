@@ -58,7 +58,7 @@ Connection::Connection()
   forceParsing = 0;
   connectionBuffer = new 	char [MYSERVER_KB(8)];
   protocolBuffer = 0;
-
+	socket = 0;
 }
 
 /*!
@@ -68,14 +68,14 @@ Connection::~Connection()
 {
   if(socket)
   {
-   socket->shutdown(SD_BOTH);
-	 char buffer[256];
-	 int buffersize = 256;
-   int err;
-	 do
-	 {
-	 	err=socket->recv(buffer, buffersize, 0);
-	  }while((err!=-1) && err);
+		socket->shutdown(SD_BOTH);
+		char buffer[256];
+		int buffersize = 256;
+		int err;
+		do
+		{
+			err=socket->recv(buffer, buffersize, 0);
+	  }while((err != -1) && err);
 	  socket->closesocket();
 		delete socket;
   }
@@ -83,7 +83,7 @@ Connection::~Connection()
   if(protocolBuffer)
     delete protocolBuffer;
 
-	delete connectionBuffer;
+	delete[] connectionBuffer;
 
   /*! Remove the reference for the vhost. */
   if(host)

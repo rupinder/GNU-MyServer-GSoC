@@ -65,12 +65,12 @@ SslSocket::SslSocket(Socket* socket) : Socket(socket)
 	sslContext = 0;
 	clientCert = 0;
   sslMethod = 0;
-
+	externalContext = false;
 }
 
 SslSocket::~SslSocket()
 {
-	delete socket;
+	freeSSL();
 }
 
 
@@ -167,6 +167,7 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 		sslContext = 0;
 		return -1;
 	}
+	externalContext = false;
 	return 0;
 #endif
 }
@@ -178,6 +179,7 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 int SslSocket::setSSLContext(SSL_CTX* context)
 {
 	sslContext = context;
+	externalContext = true;
 	return 1;
 }
 
@@ -193,34 +195,15 @@ int SslSocket::freeSSL()
 		SSL_free(sslConnection);
 		sslConnection = 0;
 	}
-  if(sslContext)
+
+  if(sslContext && !externalContext)
   {
-    SSL_CTX_free(sslContext);
+		SSL_CTX_free(sslContext);
     sslContext = 0;
   }
 	return 1;
 }
 
-/*!
- *Initialize the SSL connection.
- *Returns nonzero on errors.
- */
-int SslSocket::initializeSSL(SSL* connection)
-{
-	freeSSL();
-	if(connection)
-		sslConnection = connection;
-	else
-	{
-		if(sslContext == 0)
-			return 1;
-		sslConnection = (SSL *)SSL_new(sslContext);
-    if(sslConnection == 0)
-      return 1;
-		SSL_set_read_ahead(sslConnection,0);
-	}
-	return 0;
-}
 
 /*!
  *Returns the SSL connection.
@@ -238,6 +221,7 @@ SSL* SslSocket::getSSLConnection()
  */
 int SslSocket::sslAccept()
 {
+	int ssl_accept;
 	if(sslContext == 0)
 		return -1;
 	if(sslConnection)
@@ -246,9 +230,8 @@ int SslSocket::sslAccept()
 	if(sslConnection == 0)
   {
 		freeSSL();
-    return   -1;
+    return -1;
   }
-	int ssl_accept;
 	SSL_set_accept_state(sslConnection);
 	if(SSL_set_fd(sslConnection,socketHandle) == 0)
 	{
