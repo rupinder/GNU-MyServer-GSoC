@@ -9,7 +9,7 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "MyServer-win32-0.8.6-rc1.exe"
+OutFile "MyServer-win32-0.8.6.exe"
 
 ; Versioning Information
 VIProductVersion "0.8.6.1"
@@ -20,9 +20,9 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" 		"MyServer Project"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" 	"MyServer webserver"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" 		"0.8.6.1"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" 		"0.8.6"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" 		""
+VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" 		"Hail Storm"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalTrademarks" 	""
-VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"	"MyServer-win32-0.8.6-rc1.exe"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"	"MyServer-win32-0.8.6.exe"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "PrivateBuild" 		"1"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "SpecialBuild" 		"1"
 
