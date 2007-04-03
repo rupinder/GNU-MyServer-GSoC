@@ -91,14 +91,16 @@ typedef struct {
 #define FCGINULL_REQUEST_ID     0
 
 
-typedef struct {
+typedef struct 
+{
     unsigned char roleB1;
     unsigned char roleB0;
     unsigned char flags;
     unsigned char reserved[5];
 } FcgiBeginRequestBody;
 
-typedef struct {
+typedef struct 
+{
     FcgiHeader header;
     FcgiBeginRequestBody body;
 } FcgiBeginRequestRecord;
@@ -116,7 +118,8 @@ typedef struct {
 #define FCGIFILTER     3
 
 
-typedef struct {
+typedef struct 
+{
     unsigned char appStatusB3;
     unsigned char appStatusB2;
     unsigned char appStatusB1;
@@ -125,7 +128,8 @@ typedef struct {
     unsigned char reserved[3];
 } FcgiEndRequestBody;
 
-typedef struct {
+typedef struct 
+{
     FcgiHeader header;
     FcgiEndRequestBody body;
 } FcgiEndRequestRecord;
@@ -138,26 +142,30 @@ typedef struct {
 #define FCGIOVERLOADED       2
 #define FCGIUNKNOWN_ROLE     3
 
-typedef struct {
+typedef struct 
+{
     unsigned char type;    
     unsigned char reserved[7];
 } FcgiUnknownTypeBody;
 
-typedef struct {
+typedef struct 
+{
     FcgiHeader header;
     FcgiUnknownTypeBody body;
 } FcgiUnknownTypeRecord;
 
-struct FastCgiServersList
+struct FastCgiServer
 {
-  /*! Server executable path. */
+  /*! Server executable path.  */
 	string path;
+
 	union 
 	{
     unsigned long fileHandle;
 		SOCKET sock;
 		unsigned int value;
 	}DESCRIPTOR;
+
 	Socket socket;
 	char host[128];
 	Process process; 
@@ -167,31 +175,13 @@ struct FastCgiServersList
 struct FcgiContext
 {
 	HttpThreadContext* td;
-  FastCgiServersList* server;
+  FastCgiServer* server;
 	Socket sock;
 	File tempOut;
 };
 
-class FastCgi  : public HttpDataHandler
+class FastCgi : public HttpDataHandler
 {
-private:
-  static int initialPort;
-	static int timeout;
-  static int maxFcgiServers;
-	static int initialized;
-  static Mutex serversMutex;
-	static HashMap<string,FastCgiServersList*> serversList;
-
-	int fcgiConnectSocket(FcgiContext*,FastCgiServersList*);
-	void generateFcgiHeader( FcgiHeader&, int ,int, int );
-	Socket getFcgiConnection();
-	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
-	int sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id);
-	FastCgiServersList* isFcgiServerRunning(const char*);
-  FastCgiServersList* runFcgiServer(FcgiContext*, const char*);
-	FastCgiServersList* fcgiConnect(FcgiContext*, const char*);
-  int runLocalServer(FastCgiServersList* server, const char* path, int port);
-	bool isRemoteServer(const char*);
 public:
   static void setInitialPort(int);
   static int getInitialPort(); 
@@ -205,5 +195,23 @@ public:
                   const char* scriptpath, const char *cgipath,int execute,
                   int onlyHeader);
 	static int unload();
+private:
+  static int initialPort;
+	static int timeout;
+  static int maxFcgiServers;
+	static int initialized;
+  static Mutex serversMutex;
+	static HashMap<string,FastCgiServer*> serversList;
+
+	int fcgiConnectSocket(FcgiContext*,FastCgiServer*);
+	void generateFcgiHeader( FcgiHeader&, int ,int, int );
+	Socket getFcgiConnection();
+	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
+	int sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id);
+	FastCgiServer* isFcgiServerRunning(const char*);
+  FastCgiServer* runFcgiServer(FcgiContext*, const char*);
+	FastCgiServer* fcgiConnect(FcgiContext*, const char*);
+  int runLocalServer(FastCgiServer* server, const char* path, int port);
+	bool isRemoteServer(const char*);
 };
 #endif

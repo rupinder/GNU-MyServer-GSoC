@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using namespace std;
 
 /*! Running servers.  */
-HashMap<string, FastCgiServersList*> FastCgi::serversList;
+HashMap<string, FastCgiServer*> FastCgi::serversList;
 
 /*! Is the fastcgi initialized?  */
 int FastCgi::initialized = 0;
@@ -99,7 +99,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	string outDataPath;
 
   int sizeEnvString;
-  FastCgiServersList* server = 0;
+  FastCgiServer* server = 0;
   int id;
 	ostringstream cmdLine;
   char *buffer = 0;
@@ -894,11 +894,11 @@ int FastCgi::unload()
   serversMutex.lock();
   try
   {
-		HashMap<string, FastCgiServersList*>::Iterator it = serversList.begin();
+		HashMap<string, FastCgiServer*>::Iterator it = serversList.begin();
 
 		for (;it != serversList.end(); it++)
 		{
-      FastCgiServersList* server = *it;
+      FastCgiServer* server = *it;
       if(!server)
         continue;
       /*! If the server is a remote one do nothing.  */
@@ -938,13 +938,13 @@ int FastCgi::unload()
  *Return the the running server specified by path.
  *If the server is not running returns 0.
  */
-FastCgiServersList* FastCgi::isFcgiServerRunning(const char* path)
+FastCgiServer* FastCgi::isFcgiServerRunning(const char* path)
 {
   serversMutex.lock();
 
   try
   {
-    FastCgiServersList *s = serversList.get(path);
+    FastCgiServer *s = serversList.get(path);
     serversMutex.unlock();
     return s;
   }
@@ -958,7 +958,7 @@ FastCgiServersList* FastCgi::isFcgiServerRunning(const char* path)
 /*!
  *Get a client socket in the fCGI context structure
  */
-int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServersList* server )
+int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServer* server )
 {
 	MYSERVER_SOCKADDRIN  fastcgiServerSock = { 0 };
 	socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
@@ -1000,10 +1000,10 @@ int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServersList* server )
 /*!
  *Get a connection to the FastCGI server.
  */
-FastCgiServersList* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
+FastCgiServer* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
 {
 
-	FastCgiServersList* server = runFcgiServer(con, path);
+	FastCgiServer* server = runFcgiServer(con, path);
 	/*!
    *If we find a valid server try the connection to it.
    */
@@ -1037,7 +1037,7 @@ bool FastCgi::isRemoteServer(const char* location)
  *If the path starts with a @ character, the path is handled as a 
  *remote server.
  */
-FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context, 
+FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context, 
 																					 const char* path)
 {
   /*!
@@ -1046,7 +1046,7 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context,
    */
 	int localServer;
   int toReboot = 0;
-  FastCgiServersList* server;
+  FastCgiServer* server;
 	static u_short portsDelta = 0;
 
   /*! Check if the specified location is remote. */
@@ -1076,7 +1076,7 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context,
   {
     /*! Create the new structure if necessary. */
     if(!toReboot)
-      server = new FastCgiServersList();
+      server = new FastCgiServer();
     if(server == 0)
     {
       if(Server::getInstance()->getVerbosity() > 2)
@@ -1169,7 +1169,7 @@ FastCgiServersList* FastCgi::runFcgiServer(FcgiContext* context,
 
 
 		{
-			FastCgiServersList* old;
+			FastCgiServer* old;
 			old = serversList.put(server->path, server);
 			if(old)
 			{
@@ -1233,8 +1233,7 @@ void FastCgi::setTimeout(int ntimeout)
 /*!
  *Start the server on the specified port. Return zero on success.
  */
-int FastCgi::runLocalServer(FastCgiServersList* server, const char* path, 
-														int port)
+int FastCgi::runLocalServer(FastCgiServer* server, const char* path, int port)
 {
   StartProcInfo spi;
   MYSERVER_SOCKADDRIN sock_inserverSocket;
