@@ -15,8 +15,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "../include/process_server_manager.h"
+#include "../include/server.h"
 #include "../include/processes.h"
+#include "../include/process_server_manager.h"
 #include <string>
 #include <sstream>
 using namespace std;
@@ -219,15 +220,23 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
   server->host.assign("localhost");
 	server->isLocal = true;
 
-	if(nServers > maxServers)
+	if(nServers >= maxServers)
+	{
+		ostringstream stream;
+		stream << "Cannot run process " << path 
+					 << ": Reached max number of servers";
+		::Server::getInstance()->logLockAccess();
+		::Server::getInstance()->logPreparePrintError();
+		::Server::getInstance()->logWriteln(stream.str().c_str());
+		::Server::getInstance()->logEndPrintError();
+		::Server::getInstance()->logUnlockAccess();
 		return 1;
+	}
 
 	if(port)
 		server->port = port;
 	else
 		server->port = (initialPort + nServers++);
-
-
 
   server->socket.socket(AF_INET,SOCK_STREAM,0);
   if(server->socket.getHandle() != (SocketHandle)INVALID_SOCKET)
@@ -384,5 +393,5 @@ int ProcessServerManager::connect(Socket* sock,
 #endif // HAVE_IPV6
 	sock->setNonBlocking(1);
 
-	return 1;
+	return 0;
 }

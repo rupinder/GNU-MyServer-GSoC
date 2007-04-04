@@ -477,9 +477,11 @@ int VhostManager::addVHost(Vhost* vh)
           string error;
           error.assign("Warning: multiple hosts use the same log file:" );
           error.append(vh->getAccessesLogFileName());
+					Server::getInstance()->logLockAccess();
           Server::getInstance()->logPreparePrintError();
           Server::getInstance()->logWriteln(error.c_str());     
           Server::getInstance()->logEndPrintError();
+					Server::getInstance()->logUnlockAccess();
         }
 
 #ifdef WIN32
@@ -493,9 +495,11 @@ int VhostManager::addVHost(Vhost* vh)
 				string error;
 				error.assign("Warning: multiple hosts use the same log file:" );
 				error.append(vh->getWarningsLogFileName());
+				Server::getInstance()->logLockAccess();
 				Server::getInstance()->logPreparePrintError();
 				Server::getInstance()->logWriteln(error.c_str());     
 				Server::getInstance()->logEndPrintError();
+				Server::getInstance()->logUnlockAccess();
 			}
     }
 
@@ -506,9 +510,11 @@ int VhostManager::addVHost(Vhost* vh)
 			error.append(vh->getName());
 			error.append(", using HTTP by default");
 			vh->setProtocol(PROTOCOL_HTTP);
+			Server::getInstance()->logLockAccess();
 			Server::getInstance()->logPreparePrintError();
 			Server::getInstance()->logWriteln(error.c_str());     
 			Server::getInstance()->logEndPrintError();
+			Server::getInstance()->logUnlockAccess();
 		}
     hostList.push_back(vh);
     mutex.unlock();
@@ -665,7 +671,7 @@ int VhostManager::loadConfigurationFile(const char* filename,int maxlogSize)
     /* Save a line in the buffer.  A line ends with a diesis.  */
 		for(;;)
 		{
-			fh.readFromFile(&c,1,&nbr);
+			fh.readFromFile(&c, 1, &nbr);
 			if(c!='#')
 			{
 				if( (c!='\n')&&(c!='\r'))
@@ -993,9 +999,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 	{
     errMsg.assign("Error opening: ");
     errMsg.append(filename);
+		Server::getInstance()->logLockAccess();
     Server::getInstance()->logPreparePrintError();
     Server::getInstance()->logWriteln(errMsg.c_str());
     Server::getInstance()->logEndPrintError();
+		Server::getInstance()->logUnlockAccess();
 		return -1;
 	}
 	doc = parser.getDoc();
@@ -1013,9 +1021,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
       parser.close();
       clean();
       errMsg.assign("Error: allocating memory");
+			Server::getInstance()->logLockAccess();
       Server::getInstance()->logPreparePrintError();
       Server::getInstance()->logWriteln(errMsg.c_str());
       Server::getInstance()->logEndPrintError();
+			Server::getInstance()->logUnlockAccess();
       return -1;
     }
 		while(lcur)
@@ -1092,9 +1102,12 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
         {
           errMsg.assign("Error: specified port greater than 65536 or invalid: ");
           errMsg.append((char*)lcur->children->content);
-          Server::getInstance()->logPreparePrintError();
-          Server::getInstance()->logWriteln(errMsg.c_str());
-          Server::getInstance()->logEndPrintError();
+					Server::getInstance()->logLockAccess();
+					Server::getInstance()->logPreparePrintError();
+					Server::getInstance()->logWriteln(errMsg.c_str());
+					Server::getInstance()->logEndPrintError();
+					Server::getInstance()->logUnlockAccess();
+
         }
 				vh->setPort((u_short)val);
 			}
@@ -1262,9 +1275,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
     if(addVHost(vh))
     {
       errMsg.assign("Error: adding vhost");
+			Server::getInstance()->logLockAccess();
       Server::getInstance()->logPreparePrintError();
       Server::getInstance()->logWriteln(errMsg.c_str());
       Server::getInstance()->logEndPrintError();
+			Server::getInstance()->logUnlockAccess();
       
       parser.close();
       clean();

@@ -763,11 +763,11 @@ int FastCgi::sendFcgiBody(FcgiContext* con, char* buffer, int len, int type,
  *Trasform from a standard environment string to the FastCGI environment
  *string.
  */
-int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp,
-                                           char* ep)
+int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* src,
+                                           char* dest)
 {
-	char *ptr = ep;
-	char *sptr = sp;
+	char *ptr = dest;
+	char *sptr = src;
 	char varName[100];
 	char varValue[2500];
 	for(;;)
@@ -797,7 +797,7 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp,
       return -1;
 		if(varNameLen.i > 127)
 		{
-			unsigned char fb = varValueLen.c[3]|0x80;
+			unsigned char fb = varValueLen.c[3] | 0x80;
 			*ptr++ = fb;
 			*ptr++ = varNameLen.c[2];
 			*ptr++ = varNameLen.c[1];
@@ -810,7 +810,7 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp,
 
 		if(varValueLen.i > 127)
 		{
-			unsigned char fb = varValueLen.c[3]|0x80;
+			unsigned char fb = varValueLen.c[3] | 0x80;
 			*ptr++ = fb;
 			*ptr++ = varValueLen.c[2];
 			*ptr++ = varValueLen.c[1];
@@ -828,7 +828,7 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* sp,
 		if(*(++sptr) == '\0')
 			break;
 	}
-	return static_cast<int>(ptr - ep);
+	return static_cast<int>(ptr - dest);
 }
 
 /*!
