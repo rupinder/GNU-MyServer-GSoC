@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/home_dir.h"
 #include "../include/cached_file_factory.h"
 #include "../include/plugins_manager.h"
+#include "../include/process_server_manager.h"
 #include <string>
 using namespace std;
 
@@ -63,6 +64,87 @@ struct listenThreadArgv
 
 class Server
 {
+public:
+	ProcessServerManager* getProcessServerManager()
+	{
+		return &processServerManager;
+	}
+	PluginsManager* getPluginsManager(){return &pluginsManager;}
+	bool stopServer(){return mustEndServer;}
+	HomeDir* getHomeDir();
+	static void createInstance();
+	static Server* getInstance()
+	{
+		return instance;
+	}
+
+	CachedFileFactory* getCachedFiles();
+  const char* getHashedData(const char* name);
+  FiltersFactory* getFiltersFactory();
+	int getMaxThreads();
+  u_long getUid();
+  u_long getGid();
+  int countAvailableThreads();
+  int addThread(int staticThread = 0);
+  int removeThread(u_long ID);
+  int isServerReady();
+  ProtocolsManager* getProtocolsManager();
+  void disableAutoReboot();
+  void enableAutoReboot();
+  int isAutorebootEnabled();
+  void rebootOnNextLoop();
+  const char* getMainConfFile();
+  const char* getVhostConfFile();
+  const char* getMIMEConfFile();
+  const char* getLanguagesPath();
+  const char* getLanguageFile();
+  const char* getExternalPath();
+  XmlParser* getLanguageParser();
+	~Server();
+	DynamicProtocol* getDynProtocol(const char *protocolName);
+	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
+	u_long getNumConnections();
+	int connectionsMutexLock();
+	int connectionsMutexUnlock();
+  ConnectionPtr getConnections();
+	ConnectionPtr getConnection(int);
+	ConnectionPtr findConnectionBySocket(Socket);
+	ConnectionPtr findConnectionByID(u_long ID);
+	u_long getTimeout();
+	int getListeningThreadCount();
+	void increaseListeningThreadCount();
+	void decreaseListeningThreadCount();
+	const char *getAddresses();
+	void *envString;
+	VhostManager *vhostList;
+	MimeManager *mimeManager;
+	const char *getPath();
+	u_long getNumThreads();
+	const char *getDefaultFilenamePath(u_long ID = 0);
+	const char *getServerName();
+	u_long getVerbosity();
+	const char *getServerAdmin();
+	int getMaxLogFileSize();
+	int mustUseLogonOption();
+	void setVerbosity(u_long);
+	void start();
+	void stop();
+	void finalCleanup();
+	int terminate();
+  int logWriteln(const char*);
+  int logWriteln(string const &str)
+    {return logWriteln(str.c_str());};
+  int logPreparePrintError();
+  int logEndPrintError();
+  int logLockAccess();
+  int logUnlockAccess();
+  int setLogFile(char*);
+	u_long getBuffersize();
+	u_long getBuffersize2();
+  u_long getThrottlingRate();
+	void temporaryFileName(u_long tid, string &out);
+	int waitNewConnection(u_long tid, u_long timeout);
+private:
   friend class ClientsThread;
 #ifdef WIN32
 	friend  unsigned int __stdcall listenServer(void* pParam);
@@ -73,12 +155,11 @@ class Server
 	friend  void* startClientsTHREAD(void* pParam);
 #endif
 #ifdef WIN32
-	friend int __stdcall control_handler (u_long control_type);
+	friend int __stdcall control_handler(u_long control_type);
 #endif
 #ifdef NOT_WIN
 	friend int control_handler (u_long control_type);
 #endif
-private:
 	/*!
 	 *When the flag mustEndServer is 1 all the threads are
 	 *stopped and the application stop its execution.
@@ -157,82 +238,7 @@ private:
 	string tmpPath;
 	Event *newConnectionEvent;
 	PluginsManager pluginsManager;
-public:
-	PluginsManager* getPluginsManager(){return &pluginsManager;}
-	bool stopServer(){return mustEndServer;}
-	HomeDir* getHomeDir();
-	static void createInstance();
-	static Server* getInstance()
-	{
-		return instance;
-	}
-
-	CachedFileFactory* getCachedFiles();
-  const char* getHashedData(const char* name);
-  FiltersFactory* getFiltersFactory();
-	int getMaxThreads();
-  u_long getUid();
-  u_long getGid();
-  int countAvailableThreads();
-  int addThread(int staticThread = 0);
-  int removeThread(u_long ID);
-  int isServerReady();
-  ProtocolsManager* getProtocolsManager();
-  void disableAutoReboot();
-  void enableAutoReboot();
-  int isAutorebootEnabled();
-  void rebootOnNextLoop();
-  const char* getMainConfFile();
-  const char* getVhostConfFile();
-  const char* getMIMEConfFile();
-  const char* getLanguagesPath();
-  const char* getLanguageFile();
-  const char* getExternalPath();
-  XmlParser* getLanguageParser();
-	~Server();
-	DynamicProtocol* getDynProtocol(const char *protocolName);
-	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
-	u_long getNumConnections();
-	int connectionsMutexLock();
-	int connectionsMutexUnlock();
-  ConnectionPtr getConnections();
-	ConnectionPtr getConnection(int);
-	ConnectionPtr findConnectionBySocket(Socket);
-	ConnectionPtr findConnectionByID(u_long ID);
-	u_long getTimeout();
-	int getListeningThreadCount();
-	void increaseListeningThreadCount();
-	void decreaseListeningThreadCount();
-	const char *getAddresses();
-	void *envString;
-	VhostManager *vhostList;
-	MimeManager *mimeManager;
-	const char *getPath();
-	u_long getNumThreads();
-	const char *getDefaultFilenamePath(u_long ID = 0);
-	const char *getServerName();
-	u_long getVerbosity();
-	const char *getServerAdmin();
-	int getMaxLogFileSize();
-	int mustUseLogonOption();
-	void setVerbosity(u_long);
-	void start();
-	void stop();
-	void finalCleanup();
-	int terminate();
-  int logWriteln(const char*);
-  int logWriteln(string const &str)
-    {return logWriteln(str.c_str());};
-  int logPreparePrintError();
-  int logEndPrintError();
-  int logLockAccess();
-  int logUnlockAccess();
-  int setLogFile(char*);
-	u_long getBuffersize();
-	u_long getBuffersize2();
-  u_long getThrottlingRate();
-	void temporaryFileName(u_long tid, string &out);
-	int waitNewConnection(u_long tid, u_long timeout);
+	ProcessServerManager processServerManager;
 };
 
 #endif

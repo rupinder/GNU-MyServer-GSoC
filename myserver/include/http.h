@@ -82,8 +82,6 @@ private:
 	static u_long gzipThreshold;
 	static vector<string> defaultFilename;
   static int cgiTimeout;
-  static int fastcgiInitialPort;
-  static int fastcgiServers;
   static int allowVhostMime;
   static DynHttpCommandManager dynCmdManager;
   static DynHttpManagerList dynManagerList;

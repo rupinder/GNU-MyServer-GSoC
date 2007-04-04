@@ -53,19 +53,24 @@ The time unit is seconds. So, in the line above, if your client doesn't access y
 <br />
 <br />
 <h2 class="title">Max Connections:</h2>
-You can change the default maximum number of connections your webserver will accept, by changing the line below in <span class="code">myserver.xml</span>:<br />
+You can change the default maximum number of connections your webserver will
+accept, by changing the line below
+in <span class="code">myserver.xml</span>:<br />
 <p class="code">
 &lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
 </p>
 <p>
-The default value 0 means you will accept infinite connections. Any other value will limit how many users will be accessing your server.
+The default value 0 means you will accept infinite connections. Any other value
+will limit how many users will be accessing your server.
 
 <br />
 <br />
-<h2 class="title">Max FastCGI Servers:</h2>
-MyServer lets you configure the maximum number of FastCGI servers allowed to run, by changing the value in the line below, <span class="code">in myserver.xml</span>:<br />
+<h2 class="title">Max Servers processes:</h2>
+MyServer lets you configure the maximum number of external servers (for example
+these external servers can be FastCGI applications) allowed to run, changing
+the value in the line below, <span class="code">in myserver.xml</span>:<br />
 <p class="code">
-&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />
+&lt;MAX_SERVERS_PROCESSES&gt;10&lt;/MAX_SERVERS_PROCESSES&gt;<br />
 </p>
 <p>
 

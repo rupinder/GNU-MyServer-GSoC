@@ -59,11 +59,6 @@ extern "C"
 #define SOCKET_ERROR -1
 #endif
 
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
-#endif
-
 /*! Store if the MSCGI library was loaded.  */
 int Http::mscgiLoaded = 0;
 
@@ -85,17 +80,11 @@ int Http::initialized = 0;
 /*! If not specified differently use a timeout of 15 seconds.  */
 int Http::cgiTimeout = MYSERVER_SEC(15);
 
-/*! Max number of FastCGI servers allowed to run. */
-int Http::fastcgiServers;
-
 /*! Cache for security files. */
 SecurityCache Http::secCache;
 
 /*! Access the security cache safely. */
 Mutex Http::secCacheMutex;
-
-/*! Initial port for FastCGI servers. */
-int Http::fastcgiInitialPort = 3333;
 
 /*! Dynamic commands manager. */
 DynHttpCommandManager Http::dynCmdManager;
@@ -2888,8 +2877,6 @@ int Http::loadProtocol(XmlParser* languageParser)
    *By default use GZIP with files bigger than a MB.  
    */
   cgiTimeout = MYSERVER_SEC(15);
-  fastcgiServers = 25;
-  fastcgiInitialPort = 3333;
 	gzipThreshold = 1 << 20;
 	browseDirCSSpath.assign("");
 
@@ -2941,17 +2928,6 @@ int Http::loadProtocol(XmlParser* languageParser)
 	{
 		cgiTimeout = MYSERVER_SEC(atoi(data));
 	}	
-	data = configurationFileManager.getValue("FASTCGI_MAX_SERVERS");
-	if(data)
-	{
-    fastcgiServers = atoi(data);
-	}	
-	data = configurationFileManager.getValue("FASTCGI_INITIAL_PORT");
-	if(data)
-	{
-    fastcgiInitialPort = atoi(data);
-	}	
-
 	data = configurationFileManager.getValue("BROWSEFOLDER_CSS");
 	if(data)
 	{
@@ -2962,8 +2938,6 @@ int Http::loadProtocol(XmlParser* languageParser)
   FastCgi::setTimeout(cgiTimeout);
   WinCgi::setTimeout(cgiTimeout);
   Isapi::setTimeout(cgiTimeout);
-  FastCgi::setMaxFcgiServers(fastcgiServers);
-  FastCgi::setInitialPort(fastcgiInitialPort);
 	/*! 
    *Determine the number of default filenames written in 
    *the configuration file.  

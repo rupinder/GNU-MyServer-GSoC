@@ -29,27 +29,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/server.h"
 #include "../include/filters_chain.h"
 #include "../include/files_utility.h"
+#include "../include/securestr.h"
+
 #include <string>
 #include <sstream>
 using namespace std;
 
-/*! Running servers.  */
-HashMap<string, FastCgiServer*> FastCgi::serversList;
+#define SERVERS_DOMAIN "fcgi"
 
 /*! Is the fastcgi initialized?  */
 int FastCgi::initialized = 0;
 
-/*! By default allows 25 servers.  */
-int FastCgi::maxFcgiServers = 25;
-
 /*! Use a default timeout of 15 seconds.  */
 int FastCgi::timeout = MYSERVER_SEC(15);
 
-/*! By default start binding ports from 3333.  */
-int FastCgi::initialPort = 3333;
+/*! Process server manager.  */
+ProcessServerManager *FastCgi::processServerManager = 0;
 
-/*! Mutex used to access fastCGI servers.  */
-Mutex FastCgi::serversMutex;
 
 struct FourChar
 {
@@ -59,22 +55,6 @@ struct FourChar
 		unsigned char c[4];
 	};
 };
-
-/*!
- *Set a new value for the max number of servers that can be executed.
- */
-void FastCgi::setMaxFcgiServers(int max)
-{
-  maxFcgiServers = max;
-}
-
-/*!
- *Get the max number of servers that can be executed.
- */
-int FastCgi::getMaxFcgiServers()
-{
-  return maxFcgiServers;
-}
 
 /*!
  *Entry-Point to manage a FastCGI request.
@@ -225,8 +205,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 	}
 
   Cgi::buildCGIEnvironmentString(td, td->buffer->getBuffer());
-  sizeEnvString=buildFASTCGIEnvironmentString(td,td->buffer->getBuffer(),
-                                              td->buffer2->getBuffer());
+  sizeEnvString = buildFASTCGIEnvironmentString(td,td->buffer->getBuffer(),
+																								td->buffer2->getBuffer());
   if(sizeEnvString == -1)
   {
 		td->buffer->setLength(0);
@@ -241,8 +221,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		return td->http->raiseHTTPError(e_500);
   }
 	td->inputData.closeFile();
-	if(td->inputData.openFile(td->inputDataPath,
-                         File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_ALWAYS |
+	if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_OPEN_READ | 
+														File::MYSERVER_OPEN_ALWAYS |
                             File::MYSERVER_NO_INHERIT))
   {
 		td->buffer->setLength(0);
@@ -257,7 +237,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		return td->http->raiseHTTPError(e_500);
   }
 
-  server = fcgiConnect(&con,cmdLine.str().c_str());
+  server = connect(&con, cmdLine.str().c_str());
+
 	if(server == 0)
   {
 		td->buffer->setLength(0);
@@ -871,7 +852,7 @@ void FastCgi::generateFcgiHeader( FcgiHeader &header, int iType,
  */
 FastCgi::FastCgi()
 {
-	initialized=0;
+	initialized = 0;
 }
 
 /*!
@@ -882,8 +863,9 @@ int FastCgi::load(XmlParser* /*confFile*/)
 	if(initialized)
 		return 1;
 	initialized = 1;
-  serversMutex.init();
-	return 1;
+	processServerManager = Server::getInstance()->getProcessServerManager();
+	processServerManager->createDomain(SERVERS_DOMAIN);
+	return 0;
 }
 
 /*!
@@ -891,45 +873,6 @@ int FastCgi::load(XmlParser* /*confFile*/)
  */
 int FastCgi::unload()
 {
-  serversMutex.lock();
-  try
-  {
-		HashMap<string, FastCgiServer*>::Iterator it = serversList.begin();
-
-		for (;it != serversList.end(); it++)
-		{
-      FastCgiServer* server = *it;
-      if(!server)
-        continue;
-      /*! If the server is a remote one do nothing.  */
-      if(server->path.length() && server->path[0] != '@')
-      {
-        server->socket.closesocket();
-        server->process.terminateProcess();
-      }
-      server->path.assign("");
-      delete server;
-    }
-
-    serversList.clear();
-  }
-  catch(bad_alloc& b)
-  {
-    serversMutex.unlock();
-    return 0;
-  }
-  catch(exception& e)
-  {
-    serversMutex.unlock();
-    return 0;
-  }
-  catch(...)
-  {
-    serversMutex.unlock();
-    return 0;
-  };
-  serversMutex.unlock();
-  serversMutex.destroy();
   initialized = 0;
 	return 0;
 }
@@ -940,96 +883,27 @@ int FastCgi::unload()
  */
 FastCgiServer* FastCgi::isFcgiServerRunning(const char* path)
 {
-  serversMutex.lock();
-
-  try
-  {
-    FastCgiServer *s = serversList.get(path);
-    serversMutex.unlock();
-    return s;
-  }
-  catch(...)
-  {
-    serversMutex.unlock();
-  };
-	return 0;
+	return processServerManager->getServer(SERVERS_DOMAIN, path);
 }
 
-/*!
- *Get a client socket in the fCGI context structure
- */
-int FastCgi::fcgiConnectSocket(FcgiContext* con, FastCgiServer* server )
-{
-	MYSERVER_SOCKADDRIN  fastcgiServerSock = { 0 };
-	socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
-	getsockname(server->socket.getHandle(), (sockaddr *)&fastcgiServerSock, 
-							&nLength);
-	if ( fastcgiServerSock.ss_family == AF_INET )
-	{
-		/*! Try to create the socket.  */
-		if(con->sock.socket(AF_INET, SOCK_STREAM, 0) == -1)
-			return -1;
-	  	/*! If the socket was created try to connect.  */
-		if(con->sock.connect(server->host, server->port) == -1)
-		{
-			con->sock.closesocket();
-			return -1;
-		}
-
-	}
-#if ( HAVE_IPV6 && false )/* IPv6 communication not implemented yet by php.  */
-	else if ( fastcgiServerSock.ss_family == AF_INET6 )
-	{
-		/*! Try to create the socket.  */
-		if(con->sock.socket(AF_INET6, SOCK_STREAM, 0) == -1)
-			return -1;
-		/*! If the socket was created try to connect.  */
-		if(con->sock.connect(server->host, server->port) == -1)
-		{
-			con->sock.closesocket();
-			return -1;
-		}
-	}
-#endif // HAVE_IPV6
-	con->sock.setNonBlocking(1);
-
-	con->server = server;
-	return 1;
-}
 
 /*!
  *Get a connection to the FastCGI server.
  */
-FastCgiServer* FastCgi::fcgiConnect(FcgiContext* con, const char* path)
+FastCgiServer* FastCgi::connect(FcgiContext* con, const char* path)
 {
-
 	FastCgiServer* server = runFcgiServer(con, path);
 	/*!
    *If we find a valid server try the connection to it.
    */
 	if(server)
 	{
-		/*!
-     *Connect to the FastCGI server.
-     */
-		int ret = fcgiConnectSocket(con, server);
+		int ret = processServerManager->connect(&(con->sock), server);
+
 		if(ret == -1)
 			return 0;
 	}
 	return server;
-}
-
-/*!
- *Return if the location is a remote one.
- *A remote location starts with a @.
- *\param location The location to check.
- */
-bool FastCgi::isRemoteServer(const char* location) 
-{
-	if(!location) 
-		return false;
-	while(*location && *location == '\"')location++;
-	return *location == '@';
 }
 
 /*!
@@ -1038,181 +912,34 @@ bool FastCgi::isRemoteServer(const char* location)
  *remote server.
  */
 FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context, 
-																					 const char* path)
+																			const char* path)
 {
-  /*!
-   *Flag to identify a local server(running on localhost) from a
-   *remote one.
-   */
-	int localServer;
-  int toReboot = 0;
-  FastCgiServer* server;
-	static u_short portsDelta = 0;
-
-  /*! Check if the specified location is remote. */
-	localServer = !isRemoteServer(path);
-
-  /*! Get the server position in the array. */
-  server = isFcgiServerRunning(path);
-
-  /*! If the process was yet initialized return it. */
+	FastCgiServer* server =	processServerManager->getServer(SERVERS_DOMAIN, 
+																													path);
 	if(server)
-  {
-    if(!localServer)
-      return server;
-    if(server->process.isProcessAlive())
-      return server;
-    else
-      toReboot = 1;
-  }
+		return server;
 
-  /*! Do not create it if we reach the max allowed. */
-	if(serversList.size() == maxFcgiServers - 1)
-		return 0;
+	/* If the path starts with @ then the server is remote.  */
+	if(path[0] == '@')
+	{
+		int i = 1;
+		char host[128];
+		char port[6];
 
-  serversMutex.lock();
+		while(path[i] && path[i] != ':')
+			i++;
 
-  try
-  {
-    /*! Create the new structure if necessary. */
-    if(!toReboot)
-      server = new FastCgiServer();
-    if(server == 0)
-    {
-      if(Server::getInstance()->getVerbosity() > 2)
-      {
-        *context->td->buffer<< "FastCGI: Error allocating memory" << '\0';
-        ((Vhost*)(context->td->connection->host))->warningslogRequestAccess(
-                                                       context->td->id);
-        ((Vhost*)context->td->connection->host)->warningsLogWrite(
-																						 context->td->buffer->getBuffer());
-        ((Vhost*)(context->td->connection->host))->warningslogTerminateAccess(
-                                             context->td->id);
-      }
-      serversMutex.unlock();
-      return 0;
-    }
+		myserver_strlcpy(host, &path[1], min(128, i));
 
-    /*! Create the server socket.  */
-    if(localServer)
-    {
-      if(toReboot)
-      {
-        int ret;
-        server->socket.closesocket();
-        server->process.terminateProcess();
-        ret = runLocalServer(server, path, server->port);
-        if(ret)
-        {
-          if(Server::getInstance()->getVerbosity() > 1)
-          {
-            *context->td->buffer << "FastCGI: Error while rebooting "
-                                 << path << '\0';
-            ((Vhost*)(context->td->connection->host))->
-							warningslogRequestAccess(context->td->id);
-            ((Vhost*)context->td->connection->host)->
-							warningsLogWrite(context->td->buffer->getBuffer());
-            ((Vhost*)(context->td->connection->host))->
-							warningslogTerminateAccess(context->td->id);
-          }
-          serversMutex.unlock();
-          return 0;
-        }
-        serversMutex.unlock();
-        return server;
-      }
-      else
-      {
-        int ret = runLocalServer(server, path, initialPort + (portsDelta++));
-        serversMutex.unlock();
-        if(ret)
-        {
-          if(Server::getInstance()->getVerbosity() > 1)
-          {
-            *context->td->buffer << "FastCGI: Error running "
-                                 << path << '\0';
-            ((Vhost*)(context->td->connection->host))->
-							warningslogRequestAccess(context->td->id);
-            ((Vhost*)context->td->connection->host)->
-							warningsLogWrite(context->td->buffer->getBuffer());
-            ((Vhost*)(context->td->connection->host))->
-							warningslogTerminateAccess(context->td->id);
-          }
-          delete server;
-          serversMutex.unlock();
-          return 0;
-        }
-      }
-    }
-    else
-    {
-      /*! Do not copy the @ character.  */
-      int i = 0;
-      while(path[i] && (path[i] == '\"' || path[i] == '@' ))i++;
+		myserver_strlcpy(port, &path[i + 1], 6);
+		
+		return processServerManager->addRemoteServer(SERVERS_DOMAIN, path, 
+																								 host, atoi(port));
+	}
 
-      /*! Fill the structure with a remote server. */
-      server->path.assign(path);
-
-      memset(server->host, 0, 128);
-
-      /*!
-       *A remote server path has the form @hosttoconnect:porttouse.
-       */
-      while(path[i] != ':')
-      {
-        server->host[i - 1]=path[i];
-        i++;
-      }
-      server->host[i - 1] = '\0';
-      server->port = (u_short)atoi(&path[++i]);
-    }
-
-
-		{
-			FastCgiServer* old;
-			old = serversList.put(server->path, server);
-			if(old)
-			{
-				/*! If the server is a remote one do nothing.  */
-				if(!isRemoteServer(old->path.c_str()))
-				{
-					old->socket.closesocket();
-					old->process.terminateProcess();
-				}
-				old->path.assign("");
-				delete old;
-			}
-		}
-
-    serversMutex.unlock();  
-
-  }
-  catch(...)
-  {
-    serversMutex.unlock();
-    throw;
-  };
-  /*!
-   *Return the server.
-   */
-  return server;
+	return processServerManager->runAndAddServer(SERVERS_DOMAIN, path);
 }
 
-/*!
- *Set the initial port for new servers.
- */
-void FastCgi::setInitialPort(int nport)
-{
-  initialPort = nport;
-}
-
-/*!
- *Get the initial port.
- */
-int FastCgi::getInitialPort()
-{
-  return initialPort;
-}
 
 /*!
  *Return the timeout value.
@@ -1228,128 +955,4 @@ int FastCgi::getTimeout()
 void FastCgi::setTimeout(int ntimeout)
 {
   timeout = ntimeout;
-}
-
-/*!
- *Start the server on the specified port. Return zero on success.
- */
-int FastCgi::runLocalServer(FastCgiServer* server, const char* path, int port)
-{
-  StartProcInfo spi;
-  MYSERVER_SOCKADDRIN sock_inserverSocket;
-  strcpy(server->host, "localhost");
-  server->port=port;
-  server->socket.socket(AF_INET,SOCK_STREAM,0);
-  if(server->socket.getHandle() != (SocketHandle)INVALID_SOCKET)
-  {
-	  ((sockaddr_in *)(&sock_inserverSocket))->sin_family=AF_INET;
-
-	  /*! The FastCGI server accepts connections only by the localhost. */
-	  ((sockaddr_in *)(&sock_inserverSocket))->sin_addr.s_addr = 
-			htonl(INADDR_LOOPBACK);
-	  ((sockaddr_in *)(&sock_inserverSocket))->sin_port = 
-			htons(server->port);
-	  if ( !server->socket.bind(&sock_inserverSocket,
-															sizeof(sockaddr_in)) )
-	  {
-		  if( !server->socket.listen(SOMAXCONN) )
-			{
-				string tmpCgiPath;
-				string moreArg;
-				int subString = path[0] == '"';
-				int i;
-				int len = strlen(path);
-				for(i = 1; i < len; i++)
-				{
-					if(!subString && path[i] == ' ')
-						break;
-					if(path[i] == '"' && path[i - 1] != '\\')
-						subString = !subString;
-				}
-
-				if(i < len)
-				{
-					string tmpString(path);
-					int begin = tmpString[0] == '"' ? 1 : 0;
-					int end   = tmpString[i] == '"' ? i + 1 : i ;
-					tmpCgiPath.assign(tmpString.substr(begin, end));
-					moreArg.assign(tmpString.substr(i, len));  
-				}
-				else
-				{
-					int begin = (path[0] == '"') ? 1 : 0;
-					int end   = (path[len] == '"') ? len-1 : len;
-					tmpCgiPath.assign(&path[begin], end-begin);
-					moreArg.assign("");
-				}
-
-
-			  server->DESCRIPTOR.fileHandle = server->socket.getHandle();
-			  spi.envString = 0;
-			  spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
-			  spi.cmd.assign(tmpCgiPath);
-				spi.arg.assign(moreArg);
-			  spi.cmdLine.assign(path);
-			  server->path.assign(path);
-
-			  spi.stdOut = spi.stdError =(FileHandle) -1;
-			  if(server->process.execConcurrentProcess(&spi) == -1)
-				{
-					server->socket.closesocket();
-					//return 1; allow IPv6
-			  }
-			  
-		  }
-		  else
-		  {
-				server->socket.closesocket();
-				//return 1; allow IPv6
-		}
-	  }
-	  else
-		{
-			server->socket.closesocket();
-			//return 1; allow IPv6
-		}
-  }
-  else
-  {
-#if ( HAVE_IPV6 && false/* IPv6 communication not implemented yet by php.  */ )
-		server->socket.socket(AF_INET6, SOCK_STREAM, 0);
-		if(server->socket.getHandle() != (SocketHandle)INVALID_SOCKET)
-		{
-			((sockaddr_in6 *)(&sock_inserverSocket))->sin6_family=AF_INET6;
-
-			/*! The FastCGI server accepts connections only by the localhost.  */
-			((sockaddr_in6 *)(&sock_inserverSocket))->sin6_addr=in6addr_any;
-			((sockaddr_in6 *)(&sock_inserverSocket))->sin6_port=htons(server->port);
-			if(server->socket.bind(&sock_inserverSocket,
-														 sizeof(sockaddr_in6)))
-			{
-				server->socket.closesocket();
-				return 1;
-			}
-			if(server->socket.listen(SOMAXCONN))
-		  {
-				server->socket.closesocket();
-				return 1;
-			}
-			server->DESCRIPTOR.fileHandle = server->socket.getHandle();
-			spi.envString = 0;
-			spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
-			spi.cmd.assign(path);
-			spi.cmdLine.assign(path);
-			server->path.assign(path);
-
-			spi.stdOut = spi.stdError =(FileHandle) -1;
-
-			if(server->process.execConcurrentProcess(&spi) == -1)
-			{
-				server->socket.closesocket();
-				return 1;
-			}
-		}
-#endif
-	}
-  return 0;
 }

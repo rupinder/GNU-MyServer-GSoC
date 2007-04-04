@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/mutex.h"
 #include "../include/http_data_handler.h"
 #include "../include/hash_map.h"
+#include "../include/process_server_manager.h"
 #include <string>
 
 using namespace std;
@@ -40,7 +41,8 @@ using namespace std;
  */
 #define FCGI_LISTENSOCK_FILENO 0
 
-typedef struct {
+typedef struct 
+{
     unsigned char version;
     unsigned char type;
     unsigned char requestIdB1;
@@ -50,14 +52,6 @@ typedef struct {
     unsigned char paddingLength;
     unsigned char reserved;
 } FcgiHeader;
-
-#define FCGIMAX_LENGTH 0xffff
-
-/*!
- *Number of bytes in a FcgiHeader.  Future versions of the protocol
- *will not reduce this number.
- */
-#define FCGIHEADER_LEN  8
 
 /*!
  *Value for version component of FcgiHeader.
@@ -83,13 +77,7 @@ typedef struct {
 #define FCGIGET_VALUES          9
 #define FCGIGET_VALUES_RESULT  10
 #define FCGIUNKNOWN_TYPE       11
-#define FCGIMAXTYPE (FcgiUNKNOWN_TYPE)
-
-/*!
- *Value for requestId component of FcgiHeader.
- */
-#define FCGINULL_REQUEST_ID     0
-
+#define FCGIMAXTYPE (FCGIUNKNOWN_TYPE)
 
 typedef struct 
 {
@@ -116,7 +104,6 @@ typedef struct
 #define FCGIRESPONDER  1
 #define FCGIAUTHORIZER 2
 #define FCGIFILTER     3
-
 
 typedef struct 
 {
@@ -154,23 +141,8 @@ typedef struct
     FcgiUnknownTypeBody body;
 } FcgiUnknownTypeRecord;
 
-struct FastCgiServer
-{
-  /*! Server executable path.  */
-	string path;
 
-	union 
-	{
-    unsigned long fileHandle;
-		SOCKET sock;
-		unsigned int value;
-	}DESCRIPTOR;
-
-	Socket socket;
-	char host[128];
-	Process process; 
-	u_short port;
-};
+typedef ProcessServerManager::Server FastCgiServer;
 
 struct FcgiContext
 {
@@ -183,12 +155,8 @@ struct FcgiContext
 class FastCgi : public HttpDataHandler
 {
 public:
-  static void setInitialPort(int);
-  static int getInitialPort(); 
   static int getTimeout();
   static void setTimeout(int);
-  static void setMaxFcgiServers(int);
-  static int getMaxFcgiServers();
 	FastCgi();
 	static int load(XmlParser*);
 	int send(HttpThreadContext* td, ConnectionPtr connection,
@@ -196,22 +164,16 @@ public:
                   int onlyHeader);
 	static int unload();
 private:
-  static int initialPort;
+	static ProcessServerManager *processServerManager;
 	static int timeout;
-  static int maxFcgiServers;
 	static int initialized;
-  static Mutex serversMutex;
-	static HashMap<string,FastCgiServer*> serversList;
 
-	int fcgiConnectSocket(FcgiContext*,FastCgiServer*);
 	void generateFcgiHeader( FcgiHeader&, int ,int, int );
 	Socket getFcgiConnection();
 	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
 	int sendFcgiBody(FcgiContext* con,char* buffer,int len,int type,int id);
 	FastCgiServer* isFcgiServerRunning(const char*);
   FastCgiServer* runFcgiServer(FcgiContext*, const char*);
-	FastCgiServer* fcgiConnect(FcgiContext*, const char*);
-  int runLocalServer(FastCgiServer* server, const char* path, int port);
-	bool isRemoteServer(const char*);
+	FastCgiServer* connect(FcgiContext*, const char*);
 };
 #endif

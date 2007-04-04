@@ -1080,6 +1080,8 @@ int Server::terminate()
 
 	getPluginsManager()->unload(this, &languageParser);
 
+	getProcessServerManager()->clear();
+
   filtersFactory.free();
 
 	/*
@@ -1336,7 +1338,7 @@ int Server::initialize(int /*!osVer*/)
 	data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
 	if(data)
 	{
-		connectionTimeout=MYSERVER_SEC((u_long)atol(data));
+		connectionTimeout = MYSERVER_SEC((u_long)atol(data));
 	}
 
 	data = configurationFileManager.getValue("NTHREADS_STATIC");
@@ -1429,13 +1431,29 @@ int Server::initialize(int /*!osVer*/)
   data = configurationFileManager.getValue("PROCESS_USER_ID");
 	if(data)
 	{
-		uid=atoi(data);
+		uid = atoi(data);
 	}
   data = configurationFileManager.getValue("PROCESS_GROUP_ID");
 	if(data)
 	{
-		gid=atoi(data);
+		gid = atoi(data);
 	}
+
+	data = configurationFileManager.getValue("MAX_SERVERS_PROCESSES");
+	if(data)
+	{
+		int maxServersProcesses = atoi(data);
+		getProcessServerManager()->setMaxServers(maxServersProcesses);
+	}
+
+	data = configurationFileManager.getValue("SERVERS_PROCESSES_INITIAL_PORT");
+	if(data)
+	{
+		int serversProcessesInitialPort = atoi(data);
+		getProcessServerManager()->setInitialPort(serversProcessesInitialPort);
+	}	
+
+
 
   {
 	  xmlNodePtr node =
