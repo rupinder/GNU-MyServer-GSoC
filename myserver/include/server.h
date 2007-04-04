@@ -144,6 +144,7 @@ public:
   u_long getThrottlingRate();
 	void temporaryFileName(u_long tid, string &out);
 	int waitNewConnection(u_long tid, u_long timeout);
+	XmlParser *getConfiguration(){return &configurationFileManager;}
 private:
   friend class ClientsThread;
 #ifdef WIN32

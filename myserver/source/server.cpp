@@ -1084,6 +1084,8 @@ int Server::terminate()
 
   filtersFactory.free();
 
+	configurationFileManager.close();
+
 	/*
    *Destroy the connections mutex.
    */
@@ -1453,8 +1455,6 @@ int Server::initialize(int /*!osVer*/)
 		getProcessServerManager()->setInitialPort(serversProcessesInitialPort);
 	}	
 
-
-
   {
 	  xmlNodePtr node =
 			xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode;
@@ -1475,8 +1475,6 @@ int Server::initialize(int /*!osVer*/)
       }
     }
   }
-
-	configurationFileManager.close();
 
 	if(languageParser.open(languageFile->c_str()))
   {
@@ -2224,6 +2222,7 @@ int Server::loadSettings()
     externalPath->assign("external/protocols");
 
 #endif
+		getProcessServerManager()->load();
 
     Http::loadProtocol(&languageParser);
     Https::loadProtocol(&languageParser);

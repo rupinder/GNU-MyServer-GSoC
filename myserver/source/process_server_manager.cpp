@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sstream>
 using namespace std;
 
+/*!
+ *Default constructor.
+ */
 ProcessServerManager::ProcessServerManager()
 {
 	mutex.init();
@@ -30,9 +33,96 @@ ProcessServerManager::ProcessServerManager()
 	maxServers = 25;
 }
 
+/*!
+ *Default destructor.
+ */
 ProcessServerManager::~ProcessServerManager()
 {
 	mutex.destroy();
+}
+
+/*!
+ *Load the class.
+ */
+void ProcessServerManager::load()
+{
+	XmlParser* conf = ::Server::getInstance()->getConfiguration();
+	xmlNodePtr node =	xmlDocGetRootElement(conf->getDoc())->xmlChildrenNode;
+	for(;node; node = node->next)
+  {
+		string domain;
+		string host;
+		string name;
+		string port;
+		string local;
+		bool localBool = true;
+		xmlNodePtr node2;
+		if(strcmpi((const char*)node->name, "PROCESS_SERVER"))
+			continue;
+		node2 = node->children;
+		for(;node2; node2 = node2->next)
+		{
+			if(!node2->children || !node2->children->content)
+				continue;
+			
+			if(!strcmpi((const char*)node2->name, "NAME"))
+				name.assign((const char*) node2->children->content);
+
+			if(!strcmpi((const char*)node2->name, "HOST"))
+				host.assign((const char*) node2->children->content);
+
+			if(!strcmpi((const char*)node2->name, "DOMAIN"))
+				domain.assign((const char*) node2->children->content);
+
+			if(!strcmpi((const char*)node2->name, "PORT"))
+				port.assign((const char*) node2->children->content);
+
+			if(!strcmpi((const char*)node2->name, "LOCAL"))
+				local.assign((const char*) node2->children->content);
+		}
+		
+		if(!local.compare("YES") || !local.compare("yes"))
+			localBool = true;
+		
+		if(name.size() && domain.size())
+		{
+			u_short portN = 0;
+			if(port.size())
+				portN = atoi(port.c_str());
+
+			if(localBool)
+				runAndAddServer(domain.c_str(), name.c_str(), portN);
+			else
+			{
+				if(portN)
+					addRemoteServer(domain.c_str(), name.c_str(), host.c_str(), portN);
+				else
+				{
+					ostringstream msg;
+					msg << "Error: incomplete remote PROCESS_SERVER block, " 
+							<< domain	<< ":" << name << " needs a port";
+					::Server::getInstance()->logLockAccess();
+					::Server::getInstance()->logPreparePrintError();
+					::Server::getInstance()->logWriteln(msg.str().c_str());
+					::Server::getInstance()->logEndPrintError();
+					::Server::getInstance()->logUnlockAccess();
+
+				}
+			}
+
+		}
+		else
+		{
+			char *msg = "Error: incomplete PROCESS_SERVER block";
+			::Server::getInstance()->logLockAccess();
+			::Server::getInstance()->logPreparePrintError();
+			::Server::getInstance()->logWriteln(msg);
+			::Server::getInstance()->logEndPrintError();
+			::Server::getInstance()->logUnlockAccess();
+		}
+
+	}
+
 }
 
 /*!
@@ -263,13 +353,14 @@ int ProcessServerManager::domainServers(const char* domain)
  *Run and add a server to the collection.
  *\param domain The server's domain.
  *\param path The path to the executable.
+ *\param port Port to use for the server.
  */
 ProcessServerManager::Server* 
-ProcessServerManager::runAndAddServer(const char* domain, 
-																			const char* path)
+ProcessServerManager::runAndAddServer(const char* domain,	const char* path,
+																			u_short port)
 {
 	Server* server = new Server;
-	if(runServer(server, path))
+	if(runServer(server, path, port))
 	{
 		delete server;
 		return 0;

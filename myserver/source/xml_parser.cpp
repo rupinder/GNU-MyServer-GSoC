@@ -175,8 +175,8 @@ char *XmlParser::getValue(const char* vName)
 	if(!cur)
 		return 0;
 
-	lcur=cur->xmlChildrenNode;
-	buffer[0]='\0';
+	lcur = cur->xmlChildrenNode;
+	buffer[0] = '\0';
 	while(lcur)
 	{
 		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
@@ -188,14 +188,14 @@ char *XmlParser::getValue(const char* vName)
         int inlen = strlen((const char*)lcur->children->content);
         if(UTF8Toisolat1((unsigned char*)buffer, &outlen, 
                          (unsigned char*)lcur->children->content, &inlen)>= 0)
-          buffer[outlen]='\0';
+          buffer[outlen] = '\0';
         else
-          strncpy(buffer,(char*)lcur->children->content,250);
+          strncpy(buffer, (char*)lcur->children->content, 250);
         ret = buffer;
       }
 			break;
 		}
-		lcur=lcur->next;
+		lcur = lcur->next;
 	}
 	
 	return ret;

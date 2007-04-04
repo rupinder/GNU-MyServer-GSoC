@@ -80,9 +80,6 @@ public:
 	Server* getServer(const char* domain, const char* name);
 	ProcessServerManager();
 	~ProcessServerManager();
-	Server* runAndAddServer(const char* domain, const char* name);
-	Server* addRemoteServer(const char* domain, const char* name, 
-													const char* host, u_short port);
 	int connect(Socket* sock, Server* server);
 	void setMaxServers(int max){maxServers = max;}
 	int getMaxServers(){return maxServers;}
@@ -91,6 +88,11 @@ public:
 	void removeServer(const char* domain, const char* name);
 	void removeDomain(const char* domain);
 	int domainServers(const char* domain);
+	void load();
+	Server* runAndAddServer(const char* domain, const char* name, 
+													u_short port = 0);
+	Server* addRemoteServer(const char* domain, const char* name, 
+													const char* host, u_short port);
 private:
 	int maxServers;
 	u_short initialPort;
