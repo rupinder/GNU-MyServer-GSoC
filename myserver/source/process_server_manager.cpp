@@ -95,6 +95,8 @@ void ProcessServerManager::clear()
 			{
 				(*it)->clear(*server);
 			}
+			if((*server)->isLocal)
+				nServers--;
 			(*server)->terminate();
 			delete (*server);
 		}
@@ -156,11 +158,7 @@ void ProcessServerManager::addServer(ProcessServerManager::Server* server,
 
 	if(old)
 	{
-		if(old->isLocal)
-		{
-			old->socket.closesocket();
-			old->process.terminateProcess();
-		}
+		old->terminate();
 		delete old;
 	}
 	mutex.unlock();
@@ -177,14 +175,88 @@ ProcessServerManager::Server*
 ProcessServerManager::addRemoteServer(const char* domain, const char* name, 
 																			const char* host, u_short port)
 {
-	Server* s = new Server;
-	s->path.assign(name);
-	s->host.assign(host);
-	s->port = port;
-	s->isLocal = false;
+	Server* server = new Server;
+	server->path.assign(name);
+	server->host.assign(host);
+	server->port = port;
+	server->isLocal = false;
 
-	addServer(s, domain, name);
-	return s;
+	addServer(server, domain, name);
+	return server;
+}
+
+/*!
+ *Remove a domain by its name.
+ *\param domain The domain name.
+ */
+void ProcessServerManager::removeDomain(const char* domain)
+{
+	ServerDomain *sd;
+	HashMap<string, Server*>::Iterator server;
+
+	mutex.lock();
+
+	sd = getDomain(domain);
+	if(sd)
+	{
+		server = sd->servers.begin();
+		
+		for(;server != sd->servers.end(); server++)
+		{
+			if(sd->clear)
+			{
+				sd->clear(*server);
+			}
+			if((*server)->isLocal)
+				nServers--;
+			(*server)->terminate();
+			delete (*server);
+		}
+		delete sd;
+	}
+
+	mutex.unlock();
+}
+
+/*!
+ *Remove a server by its domain and name.
+ *\param domain The server domain.
+ *\param name The server name.
+ */
+void ProcessServerManager::removeServer(const char* domain, const char* name)
+{
+	ServerDomain* sd;
+	Server* server;
+	mutex.lock();
+	sd = domains.get(domain);
+	if(sd)
+		server = sd->servers.remove(name);
+	else
+		server = 0;
+	
+	if(server)
+	{
+		if(server->isLocal)
+		{
+			if(sd->clear)
+				sd->clear(server);
+			server->terminate();
+			nServers--;
+		}
+		delete server;
+	}
+
+	mutex.unlock();
+}
+
+/*!
+ *Count how many servers are present in a domain.
+ *\param domain The server domain.
+ */
+int ProcessServerManager::domainServers(const char* domain)
+{
+	ServerDomain* serverDomain = getDomain(domain);
+	return serverDomain ? serverDomain->servers.size() : 0;
 }
 
 /*!

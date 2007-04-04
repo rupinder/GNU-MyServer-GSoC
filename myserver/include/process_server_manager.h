@@ -88,6 +88,9 @@ public:
 	int getMaxServers(){return maxServers;}
 	void setInitialPort(u_short port){initialPort = port;}
 	u_short getInitialPort(){return initialPort;}
+	void removeServer(const char* domain, const char* name);
+	void removeDomain(const char* domain);
+	int domainServers(const char* domain);
 private:
 	int maxServers;
 	u_short initialPort;
