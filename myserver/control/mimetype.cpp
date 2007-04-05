@@ -1,6 +1,6 @@
 /*
  * MyServer
- * Copyright (C) 2002, 2003, 2004 The MyServer Team
+ * Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -137,6 +137,11 @@ int MIMEtypeXML::load_core(XmlParser & parser)
 		    setCmd(extNumber, CMD_RUNFASTCGI);
 		  else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
 		    setCmd(extNumber, CMD_EXECUTEFASTCGI);
+		  else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNSCGI"))
+		    setCmd(extNumber, CMD_RUNSCGI);
+		  else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTESCGI"))
+		    setCmd(extNumber, CMD_EXECUTESCGI);
+
 #ifdef DEBUG
 		  printf("CMD: %s, No: %d, Result: %d\n", (char*)lcur->children->content, extNumber, getCmd(extNumber));
 #endif
@@ -243,6 +248,12 @@ int MIMEtypeXML::save_core(XmlParser & xmlFile)
 	     break;
 	   case CMD_EXECUTEFASTCGI:
 	     strncpy(command,"EXECUTEFASTCGI",16);
+	     break;
+	   case CMD_RUNSCGI:
+	     strncpy(command,"RUNSCGI",13);
+	     break;
+	   case CMD_EXECUTESCGI:
+	     strncpy(command,"EXECUTESCGI",11);
 	     break;
 	   default:
 	     break;

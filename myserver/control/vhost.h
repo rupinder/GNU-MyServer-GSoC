@@ -42,6 +42,7 @@ enum
 #define ALLOW_SEND_LINK         0x020
 #define ALLOW_EXTERNAL_COMMANDS 0x040
 #define ALLOW_SEND_FILE         0x080
+#define ALLOW_SCGI              0x100
 #define ALLOW_ALL               0xFFF
 
 extern const char * EMPTY;

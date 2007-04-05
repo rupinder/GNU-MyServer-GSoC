@@ -105,7 +105,6 @@ if(i != -1) {
               label Service
               callback {StopService();}
               xywh {0 0 100 20}
-              code0 {DEACTIVATE;}
             }
           }
           menuitem {} {
@@ -124,7 +123,6 @@ else {
         submenu {} {
           label {Ser&vice} open
           xywh {0 0 100 20}
-          code0 {DEACTIVATE;}
         } {
           menuitem {} {
             label {Install Service}
@@ -504,6 +502,10 @@ if(val2 != 0) {
                 xywh {10 10 100 20}
               }
               menuitem {} {
+                label {Run as SCGI}
+                xywh {10 10 100 20}
+              }
+              menuitem {} {
                 label {Run as ISAPI}
                 xywh {10 10 100 20}
               }
@@ -527,6 +529,11 @@ if(val2 != 0) {
                 label {Execute self contained FastCGI}
                 xywh {10 10 100 20}
               }
+              menuitem {} {
+                label {Run self contained SCGI}
+                xywh {10 10 100 20}
+              }
+
             }
             Fl_Input Manager {
               label {Manager:}
@@ -580,6 +587,7 @@ Allow_ISAPI->value(VHostConf.getService(i, ALLOW_ISAPI));
 Allow_MSCGI->value(VHostConf.getService(i, ALLOW_MSCGI));
 Allow_WINCGI->value(VHostConf.getService(i, ALLOW_WINCGI));
 Allow_FASTCGI->value(VHostConf.getService(i, ALLOW_FASTCGI));
+Allow_SCGI->value(VHostConf.getService(i, ALLOW_SCGI));
 Allow_SEND_LINK->value(VHostConf.getService(i, ALLOW_SEND_LINK));
 Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(i, ALLOW_EXTERNAL_COMMANDS));
 Allow_SEND_FILE->value(VHostConf.getService(i, ALLOW_SEND_FILE));
@@ -626,6 +634,7 @@ if(val != 0) {
   Allow_MSCGI->value(VHostConf.getService(i, ALLOW_MSCGI));
   Allow_WINCGI->value(VHostConf.getService(i, ALLOW_WINCGI));
   Allow_FASTCGI->value(VHostConf.getService(i, ALLOW_FASTCGI));
+  Allow_SCGI->value(VHostConf.getService(i, ALLOW_SCGI));
   Allow_SEND_LINK->value(VHostConf.getService(i, ALLOW_SEND_LINK));
   Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(i, ALLOW_EXTERNAL_COMMANDS));
   Allow_SEND_FILE->value(VHostConf.getService(i, ALLOW_SEND_FILE));
@@ -920,6 +929,13 @@ VHostConf.setService(i, ALLOW_WINCGI, Allow_WINCGI->value());}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_FASTCGI, Allow_FASTCGI->value());}
+                  xywh {60 260 20 25} down_box DOWN_BOX align 8 when 1
+                }
+                Fl_Check_Button Allow_SCGI {
+                  label SCGI
+                  callback {Changed = true;
+int i = Name->value();
+VHostConf.setService(i, ALLOW_SCGI, Allow_SCGI->value());}
                   xywh {60 260 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_SEND_LINK {
@@ -1490,6 +1506,7 @@ Allow_ISAPI->value(VHostConf.getService(0, ALLOW_ISAPI));
 Allow_MSCGI->value(VHostConf.getService(0, ALLOW_MSCGI));
 Allow_WINCGI->value(VHostConf.getService(0, ALLOW_WINCGI));
 Allow_FASTCGI->value(VHostConf.getService(0, ALLOW_FASTCGI));
+Allow_SCGI->value(VHostConf.getService(0, ALLOW_SCGI));
 Allow_SEND_LINK->value(VHostConf.getService(0, ALLOW_SEND_LINK));
 Allow_EXTERNAL_COMMANDS->value(VHostConf.getService(0, ALLOW_EXTERNAL_COMMANDS));
 Allow_SEND_FILE->value(VHostConf.getService(0, ALLOW_SEND_FILE));
@@ -1993,7 +2010,7 @@ if(ret) { // no dice
 MSvr << '\\0';
 ConnectionsDlgVr->value((const char *)MSvr.getBuffer());
 
-time = get_ticks();
+time = getTicks();
 ConnectionsDlgList->clear();
 ret = Server.getConnections(list);
 
@@ -2024,12 +2041,12 @@ for(;;) {
         break;
       } // if
       // A cheap trick
-      time = (int)get_ticks() - (int)ConnectionsDlgRate->value() * 2000;
+      time = (int)getTicks() - (int)ConnectionsDlgRate->value() * 2000;
     } // if
   } // else if
 
-  if((int)(get_ticks() - time) > (int)ConnectionsDlgRate->value() * 1000) {
-    time = get_ticks();
+  if((int)(getTicks() - time) > (int)ConnectionsDlgRate->value() * 1000) {
+    time = getTicks();
     ConnectionsDlgList->clear();
     ret = Server.getConnections(list);
 
@@ -2082,8 +2099,8 @@ fl_alert(temp);} {}
   }
   Function {fl_wait(int len)} {private return_type void
   } {
-    code {int time = (int)get_ticks();
-while((int)(get_ticks() - time) < len) {
+    code {int time = (int)getTicks();
+while((int)(getTicks() - time) < len) {
   Fl::wait(0);
 }} {}
   }
