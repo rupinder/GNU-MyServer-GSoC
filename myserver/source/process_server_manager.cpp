@@ -83,7 +83,9 @@ void ProcessServerManager::load()
 		
 		if(!local.compare("YES") || !local.compare("yes"))
 			localBool = true;
-		
+		else
+			localBool = false;
+
 		if(name.size() && domain.size())
 		{
 			u_short portN = 0;
@@ -213,7 +215,7 @@ ProcessServerManager::getServer(const char* domain, const char* name)
 	else
 		s = 0;
 	
-	if(s && !s->process.isProcessAlive())
+	if(s && s->isLocal && !s->process.isProcessAlive())
 	{
 		s->socket.closesocket();
 		s->process.terminateProcess();
@@ -526,7 +528,7 @@ int ProcessServerManager::connect(Socket* sock,
 	MYSERVER_SOCKADDRIN serverSock = { 0 };
 	socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
 	getsockname(server->socket.getHandle(), (sockaddr *)&serverSock, &nLength);
-	if(serverSock.ss_family == AF_INET)
+	if(serverSock.ss_family == AF_INET || !server->isLocal)
 	{
 		/*! Try to create the socket.  */
 		if(sock->socket(AF_INET, SOCK_STREAM, 0) == -1)

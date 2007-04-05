@@ -1562,6 +1562,45 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 												 data.c_str(), 1, onlyHeader);
       return ret;
     }
+    else if( mimecmd == CGI_CMD_RUNSCGI )
+    {
+      int allowScgi = 1;
+	    const char *dataH = td.connection->host->getHashedData("ALLOW_SCGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowScgi = 1;
+        else
+          allowScgi = 0;      
+	    }
+      if(!allowScgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
+      {
+        return sendAuth();
+      }	
+      ret = scgi.send(&td, td.connection, td.filenamePath.c_str(), 
+											data.c_str(), 0, onlyHeader);
+      return ret;
+    }
+    else if(mimecmd == CGI_CMD_EXECUTESCGI)
+    {
+      int allowScgi = 1;
+	    const char *dataH = td.connection->host->getHashedData("ALLOW_SCGI");
+	    if(dataH)
+	    {
+        if(!strcmpi(dataH, "YES"))
+          allowScgi = 1;
+        else
+          allowScgi = 0;      
+	    }
+      if(!allowScgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
+      {
+        return sendAuth();
+      }
+      ret = scgi.send(&td, td.connection, td.filenamePath.c_str(), 
+											data.c_str(), 1, onlyHeader);
+      return ret;
+    }
+
     else if( mimecmd == CGI_CMD_SENDLINK )
     {
       u_long nbr;
@@ -2888,6 +2927,9 @@ int Http::loadProtocol(XmlParser* languageParser)
 	/*! Initialize FastCGI.  */
 	FastCgi::load(&configurationFileManager);	
 
+	/*! Initialize SCGI.  */
+	Scgi::load(&configurationFileManager);	
+
 	/*! Load the MSCGI library.  */
 	mscgiLoaded = MsCgi::load(&configurationFileManager) ? 0 : 1;
 	if(mscgiLoaded)
@@ -2935,7 +2977,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	}
 
   Cgi::setTimeout(cgiTimeout);
-  FastCgi::setTimeout(cgiTimeout);
+  Scgi::setTimeout(cgiTimeout);
   WinCgi::setTimeout(cgiTimeout);
   Isapi::setTimeout(cgiTimeout);
 	/*! 
@@ -2995,10 +3037,17 @@ int Http::unloadProtocol(XmlParser* languageParser)
    *Clean ISAPI.
    */
 	Isapi::unload();
+
 	/*!
    *Clean FastCGI.
    */
 	FastCgi::unload();
+
+	/*!
+   *Clean SCGI.
+   */
+	Scgi::unload();
+
 	/*!
    *Clean MSCGI.
    */

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cgi.h"
 #include "../include/wincgi.h"
 #include "../include/fastcgi.h"
+#include "../include/scgi.h"
 #include "../include/mscgi.h"
 #include "../include/isapi.h"
 #include "../include/http_file.h"
@@ -89,6 +90,7 @@ private:
 	WinCgi wincgi;
 	Isapi isapi;
 	Cgi cgi;
+	Scgi scgi;
 	FastCgi fastcgi;
   HttpFile httpFile;
   HttpDir httpDir;

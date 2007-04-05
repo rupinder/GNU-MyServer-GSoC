@@ -392,12 +392,12 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 				 break;
 			 }
 			else
-				{
-					if(term)
-						break;
-
-					continue;
-				}
+			{
+				if(term)
+					break;
+				
+				continue;
+			}
 		}
 
 		headerOffset += nBytesRead;

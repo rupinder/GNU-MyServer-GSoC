@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -77,6 +77,12 @@ enum CGI_COMMANDS
 	
 	/*! Send the file as a FastCGI.  */
 	CGI_CMD_EXECUTEFASTCGI,	
+
+	/*! Send the file using the specified SCGI server.  */
+	CGI_CMD_RUNSCGI,
+	
+	/*! Send the file as a SCGI.  */
+	CGI_CMD_EXECUTESCGI,	
 
 	/*! Use an external plugin to handle this MIME type.  */
 	CGI_CMD_EXTERNAL

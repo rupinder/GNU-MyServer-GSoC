@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -308,10 +308,10 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
                                     u_long* nLinesptr, u_long* ncharsptr)
 {
 	u_long i;
-	u_long nLinechars=0;
-	u_long nLines=0;
+	u_long nLinechars = 0;
+	u_long nLines = 0;
 
-	if(res==0)
+	if(res == 0)
 		return 0;
 	/*
 	 *Count the number of lines in the header.
@@ -320,9 +320,9 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
 	{
 		if(res[i]=='\n')
 		{
-			if((res[i+2]=='\n') || (res[i+1]=='\0') || (res[i+1]=='\n'))
+			if((res[i+2] == '\n') || (res[i+1] == '\0') || (res[i+1] == '\n'))
 			{
-				if((i+3)>td->buffersize)
+				if(i + 3 > td->buffersize)
 					return 0;
 				break;
 			}
@@ -335,7 +335,7 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
 			 *If a line contains more than 4160 characters we consider the 
 			 *header invalid.
 			 */
-			if(nLinechars>=4160)
+			if(nLinechars >= 4160)
 	    		return 0;
 	    	nLinechars++;
 		}
@@ -344,8 +344,8 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
 	/*
 	 *Set the output variables.
 	 */
-	*nLinesptr=nLines;
-	*ncharsptr=i+3;
+	*nLinesptr = nLines;
+	*ncharsptr = i+3;
 	
 	/*
 	 *Return if is a valid request header.
@@ -918,7 +918,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
  *\param input the buffer with the HTTP header data.
  */
 int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response, 
-                                                HttpThreadContext *td,char *input)
+																							 HttpThreadContext *td,
+																							 char *input)
 {
 	/*!
 	 *Brief description.
@@ -929,7 +930,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
    *cause especially in the CGI is requested a continous
    *HTTP header access.
    *Before mapping the header in the structure 
-   *control if this is a regular request.
+   *control if this is a regular response.
    */
 	char *newInput;
 	u_long nLines,maxTotchars;
@@ -937,41 +938,44 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 	const char cmdSeps[]   = ": ,\t\n\r\0";
 
 	int containStatusLine=0;
-	char *token=0;
+	char *token = 0;
 	char command[96];
 
 	int lineControlled = 0;
 	int nLineControlled = 0;
 
-	if(input==0)
+	if(input == 0)
 	{
-		input=td->buffer2->getBuffer();
+		input = td->buffer2->getBuffer();
 	}
 	/* Control if the HTTP header is a valid header.  */
-	if(input[0]==0)
+	if(input[0] == 0)
 		return 0;
-	validResponse=validHTTPResponse(input, td, &nLines, &maxTotchars);
+	validResponse = validHTTPResponse(input, td, &nLines, &maxTotchars);
 
 	if(validResponse)
 	{
-		newInput=new char[maxTotchars + 1];
+		newInput = new char[maxTotchars + 1];
 		if(!newInput)
 			return 0;
-		/* FIXME: Don't alloc new memory but simply use a no-destructive parsing.  */
+		/*
+		 * FIXME: 
+		 * Don't alloc new memory but simply use a no-destructive parsing.  
+		 */
 		memcpy(newInput, input, maxTotchars);
-		newInput[maxTotchars]='\0';
+		newInput[maxTotchars] = '\0';
 		input = newInput;
 	}
 	else
 		return 0;
 
-	token=input;
+	token = input;
 	
 	/* Check if is specified the first line containing the HTTP status.  */
-	if((input[0]=='H')&&(input[1]=='T')&&(input[2]=='T')
-     &&(input[3]=='P')&&(input[4]==' '))
+	if((input[0] == 'H') && (input[1] == 'T') && (input[2] == 'T')
+     &&(input[3] == 'P') && (input[4] == ' '))
 	{
-		containStatusLine=1;
+		containStatusLine = 1;
 		token = strtok( token, " " );
 	}
 	else
@@ -983,7 +987,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		/*
      *Reset the flag lineControlled.
      */
-		lineControlled=0;
+		lineControlled = 0;
 
 		/*
      *Copy the HTTP command.
@@ -991,15 +995,15 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 		myserver_strlcpy(command, token, 96);
 		
 		nLineControlled++;
-		if((nLineControlled==1)&& containStatusLine)
+		if((nLineControlled == 1) && containStatusLine)
 		{
-			lineControlled=1;
+			lineControlled = 1;
 			/* Copy the HTTP version.  */
       response->ver.assign(command);
 		
 			token = strtok( NULL, " ,\t\n\r" );
 			if(token)
-				response->httpStatus=atoi(token);
+				response->httpStatus = atoi(token);
 			
 			token = strtok( NULL, "\r\n\0" );
 			if(token)

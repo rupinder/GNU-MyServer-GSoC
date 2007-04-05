@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -141,6 +141,10 @@ int MimeManager::load(const char *fn)
 				record.command = CGI_CMD_RUNFASTCGI;
 			else if(!lstrcmpi(commandString, "EXECUTEFASTCGI"))
 				record.command = CGI_CMD_EXECUTEFASTCGI;
+			else if(!lstrcmpi(commandString, "RUNSCGI"))
+				record.command = CGI_CMD_RUNSCGI;
+			else if(!lstrcmpi(commandString, "EXECUTESCGI"))
+				record.command = CGI_CMD_EXECUTESCGI;
 			else
         record.command = CGI_CMD_EXTERNAL;
       record.cmdName.assign(commandString);
@@ -381,8 +385,18 @@ int MimeManager::loadXML(const char *fn)
 					rc.command = CGI_CMD_RUNFASTCGI;
 
 				else if(lcur->children->content && 
-           !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEFASTCGI"))
+           !xmlStrcmp(lcur->children->content,
+											(const xmlChar *)"EXECUTEFASTCGI"))
 					rc.command = CGI_CMD_EXECUTEFASTCGI;
+
+				else if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNSCGI"))
+					rc.command = CGI_CMD_RUNSCGI;
+
+				else if(lcur->children->content && 
+           !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTESCGI"))
+					rc.command = CGI_CMD_EXECUTESCGI;
+
 
         else if(lcur->children->content)
           rc.command = CGI_CMD_EXTERNAL;
@@ -484,6 +498,10 @@ int MimeManager::saveXML(const char *filename)
 			strcpy(command, "RUNFASTCGI");	
 		else if(rc->command == CGI_CMD_EXECUTEFASTCGI)
 			strcpy(command, "EXECUTEFASTCGI");	
+		else if(rc->command == CGI_CMD_RUNSCGI)
+			strcpy(command, "RUNSCGI");	
+		else if(rc->command == CGI_CMD_EXECUTESCGI)
+			strcpy(command, "EXECUTESCGI");	
 		else if(rc->command == CGI_CMD_EXTERNAL)
 			strcpy(command, rc->cmdName.c_str());
 	
@@ -546,6 +564,10 @@ int MimeManager::save(const char *filename)
 			strcpy(command, "RUNFASTCGI ");	
 		else if(nmr1->command == CGI_CMD_EXECUTEFASTCGI)
 			strcpy(command, "EXECUTEFASTCGI ");	
+		else if(nmr1->command == CGI_CMD_RUNSCGI)
+			strcpy(command, "RUNSCGI ");	
+		else if(nmr1->command == CGI_CMD_EXECUTESCGI)
+			strcpy(command, "EXECUTESCGI ");	
 		else
 			strcpy(command, nmr1->cmdName.c_str());
 		f.writeToFile(command, (u_long)strlen(command), &nbw);

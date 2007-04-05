@@ -773,12 +773,17 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* src,
 	for(;;)
 	{
     int max = 100;
+		u_long i;
 		FourChar varNameLen;
 		FourChar varValueLen;
 
 		varNameLen.i = varValueLen.i = 0;
 		varName[0] = '\0';
 		varValue[0] = '\0';
+
+		while(*sptr == '\0')
+			sptr++;
+
 		while((--max) && *sptr != '=')
 		{
 			varName[varNameLen.i++] = *sptr++;
@@ -820,7 +825,6 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* src,
 		{
 			*ptr++ = varValueLen.c[0];
 		}
-		u_long i;
 		for(i = 0; i < varNameLen.i; i++)
 			*ptr++ = varName[i];
 		for(i = 0; i < varValueLen.i; i++)
