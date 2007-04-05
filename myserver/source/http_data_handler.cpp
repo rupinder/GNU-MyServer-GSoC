@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -59,4 +59,47 @@ int HttpDataHandler::load(XmlParser* /*confFile*/)
 int HttpDataHandler::unload()
 {
   return 0;
+}
+
+/*!
+ *Send data over the HTTP channel.
+ *Return zero on success.
+ *\param td The HTTP thread context.
+ *\param buffer Data to send.
+ *\param size Size of the buffer.
+ *\param appendFile The file where append if in append mode.
+ *\param chain Where send data if not append.
+ *\param append Append to the file?
+ *\param useChunks Can we use HTTP chunks to send data?
+ */
+int HttpDataHandler::appendDataToHTTPChannel(HttpThreadContext* td, 
+																						 char* buffer, u_long size,
+																						 File* appendFile, 
+																						 FiltersChain* chain,
+																						 bool append, 
+																						 bool useChunks)
+{
+	u_long nbw;
+	if(append)
+	{
+	  return appendFile->writeToFile(buffer, size, &nbw);
+	}
+	else
+	{
+		if(useChunks)
+		{
+			ostringstream chunkHeader;
+			chunkHeader << hex << size << "\r\n"; 
+			if(chain->write(chunkHeader.str().c_str(), 
+											chunkHeader.str().length(), &nbw))
+				return 1;
+		}
+
+		if(chain->write(buffer, size, &nbw))
+			return 1;
+
+		return chain->write("\r\n", 2, &nbw);
+
+	}
+	return 1;
 }

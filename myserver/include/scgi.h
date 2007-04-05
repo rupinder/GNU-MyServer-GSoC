@@ -64,11 +64,6 @@ private:
 	static ProcessServerManager *processServerManager;
 	static int timeout;
 	static int initialized;
-
-	int appendDataToHTTPChannel(HttpThreadContext* td, char* buffer, 
-															u_long size, File* appendFile,
-															FiltersChain *chain,
-															bool append, bool useChunks);
 	Socket getScgiConnection();
 	int sendPostData(ScgiContext* ctx);
 	int sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain*);

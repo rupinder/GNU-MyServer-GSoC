@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -30,10 +30,6 @@ class HttpDir : public HttpDataHandler
 {
 private:
   void getFormattedSize(int bytes, string& out);
-	int appendDataToHTTPChannel(HttpThreadContext* td, char* buffer, 
-															u_long size, File* appendFile,
-															FiltersChain *chain,
-															bool append, bool useChunks);
 public:
   static int load(XmlParser*);
   static int unload();

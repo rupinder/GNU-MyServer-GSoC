@@ -62,9 +62,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   int sizeEnvString;
   ScgiServer* server = 0;
-  int id;
 	ostringstream cmdLine;
-  char *buffer = 0;
 
   string moreArg;
 	con.td = td;
@@ -289,8 +287,6 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 
 	for(;;)
 	{
-		u_long dim;
-		u_long dataSent;
 		while(!ctx->sock.bytesToRead())
 		{
 			if((clock_t)(getTicks() - initialTicks) > timeout)
@@ -356,7 +352,7 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 												 td->buffer2->getRealLength(),
 												 0);
 
-		if(!nbr || (nbr == -1))
+		if(!nbr || (nbr == (u_long)-1))
 			break;
 
 		if(appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
@@ -381,51 +377,6 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 
 	return 0;
 }
-
-/*!
- *NOTE: This is a DUPLICATE of HttpDir, find a better place for both.
- *Send data over the HTTP channel.
- *Return zero on success.
- *\param td The HTTP thread context.
- *\param buffer Data to send.
- *\param size Size of the buffer.
- *\param appendFile The file where append if in append mode.
- *\param chain Where send data if not append.
- *\param append Append to the file?
- *\param useChunks Can we use HTTP chunks to send data?
- */
-int Scgi::appendDataToHTTPChannel(HttpThreadContext* td, 
-																	char* buffer, u_long size,
-																	File* appendFile, 
-																	FiltersChain* chain,
-																	bool append, 
-																	bool useChunks)
-{
-	u_long nbw;
-	if(append)
-	{
-	  return appendFile->writeToFile(buffer, size, &nbw);
-	}
-	else
-	{
-		if(useChunks)
-		{
-			ostringstream chunkHeader;
-			chunkHeader << hex << size << "\r\n"; 
-			if(chain->write(chunkHeader.str().c_str(), 
-											chunkHeader.str().length(), &nbw))
-				return 1;
-		}
-
-		if(chain->write(buffer, size, &nbw))
-			return 1;
-
-		return chain->write("\r\n", 2, &nbw);
-
-	}
-	return 1;
-}
-
 
 /*!
  *Send a netstring to the SCGI server.

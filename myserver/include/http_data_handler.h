@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -22,21 +22,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocol.h"
 #include "../include/http_headers.h"
 #include "../include/xml_parser.h"
+#include "../include/filters_chain.h"
 
 /*!
  *Base class to handle HTTP data.
  */
 class HttpDataHandler
 {
-private:
-
 public:
   static int load(XmlParser* );
   static int unload();
-	virtual int send(HttpThreadContext*, ConnectionPtr s,const char *filenamePath,
-                   const char* cgi, int OnlyHeader=0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s,
+									 const char *filenamePath, const char* cgi, 
+									 int OnlyHeader=0);
   HttpDataHandler();
   virtual ~HttpDataHandler();
+protected:
+	int appendDataToHTTPChannel(HttpThreadContext* td, 
+															char* buffer, u_long size,
+															File* appendFile, 
+															FiltersChain* chain,
+															bool append, 
+															bool useChunks);
+
 };
 
 
