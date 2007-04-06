@@ -273,29 +273,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       td->response.connection.assign("close");
     }
 
-#ifdef SENDFILE
-		/* 
-		 * Check if there are all the conditions to use a direct copy from the 
-		 * file to the socket.  The sendfile syscall copy from a descriptor to
-		 * another directly in the kernel space without performs an extra copy
-		 * to an userspace buffer.
-		 */
-		if(!useChunks && chain.isEmpty() && !td->appendOutputs)
-		{
-			off_t offset = firstByte;
-			ret = sendfile(s->socket->getHandle(), file->getHandle(),
-										 &offset, bytesToSend);
-			file->closeFile();
-			delete file;
-			chain.clearAllFilters();
-
-			/* For logging activity.  */
-			td->sentData += ret;
-
-			return 0;
-		}
-#endif
-
     if(useModifiers)
     {
 			string s;
@@ -357,6 +334,30 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       chain.clearAllFilters();
       return 0;
     }
+
+#ifdef SENDFILE
+		/* 
+		 * Check if there are all the conditions to use a direct copy from the 
+		 * file to the socket.  The sendfile syscall copy from a descriptor to
+		 * another directly in the kernel space without performs an extra copy
+		 * to an userspace buffer.
+		 */
+		if(!useChunks && chain.isEmpty() && 
+			 !td->appendOutputs && (file->getHandle() != -1))
+		{
+			off_t offset = firstByte;
+			ret = sendfile(s->socket->getHandle(), file->getHandle(),
+										 &offset, bytesToSend);
+			file->closeFile();
+			delete file;
+			chain.clearAllFilters();
+
+			/* For logging activity.  */
+			td->sentData += ret;
+
+			return 0;
+		}
+#endif
 
 		if(td->appendOutputs)
 			chain.setStream(&(td->outputData));
