@@ -39,6 +39,15 @@ extern "C"
 #ifdef NOT_WIN
 #include <string.h>
 #include <errno.h>
+#ifdef SENDFILE
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/sendfile.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 #endif
 }
 
@@ -145,7 +154,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 		}
 #else
     /* 
-     *If compiled without GZIP support force the server to don't use it.  
+     * If compiled without GZIP support force the server to don't use it.  
      */
     useGzip = false;
 #endif	
@@ -153,12 +162,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       useGzip = false;
 
     /*
-     *bytesToSend is the interval between the first and the last byte.  
+     * bytesToSend is the interval between the first and the last byte.  
      */
     bytesToSend = lastByte - firstByte;
     
     /*
-     *If fail to set the file pointer returns an internal server error.  
+     * If fail to set the file pointer returns an internal server error.  
      */
     ret = file->setFilePointer(firstByte);
     if(ret)
@@ -264,6 +273,29 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       td->response.connection.assign("close");
     }
 
+#ifdef SENDFILE
+		/* 
+		 * Check if there are all the conditions to use a direct copy from the 
+		 * file to the socket.  The sendfile syscall copy from a descriptor to
+		 * another directly in the kernel space without performs an extra copy
+		 * to an userspace buffer.
+		 */
+		if(!useChunks && chain.isEmpty() && !td->appendOutputs)
+		{
+			off_t offset = firstByte;
+			ret = sendfile(s->socket->getHandle(), file->getHandle(),
+										 &offset, bytesToSend);
+			file->closeFile();
+			delete file;
+			chain.clearAllFilters();
+
+			/* For logging activity.  */
+			td->sentData += ret;
+
+			return 0;
+		}
+#endif
+
     if(useModifiers)
     {
 			string s;
@@ -310,7 +342,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         file->closeFile();
 				delete file;
         chain.clearAllFilters();
-        return 0;
+        return 1;
       }
     }
 
@@ -323,7 +355,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       file->closeFile();
 			delete file;
       chain.clearAllFilters();
-      return 1;
+      return 0;
     }
 
 		if(td->appendOutputs)
@@ -380,7 +412,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       /* Check if there are no other bytes to send.  */
       if(!nbr)
       {
-				u_long nbwChain;
         if(useChunks)
         {
           ostringstream buffer;
@@ -417,11 +448,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         }
         if(ret)
           break;
-        /* Set the flag when we reached the end of the file. */
+        /* Set the flag when we reach the end of the file.  */
         lastChunk = true; 
       }
-
-      if(nbr)
+			else /* if(!nbr) */
       {
         if(useChunks)
         {
