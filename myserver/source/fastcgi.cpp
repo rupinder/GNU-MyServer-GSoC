@@ -575,30 +575,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		/*! Send the header.  */
 		if(!td->appendOutputs)
 		{
-			HttpRequestHeader::Entry *connection = 
-				td->request.other.get("Connection");
-
-			if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
-			{
-				keepalive = true;
-				td->response.connection.assign("keep-alive");
-			}
-
-			if(keepalive)
-			{
-				HttpResponseHeader::Entry *e;
-				e = td->response.other.get("Transfer-Encoding");
-				if(e)
-					e->value->assign("chunked");
-				else
-				{
-					e = new HttpResponseHeader::Entry();
-					e->name->assign("Transfer-Encoding");
-					e->value->assign("chunked");
-					td->response.other.put(*(e->name), e);
-				}
-				useChunks = true;
-			}
+			checkDataChunks(td, &keepalive, &useChunks);
 
 			HttpHeaders::buildHTTPResponseHeader(td->buffer2->getBuffer(),
                                             &td->response);

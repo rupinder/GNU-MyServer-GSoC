@@ -74,6 +74,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   bool useModifiers = false;
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
+	u_long nbw;
+	u_long nbr;
 	
 	u_long dataSent = 0;
 
@@ -207,7 +209,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     chain.setStream(&memStream);
     if(td->mime)
     {
-      u_long nbw;
       if(td->mime && 
 				 Server::getInstance()->getFiltersFactory()->chain(&chain, 
 																												 td->mime->filters, 
@@ -325,18 +326,14 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       return 1;
     }
 
-    if(td->appendOutputs)
-      chain.setStream(&(td->outputData)); 
+		if(td->appendOutputs)
+			chain.setStream(&(td->outputData));
     else
-      chain.setStream(s->socket);
+			chain.setStream(s->socket);
 
-    
     /* Flush initial data.  */
     if(memStream.availableToRead())
     {
-      ostringstream buffer;
-      u_long nbw = 0;
-      u_long nbr = 0;    
       ret = memStream.read(td->buffer->getBuffer(),
                            td->buffer->getRealLength(), 
                            &nbr);
@@ -346,48 +343,23 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         file->closeFile();
 				delete file;
         chain.clearAllFilters();
-        return 1;
+        return 0;
       }
 
       if(nbr)
       {
-        if(useChunks)
-        {
-          buffer << hex << nbr << "\r\n";     
-          ret = chain.getStream()->write(buffer.str().c_str(), 
-																				 buffer.str().length(), &nbw); 
-          if(!ret)
-          {
-            ret = chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
-            if(!ret)
-            {
-              dataSent += nbw;
-              ret = chain.getStream()->write("\r\n", 2, &nbw);
-            }
-          }
-
-          if(ret)
-          {
-            file->closeFile();
-						delete file;
-            chain.clearAllFilters();
-            return 1;
-          }     
-        }
-        else
-        {
-          ret = chain.getStream()->write(td->buffer->getBuffer(), nbr, &nbw);
-          if(ret)
-          {
-            file->closeFile();
-						delete file;
-            chain.clearAllFilters();
-            return 1;
-          }     
-          dataSent += nbw;
-        }
-      }/* nbr.  */
-    } /* memStream.availableToRead().  */
+				if(appendDataToHTTPChannel(td, td->buffer->getBuffer(), nbr,
+																	 &(td->outputData), &chain,
+																	 td->appendOutputs, useChunks))
+				{
+					file->closeFile();
+					delete file;
+					chain.clearAllFilters();
+					return 1;
+					dataSent += nbw;
+				}
+			} /* nbr.  */
+		} /* memStream.availableToRead().  */
 
     /* Flush the rest of the file.  */
     for(;;)
@@ -402,15 +374,15 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
                            &nbr);
       if(ret)
         break;
-      
+
       bytesToSend -= nbr;
 
       /* Check if there are no other bytes to send.  */
       if(!nbr)
       {
+				u_long nbwChain;
         if(useChunks)
         {
-          u_long nbw2;
           ostringstream buffer;
           {
             /* Flush to the memory stream and use it to send chunks.  */
@@ -423,32 +395,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
                              td->buffer->getRealLength(), &nbw);
           if(ret)
             break;
-          if(nbw)
-          {
-            buffer << hex << nbw << "\r\n";
-            ret = chain.getStream()->write(buffer.str().c_str(), 
-																				 buffer.str().length(), &nbw2);
-          
-            if(ret)
-              break;
-            /* 
-             *Write directly to the stream what we have bufferized in 
-             *the memory stream.
-             *We need to use the memory stream before send data to the 
-						 *final stream as we cannot know the final length for the 
-						 *data chunk.
-             */
-            ret = chain.getStream()->write(td->buffer->getBuffer(), 
-																					 nbw, &nbw2);
-            if(ret)
-              break; 
-
-            dataSent += nbw2;
-
-            ret = chain.getStream()->write("\r\n", 2, &nbw);
-            if(ret)
-              break;
-          }
+					if(nbw)
+					{
+						ret = appendDataToHTTPChannel(td, td->buffer->getBuffer(),
+																					nbw,
+																					&(td->outputData), &chain,
+																					td->appendOutputs, useChunks);
+						if(ret)
+							break;
+            dataSent += nbw;
+					}
           
         }
         else

@@ -190,29 +190,8 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	{
 		char *buffer = td->buffer2->getBuffer();
 		u_long bufferSize = td->buffer2->getRealLength();
-		HttpRequestHeader::Entry* e = td->request.other.get("Connection");
-		data.stdOut.setFilePointer(0);
 
-		if(e)
-			keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
-		else
-			keepalive = false;
-
-		if(keepalive)
-    {
-			HttpResponseHeader::Entry *e;
-			e = td->response.other.get("Transfer-Encoding");
-			if(e)
-				e->value->assign("chunked");
-			else
-  		{
-				e = new HttpResponseHeader::Entry();
-				e->name->assign("Transfer-Encoding");
-				e->value->assign("chunked");
-				td->response.other.put(*(e->name), e);
-			}
-			useChunks = true;
-		}
+		checkDataChunks(td, &keepalive, &useChunks);
 
 		HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
 		if(s->socket->send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)

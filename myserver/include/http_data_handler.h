@@ -38,6 +38,7 @@ public:
   HttpDataHandler();
   virtual ~HttpDataHandler();
 protected:
+	void checkDataChunks(HttpThreadContext*, bool*, bool*);
 	int appendDataToHTTPChannel(HttpThreadContext* td, 
 															char* buffer, u_long size,
 															File* appendFile, 

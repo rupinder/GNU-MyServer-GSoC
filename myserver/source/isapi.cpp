@@ -205,7 +205,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 	int keepalive;
 	char* buffer;
 	ConnTableRecord *ConnInfo;
-	char chunk_size[15];
+	char chunkSize[15];
 	u_long nbw=0;
 
 	if(*lpdwBytes==0)
@@ -316,21 +316,22 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
         /*! With keep-alive connections use chunks.*/
 				if(keepalive && (!ConnInfo->td->appendOutputs))
 				{
-					sprintf(chunk_size,"%x\r\n",len);
-				  if(ConnInfo->chain.write(chunk_size, (int)strlen(chunk_size), &nbw))			
+					sprintf(chunkSize,"%x\r\n",len);
+				  if(ConnInfo->chain.write(chunkSize, 
+																	 (int)strlen(chunkSize), &nbw))			
 						return 0;
 				}
 				
 				if(ConnInfo->td->appendOutputs)
 				{
-					if(ConnInfo->td->outputData.writeToFile((char*)(buffer+headerSize),len,
-                                                   &nbw))
+					if(ConnInfo->td->outputData.writeToFile((char*)(buffer + headerSize),
+																									len, &nbw))
 						return 0;
 					ConnInfo->dataSent += nbw;
 				}
 				else
 				{
-          if(ConnInfo->chain.write((char*)(buffer+headerSize), 
+          if(ConnInfo->chain.write((char*)(buffer + headerSize), 
                                    len, &nbw))
 						return 0;
           ConnInfo->dataSent += nbw;
@@ -346,15 +347,16 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 		}
 		else
     {
-			nbw=*lpdwBytes;
+			nbw = *lpdwBytes;
     }
 	}
 	else/*!Continue to send data chunks*/
 	{
 		if(keepalive  && (!ConnInfo->td->appendOutputs))
 		{
-			sprintf(chunk_size,"%x\r\n",*lpdwBytes);
-			nbw = ConnInfo->connection->socket->send(chunk_size,(int)strlen(chunk_size), 0);
+			sprintf(chunkSize,"%x\r\n",*lpdwBytes);
+			nbw = ConnInfo->connection->socket->send(chunkSize, 
+																							 (int)strlen(chunkSize), 0);
 			if((nbw == (u_long)-1) || (!nbw))
 				return 0;
 		}
@@ -401,12 +403,17 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer,
   Isapi::isapi_mutex->unlock();
 	if (ConnInfo == NULL) 
 	{
-		((Vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(ConnInfo->td->id);
-		((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite("ISAPI: ReadClientExport: invalid hConn");
-		((Vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(ConnInfo->td->id);
+		((Vhost*)(ConnInfo->td->connection->host))->warningslogRequestAccess(
+																														 ConnInfo->td->id);
+		((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
+																		"ISAPI: ReadClientExport: invalid hConn");
+		((Vhost*)(ConnInfo->td->connection->host))->warningslogTerminateAccess(
+																													 ConnInfo->td->id);
 		return 0;
 	}
+
 	ConnInfo->td->inputData.readFromFile((char*)lpvBuffer, *lpdwSize, &NumRead);
+
 	if (NumRead == -1) 
 	{
 		*lpdwSize = 0;
@@ -436,7 +443,8 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn,
 	{
     Server::getInstance()->logLockAccess();
     Server::getInstance()->logPreparePrintError();
-		Server::getInstance()->logWriteln("isapi::GetServerVariableExport: invalid hConn");
+		Server::getInstance()->logWriteln(
+											 "Isapi::GetServerVariableExport: invalid hConn");
 		Server::getInstance()->logEndPrintError();
     Server::getInstance()->logUnlockAccess();
 		return 0;
@@ -456,12 +464,13 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn,
 			
 	}else if(!strcmp(lpszVariableName, "ALL_RAW")) 
 	{
-		if(Isapi::buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,lpvBuffer,lpdwSize))
-			ret=1;
+		if(Isapi::buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,
+																 lpvBuffer, lpdwSize))
+			ret = 1;
 		else
 		{
       SetLastError(ERROR_INSUFFICIENT_BUFFER);
-			ret=0;
+			ret = 0;
 		}
 			
 	}
@@ -519,7 +528,8 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
 	else if(valLen + 30 < maxLen) 
 		return 0;
 
-	if((td->request.rangeByteBegin || td->request.rangeByteEnd) && (valLen+30<maxLen))
+	if((td->request.rangeByteBegin || td->request.rangeByteEnd) && 
+		 (valLen + 30 < maxLen))
 	{
     ostringstream rangeBuffer;
 		rangeBuffer << "HTTP_RANGE:" << td->request.rangeType << "=" ;

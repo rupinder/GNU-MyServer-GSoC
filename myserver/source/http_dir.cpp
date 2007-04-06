@@ -219,9 +219,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	char fileTime[32];
 	char* bufferloop;
   const char* browseDirCSSpath;
+	bool keepalive = false;
+
 	HttpRequestHeader::Entry *host = td->request.other.get("Host");
-	HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
-	
+
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
@@ -261,34 +262,11 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 		}
 	}
 
+	checkDataChunks(td, &keepalive, &useChunks);
+
 	if(!td->appendOutputs)
   {
-		bool keepalive = false;
-		HttpRequestHeader::Entry* e = td->request.other.get("Connection");
-		if(e)
-			keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
-		else
-			keepalive = false;
 
-		/* Do not use chunked transfer with old HTTP/1.0 clients.  */
-		if(keepalive)
-    {
-			HttpResponseHeader::Entry *e;
-			e = td->response.other.get("Transfer-Encoding");
-			if(e)
-				e->value->assign("chunked");
-			else
-  		{
-				e = new HttpResponseHeader::Entry();
-				e->name->assign("Transfer-Encoding");
-				e->value->assign("chunked");
-				td->response.other.put(*(e->name), e);
-			}
-			useChunks = true;
-		}
-
-		if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
-			td->response.connection.assign("keep-alive");
 
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
 																				 &(td->response));
@@ -300,10 +278,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 			/* Remove the connection.  */
 			return 0;
 		}	
-    
-    if(onlyHeader)
-      return 1;
-	}
+	}    
+	if(onlyHeader)
+		return 1;
 
 
 	td->buffer2->setLength(0);

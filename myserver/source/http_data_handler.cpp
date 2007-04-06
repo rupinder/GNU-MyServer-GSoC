@@ -103,3 +103,36 @@ int HttpDataHandler::appendDataToHTTPChannel(HttpThreadContext* td,
 	}
 	return 1;
 }
+
+/*!
+ *Check if the server can use the chunked transfer encoding and if the client
+ *supports keep-alive connections.
+ */
+void HttpDataHandler::checkDataChunks(HttpThreadContext* td, bool* keepalive, 
+																			bool* useChunks)
+{
+	HttpRequestHeader::Entry* e = td->request.other.get("Connection");
+	if(e)
+		*keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
+	else
+		*keepalive = false;
+
+	*useChunks = false;
+
+	/* Do not use chunked transfer with old HTTP/1.0 clients.  */
+	if(*keepalive)
+  {
+		HttpResponseHeader::Entry *e;
+		e = td->response.other.get("Transfer-Encoding");
+		if(e)
+			e->value->assign("chunked");
+		else
+  	{
+			e = new HttpResponseHeader::Entry();
+			e->name->assign("Transfer-Encoding");
+			e->value->assign("chunked");
+			td->response.other.put(*(e->name), e);
+		}
+		*useChunks = true;
+	}
+}

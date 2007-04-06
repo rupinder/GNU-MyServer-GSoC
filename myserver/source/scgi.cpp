@@ -262,28 +262,8 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 	u_long nbw, nbr;
 	u_long sentData = 0;
 	HttpThreadContext* td = ctx->td;
-	HttpRequestHeader::Entry* e = td->request.other.get("Connection");
-	if(e)
-		keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
-	else
-		keepalive = false;
 
-	/* Do not use chunked transfer with old HTTP/1.0 clients.  */
-	if(keepalive)
-  {
-		HttpResponseHeader::Entry *e;
-		e = td->response.other.get("Transfer-Encoding");
-		if(e)
-			e->value->assign("chunked");
-		else
-  	{
-			e = new HttpResponseHeader::Entry();
-			e->name->assign("Transfer-Encoding");
-			e->value->assign("chunked");
-			td->response.other.put(*(e->name), e);
-		}
-		useChunks = true;
-	}
+	checkDataChunks(td, &keepalive, &useChunks);
 
 	for(;;)
 	{
