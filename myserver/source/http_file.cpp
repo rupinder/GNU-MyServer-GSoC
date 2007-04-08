@@ -343,7 +343,8 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 		 * to an userspace buffer.
 		 */
 		if(!useChunks && chain.isEmpty() && 
-			 !td->appendOutputs && (file->getHandle() != -1))
+			 !td->appendOutputs && (file->getHandle() != -1) && 
+			 !(td->http->protocolOptions & PROTOCOL_USES_SSL))
 		{
 			off_t offset = firstByte;
 			ret = sendfile(s->socket->getHandle(), file->getHandle(),
