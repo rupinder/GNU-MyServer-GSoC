@@ -39,8 +39,6 @@ extern "C"
 
 #include "../include/lfind.h"
 #ifdef NOT_WIN
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
 #endif
 
 #include <string>
@@ -551,9 +549,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   if(host && host->value->length())
   {    
     ostringstream portBuff;
-		int portSeparator = host->value->find(':');
+		size_t portSeparator = host->value->find(':');
     *td->buffer2 << " on ";
-		if(portSeparator != -1)
+		if(portSeparator != string::npos)
 			*td->buffer2 << host->value->substr(0, portSeparator).c_str() ;
 		else
 			*td->buffer2 << host->value->c_str() ;

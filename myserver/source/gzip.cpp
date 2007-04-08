@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -34,18 +34,6 @@ extern "C" {
 #ifdef WIN32
 #include <algorithm>
 #endif
-#ifdef NOT_WIN
-#include "../include/lfind.h"
-
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#endif
-
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
-#endif
-
 
 char GZIP_HEADER[] = {(char)0x1f, (char)0x8b, Z_DEFLATED, 
 											0, 0, 0, 0, 0, 0, 0x03};

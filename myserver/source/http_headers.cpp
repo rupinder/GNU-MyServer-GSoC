@@ -40,14 +40,6 @@ extern "C" {
 
 #ifdef NOT_WIN
 #include "../include/lfind.h"
-
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#endif
-
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
 #endif
 
 /*!

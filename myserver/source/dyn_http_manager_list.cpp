@@ -24,16 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 
-#ifdef NOT_WIN
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#endif
-
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
-#endif
-
 /*!
  *Initialize the object.
  */

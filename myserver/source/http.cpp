@@ -55,8 +55,6 @@ extern "C"
 
 #ifdef NOT_WIN
 #include "../include/lfind.h"
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
 #endif
 
 /*! Store if the MSCGI library was loaded.  */
@@ -371,11 +369,11 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
           permissions = permissions2;
         }
       }
-      td.auth_scheme = HTTP_AUTH_SCHEME_DIGEST;
+      td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
     }
     else/*! By default use the Basic authentication scheme. */
     {
-      td.auth_scheme = HTTP_AUTH_SCHEME_BASIC;
+      td.authScheme = HTTP_AUTH_SCHEME_BASIC;
     }	
     /*! If there are no permissions, use the Guest permissions. */
     if(td.request.auth.length() && (permissions == 0))
@@ -646,12 +644,12 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
 					permissions = permissions2;
         }
       }
-      td.auth_scheme = HTTP_AUTH_SCHEME_DIGEST;
+      td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
     }
     /*! By default use the Basic authentication scheme. */
     else
     {
-      td.auth_scheme = HTTP_AUTH_SCHEME_BASIC;
+      td.authScheme = HTTP_AUTH_SCHEME_BASIC;
     }	
     /*! If there are no permissions, use the Guest permissions. */
     if(td.request.auth.length() && (permissions==0))
@@ -1189,11 +1187,11 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
             permissions = permissions2;
           }
         }
-        td.auth_scheme = HTTP_AUTH_SCHEME_DIGEST;
+        td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
       }
       else/*! By default use the Basic authentication scheme.  */
       {
-        td.auth_scheme = HTTP_AUTH_SCHEME_BASIC;
+        td.authScheme = HTTP_AUTH_SCHEME_BASIC;
       }	
  
      /*! If there are no permissions, use the Guest permissions.  */
@@ -2476,12 +2474,12 @@ int Http::raiseHTTPError(int ID)
       *td.buffer2 << "\r\nContent-type: text/html\r\nConnection: ";
       *td.buffer2 << (connection ? connection->value->c_str() : "");
       *td.buffer2 << "\r\nContent-length: 0\r\n";
-      if(td.auth_scheme == HTTP_AUTH_SCHEME_BASIC)
+      if(td.authScheme == HTTP_AUTH_SCHEME_BASIC)
       {
         *td.buffer2 <<  "WWW-Authenticate: Basic realm=\"" 
 										<< (host ? host->value->c_str() : "") <<  "\"\r\n";
       }
-      else if(td.auth_scheme == HTTP_AUTH_SCHEME_DIGEST)
+      else if(td.authScheme == HTTP_AUTH_SCHEME_DIGEST)
       {
         char md5_str[256];
 

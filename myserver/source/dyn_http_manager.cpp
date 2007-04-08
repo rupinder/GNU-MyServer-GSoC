@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -23,16 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/lfind.h"
 
 #include <string>
-
-#ifdef NOT_WIN
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#endif
-
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
-#endif
 
 typedef int (*sendManagerPROC)(volatile void*, volatile void*, const char*, 
 															 const char*, int); 

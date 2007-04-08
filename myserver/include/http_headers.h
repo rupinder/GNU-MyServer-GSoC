@@ -45,17 +45,6 @@ class Http;
 using namespace std;
 
 
-#ifndef WIN32
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#endif
-
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
-#endif
-extern class CBase64Utils base64Utils;
-
 #define HTTP_AUTH_SCHEME_BASIC 0
 #define HTTP_AUTH_SCHEME_DIGEST 1
 
@@ -95,7 +84,7 @@ struct HttpThreadContext
 	char identity[32];
 	File inputData;
 	File outputData;
-	int auth_scheme;
+	int authScheme;
 	Http* http;
 	MimeRecord *mime;
 	int sentData;

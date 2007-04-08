@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005 The MyServer Team
+Copyright (C) 2004, 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -35,18 +35,8 @@ extern "C"
 
 #ifdef NOT_WIN
 #include "../include/lfind.h"
-
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
 #endif
 
-// Bloodshed Dev-C++ Helper
-#ifndef intptr_t
-#define intptr_t int
-#endif
-
-#undef min
-#define min(a,b) ((a<b)?a:b)
 /*!
  *Return a string containing options specified by the client.
  */
@@ -197,7 +187,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
        *For first line field name is the command itself. 
        *Do not copy initial /.
        */
-      myserver_strlcpy(command, field, min(fieldLen + 1 , 32) );
+      myserver_strlcpy(command, field, std::min(fieldLen + 1 , 32) );
       
       /*! Update the offset. */
       offset += fieldLen + 1;
@@ -206,14 +196,14 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
       if(versionLen == -1)
         return CONTROL_MALFORMED;
 
-      myserver_strlcpy(version, offset, min(versionLen + 1, 12) );
+      myserver_strlcpy(version, offset, std::min(versionLen + 1, 12) );
       offset += versionLen + 1;
 
       int optionsLen = getCharInString(offset, "\r", 32);
       if(optionsLen == -1)
         cmdOptions[0]='\0';
       else
-        myserver_strlcpy(cmdOptions, offset, min(optionsLen + 1, 64) );
+        myserver_strlcpy(cmdOptions, offset, std::min(optionsLen + 1, 64) );
       /*! Put the offset at the end of \r\n. */
       offset += ((optionsLen!= -1)?optionsLen:0) + 2 ;
     }
@@ -241,12 +231,12 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         int len = getCharInString(offset, ":", 64);
         if(len == -1)
           return CONTROL_MALFORMED;
-        myserver_strlcpy(authLogin, offset, min(len + 1, 64));
+        myserver_strlcpy(authLogin, offset, std::min(len + 1, 64));
         offset+=len + 1;
         len = getCharInString(offset, "\r", 64);
         if(len == -1)
           return CONTROL_MALFORMED;
-        myserver_strlcpy(authPassword, offset, min(len + 1, 64));
+        myserver_strlcpy(authPassword, offset, std::min(len + 1, 64));
         offset += len + 2;
       }
       else if(!strncmp(field, "/CONNECTION ", 12))
@@ -255,7 +245,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         int len = getCharInString(offset, "\r", 32);
         if(len == -1)
           return CONTROL_MALFORMED;
-        myserver_strlcpy(connection, offset, min(len + 1, 32));
+        myserver_strlcpy(connection, offset, std::min(len + 1, 32));
         offset += len + 2;
       }
       else if(!strncmp(field, "/LEN ", 5))
@@ -265,7 +255,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         if(len == -1)
           return CONTROL_MALFORMED;
         char tmp_buff[12];
-        myserver_strlcpy(tmp_buff, offset, min(len + 1 , 12));
+        myserver_strlcpy(tmp_buff, offset, std::min(len + 1 , 12));
         length = atoi(tmp_buff);
         offset += len + 2;
       }   
