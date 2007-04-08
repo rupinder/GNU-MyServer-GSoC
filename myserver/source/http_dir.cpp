@@ -551,8 +551,13 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   if(host && host->value->length())
   {    
     ostringstream portBuff;
+		int portSeparator = host->value->find(':');
     *td->buffer2 << " on ";
-    *td->buffer2 << host->value->c_str() ;
+		if(portSeparator != -1)
+			*td->buffer2 << host->value->substr(0, portSeparator).c_str() ;
+		else
+			*td->buffer2 << host->value->c_str() ;
+		
     *td->buffer2 << " Port ";
     portBuff << td->connection->getLocalPort();
     *td->buffer2 << portBuff.str();
