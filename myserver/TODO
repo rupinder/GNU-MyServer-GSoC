@@ -114,6 +114,7 @@ TODO list for MyServer.
 **	Change socket IO model to use IOCPs instead for NT+ systems. (*)
 **	Include the new options for logging. (*)
 **	Implement ident for the common log format.
+**	URL Rewriting.
 
 *	GUI.
 **	Update/improve GUI of configuration tool.
