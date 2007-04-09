@@ -288,16 +288,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit25]
-FileName=source\httpmsg.cpp
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit26]
 FileName=source\home_dir.cpp
 CompileCpp=1
 Folder=myserver
@@ -307,7 +297,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit27]
+[Unit26]
 FileName=source\http_request.cpp
 CompileCpp=1
 Folder=myserver
@@ -317,7 +307,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit28]
+[Unit27]
 FileName=source\control_header.cpp
 CompileCpp=1
 Folder=myserver
@@ -327,7 +317,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit29]
+[Unit28]
 FileName=source\http_response.cpp
 CompileCpp=1
 Folder=myserver
@@ -337,7 +327,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
+[Unit29]
 FileName=source\gzip_decompress.cpp
 CompileCpp=1
 Folder=myserver
@@ -347,7 +337,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit30]
 FileName=source\pipe.cpp
 CompileCpp=1
 Folder=myserver
@@ -357,7 +347,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit32]
+[Unit31]
 FileName=source\filters_factory.cpp
 CompileCpp=1
 Folder=myserver
@@ -367,7 +357,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit33]
+[Unit32]
 FileName=source\https.cpp
 CompileCpp=1
 Folder=myserver
@@ -377,7 +367,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit34]
+[Unit33]
 FileName=source\mutex.cpp
 CompileCpp=1
 Folder=myserver
@@ -387,7 +377,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit35]
+[Unit34]
 FileName=source\isapi.cpp
 CompileCpp=1
 Folder=myserver
@@ -397,7 +387,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit36]
+[Unit35]
 FileName=source\myserver_regex.cpp
 CompileCpp=1
 Folder=myserver
@@ -407,7 +397,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit37]
+[Unit36]
 FileName=source\processes.cpp
 CompileCpp=1
 Folder=myserver
@@ -417,7 +407,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit38]
+[Unit37]
 FileName=source\security.cpp
 CompileCpp=1
 Folder=myserver
@@ -427,7 +417,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit39]
+[Unit38]
 FileName=source\gzip.cpp
 CompileCpp=1
 Folder=myserver
@@ -437,7 +427,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit40]
+[Unit39]
 FileName=source\http_headers.cpp
 CompileCpp=1
 Folder=myserver
@@ -447,7 +437,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit41]
+[Unit40]
 FileName=source\filters_chain.cpp
 CompileCpp=1
 Folder=myserver
@@ -457,7 +447,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit42]
+[Unit41]
 FileName=source\dynamiclib.cpp
 CompileCpp=1
 Folder=myserver
@@ -467,7 +457,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit43]
+[Unit42]
 FileName=source\sockets.cpp
 CompileCpp=1
 Folder=myserver
@@ -477,7 +467,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit44]
+[Unit43]
 FileName=source\http_file.cpp
 CompileCpp=1
 Folder=myserver
@@ -487,7 +477,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit45]
+[Unit44]
 FileName=source\protocols_manager.cpp
 CompileCpp=1
 Folder=myserver
@@ -497,7 +487,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit46]
+[Unit45]
 FileName=source\http.cpp
 CompileCpp=1
 Folder=myserver
@@ -507,7 +497,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit47]
+[Unit46]
 FileName=source\securestr.cpp
 CompileCpp=1
 Folder=myserver
@@ -517,7 +507,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit48]
+[Unit47]
 FileName=source\mem_buff.cpp
 CompileCpp=1
 Folder=myserver
@@ -527,7 +517,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit49]
+[Unit48]
 FileName=source\wincgi.cpp
 CompileCpp=1
 Folder=myserver
@@ -537,7 +527,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit50]
+[Unit49]
 FileName=source\semaphore.cpp
 CompileCpp=1
 Folder=myserver
@@ -547,7 +537,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit51]
+[Unit50]
 FileName=source\Dev-C++.cpp
 CompileCpp=1
 Folder=myserver
@@ -557,7 +547,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit52]
+[Unit51]
 FileName=source\md5.cpp
 CompileCpp=1
 Folder=myserver
@@ -567,7 +557,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit53]
+[Unit52]
 FileName=source\vhosts.cpp
 CompileCpp=1
 Folder=myserver
@@ -577,7 +567,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit54]
+[Unit53]
 FileName=source\dyn_http_command.cpp
 CompileCpp=1
 Folder=myserver
@@ -587,7 +577,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit55]
+[Unit54]
 FileName=source\stringutils.cpp
 CompileCpp=1
 Folder=myserver
@@ -597,7 +587,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit56]
+[Unit55]
 FileName=source\clients_thread.cpp
 CompileCpp=1
 Folder=myserver
@@ -607,7 +597,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit57]
+[Unit56]
 FileName=source\security_cache.cpp
 CompileCpp=1
 Folder=myserver
@@ -617,7 +607,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit58]
+[Unit57]
 FileName=source\stream.cpp
 CompileCpp=1
 Folder=myserver
@@ -627,8 +617,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit59]
+[Unit58]
 FileName=source\lfind.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit59]
+FileName=source\event.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -678,16 +678,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit64]
-FileName=source\event.cpp
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit65]
 FileName=source\plugin.cpp
 CompileCpp=1
 Folder=myserver
@@ -697,8 +687,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit66]
+[Unit65]
 FileName=source\plugins_namespace.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit66]
+FileName=source\safetime.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -778,16 +778,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit74]
-FileName=source\safetime.cpp
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit75]
 FileName=source\scgi.cpp
 CompileCpp=1
 Folder=myserver
@@ -797,7 +787,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit76]
+[Unit75]
 FileName=source\ssl.cpp
 CompileCpp=1
 Folder=myserver
@@ -807,8 +797,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit77]
+[Unit76]
 FileName=source\ssl_sockets.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit77]
+FileName=source\http_errors.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

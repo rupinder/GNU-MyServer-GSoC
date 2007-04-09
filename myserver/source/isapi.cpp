@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/server.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
-#include "../include/http_constants.h"
 #include "../include/cgi.h"
 #include "../include/dynamiclib.h"
 
@@ -76,7 +75,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
       mapInfo->lpszPath = 0;
       tmp.assign(mapInfo->lpszPath);
 			ret=ConnInfo->td->http->getPath(tmp,(char*)lpvBuffer,0);
-      if(ret!=e_200)
+      if(ret!=200)
         return 1;
 			
       mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
@@ -100,7 +99,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
         lstrcpyn(uri,ConnInfo->td->request.uri.c_str(),
 								 (int)ConnInfo->td->request.uri.length()-ConnInfo->td->pathInfo.length() +1);
 			ret = ConnInfo->td->http->getPath(tmp ,uri,0);
-      if(ret!=e_200)
+      if(ret!=200)
       {
         if(buffer)
           delete [] buffer;
@@ -758,7 +757,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
  *ISAPI works only on the windows architecture.
  */
 #ifdef NOT_WIN
-  return td->http->raiseHTTPError(e_501);
+  return td->http->raiseHTTPError(501);
 #endif
 
 #ifdef WIN32
@@ -804,7 +803,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		td->connection->host->warningsLogWrite(
                                             "ISAPI: Error max connections");
 		td->connection->host->warningslogTerminateAccess(td->id);
-		return td->http->raiseHTTPError(e_503);
+		return td->http->raiseHTTPError(503);
 	}
 	if(execute)
   	loadLib = scriptpath;
@@ -821,7 +820,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite(msg.c_str());
 		td->connection->host->warningslogTerminateAccess(td->id);
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
   connTable[connIndex].chain.setProtocol(td->http);
@@ -840,7 +839,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
         td->connection->host->warningsLogWrite("Error loading filters");
         td->connection->host->warningslogTerminateAccess(td->id);
         connTable[connIndex].chain.clearAllFilters(); 
-        return td->http->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(500);
       }
   }
 
@@ -873,7 +872,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			td->connection->host->warningslogTerminateAccess(td->id);
 		}
     connTable[connIndex].chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 	if(!GetExtensionVersion(&Ver)) 
 	{
@@ -891,7 +890,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			td->connection->host->warningslogTerminateAccess(td->id);
 		}
     connTable[connIndex].chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 	if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, 
 																				HSE_VERSION_MAJOR)) 
@@ -910,7 +909,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 			td->connection->host->warningslogTerminateAccess(td->id);
 		}
     connTable[connIndex].chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 	/*!
    *Store the environment string in the buffer2.
@@ -972,7 +971,7 @@ in ISAPI application module");
 		td->connection->host->warningslogTerminateAccess(td->id);
     appHnd.close();
     connTable[connIndex].chain.clearAllFilters(); 
-    return td->http->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(500);
 	}
 
 	Ret = HttpExtensionProc(&ExtCtrlBlk);
@@ -1028,7 +1027,7 @@ in ISAPI application module");
 	td->connection->host->warningsLogWrite(
                                    "ISAPI: Not implemented");
 	td->connection->host->warningslogTerminateAccess(td->id);	
-	return td->http->raiseHTTPError(e_501);
+	return td->http->raiseHTTPError(501);
 #endif	
 }
 

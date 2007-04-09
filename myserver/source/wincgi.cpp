@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/server.h"
 #include "../include/http_headers.h"
 #include "../include/http.h"
-#include "../include/http_constants.h"
 #include "../include/utility.h"
 #include "../include/wincgi.h"
 #include "../include/stringutils.h"
@@ -109,7 +108,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   ostringstream stream;
 
 	if(!FilesUtility::fileExists(filename))
-		return td->http->raiseHTTPError(e_404);
+		return td->http->raiseHTTPError(404);
 
 	FilesUtility::splitPath(filename,pathname,execname);
 	
@@ -136,7 +135,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
         td->connection->host->warningslogTerminateAccess(td->id);
 
         chain.clearAllFilters(); 
-        return td->http->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(500);
       }
   }
 	
@@ -151,7 +150,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("WinCGI: Error creating .ini");
 		td->connection->host->warningslogTerminateAccess(td->id);
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
 	td->buffer2->setLength(0);
@@ -301,7 +300,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 			FilesUtility::deleteFile(outFilePath);
 			FilesUtility::deleteFile(dataFilePath);
       chain.clearAllFilters(); 
-			return td->http->raiseHTTPError(e_500);
+			return td->http->raiseHTTPError(500);
 		}
 	}
 	OutFileHandle.closeFile();
@@ -321,7 +320,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		FilesUtility::deleteFile(outFilePath);
 		FilesUtility::deleteFile(dataFilePath);
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
 	ret=OutFileHandle.openFile(outFilePath, File::MYSERVER_OPEN_ALWAYS|
@@ -334,7 +333,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		td->connection->host->warningsLogWrite(msg.str().c_str());
 		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 	OutFileHandle.readFromFile(buffer,td->buffer2->getRealLength(),&nBytesRead);
 	if(!nBytesRead)
@@ -349,7 +348,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		FilesUtility::deleteFile(outFilePath);
 		FilesUtility::deleteFile(dataFilePath);
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
 	for(u_long i = 0; i < nBytesRead; i++)
@@ -486,6 +485,6 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	td->connection->host->warningslogRequestAccess(td->id);
 	td->connection->host->warningsLogWrite(td->buffer->getBuffer());
 	td->connection->host->warningslogTerminateAccess(td->id);
-	return td->http->raiseHTTPError(e_501);
+	return td->http->raiseHTTPError(501);
 #endif
 }

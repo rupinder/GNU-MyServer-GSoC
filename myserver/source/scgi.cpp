@@ -15,16 +15,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
-/*!
- *To get more info about the FastCGI protocol please visit the official 
- *FastCGI site at: http://www.fastcgi.com.
- *On that site you can find samples and all the supported languages.
- */
 #include "../include/scgi.h"
 #include "../include/cgi.h"
 #include "../include/http.h"
-#include "../include/http_constants.h"
 #include "../include/stringutils.h"
 #include "../include/server.h"
 #include "../include/files_utility.h"
@@ -93,7 +86,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			td->connection->host->warningsLogWrite("SCGI: Error loading filters");
 			td->connection->host->warningslogTerminateAccess(td->id);
 			chain.clearAllFilters();
-			return td->http->raiseHTTPError(e_500);
+			return td->http->raiseHTTPError(500);
 		}
   }
 
@@ -190,7 +183,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_OPEN_READ | 
@@ -206,7 +199,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
 
   server = connect(&con, cmdLine.str().c_str());
@@ -223,7 +216,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
 	ret = sendNetString(&con, td->buffer2->getBuffer(), sizeEnvString);
 	
@@ -233,7 +226,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		if(sendPostData(&con))
 	 	{
 			chain.clearAllFilters();
-			return td->http->raiseHTTPError(e_500);
+			return td->http->raiseHTTPError(500);
 		}
 	}
 	

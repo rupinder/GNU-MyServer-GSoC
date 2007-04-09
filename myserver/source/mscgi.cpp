@@ -62,7 +62,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
    *On the platforms where is not available the MSCGI support send a 
    *non implemented error.
    */
-	return td->http->raiseHTTPError(e_501);
+	return td->http->raiseHTTPError(501);
 #endif
 #endif
 
@@ -102,7 +102,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		
 		if(data.stdOut.createTemporaryFile(outDataPath.c_str()))
 		{
-      return td->http->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(500);
     }
 	}
 	else
@@ -124,7 +124,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
 		td->connection->host->warningslogTerminateAccess(td->id);
 		chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
 	ret = hinstLib.loadLibrary(exec, 0);
@@ -169,18 +169,14 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     chain.clearAllFilters(); 
 
     /* Internal server error.  */
-    return td->http->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(500);
 	}
 	if(data.errorPage)
 	{
-		int errID = getErrorIDfromHTTPStatusCode(data.errorPage);
-		if(errID != -1)
-    {
-      chain.clearAllFilters(); 
-			data.stdOut.closeFile();
-			FilesUtility::deleteFile(outDataPath.str().c_str());
-			return td->http->raiseHTTPError(errID);
-    }
+		chain.clearAllFilters(); 
+		data.stdOut.closeFile();
+		FilesUtility::deleteFile(outDataPath.str().c_str());
+		return td->http->raiseHTTPError(data.errorPage);
 	}
 	/* Compute the response length for logging.  */
   td->sentData += data.stdOut.getFileSize();
@@ -203,7 +199,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			}
 
       /* Internal server error.  */
-      return td->http->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(500);
 		}
 
     if(onlyHeader)

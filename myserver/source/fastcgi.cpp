@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/fastcgi.h"
 #include "../include/cgi.h"
 #include "../include/http.h"
-#include "../include/http_constants.h"
 #include "../include/stringutils.h"
 #include "../include/server.h"
 #include "../include/filters_chain.h"
@@ -121,7 +120,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                                              "FastCGI: Error loading filters");
         td->connection->host->warningslogTerminateAccess(td->id);
         chain.clearAllFilters();
-        return td->http->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(500);
       }
   }
 
@@ -218,7 +217,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
 	td->inputData.closeFile();
 	if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_OPEN_READ | 
@@ -234,7 +233,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
 
   server = connect(&con, cmdLine.str().c_str());
@@ -251,7 +250,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningslogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
 
 	id = td->id + 1;
@@ -272,7 +271,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
 	if(sendFcgiBody(&con,td->buffer2->getBuffer(), sizeEnvString,
@@ -288,7 +287,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
-		return td->http->raiseHTTPError(e_501);
+		return td->http->raiseHTTPError(501);
 	}
 
 	if(sendFcgiBody(&con, 0, 0, FCGIPARAMS, id))
@@ -303,7 +302,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     }
     chain.clearAllFilters();
 		con.sock.closesocket();
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
 	if(atoi(td->request.contentLength.c_str()))
@@ -345,7 +344,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       if(con.sock.send((char*)&header, sizeof(header), 0) == -1)
       {
         chain.clearAllFilters();
-        return td->http->raiseHTTPError(e_501);
+        return td->http->raiseHTTPError(501);
       }
 
       if(con.sock.send(td->buffer->getBuffer(),nbr,0) == -1)
@@ -359,7 +358,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
           td->connection->host->warningslogTerminateAccess(td->id);
         }
         chain.clearAllFilters();
-        return td->http->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(500);
       }
     }while(nbr == maxStdinChunk);
 	}
@@ -378,7 +377,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningslogTerminateAccess(td->id);
     }
 		con.sock.closesocket();
-    return td->http->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(500);
 	}
 
 	/*! Now read the output. This flag is used by the external loop.  */
@@ -398,7 +397,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite(td->buffer->getBuffer());
 		td->connection->host->warningslogTerminateAccess(td->id);
-    return td->http->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(500);
   }
 
 	do
@@ -461,7 +460,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			{
 				case FCGISTDERR:
 					con.sock.closesocket();
-					td->http->raiseHTTPError(e_501);
+					td->http->raiseHTTPError(501);
 					exit = 1;
           ret = 0;
 					break;

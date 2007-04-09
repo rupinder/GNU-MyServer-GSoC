@@ -93,7 +93,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 		file = Server::getInstance()->getCachedFiles()->open(filenamePath);
     if(file == 0)
     {	
-      return td->http->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(500);
     }
     /*
      *Check how many bytes are ready to be send.  
@@ -174,7 +174,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     {
       file->closeFile();
 			delete file;
-      return td->http->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(500);
     }
 
     td->buffer->setLength(0);
@@ -534,7 +534,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     s->host->warningsLogWrite("HttpFile: Error allocating memory");
     s->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-    return td->http->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(500);
   }
   catch(...)
   {
@@ -544,7 +544,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     s->host->warningsLogWrite("HttpFile: Internal error");
     s->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters();
-    return td->http->raiseHTTPError(e_500);
+    return td->http->raiseHTTPError(500);
   };
  
   /* For logging activity.  */

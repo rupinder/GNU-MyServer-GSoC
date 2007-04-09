@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/security.h"
 #include "../include/utility.h"
-#include "../include/http_constants.h"
 #include "../include/xml_parser.h"
 #include "../include/connection.h"
 #include "../include/securestr.h"
@@ -28,16 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 #include <sstream>
-
-#ifdef WIN32
-#ifndef LOGON32_LOGON_NETWORK
-#define LOGON32_LOGON_NETWORK 3
-#endif
-
-#ifndef LOGON32_PROVIDER_DEFAULT
-#define LOGON32_PROVIDER_DEFAULT
-#endif
-#endif
 
 using namespace std;
 
@@ -58,8 +47,8 @@ void SecurityToken::reset()
   password       = 0;
   directory      = 0;
   filename       = 0;
-  neededPassword = 0;
-  permission2    = 0;
+  requiredPassword = 0;
+  providedMask    = 0;
   authType      = 0;
   authTypeLen       = 0;
   throttlingRate = (int)-1;
@@ -78,7 +67,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
 	ostringstream permissionsFile;
 	XmlParser localParser;  
   xmlDocPtr doc;
-	int found=0;
+	int found = 0;
   out.assign("");
   if(parser == 0)
   { 
@@ -102,7 +91,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
 			localParser.close();
     return 0;
 	}
-  node=doc->children->children;
+  node = doc->children->children;
 
   if(node == 0)
 	{
@@ -166,8 +155,8 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
  *Get the permissions mask for the file[filename]. 
  *The file [directory]/security will be parsed. If a [parser] is specified, 
  *it will be used instead of opening the security file.
- *[permission2] is the permission mask that the [user] will have 
- *if providing a [neededPassword].
+ *[providedMask] is the permission mask that the [user] will have 
+ *if providing a [requiredPassword].
  *Returns -1 on errors.
  */
 int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
@@ -189,7 +178,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 	int userPermissions = 0;
 	int userPermissionsFound = 0;
 
-  /* Store what we found for neededPassword.  */
+  /* Store what we found for requiredPassword.  */
 	int filePermissions2Found = 0;
 	int userPermissions2Found = 0;
 	int genericPermissions2Found = 0;
@@ -379,8 +368,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
             actionsFound = 2;
  	          actionsNode = tmpActionsNode;            
           }   
-          if(st->neededPassword)
-            strncpy(st->neededPassword, tempPassword, 32);
+          if(st->requiredPassword)
+            strncpy(st->requiredPassword, tempPassword, 32);
           if(tempThrottlingRate != (u_long) -1) 
             st->throttlingRate = tempThrottlingRate;
         }
@@ -477,8 +466,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
              */
 						if(rightUser)
 						{
-              if(st->neededPassword)
-                myserver_strlcpy(st->neededPassword, tempPassword, 32);
+              if(st->requiredPassword)
+                myserver_strlcpy(st->requiredPassword, tempPassword, 32);
 						}
 
 						attr = attr->next;
@@ -589,22 +578,22 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     localParser.close();
   }
 
-  if(st->permission2)
+  if(st->providedMask)
 	{
-		*st->permission2 = 0;
+		*st->providedMask = 0;
 		if(genericPermissions2Found)
 		{
-			*st->permission2 = genericPermissions;
+			*st->providedMask = genericPermissions;
 		}
 	
 		if(filePermissions2Found == 1)
 		{
-			*st->permission2 = filePermissions;
+			*st->providedMask = filePermissions;
 		}
 				
 		if(userPermissions2Found == 1)
 		{
-			*st->permission2 = userPermissions;
+			*st->providedMask = userPermissions;
 		}
 
 	}

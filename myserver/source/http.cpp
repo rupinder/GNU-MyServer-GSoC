@@ -129,7 +129,7 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
   }
   catch(...)
   {
-    return raiseHTTPError(e_500); 
+    return raiseHTTPError(500); 
   };
 }
 
@@ -150,7 +150,7 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
     tmp.intToStr(contentLength, tmpStr, 12);
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     if(!allowHTTPTRACE())
-      return raiseHTTPError(e_401);
+      return raiseHTTPError(401);
     td.buffer2->setLength(0);
     *td.buffer2 << "HTTP/1.1 200 OK\r\n";
     *td.buffer2 << "Date: " << time ;
@@ -181,7 +181,7 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
   }
   catch(...)
   {
-    return raiseHTTPError(e_500); 
+    return raiseHTTPError(500); 
   };
 }
   
@@ -234,7 +234,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
   int permissions = -1;
 	int httpStatus = td.response.httpStatus;
 	int keepalive = 0;
-  int permissions2 = 0;
+  int providedMask = 0;
   char authType[16];	
   SecurityToken st;
   string directory;
@@ -276,10 +276,10 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       if((filename[0] != '\0') && 
          (FilesUtility::getPathRecursionLevel(filename) < 1))
       {
-        return raiseHTTPError(e_401);
+        return raiseHTTPError(401);
       }
       ret = getPath(td.filenamePath, filename, 0);
-      if(ret != e_200)
+      if(ret != 200)
         return raiseHTTPError(ret);
     }
     if(FilesUtility::isDirectory(td.filenamePath.c_str()))
@@ -309,9 +309,9 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.neededPassword = 
-				((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
-      st.permission2 = &permissions2;
+      st.requiredPassword = 
+				((HttpUserData*)td.connection->protocolBuffer)->requiredPassword;
+      st.providedMask = &providedMask;
       secCacheMutex.lock();
       try
       {
@@ -334,8 +334,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.neededPassword = 0;
-        st.permission2 = 0;
+        st.requiredPassword = 0;
+        st.providedMask = 0;
         permissions=secCache.getPermissionMask(&st);
         secCacheMutex.unlock();
       }
@@ -351,7 +351,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       td.connection->host->warningslogRequestAccess(td.id);
       td.connection->host->warningsLogWrite("Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
-      return raiseHTTPError(e_500); 
+      return raiseHTTPError(500); 
     }
     /*! Check if we have to use digest for the current directory. */
     if(!lstrcmpi(authType, "Digest"))
@@ -365,8 +365,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         if(((HttpUserData*)td.connection->protocolBuffer)->digest == 1)
         {
           td.connection->setPassword(
-							 ((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
-          permissions = permissions2;
+							 ((HttpUserData*)td.connection->protocolBuffer)->requiredPassword);
+          permissions = providedMask;
         }
       }
       td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
@@ -383,8 +383,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.neededPassword = 0;
-      st.permission2 = 0;
+      st.requiredPassword = 0;
+      st.providedMask = 0;
       
       secCacheMutex.lock();
       try
@@ -404,7 +404,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       td.connection->host->warningsLogWrite(
 																	 "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
-      return raiseHTTPError(e_500); 
+      return raiseHTTPError(500); 
     }
     if(!(permissions & MYSERVER_PERMISSION_WRITE))
     {
@@ -418,7 +418,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
                        File::MYSERVER_OPEN_WRITE))
       {
         /*! Return an internal server error. */
-        return raiseHTTPError(e_500);
+        return raiseHTTPError(500);
       }
       file.setFilePointer(firstByte);
       for(;;)
@@ -429,7 +429,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         {
           file.closeFile();
           /*! Return an internal server error.  */
-          return raiseHTTPError(e_500);
+          return raiseHTTPError(500);
         }
         if(nbr)
         {
@@ -437,7 +437,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
           {
             file.closeFile();
             /*! Return an internal server error.  */
-            return raiseHTTPError(e_500);
+            return raiseHTTPError(500);
           }
         }
         else
@@ -446,12 +446,12 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         {
           file.closeFile();
           /*! Internal server error.  */
-          return raiseHTTPError(e_500);
+          return raiseHTTPError(500);
         }
       }
       file.closeFile();
       /*! Successful updated.  */
-      raiseHTTPError(e_200);
+      raiseHTTPError(200);
       
       return keepalive;
     }
@@ -466,7 +466,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 											 File::MYSERVER_OPEN_WRITE))
       {
         /*! Internal server error. */
-        return raiseHTTPError(e_500);
+        return raiseHTTPError(500);
       }
       for(;;)
       {
@@ -475,14 +475,14 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
                                       td.buffer->getRealLength(), &nbr))
         {
           file.closeFile();
-          return raiseHTTPError(e_500);
+          return raiseHTTPError(500);
         }
         if(nbr)
         {
           if(file.writeToFile(td.buffer->getBuffer(), nbr, &nbw))
           {
             file.closeFile();
-            return raiseHTTPError(e_500);
+            return raiseHTTPError(500);
           }
         }
         else
@@ -490,18 +490,18 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         if( nbw != nbr )
         {
           file.closeFile();
-          return raiseHTTPError(e_500);
+          return raiseHTTPError(500);
         }
       }
       file.closeFile();
       /*! Successful created. */
-      raiseHTTPError(e_201);
+      raiseHTTPError(201);
       return 1;
     }
 	}
   catch(...)
   {
-    return raiseHTTPError(e_500); 
+    return raiseHTTPError(500); 
   };
 }
 
@@ -513,7 +513,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
   int permissions = -1;
   string directory;
 	int httpStatus = td.response.httpStatus;
-	int permissions2 = 0;
+	int providedMask = 0;
 	char authType[16];
   SecurityToken st;
   string file;
@@ -552,10 +552,10 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       if((filename[0] != '\0') && 
 				 (FilesUtility::getPathRecursionLevel(filename)<1))
       {
-        return raiseHTTPError(e_401);
+        return raiseHTTPError(401);
       }
       ret = getPath(td.filenamePath, filename, 0);
-      if(ret != e_200)
+      if(ret != 200)
         return raiseHTTPError(ret);
     }
     if(FilesUtility::isDirectory(td.filenamePath.c_str()))
@@ -584,9 +584,9 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.neededPassword = 
-				((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
-      st.permission2 = &permissions2;
+      st.requiredPassword = 
+				((HttpUserData*)td.connection->protocolBuffer)->requiredPassword;
+      st.providedMask = &providedMask;
       secCacheMutex.lock();
       try
       {
@@ -606,8 +606,8 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.neededPassword = 0;
-      st.permission2 = 0;
+      st.requiredPassword = 0;
+      st.providedMask = 0;
       secCacheMutex.lock();
       try
       {
@@ -626,7 +626,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       td.connection->host->warningsLogWrite(
 																		 "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
-      return raiseHTTPError(e_500); 
+      return raiseHTTPError(500); 
     }
     /*! Check if we have to use digest for the current directory. */
     if(!lstrcmpi(authType, "Digest"))
@@ -640,8 +640,8 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
         if(((HttpUserData*)td.connection->protocolBuffer)->digest == 1)
         {
           td.connection->setPassword(
-               ((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
-					permissions = permissions2;
+               ((HttpUserData*)td.connection->protocolBuffer)->requiredPassword);
+					permissions = providedMask;
         }
       }
       td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
@@ -659,8 +659,8 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       st.directory = directory.c_str();
       st.sysdirectory = td.getVhostSys();
       st.filename = file.c_str();
-      st.neededPassword = 0;
-      st.permission2 = 0;
+      st.requiredPassword = 0;
+      st.providedMask = 0;
       secCacheMutex.lock();
       try
       {
@@ -679,7 +679,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       td.connection->host->warningsLogWrite(
                              "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
-      return raiseHTTPError(e_500);
+      return raiseHTTPError(500);
     }
     if(!(permissions & MYSERVER_PERMISSION_DELETE))
 	  {
@@ -689,17 +689,17 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
 	  {
       FilesUtility::deleteFile(td.filenamePath.c_str());
       /*! Successful deleted.  */
-      return raiseHTTPError(e_202);
+      return raiseHTTPError(202);
     }
     else
   	{
       /*! No content.  */
-      return raiseHTTPError(e_204);
+      return raiseHTTPError(204);
     }
   }
   catch(...)
   {
-    return raiseHTTPError(e_500); 
+    return raiseHTTPError(500); 
   };
 
 }
@@ -734,7 +734,7 @@ u_long Http::checkDigest()
 	md5.init();
 	td.buffer2->setLength(0);
 	*td.buffer2 << td.request.digestUsername << ":" << td.request.digestRealm 
-			<< ":" << ((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
+			<< ":" << ((HttpUserData*)td.connection->protocolBuffer)->requiredPassword;
 
 	md5.update((unsigned char const*)td.buffer2->getBuffer(), 
              (unsigned int)td.buffer2->getLength());
@@ -877,7 +877,7 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 				td->outputData.closeFile();
 				FilesUtility::deleteFile(td->outputDataPath);
 			}
-			retvalue = raiseHTTPError(e_400);
+			retvalue = raiseHTTPError(400);
 			logHTTPaccess();
 			*retcmd = retvalue ? ClientsThread::KEEP_CONNECTION 
                          : ClientsThread::DELETE_CONNECTION;
@@ -963,7 +963,7 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 				FilesUtility::deleteFile(td->inputDataPath);
 				td->outputData.closeFile();
 				FilesUtility::deleteFile(td->outputDataPath);
-				retvalue = raiseHTTPError(e_500);
+				retvalue = raiseHTTPError(500);
 				logHTTPaccess();
 				*retcmd = retvalue ? ClientsThread::KEEP_CONNECTION 
 					                 : ClientsThread::DELETE_CONNECTION;
@@ -1022,7 +1022,7 @@ void HttpUserData::reset()
 	nonce[0] = '\0';
 	cnonce[0] = '\0';
 	digestChecked = 0;
-	neededPassword[0] = '\0';
+	requiredPassword[0] = '\0';
 	nc = 0;
 	digest = 0;
 }
@@ -1039,7 +1039,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
    */
 	string filename;
   int permissions;
-  int permissions2;
+  int providedMask;
   string dirscan;
 	int filenamePathLen;
   string data;
@@ -1087,11 +1087,11 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(filename.length() && (filename[0] != '\0')&&
          (FilesUtility::getPathRecursionLevel(filename) < 1))
       {
-        return raiseHTTPError(e_401);
+        return raiseHTTPError(401);
       }
       /*! getPath will alloc the buffer for filenamePath. */
       ret = getPath(td.filenamePath, filename.c_str(), systemrequest);
-      if(ret != e_200)
+      if(ret != 200)
         return raiseHTTPError(ret);
     }
 
@@ -1104,7 +1104,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         const char *perm = td.connection->host->getHashedData("FOLLOW_LINKS");
         if(!perm || strcmpi(perm, "YES"))
-          return raiseHTTPError(e_401);
+          return raiseHTTPError(401);
       }
 
       if(FilesUtility::isDirectory(td.filenamePath.c_str()))
@@ -1125,7 +1125,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         }
         ((HttpUserData*)td.connection->protocolBuffer)->reset();
       }
-      permissions2 = 0;
+      providedMask = 0;
       if(td.request.auth.length())
       {
         st.user = td.connection->getLogin();
@@ -1133,9 +1133,9 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.neededPassword = 
-					((HttpUserData*)td.connection->protocolBuffer)->neededPassword;
-        st.permission2 = &permissions2;
+        st.requiredPassword = 
+					((HttpUserData*)td.connection->protocolBuffer)->requiredPassword;
+        st.providedMask = &providedMask;
         secCacheMutex.lock();
         try
         {
@@ -1155,8 +1155,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.neededPassword = 0;
-        st.permission2 = 0;
+        st.requiredPassword = 0;
+        st.providedMask = 0;
         secCacheMutex.lock();
         try
         {
@@ -1183,8 +1183,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
           if(((HttpUserData*)td.connection->protocolBuffer)->digest == 1)
           {
             td.connection->setPassword(
-               ((HttpUserData*)td.connection->protocolBuffer)->neededPassword);
-            permissions = permissions2;
+               ((HttpUserData*)td.connection->protocolBuffer)->requiredPassword);
+            permissions = providedMask;
           }
         }
         td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
@@ -1202,8 +1202,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.directory = directory.c_str();
         st.sysdirectory = td.getVhostSys();
         st.filename = file.c_str();
-        st.neededPassword = 0;
-        st.permission2 = 0;
+        st.requiredPassword = 0;
+        st.providedMask = 0;
         secCacheMutex.lock();
         try
         {
@@ -1224,7 +1224,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       td.connection->host->warningsLogWrite(
                                "Http: Error reading security file");
       td.connection->host->warningslogTerminateAccess(td.id);
-      return raiseHTTPError(e_500); 
+      return raiseHTTPError(500); 
     }
 
 
@@ -1287,7 +1287,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
        *slash character.  
        */
       ret = getPath(td.pathTranslated, &((td.pathInfo.c_str())[1]), 0);
-      if(ret != e_200)
+      if(ret != 200)
         return raiseHTTPError(ret);
       FilesUtility::completePath(td.pathTranslated);
     }
@@ -1362,7 +1362,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
     
     if(!FilesUtility::fileExists(td.filenamePath.c_str()))
-      return raiseHTTPError(e_404);
+      return raiseHTTPError(404);
 
     /*!
      *getMIME returns the type of command registered by the extension.
@@ -1491,7 +1491,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 												 target, 1, onlyHeader);
         return ret;
       }
-      return raiseHTTPError(e_500);
+      return raiseHTTPError(500);
     }
     else if( mimecmd == CGI_CMD_EXECUTEWINCGI )
     {
@@ -1626,7 +1626,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(h.openFile(td.filenamePath.c_str(), 
                     File::MYSERVER_OPEN_IFEXISTS|File::MYSERVER_OPEN_READ))
       {
-        return raiseHTTPError(e_500);
+        return raiseHTTPError(500);
       }
 
       linkpathSize = h.getFileSize() + td.pathInfo.length() + 1;
@@ -1645,7 +1645,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         h.closeFile();
         delete [] linkpath;
-        return raiseHTTPError(e_500);/*!Internal server error*/
+        return raiseHTTPError(500);/*!Internal server error*/
       }
 
       h.closeFile();
@@ -1656,7 +1656,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(pathInfo == 0)
       {
         delete [] linkpath;
-        return raiseHTTPError(e_500);/*!Internal server error*/
+        return raiseHTTPError(500);/*!Internal server error*/
       }
       strcpy(pathInfo, td.pathInfo.c_str());
       translateEscapeString(pathInfo);
@@ -1669,7 +1669,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         ret = sendHTTPResource(uri, systemrequest, onlyHeader, 1);
       }
       else
-        ret = raiseHTTPError(e_404);
+        ret = raiseHTTPError(404);
 
       delete [] linkpath;
       delete [] pathInfo;
@@ -1698,7 +1698,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
           return manager->send(&td, td.connection, td.filenamePath.c_str(), 
                                data.c_str(), onlyHeader);
         else
-          return raiseHTTPError(e_501);
+          return raiseHTTPError(501);
       }
 
     }
@@ -1728,7 +1728,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     lastMT = FilesUtility::getLastModTime(td.filenamePath.c_str());
     if(lastMT == -1)
     {
-      return raiseHTTPError(e_500);
+      return raiseHTTPError(500);
     }
     getRFC822GMTTime(lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
 		td.response.lastModified.assign(tmpTime);
@@ -1750,7 +1750,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
   }
   catch(...)
   {
-    return raiseHTTPError(e_500); 
+    return raiseHTTPError(500); 
   };
 
 	return ret;
@@ -1908,7 +1908,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       {
         /*! Remove the connection from the list.  */
 			  case CONNECTION_REMOVE_OVERLOAD:
-					retvalue = raiseHTTPError(e_503);
+					retvalue = raiseHTTPError(503);
 					logHTTPaccess();
 					return ClientsThread::DELETE_CONNECTION;
         default:
@@ -1941,7 +1941,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     /*!
      *If the validRequest cointains an error code send it to the user.
      */
-    if(validRequest != e_200)
+    if(validRequest != 200)
     {
       retvalue = raiseHTTPError(validRequest);
       logHTTPaccess();
@@ -1952,7 +1952,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        (td.request.ver.compare("HTTP/1.0")) && 
        (td.request.ver.compare("HTTP/0.9")))
     {	
-      raiseHTTPError(e_505);
+      raiseHTTPError(505);
       logHTTPaccess();
       /*! Remove the connection from the list.  */
       return ClientsThread::DELETE_CONNECTION;
@@ -2113,7 +2113,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 			 */
 			else if(encoding && encoding->value->length())
 			{
-				raiseHTTPError(e_501);
+				raiseHTTPError(501);
 				/*!
 				 *If the inputData file was not closed close it.
 				 */
@@ -2151,7 +2151,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       if((!td.request.ver.compare("HTTP/1.1")) && 
 				 ((host && host->value->length() == 0) || (host == 0)) )
       {
-        raiseHTTPError(e_400);
+        raiseHTTPError(400);
         /*!
          *If the inputData file was not closed close it.
          */
@@ -2185,7 +2185,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         a->host = newHost;
         if(a->host == 0)
         {
-          raiseHTTPError(e_400);
+          raiseHTTPError(400);
           /*!
            *If the inputData file was not closed close it.
            */
@@ -2231,7 +2231,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 						homeDir = "public_html";
 
 					if(useHomeDir == 0 || strcmpi(useHomeDir, "YES"))
-						return raiseHTTPError(e_404);
+						return raiseHTTPError(404);
 
 
 					td.vhostDir.assign(documentRoot);
@@ -2264,7 +2264,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           u_long limit = (u_long)atoi(val);
           if(limit && (u_long)a->host->getRef() >= limit)
           {
-            retvalue = raiseHTTPError(e_500);
+            retvalue = raiseHTTPError(500);
             logHTTPaccess();
             return retvalue ? ClientsThread::KEEP_CONNECTION
                             : ClientsThread::DELETE_CONNECTION;
@@ -2322,18 +2322,12 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       /*! GET REQUEST.  */
       if(!td.request.cmd.compare("GET"))
       {
-        if(!td.request.rangeType.compare("bytes"))
-          ret = sendHTTPResource(td.request.uri, 0, 0);
-        else
-          ret = sendHTTPResource(td.request.uri);
+				ret = sendHTTPResource(td.request.uri);
       }
       /*! POST REQUEST.  */
       else if(!td.request.cmd.compare("POST"))
       {
-        if(!td.request.rangeType.compare("bytes"))
-          ret = sendHTTPResource(td.request.uri, 0, 0);
-        else
-          ret = sendHTTPResource(td.request.uri);
+				ret = sendHTTPResource(td.request.uri);
       }
       /*! HEAD REQUEST.  */
       else if(!td.request.cmd.compare("HEAD"))
@@ -2368,7 +2362,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          *is not a dynamic methods manager. 
          */
         if(!dynamicCommand)
-          ret = raiseHTTPError(e_501);
+          ret = raiseHTTPError(501);
         else
           retvalue = dynamicCommand->send(&td, a, td.request.uri, 0, 0, 0) 
 						? ClientsThread::KEEP_CONNECTION
@@ -2429,6 +2423,102 @@ void Http::computeDigest(char* out, char* buffer)
 }
 
 /*!
+ *Send to the client an authorization request.
+ */
+int Http::requestAuthorization()
+{
+	Md5 md5;
+	string time;
+	HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+	HttpRequestHeader::Entry *host = td.request.other.get("Host");
+	td.response.httpStatus = 401;
+	td.buffer2->setLength(0);
+	*td.buffer2 << "HTTP/1.1 401 Unauthorized\r\n" 
+							<< "Accept-Ranges: bytes\r\nServer: MyServer " ;
+	*td.buffer2 << versionOfSoftware ;
+	*td.buffer2 << "\r\nContent-type: text/html\r\nConnection: ";
+	*td.buffer2 << (connection ? connection->value->c_str() : "");
+	*td.buffer2 << "\r\nContent-length: 0\r\n";
+	if(td.authScheme == HTTP_AUTH_SCHEME_BASIC)
+	{
+		*td.buffer2 <<  "WWW-Authenticate: Basic realm=\"" 
+								<< (host ? host->value->c_str() : "") <<  "\"\r\n";
+	}
+	else if(td.authScheme == HTTP_AUTH_SCHEME_DIGEST)
+	{
+		char md5Str[256];
+		
+		if(td.connection->protocolBuffer == 0)
+		{
+			td.connection->protocolBuffer = new HttpUserData;
+			if(!td.connection->protocolBuffer)
+			{
+				sendHTTPhardError500();
+				return 0;
+			}
+			((HttpUserData*)(td.connection->protocolBuffer))->reset();
+		}
+		myserver_strlcpy(((HttpUserData*)td.connection->protocolBuffer)->realm,
+										 host ? host->value->c_str() : "", 48);
+
+		/*! Just a random string.  */
+		md5Str[0] = (char)td.id;
+		md5Str[1] = (char)((clock() >> 24) & 0xFF);
+		md5Str[2] = (char)((clock() >> 16) & 0xFF);
+		md5Str[3] = (char)((clock() >>  8)   & 0xFF);
+		md5Str[4] = (char) (clock() & 0xFF);
+		strncpy(&(md5Str[5]), td.request.uri.c_str(), 256 - 5);
+		md5.init();
+		md5.update((unsigned char const*)md5Str, 
+							 (unsigned int)strlen(md5Str));
+		md5.end(((HttpUserData*)td.connection->protocolBuffer)->opaque);
+		
+		if(td.connection->protocolBuffer && 
+			 (!(((HttpUserData*)td.connection->protocolBuffer)->digest)) || 
+			 (((HttpUserData*)td.connection->protocolBuffer)->nonce[0]=='\0'))
+		{
+			computeDigest(((HttpUserData*)td.connection->protocolBuffer)->nonce,
+										md5Str);
+			((HttpUserData*)td.connection->protocolBuffer)->nc = 0;
+		}
+		
+		*td.buffer2 << "WWW-Authenticate: digest "
+								<< " qop=\"auth\", algorithm =\"MD5\", realm =\""
+								<< ((HttpUserData*)td.connection->protocolBuffer)->realm 
+								<< "\",  opaque =\"" 
+								<< ((HttpUserData*)td.connection->protocolBuffer)->opaque
+								<< "\",  nonce =\""
+								<< ((HttpUserData*)td.connection->protocolBuffer)->nonce
+								<<"\" ";
+
+		if(((HttpUserData*)td.connection->protocolBuffer)->cnonce[0])
+		{
+			*td.buffer2 << ", cnonce =\""
+									<<((HttpUserData*)td.connection->protocolBuffer)->cnonce
+									<<"\" ";
+		}
+		*td.buffer2 << "\r\n";
+	}		
+	else
+	{
+		/*!
+		 *Send a non implemented error page if the auth scheme is not known.
+		 */
+		return raiseHTTPError(501);
+	}				
+	*td.buffer2 << "Date: ";
+	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
+	*td.buffer2  << time
+							 << "\r\n\r\n";
+	if(td.connection->socket->send(td.buffer2->getBuffer(), 
+																 td.buffer2->getLength(), 0) == -1)
+	{
+		return 0;
+	}
+	return 1;
+}
+
+/*!
  *Sends an error page to the client.
  *Nonzero to keep the connection.
  */
@@ -2436,9 +2526,11 @@ int Http::raiseHTTPError(int ID)
 {
   try
   {
+		string defFile;
+		int ret = 0;
     string time;
     ostringstream errorFile;
-    Md5 md5;
+		string errorMessage;
     int errorBodyLength = 0;
     int useMessagesFiles = 1;
 		HttpRequestHeader::Entry *host = td.request.other.get("Host");
@@ -2463,207 +2555,117 @@ int Http::raiseHTTPError(int ID)
     {
       td.response.connection.assign("keep-alive");
     }
+		
+		td.response.httpStatus = ID;
+		secCacheMutex.lock();
+      
+		/*! 
+		 *The specified error file name must be in the web directory 
+		 *of the virtual host. 
+		 */
+		if(td.connection->host)
+			ret = secCache.getErrorFileName(td.getVhostDir(), ID,
+																			td.getVhostSys(), defFile);
+		else
+			ret = -1;
+		
+		secCacheMutex.unlock();
     
-    if(ID == e_401AUTH)
+		if(ret == -1)
     {
-      td.response.httpStatus = 401;
-      td.buffer2->setLength(0);
-      *td.buffer2 << "HTTP/1.1 401 Unauthorized\r\n" 
-									<< "Accept-Ranges: bytes\r\nServer: MyServer " ;
-      *td.buffer2 << versionOfSoftware ;
-      *td.buffer2 << "\r\nContent-type: text/html\r\nConnection: ";
-      *td.buffer2 << (connection ? connection->value->c_str() : "");
-      *td.buffer2 << "\r\nContent-length: 0\r\n";
-      if(td.authScheme == HTTP_AUTH_SCHEME_BASIC)
-      {
-        *td.buffer2 <<  "WWW-Authenticate: Basic realm=\"" 
-										<< (host ? host->value->c_str() : "") <<  "\"\r\n";
-      }
-      else if(td.authScheme == HTTP_AUTH_SCHEME_DIGEST)
-      {
-        char md5_str[256];
-
-        if(td.connection->protocolBuffer == 0)
-        {
-          td.connection->protocolBuffer = new HttpUserData;
-          if(!td.connection->protocolBuffer)
-          {
-            sendHTTPhardError500();
-            return 0;
-          }
-          ((HttpUserData*)(td.connection->protocolBuffer))->reset();
-        }
-        myserver_strlcpy(((HttpUserData*)td.connection->protocolBuffer)->realm,
-                         host ? host->value->c_str() : "", 48);
-
-        /*! Just a random string.  */
-        md5_str[0] = (char)td.id;
-        md5_str[1] = (char)((clock() >> 24) & 0xFF);
-        md5_str[2] = (char)((clock() >> 16) & 0xFF);
-        md5_str[3] = (char)((clock() >>  8)   & 0xFF);
-        md5_str[4] = (char) (clock() & 0xFF);
-        strncpy(&(md5_str[5]), td.request.uri.c_str(), 256 - 5);
-        md5.init();
-        md5.update((unsigned char const*)md5_str, 
-									 (unsigned int)strlen(md5_str));
-        md5.end(((HttpUserData*)td.connection->protocolBuffer)->opaque);
-        
-        if(td.connection->protocolBuffer && 
-					 (!(((HttpUserData*)td.connection->protocolBuffer)->digest)) || 
-           (((HttpUserData*)td.connection->protocolBuffer)->nonce[0]=='\0'))
-        {
-          computeDigest(((HttpUserData*)td.connection->protocolBuffer)->nonce,
-												md5_str);
-          ((HttpUserData*)td.connection->protocolBuffer)->nc = 0;
-        }
-        *td.buffer2 << "WWW-Authenticate: digest "
-										<< " qop=\"auth\", algorithm =\"MD5\", realm =\""
-										<< ((HttpUserData*)td.connection->protocolBuffer)->realm 
-										<< "\",  opaque =\"" 
-										<< ((HttpUserData*)td.connection->protocolBuffer)->opaque
-										<< "\",  nonce =\""
-										<< ((HttpUserData*)td.connection->protocolBuffer)->nonce
-										<<"\" ";
-
-        if(((HttpUserData*)td.connection->protocolBuffer)->cnonce[0])
-        {
-          *td.buffer2 << ", cnonce =\""
-											<<((HttpUserData*)td.connection->protocolBuffer)->cnonce
-											<<"\" ";
-        }
-        *td.buffer2 << "\r\n";
-      }		
-      else
-      {
-        /*!
-         *Send a non implemented error page if the auth scheme is not known.
-         */
-        return raiseHTTPError(501);
-      }				
-      *td.buffer2 << "Date: ";
-      getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-      *td.buffer2  << time
-									 << "\r\n\r\n";
-      if(td.connection->socket->send(td.buffer2->getBuffer(), 
-																		 td.buffer2->getLength(), 0) == -1)
-      {
-        return 0;
-      }
-      return 1;
-    }
-    else
+			sendHTTPhardError500();
+			return 0;
+		}
+		else if(ret)
     {
-      string defFile;
-      int ret = 0;
-      td.response.httpStatus = getHTTPStatusCodeFromErrorID(ID);
-      secCacheMutex.lock();
-      
-      /*! 
-       *The specified error file name must be in the web directory 
-       *of the virtual host. 
-       */
-      if(td.connection->host)
-        ret = secCache.getErrorFileName(td.getVhostDir(), 
-																				getHTTPStatusCodeFromErrorID(ID),
-																				td.getVhostSys(), defFile);
-      else
-        ret = -1;
-      
-      secCacheMutex.unlock();
-      
-      if(ret == -1)
+			ostringstream nURL;
+			int isPortSpecified = 0;
+			const char* hostStr = host ? host->value->c_str() : "";
+			/*!
+			 *Change the URI to reflect the default file name.
+			 */
+			nURL << protocolPrefix << hostStr;
+			for(int i = 0; hostStr[i]; i++)
       {
-        sendHTTPhardError500();
-        return 0;
-      }
-      else if(ret)
-      {
-        ostringstream nURL;
-        int isPortSpecified = 0;
-				const char* hostStr = host ? host->value->c_str() : "";
-        /*!
-         *Change the URI to reflect the default file name.
-         */
-        nURL << protocolPrefix << hostStr;
-        for(int i = 0; hostStr[i]; i++)
+				if(hostStr[i]==':')
         {
-          if(hostStr[i]==':')
-          {
-            isPortSpecified = 1;
-            break;
-          }
-        }
-        if(!isPortSpecified)
-          nURL << ":" << td.connection->host->getPort();
-        if(nURL.str()[nURL.str().length()-1] != '/')
-          nURL << "/";
+					isPortSpecified = 1;
+					break;
+				}
+			}
+			if(!isPortSpecified)
+				nURL << ":" << td.connection->host->getPort();
+			if(nURL.str()[nURL.str().length()-1] != '/')
+				nURL << "/";
+			
+			nURL << defFile;
+			
+			if(td.pathInfo.length())
+				nURL << "/" << td.pathInfo;
 
-        nURL << defFile;
-
-				if(td.pathInfo.length())
-					nURL << "/" << td.pathInfo;
-
-				if(td.request.uriOpts.length())
-					nURL << "?" << td.request.uriOpts;
-        
+			if(td.request.uriOpts.length())
+				nURL << "?" << td.request.uriOpts;
+			
         return sendHTTPRedirect(nURL.str().c_str());
-      }
-    }
-    
-    getRFC822GMTTime(time, HTTP_RESPONSE_DATE_EXPIRES_DIM);
-    td.response.dateExp.assign(time);
-    td.response.errorType.assign(HTTP_ERROR_MSGS[ID], 
-                                   HTTP_RESPONSE_ERROR_TYPE_DIM);
-    
-    errorFile << td.getVhostSys() << "/" << HTTP_ERROR_HTMLS[ID];
-    
-    if(useMessagesFiles && FilesUtility::fileExists(errorFile.str().c_str()))
-    {
-        string tmp;
-        tmp.assign(HTTP_ERROR_HTMLS[ID]);
-        return sendHTTPResource(tmp, 1, td.onlyHeader);
-    }
+		}
+	    
+		getRFC822GMTTime(time, HTTP_RESPONSE_DATE_EXPIRES_DIM);
+		td.response.dateExp.assign(time);
+	
+		{
+			string page;
+			HttpErrors::getErrorMessage(ID, td.response.errorType);
+			HttpErrors::getErrorPage(ID, page);
+			errorFile << td.getVhostSys() << "/" << page;
+		}
 
-    /*! Send only the header (and the body if specified). */
-    {
-      const char* value = 
+		if(useMessagesFiles && FilesUtility::fileExists(errorFile.str().c_str()))
+		{
+			string tmp;
+			HttpErrors::getErrorPage(ID, tmp);
+			return sendHTTPResource(tmp, 1, td.onlyHeader);
+		}
+		
+		HttpErrors::getErrorMessage(ID, errorMessage);
+		/*! Send only the header (and the body if specified). */
+		{
+			const char* value = 
 				td.connection->host->getHashedData("ERRORS_INCLUDE_BODY");  
-      if(value && !strcmpi(value, "YES"))
-      {
-        ostringstream s;
-        errorBodyLength = strlen(HTTP_ERROR_MSGS[ID]);
-        s << errorBodyLength;
-        td.response.contentLength.assign(s.str());
-      }
-      else
-      {
-        errorBodyLength = 0;
-        td.response.contentLength.assign("0");
-      }
-      
-    }
-    
-    HttpHeaders::buildHTTPResponseHeader(td.buffer->getBuffer(), &td.response);
-    if(td.connection->socket->send(td.buffer->getBuffer(), 
-																	 (u_long)strlen(td.buffer->getBuffer()), 0) 
+			if(value && !strcmpi(value, "YES"))
+			{
+				ostringstream s;
+				errorBodyLength = errorMessage.length();
+				s << errorBodyLength;
+				td.response.contentLength.assign(s.str());
+			}
+			else
+			{
+				errorBodyLength = 0;
+				td.response.contentLength.assign("0");
+			}
+		}
+		HttpHeaders::buildHTTPResponseHeader(td.buffer->getBuffer(), 
+																				 &td.response);
+		if(td.connection->socket->send(td.buffer->getBuffer(), 
+																	 (u_long)strlen(td.buffer->getBuffer()), 0)
 			 == -1)
-      return 0;
-
-    if(errorBodyLength && (td.connection->socket->send(HTTP_ERROR_MSGS[ID],
+			return 0;
+		
+		if(errorBodyLength && (td.connection->socket->send(errorMessage.c_str(),
 																											 errorBodyLength, 0) 
 													 == -1))
-      return 0;  
- 
-    return 1;      
-  }
-  catch(bad_alloc &ba)
-  {
-    return 0;
-  }
-  catch(...)
-  {
-    return 0;
-  };
+			return 0;
+		
+		return 1;      
+	}
+	catch(bad_alloc &ba)
+	{
+		return 0;
+	}
+	catch(...)
+	{
+		return 0;
+	};
 }
 
 /*!
@@ -2674,7 +2676,7 @@ int Http::sendHTTPhardError500()
   MemBuf tmp;
 	char tmpStr[12];
 	string time;
-
+	string errorMsg;
 	const char hardHTML[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n\
 \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n\
@@ -2692,9 +2694,11 @@ Internal Server Error\n\
 </h1>\n\
 </body>\n\
 </html>\r\n";
-	td.response.httpStatus=500;
+	HttpErrors::getErrorMessage(500, errorMsg);
+
+	td.response.httpStatus = 500;
 	td.buffer->setLength(0);
-	*td.buffer <<  HTTP_ERROR_MSGS[e_500];
+	*td.buffer <<  errorMsg;
 	*td.buffer << " from: " ;
 	*td.buffer << td.connection->getIpAddr() ;
 	*td.buffer << "\r\n";	
@@ -2703,8 +2707,8 @@ Internal Server Error\n\
 	*td.buffer2 << versionOfSoftware;
 	*td.buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
   tmp.intToStr((int)strlen(hardHTML), tmpStr, 12);
-	*td.buffer2  <<   tmp;
-	*td.buffer2   << "\r\n";
+	*td.buffer2 << tmp;
+	*td.buffer2 << "\r\n";
 	*td.buffer2 <<"Date: ";
 	getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 	*td.buffer2 << time;
@@ -2737,7 +2741,7 @@ MimeRecord* Http::getMIME(string &filename)
 }
 
 /*!
- *Map an URL to the machine file system. Return e_200 on success. 
+ *Map an URL to the machine file system. Return 200 on success. 
  *Any other return value is the HTTP error.
  */
 int Http::getPath(string& filenamePath, const char *filename, 
@@ -2751,7 +2755,7 @@ int Http::getPath(string& filenamePath, const char *filename,
     if(!strlen(td.getVhostSys()) 
        || FilesUtility::getPathRecursionLevel(filename)< 2 )
     {
-      return e_401;
+      return 401;
     }
     filenamePath.assign(td.getVhostSys());
     filenamePath.append(filename);
@@ -2779,7 +2783,7 @@ int Http::getPath(string& filenamePath, const char *filename,
          */
         if(FilesUtility::getPathRecursionLevel(filename)< 2)
         {
-          return e_401;
+          return 401;
         }
         filename = filename + 5;
       }
@@ -2797,7 +2801,7 @@ int Http::getPath(string& filenamePath, const char *filename,
 		}
 
 	}
-  return e_200;
+  return 200;
 }
 
 /*!
@@ -2883,12 +2887,12 @@ int Http::sendAuth()
 {
 	if(td.connection->getnTries() > 2)
 	{
-		return raiseHTTPError(e_401);
+		return raiseHTTPError(401);
 	}
 	else
 	{	
 		td.connection->incnTries();
-		return raiseHTTPError(e_401AUTH);
+		return requestAuthorization();
 	}
 }
 
@@ -2909,7 +2913,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 
   secCacheMutex.init();
 		
-	/*! 
+	/*
    *Store defaults value.  
    *By default use GZIP with files bigger than a MB.  
    */
@@ -2919,16 +2923,19 @@ int Http::loadProtocol(XmlParser* languageParser)
 
 	configurationFileManager.open(mainConfigurationFile);
 
-	/*! Initialize ISAPI.  */
+	/* Load the HTTP errors.  */
+	HttpErrors::load();
+
+	/* Initialize ISAPI.  */
 	Isapi::load(&configurationFileManager);
 	
-	/*! Initialize FastCGI.  */
+	/* Initialize FastCGI.  */
 	FastCgi::load(&configurationFileManager);	
 
-	/*! Initialize SCGI.  */
+	/* Initialize SCGI.  */
 	Scgi::load(&configurationFileManager);	
 
-	/*! Load the MSCGI library.  */
+	/* Load the MSCGI library.  */
 	mscgiLoaded = MsCgi::load(&configurationFileManager) ? 0 : 1;
 	if(mscgiLoaded)
   {
@@ -3031,24 +3038,19 @@ int Http::unloadProtocol(XmlParser* languageParser)
 	 if(!initialized)
 		 return 0;
 
-	/*!
-   *Clean ISAPI.
-   */
+	 /* Unload the errors.  */
+	HttpErrors::unload();
+
+	/* Clean ISAPI.  */
 	Isapi::unload();
 
-	/*!
-   *Clean FastCGI.
-   */
+	/* Clean FastCGI.  */
 	FastCgi::unload();
 
-	/*!
-   *Clean SCGI.
-   */
+	/* Clean SCGI.  */
 	Scgi::unload();
 
-	/*!
-   *Clean MSCGI.
-   */
+	/* Clean MSCGI.  */
 	MsCgi::unload();
  
   HttpFile::unload();

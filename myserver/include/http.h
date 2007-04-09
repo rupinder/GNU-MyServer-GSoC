@@ -58,7 +58,7 @@ public:
 	/*! Cnonce string used by Digest authorization scheme.  */
 	char cnonce[48];
 	/*! Password string used by Digest authorization scheme.  */
-	char neededPassword[32];
+	char requiredPassword[32];
 	/*! Nonce count used by Digest authorization scheme.  */
 	u_long nc;
 	/*! Nonzero if the user was authenticated trough the Digest scheme.  */
@@ -72,37 +72,9 @@ public:
 
 class Http : public Protocol
 {
-private:
-  static Mutex secCacheMutex;
-  static SecurityCache secCache;
-	static int initialized;
-
-	/*! Store if the MSCGI library was loaded.  */
-	static int mscgiLoaded;
-	static string browseDirCSSpath;
-	static u_long gzipThreshold;
-	static vector<string> defaultFilename;
-  static int cgiTimeout;
-  static int allowVhostMime;
-  static DynHttpCommandManager dynCmdManager;
-  static DynHttpManagerList dynManagerList;
-	MsCgi mscgi;
-	WinCgi wincgi;
-	Isapi isapi;
-	Cgi cgi;
-	Scgi scgi;
-	FastCgi fastcgi;
-  HttpFile httpFile;
-  HttpDir httpDir;
-	struct HttpThreadContext td;
-  void clean();
-
-	int readPostData(HttpThreadContext* td, int* ret);
-
-protected:
-	string protocolPrefix;
 public:
 	int protocolOptions;
+	int requestAuthorization();
 	const char *getDefaultFilenamePath(u_long ID);
 
 	int sendHTTPResource(string& filename,
@@ -149,8 +121,6 @@ public:
 	int sendHTTPNonModified();
 	Http();
 	virtual ~Http();
-	void computeDigest(char*, char*);
-	u_long checkDigest();
   const char* getBrowseDirCSSFile();
 	u_long getGzipThreshold();
 	virtual char* registerName(char*,int len);
@@ -167,6 +137,34 @@ public:
 	static int unloadProtocol(XmlParser*);
 
   int getCGItimeout();
+protected:
+  static Mutex secCacheMutex;
+  static SecurityCache secCache;
+	static int initialized;
+
+	/*! Store if the MSCGI library was loaded.  */
+	static int mscgiLoaded;
+	static string browseDirCSSpath;
+	static u_long gzipThreshold;
+	static vector<string> defaultFilename;
+  static int cgiTimeout;
+  static int allowVhostMime;
+  static DynHttpCommandManager dynCmdManager;
+  static DynHttpManagerList dynManagerList;
+	MsCgi mscgi;
+	WinCgi wincgi;
+	Isapi isapi;
+	Cgi cgi;
+	Scgi scgi;
+	FastCgi fastcgi;
+  HttpFile httpFile;
+  HttpDir httpDir;
+	struct HttpThreadContext td;
+  void clean();
+	int readPostData(HttpThreadContext* td, int* ret);
+	void computeDigest(char*, char*);
+	u_long checkDigest();
+	string protocolPrefix;
 };
 
 #endif

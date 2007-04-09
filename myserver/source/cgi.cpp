@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cgi.h"
 #include "../include/http_headers.h"
 #include "../include/http.h"
-#include "../include/http_constants.h"
+#include "../include/http_errors.h"
 #include "../include/server.h"
 #include "../include/security.h"
 #include "../include/mime_utils.h"
@@ -151,7 +151,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
         td->connection->host->warningsLogWrite("Cgi: Error loading filters");
         td->connection->host->warningslogTerminateAccess(td->id);
         chain.clearAllFilters(); 
-        return td->http->raiseHTTPError(e_500);
+        return td->http->raiseHTTPError(500);
       }
   }
 	
@@ -227,7 +227,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       td->scriptFile.assign("");
       td->scriptDir.assign("");
       chain.clearAllFilters(); 
-			return td->http->raiseHTTPError(e_500);
+			return td->http->raiseHTTPError(500);
 		}
 
     spi.arg.assign(moreArg);
@@ -259,7 +259,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 			                    ("Cgi: Cannot create CGI stdout file");
 		td->connection->host->warningslogTerminateAccess(td->id);
     chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
 	}
 
   /*! Open the stdin file for the new CGI process. */
@@ -271,7 +271,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 		td->connection->host->warningslogTerminateAccess(td->id);
 		stdOutFile.close();
     chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
   
 	/*
@@ -304,7 +304,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 		td->connection->host->warningslogTerminateAccess(td->id);
 		stdOutFile.close();
     chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(e_500);
+		return td->http->raiseHTTPError(500);
   }
 
   /* Execute the CGI process. */
@@ -318,7 +318,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                                        ("Cgi: Error in the CGI execution");
       td->connection->host->warningslogTerminateAccess(td->id);
       chain.clearAllFilters(); 
-      return td->http->raiseHTTPError(e_500);
+      return td->http->raiseHTTPError(500);
     }
     /* Close the write stream of the pipe on the server.  */
 		stdOutFile.closeWrite();	
@@ -358,7 +358,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 				("Cgi: Error reading from CGI std out file");
 			td->connection->host->warningslogTerminateAccess(td->id);
 			chain.clearAllFilters();
-			return td->http->raiseHTTPError(e_500);
+			return td->http->raiseHTTPError(500);
 		}
 			
 		if(nBytesRead == 0)
@@ -387,7 +387,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 			td->connection->host->warningslogRequestAccess(td->id);
 			td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read");
 			td->connection->host->warningslogTerminateAccess(td->id);
-			td->http->raiseHTTPError(e_500);
+			td->http->raiseHTTPError(500);
 			stdOutFile.close();
 			stdInFile.closeFile();
 			chain.clearAllFilters(); 
