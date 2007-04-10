@@ -26,7 +26,13 @@ extern "C"
 #endif
 
 #include <stdio.h>
-#include "../contrib/rx/rxposix.h"
+
+#ifdef REGEX
+#include <regex.h>
+#else
+	typedef void* regmatch_t;
+	typedef void* regex_t;
+#endif
 
 #ifndef _VC
 }
