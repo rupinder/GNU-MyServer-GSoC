@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -40,11 +40,6 @@ using namespace std;
 */
 class Regex
 {
-  regex_t compiled_regex;
-  regmatch_t match;
-  int compiled;
-  string pattern;
-  int flags;
 public:
   Regex();
   void clone(Regex&);
@@ -53,13 +48,22 @@ public:
   ~Regex();
   int isCompiled();
   int compile(const char *pattern, int flags);
-  int exec(const char *string, size_t nmatch, regmatch_t matchptr [], int eflags);
+  int exec(const char *string, size_t nmatch, regmatch_t matchptr [], 
+					 int eflags);
   void free();
 
   Regex(string const &pattern, int flags){Regex(pattern.c_str(), flags);}
-  int compile(string const &str, int flags){return compile(str.c_str(), flags );}
-  int exec(string const &str, size_t nmatch, regmatch_t matchptr [], int eflags)
+  int compile(string const &str, int flags){
+		return compile(str.c_str(), flags );}
+  int exec(string const &str, size_t nmatch, regmatch_t matchptr [], 
+					 int eflags)
     {return exec(str.c_str(), nmatch, matchptr, eflags);}
+private:
+  regex_t compiledRegex;
+  regmatch_t match;
+  int compiled;
+  string pattern;
+  int flags;
 };
 
 #endif

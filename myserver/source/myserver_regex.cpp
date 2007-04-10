@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -18,15 +18,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../include/myserver_regex.h"
 
-regex_t compiled_regex;
-regmatch_t match;
-
 /*!
  *Compile the regex pattern.
  */
 int Regex::compile(const char *p, int f)
 {
-  int ret = regcomp(&compiled_regex, p, f);
+  int ret = regcomp(&compiledRegex, p, f);
   pattern.assign(p);
   flags=f;
   if(!ret)
@@ -42,7 +39,7 @@ int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [],
 {
   if(!compiled)
     return 1;
-  int ret = regexec (&compiled_regex, text, nmatch, matchptr, eflags);
+  int ret = regexec (&compiledRegex, text, nmatch, matchptr, eflags);
   return ret;
 }
 
@@ -52,7 +49,7 @@ int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [],
 void Regex::free()
 {
   if(compiled)
-    regfree(&compiled_regex);
+    regfree(&compiledRegex);
   compiled = 0;
 }
 
