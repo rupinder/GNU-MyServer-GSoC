@@ -1138,7 +1138,6 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 		}
 
 		td->buffer2->getBuffer()[nbr] = '\0';
-		printf("%s", td->buffer2->getBuffer());
 
 		if(nbr && td->inputData.writeToFile(td->buffer2->getBuffer(), nbr, &nbw))
 		{

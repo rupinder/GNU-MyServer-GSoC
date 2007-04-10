@@ -53,7 +53,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
    *Actually myServerCGI(.mscgi) is only at an alpha status.
    */
   ostringstream tmpStream;
-  ostringstream outDataPath;
+  string outDataPath;
   FiltersChain chain;
   u_long nbw;
 #ifndef WIN32
@@ -96,8 +96,6 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	
 	if(!td->appendOutputs)
 	{	
-		string outDataPath;
-
 		Server::getInstance()->temporaryFileName(td->id, outDataPath);
 		
 		if(data.stdOut.createTemporaryFile(outDataPath.c_str()))
@@ -164,7 +162,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     if(!td->appendOutputs)
     {	
       data.stdOut.closeFile();
-      FilesUtility::deleteFile(outDataPath.str().c_str());
+      FilesUtility::deleteFile(outDataPath.c_str());
     }
     chain.clearAllFilters(); 
 
@@ -175,7 +173,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	{
 		chain.clearAllFilters(); 
 		data.stdOut.closeFile();
-		FilesUtility::deleteFile(outDataPath.str().c_str());
+		FilesUtility::deleteFile(outDataPath.c_str());
 		return td->http->raiseHTTPError(data.errorPage);
 	}
 	/* Compute the response length for logging.  */
@@ -195,7 +193,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 			if(!td->appendOutputs)
 			{
 				data.stdOut.closeFile();
-				FilesUtility::deleteFile(outDataPath.str().c_str());
+				FilesUtility::deleteFile(outDataPath.c_str());
 			}
 
       /* Internal server error.  */
@@ -205,10 +203,19 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     if(onlyHeader)
     {
       data.stdOut.closeFile();
-      FilesUtility::deleteFile(outDataPath.str().c_str());
+      FilesUtility::deleteFile(outDataPath.c_str());
       chain.clearAllFilters(); 
       return 1;
     }
+
+		if(data.stdOut.setFilePointer(0))
+    {
+      data.stdOut.closeFile();
+      FilesUtility::deleteFile(outDataPath.c_str());
+      chain.clearAllFilters(); 
+      return 1;
+    }
+
 		do
 		{
 			data.stdOut.readFromFile(buffer, bufferSize, &nbr);
@@ -225,7 +232,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 						if(!td->appendOutputs)
 						{
 							data.stdOut.closeFile();
-							FilesUtility::deleteFile(outDataPath.str().c_str());
+							FilesUtility::deleteFile(outDataPath.c_str());
 						}
 						chain.clearAllFilters(); 
 						return 0;
@@ -237,7 +244,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 					if(!td->appendOutputs)
 					{
 						data.stdOut.closeFile();
-						FilesUtility::deleteFile(outDataPath.str().c_str());
+						FilesUtility::deleteFile(outDataPath.c_str());
           }
           chain.clearAllFilters(); 
           return 0;
@@ -249,7 +256,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 					if(!td->appendOutputs)
 					{
 						data.stdOut.closeFile();
-						FilesUtility::deleteFile(outDataPath.str().c_str());
+						FilesUtility::deleteFile(outDataPath.c_str());
           }
           chain.clearAllFilters(); 
           return 0;
@@ -261,13 +268,13 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
 		{
 			data.stdOut.closeFile();
-			FilesUtility::deleteFile(outDataPath.str().c_str());
+			FilesUtility::deleteFile(outDataPath.c_str());
 			return 0;
 		}
 		if(!td->appendOutputs)
 		{
 			data.stdOut.closeFile();
-			FilesUtility::deleteFile(outDataPath.str().c_str());
+			FilesUtility::deleteFile(outDataPath.c_str());
 		}
 	}
 
