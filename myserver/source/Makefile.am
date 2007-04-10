@@ -7,7 +7,7 @@ INCLUDES = $(all_includes)
 
 myserver_LDFLAGS = $(all_libraries) -rdynamic  
 myserver_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
-myserver_LDADD = ../contrib/rx/librx.a $(PTHREAD_LIB) $(XNET_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) $(XML_LIBS)
+myserver_LDADD =  $(PTHREAD_LIB) $(XNET_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) $(XML_LIBS)
 
 all : myserver
 	cp myserver ../binaries

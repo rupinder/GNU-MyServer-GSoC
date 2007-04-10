@@ -16,6 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "../stdafx.h"
 #include "../include/myserver_regex.h"
 
 /*!
@@ -23,12 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 int Regex::compile(const char *p, int f)
 {
+#ifdef REGEX
   int ret = regcomp(&compiledRegex, p, f);
   pattern.assign(p);
-  flags=f;
+  flags = f;
   if(!ret)
     compiled = 1;
   return ret;
+#endif
+  return -1;
 }
 
 /*!
@@ -37,10 +41,13 @@ int Regex::compile(const char *p, int f)
 int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [], 
                 int eflags)
 {
+#ifdef REGEX
   if(!compiled)
     return 1;
   int ret = regexec (&compiledRegex, text, nmatch, matchptr, eflags);
   return ret;
+#endif
+  return -1;
 }
 
 /*!
@@ -48,9 +55,11 @@ int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [],
  */
 void Regex::free()
 {
+#ifdef REGEX
   if(compiled)
     regfree(&compiledRegex);
   compiled = 0;
+#endif
 }
 
 /*!
@@ -66,7 +75,9 @@ Regex::Regex()
  */
 Regex::~Regex()
 {
+#ifdef REGEX
   free();
+#endif
 }
 
 /*!
@@ -74,7 +85,9 @@ Regex::~Regex()
  */
 Regex::Regex(const char *pattern, int flags)
 {
+#ifdef REGEX
   compile(pattern, flags);
+#endif
 }
 /*!
  *Return a nonzero value if the regex was compiled.
@@ -97,5 +110,7 @@ Regex::Regex(Regex& r)
  */
 void Regex::clone(Regex& r)
 {
+#ifdef REGEX
   compile(r.pattern.c_str(), r.flags);
+#endif
 }
