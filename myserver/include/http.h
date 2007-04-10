@@ -165,6 +165,25 @@ protected:
 	void computeDigest(char*, char*);
 	u_long checkDigest();
 	string protocolPrefix;
+private:
+	int readContiguousPrimitivePostData(char* inBuffer,
+																			u_long *inBufferPos,
+																			u_long inBufferSize,
+																			Socket *inSocket,
+																			char* outBuffer,
+																			u_long outBufferSize,
+																			u_long* nbr,
+																			u_long timeout);
+	int readChunkedPostData(char* inBuffer,
+													u_long *inBufferPos,
+													u_long inBufferSize,
+													Socket *inSocket,
+													char* outBuffer,
+													u_long outBufferSize,
+													u_long* nbr,
+													u_long timeout,
+													File* out);
+
 };
 
 #endif
