@@ -20,6 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define MYSERVER_REGEX_H
 
 #include "../stdafx.h"
+
+#ifdef WIN32
+#define REGEX
+#endif
+
 #ifndef _VC
 extern "C" 
 {
@@ -27,7 +32,9 @@ extern "C"
 
 #include <stdio.h>
 
-#ifdef REGEX
+#ifdef WIN32
+#include <rxposix.h>
+#elif REGEX
 #include <regex.h>
 #else
 	typedef void* regmatch_t;
