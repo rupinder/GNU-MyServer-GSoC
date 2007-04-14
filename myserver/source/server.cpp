@@ -2232,6 +2232,7 @@ int Server::loadSettings()
 		homeDir.load();
 
 
+		getPluginsManager()->addNamespace(&executors);
 		getPluginsManager()->addNamespace(&protocols);
 		getPluginsManager()->addNamespace(&filters);
 

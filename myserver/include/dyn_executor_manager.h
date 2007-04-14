@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007 The MyServer Team
+Copyright (C) 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DYN_HTTP_COMMAND_MANAGER_H
-#define DYN_HTTP_COMMAND_MANAGER_H
+#ifndef DYN_EXECUTOR_MANAGER_H
+#define DYN_EXECUTOR_MANAGER_H
 
 #include "../stdafx.h"
 #include "../include/xml_parser.h"
@@ -30,18 +30,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/plugins_namespace_manager.h"
 #include <string>
 
-class DynamicHttpCommand;
+class DynamicExecutor;
 
 using namespace std;
 
-class DynHttpCommandManager : public PluginsNamespaceManager
+class DynExecutorManager : public PluginsNamespaceManager
 {
 public:
-  DynHttpCommandManager();
-  virtual ~DynHttpCommandManager();
-  DynamicHttpCommand* getPlugin(string& name)
+  DynExecutorManager();
+  virtual ~DynExecutorManager();
+  DynamicExecutor* getPlugin(string& name)
 	{
-		return (DynamicHttpCommand*)PluginsNamespaceManager::getPlugin(name);
+		return (DynamicExecutor*)PluginsNamespaceManager::getPlugin(name);
 	}
 };
 

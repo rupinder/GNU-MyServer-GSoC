@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=78
+UnitCount=80
 Type=1
 Ver=1
 ObjFiles=
@@ -819,6 +819,26 @@ BuildCmd=
 
 [Unit78]
 FileName=source\process_server_manager.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit79]
+FileName=source\dyn_executor_manager.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit80]
+FileName=source\dynamic_executor.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

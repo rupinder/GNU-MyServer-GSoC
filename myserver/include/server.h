@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/filters_factory.h"
 #include "../include/dyn_filters_manager.h"
 #include "../include/dyn_filter.h"
+#include "../include/dyn_executor_manager.h"
 #include "../include/hash_map.h"
 #include "../include/home_dir.h"
 #include "../include/cached_file_factory.h"
@@ -179,6 +180,7 @@ private:
   HashMap<string, string*> hashedData;
   FiltersFactory filtersFactory;
   DynamicFiltersManager filters;
+	DynExecutorManager executors;
   u_long uid;
   u_long gid;
   int currentThreadID;
