@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -60,7 +60,7 @@ public:
 	char* operator >>(char*);
 	int start(MsCgiData* data);
 	int clean();
-	void getenv(char*,char*,unsigned int*);
+	void getenv(char*, char*, u_long*);
 	char* getParam(char*);
 	char* postParam(char*);
 	int write(char*);

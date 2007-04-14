@@ -35,12 +35,12 @@ extern "C" int main (char *cmd, MsCgiData* data)
 	}     
 	else     
 	{ 	
-		unsigned int dim=120;
+		u_long dim = 120;
 		char lb[120];
 		int a = 0;
 		int b = 0;
 		char *tmp;
-    int validNumbers=1;
+    int validNumbers = 1;
 		int iRes;
 		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
 		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
@@ -105,11 +105,11 @@ extern "C" int main (char *cmd, MsCgiData* data)
       cm.write("Invalid input format");
     }
 
-		cm.getenv("SERVER_NAME",lb,&dim);
+		cm.getenv("SERVER_NAME", lb, &dim);
 		cm.write("\r\n<br />\r\nRunning on: ");
 		cm.write(lb);
 		cm.write("(");
-		cm.getenv("HTTP_HOST",lb,&dim);
+		cm.getenv("HTTP_HOST", lb, &dim);
 		cm.write(lb);
 		
 		cm.write(")\r\n</div>\r\n</body>\r\n</html>");

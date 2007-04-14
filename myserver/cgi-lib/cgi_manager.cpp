@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -223,7 +223,7 @@ char *CgiManager::operator >>(char* str)
  *Get the value of an environment variable.
  */
 void CgiManager::getenv(char* lpszVariableName, char *lpvBuffer, 
-												unsigned int* lpdwSize)
+												u_long* lpdwSize)
 {
 	((char*)lpvBuffer)[0] = '\0';
 	char *localEnv = cgidata->envString;
@@ -231,7 +231,7 @@ void CgiManager::getenv(char* lpszVariableName, char *lpvBuffer,
 	for(u_long i = 0; ; i += (u_long)strlen(&localEnv[i]) + 1)
 	{
 		if(((localEnv[i+variableNameLen])== '=') && 
-			 (!strncmp(&localEnv[i],lpszVariableName,variableNameLen)))
+			 (!strncmp(&localEnv[i], lpszVariableName, variableNameLen)))
 		{
 			u_long j = 0;
 			u_long min_v = std::min((u_long)strlen(&localEnv[i + variableNameLen+1]),
