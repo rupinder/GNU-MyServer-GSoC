@@ -5,12 +5,7 @@ TODO list for MyServer.
 *	Update INSTALL.
 *	Add information about error codes to MyServer documentation.
 
-*	Implement SYMLINKS:
-**  windows implementation.
-**	system wide.
-**	webroot.
-**	checkowner.
-***	don't follow bad symlinks.
+*	Improve symlinks implementation
 
 * Provide support for other ssl libraries
 *	Provide support for GnuTLS
@@ -25,8 +20,6 @@ TODO list for MyServer.
 *	Deny and allow ACCESS by ip, browser, etc.
 **	Provide this functionality for "security".
 
-*	MyServer start/reboot/stop script.
-
 *	Check all file and use C++ castings.
 **	Rewrite strange functions to avoid so many castings.
 
@@ -39,17 +32,17 @@ TODO list for MyServer.
 *	Add sorting possiblity to http_dir.cpp:
 **	name, date, size.
 
-*	Gcc-4.x compiled binaries for all provided platforms.
+*	gcc-4.2 / gcc-4.3 testing
+
 *	Rename myServerErr and others to MyServer.
 *	Provide a good api (MYSERVER, mySERVER, myServer, etc.)
 *	Fix some hardcoded errors in MyServer, they should now show directly to the new error files.
 *	Use C++ static_cast<TYPE>... instead of the C like casting (TYPE).
 *	LibXML compability (*) (at the moment MyServer uses LibXML2).
 
-*	Documentation.
-**	Fix the documentation.
+*	Documentation Improvements
 **	Translation of the documentation to other languages.
-**	New documentation layout. (*)
+**	XML based documentation scripting
 
 *	Configurability.
 **	Show http_dir: Last modified, etc (rewrite html code).
@@ -73,8 +66,6 @@ TODO list for MyServer.
 *	Packages.
 **	Rpm and debs for Debian, Fedora Core and Mandrake.
 **	Packages for Slackware.
-**	Create new DevCPP devpaks for MyServer (provide the current development libraries needed to compile MyServer subversion under windows).
-**	Update all libraries needed to run MyServer (windows binary release).
 **	Perl installation script INSTALL.pl that copies the files to the right place.
 
 *	Plugins system.
@@ -122,7 +113,6 @@ TODO list for MyServer.
 **	Automatic deployment.
 **	Better graphics. (*)
 **	Create SSL files trough the GUI. (*)
-**	If asked to run on XP as service automatically install the service.
 
 *	Virtual hosts data.
 **	Find and implement a faster way than the linear search in vhosts handling code.
