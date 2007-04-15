@@ -7,6 +7,8 @@ TODO list for MyServer.
 
 *	Improve symlinks implementation
 
+*	libidn support with mingw under windows, create devpaks
+
 * Provide support for other ssl libraries
 *	Provide support for GnuTLS
 *	Provide support for Mozilla libnss
