@@ -9,6 +9,8 @@ TODO list for MyServer.
 
 *	libidn support with mingw under windows, create devpaks
 
+*	Windows firewall settings, using NSIS installer scripts
+
 * Provide support for other ssl libraries
 *	Provide support for GnuTLS
 *	Provide support for Mozilla libnss
