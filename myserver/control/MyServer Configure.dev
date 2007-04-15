@@ -232,19 +232,19 @@ BuildCmd=
 [VersionInfo]
 Major=0
 Minor=8
-Release=6
+Release=7
 Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.6
+FileVersion=0.8.7
 FileDescription=MyServer Configuration Interface
-InternalName=Hail Storm
+InternalName=Sinking Storm
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=MyServer Configure.exe
 ProductName=MyServer
-ProductVersion=0.8.6
+ProductVersion=0.8.7
 AutoIncBuildNr=0
 
 [Unit18]
