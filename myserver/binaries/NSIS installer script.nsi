@@ -9,20 +9,20 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "MyServer-win32-0.8.7.exe"
+OutFile "MyServer-win32-0.8.8-rc1.exe"
 
 ; Versioning Information
-VIProductVersion "0.8.7.1"
+VIProductVersion "0.8.8.1"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" 		"MyServer"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" 		"www.myserverproject.net"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" 		"MyServer Project"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" 		"MyServer Project"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" 	"MyServer webserver"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" 		"0.8.7.1"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" 		"0.8.7"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" 		"Sinking Storm"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" 		"0.8.8.1"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" 		"0.8.8"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" 		"RC1"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalTrademarks" 	""
-VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"	"MyServer-win32-0.8.7.exe"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"	"MyServer-win32-0.8.8-rc1.exe"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "PrivateBuild" 		"1"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "SpecialBuild" 		"1"
 
