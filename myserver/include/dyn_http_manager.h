@@ -39,6 +39,7 @@ public:
 	virtual ~DynamicHttpManager();
 	int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
                    const char* cgi, int onlyHeader = 0);
+
 };
 
 #endif

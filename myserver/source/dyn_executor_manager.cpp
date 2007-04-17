@@ -18,8 +18,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "../include/dyn_executor_manager.h"
+#include "../include/dynamic_executor.h"
 
 #include <string>
+
+/*!
+ *Create the appropriate object to keep a plugin.
+ */
+Plugin* DynExecutorManager::createPluginObject()
+{
+	return new DynamicExecutor();
+}
 
 /*!
  *Initialize the object.

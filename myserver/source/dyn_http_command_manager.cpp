@@ -18,8 +18,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "../include/dyn_http_command_manager.h"
+#include "../include/dyn_http_command.h"
 
 #include <string>
+
+/*!
+ *Create the plugin object.
+ */
+Plugin* DynHttpCommandManager::createPluginObject()
+{
+	return new DynamicHttpCommand();
+}
+
 
 /*!
  *Initialize the object.

@@ -43,6 +43,9 @@ public:
 	{
 		return (DynamicExecutor*)PluginsNamespaceManager::getPlugin(name);
 	}
+protected:
+	virtual Plugin* createPluginObject();
+
 };
 
 #endif

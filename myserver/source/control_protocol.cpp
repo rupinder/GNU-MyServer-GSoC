@@ -785,7 +785,7 @@ int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out,
 #else
     sprintf(b1,
 #endif
-						"%s\r\n", dp->getProtocolName() );
+						"%s\r\n", dp->getName(0, 0) );
    
 		ret = out->writeToFile(b1, strlen(b1), &nbw);
     if(ret)

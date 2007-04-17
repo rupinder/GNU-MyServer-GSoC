@@ -43,6 +43,8 @@ public:
 
 	DynHttpManagerList();
 	~DynHttpManagerList();
+protected:
+	virtual Plugin* createPluginObject();
 };
 
 #endif

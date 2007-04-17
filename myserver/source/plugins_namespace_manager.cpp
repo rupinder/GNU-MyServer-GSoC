@@ -35,6 +35,14 @@ PluginsNamespaceManager::PluginsNamespaceManager(string name) :
 }
 
 /*!
+ *Create the appropriate object to keep a plugin.
+ */
+Plugin* PluginsNamespaceManager::createPluginObject()
+{
+	return new Plugin();
+}
+
+/*!
  *Add a plugin to the namespace.
  *\param file The plugin file name.
  *\param server The server object to use.
@@ -44,7 +52,7 @@ PluginsNamespaceManager::PluginsNamespaceManager(string name) :
 int PluginsNamespaceManager::addPlugin(string& file, Server* server, 
 																			 XmlParser* languageFile)
 {
-	Plugin *plugin = new Plugin();
+	Plugin *plugin = createPluginObject();
 	string logBuf;
 	string name;
 	const char* namePtr;

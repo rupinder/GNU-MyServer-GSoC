@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 typedef int (*sendManagerPROC)(volatile void*, volatile void*, const char*, 
 															 const char*, int); 
 
+
 /*!
  *Default constructor.
  */

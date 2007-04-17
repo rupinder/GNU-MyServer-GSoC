@@ -36,12 +36,6 @@ using namespace std;
 class DynamicFiltersManager : public PluginsNamespaceManager, 
 	public FiltersFactory::FiltersSource
 {
-private:
-	u_long counter;
-	Mutex counterMutex;
-protected:
-  int add(const char*, XmlParser*, Server*);
-	void clear();
 public:
   DynamicFiltersManager();
   ~DynamicFiltersManager();
@@ -51,6 +45,12 @@ public:
 	{
 		return (DynamicFilterFile*)PluginsNamespaceManager::getPlugin(name);
 	}
+protected:
+  int add(const char*, XmlParser*, Server*);
+	void clear();
+private:
+	u_long counter;
+	Mutex counterMutex;
 
 };
 

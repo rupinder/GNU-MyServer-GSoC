@@ -26,13 +26,16 @@ using namespace std;
 
 class PluginsNamespaceManager : public PluginsNamespace
 {
-private:
-	int addPlugin(string& file, Server* server, XmlParser* languageFile);
 public:
 	PluginsNamespaceManager(string name);
 
 	virtual int load(Server* server, XmlParser* languageFile, 
 									 string& resource);
+private:
+	int addPlugin(string& file, Server* server, XmlParser* languageFile);
+
+protected:
+	virtual Plugin* createPluginObject();
 };
 
 #endif

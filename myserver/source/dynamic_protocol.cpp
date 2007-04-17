@@ -28,29 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 typedef int (*controlConnectionPROC)(void*, char*, char*, int, 
 																		 int, u_long, u_long); 
 
-/*!
- *Load the protocol. Called once at runtime.
- */
-int DynamicProtocol::loadProtocol(XmlParser* languageFile)
-{
-	return load(filename, Server::getInstance(), languageFile);
-}
 
-/*!
- *Unload the protocol. Called once.
- */
-int DynamicProtocol::unloadProtocol(XmlParser* languageFile)
-{
-	return unload(languageFile);
-}
-
-/*!
- *Return the protocol name.
- */
-char *DynamicProtocol::getProtocolName()
-{
-	return (char*) getName(0, 0);	
-}
 
 /*!
  *Get the options for the protocol.
@@ -76,22 +54,13 @@ int DynamicProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 		return 0;
 }
 
-/*!
- *Returns the name of the protocol. If an out buffer is defined 
- *fullfill it with the name too.
- */
-char* DynamicProtocol::registerName(char* out, int len)
-{
-	return (char*)getName(out, len);
-}
 
 /*!
  *Constructor for the class protocol.
  */
-DynamicProtocol::DynamicProtocol(string filename)
+DynamicProtocol::DynamicProtocol()
 {
 	protocolOptions = 0;
-  this->filename.assign(filename);
 }
 
 /*!
@@ -101,5 +70,4 @@ DynamicProtocol::~DynamicProtocol()
 {
   unloadProtocol(0);
 	protocolOptions = 0;
-  filename.assign("");
 }

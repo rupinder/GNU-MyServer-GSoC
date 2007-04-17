@@ -38,7 +38,8 @@ public:
 	{
 		return (DynamicProtocol*)PluginsNamespaceManager::getPlugin(name);
 	}
-
+protected:
+	virtual Plugin* createPluginObject();
 };
 
 #endif

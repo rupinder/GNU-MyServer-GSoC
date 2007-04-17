@@ -32,16 +32,11 @@ using namespace std;
 
 class DynamicProtocol : public Protocol, public Plugin
 {
-	string filename;
 public:
-	char *getProtocolName();
-	DynamicProtocol(string filename);
+	DynamicProtocol();
 	virtual ~DynamicProtocol();
-	char* registerName(char*,int len);
 	virtual int controlConnection(ConnectionPtr a,char *b1,char *b2,int bs1,
                                 int bs2,u_long nbtr,u_long id);
-	int loadProtocol(XmlParser*);
-	int unloadProtocol(XmlParser*);	
 	int getOptions();
 };
 

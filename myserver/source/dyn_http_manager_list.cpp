@@ -25,6 +25,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 
 /*!
+ *Create the plugin object.
+ */
+Plugin* DynHttpManagerList::createPluginObject()
+{
+	return new DynamicHttpManager();
+}
+
+/*!
  *Initialize the object.
  */
 DynHttpManagerList::DynHttpManagerList() : 

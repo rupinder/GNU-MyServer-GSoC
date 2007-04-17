@@ -43,6 +43,8 @@ public:
 	{
 		return (DynamicHttpCommand*)PluginsNamespaceManager::getPlugin(name);
 	}
+protected:
+	virtual Plugin* createPluginObject();
 };
 
 #endif

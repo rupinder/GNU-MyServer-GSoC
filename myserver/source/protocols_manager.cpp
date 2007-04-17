@@ -21,8 +21,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/xml_parser.h"
 #include "../include/server.h"
 #include "../include/lfind.h"
+#include "../include/dynamic_protocol.h"
 
 #include <string>
+
+/*!
+ *Create the appropriate object to keep a plugin.
+ */
+Plugin* ProtocolsManager::createPluginObject()
+{
+	return new DynamicProtocol();
+}
 
 /*!
  *Class constructor.
