@@ -29,7 +29,8 @@ using namespace std;
  */
 Plugin* PluginsManager::getPlugin(string& namespacename, string& plugin)
 {
-	PluginsNamespace* pn = namespaces.get(namespacename);
+	PluginsNamespace* pn = namespaces.get((char*)namespacename.c_str());
+
 	if(pn)
 		return pn->getPlugin(plugin);
 	return 0;
@@ -62,15 +63,13 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
 												 string& resource)
 {
 	int ret = 0;
-	HashMap<string, PluginsNamespace*>::Iterator it = namespaces.begin();
+	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
 	while(it != namespaces.end())
 	{
 		ret |= (*it)->load(server, languageFile, resource);
 		it++;
 	}
-
-	namespaces.clear();
 	return ret;
 	
 }
@@ -84,7 +83,7 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
 int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 {
 	int ret = 0;
-	HashMap<string, PluginsNamespace*>::Iterator it = namespaces.begin();
+	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
 	while(it != namespaces.end())
 	{
@@ -92,7 +91,6 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 		it++;
 	}
 
-	namespaces.clear();
 	return ret;
 }
 
@@ -105,7 +103,7 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 int PluginsManager::unload(Server *server, XmlParser* languageFile)
 {
 	int ret = 0;
-	HashMap<string, PluginsNamespace*>::Iterator it = namespaces.begin();
+	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
 	while(it != namespaces.end())
 	{
@@ -124,9 +122,8 @@ int PluginsManager::unload(Server *server, XmlParser* languageFile)
  */
 void PluginsManager::addNamespace(PluginsNamespace* newnamespace)
 {
-	string& name = newnamespace->getName();
-	removeNamespace(name);
-	namespaces.put(name, newnamespace);
+	removeNamespace(newnamespace->getName());
+	namespaces.put((char*)newnamespace->getName().c_str(), newnamespace);
 }
 
 /*!
@@ -135,7 +132,7 @@ void PluginsManager::addNamespace(PluginsNamespace* newnamespace)
  */
 PluginsNamespace* PluginsManager::getNamespace(string &name)
 {
-	return namespaces.get(name);
+	return namespaces.get((char*)name.c_str());
 }
 
 /*!
@@ -144,5 +141,5 @@ PluginsNamespace* PluginsManager::getNamespace(string &name)
  */
 PluginsNamespace* PluginsManager::removeNamespace(string& name)
 {
-	return namespaces.remove(name);
+	return namespaces.remove((char*)name.c_str());
 }

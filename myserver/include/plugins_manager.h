@@ -33,7 +33,7 @@ class XmlParser;
 class PluginsManager
 {
 private:
-	HashMap<string, PluginsNamespace*> namespaces;
+	HashMap<char*, PluginsNamespace*> namespaces;
 public:
 	Plugin* getPlugin(string& namespacename, string& plugin);
 	Plugin* getPlugin(string& fullname);

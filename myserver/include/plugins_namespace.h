@@ -34,11 +34,11 @@ class PluginsNamespace
 private:
 	string name;
 protected:
-	HashMap<string, Plugin*> plugins;
+	HashMap<char*, Plugin*> plugins;
 	void setName(string& name);
 public:
-	HashMap<string, Plugin*>::Iterator begin(){return plugins.begin();}
-	HashMap<string, Plugin*>::Iterator end(){return plugins.end();}
+	HashMap<char*, Plugin*>::Iterator begin(){return plugins.begin();}
+	HashMap<char*, Plugin*>::Iterator end(){return plugins.end();}
 	string& getName();
 	PluginsNamespace(string name);
 	PluginsNamespace(string& name, PluginsNamespace& clone);

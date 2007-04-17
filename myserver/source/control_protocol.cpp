@@ -774,7 +774,7 @@ int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out,
   int i = 0;
   u_long nbw;
   int ret;
-	HashMap<string, Plugin*>::Iterator it = 
+	HashMap<char*, Plugin*>::Iterator it = 
 		Server::getInstance()->getProtocolsManager()->begin();
 
   for(; it != Server::getInstance()->getProtocolsManager()->end(); it++)

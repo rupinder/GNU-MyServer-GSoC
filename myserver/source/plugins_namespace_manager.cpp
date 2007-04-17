@@ -62,7 +62,7 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
 		return 1;
 	}
 		
-	plugins.put(name, plugin);
+	plugins.put((char*)name.c_str(), plugin);
 
 	logBuf.assign(languageFile->getValue("MSG_LOADED"));
 	logBuf.append(" ");

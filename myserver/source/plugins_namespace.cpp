@@ -49,12 +49,11 @@ PluginsNamespace::~PluginsNamespace()
 PluginsNamespace::PluginsNamespace(string& name, PluginsNamespace& clone) 
 {
 	this->name.assign(name);
-	HashMap<string, Plugin*>::Iterator it = clone.plugins.begin();
+	HashMap<char*, Plugin*>::Iterator it = clone.plugins.begin();
 	while(it != clone.plugins.end())
 	{
 		string name((*it)->getName(0, 0));
-		plugins.put(name, *it);
-
+		plugins.put((char*)name.c_str(), *it);
 		it++;
 	}
 
@@ -74,7 +73,7 @@ string& PluginsNamespace::getName()
  */
 Plugin* PluginsNamespace::getPlugin(string &name)
 {
-	return plugins.get(name);
+	return plugins.get((char*)name.c_str());
 }
 
 /*!
@@ -85,10 +84,11 @@ Plugin* PluginsNamespace::getPlugin(string &name)
  */
 int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
 {
-	HashMap<string, Plugin*>::Iterator it = plugins.begin();
+	HashMap<char*, Plugin*>::Iterator it = plugins.begin();
 	while(it != plugins.end())
 	{
 		(*it)->postLoad(server, languageFile);
+		it++;
 	}
 	return 0;
 }
@@ -100,14 +100,13 @@ int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
  */
 int PluginsNamespace::unload(XmlParser* languageFile)
 {
-	HashMap<string, Plugin*>::Iterator it = plugins.begin();
+	HashMap<char*, Plugin*>::Iterator it = plugins.begin();
 	while(it != plugins.end())
 	{
 		(*it)->unload(languageFile);
 		delete *it;
 		it++;
 	}
-	plugins.clear();
 	return 0;
 
 }
