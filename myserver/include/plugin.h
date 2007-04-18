@@ -31,18 +31,6 @@ class XmlParser;
 
 class Plugin
 {
-private:
-	string name;
-
-	/*! A number in the form v.x.y.z where:
-	 * v is the version major number.
-	 * x is the version minor number.
-	 * y is the version revision number.
-	 * z is the version status number.
-	 */
-	int version;
-protected:
-	DynamicLibrary hinstLib;
 public:
 	static int getVersionNumber(int version)
 	{
@@ -77,6 +65,18 @@ public:
 	virtual int unload(XmlParser* languageFile);
 	virtual const char* getName(char* buffer, u_long len);
 	int getVersion();
+protected:
+	DynamicLibrary hinstLib;
+private:
+	string name;
+
+	/*! A number in the form v.x.y.z where:
+	 * v is the version major number.
+	 * x is the version minor number.
+	 * y is the version revision number.
+	 * z is the version status number.
+	 */
+	int version;
 };
 
 #endif

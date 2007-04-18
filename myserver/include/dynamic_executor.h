@@ -42,7 +42,6 @@ private:
 	int loadFileAndExecute(char* fileName);
   XmlParser *errorParser;
 	string filename;
-	DynamicLibrary hinstLib;
 };
 
 #endif
