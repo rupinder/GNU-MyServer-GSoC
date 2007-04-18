@@ -103,12 +103,12 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 int PluginsManager::unload(Server *server, XmlParser* languageFile)
 {
 	int ret = 0;
+
 	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
 	while(it != namespaces.end())
 	{
 		ret |= (*it)->unload(languageFile);
-		delete (*it);
 		it++;
 	}
 
