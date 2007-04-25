@@ -2236,6 +2236,7 @@ int Server::loadSettings()
 		getPluginsManager()->addNamespace(&executors);
 		getPluginsManager()->addNamespace(&protocols);
 		getPluginsManager()->addNamespace(&filters);
+ 		getPluginsManager()->addNamespace(&genericPluginsManager);
 
 		{
 			string res("external");

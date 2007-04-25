@@ -1,0 +1,2 @@
+All the .so under *nix environment and the *.dll files under windows are 
+handled as generics plugins.

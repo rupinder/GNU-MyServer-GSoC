@@ -88,7 +88,7 @@ if($update_makefile)
 else
 {
 		print MF "\n\nall:\n";
-		print MF "\t\$(CXX) -c $plugin.cpp -o $plugin.o -I\$(MYSERVER_HEADERS) -I\$(MSCGI_HEADERS) -I\$(MYSERVER_HEADERS)/.. \$(CFLAGS) \$(CXXFLAGS)\n";
+		print MF "\t\$(CXX) -c $plugin.cpp -o $plugin.o -I\$(MYSERVER_HEADERS) -I\$(MSCGI_HEADERS) -I\$(MYSERVER_HEADERS)/.. \$(CFLAGS) \$(CXXFLAGS) \$(CPPFLAGS)\n";
 		print MF "\t\$(CXX) $plugin.o -o $plugin.so -rdynamic \$(XML_LIBS) \$(LDFLAGS) -shared\n";
 
 		print MF "\n\ninstall:\n";

@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/connection.h"
 #include "../include/log_manager.h"
 #include "../include/filters_factory.h"
+#include "../include/generic_plugins_manager.h"
 #include "../include/dyn_filters_manager.h"
 #include "../include/dyn_filter.h"
 #include "../include/dyn_executor_manager.h"
@@ -241,6 +242,7 @@ private:
 	string tmpPath;
 	Event *newConnectionEvent;
 	PluginsManager pluginsManager;
+	GenericPluginsManager genericPluginsManager;
 	ProcessServerManager processServerManager;
 };
 
