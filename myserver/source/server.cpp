@@ -1078,13 +1078,14 @@ int Server::terminate()
 	Https::unloadProtocol(&languageParser);
   ControlProtocol::unloadProtocol(&languageParser);
 
-	getPluginsManager()->unload(this, &languageParser);
 
 	getProcessServerManager()->clear();
 
   filtersFactory.free();
 
 	configurationFileManager.close();
+
+	getPluginsManager()->unload(this, &languageParser);
 
 	/*
    *Destroy the connections mutex.

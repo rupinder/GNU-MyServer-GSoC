@@ -21,7 +21,7 @@ CXXFLAGS="$CXXFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 LDFLAGS="$LDFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 
 AC_SUBST(CFLAGS)
-AC_SUBST(CXXFLAGS)
+AC_SUBST(CXFLAGS)
 AC_SUBST(LDFLAGS)
 
 AC_ARG_WITH([root-prefix], [  --with-root-prefix=PREFIX override prefix variable for files to be placed in the root], root_prefix=$withval, root_prefix="")
@@ -35,6 +35,12 @@ AC_SUBST(root_bindir)
 AC_SUBST(root_sbindir)
 AC_SUBST(root_sysconfdir)
 
+
+AC_ARG_WITH([myserver-headers], [  --with-myserver-headers=path Override the myserver headers location (used by modules)], MYSERVER_HEADERS=$withval, MYSERVER_HEADERS="`pwd`/include")
+AC_ARG_WITH([mscgi-headers], [  --with-mscgi-headers=path Override the myserver MSCGI headers location (used by modules)], MSCGI_HEADERS=$withval, MSCGI_HEADERS="`pwd`/cgi-lib")
+
+AC_SUBST(MYSERVER_HEADERS)
+AC_SUBST(MSCGI_HEADERS)
 
 
 dnl Looking for argp.h
@@ -138,13 +144,14 @@ if test "x$IDN_LIB" = "x"; then
 		fi
   fi
 
-if test "x$have_idn" = "xyes"; then
-	LDFLAGS="$LDFLAGS $IDN_LIB"
-  AC_SUBST(IDN_LIB)
-fi
+#if test "x$have_idn" = "xyes"; then
+#	LDFLAGS="$LDFLAGS $IDN_LIB"
+#fi
+
+AC_SUBST(IDN_LIB)
 
 
-dnl Looking for LibXML2
+dnl Looking for LibXL2
 AM_PATH_XML2(2.6.0, have_xml2=yes)
 if test x$have_xml2 != xyes; then
     AC_MSG_ERROR([
@@ -154,7 +161,6 @@ if test x$have_xml2 != xyes; then
 
 else
 	CPPFLAGS="$CPPFLAGS $XML_CPPFLAGS"
-	LIBS="$XML_LIBS $LIBS"
 fi
 
 
@@ -180,9 +186,8 @@ dnl CHECKING FOR OPENSSL
 	OPENSSL_LIB="" # not set
     else
         printf "OpenSSL found in $ssldir\n";
-        LIBS="$LIBS -lssl -lcrypto";
         LDFLAGS="$LDFLAGS -L$ssldir/lib";
-	OPENSSL_LIB="-lssl" # myserver
+				OPENSSL_LIB="-lssl" # myserver
         HAVE_SSL="yes"
     fi
     AC_SUBST(HAVE_SSL)
@@ -202,6 +207,8 @@ if test x$have_libz != xyes; then
     ZLIB_LIB=""
 else
     ZLIB_LIB="-lz"
+
+
     dnl Be sure that it is a good vr
     AC_CHECK_LIB(z, compressBound, have_libz=yes)
     if test x$have_libz != xyes; then
@@ -226,7 +233,6 @@ if test x$have_png != xyes; then
 else
     CFLAGS="$CFLAGS $LIBPNG_CFLAGS"
     CXXFLAGS="$CXXFLAGS $LIBPNG_CFLAGS"
-    LIBS="$LIBPNG_LIBS $LIBS"
     MAKE_COUNTER=yes
 fi
 

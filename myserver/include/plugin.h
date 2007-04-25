@@ -65,6 +65,7 @@ public:
 	virtual int unload(XmlParser* languageFile);
 	virtual const char* getName(char* buffer, u_long len);
 	int getVersion();
+	void* getDirectMethod(char* name);
 protected:
 	DynamicLibrary hinstLib;
 private:

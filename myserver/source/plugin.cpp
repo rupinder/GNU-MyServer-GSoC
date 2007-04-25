@@ -132,3 +132,13 @@ const char* Plugin::getName(char* buffer, u_long len)
   return 0;
 }
 
+/*!
+ *Get directly access to a method.
+ *\param name The method name.
+ */
+void* Plugin::getDirectMethod(char* name)
+{
+  if(!hinstLib.validHandle())
+    return 0;
+  return hinstLib.getProc(name);
+}

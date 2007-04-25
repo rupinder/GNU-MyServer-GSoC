@@ -37,14 +37,14 @@ public:
 									 int OnlyHeader=0);
   HttpDataHandler();
   virtual ~HttpDataHandler();
-protected:
-	void checkDataChunks(HttpThreadContext*, bool*, bool*);
-	int appendDataToHTTPChannel(HttpThreadContext* td, 
-															char* buffer, u_long size,
-															File* appendFile, 
-															FiltersChain* chain,
-															bool append, 
-															bool useChunks);
+
+	static void checkDataChunks(HttpThreadContext*, bool*, bool*);
+	static int appendDataToHTTPChannel(HttpThreadContext* td, 
+																		 char* buffer, u_long size,
+																		 File* appendFile, 
+																		 FiltersChain* chain,
+																		 bool append, 
+																		 bool useChunks);
 
 };
 
