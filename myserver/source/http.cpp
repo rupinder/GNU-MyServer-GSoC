@@ -2011,7 +2011,6 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     td.buffersize = bs1;
     td.buffersize2 = bs2;
     td.nBytesToRead = nbtr;
-    td.identity[0] = '\0';
     td.connection = a;
     td.id = id;
     td.lastError = 0;

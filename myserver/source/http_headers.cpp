@@ -613,7 +613,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			request->auth.assign(token,tokenOff);
       td->connection->setLogin("");
       td->connection->setPassword("");
-      td->identity[0]='\0';
 			if(!request->auth.compare("Basic"))
 			{
 				u_long i;
@@ -645,7 +644,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					login[i] = *lbuffer2++;
           login[i+1] = '\0';
 				}
-				myserver_strlcpy(td->identity,td->connection->getLogin(),32+1);
         lbuffer2++;
 				for(i = 0; (*lbuffer2) && (i < 31); i++)
 				{

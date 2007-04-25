@@ -952,10 +952,10 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 	memCgi << end_str << "DOCUMENT_NAME=";
 	memCgi << td->filenamePath;
 
-	if(td->identity[0])
+	if(td->connection->getLogin()[0])
 	{
   		memCgi << end_str << "REMOTE_IDENT=";
-      memCgi << td->identity;
+      memCgi << td->connection->getLogin();
   }
 #ifdef WIN32
 	if(processEnv)
