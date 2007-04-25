@@ -2,6 +2,8 @@
 #  CREATE THE SKELETON STRUCTURE FOR A PLUGIN SPECIFYING A NAMESPACE AND THE PLUGIN NAME.
 
 use Cwd;
+use File::Copy;
+
 my %data;
 open file, "<", "modules.template";
 
@@ -38,11 +40,8 @@ print "Creating $namespace" .  "::" . "$plugin\n";
 
 $namespace_dir = getcwd() . "/"  . $namespace;
 $plugin_dir = $namespace_dir . "/" . $plugin;
-if((-d $namespace_dir) && (-d $plugin_dir))
-{
-		die "The plugin already exists\n";
-}
-else
+
+if(!(-d $namespace_dir) || !(-d $plugin_dir))
 {
 		mkdir($plugin_dir, 0755);
 }
@@ -51,10 +50,21 @@ print "Creating Makefile\n";
 
 if(-f "$plugin_dir/Makefile")
 {
-		die ("$plugin_dir/Makefile exists!\n");
+		$update_makefile = 1;
+		open(OLD_MF, "<$plugin_dir/Makefile");
+		do
+		{
+				$line =	<OLD_MF>;
+		}while(!($line =~ /END_OF_CONFIGURATION/ ));
 }
 
-open(MF, ">$plugin_dir/Makefile");
+
+
+open(MF, ">$plugin_dir/Makefile.new");
+
+print MF "# BEGIN_OF_CONFIGURATION #\n";
+print MF "# DO NOT WRITE IN THIS SECTION OF THE MAKEFILE! #\n# Text here is handled by the create_skeleton.pl script. #\n";
+print MF "# Text after this section is not updated automatically. #\n";
 
 
 while (($key, $value) = each(%data))
@@ -62,31 +72,50 @@ while (($key, $value) = each(%data))
 		print MF "$key=$value\n";
 }
 
-print MF "\n\nall:\n";
-print MF "\t\$(CXX) -c $plugin.cpp -o $plugin.o -I\$(MYSERVER_HEADERS) -I\$(MSCGI_HEADERS) -I\$(MYSERVER_HEADERS)/.. \$(CFLAGS) \$(CXXFLAGS)\n";
-print MF "\t\$(CXX) $plugin.o -o $plugin.so -rdynamic \$(XML_LIBS) \$(LDFLAGS) -shared\n";
+print MF "\n# END_OF_CONFIGURATION #\n";
 
-print MF "\n\ninstall:\n";
-print MF "\tcp $plugin.so ..\n";
 
+
+if($update_makefile)
+{
+		while(<OLD_MF>)
+		{
+				print MF $_;
+		}
+
+		close(OLD_MF);
+}
+else
+{
+		print MF "\n\nall:\n";
+		print MF "\t\$(CXX) -c $plugin.cpp -o $plugin.o -I\$(MYSERVER_HEADERS) -I\$(MSCGI_HEADERS) -I\$(MYSERVER_HEADERS)/.. \$(CFLAGS) \$(CXXFLAGS)\n";
+		print MF "\t\$(CXX) $plugin.o -o $plugin.so -rdynamic \$(XML_LIBS) \$(LDFLAGS) -shared\n";
+
+		print MF "\n\ninstall:\n";
+		print MF "\tcp $plugin.so ..\n";
+}
 
 close(MF);
 
+unlink("$plugin_dir/Makefile");
+move("$plugin_dir/Makefile.new", "$plugin_dir/Makefile");
 
-print "Creating $plugin.cpp\n";
-
-if(-f "$plugin_dir/$plugin.cpp")
+if(! $update_makefile)
 {
-		die ("$plugin_dir/$plugin.cpp exists!\n");
+		print "Creating $plugin.cpp\n";
+		if(-f "$plugin_dir/$plugin.cpp")
+		{
+				die ("$plugin_dir/$plugin.cpp exists!\n");
+		}
+
+		open(SRC, ">$plugin_dir/$plugin.cpp");
+		
+		print SRC "#include <stdafx.h>\n";
+		print SRC "#include <string.h>\n";
+		
+		print SRC "extern \"C\"\n";
+		print SRC "char* name(char* name, u_long len)\n{\n\tchar* str = \"$plugin\";\n\tif(name)\n\t\tstrncpy(name, str, len);\n\treturn str;\n}\n";
+
+
+		close(SRC);
 }
-
-open(SRC, ">$plugin_dir/$plugin.cpp");
-
-print SRC "#include <stdafx.h>\n";
-print SRC "#include <string.h>\n";
-
-print SRC "extern \"C\"\n";
-print SRC "char* name(char* name, u_long len)\n{\n\tchar* str = \"$plugin\";\n\tif(name)\n\t\tstrncpy(name, str, len);\n\treturn str;\n}\n";
-
-
-close(SRC);
