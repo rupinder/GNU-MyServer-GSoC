@@ -1,0 +1,11 @@
+PHPINC=/opt/include/php
+PHPLIB=/opt/lib
+
+all:
+	$(CXX) -c php.cpp -o php.o -I$(MYSERVER_HEADERS) -I$(MSCGI_HEADERS) -I$(MYSERVER_HEADERS)/.. $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) -I $(PHPINC) -I $(PHPINC)/main -I$(PHPINC)/Zend/ -I$(PHPINC)/TSRM/ -I$(PHPINC)/sapi/embed 
+
+	$(CXX) php.o -o php.so -rdynamic $(XML_LIBS) $(LDFLAGS) -shared -lphp5 -lresolv -lcrypt -L $(PHPLIB)
+
+
+install:
+	cp php.so ..

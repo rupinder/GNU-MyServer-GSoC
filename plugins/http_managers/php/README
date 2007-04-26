@@ -1,0 +1,37 @@
+This is what you need in order to have embedded PHP under myserver:
+
+1) Download the complete PHP source tarball here:
+	http://www.php.net/downloads.php
+
+2) Launch the configure script in this way:
+	./configure --prefix=/opt/ --enable-embed=shared
+
+3) Compile everything executing:
+	make && sudo make install
+
+4) Put the php module directory in your
+	myserver/binaries/external/http_managers directory (you can use a
+	symbolic link too), this is needed only to make possible to use the
+	create_skeleton.pl script.
+
+5) At this point we need to create the Makefile to compile our
+	module.  No need to be brave and write it by yourself, the
+	create_skeleton.pl script can help you.
+
+6) Et voilà, now you can compile the module, execute the make command
+	inside the plugin directory.
+
+7) Copy the obtained php.so file in the external/http_managers
+
+8) Add the following lines to the MIMEtypes.xml file:
+	<MIMETYPE>
+	<EXT>php</EXT>
+	<MIME>text/html</MIME>
+	<CMD>php</CMD>
+	<MANAGER>NOT_USED</MANAGER>
+	</MIMETYPE>
+
+
+9) Reboot myserver
+
+10) Enjoy it.
