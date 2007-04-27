@@ -1,6 +1,6 @@
 #include <php_embed.h>
 
-#include <stdafx.h>
+#include <../stdafx.h>
 #include <connection.h>
 #include <sockets.h>
 #include <server.h>
