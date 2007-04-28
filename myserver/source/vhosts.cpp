@@ -1271,7 +1271,19 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
     }
 
     vh->setMaxLogSize(maxlogSize);
-    vh->initializeSSL();
+    if ( vh->initializeSSL() < 0 )
+    {
+	    errMsg.assign("Error: initializing vhost");
+	    Server::getInstance()->logLockAccess();
+	    Server::getInstance()->logPreparePrintError();
+	    Server::getInstance()->logWriteln(errMsg.c_str());
+	    Server::getInstance()->logEndPrintError();
+	    Server::getInstance()->logUnlockAccess();
+
+	    parser.close();
+	    clean();
+	    return -1;
+    }
     if(addVHost(vh))
     {
       errMsg.assign("Error: adding vhost");
