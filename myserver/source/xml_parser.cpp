@@ -80,7 +80,7 @@ static int MemBufCloseCallback(void * context)
 bool XmlParser::startXML()
 {
 	xmlInitParser();
-	return true;
+	return 1;
 }
 
 
@@ -91,7 +91,7 @@ bool XmlParser::startXML()
 bool XmlParser::cleanXML()
 {
 	xmlCleanupParser();
-	return true;
+	return 1;
 }
 
 
