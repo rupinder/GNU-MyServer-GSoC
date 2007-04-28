@@ -1465,8 +1465,10 @@ int Vhost::initializeSSL()
 	DynamicProtocol* dp;
 
 	dp = Server::getInstance()->getDynProtocol(protocolName.c_str());
-  if(this->protocol<1000 && !(dp && 
-                              (dp->getOptions() & PROTOCOL_USES_SSL)) )
+	if(!dp)
+		return 0;
+
+  if(this->protocol < 1000 && !(dp->getOptions() & PROTOCOL_USES_SSL) )
     return -2;
 
   return sslContext.initialize();
