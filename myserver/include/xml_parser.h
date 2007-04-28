@@ -37,15 +37,9 @@ using namespace std;
  */
 class XmlParser
 {
-	xmlDocPtr doc;
-	char buffer[250];
-	xmlNodePtr cur;
-	xmlNodePtr prevCur;
-	xmlNodePtr lastNode;
-  time_t mtime;
 public:
-	static int startXML();
-	static int cleanXML();
+	static bool startXML();
+    static bool cleanXML();
 	XmlParser();
 	~XmlParser();
 	xmlDocPtr getDoc();
@@ -70,10 +64,23 @@ public:
     {addGroup(name.c_str());};
 	void endGroup();
 	void setAttr(const char * name, const char * value);
-	void setAttr(string& name, string& value)
-    {setAttr(name.c_str(), value.c_str());};
-        void addLineFeed();
-   time_t getLastModTime();
+	
+    void setAttr(string& name, string& value)
+    {
+        setAttr(name.c_str(), value.c_str());
+    };
+    
+    void addLineFeed();
+    time_t getLastModTime();
+
+private:
+	xmlDocPtr doc;
+	char buffer[250];
+	xmlNodePtr cur;
+	xmlNodePtr prevCur;
+	xmlNodePtr lastNode;
+    time_t mtime;
+
 };
 
 #endif
