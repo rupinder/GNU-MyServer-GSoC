@@ -374,11 +374,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 	int max=0;
 	u_long nLines, maxTotchars;
 	int validRequest;
+	const int commandSize = 96;
 	const int maxUri = HTTP_REQUEST_URI_DIM + 200 ;
 	const char cmdSeps[]   = ": ,\t\n\r";
 
 	char *token=0;
-	char command[96];
+	char command[commandSize];
 
 	int nLineControlled = 0;
 	int lineControlled = 0;
@@ -436,10 +437,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			return 400;
 		
 		/* Copy the HTTP field(this is the command if we are on the first line). */
-		myserver_strlcpy(command, token, min(96, tokenOff+1) );
+		myserver_strlcpy(command, token, min(commandSize, tokenOff + 1) );
 	
-		token+=tokenOff;
-		command[tokenOff]='\0';
+		token += tokenOff;
+		
 		if(*token==':')
 			token++;
 		while(*token ==' ')
