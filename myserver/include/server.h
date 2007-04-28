@@ -106,6 +106,7 @@ public:
 	DynamicProtocol* getDynProtocol(const char *protocolName);
 	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
 	u_long getNumConnections();
+	u_long getNumTotalConnections();
 	int connectionsMutexLock();
 	int connectionsMutexUnlock();
   ConnectionPtr getConnections();
@@ -211,6 +212,7 @@ private:
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);
   u_long nConnections;
+  u_long nTotalConnections;
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;
 	void clearAllConnections();

@@ -921,6 +921,14 @@ u_long Server::getNumConnections()
 }
 
 /*!
+ *Returns the numbers of all the connections to the server.
+ */
+u_long Server::getNumTotalConnections()
+{
+	return nTotalConnections;
+}
+
+/*!
  *Get the verbosity value.
  */
 u_long Server::getVerbosity()
@@ -1062,7 +1070,7 @@ int Server::terminate()
 		delete ipAddresses;
 
 	ipAddresses = 0;
-
+	nTotalConnections = 0;
   vhostList = 0;
 	languageParser.close();
 	mimeManager->clean();
@@ -1724,6 +1732,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
     newConnection->next = connections;
    	connections=newConnection;
     nConnections++;
+    nTotalConnections++;
     Server::getInstance()->connectionsMutexUnlock();
   }
   catch(...)
@@ -1867,6 +1876,7 @@ void Server::clearAllConnections()
 	connectionsMutexUnlock();
 	/* Reset everything.	 */
 	nConnections = 0;
+	nTotalConnections = 0;
 	connections = 0;
 	connectionToParse = 0;
 }
