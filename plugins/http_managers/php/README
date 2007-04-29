@@ -4,7 +4,9 @@ This is what you need in order to have embedded PHP under myserver:
 	http://www.php.net/downloads.php
 
 2) Launch the configure script in this way:
-	./configure --prefix=/opt/ --enable-embed=shared
+	./configure --prefix=/opt/ --enable-embed=shared \
+	--enable-maintainer-zts
+
 
 3) Compile everything executing:
 	make && sudo make install

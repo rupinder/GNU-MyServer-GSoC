@@ -1,3 +1,20 @@
+/*
+MyServer
+Copyright (C) 2007 The MyServer Team
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 #include "php.h"
 #include <thread.h>
 #include <mutex.h>
@@ -5,12 +22,25 @@
 #include <http_data_handler.h>
 #include <http_response.h>
 #include <cgi.h>
+#include <thread.h>
 
-#define ONLY_ONE_THREAD
+#include <main/php.h>
+#include <main/SAPI.h>
 
-#ifdef ONLY_ONE_THREAD
-static Mutex mainMutex;
+
+#ifdef ZTS
+#include <TSRM.h>
 #endif
+
+static Server* server;
+static zend_module_entry entries[16];
+static int loadedEntries = 0;
+static int initialized = 0;
+
+static Mutex mainMutex;
+static Mutex requestMutex;
+
+int singleRequest;
 
 struct PhpData
 {
@@ -21,9 +51,17 @@ struct PhpData
 	FiltersChain chain;
 };
 
+extern "C" void addModule(zend_module_entry entry)
+{
+	entries[loadedEntries++] = entry;
+}
+
 
 static PhpData* getPhpData()
 {
+#ifdef ZTS
+  void*** tsrm_ls = (void***)ts_resource(0);
+#endif
 	return (PhpData*)SG(server_context);
 }
 
@@ -192,15 +230,13 @@ void myphp_register_variables(zval *track_vars_array TSRMLS_DC)
 
 int	myphp_startup(struct _sapi_module_struct *sapi_module)
 {	
-
-	if(php_module_startup(sapi_module, NULL, 0) == FAILURE) 
+	if(php_module_startup(sapi_module, entries, loadedEntries) == FAILURE) 
 	{
 		return FAILURE;
 	}
 	
 	return 0;
 }
-
 
 static sapi_module_struct myphp_module = 
 {
@@ -234,30 +270,72 @@ static sapi_module_struct myphp_module =
 };
 
 
+#ifdef WIN32
+	static unsigned int phpWatchdog(void * arg)
+#else
+	static void* phpWatchdog(void * arg)
+#endif
+{
+#ifdef ZTS
+		tsrm_startup(((Server*)server)->getMaxThreads(), 1, 0, NULL);
+#endif
+
+		sapi_startup(&myphp_module);
+		myphp_module.startup(&myphp_module);
+		initialized = 1;
+
+		while(!Server::getInstance()->stopServer())
+			Thread::wait(MYSERVER_SEC(2));
+
+		myphp_module.shutdown(&myphp_module);
+		sapi_shutdown();
+	
+#ifdef ZTS
+    tsrm_shutdown();
+#endif
+		return 0;
+}
+
+
+static void checkPhpInitialization()
+{
+	mainMutex.lock();
+	if(!initialized)
+	{
+		ThreadID tid;
+		Thread::create(&tid, phpWatchdog, NULL);
+	}
+
+	mainMutex.unlock();
+}
+
 int load(void* server,void* parser)
 {
-#ifdef ONLY_ONE_THREAD
+	const char *data;
+	::server = (Server*)server;
+	data = ::server->getHashedData("PHP_SAFE_MODE");
+	if(data && !strcmpi(data, "YES"))
+		singleRequest = 1;
+	else
+		singleRequest = 0,
+
 	mainMutex.init();
-#endif
-	sapi_startup(&myphp_module);
-
-	myphp_module.startup(&myphp_module);
-
-
+	requestMutex.init();
+	checkPhpInitialization();
 	return 0;
 }
+
+
 
 /*! Unload the plugin.  Called once.  Returns 0 on success.  */
 int unload(void* p)
 {
-#ifdef ONLY_ONE_THREAD
 	mainMutex.destroy();
-#endif
-	myphp_module.shutdown(&myphp_module);
-	sapi_shutdown();
-
+	requestMutex.destroy();
 	return 0;
 }
+
+
 
 int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath,
 								const char* cgi, int onlyHeader)
@@ -266,10 +344,16 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 	zend_file_handle script;
 	int ret = SUCCESS;
 	HttpRequestHeader *req = &(td->request);
+
+	checkPhpInitialization();
+
+	if(singleRequest)
+		requestMutex.lock();
+
+	TSRMLS_FETCH();
+
 	td->inputData.setFilePointer(0);
-#ifdef ONLY_ONE_THREAD
-	mainMutex.lock();
-#endif
+
 
 	SG(headers_sent) = 0;
 	SG(request_info).no_headers = 1;
@@ -307,11 +391,17 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 
 	SG(request_info).content_length = atoi(req->contentLength.c_str());
 
+	//SG(options) |= SAPI_OPTION_NO_CHDIR;
+
 	{
 		char limit[15];
 		char *name = "memory_limit";
  		sprintf(limit, "%d", 1 << 30);
 		zend_alter_ini_entry(name, strlen(name), limit, strlen(limit), PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+
+		name = "html_errors";
+		zend_alter_ini_entry(name, strlen(name), "0", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+
 	}	
 
 	SG(request_info).post_data_length = SG(request_info).content_length;
@@ -321,31 +411,36 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 	script.opened_path = NULL;
 	script.free_filename = 0;
 
-	if (php_request_startup(TSRMLS_C) == FAILURE) 
+	zend_first_try 
 	{
-		return FAILURE;
+
+		if (php_request_startup(TSRMLS_C) == FAILURE) 
+		{
+			return FAILURE;
+		}
+
+		php_execute_script(&script TSRMLS_CC);
+		
+		if(data->useChunks)
+			HttpDataHandler::appendDataToHTTPChannel(data->td,
+																							 0,
+																							 0,
+																							 &(data->td->outputData), 
+																							 &(data->chain),
+																							 (bool)data->td->appendOutputs, 
+																							 data->useChunks);
+
+		php_request_shutdown(NULL);
+
+
 	}
+	zend_end_try();
 
 
-	php_execute_script(&script TSRMLS_CC);
-
-	if(data->useChunks)
-		HttpDataHandler::appendDataToHTTPChannel(data->td,
-																						 0,
-																						 0,
-																						 &(data->td->outputData), 
-																						 &(data->chain),
-																						 (bool)data->td->appendOutputs, 
-																						 data->useChunks);
-
-	php_request_shutdown(NULL);
+	if(singleRequest)
+		requestMutex.unlock();
 
 	delete data;
-
-#ifdef ONLY_ONE_THREAD
-	mainMutex.unlock();
-#endif
-
 
 	return ret;
 }
