@@ -297,16 +297,19 @@ static sapi_module_struct myphp_module =
 }
 
 
-static void checkPhpInitialization()
+static int checkPhpInitialization()
 {
 	mainMutex.lock();
 	if(!initialized)
 	{
 		ThreadID tid;
 		Thread::create(&tid, phpWatchdog, NULL);
+		initialized = 1;
 	}
 
 	mainMutex.unlock();
+
+	return 0;
 }
 
 int load(void* server,void* parser)
@@ -345,7 +348,8 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 	int ret = SUCCESS;
 	HttpRequestHeader *req = &(td->request);
 
-	checkPhpInitialization();
+	if(checkPhpInitialization())
+		return -1;
 
 	if(singleRequest)
 		requestMutex.lock();
