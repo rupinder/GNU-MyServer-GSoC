@@ -282,10 +282,11 @@ static sapi_module_struct myphp_module =
 
 		sapi_startup(&myphp_module);
 		myphp_module.startup(&myphp_module);
-		initialized = 1;
 
 		while(!Server::getInstance()->stopServer())
 			Thread::wait(MYSERVER_SEC(2));
+
+		initialized = 0;
 
 		myphp_module.shutdown(&myphp_module);
 		sapi_shutdown();
@@ -303,6 +304,10 @@ static int checkPhpInitialization()
 	if(!initialized)
 	{
 		ThreadID tid;
+
+		if(Server::getInstance()->stopServer())
+			return -1;
+
 		Thread::create(&tid, phpWatchdog, NULL);
 		initialized = 1;
 	}
