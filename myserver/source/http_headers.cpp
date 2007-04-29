@@ -423,7 +423,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
   
   if(tokenOff == -1)
   {
-    /* Keep trace of first line for logging. */
+    /* Keep trace of first line for logging.  */
     tokenOff = getEndLine(token, HTTP_REQUEST_URI_DIM);
     if(tokenOff > 0)
       request->uri.assign(input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
@@ -436,34 +436,34 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 		if(tokenOff== -1 )
 			return 400;
 		
-		/* Copy the HTTP field(this is the command if we are on the first line). */
+		/* Copy the HTTP field(this is the command if we are on the first line).  */
 		myserver_strlcpy(command, token, min(commandSize, tokenOff + 1) );
 	
 		token += tokenOff;
 		
-		if(*token==':')
+		if(*token == ':')
 			token++;
-		while(*token ==' ')
+		while(*token == ' ')
 			token++;
 		nLineControlled++;
     lineControlled = 0;
 
-		if(nLineControlled==1)
+		if(nLineControlled == 1)
 		{
-			int containOpts=0;
-			u_long len_token =tokenOff;
+			int containOpts = 0;
+			u_long lenToken = tokenOff;
 			/*
        *The first line has the form:
        *GET /index.html HTTP/1.1
        */
-			lineControlled=1;
+			lineControlled = 1;
 			
-			/* Copy the method type. */
-			request->cmd.assign(command, tokenOff);
+			/* Copy the method type.  */
+			request->cmd.assign(command, min(HTTP_REQUEST_CMD_DIM, tokenOff));
 			tokenOff = getEndLine(token, 
                             HTTP_REQUEST_VER_DIM + HTTP_REQUEST_URI_DIM+10);
-			len_token = tokenOff;
-			if(tokenOff==-1)
+			lenToken = tokenOff;
+			if(tokenOff == -1)
       {
 				request->ver.clear();
 				request->cmd.clear();
@@ -486,16 +486,16 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 				return 400;
 			}
 			max=(int)tokenOff;
-			while((token[max]!=' ') && (len_token-max<HTTP_REQUEST_VER_DIM))
+			while((token[max] != ' ') && (lenToken - max < HTTP_REQUEST_VER_DIM))
 				max--;
-			for(i=0;((int)i<max)&&(i<HTTP_REQUEST_URI_DIM);i++)
+			for(i=0; ((int)i < max) && (i < HTTP_REQUEST_URI_DIM); i++)
 			{
-				if(token[i]=='?')
+				if(token[i] == '?')
 				{
-					containOpts=1;
+					containOpts = 1;
 					break;
 				}
-        else if(token[i]==' ')
+        else if(token[i] == ' ')
 				{
 					break;
 				}
@@ -523,7 +523,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			if(containOpts)
 			{
         j = getEndLine(&token[i], HTTP_REQUEST_URI_DIM);
-				for(j=0;((int)(i+j+1)<max) && (j<HTTP_REQUEST_URI_OPTS_DIM-1);j++)
+				for(j = 0; ((int)(i+j+1)<max) && (j<HTTP_REQUEST_URI_OPTS_DIM-1);j++)
 				{
 					++j;
 				}
@@ -540,7 +540,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
        *Seek the cursor at the end of the spaces. Do not allow more than 
        *10 spaces character between the uri token and the HTTP version. 
        */
-      for(j=0; j<10; j++)
+      for(j = 0; j < 10; j++)
       {
         if(token[i]==' ')
           i++;
