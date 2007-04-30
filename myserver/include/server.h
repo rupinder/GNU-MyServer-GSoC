@@ -118,9 +118,6 @@ public:
 	void increaseListeningThreadCount();
 	void decreaseListeningThreadCount();
 	const char *getAddresses();
-	void *envString;
-	VhostManager *vhostList;
-	MimeManager *mimeManager;
 	const char *getPath();
 	u_long getNumThreads();
 	const char *getDefaultFilenamePath(u_long ID = 0);
@@ -148,6 +145,11 @@ public:
 	void temporaryFileName(u_long tid, string &out);
 	int waitNewConnection(u_long tid, u_long timeout);
 	XmlParser *getConfiguration(){return &configurationFileManager;}
+
+	void *getEnvString(){return envString;}
+	VhostManager *getVhosts(){return vhostList;}
+	MimeManager *getMimeManager(){return mimeManager;}
+
 private:
   friend class ClientsThread;
 #ifdef WIN32
@@ -177,6 +179,10 @@ private:
 	Server();
 
 	CachedFileFactory cachedFiles;
+
+	void *envString;
+	VhostManager *vhostList;
+	MimeManager *mimeManager;
 
 	HomeDir homeDir;
   HashMap<string, string*> hashedData;

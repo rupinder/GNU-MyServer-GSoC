@@ -2184,8 +2184,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         /*!
          *Find the virtual host to check both host name and IP value.
          */
-        Vhost* newHost = Server::getInstance()->vhostList->getVHost(host ? 
-																		 host->value->c_str() : "", 
+        Vhost* newHost = Server::getInstance()->getVhosts()->getVHost(host ? 
+																		host->value->c_str() : "", 
 																		 a->getLocalIpAddr(), a->getLocalPort());
         if(a->host)
           a->host->removeRef();
@@ -2744,7 +2744,7 @@ MimeRecord* Http::getMIME(string &filename)
   {
     return td.connection->host->getMIME()->getRecord(ext);
   }
-	return Server::getInstance()->mimeManager->getRecord(ext);
+	return Server::getInstance()->getMimeManager()->getRecord(ext);
 }
 
 /*!
