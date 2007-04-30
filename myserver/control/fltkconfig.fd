@@ -1,13 +1,14 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0106 
+version 1.0107 
 i18n_type 1 
 i18n_include "language.h" 
 i18n_function gettext 
 header_name {.h} 
 code_name {.cpp}
-class MainDlg {open selected
+class MainDlg {open
 } {
-  Function {make_window()} {} {
+  Function {make_window()} {open
+  } {
     Fl_Window ConfDlg {
       label {MyServer Configure}
       callback {if(Changed) {
@@ -18,16 +19,16 @@ class MainDlg {open selected
 else {
   ConfDlg->hide();
 }} open
-      xywh {462 30 550 360} type Double hide
+      xywh {320 132 550 360} type Double visible
     } {
       Fl_Menu_Bar {} {open
         xywh {0 0 550 25}
       } {
-        submenu {} {
+        Submenu {} {
           label {&File} open
           xywh {0 0 100 20}
         } {
-          menuitem {} {
+          MenuItem {} {
             label {&Open...}
             callback {int ret;
 if(Changed) {
@@ -58,7 +59,7 @@ if(ret) {
 }}
             xywh {0 0 100 20}
           }
-          menuitem {} {
+          MenuItem {} {
             label {&Save...}
             callback {int i = ask_type();
 if(i != -1) {
@@ -67,47 +68,47 @@ if(i != -1) {
   if(i) {
     fl_alert(LanguageXMLNot_Save);
   }
-}}
+}} selected
             xywh {0 0 100 20}
           }
-          menuitem {} {
+          MenuItem {} {
             label {&Revert}
             callback {if(fl_choice(LanguageXMLReload_Prev, LanguageXMLNo, LanguageXMLYes, NULL)) {
   load_config();
 }}
             xywh {0 0 100 20} divider
           }
-          submenu {} {
+          Submenu {} {
             label Run open
             xywh {0 0 100 20}
           } {
-            menuitem {} {
+            MenuItem {} {
               label {as Console}
               callback {RunAsConsole();}
               xywh {0 0 100 20}
             }
-            menuitem {} {
+            MenuItem {} {
               label {as Service}
               callback {RunAsService();}
               xywh {0 0 100 20}
             }
           }
-          submenu {} {
+          Submenu {} {
             label Stop open
             xywh {0 0 100 20} divider
           } {
-            menuitem {} {
+            MenuItem {} {
               label Console
               callback {StopConsole();}
               xywh {0 0 100 20}
             }
-            menuitem {} {
+            MenuItem {} {
               label Service
               callback {StopService();}
               xywh {0 0 100 20}
             }
           }
-          menuitem {} {
+          MenuItem {} {
             label {&Quit}
             callback {if(Changed) {
   if(fl_choice(LanguageXMLLast_Change, LanguageXMLNo, LanguageXMLYes, NULL)) {
@@ -120,36 +121,36 @@ else {
             xywh {0 0 100 20}
           }
         }
-        submenu {} {
+        Submenu {} {
           label {Ser&vice} open
           xywh {0 0 100 20}
         } {
-          menuitem {} {
+          MenuItem {} {
             label {Install Service}
             callback {InstallService();}
             xywh {0 0 100 20}
           }
-          menuitem {} {
+          MenuItem {} {
             label {Remove Service}
             callback {RemoveService();}
             xywh {0 0 100 20}
           }
         }
-        submenu {} {
+        Submenu {} {
           label {Re&mote} open
           xywh {0 0 100 20}
         } {
-          menuitem {} {
+          MenuItem {} {
             label {Login...}
             callback {ServerLogin(true);}
             xywh {0 0 100 20}
           }
-          menuitem MenuLogout {
+          MenuItem MenuLogout {
             label Logout
             callback {ServerLogout();}
             xywh {0 0 100 20} deactivate divider
           }
-          menuitem MenuGetConfig {
+          MenuItem MenuGetConfig {
             label {Get Config}
             callback {int ret;
 if(Changed) {
@@ -194,7 +195,7 @@ else {
 }}
             xywh {0 0 100 20} deactivate
           }
-          menuitem MenuSendConfig {
+          MenuItem MenuSendConfig {
             label {Send Config}
             callback {int ret;
 ret = fl_choice(LanguageXMLKill_All, LanguageXMLNo, LanguageXMLYes, NULL);
@@ -219,12 +220,12 @@ if(ret) {
 ServerLogout();}
             xywh {0 0 100 20} deactivate divider
           }
-          menuitem MenuConnections {
+          MenuItem MenuConnections {
             label {Connections...}
             callback {ServerConnections();}
             xywh {0 0 100 20} deactivate
           }
-          menuitem MenuReboot {
+          MenuItem MenuReboot {
             label {Reboot...}
             callback {int ret;
 ret = fl_choice(LanguageXMLKill_All, LanguageXMLNo, LanguageXMLYes, NULL);
@@ -247,11 +248,11 @@ if(ret) {
             xywh {0 0 100 20} deactivate
           }
         }
-        submenu {} {
+        Submenu {} {
           label {&Help} open
           xywh {0 0 100 20}
         } {
-          menuitem {} {
+          MenuItem {} {
             label {&About}
             callback {AboutDlg->show();}
             xywh {0 0 100 20}
@@ -259,11 +260,11 @@ if(ret) {
         }
       }
       Fl_Tabs {} {open
-        xywh {0 25 550 335}
+        xywh {0 25 635 335}
       } {
         Fl_Group {} {
           label System open
-          xywh {0 50 550 310}
+          xywh {0 50 550 310} hide
         } {
           Fl_Value_Input Buffer_Size {
             label {Memory buffer (in bytes):}
@@ -275,19 +276,19 @@ if(ret) {
             callback {Changed = true;} open
             xywh {295 90 115 25} down_box BORDER_BOX when 1
           } {
-            menuitem {} {
+            MenuItem {} {
               label None
               xywh {5 5 100 20}
             }
-            menuitem {} {
+            MenuItem {} {
               label Normal
               xywh {5 5 100 20}
             }
-            menuitem {} {
+            MenuItem {} {
               label Higher
               xywh {5 5 100 20}
             }
-            menuitem {} {
+            MenuItem {} {
               label Highest
               xywh {5 5 100 20}
             }
@@ -485,55 +486,54 @@ if(val2 != 0) {
 }} open
               xywh {310 165 220 25} down_box BORDER_BOX when 1
             } {
-              menuitem {} {
+              MenuItem {} {
                 label {Send the file}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {URL link}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Run as CGI}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Run as FastCGI}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Run as SCGI}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Run as ISAPI}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Run as MSCGI}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Run as WINCGI}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label Execute
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Execute as an ISAPI module}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Execute self contained FastCGI}
                 xywh {10 10 100 20}
               }
-              menuitem {} {
+              MenuItem {} {
                 label {Run self contained SCGI}
                 xywh {10 10 100 20}
               }
-
             }
             Fl_Input Manager {
               label {Manager:}
@@ -563,7 +563,7 @@ if(chrptr != 0) {
         }
         Fl_Group {} {
           label Hosts open
-          xywh {0 50 550 310} hide
+          xywh {0 50 635 310}
         } {
           Fl_Group {} {open
             xywh {10 60 530 45} box ENGRAVED_FRAME
@@ -694,14 +694,14 @@ else {
             }
           }
           Fl_Group {} {open
-            xywh {10 110 535 240} box ENGRAVED_FRAME
+            xywh {10 110 625 240} box ENGRAVED_FRAME
           } {
             Fl_Tabs {} {open
-              xywh {20 120 510 220}
+              xywh {20 120 615 220}
             } {
               Fl_Group {} {
                 label Protocol open
-                xywh {20 145 510 195}
+                xywh {20 145 510 195} hide
               } {
                 Fl_Choice Protocol {
                   label {Protocol:}
@@ -753,19 +753,19 @@ switch(pval) {
 }} open
                   xywh {180 155 215 25} down_box BORDER_BOX when 1
                 } {
-                  menuitem {} {
+                  MenuItem {} {
                     label HTTP
                     xywh {5 5 100 20}
                   }
-                  menuitem {} {
+                  MenuItem {} {
                     label HTTPS
                     xywh {5 5 100 20}
                   }
-                  menuitem {} {
+                  MenuItem {} {
                     label FTP
                     xywh {5 5 100 20} deactivate
                   }
-                  menuitem {} {
+                  MenuItem {} {
                     label CONTROL
                     xywh {0 0 100 20}
                   }
@@ -890,74 +890,74 @@ VHostConf.setPort(i, (int)Port->value());}
               }
               Fl_Group {} {
                 label {HTTP Services} open
-                xywh {20 145 510 195} hide
+                xywh {25 140 510 195}
               } {
                 Fl_Box {} {
                   label {Enable:}
-                  xywh {40 155 115 25} align 20
+                  xywh {45 150 115 25} align 20
                 }
                 Fl_Check_Button Allow_CGI {
                   label CGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_CGI, Allow_CGI->value());}
-                  xywh {60 180 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {65 175 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_ISAPI {
                   label ISAPI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_ISAPI, Allow_ISAPI->value());}
-                  xywh {60 200 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {65 195 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_MSCGI {
                   label MSCGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_MSCGI, Allow_MSCGI->value());}
-                  xywh {60 220 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {65 215 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_WINCGI {
                   label WINCGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_WINCGI, Allow_WINCGI->value());}
-                  xywh {60 240 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {65 235 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_FASTCGI {
                   label FASTCGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_FASTCGI, Allow_FASTCGI->value());}
-                  xywh {60 260 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {65 255 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_SCGI {
                   label SCGI
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_SCGI, Allow_SCGI->value());}
-                  xywh {60 260 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {235 175 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_SEND_LINK {
                   label {SEND LINK}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_SEND_LINK, Allow_SEND_LINK->value());}
-                  xywh {225 180 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {235 195 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_EXTERNAL_COMMANDS {
                   label {EXTERNAL COMMANDS}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_EXTERNAL_COMMANDS, Allow_EXTERNAL_COMMANDS->value());}
-                  xywh {225 200 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {235 215 20 25} down_box DOWN_BOX align 8 when 1
                 }
                 Fl_Check_Button Allow_SEND_FILE {
                   label {SEND FILE}
                   callback {Changed = true;
 int i = Name->value();
 VHostConf.setService(i, ALLOW_SEND_FILE, Allow_SEND_FILE->value());}
-                  xywh {225 220 20 25} down_box DOWN_BOX align 8 when 1
+                  xywh {235 235 20 25} down_box DOWN_BOX align 8 when 1
                 }
               }
               Fl_Group {} {

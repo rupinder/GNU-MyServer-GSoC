@@ -214,6 +214,12 @@ int VHostXML::load_core(XmlParser & parser)
 		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
 		      setService(NameNo, ALLOW_FASTCGI, false);
 	       }
+	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_SCGI"))
+	       {
+		  if(lcur->children->content)
+		    if(!xmlStrcmp(lcur->children->content, (const xmlChar *)"NO"))
+		      setService(NameNo, ALLOW_SCGI, false);
+	       }
 	     else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ALLOW_SEND_LINK"))
 	       {
 		  if(lcur->children->content)
@@ -352,6 +358,9 @@ int VHostXML::save_core(XmlParser & xmlFile)
 
 	if(!getService(i, ALLOW_FASTCGI))
 	  xmlFile.addChild("ALLOW_FASTCGI", "NO");
+
+	if(!getService(i, ALLOW_SCGI))
+	  xmlFile.addChild("ALLOW_SCGI", "NO");
 
 	if(!getService(i, ALLOW_SEND_LINK))
 	  xmlFile.addChild("ALLOW_SEND_LINK", "NO");

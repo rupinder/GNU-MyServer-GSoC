@@ -3497,8 +3497,9 @@ Fl_Double_Window* MainDlg::make_window() {
     { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 550, 25);
       o->menu(menu_);
     }
-    { Fl_Tabs* o = new Fl_Tabs(0, 25, 550, 335);
+    { Fl_Tabs* o = new Fl_Tabs(0, 25, 635, 335);
       { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("System"));
+        o->hide();
         { Fl_Value_Input* o = Buffer_Size = new Fl_Value_Input(295, 60, 115, 25, gettext("Memory buffer (in bytes):"));
           o->maximum(5.24288e+06);
           o->step(1);
@@ -3622,8 +3623,7 @@ Fl_Double_Window* MainDlg::make_window() {
         }
         o->end();
       }
-      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("Hosts"));
-        o->hide();
+      { Fl_Group* o = new Fl_Group(0, 50, 635, 310, gettext("Hosts"));
         { Fl_Group* o = new Fl_Group(10, 60, 530, 45);
           o->box(FL_ENGRAVED_FRAME);
           { Fl_Choice* o = Name = new Fl_Choice(75, 70, 275, 25, gettext("Name:"));
@@ -3639,10 +3639,11 @@ Fl_Double_Window* MainDlg::make_window() {
           }
           o->end();
         }
-        { Fl_Group* o = new Fl_Group(10, 110, 535, 240);
+        { Fl_Group* o = new Fl_Group(10, 110, 625, 240);
           o->box(FL_ENGRAVED_FRAME);
-          { Fl_Tabs* o = new Fl_Tabs(20, 120, 510, 220);
+          { Fl_Tabs* o = new Fl_Tabs(20, 120, 615, 220);
             { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Protocol"));
+              o->hide();
               { Fl_Choice* o = Protocol = new Fl_Choice(180, 155, 215, 25, gettext("Protocol:"));
                 o->down_box(FL_BORDER_BOX);
                 o->callback((Fl_Callback*)cb_Protocol);
@@ -3704,60 +3705,59 @@ Fl_Double_Window* MainDlg::make_window() {
               }
               o->end();
             }
-            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("HTTP Services"));
-              o->hide();
-              { Fl_Box* o = new Fl_Box(40, 155, 115, 25, gettext("Enable:"));
+            { Fl_Group* o = new Fl_Group(25, 140, 510, 195, gettext("HTTP Services"));
+              { Fl_Box* o = new Fl_Box(45, 150, 115, 25, gettext("Enable:"));
                 o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
               }
-              { Fl_Check_Button* o = Allow_CGI = new Fl_Check_Button(60, 180, 20, 25, gettext("CGI"));
+              { Fl_Check_Button* o = Allow_CGI = new Fl_Check_Button(65, 175, 20, 25, gettext("CGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_CGI);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_ISAPI = new Fl_Check_Button(60, 200, 20, 25, gettext("ISAPI"));
+              { Fl_Check_Button* o = Allow_ISAPI = new Fl_Check_Button(65, 195, 20, 25, gettext("ISAPI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_ISAPI);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_MSCGI = new Fl_Check_Button(60, 220, 20, 25, gettext("MSCGI"));
+              { Fl_Check_Button* o = Allow_MSCGI = new Fl_Check_Button(65, 215, 20, 25, gettext("MSCGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_MSCGI);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_WINCGI = new Fl_Check_Button(60, 240, 20, 25, gettext("WINCGI"));
+              { Fl_Check_Button* o = Allow_WINCGI = new Fl_Check_Button(65, 235, 20, 25, gettext("WINCGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_WINCGI);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_FASTCGI = new Fl_Check_Button(60, 260, 20, 25, gettext("FASTCGI"));
+              { Fl_Check_Button* o = Allow_FASTCGI = new Fl_Check_Button(65, 255, 20, 25, gettext("FASTCGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_FASTCGI);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_SCGI = new Fl_Check_Button(60, 260, 20, 25, gettext("SCGI"));
+              { Fl_Check_Button* o = Allow_SCGI = new Fl_Check_Button(235, 175, 20, 25, gettext("SCGI"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_SCGI);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_SEND_LINK = new Fl_Check_Button(225, 180, 20, 25, gettext("SEND LINK"));
+              { Fl_Check_Button* o = Allow_SEND_LINK = new Fl_Check_Button(235, 195, 20, 25, gettext("SEND LINK"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_SEND_LINK);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_EXTERNAL_COMMANDS = new Fl_Check_Button(225, 200, 20, 25, gettext("EXTERNAL COMMANDS"));
+              { Fl_Check_Button* o = Allow_EXTERNAL_COMMANDS = new Fl_Check_Button(235, 215, 20, 25, gettext("EXTERNAL COMMANDS"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_EXTERNAL_COMMANDS);
                 o->align(FL_ALIGN_RIGHT);
                 o->when(FL_WHEN_CHANGED);
               }
-              { Fl_Check_Button* o = Allow_SEND_FILE = new Fl_Check_Button(225, 220, 20, 25, gettext("SEND FILE"));
+              { Fl_Check_Button* o = Allow_SEND_FILE = new Fl_Check_Button(235, 235, 20, 25, gettext("SEND FILE"));
                 o->down_box(FL_DOWN_BOX);
                 o->callback((Fl_Callback*)cb_Allow_SEND_FILE);
                 o->align(FL_ALIGN_RIGHT);
