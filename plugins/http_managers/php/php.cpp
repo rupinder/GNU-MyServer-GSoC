@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <http_response.h>
 #include <cgi.h>
 #include <thread.h>
+#include <event.h>
 
 #include <main/php.h>
 #include <main/SAPI.h>
@@ -39,6 +40,7 @@ static int initialized = 0;
 
 static Mutex mainMutex;
 static Mutex requestMutex;
+static Event *watchDogReady;
 
 int singleRequest;
 
@@ -234,7 +236,7 @@ int	myphp_startup(struct _sapi_module_struct *sapi_module)
 	{
 		return FAILURE;
 	}
-	
+
 	return 0;
 }
 
@@ -283,7 +285,9 @@ static sapi_module_struct myphp_module =
 		sapi_startup(&myphp_module);
 		myphp_module.startup(&myphp_module);
 
-		while(!Server::getInstance()->stopServer())
+		watchDogReady->signal();
+
+		while(!server->stopServer())
 			Thread::wait(MYSERVER_SEC(2));
 
 		initialized = 0;
@@ -305,10 +309,20 @@ static int checkPhpInitialization()
 	{
 		ThreadID tid;
 
-		if(Server::getInstance()->stopServer())
+		if(server->stopServer() || !server->isServerReady())
+		{
+			mainMutex.unlock();
 			return -1;
+		}
 
-		Thread::create(&tid, phpWatchdog, NULL);
+		if(Thread::create(&tid, phpWatchdog, NULL))
+		{
+			mainMutex.unlock();
+			return -1;
+		}
+
+		watchDogReady->wait();
+
 		initialized = 1;
 	}
 
@@ -329,7 +343,7 @@ int load(void* server,void* parser)
 
 	mainMutex.init();
 	requestMutex.init();
-	checkPhpInitialization();
+	watchDogReady = new Event(true);
 	return 0;
 }
 
@@ -340,6 +354,7 @@ int unload(void* p)
 {
 	mainMutex.destroy();
 	requestMutex.destroy();
+	delete watchDogReady;
 	return 0;
 }
 
@@ -448,6 +463,7 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 
 	if(singleRequest)
 		requestMutex.unlock();
+
 
 	delete data;
 
