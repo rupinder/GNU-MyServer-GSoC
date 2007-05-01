@@ -35,12 +35,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 static Server* server;
 static zend_module_entry entries[16];
-static int loadedEntries = 0;
-static int initialized = 0;
+static int loadedEntries;
 
 static Mutex mainMutex;
 static Mutex requestMutex;
-static Event *watchDogReady;
 
 int singleRequest;
 
@@ -271,12 +269,27 @@ static sapi_module_struct myphp_module =
 	STANDARD_SAPI_MODULE_PROPERTIES
 };
 
+int load(void* server,void* parser)
+{
+	const char *data;
+	::server = (Server*)server;
+	data = ::server->getHashedData("PHP_SAFE_MODE");
 
-#ifdef WIN32
-	static unsigned int phpWatchdog(void * arg)
-#else
-	static void* phpWatchdog(void * arg)
-#endif
+	if(data && !strcmpi(data, "YES"))
+		singleRequest = 1;
+	else
+		singleRequest = 0;
+
+	loadedEntries = 0;
+
+	if(singleRequest)
+		requestMutex.init();
+	return 0;
+}
+
+/*! Postload phase for the plugin.  */
+extern "C"
+int postLoad(void* server,void* parser)
 {
 #ifdef ZTS
 		tsrm_startup(((Server*)server)->getMaxThreads(), 1, 0, NULL);
@@ -284,77 +297,24 @@ static sapi_module_struct myphp_module =
 
 		sapi_startup(&myphp_module);
 		myphp_module.startup(&myphp_module);
+		return 0;
+}
 
-		watchDogReady->signal();
-
-		while(!server->stopServer())
-			Thread::wait(MYSERVER_SEC(2));
-
-		initialized = 0;
-
+/*! Unload the plugin.  Called once.  Returns 0 on success.  */
+extern "C"
+int unLoad(void* p)
+{
 		myphp_module.shutdown(&myphp_module);
 		sapi_shutdown();
+
+	if(singleRequest)
+		requestMutex.destroy();
 	
 #ifdef ZTS
     tsrm_shutdown();
 #endif
-		return 0;
-}
 
-
-static int checkPhpInitialization()
-{
-	mainMutex.lock();
-	if(!initialized)
-	{
-		ThreadID tid;
-
-		if(server->stopServer() || !server->isServerReady())
-		{
-			mainMutex.unlock();
-			return -1;
-		}
-
-		if(Thread::create(&tid, phpWatchdog, NULL))
-		{
-			mainMutex.unlock();
-			return -1;
-		}
-
-		watchDogReady->wait();
-
-		initialized = 1;
-	}
-
-	mainMutex.unlock();
-
-	return 0;
-}
-
-int load(void* server,void* parser)
-{
-	const char *data;
-	::server = (Server*)server;
-	data = ::server->getHashedData("PHP_SAFE_MODE");
-	if(data && !strcmpi(data, "YES"))
-		singleRequest = 1;
-	else
-		singleRequest = 0,
-
-	mainMutex.init();
-	requestMutex.init();
-	watchDogReady = new Event(true);
-	return 0;
-}
-
-
-
-/*! Unload the plugin.  Called once.  Returns 0 on success.  */
-int unload(void* p)
-{
-	mainMutex.destroy();
-	requestMutex.destroy();
-	delete watchDogReady;
+	loadedEntries = 0;
 	return 0;
 }
 
@@ -367,9 +327,6 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 	zend_file_handle script;
 	int ret = SUCCESS;
 	HttpRequestHeader *req = &(td->request);
-
-	if(checkPhpInitialization())
-		return -1;
 
 	if(singleRequest)
 		requestMutex.lock();
