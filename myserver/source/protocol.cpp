@@ -32,7 +32,7 @@ int Protocol::loadProtocol(XmlParser* /*languageParser*/)
 /*!
  *Unload the protocol. Called once.
  */
-int Protocol::unloadProtocol(XmlParser* /*languageParser*/)
+int Protocol::unLoadProtocol(XmlParser* /*languageParser*/)
 {
 	return 1;
 }

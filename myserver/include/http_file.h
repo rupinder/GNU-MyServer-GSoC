@@ -29,7 +29,7 @@ private:
 
 public:
   static int load(XmlParser*);
-  static int unload();
+  static int unLoad();
 	int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
                    const char* cgi, int OnlyHeader=0);
   HttpFile();

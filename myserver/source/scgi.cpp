@@ -498,7 +498,7 @@ int Scgi::load(XmlParser* /*confFile*/)
 /*!
  *Clean the memory and the processes occuped by the FastCGI servers
  */
-int Scgi::unload()
+int Scgi::unLoad()
 {
   initialized = 0;
 	return 0;

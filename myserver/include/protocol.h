@@ -39,6 +39,6 @@ public:
 	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
                                 int bs1, int bs2, u_long nbtr, u_long id);
 	static int loadProtocol(XmlParser*);
-	static int unloadProtocol(XmlParser*);
+	static int unLoadProtocol(XmlParser*);
 };
 #endif

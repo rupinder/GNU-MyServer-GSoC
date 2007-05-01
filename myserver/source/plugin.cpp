@@ -23,7 +23,7 @@ using namespace std;
 
 typedef int (*loadPROC)(Server*, XmlParser*);
 typedef int (*postLoadPROC)(Server*, XmlParser*);
-typedef int (*unloadPROC)();
+typedef int (*unLoadPROC)();
 typedef int (*versionPROC)();
 typedef const char* (*getNamePROC)(char*, u_long);
 
@@ -32,7 +32,6 @@ typedef const char* (*getNamePROC)(char*, u_long);
  */
 Plugin::Plugin()
 {
-	name.assign("");
 	version = 1;
 }
 
@@ -68,7 +67,7 @@ int Plugin::load(string& file, Server* server, XmlParser* languageFile)
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
  */
-int Plugin::preload(string& file, Server* server, XmlParser* languageFile)
+int Plugin::preLoad(string& file, Server* server, XmlParser* languageFile)
 {
   return hinstLib.loadLibrary(file.c_str());
 }
@@ -97,11 +96,11 @@ int Plugin::postLoad(Server* server, XmlParser* languageFile)
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
  */
-int Plugin::unload(XmlParser* languageFile)
+int Plugin::unLoad(XmlParser* languageFile)
 {
   if(hinstLib.validHandle())
   {
-    unloadPROC proc = (unloadPROC)hinstLib.getProc("unload"); 
+    unLoadPROC proc = (unLoadPROC)hinstLib.getProc("unLoad"); 
     if(proc)
       return proc();
   }

@@ -38,10 +38,10 @@ public:
 	Plugin* getPlugin(string& namespacename, string& plugin);
 	Plugin* getPlugin(string& fullname);
 	
-	int preload(Server *server, XmlParser* languageFile, string& resource);
+	int preLoad(Server *server, XmlParser* languageFile, string& resource);
 	int load(Server *server, XmlParser* languageFile, string& resource);
 	int postLoad(Server *server, XmlParser* languageFile);
-	int unload(Server *server, XmlParser* languageFile);
+	int unLoad(Server *server, XmlParser* languageFile);
 	void addNamespace(PluginsNamespace* namespacename);
 	PluginsNamespace* getNamespace(string &name);
 	PluginsNamespace* removeNamespace(string& name);

@@ -56,7 +56,7 @@ int HttpDataHandler::load(XmlParser* /*confFile*/)
 /*!
  *Unload the static elements.
  */
-int HttpDataHandler::unload()
+int HttpDataHandler::unLoad()
 {
   return 0;
 }

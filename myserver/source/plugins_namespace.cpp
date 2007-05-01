@@ -35,7 +35,7 @@ PluginsNamespace::PluginsNamespace(string name)
  */
 PluginsNamespace::~PluginsNamespace()
 {
-	unload(0);
+	unLoad(0);
 }
 
 
@@ -98,12 +98,12 @@ int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
  */
-int PluginsNamespace::unload(XmlParser* languageFile)
+int PluginsNamespace::unLoad(XmlParser* languageFile)
 {
 	HashMap<char*, Plugin*>::Iterator it = plugins.begin();
 	while(it != plugins.end())
 	{
-		(*it)->unload(languageFile);
+		(*it)->unLoad(languageFile);
 		delete *it;
 		it++;
 	}

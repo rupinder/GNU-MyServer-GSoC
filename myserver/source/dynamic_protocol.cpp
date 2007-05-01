@@ -68,6 +68,6 @@ DynamicProtocol::DynamicProtocol()
  */
 DynamicProtocol::~DynamicProtocol()
 {
-  unloadProtocol(0);
+  unLoadProtocol(0);
 	protocolOptions = 0;
 }

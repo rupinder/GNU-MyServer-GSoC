@@ -59,7 +59,7 @@ Plugin* PluginsManager::getPlugin(string& fullname)
  *messages.
  *\param resource The resource to use to load plugins.
  */
-int PluginsManager::preload(Server *server, XmlParser* languageFile, 
+int PluginsManager::preLoad(Server *server, XmlParser* languageFile, 
 														string& resource)
 {
 	int ret = 0;
@@ -67,7 +67,7 @@ int PluginsManager::preload(Server *server, XmlParser* languageFile,
 
 	while(it != namespaces.end())
 	{
-		ret |= (*it)->preload(server, languageFile, resource);
+		ret |= (*it)->preLoad(server, languageFile, resource);
 		it++;
 	}
 	return ret;
@@ -122,7 +122,7 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
  *\param languageFile The language file to use to get errors and warnings 
  *messages.
  */
-int PluginsManager::unload(Server *server, XmlParser* languageFile)
+int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
 {
 	int ret = 0;
 
@@ -130,7 +130,7 @@ int PluginsManager::unload(Server *server, XmlParser* languageFile)
 
 	while(it != namespaces.end())
 	{
-		ret |= (*it)->unload(languageFile);
+		ret |= (*it)->unLoad(languageFile);
 		it++;
 	}
 

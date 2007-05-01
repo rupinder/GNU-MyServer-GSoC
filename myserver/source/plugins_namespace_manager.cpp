@@ -57,7 +57,7 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
 	string name;
 	const char* namePtr;
 
-	if(plugin->preload(file, server, languageFile))
+	if(plugin->preLoad(file, server, languageFile))
 	{
 		delete plugin;
 		return 1;
@@ -92,7 +92,7 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
  *\param resource The resource location to use to load plugins, in this 
  *implementation it is a directory name.
  */
-int PluginsNamespaceManager::preload(Server* server, XmlParser* languageFile, 
+int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile, 
 																		 string& resource)
 {
 	FindData fd;

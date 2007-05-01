@@ -31,7 +31,7 @@ class HttpDataHandler
 {
 public:
   static int load(XmlParser* );
-  static int unload();
+  static int unLoad();
 	virtual int send(HttpThreadContext*, ConnectionPtr s,
 									 const char *filenamePath, const char* cgi, 
 									 int OnlyHeader=0);

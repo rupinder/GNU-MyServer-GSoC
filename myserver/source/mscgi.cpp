@@ -327,7 +327,7 @@ int MsCgi::load(XmlParser* /*confFile*/)
 /*!
  *Free the memory allocated by the MSCGI library.
  */
-int MsCgi::unload()
+int MsCgi::unLoad()
  {
 	return mscgiModule.close();
 }

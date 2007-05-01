@@ -1082,9 +1082,9 @@ int Server::terminate()
    */
 	FreeEnvironmentStrings((LPTSTR)envString);
 #endif
-	Http::unloadProtocol(&languageParser);
-	Https::unloadProtocol(&languageParser);
-  ControlProtocol::unloadProtocol(&languageParser);
+	Http::unLoadProtocol(&languageParser);
+	Https::unLoadProtocol(&languageParser);
+  ControlProtocol::unLoadProtocol(&languageParser);
 
 
 	getProcessServerManager()->clear();
@@ -1093,7 +1093,7 @@ int Server::terminate()
 
 	configurationFileManager.close();
 
-	getPluginsManager()->unload(this, &languageParser);
+	getPluginsManager()->unLoad(this, &languageParser);
 
 	/*
    *Destroy the connections mutex.
@@ -2250,7 +2250,7 @@ int Server::loadSettings()
 
 		{
 			string res("external");
-			getPluginsManager()->preload(this, &languageParser, res);
+			getPluginsManager()->preLoad(this, &languageParser, res);
 			getPluginsManager()->load(this, &languageParser, res);
 			getPluginsManager()->postLoad(this, &languageParser);
 		}

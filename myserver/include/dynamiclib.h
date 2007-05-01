@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define DYNAMICLIBRARY_H
 #include "../stdafx.h"
 
+#include <string>
+
 extern "C" 
 {
 #ifdef WIN32
@@ -30,10 +32,10 @@ extern "C"
 #endif
 }
 
+using namespace std;
+
 class DynamicLibrary
 {
-private:
-  void *handle;
 public:
   int validHandle();
   DynamicLibrary();
@@ -41,6 +43,10 @@ public:
   int loadLibrary(const char* filename, int globally=0);
   void* getProc(const char*);
   int close();
+	const char* getFileName(){return fileName.c_str();}
+private:
+	string fileName;
+  void *handle;
 
 };
 

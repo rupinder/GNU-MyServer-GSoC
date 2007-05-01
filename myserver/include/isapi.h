@@ -150,7 +150,7 @@ public:
 	Isapi();
 	static Mutex *isapi_mutex;
 	static int load(XmlParser*);
-	static int unload();
+	static int unLoad();
 	static void setTimeout(u_long);
   static u_long getTimeout();
 	int send(HttpThreadContext* td,ConnectionPtr connection, const char* scriptpath,

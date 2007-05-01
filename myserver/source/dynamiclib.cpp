@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -41,6 +41,7 @@ DynamicLibrary::~DynamicLibrary()
  */
 int DynamicLibrary::loadLibrary(const char* filename, int globally)
 {
+	fileName.assign(filename);
 #ifdef WIN32
   handle = LoadLibrary(filename);
 #endif
@@ -85,6 +86,7 @@ int DynamicLibrary::close()
 		ret = dlclose(handle);
 #endif
     handle = 0;
+		fileName.assign("");
     return ret;
 }
 

@@ -60,7 +60,7 @@ void HttpErrors::getErrorMessage(int statusCode, string& out)
 /*!
  *Unload the allocated resources.
  */
-void HttpErrors::unload()
+void HttpErrors::unLoad()
 {
 	messagesMap.clear();
 }

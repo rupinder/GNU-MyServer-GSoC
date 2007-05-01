@@ -3040,29 +3040,29 @@ int Http::loadProtocol(XmlParser* languageParser)
 /*!
  *Unload the HTTP protocol.
  */
-int Http::unloadProtocol(XmlParser* languageParser)
+int Http::unLoadProtocol(XmlParser* languageParser)
 {
 	 if(!initialized)
 		 return 0;
 
 	 /* Unload the errors.  */
-	HttpErrors::unload();
+	HttpErrors::unLoad();
 
 	/* Clean ISAPI.  */
-	Isapi::unload();
+	Isapi::unLoad();
 
 	/* Clean FastCGI.  */
-	FastCgi::unload();
+	FastCgi::unLoad();
 
 	/* Clean SCGI.  */
-	Scgi::unload();
+	Scgi::unLoad();
 
 	/* Clean MSCGI.  */
-	MsCgi::unload();
+	MsCgi::unLoad();
  
-  HttpFile::unload();
+  HttpFile::unLoad();
 	
-  HttpDir::unload();
+  HttpDir::unLoad();
   
   secCache.free();
 

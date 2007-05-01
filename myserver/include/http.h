@@ -134,7 +134,7 @@ public:
 
 	static int loadProtocol(XmlParser*);
 
-	static int unloadProtocol(XmlParser*);
+	static int unLoadProtocol(XmlParser*);
 
   int getCGItimeout();
 protected:

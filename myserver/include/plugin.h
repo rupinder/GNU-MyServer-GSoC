@@ -61,17 +61,15 @@ public:
 	Plugin();
 	virtual ~Plugin();
 	virtual int load(string& file, Server* server, XmlParser* languageFile);
-	virtual int preload(string& file, Server* server, XmlParser* languageFile);
+	virtual int preLoad(string& file, Server* server, XmlParser* languageFile);
 	virtual int postLoad(Server* server, XmlParser* languageFile);
-	virtual int unload(XmlParser* languageFile);
+	virtual int unLoad(XmlParser* languageFile);
 	virtual const char* getName(char* buffer, u_long len);
 	int getVersion();
 	void* getDirectMethod(char* name);
 protected:
 	DynamicLibrary hinstLib;
 private:
-	string name;
-
 	/*! A number in the form v.x.y.z where:
 	 * v is the version major number.
 	 * x is the version minor number.

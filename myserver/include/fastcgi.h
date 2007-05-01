@@ -162,7 +162,7 @@ public:
 	int send(HttpThreadContext* td, ConnectionPtr connection,
                   const char* scriptpath, const char *cgipath,int execute,
                   int onlyHeader);
-	static int unload();
+	static int unLoad();
 private:
 	static ProcessServerManager *processServerManager;
 	static int timeout;

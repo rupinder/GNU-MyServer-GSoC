@@ -32,7 +32,7 @@ private:
   void getFormattedSize(int bytes, string& out);
 public:
   static int load(XmlParser*);
-  static int unload();
+  static int unLoad();
 	int send(HttpThreadContext*, ConnectionPtr s, const char* directory, 
                         const char* cgi, int onlyHeader = 0);
   HttpDir();

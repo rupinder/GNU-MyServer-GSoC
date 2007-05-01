@@ -1004,7 +1004,7 @@ in ISAPI application module");
 	if(!appHnd.close())
 	{
     string msg;
-    msg.assign("ISAPI: Failed to unload module "); 
+    msg.assign("ISAPI: Failed to unLoad module "); 
     msg.append(cgipath);
 		td->connection->host->warningslogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite(msg.c_str());
@@ -1077,7 +1077,7 @@ int Isapi::load(XmlParser*/* confFile*/)
 /*!
  *Cleanup the memory used by ISAPI.
  */
-int Isapi::unload()
+int Isapi::unLoad()
 {
 #ifdef WIN32
 	delete isapi_mutex;
