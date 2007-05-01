@@ -41,19 +41,19 @@ CustomMakefile=
 [VersionInfo]
 Major=0
 Minor=8
-Release=8
+Release=9
 Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.8
+FileVersion=0.8.9
 FileDescription=MyServer webserver
 InternalName=RC1
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.8
+ProductVersion=0.8.9
 AutoIncBuildNr=0";
 
 

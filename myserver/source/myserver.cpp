@@ -61,7 +61,7 @@ static char *path;
 /*!
  *Change this to reflect the version of the software.
  */
-const char *versionOfSoftware="0.8.8";
+const char *versionOfSoftware="0.8.9";
 int argn;
 char **argv;
 
