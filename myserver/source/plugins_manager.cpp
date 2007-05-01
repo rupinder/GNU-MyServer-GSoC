@@ -53,6 +53,28 @@ Plugin* PluginsManager::getPlugin(string& fullname)
 }
 	
 /*!
+ *Preload the plugins.
+ *\param server The server object to use.
+ *\param languageFile The language file to use to get errors and warnings 
+ *messages.
+ *\param resource The resource to use to load plugins.
+ */
+int PluginsManager::preload(Server *server, XmlParser* languageFile, 
+														string& resource)
+{
+	int ret = 0;
+	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
+
+	while(it != namespaces.end())
+	{
+		ret |= (*it)->preload(server, languageFile, resource);
+		it++;
+	}
+	return ret;
+	
+}
+
+/*!
  *Load the plugins.
  *\param server The server object to use.
  *\param languageFile The language file to use to get errors and warnings 

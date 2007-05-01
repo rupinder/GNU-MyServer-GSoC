@@ -2250,6 +2250,7 @@ int Server::loadSettings()
 
 		{
 			string res("external");
+			getPluginsManager()->preload(this, &languageParser, res);
 			getPluginsManager()->load(this, &languageParser, res);
 			getPluginsManager()->postLoad(this, &languageParser);
 		}
@@ -2449,6 +2450,7 @@ int Server::isServerReady()
  */
 void Server::rebootOnNextLoop()
 {
+	serverReady = 0;
   toReboot = 1;
 }
 

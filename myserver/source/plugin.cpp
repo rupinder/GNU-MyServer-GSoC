@@ -46,8 +46,7 @@ Plugin::~Plugin()
 }
 
 /*!
- *Load the plugin.  This function doesn't ensure all other
- *plugins are yet loaded.
+ *Load the plugin.
  *\param file The filename to load.
  *\param server The server instance to use.
  *\param languageFile The language file to use to retrieve warnings/errors 
@@ -55,14 +54,23 @@ Plugin::~Plugin()
  */
 int Plugin::load(string& file, Server* server, XmlParser* languageFile)
 {
-  int ret = hinstLib.loadLibrary(file.c_str());
-  if(!ret)
-  {
-    loadPROC proc = (loadPROC)hinstLib.getProc("load"); 
-    if(proc)
-      return proc(server, languageFile);
-  }
+	loadPROC proc = (loadPROC)hinstLib.getProc("load"); 
+	if(proc)
+		return proc(server, languageFile);
 	return 0;
+}
+
+/*!
+ *Preload the plugin.  This function doesn't ensure all other
+ *plugins are yet loaded.
+ *\param file The filename to load.
+ *\param server The server instance to use.
+ *\param languageFile The language file to use to retrieve warnings/errors 
+ *messages.
+ */
+int Plugin::preload(string& file, Server* server, XmlParser* languageFile)
+{
+  return hinstLib.loadLibrary(file.c_str());
 }
 
 /*!

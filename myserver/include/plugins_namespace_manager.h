@@ -29,6 +29,8 @@ class PluginsNamespaceManager : public PluginsNamespace
 public:
 	PluginsNamespaceManager(string name);
 
+	virtual int preload(Server* server, XmlParser* languageFile, 
+											string& resource);
 	virtual int load(Server* server, XmlParser* languageFile, 
 									 string& resource);
 private:

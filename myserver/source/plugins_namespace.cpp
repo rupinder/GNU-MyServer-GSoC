@@ -109,7 +109,6 @@ int PluginsNamespace::unload(XmlParser* languageFile)
 	}
 	plugins.clear();
 	return 0;
-
 }
 
 /*!

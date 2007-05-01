@@ -43,6 +43,8 @@ public:
 	PluginsNamespace(string name);
 	PluginsNamespace(string& name, PluginsNamespace& clone);
 	Plugin* getPlugin(string& name);
+	virtual int preload(Server* server, XmlParser* languageFile, 
+											string& resource) = 0;
 	virtual int load(Server* server, XmlParser* languageFile, 
 									 string& resource) = 0;
 	virtual int postLoad(Server* server, XmlParser* languageFile);

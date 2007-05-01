@@ -56,12 +56,14 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
 	string logBuf;
 	string name;
 	const char* namePtr;
-	if(plugin->load(file, server, languageFile))
+
+	if(plugin->preload(file, server, languageFile))
 	{
 		delete plugin;
 		return 1;
 	}
 	namePtr = plugin->getName(0, 0);
+
 	if(namePtr)
 		name.assign(namePtr);
 	else
@@ -83,15 +85,15 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
 
 
 /*!
- *Post load sequence, called when all the plugins are loaded.
+ *Preload sequence, called when all the plugins are not yet loaded.
  *\param server The server object to use.
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
  *\param resource The resource location to use to load plugins, in this 
  *implementation it is a directory name.
  */
-int PluginsNamespaceManager::load(Server* server, XmlParser* languageFile, 
-																	string& resource)
+int PluginsNamespaceManager::preload(Server* server, XmlParser* languageFile, 
+																		 string& resource)
 {
 	FindData fd;
 	string dirPattern;
@@ -141,4 +143,26 @@ int PluginsNamespaceManager::load(Server* server, XmlParser* languageFile,
 	fd.findclose();
 
 	return ret;
+}
+
+/*!
+ *Load sequence, called when all the plugins are loaded.
+ *\param server The server object to use.
+ *\param languageFile The language file to use to retrieve warnings/errors 
+ *messages.
+ *\param resource The resource location to use to load plugins, in this 
+ *implementation it is a directory name.
+ */
+int PluginsNamespaceManager::load(Server* server, XmlParser* languageFile, 
+																		 string& resource)
+{
+	HashMap<char*, Plugin*>::Iterator it = plugins.begin();
+	while(it != plugins.end())
+	{
+		(*it)->load(resource, server, languageFile);
+		it++;
+	}
+	return 0;
+
+
 }
