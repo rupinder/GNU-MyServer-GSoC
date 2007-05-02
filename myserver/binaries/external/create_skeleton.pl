@@ -129,6 +129,15 @@ if(! $update_makefile)
 		print SRC "extern \"C\"\n";
 		print SRC "char* name(char* name, u_long len)\n{\n\tchar* str = \"$plugin\";\n\tif(name)\n\t\tstrncpy(name, str, len);\n\treturn str;\n}\n";
 
+		print SRC "extern \"C\"\n";
+		print SRC "int load(void* server,void* parser)\n{\n\treturn 0;\n}\n";
+
+		print SRC "extern \"C\"\n";
+		print SRC "int postLoad(void* server,void* parser)\n{\n\treturn 0;\n}\n";
+
+		print SRC "extern \"C\"\n";
+		print SRC "int unLoad(void* parser)\n{\n\treturn 0;\n}\n";
+
 
 		close(SRC);
 }
