@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/sockets.h"
 #include "../include/event.h"
 #include "../include/mime_manager.h"
-#include "../include/vhosts.h"
+#include "../include/vhost_manager.h"
 #include "../include/protocols_manager.h"
 #include "../include/connection.h"
 #include "../include/log_manager.h"
