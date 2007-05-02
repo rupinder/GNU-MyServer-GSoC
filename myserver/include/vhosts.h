@@ -201,6 +201,8 @@ public:
 
   MimeManager* getMIME();
 
+	int openLogFiles(u_long maxlogSize = 0);
+
 	LogManager* getWarningsLog();
 	LogManager* getAccessesLog();
 
@@ -304,7 +306,7 @@ public:
 	int addVHost(Vhost*);
 	
 	/*! Load the virtual hosts list from a xml configuration file.  */
-	int loadXMLConfigurationFile(const char *,int maxlogSize=0);
+	int loadXMLConfigurationFile(const char *,int maxlogSize = 0);
 	
 	/*! Save the virtual hosts list to a xml configuration file.  */
 	int saveXMLConfigurationFile(const char *);

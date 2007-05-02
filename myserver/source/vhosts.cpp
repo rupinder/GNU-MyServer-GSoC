@@ -44,7 +44,8 @@ Vhost::Vhost()
   accessesLogFileName.assign("");
   warningsLogFileName.assign("");
   hashedData.clear();
-  /*! 
+
+  /*
    *By default use a non specified value for the throttling rate. -1 means 
    *that the throttling rate was not specified, while 0 means it was 
    *specified but there is not a limit.
@@ -146,8 +147,52 @@ void Vhost::clearIPList()
 	hostList.clear();
 }
 
+
+/*!
+ *Open the log files for the virtual hosts.
+ *\param maxLogSize Define a max log size for the opened files.
+ */
+int Vhost::openLogFiles(u_long maxlogSize)
+{
+
+	accessesLogFile.load(getAccessesLogFileName());
+    
+	if(strstr(getAccessLogOpt(), "cycle=yes"))
+  {
+		accessesLogFile.setCycleLog(1);
+	}
+	if(strstr(getAccessLogOpt(), "cycle_gzip=no"))
+  {
+		accessesLogFile.setGzip(0);
+	}
+	else
+  {
+		accessesLogFile.setGzip(1);
+	}  
+ 
+	warningsLogFile.load(getWarningsLogFileName());
+	if(strstr(getWarningLogOpt(), "cycle=yes"))
+  {
+		warningsLogFile.setCycleLog(1);
+	}
+	
+	if(strstr(getWarningLogOpt(), "cycle_gzip=no"))
+  {
+		warningsLogFile.setGzip(0);
+	}
+	else
+  {
+		warningsLogFile.setGzip(1);
+	}
+
+	setMaxLogSize(maxlogSize);
+
+	return 0;
+}
+
 /*!
  *Add an IP address to the list.
+ *\param ip The ip to add.
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {
@@ -155,13 +200,14 @@ void Vhost::addIP(const char *ip, int isRegex)
   if(sr == 0)
     return;
 	sr->name.assign(ip);
-  /* If is a regular expression, the ip string is a pattern. */
+  /* If is a regular expression, the ip string is a pattern.  */
   if(isRegex)
     sr->regex.compile(ip, REG_EXTENDED);
   ipList.push_back(sr);
 }
 /*!
  *Remove the IP address to the list.
+ *\param ip The ip to remove.
  */
 void Vhost::removeIP(const char *ip)
 {
@@ -185,6 +231,7 @@ void Vhost::removeIP(const char *ip)
 
 /*!
  *Remove the host address to the list.
+ *\param host The hostname to remove.
  */
 void Vhost::removeHost(const char *host)
 {
@@ -207,10 +254,11 @@ void Vhost::removeHost(const char *host)
 }
 /*!
  *Check if an host is allowed to the connection
+ *\param host hostname to check.
  */
 int Vhost::isHostAllowed(const char* host)
 {
-  /* If no hosts are specified then every host is allowed to connect here. */
+  /* If no hosts are specified then every host is allowed to connect here.  */
 	if(!hostList.size() || !host)
 	  return 1;
 	  
@@ -258,10 +306,11 @@ int Vhost::areAllIPAllowed()
 /*!
  *Check if the network is allowed to the connection(control the network 
  *by the local IP).
+ *\param ip The IP to check.
  */
 int Vhost::isIPAllowed(const char* ip)
 {
- /* If no IPs are specified then every host is allowed to connect here. */
+ /* If no IPs are specified then every host is allowed to connect here.  */
 	if(!ipList.size() || !ip)
 	  return 1;
 	  
@@ -288,6 +337,8 @@ int Vhost::isIPAllowed(const char* ip)
 
 /*!
  *Add an host to the allowed host list.
+ *\param host hostname to add.
+ *\param isRegex Is the host a regex?
  */
 void Vhost::addHost(const char *host, int isRegex)
 {
@@ -334,6 +385,7 @@ void Vhost::addHost(const char *host, int isRegex)
 
 /*!
  *Here threads get the permission to use the access log file.
+ *\param id The caller thread ID.
  */
 u_long Vhost::accesseslogRequestAccess(int id)
 {
@@ -343,6 +395,7 @@ u_long Vhost::accesseslogRequestAccess(int id)
 
 /*!
  *Here threads get the permission to use the warnings log file.
+ *\param id The caller thread ID.
  */
 u_long Vhost::warningslogRequestAccess(int id)
 {
@@ -352,6 +405,7 @@ u_long Vhost::warningslogRequestAccess(int id)
 
 /*!
  *Here threads release the permission to use the access log file.
+ *\param id The caller thread ID.
  */
 u_long Vhost::accesseslogTerminateAccess(int id)
 {
@@ -361,6 +415,7 @@ u_long Vhost::accesseslogTerminateAccess(int id)
 
 /*!
  *Here threads release the permission to use the warnings log file.
+ *\param id The caller thread ID.
  */
 u_long Vhost::warningslogTerminateAccess(int id)
 {
@@ -370,6 +425,7 @@ u_long Vhost::warningslogTerminateAccess(int id)
 
 /*!
  *Write to the accesses log file.
+ *\param str The line to log.
  */
 int Vhost::accessesLogWrite(const char* str)
 {
@@ -402,6 +458,7 @@ LogManager* Vhost::getAccessesLog()
 
 /*!
  *Write a line to the warnings log file.
+ *\param str The line to log.
  */
 int Vhost::warningsLogWrite(const char* str)
 {
@@ -427,6 +484,7 @@ File* Vhost::getWarningsLogFile()
 
 /*!
  *Set the max size of the log files.
+ *\param newSize The new max dimension to use for the warning log files.
  */
 void Vhost::setMaxLogSize(int newSize)
 {
@@ -448,6 +506,7 @@ int Vhost::getMaxLogSize()
 
 /*!
  *VhostManager add function.
+ *\param vh The virtual host to add.
  */
 int VhostManager::addVHost(Vhost* vh)
 {
@@ -540,6 +599,9 @@ int VhostManager::addVHost(Vhost* vh)
 /*!
  *Get the vhost for the connection. A return value of 0 means that
  *a valid host was not found. 
+ *\param host Hostname for the virtual host.
+ *\param ip IP address for the virtual host.
+ *\param port The port used by the client to connect to the server.
  */
 Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 {
@@ -590,7 +652,8 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 }
 
 /*!
- *VhostManager costructor
+ *VhostManager costructor.
+ *\param lt A ListenThreads object to use to create new threads.
  */
 VhostManager::VhostManager(ListenThreads* lt)
 {
@@ -714,6 +777,8 @@ int VhostManager::getHostsNumber()
 /*!
  *Load the virtual hosts from a XML configuration file
  *Returns non-null on errors.
+ *\param filename The XML file to open.
+ *\param maxlogSize The maximum dimension for the log file.
  */
 int VhostManager::loadXMLConfigurationFile(const char *filename, 
 																					 int maxlogSize)
@@ -721,8 +786,6 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 	XmlParser parser;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-  LogManager *warningLogFile ;
-  LogManager *accessLogFile;
   string errMsg;
 	if(parser.open(filename))
 	{
@@ -925,7 +988,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
         opt.assign("");
 				vh->setWarningsLogFileName((char*)lcur->children->content);
 				vh->setWarningLogOpt("");                
-				attr =  lcur->properties;
+				attr = lcur->properties;
 				while(attr)
 				{
 					opt.append((char*)attr->name);
@@ -964,69 +1027,51 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
           delete old;
         }            
       }
-      lcur=lcur->next;
+      lcur = lcur->next;
     }
 
-    accessLogFile=vh->getAccessesLog();
-    accessLogFile->load(vh->getAccessesLogFileName());
-    
-    if(strstr(vh->getAccessLogOpt(), "cycle=yes"))
-    {
-      accessLogFile->setCycleLog(1);
-    }
-    if(strstr(vh->getAccessLogOpt(), "cycle_gzip=no"))
-    {
-      accessLogFile->setGzip(0);
-    }
-    else
-    {
-      accessLogFile->setGzip(1);
-    }  
- 
-    warningLogFile = vh->getWarningsLog();
-    warningLogFile->load(vh->getWarningsLogFileName());
-    if(strstr(vh->getWarningLogOpt(), "cycle=yes"))
-    {
-      warningLogFile->setCycleLog(1);
-    }
-
-    if(strstr(vh->getWarningLogOpt(), "cycle_gzip=no"))
-    {
-      warningLogFile->setGzip(0);
-    }
-    else
-    {
-      warningLogFile->setGzip(1);
-    }
-
-    vh->setMaxLogSize(maxlogSize);
-    if ( vh->initializeSSL() < 0 )
-    {
-	    errMsg.assign("Error: initializing vhost");
-	    Server::getInstance()->logLockAccess();
-	    Server::getInstance()->logPreparePrintError();
-	    Server::getInstance()->logWriteln(errMsg.c_str());
-	    Server::getInstance()->logEndPrintError();
-	    Server::getInstance()->logUnlockAccess();
-
-	    parser.close();
-	    clean();
-	    return -1;
-    }
-    if(addVHost(vh))
-    {
-      errMsg.assign("Error: adding vhost");
+		if(vh->openLogFiles())
+		{
+			errMsg.assign("Error: opening log files");
 			Server::getInstance()->logLockAccess();
-      Server::getInstance()->logPreparePrintError();
-      Server::getInstance()->logWriteln(errMsg.c_str());
-      Server::getInstance()->logEndPrintError();
+			Server::getInstance()->logPreparePrintError();
+			Server::getInstance()->logWriteln(errMsg.c_str());
+			Server::getInstance()->logEndPrintError();
 			Server::getInstance()->logUnlockAccess();
-      
-      parser.close();
-      clean();
-      return -1;
-    }
-    
+			
+			parser.close();
+			clean();
+			return -1;
+		}
+
+		if ( vh->initializeSSL() < 0 )
+		{
+			errMsg.assign("Error: initializing vhost");
+			Server::getInstance()->logLockAccess();
+			Server::getInstance()->logPreparePrintError();
+			Server::getInstance()->logWriteln(errMsg.c_str());
+			Server::getInstance()->logEndPrintError();
+			Server::getInstance()->logUnlockAccess();
+			
+			parser.close();
+			clean();
+			return -1;
+		}
+
+		if(addVHost(vh))
+		{
+			errMsg.assign("Error: adding vhost");
+			Server::getInstance()->logLockAccess();
+			Server::getInstance()->logPreparePrintError();
+			Server::getInstance()->logWriteln(errMsg.c_str());
+			Server::getInstance()->logEndPrintError();
+			Server::getInstance()->logUnlockAccess();
+			
+			parser.close();
+			clean();
+			return -1;
+		}
+
   }
   parser.close();
 
@@ -1037,6 +1082,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 
 /*!
  *Save the virtual hosts to a XML configuration file.
+ *\param filename The filename where write the XML file.
  */
 int VhostManager::saveXMLConfigurationFile(const char *filename)
 {
@@ -1185,6 +1231,7 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
 /*! 
  *Get the value for name in the hash dictionary. If the data is not present
  *it tries to get it from the Server class.
+ *\param name The key of the hashed entry.
  */
 const char* Vhost::getHashedData(const char* name)
 {
@@ -1238,6 +1285,7 @@ int Vhost::freeSSL()
 /*!
  *Get a virtual host by its position in the list.
  *Zero based list.
+ *\param n The virtual host id.
  */
 Vhost* VhostManager::getVHostByNumber(int n)
 {
@@ -1276,6 +1324,7 @@ Vhost* VhostManager::getVHostByNumber(int n)
 /*!
  *Remove a virtual host by its position in the list
  *First position is zero.
+ *\param n The virtual host identifier in the list.
  */
 int VhostManager::removeVHost(int n)
 {
@@ -1305,6 +1354,7 @@ int VhostManager::removeVHost(int n)
 
 /*!
  *Set an external source for the virtual hosts.
+ *\param nExtSource The new external source.
  */
 void VhostManager::setExternalSource(VhostSource* nExtSource)
 {
@@ -1361,7 +1411,6 @@ int VhostSource::addVHost(Vhost*)
 	return 0;
 }
 
-
 /*!
  *Get a virtual host.
  */
@@ -1379,18 +1428,9 @@ Vhost* VhostSource::getVHostByNumber(int n)
 }
 
 /*!
- *Increment current references counter by 1.
- */
-void Vhost::addRef()
-{
-  refMutex.lock(0);
-  refCount++;
-  refMutex.unlock(0);
-}
-
-/*!
  *Set the null reference callback function. It is called when the reference
  *counter for the virtual host is zero. 
+ *\param cb The null references callback function.
  */
 void Vhost::setNullRefCB(NULL_REFERENCECB cb)
 {
@@ -1403,6 +1443,16 @@ void Vhost::setNullRefCB(NULL_REFERENCECB cb)
 NULL_REFERENCECB Vhost::getNullRefCB()
 {
   return nullReferenceCb;               
+}
+
+/*!
+ *Increment current references counter by 1.
+ */
+void Vhost::addRef()
+{
+  refMutex.lock(0);
+  refCount++;
+  refMutex.unlock(0);
 }
 
 /*!
@@ -1431,6 +1481,7 @@ int Vhost::getRef()
 
 /*!
  *Set the reference counter for the virtual host.
+ *\param n The new reference counter.
  */
 void Vhost::setRef(int n)
 {
