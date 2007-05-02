@@ -302,15 +302,51 @@ void Server::start()
               (mimeConfNow!=-1)) || toReboot)
           {
             if( ((mainConfTimeNow  != mainConfTime)  ||
-                 (hostsConfTimeNow != hostsConfTime) ||
                  (mimeConfNow  != mimeConf)) || toReboot)
             {
               reboot();
               /* Store new mtime values.  */
               mainConfTime = mainConfTimeNow;
-              hostsConfTime = hostsConfTimeNow;
               mimeConf = mimeConfNow;
             }
+						else if(hostsConfTimeNow != hostsConfTime)
+            {
+							VhostManager* oldvhost = vhostList;
+
+							/* Do a beep if outputting to console.  */
+							if(logManager.getType() == LogManager::TYPE_CONSOLE)
+							{
+								char beep[]={static_cast<char>(0x7), '\0'};
+								logManager.write(beep);
+							}
+
+							logWriteln("Rebooting...");
+
+							clearAllConnections();
+							
+							while(nConnections)
+								Thread::wait(MYSERVER_SEC(1));
+
+							listenThreads.terminate();
+							listenThreads.initialize(&languageParser);
+							
+							vhostList = new VhostManager(&listenThreads);
+
+							if(vhostList == 0)
+							{
+								continue;
+							}
+
+							delete oldvhost;
+
+							/* Load the virtual hosts configuration from the xml file.  */
+							vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+																									getMaxLogFileSize());
+
+
+              hostsConfTime = hostsConfTimeNow;
+            }
+
             configsCheck = 0;
           }
           else
@@ -546,11 +582,6 @@ int Server::terminate()
     thread->stop();
     thread = thread->next;
   }
-
-	while(listenThreads.getThreadsCount())
-	{
-		Thread::wait(1000);
-	}
 
 	listenThreads.terminate();
 
@@ -1773,6 +1804,9 @@ int Server::loadSettings()
 		}
 
 		listenThreads.initialize(&languageParser);
+
+		delete vhostList;
+		vhostList = 0;
 
     vhostList = new VhostManager(&listenThreads);
     if(vhostList == 0)

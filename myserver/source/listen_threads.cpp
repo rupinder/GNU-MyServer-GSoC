@@ -110,7 +110,7 @@ void * listenServer(void* params)
 
 	lt->increaseCount();
 
-	while(!Server::getInstance()->stopServer())
+	while(!lt->isShutdown())
 	{
 		/*
      *Accept connections.
@@ -444,6 +444,7 @@ int ListenThreads::initialize(XmlParser* parser)
 	countMutex.init();
 	languageParser = parser;
 	usedPorts.clear();
+	shutdownStatus = false;
 	return 0;
 }
 
@@ -452,6 +453,14 @@ int ListenThreads::initialize(XmlParser* parser)
  */
 int ListenThreads::terminate()
 {
+	shutdown();
+
+	while(getThreadsCount())
+	{
+		Thread::wait(1000);
+	}
+
+
 	usedPorts.clear();
 	countMutex.destroy();
 	return 0;

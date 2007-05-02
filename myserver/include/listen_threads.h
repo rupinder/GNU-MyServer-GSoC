@@ -31,7 +31,12 @@ public:
 	int terminate();
 	void increaseCount();
 	void decreaseCount();
+	/*! Initialize the shutdown phase.  */
+	void shutdown(){shutdownStatus = true;}
+	/*! Is it shutdown phase?  */
+	bool isShutdown(){return shutdownStatus;}
 private:
+	bool shutdownStatus;
 	HashMap<u_short, bool> usedPorts;
 	Mutex countMutex;
 	XmlParser *languageParser;
