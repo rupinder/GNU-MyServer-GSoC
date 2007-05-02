@@ -286,10 +286,6 @@ public:
 
 class VhostManager
 {
-  Mutex mutex;
-	VhostSource* extSource;
-	/*! List of virtual hosts. */
-	list<Vhost*> hostList;
 public:
   void setExternalSource(VhostSource* extSource);
 	VhostManager();
@@ -307,17 +303,17 @@ public:
 	/*! Add an element to the vhost list.  */
 	int addVHost(Vhost*);
 	
-	/*! Load the virtual hosts list from a configuration file.  */
-	int loadConfigurationFile(const char *,int maxlogSize=0);
-	
-	/*! Save the virtual hosts list to a configuration file.  */
-	void saveConfigurationFile(const char *);
-	
 	/*! Load the virtual hosts list from a xml configuration file.  */
 	int loadXMLConfigurationFile(const char *,int maxlogSize=0);
 	
 	/*! Save the virtual hosts list to a xml configuration file.  */
 	void saveXMLConfigurationFile(const char *);
+private:
+  Mutex mutex;
+	VhostSource* extSource;
+
+	/*! List of virtual hosts. */
+	list<Vhost*> hostList;
 };
 
 #endif
