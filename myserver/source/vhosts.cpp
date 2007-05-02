@@ -457,6 +457,16 @@ int VhostManager::addVHost(Vhost* vh)
   
   mutex.lock();
 
+	/* Be sure there is a listening thread on the specified port.  */
+	listenThreads->addListeningThread(vh->getPort());
+	
+	if(extSource)
+	{
+		int ret = extSource->addVHost(vh);
+		mutex.unlock();
+		return ret;
+	}
+
   it = hostList.begin();
 
   try
@@ -582,8 +592,9 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 /*!
  *VhostManager costructor
  */
-VhostManager::VhostManager()
+VhostManager::VhostManager(ListenThreads* lt)
 {
+	listenThreads = lt;
 	hostList.clear();
   extSource = 0;
   mutex.init();
@@ -631,6 +642,64 @@ VhostManager::~VhostManager()
 list<Vhost*>* VhostManager::getVHostList()
 {
 	return &(this->hostList);
+}
+
+/*!
+ *Change the file owner for the log files.
+ */
+void VhostManager::changeFilesOwner()
+{
+  if(Server::getInstance()->getUid() | Server::getInstance()->getGid())
+  {
+    int uid = Server::getInstance()->getUid();
+    int gid = Server::getInstance()->getGid();
+
+    /*
+     *Change the user and group identifier to -1
+     *if they are not specified.
+     */
+    if(!uid)
+      uid = -1;
+
+    if(!gid)
+      gid = -1;
+
+    /*
+     *Change the log files owner if a different user or group
+     *identifier is specified.
+     */
+    for(int i = 0; ; i++)
+    {
+			int err;
+      Vhost* vh = getVHostByNumber(i);
+      /* Break if we reach the end of the list.  */
+      if(!vh)
+        break;
+
+      /* Chown the log files.  */
+      err = FilesUtility::chown(vh->getAccessesLogFileName(), uid, gid);
+      if(err)
+      {
+        string str;
+        str.assign("Error changing owner for: ");
+        str.append(vh->getAccessesLogFileName());
+        Server::getInstance()->logPreparePrintError();
+        Server::getInstance()->logWriteln(str);
+        Server::getInstance()->logEndPrintError();
+      }
+
+      err = FilesUtility::chown(vh->getWarningsLogFileName(), uid, gid);
+      if(err)
+      {
+        string str;
+        str.assign("Error changing owner for: ");
+        str.append(vh->getWarningsLogFileName());
+        Server::getInstance()->logPreparePrintError();
+        Server::getInstance()->logWriteln(str);
+        Server::getInstance()->logEndPrintError();
+      }
+    }
+  }
 }
 
 
@@ -960,20 +1029,32 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
     
   }
   parser.close();
+
+	changeFilesOwner();
+
   return 0;
 }
 
 /*!
  *Save the virtual hosts to a XML configuration file.
  */
-void VhostManager::saveXMLConfigurationFile(const char *filename)
+int VhostManager::saveXMLConfigurationFile(const char *filename)
 {
 	File out;
 	u_long nbw;
+
+  mutex.lock();
+
+	if(extSource)
+	{
+		int ret = extSource->save();
+		mutex.unlock();
+		return ret;
+	}
+
 	out.openFile(filename, File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE);
 	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n", 33, &nbw);
 
-  mutex.lock();
   try
   {
     list<Vhost*>::iterator i = hostList.begin();
@@ -1097,6 +1178,8 @@ void VhostManager::saveXMLConfigurationFile(const char *filename)
   {
     mutex.unlock();
   };
+
+	return 0;
 }
 
 /*! 
@@ -1255,12 +1338,29 @@ int VhostSource::load()
 }
 
 /*!
+ *Save the object.
+ */
+int VhostSource::save()
+{
+  return 0;
+}
+
+/*!
  *Free the object.
  */
 int VhostSource::free()
 {
   return 0;
 }
+
+/*!
+ *Add a virtual host to the source.
+ */
+int VhostSource::addVHost(Vhost*)
+{
+	return 0;
+}
+
 
 /*!
  *Get a virtual host.

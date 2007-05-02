@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cached_file_factory.h"
 #include "../include/plugins_manager.h"
 #include "../include/process_server_manager.h"
+#include "../include/listen_threads.h"
 #include <string>
 using namespace std;
 
@@ -56,13 +57,6 @@ void* listenServer(void* pParam);
 #endif
 
 extern int rebootMyServerConsole;
-
-struct listenThreadArgv
-{
-	u_long port;
-	Socket *serverSocket;
-	int SSLsocket;
-};
 
 class Server
 {
@@ -114,9 +108,6 @@ public:
 	ConnectionPtr findConnectionBySocket(Socket);
 	ConnectionPtr findConnectionByID(u_long ID);
 	u_long getTimeout();
-	int getListeningThreadCount();
-	void increaseListeningThreadCount();
-	void decreaseListeningThreadCount();
 	const char *getAddresses();
 	const char *getPath();
 	u_long getNumThreads();
@@ -145,21 +136,16 @@ public:
 	void temporaryFileName(u_long tid, string &out);
 	int waitNewConnection(u_long tid, u_long timeout);
 	XmlParser *getConfiguration(){return &configurationFileManager;}
+	ListenThreads *getListenThreads(){return &listenThreads;}
 
 	void *getEnvString(){return envString;}
 	VhostManager *getVhosts(){return vhostList;}
 	MimeManager *getMimeManager(){return mimeManager;}
 
+	void setProcessPermissions();
+
 private:
   friend class ClientsThread;
-#ifdef WIN32
-	friend  unsigned int __stdcall listenServer(void* pParam);
-	friend  unsigned int __stdcall startClientsTHREAD(void* pParam);
-#endif
-#ifdef HAVE_PTHREAD
-	friend  void* listenServer(void* pParam);
-	friend  void* startClientsTHREAD(void* pParam);
-#endif
 #ifdef WIN32
 	friend int __stdcall control_handler(u_long control_type);
 #endif
@@ -183,7 +169,7 @@ private:
 	void *envString;
 	VhostManager *vhostList;
 	MimeManager *mimeManager;
-
+	ListenThreads listenThreads;
 	HomeDir homeDir;
   HashMap<string, string*> hashedData;
   FiltersFactory filtersFactory;
@@ -212,7 +198,6 @@ private:
 	string* path;
   string* externalPath;
 	string* serverAdmin;
-	void setProcessPermissions();
 	int initialize(int);
 	ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
@@ -226,7 +211,6 @@ private:
 	int deleteConnection(ConnectionPtr, int, int = 1);
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
-	int createServerAndListener(u_short);
 	int loadSettings();
 	Mutex* connectionsMutex;
 	ConnectionPtr connectionToParse;
@@ -239,9 +223,7 @@ private:
 
   int purgeThreads();
 	ConnectionPtr connections;
-	void createListenThreads();
 	int reboot();
-	u_int listeningThreads;
 	string* languageFile;
 	string* languagesPath;
 	string* mainConfigurationFile;

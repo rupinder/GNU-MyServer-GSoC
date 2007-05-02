@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/hash_map.h"
 #include "../include/mutex.h"
 #include "../include/ssl.h"
+#include "../include/listen_threads.h"
 #include <string>
 #include <list>
 
@@ -53,60 +54,6 @@ public:
       {}
 	};
 	
-
-private:
-  HashMap<string, string*> hashedData;
-  NULL_REFERENCECB nullReferenceCb;
-  Mutex refMutex;
-	LogManager warningsLogFile;
-	LogManager accessesLogFile;
-
-  MimeManager mimeManager;
-
-  /*! How many connections are using this virtual host? */
-  int refCount;
-
-	/*! SSL context. */
-	SslContext sslContext;
-
-	/*! List of hosts allowed by the vhost. */
-	list<StringRegex*> hostList;
-
-	/*! List of IPs allowed by the vhost. */
-	list<StringRegex*> ipList;
-
-	/*! TCP port used to listen on. */
-	u_short port;
-
-	/*! Protocol used by the virtual host. Used for built-in protocols. */
-	ConnectionProtocol protocol;
-
-  /*! Throttling rate to use with the virtual host. */
-	u_long throttlingRate;
-
-	/*! Protocol used by the vhost. */
-	string protocolName;
-
-  /*! Additional data for log files. Defined in configuration files. */
-	string accessLogOpt;
-	string warningLogOpt;
-	
-	/*! Path to the document root. */
-	string documentRoot;
-	
-	/*! Path to the system root. */
-	string systemRoot;
-	
-	/*! Path to the accesses log file. */
-	string accessesLogFileName;
-	
-	/*! Path to the warnings log file. */
-	string warningsLogFileName;
-	
-	/*! Description or name of the virtual host. */
-	string name;
-
-public:
   /*! Get the host name. */
   const char* getName()
     {return name.c_str();}
@@ -229,6 +176,7 @@ public:
     {throttlingRate = tr;}
 
 	Vhost();
+	~Vhost();
 
   const char* getHashedData(const char* name);
 	void addIP(const char *, int);
@@ -261,34 +209,86 @@ public:
 	u_long accesseslogTerminateAccess(int id);
 	u_long warningslogTerminateAccess(int id);
 
-	~Vhost();
-
 	int accessesLogWrite(const char*);
 	File* getAccessesLogFile();
 
   int warningsLogWrite(const char*);
 	File* getWarningsLogFile();
+
+private:
+  HashMap<string, string*> hashedData;
+  NULL_REFERENCECB nullReferenceCb;
+  Mutex refMutex;
+	LogManager warningsLogFile;
+	LogManager accessesLogFile;
+
+  MimeManager mimeManager;
+
+  /*! How many connections are using this virtual host? */
+  int refCount;
+
+	/*! SSL context. */
+	SslContext sslContext;
+
+	/*! List of hosts allowed by the vhost. */
+	list<StringRegex*> hostList;
+
+	/*! List of IPs allowed by the vhost. */
+	list<StringRegex*> ipList;
+
+	/*! TCP port used to listen on. */
+	u_short port;
+
+	/*! Protocol used by the virtual host. Used for built-in protocols. */
+	ConnectionProtocol protocol;
+
+  /*! Throttling rate to use with the virtual host. */
+	u_long throttlingRate;
+
+	/*! Protocol used by the vhost. */
+	string protocolName;
+
+  /*! Additional data for log files. Defined in configuration files. */
+	string accessLogOpt;
+	string warningLogOpt;
+	
+	/*! Path to the document root. */
+	string documentRoot;
+	
+	/*! Path to the system root. */
+	string systemRoot;
+	
+	/*! Path to the accesses log file. */
+	string accessesLogFileName;
+	
+	/*! Path to the warnings log file. */
+	string warningsLogFileName;
+	
+	/*! Description or name of the virtual host. */
+	string name;
 };
 
 
 class VhostSource
 {
-private:
-	list<Vhost*> *hostList;
 public:
   VhostSource();
   ~VhostSource();
   int load();
+	int save();
   int free();
   Vhost* getVHost(const char*, const char*, u_short);
 	Vhost* getVHostByNumber(int n);
+	int addVHost(Vhost*);
+private:
+	list<Vhost*> *hostList;
 };
 
 class VhostManager
 {
 public:
   void setExternalSource(VhostSource* extSource);
-	VhostManager();
+	VhostManager(ListenThreads* lt);
 	~VhostManager();
 	int getHostsNumber();
 	Vhost* getVHostByNumber(int n);
@@ -307,8 +307,12 @@ public:
 	int loadXMLConfigurationFile(const char *,int maxlogSize=0);
 	
 	/*! Save the virtual hosts list to a xml configuration file.  */
-	void saveXMLConfigurationFile(const char *);
+	int saveXMLConfigurationFile(const char *);
+	
+	/*! Set the right owner for the log files.  */
+	void changeFilesOwner();
 private:
+	ListenThreads* listenThreads;
   Mutex mutex;
 	VhostSource* extSource;
 

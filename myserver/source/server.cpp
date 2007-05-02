@@ -34,7 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/ssl.h"
 #include "../include/ssl_sockets.h"
 
-extern "C" {
+extern "C" 
+{
 #ifdef WIN32
 #include <Ws2tcpip.h>
 #include <direct.h>
@@ -76,7 +77,6 @@ Server::Server()
   threads = 0;
   toReboot = 0;
   autoRebootEnabled = 1;
-  listeningThreads = 0;
   nThreads = 0;
   pausing = 0;
   maxConnections = 0;
@@ -456,294 +456,6 @@ void Server::finalCleanup()
 }
 
 /*!
- *This function is used to create a socket server and a thread listener
- *for a port.
- */
-int Server::createServerAndListener(u_short port)
-{
-	int optvalReuseAddr = 1;
-  ostringstream portBuff;
-  string listenPortMsg;
-	ThreadID threadIdIPv4 = 0;
-	ThreadID threadIdIPv6 = 0;
-  listenThreadArgv* argv;
-
-	/*
-	 *Create the server sockets:
-	 *one server socket for IPv4 and another one for IPv6
-	 */
-	Socket *serverSocketIPv4 = new Socket();
-	Socket *serverSocketIPv6 = NULL;
-
-	/*
-   *Create the server socket.
-   */
-  try
-	{
-		if ( serverSocketIPv4 != NULL )
-		{
-			logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
-			serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			if (serverSocketIPv4->getHandle() == (SocketHandle)INVALID_SOCKET)
-			{
-				logPreparePrintError();
-				logWriteln(languageParser.getValue("ERR_OPENP"));
-				logEndPrintError();
-				delete serverSocketIPv4;
-				serverSocketIPv4 = NULL;
-			}
-			else
-			{
-				MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
-				logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-				((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
-				((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
-					htonl(INADDR_ANY);
-				((sockaddr_in*)(&sockServerSocketIPv4))->sin_port = 
-					htons((u_short)port);
-
-#ifdef NOT_WIN
-				/*
-				 *Under the unix environment the application needs some time before
-				 * create a new socket for the same address.
-				 *To avoid this behavior we use the current code.
-				 */
-				if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-																				(const char *)&optvalReuseAddr,
-																				sizeof(optvalReuseAddr)) < 0)
-				{
-					logPreparePrintError();
-					logWriteln(languageParser.getValue("ERR_ERROR"));
-					logEndPrintError();
-					delete serverSocketIPv4;
-					serverSocketIPv4 = NULL;
-					//return 0; allow IPv6
-				}
-#endif
-				if( serverSocketIPv4 != NULL )
-				{
-					/*
-					 *Bind the port.
-					 */
-					logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-					
-					if (serverSocketIPv4->bind(&sockServerSocketIPv4,
-																		 sizeof(sockaddr_in)) != 0)
-					{
-						logPreparePrintError();
-						logWriteln(languageParser.getValue("ERR_BIND"));
-						logEndPrintError();
-						delete serverSocketIPv4;
-						serverSocketIPv4 = NULL;
-					}
-					else
-						logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
-				}
-			}
-		}
-
-#if ( HAVE_IPV6 )
-		serverSocketIPv6 = new Socket();
-
-		if (serverSocketIPv6 != NULL)
-		{
-			logWriteln(languageParser.getValue("MSG_SSOCKCREATE"));
-			serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-			if ( serverSocketIPv6->getHandle() == (SocketHandle)INVALID_SOCKET )
-			{
-				logPreparePrintError();
-				logWriteln(languageParser.getValue("ERR_OPENP"));
-				logEndPrintError();
-				delete serverSocketIPv6;
-				serverSocketIPv6 = NULL;
-			}
-			else
-			{
-				MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
-				logWriteln(languageParser.getValue("MSG_SSOCKRUN"));
-				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
-				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
-				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
-					htons((u_short)port);
-#ifdef NOT_WIN
-				/*
-				 *Under the unix environment the application needs some time before
-				 * create a new socket for the same address.
-				 *To avoid this behavior we use the current code.
-				 */
-				if(serverSocketIPv6->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-																				(const char *)&optvalReuseAddr,
-																				sizeof(optvalReuseAddr))<0)
-				{
-					logPreparePrintError();
-					logWriteln(languageParser.getValue("ERR_ERROR"));
-					logEndPrintError();
-					delete serverSocketIPv6;
-					serverSocketIPv6 = NULL;
-					//return 0;allow IPv6
-				}
-
-				if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
-																				(const char *)&optvalReuseAddr,
-																				sizeof(optvalReuseAddr)) < 0)
-				{
-					logPreparePrintError();
-					logWriteln(languageParser.getValue("ERR_ERROR"));
-					logEndPrintError();
-					delete serverSocketIPv6;
-					serverSocketIPv6 = NULL;
-					//return 0;allow IPv6
-				}
-#endif
-				if(serverSocketIPv6 != NULL )
-				{
-					/*
-					 *Bind the port.
-					 */
-					logWriteln(languageParser.getValue("MSG_BIND_PORT"));
-					
-					if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
-																			sizeof(sockaddr_in6)) != 0)
-					{
-						logPreparePrintError();
-						logWriteln(languageParser.getValue("ERR_BIND"));
-						logEndPrintError();
-						delete serverSocketIPv6;
-						serverSocketIPv6 = NULL;
-					}
-					else
-						logWriteln(languageParser.getValue("MSG_PORT_BOUND"));
-
-				}
-			}
-		}
-#endif // HAVE_IPV6
-		
-		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-			return 0;
-
-	/*
-	 *Set connections listen queque to max allowable.
-	 */
-		logWriteln( languageParser.getValue("MSG_SLISTEN"));
-		if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
-		{
-      logPreparePrintError();
-      logWriteln(languageParser.getValue("ERR_LISTEN"));
-      logEndPrintError();
-      delete serverSocketIPv4;
-      serverSocketIPv4 = NULL;
-		}
-
-		if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
-		{
-      logPreparePrintError();
-      logWriteln(languageParser.getValue("ERR_LISTEN"));
-      logEndPrintError();
-      delete serverSocketIPv6;
-      serverSocketIPv6 = NULL;
-		}
-
-		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-			return 0;
-
-		portBuff << (u_int)port;
-
-		listenPortMsg.assign(languageParser.getValue("MSG_LISTEN"));
-		listenPortMsg.append(": ");
-		listenPortMsg.append(portBuff.str());
-	
-		logWriteln(listenPortMsg.c_str());
-
-		logWriteln(languageParser.getValue("MSG_LISTENT"));
-
-		/*
-		 *Create the listen threads.
-		 */
-		if(serverSocketIPv4)
-		{
-			argv = new listenThreadArgv;
-			argv->port = port;
-			argv->serverSocket = serverSocketIPv4;
-			Thread::create(&threadIdIPv4, &::listenServer,  (void *)(argv));
-		
-			if(!threadIdIPv4)
-				delete argv;
-		}
-
-		if(serverSocketIPv6)
-		{
-			argv = new listenThreadArgv;
-			argv->port = port;
-			argv->serverSocket = serverSocketIPv6;
-			Thread::create(&threadIdIPv6, &::listenServer,  (void *)(argv));
-
-			if(!threadIdIPv6)
-				delete argv;
-		}
-
-		if(threadIdIPv4 || threadIdIPv6)
-			logWriteln(languageParser.getValue("MSG_LISTENTR"));
-
-    return threadIdIPv4 || threadIdIPv6;
-  }
-  catch( bad_alloc &ba)
-  {
-    ostringstream s;
-    s << "Error: Bad allocation " << ba.what();
-    logWriteln(s.str().c_str());
-  }
-  catch( exception &e)
-  {
-    ostringstream s;
-    s << "Error :" << e.what();
-    logWriteln(s.str().c_str());
-  };
-  return 0;
-}
-
-/*!
- *Create a listen thread for every port used by MyServer.
- */
-void Server::createListenThreads()
-{
-	/*
-   *Create the listens threads.
-   *Every port uses a thread.
-	 *1) Put all the connections in a hash map to avoid duplicates.
-	 *2) Iterate it and create the listen threads.
-   */
-	HashMap<u_short, u_short> portsMap;
-	HashMap<u_short, u_short>::Iterator it;
-
-  list<Vhost*>::iterator i = vhostList->getVHostList()->begin();
-
-	for( ;i != vhostList->getVHostList()->end(); i++)
-	{
-		u_short port = (*i)->getPort();
-		if(port == 0)
-			continue;
-		if(!portsMap.containsKey(port))
-			portsMap.put(port, port);
-	}
-
-
-	for(it = portsMap.begin(); it != portsMap.end(); it++)
-	{
-		if(!createServerAndListener(*it))
-		{
-			string err;
-			logPreparePrintError();
-			err.assign(languageParser.getValue("ERR_ERROR"));
-			err.append(": Listen threads");
-			logWriteln( err.c_str() );
-			logEndPrintError();
-			return;
-		}
-	}
-}
-
-/*!
  *Return the user identifier to use for the process.
  */
 u_long Server::getUid()
@@ -765,151 +477,6 @@ u_long Server::getGid()
 XmlParser* Server::getLanguageParser()
 {
   return &languageParser;
-}
-
-/*!
- *This is the thread that listens for a new connection on the
- *port specified by the protocol.
- */
-#ifdef WIN32
-unsigned int __stdcall listenServer(void* params)
-#endif
-#ifdef HAVE_PTHREAD
-void * listenServer(void* params)
-#endif
-{
-	char buffer[256];
-	int err;
-	listenThreadArgv *argv = (listenThreadArgv*)params;
-	Socket *serverSocket = argv->serverSocket;
-
-	MYSERVER_SOCKADDRIN asockIn;
-	int asockInLen = 0;
-	Socket asock;
-  int ret;
-
-	int timeoutValue = 3;
-
-#ifdef __linux__
-	timeoutValue = 1;
-#endif
-#ifdef __HURD__
-	timeoutValue = 5;
-#endif
-
-	if ( serverSocket == NULL)
-	   return 0;
-
-#ifdef NOT_WIN
-	// Block SigTerm, SigInt, and SigPipe in threads
-	sigset_t sigmask;
-	sigemptyset(&sigmask);
-	sigaddset(&sigmask, SIGPIPE);
-	sigaddset(&sigmask, SIGINT);
-	sigaddset(&sigmask, SIGTERM);
-	sigprocmask(SIG_SETMASK, &sigmask, NULL);
-#endif
-
-	/* Free the structure used to pass parameters to the new thread.  */
-	delete argv;
-
-	if (serverSocket != NULL )
-		ret = serverSocket->setNonBlocking(1);
-
-  if(Server::getInstance()->getUid() | Server::getInstance()->getGid())
-  {
-    int uid = Server::getInstance()->getUid();
-    int gid = Server::getInstance()->getGid();
-
-    /*
-     *Change the user and group identifier to -1
-     *if they are not specified.
-     */
-    if(!uid)
-      uid = -1;
-
-    if(!gid)
-      gid = -1;
-
-    /*
-     *Change the log files owner if a different user or group
-     *identifier is specified.
-     */
-    for(int i = 0; ; i++)
-    {
-      Vhost* vh = Server::getInstance()->vhostList->getVHostByNumber(i);
-      /* Break if we reach the end of the list.  */
-      if(!vh)
-        break;
-
-      /* Chown the log files.  */
-      err = FilesUtility::chown(vh->getAccessesLogFileName(), uid, gid);
-      if(err)
-      {
-        string str;
-        str.assign("Error changing owner for: ");
-        str.append(vh->getAccessesLogFileName());
-        Server::getInstance()->logPreparePrintError();
-        Server::getInstance()->logWriteln(str);
-        Server::getInstance()->logEndPrintError();
-      }
-
-      err = FilesUtility::chown(vh->getWarningsLogFileName(), uid, gid);
-      if(err)
-      {
-        string str;
-        str.assign("Error changing owner for: ");
-        str.append(vh->getWarningsLogFileName());
-        Server::getInstance()->logPreparePrintError();
-        Server::getInstance()->logWriteln(str);
-        Server::getInstance()->logEndPrintError();
-      }
-    }
-  }
-
-	Server::getInstance()->setProcessPermissions();
-
-	Server::getInstance()->increaseListeningThreadCount();
-
-	while(!Server::getInstance()->stopServer())
-	{
-		/*
-     *Accept connections.
-     *A new connection will be added using the Server::addConnection function.
-     */
-		if(serverSocket->dataOnRead(timeoutValue, 0) == 1 )
-		{
-			asockInLen = sizeof(sockaddr_in);
-			asock = serverSocket->accept(&asockIn,
-																	 &asockInLen);
-			if(asock.getHandle() != 0 &&
-				 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
-			{
-				Server::getInstance()->addConnection(asock, &asockIn);
-			}
-		}
-	}
-
-	/*!
-   *When the flag mustEndServer is 1 end current thread and clean
-   *the socket used for listening.
-   */
-	serverSocket->shutdown(SD_BOTH);
-	do
-	{
-		err = serverSocket->recv(buffer, 256, 0);
-	}while(err != -1);
-
-	serverSocket->closesocket();
-	delete serverSocket;
-
-	Server::getInstance()->decreaseListeningThreadCount();
-
-	/*
-   *Automatically free the current thread.
-   */
-	Thread::terminate();
-	return 0;
 }
 
 /*!
@@ -980,10 +547,12 @@ int Server::terminate()
     thread = thread->next;
   }
 
-	while(Server::getInstance()->getListeningThreadCount())
+	while(listenThreads.getThreadsCount())
 	{
 		Thread::wait(1000);
 	}
+
+	listenThreads.terminate();
 
 	Socket::stopBlockingOperations(true);
 
@@ -2163,51 +1732,54 @@ int Server::loadSettings()
        *If the virtualhosts.xml file doesn't exist copy it
        *from the default one.
        */
-      if(!FilesUtility::fileExists("virtualhosts.xml"))
+    if(!FilesUtility::fileExists("virtualhosts.xml"))
+    {
+			File inputF;
+			File outputF;
+			vhostConfigurationFile->assign("virtualhosts.xml");
+			ret = inputF.openFile("virtualhosts.xml.default", 
+														File::MYSERVER_OPEN_READ |
+														File::MYSERVER_OPEN_IFEXISTS );
+			if(ret)
       {
-        File inputF;
-        File outputF;
-        vhostConfigurationFile->assign("virtualhosts.xml");
-        ret = inputF.openFile("virtualhosts.xml.default", 
-															File::MYSERVER_OPEN_READ |
-                              File::MYSERVER_OPEN_IFEXISTS );
-        if(ret)
-        {
-          logPreparePrintError();
-          logWriteln(languageParser.getValue("ERR_LOADMIME"));
-          logEndPrintError();
-          return -1;
-        }
-        ret = outputF.openFile("virtualhosts.xml",
-                               File::MYSERVER_OPEN_WRITE | 
-															 File::MYSERVER_OPEN_ALWAYS);
-        if(ret)
-          return -1;
-        for(;;)
-        {
-          ret = inputF.readFromFile(buffer, 512, &nbr );
-          if(ret)
-            return -1;
-          if(!nbr)
-            break;
-          ret = outputF.writeToFile(buffer, nbr, &nbw);
-          if(ret)
-            return -1;
-        }
+				logPreparePrintError();
+				logWriteln(languageParser.getValue("ERR_LOADMIME"));
+				logEndPrintError();
+				return -1;
+			}
+			ret = outputF.openFile("virtualhosts.xml",
+														 File::MYSERVER_OPEN_WRITE | 
+														 File::MYSERVER_OPEN_ALWAYS);
+			if(ret)
+				return -1;
+			for(;;)
+      {
+				ret = inputF.readFromFile(buffer, 512, &nbr );
+				if(ret)
+					return -1;
+				if(!nbr)
+					break;
+				ret = outputF.writeToFile(buffer, nbr, &nbw);
+				if(ret)
+					return -1;
+			}
+			
+			inputF.closeFile();
+			outputF.closeFile();
+		}
+		else
+		{
+			vhostConfigurationFile->assign("virtualhosts.xml");
+		}
 
-        inputF.closeFile();
-        outputF.closeFile();
-      }
-      else
-      {
-        vhostConfigurationFile->assign("virtualhosts.xml");
-      }
-    vhostList = new VhostManager();
+		listenThreads.initialize(&languageParser);
+
+    vhostList = new VhostManager(&listenThreads);
     if(vhostList == 0)
     {
       return -1;
     }
-    /* Load the virtual hosts configuration from the xml file. */
+    /* Load the virtual hosts configuration from the xml file.  */
     vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
                                         getMaxLogFileSize());
 
@@ -2254,12 +1826,6 @@ int Server::loadSettings()
 			getPluginsManager()->load(this, &languageParser, res);
 			getPluginsManager()->postLoad(this, &languageParser);
 		}
-
-    /*
-     *Create the listens threads.
-     *Check that all the port used for listening have a listen thread.
-     */
-		createListenThreads();
 
 		if(path == 0)
 			path = new string();
@@ -2454,23 +2020,6 @@ void Server::rebootOnNextLoop()
   toReboot = 1;
 }
 
-/*!
- *Get the number of active listening threads.
- */
-int Server::getListeningThreadCount()
-{
-	return listeningThreads;
-}
-
-/*!
- *Increase of one the number of active listening threads.
- */
-void Server::increaseListeningThreadCount()
-{
-	connectionsMutexLock();
-	++listeningThreads;
-	connectionsMutexUnlock();
-}
 
 /*!
  *Return the factory object to create cached files.
@@ -2478,16 +2027,6 @@ void Server::increaseListeningThreadCount()
 CachedFileFactory* Server::getCachedFiles()
 {
 	return &cachedFiles;
-}
-
-/*!
- *Decrease of one the number of active listening threads.
- */
-void Server::decreaseListeningThreadCount()
-{
-	connectionsMutexLock();
-	--listeningThreads;
-	connectionsMutexUnlock();
 }
 
 /*!
