@@ -1472,10 +1472,11 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
         if(FilesUtility::fileExists(defaultFileName.str().c_str()))
         { 
-          ostringstream nURL;
+          ostringstream nUrl;
+
           if(td.request.uriEndsWithSlash)
           {
-            nURL << defaultFileNamePath;
+            nUrl << defaultFileNamePath;
           }
           else
           {
@@ -1483,20 +1484,20 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
             while(lastSlashOffset && uri[lastSlashOffset] != '/')
               --lastSlashOffset;
 						
-            nURL << &(uri.c_str()[lastSlashOffset ? 
+            nUrl << &(uri.c_str()[lastSlashOffset < uri.length() ? 
 																	lastSlashOffset + 1 : 0]) 
 								 << "/" << defaultFileNamePath;
           }
 
 					if(td.pathInfo.length())
-						nURL << "/" << td.pathInfo;
+						nUrl << "/" << td.pathInfo;
 
 
 					if(td.request.uriOpts.length())
-						nURL << "?" << td.request.uriOpts;
+						nUrl << "?" << td.request.uriOpts;
 
           /*! Send a redirect to the new location.  */
-          if(sendHTTPRedirect(nURL.str().c_str()))
+          if(sendHTTPRedirect(nUrl.str().c_str()))
             ret = 1;
           else
             ret = 0;
