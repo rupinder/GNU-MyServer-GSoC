@@ -108,7 +108,7 @@ int VhostManager::addVHost(Vhost* vh)
   catch(...)
   {
     mutex.unlock();
-    return 0;
+    return -1;
   };
 }
 
@@ -535,7 +535,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 				string *old;
         string *s = new string((const char*)lcur->children->content);
         if(s == 0)
+	{
+		parser.close();
+		clean();
           return -1;
+	}
 				string keyValue((const char*)lcur->name);
         old = vh->hashedData.put(keyValue, s);
 				if(old)
@@ -555,9 +559,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			Server::getInstance()->logEndPrintError();
 			Server::getInstance()->logUnlockAccess();
 			
-			parser.close();
-			clean();
-			return -1;
+			delete vh;
+			vh =0;
+			continue;
 		}
 
 		if ( vh->initializeSSL() < 0 )
@@ -569,9 +573,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			Server::getInstance()->logEndPrintError();
 			Server::getInstance()->logUnlockAccess();
 			
-			parser.close();
-			clean();
-			return -1;
+			delete vh;
+			vh = 0;
+			continue;
 		}
 
 		if(addVHost(vh))
@@ -583,9 +587,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			Server::getInstance()->logEndPrintError();
 			Server::getInstance()->logUnlockAccess();
 			
-			parser.close();
-			clean();
-			return -1;
+			delete vh;
+			vh = 0;
+			continue;
 		}
 
   }
