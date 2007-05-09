@@ -422,28 +422,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 				headerCompleted = true;
 				break;
 			}
-
-			/*
-			 *If it is present Location: xxx in the header 
-			 *send a redirect to xxx.  
-			 */
-			else if(!strncmp(&(td->buffer2->getBuffer())[i], "Location:", 9))
-			{
-				string nURL;
-				u_long len = 0;
-				while( (td->buffer2->getBuffer())[i + len + 9] != '\r' &&
-							 len < td->buffer2->getRealLength() - i - 9)
-				{
-					len++;
-				}
-				nURL.assign(&(td->buffer2->getBuffer()[i + 9]), len);
-				td->http->sendHTTPRedirect(nURL.c_str());
-				stdOutFile.close();
-				stdInFile.closeFile();
-				chain.clearAllFilters(); 
-				cgiProc.terminateProcess();
-				return 1;
-			}
 		}
 	}
 
@@ -462,14 +440,34 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 		 */
 		if(!td->appendOutputs)
 		{
+			string* location = 0;
+
 			/* Send the header.  */
 			if(headerSize)
 				HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
 																									 td->buffer2->getBuffer());
 			
+			location = td->response.getValue("Location", 0);
+
+			/*
+			 *If it is present Location: xxx in the header 
+			 *send a redirect to xxx.  
+			 */
+			if(location && location->length())
+			{
+				td->http->sendHTTPRedirect(location->c_str());
+				stdOutFile.close();
+				stdInFile.closeFile();
+				chain.clearAllFilters(); 
+				cgiProc.terminateProcess();
+				return 1;
+			}
+
 			HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
 																					 &td->response);
 			
+
+
 			td->buffer->setLength((u_int)strlen(td->buffer->getBuffer()));
 			
 			if(chain.write(td->buffer->getBuffer(),
