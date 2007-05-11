@@ -1,12 +1,15 @@
-Use the openSSL package that you can get at http://www.openssl.org. After installing it run the following commands:
+Use the openSSL package that you can get at
+http://www.openssl.org. 
+
+After you have installed openSSL, execute the following commands:
 
 openssl genrsa  -out server.key 
+openssl req -new -x509 -days 730 -key server.key -out server.pem 
 
-and:
+These commands will create two files server.key and server.pem. Put
+them in this directory and configure your virtual host file to use these
+files adding the following lines under the <VHOST> section:
 
-openssl req -new -x509 -days 730 -config openssl.cnf   -key server.key -out server.pem 
-
-These commands will create two files server.key and server.pem. Put them in this folder and configure your virtual host file to use these files adding the following lines under the <VHOST> section:
 <SSL_PRIVATEKEY>certificates/server.key</SSL_PRIVATEKEY>
 <SSL_CERTIFICATE>certificates/server.pem</SSL_CERTIFICATE>
 <SSL_PASSWORD></SSL_PASSWORD>
