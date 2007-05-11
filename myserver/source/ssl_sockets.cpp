@@ -315,3 +315,16 @@ u_long SslSocket::bytesToRead()
 	return nBytesToRead;
 }
 
+
+
+/*!
+ *Returns the number of bytes waiting to be read.
+ */
+int SslSocket::dataOnRead(int, int)
+{
+	if(bytesToRead())
+		return 1;
+
+	return 0;
+}
+
