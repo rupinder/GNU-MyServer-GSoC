@@ -85,6 +85,7 @@ int modifyHeader(HttpResponseHeader *response, char* name, char* value)
 int sendHeader(PhpData* data)
 {
 	char* buffer;
+	string* location = 0;
 	if(data->headerSent || data->td->appendOutputs)
 		return 0;
 	buffer = data->td->buffer2->getBuffer();
@@ -99,6 +100,20 @@ int sendHeader(PhpData* data)
 
 	HttpHeaders::buildHTTPResponseHeader(buffer,
 																			 &data->td->response);
+
+
+			
+	location = data->td->response.getValue("Location", 0);
+
+	/*
+	 *If it is present Location: xxx in the header 
+	 *send a redirect to xxx.  
+	 */
+	if(location && location->length())
+	{
+		data->td->http->sendHTTPRedirect(location->c_str());
+		return 0;
+	}
 
 	data->headerSent = true;
 	return data->td->connection->socket->send( buffer,
