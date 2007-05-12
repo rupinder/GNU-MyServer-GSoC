@@ -42,7 +42,7 @@ public:
 	static int appendDataToHTTPChannel(HttpThreadContext* td, 
 																		 char* buffer, u_long size,
 																		 File* appendFile, 
-																		 FiltersChain* chain,
+																		 Stream* chain,
 																		 bool append, 
 																		 bool useChunks);
 

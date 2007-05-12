@@ -22,11 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/protocol.h"
 #include "../include/http_headers.h"
 #include "../include/http_data_handler.h"
+#include "../include/memory_stream.h"
 
 class HttpFile  : public HttpDataHandler
 {
-private:
-
 public:
   static int load(XmlParser*);
   static int unLoad();
@@ -34,6 +33,16 @@ public:
                    const char* cgi, int OnlyHeader=0);
   HttpFile();
   virtual ~HttpFile();
+private:
+	static int appendDataToHTTPChannel(HttpThreadContext* td, 
+																		 char* buffer, 
+																		 u_long size,
+																		 File* appendFile, 
+																		 FiltersChain* chain,
+																		 bool append, 
+																		 bool useChunks,
+																		 u_long realBufferSize,
+																		 MemoryStream *tmpStream);
 };
 
 

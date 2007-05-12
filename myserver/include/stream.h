@@ -32,7 +32,7 @@ public:
 	virtual int flush(u_long*);
   Stream();
   /*! Avoid direct instances of this class. */
-  virtual ~Stream()=0;
+  virtual ~Stream() = 0;
 };
 
 

@@ -75,7 +75,7 @@ int HttpDataHandler::unLoad()
 int HttpDataHandler::appendDataToHTTPChannel(HttpThreadContext* td, 
 																						 char* buffer, u_long size,
 																						 File* appendFile, 
-																						 FiltersChain* chain,
+																						 Stream* chain,
 																						 bool append, 
 																						 bool useChunks)
 {
@@ -87,19 +87,29 @@ int HttpDataHandler::appendDataToHTTPChannel(HttpThreadContext* td,
 	else
 	{
 		if(useChunks)
-		{
+			{
 			ostringstream chunkHeader;
+			u_long flushNbw = 0;
 			chunkHeader << hex << size << "\r\n"; 
+
+			if(chain->flush(&flushNbw))
+				return 1;
+
 			if(chain->write(chunkHeader.str().c_str(), 
-											chunkHeader.str().length(), &nbw))
+																	 chunkHeader.str().length(), &nbw))
 				return 1;
 		}
 
-		if(chain->write(buffer, size, &nbw))
+		if(size)
+			if(chain->write(buffer, size, &nbw))
+				return 1;
+
+		if(useChunks)
+
+		if(chain->write("\r\n", 2, &nbw))
 			return 1;
 
-		return chain->write("\r\n", 2, &nbw);
-
+		return 0;
 	}
 	return 1;
 }

@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/gzip.h"
 #include "../include/server.h"
 #include "../include/filters_chain.h"
-#include "../include/memory_stream.h"
 
 #include <sstream>
 #include <algorithm>
@@ -220,14 +219,17 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     {
       if(td->mime && 
 				 Server::getInstance()->getFiltersFactory()->chain(&chain, 
-																												 td->mime->filters, 
-                                                         &memStream, &nbw))
+																													 td->mime->filters, 
+																													 &memStream, 
+																													 &nbw))
       {
         file->closeFile();
 				delete file;
         chain.clearAllFilters();
         return 0;
       }
+			memStream.refresh();
+
       dataSent += nbw;
     }
     
@@ -380,11 +382,17 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
         return 0;
       }
 
+			memStream.refresh();
+
       if(nbr)
       {
-				if(appendDataToHTTPChannel(td, td->buffer->getBuffer(), nbr,
-																	 &(td->outputData), &chain,
-																	 td->appendOutputs, useChunks))
+				if(HttpDataHandler::appendDataToHTTPChannel(td, 
+																										td->buffer->getBuffer(), 
+																										nbr,
+																										&(td->outputData), 
+																										chain.getStream(),
+																										td->appendOutputs, 
+																										useChunks))
 				{
 					file->closeFile();
 					delete file;
@@ -395,130 +403,98 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 			} /* nbr.  */
 		} /* memStream.availableToRead().  */
 
+
     /* Flush the rest of the file.  */
     for(;;)
     {
       u_long nbr;
       u_long nbw;
-      bool lastChunk = false;
-      /* Read from the file the bytes to send.  */
-      ret = file->readFromFile(td->buffer->getBuffer(),
-														std::min(static_cast<u_long>(bytesToSend), 
-												 static_cast<u_long>(td->buffer->getRealLength()/2)), 
-                           &nbr);
-      if(ret)
-        break;
 
-      bytesToSend -= nbr;
-
-      /* Check if there are no other bytes to send.  */
-      if(!nbr)
+      /* Check if there are other bytes to send.  */
+      if(bytesToSend)
       {
-        if(useChunks)
-        {
-          ostringstream buffer;
-          {
-            /* Flush to the memory stream and use it to send chunks.  */
-            Stream *tmp = chain.getStream();
-            chain.setStream(&memStream);
-            chain.flush(&nbw);
-            chain.setStream(tmp);
-          }
-          ret = memStream.read(td->buffer->getBuffer(), 
-                             td->buffer->getRealLength(), &nbw);
-          if(ret)
-            break;
-					if(nbw)
-					{
-						ret = appendDataToHTTPChannel(td, td->buffer->getBuffer(),
-																					nbw,
-																					&(td->outputData), &chain,
-																					td->appendOutputs, useChunks);
-						if(ret)
-							break;
-            dataSent += nbw;
-					}
+				/* Read from the file the bytes to send.  */
+				ret = file->readFromFile(td->buffer->getBuffer(),
+																 std::min(static_cast<u_long>(bytesToSend), 
+																					static_cast<u_long>(td->buffer->getRealLength()/2)), 
+																 &nbr);
+				if(ret)
+					break;
+
+				if(nbr == 0)
+				{
+					bytesToSend = 0;
+					continue;
+				}
+				
+				bytesToSend -= nbr;
+
+
+				ret = appendDataToHTTPChannel(td, td->buffer->getBuffer(),
+																			nbr,
+																			&(td->outputData), 
+																			&chain,
+																			td->appendOutputs, 
+																			useChunks,
+																			td->buffer->getRealLength(),
+																			&memStream);
+				if(ret)
+					break;     
           
-        }
-        else
-        {
-          /* If we don't use chunks we can flush directly.  */
-          ret = chain.flush(&nbw);
-          if(ret)
-            break;
-          dataSent += nbw;
-        }
-        if(ret)
-          break;
-        /* Set the flag when we reach the end of the file.  */
-        lastChunk = true; 
+				dataSent += nbr;
       }
 			else /* if(!nbr) */
-      {
-        if(useChunks)
-        {
-          u_long nbw2;
-          ostringstream buffer;
+			{
+				/* If we don't use chunks we can flush directly.  */
+				if(!useChunks)
+				{
+					ret = chain.flush(&nbw);
 
-          /* 
-					 *We need to save data in the memory stream as we need to know
-					 *the final length before we can flush to the real stream.
-					 */
-          {
-            Stream *tmp = chain.getStream();
-            if(!tmp)
-            {
-              s->host->warningslogRequestAccess(td->id);
-              s->host->warningsLogWrite("HttpFile: no stream");
-              s->host->warningslogTerminateAccess(td->id);
-              break;
-            }
-            chain.setStream(&memStream);
-            chain.write(td->buffer->getBuffer(), nbr, &nbw);
-            chain.setStream(tmp);
-          }
-          ret = memStream.read(td->buffer->getBuffer(), 
-															 td->buffer->getRealLength(), &nbw);
-                             
-          if(ret)
-            break;  
+					break;
+				}
+				else
+				{
+					Stream* tmpStream = chain.getStream();
 
-          buffer << hex << nbw << "\r\n";
-          ret = chain.getStream()->write(buffer.str().c_str(), 
-																				 buffer.str().length(), &nbw2);
-          if(ret)
-            break;
+					chain.setStream(&memStream);
 
-          ret = chain.getStream()->write(td->buffer->getBuffer(), nbw, &nbw2);
-          if(ret)
-            break; 
-          
-          dataSent += nbw2;
+					memStream.refresh();
 
-          ret = chain.getStream()->write("\r\n", 2, &nbw);
-          if(ret)
-            break;
-        }
-        else/* Do not use chunks.  */
-        {
-          ret = chain.write(td->buffer->getBuffer(), nbr, &nbw);
-          if(ret)
-            break;     
-          
-          dataSent += nbw;       
-        }
+					ret = chain.flush(&nbw);
 
+					if(ret)
+						break;
+
+					chain.setStream(tmpStream);
+
+					ret = memStream.read(td->buffer->getBuffer(), 
+															 td->buffer->getRealLength(), 
+															 &nbr);
+					if(ret)
+						break;
+
+					ret = HttpDataHandler::appendDataToHTTPChannel(td,
+																												 td->buffer->getBuffer(), 
+																												 nbr,
+																												 &(td->outputData), 
+																												 chain.getStream(),
+																												 td->appendOutputs, 
+																												 useChunks);
+					if(ret)
+						break;
+					
+					ret = HttpDataHandler::appendDataToHTTPChannel(td, 
+																												 0,
+																												 0,
+																												 &(td->outputData), 
+																												 chain.getStream(),
+																												 td->appendOutputs, 
+																												 useChunks);
+				
+					break;
+				}
       }
 
-      if(lastChunk)
-      {
-        if(useChunks)
-        {
-          u_long nbw;
-          ret = chain.getStream()->write("0\r\n\r\n", 5, &nbw);
-        }
-        break;
-      }
       memStream.refresh();
 
     }/* End for loop.  */
@@ -551,7 +527,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 	td->sentData += dataSent;
 
   chain.clearAllFilters();
-	return 1;
+	return !ret;
 }
 
 /*!
@@ -585,4 +561,52 @@ int HttpFile::load(XmlParser* /*confFile*/)
 int HttpFile::unLoad()
 {
   return 0;
+}
+
+/*!
+ *Custom version for the appendDataToHTTPChannel function, this is
+ *slower that the HttpDataHandler one but the internal buffer is
+ *needed by the filters chain.
+ *\param td The HTTP thread context.
+ *\param buffer Data to send.
+ *\param size Size of the buffer.
+ *\param appendFile The file where append if in append mode.
+ *\param chain Where send data if not append.
+ *\param append Append to the file?
+ *\param useChunks Can we use HTTP chunks to send data?
+ *\param realBufferSize The real dimension of the buffer that can be
+ *used by this method.
+ *\param tmpStream A support on memory read/write stream used
+ *internally by the function.
+ */
+int HttpFile::appendDataToHTTPChannel(HttpThreadContext* td, 
+																			char* buffer, 
+																			u_long size,
+																			File* appendFile, 
+																			FiltersChain* chain,
+																			bool append, 
+																			bool useChunks,
+																			u_long realBufferSize,
+																			MemoryStream *tmpStream)
+{
+	u_long nbr, nbw;
+	Stream *oldStream = chain->getStream();
+	chain->setStream(tmpStream);
+	
+	if(chain->write(buffer, size, &nbw))
+		return 1;
+
+	if(tmpStream->read(buffer, realBufferSize, &nbr))
+		return 1;
+	
+	chain->setStream(oldStream);
+	
+	return HttpDataHandler::appendDataToHTTPChannel(td, 
+																									buffer, 
+																									nbr, 
+																									appendFile, 
+																									chain->getStream(), 
+																									append, 
+																									useChunks);
+	
 }
