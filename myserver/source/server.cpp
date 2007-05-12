@@ -98,6 +98,7 @@ Server::Server()
 	externalPath = 0;
 	path = 0;
 	ipAddresses = 0;
+	vhostList = 0;
 }
 
 /*!
@@ -643,8 +644,8 @@ int Server::terminate()
   if(languageFile)
 		delete languageFile;
 	languageFile = 0;
-
-	delete vhostList;
+  if(vhostList)
+    delete vhostList;
 
 	if(serverAdmin)
 		delete serverAdmin;
@@ -1805,9 +1806,11 @@ int Server::loadSettings()
 		}
 
 		listenThreads.initialize(&languageParser);
-
-		delete vhostList;
-		vhostList = 0;
+    if(vhostList)
+    {
+		  delete vhostList;
+		  vhostList = 0;
+    }
 
     vhostList = new VhostManager(&listenThreads);
     if(vhostList == 0)
