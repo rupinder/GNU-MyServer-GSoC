@@ -387,7 +387,7 @@ void Vhost::addHost(const char *host, int isRegex)
  *Here threads get the permission to use the access log file.
  *\param id The caller thread ID.
  */
-u_long Vhost::accesseslogRequestAccess(int id)
+u_long Vhost::accessesLogRequestAccess(int id)
 {
 	accessesLogFile.requestAccess();
   return 0;
@@ -397,7 +397,7 @@ u_long Vhost::accesseslogRequestAccess(int id)
  *Here threads get the permission to use the warnings log file.
  *\param id The caller thread ID.
  */
-u_long Vhost::warningslogRequestAccess(int id)
+u_long Vhost::warningsLogRequestAccess(int id)
 {
 	warningsLogFile.requestAccess();
   return 0;
@@ -407,7 +407,7 @@ u_long Vhost::warningslogRequestAccess(int id)
  *Here threads release the permission to use the access log file.
  *\param id The caller thread ID.
  */
-u_long Vhost::accesseslogTerminateAccess(int id)
+u_long Vhost::accessesLogTerminateAccess(int id)
 {
 	accessesLogFile.terminateAccess();
   return 0;
@@ -417,7 +417,7 @@ u_long Vhost::accesseslogTerminateAccess(int id)
  *Here threads release the permission to use the warnings log file.
  *\param id The caller thread ID.
  */
-u_long Vhost::warningslogTerminateAccess(int id)
+u_long Vhost::warningsLogTerminateAccess(int id)
 {
 	warningsLogFile.terminateAccess();
   return 0;

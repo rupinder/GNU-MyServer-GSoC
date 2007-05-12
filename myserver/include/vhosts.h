@@ -206,10 +206,10 @@ public:
 	LogManager* getWarningsLog();
 	LogManager* getAccessesLog();
 
-	u_long accesseslogRequestAccess(int id);
-	u_long warningslogRequestAccess(int id);
-	u_long accesseslogTerminateAccess(int id);
-	u_long warningslogTerminateAccess(int id);
+	u_long accessesLogRequestAccess(int id);
+	u_long warningsLogRequestAccess(int id);
+	u_long accessesLogTerminateAccess(int id);
+	u_long warningsLogTerminateAccess(int id);
 
 	int accessesLogWrite(const char*);
 	File* getAccessesLogFile();

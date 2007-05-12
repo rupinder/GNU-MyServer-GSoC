@@ -82,9 +82,9 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 																										&nbw, 
 																										1))
     {
-			td->connection->host->warningslogRequestAccess(td->id);
+			td->connection->host->warningsLogRequestAccess(td->id);
 			td->connection->host->warningsLogWrite("SCGI: Error loading filters");
-			td->connection->host->warningslogTerminateAccess(td->id);
+			td->connection->host->warningsLogTerminateAccess(td->id);
 			chain.clearAllFilters();
 			return td->http->raiseHTTPError(500);
 		}
@@ -178,9 +178,9 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "SCGI: Error to build env string" << '\0';
-      td->connection->host->warningslogRequestAccess(td->id);
+      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      td->connection->host->warningslogTerminateAccess(td->id);
+      td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		return td->http->raiseHTTPError(500);
@@ -194,9 +194,9 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "SCGI: Error opening stdin file" << '\0';
-      td->connection->host->warningslogRequestAccess(td->id);
+      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      td->connection->host->warningslogTerminateAccess(td->id);
+      td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		return td->http->raiseHTTPError(500);
@@ -211,9 +211,9 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
     {
       *td->buffer << "SCGI: Error connecting to SCGI "
                   << cmdLine.str().c_str() << " process" << '\0';
-      td->connection->host->warningslogRequestAccess(td->id);
+      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      td->connection->host->warningslogTerminateAccess(td->id);
+      td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
 		return td->http->raiseHTTPError(500);

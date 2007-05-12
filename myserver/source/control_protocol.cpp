@@ -589,9 +589,9 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1)
 	getRFC822GMTTime(time, 32);
 
 	out << con->getIpAddr() << " [" << time.c_str() << "] " << b1;
-	((Vhost*)(con->host))->accesseslogRequestAccess(id);
+	((Vhost*)(con->host))->accessesLogRequestAccess(id);
 	((Vhost*)(con->host))->accessesLogWrite(out.str().c_str());
-	((Vhost*)(con->host))->accesseslogTerminateAccess(id);
+	((Vhost*)(con->host))->accessesLogTerminateAccess(id);
 
   return 0;
 }
@@ -613,9 +613,9 @@ int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, int bs1)
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin() , retCode);
 
-	((Vhost*)(con->host))->accesseslogRequestAccess(id);
+	((Vhost*)(con->host))->accessesLogRequestAccess(id);
 	((Vhost*)(con->host))->accessesLogWrite(b1);
-	((Vhost*)(con->host))->accesseslogTerminateAccess(id);
+	((Vhost*)(con->host))->accessesLogTerminateAccess(id);
   return 0;
 }
 

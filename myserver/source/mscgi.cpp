@@ -118,9 +118,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 																																	 &nbw, 
 																																	 1))
 	{
-		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("MSCGI: Error loading filters");
-		td->connection->host->warningslogTerminateAccess(td->id);
+		td->connection->host->warningsLogTerminateAccess(td->id);
 		chain.clearAllFilters(); 
 		return td->http->raiseHTTPError(500);
 	}
@@ -146,9 +146,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       string msg;
       msg.assign("MSCGI: error accessing entrypoint for ");
       msg.append(exec);
-      td->connection->host->warningslogRequestAccess(td->id);
+      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(msg.c_str());
-      td->connection->host->warningslogTerminateAccess(td->id);
+      td->connection->host->warningsLogTerminateAccess(td->id);
     }
 		hinstLib.close();
 

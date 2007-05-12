@@ -130,9 +130,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                                                  td->mime->filters, 
                                                  td->connection->socket, &nbw2, 1))
       {
-        td->connection->host->warningslogRequestAccess(td->id);
+        td->connection->host->warningsLogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("WinCGI: Error loading filters");
-        td->connection->host->warningslogTerminateAccess(td->id);
+        td->connection->host->warningsLogTerminateAccess(td->id);
 
         chain.clearAllFilters(); 
         return td->http->raiseHTTPError(500);
@@ -147,9 +147,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
                      File::MYSERVER_CREATE_ALWAYS|File::MYSERVER_OPEN_WRITE);
 	if ( ret ) 
 	{
-		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite("WinCGI: Error creating .ini");
-		td->connection->host->warningslogTerminateAccess(td->id);
+		td->connection->host->warningsLogTerminateAccess(td->id);
 		return td->http->raiseHTTPError(500);
 	}
 
@@ -292,10 +292,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		ret = OutFileHandle.openFile(outFilePath, File::MYSERVER_CREATE_ALWAYS);
 		if (ret)
 		{
-			td->connection->host->warningslogRequestAccess(td->id);
+			td->connection->host->warningsLogRequestAccess(td->id);
 			td->connection->host->warningsLogWrite(
                                       "WinCGI: Error creating output file");
-			td->connection->host->warningslogTerminateAccess(td->id);
+			td->connection->host->warningsLogTerminateAccess(td->id);
 			DataFileHandle.closeFile();
 			FilesUtility::deleteFile(outFilePath);
 			FilesUtility::deleteFile(dataFilePath);
@@ -314,9 +314,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	{
     ostringstream msg;
     msg << "WinCGI: Error executing process " << filename;
-		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite(msg.str().c_str());
-		td->connection->host->warningslogTerminateAccess(td->id);
+		td->connection->host->warningsLogTerminateAccess(td->id);
 		FilesUtility::deleteFile(outFilePath);
 		FilesUtility::deleteFile(dataFilePath);
     chain.clearAllFilters();
@@ -329,9 +329,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	{
     ostringstream msg;
     msg << "WinCGI: Error opening output file " << outFilePath;
-		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite(msg.str().c_str());
-		td->connection->host->warningslogTerminateAccess(td->id);
+		td->connection->host->warningsLogTerminateAccess(td->id);
     chain.clearAllFilters();
 		return td->http->raiseHTTPError(500);
 	}
@@ -341,9 +341,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     ostringstream msg;
     msg << "WinCGI: Error zero bytes read from the WinCGI output file " 
         << outFilePath;
-		td->connection->host->warningslogRequestAccess(td->id);
+		td->connection->host->warningsLogRequestAccess(td->id);
 		td->connection->host->warningsLogWrite(msg.str().c_str());
-		td->connection->host->warningslogTerminateAccess(td->id);
+		td->connection->host->warningsLogTerminateAccess(td->id);
 		OutFileHandle.closeFile();
 		FilesUtility::deleteFile(outFilePath);
 		FilesUtility::deleteFile(dataFilePath);
@@ -482,9 +482,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
    */
 	td->buffer->setLength(0);
 	*td->buffer << "WinCGI: Not implemented";
-	td->connection->host->warningslogRequestAccess(td->id);
+	td->connection->host->warningsLogRequestAccess(td->id);
 	td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-	td->connection->host->warningslogTerminateAccess(td->id);
+	td->connection->host->warningsLogTerminateAccess(td->id);
 	return td->http->raiseHTTPError(501);
 #endif
 }

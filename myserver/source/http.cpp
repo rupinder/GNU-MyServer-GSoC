@@ -348,9 +348,9 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 
     if(permissions == -1)
     {
-      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogRequestAccess(td.id);
       td.connection->host->warningsLogWrite("Http: Error reading security file");
-      td.connection->host->warningslogTerminateAccess(td.id);
+      td.connection->host->warningsLogTerminateAccess(td.id);
       return raiseHTTPError(500); 
     }
     /*! Check if we have to use digest for the current directory. */
@@ -400,10 +400,10 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
     }
     if(permissions == -1)
     {
-      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogRequestAccess(td.id);
       td.connection->host->warningsLogWrite(
 																	 "Http: Error reading security file");
-      td.connection->host->warningslogTerminateAccess(td.id);
+      td.connection->host->warningsLogTerminateAccess(td.id);
       return raiseHTTPError(500); 
     }
     if(!(permissions & MYSERVER_PERMISSION_WRITE))
@@ -622,10 +622,10 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
     }
     if(permissions == -1)
     {
-      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogRequestAccess(td.id);
       td.connection->host->warningsLogWrite(
 																		 "Http: Error reading security file");
-      td.connection->host->warningslogTerminateAccess(td.id);
+      td.connection->host->warningsLogTerminateAccess(td.id);
       return raiseHTTPError(500); 
     }
     /*! Check if we have to use digest for the current directory. */
@@ -675,10 +675,10 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
     }
     if(permissions == -1)
     {
-      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogRequestAccess(td.id);
       td.connection->host->warningsLogWrite(
                              "Http: Error reading security file");
-      td.connection->host->warningslogTerminateAccess(td.id);
+      td.connection->host->warningsLogTerminateAccess(td.id);
       return raiseHTTPError(500);
     }
     if(!(permissions & MYSERVER_PERMISSION_DELETE))
@@ -1366,10 +1366,10 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
     if(permissions == -1)
     {
-      td.connection->host->warningslogRequestAccess(td.id);
+      td.connection->host->warningsLogRequestAccess(td.id);
       td.connection->host->warningsLogWrite(
                                "Http: Error reading security file");
-      td.connection->host->warningslogTerminateAccess(td.id);
+      td.connection->host->warningsLogTerminateAccess(td.id);
       return raiseHTTPError(500); 
     }
 
@@ -1979,9 +1979,9 @@ int Http::logHTTPaccess()
      */
      if(td.connection->host)
      {
-       td.connection->host->accesseslogRequestAccess(td.id);
+       td.connection->host->accessesLogRequestAccess(td.id);
        td.connection->host->accessesLogWrite(td.buffer2->getBuffer());
-       td.connection->host->accesseslogTerminateAccess(td.id);
+       td.connection->host->accessesLogTerminateAccess(td.id);
      }
     td.buffer2->setLength(0);
   }
