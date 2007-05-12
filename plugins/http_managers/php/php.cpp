@@ -176,6 +176,15 @@ char *myphp_read_cookies(TSRMLS_D)
 	return 0;
 }
 
+void myphp_log_message(char* message)
+{
+	PhpData* data = getPhpData();
+	data->td->connection->host->warningslogRequestAccess(data->td->id);
+	data->td->connection->host->warningsLogWrite(message);
+	data->td->connection->host->warningslogRequestAccess(data->td->id);
+
+}
+
 int myphp_ub_write(const char *str, unsigned int str_length TSRMLS_DC) 
 { 
 	PhpData* data = getPhpData();
@@ -278,7 +287,7 @@ static sapi_module_struct myphp_module =
 	myphp_read_cookies,                   /* read Cookies */
 	
 	myphp_register_variables,
-	NULL,//myphp_sapi_log_message,                    /* Log message */
+	myphp_log_message,                    /* Log message */
 	NULL,//myphp_sapi_get_request_time,               /* Request Time */
 	
 	STANDARD_SAPI_MODULE_PROPERTIES
@@ -286,19 +295,24 @@ static sapi_module_struct myphp_module =
 
 int load(void* server,void* parser)
 {
-	const char *data;
 	::server = (Server*)server;
-	data = ::server->getHashedData("PHP_SAFE_MODE");
+	const char *data;
+	data = ::server->getHashedData("PHP_NO_REBOOT");
 
-	if(data && !strcmpi(data, "YES"))
-		singleRequest = 1;
-	else
-		singleRequest = 0;
+	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
+	{
+		data = ::server->getHashedData("PHP_SAFE_MODE");
 
-	loadedEntries = 0;
+		if(data && !strcmpi(data, "YES"))
+			singleRequest = 1;
+		else
+			singleRequest = 0;
+		
+		loadedEntries = 0;
 
-	if(singleRequest)
-		requestMutex.init();
+		if(singleRequest)
+			requestMutex.init();
+	}
 	return 0;
 }
 
@@ -306,30 +320,43 @@ int load(void* server,void* parser)
 extern "C"
 int postLoad(void* server,void* parser)
 {
+	const char *data;
+	data = ::server->getHashedData("PHP_NO_REBOOT");
+
+	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
+	{
 #ifdef ZTS
 		tsrm_startup(((Server*)server)->getMaxThreads(), 1, 0, NULL);
 #endif
 
 		sapi_startup(&myphp_module);
 		myphp_module.startup(&myphp_module);
-		return 0;
+	}
+	return 0;
 }
 
 /*! Unload the plugin.  Called once.  Returns 0 on success.  */
 extern "C"
 int unLoad(void* p)
 {
+	const char *data;
+	data = ::server->getHashedData("PHP_NO_REBOOT");
+
+	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
+	{
 		myphp_module.shutdown(&myphp_module);
+
 		sapi_shutdown();
 
-	if(singleRequest)
-		requestMutex.destroy();
+		if(singleRequest)
+			requestMutex.destroy();
 	
 #ifdef ZTS
     tsrm_shutdown();
 #endif
 
-	loadedEntries = 0;
+		loadedEntries = 0;
+	}
 	return 0;
 }
 
