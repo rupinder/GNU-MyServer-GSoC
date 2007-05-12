@@ -960,7 +960,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 	{
     LPTSTR lpszVariable; 
 		LPVOID lpvEnv; 
-		lpvEnv = Server::getInstance()->envString; 
+		lpvEnv = Server::getInstance()->getEnvString();
 		memCgi << end_str;
 		if (lpvEnv)
   		  for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
