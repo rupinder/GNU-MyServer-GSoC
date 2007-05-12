@@ -51,11 +51,11 @@ int SslContext::initialize()
   context = 0;
   method = 0;
 #ifndef DO_NOT_USE_SSL
-  method = SSLv23_method();
+  method = SSLv23_server_method();
   context = SSL_CTX_new(method);
+
   if(!context)
     return -1;
-  
   /*
    *The specified file doesn't exist.
    */
@@ -80,6 +80,7 @@ int SslContext::initialize()
   if(!(SSL_CTX_use_PrivateKey_file(context, privateKeyFile.c_str(), 
 																	 SSL_FILETYPE_PEM)))
     return -1;
+
 
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
   SSL_CTX_set_verify_depth(context, 1);
@@ -116,6 +117,7 @@ int SslContext::free()
   {
     SSL_CTX_free(context);
     ret = 1;
+		context = 0;
   }
 	else 
 		ret = 0;
@@ -130,8 +132,13 @@ int SslContext::free()
 void initializeSSL()
 {
 #ifndef DO_NOT_USE_SSL
+	static bool initialized = false;
+	if(!initialized)
+	{
     SSL_load_error_strings();
     SSL_library_init();
+		initialized = true;
+	}
 #endif
 }
 

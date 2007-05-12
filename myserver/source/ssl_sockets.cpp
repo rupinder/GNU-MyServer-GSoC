@@ -139,7 +139,7 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
   (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6)) )
      return 1;//Andu: TODO our error code or what?
 #ifndef DO_NOT_USE_SSL
-	sslMethod = SSLv23_method();
+	sslMethod = SSLv23_client_method();
 	/*! Create the local context. */
 	sslContext = SSL_CTX_new(sslMethod);
 	if(sslContext == 0)

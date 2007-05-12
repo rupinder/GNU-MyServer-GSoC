@@ -88,6 +88,7 @@ public:
   void disableAutoReboot();
   void enableAutoReboot();
   int isAutorebootEnabled();
+	int isRebooting(){return rebooting;}
   void rebootOnNextLoop();
   const char* getMainConfFile();
   const char* getVhostConfFile();
@@ -186,6 +187,7 @@ private:
 	XmlParser languageParser;
   int autoRebootEnabled;
   int toReboot;
+	int rebooting;
   LogManager logManager;
   int serverReady;
 	u_long verbosity;

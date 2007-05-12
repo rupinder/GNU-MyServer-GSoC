@@ -1480,7 +1480,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
           }
           else
           {
-            int lastSlashOffset = uri.length();
+						u_long lastSlashOffset = uri.length();
             while(lastSlashOffset && uri[lastSlashOffset] != '/')
               --lastSlashOffset;
 						

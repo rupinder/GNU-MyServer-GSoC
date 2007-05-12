@@ -79,6 +79,7 @@ Server::Server()
   autoRebootEnabled = 1;
   nThreads = 0;
   pausing = 0;
+	rebooting = 0;
   maxConnections = 0;
   nConnections = 0;
   connections = 0;
@@ -2008,6 +2009,8 @@ int Server::reboot()
   /* Reset the toReboot flag.  */
   toReboot = 0;
 
+	rebooting = 1;
+
   /* Do nothing if the reboot is disabled.  */
   if(!autoRebootEnabled)
     return 0;
@@ -2022,16 +2025,18 @@ int Server::reboot()
 	if(mustEndServer)
 		return 0;
 	mustEndServer = 1;
+
 	ret = terminate();
   if(ret)
     return ret;
 	mustEndServer = 0;
-  /* Wait a bit before restart the server. */
-	Thread::wait(5000);
+
 	ret = initialize(0);
   if(ret)
     return ret;
 	ret = loadSettings();
+
+	rebooting = 0;
 
   return ret;
 
