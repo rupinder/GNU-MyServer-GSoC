@@ -9,9 +9,6 @@
 <link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-<table class="center" width="95%">
-<tr>
-<td class="center">
 <h1 class="title">FASTCGI<br />
 </h1>
 FastCGI is an extension to CGI, not dependent to the language
@@ -79,8 +76,29 @@ Please refer to the official <a href="http://www.fastcgi.com/"
  target="_blank">FastCGI </a>site for
 more information about FastCGI.<br />
 <br />
-</td>
-</tr>
-</table>
+<br />
+
+<h2 class="title">Shortcuts</h2>
+MyServer adopts a lazy-initialization politic for the FastCGI
+processes, the FastCGI server is executed on the first request to
+it. In this way the startup time of myserver is much faster but it
+will use this time on the first request, if you don't like the default
+behaviour you can configure a shortcut in the myserver.xml file.
+Please refer to the "How use shortcuts" tutorial in
+the <a href="scgi.htm">SCGI protocol documentation</a>.
+<br />
+<br />
+<span class="warning">
+Be sure to specify the value FASTCGI in the domain descriptor for the
+shortcut!
+</span>
+<br />
+<br />
+The DOMAIN descriptor has to look like this line:
+<br />
+<span class="code">&lt;DOMAIN&gt;FASTCGI&lt;DOMAIN&gt</span>
+<br />
+
+<br />
 </body>
 </html>

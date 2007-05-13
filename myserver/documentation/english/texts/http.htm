@@ -9,22 +9,31 @@
 <link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-<table class="center" width="95%">
-<tr>
-<td class="center">
 <h1 class="title">HTTP</h1>
-HTTP (Hypertext Transfer Protocol) is the set of rules(protocol) that govern the transferring of files 
-over the Internet. These files can be text, graphics, sound or video. HTTP uses a simple server-client 
-interface, where the client requests a file or application and the server processes the request and 
-returns the correct data back to the client. The HTTP protocol works at level 7 of the ISO-OSI stack.
-<br /><br />
-The HTTP protocol is the de facto standard for transferring documents over the internet.
-<br /><br />
-The current version of HTTP is HTTP/1.1 described in the RFC 2616. 
-More information can befound at the <a href="http://www.w3.org/Protocols/" target="_blank">WWW Consortium</a>.
-<br /><br /><br />
-</td>
-</tr>
-</table>
+HTTP (Hypertext Transfer Protocol) is the set of rules(protocol) that
+govern the transferring of files  over the Internet. These files can
+be text, graphics, sound or video. HTTP uses a simple server-client
+interface, where the client requests a file or application and the
+server processes the request and  returns the correct data back to the
+client. The HTTP protocol works at level 7 of the ISO-OSI stack.
+<br />
+<br />
+The HTTP protocol is the de facto standard for transferring documents
+over the internet.
+<br />
+<br />
+The current version of HTTP is HTTP/1.1 described in the RFC 2616.
+More information can be found at
+the <a href="http://www.w3.org/Protocols/" target="_blank">WWW
+Consortium</a>.
+<br />
+HTTP is the default protocol used in myserver, data is sent in clear
+text, if you need to transfer confidential data like passwords then
+consider to setup a <a href="https.htm">HTTPS</a> vhost.
+<br />
+The default installation of myserver configures a HTTP vhost on the
+standard port 80, under UNIX-like systems only the root user has the
+needed privileges to use that port, be sure you are root before
+execute myserver or change the default port.
 </body>
 </html>

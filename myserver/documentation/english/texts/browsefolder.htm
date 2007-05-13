@@ -10,19 +10,25 @@
 </head>
 <body>
 <h1 class="title">BROWSE DIRECTORY</h1>
-<table class="center" width="95%">
-<tr>
-<td class="center">
-When a client requests a directory from the server and the server cannot find a default file to send, it indexes the directory and sends a list of the files to the client.  This allows the client to browse the directory and access any file within it.<br />
-      <p style="text-align: center;"><img src="../images/browsefolder.png" alt="Browse Folder" width="730" height="371" /></p>
+
+When a client requests a directory from the server and the server
+cannot find a default file to send, it indexes the directory and sends
+a list of the files to the client.  This allows the client to browse
+the directory and access any file within
+it.<br />
+<p style="text-align:center;">
+<img src="../images/browsefolder.png"	alt="Browse Folder" width="730"
+		 height="371" /></p> 
 <div class="center"><small>Indexed folder for Browsing</small></div>
 <br />
 <br />
-If you want to define a cascading style sheet for the directory index page, you can modify the file <span style="code">myserver.xml</span>.
+If you want to define a cascading style sheet for the directory index
+page, you can modify the file <span style="code">myserver.xml</span>.
 <br />
 <br />
 Locate the line:
-<span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span><br /><br />
+<span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span>
+<br/><br/>
 and replace system/folderstyle.css with the name of your .css file.
 <p>The file <span class="code">system/folderstyle.css</span> has the default form:</p>
 <span class="code">body { font-family: Arial; color: #000000;background-color:#FFFFFF }</span>
@@ -30,13 +36,17 @@ and replace system/folderstyle.css with the name of your .css file.
 <br />
 <div class="center">Following symlinks</div>
 <br />
-On Unix-like Operating systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.) MyServer supports the feature to follow Symlinks.<br />
-You can add the symlink following feature to each virtual host in the virtualhosts.xml file or in the myserver.xml for all hosts.<br />
-<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
-The default is: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
-This value is used by default by MyServer.
-</td>
-</tr>
-</table>
+On Unix-like Operating systems (e.g.: Linux, *BSD, GNU/HURD, Solaris,
+etc.) MyServer supports the feature to follow Symlinks.<br /> 
+You can add the symlink following feature to each virtual host in the
+virtualhosts.xml file or in the myserver.xml for all hosts.<br />
+
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span>
+<br />
+<br />
+The default value used by MyServer is: 
+<br/>
+<span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+
 </body>
 </html>
