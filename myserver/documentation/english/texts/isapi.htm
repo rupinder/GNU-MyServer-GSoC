@@ -12,21 +12,44 @@
 <h1 class="title">ISAPI</h1>
 <br />
 ISAPI (Internet Server Application Program Interface) is a protocol
-used by Windows based computers to run a dynamic application loading an external module 
-in the web server process address space.
+used under Windows to run a dynamic application loading an external module 
+in the web server process addresses space.
 <br />
 In order to use ISAPI, you must create a DLL (dynamic link library)
 that exports some symbols called by the web server.
 <br /> 
 <br />
-<span class="warning">Warning</span>: If an ISAPI application crashes
+<span class="warning">Warning: If an ISAPI application crashes
 it may cause the calling application to fail also so it can be a
-MyServer crash cause.<br /> 
+MyServer crash cause.</span>
+<br />
+<br />
+If you want to use ISAPI as a self-contained module then you will have
+to register an extension, for example .isapi, to be used as an ISAPI
+module that is executed directly then you have to use
+the <span class="code">EXECUTEISAPI</span> command in the MIME type.
+<br/>
+<br/>
+If you want to use the ISAPI module to handle all the files for a
+specified extension then the command that you will need to use is 
+<span class="code">RUNISAPI</span>; doing in this way all the files
+with that extension will be handled using the
+specified <span class="code">MANAGER</span>.
+<br />
+<br />
+Take a look at the <a href="mimetypes.htm">MIME types
+documentation</a> for more information abot how extensions are mapped
+to MIME types in MyServer.
+
 <br />
 <br />
 For more information, you can read Microsoft's 
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI Overview</a>.
+<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI Overview</a>.  
 <br /> 
 <br />
+It is highly recommended to use this communication protocol if the
+ISAPI module is stable and came from a trustable source, as the module
+is loaded directly in the myserver adresses space, it is extremely
+fast and without any overhead caused by external process execution.
 </body>
 </html>
