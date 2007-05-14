@@ -112,6 +112,22 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       lastByte = std::min(lastByte + 1, bytesToSend);
     }
 
+    /*
+     * bytesToSend is the interval between the first and the last byte.  
+     */
+    bytesToSend = lastByte - firstByte;
+    
+    /*
+     * If fail to set the file pointer returns an internal server error.  
+     */
+    ret = file->setFilePointer(firstByte);
+    if(ret)
+    {
+      file->closeFile();
+			delete file;
+      return td->http->raiseHTTPError(500);
+    }
+
 
     {
       /* 
@@ -160,22 +176,6 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(td->appendOutputs)
       useGzip = false;
 
-    /*
-     * bytesToSend is the interval between the first and the last byte.  
-     */
-    bytesToSend = lastByte - firstByte;
-    
-    /*
-     * If fail to set the file pointer returns an internal server error.  
-     */
-    ret = file->setFilePointer(firstByte);
-    if(ret)
-    {
-      file->closeFile();
-			delete file;
-      return td->http->raiseHTTPError(500);
-    }
-
     td->buffer->setLength(0);
 
     /* If a Range was requested send 206 and not 200 for success.  */
@@ -193,7 +193,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 			else
   		{
 				e = new HttpResponseHeader::Entry();
-				e->name->assign("Transfer-Encoding");
+				e->name->assign("Content-Range");
 				e->value->assign(buffer.str());
 				td->response.other.put(*(e->name), e);
 			}
@@ -367,7 +367,11 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     else
 			chain.setStream(s->socket);
 
-    /* Flush initial data.  */
+    /*
+		 *Flush initial data.  This is data that filters could have added
+		 *and we have to send before the file itself, for example the gzip
+		 *filter add a header to file.
+		 */
     if(memStream.availableToRead())
     {
       ret = memStream.read(td->buffer->getBuffer(),
@@ -443,7 +447,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
           
 				dataSent += nbr;
       }
-			else /* if(!nbr) */
+			else /* if(bytesToSend) */
 			{
 				/* If we don't use chunks we can flush directly.  */
 				if(!useChunks)
@@ -454,6 +458,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 				}
 				else
 				{
+					/*
+					 *Replace the final stream before the flush and write to a
+					 *memory buffer, after all the data is flushed from the
+					 *chain we can replace the stream with the original one and
+					 *write there the HTTP data chunk.
+					 */
 					Stream* tmpStream = chain.getStream();
 
 					chain.setStream(&memStream);
@@ -591,6 +601,14 @@ int HttpFile::appendDataToHTTPChannel(HttpThreadContext* td,
 {
 	u_long nbr, nbw;
 	Stream *oldStream = chain->getStream();
+
+	/* 
+	 *This function can't append directly to the chain because we can't
+	 *know in advance the data chunk size.  Therefore we replace the
+	 *final stream with a memory buffer and write there the final data
+	 *chunk content, finally we read from it and send directly on the
+	 *original stream.
+	 */
 	chain->setStream(tmpStream);
 	
 	if(chain->write(buffer, size, &nbw))
@@ -601,6 +619,10 @@ int HttpFile::appendDataToHTTPChannel(HttpThreadContext* td,
 	
 	chain->setStream(oldStream);
 	
+	/*
+	 *Use of chain->getStream() is needed to write directly on the
+	 *final stream.
+	 */
 	return HttpDataHandler::appendDataToHTTPChannel(td, 
 																									buffer, 
 																									nbr, 
