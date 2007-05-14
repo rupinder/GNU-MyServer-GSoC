@@ -44,6 +44,7 @@ Vhost::Vhost()
   accessesLogFileName.assign("");
   warningsLogFileName.assign("");
   hashedData.clear();
+	protocolData = 0;
 
   /*
    *By default use a non specified value for the throttling rate. -1 means 
@@ -61,6 +62,8 @@ Vhost::Vhost()
  */
 Vhost::~Vhost()
 {
+	if(protocolData)
+		delete protocolData;
 	clearHostList();
 	clearIPList();
 	freeSSL();

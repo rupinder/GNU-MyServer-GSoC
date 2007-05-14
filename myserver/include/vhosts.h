@@ -39,6 +39,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using namespace std;
 typedef int (*NULL_REFERENCECB)(class Vhost*); 
 
+class VhostProtocolData
+{
+public:
+	VhostProtocolData(){}
+	virtual ~VhostProtocolData(){}
+};
+
 class Vhost
 {
 public:
@@ -217,7 +224,13 @@ public:
   int warningsLogWrite(const char*);
 	File* getWarningsLogFile();
 
+	/*! Get the protocol data. */
+	VhostProtocolData* getProtocolData(){return protocolData;}
+
+	/*! Set the protocol data. */
+	void setProtocolData(VhostProtocolData* data){protocolData = data;}
 private:
+	VhostProtocolData*  protocolData;
   HashMap<string, string*> hashedData;
   NULL_REFERENCECB nullReferenceCb;
   Mutex refMutex;
