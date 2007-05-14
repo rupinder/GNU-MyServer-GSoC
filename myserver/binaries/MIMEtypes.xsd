@@ -33,10 +33,15 @@
                     </xs:element>
 
                     <xs:element name="MANAGER" type="xs:string" />
-                    <xs:element name="FILTER" type="xs:string" />
                     
-                    <!-- <ACTION name="Host" value="localhost">ALLOW</ACTION> -->
-                    <xs:element name="ACTION" type="xs:string" />
+                    <xs:element name="ACTION" type="xs:string">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:enumeration value="ALLOW" />
+                                <xs:enumeration value="DENY" />
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
                     
                     <xs:element name="FILTER">
                         <xs:simpleType>
