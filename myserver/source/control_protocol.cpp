@@ -70,8 +70,8 @@ char* ControlProtocol::registerName(char* out,int len)
  */
 ControlProtocol::ControlProtocol() 
 {
-  Ifile=0;
-  Ofile=0;
+  Ifile = 0;
+  Ofile = 0;
 	protocolOptions = PROTOCOL_USES_SSL;
   Reboot = true;
 }
@@ -716,11 +716,11 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
 {
   int ret =  0;
   u_long nbw;
-  ConnectionPtr con;
   Server::getInstance()->connectionsMutexLock();
-  con = Server::getInstance()->getConnections();
-  while(con)
+  list<ConnectionPtr>::iterator it = Server::getInstance()->getConnections().begin();
+  while(it != Server::getInstance()->getConnections().end())
   {
+		ConnectionPtr con;
 #ifdef HAVE_SNPRINTF
 		snprintf(b1, bs1,
 #else
@@ -738,7 +738,7 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
       strcpy(b1,"Control: Error while writing to file");
       addToErrorLog(a, b1, strlen(b1));
     }
-    con = con->next;
+		it++;
   }
   Server::getInstance()->connectionsMutexUnlock();
   return ret;

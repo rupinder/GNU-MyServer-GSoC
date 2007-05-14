@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/process_server_manager.h"
 #include "../include/listen_threads.h"
 #include <string>
+#include <list>
 using namespace std;
 
 /*!
@@ -104,7 +105,7 @@ public:
 	u_long getNumTotalConnections();
 	int connectionsMutexLock();
 	int connectionsMutexUnlock();
-  ConnectionPtr getConnections();
+  list<ConnectionPtr>& getConnections();
 	ConnectionPtr getConnection(int);
 	ConnectionPtr findConnectionBySocket(Socket);
 	ConnectionPtr findConnectionByID(u_long ID);
@@ -165,6 +166,8 @@ private:
 	/*! Do not allow to create directly objects.  */
 	Server();
 
+	list<ConnectionPtr> connections;
+
 	CachedFileFactory cachedFiles;
 
 	void *envString;
@@ -215,7 +218,7 @@ private:
 	u_long maxLogFileSize;
 	int loadSettings();
 	Mutex* connectionsMutex;
-	ConnectionPtr connectionToParse;
+	list<ConnectionPtr>::iterator connectionToParse;
 	u_long nStaticThreads;
   u_long nMaxThreads;
   u_long nThreads;
@@ -224,7 +227,6 @@ private:
   ClientsThread* threads;
 
   int purgeThreads();
-	ConnectionPtr connections;
 	int reboot();
 	string* languageFile;
 	string* languagesPath;

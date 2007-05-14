@@ -51,7 +51,6 @@ Connection::Connection()
   port = 0;
 	localPort = 0;
   timeout = 0;
-  next = 0;
   host = 0;
 	dataRead = 0;
   toRemove = 0;

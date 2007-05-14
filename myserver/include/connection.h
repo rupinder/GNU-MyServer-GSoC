@@ -61,9 +61,6 @@ public:
 class Connection
 {
 public:
-	/*! Next connection in linked list.  */
-	Connection* next;
-	
   u_long getID();
   void setID(u_long);
 
@@ -172,6 +169,6 @@ protected:
 	int forceParsing;
 };
                                    
-typedef  Connection* volatile ConnectionPtr;
+typedef  Connection* ConnectionPtr;
 
 #endif

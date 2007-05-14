@@ -82,8 +82,6 @@ Server::Server()
 	rebooting = 0;
   maxConnections = 0;
   nConnections = 0;
-  connections = 0;
-  connectionToParse = 0;
   serverReady = 0;
   throttlingRate = 0;
   uid = 0;
@@ -99,11 +97,13 @@ Server::Server()
 	path = 0;
 	ipAddresses = 0;
 	vhostList = 0;
+	connectionToParse = connections.end();
 }
 
 /*!
  *Destroy the object.
  */
+
 Server::~Server()
 {
 
@@ -592,11 +592,11 @@ int Server::terminate()
 	connectionsMutexLock();
   try
   {
-		Connection* c = connections;
-    while(c)
+		list<ConnectionPtr>::iterator it = connections.begin();
+    while(it != connections.end())
     {
-			c->socket->closesocket();
-      c = c->next;
+			(*it)->socket->closesocket();
+			it++;
     }
   }
   catch(...)
@@ -625,7 +625,7 @@ int Server::terminate()
 	/*
    *If there are open connections close them.
    */
-	if(connections)
+	if(nConnections)
 	{
 		clearAllConnections();
 	}
@@ -969,14 +969,14 @@ int Server::initialize(int /*!osVer*/)
 	data = configurationFileManager.getValue("MAX_CONNECTIONS");
 	if(data)
 	{
-		maxConnections=atoi(data);
+		maxConnections = atoi(data);
 	}
 
 	/* Get the max connections number to accept.  */
 	data = configurationFileManager.getValue("MAX_CONNECTIONS_TO_ACCEPT");
 	if(data)
 	{
-		maxConnectionsToAccept=atoi(data);
+		maxConnectionsToAccept = atoi(data);
 	}
 
 	/* Get the default throttling rate to use on connections.  */
@@ -1331,10 +1331,13 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
     Server::getInstance()->connectionsMutexLock();
     connectionId++;
     newConnection->setID(connectionId);
-    newConnection->next = connections;
-   	connections=newConnection;
+   	connections.push_back(newConnection);
     nConnections++;
     nTotalConnections++;
+
+		if(nConnections == 1)
+			connectionToParse = connections.begin();
+
     Server::getInstance()->connectionsMutexUnlock();
   }
   catch(...)
@@ -1372,7 +1375,6 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 	/*
    *Remove the connection from the active connections list.
    */
-	ConnectionPtr prev = 0;
 	if(!s)
 	{
 		return 0;
@@ -1384,25 +1386,15 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
   if(doLock)
     connectionsMutexLock();
 
-	for(ConnectionPtr i = connections; i; i = i->next )
+	if(*connectionToParse == s)
 	{
-		if(i == s)
-		{
-      if(connectionToParse == i)
-        connectionToParse = connectionToParse->next;
-
-			if(prev)
-				prev->next = i->next;
-			else
-				connections = i->next;
-			ret = 1;
-			break;
-		}
-		else
-		{
-			prev = i;
-		}
+		connectionToParse++;
+		if(connectionToParse == connections.end())
+			connectionToParse = connections.begin();
 	}
+
+	connections.remove(s);
+
 	nConnections--;
 
   if(doLock)
@@ -1422,7 +1414,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 ConnectionPtr Server::getConnection(int /*id*/)
 {
 	/* Do nothing if there are not connections.  */
-	if(connections == 0)
+	if(nConnections == 0)
 		return 0;
 	
 	/* Stop the thread if the server is pausing.  */
@@ -1431,24 +1423,14 @@ ConnectionPtr Server::getConnection(int /*id*/)
 		Thread::wait(5);
 	}
 	
-	if(connectionToParse)
-	{
-			connectionToParse = connectionToParse->next;
-	}
-	else
-	{
-    /* Link to the first element in the linked list.  */
-		connectionToParse = connections;
-	}
-  
-	/*
-   *Check if we are at the end of the linked list, in this case 
-	 *point to the first node.
-   */
-	if(!connectionToParse)
-		connectionToParse = connections;
+	connectionToParse++;
 
-	return connectionToParse;
+	if(connectionToParse == connections.end())
+	{
+		connectionToParse = connections.begin();
+	}
+
+	return *connectionToParse;
 }
 
 /*!
@@ -1456,31 +1438,31 @@ ConnectionPtr Server::getConnection(int /*id*/)
  */
 void Server::clearAllConnections()
 {
-	ConnectionPtr c;
-	ConnectionPtr next;
+	list<ConnectionPtr>::iterator it;
 	connectionsMutexLock();
-  try
-  {
-    c = connections;
-    next = 0;
-    while(c)
-    {
-      next = c->next;
-      deleteConnection(c, 1, 0);
-      c = next;
-    }
+
+	try
+	{
+		for(it = connections.begin(); it != connections.end(); it++)
+		{
+			list<ConnectionPtr>::iterator next = it;
+			next++;
+			deleteConnection(*it, 1, 0);
+			it = next;
+		}
   }
   catch(...)
   {
     connectionsMutexUnlock();
     throw;
   };
+
 	connectionsMutexUnlock();
 	/* Reset everything.	 */
 	nConnections = 0;
 	nTotalConnections = 0;
-	connections = 0;
-	connectionToParse = 0;
+	connections.clear();
+	connectionToParse = connections.begin();
 }
 
 /*!
@@ -1488,15 +1470,19 @@ void Server::clearAllConnections()
  */
 ConnectionPtr Server::findConnectionBySocket(Socket a)
 {
-	ConnectionPtr c;
+	list<ConnectionPtr>::iterator it;
+	
 	connectionsMutexLock();
-	for(c=connections; c; c = c->next )
+	
+	it = connections.begin();
+	while(it != connections.end())
 	{
-		if(*c->socket == a)
+		if(*(*it)->socket == a)
 		{
 			connectionsMutexUnlock();
-			return c;
+			return *it;
 		}
+		it++;
 	}
 	connectionsMutexUnlock();
 	return NULL;
@@ -1507,15 +1493,19 @@ ConnectionPtr Server::findConnectionBySocket(Socket a)
  */
 ConnectionPtr Server::findConnectionByID(u_long ID)
 {
-	ConnectionPtr c;
+	list<ConnectionPtr>::iterator it;
+
 	connectionsMutexLock();
-	for(c = connections; c; c = c->next )
+	
+	it = connections.begin();
+	while(it != connections.end())
 	{
-		if(c->getID() == ID)
+		if((*it)->getID() == ID)
 		{
 			connectionsMutexUnlock();
-			return c;
+			return (*it);
 		}
+		it++;
 	}
 	connectionsMutexUnlock();
 	return 0;
@@ -2100,9 +2090,9 @@ const char *Server::getMIMEConfFile()
  *Get the first connection in the linked list.
  *Be sure to have locked connections access before.
  */
-ConnectionPtr Server::getConnections()
+list<ConnectionPtr>& Server::getConnections()
 {
-  return connections;
+	return connections;
 }
 
 /*!
@@ -2123,7 +2113,7 @@ void Server::enableAutoReboot()
 
 
 /*!
- *Return the protocol_manager object.
+ *Return the ProtocolManager object.
  */
 ProtocolsManager *Server::getProtocolsManager()
 {
