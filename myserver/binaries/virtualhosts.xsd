@@ -1,0 +1,32 @@
+<xs:element name="VHOST">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element name="NAME" type="xs:string" />
+            <xs:element name="PORT" type="xs:integer" />
+            <xs:element name="PROTOCOL" type="xs:string" />
+            <xs:element name="DOCROOT" type="xs:string" />
+            <xs:element name="SYSFOLDER" type="xs:string" />
+	    
+            <!-- add type="combined" -->
+            <!-- add cycle="yes" cycle_gzip="no" -->
+            <xs:element name="ACCESSLOG" type="xs:string" />
+            <xs:element name="WARNINGLOG" type="xs:string" />
+
+            <!-- add useRegex="YES" -->
+            <xs:element name="IP" type="xs:string" />
+
+            <xs:element name="HOST" type="xs:string" />
+            <xs:element name="ALLOW_CGI" type="xs:string" />
+            <xs:element name="ALLOW_FASTCGI" type="xs:string" />
+            <xs:element name="ALLOW_SCGI" type="xs:string" />
+            <xs:element name="ALLOW_ISAPI" type="xs:string" />
+            <xs:element name="ALLOW_MSCGI" type="xs:string" />
+            <xs:element name="ALLOW_WINCGI" type="xs:string" />
+            <xs:element name="ALLOW_SEND_LINK" type="xs:string" />
+            <xs:element name="ALLOW_EXTERNAL_COMMANDS" type="xs:string" />
+            <xs:element name="ALLOW_SEND_FILE" type="xs:string" />
+	    
+            <xs:element name="FOLLOW_LINKS" type="xs.string" />
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>
