@@ -69,7 +69,6 @@ TODO list for MyServer.
 *	Packages.
 **	Rpm and debs for Debian, Fedora Core and Mandrake.
 **	Packages for Slackware.
-**	Perl installation script INSTALL.pl that copies the files to the right place.
 
 *	Plugins system.
 **	Use plugins for HTTP optional commands (other than what was implemented GET, POST...).
@@ -116,6 +115,7 @@ TODO list for MyServer.
 **	Automatic deployment.
 **	Better graphics. (*)
 **	Create SSL files trough the GUI. (*)
+**	Port the GUI to GTK or QT.
 
 *	Virtual hosts data.
 **	Find and implement a faster way than the linear search in vhosts handling code.
@@ -131,7 +131,6 @@ TODO list for MyServer.
 *	Support for JSP and servlets.
 *	HTTP proxy server.
 *	Embedded perl.
-*	PHP SAPI module.
 *	Other ideas?
 
 (*) Not so important to have now.
