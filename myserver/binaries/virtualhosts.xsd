@@ -7,13 +7,26 @@
             <xs:element name="DOCROOT" type="xs:string" />
             <xs:element name="SYSFOLDER" type="xs:string" />
 	    
+            <xs:element name="ACCESSLOG" type="xs:string">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="
+              
+              
+            </xs:element>
             <!-- add type="combined" -->
             <!-- add cycle="yes" cycle_gzip="no" -->
             <xs:element name="ACCESSLOG" type="xs:string" />
             <xs:element name="WARNINGLOG" type="xs:string" />
 
             <!-- add useRegex="YES" -->
-            <xs:element name="IP" type="xs:string" />
+            <!-- add IPv6 regex -->
+            <xs:element name="IP">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                      <xs:pattern value="\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
 
             <xs:element name="HOST" type="xs:string" />
             <xs:element name="ALLOW_CGI" type="xs:string" />
