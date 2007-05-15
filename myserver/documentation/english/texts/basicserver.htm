@@ -15,32 +15,32 @@ In the <span class="code">myserver.xml</span> file you can set the
 default page for your websites
 hosted in MyServer.<br />
 <br />
-The lines below already exist in your configuration file:<br />
+Similar lines already exist in your configuration file:<br />
 <p class="code">
-&lt;DEFAULT_FILENAME0&gt;default.html&lt;/DEFAULT_FILENAME0&gt;<br />
+&lt;DEFAULT_FILENAME&gt;default.html&lt;/DEFAULT_FILENAME&gt;<br />
 &nbsp;&nbsp;&nbsp;
-&lt;DEFAULT_FILENAME1&gt;default.php&lt;/DEFAULT_FILENAME1&gt;<br />
+&lt;DEFAULT_FILENAME&gt;default.php&lt;/DEFAULT_FILENAME&gt;<br />
 &nbsp;&nbsp;&nbsp;
-&lt;DEFAULT_FILENAME2&gt;default.php3&lt;/DEFAULT_FILENAME2&gt;<br />
+&lt;DEFAULT_FILENAME&gt;default.php3&lt;/DEFAULT_FILENAME&gt;<br />
 &nbsp;&nbsp;&nbsp;
-&lt;DEFAULT_FILENAME3&gt;index.html&lt;/DEFAULT_FILENAME3&gt;<br />
+&lt;DEFAULT_FILENAME&gt;index.html&lt;/DEFAULT_FILENAME&gt;<br />
 &nbsp;&nbsp;&nbsp;
-&lt;DEFAULT_FILENAME4&gt;index.php&lt;/DEFAULT_FILENAME4&gt;<br />
+&lt;DEFAULT_FILENAME&gt;index.php&lt;/DEFAULT_FILENAME&gt;<br />
 &nbsp;&nbsp;&nbsp;
-&lt;DEFAULT_FILENAME5&gt;index.php3&lt;/DEFAULT_FILENAME5&gt;<br />
+&lt;DEFAULT_FILENAME&gt;index.php3&lt;/DEFAULT_FILENAME&gt;<br />
 &nbsp;&nbsp;&nbsp;
-&lt;DEFAULT_FILENAME6&gt;default.htm&lt;/DEFAULT_FILENAME6&gt; <br />
+&lt;DEFAULT_FILENAME&gt;default.htm&lt;/DEFAULT_FILENAME&gt; <br />
 </p>
 <br />
 So, if you have a <a class="code" href="virtualhosts.html">Virtual Host</a>
 http://mypc.net, the page that will appear when accessing that address
-on the browser, will be one of the files above. You can add more lines
-or change any of them, if you need a different filename. The same mechanism is used for every directory and 
-not only with the root one.<br />
-
+on the browser, will be one of the files above. The first file in
+order that exists will be used. You can add more lines or change any
+of them, if you need a different filename. The same mechanism is used
+for every directory and not only with the root one.<br />
 <br />
-<br /><br />
-In <a class="code" href="errorfiles.html">Errors</a> section you
+<br />
+In the <a href="errorfiles.html">errors</a> section you
 learned how to create and use your own error pages. But you can also
 disable the custom error pages, by changing the line below:<br />
 <span class="code">&lt;USE_ERROR_FILE&gt;YES&lt;/USE_ERROR_FILE&gt;<br />
@@ -61,20 +61,25 @@ file used to configure the layout for the browsing directory pages:<br />
 
 
 <br />
-&nbsp;
-<hr />
-&nbsp;
 <br />
 
 CGI Scripts can get the Server Administrator E-mail and show them to
-the user(through the <span class="code">SERVER_ADMIN</span> environment variable). So, it can be important you define this address properly, by
-setting the value in the line below, <span class="code">in myserver.xml</span>:<br />
+the user (through the <span class="code">SERVER_ADMIN</span>
+environment variable). So, it can be important you define this address
+properly, by setting the value in the line
+below, <span class="code">in myserver.xml</span>:
+<br /> 
 <span class="code">&lt;SERVER_ADMIN&gt;administrator@localhost&lt;/SERVER_ADMIN&gt;</span>
 <br />
-<hr />
-MyServer offers the feature to follow symlinks on Unix-like Operating systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.).<br />
-You can add the symlink following feature for all hosts in the myserver.xml file.<br />
-<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span><br /><br />
+<br />
+MyServer offers the feature to follow symlinks on Unix-like Operating
+systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.).<br /> You can
+add the symlink following feature for all hosts in the myserver.xml
+file.
+<br/>
+<span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span>
+<br />
+<br />
 The default is: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
 This value is used by default by MyServer.
 </body>

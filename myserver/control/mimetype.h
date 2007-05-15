@@ -23,6 +23,8 @@
 #include <FL/Fl_Choice.H>
 
 #include "vector.h"
+#include "../include/mem_buff.h"
+#include "../include/xml_parser.h"
 
 ///
 /// CGI command type numbers.

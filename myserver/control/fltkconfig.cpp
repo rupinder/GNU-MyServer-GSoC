@@ -4313,7 +4313,6 @@ return 0;
 
 int MainDlg::load_myserver_core() {
   char * chrptr;
-char Buffer[50];
 int i;
 // <LANGUAGE>
 Language->value(0);
@@ -4336,16 +4335,22 @@ Nthreads_Max->value(atoi(getValueXML("NTHREADS_MAX")));
 // <BUFFER_SIZE>
 Buffer_Size->value(atoi(getValueXML("BUFFER_SIZE")));
 
-// <DEFAULT_FILENAMEx>
+// <DEFAULT_FILENAME>
 Default_Filename->clear();
-i = 0;
-snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
-chrptr = xmlFile.getValue(Buffer);
-while(chrptr != 0) {
-  Default_Filename->add(chrptr);
-  i++;
-  snprintf(Buffer, 50, "DEFAULT_FILENAME%d", i);
-  chrptr = xmlFile.getValue(Buffer);
+xmlDocPtr xmlDoc = xmlFile.getDoc();
+for(xmlNode *node = xmlDoc->children; node; node = node->next)
+{
+	if(!xmlStrcmp(node->name, (const xmlChar *)"MYSERVER"))
+	{
+		for(node = node->children; node; node = node->next)
+		{
+			if(!xmlStrcmp(node->name, (const xmlChar *)"DEFAULT_FILENAME"))
+			{
+				  Default_Filename->add((char*)node->children->content);
+			}
+		}
+		break;
+	}
 }
 
 // <CONNECTION_TIMEOUT>
@@ -4602,10 +4607,9 @@ i = (int)Buffer_Size->value();
 snprintf(Buffer, 256, "%d", i);
 setValueXML("BUFFER_SIZE", Buffer);
 
-// <DEFAULT_FILENAMEx>
+// <DEFAULT_FILENAME>
 for(i = 0; i < Default_Filename->size(); i++) {
-  snprintf(Buffer, 256, "DEFAULT_FILENAME%d", i);
-  setValueXML(Buffer, Default_Filename->text(i + 1));
+  setValueXML("DEFAULT_FILENAME",  Default_Filename->text(i + 1));
 }
 
 // <CONNECTION_TIMEOUT>

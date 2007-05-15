@@ -18,6 +18,9 @@
 #ifndef VECTOR_H_SOME_GARBAGE_HERE
 #define VECTOR_H_SOME_GARBAGE_HERE
 
+#ifndef NULL
+#define NULL 0
+#endif
 
 struct VectorNode
 {

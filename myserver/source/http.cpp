@@ -2909,15 +2909,14 @@ int Http::sendAuth()
  */
 int Http::loadProtocol(XmlParser* languageParser)
 {
-  const char *mainConfigurationFile = 0;
   char *data = 0;
   int  nDefaultFilename = 0;
-	XmlParser configurationFileManager;
+	XmlParser *configurationFileManager = Server::getInstance()->getConfiguration();
 	string pluginsResource(Server::getInstance()->getExternalPath());
+	xmlDocPtr xmlDoc = configurationFileManager->getDoc();
+
   if(initialized)
 		return 0;
-
-  mainConfigurationFile = Server::getInstance()->getMainConfFile();
 
   secCacheMutex.init();
 		
@@ -2929,22 +2928,21 @@ int Http::loadProtocol(XmlParser* languageParser)
 	gzipThreshold = 1 << 20;
 	browseDirCSSpath.assign("");
 
-	configurationFileManager.open(mainConfigurationFile);
 
 	/* Load the HTTP errors.  */
 	HttpErrors::load();
 
 	/* Initialize ISAPI.  */
-	Isapi::load(&configurationFileManager);
+	Isapi::load(configurationFileManager);
 	
 	/* Initialize FastCGI.  */
-	FastCgi::load(&configurationFileManager);	
+	FastCgi::load(configurationFileManager);	
 
 	/* Initialize SCGI.  */
-	Scgi::load(&configurationFileManager);	
+	Scgi::load(configurationFileManager);	
 
 	/* Load the MSCGI library.  */
-	mscgiLoaded = MsCgi::load(&configurationFileManager) ? 0 : 1;
+	mscgiLoaded = MsCgi::load(configurationFileManager) ? 0 : 1;
 	if(mscgiLoaded)
   {
 		Server::getInstance()->logWriteln(
@@ -2957,19 +2955,19 @@ int Http::loadProtocol(XmlParser* languageParser)
 														 languageParser->getValue("ERR_LOADMSCGI") );
 		Server::getInstance()->logEndPrintError();
 	}
-  HttpFile::load(&configurationFileManager);
-  HttpDir::load(&configurationFileManager);
+  HttpFile::load(configurationFileManager);
+  HttpDir::load(configurationFileManager);
 
 	Server::getInstance()->getPluginsManager()->addNamespace(&dynCmdManager);
 	Server::getInstance()->getPluginsManager()->addNamespace(&dynManagerList);
 
 	/*! Determine the min file size that will use GZIP compression.  */
-	data = configurationFileManager.getValue("GZIP_THRESHOLD");
+	data = configurationFileManager->getValue("GZIP_THRESHOLD");
 	if(data)
 	{
 		gzipThreshold = atoi(data);
 	}	
-	data = configurationFileManager.getValue("ALLOW_VHOST_MIME");
+	data = configurationFileManager->getValue("ALLOW_VHOST_MIME");
 	if(data)
 	{
 
@@ -2978,12 +2976,12 @@ int Http::loadProtocol(XmlParser* languageParser)
     else
       allowVhostMime = 0;      
 	}	
-	data = configurationFileManager.getValue("CGI_TIMEOUT");
+	data = configurationFileManager->getValue("CGI_TIMEOUT");
 	if(data)
 	{
 		cgiTimeout = MYSERVER_SEC(atoi(data));
 	}	
-	data = configurationFileManager.getValue("BROWSEFOLDER_CSS");
+	data = configurationFileManager->getValue("BROWSEFOLDER_CSS");
 	if(data)
 	{
     browseDirCSSpath.append(data);
@@ -2993,47 +2991,37 @@ int Http::loadProtocol(XmlParser* languageParser)
   Scgi::setTimeout(cgiTimeout);
   WinCgi::setTimeout(cgiTimeout);
   Isapi::setTimeout(cgiTimeout);
-	/*! 
-   *Determine the number of default filenames written in 
-   *the configuration file.  
-   */
+
 	nDefaultFilename = 0;
-
-	for(;;)
-	{
-		ostringstream xmlMember;
-		xmlMember << "DEFAULT_FILENAME" << nDefaultFilename;
-		if(!configurationFileManager.getValue(xmlMember.str().c_str()))
-			break;
-		nDefaultFilename++;
-	}
-
   defaultFilename.clear();
   
+
+	for(xmlNode *node = xmlDoc->children; node; node = node->next)
+	{
+
+		if(!xmlStrcmp(node->name, (const xmlChar *)"MYSERVER"))
+		{
+			for(node = node->children; node; node = node->next)
+			{
+				if(!xmlStrcmp(node->name, (const xmlChar *)"DEFAULT_FILENAME"))
+				{
+					defaultFilename.push_back((char*)node->children->content);
+					nDefaultFilename++;
+				}
+			}
+			break;
+		}
+	}
+
 	/*!
    *Copy the right values in the buffer.
    */
 	if(nDefaultFilename == 0)
 	{
     defaultFilename.push_back("default.html");
+		nDefaultFilename++;
 	}
-	else
-	{
-		u_long i;
-		for(i = 0; i < static_cast<u_long>(nDefaultFilename); i++)
-		{
-			ostringstream xmlMember;
-			xmlMember << "DEFAULT_FILENAME"<< (u_int)i;
-			data = configurationFileManager.getValue(xmlMember.str().c_str());
-			if(data)
-      {
-        defaultFilename.push_back(data);
-      }
-		}
-	}	
 
-
-	configurationFileManager.close();
 	initialized = 1;
 	return 1;	
 }
