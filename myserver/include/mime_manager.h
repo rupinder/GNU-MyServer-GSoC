@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/utility.h"
 #include "../include/hash_map.h"
 #include "../include/http_header_checker.h"
+#include "../include/read_write_lock.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -112,18 +113,9 @@ struct MimeRecord
 class MimeManager
 {
 public:
-	const char *getFilename();
 	MimeManager();
   ~MimeManager();
-	int addRecord(MimeRecord& record);
-	MimeRecord *getRecord(string const &ext);
-	void removeAllRecords();
-	void removeRecord(const string& ext);
 	u_long getNumMIMELoaded();
-
-	int load(const char *filename);
-	int load(string& filename)
-    {return load(filename.c_str());}
 
 	int loadXML(const char *filename);
 	int loadXML(string &filename)
@@ -133,21 +125,24 @@ public:
 	int saveXML(string &filename)
     {return saveXML(filename.c_str());}
 
-	int save(const char *filename);
-	int save(string &filename)
-    {return save(filename.c_str());}
-
 	int getMIME(char* ext,char *dest,char **dest2);
 	int getMIME(int id,char* ext,char *dest,char **dest2);
   int getMIME(string& ext,string& dest,string& dest2);
   int getMIME(int id,string& ext,string& dest,string& dest2);
-	void clean();
   int isLoaded();
+	MimeRecord *getRecord(string const &ext);
+	void clean();
+protected:
+	const char *getFilename();
+	int addRecord(MimeRecord& record);
+	void removeAllRecords();
+	void removeRecord(const string& ext);
 private:
   int loaded;
   HashMap<string, MimeRecord*> *data;
 	u_long numMimeTypesLoaded;
 	string *filename;
+	ReadWriteLock rwLock;
 };
 
 #endif 

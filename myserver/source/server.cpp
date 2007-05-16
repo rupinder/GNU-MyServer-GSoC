@@ -302,14 +302,29 @@ void Server::start()
           if(((mainConfTimeNow!=-1) && (hostsConfTimeNow!=-1)  &&
               (mimeConfNow!=-1)) || toReboot)
           {
-            if( ((mainConfTimeNow  != mainConfTime)  ||
-                 (mimeConfNow  != mimeConf)) || toReboot)
+            if( (mainConfTimeNow  != mainConfTime) || toReboot)
             {
               reboot();
               /* Store new mtime values.  */
               mainConfTime = mainConfTimeNow;
               mimeConf = mimeConfNow;
             }
+						else if(mimeConfNow != mimeConf)
+						{
+							if(logManager.getType() == LogManager::TYPE_CONSOLE)
+							{
+								char beep[]={static_cast<char>(0x7), '\0'};
+								logManager.write(beep);
+							}
+
+							logWriteln("Reloading MIMEtypes.xml");
+							
+							getMimeManager()->loadXML(getMIMEConfFile());
+
+							logWriteln("Reloaded");
+
+							mimeConf = mimeConfNow;
+						}
 						else if(hostsConfTimeNow != hostsConfTime)
             {
 							VhostManager* oldvhost = vhostList;
