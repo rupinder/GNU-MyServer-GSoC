@@ -2766,6 +2766,8 @@ int Http::getPath(string& filenamePath, const char *filename,
       return 401;
     }
     filenamePath.assign(td.getVhostSys());
+		if(filename[0] != '/')
+			filenamePath.append("/");
     filenamePath.append(filename);
 	}
 	/*!
@@ -2800,7 +2802,8 @@ int Http::getPath(string& filenamePath, const char *filename,
         root = td.getVhostDir();
       }
 			filenamePath.assign(root);
-      filenamePath.append("/");
+			if(filename[0] != '/')
+				filenamePath.append("/");
       filenamePath.append(filename);
 		}
 		else
