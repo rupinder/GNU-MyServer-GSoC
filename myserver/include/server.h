@@ -207,7 +207,6 @@ private:
 	ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);
-  u_long nConnections;
   u_long nTotalConnections;
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;

@@ -81,7 +81,6 @@ Server::Server()
   pausing = 0;
 	rebooting = 0;
   maxConnections = 0;
-  nConnections = 0;
   serverReady = 0;
   throttlingRate = 0;
   uid = 0;
@@ -326,7 +325,7 @@ void Server::start()
 
 							clearAllConnections();
 							
-							while(nConnections)
+							while(connections.size())
 								Thread::wait(MYSERVER_SEC(1));
 
 							listenThreads.terminate();
@@ -522,7 +521,7 @@ XmlParser* Server::getLanguageParser()
  */
 u_long Server::getNumConnections()
 {
-	return nConnections;
+	return connections.size();
 }
 
 /*!
@@ -625,7 +624,7 @@ int Server::terminate()
 	/*
    *If there are open connections close them.
    */
-	if(nConnections)
+	if(connections.size())
 	{
 		clearAllConnections();
 	}
@@ -1165,7 +1164,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
    *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is 
 	 *defined.
    */
-  if(maxConnectionsToAccept && (nConnections >= maxConnectionsToAccept))
+  if(maxConnectionsToAccept && (connections.size() >= maxConnectionsToAccept))
     return 0;
 
   /*
@@ -1332,10 +1331,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
     connectionId++;
     newConnection->setID(connectionId);
    	connections.push_back(newConnection);
-    nConnections++;
     nTotalConnections++;
 
-		if(nConnections == 1)
+		if(connections.size() == 1)
 			connectionToParse = connections.begin();
 
     Server::getInstance()->connectionsMutexUnlock();
@@ -1353,7 +1351,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
    *is bigger than it say to the protocol that will parse the connection
    *to remove it from the active connections list.
    */
-	if(maxConnections && (nConnections>maxConnections))
+	if(maxConnections && (connections.size() > maxConnections))
 		newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
 	/*
@@ -1395,8 +1393,6 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 
 	connections.remove(s);
 
-	nConnections--;
-
   if(doLock)
     connectionsMutexUnlock();
 
@@ -1414,7 +1410,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 ConnectionPtr Server::getConnection(int /*id*/)
 {
 	/* Do nothing if there are not connections.  */
-	if(nConnections == 0)
+	if(connections.size() == 0)
 		return 0;
 	
 	/* Stop the thread if the server is pausing.  */
@@ -1459,7 +1455,6 @@ void Server::clearAllConnections()
 
 	connectionsMutexUnlock();
 	/* Reset everything.	 */
-	nConnections = 0;
 	nTotalConnections = 0;
 	connections.clear();
 	connectionToParse = connections.begin();

@@ -445,6 +445,7 @@ int ListenThreads::initialize(XmlParser* parser)
 	languageParser = parser;
 	usedPorts.clear();
 	shutdownStatus = false;
+	count = 0;
 	return 0;
 }
 
