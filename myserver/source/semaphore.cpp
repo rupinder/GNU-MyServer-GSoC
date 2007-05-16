@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006 The MyServer Team
+Copyright (C) 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -68,7 +68,7 @@ int Semaphore::init(int n)
 #ifdef HAVE_PTHREAD
 	ret = sem_init(&semaphore, 0, n);
 #else
-	semaphore = CreateSemaphore(0, 0, n, 0);
+	semaphore = CreateSemaphore(0, n, n, 0);
   ret = !semaphore;
 #endif
 	initialized = 1;
