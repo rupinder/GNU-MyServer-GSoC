@@ -68,7 +68,7 @@ int Semaphore::init(int n)
 #ifdef HAVE_PTHREAD
 	ret = sem_init(&semaphore, 0, n);
 #else
-	semaphore = CreateSemaphore(0, n, n, 0);
+	semaphore = CreateSemaphore(0, n, LONG_MAX, 0);
   ret = !semaphore;
 #endif
 	initialized = 1;
