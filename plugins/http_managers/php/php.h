@@ -10,22 +10,20 @@
 #include <include/files_utility.h>
 #include <include/http.h>
 
+#ifdef WIN32
+#define EXPORTABLE _declspec(dllexport);
+#else
+#define EXPORTABLE extern "C"
+#endif
+
 extern "C" char* name(char* name, u_long len);
 
 
-#ifdef WIN32
-int EXPORTABLE load(void* server, void* parser);
-#else
-extern "C" int load(void* server,void* parser);
-#endif
+EXPORTABLE int load(void* server, void* parser);
 
-#ifdef WIN32
-int EXPORTABLE unload(void* p);
-#else
-	extern "C" int unload(void* p);
-#endif
+EXPORTABLE int unload(void* p);
 
-extern "C" int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath,
+EXPORTABLE int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath,
 													 const char* cgi, int onlyHeader);
 
 
