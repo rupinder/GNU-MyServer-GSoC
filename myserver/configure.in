@@ -36,7 +36,7 @@ AC_SUBST(root_sbindir)
 AC_SUBST(root_sysconfdir)
 
 
-AC_ARG_WITH([myserver-headers], [  --with-myserver-headers=path Override the myserver headers location (used by modules)], MYSERVER_HEADERS=$withval, MYSERVER_HEADERS="`pwd`/include")
+AC_ARG_WITH([myserver-headers], [  --with-myserver-headers=path Override the myserver headers location (used by modules)], MYSERVER_HEADERS=$withval, MYSERVER_HEADERS="`pwd`")
 AC_ARG_WITH([mscgi-headers], [  --with-mscgi-headers=path Override the myserver MSCGI headers location (used by modules)], MSCGI_HEADERS=$withval, MSCGI_HEADERS="`pwd`/cgi-lib")
 
 AC_SUBST(MYSERVER_HEADERS)
