@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006 The MyServer Team
+Copyright (C) 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -27,12 +27,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/cached_file.h"
 #include "../include/cached_file_buffer.h"
 #include <string>
+#include <list>
 
 using namespace std;
 
 class CachedFileFactory
 {
+public:
+	CachedFileFactory();
+	~CachedFileFactory();
+	CachedFileFactory(u_long m);
+	void initialize(u_long size);
+	void clean();
+	void setSize(u_long m){size = m;}
+	File *open(const char* file);
+	void nullReferences(CachedFileBuffer* cfb);
+
+	void setMaxSize(u_long maxSize);
+	void setMinSize(u_long minSize);
+	u_long getMaxSize();
+	u_long getMinSize();
 protected:
+
+	u_long purgeRecords();
+
+
 	Mutex mutex;
 
 	/*! Max elements count for this cache.  */
@@ -72,22 +91,8 @@ protected:
 		bool invalidCache;
 	};
 
+	list<CachedFileFactoryRecord*> buffersToRemove;
 	HashMap<char*, CachedFileFactoryRecord*> buffers;
-public:
-	CachedFileFactory();
-	~CachedFileFactory();
-	CachedFileFactory(u_long m);
-	void initialize(u_long size);
-	void clean();
-	void setSize(u_long m){size = m;}
-	File *open(const char* file);
-	void nullReferences(CachedFileBuffer* cfb);
-
-	void setMaxSize(u_long maxSize);
-	void setMinSize(u_long minSize);
-	u_long getMaxSize();
-	u_long getMinSize();
-
 };
 
 #endif

@@ -141,6 +141,7 @@ File* CachedFileFactory::open(const char* filename)
 {
 	CachedFileFactoryRecord *record;
 	CachedFileBuffer *buffer;
+	CachedFile* cachedFile;
 	u_long ticks;
 	mutex.lock();
 	
@@ -194,9 +195,9 @@ File* CachedFileFactory::open(const char* filename)
 		}
 		fileSize = file->getFileSize();
 
-		if((fileSize > size - usedSize) || 
-			 (minSize != 0 && fileSize < minSize) ||
-			 (maxSize != 0 && fileSize > maxSize) )
+		if((minSize != 0 && fileSize < minSize) ||
+			 (maxSize != 0 && fileSize > maxSize)  ||
+			 (fileSize > size - usedSize + purgeRecords()))
 		{
 			mutex.unlock();
 			return file;
@@ -232,14 +233,16 @@ File* CachedFileFactory::open(const char* filename)
 			record->buffer = buffer;
 
 			buffers.put((char *)filename, record);
-			usedSize -= fileSize;
+			usedSize += fileSize;
 		}
 	}
 	record->used++;
 
-	mutex.unlock();
+	cachedFile = new CachedFile(buffer);
 
-	return new CachedFile(buffer);
+	mutex.unlock();
+	
+	return cachedFile;
 }
 
 /*!
@@ -275,11 +278,33 @@ void CachedFileFactory::nullReferences(CachedFileBuffer* cfb)
   {
 		record = buffers.remove(cfb->getFilename());
 		if(record)
-		{
-			delete record->buffer;
-			delete record;
-		}
+			buffersToRemove.push_back(record);
 	}
 		
 	mutex.unlock();
+}
+
+/*!
+ *Remove pending records from the list.
+ */
+u_long CachedFileFactory::purgeRecords()
+{
+	list<CachedFileFactoryRecord*>::iterator it = buffersToRemove.begin();
+	u_long ret = 0;
+
+	while(it != buffersToRemove.end())
+	{
+		CachedFileFactoryRecord* rec = *it;
+		if(!rec->buffer->getReferenceCounter())
+		{
+			ret += rec->buffer->getFileSize();
+			it = buffersToRemove.erase(it);
+			delete rec->buffer;
+			delete rec;
+		}
+		else
+			it++;
+	}
+	usedSize -= ret;
+	return ret;
 }

@@ -536,7 +536,15 @@ XmlParser* Server::getLanguageParser()
  */
 u_long Server::getNumConnections()
 {
-	return connections.size();
+	u_long ret = 0;
+
+	connectionsMutex->lock();
+
+	ret = connections.size();
+
+	connectionsMutex->unlock();
+
+	return ret;
 }
 
 /*!

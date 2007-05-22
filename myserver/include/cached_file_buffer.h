@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006 The MyServer Team
+Copyright (C) 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -31,13 +31,6 @@ class CachedFileFactory;
 
 class CachedFileBuffer
 {
-protected:
-	Mutex mutex;
-	char *buffer;
-	u_long refCounter;
-	u_long fileSize;
-	CachedFileFactory *factoryToNotify;
-	string filename;
 public:
 	void addRef();
 	void decRef();
@@ -49,5 +42,12 @@ public:
 	~CachedFileBuffer();
 	const char* getFilename(){return filename.c_str();}
 	const char* getBuffer(){return buffer;}
+protected:
+	Mutex mutex;
+	char *buffer;
+	u_long refCounter;
+	u_long fileSize;
+	CachedFileFactory *factoryToNotify;
+	string filename;
 };
 #endif
