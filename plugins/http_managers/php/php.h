@@ -1,13 +1,14 @@
 #include <php_embed.h>
 
 #include <../stdafx.h>
-#include <connection.h>
-#include <sockets.h>
-#include <server.h>
-#include <mutex.h>
-#include <file.h>
-#include <files_utility.h>
-#include <http.h>
+#include <include/connection.h>
+#include <include/sockets.h>
+#include <include/server.h>
+#include <include/semaphore.h>
+#include <include/mutex.h>
+#include <include/file.h>
+#include <include/files_utility.h>
+#include <include/http.h>
 
 extern "C" char* name(char* name, u_long len);
 

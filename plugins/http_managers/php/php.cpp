@@ -16,14 +16,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "php.h"
-#include <thread.h>
-#include <mutex.h>
-#include <hash_map.h>
-#include <http_data_handler.h>
-#include <http_response.h>
-#include <cgi.h>
-#include <thread.h>
-#include <event.h>
+#include <include/thread.h>
+#include <include/mutex.h>
+#include <include/hash_map.h>
+#include <include/http_data_handler.h>
+#include <include/http_response.h>
+#include <include/cgi.h>
+#include <include/thread.h>
 
 #include <main/php.h>
 #include <main/SAPI.h>
@@ -179,9 +178,9 @@ char *myphp_read_cookies(TSRMLS_D)
 void myphp_log_message(char* message)
 {
 	PhpData* data = getPhpData();
-	data->td->connection->host->warningslogRequestAccess(data->td->id);
+	data->td->connection->host->warningsLogRequestAccess(data->td->id);
 	data->td->connection->host->warningsLogWrite(message);
-	data->td->connection->host->warningslogRequestAccess(data->td->id);
+	data->td->connection->host->warningsLogRequestAccess(data->td->id);
 
 }
 
