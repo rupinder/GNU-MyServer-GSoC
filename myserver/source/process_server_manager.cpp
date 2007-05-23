@@ -219,6 +219,8 @@ ProcessServerManager::getServer(const char* domain, const char* name)
 	{
 		s->socket.closesocket();
 		s->process.terminateProcess();
+    if(!s->path.length())
+      s->path.assign(name);
 		if(runServer(s, s->path.c_str(), s->port))
 		{
 			sd->servers.remove(name);
