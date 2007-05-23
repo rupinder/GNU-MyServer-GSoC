@@ -127,21 +127,21 @@ if(! $update_makefile)
 		print SRC "#include <string.h>\n";
 
 		print SRC "#ifdef WIN32\n";
-		print SRC "#define EXPORTABLE _declspec(dllexport)\n";
+		print SRC "#define EXPORTABLE(x) x _declspec(dllexport)\n";
 		print SRC "#else\n";
-		print SRC "#define EXPORTABLE extern \"C\"\n";
+		print SRC "#define EXPORTABLE(x) extern \"C\" x\n";
 		print SRC "#endif\n\n";
 
 		
-		print SRC "EXPORTABLE char* name(char* name, u_long len)\n";
+		print SRC "EXPORTABLE(char*) name(char* name, u_long len)\n";
 		print SRC "{\n\tchar* str = \"$plugin\";\n\tif(name)\n\t\t";
 		print SRC "strncpy(name, str, len);\n\treturn str;\n}\n";
 
-		print SRC "EXPORTABLE int load(void* server,void* parser)\n{\n\treturn 0;\n}\n";
+		print SRC "EXPORTABLE(int) load(void* server,void* parser)\n{\n\treturn 0;\n}\n";
 
-		print SRC "EXPORTABLE int postLoad(void* server,void* parser)\n{\n\treturn 0;\n}\n";
+		print SRC "EXPORTABLE(int) postLoad(void* server,void* parser)\n{\n\treturn 0;\n}\n";
 
-		print SRC "EXPORTABLE int unLoad(void* parser)\n{\n\treturn 0;\n}\n";
+		print SRC "EXPORTABLE(int) unLoad(void* parser)\n{\n\treturn 0;\n}\n";
 
 
 		close(SRC);
