@@ -11,19 +11,19 @@
 #include <include/http.h>
 
 #ifdef WIN32
-#define EXPORTABLE _declspec(dllexport);
+#define EXPORTABLE(x) x _declspec(dllexport);
 #else
-#define EXPORTABLE extern "C"
+#define EXPORTABLE(x) extern "C" x
 #endif
 
-extern "C" char* name(char* name, u_long len);
+EXPORTABLE(char*) name(char* name, u_long len);
 
 
-EXPORTABLE int load(void* server, void* parser);
+EXPORTABLE(int) load(void* server, void* parser);
 
-EXPORTABLE int unload(void* p);
+EXPORTABLE(int) unload(void* p);
 
-EXPORTABLE int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath,
+EXPORTABLE(int) sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath,
 													 const char* cgi, int onlyHeader);
 
 
