@@ -157,35 +157,42 @@ void Vhost::clearIPList()
  */
 int Vhost::openLogFiles(u_long maxlogSize)
 {
-
-	accessesLogFile.load(getAccessesLogFileName());
+	const char* accessesLogFileName = getAccessesLogFileName();
+	const char* warningsLogFileName = getWarningsLogFileName();
+	if(accessesLogFileName)
+	{
+		accessesLogFile.load(accessesLogFileName);
     
-	if(strstr(getAccessLogOpt(), "cycle=yes"))
-  {
-		accessesLogFile.setCycleLog(1);
+		if(strstr(getAccessLogOpt(), "cycle=yes"))
+		{
+			accessesLogFile.setCycleLog(1);
+		}
+		if(strstr(getAccessLogOpt(), "cycle_gzip=no"))
+		{
+			accessesLogFile.setGzip(0);
+		}
+		else
+		{
+			accessesLogFile.setGzip(1);
+		}  
 	}
-	if(strstr(getAccessLogOpt(), "cycle_gzip=no"))
-  {
-		accessesLogFile.setGzip(0);
-	}
-	else
-  {
-		accessesLogFile.setGzip(1);
-	}  
- 
-	warningsLogFile.load(getWarningsLogFileName());
-	if(strstr(getWarningLogOpt(), "cycle=yes"))
-  {
-		warningsLogFile.setCycleLog(1);
-	}
+
+	if(warningsLogFileName)
+	{
+		warningsLogFile.load(warningsLogFileName);
+		if(strstr(getWarningLogOpt(), "cycle=yes"))
+		{
+			warningsLogFile.setCycleLog(1);
+		}
 	
-	if(strstr(getWarningLogOpt(), "cycle_gzip=no"))
-  {
-		warningsLogFile.setGzip(0);
-	}
-	else
-  {
-		warningsLogFile.setGzip(1);
+		if(strstr(getWarningLogOpt(), "cycle_gzip=no"))
+		{
+			warningsLogFile.setGzip(0);
+		}
+		else
+		{
+			warningsLogFile.setGzip(1);
+		}
 	}
 
 	setMaxLogSize(maxlogSize);

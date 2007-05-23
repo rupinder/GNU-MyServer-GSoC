@@ -479,8 +479,18 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
         xmlAttr *attr;
         string opt;
         opt.assign("");
-				vh->setAccessLogOpt("");                
-				vh->setAccessesLogFileName((char*)lcur->children->content);
+				vh->setAccessLogOpt("");
+				if(lcur->children && lcur->children->content)
+					vh->setAccessesLogFileName((char*)lcur->children->content);
+				else
+				{
+					errMsg.assign("Error: invalid accesses log file name");
+					Server::getInstance()->logLockAccess();
+					Server::getInstance()->logPreparePrintError();
+					Server::getInstance()->logWriteln(errMsg.c_str());
+					Server::getInstance()->logEndPrintError();
+					Server::getInstance()->logUnlockAccess();
+				}
 
 				attr =  lcur->properties;
         while(attr)
@@ -502,7 +512,18 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 				xmlAttr *attr;
         string opt;
         opt.assign("");
-				vh->setWarningsLogFileName((char*)lcur->children->content);
+
+				if(lcur->children && lcur->children->content)
+					vh->setWarningsLogFileName((char*)lcur->children->content);
+				else
+				{
+					errMsg.assign("Error: invalid warnings log file name");
+					Server::getInstance()->logLockAccess();
+					Server::getInstance()->logPreparePrintError();
+					Server::getInstance()->logWriteln(errMsg.c_str());
+					Server::getInstance()->logEndPrintError();
+					Server::getInstance()->logUnlockAccess();
+				}
 				vh->setWarningLogOpt("");                
 				attr = lcur->properties;
 				while(attr)
@@ -535,11 +556,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 				string *old;
         string *s = new string((const char*)lcur->children->content);
         if(s == 0)
-	{
-		parser.close();
-		clean();
+				{
+					parser.close();
+					clean();
           return -1;
-	}
+				}
 				string keyValue((const char*)lcur->name);
         old = vh->hashedData.put(keyValue, s);
 				if(old)
