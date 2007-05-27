@@ -24,6 +24,9 @@
 
 #include "vector.h"
 #include "../include/mem_buff.h"
+#include <vector>
+
+using namespace std;
 
 enum 
 {

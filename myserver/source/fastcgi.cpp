@@ -413,11 +413,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 			Thread::wait(1);
 		}
 
-		if(con.sock.bytesToRead())
+		if(con.sock.bytesToRead() >= sizeof(FcgiHeader))
     {
 			nbr = con.sock.recv((char*)&header, sizeof(FcgiHeader), 0, 
 													static_cast<u_long>(timeout));
-      if(nbr == (u_long)-1)
+      if(nbr != sizeof(FcgiHeader))
       {
         td->buffer->setLength(0);
         *td->buffer << "FastCGI: Error reading data" << '\0';
@@ -465,37 +465,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
           ret = 0;
 					break;
 				case FCGISTDOUT:
-					nbr = con.sock.recv(td->buffer->getBuffer(), 
-															(dim < td->buffer->getRealLength())
-															? dim: td->buffer->getRealLength(), 0, 
-															static_cast<u_long>(timeout));
-          if(nbr == (u_long) -1)
-          {
-						exit = 1;
-            ret = 0;
-						break;
-          }
-
-          if(con.tempOut.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
-          {
-						exit = 1;
-            ret = 0;
-						break;
-          }
-
-					dataSent = nbw;
-					if(dataSent == 0)
-					{
-						exit = 1;
-            ret = 0;
-						break;
-					}
+					dataSent = 0;
 
 					while(dataSent < dim)
 					{
-            nbr=con.sock.recv(td->buffer->getBuffer(),
-                    std::min(static_cast<u_long>(td->buffer->getRealLength()),
-                             dim - dataSent), 0, static_cast<u_long>(timeout));
+            nbr = con.sock.recv(td->buffer->getBuffer(),
+																std::min(static_cast<u_long>(td->buffer->getRealLength()),
+																				 dim - dataSent), 0, static_cast<u_long>(timeout));
             if(nbr == (u_long)-1)
             {
               exit = 1;
@@ -506,12 +482,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 						if(con.tempOut.writeToFile((char*)(td->buffer->getBuffer()), 
 																			 nbr, &nbw))
             {
-              ret = 0;
               exit = 1;
+              ret = 0;
               break;
             }
-						dataSent += nbw;
+						dataSent += nbr;
 					}
+
 					break;
 				case FCGIEND_REQUEST:
 					exit = 1;
@@ -522,13 +499,32 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 					break;
 			}
 		}
+
+		if(header.paddingLength)
+		{
+			u_long toPad = header.paddingLength;
+			while(toPad)
+			{
+				nbr = con.sock.recv(td->buffer->getBuffer(),
+														std::min(toPad, (u_long)td->buffer->getRealLength()), 0, 
+														static_cast<u_long>(timeout));
+				if(nbr == (u_long)-1)
+				{
+					exit = 1;
+					ret = 0;
+					break;
+				}
+				toPad -= nbr;
+			}
+		}
+
 	}while((!exit) && nbr);
 
 	con.tempOut.setFilePointer(0);
 	td->buffer->getAt(0) = '\0';
 	buffer = td->buffer->getBuffer();
 
-  con.tempOut.setFilePointer(0);
+
 
   /*! Return an error message if ret is 0.  */
   if((!ret) || con.tempOut.readFromFile(buffer, 
@@ -594,32 +590,35 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         break;
       }
 
-			if(useChunks)
+			if(nbr - headerSize)
 			{
-				ostringstream tmp;
-				tmp << hex << (nbr - headerSize) << "\r\n";
-				td->response.contentLength.assign(tmp.str());
-				if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+				if(useChunks)
+				{
+					ostringstream tmp;
+					tmp << hex << (nbr - headerSize) << "\r\n";
+					td->response.contentLength.assign(tmp.str());
+					if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+					{
+						exit = 0;
+						ret = 0;
+						break;
+					}
+				}
+
+				if(chain.write((char*)((td->buffer->getBuffer())
+															 +headerSize), nbr - headerSize, &nbw2))
 				{
 					exit = 0;
 					ret = 0;
 					break;
 				}
-			}
 
-			if(chain.write((char*)((td->buffer->getBuffer())
-                             +headerSize), nbr - headerSize, &nbw2))
-			{
-				exit = 0;
-        ret = 0;
-				break;
-			}
-
-			if(useChunks && chain.write("\r\n", 2, &nbw2))
-			{
-				exit = 0;
-        ret = 0;
-				break;
+				if(useChunks && chain.write("\r\n", 2, &nbw2))
+				{
+					exit = 0;
+					ret = 0;
+					break;
+				}
 			}
 		}
 		else/*! If appendOutputs.  */
