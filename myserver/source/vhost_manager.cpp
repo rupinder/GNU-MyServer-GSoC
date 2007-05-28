@@ -336,9 +336,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			Server::getInstance()->logUnlockAccess();
       return -1;
     }
+      SslContext* sslContext = vh->getVhostSSLContext();
 		while(lcur)
     {
-      SslContext* sslContext = vh->getVhostSSLContext();
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
 			{
         int useRegex = 0;
