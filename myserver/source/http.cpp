@@ -3006,7 +3006,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 		{
 			for(node = node->children; node; node = node->next)
 			{
-				if(!xmlStrcmp(node->name, (const xmlChar *)"DEFAULT_FILENAME"))
+				if(!xmlStrncmp(node->name, (const xmlChar *)"DEFAULT_FILENAME", strlen("DEFAULT_FILENAME")))
 				{
 					defaultFilename.push_back((char*)node->children->content);
 					nDefaultFilename++;
