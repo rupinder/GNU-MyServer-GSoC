@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright © 2005 The MyServer Team
+Copyright © 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -117,7 +117,7 @@ class HashMap
 
 	void increaseSize(const int);
 	void decreaseSize(const int);
-	unsigned int superFastHash (const char *, int);
+	unsigned int hash (const char *, int);
 };
 
 template <typename ValueType>
@@ -157,7 +157,7 @@ class HashMap <string, ValueType>
 
 	void increaseSize(const int);
 	void decreaseSize(const int);
-	unsigned int superFastHash (const char *, int);
+	unsigned int hash (const char *, int);
 };
 
 template <typename ValueType>
@@ -197,7 +197,7 @@ class HashMap <char*, ValueType>
 
 	void increaseSize(const int);
 	void decreaseSize(const int);
-	unsigned int superFastHash (const char *, int);
+	unsigned int hash (const char *, int);
 };
 
 template <typename ValueType>
@@ -237,7 +237,7 @@ class HashMap <void*, ValueType>
 
 	void increaseSize(const int);
 	void decreaseSize(const int);
-	unsigned int superFastHash (const char *, int);
+	unsigned int hash (const char *, int);
 };
 
 #ifndef HASHMAP_CPP

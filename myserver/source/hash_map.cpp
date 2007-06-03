@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright © 2005, 2006 The MyServer Team
+Copyright © 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -16,16 +16,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/*
-The superFastHash hash function is authored by Paul Hsieh
-(http://www.azillionmonkeys.com/qed/bio.html)
-
-It's released under the Paul Hsieh derivative license
-(http://www.azillionmonkeys.com/qed/weblicense.html)
-*/
-
 #define HASHMAP_CPP
 #include "../include/hash_map.h"
+
+/*
+ *ELF hash function.
+ */
+#define elfHash(data, len){\
+   unsigned int h = 0;\
+   unsigned int x = 0;\
+   for(int i = 0; i < len; i++)\
+   {\
+      h = (h << 4) + data[i];\
+			x = h & 0xF0000000L;\
+      if(x)\
+      {\
+         h ^= (x >> 24);\
+         h &= ~x;\
+      }\
+   }\
+   return (h & 0x7FFFFFFF);\
+}
 
 //HashMap
 template <typename KeyType, typename ValueType>
@@ -836,7 +847,7 @@ ValueType HashMap<void*, ValueType>::remove(const Iterator& iter)
 template <typename KeyType, typename ValueType>
 bool HashMap<KeyType, ValueType>::containsKey(const KeyType& key)
 {
-	tempHash=superFastHash((const char*)&key, sizeof(key));
+	tempHash=hash((const char*)&key, sizeof(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -853,7 +864,7 @@ bool HashMap<KeyType, ValueType>::containsKey(const KeyType& key)
 template <typename ValueType>
 bool HashMap<string, ValueType>::containsKey(const string& key)
 {
-	tempHash=superFastHash(key.c_str(), key.size());
+	tempHash=hash(key.c_str(), key.size());
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -870,7 +881,7 @@ bool HashMap<string, ValueType>::containsKey(const string& key)
 template <typename ValueType>
 bool HashMap<char*, ValueType>::containsKey(const char* const key)
 {
-	tempHash=superFastHash(key, strlen(key));
+	tempHash=hash(key, strlen(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -887,7 +898,7 @@ bool HashMap<char*, ValueType>::containsKey(const char* const key)
 template <typename ValueType>
 bool HashMap<void*, ValueType>::containsKey(const void* const key)
 {
-	tempHash=superFastHash((const char*)key, sizeof(void*));
+	tempHash=hash((const char*)key, sizeof(void*));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -904,7 +915,7 @@ bool HashMap<void*, ValueType>::containsKey(const void* const key)
 template <typename KeyType, typename ValueType>
 ValueType HashMap<KeyType, ValueType>::get(const KeyType& key)
 {
-	tempHash=superFastHash((const char*)&key, sizeof(key));
+	tempHash=hash((const char*)&key, sizeof(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -921,7 +932,7 @@ ValueType HashMap<KeyType, ValueType>::get(const KeyType& key)
 template <typename ValueType>
 ValueType HashMap<string, ValueType>::get(const string& key)
 {
-	tempHash=superFastHash(key.c_str(), key.size());
+	tempHash=hash(key.c_str(), key.size());
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -938,7 +949,7 @@ ValueType HashMap<string, ValueType>::get(const string& key)
 template <typename ValueType>
 ValueType HashMap<char*, ValueType>::get(const char* const key)
 {
-	tempHash=superFastHash(key, strlen(key));
+	tempHash=hash(key, strlen(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -955,7 +966,7 @@ ValueType HashMap<char*, ValueType>::get(const char* const key)
 template <typename ValueType>
 ValueType HashMap<void*, ValueType>::get(const void* const key)
 {
-	tempHash=superFastHash((const char*)key, sizeof(void*));
+	tempHash=hash((const char*)key, sizeof(void*));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -972,7 +983,7 @@ ValueType HashMap<void*, ValueType>::get(const void* const key)
 template <typename KeyType, typename ValueType>
 typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType>::getI(const KeyType& key)
 {
-	tempHash=superFastHash((const char*)&key, sizeof(key));
+	tempHash=hash((const char*)&key, sizeof(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -994,7 +1005,7 @@ typename HashMap<KeyType, ValueType>::Iterator HashMap<KeyType, ValueType>::getI
 template <typename ValueType>
 typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>::getI(const string& key)
 {
-	tempHash=superFastHash(key.c_str(), key.size());
+	tempHash=hash(key.c_str(), key.size());
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1016,7 +1027,7 @@ typename HashMap<string, ValueType>::Iterator HashMap<string, ValueType>::getI(c
 template <typename ValueType>
 typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::getI(const char* const key)
 {
-	tempHash=superFastHash(key, strlen(key));
+	tempHash=hash(key, strlen(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1038,7 +1049,7 @@ typename HashMap<char*, ValueType>::Iterator HashMap<char*, ValueType>::getI(con
 template <typename ValueType>
 typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::getI(const void* const key)
 {
-	tempHash=superFastHash((const char*)key, sizeof(void*));
+	tempHash=hash((const char*)key, sizeof(void*));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1060,7 +1071,7 @@ typename HashMap<void*, ValueType>::Iterator HashMap<void*, ValueType>::getI(con
 template <typename KeyType, typename ValueType>
 ValueType HashMap<KeyType, ValueType>::put(KeyType& key, const ValueType& value)
 {
-	tempHash=superFastHash((const char*)&key, sizeof(key));
+	tempHash=hash((const char*)&key, sizeof(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1097,7 +1108,7 @@ ValueType HashMap<KeyType, ValueType>::put(KeyType& key, const ValueType& value)
 template <typename ValueType>
 ValueType HashMap<string, ValueType>::put(string& key, const ValueType& value)
 {
-	tempHash=superFastHash(key.c_str(), key.size());
+	tempHash=hash(key.c_str(), key.size());
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1134,7 +1145,7 @@ ValueType HashMap<string, ValueType>::put(string& key, const ValueType& value)
 template <typename ValueType>
 ValueType HashMap<char*, ValueType>::put(char* const key, const ValueType& value)
 {
-	tempHash=superFastHash(key, strlen(key));
+	tempHash=hash(key, strlen(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1171,7 +1182,7 @@ ValueType HashMap<char*, ValueType>::put(char* const key, const ValueType& value
 template <typename ValueType>
 ValueType HashMap<void*, ValueType>::put(void* const key, const ValueType& value)
 {
-	tempHash=superFastHash((const char*)key, sizeof(void*));
+	tempHash=hash((const char*)key, sizeof(void*));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1208,7 +1219,7 @@ ValueType HashMap<void*, ValueType>::put(void* const key, const ValueType& value
 template <typename KeyType, typename ValueType>
 ValueType HashMap<KeyType, ValueType>::remove(const KeyType& key)
 {
-	tempHash=superFastHash((const char*)&key, sizeof(key));
+	tempHash=hash((const char*)&key, sizeof(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1234,7 +1245,7 @@ ValueType HashMap<KeyType, ValueType>::remove(const KeyType& key)
 template <typename ValueType>
 ValueType HashMap<string, ValueType>::remove(const string& key)
 {
-	tempHash=superFastHash(key.c_str(), key.size());
+	tempHash=hash(key.c_str(), key.size());
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1260,7 +1271,7 @@ ValueType HashMap<string, ValueType>::remove(const string& key)
 template <typename ValueType>
 ValueType HashMap<char*, ValueType>::remove(const char* const key)
 {
-	tempHash=superFastHash(key, strlen(key));
+	tempHash=hash(key, strlen(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1286,7 +1297,7 @@ ValueType HashMap<char*, ValueType>::remove(const char* const key)
 template <typename ValueType>
 ValueType HashMap<void*, ValueType>::remove(const void* const key)
 {
-	tempHash=superFastHash((const char*)key, sizeof(key));
+	tempHash=hash((const char*)key, sizeof(key));
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -1557,236 +1568,29 @@ void HashMap<void*, ValueType>::decreaseSize (const int powerOffset)
 	map.resize(capacity);
 }
 
-
-/*
-The superFastHash hash function bellow is authored by Paul Hsieh
-(http://www.azillionmonkeys.com/qed/bio.html)
-
-It's released under the Paul Hsieh derivative license
-(http://www.azillionmonkeys.com/qed/weblicense.html)
-*/
 template <typename KeyType, typename ValueType>
-unsigned int HashMap<KeyType, ValueType>::superFastHash (const char *data, int len)
+unsigned int HashMap<KeyType, ValueType>::hash (const char *data, int len)
 {
-	unsigned int hash=static_cast<unsigned int>(len), tmp;
-	int rem;
-
-	if((len<=0) || (data==NULL))
-		return 0;
-
-	rem=len & 3;
-	len>>=2;
-
-	/* Main loop */
-	for(;len>0;len--)
-	{
-		hash+=(*((const unsigned short *) (data)));
-		tmp=((*((const unsigned short *) (data+2)))<<11) ^ hash;
-		hash=(hash<<16) ^ tmp;
-		data+=2*sizeof(unsigned short);
-		hash+=hash>>11;
-	}
-
-	/* Handle end cases */
-	switch(rem)
-	{
-		case 3:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<16;
-			hash^=data[sizeof(unsigned short)]<<18;
-			hash+=hash>>11;
-		break;
-
-		case 2:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<11;
-			hash+=hash>>17;
-		break;
-
-		case 1:
-			hash+=*data;
-			hash^=hash<<10;
-			hash+=hash>>1;
-	}
-
-	/* Force "avalanching" of final 127 bits */
-	hash^=hash<<3;
-	hash+=hash>>5;
-	hash^=hash<<2;
-	hash+=hash>>15;
-	hash^=hash<<10;
-
-	return hash;
+	elfHash(data, len);
 }
 
 template <typename ValueType>
-unsigned int HashMap<string, ValueType>::superFastHash (const char *data, int len)
+unsigned int HashMap<string, ValueType>::hash (const char *data, int len)
 {
-	unsigned int hash=len, tmp;
-	int rem;
-
-	if((len<=0) || (data==NULL))
-		return 0;
-
-	rem=len & 3;
-	len>>=2;
-
-	/* Main loop */
-	for(;len>0;len--)
-	{
-		hash+=(*((const unsigned short *) (data)));
-		tmp=((*((const unsigned short *) (data+2)))<<11) ^ hash;
-		hash=(hash<<16) ^ tmp;
-		data+=2*sizeof(unsigned short);
-		hash+=hash>>11;
-	}
-
-	/* Handle end cases */
-	switch(rem)
-	{
-		case 3:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<16;
-			hash^=data[sizeof(unsigned short)]<<18;
-			hash+=hash>>11;
-		break;
-
-		case 2:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<11;
-			hash+=hash>>17;
-		break;
-
-		case 1:
-			hash+=*data;
-			hash^=hash<<10;
-			hash+=hash>>1;
-	}
-
-	/* Force "avalanching" of final 127 bits */
-	hash^=hash<<3;
-	hash+=hash>>5;
-	hash^=hash<<2;
-	hash+=hash>>15;
-	hash^=hash<<10;
-
-	return hash;
+	elfHash(data, len);
 }
 
 template <typename ValueType>
-unsigned int HashMap<char*, ValueType>::superFastHash (const char *data, int len)
+unsigned int HashMap<char*, ValueType>::hash (const char *data, int len)
 {
-	unsigned int hash=len, tmp;
-	int rem;
-
-	if((len<=0) || (data==NULL))
-		return 0;
-
-	rem=len & 3;
-	len>>=2;
-
-	/* Main loop */
-	for(;len>0;len--)
-	{
-		hash+=(*((const unsigned short *) (data)));
-		tmp=((*((const unsigned short *) (data+2)))<<11) ^ hash;
-		hash=(hash<<16) ^ tmp;
-		data+=2*sizeof(unsigned short);
-		hash+=hash>>11;
-	}
-
-	/* Handle end cases */
-	switch(rem)
-	{
-		case 3:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<16;
-			hash^=data[sizeof(unsigned short)]<<18;
-			hash+=hash>>11;
-		break;
-
-		case 2:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<11;
-			hash+=hash>>17;
-		break;
-
-		case 1:
-			hash+=*data;
-			hash^=hash<<10;
-			hash+=hash>>1;
-	}
-
-	/* Force "avalanching" of final 127 bits */
-	hash^=hash<<3;
-	hash+=hash>>5;
-	hash^=hash<<2;
-	hash+=hash>>15;
-	hash^=hash<<10;
-
-	return hash;
+	elfHash(data, len);
 }
 
 template <typename ValueType>
-unsigned int HashMap<void*, ValueType>::superFastHash (const char *data, int len)
+unsigned int HashMap<void*, ValueType>::hash (const char *data, int len)
 {
-	unsigned int hash=len, tmp;
-	int rem;
-
-	if((len<=0) || (data==NULL))
-		return 0;
-
-	rem=len & 3;
-	len>>=2;
-
-	/* Main loop */
-	for(;len>0;len--)
-	{
-		hash+=(*((const unsigned short *) (data)));
-		tmp=((*((const unsigned short *) (data+2)))<<11) ^ hash;
-		hash=(hash<<16) ^ tmp;
-		data+=2*sizeof(unsigned short);
-		hash+=hash>>11;
-	}
-
-	/* Handle end cases */
-	switch(rem)
-	{
-		case 3:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<16;
-			hash^=data[sizeof(unsigned short)]<<18;
-			hash+=hash>>11;
-		break;
-
-		case 2:
-			hash+=(*((const unsigned short *) (data)));
-			hash^=hash<<11;
-			hash+=hash>>17;
-		break;
-
-		case 1:
-			hash+=*data;
-			hash^=hash<<10;
-			hash+=hash>>1;
-	}
-
-	/* Force "avalanching" of final 127 bits */
-	hash^=hash<<3;
-	hash+=hash>>5;
-	hash^=hash<<2;
-	hash+=hash>>15;
-	hash^=hash<<10;
-
-	return hash;
+	elfHash(data, len);
 }
-/*
-The superFastHash hash function above is authored by Paul Hsieh
-(http://www.azillionmonkeys.com/qed/bio.html)
-
-It's released under the Paul Hsieh derivative license
-(http://www.azillionmonkeys.com/qed/weblicense.html)
-*/
 
 //Iterator
 template <typename KeyType, typename ValueType>
