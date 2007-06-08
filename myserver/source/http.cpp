@@ -1373,8 +1373,12 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       return raiseHTTPError(500);
     }
 
+		/* The security file doesn't exist in any case.  */
+    if(!strcmpi(file.c_str(), "security"))
+      return raiseHTTPError(404);
 
-    /*! If a throttling rate was specifed use it. */
+
+    /*! If a throttling rate was specifed use it.  */
     if(st.throttlingRate != -1)
       td.connection->socket->setThrottling(st.throttlingRate);
 
