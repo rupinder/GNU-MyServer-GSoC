@@ -1921,14 +1921,14 @@ int Http::logHTTPaccess()
     *td.buffer2 << td.connection->getIpAddr();
     *td.buffer2<< " ";
 
-	  if(td.connection->getLogin())
+	  if(td.connection->getLogin()[0])
       *td.buffer2 << td.connection->getLogin();
     else
       *td.buffer2 << "-";
 
     *td.buffer2<< " ";
 
-    if(td.connection->getLogin())
+    if(td.connection->getLogin()[0])
       *td.buffer2 << td.connection->getLogin();
     else
       *td.buffer2 << "-";
