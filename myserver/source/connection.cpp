@@ -142,10 +142,14 @@ void Connection::setPort(u_short newPort)
 
 /*!
  *Get the login name used by the connection user.
+ *If there is not a login returns a NULL pointer.
  */
 const char* Connection::getLogin()
 {
-  return login.c_str();
+	const char* retLogin = login.c_str();
+	if(retLogin[0])
+		return retLogin;
+	return 0;
 }
 
 /*!

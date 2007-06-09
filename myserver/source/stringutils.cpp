@@ -460,7 +460,7 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
     return 0;
   GMtime.tm_year += 1900;
 	asct = asctime(&GMtime);
- 	out[0] = asct[8];
+ 	out[0] = asct[8] != ' ' ? asct[8] : '0';
 	out[1] = asct[9];
 	out[2] = '/';
 	out[3] = asct[4];
@@ -530,7 +530,7 @@ const char* getGMTLogFormatDate(const time_t t, char* out, int len)
 
   result.tm_year += 1900;
   asct = asctime(&result);
-  out[0] = asct[8];
+ 	out[0] = asct[8] != ' ' ? asct[8] : '0';
   out[1] = asct[9];
   out[2] = '/';
   out[3] = asct[4];
