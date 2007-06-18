@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -48,12 +48,12 @@ public:
 	int openMemBuf(MemBuf &);
 	char *getValue(const char* field);
 	char *getValue(string const &field){return getValue(field.c_str());};
-	char *getAttr(char* field,char *attr);
-	int setValue(char* field,char *value);
+	char *getAttr(const char* field, const char *attr);
+	int setValue(const char* field, const char *value);
 	int close();
-	int save(const char *filename,int *nbytes=0);
-	int save(string const &filename,int *nbytes=0){return save(filename.c_str(), nbytes);};
-	int saveMemBuf(MemBuf &,int *nbytes=0);
+	int save(const char *filename,int *nbytes = 0);
+	int save(string const &filename,int *nbytes = 0){return save(filename.c_str(), nbytes);};
+	int saveMemBuf(MemBuf &,int *nbytes = 0);
 	void newfile(const char * root);
 	void newfile(string const &root){newfile(root.c_str());};
 	void addChild(const char * name, const char * value);

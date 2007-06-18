@@ -115,7 +115,7 @@ void ProcessServerManager::load()
 		}
 		else
 		{
-			char *msg = "Error: incomplete PROCESS_SERVER block";
+			const char *msg = "Error: incomplete PROCESS_SERVER block";
 			::Server::getInstance()->logLockAccess();
 			::Server::getInstance()->logPreparePrintError();
 			::Server::getInstance()->logWriteln(msg);

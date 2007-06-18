@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/plugins_manager.h"
 #include "../include/process_server_manager.h"
 #include "../include/listen_threads.h"
+#include "../include/multicast.h"
+
 #include <string>
 #include <list>
 using namespace std;
@@ -59,7 +61,7 @@ void* listenServer(void* pParam);
 
 extern int rebootMyServerConsole;
 
-class Server
+class Server : public MulticastRegistry<const char*, void*, int>
 {
 public:
 	ProcessServerManager* getProcessServerManager()

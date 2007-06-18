@@ -42,7 +42,7 @@ char* Https::registerName(char* out, int len)
 	{
 		strncpy(out, "HTTPS", len);
 	}
-	return "HTTPS";
+	return (char*)"HTTPS";
 }
 /*!
  *Https class constructor.

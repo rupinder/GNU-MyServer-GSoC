@@ -62,7 +62,7 @@ char* ControlProtocol::registerName(char* out,int len)
 	{
 		strncpy(out,"CONTROL",len);
 	}
-	return "CONTROL";
+	return (char*)"CONTROL";
 }
 
 /*!

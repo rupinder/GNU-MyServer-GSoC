@@ -51,20 +51,20 @@ private:
 public:
 	Server *getServer();
 	MsCgiData* getCgiData();
-	void setContentType(char *);
+	void setContentType(const char *);
 	int setPageError(int);
 	int raiseError(int);
 	CgiManager(MsCgiData* data);
 	~CgiManager(void);
-	int operator <<(char*);
-	char* operator >>(char*);
+	int operator <<(const char*);
+	char* operator >>(const char*);
 	int start(MsCgiData* data);
 	int clean();
-	void getenv(char*, char*, u_long*);
-	char* getParam(char*);
-	char* postParam(char*);
-	int write(char*);
-	int write(void*, int);
+	void getenv(const char*, char*, u_long*);
+	char* getParam(const char*);
+	char* postParam(const char*);
+	int write(const char*);
+	int write(const void*, int);
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -266,7 +266,7 @@ char *XmlParser::getValue(const char* vName)
  * @param value
  * @return Returns 0 on success, non zero on failures
  */
-int XmlParser::setValue(char* vName,char *value)
+int XmlParser::setValue(const char* vName, const char *value)
 {
 	xmlNodePtr lcur=cur->xmlChildrenNode;
 	buffer[0]='\0';
@@ -296,7 +296,7 @@ int XmlParser::setValue(char* vName,char *value)
  * @param attr Attribute
  * @return
  */
-char *XmlParser::getAttr(char* field,char *attr)
+char *XmlParser::getAttr(const char* field, const char *attr)
 {
 	xmlNodePtr lcur=cur->xmlChildrenNode;
 	buffer[0]='\0';

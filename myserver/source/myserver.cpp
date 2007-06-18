@@ -50,7 +50,7 @@ void consoleService ();
 void __stdcall myServerCtrlHandler(u_long fdwControl);
 void __stdcall myServerMain (u_long , LPTSTR *argv); 
 #else
-int  writePidfile(char*);
+int  writePidfile(const char*);
 #endif
 void runService();
 void registerService();
@@ -381,7 +381,7 @@ int main (int argn, char **argv)
 /*!
  *Write the current PID to the file.
  */
-int writePidfile(char* filename)
+int writePidfile(const char* filename)
 {
 	int pidfile;
 	pid_t pid = getpid(); 

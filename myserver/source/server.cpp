@@ -102,7 +102,6 @@ Server::Server()
 /*!
  *Destroy the object.
  */
-
 Server::~Server()
 {
 
@@ -1168,7 +1167,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 	 *in getnameinfo call; Otherwise we should have used NI_MAXHOST.
    *ip is the string containing the address of the remote host connecting 
 	 *to the server.
-   *localIp is the local addrress used by the connection.
+   *localIp is the local address used by the connection.
 	 *port is the remote port used by the client to open the connection.
 	 *myPort is the port used by the server to listen.
 	 */

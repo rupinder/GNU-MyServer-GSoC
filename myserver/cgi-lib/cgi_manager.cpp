@@ -32,7 +32,7 @@ using namespace std;
 /*!
  *Write to the stdout.
  */
-int CgiManager::write(char* str)
+int CgiManager::write(const char* str)
 {
 	if(str)
 	{
@@ -46,7 +46,7 @@ int CgiManager::write(char* str)
 /*!
  *Write binary to the stdout.
  */
-int CgiManager::write(void* data, int len)
+int CgiManager::write(const void* data, int len)
 {
 	if(data)
 	{
@@ -117,7 +117,7 @@ CgiManager::~CgiManager(void)
 /*!
  *Returns the value of a param passed through the URL.
  */
-char* CgiManager::getParam(char* param)
+char* CgiManager::getParam(const char* param)
 {
   const char* c;
 	u_long len = 0;
@@ -155,7 +155,7 @@ char* CgiManager::getParam(char* param)
 /*!
  *Returns the value of a param passed through a POST request.
  */
-char* CgiManager::postParam(char* param)
+char* CgiManager::postParam(const char* param)
 {
 	char buffer[LOCAL_BUFFER_DIM + 50];
 	u_long nbr = 0;
@@ -199,7 +199,7 @@ char* CgiManager::postParam(char* param)
 /*!
  *Write to stdout.
  */
-int CgiManager::operator <<(char* str)
+int CgiManager::operator <<(const char* str)
 {
 	return write(str);
 }
@@ -207,7 +207,7 @@ int CgiManager::operator <<(char* str)
 /*!
  *Read from the stdin.
  */
-char *CgiManager::operator >>(char* str)
+char *CgiManager::operator >>(const char* str)
 {
 	/*!
    *If it is a POST request return a param from the POST values
@@ -222,7 +222,7 @@ char *CgiManager::operator >>(char* str)
 /*!
  *Get the value of an environment variable.
  */
-void CgiManager::getenv(char* lpszVariableName, char *lpvBuffer, 
+void CgiManager::getenv(const char* lpszVariableName, char *lpvBuffer, 
 												u_long* lpdwSize)
 {
 	((char*)lpvBuffer)[0] = '\0';
@@ -261,7 +261,7 @@ MsCgiData* CgiManager::getCgiData()
 /*!
  *Specify the MIME type for the data.
  */
-void CgiManager::setContentType(char * Type)
+void CgiManager::setContentType(const char * Type)
 {
 	td->response.contentType.assign(Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
 }

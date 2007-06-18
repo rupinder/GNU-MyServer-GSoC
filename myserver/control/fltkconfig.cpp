@@ -4021,7 +4021,7 @@ return ret;
 }
 
 int MainDlg::load_config() {
-  char * filename;
+  const char * filename;
 int i;
 #ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
@@ -4402,7 +4402,7 @@ return 0;
 }
 
 int MainDlg::save_config() {
-  char * filename;
+  const char * filename;
 #ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
 char FileBuffer[FBSIZE];

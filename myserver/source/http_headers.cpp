@@ -601,7 +601,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 
 		}else
 		/* Authorization.  */
-		if(!lstrcmpi(command,"Authorization"))
+		if(!strcmpi(command,"Authorization"))
 		{
 			while(*token==' ')
 				token++;
@@ -676,110 +676,110 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 					return 400;
 				do
 				{
-					StrTrim(digestToken," ");
-					if(!lstrcmpi(digestToken,"nonce"))
+					StrTrim(digestToken, (char*)" ");
+					if(!strcmpi(digestToken, (char*)"nonce"))
 					{
-						digestToken = strtok( NULL, "," );
+						digestToken = strtok( NULL, (char*)"," );
             if(digestToken)
             {
-              StrTrim(digestToken,"\" ");
+              StrTrim(digestToken, (char*)"\" ");
               myserver_strlcpy(td->request.digestNonce,digestToken,48+1);
             }
 					}
-					else if(!lstrcmpi(digestToken,"opaque"))
+					else if(!strcmpi(digestToken, (char*)"opaque"))
 					{
-						digestToken = strtok( NULL, "," );
+						digestToken = strtok( NULL, (char*)"," );
             if(digestToken)
             {
-              StrTrim(digestToken,"\" ");
+              StrTrim(digestToken, (char*)"\" ");
               myserver_strlcpy(td->request.digestOpaque,digestToken,48+1);
             }
 					}
-					else if(!lstrcmpi(digestToken,"uri"))
+					else if(!strcmpi(digestToken, (char*)"uri"))
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
             if(digestToken)
             {
-              StrTrim(digestToken,"\" ");
+              StrTrim(digestToken, (char*)"\" ");
               myserver_strlcpy(td->request.digestUri,digestToken,1024+1);
             }
 					}
-					else if(!lstrcmpi(digestToken,"method"))
+					else if(!strcmpi(digestToken, (char*)"method"))
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
             if(digestToken)
             {
-              StrTrim(digestToken,"\" ");
+              StrTrim(digestToken, (char*)"\" ");
               myserver_strlcpy(td->request.digestMethod,digestToken,16+1);
             }
 					}	
-					else if(!lstrcmpi(digestToken,"qop"))
+					else if(!strcmpi(digestToken, (char*)"qop"))
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
             if(digestToken)
             {
-              StrTrim(digestToken,"\" ");
+              StrTrim(digestToken,(char*)"\" ");
               myserver_strlcpy(td->request.digestQop,digestToken,16+1);
             }
 					}					
-					else if(!lstrcmpi(digestToken,"realm"))
+					else if(!strcmpi(digestToken, (char*)"realm"))
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
             if(digestToken)
             {
-              StrTrim(digestToken,"\" ");
+              StrTrim(digestToken, (char*)"\" ");
               myserver_strlcpy(td->request.digestRealm,digestToken,48+1);
             }
 					}
-					else if(!lstrcmpi(digestToken,"cnonce"))
+					else if(!strcmpi(digestToken, (char*)"cnonce"))
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
             if(digestToken)
             {
-              StrTrim(digestToken," \"");
+              StrTrim(digestToken, (char*)" \"");
               myserver_strlcpy(td->request.digestCnonce, digestToken, 48+1);
             }
 					}
-					else if(!lstrcmpi(digestToken, "username"))
+					else if(!strcmpi(digestToken, (char*)"username"))
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
             if(digestToken)
             {
-              StrTrim(digestToken, "\" ");
+              StrTrim(digestToken, (char*)"\" ");
               myserver_strlcpy(td->request.digestUsername, digestToken, 48+1);
               td->connection->setLogin(digestToken);
             }
 					}
-					else if(!lstrcmpi(digestToken,"response"))
+					else if(!strcmpi(digestToken, (char*)"response"))
 					{
 						digestToken = strtok( NULL, "\r\n," );
             if(digestToken)
              {
-               StrTrim(digestToken,"\" ");
+               StrTrim(digestToken, (char*)"\" ");
                myserver_strlcpy(td->request.digestResponse,digestToken,48+1);
              }
 					}
-					else if(!lstrcmpi(digestToken,"nc"))
+					else if(!strcmpi(digestToken, (char*)"nc"))
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
             if(digestToken)
             {
-              StrTrim(digestToken,"\" ");
+              StrTrim(digestToken, (char*)"\" ");
               myserver_strlcpy(td->request.digestNc,digestToken,10+1);
             }
 					}
 					else 
 					{
-						digestToken = strtok( NULL, "\r\n," );
+						digestToken = strtok( NULL, (char*)"\r\n," );
 					}
 					/* Update digestToken.  */
-					digestToken = strtok( NULL, "=" );
+					digestToken = strtok( NULL, (char*)"=" );
 				}while(digestToken);
 				delete  [] digestBuff;
 			}
 		}else
 		/* Content-Length.  */
-		if(!lstrcmpi(command,"Content-Length"))
+		if(!strcmpi(command, (char*)"Content-Length"))
 		{
 			tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
 			if(tokenOff==-1)
@@ -788,7 +788,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
 			request->contentLength.assign(token,tokenOff);
 		}else
 		/* Range.  */
-		if(!lstrcmpi(command,"Range"))
+		if(!strcmpi(command, (char*)"Range"))
 		{
       char rangeByteBegin[13];
       char rangeByteEnd[13];
@@ -1000,7 +1000,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
 
 		}else
 		/* Server.  */
-		if(!lstrcmpi(command,"Server"))
+		if(!strcmpi(command,"Server"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1008,7 +1008,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         response->serverName.assign(token);
 		}else
 		/* Location  */
-		if(!lstrcmpi(command,"Location"))
+		if(!strcmpi(command,"Location"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1016,7 +1016,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         response->location.assign(token);
 		}else
 		/* Last-Modified.  */
-		if(!lstrcmpi(command,"Last-Modified"))
+		if(!strcmpi(command,"Last-Modified"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1024,7 +1024,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         response->lastModified.assign(token);
 		}else
 		/* Status.  */
-		if(!lstrcmpi(command,"Status"))
+		if(!strcmpi(command,"Status"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1034,7 +1034,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
           response->httpStatus=atoi(token);
 		}else
 		/* Date.  */
-		if(!lstrcmpi(command,"Date"))
+		if(!strcmpi(command,"Date"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1042,7 +1042,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         response->date.assign(token);
 		}else
 		/* Content-Type.  */
-		if(!lstrcmpi(command,"Content-Type"))
+		if(!strcmpi(command,"Content-Type"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1050,7 +1050,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         response->contentType.assign(token);
 		}else
 		/* MIME-Version.  */
-		if(!lstrcmpi(command,"MIME-Version"))
+		if(!strcmpi(command,"MIME-Version"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1058,7 +1058,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         response->mimeVer.assign(token);
 		}else
 		/* Set-Cookie.  */
-		if(!lstrcmpi(command,"Set-Cookie"))
+		if(!strcmpi(command,"Set-Cookie"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
@@ -1070,14 +1070,14 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
       }
 		}else
 		/* Content-Length.  */
-		if(!lstrcmpi(command,"Content-Length"))
+		if(!strcmpi(command,"Content-Length"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled=1;
 			response->contentLength.assign(token);
 		}else
 		/* Connection.  */
-		if(!lstrcmpi(command,"Connection"))
+		if(!strcmpi(command,"Connection"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled = 1;
@@ -1086,7 +1086,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
         response->connection.assign(token);
 		}else
 		/* Expires.  */
-		if(!lstrcmpi(command,"Expires"))
+		if(!strcmpi(command,"Expires"))
 		{
 			token = strtok( NULL, "\r\n\0" );
 			lineControlled = 1;

@@ -1246,7 +1246,7 @@ return ret;
   }
   Function {load_config()} {return_type int
   } {
-    code {char * filename;
+    code {const char * filename;
 int i;
 \#ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
@@ -1627,7 +1627,7 @@ return 0;} {}
   }
   Function {save_config()} {return_type int
   } {
-    code {char * filename;
+    code {const char * filename;
 \#ifndef WIN32
 const int FBSIZE = strlen(getenv("HOME")) + 40;
 char FileBuffer[FBSIZE];

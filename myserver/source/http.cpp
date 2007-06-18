@@ -2072,7 +2072,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       /*! Be sure that the client can handle the 100 status code.  */
       if(td.request.ver.compare("HTTP/1.0"))
       {
-        char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
+        const char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
         Thread::wait(2);
         if(a->socket->bytesToRead() == 0)
         {
@@ -3091,7 +3091,7 @@ char* Http::registerName(char* out, int len)
 	{
 		myserver_strlcpy(out, "HTTP", len);
 	}
-	return "HTTP";
+	return (char*) "HTTP";
 }
 
 /*!
