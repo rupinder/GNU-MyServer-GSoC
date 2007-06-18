@@ -67,6 +67,7 @@ extern "C"
 
 const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 
+
 /*!
  *At startup the server instance is null.
  */
@@ -1316,12 +1317,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 			doSSLhandshake = 1;
 	}
 
-
-	if(!newConnection->host)
-	{
-		delete newConnection;
-		return 0;
-	}
+	notifyMulticast("new-connection", newConnection);
 
 	/* Do the SSL handshake if required.  */
 	if(doSSLhandshake)

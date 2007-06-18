@@ -23,14 +23,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/hash_map.h"
 
 #include <string>
-#include <list>
+#include <vector>
 using namespace std;
+
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+class MulticastRegistry;
 
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
 class Multicast
 {
 public:
-	RET_TYPE updateMulticast(MSG_TYPE, ARG_TYPE);
+	virtual RET_TYPE updateMulticast(MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>*, MSG_TYPE, ARG_TYPE) = 0;
 };
 
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
@@ -42,10 +45,10 @@ public:
 	void notifyMulticast(MSG_TYPE, ARG_TYPE);
 protected:
 	void removeMulticasts(MSG_TYPE);
-	list<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* getHandlers(MSG_TYPE);
+	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* getHandlers(MSG_TYPE);
 	void clearMulticastRegistry();
 private:
-	HashMap<MSG_TYPE, list<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>*> handlers;
+	HashMap<MSG_TYPE, vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>*> handlers;
 };
 
 
