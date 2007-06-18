@@ -134,7 +134,7 @@ if(! $update_makefile)
 
 		
 		print SRC "EXPORTABLE(char*) name(char* name, u_long len)\n";
-		print SRC "{\n\tchar* str = \"$plugin\";\n\tif(name)\n\t\t";
+		print SRC "{\n\tchar* str = (char*)\"$plugin\";\n\tif(name)\n\t\t";
 		print SRC "strncpy(name, str, len);\n\treturn str;\n}\n";
 
 		print SRC "EXPORTABLE(int) load(void* server,void* parser)\n{\n\treturn 0;\n}\n";

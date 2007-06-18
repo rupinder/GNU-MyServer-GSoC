@@ -64,7 +64,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE 
  *Notify the message to all the registered handlers passing an argument.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
-void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE msg, ARG_TYPE arg)
+void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE& msg, ARG_TYPE arg)
 {
 	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
 
@@ -83,7 +83,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE m
  *Get the vector of handlers for a specified message.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
-vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::getHandlers(MSG_TYPE msg)
+vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::getHandlers(MSG_TYPE& msg)
 {
 	return handlers.get(msg);
 }

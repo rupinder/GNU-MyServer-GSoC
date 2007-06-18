@@ -652,6 +652,8 @@ int Server::terminate()
 		clearAllConnections();
 	}
 	freeHashedData();
+	
+	globalData.clear();
 
 	/* Restore the blocking status in case of a reboot.  */
 	Socket::stopBlockingOperations(false);
@@ -1284,6 +1286,8 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   static u_long connectionId = 0;
 	int doSSLhandshake = 0;
 	ConnectionPtr newConnection = new Connection;
+	vector<Multicast<string, void*, int>*>* handlers;
+
 	if(!newConnection)
 	{
 		return NULL;
@@ -1317,7 +1321,21 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 			doSSLhandshake = 1;
 	}
 
-	notifyMulticast("new-connection", newConnection);
+	{
+		string msg("new-connection");
+		
+		handlers = getHandlers(msg);
+		
+		if(handlers)
+		{
+			for(size_t i = 0; i < handlers->size(); i++)
+				if((*handlers)[i]->updateMulticast(this, msg, newConnection) == 1)
+				{
+					delete newConnection;
+					return 0;
+				}
+		}
+	}
 
 	/* Do the SSL handshake if required.  */
 	if(doSSLhandshake)
@@ -1386,6 +1404,8 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
  */
 int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 {
+	string msg("remove-connection");
+	vector<Multicast<string, void*, int>*>* handlers;
 	int ret = 0;
 
 	/*
@@ -1394,6 +1414,16 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 	if(!s)
 	{
 		return 0;
+	}
+
+	handlers = getHandlers(msg);
+
+	if(handlers)
+	{
+		for(size_t i = 0; i < handlers->size(); i++)
+		{
+			(*handlers)[i]->updateMulticast(this, msg, s);
+		}
 	}
 
 	/*
@@ -1855,7 +1885,6 @@ int Server::loadSettings()
 		/* Load the home directories configuration.  */
 		homeDir.load();
 
-
 		getPluginsManager()->addNamespace(&executors);
 		getPluginsManager()->addNamespace(&protocols);
 		getPluginsManager()->addNamespace(&filters);
@@ -2010,7 +2039,20 @@ int Server::logUnlockAccess()
  */
 int Server::reboot()
 {
-  int ret = 0;
+	int ret;
+	string msg("reboot-server");
+	vector<Multicast<string, void*, int>*>* handlers;
+
+	handlers = getHandlers(msg);
+
+	if(handlers)
+	{
+		for(size_t i = 0; i < handlers->size(); i++)
+		{
+			(*handlers)[i]->updateMulticast(this, msg, 0);
+		}
+	}
+
   serverReady = 0;
   /* Reset the toReboot flag.  */
   toReboot = 0;
@@ -2181,11 +2223,24 @@ int Server::addThread(int staticThread)
 {
   int ret;
 	ThreadID ID;
-
+	string msg("new-thread");
   ClientsThread* newThread = new ClientsThread();
+
+	vector<Multicast<string, void*, int>*>* handlers;
 
   if(newThread == 0)
     return -1;
+
+	handlers = getHandlers(msg);
+
+	if(handlers)
+	{
+		for(size_t i = 0; i < handlers->size(); i++)
+		{
+			(*handlers)[i]->updateMulticast(this, msg, newThread);
+		}
+	}
+
 
   newThread->setStatic(staticThread);
 
@@ -2237,6 +2292,20 @@ int Server::removeThread(u_long ID)
   threadsMutex->lock();
   ClientsThread *thread = threads;
   ClientsThread *prev = 0;
+	string msg("remove-thread");
+	vector<Multicast<string, void*, int>*>* handlers;
+
+	handlers = getHandlers(msg);
+
+	if(handlers)
+	{
+		for(size_t i = 0; i < handlers->size(); i++)
+		{
+			(*handlers)[i]->updateMulticast(this, msg, &ID);
+		}
+	}
+
+
   /*!
    *If there are no threads return an error.
    */
@@ -2397,4 +2466,22 @@ u_long Server::getBuffersize()
 u_long Server::getBuffersize2()
 {
   return buffersize2;
+}
+
+/*!
+ *Set a global descriptor.
+ */
+void Server::setGlobalData(const char* name, void* data)
+{
+	string str(name);
+	globalData.put(str, data);
+}
+
+/*!
+ *Get a global descriptor.
+ */
+void* Server::getGlobalData(const char* name)
+{
+	string str(name);
+	return globalData.get(str);
 }

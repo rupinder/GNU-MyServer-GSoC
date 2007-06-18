@@ -61,7 +61,7 @@ void* listenServer(void* pParam);
 
 extern int rebootMyServerConsole;
 
-class Server : public MulticastRegistry<const char*, void*, int>
+class Server : public MulticastRegistry<string, void*, int>
 {
 public:
 	ProcessServerManager* getProcessServerManager()
@@ -79,6 +79,10 @@ public:
 
 	CachedFileFactory* getCachedFiles();
   const char* getHashedData(const char* name);
+
+  void setGlobalData(const char* name, void* data);
+  void* getGlobalData(const char* name);
+
   FiltersFactory* getFiltersFactory();
 	int getMaxThreads();
   u_long getUid();
@@ -178,6 +182,7 @@ private:
 	ListenThreads listenThreads;
 	HomeDir homeDir;
   HashMap<string, string*> hashedData;
+  HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
   DynamicFiltersManager filters;
 	DynExecutorManager executors;

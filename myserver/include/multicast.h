@@ -33,7 +33,7 @@ template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 class Multicast
 {
 public:
-	virtual RET_TYPE updateMulticast(MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>*, MSG_TYPE, ARG_TYPE) = 0;
+	virtual RET_TYPE updateMulticast(MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>*, MSG_TYPE&, ARG_TYPE) = 0;
 };
 
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
@@ -42,10 +42,10 @@ class MulticastRegistry
 public:
 	void addMulticast(MSG_TYPE, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*);
 	void removeMulticast(MSG_TYPE, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*);
-	void notifyMulticast(MSG_TYPE, ARG_TYPE);
+	void notifyMulticast(MSG_TYPE&, ARG_TYPE);
 protected:
 	void removeMulticasts(MSG_TYPE);
-	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* getHandlers(MSG_TYPE);
+	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* getHandlers(MSG_TYPE&);
 	void clearMulticastRegistry();
 private:
 	HashMap<MSG_TYPE, vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>*> handlers;

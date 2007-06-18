@@ -37,11 +37,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/dyn_http_command.h"
 #include "../include/dyn_http_manager_list.h"
 #include "../include/dyn_http_manager.h"
+#include "../include/multicast.h"
 
 #include <string>
 #include <sstream>
 #include <vector>
 using namespace std;
+
+class HttpStaticData : public MulticastRegistry<string, void*, int>
+{
+public:
+	vector<Multicast<string, void*, int>*>* getHandlers(string& msg)
+	{
+		return MulticastRegistry<string, void*, int>::getHandlers(msg);
+	}
+};
 
 /*!
  *Data used only by an HTTP user.
@@ -137,6 +147,8 @@ public:
 	static int unLoadProtocol(XmlParser*);
 
   int getCGItimeout();
+
+	static HttpStaticData* getStaticData();
 protected:
   static Mutex secCacheMutex;
   static SecurityCache secCache;

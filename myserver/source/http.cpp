@@ -90,6 +90,18 @@ DynHttpCommandManager Http::dynCmdManager;
 /*! Dynamic managers. */
 DynHttpManagerList Http::dynManagerList;
 
+static HttpStaticData staticHttp;
+
+
+/*!
+ *Get a pointer to a structure shared among all the instances.
+ */
+HttpStaticData* Http::getStaticData()
+{
+	return &staticHttp;
+}
+
+
 /*!
  *Build a response for an OPTIONS request.
  */
@@ -1953,7 +1965,7 @@ int Http::logHTTPaccess()
     if(td.request.uriOpts.length())
       *td.buffer2 << "?" << td.request.uriOpts.c_str();
 
-    sprintf(tmpStrInt, "%u ",td.response.httpStatus);
+    sprintf(tmpStrInt, "%u ", td.response.httpStatus);
 
     if(td.request.ver.length())
       *td.buffer2 << " " << td.request.ver.c_str()  ;
@@ -2326,64 +2338,69 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       else
         a->socket->setThrottling(a->host->getThrottlingRate());
 
+			{
+				string msg("new-http-request");
+				vector<Multicast<string, void*, int>*>* handlers = getStaticData()->getHandlers(msg);
 
-      /*!
-       *Here we control all the HTTP commands.
-       */
+				if(handlers)
+				{
+					for(size_t i = 0; i < handlers->size(); i++)
+						if((*handlers)[i]->updateMulticast(getStaticData(), msg, &td) == 1)
+						{
+							ret = 1;
+							retvalue = ClientsThread::DELETE_CONNECTION;
+						}
+				}
+			}
 
-      /*! GET REQUEST.  */
-      if(!td.request.cmd.compare("GET"))
-      {
-				ret = sendHTTPResource(td.request.uri);
-      }
-      /*! POST REQUEST.  */
-      else if(!td.request.cmd.compare("POST"))
-      {
-				ret = sendHTTPResource(td.request.uri);
-      }
-      /*! HEAD REQUEST.  */
-      else if(!td.request.cmd.compare("HEAD"))
-      {
-        td.onlyHeader = 1;
-        ret = sendHTTPResource(td.request.uri, 0, 1);
-      }
-      /*! DELETE REQUEST.  */
-      else if(!td.request.cmd.compare("DELETE"))
-      {
-        ret = deleteHTTPRESOURCE(td.request.uri, 0);
-      }
-      /*! PUT REQUEST.  */
-      else if(!td.request.cmd.compare("PUT"))
-      {
-        ret = putHTTPRESOURCE(td.request.uri, 0, 1);
-      }
-      /*! OPTIONS REQUEST.  */
-      else if(!td.request.cmd.compare("OPTIONS"))
-      {
-        ret = optionsHTTPRESOURCE(td.request.uri, 0);
-      }
-      /*! TRACE REQUEST.  */
-      else if(!td.request.cmd.compare("TRACE"))
-      {
-        ret = traceHTTPRESOURCE(td.request.uri, 0);
-      }
-      else
-      {
-        /*!
-         *Return Method not implemented(501) if there
-         *is not a dynamic methods manager.
-         */
-        if(!dynamicCommand)
-          ret = raiseHTTPError(501);
-        else
-          retvalue = dynamicCommand->send(&td, a, td.request.uri, 0, 0, 0)
-						? ClientsThread::KEEP_CONNECTION
-						: ClientsThread::DELETE_CONNECTION;
-      }
-      logHTTPaccess();
-    }
+			if(!ret)
+			{
+				/*
+				 *Here we control all the HTTP commands.
+				 */
+				
+				/* GET REQUEST.  */
+				if(!td.request.cmd.compare("GET"))
+					ret = sendHTTPResource(td.request.uri);
+				/* POST REQUEST.  */
+				else if(!td.request.cmd.compare("POST"))
+					ret = sendHTTPResource(td.request.uri);
+				/* HEAD REQUEST.  */
+				else if(!td.request.cmd.compare("HEAD"))
+				{
+					td.onlyHeader = 1;
+					ret = sendHTTPResource(td.request.uri, 0, 1);
+				}
+				/* DELETE REQUEST.  */
+				else if(!td.request.cmd.compare("DELETE"))
+					ret = deleteHTTPRESOURCE(td.request.uri, 0);
+				/* PUT REQUEST.  */
+				else if(!td.request.cmd.compare("PUT"))
+					ret = putHTTPRESOURCE(td.request.uri, 0, 1);
+				/* OPTIONS REQUEST.  */
+				else if(!td.request.cmd.compare("OPTIONS"))
+					ret = optionsHTTPRESOURCE(td.request.uri, 0);
+				/* TRACE REQUEST.  */
+				else if(!td.request.cmd.compare("TRACE"))
+					ret = traceHTTPRESOURCE(td.request.uri, 0);
+				else
+				{
+					/*
+					 *Return Method not implemented(501) if there
+					 *is not a dynamic methods manager.
+					 */
+					if(!dynamicCommand)
+						ret = raiseHTTPError(501);
+					else
+						retvalue = dynamicCommand->send(&td, a, td.request.uri, 0, 0, 0)
+							? ClientsThread::KEEP_CONNECTION
+							: ClientsThread::DELETE_CONNECTION;
+				}
+		}
+			logHTTPaccess();
+		}
 
-    /*!
+    /*
      *If the inputData file was not closed close it.
      */
     if(td.inputData.getHandle())
@@ -2391,7 +2408,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       td.inputData.closeFile();
       FilesUtility::deleteFile(td.inputDataPath);
     }
-    /*!
+    /*
      *If the outputData file was not closed close it.
      */
     if(td.outputData.getHandle())
@@ -2935,7 +2952,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 	gzipThreshold = 1 << 20;
 	browseDirCSSpath.assign("");
 
-
+	Server::getInstance()->setGlobalData("http-static", getStaticData());
 	/* Load the HTTP errors.  */
 	HttpErrors::load();
 
