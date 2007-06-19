@@ -133,7 +133,6 @@ private:
 
 static HttpObserver observer;
 
-
 EXPORTABLE(char*) name(char* name, u_long len)
 {
 	char* str = (char*)"http_checker";
@@ -141,7 +140,6 @@ EXPORTABLE(char*) name(char* name, u_long len)
 		strncpy(name, str, len);
 	return str;
 }
-
 
 EXPORTABLE(int) load(void* server,void* parser)
 {
@@ -154,13 +152,25 @@ EXPORTABLE(int) load(void* server,void* parser)
 	XmlParser* configuration;
 	xmlDocPtr xmlDoc;
 	if(!staticData)
+	{
+		serverInstance->logLockAccess();
+		serverInstance->logPreparePrintError();
+		serverInstance->logWriteln("HttpChecker: Invalid HTTP static data");
+		serverInstance->logEndPrintError();
+		serverInstance->logUnlockAccess();
 		return -1;
-
+	}
 	python = serverInstance->getPluginsManager()->getPlugin(pythonNamespace, pythonName);
 
 	if(!python)
+	{
+		serverInstance->logLockAccess();
+		serverInstance->logPreparePrintError();
+		serverInstance->logWriteln("HttpChecker: Cannot find executors::python");
+		serverInstance->logEndPrintError();
+		serverInstance->logUnlockAccess();
 		return -1;
-
+	}
 	observer.setPythonExecutor((DynamicExecutor*)python);
 
 	staticData->addMulticast(msg, &observer);
@@ -168,8 +178,14 @@ EXPORTABLE(int) load(void* server,void* parser)
 	init = (INIT_MODULE) python->getDirectMethod((char*)"initModule");
 
 	if(!init)
+	{
+		serverInstance->logLockAccess();
+		serverInstance->logPreparePrintError();
+		serverInstance->logWriteln("HttpChecker: Cannot find method initModule in executors::python");
+		serverInstance->logEndPrintError();
+		serverInstance->logUnlockAccess();
 		return -1;
-
+	}
 	configuration = serverInstance->getConfiguration();
 	xmlDoc = configuration->getDoc();
 
