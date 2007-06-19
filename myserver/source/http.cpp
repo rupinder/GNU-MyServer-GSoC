@@ -2349,6 +2349,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 						{
 							ret = 1;
 							retvalue = ClientsThread::DELETE_CONNECTION;
+							break;
 						}
 				}
 			}
