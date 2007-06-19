@@ -225,7 +225,7 @@ char *XmlParser::getValue(const char* vName)
 		return 0;
 	
 	lcur = cur->xmlChildrenNode;
-	buffer[0] = '\0';
+	buffer.assign("");
 	
 	while(lcur)
 	{
@@ -235,19 +235,21 @@ char *XmlParser::getValue(const char* vName)
 			
 			if(lcur->children->content)
 			{
-				int outlen = 250;
 				int inlen = strlen((const char*)lcur->children->content);
-				
-				if(UTF8Toisolat1((unsigned char*)buffer, &outlen, 
-                         		 (unsigned char*)lcur->children->content, &inlen)>= 0)
+				int outlen = inlen * 2;
+				char* tmpBuff = new char[outlen];
+				if(UTF8Toisolat1((unsigned char*)tmpBuff, &outlen, 
+                         		 (unsigned char*)lcur->children->content, &inlen) >= 0)
 				{
-					buffer[outlen] = '\0';
+					tmpBuff[outlen] = '\0';
+					buffer.assign(tmpBuff);
 				}
-				
 				else
-					strncpy(buffer, (char*)lcur->children->content, 250);
-				
-				ret = buffer;
+					buffer.assign((char*)lcur->children->content);
+
+				delete [] tmpBuff;
+
+				ret = (char*)buffer.c_str();
 			}
 			
 			break;
@@ -268,8 +270,8 @@ char *XmlParser::getValue(const char* vName)
  */
 int XmlParser::setValue(const char* vName, const char *value)
 {
-	xmlNodePtr lcur=cur->xmlChildrenNode;
-	buffer[0]='\0';
+	xmlNodePtr lcur = cur->xmlChildrenNode;
+	buffer.assign("");
 	
 	while(lcur)
 	{
@@ -298,8 +300,8 @@ int XmlParser::setValue(const char* vName, const char *value)
  */
 char *XmlParser::getAttr(const char* field, const char *attr)
 {
-	xmlNodePtr lcur=cur->xmlChildrenNode;
-	buffer[0]='\0';
+	xmlNodePtr lcur = cur->xmlChildrenNode;
+	buffer.assign("");
 	
 	while(lcur)
 	{

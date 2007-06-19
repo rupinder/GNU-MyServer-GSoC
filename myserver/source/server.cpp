@@ -304,6 +304,9 @@ void Server::start()
           {
             if( (mainConfTimeNow  != mainConfTime) || toReboot)
             {
+							string msg("main-conf-changed");
+							notifyMulticast(msg, 0);
+							
               reboot();
               /* Store new mtime values.  */
               mainConfTime = mainConfTimeNow;
@@ -311,6 +314,9 @@ void Server::start()
             }
 						else if(mimeConfNow != mimeConf)
 						{
+							string msg("mime-conf-changed");
+							notifyMulticast(msg, 0);
+
 							if(logManager.getType() == LogManager::TYPE_CONSOLE)
 							{
 								char beep[]={static_cast<char>(0x7), '\0'};
@@ -328,6 +334,8 @@ void Server::start()
 						else if(hostsConfTimeNow != hostsConfTime)
             {
 							VhostManager* oldvhost = vhostList;
+							string msg("vhosts-conf-changed");
+							notifyMulticast(msg, 0);
 
 							/* Do a beep if outputting to console.  */
 							if(logManager.getType() == LogManager::TYPE_CONSOLE)

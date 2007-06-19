@@ -75,11 +75,11 @@ public:
 
 private:
 	xmlDocPtr doc;
-	char buffer[250];
+	string buffer;
 	xmlNodePtr cur;
 	xmlNodePtr prevCur;
 	xmlNodePtr lastNode;
-    time_t mtime;
+	time_t mtime;
 
 };
 
