@@ -1,0 +1,16 @@
+A HTTP checker rule is added trough the main myserver.xml
+configuration file, a rule is a python script to execute on every HTTP
+request, for example this rule denies any access if the client
+used the host localhost:8080 to connect to the server.
+
+This plugin needs the executors/python plugin to be installed too.
+
+	<HTTP_CHECKER_RULE>
+<![CDATA[
+from http_checker import get_header
+from http_checker import raise_error
+
+if get_header('Host') == "localhost:8080":
+	raise_error(401)
+]]>
+	</HTTP_CHECKER_RULE>
