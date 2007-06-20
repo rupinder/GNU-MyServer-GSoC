@@ -2216,10 +2216,12 @@ int Server::isAutorebootEnabled()
 int Server::waitNewConnection(u_long tid, u_long timeout)
 {
 	if(newConnectionEvent)
+	{
 		if(timeout)
 			return newConnectionEvent->wait(tid, timeout);
 		else
 			return newConnectionEvent->wait(tid);
+	}
 	return -1;
 }
 

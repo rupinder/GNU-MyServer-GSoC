@@ -841,10 +841,11 @@ int Http::readContiguousPrimitivePostData(char* inBuffer,
 
 	ret = inSocket->recv(outBuffer + *nbr,  outBufferSize - *nbr, timeout);
 
-	if(ret == -1)
+	if(ret == -1 || !ret)
 		return -1;
 
 	*nbr += ret;
+
 	return 0;
 }
 
@@ -2078,20 +2079,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     validRequest =
 			HttpHeaders::buildHTTPRequestHeaderStruct(&td.request, &td);
 
-    /*! If the header is incomplete returns 2. */
-    if(validRequest == -1)/*!If the header is incomplete returns 2.  */
+    /*! -1 means the request is not complete yet. */
+    if(validRequest == -1)
     {
-      /*! Be sure that the client can handle the 100 status code.  */
-      if(td.request.ver.compare("HTTP/1.0"))
-      {
-        const char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
-        Thread::wait(2);
-        if(a->socket->bytesToRead() == 0)
-        {
-          if(a->socket->send(msg, (int)strlen(msg), 0)==-1)
-            return ClientsThread::DELETE_CONNECTION;
-        }
-      }
       return ClientsThread::INCOMPLETE_REQUEST;
     }
 
@@ -2147,6 +2137,19 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        (dynamicCommand && dynamicCommand->acceptData() ))
     {
 			int ret;
+      /*! Be sure that the client can handle the 100 status code.  */
+
+			if(nbtr == td.nHeaderChars && td.request.ver.compare("HTTP/1.0"))
+      {
+        const char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
+        if(a->socket->bytesToRead() == 0)
+        {
+          if(a->socket->send(msg, (int)strlen(msg), 0)==-1)
+            return ClientsThread::DELETE_CONNECTION;
+        }
+				return ClientsThread::INCOMPLETE_REQUEST;
+      }
+
 			if(readPostData(&td, &ret))
 			{
 				logHTTPaccess();
