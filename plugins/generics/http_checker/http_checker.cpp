@@ -71,6 +71,21 @@ static PyObject *get_header(PyObject *self, PyObject *args)
 	return Py_BuildValue((char*)"s", value.c_str());
 }
 
+static PyObject *set_header(PyObject *self, PyObject *args)
+{
+	char *header;
+	char *value;
+	const char* ret;
+	if (!PyArg_ParseTuple(args, (char*)"ss", &header, &value))
+		return NULL;
+	
+	HttpThreadContext* context = getThreadContext();
+	
+	ret = context->request.setValue(header, value)->c_str();
+	
+	return Py_BuildValue((char*)"s", ret);
+}
+
 static PyObject *raise_error(PyObject *self, PyObject *args)
 {
 	int error;
@@ -89,8 +104,28 @@ static PyObject *raise_error(PyObject *self, PyObject *args)
 	return Py_BuildValue((char*)"s", "");
 }
 
+static PyObject *send_redirect(PyObject *self, PyObject *args)
+{
+	char* dest;
+	if (!PyArg_ParseTuple(args, (char*)"s", &dest))
+		return NULL;
+
+	ThreadData* data = getThreadData();
+
+	if(data->ret)
+		return NULL;
+	
+	data->td->http->sendHTTPRedirect(dest);
+	
+	data->ret = 1;
+	
+	return Py_BuildValue((char*)"s", dest);
+}
+
 static PyMethodDef httpCheckerMethods[] = {
 	{(char*)"get_header", get_header, METH_VARARGS, (char*)"Get HTTP header field value"},
+	{(char*)"set_header", set_header, METH_VARARGS, (char*)"Set HTTP header field value"},
+	{(char*)"send_redirect", send_redirect, METH_VARARGS, (char*)"Send a redirect to another location"},
 	{(char*)"raise_error", raise_error, METH_VARARGS, (char*)"Raise HTTP error page"},
 	{NULL, NULL, 0, NULL}
 };
