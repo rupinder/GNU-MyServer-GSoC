@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -96,6 +96,7 @@ struct HttpRequestHeader : public HttpHeader
 
 	HashMap<string, HttpRequestHeader::Entry*> other;
   virtual string* getValue(const char* name, string* out);
+  virtual string* setValue(const char* name, const char* in);
 
   HttpRequestHeader();
   ~HttpRequestHeader();

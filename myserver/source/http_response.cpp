@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +22,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include <sstream>
 using namespace std;
+
+/*!
+ *Create the object.
+ */
+HttpResponseHeader::HttpResponseHeader()
+{
+  free();
+}
+
+
+/*!
+ *Destroy the object.
+ */
+HttpResponseHeader::~HttpResponseHeader()
+{
+	free();
+}
+
+/*!
+ *Reset the object.
+ */
+void HttpResponseHeader::free()
+{
+	ver.clear();	
+	serverName.clear();
+	contentType.clear();
+	connection.clear();
+	mimeVer.clear();
+	cookie.clear();
+	contentLength.clear();
+	errorType.clear();
+	location.clear();
+	date.clear();		
+	auth.clear();
+	dateExp.clear();
+	{
+		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
+		for(;it != other.end(); it++){
+			delete (*it);
+		}
+	}
+	other.clear();
+	lastModified.clear();
+}
 
 /*!
  *Get the value of the [name] field.
@@ -108,8 +152,8 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
   if(!strcmpi(name, "Date-Expires"))
   { 
     if(out)
-      out->assign(location.c_str()); 
-    return &location;
+      out->assign(dateExp.c_str()); 
+    return &dateExp;
   }
 
   if(!strcmpi(name, "WWW-Authenticate"))
@@ -131,46 +175,105 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
 	}
 } 
 
-/*!
- *Create the object.
- */
-HttpResponseHeader::HttpResponseHeader()
-{
-  free();
-}
-
 
 /*!
- *Destroy the object.
+ *Set the value of the [name] field to [in].
  */
-HttpResponseHeader::~HttpResponseHeader()
+string* HttpResponseHeader::setValue(const char* name, const char* in)
 {
-	free();
-}
+  if(!strcmpi(name, "Ver"))
+  {
+    ver.assign(in);
+    return &ver;
+  }  
 
-/*!
- *Reset the object.
- */
-void HttpResponseHeader::free()
-{
-	ver.clear();	
-	serverName.clear();
-	contentType.clear();
-	connection.clear();
-	mimeVer.clear();
-	cookie.clear();
-	contentLength.clear();
-	errorType.clear();
-	location.clear();
-	date.clear();		
-	auth.clear();
-	dateExp.clear();
-	{
-		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
-		for(;it != other.end(); it++){
-			delete (*it);
-		}
+  if(!strcmpi(name, "Server"))
+  { 
+    serverName.assign(in);
+    return &ver;
+  }
+
+  if(!strcmpi(name, "Content-Type"))
+  { 
+    contentType.assign(in);
+    return &contentType;
+  }
+
+  if(!strcmpi(name, "Connection"))
+  { 
+    connection.assign(in);
+    return &connection;
+  }
+
+  if(!strcmpi(name, "Content-Type"))
+  { 
+    contentType.assign(in);
+    return &contentType;
+  }
+
+  if(!strcmpi(name, "MIME-Version"))
+  { 
+    mimeVer.assign(in);
+    return &mimeVer;
+  }
+
+  if(!strcmpi(name, "Cookie"))
+  { 
+    cookie.assign(in);
+    return &cookie;
+  }
+
+  if(!strcmpi(name, "Content-Length"))
+  { 
+    contentLength.assign(in);
+    return &contentLength;
+  }
+
+  if(!strcmpi(name, "Last-Modified"))
+  { 
+    lastModified.assign(in);
+		return &lastModified;
+  }
+
+  if(!strcmpi(name, "Location"))
+  { 
+    location.assign(in);
+    return &location;
+  }
+
+  if(!strcmpi(name, "Date"))
+  { 
+		date.assign(in);
+    return &date;
+  }
+
+  if(!strcmpi(name, "Date-Expires"))
+  { 
+		dateExp.assign(in);
+    return &dateExp;
+  }
+
+  if(!strcmpi(name, "WWW-Authenticate"))
+  { 
+    auth.assign(in);
+    return &auth;
+  }
+
+ {
+   HttpResponseHeader::Entry *e = other.get(name);
+   if(e)
+   {
+		 e->value->assign(in);
+     return (e->value);
+   }
+	 else
+	 {
+		 e = new HttpResponseHeader::Entry;
+		 e->name->assign(name);
+		 e->value->assign(in);
+		 other.put(*e->name, e);
+	 }
+
+		return 0;
 	}
-	other.clear();
-	lastModified.clear();
-}
+} 

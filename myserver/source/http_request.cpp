@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006 The MyServer Team
+Copyright (C) 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -154,6 +154,86 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
 			 out->assign(*(e->value));      
      return (e->value);
    }
+   return 0;
+ }
+
+}
+
+
+
+/*!
+ *Set the value of the [name] field to [in].
+ */
+string* HttpRequestHeader::setValue(const char* name, const char* in)
+{
+  if(!strcmpi(name, "cmd"))
+  {
+		cmd.assign(in);
+    return &cmd;
+  }  
+
+  if(!strcmpi(name, "ver"))
+  { 
+		ver.assign(in);
+    return &ver;
+  }
+ 
+  if(!strcmpi(name, "uri"))
+  { 
+		uri.assign(in);
+    return &uri;
+  } 
+ 
+  if(!strcmpi(name, "uriOpts"))
+  { 
+		uriOpts.assign(in);
+    return &uriOpts;
+  } 
+
+ if(!strcmpi(name, "Authorization"))
+ { 
+	 auth.assign(in);
+   return &auth;
+ }
+ 
+ if(!strcmpi(name, "Content-Length"))
+ { 
+   contentLength.assign(in);
+   return &contentLength;
+ } 
+
+ if(!strcmpi(name, "rangeType"))
+ { 
+   rangeType.assign(in);
+   return &rangeType;
+ } 
+ 
+ if(!strcmpi(name, "rangeByteBegin"))
+ {
+   rangeByteBegin = atoi(in);
+   return 0; 
+ }
+
+ if(!strcmpi(name, "rangeByteEnd"))
+ {
+   rangeByteEnd = atoi(in);
+   return 0; 
+ }
+
+ {
+   HttpRequestHeader::Entry *e = other.get(name);
+   if(e)
+   {
+		 e->value->assign(in);
+     return (e->value);
+   }
+	 else
+	 {
+		 e = new HttpRequestHeader::Entry;
+		 e->name->assign(name);
+		 e->value->assign(in);
+		 other.put(*e->name, e);
+	 }
    return 0;
  }
 

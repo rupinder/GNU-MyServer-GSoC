@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -26,7 +26,8 @@ using namespace std;
 
 struct HttpHeader
 {
-  virtual string* getValue(const char* name, string* out)=0;
+  virtual string* getValue(const char* name, string* out) = 0;
+	virtual string* setValue(const char* name, const char* in) = 0;
   virtual ~HttpHeader(){}
 };
 

@@ -92,7 +92,7 @@ struct HttpResponseHeader : public HttpHeader
   ~HttpResponseHeader();
 
   virtual string* getValue(const char* name, string* out);
-
+  virtual string* setValue(const char* name, const char* in);
   void free();
 };
 
