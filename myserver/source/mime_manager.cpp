@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/files_utility.h"
 #include "../include/stringutils.h"
 #include "../include/xml_parser.h"
+#include "../include/server.h"
 
 #include <string>
 #include <algorithm>
@@ -195,6 +196,7 @@ int MimeManager::loadXML(const char *fn)
         rc.headerChecker.addRule(r);
 			}
 
+
 			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
 			{
 				if(lcur->children->content)
@@ -327,8 +329,8 @@ int MimeManager::saveXML(const char *filename)
 	HashMap<string, MimeRecord*>::Iterator it = data->begin();
 	HashMap<string, MimeRecord*>::Iterator end = data->end();
 
-	f.openFile(filename, File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_ALWAYS);
-	f.writeToFile("<?xml version=\"1.0\"?>\r\n",23,&nbw);
+	f.openFile(filename, File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_ALWAYS);
+	f.writeToFile("<?xml version=\"1.0\"?>\r\n", 23, &nbw);
 	f.writeToFile("<MIMETYPES>\r\n", 13, &nbw);
 
 	for(; it != end; it++)
@@ -638,18 +640,24 @@ int MimeManager::addRecord(MimeRecord& mr)
 #ifdef MIME_LOWER_CASE
 		transform(mr.extension.begin(), mr.extension.end(), mr.extension.begin(), ::tolower);
 #endif
-
-		if(getRecord(mr.extension))
-      removeRecord(mr.extension);
     nmr = new MimeRecord(mr);
     if(!nmr)	
       return 1;
-		string keyStr(nmr->extension);
-		
 
-    old = data->put(keyStr, nmr);
+    old = data->put(nmr->extension, nmr);
 		if(old)
+		{
+			string error;
+			error.assign("Warning: multiple MIME types registered for the extension " );
+			error.append(nmr->extension);
+
+			Server::getInstance()->logLockAccess();
+			Server::getInstance()->logPreparePrintError();
+			Server::getInstance()->logWriteln(error.c_str());     
+			Server::getInstance()->logEndPrintError();
+			Server::getInstance()->logUnlockAccess();			
 			delete old;
+		}
   }
   catch(...)
   {
