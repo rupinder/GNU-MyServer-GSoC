@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/xml_parser.h"
 
 #include <string>
+#include <algorithm>
+
+#ifdef WIN32
+#define MIME_LOWER_CASE
+#endif
 
 using namespace std;
 
@@ -390,10 +395,22 @@ int MimeManager::saveXML(const char *filename)
 int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
   MimeRecord* mr;
+#ifdef MIME_LOWER_CASE
+	int i, extLen = strlen(ext);
+	char lowerCaseExt[extLen];
+
+	for(i = 0; i < extLen; i++)
+		lowerCaseExt[i] = tolower(ext[i]);
+#endif
 
 	rwLock.readLock();
 
+#ifdef MIME_LOWER_CASE
+	mr = data ? data->get(lowerCaseExt) : 0;
+#else
 	mr = data ? data->get(ext) : 0;
+#endif
+
   if(mr)
   {
     if(dest)
@@ -435,8 +452,19 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 {
   MimeRecord *mr;
 
+#ifdef MIME_LOWER_CASE
+	string lowerCaseExt(ext);
+	transform(lowerCaseExt.begin(), lowerCaseExt.end(), lowerCaseExt.begin(), ::tolower);
+#endif
+
 	rwLock.readLock();
+
+#ifdef MIME_LOWER_CASE
+	mr = data ? data->get(lowerCaseExt.c_str()): 0;
+#else
 	mr = data ? data->get(ext.c_str()): 0;
+#endif
+
 	if(mr)
 	{
 		if(!stringcmpi(mr->extension, ext.c_str()))
@@ -495,9 +523,9 @@ int MimeManager::getMIME(int id, char* ext, char *dest, char **dest2)
 	}
 
   if(ext)
-    strcpy(ext,mr->extension.c_str());
+    strcpy(ext, mr->extension.c_str());
   if(dest)
-    strcpy(dest,mr->mimeType.c_str());
+    strcpy(dest, mr->mimeType.c_str());
   if(dest2)
   {
     if(mr->cgiManager.length())
@@ -606,12 +634,19 @@ int MimeManager::addRecord(MimeRecord& mr)
   try
   {
 		MimeRecord *old;
+
+#ifdef MIME_LOWER_CASE
+		transform(mr.extension.begin(), mr.extension.end(), mr.extension.begin(), ::tolower);
+#endif
+
 		if(getRecord(mr.extension))
       removeRecord(mr.extension);
     nmr = new MimeRecord(mr);
     if(!nmr)	
       return 1;
 		string keyStr(nmr->extension);
+		
+
     old = data->put(keyStr, nmr);
 		if(old)
 			delete old;

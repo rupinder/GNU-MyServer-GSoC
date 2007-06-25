@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -492,13 +492,14 @@ void FilesUtility::splitPath(string const &path, string& dir, string& filename)
  *\param ext The buffer to fullfill with the file extension.
  *\param filename The path to the file.
  */
-void FilesUtility::getFileExt(char* ext,const char* filename)
+void FilesUtility::getFileExt(char* ext, const char* filename)
 {
-	int nDot, nPathLen;
-	nPathLen = static_cast<int>(strlen(filename) - 1);
-	nDot = nPathLen;
+	int nDot;
+	nDot = static_cast<int>(strlen(filename) - 1);
+
 	while ((nDot > 0) && (filename[nDot] != '.'))
 		nDot--;
+
 	if (nDot > 0)
 		strcpy(ext, filename + nDot + 1);
 	else
