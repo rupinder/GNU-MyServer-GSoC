@@ -46,8 +46,10 @@ extern HashMap<ThreadID, PythonData*> pythonThreadData;
 #endif
 
 
+EXPORTABLE(char*) name(char* name, u_long len);
+
 EXPORTABLE(int) load(void* server,void* parser);
-EXPORTABLE(int) unload(void* p);
+EXPORTABLE(int) unLoad(void* p);
 
 EXPORTABLE(int) execute(char* code, u_long length);
 EXPORTABLE(int) executeFromFile(char* filename);

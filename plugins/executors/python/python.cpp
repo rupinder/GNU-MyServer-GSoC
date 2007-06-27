@@ -21,9 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 PyInterpreterState* pythonMainInterpreterState = NULL;
 HashMap<ThreadID, PythonData*> pythonThreadData;
 
+static Server *serverInstance;
+
 char* name(char* name, u_long len)
 {
-	char* str = "python";
+	char* str = (char*)"python";
 
 	if(name)
 		strncpy(name, str, len);
@@ -52,17 +54,22 @@ void PythonData::clear()
 
 
 
-int load(void* server,void* parser)
+int load(void* server, void* parser)
 {
-	Server *ser = (Server*)server;
-	const char* pathData = ser->getHashedData("PYTHON_PATH");
+	serverInstance = (Server*)server;
+	const char* pathData = serverInstance->getHashedData("PYTHON_PATH");
 	PyThreadState * mainThreadState;
 	if(pathData)
 	{	
 		string path(pathData);
 		FilesUtility::completePath(path);
 		
-		path.append("/lib");
+		setenv("PYTHONPATH", path.c_str(), 1);
+	}
+	else
+	{
+		string path(".");
+		FilesUtility::completePath(path);
 
 		setenv("PYTHONPATH", path.c_str(), 1);
 	}
@@ -80,7 +87,7 @@ int load(void* server,void* parser)
 }
 
 /*! Unload the plugin.  Called once.  Returns 0 on success.  */
-int unload(void* p)
+int unLoad(void* p)
 {
 	PyInterpreterState *interpreter = NULL;
 	PyThreadState *threadState = NULL;
@@ -180,7 +187,19 @@ int executeFromFile(char* filename)
 	file = fopen(filename, "r");
 
 	if(file == 0)
+	{
+		string msg;
+		msg.assign("Python: Cannot load file ");
+		msg.append(filename);
+
+		serverInstance->logLockAccess();
+		serverInstance->logPreparePrintError();
+		serverInstance->logWriteln(msg.c_str());
+		serverInstance->logEndPrintError();
+		serverInstance->logUnlockAccess();
+
 		ret = -1;
+	}
 	else
 		ret = PyRun_AnyFileEx(file, filename, 1);
 
