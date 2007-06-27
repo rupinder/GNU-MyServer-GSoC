@@ -57,6 +57,31 @@ static HttpThreadContext* getThreadContext()
 	return getThreadData()->td;
 }
 
+static PyObject *get_remote_addr(PyObject *self, PyObject *args)
+{
+	HttpThreadContext* context = getThreadContext();
+		return Py_BuildValue((char*)"s", context->connection->getIpAddr());
+}
+
+static PyObject *get_remote_port(PyObject *self, PyObject *args)
+{
+	HttpThreadContext* context = getThreadContext();
+		return Py_BuildValue((char*)"i", context->connection->getPort());
+}
+
+static PyObject *get_local_addr(PyObject *self, PyObject *args)
+{
+	HttpThreadContext* context = getThreadContext();
+		return Py_BuildValue((char*)"s", context->connection->getLocalIpAddr());
+}
+
+static PyObject *get_local_port(PyObject *self, PyObject *args)
+{
+	HttpThreadContext* context = getThreadContext();
+		return Py_BuildValue((char*)"i", context->connection->getLocalPort());
+}
+
+
 static PyObject *get_header(PyObject *self, PyObject *args)
 {
 	char *header;
@@ -123,6 +148,10 @@ static PyObject *send_redirect(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef httpCheckerMethods[] = {
+	{(char*)"get_remote_port", get_remote_port, METH_VARARGS, (char*)"Get the remote TCP port"},
+	{(char*)"get_local_port", get_local_port, METH_VARARGS, (char*)"Get the local TCP port"},
+	{(char*)"get_remote_addr", get_remote_addr, METH_VARARGS, (char*)"Get the remote IP address"},
+	{(char*)"get_local_addr", get_local_addr, METH_VARARGS, (char*)"Get the local IP address"},
 	{(char*)"get_header", get_header, METH_VARARGS, (char*)"Get HTTP header field value"},
 	{(char*)"set_header", set_header, METH_VARARGS, (char*)"Set HTTP header field value"},
 	{(char*)"send_redirect", send_redirect, METH_VARARGS, (char*)"Send a redirect to another location"},
@@ -133,13 +162,18 @@ static PyMethodDef httpCheckerMethods[] = {
 
 class HttpObserver : public Multicast<string, void*, int>
 {
+	struct Item
+	{
+		string data;
+		bool file;
+	};
 public:
 	
 	virtual int updateMulticast(MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
 	{
 		HttpThreadContext *td = (HttpThreadContext*)arg;
 		ThreadID tid = Thread::threadID();
-		list<string>::iterator it;
+		list<Item>::iterator it;
 		mutex.lock();
 		ThreadData threadData = {td, 0};
 		pythonThreadData.put(tid, &threadData);
@@ -148,21 +182,27 @@ public:
 		init((char*)"http_checker", httpCheckerMethods);
 
 		for(it = rules.begin(); it != rules.end(); it++)
-			python->execute((char*)(*it).c_str(), (*it).length());
-
+		{
+			if((*it).file)
+				python->executeFromFile((char*)(*it).data.c_str());
+			else
+				python->execute((char*)(*it).data.c_str(), (*it).data.length());
+		}
 		return threadData.ret;
 	}
 
-	void addRule(const char* rule)
+	void addRule(const char* rule, bool file)
 	{
-		string strRule(rule);
-		rules.push_back(strRule);
+		Item it;
+		it.data.assign(rule);
+		it.file = file;
+		rules.push_back(it);
 	}
 
 	void setPythonExecutor(DynamicExecutor* python){this->python = python;}
 
 private:
-	list<string> rules;
+	list<Item> rules;
 	DynamicExecutor* python;
 };
 
@@ -228,7 +268,35 @@ EXPORTABLE(int) load(void* server,void* parser)
 	{
 		if(!xmlStrcmp(ptr->name, (const xmlChar *)"HTTP_CHECKER_RULE"))
 		{
-			observer.addRule((char*)ptr->children->next->content);
+			bool file = false;
+			xmlAttrPtr properties = ptr->properties;
+			char* data = 0;
+			while(properties)
+			{
+				if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
+				{
+					if(properties->children && properties->children->content)
+						data = (char*)properties->children->content;
+
+					file = true;
+				}
+				properties = properties->next;
+			}
+
+			if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
+				data = (char*)ptr->children->next->content;
+
+			if(!data)
+			{
+				serverInstance->logLockAccess();
+				serverInstance->logPreparePrintError();
+				serverInstance->logWriteln("HttpChecker: Invalid rule");
+				serverInstance->logEndPrintError();
+				serverInstance->logUnlockAccess();
+				return -1;
+			}
+
+			observer.addRule(data, file);
 		}
 		
 	}
