@@ -65,7 +65,6 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     Server::getInstance()->logUnlockAccess();
 		return 0;
 	}
-	HttpRequestHeader::Entry *connection = ConnInfo->td->request.other.get("Connection");
 
  	switch (dwHSERRequest) 
 	{
@@ -136,7 +135,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     SetEvent(ConnInfo->ISAPIDoneEvent);
     break;
   case HSE_REQ_IS_KEEP_CONN:
-    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
+    if(ConnInfo->td->request.isKeepAlive())
       *((BOOL*)lpvBuffer)=1;
     else
       *((BOOL*)lpvBuffer)=0;

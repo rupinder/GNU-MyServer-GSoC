@@ -257,9 +257,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
   st.authTypeLen = 16;
   try
   {
-		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
     HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
-    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
+    if(td.request.isKeepAlive())
     {
       td.response.connection.assign("keep-alive");
       keepalive = 1;
@@ -532,9 +531,8 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
   try
   {
     HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
-		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
 
-    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
+    if(td.request.isKeepAlive())
     {
       td.response.connection.assign( "keep-alive");
     }
@@ -1002,7 +1000,6 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 	u_long inPos = 0;
 	u_long nbr;
 	u_long length;
-	HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
 
 	HttpRequestHeader::Entry *contentType =
 		td->request.other.get("Content-Type");
@@ -1043,8 +1040,7 @@ int Http::readPostData(HttpThreadContext* td, int* retcmd)
 	 *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not
 	 *always needed.
 	 */
-	if(!contentLength && connection
-		 && !stringcmpi(connection->value->c_str(), "keep-alive"))
+	if(!contentLength && td->request.isKeepAlive())
 	{
 		HttpRequestHeader::Entry *content =
 			td->request.other.get("Content-Encoding");
@@ -1211,15 +1207,13 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
   string file;
   try
   {
-		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
-
     st.authType = authType;
     st.authTypeLen = 16;
     st.td = &td;
     filename.assign(uri);
     td.buffer->setLength(0);
 
-    if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
+		if(td.request.isKeepAlive())
     {
       td.response.connection.assign("keep-alive");
     }
@@ -2110,7 +2104,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
 		td.response.ver.assign(td.request.ver.c_str());
 
-    /*! Do not use Keep-Alive over HTTP version older than 1.1.  */
+    /*! Do not use Keep-Alive with HTTP version older than 1.1.  */
     if(td.request.ver.compare("HTTP/1.1") )
     {
 			HttpRequestHeader::Entry *connection =
@@ -2172,8 +2166,6 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *request does not include a Host request-header.
        */
 			HttpRequestHeader::Entry *host = td.request.other.get("Host");
-			HttpRequestHeader::Entry *connection =
-				td.request.other.get("Connection");
 
       if((!td.request.ver.compare("HTTP/1.1")) &&
 				 ((host && host->value->length() == 0) || (host == 0)) )
@@ -2299,7 +2291,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         }
       }
 
-      if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
+			if(td.request.isKeepAlive())
       {
         /*!
          *Support for HTTP pipelining.

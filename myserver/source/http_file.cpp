@@ -144,13 +144,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
     }
 
-		{
-			HttpRequestHeader::Entry* e = td->request.other.get("Connection");
-			if(e)
-				keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
-			else
-				keepalive = false;
-		}
+		keepalive = td->request.isKeepAlive();
 
 #ifndef DO_NOT_USEGZIP
     /*

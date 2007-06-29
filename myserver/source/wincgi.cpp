@@ -166,8 +166,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 	DataFileHandle.writeToFile(buffer,td->buffer2->getLength(),&nbr);
 
 	{
-		HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
-		if(connection && stringcmpi(connection->value->c_str(), "keep-alive"))
+		if(td->request.isKeepAlive())
 		{
 			strcpy(buffer,"Request Keep-Alive=No\r\n");
 			DataFileHandle.writeToFile(buffer, 23, &nbr);
@@ -366,12 +365,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
 		}
 	}
 
-	{
-		HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
+	if(td->request.isKeepAlive())
+		td->response.connection.assign("keep-alive");
 
-		if(connection && !stringcmpi(connection->value->c_str(),"keep-alive"))
-			td->response.connection.assign("keep-alive");
-	}
 	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, buffer);
 
 	/*

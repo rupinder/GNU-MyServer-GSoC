@@ -428,10 +428,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	/* Send the header.  */
 	if(!nph)
 	{
-		HttpRequestHeader::Entry *connection = 
-			td->request.other.get("Connection");
-		
-		if(connection && !lstrcmpi(connection->value->c_str(), "keep-alive"))
+		if(keepalive)
 			td->response.connection.assign("keep-alive");
 
 		/*

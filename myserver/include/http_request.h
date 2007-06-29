@@ -98,6 +98,8 @@ struct HttpRequestHeader : public HttpHeader
   virtual string* getValue(const char* name, string* out);
   virtual string* setValue(const char* name, const char* in);
 
+	bool isKeepAlive();
+
   HttpRequestHeader();
   ~HttpRequestHeader();
   void free();

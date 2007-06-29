@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/stringutils.h"
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
 using namespace std;
 
 /*!
@@ -72,6 +74,21 @@ void HttpRequestHeader::free()
 	digestResponse[0] = '\0';
 	digestQop[0] = '\0';
 	digestNc[0] = '\0';
+}
+
+/*!
+ *Check if this request is keep-alive.
+ */
+bool HttpRequestHeader::isKeepAlive()
+{
+		Entry *connection = other.get("Connection");
+		if(connection)
+		{
+			string value(*connection->value);
+			std::transform(value.begin(), value.end(), value.begin(), (int(*)(int)) tolower);
+			return value.find("keep-alive") != string::npos;
+		}
+		return false;
 }
 
 /*!

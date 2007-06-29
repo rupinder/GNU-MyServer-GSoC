@@ -121,12 +121,7 @@ int HttpDataHandler::appendDataToHTTPChannel(HttpThreadContext* td,
 void HttpDataHandler::checkDataChunks(HttpThreadContext* td, bool* keepalive, 
 																			bool* useChunks)
 {
-	HttpRequestHeader::Entry* e = td->request.other.get("Connection");
-	if(e)
-		*keepalive = !lstrcmpi(e->value->c_str(),"keep-alive");
-	else
-		*keepalive = false;
-
+	*keepalive = td->request.isKeepAlive();
 	*useChunks = false;
 
 	/* Do not use chunked transfer with old HTTP/1.0 clients.  */
