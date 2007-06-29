@@ -64,8 +64,8 @@ public:
 	virtual int postLoad(Server* server, XmlParser* languageFile);
 	virtual int unLoad(XmlParser* languageFile);
 	virtual const char* getName(char* buffer, u_long len);
-	int getVersion();
-	void* getDirectMethod(char* name);
+	virtual int getVersion();
+	virtual void* getDirectMethod(char* name);
 protected:
 	DynamicLibrary hinstLib;
 private:

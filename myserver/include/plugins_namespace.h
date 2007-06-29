@@ -30,14 +30,9 @@ class Server;
 
 class PluginsNamespace
 {
-private:
-	string name;
-protected:
-	HashMap<char*, Plugin*> plugins;
-	void setName(string& name);
 public:
-	HashMap<char*, Plugin*>::Iterator begin(){return plugins.begin();}
-	HashMap<char*, Plugin*>::Iterator end(){return plugins.end();}
+	HashMap<string, Plugin*>::Iterator begin(){return plugins.begin();}
+	HashMap<string, Plugin*>::Iterator end(){return plugins.end();}
 	string& getName();
 	PluginsNamespace(string name);
 	PluginsNamespace(string& name, PluginsNamespace& clone);
@@ -49,6 +44,14 @@ public:
 	virtual int postLoad(Server* server, XmlParser* languageFile);
 	virtual int unLoad(XmlParser* languageFile);
 	virtual ~PluginsNamespace();
+	virtual int addPreloadedPlugin(Plugin*);
+	virtual void removePlugin(string& name);
+	bool isLoaded(){return loaded;}
+protected:
+	HashMap<string, Plugin*> plugins;
+	void setName(string& name);
+private:
+	bool loaded;
+	string name;
 };
-
 #endif

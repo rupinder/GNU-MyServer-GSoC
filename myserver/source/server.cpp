@@ -660,8 +660,6 @@ int Server::terminate()
 	}
 	freeHashedData();
 	
-	globalData.clear();
-
 	/* Restore the blocking status in case of a reboot.  */
 	Socket::stopBlockingOperations(false);
 
@@ -715,11 +713,6 @@ int Server::terminate()
    */
 	FreeEnvironmentStrings((LPTSTR)envString);
 #endif
-	Http::unLoadProtocol(&languageParser);
-	Https::unLoadProtocol(&languageParser);
-  ControlProtocol::unLoadProtocol(&languageParser);
-
-
 	getProcessServerManager()->clear();
 
   filtersFactory.free();
@@ -728,10 +721,15 @@ int Server::terminate()
 
 	getPluginsManager()->unLoad(this, &languageParser);
 
+	Http::unLoadProtocol(&languageParser);
+	Https::unLoadProtocol(&languageParser);
+  ControlProtocol::unLoadProtocol(&languageParser);
 	/*
    *Destroy the connections mutex.
    */
 	delete connectionsMutex;
+
+	globalData.clear();
 
   /*
    *Free all the threads.

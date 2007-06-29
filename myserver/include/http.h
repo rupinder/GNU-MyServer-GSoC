@@ -50,6 +50,9 @@ public:
 	{
 		return MulticastRegistry<string, void*, int>::getHandlers(msg);
 	}
+
+  DynHttpCommandManager dynCmdManager;
+  DynHttpManagerList dynManagerList;
 };
 
 /*!
@@ -160,8 +163,6 @@ protected:
 	static vector<string> defaultFilename;
   static int cgiTimeout;
   static int allowVhostMime;
-  static DynHttpCommandManager dynCmdManager;
-  static DynHttpManagerList dynManagerList;
 	MsCgi mscgi;
 	WinCgi wincgi;
 	Isapi isapi;

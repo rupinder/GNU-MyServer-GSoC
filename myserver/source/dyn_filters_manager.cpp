@@ -88,7 +88,7 @@ Filter* DynamicFiltersManager::createFilter(const char* name)
  */
 int DynamicFiltersManager::registerFilters(FiltersFactory* ff)
 {
-	HashMap<char*, Plugin*>::Iterator it = begin();
+	HashMap<string, Plugin*>::Iterator it = begin();
 	
 	for (;it != end(); it++)
 	{

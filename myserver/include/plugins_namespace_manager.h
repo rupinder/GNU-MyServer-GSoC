@@ -32,11 +32,12 @@ public:
 											string& resource);
 	virtual int load(Server* server, XmlParser* languageFile, 
 									 string& resource);
-private:
-	int addPlugin(string& file, Server* server, XmlParser* languageFile);
 
 protected:
 	virtual Plugin* createPluginObject();
+private:
+	int addPlugin(string& file, Server* server, XmlParser* languageFile);
+
 };
 
 #endif

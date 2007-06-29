@@ -32,17 +32,17 @@ using namespace std;
 
 class DynamicHttpCommand : public Plugin
 {
-private:
-  XmlParser *errorParser;
-	string filename;
-	DynamicLibrary hinstLib;
 public:
 	DynamicHttpCommand();
 	virtual ~DynamicHttpCommand();
 	int acceptData();
-  int send(HttpThreadContext* context, ConnectionPtr lpconnection, 
-           string& Uri, int systemrequest = 0, 
-					 int OnlyHeader = 0, int yetmapped = 0);
+  virtual int send(HttpThreadContext* context, ConnectionPtr lpconnection, 
+									 string& Uri, int systemrequest = 0, 
+									 int OnlyHeader = 0, int yetmapped = 0);
+private:
+  XmlParser *errorParser;
+	string filename;
+	DynamicLibrary hinstLib;
 };
 
 #endif

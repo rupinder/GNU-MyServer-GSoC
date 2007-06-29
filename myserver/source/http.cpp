@@ -83,12 +83,6 @@ SecurityCache Http::secCache;
 /*! Access the security cache safely. */
 Mutex Http::secCacheMutex;
 
-/*! Dynamic commands manager. */
-DynHttpCommandManager Http::dynCmdManager;
-
-/*! Dynamic managers. */
-DynHttpManagerList Http::dynManagerList;
-
 static HttpStaticData staticHttp;
 
 
@@ -1849,7 +1843,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(allowExternal && td.mime)
       {
         DynamicHttpManager* manager =
-					dynManagerList.getPlugin(td.mime->cmdName);
+					staticHttp.dynManagerList.getPlugin(td.mime->cmdName);
 
         if(manager)
           return manager->send(&td, td.connection, td.filenamePath.c_str(),
@@ -2122,7 +2116,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 		Server::getInstance()->temporaryFileName(td.id, td.inputDataPath);
 		Server::getInstance()->temporaryFileName(td.id, td.outputDataPath);
 
-    dynamicCommand = dynCmdManager.getPlugin(td.request.cmd);
+    dynamicCommand = staticHttp.dynCmdManager.getPlugin(td.request.cmd);
 
 		/* If the used method supports POST data, read it.  */
     if((!td.request.cmd.compare("POST")) ||
@@ -2977,8 +2971,8 @@ int Http::loadProtocol(XmlParser* languageParser)
   HttpFile::load(configurationFileManager);
   HttpDir::load(configurationFileManager);
 
-	Server::getInstance()->getPluginsManager()->addNamespace(&dynCmdManager);
-	Server::getInstance()->getPluginsManager()->addNamespace(&dynManagerList);
+	Server::getInstance()->getPluginsManager()->addNamespace(&staticHttp.dynCmdManager);
+	Server::getInstance()->getPluginsManager()->addNamespace(&staticHttp.dynManagerList);
 
 	/*! Determine the min file size that will use GZIP compression.  */
 	data = configurationFileManager->getValue("GZIP_THRESHOLD");

@@ -71,7 +71,7 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
 		return 1;
 	}
 		
-	plugins.put((char*)name.c_str(), plugin);
+	plugins.put(name, plugin);
 
 	logBuf.assign(languageFile->getValue("MSG_LOADED"));
 	logBuf.append(" ");
@@ -155,7 +155,7 @@ int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile,
 int PluginsNamespaceManager::load(Server* server, XmlParser* languageFile, 
 																		 string& resource)
 {
-	HashMap<char*, Plugin*>::Iterator it = plugins.begin();
+	HashMap<string, Plugin*>::Iterator it = plugins.begin();
 	while(it != plugins.end())
 	{
 		(*it)->load(resource, server, languageFile);

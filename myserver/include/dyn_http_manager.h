@@ -36,7 +36,7 @@ class DynamicHttpManager : public Plugin
 public:
 	DynamicHttpManager();
 	virtual ~DynamicHttpManager();
-	int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
+	virtual int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
                    const char* cgi, int onlyHeader = 0);
 
 };

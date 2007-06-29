@@ -27,6 +27,7 @@ using namespace std;
 PluginsNamespace::PluginsNamespace(string name)
 {
 	this->name.assign(name);
+	loaded = false;
 }
 
 /*!
@@ -35,6 +36,7 @@ PluginsNamespace::PluginsNamespace(string name)
 PluginsNamespace::~PluginsNamespace()
 {
 	unLoad(0);
+	loaded = false;
 }
 
 
@@ -48,13 +50,14 @@ PluginsNamespace::~PluginsNamespace()
 PluginsNamespace::PluginsNamespace(string& name, PluginsNamespace& clone) 
 {
 	this->name.assign(name);
-	HashMap<char*, Plugin*>::Iterator it = clone.plugins.begin();
+	HashMap<string, Plugin*>::Iterator it = clone.plugins.begin();
 	while(it != clone.plugins.end())
 	{
 		string name((*it)->getName(0, 0));
-		plugins.put((char*)name.c_str(), *it);
+		plugins.put(name, *it);
 		it++;
 	}
+	loaded = clone.loaded;
 
 }
 
@@ -83,12 +86,13 @@ Plugin* PluginsNamespace::getPlugin(string &name)
  */
 int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
 {
-	HashMap<char*, Plugin*>::Iterator it = plugins.begin();
+	HashMap<string, Plugin*>::Iterator it = plugins.begin();
 	while(it != plugins.end())
 	{
 		(*it)->postLoad(server, languageFile);
 		it++;
 	}
+	loaded = true;
 	return 0;
 }
 
@@ -99,13 +103,14 @@ int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
  */
 int PluginsNamespace::unLoad(XmlParser* languageFile)
 {
-	HashMap<char*, Plugin*>::Iterator it = plugins.begin();
+	HashMap<string, Plugin*>::Iterator it = plugins.begin();
 	while(it != plugins.end())
 	{
 		(*it)->unLoad(languageFile);
 		delete *it;
 		it++;
 	}
+	loaded = false;
 	plugins.clear();
 	return 0;
 }
@@ -119,3 +124,22 @@ void PluginsNamespace::setName(string& name)
 	this->name.assign(name);
 }
 
+/*!
+ *Add a plugin that is already preloaded to the namespace.
+ *\param plugin The plugin to add.
+ */
+int PluginsNamespace::addPreloadedPlugin(Plugin* plugin)
+{
+	string name(plugin->getName(0, 0));
+	plugins.put(name, plugin);
+	return 0;
+}
+
+/*!
+ *Remove a plugin from the namespace without clean it.
+ *\param name The plugin to remove.
+ */
+void PluginsNamespace::removePlugin(string& name)
+{
+	plugins.remove(name);
+}
