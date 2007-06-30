@@ -31,6 +31,13 @@ class Server;
 class PluginsNamespace
 {
 public:
+	struct PluginOption
+	{
+		PluginOption(PluginOption& po){enabled = po.enabled;}
+		PluginOption(){enabled = true;}
+		bool enabled;
+	};
+
 	HashMap<string, Plugin*>::Iterator begin(){return plugins.begin();}
 	HashMap<string, Plugin*>::Iterator end(){return plugins.end();}
 	string& getName();
@@ -47,8 +54,12 @@ public:
 	virtual int addPreloadedPlugin(Plugin*);
 	virtual void removePlugin(string& name);
 	bool isLoaded(){return loaded;}
+
+	virtual int addPluginOption(string&, PluginOption&);
+	virtual PluginOption* getPluginOption(string&);
 protected:
 	HashMap<string, Plugin*> plugins;
+	HashMap<string, PluginOption*> pluginsOptions;
 	void setName(string& name);
 private:
 	bool loaded;

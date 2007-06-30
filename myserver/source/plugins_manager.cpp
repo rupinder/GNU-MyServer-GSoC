@@ -17,6 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../stdafx.h"
 #include "../include/plugins_manager.h"
+#include "../include/xml_parser.h"
+#include "../include/server.h"
 
 #include <string>
 using namespace std;
@@ -61,8 +63,79 @@ Plugin* PluginsManager::getPlugin(string& fullname)
 int PluginsManager::preLoad(Server *server, XmlParser* languageFile, 
 														string& resource)
 {
+	xmlDocPtr xmlDoc;
 	int ret = 0;
+	XmlParser* configuration;
 	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
+
+	configuration = server->getConfiguration();
+	
+	xmlDoc = configuration->getDoc();
+	
+
+	for(xmlNode *root = xmlDoc->children; root; root = root->next)
+		if(!xmlStrcmp(root->name, (const xmlChar *)"MYSERVER"))
+			for(xmlNode *node = root->children; node; node = node->next)
+				{
+					string namespaceName;
+					string pluginName;
+					PluginsNamespace::PluginOption po;
+					
+					if(!xmlStrcmp(node->name, (const xmlChar *)"PLUGIN"))
+					{
+						xmlAttrPtr properties = node->properties;
+						
+						while(properties)
+						{
+							if(!xmlStrcmp(properties->name, (const xmlChar *)"name"))
+							{
+								if(properties->children && properties->children->content)
+									pluginName.assign((char*)properties->children->content);
+							}
+				
+							if(!xmlStrcmp(properties->name, (const xmlChar *)"namespace"))
+							{
+								if(properties->children && properties->children->content)
+									namespaceName.assign((char*)properties->children->content);
+							}
+							
+							properties = properties->next;
+						}
+						
+						for(xmlNode *internal = node->children; internal; internal = internal->next)	
+							if(!xmlStrcmp(internal->name, (const xmlChar *)"ENABLED"))
+								po.enabled = strcmpi("NO", (const char*)internal->children->content) ? true : false;
+						
+						if(!namespaceName.length() || !pluginName.length())
+						{
+							string error;
+							error.assign("Warning: invalid namespace or plugin name in PLUGIN block");
+							server->logLockAccess();
+							server->logPreparePrintError();
+							server->logWriteln(error.c_str());     
+							server->logEndPrintError();
+							server->logUnlockAccess();
+						}
+						else
+						{
+							PluginsNamespace* ns = getNamespace(namespaceName);
+							if(!ns)
+							{
+								string error;
+								error.assign("Warning: invalid namespace name");
+								server->logLockAccess();
+								server->logPreparePrintError();
+								server->logWriteln(error.c_str());     
+								server->logEndPrintError();
+								server->logUnlockAccess();
+							}
+							else
+								ns->addPluginOption(pluginName, po);
+
+						}
+
+					}
+				}
 
 	while(it != namespaces.end())
 	{

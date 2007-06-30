@@ -64,14 +64,14 @@ public:
 	void endGroup();
 	void setAttr(const char * name, const char * value);
 	
-    void setAttr(string& name, string& value)
-    {
-        setAttr(name.c_str(), value.c_str());
-    };
+	void setAttr(string& name, string& value)
+	{
+		setAttr(name.c_str(), value.c_str());
+	};
     
-    void addLineFeed();
-    time_t getLastModTime();
-
+	void addLineFeed();
+	time_t getLastModTime();
+	
 private:
 	xmlDocPtr doc;
 	string buffer;

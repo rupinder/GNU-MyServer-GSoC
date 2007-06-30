@@ -104,14 +104,24 @@ int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
 int PluginsNamespace::unLoad(XmlParser* languageFile)
 {
 	HashMap<string, Plugin*>::Iterator it = plugins.begin();
+	HashMap<string, PluginOption*>::Iterator poit = pluginsOptions.begin();
+
 	while(it != plugins.end())
 	{
 		(*it)->unLoad(languageFile);
 		delete *it;
 		it++;
 	}
+
+	while(poit != pluginsOptions.end())
+	{
+		delete *poit;
+		poit++;
+	}
+
 	loaded = false;
 	plugins.clear();
+	pluginsOptions.clear();
 	return 0;
 }
 
@@ -142,4 +152,29 @@ int PluginsNamespace::addPreloadedPlugin(Plugin* plugin)
 void PluginsNamespace::removePlugin(string& name)
 {
 	plugins.remove(name);
+}
+
+/*!
+ *Add a plugin option structure to the namespace.
+ *\param plugin The plugin name.
+ *\param po The options for the plugin.
+ */
+int PluginsNamespace::addPluginOption(string& plugin, PluginOption& po)
+{
+	PluginOption* newPo = new PluginOption(po);
+	PluginOption* oldPo = pluginsOptions.put(plugin, newPo);
+
+	if(oldPo)
+		delete oldPo;
+
+	return 0;
+}
+
+/*!
+ *Remove a plugin from the namespace without clean it.
+ *\param name The plugin to remove.
+ */
+PluginsNamespace::PluginOption* PluginsNamespace::getPluginOption(string& plugin)
+{
+	return pluginsOptions.get(plugin);
 }

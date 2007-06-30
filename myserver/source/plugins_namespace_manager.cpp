@@ -114,6 +114,9 @@ int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile,
 
 	do
 	{	
+		string name(fd.name);
+		PluginsNamespace::PluginOption *po;
+
 		if(fd.name[0]=='.')
 			continue;
 		/*!
@@ -126,12 +129,23 @@ int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile,
 		if(!strstr(fd.name,".so"))
 #endif		
 			continue;
+
     completeFileName.assign(filename);
 		if((fd.name[0] != '/') && (fd.name[0] != '\\')) 
 			completeFileName.append("/");
     completeFileName.append(fd.name);
 
-		ret |= addPlugin(completeFileName, server, languageFile);
+#ifdef WIN32
+		name = name.substr(0, name.length() - 4);
+#endif
+#ifdef NOT_WIN
+		name = name.substr(0, name.length() - 3);
+#endif
+
+		po = getPluginOption(name);
+		
+		if(!po || po->enabled)
+			ret |= addPlugin(completeFileName, server, languageFile);
 	}while(!fd.findnext());
 	fd.findclose();
 
