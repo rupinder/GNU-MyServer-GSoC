@@ -248,183 +248,28 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 {
   u_long firstByte = td.request.rangeByteBegin;
   int permissions = -1;
-	int httpStatus = td.response.httpStatus;
 	int keepalive = 0;
-  int providedMask = 0;
-  char authType[16];
-  SecurityToken st;
-  string directory;
-  string file;
-
-  st.td = &td;
-  st.authType = authType;
-  st.authTypeLen = 16;
+	int ret;
   try
   {
     HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
+
     if(td.request.isKeepAlive())
     {
       td.response.connection.assign("keep-alive");
       keepalive = 1;
     }
 
-    FilesUtility::splitPath(td.filenamePath, directory, file);
-    td.response.httpStatus = httpStatus;
-    /*!
-     *td.filenamePath is the file system mapped path while filename
-     *is the uri requested.
-     *systemrequest is 1 if the file is in the system directory.
-     *If filename is already mapped on the file system don't map it again.
-     */
-    if(yetmapped)
-    {
-      td.filenamePath.assign(filename);
-    }
-    else
-    {
-      int ret;
-      /*!
-       *If the client tries to access files that aren't in the web directory
-       *send a 401 error.
-       */
-      translateEscapeString(filename);
-      if((filename[0] != '\0') &&
-         (FilesUtility::getPathRecursionLevel(filename) < 1))
-      {
-        return raiseHTTPError(401);
-      }
-      ret = getPath(td.filenamePath, filename, 0);
-      if(ret != 200)
-        return raiseHTTPError(ret);
-    }
-    if(FilesUtility::isDirectory(td.filenamePath.c_str()))
-    {
-      directory.assign(td.filenamePath);
-    }
-    else
-    {
-      string fn;
-      fn.assign(filename);
-      FilesUtility::splitPath(td.filenamePath, directory, fn);
-    }
-    if(td.connection->protocolBuffer == 0)
-    {
-      td.connection->protocolBuffer=new HttpUserData;
-      if(!td.connection->protocolBuffer)
-      {
-        return sendHTTPhardError500();
-      }
-      ((HttpUserData*)(td.connection->protocolBuffer))->reset();
-    }
+		ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
 
-    if(td.request.auth.length())
-    {
-      st.user = td.connection->getLogin();
-      st.password = td.connection->getPassword();
-      st.directory = directory.c_str();
-      st.sysdirectory = td.getVhostSys();
-      st.filename = file.c_str();
-      st.requiredPassword =
-				((HttpUserData*)td.connection->protocolBuffer)->requiredPassword;
-      st.providedMask = &providedMask;
-      secCacheMutex.lock();
-      try
-      {
-        permissions=secCache.getPermissionMask(&st);
-        secCacheMutex.unlock();
-      }
-      catch(...)
-      {
-        secCacheMutex.unlock();
-        throw;
-      };
-    }
-    else/*! The default user is Guest with a null password. */
-    {
-      secCacheMutex.lock();
-      try
-      {
-        st.user = "Guest";
-        st.password = "";
-        st.directory = directory.c_str();
-        st.sysdirectory = td.getVhostSys();
-        st.filename = file.c_str();
-        st.requiredPassword = 0;
-        st.providedMask = 0;
-        permissions=secCache.getPermissionMask(&st);
-        secCacheMutex.unlock();
-      }
-      catch(...)
-      {
-        secCacheMutex.unlock();
-        throw;
-      };
-    }
+		if(ret != 200)
+			return raiseHTTPError(ret);
 
-    if(permissions == -1)
-    {
-      td.connection->host->warningsLogRequestAccess(td.id);
-      td.connection->host->warningsLogWrite("Http: Error reading security file");
-      td.connection->host->warningsLogTerminateAccess(td.id);
-      return raiseHTTPError(500);
-    }
-    /*! Check if we have to use digest for the current directory. */
-    if(!lstrcmpi(authType, "Digest"))
-    {
-      if(!td.request.auth.compare("Digest"))
-      {
-        if(!((HttpUserData*)td.connection->protocolBuffer)->digestChecked)
-          ((HttpUserData*)td.connection->protocolBuffer)->digest =
-						checkDigest();
-        ((HttpUserData*)td.connection->protocolBuffer)->digestChecked = 1;
-        if(((HttpUserData*)td.connection->protocolBuffer)->digest == 1)
-        {
-          td.connection->setPassword(
-							 ((HttpUserData*)td.connection->protocolBuffer)->requiredPassword);
-          permissions = providedMask;
-        }
-      }
-      td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
-    }
-    else/*! By default use the Basic authentication scheme. */
-    {
-      td.authScheme = HTTP_AUTH_SCHEME_BASIC;
-    }
-    /*! If there are no permissions, use the Guest permissions. */
-    if(td.request.auth.length() && (permissions == 0))
-    {
-      st.user = "Guest";
-      st.password = "";
-      st.directory = directory.c_str();
-      st.sysdirectory = td.getVhostSys();
-      st.filename = file.c_str();
-      st.requiredPassword = 0;
-      st.providedMask = 0;
-
-      secCacheMutex.lock();
-      try
-      {
-        permissions = secCache.getPermissionMask(&st);
-        secCacheMutex.unlock();
-      }
-      catch(...)
-      {
-        secCacheMutex.unlock();
-        throw;
-      };
-    }
-    if(permissions == -1)
-    {
-      td.connection->host->warningsLogRequestAccess(td.id);
-      td.connection->host->warningsLogWrite(
-																	 "Http: Error reading security file");
-      td.connection->host->warningsLogTerminateAccess(td.id);
-      return raiseHTTPError(500);
-    }
     if(!(permissions & MYSERVER_PERMISSION_WRITE))
     {
       return sendAuth();
     }
+
     if(FilesUtility::fileExists(td.filenamePath.c_str()))
     {
       /*! If the file exists update it. */
@@ -521,30 +366,23 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 }
 
 /*!
- *Delete the resource identified by filename.
+ *Get the file permissions mask.
+ *\param filename Resource to access.
+ *\param yetmapped Is the resource mapped to the localfilesystem?
+ *\param permissions Permission mask for this resource.
  */
-int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
+int Http::getFilePermissions(string& filename, string& directory, string& file, 
+														 string &filenamePath, int yetmapped, int* permissions)
 {
-  int permissions = -1;
-  string directory;
-	int httpStatus = td.response.httpStatus;
-	int providedMask = 0;
-	char authType[16];
   SecurityToken st;
-  string file;
-  try
-  {
-    HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
-
-    if(td.request.isKeepAlive())
-    {
-      td.response.connection.assign( "keep-alive");
-    }
+	char authType[16];
+	int providedMask;
+	try
+	{
     st.authType = authType;
     st.authTypeLen = 16;
-    st.td=&td;
-    FilesUtility::splitPath(td.filenamePath, directory, file);
-    td.response.httpStatus = httpStatus;
+    st.td = &td;
+    FilesUtility::splitPath(filename, directory, file);
     /*!
      *td.filenamePath is the file system mapped path while filename
      *is the uri requested.
@@ -553,7 +391,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
      */
     if(yetmapped)
     {
-      td.filenamePath.assign(filename);
+      filenamePath.assign(filename);
     }
     else
     {
@@ -562,23 +400,25 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
        *If the client tries to access files that aren't in the web directory
        *send a HTTP 401 error page.
        */
-      translateEscapeString(filename );
+      translateEscapeString(filename);
       if((filename[0] != '\0') &&
-				 (FilesUtility::getPathRecursionLevel(filename)<1))
+				 (FilesUtility::getPathRecursionLevel(filename) < 1))
       {
-        return raiseHTTPError(401);
+        return 401;
       }
-      ret = getPath(td.filenamePath, filename, 0);
+
+      ret = getPath(filenamePath, filename, 0);
+
       if(ret != 200)
-        return raiseHTTPError(ret);
+				return ret;
     }
-    if(FilesUtility::isDirectory(td.filenamePath.c_str()))
+    if(FilesUtility::isDirectory(filenamePath.c_str()))
     {
-      directory.assign(td.filenamePath);
+      directory.assign(filenamePath);
     }
     else
     {
-      FilesUtility::splitPath(td.filenamePath, directory, file);
+      FilesUtility::splitPath(filenamePath, directory, file);
     }
 
     if(td.connection->protocolBuffer == 0)
@@ -586,7 +426,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       td.connection->protocolBuffer = new HttpUserData;
       if(!td.connection->protocolBuffer)
       {
-        return 0;
+        return 500;
       }
       ((HttpUserData*)(td.connection->protocolBuffer))->reset();
     }
@@ -604,7 +444,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       secCacheMutex.lock();
       try
       {
-        permissions = secCache.getPermissionMask(&st);
+        *permissions = secCache.getPermissionMask(&st);
         secCacheMutex.unlock();
       }
       catch(...)
@@ -625,7 +465,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       secCacheMutex.lock();
       try
       {
-        permissions = secCache.getPermissionMask(&st);
+        *permissions = secCache.getPermissionMask(&st);
         secCacheMutex.unlock();
       }
       catch(...)
@@ -634,13 +474,13 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
         throw;
       };
     }
-    if(permissions == -1)
+    if(*permissions == -1)
     {
       td.connection->host->warningsLogRequestAccess(td.id);
       td.connection->host->warningsLogWrite(
 																		 "Http: Error reading security file");
       td.connection->host->warningsLogTerminateAccess(td.id);
-      return raiseHTTPError(500);
+      return 500;
     }
     /*! Check if we have to use digest for the current directory. */
     if(!lstrcmpi(authType, "Digest"))
@@ -655,7 +495,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
         {
           td.connection->setPassword(
                ((HttpUserData*)td.connection->protocolBuffer)->requiredPassword);
-					permissions = providedMask;
+					*permissions = providedMask;
         }
       }
       td.authScheme = HTTP_AUTH_SCHEME_DIGEST;
@@ -666,7 +506,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       td.authScheme = HTTP_AUTH_SCHEME_BASIC;
     }
     /*! If there are no permissions, use the Guest permissions. */
-    if(td.request.auth.length() && (permissions==0))
+    if(td.request.auth.length() && (*permissions==0))
     {
       st.user = "Guest";
       st.password = "";
@@ -678,7 +518,7 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
       secCacheMutex.lock();
       try
       {
-        permissions=secCache.getPermissionMask(&st);
+        *permissions = secCache.getPermissionMask(&st);
         secCacheMutex.unlock();
       }
       catch(...)
@@ -687,21 +527,77 @@ int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
         throw;
       };
     }
-    if(permissions == -1)
+    if(*permissions == -1)
     {
       td.connection->host->warningsLogRequestAccess(td.id);
       td.connection->host->warningsLogWrite(
                              "Http: Error reading security file");
       td.connection->host->warningsLogTerminateAccess(td.id);
-      return raiseHTTPError(500);
+      return 500;
     }
-    if(!(permissions & MYSERVER_PERMISSION_DELETE))
-	  {
-      return sendAuth();
+	}
+	catch(...)
+	{
+		return 500;
+	}
+
+	return 200;
+}
+
+
+/*!
+ *Preprocess a HTTP request.
+ *\param filename Resource to access.
+ *\param yetmapped Is the resource mapped to the localfilesystem?
+ *\param permissions Permission mask for this resource.
+ */
+int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permissions)
+{
+	string directory;
+	string file;
+	try
+	{
+    if(td.request.isKeepAlive())
+    {
+      td.response.connection.assign( "keep-alive");
     }
+
+		return getFilePermissions(filename, directory, file, 
+														 td.filenamePath, yetmapped, permissions);
+	}
+	catch(...)
+	{
+		return 500;
+	}
+
+	return 200;
+}
+
+/*!
+ *Delete the resource identified by filename.
+ */
+int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
+{
+  int permissions = -1;
+  string directory;
+  string file;
+	int ret;
+  try
+  {
+    HttpHeaders::buildDefaultHTTPResponseHeader(&td.response);
+
+		ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
+
+		if(ret != 200)
+			return raiseHTTPError(ret);
+
     if(FilesUtility::fileExists(td.filenamePath))
 	  {
+			if(!(permissions & MYSERVER_PERMISSION_DELETE))
+				return 401;
+
       FilesUtility::deleteFile(td.filenamePath.c_str());
+
       /*! Successful deleted.  */
       return raiseHTTPError(202);
     }
@@ -2773,7 +2669,7 @@ MimeRecord* Http::getMIME(string &filename)
  *Map an URL to the machine file system. Return 200 on success.
  *Any other return value is the HTTP error.
  */
-int Http::getPath(string& filenamePath, const char *filename,
+int Http::getPath(HttpThreadContext* td, string& filenamePath, const char *filename,
 									int systemrequest)
 {
 	/*!
@@ -2781,12 +2677,12 @@ int Http::getPath(string& filenamePath, const char *filename,
    */
 	if(systemrequest)
 	{
-    if(!strlen(td.getVhostSys())
+    if(!strlen(td->getVhostSys())
        || FilesUtility::getPathRecursionLevel(filename)< 2 )
     {
       return 401;
     }
-    filenamePath.assign(td.getVhostSys());
+    filenamePath.assign(td->getVhostSys());
 		if(filename[0] != '/')
 			filenamePath.append("/");
     filenamePath.append(filename);
@@ -2807,7 +2703,7 @@ int Http::getPath(string& filenamePath, const char *filename,
       if(filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
          && filename[3] == 's' && filename[4] == '/')
       {
-        root = td.getVhostSys();
+        root = td->getVhostSys();
         /*!
          *Do not allow access to the system directory root but only
          *to subdirectories.
@@ -2820,7 +2716,7 @@ int Http::getPath(string& filenamePath, const char *filename,
       }
       else
       {
-        root = td.getVhostDir();
+        root = td->getVhostDir();
       }
 			filenamePath.assign(root);
 			if(filename[0] != '/')
@@ -2829,7 +2725,7 @@ int Http::getPath(string& filenamePath, const char *filename,
 		}
 		else
 		{
-      filenamePath.append(td.getVhostDir());
+      filenamePath.append(td->getVhostDir());
 		}
 
 	}

@@ -117,14 +117,28 @@ public:
 
 	int sendAuth();
 
-	int getPath(string& filenamePath,
-               const string& filename,
-							int systemrequest)
-	  {return getPath(filenamePath, filename.c_str(), systemrequest);}
 
 	int getPath(string& filenamePath,
-							const char *filename,
-							int systemrequest);
+										 const string& filename,
+										 int systemrequest)
+	{return getPath(&td, filenamePath, filename.c_str(), systemrequest);}
+
+	int getPath(string& filenamePath,
+										 const char *filename,
+										 int systemrequest)
+	{return getPath(&td, filenamePath, filename, systemrequest);}
+
+
+	static int getPath(HttpThreadContext* td,
+										 string& filenamePath,
+										 const string& filename,
+										 int systemrequest)
+	{return getPath(td, filenamePath, filename.c_str(), systemrequest);}
+
+	static int getPath(HttpThreadContext* td, 
+										 string& filenamePath,
+										 const char *filename,
+										 int systemrequest);
 
   MimeRecord* getMIME(string& filename);
 
@@ -149,6 +163,12 @@ public:
 	static int unLoadProtocol(XmlParser*);
 
   int getCGItimeout();
+	int preprocessHttpRequest(string& filename, int yetmapped, 
+														int* permissions);
+
+	int getFilePermissions(string& filename, string& directory, 
+												 string& file, string &filenamePath, 
+												 int yetmapped, int* permissions);
 
 	static HttpStaticData* getStaticData();
 protected:

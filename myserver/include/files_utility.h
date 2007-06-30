@@ -77,6 +77,10 @@ public:
 	static int renameFile(string const &before, string const &after)
     {return renameFile(before.c_str(), after.c_str());}
 
+	static int copyFile(const char*, const char*, int overwrite);
+	static int copyFile(string const &src, string const &dest, int overwrite)
+	{return copyFile(src.c_str(), dest.c_str(), overwrite);}
+
 	static void getFileExt(char* ext,const char* filename);
 	static void getFileExt(string& ext, string const &filename);
 

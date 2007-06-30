@@ -147,6 +147,64 @@ int FilesUtility::renameFile(const char* before, const char* after)
 }
 
 /*!
+ *Copy the file from [SRC] to [DEST]. Returns 0 on success.
+ *\param src The source file name.
+ *\param dest The destination file name.
+ *\param overwrite Overwrite the dest file if already exists?
+ */
+int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
+{
+#ifdef WIN32
+	return CopyFile(src, dest, overwrite ? FALSE : TRUE) ? 0 : 1;
+#else
+	int srcFile = open(src, O_RDONLY);
+	int destFile;
+	char buffer[4096];
+	size_t dim;
+
+	if(srcFile == -1)
+		return -1;
+
+	if(overwrite)
+		destFile = open(dest, O_WRONLY);
+	else
+		destFile = open(dest, O_WRONLY | O_CREAT);
+		
+	if(destFile == -1)
+	{
+		close(srcFile);
+		return -1;
+	}
+
+	do
+	{
+		dim = read(srcFile, buffer, 4096);
+
+		if(dim == (size_t)-1)
+		{
+			close(srcFile);
+			close(destFile);
+			return -1;
+		}
+
+		if(dim && (write(destFile, buffer, dim) != -1))
+		{
+			close(srcFile);
+			close(destFile);
+			return -1;
+		}		
+
+	}while(dim);
+
+	close(srcFile);
+	close(destFile);
+
+	return 0;
+#endif
+}
+
+
+/*!
  *Delete an existing file passing the path.
  *Return a non-null value on errors.
  *\param filename The file to delete.
