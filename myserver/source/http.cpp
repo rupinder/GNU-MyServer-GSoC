@@ -105,6 +105,17 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
   try
   {
 		HttpRequestHeader::Entry *connection = td.request.other.get("Connection");
+		string methods("OPTIONS, GET, POST, HEAD, DELETE, PUT");
+
+		HashMap<string, Plugin*>::Iterator it = staticHttp.dynCmdManager.begin();
+		while(it != staticHttp.dynCmdManager.end())
+		{
+			methods.append(", ");
+			methods.append((*it)->getName(0, 0));
+			it++;
+		}
+
+		
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     td.buffer2->setLength(0);
     *td.buffer2 <<  "HTTP/1.1 200 OK\r\n";
@@ -113,7 +124,7 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
     if(connection && connection->value->length())
       *td.buffer2 << "\r\nConnection:" << connection->value->c_str() ;
     *td.buffer2 <<"\r\nContent-Length: 0\r\nAccept-Ranges: bytes\r\n";
-    *td.buffer2 << "Allow: OPTIONS, GET, POST, HEAD, DELETE, PUT";
+    *td.buffer2 << "Allow: " << methods;
 
     /*!
      *Check if the TRACE command is allowed on the virtual host.
