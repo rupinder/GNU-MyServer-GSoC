@@ -33,8 +33,8 @@ public:
 	static void load();
 	static void unLoad();
 private:
-	static void putMessage(int, char*);
+	static void putMessage(int, const char*);
 	static Mutex mutex;
-	static HashMap<int, char*> messagesMap;
+	static HashMap<int, const char*> messagesMap;
 };
 #endif
