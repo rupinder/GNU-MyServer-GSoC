@@ -95,7 +95,6 @@ int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile,
 																		 string& resource)
 {
 	FindData fd;
-	string dirPattern;
 	string filename;
   string completeFileName;	
 	int ret;
@@ -104,12 +103,7 @@ int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile,
   filename.append("/");
   filename.append(getName());
 
-	dirPattern.assign(filename);
-#ifdef WIN32
-  dirPattern.append("/*.*");
-#endif	
-
-	ret = fd.findfirst(dirPattern.c_str());	
+	ret = fd.findfirst(filename.c_str());	
 	
   if(ret == -1)
   {

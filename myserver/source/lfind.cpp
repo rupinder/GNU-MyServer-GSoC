@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002 The MyServer Team
+Copyright (C) 2002, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -22,6 +22,8 @@ extern "C"
 #include <string.h>
 }
 
+using namespace std;
+
 /*!
  *Initialize class members.
  */
@@ -30,6 +32,7 @@ FindData::FindData()
 #ifdef WIN32
   ff = 0;
 #endif
+
 #ifdef NOT_WIN
   DirName.empty();
   dh = 0;
@@ -53,7 +56,11 @@ FindData::~FindData()
 int FindData::findfirst(const char filename[])
 {
 #ifdef WIN32
-  ff = _findfirst(filename, &fd );
+	string filenameStar;
+	filenameStar.assign(filename);
+	filenameStar.append("/*");
+
+  ff = _findfirst(filenameStar.c_str(), &fd );
   if(ff!=-1)
   {
     name = fd.name;
@@ -63,9 +70,10 @@ int FindData::findfirst(const char filename[])
   }
   return ff;
 #endif
+
 #ifdef NOT_WIN
    struct dirent * dirInfo;
-   struct stat F_Stats;
+   struct stat stats;
    string TempName;
 
 
@@ -86,11 +94,11 @@ int FindData::findfirst(const char filename[])
    
    name = dirInfo->d_name;
 
-   stat(TempName.c_str(), &F_Stats);
-   if(S_ISDIR(F_Stats.st_mode))
+   stat(TempName.c_str(), &stats);
+   if(S_ISDIR(stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
-   time_write = F_Stats.st_mtime;
-   size = F_Stats.st_size;
+   time_write = stats.st_mtime;
+   size = stats.st_size;
    return 0;
 #endif
 }
@@ -113,9 +121,10 @@ int FindData::findnext()
   }
   return ret;
 #endif
+
 #ifdef NOT_WIN
    struct dirent * dirInfo;
-   struct stat F_Stats;
+   struct stat stats;
    string TempName;
       
    dirInfo = readdir(dh);
@@ -128,13 +137,13 @@ int FindData::findnext()
    
    name = dirInfo->d_name;
 
-   stat(TempName.c_str(), &F_Stats);
-   if(S_ISDIR(F_Stats.st_mode))
+   stat(TempName.c_str(), &stats);
+   if(S_ISDIR(stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
    else
      attrib = 0;
-   time_write = F_Stats.st_mtime;
-   size = F_Stats.st_size;
+   time_write = stats.st_mtime;
+   size = stats.st_size;
    return 0;
 #endif
 }

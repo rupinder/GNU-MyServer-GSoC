@@ -377,9 +377,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	}
 
   filename = directory;
-#ifdef WIN32
-  filename.append("/*");
-#endif
 	td->buffer2->setLength(0);
 	*td->buffer2 << "<body>\r\n<h1>Contents of directory ";
 	*td->buffer2 <<  &td->request.uri[startchar] ;
