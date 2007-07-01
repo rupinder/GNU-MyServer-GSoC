@@ -2104,6 +2104,20 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         a->host = newHost;
         if(a->host == 0)
         {
+					string errMsg;
+					errMsg.assign("Invalid virtual host requested: \"");
+					errMsg.append(host->value->c_str());
+					errMsg.append("\" from ");
+					errMsg.append(a->getIpAddr());
+
+
+					Server::getInstance()->logLockAccess();
+					Server::getInstance()->logPreparePrintError();
+					Server::getInstance()->logWriteln(errMsg.c_str());
+					Server::getInstance()->logEndPrintError();
+					Server::getInstance()->logUnlockAccess();
+
+
           raiseHTTPError(503);
           /*!
            *If the inputData file was not closed close it.
@@ -2565,7 +2579,7 @@ int Http::raiseHTTPError(int ID)
 			{
 				ostringstream size;
 
-				errorBodyMessage << ID << " - " << errorMessage;
+				errorBodyMessage << ID << " - " << errorMessage << "\r\n";
 
 				errorBodyLength = errorBodyMessage.str().length();
 
