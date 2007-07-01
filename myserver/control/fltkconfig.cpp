@@ -2,6 +2,7 @@
 
 #include "language.h"
 #include "fltkconfig.h"
+#include <libintl.h>
 
 void MainDlg::cb_ConfDlg_i(Fl_Double_Window*, void*) {
   if(Changed) {
