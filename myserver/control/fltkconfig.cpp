@@ -3893,8 +3893,8 @@ Fl_Double_Window* MainDlg::make_about() {
     o->end();
   }
   Fl_Text_Buffer * atext = new Fl_Text_Buffer;
-atext->text(LanguageXMLAbout_Text);
-AboutText->buffer(atext);
+//atext->text(LanguageXMLAbout_Text);
+//AboutText->buffer(atext);
   return w;
 }
 
