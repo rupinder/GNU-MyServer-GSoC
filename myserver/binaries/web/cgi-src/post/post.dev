@@ -3,31 +3,15 @@ FileName=post.dev
 Name=post
 UnitCount=5
 Type=3
-Ver=1
-ObjFiles=
-Includes=
-Libs=
-PrivateResource=
-ResourceIncludes=
-MakeIncludes=
-Compiler=-DBUILDING_DLL=1_@@_
-CppCompiler=
-Linker=--no-export-all-symbols --add-stdcall-alias _@@_../../../cgi-lib/CGI-LIB.lib_@@_
+Ver=3
 IsCpp=1
-Icon=
-ExeOutput=..\..\cgi-bin
-ObjectOutput=
-OverrideOutput=1
-OverrideOutputName=post.mscgi
-HostApplication=
 Folders=
 CommandLine=move *.a ../binaries/cgi-lib
-IncludeVersionInfo=0
-SupportXPThemes=0
-CompilerSet=0
 CompilerSettings=0000000000000000000100
-UseCustomMakefile=0
-CustomMakefile=
+PchHead=-1
+PchSource=-1
+ProfilesCount=1
+ProfileIndex=0
 
 [Unit1]
 FileName=post.cpp
@@ -55,7 +39,8 @@ LegalTrademarks=
 OriginalFilename=
 ProductName=
 ProductVersion=
-AutoIncBuildNr=0
+AutoIncBuildNrOnRebuild=0
+AutoIncBuildNrOnCompile=0
 
 [Unit2]
 FileName=..\..\..\..\cgi-lib\cgi_manager.cpp
@@ -96,4 +81,32 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+
+[Profile1]
+ProfileName=Default Profile
+Type=3
+ObjFiles=
+Includes=
+Libs=
+PrivateResource=
+ResourceIncludes=
+MakeIncludes=
+Compiler=-DBUILDING_DLL=1_@@_
+CppCompiler=
+Linker=--no-export-all-symbols --add-stdcall-alias _@@_../../../cgi-lib/libcgi-lib.a_@@_
+PreprocDefines=
+CompilerSettings=0000000000000000000100
+Icon=
+ExeOutput=..\..\cgi-bin
+ObjectOutput=..\..\cgi-bin
+OverrideOutput=1
+OverrideOutputName=post.mscgi
+HostApplication=
+CommandLine=move *.a ../binaries/cgi-lib
+UseCustomMakefile=0
+CustomMakefile=
+IncludeVersionInfo=0
+SupportXPThemes=0
+CompilerSet=0
+compilerType=0
 
