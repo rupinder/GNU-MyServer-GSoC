@@ -2104,7 +2104,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         a->host = newHost;
         if(a->host == 0)
         {
-          raiseHTTPError(400);
+          raiseHTTPError(503);
           /*!
            *If the inputData file was not closed close it.
            */
@@ -2456,6 +2456,7 @@ int Http::raiseHTTPError(int ID)
     string time;
     ostringstream errorFile;
 		string errorMessage;
+		ostringstream errorBodyMessage;
     int errorBodyLength = 0;
     int useMessagesFiles = 1;
 		HttpRequestHeader::Entry *host = td.request.other.get("Host");
@@ -2498,8 +2499,7 @@ int Http::raiseHTTPError(int ID)
 
 		if(ret == -1)
     {
-			sendHTTPhardError500();
-			return 0;
+			useMessagesFiles = 0;
 		}
 		else if(ret)
     {
@@ -2554,19 +2554,25 @@ int Http::raiseHTTPError(int ID)
 		HttpErrors::getErrorMessage(ID, errorMessage);
 		/*! Send only the header (and the body if specified). */
 		{
-			const char* value =
-				td.connection->host->getHashedData("ERRORS_INCLUDE_BODY");
-			if(value && !strcmpi(value, "YES"))
-			{
-				ostringstream s;
-				errorBodyLength = errorMessage.length();
-				s << errorBodyLength;
-				td.response.contentLength.assign(s.str());
-			}
-			else
+			const char* value = td.connection->host ? 
+				td.connection->host->getHashedData("ERRORS_INCLUDE_BODY") : 0;
+			if(value && !strcmpi(value, "NO"))
 			{
 				errorBodyLength = 0;
 				td.response.contentLength.assign("0");
+			}
+			else
+			{
+				ostringstream size;
+
+				errorBodyMessage << ID << " - " << errorMessage;
+
+				errorBodyLength = errorBodyMessage.str().length();
+
+				size << errorBodyLength;
+
+				td.response.contentLength.assign(size.str());
+
 			}
 		}
 		HttpHeaders::buildHTTPResponseHeader(td.buffer->getBuffer(),
@@ -2576,7 +2582,7 @@ int Http::raiseHTTPError(int ID)
 			 == -1)
 			return 0;
 
-		if(errorBodyLength && (td.connection->socket->send(errorMessage.c_str(),
+		if(errorBodyLength && (td.connection->socket->send(errorBodyMessage.str().c_str(),
 																											 errorBodyLength, 0)
 													 == -1))
 			return 0;
