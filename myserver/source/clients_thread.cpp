@@ -355,9 +355,12 @@ int ClientsThread::controlConnections()
           if(!httpParser)
             return 0;
         }
-				retcode = httpParser->controlConnection(c, (char*)buffer.getBuffer(), 
-													 (char*)buffer2.getBuffer(), buffer.getRealLength(), 
-																	 buffer2.getRealLength(), nBytesToRead, id);
+				retcode = httpParser->controlConnection(c, 
+																								(char*)buffer.getBuffer(), 
+																								(char*)buffer2.getBuffer(), 
+																								buffer.getRealLength(), 
+																								buffer2.getRealLength(), 
+																								nBytesToRead, id);
  				break;
         /*
          *Parse an HTTPS connection request.
@@ -369,12 +372,13 @@ int ClientsThread::controlConnections()
             if(!httpsParser)
               return 0;
           }
+
           retcode = httpsParser->controlConnection(c, 
-																										(char*)buffer.getBuffer(), 
-																									(char*)buffer2.getBuffer(), 
-																										buffer.getRealLength(), 
-																										buffer2.getRealLength(), 
-																										nBytesToRead, id);
+																									 (char*)buffer.getBuffer(), 
+																									 (char*)buffer2.getBuffer(), 
+																									 buffer.getRealLength(), 
+																									 buffer2.getRealLength(), 
+																									 nBytesToRead, id);
           break;
 			  case PROTOCOL_CONTROL:
           if(!controlProtocolParser)

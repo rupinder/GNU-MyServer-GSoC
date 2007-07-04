@@ -239,7 +239,7 @@ int SslSocket::sslAccept()
 		closesocket();
 		return -1;
 	}
-
+	
 	do
 	{
 		ssl_accept = SSL_accept(sslConnection);
@@ -253,7 +253,7 @@ int SslSocket::sslAccept()
 		closesocket();
 		return -1;
 	}
-	SSL_set_read_ahead(sslConnection,1);
+	SSL_set_read_ahead(sslConnection, 0);
 
 	clientCert = SSL_get_peer_certificate(sslConnection);
 
@@ -301,15 +301,14 @@ int SslSocket::recv(char* buffer, int len, int flags)
  */
 u_long SslSocket::bytesToRead()
 {
-  u_long nBytesToRead = 0;
+	u_long nBytesToRead = 0;
 #ifndef DO_NOT_USE_SSL
-	char b;
-	int ret = SSL_peek(sslConnection,&b,1);
-	if(ret < 0)
-		return 0;
-	if((ret == 0) && (sslConnection->shutdown))
-		return 0;
-	return  SSL_pending(sslConnection);
+	nBytesToRead = SSL_pending(sslConnection);
+
+	if(nBytesToRead)
+		return nBytesToRead;
+
+	return Socket::bytesToRead();
 #endif
 	return nBytesToRead;
 }
@@ -321,6 +320,7 @@ u_long SslSocket::bytesToRead()
  */
 int SslSocket::dataOnRead(int, int)
 {
+	return Socket::dataOnRead(0,0);
 	if(bytesToRead())
 		return 1;
 
