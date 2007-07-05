@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
@@ -9,9 +9,6 @@
 	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-	<table class="center" width="95%">
-		<tr>
-			<td class="center">
 				<h1 class="title">ISAPI</h1>
 				<br />ISAPI (Internet Server Application Program Interface) est un protocole utilis&eacute; par
 				les ordinateurs bas&eacute;s sur Windows pour lancer des applications dynamiques en chargeant
@@ -25,13 +22,28 @@
 				le plantage de MyServer.
 				<br />
 				<br />
+				Si vous d&eacute;sirez utiliser le module ISAPI dans un module auto-contenu, vous devrez alors enregistrer
+				l'extension, par exemple .isapi, &agrave; utiliser comme module ISAPI, et ajouter la commande
+				<span class="code">EXECUTEISAPI</span> dans le type MIME.
+				<br/>
+				<br/>
+				Si vous d&eacute;sirez utiliser le module ISAPI pour g&eacute;rer tout les fichiers d'une extension donn&eacute;e,
+				vous devrez utiliser la commande <span class="code">RUNISAPI</span>; De cette fa&ccedil;on, tout les fichiers de
+				cette extension seront g&eacute;r&eacute;s par le <span class="code">MANAGER</span> sp&eacute;cifi&eacute;.
+				<br />
+				<br />
+				Repportez-vous &agrave; la <a href="mimetypes.htm">documentation des types MIME</a> pour avoir
+				plus d'informations sur la fa&ccedil;on dont sont associ&eacute;s les types MIME dans MyServer.
+				<br />
+				<br />
 				<br />Pour plus d'informations, vous pouvez lire 
 				<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">l'introduction ISAPI</a>
 				de Microsoft.
 				<br />
 				<br />
-			</td>
-		</tr>
-	</table>
+				Il est fortement recommand&eacute; d'utiliser ce protocole de communication si le module ISAPI
+				est stable et vient d'une source de confiance, puisque le module est directement charg&eacute;
+				dans l'espace d'adressage de MyServer, car il est plus rapide et sans surcouche pouvant amener
+				des erreurs externes d'execution.
 </body>
 </html>

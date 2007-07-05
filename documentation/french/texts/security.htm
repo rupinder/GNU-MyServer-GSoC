@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
-	<title>MyServer Documentation - Contrôle des accès - www.myserverproject.net</title>
+	<title>Documentation MyServer - Contrôle des accès - www.myserverproject.net</title>
 	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-	<table class="center" width="95%">
-		<tr>
-			<td class="center">
 				<h1 class="title">CONTROLE DES ACCES</h1>
 				<br />
 				Afin de pouvoir contrôler l'accès à un fichier, vous devez ajouter un fichier
 				s&eacute;curit&eacute; au r&eacute;pertoire que vous voulez prot&eacute;ger.
+				Le fichier de s&eacute;curit&eacute; est un fichier XML, mais afin de pouvoir
+				&ecirc;tre utilis&eacute; par MyServer, il ne faut pas lui mettre d'extension
+				(le nom du fichier doit simplement &ecirc;tre &quot;security&quot;).
 				<br />
 				<br />La syntaxe de ce fichier est:
 				<br />
@@ -78,6 +78,7 @@
 				<br />
 				<br />
 				<br />
+				<br />
 				Les lignes <span class="code">&lt;ACTION&gt;</span> ci dessus d&eacute;finissent si on peut ou non accéder à une ressource, en fonctions des conditions. Par exemple, la ligne :<br />
 				<br />
 				<br /><span class="code">&lt;ACTION name=&quot;Host&quot; value=&quot;remote&quot;&gt;DENY&lt;/ACTION&gt;</span>
@@ -93,8 +94,5 @@
 				<br />Si le fichier de s&eacute;curit&eacute; est absent, un fichier de s&eacute;curit&eacute; par d&eacute;faut est utilis&eacute;
 				par le programme. Ce fichier peut être trouv&eacute; dans le r&eacute;pertoire system.
 				<br />
-			</td>
-		</tr>
-	</table>
 </body>
 </html>

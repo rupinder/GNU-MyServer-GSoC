@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
@@ -9,44 +9,41 @@
 	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-	<table class="center" width="95%">
-		<tr>
-			<td class="center">
-				<h1 class="title">CGI</h1>
-				<br />CGI (Common Gateway Interface) est la m&eacute;thode standard par laquelle un serveur web
-				r&eacute;cupère les options de l'utilisateur et retourne des informations à l'utilisateur.
-				CGI d&eacute;pend de scripts souvent &eacute;crits dans des langages tels <a href="php.html">PHP </a>
-				ou <a href="perl.html">Perl</a> pour effectuer des op&eacute;rations demand&eacute;es par l'utilisateur.
-				Afin d'acc&eacute;der aux scripts CGI, le nom de l'application est donn&eacute;e dans le code HTML.
-				<br />
-				<br />Par exemple, si vous cr&eacute;ez un formulaire, l'URL du script est indiqu&eacute;e par les champs
-				de la balise FORM:
-				<br /><p class="code"> &lt;FORM METHOD=POST ACTION=www.myfiles.com/cgi-bin/myprog.pl&gt;</p>
-				<br /><p>Note: Tout langage de script affichant des donn&eacute;es peut être utilis&eacute; en fait -
-				vous pouvez utiliser des scripts en Script Shell, Python, etc... Vous avez juste besoin
-				de configurer correctement le type MIME, et votre langage de script pr&eacute;f&eacute;r&eacute;
-				fonctionnera avec MyServer.</p>
-				
-				Afin de garder tout les scripts CGi au même endroit, vous pouvez cr&eacute;er un r&eacute;pertoire
-				<span class="code">cgi-bin</span> dans le r&eacute;pertoire <span class="code">web</span> de
-				MyServer comme ci dessous:
-				<br />
-				<br />
-				<br /><div class="boxc"><img src="../images/myfiles.png" title="" alt="repertoire Web" width="468" height="260" /></div>
-				<br /><div style="text-align: center;"><small>Le r&eacute;pertoire cgi-bin est juste sous le r&eacute;pertoire web.</small></div>
-				<br />
-				<br />
-				<br />
-				<br />Cependant, les scripts CGI peuvent être plac&eacute;s n'importe où du moment que leur emplacement est
-				indiqu&eacute; dans le code HTML et qu'ils sont configur&eacute;s pour être utilis&eacute;s via CGI.
-				<br />
-				<br />Les scripts CGI cr&eacute;ent un nouveau processus pour chaque requ&ecirc;te. Cela peut causer des problèmes
-				de performance mais assure une meilleure s&eacute;curit&eacute; puisque le processus principal de MyServer est
-				à l'abri d'un crash du processus CGI.
-				<br />
-				<br />
-			</td>
-		</tr>
-	</table>
+	<h1 class="title">CGI<br />
+	</h1>
+	CGI (Common Gateway Interface) est la m&eacute;thode standard par laquelle un serveur web
+					r&eacute;cupère les options de l'utilisateur et retourne des informations à l'utilisateur.
+					CGI d&eacute;pend de scripts souvent &eacute;crits dans des langages tels <a href="php.html">PHP </a>
+					ou <a href="perl.html">Perl</a> pour effectuer des op&eacute;rations demand&eacute;es par l'utilisateur.
+					Afin d'acc&eacute;der aux scripts CGI, le nom de l'application est donn&eacute;e dans le code HTML.<br />
+	<br />
+	Par exemple, si vous cr&eacute;ez un formulaire, l'URL du script est indiqu&eacute;e par les champs
+					de la balise FORM:<br />
+	<p class="code"> &lt;FORM METHOD=POST
+	ACTION=www.myfiles.com/cgi-bin/myprog.pl&gt;<br />
+	</p>
+	<p>Note: Tout langage de script affichant des donn&eacute;es peut être utilis&eacute; en fait -
+					vous pouvez utiliser des scripts en Script Shell, Python, etc... Vous avez juste besoin
+					de configurer correctement le type MIME, et votre langage de script pr&eacute;f&eacute;r&eacute;
+					fonctionnera avec MyServer.</p>
+	
+	Afin de garder tout les scripts CGi au même endroit, vous pouvez cr&eacute;er un r&eacute;pertoire
+					<span class="code">cgi-bin</span> dans le r&eacute;pertoire <span class="code">web</span> de
+					MyServer comme ci dessous:<br />
+	<br />
+	<br />
+	      <div class="boxc"><img src="../images/myfiles.png" title="" alt="repertoire Web" width="468" height="260" /><br />
+	</div>
+	<div style="text-align: center;"><small>Le r&eacute;pertoire cgi-bin est juste sous le r&eacute;pertoire web.</small><br />
+	</div>
+	<br />
+	<br />
+	<br />
+	Cependant, les scripts CGI peuvent être plac&eacute;s n'importe où du moment que leur emplacement est
+					indiqu&eacute; dans le code HTML et qu'ils sont configur&eacute;s pour être utilis&eacute;s via CGI.<br />
+	<br />
+	Les scripts CGI cr&eacute;ent un nouveau processus pour chaque requ&ecirc;te. Cela peut causer des problèmes
+					de performance mais assure une meilleure s&eacute;curit&eacute; puisque le processus principal de MyServer est
+					à l'abri d'un crash du processus CGI.
 </body>
 </html>

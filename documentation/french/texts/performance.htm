@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
 	<title>Documentation MyServer - R&eacute;glage de performance - www.myserverproject.net</title>
@@ -9,14 +9,11 @@
 	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-	<table class="center" width="95%">
-		<tr>
-			<td class="center">
 				<h1 class="title">REGLAGE DES PERFORMANCES</h1>
 				<br />Ici vous pouvez voir quelques options à modifier pour am&eacute;liorer les
 				performances de votre serveur web.
 				<br />
-				
+      
 				<h2 class="title">R&eacute;glages Threads:</h2>
 				Dans le fichier myserver.xml, vous pouvez indiquer le nombre de threads utilis&eacute;s par MyServer.
 				Dans les lignes ci dessous, deux paramètres sont configur&eacute;s : <span class="code">NTHREADS_STATIC</span> et
@@ -28,7 +25,7 @@
 				<br />&lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;</span>
 				<br />
 				<br />
-				
+
 				<h2 class="title">Taille du Tampon:</h2>
 				Vous pouvez modifier la taille des tampons utilis&eacute;s par MyServer, en modifiant la ligne ci dessus
 				du fichier myserver.xml:
@@ -59,13 +56,16 @@
 				le nombre d'accès au serveur.
 				<br />
 				<br />
-				
-				<h2 class="title">Nombre de serveurs Max FastCGI maximum:</h2>
-				Vous pouvez indiquer la quantit&eacute; maximum de serveurs FastCGI en modifiant la ligne ci dessous du fichier
-				<span class="code">myserver.xml</span>:
-				<br /><p class="code">&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;</p>
-				<br /><p>
-				
+
+				<h2 class="title">Nombre de processus max:</h2>
+				MyServer vous laisse configurer le nombre de serveurs externes (par exemple des applications
+				FastCGI) autoris&eacute;s &agrave; tourner, en modifiant dans <span class="code">myserver.xml</span>
+				la ligne suivante :
+				<br />
+				<p class="code">&lt;MAX_SERVERS_PROCESSES&gt;10&lt;/MAX_SERVERS_PROCESSES&gt;</p>
+				<br />
+				<br />
+
 				<h2 class="title">D&eacute;lai d'attente CGI:</h2>
 				Vous pouvez modifier le d&eacute;lai d'attente par d&eacute;faut de vos scripts CGI dans MyServer en modifiant la valeur
 				de la variable CGI_TIMEOUT dans le fichier <span class="code">myserver.xml</span>.
@@ -74,7 +74,7 @@
 				<br /><p>La configuration ci dessus change le d&eacute;lai d'attente CGI à 15 secondes.
 				<br />
 				<br />
-				
+
 				<h2 class="title">Limitation des envois:</h2>
 				Vous pouvez limiter la vitesse d'envoi des donn&eacute;es dans MyServer (d&eacute;sactiv&eacute; par d&eacute;faut) en ajoutant la ligne ci dessous:
 				<p class="code">
@@ -89,15 +89,37 @@
 				En ajoutant une ligne comme celle ci dessous, vous autoriserez la limitation pour le fichier "bigfile":<br />
 				<p class="code">&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"<br />THROTTLING_RATE="1024" /&gt;<br />Vous pouvez bien entendu m&eacute;langer les deux possibilit&eacute;s et ainsi limiter la vitesse pour un utilisateur sur
 				un fichier sp&eacute;cifique:<br />&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />&lt;/ITEM&gt;<br />
-			  <br /></p><p>Voici l'ordre de v&eacute;rification de la configuration de la limite d'envoi de donn&eacute;es:<br />1) Utilisateur & fichier (attribut USER dans ITEM).<br />
-				2) Fichier (attribut ITEM).<br />
-				3) Utilisateur (attribut USER).<br />
-				4) Hôte virtuel (fichier virtualhosts.xml).<br />
-				5) Configuration serveur (fichier myserver.xml).<br />
+			  <br /></p><p>Voici l'ordre de v&eacute;rification de la configuration de la limite d'envoi de donn&eacute;es:
+			  	<ol>
+			  		<li>Utilisateur & fichier (attribut USER dans ITEM).</li>
+					<li>Fichier (attribut ITEM).</li>
+					<li>Utilisateur (attribut USER).</li>
+					<li>Hôte virtuel (fichier virtualhosts.xml).</li>
+					<li>Configuration serveur (fichier myserver.xml).</li>
+				</ol>
 				<br />
 				<br />
-			</td>
-		</tr>
-	</table>
+
+				<h2 class="title">Cache des fichiers statiques:</h2>
+				Il est possible de configurer le cache des fichiers statiques, afin d'&eacute;viter l'ouverture
+				d'un nouveau fichier &agrave; chaque requ&ecirc;te, mais lu directement depuis le tampon m&eacute;moire.
+				Le cache est configur&eacute; au moyen de trois valeurs dans myserver.xml. 
+				<br />
+				<span class="code">MAX_FILESCACHE_SIZE</span> d&eacute;fini la taille maximale du cache. La valeur 0
+				indique que le cache n'est pas utilis&eacute;.<br />
+				<span class="code">MAX_FILESCACHE_FILESIZE</span> d&eacute;fini la taille maximale d'un fichier pouvant
+				&ecirc;tre ajout&eacute; au cache. Il est conseill&eacute; de limiter cette taille afin de ne pas cacher
+				des fichiers trop gros. Il est plus performant de cacher plusieurs petits fichiers que quelques gros
+				fichiers. La valeur 0 indique qu'aucune limite de taille n'est fix&eacute;e.<br />
+				<span class="code">MIN_FILESCACHE_FILESIZE</span> d&eacute;fini la taille minimale d'un fichier pouvant
+				&ecirc;tre ajout&eacute; au cache. Il est conseill&eacute; d'utiliser une petite valeur. La valeur 0
+				indique qu'aucune limite de taille n'est fix&eacute;e.
+
+				<p class="code">
+					&lt;MAX_FILESCACHE_SIZE&gt;100000000000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+					&lt;MAX_FILESCACHE_FILESIZE&gt;100000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+					&lt;MIN_FILESCACHE_FILESIZE&gt;0&lt;/MIN_FILESCACHE_FILESIZE&gt;<br/>
+				</p>
+
 </body>
 </html>
