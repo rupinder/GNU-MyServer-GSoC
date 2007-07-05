@@ -1,49 +1,55 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>Documentation MyServer - ISAPI - www.myserverproject.net</title>
-	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+<title>MyServer Documentation - ISAPI - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-				<h1 class="title">ISAPI</h1>
-				<br />ISAPI (Internet Server Application Program Interface) est un protocole utilis&eacute; par
-				les ordinateurs bas&eacute;s sur Windows pour lancer des applications dynamiques en chargeant
-				un module externe dans l'espace d'adressage du processus du serveur web.
-				
-				Afin d'utiliser ISAPI, vous devez cr&eacute;er un DLL (Dynamic Link Library) qui permet l'export
-				des symboles appel&eacute;s par le serveur web.
-				<br />
-				<br /><span class="warning">Attention</span>:
-				Si une application ISAPI plante, cela pourrait causer
-				le plantage de MyServer.
-				<br />
-				<br />
-				Si vous d&eacute;sirez utiliser le module ISAPI dans un module auto-contenu, vous devrez alors enregistrer
-				l'extension, par exemple .isapi, &agrave; utiliser comme module ISAPI, et ajouter la commande
-				<span class="code">EXECUTEISAPI</span> dans le type MIME.
-				<br/>
-				<br/>
-				Si vous d&eacute;sirez utiliser le module ISAPI pour g&eacute;rer tout les fichiers d'une extension donn&eacute;e,
-				vous devrez utiliser la commande <span class="code">RUNISAPI</span>; De cette fa&ccedil;on, tout les fichiers de
-				cette extension seront g&eacute;r&eacute;s par le <span class="code">MANAGER</span> sp&eacute;cifi&eacute;.
-				<br />
-				<br />
-				Repportez-vous &agrave; la <a href="mimetypes.htm">documentation des types MIME</a> pour avoir
-				plus d'informations sur la fa&ccedil;on dont sont associ&eacute;s les types MIME dans MyServer.
-				<br />
-				<br />
-				<br />Pour plus d'informations, vous pouvez lire 
-				<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">l'introduction ISAPI</a>
-				de Microsoft.
-				<br />
-				<br />
-				Il est fortement recommand&eacute; d'utiliser ce protocole de communication si le module ISAPI
-				est stable et vient d'une source de confiance, puisque le module est directement charg&eacute;
-				dans l'espace d'adressage de MyServer, car il est plus rapide et sans surcouche pouvant amener
-				des erreurs externes d'execution.
+<h1 class="title">ISAPI</h1>
+<br />
+ISAPI (Internet Server Application Program Interface) is a protocol
+used under Windows to run a dynamic application loading an external module 
+in the web server process addresses space.
+<br />
+In order to use ISAPI, you must create a DLL (dynamic link library)
+that exports some symbols called by the web server.
+<br /> 
+<br />
+<span class="warning">Warning: If an ISAPI application crashes
+it may cause the calling application to fail also so it can be a
+MyServer crash cause.</span>
+<br />
+<br />
+If you want to use ISAPI as a self-contained module then you will have
+to register an extension, for example .isapi, to be used as an ISAPI
+module that is executed directly then you have to use
+the <span class="code">EXECUTEISAPI</span> command in the MIME type.
+<br/>
+<br/>
+If you want to use the ISAPI module to handle all the files for a
+specified extension then the command that you will need to use is 
+<span class="code">RUNISAPI</span>; doing in this way all the files
+with that extension will be handled using the
+specified <span class="code">MANAGER</span>.
+<br />
+<br />
+Take a look at the <a href="mimetypes.htm">MIME types
+documentation</a> for more information abot how extensions are mapped
+to MIME types in MyServer.
+
+<br />
+<br />
+For more information, you can read Microsoft's 
+<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI Overview</a>.  
+<br /> 
+<br />
+It is highly recommended to use this communication protocol if the
+ISAPI module is stable and came from a trustable source, as the module
+is loaded directly in the myserver adresses space, it is extremely
+fast and without any overhead caused by external process execution.
 </body>
 </html>

@@ -1,125 +1,169 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>Documentation MyServer - R&eacute;glage de performance - www.myserverproject.net</title>
-	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+<title>MyServer Documentation - Performance Tuning - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-				<h1 class="title">REGLAGE DES PERFORMANCES</h1>
-				<br />Ici vous pouvez voir quelques options à modifier pour am&eacute;liorer les
-				performances de votre serveur web.
-				<br />
+  <h1 class="title">PERFORMANCE TUNING</h1><br />
+        
+  Here you can see a few options you can set to tune the performance
+	of your webserver.
+	<br />
       
-				<h2 class="title">R&eacute;glages Threads:</h2>
-				Dans le fichier myserver.xml, vous pouvez indiquer le nombre de threads utilis&eacute;s par MyServer.
-				Dans les lignes ci dessous, deux paramètres sont configur&eacute;s : <span class="code">NTHREADS_STATIC</span> et
-				<span class="code">NTHREADS_MAX</span>. Le premier est utilis&eacute; pour d&eacute;finir le nombre de threads toujours
-				lanc&eacute;s, le second pour le nombre de threads maximum que myserver peut cr&eacute;er
-				<br />
-				<br />
-				<br /><span class="code">&lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;
-				<br />&lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;</span>
-				<br />
-				<br />
+<h2 class="title">Threads Tuning:</h2>
+In the myserver.xml file you can setup the amount of threads MyServer
+will use. In the lines below, you configure the two configurable
+parameters <span class="code">NTHREADS_STATIC</span>
+and <span class="code">NTHREADS_MAX</span>, the first one is used to
+define number of threads always alive, the second one is used to
+define the highest number of threads that myserver can create:
+<br />
+<br />
 
-				<h2 class="title">Taille du Tampon:</h2>
-				Vous pouvez modifier la taille des tampons utilis&eacute;s par MyServer, en modifiant la ligne ci dessus
-				du fichier myserver.xml:
-				<br /><p class="code">&lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;</p>
-				<br /><p>Modifiez la valeur par d&eacute;faut 102400 en la valeur d&eacute;sir&eacute;e. Souvenez vous qu'en r&eacute;alit&eacute;, le tampon fera le double de la valeur
-				sp&eacute;cifi&eacute;e ici (en octets), multipli&eacute; par le nombre de threads lanc&eacute;s.
-				<br />
-				<br />
-				
-				<h2 class="title">D&eacute;lai d'attente de connexion:</h2>
-				Dans <span class="code">myserver.xml</span>, vous pouvez modifier le d&eacute;lai d'attente pour les connexions des client,
-				à la ligne suivante:
-				<br />
-				<br /><p class="code">&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;</p>
-				<br />
-				<p>L'unit&eacute; de temps est la seconde. Ainsi, la ligne ci dessus dit que si un client n'accède pas à votre site pendant
-				une minute, la connexion sera ferm&eacute;e. Vous pouvez mettre cette valeur à 0 pour ne plus avoir de connexions
-				HTTP "Keep-Alive".
-				<br />
-				<br />
-				
-				<h2 class="title">Connexions maximum:</h2>
-				Vous pouvez modifier le nombre de connexions maximum sur votre serveur web via la ligne suivante du fichier
-				<span class="code">myserver.xml</span>:
-				<br />
-				<p class="code">&lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;</p>
-				<br /><p>La valeur par d&eacute;faut, 0, indique qu'un nombre infini de connexions est autoris&eacute;. Tout autre valeur limitera
-				le nombre d'accès au serveur.
-				<br />
-				<br />
+<span class="code">
+&lt;NTHREADS_STATIC&gt;10&lt;/NTHREADS_STATIC&gt;<br />
+&lt;NTHREADS_MAX&gt;10&lt;/NTHREADS_MAX&gt;<br />
+</span>
 
-				<h2 class="title">Nombre de processus max:</h2>
-				MyServer vous laisse configurer le nombre de serveurs externes (par exemple des applications
-				FastCGI) autoris&eacute;s &agrave; tourner, en modifiant dans <span class="code">myserver.xml</span>
-				la ligne suivante :
-				<br />
-				<p class="code">&lt;MAX_SERVERS_PROCESSES&gt;10&lt;/MAX_SERVERS_PROCESSES&gt;</p>
-				<br />
-				<br />
+<br />
+<br />
+<h2 class="title">Buffer Size:</h2>
+You can set  the size of the Buffers used by MyServer, by setting the line below, in the myserver.xml file:
+<br />
+<p class="code">
+&lt;BUFFER_SIZE&gt;102400&lt;/BUFFER_SIZE&gt;<br />
+</p>
+<p>
+Just change the default value 102400 to your desired number. Remember
+that, in fact, your buffer will be twice the value you set here (in
+Bytes), multiplied by the number of running threads.
+<br />
+<br />
+<h2 class="title">Connection Timeout:</h2>
 
-				<h2 class="title">D&eacute;lai d'attente CGI:</h2>
-				Vous pouvez modifier le d&eacute;lai d'attente par d&eacute;faut de vos scripts CGI dans MyServer en modifiant la valeur
-				de la variable CGI_TIMEOUT dans le fichier <span class="code">myserver.xml</span>.
-				<br />Changez la ligne ci dessous à votre convenance:
-				<br /><p class="code">&lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;</p>
-				<br /><p>La configuration ci dessus change le d&eacute;lai d'attente CGI à 15 secondes.
-				<br />
-				<br />
+In <span class="code">myserver.xml</span>, you can set the timeout for
+client connections to your server, in the line below:
+<br />
+<br />
+<p class="code">
+&lt;CONNECTION_TIMEOUT&gt;60&lt;/CONNECTION_TIMEOUT&gt;<br />
+</p>
+<p>
+The time unit is seconds. So, in the line above, if your client
+doesn't access your site for more than 60 seconds, the connection will
+be closed. Or if you prefer, set this value to 0 and you won't have
+HTTP Keep-Alive Connections.
+<br />
+<br />
+<h2 class="title">Max Connections:</h2>
+You can change the default maximum number of connections your webserver will
+accept, by changing the line below
+in <span class="code">myserver.xml</span>:<br />
+<p class="code">
+&lt;MAX_CONNECTIONS&gt;0&lt;/MAX_CONNECTIONS&gt;<br />
+</p>
+<p>
+The default value 0 means you will accept infinite connections. Any other value
+will limit how many users will be accessing your server.
 
-				<h2 class="title">Limitation des envois:</h2>
-				Vous pouvez limiter la vitesse d'envoi des donn&eacute;es dans MyServer (d&eacute;sactiv&eacute; par d&eacute;faut) en ajoutant la ligne ci dessous:
-				<p class="code">
-				&lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;</p>
-				<br /><p>(Unit&eacute; en octets/secondes)<br />Si cette ligne est pr&eacute;sente dans le fichier <span class="code">virtualhosts.xml</span>,
-				cela activera et configurera la limitation de la vitesse des envois sur l'hôte virtuel correspondant.<br />
-				<br />De même, vous pouvez configurer la limitation des envois pour des r&eacute;pertoires sp&eacute;cifiques en utilisant
-				cette ligne dans votre fichier de s&eacute;curit&eacute;:<br />
-				<p class="code">&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />
-			  EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;</p>
-				<br /><p>De cette façon, vous limitez la vitesse à 1Ko/s pour l'utilisateur Guest.<br />
-				En ajoutant une ligne comme celle ci dessous, vous autoriserez la limitation pour le fichier "bigfile":<br />
-				<p class="code">&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"<br />THROTTLING_RATE="1024" /&gt;<br />Vous pouvez bien entendu m&eacute;langer les deux possibilit&eacute;s et ainsi limiter la vitesse pour un utilisateur sur
-				un fichier sp&eacute;cifique:<br />&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />&lt;/ITEM&gt;<br />
-			  <br /></p><p>Voici l'ordre de v&eacute;rification de la configuration de la limite d'envoi de donn&eacute;es:
-			  	<ol>
-			  		<li>Utilisateur & fichier (attribut USER dans ITEM).</li>
-					<li>Fichier (attribut ITEM).</li>
-					<li>Utilisateur (attribut USER).</li>
-					<li>Hôte virtuel (fichier virtualhosts.xml).</li>
-					<li>Configuration serveur (fichier myserver.xml).</li>
-				</ol>
-				<br />
-				<br />
+<br />
+<br />
+<h2 class="title">Max Servers processes:</h2>
+MyServer lets you configure the maximum number of external servers (for example
+these external servers can be FastCGI applications) allowed to run, changing
+the value in the line below, <span class="code">in myserver.xml</span>:<br />
+<p class="code">
+&lt;MAX_SERVERS_PROCESSES&gt;10&lt;/MAX_SERVERS_PROCESSES&gt;<br />
+</p>
+<p>
 
-				<h2 class="title">Cache des fichiers statiques:</h2>
-				Il est possible de configurer le cache des fichiers statiques, afin d'&eacute;viter l'ouverture
-				d'un nouveau fichier &agrave; chaque requ&ecirc;te, mais lu directement depuis le tampon m&eacute;moire.
-				Le cache est configur&eacute; au moyen de trois valeurs dans myserver.xml. 
-				<br />
-				<span class="code">MAX_FILESCACHE_SIZE</span> d&eacute;fini la taille maximale du cache. La valeur 0
-				indique que le cache n'est pas utilis&eacute;.<br />
-				<span class="code">MAX_FILESCACHE_FILESIZE</span> d&eacute;fini la taille maximale d'un fichier pouvant
-				&ecirc;tre ajout&eacute; au cache. Il est conseill&eacute; de limiter cette taille afin de ne pas cacher
-				des fichiers trop gros. Il est plus performant de cacher plusieurs petits fichiers que quelques gros
-				fichiers. La valeur 0 indique qu'aucune limite de taille n'est fix&eacute;e.<br />
-				<span class="code">MIN_FILESCACHE_FILESIZE</span> d&eacute;fini la taille minimale d'un fichier pouvant
-				&ecirc;tre ajout&eacute; au cache. Il est conseill&eacute; d'utiliser une petite valeur. La valeur 0
-				indique qu'aucune limite de taille n'est fix&eacute;e.
+<h2 class="title">Setting CGI Timeout:</h2>
 
-				<p class="code">
-					&lt;MAX_FILESCACHE_SIZE&gt;100000000000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
-					&lt;MAX_FILESCACHE_FILESIZE&gt;100000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
-					&lt;MIN_FILESCACHE_FILESIZE&gt;0&lt;/MIN_FILESCACHE_FILESIZE&gt;<br/>
-				</p>
+You can set the default timeout for your CGI scripts in MyServer by
+changing the value of the variable CGI_TIMEOUT in
+your <span class="code">myserver.xml</span> file.<br />
+Just change the line below to fit your need:<br />
+<p class="code">
+&lt;CGI_TIMEOUT&gt;15&lt;/CGI_TIMEOUT&gt;<br />
+</p>
+
+<p>
+The configuration above would mean you are setting the CGI Timeout to 15 seconds (unit is "seconds")
+
+<br />
+<br />
+<h2 class="title">Setting data throttling:</h2>
+
+You can set the data throttling rate for connections in MyServer (by
+default, it's disabled) by adding a line like the following:
+<p class="code">
+&lt;THROTTLING_RATE&gt;1024&lt;/THROTTLING_RATE&gt;<br />
+</p>
+<p>
+(Unit is bytes/second)<br />
+If that same line is available
+in <span class="code">virtualhosts.xml</span>, it will enable and
+configure data throttling for the corresponding virtual host.<br />
+<br />
+
+Also, you can configure the data throttling for individual
+directories, using these configurations in your security file:<br />
+<p class="code">
+&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />
+        EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />
+</p>
+<p>
+With that, you'd enabling the trottling of 1024  bytes/second for the user Guest.<br />
+If you add a line like the following, you will be enabling throttling for a file named "bigfile":<br />
+<p class="code">
+&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"<br />
+        THROTTLING_RATE="1024" /&gt;<br />
+You can also mix the two possibilities and set this configuration for
+a specified user on a single file:<br />
+&lt;ITEM FILE="bigfile" READ="TRUE" WRITE="FALSE" EXECUTE="FALSE"&gt;<br />
+&lt;USER NAME="Guest" PASS="" READ="TRUE" WRITE="TRUE" BROWSE="TRUE"<br />
+        EXECUTE="TRUE" THROTTLING_RATE="1024"/&gt;<br />
+&lt;/ITEM&gt;<br /><br />
+</p>
+<p>
+This is the order of checking for data throttling configuration:<br />
+<ol>
+<li>User & file(USER attribute inside ITEM).</li>
+<li>File(ITEM attribute).</li>
+<li>User(USER attribute).</li>
+<li>Virtual host(virtualhosts.xml file).</li>
+<li>Server configuration(myserver.xml file).</li>
+</ol>
+<br />
+<br />
+<h2 class="title">Static files cache:</h2>
+It is possible to configure a cache for static files, in this way it is not
+needed to open a new file for each request but read directly from a buffer in
+the memory. The cache is configured trough three values in myserver.xml. 
+<br />
+<span class="code">MAX_FILESCACHE_SIZE</span> defines the max dimension in
+bytes for the cache. A value of zero means the caching mechanism is not
+used.<br />
+<span class="code">MAX_FILESCACHE_FILESIZE</span> defines the max dimension in
+bytes for a file to be added in the cache. It is a good idea to put a limit
+here and don't cache big files, the overhead caused by opening big files and
+send them is unnoticeable, in addition it would be better to use the buffer for
+many small files than few big ones. A value of zero means that this limit is
+not used.<br />
+<span class="code">MIN_FILESCACHE_FILESIZE</span> defines the min dimension in
+bytes for a file to be added in the cache. It is better to use a low value for
+it. A value of zero means that this limit is not used.
+
+<p class="code">
+	&lt;MAX_FILESCACHE_SIZE&gt;100000000000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+	&lt;MAX_FILESCACHE_FILESIZE&gt;100000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+	&lt;MIN_FILESCACHE_FILESIZE&gt;0&lt;/MIN_FILESCACHE_FILESIZE&gt;<br/>
+</p>
 
 </body>
 </html>

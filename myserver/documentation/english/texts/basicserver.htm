@@ -1,20 +1,21 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<title>Documentation MyServer - Configuration d'un serveur de base - www.myserverproject.net</title>
+<title>MyServer Documentation - Basic Server Configuration - www.myserverproject.net</title>
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
 
-				<h1 class="title">CONFIGURATION D'UN SERVEUR DE BASE</h1>
-				Dans le fichier <span class="code">myserver.xml</span>, vous pouvez d&eacute;finir la page
-				par d&eacute;faut pour vos sites h&eacute;berg&eacute;s avec MyServer.<br />
-				<br />Les lignes suivantes existent d&eacute;jà dans votre fichier de configuration:
-				<br />
+<h1 class="title">BASIC SERVER CONFIGURATION</h1>
+In the <span class="code">myserver.xml</span> file you can set the
+default page for your websites
+hosted in MyServer.<br />
+<br />
+Similar lines already exist in your configuration file:<br />
 <p class="code">
 &lt;DEFAULT_FILENAME&gt;default.html&lt;/DEFAULT_FILENAME&gt;<br />
 &nbsp;&nbsp;&nbsp;
@@ -31,48 +32,55 @@
 &lt;DEFAULT_FILENAME&gt;default.htm&lt;/DEFAULT_FILENAME&gt; <br />
 </p>
 <br />
-Ainsi, si vous avez un <a class="code" href="virtualhosts.html">Hôte Virtuel</a>
-				http://mypc.net, la page qui s'affichera en se rendant à cette adresse dans votre navigateur
-				sera l'un des fichiers ci dessus. Vous pouvez ajouter d'autres lignes ou les changer si vous
-				avez besoin d'autres noms. Le même fonctionnement est utilis&eacute; pour chaque r&eacute;pertoire et non
-				pas juste pour la racine.<br />
+So, if you have a <a class="code" href="virtualhosts.html">Virtual Host</a>
+http://mypc.net, the page that will appear when accessing that address
+on the browser, will be one of the files above. The first file in
+order that exists will be used. You can add more lines or change any
+of them, if you need a different filename. The same mechanism is used
+for every directory and not only with the root one.<br />
 <br />
 <br />
-Dans la section <a class="code" href="errorfiles.html">Erreurs</a>, vous avez appris à cr&eacute;er
-				vos propres pages d'erreur. Mais vous pouvez aussi d&eacute;sactiver ces pages d'erreurs personnalis&eacute;es
-				en changeant la ligne ci dessous:<br />
+In the <a href="errorfiles.html">errors</a> section you
+learned how to create and use your own error pages. But you can also
+disable the custom error pages, by changing the line below:<br />
 <span class="code">&lt;USE_ERROR_FILE&gt;YES&lt;/USE_ERROR_FILE&gt;<br />
-      </span>Ainsi, en mettant la valeur à NO comme ci dessous,<br />
+      </span>So, if you set the value to NO, like in the line below,<br />
 <span class="code">&lt;USE_ERROR_FILE&gt;NO&lt;/USE_ERROR_FILE&gt;<br />
-      </span>MyServer enverra (par d&eacute;faut) une page d'erreur à votre navigateur contenant le code erreur. Mais
-				vous pouvez y ajouter le contenu de l'erreur en ajoutant la ligne:<br>
+      </span>MyServer will (by default) just send a header to your browser with 
+      the error code. But you have the option to send a HTTP body included in 
+      the error, by adding this line:<br>
       <span class="code">&lt;ERRORS_INCLUDE_BODY&gt;YES&lt;/ERRORS_INCLUDE_BODY&gt;</span> 
       <br />
-<br />Vous pouvez changer le style de la page de navigation de fichiers (utilis&eacute; lorsque vous n'avez
-				aucune page de d&eacute;faut dans le r&eacute;pertoire, tel que d&eacute;crit dans la section
-				<a href="browsefolder.html">Navigation de fichiers</a>). 
-				La ligne ci dessous, dans myserver.xml, indique le fichier CSS utilis&eacute; pour configurer le style des pages
-				de navigation:<br />
+<br />You can change the layout of the
+directory browsing page (used when you don't have a default page, as
+described in the <a href="browsefolder.html">Browse directory
+index</a> section). 
+The line below, in myserver.xml, points to the CSS
+file used to configure the layout for the browsing directory pages:<br />
 <span class="code">&lt;BROWSEFOLDER_CSS&gt;system/folderstyle.css&lt;/BROWSEFOLDER_CSS&gt;</span>
 
 
 <br />
 <br />
 
-Les scripts CGI peuvent obtenir l'adresse courriel de l'administrateur (au moyen de la variable
-				d'environnement <span class="code">SERVER_ADMIN</span>). Il peut donc être important de d&eacute;finir
-				proprement cette adresse, en modifiant la valeur de la ligne suivante dans <span class="code">myserver.xml</span>:
+CGI Scripts can get the Server Administrator E-mail and show them to
+the user (through the <span class="code">SERVER_ADMIN</span>
+environment variable). So, it can be important you define this address
+properly, by setting the value in the line
+below, <span class="code">in myserver.xml</span>:
 <br /> 
 <span class="code">&lt;SERVER_ADMIN&gt;administrator@localhost&lt;/SERVER_ADMIN&gt;</span>
 <br />
 <br />
-MyServer offre la possibilit&eacute; de suivre les liens symboliques des systèmes d'exploitation de type Unix
-				(i.e.: Linux, *BSD, GNU/HURD, Solaris, etc.).
-				<br />Vous pouvez ajouter l'option de liens symboliques dans le fichier myserver.xml.
+MyServer offers the feature to follow symlinks on Unix-like Operating
+systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.).<br /> You can
+add the symlink following feature for all hosts in the myserver.xml
+file.
 <br/>
 <span class="code">&lt;FOLLOW_LINKS&gt;YES&lt;/FOLLOW_LINKS&gt;</span>
 <br />
 <br />
-La valeur utilis&eacute;e par d&eacute;faut dans MyServer est: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+The default is: <span class="code">&lt;FOLLOW_LINKS&gt;NO&lt;/FOLLOW_LINKS&gt;</span>
+This value is used by default by MyServer.
 </body>
 </html>

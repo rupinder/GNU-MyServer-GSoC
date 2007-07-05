@@ -1,34 +1,36 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>Documentation MyServer - S&eacute;curit&eacute; Processus - www.myserverproject.net</title>
-	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+<title>MyServer Documentation - Process Security - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-				<h1 class="title">SECURIT&Eacute; PROCESSUS</h1>
-				<br />
-				Sur des plates formes de type UNIX, il est possible de modifier l'identit&eacute; et le groupe de l'utilisateur du processus de
-				MyServer une fois les ports d'&eacute;coute d&eacute;marr&eacute;s (seul le root peut &eacute;couter les ports < 1024).<br />
-				
-				<h2 class="title">Identifiant utilisateur du processus</h2>
-				En utilisant la ligne ci dessous dans votre fichier myserver.xml, MyServer sera lancé avec l'utilisateur sp&eacute;cifi&eacute;:
-				<br />
-				<span class="code">&lt;PROCESS_USER_ID&gt;PID&lt;/PROCESS_USER_ID&gt;</span>
-				<br/>où <span class="code">PID</span> est l'identifiant à utiliser.
-				<br />
-				
-				<h2 class="title">Identifiant groupe du processus</h2>
-				En utilisant la ligne ci dessous dans votre fichier myserver.xml, MyServer sera lancé avec le groupe sp&eacute;cifi&eacute;:
-				<br />
-				<span class="code">&lt;PROCESS_GROUP_ID&gt;GID&lt;/PROCESS_GROUP_ID&gt;</span>
-				<br/>où <span class="code">GID</span> est le groupe à utiliser.
-				<br />
-				<br />
-				<span class="warning">Attention:</span> L'utilisation d'une de ces options
-				empêchera l'autoredémarrage de MyServer, car le retour aux anciennes permissions sera impossible.</td>
+<h1 class="title">PROCESS SECURITY</h1>
+<br />
+On UNIX like platforms is possible to change user identifier and group identifier for the MyServer process after it has bound 
+the necessary ports(only root can bind ports < 1024).
+<br />
+
+<h2 class="title">Process user identifier</h2>
+Using a line like the following in the myserver.xml file will make myserver change its user identifier to the one specified:
+<br />
+<span class="code">&lt;PROCESS_USER_ID&gt;PID&lt;/PROCESS_USER_ID&gt;</span><br/>
+where <span class="code">PID</span> is the user identifier to use.
+
+<br />
+
+<h2 class="title">Process group identifier</h2>
+Using a line like the following in the myserver.xml file will make myserver change its group identifier to the one specified:
+<br />
+<span class="code">&lt;PROCESS_GROUP_ID&gt;GID&lt;/PROCESS_GROUP_ID&gt;</span><br/>
+where <span class="code">GID</span> is the group identifier to use.
+<br />
+<br />
+<span class="warning">Warning:</span> When one of these features is used the autoreboot will be not used by MyServer, as it 
+can't get back old permissions again.
 </body>
 </html>

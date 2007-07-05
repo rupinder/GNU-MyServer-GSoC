@@ -1,35 +1,38 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>Documentation MyServer - PHP - www.myserverproject.net</title>
-	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+<title>MyServer Documentation - PHP - www.myserverproject.net</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-	<h1 class="title">COMMENT UTILISER PHP AVEC MYSERVER</h1>
-	<br />PHP (Hypertext Preprocessor) est le langage de script orient&eacute; serveur le
-	plus utilis&eacute; à travers le monde. Un langage de script orient&eacute; serveur est
-	utilis&eacute; pour cr&eacute;er des pages web dynamiques. Vous pouvez utiliser
-	PHP dans MyServer soit avec un executable CGI standard, soit avec un serveur
-	FastCGI.
-	<br />	Avec un CGI standard, MyServer cr&eacute;era un nouveau processus à chaque fois qu'une est page interrog&eacute;e.
-	<br />Avec un FastCGI, MyServer n'a pas besoin d'un nouveau	processus à chaque requête, am&eacute;liorant ainsi les performances. R&eacute;ferrez vous à la documentation de
-	<a href="http://www.fastcgi.com/" target="_blank">FastCGI </a> pour plus
-	d'informations.
-	<br />
-	<br />Afin d'utiliser PHP, vous devez tout d'abord t&eacute;l&eacute;charger l'archive d'installation sur :
-	<span class="code"><a href="http://www.php.net" target="_blank">www.php.net</a></span>.
-	<p>Dans les dernières version de PHP, vous devrez &eacute;galement modifier le fichier
-	<span class="code">php.ini</span> pour mettre l'option cgi.force_redirect à null. Pour
-	ce faire, trouvez la ligne suivante:</p>
-	<span  class="code">;cgi.force_redirect = 0</span>
-	<p>et supprimez le point virgule.
-	<br />La ligne vaudra donc:</p>
-	<br /><span class="code">cgi.force_redirect = 0</span>
-	<br />
-	<br />
+<h1 class="title">HOW TO USE PHP UNDER MYSERVER</h1>
+<br />
+PHP (Hypertext Preprocessor) is the most used server-side scripting
+language in the world. A server-side language is used to create web pages with
+dynamic content. You can use PHP with MyServer as either a standard CGI
+executable or as a FastCGI server. While using PHP like a CGI
+executable, MyServer will create a new process for every page
+requested. &nbsp;While using PHP in the FastCGI mode, MyServer does not
+require a new process for every request and, therefore, the server
+performs better. Please refer to the official <a
+ href="http://www.fastcgi.com/" target="_blank">FastCGI </a>site for
+more information about FastCGI.<br />
+<br />
+In order to use PHP, you must first download the installer from: <span class="code">
+<a href="http://www.php.net" target="_blank">www.php.net</a></span>.
+<p>With the last versions of PHP you will also need to modify
+the <span class="code">php.ini</span> file to set the
+cgi.force_redirect option to null. Find the line in the php
+configuration file:</p>
+<span  class="code">;cgi.force_redirect= 0</span>
+<p>and remove the first semicolon. <br />
+The line will then read:<br />
+</p>
+<span class="code">cgi.force_redirect = 0</span><br /><br />
+
 </body>
 </html>
