@@ -1,52 +1,48 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
-<title>MyServer Documentation - Error Handling - www.myserverproject.net</title>
-<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-<meta http-equiv="Content-Style-Type" content="text/css" />
-<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+	<title>Documentation MyServer - Gestion d'erreur - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
-<h1 class="title">ERROR PAGES</h1>
-<br />
-You can modify the html pages that are sent when an error occurs.<br />
-<br />
-The default files are contained in the <span class="code">system</span> directory used
- by the host and can be replaced with your own files. 
-Different <a href="virtualhosts.html">Virtual Hosts</a> can use different error 
-files.<br />
-<br />
-The pages must not contain any references to other documents in the system directory.
-<br />
-Every request to <span class="code"/sys></span> will be mapped to the system directory. So a request to <a href="http://sys/file.html"http://sys/file.html></a> will send the file <span class="code">file.html</span> contained in the <span class="code">system</span> directory for the virtual host.
-<br />
-<br />
-<img src="../images/sample404.png" title="" alt="Sample 404 Error" />
-<br />
-The famous 404 error happens when a file
-cannot be found on the server.
-<p><br />
-</p>
-      <p>To define a personalized error page file for a virtual host you can add a line 
-        like the following in the primary virtual host security file. Defining 
-        a different error file, the server will look in the <span class="code">web</span> 
-        directory instead of the <span class="code">system</span> one. If no personalized 
-        files are used the server will look for the file <span class="code">x.html</span> 
-        in the <span class="code">system</span> directory, where <span class="code">x</span> 
-        is the error number(for example: <span class="code">404.html</span>). 
-        A primary security file for a virtual host is the security file that is 
-        located in the main directory of the virtual host. If the error is not 
-        specified then the default in the system directory will be used, if this 
-        file doesn't exist too the error will be communicated trough the HTTP 
-        error message. <span  class="code"> <br />
-        &lt;ERROR FILE="error404.html" ID="404" /&gt; </span> </p>
-      <p><br />
-        <br />
-        For more information on the error pages consult the RFC2068 document found 
-        at&nbsp; <a href="http://www.w3.org" target="_blank">www.w3c.org</a>. 
-      </p>
-    </td>
+	<h1 class="title">PAGES D'ERREUR</h1>
+	<br />Vous pouvez modifier les pages HTML qui sont retourn&eacute;es lorsqu'une erreur survient.
+	<br />
+	<br />Par d&eacute;faut, les fichiers utilis&eacute;s sont contenus dans le r&eacute;pertoire <span class="code">system</span> et
+	peuvent donc être remplac&eacute;s par vos propres fichiers. 
+	Plusieurs <a href="virtualhosts.html">Hôtes Virtuels</a> peuvent utiliser diff&eacute;rents fichiers d'erreur.
+	<br />
+	<br />Les pages ne doivent contenir aucune r&eacute;f&eacute;rence à d'autres fichiers sur r&eacute;pertoire system.
+	<br />Chaque requête vers <span class="code">/sys</span> renverra au r&eacute;pertoire system.
+	Par cons&eacute;quent, une requ&ecirc;te vers  <a href="http://sys/file.html">http://sys/file.html</a> retournera
+	le fichier <span class="code">file.html</span> contenu dans le r&eacute;pertoire  <span class="code">system</span>
+	de l'hôte virtuel.
+	<br />
+	<br /><img src="../images/sample404.png" title="" alt="Exemple d'erreur 404" />
+	<br />La c&eacute;lèbre erreur 404 arrive lorsqu'un fichier ne peut pas être trouv&eacute; sur le serveur.
+	<br /><p></p>
+	<p>Pour d&eacute;finir une page d'erreur personnalis&eacute;e pour un h&ocirc;te virtuel, vous pouvez
+	ajouter la ligne suivante dans le fichier s&eacute;curit&eacute; de l'hôte virtuel principal. En
+	d&eacute;finissant une page d'erreur personnalis&eacute;e, le serveur cherchera dans le r&eacute;pertoire
+	<span class="code">web</span> plutôt que <span class="code">system</span>. Si aucun
+	fichier personnalis&eacute; n'est renseign&eacute;, le serveur cherchera le fichier <span class="code">x.html</span> 
+	dans le r&eacute;pertoire <span class="code">system</span>, où <span class="code">x</span>
+	est le num&eacute;ro d'erreur (par exemple: <span class="code">404.html</span>).
+	Un fichier s&eacute;curit&eacute; de l'hôte virtuel principal est un fichier de s&eacute;curit&eacute; plac&eacute; dans
+	le r&eacute;pertoire principal de l'hôte virtuel. Si l'erreur n'est pas indiqu&eacute;e alors la
+	page par d&eacute;faut du r&eacute;pertoire system sera utilis&eacute;e. Si la page n'existe pas dans ce
+	r&eacute;pertoire, l'erreur sera envoy&eacute;e via un message d'erreur HTTP.
+	<br />
+	<span  class="code">&lt;ERROR FILE="error404.html" ID="404" /&gt;</span>
+	</p>
+	
+	<br />
+	<br /><p>Pour plus d'information sur les pages d'erreurs, consultez la documentation du
+	RFC2068 sur <a href="http://www.w3.org" target="_blank">www.w3c.org</a>. 
+	</p>
 </body>
 </html>
