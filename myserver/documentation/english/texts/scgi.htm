@@ -1,93 +1,84 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
 <head>
-<title>MyServer Documentation - SCGI - www.myserverproject.net</title>
-<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-<meta http-equiv="Content-Style-Type" content="text/css" />
-<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
+	<title>Documentation MyServer - SCGI - www.myserverproject.net</title>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" type="text/css" href="../style/myserver.css" />
 </head>
 <body>
 
-<h1 class="title">SCGI<br />
-</h1>
-Simple Common Gateway Interface (SCGI) protocol is a replacement for
-the CGI protocol.  It is a standard for applications to interface with
-HTTP servers.  It is similar to FastCGI but is designed to be easier to
-implement. 
-<br />
-<br />
-You can use SCGI in MyServer, simply by setting
-the <a  href="mimetypes.html" class="code">MIME Type</a>
-to <span class="code">RUNSCGI</span>.
-<br />
+	<h1 class="title">SCGI<br />
+	</h1>
+	Le protocole "Simple Common Gateway Interface" (SCGI) est un remplacement du protocole
+	CGI. Il est similaire &agrave; FastCGI, mais est plus facile &agrave; impl&eacute;menter.
+	<br />
+	<br />
+	Vous pouvez utiliser SCGI sur MyServer en indiquant simplement le
+	<a  href="mimetypes.html" class="code">Type MIME</a> &agrave; <span class="code">RUNSCGI</span>.
+	<br />
 
-<h2 class="title">Remote SCGI Servers</h2>
-The SCGI server has to be specified in
-the <span class="code">MANAGER</span> part of the MIME type in the
-following way:
-<br />
+	<h2 class="title">Serveur SCGI distants</h2>
+	Le serveur SCGI doit &ecirc;tre indiqu&eacute; dans la section <span class="code">MANAGER</span>
+	du type MIME de la fa&ccedil;on suivante:
+	<br />
 
-<span class="code">
-&lt;MIMETYPE&gt;<br />
-&lt;EXT&gt;scgi&lt;/EXT&gt;<br />
-&lt;MIME&gt;text/html&lt;/MIME&gt;<br />
-&lt;CMD&gt;RUNSCGI&lt;/CMD&gt;<br />
-<br />
-&lt;MANAGER&gt;@host:port&lt;/MANAGER&gt;<br />
-&lt;/MIMETYPE&gt;<br />
-</span>
-<br />
-The definition for a remote manager must begin with @.<br />
+	<span class="code">
+	&lt;MIMETYPE&gt;<br />
+	&lt;EXT&gt;scgi&lt;/EXT&gt;<br />
+	&lt;MIME&gt;text/html&lt;/MIME&gt;<br />
+	&lt;CMD&gt;RUNSCGI&lt;/CMD&gt;<br />
+	<br />
+	&lt;MANAGER&gt;@host:port&lt;/MANAGER&gt;<br />
+	&lt;/MIMETYPE&gt;<br />
+	</span>
+	<br />
+	La d&eacute;finition d'un serveur distant doit commencer par un @.
+	<br />
 
-If you are configuring the MIME types through the Control center
-application, you can add a remote server by adding a line in the form<br />
-<span class="code">@HOST:PORT</span>
-in the SCGI path field.<br />
-<br />
+	Si vous configurez les types MIME depuis le Panneau de controle, vous pouvez
+	ajouter un serveur distant en ajoutant la ligne de type
+	<br />
+	<span class="code">@HOST:PORT</span>
+	dans le champ du chemin SCGI.
+	<br />
+	<br />
 
-<h2 class="title">How to use shortcuts</h2>
-If the same server is used by different MIME types it is good idea to
-put a shortcut to it.  The following code must be placed in the
-myserver.xml configuration file:
-<br />
+	<h2 class="title">Comment utiliser les raccourcis</h2>
+	Si le m&ecirc;me serveur est utilis&eacute; par plusieurs types MIME diff&eacute;rents, il est
+	conseill&eacute; d'y installer un raccourci. Le code suivant doit &ecirc;tre ajout&eacute; au
+	fichier de configuration myserver.xml:
+	<br />
+	<div class="code">
+	&lt;PROCESS_SERVER&gt;<br />
+	&lt;NAME&gt;MY_SHORTCUT&lt;/NAME&gt<br />
+	&lt;DOMAIN&gt;SCGI&lt;/DOMAIN&gt<br />
+	&lt;HOST&gt;localhost&lt;/HOST&gt<br />
+	&lt;PORT&gt;3333&lt;/PORT&gt<br />
+	&lt;LOCAL&gt;NO&lt;/LOCAL&gt<br />
+	&lt;/PROCESS_SERVER&gt<br />
+	</div>
+	<br />
+	Si <span class="code">LOCAL</span> vaut "YES", alors le nouveau processus sera cr&eacute;&eacute;
+	par MyServer, la valeur de <span class="code">NAME</span> sera utilis&eacute; comme chemin d'execution.
+	Si le serveur est distant, la valeur de <span class="code">NAME</span> n'est pas utilis&eacute;e.
 
-<div class="code">
-&lt;PROCESS_SERVER&gt;<br />
-&lt;NAME&gt;MY_SHORTCUT&lt;/NAME&gt<br />
-&lt;DOMAIN&gt;SCGI&lt;/DOMAIN&gt<br />
-&lt;HOST&gt;localhost&lt;/HOST&gt<br />
-&lt;PORT&gt;3333&lt;/PORT&gt<br />
-&lt;LOCAL&gt;NO&lt;/LOCAL&gt<br />
-&lt;/PROCESS_SERVER&gt<br />
-</div>
-
-<br />
-If <span class="code">LOCAL</span> is equal to "YES" then the new
-process will be created by myserver,
-the <span class="code">NAME</span> will be used as the path to the
-process to execute.  If the server is not local then
-the <span class="code">NAME</span> descriptor can have any value.
-
-<br />
-<span class="code">DOMAIN</span> specifies the server domain and in
-this case it has to have the value <span class="code">SCGI</span>.
-<br />
-<span class="code">HOST</span> and <span class="code">PORT</span>
-specify where the server is located and the listening TCP port.
-<br />
-<span class="code">NAME</span> is the shortcut's name that will be
-specified later for the MIME type.
-<br />
-<br />
-
-After the shortcut is created it needs to be called by the MIME type,
-the <span class="code">MANAGER</span> descriptor in the MIME type has to
-have the shortcut's name:<br />
-<span class="code">&lt;MANAGER&gt;MY_SHORTCUT&lt;/MANAGER&gt;</span><br />
-
-If the manager is not a valid shortcut then the server will treat
-the manager descriptor as described in the previous section. 
+	<br />
+	<span class="code">DOMAIN</span> indique le domaine du serveur, et doit donc valoir ici <span class="code">SCGI</span>.
+	<br />
+	<span class="code">HOST</span> et <span class="code">PORT</span> indiquent o&ugrave; le serveur est situ&eacute;
+	ainsi que le port TCP d'&eacute;coute.
+	<br />
+	<span class="code">NAME</span> est le nom du raccourci qui sera sp&eacute;cifi&eacute; plus tard dans le type MIME.
+	<br />
+	<br />
+	Apr&egrave;s que le raccourci a &eacute;t&eacute; cr&eacute;&eacute;, il est n&eacute;cessaire de l'appeler avec
+	son type MIME. Le descripteur <span class="code">MANAGER</span> du type MIME doit contenir le nom du raccourci:
+	<br /><span class="code">&lt;MANAGER&gt;MY_SHORTCUT&lt;/MANAGER&gt;</span>
+	<br />
+	Si la valeur est erron&eacute;, alors le serveur traitera le descripteur comme d&eacute;crit dans la section
+	pr&eacute;c&eacute;dente.
 </body>
 </html>
