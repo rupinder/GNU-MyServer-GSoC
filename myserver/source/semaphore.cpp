@@ -95,9 +95,10 @@ int Semaphore::destroy()
  */
 int Semaphore::lock(u_long /*id*/)
 {
+	int err = 0;
 #ifdef HAVE_PTHREAD
 #ifdef PTHREAD_ALTERNATE_LOCK
-	sem_wait(&semaphore);
+	err = sem_wait(&semaphore);
 #else
 	while(sem_trywait(&semaphore))
 	{
@@ -106,7 +107,7 @@ int Semaphore::lock(u_long /*id*/)
 #endif
 
 #else	
-	WaitForSingleObject(semaphore, INFINITE);
+	ret = (WaitForSingleObject(semaphore, INFINITE) == WAIT_FAILED) ? 1 : 0;
 #endif
 	return 0;
 }
@@ -116,13 +117,13 @@ int Semaphore::lock(u_long /*id*/)
 */
 int Semaphore::unlock(u_long/*! id*/)
 {
-#ifdef HAVE_PTHREAD
 	int err;
+#ifdef HAVE_PTHREAD
 	err = sem_post(&semaphore);
 #else	
-	ReleaseSemaphore(semaphore, 1, NULL);
+	ret = (ReleaseSemaphore(semaphore, 1, NULL) == FALSE) ? 1 : 0;
 #endif
-	return 1;
+	return ret;
 }
 
 /*!
