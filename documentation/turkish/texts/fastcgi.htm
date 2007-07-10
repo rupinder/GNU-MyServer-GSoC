@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -14,7 +14,7 @@
 <td class="center">
 <h1 class="title">FASTCGI<br />
 </h1>
-FastCGI CGI &uuml;zerine bir eklentidir, kullanılan dile bağlı değildir, uygulamalar i&ccedil;in sunucuya &ouml;zel API ler kullanmayarak y&uuml;ksek performans sağlar. FastCGI'da, her bir komut istemi i&ccedil;in ayrı bir işlem yapılmaz. MyServer işlemi ile iletişimi soketler &uuml;zerinden ger&ccedil;ekleştirilir. <br /> <br /> FastCGI'ı MyServer i&ccedil;inde kullanabilirsiniz, bunun i&ccedil;in yalnızca sizin komut dilinizin <a
+FastCGI CGI &uuml;zerine bir eklentidir, kullanılan dile bağlı değildir, uygulamalar i&ccedil;in sunucuya &ouml;zel API ler kullanmayarak y&uuml;ksek performans sağlar. FastCGI'da, her bir betik istemi i&ccedil;in ayrı bir işlem yapılmaz. MyServer işlemi ile iletişimi soketler &uuml;zerinden ger&ccedil;ekleştirilir. <br /> <br /> FastCGI'ı MyServer i&ccedil;inde kullanabilirsiniz, bunun i&ccedil;in yalnızca sizin betik dilinizin <a
  href="mimetypes.html" class="code">MIME Tipini</a> FastCGI olarak &ccedil;alıştırılmasını ayarlamalısınız (<span class="code">RUNFASTCGI</span><span
  style="color: rgb(0, 102, 0);"></span> olarak ayarlayın).<br /> <br /> PHP ve FastCGI'ı birlikte kullanmak i&ccedil;in <a class="code" href="php.html">PHP</a> b&ouml;l&uuml;m&uuml;n&uuml; okuyun.<br /> <br /> CGI'da olduğu gibi, MyServer altında aşağıda g&ouml;r&uuml;nd&uuml;ğ&uuml; gibi <span class="code">web</span> dizini i&ccedil;inde <span class="code">cgi-bin</span> dizini yaratabilir, ve t&uuml;m uygulamalarınızı i&ccedil;ine koyabilirsiniz:<br /> <br /> <br />
       <div style="text-align: center;"><img src="../images/myfiles.png" title=""
@@ -22,7 +22,7 @@ FastCGI CGI &uuml;zerine bir eklentidir, kullanılan dile bağlı değildir, uyg
 </div>
 <div style="text-align: center;"><small>cgi-bin dizini, doğrudan se&ccedil;ili web dizini altındadır.</small><br />
 </div>
-<br /> <br /> <br /> Buna rağmen, CGI komut dosyaları uzantıları aracılığı ile web sunucuya adreslendikleri takdirde her hangi bir yerde saklanabilirler. <br /> <br /> <br />
+<br /> <br /> <br /> Buna rağmen, CGI betik dosyaları uzantıları aracılığı ile web sunucuya adreslendikleri takdirde her hangi bir yerde saklanabilirler. <br /> <br /> <br />
 
 <h2 class="title">Uzak FastCGI Sunucuları</h2>
 MyServer uzaktan FastCGI sunucusu kullanabilme yeteneğine sahiptir. Aşağıdaki MIME tipleri uzak bağlantı kullanır:<br />
@@ -34,6 +34,24 @@ MIME tiplerini Kontrol merkezi uygulaması &uuml;zerinden ayarlıyorsanız, Fast
 
 <br /> <br /> FastCGI ile ilgili ayrıntılı bilgi i&ccedil;in resmi <a href="http://www.fastcgi.com/"
  target="_blank">FastCGI </a> sitesine bakınız.<br /> <br />
+ 
+<br />
+
+<h2 class="title">Ksayollar</h2>
+MyServer FastCGI işlemleri için tembel bir ilklendirme politikası benimsemiştir, FastCGI sunucusu ilk istem geldiğinde çalıştırılır. 
+Bu şekilde myserverın başlama süresi çok daha hızlıdır fakat bu zamanı ilk istem geldiğinde kullanır, varsayılan davranışını beğenmezseniz
+myserver.xml dosyası içine bir kısayol ayarlayabilirsiniz.
+Lften <a href="scgi.htm">SCGI protokol belgelerindeki </a> "Kısayollar nasıl kullanılır" öğreticisine başvurunuz.
+<br />
+<br />
+<span class="warning">
+Kısayol için alan adı tanımındaki FASTCGI değerini tanımladığınızdan emin olun!
+</span>
+<br />
+<br />
+ALANADI tanmlayıcı aşağıdaki satır gibi görünmelidir:
+<br />
+<span class="code">&lt;ALANADI&gt;FASTCGI&lt;ALANADI&gt</span>
 </td>
 </tr>
 </table>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -13,7 +13,15 @@
 <tr>
 <td class="center">
 <h1 class="title">WINCGI</h1>
-<br /> WinCGI .ini dosyaları &uuml;zerinden yeni işlemler ile iletişim sağlar. WinCGI yalnızca Microsoft Windows platformu &uuml;zerinde desteklenir. <br /> MyServer'da WinCGI'ı etkinleştirmek i&ccedil;in, sizin WinCGI uygulamanıza uygun doğru <a href="mimetypes.html" class="code" rel="external">MIME tipleri</a>ni se&ccedil;meniz, ve onları WinCGI (<span class="code">EXECUTEWINCGI</span>) olarak &ccedil;alışmaya ayarlamanız gerekir <br /> <br /> CGI'da olduğu gibi , t&uuml;m uygulamalarınızı aşağıda g&ouml;r&uuml;ld&uuml;ğ&uuml; gibi, MyServer'ın <span class="code">web</span> dizini altında <span
+<br /> WinCGI .ini dosyaları &uuml;zerinden yeni işlemler ile iletişim sağlar. WinCGI yalnızca Microsoft Windows platformu &uuml;zerinde desteklenir. <br /> 
+MyServer'da WinCGI'ı etkinleştirmek i&ccedil;in, sizin WinCGI uygulamanıza uygun doğru <a href="mimetypes.html" class="code" rel="external">MIME tipleri</a>ni se&ccedil;meniz, ve onları WinCGI (<span class="code">EXECUTEWINCGI</span>) olarak &ccedil;alışmaya ayarlamanız gerekir 
+<br /> <br /> 
+<div class="warning">
+WinCGI'ı, eski web uygulamanızı kullanabilmeniz için mümkün tek seçenek ise kullanın, WinCGI protokolü işlemler arası iletişim için iyi bir yol olmak haricinde her şeydir. Yeni yaratılmış işlemlerle iletişim için, onu standart CGI'dan da yavaşlatan diskteki dosyaları kullanır.
+</div>
+<br />
+<br />
+CGI'da olduğu gibi , t&uuml;m uygulamalarınız aşağıda g&ouml;r&uuml;ld&uuml;ğ&uuml; gibi, MyServer'ın <span class="code">web</span> dizini altında <span
  class="code">cgi-bin</span> dizinine yerleştirebilirsiniz:<br /> <br />
       <div class="center"><img src="../images/myfiles.png" title=""
  alt="Web dizini" height="260" width="468" style="border: 1px solid #000000" /><br />

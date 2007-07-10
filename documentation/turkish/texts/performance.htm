@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -48,13 +48,12 @@ Sunucunuzun kabul edeceği varsayılan en fazla bağlantı sayısını <span cla
 Varsayılan değer 0, sınırsız bağlantıyı kabul edeceği anlamına gelir. Bunun dışındaki herhangi bir değer sunucunuza erişebilecek kullanıcı sayısını sınırlayacaktır.
 
 <br /> <br />
-<h2 class="title">En Fazla FastCGI Sunucuları:</h2>
-Sunucunuzun &ccedil;alıştırmasına izin vereceğiniz en fazla FastCGI sunucu sayısını <span class="code">myserver.xml</span> dosyasında aşağıdaki satırı değiştirerek ayarlayabilirsiniz:<br />
+<h2 class="title">En Fazla Sunucu İşlemleri:</h2>
+MyServer'da çalışmasına izin verilecek en fazla harici sunucu (örneğin bu harici sunucular FASTCGI uygulamaları olabilir) sayısını, <span class="code">myserver.xml</span> dosyasında aşağıdaki satırı değiştirerek ayarlayabilirsiniz:<br />
 <p class="code">
-&lt;FASTCGI_MAX_SERVERS&gt;10&lt;/FASTCGI_MAX_SERVERS&gt;<br />
+&lt;MAX_SERVERS_PROCESSES&gt;10&lt;/MAX_SERVERS_PROCESSES&gt;<br />
 </p>
 <p>
-
 <h2 class="title">CGI Zaman Aşımı Ayarı:</h2>
 
 MyServer'daki CGI komut dosyalarınız i&ccedil;in varsayılan zaman aşımı s&uuml;resini <span class="code">myserver.xml</span> dosyanızdaki CGI_TIMEOUT değişkeninin değerini değiştirerek ayarlayabilirsiniz.<br /> Tek yapmanız gereken aşağıdaki satırı ihtiyacınız y&ouml;n&uuml;nde değiştirmek:<br />
@@ -85,7 +84,30 @@ Bununla, Guest -misafir- kullanıcı i&ccedil;in kısmayı 1024  bayt/saniyeolar
 &lt;ITEM FILE=&quot;buyukdosya&quot; READ=&quot;TRUE&quot; WRITE=&quot;FALSE&quot; EXECUTE=&quot;FALSE&quot;<br /> THROTTLING_RATE=&quot;1024&quot; /&gt;<br /> Ayrıca iki se&ccedil;eneği karıştırarak, belirli bir kullanıcı i&ccedil;in belirli bir dosya i&ccedil;in kısma ayarlayabilirsiniz:<br /> &lt;ITEM FILE=&quot;buyukdosya&quot; READ=&quot;TRUE&quot; WRITE=&quot;FALSE&quot; EXECUTE=&quot;FALSE&quot;&gt;<br /> &lt;USER NAME=&quot;Guest&quot; PASS=&quot;&quot; READ=&quot;TRUE&quot; WRITE=&quot;TRUE&quot; BROWSE=&quot;TRUE&quot;<br /> EXECUTE=&quot;TRUE&quot; THROTTLING_RATE=&quot;1024&quot;/&gt;<br /> &lt;/ITEM&gt;<br /><br />
 </p>
 <p>
-Veri kısma ayarı kontrol sırası ş&ouml;yledir:<br /> 1) Kullanıcı &amp; dosya (ITEM altında USER &ouml;zniteliği).<br /> 2) Dosya (ITEM &ouml;zniteliği).<br /> 3) Kullanıcı (Kullanıcı &ouml;zniteliği).<br /> 4) Sanal ana makinalaer (virtualhosts.xml dosyası).<br /> 5) Sunucu ayarı (myserver.xml dosyası).<br /> <br /> <br />
+Veri kısma ayarı kontrol sırası ş&ouml;yledir:
+<ol>
+<li>Kullanıcı &amp; dosya (ITEM altında USER &ouml;zniteliği).</li>
+<li>Dosya (ITEM &ouml;zniteliği).</li>
+<li>Kullanıcı (Kullanıcı &ouml;zniteliği).</li>
+<li>Sanal ana makinalaer (virtualhosts.xml dosyası).</li>
+<li>Sunucu ayarı (myserver.xml dosyası).</li>
+</ol>
+<br /> <br /> <br />
+
+<h2 class="title">Statik dosya belleği:</h2>
+Statik dosyalar için tampon bir bellek ayarlanabilir, bu yöntemle her bir istem için yeni bir dosya açılması gerekmeden doğrudan hafızadaki tampondan okunur.
+Bellek myserver.xml altındaki üç değer aracılığı ile ayarlanır. 
+<br />
+<span class="code">MAX_FILESCACHE_SIZE</span> belleğin en büyük boyutunu bayt olarak tanımlar.  Sıfır değeri bellekleme sisteminin kullanılmadığı anlamına gelir.<br />
+<span class="code">MAX_FILESCACHE_FILESIZE</span> belleğe eklenecek bir dosyanın en büyük boyutunu bayt olarak tanımlar. Burada bir sınır koymak ve büyük dosyaları hafızaya atmamak iyi bir fikirdir, büyük dosyaların açılması ve onların gönderilmesi ile oluşacak aşırı yüklenme farkedilmez, ek olarak belleği tek bir büyük dosya yerine bir çok küçük dosya için kullanmak daha iyidir. Sıfır değeri bu sınırın kullanılmadığı anlamına gelir. <br />
+<span class="code">MIN_FILESCACHE_FILESIZE</span> belleğe eklenecek bir dosyanın en küçük boyutunu bayt olarak tanımlar. Bunun için küçük bir değer kullanmak daha iyidir.Sıfır değeri bu sınırın kullanılmadığı anlamına gelir. 
+
+<p class="code">
+	&lt;MAX_FILESCACHE_SIZE&gt;100000000000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+	&lt;MAX_FILESCACHE_FILESIZE&gt;100000&lt;/MAX_FILESCACHE_FILESIZE&gt;<br/>
+	&lt;MIN_FILESCACHE_FILESIZE&gt;0&lt;/MIN_FILESCACHE_FILESIZE&gt;<br/>
+</p>
+
 
 </td>
 </tr>

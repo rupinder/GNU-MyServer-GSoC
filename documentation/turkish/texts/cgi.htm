@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -14,19 +14,19 @@
 <td class="center">
 <h1 class="title">CGI<br />
 </h1>
-CGI (Ortak Ağ Ge&ccedil;idi Aray&uuml;z&uuml;) bir web sunucunun kullanıcı verilerini bir uygulamaya aktardığı ve bilgiyi kullanıcıya geri getirdiği standart bir yoldur. CGI genellikle, kullanıcı tarafından talep edilen eylemleri ger&ccedil;ekleştirmek i&ccedil;in <a href="php.html">PHP </a>veya <a href="perl.html">Perl</a> gibi dillerde yazılmış komut dosyalarına dayanır. CGI komut dosyalarına (skript) erişmek i&ccedil;in, uygulamanın adı HTML kodunda g&ouml;sterilir.<br /> <br /> &Ouml;rneğin, eğer form yaratıyorsanız, komutların URL'i FORMS etiketinde g&ouml;sterilir:<br />
+CGI (Ortak Ağ Ge&ccedil;idi Aray&uuml;z&uuml;) bir web sunucunun kullanıcı verilerini bir uygulamaya aktardığı ve bilgiyi kullanıcıya geri getirdiği standart bir yoldur. CGI genellikle, kullanıcı tarafından talep edilen eylemleri ger&ccedil;ekleştirmek i&ccedil;in <a href="php.html">PHP </a>veya <a href="perl.html">Perl</a> gibi dillerde yazılmış betik dosyalarına dayanır. CGI betik dosyalarına (betik) erişmek i&ccedil;in, uygulamanın adı HTML kodunda g&ouml;sterilir.<br /> <br /> &Ouml;rneğin, eğer form yaratıyorsanız, betiğin URL'i FORMS etiketinde g&ouml;sterilir:<br />
 <p class="code"> &lt;FORM METHOD=POST ACTION=www.myfiles.com/cgi-bin/myprog.pl&gt;<br />
 </p>
-<p>Not: &Ccedil;ıktı verebilen herhangi bir Skript Dili kullanılabilir, ancak - Kabuk Skriptte, Pyton'da vb. komutlarınız olabilir. Yalnızca doğru MIME tipini ayarlamanız gerekir ve tercih ettiğiniz skript dili MyServer'da &ccedil;alışacaktır.</p>
+<p>Not: &Ccedil;ıktı verebilen herhangi bir Betik Dili kullanılabilir, ancak - Kabuk Betikte, Pyton'da vb. betikleriniz olabilir. Yalnızca doğru MIME tipini ayarlamanız gerekir ve tercih ettiğiniz betik dili MyServer'da &ccedil;alışacaktır.</p>
 
-T&uuml;m CGI komut dosyalarını tek bir yerde tutmak i&ccedil;in, MyServer'da aşağıda g&ouml;r&uuml;nd&uuml;ğ&uuml; gibi <span
+T&uuml;m CGI betik dosyalarını tek bir yerde tutmak i&ccedil;in, MyServer'da aşağıda g&ouml;r&uuml;nd&uuml;ğ&uuml; gibi <span
  class="code">web</span> dizini altına bir <span class="code">cgi-bin</span> dizini koyabilirsiniz:<br /> <br /> <br />
       <div class="boxc"><img src="../images/myfiles.png" title=""
  alt="Web dizini" width="468" height="260" /><br />
 </div>
 <div style="text-align: center;"><small>cgi-bin dizini, doğrudan se&ccedil;ili web dizini altındadır.</small><br />
 </div>
-<br /> <br /> <br /> Buna rağmen, CGI komutları, yerleri HTML kodunda doğru olarak verildikleri s&uuml;rece ve eklentileri ile CGI olarak adreslendikleri s&uuml;rece herhangi bir yerde saklanabilirler.<br /> <br /> CGI komut dosyasında her talepte yeni bir işlem başlatılır. Bu bazı performans problemlerine yol a&ccedil;abilir fakat yeni işlemlerin g&ouml;&ccedil;mesi durumunda ana MyServer işleminin b&ouml;l&uuml;nmesini engelleyerek g&uuml;venlik sağlar. <br /> <br />
+<br /> <br /> <br /> Buna rağmen, CGI betikleri, yerleri HTML kodunda doğru olarak verildikleri s&uuml;rece ve eklentileri ile CGI olarak adreslendikleri s&uuml;rece herhangi bir yerde saklanabilirler.<br /> <br /> CGI betik dosyasında her talepte yeni bir işlem başlatılır. Bu bazı performans problemlerine yol a&ccedil;abilir fakat yeni işlemlerin g&ouml;&ccedil;mesi durumunda ana MyServer işleminin b&ouml;l&uuml;nmesini engelleyerek g&uuml;venlik sağlar. <br /> <br />
 </td>
 </tr>
 </table>
