@@ -2105,9 +2105,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         if(a->host == 0)
         {
 					string errMsg;
-					errMsg.assign("Invalid virtual host requested: \"");
-					errMsg.append(host->value->c_str());
-					errMsg.append("\" from ");
+					errMsg.assign("Invalid virtual host requested from ");
 					errMsg.append(a->getIpAddr());
 
 
@@ -2118,7 +2116,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 					Server::getInstance()->logUnlockAccess();
 
 
-          raiseHTTPError(503);
+          raiseHTTPError(400);
           /*!
            *If the inputData file was not closed close it.
            */
