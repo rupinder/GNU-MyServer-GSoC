@@ -85,6 +85,22 @@ else
 fi
 AC_SUBST(XNET_LIB)
 
+AC_CHECK_LIB(event, accept, have_event=yes)
+if test x$have_event = xyes; then
+   EVENT_LIB="-levent"
+else
+   EVENT_LIB=""
+   AC_MSG_ERROR([
+*** This system appears to have no libevent
+*** Libevent is required by MyServer
+])
+fi
+AC_SUBST(EVENT_LIB)
+
+AC_CHECK_HEADER(event.h,, 
+[
+   AC_MSG_WARN([event.h not found which is part of libevent.])
+])
 
 dnl check for Unix98 socklen_t
  AC_MSG_CHECKING(if socklen_t is defined)
