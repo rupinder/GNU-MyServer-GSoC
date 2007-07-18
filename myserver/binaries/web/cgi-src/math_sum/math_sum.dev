@@ -1,9 +1,9 @@
 [Project]
 FileName=math_sum.dev
 Name=math_sum
-UnitCount=1
+UnitCount=5
 Type=3
-Ver=3
+Ver=1
 IsCpp=1
 Folders=
 CommandLine=move *.a ../binaries/cgi-lib
@@ -12,6 +12,26 @@ PchHead=-1
 PchSource=-1
 ProfilesCount=1
 ProfileIndex=0
+ObjFiles=
+Includes=
+Libs=
+PrivateResource=
+ResourceIncludes=
+MakeIncludes=
+Compiler=
+CppCompiler=
+Linker=
+Icon=
+ExeOutput=..\..\cgi-bin
+ObjectOutput=
+OverrideOutput=1
+OverrideOutputName=math_sum.mscgi
+HostApplication=
+UseCustomMakefile=0
+CustomMakefile=
+IncludeVersionInfo=0
+SupportXPThemes=0
+CompilerSet=0
 
 [Unit1]
 FileName=math_sum.cpp
@@ -41,6 +61,7 @@ ProductName=
 ProductVersion=
 AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
+AutoIncBuildNr=0
 
 [Profile1]
 ProfileName=Default Profile
@@ -69,4 +90,44 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 compilerType=0
+
+[Unit2]
+FileName=..\..\..\..\cgi-lib\cgi_manager.cpp
+CompileCpp=1
+Folder=math_sum
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit3]
+FileName=..\..\..\..\source\file.cpp
+CompileCpp=1
+Folder=math_sum
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit4]
+FileName=..\..\..\..\source\stream.cpp
+CompileCpp=1
+Folder=math_sum
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit5]
+FileName=..\..\..\..\source\files_utility.cpp
+CompileCpp=1
+Folder=math_sum
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 

@@ -3,7 +3,7 @@ FileName=cgi-lib.dev
 Name=CGI-LIB
 UnitCount=8
 Type=3
-Ver=3
+Ver=1
 IsCpp=1
 LibOutput=..\binaries\cgi-lib
 Folders=
@@ -13,6 +13,26 @@ PchHead=-1
 PchSource=-1
 ProfilesCount=1
 ProfileIndex=0
+ObjFiles=
+Includes=
+Libs=
+PrivateResource=
+ResourceIncludes=
+MakeIncludes=
+Compiler=
+CppCompiler=
+Linker=
+Icon=
+ExeOutput=
+ObjectOutput=
+OverrideOutput=0
+OverrideOutputName=cgi-lib.dll
+HostApplication=
+UseCustomMakefile=0
+CustomMakefile=
+IncludeVersionInfo=0
+SupportXPThemes=0
+CompilerSet=0
 
 [Unit1]
 FileName=stdafx.h
@@ -73,6 +93,7 @@ ProductVersion=
 AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
 UnitCount=8
+AutoIncBuildNr=0
 
 [Unit5]
 FileName=..\source\stream.cpp

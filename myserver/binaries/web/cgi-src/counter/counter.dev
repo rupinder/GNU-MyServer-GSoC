@@ -3,7 +3,7 @@ FileName=counter.dev
 Name=counter
 UnitCount=14
 Type=3
-Ver=3
+Ver=1
 IsCpp=1
 Folders=
 CommandLine=
@@ -12,6 +12,26 @@ PchHead=-1
 PchSource=-1
 ProfilesCount=1
 ProfileIndex=0
+ObjFiles=
+Includes=
+Libs=
+PrivateResource=
+ResourceIncludes=
+MakeIncludes=
+Compiler=
+CppCompiler=
+Linker=-lpng -lz_@@_
+Icon=
+ExeOutput=
+ObjectOutput=
+OverrideOutput=0
+OverrideOutputName=counter.dll
+HostApplication=
+UseCustomMakefile=0
+CustomMakefile=
+IncludeVersionInfo=0
+SupportXPThemes=0
+CompilerSet=0
 
 [Unit3]
 FileName=counter_output.h
@@ -61,6 +81,7 @@ ProductName=
 ProductVersion=
 AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
+AutoIncBuildNr=0
 
 [Unit1]
 FileName=writepng.h

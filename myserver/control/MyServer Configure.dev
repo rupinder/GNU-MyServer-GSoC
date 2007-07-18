@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=1
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000001000000
+CompilerSettings=0000000000000000000000
 
 [Unit1]
 FileName=vhost.h
@@ -233,13 +233,13 @@ BuildCmd=
 Major=0
 Minor=8
 Release=9
-Build=3
+Build=0
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
 FileVersion=0.8.9
 FileDescription=MyServer Configuration Interface
-InternalName=Dreistein
+InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=MyServer Configure.exe
