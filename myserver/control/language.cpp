@@ -44,7 +44,6 @@ static void LanguageXMLload();
 static inline const char * textmangler(const char *);
 static void AddText(char *);
 static void ClearList();
-static void LanguageXMLinit();
 static int LanguageXMLfile(const char *);
 
 //

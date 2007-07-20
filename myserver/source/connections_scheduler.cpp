@@ -27,7 +27,11 @@ static void do_nothing(int fd, short ev, void *arg)
 	}
 }
 
+#ifdef WIN32
+static unsigned int __stdcall dispatcher(void* p)
+#else
 static void* dispatcher(void* p)
+#endif
 {
 	ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)p;
 

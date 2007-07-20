@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/files_utility.h"
 #include "vector.h"
 #include "fltkconfig.h"
+#include "language.h"
 
 # include "../include/lfind.h"
 
@@ -74,6 +75,7 @@ int main(int argc, char * argv[])
    bool confFound = true;
    int ret;
 
+  LanguageXMLinit();
    /*! Initialize the SSL library. */
 #ifndef DO_NOT_USE_SSL
    SSL_library_init();
@@ -89,7 +91,7 @@ int main(int argc, char * argv[])
 
    // Find the language files:
    strncpy(languages_path, "languages/", MAX_PATH);
-   fd_ret=fd.findfirst("languages/*.xml");
+   fd_ret=fd.findfirst("languages/");
 #else
    if(FilesUtility::fileExists("languages"))
      {

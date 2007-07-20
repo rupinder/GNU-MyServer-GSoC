@@ -19,7 +19,7 @@
 
 #include "../include/xml_parser.h"
 
-//void LanguageXMLinit();  // handeled internaly
+void LanguageXMLinit();
 void LanguageXMLend();
 //int LanguageXMLfile(const char *);  // handeled internaly
 void LanguageXMLclose();

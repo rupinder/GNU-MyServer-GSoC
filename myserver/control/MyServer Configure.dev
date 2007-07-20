@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DWIN32_@@_
 CppCompiler=
-Linker=-lfltk -lole32  -luuid -lcomctl32 -lm -lz.dll -llibxml2 -liconv -lintl -lssl  -lcrypto -lwininet -lwsock32 -mwindows _@@_
+Linker=-lfltk -lm -lz.dll -llibxml2 -liconv -lintl -lssl  -lcrypto -lwininet -lwsock32  -lole32  -luuid  _@@_
 IsCpp=1
 Icon=MyServer Configure.ico
 ExeOutput=..\binaries
@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=1
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000000000000000000
+CompilerSettings=0000000001000000000100
 
 [Unit1]
 FileName=vhost.h
@@ -232,19 +232,19 @@ BuildCmd=
 [VersionInfo]
 Major=0
 Minor=8
-Release=9
+Release=10
 Build=0
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.9
+FileVersion=0.8.10
 FileDescription=MyServer Configuration Interface
 InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=MyServer Configure.exe
 ProductName=MyServer
-ProductVersion=0.8.9
+ProductVersion=0.8.10
 AutoIncBuildNr=0
 
 [Unit18]

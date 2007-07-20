@@ -25,26 +25,26 @@ CommandLine=
 IncludeVersionInfo=1
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000001000000101000000
+CompilerSettings=0000001000000000000100
 UseCustomMakefile=0
 CustomMakefile=
 
 [VersionInfo]
 Major=0
 Minor=8
-Release=9
-Build=3
+Release=10
+Build=0
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.9
+FileVersion=0.8.10
 FileDescription=MyServer webserver
-InternalName=Dreistein
+InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.9
+ProductVersion=0.8.10
 AutoIncBuildNr=0
 
 [Unit1]
