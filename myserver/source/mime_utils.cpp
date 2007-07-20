@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/mime_utils.h"
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
-extern "C" {
+extern "C" 
+{
 #include <stdlib.h>
 #include <string.h>
 #ifdef NOT_WIN
@@ -190,28 +191,28 @@ char* MimeDecodeMailHeaderField(char *s)
 	char *rest = NULL;
 	char *start = NULL;
 	while (*s1 == ' ') s1++;
-	if (strupos(s1, "=?") > 0)
+	if (strupos(s1, (char*) "=?") > 0)
 	{
-		int startendpos =static_cast<int>(strupos(s1, "=?"));
+		int startendpos =static_cast<int>(strupos(s1, (char*)"=?"));
 		start = new char[startendpos + 1];
 		strncpy(start, s, startendpos);
 		start[startendpos] = '\0';
 		s1 += startendpos;
 	}
-	if (strupos(s1, "=?") == 0)
+	if (strupos(s1, (char*) "=?") == 0)
 	{
     int alloclen;
 		char *decodedText=0;
-		int plainpos =static_cast<int>(strupos(s1, "Q?="));
+		int plainpos =static_cast<int>(strupos(s1, (char*) "Q?="));
 		if (plainpos > 0)
 		{
 			plainpos += 3;
 			char *m = s1 + plainpos;
-			plainpos +=static_cast<int>(strupos(m, "?="));
+			plainpos +=static_cast<int>(strupos(m, (char*)"?="));
 		}
 		else
 		{
-			plainpos = static_cast<int>(strupos(s1, "?="));
+			plainpos = static_cast<int>(strupos(s1, (char*) "?="));
 		}
 		if (plainpos > 1)
 		{
@@ -223,20 +224,20 @@ char* MimeDecodeMailHeaderField(char *s)
 				strncpy(rest, mid,(strlen(mid) + 2));
 			}
 		}
-		if (strupos(s1, "?Q?") > 0)
+		if (strupos(s1, (char*) "?Q?") > 0)
 		{
 			CQPUtils qp;
-			int pos = static_cast<int>(strupos(s1, "?Q?"));
+			int pos = static_cast<int>(strupos(s1, (char*) "?Q?"));
 			s1 += pos;
 			if (strlen(s1) < 4) return s;
 			s1 += 3;
 			decodedText = qp.Decode(s1);
 		}
-		if (strupos(s1, "?B?") > 0)
+		if (strupos(s1, (char*) "?B?") > 0)
 		{
       CBase64Utils bu;
       int sLen;
-			int pos = static_cast<int>(strupos(s1, "?B?"));
+			int pos = static_cast<int>(strupos(s1, (char*) "?B?"));
 			s1 += pos;
 			if (strlen(s1) < 4) return s; 
 			s1 += 3;

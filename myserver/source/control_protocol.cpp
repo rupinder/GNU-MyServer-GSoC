@@ -715,11 +715,17 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
 {
   int ret =  0;
   u_long nbw;
-  Server::getInstance()->connectionsMutexLock();
-  list<ConnectionPtr>::iterator it = Server::getInstance()->getConnections().begin();
-  while(it != Server::getInstance()->getConnections().end())
+	list<ConnectionPtr> connections;
+
+	Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
+
+
+	Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
+
+  list<ConnectionPtr>::iterator it = connections.begin();
+  while(it != connections.end())
   {
-		ConnectionPtr con;
+		ConnectionPtr con = *it;
 #ifdef HAVE_SNPRINTF
 		snprintf(b1, bs1,
 #else
@@ -739,28 +745,42 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
     }
 		it++;
   }
-  Server::getInstance()->connectionsMutexUnlock();
+	Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
   return ret;
 }
 
 /*!
  *Kill a connection by its ID.
  */
-int  ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out, 
-                                      char *b1, int bs1)
+int ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out, 
+                                    char *b1, int bs1)
 {
   int ret = 0;
   ConnectionPtr con;
+
   if(ID == 0)
     return -1;
-  con = Server::getInstance()->findConnectionByID(ID);
-  Server::getInstance()->connectionsMutexLock();
-  if(con)
+
+	list<ConnectionPtr> connections;
+
+	Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
+
+	Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
+
+  list<ConnectionPtr>::iterator it = connections.begin();
+
+	while(it != connections.end())
   {
-    /*! Define why the connection is killed. */
-    con->setToRemove(CONNECTION_USER_KILL);
-  }
-  Server::getInstance()->connectionsMutexUnlock();
+		con = *it;
+		if(con->getID() == ID)
+		{
+			/* Define why the connection is killed.  */
+			con->setToRemove(CONNECTION_USER_KILL);
+		}
+		it++;
+	}
+
+	Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
   return ret;
 }
 

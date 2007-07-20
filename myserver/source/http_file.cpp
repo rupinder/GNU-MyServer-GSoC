@@ -72,7 +72,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
    */
 	bool useGzip = false;
   u_long filesize = 0;
-	File *file;
+	File *file = 0;
 	u_long bytesToSend;
   u_long firstByte = td->request.rangeByteBegin; 
   u_long lastByte = td->request.rangeByteEnd;

@@ -74,7 +74,6 @@ Server* Server::instance = 0;
 
 Server::Server()
 {
-  threads = 0;
   toReboot = 0;
   autoRebootEnabled = 1;
   nThreads = 0;
@@ -96,7 +95,9 @@ Server::Server()
 	path = 0;
 	ipAddresses = 0;
 	vhostList = 0;
-	connectionToParse = connections.end();
+	nTotalConnections = 0;
+	purgeThreadsThreshold = 1;
+	freeThreads = 0;
 }
 
 /*!
@@ -114,6 +115,7 @@ void Server::start()
 {
   u_long i;
   u_long configsCheck = 0;
+	u_long purgeThreadsCounter = 0;
   time_t mainConfTime;
   time_t hostsConfTime;
   time_t mimeConf;
@@ -199,7 +201,7 @@ void Server::start()
 
 		myserver_safetime_init();
 
-    /*
+		/*
      *Setup the server configuration.
      */
     logWriteln("Initializing server configuration...");
@@ -282,7 +284,14 @@ void Server::start()
      */
     while(!mustEndServer)
     {
-      Thread::wait(500);
+      Thread::wait(100000);
+
+      /* Check threads.  */
+			if(purgeThreadsCounter++ >= 100)
+			{
+				purgeThreadsCounter = 0;
+				purgeThreads();
+			}
 
       if(autoRebootEnabled)
       {
@@ -344,15 +353,25 @@ void Server::start()
 							}
 
 							logWriteln("Rebooting...");
-
-							clearAllConnections();
 							
-							while(connections.size())
-								Thread::wait(MYSERVER_SEC(1));
+
+							connectionsScheduler.release();
+
+							Socket::stopBlockingOperations(true);
+
+							listenThreads.beginFastReboot();
 
 							listenThreads.terminate();
-							listenThreads.initialize(&languageParser);
 							
+							connectionsScheduler.terminateConnections();
+							clearAllConnections();
+
+							
+							Socket::stopBlockingOperations(false);
+
+							connectionsScheduler.restart();
+							listenThreads.initialize(&languageParser);
+
 							vhostList = new VhostManager(&listenThreads);
 
 							if(vhostList == 0)
@@ -363,11 +382,20 @@ void Server::start()
 							delete oldvhost;
 
 							/* Load the virtual hosts configuration from the xml file.  */
-							vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-																									getMaxLogFileSize());
+							if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+																										 getMaxLogFileSize()) | 1)
+							{
+								listenThreads.rollbackFastReboot();
 
+							}
+							else
+							{
+								listenThreads.commitFastReboot();
+							}
 
               hostsConfTime = hostsConfTimeNow;
+							logWriteln("Reloaded");
+
             }
 
             configsCheck = 0;
@@ -382,50 +410,6 @@ void Server::start()
           }
         }
       }//end  if(autoRebootEnabled)
-
-      /* Check threads.  */
-      purgeThreads();
-
-#ifdef WIN32
-      /*
-       *ReadConsoleInput is a blocking call, so be sure that there are
-       *events before call it.
-       */
-      err = GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE),
-                                          &eventsCount);
-      if(!err)
-        eventsCount = 0;
-      while(eventsCount--)
-      {
-        if(!mustEndServer)
-          ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), irInBuf, 128, 
-													 &cNumRead);
-        else
-          break;
-        for (i = 0; i < cNumRead; i++)
-        {
-          switch(irInBuf[i].EventType)
-          {
-					case KEY_EVENT:
-						if(irInBuf[i].Event.KeyEvent.wRepeatCount!=1)
-							continue;
-						if(irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='c'||
-               irInBuf[i].Event.KeyEvent.wVirtualKeyCode=='C')
-            {
-							if((irInBuf[i].Event.KeyEvent.dwControlKeyState &
-                  LEFT_CTRL_PRESSED)|
-                 (irInBuf[i].Event.KeyEvent.dwControlKeyState &
-                  RIGHT_CTRL_PRESSED))
-							{
-                logWriteln(languageParser.getValue("MSG_SERVICESTOP"));
-								this->stop();
-							}
-						}
-						break;
-          }
-        }
-      }
-#endif
     }
   }
   catch(bad_alloc &ba)
@@ -456,48 +440,45 @@ int Server::purgeThreads()
   /*
    *We don't need to do anything.
    */
-  ClientsThread *thread;
-  ClientsThread *prev;
   int prevThreadsCount;
-  if(nThreads == nStaticThreads)
-    return 0;
-
+	u_long ticks = getTicks();
+	u_long destroyed = 0;
+	purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);
   threadsMutex->lock();
-  thread = threads;
-  prev = 0;
   prevThreadsCount = nThreads;
-  while(thread)
+  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end();)
   {
-    if(nThreads == nStaticThreads)
-    {
-      threadsMutex->unlock();
-      return prevThreadsCount- nThreads;
-    }
+		ClientsThread* thread = *it;
+
 
     /*
      *Shutdown all threads that can be destroyed.
      */
     if(thread->isToDestroy())
     {
-      if(prev)
-        prev->next = thread->next;
-      else
-        threads = thread->next;
-      thread->stop();
-      while(!thread->threadIsStopped)
-      {
-        Thread::wait(100);
-      }
-      nThreads--;
-      {
-        ClientsThread *toremove = thread;
-        thread = thread->next;
-        delete toremove;
-      }
-      continue;
+			if(destroyed < purgeThreadsThreshold)
+			{
+				list<ClientsThread*>::iterator next = it;
+				next++;
+
+				thread->stop();
+				threads.erase(it);
+				nThreads--;
+				destroyed++;
+
+				it = next;
+			}
+			else
+				it++;
     }
-    prev = thread;
-    thread = thread->next;
+		else
+		{
+
+			if(!thread->isStatic())
+				if(ticks - thread->getTimeout() > MYSERVER_SEC(15))
+					thread->setToDestroy(1);
+			it++;
+		}
   }
   threadsMutex->unlock();
 
@@ -543,15 +524,7 @@ XmlParser* Server::getLanguageParser()
  */
 u_long Server::getNumConnections()
 {
-	u_long ret = 0;
-
-	connectionsMutex->lock();
-
-	ret = connections.size();
-
-	connectionsMutex->unlock();
-
-	return ret;
+	return connectionsScheduler.getConnectionsNumber();
 }
 
 /*!
@@ -600,41 +573,25 @@ void Server::stop()
  */
 int Server::terminate()
 {
-	/*
-   *Stop the server execution.
-   */
-  ClientsThread* thread = threads ;
 
   if(verbosity > 1)
     logWriteln(languageParser.getValue("MSG_STOPT"));
 
-  while(thread)
+	threadsMutex->lock();
+  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
   {
-    thread->stop();
-    thread = thread->next;
+    (*it)->stop();
   }
+	threadsMutex->unlock();
 
-	listenThreads.terminate();
+	connectionsScheduler.release();
 
 	Socket::stopBlockingOperations(true);
 
-	connectionsMutexLock();
-  try
-  {
-		list<ConnectionPtr>::iterator it = connections.begin();
-    while(it != connections.end())
-    {
-			(*it)->socket->closesocket();
-			it++;
-    }
-  }
-  catch(...)
-  {
-    connectionsMutexUnlock();
-    throw;
-  };
-	connectionsMutexUnlock();
+	listenThreads.terminate();
 
+	connectionsScheduler.terminateConnections();
+	clearAllConnections();
 
 	/* Stop the active threads. */
 	stopThreads();
@@ -651,20 +608,10 @@ int Server::terminate()
     logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
 	}
 
-	/*
-   *If there are open connections close them.
-   */
-	if(connections.size())
-	{
-		clearAllConnections();
-	}
 	freeHashedData();
-	
+
 	/* Restore the blocking status in case of a reboot.  */
 	Socket::stopBlockingOperations(false);
-
-	delete newConnectionEvent;
-	newConnectionEvent = 0;
 
 	if(languagesPath)
 		delete languagesPath;
@@ -701,7 +648,6 @@ int Server::terminate()
 		delete ipAddresses;
 
 	ipAddresses = 0;
-	nTotalConnections = 0;
   vhostList = 0;
 	languageParser.close();
 	mimeManager->clean();
@@ -734,14 +680,9 @@ int Server::terminate()
   /*
    *Free all the threads.
    */
-  thread = threads;
-  while(thread)
-  {
-    ClientsThread* next = thread->next;
-    delete thread;
-    thread = next;
-  }
-	threads = 0;
+	threadsMutex->lock();
+	threads.clear();
+	threadsMutex->unlock();
   delete threadsMutex;
 
 	nStaticThreads = 0;
@@ -757,49 +698,15 @@ int Server::terminate()
  */
 void Server::stopThreads()
 {
-	/*
-   *Clean here the memory allocated.
-   */
-	u_long threadsStopped = 0;
-	u_long threadsStopTime = 0;
-
+	list<ClientsThread*>::iterator it;
 	/*
    *Wait before clean the threads that all the threads are stopped.
    */
-  ClientsThread* thread = threads;
-  while(thread)
+	for(it = threads.begin(); it != threads.end(); it++)
   {
-    thread->clean();
-    thread = thread->next;
+    (*it)->stop();
+    (*it)->clean();
   }
-
-	threadsStopTime = 0;
-	for(;;)
-	{
-		threadsStopped = 0;
-
-    thread = threads;
-    while(thread)
-    {
-      if( thread->isStopped() )
-				threadsStopped++;
-      thread = thread->next;
-    }
-
-		/*
-     *If all the threads are stopped break the loop.
-     */
-		if(threadsStopped == nStaticThreads)
-			break;
-
-		/*
-     *Do not wait a lot to kill the thread.
-     */
-		if(++threadsStopTime > 500)
-			break;
-		Thread::wait(200);
-	}
-
 }
 /*!
  *Get the server administrator e-mail address.
@@ -832,15 +739,15 @@ int Server::initialize(int /*!osVer*/)
   /* Create the mutex for the threads.  */
   threadsMutex = new Mutex();
 
-	newConnectionEvent = new Event(false);
-
 	/* Store the default values.  */
   nStaticThreads = 20;
   nMaxThreads = 50;
-  currentThreadID = ClientsThread::ID_OFFSET;
+  currentThreadID = 0;
+	freeThreads = 0;
 	connectionTimeout = MYSERVER_SEC(25);
 	mustEndServer = 0;
 	verbosity = 1;
+	purgeThreadsThreshold = 1;
   throttlingRate = 0;
 	maxConnections = 0;
   maxConnectionsToAccept = 0;
@@ -1132,6 +1039,25 @@ int Server::initialize(int /*!osVer*/)
 }
 
 /*!
+ *Check if there are free threads to handle a new request.  If there
+ *are not enough threads create a new one.
+ */
+void Server::checkThreadsNumber()
+{
+	threadsMutex->lock();
+
+  /*
+   *Create a new thread if there are not available threads and
+   *we did not reach the limit.
+   */
+  if((nThreads < nMaxThreads) && (freeThreads < 1))
+	{
+		addThread(0);
+  }
+	threadsMutex->unlock();
+}
+
+/*!
  *Get the default throttling rate to use with connections to the server.
  */
 u_long Server::getThrottlingRate()
@@ -1194,17 +1120,9 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
    *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is 
 	 *defined.
    */
-  if(maxConnectionsToAccept && (connections.size() >= maxConnectionsToAccept))
+  if(maxConnectionsToAccept && 
+		 ((u_long)connectionsScheduler.getConnectionsNumber() >= maxConnectionsToAccept))
     return 0;
-
-  /*
-   *Create a new thread if there are not available threads and
-   *we had not reach the limit.
-   */
-  if((nThreads < nMaxThreads) && (countAvailableThreads() == 0))
-	{
-		addThread(0);
-  }
 
 #if ( HAVE_IPV6 )
 	if ( asockIn->ss_family == AF_INET )
@@ -1288,7 +1206,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 																					u_short port, u_short localPort, 
 																					int /*id*/)
 {
-  static u_long connectionId = 0;
+	//  static u_long connectionId = 0;
 	int doSSLhandshake = 0;
 	ConnectionPtr newConnection = new Connection;
 	vector<Multicast<string, void*, int>*>* handlers;
@@ -1365,41 +1283,22 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 	{
 		newConnection->socket = new Socket(s);
 	}
-	/* Update the list.  */
-  try
-  {
-    Server::getInstance()->connectionsMutexLock();
-    connectionId++;
-    newConnection->setID(connectionId);
-   	connections.push_back(newConnection);
-    nTotalConnections++;
 
-		if(connections.size() == 1)
-			connectionToParse = connections.begin();
+	connectionsScheduler.addWaitingConnection(newConnection, 0);
 
-    Server::getInstance()->connectionsMutexUnlock();
-  }
-  catch(...)
-  {
-    logPreparePrintError();
-    logWriteln("Error: adding connection to list");
-    logEndPrintError();
-    Server::getInstance()->connectionsMutexUnlock();
-  };
-
+	nTotalConnections++;
 	/*
    *If defined maxConnections and the number of active connections
    *is bigger than it say to the protocol that will parse the connection
    *to remove it from the active connections list.
    */
-	if(maxConnections && (connections.size() > maxConnections))
+	if(maxConnections && 
+		 ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
 		newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
 	/*
 	 *Signal the new connection to the waiting threads.
 	 */
-	if(newConnectionEvent)
-		newConnectionEvent->signal();
 
 	return newConnection;
 }
@@ -1421,6 +1320,9 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 		return 0;
 	}
 
+	if(s->isParsing())
+		s->setToRemove(1);
+
 	handlers = getHandlers(msg);
 
 	if(handlers)
@@ -1431,55 +1333,24 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 		}
 	}
 
-	/*
-   *Get the access to the connections list.
-   */
-  if(doLock)
-    connectionsMutexLock();
+	if(doLock)
+		connectionsScheduler.lockConnectionsList();
 
-	if(*connectionToParse == s)
-	{
-		connectionToParse++;
-		if(connectionToParse == connections.end())
-			connectionToParse = connections.begin();
-	}
-
-	connections.remove(s);
-
-  if(doLock)
-    connectionsMutexUnlock();
-
+	connectionsScheduler.removeConnection(s);
 	delete s;
+
+	if(doLock)
+		connectionsScheduler.unlockConnectionsList();
+
 	return ret;
 }
 
 /*!
- *Get a connection to parse. Be sure to have the connections mutex
- *access with connectionsMutexLock() for the caller thread before use 
- *this.
- *Using this without the right permissions can cause wrong data
- *returned to the client.
+ *Get a connection to parse.
  */
 ConnectionPtr Server::getConnection(int /*id*/)
 {
-	/* Do nothing if there are not connections.  */
-	if(connections.size() == 0)
-		return 0;
-	
-	/* Stop the thread if the server is pausing.  */
-	while(pausing)
-	{
-		Thread::wait(5);
-	}
-	
-	connectionToParse++;
-
-	if(connectionToParse == connections.end())
-	{
-		connectionToParse = connections.begin();
-	}
-
-	return *connectionToParse;
+	return connectionsScheduler.getConnection();
 }
 
 /*!
@@ -1487,77 +1358,28 @@ ConnectionPtr Server::getConnection(int /*id*/)
  */
 void Server::clearAllConnections()
 {
+	list<ConnectionPtr> connections;
 	list<ConnectionPtr>::iterator it;
-	connectionsMutexLock();
+
+	connectionsScheduler.lockConnectionsList();
+
+	connectionsScheduler.getConnections(connections);
 
 	try
 	{
 		for(it = connections.begin(); it != connections.end(); it++)
 		{
-			list<ConnectionPtr>::iterator next = it;
-			next++;
 			deleteConnection(*it, 1, 0);
-			it = next;
 		}
   }
   catch(...)
   {
-    connectionsMutexUnlock();
+		connectionsScheduler.unlockConnectionsList();
     throw;
   };
-
-	connectionsMutexUnlock();
-	/* Reset everything.	 */
-	nTotalConnections = 0;
-	connections.clear();
-	connectionToParse = connections.begin();
+	connectionsScheduler.unlockConnectionsList();
 }
 
-/*!
- *Find a connection passing its socket.
- */
-ConnectionPtr Server::findConnectionBySocket(Socket a)
-{
-	list<ConnectionPtr>::iterator it;
-	
-	connectionsMutexLock();
-	
-	it = connections.begin();
-	while(it != connections.end())
-	{
-		if(*(*it)->socket == a)
-		{
-			connectionsMutexUnlock();
-			return *it;
-		}
-		it++;
-	}
-	connectionsMutexUnlock();
-	return NULL;
-}
-
-/*!
- *Find a connection in the list by its ID.
- */
-ConnectionPtr Server::findConnectionByID(u_long ID)
-{
-	list<ConnectionPtr>::iterator it;
-
-	connectionsMutexLock();
-	
-	it = connections.begin();
-	while(it != connections.end())
-	{
-		if((*it)->getID() == ID)
-		{
-			connectionsMutexUnlock();
-			return (*it);
-		}
-		it++;
-	}
-	connectionsMutexUnlock();
-	return 0;
-}
 
 /*!
  *Returns the full path of the binaries directory.
@@ -1567,6 +1389,27 @@ const char *Server::getPath()
 {
 	return path ? path->c_str() : "";
 }
+
+/*!
+ *Add a free thread.
+ */
+void Server::increaseFreeThread()
+{
+	threadsMutex->lock();
+	freeThreads++;
+	threadsMutex->unlock();
+}
+
+/*!
+ *Remove a free thread.
+ */
+void Server::decreaseFreeThread()
+{
+	threadsMutex->lock();
+	freeThreads--;
+	threadsMutex->unlock();
+}
+
 
 /*!
  *Returns the name of the server(the name of the current PC).
@@ -1631,24 +1474,6 @@ DynamicProtocol* Server::getDynProtocol(const char *protocolName)
 {
 	string protocol(protocolName);
 	return protocols.getPlugin(protocol);
-}
-
-/*!
- *Lock connections list access to the caller thread.
- */
-int Server::connectionsMutexLock()
-{
-	connectionsMutex->lock();
-	return 1;
-}
-
-/*!
- *Unlock connections list access.
- */
-int Server::connectionsMutexUnlock()
-{
-	connectionsMutex->unlock();
-	return 1;
 }
 
 /*!
@@ -1842,6 +1667,8 @@ int Server::loadSettings()
 		{
 			vhostConfigurationFile->assign("virtualhosts.xml");
 		}
+
+		connectionsScheduler.restart();
 
 		listenThreads.initialize(&languageParser);
     if(vhostList)
@@ -2147,12 +1974,11 @@ const char *Server::getMIMEConfFile()
 }
 
 /*!
- *Get the first connection in the linked list.
- *Be sure to have locked connections access before.
+ *Get a list with all the alive connections.
  */
-list<ConnectionPtr>& Server::getConnections()
+void Server::getConnections(list<ConnectionPtr>& out)
 {
-	return connections;
+	connectionsScheduler.getConnections(out);
 }
 
 /*!
@@ -2205,35 +2031,37 @@ int Server::isAutorebootEnabled()
 }
 
 /*!
- *Block the calling thread until a new connection is up.
- *Delegate the control to the newConnectionEvent object.
- *\param tid Calling thread id.
- *\param timeout Timeout value for the blocking call.
- */
-int Server::waitNewConnection(u_long tid, u_long timeout)
-{
-	if(newConnectionEvent)
-	{
-		if(timeout)
-			return newConnectionEvent->wait(tid, timeout);
-		else
-			return newConnectionEvent->wait(tid);
-	}
-	return -1;
-}
-
-
-/*!
  *Create a new thread.
  */
 int Server::addThread(int staticThread)
 {
   int ret;
-	ThreadID ID;
 	string msg("new-thread");
-  ClientsThread* newThread = new ClientsThread();
-
+  ClientsThread* newThread = 0;
 	vector<Multicast<string, void*, int>*>* handlers;
+
+	purgeThreadsThreshold = 1;
+
+	if(!staticThread)
+	{
+		bool restored = false;
+
+		for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
+		{
+			ClientsThread* thread = *it;
+
+			if(thread->isToDestroy())
+			{
+				thread->setToDestroy(0);
+				restored = true;
+				break;
+			}
+		}
+		if(restored)
+			return 0;
+	}
+
+  newThread = new ClientsThread();
 
   if(newThread == 0)
     return -1;
@@ -2248,13 +2076,12 @@ int Server::addThread(int staticThread)
 		}
 	}
 
-
   newThread->setStatic(staticThread);
 
   newThread->id = (u_long)(++currentThreadID);
 
-  ret = Thread::create(&ID, &::startClientsThread,
-                                (void *)newThread);
+	ret = newThread->run();
+
   if(ret)
   {
     string str;
@@ -2270,21 +2097,8 @@ int Server::addThread(int staticThread)
   /*
    *If everything was done correctly add the new thread to the linked list.
    */
-	threadsMutex->lock();
-
-  if(threads == 0)
-  {
-    threads = newThread;
-    threads->next = 0;
-  }
-  else
-  {
-    newThread->next = threads;
-    threads = newThread;
-  }
+	threads.push_back(newThread);
   nThreads++;
-
-	threadsMutex->unlock();
 
   return 0;
 }
@@ -2295,14 +2109,14 @@ int Server::addThread(int staticThread)
  */
 int Server::removeThread(u_long ID)
 {
-  int ret_code = 1;
-  threadsMutex->lock();
-  ClientsThread *thread = threads;
-  ClientsThread *prev = 0;
+  int ret = 1;
 	string msg("remove-thread");
 	vector<Multicast<string, void*, int>*>* handlers;
 
+
 	handlers = getHandlers(msg);
+
+  threadsMutex->lock();
 
 	if(handlers)
 	{
@@ -2312,37 +2126,19 @@ int Server::removeThread(u_long ID)
 		}
 	}
 
-
-  /*!
-   *If there are no threads return an error.
-   */
-  if(threads == 0)
-    return -1;
-  while(thread)
-  {
-    if(thread->id == ID)
-    {
-      if(prev)
-        prev->next = thread->next;
-      else
-        threads = thread->next;
-      thread->stop();
-      while(!thread->threadIsStopped)
-      {
-        Thread::wait(100);
-      }
-      nThreads--;
-      delete thread;
-      ret_code = 0;
-      break;
-    }
-
-    prev = thread;
-    thread = thread->next;
-  }
-
+  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
+	{
+		if((*it)->id == ID)
+		{
+			(*it)->stop();
+			nThreads--;
+			ret = 0;
+			threads.erase(it);
+			break;
+		}
+	}
 	threadsMutex->unlock();
-  return ret_code;
+  return ret;
 
 }
 
@@ -2370,17 +2166,14 @@ FiltersFactory* Server::getFiltersFactory()
  */
 int Server::countAvailableThreads()
 {
-  int count = 0;
-  ClientsThread* thread;
+ int count = 0;
+
 	threadsMutex->lock();
-  thread = threads;
-  while(thread)
-  {
-    if(!thread->isParsing())
-      count++;
-    thread = thread->next;
-  }
+
+	count = freeThreads;
+
 	threadsMutex->unlock();
+
   return count;
 }
 

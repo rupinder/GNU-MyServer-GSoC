@@ -20,28 +20,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/xml_parser.h"
 #include "../include/mutex.h"
 #include "../include/hash_map.h"
+#include "../include/connections_scheduler.h"
 
 class ListenThreads
 {
 public:
 	void addListeningThread(u_short port);
-	u_long getThreadsCount(){return count;}
 	int initialize(XmlParser* parser);
 	int terminate();
-	void increaseCount();
-	void decreaseCount();
 	/*! Initialize the shutdown phase.  */
 	void shutdown(){shutdownStatus = true;}
 	/*! Is it shutdown phase?  */
 	bool isShutdown(){return shutdownStatus;}
+	void commitFastReboot();
+	void beginFastReboot();
+	void rollbackFastReboot();
+	ListenThreads();
 private:
-	bool shutdownStatus;
-	HashMap<u_short, bool> usedPorts;
-	Mutex countMutex;
-	XmlParser *languageParser;
-	u_long count;
-	int createServerAndListener(u_short port);
+	struct SocketInformation
+	{
+		Socket *ipv4;
+		Socket *ipv6;
+		u_short port;
+		ConnectionsScheduler::ListenerArg laIpv4;
+		ConnectionsScheduler::ListenerArg laIpv6;
+	};
 
+	bool fastRebooting;
+	bool committingFastReboot;
+	list<u_short> frPortsToAdd;
+	list <SocketInformation*> frPortsToRemove;
+
+	bool shutdownStatus;
+	HashMap<u_short, SocketInformation*> usedPorts;
+	XmlParser *languageParser;
+	int createServerAndListener(u_short port);
+	void registerListener(SocketInformation*);
 };
 
 #endif

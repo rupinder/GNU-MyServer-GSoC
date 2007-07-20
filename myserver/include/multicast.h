@@ -33,6 +33,7 @@ class Multicast
 {
 public:
 	virtual RET_TYPE updateMulticast(MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>*, MSG_TYPE&, ARG_TYPE) = 0;
+	virtual ~Multicast(){}
 };
 
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 

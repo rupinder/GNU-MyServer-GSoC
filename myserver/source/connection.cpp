@@ -57,6 +57,7 @@ Connection::Connection()
   connectionBuffer = new 	char [MYSERVER_KB(8)];
   protocolBuffer = 0;
 	socket = 0;
+	priority = 0;
 }
 
 /*!
@@ -313,4 +314,21 @@ const char* Connection::getPassword()
 void Connection::setPassword(const char* p)
 {
   password.assign(p);
+}
+
+/*!
+ *Get the connection priority.
+ */
+u_long Connection::getPriority()
+{
+	return priority;
+}
+
+/*!
+ *Set the connection priority.
+ *\param p The new priority.
+ */
+void Connection::setPriority(u_long p)
+{
+	priority = p;
 }

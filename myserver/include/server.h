@@ -43,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/process_server_manager.h"
 #include "../include/listen_threads.h"
 #include "../include/multicast.h"
+#include "../include/connections_scheduler.h"
 
 #include <string>
 #include <list>
@@ -87,7 +88,7 @@ public:
   u_long getUid();
   u_long getGid();
   int countAvailableThreads();
-  int addThread(int staticThread = 0);
+	void checkThreadsNumber();
   int removeThread(u_long ID);
   int isServerReady();
   ProtocolsManager* getProtocolsManager();
@@ -108,12 +109,8 @@ public:
 	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
 	u_long getNumConnections();
 	u_long getNumTotalConnections();
-	int connectionsMutexLock();
-	int connectionsMutexUnlock();
-  list<ConnectionPtr>& getConnections();
+  void getConnections(list<ConnectionPtr>&);
 	ConnectionPtr getConnection(int);
-	ConnectionPtr findConnectionBySocket(Socket);
-	ConnectionPtr findConnectionByID(u_long ID);
 	u_long getTimeout();
 	const char *getAddresses();
 	const char *getPath();
@@ -150,7 +147,11 @@ public:
 	MimeManager *getMimeManager(){return mimeManager;}
 
 	void setProcessPermissions();
+	ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
+	int deleteConnection(ConnectionPtr, int, int = 1);
 
+	void increaseFreeThread();
+	void decreaseFreeThread();
 private:
   friend class ClientsThread;
 #ifdef WIN32
@@ -170,8 +171,6 @@ private:
 
 	/*! Do not allow to create directly objects.  */
 	Server();
-
-	list<ConnectionPtr> connections;
 
 	CachedFileFactory cachedFiles;
 
@@ -210,26 +209,28 @@ private:
   string* externalPath;
 	string* serverAdmin;
 	int initialize(int);
+  int addThread(int staticThread = 0);
 	ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);
-  u_long nTotalConnections;
+	u_long nTotalConnections;
 	u_long maxConnections;
 	u_long maxConnectionsToAccept;
 	void clearAllConnections();
 	int freeHashedData();
-	int deleteConnection(ConnectionPtr, int, int = 1);
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
 	int loadSettings();
 	Mutex* connectionsMutex;
-	list<ConnectionPtr>::iterator connectionToParse;
 	u_long nStaticThreads;
   u_long nMaxThreads;
   u_long nThreads;
+	u_long freeThreads;
+
+	u_long purgeThreadsThreshold;
 
   Mutex* threadsMutex;
-  ClientsThread* threads;
+  list<ClientsThread*> threads;
 
   int purgeThreads();
 	int reboot();
@@ -239,10 +240,10 @@ private:
 	string* vhostConfigurationFile;
 	string* mimeConfigurationFile;
 	string tmpPath;
-	Event *newConnectionEvent;
 	PluginsManager pluginsManager;
 	GenericPluginsManager genericPluginsManager;
 	ProcessServerManager processServerManager;
+	ConnectionsScheduler connectionsScheduler;
 };
 
 #endif

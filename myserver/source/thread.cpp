@@ -45,12 +45,12 @@ extern "C" {
 #endif
 
 /*!
- *Sleep the caller thread.
+ *Sleep the caller thread for [TIME] microseconds.
  */
 void Thread::wait(u_long time)
 {
 #ifdef WIN32
-	Sleep(time);
+	Sleep(time/1000);
 #endif
 #ifdef NOT_WIN
 	usleep(time);
@@ -97,8 +97,8 @@ ThreadID Thread::threadID()
 }
 
 /*!
-*Terminate the caller thread.
-*/
+ *Terminate the caller thread.
+ */
 void Thread::terminate()
 {
 #ifdef WIN32
@@ -106,5 +106,18 @@ void Thread::terminate()
 #endif
 #ifdef HAVE_PTHREAD
 	pthread_exit(0);
+#endif
+}
+
+/*!
+ *Sleep until the thread identified by tid complete its execution.
+ */
+int Thread::join(ThreadID tid)
+{
+#ifdef WIN32
+	return WaitForSingleObject((void*)tid, INFINITE) != WAIT_OBJECT_0;
+#endif
+#ifdef HAVE_PTHREAD
+	return pthread_join(tid, NULL);
 #endif
 }

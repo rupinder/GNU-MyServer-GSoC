@@ -18,6 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+extern "C"
+{
+#include <sys/time.h>
+#include <sys/types.h>
+#include <event.h>
+}
+
 #include "../include/sockets.h"
 #include "../include/utility.h"
 
@@ -60,6 +67,9 @@ public:
 class Connection
 {
 public:
+	u_long getPriority();
+	void setPriority(u_long);
+
   u_long getID();
   void setID(u_long);
 
@@ -120,6 +130,8 @@ public:
 
 	/*! Get the thread that is using the connection.  */
 	ClientsThread* getActiveThread(){return thread;}
+
+	event* getEvent(){return &ev;}
 protected:
 	ClientsThread *thread;
 
@@ -166,6 +178,13 @@ protected:
 	
 	/*! Force the connection to be parsed.  */
 	int forceParsing;
+
+	/*! Connection priority, used by the scheduler.  */
+	u_long priority;
+
+	/*! Libevent event, used by the connections scheduler.  */
+	event ev;
+
 };
                                    
 typedef  Connection* ConnectionPtr;

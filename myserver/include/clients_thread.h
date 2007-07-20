@@ -31,32 +31,11 @@ class  ClientsThread
 	friend class Server;
 
 #ifdef WIN32
-	friend  unsigned int __stdcall startClientsThread(void* pParam);
+	friend  unsigned int __stdcall clients_thread(void* pParam);
 #endif
 #ifdef HAVE_PTHREAD
-	friend  void* startClientsThread(void* pParam);
+	friend  void* clients_thread(void* pParam);
 #endif
-private:
-  int toDestroy;
-  int timeout;
-	int initialized;
-  int staticThread;
-	u_long id;
-	int err;
-  int parsing;
-	int threadIsStopped;
-	int threadIsRunning;
-	u_long buffersize;
-	u_long buffersize2;
-	int isRunning();
-	int isStopped();
-	Http *httpParser;
-	Https *httpsParser;
-  ControlProtocol  *controlProtocolParser;
-	MemBuf buffer;
-	MemBuf buffer2;
-	int controlConnections();
-	u_long nBytesToRead;
 public:
 	enum RETURN_CODE
 	{
@@ -79,10 +58,8 @@ public:
 		*/
 		INCOMPLETE_REQUEST_NO_WAIT = 3
 	};
-  ClientsThread *next;
 	MemBuf *getBuffer();
 	MemBuf *getBuffer2();
-	const static u_long ID_OFFSET = 200;
 	ClientsThread();
 	~ClientsThread();
 	void stop();
@@ -94,14 +71,38 @@ public:
   int isStatic();
   int isParsing();
   void setStatic(int);
+	int run();
+	ThreadID getThreadId(){return tid;}
+private:
+	ThreadID tid;
+  int toDestroy;
+  int timeout;
+	int initialized;
+  int staticThread;
+	u_long id;
+	int err;
+  int parsing;
+	int threadIsStopped;
+	int threadIsRunning;
+	u_long buffersize;
+	u_long buffersize2;
+	int isRunning();
+	int isStopped();
+	Http *httpParser;
+	Https *httpsParser;
+  ControlProtocol  *controlProtocolParser;
+	MemBuf buffer;
+	MemBuf buffer2;
+	int controlConnections();
+	u_long nBytesToRead;
 };
 
 #ifdef WIN32
-unsigned int __stdcall startClientsThread(void* pParam); 
+unsigned int __stdcall clients_thread(void* pParam); 
 #endif
 
 #ifdef HAVE_PTHREAD
-void* startClientsThread(void* pParam);
+void* clients_thread(void* pParam);
 #endif
 
 #endif

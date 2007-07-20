@@ -184,7 +184,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
   u_long tempThrottlingRate = (u_long)-1;
   xmlAttr *attr;
-	xmlNode *node;
+	xmlNode *node = 0;
 
 	XmlParser localParser;
   xmlDocPtr doc;

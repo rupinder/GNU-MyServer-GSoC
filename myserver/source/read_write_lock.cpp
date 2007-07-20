@@ -58,7 +58,8 @@ void ReadWriteLock::readUnlock()
  */
 void ReadWriteLock::writeLock()
 {
-	semaphore.lock(maxReaders);
+	for(int i = 0; i < maxReaders; i++)
+		semaphore.lock();
 }
 
 /*!
@@ -66,6 +67,7 @@ void ReadWriteLock::writeLock()
  */
 void ReadWriteLock::writeUnlock()
 {
-	semaphore.unlock(maxReaders);
+	for(int i = 0; i < maxReaders; i++)
+		semaphore.unlock();
 }
 

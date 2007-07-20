@@ -51,7 +51,6 @@ ClientsThread::ClientsThread()
   parsing = 0;
 	err = 0;
 	initialized = 0;
-  next = 0;
   toDestroy = 0;
   staticThread = 0;
   nBytesToRead = 0;
@@ -89,12 +88,12 @@ void ClientsThread::setTimeout(int newTimeout)
  */
 #ifdef WIN32
 #define ClientsThread_TYPE int
-unsigned int __stdcall startClientsThread(void* pParam)
+unsigned int __stdcall clients_thread(void* pParam)
 #endif
 
 #ifdef HAVE_PTHREAD
 #define ClientsThread_TYPE void*
-void * startClientsThread(void* pParam)
+void* clients_thread(void* pParam)
 #endif
 
 {
@@ -136,6 +135,8 @@ void * startClientsThread(void* pParam)
 
 	ct->initialized = 1;
 
+	Server::getInstance()->increaseFreeThread();
+
   /* Reset first 1024 bytes for thread buffers.  */
 	memset((char*)ct->buffer.getBuffer(), 0, 
          1024 > ct->buffer.getRealLength() ? 1024 
@@ -149,7 +150,6 @@ void * startClientsThread(void* pParam)
   {
     Thread::wait(500);
   }
-
 	/*
    *This function when is alive only call the controlConnections(...) function
    *of the ClientsThread class instance used for control the thread.
@@ -159,28 +159,18 @@ void * startClientsThread(void* pParam)
     int ret;
     try
     {
-			if(server->getNumConnections())
-			{
-				Thread::wait(1);
-				ret = 0;
-			}
-			else
-			{
-				ret = server->getInstance()->waitNewConnection(ct->id, 
-																											 MYSERVER_SEC(2));
-			}
-
       /*
        *If the thread can be destroyed don't use it.
        */
-      if(ret || ((!ct->isStatic()) && ct->isToDestroy()))
+      if((!ct->isStatic()) && ct->isToDestroy())
       {
+				Thread::wait(1);
         continue;
       }
 
-
-      ct->parsing = 1;
       ret = ct->controlConnections();
+			Server::getInstance()->increaseFreeThread();
+			ct->parsing = 0;
 
       /*
        *The thread served the connection, so update the timeout value.
@@ -188,15 +178,6 @@ void * startClientsThread(void* pParam)
       if(ret != 1)
       {
         ct->setTimeout(getTicks());
-      }
-      else
-      {
-        /*
-         *Long inactive not static thread... Maybe we don't need it.
-         */
-        if(!ct->isStatic())
-          if(getTicks() - ct->getTimeout() > MYSERVER_SEC(15) )
-            ct->setToDestroy(1);
       }
     }
     catch( bad_alloc &ba)
@@ -218,12 +199,22 @@ void * startClientsThread(void* pParam)
       Server::getInstance()->logEndPrintError();
     };
     
-    ct->parsing = 0;
   }
-  ct->threadIsStopped = 1;
-  
+	Server::getInstance()->decreaseFreeThread();
+
+  delete ct;
+
   Thread::terminate();
   return 0;
+}
+
+/*!
+ *Create the new thread.
+ */
+int ClientsThread::run()
+{
+  return Thread::create(&tid, &::clients_thread,
+												(void *)this);
 }
 
 /*!
@@ -277,40 +268,19 @@ int ClientsThread::controlConnections()
   ConnectionPtr c;
   DynamicProtocol* dp = 0;
 	
-	/*
-   *Get the access to the connections list.
-   */
-	Server::getInstance()->connectionsMutexLock();
 	c = Server::getInstance()->getConnection(this->id);
-	
+	Server::getInstance()->decreaseFreeThread();
+
+
 	/*
-   *Check if c exists.
    *Check if c is a valid connection structure.
-   *Do not parse a connection that is going to be parsed by another thread.
    */
   if(!c)
-  {
-		Server::getInstance()->connectionsMutexUnlock();
     return 1;
-  }
 
-	if(c->isParsing())
-	{
-		Server::getInstance()->connectionsMutexUnlock();
-		return 0;
-	}
-	c->setParsing(1);
+	parsing = 1;
 
-	/*
-   *Unlock connections list access after setting parsing flag.
-   */
-	Server::getInstance()->connectionsMutexUnlock();
-
-  /* Number of bytes waiting to be read.  */
-  if(c->socket->dataOnRead())
-    nBytesToRead = c->socket->bytesToRead();
-  else
-    nBytesToRead = 0;
+	nBytesToRead = c->socket->bytesToRead();
 
 	if(nBytesToRead || c->getForceParsing())
 	{
@@ -353,7 +323,9 @@ int ClientsThread::controlConnections()
         {
           httpParser = new Http();
           if(!httpParser)
+					{
             return 0;
+					}
         }
 				retcode = httpParser->controlConnection(c, 
 																								(char*)buffer.getBuffer(), 
@@ -370,7 +342,9 @@ int ClientsThread::controlConnections()
           {
             httpsParser = new Https();
             if(!httpsParser)
+						{
               return 0;
+						}
           }
 
           retcode = httpsParser->controlConnection(c, 
@@ -385,7 +359,9 @@ int ClientsThread::controlConnections()
           {
             controlProtocolParser = new ControlProtocol();
             if(!controlProtocolParser)
-              return 0;
+						{
+							return 0;
+						}
           }
           retcode = controlProtocolParser->controlConnection(c, 
                        (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
@@ -410,7 +386,7 @@ int ClientsThread::controlConnections()
     }
     catch(...)
     {
-      retcode = 0;
+      retcode = DELETE_CONNECTION;
     };
 
 		/*! Delete the connection.  */
@@ -424,6 +400,7 @@ int ClientsThread::controlConnections()
 		{
 			c->setDataRead(0);
 			c->connectionBuffer[0] = '\0';
+			Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
 		}
 		/*! Incomplete request to buffer.  */
 		else if(retcode == INCOMPLETE_REQUEST)
@@ -437,11 +414,13 @@ int ClientsThread::controlConnections()
 						 c->getDataRead() + err);
 
 			c->setDataRead(c->getDataRead() + err);
+			Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
 		}
 		/* Incomplete request to check before new data is available.  */
 		else if(retcode == INCOMPLETE_REQUEST_NO_WAIT)
 		{
 			c->setForceParsing(1);
+			Server::getInstance()->getConnectionsScheduler()->addReadyConnection(c);
 		}		
 		c->setTimeout( getTicks() );
 	}
@@ -461,7 +440,6 @@ int ClientsThread::controlConnections()
 			return 0;
 		}
 	}
-	c->setParsing(0);
   return 0;
 }
 
@@ -499,6 +477,10 @@ void ClientsThread::clean()
     delete httpsParser;
   if(controlProtocolParser)
     delete controlProtocolParser;
+
+	httpParser = 0;
+	httpsParser = 0;
+	controlProtocolParser = 0;
 
 	buffer.free();
 	buffer2.free();

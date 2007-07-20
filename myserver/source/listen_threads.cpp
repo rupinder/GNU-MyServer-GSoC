@@ -17,7 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/server.h"
 #include "../include/files_utility.h"
 #include "../include/listen_threads.h"
-#include "../include/thread.h"
+#include "../include/semaphore.h"
+#include "../include/event.h"
 
 extern "C"
 {
@@ -41,116 +42,19 @@ extern "C"
 #endif
 }
 
-
+#include <set>
 #include <string>
 
 using namespace std;
 
-struct ListenThreadArgv
-{
-	u_long port;
-	Socket *serverSocket;
-	int SSLsocket;
-	ListenThreads *lt;
-};
-
-
 /*!
- *This is the thread that listens for a new connection on the
- *port specified by the protocol.
+ *Default c'tor.
  */
-#ifdef WIN32
-unsigned int __stdcall listenServer(void* params)
-#endif
-#ifdef HAVE_PTHREAD
-void * listenServer(void* params)
-#endif
+ListenThreads::ListenThreads()
 {
-	char buffer[256];
-	int err;
-	ListenThreadArgv *argv = (ListenThreadArgv*)params;
-	Socket *serverSocket = argv->serverSocket;
-	ListenThreads* lt = argv->lt;
-
-	MYSERVER_SOCKADDRIN asockIn;
-	int asockInLen = 0;
-	Socket asock;
-  int ret;
-
-	int timeoutValue = 3;
-
-#ifdef __linux__
-	timeoutValue = 1;
-#endif
-#ifdef __HURD__
-	timeoutValue = 5;
-#endif
-
-	if ( serverSocket == NULL)
-	   return 0;
-
-#ifdef NOT_WIN
-	// Block SigTerm, SigInt, and SigPipe in threads
-	sigset_t sigmask;
-	sigemptyset(&sigmask);
-	sigaddset(&sigmask, SIGPIPE);
-	sigaddset(&sigmask, SIGINT);
-	sigaddset(&sigmask, SIGTERM);
-	sigprocmask(SIG_SETMASK, &sigmask, NULL);
-#endif
-
-	/* Free the structure used to pass parameters to the new thread.  */
-	delete argv;
-
-	if (serverSocket != NULL )
-		ret = serverSocket->setNonBlocking(1);
-
-	Server::getInstance()->setProcessPermissions();
-
-	lt->increaseCount();
-
-	while(!lt->isShutdown())
-	{
-		/*
-     *Accept connections.
-     *A new connection will be added using the Server::addConnection function.
-     */
-		if(serverSocket->dataOnRead(timeoutValue, 0) == 1 )
-		{
-			asockInLen = sizeof(sockaddr_in);
-			asock = serverSocket->accept(&asockIn,
-																	 &asockInLen);
-			if(asock.getHandle() != 0 &&
-				 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
-			{
-				Server::getInstance()->addConnection(asock, &asockIn);
-			}
-		}
-	}
-
-	/*!
-   *When the flag mustEndServer is 1 end current thread and clean
-   *the socket used for listening.
-   */
-	serverSocket->shutdown(SD_BOTH);
-	do
-	{
-		err = serverSocket->recv(buffer, 256, 0);
-	}while(err != -1);
-
-	serverSocket->closesocket();
-	delete serverSocket;
-
-	lt->decreaseCount();
-
-
-	/*
-   *Automatically free the current thread.
-   */
-	Thread::terminate();
-	return 0;
+	fastRebooting = false;
+	committingFastReboot = false;
 }
-
 
 /*!
  *This function is used to create a socket server and a thread listener
@@ -161,16 +65,23 @@ int ListenThreads::createServerAndListener(u_short port)
 	int optvalReuseAddr = 1;
   ostringstream portBuff;
   string listenPortMsg;
-	ThreadID threadIdIPv4 = 0;
-	ThreadID threadIdIPv6 = 0;
-  ListenThreadArgv* argv;
 	Server* server = Server::getInstance();
+
+	if(fastRebooting)
+	{
+		frPortsToAdd.push_back(port);
+		return 0;
+	}
+
 	/*
 	 *Create the server sockets:
 	 *one server socket for IPv4 and another one for IPv6
 	 */
 	Socket *serverSocketIPv4 = new Socket();
 	Socket *serverSocketIPv6 = NULL;
+
+	SocketInformation* si = new SocketInformation;
+	si->port = port;
 
 	/*
    *Create the server socket.
@@ -196,7 +107,7 @@ int ListenThreads::createServerAndListener(u_short port)
 				((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
 				((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
 					htonl(INADDR_ANY);
-				((sockaddr_in*)(&sockServerSocketIPv4))->sin_port = 
+				((sockaddr_in*)(&sockServerSocketIPv4))->sin_port =
 					htons((u_short)port);
 
 #ifdef NOT_WIN
@@ -317,11 +228,14 @@ int ListenThreads::createServerAndListener(u_short port)
 #endif // HAVE_IPV6
 		
 		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-			return 0;
+		{
+			delete si;
+			return 1;
+		}
 
-	/*
-	 *Set connections listen queque to max allowable.
-	 */
+		/*
+		 *Set connections listen queque to max allowable.
+		 */
 		server->logWriteln(languageParser->getValue("MSG_SLISTEN"));
 		if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
 		{
@@ -342,7 +256,10 @@ int ListenThreads::createServerAndListener(u_short port)
 		}
 
 		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-			return 0;
+		{
+			delete si;
+			return 1;
+		}
 
 		portBuff << (u_int)port;
 
@@ -352,39 +269,14 @@ int ListenThreads::createServerAndListener(u_short port)
 	
 		server->logWriteln(listenPortMsg.c_str());
 
-		server->logWriteln(languageParser->getValue("MSG_LISTENT"));
+		si->ipv4 = serverSocketIPv4;
+		si->ipv6 = serverSocketIPv6;
 
-		/*
-		 *Create the listen threads.
-		 */
-		if(serverSocketIPv4)
-		{
-			argv = new ListenThreadArgv;
-			argv->port = port;
-			argv->lt = this;
-			argv->serverSocket = serverSocketIPv4;
-			Thread::create(&threadIdIPv4, &::listenServer,  (void *)(argv));
+		usedPorts.put(port, si);
 		
-			if(!threadIdIPv4)
-				delete argv;
-		}
+		registerListener(si);
 
-		if(serverSocketIPv6)
-		{
-			argv = new ListenThreadArgv;
-			argv->port = port;
-			argv->lt = this;
-			argv->serverSocket = serverSocketIPv6;
-			Thread::create(&threadIdIPv6, &::listenServer,  (void *)(argv));
-
-			if(!threadIdIPv6)
-				delete argv;
-		}
-
-		if(threadIdIPv4 || threadIdIPv6)
-			server->logWriteln(languageParser->getValue("MSG_LISTENTR"));
-
-    return threadIdIPv4 || threadIdIPv6;
+    return 0;
   }
   catch( bad_alloc &ba)
   {
@@ -398,29 +290,27 @@ int ListenThreads::createServerAndListener(u_short port)
     s << "Error :" << e.what();
     server->logWriteln(s.str().c_str());
   };
-  return 0;
+  return 1;
 }
 
 /*!
- *Increase the listening threads counter.
+ *Register the sockets on the events listener.
  */
-void ListenThreads::increaseCount()
+void ListenThreads::registerListener(SocketInformation* si)
 {
-	countMutex.lock();
-	count++;
-	countMutex.unlock();
-}
 
-/*!
- *Decrease the listening threads counter.
- */
-void ListenThreads::decreaseCount()
-{
-	countMutex.lock();
-	count--;
-	countMutex.unlock();
-}
+		if(si->ipv4)
+		{
+			si->laIpv4.reset(si->ipv4, si->port);
+			Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv4));
+		}
 
+		if(si->ipv6)
+		{
+			si->laIpv6.reset(si->ipv6, si->port);
+			Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv6));
+		}
+}
 
 /*!
  *Add a listening thread on a specific port.
@@ -428,9 +318,9 @@ void ListenThreads::decreaseCount()
  */
 void ListenThreads::addListeningThread(u_short port)
 {
-	if(usedPorts.get(port))
-		return;
-	usedPorts.put(port, true);
+	if(!(fastRebooting || committingFastReboot))
+		if(usedPorts.get(port))
+			return;
 	createServerAndListener(port);
 }
 
@@ -440,28 +330,180 @@ void ListenThreads::addListeningThread(u_short port)
  */
 int ListenThreads::initialize(XmlParser* parser)
 {
-	countMutex.init();
 	languageParser = parser;
-	usedPorts.clear();
 	shutdownStatus = false;
-	count = 0;
 	return 0;
 }
+
+/*!
+ *Complete the fast reboot.
+ */
+void ListenThreads::commitFastReboot()
+{
+	/* Contains already present ports.  */
+	set<u_short> presentPorts;
+
+	/* Contains all the ports needed after the commit.  */
+	set<u_short> newPorts;
+
+	/* Contains ports already present and still needed.  */
+	set<u_short> intersection;
+
+	/* Contains ports already present and still needed.  */
+	set<u_short> toRemove;
+
+	/* Contains new ports to add.  */
+	set<u_short> toAdd;
+
+	fastRebooting = false;
+	committingFastReboot = true;
+
+	for(HashMap<u_short, SocketInformation*>::Iterator it = usedPorts.begin(); it != usedPorts.end(); it++)
+	{
+		presentPorts.insert((*it)->port);
+	}
+
+	for(list<u_short>::iterator it = frPortsToAdd.begin(); it != frPortsToAdd.end(); it++)
+	{
+		newPorts.insert(*it);
+	}
+
+	/* intersection = intersection(presentsPorts, newPorts).  */
+	set_intersection(presentPorts.begin(), presentPorts.end(), newPorts.begin(), newPorts.end(),
+									 insert_iterator<set<u_short> >(intersection, intersection.begin()));
+
+
+	/* toRemove = presentsPorts - newPorts.  */
+	set_difference(presentPorts.begin(), presentPorts.end(), newPorts.begin(), newPorts.end(),
+								 insert_iterator<set<u_short> >(toRemove, toRemove.begin()));
+
+
+	/* toAdd = newPorts - presentsPorts.  */
+	set_difference(newPorts.begin(), newPorts.end(), presentPorts.begin(), presentPorts.end(),
+								 insert_iterator<set<u_short> >(toAdd, toAdd.begin()));
+
+
+
+	/* Ports in intersections need only to be registered on the event listener.  */
+	for(set<u_short>::iterator it = intersection.begin(); it != intersection.end(); it++)
+	{
+		registerListener(usedPorts.get(*it));
+	}
+
+	/* Create here the new ports.  */
+	for(set<u_short>::iterator it = toAdd.begin(); it != toAdd.end(); it++)
+ 	{
+		createServerAndListener(*it);
+	}
+
+	/* Enqueue connections to remove to frPortsToRemove and destroy them with terminate.  */
+	for(set<u_short>::iterator it = toRemove.begin(); it != toRemove.end(); it++)
+	{
+		SocketInformation* si;
+		si = usedPorts.get(*it);
+		frPortsToRemove.push_back(si);
+		usedPorts.remove(si->port);
+	}
+
+	terminate();
+
+	frPortsToAdd.clear();
+	frPortsToRemove.clear();
+
+	committingFastReboot = false;
+}
+
+
+/*!
+ *Restore the previous situation without do anything.
+ */
+void ListenThreads::rollbackFastReboot()
+{
+	fastRebooting = false;
+	committingFastReboot = false;
+	
+	for(HashMap<u_short, SocketInformation*>::Iterator it = usedPorts.begin(); it != usedPorts.end(); it++)
+	{
+		registerListener(*it);
+	}
+
+	frPortsToAdd.clear();
+	frPortsToRemove.clear();
+}
+
+/*!
+ *Prepare the listen threads manager for a fast reboot.
+ */
+void ListenThreads::beginFastReboot()
+{
+	fastRebooting = true;
+}
+
 
 /*!
  *Unload the listen threads manager.
  */
 int ListenThreads::terminate()
 {
-	shutdown();
+	char buffer[256];
 
-	while(getThreadsCount())
+	list <SocketInformation*> sockets;
+
+	list <SocketInformation*>::iterator it;
+	list <SocketInformation*>::iterator end;
+
+	if(fastRebooting)
 	{
-		Thread::wait(1000);
+		return 0;
+	}
+	else if(committingFastReboot)
+	{
+		it = frPortsToRemove.begin();
+		end = frPortsToRemove.end();
+	}
+	else
+	{
+		for(HashMap<u_short, SocketInformation*>::Iterator i = usedPorts.begin(); i != usedPorts.end(); i++)
+			sockets.push_front(*i);
+
+		it = sockets.begin();
+		end = sockets.end();
+
+		shutdown();
 	}
 
+	while(it != end)
+	{
+		for(int t = 0; t < 2; t++)
+		{
+			Socket* serverSocket;
+			int err;
 
-	usedPorts.clear();
-	countMutex.destroy();
+			if(t == 0)
+				serverSocket = (*it)->ipv4;
+			else
+				serverSocket = (*it)->ipv6;
+			
+			if(!serverSocket)
+				continue;
+
+			serverSocket->shutdown(SD_BOTH);
+			do
+			{
+				err = serverSocket->recv(buffer, 256, 0);
+			}while(err != -1);
+
+			serverSocket->closesocket();
+			delete serverSocket;
+		}
+		delete (*it);
+		it++;
+	}
+
+	/* If it is not a fast reboot then clear everything.  */
+	if(!(fastRebooting || committingFastReboot))
+	{
+		usedPorts.clear();
+	}
 	return 0;
 }

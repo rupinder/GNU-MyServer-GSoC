@@ -839,7 +839,7 @@ int getEndLine(const char* str, int max)
 		}
 	}else
 	{
-		for(i = 1; str[i]; i++ )
+		for(i = 0; str[i]; i++ )
 		{
 			if((str[i] == '\r') || (str[i] == '\n'))
 				return i;

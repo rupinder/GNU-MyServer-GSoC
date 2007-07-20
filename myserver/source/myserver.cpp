@@ -48,6 +48,7 @@ void consoleService ();
 #ifdef WIN32
 void __stdcall myServerCtrlHandler(u_long fdwControl);
 void __stdcall myServerMain (u_long , LPTSTR *argv); 
+static BOOL SignalHandler(DWORD type) ;
 #else
 int  writePidfile(const char*);
 #endif
@@ -60,7 +61,7 @@ static char *path;
 /*!
  *Change this to reflect the version of the software.
  */
-const char *versionOfSoftware="0.8.9";
+const char *versionOfSoftware = "0.8.9";
 int argn;
 char **argv;
 
@@ -78,6 +79,12 @@ void Sig_Hup(int signal)
    *On the SIGHUP signal reboot the server.
    */
 	Server::getInstance()->rebootOnNextLoop();
+}
+#else
+static BOOL SignalHandler(DWORD type) 
+{ 
+  Server::getInstance()->logWriteln("Exiting...");
+	Server::getInstance()->stop();
 }
 
 #endif
@@ -181,6 +188,9 @@ int main (int argn, char **argv)
 	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
 	sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
 	sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
+#else
+  SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
+  SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SignalHandler, TRUE );
 #endif
 	
 	try
@@ -404,10 +414,6 @@ int writePidfile(const char* filename)
  */
 void consoleService ()
 {
-#ifdef WIN32
-	SetConsoleCtrlHandler (NULL, TRUE);
-	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT );
-#endif
 	Server::getInstance()->start();
 }
 
