@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -14,8 +14,23 @@
 <td class="center">
 <h1 class="title">ISAPI</h1>
 <br /> ISAPI (Internet Sunucu Uygulama Program Aray&uuml;z&uuml;) Windows tabanlı bilgisayarlarda, web sunucunun işlem adres alanında harici mod&uuml;l başlatan dinamik uygulamaları &ccedil;alıştırmak i&ccedil;in kullanılan bir protokold&uuml;r.
-
-ISAPI'yi kullanmak i&ccedil;in, web sunucu tarafından &ccedil;ağıırılan bazı sembolleri dışa aktaran bir DLL (dinamik bağlantı k&uuml;t&uuml;phanesi) yaratmanız gerekir.<br /> <br /> <span class="warning">Uyarı</span>: Eğer ISAPI uygulaması g&ouml;&ccedil;erse, &ccedil;ağırılan uygulamanın arıza yapmasına ve b&ouml;ylece MyServer'ın da g&ouml;&ccedil;mesine sebep olabilir.<br /> <br /> <br /> Ayrıntılı bilgi i&ccedil;in, Microsoft'un <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI'ye Genel Bakış</a> yazısını okuyabilirsiniz.<br /> <br />
+<br />
+ISAPI'yi kullanmak i&ccedil;in, web sunucu tarafından &ccedil;ağıırılan bazı sembolleri dışa aktaran bir DLL (dinamik bağlantı k&uuml;t&uuml;phanesi) yaratmanız gerekir.
+<br /> 
+<br /> 
+<span class="warning">Uyarı</span>: Eğer ISAPI uygulaması g&ouml;&ccedil;erse, &ccedil;ağırılan uygulamanın arıza yapmasına ve b&ouml;ylece MyServer'ın da g&ouml;&ccedil;mesine sebep olabilir.
+<br /> 
+<br /> 
+Eğer ISAPI 'yi kendinden içeren modül olarak kullanmak istiyorsanız .isapi gibi bir uzantı tanımlamanız gerekir, doğrudan çalışabilen bir ISAPI
+modül olarak kullanmak için MIME tipi olarak 
+<span class="code">EXECUTEISAPI</span> komutunu kullanmanız gerekir.
+<br/>
+Eğer ISAPI 'yi belirli bir uzantıdaki dosyaları ele alan bir modül olarak kullanmak istiyorsanız 
+<span class="code">RUNISAPI</span> yi kullanmanız gerekir; bu  yöntemle o uzantıdaki tüm dosyalar belirlenen <span class="code">MANAGER</span> tarafından ele alınacaktır.
+<br /> 
+Ayrıntılı bilgi i&ccedil;in, Microsoft'un <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_isapi_server_extensions_and_filters.asp">ISAPI'ye Genel Bakış</a> yazısını okuyabilirsiniz.
+<br /> 
+<br />
 </td>
 </tr>
 </table>
