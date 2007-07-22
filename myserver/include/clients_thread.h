@@ -63,7 +63,6 @@ public:
 	ClientsThread();
 	~ClientsThread();
 	void stop();
-	void clean();	
   int getTimeout();
   void setTimeout(int);
   int isToDestroy();

@@ -187,7 +187,6 @@ private:
   u_long uid;
   u_long gid;
   int currentThreadID;
-	void stopThreads();
 	/*! Used when rebooting to load new configuration files.  */
 	int pausing;
 	ProtocolsManager protocols;
@@ -224,7 +223,6 @@ private:
 	Mutex* connectionsMutex;
 	u_long nStaticThreads;
   u_long nMaxThreads;
-  u_long nThreads;
 	u_long freeThreads;
 
 	u_long purgeThreadsThreshold;

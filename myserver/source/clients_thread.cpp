@@ -54,6 +54,9 @@ ClientsThread::ClientsThread()
   toDestroy = 0;
   staticThread = 0;
   nBytesToRead = 0;
+	httpParser = 0;
+	httpsParser = 0;
+	controlProtocolParser = 0;
 }
 
 /*!
@@ -61,7 +64,22 @@ ClientsThread::ClientsThread()
  */
 ClientsThread::~ClientsThread()
 {
-	clean();
+	if(initialized == 0)
+		return;
+	threadIsRunning = 0;
+  if(httpParser)
+    delete httpParser;
+  if(httpsParser)
+    delete httpsParser;
+  if(controlProtocolParser)
+    delete controlProtocolParser;
+
+	httpParser = 0;
+	httpsParser = 0;
+	controlProtocolParser = 0;
+
+	buffer.free();
+	buffer2.free();
 }
 
 /*!
@@ -456,38 +474,6 @@ void ClientsThread::stop()
    */
 	threadIsRunning = 0;
 }
-
-/*!
- *Clean the memory used by the thread.
- */
-void ClientsThread::clean()
-{
-	/* If the thread was not initialized return from the clean function.  */
-	if(initialized == 0)
-		return;
-  /* If the thread is parsing wait.  */
-  while(parsing)
-  {
-    Thread::wait(100);
-  }
-	threadIsRunning = 0;
-  if(httpParser)
-    delete httpParser;
-  if(httpsParser)
-    delete httpsParser;
-  if(controlProtocolParser)
-    delete controlProtocolParser;
-
-	httpParser = 0;
-	httpsParser = 0;
-	controlProtocolParser = 0;
-
-	buffer.free();
-	buffer2.free();
-
-	initialized = 0;
-}
-
 
 /*!
  *Returns a non-null value if the thread is active.

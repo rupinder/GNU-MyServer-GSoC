@@ -76,7 +76,6 @@ Server::Server()
 {
   toReboot = 0;
   autoRebootEnabled = 1;
-  nThreads = 0;
   pausing = 0;
 	rebooting = 0;
   maxConnections = 0;
@@ -445,7 +444,6 @@ int Server::purgeThreads()
 	u_long destroyed = 0;
 	purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);
   threadsMutex->lock();
-  prevThreadsCount = nThreads;
   for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end();)
   {
 		ClientsThread* thread = *it;
@@ -463,7 +461,6 @@ int Server::purgeThreads()
 
 				thread->stop();
 				threads.erase(it);
-				nThreads--;
 				destroyed++;
 
 				it = next;
@@ -482,7 +479,7 @@ int Server::purgeThreads()
   }
   threadsMutex->unlock();
 
-  return prevThreadsCount - nThreads;
+  return threads.size();
 }
 
 /*!
@@ -593,9 +590,6 @@ int Server::terminate()
 	connectionsScheduler.terminateConnections();
 	clearAllConnections();
 
-	/* Stop the active threads. */
-	stopThreads();
-
 	/* Clear the home directories data.  */
 	homeDir.clear();
 
@@ -693,21 +687,6 @@ int Server::terminate()
   return 0;
 }
 
-/*!
- *Stop all the threads.
- */
-void Server::stopThreads()
-{
-	list<ClientsThread*>::iterator it;
-	/*
-   *Wait before clean the threads that all the threads are stopped.
-   */
-	for(it = threads.begin(); it != threads.end(); it++)
-  {
-    (*it)->stop();
-    (*it)->clean();
-  }
-}
 /*!
  *Get the server administrator e-mail address.
  *To change this use the main configuration file.
@@ -1050,7 +1029,7 @@ void Server::checkThreadsNumber()
    *Create a new thread if there are not available threads and
    *we did not reach the limit.
    */
-  if((nThreads < nMaxThreads) && (freeThreads < 1))
+  if((threads.size() < nMaxThreads) && (freeThreads < 1))
 	{
 		addThread(0);
   }
@@ -1424,7 +1403,11 @@ const char *Server::getServerName()
  */
 u_long Server::getNumThreads()
 {
-	return nThreads;
+	u_long ret;
+	threadsMutex->lock();
+	ret = threads.size();
+	threadsMutex->unlock();	
+	return ret;
 }
 
 /*!
@@ -2098,8 +2081,6 @@ int Server::addThread(int staticThread)
    *If everything was done correctly add the new thread to the linked list.
    */
 	threads.push_back(newThread);
-  nThreads++;
-
   return 0;
 }
 
@@ -2131,7 +2112,6 @@ int Server::removeThread(u_long ID)
 		if((*it)->id == ID)
 		{
 			(*it)->stop();
-			nThreads--;
 			ret = 0;
 			threads.erase(it);
 			break;
