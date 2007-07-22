@@ -72,7 +72,7 @@ static void new_data_handler(int fd, short event, void *arg)
 		Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
 		
 		if(!((ConnectionPtr)arg)->isParsing())
-			Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0);
+			Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0, 0);
 
 		Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
 	}
@@ -189,7 +189,6 @@ void ConnectionsScheduler::restart()
  */
 void ConnectionsScheduler::initialize()
 {
-	int ret;
 	static timeval tv = {1, 0};
 
 	event_init();
@@ -201,7 +200,15 @@ void ConnectionsScheduler::initialize()
 	dispatcherArg.terminated = true;
 	dispatcherArg.mutex = &eventsMutex;
 
-	ret = Thread::create(&dispatchedThreadId, dispatcher, &dispatcherArg);
+	if(Thread::create(&dispatchedThreadId, dispatcher, &dispatcherArg))
+	 {
+		 Server::getInstance()->logLockAccess();
+		 Server::getInstance()->logPreparePrintError();
+		 Server::getInstance()->logWriteln("Error initializing dispatcher thread.");
+		 Server::getInstance()->logEndPrintError();
+		 Server::getInstance()->logUnlockAccess();
+		 dispatchedThreadId = 0;
+	 }
 }
 
 /*!
@@ -301,7 +308,8 @@ void ConnectionsScheduler::release()
 	for(u_long i = 0; i < Server::getInstance()->getNumThreads()*2; i++)
 		readySemaphore->unlock();
 	
-	Thread::join(dispatchedThreadId);
+	if(dispatchedThreadId)
+		Thread::join(dispatchedThreadId);
 
 	eventsMutex.lock();
 
