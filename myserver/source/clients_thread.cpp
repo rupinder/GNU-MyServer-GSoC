@@ -298,166 +298,151 @@ int ClientsThread::controlConnections()
 
 	parsing = 1;
 
-	nBytesToRead = c->socket->bytesToRead();
+	c->setForceParsing(0);
+	err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
+												MYSERVER_KB(8) - c->getDataRead(), 0);
 
-	if(nBytesToRead || c->getForceParsing())
+	if(err == -1)
 	{
-		c->setForceParsing(0);
-		if(nBytesToRead)
-			err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
-														MYSERVER_KB(8) - c->getDataRead(), 0);
+		Server::getInstance()->deleteConnection(c, this->id);
+		return 0;
+	}
 
-    /* Refresh with the right value.  */
-    nBytesToRead = c->getDataRead() + err;
+	/* Refresh with the right value.  */
+	nBytesToRead = c->getDataRead() + err;
 
-		if(err == -1)
-		{
-			Server::getInstance()->deleteConnection(c, this->id);
-			return 0;
-		}
- 		if((c->getDataRead() + err) < MYSERVER_KB(8))
-		{
-			((char*)buffer.getBuffer())[c->getDataRead() + err] = '\0';
-		}
-		else
-		{
-			Server::getInstance()->deleteConnection(c, this->id);
-			return 0;
-		}
-
-		buffer.setBuffer(c->connectionBuffer, c->getDataRead());
-
-		c->setActiveThread(this);
-    try
-    {
-      switch(c->host->getProtocol())
-      {
-        /*
-         *controlHTTPConnection returns 0 if the connection must 
-         *be removed from the active connections list.
-         */
-			case PROTOCOL_HTTP:
-        if(httpParser == 0)
-        {
-          httpParser = new Http();
-          if(!httpParser)
-					{
-            return 0;
-					}
-        }
-				retcode = httpParser->controlConnection(c, 
-																								(char*)buffer.getBuffer(), 
-																								(char*)buffer2.getBuffer(), 
-																								buffer.getRealLength(), 
-																								buffer2.getRealLength(), 
-																								nBytesToRead, id);
- 				break;
-        /*
-         *Parse an HTTPS connection request.
-         */
-			  case PROTOCOL_HTTPS:
-          if(!httpsParser)
-          {
-            httpsParser = new Https();
-            if(!httpsParser)
-						{
-              return 0;
-						}
-          }
-
-          retcode = httpsParser->controlConnection(c, 
-																									 (char*)buffer.getBuffer(), 
-																									 (char*)buffer2.getBuffer(), 
-																									 buffer.getRealLength(), 
-																									 buffer2.getRealLength(), 
-																									 nBytesToRead, id);
-          break;
-			  case PROTOCOL_CONTROL:
-          if(!controlProtocolParser)
-          {
-            controlProtocolParser = new ControlProtocol();
-            if(!controlProtocolParser)
-						{
-							return 0;
-						}
-          }
-          retcode = controlProtocolParser->controlConnection(c, 
-                       (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
-                       buffer.getRealLength(), buffer2.getRealLength(), 
-																												nBytesToRead, id);
-          break;
-		  	default:
-          dp = Server::getInstance()->getDynProtocol(
-																							c->host->getProtocolName());
-			  	if(!dp)
-			  	{
-			  		retcode = 0;
-			  	}
-			  	else
-				  {
-				  	retcode = dp->controlConnection(c, (char*)buffer.getBuffer(), 
-											(char*)buffer2.getBuffer(), buffer.getRealLength(), 
-                    buffer2.getRealLength(), nBytesToRead, id);
-				  }
-          break;
-      }
-    }
-    catch(...)
-    {
-      retcode = DELETE_CONNECTION;
-    };
-
-		/*! Delete the connection.  */
- 		if(retcode == DELETE_CONNECTION)
-		{
-			Server::getInstance()->deleteConnection(c, this->id);
-			return 0;
-		}
-		/*! Keep the connection.  */
-		else if(retcode == KEEP_CONNECTION)
-		{
-			c->setDataRead(0);
-			c->connectionBuffer[0] = '\0';
-			Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
-		}
-		/*! Incomplete request to buffer.  */
-		else if(retcode == INCOMPLETE_REQUEST)
-    {
-			/*
-       *If the header is incomplete save the current received
-       *data in the connection buffer.
-       *Save the header in the connection buffer.
-       */
-			memcpy(c->connectionBuffer, (char*)buffer.getBuffer(), 
-						 c->getDataRead() + err);
-
-			c->setDataRead(c->getDataRead() + err);
-			Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
-		}
-		/* Incomplete request to check before new data is available.  */
-		else if(retcode == INCOMPLETE_REQUEST_NO_WAIT)
-		{
-			c->setForceParsing(1);
-			Server::getInstance()->getConnectionsScheduler()->addReadyConnection(c);
-		}		
-		c->setTimeout( getTicks() );
+	if((c->getDataRead() + err) < MYSERVER_KB(8))
+	{
+		((char*)buffer.getBuffer())[c->getDataRead() + err] = '\0';
 	}
 	else
 	{
-		/* Reset nTries after 5 seconds.  */
-		if(getTicks() - c->getTimeout() > 5000)
-			c->setnTries(0);
+		Server::getInstance()->deleteConnection(c, this->id);
+		return 0;
+	}
 
-		/*
-     *If the connection is inactive for a time greater that the value
-     *configured remove the connection from the connections pool
-     */
-		if((getTicks()- c->getTimeout()) > Server::getInstance()->getTimeout() )
-		{
-			Server::getInstance()->deleteConnection(c, this->id);
-			return 0;
+
+	if(getTicks() - c->getTimeout() > 5000)
+		c->setnTries(0);
+
+	buffer.setBuffer(c->connectionBuffer, c->getDataRead());
+
+	c->setActiveThread(this);
+	try
+  {
+		switch(c->host->getProtocol())
+    {
+			/*
+			 *controlHTTPConnection returns 0 if the connection must 
+			 *be removed from the active connections list.
+			 */
+		case PROTOCOL_HTTP:
+			if(httpParser == 0)
+      {
+				httpParser = new Http();
+				if(!httpParser)
+				{
+					return 0;
+				}
+			}
+			retcode = httpParser->controlConnection(c, 
+																							(char*)buffer.getBuffer(), 
+																							(char*)buffer2.getBuffer(), 
+																							buffer.getRealLength(), 
+																							buffer2.getRealLength(), 
+																							nBytesToRead, id);
+			break;
+			/*
+			 *Parse an HTTPS connection request.
+			 */
+		case PROTOCOL_HTTPS:
+			if(!httpsParser)
+			{
+				httpsParser = new Https();
+				if(!httpsParser)
+				{
+					return 0;
+				}
+			}
+
+			retcode = httpsParser->controlConnection(c, 
+																							 (char*)buffer.getBuffer(), 
+																							 (char*)buffer2.getBuffer(), 
+																							 buffer.getRealLength(), 
+																							 buffer2.getRealLength(), 
+																							 nBytesToRead, id);
+			break;
+		case PROTOCOL_CONTROL:
+			if(!controlProtocolParser)
+			{
+				controlProtocolParser = new ControlProtocol();
+				if(!controlProtocolParser)
+				{
+					return 0;
+				}
+			}
+			retcode = controlProtocolParser->controlConnection(c, 
+																												 (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
+																												 buffer.getRealLength(), buffer2.getRealLength(), 
+																												 nBytesToRead, id);
+			break;
+		default:
+			dp = Server::getInstance()->getDynProtocol(
+																								 c->host->getProtocolName());
+			if(!dp)
+			{
+				retcode = 0;
+			}
+			else
+			{
+				retcode = dp->controlConnection(c, (char*)buffer.getBuffer(), 
+																				(char*)buffer2.getBuffer(), buffer.getRealLength(), 
+																				buffer2.getRealLength(), nBytesToRead, id);
+			}
+			break;
 		}
 	}
+	catch(...)
+  {
+		retcode = DELETE_CONNECTION;
+	};
+
+	/*! Delete the connection.  */
+	if(retcode == DELETE_CONNECTION)
+	{
+		Server::getInstance()->deleteConnection(c, this->id);
+		return 0;
+	}
+	/*! Keep the connection.  */
+	else if(retcode == KEEP_CONNECTION)
+	{
+		c->setDataRead(0);
+		c->connectionBuffer[0] = '\0';
+		Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
+	}
+	/*! Incomplete request to buffer.  */
+	else if(retcode == INCOMPLETE_REQUEST)
+  {
+		/*
+		 *If the header is incomplete save the current received
+		 *data in the connection buffer.
+		 *Save the header in the connection buffer.
+		 */
+		memcpy(c->connectionBuffer, (char*)buffer.getBuffer(), 
+					 c->getDataRead() + err);
+		
+		c->setDataRead(c->getDataRead() + err);
+		Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
+	}
+	/* Incomplete request to check before new data is available.  */
+	else if(retcode == INCOMPLETE_REQUEST_NO_WAIT)
+	{
+		c->setForceParsing(1);
+		Server::getInstance()->getConnectionsScheduler()->addReadyConnection(c);
+	}		
+
+	c->setTimeout( getTicks() );
+
   return 0;
 }
 
