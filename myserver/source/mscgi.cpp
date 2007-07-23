@@ -68,19 +68,22 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 #ifndef DO_NOT_USE_MSCGI 
 	DynamicLibrary hinstLib; 
   CGIMAIN ProcMain = 0;
-	u_long nbr = 0;
   int ret = 0;
-  u_long nbs = 0;
-  u_long nbw2 = 0;
-	MsCgiData data;
-	bool useChunks = false;
-	bool keepalive = false;
+
  	data.envString = td->request.uriOptsPtr ?
                     td->request.uriOptsPtr : (char*) td->buffer->getBuffer();
 	
 	data.td = td;
 	data.errorPage = 0;
 	data.server = Server::getInstance();
+	data.mscgi = this;
+	data.useChunks = false;
+	data.onlyHeader = onlyHeader ? true : false;
+	data.error = false;
+	data.filtersChain = &chain;
+	data.headerSent = false;
+	data.keepAlive = false;
+  data.useChunks = false;
 
  	td->scriptPath.assign(exec);
 
@@ -93,20 +96,6 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 
 	Cgi::buildCGIEnvironmentString(td,data.envString);
 	
-	if(!td->appendOutputs)
-	{	
-		Server::getInstance()->temporaryFileName(td->id, outDataPath);
-		
-		if(data.stdOut.createTemporaryFile(outDataPath.c_str()))
-		{
-      return td->http->raiseHTTPError(500);
-    }
-	}
-	else
-	{
-		data.stdOut.setHandle(td->outputData.getHandle());
-	}
-
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(td->connection->socket);
@@ -124,14 +113,12 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 		return td->http->raiseHTTPError(500);
 	}
 
+	checkDataChunks(td, &(data.keepAlive), &(data.useChunks));
+
 	ret = hinstLib.loadLibrary(exec, 0);
 
 	if (!ret) 
 	{ 
-		/*
-     *Set the working directory to the MSCGI file one.
-     */
-		setcwd(td->scriptDir.c_str());
 		td->buffer2->getAt(0) = '\0';
 
 		ProcMain = (CGIMAIN) hinstLib.getProc( "main"); 
@@ -150,19 +137,9 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
 		hinstLib.close();
-
-		/*
-		 *Restore the working directory.
-		 */
-		setcwd(getdefaultwd(0, 0));
 	} 
 	else
 	{
-    if(!td->appendOutputs)
-    {	
-      data.stdOut.closeFile();
-      FilesUtility::deleteFile(outDataPath.c_str());
-    }
     chain.clearAllFilters(); 
 
     /* Internal server error.  */
@@ -171,115 +148,21 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	if(data.errorPage)
 	{
 		chain.clearAllFilters(); 
-		data.stdOut.closeFile();
-		FilesUtility::deleteFile(outDataPath.c_str());
 		return td->http->raiseHTTPError(data.errorPage);
 	}
-	/* Compute the response length for logging.  */
-  td->sentData += data.stdOut.getFileSize();
 
-	/* Send all the data to the client if the append is not used.  */
-	if(!td->appendOutputs)
+	if(!td->appendOutputs && data.useChunks && !data.error)
 	{
-		char *buffer = td->buffer2->getBuffer();
-		u_long bufferSize = td->buffer2->getRealLength();
-
-		checkDataChunks(td, &keepalive, &useChunks);
-
-		HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
-		if(s->socket->send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)
-		{
-			if(!td->appendOutputs)
-			{
-				data.stdOut.closeFile();
-				FilesUtility::deleteFile(outDataPath.c_str());
-			}
-
-      /* Internal server error.  */
-      return td->http->raiseHTTPError(500);
-		}
-
-    if(onlyHeader)
-    {
-      data.stdOut.closeFile();
-      FilesUtility::deleteFile(outDataPath.c_str());
-      chain.clearAllFilters(); 
-      return 1;
-    }
-
-		if(data.stdOut.setFilePointer(0))
-    {
-      data.stdOut.closeFile();
-      FilesUtility::deleteFile(outDataPath.c_str());
-      chain.clearAllFilters(); 
-      return 1;
-    }
-
-		do
-		{
-			data.stdOut.readFromFile(buffer, bufferSize, &nbr);
-			if(nbr)
-			{
-
-				if(useChunks)
-				{
-					ostringstream tmp;
-					tmp << hex << nbr << "\r\n";
-					td->response.contentLength.assign(tmp.str());
-					if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
-					{
-						if(!td->appendOutputs)
-						{
-							data.stdOut.closeFile();
-							FilesUtility::deleteFile(outDataPath.c_str());
-						}
-						chain.clearAllFilters(); 
-						return 0;
-					}
-				}
-
-				if(chain.write(buffer, nbr, &nbs))
-				{
-					if(!td->appendOutputs)
-					{
-						data.stdOut.closeFile();
-						FilesUtility::deleteFile(outDataPath.c_str());
-          }
-          chain.clearAllFilters(); 
-          return 0;
-				}	
-        nbw += nbs;
-
-				if(useChunks && chain.write("\r\n", 2, &nbw2))
-				{
-					if(!td->appendOutputs)
-					{
-						data.stdOut.closeFile();
-						FilesUtility::deleteFile(outDataPath.c_str());
-          }
-          chain.clearAllFilters(); 
-          return 0;
-				}
-
-			}
-		}while(nbr && nbs);
-
-		if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
-		{
-			data.stdOut.closeFile();
-			FilesUtility::deleteFile(outDataPath.c_str());
+		if(chain.write("0\r\n\r\n", 5, &nbw))
 			return 0;
-		}
-		if(!td->appendOutputs)
-		{
-			data.stdOut.closeFile();
-			FilesUtility::deleteFile(outDataPath.c_str());
-		}
 	}
+
+	if(!data.error)
+		return 0;
 
 	{
     ostringstream tmp;
-    tmp << nbw;
+    tmp << td->sentData;
     td->response.contentLength.assign(tmp.str()); 
   }
   chain.clearAllFilters(); 
@@ -288,6 +171,62 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 #endif
 }
 
+/*!
+ *Send a chunk of data to the client.
+ */
+int MsCgi::write(const char* data, u_long len, MsCgiData* mcd)
+{
+	if(mcd->error)
+		return 1;
+
+	if(!mcd->headerSent)
+	{
+		if(sendHeader(mcd))
+			 return 1;
+	}
+
+	if(mcd->onlyHeader)
+		return 0;
+
+	if(HttpDataHandler::appendDataToHTTPChannel(mcd->td, 
+																							(char*) data,
+																							len,
+																							&(mcd->td->outputData), 
+																							mcd->filtersChain->getStream(),
+																							mcd->td->appendOutputs, 
+																							mcd->useChunks))
+		return 1;
+
+	mcd->td->sentData +=len;
+	return 0;
+
+}
+
+/*!
+ *Send the HTTP header.
+ */
+int MsCgi::sendHeader(MsCgiData* mcd)
+{
+	if(mcd->error)
+		return 1;
+
+	if(mcd->headerSent)
+		return 0;
+
+	if(!mcd->td->appendOutputs)
+	{
+		HttpThreadContext* td = mcd->td;
+		char *buffer = td->buffer2->getBuffer();
+		ConnectionPtr s = td->connection;
+
+		HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
+		if(s->socket->send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)
+			return 1;
+	}
+
+	mcd->headerSent = true;
+	return 0;
+}
 
 /*!
  *Map the library in the application address space.

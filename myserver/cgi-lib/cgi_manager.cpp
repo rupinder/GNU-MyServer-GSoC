@@ -34,13 +34,7 @@ using namespace std;
  */
 int CgiManager::write(const char* str)
 {
-	if(str)
-	{
-		u_long nbw;
-		cgidata->stdOut.writeToFile(str, (u_long)strlen(str), &nbw);
-		return 1;
-	}
-	return 0;
+	return cgidata->mscgi->write(str, (u_long)strlen(str), cgidata);
 }
 
 /*!
@@ -48,13 +42,7 @@ int CgiManager::write(const char* str)
  */
 int CgiManager::write(const void* data, int len)
 {
-	if(data)
-	{
-		u_long nbw;
-		cgidata->stdOut.writeToFile((char*)data, (u_long)len, &nbw);
-		return 1;
-	}
-	return 0;
+	return cgidata->mscgi->write((const char*)data, len, cgidata);
 }
 
 Server* CgiManager::getServer()

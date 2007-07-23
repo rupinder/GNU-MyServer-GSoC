@@ -44,10 +44,6 @@ class EXPORTABLE CgiManager
 class CgiManager
 #endif
 {
-private:
-	HttpThreadContext* td;
-	MsCgiData* cgidata;
-	char localbuffer[LOCAL_BUFFER_DIM];
 public:
 	Server *getServer();
 	MsCgiData* getCgiData();
@@ -65,6 +61,10 @@ public:
 	char* postParam(const char*);
 	int write(const char*);
 	int write(const void*, int);
+private:
+	HttpThreadContext* td;
+	MsCgiData* cgidata;
+	char localbuffer[LOCAL_BUFFER_DIM];
 };
 
 #endif
