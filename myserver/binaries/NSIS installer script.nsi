@@ -326,6 +326,12 @@ Section "Install the service" SecService
  ExecWait "$INSTDIR\myserver.exe REGISTER"
 SectionEnd
 
+;This needs the NSIS Simple Firewall Plugin
+;http://nsis.sourceforge.net/NSIS_Simple_Firewall_Plugin
+Section "Modify the Windows firewall settings" SecFirewall
+SimpleFC::AddPort 80 web 6 0 2 "" 1
+SectionEnd
+
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Install the MyServer core application(this element is required)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install the MyServer documentation"
@@ -334,6 +340,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecLanguages} "Copy all the languages files(by default only the english language is copied)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWebEx} "Install some web examples"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecService} "Install MyServer like a service (loaded automatically on startup)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecFirewall} "Modify the Windows firewall settings to allow MyServer access from other hosts"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
