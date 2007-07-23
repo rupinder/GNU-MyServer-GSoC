@@ -249,7 +249,13 @@ MsCgiData* CgiManager::getCgiData()
 /*!
  *Specify the MIME type for the data.
  */
-void CgiManager::setContentType(const char * Type)
+void CgiManager::setContentType(const char * type)
 {
-	td->response.contentType.assign(Type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
+	td->response.contentType.assign(type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
+}
+
+void CgiManager::addHeader(const char* name,  const char *value)
+{
+	td->response.setValue(name, value);
+
 }

@@ -48,6 +48,7 @@ public:
 	Server *getServer();
 	MsCgiData* getCgiData();
 	void setContentType(const char *);
+	void addHeader(const char*,  const char *);
 	int setPageError(int);
 	int raiseError(int);
 	CgiManager(MsCgiData* data);
