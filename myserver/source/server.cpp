@@ -669,6 +669,8 @@ int Server::terminate()
    */
 	delete connectionsMutex;
 
+	clearMulticastRegistry();
+
 	globalData.clear();
 
   /*

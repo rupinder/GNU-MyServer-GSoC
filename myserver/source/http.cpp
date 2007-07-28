@@ -2998,6 +2998,8 @@ int Http::unLoadProtocol(XmlParser* languageParser)
   defaultFilename.clear();
   browseDirCSSpath.assign("");
 
+	staticHttp.clear();
+
 	initialized = 0;
 	return 1;
 }

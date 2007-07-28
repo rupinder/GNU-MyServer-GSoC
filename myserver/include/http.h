@@ -51,6 +51,12 @@ public:
 		return MulticastRegistry<string, void*, int>::getHandlers(msg);
 	}
 
+	void clear()
+	{
+		clearMulticastRegistry();
+	}
+
+
   DynHttpCommandManager dynCmdManager;
   DynHttpManagerList dynManagerList;
 };

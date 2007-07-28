@@ -93,12 +93,16 @@ vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, AR
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::clearMulticastRegistry()
 {
-	HashMap<void*, vector<void*>*>::Iterator it;
-	it = handlers.begin();
+	/* Dirty code, but compile and works.  */
+	HashMap<void*, void*>* ptrHandlers = (HashMap<void*, void*>*) &handlers;
+	HashMap<void*, void*>::Iterator it = ptrHandlers->begin();
+	HashMap<void*, void*>::Iterator end = ptrHandlers->end();
+	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* v;
 
-	while(it != handlers.end())
+	while(it != end)
 	{
-		delete (*it);
+		v = (vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>*) *it;
+		delete v;
 		it++;
 	}
 }
