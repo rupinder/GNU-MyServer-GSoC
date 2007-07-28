@@ -105,6 +105,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::clearMulticastRegistry()
 		delete v;
 		it++;
 	}
+	handlers.clear();
 }
 
 
