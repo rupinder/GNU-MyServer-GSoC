@@ -1,0 +1,38 @@
+Rules checker plugin.
+
+This plugin is very similar to generics::http_checker; but
+differently, this plugin doesn't require a python environment to be
+present.
+Even if not flexible as generics::http_checker, this plugin is more
+secure as it doesn't allow cycles thus no hangs can happen.
+
+This plugin is at a very preliminary status and many features were not
+implemented yet.
+
+Each rule follow has the form:
+A => B.
+
+If the condition A is verified then the action B is performed.
+
+For example this simple rule denies access to any client that is
+specifying "badhost" as the HTTP host:
+
+	<RULES_CHECKER_RULE>
+<![CDATA[getHeader("Host") == "badhost" => error("404")]]>
+	</RULES_CHECKER_RULE>
+
+The simple language behind this plugins supports other operators:
+
+and   - logical and.
+or    - logical or.
+not   - logical not.
+==    - case sensitive string comparison.
+===   -  case insensitive string comparison.
+
+"A" == "a" is false.
+"A" === "a" is true.
+
+It is possible to call functions:
+getHeader(headerName) - returns the value of the HTTP HeaderName
+header.
+error(code) - returns the HTTP error page identified by code.

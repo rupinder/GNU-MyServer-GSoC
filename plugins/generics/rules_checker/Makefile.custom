@@ -1,0 +1,33 @@
+all: bison.o lex.o main.o functions.o string_alloc.o
+	$(CXX) -c rules_checker.cpp -o rules_checker.o -I$(MYSERVER_HEADERS) -I$(MSCGI_HEADERS) -I$(MYSERVER_HEADERS)/.. $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS)
+	$(CXX) rules_checker.o bison.o lex.o main.o functions.o string_alloc.o -o rules_checker.so -rdynamic -lfl $(XML_LIBS) $(LDFLAGS) -shared
+
+
+install:
+	cp rules_checker.so ..
+
+
+lex.o:		lex.c
+		$(CXX) $(CXXFLAGS) -c lex.c -o lex.o -I$(MYSERVER_HEADERS)
+
+lex.c:	rules_checker.lex 
+		flex rules_checker.lex
+		cp lex.yy.c lex.c
+
+bison.o:	bison.c
+		$(CXX) $(CXXFLAGS) -c bison.c -o bison.o -I$(MYSERVER_HEADERS)
+
+bison.c:	rules_checker.y
+		bison -d -v rules_checker.y
+		cp rules_checker.tab.c bison.c
+		cp rules_checker.tab.h tok.h
+
+functions.o: functions.cpp
+		$(CXX) $(CXXFLAGS) -c functions.cpp -o functions.o -I$(MYSERVER_HEADERS) $(CPPFLAGS)
+
+string_alloc.o: string_alloc.cpp
+		$(CXX) $(CXXFLAGS) -c string_alloc.cpp -o string_alloc.o -I$(MYSERVER_HEADERS)
+
+lex.o yac.o main.o	: heading.h
+lex.o main.o		: tok.h
+
