@@ -61,7 +61,7 @@ sub fetch_plugin
 				if($_)
 				{
 						($a, $b) = /([a-z_0-9]*)::([a-z_0-9]*)/ig;
-						print("$namespace\:\:$plugin needs $a::$b\n");
+						print("$namespace\:\:$plugin needs $a\:\:$b\n");
 						fetch_plugin($a, $b);
 				}
 		}
