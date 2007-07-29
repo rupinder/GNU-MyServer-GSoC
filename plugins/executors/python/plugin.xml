@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<PLUGIN>
+<NAME>python</NAME>
+<TYPE>executors</TYPE>
+<VERSION>0.1</VERSION>
+<AUTHOR>The MyServer Team</AUTHOR>
+<MAINTAINER>The MyServer Team</MAINTAINER>
+<DESCRIPTION>Python code executor</DESCRIPTION>
+</PLUGIN>
