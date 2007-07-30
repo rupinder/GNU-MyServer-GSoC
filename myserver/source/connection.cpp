@@ -58,6 +58,7 @@ Connection::Connection()
   protocolBuffer = 0;
 	socket = 0;
 	priority = 0;
+	dataRead = 0;
 }
 
 /*!
@@ -73,8 +74,9 @@ Connection::~Connection()
 		int err;
 		do
 		{
-			err=socket->recv(buffer, buffersize, 0);
+			err = socket->recv(buffer, buffersize, 0);
 	  }while((err != -1) && err);
+
 	  socket->closesocket();
 		delete socket;
   }

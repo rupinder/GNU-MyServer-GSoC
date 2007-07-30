@@ -79,7 +79,6 @@ private:
 	int initialized;
   int staticThread;
 	u_long id;
-	int err;
   int parsing;
 	int threadIsStopped;
 	int threadIsRunning;

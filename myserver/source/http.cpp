@@ -2220,8 +2220,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
           if(a->getDataRead() )
           {
-            memcpy(a->connectionBuffer, (td.buffer->getBuffer() +
-                                         td.nHeaderChars), a->getDataRead());
+						u_long toCopy = nbtr - td.nHeaderChars;
+            memcpy(a->connectionBuffer, (td.buffer->getBuffer() + td.nHeaderChars), toCopy);
+						a->setDataRead(toCopy);
             retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
           }
           else

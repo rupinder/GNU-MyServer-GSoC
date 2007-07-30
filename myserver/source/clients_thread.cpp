@@ -49,7 +49,6 @@ extern "C" {
 ClientsThread::ClientsThread()
 {
   parsing = 0;
-	err = 0;
 	initialized = 0;
   toDestroy = 0;
   staticThread = 0;
@@ -283,12 +282,12 @@ int ClientsThread::controlConnections()
    *Control the protocol used by the connection.
    */
   int retcode = 0;
+	int err = 0;
   ConnectionPtr c;
   DynamicProtocol* dp = 0;
 	
 	c = Server::getInstance()->getConnection(this->id);
 	Server::getInstance()->decreaseFreeThread();
-
 
 	/*
    *Check if c is a valid connection structure.
@@ -298,15 +297,20 @@ int ClientsThread::controlConnections()
 
 	parsing = 1;
 
-	c->setForceParsing(0);
-	err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
-												MYSERVER_KB(8) - c->getDataRead(), 0);
-
-	if(err == -1)
+	if(!c->getForceParsing())
 	{
-		Server::getInstance()->deleteConnection(c, this->id);
-		return 0;
+		err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
+													MYSERVER_KB(8) - c->getDataRead(), 0);
+		
+		if(err == -1)
+		{
+			Server::getInstance()->deleteConnection(c, this->id);
+			return 0;
+		}
 	}
+
+	c->setForceParsing(0);
+
 
 	/* Refresh with the right value.  */
 	nBytesToRead = c->getDataRead() + err;

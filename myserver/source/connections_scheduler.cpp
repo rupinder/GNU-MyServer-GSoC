@@ -275,8 +275,11 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
  */
 ConnectionPtr ConnectionsScheduler::getConnection()
 {
+	u_long start = getTicks();
 	readySemaphore->lock();
+
 	readyMutex.lock();
+
 	for(int i = 0; i < PRIORITY_CLASSES; i++)
 	{
 		while(currentPriorityDone <= currentPriority && ready[currentPriority].size())
@@ -285,7 +288,6 @@ ConnectionPtr ConnectionsScheduler::getConnection()
 			ready[currentPriority].pop();
 
 			readyMutex.unlock();
-
 			return ret;
 		}
 
@@ -294,6 +296,7 @@ ConnectionPtr ConnectionsScheduler::getConnection()
 	}
 
 	readyMutex.unlock();
+
 	return 0;
 }
 
