@@ -1,6 +1,6 @@
-all: bison.o lex.o main.o functions.o string_alloc.o
+all: bison.o lex.o functions.o string_alloc.o
 	$(CXX) -c rules_checker.cpp -o rules_checker.o -I$(MYSERVER_HEADERS) -I$(MSCGI_HEADERS) -I$(MYSERVER_HEADERS)/.. $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS)
-	$(CXX) rules_checker.o bison.o lex.o main.o functions.o string_alloc.o -o rules_checker.so -rdynamic -lfl $(XML_LIBS) $(LDFLAGS) -shared
+	$(CXX) rules_checker.o bison.o lex.o functions.o string_alloc.o -o rules_checker.so -rdynamic -lfl $(XML_LIBS) $(LDFLAGS) -shared
 
 
 install:
@@ -28,6 +28,6 @@ functions.o: functions.cpp
 string_alloc.o: string_alloc.cpp
 		$(CXX) $(CXXFLAGS) -c string_alloc.cpp -o string_alloc.o -I$(MYSERVER_HEADERS)
 
-lex.o yac.o main.o	: heading.h
-lex.o main.o		: tok.h
+lex.o yac.o 		: heading.h
+lex.o 			: tok.h
 
