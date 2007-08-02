@@ -121,7 +121,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 	{ 
 		td->buffer2->getAt(0) = '\0';
 
-		ProcMain = (CGIMAIN) hinstLib.getProc( "main"); 
+		ProcMain = (CGIMAIN) hinstLib.getProc( "myserver_main"); 
 
 		if(ProcMain)
 		{
@@ -135,6 +135,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
       td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(msg.c_str());
       td->connection->host->warningsLogTerminateAccess(td->id);
+      return td->http->raiseHTTPError(500);
     }
 		hinstLib.close();
 	} 

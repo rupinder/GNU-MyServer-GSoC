@@ -1,7 +1,7 @@
 [Project]
 FileName=post.dev
 Name=post
-UnitCount=5
+UnitCount=2
 Type=3
 Ver=1
 IsCpp=1
@@ -20,7 +20,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=_@@_
+Linker=../../../../source/*.o -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -lz --def ../mscgi.def_@@__@@_
 Icon=
 ExeOutput=..\..\cgi-bin
 ObjectOutput=
@@ -63,16 +63,6 @@ AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
 AutoIncBuildNr=0
 
-[Unit4]
-FileName=..\..\..\..\source\file.cpp
-CompileCpp=1
-Folder=post
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit5]
 FileName=..\..\..\..\source\files_utility.cpp
 CompileCpp=1
@@ -113,16 +103,6 @@ compilerType=0
 
 [Unit2]
 FileName=..\..\..\..\cgi-lib\cgi_manager.cpp
-CompileCpp=1
-Folder=post
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit3]
-FileName=..\..\..\..\source\stream.cpp
 CompileCpp=1
 Folder=post
 Compile=1

@@ -1,7 +1,7 @@
 [Project]
 FileName=cgi-lib.dev
 Name=CGI-LIB
-UnitCount=8
+UnitCount=4
 Type=3
 Ver=1
 IsCpp=1
@@ -21,7 +21,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=
+Linker=../source/*.o -lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent_@@_
 Icon=
 ExeOutput=
 ObjectOutput=
@@ -95,28 +95,8 @@ AutoIncBuildNrOnCompile=0
 UnitCount=8
 AutoIncBuildNr=0
 
-[Unit5]
-FileName=..\source\stream.cpp
-CompileCpp=1
-Folder=CGI-LIB
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit6]
 FileName=..\include\stream.h
-CompileCpp=1
-Folder=CGI-LIB
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit7]
-FileName=..\source\file.cpp
 CompileCpp=1
 Folder=CGI-LIB
 Compile=1

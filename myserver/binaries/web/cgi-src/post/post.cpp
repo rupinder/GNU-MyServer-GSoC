@@ -5,9 +5,9 @@
 #include "../../../cgi-lib/cgi_manager.h"
 
 #ifdef WIN32
-int EXPORTABLE main (char *cmd,MsCgiData* data)
+extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
 #else
-extern "C" int main (char *cmd,MsCgiData* data)
+extern "C" int myserver_main (char *cmd,MsCgiData* data)
 #endif
 {
 	CgiManager cm(data);

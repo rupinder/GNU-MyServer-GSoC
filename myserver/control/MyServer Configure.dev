@@ -232,19 +232,19 @@ BuildCmd=
 [VersionInfo]
 Major=0
 Minor=8
-Release=10
+Release=11
 Build=0
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.10
+FileVersion=0.8.11
 FileDescription=MyServer Configuration Interface
 InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=MyServer Configure.exe
 ProductName=MyServer
-ProductVersion=0.8.10
+ProductVersion=0.8.11
 AutoIncBuildNr=0
 
 [Unit18]
