@@ -15,7 +15,8 @@ math_sum.mscgi : $(libmath_sum_a_OBJECTS) $(libmath_sum_a_DEPENDENCIES)
 	$(CXX) $(libmath_sum_a_OBJECTS) $(libmath_sum_a_LIBADD) -o math_sum.mscgi -shared
 
 install : math_sum.mscgi
-	$(INSTALL) -D 'math_sum.mscgi' '$(root_prefix)/var/web/cgi-bin/math_sum.mscgi'
+	$(INSTALL) 'math_sum.mscgi' '$(root_prefix)/var/web/cgi-bin/math_sum.mscgi'
+
 
 clean :
 	rm -f math_sum.mscgi

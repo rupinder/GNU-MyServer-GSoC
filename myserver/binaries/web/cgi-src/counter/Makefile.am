@@ -18,8 +18,10 @@ counter.mscgi : $(libcounter_a_OBJECTS) $(libcounter_a_DEPENDENCIES)
 	-rm -f counter.mscgi
 	$(CXX) $(libcounter_a_OBJECTS) $(libcounter_a_LIBADD) -o counter.mscgi -shared
 
+
 install : counter.mscgi
-	$(INSTALL) -D 'counter.mscgi' '$(root_prefix)/var/web/cgi-bin/counter.mscgi'
+	$(INSTALL) 'counter.mscgi' '$(root_prefix)/var/web/cgi-bin/counter.mscgi'
+
 
 clean :
 	rm -f counter.mscgi

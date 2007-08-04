@@ -19,7 +19,8 @@ makemscgi :
 	if test x$(MAKE_MSCGI) = xno; then exit; fi
 
 install : makemscgi cgi-lib.so
-	$(INSTALL) -D 'cgi-lib.so' '$(prefix)/lib/myserver/cgi-lib.so'
+	$(INSTALL) -d '$(prefix)/lib/myserver'
+	$(INSTALL) 'cgi-lib.so' '$(prefix)/lib/myserver/cgi-lib.so'
 
 
 clean :
