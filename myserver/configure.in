@@ -17,7 +17,7 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([MyServer], [0.8.12-rc1], [http://www.myserverproject.net/])
+AC_INIT([MyServer], [0.8.12], [http://www.myserverproject.net/])
 AC_PREREQ([2.50])
 AM_CONFIG_HEADER(config.h)
 CFLAGS="${CFLAGS=}"
@@ -26,15 +26,15 @@ LDFLAGS="${LDFLAGS=}"
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE
 
 dnl Setting version
-
 MYSERVER_MAJOR_VERSION=0
 MYSERVER_MINOR_VERSION=8
 MYSERVER_MICRO_VERSION=12
+MYSERVER_MICRO_VERSION_SUFFIX="rc1"
 
-MYSERVER_VERSION = $MYSERVER_MAJOR_VERSION.$MYSERVER_MINOR_VERSION.$MYSERVER_MICRO_VERSION
+MYSERVER_VERSION="${MYSERVER_MAJOR_VERSION}.${MYSERVER_MINOR_VERSION}.${MYSERVER_MICRO_VERSION}"
 
 AC_SUBST(MYSERVER_MAJOR_VERSION)
 AC_SUBST(MYSERVER_MINOR_VERSION)
@@ -349,31 +349,33 @@ AM_CONDITIONAL(BUILD_COUNTER, test "$MAKE_COUNTER" = "yes")
 AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
 
 dnl AC_CONFIG_SUBDIRS()
-AC_CONFIG_FILES(Makefile \
-  binaries/Makefile \
-  binaries/certificates/Makefile \
-  binaries/external/Makefile \
-  binaries/languages/Makefile \
-  binaries/languages/configure/Makefile \
-  binaries/web/Makefile \
-  binaries/web/downloads/Makefile \
-  binaries/web/cgi-bin/Makefile \
-  binaries/web/cgi-src/Makefile \
-  binaries/web/cgi-src/post/Makefile \
-  binaries/web/cgi-src/counter/Makefile \
-  binaries/web/cgi-src/math_sum/Makefile \
-  binaries/logs/Makefile \
-  binaries/system/Makefile \
-  binaries/system/errors/Makefile \
-  binaries/system/icons/Makefile \
-  binaries/system/icons/codes/Makefile \
-  control/Makefile \
-  documentation/Makefile\
-  documentation/english/Makefile \
-  documentation/english/images/Makefile \
-  documentation/english/style/Makefile \
-  documentation/english/texts/Makefile \
-  source/Makefile \
-  cgi-lib/Makefile)
-
+AC_CONFIG_FILES([
+    version.h	
+    Makefile
+    binaries/Makefile
+    binaries/certificates/Makefile
+    binaries/external/Makefile
+    binaries/languages/Makefile
+    binaries/languages/configure/Makefile
+    binaries/web/Makefile
+    binaries/web/downloads/Makefile
+    binaries/web/cgi-bin/Makefile
+    binaries/web/cgi-src/Makefile
+    binaries/web/cgi-src/post/Makefile
+    binaries/web/cgi-src/counter/Makefile
+    binaries/web/cgi-src/math_sum/Makefile
+    binaries/logs/Makefile
+    binaries/system/Makefile
+    binaries/system/errors/Makefile
+    binaries/system/icons/Makefile
+    binaries/system/icons/codes/Makefile
+    control/Makefile
+    documentation/Makefile
+    documentation/english/Makefile
+    documentation/english/images/Makefile
+    documentation/english/style/Makefile
+    documentation/english/texts/Makefile
+    source/Makefile
+    cgi-lib/Makefile
+    ])
 AC_OUTPUT
