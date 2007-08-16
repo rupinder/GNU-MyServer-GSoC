@@ -381,8 +381,7 @@ void Server::start()
 							delete oldvhost;
 
 							/* Load the virtual hosts configuration from the xml file.  */
-							if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-																										 getMaxLogFileSize()) | 1)
+							if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(), getMaxLogFileSize()))
 							{
 								listenThreads.rollbackFastReboot();
 

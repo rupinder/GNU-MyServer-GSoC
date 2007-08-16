@@ -102,8 +102,7 @@ static void listener_handler(int fd, short event, void *arg)
 		Socket asock;
 
 		asockInLen = sizeof(sockaddr_in);
-		asock = s->serverSocket->accept(&asockIn,
-																		&asockInLen);
+		asock = s->serverSocket->accept(&asockIn, &asockInLen);
 		if(asock.getHandle() != 0 &&
 			 asock.getHandle() != (SocketHandle)INVALID_SOCKET)
 		{
@@ -147,7 +146,7 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
 void ConnectionsScheduler::removeListener(ConnectionsScheduler::ListenerArg* la)
 {
 	eventsMutex.lock();
-	event_del(&(la->ev));
+   	event_del(&(la->ev));
 	listeners.remove(la);
 	eventsMutex.unlock();
 }
@@ -190,9 +189,9 @@ void ConnectionsScheduler::restart()
 void ConnectionsScheduler::initialize()
 {
 	static timeval tv = {1, 0};
-
-	event_init();
-
+    printf("1\n");
+    event_init();
+    printf("2\n");
 	event_set(&timeoutEv, 0, EV_TIMEOUT, do_nothing, &timeoutEv);
 	event_add(&timeoutEv, &tv);
 
@@ -277,7 +276,6 @@ ConnectionPtr ConnectionsScheduler::getConnection()
 {
 	u_long start = getTicks();
 	readySemaphore->lock();
-
 	readyMutex.lock();
 
 	for(int i = 0; i < PRIORITY_CLASSES; i++)
@@ -308,9 +306,10 @@ void ConnectionsScheduler::release()
 	dispatcherArg.terminate = true;
 
 	event_loopexit(NULL);
-	for(u_long i = 0; i < Server::getInstance()->getNumThreads()*2; i++)
+	for(u_long i = 0; i < Server::getInstance()->getNumThreads()*5; i++)
+	{
 		readySemaphore->unlock();
-	
+    }
 	if(dispatchedThreadId)
 		Thread::join(dispatchedThreadId);
 
@@ -327,7 +326,6 @@ void ConnectionsScheduler::release()
 	listeners.clear();
 	
 	eventsMutex.unlock();
-
 }
 
 /*!
@@ -402,13 +400,10 @@ void ConnectionsScheduler::terminateConnections()
 
 	connectionsMutex.unlock();
 
-
 	readyMutex.lock();
 	for(i = 0; i < PRIORITY_CLASSES; i++)
 		while(ready[i].size())
 			ready[i].pop();
 
 	readyMutex.unlock();
-
-	
 }
