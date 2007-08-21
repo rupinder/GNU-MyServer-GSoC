@@ -190,7 +190,7 @@ void ConnectionsScheduler::initialize()
 {
 	static timeval tv = {1, 0};
 
-    event_init();
+	event_init();
 
 	event_set(&timeoutEv, 0, EV_TIMEOUT, do_nothing, &timeoutEv);
 	event_add(&timeoutEv, &tv);
@@ -274,7 +274,6 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
  */
 ConnectionPtr ConnectionsScheduler::getConnection()
 {
-	u_long start = getTicks();
 	readySemaphore->lock();
 	readyMutex.lock();
 
