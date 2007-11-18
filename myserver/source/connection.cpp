@@ -19,23 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/vhosts.h"
 
 /*!
- *Create the buffer.
- */
-ProtocolBuffer::ProtocolBuffer()
-{
-
-}
-
-/*!
- *Destroy the protocol buffer object.
- */
-ProtocolBuffer::~ProtocolBuffer()
-{
-
-}
-
-
-/*!
  *Constructor for the Connection class.
  */
 Connection::Connection()

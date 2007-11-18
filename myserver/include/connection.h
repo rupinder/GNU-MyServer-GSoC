@@ -26,6 +26,7 @@ extern "C"
 }
 
 #include "../include/sockets.h"
+#include "../include/protocol_buffer.h"
 #include "../include/utility.h"
 
 class Vhost;
@@ -53,16 +54,6 @@ using namespace std;
 
 
 typedef u_long ConnectionProtocol;
-
-/*!
- *Base class to handle a buffer in the connection.
- */
-class	ProtocolBuffer
-{
-public:
-  ProtocolBuffer();
-	virtual ~ProtocolBuffer();
-};
 
 class Connection
 {

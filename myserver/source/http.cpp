@@ -371,8 +371,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
  *\param yetmapped Is the resource mapped to the localfilesystem?
  *\param permissions Permission mask for this resource.
  */
-int Http::getFilePermissions(string& filename, string& directory, string& file, 
-														 string &filenamePath, int yetmapped, int* permissions)
+int Http::getFilePermissions(string& filename, string& directory, string& file, string &filenamePath, int yetmapped, int* permissions)
 {
   SecurityToken st;
 	char authType[16];
