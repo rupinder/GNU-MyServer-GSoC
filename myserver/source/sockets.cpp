@@ -356,8 +356,13 @@ int Socket::getLocalIPsList(string &out)
     out.assign(stream.str());
     return 0;
   }
+	else
+	{
+		out.assign("127.0.0.1");
+		return 0;
+	}
 #endif//HAVE_IPV6
-  return -1;
+	return -1;
 }
 
 /*!
