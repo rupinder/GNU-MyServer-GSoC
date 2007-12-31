@@ -108,6 +108,7 @@ TODO list for MyServer.
 **	Include the new options for logging. (*)
 **	Implement ident for the common log format.
 **	URL Rewriting.
+**	Refactor Logging class.
 
 *	GUI.
 **	Update/improve GUI of configuration tool.

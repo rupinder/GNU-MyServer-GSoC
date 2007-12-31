@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -354,25 +354,19 @@ int LogManager::storeFile()
       newFile.closeFile();
       currentFile->closeFile();
       FilesUtility::deleteFile(filepath.c_str());
-      if(currentFile->openFile(filepath.c_str(), File::MYSERVER_OPEN_APPEND| 
-			 File::MYSERVER_OPEN_ALWAYS|File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_READ|File::MYSERVER_NO_INHERIT))
+      if(currentFile->openFile(filepath.c_str(), File::MYSERVER_OPEN_APPEND|
+															 File::MYSERVER_OPEN_ALWAYS | File::MYSERVER_OPEN_WRITE |
+															 File::MYSERVER_OPEN_READ | File::MYSERVER_NO_INHERIT))
       {
         delete [] buffer;
         delete [] buffer2;
         return 1;
       }
     }
+
     delete [] buffer;
     delete [] buffer2;
     return 0;
-  }
-  catch(bad_alloc &ba)
-  {
-    if(buffer)
-      delete [] buffer;
-    if(buffer2)
-      delete [] buffer2;
-    throw;
   }
   catch(...)
   {

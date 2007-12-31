@@ -34,5 +34,4 @@ public:
   virtual ~Stream() = 0;
 };
 
-
 #endif
