@@ -4,7 +4,7 @@
 ; http://people.myserverproject.net/~codingmaster/
 ;
 
-!include "MUI.nsh"
+!include "MUI2.nsh"
 
 SetCompressor /SOLID lzma
 
