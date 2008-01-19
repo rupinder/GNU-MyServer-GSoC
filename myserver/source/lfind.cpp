@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2007 The MyServer Team
+Copyright (C) 2002, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -73,7 +73,6 @@ int FindData::findfirst(const char filename[])
 
 #ifdef NOT_WIN
    struct dirent * dirInfo;
-   struct stat stats;
    string TempName;
 
 
@@ -124,7 +123,6 @@ int FindData::findnext()
 
 #ifdef NOT_WIN
    struct dirent * dirInfo;
-   struct stat stats;
    string TempName;
       
    dirInfo = readdir(dh);

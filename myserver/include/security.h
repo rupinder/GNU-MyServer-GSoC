@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -80,7 +80,7 @@ struct SecurityToken
   /*! Permission mask that the user will have providing [neededPassword]. */
   int *providedMask;
 
-  struct HttpThreadContext* context;
+  struct HttpThreadContext* td;
 
   /*! Authorization scheme to use. */
   char* authType;
@@ -90,8 +90,6 @@ struct SecurityToken
   int throttlingRate;
 
 	HashMap<string,string*> *otherValues;
-
-  HttpThreadContext* td;
 
   SecurityToken();
   void reset();

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002 The MyServer Team
+Copyright (C) 2002, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -66,14 +66,20 @@ class FindData
    int findclose();
    FindData();
    ~FindData();
+#ifdef NOT_WIN
+	 struct stat* getStatStruct(){return &stats;}
+#endif
+
  private:
 #ifdef WIN32
 	_finddata_t fd;
    intptr_t  ff;
 #endif
+
 #ifdef NOT_WIN
    string DirName;
    DIR *dh;
+   struct stat stats;
 #endif
 };
 
