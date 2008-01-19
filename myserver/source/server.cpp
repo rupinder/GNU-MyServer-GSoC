@@ -435,10 +435,6 @@ void Server::start()
  */
 int Server::purgeThreads()
 {
-  /*
-   *We don't need to do anything.
-   */
-  int prevThreadsCount;
 	u_long ticks = getTicks();
 	u_long destroyed = 0;
 	purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);

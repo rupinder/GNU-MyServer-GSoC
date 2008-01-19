@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -560,7 +560,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 				filePermissions = tempFilePermissions;
 		
 		}
-		else if(node->children && node->children->content && st->otherValues)
+		else if(st->td && node->children && node->children->content && st->otherValues)
 		{
 			string* val = new string((char*)node->children->content);
 			string name((char*)node->name);
@@ -597,7 +597,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
 	}
 
-  for( ;actionsNode; actionsNode = actionsNode->next)
+  for( ; st->td && actionsNode; actionsNode = actionsNode->next)
   {
     xmlAttr *attr = actionsNode->properties;
     int deny = 0;
