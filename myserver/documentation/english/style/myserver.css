@@ -31,7 +31,7 @@ a:hover
 .code
 {	
   text-align:center;
-  color: #227722;
+  color: #117711;
 }
 
 .warning	 
@@ -312,8 +312,40 @@ form
 }
 
 .tableofcontents
-{ 
+{
   margin: 0px;
   border: 0px;
-  width: 124px;
+  width: 100%;
+}
+
+.logo_div
+{
+	position:absolute; 
+	height:90px;
+	width:25%; 
+	left:0px;
+	top:5px;
+	border: 1px;
+}
+
+
+.tableofcontents_div
+{
+  position:absolute;
+	height:80%;
+	width:24%;
+	left:1px;
+	top:90px;
+	border: 1px black solid
+}
+
+
+.maincontent_div
+{
+  position:absolute;
+	height:100%;
+	width:75%;
+	left:25%;
+	top:0px;
+	scrolling:auto;
 }
