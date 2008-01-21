@@ -1,7 +1,7 @@
 [Project]
 FileName=MyServer Configure.dev
 Name=MyServer Configure
-UnitCount=36
+UnitCount=9
 Type=0
 Ver=1
 ObjFiles=
@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-DWIN32_@@_
 CppCompiler=
-Linker=-lfltk -lm -lz.dll -llibxml2 -liconv -lintl -lssl  -lcrypto -lwininet -lwsock32  -lole32  -luuid  _@@_
+Linker=../source/utility.o  ../source/safetime.o   ../source/thread.o  ../source/file.o ../source/ssl_sockets.o   ../source/stringutils.o ../source/sockets.o ../source/stream.o ../source/lfind.o ../source/xml_parser.o  ../source/mem_buff.o ../source/md5.o   ../source/files_utility.o -lfltk -lm -lz.dll -llibxml2 -liconv -lintl -lssl  -lcrypto -lwininet -lwsock32  -lole32  -luuid  _@@_
 IsCpp=1
 Icon=MyServer Configure.ico
 ExeOutput=..\binaries
@@ -29,37 +29,25 @@ SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0000000001000000000100
 
-[Unit1]
-FileName=vhost.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
+[VersionInfo]
+Major=0
+Minor=8
+Release=11
+Build=0
+LanguageID=1033
+CharsetID=1252
+CompanyName=MyServer Project
+FileVersion=0.8.11
+FileDescription=MyServer Configuration Interface
+InternalName=
+LegalCopyright=MyServer Team
+LegalTrademarks=
+OriginalFilename=MyServer Configure.exe
+ProductName=MyServer
+ProductVersion=0.8.11
+AutoIncBuildNr=0
 
 [Unit2]
-FileName=fltkconfig.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit3]
-FileName=fltkconfig.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit4]
 FileName=language.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -70,37 +58,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit5]
-FileName=language.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit6]
-FileName=main.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit7]
-FileName=mimetype.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit8]
-FileName=mimetype.h
+FileName=service.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -110,7 +68,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit9]
-FileName=service.cpp
+FileName=progress.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -150,26 +108,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit13]
-FileName=..\include\xml_parser.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit14]
-FileName=..\include\stringutils.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit15]
 FileName=vector.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -179,105 +117,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit16]
-FileName=..\source\xml_parser.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit17]
-FileName=..\source\stringutils.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit19]
-FileName=..\include\utility.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit20]
-FileName=..\source\md5.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit21]
-FileName=..\include\md5.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[VersionInfo]
-Major=0
-Minor=8
-Release=11
-Build=0
-LanguageID=1033
-CharsetID=1252
-CompanyName=MyServer Project
-FileVersion=0.8.11
-FileDescription=MyServer Configuration Interface
-InternalName=
-LegalCopyright=MyServer Team
-LegalTrademarks=
-OriginalFilename=MyServer Configure.exe
-ProductName=MyServer
-ProductVersion=0.8.11
-AutoIncBuildNr=0
-
-[Unit18]
-FileName=..\source\utility.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit22]
-FileName=..\source\mem_buff.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit23]
-FileName=..\include\mem_buff.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit24]
+[Unit14]
 FileName=control_client.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -287,27 +127,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit25]
-FileName=..\source\sockets.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit26]
-FileName=control_client.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit27]
+[Unit15]
 FileName=progress.cpp
 CompileCpp=1
 Folder=MyServer Configure
@@ -317,8 +137,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit28]
-FileName=..\source\lfind.cpp
+[Unit1]
+FileName=fltkconfig.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -327,8 +147,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit29]
-FileName=..\include\lfind.h
+[Unit3]
+FileName=main.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -337,8 +157,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
-FileName=..\source\stream.cpp
+[Unit4]
+FileName=mimetype.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -347,8 +167,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
-FileName=..\source\mutex.cpp
+[Unit6]
+FileName=vhost.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -357,8 +177,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit32]
-FileName=..\source\thread.cpp
+[Unit7]
+FileName=vector.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
@@ -367,38 +187,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit33]
-FileName=..\source\file.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit34]
-FileName=..\source\files_utility.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit35]
-FileName=..\source\safetime.cpp
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit36]
-FileName=..\source\ssl_sockets.cpp
+[Unit8]
+FileName=control_client.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1

@@ -4,7 +4,7 @@
 ##
 ## http://www.myserverproject.net
 ##
-## Copyright (C) 2006, 2007 The MyServer Team
+## Copyright (C) 2006, 2007, 2008 The MyServer Team
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 3 of the License, or
@@ -33,7 +33,7 @@ Type=1
 Ver=1
 ObjFiles=
 Includes=
-Libs=contrib/rx
+Libs=
 PrivateResource=myserver_private.rc
 ResourceIncludes=
 MakeIncludes=
@@ -56,7 +56,6 @@ CompilerSettings=0000001000000101000000
 UseCustomMakefile=0
 CustomMakefile=
 
-
 [VersionInfo]
 Major=0
 Minor=8
@@ -75,7 +74,6 @@ ProductName=MyServer
 ProductVersion=0.8.12
 AutoIncBuildNr=0";
 
-
 $unit_options = "CompileCpp=1
 Folder=myserver
 Compile=1
@@ -88,25 +86,23 @@ my @result = ();
 
 for $file (@files)
 {
-		add($file);
+    add($file);
 }
 
 find(\&check, @directories);
 
 sub check()
 {
-
-		if($File::Find::name=~/.*cpp$/)
-		{
-				$File::Find::name =~ s/\//\\/gi;
-				add($File::Find::name);
-		}
-
+    if($File::Find::name=~/.*cpp$/)
+    {
+	$File::Find::name =~ s/\//\\/gi;
+	add($File::Find::name);
+    }
 } 
 
 sub add
 {
-		push(@result, "$_[0]");
+    push(@result, "$_[0]");
 }
 
 $count = @result;
@@ -118,6 +114,6 @@ $counter = 1;
 
 foreach $file (@result)
 {
-		print ("[Unit$counter]\nFileName=$file\n$unit_options\n\n");
-		$counter++;
+    print ("[Unit$counter]\nFileName=$file\n$unit_options\n\n");
+    $counter++;
 }

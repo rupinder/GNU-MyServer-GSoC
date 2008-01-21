@@ -49,7 +49,7 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"	"MyServer-win32-0.8.11.
 
 Var STARTMENU_FOLDER
 
-!define SF_RO         16
+; !define SF_RO         16
   
 InstallDir "$PROGRAMFILES\MyServer"
 
