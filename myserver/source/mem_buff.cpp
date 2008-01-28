@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 Copyright (C) 2004, Guinet Adrien (grainailleur)
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../include/mem_buff.h"
 #include "../include/md5.h"
+
+#include <string.h>
 
 #ifndef DONT_MATCH_LENGTH
 #include <math.h> // for the log10 function

@@ -2411,8 +2411,8 @@ int Http::requestAuthorization()
 		md5.end(((HttpUserData*)td.connection->protocolBuffer)->opaque);
 
 		if(td.connection->protocolBuffer &&
-			 (!(((HttpUserData*)td.connection->protocolBuffer)->digest)) ||
-			 (((HttpUserData*)td.connection->protocolBuffer)->nonce[0]=='\0'))
+			 ((!(((HttpUserData*)td.connection->protocolBuffer)->digest)) ||
+				(((HttpUserData*)td.connection->protocolBuffer)->nonce[0]=='\0')))
 		{
 			computeDigest(((HttpUserData*)td.connection->protocolBuffer)->nonce,
 										md5Str);

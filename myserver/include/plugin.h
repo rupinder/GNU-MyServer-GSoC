@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -54,7 +54,7 @@ public:
 	static int createVersion(int v = 1, int x = 0, int y = 0, int z = 0)
 	{
 		return ((v & 0xFF) << 24) | ((x & 0xFF) << 16) | 
-			((y & 0xFF) << 8) | z & 0xFF;
+			((y & 0xFF) << 8) | (z & 0xFF);
 	}
 
 	Plugin();

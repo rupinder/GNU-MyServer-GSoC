@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright © 2005, 2006, 2007 The MyServer Team
+Copyright © 2005, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define HASHMAP_CPP
 #include "../include/hash_map.h"
+#include <string.h>
 
 /*
  *ELF hash function.
