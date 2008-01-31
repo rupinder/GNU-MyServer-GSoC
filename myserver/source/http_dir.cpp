@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006, 2007 The MyServer Team
+Copyright (C) 2005, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -260,11 +260,11 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	}
 
 	checkDataChunks(td, &keepalive, &useChunks);
-
+	td->response.contentType.assign("application/xhtml+xml");
 	if(!td->appendOutputs)
   {
 
-
+    
 		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
 																				 &(td->response));
 
@@ -282,12 +282,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
 	td->buffer2->setLength(0);
 	*td->buffer2 << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-    "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n"
-    "\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
-    "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
-    "\r\n<head>\r\n<title>" ;
+	  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n"
+	  "\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
+	  "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
+	  "\r\n<head>\r\n<title>" ;
 	*td->buffer2 << td->request.uri.c_str() ;
-	*td->buffer2 << "</title>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" />\r\n</head>\r\n"; 
+	*td->buffer2 << "</title>\r\n</head>\r\n"; 
 	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
 																td->buffer2->getLength(),
 																&(td->outputData), &chain,
