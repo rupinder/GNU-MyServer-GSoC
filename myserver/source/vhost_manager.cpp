@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -296,12 +296,12 @@ int VhostManager::getHostsNumber()
  *\param maxlogSize The maximum dimension for the log file.
  */
 int VhostManager::loadXMLConfigurationFile(const char *filename, 
-																					 int maxlogSize)
+										   int maxlogSize)
 {
 	XmlParser parser;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-  string errMsg;
+    string errMsg;
 	if(parser.open(filename))
 	{
     errMsg.assign("Error opening: ");
@@ -702,25 +702,9 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
       }
 
       out.writeToFile("<PROTOCOL>", 10, &nbw);
-      switch( (*i)->getProtocol())
-      {
-			  case PROTOCOL_HTTP:
-          out.writeToFile("HTTP", 4, &nbw);
-          break;
-			  case PROTOCOL_HTTPS:
-			  	out.writeToFile("HTTPS",5,&nbw);
-			  	break;
-			  case PROTOCOL_FTP:
-			  	out.writeToFile("FTP",3,&nbw);
-			  	break;
-			  case PROTOCOL_CONTROL:
-				  out.writeToFile("CONTROL", 7, &nbw);
-				  break;
-			  default:			
-				  out.writeToFile((*i)->getProtocolName(), 
-                          strlen((*i)->getProtocolName()), &nbw);
-				  break;
-      }
+	  out.writeToFile((*i)->getProtocolName(), 
+                       strlen((*i)->getProtocolName()), &nbw);
+
       out.writeToFile("</PROTOCOL>\r\n", 13, &nbw);
       
       out.writeToFile("<DOCROOT>", 9, &nbw);
@@ -913,4 +897,3 @@ Vhost* VhostSource::getVHostByNumber(int n)
 {
   return 0;
 }
-
