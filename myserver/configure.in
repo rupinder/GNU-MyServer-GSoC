@@ -278,21 +278,6 @@ else
 fi
 AC_SUBST(ZLIB_LIB)
 
-dnl Looking for libpng
-AM_PATH_LIBPNG(1.2.5, have_png=yes)
-if test x$have_png != xyes; then
-    AC_MSG_WARN([
-*** Cannot find libPNG
-*** counter MSCGI example will not be built
-])
-    MAKE_COUNTER=no
-else
-    CFLAGS="$CFLAGS $LIBPNG_CFLAGS"
-    CXXFLAGS="$CXXFLAGS $LIBPNG_CFLAGS"
-    MAKE_COUNTER=yes
-fi
-
-
 if test x$enable_control = xyes; then
     dnl Looking for FLTK
     AM_PATH_FLTK(1.1.0, have_fltk=yes)
@@ -344,7 +329,6 @@ fi
 
 
 AM_CONDITIONAL(BUILD_MSCGI, test "$MAKE_MSCGI" = "yes")
-AM_CONDITIONAL(BUILD_COUNTER, test "$MAKE_COUNTER" = "yes")
 AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
 
 dnl AC_CONFIG_SUBDIRS()
@@ -361,7 +345,6 @@ AC_CONFIG_FILES([
     binaries/web/cgi-bin/Makefile
     binaries/web/cgi-src/Makefile
     binaries/web/cgi-src/post/Makefile
-    binaries/web/cgi-src/counter/Makefile
     binaries/web/cgi-src/math_sum/Makefile
     binaries/logs/Makefile
     binaries/system/Makefile

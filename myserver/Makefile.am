@@ -1,4 +1,4 @@
-# Makefile : Builds myserver, control, cgi-lib, math_sum, counter, and post
+# Makefile : Builds myserver, control, cgi-lib, math_sum, and post
 #
 
 if BUILD_CONTROL
