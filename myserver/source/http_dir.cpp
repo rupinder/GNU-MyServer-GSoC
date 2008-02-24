@@ -288,7 +288,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	}
 
 	checkDataChunks(td, &keepalive, &useChunks);
+
 	td->response.contentType.assign("application/xhtml+xml");
+
 	if(!td->appendOutputs)
   {
 
@@ -304,8 +306,32 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 			return 0;
 		}	
 	}    
+
 	if(onlyHeader)
 		return 1;
+
+
+	sortIndex = td->request.uriOpts.find("sort=");
+
+	if(sortIndex != string::npos && sortIndex + 5 < td->request.uriOpts.length())
+	{
+		sortType = td->request.uriOpts.at(sortIndex + 5);
+	}
+
+	/* Make sortType always lowercase.  */
+	switch(sortType)
+	{
+		case 's':
+		case 'S':
+			sortType = 's';
+			break;
+	  case 't':
+	  case 'T':
+			sortType = 't';
+			break;
+	  default:
+			sort (files.begin(), files.end(), compareFileStructByName);
+	}
 
 
 	td->buffer2->setLength(0);
@@ -437,9 +463,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
    */
 	td->buffer2->setLength(0);
 	*td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n" 
-							 << "<th>File</th>\r\n"
-							 << "<th>Last Modified</th>\r\n" 
-							 << "<th>Size</th>\r\n</tr>\r\n";
+							 << "<th><a href=\"?sort=f\">File</a></th>\r\n"
+							 << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n"
+							 << "<th><a href=\"?sort=s\">Size</a></th>\r\n</tr>\r\n";
 
 	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
 																td->buffer2->getLength(),
@@ -507,24 +533,15 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	fd.findclose();
 
 	/* Sort the vector.  */
-	sortIndex = td->request.uriOpts.find("sort=");
-
-	if(sortIndex != string::npos && sortIndex + 5 < td->request.uriOpts.length())
-	{
-		sortType = td->request.uriOpts.at(sortIndex + 5);
-	}
-
 	switch(sortType)
 	{
-		case 'S':
 		case 's':
 			sort (files.begin(), files.end(), compareFileStructBySize);
 			break;
-  	case 'T':
 	  case 't':
 			sort (files.begin(), files.end(), compareFileStructByTime);
 			break;
-	  default:
+	  case 'f':
 			sort (files.begin(), files.end(), compareFileStructByName);
 	}
 
