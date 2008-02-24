@@ -42,8 +42,34 @@ extern "C"
 
 #include <string>
 #include <sstream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
+
+static bool charIsLess(char i, char j)
+{
+	return tolower(i) < tolower(j);
+}
+
+static bool compareFileStructByName (HttpDir::FileStruct i, HttpDir::FileStruct j)
+{
+	return std::lexicographical_compare(i.name.begin(),
+																			i.name.end(),
+																			j.name.begin(),
+																			j.name.end(),
+																			charIsLess);
+}
+
+static bool compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j)
+{
+	return i.time_write < j.time_write;
+}
+
+static bool compareFileStructBySize (HttpDir::FileStruct i, HttpDir::FileStruct j)
+{
+	return i.size < j.size;
+}
 
 /*!
  *Constructor for the class.
@@ -217,7 +243,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	char* bufferloop;
   const char* browseDirCSSpath;
 	bool keepalive = false;
-
+	vector<HttpDir::FileStruct> files;
+	size_t sortIndex;
+	char sortType;
 	HttpRequestHeader::Entry *host = td->request.other.get("Host");
 
 
@@ -457,15 +485,57 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 		sentData += td->buffer2->getLength();
 	}
 
+	/* Put all files in a vector.  */
 	do
-	{	
-		string formattedName;
-		string::size_type pos = 0;
+  {
 		if(fd.name[0] == '.')
 			continue;
 		/* Do not show the security file.  */
 		if(!strcmp(fd.name, "security"))
 			continue;
+
+		FileStruct file;
+		file.name.assign(fd.name);
+		file.time_write = fd.time_write;
+		file.attrib = fd.attrib;
+		file.size = fd.size;
+		files.push_back(file);
+
+	}
+	while(!fd.findnext());
+
+	fd.findclose();
+
+	/* Sort the vector.  */
+	sortIndex = td->request.uriOpts.find("sort=");
+
+	if(sortIndex != string::npos && sortIndex + 5 < td->request.uriOpts.length())
+	{
+		sortType = td->request.uriOpts.at(sortIndex + 5);
+	}
+
+	switch(sortType)
+	{
+		case 'S':
+		case 's':
+			sort (files.begin(), files.end(), compareFileStructBySize);
+			break;
+  	case 'T':
+	  case 't':
+			sort (files.begin(), files.end(), compareFileStructByTime);
+			break;
+	  default:
+			sort (files.begin(), files.end(), compareFileStructByName);
+	}
+
+	/* Build the files table and send it.  */
+	for(vector<FileStruct>::iterator it = files.begin();
+			it != files.end(); it++)
+	{	
+		string formattedName;
+		string::size_type pos = 0;
+
+		FileStruct& file = *it;
 
     td->buffer2->setLength(0);
 
@@ -475,7 +545,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 			*td->buffer2 << &td->request.uri[startchar];
 			*td->buffer2 << "/" ;
 		}
-		formattedName.assign(fd.name);
+		formattedName.assign(file.name);
 
 		/*
 		 *Replace characters in the ranges 32-65 91-96 123-126 160-255
@@ -504,19 +574,19 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 		*td->buffer2 << formattedName;
 		*td->buffer2 << "</a></td>\r\n<td>";
 	
-		getRFC822GMTTime((time_t)fd.time_write, fileTime, 32);
+		getRFC822GMTTime(file.time_write, fileTime, 32);
 
 		*td->buffer2 << fileTime ;
 		*td->buffer2 << "</td>\r\n<td>";
 		
-		if(fd.attrib & FILE_ATTRIBUTE_DIRECTORY)
+		if(file.attrib & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			*td->buffer2 << "[directory]";
 		}
 		else
 		{
       string out;
-      getFormattedSize(fd.size, out);
+      getFormattedSize(file.size, out);
  			*td->buffer2 << out;
 		}
 
@@ -527,7 +597,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 																	td->appendOutputs, useChunks);
 		if(ret)
 		{
-			fd.findclose();
 			td->outputData.closeFile();
       chain.clearAllFilters(); 
 			/* Return an internal server error.  */
@@ -536,7 +605,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
 		sentData += td->buffer2->getLength();
 
-	}while(!fd.findnext());
+	}
 
 	td->buffer2->setLength(0);
 	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " 
@@ -564,14 +633,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
 	if(ret)
 	{
-		fd.findclose();
 		td->outputData.closeFile();
 		/* Return an internal server error.  */
 		return td->http->raiseHTTPError(500);
 	}	
 	sentData += td->buffer2->getLength();
 
-	fd.findclose();
   *td->buffer2 << end_str;
 	/* Changes the \ character in the / character.  */
 	bufferloop = td->buffer2->getBuffer();
@@ -592,4 +659,3 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   return 1;
 
 }
-
