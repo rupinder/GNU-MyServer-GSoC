@@ -1,21 +1,10 @@
 TODO list for MyServer.
 
-*	Write MyServer chroot section into docs.
-*	Update README.
-*	Update INSTALL.
-*	Add information about error codes to MyServer documentation.
-
-*	Improve symlinks implementation
-
 *	libidn support with mingw under windows, create devpaks
-
-*	Windows firewall settings, using NSIS installer scripts
 
 * Provide support for other ssl libraries
 *	Provide support for GnuTLS
 *	Provide support for Mozilla libnss
-
-*	Search for linked lists an rewrite them in C++ using stl list class.
 
 *	Security mechanism: SECURE ONE FILE with "security".
 **	Add more functionality to "security".
@@ -35,32 +24,38 @@ TODO list for MyServer.
 *	Add sorting possiblity to http_dir.cpp:
 **	name, date, size.
 
-*	gcc-4.2 / gcc-4.3 testing
-
 *	Rename myServerErr and others to MyServer.
 *	Provide a good api (MYSERVER, mySERVER, myServer, etc.)
-*	Fix some hardcoded errors in MyServer, they should now show directly to the new error files.
+*	Fix some hardcoded errors in MyServer, they should now show directly
+	to the new error files.
 *	Use C++ static_cast<TYPE>... instead of the C like casting (TYPE).
 *	LibXML compability (*) (at the moment MyServer uses LibXML2).
 
 *	Documentation Improvements
 **	Translation of the documentation to other languages.
 **	XML based documentation scripting
+**	Write MyServer chroot section into docs.
+**	Add information about error codes to MyServer documentation.
+
 
 *	Configurability.
 **	Show http_dir: Last modified, etc (rewrite html code).
 **	Provide Bity, KB, MB, GB, TB for the show http_dir.
 **	Add XML tags in the configuration, like <directory show_type="MB">.
-**	Cleanely compile MyServer with g++ -Wall (./configure CXXFLAGS="-Wall" CFLAGS="-Wall").
-**	Possibility to set the logfile size in Byte, KB, MB, GB, TB (handle="KB" value="1024" or xml --> handle "MB" value="1").
-**	Provide more command line options (also compile date, add more to --version), compiled in binaries, etc....
+**	Cleanely compile MyServer with g++ -Wall (./configure
+		CXXFLAGS="-Wall" CFLAGS="-Wall").
+**	Possibility to set the logfile size in Byte, KB, MB, GB, TB
+		(handle="KB" value="1024" or xml --> handle "MB" value="1").
+**	Provide more command line options (also compile date, add more to
+		--version), compiled in binaries, etc....
 
 *	Port MyServer to other platforms.
 **	Add MyServer to OpenBSD ports.
 **	FreeBSD workaround / ports system.
 **	MacOS X packages / binaries.
 **	GNU Hurd workaround / improvements.
-**	Packages for MyServer available on SF. (deb, rpm, slackware, openbsd)
+**	Packages for MyServer available on SF. (deb, rpm, slackware,
+		openbsd).
 
 *	Performance model.
 **	Running test with lots of server load. 
@@ -71,8 +66,10 @@ TODO list for MyServer.
 **	Packages for Slackware.
 
 *	Plugins system.
-**	Use plugins for HTTP optional commands (other than what was implemented GET, POST...).
-**	Plugins for HTTP data handler (other than what was implemented CGI, ISAPI, FastCGI...).
+**	Use plugins for HTTP optional commands (other than what was
+ 		implemented GET, POST...).
+**	Plugins for HTTP data handler (other than what was implemented
+		CGI, ISAPI, FastCGI...).
 **	Filters on returned data. (*)
 
 *	HTTP header control.
@@ -99,7 +96,8 @@ TODO list for MyServer.
 **	Caching mechanism for modules.
 
 *	Other.
-**	Add access restriction by hostname / ip range / network range / browser client / etc.
+**	Add access restriction by hostname / ip range / network range /
+		browser client / etc.
 **	Implement pipes support in the file class.(*)
 **	Better handle of requests with chunked data.
 **	HTTP "chunked" transfer coding support where not used.
@@ -120,11 +118,13 @@ TODO list for MyServer.
 
 *	Virtual hosts data.
 **	Find and implement a faster way than the linear search in vhosts handling code.
-**	Possibility to have virtual hosts data in external sources (other than virtualhosts.xml).
+**	Possibility to have virtual hosts data in external sources (other
+		than virtualhosts.xml).
 **	Support for NTFS junction point under windows.
 
 *	Support for Frontpage extensions.
-*	Design and implementation of a easy documents deployment mechanism interfaced with the rest of the OS.
+*	Design and implementation of an easy documents deployment mechanism
+*	interfaced with the rest of the OS.
 
 *	Setuid and Setgid for CGI processes.
 *	PHP Configuration Tool. 
@@ -138,4 +138,5 @@ TODO list for MyServer.
 (*) Not so important to have now.
 
 
-Please consider to join the developing mailing list and ask there before start to work on something.
+Please consider to join the developing mailing list and ask there
+before start to work on something.
