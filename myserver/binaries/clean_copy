@@ -54,11 +54,6 @@ cp web/downloads/*.txt $1/web/downloads
 cp web/downloads/*.php $1/web/downloads
 cp web/downloads/*.sh $1/web/downloads
 
-mkdir $1/cgi-lib
-cp cgi-lib/cgi-lib.so $1/cgi-lib
-cp cgi-lib/cgi_manager.h $1/cgi-lib
-cp cgi-lib/license.txt $1/cgi-lib
-
 mkdir $1/web/documentation
 cp ../documentation/english/index.htm $1/web/documentation/
 
