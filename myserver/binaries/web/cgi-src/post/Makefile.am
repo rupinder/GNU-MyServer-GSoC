@@ -2,7 +2,7 @@
 lib_LIBRARIES = libpost.a
 libpost_a_SOURCES = post.cpp
 
-libpost_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS)
+libpost_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -I$(MYSERVER_HEADERS)
 
 all : all-am post.mscgi
 	cp post.mscgi ../../cgi-bin/

@@ -1,8 +1,5 @@
 ;NSIS Installation script for MyServer
-;
-; Additional files needed for the installer can be downloaded at:
-; http://people.myserverproject.net/~codingmaster/
-;
+
 
 !include "MUI2.nsh"
 
@@ -287,15 +284,6 @@ Section "MyServer center" SecControl
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Control Center.lnk" "$INSTDIR\Myserver Configure.exe"
 SectionEnd
 
-Section "MSCGI library" SecMSCGI
-  SetOutPath $INSTDIR\cgi-lib
-  File "cgi-lib\cgi-lib.dll"
-  File "cgi-lib\cgi_manager.h"
-;  File "cgi-lib\CGI-LIB.a"
-  File "cgi-lib\license.txt"
-SectionEnd
-
-
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
   File "..\documentation\english\*.htm"
@@ -379,7 +367,6 @@ FunctionEnd
 
 Section "Uninstall"
   ExecWait "$INSTDIR\myserver.exe UNREGISTER" ;Remove the service if installed
-  Delete "$INSTDIR\cgi-lib\*.*"
   Delete "$INSTDIR\languages\*.*"
   Delete "$INSTDIR\logs\*.*"
   Delete "$INSTDIR\*.exe"
@@ -388,7 +375,6 @@ Section "Uninstall"
   Delete "$INSTDIR\*.txt"  
   Delete "$INSTDIR\documentation\*.*"
   Delete "$INSTDIR\documentation\images\*.*"
-  RMDir "$INSTDIR\cgi-lib"
   RMDir "$INSTDIR\documentation"
   RMDir "$INSTDIR\images"
 ; REMOVE ALL THE WEB AND CONFIGURATION FILES

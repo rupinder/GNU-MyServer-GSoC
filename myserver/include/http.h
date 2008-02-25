@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
+Copyright (C) 2002-2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -181,9 +181,6 @@ protected:
   static Mutex secCacheMutex;
   static SecurityCache secCache;
 	static int initialized;
-
-	/*! Store if the MSCGI library was loaded.  */
-	static int mscgiLoaded;
 	static string browseDirCSSpath;
 	static u_long gzipThreshold;
 	static vector<string> defaultFilename;

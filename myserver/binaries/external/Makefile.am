@@ -17,6 +17,5 @@ all:
 	@echo "LIBPNG_LIBS=$(LIBPNG_LIBS)" >> modules.template
 	@echo "LIBPNG_CFLAGS=$(LIBPNG_CFLAGS)" >> modules.template
 	@echo "MYSERVER_HEADERS=$(MYSERVER_HEADERS)" >> modules.template
-	@echo "MSCGI_HEADERS=$(MSCGI_HEADERS)" >> modules.template
 
 

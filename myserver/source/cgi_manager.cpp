@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../stdafx.h"
 #include "../include/xml_parser.h"
-#include "cgi_manager.h"
+#include "../include/cgi_manager.h"
 #include "../include/http.h"
 #include "../include/mscgi.h"
 #include "../include/securestr.h"
@@ -26,9 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using namespace std;
 
-#ifdef WIN32
-#pragma comment(lib, "wsock32.lib")
-#endif
 
 /*!
  *Write to the stdout.

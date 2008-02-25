@@ -13,7 +13,7 @@ PchSource=-1
 ProfilesCount=1
 ProfileIndex=0
 ObjFiles=
-Includes=
+Includes=..\..\..\..\
 Libs=
 PrivateResource=
 ResourceIncludes=
@@ -92,7 +92,7 @@ CompilerSet=0
 compilerType=0
 
 [Unit2]
-FileName=..\..\..\..\cgi-lib\cgi_manager.cpp
+FileName=..\..\..\..\source\cgi_manager.cpp
 CompileCpp=1
 Folder=math_sum
 Compile=1

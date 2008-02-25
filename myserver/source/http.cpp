@@ -56,9 +56,6 @@ extern "C"
 #include "../include/lfind.h"
 #endif
 
-/*! Store if the MSCGI library was loaded.  */
-int Http::mscgiLoaded = 0;
-
 /*! Allow the definition of a MIME file for host. */
 int Http::allowVhostMime = 1;
 
@@ -1541,14 +1538,9 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       else
         target = (char*)td.request.uriOpts.c_str();
 
-      /*! Check if the MSCGI library is loaded.  */
-      if(mscgiLoaded)
-      {
-        ret = mscgi.send(&td, td.connection, td.filenamePath.c_str(),
-												 target, 1, onlyHeader);
-        return ret;
-      }
-      return raiseHTTPError(500);
+			ret = mscgi.send(&td, td.connection, td.filenamePath.c_str(),
+											 target, 1, onlyHeader);
+			return ret;
     }
     else if( mimecmd == CGI_CMD_EXECUTEWINCGI )
     {
@@ -2880,19 +2872,8 @@ int Http::loadProtocol(XmlParser* languageParser)
 	Scgi::load(configurationFileManager);
 
 	/* Load the MSCGI library.  */
-	mscgiLoaded = MsCgi::load(configurationFileManager) ? 0 : 1;
-	if(mscgiLoaded)
-  {
-		Server::getInstance()->logWriteln(
-																languageParser->getValue("MSG_LOADMSCGI") );
-  }
-	else
-	{
-		Server::getInstance()->logPreparePrintError();
-		Server::getInstance()->logWriteln(
-														 languageParser->getValue("ERR_LOADMSCGI") );
-		Server::getInstance()->logEndPrintError();
-	}
+	MsCgi::load(configurationFileManager);
+
   HttpFile::load(configurationFileManager);
   HttpDir::load(configurationFileManager);
 

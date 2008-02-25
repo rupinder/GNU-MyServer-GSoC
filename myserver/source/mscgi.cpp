@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -235,32 +235,7 @@ int MsCgi::sendHeader(MsCgiData* mcd)
  */
 int MsCgi::load(XmlParser* /*confFile*/)
 {
-  int ret=1;
-#ifdef WIN32
-  ret =	mscgiModule.loadLibrary("CGI-LIB\\CGI-LIB.dll", 1);
-#endif
-
-#ifdef HAVE_DL
-	ostringstream mscgiPath;
-	
-	if(FilesUtility::fileExists("cgi-lib/cgi-lib.so"))
-	{
-    mscgiPath << "cgi-lib/cgi-lib.so";
-	}
-	else
-	{
-#ifdef PREFIX
-    mscgiPath << PREFIX << "/lib/myserver/cgi-lib.so";
-#else
-    mscgiPath << "/usr/lib/myserver/cgi-lib.so";
-#endif
-	}
-  if(mscgiPath.str().length())
-  {
-    ret = mscgiModule.loadLibrary(mscgiPath.str().c_str(), 1);
-  }
-#endif
-	return ret;
+	return 1;
 }
 
 /*!

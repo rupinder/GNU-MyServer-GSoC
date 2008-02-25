@@ -1,8 +1,4 @@
-#ifdef WIN32
-#pragma comment(lib,"../../../cgi-lib/CGI-LIB.lib")
-#endif
-
-#include "../../../cgi-lib/cgi_manager.h"
+#include "include/cgi_manager.h"
 
 #ifdef WIN32
 extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
