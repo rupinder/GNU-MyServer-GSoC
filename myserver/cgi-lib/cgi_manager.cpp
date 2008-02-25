@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cgi_manager.h"
 #include "../include/http.h"
 #include "../include/mscgi.h"
+#include "../include/securestr.h"
 
 #include <algorithm>
 
@@ -147,11 +148,10 @@ char* CgiManager::postParam(const char* param)
 {
 	char buffer[LOCAL_BUFFER_DIM + 50];
 	u_long nbr = 0;
-	char c[2];
+	char c;
 	
 	u_long toRead = td->inputData.getFileSize();
 
-	c[1] = '\0';
 	buffer[0] = '\0';
 	localbuffer[0] = '\0';
 	
@@ -159,23 +159,25 @@ char* CgiManager::postParam(const char* param)
 		return 0;
 	do
 	{
-		cgidata->td->inputData.readFromFile(&c[0], 1, &nbr);
+		cgidata->td->inputData.readFromFile(&c, 1, &nbr);
 		if(nbr == 0)
 			break;
-		if((c[0] == '&') |(toRead == 1))
+		if((c == '&') |(toRead == 1))
 		{
 			if(!strncmp(param, buffer, strlen(param)))
 			{
-				lstrcpyn(localbuffer, &buffer[strlen(param)], LOCAL_BUFFER_DIM);
+				myserver_strlcpy(localbuffer, &buffer[strlen(param)], LOCAL_BUFFER_DIM);
 				break;
 			}
 			buffer[0] = '\0';
 		}
 		else
 		{
-			if(lstrlen(buffer) + 1 < LOCAL_BUFFER_DIM + 50)
+			size_t len = strlen(buffer);
+			if(len + 1 < LOCAL_BUFFER_DIM + 50)
 			{
-				strncat(buffer, c, LOCAL_BUFFER_DIM - strlen(buffer));
+				buffer[len] = c;
+				buffer[len + 1] = '\0';
 			}
 		}
 	}while(--toRead);

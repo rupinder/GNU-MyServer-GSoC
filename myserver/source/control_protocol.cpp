@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/control_errors.h"
 #include "../include/stringutils.h"
 #include "../include/files_utility.h"
+#include <string.h>
 
 extern "C" 
 {

@@ -82,6 +82,9 @@ char* strupr(char * string);
 }
 #endif
 
+#ifndef strcmpi
+#define strcmpi strcasecmp
+#endif
 
 #endif
 

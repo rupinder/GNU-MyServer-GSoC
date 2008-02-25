@@ -469,6 +469,10 @@ int Socket::ioctlsocket(long cmd,unsigned long* argp)
  */
 int Socket::connect(const char* host, u_short port)
 {
+	if ( host == NULL )
+		return -1;
+		
+#if ( HAVE_IPV6 )
 	MYSERVER_SOCKADDRIN thisSock = { 0 };
 	int nLength = sizeof(MYSERVER_SOCKADDRIN);
 	int nSockLen = 0;
@@ -478,10 +482,6 @@ int Socket::connect(const char* host, u_short port)
 	MYSERVER_SOCKADDRIN *pCurrentSockAddr = NULL, connectionSockAddrIn = { 0 };
 	char szPort[10];
 
-	if ( host == NULL )
-		return -1;
-		
-#if ( HAVE_IPV6 )
 	addrinfo aiHints = { 0 };
 
   /*

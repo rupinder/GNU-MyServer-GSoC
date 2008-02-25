@@ -450,7 +450,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 															 32);
 
 							if(st->password && 
-                 (!lstrcmp((const char*)attr->children->content, 
+                 (!strcmp((const char*)attr->children->content, 
 													 st->password)))
 								rightPassword = 1;
 						}
