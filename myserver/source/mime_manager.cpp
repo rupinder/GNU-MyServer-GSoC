@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -281,7 +281,7 @@ int MimeManager::loadXML(const char *fn)
         /*! 
 				 *If the specified manager is not NONE store its path in the record. 
 				 */
-				if(lcur->children->content && lstrcmpi((char*)lcur->children->content,
+				if(lcur->children->content && strcmpi((char*)lcur->children->content,
 																							 "NONE"))
         {
           rc.cgiManager.assign((const char*)lcur->children->content);

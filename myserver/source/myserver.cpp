@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -274,16 +274,16 @@ int main (int argn, char **argv)
 #else
 	if(argn > 1)
 	{       
-		if(!lstrcmpi(argv[1], "VERSION"))
+		if(!strcmpi(argv[1], "VERSION"))
 		{
 			cout << "MyServer " << versionOfSoftware << endl;
 			return 0;
 		}
-		if(!lstrcmpi(argv[1], "CONSOLE"))
+		if(!strcmpi(argv[1], "CONSOLE"))
 		{
 			runas = MYSERVER_RUNAS_CONSOLE;
 		}
-		if(!lstrcmpi(argv[1], "REGISTER"))
+		if(!strcmpi(argv[1], "REGISTER"))
 		{
       registerService();
 #ifndef ARGP
@@ -292,17 +292,17 @@ int main (int argn, char **argv)
 			runas = MYSERVER_RUNAS_SERVICE;
       return 0;
 		}
-		if(!lstrcmpi(argv[1], "RUNSERVICE"))
+		if(!strcmpi(argv[1], "RUNSERVICE"))
 		{
 			RunAsService();
 			return 0;
 		}
-		if(!lstrcmpi(argv[1], "UNREGISTER"))
+		if(!strcmpi(argv[1], "UNREGISTER"))
 		{
 			removeService();
 			runas = MYSERVER_RUNAS_SERVICE;
 		}
-		if(!lstrcmpi(argv[1], "SERVICE"))
+		if(!strcmpi(argv[1], "SERVICE"))
 		{
 			/*!
 			 *Set the log file to use when in service mode.
@@ -544,8 +544,8 @@ void registerService()
 	SC_HANDLE service,manager;
 	char path [MAX_PATH];
 	GetCurrentDirectory(MAX_PATH,path);
-	lstrcat(path,"\\");
-	lstrcat(path,"myServer.exe SERVICE");
+	strcat(path,"\\");
+	strcat(path,"myServer.exe SERVICE");
   
 	manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
 	if (manager)

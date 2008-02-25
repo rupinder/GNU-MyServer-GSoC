@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
+Copyright (C) 2002-2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -224,7 +224,7 @@ int Http::allowHTTPTRACE()
    *HTTP TRACE is active for this vhost.
    *By default don't allow the trace.
    */
-	if(httpTraceValue && !lstrcmpi(httpTraceValue, "ON"))
+	if(httpTraceValue && !strcmpi(httpTraceValue, "ON"))
 		ret = 1;
 	else
 		ret = 0;
@@ -482,7 +482,7 @@ int Http::getFilePermissions(string& filename, string& directory, string& file, 
       return 500;
     }
     /*! Check if we have to use digest for the current directory. */
-    if(!lstrcmpi(authType, "Digest"))
+    if(!strcmpi(authType, "Digest"))
     {
       if(!td.request.auth.compare("Digest"))
       {
@@ -625,11 +625,11 @@ u_long Http::checkDigest()
   char *uri;
 	u_long digestCount;
   /*! Return 0 if the password is different.  */
-	if(td.request.digestOpaque[0] && lstrcmp(td.request.digestOpaque,
+	if(td.request.digestOpaque[0] && strcmp(td.request.digestOpaque,
                       ((HttpUserData*)td.connection->protocolBuffer)->opaque))
 		return 0;
   /*! If is not equal return 0.  */
-	if(lstrcmp(td.request.digestRealm,
+	if(strcmp(td.request.digestRealm,
 						 ((HttpUserData*)td.connection->protocolBuffer)->realm))
 		return 0;
 
@@ -672,7 +672,7 @@ u_long Http::checkDigest()
              (unsigned int)td.buffer2->getLength());
 	md5.end(response);
 
-	if(!lstrcmp(response, td.request.digestResponse))
+	if(!strcmp(response, td.request.digestResponse))
 		return 1;
 	return 0;
 }
@@ -1222,7 +1222,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       }
 
       /*! Check if we have to use digest for the current directory. */
-      if(!lstrcmpi(authType, "Digest"))
+      if(!strcmpi(authType, "Digest"))
 		  {
         if(!td.request.auth.compare("Digest"))
 			  {
@@ -2477,7 +2477,7 @@ int Http::raiseHTTPError(int ID)
 			td.connection->host->getHashedData("USE_ERROR_FILE") : 0;
     if(useMessagesVal)
     {
-	    if(!lstrcmpi(useMessagesVal, "YES"))
+	    if(!strcmpi(useMessagesVal, "YES"))
 	   	  useMessagesFiles = 1;
 	   	else
 	      useMessagesFiles = 0;

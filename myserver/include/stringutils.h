@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -82,31 +82,6 @@ char* strupr(char * string);
 }
 #endif
 
-#ifndef lstrcmp
-
-#define lstrcmp strcmp
-#endif
-#ifndef strcmpi
-#define strcmpi strcasecmp
-#endif
-#ifndef lstrcmpi
-#define lstrcmpi strcasecmp
-#endif
-#ifndef _stricmp
-#define _stricmp strcasecmp
-#endif
-#ifndef lstrcpy
-#define lstrcpy strcpy
-#endif
-#ifndef lstrcat
-#define lstrcat strcat
-#endif
-#ifndef lstrlen
-#define lstrlen strlen
-#endif
-#ifndef lstrcpyn
-#define lstrcpyn strncpy
-#endif
 
 #endif
 

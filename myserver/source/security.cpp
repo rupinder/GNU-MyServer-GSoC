@@ -336,9 +336,9 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 					if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 						tempGenericPermissions |= MYSERVER_PERMISSION_DELETE;
 				}
-				else if(!lstrcmpi((const char*)attr->name,"NAME"))
+				else if(!strcmpi((const char*)attr->name,"NAME"))
 				{
-					if(!lstrcmpi((const char*)attr->children->content, st->user))
+					if(!strcmpi((const char*)attr->children->content, st->user))
 						rightUser = 1;
 				}
 				else if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))
@@ -439,9 +439,9 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 							if(!xmlStrcmp(attr->children->content, (const xmlChar *)"TRUE"))
 								tempUserPermissions |= MYSERVER_PERMISSION_DELETE;
 						}
-						else if(!lstrcmpi((const char*)attr->name,"NAME"))
+						else if(!strcmpi((const char*)attr->name,"NAME"))
 						{
-							if(!lstrcmpi((const char*)attr->children->content, st->user))
+							if(!strcmpi((const char*)attr->children->content, st->user))
 								rightUser = 1;
 						}
 						else if(!xmlStrcmp(attr->name, (const xmlChar *)"PASS"))

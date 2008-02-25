@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005, 2006, 2007 The MyServer Team
+Copyright (C) 2004, 2005, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -833,15 +833,15 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
   /*! # of bytes written. */
   u_long nbw = 0;
 
-  if(!lstrcmpi(fn, "myserver.xml"))
+  if(!strcmpi(fn, "myserver.xml"))
   {
     filename = Server::getInstance()->getMainConfFile();
   }
-  else if(!lstrcmpi(fn, "MIMEtypes.xml"))
+  else if(!strcmpi(fn, "MIMEtypes.xml"))
   {
     filename = Server::getInstance()->getMIMEConfFile();
   }
-  else if(!lstrcmpi(fn, "virtualhosts.xml"))
+  else if(!strcmpi(fn, "virtualhosts.xml"))
   {
     filename = Server::getInstance()->getVhostConfFile();
   }
@@ -918,15 +918,15 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
   /*! # of bytes written. */
   u_long nbw = 0;
   Server::getInstance()->disableAutoReboot();
-  if(!lstrcmpi(fn, "myserver.xml"))
+  if(!strcmpi(fn, "myserver.xml"))
   {
     filename = Server::getInstance()->getMainConfFile();
   }
-  else if(!lstrcmpi(fn, "MIMEtypes.xml"))
+  else if(!strcmpi(fn, "MIMEtypes.xml"))
   {
     filename = Server::getInstance()->getMIMEConfFile();
   }
-  else if(!lstrcmpi(fn, "virtualhosts.xml"))
+  else if(!strcmpi(fn, "virtualhosts.xml"))
   {
     filename = Server::getInstance()->getVhostConfFile();
   }

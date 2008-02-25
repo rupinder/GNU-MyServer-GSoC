@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -237,7 +237,7 @@ int FiltersChain::isFilterPresent(const char* name)
   list<Filter*>::iterator i=filters.begin();
 
   for( ; i!=filters.end(); ++i )
-    if(!lstrcmpi((*i)->getName(0, 0), name))
+    if(!strcmpi((*i)->getName(0, 0), name))
       return 1;
   return 0;
 }
