@@ -37,6 +37,7 @@ extern "C"
 }
 
 #include "../include/lfind.h"
+#include "../include/stringutils.h"
 #ifdef NOT_WIN
 #endif
 
@@ -47,26 +48,27 @@ extern "C"
 
 using namespace std;
 
-static bool charIsLess(char i, char j)
+/*!
+ * Compare two HttpDir::FileStruct by their filename.
+ */
+bool HttpDir::compareFileStructByName (HttpDir::FileStruct i, HttpDir::FileStruct j)
 {
-	return tolower(i) < tolower(j);
+  return stringcmpi (i.name, j.name) < 0 ? true : false;
 }
 
-static bool compareFileStructByName (HttpDir::FileStruct i, HttpDir::FileStruct j)
-{
-	return std::lexicographical_compare(i.name.begin(),
-																			i.name.end(),
-																			j.name.begin(),
-																			j.name.end(),
-																			charIsLess);
-}
+/*!
+ * Compare two HttpDir::FileStruct by their last modified file time.
+ */
 
-static bool compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j)
+bool HttpDir::compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j)
 {
 	return i.time_write < j.time_write;
 }
 
-static bool compareFileStructBySize (HttpDir::FileStruct i, HttpDir::FileStruct j)
+/*!
+ * Compare two HttpDir::FileStruct by their file size.
+ */
+bool HttpDir::compareFileStructBySize (HttpDir::FileStruct i, HttpDir::FileStruct j)
 {
 	return i.size < j.size;
 }

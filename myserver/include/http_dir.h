@@ -43,6 +43,10 @@ public:
   HttpDir();
   virtual ~HttpDir();
 private:
+  static bool charIsLess(char i, char j);
+  static bool compareFileStructByName (HttpDir::FileStruct i, HttpDir::FileStruct j);
+  static bool compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j);
+  static bool compareFileStructBySize (HttpDir::FileStruct i, HttpDir::FileStruct j);
   void getFormattedSize(int bytes, string& out);
 };
 
