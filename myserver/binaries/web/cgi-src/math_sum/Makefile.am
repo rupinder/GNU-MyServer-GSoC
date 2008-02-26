@@ -2,7 +2,7 @@
 lib_LIBRARIES = libmath_sum.a
 libmath_sum_a_SOURCES = math_sum.cpp
 
-libmath_sum_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -I$(MYSERVER_HEADERS)/include
+libmath_sum_a_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -I$(MYSERVER_HEADERS)
 
 all : all-am math_sum.mscgi
 	cp math_sum.mscgi ../../cgi-bin/

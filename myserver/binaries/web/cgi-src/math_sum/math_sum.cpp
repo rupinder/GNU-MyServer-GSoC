@@ -1,4 +1,8 @@
+#ifdef WIN32
 #include "cgi_manager.h"
+#else
+#include "include/cgi_manager.h"
+#endif
 
 int isNumber(char* s)
 {
