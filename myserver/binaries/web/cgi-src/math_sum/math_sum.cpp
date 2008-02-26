@@ -1,4 +1,4 @@
-#include "include/cgi_manager.h"
+#include "cgi_manager.h"
 
 int isNumber(char* s)
 {

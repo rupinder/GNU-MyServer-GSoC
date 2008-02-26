@@ -1,4 +1,4 @@
-#include "include/cgi_manager.h"
+#include "cgi_manager.h"
 
 #ifdef WIN32
 extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
