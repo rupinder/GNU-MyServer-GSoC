@@ -141,6 +141,8 @@ AC_CHECK_HEADER(event.h,,
    AC_MSG_WARN([event.h not found which is part of libevent.])
 ])
 
+AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1, [Define if the event_loopbreak function is present]) )
+
 dnl check for Unix98 socklen_t
  AC_MSG_CHECKING(if socklen_t is defined)
  AC_TRY_COMPILE(

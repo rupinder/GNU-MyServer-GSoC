@@ -305,7 +305,9 @@ void ConnectionsScheduler::release()
 	dispatcherArg.terminate = true;
 
 	event_loopexit(NULL);
-    event_loopbreak();
+#if EVENT_LOOPBREAK | WIN32
+   event_loopbreak();
+#endif
 
 	for(u_long i = 0; i < Server::getInstance()->getNumThreads()*5; i++)
 	{
