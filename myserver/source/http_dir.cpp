@@ -229,7 +229,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
 */
 int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, 
 									const char* directory, const char* /*cgi*/, 
-									int onlyHeader)
+									int /*execute*/, int onlyHeader)
 {
 	u_long nbw;
   string filename;

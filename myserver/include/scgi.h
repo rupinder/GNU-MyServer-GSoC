@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -56,8 +56,8 @@ public:
 	Scgi();
 	static int load(XmlParser*);
 	int send(HttpThreadContext* td, ConnectionPtr connection,
-                  const char* scriptpath, const char *cgipath, int execute,
-                  int onlyHeader);
+           const char* scriptpath, const char *cgipath, int execute = 0,
+           int onlyHeader = 0);
 	static int unLoad();
 private:
 	static ProcessServerManager *processServerManager;

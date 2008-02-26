@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/utility.h"
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
+#include "../include/http_errors.h"
+#include "../include/vhosts.h"
 
 extern "C" {
 #ifdef WIN32

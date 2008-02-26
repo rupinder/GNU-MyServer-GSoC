@@ -34,6 +34,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
 
+#include "../include/cgi.h"
+#include "../include/wincgi.h"
+#include "../include/fastcgi.h"
+#include "../include/scgi.h"
+#include "../include/mscgi.h"
+#include "../include/isapi.h"
+#include "../include/http_file.h"
+#include "../include/http_dir.h"
+
 #include <string>
 #include <ostream>
 
@@ -1411,8 +1420,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
           return ret;
         }
       }
-      return httpDir.send(&td, td.connection, td.filenamePath.c_str(), 0,
-													onlyHeader);
+      return httpDir->send(&td, td.connection, td.filenamePath.c_str(), 0,
+                           onlyHeader);
     }
 
     if(!FilesUtility::fileExists(td.filenamePath.c_str()))
@@ -1462,8 +1471,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      ret = cgi.send(&td, td.connection, td.filenamePath.c_str(),
-										 data.c_str(), 0,  onlyHeader);
+      ret = cgi->send(&td, td.connection, td.filenamePath.c_str(),
+                      data.c_str(), 0,  onlyHeader);
       return ret;
     }
     else if(mimecmd == CGI_CMD_EXECUTE )
@@ -1482,8 +1491,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 		  {
         return sendAuth();
       }
-      ret = cgi.send(&td, td.connection, td.filenamePath.c_str(),
-											data.c_str(), 1, onlyHeader);
+      ret = cgi->send(&td, td.connection, td.filenamePath.c_str(),
+                      data.c_str(), 1, onlyHeader);
       return ret;
     }
     else if(mimecmd == CGI_CMD_RUNISAPI)
@@ -1501,8 +1510,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      ret = isapi.send(&td, td.connection, td.filenamePath.c_str(),
-											 data.c_str(), 0, onlyHeader);
+      ret = isapi->send(&td, td.connection, td.filenamePath.c_str(),
+                        data.c_str(), 0, onlyHeader);
       return ret;
 
     }
@@ -1512,8 +1521,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      ret = isapi.send(&td, td.connection, td.filenamePath.c_str(),
-											 data.c_str(), 1, onlyHeader);
+      ret = isapi->send(&td, td.connection, td.filenamePath.c_str(),
+                        data.c_str(), 1, onlyHeader);
       return ret;
     }
     else if( mimecmd == CGI_CMD_RUNMSCGI )
@@ -1538,8 +1547,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       else
         target = (char*)td.request.uriOpts.c_str();
 
-			ret = mscgi.send(&td, td.connection, td.filenamePath.c_str(),
-											 target, 1, onlyHeader);
+			ret = mscgi->send(&td, td.connection, td.filenamePath.c_str(),
+                        target, 1, onlyHeader);
 			return ret;
     }
     else if( mimecmd == CGI_CMD_EXECUTEWINCGI )
@@ -1567,8 +1576,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         cgipath << td.filenamePath;
       }
-      ret = wincgi.send(&td, td.connection, cgipath.str().c_str(),
-												1, onlyHeader);
+      ret = wincgi->send(&td, td.connection, cgipath.str().c_str(),
+                         0, 1, onlyHeader);
       return ret;
     }
     else if( mimecmd == CGI_CMD_RUNFASTCGI )
@@ -1586,8 +1595,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      ret = fastcgi.send(&td, td.connection, td.filenamePath.c_str(),
-												 data.c_str(), 0, onlyHeader);
+      ret = fastcgi->send(&td, td.connection, td.filenamePath.c_str(),
+                          data.c_str(), 0, onlyHeader);
       return ret;
     }
     else if(mimecmd == CGI_CMD_EXECUTEFASTCGI)
@@ -1605,8 +1614,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      ret = fastcgi.send(&td, td.connection, td.filenamePath.c_str(),
-												 data.c_str(), 1, onlyHeader);
+      ret = fastcgi->send(&td, td.connection, td.filenamePath.c_str(),
+                          data.c_str(), 1, onlyHeader);
       return ret;
     }
     else if( mimecmd == CGI_CMD_RUNSCGI )
@@ -1624,8 +1633,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      ret = scgi.send(&td, td.connection, td.filenamePath.c_str(),
-											data.c_str(), 0, onlyHeader);
+      ret = scgi->send(&td, td.connection, td.filenamePath.c_str(),
+                       data.c_str(), 0, onlyHeader);
       return ret;
     }
     else if(mimecmd == CGI_CMD_EXECUTESCGI)
@@ -1643,8 +1652,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      ret = scgi.send(&td, td.connection, td.filenamePath.c_str(),
-											data.c_str(), 1, onlyHeader);
+      ret = scgi->send(&td, td.connection, td.filenamePath.c_str(),
+                       data.c_str(), 1, onlyHeader);
       return ret;
     }
 
@@ -1794,8 +1803,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 				}
 			}
 		}
-    ret = httpFile.send(&td, td.connection, td.filenamePath.c_str(),
-												0, onlyHeader);
+    ret = httpFile->send(&td, td.connection, td.filenamePath.c_str(),
+                         0, onlyHeader);
   }
   catch(...)
   {
@@ -3025,6 +3034,15 @@ Http::Http()
 	td.scriptFile.assign("");
 	td.inputDataPath.assign("");
 	td.outputDataPath.assign("");
+
+  mscgi = new MsCgi();
+  wincgi = new WinCgi();
+  isapi = new Isapi();
+  cgi = new Cgi();
+  scgi = new Scgi();
+  fastcgi = new FastCgi();
+  httpFile = new HttpFile();
+  httpDir = new HttpDir();
 }
 
 /*!
@@ -3050,4 +3068,13 @@ void Http::clean()
 	td.scriptFile.assign("");
   td.inputDataPath.assign("");
   td.outputDataPath.assign("");
+
+  delete mscgi;
+  delete wincgi;
+  delete isapi;
+  delete cgi;
+  delete scgi;
+  delete fastcgi;
+  delete httpFile;
+  delete httpDir;
 }

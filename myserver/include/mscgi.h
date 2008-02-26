@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -53,15 +53,15 @@ class MsCgi : public HttpDataHandler
 {
 public:
 	/*!
-	*Functions to Load and free the MSCGI library.
-	*/
+   *Functions to Load and free the MSCGI library.
+   */
 	static int load(XmlParser*);
 	static int unLoad();
 	/*!
 	*Use this to send a MSCGI file through the HTTP protocol.
 	*/
-	int send(HttpThreadContext*, ConnectionPtr s, const char* exec,
-                char* cmdLine = 0, int execute = 0, int onlyHeader = 0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s, const char* exec,
+                   char* cmdLine = 0, int execute = 0, int onlyHeader = 0);
 
 	int write(const char*, u_long, MsCgiData*);
 	int sendHeader(MsCgiData*);

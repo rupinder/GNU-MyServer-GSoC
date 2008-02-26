@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007 The MyServer Team
+Copyright (C) 2005, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 int HttpDataHandler::send(HttpThreadContext*/* td*/, ConnectionPtr /*s*/, 
                           const char* /*filenamePath*/, const char* /*exec*/,
-                          int /*onlyHeader*/)
+                          int /*execute*/, int /*onlyHeader*/)
 {
   return 0;
 }

@@ -20,14 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../stdafx.h"
 #include "../include/protocol.h"
 #include "../include/http_headers.h"
-#include "../include/cgi.h"
-#include "../include/wincgi.h"
-#include "../include/fastcgi.h"
-#include "../include/scgi.h"
-#include "../include/mscgi.h"
-#include "../include/isapi.h"
-#include "../include/http_file.h"
-#include "../include/http_dir.h"
 #include "../include/security_cache.h"
 #include "../include/xml_parser.h"
 #include "../include/thread.h"
@@ -37,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/dyn_http_manager_list.h"
 #include "../include/dyn_http_manager.h"
 #include "../include/multicast.h"
-
+#include "../include/http_data_handler.h"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -46,15 +38,15 @@ using namespace std;
 class HttpStaticData : public MulticastRegistry<string, void*, int>
 {
 public:
-	vector<Multicast<string, void*, int>*>* getHandlers(string& msg)
-	{
-		return MulticastRegistry<string, void*, int>::getHandlers(msg);
-	}
+  vector<Multicast<string, void*, int>*>* getHandlers(string& msg)
+  {
+    return MulticastRegistry<string, void*, int>::getHandlers(msg);
+  }
 
-	void clear()
-	{
-		clearMulticastRegistry();
-	}
+  void clear()
+  {
+    clearMulticastRegistry();
+  }
 
 
   DynHttpCommandManager dynCmdManager;
@@ -67,157 +59,157 @@ public:
 class HttpUserData : public ProtocolBuffer
 {
 public:
-	/*! Realm string used by Digest authorization scheme.  */
-	char realm[48];
-	/*! Opaque string used by Digest authorization scheme.  */
-	char opaque[48];
-	/*! Nonce string used by Digest authorization scheme.  */
-	char nonce[48];
-	/*! Cnonce string used by Digest authorization scheme.  */
-	char cnonce[48];
-	/*! Password string used by Digest authorization scheme.  */
-	char requiredPassword[32];
-	/*! Nonce count used by Digest authorization scheme.  */
-	u_long nc;
-	/*! Nonzero if the user was authenticated trough the Digest scheme.  */
-	int digest;
-	/*! Nonzero if the digest was already checked.  */
-	int digestChecked;
+  /*! Realm string used by Digest authorization scheme.  */
+  char realm[48];
+  /*! Opaque string used by Digest authorization scheme.  */
+  char opaque[48];
+  /*! Nonce string used by Digest authorization scheme.  */
+  char nonce[48];
+  /*! Cnonce string used by Digest authorization scheme.  */
+  char cnonce[48];
+  /*! Password string used by Digest authorization scheme.  */
+  char requiredPassword[32];
+  /*! Nonce count used by Digest authorization scheme.  */
+  u_long nc;
+  /*! Nonzero if the user was authenticated trough the Digest scheme.  */
+  int digest;
+  /*! Nonzero if the digest was already checked.  */
+  int digestChecked;
   HttpUserData();
   ~HttpUserData();
-	void reset();
+  void reset();
 };
 
 class Http : public Protocol
 {
 public:
-	int protocolOptions;
-	int requestAuthorization();
-	const char *getDefaultFilenamePath(u_long ID);
+  int protocolOptions;
+  int requestAuthorization();
+  const char *getDefaultFilenamePath(u_long ID);
 
-	int sendHTTPResource(string& filename,
+  int sendHTTPResource(string& filename,
                        int systemrequest = 0, 
-											 int onlyHeader = 0, 
-											 int yetMapped = 0);
+                       int onlyHeader = 0, 
+                       int yetMapped = 0);
 
-	int putHTTPRESOURCE(string &filename,
+  int putHTTPRESOURCE(string &filename,
                       int systemrequest = 0,
-											int onlyHeader = 0,
-											int yetMapped = 0);
+                      int onlyHeader = 0,
+                      int yetMapped = 0);
 
-	int allowHTTPTRACE();
+  int allowHTTPTRACE();
 
 
-	int optionsHTTPRESOURCE(string &filename,
+  int optionsHTTPRESOURCE(string &filename,
                           int yetMapped = 0);
 
-	int traceHTTPRESOURCE(string& filename,
+  int traceHTTPRESOURCE(string& filename,
                         int yetMapped = 0);
 
-	int deleteHTTPRESOURCE(string& filename,
+  int deleteHTTPRESOURCE(string& filename,
                          int yetMapped = 0);
 
-	int raiseHTTPError(int ID);
+  int raiseHTTPError(int ID);
 
-	int sendHTTPhardError500();
+  int sendHTTPhardError500();
 
-	int sendAuth();
-
-
-	int getPath(string& filenamePath,
-										 const string& filename,
-										 int systemrequest)
-	{return getPath(&td, filenamePath, filename.c_str(), systemrequest);}
-
-	int getPath(string& filenamePath,
-										 const char *filename,
-										 int systemrequest)
-	{return getPath(&td, filenamePath, filename, systemrequest);}
+  int sendAuth();
 
 
-	static int getPath(HttpThreadContext* td,
-										 string& filenamePath,
-										 const string& filename,
-										 int systemrequest)
-	{return getPath(td, filenamePath, filename.c_str(), systemrequest);}
+  int getPath(string& filenamePath,
+                     const string& filename,
+                     int systemrequest)
+  {return getPath(&td, filenamePath, filename.c_str(), systemrequest);}
 
-	static int getPath(HttpThreadContext* td, 
-										 string& filenamePath,
-										 const char *filename,
-										 int systemrequest);
+  int getPath(string& filenamePath,
+                     const char *filename,
+                     int systemrequest)
+  {return getPath(&td, filenamePath, filename, systemrequest);}
+
+
+  static int getPath(HttpThreadContext* td,
+                     string& filenamePath,
+                     const string& filename,
+                     int systemrequest)
+  {return getPath(td, filenamePath, filename.c_str(), systemrequest);}
+
+  static int getPath(HttpThreadContext* td, 
+                     string& filenamePath,
+                     const char *filename,
+                     int systemrequest);
 
   MimeRecord* getMIME(string& filename);
 
-	int logHTTPaccess();
-	int sendHTTPRedirect(const char *newURL);
-	int sendHTTPNonModified();
-	Http();
-	virtual ~Http();
+  int logHTTPaccess();
+  int sendHTTPRedirect(const char *newURL);
+  int sendHTTPNonModified();
+  Http();
+  virtual ~Http();
   const char* getBrowseDirCSSFile();
-	u_long getGzipThreshold();
-	virtual char* registerName(char*,int len);
-	int controlConnection(ConnectionPtr a, 
-												char *b1, 
-												char *b2, 
-												int bs1, 
+  u_long getGzipThreshold();
+  virtual char* registerName(char*,int len);
+  int controlConnection(ConnectionPtr a, 
+                        char *b1, 
+                        char *b2, 
+                        int bs1, 
                         int bs2, 
-												u_long nbtr, 
-												u_long id);
+                        u_long nbtr, 
+                        u_long id);
 
-	static int loadProtocol(XmlParser*);
+  static int loadProtocol(XmlParser*);
 
-	static int unLoadProtocol(XmlParser*);
+  static int unLoadProtocol(XmlParser*);
 
   int getCGItimeout();
-	int preprocessHttpRequest(string& filename, int yetmapped, 
-														int* permissions);
+  int preprocessHttpRequest(string& filename, int yetmapped, 
+                            int* permissions);
 
-	int getFilePermissions(string& filename, string& directory, 
-												 string& file, string &filenamePath, 
-												 int yetmapped, int* permissions);
+  int getFilePermissions(string& filename, string& directory, 
+                         string& file, string &filenamePath, 
+                         int yetmapped, int* permissions);
 
-	static HttpStaticData* getStaticData();
+  static HttpStaticData* getStaticData();
 protected:
   static Mutex secCacheMutex;
   static SecurityCache secCache;
-	static int initialized;
-	static string browseDirCSSpath;
-	static u_long gzipThreshold;
-	static vector<string> defaultFilename;
+  static int initialized;
+  static string browseDirCSSpath;
+  static u_long gzipThreshold;
+  static vector<string> defaultFilename;
   static int cgiTimeout;
   static int allowVhostMime;
-	MsCgi mscgi;
-	WinCgi wincgi;
-	Isapi isapi;
-	Cgi cgi;
-	Scgi scgi;
-	FastCgi fastcgi;
-  HttpFile httpFile;
-  HttpDir httpDir;
-	struct HttpThreadContext td;
+  HttpDataHandler* mscgi;
+  HttpDataHandler* wincgi;
+  HttpDataHandler* isapi;
+  HttpDataHandler* cgi;
+  HttpDataHandler* scgi;
+  HttpDataHandler* fastcgi;
+  HttpDataHandler* httpFile;
+  HttpDataHandler* httpDir;
+  struct HttpThreadContext td;
   void clean();
-	int readPostData(HttpThreadContext* td, int* ret);
-	void computeDigest(char*, char*);
-	u_long checkDigest();
-	string protocolPrefix;
+  int readPostData(HttpThreadContext* td, int* ret);
+  void computeDigest(char*, char*);
+  u_long checkDigest();
+  string protocolPrefix;
 private:
-	int readContiguousPrimitivePostData(char* inBuffer,
-																			u_long *inBufferPos,
-																			u_long inBufferSize,
-																			Socket *inSocket,
-																			char* outBuffer,
-																			u_long outBufferSize,
-																			u_long* nbr,
-																			u_long timeout);
-	int readChunkedPostData(char* inBuffer,
-													u_long *inBufferPos,
-													u_long inBufferSize,
-													Socket *inSocket,
-													char* outBuffer,
-													u_long outBufferSize,
-													u_long* nbr,
-													u_long timeout,
-													File* out);
+  int readContiguousPrimitivePostData(char* inBuffer,
+                                      u_long *inBufferPos,
+                                      u_long inBufferSize,
+                                      Socket *inSocket,
+                                      char* outBuffer,
+                                      u_long outBufferSize,
+                                      u_long* nbr,
+                                      u_long timeout);
+  int readChunkedPostData(char* inBuffer,
+                          u_long *inBufferPos,
+                          u_long inBufferSize,
+                          Socket *inSocket,
+                          char* outBuffer,
+                          u_long outBufferSize,
+                          u_long* nbr,
+                          u_long timeout,
+                          File* out);
 
 };
 

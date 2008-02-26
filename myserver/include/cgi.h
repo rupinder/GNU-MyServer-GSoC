@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -34,8 +34,8 @@ class Cgi : public HttpDataHandler
 public:
   static void setTimeout(int);
   static int getTimeout();
-	int send(HttpThreadContext*, ConnectionPtr s, const char* scriptpath, 
-           const char* exec, int execute, int onlyHeader=0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s, const char* scriptpath, 
+           const char* exec, int execute=0, int onlyHeader=0);
 	static void buildCGIEnvironmentString(HttpThreadContext*, char*, int=1);
 };
 #endif

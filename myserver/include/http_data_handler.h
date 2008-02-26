@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007 The MyServer Team
+Copyright (C) 2005, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -31,19 +31,21 @@ class HttpDataHandler
 public:
   static int load(XmlParser* );
   static int unLoad();
-	virtual int send(HttpThreadContext*, ConnectionPtr s,
-									 const char *filenamePath, const char* cgi, 
-									 int OnlyHeader=0);
+
+	virtual int send(HttpThreadContext*, ConnectionPtr s, const char* exec,
+                   const char* cmdLine = 0, int execute = 0, 
+                   int onlyHeader = 0);
+
   HttpDataHandler();
   virtual ~HttpDataHandler();
 
 	static void checkDataChunks(HttpThreadContext*, bool*, bool*);
 	static int appendDataToHTTPChannel(HttpThreadContext* td, 
-																		 char* buffer, u_long size,
-																		 File* appendFile, 
-																		 Stream* chain,
-																		 bool append, 
-																		 bool useChunks);
+                                     char* buffer, u_long size,
+                                     File* appendFile, 
+                                     Stream* chain,
+                                     bool append, 
+                                     bool useChunks);
 
 };
 

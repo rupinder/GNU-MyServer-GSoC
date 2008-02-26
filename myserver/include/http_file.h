@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005 The MyServer Team
+Copyright (C) 2005, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -28,8 +28,9 @@ class HttpFile  : public HttpDataHandler
 public:
   static int load(XmlParser*);
   static int unLoad();
-	int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
-                   const char* cgi, int OnlyHeader=0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s, 
+                   const char *filenamePath, const char* cgi,
+                   int execute = 0, int OnlyHeader = 0); 
   HttpFile();
   virtual ~HttpFile();
 private:
