@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
+Copyright (C) 2002-2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -588,13 +588,13 @@ int Server::terminate()
 	/* Clear the home directories data.  */
 	homeDir.clear();
 
-  if(verbosity > 1)
-    logWriteln(languageParser.getValue("MSG_TSTOPPED"));
+    if(verbosity > 1)
+      logWriteln(languageParser.getValue("MSG_TSTOPPED"));
 
 
 	if(verbosity > 1)
 	{
-    logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
+      logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
 	}
 
 	freeHashedData();
@@ -1891,12 +1891,15 @@ int Server::reboot()
     return ret;
 	mustEndServer = 0;
 
-	ret = initialize(0);
+
+  rebooting = 0;
+
+  ret = initialize(0);
   if(ret)
     return ret;
-	ret = loadSettings();
 
-	rebooting = 0;
+  ret = loadSettings();
+
 
   return ret;
 
@@ -2021,6 +2024,9 @@ int Server::addThread(int staticThread)
 	vector<Multicast<string, void*, int>*>* handlers;
 
 	purgeThreadsThreshold = 1;
+   
+  if(isRebooting())
+    return -1;
 
 	if(!staticThread)
 	{
