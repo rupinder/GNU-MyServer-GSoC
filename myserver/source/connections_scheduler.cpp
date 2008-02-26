@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -305,6 +305,8 @@ void ConnectionsScheduler::release()
 	dispatcherArg.terminate = true;
 
 	event_loopexit(NULL);
+    event_loopbreak();
+
 	for(u_long i = 0; i < Server::getInstance()->getNumThreads()*5; i++)
 	{
 		readySemaphore->unlock();
@@ -374,7 +376,7 @@ void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
 }
 
 /*!
- *Terminate an active connection.
+ *Terminate any active connection.
  */
 void ConnectionsScheduler::terminateConnections()
 {
