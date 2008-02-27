@@ -56,8 +56,8 @@ public:
 	Scgi();
 	static int load(XmlParser*);
 	int send(HttpThreadContext* td, ConnectionPtr connection,
-           const char* scriptpath, const char *cgipath, int execute = 0,
-           int onlyHeader = 0);
+           const char* scriptpath, const char *cgipath = 0,
+           int execute = 0, int onlyHeader = 0);
 	static int unLoad();
 private:
 	static ProcessServerManager *processServerManager;

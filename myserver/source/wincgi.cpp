@@ -82,7 +82,7 @@ u_long WinCgi::getTimeout()
  *Send the WinCGI data.
  */
 int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename, 
-                 char* cmdLine, int /*execute*/, int onlyHeader)
+                 const char* cmdLine, int /*execute*/, int onlyHeader)
 {
 #ifdef WIN32
   FiltersChain chain;

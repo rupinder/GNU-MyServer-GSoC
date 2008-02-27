@@ -20,9 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../include/http_response.h"
 #include "../include/http_request.h"
-#include "../include/mime_manager.h"
-#include "../include/mscgi.h"
-#include "../include/security.h"
 #include "../include/http_headers.h"
 #include "../include/http_data_handler.h"
 
@@ -34,8 +31,9 @@ class Cgi : public HttpDataHandler
 public:
   static void setTimeout(int);
   static int getTimeout();
-	virtual int send(HttpThreadContext*, ConnectionPtr s, const char* scriptpath, 
-           const char* exec, int execute=0, int onlyHeader=0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s,
+                   const char* scriptpath, const char* exec = 0,
+                   int execute = 0, int onlyHeader = 0);
 	static void buildCGIEnvironmentString(HttpThreadContext*, char*, int=1);
 };
 #endif

@@ -141,8 +141,8 @@ public:
 	int Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL);
 	int Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL);
 	int SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL);
-	static BOOL buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr a,LPVOID output,
-                                  LPDWORD maxLen);
+	static BOOL buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr a,
+                                  LPVOID output, LPDWORD maxLen);
 	static BOOL buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
                                  LPVOID output, LPDWORD maxLen);
 #endif	
@@ -153,7 +153,7 @@ public:
 	static void setTimeout(u_long);
   static u_long getTimeout();
 	virtual int send(HttpThreadContext* td,ConnectionPtr connection, 
-                   const char* scriptpath, const char *cgipath,
+                   const char* scriptpath, const char *cgipath = 0,
                    int execute = 0, int onlyHeader = 0);
 };
 

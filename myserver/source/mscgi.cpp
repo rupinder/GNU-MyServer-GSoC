@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/sockets.h"
 #include "../include/utility.h"
 #include "../include/filters_chain.h"
+#include "../include/mscgi.h"
 #include <sstream>
 using namespace std; 
 
@@ -42,7 +43,8 @@ DynamicLibrary MsCgi::mscgiModule;
  *\param onlyHeader Specify if send only the HTTP header.
  */
 int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
-                char* cmdLine, int /*execute*/, int onlyHeader)
+                const char* cmdLine, int /*execute*/, int onlyHeader)
+
 {
 	/*
    *This is the code for manage a .mscgi file.

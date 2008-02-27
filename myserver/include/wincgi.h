@@ -36,7 +36,8 @@ public:
   ~WinCgi();
   static void setTimeout(u_long);
   static u_long getTimeout();
-	virtual int send(HttpThreadContext*, ConnectionPtr s, const char* exec,
-                   char* cmdLine = 0, int execute = 0, int onlyHeader = 0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s,
+                   const char* exec, const char* cmdLine = 0,
+                   int execute = 0, int onlyHeader = 0);
 };
 #endif

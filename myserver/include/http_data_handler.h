@@ -32,9 +32,9 @@ public:
   static int load(XmlParser* );
   static int unLoad();
 
-	virtual int send(HttpThreadContext*, ConnectionPtr s, const char* exec,
-                   const char* cmdLine = 0, int execute = 0, 
-                   int onlyHeader = 0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s,
+                   const char* exec, const char* cmdLine = 0,
+                   int execute = 0, int onlyHeader = 0);
 
   HttpDataHandler();
   virtual ~HttpDataHandler();

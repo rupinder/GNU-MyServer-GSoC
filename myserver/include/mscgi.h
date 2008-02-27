@@ -47,7 +47,7 @@ struct MsCgiData
 
 };
 
-typedef int (*CGIMAIN)(char*, MsCgiData*); 
+typedef int (*CGIMAIN)(const char*, MsCgiData*); 
 
 class MsCgi : public HttpDataHandler
 {
@@ -60,8 +60,9 @@ public:
 	/*!
 	*Use this to send a MSCGI file through the HTTP protocol.
 	*/
-	virtual int send(HttpThreadContext*, ConnectionPtr s, const char* exec,
-                   char* cmdLine = 0, int execute = 0, int onlyHeader = 0);
+	virtual int send(HttpThreadContext*, ConnectionPtr s, 
+                   const char* exec, const char* cmdLine = 0,
+                   int execute = 0, int onlyHeader = 0);
 
 	int write(const char*, u_long, MsCgiData*);
 	int sendHeader(MsCgiData*);
