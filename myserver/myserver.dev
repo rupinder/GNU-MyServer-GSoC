@@ -1,18 +1,18 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=88
+UnitCount=89
 Type=1
 Ver=1
 ObjFiles=
 Includes=
-Libs=contrib/rx
+Libs=
 PrivateResource=myserver_private.rc
 ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@_@@_
+Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -25,28 +25,27 @@ CommandLine=
 IncludeVersionInfo=1
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000001000000001000000
+CompilerSettings=0000001000000101000000
 UseCustomMakefile=0
 CustomMakefile=
 
 [VersionInfo]
 Major=0
 Minor=8
-Release=9
-Build=3
+Release=12
+Build=1
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.9
+FileVersion=0.8.12
 FileDescription=MyServer webserver
-InternalName=Dreistein
+InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.9
+ProductVersion=0.8.12
 AutoIncBuildNr=0
-
 [Unit1]
 FileName=stdafx.cpp
 CompileCpp=1
@@ -908,7 +907,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit87]
-FileName=source\protocol_buffer.cpp
+FileName=source\http_thread_context.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -918,6 +917,16 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit88]
+FileName=source\protocol_buffer.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit89]
 FileName=source\cgi_manager.cpp
 CompileCpp=1
 Folder=myserver

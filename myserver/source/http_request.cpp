@@ -37,7 +37,7 @@ HttpRequestHeader::HttpRequestHeader()
  */
 HttpRequestHeader::~HttpRequestHeader()
 {
-	free();
+  free();
 }
 
 /*!
@@ -46,33 +46,33 @@ HttpRequestHeader::~HttpRequestHeader()
 void HttpRequestHeader::free()
 {
   ver.clear();
-	cmd.clear();
-	auth.clear();
-	contentLength.clear();
-	uri.clear();
-	uriOpts.clear();
-	uriOptsPtr = NULL;
+  cmd.clear();
+  auth.clear();
+  contentLength.clear();
+  uri.clear();
+  uriOpts.clear();
+  uriOptsPtr = NULL;
 
-	{
-		HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
-		for(; it != other.end(); it++)
-			delete (*it);
-	}
-	other.clear();
-	rangeType.clear();
-	rangeByteBegin = 0;
-	rangeByteEnd = 0;
-	uriEndsWithSlash = 0;
-	digestRealm[0] = '\0';
-	digestOpaque[0] = '\0';
-	digestNonce[0] = '\0';
-	digestCnonce[0] = '\0';
-	digestUri[0] = '\0';
-	digestMethod[0] = '\0';
-	digestUsername[0] = '\0';
-	digestResponse[0] = '\0';
-	digestQop[0] = '\0';
-	digestNc[0] = '\0';
+  {
+    HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
+    for(; it != other.end(); it++)
+      delete (*it);
+  }
+  other.clear();
+  rangeType.clear();
+  rangeByteBegin = 0;
+  rangeByteEnd = 0;
+  uriEndsWithSlash = 0;
+  digestRealm[0] = '\0';
+  digestOpaque[0] = '\0';
+  digestNonce[0] = '\0';
+  digestCnonce[0] = '\0';
+  digestUri[0] = '\0';
+  digestMethod[0] = '\0';
+  digestUsername[0] = '\0';
+  digestResponse[0] = '\0';
+  digestQop[0] = '\0';
+  digestNc[0] = '\0';
 }
 
 /*!
@@ -80,14 +80,14 @@ void HttpRequestHeader::free()
  */
 bool HttpRequestHeader::isKeepAlive()
 {
-		Entry *connection = other.get("Connection");
-		if(connection)
-		{
-			string value(*connection->value);
-			std::transform(value.begin(), value.end(), value.begin(), (int(*)(int)) tolower);
-			return value.find("keep-alive") != string::npos;
-		}
-		return false;
+    Entry *connection = other.get("Connection");
+    if(connection)
+    {
+      string value(*connection->value);
+      std::transform(value.begin(), value.end(), value.begin(), (int(*)(int)) tolower);
+      return value.find("keep-alive") != string::npos;
+    }
+    return false;
 }
 
 /*!
@@ -148,8 +148,8 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
  {
    ostringstream s;
    s << rangeByteBegin;
-	 if(out)
-		 out->assign(s.str());
+   if(out)
+     out->assign(s.str());
    return 0; 
  }
 
@@ -157,8 +157,8 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
  {
    ostringstream s;
    s << rangeByteEnd;
-	 if(out)
-		 out->assign(s.str());
+   if(out)
+     out->assign(s.str());
    return 0; 
  }
 
@@ -166,8 +166,8 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    HttpRequestHeader::Entry *e = other.get(name);
    if(e)
    {
-		 if(out)
-			 out->assign(*(e->value));      
+     if(out)
+       out->assign(*(e->value));      
      return (e->value);
    }
    return 0;
@@ -184,31 +184,31 @@ string* HttpRequestHeader::setValue(const char* name, const char* in)
 {
   if(!strcmpi(name, "cmd"))
   {
-		cmd.assign(in);
+    cmd.assign(in);
     return &cmd;
   }  
 
   if(!strcmpi(name, "ver"))
   { 
-		ver.assign(in);
+    ver.assign(in);
     return &ver;
   }
  
   if(!strcmpi(name, "uri"))
   { 
-		uri.assign(in);
+    uri.assign(in);
     return &uri;
   } 
  
   if(!strcmpi(name, "uriOpts"))
   { 
-		uriOpts.assign(in);
+    uriOpts.assign(in);
     return &uriOpts;
   } 
 
  if(!strcmpi(name, "Authorization"))
  { 
-	 auth.assign(in);
+   auth.assign(in);
    return &auth;
  }
  
@@ -240,16 +240,16 @@ string* HttpRequestHeader::setValue(const char* name, const char* in)
    HttpRequestHeader::Entry *e = other.get(name);
    if(e)
    {
-		 e->value->assign(in);
+     e->value->assign(in);
      return (e->value);
    }
-	 else
-	 {
-		 e = new HttpRequestHeader::Entry;
-		 e->name->assign(name);
-		 e->value->assign(in);
-		 other.put(*e->name, e);
-	 }
+   else
+   {
+     e = new HttpRequestHeader::Entry;
+     e->name->assign(name);
+     e->value->assign(in);
+     other.put(*e->name, e);
+   }
    return 0;
  }
 

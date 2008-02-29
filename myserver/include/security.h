@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../stdafx.h"
 #include "../include/connection.h"
 #include "../include/xml_parser.h"
+#include "../include/hash_map.h"
 #include "../include/http_headers.h"
 #ifndef DO_NOT_USE_SSL
 #include<openssl/ssl.h>

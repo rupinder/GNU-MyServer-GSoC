@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef HTTP_H
 #define HTTP_H
 #include "../stdafx.h"
+#include "../include/http_thread_context.h"
 #include "../include/protocol.h"
 #include "../include/http_headers.h"
 #include "../include/security_cache.h"

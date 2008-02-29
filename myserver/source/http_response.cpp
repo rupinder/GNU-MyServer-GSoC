@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007 The MyServer Team
+Copyright (C) 2005, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -36,7 +36,7 @@ HttpResponseHeader::HttpResponseHeader()
  */
 HttpResponseHeader::~HttpResponseHeader()
 {
-	free();
+  free();
 }
 
 /*!
@@ -44,26 +44,26 @@ HttpResponseHeader::~HttpResponseHeader()
  */
 void HttpResponseHeader::free()
 {
-	ver.clear();	
-	serverName.clear();
-	contentType.clear();
-	connection.clear();
-	mimeVer.clear();
-	cookie.clear();
-	contentLength.clear();
-	errorType.clear();
-	location.clear();
-	date.clear();		
-	auth.clear();
-	dateExp.clear();
-	{
-		HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
-		for(;it != other.end(); it++){
-			delete (*it);
-		}
-	}
-	other.clear();
-	lastModified.clear();
+  ver.clear();  
+  serverName.clear();
+  contentType.clear();
+  connection.clear();
+  mimeVer.clear();
+  cookie.clear();
+  contentLength.clear();
+  errorType.clear();
+  location.clear();
+  date.clear();    
+  auth.clear();
+  dateExp.clear();
+  {
+    HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
+    for(;it != other.end(); it++){
+      delete (*it);
+    }
+  }
+  other.clear();
+  lastModified.clear();
 }
 
 /*!
@@ -162,16 +162,16 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
     return &auth;
   }
 
-	{
-		HttpResponseHeader::Entry *e = other.get(name);
-		if(e)
-		{
-			if(out)
-				out->assign(*(e->value));
-			return e->value;
-		}
-		return 0;
-	}
+  {
+    HttpResponseHeader::Entry *e = other.get(name);
+    if(e)
+    {
+      if(out)
+        out->assign(*(e->value));
+      return e->value;
+    }
+    return 0;
+  }
 } 
 
 
@@ -231,7 +231,7 @@ string* HttpResponseHeader::setValue(const char* name, const char* in)
   if(!strcmpi(name, "Last-Modified"))
   { 
     lastModified.assign(in);
-		return &lastModified;
+    return &lastModified;
   }
 
   if(!strcmpi(name, "Location"))
@@ -242,13 +242,13 @@ string* HttpResponseHeader::setValue(const char* name, const char* in)
 
   if(!strcmpi(name, "Date"))
   { 
-		date.assign(in);
+    date.assign(in);
     return &date;
   }
 
   if(!strcmpi(name, "Date-Expires"))
   { 
-		dateExp.assign(in);
+    dateExp.assign(in);
     return &dateExp;
   }
 
@@ -262,17 +262,17 @@ string* HttpResponseHeader::setValue(const char* name, const char* in)
    HttpResponseHeader::Entry *e = other.get(name);
    if(e)
    {
-		 e->value->assign(in);
+     e->value->assign(in);
      return (e->value);
    }
-	 else
-	 {
-		 e = new HttpResponseHeader::Entry;
-		 e->name->assign(name);
-		 e->value->assign(in);
-		 other.put(*e->name, e);
-	 }
+   else
+   {
+     e = new HttpResponseHeader::Entry;
+     e->name->assign(name);
+     e->value->assign(in);
+     other.put(*e->name, e);
+   }
 
-		return 0;
-	}
+    return 0;
+  }
 } 
