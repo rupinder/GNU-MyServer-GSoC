@@ -21,16 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/server.h"
 #include "../include/security.h"
 #include "../include/mime_utils.h"
-#include "../include/cgi.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
 #include "../include/clients_thread.h"
 #include "../include/sockets.h"
-#include "../include/wincgi.h"
-#include "../include/fastcgi.h"
 #include "../include/utility.h"
 #include "../include/md5.h"
-#include "../include/isapi.h"
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
 
@@ -42,6 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/isapi.h"
 #include "../include/http_file.h"
 #include "../include/http_dir.h"
+
+#include "../include/http_data_read.h"
 
 #include <string>
 #include <ostream>
@@ -697,378 +695,6 @@ HttpUserData::HttpUserData()
 HttpUserData::~HttpUserData()
 {
 
-}
-
-/*!
- *Read primitive post data as it is sent by the client without apply any filter
- *in a contiguous manner, first read from the memory buffer and after from the
- *socket.
- *\param inBuffer Memory buffer with first part of POST data.
- *\param inBufferPos inBuffer size, this value is modified by the function,
- *has to be 0 on first call.
- *\param inBufferSize inBuffer size.
- *\param inSocket Connection socket to read from.
- *\param outBuffer Out buffer where write.
- *\param outBufferSize outBuffer size.
- *\param nbr Number of bytes read.
- *\param timeout Timeout value to use on the socket.
- *\return Return 0 on success.
- */
-int Http::readContiguousPrimitivePostData(char* inBuffer,
-                                          u_long *inBufferPos,
-                                          u_long inBufferSize,
-                                          Socket *inSocket,
-                                          char* outBuffer,
-                                          u_long outBufferSize,
-                                          u_long* nbr,
-                                          u_long timeout)
-{
-  int ret;
-
-  *nbr = 0;
-  if(inBufferSize - *inBufferPos)
-  {
-    *nbr = min(outBufferSize, inBufferSize - *inBufferPos);
-    memcpy(outBuffer, inBuffer + *inBufferPos, *nbr);
-    *inBufferPos += *nbr;
-  }
-
-  /*
-   * No other space in the out buffer, return from the function with success.
-   */
-  if(outBufferSize == *nbr)
-    return 0;
-
-  if(!inSocket->bytesToRead())
-    return 0;
-
-  ret = inSocket->recv(outBuffer + *nbr,  outBufferSize - *nbr, timeout);
-
-  if(ret == -1 || !ret)
-    return -1;
-
-  *nbr += ret;
-
-  return 0;
-}
-
-/*!
- *Read post data using the chunked transfer encoding.
- *This function uses the same arguments of readContiguousPrimitivePostData with
- *the additional destination file.
- *\param inBuffer Memory buffer with first part of POST data.
- *\param inBufferPos inBuffer size, this value is modified by the function,
- *has to be 0 on first call.
- *\param inBufferSize inBuffer size.
- *\param inSocket Connection socket to read from.
- *\param outBuffer Out buffer where write.
- *\param outBufferSize outBuffer size.
- *\param outNbr Number of bytes read.
- *\param timeout Timeout value to use on the socket.
- *\return Return 0 on success.
- *\return -1 on internal error.
- *\return Any other value is the HTTP error code.
- */
-int Http::readChunkedPostData(char* inBuffer,
-                              u_long *inBufferPos,
-                              u_long inBufferSize,
-                              Socket *inSocket,
-                              char* outBuffer,
-                              u_long outBufferSize,
-                              u_long* outNbr,
-                              u_long timeout,
-                              File* out)
-{
-  u_long nbr;
-  *outNbr = 0;
-
-  for(;;)
-  {
-    u_long chunkNbr;
-    u_long dataToRead;
-    u_long nbw;
-    u_long bufferlen;
-    char buffer[20];
-    char c;
-    bufferlen = 0;
-    buffer[0] = '\0';
-    for(;;)
-    {
-      if(readContiguousPrimitivePostData(inBuffer,
-                                         inBufferPos,
-                                         inBufferSize,
-                                         inSocket,
-                                         &c,
-                                         1,
-                                         &nbr,
-                                         timeout))
-        return -1;
-
-      if(nbr != 1)
-        return -1;
-
-      if((c != '\r') && (bufferlen < 19))
-      {
-        buffer[bufferlen++] = c;
-        buffer[bufferlen] = '\0';
-      }
-      else
-        break;
-    }
-
-    /* Read the \n character too. */
-    if(readContiguousPrimitivePostData(inBuffer,
-                                       inBufferPos,
-                                       inBufferSize,
-                                       inSocket,
-                                       &c,
-                                       1,
-                                       &nbr,
-                                       timeout))
-       return -1;
-
-    dataToRead = (u_long)hexToInt(buffer);
-
-    /*! The last chunk length is 0.  */
-    if(dataToRead == 0)
-      break;
-
-    chunkNbr = 0;
-
-    while(chunkNbr < dataToRead)
-    {
-      u_long rs = min(outBufferSize , dataToRead - chunkNbr);
-
-      if(readContiguousPrimitivePostData(inBuffer,
-                                         inBufferPos,
-                                         inBufferSize,
-                                         inSocket,
-                                         outBuffer,
-                                         rs,
-                                         &nbr,
-                                         timeout))
-      {
-        return -1;
-      }
-
-      if(nbr == 0)
-        return -1;
-
-      chunkNbr += nbr;
-
-      if(out->writeToFile(outBuffer, nbr, &nbw))
-      {
-        return -1;
-      }
-
-      if(nbw != nbr)
-        return -1;
-
-      *outNbr += nbw;
-
-      /* Read final chunk \r\n.  */
-      if(readContiguousPrimitivePostData(inBuffer,
-                                         inBufferPos,
-                                         inBufferSize,
-                                         inSocket,
-                                         outBuffer,
-                                         2,
-                                         &nbr,
-                                         timeout))
-      {
-        return -1;
-      }
-
-    }
-
-  }
-  return 0;
-}
-
-/*!
- *Read POST data from the active connection.
- *\param td The Active thread context.
- *\param retcmd The protocol exit code if the response is yet processed.
- *\return Return 0 on success and if the response was not sent to the client.
- *\return Any other value is an error.
- */
-int Http::readPostData(HttpThreadContext* td, int* retcmd)
-{
-  int retvalue = -1;
-  int contentLength = -1;
-
-  u_long nbw = 0;
-  u_long bufferDataSize = 0;
-
-
-  u_long timeout = MYSERVER_SEC(10);
-  u_long inPos = 0;
-  u_long nbr;
-  u_long length;
-
-  HttpRequestHeader::Entry *contentType =
-    td->request.other.get("Content-Type");
-
-  HttpRequestHeader::Entry *encoding =
-    td->request.other.get("Transfer-Encoding");
-
-  /* Specify a type if it not specified by the client.  */
-  if(contentType == 0)
-  {
-    contentType = new HttpRequestHeader::Entry();
-    contentType->name->assign("Content-Type");
-    contentType->value->assign("application/x-www-form-urlencoded");
-  }
-  else if(contentType->value->length() == 0)
-  {
-    contentType->value->assign("application/x-www-form-urlencoded");
-  }
-  td->request.uriOptsPtr = &(td->buffer->getBuffer())[td->nHeaderChars];
-  td->buffer->getBuffer()[td->nBytesToRead < td->buffer->getRealLength() - 1
-                   ? td->nBytesToRead : td->buffer->getRealLength()-1] = '\0';
-
-  if(td->request.contentLength.length())
-  {
-    contentLength = atoi(td->request.contentLength.c_str());
-    if(contentLength < 0)
-    {
-      retvalue = raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
-      return 1;
-    }
-  }
-
-  /*!
-   *If the connection is Keep-Alive be sure that the client specify the
-   *HTTP CONTENT-LENGTH field.
-   *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not
-   *always needed.
-   */
-  if(!contentLength && td->request.isKeepAlive())
-  {
-    HttpRequestHeader::Entry *content =
-      td->request.other.get("Content-Encoding");
-
-    if(content && (content->value->length() == '\0')
-           && (td->request.contentLength.length() == 0))
-    {
-      retvalue = raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
-      return 1;
-    }
-  }
-
-  /*!
-   *Create the file that contains the posted data.
-   *This data is the stdin file in the CGI.
-   */
-  if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_CREATE_ALWAYS |
-                            File::MYSERVER_OPEN_READ |
-                            File::MYSERVER_OPEN_WRITE))
-  {
-    *retcmd = ClientsThread::DELETE_CONNECTION;
-    retvalue = raiseHTTPError(500);
-    return 1;
-  }
-
-  length = contentLength;
-
-  bufferDataSize = (td->nBytesToRead < td->buffer->getRealLength() - 1
-                    ? td->nBytesToRead
-                    : td->buffer->getRealLength() - 1 ) - td->nHeaderChars;
-
-  /* If it is specified a transfer encoding read data using it.  */
-  if(encoding)
-  {
-    if(!encoding->value->compare("chunked"))
-    {
-
-      int ret = readChunkedPostData(td->request.uriOptsPtr,
-                                    &inPos,
-                                    bufferDataSize,
-                                    td->connection->socket,
-                                    td->buffer2->getBuffer(),
-                                    td->buffer2->getRealLength() - 1,
-                                    &nbr,
-                                    timeout,
-                                    &(td->inputData));
-      if(ret == -1)
-      {
-        td->inputDataPath.assign("");
-        td->outputDataPath.assign("");
-        td->inputData.closeFile();
-        *retcmd = ClientsThread::DELETE_CONNECTION;
-        return 1;
-      }
-      else if(ret)
-      {
-        retvalue = raiseHTTPError(ret);
-        *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-          : ClientsThread::DELETE_CONNECTION;
-        return 1;
-      }
-
-    }
-    else
-    {
-      *retcmd = ClientsThread::DELETE_CONNECTION;
-      retvalue = raiseHTTPError(501);
-      return 1;
-    }
-  }
-  /* If it is not specified an encoding, read the data as it is.  */
-  else for(;;)
-  {
-
-    if(readContiguousPrimitivePostData(td->request.uriOptsPtr,
-                                       &inPos,
-                                       bufferDataSize,
-                                       td->connection->socket,
-                                       td->buffer2->getBuffer(),
-                                       td->buffer2->getRealLength() - 1,
-                                       &nbr,
-                                       timeout))
-    {
-      td->inputData.closeFile();
-      FilesUtility::deleteFile(td->inputDataPath);
-      retvalue = raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
-      return 1;
-    }
-
-    if(nbr <= length)
-      length -= nbr;
-    else
-    {
-      td->inputData.closeFile();
-      FilesUtility::deleteFile(td->inputDataPath);
-      retvalue = raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
-      return 1;
-    }
-
-    td->buffer2->getBuffer()[nbr] = '\0';
-
-    if(nbr && td->inputData.writeToFile(td->buffer2->getBuffer(), nbr, &nbw))
-    {
-      td->inputDataPath.assign("");
-      td->outputDataPath.assign("");
-      td->inputData.closeFile();
-      *retcmd = ClientsThread::DELETE_CONNECTION;
-      return 1;
-    }
-
-    if(!length)
-      break;
-
-  }
-
-  td->inputData.setFilePointer(0);
-  return 0;
 }
 
 /*!
@@ -3077,4 +2703,191 @@ void Http::clean()
   delete fastcgi;
   delete httpFile;
   delete httpDir;
+}
+
+
+/*!
+ *Read POST data from the active connection.
+ *\param td The Active thread context.
+ *\param retcmd The protocol exit code if the response is yet processed.
+ *\return Return 0 on success and if the response was not sent to the client.
+ *\return Any other value is an error.
+ */
+int Http::readPostData(HttpThreadContext* td, int* retcmd)
+{
+  int retvalue = -1;
+  int contentLength = -1;
+
+  u_long nbw = 0;
+  u_long bufferDataSize = 0;
+
+
+  u_long timeout = MYSERVER_SEC(10);
+  u_long inPos = 0;
+  u_long nbr;
+  u_long length;
+
+  HttpRequestHeader::Entry *contentType =
+    td->request.other.get("Content-Type");
+
+  HttpRequestHeader::Entry *encoding =
+    td->request.other.get("Transfer-Encoding");
+
+  /* Specify a type if it not specified by the client.  */
+  if(contentType == 0)
+  {
+    contentType = new HttpRequestHeader::Entry();
+    contentType->name->assign("Content-Type");
+    contentType->value->assign("application/x-www-form-urlencoded");
+  }
+  else if(contentType->value->length() == 0)
+  {
+    contentType->value->assign("application/x-www-form-urlencoded");
+  }
+  td->request.uriOptsPtr = &(td->buffer->getBuffer())[td->nHeaderChars];
+  td->buffer->getBuffer()[td->nBytesToRead < td->buffer->getRealLength() - 1
+                   ? td->nBytesToRead : td->buffer->getRealLength()-1] = '\0';
+
+  if(td->request.contentLength.length())
+  {
+    contentLength = atoi(td->request.contentLength.c_str());
+    if(contentLength < 0)
+    {
+      retvalue = raiseHTTPError(400);
+      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
+        : ClientsThread::DELETE_CONNECTION;
+      return 1;
+    }
+  }
+
+  /*!
+   *If the connection is Keep-Alive be sure that the client specify the
+   *HTTP CONTENT-LENGTH field.
+   *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not
+   *always needed.
+   */
+  if(!contentLength && td->request.isKeepAlive())
+  {
+    HttpRequestHeader::Entry *content =
+      td->request.other.get("Content-Encoding");
+
+    if(content && (content->value->length() == '\0')
+           && (td->request.contentLength.length() == 0))
+    {
+      retvalue = raiseHTTPError(400);
+      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
+        : ClientsThread::DELETE_CONNECTION;
+      return 1;
+    }
+  }
+
+  /*!
+   *Create the file that contains the posted data.
+   *This data is the stdin file in the CGI.
+   */
+  if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_CREATE_ALWAYS |
+                            File::MYSERVER_OPEN_READ |
+                            File::MYSERVER_OPEN_WRITE))
+  {
+    *retcmd = ClientsThread::DELETE_CONNECTION;
+    retvalue = raiseHTTPError(500);
+    return 1;
+  }
+
+  length = contentLength;
+
+  bufferDataSize = (td->nBytesToRead < td->buffer->getRealLength() - 1
+                    ? td->nBytesToRead
+                    : td->buffer->getRealLength() - 1 ) - td->nHeaderChars;
+
+  /* If it is specified a transfer encoding read data using it.  */
+  if(encoding)
+  {
+    if(!encoding->value->compare("chunked"))
+    {
+
+      int ret = HttpDataRead::readChunkedPostData(td->request.uriOptsPtr,
+                                                  &inPos,
+                                                  bufferDataSize,
+                                                  td->connection->socket,
+                                                  td->buffer2->getBuffer(),
+                                                  td->buffer2->getRealLength() - 1,
+                                                  &nbr,
+                                                  timeout,
+                                                  &(td->inputData));
+      if(ret == -1)
+      {
+        td->inputDataPath.assign("");
+        td->outputDataPath.assign("");
+        td->inputData.closeFile();
+        *retcmd = ClientsThread::DELETE_CONNECTION;
+        return 1;
+      }
+      else if(ret)
+      {
+        retvalue = raiseHTTPError(ret);
+        *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
+          : ClientsThread::DELETE_CONNECTION;
+        return 1;
+      }
+
+    }
+    else
+    {
+      *retcmd = ClientsThread::DELETE_CONNECTION;
+      retvalue = raiseHTTPError(501);
+      return 1;
+    }
+  }
+  /* If it is not specified an encoding, read the data as it is.  */
+  else for(;;)
+  {
+
+    if(HttpDataRead::readContiguousPrimitivePostData(td->request.uriOptsPtr,
+                                                     &inPos,
+                                                     bufferDataSize,
+                                                     td->connection->socket,
+                                                     td->buffer2->getBuffer(),
+                                                     td->buffer2->getRealLength() - 1,
+                                                     &nbr,
+                                                     timeout))
+    {
+      td->inputData.closeFile();
+      FilesUtility::deleteFile(td->inputDataPath);
+      retvalue = raiseHTTPError(400);
+      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
+        : ClientsThread::DELETE_CONNECTION;
+      return 1;
+    }
+
+    if(nbr <= length)
+      length -= nbr;
+    else
+    {
+      td->inputData.closeFile();
+      FilesUtility::deleteFile(td->inputDataPath);
+      retvalue = raiseHTTPError(400);
+      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
+        : ClientsThread::DELETE_CONNECTION;
+      return 1;
+    }
+
+    td->buffer2->getBuffer()[nbr] = '\0';
+
+    if(nbr && td->inputData.writeToFile(td->buffer2->getBuffer(), nbr, &nbw))
+    {
+      td->inputDataPath.assign("");
+      td->outputDataPath.assign("");
+      td->inputData.closeFile();
+      *retcmd = ClientsThread::DELETE_CONNECTION;
+      return 1;
+    }
+
+    if(!length)
+      break;
+
+  }
+
+  td->inputData.setFilePointer(0);
+  return 0;
 }

@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=89
+UnitCount=90
 Type=1
 Ver=1
 ObjFiles=
@@ -928,6 +928,16 @@ BuildCmd=
 
 [Unit89]
 FileName=source\cgi_manager.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit90]
+FileName=source\http_data_read.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
