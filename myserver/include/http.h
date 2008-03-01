@@ -192,7 +192,6 @@ protected:
   void computeDigest(char*, char*);
   u_long checkDigest();
   string protocolPrefix;
-  int readPostData(HttpThreadContext* td, int* ret);
 };
 
 #endif

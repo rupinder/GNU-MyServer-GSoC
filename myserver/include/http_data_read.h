@@ -40,6 +40,8 @@ using namespace std;
 class HttpDataRead
 {
 public:
+  static int readPostData(HttpThreadContext* td, int* ret);
+
   static int readContiguousPrimitivePostData(char* inBuffer,
                                              u_long *inBufferPos,
                                              u_long inBufferSize,
