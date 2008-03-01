@@ -1657,8 +1657,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        (dynamicCommand && dynamicCommand->acceptData() ))
     {
       int ret;
-      /*! Be sure that the client can handle the 100 status code.  */
+      int httpErrorCode;
 
+      /*! Be sure that the client can handle the 100 status code.  */
       if(nbtr == td.nHeaderChars && td.request.ver.compare("HTTP/1.0"))
       {
         const char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
@@ -1670,10 +1671,22 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         return ClientsThread::INCOMPLETE_REQUEST;
       }
 
-      if(HttpDataRead::readPostData(&td, &ret))
+      ret = HttpDataRead::readPostData(&td, &httpErrorCode);
+
+      if(ret == -1)
       {
         logHTTPaccess();
-        return ret;
+
+        return ClientsThread::DELETE_CONNECTION;
+      }
+      else if(ret)
+      {
+        int retvalue = raiseHTTPError(httpErrorCode);
+
+        logHTTPaccess();
+
+        return retvalue ? ClientsThread::KEEP_CONNECTION
+                        : ClientsThread::DELETE_CONNECTION;
       }
     }
     else

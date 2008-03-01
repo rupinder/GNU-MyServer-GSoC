@@ -19,14 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/http.h"
 #include "../include/http_headers.h"
 #include "../include/server.h"
-#include "../include/security.h"
-#include "../include/mime_utils.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
-#include "../include/clients_thread.h"
 #include "../include/sockets.h"
 #include "../include/utility.h"
-#include "../include/md5.h"
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
 
@@ -243,13 +239,14 @@ int HttpDataRead::readChunkedPostData(char* inBuffer,
 /*!
  *Read POST data from the active connection.
  *\param td The Active thread context.
- *\param retcmd The protocol exit code if the response is yet processed.
- *\return Return 0 on success and if the response was not sent to the client.
- *\return Any other value is an error.
+ *\param httpRetCode The HTTP error to report to the client.
+ *\return Return 0 on success.
+ *\return Return -1 on irreversible error and 
+ *        the connection should be removed immediately.
+ *\return Any other value is a protocol error specified in HTTPRETCODE.
  */
-int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
+int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
 {
-  int retvalue = -1;
   int contentLength = -1;
 
   u_long nbw = 0;
@@ -278,6 +275,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
   {
     contentType->value->assign("application/x-www-form-urlencoded");
   }
+
   td->request.uriOptsPtr = &(td->buffer->getBuffer())[td->nHeaderChars];
   td->buffer->getBuffer()[td->nBytesToRead < td->buffer->getRealLength() - 1
                    ? td->nBytesToRead : td->buffer->getRealLength()-1] = '\0';
@@ -285,11 +283,10 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
   if(td->request.contentLength.length())
   {
     contentLength = atoi(td->request.contentLength.c_str());
+
     if(contentLength < 0)
     {
-      retvalue = td->http->raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
+      *httpRetCode = 400;
       return 1;
     }
   }
@@ -308,9 +305,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
     if(content && (content->value->length() == '\0')
            && (td->request.contentLength.length() == 0))
     {
-      retvalue = td->http->raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
+      *httpRetCode = 400;
       return 1;
     }
   }
@@ -323,8 +318,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
                             File::MYSERVER_OPEN_READ |
                             File::MYSERVER_OPEN_WRITE))
   {
-    *retcmd = ClientsThread::DELETE_CONNECTION;
-    retvalue = td->http->raiseHTTPError(500);
+    *httpRetCode = 500;
     return 1;
   }
 
@@ -339,7 +333,6 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
   {
     if(!encoding->value->compare("chunked"))
     {
-
       int ret = readChunkedPostData(td->request.uriOptsPtr,
                                     &inPos,
                                     bufferDataSize,
@@ -349,27 +342,24 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
                                     &nbr,
                                     timeout,
                                     &(td->inputData));
+
       if(ret == -1)
       {
         td->inputDataPath.assign("");
         td->outputDataPath.assign("");
         td->inputData.closeFile();
-        *retcmd = ClientsThread::DELETE_CONNECTION;
-        return 1;
+        return -1;
       }
       else if(ret)
       {
-        retvalue = td->http->raiseHTTPError(ret);
-        *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-          : ClientsThread::DELETE_CONNECTION;
+        *httpRetCode = ret;
         return 1;
       }
 
     }
     else
     {
-      *retcmd = ClientsThread::DELETE_CONNECTION;
-      retvalue = td->http->raiseHTTPError(501);
+      *httpRetCode = 501;
       return 1;
     }
   }
@@ -388,9 +378,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
     {
       td->inputData.closeFile();
       FilesUtility::deleteFile(td->inputDataPath);
-      retvalue = td->http->raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
+      *httpRetCode = 400;
       return 1;
     }
 
@@ -400,9 +388,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
     {
       td->inputData.closeFile();
       FilesUtility::deleteFile(td->inputDataPath);
-      retvalue = td->http->raiseHTTPError(400);
-      *retcmd = retvalue ? ClientsThread::KEEP_CONNECTION
-        : ClientsThread::DELETE_CONNECTION;
+      *httpRetCode = 400;
       return 1;
     }
 
@@ -413,13 +399,11 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* retcmd)
       td->inputDataPath.assign("");
       td->outputDataPath.assign("");
       td->inputData.closeFile();
-      *retcmd = ClientsThread::DELETE_CONNECTION;
-      return 1;
+      return -1;
     }
 
     if(!length)
       break;
-
   }
 
   td->inputData.setFilePointer(0);
