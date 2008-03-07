@@ -63,8 +63,8 @@ AC_SUBST(LDFLAGS)
 
 AC_ARG_WITH([root-prefix], [  --with-root-prefix=PREFIX override prefix variable for files to be placed in the root], root_prefix=$withval, root_prefix="")
 
-AC_ARG_ENABLE([control-gui], [  --with-control-gui myserver-configure], enable_control="yes", enable_control="")
-AC_ARG_ENABLE([ipv6], [  --with-ipv6 Build with IPv6 support], enable_ipv6="yes", enable_ipv6="")
+AC_ARG_ENABLE([control-gui], [  --enable-control-gui myserver-configure], enable_control="yes", enable_control="")
+AC_ARG_ENABLE([ipv6], [  --enable-ipv6 Build with IPv6 support], enable_ipv6="yes", enable_ipv6="")
 
 root_bindir='${root_prefix}/bin'
 root_sbindir='${root_prefix}/sbin'

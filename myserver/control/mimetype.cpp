@@ -1,6 +1,6 @@
 /*
  * MyServer
- * Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+ * Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -149,7 +149,7 @@ int MIMEtypeXML::load_core(XmlParser & parser)
 	       {
 		  if(lcur->children->content)
 		    {
-		       if(lstrcmpi((char*)lcur->children->content,"NONE") == 0)
+		       if(strcmpi((char*)lcur->children->content,"NONE") == 0)
 			 setManager(extNumber, NONE);
 		       else
 			 setManager(extNumber, (char*)lcur->children->content);
