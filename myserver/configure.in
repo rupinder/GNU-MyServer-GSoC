@@ -162,9 +162,11 @@ if test x$have_dl != xyes; then
 *** MSCGI support will not function
 ])
    DL_LIB=""
+   MAKE_MSCGI=no
 else
    AC_DEFINE(HAVE_DL, 1, [LibDL support, define to 1 to enable])
    DL_LIB="-ldl"
+   MAKE_MSCGI=yes
 fi
 if test x$no_dl_ld = xyes; then
    DL_LIB=""
