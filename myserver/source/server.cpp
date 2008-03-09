@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/http.h"	/*Include the HTTP protocol.  */
 #include "../include/https.h" /*Include the HTTPS protocol.  */
 #include "../include/control_protocol.h" /*Include the control protocol.  */
+#include "../include/ftp.h"
 
 #include "../include/security.h"
 #include "../include/stringutils.h"
@@ -1064,7 +1065,7 @@ u_long Server::getTimeout()
 int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 {
 
-	int ret = 1;
+	int ret = 0;
 	char ip[MAX_IP_STRING_LEN];
 	char localIp[MAX_IP_STRING_LEN];
 	u_short port;
@@ -1084,7 +1085,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 
 	if ( asockIn == NULL ||
 			 (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
-		return ret;
+		return 0;
 
 	memset(ip, 0, MAX_IP_STRING_LEN);
 	memset(localIp, 0, MAX_IP_STRING_LEN);
@@ -1110,7 +1111,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 											sizeof(sockaddr_in6),	ip, MAX_IP_STRING_LEN, 
 											NULL, 0, NI_NUMERICHOST);
 	if(ret)
-	   return ret;
+	   return 0;
 
 	if ( asockIn->ss_family == AF_INET )
 		dim = sizeof(sockaddr_in);
@@ -1127,7 +1128,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 											sizeof(sockaddr_in6), localIp, MAX_IP_STRING_LEN, 
 											NULL, 0, NI_NUMERICHOST);
 	if(ret)
-	   return ret;
+	   return 0;
 #else// !HAVE_IPV6
 	dim = sizeof(localSockIn);
 	s.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &dim);
@@ -1260,7 +1261,14 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 		newConnection->socket = new Socket(s);
 	}
 
-	connectionsScheduler.addWaitingConnection(newConnection, 0);
+	if ( newConnection->host->getProtocol() == PROTOCOL_FTP )
+	{
+		newConnection->setParsing(1);
+		newConnection->setForceParsing(1);
+		connectionsScheduler.addReadyConnection(newConnection, 0);//don't wait for ftp control connections
+	}
+	else
+		connectionsScheduler.addWaitingConnection(newConnection, 0);
 
 	nTotalConnections++;
 	/*
@@ -1693,6 +1701,7 @@ int Server::loadSettings()
     Http::loadProtocol(&languageParser);
     Https::loadProtocol(&languageParser);
     ControlProtocol::loadProtocol(&languageParser);
+    Ftp::loadProtocol(&languageParser);
 
 		/* Load the home directories configuration.  */
 		homeDir.load();

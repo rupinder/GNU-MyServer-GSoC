@@ -110,7 +110,7 @@ public:
 	/*! This buffer must be used only by the ClientsTHREAD class.  */
 	char *connectionBuffer;
 	
-	/*! Buffer for the connecion struct. Used by protocols.  */
+	/*! Buffer for the connection struct. Used by protocols.  */
 	ProtocolBuffer *protocolBuffer;
 
   Connection();

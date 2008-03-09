@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/sockets.h"
 #include "../include/stringutils.h"
 #include "../include/mem_buff.h"
+#include "../include/ftp.h"
 
 #ifdef NOT_WIN
 extern "C" {
@@ -56,6 +57,7 @@ ClientsThread::ClientsThread()
 	httpParser = 0;
 	httpsParser = 0;
 	controlProtocolParser = 0;
+	ftpParser = 0;
 }
 
 /*!
@@ -389,6 +391,23 @@ int ClientsThread::controlConnections()
 																												 (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
 																												 buffer.getRealLength(), buffer2.getRealLength(), 
 																												 nBytesToRead, id);
+			break;
+		case PROTOCOL_FTP:
+			/*
+			 *Parse FTP connection request.
+			 */
+			if(ftpParser == NULL)
+      			{
+				ftpParser = new Ftp();
+				if( ftpParser == NULL )
+					return 0;
+			}
+			retcode = ftpParser->controlConnection(c, 
+					(char*)buffer.getBuffer(), 
+					(char*)buffer2.getBuffer(), 
+					buffer.getRealLength(), 
+					buffer2.getRealLength(), 
+					nBytesToRead, id);
 			break;
 		default:
 			dp = Server::getInstance()->getDynProtocol(

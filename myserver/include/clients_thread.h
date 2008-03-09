@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/https.h"
 #include "../include/control_protocol.h"
 
+class Ftp;
+
 class  ClientsThread
 {
 	friend class Server;
@@ -88,7 +90,8 @@ private:
 	int isStopped();
 	Http *httpParser;
 	Https *httpsParser;
-  ControlProtocol  *controlProtocolParser;
+	ControlProtocol  *controlProtocolParser;
+	Ftp *ftpParser;
 	MemBuf buffer;
 	MemBuf buffer2;
 	int controlConnections();

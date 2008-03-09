@@ -78,11 +78,33 @@
   to save space, if you don't want to use gzip specify <span class="code">cycle_gzip="no"</span>. 
   <br />
   <hr />
+  Here is an example of a FTP virtual host:
+  <p class="code">&lt;VHOSTS&gt;<br />
+    -<br />
+    &nbsp;&nbsp;&nbsp; &lt;VHOST&gt;<br />
+    &lt;NAME&gt;Ftp connection&lt;/NAME&gt;<br />
+    &lt;PORT&gt;21&lt;/PORT&gt;<br />
+    &lt;IP&gt;127.0.0.1&lt;/IP&gt; <br />
+    &lt;PROTOCOL&gt;FTP&lt;/PROTOCOL&gt;<br />
+    &lt;DOCROOT&gt;web&lt;/DOCROOT&gt;<br />
+    &lt;SYSFOLDER&gt;system&lt;/SYSFOLDER&gt;<br />
+    &lt;HOST&gt;ftp.downloads.com&lt;/HOST&gt; <br />
+    &lt;ACCESSLOG&gt;logs/myServer.log&lt;/ACCESSLOG&gt;<br />
+    &lt;WARNINGLOG&gt;logs/myServer.err&lt;/WARNINGLOG&gt;<br />
+    &lt;/VHOST&gt;<br />
+    -<br />
+    &lt;/VHOSTS&gt;<br />
+  </p>
+  <br />
+  Tags' semantics are identical with first example.
+  <br />
+  Although FTP is used for public file sharing, restrictions may be imposed using <a href="security.htm">security</a> file.
+  <hr />
   <p class="center">MyServer gives you the option to enable the HTTP TRACE 
     command for each virtual host. All you need to do is edit the security.xml 
     file of the root of your virtual host (not a subdirectory in it! if 
     the file doesn't exist, you may create a new one, in the format described 
-    in the <a href="Security.htm">Security</a> section of this documentation), 
+    in the <a href="security.htm">Security</a> section of this documentation), 
     and add the parameter</p>
   <p class="code">&lt;HTTP TRACE="ON" /&gt;</p>
   <p class="center">Once you do that, you enable HTTP TRACE command. By 

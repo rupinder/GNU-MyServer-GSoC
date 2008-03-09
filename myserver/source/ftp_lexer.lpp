@@ -1,0 +1,209 @@
+%{
+#include "../include/ftp_common.h"
+#include <string>
+#include "../include/ftp_parser.h"
+%}
+
+%option reentrant
+%option bison-bridge
+%option noyywrap
+/* %option header-file= "../include/ftp_lexer.h" */
+%option case-insensitive
+%option bison-locations
+
+%s STRING
+%s NUMBER
+
+%%
+      /* Login */
+<INITIAL>USER	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return USER_FTP_COMMAND;
+	}
+<INITIAL>PASS	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return PASS_FTP_COMMAND;
+	}
+      /* Logout */
+<INITIAL>QUIT	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return QUIT_FTP_COMMAND;
+	}
+	/* Transfer parameters */
+<INITIAL>PORT	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(NUMBER);
+		return PORT_FTP_COMMAND;
+	}
+<INITIAL>PASV	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return PASV_FTP_COMMAND;
+	}
+<INITIAL>MODE	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return MODE_FTP_COMMAND;
+	}
+<INITIAL>TYPE	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return TYPE_FTP_COMMAND;
+	}
+<INITIAL>STRU	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return STRU_FTP_COMMAND;
+	}
+<INITIAL>ABOR	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return ABOR_FTP_COMMAND;
+	}
+<INITIAL>CWD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return CWD_FTP_COMMAND;
+	}
+<INITIAL>CDUP	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return CDUP_FTP_COMMAND;
+	}
+<INITIAL>PWD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return PWD_FTP_COMMAND;
+	}
+
+      /* File action commands */
+<INITIAL>REST	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return REST_FTP_COMMAND;
+	}
+<INITIAL>RETR	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return RETR_FTP_COMMAND;
+	}
+<INITIAL>LIST	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return LIST_FTP_COMMAND;
+	}
+<INITIAL>NLST	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return NLST_FTP_COMMAND;
+	}
+	/* Informational commands */
+<INITIAL>HELP	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return HELP_FTP_COMMAND;
+	}
+<INITIAL>SITE	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return HELP_FTP_COMMAND;// do the same as help
+	}
+<INITIAL>SYST	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return SYST_FTP_COMMAND;
+	}
+<INITIAL>STAT	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return STAT_FTP_COMMAND;
+	}
+	/* Miscellaneous commands*/
+<INITIAL>NOOP	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return NOOP_FTP_COMMAND;
+	}
+[[:punct:]]	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		if ( *yytext == ',' )
+			return ',';
+		else
+			return PUNCT_FTP_SEP;
+	}
+<NUMBER>[[:digit:]]+	{
+		yylval->m_nInt = atoi(yytext);
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		return NUMBER_FTP_ARG;
+	}
+[:alpha:]	{
+		yylval->m_nChar = *yytext;
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		return CHAR_FTP_ARG;
+	}
+\r\n	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_line = yylloc->first_line + 1;
+		yylloc->last_column = 0;
+		BEGIN(INITIAL);
+		return CRLF_FTP_SEP;
+	}
+[ ]+	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		return SPACE_FTP_SEP;
+	}
+<INITIAL,STRING>[[:alnum:][:punct:]]+	{
+		yylval->m_szStr = (char *)malloc(yyleng);
+       		strncpy(yylval->m_szStr, yytext, yyleng);
+       		//implement strndup to avoid aditional dependency for win32
+       		//yylval->m_szStr = strndup(yytext, yyleng);
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		return STRING_FTP_ARG;
+	}
+
+%%
