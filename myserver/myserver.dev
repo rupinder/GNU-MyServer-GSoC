@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=90
+UnitCount=93
 Type=1
 Ver=1
 ObjFiles=
@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@_@@_
+Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@ -lWs2_32_@@_
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -948,7 +948,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit91]
-FileName=source\ftp_parser.cpp
+FileName=source\ftp.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -958,7 +958,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit92]
-FileName=source\ftp.cpp
+FileName=source\ftp_parser.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -976,3 +976,4 @@ Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+

@@ -27,10 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/lfind.h"
 #include "../include/stringutils.h"
 #include <assert.h>
+
+#ifndef WIN32
 #include <netinet/in.h>
 #include <sys/sendfile.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // FtpHost class
@@ -948,14 +951,28 @@ int Ftp::OpenDataActive()
 	MYSERVER_SOCKADDRIN  localSockIn = { 0 };
 	int nDim = sizeof(sockaddr_in);
 	dataSocket.getsockname((MYSERVER_SOCKADDRIN *)&localSockIn, &nDim);
+#ifdef HAVE_IPV6
 	int nNameRet = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
-		sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
+   		sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
+
 	if ( nNameRet != 0 )
 	{
 		//TODO: errno code
 		ftp_reply(425);
 		return 0;
 	}
+
+#else
+	if ( dataSocket.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &nDim) != 0 )
+	{
+		//TODO: errno code
+		ftp_reply(425);
+		return 0;
+	}
+	strncpy(localIp,  inet_ntoa(((sockaddr_in *)&localSockIn)->sin_addr),
+					MAX_IP_STRING_LEN);
+#endif
+
 
 	pFtpUserData->m_pDataConnection->setPort(GetPortNo(pFtpUserData->m_cdh));
 	pFtpUserData->m_pDataConnection->setLocalPort(pFtpUserData->m_nLocalDataPort);
