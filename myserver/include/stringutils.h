@@ -46,7 +46,7 @@ const char* getLocalLogFormatDate(string& out, int len);
 const char* getGMTLogFormatDate(string& out, int len);
 
 time_t getTime(const char* str);
-inline time_t getTime(string const& str){ return getTime(str.c_str()); };
+inline time_t getTime(string const& str){ return getTime(str.c_str()); }
 
 void StrTrim(char* str, char* trimChars);
 
@@ -58,11 +58,11 @@ void translateEscapeString(char *TargetStr);
 void translateEscapeString(string& TargetStr);
 
 int hexToInt(const char *str);
-inline time_t hexToInt(string const& str){ return hexToInt(str.c_str()); };
+inline time_t hexToInt(string const& str){ return hexToInt(str.c_str()); }
 
 int getEndLine(const char* str, int max);
 inline int getEndLine(string const& str, int max)
-                {return getEndLine(str.c_str(), max); };
+                {return getEndLine(str.c_str(), max); }
 
 string trim(string const& s, string const&t = " ");
 string trimLeft ( string const &s , string const &t = " " );
