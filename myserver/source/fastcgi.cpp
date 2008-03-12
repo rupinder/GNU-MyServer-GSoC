@@ -823,7 +823,7 @@ void FastCgi::generateFcgiHeader( FcgiHeader &header, int iType,
 	header.contentLengthB0 = (u_char)((iContentLength ) & 0xff);
 	header.paddingLength = 0;
 	header.reserved = 0;
-};
+}
 
 /*!
  *Constructor for the FASTCGI class

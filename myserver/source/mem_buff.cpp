@@ -587,7 +587,7 @@ MemBuf::~MemBuf()
 {
 	if(m_buffer != NULL && m_bCanDelete)
 		mem_free(m_buffer);
-};
+}
 	
 void MemBuf::addBuffer(MemBuf *nmb) 
 {
@@ -605,7 +605,7 @@ int MemBuf::free()
     return 0;
   }
   return 1;
-};
+}
 /*!
 *Get the real allocated size.
 */
@@ -617,7 +617,7 @@ u_int MemBuf::getRealLength()
 u_int MemBuf::find(MemBuf *smb, u_int start) 
 {
 	return find(smb->m_buffer, smb->m_nSize, start);
-};
+}
 char& MemBuf::getAt(u_int nIndex) 
 {
 #ifdef ASSERT
@@ -625,11 +625,11 @@ char& MemBuf::getAt(u_int nIndex)
 	ASSERT(nIndex <= m_nSize); 
 #endif
 	return *(m_buffer + nIndex);
-};
+}
 char& MemBuf::operator[](u_int nIndex) 
 {
 	return getAt(nIndex);
-};
+}
 
 u_int MemBuf::getLength()
 {

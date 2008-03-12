@@ -71,7 +71,7 @@ u_long Gzip::initialize()
 	return 0;
 #endif
 
-};
+}
 
 #ifdef GZIP_CHECK_BOUNDS	
 u_long Gzip::compressBound(int size)

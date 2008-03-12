@@ -54,7 +54,7 @@ u_long GzipDecompress::initialize()
 	return 0;
 #endif
 
-};
+}
 
 /*!
  *Decompress the in buffer to the out buffer using the gzip compression.
