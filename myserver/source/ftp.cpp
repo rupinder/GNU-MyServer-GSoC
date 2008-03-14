@@ -47,6 +47,20 @@ void SetFtpHost(FtpHost &out, const FtpHost &in)
 	out.p2 = in.p2;
 }
 
+void SetFtpHost(FtpHost &out, const char *szIn)
+{
+	std::stringstream ss;
+	char *szLocalIn = strdup(szIn);
+	char *tok = strtok(szLocalIn, ",.");
+	while ( tok != NULL )
+	{
+		ss << tok << " ";
+		tok = strtok(NULL, ",.");
+	}
+	ss >> out.h1 >> out.h2 >> out.h3 >> out.h4 >> out.p1 >> out.p2;
+	free(szLocalIn);
+}
+
 const char *GetIpAddr(const FtpHost &host)
 {
 	std::ostringstream sRet;
@@ -57,6 +71,22 @@ const char *GetIpAddr(const FtpHost &host)
 int GetPortNo(const FtpHost &host)
 {
 	return ((host.p1 << 8) + host.p2);
+}
+
+std::string GetPortNo(unsigned int nPort)
+{
+	unsigned int hiByte = (nPort & 0x0000ff00) >> 8;
+	unsigned int loByte = nPort & 0x000000ff;
+	std::ostringstream out;
+	out << hiByte << "," << loByte;
+	return out.str();
+}
+
+std::string GetHost(const FtpHost &host)
+{
+	std::ostringstream s;
+	s << host.h1 << ',' << host.h2 << ',' << host.h3 << ',' << host.h4 << ',' << host.p1 << ',' << host.p2;
+	return s.str().c_str();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -135,6 +165,7 @@ USER, PASS, PORT, TYPE, RETR, QUIT\r\n\
 	{ 220, "Service ready for new user." },
 	{ 221, "Goodbye." },
 	{ 226, "Closing data connection." },
+	{ 227, "Entering passive mode. %s" },
 	{ 230, "User logged in, proceed."},
 	{ 250, "Requested file action okay, completed."},
 	{ 257, "PATHNAME created" },
@@ -159,9 +190,12 @@ USER, PASS, PORT, TYPE, RETR, QUIT\r\n\
 // Ftp class
 
 bool Ftp::m_bAnonymousNeedPass = false;
+int Ftp::FIRST_PASV_PORT = 60000;
+int Ftp::LAST_PASV_PORT = 65000;
 
 Ftp::Ftp()
 {
+	m_nPassivePort = Ftp::FIRST_PASV_PORT;
 }
 
 Ftp::~Ftp()
@@ -181,10 +215,10 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 	if ( pFtpUserData == NULL )
 		return ClientsThread::DELETE_CONNECTION;
 
-	// check if ftp is buisy(return 120) or unavailable(return 421)
+	// check if ftp is busy(return 120) or unavailable(return 421)
 	if ( pFtpUserData->m_nFtpState == FtpUserData::BUISY )
 	{
-		// TODO: really compute buisy time interval
+		// TODO: really compute busy time interval
 		std::string sTempText;
 		get_ftp_reply(120, sTempText);
 		std::string::size_type n = sTempText.find("%s");
@@ -275,7 +309,7 @@ int Ftp::get_ftp_reply(int nReplyCode, std::string &sReply)
 
 int Ftp::PrintError(const char *msg)
 {
-	printf("eroare: %s", msg);
+	printf("error: %s", msg);
 	return 1;
 }
 
@@ -343,12 +377,56 @@ void Ftp::Port(const FtpHost &host)
 	ftp_reply(200);
 }
 
-void Ftp::Pasv(const FtpHost &host)
+void Ftp::Pasv()
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	SetFtpHost(pFtpUserData->m_cdh, host);
-	ftp_reply(200);
+	std::string sHost = td.pConnection->getLocalIpAddr();
+	sHost += "," + GetPortNo(m_nPassivePort++);
+	SetFtpHost(pFtpUserData->m_cdh, sHost.c_str());
+
+	pFtpUserData->m_bPassiveSrv = true;
+	if ( !UserLoggedIn() || OpenDataConnection() == 0 )
+	{
+		CloseDataConnection();
+		return;
+	}
+
+	std::string sTempText;
+	get_ftp_reply(227, sTempText);
+	std::string::size_type n = sTempText.find("%s");
+	if ( n != std::string::npos )
+#ifdef WIN32
+		sTempText.replace(n, 2, GetHost(pFtpUserData->m_cdh));
+#else
+		sTempText.replace(n, 2, GetHost(pFtpUserData->m_cdh));
+#endif //WIN32
+	ftp_reply(227, sTempText);
+
+	//wait for incoming connection
+	int timeoutvalue = 3;
+#ifdef __linux__
+	timeoutvalue = 1;
+#endif
+#ifdef __HURD__
+	timeoutvalue = 5;
+#endif
+	MYSERVER_SOCKADDRIN asockIn;
+	int asockInLen = 0;
+	Socket asock;
+	if ( pFtpUserData->m_pDataConnection->socket->dataOnRead(timeoutvalue, 0) == 1 )
+	{
+		asockInLen = sizeof(sockaddr_in);
+		asock = pFtpUserData->m_pDataConnection->socket->accept(&asockIn, &asockInLen);
+		if ( asock.getHandle() == (SocketHandle)INVALID_SOCKET )
+			return;
+
+		pFtpUserData->m_pDataConnection->socket->shutdown(SD_BOTH);
+		pFtpUserData->m_pDataConnection->socket->closesocket();
+		delete pFtpUserData->m_pDataConnection->socket;
+		pFtpUserData->m_pDataConnection->socket = new Socket(asock);
+	}
+	pFtpUserData->m_bPassiveSrv = false;
 }
 
 void Ftp::Retr(const std::string &sPath)
@@ -360,14 +438,6 @@ void Ftp::Retr(const std::string &sPath)
 		return;
 	}
 
-	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
-	if ( pFtpUserData == NULL )
-	{
-		assert(pFtpUserData != NULL);
-		ftp_reply(451);
-		CloseDataConnection();
-		return;
-	}
 	std::string sLocalDir, sLocalFileName;
 	FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
 
@@ -379,6 +449,8 @@ void Ftp::Retr(const std::string &sPath)
 		return;
 	}
 
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
 	SecurityToken st;
 	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
 	{
@@ -748,8 +820,6 @@ bool Ftp::UserLoggedIn()
 		ftp_reply(530);
 		return false;
 	}
-	if ( pFtpUserData->m_nFtpState != FtpUserData::USER_LOGGED_IN)
-		return false;//TODO: handle all cases and reply accordingly
 	return true;
 }
 
@@ -828,7 +898,6 @@ int Ftp::OpenDataConnection()
 		return 1;
 	}
 
-	ftp_reply(150);
 	int nRet = pFtpUserData->m_bPassiveSrv ? OpenDataPassive() : OpenDataActive();
 	if ( nRet == 0 )
 		ftp_reply(425);
@@ -837,98 +906,35 @@ int Ftp::OpenDataConnection()
 	return nRet;
 }
 
-#ifdef WIN32
-unsigned int __stdcall listenData(void *argv)
-#else
-void *listenData(void *argv)
-#endif //WIN32
-{
-	return 0;
-}
-
 int Ftp::OpenDataPassive()
 {
+	Server* server = Server::getInstance();
+	if ( server == NULL )
+		return 0;
+
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	Server* server = Server::getInstance();
 
-	Socket dataSocket;
-	dataSocket.socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (dataSocket.getHandle() == (SocketHandle)INVALID_SOCKET)
-	{
-		server->logPreparePrintError();
-		//TODO: create an error message for this condition
-		//server->logWriteln(languageParser->getValue("ERR_OPENP"));
-		server->logEndPrintError();
-	}
-
-	MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
-	//server->logWriteln(languageParser->getValue("MSG_SSOCKRUN"));
-	((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
-	((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
-		inet_addr(GetIpAddr(pFtpUserData->m_cdh));
-	((sockaddr_in*)(&sockServerSocketIPv4))->sin_port =
-		htons((u_short)GetPortNo(pFtpUserData->m_cdh));
-
-#ifdef NOT_WIN
-	/*
-	 *Under the unix environment the application needs some time before
-	 * create a new socket for the same address.
-	 *To avoid this behavior we use the current code.
-	 */
-	int optvalReuseAddr = 1;
-	if(dataSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 
-		(const char *)&optvalReuseAddr, sizeof(optvalReuseAddr)) < 0)
-	{
-		server->logPreparePrintError();
-		//TODO: create an error message for this condition
-		//server->logWriteln(languageParser->getValue("ERR_ERROR"));
-		server->logEndPrintError();
-	}
-#endif
-	/*
-	 *Bind data port.
-	 */
-	//server->logWriteln(languageParser->getValue("MSG_BIND_PORT"));
-	if (dataSocket.bind(&sockServerSocketIPv4, sizeof(sockaddr_in)) != 0)
-	{
-		server->logPreparePrintError();
-		//TODO: create an error message for this condition
-		//server->logWriteln(languageParser->getValue("ERR_BIND"));
-		server->logEndPrintError();
-	}
-	else
-		;//server->logWriteln(languageParser->getValue("MSG_PORT_BOUND"));
-	if ( dataSocket.listen(GetPortNo(pFtpUserData->m_cdh)) < 0 )
-	{
-		//TODO: add errno code
-		ftp_reply(425);
+	Socket *pSocket = new Socket();
+	pSocket->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if ( pSocket->getHandle() == (SocketHandle)INVALID_SOCKET )
 		return 0;
-	}
-	/*
-	 *Set connections listen queque to max allowable.
-	 */
-	//server->logWriteln(languageParser->getValue("MSG_SLISTEN"));
-	if (dataSocket.listen(SOMAXCONN))
-	{
-		server->logPreparePrintError();
-		//server->logWriteln(languageParser->getValue("ERR_LISTEN"));
-		server->logEndPrintError();
-	}
+	int nReuseAddr = 1;
+	MYSERVER_SOCKADDR_STORAGE storage = { 0 };
+	((sockaddr_in*)(&storage))->sin_family = AF_INET;
+	inet_aton(GetIpAddr(pFtpUserData->m_cdh), &((sockaddr_in*)(&storage))->sin_addr);
+	((sockaddr_in*)(&storage))->sin_port = htons(GetPortNo(pFtpUserData->m_cdh));
+	if ( pSocket->setsockopt(SOL_SOCKET, SO_REUSEADDR, (const char*)&nReuseAddr, sizeof(nReuseAddr)) < 0 )
+		return 0;
+	if ( pSocket->bind(&storage, sizeof(sockaddr_in)) != 0 || pSocket->listen(SOMAXCONN) != 0 )
+		return 0;
 
-	ostringstream portBuff;
-	portBuff << (u_int)GetPortNo(pFtpUserData->m_cdh);
-	string listenPortMsg;
-	//listenPortMsg.assign(languageParser->getValue("MSG_LISTEN"));
-	listenPortMsg.append(": ");
-	listenPortMsg.append(portBuff.str());
-	server->logWriteln(listenPortMsg.c_str());
-
-	pFtpUserData->m_pDataConnection->socket = new Socket(dataSocket);
-	ThreadID threadId = 0;
-	void *dataArgv = NULL;
-	Thread::create(&threadId, &::listenData, dataArgv);
-
+	pFtpUserData->m_pDataConnection->setPort(GetPortNo(pFtpUserData->m_cdh));
+	pFtpUserData->m_pDataConnection->setLocalPort(pFtpUserData->m_nLocalDataPort);
+	pFtpUserData->m_pDataConnection->setIpAddr(td.pConnection->getIpAddr());
+	pFtpUserData->m_pDataConnection->setLocalIpAddr(td.pConnection->getLocalIpAddr());
+	pFtpUserData->m_pDataConnection->host = td.pConnection->host;
+	pFtpUserData->m_pDataConnection->socket = pSocket;
 	return 1;
 }
 
@@ -936,6 +942,8 @@ int Ftp::OpenDataActive()
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
+
+	ftp_reply(150);
 
 	Socket dataSocket;
 	dataSocket.socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -946,41 +954,11 @@ int Ftp::OpenDataActive()
 		return 0;
 	}
 
-	char localIp[MAX_IP_STRING_LEN];
-	memset(localIp, 0, MAX_IP_STRING_LEN);
-	MYSERVER_SOCKADDRIN  localSockIn = { 0 };
-	int nDim = sizeof(sockaddr_in);
-	dataSocket.getsockname((MYSERVER_SOCKADDRIN *)&localSockIn, &nDim);
-#ifdef HAVE_IPV6
-	int nNameRet = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
-   		sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
-
-	if ( nNameRet != 0 )
-	{
-		//TODO: errno code
-		ftp_reply(425);
-		return 0;
-	}
-
-#else
-	if ( dataSocket.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &nDim) != 0 )
-	{
-		//TODO: errno code
-		ftp_reply(425);
-		return 0;
-	}
-	strncpy(localIp,  inet_ntoa(((sockaddr_in *)&localSockIn)->sin_addr),
-					MAX_IP_STRING_LEN);
-#endif
-
-
 	pFtpUserData->m_pDataConnection->setPort(GetPortNo(pFtpUserData->m_cdh));
 	pFtpUserData->m_pDataConnection->setLocalPort(pFtpUserData->m_nLocalDataPort);
 	pFtpUserData->m_pDataConnection->setIpAddr(td.pConnection->getIpAddr());
-	pFtpUserData->m_pDataConnection->setLocalIpAddr(localIp);
-	pFtpUserData->m_pDataConnection->host = 
-		Server::getInstance()->getVhosts()->getVHost(0, localIp,
-                                                            (u_short)m_nLocalControlPort);
+	pFtpUserData->m_pDataConnection->setLocalIpAddr(td.pConnection->getLocalIpAddr());
+	pFtpUserData->m_pDataConnection->host = td.pConnection->host;
 	pFtpUserData->m_pDataConnection->socket = new Socket(dataSocket);
 
 	return 1;
@@ -1545,7 +1523,7 @@ void Ftp::Stat(const std::string &sParam/* = ""*/)
 	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
 	{
 		std::ostringstream sStat;
-		sStat << "Transfering file: " << pFtpUserData->m_sCurrentFileName;
+		sStat << "Transferring file: " << pFtpUserData->m_sCurrentFileName;
 		sStat << " " << pFtpUserData->m_nBytesSent << " bytes transferred from " << pFtpUserData->m_nFileSize;
 		ftp_reply(213, sStat.str());
 	}
@@ -1555,3 +1533,4 @@ void Ftp::Stat(const std::string &sParam/* = ""*/)
 		ftp_reply(502);
 	}
 }
+

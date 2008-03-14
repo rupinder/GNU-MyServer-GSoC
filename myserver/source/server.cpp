@@ -1265,7 +1265,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 	{
 		newConnection->setParsing(1);
 		newConnection->setForceParsing(1);
-		connectionsScheduler.addReadyConnection(newConnection, 0);//don't wait for ftp control connections
+		connectionsScheduler.addReadyConnection(newConnection, 0);//don't wait for ftp connections
 	}
 	else
 		connectionsScheduler.addWaitingConnection(newConnection, 0);

@@ -119,6 +119,10 @@ public:
 	int PrintError(const char *msg);//TODO: change this fnc !!!
 	FtpThreadContext td;
 	int CloseDataConnection();
+
+	static int FIRST_PASV_PORT;
+	static int LAST_PASV_PORT;
+
 protected:
 	yyscan_t	m_scanner;
 	int OpenDataConnection();
@@ -132,13 +136,14 @@ protected:
 
 	static Mutex secCacheMutex;
 	static SecurityCache secCache;
+	int m_nPassivePort;
 
 // Ftp commands Handlers
 public:
 	void User(const std::string &sParam);
 	void Password(const std::string &sParam);
 	void Port(const FtpHost &host);
-	void Pasv(const FtpHost &host);
+	void Pasv();
 	int Type(const std::string &sParam);
 	int Type(const char chParam);
 	void Retr(const std::string &sPath);

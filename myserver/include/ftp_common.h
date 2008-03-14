@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __FTP_COMMON_H__
 #define __FTP_COMMON_H__
 
+#include <string>
+
 struct FtpHost
 {
 	int h1, h2, h3, h4;
@@ -26,6 +28,9 @@ struct FtpHost
 };
 
 void SetFtpHost(FtpHost &out, const FtpHost &in);
+void SetFtpHost(FtpHost &out, const char *szIn);
 const char *GetIpAddr(const FtpHost &host);
 int GetPortNo(const FtpHost &host);
+std::string GetPortNo(unsigned int nPort);
+std::string GetHost(const FtpHost &host);
 #endif //__FTP_COMMON_H__ 

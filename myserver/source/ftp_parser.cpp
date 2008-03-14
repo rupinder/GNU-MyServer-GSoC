@@ -1510,7 +1510,7 @@ yyreduce:
   case 7:
 #line 90 "ftp_parser.ypp"
     {
-		  pContext->ftp_reply(502);
+		  pContext->Pasv();
 		;}
     break;
 
