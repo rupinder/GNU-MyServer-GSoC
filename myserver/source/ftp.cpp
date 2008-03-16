@@ -234,7 +234,10 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 	pFtpUserData->m_nLocalDataPort = m_nLocalControlPort - 1;
 
 	if ( pFtpUserData->m_cwd.empty() && pConnection->host != NULL )//current dir not initialized
+  {
 		pFtpUserData->m_cwd = pConnection->host->getDocumentRoot();
+    FilesUtility::completePath(pFtpUserData->m_cwd);
+  }
 
 	//switch context
 	td.pConnection = pConnection;
@@ -850,8 +853,13 @@ bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
 	// verify if file is in ftp root folder
 	if ( pFtpUserData->m_cwd.empty() )//current dir not initialized
 	{
-		if ( pFtpUserData->m_pDataConnection != NULL && pFtpUserData->m_pDataConnection->host != NULL )
+		if ( pFtpUserData->m_pDataConnection != NULL && 
+         pFtpUserData->m_pDataConnection->host != NULL )
+    {
 			pFtpUserData->m_cwd = pFtpUserData->m_pDataConnection->host->getDocumentRoot();
+      FilesUtility::completePath(pFtpUserData->m_cwd);
+    }
+
 	}
 
 	std::string sDocRoot(td.pConnection->host->getDocumentRoot());
