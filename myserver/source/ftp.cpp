@@ -207,6 +207,9 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 {
 	if ( pConnection == NULL )
 		return ClientsThread::DELETE_CONNECTION;
+	Server* server = Server::getInstance();
+	if ( server == NULL )
+		return ClientsThread::DELETE_CONNECTION;
 
 	FtpUserData *pFtpUserData = NULL;
 	if ( pConnection->protocolBuffer == NULL )
@@ -216,8 +219,9 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 		return ClientsThread::DELETE_CONNECTION;
 
 	// check if ftp is busy(return 120) or unavailable(return 421)
-	if ( pFtpUserData->m_nFtpState == FtpUserData::BUISY )
+	if ( pConnection->getToRemove() == CONNECTION_REMOVE_OVERLOAD )
 	{
+		pFtpUserData->m_nFtpState = FtpUserData::BUISY;
 		// TODO: really compute busy time interval
 		std::string sTempText;
 		get_ftp_reply(120, sTempText);
@@ -226,8 +230,13 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 			sTempText.replace(n, 2, "10");
 		ftp_reply(120, sTempText);
 	}
-	if ( pFtpUserData->m_nFtpState == FtpUserData::UNAVAILABLE )
+
+	if ( server->isRebooting() != 0 )
+	{
+		pFtpUserData->m_nFtpState = FtpUserData::UNAVAILABLE;
 		ftp_reply(421);
+		return 0;
+	}
 
 	// init default local ports
 	m_nLocalControlPort = pConnection->getLocalPort();
