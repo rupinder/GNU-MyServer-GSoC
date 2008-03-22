@@ -13,10 +13,10 @@
 %locations
 
 %union {
-	int	m_nInt;
-	char	m_nChar;
-	char	*m_szStr;
-	FtpHost m_host;
+	int		m_nInt;
+	char		m_nChar;
+	char		m_szStr[PARSER_STR_LEN];
+	FtpHost 	m_host;
 }
 
 %{
@@ -57,6 +57,8 @@
 %token CWD_FTP_COMMAND
 %token CDUP_FTP_COMMAND
 %token PWD_FTP_COMMAND
+
+%token STOR_FTP_COMMAND
 
 /* Informational commands */
 %token HELP_FTP_COMMAND
@@ -177,6 +179,10 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		| CRLF_FTP_SEP
 		{
 			// ignore empty lines
+		}
+		| STOR_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+		  pContext->Stor($3);
 		}
 		;
 	/* ftp command arguments */

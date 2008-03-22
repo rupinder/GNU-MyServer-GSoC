@@ -124,6 +124,13 @@
 		BEGIN(STRING);
 		return NLST_FTP_COMMAND;
 	}
+<INITIAL>STOR	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return STOR_FTP_COMMAND;
+	}
 	/* Informational commands */
 <INITIAL>HELP	{
 		yylloc->first_line = yylloc->last_line;
@@ -165,7 +172,15 @@
 		if ( *yytext == ',' )
 			return ',';
 		else
-			return PUNCT_FTP_SEP;
+		{
+			memset(yylval->m_szStr, 0, PARSER_STR_LEN);
+       			strncpy(yylval->m_szStr, yytext, yyleng);
+			yylloc->first_line = yylloc->last_line;
+			yylloc->first_column = yylloc->last_column;
+			yylloc->last_column += yyleng;
+			return STRING_FTP_ARG;
+			//return PUNCT_FTP_SEP;
+		}
 	}
 <NUMBER>[[:digit:]]+	{
 		yylval->m_nInt = atoi(yytext);
@@ -196,10 +211,8 @@
 		return SPACE_FTP_SEP;
 	}
 <INITIAL,STRING>[[:alnum:][:punct:]]+	{
-		yylval->m_szStr = (char *)malloc(yyleng);
+		memset(yylval->m_szStr, 0, PARSER_STR_LEN);
        		strncpy(yylval->m_szStr, yytext, yyleng);
-       		//implement strndup to avoid aditional dependency for win32
-       		//yylval->m_szStr = strndup(yytext, yyleng);
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;

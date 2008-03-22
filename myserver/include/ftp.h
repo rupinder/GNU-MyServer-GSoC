@@ -93,13 +93,6 @@ struct FtpThreadContext
 	Ftp *pProtocolInterpreter;
 };
 
-#ifdef WIN32
-unsigned int __stdcall listenData(void *argv);
-#endif //WIN32
-#ifdef HAVE_PTHREADS
-void *listenData(void *argv);
-#endif //HAVE_PTHREADS
-
 class Ftp : public Protocol
 {
 public:
@@ -128,11 +121,10 @@ protected:
 	int OpenDataConnection();
 	bool UserLoggedIn();
 	bool GetLocalPath(const std::string &sPath, std::string &sOutPath);
-//	void SendAsciiFile(const std::string &sPath);
-//	void SendImageFile(const std::string &sPath);
 	int OpenDataPassive();
 	int OpenDataActive();
 	void EscapeTelnet(MemBuf &In, MemBuf &Out);
+	void RetrStor(bool bRetr, const std::string &sPath);
 
 	static Mutex secCacheMutex;
 	static SecurityCache secCache;
@@ -161,7 +153,13 @@ public:
 	void Syst();
 	void Stat(const std::string &sParam = "");
 
-	static bool m_bAnonymousNeedPass;
+	void Stor(const std::string &sPath);
+	void Dele(const std::string &sPath);
+	void Appe(const std::string &sPath);
+	void Mkd(const std::string &sPath);
+	void Rmd(const std::string &sPath);
+
+	static bool m_bAnonymousNeedPass, m_bEnableStoreCmds;
 	int m_nLocalControlPort;
 };
 
@@ -174,9 +172,13 @@ struct RetrWorkerThreadData
 #ifdef WIN32
 unsigned int __stdcall SendAsciiFile(void* pParam);
 unsigned int __stdcall SendImageFile(void* pParam);
+unsigned int __stdcall ReceiveAsciiFile(void* pParam);
+unsigned int __stdcall ReceiveImageFile(void* pParam);
 #elif HAVE_PTHREAD
 void* SendAsciiFile(void* pParam);
 void* SendImageFile(void* pParam);
+void* ReceiveAsciiFile(void* pParam);
+void* ReceiveImageFile(void* pParam);
 #endif //HAVE_PTHREAD
 
 void yyerror(YYLTYPE *pLoc, Ftp *pContext, const char *msg);

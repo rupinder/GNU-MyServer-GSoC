@@ -61,10 +61,11 @@
      CWD_FTP_COMMAND = 277,
      CDUP_FTP_COMMAND = 278,
      PWD_FTP_COMMAND = 279,
-     HELP_FTP_COMMAND = 280,
-     SYST_FTP_COMMAND = 281,
-     STAT_FTP_COMMAND = 282,
-     NOOP_FTP_COMMAND = 283
+     STOR_FTP_COMMAND = 280,
+     HELP_FTP_COMMAND = 281,
+     SYST_FTP_COMMAND = 282,
+     STAT_FTP_COMMAND = 283,
+     NOOP_FTP_COMMAND = 284
    };
 #endif
 /* Tokens.  */
@@ -90,10 +91,11 @@
 #define CWD_FTP_COMMAND 277
 #define CDUP_FTP_COMMAND 278
 #define PWD_FTP_COMMAND 279
-#define HELP_FTP_COMMAND 280
-#define SYST_FTP_COMMAND 281
-#define STAT_FTP_COMMAND 282
-#define NOOP_FTP_COMMAND 283
+#define STOR_FTP_COMMAND 280
+#define HELP_FTP_COMMAND 281
+#define SYST_FTP_COMMAND 282
+#define STAT_FTP_COMMAND 283
+#define NOOP_FTP_COMMAND 284
 
 
 
@@ -102,13 +104,13 @@
 typedef union YYSTYPE
 #line 15 "ftp_parser.ypp"
 {
-	int	m_nInt;
-	char	m_nChar;
-	char	*m_szStr;
-	FtpHost m_host;
+	int		m_nInt;
+	char		m_nChar;
+	char		m_szStr[PARSER_STR_LEN];
+	FtpHost 	m_host;
 }
 /* Line 1489 of yacc.c.  */
-#line 112 "../include/ftp_parser.h"
+#line 114 "../include/ftp_parser.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

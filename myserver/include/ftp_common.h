@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 
+#define PARSER_STR_LEN	512
+
 struct FtpHost
 {
 	int h1, h2, h3, h4;
